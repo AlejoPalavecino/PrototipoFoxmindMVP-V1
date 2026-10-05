@@ -5,11 +5,12 @@ import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
 import ts from 'typescript';
 
-// Progressive E3 coverage: only the current page and the optional profile leaf.
-// No future shell/controller/session/UI-barrel files and no browser module execution.
+// Progressive E5 coverage: current page, profile leaf and teacher controller.
+// No deferred shell/materials/invitation/student files or browser module execution.
 const pagePath = fileURLToPath(new URL('../../../views/docente/AulasDocente.tsx', import.meta.url));
 const leafPath = fileURLToPath(new URL('../components/teacher/TeacherClassroomDetailProfile.tsx', import.meta.url));
-const filenames = [pagePath, leafPath].filter(existsSync);
+const hookPath = fileURLToPath(new URL('../hooks/useTeacherClassroomDetail.ts', import.meta.url));
+const filenames = [pagePath, leafPath, hookPath].filter(existsSync);
 const program = ts.createProgram(filenames, {
   noEmit: true,
   jsx: ts.JsxEmit.Preserve,
@@ -135,4 +136,38 @@ test('current profile ownership is unique and the extracted leaf uses only exist
     (node.moduleSpecifier as ts.StringLiteral).text), [
     'react', 'motion/react', 'lucide-react', '../../../../components/ui/Toaster',
   ], 'No view, repository, session, controller or future data/type dependencies');
+});
+
+test('profile selection is supplied by the resolved unconditional controller at the existing detail mount', () => {
+  const page = program.getSourceFile(pagePath)!;
+  const detail = nodesMatching(page, (node): node is ts.FunctionDeclaration =>
+    ts.isFunctionDeclaration(node) && node.name?.text === 'AulaDetail')[0];
+  assert.ok(detail?.body);
+  const hook = program.getSourceFile(hookPath)!;
+  const controller = hook.statements.find((node): node is ts.FunctionDeclaration =>
+    ts.isFunctionDeclaration(node) && node.name?.text === 'useTeacherClassroomDetail')!;
+  assert.ok(controller?.name);
+  const first = detail.body.statements[0];
+  assert.ok(ts.isVariableStatement(first));
+  const binding = first.declarationList.declarations[0];
+  assert.ok(ts.isObjectBindingPattern(binding.name) && binding.initializer && ts.isCallExpression(binding.initializer));
+  assert.equal(resolvedSymbol(binding.initializer.expression), resolvedSymbol(controller.name));
+  assert.equal(binding.initializer.arguments[0].getText(), 'aula');
+  assert.equal(detail.body.statements.length, 2, 'Unconditional call then unchanged returned JSX');
+  const selected = binding.name.elements.find(item => item.name.getText() === 'selectedStudentProfile')!;
+  assert.ok(selected);
+  const consumers = nodesMatching(detail, (node): node is ts.JsxSelfClosingElement =>
+    ts.isJsxSelfClosingElement(node) && resolvedSymbol(node.tagName) === resolvedSymbol(profile().name!));
+  const student = consumers[0].attributes.properties.find(node => ts.isJsxAttribute(node) && node.name.getText() === 'student') as ts.JsxAttribute;
+  assert.equal(resolvedSymbol((student.initializer as ts.JsxExpression).expression!), resolvedSymbol(selected.name));
+  const selection = nodesMatching(controller, (node): node is ts.VariableDeclaration =>
+    ts.isVariableDeclaration(node) && ts.isArrayBindingPattern(node.name) && node.name.elements[0].getText() === 'selectedStudentProfile');
+  assert.equal(selection.length, 1);
+  assert.equal(selection[0].initializer!.getText(), 'useState<any | null>(null)');
+  const returned = controller.body!.statements.find(ts.isReturnStatement)!;
+  assert.ok(returned.expression && ts.isObjectLiteralExpression(returned.expression));
+  const property = returned.expression.properties.find(node => ts.isShorthandPropertyAssignment(node) && node.name.text === 'selectedStudentProfile') as ts.ShorthandPropertyAssignment;
+  const selectionBinding = (selection[0].name as ts.ArrayBindingPattern).elements[0];
+  assert.ok(ts.isBindingElement(selectionBinding));
+  assert.equal(checker.getShorthandAssignmentValueSymbol(property), resolvedSymbol(selectionBinding.name));
 });

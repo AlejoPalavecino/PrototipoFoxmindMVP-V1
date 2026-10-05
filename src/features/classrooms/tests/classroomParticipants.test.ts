@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
+import ts from 'typescript';
 
 const readSource = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf8');
 
@@ -26,12 +28,48 @@ test('student participant presentation retains normalized baseline JSX without i
   assert.doesNotMatch(source, /useState|useEffect|messagingStore|Repository|\.filter\(|onSelect/);
 });
 
-test('rendered participant lists keep distinct roster, search, view mode and callback ownership in each role view', () => {
+test('rendered participant lists keep distinct roster, search, view mode and callback ownership in current role owners', () => {
   const teacher = readSource('../../../views/docente/AulasDocente.tsx');
   const student = readSource('../../../views/alumno/AulasAlumno.tsx');
-  for (const [source, component] of [[teacher, 'TeacherParticipantList'], [student, 'StudentParticipantList']]) {
-    assert.match(source, /useState<'grid'\s*\|\s*'list'>\('grid'\)/);
-    assert.match(source, /\[studentSearchTerm, setStudentSearchTerm\] = useState\(''\)/);
+  // Resolve the hook actually called by the mounted teacher detail, not a detached
+  // source file that merely contains matching state names. No browser execution.
+  const pagePath = fileURLToPath(new URL('../../../views/docente/AulasDocente.tsx', import.meta.url));
+  const hookPath = fileURLToPath(new URL('../hooks/useTeacherClassroomDetail.ts', import.meta.url));
+  const program = ts.createProgram([pagePath, hookPath], {
+    noEmit: true, jsx: ts.JsxEmit.Preserve, target: ts.ScriptTarget.ESNext,
+    module: ts.ModuleKind.ESNext, moduleResolution: ts.ModuleResolutionKind.Bundler,
+  });
+  const checker = program.getTypeChecker();
+  const page = program.getSourceFile(pagePath)!;
+  const hook = program.getSourceFile(hookPath)!;
+  const detail = page.statements.find((node): node is ts.FunctionDeclaration =>
+    ts.isFunctionDeclaration(node) && node.name?.text === 'AulaDetail');
+  const controller = hook.statements.find((node): node is ts.FunctionDeclaration =>
+    ts.isFunctionDeclaration(node) && node.name?.text === 'useTeacherClassroomDetail');
+  assert.ok(detail?.body && controller?.name && controller.body);
+  const first = detail.body.statements[0];
+  assert.ok(ts.isVariableStatement(first));
+  const binding = first.declarationList.declarations[0];
+  assert.ok(ts.isObjectBindingPattern(binding.name) && binding.initializer && ts.isCallExpression(binding.initializer));
+  const imported = checker.getSymbolAtLocation(binding.initializer.expression)!;
+  assert.ok(imported.flags & ts.SymbolFlags.Alias);
+  assert.equal(checker.getAliasedSymbol(imported), checker.getSymbolAtLocation(controller.name));
+  assert.equal(binding.initializer.arguments[0].getText(), 'aula');
+  const returned = controller.body.statements.find(ts.isReturnStatement)!;
+  assert.ok(returned.expression && ts.isObjectLiteralExpression(returned.expression));
+  for (const name of ['students', 'studentSearchTerm', 'setStudentSearchTerm', 'alumnosViewMode',
+    'setAlumnosViewMode', 'setSelectedStudentProfile', 'handleGenerateReports', 'setIsInviteStudentModalOpen']) {
+    assert.ok(binding.name.elements.some(item => item.name.getText() === name), `Mounted detail consumes ${name}`);
+    const property = returned.expression.properties.find((node): node is ts.ShorthandPropertyAssignment =>
+      ts.isShorthandPropertyAssignment(node) && node.name.text === name);
+    assert.ok(property, `Actual controller returns ${name}`);
+    const symbol = checker.getShorthandAssignmentValueSymbol(property);
+    assert.equal(symbol?.valueDeclaration?.getSourceFile(), hook, `${name} remains hook-owned`);
+  }
+  const teacherState = controller.body.getText();
+  for (const [source, stateOwner, component] of [[teacher, teacherState, 'TeacherParticipantList'], [student, student, 'StudentParticipantList']]) {
+    assert.match(stateOwner, /useState<'grid'\s*\|\s*'list'>\('grid'\)/);
+    assert.match(stateOwner, /\[studentSearchTerm, setStudentSearchTerm\] = useState\(''\)/);
     const start = source.indexOf(`<${component}`);
     const wiring = source.slice(start, source.indexOf('/>', start));
     assert.match(wiring, /students=\{students\.filter\(s => s\.name\.toLowerCase\(\)\.includes\(studentSearchTerm\.toLowerCase\(\)\)\)\}/);
@@ -40,11 +78,11 @@ test('rendered participant lists keep distinct roster, search, view mode and cal
     assert.match(wiring, /onSearchChange=\{setStudentSearchTerm\}/);
     assert.match(wiring, /onViewModeChange=\{setAlumnosViewMode\}/);
   }
-  assert.match(teacher, /\[students, setStudents\] = useState\(sessionStudents\)/);
+  assert.match(teacherState, /\[students, setStudents\] = useState\(classroomDetailSession\.readStudents\(\)\)/);
   assert.match(teacher, /onSelect=\{setSelectedStudentProfile\}/);
   assert.match(teacher, /onGenerateReports=\{handleGenerateReports\}/);
   assert.match(teacher, /onInvite=\{\(\) => setIsInviteStudentModalOpen\(true\)\}/);
-  assert.match(teacher, /messagingStore\.sendClassroomInvitation\(/);
+  assert.match(teacherState, /messagingStore\.sendClassroomInvitation\(/);
   assert.match(student, /const students = \[/);
   assert.match(student, /name: 'Sofía Herrera \(Tú\)'/);
   assert.match(student, /messagingStore\.subscribe\(/);

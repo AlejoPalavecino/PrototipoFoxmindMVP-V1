@@ -138,3 +138,34 @@ test('active grading retains its local setter, feedback, breakdown and rendered 
   assert.equal(normalizedHash(grading[0]), 'fe08b64915fc01a2d906ee58eac84d0857d6a3dfd20cca2fc48d9e42b1054107');
   assert.equal(normalizedHash(drawers[0]), '3f62e12c5e1e743973af0a01c009c0d594064b452a142c9f83ef46b6b056ba52');
 });
+
+test('rendered active grading receives the controller local submission setter, not repository replacement', () => {
+  const hooks = sources.flatMap(source => nodesMatching(source, (node): node is ts.FunctionDeclaration =>
+    ts.isFunctionDeclaration(node) && node.name?.text === 'useTeacherClassroomDetail'));
+  assert.equal(hooks.length, 1);
+  const controller = hooks[0];
+  const state = nodesMatching(controller, (node): node is ts.VariableDeclaration =>
+    ts.isVariableDeclaration(node) && ts.isArrayBindingPattern(node.name) && node.name.elements[0].getText() === 'submissions');
+  assert.equal(state.length, 1);
+  const setter = (state[0].name as ts.ArrayBindingPattern).elements[1];
+  assert.ok(ts.isBindingElement(setter));
+  const returned = controller.body!.statements.find(ts.isReturnStatement)!;
+  assert.ok(returned.expression && ts.isObjectLiteralExpression(returned.expression));
+  const property = returned.expression.properties.find(node => ts.isShorthandPropertyAssignment(node) && node.name.text === 'setSubmissions') as ts.ShorthandPropertyAssignment;
+  assert.ok(property);
+  assert.equal(checker.getShorthandAssignmentValueSymbol(property), resolvedSymbol(setter.name));
+  const consumers = sources.flatMap(source => nodesMatching(source, (node): node is ts.JsxSelfClosingElement =>
+    ts.isJsxSelfClosingElement(node) && resolvedSymbol(node.tagName) === resolvedSymbol(details[0].name!) && isReturned(node)));
+  assert.equal(consumers.length, 1);
+  const consumer = consumers[0];
+  const attribute = consumer.attributes.properties.find(node => ts.isJsxAttribute(node) && node.name.getText() === 'setSubmissions') as ts.JsxAttribute;
+  const expression = (attribute.initializer as ts.JsxExpression).expression!;
+  const symbol = resolvedSymbol(expression)!;
+  const binding = symbol.valueDeclaration;
+  assert.ok(binding && ts.isBindingElement(binding) && ts.isObjectBindingPattern(binding.parent));
+  const declaration = binding.parent.parent;
+  assert.ok(ts.isVariableDeclaration(declaration) && declaration.initializer && ts.isCallExpression(declaration.initializer));
+  assert.equal(resolvedSymbol(declaration.initializer.expression), resolvedSymbol(controller.name!));
+  assert.equal(binding.name.getText(), property.name.text);
+  assert.doesNotMatch(controller.getText(), /submissionRepository\.replace/);
+});

@@ -3,19 +3,59 @@
 Use `src/features/classrooms` (headless `index.ts`) for domain types, repositories,
 pure operations and `getClassroomColorTheme`. Use `src/features/classrooms/ui` for
 role participant/activity lists, `TeacherClassroomList`, `TeacherClassroomCreateFlow`
-and `useTeacherClassroomCreation`. Messaging workflows remain outside this migration.
+and the creation/detail hooks. Invitation dispatch remains on the unchanged
+`messagingStore` bridge; coordination changes belong to T4.
 
-## Public import boundaries (T3e / E4)
+## Teacher detail controller (T3e / E5)
+
+`useTeacherClassroomDetail(aula)` now owns the actual teacher detail's 24 states,
+file ref, navigation effect and action callbacks. `AulaDetail` calls it unconditionally
+at the same mounted position, then returns its unchanged JSX. Materials, invitation,
+plan modal and shell/body remain inline until E6–E8; student owners wait E9–E11.
+The profile retains its direct leaf import and conditional, unkeyed mount.
+
+| Contract | Preserved behavior |
+|---|---|
+| Session | One volatile module roster/curriculum owner; reads return arrays by reference. Curriculum replacement retains the exact supplied array, including empty arrays. No subscription or per-classroom partition. |
+| Initialization | Teacher starts on `alumnos`; activity/submission reads stay lazy snapshots, roster/curriculum initialization stays eager. Curriculum copies unit records and completed-topic arrays while retaining topic references. Empty current units still yield `[undefined]`. |
+| Page | List and selection remain page-owned. Creation replaces session curriculum before prepending to the captured page list; it does not publish to catalogue/membership. |
+| Navigation | Task+subject wins over aula id even when lookup fails. Exact first matches remain case-sensitive. Activity title misses fall back to the first activity (or `undefined` for an empty list). The detail effect clears params with `setView('aulas', undefined)` and retains `[navigationParams, setView]`. |
+| Actions | Topic suggestions, report prompt, invitation parsing/payload/reset, material upload/delete/filter and local activity prepend/session write retain their original bodies. Clipboard callbacks and two uncancelled 2000 ms timers remain inline. |
+| Grading | The rendered active detail receives the hook's local submission setter, not a repository replacement. No persistence unification was added. |
+
+### Verification and progressive target reconciliation
+
+Before relocation, the baseline suite passed 88/88 and the focused current-symbol
+characterization passed 21/21 (seven new teacher tests plus existing composition,
+graph and dead-code tests). The teacher tests evaluate current controller statements
+with fake hooks, then the actual hook body/public helpers after extraction. They
+protect defaults, references, navigation branches, callback outcomes and normalized
+source fingerprints; they do not execute React lifecycle or browser interactions.
+Composition/dead-code tests additionally resolve the actual hook/profile/grading
+symbols and their setter wiring. Existing profile/grading fingerprints remain intact.
+
+The hook and session match the preserved corrected target byte-for-byte. E5 omits
+only the unused `studentDetailInitialTab` and `resolveStudentClassroom` declarations
+from their target modules until E9. The shared navigation payload already retains
+its narrow `aulaId` field. Only the current teacher exports are public; do not add
+future UI leaves or wildcard exports. Later closure must reconcile these deliberate
+progressive omissions and page wiring against the untouched full target. Tests/docs
+are intentional additions, not runtime target deviations.
+
+Browser/lifetime acceptance remains T8. Build, native review and commits are
+parent-owned; this structural extraction does not close T3e.
+
+## Public import boundaries (T3e / E4–E5)
 
 The headless entry point must not transitively load UI components or hooks. The
-separate UI entry point exposes only the seven existing presentation/hook exports;
-it adds no detail, membership or future composition exports. This split prevents
+separate UI entry point exposes exactly eight current presentation/hook exports,
+including the teacher detail hook; it adds no deferred composition exports. This split prevents
 shared domain consumers from pulling role UI back into their dependency graph.
 Feature internals import leaves, not the UI barrel. Existing shared wall/modal/detail
 consumers stay on the headless boundary; the profile keeps its direct leaf import.
 
 `classroomImportBoundaries.test.ts` checks the current tree for zero runtime cycles,
-transitive headless/UI separation, exactly seven UI exports and both role pages'
+transitive headless/UI separation, exactly eight UI exports and both role pages'
 UI import routing. It inspects in-memory TypeScript output, including static imports,
 reexports, side effects and literal dynamic/require edges; type-only edges are erased.
 Missing local source imports fail rather than silently disappearing. External packages,
@@ -79,8 +119,8 @@ page, so selecting detail does not reset form state. Feature modules never impor
 
 `createTeacherClassroom(form, now)` returns a classroom and the **entire replacement**
 curriculum; it does not persist or mutate catalogue/membership. The page callback
-replaces its existing module-scoped `sessionCurriculum` and prepends to its local list.
-Detail still copies that module value on mount, including its existing completed-topic
+calls `classroomDetailSession.replaceCurriculum` and prepends to its local list.
+The detail hook still projects that module value on mount, including its existing completed-topic
 initialization; `ClassroomCurriculaTab` and `CreateActivityModal` consume that local copy.
 There is deliberately no per-classroom curriculum store or catalogue publication.
 
@@ -135,7 +175,7 @@ component verification remains pending T8, and build belongs to the parent verif
   in the wizard, not in this pure mapper.
 - `mapCreatedActivity(data)` extracts the teacher assignment projection. It drops
   `startDate`, `topic` and `createdVia`, retains nested references, and copies all other
-  assigned fields. The page constructs it before the state updater as before, then
+  assigned fields. The teacher detail hook constructs it before the state updater as before, then
   prepends to that updater's local snapshot and replaces the session array there.
 - `createStudentActivities(submissions, studentId)` initializes fresh **separate**
   student fixtures at detail mount. These always had different descriptions,
@@ -181,7 +221,8 @@ not browser render/lifetime/navigation/toast proof. UI verification remains pend
 - Both participant rosters are actually rendered. `TeacherParticipantList` and
   `StudentParticipantList` own only toolbar/grid/table presentation. Their distinct
   fixtures, filtering/search/view mode, teacher selection/report/invite callbacks and
-  session/local state stay in the original role views. Teacher risk/DUA badges and
+  session/local state stay in the respective mounted detail owners (teacher hook,
+  unchanged student view). Teacher risk/DUA badges and
   full-name initials remain distinct from student two-initial avatars. The student
   cards still have no selection/message action. No roster repository was invented.
   Profile panel/message behavior, invitation payloads and messaging subscription
@@ -232,7 +273,8 @@ E3 does not split its responsibilities or redesign it.
 
 ### Preserved mock and lifetime contract
 
-- `AulaDetail` still owns `selectedStudentProfile` and renders the panel only when
+- The unconditionally called detail hook owns `selectedStudentProfile`; `AulaDetail`
+  renders the panel only when
   truthy, inside the same `AnimatePresence`, with the same student and close props
   and no key. Plan/message state remains local to that conditional panel instance,
   not the page or session. Closing clears selection; a different student prop while
@@ -257,7 +299,8 @@ that body/JSX, seven states, six callbacks, uncancelled timer and resolved rende
 consumer before/after relocation. Whole-body source fingerprinting includes comments;
 normalization ignores only CRLF and trailing line whitespace to match the target leaf.
 Ownership checks resolve the direct import to the new declaration, not a namesake.
-Tests read only the available page/profile sources, never future shell/controller files.
+E3 tests read the available page/profile sources. E5 adds current controller symbol
+checks, never deferred shell or student-controller files.
 Existing dead-code and participant tests are retained without changes.
 
 Remaining teacher source matches the baseline prefix with only the direct leaf import
