@@ -8,6 +8,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from '../ui/Toaster';
 import { StudentFoxyTutorDrawer } from './StudentFoxyTutorDrawer';
+import type { SubmissionDelivery } from '../../features/classrooms';
 
 interface StudentActivityDetailProps {
   activity: any;
@@ -19,7 +20,7 @@ interface StudentActivityDetailProps {
     name: string;
     duaProfile?: string[];
   };
-  onDeliver?: (submission: { attachedFile?: any; text?: string }) => void;
+  onDeliver?: (submission: SubmissionDelivery) => void;
 }
 
 export function StudentActivityDetail({

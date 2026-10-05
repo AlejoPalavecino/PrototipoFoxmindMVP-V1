@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { mockClassroomsAlumno, mockClassroomsDocente, addClassroomToAlumno, sharedActivities, sharedSubmissions, updateSharedSubmissions } from '../../mockData';
+import { mockClassroomsAlumno, mockClassroomsDocente, addClassroomToAlumno, sharedActivities } from '../../mockData';
+import { deliverSubmission, getClassroomColorTheme, submissionRepository } from '../../features/classrooms';
+import type { SubmissionDelivery } from '../../features/classrooms';
 import { Classroom } from '../../types';
 import { messagingStore } from '../../features/messaging/messagingStore';
 import { 
@@ -17,65 +19,6 @@ import { ClassroomCurriculaTab } from '../../components/aulas/ClassroomCurricula
 import { ClassroomBibliotecaTab } from '../../components/aulas/ClassroomBibliotecaTab';
 import { ClassroomRendimientoTab } from '../../components/aulas/ClassroomRendimientoTab';
 import { StudentActivityDetail } from '../../components/aulas/StudentActivityDetail';
-
-export const getClassroomColorTheme = (color?: string, subject?: string) => {
-  const c = (color || '').toLowerCase();
-  const s = (subject || '').toLowerCase();
-  
-  if (c.includes('purple') || s.includes('literatura')) {
-    return {
-      bar: 'bg-fox-purple',
-      badgeBg: 'bg-fox-purple/10',
-      badgeText: 'text-fox-purple',
-      bullet: 'bg-fox-purple',
-      border: 'border-fox-purple/20',
-      textAccent: 'text-fox-purple',
-      fill: '#827397'
-    };
-  }
-  if (c.includes('blue') || s.includes('historia')) {
-    return {
-      bar: 'bg-fox-blue',
-      badgeBg: 'bg-fox-blue/10',
-      badgeText: 'text-fox-blue',
-      bullet: 'bg-fox-blue',
-      border: 'border-fox-blue/20',
-      textAccent: 'text-fox-blue',
-      fill: '#2563eb'
-    };
-  }
-  if (c.includes('orange') || s.includes('matemática') || s.includes('matematica')) {
-    return {
-      bar: 'bg-fox-orange',
-      badgeBg: 'bg-fox-orange/10',
-      badgeText: 'text-fox-orange',
-      bullet: 'bg-fox-orange',
-      border: 'border-fox-orange/20',
-      textAccent: 'text-fox-orange',
-      fill: '#f68d2c'
-    };
-  }
-  if (c.includes('green') || s.includes('ciencia') || s.includes('biolog')) {
-    return {
-      bar: 'bg-fox-green',
-      badgeBg: 'bg-fox-green/10',
-      badgeText: 'text-fox-green',
-      bullet: 'bg-fox-green',
-      border: 'border-fox-green/20',
-      textAccent: 'text-fox-green',
-      fill: '#52a874'
-    };
-  }
-  return {
-    bar: 'bg-fox-primary',
-    badgeBg: 'bg-fox-primary/10',
-    badgeText: 'text-fox-primary',
-    bullet: 'bg-fox-primary',
-    border: 'border-fox-primary/20',
-    textAccent: 'text-fox-primary',
-    fill: '#489980'
-  };
-};
 
 export function AulasAlumno() {
   const { navigationParams, setView } = useAppContext();
@@ -488,11 +431,11 @@ function AulaDetailAlumno({ aula, onBack }: { aula: Classroom; onBack: () => voi
     }
   ];
 
-  // Sync with sharedSubmissions
+  // Read current shared submissions when initializing local activity state
   const [activities, setActivities] = useState(() => {
     return mockActivitiesRaw.map(act => {
       if (act.id === 1) {
-        const sub = sharedSubmissions.find(s => s.studentId === studentProfile.id);
+        const sub = submissionRepository.read().find(s => s.studentId === studentProfile.id);
         if (sub && sub.status !== 'missing') {
           return { 
             ...act, 
@@ -506,25 +449,9 @@ function AulaDetailAlumno({ aula, onBack }: { aula: Classroom; onBack: () => voi
     });
   });
 
-  const handleDeliverActivity = (submissionPayload: { attachedFile?: any; text?: string }) => {
-    // Update sharedSubmissions in mockData
-    const updatedSubs = sharedSubmissions.map(sub => {
-      if (sub.studentId === studentProfile.id) {
-        return {
-          ...sub,
-          status: 'submitted' as const,
-          date: 'Hoy (Reciente)',
-          content: submissionPayload.text || 'Entrega adjunta por la estudiante en formato digital para corrección docente.',
-          attachedFile: submissionPayload.attachedFile || {
-            name: 'Ensayo_Vanguardias_Sofia.pdf',
-            size: '1.4 MB',
-            type: 'PDF'
-          }
-        };
-      }
-      return sub;
-    });
-    updateSharedSubmissions(updatedSubs);
+  const handleDeliverActivity = (submissionPayload: SubmissionDelivery) => {
+    const updatedSubs = deliverSubmission(submissionRepository.read(), studentProfile.id, submissionPayload);
+    submissionRepository.replace(updatedSubs);
 
     // Update local activity state
     setActivities(prev => prev.map(a => {

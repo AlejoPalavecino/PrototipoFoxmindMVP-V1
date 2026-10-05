@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from '../ui/Toaster';
+import type { Submission } from '../../features/classrooms';
 
 export interface RubricCriterion {
   criteria: string;
@@ -14,27 +15,8 @@ export interface RubricCriterion {
   description?: string;
 }
 
-export interface SubmissionData {
-  studentId: number;
-  name: string;
-  email?: string;
-  status: 'missing' | 'submitted' | 'graded';
-  grade: number | null;
-  date: string | null;
-  dua: string[];
-  content: string | null;
-  attachedFile?: {
-    name: string;
-    size: string;
-    type: string;
-  };
-  studentNote?: string;
-  feedback?: string;
-  rubricBreakdown?: { criteria: string; max: number; earned: number; notes?: string }[];
-}
-
 interface TeacherGradingDrawerProps {
-  submission: SubmissionData;
+  submission: Submission;
   activity: any;
   onClose: () => void;
   onSave: (finalGrade: number, finalFeedback: string, breakdown: any[]) => void;

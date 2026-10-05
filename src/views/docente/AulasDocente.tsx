@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { mockClassroomsDocente, sharedActivities, sharedSubmissions, updateSharedActivities, updateSharedSubmissions } from '../../mockData';
+import { mockClassroomsDocente, sharedActivities, updateSharedActivities } from '../../mockData';
+import { getClassroomColorTheme, submissionRepository } from '../../features/classrooms';
+import type { Submission } from '../../features/classrooms';
 import { Classroom } from '../../types';
 import { messagingStore } from '../../features/messaging/messagingStore';
 import { 
@@ -19,7 +21,6 @@ import { ClassroomBibliotecaTab } from '../../components/aulas/ClassroomBibliote
 import { ClassroomRendimientoTab } from '../../components/aulas/ClassroomRendimientoTab';
 import { CreateActivityModal, CreatedActivityData, LibraryItem } from '../../components/aulas/CreateActivityModal';
 import { TeacherActivityDetail } from '../../components/aulas/TeacherActivityDetail';
-import { getClassroomColorTheme } from '../alumno/AulasAlumno';
 
 
 // --- GLOBALS FOR SESSION VOLATILE PERSISTENCE ---
@@ -812,7 +813,7 @@ function AulaDetail({ aula, onBack }: { aula: Classroom, onBack: () => void }) {
   
   const [students, setStudents] = useState(sessionStudents);
   const [activities, setActivities] = useState(sharedActivities);
-  const [submissions, setSubmissions] = useState(sharedSubmissions);
+  const [submissions, setSubmissions] = useState(() => submissionRepository.read());
   const [studentSearchTerm, setStudentSearchTerm] = useState('');
 
   const [libraryFiles, setLibraryFiles] = useState([
@@ -1752,7 +1753,7 @@ function AulaDetail({ aula, onBack }: { aula: Classroom, onBack: () => void }) {
 
 // --- ACTIVITY DETAIL VIEW COMPONENT ---
 
-function ActivityDetailView({ activity, submissions, setSubmissions, onBack }: { activity: any, submissions: any[], setSubmissions: (subs: any[]) => void, onBack: () => void }) {
+function ActivityDetailView({ activity, submissions, setSubmissions, onBack }: { activity: any, submissions: Submission[], setSubmissions: (subs: Submission[]) => void, onBack: () => void }) {
   const [isAdaptModalOpen, setIsAdaptModalOpen] = useState(false);
   const [studentToAdapt, setStudentToAdapt] = useState<any>(null);
   const [isAdapting, setIsAdapting] = useState(false);
@@ -1939,11 +1940,11 @@ function ActivityDetailView({ activity, submissions, setSubmissions, onBack }: {
                       // Mark as graded with an average bulk grade or simply graded
                       const newSubs = submissions.map(sub => 
                         selectedSubmissionIds.includes(sub.studentId) && sub.status === 'submitted'
-                          ? { ...sub, status: 'graded', grade: 10 } 
+                          ? { ...sub, status: 'graded' as const, grade: 10 }
                           : sub
                       );
                       setSubmissions(newSubs);
-                      updateSharedSubmissions(newSubs);
+                      submissionRepository.replace(newSubs);
                       toast.show(`Calificación máxima aplicada a los seleccionados`, 'success');
                     }
                     setSelectedSubmissionIds([]);
@@ -2160,11 +2161,11 @@ function ActivityDetailView({ activity, submissions, setSubmissions, onBack }: {
             onSave={(grade) => {
               const updatedSubs = submissions.map(sub => 
                 sub.studentId === selectedSubmissionToGrade.studentId 
-                  ? { ...sub, status: 'graded', grade: parseFloat(grade) } 
+                  ? { ...sub, status: 'graded' as const, grade: parseFloat(grade) }
                   : sub
               );
               setSubmissions(updatedSubs);
-              updateSharedSubmissions(updatedSubs);
+              submissionRepository.replace(updatedSubs);
               toast.show(`Calificación (${grade}) guardada para ${selectedSubmissionToGrade.name}`, 'success');
               setSelectedSubmissionToGrade(null);
             }}

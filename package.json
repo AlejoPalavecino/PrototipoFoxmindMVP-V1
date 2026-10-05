@@ -9,7 +9,8 @@
     "start": "node dist/server.cjs",
     "preview": "vite preview",
     "clean": "rm -rf dist",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test": "node --import tsx --test src/features/classrooms/tests/*.test.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

@@ -8,12 +8,13 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from '../ui/Toaster';
-import { TeacherGradingDrawer, SubmissionData } from './TeacherGradingDrawer';
+import { TeacherGradingDrawer } from './TeacherGradingDrawer';
+import type { Submission } from '../../features/classrooms';
 
 interface TeacherActivityDetailProps {
   activity: any;
-  submissions: SubmissionData[];
-  setSubmissions: (subs: SubmissionData[]) => void;
+  submissions: Submission[];
+  setSubmissions: (subs: Submission[]) => void;
   onBack: () => void;
   subjectName?: string;
   courseName?: string;
@@ -33,7 +34,7 @@ export function TeacherActivityDetail({
   const [selectedSubmissionIds, setSelectedSubmissionIds] = useState<number[]>([]);
   
   // Grading Drawer State
-  const [selectedSubmissionToGrade, setSelectedSubmissionToGrade] = useState<SubmissionData | null>(null);
+  const [selectedSubmissionToGrade, setSelectedSubmissionToGrade] = useState<Submission | null>(null);
 
   // DUA Adaptation Modal State (Read-only confirmed adaptation view)
   const [studentToAdapt, setStudentToAdapt] = useState<any | null>(null);
@@ -69,7 +70,7 @@ export function TeacherActivityDetail({
     toast.show('🔔 Recordatorio enviado a los alumnos con entregas pendientes', 'success');
   };
 
-  const handleDownloadSubmissionFile = (sub: SubmissionData, e?: React.MouseEvent) => {
+  const handleDownloadSubmissionFile = (sub: Submission, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     const fileName = sub.attachedFile?.name || `Entrega_${sub.name.replace(/\s+/g, '_')}.pdf`;
     const ext = fileName.split('.').pop()?.toLowerCase();
