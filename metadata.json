@@ -1,0 +1,6 @@
+{
+  "name": "Prototipo FoxMind - Secundario",
+  "description": "Educational assistant with fullstack capabilities",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
