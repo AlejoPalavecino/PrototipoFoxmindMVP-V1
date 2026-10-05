@@ -49,12 +49,18 @@ test('rendered participant lists keep distinct roster, search, view mode and cal
   assert.ok(detail?.body && controller?.name && controller.body);
   const first = detail.body.statements[0];
   assert.ok(ts.isVariableStatement(first));
-  const binding = first.declarationList.declarations[0];
-  assert.ok(ts.isObjectBindingPattern(binding.name) && binding.initializer && ts.isCallExpression(binding.initializer));
-  const imported = checker.getSymbolAtLocation(binding.initializer.expression)!;
+  const mounted = first.declarationList.declarations[0];
+  assert.ok(ts.isIdentifier(mounted.name) && mounted.initializer && ts.isCallExpression(mounted.initializer));
+  const imported = checker.getSymbolAtLocation(mounted.initializer.expression)!;
   assert.ok(imported.flags & ts.SymbolFlags.Alias);
   assert.equal(checker.getAliasedSymbol(imported), checker.getSymbolAtLocation(controller.name));
-  assert.equal(binding.initializer.arguments[0].getText(), 'aula');
+  assert.equal(mounted.initializer.arguments[0].getText(), 'aula');
+  const second = detail.body.statements[1];
+  assert.ok(ts.isVariableStatement(second));
+  const binding = second.declarationList.declarations[0];
+  assert.ok(ts.isObjectBindingPattern(binding.name) && binding.initializer && ts.isIdentifier(binding.initializer));
+  assert.equal(checker.getSymbolAtLocation(binding.initializer), checker.getSymbolAtLocation(mounted.name),
+    'Participant bindings consume the single unconditional mounted controller return');
   const returned = controller.body.statements.find(ts.isReturnStatement)!;
   assert.ok(returned.expression && ts.isObjectLiteralExpression(returned.expression));
   for (const name of ['students', 'studentSearchTerm', 'setStudentSearchTerm', 'alumnosViewMode',

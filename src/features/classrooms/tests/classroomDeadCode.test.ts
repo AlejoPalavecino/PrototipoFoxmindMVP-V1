@@ -164,8 +164,17 @@ test('rendered active grading receives the controller local submission setter, n
   const binding = symbol.valueDeclaration;
   assert.ok(binding && ts.isBindingElement(binding) && ts.isObjectBindingPattern(binding.parent));
   const declaration = binding.parent.parent;
-  assert.ok(ts.isVariableDeclaration(declaration) && declaration.initializer && ts.isCallExpression(declaration.initializer));
-  assert.equal(resolvedSymbol(declaration.initializer.expression), resolvedSymbol(controller.name!));
+  assert.ok(ts.isVariableDeclaration(declaration) && declaration.initializer && ts.isIdentifier(declaration.initializer));
+  const mounted = resolvedSymbol(declaration.initializer)?.valueDeclaration;
+  assert.ok(mounted && ts.isVariableDeclaration(mounted) && mounted.initializer && ts.isCallExpression(mounted.initializer));
+  assert.equal(resolvedSymbol(mounted.initializer.expression), resolvedSymbol(controller.name!));
+  assert.equal(mounted.initializer.arguments[0].getText(), 'aula');
+  const detail = declaration.parent.parent.parent.parent;
+  assert.ok(ts.isFunctionDeclaration(detail) && detail.body);
+  const first = detail.body.statements[0];
+  assert.ok(ts.isVariableStatement(first));
+  assert.equal(first.declarationList.declarations[0], mounted,
+    'Local grading setter comes from the actual first unconditional detail hook call');
   assert.equal(binding.name.getText(), property.name.text);
   assert.doesNotMatch(controller.getText(), /submissionRepository\.replace/);
 });

@@ -5,12 +5,13 @@ import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
 import ts from 'typescript';
 
-// Progressive E5 coverage: current page, profile leaf and teacher controller.
-// No deferred shell/materials/invitation/student files or browser module execution.
+// Progressive E6 coverage: current page, profile/materials leaves and controller.
+// No deferred shell/invitation/student files or browser module execution.
 const pagePath = fileURLToPath(new URL('../../../views/docente/AulasDocente.tsx', import.meta.url));
 const leafPath = fileURLToPath(new URL('../components/teacher/TeacherClassroomDetailProfile.tsx', import.meta.url));
 const hookPath = fileURLToPath(new URL('../hooks/useTeacherClassroomDetail.ts', import.meta.url));
-const filenames = [pagePath, leafPath, hookPath].filter(existsSync);
+const materialsPath = fileURLToPath(new URL('../components/teacher/TeacherClassroomDetailMaterials.tsx', import.meta.url));
+const filenames = [pagePath, leafPath, hookPath, materialsPath].filter(existsSync);
 const program = ts.createProgram(filenames, {
   noEmit: true,
   jsx: ts.JsxEmit.Preserve,
@@ -55,6 +56,100 @@ function profile() {
   return profiles[0];
 }
 const declarations = () => nodesMatching(profile(), (node): node is ts.VariableDeclaration => ts.isVariableDeclaration(node));
+
+function currentMaterials() {
+  const page = program.getSourceFile(pagePath)!;
+  const detail = page.statements.find((node): node is ts.FunctionDeclaration =>
+    ts.isFunctionDeclaration(node) && node.name?.text === 'AulaDetail')!;
+  const returned = detail.body!.statements.find(ts.isReturnStatement)!;
+  assert.ok(returned.expression && ts.isParenthesizedExpression(returned.expression));
+  const root = returned.expression.expression;
+  assert.ok(ts.isJsxElement(root));
+  const leaf = program.getSourceFile(materialsPath)?.statements.find((node): node is ts.FunctionDeclaration =>
+    ts.isFunctionDeclaration(node) && node.name?.text === 'TeacherClassroomDetailMaterials');
+  let children: readonly ts.JsxChild[] = root.children;
+  let binding = (detail.body!.statements[0] as ts.VariableStatement).declarationList.declarations[0];
+  if (leaf) {
+    const consumers = nodesMatching(detail, (node): node is ts.JsxSelfClosingElement =>
+      ts.isJsxSelfClosingElement(node) && resolvedSymbol(node.tagName) === resolvedSymbol(leaf.name!));
+    assert.equal(consumers.length, 1, 'Resolve the actual materials declaration, not an imported namesake');
+    const consumer = consumers[0];
+    assert.equal(consumer.parent, root, 'Unconditional sibling at existing detail lifetime');
+    assert.equal(consumer.attributes.properties.length, 1, 'Only detail prop; no key or extra callbacks');
+    const prop = consumer.attributes.properties[0];
+    assert.ok(ts.isJsxAttribute(prop) && prop.name.getText() === 'detail'
+      && prop.initializer && ts.isJsxExpression(prop.initializer) && prop.initializer.expression);
+    assert.ok(ts.isIdentifier(binding.name));
+    assert.equal(resolvedSymbol(prop.initializer.expression), resolvedSymbol(binding.name));
+    const destructuring = (detail.body!.statements[1] as ts.VariableStatement).declarationList.declarations[0];
+    assert.ok(destructuring.initializer);
+    assert.equal(resolvedSymbol(destructuring.initializer), resolvedSymbol(binding.name));
+    const leafReturn = leaf.body!.statements.find(ts.isReturnStatement)!;
+    assert.ok(leafReturn.expression && ts.isParenthesizedExpression(leafReturn.expression));
+    const fragment = leafReturn.expression.expression;
+    assert.ok(ts.isJsxFragment(fragment));
+    const index = children.indexOf(consumer);
+    children = [...children.slice(0, index), ...fragment.children.slice(1, -1), ...children.slice(index + 1)];
+    binding = (leaf.body!.statements[0] as ts.VariableStatement).declarationList.declarations[0];
+    assert.equal(binding.initializer!.getText(), 'detail');
+    const parameter = leaf.parameters[0].name;
+    assert.ok(ts.isObjectBindingPattern(parameter));
+    assert.equal(resolvedSymbol(binding.initializer!), resolvedSymbol(parameter.elements[0].name));
+    const imports = page.statements.filter(ts.isImportDeclaration).filter(node =>
+      (node.moduleSpecifier as ts.StringLiteral).text === '../../features/classrooms/components/teacher/TeacherClassroomDetailMaterials');
+    assert.equal(imports.length, 1, 'Direct materials import without changing the UI barrel');
+    assert.ok(leaf.parameters[0].type && /detail: TeacherClassroomDetailController/.test(print(leaf.parameters[0].type)));
+    assert.equal(nodesMatching(leaf, (node): node is ts.CallExpression => ts.isCallExpression(node)
+      && /useState|useEffect|setTimeout|Repository/.test(node.expression.getText())).length, 0);
+  }
+  const mounted = (detail.body!.statements[0] as ts.VariableStatement).declarationList.declarations[0];
+  assert.ok(mounted.initializer && ts.isCallExpression(mounted.initializer));
+  const controller = program.getSourceFile(hookPath)!.statements.find((node): node is ts.FunctionDeclaration =>
+    ts.isFunctionDeclaration(node) && node.name?.text === 'useTeacherClassroomDetail')!;
+  assert.equal(resolvedSymbol(mounted.initializer.expression), resolvedSymbol(controller.name!));
+  assert.equal(mounted.initializer.arguments[0].getText(), 'aula');
+  const dialogs = children.filter((node): node is ts.JsxElement => ts.isJsxElement(node)
+    && node.openingElement.tagName.getText() === 'AnimatePresence'
+    && /isPlanModalOpen|isUploadModalOpen/.test(print(node)));
+  assert.equal(dialogs.length, 2);
+  return { children, dialogs, binding, controller };
+}
+
+test('both materials dialogs retain baseline presence boundaries, complete Spanish markup and handlers', () => {
+  const { dialogs, binding, controller } = currentMaterials();
+  assert.deepEqual(dialogs.map(hash), [
+    'da14a9e007936361733a750b629a62f95570a75e9d3455d1bf1357b37e34ecf1',
+    '07c51c119608e1a0d75a1582712b660de5db7d40806cd013a7ea7a3300d687c5',
+  ]);
+  assert.ok(ts.isObjectBindingPattern(binding.name));
+  const returned = controller.body!.statements.find(ts.isReturnStatement)!.expression;
+  assert.ok(returned && ts.isObjectLiteralExpression(returned));
+  for (const name of ['isPlanModalOpen', 'setIsPlanModalOpen', 'isUploadModalOpen', 'setIsUploadModalOpen',
+    'newFileTitle', 'setNewFileTitle', 'newFileType', 'setNewFileType', 'handleUploadFile']) {
+    const local = binding.name.elements.find(item => item.name.getText() === name);
+    assert.ok(local, `Actual presentation consumes ${name}`);
+    const uses = dialogs.flatMap(dialog => nodesMatching(dialog, (node): node is ts.Identifier =>
+      ts.isIdentifier(node) && node.text === name));
+    assert.ok(uses.length > 0, `${name} is used by returned dialog JSX`);
+    uses.forEach(use => assert.equal(resolvedSymbol(use), resolvedSymbol(local.name)));
+    const property = returned.properties.find((node): node is ts.ShorthandPropertyAssignment =>
+      ts.isShorthandPropertyAssignment(node) && node.name.text === name);
+    assert.ok(property, `Mounted controller returns ${name}`);
+    assert.equal(checker.getShorthandAssignmentValueSymbol(property)?.valueDeclaration?.getSourceFile(), program.getSourceFile(hookPath));
+  }
+});
+
+test('materials keep wizard-before-plan-before-upload-before-unkeyed-profile-before-invitation order', () => {
+  const { children, dialogs } = currentMaterials();
+  const wizard = children.findIndex(node => ts.isJsxSelfClosingElement(node) && node.tagName.getText() === 'CreateActivityModal');
+  const profilePresence = children.findIndex(node => ts.isJsxElement(node) && /selectedStudentProfile &&/.test(print(node)));
+  const invitation = children.findIndex(node => ts.isJsxElement(node) && /isInviteStudentModalOpen &&/.test(print(node)));
+  assert.ok(wizard >= 0 && wizard < children.indexOf(dialogs[0]));
+  assert.ok(children.indexOf(dialogs[0]) < children.indexOf(dialogs[1]));
+  assert.ok(children.indexOf(dialogs[1]) < profilePresence && profilePresence < invitation);
+  const wizardNode = children[wizard] as ts.JsxSelfClosingElement;
+  assert.equal(wizardNode.attributes.properties.some(node => ts.isJsxAttribute(node) && node.name.getText() === 'key'), false);
+});
 
 // Captured before relocation from 19a4353. Passing source characterization,
 // not a behavioral RED or proof of browser events/animation/timer execution.
@@ -149,11 +244,16 @@ test('profile selection is supplied by the resolved unconditional controller at 
   assert.ok(controller?.name);
   const first = detail.body.statements[0];
   assert.ok(ts.isVariableStatement(first));
-  const binding = first.declarationList.declarations[0];
-  assert.ok(ts.isObjectBindingPattern(binding.name) && binding.initializer && ts.isCallExpression(binding.initializer));
-  assert.equal(resolvedSymbol(binding.initializer.expression), resolvedSymbol(controller.name));
-  assert.equal(binding.initializer.arguments[0].getText(), 'aula');
-  assert.equal(detail.body.statements.length, 2, 'Unconditional call then unchanged returned JSX');
+  const mounted = first.declarationList.declarations[0];
+  assert.ok(ts.isIdentifier(mounted.name) && mounted.initializer && ts.isCallExpression(mounted.initializer));
+  assert.equal(resolvedSymbol(mounted.initializer.expression), resolvedSymbol(controller.name));
+  assert.equal(mounted.initializer.arguments[0].getText(), 'aula');
+  const second = detail.body.statements[1];
+  assert.ok(ts.isVariableStatement(second));
+  const binding = second.declarationList.declarations[0];
+  assert.ok(ts.isObjectBindingPattern(binding.name) && binding.initializer);
+  assert.equal(resolvedSymbol(binding.initializer), resolvedSymbol(mounted.name));
+  assert.equal(detail.body.statements.length, 3, 'Unconditional call, controller destructuring, returned JSX');
   const selected = binding.name.elements.find(item => item.name.getText() === 'selectedStudentProfile')!;
   assert.ok(selected);
   const consumers = nodesMatching(detail, (node): node is ts.JsxSelfClosingElement =>

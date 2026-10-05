@@ -10,8 +10,9 @@ and the creation/detail hooks. Invitation dispatch remains on the unchanged
 
 `useTeacherClassroomDetail(aula)` now owns the actual teacher detail's 24 states,
 file ref, navigation effect and action callbacks. `AulaDetail` calls it unconditionally
-at the same mounted position, then returns its unchanged JSX. Materials, invitation,
-plan modal and shell/body remain inline until E6–E8; student owners wait E9–E11.
+at the same mounted position. E6 passes that single return through `detail` to the
+materials leaf; invitation and shell/body remain inline until E7–E8, and student
+owners wait E9–E11.
 The profile retains its direct leaf import and conditional, unkeyed mount.
 
 | Contract | Preserved behavior |
@@ -45,14 +46,47 @@ are intentional additions, not runtime target deviations.
 Browser/lifetime acceptance remains T8. Build, native review and commits are
 parent-owned; this structural extraction does not close T3e.
 
-## Public import boundaries (T3e / E4–E5)
+## Teacher materials presentation (T3e / E6)
+
+`TeacherClassroomDetailMaterials` now renders **both** the plan PDF dialog and the
+upload-library dialog. The page imports the leaf directly and passes the actual
+`useTeacherClassroomDetail(aula)` return, without copying it or adding another hook
+call. The leaf matches the preserved corrected target byte-for-byte; no public
+barrel export or future shell is introduced.
+
+- Each dialog retains its own `AnimatePresence` and visibility condition, original
+  Spanish copy, motion props, close buttons, title/type inputs and upload handler.
+- The leaf stays unconditionally mounted after `CreateActivityModal` and before
+  the conditional, unkeyed profile and inline invitation. All state, callbacks,
+  snapshots and timers remain with their existing owners.
+- The dormant upload entry and decorative drop zone stay dormant. This is not an
+  extraction of `ClassroomBibliotecaTab`; its separate state/type/UI stay unchanged.
+
+### Review evidence and limits
+
+Two passing source characterizations were added before extraction and retained
+unchanged afterward: complete per-dialog AST fingerprints and wizard/materials/
+profile/invitation order. Their resolved consumer checks follow the actual leaf,
+`detail` prop, controller call and consumed returned bindings, not just an import.
+The existing whole teacher-return fingerprint is reconstructed from that resolved
+leaf's JSX with controller-binding substitution, preserving unrelated tab, grading,
+profile and invitation coverage rather than accepting a replacement hash.
+Participant and dead-code tests now resolve through the controller identifier while
+retaining their mounted-hook and local submission-setter assertions. The runtime
+graph still requires eight UI exports and zero cycles; E6 adds no barrel entries.
+
+These checks establish source/composition equivalence, not browser interaction or
+state-lifetime acceptance. Build, native review and commits remain parent-owned;
+browser plan/upload/profile interactions remain T8. E7–E11 and T3e closure are pending.
+
+## Public import boundaries (T3e / E4–E6)
 
 The headless entry point must not transitively load UI components or hooks. The
 separate UI entry point exposes exactly eight current presentation/hook exports,
 including the teacher detail hook; it adds no deferred composition exports. This split prevents
 shared domain consumers from pulling role UI back into their dependency graph.
 Feature internals import leaves, not the UI barrel. Existing shared wall/modal/detail
-consumers stay on the headless boundary; the profile keeps its direct leaf import.
+consumers stay on the headless boundary; profile and materials keep direct leaf imports.
 
 `classroomImportBoundaries.test.ts` checks the current tree for zero runtime cycles,
 transitive headless/UI separation, exactly eight UI exports and both role pages'
@@ -300,8 +334,9 @@ consumer before/after relocation. Whole-body source fingerprinting includes comm
 normalization ignores only CRLF and trailing line whitespace to match the target leaf.
 Ownership checks resolve the direct import to the new declaration, not a namesake.
 E3 tests read the available page/profile sources. E5 adds current controller symbol
-checks, never deferred shell or student-controller files.
-Existing dead-code and participant tests are retained without changes.
+checks; E6 follows the single controller return through `detail`. Neither references
+deferred shell or student-controller files. Existing dead-code and participant
+coverage remains intact through the authorized identifier-resolution adaptations.
 
 Remaining teacher source matches the baseline prefix with only the direct leaf import
 added and the profile section removed. The new leaf matches the preserved full-target

@@ -9,7 +9,7 @@ import * as boundary from '../index';
 
 // E5 passing characterization: execute extracted current statements with fake hooks,
 // not React/browser imports. After extraction, inspect the actual hook and public
-// headless helpers. No deferred shell, materials, invitation or student files.
+// headless helpers and the current materials leaf. No deferred shell, invitation or student files.
 const filename = (relative: string) => fileURLToPath(new URL(relative, import.meta.url));
 const parse = (file: string) => ts.createSourceFile(file, readFileSync(file, 'utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
 const page = parse(filename('../../../views/docente/AulasDocente.tsx'));
@@ -259,9 +259,81 @@ test('teacher callback characterization exercises topic toggles, report navigati
   assert.equal(values.submissions, mounted.submissions);
 });
 
+// Expand only the actually resolved rendered leaf, mapping its local bindings to
+// the mounted controller's returned property names. Keep the original whole-return
+// fingerprint: material extraction must not hide changes to unrelated inline JSX.
+function expandedDetailReturn() {
+  const pagePath = filename('../../../views/docente/AulasDocente.tsx');
+  const program = ts.createProgram([pagePath, hookPath], {
+    noEmit: true, jsx: ts.JsxEmit.Preserve, target: ts.ScriptTarget.ESNext,
+    module: ts.ModuleKind.ESNext, moduleResolution: ts.ModuleResolutionKind.Bundler,
+  });
+  const checker = program.getTypeChecker();
+  const symbol = (node: ts.Node) => {
+    const value = checker.getSymbolAtLocation(node);
+    return value && value.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(value) : value;
+  };
+  const source = program.getSourceFile(pagePath)!;
+  const detail = source.statements.find((node): node is ts.FunctionDeclaration =>
+    ts.isFunctionDeclaration(node) && node.name?.text === 'AulaDetail')!;
+  const returned = detail.body!.statements.find(ts.isReturnStatement)!;
+  assert.ok(returned.expression && ts.isParenthesizedExpression(returned.expression));
+  const root = returned.expression.expression;
+  assert.ok(ts.isJsxElement(root));
+  const consumers = root.children.filter((node): node is ts.JsxSelfClosingElement =>
+    ts.isJsxSelfClosingElement(node) && symbol(node.tagName)?.name === 'TeacherClassroomDetailMaterials');
+  assert.equal(consumers.length, 1, 'Expand the actual resolved materials consumer');
+  const consumer = consumers[0];
+  const leaf = symbol(consumer.tagName)?.valueDeclaration;
+  assert.ok(leaf && ts.isFunctionDeclaration(leaf) && leaf.body);
+  const prop = consumer.attributes.properties[0];
+  assert.ok(ts.isJsxAttribute(prop) && prop.name.getText() === 'detail'
+    && prop.initializer && ts.isJsxExpression(prop.initializer) && prop.initializer.expression);
+  const mounted = symbol(prop.initializer.expression)?.valueDeclaration;
+  assert.ok(mounted && ts.isVariableDeclaration(mounted) && mounted.initializer && ts.isCallExpression(mounted.initializer));
+  const first = detail.body!.statements[0];
+  assert.ok(ts.isVariableStatement(first));
+  assert.equal(first.declarationList.declarations[0], mounted);
+  const controller = symbol(mounted.initializer.expression)?.valueDeclaration;
+  assert.ok(controller && ts.isFunctionDeclaration(controller) && controller.body);
+  const controllerReturn = controller.body.statements.find(ts.isReturnStatement)!.expression;
+  assert.ok(controllerReturn && ts.isObjectLiteralExpression(controllerReturn));
+  const binding = (leaf.body.statements[0] as ts.VariableStatement).declarationList.declarations[0];
+  assert.ok(ts.isObjectBindingPattern(binding.name) && binding.initializer);
+  assert.ok(ts.isObjectBindingPattern(leaf.parameters[0].name));
+  assert.equal(symbol(binding.initializer), symbol(leaf.parameters[0].name.elements[0].name));
+  const mapping = new Map<ts.Symbol, string>();
+  for (const item of binding.name.elements) {
+    const name = (item.propertyName ?? item.name).getText();
+    assert.ok(controllerReturn.properties.some(node => ts.isShorthandPropertyAssignment(node) && node.name.text === name));
+    mapping.set(symbol(item.name)!, name);
+  }
+  const leafReturn = leaf.body.statements.find(ts.isReturnStatement)!.expression;
+  assert.ok(leafReturn && ts.isParenthesizedExpression(leafReturn) && ts.isJsxFragment(leafReturn.expression));
+  const children = leafReturn.expression.children;
+  const start = children[1].getStart(), end = children[children.length - 2].getEnd();
+  let expanded = leaf.getSourceFile().text.slice(start, end);
+  const substitutions: Array<{ start: number; end: number; name: string }> = [];
+  function visit(node: ts.Node) {
+    const name = ts.isIdentifier(node) ? mapping.get(symbol(node)!) : undefined;
+    if (name) substitutions.push({ start: node.getStart() - start, end: node.getEnd() - start, name });
+    ts.forEachChild(node, visit);
+  }
+  children.slice(1, -1).forEach(visit);
+  substitutions.sort((a, b) => b.start - a.start).forEach(item => {
+    expanded = expanded.slice(0, item.start) + item.name + expanded.slice(item.end);
+  });
+  const reconstructed = ts.createSourceFile(pagePath,
+    source.text.slice(0, consumer.getStart()) + expanded + source.text.slice(consumer.getEnd()),
+    ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const originalInline = reconstructed.statements.find((node): node is ts.FunctionDeclaration =>
+    ts.isFunctionDeclaration(node) && node.name?.text === 'AulaDetail')!;
+  return originalInline.body!.statements.find(ts.isReturnStatement)!;
+}
+
 test('inline teacher JSX retains selection, tab reset, clipboard timers, modals and active local-grading setter', () => {
   const detail = page.statements.find((node): node is ts.FunctionDeclaration => ts.isFunctionDeclaration(node) && node.name?.text === 'AulaDetail')!;
-  assert.equal(hash(detail.body!.statements.find(ts.isReturnStatement)!), '1e633acb50d7bb8b11f8b5306a689335cef7a801d95f1cf1b9197216443665f8');
+  assert.equal(hash(expandedDetailReturn()), '1e633acb50d7bb8b11f8b5306a689335cef7a801d95f1cf1b9197216443665f8');
   assert.match(detail.getText(), /setTab\(newTab as any\);\s*setSelectedActivity\(null\);/);
   assert.match(detail.getText(), /setSubmissions=\{setSubmissions\}/);
   assert.match(detail.getText(), /students=\{students.filter/);
@@ -273,6 +345,11 @@ test('inline teacher JSX retains selection, tab reset, clipboard timers, modals 
     const first = detail.body!.statements[0];
     assert.ok(ts.isVariableStatement(first));
     assert.match(first.getText(), /= useTeacherClassroomDetail\(aula\)/);
-    assert.equal(detail.body!.statements.length, 2, 'Only unconditional controller destructuring and original JSX');
+    assert.equal(detail.body!.statements.length, 3, 'Only unconditional controller call, detail destructuring and original composition');
+    const mounted = first.declarationList.declarations[0];
+    assert.equal(mounted.name.getText(), 'detail');
+    const second = detail.body!.statements[1];
+    assert.ok(ts.isVariableStatement(second));
+    assert.equal(second.declarationList.declarations[0].initializer!.getText(), 'detail');
   }
 });
