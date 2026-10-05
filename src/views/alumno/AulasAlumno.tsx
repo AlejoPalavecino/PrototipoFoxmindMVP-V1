@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { createStudentActivities, StudentActivityList, classroomRepository, joinClassroomByCode, deliverSubmission, getClassroomColorTheme, submissionRepository, StudentParticipantList } from '../../features/classrooms';
+import { createStudentActivities, classroomRepository, joinClassroomByCode, deliverSubmission, getClassroomColorTheme, submissionRepository } from '../../features/classrooms';
+import { StudentActivityList, StudentParticipantList } from '../../features/classrooms/ui';
 import type { Classroom, StudentActivity, SubmissionDelivery } from '../../features/classrooms';
 import { messagingStore } from '../../features/messaging/messagingStore';
 import { 

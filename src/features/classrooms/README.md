@@ -1,12 +1,26 @@
 # Classrooms mock boundaries
 
-Import classroom/submission types, `classroomRepository`, `joinClassroomByCode`,
-`submissionRepository`, `deliverSubmission` and `getClassroomColorTheme` from
-`src/features/classrooms` (the public `index.ts`). Teacher list/creation components,
-`useTeacherClassroomCreation` and pure creation operations also use this boundary.
-Activity contracts, synchronous ownership, creation/assignment mappings and rendered
-role activity lists, wall operations/ownership and role participant presentation also
-use this boundary. Messaging workflows remain outside this migration.
+Use `src/features/classrooms` (headless `index.ts`) for domain types, repositories,
+pure operations and `getClassroomColorTheme`. Use `src/features/classrooms/ui` for
+role participant/activity lists, `TeacherClassroomList`, `TeacherClassroomCreateFlow`
+and `useTeacherClassroomCreation`. Messaging workflows remain outside this migration.
+
+## Public import boundaries (T3e / E4)
+
+The headless entry point must not transitively load UI components or hooks. The
+separate UI entry point exposes only the seven existing presentation/hook exports;
+it adds no detail, membership or future composition exports. This split prevents
+shared domain consumers from pulling role UI back into their dependency graph.
+Feature internals import leaves, not the UI barrel. Existing shared wall/modal/detail
+consumers stay on the headless boundary; the profile keeps its direct leaf import.
+
+`classroomImportBoundaries.test.ts` checks the current tree for zero runtime cycles,
+transitive headless/UI separation, exactly seven UI exports and both role pages'
+UI import routing. It inspects in-memory TypeScript output, including static imports,
+reexports, side effects and literal dynamic/require edges; type-only edges are erased.
+Missing local source imports fail rather than silently disappearing. External packages,
+computed imports and runtime loader behavior are outside this graph. These structural
+checks do not establish browser, animation or state-lifetime acceptance (pending T8).
 
 ## Catalogue and membership
 

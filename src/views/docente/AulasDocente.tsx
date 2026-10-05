@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { mockClassroomsDocente } from '../../mockData';
-import { activityRepository, mapCreatedActivity, TeacherActivityList, getClassroomColorTheme, submissionRepository, TeacherClassroomList, TeacherClassroomCreateFlow, useTeacherClassroomCreation, TeacherParticipantList } from '../../features/classrooms';
+import { activityRepository, mapCreatedActivity, getClassroomColorTheme, submissionRepository } from '../../features/classrooms';
+import { TeacherActivityList, TeacherClassroomList, TeacherClassroomCreateFlow, useTeacherClassroomCreation, TeacherParticipantList } from '../../features/classrooms/ui';
 import type { Activity, CreatedActivityData, Submission } from '../../features/classrooms';
 import { Classroom } from '../../types';
 import { messagingStore } from '../../features/messaging/messagingStore';
