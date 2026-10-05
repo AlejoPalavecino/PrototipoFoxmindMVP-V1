@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { mockClassroomsAlumno, mockClassroomsDocente, addClassroomToAlumno, sharedActivities } from '../../mockData';
-import { deliverSubmission, getClassroomColorTheme, submissionRepository } from '../../features/classrooms';
-import type { SubmissionDelivery } from '../../features/classrooms';
-import { Classroom } from '../../types';
+import { sharedActivities } from '../../mockData';
+import { classroomRepository, joinClassroomByCode, deliverSubmission, getClassroomColorTheme, submissionRepository } from '../../features/classrooms';
+import type { Classroom, SubmissionDelivery } from '../../features/classrooms';
 import { messagingStore } from '../../features/messaging/messagingStore';
 import { 
   BookOpen, FileText, Users, Calendar, Clock, ChevronRight, 
@@ -23,15 +22,15 @@ import { StudentActivityDetail } from '../../components/aulas/StudentActivityDet
 export function AulasAlumno() {
   const { navigationParams, setView } = useAppContext();
   const [selectedAula, setSelectedAula] = useState<Classroom | null>(null);
-  const [classrooms, setClassrooms] = useState<Classroom[]>(() => [...mockClassroomsAlumno]);
+  const [classrooms, setClassrooms] = useState<Classroom[]>(() => [...classroomRepository.readMembership()]);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [invitationCode, setInvitationCode] = useState('');
 
-  // Synchronize classrooms with mockClassroomsAlumno on mount and on messagingStore updates
+  // Synchronize classrooms with session membership on mount and on messagingStore updates
   useEffect(() => {
-    setClassrooms([...mockClassroomsAlumno]);
+    setClassrooms([...classroomRepository.readMembership()]);
     const unsubscribe = messagingStore.subscribe(() => {
-      setClassrooms([...mockClassroomsAlumno]);
+      setClassrooms([...classroomRepository.readMembership()]);
     });
     return unsubscribe;
   }, []);
@@ -53,73 +52,24 @@ export function AulasAlumno() {
   };
 
   const handleJoinClassroom = () => {
-    if (!invitationCode.trim()) return;
-    const cleanCode = invitationCode.trim().toUpperCase();
-
-    // Check if code matches any teacher classroom (by standard format e.g. "3°A-2026-C1" or by id)
-    const matchedDocenteAula = mockClassroomsDocente.find(a => {
-      const standardCode = `${a.course.substring(0, 3).toUpperCase()}-2026-${a.id.toUpperCase()}`;
-      return standardCode === cleanCode || 
-             a.id.toUpperCase() === cleanCode || 
-             cleanCode.includes(a.id.toUpperCase()) ||
-             cleanCode === `${a.subject.substring(0, 3).toUpperCase()}-2026-${a.course.substring(0, 2).toUpperCase()}`;
-    });
-
-    if (matchedDocenteAula) {
-      const alreadyIn = classrooms.some(c => c.id === matchedDocenteAula.id || (c.subject.toLowerCase() === matchedDocenteAula.subject.toLowerCase() && c.course.toLowerCase() === matchedDocenteAula.course.toLowerCase()));
-      if (alreadyIn) {
-        toast.show(`Ya estás matriculado en ${matchedDocenteAula.subject} (${matchedDocenteAula.course})`, 'info');
-        setIsJoinModalOpen(false);
-        setInvitationCode('');
-        return;
-      }
-
-      const added = addClassroomToAlumno({
-        id: matchedDocenteAula.id,
-        subject: matchedDocenteAula.subject,
-        course: matchedDocenteAula.course,
-        color: matchedDocenteAula.color,
-        teacherName: matchedDocenteAula.teacherName || 'Prof. Titular',
-        activeTasks: matchedDocenteAula.activeTasks ?? 1,
-        studentsCount: matchedDocenteAula.studentsCount || 28,
-        progress: 0,
-        avgGrade: 0
-      });
-      setClassrooms([...mockClassroomsAlumno]);
+    const result = joinClassroomByCode(invitationCode, classrooms);
+    if (result.status === 'rejected') return;
+    const aula = result.classroom;
+    if (result.status === 'duplicate') {
+      toast.show(`Ya estás matriculado en ${aula.subject} (${aula.course})`, 'info');
       setIsJoinModalOpen(false);
       setInvitationCode('');
-      toast.show(`🎉 ¡Te has unido exitosamente al aula de ${added.subject} (${added.course})!`, 'success');
       return;
     }
 
-    // Generic code join
-    const parsedSubject = cleanCode.includes('LIT') ? 'Literatura' : 
-                          cleanCode.includes('MAT') ? 'Matemáticas' : 
-                          cleanCode.includes('BIO') || cleanCode.includes('CIE') ? 'Ciencias Naturales' : 
-                          cleanCode.includes('HIS') ? 'Historia Contemporánea' : 'Materia Vinculada';
-    const parsedCourse = cleanCode.includes('3') ? '3° Año A' : cleanCode.includes('2') ? '2° Año B' : '1° Año A';
-
-    const newClassroom: Classroom = {
-      id: `aula-code-${Date.now()}`,
-      subject: parsedSubject,
-      course: parsedCourse,
-      color: parsedSubject.includes('Lit') ? 'bg-fox-purple' : parsedSubject.includes('Mat') ? 'bg-fox-orange' : parsedSubject.includes('Cien') ? 'bg-fox-green' : 'bg-fox-blue',
-      activeTasks: 1,
-      studentsCount: 26,
-      pendingSubmissions: 0,
-      avgGrade: 0,
-      progress: 0,
-      schedule: ['Lunes 08:00', 'Miércoles 10:30'],
-      teacherName: 'Prof. Titular',
-      nextClass: 'Próxima clase',
-      lastActivity: 'Recién unida'
-    };
-
-    addClassroomToAlumno(newClassroom);
-    setClassrooms([...mockClassroomsAlumno]);
+    setClassrooms([...classroomRepository.readMembership()]);
     setIsJoinModalOpen(false);
     setInvitationCode('');
-    toast.show(`🎉 Te has unido al aula de ${newClassroom.subject} (${newClassroom.course}) mediante tu código de acceso`, 'success');
+    if (result.status === 'catalogue') {
+      toast.show(`🎉 ¡Te has unido exitosamente al aula de ${aula.subject} (${aula.course})!`, 'success');
+      return;
+    }
+    toast.show(`🎉 Te has unido al aula de ${aula.subject} (${aula.course}) mediante tu código de acceso`, 'success');
   };
 
   return (
