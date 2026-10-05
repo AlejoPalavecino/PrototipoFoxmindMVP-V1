@@ -19,6 +19,11 @@ Delivery strategy: auto-chain; user selected chain_strategy=feature-branch-chain
 - [x] T1 Establish runtime/typecheck/build baseline and identify browser/test capabilities. Route: delegated verifier; command verification trigger.
 - [x] T2 Add characterization tests and migrate classroom submission pilot plus cross-role theme helper. Route: bounded worker; multi-file trigger. Derive exact edit surfaces before dispatch.
 - [ ] T3 Migrate remaining classroom flows and mock ownership in bounded subunits. Route: bounded workers, sequential.
+  - [x] T3a Catalogue/membership owner and student join boundary (~180–300 changed lines before detailed implementation). Characterize legacy synchronous semantics and live compatibility; preserve messaging-triggered refresh.
+  - [ ] T3b Teacher creation/list composition (~250–450). Extract creation simulation/state and role-owned list; preserve delays, defaults, curriculum session replacement and toasts.
+  - [ ] T3c Activities/assignment/grading (~400–700 estimated). Feature-owned activity mock, compatibility and actual rendered role components; preserve T2 grading differences/copying behavior. Verify render paths rather than assuming symbol presence means rendered.
+  - [ ] T3d Muro/participants (~250–450). Feature-owned posts and role presentation; preserve mounted local-state behavior, author/type and interactions. Invitation/message operations remain T4.
+  - [ ] T3e Role-screen orchestration (~250–500). Move actual role-owned compositions and keep pages focused on wiring/navigation; characterize defaults/selection/back paths. T3 is not complete if only fixtures moved.
 - [ ] T4 Separate messaging persistence, operations, UI and invitation enrollment coordination. Route: bounded workers, sequential.
 - [ ] T5 Modularize study tools, local state and mock operations. Route: bounded workers, sequential.
 - [ ] T6 Type app navigation and separate app settings/composition; share layout only where justified. Route: bounded workers.
@@ -50,5 +55,14 @@ Delivery strategy: auto-chain; user selected chain_strategy=feature-branch-chain
 - T2 committed slice: baseline 4a6940f98038cd49e2811d0930d5b90ccd752ad0 → c4042cb66f355023f3144095bf9a5938a8dca081 (`refactor(classrooms): encapsulate mock submissions and theme`), 18 files +402/-140. Parent staged-file whitespace check also passed including new files. Follow-up classroom flows belong to T3; no push/PR.
 - T2 scoped structural implementation closed; UI/browser acceptance explicitly deferred to T8, not claimed performed. Blank guard inspected unchanged, not interaction-tested. Nonblocking build warning remains (1953.28 kB JS / 509.24 kB gzip). No failing required command remains.
 
+## T3 progress
+User authorized proceeding with T3. Task file and full Engram mirror reconciled; branch refactor/frontend-modules at 5b07c0b, only intentionally untracked .env.example. T3 in progress: read-only mapping returned five sequential slices T3a–T3e. T3a verified and committed; T3b in progress. T2 behavior/contracts remain intact; messaging coordination changes remain T4. Features use existing application/ layer, not a second operations/ layer. Source baseline for T3a: 5b07c0b.
+- T3a: catalogue/type/fixture owner, synchronous membership and live compatibility; student join/read uses public boundary. Delta +412/-116 (528), including 208 test lines and 46 documentation lines; coherent ownership/compatibility remains one slice.
+- T3a characterization: worker5/5 legacy before/after; suite35/35 after correcting expectation (Materia Vinculada includes Mat => orange; implementation unchanged). Independent verifier35/35 twice, lint twice, build/diff pass; no semantic regressions, exact fixtures and T2 preserved. Browser invitation refresh pendingT8; no messaging workflow changed.
+- T3a stable window:121-file snapshots matched hash1c0af90fe28922f6f760925508a1f27f9b3a6e7bdabde1cd07ef01c7d8a2f802. Earlier task-doc drift acknowledged parent metadata before window, not claimed unchanged. Freeze ALL candidate files including tasks before future verifier dispatch.
+- T3a native medium reliability review approved/acknowledged authority burned: review-1e12c2a800d60270, targetsha256:68483be43b3a05d8ad17208d42ba8ec9a16a1dc12c06fedcc19fc14a5ba1f536, consumedsha256:00ce167523cce7e2815efc8d81208b37627027f36d41ff1270309fd5f7ffa85e.
+- T3a commit5683e08351afd2a2483acf5da31d48145c94a1f3 (`refactor(classrooms): encapsulate catalogue and membership mocks`), base5b07c0b, +412/-116. No publishing. Build advisory1953.98kB JS/509.56kB gzip nonblocking.
+- T3b next: teacher creation/list composition, preserve UI/delays/session curriculum. Parent owns build; writer limited source/test checks.
+
 ## Next step
-T3 pending: map bounded remaining classroom flows. User requested closing T2 only in this turn; no T3 writer launched. UI/browser checks pending under T8. Native review acknowledged; do not re-query burned lineage.
+Dispatch bounded T3b worker for teacher classroom creation/list. Worker verifies tests/typecheck/diff; parent records result BEFORE dispatching independent build then freezes all files during verifier window. Native review per scoped slice; exclude .env.example. Preserve T3a/T2 behavior. Browser checks remain pending under T8. T2 native review acknowledged; do not re-query burned lineage.
