@@ -88,36 +88,17 @@ export const mockStudyFolders: StudyFolder[] = [
   },
 ];
 
-export let sharedActivities = [
-  { 
-    id: 1, 
-    title: 'Ensayo: Vanguardias Literarias', 
-    type: 'Evaluación', 
-    status: 'Activa', 
-    due: 'Mañana', 
-    submissions: '23/28', 
-    description: 'Lee los manifiestos adjuntos de Vicente Huidobro y Guillermo de Torre. Luego, redacta un breve ensayo (max. 500 palabras) comparando cómo cada movimiento aborda la creación de imágenes poéticas.',
-    longInstructions: [
-      { title: 'Lectura y Análisis', content: 'Debes leer cuidadosamente el "Manifiesto Non Serviam" de Huidobro y "Hélices" de Guillermo de Torre. Toma nota de los conceptos principales sobre la creación poética.' },
-      { title: 'Estructura del Ensayo', content: 'El ensayo debe estructurarse en tres partes: una breve introducción presentando ambos movimientos, el cuerpo principal donde contrastarás las ideas de los autores, y la conclusión personal.' },
-      { title: 'Extensión y Formato', content: 'El ensayo debe tener entre 300 y 500 palabras. Utiliza fuente tipográfica legible.' },
-      { title: 'Citas y Referencias', content: 'Al menos debes incorporar dos citas textuales de cada autor para respaldar tus argumentos.' }
-    ],
-    attachment: { name: 'Instrucciones_Ensayo.pdf', size: '2.4 MB', url: '#' } 
-  },
-  { id: 2, title: 'Foro: El Boom Latinoamericano', type: 'Participación', status: 'Activa', due: 'En 3 días', submissions: '15/28', description: 'Participa en el foro debatiendo sobre el impacto del Realismo Mágico en la literatura europea. Debes comentar al menos a dos compañeros.', longInstructions: [] },
-  { id: 3, title: 'Cuestionario: Modernismo', type: 'Práctica', status: 'Cerrada', due: 'Semana pasada', submissions: '28/28', description: 'Cuestionario de opción múltiple sobre las características principales del Modernismo y la obra de Rubén Darío.', longInstructions: [] },
-];
+// Live compatibility exports: teacher and copilot share one synchronous owner.
+export {
+  activities as sharedActivities,
+  replaceActivities as updateSharedActivities,
+} from './features/classrooms/data/inMemoryActivityRepository';
 
 // Live compatibility exports: classrooms owns the same synchronous session array.
 export {
   submissions as sharedSubmissions,
   replaceSubmissions as updateSharedSubmissions,
 } from './features/classrooms/data/inMemorySubmissionRepository';
-
-export const updateSharedActivities = (newActivities: any[]) => {
-  sharedActivities = newActivities;
-};
 
 export let sharedMuroPosts: MuroPost[] = [
   {

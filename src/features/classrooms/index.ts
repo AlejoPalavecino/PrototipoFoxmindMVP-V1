@@ -1,3 +1,8 @@
+export type { Activity, ActivityType, ActivityCreationInput, CreatedActivityData, StudentActivity, ActivityRepository } from './model/Activity';
+export { activityRepository } from './data/inMemoryActivityRepository';
+export { createActivity, mapCreatedActivity, createStudentActivities } from './application/classroomActivities';
+export { TeacherActivityList } from './components/teacher/TeacherActivityList';
+export { StudentActivityList } from './components/student/StudentActivityList';
 export type { Classroom, ClassroomEnrollment, ClassroomRepository } from './model/Classroom';
 export { classroomRepository } from './data/inMemoryClassroomRepository';
 export { joinClassroomByCode, resolveClassroomJoin } from './application/classroomMembership';

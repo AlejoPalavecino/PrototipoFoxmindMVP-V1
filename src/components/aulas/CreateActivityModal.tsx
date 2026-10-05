@@ -31,7 +31,9 @@ import {
 } from 'lucide-react';
 import { toast } from '../ui/Toaster';
 
-export type ActivityType = 'Trabajo práctico' | 'Evaluación' | 'Quizz' | 'Repaso';
+import { createActivity } from '../../features/classrooms';
+import type { ActivityType, CreatedActivityData } from '../../features/classrooms';
+export type { ActivityType, CreatedActivityData } from '../../features/classrooms';
 
 export interface LibraryItem {
   id: number;
@@ -49,23 +51,6 @@ export interface StudentProfile {
   risk?: string;
   lastSeen?: string;
   dua: string[];
-}
-
-export interface CreatedActivityData {
-  id: number;
-  title: string;
-  type: ActivityType;
-  status: 'Activa' | 'Borrador';
-  startDate: string;
-  due: string;
-  submissions: string;
-  description: string;
-  topic: string;
-  longInstructions: { title: string; content: string }[];
-  attachment?: { name: string; size: string; url: string; fromLibrary?: boolean };
-  rubric: { criteria: string; points: number }[];
-  duaAdaptations: { studentName: string; duaProfile: string; adaptedContent: string; confirmed: boolean }[];
-  createdVia: 'ai' | 'upload';
 }
 
 interface CreateActivityModalProps {
@@ -335,34 +320,20 @@ export const CreateActivityModal: React.FC<CreateActivityModalProps> = ({
 
     const effectiveTopic = customTopic.trim() || selectedTopic || allCurriculumTopics[0]?.topic || 'Tema General';
 
-    const newActivity: CreatedActivityData = {
-      id: Date.now(),
-      title: activityTitle,
-      type: activityType,
-      status: 'Activa',
+    const newActivity = createActivity({
+      activityTitle,
+      activityType,
       startDate,
-      due: dueDate,
-      submissions: `0/${students.length || 28}`,
-      description: activityDescription,
-      topic: effectiveTopic,
-      longInstructions: [
-        { title: 'Pautas de trabajo', content: activityDescription },
-        { title: 'Criterios de evaluación', content: 'Revisa la rúbrica asociada para guiar la elaboración de tus respuestas.' }
-      ],
-      attachment: uploadedActivityDoc ? {
-        name: uploadedActivityDoc.name,
-        size: uploadedActivityDoc.size,
-        url: '#'
-      } : attachedMaterial ? {
-        name: attachedMaterial.name,
-        size: attachedMaterial.size,
-        url: '#',
-        fromLibrary: attachedMaterial.fromLibrary
-      } : undefined,
-      rubric: activityRubric,
+      dueDate,
+      studentCount: students.length,
+      activityDescription,
+      effectiveTopic,
+      uploadedActivityDoc,
+      attachedMaterial,
+      activityRubric,
       duaAdaptations,
-      createdVia: activeCreationMode
-    };
+      activeCreationMode,
+    });
 
     onCreateActivity(newActivity);
     toast.show(

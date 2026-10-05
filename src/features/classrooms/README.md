@@ -4,7 +4,9 @@ Import classroom/submission types, `classroomRepository`, `joinClassroomByCode`,
 `submissionRepository`, `deliverSubmission` and `getClassroomColorTheme` from
 `src/features/classrooms` (the public `index.ts`). Teacher list/creation components,
 `useTeacherClassroomCreation` and pure creation operations also use this boundary.
-Activities, muro and messaging workflows remain outside this migration.
+Activity contracts, synchronous ownership, creation/assignment mappings and rendered
+role activity lists also use this boundary. Muro and messaging workflows remain outside
+this migration.
 
 ## Catalogue and membership
 
@@ -102,6 +104,46 @@ fields/colors, reference semantics and no catalogue mutation. They do **not** pr
 UI lifecycle, file picker/drop, animation, navigation or toast behavior; browser and
 component verification remains pending T8, and build belongs to the parent verifier.
 
+## Activities and assignment (T3c)
+
+- `Activity` and `CreatedActivityData` are domain contracts, independent of React.
+  The wizard still reexports `ActivityType`/`CreatedActivityData` for existing consumers.
+- `activityRepository.read()` returns the current teacher/copilot session array by
+  reference; `replace(array)` keeps the supplied array synchronously. `mockData`
+  exports `sharedActivities`/`updateSharedActivities` as live compatibility aliases.
+  Copilot assignment remains untouched and writes the same owner. No subscription,
+  persistence, per-classroom partitioning or automatic local UI refresh was added.
+- `createActivity(input, now)` extracts the wizard's final record construction, using
+  `Date.now()` by default. Title/description/date strings are unchanged, zero students
+  still means `0/28`, instructions retain their exact text, upload documents beat
+  attached materials, and material `fromLibrary` is retained. Attachment metadata is
+  copied; rubric and DUA arrays remain references. Validation/topic fallback remain
+  in the wizard, not in this pure mapper.
+- `mapCreatedActivity(data)` extracts the teacher assignment projection. It drops
+  `startDate`, `topic` and `createdVia`, retains nested references, and copies all other
+  assigned fields. The page constructs it before the state updater as before, then
+  prepends to that updater's local snapshot and replaces the session array there.
+- `createStudentActivities(submissions, studentId)` initializes fresh **separate**
+  student fixtures at detail mount. These always had different descriptions,
+  attachments/statuses and a fixed third grade; teacher/copilot additions do not
+  appear here. Only activity 1 reads the first matching submission: missing/no match
+  leaves it pending, submitted means delivered, graded means completed, and non-null
+  grades become strings (including zero). This initialization is not a subscription.
+
+`TeacherActivityList` and `StudentActivityList` render the actual activity-tab lists,
+including unchanged status/count/DUA badges, animations and bubbling card/button clicks.
+Selection, back navigation, detail components, modal placement and delivery stay with
+existing owners. Active `TeacherActivityDetail` remains local-only grading; dormant
+`ActivityDetailView` and the remainder of the teacher detail suffix are untouched.
+Student delivery still uses T2's synchronous submission operation and local status map.
+
+Source comparison against `657b6f3` preserves wizard validation, resets, generated copy,
+material/library upload and 1800/1600 ms uncancelled timers. Final creation still calls
+parent assignment before its success toast and reset/close. The modal remains mounted
+under teacher detail, including its existing `isOpen` early return and file refs; neither
+list owns state or effects. Node tests cover pure contracts and shared compatibility,
+not browser render/lifetime/navigation/toast proof. UI verification remains pending T8.
+
 Run `npm run test` for Node/tsx legacy characterization, live compatibility and
-membership/submission/creation operation coverage.
+membership/submission/creation/activity operation coverage.
 Browser delivery guards, rendering and navigation still require UI verification.
