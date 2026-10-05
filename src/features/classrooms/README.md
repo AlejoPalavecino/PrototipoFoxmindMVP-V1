@@ -52,9 +52,9 @@ acceptance still calls the legacy add alias before the existing messaging notifi
 that unchanged bridge triggers the view's refresh. Pure tests do **not** validate
 browser invitation refresh; interaction/rendering verification remains pending T8.
 
-Active `TeacherActivityDetail` grading still updates only its local setter; the
-legacy `AulasDocente` detail implementation still explicitly replaces shared data.
-These persistence differences are intentional preservation, not a unified policy.
+Active `TeacherActivityDetail` grading still updates only its local setter. The
+unreachable legacy detail's shared-data replacement was not the rendered grading
+path; removing that definition in E1 does not unify persistence policies.
 
 ## Teacher list and creation (T3b)
 
@@ -133,8 +133,8 @@ component verification remains pending T8, and build belongs to the parent verif
 `TeacherActivityList` and `StudentActivityList` render the actual activity-tab lists,
 including unchanged status/count/DUA badges, animations and bubbling card/button clicks.
 Selection, back navigation, detail components, modal placement and delivery stay with
-existing owners. Active `TeacherActivityDetail` remains local-only grading; dormant
-`ActivityDetailView` and the remainder of the teacher detail suffix are untouched.
+existing owners. Active `TeacherActivityDetail` remains local-only grading. T3c left
+`ActivityDetailView` and the teacher detail suffix untouched; E1 cleanup is below.
 Student delivery still uses T2's synchronous submission operation and local status map.
 
 Source comparison against `657b6f3` preserves wizard validation, resets, generated copy,
@@ -176,6 +176,23 @@ not browser render/lifetime/navigation/toast proof. UI verification remains pend
 Tests cover legacy fixtures/replacement before and after migration, pure wall guards,
 roles/order/references/explicit persistence and normalized baseline participant JSX
 plus view wiring. Source comparison is not browser proof; interactions remain T8.
+
+## Dormant teacher detail cleanup (T3e / E1)
+
+E1 removes only the unreachable, unexported `ActivityDetailView` definition and its
+section heading. Baseline `7291d8c` AST bounds are lines 858–1279 in
+`src/views/docente/AulasDocente.tsx`: its sole production identifier is the declaration,
+with no import, call or JSX consumer across 116 production source files. The actual
+activity-tab JSX renders `TeacherActivityDetail`, whose grading drawer and local
+setter path are unchanged. The local `GradingPanel`, formerly referenced only by
+that dormant definition, remains intact for separately reviewed E2 removal.
+
+`classroomDeadCode.test.ts` checks absence in production ASTs (excluding tests/test
+fixtures), resolves actual returned JSX consumers without pinning them to the page,
+and compares normalized active grading callback/drawer source against the baseline.
+These are structural checks, not browser interaction or full runtime reachability
+proof. Profile, callbacks, navigation, session fixtures and state/timer lifetimes are
+unchanged; further extraction belongs to later units and browser acceptance to T8.
 
 Run `npm run test` for Node/tsx legacy characterization, live compatibility and
 membership/submission/creation/activity/wall operation coverage.
