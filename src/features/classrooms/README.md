@@ -177,22 +177,33 @@ Tests cover legacy fixtures/replacement before and after migration, pure wall gu
 roles/order/references/explicit persistence and normalized baseline participant JSX
 plus view wiring. Source comparison is not browser proof; interactions remain T8.
 
-## Dormant teacher detail cleanup (T3e / E1)
+## Dormant teacher detail cleanup (T3e / E1–E2)
 
-E1 removes only the unreachable, unexported `ActivityDetailView` definition and its
-section heading. Baseline `7291d8c` AST bounds are lines 858–1279 in
-`src/views/docente/AulasDocente.tsx`: its sole production identifier is the declaration,
+E1 removed only the unreachable, unexported `ActivityDetailView` definition and its
+section heading. Baseline `7291d8c` AST bounds were lines 858–1279 in
+`src/views/docente/AulasDocente.tsx`: its sole production identifier was the declaration,
 with no import, call or JSX consumer across 116 production source files. The actual
 activity-tab JSX renders `TeacherActivityDetail`, whose grading drawer and local
-setter path are unchanged. The local `GradingPanel`, formerly referenced only by
-that dormant definition, remains intact for separately reviewed E2 removal.
+setter path are unchanged. E1 retained the local `GradingPanel` for separate review.
 
-`classroomDeadCode.test.ts` checks absence in production ASTs (excluding tests/test
-fixtures), resolves actual returned JSX consumers without pinning them to the page,
-and compares normalized active grading callback/drawer source against the baseline.
+E2 removes only that now-unreferenced, unexported `GradingPanel` and its section
+heading. Against E1 commit `c3618f2`, an independent production AST scan again found
+116 sources and exactly one `GradingPanel` identifier: its declaration at line 1389,
+with no unrelated live namesake, import, call or JSX consumer. AST-derived bounds
+are the heading at line 1387 through the function end at line 1576 (EOF). E1 had
+removed its only caller; neither dormant definition remains after E2. Active
+`TeacherActivityDetail` and `TeacherGradingDrawer` are not replaced or extracted.
+
+`classroomDeadCode.test.ts` checks both names' absence in production ASTs (excluding
+tests/test fixtures), resolves actual returned JSX consumers without pinning them to
+the page, and compares normalized active grading callback/drawer source against the
+baseline. E2 additionally resolves the drawer's actual declaration and local save
+callback, guarding against a same-named substitute. Existing E1 tests remain intact.
 These are structural checks, not browser interaction or full runtime reachability
 proof. Profile, callbacks, navigation, session fixtures and state/timer lifetimes are
-unchanged; further extraction belongs to later units and browser acceptance to T8.
+unchanged. No import cleanup, persistence unification or behavior fix is included;
+profile/controller/UI-boundary extraction belongs to later units and browser
+acceptance to T8. E2 review and commit remain parent-owned; T3e is not closed.
 
 Run `npm run test` for Node/tsx legacy characterization, live compatibility and
 membership/submission/creation/activity/wall operation coverage.

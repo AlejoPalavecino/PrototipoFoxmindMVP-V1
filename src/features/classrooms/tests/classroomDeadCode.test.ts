@@ -75,6 +75,15 @@ test('removed dormant ActivityDetailView has no declaration or production consum
   assert.deepEqual(references, [], 'A dormant definition, import, call or JSX consumer reappeared');
 });
 
+// E2 baseline c3618f2: the only GradingPanel identifier across 116 production
+// sources was its unexported page-local declaration; no unrelated live namesake.
+test('removed dormant GradingPanel has no declaration or production consumers', () => {
+  const references = sources.flatMap(source => nodesMatching(source,
+    (node): node is ts.Identifier => ts.isIdentifier(node) && node.text === 'GradingPanel')
+    .map(node => `${path.relative(sourceRoot, source.fileName)}:${source.getLineAndCharacterOfPosition(node.getStart()).line + 1}`));
+  assert.deepEqual(references, [], 'The removed local panel or a production consumer reappeared');
+});
+
 test('active TeacherActivityDetail is rendered by a current production owner with its callback props', () => {
   assert.equal(details.length, 1);
   const detailSymbol = resolvedSymbol(details[0].name!);
@@ -93,6 +102,29 @@ test('active TeacherActivityDetail is rendered by a current production owner wit
         && attribute.initializer.expression, `Missing rendered ${name} expression`);
     }
   }
+});
+
+test('active detail renders the resolved TeacherGradingDrawer with its local save callback', () => {
+  assert.equal(details.length, 1);
+  const declarations = sources.flatMap(source => nodesMatching(source,
+    (node): node is ts.FunctionDeclaration => ts.isFunctionDeclaration(node)
+      && node.name?.text === 'TeacherGradingDrawer'));
+  assert.equal(declarations.length, 1);
+  const drawerSymbol = resolvedSymbol(declarations[0].name!);
+  assert.ok(drawerSymbol);
+  const consumers = nodesMatching(details[0],
+    (node): node is ts.JsxOpeningElement | ts.JsxSelfClosingElement =>
+      (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node))
+      && resolvedSymbol(node.tagName) === drawerSymbol && isReturned(node));
+  assert.equal(consumers.length, 1, 'The actual drawer, not a same-named local substitute, must render');
+  const callbacks = nodesMatching(details[0], (node): node is ts.VariableDeclaration =>
+    ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.name.text === 'handleSaveGrading');
+  assert.equal(callbacks.length, 1);
+  const onSave = consumers[0].attributes.properties.find(property =>
+    ts.isJsxAttribute(property) && property.name.getText() === 'onSave');
+  assert.ok(onSave && ts.isJsxAttribute(onSave) && onSave.initializer
+    && ts.isJsxExpression(onSave.initializer) && onSave.initializer.expression);
+  assert.equal(resolvedSymbol(onSave.initializer.expression), resolvedSymbol(callbacks[0].name));
 });
 
 test('active grading retains its local setter, feedback, breakdown and rendered drawer callback', () => {
