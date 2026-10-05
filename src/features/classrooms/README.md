@@ -170,8 +170,9 @@ not browser render/lifetime/navigation/toast proof. UI verification remains pend
   session/local state stay in the original role views. Teacher risk/DUA badges and
   full-name initials remain distinct from student two-initial avatars. The student
   cards still have no selection/message action. No roster repository was invented.
-  Profile panel/message handling, invitation payloads and messaging subscription
-  order are untouched; coordination belongs to T4. Detail orchestration belongs to T3e.
+  Profile panel/message behavior, invitation payloads and messaging subscription
+  order are unchanged; E3 relocates only the profile owner (below). Coordination
+  belongs to T4. Remaining detail orchestration belongs to later T3e units.
 
 Tests cover legacy fixtures/replacement before and after migration, pure wall guards,
 roles/order/references/explicit persistence and normalized baseline participant JSX
@@ -202,9 +203,61 @@ callback, guarding against a same-named substitute. Existing E1 tests remain int
 These are structural checks, not browser interaction or full runtime reachability
 proof. Profile, callbacks, navigation, session fixtures and state/timer lifetimes are
 unchanged. No import cleanup, persistence unification or behavior fix is included;
-profile/controller/UI-boundary extraction belongs to later units and browser
-acceptance to T8. E2 review and commit remain parent-owned; T3e is not closed.
+controller/UI-boundary extraction belongs to later units and browser acceptance
+to T8. E1/E2 review and commits are parent-owned; E3 does not reopen them or close T3e.
 
-Run `npm run test` for Node/tsx legacy characterization, live compatibility and
-membership/submission/creation/activity/wall operation coverage.
+## Active teacher profile ownership (T3e / E3)
+
+`StudentProfilePanel` is now a named export of
+`components/teacher/TeacherClassroomDetailProfile.tsx`. `AulasDocente` imports this
+leaf directly; the public `index.ts` is unchanged and no UI barrel is introduced.
+The leaf imports only React/useState, motion, the existing icons and the Toaster.
+It has no repository, session, controller, feature-data or role-view dependency.
+The independent 534-line panel remains a follow-up decomposition opportunity;
+E3 does not split its responsibilities or redesign it.
+
+### Preserved mock and lifetime contract
+
+- `AulaDetail` still owns `selectedStudentProfile` and renders the panel only when
+  truthy, inside the same `AnimatePresence`, with the same student and close props
+  and no key. Plan/message state remains local to that conditional panel instance,
+  not the page or session. Closing clears selection; a different student prop while
+  still mounted does not gain a reset effect or a keyed remount.
+- All seven initial states, risk branches (`ALTO`, `MEDIO`, fallback), chart arrays,
+  cognitive/report copy, DUA badges, icon choices and modal markup are unchanged.
+  The unused `foxyInsight` and existing `student: any` contract are retained too.
+- Plan generation still uses one uncancelled 2000 ms timer with the exact generated
+  four-step plan and setter ordering. Sending activates the edited text; discarding
+  clears plan/status/text/editing; completion clears status/plan and shows the same
+  success toast. No cleanup, persistence, overlap guard or behavior fix was added.
+- Contact still selects the original risk-specific suggested message before opening
+  its local modal. Sending only shows the success toast and closes that modal; it
+  does not dispatch through messaging. Closing the message modal does not clear
+  its draft. Existing textarea edits, buttons and parent close callback are intact.
+
+### Review evidence and limits
+
+Baseline `19a4353` contains the local profile at `AulasDocente.tsx:858` and its
+conditional consumer at line 536. `classroomComposition.test.ts` characterizes
+that body/JSX, seven states, six callbacks, uncancelled timer and resolved rendered
+consumer before/after relocation. Whole-body source fingerprinting includes comments;
+normalization ignores only CRLF and trailing line whitespace to match the target leaf.
+Ownership checks resolve the direct import to the new declaration, not a namesake.
+Tests read only the available page/profile sources, never future shell/controller files.
+Existing dead-code and participant tests are retained without changes.
+
+Remaining teacher source matches the baseline prefix with only the direct leaf import
+added and the profile section removed. The new leaf matches the preserved full-target
+leaf byte-for-byte; ownership adaptations versus the old local definition are its named
+export, dependency imports/Toaster path and auxiliary-panel comment. The relocation's
+addition/deletion exceeds the advisory 400-line heuristic as one coherent unit with
+characterization and documentation, not a size-driven rewrite.
+
+These are passing static/source checks, not behavioral RED or browser proof. Profile
+open/close, plan generation/edit/activation/completion, message modal, animations and
+state lifetime still require UI verification in T8. Build, native review and commit
+remain parent-owned; E3 implementation evidence alone does not close E3 or T3e.
+
+Run `npm run test` for Node/tsx legacy characterization, live compatibility,
+profile source composition and membership/submission/creation/activity/wall coverage.
 Browser delivery guards, rendering and navigation still require UI verification.
