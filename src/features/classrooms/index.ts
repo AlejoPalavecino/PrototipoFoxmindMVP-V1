@@ -1,3 +1,9 @@
+export type { MuroPost, MuroComment, WallRole, WallPublication, ClassroomWallRepository } from './model/ClassroomWall';
+export { classroomWallRepository } from './data/inMemoryWallRepository';
+export { publishWallPost, toggleWallLike, addWallComment } from './application/classroomWall';
+export type { TeacherParticipant, StudentParticipant, ParticipantViewMode } from './model/ClassroomParticipant';
+export { TeacherParticipantList } from './components/teacher/TeacherParticipantList';
+export { StudentParticipantList } from './components/student/StudentParticipantList';
 export type { Activity, ActivityType, ActivityCreationInput, CreatedActivityData, StudentActivity, ActivityRepository } from './model/Activity';
 export { activityRepository } from './data/inMemoryActivityRepository';
 export { createActivity, mapCreatedActivity, createStudentActivities } from './application/classroomActivities';

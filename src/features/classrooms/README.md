@@ -5,8 +5,8 @@ Import classroom/submission types, `classroomRepository`, `joinClassroomByCode`,
 `src/features/classrooms` (the public `index.ts`). Teacher list/creation components,
 `useTeacherClassroomCreation` and pure creation operations also use this boundary.
 Activity contracts, synchronous ownership, creation/assignment mappings and rendered
-role activity lists also use this boundary. Muro and messaging workflows remain outside
-this migration.
+role activity lists, wall operations/ownership and role participant presentation also
+use this boundary. Messaging workflows remain outside this migration.
 
 ## Catalogue and membership
 
@@ -144,6 +144,39 @@ under teacher detail, including its existing `isOpen` early return and file refs
 list owns state or effects. Node tests cover pure contracts and shared compatibility,
 not browser render/lifetime/navigation/toast proof. UI verification remains pending T8.
 
+## Wall and participants (T3d)
+
+- `MuroPost`/`MuroComment` reuse `src/types.ts` via type reexports. Wall fixtures retain
+  all values/order. `classroomWallRepository.read()` returns the session array by
+  reference; `replace(array)` keeps exactly that array synchronously. Legacy
+  `sharedMuroPosts`/`updateSharedMuroPosts` are live aliases to this same owner.
+- `publishWallPost`, `toggleWallLike` and `addWallComment` are pure transformations
+  of the caller's local snapshot. Publication/comments trim and reject blanks before
+  sampling `Date.now()`, preserve the role-specific names, relative `Justo ahora`
+  timestamp, types and attachments. Publication prepends without sorting pinned posts;
+  likes floor decrements at zero; comments append. Mapping changes every matching id,
+  retains other records, and still creates an array for unknown ids. No operation
+  persists implicitly. Pinning is only the existing teacher publication checkbox,
+  not a new pin-toggle interaction. No locale-date wall behavior existed to migrate.
+- `ClassroomMuroTab` reads the shared array on mount, then keeps its own posts/drafts,
+  filter and comment expansion. Successful actions set local posts then replace the
+  shared array; blank actions leave drafts untouched. There is no subscription, merge,
+  per-aula partition or automatic sync between already mounted snapshots, despite the
+  existing real-time label. AI drafting/attachments and all avatar/render markup stay
+  unchanged. Stale local writes can still replace newer shared data, as before.
+- Both participant rosters are actually rendered. `TeacherParticipantList` and
+  `StudentParticipantList` own only toolbar/grid/table presentation. Their distinct
+  fixtures, filtering/search/view mode, teacher selection/report/invite callbacks and
+  session/local state stay in the original role views. Teacher risk/DUA badges and
+  full-name initials remain distinct from student two-initial avatars. The student
+  cards still have no selection/message action. No roster repository was invented.
+  Profile panel/message handling, invitation payloads and messaging subscription
+  order are untouched; coordination belongs to T4. Detail orchestration belongs to T3e.
+
+Tests cover legacy fixtures/replacement before and after migration, pure wall guards,
+roles/order/references/explicit persistence and normalized baseline participant JSX
+plus view wiring. Source comparison is not browser proof; interactions remain T8.
+
 Run `npm run test` for Node/tsx legacy characterization, live compatibility and
-membership/submission/creation/activity operation coverage.
+membership/submission/creation/activity/wall operation coverage.
 Browser delivery guards, rendering and navigation still require UI verification.

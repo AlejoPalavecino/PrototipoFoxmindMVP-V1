@@ -17,8 +17,8 @@ import {
   Download,
   Share2
 } from 'lucide-react';
-import { MuroPost, MuroComment } from '../../types';
-import { sharedMuroPosts, updateSharedMuroPosts } from '../../mockData';
+import type { MuroPost } from '../../features/classrooms';
+import { classroomWallRepository, publishWallPost, toggleWallLike, addWallComment } from '../../features/classrooms';
 
 interface ClassroomMuroTabProps {
   role: 'docente' | 'alumno';
@@ -35,7 +35,7 @@ export const ClassroomMuroTab: React.FC<ClassroomMuroTabProps> = ({
   aulaId,
   onOpenCopilot
 }) => {
-  const [posts, setPosts] = useState<MuroPost[]>(sharedMuroPosts);
+  const [posts, setPosts] = useState<MuroPost[]>(() => classroomWallRepository.read());
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
   const [isPinned, setIsPinned] = useState(false);
@@ -47,26 +47,10 @@ export const ClassroomMuroTab: React.FC<ClassroomMuroTabProps> = ({
 
   const handleCreatePost = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newContent.trim()) return;
-
-    const newPost: MuroPost = {
-      id: `post-${Date.now()}`,
-      authorName: role === 'docente' ? 'Profa. Martínez' : 'Valentina Gómez',
-      authorRole: role,
-      timestamp: 'Justo ahora',
-      title: newTitle.trim() || undefined,
-      content: newContent.trim(),
-      isPinned: role === 'docente' ? isPinned : false,
-      type: role === 'docente' ? 'announcement' : 'doubt',
-      attachment: attachedFile || undefined,
-      likesCount: 0,
-      isLiked: false,
-      comments: []
-    };
-
-    const updated = [newPost, ...posts];
+    const updated = publishWallPost(posts, { role, title: newTitle, content: newContent, isPinned, attachment: attachedFile });
+    if (!updated) return;
     setPosts(updated);
-    updateSharedMuroPosts(updated);
+    classroomWallRepository.replace(updated);
 
     setNewTitle('');
     setNewContent('');
@@ -75,45 +59,16 @@ export const ClassroomMuroTab: React.FC<ClassroomMuroTabProps> = ({
   };
 
   const handleLikePost = (postId: string) => {
-    const updated = posts.map(post => {
-      if (post.id === postId) {
-        const isLiked = !post.isLiked;
-        return {
-          ...post,
-          isLiked,
-          likesCount: isLiked ? post.likesCount + 1 : Math.max(0, post.likesCount - 1)
-        };
-      }
-      return post;
-    });
+    const updated = toggleWallLike(posts, postId);
     setPosts(updated);
-    updateSharedMuroPosts(updated);
+    classroomWallRepository.replace(updated);
   };
 
   const handleAddComment = (postId: string) => {
-    const text = commentText[postId]?.trim();
-    if (!text) return;
-
-    const newComment: MuroComment = {
-      id: `c-${Date.now()}`,
-      authorName: role === 'docente' ? 'Profa. Martínez' : 'Valentina Gómez',
-      authorRole: role,
-      timestamp: 'Justo ahora',
-      content: text
-    };
-
-    const updated = posts.map(post => {
-      if (post.id === postId) {
-        return {
-          ...post,
-          comments: [...post.comments, newComment]
-        };
-      }
-      return post;
-    });
-
+    const updated = addWallComment(posts, postId, role, commentText[postId]);
+    if (!updated) return;
     setPosts(updated);
-    updateSharedMuroPosts(updated);
+    classroomWallRepository.replace(updated);
     setCommentText(prev => ({ ...prev, [postId]: '' }));
   };
 
