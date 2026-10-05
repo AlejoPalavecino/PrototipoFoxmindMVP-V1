@@ -5,3 +5,8 @@ export type { Submission, SubmissionDelivery, SubmissionRepository } from './mod
 export { submissionRepository } from './data/inMemorySubmissionRepository';
 export { deliverSubmission } from './application/deliverSubmission';
 export { getClassroomColorTheme } from './lib/getClassroomColorTheme';
+export type { ClassroomCreationForm, ClassroomCreationResult } from './model/ClassroomCreation';
+export { createClassroomForm, describeStudyPlanFile, validateClassroomForm, analyzeClassroomPlan, createTeacherClassroom } from './application/classroomCreation';
+export { TeacherClassroomList } from './components/teacher/TeacherClassroomList';
+export { TeacherClassroomCreateFlow } from './components/teacher/TeacherClassroomCreateFlow';
+export { useTeacherClassroomCreation } from './hooks/useTeacherClassroomCreation';
