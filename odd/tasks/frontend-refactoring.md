@@ -193,14 +193,10 @@ E8 closedfe6e490bcb9cf52bfbb85fe7bc3738733442babc base45a9557;linkedclean immedi
 
 [Showing lines 1-192 of 194 (50.0KB limit). Use offset=193 to continue.]
 
-[Showing lines 1-194 of 196 (50.0KB limit). Use offset=195 to continue.]
-
-[Showing lines 1-196 of 198 (50.0KB limit). Use offset=197 to continue.]
 
 
 
 
 
-
-[Showing lines 1-203 of 206 (50.0KB limit). Use offset=204 to continue.]
-E10 closed132a20846b17f1273fa124ec17e552ec1939c205 base0ebe3b7;linkedclean immediatelyaftercommit. Native targetsha256:e70fdaceabb2f9e8a8ca40ddf6a60db78c9700dbc2d1f314c3fc71e7c419b1e8 consumedsha256:e12a682bc51c9f4f3f57daed28f7d1a117956ed042deb42c26182a0d065d18ae exactackburn,no requery. E11 in progress:read-onlymembership/join/navigationpagecomposition mapping beforeboundedwriter;finalruntimecomparisonT3 pending/browserT8pending/originaltargetintact.
+[Showing lines 1-199 of 202 (50.0KB limit). Use offset=200 to continue.]
+E11 independentverifiersettledPASS:30focused/lint(non-stricttsc)/frontendserverbuild(13.54sVite)/diffall0separate30stimeouts;11candidate/taskdoc/HEADstable. Completeinventory135productioninclCSS+19tests+1README/0helpers;131otherHEAD16raw115newline,4canonicalruntimeexact. IndependentbeforeafterSHA256JSONsortedPOSIX[path,rawhash] linked509955803d50f7268abb15efd1897a2066c3db3aaa25b4a0e25f5435f12e3255/originaldb99c90611593ca115bb1185dce6f499121a6000b395cde1e96a90ddcb90976dstable. Historicalworker138/134/27965aggregateunreproducedunknownrecipe,NOTverifiedevidence;docs/helperhypothesesdisproved. 9modified3untracked12paths incltracking,tracked+309/-125excludeuntracked;12UIexports0cyclesheadlessfreeoriginalwholepage/student5/teacheroraclesPASS. Bundleadvisory1960.67kB512.68gzip. E5/E9index7extraheadlessexports/orderT3followupnotE11delta/noedit. RDDglobalon. ReleaseverificationfreezeONLYparenttrackingnormalizationnowthenfreezeallforfreshnativeinspect/start/review/ack/localcommit. T8browserpending;E11notdoneuntilreviewcommit.

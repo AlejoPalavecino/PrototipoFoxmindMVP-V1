@@ -12,12 +12,14 @@ const options = ts.convertCompilerOptionsFromJson(config.config.compilerOptions,
 assert.deepEqual(options.errors, []);
 const studentComposed = existsSync(resolve(root, 'src/features/classrooms/components/student/StudentClassroomDetail.tsx'));
 const studentListed = existsSync(resolve(root, 'src/features/classrooms/components/student/StudentClassroomList.tsx'));
+const studentMembership = existsSync(resolve(root, 'src/features/classrooms/hooks/useStudentClassroomMembership.ts'));
 const uiExports = [
   'TeacherParticipantList', 'StudentParticipantList',
   'TeacherActivityList', 'StudentActivityList',
   'TeacherClassroomList', 'TeacherClassroomCreateFlow', 'useTeacherClassroomCreation',
   studentComposed ? 'StudentClassroomDetail' : 'useTeacherClassroomDetail', 'TeacherClassroomDetail',
   ...(studentListed ? ['StudentClassroomList'] : []),
+  ...(studentMembership ? ['StudentClassroomJoinDialog', 'useStudentClassroomMembership'] : []),
 ];
 const pageExports = new Map([
   ['docente/AulasDocente', [
@@ -27,6 +29,7 @@ const pageExports = new Map([
   ['alumno/AulasAlumno', [
     ...(studentComposed ? ['StudentClassroomDetail'] : ['StudentActivityList', 'StudentParticipantList']),
     ...(studentListed ? ['StudentClassroomList'] : []),
+    ...(studentMembership ? ['StudentClassroomJoinDialog', 'useStudentClassroomMembership'] : []),
   ]],
 ]);
 

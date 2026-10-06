@@ -32,6 +32,11 @@ assert.equal(presence.openingElement.attributes.properties[0].getText(), 'mode="
 const unwrap = (node: ts.Expression): ts.Expression => ts.isParenthesizedExpression(node) ? unwrap(node.expression) : node;
 const consumer = unwrap(branch.whenTrue);
 let markup = consumer;
+const suppliedProps = new Map<string, ts.Expression>();
+const resolvedSymbol = (node: ts.Node) => {
+  const value = checker.getSymbolAtLocation(node);
+  return value && value.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(value) : value;
+};
 if (ts.isJsxSelfClosingElement(consumer)) {
   const alias = checker.getSymbolAtLocation(consumer.tagName)!;
   const declaration = checker.getAliasedSymbol(alias).valueDeclaration;
@@ -39,6 +44,47 @@ if (ts.isJsxSelfClosingElement(consumer)) {
   assert.equal(declaration.name!.text, 'StudentClassroomList');
   const expression = declaration.body.statements.find(ts.isReturnStatement)!.expression!;
   markup = unwrap(expression);
+  assert.ok(ts.isObjectBindingPattern(declaration.parameters[0].name));
+  const pageVariables = nodes(owner, ts.isVariableDeclaration);
+  const membershipMount = pageVariables.find(node => node.name.getText() === 'membership');
+  for (const parameter of declaration.parameters[0].name.elements) {
+    const name = parameter.name.getText();
+    const prop = consumer.attributes.properties.find(node => ts.isJsxAttribute(node) && node.name.getText() === name);
+    assert.ok(prop && ts.isJsxAttribute(prop) && prop.initializer && ts.isJsxExpression(prop.initializer) && prop.initializer.expression);
+    const supplied = prop.initializer.expression;
+    suppliedProps.set(name, supplied);
+    const used = name === 'onJoin' ? (() => {
+      assert.ok(ts.isArrowFunction(supplied) && ts.isCallExpression(supplied.body));
+      assert.equal(supplied.body.arguments[0].kind, ts.SyntaxKind.TrueKeyword);
+      return supplied.body.expression;
+    })() : supplied;
+    const expected = name === 'onSelect' ? 'setSelectedAula' : name === 'onJoin' ? 'setIsJoinModalOpen' : 'classrooms';
+    if (membershipMount && name !== 'onSelect') {
+      assert.ok(membershipMount.initializer && ts.isCallExpression(membershipMount.initializer));
+      const hook = resolvedSymbol(membershipMount.initializer.expression)?.valueDeclaration;
+      assert.ok(hook && ts.isFunctionDeclaration(hook) && hook.body);
+      assert.equal(membershipMount.parent.parent.parent, owner.body);
+      const binding = pageVariables.find(node => ts.isObjectBindingPattern(node.name) && node.initializer
+        && resolvedSymbol(node.initializer) === resolvedSymbol(membershipMount.name));
+      assert.ok(binding && ts.isObjectBindingPattern(binding.name));
+      const item = binding.name.elements.find(item => item.name.getText() === expected)!;
+      assert.ok(item); assert.equal(resolvedSymbol(used), resolvedSymbol(item.name));
+      const returned = hook.body.statements.find(ts.isReturnStatement)!.expression;
+      assert.ok(returned && ts.isObjectLiteralExpression(returned));
+      const property = returned.properties.find((node): node is ts.ShorthandPropertyAssignment =>
+        ts.isShorthandPropertyAssignment(node) && node.name.text === expected);
+      assert.ok(property);
+      const state = checker.getShorthandAssignmentValueSymbol(property)?.valueDeclaration;
+      assert.ok(state && ts.isBindingElement(state) && ts.isArrayBindingPattern(state.parent));
+      assert.equal(state.parent.elements[name === 'onJoin' ? 1 : 0], state, 'Real membership snapshot/setter, not a detached fake alias');
+    } else {
+      const binding = pageVariables.find(node => ts.isArrayBindingPattern(node.name)
+        && node.name.elements.some(item => ts.isBindingElement(item) && item.name.getText() === expected));
+      assert.ok(binding && ts.isArrayBindingPattern(binding.name));
+      const item = binding.name.elements.find(item => ts.isBindingElement(item) && item.name.getText() === expected)!;
+      assert.ok(ts.isBindingElement(item)); assert.equal(resolvedSymbol(used), resolvedSymbol(item.name));
+    }
+  }
   assert.equal(nodes(declaration, (node): node is ts.CallExpression => ts.isCallExpression(node)
     && /useState|useEffect|Repository|localStorage|\.filter$/.test(node.expression.getText())).length, 0);
 }
@@ -51,6 +97,11 @@ function render(classrooms: any[]) {
     setSelectedAula: (aula: any) => { selected = aula; },
     setIsJoinModalOpen: (open: boolean) => { assert.equal(open, true); joins++; },
   };
+  for (const [name, supplied] of suppliedProps) {
+    globals[name] = runInNewContext(ts.transpileModule(`(${supplied.getText()})`, {
+      compilerOptions: { target: ts.ScriptTarget.ESNext },
+    }).outputText, globals);
+  }
   for (const name of ['BookOpen', 'Plus', 'Users', 'AlertCircle', 'CheckCircle2', 'Calendar', 'Award', 'Clock', 'ChevronRight']) globals[name] = name;
   const code = ts.transpileModule(`(${markup.getText()})`, {
     compilerOptions: { jsx: ts.JsxEmit.React, target: ts.ScriptTarget.ESNext }, fileName: 'listing.tsx',

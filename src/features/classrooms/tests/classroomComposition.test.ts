@@ -417,6 +417,34 @@ test('student composition retains page selection/back props and one controller b
   const page = program.getSourceFile(studentPagePath)!;
   const owner = page.statements.find((node): node is ts.FunctionDeclaration =>
     ts.isFunctionDeclaration(node) && node.name?.text === 'AulasAlumno')!;
+  const membershipMount = nodesMatching(owner, ts.isVariableDeclaration).find(node => node.name.getText() === 'membership');
+  if (membershipMount) {
+    assert.ok(membershipMount.initializer && ts.isCallExpression(membershipMount.initializer));
+    const hook = resolvedSymbol(membershipMount.initializer.expression)?.valueDeclaration;
+    assert.ok(hook && ts.isFunctionDeclaration(hook) && hook.body);
+    assert.equal(membershipMount.parent.parent.parent, owner.body);
+    assert.equal(membershipMount.initializer.arguments.length, 0);
+    assert.equal(nodesMatching(hook, (node): node is ts.VariableDeclaration => ts.isVariableDeclaration(node)
+      && ts.isArrayBindingPattern(node.name)).length, 3);
+    const pageEffects = nodesMatching(owner, (node): node is ts.CallExpression => ts.isCallExpression(node)
+      && node.expression.getText() === 'useEffect');
+    const membershipEffects = nodesMatching(hook, (node): node is ts.CallExpression => ts.isCallExpression(node)
+      && node.expression.getText() === 'useEffect');
+    assert.equal(pageEffects.length, 1); assert.equal(membershipEffects.length, 1);
+    assert.equal(pageEffects[0].arguments[1].getText(), '[navigationParams, classrooms]');
+    assert.equal(membershipEffects[0].arguments[1].getText(), '[]');
+    assert.equal(nodesMatching(hook, ts.isIfStatement).length, 3, 'Rejected, duplicate and catalogue join branches retained');
+    const dialog = renderedOwner(owner, 'StudentClassroomJoinDialog');
+    const prop = dialog.consumer.attributes.properties[0];
+    assert.ok(ts.isJsxAttribute(prop) && prop.name.getText() === 'membership'
+      && prop.initializer && ts.isJsxExpression(prop.initializer) && prop.initializer.expression);
+    assert.equal(resolvedSymbol(prop.initializer.expression), resolvedSymbol(membershipMount.name));
+    assert.equal(dialog.consumer.attributes.properties.length, 1);
+    assert.equal(nodesMatching(dialog.owner, (node): node is ts.BinaryExpression => ts.isBinaryExpression(node)
+      && node.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken).length, 1);
+    assert.equal(nodesMatching(owner, (node): node is ts.ConditionalExpression => ts.isConditionalExpression(node)
+      && node.condition.getText() === '!selectedAula').length, 2, 'Original wrapper and list/detail branches');
+  }
   const consumer = nodesMatching(owner, (node): node is ts.JsxSelfClosingElement =>
     ts.isJsxSelfClosingElement(node) && /^(AulaDetailAlumno|StudentClassroomDetail)$/.test(node.tagName.getText()));
   assert.equal(consumer.length, 1);

@@ -3,7 +3,8 @@
 Use `src/features/classrooms` (headless `index.ts`) for domain types, repositories,
 pure operations and `getClassroomColorTheme`. Use `src/features/classrooms/ui` for
 role participant/activity lists, `TeacherClassroomList`, `TeacherClassroomCreateFlow`,
-`TeacherClassroomDetail`, `StudentClassroomDetail`, `StudentClassroomList` and the teacher creation hook.
+`TeacherClassroomDetail`, `StudentClassroomDetail`, `StudentClassroomList`,
+`StudentClassroomJoinDialog` and the teacher creation/student membership hooks.
 Detail hooks remain internal direct leaves. Invitation dispatch remains on the unchanged
 `messagingStore` bridge; coordination changes belong to T4.
 
@@ -219,19 +220,62 @@ These are source/fake-element checks, not browser/animation acceptance. Independ
 build, native review and commit remain parent-owned; browser/lifetime checks remain
 T8. E11 and final accumulated T3e target reconciliation are still pending.
 
-## Public import boundaries (T3e / E4–E10)
+## Student membership and join composition (T3e / E11)
+
+`AulasAlumno` unconditionally mounts `useStudentClassroomMembership()` and passes
+that single return to `StudentClassroomJoinDialog`. The page, hook, dialog and final
+UI barrel match the preserved corrected target byte-for-byte. Selection, navigation
+and back remain page-owned; detail, listing, fixtures and pure operations are unchanged.
+
+| Contract | Preserved behavior |
+|---|---|
+| Lifetime | Three membership states stay mounted while detail or dialog visibility changes. Initial membership is a lazy array copy; mount refresh copies before subscribing to the existing messaging bridge and returns its exact cleanup. Notifications copy current membership, retaining record references. |
+| Join input | The operation receives the unchanged code and captured UI snapshot. Rejection keeps modal, code and snapshot untouched. No timers, new subscriptions, backend or validation were added. |
+| Duplicate | Exact Spanish info toast precedes close and code clear. No membership read or refresh occurs. |
+| Success | Catalogue/generic results read and copy current membership, close, clear code, then show their distinct exact Spanish success toast. Generic storage duplicates still follow generic success. |
+| Dialog | Cancel and X only hide it; typed code survives. Input value/change wiring and `disabled={!invitationCode.trim()}` remain unchanged. |
+| Navigation | The existing headless `resolveStudentClassroom` retains the first exact id match behind a truthy `aulaId` guard. The effect keeps `[navigationParams, classrooms]`; back clears selection before its conditional `setView('aulas', undefined)`. |
+
+### Review evidence and limits
+
+Baseline was 110/110. Four passing membership characterizations preceded extraction;
+the six-file focused set passed 30/30 before and after, and the final suite passes
+114/114 without skips. Fake hooks/elements execute statements resolved from the actual
+inline page or mounted hook/dialog. They protect lazy/mount/notification copies,
+cleanup, page-lifetime selection, every join result, exact toast/reset ordering,
+passed snapshot identity, rejection/duplicate non-refresh and cancel/code preservation.
+Listing checks follow actual supplied callback symbols through the membership return;
+participant checks follow the actual mounted subscription owner.
+
+The original whole-page oracle
+`c30e2f00fa92b004ee64d6b61037637872669fa923553020cbd030c845b11c1a`
+is retained by expanding the resolved hook statements, dialog/list bindings and
+navigation helper. Explicit AST anchors restore membership effect → navigation
+effect → back → join handler → return order. The temporary 29/30 failure was a test
+reconstruction mismatch: standalone effect printing had different indentation, so
+string replacement silently left the helper call unexpanded. AST-position replacement
+corrected only the test; no runtime or expected hash changed. Existing detail and
+teacher source/state oracles remain intact.
+
+These are passing source/fake-hook characterizations, not behavioral RED or browser
+lifecycle/animation proof. Configured `tsc --noEmit` is non-strict. Independent build,
+native review, commit and final accumulated T3 comparison remain parent-owned;
+browser invitation refresh, interactions and state-lifetime acceptance remain T8.
+
+## Public import boundaries (T3e / E4–E11)
 
 The headless entry point must not transitively load UI components or hooks. The
-separate UI entry point exposes exactly ten current presentation/hook exports,
-including both detail compositions, student listing and the teacher creation hook.
-No future membership/join exports are added. This split prevents
+separate UI entry point exposes exactly twelve current presentation/hook exports,
+including both detail compositions, student listing/join, teacher creation and student
+membership hooks. E11 adds only the join dialog and membership hook to E10's ten.
+This split prevents
 shared domain consumers from pulling role UI back into their dependency graph.
 Feature internals import leaves, not the UI barrel. Existing shared wall/modal/detail
 consumers stay on the headless boundary; the modal composition keeps direct profile,
 materials and invitation leaf imports.
 
 `classroomImportBoundaries.test.ts` checks the current tree for zero runtime cycles,
-transitive headless/UI separation, exactly ten UI exports and both role pages'
+transitive headless/UI separation, exactly twelve UI exports and both role pages'
 UI import routing. It inspects in-memory TypeScript output, including static imports,
 reexports, side effects and literal dynamic/require edges; type-only edges are erased.
 Missing local source imports fail rather than silently disappearing. External packages,
@@ -276,8 +320,9 @@ and `updateClassroomsAlumno` are live compatibility aliases/delegation, as are
 `sharedSubmissions` and `updateSharedSubmissions`. Legacy writes are immediately
 visible on feature reads and vice versa. Existing local UI snapshots do not auto-refresh.
 
-`AulasAlumno` still copies membership at initialization, mount, successful joins and
-on `messagingStore` updates, returning the same subscription cleanup. Invitation
+The page-mounted `useStudentClassroomMembership` still copies membership at
+initialization, mount, successful joins and on `messagingStore` updates, returning
+the same subscription cleanup. Invitation
 acceptance still calls the legacy add alias before the existing messaging notification;
 that unchanged bridge triggers the view's refresh. Pure tests do **not** validate
 browser invitation refresh; interaction/rendering verification remains pending T8.

@@ -154,5 +154,16 @@ test('rendered participant lists keep distinct roster, search, view mode and cal
   assert.match(teacherState, /messagingStore\.sendClassroomInvitation\(/);
   assert.match(studentFixtures, /const students = \[/);
   assert.match(studentFixtures, /name: 'Sofía Herrera \(Tú\)'/);
-  assert.match(studentPage, /messagingStore\.subscribe\(/);
+  const membershipMount = studentOwner.body!.statements.filter(ts.isVariableStatement)
+    .flatMap(node => [...node.declarationList.declarations]).find(node => node.name.getText() === 'membership');
+  let membershipOwner = studentPage;
+  if (membershipMount) {
+    assert.ok(membershipMount.initializer && ts.isCallExpression(membershipMount.initializer));
+    const membership = symbol(membershipMount.initializer.expression)?.valueDeclaration;
+    assert.ok(membership && ts.isFunctionDeclaration(membership) && membership.body);
+    assert.equal(membershipMount.parent.parent.parent, studentOwner.body, 'Subscription belongs to the unconditional page-lifetime hook');
+    assert.equal(membershipMount.initializer.arguments.length, 0);
+    membershipOwner = membership.getText();
+  }
+  assert.match(membershipOwner, /messagingStore\.subscribe\(/);
 });

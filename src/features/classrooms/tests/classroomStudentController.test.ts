@@ -187,7 +187,15 @@ test('student navigation helper retains first exact aulaId match, missing and fa
     assert.equal(resolveStudent([first, other], params), undefined);
   }
   assert.equal(resolveStudent([], { aulaId: 'a-1' }), undefined);
-  assert.match(pageOwner.getText(), /const aula = classrooms\.find\(a => a\.id === navigationParams\.aulaId\)/);
+  const helperCalls = nodes(pageOwner, (node): node is ts.CallExpression => ts.isCallExpression(node)
+    && node.expression.getText() === 'resolveStudentClassroom');
+  if (helperCalls.length) {
+    assert.equal(helperCalls.length, 1);
+    const helper = symbol(helperCalls[0].expression)?.valueDeclaration;
+    assert.ok(helper && ts.isFunctionDeclaration(helper) && helper.body);
+    assert.match(helper.getText(), /if \(params\?\.aulaId\) return classrooms\.find\(a => a\.id === params\.aulaId\)/);
+    assert.deepEqual(helperCalls[0].arguments.map(node => node.getText()), ['classrooms', 'navigationParams']);
+  } else assert.match(pageOwner.getText(), /const aula = classrooms\.find\(a => a\.id === navigationParams\.aulaId\)/);
   if (migrated) assert.equal((boundary as any).studentDetailInitialTab, 'actividades');
 });
 
@@ -224,6 +232,123 @@ test('actual mounted student shell preserves whole JSX, six tabs, early return, 
   assert.equal(digest(print(detail.body!.statements.find(ts.isIfStatement)!).replace(/\s+/g, '')),
     'f3490df3bd6b4a7c15017e62bb2218198d6ed1294a11db34a301c6a1a68a353a');
   let originalPage = print(pageOwner.body!);
+  const pageVariables = nodes(pageOwner, ts.isVariableDeclaration);
+  const membershipMount = pageVariables.find(node => node.name.getText() === 'membership');
+  let membership: ts.FunctionDeclaration | undefined;
+  let membershipBinding: ts.VariableDeclaration | undefined;
+  if (membershipMount) {
+    assert.ok(membershipMount.initializer && ts.isCallExpression(membershipMount.initializer));
+    const hook = symbol(membershipMount.initializer.expression)?.valueDeclaration;
+    assert.ok(hook && ts.isFunctionDeclaration(hook) && hook.body);
+    membership = hook;
+    assert.equal(membershipMount.parent.parent.parent, pageOwner.body);
+    assert.equal(membershipMount.initializer.arguments.length, 0);
+    membershipBinding = pageVariables.find(node => ts.isObjectBindingPattern(node.name)
+      && node.initializer && symbol(node.initializer) === symbol(membershipMount.name));
+    assert.ok(membershipBinding && ts.isObjectBindingPattern(membershipBinding.name));
+    assert.deepEqual(membershipBinding.name.elements.map(item => item.name.getText()), ['classrooms', 'setIsJoinModalOpen']);
+    const statements = [...hook.body.statements];
+    const returned = statements.pop()!;
+    assert.ok(ts.isReturnStatement(returned) && returned.expression && ts.isObjectLiteralExpression(returned.expression));
+    const handler = statements.pop()!;
+    assert.ok(ts.isVariableStatement(handler) && handler.declarationList.declarations[0].name.getText() === 'handleJoinClassroom');
+    assert.equal(statements.length, 4, 'Three membership states and the original mount subscription effect');
+    originalPage = originalPage.replace(print(membershipMount.parent.parent), statements.map(print).join('\n'))
+      .replace(print(membershipBinding.parent.parent), '');
+    const reconstruction = () => {
+      const prefix = 'function reconstructed() ';
+      const source = ts.createSourceFile('reconstructed.tsx', prefix + originalPage,
+        ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+      const owner = source.statements[0];
+      assert.ok(ts.isFunctionDeclaration(owner) && owner.body);
+      return { source, body: owner.body, prefix };
+    };
+    const beforeJoin = reconstruction();
+    const statementOrder = (body: ts.Block) => body.statements.map(node =>
+      ts.isVariableStatement(node) ? node.declarationList.declarations[0].name.getText()
+        : ts.isExpressionStatement(node) && ts.isCallExpression(node.expression)
+          ? node.expression.expression.getText() : ts.SyntaxKind[node.kind]);
+    assert.deepEqual(statementOrder(beforeJoin.body), [
+      '{ navigationParams, setView }', '[selectedAula, setSelectedAula]', '[classrooms, setClassrooms]',
+      '[isJoinModalOpen, setIsJoinModalOpen]', '[invitationCode, setInvitationCode]',
+      'useEffect', 'useEffect', 'handleBack', 'ReturnStatement',
+    ], 'Restore HEAD order: membership effect, navigation effect, back, join handler, return');
+    const returnAnchor = beforeJoin.body.statements[8];
+    assert.ok(ts.isReturnStatement(returnAnchor));
+    const insertion = returnAnchor.getStart(beforeJoin.source) - beforeJoin.prefix.length;
+    originalPage = originalPage.slice(0, insertion) + `${print(handler)}\n` + originalPage.slice(insertion);
+    assert.deepEqual(statementOrder(reconstruction().body), [
+      ...statementOrder(beforeJoin.body).slice(0, -1), 'handleJoinClassroom', 'ReturnStatement',
+    ]);
+    const effects = pageOwner.body!.statements.filter((node): node is ts.ExpressionStatement => ts.isExpressionStatement(node)
+      && ts.isCallExpression(node.expression) && node.expression.expression.getText() === 'useEffect');
+    assert.equal(effects.length, 1);
+    const navigation = effects[0].expression as ts.CallExpression;
+    const callback = navigation.arguments[0];
+    assert.ok(ts.isArrowFunction(callback) && ts.isBlock(callback.body));
+    const lookup = (callback.body.statements[0] as ts.VariableStatement).declarationList.declarations[0];
+    assert.ok(lookup.initializer && ts.isCallExpression(lookup.initializer));
+    const helper = symbol(lookup.initializer.expression)?.valueDeclaration;
+    assert.ok(helper && ts.isFunctionDeclaration(helper) && helper.body);
+    assert.equal(helper.body.statements.length, 1);
+    const guard = helper.body.statements[0];
+    assert.ok(ts.isIfStatement(guard) && ts.isReturnStatement(guard.thenStatement) && guard.thenStatement.expression);
+    assert.equal(guard.expression.getText(), 'params?.aulaId');
+    const find = guard.thenStatement.expression;
+    assert.equal(find.getText(), 'classrooms.find(a => a.id === params.aulaId)');
+    assert.deepEqual(lookup.initializer.arguments.map(node => node.getText()), ['classrooms', 'navigationParams']);
+    const selection = callback.body.statements[1];
+    assert.ok(ts.isIfStatement(selection) && ts.isExpressionStatement(selection.thenStatement));
+    assert.equal(callback.body.statements.length, 2);
+    const rename = (node: ts.Node) => print(node).replace(/\bparams\b/g, 'navigationParams');
+    // Inline the actually resolved truthy guard/first-match expression, restoring
+    // only original statement blocks around the unchanged page selection callback.
+    const reconstructed = reconstruction();
+    const navigationAnchor = reconstructed.body.statements[6];
+    assert.ok(ts.isExpressionStatement(navigationAnchor) && ts.isCallExpression(navigationAnchor.expression));
+    assert.equal(navigationAnchor.expression.expression.getText(), 'useEffect');
+    assert.equal(nodes(navigationAnchor, (node): node is ts.CallExpression => ts.isCallExpression(node)
+      && node.expression.getText() === 'resolveStudentClassroom').length, 1);
+    const navigationStart = navigationAnchor.getStart(reconstructed.source) - reconstructed.prefix.length;
+    const navigationEnd = navigationAnchor.end - reconstructed.prefix.length;
+    // Anchor by parsed statement positions: standalone printer indentation differs
+    // from the same effect inside the page block, so string replacement can miss it.
+    originalPage = originalPage.slice(0, navigationStart) + `useEffect(() => { if (${rename(guard.expression)}) {
+      const ${print(lookup.name)} = ${rename(find)};
+      if (${print(selection.expression)}) { ${print(selection.thenStatement)} }
+    } }, ${print(navigation.arguments[1])});` + originalPage.slice(navigationEnd);
+    assert.doesNotMatch(originalPage, /resolveStudentClassroom\(/);
+    const dialog = rendered(pageOwner, ['StudentClassroomJoinDialog']);
+    assert.equal(dialog.consumer.attributes.properties.length, 1);
+    const prop = dialog.consumer.attributes.properties[0];
+    assert.ok(ts.isJsxAttribute(prop) && prop.name.getText() === 'membership'
+      && prop.initializer && ts.isJsxExpression(prop.initializer) && prop.initializer.expression);
+    assert.equal(symbol(prop.initializer.expression), symbol(membershipMount.name));
+    const binding = (dialog.owner.body!.statements[0] as ts.VariableStatement).declarationList.declarations[0];
+    assert.ok(ts.isObjectBindingPattern(dialog.owner.parameters[0].name) && ts.isObjectBindingPattern(binding.name) && binding.initializer);
+    assert.equal(symbol(binding.initializer), symbol(dialog.owner.parameters[0].name.elements[0].name));
+    const substitutions = new Map<ts.Symbol, ts.Node>();
+    for (const item of binding.name.elements) {
+      const property = returned.expression.properties.find((node): node is ts.ShorthandPropertyAssignment =>
+        ts.isShorthandPropertyAssignment(node) && node.name.text === item.name.getText());
+      assert.ok(property);
+      const value = checker.getShorthandAssignmentValueSymbol(property)!;
+      const declaration = value.valueDeclaration;
+      assert.ok(declaration && ts.isBindingElement(declaration) || declaration && ts.isVariableDeclaration(declaration));
+      substitutions.set(symbol(item.name)!, declaration.name);
+    }
+    const returnedDialog = dialog.owner.body!.statements.find(ts.isReturnStatement)!.expression!;
+    assert.ok(ts.isParenthesizedExpression(returnedDialog) && ts.isJsxFragment(returnedDialog.expression));
+    const transformed = ts.transform(returnedDialog.expression, [context => root => {
+      const visit: ts.Visitor = node => ts.isIdentifier(node) && substitutions.has(symbol(node)!)
+        ? substitutions.get(symbol(node)!)! : ts.visitEachChild(node, visit, context);
+      return ts.visitNode(root, visit) as ts.JsxFragment;
+    }]);
+    const fragment = transformed.transformed[0];
+    const dialogJsx = fragment.children.map(node => printer.printNode(ts.EmitHint.Unspecified, node, dialog.owner.getSourceFile())).join('');
+    originalPage = originalPage.replace(print(dialog.consumer), dialogJsx);
+    transformed.dispose();
+  }
   const lists = nodes(pageOwner, (node): node is ts.JsxSelfClosingElement =>
     ts.isJsxSelfClosingElement(node) && node.tagName.getText() === 'StudentClassroomList');
   if (lists.length) {
@@ -236,10 +361,23 @@ test('actual mounted student shell preserves whole JSX, six tabs, early return, 
     assert.ok(ts.isJsxElement(presence) && presence.openingElement.tagName.getText() === 'AnimatePresence');
     assert.equal(presence.openingElement.attributes.properties[0].getText(), 'mode="wait"');
     assert.deepEqual(list.consumer.attributes.properties.map(node => ts.isJsxAttribute(node) ? node.name.getText() : undefined),
-      ['classrooms', 'onSelect', 'onJoin'], 'No new key, state or callbacks on the mounted listing');
+      membership ? ['key', 'classrooms', 'onSelect', 'onJoin'] : ['classrooms', 'onSelect', 'onJoin'],
+      'Only canonical grid key and original snapshot/selection/join bindings');
+    if (membership) assert.equal(list.consumer.attributes.properties[0].getText(), 'key="grid"');
     assert.ok(ts.isObjectBindingPattern(list.owner.parameters[0].name));
-    const pageVariables = nodes(pageOwner, ts.isVariableDeclaration);
     const stateBinding = (name: string) => {
+      if (membership && name !== 'setSelectedAula') {
+        assert.ok(membershipBinding && ts.isObjectBindingPattern(membershipBinding.name));
+        const consumed = membershipBinding.name.elements.find(item => item.name.getText() === name);
+        assert.ok(consumed, `Actual page consumes ${name}`);
+        const returned = membership.body!.statements.find(ts.isReturnStatement)!.expression;
+        assert.ok(returned && ts.isObjectLiteralExpression(returned));
+        const property = returned.properties.find((node): node is ts.ShorthandPropertyAssignment =>
+          ts.isShorthandPropertyAssignment(node) && node.name.text === name);
+        assert.ok(property);
+        assert.equal(checker.getShorthandAssignmentValueSymbol(property)?.valueDeclaration?.getSourceFile(), membership.getSourceFile());
+        return consumed.name;
+      }
       const binding = pageVariables.find(node => ts.isArrayBindingPattern(node.name)
         && node.name.elements.some(item => ts.isBindingElement(item) && item.name.getText() === name));
       assert.ok(binding && ts.isArrayBindingPattern(binding.name));

@@ -10,3 +10,5 @@ export { useTeacherClassroomCreation } from './hooks/useTeacherClassroomCreation
 export { TeacherClassroomDetail } from './components/teacher/TeacherClassroomDetail';
 export { StudentClassroomDetail } from './components/student/StudentClassroomDetail';
 export { StudentClassroomList } from './components/student/StudentClassroomList';
+export { StudentClassroomJoinDialog } from './components/student/StudentClassroomJoinDialog';
+export { useStudentClassroomMembership } from './hooks/useStudentClassroomMembership';
