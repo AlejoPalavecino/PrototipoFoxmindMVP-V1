@@ -3,6 +3,7 @@ import { classroomRepository } from '../classrooms';
 import { loadMessagingConversations, saveMessagingConversations } from './messagingPersistence';
 import { sendClassroomInvitation, respondToClassroomInvitation } from './application/classroomInvitation';
 import type { SendClassroomInvitationParams, RespondToClassroomInvitationParams } from './application/classroomInvitation';
+import * as conversationActions from './application/conversationActions';
 
 // Initial pre-populated conversations with true bidirectional link between Docente and Alumno
 const INITIAL_CONVERSATIONS: Conversation[] = [
@@ -586,75 +587,31 @@ class MessagingStore {
   }
 
   public getConversations(): Conversation[] {
-    return [...this.conversations];
+    return conversationActions.getConversations(this.conversations);
   }
 
   public getConversationById(id: string): Conversation | undefined {
-    return this.conversations.find(c => c.id === id);
+    return conversationActions.getConversationById(this.conversations, id);
   }
 
   public getUnreadCount(role: 'docente' | 'alumno'): number {
-    return this.conversations.reduce((acc, c) => {
-      return acc + (role === 'docente' ? (c.unreadCountDocente || 0) : (c.unreadCountAlumno || 0));
-    }, 0);
+    return conversationActions.getUnreadCount(this.conversations, role);
   }
 
   public markAsRead(conversationId: string, role: 'docente' | 'alumno') {
-    const conv = this.conversations.find(c => c.id === conversationId);
-    if (!conv) return;
-
-    if (role === 'docente' && conv.unreadCountDocente > 0) {
-      conv.unreadCountDocente = 0;
-      this.notify();
-    } else if (role === 'alumno' && conv.unreadCountAlumno > 0) {
-      conv.unreadCountAlumno = 0;
-      this.notify();
-    }
+    conversationActions.markAsRead(this.conversations, conversationId, role, () => this.notify());
   }
 
   public togglePin(conversationId: string) {
-    const conv = this.conversations.find(c => c.id === conversationId);
-    if (conv) {
-      conv.isPinned = !conv.isPinned;
-      this.notify();
-    }
+    conversationActions.togglePin(this.conversations, conversationId, () => this.notify());
   }
 
   public toggleMute(conversationId: string) {
-    const conv = this.conversations.find(c => c.id === conversationId);
-    if (conv) {
-      conv.isMuted = !conv.isMuted;
-      this.notify();
-    }
+    conversationActions.toggleMute(this.conversations, conversationId, () => this.notify());
   }
 
   public addReaction(conversationId: string, messageId: string, emoji: string, userName: string) {
-    const conv = this.conversations.find(c => c.id === conversationId);
-    if (!conv) return;
-
-    const msg = conv.messages.find(m => m.id === messageId);
-    if (!msg) return;
-
-    if (!msg.reactions) msg.reactions = [];
-    const existing = msg.reactions.find(r => r.emoji === emoji);
-
-    if (existing) {
-      if (existing.users.includes(userName)) {
-        // Toggle off
-        existing.users = existing.users.filter(u => u !== userName);
-        existing.count = existing.users.length;
-        if (existing.count === 0) {
-          msg.reactions = msg.reactions.filter(r => r.emoji !== emoji);
-        }
-      } else {
-        existing.users.push(userName);
-        existing.count = existing.users.length;
-      }
-    } else {
-      msg.reactions.push({ emoji, count: 1, users: [userName] });
-    }
-
-    this.notify();
+    conversationActions.addReaction(this.conversations, conversationId, messageId, emoji, userName, () => this.notify());
   }
 
   public sendMessage(params: {
