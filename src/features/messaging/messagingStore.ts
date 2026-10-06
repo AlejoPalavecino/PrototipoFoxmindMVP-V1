@@ -1,9 +1,10 @@
-import { Conversation, DirectMessageItem, MessageAttachment, MessageReaction, Role, ClassroomInvitationData } from '../../types';
+import { Conversation, MessageAttachment, MessageReaction, Role, ClassroomInvitationData } from '../../types';
 import { classroomRepository } from '../classrooms';
 import { loadMessagingConversations, saveMessagingConversations } from './messagingPersistence';
 import { sendClassroomInvitation, respondToClassroomInvitation } from './application/classroomInvitation';
 import type { SendClassroomInvitationParams, RespondToClassroomInvitationParams } from './application/classroomInvitation';
 import * as conversationActions from './application/conversationActions';
+import * as messageSending from './application/messageSending';
 
 // Initial pre-populated conversations with true bidirectional link between Docente and Alumno
 const INITIAL_CONVERSATIONS: Conversation[] = [
@@ -624,109 +625,18 @@ class MessagingStore {
     replyTo?: { id: string; senderName: string; text: string };
     categoryTag?: string;
   }) {
-    const conv = this.conversations.find(c => c.id === params.conversationId);
-    if (!conv) return;
-
-    // Strict School Policy Enforcement:
-    // Alumnos can only send messages to teachers / staff / classroom channels / Foxy.
-    // Alumnos cannot message another alumno directly.
-    if (params.senderRole === 'alumno' && conv.type === 'direct') {
-      const recipient = conv.participants.find(p => p.id !== params.senderId);
-      if (recipient && recipient.role === 'alumno') {
-        throw new Error('Normativa escolar: Los alumnos únicamente pueden comunicarse directamente con sus docentes y preceptoría.');
-      }
-    }
-
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-    const newMessage: DirectMessageItem = {
-      id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-      senderId: params.senderId,
-      senderName: params.senderName,
-      senderRole: params.senderRole,
-      text: params.text,
-      timestamp: timeStr,
-      dateGroup: 'Hoy',
-      status: 'sent',
-      replyTo: params.replyTo,
-      attachment: params.attachment,
-      categoryTag: params.categoryTag
-    };
-
-    conv.messages.push(newMessage);
-    conv.lastMessage = params.attachment 
-      ? `📎 ${params.attachment.name} - ${params.text || 'Archivo adjunto'}` 
-      : params.text;
-    conv.lastMessageTime = timeStr;
-    conv.lastMessageSender = params.senderName;
-
-    // Increment unread count for other role
-    if (params.senderRole === 'docente') {
-      conv.unreadCountAlumno = (conv.unreadCountAlumno || 0) + 1;
-    } else if (params.senderRole === 'alumno') {
-      conv.unreadCountDocente = (conv.unreadCountDocente || 0) + 1;
-    }
-
-    this.notify();
-
-    // If talking to Foxy Bot, simulate intelligent pedagogical response
-    if (conv.type === 'bot' || conv.id === 'dm-foxy-copilot') {
-      setTimeout(() => {
-        this.simulateFoxyBotReply(conv.id, params.text, params.senderRole);
-      }, 900);
-    }
+    messageSending.sendMessage(
+      params,
+      () => this.conversations,
+      () => this.notify(),
+      (conv, input) => this.simulateFoxyBotReply(conv.id, input.text, input.senderRole),
+    );
   }
 
   private simulateFoxyBotReply(conversationId: string, userText: string, role: 'docente' | 'alumno' | 'foxy' | 'directivo' | 'preceptor' | Role) {
-    const conv = this.conversations.find(c => c.id === conversationId);
-    if (!conv) return;
-
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-    let botReplyText = '';
-    const lower = userText.toLowerCase();
-
-    if (role === 'docente') {
-      if (lower.includes('ensayo') || lower.includes('rubrica') || lower.includes('evaluacion')) {
-        botReplyText = '📋 **Sugerencia pedagógica para evaluación:**\nPara el ensayo de Vanguardias te recomiendo ponderar:\n1. Comprensión de manifiestos (30%)\n2. Justificación de citas textuales (40%)\n3. Coherencia estilística y DUA (30%)\n\n¿Querés que redacte un mensaje de aviso al aula 3°A con estas pautas?';
-      } else if (lower.includes('borrador') || lower.includes('mensaje') || lower.includes('aviso')) {
-        botReplyText = '✍️ **Borrador de comunicado sugerido:**\n"Estimadas familias y alumnos: Les recordamos que las consultas sobre el trabajo práctico pueden realizarse por este canal hasta las 18:00 hs. ¡Muchos éxitos!"\n\nPodés copiarlo o editarlo libremente.';
-      } else {
-        botReplyText = `🦊 **Foxy Copiloto:** Entendido. Analicé tu consulta sobre "${userText.slice(0, 40)}...". Te sugiero mantener una respuesta concisa con preguntas de activación socrática para fomentar la autonomía del alumno.`;
-      }
-    } else {
-      if (lower.includes('duda') || lower.includes('ensayo') || lower.includes('vanguardia')) {
-        botReplyText = '💡 **Guía de estudio Foxy:**\nPara tu ensayo recordá que Vicente Huidobro (Creacionismo) proponía que *"el poeta es un pequeño Dios"*, mientras que el Ultraísmo buscaba la imagen pura sin adjetivos inútiles.\n\n¿Querés que formulemos una consulta clara para tu profesora Laura Martínez?';
-      } else {
-        botReplyText = `🦊 **Foxy Tutor:** ¡Muy bien planteado! Recordá que podés consultarle directamente a tus docentes por este canal oficial o dejar tu duda en el canal general de tu aula.`;
-      }
-    }
-
-    const botMessage: DirectMessageItem = {
-      id: `msg-foxy-${Date.now()}`,
-      senderId: 'bot-foxy',
-      senderName: 'Foxy Copiloto IA',
-      senderRole: 'foxy',
-      text: botReplyText,
-      timestamp: timeStr,
-      dateGroup: 'Hoy',
-      status: 'read'
-    };
-
-    conv.messages.push(botMessage);
-    conv.lastMessage = botReplyText.slice(0, 70) + '...';
-    conv.lastMessageTime = timeStr;
-    conv.lastMessageSender = 'Foxy Copiloto IA';
-
-    if (role === 'docente') {
-      conv.unreadCountDocente = (conv.unreadCountDocente || 0) + 1;
-    } else {
-      conv.unreadCountAlumno = (conv.unreadCountAlumno || 0) + 1;
-    }
-
-    this.notify();
+    messageSending.simulateFoxyBotReply(
+      conversationId, userText, role, () => this.conversations, () => this.notify(),
+    );
   }
 
   public createConversation(params: {
