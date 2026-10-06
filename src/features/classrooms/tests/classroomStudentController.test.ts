@@ -223,6 +223,65 @@ test('actual mounted student shell preserves whole JSX, six tabs, early return, 
   assert.equal(digest(expanded.replace(/\s+/g, '')), 'a385b1cebe3139f827c7f0edc27c4d2b18ada8186764196b0b2b232b8c202d53');
   assert.equal(digest(print(detail.body!.statements.find(ts.isIfStatement)!).replace(/\s+/g, '')),
     'f3490df3bd6b4a7c15017e62bb2218198d6ed1294a11db34a301c6a1a68a353a');
-  const originalPage = print(pageOwner.body!).replace(/StudentClassroomDetail/g, 'AulaDetailAlumno');
+  let originalPage = print(pageOwner.body!);
+  const lists = nodes(pageOwner, (node): node is ts.JsxSelfClosingElement =>
+    ts.isJsxSelfClosingElement(node) && node.tagName.getText() === 'StudentClassroomList');
+  if (lists.length) {
+    const list = rendered(pageOwner, ['StudentClassroomList']);
+    const branch = list.consumer.parent;
+    assert.ok(ts.isParenthesizedExpression(branch) && ts.isConditionalExpression(branch.parent));
+    assert.equal(branch.parent.condition.getText(), '!selectedAula');
+    assert.equal(branch.parent.whenTrue, branch);
+    const presence = branch.parent.parent.parent;
+    assert.ok(ts.isJsxElement(presence) && presence.openingElement.tagName.getText() === 'AnimatePresence');
+    assert.equal(presence.openingElement.attributes.properties[0].getText(), 'mode="wait"');
+    assert.deepEqual(list.consumer.attributes.properties.map(node => ts.isJsxAttribute(node) ? node.name.getText() : undefined),
+      ['classrooms', 'onSelect', 'onJoin'], 'No new key, state or callbacks on the mounted listing');
+    assert.ok(ts.isObjectBindingPattern(list.owner.parameters[0].name));
+    const pageVariables = nodes(pageOwner, ts.isVariableDeclaration);
+    const stateBinding = (name: string) => {
+      const binding = pageVariables.find(node => ts.isArrayBindingPattern(node.name)
+        && node.name.elements.some(item => ts.isBindingElement(item) && item.name.getText() === name));
+      assert.ok(binding && ts.isArrayBindingPattern(binding.name));
+      const item = binding.name.elements.find(item => ts.isBindingElement(item) && item.name.getText() === name)!;
+      assert.ok(ts.isBindingElement(item));
+      return item.name;
+    };
+    const substitutions = new Map<ts.Symbol, ts.Expression>();
+    for (const parameter of list.owner.parameters[0].name.elements) {
+      const name = parameter.name.getText();
+      const prop = list.consumer.attributes.properties.find(node => ts.isJsxAttribute(node) && node.name.getText() === name);
+      assert.ok(prop && ts.isJsxAttribute(prop) && prop.initializer && ts.isJsxExpression(prop.initializer) && prop.initializer.expression);
+      const supplied = prop.initializer.expression;
+      if (name === 'onJoin') {
+        assert.ok(ts.isArrowFunction(supplied) && ts.isCallExpression(supplied.body));
+        assert.equal(symbol(supplied.body.expression), symbol(stateBinding('setIsJoinModalOpen')));
+        assert.equal(supplied.body.arguments.length, 1);
+        assert.equal(supplied.body.arguments[0].kind, ts.SyntaxKind.TrueKeyword);
+      } else {
+        assert.equal(symbol(supplied), symbol(stateBinding(name === 'onSelect' ? 'setSelectedAula' : 'classrooms')));
+      }
+      const resolved = symbol(parameter.name);
+      assert.ok(resolved);
+      substitutions.set(resolved, supplied);
+    }
+    assert.equal(substitutions.size, 3);
+    const returned = list.owner.body!.statements.find(ts.isReturnStatement)!.expression!;
+    assert.ok(ts.isParenthesizedExpression(returned));
+    const transformed = ts.transform(returned.expression, [context => root => {
+      const visit: ts.Visitor = node => {
+        const replacement = ts.isIdentifier(node) ? substitutions.get(symbol(node)!) : undefined;
+        return replacement ?? ts.visitEachChild(node, visit, context);
+      };
+      return ts.visitNode(root, visit) as ts.Expression;
+    }]);
+    // Updated AST roots lose parent/source-file links. Supply the actual leaf source
+    // so the printer preserves original literal spelling rather than inventing quotes.
+    const listingJsx = printer.printNode(ts.EmitHint.Unspecified, transformed.transformed[0], list.owner.getSourceFile())
+      .replace(/\r\n/g, '\n').replace(/[ \t]+$/gm, '');
+    originalPage = originalPage.replace(print(list.consumer), listingJsx);
+    transformed.dispose();
+  }
+  originalPage = originalPage.replace(/StudentClassroomDetail/g, 'AulaDetailAlumno');
   assert.equal(digest(originalPage.replace(/\s+/g, '')), 'c30e2f00fa92b004ee64d6b61037637872669fa923553020cbd030c845b11c1a');
 });

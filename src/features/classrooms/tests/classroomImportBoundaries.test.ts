@@ -11,18 +11,23 @@ assert.equal(config.error, undefined);
 const options = ts.convertCompilerOptionsFromJson(config.config.compilerOptions, root);
 assert.deepEqual(options.errors, []);
 const studentComposed = existsSync(resolve(root, 'src/features/classrooms/components/student/StudentClassroomDetail.tsx'));
+const studentListed = existsSync(resolve(root, 'src/features/classrooms/components/student/StudentClassroomList.tsx'));
 const uiExports = [
   'TeacherParticipantList', 'StudentParticipantList',
   'TeacherActivityList', 'StudentActivityList',
   'TeacherClassroomList', 'TeacherClassroomCreateFlow', 'useTeacherClassroomCreation',
   studentComposed ? 'StudentClassroomDetail' : 'useTeacherClassroomDetail', 'TeacherClassroomDetail',
+  ...(studentListed ? ['StudentClassroomList'] : []),
 ];
 const pageExports = new Map([
   ['docente/AulasDocente', [
     'TeacherClassroomList', 'TeacherClassroomCreateFlow',
     'useTeacherClassroomCreation', 'TeacherClassroomDetail',
   ]],
-  ['alumno/AulasAlumno', studentComposed ? ['StudentClassroomDetail'] : ['StudentActivityList', 'StudentParticipantList']],
+  ['alumno/AulasAlumno', [
+    ...(studentComposed ? ['StudentClassroomDetail'] : ['StudentActivityList', 'StudentParticipantList']),
+    ...(studentListed ? ['StudentClassroomList'] : []),
+  ]],
 ]);
 
 // Transpile in memory so ordinary imports used only as types are erased too.
@@ -162,7 +167,7 @@ test('UI hook removal has no current production barrel consumer after teacher co
   }
 });
 
-test('UI boundary exports exactly the nine current components and hooks from current leaves', () => {
+test('UI boundary exports exactly the current components and hooks from current leaves', () => {
   const file = resolve(root, 'src/features/classrooms/ui.ts');
   const ast = sourceAst(file);
   const names: string[] = [];
@@ -178,7 +183,7 @@ test('UI boundary exports exactly the nine current components and hooks from cur
   }
   assert.deepEqual(names.sort(), [...uiExports].sort());
   const targets = graph.get(file) ?? [];
-  assert.equal(targets.length, 9);
+  assert.equal(targets.length, uiExports.length);
   assert.ok(targets.every(target => /\/(?:components|hooks)\//.test(label(target)) && dirname(target) !== dirname(file)));
 });
 

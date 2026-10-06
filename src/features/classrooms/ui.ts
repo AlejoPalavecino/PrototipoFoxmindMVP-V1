@@ -9,3 +9,4 @@ export { TeacherClassroomCreateFlow } from './components/teacher/TeacherClassroo
 export { useTeacherClassroomCreation } from './hooks/useTeacherClassroomCreation';
 export { TeacherClassroomDetail } from './components/teacher/TeacherClassroomDetail';
 export { StudentClassroomDetail } from './components/student/StudentClassroomDetail';
+export { StudentClassroomList } from './components/student/StudentClassroomList';

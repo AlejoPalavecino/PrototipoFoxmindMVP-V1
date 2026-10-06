@@ -3,7 +3,7 @@
 Use `src/features/classrooms` (headless `index.ts`) for domain types, repositories,
 pure operations and `getClassroomColorTheme`. Use `src/features/classrooms/ui` for
 role participant/activity lists, `TeacherClassroomList`, `TeacherClassroomCreateFlow`,
-`TeacherClassroomDetail`, `StudentClassroomDetail` and the teacher creation hook.
+`TeacherClassroomDetail`, `StudentClassroomDetail`, `StudentClassroomList` and the teacher creation hook.
 Detail hooks remain internal direct leaves. Invitation dispatch remains on the unchanged
 `messagingStore` bridge; coordination changes belong to T4.
 
@@ -13,7 +13,7 @@ Detail hooks remain internal direct leaves. Invitation dispatch remains on the u
 file ref, navigation effect and action callbacks. `TeacherClassroomDetail` calls it
 unconditionally at the same mounted position. The body/modal compositions pass that
 single return through `detail` to the existing presentation leaves. E9 gives student
-detail its own controller; student listing/membership owners wait E10–E11. The profile retains its direct leaf import and conditional, unkeyed mount.
+detail its own controller; E10 extracts student listing while membership waits E11. The profile retains its direct leaf import and conditional, unkeyed mount.
 
 | Contract | Preserved behavior |
 |---|---|
@@ -182,19 +182,56 @@ These are source/fake-hook checks, not React lifecycle or browser proof. Build,
 native review and commits remain parent-owned; browser/lifetime acceptance remains
 T8. E10–E11 and accumulated target reconciliation are still pending.
 
-## Public import boundaries (T3e / E4–E9)
+## Student listing presentation (T3e / E10)
+
+`StudentClassroomList` renders only the existing student header and classroom grid.
+Its leaf matches the preserved corrected target byte-for-byte. The page passes its
+unchanged `classrooms` snapshot, `setSelectedAula` and join-modal opening callback,
+inside the existing `!selectedAula` branch and `AnimatePresence mode="wait"`.
+
+- Spanish copy, card order, themes, course badges, progress, task metrics, teacher/
+  next-class/grade/activity fallbacks and grid/card/progress motion props are unchanged.
+  The root retains `key="grid"`; cards retain `key={aula.id}`. No search, filter or
+  grid/list toggle existed in this listing, and none is added.
+- The leaf has no state, effects, repository or messaging access. Selection, back,
+  membership copies/subscription cleanup, navigation, join handler and join dialog
+  remain in the page unchanged; their extraction belongs to E11.
+- Only `StudentClassroomList` is added to the UI barrel (nine → ten exports). No
+  membership hook, join composition or other future export is introduced.
+
+### Review evidence and limits
+
+Passing characterization covers populated and empty lists using actual resolved JSX
+with fake elements: labels, metric fallbacks, themes, animation keys/props and callback
+object identity. Branch resolution distinguishes the rendered JSX conditional from
+its similarly named wrapper CSS ternary. These checks do not execute React lifecycle.
+
+The existing whole-page-body test expands the actually mounted listing leaf and
+maps its three parameter symbols to the supplied page expressions, checking the
+original state-setter bindings and conditional presence. Its original
+`c30e2f00fa92b004ee64d6b61037637872669fa923553020cbd030c845b11c1a`
+oracle is retained, not replaced. The AST printer receives the original leaf source
+so transformed nodes retain literal spelling. Existing detail, participant and
+teacher oracles remain intact. Baseline and post-extraction focused counts remain
+39/39 and full-suite counts remain 110/110.
+
+These are source/fake-element checks, not browser/animation acceptance. Independent
+build, native review and commit remain parent-owned; browser/lifetime checks remain
+T8. E11 and final accumulated T3e target reconciliation are still pending.
+
+## Public import boundaries (T3e / E4–E10)
 
 The headless entry point must not transitively load UI components or hooks. The
-separate UI entry point exposes exactly nine current presentation/hook exports,
-including both detail compositions and the teacher creation hook. No future student
-listing or membership/join exports are added. This split prevents
+separate UI entry point exposes exactly ten current presentation/hook exports,
+including both detail compositions, student listing and the teacher creation hook.
+No future membership/join exports are added. This split prevents
 shared domain consumers from pulling role UI back into their dependency graph.
 Feature internals import leaves, not the UI barrel. Existing shared wall/modal/detail
 consumers stay on the headless boundary; the modal composition keeps direct profile,
 materials and invitation leaf imports.
 
 `classroomImportBoundaries.test.ts` checks the current tree for zero runtime cycles,
-transitive headless/UI separation, exactly nine UI exports and both role pages'
+transitive headless/UI separation, exactly ten UI exports and both role pages'
 UI import routing. It inspects in-memory TypeScript output, including static imports,
 reexports, side effects and literal dynamic/require edges; type-only edges are erased.
 Missing local source imports fail rather than silently disappearing. External packages,

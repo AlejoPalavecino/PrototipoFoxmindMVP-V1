@@ -196,4 +196,10 @@ E8 closedfe6e490bcb9cf52bfbb85fe7bc3738733442babc base45a9557;linkedclean immedi
 [Showing lines 1-194 of 196 (50.0KB limit). Use offset=195 to continue.]
 
 [Showing lines 1-196 of 198 (50.0KB limit). Use offset=197 to continue.]
-E9 closedb5d01ffdb4643f149fc2ae5635da842bd2530078 base6079ff0;linkedclean immediatelyaftercommit. Native targetsha256:16e0cad3076a101772201ca751f4ead898409d48321ad3ce69b72500a9dc9e7a consumedsha256:e65f2e8620b9b078298a8416ec212cc02e3fe2a3eac2c848b11558dec8eec4ba exactackburn,no requery. E10 in progress: read-only studentlisting presentation mapping/actualconsumer/tests beforeboundedwriter. E11membershipjoin/navcomposition andfinalT3runtime comparisonpending;browserT8pending.
+
+
+
+
+
+[Showing lines 1-202 of 205 (50.0KB limit). Use offset=203 to continue.]
+E10 independent verification settledafterreadonlyinventoryrecovery:39focused/build/diffexit0 underseparate30sec;identicalafter snapshots8candidate7d2fba946c82b9bc3691bf5fe8fa04bb4ceb279aa16969091253af73650fed41/linked158084f68e4f58a24d5f17c108847cfa54116ffab136b194bfddbe272a040c531e4/original136975fec08b2e3dbba08a144a847f6864adfd73c33c022505e4cbf905602a510a1 unchangedincldoc/HEAD0ebe3b7. Inspectioncount130vs129 reconciledactualomittedsrc/index.css(no.d.ts):130others15raw115newlinezero unexpected. LongheredocmissingexitnotoverallPASS/causeunknown;parentauthorizedshortremainingUI/snapshotcommands actualexit0. Leafexactcanonical/wholepageoriginaloracleindependentlyregeneratedandexpandedmatch/import+consumer-onlypage/allassertions65→83student23→23boundary retained. TenUIexports/0cycles/headlessUI-free. Worker110suite/non-stricttscstand;JS1960.25/gzip512.60advisory/browserT8pending. Verificationfreeze released forparentmetadata thennativefreeze,native/localcommitpending.
