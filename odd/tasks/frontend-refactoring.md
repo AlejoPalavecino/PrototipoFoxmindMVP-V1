@@ -199,5 +199,8 @@ E8 closedfe6e490bcb9cf52bfbb85fe7bc3738733442babc base45a9557;linkedclean immedi
 
 
 
-[Showing lines 1-200 of 203 (50.0KB limit). Use offset=201 to continue.]
-E11 CLOSED verifiedlocalcommit dfe7925faea1c3472942d5cb847f02bd1a4a96c8 base677c9efd17d58f40168e51a20224cea70452f7ed onrefactor/t3e-review-chain12paths+651/-124,linkedclean immediatelyaftercommit. Native review-c169e0cf51b1aa03medium775authoredlines1reliabilitylens approvedexactackauthorityburned(no requery). Worker114suite/fresh30focused/lint/build/diffstable135runtimePASSoriginalwholepageoracleunchanged. TestnavASTexpansioncorrectiononlyno runtimefix;historical138/134workerclaimunreproducednotverifiedinventory. T3nextreadonlyfull135runtimecomparisonincludingindex7historicalextraheadlessexports/order;noimplicitfix. T8browser/lifecyclepending,bundleadvisory. No pushPRmerge.
+
+
+
+[Showing lines 1-203 of 206 (50.0KB limit). Use offset=204 to continue.]
+T3 CLOSED HUMAN ACCEPTANCE: selectedaccept_documented_t3_deviation(keep7historicalheadlessindexexports/reorderedreexports),complete135runtimecomparisonacceptedwithEXPLICITAPI/newlineexception;NOTbyte-identicaltarget/NOTbrowserproof. No source/testchangeauthorizedorperformed. T8browser/lifecyclepending;bundleadvisory persists. E3–E11verifiedlocalcommitsclosed;no pushPRmerge. Parentpassiveacceptancerecordcommitnext.
