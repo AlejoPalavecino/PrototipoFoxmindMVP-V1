@@ -95,7 +95,7 @@ Correctedfulltarget26paths+2524/-2415=4939lines; preserve it untouched while mat
 - [x] E6 Materials presentation. Commitf791c34fe6f847cb2e6836224708c71bcb2277f8;8paths+395/-142incltracking;99suite/non-stricttsc/independent28focused/build/diffPASS;native medium reliabilityreview-1b1e52b320cf6bf0 approved/exactackburn.
 - [x] E7 Invitation presentation. Commit08c35500c11da298134883b580d2a4719f6e545c;6paths+572/-365 including tracking;worker101suite/freshindependent30focused/non-stricttsc/build/diffPASS;native medium reliabilityreview-1e456af69845acdd approved/exactackburn.
 - [x] E8 Teacher shell/body/modal composition closure. Commitfe6e490bcb9cf52bfbb85fe7bc3738733442babc;12paths+497/-315incltracking;worker101suite/non-stricttsc/independent30focused/build/diffPASS;native review-142866786e60b632 approved/exactackburn.
-- [ ] E9 Student detail/controller/fixtures (~450–550).
+- [x] E9 Student detail/controller/fixtures. Commitb5d01ffdb4643f149fc2ae5635da842bd2530078;15paths+587/-195incltracking;108suite/non-stricttsc/independent37focused/build/diff/hashPASS;native review-aec4b3b95034cfc1 approved/exactackburn.
 - [ ] E10 Student listing (~350).
 - [ ] E11 Student membership/join composition closure (~300–400).
 
@@ -194,4 +194,6 @@ E8 closedfe6e490bcb9cf52bfbb85fe7bc3738733442babc base45a9557;linkedclean immedi
 [Showing lines 1-192 of 194 (50.0KB limit). Use offset=193 to continue.]
 
 [Showing lines 1-194 of 196 (50.0KB limit). Use offset=195 to continue.]
-E9 independent verification settledPASS37focused/no skips/build/diff/correctedread-onlysnapshotcomparison exit0 separate30sec. Earlier snapshot parseexit1 generatednohashes/outputs;ephemeralString.fromCharCode(92)normalization recoveryonly,no sourcefix.15candidatehasha41de6f60603c5484de036c0530aa7a3edbb11f7dc333888964d4259ee74b5ae/src150+taskaa7c3cc200d994bf227e2a3a261a5206d5226181dbed4772e79ef6b738cb8eb0/original134runtime54a927539f70c89d69111af5a411caa98c73614f3b177654cfacb756bed838d8 stable incltaskdoc/HEAD6079ff0.6canonicalfiles exacttarget/122others9raw113newlineonly/7studentHEADoracles independentlyregeneratedmatch/allteacheroracles unchanged. Actualmounted5states/lazyprofile2/freshfixtures/replacebeforelocalEntregada/staleselectedsnapshot/nulltask/earlyreturn/6tabs/pagejoinlistingnavmessaging preserved.9UIexports0cycles/headlessUI-free/unusedhookconsumerproof. Worker108/non-stricttscstand;JS1960.15/gzip511.69advisory/browserT8pending. Verificationfreeze released for parentmetadata thennativefreeze;native/localcommit pending.
+
+[Showing lines 1-196 of 198 (50.0KB limit). Use offset=197 to continue.]
+E9 closedb5d01ffdb4643f149fc2ae5635da842bd2530078 base6079ff0;linkedclean immediatelyaftercommit. Native targetsha256:16e0cad3076a101772201ca751f4ead898409d48321ad3ce69b72500a9dc9e7a consumedsha256:e65f2e8620b9b078298a8416ec212cc02e3fe2a3eac2c848b11558dec8eec4ba exactackburn,no requery. E10 in progress: read-only studentlisting presentation mapping/actualconsumer/tests beforeboundedwriter. E11membershipjoin/navcomposition andfinalT3runtime comparisonpending;browserT8pending.
