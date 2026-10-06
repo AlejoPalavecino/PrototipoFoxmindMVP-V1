@@ -1,5 +1,6 @@
 import { Conversation, DirectMessageItem, MessageAttachment, MessageReaction, Role, Classroom, ClassroomInvitationData } from '../../types';
 import { addClassroomToAlumno } from '../../mockData';
+import { loadMessagingConversations, saveMessagingConversations } from './messagingPersistence';
 
 // Initial pre-populated conversations with true bidirectional link between Docente and Alumno
 const INITIAL_CONVERSATIONS: Conversation[] = [
@@ -550,8 +551,6 @@ const INITIAL_CONVERSATIONS: Conversation[] = [
 ];
 
 // In-memory singleton with localStorage persistence fallback
-const STORAGE_KEY = 'foxmind_shared_messages_v5';
-
 class MessagingStore {
   private conversations: Conversation[] = [];
   private listeners: Set<() => void> = new Set();
@@ -561,25 +560,15 @@ class MessagingStore {
   }
 
   private load() {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        this.conversations = JSON.parse(saved);
-      } else {
-        this.conversations = INITIAL_CONVERSATIONS;
-        this.save();
-      }
-    } catch {
-      this.conversations = INITIAL_CONVERSATIONS;
-    }
+    loadMessagingConversations(
+      INITIAL_CONVERSATIONS,
+      conversations => { this.conversations = conversations; },
+      () => this.save(),
+    );
   }
 
   private save() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.conversations));
-    } catch {
-      // ignore in iframe restricted quota
-    }
+    saveMessagingConversations(() => this.conversations);
   }
 
   public subscribe(listener: () => void): () => void {
