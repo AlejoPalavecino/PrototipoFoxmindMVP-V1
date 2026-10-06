@@ -96,7 +96,7 @@ Correctedfulltarget26paths+2524/-2415=4939lines; preserve it untouched while mat
 - [x] E7 Invitation presentation. Commit08c35500c11da298134883b580d2a4719f6e545c;6paths+572/-365 including tracking;worker101suite/freshindependent30focused/non-stricttsc/build/diffPASS;native medium reliabilityreview-1e456af69845acdd approved/exactackburn.
 - [x] E8 Teacher shell/body/modal composition closure. Commitfe6e490bcb9cf52bfbb85fe7bc3738733442babc;12paths+497/-315incltracking;worker101suite/non-stricttsc/independent30focused/build/diffPASS;native review-142866786e60b632 approved/exactackburn.
 - [x] E9 Student detail/controller/fixtures. Commitb5d01ffdb4643f149fc2ae5635da842bd2530078;15paths+587/-195incltracking;108suite/non-stricttsc/independent37focused/build/diff/hashPASS;native review-aec4b3b95034cfc1 approved/exactackburn.
-- [ ] E10 Student listing (~350).
+- [x] E10 Student listing. Commit132a20846b17f1273fa124ec17e552ec1939c205;8paths+400/-167incltracking;110suite/non-stricttsc/independent39focused/build/diff/hashPASS;native review-e9c9594c324fd529 approved/exactackburn.
 - [ ] E11 Student membership/join composition closure (~300–400).
 
 Routes: E1–E11 delegated bounded worker (nontrivial source preparation/writes), parent-owned local commits and native review, independent verifier for builds or required high-risk verification. Candidate tracking freezes before verification dispatch. Existing characterization applies to structural relocation; no invented behavioral RED/GREEN. The cycle regression already demonstrated genuine RED/GREEN.
@@ -201,5 +201,6 @@ E8 closedfe6e490bcb9cf52bfbb85fe7bc3738733442babc base45a9557;linkedclean immedi
 
 
 
-[Showing lines 1-202 of 205 (50.0KB limit). Use offset=203 to continue.]
-E10 independent verification settledafterreadonlyinventoryrecovery:39focused/build/diffexit0 underseparate30sec;identicalafter snapshots8candidate7d2fba946c82b9bc3691bf5fe8fa04bb4ceb279aa16969091253af73650fed41/linked158084f68e4f58a24d5f17c108847cfa54116ffab136b194bfddbe272a040c531e4/original136975fec08b2e3dbba08a144a847f6864adfd73c33c022505e4cbf905602a510a1 unchangedincldoc/HEAD0ebe3b7. Inspectioncount130vs129 reconciledactualomittedsrc/index.css(no.d.ts):130others15raw115newlinezero unexpected. LongheredocmissingexitnotoverallPASS/causeunknown;parentauthorizedshortremainingUI/snapshotcommands actualexit0. Leafexactcanonical/wholepageoriginaloracleindependentlyregeneratedandexpandedmatch/import+consumer-onlypage/allassertions65→83student23→23boundary retained. TenUIexports/0cycles/headlessUI-free. Worker110suite/non-stricttscstand;JS1960.25/gzip512.60advisory/browserT8pending. Verificationfreeze released forparentmetadata thennativefreeze,native/localcommitpending.
+
+[Showing lines 1-203 of 206 (50.0KB limit). Use offset=204 to continue.]
+E10 closed132a20846b17f1273fa124ec17e552ec1939c205 base0ebe3b7;linkedclean immediatelyaftercommit. Native targetsha256:e70fdaceabb2f9e8a8ca40ddf6a60db78c9700dbc2d1f314c3fc71e7c419b1e8 consumedsha256:e12a682bc51c9f4f3f57daed28f7d1a117956ed042deb42c26182a0d065d18ae exactackburn,no requery. E11 in progress:read-onlymembership/join/navigationpagecomposition mapping beforeboundedwriter;finalruntimecomparisonT3 pending/browserT8pending/originaltargetintact.
