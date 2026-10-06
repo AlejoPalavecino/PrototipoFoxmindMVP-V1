@@ -2,18 +2,17 @@
 
 Use `src/features/classrooms` (headless `index.ts`) for domain types, repositories,
 pure operations and `getClassroomColorTheme`. Use `src/features/classrooms/ui` for
-role participant/activity lists, `TeacherClassroomList`, `TeacherClassroomCreateFlow`
-and the creation/detail hooks. Invitation dispatch remains on the unchanged
+role participant/activity lists, `TeacherClassroomList`, `TeacherClassroomCreateFlow`,
+`TeacherClassroomDetail` and the creation/detail hooks. Invitation dispatch remains on the unchanged
 `messagingStore` bridge; coordination changes belong to T4.
 
 ## Teacher detail controller (T3e / E5)
 
 `useTeacherClassroomDetail(aula)` now owns the actual teacher detail's 24 states,
-file ref, navigation effect and action callbacks. `AulaDetail` calls it unconditionally
-at the same mounted position. E6–E7 pass that single return through `detail` to the
-materials and invitation leaves; shell/body remain inline until E8, and student
-owners wait E9–E11.
-The profile retains its direct leaf import and conditional, unkeyed mount.
+file ref, navigation effect and action callbacks. `TeacherClassroomDetail` calls it
+unconditionally at the same mounted position. The body/modal compositions pass that
+single return through `detail` to the existing presentation leaves; student owners
+wait E9–E11. The profile retains its direct leaf import and conditional, unkeyed mount.
 
 | Contract | Preserved behavior |
 |---|---|
@@ -118,17 +117,54 @@ These are passing source/composition checks, not behavioral RED or browser proof
 Clipboard, invitation interactions and state lifetime remain T8; build, native review
 and commit remain parent-owned. E8–E11 and final T3e closure are still pending.
 
-## Public import boundaries (T3e / E4–E7)
+## Teacher composition closure (T3e / E8)
+
+The teacher page now wires the public `TeacherClassroomDetail` instead of its inline
+`AulaDetail`. It retains list/selection, creation callback ordering and navigation;
+its catalogue read uses the same feature owner behind the former live mock alias.
+The page and all three new compositions match the preserved corrected target bytes.
+
+| Owner | Responsibility and lifetime |
+|---|---|
+| `TeacherClassroomDetail` | One unconditional detail hook call, hero and tabs. Tab changes set the tab before clearing activity selection. |
+| `TeacherClassroomDetailBody` | All six tab branches, roster filtering/selection and the active activity detail's unchanged local submission setter. No new state or effects. |
+| `TeacherClassroomDetailModals` | Unconditional activity wizard, materials, conditional unkeyed profile, then invitation, with the same controller/classroom references. |
+
+The hook's 24 states, ref, effect, callbacks and snapshot semantics are untouched.
+Materials, invitation, profile and student runtime files are unchanged. Spanish copy,
+conditional `AnimatePresence`, callback order, three clipboard writes and two
+uncancelled invitation reset timers retain their existing owners and lifetimes.
+Only `TeacherClassroomDetail` is added to the UI barrel (eight → nine exports);
+body/modal compositions remain internal leaves, with no student exports added.
+
+### Review evidence and limits
+
+Baseline 101/101 and focused 30/30 passed. Owner-resolution adaptations also passed
+30/30 before extraction, then 30/30 after it. All existing assertions are retained
+against the actual page → public detail → body/modals → controller/leaf paths,
+not a detached source owner. Whole-return reconstruction recursively expands the
+resolved body, modals, materials and invitation and maps their controller/classroom
+bindings. The original `1e633acb50d7bb8b11f8b5306a689335cef7a801d95f1cf1b9197216443665f8`
+oracle stays unchanged. Reconstruction restores only one blank extraction-boundary
+separator and the original spelling of an erased tab type assertion; it does not
+replace runtime expressions, skip markup or accept a new expected hash.
+
+These are source/composition checks, not behavioral RED or browser proof. Builds,
+native review and commits remain parent-owned. Browser/lifetime acceptance remains
+T8; E9–E11 and final accumulated T3e target reconciliation are still pending.
+
+## Public import boundaries (T3e / E4–E8)
 
 The headless entry point must not transitively load UI components or hooks. The
-separate UI entry point exposes exactly eight current presentation/hook exports,
-including the teacher detail hook; it adds no deferred composition exports. This split prevents
+separate UI entry point exposes exactly nine current presentation/hook exports,
+including the teacher detail hook and composition; it adds no deferred student exports. This split prevents
 shared domain consumers from pulling role UI back into their dependency graph.
 Feature internals import leaves, not the UI barrel. Existing shared wall/modal/detail
-consumers stay on the headless boundary; profile, materials and invitation keep direct leaf imports.
+consumers stay on the headless boundary; the modal composition keeps direct profile,
+materials and invitation leaf imports.
 
 `classroomImportBoundaries.test.ts` checks the current tree for zero runtime cycles,
-transitive headless/UI separation, exactly eight UI exports and both role pages'
+transitive headless/UI separation, exactly nine UI exports and both role pages'
 UI import routing. It inspects in-memory TypeScript output, including static imports,
 reexports, side effects and literal dynamic/require edges; type-only edges are erased.
 Missing local source imports fail rather than silently disappearing. External packages,

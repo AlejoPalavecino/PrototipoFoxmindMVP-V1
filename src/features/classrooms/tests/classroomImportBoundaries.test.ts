@@ -14,12 +14,12 @@ const uiExports = [
   'TeacherParticipantList', 'StudentParticipantList',
   'TeacherActivityList', 'StudentActivityList',
   'TeacherClassroomList', 'TeacherClassroomCreateFlow', 'useTeacherClassroomCreation',
-  'useTeacherClassroomDetail',
+  'useTeacherClassroomDetail', 'TeacherClassroomDetail',
 ];
 const pageExports = new Map([
   ['docente/AulasDocente', [
-    'TeacherActivityList', 'TeacherClassroomList', 'TeacherClassroomCreateFlow',
-    'useTeacherClassroomCreation', 'TeacherParticipantList', 'useTeacherClassroomDetail',
+    'TeacherClassroomList', 'TeacherClassroomCreateFlow',
+    'useTeacherClassroomCreation', 'TeacherClassroomDetail',
   ]],
   ['alumno/AulasAlumno', ['StudentActivityList', 'StudentParticipantList']],
 ]);
@@ -146,7 +146,7 @@ test('headless public boundary cannot transitively load UI components or hooks',
   assert.deepEqual(loaded.filter(path => /\/(?:components|hooks|views)\//.test(path)), []);
 });
 
-test('UI boundary exports exactly the eight current components and hooks from current leaves', () => {
+test('UI boundary exports exactly the nine current components and hooks from current leaves', () => {
   const file = resolve(root, 'src/features/classrooms/ui.ts');
   const ast = sourceAst(file);
   const names: string[] = [];
@@ -162,11 +162,11 @@ test('UI boundary exports exactly the eight current components and hooks from cu
   }
   assert.deepEqual(names.sort(), [...uiExports].sort());
   const targets = graph.get(file) ?? [];
-  assert.equal(targets.length, 8);
+  assert.equal(targets.length, 9);
   assert.ok(targets.every(target => /\/(?:components|hooks)\//.test(label(target)) && dirname(target) !== dirname(file)));
 });
 
-test('current role pages import all eight UI symbols through ui, not headless index', () => {
+test('current role pages import their composed UI symbols through ui, not headless index', () => {
   for (const [role, expected] of pageExports) {
     const file = resolve(root, `src/views/${role}.tsx`);
     const names: string[] = [];

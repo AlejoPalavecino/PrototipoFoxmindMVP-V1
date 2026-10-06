@@ -143,7 +143,28 @@ test('rendered active grading receives the controller local submission setter, n
   const hooks = sources.flatMap(source => nodesMatching(source, (node): node is ts.FunctionDeclaration =>
     ts.isFunctionDeclaration(node) && node.name?.text === 'useTeacherClassroomDetail'));
   assert.equal(hooks.length, 1);
-  const controller = hooks[0];
+  const page = program.getSourceFile(path.join(sourceRoot, 'views/docente/AulasDocente.tsx'))!;
+  const pageOwner = page.statements.find((node): node is ts.FunctionDeclaration =>
+    ts.isFunctionDeclaration(node) && node.name?.text === 'AulasDocente')!;
+  function rendered(owner: ts.FunctionDeclaration, names: string[]) {
+    const consumers = nodesMatching(owner, (node): node is ts.JsxSelfClosingElement =>
+      ts.isJsxSelfClosingElement(node) && names.includes(node.tagName.getText()) && isReturned(node));
+    assert.equal(consumers.length, 1, 'Follow actual page → detail → body, not a detached namesake');
+    const declaration = resolvedSymbol(consumers[0].tagName)?.valueDeclaration;
+    assert.ok(declaration && ts.isFunctionDeclaration(declaration) && declaration.body);
+    return { owner: declaration, consumer: consumers[0] };
+  }
+  const detail = rendered(pageOwner, ['AulaDetail', 'TeacherClassroomDetail']).owner;
+  const first = detail.body!.statements[0];
+  assert.ok(ts.isVariableStatement(first));
+  const mounted = first.declarationList.declarations[0];
+  assert.ok(mounted.initializer && ts.isCallExpression(mounted.initializer));
+  const controller = resolvedSymbol(mounted.initializer.expression)?.valueDeclaration;
+  assert.ok(controller && ts.isFunctionDeclaration(controller));
+  assert.equal(controller, hooks[0]);
+  assert.equal(mounted.initializer.arguments[0].getText(), 'aula');
+  const body = detail.name!.text === 'TeacherClassroomDetail'
+    ? rendered(detail, ['TeacherClassroomDetailBody']) : { owner: detail, consumer: undefined };
   const state = nodesMatching(controller, (node): node is ts.VariableDeclaration =>
     ts.isVariableDeclaration(node) && ts.isArrayBindingPattern(node.name) && node.name.elements[0].getText() === 'submissions');
   assert.equal(state.length, 1);
@@ -154,8 +175,8 @@ test('rendered active grading receives the controller local submission setter, n
   const property = returned.expression.properties.find(node => ts.isShorthandPropertyAssignment(node) && node.name.text === 'setSubmissions') as ts.ShorthandPropertyAssignment;
   assert.ok(property);
   assert.equal(checker.getShorthandAssignmentValueSymbol(property), resolvedSymbol(setter.name));
-  const consumers = sources.flatMap(source => nodesMatching(source, (node): node is ts.JsxSelfClosingElement =>
-    ts.isJsxSelfClosingElement(node) && resolvedSymbol(node.tagName) === resolvedSymbol(details[0].name!) && isReturned(node)));
+  const consumers = nodesMatching(body.owner, (node): node is ts.JsxSelfClosingElement =>
+    ts.isJsxSelfClosingElement(node) && resolvedSymbol(node.tagName) === resolvedSymbol(details[0].name!) && isReturned(node));
   assert.equal(consumers.length, 1);
   const consumer = consumers[0];
   const attribute = consumer.attributes.properties.find(node => ts.isJsxAttribute(node) && node.name.getText() === 'setSubmissions') as ts.JsxAttribute;
@@ -165,14 +186,17 @@ test('rendered active grading receives the controller local submission setter, n
   assert.ok(binding && ts.isBindingElement(binding) && ts.isObjectBindingPattern(binding.parent));
   const declaration = binding.parent.parent;
   assert.ok(ts.isVariableDeclaration(declaration) && declaration.initializer && ts.isIdentifier(declaration.initializer));
-  const mounted = resolvedSymbol(declaration.initializer)?.valueDeclaration;
-  assert.ok(mounted && ts.isVariableDeclaration(mounted) && mounted.initializer && ts.isCallExpression(mounted.initializer));
+  if (body.consumer) {
+    assert.ok(ts.isObjectBindingPattern(body.owner.parameters[0].name));
+    const parameter = body.owner.parameters[0].name.elements.find(item => item.name.getText() === 'detail')!;
+    assert.equal(resolvedSymbol(declaration.initializer), resolvedSymbol(parameter.name));
+    const prop = body.consumer.attributes.properties.find(node => ts.isJsxAttribute(node) && node.name.getText() === 'detail') as ts.JsxAttribute;
+    assert.ok(prop.initializer && ts.isJsxExpression(prop.initializer) && prop.initializer.expression);
+    assert.equal(resolvedSymbol(prop.initializer.expression), resolvedSymbol(mounted.name));
+  } else {
+    assert.equal(resolvedSymbol(declaration.initializer)?.valueDeclaration, mounted);
+  }
   assert.equal(resolvedSymbol(mounted.initializer.expression), resolvedSymbol(controller.name!));
-  assert.equal(mounted.initializer.arguments[0].getText(), 'aula');
-  const detail = declaration.parent.parent.parent.parent;
-  assert.ok(ts.isFunctionDeclaration(detail) && detail.body);
-  const first = detail.body.statements[0];
-  assert.ok(ts.isVariableStatement(first));
   assert.equal(first.declarationList.declarations[0], mounted,
     'Local grading setter comes from the actual first unconditional detail hook call');
   assert.equal(binding.name.getText(), property.name.text);

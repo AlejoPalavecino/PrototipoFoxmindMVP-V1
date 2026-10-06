@@ -29,7 +29,7 @@ test('student participant presentation retains normalized baseline JSX without i
 });
 
 test('rendered participant lists keep distinct roster, search, view mode and callback ownership in current role owners', () => {
-  const teacher = readSource('../../../views/docente/AulasDocente.tsx');
+  let teacher = readSource('../../../views/docente/AulasDocente.tsx');
   const student = readSource('../../../views/alumno/AulasAlumno.tsx');
   // Resolve the hook actually called by the mounted teacher detail, not a detached
   // source file that merely contains matching state names. No browser execution.
@@ -42,8 +42,25 @@ test('rendered participant lists keep distinct roster, search, view mode and cal
   const checker = program.getTypeChecker();
   const page = program.getSourceFile(pagePath)!;
   const hook = program.getSourceFile(hookPath)!;
-  const detail = page.statements.find((node): node is ts.FunctionDeclaration =>
-    ts.isFunctionDeclaration(node) && node.name?.text === 'AulaDetail');
+  const symbol = (node: ts.Node) => {
+    const value = checker.getSymbolAtLocation(node);
+    return value && value.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(value) : value;
+  };
+  function rendered(owner: ts.FunctionDeclaration, names: string[]) {
+    const matches: ts.JsxSelfClosingElement[] = [];
+    function visit(node: ts.Node) {
+      if (ts.isJsxSelfClosingElement(node) && names.includes(node.tagName.getText())) matches.push(node);
+      ts.forEachChild(node, visit);
+    }
+    visit(owner.body!);
+    assert.equal(matches.length, 1, 'Resolve the actual mounted composition consumer');
+    const declaration = symbol(matches[0].tagName)?.valueDeclaration;
+    assert.ok(declaration && ts.isFunctionDeclaration(declaration) && declaration.body);
+    return { owner: declaration, consumer: matches[0] };
+  }
+  const pageOwner = page.statements.find((node): node is ts.FunctionDeclaration =>
+    ts.isFunctionDeclaration(node) && node.name?.text === 'AulasDocente')!;
+  const detail = rendered(pageOwner, ['AulaDetail', 'TeacherClassroomDetail']).owner;
   const controller = hook.statements.find((node): node is ts.FunctionDeclaration =>
     ts.isFunctionDeclaration(node) && node.name?.text === 'useTeacherClassroomDetail');
   assert.ok(detail?.body && controller?.name && controller.body);
@@ -55,11 +72,22 @@ test('rendered participant lists keep distinct roster, search, view mode and cal
   assert.ok(imported.flags & ts.SymbolFlags.Alias);
   assert.equal(checker.getAliasedSymbol(imported), checker.getSymbolAtLocation(controller.name));
   assert.equal(mounted.initializer.arguments[0].getText(), 'aula');
-  const second = detail.body.statements[1];
+  const composed = detail.name!.text === 'TeacherClassroomDetail';
+  const body = composed ? rendered(detail, ['TeacherClassroomDetailBody']) : { owner: detail, consumer: undefined };
+  let supplied: ts.Node = mounted.name;
+  if (body.consumer) {
+    const prop = body.consumer.attributes.properties.find(node => ts.isJsxAttribute(node) && node.name.getText() === 'detail') as ts.JsxAttribute;
+    assert.ok(prop.initializer && ts.isJsxExpression(prop.initializer) && prop.initializer.expression);
+    assert.equal(symbol(prop.initializer.expression), symbol(mounted.name), 'Body gets the unchanged mounted controller return');
+    assert.ok(ts.isObjectBindingPattern(body.owner.parameters[0].name));
+    supplied = body.owner.parameters[0].name.elements.find(item => item.name.getText() === 'detail')!.name;
+  }
+  teacher = body.owner.getText();
+  const second = body.owner.body!.statements[composed ? 0 : 1];
   assert.ok(ts.isVariableStatement(second));
   const binding = second.declarationList.declarations[0];
   assert.ok(ts.isObjectBindingPattern(binding.name) && binding.initializer && ts.isIdentifier(binding.initializer));
-  assert.equal(checker.getSymbolAtLocation(binding.initializer), checker.getSymbolAtLocation(mounted.name),
+  assert.equal(checker.getSymbolAtLocation(binding.initializer), checker.getSymbolAtLocation(supplied),
     'Participant bindings consume the single unconditional mounted controller return');
   const returned = controller.body.statements.find(ts.isReturnStatement)!;
   assert.ok(returned.expression && ts.isObjectLiteralExpression(returned.expression));
