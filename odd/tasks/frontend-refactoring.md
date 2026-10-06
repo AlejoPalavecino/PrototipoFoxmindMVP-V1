@@ -93,7 +93,7 @@ Correctedfulltarget26paths+2524/-2415=4939lines; preserve it untouched while mat
 - [x] E4 Separate headless/UI boundary and graph regression. Commitf31f9d4ff23d03bae9e52ff67306c3c6b6abea1d;7paths+226/-16incltracking,worker88tests/configurednon-stricttsc and independent5focused/build/diffPASS;native medium reliabilityreview-a7141afc65525163 approved/exactackburn.
 - [x] E5 Teacher controller/session/navigation. Commitd95a54dc92ce221d8ed5b3d918729e9cf07e5101;14paths+784/-256incltracking;independent26focused/97suite/non-stricttsc/build/diffPASS,native mediumreliabilityreview-27057ee131e3fe4b approved/exactackburn.
 - [x] E6 Materials presentation. Commitf791c34fe6f847cb2e6836224708c71bcb2277f8;8paths+395/-142incltracking;99suite/non-stricttsc/independent28focused/build/diffPASS;native medium reliabilityreview-1b1e52b320cf6bf0 approved/exactackburn.
-- [ ] E7 Invitation presentation (~680).
+- [x] E7 Invitation presentation. Commit08c35500c11da298134883b580d2a4719f6e545c;6paths+572/-365 including tracking;worker101suite/freshindependent30focused/non-stricttsc/build/diffPASS;native medium reliabilityreview-1e456af69845acdd approved/exactackburn.
 - [ ] E8 Teacher shell/body/modal composition closure (~450–550).
 - [ ] E9 Student detail/controller/fixtures (~450–550).
 - [ ] E10 Student listing (~350).
@@ -179,3 +179,5 @@ E7worker settled:5paths+565/-365=930excltracking,cohesive327lineinvitationreloca
 
 
 E7 independent fresh verification settled PASS after a runtime timeout incident: focused30/30 without skips/cancellations, configured non-strict tsc, frontend/server build and diff check each exit0 under separate30-second tool timeouts (3/8/11/<1sec). Six candidate hashes/scope and HEADd1ccaea unchanged; invitation exact canonical hash and whole-return oracle retained, controller/session/model/navigation/materials/profile unchanged. Eight UI exports, zero detected cycles/headless-to-UI reachability. Worker101-suite evidence stands, not independently rerun. Historical timeout command/cause/exitcodes unknown; diagnostic established no residue/stable ignored outputs before fresh checks, not inferred build success. Build advisory1959.52kB/gzip511.82kB nonblocking; browserT8 pending. Verification freeze released only for this parent tracking normalization; native review/local commit pending. Freeze all candidate files again for native review.
+
+E7 closed08c35500c11da298134883b580d2a4719f6e545c base d1ccaea;linked clean immediately after commit. Native targetsha256:1dfca714156ff79c2c3fe8353868e06db143f7c8800fd5a3d50f3860fc859358 consumedsha256:27d62b546adcad52accee7fb4cfd50d00691ca4f3d7c8ce81382030d3f4e3a66 exactackburn completed;do not requery. E8 in progress: bounded read-only mapping of teacher shell/body/modal composition closure and all affected progressive tests before deriving writer surfaces. E9–E11/finalT3 comparison pending;originaltarget preserved and browserT8 pending.
