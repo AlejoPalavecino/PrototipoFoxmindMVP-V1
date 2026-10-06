@@ -1,7 +1,7 @@
 export type { CurriculumUnit, ClassroomDetailSession, ClassroomNavigationParams } from './model/ClassroomDetail';
-export { teacherDetailInitialTab } from './model/ClassroomDetail';
+export { teacherDetailInitialTab, studentDetailInitialTab } from './model/ClassroomDetail';
 export { classroomDetailSession, initializeTeacherCurriculum } from './data/classroomSession';
-export { resolveTeacherClassroom, resolveTeacherActivity } from './application/classroomNavigation';
+export { resolveTeacherClassroom, resolveStudentClassroom, resolveTeacherActivity } from './application/classroomNavigation';
 export type { MuroPost, MuroComment, WallRole, WallPublication, ClassroomWallRepository } from './model/ClassroomWall';
 export { classroomWallRepository } from './data/inMemoryWallRepository';
 export { publishWallPost, toggleWallLike, addWallComment } from './application/classroomWall';

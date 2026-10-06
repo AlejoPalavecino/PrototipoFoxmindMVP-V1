@@ -24,3 +24,4 @@ export interface ClassroomNavigationParams {
 }
 
 export const teacherDetailInitialTab: AulaTabId = 'alumnos';
+export const studentDetailInitialTab: AulaTabId = 'actividades';

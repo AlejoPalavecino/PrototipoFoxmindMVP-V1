@@ -7,5 +7,5 @@ export { StudentActivityList } from './components/student/StudentActivityList';
 export { TeacherClassroomList } from './components/teacher/TeacherClassroomList';
 export { TeacherClassroomCreateFlow } from './components/teacher/TeacherClassroomCreateFlow';
 export { useTeacherClassroomCreation } from './hooks/useTeacherClassroomCreation';
-export { useTeacherClassroomDetail } from './hooks/useTeacherClassroomDetail';
 export { TeacherClassroomDetail } from './components/teacher/TeacherClassroomDetail';
+export { StudentClassroomDetail } from './components/student/StudentClassroomDetail';

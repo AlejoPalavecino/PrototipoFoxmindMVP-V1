@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { createStudentActivities, classroomRepository, joinClassroomByCode, deliverSubmission, getClassroomColorTheme, submissionRepository } from '../../features/classrooms';
-import { StudentActivityList, StudentParticipantList } from '../../features/classrooms/ui';
-import type { Classroom, StudentActivity, SubmissionDelivery } from '../../features/classrooms';
+import { classroomRepository, joinClassroomByCode, getClassroomColorTheme } from '../../features/classrooms';
+import { StudentClassroomDetail } from '../../features/classrooms/ui';
+import type { Classroom } from '../../features/classrooms';
 import { messagingStore } from '../../features/messaging/messagingStore';
 import { 
   BookOpen, FileText, Users, Calendar, Clock, ChevronRight, 
@@ -11,13 +11,6 @@ import {
 import { toast } from '../../components/ui/Toaster';
 import { useAppContext } from '../../context';
 import { motion, AnimatePresence } from 'motion/react';
-import { ClassroomHeroHeader } from '../../components/aulas/ClassroomHeroHeader';
-import { ClassroomTabsNav, AulaTabId } from '../../components/aulas/ClassroomTabsNav';
-import { ClassroomMuroTab } from '../../components/aulas/ClassroomMuroTab';
-import { ClassroomCurriculaTab } from '../../components/aulas/ClassroomCurriculaTab';
-import { ClassroomBibliotecaTab } from '../../components/aulas/ClassroomBibliotecaTab';
-import { ClassroomRendimientoTab } from '../../components/aulas/ClassroomRendimientoTab';
-import { StudentActivityDetail } from '../../components/aulas/StudentActivityDetail';
 
 export function AulasAlumno() {
   const { navigationParams, setView } = useAppContext();
@@ -233,7 +226,7 @@ export function AulasAlumno() {
             transition={{ duration: 0.25, ease: "easeOut" }}
             className="flex-1 flex flex-col bg-fox-surface w-full h-full rounded-3xl overflow-hidden shadow-xs border border-fox-border mb-6"
           >
-            <AulaDetailAlumno aula={selectedAula} onBack={handleBack} />
+            <StudentClassroomDetail aula={selectedAula} onBack={handleBack} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -298,167 +291,6 @@ export function AulasAlumno() {
           </div>
         )}
       </AnimatePresence>
-    </div>
-  );
-}
-
-function AulaDetailAlumno({ aula, onBack }: { aula: Classroom; onBack: () => void }) {
-  const [tab, setTab] = useState<AulaTabId>('actividades');
-  const [alumnosViewMode, setAlumnosViewMode] = useState<'grid' | 'list'>('grid');
-  const [studentSearchTerm, setStudentSearchTerm] = useState('');
-  const [activeTask, setActiveTask] = useState<StudentActivity | null>(null);
-
-  const studentProfile = {
-    id: 2,
-    name: 'Sofía Herrera',
-    duaProfile: ['Dislexia']
-  };
-
-  const studentCurriculum = [
-    { 
-      id: 1, 
-      unit: 'Unidad 1: Modernismo', 
-      status: 'completed' as const, 
-      topics: ['Rubén Darío', 'Características principales', 'Poesía modernista'], 
-      completedTopics: ['Rubén Darío', 'Características principales', 'Poesía modernista'] 
-    },
-    { 
-      id: 2, 
-      unit: 'Unidad 2: Vanguardias', 
-      status: 'current' as const, 
-      topics: ['Creacionismo', 'Ultraísmo', 'Manifiestos'], 
-      completedTopics: ['Creacionismo'] 
-    },
-    { 
-      id: 3, 
-      unit: 'Unidad 3: Boom Latinoamericano', 
-      status: 'pending' as const, 
-      topics: ['Realismo Mágico', 'García Márquez', 'Cortázar'], 
-      completedTopics: [] 
-    },
-  ];
-
-  const students = [
-    { id: 1, name: 'Ana Martínez', lastSeen: 'hace 5 min' },
-    { id: 2, name: 'Sofía Herrera (Tú)', lastSeen: 'En línea' },
-    { id: 3, name: 'Carlos Gómez', lastSeen: 'ayer' },
-    { id: 4, name: 'Elena Silva', lastSeen: 'hace 2 horas' },
-    { id: 5, name: 'Facundo Quiroga', lastSeen: 'hace 10 min' },
-    { id: 6, name: 'Lucía Fernández', lastSeen: 'ayer' },
-    { id: 7, name: 'Martín Castro', lastSeen: 'hace 1 día' },
-    { id: 8, name: 'Tomás Ruiz', lastSeen: 'hace 3 horas' },
-  ];
-
-  // Read current shared submissions once when initializing local activity state.
-  const [activities, setActivities] = useState(() =>
-    createStudentActivities(submissionRepository.read(), studentProfile.id)
-  );
-
-  const handleDeliverActivity = (submissionPayload: SubmissionDelivery) => {
-    const updatedSubs = deliverSubmission(submissionRepository.read(), studentProfile.id, submissionPayload);
-    submissionRepository.replace(updatedSubs);
-
-    // Update local activity state
-    setActivities(prev => prev.map(a => {
-      if (a.id === activeTask?.id) {
-        return {
-          ...a,
-          status: 'Entregada'
-        };
-      }
-      return a;
-    }));
-  };
-
-  // If viewing an activity detail
-  if (activeTask) {
-    return (
-      <StudentActivityDetail
-        activity={activeTask}
-        onBack={() => setActiveTask(null)}
-        subjectName={aula.subject}
-        courseName={aula.course}
-        studentProfile={studentProfile}
-        onDeliver={handleDeliverActivity}
-      />
-    );
-  }
-
-  return (
-    <div className="flex-1 flex flex-col h-full bg-[#FBFDFF]">
-      {/* Unified Hero Header */}
-      <ClassroomHeroHeader
-        role="alumno"
-        aula={aula}
-        onBack={onBack}
-      />
-
-      {/* Tabs & Main View */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Unified Tabs Bar */}
-        <ClassroomTabsNav
-          activeTab={tab}
-          onChangeTab={(newTab) => setTab(newTab)}
-          role="alumno"
-          activitiesCount={activities.length}
-        />
-
-        {/* Tab Content Body */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8">
-          <div className="max-w-6xl mx-auto">
-            {/* TAB: ACTIVIDADES */}
-            {tab === 'actividades' && (
-              <StudentActivityList activities={activities} onSelect={setActiveTask} />
-            )}
-
-            {/* TAB: CURRICULA */}
-            {tab === 'curricula' && (
-              <ClassroomCurriculaTab
-                role="alumno"
-                subjectName={aula.subject}
-                curriculum={studentCurriculum}
-              />
-            )}
-
-            {/* TAB: BIBLIOTECA */}
-            {tab === 'biblioteca' && (
-              <ClassroomBibliotecaTab
-                role="alumno"
-                subjectName={aula.subject}
-              />
-            )}
-
-            {/* TAB: RENDIMIENTO */}
-            {tab === 'rendimiento' && (
-              <ClassroomRendimientoTab
-                role="alumno"
-                subjectName={aula.subject}
-              />
-            )}
-
-            {/* TAB: MURO */}
-            {tab === 'muro' && (
-              <ClassroomMuroTab
-                role="alumno"
-                aulaId={aula.id}
-                subjectName={aula.subject}
-                courseName={aula.course}
-              />
-            )}
-
-            {/* TAB: ALUMNOS / COMPAÑEROS */}
-            {tab === 'alumnos' && (
-              <StudentParticipantList
-                students={students.filter(s => s.name.toLowerCase().includes(studentSearchTerm.toLowerCase()))}
-                studentSearchTerm={studentSearchTerm}
-                alumnosViewMode={alumnosViewMode}
-                onSearchChange={setStudentSearchTerm}
-                onViewModeChange={setAlumnosViewMode}
-              />
-            )}
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

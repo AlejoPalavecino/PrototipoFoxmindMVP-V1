@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, extname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
@@ -10,18 +10,19 @@ const config = ts.readConfigFile(resolve(root, 'tsconfig.json'), ts.sys.readFile
 assert.equal(config.error, undefined);
 const options = ts.convertCompilerOptionsFromJson(config.config.compilerOptions, root);
 assert.deepEqual(options.errors, []);
+const studentComposed = existsSync(resolve(root, 'src/features/classrooms/components/student/StudentClassroomDetail.tsx'));
 const uiExports = [
   'TeacherParticipantList', 'StudentParticipantList',
   'TeacherActivityList', 'StudentActivityList',
   'TeacherClassroomList', 'TeacherClassroomCreateFlow', 'useTeacherClassroomCreation',
-  'useTeacherClassroomDetail', 'TeacherClassroomDetail',
+  studentComposed ? 'StudentClassroomDetail' : 'useTeacherClassroomDetail', 'TeacherClassroomDetail',
 ];
 const pageExports = new Map([
   ['docente/AulasDocente', [
     'TeacherClassroomList', 'TeacherClassroomCreateFlow',
     'useTeacherClassroomCreation', 'TeacherClassroomDetail',
   ]],
-  ['alumno/AulasAlumno', ['StudentActivityList', 'StudentParticipantList']],
+  ['alumno/AulasAlumno', studentComposed ? ['StudentClassroomDetail'] : ['StudentActivityList', 'StudentParticipantList']],
 ]);
 
 // Transpile in memory so ordinary imports used only as types are erased too.
@@ -144,6 +145,21 @@ test('runtime parser distinguishes erased types from all supported value edges',
 test('headless public boundary cannot transitively load UI components or hooks', () => {
   const loaded = reachable(resolve(root, 'src/features/classrooms/index.ts')).map(label);
   assert.deepEqual(loaded.filter(path => /\/(?:components|hooks|views)\//.test(path)), []);
+});
+
+test('UI hook removal has no current production barrel consumer after teacher composition', () => {
+  const ui = resolve(root, 'src/features/classrooms/ui.ts');
+  const consumers = [...graph].filter(([file, edges]) => !label(file).includes('/tests/') && edges.includes(ui)).map(([file]) => label(file));
+  assert.deepEqual(consumers.sort(), ['src/views/alumno/AulasAlumno.tsx', 'src/views/docente/AulasDocente.tsx']);
+  for (const file of consumers) {
+    for (const statement of sourceAst(resolve(root, file)).statements) {
+      if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)
+        || !statement.moduleSpecifier.text.endsWith('classrooms/ui')) continue;
+      const bindings = statement.importClause?.namedBindings;
+      assert.ok(bindings && ts.isNamedImports(bindings), 'No namespace/default consumer hides hook access');
+      assert.ok(bindings.elements.every(item => (item.propertyName ?? item.name).text !== 'useTeacherClassroomDetail'));
+    }
+  }
 });
 
 test('UI boundary exports exactly the nine current components and hooks from current leaves', () => {

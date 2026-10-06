@@ -10,6 +10,10 @@ export function resolveTeacherClassroom(classrooms: Classroom[], params?: Classr
   }
 }
 
+export function resolveStudentClassroom(classrooms: Classroom[], params?: ClassroomNavigationParams | null) {
+  if (params?.aulaId) return classrooms.find(a => a.id === params.aulaId);
+}
+
 export function resolveTeacherActivity(activities: Activity[], taskTitle: string) {
   return activities.find(a => a.title === taskTitle) || activities[0];
 }

@@ -3,7 +3,8 @@
 Use `src/features/classrooms` (headless `index.ts`) for domain types, repositories,
 pure operations and `getClassroomColorTheme`. Use `src/features/classrooms/ui` for
 role participant/activity lists, `TeacherClassroomList`, `TeacherClassroomCreateFlow`,
-`TeacherClassroomDetail` and the creation/detail hooks. Invitation dispatch remains on the unchanged
+`TeacherClassroomDetail`, `StudentClassroomDetail` and the teacher creation hook.
+Detail hooks remain internal direct leaves. Invitation dispatch remains on the unchanged
 `messagingStore` bridge; coordination changes belong to T4.
 
 ## Teacher detail controller (T3e / E5)
@@ -11,8 +12,8 @@ role participant/activity lists, `TeacherClassroomList`, `TeacherClassroomCreate
 `useTeacherClassroomDetail(aula)` now owns the actual teacher detail's 24 states,
 file ref, navigation effect and action callbacks. `TeacherClassroomDetail` calls it
 unconditionally at the same mounted position. The body/modal compositions pass that
-single return through `detail` to the existing presentation leaves; student owners
-wait E9–E11. The profile retains its direct leaf import and conditional, unkeyed mount.
+single return through `detail` to the existing presentation leaves. E9 gives student
+detail its own controller; student listing/membership owners wait E10–E11. The profile retains its direct leaf import and conditional, unkeyed mount.
 
 | Contract | Preserved behavior |
 |---|---|
@@ -34,9 +35,9 @@ source fingerprints; they do not execute React lifecycle or browser interactions
 Composition/dead-code tests additionally resolve the actual hook/profile/grading
 symbols and their setter wiring. Existing profile/grading fingerprints remain intact.
 
-The hook and session match the preserved corrected target byte-for-byte. E5 omits
-only the unused `studentDetailInitialTab` and `resolveStudentClassroom` declarations
-from their target modules until E9. The shared navigation payload already retains
+The hook and session match the preserved corrected target byte-for-byte. E9 restores
+`studentDetailInitialTab` and `resolveStudentClassroom` to their target modules;
+student page navigation continues its original inline lookup until E11. The shared navigation payload already retains
 its narrow `aulaId` field. Only the current teacher exports are public; do not add
 future UI leaves or wildcard exports. Later closure must reconcile these deliberate
 progressive omissions and page wiring against the untouched full target. Tests/docs
@@ -153,11 +154,40 @@ These are source/composition checks, not behavioral RED or browser proof. Builds
 native review and commits remain parent-owned. Browser/lifetime acceptance remains
 T8; E9–E11 and final accumulated T3e target reconciliation are still pending.
 
-## Public import boundaries (T3e / E4–E8)
+## Student detail composition (T3e / E9)
+
+The mounted student page now renders `StudentClassroomDetail`. Its shell, six-tab
+body, controller and render-local fixture factory match the preserved corrected
+target byte-for-byte. Page selection, back, membership copies, messaging subscription,
+navigation effect, listing and join dialog/handler are unchanged; E10–E11 own the
+remaining page extraction. The headless default/helper are exported and characterized,
+but the page does not yet use `resolveStudentClassroom`.
+
+| Contract | Preserved behavior |
+|---|---|
+| State | Five detail states; `actividades`, grid, empty search, null active task and lazy activities initialized from one shared submission read for profile id 2. |
+| Fixtures | Profile, curriculum, students and nested arrays/records are fresh each render, not shared teacher/session roster state. |
+| Lifetime | One unconditional controller call before the activity early return. Activity selection unmounts hero/tabs/body, not the controller. Back clears only the active task; detail back remains page-owned. |
+| Delivery | Read shared submissions, replace synchronously, then map local activities to `Entregada` only for the active task id. Selected task remains its old snapshot; a null task still replaces shared submissions but retains every local activity record. |
+| Boundaries | No teacher/copilot activity synchronization, subscription or new persistence. The unused teacher detail hook UI reexport is removed after proving the two production UI consumers do not import it; the hook leaf is unchanged. Only the student detail UI export is added, retaining nine exports. |
+
+Five passing student characterizations preceded runtime extraction. They execute
+resolved current controller statements with fake hooks and reconstruct the actual
+page → shell → body JSX. Original student fixture, delivery-handler, early-return,
+whole-detail JSX and whole-page-body fingerprints remain unchanged. Existing teacher
+oracles and participant filters/callback/messaging assertions remain intact through
+actual owner resolution. Composition/graph checks follow mounted consumers and
+require nine UI exports, headless/UI separation and zero detected runtime cycles.
+These are source/fake-hook checks, not React lifecycle or browser proof. Build,
+native review and commits remain parent-owned; browser/lifetime acceptance remains
+T8. E10–E11 and accumulated target reconciliation are still pending.
+
+## Public import boundaries (T3e / E4–E9)
 
 The headless entry point must not transitively load UI components or hooks. The
 separate UI entry point exposes exactly nine current presentation/hook exports,
-including the teacher detail hook and composition; it adds no deferred student exports. This split prevents
+including both detail compositions and the teacher creation hook. No future student
+listing or membership/join exports are added. This split prevents
 shared domain consumers from pulling role UI back into their dependency graph.
 Feature internals import leaves, not the UI barrel. Existing shared wall/modal/detail
 consumers stay on the headless boundary; the modal composition keeps direct profile,
@@ -330,8 +360,7 @@ not browser render/lifetime/navigation/toast proof. UI verification remains pend
 - Both participant rosters are actually rendered. `TeacherParticipantList` and
   `StudentParticipantList` own only toolbar/grid/table presentation. Their distinct
   fixtures, filtering/search/view mode, teacher selection/report/invite callbacks and
-  session/local state stay in the respective mounted detail owners (teacher hook,
-  unchanged student view). Teacher risk/DUA badges and
+  session/local state stay in the respective mounted detail owners (teacher/student hooks). Teacher risk/DUA badges and
   full-name initials remain distinct from student two-initial avatars. The student
   cards still have no selection/message action. No roster repository was invented.
   Profile panel/message behavior, invitation payloads and messaging subscription

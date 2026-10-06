@@ -14,7 +14,8 @@ const materialsPath = fileURLToPath(new URL('../components/teacher/TeacherClassr
 const invitationPath = fileURLToPath(new URL('../components/teacher/TeacherClassroomDetailInvitation.tsx', import.meta.url));
 const compositionPaths = ['TeacherClassroomDetail', 'TeacherClassroomDetailBody', 'TeacherClassroomDetailModals']
   .map(name => fileURLToPath(new URL(`../components/teacher/${name}.tsx`, import.meta.url)));
-const filenames = [pagePath, leafPath, hookPath, materialsPath, invitationPath, ...compositionPaths].filter(existsSync);
+const studentPagePath = fileURLToPath(new URL('../../../views/alumno/AulasAlumno.tsx', import.meta.url));
+const filenames = [pagePath, leafPath, hookPath, materialsPath, invitationPath, ...compositionPaths, studentPagePath].filter(existsSync);
 const program = ts.createProgram(filenames, {
   noEmit: true,
   jsx: ts.JsxEmit.Preserve,
@@ -409,4 +410,37 @@ test('profile selection is supplied by the resolved unconditional controller at 
   const selectionBinding = (selection[0].name as ts.ArrayBindingPattern).elements[0];
   assert.ok(ts.isBindingElement(selectionBinding));
   assert.equal(checker.getShorthandAssignmentValueSymbol(property), resolvedSymbol(selectionBinding.name));
+});
+
+// Progressive E9 resolves the actual page consumer and single controller/body path.
+test('student composition retains page selection/back props and one controller before the activity early return', () => {
+  const page = program.getSourceFile(studentPagePath)!;
+  const owner = page.statements.find((node): node is ts.FunctionDeclaration =>
+    ts.isFunctionDeclaration(node) && node.name?.text === 'AulasAlumno')!;
+  const consumer = nodesMatching(owner, (node): node is ts.JsxSelfClosingElement =>
+    ts.isJsxSelfClosingElement(node) && /^(AulaDetailAlumno|StudentClassroomDetail)$/.test(node.tagName.getText()));
+  assert.equal(consumer.length, 1);
+  assert.deepEqual(consumer[0].attributes.properties.map(node => ts.isJsxAttribute(node) ? print(node) : undefined),
+    ['aula={selectedAula}', 'onBack={handleBack}']);
+  const detail = resolvedSymbol(consumer[0].tagName)?.valueDeclaration;
+  assert.ok(detail && ts.isFunctionDeclaration(detail) && detail.body);
+  const early = detail.body.statements.find(ts.isIfStatement)!;
+  assert.equal(early.expression.getText(), 'activeTask');
+  if (detail.name!.text === 'AulaDetailAlumno') return;
+  const first = detail.body.statements[0];
+  assert.ok(ts.isVariableStatement(first));
+  const mounted = first.declarationList.declarations[0];
+  assert.ok(mounted.initializer && ts.isCallExpression(mounted.initializer));
+  const hook = resolvedSymbol(mounted.initializer.expression)?.valueDeclaration;
+  assert.ok(hook && ts.isFunctionDeclaration(hook) && hook.body);
+  assert.equal(hook.name!.text, 'useStudentClassroomDetail');
+  assert.equal(nodesMatching(detail, (node): node is ts.CallExpression => ts.isCallExpression(node)
+    && resolvedSymbol(node.expression) === resolvedSymbol(hook.name!)).length, 1);
+  assert.equal(detail.body.statements.indexOf(early), 2, 'Controller remains mounted while activity detail replaces presentation');
+  const body = renderedOwner(detail, 'StudentClassroomDetailBody');
+  const prop = body.consumer.attributes.properties.find(node => ts.isJsxAttribute(node) && node.name.getText() === 'detail') as ts.JsxAttribute;
+  assert.ok(prop.initializer && ts.isJsxExpression(prop.initializer) && prop.initializer.expression);
+  assert.equal(resolvedSymbol(prop.initializer.expression), resolvedSymbol(mounted.name));
+  assert.equal(nodesMatching(body.owner, (node): node is ts.CallExpression => ts.isCallExpression(node)
+    && /useState|useEffect|Repository/.test(node.expression.getText())).length, 0);
 });

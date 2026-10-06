@@ -30,12 +30,13 @@ test('student participant presentation retains normalized baseline JSX without i
 
 test('rendered participant lists keep distinct roster, search, view mode and callback ownership in current role owners', () => {
   let teacher = readSource('../../../views/docente/AulasDocente.tsx');
-  const student = readSource('../../../views/alumno/AulasAlumno.tsx');
+  const studentPage = readSource('../../../views/alumno/AulasAlumno.tsx');
   // Resolve the hook actually called by the mounted teacher detail, not a detached
   // source file that merely contains matching state names. No browser execution.
   const pagePath = fileURLToPath(new URL('../../../views/docente/AulasDocente.tsx', import.meta.url));
   const hookPath = fileURLToPath(new URL('../hooks/useTeacherClassroomDetail.ts', import.meta.url));
-  const program = ts.createProgram([pagePath, hookPath], {
+  const studentPath = fileURLToPath(new URL('../../../views/alumno/AulasAlumno.tsx', import.meta.url));
+  const program = ts.createProgram([pagePath, hookPath, studentPath], {
     noEmit: true, jsx: ts.JsxEmit.Preserve, target: ts.ScriptTarget.ESNext,
     module: ts.ModuleKind.ESNext, moduleResolution: ts.ModuleResolutionKind.Bundler,
   });
@@ -101,7 +102,41 @@ test('rendered participant lists keep distinct roster, search, view mode and cal
     assert.equal(symbol?.valueDeclaration?.getSourceFile(), hook, `${name} remains hook-owned`);
   }
   const teacherState = controller.body.getText();
-  for (const [source, stateOwner, component] of [[teacher, teacherState, 'TeacherParticipantList'], [student, student, 'StudentParticipantList']]) {
+  const studentSource = program.getSourceFile(studentPath)!;
+  const studentOwner = studentSource.statements.find((node): node is ts.FunctionDeclaration =>
+    ts.isFunctionDeclaration(node) && node.name?.text === 'AulasAlumno')!;
+  const studentDetail = rendered(studentOwner, ['AulaDetailAlumno', 'StudentClassroomDetail']).owner;
+  let student = studentDetail.getText(), studentState = student;
+  let studentFixtures = student;
+  if (studentDetail.name!.text === 'StudentClassroomDetail') {
+    const mounted = (studentDetail.body!.statements[0] as ts.VariableStatement).declarationList.declarations[0];
+    assert.ok(mounted.initializer && ts.isCallExpression(mounted.initializer));
+    const hook = symbol(mounted.initializer.expression)?.valueDeclaration;
+    assert.ok(hook && ts.isFunctionDeclaration(hook) && hook.body);
+    studentState = hook.getText();
+    const body = rendered(studentDetail, ['StudentClassroomDetailBody']);
+    const prop = body.consumer.attributes.properties.find(node => ts.isJsxAttribute(node) && node.name.getText() === 'detail') as ts.JsxAttribute;
+    assert.ok(prop.initializer && ts.isJsxExpression(prop.initializer) && prop.initializer.expression);
+    assert.equal(symbol(prop.initializer.expression), symbol(mounted.name));
+    const binding = (body.owner.body!.statements[0] as ts.VariableStatement).declarationList.declarations[0];
+    assert.ok(ts.isObjectBindingPattern(binding.name) && binding.initializer);
+    assert.ok(ts.isObjectBindingPattern(body.owner.parameters[0].name));
+    assert.equal(symbol(binding.initializer), symbol(body.owner.parameters[0].name.elements[1].name));
+    const returned = hook.body.statements.find(ts.isReturnStatement)!.expression;
+    assert.ok(returned && ts.isObjectLiteralExpression(returned));
+    for (const name of ['students', 'studentSearchTerm', 'setStudentSearchTerm', 'alumnosViewMode', 'setAlumnosViewMode']) {
+      assert.ok(binding.name.elements.some(item => item.name.getText() === name));
+      assert.ok(returned.properties.some(node => ts.isShorthandPropertyAssignment(node) && node.name.text === name));
+    }
+    const fixtureBinding = hook.body.statements.filter(ts.isVariableStatement).flatMap(node => [...node.declarationList.declarations])
+      .find(node => ts.isObjectBindingPattern(node.name))!;
+    assert.ok(fixtureBinding.initializer && ts.isCallExpression(fixtureBinding.initializer));
+    const factory = symbol(fixtureBinding.initializer.expression)?.valueDeclaration;
+    assert.ok(factory && ts.isFunctionDeclaration(factory));
+    studentFixtures = factory.getText();
+    student = body.owner.getText();
+  }
+  for (const [source, stateOwner, component] of [[teacher, teacherState, 'TeacherParticipantList'], [student, studentState, 'StudentParticipantList']]) {
     assert.match(stateOwner, /useState<'grid'\s*\|\s*'list'>\('grid'\)/);
     assert.match(stateOwner, /\[studentSearchTerm, setStudentSearchTerm\] = useState\(''\)/);
     const start = source.indexOf(`<${component}`);
@@ -117,7 +152,7 @@ test('rendered participant lists keep distinct roster, search, view mode and cal
   assert.match(teacher, /onGenerateReports=\{handleGenerateReports\}/);
   assert.match(teacher, /onInvite=\{\(\) => setIsInviteStudentModalOpen\(true\)\}/);
   assert.match(teacherState, /messagingStore\.sendClassroomInvitation\(/);
-  assert.match(student, /const students = \[/);
-  assert.match(student, /name: 'Sofía Herrera \(Tú\)'/);
-  assert.match(student, /messagingStore\.subscribe\(/);
+  assert.match(studentFixtures, /const students = \[/);
+  assert.match(studentFixtures, /name: 'Sofía Herrera \(Tú\)'/);
+  assert.match(studentPage, /messagingStore\.subscribe\(/);
 });
