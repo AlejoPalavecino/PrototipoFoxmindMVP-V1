@@ -9,7 +9,7 @@ import * as boundary from '../index';
 
 // E5 passing characterization: execute extracted current statements with fake hooks,
 // not React/browser imports. After extraction, inspect the actual hook and public
-// headless helpers and the current materials leaf. No deferred shell, invitation or student files.
+// headless helpers and the current materials/invitation leaves. No deferred shell or student files.
 const filename = (relative: string) => fileURLToPath(new URL(relative, import.meta.url));
 const parse = (file: string) => ts.createSourceFile(file, readFileSync(file, 'utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
 const page = parse(filename('../../../views/docente/AulasDocente.tsx'));
@@ -261,7 +261,7 @@ test('teacher callback characterization exercises topic toggles, report navigati
 
 // Expand only the actually resolved rendered leaf, mapping its local bindings to
 // the mounted controller's returned property names. Keep the original whole-return
-// fingerprint: material extraction must not hide changes to unrelated inline JSX.
+// fingerprint: materials/invitation extraction must not hide unrelated JSX changes.
 function expandedDetailReturn() {
   const pagePath = filename('../../../views/docente/AulasDocente.tsx');
   const program = ts.createProgram([pagePath, hookPath], {
@@ -280,64 +280,102 @@ function expandedDetailReturn() {
   assert.ok(returned.expression && ts.isParenthesizedExpression(returned.expression));
   const root = returned.expression.expression;
   assert.ok(ts.isJsxElement(root));
-  const consumers = root.children.filter((node): node is ts.JsxSelfClosingElement =>
-    ts.isJsxSelfClosingElement(node) && symbol(node.tagName)?.name === 'TeacherClassroomDetailMaterials');
-  assert.equal(consumers.length, 1, 'Expand the actual resolved materials consumer');
-  const consumer = consumers[0];
-  const leaf = symbol(consumer.tagName)?.valueDeclaration;
-  assert.ok(leaf && ts.isFunctionDeclaration(leaf) && leaf.body);
-  const prop = consumer.attributes.properties[0];
-  assert.ok(ts.isJsxAttribute(prop) && prop.name.getText() === 'detail'
-    && prop.initializer && ts.isJsxExpression(prop.initializer) && prop.initializer.expression);
-  const mounted = symbol(prop.initializer.expression)?.valueDeclaration;
-  assert.ok(mounted && ts.isVariableDeclaration(mounted) && mounted.initializer && ts.isCallExpression(mounted.initializer));
   const first = detail.body!.statements[0];
   assert.ok(ts.isVariableStatement(first));
-  assert.equal(first.declarationList.declarations[0], mounted);
+  const mounted = first.declarationList.declarations[0];
+  assert.ok(mounted.initializer && ts.isCallExpression(mounted.initializer));
   const controller = symbol(mounted.initializer.expression)?.valueDeclaration;
   assert.ok(controller && ts.isFunctionDeclaration(controller) && controller.body);
   const controllerReturn = controller.body.statements.find(ts.isReturnStatement)!.expression;
   assert.ok(controllerReturn && ts.isObjectLiteralExpression(controllerReturn));
-  const binding = (leaf.body.statements[0] as ts.VariableStatement).declarationList.declarations[0];
-  assert.ok(ts.isObjectBindingPattern(binding.name) && binding.initializer);
-  assert.ok(ts.isObjectBindingPattern(leaf.parameters[0].name));
-  assert.equal(symbol(binding.initializer), symbol(leaf.parameters[0].name.elements[0].name));
-  const mapping = new Map<ts.Symbol, string>();
-  for (const item of binding.name.elements) {
-    const name = (item.propertyName ?? item.name).getText();
-    assert.ok(controllerReturn.properties.some(node => ts.isShorthandPropertyAssignment(node) && node.name.text === name));
-    mapping.set(symbol(item.name)!, name);
+  assert.ok(ts.isObjectBindingPattern(detail.parameters[0].name));
+  const classroom = detail.parameters[0].name.elements.find(item => item.name.getText() === 'aula')!;
+  const replacements: Array<{ start: number; end: number; text: string }> = [];
+  let invitationOwner = detail;
+  for (const leafName of ['TeacherClassroomDetailMaterials', 'TeacherClassroomDetailInvitation']) {
+    const leafPath = filename(`../components/teacher/${leafName}.tsx`);
+    const leaf = program.getSourceFile(leafPath)?.statements.find((node): node is ts.FunctionDeclaration =>
+      ts.isFunctionDeclaration(node) && node.name?.text === leafName);
+    if (!leaf) {
+      assert.equal(leafName, 'TeacherClassroomDetailInvitation', 'Materials must already be extracted');
+      assert.equal(existsSync(leafPath), false, 'Only pre-relocation invitation may remain inline');
+      continue;
+    }
+    assert.ok(leaf.body);
+    const consumers = root.children.filter((node): node is ts.JsxSelfClosingElement =>
+      ts.isJsxSelfClosingElement(node) && symbol(node.tagName) === symbol(leaf.name!));
+    assert.equal(consumers.length, 1, `Expand the actual resolved ${leafName} consumer`);
+    const consumer = consumers[0];
+    assert.equal(symbol(consumer.tagName)?.valueDeclaration, leaf);
+    const expectedProps = leafName === 'TeacherClassroomDetailInvitation' ? ['aula', 'detail'] : ['detail'];
+    assert.deepEqual(consumer.attributes.properties.map(node => ts.isJsxAttribute(node) ? node.name.getText() : undefined), expectedProps);
+    assert.ok(ts.isObjectBindingPattern(leaf.parameters[0].name));
+    const mapping = new Map<ts.Symbol, string>();
+    for (const name of expectedProps) {
+      const prop = consumer.attributes.properties.find(node => ts.isJsxAttribute(node) && node.name.getText() === name)!;
+      assert.ok(ts.isJsxAttribute(prop) && prop.initializer && ts.isJsxExpression(prop.initializer) && prop.initializer.expression);
+      const supplied = name === 'detail' ? mounted.name : classroom.name;
+      assert.equal(symbol(prop.initializer.expression), symbol(supplied));
+      const parameter = leaf.parameters[0].name.elements.find(item => (item.propertyName ?? item.name).getText() === name)!;
+      assert.ok(parameter, `Leaf receives ${name}`);
+      if (name === 'aula') mapping.set(symbol(parameter.name)!, supplied.getText());
+    }
+    const binding = (leaf.body.statements[0] as ts.VariableStatement).declarationList.declarations[0];
+    assert.ok(ts.isObjectBindingPattern(binding.name) && binding.initializer);
+    const controllerProp = leaf.parameters[0].name.elements.find(item => (item.propertyName ?? item.name).getText() === 'detail')!;
+    assert.equal(symbol(binding.initializer), symbol(controllerProp.name));
+    for (const item of binding.name.elements) {
+      const name = (item.propertyName ?? item.name).getText();
+      assert.ok(controllerReturn.properties.some(node => ts.isShorthandPropertyAssignment(node) && node.name.text === name));
+      mapping.set(symbol(item.name)!, name);
+    }
+    const leafReturn = leaf.body.statements.find(ts.isReturnStatement)!.expression;
+    assert.ok(leafReturn && ts.isParenthesizedExpression(leafReturn));
+    const jsx = leafReturn.expression;
+    assert.ok(ts.isJsxFragment(jsx) || ts.isJsxElement(jsx));
+    const nodes = ts.isJsxFragment(jsx) ? jsx.children.slice(1, -1) : [jsx];
+    const start = nodes[0].getStart(), end = nodes[nodes.length - 1].getEnd();
+    let expanded = leaf.getSourceFile().text.slice(start, end);
+    const substitutions: Array<{ start: number; end: number; name: string }> = [];
+    function visit(node: ts.Node) {
+      const name = ts.isIdentifier(node) ? mapping.get(symbol(node)!) : undefined;
+      if (name) substitutions.push({ start: node.getStart() - start, end: node.getEnd() - start, name });
+      ts.forEachChild(node, visit);
+    }
+    nodes.forEach(visit);
+    substitutions.sort((a, b) => b.start - a.start).forEach(item => {
+      expanded = expanded.slice(0, item.start) + item.name + expanded.slice(item.end);
+    });
+    replacements.push({ start: consumer.getStart(), end: consumer.getEnd(), text: expanded });
+    if (leafName === 'TeacherClassroomDetailInvitation') invitationOwner = leaf;
   }
-  const leafReturn = leaf.body.statements.find(ts.isReturnStatement)!.expression;
-  assert.ok(leafReturn && ts.isParenthesizedExpression(leafReturn) && ts.isJsxFragment(leafReturn.expression));
-  const children = leafReturn.expression.children;
-  const start = children[1].getStart(), end = children[children.length - 2].getEnd();
-  let expanded = leaf.getSourceFile().text.slice(start, end);
-  const substitutions: Array<{ start: number; end: number; name: string }> = [];
-  function visit(node: ts.Node) {
-    const name = ts.isIdentifier(node) ? mapping.get(symbol(node)!) : undefined;
-    if (name) substitutions.push({ start: node.getStart() - start, end: node.getEnd() - start, name });
-    ts.forEachChild(node, visit);
-  }
-  children.slice(1, -1).forEach(visit);
-  substitutions.sort((a, b) => b.start - a.start).forEach(item => {
-    expanded = expanded.slice(0, item.start) + item.name + expanded.slice(item.end);
+  let expandedSource = source.text;
+  replacements.sort((a, b) => b.start - a.start).forEach(item => {
+    expandedSource = expandedSource.slice(0, item.start) + item.text + expandedSource.slice(item.end);
   });
-  const reconstructed = ts.createSourceFile(pagePath,
-    source.text.slice(0, consumer.getStart()) + expanded + source.text.slice(consumer.getEnd()),
-    ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const reconstructed = ts.createSourceFile(pagePath, expandedSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
   const originalInline = reconstructed.statements.find((node): node is ts.FunctionDeclaration =>
     ts.isFunctionDeclaration(node) && node.name?.text === 'AulaDetail')!;
-  return originalInline.body!.statements.find(ts.isReturnStatement)!;
+  return { returned: originalInline.body!.statements.find(ts.isReturnStatement)!, invitationOwner };
 }
 
-test('inline teacher JSX retains selection, tab reset, clipboard timers, modals and active local-grading setter', () => {
+test('expanded teacher JSX retains selection, tab reset, clipboard timers, modals and active local-grading setter', () => {
   const detail = page.statements.find((node): node is ts.FunctionDeclaration => ts.isFunctionDeclaration(node) && node.name?.text === 'AulaDetail')!;
-  assert.equal(hash(expandedDetailReturn()), '1e633acb50d7bb8b11f8b5306a689335cef7a801d95f1cf1b9197216443665f8');
+  const { returned, invitationOwner } = expandedDetailReturn();
+  assert.equal(hash(returned), '1e633acb50d7bb8b11f8b5306a689335cef7a801d95f1cf1b9197216443665f8');
   assert.match(detail.getText(), /setTab\(newTab as any\);\s*setSelectedActivity\(null\);/);
   assert.match(detail.getText(), /setSubmissions=\{setSubmissions\}/);
   assert.match(detail.getText(), /students=\{students.filter/);
-  assert.equal((detail.getText().match(/setTimeout\(/g) ?? []).length, 2);
+  const timers: ts.CallExpression[] = [];
+  function visit(node: ts.Node) {
+    if (ts.isCallExpression(node) && node.expression.getText() === 'setTimeout') timers.push(node);
+    ts.forEachChild(node, visit);
+  }
+  visit(invitationOwner);
+  assert.equal(timers.length, 2, 'Exactly two timers in actual resolved invitation leaf, or original page before relocation');
+  assert.deepEqual(timers.map(print), [
+    'setTimeout(() => setCopiedCode(false), 2000)', 'setTimeout(() => setCopiedLink(false), 2000)',
+  ]);
   if (migrated) {
     assert.match(pageOwner.getText(), /classroomDetailSession\.replaceCurriculum\(curriculum\);\s*setClassrooms\(\[classroom, \.\.\.classrooms\]\);/);
     assert.match(pageEffect.getText(), /const aula = resolveTeacherClassroom\(classrooms, navigationParams\);\s*if \(aula\) setSelectedAula\(aula\);/);

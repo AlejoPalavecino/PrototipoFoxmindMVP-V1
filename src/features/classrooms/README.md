@@ -10,8 +10,8 @@ and the creation/detail hooks. Invitation dispatch remains on the unchanged
 
 `useTeacherClassroomDetail(aula)` now owns the actual teacher detail's 24 states,
 file ref, navigation effect and action callbacks. `AulaDetail` calls it unconditionally
-at the same mounted position. E6 passes that single return through `detail` to the
-materials leaf; invitation and shell/body remain inline until E7–E8, and student
+at the same mounted position. E6–E7 pass that single return through `detail` to the
+materials and invitation leaves; shell/body remain inline until E8, and student
 owners wait E9–E11.
 The profile retains its direct leaf import and conditional, unkeyed mount.
 
@@ -21,7 +21,7 @@ The profile retains its direct leaf import and conditional, unkeyed mount.
 | Initialization | Teacher starts on `alumnos`; activity/submission reads stay lazy snapshots, roster/curriculum initialization stays eager. Curriculum copies unit records and completed-topic arrays while retaining topic references. Empty current units still yield `[undefined]`. |
 | Page | List and selection remain page-owned. Creation replaces session curriculum before prepending to the captured page list; it does not publish to catalogue/membership. |
 | Navigation | Task+subject wins over aula id even when lookup fails. Exact first matches remain case-sensitive. Activity title misses fall back to the first activity (or `undefined` for an empty list). The detail effect clears params with `setView('aulas', undefined)` and retains `[navigationParams, setView]`. |
-| Actions | Topic suggestions, report prompt, invitation parsing/payload/reset, material upload/delete/filter and local activity prepend/session write retain their original bodies. Clipboard callbacks and two uncancelled 2000 ms timers remain inline. |
+| Actions | Topic suggestions, report prompt, invitation parsing/payload/reset, material upload/delete/filter and local activity prepend/session write retain their original bodies. Clipboard callbacks and two uncancelled 2000 ms timers now live in the invitation leaf. |
 | Grading | The rendered active detail receives the hook's local submission setter, not a repository replacement. No persistence unification was added. |
 
 ### Verification and progressive target reconciliation
@@ -57,7 +57,7 @@ barrel export or future shell is introduced.
 - Each dialog retains its own `AnimatePresence` and visibility condition, original
   Spanish copy, motion props, close buttons, title/type inputs and upload handler.
 - The leaf stays unconditionally mounted after `CreateActivityModal` and before
-  the conditional, unkeyed profile and inline invitation. All state, callbacks,
+  the conditional, unkeyed profile and invitation leaf. All state, callbacks,
   snapshots and timers remain with their existing owners.
 - The dormant upload entry and decorative drop zone stay dormant. This is not an
   extraction of `ClassroomBibliotecaTab`; its separate state/type/UI stay unchanged.
@@ -77,16 +77,55 @@ graph still requires eight UI exports and zero cycles; E6 adds no barrel entries
 
 These checks establish source/composition equivalence, not browser interaction or
 state-lifetime acceptance. Build, native review and commits remain parent-owned;
-browser plan/upload/profile interactions remain T8. E7–E11 and T3e closure are pending.
+browser plan/upload/profile interactions remain T8. E8–E11 and T3e closure are pending.
 
-## Public import boundaries (T3e / E4–E6)
+## Teacher invitation presentation (T3e / E7)
+
+`TeacherClassroomDetailInvitation` renders the complete invitation dialog. The page
+imports it directly and mounts it unconditionally after the profile presence boundary,
+passing the same `aula` and single mounted controller `detail` return. Its own
+`AnimatePresence` retains the original `isInviteStudentModalOpen` condition. The
+327-line leaf matches the preserved corrected target byte-for-byte; no modal
+aggregator, shell, public export, new state or messaging operation is introduced.
+
+- Email/code tabs, email drafts and chips, optional note, all Spanish copy and motion
+  props are unchanged. The participant toolbar opens the same controller flag.
+- Invitation parsing, sending, state and reset ownership remain in the unchanged
+  controller. Header/footer close buttons still clear email input, recipients and
+  note; tab and copied flags do not gain new resets. Copy-and-close retains its
+  separate original path.
+- All three clipboard writes and their original toasts remain. Code/link feedback
+  still uses exactly two uncancelled 2000 ms reset timers; no promise handling,
+  cleanup, overlap guard or unmount cancellation was added.
+
+### Review evidence and limits
+
+Two passing invitation characterizations were added before relocation and passed
+afterward: the complete returned JSX fingerprint and actual presentation-owner
+clipboard/timer checks. Resolved consumer checks validate both `aula` and `detail`
+prop bindings, unconditional mount, internal conditional presence, controller-return
+bindings and wizard → materials plan/upload → profile → invitation order.
+
+The whole teacher-return reconstruction expands **both actually resolved leaves**,
+substituting controller bindings and the classroom prop. It retains the original
+`1e633acb50d7bb8b11f8b5306a689335cef7a801d95f1cf1b9197216443665f8`
+oracle rather than accepting a new expected hash. Existing controller defaults/send
+characterizations, participant/dead-code tests and eight-export/zero-cycle guards
+remain intact. Controller, session, activities, materials, profile and student
+runtime owners are unchanged.
+
+These are passing source/composition checks, not behavioral RED or browser proof.
+Clipboard, invitation interactions and state lifetime remain T8; build, native review
+and commit remain parent-owned. E8–E11 and final T3e closure are still pending.
+
+## Public import boundaries (T3e / E4–E7)
 
 The headless entry point must not transitively load UI components or hooks. The
 separate UI entry point exposes exactly eight current presentation/hook exports,
 including the teacher detail hook; it adds no deferred composition exports. This split prevents
 shared domain consumers from pulling role UI back into their dependency graph.
 Feature internals import leaves, not the UI barrel. Existing shared wall/modal/detail
-consumers stay on the headless boundary; profile and materials keep direct leaf imports.
+consumers stay on the headless boundary; profile, materials and invitation keep direct leaf imports.
 
 `classroomImportBoundaries.test.ts` checks the current tree for zero runtime cycles,
 transitive headless/UI separation, exactly eight UI exports and both role pages'
@@ -334,7 +373,7 @@ consumer before/after relocation. Whole-body source fingerprinting includes comm
 normalization ignores only CRLF and trailing line whitespace to match the target leaf.
 Ownership checks resolve the direct import to the new declaration, not a namesake.
 E3 tests read the available page/profile sources. E5 adds current controller symbol
-checks; E6 follows the single controller return through `detail`. Neither references
+checks; E6–E7 follow the single controller return through `detail`. None references
 deferred shell or student-controller files. Existing dead-code and participant
 coverage remains intact through the authorized identifier-resolution adaptations.
 
