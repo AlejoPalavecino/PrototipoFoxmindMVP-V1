@@ -69,6 +69,7 @@ import { StudyConceptMapModal } from './estudio/StudyConceptMapModal';
 import { StudyToolGenerateModal } from './estudio/StudyToolGenerateModal';
 import { calculateFolderQuizProgress } from '../../features/study/application/quizProgress';
 import { upsertStudySession } from '../../features/study/application/sessionCollection';
+import { prependStudyResource, replaceResourceFlashcardDeck } from '../../features/study/application/resourceCollection';
 
 // Color Palette matching Teacher Classroom design
 const folderColorPalette = [
@@ -331,7 +332,7 @@ export function EstudiaAlumno() {
 
   // Save new generated resource to library
   const handleSaveResourceToLibrary = (newResource: StudyGeneratedResource) => {
-    setResources(prev => [newResource, ...prev]);
+    setResources(prev => prependStudyResource(prev, newResource));
     toast.show(`✨ "${newResource.title}" guardado en la Biblioteca`, 'success');
   };
 
@@ -1025,18 +1026,7 @@ export function EstudiaAlumno() {
           deck={activeFlashcardDeck}
           onClose={() => setActiveFlashcardDeck(null)}
           onUpdateDeck={(updatedDeck) => {
-            setResources(prev => prev.map(r => {
-              if (r.data?.flashcardDeck?.id === updatedDeck.id) {
-                return {
-                  ...r,
-                  data: {
-                    ...r.data,
-                    flashcardDeck: updatedDeck
-                  }
-                };
-              }
-              return r;
-            }));
+            setResources(prev => replaceResourceFlashcardDeck(prev, updatedDeck));
           }}
         />
       )}

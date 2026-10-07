@@ -168,6 +168,26 @@ test('entire source outside calculation expressions/imports and session updater 
       replacements.push({ start: call.getStart(file), end: call.end, text: original });
     }
     if (path === pagePath) {
+      const resourceImport = file.statements.filter(ts.isImportDeclaration).find(node => (node.moduleSpecifier as ts.StringLiteral).text.endsWith('/resourceCollection'));
+      if (resourceImport) {
+        replacements.push({ start: resourceImport.getStart(file), end: resourceImport.end + (file.text.slice(resourceImport.end).startsWith('\r\n') ? 2 : 1), text: '' });
+        const applicationUrl = new URL('../application/resourceCollection.ts', import.meta.url);
+        const application = parse(applicationUrl.pathname, readFileSync(applicationUrl, 'utf8'));
+        const named = resourceImport.importClause?.namedBindings;
+        assert.ok(named && ts.isNamedImports(named));
+        const indentation = (text: string, start: number) => text.slice(text.lastIndexOf('\n', start) + 1, start).match(/^[ \t]*/)![0].length;
+        for (const specifier of named.elements) {
+          const exported = (specifier.propertyName || specifier.name).text;
+          const fn = application.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === exported) as ts.FunctionDeclaration;
+          assert.ok(fn?.body);
+          const call = find(file, node => ts.isCallExpression(node) && node.expression.getText(file) === specifier.name.text) as ts.CallExpression;
+          assert.deepEqual(call.arguments.map(arg => arg.getText(file)), fn.parameters.map(param => param.name.getText(application)));
+          const expression = (fn.body.statements.find(ts.isReturnStatement) as ts.ReturnStatement).expression!;
+          const shift = indentation(file.text, call.getStart(file)) - indentation(application.text, expression.getStart(application));
+          assert.ok(shift >= 0);
+          replacements.push({ start: call.getStart(file), end: call.end, text: expression.getText(application).replace(/\r\n/g, '\n').replace(/\n/g, '\n' + ' '.repeat(shift)) });
+        }
+      }
       const sessionImport = file.statements.filter(ts.isImportDeclaration).find(node => (node.moduleSpecifier as ts.StringLiteral).text.endsWith('/sessionCollection'));
       if (sessionImport) {
         replacements.push({ start: sessionImport.getStart(file), end: sessionImport.end + (file.text.slice(sessionImport.end).startsWith('\r\n') ? 2 : 1), text: '' });
