@@ -31,6 +31,7 @@ import {
 import ReactMarkdown from 'react-markdown';
 import { toast } from '../../../components/ui/Toaster';
 import { StudyFolder } from '../../../types';
+import { createStudyFlashcardResource } from '../../../features/study/application/studyFlashcardGeneration';
 import { 
   StudentStudySession, 
   StudentStudyMessage, 
@@ -145,52 +146,7 @@ export const StudyChatWorkspace: React.FC<StudyChatWorkspaceProps> = ({
       let suggestedActions: any[] = [];
 
       if (lowerQuery.includes('flashcard') || lowerQuery.includes('tarjeta') || lowerQuery.includes('/flashcards')) {
-        const newDeckResource: StudyGeneratedResource = {
-          id: `res-fc-${Date.now()}`,
-          title: `Flashcards de Active Recall: ${folder.name}`,
-          type: 'flashcards',
-          folderId: folder.id,
-          folderName: folder.name,
-          topic: folder.topics?.[0]?.name || folder.name,
-          description: 'Mazo de tarjetas de memorización activa con preguntas y pistas.',
-          createdAt: 'Justo ahora',
-          fileSize: '4 tarjetas',
-          fileFormat: 'FLASHCARDS',
-          data: {
-            flashcardDeck: {
-              id: `deck-${Date.now()}`,
-              title: `Flashcards: ${folder.name}`,
-              folderId: folder.id,
-              folderName: folder.name,
-              topic: folder.topics?.[0]?.name || folder.name,
-              masteryPercentage: 0,
-              createdAt: 'Hoy',
-              cards: [
-                {
-                  id: 'fc-dyn-1',
-                  front: `¿Cuál es el concepto nuclear de ${folder.topics?.[0]?.name || folder.name}?`,
-                  back: 'La base conceptual radica en comprender las relaciones fundamentales y la aplicación práctica de sus principios.',
-                  hint: 'Pensá en la definición introductoria que vimos en clase.',
-                  mastered: false
-                },
-                {
-                  id: 'fc-dyn-2',
-                  front: '¿Cuáles son los 3 factores determinantes en este proceso?',
-                  back: '1. Estructura básica\n2. Dinámica funcional\n3. Impacto en el resultado final',
-                  hint: 'Recordá el desglose en 3 etapas.',
-                  mastered: false
-                },
-                {
-                  id: 'fc-dyn-3',
-                  front: '¿Qué error común se suele cometer al resolver este tipo de problemas?',
-                  back: 'Omitir la verificación paso a paso y no contrastar con la hipótesis inicial.',
-                  hint: 'Foco en la autoevaluación.',
-                  mastered: false
-                }
-              ]
-            }
-          }
-        };
+        const newDeckResource: StudyGeneratedResource = createStudyFlashcardResource(folder);
 
         aiResponseText = `🃏 ¡He generado un **Mazo de Flashcards** para tu estudio de **${folder.name}**!\n\nUtiliza el método de **Active Recall** (recuperación activa). Haz clic en la tarjeta para practicar en modo 3D con pistas pedagógicas.`;
         generatedTool = newDeckResource;
