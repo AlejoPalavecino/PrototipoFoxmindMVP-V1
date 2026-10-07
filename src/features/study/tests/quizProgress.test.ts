@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 import ts from 'typescript';
@@ -150,7 +150,12 @@ test('folder completion keeps active-ID guard, functional current snapshot, map 
   assert.equal(missing.apply()[0], untouched);
 });
 
-test('entire source outside the two calculation expressions/imports remains HEAD-equivalent in memory', () => {
+test('entire source outside the two calculation expressions/imports preserves fixed pre-extraction source in memory', () => {
+  // Full-source SHA256 from Git blobs at 63392b36951c099fea69b860631f182f09ae9dae; only CRLF → LF normalized.
+  const baselineHashes = {
+    [modalPath]: '95d3c3c0e8f2efd6b311635a3f1b0bbe67131159bd46247202f50929c700deb2',
+    [pagePath]: '14e8b1add627af7a0873a7427db76d2b5796584698703ddb34818ba0796f3f63'
+  };
   for (const [file, path, helper, original] of [
     [modal, modalPath, 'calculateQuizCompletionScore', 'score + (selectedOpt === currentQ.correctIndex ? 1 : 0)'],
     [page, pagePath, 'calculateFolderQuizProgress', 'Math.min(100, (f.progress || 0) + Math.round((score / total) * 15))']
@@ -164,8 +169,8 @@ test('entire source outside the two calculation expressions/imports remains HEAD
     }
     let restored = file.text;
     for (const replacement of replacements.sort((a, b) => b.start - a.start)) restored = restored.slice(0, replacement.start) + replacement.text + restored.slice(replacement.end);
-    const head = execFileSync('git', ['show', `HEAD:${path}`], { encoding: 'utf8', timeout: 30000 });
-    assert.equal(restored.replace(/\r\n/g, '\n'), head.replace(/\r\n/g, '\n'));
+    const restoredHash = createHash('sha256').update(restored.replace(/\r\n/g, '\n')).digest('hex');
+    assert.equal(restoredHash, baselineHashes[path], path);
   }
 });
 
