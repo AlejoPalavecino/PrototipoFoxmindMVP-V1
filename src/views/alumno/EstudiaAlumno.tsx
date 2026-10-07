@@ -67,6 +67,7 @@ import { StudyFlashcardModal } from './estudio/StudyFlashcardModal';
 import { StudyQuizModal } from './estudio/StudyQuizModal';
 import { StudyConceptMapModal } from './estudio/StudyConceptMapModal';
 import { StudyToolGenerateModal } from './estudio/StudyToolGenerateModal';
+import { calculateFolderQuizProgress } from '../../features/study/application/quizProgress';
 
 // Color Palette matching Teacher Classroom design
 const folderColorPalette = [
@@ -1057,7 +1058,7 @@ export function EstudiaAlumno() {
             if (activeFolderId) {
               setFolders(prev => prev.map(f => {
                 if (f.id === activeFolderId) {
-                  const newProgress = Math.min(100, (f.progress || 0) + Math.round((score / total) * 15));
+                  const newProgress = calculateFolderQuizProgress(f.progress, score, total);
                   return { ...f, progress: newProgress };
                 }
                 return f;

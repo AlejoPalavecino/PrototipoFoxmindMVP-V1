@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { toast } from '../../../components/ui/Toaster';
 import { StudyQuiz, StudyQuizQuestion } from './estudioTypes';
+import { calculateQuizCompletionScore } from '../../../features/study/application/quizProgress';
 
 interface StudyQuizModalProps {
   isOpen: boolean;
@@ -69,7 +70,7 @@ export const StudyQuizModal: React.FC<StudyQuizModalProps> = ({
     } else {
       setIsFinished(true);
       if (onComplete) {
-        onComplete(score + (selectedOpt === currentQ.correctIndex ? 1 : 0), totalQ);
+        onComplete(calculateQuizCompletionScore(score, selectedOpt, currentQ.correctIndex), totalQ);
       }
     }
   };
