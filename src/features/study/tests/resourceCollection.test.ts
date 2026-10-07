@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 import ts from 'typescript';
@@ -8,7 +9,23 @@ const pagePath = 'src/views/alumno/EstudiaAlumno.tsx';
 const operationsUrl = new URL('../application/resourceCollection.ts', import.meta.url);
 const operations = existsSync(operationsUrl) ? await import(operationsUrl.href) : {};
 const parse = (text: string) => ts.createSourceFile(pagePath, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
-const page = parse(readFileSync(pagePath, 'utf8'));
+// Compose only the T5d1 reversal before the existing historical restorations.
+const page = parse(undoTopicExtraction(readFileSync(pagePath, 'utf8')));
+function undoTopicExtraction(text: string) {
+  const file = parse(text);
+  const imported = file.statements.filter(ts.isImportDeclaration).find(n => (n.moduleSpecifier as ts.StringLiteral).text.endsWith('/studyTopicGeneration'));
+  if (!imported) return text;
+  const fixed = parse(execFileSync('git', ['show', 'b0a18f9773f1838c4191200a38eafefaf27ec85d:' + pagePath], { encoding: 'utf8' }));
+  const current = find(file, n => ts.isVariableStatement(n) && n.declarationList.declarations.some(d => d.name.getText(file) === 'detectedTopics'));
+  const original = find(fixed, n => ts.isVariableDeclaration(n) && n.name.getText(fixed) === 'handleAnalyzeStudyMaterial');
+  const start = fixed.text.indexOf('      let detectedTopics:', original.getStart(fixed));
+  const end = fixed.text.indexOf('      setNewFolderForm', start);
+  assert.ok(start > 0 && end > start);
+  const newline = text.includes('\r\n') ? '\r\n' : '\n';
+  const branch = fixed.text.slice(start, end).trim().replace(/\r?\n/g, newline);
+  const restored = text.slice(0, current.getStart(file)) + branch + text.slice(current.end);
+  return restored.slice(0, imported.getStart(file)) + restored.slice(imported.end + newline.length);
+}
 function find(root: ts.Node, predicate: (node: ts.Node) => boolean): ts.Node {
   const matches: ts.Node[] = [];
   function visit(node: ts.Node) { if (predicate(node)) matches.push(node); ts.forEachChild(node, visit); }
