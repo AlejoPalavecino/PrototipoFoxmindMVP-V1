@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { toast } from '../../../components/ui/Toaster';
 import { StudyFlashcardDeck, StudyFlashcard } from './estudioTypes';
+import { markCardMastery, selectWeakCards, completeFlashcardDeck } from '../../../features/study/application/flashcardReview';
 
 interface StudyFlashcardModalProps {
   isOpen: boolean;
@@ -49,12 +50,7 @@ export const StudyFlashcardModal: React.FC<StudyFlashcardModalProps> = ({
   };
 
   const handleMarkMastery = (mastered: boolean) => {
-    const updated = [...cardsState];
-    updated[currentIndex] = {
-      ...updated[currentIndex],
-      mastered,
-      timesReviewed: (updated[currentIndex].timesReviewed || 0) + 1
-    };
+    const updated = markCardMastery(cardsState, currentIndex, mastered);
     setCardsState(updated);
 
     if (mastered) {
@@ -73,12 +69,7 @@ export const StudyFlashcardModal: React.FC<StudyFlashcardModalProps> = ({
     } else {
       setSessionCompleted(true);
       if (onUpdateDeck) {
-        onUpdateDeck({
-          ...deck,
-          cards: updated,
-          masteryPercentage: Math.round((updated.filter(c => c.mastered).length / totalCards) * 100),
-          lastReviewed: 'Hoy'
-        });
+        onUpdateDeck(completeFlashcardDeck(deck, updated, totalCards));
       }
     }
   };
@@ -107,7 +98,7 @@ export const StudyFlashcardModal: React.FC<StudyFlashcardModalProps> = ({
   };
 
   const handleReviewWeakOnly = () => {
-    const weakCards = cardsState.filter(c => !c.mastered);
+    const weakCards = selectWeakCards(cardsState);
     if (weakCards.length === 0) {
       toast.show('¡Ya dominás todas las tarjetas de este mazo!', 'success');
       return;

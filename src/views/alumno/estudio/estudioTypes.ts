@@ -2,26 +2,8 @@ export type StudyToolType = 'flashcards' | 'quiz' | 'resumen' | 'mapa' | 'guia' 
 
 export type StudentAgentMode = 'socratico' | 'explicador' | 'riguroso' | 'resumidor';
 
-export interface StudyFlashcard {
-  id: string;
-  front: string;
-  back: string;
-  hint?: string;
-  mastered?: boolean;
-  timesReviewed?: number;
-}
-
-export interface StudyFlashcardDeck {
-  id: string;
-  title: string;
-  folderId: string;
-  folderName: string;
-  topic: string;
-  cards: StudyFlashcard[];
-  createdAt: string;
-  lastReviewed?: string;
-  masteryPercentage: number;
-}
+import type { StudyFlashcardDeck } from '../../../features/study/model/Flashcard';
+export type { StudyFlashcard, StudyFlashcardDeck } from '../../../features/study/model/Flashcard';
 
 export interface StudyQuizQuestion {
   id: string;
