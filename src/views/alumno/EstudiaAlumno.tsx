@@ -68,6 +68,7 @@ import { StudyQuizModal } from './estudio/StudyQuizModal';
 import { StudyConceptMapModal } from './estudio/StudyConceptMapModal';
 import { StudyToolGenerateModal } from './estudio/StudyToolGenerateModal';
 import { calculateFolderQuizProgress } from '../../features/study/application/quizProgress';
+import { upsertStudySession } from '../../features/study/application/sessionCollection';
 
 // Color Palette matching Teacher Classroom design
 const folderColorPalette = [
@@ -336,15 +337,7 @@ export function EstudiaAlumno() {
 
   // Update session
   const handleUpdateSession = (updatedSession: StudentStudySession) => {
-    setSessions(prev => {
-      const idx = prev.findIndex(s => s.id === updatedSession.id);
-      if (idx >= 0) {
-        const next = [...prev];
-        next[idx] = updatedSession;
-        return next;
-      }
-      return [updatedSession, ...prev];
-    });
+    setSessions(prev => upsertStudySession(prev, updatedSession));
   };
 
   // Create new session

@@ -150,7 +150,7 @@ test('folder completion keeps active-ID guard, functional current snapshot, map 
   assert.equal(missing.apply()[0], untouched);
 });
 
-test('entire source outside the two calculation expressions/imports preserves fixed pre-extraction source in memory', () => {
+test('entire source outside calculation expressions/imports and session updater preserves fixed pre-extraction source in memory', () => {
   // Full-source SHA256 from Git blobs at 63392b36951c099fea69b860631f182f09ae9dae; only CRLF → LF normalized.
   const baselineHashes = {
     [modalPath]: '95d3c3c0e8f2efd6b311635a3f1b0bbe67131159bd46247202f50929c700deb2',
@@ -166,6 +166,25 @@ test('entire source outside the two calculation expressions/imports preserves fi
       replacements.push({ start: imported.getStart(file), end: imported.end + (file.text.slice(imported.end).startsWith('\r\n') ? 2 : 1), text: '' });
       const call = find(file, node => ts.isCallExpression(node) && node.expression.getText(file) === helper);
       replacements.push({ start: call.getStart(file), end: call.end, text: original });
+    }
+    if (path === pagePath) {
+      const sessionImport = file.statements.filter(ts.isImportDeclaration).find(node => (node.moduleSpecifier as ts.StringLiteral).text.endsWith('/sessionCollection'));
+      if (sessionImport) {
+        replacements.push({ start: sessionImport.getStart(file), end: sessionImport.end + (file.text.slice(sessionImport.end).startsWith('\r\n') ? 2 : 1), text: '' });
+        const callback = find(file, node => ts.isVariableDeclaration(node) && node.name.getText(file) === 'handleUpdateSession') as ts.VariableDeclaration;
+        const setter = find(callback, node => ts.isCallExpression(node) && node.expression.getText(file) === 'setSessions') as ts.CallExpression;
+        // Literal updater from Git blob 336f007ad5d3f3d16991ea95dc7005e49bea7daf, not candidate-derived.
+        const legacyUpdater = `prev => {
+      const idx = prev.findIndex(s => s.id === updatedSession.id);
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = updatedSession;
+        return next;
+      }
+      return [updatedSession, ...prev];
+    }`;
+        replacements.push({ start: setter.arguments[0].getStart(file), end: setter.arguments[0].end, text: legacyUpdater });
+      }
     }
     let restored = file.text;
     for (const replacement of replacements.sort((a, b) => b.start - a.start)) restored = restored.slice(0, replacement.start) + replacement.text + restored.slice(replacement.end);
