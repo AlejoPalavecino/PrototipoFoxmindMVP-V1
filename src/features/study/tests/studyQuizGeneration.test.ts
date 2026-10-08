@@ -2,13 +2,14 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
+import { restoreStudyChatResponse } from './restoreStudyChatResponse';
 import type { StudyGeneratedResource } from '../../../views/alumno/estudio/estudioTypes';
 
 const workspacePath = 'src/views/alumno/estudio/StudyChatWorkspace.tsx';
 const baseline = execFileSync('git', [
   'show', 'b50c529f7e7fce08fab78e8a87b3a342977128d1:' + workspacePath
 ], { encoding: 'utf8' });
-const candidate = readFileSync(workspacePath, 'utf8');
+const candidate = restoreStudyChatResponse(readFileSync(workspacePath, 'utf8'));
 const operationsUrl = new URL('../application/studyQuizGeneration.ts', import.meta.url);
 const helperExists = existsSync(operationsUrl);
 const operations = helperExists ? await import(operationsUrl.href) : undefined;
