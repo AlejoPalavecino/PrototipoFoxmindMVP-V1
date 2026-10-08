@@ -209,3 +209,95 @@ test('current role pages import their composed UI symbols through ui, not headle
     assert.ok(runtimeSpecifiers(readFileSync(file, 'utf8'), file).includes('../../features/classrooms/ui'));
   }
 });
+
+// Test-only guard checks runtime reachability from headless roots to presentation.
+function headlessPresentationDependencies(edges: Map<string, readonly string[]>): [string, string][] {
+  const isHeadless = (path: string) =>
+    /^src\/features\/(?:classrooms|messaging|study)\/(?:model|data|application|fixtures)\//.test(path) ||
+    path === 'src/features/classrooms/index.ts' ||
+    path === 'src/features/messaging/messagingStore.ts' ||
+    path === 'src/features/messaging/messagingPersistence.ts';
+  const isPresentation = (path: string) =>
+    /^src\/(?:views|components|app)\//.test(path) ||
+    path === 'src/App.tsx' || path === 'src/context.ts' ||
+    /^src\/features\/(?:classrooms|messaging|study)\/(?:components\/|hooks\/|ui\.ts$)/.test(path);
+  const violations: [string, string][] = [];
+  for (const source of edges.keys()) {
+    if (!isHeadless(source)) continue;
+    const visited = new Set([source]);
+    const pending = [...(edges.get(source) ?? [])];
+    while (pending.length) {
+      const target = pending.pop()!;
+      if (visited.has(target)) continue;
+      visited.add(target);
+      if (isPresentation(target)) violations.push([source, target]);
+      for (const next of edges.get(target) ?? []) pending.push(next);
+    }
+  }
+  const compare = (a: string, b: string) => a < b ? -1 : a > b ? 1 : 0;
+  return violations.sort((a, b) => compare(a[0], b[0]) || compare(a[1], b[1]));
+}
+
+test('headless direction policy allows pure dependencies, UI consumers and erased legacy study types', () => {
+  assert.deepEqual(runtimeSpecifiers(`
+    import type { GeneratedResource } from '@/views/legacyStudyGeneratedResource';
+    import { LegacyStudyGeneratedResource } from '@/views/legacyStudyGeneratedResource';
+    export type Resource = GeneratedResource | LegacyStudyGeneratedResource;
+  `, 'src/features/study/model/typeCompatibility.ts'), []);
+  const edges = new Map<string, readonly string[]>([
+    ['src/views/Messaging.tsx', ['src/features/messaging/messagingStore.ts']],
+    ['src/features/classrooms/application/coordinator.ts', [
+      'src/features/messaging/messagingStore.ts', 'src/features/study/application/publicApi.ts',
+      'src/features/classrooms/application/actions.ts', 'src/lib/pureHelper.ts',
+    ]],
+    ['src/features/messaging/messagingStore.ts', ['src/features/messaging/messagingPersistence.ts']],
+    ['src/features/messaging/messagingPersistence.ts', ['src/lib/pureHelper.ts']],
+    ['src/features/study/application/publicApi.ts', ['src/features/study/model/resource.ts']],
+    ['src/features/classrooms/index.ts', ['src/features/classrooms/model/classroom.ts']],
+    ['src/features/classrooms/legacyBridge.ts', ['src/features/classrooms/components/Card.tsx']],
+  ]);
+  assert.deepEqual(headlessPresentationDependencies(edges), []);
+});
+
+test('headless direction policy rejects every direct root and presentation category pair', () => {
+  const features = ['classrooms', 'messaging', 'study'];
+  const sources = [
+    ...features.flatMap(feature => ['model', 'data', 'application', 'fixtures']
+      .map(category => `src/features/${feature}/${category}/source.ts`)),
+    'src/features/classrooms/index.ts',
+    'src/features/messaging/messagingStore.ts',
+    'src/features/messaging/messagingPersistence.ts',
+  ];
+  const targets = [
+    'src/views/Page.tsx', 'src/components/Shared.tsx', 'src/app/composition.ts',
+    'src/App.tsx', 'src/context.ts',
+    ...features.flatMap(feature => [
+      `src/features/${feature}/components/Card.tsx`,
+      `src/features/${feature}/hooks/useView.ts`,
+      `src/features/${feature}/ui.ts`,
+    ]),
+  ];
+  for (const source of sources) {
+    for (const target of targets) {
+      assert.deepEqual(headlessPresentationDependencies(new Map([[source, [target]]])),
+        [[source, target]], `${source} -> ${target}`);
+    }
+  }
+});
+
+test('headless direction policy rejects transitive presentation through neutral bridges and cycles', () => {
+  const source = 'src/features/study/application/generate.ts';
+  const shared = 'src/lib/neutralShared.ts';
+  const bridge = 'src/legacy/bridge.ts';
+  const view = 'src/views/Study.tsx';
+  const ui = 'src/features/study/ui.ts';
+  const edges = new Map<string, readonly string[]>([
+    [source, [shared]], [shared, [bridge]], [bridge, [shared, view, ui]],
+  ]);
+  assert.deepEqual(headlessPresentationDependencies(edges), [[source, ui], [source, view]]);
+});
+
+test('repository headless roots have no runtime presentation dependencies', () => {
+  const normalizedMap = new Map([...graph].map(([file, targets]) => [label(file), targets.map(label)]));
+  assert.deepEqual(headlessPresentationDependencies(normalizedMap), []);
+});
