@@ -32,6 +32,7 @@ import ReactMarkdown from 'react-markdown';
 import { toast } from '../../../components/ui/Toaster';
 import { StudyFolder } from '../../../types';
 import { createStudyFlashcardResource } from '../../../features/study/application/studyFlashcardGeneration';
+import { createStudyQuizResource } from '../../../features/study/application/studyQuizGeneration';
 import { 
   StudentStudySession, 
   StudentStudyMessage, 
@@ -164,57 +165,7 @@ export const StudyChatWorkspace: React.FC<StudyChatWorkspaceProps> = ({
 
         onSaveResourceToLibrary(newDeckResource);
       } else if (lowerQuery.includes('quiz') || lowerQuery.includes('evaluacion') || lowerQuery.includes('cuestionario') || lowerQuery.includes('/quiz')) {
-        const newQuizResource: StudyGeneratedResource = {
-          id: `res-quiz-${Date.now()}`,
-          title: `Quiz Formativo: ${folder.name}`,
-          type: 'quiz',
-          folderId: folder.id,
-          folderName: folder.name,
-          topic: folder.topics?.[0]?.name || folder.name,
-          description: 'Cuestionario de 3 preguntas con retroalimentación socrática.',
-          createdAt: 'Justo ahora',
-          fileSize: '3 preguntas',
-          fileFormat: 'QUIZ',
-          data: {
-            quiz: {
-              id: `quiz-${Date.now()}`,
-              title: `Quiz: ${folder.name}`,
-              folderId: folder.id,
-              folderName: folder.name,
-              topic: folder.topics?.[0]?.name || folder.name,
-              difficulty: 'intermedio',
-              createdAt: 'Hoy',
-              questions: [
-                {
-                  id: 'q-d-1',
-                  question: `¿Cuál de las siguientes afirmaciones describe mejor a ${folder.name}?`,
-                  options: [
-                    'Es un proceso estructurado con fases interdependientes.',
-                    'Ocurre de forma aislada sin relación con el contexto.',
-                    'No requiere comprobación de variables.',
-                    'Se limita exclusivamente a definiciones teóricas.'
-                  ],
-                  correctIndex: 0,
-                  explanation: 'Excelente deducción. Todo el modelo se sostiene en la articulación de etapas concatenadas.',
-                  topic: 'Conceptos Clave'
-                },
-                {
-                  id: 'q-d-2',
-                  question: 'Al aplicar este método en un examen, ¿cuál es el paso prioritario?',
-                  options: [
-                    'Comenzar a escribir sin leer las consignas completas',
-                    'Identificar las premisas principales y estructurar un esquema previo',
-                    'Memorizar datos sin comprender la lógica interna',
-                    'Ignorar las preguntas de desarrollo largo'
-                  ],
-                  correctIndex: 1,
-                  explanation: '¡Exacto! El esquema previo asegura coherencia argumental y evita lagunas conceptuales.',
-                  topic: 'Metodología'
-                }
-              ]
-            }
-          }
-        };
+        const newQuizResource: StudyGeneratedResource = createStudyQuizResource(folder);
 
         aiResponseText = `⚡ ¡He preparado un **Quiz Rápido de Autoevaluación** de **${folder.name}**!\n\nRespondé las preguntas y te iré dando explicaciones socráticas inmediatas para consolidar el tema antes de tu examen.`;
         generatedTool = newQuizResource;

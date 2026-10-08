@@ -145,6 +145,32 @@ test('extracted factory matches immutable payload, clocks, evaluation order and 
   const helperLiteral = helper.slice(helper.indexOf('  return ') + '  return '.length, helper.lastIndexOf(';'));
   assert.equal(helperLiteral, literal.replace(/\r\n/g, '\n').replace(/^      /gm, ''), 'literal copied exactly except indentation');
 });
+function restoreQuizExtraction(source: string): string {
+  const prefix = '        const newQuizResource: StudyGeneratedResource = ';
+  const quizStart = baseline.indexOf(prefix);
+  const quizEnd = baseline.indexOf(newline + newline + '        aiResponseText = ', quizStart);
+  assert.ok(quizStart > 0 && quizEnd > quizStart);
+  assert.equal(baseline.indexOf(prefix, quizStart + 1), -1);
+  const declaration = baseline.slice(quizStart, quizEnd);
+  assert.ok(declaration.length < 5000, 'restore only the bounded immutable quiz declaration');
+  const expectedDeclaration = declaration.replace(/\n/g, '\r\n');
+  const addedImport = "import { createStudyQuizResource } from '../../../features/study/application/studyQuizGeneration';\r\n";
+  const call = prefix + 'createStudyQuizResource(folder);';
+  const imports = source.split(addedImport).length - 1;
+  const calls = source.split(call).length - 1;
+  assert.equal(source.split(prefix).length, 2);
+  if (imports === 0 && calls === 0) {
+    assert.equal(source.split(expectedDeclaration).length, 2, 'unchanged inline quiz required before extraction');
+    assert.ok(!source.includes('createStudyQuizResource'), 'reject partial or unexpected quiz extraction');
+    return source;
+  }
+  assert.equal(imports, 1, 'exactly one approved quiz import');
+  assert.equal(calls, 1, 'exactly one approved quiz call');
+  assert.equal(source.split(expectedDeclaration).length, 1, 'inline quiz must be replaced, not duplicated');
+  assert.equal(source.match(/createStudyQuizResource/g)?.length, 2);
+  return source.replace(addedImport, '').replace(call, expectedDeclaration);
+}
+
 test('entire current workspace restores immutable source by undoing only exact import and call', () => {
   // Git canonical LF differs from the approved working CRLF; adapt only the expected source.
   assert.ok(baseline.includes('\n') && !baseline.includes('\r'), 'immutable source must be LF-only');
@@ -153,7 +179,7 @@ test('entire current workspace restores immutable source by undoing only exact i
   const expectedDeclaration = originalDeclaration.replace(/\n/g, '\r\n');
   const addedImport = "import { createStudyFlashcardResource } from '../../../features/study/application/studyFlashcardGeneration';\r\n";
   const call = declarationPrefix + 'createStudyFlashcardResource(folder);';
-  let restored = candidate;
+  let restored = restoreQuizExtraction(candidate);
   if (helperExists) {
     assert.equal(candidate.split(addedImport).length, 2);
     assert.equal(candidate.split(call).length, 2);
