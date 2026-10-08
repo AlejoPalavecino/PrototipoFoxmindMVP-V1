@@ -171,6 +171,32 @@ function restoreQuizExtraction(source: string): string {
   return source.replace(addedImport, '').replace(call, expectedDeclaration);
 }
 
+function restoreConceptMapExtraction(source: string): string {
+  const prefix = '        const newMapResource: StudyGeneratedResource = ';
+  const mapStart = baseline.indexOf(prefix);
+  const mapEnd = baseline.indexOf('\n\n        aiResponseText = ', mapStart);
+  assert.ok(mapStart > 0 && mapEnd > mapStart);
+  assert.equal(baseline.indexOf(prefix, mapStart + 1), -1);
+  const declaration = baseline.slice(mapStart, mapEnd);
+  assert.ok(declaration.length < 5000, 'restore only the bounded immutable map declaration');
+  const expectedDeclaration = declaration.replace(/\n/g, '\r\n');
+  const addedImport = "import { createStudyConceptMapResource } from '../../../features/study/application/studyConceptMapGeneration';\r\n";
+  const call = prefix + 'createStudyConceptMapResource(folder);';
+  const imports = source.split(addedImport).length - 1;
+  const calls = source.split(call).length - 1;
+  assert.equal(source.split(prefix).length, 2);
+  if (imports === 0 && calls === 0) {
+    assert.equal(source.split(expectedDeclaration).length, 2, 'unchanged inline map required before extraction');
+    assert.ok(!source.includes('createStudyConceptMapResource'), 'reject partial or unexpected map extraction');
+    return source;
+  }
+  assert.equal(imports, 1, 'exactly one approved map import');
+  assert.equal(calls, 1, 'exactly one approved map call');
+  assert.equal(source.split(expectedDeclaration).length, 1, 'inline map must be replaced, not duplicated');
+  assert.equal(source.match(/createStudyConceptMapResource/g)?.length, 2);
+  return source.replace(addedImport, '').replace(call, expectedDeclaration);
+}
+
 test('entire current workspace restores immutable source by undoing only exact import and call', () => {
   // Git canonical LF differs from the approved working CRLF; adapt only the expected source.
   assert.ok(baseline.includes('\n') && !baseline.includes('\r'), 'immutable source must be LF-only');
@@ -179,7 +205,7 @@ test('entire current workspace restores immutable source by undoing only exact i
   const expectedDeclaration = originalDeclaration.replace(/\n/g, '\r\n');
   const addedImport = "import { createStudyFlashcardResource } from '../../../features/study/application/studyFlashcardGeneration';\r\n";
   const call = declarationPrefix + 'createStudyFlashcardResource(folder);';
-  let restored = restoreQuizExtraction(candidate);
+  let restored = restoreQuizExtraction(restoreConceptMapExtraction(candidate));
   if (helperExists) {
     assert.equal(candidate.split(addedImport).length, 2);
     assert.equal(candidate.split(call).length, 2);

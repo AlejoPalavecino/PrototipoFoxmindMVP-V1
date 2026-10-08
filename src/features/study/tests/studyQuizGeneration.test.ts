@@ -170,6 +170,32 @@ test('extracted quiz factory matches immutable payload, clocks, getters and fres
   const helperLiteral = helper.slice(helper.indexOf('  return ') + '  return '.length, helper.lastIndexOf(';'));
   assert.equal(helperLiteral, literal.replace(/^      /gm, ''), 'literal copied exactly except indentation');
 });
+function restoreConceptMapExtraction(source: string): string {
+  const prefix = '        const newMapResource: StudyGeneratedResource = ';
+  const mapStart = baseline.indexOf(prefix);
+  const mapEnd = baseline.indexOf('\n\n        aiResponseText = ', mapStart);
+  assert.ok(mapStart > 0 && mapEnd > mapStart);
+  assert.equal(baseline.indexOf(prefix, mapStart + 1), -1);
+  const declaration = baseline.slice(mapStart, mapEnd);
+  assert.ok(declaration.length < 5000, 'restore only the bounded immutable map declaration');
+  const expectedDeclaration = declaration.replace(/\n/g, '\r\n');
+  const addedImport = "import { createStudyConceptMapResource } from '../../../features/study/application/studyConceptMapGeneration';\r\n";
+  const call = prefix + 'createStudyConceptMapResource(folder);';
+  const imports = source.split(addedImport).length - 1;
+  const calls = source.split(call).length - 1;
+  assert.equal(source.split(prefix).length, 2);
+  if (imports === 0 && calls === 0) {
+    assert.equal(source.split(expectedDeclaration).length, 2, 'unchanged inline map required before extraction');
+    assert.ok(!source.includes('createStudyConceptMapResource'), 'reject partial or unexpected map extraction');
+    return source;
+  }
+  assert.equal(imports, 1, 'exactly one approved map import');
+  assert.equal(calls, 1, 'exactly one approved map call');
+  assert.equal(source.split(expectedDeclaration).length, 1, 'inline map must be replaced, not duplicated');
+  assert.equal(source.match(/createStudyConceptMapResource/g)?.length, 2);
+  return source.replace(addedImport, '').replace(call, expectedDeclaration);
+}
+
 test('entire live workspace restores quiz baseline by undoing only exact import and call', () => {
   assert.ok(baseline.includes('\n') && !baseline.includes('\r'), 'immutable source must be LF-only');
   assert.ok(candidate.includes('\r\n') && !/(?<!\r)\n|\r(?!\n)/.test(candidate), 'working source must be uniform CRLF');
@@ -177,7 +203,7 @@ test('entire live workspace restores quiz baseline by undoing only exact import 
   const expectedDeclaration = originalDeclaration.replace(/\n/g, '\r\n');
   const addedImport = "import { createStudyQuizResource } from '../../../features/study/application/studyQuizGeneration';\r\n";
   const call = declarationPrefix + 'createStudyQuizResource(folder);';
-  let restored = candidate;
+  let restored = restoreConceptMapExtraction(candidate);
   if (helperExists) {
     assert.equal(candidate.split(addedImport).length, 2);
     assert.equal(candidate.split(call).length, 2);
