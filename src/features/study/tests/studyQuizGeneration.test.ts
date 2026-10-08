@@ -196,6 +196,32 @@ function restoreConceptMapExtraction(source: string): string {
   return source.replace(addedImport, '').replace(call, expectedDeclaration);
 }
 
+function restoreSummaryExtraction(source: string): string {
+  const prefix = '        const newSummaryResource: StudyGeneratedResource = ';
+  const start = baseline.indexOf(prefix);
+  const end = baseline.indexOf('\n\n        aiResponseText = ', start);
+  assert.ok(start > 0 && end > start);
+  assert.equal(baseline.indexOf(prefix, start + 1), -1);
+  const declaration = baseline.slice(start, end);
+  assert.ok(declaration.length < 5000, 'restore only the bounded immutable summary declaration');
+  const expected = declaration.replace(/\n/g, '\r\n');
+  const addedImport = "import { createStudySummaryResource } from '../../../features/study/application/studySummaryGeneration';\r\n";
+  const call = prefix + 'createStudySummaryResource(folder);';
+  const imports = source.split(addedImport).length - 1;
+  const calls = source.split(call).length - 1;
+  assert.equal(source.split(prefix).length, 2);
+  if (imports === 0 && calls === 0) {
+    assert.equal(source.split(expected).length, 2, 'unchanged inline summary required before extraction');
+    assert.ok(!source.includes('createStudySummaryResource'), 'reject partial or unexpected summary extraction');
+    return source;
+  }
+  assert.equal(imports, 1, 'exactly one approved summary import');
+  assert.equal(calls, 1, 'exactly one approved summary call');
+  assert.equal(source.split(expected).length, 1, 'inline summary must be replaced, not duplicated');
+  assert.equal(source.match(/createStudySummaryResource/g)?.length, 2);
+  return source.replace(addedImport, '').replace(call, expected);
+}
+
 test('entire live workspace restores quiz baseline by undoing only exact import and call', () => {
   assert.ok(baseline.includes('\n') && !baseline.includes('\r'), 'immutable source must be LF-only');
   assert.ok(candidate.includes('\r\n') && !/(?<!\r)\n|\r(?!\n)/.test(candidate), 'working source must be uniform CRLF');
@@ -203,7 +229,7 @@ test('entire live workspace restores quiz baseline by undoing only exact import 
   const expectedDeclaration = originalDeclaration.replace(/\n/g, '\r\n');
   const addedImport = "import { createStudyQuizResource } from '../../../features/study/application/studyQuizGeneration';\r\n";
   const call = declarationPrefix + 'createStudyQuizResource(folder);';
-  let restored = restoreConceptMapExtraction(candidate);
+  let restored = restoreConceptMapExtraction(restoreSummaryExtraction(candidate));
   if (helperExists) {
     assert.equal(candidate.split(addedImport).length, 2);
     assert.equal(candidate.split(call).length, 2);
