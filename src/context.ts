@@ -1,17 +1,7 @@
 import React from 'react';
 import { Role } from './types';
 import type { AppView, SetAppView, StoredNavigationParams } from './app/navigation';
-
-interface AppSettings {
-  theme: string;
-  density: string;
-  fontSize: string;
-  // Accessibility settings
-  dyslexic: boolean;
-  contrast: boolean;
-  easyRead: boolean;
-  textSize: string;
-}
+import { createDefaultAppSettings, type AppSettings } from './app/settings';
 
 interface AppState {
   role: Role;
@@ -26,15 +16,7 @@ interface AppState {
 export const AppContext = React.createContext<AppState>({
   role: 'none',
   view: 'dashboard',
-  settings: { 
-    theme: 'light', 
-    density: 'comoda', 
-    fontSize: 'normal',
-    dyslexic: false,
-    contrast: false,
-    easyRead: false,
-    textSize: 'M'
-  },
+  settings: createDefaultAppSettings(),
   setRole: () => {},
   setView: () => {},
   updateSettings: () => {},

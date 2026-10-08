@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Role } from "./types";
 import type { AppView, SetAppView, StoredNavigationParams } from "./app/navigation";
+import { createDefaultAppSettings } from "./app/settings";
 import { RoleSelection } from "./views/RoleSelection";
 import { DocenteLayout } from "./components/layout/DocenteLayout";
 import { AlumnoLayout } from "./components/layout/AlumnoLayout";
@@ -12,15 +13,7 @@ export default function App() {
   const [role, setRole] = useState<Role>("none");
   const [view, setView] = useState<AppView>("dashboard");
   const [navigationParams, setNavigationParams] = useState<StoredNavigationParams | undefined>(undefined);
-  const [settings, setSettings] = useState({
-    theme: "light",
-    density: "comoda",
-    fontSize: "normal",
-    dyslexic: false,
-    contrast: false,
-    easyRead: false,
-    textSize: "M",
-  });
+  const [settings, setSettings] = useState(createDefaultAppSettings());
 
   useEffect(() => {
     const html = document.documentElement;
