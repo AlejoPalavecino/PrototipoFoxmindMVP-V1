@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Role } from "./types";
+import type { AppView, SetAppView, StoredNavigationParams } from "./app/navigation";
 import { RoleSelection } from "./views/RoleSelection";
 import { DocenteLayout } from "./components/layout/DocenteLayout";
 import { AlumnoLayout } from "./components/layout/AlumnoLayout";
@@ -9,8 +10,8 @@ import { Toaster } from "./components/ui/Toaster";
 
 export default function App() {
   const [role, setRole] = useState<Role>("none");
-  const [view, setView] = useState<string>("dashboard");
-  const [navigationParams, setNavigationParams] = useState<any>(undefined);
+  const [view, setView] = useState<AppView>("dashboard");
+  const [navigationParams, setNavigationParams] = useState<StoredNavigationParams | undefined>(undefined);
   const [settings, setSettings] = useState({
     theme: "light",
     density: "comoda",
@@ -40,7 +41,7 @@ export default function App() {
     setNavigationParams(undefined);
   };
 
-  const handleSetView = (newView: string, params?: any) => {
+  const handleSetView: SetAppView = (newView, params) => {
     setView(newView);
     setNavigationParams(params);
   };

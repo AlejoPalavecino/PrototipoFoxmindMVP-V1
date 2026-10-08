@@ -1,5 +1,6 @@
 import React from 'react';
 import { Role } from './types';
+import type { AppView, SetAppView, StoredNavigationParams } from './app/navigation';
 
 interface AppSettings {
   theme: string;
@@ -14,11 +15,11 @@ interface AppSettings {
 
 interface AppState {
   role: Role;
-  view: string;
-  navigationParams?: any;
+  view: AppView;
+  navigationParams?: StoredNavigationParams;
   settings: AppSettings;
   setRole: (role: Role) => void;
-  setView: (view: string, params?: any) => void;
+  setView: SetAppView;
   updateSettings: (newSettings: Partial<AppSettings>) => void;
 }
 

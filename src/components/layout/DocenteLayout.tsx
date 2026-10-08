@@ -23,13 +23,13 @@ export function DocenteLayout() {
   }, []);
 
   const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'agenda', label: 'Agenda', icon: CalendarDays },
-    { id: 'aulas', label: 'Aulas', icon: BookOpen },
-    { id: 'progreso', label: 'Progreso de Clase', icon: BarChart2 },
-    { id: 'copiloto', label: 'Foxy IA', icon: BrainCircuit, badge: 'BETA' },
-    { id: 'mensajes', label: 'Mensajes', icon: MessageSquare, count: unreadMessagesCount },
-    { id: 'config', label: 'Configuración', icon: Settings },
+    { id: 'dashboard' as const, label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'agenda' as const, label: 'Agenda', icon: CalendarDays },
+    { id: 'aulas' as const, label: 'Aulas', icon: BookOpen },
+    { id: 'progreso' as const, label: 'Progreso de Clase', icon: BarChart2 },
+    { id: 'copiloto' as const, label: 'Foxy IA', icon: BrainCircuit, badge: 'BETA' },
+    { id: 'mensajes' as const, label: 'Mensajes', icon: MessageSquare, count: unreadMessagesCount },
+    { id: 'config' as const, label: 'Configuración', icon: Settings },
   ];
 
   return (

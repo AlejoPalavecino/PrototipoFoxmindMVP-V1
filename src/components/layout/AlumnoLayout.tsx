@@ -22,12 +22,12 @@ export function AlumnoLayout() {
   }, []);
 
   const navItems = [
-    { id: 'dashboard', label: 'Mi Dashboard', icon: Home },
-    { id: 'estudia', label: 'Carpeta de Estudio', icon: Brain, badge: 'IA' },
-    { id: 'aulas', label: 'Mis Aulas', icon: BookOpen },
-    { id: 'progreso', label: 'Mi Progreso', icon: TrendingUp },
-    { id: 'mensajes', label: 'Mensajes', icon: MessageSquare, count: unreadMessagesCount },
-    { id: 'config', label: 'Configuración', icon: Settings },
+    { id: 'dashboard' as const, label: 'Mi Dashboard', icon: Home },
+    { id: 'estudia' as const, label: 'Carpeta de Estudio', icon: Brain, badge: 'IA' },
+    { id: 'aulas' as const, label: 'Mis Aulas', icon: BookOpen },
+    { id: 'progreso' as const, label: 'Mi Progreso', icon: TrendingUp },
+    { id: 'mensajes' as const, label: 'Mensajes', icon: MessageSquare, count: unreadMessagesCount },
+    { id: 'config' as const, label: 'Configuración', icon: Settings },
   ];
 
   return (
