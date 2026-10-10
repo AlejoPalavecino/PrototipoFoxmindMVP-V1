@@ -48,7 +48,16 @@ test('catalogue duplicate checks use snapshot id OR case-insensitive subject/cou
     if (result.status === 'duplicate') assert.strictEqual(result.classroom, catalogue[0]);
     assert.strictEqual(repository.readMembership(), original);
   }
-  assert.equal(resolve('c3', [{ ...original[1], id: 'other' }]).status, 'catalogue');
+  const duplicate = resolve('c3', [{ ...original[1], id: 'other' }]);
+  assert.equal(duplicate.status, 'duplicate', 'Matching canonical subject/course still duplicates with a different id');
+  if (duplicate.status === 'duplicate') assert.strictEqual(duplicate.classroom, catalogue[1]);
+  const distinct = { ...original[1], id: 'other', course: '3°C' };
+  const join = resolve('c3', [distinct]);
+  assert.equal(join.status, 'catalogue', 'A different id and course remain eligible for a catalogue join');
+  if (join.status === 'catalogue') {
+    assert.deepEqual([join.classroom.id, join.classroom.subject, join.classroom.course], ['c3', 'Matemáticas', '3°B']);
+  }
+  assert.strictEqual(repository.readMembership(), original);
 });
 
 test('catalogue planning is nonmutating and retains its distinct defaults and zero tasks', () => {
