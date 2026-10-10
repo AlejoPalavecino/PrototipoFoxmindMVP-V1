@@ -7,6 +7,7 @@
     "dev": "tsx server.ts",
     "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs && npm run check:bundle",
     "check:bundle": "node scripts/check-frontend-bundle.mjs",
+    "test:browser": "npm run build && node scripts/frontend-navigation-smoke.mjs",
     "start": "node dist/server.cjs",
     "preview": "vite preview",
     "clean": "rm -rf dist",
