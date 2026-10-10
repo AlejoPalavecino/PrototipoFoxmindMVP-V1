@@ -7,8 +7,9 @@ import {
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, 
-  ResponsiveContainer, Cell, ReferenceLine, AreaChart, Area 
+  Cell, ReferenceLine, AreaChart, Area
 } from 'recharts';
+import { MeasuredChart } from '../../../components/ui/MeasuredChart';
 import { SubjectMastery, ReviewScheduleItem } from './progresoTypes';
 import { mockWeeklyStudyData } from './progresoData';
 
@@ -365,10 +366,10 @@ export function ProgresoOverviewTab({
           </div>
 
           {/* Chart Container */}
-          <div className="w-full h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              {chartMetric === 'accuracy' ? (
-                <AreaChart data={mockWeeklyStudyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <MeasuredChart className="w-full h-64">
+            {({ width, height }) => (
+              chartMetric === 'accuracy' ? (
+                <AreaChart width={width} height={height} data={mockWeeklyStudyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorAcc" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#489980" stopOpacity={0.4}/>
@@ -398,7 +399,7 @@ export function ProgresoOverviewTab({
                   <Area type="monotone" dataKey="accuracy" stroke="#489980" strokeWidth={3} fillOpacity={1} fill="url(#colorAcc)" />
                 </AreaChart>
               ) : (
-                <BarChart data={mockWeeklyStudyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <BarChart width={width} height={height} data={mockWeeklyStudyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <XAxis 
                     dataKey="day" 
                     axisLine={false} 
@@ -436,9 +437,9 @@ export function ProgresoOverviewTab({
                     ))}
                   </Bar>
                 </BarChart>
-              )}
-            </ResponsiveContainer>
-          </div>
+              )
+            )}
+          </MeasuredChart>
 
           <div className="mt-4 pt-3 border-t border-fox-border/50 flex items-center justify-between text-xs text-fox-text-muted">
             <span className="flex items-center gap-1.5">

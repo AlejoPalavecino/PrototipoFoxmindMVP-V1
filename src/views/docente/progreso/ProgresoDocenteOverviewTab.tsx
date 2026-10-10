@@ -9,8 +9,9 @@ import {
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, 
-  ResponsiveContainer, Cell, ReferenceLine, AreaChart, Area 
+  Cell, ReferenceLine, AreaChart, Area
 } from 'recharts';
+import { MeasuredChart } from '../../../components/ui/MeasuredChart';
 import { 
   ClassroomPerformance, 
   PedagogicalAlert, 
@@ -424,10 +425,10 @@ export function ProgresoDocenteOverviewTab({
             </div>
 
             {/* Recharts Area / Bar Chart */}
-            <div className="w-full h-60 mt-2">
-              <ResponsiveContainer width="100%" height="100%">
-                {chartMetric === 'promedio' ? (
-                  <AreaChart data={stats.evolutionData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <MeasuredChart className="w-full h-60 mt-2">
+              {({ width, height }) => (
+                chartMetric === 'promedio' ? (
+                  <AreaChart width={width} height={height} data={stats.evolutionData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorProm" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#1F3F6D" stopOpacity={0.4} />
@@ -457,7 +458,7 @@ export function ProgresoDocenteOverviewTab({
                     <Area type="monotone" dataKey="promedio" stroke="#1F3F6D" strokeWidth={3} fillOpacity={1} fill="url(#colorProm)" />
                   </AreaChart>
                 ) : chartMetric === 'entrega' ? (
-                  <BarChart data={stats.evolutionData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <BarChart width={width} height={height} data={stats.evolutionData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <XAxis 
                       dataKey="period" 
                       axisLine={false} 
@@ -481,7 +482,7 @@ export function ProgresoDocenteOverviewTab({
                     <Bar dataKey="entrega" fill="#3BB54A" radius={[8, 8, 0, 0]} />
                   </BarChart>
                 ) : (
-                  <BarChart data={stats.evolutionData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <BarChart width={width} height={height} data={stats.evolutionData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <XAxis 
                       dataKey="period" 
                       axisLine={false} 
@@ -504,9 +505,9 @@ export function ProgresoDocenteOverviewTab({
                     />
                     <Bar dataKey="consultas" fill="#7D519C" radius={[8, 8, 0, 0]} />
                   </BarChart>
-                )}
-              </ResponsiveContainer>
-            </div>
+                )
+              )}
+            </MeasuredChart>
           </div>
 
           <div className="mt-4 pt-3 border-t border-fox-border/50 flex items-center justify-between text-xs text-fox-text-muted">
