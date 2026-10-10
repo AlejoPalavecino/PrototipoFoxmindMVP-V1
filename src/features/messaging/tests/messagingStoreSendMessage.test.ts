@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { Conversation, MessageAttachment } from '../../../types';
+import { sendLocalMessage } from '../application/messageSendState';
 
 type Store = typeof import('../messagingStore').messagingStore;
 type Params = Parameters<Store['sendMessage']>[0];
@@ -168,6 +169,17 @@ test('missing target and forbidden student direct send are noops before every ef
     { id: 'peer', name: 'Peer', role: 'alumno' },
     { id: 'teacher', name: 'Teacher', role: 'docente' },
   ] })]);
+});
+
+test('UI boundary rejects the real store missing-target no-op without changing synchronous send semantics', async () => {
+  await withStore(({ store, events, listen }) => {
+    listen();
+    assert.throws(() => sendLocalMessage(store, params({ conversationId: 'missing' })), /Envío no disponible/);
+    assert.throws(() => sendLocalMessage(store, params({ text: '   ' })), /vacío/);
+    assert.equal(store.getConversations()[0].messages.length, 0); assert.deepEqual(events, []);
+    assert.equal(sendLocalMessage(store, params()), undefined);
+    assert.equal(store.getConversations()[0].messages.length, 1); assert.deepEqual(events, SEND_EVENTS);
+  });
 });
 
 test('policy uses only first other participant; channels and all non-student roles remain allowed', async () => {
