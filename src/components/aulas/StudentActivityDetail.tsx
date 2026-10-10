@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   ChevronLeft, FileText, Clock, BrainCircuit, Sparkles, 
   CheckCircle2, AlertCircle, Download, UploadCloud, Paperclip, 
@@ -8,7 +8,13 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from '../ui/Toaster';
 import { StudentFoxyTutorDrawer } from './StudentFoxyTutorDrawer';
-import type { SubmissionDelivery } from '../../features/classrooms';
+import type { SubmissionAttachment } from '../../features/classrooms/model/Submission';
+import {
+  selectSubmissionAttachments, removeSubmissionAttachment, SUBMISSION_FILE_ACCEPT,
+} from '../../features/classrooms/application/submissionAttachments';
+import {
+  createSubmissionDeliveryState, type SubmissionDeliveryCallback,
+} from '../../features/classrooms/application/submissionDeliveryState';
 
 interface StudentActivityDetailProps {
   activity: any;
@@ -20,7 +26,7 @@ interface StudentActivityDetailProps {
     name: string;
     duaProfile?: string[];
   };
-  onDeliver?: (submission: SubmissionDelivery) => void;
+  onDeliver?: SubmissionDeliveryCallback;
 }
 
 export function StudentActivityDetail({
@@ -48,9 +54,15 @@ export function StudentActivityDetail({
   const [deliveryStatus, setDeliveryStatus] = useState<'pending' | 'submitted' | 'graded'>(
     isInitiallyGraded ? 'graded' : 'pending'
   );
-  const [attachedFiles, setAttachedFiles] = useState<{ name: string; size: string; type: string }[]>(
-    isInitiallyGraded ? [{ name: 'Ensayo_Vanguardias_Sofia.pdf', size: '1.4 MB', type: 'PDF' }] : []
-  );
+  const [attachedFiles, setAttachedFiles] = useState<SubmissionAttachment[]>([]);
+  const [deliveryState] = useState(createSubmissionDeliveryState);
+  useEffect(() => {
+    deliveryState.activate();
+    return () => deliveryState.invalidate();
+  }, [deliveryState]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [attachmentErrors, setAttachmentErrors] = useState<string[]>([]);
+  const [deliveryError, setDeliveryError] = useState('');
   const [studentComment, setStudentComment] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -81,41 +93,38 @@ export function StudentActivityDetail({
     'Paso 4: Adjuntar el archivo PDF/Word y presionar Entregar.'
   ];
 
-  const handleFileUpload = (file: File) => {
-    const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
-    const ext = file.name.split('.').pop()?.toUpperCase() || 'FILE';
-    
-    const newFile = {
-      name: file.name,
-      size: `${sizeMb} MB`,
-      type: ext
-    };
+  const handleFileUpload = (files: Iterable<File>) => {
+    if (deliveryState.status !== 'draft') return;
+    const selection = selectSubmissionAttachments([], files);
+    setAttachedFiles(prev => [...prev, ...selection.attachments]);
+    setAttachmentErrors(selection.errors);
+    setDeliveryError('');
+  };
 
-    setAttachedFiles(prev => [...prev, newFile]);
-    toast.show(`Archivo "${file.name}" adjuntado con éxito`, 'success');
+  const openFilePicker = () => {
+    if (deliveryState.status === 'draft') fileInputRef.current?.click();
   };
 
   const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFileUpload(e.dataTransfer.files[0]);
-    }
+    handleFileUpload(Array.from(e.dataTransfer.files));
   };
 
-  const handleDeliverTask = () => {
-    if (attachedFiles.length === 0 && !studentComment.trim()) {
-      toast.show('Por favor adjunta un archivo o escribe una respuesta antes de entregar', 'error');
-      return;
-    }
-
-    setDeliveryStatus('submitted');
-    toast.show('🎉 ¡Actividad entregada con éxito! Tu docente recibirá la notificación.', 'success');
-    if (onDeliver) {
-      onDeliver({
-        attachedFile: attachedFiles[0],
-        text: studentComment
-      });
+  const handleDeliverTask = async () => {
+    const isCurrent = deliveryState.captureLifetime();
+    const result = await deliveryState.deliver({
+      attachments: [...attachedFiles],
+      text: studentComment,
+    }, onDeliver, setIsSubmitting);
+    if (!isCurrent()) return;
+    if (result.status === 'submitted') {
+      setDeliveryError('');
+      setDeliveryStatus('submitted');
+      toast.show('¡Entrega confirmada en esta sesión de demostración!', 'success');
+    } else if (result.status === 'error') {
+      setDeliveryError(result.message);
+      toast.show(result.message, 'error');
     }
   };
 
@@ -139,7 +148,8 @@ export function StudentActivityDetail({
       <header className="bg-fox-surface border-b border-fox-border sticky top-0 z-20 shadow-2xs px-4 md:px-8 h-20 flex items-center justify-between shrink-0">
         <div className="flex-1 flex items-center justify-start gap-3">
           <button
-            onClick={onBack}
+            onClick={() => { if (deliveryState.status !== 'pending') onBack(); }}
+            disabled={isSubmitting}
             className="flex items-center gap-2 text-fox-text-muted hover:text-fox-primary transition-colors font-bold group cursor-pointer"
             title="Volver al Aula"
           >
@@ -412,7 +422,7 @@ export function StudentActivityDetail({
                       Tu trabajo fue entregado
                     </p>
                     <p className="text-[11px] text-fox-text-muted">
-                      El docente revisará tu entrega y recibirás la nota y comentarios aquí.
+                      Entrega simulada en memoria durante esta sesión; los archivos no se han subido a un servidor.
                     </p>
                   </div>
 
@@ -428,12 +438,11 @@ export function StudentActivityDetail({
 
                   <button
                     onClick={() => {
-                      setDeliveryStatus('pending');
-                      toast.show('Entrega anulada. Puedes volver a subir tu archivo.', 'info');
+                      if (deliveryState.edit()) setDeliveryStatus('pending');
                     }}
                     className="w-full py-2 border border-fox-border text-fox-text-muted hover:text-fox-text-main rounded-xl text-xs font-bold transition-colors"
                   >
-                    Anular entrega para modificar
+                    Modificar borrador de esta sesión
                   </button>
                 </div>
               )}
@@ -444,12 +453,13 @@ export function StudentActivityDetail({
                   <input
                     type="file"
                     ref={fileInputRef}
+                    multiple
+                    disabled={isSubmitting}
                     onChange={(e) => {
-                      if (e.target.files && e.target.files[0]) {
-                        handleFileUpload(e.target.files[0]);
-                      }
+                      handleFileUpload(Array.from(e.target.files ?? []));
+                      e.target.value = '';
                     }}
-                    accept=".pdf,.docx,.doc,.txt,.epub"
+                    accept={SUBMISSION_FILE_ACCEPT}
                     className="hidden"
                   />
 
@@ -457,11 +467,22 @@ export function StudentActivityDetail({
                   <div
                     onDragOver={(e) => {
                       e.preventDefault();
-                      setIsDragging(true);
+                      if (deliveryState.status === 'draft') setIsDragging(true);
                     }}
                     onDragLeave={() => setIsDragging(false)}
                     onDrop={handleFileDrop}
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={openFilePicker}
+                    role="button"
+                    tabIndex={isSubmitting ? -1 : 0}
+                    aria-label="Adjuntar archivos"
+                    aria-describedby="submission-file-help"
+                    aria-disabled={isSubmitting}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openFilePicker();
+                      }
+                    }}
                     className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-2 ${
                       isDragging
                         ? 'border-fox-primary bg-fox-primary/5 scale-[1.01]'
@@ -473,13 +494,19 @@ export function StudentActivityDetail({
                     </div>
                     <div>
                       <p className="text-xs font-bold text-fox-text-main">
-                        Haz clic o arrastra tu archivo aquí
+                        Haz clic o arrastra tus archivos aquí
                       </p>
-                      <p className="text-[10px] text-fox-text-muted mt-0.5">
-                        Formatos aceptados: Word (.docx), PDF (.pdf), TXT (.txt)
+                      <p id="submission-file-help" className="text-[10px] text-fox-text-muted mt-0.5">
+                        PDF, DOC, DOCX, TXT y EPUB. Máximo 25 MB por archivo.
                       </p>
                     </div>
                   </div>
+
+                  {attachmentErrors.length > 0 && (
+                    <ul role="alert" className="text-xs text-rose-600 space-y-1">
+                      {attachmentErrors.map((error, index) => <li key={index}>{error}</li>)}
+                    </ul>
+                  )}
 
                   {/* Attached Files List */}
                   {attachedFiles.length > 0 && (
@@ -499,7 +526,14 @@ export function StudentActivityDetail({
                             </div>
                           </div>
                           <button
-                            onClick={() => setAttachedFiles(attachedFiles.filter((_, i) => i !== idx))}
+                            type="button"
+                            disabled={isSubmitting}
+                            aria-label={`Quitar archivo ${idx + 1}: ${file.name}`}
+                            onClick={() => {
+                              if (deliveryState.status === 'draft') {
+                                setAttachedFiles(prev => removeSubmissionAttachment(prev, idx));
+                              }
+                            }}
                             className="p-1 text-fox-text-muted hover:text-rose-500 rounded transition-colors"
                           >
                             <X size={15} />
@@ -511,24 +545,38 @@ export function StudentActivityDetail({
 
                   {/* Optional Note for Teacher */}
                   <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-fox-text-muted">
+                    <label htmlFor="submission-comment" className="text-[11px] font-bold text-fox-text-muted">
                       Comentario o nota para tu docente (opcional):
                     </label>
                     <textarea
+                      id="submission-comment"
+                      disabled={isSubmitting}
                       value={studentComment}
-                      onChange={(e) => setStudentComment(e.target.value)}
+                      onChange={(e) => {
+                        if (deliveryState.status === 'draft') {
+                          setStudentComment(e.target.value);
+                          setDeliveryError('');
+                        }
+                      }}
                       placeholder="Ej: Profe, adjunto el ensayo completo. Me enfoqué especialmente en el manifiesto de Huidobro..."
                       rows={3}
                       className="w-full bg-fox-bg/50 border border-fox-border rounded-xl p-3 text-xs text-fox-text-main font-medium focus:ring-2 focus:ring-fox-primary/20 focus:border-fox-primary outline-none transition-all resize-none"
                     />
                   </div>
 
+                  {deliveryError && <p role="alert" className="text-xs text-rose-600">{deliveryError}</p>}
+                  <p role="status" aria-live="polite" className="text-xs text-fox-text-muted">
+                    {isSubmitting ? 'Confirmando entrega…' : 'Simulación local: los archivos se conservan solo en memoria.'}
+                  </p>
+
                   {/* Submit Button */}
                   <button
+                    disabled={isSubmitting}
+                    aria-busy={isSubmitting}
                     onClick={handleDeliverTask}
                     className="w-full py-3 bg-fox-primary hover:bg-fox-primary/90 text-white rounded-xl font-bold text-xs sm:text-sm shadow-md shadow-fox-primary/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <Send size={15} /> Entregar Actividad
+                    <Send size={15} /> {isSubmitting ? 'Confirmando…' : 'Entregar Actividad'}
                   </button>
                 </div>
               )}
