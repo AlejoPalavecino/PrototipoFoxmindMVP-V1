@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { Role, Conversation, DirectMessageItem, MessageAttachment } from '../../types';
 import { messagingStore } from '../../features/messaging/messagingStore';
+import { canAccessConversation } from '../../features/messaging/application/messageSending';
 import { VoiceNotePlayer } from './VoiceNotePlayer';
 import { ConversationSidebar } from './ConversationSidebar';
 import { ClassroomInvitationCard } from './ClassroomInvitationCard';
@@ -23,17 +24,54 @@ interface SharedMessagingHubProps {
   initialConversationId?: string;
 }
 
+export function resolveAccessibleConversation(
+  conversations: Conversation[], userId: string, requestedId: string | null,
+): Conversation | null {
+  return conversations.find(c => c.id === requestedId && canAccessConversation(c, userId))
+    ?? conversations.find(c => canAccessConversation(c, userId))
+    ?? null;
+}
+
+interface ComposerContext {
+  conversationId: string | null;
+  replyingTo: DirectMessageItem | null;
+  attachedFile: MessageAttachment | null;
+}
+
+export function isolateComposerContext(context: ComposerContext, conversationId: string | null): ComposerContext {
+  return context.conversationId === conversationId
+    ? context
+    : { conversationId, replyingTo: null, attachedFile: null };
+}
+
 export function SharedMessagingHub({ currentRole, initialConversationId }: SharedMessagingHubProps) {
   const { setView } = useAppContext();
 
-  // Store state
+  // Current user identity details based on active role
+  const effectiveRole: 'docente' | 'alumno' = currentRole === 'alumno' ? 'alumno' : 'docente';
+  const currentUserId = effectiveRole === 'docente' ? 'docente-laura' : 'alumno-valentina';
+  const currentUserName = effectiveRole === 'docente' ? 'Prof. Laura Martínez' : 'Valentina Rodríguez';
+
+  // Resolve access during render, including prop/user/store changes before effects.
   const [conversations, setConversations] = useState<Conversation[]>(() => messagingStore.getConversations());
-  const [activeConversationId, setActiveConversationId] = useState<string | null>(initialConversationId || 'dm-laura-valentina');
+  const [selection, setSelection] = useState<{
+    conversationId: string | null; navigationId: string | undefined;
+  }>(() => ({
+    conversationId: initialConversationId || 'dm-laura-valentina', navigationId: initialConversationId,
+  }));
+  const navigationChanged = selection.navigationId !== initialConversationId;
+  const requestedConversationId = navigationChanged && initialConversationId
+    ? initialConversationId : selection.conversationId;
+  const activeConversation = resolveAccessibleConversation(conversations, currentUserId, requestedConversationId);
+  const activeConversationId = activeConversation?.id ?? null;
+  if (navigationChanged || selection.conversationId !== activeConversationId) {
+    setSelection({ conversationId: activeConversationId, navigationId: initialConversationId });
+  }
   
   // UI states
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<string>('todos');
-  const [isMobileListVisible, setIsMobileListVisible] = useState(true);
+  const [isMobileListVisible, setIsMobileListVisible] = useState(!initialConversationId);
   const [showNewModal, setShowNewModal] = useState(false);
   const [showFoxyModal, setShowFoxyModal] = useState(false);
   const [showInfoSidebar, setShowInfoSidebar] = useState(false);
@@ -44,8 +82,20 @@ export function SharedMessagingHub({ currentRole, initialConversationId }: Share
 
   // Composer states
   const [inputText, setInputText] = useState('');
-  const [replyingTo, setReplyingTo] = useState<DirectMessageItem | null>(null);
-  const [attachedFile, setAttachedFile] = useState<MessageAttachment | null>(null);
+  const [storedComposerContext, setComposerContext] = useState<ComposerContext>(() => ({
+    conversationId: activeConversationId, replyingTo: null, attachedFile: null,
+  }));
+  const composerContext = isolateComposerContext(storedComposerContext, activeConversationId);
+  // Conditional render-phase adjustment avoids both a stale committed frame and
+  // an old thread's reply/file being submitted before a cleanup effect runs.
+  if (composerContext !== storedComposerContext) setComposerContext(composerContext);
+  const { replyingTo, attachedFile } = composerContext;
+  const setReplyingTo = (reply: DirectMessageItem | null) => {
+    setComposerContext(context => ({ ...isolateComposerContext(context, activeConversationId), replyingTo: reply }));
+  };
+  const setAttachedFile = (file: MessageAttachment | null) => {
+    setComposerContext(context => ({ ...isolateComposerContext(context, activeConversationId), attachedFile: file }));
+  };
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
   // Audio recording simulation
@@ -60,10 +110,13 @@ export function SharedMessagingHub({ currentRole, initialConversationId }: Share
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Current user identity details based on active role
-  const effectiveRole: 'docente' | 'alumno' = currentRole === 'alumno' ? 'alumno' : 'docente';
-  const currentUserId = effectiveRole === 'docente' ? 'docente-laura' : 'alumno-valentina';
-  const currentUserName = effectiveRole === 'docente' ? 'Prof. Laura Martínez' : 'Valentina Rodríguez';
+  const selectConversation = (conversationId: string) => {
+    const conversation = messagingStore.getConversationById(conversationId);
+    if (!conversation || !canAccessConversation(conversation, currentUserId)) return;
+    setSelection({ conversationId, navigationId: initialConversationId });
+    setIsMobileListVisible(false);
+  };
+  if (navigationChanged && initialConversationId && isMobileListVisible) setIsMobileListVisible(false);
 
   // Subscribe to store updates
   useEffect(() => {
@@ -72,14 +125,6 @@ export function SharedMessagingHub({ currentRole, initialConversationId }: Share
     });
     return unsubscribe;
   }, []);
-
-  // Handle initial ID change from props/navigation
-  useEffect(() => {
-    if (initialConversationId) {
-      setActiveConversationId(initialConversationId);
-      setIsMobileListVisible(false);
-    }
-  }, [initialConversationId]);
 
   // Mark active conversation as read
   useEffect(() => {
@@ -110,10 +155,9 @@ export function SharedMessagingHub({ currentRole, initialConversationId }: Share
     return () => clearInterval(timer);
   }, [isRecordingAudio]);
 
-  const activeConversation = conversations.find(c => c.id === activeConversationId);
-
-  // Filter conversations for the left panel
-  const filteredConversations = conversations.filter(conv => {
+  // Membership applies before search and every tab; channels retain their access.
+  const accessibleConversations = conversations.filter(conv => canAccessConversation(conv, currentUserId));
+  const filteredConversations = accessibleConversations.filter(conv => {
     // Search match
     const titleMatch = conv.title.toLowerCase().includes(searchQuery.toLowerCase());
     const subtitleMatch = (conv.subtitle || '').toLowerCase().includes(searchQuery.toLowerCase());
@@ -276,10 +320,7 @@ export function SharedMessagingHub({ currentRole, initialConversationId }: Share
           onSearchChange={setSearchQuery}
           onClearSearch={() => setSearchQuery('')}
           onFilterChange={setFilterType}
-          onSelectConversation={(conversationId) => {
-            setActiveConversationId(conversationId);
-            setIsMobileListVisible(false);
-          }}
+          onSelectConversation={selectConversation}
           onNewConversation={() => setShowNewModal(true)}
         />
 
@@ -732,10 +773,7 @@ export function SharedMessagingHub({ currentRole, initialConversationId }: Share
         isOpen={showNewModal}
         onClose={() => setShowNewModal(false)}
         currentRole={currentRole}
-        onConversationCreated={(newId) => {
-          setActiveConversationId(newId);
-          setIsMobileListVisible(false);
-        }}
+        onConversationCreated={selectConversation}
       />
 
       {/* Foxy AI Copilot Assistant Modal */}

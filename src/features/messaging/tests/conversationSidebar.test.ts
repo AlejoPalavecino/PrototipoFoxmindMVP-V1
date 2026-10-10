@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { createElement } from 'react';
@@ -8,12 +7,6 @@ import ts from 'typescript';
 import type { Role } from '../../../types';
 
 const hubUrl = new URL('../../../components/messaging/SharedMessagingHub.tsx', import.meta.url);
-const digest = (text: string) => createHash('sha256').update(text).digest('hex');
-const sidebarHashes = {
-  docente: '4b90a13da1204f98e5f8d37ace84ac730df9be0bf6b7f34ad37d2eb8ce389015',
-  alumno: '3421d238a0305772fbdcf49cbec74fd357b125ff02b65b8e175ae91c54545433',
-  none: '3421d238a0305772fbdcf49cbec74fd357b125ff02b65b8e175ae91c54545433',
-};
 function sidebarMarkup(html: string) {
   const start = html.indexOf('<div class="w-full md:w-80');
   const end = html.indexOf('<div class="flex-1 flex flex-col bg-fox-bg/20 min-w-0', start);
@@ -33,8 +26,8 @@ for (const role of ['docente', 'alumno', 'none'] as const satisfies readonly Rol
     const before = JSON.stringify(conversations);
     const html = renderToStaticMarkup(createElement(SharedMessagingHub, { currentRole: role }));
     const sidebar = sidebarMarkup(html);
-    console.log(`${role} sidebar SHA256 ${digest(sidebar)}`);
-    assert.equal(digest(sidebar), sidebarHashes[role], 'complete pre-extraction sidebar markup');
+    const userId = role === 'alumno' ? 'alumno-valentina' : 'docente-laura';
+    const accessible = conversations.filter(c => c.type !== 'direct' || c.participants.some(p => p.id === userId));
     const labels = role === 'docente' ? ['Alumnos', 'Canales 3°', 'Colegas', 'Foxy IA'] : ['Mis Profes', 'Canales de Aula', 'Foxy Tutor'];
     for (const label of ['Todos', 'No leídos', ...labels]) {
       assert.ok(sidebar.includes(`>${label}<`), label);
@@ -42,7 +35,7 @@ for (const role of ['docente', 'alumno', 'none'] as const satisfies readonly Rol
     const headings = [...sidebar.matchAll(/<div class="px-4 py-[12] text-\[10px\][^"]*">((?:<svg\b[^>]*>[\s\S]*?<\/svg>)?[^<]*)<\/div>/g)]
       .map(match => match[1].replace(/<svg\b[\s\S]*?<\/svg>/g, '').trim());
     assert.deepEqual(headings, ['Fijados', 'Todas las conversaciones']);
-    const ordered = [...conversations.filter(c => c.isPinned), ...conversations.filter(c => !c.isPinned)];
+    const ordered = [...accessible.filter(c => c.isPinned), ...accessible.filter(c => !c.isPinned)];
     assert.deepEqual([...sidebar.matchAll(/<h4[^>]*>(.*?)<\/h4>/g)].map(match => match[1]), ordered.map(c => c.title));
     assert.deepEqual([...sidebar.matchAll(/animate-bounce">(\d+)<\/span>/g)].map(match => Number(match[1])),
       ordered.map(c => role === 'docente' ? c.unreadCountDocente : c.unreadCountAlumno).filter(n => n > 0));
@@ -62,20 +55,89 @@ function nodes(root: ts.Node, predicate: (node: ts.Node) => boolean): ts.Node[] 
   return found;
 }
 
-test('AST: selection setter order and hub state ownership survive extraction', () => {
+test('actual hub SSR rejects an inaccessible initial target before effects', async () => {
+  const { SharedMessagingHub } = await import(hubUrl.href);
+  const { messagingStore } = await import('../messagingStore');
+  const hidden = messagingStore.getConversationById('dm-laura-tomas')!;
+  const fallback = messagingStore.getConversationById('dm-laura-valentina')!;
+  for (const initialConversationId of [hidden.id, 'missing', fallback.id]) {
+    const html = renderToStaticMarkup(createElement(SharedMessagingHub, {
+      currentRole: 'alumno', initialConversationId,
+    }));
+    assert.ok(!html.includes(hidden.title));
+    for (const message of hidden.messages) assert.ok(!html.includes(message.text));
+    assert.ok(html.includes(`<h3 class="font-heading font-bold text-fox-text-main text-sm sm:text-base truncate">${fallback.title}</h3>`));
+    assert.ok(html.includes(fallback.messages[0].text));
+  }
+});
+
+test('selection resolver enforces membership for manual/prop targets, loaded updates and user changes', async () => {
+  const { resolveAccessibleConversation } = await import(hubUrl.href);
+  const { messagingStore } = await import('../messagingStore');
+  const conversations = messagingStore.getConversations();
+  const hidden = conversations.find(c => c.id === 'dm-laura-tomas')!;
+  const fallback = conversations.find(c => c.id === 'dm-laura-valentina')!;
+  assert.strictEqual(resolveAccessibleConversation(conversations, 'alumno-valentina', hidden.id), fallback);
+  assert.strictEqual(resolveAccessibleConversation(conversations, 'docente-laura', hidden.id), hidden);
+  assert.equal(resolveAccessibleConversation([hidden], 'alumno-valentina', hidden.id), null);
+  assert.equal(resolveAccessibleConversation([], 'alumno-valentina', fallback.id), null);
+  const revoked = { ...fallback, participants: [] };
+  assert.strictEqual(resolveAccessibleConversation([revoked, hidden], 'docente-laura', fallback.id), hidden);
+  assert.equal(resolveAccessibleConversation([revoked], 'alumno-valentina', fallback.id), null);
+  for (const type of ['channel', 'bot'] as const) {
+    const open = { ...hidden, type, participants: [] };
+    assert.strictEqual(resolveAccessibleConversation([open], 'alumno-valentina', open.id), open);
+  }
+});
+
+test('composer context clears on thread changes, including no selection, but not same-thread rerenders', async () => {
+  const { isolateComposerContext } = await import(hubUrl.href);
+  const { messagingStore } = await import('../messagingStore');
+  const conversation = messagingStore.getConversationById('dm-laura-valentina')!;
+  const context = {
+    conversationId: conversation.id, replyingTo: conversation.messages[0],
+    attachedFile: { id: 'draft', name: 'Draft.pdf', size: '1 MB', type: 'pdf' as const },
+  };
+  assert.strictEqual(isolateComposerContext(context, conversation.id), context);
+  for (const conversationId of ['dm-laura-tomas', null]) {
+    const next = isolateComposerContext(context, conversationId);
+    assert.deepEqual(next, { conversationId, replyingTo: null, attachedFile: null });
+    assert.deepEqual(isolateComposerContext(next, conversation.id), {
+      conversationId: conversation.id, replyingTo: null, attachedFile: null,
+    });
+  }
+  assert.equal(context.replyingTo, conversation.messages[0]);
+  assert.equal(context.attachedFile.name, 'Draft.pdf');
+});
+
+test('AST: selection access guard and synchronous composer isolation wiring (not mounted interaction proof)', () => {
   const source = readFileSync(hubUrl, 'utf8');
   const ast = ts.createSourceFile('hub.tsx', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
-  const callbacks = nodes(ast, ts.isArrowFunction);
-  assert.ok(callbacks.some(node => node.getText(ast).replace(/\s/g, '') ===
-    '()=>{setActiveConversationId(conv.id);setIsMobileListVisible(false);}' ||
-    node.getText(ast).replace(/\s/g, '') ===
-    '(conversationId)=>{setActiveConversationId(conversationId);setIsMobileListVisible(false);}'));
+  const selection = nodes(ast, ts.isVariableDeclaration).find(node =>
+    (node as ts.VariableDeclaration).name.getText(ast) === 'selectConversation');
+  assert.ok(selection);
+  assert.match(selection.getText(ast), /canAccessConversation\(conversation, currentUserId\)/);
+  assert.match(selection.getText(ast), /setSelection/);
+  assert.match(source, /isolateComposerContext\(storedComposerContext, activeConversationId\)/);
+  assert.match(source, /if \(composerContext !== storedComposerContext\) setComposerContext\(composerContext\)/);
+  assert.match(source, /conversations\.filter\(conv => canAccessConversation\(conv, currentUserId\)\)/);
+  assert.match(source, /resolveAccessibleConversation\(conversations, currentUserId, requestedConversationId\)/);
+  assert.match(source, /const \{ replyingTo, attachedFile \} = composerContext/);
+  const composer = nodes(ast, ts.isJsxSelfClosingElement).find(node =>
+    (node as ts.JsxSelfClosingElement).tagName.getText(ast) === 'MessageComposer');
+  assert.ok(composer);
+  const props = nodes(composer, ts.isJsxAttribute).map(node => node.getText(ast).replace(/\s/g, ''));
+  assert.ok(props.includes('replyingTo={replyingTo}') && props.includes('attachedFile={attachedFile}'));
+  const send = nodes(ast, ts.isVariableDeclaration).find(node =>
+    (node as ts.VariableDeclaration).name.getText(ast) === 'handleSendMessage');
+  assert.ok(send);
+  assert.match(send.getText(ast), /attachment: attachedFile \|\| undefined/);
+  assert.match(send.getText(ast), /replyTo: replyingTo \?/);
   const stateNames = nodes(ast, ts.isVariableDeclaration).filter(node => {
     const declaration = node as ts.VariableDeclaration;
     return declaration.initializer && ts.isCallExpression(declaration.initializer) && declaration.initializer.expression.getText(ast) === 'useState';
   }).map(node => (node as ts.VariableDeclaration).name.getText(ast));
-  assert.equal(stateNames.length, 19);
-  for (const name of ['searchQuery', 'filterType', 'activeConversationId', 'isMobileListVisible']) {
+  for (const name of ['searchQuery', 'filterType', 'selection', 'storedComposerContext', 'isMobileListVisible']) {
     assert.ok(stateNames.some(state => state.startsWith(`[${name},`)), name);
   }
 });
@@ -88,7 +150,7 @@ test('AST: controlled sidebar wiring, stable keys and no store/hooks', () => {
   for (const name of ['currentRole', 'searchQuery', 'filterType', 'activeConversationId', 'isMobileListVisible', 'filteredConversations', 'pinnedConversations', 'regularConversations']) {
     assert.ok(attributes.includes(`${name}={${name}}`), name);
   }
-  for (const binding of ['onSearchChange={setSearchQuery}', "onClearSearch={()=>setSearchQuery('')}", 'onFilterChange={setFilterType}', 'onSelectConversation={(conversationId)=>{setActiveConversationId(conversationId);setIsMobileListVisible(false);}}', 'onNewConversation={()=>setShowNewModal(true)}']) {
+  for (const binding of ['onSearchChange={setSearchQuery}', "onClearSearch={()=>setSearchQuery('')}", 'onFilterChange={setFilterType}', 'onSelectConversation={selectConversation}', 'onNewConversation={()=>setShowNewModal(true)}']) {
     assert.ok(attributes.includes(binding), binding);
   }
   const sidebar = ts.createSourceFile('sidebar.tsx', readFileSync(new URL('../../../components/messaging/ConversationSidebar.tsx', import.meta.url), 'utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);

@@ -10,7 +10,8 @@ let importId = 0;
 
 function seed(overrides: Partial<Conversation> = {}): Conversation {
   return {
-    id: 'selected', type: 'direct', title: 'Selected', participants: [],
+    id: 'selected', type: 'direct', title: 'Selected',
+    participants: [{ id: 'sender', name: 'Sender', role: 'docente' }],
     lastMessage: 'Before', lastMessageTime: 'Before', lastMessageSender: 'Before',
     unreadCountDocente: 3, unreadCountAlumno: 2, messages: [], ...overrides,
   };
@@ -118,6 +119,40 @@ for (const role of ['docente', 'alumno', 'directivo', 'preceptor', 'foxy'] as co
     }, [seed(), seed()]);
   });
 }
+
+test('nonparticipants cannot send direct messages regardless of sender or recipient role, before every effect', async () => {
+  for (const senderRole of ['docente', 'alumno', 'directivo', 'preceptor', 'foxy'] as const) {
+    for (const recipientRole of ['docente', 'alumno'] as const) {
+      await withStore(({ store, events, writes, timers, listen }) => {
+        listen();
+        const conv = store.getConversations()[0];
+        const messages = conv.messages;
+        const before = JSON.stringify(store.getConversations());
+        assert.throws(() => store.sendMessage(params({ senderRole })),
+          error => error instanceof Error && error.message === 'No perteneces a esta conversación.');
+        assert.strictEqual(conv.messages, messages);
+        assert.equal(JSON.stringify(store.getConversations()), before);
+        assert.deepEqual(events, []);
+        assert.deepEqual(writes, []);
+        assert.deepEqual(timers, []);
+      }, [seed({ id: 'selected', participants: [
+        { id: 'other', name: 'Other', role: recipientRole },
+      ] })]);
+    }
+  }
+});
+
+test('channels and bots preserve nonparticipant sending behavior', async () => {
+  for (const type of ['channel', 'bot'] as const) {
+    await withStore(({ store, events, timers, listen }) => {
+      listen();
+      store.sendMessage(params({ senderRole: 'alumno' }));
+      assert.equal(store.getConversations()[0].messages.length, 1);
+      assert.deepEqual(events, type === 'bot' ? [...SEND_EVENTS, 'schedule:900'] : SEND_EVENTS);
+      assert.equal(timers.length, type === 'bot' ? 1 : 0);
+    }, [seed({ type, participants: [] })]);
+  }
+});
 
 test('missing target and forbidden student direct send are noops before every effect', async () => {
   await withStore(({ store, events, writes, timers, listen }) => {

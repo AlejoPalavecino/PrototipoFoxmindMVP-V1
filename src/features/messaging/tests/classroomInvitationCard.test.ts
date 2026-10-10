@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { createElement } from 'react';
@@ -8,21 +7,6 @@ import ts from 'typescript';
 import type { ClassroomInvitationData, DirectMessageItem } from '../../../types';
 
 const hubUrl = new URL('../../../components/messaging/SharedMessagingHub.tsx', import.meta.url);
-const digest = (text: string) => createHash('sha256').update(text).digest('hex');
-const hashes: Record<string, string> = {
-  'docente/pending/false': 'b1a463da0c2215d1241530fef374b1c667c816efbd8af78c1174ed58104b3510',
-  'docente/pending/true': '30966b3d1ced6d76ec60d1addc04c2a577bde79035ec5151f18f4c6e06b0ea70',
-  'docente/accepted/false': 'ac8ac1bcc26ae5ee07d9debddb673323ee6eac018c6a03918b3a160aca467479',
-  'docente/accepted/true': 'bc98593e6aa9e7394b348057bc4353ce07fbc78ccae984b7d7eac7ce7f58e462',
-  'docente/declined/false': '7c9d6d03861a2b8104230661cb26262e48bf5564e1c392631cea22f8a2677144',
-  'docente/declined/true': 'efee107979164cd95a1243e5d3f5a093c5408f2d9507a9ef34f1e7aa8ec8abfc',
-  'alumno/pending/false': '34540ca82d38aa6f6d6362627a08f9a513a1ab7b1089651b4a83ff5811923162',
-  'alumno/pending/true': '0d07971d8a38e46cabfaae2e64345faf8e6f85d6b8f41292e09f0bcdf52ff974',
-  'alumno/accepted/false': '903f17ee7f4fe47baee65a21d17d203f410c4cfb4099a88a708afc95d05ba189',
-  'alumno/accepted/true': '686c566611f44860500a1223080a990356a0e4d67d7f4142b0a3163221a042bc',
-  'alumno/declined/false': 'e98d5f4f2ea9697d274cc5bf0c831fe618481ef056512ab5915b0f0802c5a523',
-  'alumno/declined/true': 'cad3de97af229a8591837527a40e43ba9467264d4361464593ba53a1bea26faf',
-};
 
 function invitationMarkup(html: string) {
   const starts = [...html.matchAll(/<div class="mt-3\.5 rounded-2xl overflow-hidden border shadow-sm /g)];
@@ -65,9 +49,25 @@ for (const role of ['docente', 'alumno'] as const) {
           conversation.messages = [message];
           const fixtureBefore = JSON.stringify(messagingStore.getConversations());
           const html = renderToStaticMarkup(createElement(SharedMessagingHub, { currentRole: role }));
-          console.log(`${label} full hub SHA256 ${digest(html)}`);
-          assert.equal(digest(html), hashes[label], 'complete pre-extraction hub markup');
           const card = invitationMarkup(html);
+          const { ClassroomInvitationCard } = await import('../../../components/messaging/ClassroomInvitationCard');
+          // Exact card integration output, not a snapshot of unrelated hub navigation.
+          // The explicit status/copy/style assertions below independently constrain the card.
+          const expected = renderToStaticMarkup(createElement(ClassroomInvitationCard, {
+            invitation, isMe, effectiveRole: role,
+            onCopy: () => {}, onAccept: () => {}, onDecline: () => {}, onNavigate: () => {},
+          }));
+          assert.equal(card, expected, 'actual hub card equals the complete controlled card');
+          const start = html.indexOf('<div class="w-full md:w-80');
+          const end = html.indexOf('<div class="flex-1 flex flex-col bg-fox-bg/20 min-w-0', start);
+          assert.ok(start >= 0 && end > start);
+          const sidebar = html.slice(start, end);
+          const userId = role === 'alumno' ? 'alumno-valentina' : 'docente-laura';
+          const accessible = messagingStore.getConversations().filter(c =>
+            c.type !== 'direct' || c.participants.some(p => p.id === userId));
+          const ordered = [...accessible.filter(c => c.isPinned), ...accessible.filter(c => !c.isPinned)];
+          assert.deepEqual([...sidebar.matchAll(/<h4[^>]*>(.*?)<\/h4>/g)].map(match => match[1]),
+            ordered.map(c => c.title), 'membership-filtered sidebar, including unchanged channel access/order');
           assert.ok(card.includes('Invitación a Aula Virtual') && card.includes('Literatura de prueba'));
           assert.ok(card.includes('Copiar código de aula') && card.includes('TEST42'));
           assert.equal(card.includes('Horario: Lunes 08:00 • Viernes 10:00'), status === 'pending');

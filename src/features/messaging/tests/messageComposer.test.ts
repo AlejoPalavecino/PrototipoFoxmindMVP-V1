@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 import React, { createElement } from 'react';
@@ -13,7 +12,6 @@ const childPath = 'src/components/messaging/MessageComposer.tsx';
 const baseline = execFileSync('git', ['show', `135edcba2c7fa05cc6cd59d93e034511b2a51f66:${hubPath}`], { encoding: 'utf8' });
 const lf = (text: string) => text.replace(/\r\n/g, '\n');
 const indent = (text: string) => lf(text).split('\n').map(line => line.replace(/^ +/, '')).join('\n');
-const hash = (text: string) => createHash('sha256').update(text).digest('hex');
 function parse(text: string) {
   const sf = ts.createSourceFile('composer.tsx', text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
   const diagnostics = (sf as ts.SourceFile & { parseDiagnostics: readonly ts.Diagnostic[] }).parseDiagnostics;
@@ -100,41 +98,136 @@ for (const owner of ['original', 'current'] as const) {
   });
 }
 
-test('original send/reset and recording effect retain responsibility and exact parent source', () => {
-  const { log, scope } = harness();
-  Object.assign(scope, { activeConversationId: 'conversation', inputText: ' texto ', attachedFile: null, replyingTo: null,
-    selectedTag: 'Aviso', currentUserId: 'user', currentUserName: 'Name', effectiveRole: 'docente',
-    messagingStore: { sendMessage: (value: unknown) => log.push(['store', value]) } });
-  const declaration = nodes(original, ts.isVariableDeclaration).find(node => (node as ts.VariableDeclaration).name.getText(original) === 'handleSendMessage') as ts.VariableDeclaration;
-  assert.ok(declaration.initializer);
-  evaluate(declaration.initializer.getText(original), scope)();
-  assert.deepEqual(log.splice(0), [['store', { conversationId: 'conversation', senderId: 'user', senderName: 'Name', senderRole: 'docente', text: 'texto', attachment: undefined, replyTo: undefined, categoryTag: 'Aviso' }], ['InputText', ''], ['ReplyingTo', null], ['AttachedFile', null], ['SelectedTag', null], ['height', 'auto']]);
-  scope.inputText = ' '; evaluate(declaration.initializer.getText(original), scope)(); assert.deepEqual(log, []);
-  const effects = nodes(original, ts.isCallExpression).filter(node => (node as ts.CallExpression).expression.getText(original) === 'useEffect') as ts.CallExpression[];
-  assert.equal(effects.length, 5);
-  const recording = effects.find(node => node.arguments[1]?.getText(original) === '[isRecordingAudio]')!;
-  Object.assign(scope, { isRecordingAudio: false, clearInterval: (timer: unknown) => log.push(['clear', timer]) });
-  evaluate(recording.arguments[0].getText(original), scope)()();
-  assert.deepEqual(log.splice(0), [['RecordingSeconds', 0], ['clear', undefined]]);
-  Object.assign(scope, { isRecordingAudio: true, setInterval: (tick: () => void, delay: number) => { log.push(['interval', delay]); tick(); return 42; } });
-  evaluate(recording.arguments[0].getText(original), scope)()();
-  assert.equal((log[1] as unknown[])[0], 'RecordingSeconds');
-  assert.equal(((log[1] as unknown[])[1] as (s: number) => number)(4), 5);
-  assert.deepEqual([log[0], log[2]], [['interval', 1000], ['clear', 42]]);
+test('original and current send/reset execution, recording responsibility and unaffected declarations', () => {
   const current = parse(readFileSync(hubPath, 'utf8'));
+  for (const owner of [original, current]) {
+    const { log, scope } = harness();
+    Object.assign(scope, { activeConversationId: 'conversation', inputText: ' texto ', attachedFile: null, replyingTo: null,
+      selectedTag: 'Aviso', currentUserId: 'user', currentUserName: 'Name', effectiveRole: 'docente',
+      messagingStore: { sendMessage: (value: unknown) => log.push(['store', value]) } });
+    const declaration = nodes(owner, ts.isVariableDeclaration).find(node => (node as ts.VariableDeclaration).name.getText(owner) === 'handleSendMessage') as ts.VariableDeclaration;
+    assert.ok(declaration.initializer);
+    const send = () => evaluate(declaration.initializer!.getText(owner), scope)();
+    const reset = [['InputText', ''], ['ReplyingTo', null], ['AttachedFile', null], ['SelectedTag', null], ['height', 'auto']];
+    const payload = { conversationId: 'conversation', senderId: 'user', senderName: 'Name', senderRole: 'docente',
+      text: 'texto', attachment: undefined, replyTo: undefined, categoryTag: 'Aviso' };
+    send();
+    assert.deepEqual(log.splice(0), [['store', payload], ...reset]);
+    scope.inputText = ' '; send(); assert.deepEqual(log, [], 'blank guard has no effects');
+    const attachment = { id: 'file', name: 'Guide.pdf', size: '1 MB', type: 'pdf' };
+    const reply = { id: 'old', senderName: 'Teacher', text: 'Question' };
+    Object.assign(scope, { attachedFile: attachment, replyingTo: { ...reply, senderId: 'teacher' } });
+    send();
+    assert.deepEqual(log.splice(0), [['store', { ...payload, text: '', attachment, replyTo: reply }], ...reset]);
+    scope.activeConversationId = null; send(); assert.deepEqual(log, [], 'no selection cannot submit a file');
+    scope.activeConversationId = 'conversation';
+    const rejection = new Error('Rejected');
+    scope.messagingStore = { sendMessage: () => { throw rejection; } };
+    assert.throws(send, error => error === rejection);
+    assert.deepEqual(log, [], 'a rejected send must not reset the draft');
+
+    const effects = nodes(owner, ts.isCallExpression).filter(node => (node as ts.CallExpression).expression.getText(owner) === 'useEffect') as ts.CallExpression[];
+    const recordings = effects.filter(node => node.arguments[1]?.getText(owner) === '[isRecordingAudio]');
+    assert.equal(recordings.length, 1);
+    const recording = recordings[0];
+    Object.assign(scope, { isRecordingAudio: false, clearInterval: (timer: unknown) => log.push(['clear', timer]) });
+    evaluate(recording.arguments[0].getText(owner), scope)()();
+    assert.deepEqual(log.splice(0), [['RecordingSeconds', 0], ['clear', undefined]]);
+    Object.assign(scope, { isRecordingAudio: true, setInterval: (tick: () => void, delay: number) => { log.push(['interval', delay]); tick(); return 42; } });
+    evaluate(recording.arguments[0].getText(owner), scope)()();
+    assert.equal((log[1] as unknown[])[0], 'RecordingSeconds');
+    assert.equal(((log[1] as unknown[])[1] as (s: number) => number)(4), 5);
+    assert.deepEqual([log[0], log[2]], [['interval', 1000], ['clear', 42]]);
+  }
   for (const name of ['handleSendMessage', 'handleSendVoiceNote', 'quickTemplates', 'sampleAttachments']) {
     const before = nodes(original, ts.isVariableDeclaration).filter(node => (node as ts.VariableDeclaration).name.getText(original) === name);
     const after = nodes(current, ts.isVariableDeclaration).filter(node => (node as ts.VariableDeclaration).name.getText(current) === name);
     assert.equal(before.length, 1); assert.equal(after.length, 1);
     assert.equal(lf(after[0].getText(current)), lf(before[0].getText(original)), name);
   }
-  assert.deepEqual(nodes(current, ts.isCallExpression).filter(node => (node as ts.CallExpression).expression.getText(current) === 'useEffect').map(node => lf(node.getText(current))), effects.map(node => node.getText(original)));
-  for (const [call, count] of [['useState', 19], ['useRef', 2]] as const) {
-    assert.equal(nodes(current, ts.isCallExpression).filter(node => (node as ts.CallExpression).expression.getText(current) === call).length, count);
+  // Navigation now resolves synchronously; preserve the four unrelated effects exactly.
+  const effectCalls = (sf: ts.SourceFile) => nodes(sf, ts.isCallExpression).filter(node =>
+    (node as ts.CallExpression).expression.getText(sf) === 'useEffect') as ts.CallExpression[];
+  assert.equal(effectCalls(original).length, 5);
+  assert.equal(effectCalls(current).length, 4);
+  assert.deepEqual(effectCalls(current).map(node => lf(node.getText(current))),
+    effectCalls(original).filter(node => node.arguments[1]?.getText(original) !== '[initialConversationId]').map(node => lf(node.getText(original))));
+  const changedState = ['[activeConversationId, setActiveConversationId]', '[isMobileListVisible, setIsMobileListVisible]',
+    '[replyingTo, setReplyingTo]', '[attachedFile, setAttachedFile]'];
+  for (const declaration of nodes(original, ts.isVariableDeclaration) as ts.VariableDeclaration[]) {
+    if (!declaration.initializer || !ts.isCallExpression(declaration.initializer) ||
+      !['useState', 'useRef'].includes(declaration.initializer.expression.getText(original)) ||
+      changedState.includes(declaration.name.getText(original))) continue;
+    const matches = nodes(current, ts.isVariableDeclaration).filter(node =>
+      (node as ts.VariableDeclaration).name.getText(current) === declaration.name.getText(original));
+    assert.equal(matches.length, 1);
+    assert.equal(lf(matches[0].getText(current)), lf(declaration.getText(original)), declaration.name.getText(original));
   }
 });
 
-test('extraction preserves every non-composer byte, moved JSX and controlled binding', () => {
+test('current selection guard and isolated composer submit/reset (bounded source execution, not mounted)', async () => {
+  const { resolveAccessibleConversation, isolateComposerContext } = await import('../../../components/messaging/SharedMessagingHub');
+  const { canAccessConversation } = await import('../application/messageSending');
+  const { messagingStore } = await import('../messagingStore');
+  const current = parse(readFileSync(hubPath, 'utf8'));
+  function initializer(name: string) {
+    const matches = nodes(current, ts.isVariableDeclaration).filter(node =>
+      (node as ts.VariableDeclaration).name.getText(current) === name) as ts.VariableDeclaration[];
+    assert.equal(matches.length, 1, name);
+    assert.ok(matches[0].initializer);
+    return matches[0].initializer.getText(current);
+  }
+  const conversations = messagingStore.getConversations();
+  const hidden = messagingStore.getConversationById('dm-laura-tomas')!;
+  const safe = messagingStore.getConversationById('dm-laura-valentina')!;
+  const { log, scope } = harness();
+  Object.assign(scope, { conversations, currentUserId: 'alumno-valentina', currentUserName: 'Valentina', effectiveRole: 'alumno',
+    initialConversationId: hidden.id, navigationChanged: true, selection: { conversationId: safe.id },
+    resolveAccessibleConversation, isolateComposerContext, canAccessConversation,
+    setSelection: (value: unknown) => log.push(['selection', value]),
+    setIsMobileListVisible: (value: unknown) => log.push(['mobile', value]),
+    messagingStore: { getConversationById: (id: string) => messagingStore.getConversationById(id),
+      sendMessage: (value: unknown) => log.push(['store', value]) } });
+  const select = evaluate(initializer('selectConversation'), scope);
+  select(hidden.id); select('missing');
+  assert.deepEqual(log, [], 'manual inaccessible/missing selection must have no effects');
+  select(safe.id);
+  assert.deepEqual(log.splice(0), [['selection', { conversationId: safe.id, navigationId: hidden.id }], ['mobile', false]]);
+  scope.requestedConversationId = evaluate(initializer('requestedConversationId'), scope);
+  assert.equal(scope.requestedConversationId, hidden.id, 'prop target is read during render');
+  scope.activeConversation = evaluate(initializer('activeConversation'), scope);
+  assert.strictEqual(scope.activeConversation, safe, 'inaccessible prop cannot become active');
+  scope.activeConversationId = evaluate(initializer('activeConversationId'), scope);
+  const attachment = { id: 'draft', name: 'Draft.pdf', size: '1 MB', type: 'pdf' as const };
+  const reply = hidden.messages[0];
+  scope.storedComposerContext = { conversationId: hidden.id, replyingTo: reply, attachedFile: attachment };
+  const context = evaluate(initializer('composerContext'), scope);
+  assert.deepEqual(context, { conversationId: safe.id, replyingTo: null, attachedFile: null });
+  Object.assign(scope, context, { inputText: ' retained text ', selectedTag: null });
+  evaluate(initializer('handleSendMessage'), scope)();
+  assert.deepEqual(log.splice(0), [['store', { conversationId: safe.id, senderId: 'alumno-valentina', senderName: 'Valentina',
+    senderRole: 'alumno', text: 'retained text', attachment: undefined, replyTo: undefined, categoryTag: undefined }],
+    ['InputText', ''], ['ReplyingTo', null], ['AttachedFile', null], ['SelectedTag', null], ['height', 'auto']]);
+
+  // Execute the current context setters too: sequential clears must preserve each other.
+  let stored = { ...context, replyingTo: safe.messages[0], attachedFile: attachment };
+  Object.assign(scope, stored, { setComposerContext: (update: (value: typeof stored) => typeof stored) => { stored = update(stored); } });
+  scope.setReplyingTo = evaluate(initializer('setReplyingTo'), scope);
+  scope.setAttachedFile = evaluate(initializer('setAttachedFile'), scope);
+  evaluate(initializer('handleSendMessage'), scope)();
+  assert.deepEqual(stored, { conversationId: safe.id, replyingTo: null, attachedFile: null });
+  const sent = log.splice(0)[0] as [string, { attachment: unknown; replyTo: unknown }];
+  assert.strictEqual(sent[1].attachment, attachment, 'same-thread file is submitted');
+  assert.deepEqual(sent[1].replyTo, { id: safe.messages[0].id, senderName: safe.messages[0].senderName, text: safe.messages[0].text });
+  scope.conversations = [hidden];
+  scope.activeConversation = evaluate(initializer('activeConversation'), scope);
+  scope.activeConversationId = evaluate(initializer('activeConversationId'), scope);
+  assert.equal(scope.activeConversationId, null, 'no accessible loaded target means no selection');
+  evaluate(initializer('handleSendMessage'), scope)();
+  assert.deepEqual(log, [], 'no accessible selection cannot submit retained text/context');
+});
+
+test('immutable bounded composer JSX, callbacks and controlled binding remain exact', () => {
   const source = readFileSync(hubPath, 'utf8');
   const hub = parse(source);
   const childSource = readFileSync(childPath, 'utf8');
@@ -151,14 +244,9 @@ test('extraction preserves every non-composer byte, moved JSX and controlled bin
     assert.equal(expression(matches[0]).getText(hub), name === 'activeConversationTitle' ? 'activeConversation.title' : name);
   }
   const importLine = "import { MessageComposer } from './MessageComposer';\n";
-  let restored = lf(source.slice(0, mount.getStart(hub) - 14) + slice.text + source.slice(mount.end + 2));
-  assert.equal(restored.split(importLine).length, 2, 'one import at actual card anchor');
-  assert.ok(restored.includes("import { ClassroomInvitationCard } from './ClassroomInvitationCard';\n" + importLine));
-  restored = restored.replace(importLine, '').replace('  Search, Edit, MicOff, Sparkles, Pin, PinOff, ', '  Search, Edit, Send, Paperclip, Mic, MicOff, Sparkles, Pin, PinOff, ');
-  assert.equal(restored, baseline, 'HEAD LF non-moved source equality');
+  assert.equal(lf(source).split(importLine).length, 2, 'one composer import');
+  assert.ok(lf(source).includes("import { ClassroomInvitationCard } from './ClassroomInvitationCard';\n" + importLine));
   assert.equal(source.split('\r\n').length - 1, source.split('\n').length - 1, 'checkout retains CRLF');
-  const outside = baseline.slice(0, slice.start) + baseline.slice(slice.end);
-  console.log(`non-composer HEAD LF ${Buffer.byteLength(outside)} bytes SHA256 ${hash(outside)}; CRLF ${Buffer.byteLength(outside.replace(/\n/g, '\r\n'))} bytes`);
   const delegates = ['() => onTemplateClick(t)', 'onClearReply', 'onClearFile', 'onRecordCancel', 'onVoiceSend', 'onTogglePicker', '() => onSelectAttachment(att)', 'onRecordStart', 'onTextChange', 'onKeyDown', 'onSend'];
   let moved = slice.text;
   for (let index = events.length - 1; index >= 0; index--) {

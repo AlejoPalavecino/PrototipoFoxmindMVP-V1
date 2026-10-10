@@ -13,6 +13,10 @@ export interface SendMessageParams {
 
 type ReplyRole = SendMessageParams['senderRole'] | Role;
 
+export function canAccessConversation(conversation: Conversation, userId: string): boolean {
+  return conversation.type !== 'direct' || conversation.participants.some(p => p.id === userId);
+}
+
 // The store retains state/persistence and the late-bound private reply hook.
 export function sendMessage(
   params: SendMessageParams,
@@ -22,6 +26,9 @@ export function sendMessage(
 ): void {
   const conv = readConversations().find(c => c.id === params.conversationId);
   if (!conv) return;
+  if (!canAccessConversation(conv, params.senderId)) {
+    throw new Error('No perteneces a esta conversación.');
+  }
 
   // Strict School Policy Enforcement:
   // Alumnos can only send messages to teachers / staff / classroom channels / Foxy.
