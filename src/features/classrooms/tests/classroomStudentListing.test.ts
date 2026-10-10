@@ -74,7 +74,14 @@ if (ts.isJsxSelfClosingElement(consumer)) {
       const property = returned.properties.find((node): node is ts.ShorthandPropertyAssignment =>
         ts.isShorthandPropertyAssignment(node) && node.name.text === expected);
       assert.ok(property);
-      const state = checker.getShorthandAssignmentValueSymbol(property)?.valueDeclaration;
+      let state = checker.getShorthandAssignmentValueSymbol(property)?.valueDeclaration;
+      if (name === 'onJoin' && state && ts.isVariableDeclaration(state)) {
+        // T3 preserves the setter API through a guarded wrapper rather than exporting the raw useState setter.
+        assert.ok(state.initializer && ts.isArrowFunction(state.initializer));
+        const update = nodes(state.initializer, ts.isCallExpression).find(call => call.expression.getText() === 'updateIsJoinModalOpen');
+        assert.ok(update, 'Guarded join setter forwards to the dialog state setter');
+        state = resolvedSymbol(update.expression)?.valueDeclaration;
+      }
       assert.ok(state && ts.isBindingElement(state) && ts.isArrayBindingPattern(state.parent));
       assert.equal(state.parent.elements[name === 'onJoin' ? 1 : 0], state, 'Real membership snapshot/setter, not a detached fake alias');
     } else if (name === 'onSelect') {

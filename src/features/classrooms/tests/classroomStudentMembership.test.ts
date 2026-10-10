@@ -1,331 +1,306 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
 import { resolveStudentClassroom } from '../index';
 import { createUrlNavigation, HISTORY_ENTRY_KEY, type HistoryHost } from '../../../app/routing';
 
-// Passing inline-page characterization, then the actual mounted hook/dialog bindings.
-// Fake hooks/elements execute resolved statements, not React lifecycle or browser imports.
-const pagePath = fileURLToPath(new URL('../../../views/alumno/AulasAlumno.tsx', import.meta.url));
-const program = ts.createProgram([pagePath], {
-  noEmit: true, jsx: ts.JsxEmit.Preserve, target: ts.ScriptTarget.ESNext,
-  module: ts.ModuleKind.ESNext, moduleResolution: ts.ModuleResolutionKind.Bundler,
-});
-const checker = program.getTypeChecker();
-const symbol = (node: ts.Node) => {
-  const value = checker.getSymbolAtLocation(node);
-  return value && value.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(value) : value;
-};
-function nodes<T extends ts.Node>(root: ts.Node, predicate: (node: ts.Node) => node is T): T[] {
-  const found: T[] = [];
-  function visit(node: ts.Node) { if (predicate(node)) found.push(node); ts.forEachChild(node, visit); }
-  visit(root);
-  return found;
+import { createClassroomJoinState } from '../application/classroomJoinState';
+type Element = { type: any; props: any; children: any[] };
+const react = { Fragment: 'fragment', createElement: (type: any, props: any, ...children: any[]): Element =>
+  ({ type, props: props ?? {}, children: children.flat(Infinity) }) };
+function elements(tree: any): Element[] {
+  if (!tree || typeof tree !== 'object') return [];
+  return [tree, ...tree.children.flatMap(elements)];
 }
-const page = program.getSourceFile(pagePath)!;
-const owner = page.statements.find((node): node is ts.FunctionDeclaration =>
-  ts.isFunctionDeclaration(node) && node.name?.text === 'AulasAlumno')!;
-const variables = nodes(owner, ts.isVariableDeclaration);
-const mounted = variables.find(node => node.name.getText() === 'membership');
-let membership = owner;
-if (mounted) {
-  assert.ok(mounted.parent.parent.parent === owner.body, 'Membership mount is unconditional at page lifetime');
-  assert.ok(mounted.initializer && ts.isCallExpression(mounted.initializer));
-  assert.equal(mounted.initializer.arguments.length, 0);
-  const declaration = symbol(mounted.initializer.expression)?.valueDeclaration;
-  assert.ok(declaration && ts.isFunctionDeclaration(declaration) && declaration.body);
-  membership = declaration;
-  assert.equal(nodes(owner, (node): node is ts.CallExpression => ts.isCallExpression(node)
-    && symbol(node.expression) === symbol(declaration.name!)).length, 1);
-  const binding = variables.find(node => ts.isObjectBindingPattern(node.name)
-    && node.initializer && symbol(node.initializer) === symbol(mounted.name))!;
-  assert.ok(binding && ts.isObjectBindingPattern(binding.name));
-  assert.deepEqual(binding.name.elements.map(item => item.name.getText()), ['classrooms', 'setIsJoinModalOpen']);
+// Execute the actual modules and their consumer with deterministic hooks/elements.
+// This is not a React lifecycle or browser harness; imports are explicitly controlled.
+function moduleAt(path: string, imports: Record<string, any>) {
+  const source = readFileSync(new URL(path, import.meta.url), 'utf8');
+  const code = ts.transpileModule(source, { compilerOptions: {
+    target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.React, esModuleInterop: true,
+  } }).outputText;
+  const exported: any = {};
+  runInNewContext(code, { exports: exported, require: (name: string) => {
+    assert.ok(Object.hasOwn(imports, name), `Unexpected dependency: ${name}`); return imports[name];
+  } });
+  return exported;
 }
-const membershipVariables = nodes(membership, ts.isVariableDeclaration);
-const membershipStates = membershipVariables.filter(node => ts.isArrayBindingPattern(node.name)
-  && ['classrooms', 'isJoinModalOpen', 'invitationCode'].includes(node.name.elements[0].getText()));
-assert.equal(membershipStates.length, 3);
-const effect = nodes(membership, (node): node is ts.CallExpression => ts.isCallExpression(node)
-  && node.expression.getText() === 'useEffect' && /messagingStore\.subscribe/.test(node.getText()));
-assert.equal(effect.length, 1);
-assert.equal(effect[0].arguments[1].getText(), '[]');
-const handler = membershipVariables.find(node => node.name.getText() === 'handleJoinClassroom')!;
-const selected = variables.find(node => node.name.getText() === 'selectedAula')!;
-assert.ok(selected.initializer && ts.isCallExpression(selected.initializer));
-const resolver = symbol(selected.initializer.expression)?.valueDeclaration;
-assert.ok(resolver && ts.isFunctionDeclaration(resolver) && resolver.name?.text === 'resolveStudentClassroom');
-assert.deepEqual(selected.initializer.arguments.map(node => node.getText()), ['classrooms', 'navigationParams']);
-assert.equal(variables.some(node => ts.isArrayBindingPattern(node.name) && node.name.elements[0].getText() === 'selectedAula'), false);
-const membershipStatements = [...membershipStates.map(node => node.parent.parent), effect[0].parent, handler.parent.parent];
-const evaluate = (code: string, globals: Record<string, any>) => runInNewContext(ts.transpileModule(code, {
-  compilerOptions: { target: ts.ScriptTarget.ESNext, jsx: ts.JsxEmit.React }, fileName: 'membership.tsx',
-}).outputText, globals);
-
-function entryToken(state: unknown): string {
-  assert.ok(state && typeof state === 'object');
-  assert.deepEqual(Object.keys(state), [HISTORY_ENTRY_KEY], 'Only a non-sensitive entry token may be persisted; no payload or scroll coordinates');
-  const token = (state as Record<string, unknown>)[HISTORY_ENTRY_KEY];
-  assert.equal(typeof token, 'string');
-  assert.ok((token as string).length > 0);
-  return token as string;
-}
-
 function mount() {
-  const values: Record<string, any> = {}, calls: any[] = [], effects: (() => any)[] = [];
-  let records: any[] = [{ id: 'a-1', subject: 'Historia', course: '2° B' }];
-  let result: any = { status: 'rejected' }, subscriber: (() => void) | undefined, reads = 0, index = 0;
-  const names = ['classrooms', 'isJoinModalOpen', 'invitationCode'];
-  const paths = ['/alumno/aulas'];
-  const states: unknown[] = [null];
-  let pathIndex = 0;
-  const writes: any[] = [], listeners = new Set<() => void>(), corrections: (() => void)[] = [];
+  const slots: any[] = [], effectQueue: (() => any)[] = [], calls: any[] = [];
+  let index = 0, reads = 0, records: any[] = [{ id: 'a-1', subject: 'Historia', course: '2° B' }];
+  let result: any = { status: 'rejected' }, subscriber: (() => void) | undefined;
+  const hooks = {
+    ...react,
+    useState: (initial: any) => {
+      const slot = index++;
+      if (!(slot in slots)) slots[slot] = typeof initial === 'function' ? initial() : initial;
+      return [slots[slot], (value: any) => { slots[slot] = typeof value === 'function' ? value(slots[slot]) : value; }];
+    },
+    useRef: (initial: any) => { const slot = index++; return slots[slot] ?? (slots[slot] = { current: initial }); },
+    useEffect: (callback: () => any, deps: any[]) => {
+      const slot = index++, previous = slots[slot];
+      if (!previous || deps.some((value, i) => value !== previous[i])) effectQueue.push(callback);
+      slots[slot] = deps;
+    },
+  };
+  const hook = moduleAt('../hooks/useStudentClassroomMembership.ts', {
+    react: hooks,
+    '../data/inMemoryClassroomRepository': { classroomRepository: { readMembership: () => { reads++; calls.push(['read']); return records; } } },
+    '../application/classroomMembership': { joinClassroomByCode: (code: string, snapshot: any[]) => {
+      calls.push(['join', code, snapshot]); return typeof result === 'function' ? result() : result;
+    } },
+    '../application/classroomJoinState': { createClassroomJoinState },
+    '../../messaging/messagingStore': { messagingStore: { subscribe: (callback: () => void) => {
+      calls.push(['subscribe']); subscriber = callback;
+      return () => { calls.push(['unsubscribe']); subscriber = undefined; };
+    } } },
+    '../../../components/ui/Toaster': { toast: { show: (text: string, kind: string) => calls.push(['toast', text, kind]) } },
+  });
+  const leaf = moduleAt('../components/student/StudentClassroomJoinDialog.tsx', {
+    react, 'motion/react': { motion: { div: 'motion.div' }, AnimatePresence: 'presence' },
+    'lucide-react': { Plus: 'plus', X: 'x' },
+  });
+  const paths = ['/alumno/aulas'], states: unknown[] = [null], listeners = new Set<() => void>();
+  const writes: any[] = []; let pathIndex = 0;
   const host: HistoryHost = {
     location: { pathname: paths[0], search: '', hash: '' },
     history: {
       get state() { return states[pathIndex]; },
       pushState: (state, _unused, url) => {
-        entryToken(state);
-        writes.push(['push', state, String(url)]);
-        paths.splice(pathIndex + 1); states.splice(pathIndex + 1);
-        paths.push(String(url)); states.push(state); pathIndex++;
-        host.location.pathname = paths[pathIndex];
+        writes.push(['push', state, String(url)]); paths.splice(pathIndex + 1); states.splice(pathIndex + 1);
+        paths.push(String(url)); states.push(state); pathIndex++; host.location.pathname = paths[pathIndex];
       },
       replaceState: (state, _unused, url) => {
-        entryToken(state);
-        writes.push(['replace', state, String(url)]);
-        states[pathIndex] = state;
+        writes.push(['replace', state, String(url)]); states[pathIndex] = state;
         paths[pathIndex] = String(url); host.location.pathname = paths[pathIndex];
       },
     },
     addEventListener: (_event, listener) => { listeners.add(listener); },
     removeEventListener: (_event, listener) => { listeners.delete(listener); },
   };
-  const navigation = createUrlNavigation(host);
-  navigation.subscribe(() => {});
-  const globals: Record<string, any> = {
-    useState: (initial: any) => {
-      const name = names[index++];
-      if (!Object.hasOwn(values, name)) values[name] = typeof initial === 'function' ? initial() : initial;
-      return [values[name], (next: any) => { calls.push(['set', name, next]); values[name] = next; }];
+  const navigation = createUrlNavigation(host); navigation.subscribe(() => {});
+  let controller: any;
+  const page = moduleAt('../../../views/alumno/AulasAlumno.tsx', {
+    react: hooks,
+    '../../features/classrooms': { resolveStudentClassroom },
+    '../../features/classrooms/ui': {
+      useStudentClassroomMembership: () => { controller = hook.useStudentClassroomMembership(); return controller; },
+      StudentClassroomList: 'list', StudentClassroomDetail: 'detail', StudentClassroomJoinDialog: 'dialog',
     },
-    useEffect: (callback: () => any, dependencies: any[]) => {
-      if (!dependencies.length && !effects.length) effects.push(callback);
-      else if (dependencies.length) corrections.push(callback);
-    },
-    classroomRepository: { readMembership: () => { reads++; calls.push(['read']); return records; } },
-    messagingStore: { subscribe: (callback: () => void) => {
-      calls.push(['subscribe']); subscriber = callback; return () => { calls.push(['unsubscribe']); subscriber = undefined; };
-    } },
-    joinClassroomByCode: (code: string, snapshot: any[]) => { calls.push(['join', code, snapshot]); return result; },
-    toast: { show: (text: string, kind: string) => { calls.push(['toast', text, kind]); } },
-    useAppContext: () => ({ ...navigation.getSnapshot(), setView: (...args: Parameters<typeof navigation.setView>) => {
-      calls.push(['view', ...args]); navigation.setView(...args);
-    } }),
-    resolveStudentClassroom,
-  };
-  const membershipCode = mounted ? membership.body!.getText() : `{ ${membershipStatements.map(node => node.getText()).join('\n')}
-    return { classrooms, isJoinModalOpen, setIsJoinModalOpen, invitationCode, setInvitationCode, handleJoinClassroom }; }`;
+    '../../context': { useAppContext: () => ({ ...navigation.getSnapshot(), setView: navigation.setView }) },
+    'motion/react': { motion: { div: 'motion.div' }, AnimatePresence: 'presence' },
+  });
+  let pageElements: Element[] = [];
   const render = () => {
-    index = 0;
-    corrections.length = 0;
-    let controller: any;
-    globals.useStudentClassroomMembership = () => {
-      controller = evaluate(`(function () ${membershipCode})()`, globals);
-      return controller;
-    };
-    const statements = owner.body!.statements.filter(node => !ts.isReturnStatement(node));
-    const selection = evaluate(`(function () { ${statements.map(node => node.getText()).join('\n')}
-      return { selectedAula, handleSelect, handleBack }; })()`, globals);
-    return { ...selection, ...controller };
+    index = 0; pageElements = elements(page.AulasAlumno());
+    assert.equal(pageElements.filter(item => item.type === 'dialog').length, 1);
+    assert.equal(pageElements.find(item => item.type === 'dialog')!.props.membership, controller, 'Page wires the whole real controller');
+    return controller;
   };
-  return { render, values, calls, records: () => records, reads: () => reads,
-    replace: (next: any[]) => { records = next; }, outcome: (next: any) => { result = next; },
-    params: (next: any) => navigation.setView('aulas', next), refresh: () => subscriber!(), start: () => effects[0](),
-    path: () => host.location.pathname, state: () => host.history.state, writes, flushCorrections: () => corrections.forEach(effect => effect()),
+  const flush = () => effectQueue.splice(0).map(callback => callback());
+  return { render, calls, reads: () => reads, records: () => records, replace: (next: any[]) => { records = next; },
+    outcome: (next: any) => { result = next; }, start: () => flush()[0], flush,
+    refresh: () => subscriber!(), dialog: (current = render()) => elements(leaf.StudentClassroomJoinDialog({ membership: current })),
+    params: (next: any) => navigation.setView('aulas', next), page: () => pageElements,
+    path: () => host.location.pathname, state: () => host.history.state, writes,
     travel: (delta: number) => {
       pathIndex = Math.max(0, Math.min(paths.length - 1, pathIndex + delta));
       host.location.pathname = paths[pathIndex]; listeners.forEach(listener => listener());
-    } };
+    },
+  };
+}
+function open(mounted: ReturnType<typeof mount>, code = ' RAW ') {
+  const initial = mounted.render(); mounted.start();
+  initial.setInvitationCode(code); initial.setIsJoinModalOpen(true); return mounted.render();
+}
+function text(element: Element): string {
+  return element.children.map(child => typeof child === 'object' && child ? text(child) : String(child ?? '')).join('');
+}
+function deferred() {
+  let resolve!: (value: any) => void, reject!: (reason: unknown) => void;
+  const promise = new Promise<any>((yes, no) => { resolve = yes; reject = no; });
+  return { promise, resolve, reject };
 }
 
-function dialog(controller: any) {
-  const consumers = nodes(owner, (node): node is ts.JsxSelfClosingElement => ts.isJsxSelfClosingElement(node)
-    && node.tagName.getText() === 'StudentClassroomJoinDialog');
-  let expression: ts.Expression;
-  if (mounted) {
-    assert.equal(consumers.length, 1);
-    const consumer = consumers[0];
-    assert.deepEqual(consumer.attributes.properties.map(node => ts.isJsxAttribute(node) ? node.name.getText() : ''), ['membership']);
-    const prop = consumer.attributes.properties[0] as ts.JsxAttribute;
-    assert.ok(prop.initializer && ts.isJsxExpression(prop.initializer) && prop.initializer.expression);
-    assert.equal(symbol(prop.initializer.expression), symbol(mounted.name));
-    const leaf = symbol(consumer.tagName)?.valueDeclaration;
-    assert.ok(leaf && ts.isFunctionDeclaration(leaf) && leaf.body && ts.isObjectBindingPattern(leaf.parameters[0].name));
-    const binding = (leaf.body.statements[0] as ts.VariableStatement).declarationList.declarations[0];
-    assert.ok(binding.initializer && ts.isObjectBindingPattern(binding.name));
-    assert.equal(symbol(binding.initializer), symbol(leaf.parameters[0].name.elements[0].name));
-    const returned = membership.body!.statements.find(ts.isReturnStatement)!.expression;
-    assert.ok(returned && ts.isObjectLiteralExpression(returned));
-    for (const item of binding.name.elements) {
-      const property = returned.properties.find((node): node is ts.ShorthandPropertyAssignment =>
-        ts.isShorthandPropertyAssignment(node) && node.name.text === item.name.getText());
-      assert.ok(property);
-      assert.equal(checker.getShorthandAssignmentValueSymbol(property)?.valueDeclaration?.getSourceFile(), membership.getSourceFile());
-    }
-    assert.equal(nodes(leaf, (node): node is ts.CallExpression => ts.isCallExpression(node)
-      && /useState|useEffect|setTimeout|Repository/.test(node.expression.getText())).length, 0);
-    expression = leaf.body.statements.find(ts.isReturnStatement)!.expression!;
-  } else {
-    const presence = nodes(owner, (node): node is ts.JsxElement => ts.isJsxElement(node)
-      && node.openingElement.tagName.getText() === 'AnimatePresence' && /isJoinModalOpen &&/.test(node.getText()));
-    assert.equal(presence.length, 1);
-    expression = presence[0];
-  }
-  const tree = evaluate(`(${expression.getText()})`, {
-    ...controller, React: { Fragment: 'fragment', createElement: (type: any, props: any, ...children: any[]) =>
-      ({ type, props: props ?? {}, children: children.flat(Infinity) }) },
-    motion: { div: 'motion.div' }, AnimatePresence: 'presence', Plus: 'plus', X: 'x',
-  });
-  const elements: any[] = [];
-  function visit(node: any) { if (node && typeof node === 'object') { elements.push(node); node.children.forEach(visit); } }
-  visit(tree);
-  return elements;
-}
-
-test('membership initializes lazily, mount copies before subscription, refresh copies and returns exact cleanup', () => {
+test('membership initializes lazily, mount and subscription copy records and cleanup unsubscribes', () => {
   const mounted = mount(), first = mounted.render(), record = mounted.records()[0];
-  assert.equal(mounted.reads(), 1);
-  assert.notEqual(first.classrooms, mounted.records()); assert.equal(first.classrooms[0], record);
+  assert.equal(mounted.reads(), 1); assert.notEqual(first.classrooms, mounted.records()); assert.equal(first.classrooms[0], record);
   assert.equal(first.isJoinModalOpen, false); assert.equal(first.invitationCode, '');
   const cleanup = mounted.start();
-  assert.deepEqual(mounted.calls.map(call => call.slice(0, 2)), [['read'], ['read'], ['set', 'classrooms'], ['subscribe']]);
-  assert.notEqual(mounted.values.classrooms, first.classrooms); assert.notEqual(mounted.values.classrooms, mounted.records());
-  assert.equal(mounted.values.classrooms[0], record);
+  assert.deepEqual(mounted.calls.map(call => call[0]), ['read', 'read', 'subscribe']);
+  assert.notEqual(mounted.render().classrooms, first.classrooms);
   const next = { id: 'a-2' }; mounted.replace([next]); mounted.refresh();
-  assert.equal(mounted.values.classrooms[0], next); assert.notEqual(mounted.values.classrooms, mounted.records());
-  mounted.render(); assert.equal(mounted.reads(), 3);
-  cleanup(); assert.deepEqual(mounted.calls.at(-1), ['unsubscribe']);
-  assert.equal(nodes(membership, (node): node is ts.CallExpression => ts.isCallExpression(node)
-    && /setTimeout|clearTimeout|useLayoutEffect/.test(node.expression.getText())).length, 0);
+  const current = mounted.render(); assert.equal(current.classrooms[0], next); assert.notEqual(current.classrooms, mounted.records());
+  assert.equal(mounted.reads(), 3); cleanup(); assert.deepEqual(mounted.calls.at(-1), ['unsubscribe']);
 });
 
-test('page selection/back and dialog hide preserve membership snapshot and typed code across renders', () => {
-  const mounted = mount(); let current = mounted.render(); mounted.start();
-  const initialState = mounted.state();
-  const initialToken = entryToken(initialState);
-  assert.deepEqual(mounted.writes, [['replace', initialState, '/alumno/aulas']], 'Initial enrollment replaces once, without pushing');
-  current.setInvitationCode('  HIST-2026  '); current.setIsJoinModalOpen(true);
-  current = mounted.render(); const snapshot = current.classrooms;
-  const elements = dialog(current), input = elements.find(node => node.type === 'input');
-  assert.equal(input.props.value, '  HIST-2026  ');
-  input.props.onChange({ target: { value: 'typed code' } });
-  const buttons = elements.filter(node => node.type === 'button'); assert.equal(buttons.length, 3);
-  buttons[0].props.onClick(); assert.equal(mounted.values.isJoinModalOpen, false);
-  assert.equal(mounted.values.invitationCode, 'typed code');
-  current.setIsJoinModalOpen(true); dialog(mounted.render()).filter(node => node.type === 'button')[1].props.onClick();
-  assert.equal(mounted.values.invitationCode, 'typed code');
-  current.handleSelect(snapshot[0]);
-  assert.equal(mounted.path(), '/alumno/aulas/a-1');
-  const detailState = mounted.state();
-  const detailToken = entryToken(detailState);
-  assert.notEqual(detailToken, initialToken);
-  assert.deepEqual(mounted.writes, [
-    ['replace', initialState, '/alumno/aulas'], ['push', detailState, '/alumno/aulas/a-1'],
-  ]);
-  current = mounted.render();
+test('page selection/back and dialog hide preserve membership and code through browser history', () => {
+  const mounted = mount(); let current = open(mounted, '  HIST-2026  '); const snapshot = current.classrooms;
+  const initialState = mounted.state(); assert.deepEqual(Object.keys(initialState as object), [HISTORY_ENTRY_KEY]);
+  const input = mounted.dialog(current).find(item => item.type === 'input')!;
+  assert.equal(input.props.value, '  HIST-2026  '); input.props.onChange({ target: { value: 'typed code' } });
+  mounted.dialog(current).filter(item => item.type === 'button')[0].props.onClick();
+  assert.equal(mounted.render().isJoinModalOpen, false); assert.equal(mounted.render().invitationCode, 'typed code');
+  current.setIsJoinModalOpen(true); mounted.dialog().filter(item => item.type === 'button')[1].props.onClick();
+  assert.equal(mounted.render().invitationCode, 'typed code');
+  mounted.page().find(item => item.type === 'list')!.props.onSelect(snapshot[0]);
+  current = mounted.render(); assert.equal(mounted.path(), '/alumno/aulas/a-1');
+  const detailState = mounted.state(); assert.notEqual(detailState, initialState);
+  assert.equal(mounted.page().find(item => item.type === 'detail')!.props.aula, snapshot[0]);
   assert.equal(current.classrooms, snapshot); assert.equal(current.invitationCode, 'typed code');
-  assert.equal(current.selectedAula, snapshot[0]);
-  const traversalWrites = mounted.writes.length;
-  mounted.travel(-1);
-  assert.equal(entryToken(mounted.state()), initialToken);
-  assert.equal(mounted.render().selectedAula, undefined, 'browser Back clears rendered detail');
-  mounted.travel(1);
-  assert.equal(entryToken(mounted.state()), detailToken);
-  assert.equal(mounted.render().selectedAula, snapshot[0], 'Forward resolves the durable ID');
-  assert.equal(mounted.writes.length, traversalWrites, 'Traversal restores entry state without pushing or replacing');
-  mounted.render().handleBack();
-  assert.deepEqual(mounted.calls.at(-1), ['view', 'aulas', undefined, 'replace']);
-  assert.equal(mounted.path(), '/alumno/aulas');
-  assert.deepEqual(mounted.writes.at(-1), ['replace', detailState, '/alumno/aulas']);
-  assert.equal(entryToken(mounted.state()), detailToken, 'Replacement retains entry identity');
-  assert.equal(mounted.render().selectedAula, undefined);
-  assert.equal(mounted.render().classrooms, snapshot); assert.equal(mounted.reads(), 2);
   const count = mounted.writes.length;
-  mounted.render().handleBack();
-  assert.deepEqual(mounted.calls.at(-1), ['view', 'aulas', undefined, 'replace']);
-  assert.equal(mounted.writes.length, count, 'same-path Back must not write history again');
+  mounted.travel(-1); mounted.render(); assert.ok(mounted.page().some(item => item.type === 'list'));
+  mounted.travel(1); mounted.render(); assert.equal(mounted.page().find(item => item.type === 'detail')!.props.aula, snapshot[0]);
+  assert.equal(mounted.writes.length, count);
+  mounted.page().find(item => item.type === 'detail')!.props.onBack(); mounted.render();
+  assert.equal(mounted.path(), '/alumno/aulas'); assert.deepEqual(mounted.state(), detailState);
+  assert.equal(mounted.writes.at(-1)[0], 'replace'); assert.equal(mounted.reads(), 2);
   assert.doesNotMatch(JSON.stringify(mounted.writes), /HIST-2026|typed code/);
 });
 
-test('direct route hydration and invalid/empty membership correction leave join drafts and snapshots intact', () => {
-  const mounted = mount();
-  mounted.params({ aulaId: 'a-1' });
-  let current = mounted.render(); mounted.start();
-  assert.equal(current.selectedAula, current.classrooms[0], 'direct ID resolves without a selection effect');
-  current.setInvitationCode('pending code'); current.setIsJoinModalOpen(true);
-  mounted.params({ aulaId: 'missing', taskTitle: 'private task title' }); current = mounted.render();
-  const detailState = mounted.state();
-  const detailToken = entryToken(detailState);
-  const snapshot = current.classrooms;
-  assert.equal(current.selectedAula, undefined);
-  mounted.flushCorrections();
-  assert.equal(mounted.path(), '/alumno/aulas');
-  assert.deepEqual(mounted.writes.at(-1), ['replace', detailState, '/alumno/aulas']);
-  assert.equal(entryToken(mounted.state()), detailToken, 'Invalid-ID correction retains entry identity');
-  const count = mounted.writes.length;
-  mounted.render(); mounted.flushCorrections(); assert.equal(mounted.writes.length, count);
-  assert.equal(mounted.values.invitationCode, 'pending code'); assert.equal(mounted.values.isJoinModalOpen, true);
-  assert.equal(mounted.render().classrooms, snapshot);
-  mounted.replace([]); mounted.refresh(); mounted.params({ aulaId: 'a-1' });
-  current = mounted.render(); assert.equal(current.selectedAula, undefined); assert.equal(current.classrooms.length, 0);
-  mounted.flushCorrections(); assert.equal(mounted.path(), '/alumno/aulas');
-  assert.equal(mounted.values.invitationCode, 'pending code'); assert.equal(mounted.values.isJoinModalOpen, true);
+test('direct and invalid/empty membership routes leave drafts intact during route correction', () => {
+  const mounted = mount(); mounted.params({ aulaId: 'a-1' }); const current = open(mounted, 'pending code');
+  assert.equal(mounted.page().find(item => item.type === 'detail')!.props.aula, current.classrooms[0]);
+  mounted.params({ aulaId: 'missing', taskTitle: 'private task title' }); mounted.render();
+  const detailState = mounted.state(); mounted.flush();
+  assert.equal(mounted.path(), '/alumno/aulas'); assert.deepEqual(mounted.state(), detailState);
+  const count = mounted.writes.length; mounted.render(); mounted.flush(); assert.equal(mounted.writes.length, count);
+  assert.equal(mounted.render().classrooms, current.classrooms);
+  mounted.replace([]); mounted.refresh(); mounted.params({ aulaId: 'a-1' }); mounted.render(); mounted.flush();
+  assert.equal(mounted.path(), '/alumno/aulas'); assert.equal(mounted.render().classrooms.length, 0);
+  assert.equal(mounted.render().invitationCode, 'pending code'); assert.equal(mounted.render().isJoinModalOpen, true);
   assert.doesNotMatch(JSON.stringify(mounted.writes), /pending code|private task title/);
 });
 
-test('rejected join preserves modal/code and duplicate toasts before close/clear without membership refresh', () => {
+test('rejected join retains modal/code; duplicate closes/clears with its exact toast and no refresh', async () => {
   for (const status of ['rejected', 'duplicate']) {
-    const mounted = mount(); let current = mounted.render(); mounted.start();
-    current.setInvitationCode(' RAW '); current.setIsJoinModalOpen(true); current = mounted.render();
-    const snapshot = current.classrooms, aula = snapshot[0]; mounted.outcome({ status, classroom: aula });
-    mounted.calls.length = 0; current.handleJoinClassroom();
+    const mounted = mount(), current = open(mounted), snapshot = current.classrooms;
+    mounted.outcome({ status, classroom: snapshot[0] }); mounted.calls.length = 0;
+    await current.handleJoinClassroom();
     assert.equal(mounted.calls[0][1], ' RAW '); assert.equal(mounted.calls[0][2], snapshot);
-    assert.equal(mounted.values.classrooms, snapshot); assert.equal(mounted.reads(), 2);
+    assert.equal(mounted.render().classrooms, snapshot); assert.equal(mounted.reads(), 2);
     if (status === 'rejected') {
-      assert.deepEqual(mounted.calls.map(call => call[0]), ['join']);
-      assert.equal(mounted.values.isJoinModalOpen, true); assert.equal(mounted.values.invitationCode, ' RAW ');
+      assert.equal(mounted.render().isJoinModalOpen, true); assert.equal(mounted.render().invitationCode, ' RAW ');
+      assert.equal(mounted.calls.length, 1);
     } else {
-      assert.deepEqual(mounted.calls.slice(1), [
-        ['toast', 'Ya estás matriculado en Historia (2° B)', 'info'],
-        ['set', 'isJoinModalOpen', false], ['set', 'invitationCode', ''],
-      ]);
+      assert.deepEqual(mounted.calls[1], ['toast', 'Ya estás matriculado en Historia (2° B)', 'info']);
+      assert.equal(mounted.render().isJoinModalOpen, false); assert.equal(mounted.render().invitationCode, '');
     }
   }
 });
 
-test('catalogue and generic success copy current membership then close/clear before their distinct exact toast', () => {
+test('catalogue and generic success copy membership and close/clear with distinct existing toasts', async () => {
   for (const status of ['catalogue', 'generic']) {
-    const mounted = mount(); let current = mounted.render(); mounted.start();
-    current.setInvitationCode('untrimmed '); current.setIsJoinModalOpen(true); current = mounted.render();
-    const snapshot = current.classrooms, aula = { id: 'joined', subject: 'Literatura', course: '3° A' };
+    const mounted = mount(), current = open(mounted, 'untrimmed '), snapshot = current.classrooms;
+    const aula = { id: 'joined', subject: 'Literatura', course: '3° A' };
     mounted.replace([aula, snapshot[0]]); mounted.outcome({ status, classroom: aula }); mounted.calls.length = 0;
-    const submit = dialog(current).filter(node => node.type === 'button')[2];
+    const submit = mounted.dialog(current).filter(item => item.type === 'button')[2];
     assert.equal(submit.props.disabled, false); assert.equal(submit.props.onClick, current.handleJoinClassroom);
-    submit.props.onClick();
+    await submit.props.onClick();
     assert.equal(mounted.calls[0][1], 'untrimmed '); assert.equal(mounted.calls[0][2], snapshot);
-    assert.deepEqual(mounted.calls.map(call => call.slice(0, 2)), [
-      ['join', 'untrimmed '], ['read'], ['set', 'classrooms'], ['set', 'isJoinModalOpen'], ['set', 'invitationCode'],
-      ['toast', status === 'catalogue' ? '🎉 ¡Te has unido exitosamente al aula de Literatura (3° A)!'
-        : '🎉 Te has unido al aula de Literatura (3° A) mediante tu código de acceso'],
-    ]);
-    assert.equal(mounted.calls.at(-1)[2], 'success'); assert.equal(mounted.reads(), 3);
-    assert.notEqual(mounted.values.classrooms, mounted.records()); assert.notEqual(mounted.values.classrooms, snapshot);
-    assert.equal(mounted.values.classrooms[0], aula); assert.equal(mounted.values.classrooms[1], snapshot[0]);
-    assert.equal(mounted.values.isJoinModalOpen, false); assert.equal(mounted.values.invitationCode, '');
+    assert.deepEqual(mounted.calls.map(call => call[0]), ['join', 'read', 'toast']);
+    assert.deepEqual(mounted.calls.at(-1), ['toast', status === 'catalogue'
+      ? '🎉 ¡Te has unido exitosamente al aula de Literatura (3° A)!'
+      : '🎉 Te has unido al aula de Literatura (3° A) mediante tu código de acceso', 'success']);
+    const next = mounted.render(); assert.equal(mounted.reads(), 3);
+    assert.notEqual(next.classrooms, mounted.records()); assert.notEqual(next.classrooms, snapshot);
+    assert.equal(next.classrooms[0], aula); assert.equal(next.classrooms[1], snapshot[0]);
+    assert.equal(next.isJoinModalOpen, false); assert.equal(next.invitationCode, '');
   }
-  const mounted = mount(), current = mounted.render(); current.setIsJoinModalOpen(true); current.setInvitationCode(' \t ');
-  assert.equal(dialog(mounted.render()).filter(node => node.type === 'button')[2].props.disabled, true);
+  const mounted = mount(); open(mounted, ' \t ');
+  assert.equal(mounted.dialog().filter(item => item.type === 'button')[2].props.disabled, true);
+});
+
+test('promise enrollment blocks duplicate events, code changes and closing before rendering pending UI', async () => {
+  const mounted = mount(), current = open(mounted), work = deferred(); mounted.outcome(work.promise);
+  const first = current.handleJoinClassroom();
+  current.setInvitationCode('conflicting'); current.setIsJoinModalOpen(false);
+  await current.handleJoinClassroom();
+  const pending = mounted.render(); assert.equal(pending.isJoining, true); assert.equal(pending.invitationCode, ' RAW ');
+  assert.equal(pending.isJoinModalOpen, true); assert.equal(mounted.calls.filter(call => call[0] === 'join').length, 1);
+  const ui = mounted.dialog(pending), input = ui.find(item => item.type === 'input')!;
+  assert.equal(input.props.disabled, true);
+  assert.equal(ui.find(item => item.type === 'label')!.props.htmlFor, input.props.id);
+  assert.ok(ui.some(item => item.props.role === 'dialog' && item.props['aria-busy'] === true));
+  assert.ok(ui.some(item => item.props.role === 'status' && /Uniéndote/.test(text(item))));
+  for (const button of ui.filter(item => item.type === 'button')) assert.equal(button.props.disabled, true);
+  assert.equal(ui.filter(item => item.type === 'button')[0].props['aria-label'], 'Cerrar diálogo de inscripción');
+  work.resolve({ status: 'duplicate', classroom: pending.classrooms[0] }); await first;
+  assert.equal(mounted.render().isJoining, false); assert.equal(mounted.render().invitationCode, '');
+  assert.equal(mounted.render().isJoinModalOpen, false);
+});
+
+test('throw/rejection retains code/dialog with accessible Spanish error and working retry', async () => {
+  for (const asynchronous of [false, true]) {
+    const mounted = mount(), current = open(mounted);
+    mounted.outcome(() => { if (asynchronous) return Promise.reject(new Error('private detail')); throw new Error('private detail'); });
+    await current.handleJoinClassroom();
+    const failed = mounted.render(); assert.equal(failed.invitationCode, ' RAW '); assert.equal(failed.isJoinModalOpen, true);
+    assert.equal(failed.isJoining, false);
+    const ui = mounted.dialog(failed), alert = ui.find(item => item.props.role === 'alert')!;
+    assert.ok(alert); assert.match(text(alert), /código se conserva/); assert.doesNotMatch(text(alert), /private detail/);
+    const input = ui.find(item => item.type === 'input')!;
+    assert.equal(input.props['aria-describedby'], alert.props.id);
+    const retry = ui.filter(item => item.type === 'button')[2];
+    assert.equal(text(retry), 'Reintentar inscripción'); assert.equal(retry.props.disabled, false);
+    mounted.outcome({ status: 'generic', classroom: failed.classrooms[0] }); await retry.props.onClick();
+    const confirmed = mounted.render(); assert.equal(confirmed.invitationCode, ''); assert.equal(confirmed.isJoinModalOpen, false);
+    assert.equal(confirmed.joinError, null);
+  }
+});
+
+test('unmount invalidates pending success/failure before a new dialog/code can be altered', async () => {
+  for (const reject of [false, true]) {
+    const mounted = mount(); let current = mounted.render(); const cleanup = mounted.start();
+    current.setInvitationCode('old code'); current.setIsJoinModalOpen(true); current = mounted.render();
+    const work = deferred(); mounted.outcome(work.promise); const attempt = current.handleJoinClassroom();
+    cleanup();
+    const newer = mount(); open(newer, 'new code');
+    mounted.calls.length = 0;
+    if (reject) work.reject(new Error('late failure'));
+    else work.resolve({ status: 'catalogue', classroom: current.classrooms[0] });
+    await attempt;
+    assert.deepEqual(mounted.calls, []); assert.equal(newer.render().invitationCode, 'new code');
+    assert.equal(newer.render().isJoinModalOpen, true); assert.equal(newer.render().joinError, null);
+  }
+});
+
+test('existing functional setters and old handlers use the latest code and ignore a closed dialog', async () => {
+  const mounted = mount(), current = open(mounted, 'first');
+  current.setInvitationCode((code: string) => `${code}-latest`);
+  mounted.outcome({ status: 'generic', classroom: current.classrooms[0] }); mounted.calls.length = 0;
+  await current.handleJoinClassroom(); await current.handleJoinClassroom();
+  const joins = mounted.calls.filter(call => call[0] === 'join');
+  assert.equal(joins.length, 1); assert.equal(joins[0][1], 'first-latest');
+  current.setInvitationCode((code: string) => `${code}new`); current.setIsJoinModalOpen((open: boolean) => !open);
+  assert.equal(mounted.render().invitationCode, 'new'); assert.equal(mounted.render().isJoinModalOpen, true);
+});
+
+test('malformed operation results retain drafts and cannot trigger success toasts', async () => {
+  for (const outcome of [undefined, null, { status: 'generic' }, Promise.resolve(undefined)]) {
+    const mounted = mount(), current = open(mounted); mounted.outcome(outcome); mounted.calls.length = 0;
+    await current.handleJoinClassroom();
+    const failed = mounted.render(); assert.equal(failed.isJoinModalOpen, true); assert.equal(failed.invitationCode, ' RAW ');
+    assert.equal(failed.isJoining, false); assert.ok(failed.joinError);
+    assert.deepEqual(mounted.calls.map(call => call[0]), ['join']);
+  }
+});
+
+test('async catalogue/generic confirmation reads membership only after completion', async () => {
+  for (const status of ['catalogue', 'generic']) {
+    const mounted = mount(), current = open(mounted), snapshot = current.classrooms, work = deferred();
+    mounted.outcome(work.promise); mounted.calls.length = 0;
+    const attempt = current.handleJoinClassroom();
+    assert.equal(mounted.render().classrooms, snapshot);
+    assert.deepEqual(mounted.calls.map(call => call[0]), ['join']);
+    const aula = { id: 'later', subject: 'Ciencias', course: '3° B' };
+    mounted.replace([aula, ...snapshot]); work.resolve({ status, classroom: aula }); await attempt;
+    const confirmed = mounted.render();
+    assert.equal(confirmed.classrooms[0], aula); assert.notEqual(confirmed.classrooms, mounted.records());
+    assert.equal(confirmed.invitationCode, ''); assert.equal(confirmed.isJoinModalOpen, false);
+    assert.equal(confirmed.isJoining, false); assert.equal(confirmed.joinError, null);
+    assert.deepEqual(mounted.calls.map(call => call[0]), ['join', 'read', 'toast']);
+  }
 });

@@ -424,8 +424,33 @@ test('student composition retains page selection/back props and one controller b
     assert.ok(hook && ts.isFunctionDeclaration(hook) && hook.body);
     assert.equal(membershipMount.parent.parent.parent, owner.body);
     assert.equal(membershipMount.initializer.arguments.length, 0);
-    assert.equal(nodesMatching(hook, (node): node is ts.VariableDeclaration => ts.isVariableDeclaration(node)
-      && ts.isArrayBindingPattern(node.name)).length, 3);
+    const membershipStates = nodesMatching(hook, ts.isVariableDeclaration).filter(node => ts.isArrayBindingPattern(node.name));
+    assert.deepEqual(membershipStates.map(node => [node.name.getText(), node.initializer?.getText()]), [
+      ['[classrooms, setClassrooms]', 'useState<Classroom[]>(() => [...classroomRepository.readMembership()])'],
+      ['[isJoinModalOpen, updateIsJoinModalOpen]', 'useState(false)'],
+      ['[invitationCode, updateInvitationCode]', "useState('')"],
+      ['[isJoining, setIsJoining]', 'useState(false)'],
+      ['[joinError, setJoinError]', 'useState<string | null>(null)'],
+    ], 'Membership owns the original snapshot/draft plus pending/error, not the page or dialog');
+    const returnedMembership = hook.body.statements.find(ts.isReturnStatement)?.expression;
+    assert.ok(returnedMembership && ts.isObjectLiteralExpression(returnedMembership));
+    assert.deepEqual(returnedMembership.properties.map(node => node.name?.getText()), [
+      'classrooms', 'isJoinModalOpen', 'setIsJoinModalOpen', 'invitationCode', 'setInvitationCode', 'handleJoinClassroom', 'isJoining', 'joinError',
+    ]);
+    const hookVariables = nodesMatching(hook, ts.isVariableDeclaration);
+    for (const [setter, field, update] of [
+      ['setIsJoinModalOpen', 'open', 'updateIsJoinModalOpen'],
+      ['setInvitationCode', 'code', 'updateInvitationCode'],
+    ]) {
+      const declaration = hookVariables.find(node => node.name.getText() === setter);
+      assert.ok(declaration?.initializer && ts.isArrowFunction(declaration.initializer));
+      assert.equal(print(declaration.initializer).replace(/\s+/g, ''),
+        `next=>{if(!active.current||!gate.edit())return;constvalue=typeofnext==='function'?next(draft.current.${field}):next;draft.current.${field}=value;${update}(value);setJoinError(null);}`,
+        'Both public setters retain functional updates and use the synchronous edit gate');
+      const property = returnedMembership.properties.find(node => ts.isShorthandPropertyAssignment(node) && node.name.text === setter);
+      assert.ok(property && ts.isShorthandPropertyAssignment(property));
+      assert.equal(checker.getShorthandAssignmentValueSymbol(property), resolvedSymbol(declaration.name));
+    }
     const pageEffects = nodesMatching(owner, (node): node is ts.CallExpression => ts.isCallExpression(node)
       && node.expression.getText() === 'useEffect');
     const membershipEffects = nodesMatching(hook, (node): node is ts.CallExpression => ts.isCallExpression(node)
@@ -450,15 +475,50 @@ test('student composition retains page selection/back props and one controller b
     assert.ok(onSelect.initializer && ts.isJsxExpression(onSelect.initializer) && onSelect.initializer.expression);
     assert.equal(resolvedSymbol(onSelect.initializer.expression), resolvedSymbol(select.name));
     assert.equal(membershipEffects[0].arguments[1].getText(), '[]');
-    assert.equal(nodesMatching(hook, ts.isIfStatement).length, 3, 'Rejected, duplicate and catalogue join branches retained');
+    const gateCall = nodesMatching(hook, ts.isCallExpression).filter(node => node.expression.getText() === 'gate.join');
+    assert.equal(gateCall.length, 1, 'One gated operation owns confirmation, not a second direct enrollment');
+    assert.deepEqual(gateCall[0].arguments.slice(0, 3).map(node => node.getText()), ['draft.current.code', 'classrooms', 'joinOperation']);
+    const callbacks = gateCall[0].arguments[3];
+    assert.ok(ts.isObjectLiteralExpression(callbacks));
+    assert.deepEqual(callbacks.properties.map(node => node.name?.getText()), ['onPendingChange', 'onError', 'onConfirmed']);
+    const pending = callbacks.properties[0];
+    const error = callbacks.properties[1];
+    const confirmed = callbacks.properties[2];
+    assert.ok(ts.isPropertyAssignment(pending) && ts.isPropertyAssignment(error) && ts.isPropertyAssignment(confirmed));
+    assert.equal(print(pending.initializer).replace(/\s+/g, ''), 'pending=>{setIsJoining(pending);if(pending)setJoinError(null);}');
+    assert.equal(error.initializer.getText(), 'setJoinError');
+    const duplicate = nodesMatching(confirmed, ts.isIfStatement);
+    assert.deepEqual(duplicate.map(node => node.expression.getText()), ["result.status === 'duplicate'"],
+      'Only confirmed duplicates avoid the success membership refresh');
+    const catalogue = nodesMatching(confirmed, ts.isConditionalExpression);
+    assert.deepEqual(catalogue.map(node => node.condition.getText()), ["result.status === 'catalogue'"],
+      'Catalogue and generic confirmations retain their distinct toast branches');
+    assert.match(print(confirmed), /draft\.current = \{ open: false, code: '' \};\s*updateIsJoinModalOpen\(false\);\s*updateInvitationCode\(''\);\s*setJoinError\(null\);/);
+    assert.match(print(membershipEffects[0]), /active\.current = false;\s*gate\.invalidate\(\);\s*unsubscribe\(\);/);
     const dialog = renderedOwner(owner, 'StudentClassroomJoinDialog');
     const prop = dialog.consumer.attributes.properties[0];
     assert.ok(ts.isJsxAttribute(prop) && prop.name.getText() === 'membership'
       && prop.initializer && ts.isJsxExpression(prop.initializer) && prop.initializer.expression);
     assert.equal(resolvedSymbol(prop.initializer.expression), resolvedSymbol(membershipMount.name));
     assert.equal(dialog.consumer.attributes.properties.length, 1);
-    assert.equal(nodesMatching(dialog.owner, (node): node is ts.BinaryExpression => ts.isBinaryExpression(node)
-      && node.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken).length, 1);
+    const dialogBinding = (dialog.owner.body!.statements[0] as ts.VariableStatement).declarationList.declarations[0];
+    assert.ok(ts.isObjectBindingPattern(dialogBinding.name) && dialogBinding.initializer);
+    assert.ok(ts.isObjectBindingPattern(dialog.owner.parameters[0].name));
+    assert.equal(resolvedSymbol(dialogBinding.initializer), resolvedSymbol(dialog.owner.parameters[0].name.elements[0].name));
+    for (const item of dialogBinding.name.elements) {
+      const property = returnedMembership.properties.find(node => ts.isShorthandPropertyAssignment(node) && node.name.text === item.name.getText());
+      assert.ok(property && ts.isShorthandPropertyAssignment(property));
+      assert.ok(checker.getShorthandAssignmentValueSymbol(property)?.valueDeclaration?.getSourceFile() === hook.getSourceFile());
+      const uses = nodesMatching(dialog.owner.body!.statements.find(ts.isReturnStatement)!,
+        (node): node is ts.Identifier => ts.isIdentifier(node) && node.text === item.name.getText());
+      assert.ok(uses.length > 0, `Dialog renders the supplied ${item.name.getText()}`);
+      uses.forEach(use => assert.equal(resolvedSymbol(use), resolvedSymbol(item.name)));
+    }
+    assert.deepEqual(nodesMatching(dialog.owner, (node): node is ts.BinaryExpression => ts.isBinaryExpression(node)
+      && node.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken).map(node => node.left.getText()),
+    ['isJoinModalOpen', 'isJoining', 'joinError'], 'Presence, pending status and error alert have explicit controller conditions');
+    assert.equal(nodesMatching(dialog.owner, ts.isCallExpression).filter(node => /^(useState|useEffect|useRef)$/.test(node.expression.getText())).length, 0,
+      'Dialog remains presentation-only; membership owns lifecycle and gate');
     assert.equal(nodesMatching(owner, (node): node is ts.ConditionalExpression => ts.isConditionalExpression(node)
       && node.condition.getText() === '!selectedAula').length, 2, 'Original wrapper and list/detail branches');
   }

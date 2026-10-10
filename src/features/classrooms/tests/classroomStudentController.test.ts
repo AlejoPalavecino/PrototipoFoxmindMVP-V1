@@ -398,13 +398,77 @@ test('actual mounted student shell preserves whole JSX, six tabs, early return, 
       && node.initializer && symbol(node.initializer) === symbol(membershipMount.name));
     assert.ok(membershipBinding && ts.isObjectBindingPattern(membershipBinding.name));
     assert.deepEqual(membershipBinding.name.elements.map(item => item.name.getText()), ['classrooms', 'setIsJoinModalOpen']);
-    const statements = [...hook.body.statements];
-    const returned = statements.pop()!;
-    assert.ok(ts.isReturnStatement(returned) && returned.expression && ts.isObjectLiteralExpression(returned.expression));
-    const handler = statements.pop()!;
-    assert.ok(ts.isVariableStatement(handler) && handler.declarationList.declarations[0].name.getText() === 'handleJoinClassroom');
-    assert.equal(statements.length, 4, 'Three membership states and the original mount subscription effect');
-    originalPage = originalPage.replace(print(membershipMount.parent.parent), statements.map(print).join('\n'))
+    const returned = hook.body.statements.find(ts.isReturnStatement)!;
+    assert.ok(returned.expression && ts.isObjectLiteralExpression(returned.expression));
+    const hookVariables = nodes(hook, ts.isVariableDeclaration);
+    const named = (name: string) => {
+      const declaration = hookVariables.find(node => node.name.getText() === name);
+      assert.ok(declaration?.initializer, `Membership owns ${name}`);
+      return declaration;
+    };
+    // Account for the authorized T3 additions by name/ownership, never by an old
+    // statement count. Behavior (pending, failures, retry, stale events) is covered
+    // against the actual hook in classroomStudentMembership.test.ts.
+    assert.deepEqual(hook.body.statements.map(node => ts.isVariableStatement(node)
+      ? node.declarationList.declarations[0].name.getText()
+      : ts.isIfStatement(node) ? node.expression.getText()
+        : ts.isExpressionStatement(node) && ts.isCallExpression(node.expression) ? node.expression.expression.getText()
+          : ts.SyntaxKind[node.kind]), [
+      '[classrooms, setClassrooms]', '[isJoinModalOpen, updateIsJoinModalOpen]', '[invitationCode, updateInvitationCode]',
+      '[isJoining, setIsJoining]', '[joinError, setJoinError]', 'gateRef', '!gateRef.current', 'gate', 'active', 'draft',
+      'useEffect', 'setIsJoinModalOpen', 'setInvitationCode', 'handleJoinClassroom', 'ReturnStatement',
+    ]);
+    assert.equal(named('gateRef').initializer!.getText(), 'useRef<ReturnType<typeof createClassroomJoinState> | null>(null)');
+    assert.equal(named('gate').initializer!.getText(), 'gateRef.current');
+    assert.equal(named('active').initializer!.getText(), 'useRef(true)');
+    assert.equal(named('draft').initializer!.getText(), 'useRef({ open: isJoinModalOpen, code: invitationCode })');
+    const gateInitialization = hook.body.statements.find(ts.isIfStatement)!;
+    assert.equal(gateInitialization.thenStatement.getText(), 'gateRef.current = createClassroomJoinState();');
+    const handlerDeclaration = named('handleJoinClassroom');
+    assert.ok(ts.isArrowFunction(handlerDeclaration.initializer!) && ts.isBlock(handlerDeclaration.initializer.body));
+    const joinGuard = handlerDeclaration.initializer.body.statements[0];
+    assert.ok(ts.isIfStatement(joinGuard));
+    assert.equal(joinGuard.expression.getText(), '!active.current || !draft.current.open');
+    const joinReturn = handlerDeclaration.initializer.body.statements[1];
+    assert.ok(ts.isReturnStatement(joinReturn) && joinReturn.expression && ts.isCallExpression(joinReturn.expression));
+    assert.equal(joinReturn.expression.expression.getText(), 'gate.join');
+    const effects = nodes(hook, ts.isCallExpression).filter(node => node.expression.getText() === 'useEffect');
+    assert.equal(effects.length, 1);
+    assert.equal(effects[0].arguments[1].getText(), '[]');
+    const effectCallback = effects[0].arguments[0];
+    assert.ok(ts.isArrowFunction(effectCallback) && ts.isBlock(effectCallback.body));
+    const effectStatements = effectCallback.body.statements;
+    assert.equal(print(effectStatements[0]), 'active.current = true;');
+    assert.equal(print(effectStatements[effectStatements.length - 1]).replace(/\s+/g, ''),
+      'return()=>{active.current=false;gate.invalidate();unsubscribe();};');
+    const legacyStates = hookVariables.filter(node => ts.isArrayBindingPattern(node.name)
+      && ['classrooms', 'isJoinModalOpen', 'invitationCode'].includes(node.name.elements[0].getText()));
+    assert.deepEqual(legacyStates.map(node => node.initializer!.getText()), [
+      'useState<Classroom[]>(() => [...classroomRepository.readMembership()])', 'useState(false)', "useState('')",
+    ]);
+    const statements = legacyStates.map(node => print(node.parent.parent)
+      .replace('updateIsJoinModalOpen', 'setIsJoinModalOpen').replace('updateInvitationCode', 'setInvitationCode'));
+    statements.push(`useEffect(() => { ${effectStatements.slice(1, -1).map(print).join('\n')} return unsubscribe; }, []);`);
+    // Frozen pre-T3 handler is used ONLY to invert the authorized enrollment
+    // change for the immutable page oracle, not to execute or characterize the
+    // current asynchronous handler. Its current delegation is checked above.
+    const legacyHandler = ts.createSourceFile('legacyMembership.ts', `const handleJoinClassroom = () => {
+      const result = joinClassroomByCode(invitationCode, classrooms);
+      if (result.status === 'rejected') return;
+      const aula = result.classroom;
+      if (result.status === 'duplicate') {
+        toast.show(\`Ya estás matriculado en \${aula.subject} (\${aula.course})\`, 'info');
+        setIsJoinModalOpen(false); setInvitationCode(''); return;
+      }
+      setClassrooms([...classroomRepository.readMembership()]);
+      setIsJoinModalOpen(false); setInvitationCode('');
+      if (result.status === 'catalogue') {
+        toast.show(\`🎉 ¡Te has unido exitosamente al aula de \${aula.subject} (\${aula.course})!\`, 'success'); return;
+      }
+      toast.show(\`🎉 Te has unido al aula de \${aula.subject} (\${aula.course}) mediante tu código de acceso\`, 'success');
+    };`, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+    const handler = legacyHandler.statements[0];
+    originalPage = originalPage.replace(print(membershipMount.parent.parent), statements.join('\n'))
       .replace(print(membershipBinding.parent.parent), '');
     const reconstruction = () => {
       const prefix = 'function reconstructed() ';
@@ -460,7 +524,20 @@ test('actual mounted student shell preserves whole JSX, six tabs, early return, 
       return ts.visitNode(root, visit) as ts.JsxFragment;
     }]);
     const fragment = transformed.transformed[0];
-    const dialogJsx = fragment.children.map(node => printer.printNode(ts.EmitHint.Unspecified, node, dialog.owner.getSourceFile())).join('');
+    let dialogJsx = fragment.children.map(node => printer.printNode(ts.EmitHint.Unspecified, node, dialog.owner.getSourceFile())).join('');
+    // Reconstruct only the explicitly authorized T3 accessibility/pending/error
+    // additions. Missing or changed fragments fail instead of refreshing the hash.
+    dialogJsx = restoreHistoricalJsx(dialogJsx, [
+      ['role="dialog"', ''], ['aria-modal="true"', ''], ['aria-labelledby="student-classroom-join-title"', ''],
+      ['aria-busy={isJoining}', ''], ['id="student-classroom-join-title"', ''],
+      ['disabled={isJoining}', '', 3], ['aria-label="Cerrar diálogo de inscripción"', ''],
+      ['htmlFor="student-classroom-invitation-code"', ''], ['id="student-classroom-invitation-code"', ''],
+      ["aria-describedby={joinError ? 'student-classroom-join-error' : undefined}", ''],
+      ['{isJoining && <p role="status" aria-live="polite" className="text-sm text-fox-text-muted">Uniéndote al aula…</p>}', ''],
+      ['{joinError && <p id="student-classroom-join-error" role="alert" className="text-sm text-red-600">{joinError}</p>}', ''],
+      ['disabled={isJoining || !invitationCode.trim()}', 'disabled={!invitationCode.trim()}'],
+      ["{isJoining ? 'Uniéndote…' : joinError ? 'Reintentar inscripción' : 'Unirme al Aula'}", 'Unirme al Aula'],
+    ]);
     originalPage = originalPage.replace(print(dialog.consumer), dialogJsx);
     transformed.dispose();
   }
