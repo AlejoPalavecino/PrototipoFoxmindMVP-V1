@@ -88,7 +88,7 @@ export function AccessibilityPanel() {
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(true)}
         aria-expanded={isOpen}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#3BB54A] text-white rounded-full shadow-lg hover:shadow-xl transition-shadow flex items-center justify-center focus:outline-none focus:ring-4 focus:ring-[#3BB54A]/50"
+        className="fixed bottom-24 md:bottom-6 right-6 z-50 w-14 h-14 bg-[#3BB54A] text-white rounded-full shadow-lg hover:shadow-xl transition-shadow flex items-center justify-center focus:outline-none focus:ring-4 focus:ring-[#3BB54A]/50"
         aria-label="Abrir panel de accesibilidad DUA"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">

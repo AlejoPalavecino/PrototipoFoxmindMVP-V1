@@ -4,6 +4,7 @@ import { BookOpen, BrainCircuit, CalendarDays, LayoutDashboard, LogOut, Settings
 import { messagingStore } from '../../features/messaging/messagingStore';
 import { encodeRoute } from '../../app/routing';
 import { RouteBoundary } from './RouteBoundary';
+import { MobileNavigation } from './MobileNavigation';
 import { RoutePresentationReady, useRoutePresentation } from '../../app/useRoutePresentation';
 
 const DashboardDocente = lazy(() => import('../../views/docente/DashboardDocente').then(module => ({ default: module.DashboardDocente })));
@@ -28,10 +29,10 @@ export function DocenteLayout() {
   }, []);
 
   const navItems = [
-    { id: 'dashboard' as const, label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'dashboard' as const, label: 'Dashboard', mobileLabel: 'Inicio', icon: LayoutDashboard },
     { id: 'agenda' as const, label: 'Agenda', icon: CalendarDays },
     { id: 'aulas' as const, label: 'Aulas', icon: BookOpen },
-    { id: 'progreso' as const, label: 'Progreso de Clase', icon: BarChart2 },
+    { id: 'progreso' as const, label: 'Progreso de Clase', mobileLabel: 'Progreso', icon: BarChart2 },
     { id: 'copiloto' as const, label: 'Foxy IA', icon: BrainCircuit, badge: 'BETA' },
     { id: 'mensajes' as const, label: 'Mensajes', icon: MessageSquare, count: unreadMessagesCount },
     { id: 'config' as const, label: 'Configuración', icon: Settings },
@@ -140,7 +141,7 @@ export function DocenteLayout() {
       </aside>
 
       {/* Main Content */}
-      <main ref={mainRef} tabIndex={-1} className="flex-1 overflow-y-auto relative pb-20 md:pb-0">
+      <main ref={mainRef} tabIndex={-1} className="flex-1 min-w-0 overflow-y-auto relative pb-20 md:pb-0">
         <div className="md:hidden p-4 bg-fox-surface border-b flex justify-between items-center">
            <img src="/logo.png" alt="FoxMind Logo" className="h-10 w-auto object-contain" />
            <button onClick={() => setRole('none')} className="text-sm text-fox-orange font-medium">Cambiar rol</button>
@@ -167,23 +168,8 @@ export function DocenteLayout() {
       </main>
 
       {/* Mobile Bottom Nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-fox-border shadow-[0_-4px_20px_rgba(0,0,0,0.05)] flex items-center justify-between px-6 p-4 z-40 pb-6">
-         {navItems.slice(0, 5).map(item => {
-            const Icon = item.icon;
-            const isActive = view === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setView(item.id)}
-                aria-current={isActive ? 'page' : undefined}
-                className={`flex flex-col items-center p-2 min-w-[44px] min-h-[44px] ${isActive ? 'text-fox-orange' : 'text-fox-text-muted/70'}`}
-              >
-                <Icon size={24} />
-                <span className="text-[10px] mt-1 font-medium">{item.label}</span>
-              </button>
-            );
-          })}
-      </nav>
+      <MobileNavigation items={navItems} view={view} onNavigate={setView}
+        routeKey={encodeRoute({ role: 'docente', view, navigationParams })} />
     </div>
   );
 }

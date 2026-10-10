@@ -35,22 +35,28 @@ test('titles cover root and role screens without private resource or draft names
   equal(routeTitle({ role: 'alumno', view: 'aulas', navigationParams: { aulaId: 'private', taskTitle: 'secret' } }), 'Mis Aulas · Alumno | FoxMind');
 });
 
-test('SSR shells mark only active desktop/mobile buttons and expose focusable scrolling main', () => {
+test('SSR shells mark actual desktop/mobile destinations including hidden overflow, and retain focusable scrolling main', () => {
   for (const [role, Layout, views] of [
     ['alumno', AlumnoLayout, ['dashboard', 'estudia', 'aulas', 'progreso', 'mensajes', 'config']],
     ['docente', DocenteLayout, ['dashboard', 'agenda', 'aulas', 'progreso', 'copiloto', 'mensajes', 'config']],
   ] as const) {
-    for (const [index, view] of views.entries()) {
+    for (const view of views) {
       const html = renderToStaticMarkup(createElement(AppContext.Provider, { value: {
         role, view: view as AppView, settings: createDefaultAppSettings(),
         setView() {}, setRole() {}, updateSettings() {},
       } }, createElement(Layout)));
       const buttons = [...html.matchAll(/<button\b[^>]*aria-current="page"[^>]*>([\s\S]*?)<\/button>/g)];
-      equal(buttons.length, index < 5 ? 2 : 1);
+      equal(buttons.length, 2, 'One desktop and one actual mobile destination, including hidden disclosure items');
       const label = routeTitle({ role, view }).split(' · ')[0];
-      for (const button of buttons) equal(button[1].includes(label), true);
+      for (const button of buttons) equal(button[0].includes(label), true, 'Full accessible label is preserved alongside compact mobile text');
       equal(/<main[^>]*tabindex="-1"[^>]*overflow-y-auto/.test(html), true);
       equal(html.includes('aria-current="false"'), false);
+      equal(html.includes('aria-label="Navegación móvil"'), true);
+      equal(html.includes('aria-expanded="false"'), true);
+      equal(html.includes('pb-20 md:pb-0'), true);
+      if (view === 'config' || (role === 'docente' && view === 'mensajes')) {
+        equal(/<button[^>]*aria-expanded="false"[^>]*text-fox-orange[^>]*>[\s\S]*?Más<\/span>/.test(html), true, 'Más indicates an overflow route without aria-current');
+      }
     }
   }
 });

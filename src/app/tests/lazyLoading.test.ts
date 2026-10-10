@@ -76,6 +76,7 @@ for (const layout of layouts) {
 
   test(`${layout.name}: selected page alone suspends while navigation shell remains`, async () => {
     const { RouteBoundary } = await boundary();
+    const mobileNavigation = await import('../../components/layout/MobileNavigation');
     for (const [view, name] of Object.entries(layout.pages)) {
       const requests: string[] = [];
       const module = { exports: {} as Record<string, React.ComponentType> };
@@ -87,6 +88,7 @@ for (const layout of layouts) {
         if (path.endsWith('/context')) return { useAppContext: () => React.useContext(AppContext) };
         if (path === 'lucide-react') return new Proxy({}, { get: () => () => React.createElement('svg') });
         if (path.endsWith('/messagingStore')) return { messagingStore: { getUnreadCount: () => 0 } };
+        if (path === './MobileNavigation') return mobileNavigation;
         if (path.endsWith('/RouteBoundary')) return { RouteBoundary };
         if (path.endsWith('/routing')) return { encodeRoute };
         if (path === '../../app/useRoutePresentation') return routePresentation;
@@ -104,6 +106,8 @@ for (const layout of layouts) {
       assert.match(html, /Cargando vista/);
       assert.match(html, /<aside/);
       assert.match(html, /<nav/);
+      assert.match(html, /aria-label="Navegación móvil"/);
+      assert.match(html, /Más/);
       assert.match(html, /Configuración/);
       assert.match(html, /Cerrar sesión/);
       assert.match(html, /Cambiar rol/);

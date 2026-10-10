@@ -4,6 +4,7 @@ import { BookOpen, Brain, Home, LogOut, Settings, TrendingUp, ChevronLeft, Chevr
 import { messagingStore } from '../../features/messaging/messagingStore';
 import { encodeRoute } from '../../app/routing';
 import { RouteBoundary } from './RouteBoundary';
+import { MobileNavigation } from './MobileNavigation';
 import { RoutePresentationReady, useRoutePresentation } from '../../app/useRoutePresentation';
 
 const DashboardAlumno = lazy(() => import('../../views/alumno/DashboardAlumno').then(module => ({ default: module.DashboardAlumno })));
@@ -27,10 +28,10 @@ export function AlumnoLayout() {
   }, []);
 
   const navItems = [
-    { id: 'dashboard' as const, label: 'Mi Dashboard', icon: Home },
-    { id: 'estudia' as const, label: 'Carpeta de Estudio', icon: Brain, badge: 'IA' },
-    { id: 'aulas' as const, label: 'Mis Aulas', icon: BookOpen },
-    { id: 'progreso' as const, label: 'Mi Progreso', icon: TrendingUp },
+    { id: 'dashboard' as const, label: 'Mi Dashboard', mobileLabel: 'Inicio', icon: Home },
+    { id: 'estudia' as const, label: 'Carpeta de Estudio', mobileLabel: 'Estudio', icon: Brain, badge: 'IA' },
+    { id: 'aulas' as const, label: 'Mis Aulas', mobileLabel: 'Aulas', icon: BookOpen },
+    { id: 'progreso' as const, label: 'Mi Progreso', mobileLabel: 'Progreso', icon: TrendingUp },
     { id: 'mensajes' as const, label: 'Mensajes', icon: MessageSquare, count: unreadMessagesCount },
     { id: 'config' as const, label: 'Configuración', icon: Settings },
   ];
@@ -150,7 +151,7 @@ export function AlumnoLayout() {
       </aside>
 
       {/* Main Content */}
-      <main ref={mainRef} tabIndex={-1} className="flex-1 overflow-y-auto relative pb-20 md:pb-0">
+      <main ref={mainRef} tabIndex={-1} className="flex-1 min-w-0 overflow-y-auto relative pb-20 md:pb-0">
         <div className="md:hidden p-4 bg-fox-surface border-b flex justify-between items-center">
            <img src="/logo.png" alt="FoxMind Logo" className="h-10 w-auto object-contain" />
            <button onClick={() => setRole('none')} className="text-sm text-fox-orange font-medium">Cambiar rol</button>
@@ -170,23 +171,8 @@ export function AlumnoLayout() {
       </main>
 
       {/* Mobile Bottom Nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-fox-border shadow-[0_-4px_20px_rgba(0,0,0,0.05)] flex items-center justify-between px-6 p-4 z-40 pb-6">
-         {navItems.slice(0, 5).map(item => {
-            const Icon = item.icon;
-            const isActive = view === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setView(item.id)}
-                aria-current={isActive ? 'page' : undefined}
-                className={`flex flex-col items-center p-2 min-w-[44px] min-h-[44px] ${isActive ? 'text-fox-orange' : 'text-fox-text-muted/70'}`}
-              >
-                <Icon size={24} />
-                <span className="text-[10px] mt-1 font-medium">{item.label}</span>
-              </button>
-            );
-          })}
-      </nav>
+      <MobileNavigation items={navItems} view={view} onNavigate={setView}
+        routeKey={encodeRoute({ role: 'alumno', view, navigationParams })} />
     </div>
   );
 }
