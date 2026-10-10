@@ -1,17 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { lazy, useState, useEffect } from 'react';
 import { useAppContext } from '../../context';
 import { BookOpen, BrainCircuit, CalendarDays, LayoutDashboard, LogOut, Settings, BarChart2, ChevronLeft, ChevronRight, Menu, MessageSquare } from 'lucide-react';
-import { DashboardDocente } from '../../views/docente/DashboardDocente';
-import { AgendaDocente } from '../../views/docente/AgendaDocente';
-import { AulasDocente } from '../../views/docente/AulasDocente';
-import { ProgresoDocente } from '../../views/docente/ProgresoDocente';
-import { CopilotoIADocente } from '../../views/docente/CopilotoIADocente';
-import { ConfiguracionDocente } from '../../views/docente/ConfiguracionDocente';
-import { MensajesDocente } from '../../views/docente/MensajesDocente';
 import { messagingStore } from '../../features/messaging/messagingStore';
+import { encodeRoute } from '../../app/routing';
+import { RouteBoundary } from './RouteBoundary';
+
+const DashboardDocente = lazy(() => import('../../views/docente/DashboardDocente').then(module => ({ default: module.DashboardDocente })));
+const AgendaDocente = lazy(() => import('../../views/docente/AgendaDocente').then(module => ({ default: module.AgendaDocente })));
+const AulasDocente = lazy(() => import('../../views/docente/AulasDocente').then(module => ({ default: module.AulasDocente })));
+const ProgresoDocente = lazy(() => import('../../views/docente/ProgresoDocente').then(module => ({ default: module.ProgresoDocente })));
+const CopilotoIADocente = lazy(() => import('../../views/docente/CopilotoIADocente').then(module => ({ default: module.CopilotoIADocente })));
+const ConfiguracionDocente = lazy(() => import('../../views/docente/ConfiguracionDocente').then(module => ({ default: module.ConfiguracionDocente })));
+const MensajesDocente = lazy(() => import('../../views/docente/MensajesDocente').then(module => ({ default: module.MensajesDocente })));
 
 export function DocenteLayout() {
-  const { view, setView, setRole } = useAppContext();
+  const { view, navigationParams, setView, setRole } = useAppContext();
   const [isExpanded, setIsExpanded] = useState(true);
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(() => messagingStore.getUnreadCount('docente'));
 
@@ -140,19 +143,21 @@ export function DocenteLayout() {
            <button onClick={() => setRole('none')} className="text-sm text-fox-orange font-medium">Cambiar rol</button>
         </div>
         <div className="p-4 md:p-8 max-w-7xl mx-auto h-full">
-          {view === 'dashboard' && <DashboardDocente />}
-          {view === 'agenda' && <AgendaDocente />}
-          {view === 'aulas' && <AulasDocente />}
-          {view === 'progreso' && <ProgresoDocente />}
-          {view === 'copiloto' && <CopilotoIADocente />}
-          {view === 'mensajes' && <MensajesDocente />}
-          {view === 'config' && <ConfiguracionDocente />}
-          {/* Fallback for unimplemented views */}
-          {[''].includes(view) && (
-            <div className="flex flex-col items-center justify-center h-64 text-fox-text-muted/70">
-              <p>Vista en desarrollo</p>
-            </div>
-          )}
+          <RouteBoundary routeKey={encodeRoute({ role: 'docente', view, navigationParams })}>
+            {view === 'dashboard' && <DashboardDocente />}
+            {view === 'agenda' && <AgendaDocente />}
+            {view === 'aulas' && <AulasDocente />}
+            {view === 'progreso' && <ProgresoDocente />}
+            {view === 'copiloto' && <CopilotoIADocente />}
+            {view === 'mensajes' && <MensajesDocente />}
+            {view === 'config' && <ConfiguracionDocente />}
+            {/* Fallback for unimplemented views */}
+            {[''].includes(view) && (
+              <div className="flex flex-col items-center justify-center h-64 text-fox-text-muted/70">
+                <p>Vista en desarrollo</p>
+              </div>
+            )}
+          </RouteBoundary>
         </div>
       </main>
 

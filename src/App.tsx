@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { lazy, useState, useEffect } from "react";
 import { useUrlNavigation } from "./app/useUrlNavigation";
 import { createDefaultAppSettings } from "./app/settings";
 import { RoleSelection } from "./views/RoleSelection";
-import { DocenteLayout } from "./components/layout/DocenteLayout";
-import { AlumnoLayout } from "./components/layout/AlumnoLayout";
+import { RouteBoundary } from "./components/layout/RouteBoundary";
+import { encodeRoute } from "./app/routing";
 import { AppContext } from "./context";
 import { AccessibilityPanel } from "./components/ui/AccessibilityPanel";
 import { Toaster } from "./components/ui/Toaster";
+
+const DocenteLayout = lazy(() => import("./components/layout/DocenteLayout").then(module => ({ default: module.DocenteLayout })));
+const AlumnoLayout = lazy(() => import("./components/layout/AlumnoLayout").then(module => ({ default: module.AlumnoLayout })));
 
 export default function App() {
   const { role, view, navigationParams, setRole, setView } = useUrlNavigation();
@@ -45,8 +48,12 @@ export default function App() {
         className={`min-h-screen font-sans selection:bg-fox-purple/30 theme-${settings.theme} density-${settings.density} text-size-${settings.fontSize} bg-fox-bg text-fox-text-main/90`}
       >
         {role === "none" && <RoleSelection />}
-        {role === "docente" && <DocenteLayout />}
-        {role === "alumno" && <AlumnoLayout />}
+        {role !== "none" && (
+          <RouteBoundary routeKey={encodeRoute({ role, view, navigationParams })}>
+            {role === "docente" && <DocenteLayout />}
+            {role === "alumno" && <AlumnoLayout />}
+          </RouteBoundary>
+        )}
         <AccessibilityPanel />
         <Toaster />
       </div>

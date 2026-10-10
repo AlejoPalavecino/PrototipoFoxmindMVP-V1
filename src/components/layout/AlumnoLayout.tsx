@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { lazy, useState, useEffect } from 'react';
 import { useAppContext } from '../../context';
 import { BookOpen, Brain, Home, LogOut, Settings, TrendingUp, ChevronLeft, ChevronRight, MessageSquare } from 'lucide-react';
-import { DashboardAlumno } from '../../views/alumno/DashboardAlumno';
-import { EstudiaAlumno } from '../../views/alumno/EstudiaAlumno';
-import { AulasAlumno } from '../../views/alumno/AulasAlumno';
-import { ProgresoAlumno } from '../../views/alumno/ProgresoAlumno';
-import { ConfiguracionAlumno } from '../../views/alumno/ConfiguracionAlumno';
-import { MensajesAlumno } from '../../views/alumno/MensajesAlumno';
 import { messagingStore } from '../../features/messaging/messagingStore';
+import { encodeRoute } from '../../app/routing';
+import { RouteBoundary } from './RouteBoundary';
+
+const DashboardAlumno = lazy(() => import('../../views/alumno/DashboardAlumno').then(module => ({ default: module.DashboardAlumno })));
+const EstudiaAlumno = lazy(() => import('../../views/alumno/EstudiaAlumno').then(module => ({ default: module.EstudiaAlumno })));
+const AulasAlumno = lazy(() => import('../../views/alumno/AulasAlumno').then(module => ({ default: module.AulasAlumno })));
+const ProgresoAlumno = lazy(() => import('../../views/alumno/ProgresoAlumno').then(module => ({ default: module.ProgresoAlumno })));
+const ConfiguracionAlumno = lazy(() => import('../../views/alumno/ConfiguracionAlumno').then(module => ({ default: module.ConfiguracionAlumno })));
+const MensajesAlumno = lazy(() => import('../../views/alumno/MensajesAlumno').then(module => ({ default: module.MensajesAlumno })));
 
 export function AlumnoLayout() {
-  const { view, setView, setRole } = useAppContext();
+  const { view, navigationParams, setView, setRole } = useAppContext();
   const [isExpanded, setIsExpanded] = useState(true);
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(() => messagingStore.getUnreadCount('alumno'));
 
@@ -150,12 +153,14 @@ export function AlumnoLayout() {
            <button onClick={() => setRole('none')} className="text-sm text-fox-orange font-medium">Cambiar rol</button>
         </div>
         <div className="p-4 md:p-8 max-w-7xl mx-auto h-full">
-          {view === 'dashboard' && <DashboardAlumno />}
-          {view === 'estudia' && <EstudiaAlumno />}
-          {view === 'aulas' && <AulasAlumno />}
-          {view === 'progreso' && <ProgresoAlumno />}
-          {view === 'mensajes' && <MensajesAlumno />}
-          {view === 'config' && <ConfiguracionAlumno />}
+          <RouteBoundary routeKey={encodeRoute({ role: 'alumno', view, navigationParams })}>
+            {view === 'dashboard' && <DashboardAlumno />}
+            {view === 'estudia' && <EstudiaAlumno />}
+            {view === 'aulas' && <AulasAlumno />}
+            {view === 'progreso' && <ProgresoAlumno />}
+            {view === 'mensajes' && <MensajesAlumno />}
+            {view === 'config' && <ConfiguracionAlumno />}
+          </RouteBoundary>
         </div>
       </main>
 
