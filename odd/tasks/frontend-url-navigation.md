@@ -22,8 +22,8 @@ Safe invalid-route fallback and canonical paths required. Server already has SPA
 ## Tasks
 - [x] R1: URL codec, browser-history synchronization and existing App/setView/setRole compatibility with regression tests. Status: done; commit fc3ab57a37411c1fc9acf3f98c9041492fef8874.
 - [x] R2: Synchronize classroom and conversation detail entry/back/manual selection with durable URL IDs. Status: done; independent checks and native approval acknowledged; commit see evidence.
-- [ ] R3: Lazy page boundaries, loading/error feedback, tests and measured initial/route bundle sizes. Status: in_progress.
-- [ ] R4: Independent types/tests/build/server deep-link verification, native review per work unit when enabled, browser coverage report and commits. Status: pending.
+- [x] R3: Lazy page boundaries, loading/error feedback, tests and measured initial/route bundle sizes. Status: done; commit 6fe4c4bc1562f60626a6f1ee8a413f571d3d819a.
+- [x] R4: Independent types/tests/build/server deep-link verification, native review per work unit when enabled, browser coverage report and commits. Status: done; tests/types/build/HTTP and coverage report verified; documentation commit docs(frontend): record URL and lazy-loading verification.
 
 ## Acceptance and checks
 R1: RED then GREEN for role/view path matrix, encoded IDs, malformed/unsupported paths, initial hydration, history navigation, same-path payload handling, role switching, privacy (no prompt in URL/history state), listener cleanup and safe no-window fallback.
@@ -49,3 +49,10 @@ R2 partial implementation: 13 files +298/-45; eight intended RED failures, lates
 R2 final verification: 346/346, types/build/diff passed independently; no concrete scoped regression found. Main JS 1,966.42 kB (gzip 514.96 kB); warning >500k persists until R3. Native review-323b6251ab249c8e approved, exact acknowledgement burned authority; informational created-classroom URL persistence warning (prototype storage) is later work, no correction offered. R2 commit b6915e70b51202a679b225a6700ce09591398969 — feat(navigation): synchronize classroom and conversation URL selection. Reply/file clearing follows changed effective conversation ID; same-thread traversal intentionally retains context. Browser-mounted/StrictMode checks not performed.
 R3 next: lazy App role layouts and module-level lazy page imports in both layouts, shared RouteBoundary with pending/error UI preserving shell, app lazy-loading tests and Vite build manifest for exact entry dependency measurement. No dependencies, vendor-chunk hacks or broad UI redesign. Build baseline above remains comparison reference.
 Parent owns task record/mirror, scope decisions, commits and native review.
+
+## Final verification evidence
+Independent R3: 11/11 focused and 357/357 full tests; lint/build/diff passed with no skipped/failed tests or oversized chunk warning. Native review-5ab3d11626abc667 approved, exact acknowledgement burned authority; informational client-boundary coverage warning only. R3 commit 6fe4c4bc1562f60626a6f1ee8a413f571d3d819a.
+Manifest entry 355,534 bytes / summed gzip 112,124 bytes, zero static imports; alumno dashboard total 423,925/133,092 bytes, docente dashboard 429,966/134,253 bytes, including recursive shared dependencies. Real emitted dynamic imports confirmed. These figures prove smaller initial JS graphs, not runtime latency or total-download reduction.
+Production HTTP smoke using owned child on free fixed port 3000: /, /alumno/dashboard, /docente/agenda, /alumno/aulas/c1 and /docente/mensajes/dm-laura-valentina all 200 and byte-identical SPA HTML. Entry and AgendaDocente JS 200, correct JavaScript MIME and bytes. Owned child stopped via SIGTERM; server source unchanged.
+Coverage limitation: mounted browser/StrictMode, real navigation reconciliation, loading/error transitions, healthy-page state retention and reload recovery remain unverified; no browser runner added. SSR/method/fake-window tests and HTTP fallback are not substitutes. Next recommended check: manual browser navigation/back/refresh across both roles, mobile list/detail, delayed or blocked chunk load and reload error recovery.
+R4 closure is the verification/coverage record, not a claim of complete browser coverage. Documentation-only closure work-unit commit: docs(frontend): record URL and lazy-loading verification. No push, PR or merge.
