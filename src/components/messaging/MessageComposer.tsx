@@ -13,6 +13,8 @@ interface MessageComposerProps {
   recordingSeconds: number;
   showAttachmentPicker: boolean;
   textareaRef: RefObject<HTMLTextAreaElement | null>;
+  sendPending: boolean;
+  sendError: string | null;
   onTemplateClick: (template: MessageComposerProps['quickTemplates'][number]) => void;
   onClearReply: () => void;
   onClearFile: () => void;
@@ -30,10 +32,10 @@ export function MessageComposer({
   activeConversationTitle, quickTemplates, sampleAttachments, inputText, replyingTo,
   attachedFile, isRecordingAudio, recordingSeconds, showAttachmentPicker, textareaRef,
   onTemplateClick, onClearReply, onClearFile, onRecordCancel, onVoiceSend, onTogglePicker,
-  onSelectAttachment, onRecordStart, onTextChange, onKeyDown, onSend,
+  onSelectAttachment, onRecordStart, onTextChange, onKeyDown, onSend, sendPending, sendError,
 }: MessageComposerProps) {
   return (
-    <>
+    <fieldset disabled={sendPending} aria-busy={sendPending} aria-label="Redactar mensaje" className="min-w-0 shrink-0">
       {/* Quick Prompt Chips Bar */}
       <div className="px-4 py-2 border-t border-fox-border bg-fox-surface/80 flex items-center gap-2 overflow-x-auto hide-scrollbar">
         <span className="text-[11px] font-bold text-fox-text-muted whitespace-nowrap flex items-center gap-1">
@@ -52,6 +54,8 @@ export function MessageComposer({
 
       {/* Composer Input Area */}
       <div className="p-4 bg-fox-surface border-t border-fox-border shrink-0 space-y-2">
+        {sendPending && <p role="status" className="text-xs text-fox-text-muted">Procesando envío en este prototipo...</p>}
+        {sendError && <p role="alert" className="text-xs text-red-600">{sendError}</p>}
         {/* Active Reply Banner */}
         {replyingTo && (
           <div className="bg-fox-bg border border-fox-border rounded-2xl p-2.5 flex items-center justify-between text-xs">
@@ -64,6 +68,7 @@ export function MessageComposer({
             </div>
             <button
               onClick={onClearReply}
+              aria-label="Quitar respuesta"
               className="p-1 rounded-lg text-fox-text-muted hover:text-fox-text-main hover:bg-fox-surface"
             >
               <X size={14} />
@@ -83,6 +88,7 @@ export function MessageComposer({
             </div>
             <button
               onClick={onClearFile}
+              aria-label="Quitar adjunto"
               className="p-1 rounded-lg text-fox-text-muted hover:text-fox-text-main hover:bg-fox-surface"
             >
               <X size={14} />
@@ -110,7 +116,7 @@ export function MessageComposer({
                 onClick={onVoiceSend}
                 className="px-4 py-1.5 rounded-xl text-xs font-bold bg-fox-primary text-white hover:bg-fox-primary/90 flex items-center gap-1.5 shadow-sm"
               >
-                <Send size={13} /> Enviar Audio
+                <Send size={13} /> {sendPending ? 'Procesando...' : sendError ? 'Reintentar audio' : 'Enviar Audio'}
               </button>
             </div>
           </div>
@@ -162,6 +168,8 @@ export function MessageComposer({
             <textarea
               ref={textareaRef}
               value={inputText}
+              disabled={sendPending}
+              aria-label="Mensaje"
               onChange={onTextChange}
               onKeyDown={onKeyDown}
               placeholder={`Escribe a ${activeConversationTitle}... (Enter para enviar)`}
@@ -172,19 +180,20 @@ export function MessageComposer({
             {/* Send Button */}
             <button
               onClick={onSend}
-              disabled={!inputText.trim() && !attachedFile}
+              disabled={sendPending || (!inputText.trim() && !attachedFile)}
               className={`w-10 h-10 shrink-0 rounded-xl flex items-center justify-center transition-all ${
                 inputText.trim() || attachedFile
                   ? 'bg-fox-orange hover:bg-fox-orange/90 text-white shadow-md active:scale-95'
                   : 'bg-fox-border text-fox-text-muted/40 cursor-not-allowed'
               }`}
-              title="Enviar mensaje"
+              title={sendError ? 'Reintentar envío' : 'Enviar mensaje'}
+              aria-label={sendPending ? 'Procesando envío' : sendError ? 'Reintentar envío' : 'Enviar mensaje'}
             >
               <Send size={16} className="ml-0.5" />
             </button>
           </div>
         )}
       </div>
-    </>
+    </fieldset>
   );
 }

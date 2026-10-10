@@ -10,6 +10,7 @@ import {
 import { Role, Conversation, DirectMessageItem, MessageAttachment } from '../../types';
 import { messagingStore } from '../../features/messaging/messagingStore';
 import { canAccessConversation } from '../../features/messaging/application/messageSending';
+import { runMessageSend, sendLocalMessage, type MessageSendState } from '../../features/messaging/application/messageSendState';
 import { VoiceNotePlayer } from './VoiceNotePlayer';
 import { ConversationSidebar } from './ConversationSidebar';
 import { ClassroomInvitationCard } from './ClassroomInvitationCard';
@@ -86,6 +87,21 @@ export function SharedMessagingHub({ currentRole, initialConversationId }: Share
     conversationId: activeConversationId, replyingTo: null, attachedFile: null,
   }));
   const composerContext = isolateComposerContext(storedComposerContext, activeConversationId);
+  const sendGate = useRef(false);
+  const sendLifetimeRef = useRef({ generation: 0, live: false });
+  useEffect(() => {
+    const lifetime = sendLifetimeRef.current;
+    lifetime.generation++;
+    lifetime.live = true;
+    return () => {
+      lifetime.generation++;
+      lifetime.live = false;
+    };
+  }, []);
+  const [sendState, setSendState] = useState<MessageSendState>({ pending: false, error: null });
+  // Object identity distinguishes A -> B -> A from the original conversation visit.
+  const currentComposerRef = useRef({ context: composerContext, userId: currentUserId });
+  currentComposerRef.current = { context: composerContext, userId: currentUserId };
   const { replyingTo, attachedFile } = composerContext;
   const setReplyingTo = (reply: DirectMessageItem | null) => {
     setComposerContext(context => ({ ...isolateComposerContext(context, activeConversationId), replyingTo: reply }));
@@ -115,6 +131,7 @@ export function SharedMessagingHub({ currentRole, initialConversationId }: Share
     setSelectedTag(null);
     setIsRecordingAudio(false);
     setShowAttachmentPicker(false);
+    if (sendState.error) setSendState(state => ({ ...state, error: null }));
   }
 
   const selectConversation = (conversationId: string) => {
@@ -166,15 +183,15 @@ export function SharedMessagingHub({ currentRole, initialConversationId }: Share
   // Audio recording timer
   useEffect(() => {
     let timer: any;
-    if (isRecordingAudio) {
+    if (isRecordingAudio && !sendState.pending) {
       timer = setInterval(() => {
         setRecordingSeconds(s => s + 1);
       }, 1000);
-    } else {
+    } else if (!isRecordingAudio) {
       setRecordingSeconds(0);
     }
     return () => clearInterval(timer);
-  }, [isRecordingAudio]);
+  }, [isRecordingAudio, sendState.pending]);
 
   // Membership applies before search and every tab; channels retain their access.
   const accessibleConversations = conversations.filter(conv => canAccessConversation(conv, currentUserId));
@@ -205,62 +222,81 @@ export function SharedMessagingHub({ currentRole, initialConversationId }: Share
   const pinnedConversations = filteredConversations.filter(c => c.isPinned);
   const regularConversations = filteredConversations.filter(c => !c.isPinned);
 
-  // Send message handler
+  // Text/attachment and simulated voice share the same immediate in-flight gate.
   const handleSendMessage = () => {
-    if (!activeConversationId) return;
     if (!inputText.trim() && !attachedFile) return;
+    const capturedContext = composerContext;
+    const capturedGeneration = sendLifetimeRef.current.generation;
+    const isLive = () => sendLifetimeRef.current.live
+      && sendLifetimeRef.current.generation === capturedGeneration;
+    const isCurrent = () => isLive() && currentComposerRef.current.context === capturedContext
+      && currentComposerRef.current.userId === currentUserId;
 
-    messagingStore.sendMessage({
-      conversationId: activeConversationId,
-      senderId: currentUserId,
-      senderName: currentUserName,
-      senderRole: effectiveRole,
-      text: inputText.trim(),
-      attachment: attachedFile || undefined,
-      replyTo: replyingTo ? {
-        id: replyingTo.id,
-        senderName: replyingTo.senderName,
-        text: replyingTo.text
-      } : undefined,
-      categoryTag: selectedTag || undefined
+    return runMessageSend(sendGate, {
+      operation: () => sendLocalMessage(messagingStore, {
+        conversationId: activeConversationId || '',
+        senderId: currentUserId,
+        senderName: currentUserName,
+        senderRole: effectiveRole,
+        text: inputText.trim(),
+        attachment: attachedFile || undefined,
+        replyTo: replyingTo ? {
+          id: replyingTo.id,
+          senderName: replyingTo.senderName,
+          text: replyingTo.text
+        } : undefined,
+        categoryTag: selectedTag || undefined
+      }),
+      isCurrent,
+      isLive,
+      onState: state => setSendState({ ...state, error: isCurrent() ? state.error : null }),
+      onConfirmed: () => {
+        setInputText('');
+        setReplyingTo(null);
+        setAttachedFile(null);
+        setSelectedTag(null);
+        if (textareaRef.current) textareaRef.current.style.height = 'auto';
+      },
     });
-
-    setInputText('');
-    setReplyingTo(null);
-    setAttachedFile(null);
-    setSelectedTag(null);
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-    }
   };
 
-  // Send Voice Note Simulation
+  // Keep the simulated recording available after failure, without fake transport.
   const handleSendVoiceNote = () => {
-    if (!activeConversationId) return;
-    setIsRecordingAudio(false);
-
-    const dur = recordingSeconds > 0 
-      ? `0:${recordingSeconds < 10 ? '0' : ''}${recordingSeconds}` 
+    const capturedContext = composerContext;
+    const capturedGeneration = sendLifetimeRef.current.generation;
+    const isLive = () => sendLifetimeRef.current.live
+      && sendLifetimeRef.current.generation === capturedGeneration;
+    const isCurrent = () => isLive() && currentComposerRef.current.context === capturedContext
+      && currentComposerRef.current.userId === currentUserId;
+    const dur = recordingSeconds > 0
+      ? `0:${recordingSeconds < 10 ? '0' : ''}${recordingSeconds}`
       : '0:15';
 
-    messagingStore.sendMessage({
-      conversationId: activeConversationId,
-      senderId: currentUserId,
-      senderName: currentUserName,
-      senderRole: effectiveRole,
-      text: `🎙️ Nota de voz (${dur})`,
-      attachment: {
-        id: `voice-${Date.now()}`,
-        name: `Audio_${effectiveRole === 'docente' ? 'ProfLaura' : 'Valentina'}.m4a`,
-        size: `${Math.round(recordingSeconds * 12 + 100)} KB`,
-        type: 'audio',
-        duration: dur
+    return runMessageSend(sendGate, {
+      operation: () => sendLocalMessage(messagingStore, {
+        conversationId: activeConversationId || '',
+        senderId: currentUserId,
+        senderName: currentUserName,
+        senderRole: effectiveRole,
+        text: `🎙️ Nota de voz (${dur})`,
+        attachment: {
+          id: `voice-${Date.now()}`,
+          name: `Audio_${effectiveRole === 'docente' ? 'ProfLaura' : 'Valentina'}.m4a`,
+          size: `${Math.round(recordingSeconds * 12 + 100)} KB`,
+          type: 'audio',
+          duration: dur
+        },
+        categoryTag: selectedTag || undefined
+      }),
+      isCurrent,
+      isLive,
+      onState: state => setSendState({ ...state, error: isCurrent() ? state.error : null }),
+      onConfirmed: () => {
+        setIsRecordingAudio(false);
+        setSelectedTag(null);
+        toast.show('Nota de voz agregada al historial local', 'success');
       },
-      categoryTag: selectedTag || undefined
     });
-
-    setSelectedTag(null);
-    toast.show('Nota de voz enviada', 'success');
   };
 
   // Sample quick templates
@@ -709,7 +745,9 @@ export function SharedMessagingHub({ currentRole, initialConversationId }: Share
 
                             {/* Reply Button */}
                             <button
+                              disabled={sendState.pending}
                               onClick={() => {
+                                if (sendGate.current) return;
                                 setReplyingTo(msg);
                                 textareaRef.current?.focus();
                               }}
@@ -742,23 +780,27 @@ export function SharedMessagingHub({ currentRole, initialConversationId }: Share
                 recordingSeconds={recordingSeconds}
                 showAttachmentPicker={showAttachmentPicker}
                 textareaRef={textareaRef}
+                sendPending={sendState.pending}
+                sendError={sendState.error}
                 onTemplateClick={t => {
+                  if (sendGate.current) return;
                   setInputText(t.text);
                   setSelectedTag(t.tag);
                   textareaRef.current?.focus();
                 }}
-                onClearReply={() => setReplyingTo(null)}
-                onClearFile={() => setAttachedFile(null)}
-                onRecordCancel={() => setIsRecordingAudio(false)}
+                onClearReply={() => { if (!sendGate.current) setReplyingTo(null); }}
+                onClearFile={() => { if (!sendGate.current) setAttachedFile(null); }}
+                onRecordCancel={() => { if (!sendGate.current) setIsRecordingAudio(false); }}
                 onVoiceSend={handleSendVoiceNote}
-                onTogglePicker={() => setShowAttachmentPicker(!showAttachmentPicker)}
+                onTogglePicker={() => { if (!sendGate.current) setShowAttachmentPicker(!showAttachmentPicker); }}
                 onSelectAttachment={att => {
+                  if (sendGate.current) return;
                   setAttachedFile(att);
                   setShowAttachmentPicker(false);
                   toast.show(`Adjuntado: ${att.name}`, 'info');
                 }}
-                onRecordStart={() => setIsRecordingAudio(true)}
-                onTextChange={e => setInputText(e.target.value)}
+                onRecordStart={() => { if (!sendGate.current) setIsRecordingAudio(true); }}
+                onTextChange={e => { if (!sendGate.current) setInputText(e.target.value); }}
                 onKeyDown={e => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -807,6 +849,7 @@ export function SharedMessagingHub({ currentRole, initialConversationId }: Share
           conversation={activeConversation}
           currentRole={currentRole}
           onApplyDraft={(draftText) => {
+            if (sendGate.current) return;
             setInputText(draftText);
             textareaRef.current?.focus();
           }}
