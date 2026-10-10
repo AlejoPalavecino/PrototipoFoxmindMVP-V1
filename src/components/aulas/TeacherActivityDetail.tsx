@@ -10,6 +10,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import { toast } from '../ui/Toaster';
 import { TeacherGradingDrawer } from './TeacherGradingDrawer';
 import type { Submission } from '../../features/classrooms';
+import {
+  getTeacherSubmissionAttachments, downloadTeacherSubmissionAttachment, type TeacherSubmissionAttachment,
+} from '../../features/classrooms/application/teacherSubmissionAttachments';
 
 interface TeacherActivityDetailProps {
   activity: any;
@@ -70,28 +73,13 @@ export function TeacherActivityDetail({
     toast.show('🔔 Recordatorio enviado a los alumnos con entregas pendientes', 'success');
   };
 
-  const handleDownloadSubmissionFile = (sub: Submission, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    const fileName = sub.attachedFile?.name || `Entrega_${sub.name.replace(/\s+/g, '_')}.pdf`;
-    const ext = fileName.split('.').pop()?.toLowerCase();
-    const mimeType = ext === 'docx' || ext === 'doc'
-      ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-      : ext === 'txt'
-      ? 'text/plain'
-      : 'application/pdf';
-
-    const fileContent = sub.content || `FoxMind LMS - Entrega Académica\nEstudiante: ${sub.name}\nActividad: ${activity.title}\nFecha: ${sub.date || 'Reciente'}\n\n=========================================\nCONTENIDO DEL TRABAJO:\n=========================================\n${sub.content || 'Documento adjunto en formato digital para evaluación pedagógica.'}`;
-    
-    const blob = new Blob([fileContent], { type: `${mimeType};charset=utf-8` });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    toast.show(`📥 Descargando entrega de ${sub.name}: "${fileName}"`, 'success');
+  const handleDownloadSubmissionFile = (attachment: TeacherSubmissionAttachment, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      downloadTeacherSubmissionAttachment(attachment);
+    } catch {
+      toast.show('No se pudo descargar el archivo de esta sesión. Vuelve a intentarlo.', 'error');
+    }
   };
 
   const handleOpenAdaptModal = (student: any) => {
@@ -297,6 +285,7 @@ export function TeacherActivityDetail({
                     ) : (
                       filteredSubmissions.map((sub) => {
                         const hasDua = sub.dua && sub.dua.length > 0;
+                        const attachments = getTeacherSubmissionAttachments(sub);
                         return (
                           <tr
                             key={sub.studentId}
@@ -369,14 +358,31 @@ export function TeacherActivityDetail({
                                   <Send size={13} /> Recordar
                                 </button>
                               ) : (
-                                <div className="inline-flex items-center gap-2">
-                                  <button
-                                    onClick={(e) => handleDownloadSubmissionFile(sub, e)}
-                                    className="p-2 bg-fox-bg hover:bg-fox-primary/10 text-fox-text-muted hover:text-fox-primary rounded-xl border border-fox-border hover:border-fox-primary/30 transition-all cursor-pointer"
-                                    title={`Descargar archivo de ${sub.name}`}
-                                  >
-                                    <Download size={14} />
-                                  </button>
+                                <div className="flex flex-col items-end gap-2">
+                                  {attachments.length === 0 ? (
+                                    <p className="text-xs text-fox-text-muted">Sin archivos adjuntos</p>
+                                  ) : (
+                                    <ul className="space-y-2 text-left" aria-label={`Archivos de ${sub.name}`}>
+                                      {attachments.map((attachment, index) => (
+                                        <li key={index} className="text-xs space-y-1">
+                                          <p className="font-bold text-fox-text-main break-all">{attachment.name}</p>
+                                          <p className="text-fox-text-muted">{attachment.size} • {attachment.type}</p>
+                                          {attachment.file ? (
+                                            <button
+                                              type="button"
+                                              aria-label={`Descargar archivo ${index + 1}: ${attachment.name} de ${sub.name}`}
+                                              onClick={(e) => handleDownloadSubmissionFile(attachment, e)}
+                                              className="px-2 py-1 bg-fox-bg hover:bg-fox-primary/10 text-fox-primary rounded-lg border border-fox-border inline-flex items-center gap-1"
+                                            >
+                                              <Download size={14} /> Descargar
+                                            </button>
+                                          ) : (
+                                            <p className="text-fox-text-muted">Archivo original no disponible (datos simulados).</p>
+                                          )}
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  )}
                                   <button
                                     onClick={() => setSelectedSubmissionToGrade(sub)}
                                     className={`px-4 py-2 rounded-xl text-xs font-bold transition-all inline-flex items-center gap-1.5 shadow-2xs cursor-pointer ${

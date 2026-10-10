@@ -259,6 +259,40 @@ test('teacher callback characterization exercises topic toggles, report navigati
   assert.equal(values.submissions, mounted.submissions);
 });
 
+test('actual teacher grading preserves every attachment reference, order and byte content', async () => {
+  const source = parse(filename('../../../components/aulas/TeacherActivityDetail.tsx'));
+  let handler: ts.VariableDeclaration | undefined;
+  function visit(node: ts.Node) {
+    if (ts.isVariableDeclaration(node) && node.name.getText() === 'handleSaveGrading') handler = node;
+    ts.forEachChild(node, visit);
+  }
+  visit(source);
+  assert.ok(handler?.initializer);
+  const files = [new File([new Uint8Array([0, 255])], 'Repetido.txt'), new File(['distinto'], 'Repetido.txt')];
+  const attachments = files.map(file => ({ name: file.name, type: 'TXT', size: '0 MB', file }));
+  const records = boundary.deliverSubmission([{ studentId: 2, name: 'Sofía', status: 'missing', grade: null,
+    date: null, dua: [], content: null }], 2, { attachments, text: 'Nota del alumno' });
+  const other = { ...records[0], studentId: 3 };
+  let updated: any[] = [], selected: any = records[0];
+  const save = evaluate(`(${handler.initializer.getText()})`, {
+    submissions: [records[0], other], selectedSubmissionToGrade: records[0],
+    setSubmissions: (next: any[]) => { updated = next; },
+    toast: { show: () => {} }, setSelectedSubmissionToGrade: (value: any) => { selected = value; },
+  });
+  const breakdown = [{ criteria: 'Análisis', max: 10, earned: 9 }];
+  save(9, 'Buena entrega', breakdown);
+  assert.equal(updated[0].status, 'graded');
+  assert.equal(updated[0].grade, 9);
+  assert.equal(updated[0].feedback, 'Buena entrega');
+  assert.strictEqual(updated[0].rubricBreakdown, breakdown);
+  assert.strictEqual(updated[0].attachments, records[0].attachments);
+  assert.strictEqual(updated[0].attachedFile, attachments[0]);
+  assert.strictEqual(updated[1], other);
+  assert.equal(selected, null);
+  assert.deepEqual(await Promise.all(updated[0].attachments.map(async (item: any) =>
+    [...new Uint8Array(await item.file.arrayBuffer())])), [[0, 255], [...new TextEncoder().encode('distinto')]]);
+});
+
 // Expand only the actually resolved rendered leaf, mapping its local bindings to
 // the mounted controller's returned property names. Keep the original whole-return
 // fingerprint: materials/invitation extraction must not hide unrelated JSX changes.
