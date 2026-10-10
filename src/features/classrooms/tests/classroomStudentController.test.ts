@@ -75,7 +75,7 @@ function restoreHistoricalJsx(text: string, edits: [string, string, number?][]) 
   return restored;
 }
 
-function mount(overrides: Record<string, any> = {}) {
+function mount(overrides: Record<string, any> = {}, replaceError?: Error) {
   const values: Record<string, any> = {};
   const calls: string[] = [];
   let records: any[] = [{ id: 1, studentId: 2, status: 'pending' }, { id: 2, studentId: 1, status: 'pending' }];
@@ -100,7 +100,7 @@ function mount(overrides: Record<string, any> = {}) {
     },
     submissionRepository: {
       read: () => { calls.push('read'); return records; },
-      replace: (next: any[]) => { calls.push('replace'); records = next; },
+      replace: (next: any[]) => { calls.push('replace'); if (replaceError) throw replaceError; records = next; },
     },
     deliverSubmission: boundary.deliverSubmission,
   };
@@ -168,9 +168,7 @@ test('student fixtures retain original values and fresh nested references on eve
   first.students.forEach((student: any, index: number) => assert.notEqual(student, second.students[index]));
 });
 
-test('student delivery keeps original handler, shared replace before local Entregada map and null-activeTask behavior', () => {
-  const handler = variables.find(node => node.name.getText() === 'handleDeliverActivity')!.initializer!;
-  assert.equal(digest(print(handler)), '1bd02bfe32ecd397a4617c4a7d16992639622e614530e5249a53fce0389405c6');
+test('student delivery replaces shared records before local Entregada state and preserves null-activeTask behavior', () => {
   const mounted = mount();
   const before = mounted.result.activities, oldRecords = mounted.records();
   mounted.result.setActiveTask(before[1]);
@@ -190,6 +188,34 @@ test('student delivery keeps original handler, shared replace before local Entre
   assert.equal(missing.records()[0].status, 'submitted');
   assert.notEqual(missing.values.activities, untouched);
   untouched.forEach((activity: any, index: number) => assert.equal(missing.values.activities[index], activity));
+});
+
+test('student controller preserves all ordered File contents in shared session state', async () => {
+  const mounted = mount();
+  mounted.result.setActiveTask(mounted.result.activities[0]);
+  const files = [new File(['uno'], 'Uno.pdf'), new File(['dos'], 'Dos.txt')];
+  const attachments = files.map(file => ({ name: file.name, size: '0 MB', type: 'TXT', file }));
+  mounted.render().handleDeliverActivity({ attachments });
+  const record = mounted.records()[0];
+  assert.deepEqual(record.attachments?.map((item: any) => item.file), files);
+  assert.deepEqual(await Promise.all(record.attachments.map((item: any) => item.file.text())), ['uno', 'dos']);
+  assert.strictEqual(record.attachedFile, attachments[0]);
+  assert.equal(mounted.values.activities[0].status, 'Entregada');
+});
+
+test('invalid delivery and repository failure propagate without marking local activity as Entregada', () => {
+  const invalid = mount();
+  const before = invalid.result.activities;
+  assert.throws(() => invalid.result.handleDeliverActivity({ text: '   ' }), /adjunta un archivo o escribe/);
+  assert.strictEqual(invalid.values.activities, before);
+  assert.equal(invalid.calls.includes('replace'), false);
+  const failure = new Error('Repository unavailable');
+  const failed = mount({}, failure);
+  failed.result.setActiveTask(failed.result.activities[0]);
+  const current = failed.render();
+  assert.throws(() => current.handleDeliverActivity({ text: 'Trabajo' }), error => error === failure);
+  assert.strictEqual(failed.values.activities, current.activities);
+  assert.equal(failed.records()[0].status, 'pending');
 });
 
 test('student navigation helper retains first exact aulaId match, missing and falsy params without changing page navigation', () => {

@@ -16,23 +16,24 @@ test('delivery updates only matching student records and preserves other fields'
   assert.deepEqual(input, snapshot);
   assert.deepEqual(output[2], {
     ...input[2], status: 'submitted', date: 'Hoy (Reciente)',
-    content: '  Mi respuesta  ', attachedFile: file,
+    content: '  Mi respuesta  ', attachedFile: file, attachments: [],
   });
   assert.strictEqual(output[2].attachedFile, file);
   assert.strictEqual(output[2].rubricBreakdown, input[2].rubricBreakdown);
   for (const index of [0, 1, 3, 4]) assert.strictEqual(output[index], input[index]);
 });
 
-test('text-only delivery keeps the original fallback file', () => {
-  const output = deliverSubmission(createSubmissionFixtures(), 2, { text: 'Respuesta' });
+test('text-only delivery clears old attachments without inventing a file', () => {
+  const input = createSubmissionFixtures();
+  input[1].attachedFile = { name: 'Anterior.pdf', size: '1 MB', type: 'PDF' };
+  const output = deliverSubmission(input, 2, { text: 'Respuesta' });
   assert.equal(output[1].content, 'Respuesta');
-  assert.deepEqual(output[1].attachedFile, {
-    name: 'Ensayo_Vanguardias_Sofia.pdf', size: '1.4 MB', type: 'PDF',
-  });
+  assert.equal(output[1].attachedFile, undefined);
+  assert.deepEqual(output[1].attachments, []);
 });
 
 test('file-only delivery keeps the original fallback content', () => {
-  const file = { name: 'Audio.mp3', size: '2 MB', type: 'MP3' };
+  const file = { name: 'Trabajo.pdf', size: '2 MB', type: 'PDF' };
   for (const text of [undefined, '']) {
     const output = deliverSubmission(createSubmissionFixtures(), 2, { attachedFile: file, text });
     assert.equal(output[1].content, 'Entrega adjunta por la estudiante en formato digital para corrección docente.');
@@ -62,6 +63,31 @@ test('delivery maps every matching student record, not just the first', () => {
   assert.equal(output[0].content, 'Respuesta actualizada');
   assert.equal(output[2].content, 'Respuesta actualizada');
   assert.strictEqual(output[1], input[1]);
+});
+
+test('all attachments retain their ordered File contents through simulated delivery', async () => {
+  const files = [new File(['primero'], 'Uno.PDF'), new File(['segundo'], 'Dos.docx')];
+  const attachments = files.map(file => ({ name: file.name, size: '0.0 MB', type: 'PDF', file }));
+  const output = deliverSubmission(createSubmissionFixtures(), 2, { attachments, text: 'Nota' });
+  assert.notStrictEqual(output[1].attachments, attachments, 'Own the list, not the caller array');
+  assert.deepEqual(output[1].attachments?.map(item => item.file), files);
+  assert.strictEqual(output[1].attachedFile, attachments[0], 'Legacy first-file projection');
+  assert.deepEqual(await Promise.all(output[1].attachments!.map(item => item.file.text())), ['primero', 'segundo']);
+  attachments.pop();
+  assert.equal(output[1].attachments?.length, 2);
+});
+
+test('empty and invalid deliveries reject without changing input records', () => {
+  const input = createSubmissionFixtures();
+  const snapshot = structuredClone(input);
+  for (const delivery of [{}, { text: '  \n\t' }, { attachments: [] }]) {
+    assert.throws(() => deliverSubmission(input, 2, delivery), /adjunta un archivo o escribe/);
+  }
+  const file = new File(['no'], 'Mal.exe');
+  assert.throws(() => deliverSubmission(input, 2, {
+    text: 'Respuesta', attachments: [{ name: file.name, size: '0 MB', type: 'EXE', file }],
+  }), /Formato no permitido/);
+  assert.deepEqual(input, snapshot);
 });
 
 test('pure delivery does not persist until the caller explicitly replaces the array', () => {
