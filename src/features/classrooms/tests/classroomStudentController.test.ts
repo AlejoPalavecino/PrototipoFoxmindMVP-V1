@@ -63,6 +63,18 @@ const createFixtures = () => migrated ? evaluate(`(function () ${fixtures.body!.
     evaluate(`(${fixtureVariables.find(node => node.name.getText() === name)!.initializer!.getText()})`)]));
 const plain = (value: any) => JSON.parse(JSON.stringify(value));
 
+// The unchanged page oracle ignores whitespace. Every authorized inversion must
+// find its exact expected fragment; unrelated markup/handlers remain hashed.
+function restoreHistoricalJsx(text: string, edits: [string, string, number?][]) {
+  let restored = text.replace(/\s+/g, '');
+  for (const [before, after, count = 1] of edits) {
+    const match = before.replace(/\s+/g, '');
+    assert.equal(restored.split(match).length - 1, count, `Authorized JSX inverse: ${before}`);
+    restored = restored.split(match).join(after.replace(/\s+/g, ''));
+  }
+  return restored;
+}
+
 function mount(overrides: Record<string, any> = {}) {
   const values: Record<string, any> = {};
   const calls: string[] = [];
@@ -251,8 +263,56 @@ test('actual mounted student shell preserves whole JSX, six tabs, early return, 
     assert.equal(helper.body.statements.length, 1);
     assert.equal(guard.expression.getText(), 'params?.aulaId');
     assert.equal(guard.thenStatement.expression.getText(), 'classrooms.find(a => a.id === params.aulaId)');
-    assert.equal(select.initializer!.getText(), "(aula: Classroom) => setView('aulas', { aulaId: aula.id })");
-    assert.equal(back.initializer!.getText(), "() => setView('aulas', undefined, 'replace')");
+    // Invert only the local activation intent, never refresh the historical
+    // page/body hashes. Behavior and late-ref cleanup are exercised separately
+    // in classroomActivationFocus.test.ts with explicit hook/ref doubles.
+    const focusBindings = pageVariables.filter(node => node.name.getText() === 'activationFocus');
+    assert.equal(focusBindings.length, 1);
+    const focusBinding = focusBindings[0];
+    assert.equal(focusBinding.parent.parent.parent, pageOwner.body);
+    assert.ok(ts.isVariableDeclarationList(focusBinding.parent));
+    assert.equal(focusBinding.parent.declarations.length, 1);
+    const focusCalls = nodes(pageOwner, (node): node is ts.CallExpression => ts.isCallExpression(node)
+      && node.expression.getText() === 'useClassroomActivationFocus');
+    assert.equal(focusCalls.length, 1);
+    assert.equal(focusBinding.initializer, focusCalls[0]);
+    assert.deepEqual(focusCalls[0].arguments.map(node => node.getText()), ['selectedAula?.id']);
+    const focusHook = symbol(focusCalls[0].expression)?.valueDeclaration;
+    assert.ok(focusHook && ts.isFunctionDeclaration(focusHook) && focusHook.body);
+    assert.equal(focusHook.parent, page);
+    assert.equal(focusHook.modifiers, undefined, 'Focus lifecycle remains private to this page');
+    const compact = (node: ts.Node) => print(node).replace(/\s+/g, '');
+    assert.equal(compact(focusHook), `function useClassroomActivationFocus(selectedId: string | undefined) {
+      const pendingId = useRef<string | null>(null);
+      useEffect(() => {
+        if (pendingId.current !== selectedId) pendingId.current = null;
+      }, [selectedId]);
+      useEffect(() => () => { pendingId.current = null; }, []);
+      return {
+        request: (id: string) => { pendingId.current = id; },
+        cancel: () => { pendingId.current = null; },
+        detailRef: (node: HTMLDivElement | null) => {
+          if (!node || !selectedId || pendingId.current !== selectedId) return;
+          pendingId.current = null;
+          node.closest<HTMLElement>('main')?.focus({ preventScroll: true });
+        },
+      };
+    }`.replace(/\s+/g, ''));
+    assert.equal(compact(select.initializer!), `(aula: Classroom) => {
+      activationFocus.request(aula.id); setView('aulas', { aulaId: aula.id });
+    }`.replace(/\s+/g, ''));
+    assert.equal(compact(back.initializer!), `() => {
+      activationFocus.cancel(); setView('aulas', undefined, 'replace');
+    }`.replace(/\s+/g, ''));
+    for (const method of ['request', 'cancel']) {
+      const calls = nodes(pageOwner, (node): node is ts.CallExpression => ts.isCallExpression(node)
+        && node.expression.getText() === `activationFocus.${method}`);
+      assert.equal(calls.length, 1, `One explicit ${method} owner`);
+      assert.ok(ts.isPropertyAccessExpression(calls[0].expression));
+      assert.equal(symbol(calls[0].expression.expression), symbol(focusBinding.name));
+      assert.equal(calls[0].parent.parent, method === 'request'
+        ? (select.initializer as ts.ArrowFunction).body : (back.initializer as ts.ArrowFunction).body);
+    }
     const effects = nodes(pageOwner, (node): node is ts.CallExpression => ts.isCallExpression(node)
       && node.expression.getText() === 'useEffect');
     assert.equal(effects.length, 1);
@@ -264,7 +324,17 @@ test('actual mounted student shell preserves whole JSX, six tabs, early return, 
     assert.equal(keys.length, 1);
     assert.ok(ts.isJsxOpeningElement(keys[0].parent.parent));
     assert.equal(keys[0].parent.parent.tagName.getText(), 'motion.div');
+    const focusRefs = nodes(pageOwner, (node): node is ts.JsxAttribute => ts.isJsxAttribute(node)
+      && node.name.getText() === 'ref');
+    assert.equal(focusRefs.length, 1, 'Only the keyed detail host owns the commit ref');
+    assert.equal(focusRefs[0].parent, keys[0].parent);
+    assert.equal(focusRefs[0].initializer?.getText(), '{activationFocus.detailRef}');
+    assert.ok(focusRefs[0].initializer && ts.isJsxExpression(focusRefs[0].initializer)
+      && focusRefs[0].initializer.expression && ts.isPropertyAccessExpression(focusRefs[0].initializer.expression));
+    assert.equal(symbol(focusRefs[0].initializer.expression.expression), symbol(focusBinding.name));
     const replacements = [
+      { node: focusBinding.parent.parent, text: '' },
+      { node: focusRefs[0], text: '' },
       { node: membershipMount.parent.parent, text: `const [selectedAula, setSelectedAula] = useState<Classroom | null>(null);\n${membershipMount.parent.parent.getText()}` },
       { node: selection.parent.parent, text: '' },
       { node: select.parent.parent, text: '' },
@@ -439,8 +509,29 @@ test('actual mounted student shell preserves whole JSX, six tabs, early return, 
     }]);
     // Updated AST roots lose parent/source-file links. Supply the actual leaf source
     // so the printer preserves original literal spelling rather than inventing quotes.
-    const listingJsx = printer.printNode(ts.EmitHint.Unspecified, transformed.transformed[0], list.owner.getSourceFile())
+    let listingJsx = printer.printNode(ts.EmitHint.Unspecified, transformed.transformed[0], list.owner.getSourceFile())
       .replace(/\r\n/g, '\n').replace(/[ \t]+$/gm, '');
+    const selectButtons = nodes(list.owner, ts.isJsxElement).filter(node => node.openingElement.tagName.getText() === 'button'
+      && node.openingElement.attributes.properties.some(prop => ts.isJsxAttribute(prop) && prop.name.getText() === 'aria-label'));
+    assert.equal(selectButtons.length, 1, 'One native classroom action replaces the non-keyboard card click');
+    const selectButton = selectButtons[0];
+    assert.deepEqual(selectButton.openingElement.attributes.properties.map(print), [
+      'type="button"', 'onClick={() => onSelect(aula)}', 'aria-label={`Ingresar a ${aula.subject} · ${aula.course}`}',
+      'className="flex items-center gap-1 text-fox-primary font-bold text-xs cursor-pointer after:absolute after:inset-0 focus-visible:outline-2 focus-visible:outline-fox-primary focus-visible:outline-offset-2"',
+    ]);
+    const card = nodes(list.owner, ts.isJsxElement).find(node => node.openingElement.tagName.getText() === 'motion.div'
+      && node.openingElement.attributes.properties.some(prop => ts.isJsxAttribute(prop) && prop.name.getText() === 'key' && prop.initializer?.getText() === '{aula.id}'));
+    assert.ok(card);
+    assert.equal(card.openingElement.attributes.properties.some(prop => ts.isJsxAttribute(prop) && prop.name.getText() === 'onClick'), false,
+      'The noninteractive card must not own a second selection callback');
+    const cardClass = card.openingElement.attributes.properties.find(prop => ts.isJsxAttribute(prop) && prop.name.getText() === 'className')!;
+    listingJsx = restoreHistoricalJsx(listingJsx, [
+      [print(cardClass), print(cardClass).replace(' focus-within:ring-2 focus-within:ring-fox-primary focus-within:ring-offset-2', '') + ' onClick={() => setSelectedAula(aula)}'],
+      ['<button type="button" onClick={() => setSelectedAula(aula)} aria-label={`Ingresar a ${aula.subject} · ${aula.course}`} className="flex items-center gap-1 text-fox-primary font-bold text-xs cursor-pointer after:absolute after:inset-0 focus-visible:outline-2 focus-visible:outline-fox-primary focus-visible:outline-offset-2">',
+        '<div className="flex items-center gap-1 text-fox-primary font-bold text-xs group-hover:translate-x-1 transition-transform">'],
+      ['<span>Ingresar</span><ChevronRight size={15} aria-hidden="true"/></button>',
+        '<span>Ingresar</span><ChevronRight size={15}/></div>'],
+    ]);
     originalPage = originalPage.replace(print(list.consumer), listingJsx);
     transformed.dispose();
   }

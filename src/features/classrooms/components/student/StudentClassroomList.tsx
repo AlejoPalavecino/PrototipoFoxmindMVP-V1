@@ -52,8 +52,7 @@ export function StudentClassroomList({ classrooms, onSelect, onJoin }: {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.05 }}
                     key={aula.id}
-                    className="group bg-fox-surface rounded-3xl border border-fox-border shadow-xs hover:shadow-xl hover:border-fox-primary/30 transition-all duration-300 flex flex-col h-full hover:-translate-y-1 overflow-hidden relative cursor-pointer"
-                    onClick={() => onSelect(aula)}
+                    className="group bg-fox-surface rounded-3xl border border-fox-border shadow-xs hover:shadow-xl hover:border-fox-primary/30 transition-all duration-300 flex flex-col h-full hover:-translate-y-1 overflow-hidden relative cursor-pointer focus-within:ring-2 focus-within:ring-fox-primary focus-within:ring-offset-2"
                   >
                     {/* Decorative Top Line indicator */}
                     <div className={`absolute top-0 left-0 w-full h-1.5 ${theme.bar}`}></div>
@@ -146,10 +145,12 @@ export function StudentClassroomList({ classrooms, onSelect, onJoin }: {
                       <span className="text-xs font-bold text-fox-text-muted flex items-center gap-1.5">
                         <Clock size={13} /> {aula.lastActivity || 'Activa hoy'}
                       </span>
-                      <div className="flex items-center gap-1 text-fox-primary font-bold text-xs group-hover:translate-x-1 transition-transform">
+                      <button type="button" onClick={() => onSelect(aula)}
+                        aria-label={`Ingresar a ${aula.subject} · ${aula.course}`}
+                        className="flex items-center gap-1 text-fox-primary font-bold text-xs cursor-pointer after:absolute after:inset-0 focus-visible:outline-2 focus-visible:outline-fox-primary focus-visible:outline-offset-2">
                         <span>Ingresar</span>
-                        <ChevronRight size={15} />
-                      </div>
+                        <ChevronRight size={15} aria-hidden="true" />
+                      </button>
                     </div>
                   </motion.div>
                 );

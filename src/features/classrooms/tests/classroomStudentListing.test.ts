@@ -94,12 +94,12 @@ if (ts.isJsxSelfClosingElement(consumer)) {
     && /useState|useEffect|Repository|localStorage|\.filter$/.test(node.expression.getText())).length, 0);
 }
 function render(classrooms: any[]) {
-  let selected: any, joins = 0;
+  let selected: any, joins = 0, selections = 0;
   const createElement = (type: any, props: any, ...children: any[]) => ({ type, props: props ?? {}, children: children.flat(Infinity) });
   const globals: Record<string, any> = {
     React: { createElement }, motion: { div: 'motion.div' }, classrooms, getClassroomColorTheme,
-    onSelect: (aula: any) => { selected = aula; }, onJoin: () => { joins++; },
-    handleSelect: (aula: any) => { selected = aula; },
+    onSelect: (aula: any) => { selected = aula; selections++; }, onJoin: () => { joins++; },
+    handleSelect: (aula: any) => { selected = aula; selections++; },
     setIsJoinModalOpen: (open: boolean) => { assert.equal(open, true); joins++; },
   };
   for (const [name, supplied] of suppliedProps) {
@@ -116,28 +116,41 @@ function render(classrooms: any[]) {
   function visit(node: any) { if (node && typeof node === 'object') { elements.push(node); node.children.forEach(visit); } }
   visit(tree);
   const text = (node: any): string => node && typeof node === 'object' ? node.children.map(text).join('') : node == null ? '' : String(node);
-  return { tree, elements, text, selected: () => selected, joins: () => joins };
+  return { tree, elements, text, selected: () => selected, selections: () => selections, joins: () => joins };
 }
 
 test('student listing retains header, grid/card/progress animation keys, metrics, theme fallbacks and original callbacks', () => {
   const first = { id: 'a-1', course: '1° A', subject: 'Materia', progress: 0, activeTasks: 0, avgGrade: 0 };
   const second = { id: 'a-2', course: '2° B', subject: 'Historia', color: 'blue', progress: 75, activeTasks: 3,
     teacherName: 'Docente Dos', nextClass: 'Viernes', avgGrade: 9.2, lastActivity: 'Ayer' };
-  const mounted = render([first, second]);
+  const mounted = render([first, second]); // Source/fake-element evaluation, not mounted React or browser keyboard proof.
   assert.equal(mounted.tree.props.key, 'grid');
   assert.equal(JSON.stringify(mounted.tree.props.initial), '{"opacity":0,"y":10}');
   assert.equal(JSON.stringify(mounted.tree.props.animate), '{"opacity":1,"y":0}');
   assert.equal(JSON.stringify(mounted.tree.props.exit), '{"opacity":0,"y":-10}');
   assert.equal(mounted.tree.props.transition.duration, 0.2);
-  const cards = mounted.elements.filter(node => node.type === 'motion.div' && node.props.onClick);
+  const cards = mounted.elements.filter(node => node.type === 'motion.div' && node.props.key?.startsWith('a-'));
+  const actions = mounted.elements.filter(node => node.type === 'button' && node.props['aria-label']?.startsWith('Ingresar a '));
+  assert.equal(actions.length, 2);
   assert.equal(cards.length, 2);
   cards.forEach((card, index) => {
     assert.equal(card.props.key, [first, second][index].id);
     assert.equal(card.props.transition.delay, index * 0.05);
     assert.equal(JSON.stringify(card.props.initial), '{"opacity":0,"y":20}');
     assert.equal(JSON.stringify(card.props.animate), '{"opacity":1,"y":0}');
-    card.props.onClick();
+    assert.equal(card.props.onClick, undefined, 'Card itself is not a fake interactive div');
+    assert.match(card.props.className, /focus-within:ring/);
+    const action = actions[index];
+    assert.equal(action.props.type, 'button');
+    assert.equal(action.props['aria-label'], `Ingresar a ${[first, second][index].subject} · ${[first, second][index].course}`);
+    assert.match(action.props.className, /focus-visible/);
+    assert.equal(action.props.role, undefined);
+    assert.equal(action.props.onKeyDown, undefined, 'Enter/Space are supplied by native button semantics, not simulated handlers');
+    assert.equal(action.props.tabIndex, undefined, 'Native button remains in the tab order');
+    assert.equal(action.children.some((child: any) => ['button', 'a', 'input'].includes(child?.type)), false);
+    action.props.onClick();
     assert.equal(mounted.selected(), [first, second][index], 'Selection passes the same classroom object');
+    assert.equal(mounted.selections(), index + 1, 'One callback per native activation');
   });
   const progress = mounted.elements.filter(node => node.type === 'motion.div' && node.props.initial?.width === 0);
   assert.deepEqual(progress.map(node => node.props.animate.width), ['0%', '75%']);

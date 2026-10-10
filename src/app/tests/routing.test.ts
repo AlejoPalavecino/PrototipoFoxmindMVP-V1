@@ -266,6 +266,9 @@ function classroomPage(role: 'alumno' | 'docente', navigation: ReturnType<typeof
     classroomRepository: { readCatalogue: () => classrooms }, classroomDetailSession: { replaceCurriculum() {} },
     useTeacherClassroomCreation: () => ({ handleOpenModal() {} }),
     useStudentClassroomMembership: () => ({ classrooms, setIsJoinModalOpen() {} }),
+    // This extracted-body harness has no mounted DOM/ref lifecycle. Keep focus
+    // explicit but inert here; native focus is verified by the browser smoke.
+    useClassroomActivationFocus: () => ({ request(_id: string) {}, cancel() {}, detailRef(_node: unknown) {} }),
     resolveStudentClassroom: (items: any[], params: any) => items.find(a => a.id === params?.aulaId),
     resolveTeacherClassroom: (items: any[], params: any) => params?.openTask && params?.subject
       ? items.find(a => `${a.subject} ${a.course}` === params.subject) : items.find(a => a.id === params?.openAulaId),
