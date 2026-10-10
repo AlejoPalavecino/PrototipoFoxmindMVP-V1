@@ -130,3 +130,14 @@ test('commit for a different classroom cannot consume the requested focus', () =
   h.detailHost(h.render()).props.ref(h.host);
   assert.deepEqual(h.focus, [{ preventScroll: true }]);
 });
+
+const driver = await import(new URL('../../../../scripts/frontend-navigation-smoke.mjs', import.meta.url).href);
+test('chart smoke rejects missing, invisible or nonpositive settled SVG dimensions and absent plotted marks', () => {
+  const chart = { width: 240, height: 256, rectWidth: 240, rectHeight: 256, visible: true, inViewport: true, marks: 1 };
+  driver.assertChart(chart);
+  for (const change of [{ width: 0 }, { height: -1 }, { rectWidth: NaN }, { rectHeight: Infinity },
+    { visible: false }, { inViewport: false }, { marks: 0 }]) {
+    assert.throws(() => driver.assertChart({ ...chart, ...change }));
+  }
+  assert.throws(() => driver.assertChart(null));
+});
