@@ -143,10 +143,10 @@ test('live concept-map payload: frozen inputs and fresh complete reference graph
 test('extracted map helper is an exact literal lift with only a type import', { skip: !helperExists }, () => {
   assert.equal(typeof factory, 'function');
   const helper = readFileSync(operationsUrl, 'utf8');
-  assert.ok(helper.startsWith("import type { StudyGeneratedResource } from '../../../views/alumno/estudio/estudioTypes';\n"));
+  assert.ok(helper.replace(/\r\n/g, '\n').startsWith("import type { StudyGeneratedResource } from '../../../views/alumno/estudio/estudioTypes';\n"));
   assert.equal(helper.match(/^import /gm)?.length, 1);
   const helperLiteral = helper.slice(helper.indexOf('  return ') + '  return '.length, helper.lastIndexOf(';'));
-  assert.equal(helperLiteral, literal.replace(/^      /gm, ''), 'no changes except indentation');
+  assert.equal(helperLiteral.replace(/\r\n/g, '\n'), literal.replace(/\r\n/g, '\n').replace(/^      /gm, ''), 'no changes except indentation');
 });
 function restoreSummaryExtraction(source: string): string {
   const prefix = '        const newSummaryResource: StudyGeneratedResource = ';

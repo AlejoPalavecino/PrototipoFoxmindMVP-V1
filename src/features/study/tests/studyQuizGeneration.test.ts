@@ -166,10 +166,10 @@ test('extracted quiz factory matches immutable payload, clocks, getters and fres
   assertFresh(factory);
   const helper = readFileSync(operationsUrl, 'utf8');
   const typeImport = "import type { StudyGeneratedResource } from '../../../views/alumno/estudio/estudioTypes';";
-  assert.ok(helper.startsWith(typeImport + '\n'));
+  assert.ok(helper.replace(/\r\n/g, '\n').startsWith(typeImport + '\n'));
   assert.equal(helper.match(/^import /gm)?.length, 1, 'no runtime import dependencies');
   const helperLiteral = helper.slice(helper.indexOf('  return ') + '  return '.length, helper.lastIndexOf(';'));
-  assert.equal(helperLiteral, literal.replace(/^      /gm, ''), 'literal copied exactly except indentation');
+  assert.equal(helperLiteral.replace(/\r\n/g, '\n'), literal.replace(/\r\n/g, '\n').replace(/^      /gm, ''), 'literal copied exactly except indentation');
 });
 function restoreConceptMapExtraction(source: string): string {
   const prefix = '        const newMapResource: StudyGeneratedResource = ';
