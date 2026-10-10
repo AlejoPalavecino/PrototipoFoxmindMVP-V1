@@ -4,6 +4,7 @@ import { BookOpen, BrainCircuit, CalendarDays, LayoutDashboard, LogOut, Settings
 import { messagingStore } from '../../features/messaging/messagingStore';
 import { encodeRoute } from '../../app/routing';
 import { RouteBoundary } from './RouteBoundary';
+import { RoutePresentationReady, useRoutePresentation } from '../../app/useRoutePresentation';
 
 const DashboardDocente = lazy(() => import('../../views/docente/DashboardDocente').then(module => ({ default: module.DashboardDocente })));
 const AgendaDocente = lazy(() => import('../../views/docente/AgendaDocente').then(module => ({ default: module.AgendaDocente })));
@@ -15,6 +16,7 @@ const MensajesDocente = lazy(() => import('../../views/docente/MensajesDocente')
 
 export function DocenteLayout() {
   const { view, navigationParams, setView, setRole } = useAppContext();
+  const mainRef = useRoutePresentation();
   const [isExpanded, setIsExpanded] = useState(true);
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(() => messagingStore.getUnreadCount('docente'));
 
@@ -68,6 +70,7 @@ export function DocenteLayout() {
               <button
                 key={item.id}
                 onClick={() => setView(item.id)}
+                aria-current={isActive ? 'page' : undefined}
                 title={!isExpanded ? item.label : undefined}
                 className={`w-full flex items-center ${isExpanded ? 'justify-start px-4' : 'justify-center px-0'} py-3 rounded-xl text-sm font-bold transition-all duration-200 group relative ${
                   isActive 
@@ -137,26 +140,28 @@ export function DocenteLayout() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto relative pb-20 md:pb-0">
+      <main ref={mainRef} tabIndex={-1} className="flex-1 overflow-y-auto relative pb-20 md:pb-0">
         <div className="md:hidden p-4 bg-fox-surface border-b flex justify-between items-center">
            <img src="/logo.png" alt="FoxMind Logo" className="h-10 w-auto object-contain" />
            <button onClick={() => setRole('none')} className="text-sm text-fox-orange font-medium">Cambiar rol</button>
         </div>
         <div className="p-4 md:p-8 max-w-7xl mx-auto h-full">
           <RouteBoundary routeKey={encodeRoute({ role: 'docente', view, navigationParams })}>
-            {view === 'dashboard' && <DashboardDocente />}
-            {view === 'agenda' && <AgendaDocente />}
-            {view === 'aulas' && <AulasDocente />}
-            {view === 'progreso' && <ProgresoDocente />}
-            {view === 'copiloto' && <CopilotoIADocente />}
-            {view === 'mensajes' && <MensajesDocente />}
-            {view === 'config' && <ConfiguracionDocente />}
-            {/* Fallback for unimplemented views */}
-            {[''].includes(view) && (
-              <div className="flex flex-col items-center justify-center h-64 text-fox-text-muted/70">
-                <p>Vista en desarrollo</p>
-              </div>
-            )}
+            <RoutePresentationReady>
+              {view === 'dashboard' && <DashboardDocente />}
+              {view === 'agenda' && <AgendaDocente />}
+              {view === 'aulas' && <AulasDocente />}
+              {view === 'progreso' && <ProgresoDocente />}
+              {view === 'copiloto' && <CopilotoIADocente />}
+              {view === 'mensajes' && <MensajesDocente />}
+              {view === 'config' && <ConfiguracionDocente />}
+              {/* Fallback for unimplemented views */}
+              {[''].includes(view) && (
+                <div className="flex flex-col items-center justify-center h-64 text-fox-text-muted/70">
+                  <p>Vista en desarrollo</p>
+                </div>
+              )}
+            </RoutePresentationReady>
           </RouteBoundary>
         </div>
       </main>
@@ -170,6 +175,7 @@ export function DocenteLayout() {
               <button
                 key={item.id}
                 onClick={() => setView(item.id)}
+                aria-current={isActive ? 'page' : undefined}
                 className={`flex flex-col items-center p-2 min-w-[44px] min-h-[44px] ${isActive ? 'text-fox-orange' : 'text-fox-text-muted/70'}`}
               >
                 <Icon size={24} />

@@ -7,11 +7,12 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { useUrlNavigation } from '../useUrlNavigation';
 import type { Role } from '../../types';
 import type { AppView } from '../navigation';
-import { createUrlNavigation, decodeRoute, encodeRoute, type HistoryHost } from '../routing';
+import { createUrlNavigation, decodeRoute, encodeRoute, HISTORY_ENTRY_KEY, type HistoryHost } from '../routing';
 
 // push/replace deliberately do not dispatch popstate, like the browser.
 function browserAt(path: string) {
   const entries = [path];
+  const states: unknown[] = [{ [HISTORY_ENTRY_KEY]: 'fixture-initial-entry' }];
   let index = 0;
   const listeners = new Set<() => void>();
   const writes: { mode: string; state: unknown; path: string }[] = [];
@@ -25,10 +26,13 @@ function browserAt(path: string) {
     writes.push({ mode, state, path });
     if (mode === 'push') {
       entries.splice(index + 1);
+      states.splice(index + 1);
       entries.push(path);
+      states.push(state);
       index++;
     } else {
       entries[index] = path;
+      states[index] = state;
     }
     update();
   };
@@ -36,6 +40,7 @@ function browserAt(path: string) {
   const host: HistoryHost = {
     location,
     history: {
+      get state() { return states[index]; },
       pushState: (state, _unused, url) => write('push', state, url),
       replaceState: (state, _unused, url) => write('replace', state, url),
     },
@@ -43,7 +48,7 @@ function browserAt(path: string) {
     removeEventListener: (_event, listener) => { listeners.delete(listener); },
   };
   return {
-    host, writes, entries, listeners,
+    host, writes, entries, states, listeners,
     travel(delta: number) {
       index = Math.max(0, Math.min(entries.length - 1, index + delta));
       update();
@@ -109,7 +114,7 @@ test('initial hydration reads location without writing during construction; subs
   const fallback = createUrlNavigation(invalid.host);
   deepStrictEqual(fallback.getSnapshot(), { role: 'alumno', view: 'dashboard' });
   const stop = fallback.subscribe(() => {});
-  deepStrictEqual(invalid.writes, [{ mode: 'replace', state: null, path: '/alumno/dashboard' }]);
+  deepStrictEqual(invalid.writes, [{ mode: 'replace', state: { [HISTORY_ENTRY_KEY]: 'fixture-initial-entry' }, path: '/alumno/dashboard' }]);
   stop();
 });
 
@@ -139,7 +144,7 @@ test('forward returns to a prompt screen without stale context; valid IDs canoni
   const browser = browserAt('/docente/aulas/%61?contactId=private#draft');
   const navigation = createUrlNavigation(browser.host);
   const stop = navigation.subscribe(() => {});
-  deepStrictEqual(browser.writes[0], { mode: 'replace', state: null, path: '/docente/aulas/a' });
+  deepStrictEqual(browser.writes[0], { mode: 'replace', state: { [HISTORY_ENTRY_KEY]: 'fixture-initial-entry' }, path: '/docente/aulas/a' });
   navigation.setView('copiloto', { initialPrompt: 'private prompt' });
   browser.travel(-1);
   equal(navigation.getSnapshot().navigationParams?.openAulaId, 'a');
@@ -190,7 +195,11 @@ test('privacy: compatibility payloads are memory-only and reload never restores 
   navigation.setView('copiloto', { initialPrompt: 'secret prompt' });
   ok(navigation.getSnapshot().navigationParams?.initialPrompt);
   ok(!JSON.stringify(browser.writes).includes('secret'));
-  for (const write of browser.writes) equal(write.state, null);
+  for (const write of browser.writes) {
+    deepStrictEqual(Object.keys(write.state as object), [HISTORY_ENTRY_KEY], 'only a non-sensitive entry token may be persisted');
+    equal(typeof (write.state as Record<string, unknown>)[HISTORY_ENTRY_KEY], 'string');
+    ok(!JSON.stringify(write.state).includes('scroll'), 'coordinates stay in session memory');
+  }
   deepStrictEqual(createUrlNavigation(browser.host).getSnapshot(), { role: 'docente', view: 'copiloto' });
 });
 
@@ -305,7 +314,7 @@ for (const role of ['alumno', 'docente'] as const) {
     const render = classroomPage(role, navigation, []);
     render().flush();
     equal(browser.host.location.pathname, `/${role}/aulas`);
-    deepStrictEqual(browser.writes, [{ mode: 'replace', state: null, path: `/${role}/aulas` }]);
+    deepStrictEqual(browser.writes, [{ mode: 'replace', state: { [HISTORY_ENTRY_KEY]: 'fixture-initial-entry' }, path: `/${role}/aulas` }]);
     render().flush();
     navigation.setView('aulas', undefined, 'replace');
     equal(browser.writes.length, 1);
@@ -322,6 +331,68 @@ test('public setView replace mode preserves durable ID and clears transient task
   equal(browser.writes.length, 1);
   deepStrictEqual(navigation.getSnapshot().navigationParams, { openAulaId: 'a' });
   ok(!JSON.stringify(browser.writes).includes('private'));
+});
+
+test('transition metadata distinguishes screen, resource, payload and repeated-path traversal', () => {
+  const browser = browserAt('/docente/dashboard');
+  browser.states[0] = { foreign: 'preserved' };
+  const navigation = createUrlNavigation(browser.host);
+  const initial = navigation.getSnapshot();
+  equal(navigation.getTransition().kind, 'initial');
+  equal(browser.writes.length, 0);
+  const stop = navigation.subscribe(() => {});
+  equal(navigation.getSnapshot(), initial);
+  const first = navigation.getTransition().entryId;
+  equal((browser.host.history.state as any).foreign, 'preserved');
+  navigation.setView('mensajes', { conversationId: 'one' });
+  equal(navigation.getTransition().kind, 'screen');
+  navigation.setView('mensajes', { conversationId: 'two' });
+  equal(navigation.getTransition().kind, 'resource');
+  const resource = navigation.getTransition().entryId;
+  navigation.setView('mensajes', { conversationId: 'two', contactId: 'secret' });
+  equal(navigation.getTransition().kind, 'payload');
+  equal(navigation.getTransition().entryId, resource);
+  navigation.setView('dashboard');
+  const repeated = navigation.getTransition().entryId;
+  ok(first !== repeated);
+  browser.travel(-3);
+  equal(navigation.getTransition().kind, 'traverse');
+  equal(navigation.getTransition().entryId, first);
+  browser.travel(3);
+  equal(navigation.getTransition().entryId, repeated);
+  stop();
+  const count = browser.writes.length;
+  const stopAgain = navigation.subscribe(() => {});
+  equal(browser.writes.length, count, 'effect replay does not rewrite entry tokens');
+  stopAgain(); equal(browser.listeners.size, 0);
+});
+
+test('controller session restores distinct repeated URL entries without traversal writes or private coordinates', () => {
+  const browser = browserAt('/docente/dashboard');
+  browser.states[0] = null;
+  const navigation = createUrlNavigation(browser.host);
+  const original = navigation.getSnapshot();
+  const stop = navigation.subscribe(() => {});
+  equal(browser.writes.length, 1, 'first subscription enrolls the initial entry once');
+  equal(navigation.getSnapshot(), original);
+  const main = { scrollTop: 0, scrollHeight: 2000, clientHeight: 400, focus() {} };
+  navigation.presentation.attach(main);
+  navigation.presentation.ready(navigation.getTransition().id);
+  main.scrollTop = 120;
+  navigation.setView('agenda');
+  navigation.presentation.ready(navigation.getTransition().id);
+  main.scrollTop = 280;
+  navigation.setView('dashboard');
+  navigation.presentation.ready(navigation.getTransition().id);
+  main.scrollTop = 430;
+  const writes = browser.writes.length;
+  browser.travel(-2); navigation.presentation.ready(navigation.getTransition().id);
+  equal(main.scrollTop, 120);
+  browser.travel(2); navigation.presentation.ready(navigation.getTransition().id);
+  equal(main.scrollTop, 430);
+  equal(browser.writes.length, writes);
+  for (const state of browser.states) deepStrictEqual(Object.keys(state as object), [HISTORY_ENTRY_KEY]);
+  navigation.presentation.attach(null); stop();
 });
 
 test('App delegates navigation to the hook (wiring check, not mounted-browser evidence)', () => {

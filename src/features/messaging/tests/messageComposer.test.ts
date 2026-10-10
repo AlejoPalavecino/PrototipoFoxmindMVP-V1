@@ -145,15 +145,24 @@ test('original and current send/reset execution, recording responsibility and un
     assert.equal(before.length, 1); assert.equal(after.length, 1);
     assert.equal(lf(after[0].getText(current)), lf(before[0].getText(original)), name);
   }
-  // Navigation now resolves synchronously; preserve the four unrelated effects exactly.
+  // Navigation resolves synchronously. Preserve effect count/order and exact source
+  // except the authorized mobile-visibility scroll dependency (behavior: messageScroll.test.ts).
   const effectCalls = (sf: ts.SourceFile) => nodes(sf, ts.isCallExpression).filter(node =>
     (node as ts.CallExpression).expression.getText(sf) === 'useEffect') as ts.CallExpression[];
   assert.equal(effectCalls(original).length, 5);
   assert.equal(effectCalls(current).length, 5);
   const unrelatedEffects = effectCalls(current).filter(node => !node.arguments[0].getText(current).includes("setView('mensajes'"));
   assert.equal(unrelatedEffects.length, 4);
-  assert.deepEqual(unrelatedEffects.map(node => lf(node.getText(current))),
-    effectCalls(original).filter(node => node.arguments[1]?.getText(original) !== '[initialConversationId]').map(node => lf(node.getText(original))));
+  const baselineEffects = effectCalls(original).filter(node => node.arguments[1]?.getText(original) !== '[initialConversationId]');
+  const baselineScrollEffects = baselineEffects.filter(node => node.arguments[1]?.getText(original) === '[activeConversationId, conversations]');
+  assert.equal(baselineScrollEffects.length, 1, 'one immutable scroll effect receives the authorized dependency');
+  const expectedEffects = baselineEffects.map(node => {
+    const text = lf(node.getText(original));
+    return node === baselineScrollEffects[0]
+      ? text.replace('[activeConversationId, conversations]', '[activeConversationId, conversations, isMobileListVisible]')
+      : text;
+  });
+  assert.deepEqual(unrelatedEffects.map(node => lf(node.getText(current))), expectedEffects);
   const changedState = ['[activeConversationId, setActiveConversationId]', '[isMobileListVisible, setIsMobileListVisible]',
     '[replyingTo, setReplyingTo]', '[attachedFile, setAttachedFile]'];
   for (const declaration of nodes(original, ts.isVariableDeclaration) as ts.VariableDeclaration[]) {

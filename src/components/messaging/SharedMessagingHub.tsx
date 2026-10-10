@@ -151,14 +151,17 @@ export function SharedMessagingHub({ currentRole, initialConversationId }: Share
     }
   }, [activeConversationId, currentRole, conversations]);
 
-  // Auto scroll to bottom
+  // Scroll only the message list; scrollIntoView also moves main/window ancestors.
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const container = messagesEndRef.current;
+    container?.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
   };
 
+  // Visibility commits before this effect, so opening the already-active mobile
+  // default thread scrolls with a measurable list instead of its hidden layout.
   useEffect(() => {
     scrollToBottom();
-  }, [activeConversationId, conversations]);
+  }, [activeConversationId, conversations, isMobileListVisible]);
 
   // Audio recording timer
   useEffect(() => {
@@ -480,7 +483,7 @@ export function SharedMessagingHub({ currentRole, initialConversationId }: Share
               </AnimatePresence>
 
               {/* Message Thread Scroll Area */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+              <div ref={messagesEndRef} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
                 {displayMessages.length > 0 ? (
                   displayMessages.map((msg, idx) => {
                     const isMe = msg.senderId === currentUserId || 
@@ -726,7 +729,6 @@ export function SharedMessagingHub({ currentRole, initialConversationId }: Share
                     <p className="text-sm font-medium">No se encontraron mensajes en esta búsqueda.</p>
                   </div>
                 )}
-                <div ref={messagesEndRef} />
               </div>
 
               <MessageComposer

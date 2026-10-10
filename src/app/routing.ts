@@ -1,4 +1,5 @@
 import type { Role } from '../types';
+import { createPresentationSession, type PresentationTransition } from './useRoutePresentation';
 import type { AppView, ParamsByView, SetAppView, StoredNavigationParams } from './navigation';
 
 export interface RouteSnapshot {
@@ -10,7 +11,7 @@ export interface RouteSnapshot {
 // A narrow browser seam; writes never store compatibility payloads in history.state.
 export interface HistoryHost {
   location: { pathname: string; search: string; hash: string };
-  history: Pick<History, 'pushState' | 'replaceState'>;
+  history: Pick<History, 'pushState' | 'replaceState'> & { readonly state?: unknown };
   addEventListener(event: 'popstate', listener: () => void): void;
   removeEventListener(event: 'popstate', listener: () => void): void;
 }
@@ -80,23 +81,48 @@ type Navigate = <V extends AppView>(
   mode?: 'push' | 'replace',
 ) => void;
 
+export const HISTORY_ENTRY_KEY = '__foxmindNavigationEntry';
+let entrySequence = 0;
+const newEntryId = () => globalThis.crypto?.randomUUID?.() ?? `entry-${Date.now()}-${++entrySequence}`;
+function entryFromState(state: unknown): string | undefined {
+  if (!state || typeof state !== 'object') return undefined;
+  const token = (state as Record<string, unknown>)[HISTORY_ENTRY_KEY];
+  return typeof token === 'string' && token.length > 0 ? token : undefined;
+}
+function entryState(state: unknown, entryId: string) {
+  // Preserve other owners' object fields without serializing any application payload.
+  return { ...(state && typeof state === 'object' && !Array.isArray(state) ? state : {}), [HISTORY_ENTRY_KEY]: entryId };
+}
+
 export function createUrlNavigation(host?: HistoryHost) {
   const currentPath = () => host
     ? `${host.location.pathname}${host.location.search}${host.location.hash}`
     : '/';
   let lastPath = currentPath();
   let snapshot = decodeRoute(host?.location.pathname ?? '/');
+  let transition: PresentationTransition = {
+    id: 0, kind: 'initial', entryId: entryFromState(host?.history.state) ?? newEntryId(),
+  };
+  const presentation = createPresentationSession();
+  presentation.transition(transition);
+  const updateTransition = (kind: PresentationTransition['kind'], entryId = transition.entryId) => {
+    transition = { id: transition.id + 1, kind, entryId };
+    presentation.transition(transition);
+  };
   const listeners = new Set<() => void>();
   const notify = () => { for (const listener of listeners) listener(); };
 
   const canonicalize = () => {
     const path = encodeRoute(snapshot);
     // Query/hash are intentionally not supported; discard rather than propagate them.
-    if (host && currentPath() !== path) host.history.replaceState(null, '', path);
+    if (host && (currentPath() !== path || entryFromState(host.history.state) !== transition.entryId)) {
+      host.history.replaceState(entryState(host.history.state, transition.entryId), '', path);
+    }
     lastPath = currentPath();
   };
 
   const onPopState = () => {
+    updateTransition('traverse', entryFromState(host?.history.state) ?? newEntryId());
     snapshot = decodeRoute(host?.location.pathname ?? '/');
     canonicalize();
     notify(); // Never restore transient prompts/contact actions on traversal.
@@ -104,8 +130,16 @@ export function createUrlNavigation(host?: HistoryHost) {
 
   const publish = (next: RouteSnapshot, mode: 'push' | 'replace') => {
     const path = encodeRoute(next);
+    const pathChanged = encodeRoute(snapshot) !== path;
+    const screenChanged = snapshot.role !== next.role || snapshot.view !== next.view;
+    const entryId = pathChanged && mode === 'push' ? newEntryId() : transition.entryId;
+    updateTransition(screenChanged ? 'screen' : pathChanged ? 'resource' : 'payload', entryId);
     if (host && currentPath() !== path) {
-      host.history[mode === 'push' ? 'pushState' : 'replaceState'](null, '', path);
+      host.history[mode === 'push' ? 'pushState' : 'replaceState'](
+        entryState(mode === 'replace' ? host.history.state : undefined, entryId), '', path,
+      );
+    } else if (host && entryFromState(host.history.state) !== entryId) {
+      host.history.replaceState(entryState(host.history.state, entryId), '', path);
     }
     lastPath = currentPath();
     snapshot = next;
@@ -129,13 +163,15 @@ export function createUrlNavigation(host?: HistoryHost) {
 
   return {
     getSnapshot: () => snapshot,
+    getTransition: () => transition,
+    presentation,
     subscribe(listener: () => void) {
       // Unique subscriptions allow independent cleanup even for the same callback.
       const subscription = () => listener();
       listeners.add(subscription);
       if (listeners.size === 1) {
         host?.addEventListener('popstate', onPopState);
-        if (currentPath() !== lastPath) onPopState();
+        if (currentPath() !== lastPath || (entryFromState(host?.history.state) && entryFromState(host?.history.state) !== transition.entryId)) onPopState();
         else canonicalize();
       }
       return () => {

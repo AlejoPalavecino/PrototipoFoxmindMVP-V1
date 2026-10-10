@@ -8,6 +8,7 @@ import ts from 'typescript';
 import { AppContext } from '../../context';
 import { createDefaultAppSettings } from '../settings';
 import { encodeRoute } from '../routing';
+import * as routePresentation from '../useRoutePresentation';
 
 const boundaryUrl = new URL('../../components/layout/RouteBoundary.tsx', import.meta.url);
 const layouts = [
@@ -88,6 +89,7 @@ for (const layout of layouts) {
         if (path.endsWith('/messagingStore')) return { messagingStore: { getUnreadCount: () => 0 } };
         if (path.endsWith('/RouteBoundary')) return { RouteBoundary };
         if (path.endsWith('/routing')) return { encodeRoute };
+        if (path === '../../app/useRoutePresentation') return routePresentation;
         throw new Error(`Unexpected static dependency: ${path}`);
       }, module, module.exports, (path: string) => {
         requests.push(path);

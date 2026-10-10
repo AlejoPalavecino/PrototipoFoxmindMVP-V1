@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
 import { resolveStudentClassroom } from '../index';
-import { createUrlNavigation, type HistoryHost } from '../../../app/routing';
+import { createUrlNavigation, HISTORY_ENTRY_KEY, type HistoryHost } from '../../../app/routing';
 
 // Passing inline-page characterization, then the actual mounted hook/dialog bindings.
 // Fake hooks/elements execute resolved statements, not React lifecycle or browser imports.
@@ -64,24 +64,39 @@ const evaluate = (code: string, globals: Record<string, any>) => runInNewContext
   compilerOptions: { target: ts.ScriptTarget.ESNext, jsx: ts.JsxEmit.React }, fileName: 'membership.tsx',
 }).outputText, globals);
 
+function entryToken(state: unknown): string {
+  assert.ok(state && typeof state === 'object');
+  assert.deepEqual(Object.keys(state), [HISTORY_ENTRY_KEY], 'Only a non-sensitive entry token may be persisted; no payload or scroll coordinates');
+  const token = (state as Record<string, unknown>)[HISTORY_ENTRY_KEY];
+  assert.equal(typeof token, 'string');
+  assert.ok((token as string).length > 0);
+  return token as string;
+}
+
 function mount() {
   const values: Record<string, any> = {}, calls: any[] = [], effects: (() => any)[] = [];
   let records: any[] = [{ id: 'a-1', subject: 'Historia', course: '2° B' }];
   let result: any = { status: 'rejected' }, subscriber: (() => void) | undefined, reads = 0, index = 0;
   const names = ['classrooms', 'isJoinModalOpen', 'invitationCode'];
   const paths = ['/alumno/aulas'];
+  const states: unknown[] = [null];
   let pathIndex = 0;
   const writes: any[] = [], listeners = new Set<() => void>(), corrections: (() => void)[] = [];
   const host: HistoryHost = {
     location: { pathname: paths[0], search: '', hash: '' },
     history: {
+      get state() { return states[pathIndex]; },
       pushState: (state, _unused, url) => {
+        entryToken(state);
         writes.push(['push', state, String(url)]);
-        paths.splice(pathIndex + 1); paths.push(String(url)); pathIndex++;
+        paths.splice(pathIndex + 1); states.splice(pathIndex + 1);
+        paths.push(String(url)); states.push(state); pathIndex++;
         host.location.pathname = paths[pathIndex];
       },
       replaceState: (state, _unused, url) => {
+        entryToken(state);
         writes.push(['replace', state, String(url)]);
+        states[pathIndex] = state;
         paths[pathIndex] = String(url); host.location.pathname = paths[pathIndex];
       },
     },
@@ -129,7 +144,7 @@ function mount() {
   return { render, values, calls, records: () => records, reads: () => reads,
     replace: (next: any[]) => { records = next; }, outcome: (next: any) => { result = next; },
     params: (next: any) => navigation.setView('aulas', next), refresh: () => subscriber!(), start: () => effects[0](),
-    path: () => host.location.pathname, writes, flushCorrections: () => corrections.forEach(effect => effect()),
+    path: () => host.location.pathname, state: () => host.history.state, writes, flushCorrections: () => corrections.forEach(effect => effect()),
     travel: (delta: number) => {
       pathIndex = Math.max(0, Math.min(paths.length - 1, pathIndex + delta));
       host.location.pathname = paths[pathIndex]; listeners.forEach(listener => listener());
@@ -199,6 +214,9 @@ test('membership initializes lazily, mount copies before subscription, refresh c
 
 test('page selection/back and dialog hide preserve membership snapshot and typed code across renders', () => {
   const mounted = mount(); let current = mounted.render(); mounted.start();
+  const initialState = mounted.state();
+  const initialToken = entryToken(initialState);
+  assert.deepEqual(mounted.writes, [['replace', initialState, '/alumno/aulas']], 'Initial enrollment replaces once, without pushing');
   current.setInvitationCode('  HIST-2026  '); current.setIsJoinModalOpen(true);
   current = mounted.render(); const snapshot = current.classrooms;
   const elements = dialog(current), input = elements.find(node => node.type === 'input');
@@ -211,24 +229,35 @@ test('page selection/back and dialog hide preserve membership snapshot and typed
   assert.equal(mounted.values.invitationCode, 'typed code');
   current.handleSelect(snapshot[0]);
   assert.equal(mounted.path(), '/alumno/aulas/a-1');
-  assert.deepEqual(mounted.writes, [['push', null, '/alumno/aulas/a-1']]);
+  const detailState = mounted.state();
+  const detailToken = entryToken(detailState);
+  assert.notEqual(detailToken, initialToken);
+  assert.deepEqual(mounted.writes, [
+    ['replace', initialState, '/alumno/aulas'], ['push', detailState, '/alumno/aulas/a-1'],
+  ]);
   current = mounted.render();
   assert.equal(current.classrooms, snapshot); assert.equal(current.invitationCode, 'typed code');
   assert.equal(current.selectedAula, snapshot[0]);
+  const traversalWrites = mounted.writes.length;
   mounted.travel(-1);
+  assert.equal(entryToken(mounted.state()), initialToken);
   assert.equal(mounted.render().selectedAula, undefined, 'browser Back clears rendered detail');
   mounted.travel(1);
+  assert.equal(entryToken(mounted.state()), detailToken);
   assert.equal(mounted.render().selectedAula, snapshot[0], 'Forward resolves the durable ID');
+  assert.equal(mounted.writes.length, traversalWrites, 'Traversal restores entry state without pushing or replacing');
   mounted.render().handleBack();
   assert.deepEqual(mounted.calls.at(-1), ['view', 'aulas', undefined, 'replace']);
   assert.equal(mounted.path(), '/alumno/aulas');
-  assert.deepEqual(mounted.writes.at(-1), ['replace', null, '/alumno/aulas']);
+  assert.deepEqual(mounted.writes.at(-1), ['replace', detailState, '/alumno/aulas']);
+  assert.equal(entryToken(mounted.state()), detailToken, 'Replacement retains entry identity');
   assert.equal(mounted.render().selectedAula, undefined);
   assert.equal(mounted.render().classrooms, snapshot); assert.equal(mounted.reads(), 2);
   const count = mounted.writes.length;
   mounted.render().handleBack();
   assert.deepEqual(mounted.calls.at(-1), ['view', 'aulas', undefined, 'replace']);
   assert.equal(mounted.writes.length, count, 'same-path Back must not write history again');
+  assert.doesNotMatch(JSON.stringify(mounted.writes), /HIST-2026|typed code/);
 });
 
 test('direct route hydration and invalid/empty membership correction leave join drafts and snapshots intact', () => {
@@ -237,12 +266,15 @@ test('direct route hydration and invalid/empty membership correction leave join 
   let current = mounted.render(); mounted.start();
   assert.equal(current.selectedAula, current.classrooms[0], 'direct ID resolves without a selection effect');
   current.setInvitationCode('pending code'); current.setIsJoinModalOpen(true);
-  mounted.params({ aulaId: 'missing' }); current = mounted.render();
+  mounted.params({ aulaId: 'missing', taskTitle: 'private task title' }); current = mounted.render();
+  const detailState = mounted.state();
+  const detailToken = entryToken(detailState);
   const snapshot = current.classrooms;
   assert.equal(current.selectedAula, undefined);
   mounted.flushCorrections();
   assert.equal(mounted.path(), '/alumno/aulas');
-  assert.deepEqual(mounted.writes.at(-1), ['replace', null, '/alumno/aulas']);
+  assert.deepEqual(mounted.writes.at(-1), ['replace', detailState, '/alumno/aulas']);
+  assert.equal(entryToken(mounted.state()), detailToken, 'Invalid-ID correction retains entry identity');
   const count = mounted.writes.length;
   mounted.render(); mounted.flushCorrections(); assert.equal(mounted.writes.length, count);
   assert.equal(mounted.values.invitationCode, 'pending code'); assert.equal(mounted.values.isJoinModalOpen, true);
@@ -251,6 +283,7 @@ test('direct route hydration and invalid/empty membership correction leave join 
   current = mounted.render(); assert.equal(current.selectedAula, undefined); assert.equal(current.classrooms.length, 0);
   mounted.flushCorrections(); assert.equal(mounted.path(), '/alumno/aulas');
   assert.equal(mounted.values.invitationCode, 'pending code'); assert.equal(mounted.values.isJoinModalOpen, true);
+  assert.doesNotMatch(JSON.stringify(mounted.writes), /pending code|private task title/);
 });
 
 test('rejected join preserves modal/code and duplicate toasts before close/clear without membership refresh', () => {

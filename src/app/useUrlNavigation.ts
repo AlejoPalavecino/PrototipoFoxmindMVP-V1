@@ -11,5 +11,8 @@ export function useUrlNavigation() {
     navigation.getSnapshot,
     navigation.getSnapshot,
   );
-  return { ...snapshot, setView: navigation.setView, setRole: navigation.setRole };
+  return {
+    ...snapshot, setView: navigation.setView, setRole: navigation.setRole,
+    presentation: { session: navigation.presentation, transition: navigation.getTransition() },
+  };
 }

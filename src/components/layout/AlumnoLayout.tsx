@@ -4,6 +4,7 @@ import { BookOpen, Brain, Home, LogOut, Settings, TrendingUp, ChevronLeft, Chevr
 import { messagingStore } from '../../features/messaging/messagingStore';
 import { encodeRoute } from '../../app/routing';
 import { RouteBoundary } from './RouteBoundary';
+import { RoutePresentationReady, useRoutePresentation } from '../../app/useRoutePresentation';
 
 const DashboardAlumno = lazy(() => import('../../views/alumno/DashboardAlumno').then(module => ({ default: module.DashboardAlumno })));
 const EstudiaAlumno = lazy(() => import('../../views/alumno/EstudiaAlumno').then(module => ({ default: module.EstudiaAlumno })));
@@ -14,6 +15,7 @@ const MensajesAlumno = lazy(() => import('../../views/alumno/MensajesAlumno').th
 
 export function AlumnoLayout() {
   const { view, navigationParams, setView, setRole } = useAppContext();
+  const mainRef = useRoutePresentation();
   const [isExpanded, setIsExpanded] = useState(true);
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(() => messagingStore.getUnreadCount('alumno'));
 
@@ -66,6 +68,7 @@ export function AlumnoLayout() {
               <button
                 key={item.id}
                 onClick={() => setView(item.id)}
+                aria-current={isActive ? 'page' : undefined}
                 title={!isExpanded ? item.label : undefined}
                 className={`w-full flex items-center ${isExpanded ? 'justify-start px-4' : 'justify-center px-0'} py-3 rounded-xl text-sm font-bold transition-all duration-200 group relative ${
                   isActive 
@@ -147,19 +150,21 @@ export function AlumnoLayout() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto relative pb-20 md:pb-0">
+      <main ref={mainRef} tabIndex={-1} className="flex-1 overflow-y-auto relative pb-20 md:pb-0">
         <div className="md:hidden p-4 bg-fox-surface border-b flex justify-between items-center">
            <img src="/logo.png" alt="FoxMind Logo" className="h-10 w-auto object-contain" />
            <button onClick={() => setRole('none')} className="text-sm text-fox-orange font-medium">Cambiar rol</button>
         </div>
         <div className="p-4 md:p-8 max-w-7xl mx-auto h-full">
           <RouteBoundary routeKey={encodeRoute({ role: 'alumno', view, navigationParams })}>
-            {view === 'dashboard' && <DashboardAlumno />}
-            {view === 'estudia' && <EstudiaAlumno />}
-            {view === 'aulas' && <AulasAlumno />}
-            {view === 'progreso' && <ProgresoAlumno />}
-            {view === 'mensajes' && <MensajesAlumno />}
-            {view === 'config' && <ConfiguracionAlumno />}
+            <RoutePresentationReady>
+              {view === 'dashboard' && <DashboardAlumno />}
+              {view === 'estudia' && <EstudiaAlumno />}
+              {view === 'aulas' && <AulasAlumno />}
+              {view === 'progreso' && <ProgresoAlumno />}
+              {view === 'mensajes' && <MensajesAlumno />}
+              {view === 'config' && <ConfiguracionAlumno />}
+            </RoutePresentationReady>
           </RouteBoundary>
         </div>
       </main>
@@ -173,6 +178,7 @@ export function AlumnoLayout() {
               <button
                 key={item.id}
                 onClick={() => setView(item.id)}
+                aria-current={isActive ? 'page' : undefined}
                 className={`flex flex-col items-center p-2 min-w-[44px] min-h-[44px] ${isActive ? 'text-fox-orange' : 'text-fox-text-muted/70'}`}
               >
                 <Icon size={24} />
