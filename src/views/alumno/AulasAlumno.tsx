@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { resolveStudentClassroom } from '../../features/classrooms';
 import {
   useStudentClassroomMembership,
@@ -10,21 +10,16 @@ import { motion, AnimatePresence } from 'motion/react';
 
 export function AulasAlumno() {
   const { navigationParams, setView } = useAppContext();
-  const [selectedAula, setSelectedAula] = useState<Classroom | null>(null);
   const membership = useStudentClassroomMembership();
   const { classrooms, setIsJoinModalOpen } = membership;
+  const selectedAula = resolveStudentClassroom(classrooms, navigationParams);
 
   useEffect(() => {
-    const aula = resolveStudentClassroom(classrooms, navigationParams);
-    if (aula) setSelectedAula(aula);
-  }, [navigationParams, classrooms]);
+    if (navigationParams?.aulaId && !selectedAula) setView('aulas', undefined, 'replace');
+  }, [navigationParams?.aulaId, selectedAula, setView]);
 
-  const handleBack = () => {
-    setSelectedAula(null);
-    if (navigationParams?.aulaId) {
-      setView('aulas', undefined);
-    }
-  };
+  const handleSelect = (aula: Classroom) => setView('aulas', { aulaId: aula.id });
+  const handleBack = () => setView('aulas', undefined, 'replace');
 
   return (
     <div className={`flex-1 flex flex-col ${!selectedAula ? 'overflow-y-auto pb-20 md:pb-8 px-4 md:px-8 pt-8' : ''}`}>
@@ -33,12 +28,12 @@ export function AulasAlumno() {
           <StudentClassroomList
             key="grid"
             classrooms={classrooms}
-            onSelect={setSelectedAula}
+            onSelect={handleSelect}
             onJoin={() => setIsJoinModalOpen(true)}
           />
         ) : (
           <motion.div
-            key="detail"
+            key={selectedAula.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}

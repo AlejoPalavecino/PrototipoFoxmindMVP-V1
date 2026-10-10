@@ -234,6 +234,61 @@ test('actual mounted student shell preserves whole JSX, six tabs, early return, 
   let originalPage = print(pageOwner.body!);
   const pageVariables = nodes(pageOwner, ts.isVariableDeclaration);
   const membershipMount = pageVariables.find(node => node.name.getText() === 'membership');
+  if (membershipMount) {
+    // Keep the immutable pre-extraction page oracle. Invert only the explicitly
+    // verified R2 navigation changes; actual callback behavior is exercised in
+    // classroomStudentMembership.test.ts against the real history controller.
+    const selection = pageVariables.find(node => node.name.getText() === 'selectedAula')!;
+    const select = pageVariables.find(node => node.name.getText() === 'handleSelect')!;
+    const back = pageVariables.find(node => node.name.getText() === 'handleBack')!;
+    assert.ok(selection.initializer && ts.isCallExpression(selection.initializer));
+    assert.equal(selection.initializer.expression.getText(), 'resolveStudentClassroom');
+    assert.deepEqual(selection.initializer.arguments.map(node => node.getText()), ['classrooms', 'navigationParams']);
+    const helper = symbol(selection.initializer.expression)?.valueDeclaration;
+    assert.ok(helper && ts.isFunctionDeclaration(helper) && helper.body);
+    const guard = helper.body.statements[0];
+    assert.ok(ts.isIfStatement(guard) && ts.isReturnStatement(guard.thenStatement) && guard.thenStatement.expression);
+    assert.equal(helper.body.statements.length, 1);
+    assert.equal(guard.expression.getText(), 'params?.aulaId');
+    assert.equal(guard.thenStatement.expression.getText(), 'classrooms.find(a => a.id === params.aulaId)');
+    assert.equal(select.initializer!.getText(), "(aula: Classroom) => setView('aulas', { aulaId: aula.id })");
+    assert.equal(back.initializer!.getText(), "() => setView('aulas', undefined, 'replace')");
+    const effects = nodes(pageOwner, (node): node is ts.CallExpression => ts.isCallExpression(node)
+      && node.expression.getText() === 'useEffect');
+    assert.equal(effects.length, 1);
+    assert.equal(effects[0].arguments[1].getText(), '[navigationParams?.aulaId, selectedAula, setView]');
+    assert.equal(print(effects[0].arguments[0]).replace(/\s+/g, ''),
+      "()=>{if(navigationParams?.aulaId&&!selectedAula)setView('aulas',undefined,'replace');}");
+    const keys = nodes(pageOwner, (node): node is ts.JsxAttribute => ts.isJsxAttribute(node)
+      && node.name.getText() === 'key' && node.initializer?.getText() === '{selectedAula.id}');
+    assert.equal(keys.length, 1);
+    assert.ok(ts.isJsxOpeningElement(keys[0].parent.parent));
+    assert.equal(keys[0].parent.parent.tagName.getText(), 'motion.div');
+    const replacements = [
+      { node: membershipMount.parent.parent, text: `const [selectedAula, setSelectedAula] = useState<Classroom | null>(null);\n${membershipMount.parent.parent.getText()}` },
+      { node: selection.parent.parent, text: '' },
+      { node: select.parent.parent, text: '' },
+      { node: effects[0].parent, text: `useEffect(() => { if (navigationParams?.aulaId) {
+        const aula = classrooms.find(a => a.id === navigationParams.aulaId);
+        if (aula) { setSelectedAula(aula); }
+      } }, [navigationParams, classrooms]);` },
+      { node: back.parent.parent, text: `const handleBack = () => {
+        setSelectedAula(null);
+        if (navigationParams?.aulaId) { setView('aulas', undefined); }
+      };` },
+      { node: keys[0], text: 'key="detail"' },
+    ];
+    const start = pageOwner.body!.getStart();
+    let inverse = pageOwner.body!.getText();
+    replacements.sort((a, b) => b.node.getStart() - a.node.getStart()).forEach(({ node, text }) => {
+      inverse = inverse.slice(0, node.getStart() - start) + text + inverse.slice(node.getEnd() - start);
+    });
+    const source = ts.createSourceFile('navigationInverse.tsx', `function reconstructed() ${inverse}`,
+      ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const restored = source.statements[0];
+    assert.ok(ts.isFunctionDeclaration(restored) && restored.body);
+    originalPage = print(restored.body);
+  }
   let membership: ts.FunctionDeclaration | undefined;
   let membershipBinding: ts.VariableDeclaration | undefined;
   if (membershipMount) {
@@ -280,44 +335,8 @@ test('actual mounted student shell preserves whole JSX, six tabs, early return, 
     assert.deepEqual(statementOrder(reconstruction().body), [
       ...statementOrder(beforeJoin.body).slice(0, -1), 'handleJoinClassroom', 'ReturnStatement',
     ]);
-    const effects = pageOwner.body!.statements.filter((node): node is ts.ExpressionStatement => ts.isExpressionStatement(node)
-      && ts.isCallExpression(node.expression) && node.expression.expression.getText() === 'useEffect');
-    assert.equal(effects.length, 1);
-    const navigation = effects[0].expression as ts.CallExpression;
-    const callback = navigation.arguments[0];
-    assert.ok(ts.isArrowFunction(callback) && ts.isBlock(callback.body));
-    const lookup = (callback.body.statements[0] as ts.VariableStatement).declarationList.declarations[0];
-    assert.ok(lookup.initializer && ts.isCallExpression(lookup.initializer));
-    const helper = symbol(lookup.initializer.expression)?.valueDeclaration;
-    assert.ok(helper && ts.isFunctionDeclaration(helper) && helper.body);
-    assert.equal(helper.body.statements.length, 1);
-    const guard = helper.body.statements[0];
-    assert.ok(ts.isIfStatement(guard) && ts.isReturnStatement(guard.thenStatement) && guard.thenStatement.expression);
-    assert.equal(guard.expression.getText(), 'params?.aulaId');
-    const find = guard.thenStatement.expression;
-    assert.equal(find.getText(), 'classrooms.find(a => a.id === params.aulaId)');
-    assert.deepEqual(lookup.initializer.arguments.map(node => node.getText()), ['classrooms', 'navigationParams']);
-    const selection = callback.body.statements[1];
-    assert.ok(ts.isIfStatement(selection) && ts.isExpressionStatement(selection.thenStatement));
-    assert.equal(callback.body.statements.length, 2);
-    const rename = (node: ts.Node) => print(node).replace(/\bparams\b/g, 'navigationParams');
-    // Inline the actually resolved truthy guard/first-match expression, restoring
-    // only original statement blocks around the unchanged page selection callback.
-    const reconstructed = reconstruction();
-    const navigationAnchor = reconstructed.body.statements[6];
-    assert.ok(ts.isExpressionStatement(navigationAnchor) && ts.isCallExpression(navigationAnchor.expression));
-    assert.equal(navigationAnchor.expression.expression.getText(), 'useEffect');
-    assert.equal(nodes(navigationAnchor, (node): node is ts.CallExpression => ts.isCallExpression(node)
-      && node.expression.getText() === 'resolveStudentClassroom').length, 1);
-    const navigationStart = navigationAnchor.getStart(reconstructed.source) - reconstructed.prefix.length;
-    const navigationEnd = navigationAnchor.end - reconstructed.prefix.length;
-    // Anchor by parsed statement positions: standalone printer indentation differs
-    // from the same effect inside the page block, so string replacement can miss it.
-    originalPage = originalPage.slice(0, navigationStart) + `useEffect(() => { if (${rename(guard.expression)}) {
-      const ${print(lookup.name)} = ${rename(find)};
-      if (${print(selection.expression)}) { ${print(selection.thenStatement)} }
-    } }, ${print(navigation.arguments[1])});` + originalPage.slice(navigationEnd);
-    assert.doesNotMatch(originalPage, /resolveStudentClassroom\(/);
+    assert.doesNotMatch(originalPage, /resolveStudentClassroom\(/,
+      'The verified R2 inverse restores the original inline lookup for the immutable page oracle');
     const dialog = rendered(pageOwner, ['StudentClassroomJoinDialog']);
     assert.equal(dialog.consumer.attributes.properties.length, 1);
     const prop = dialog.consumer.attributes.properties[0];
@@ -366,7 +385,7 @@ test('actual mounted student shell preserves whole JSX, six tabs, early return, 
     if (membership) assert.equal(list.consumer.attributes.properties[0].getText(), 'key="grid"');
     assert.ok(ts.isObjectBindingPattern(list.owner.parameters[0].name));
     const stateBinding = (name: string) => {
-      if (membership && name !== 'setSelectedAula') {
+      if (membership && name !== 'handleSelect') {
         assert.ok(membershipBinding && ts.isObjectBindingPattern(membershipBinding.name));
         const consumed = membershipBinding.name.elements.find(item => item.name.getText() === name);
         assert.ok(consumed, `Actual page consumes ${name}`);
@@ -377,6 +396,11 @@ test('actual mounted student shell preserves whole JSX, six tabs, early return, 
         assert.ok(property);
         assert.equal(checker.getShorthandAssignmentValueSymbol(property)?.valueDeclaration?.getSourceFile(), membership.getSourceFile());
         return consumed.name;
+      }
+      if (name === 'handleSelect') {
+        const callback = pageVariables.find(node => node.name.getText() === name);
+        assert.ok(callback?.initializer && ts.isArrowFunction(callback.initializer));
+        return callback.name;
       }
       const binding = pageVariables.find(node => ts.isArrayBindingPattern(node.name)
         && node.name.elements.some(item => ts.isBindingElement(item) && item.name.getText() === name));
@@ -397,11 +421,11 @@ test('actual mounted student shell preserves whole JSX, six tabs, early return, 
         assert.equal(supplied.body.arguments.length, 1);
         assert.equal(supplied.body.arguments[0].kind, ts.SyntaxKind.TrueKeyword);
       } else {
-        assert.equal(symbol(supplied), symbol(stateBinding(name === 'onSelect' ? 'setSelectedAula' : 'classrooms')));
+        assert.equal(symbol(supplied), symbol(stateBinding(name === 'onSelect' ? 'handleSelect' : 'classrooms')));
       }
       const resolved = symbol(parameter.name);
       assert.ok(resolved);
-      substitutions.set(resolved, supplied);
+      substitutions.set(resolved, name === 'onSelect' ? ts.factory.createIdentifier('setSelectedAula') : supplied);
     }
     assert.equal(substitutions.size, 3);
     const returned = list.owner.body!.statements.find(ts.isReturnStatement)!.expression!;

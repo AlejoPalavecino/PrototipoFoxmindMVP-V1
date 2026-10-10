@@ -15,6 +15,13 @@ export function assertNavigationTypes(
 
   setView('aulas', {});
   setView('aulas', undefined);
+  setView('aulas', { aulaId: 'class-1' }, 'push');
+  setView('aulas', undefined, 'replace');
+  setView('mensajes', { conversationId: 'conversation-1' }, 'replace');
+  // @ts-expect-error Invalid history modes are rejected.
+  setView('aulas', undefined, 'pop');
+  // @ts-expect-error Replace mode must not widen the destination payload.
+  setView('copiloto', { conversationId: 'conversation-1' }, 'replace');
   setView('aulas', {
     openTask: true,
     subject: 'Mathematics',

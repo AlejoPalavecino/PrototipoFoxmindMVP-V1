@@ -4,7 +4,7 @@ import { useAppContext } from '../../context';
 
 export function MensajesAlumno() {
   const { navigationParams } = useAppContext();
-  const initialConvId = navigationParams?.conversationId || 'dm-laura-valentina';
+  const initialConvId = navigationParams?.conversationId;
 
   return (
     <div className="h-full flex flex-col">

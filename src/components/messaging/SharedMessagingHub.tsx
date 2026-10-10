@@ -60,8 +60,8 @@ export function SharedMessagingHub({ currentRole, initialConversationId }: Share
     conversationId: initialConversationId || 'dm-laura-valentina', navigationId: initialConversationId,
   }));
   const navigationChanged = selection.navigationId !== initialConversationId;
-  const requestedConversationId = navigationChanged && initialConversationId
-    ? initialConversationId : selection.conversationId;
+  const requestedConversationId = navigationChanged
+    ? initialConversationId || 'dm-laura-valentina' : selection.conversationId;
   const activeConversation = resolveAccessibleConversation(conversations, currentUserId, requestedConversationId);
   const activeConversationId = activeConversation?.id ?? null;
   if (navigationChanged || selection.conversationId !== activeConversationId) {
@@ -86,9 +86,6 @@ export function SharedMessagingHub({ currentRole, initialConversationId }: Share
     conversationId: activeConversationId, replyingTo: null, attachedFile: null,
   }));
   const composerContext = isolateComposerContext(storedComposerContext, activeConversationId);
-  // Conditional render-phase adjustment avoids both a stale committed frame and
-  // an old thread's reply/file being submitted before a cleanup effect runs.
-  if (composerContext !== storedComposerContext) setComposerContext(composerContext);
   const { replyingTo, attachedFile } = composerContext;
   const setReplyingTo = (reply: DirectMessageItem | null) => {
     setComposerContext(context => ({ ...isolateComposerContext(context, activeConversationId), replyingTo: reply }));
@@ -110,13 +107,34 @@ export function SharedMessagingHub({ currentRole, initialConversationId }: Share
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Reset the complete composer before committing a different thread, including
+  // traversal back to the no-ID default. Same-thread rerenders preserve drafts.
+  if (composerContext !== storedComposerContext) {
+    setComposerContext(composerContext);
+    setInputText('');
+    setSelectedTag(null);
+    setIsRecordingAudio(false);
+    setShowAttachmentPicker(false);
+  }
+
   const selectConversation = (conversationId: string) => {
     const conversation = messagingStore.getConversationById(conversationId);
     if (!conversation || !canAccessConversation(conversation, currentUserId)) return;
     setSelection({ conversationId, navigationId: initialConversationId });
     setIsMobileListVisible(false);
+    setView('mensajes', { conversationId });
   };
-  if (navigationChanged && initialConversationId && isMobileListVisible) setIsMobileListVisible(false);
+  if (navigationChanged && isMobileListVisible !== !initialConversationId) {
+    setIsMobileListVisible(!initialConversationId);
+  }
+
+  // Only an explicit unresolved request needs canonical correction. A no-ID
+  // desktop default must leave the mobile list URL alone, including after Back.
+  useEffect(() => {
+    if (initialConversationId && initialConversationId !== activeConversationId) {
+      setView('mensajes', activeConversationId ? { conversationId: activeConversationId } : undefined, 'replace');
+    }
+  }, [initialConversationId, activeConversationId, setView]);
 
   // Subscribe to store updates
   useEffect(() => {
@@ -332,7 +350,10 @@ export function SharedMessagingHub({ currentRole, initialConversationId }: Share
               <div className="px-4 sm:px-6 py-3.5 border-b border-fox-border bg-fox-surface flex justify-between items-center shrink-0">
                 <div className="flex items-center gap-3 min-w-0">
                   <button
-                    onClick={() => setIsMobileListVisible(true)}
+                    onClick={() => {
+                      setIsMobileListVisible(true);
+                      setView('mensajes', undefined, 'replace');
+                    }}
                     className="md:hidden p-1.5 -ml-1 text-fox-text-muted hover:text-fox-text-main hover:bg-fox-bg rounded-xl transition-colors"
                   >
                     <ChevronLeft size={22} />

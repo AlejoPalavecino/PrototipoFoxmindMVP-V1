@@ -1,6 +1,7 @@
 import { deepStrictEqual, equal, ok } from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
+import ts from 'typescript';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { useUrlNavigation } from '../useUrlNavigation';
@@ -231,6 +232,96 @@ test('the hook can render on the server without window', () => {
     return createElement('span', null, `${role}:${view}`);
   }
   equal(renderToStaticMarkup(createElement(Harness)), '<span>none:dashboard</span>');
+});
+
+// Execute the actual classroom page with state/effect seams and fake JSX elements.
+// This tests callbacks against the history controller, not mounted React/animation.
+function classroomPage(role: 'alumno' | 'docente', navigation: ReturnType<typeof createUrlNavigation>, classrooms: any[]) {
+  const name = role === 'alumno' ? 'AulasAlumno' : 'AulasDocente';
+  const source = readFileSync(new URL(`../../views/${role}/${name}.tsx`, import.meta.url), 'utf8');
+  const ast = ts.createSourceFile('page.tsx', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const owner = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === name) as ts.FunctionDeclaration;
+  const slots: any[] = [];
+  let cursor = 0;
+  const effects: (() => void)[] = [];
+  const element = (type: any, props: any, ...children: any[]) => ({ type, props, children });
+  const globals: Record<string, any> = {
+    React: { createElement: element }, motion: { div: 'detail' }, AnimatePresence: 'presence',
+    useAppContext: () => navigation.getSnapshot() && { ...navigation.getSnapshot(), setView: navigation.setView },
+    useState: (initial: any) => {
+      const index = cursor++;
+      if (!(index in slots)) slots[index] = typeof initial === 'function' ? initial() : initial;
+      return [slots[index], (next: any) => { slots[index] = next; }];
+    },
+    useEffect: (effect: () => void) => effects.push(effect),
+    classroomRepository: { readCatalogue: () => classrooms }, classroomDetailSession: { replaceCurriculum() {} },
+    useTeacherClassroomCreation: () => ({ handleOpenModal() {} }),
+    useStudentClassroomMembership: () => ({ classrooms, setIsJoinModalOpen() {} }),
+    resolveStudentClassroom: (items: any[], params: any) => items.find(a => a.id === params?.aulaId),
+    resolveTeacherClassroom: (items: any[], params: any) => params?.openTask && params?.subject
+      ? items.find(a => `${a.subject} ${a.course}` === params.subject) : items.find(a => a.id === params?.openAulaId),
+  };
+  for (const component of ['StudentClassroomList', 'StudentClassroomJoinDialog', 'StudentClassroomDetail',
+    'TeacherClassroomList', 'TeacherClassroomCreateFlow', 'TeacherClassroomDetail']) globals[component] = component;
+  const code = ts.transpileModule(`(function () ${owner.body!.getText()})`, {
+    compilerOptions: { target: ts.ScriptTarget.ESNext, jsx: ts.JsxEmit.React }, fileName: 'page.tsx',
+  }).outputText;
+  const render = new Function(...Object.keys(globals), `return ${code}`)(...Object.values(globals));
+  return () => {
+    cursor = 0; effects.length = 0;
+    const tree = render();
+    const elements: any[] = [];
+    function visit(node: any) {
+      if (node && typeof node === 'object' && node.children) { elements.push(node); node.children.flat(Infinity).forEach(visit); }
+    }
+    visit(tree);
+    return { elements, flush: () => effects.forEach(effect => effect()) };
+  };
+}
+
+for (const role of ['alumno', 'docente'] as const) {
+  test(`${role} classroom entry, detail Back and browser traversal use durable URLs`, () => {
+    const browser = browserAt(`/${role}/aulas`);
+    const navigation = createUrlNavigation(browser.host);
+    const stop = navigation.subscribe(() => {});
+    const classroom = { id: 'class/1', subject: 'Math', course: 'A' };
+    const render = classroomPage(role, navigation, [classroom]);
+    render().elements.find(e => e.type === (role === 'alumno' ? 'StudentClassroomList' : 'TeacherClassroomList')).props.onSelect(classroom);
+    equal(browser.host.location.pathname, `/${role}/aulas/class%2F1`);
+    const detail = () => render().elements.find(e => e.type === (role === 'alumno' ? 'StudentClassroomDetail' : 'TeacherClassroomDetail'));
+    equal(detail().props.aula, classroom, 'valid route hydrates during render');
+    browser.travel(-1);
+    equal(detail(), undefined, 'browser Back must not retain local detail');
+    browser.travel(1);
+    detail().props.onBack();
+    equal(browser.host.location.pathname, `/${role}/aulas`);
+    equal(browser.writes.at(-1)?.mode, 'replace');
+    equal(detail(), undefined);
+    stop();
+  });
+  test(`${role} missing classroom replaces list and repeated correction is history-idempotent`, () => {
+    const browser = browserAt(`/${role}/aulas/missing`);
+    const navigation = createUrlNavigation(browser.host);
+    const render = classroomPage(role, navigation, []);
+    render().flush();
+    equal(browser.host.location.pathname, `/${role}/aulas`);
+    deepStrictEqual(browser.writes, [{ mode: 'replace', state: null, path: `/${role}/aulas` }]);
+    render().flush();
+    navigation.setView('aulas', undefined, 'replace');
+    equal(browser.writes.length, 1);
+  });
+}
+
+test('public setView replace mode preserves durable ID and clears transient task payload without history growth', () => {
+  const browser = browserAt('/docente/dashboard');
+  const navigation = createUrlNavigation(browser.host);
+  navigation.setView('aulas', { openAulaId: 'a', openTask: true, taskTitle: 'private task' });
+  navigation.setView('aulas', { openAulaId: 'a' }, 'replace');
+  navigation.setView('aulas', { openAulaId: 'a' }, 'replace');
+  equal(browser.entries.length, 2);
+  equal(browser.writes.length, 1);
+  deepStrictEqual(navigation.getSnapshot().navigationParams, { openAulaId: 'a' });
+  ok(!JSON.stringify(browser.writes).includes('private'));
 });
 
 test('App delegates navigation to the hook (wiring check, not mounted-browser evidence)', () => {

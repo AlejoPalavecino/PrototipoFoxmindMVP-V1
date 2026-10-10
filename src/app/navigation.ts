@@ -27,6 +27,7 @@ export type ParamsByView = {
 export type SetAppView = <V extends AppView>(
   view: V,
   params?: ParamsByView[NoInfer<V>],
+  mode?: 'push' | 'replace',
 ) => void;
 
 // Readers retain the optional fields they already consume across destinations.

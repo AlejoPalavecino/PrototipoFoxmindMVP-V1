@@ -149,8 +149,10 @@ test('original and current send/reset execution, recording responsibility and un
   const effectCalls = (sf: ts.SourceFile) => nodes(sf, ts.isCallExpression).filter(node =>
     (node as ts.CallExpression).expression.getText(sf) === 'useEffect') as ts.CallExpression[];
   assert.equal(effectCalls(original).length, 5);
-  assert.equal(effectCalls(current).length, 4);
-  assert.deepEqual(effectCalls(current).map(node => lf(node.getText(current))),
+  assert.equal(effectCalls(current).length, 5);
+  const unrelatedEffects = effectCalls(current).filter(node => !node.arguments[0].getText(current).includes("setView('mensajes'"));
+  assert.equal(unrelatedEffects.length, 4);
+  assert.deepEqual(unrelatedEffects.map(node => lf(node.getText(current))),
     effectCalls(original).filter(node => node.arguments[1]?.getText(original) !== '[initialConversationId]').map(node => lf(node.getText(original))));
   const changedState = ['[activeConversationId, setActiveConversationId]', '[isMobileListVisible, setIsMobileListVisible]',
     '[replyingTo, setReplyingTo]', '[attachedFile, setAttachedFile]'];
@@ -186,13 +188,15 @@ test('current selection guard and isolated composer submit/reset (bounded source
     resolveAccessibleConversation, isolateComposerContext, canAccessConversation,
     setSelection: (value: unknown) => log.push(['selection', value]),
     setIsMobileListVisible: (value: unknown) => log.push(['mobile', value]),
+    setView: (...args: unknown[]) => log.push(['view', ...args]),
     messagingStore: { getConversationById: (id: string) => messagingStore.getConversationById(id),
       sendMessage: (value: unknown) => log.push(['store', value]) } });
   const select = evaluate(initializer('selectConversation'), scope);
   select(hidden.id); select('missing');
   assert.deepEqual(log, [], 'manual inaccessible/missing selection must have no effects');
   select(safe.id);
-  assert.deepEqual(log.splice(0), [['selection', { conversationId: safe.id, navigationId: hidden.id }], ['mobile', false]]);
+  assert.deepEqual(log.splice(0), [['selection', { conversationId: safe.id, navigationId: hidden.id }], ['mobile', false],
+    ['view', 'mensajes', { conversationId: safe.id }]]);
   scope.requestedConversationId = evaluate(initializer('requestedConversationId'), scope);
   assert.equal(scope.requestedConversationId, hidden.id, 'prop target is read during render');
   scope.activeConversation = evaluate(initializer('activeConversation'), scope);

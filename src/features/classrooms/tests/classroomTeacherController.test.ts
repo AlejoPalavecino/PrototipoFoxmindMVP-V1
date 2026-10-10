@@ -178,13 +178,13 @@ test('teacher navigation retains task-subject precedence, truthiness, exact firs
   assert.equal(resolveActivity([], 'B'), undefined);
 });
 
-test('teacher navigation effect opens selected activity, clears params once and retains original dependencies', () => {
-  for (const [params, expected] of [[{ openTask: true, taskTitle: 'Segunda' }, 1], [{ openTask: true, taskTitle: 'missing' }, 0]] as const) {
+test('teacher navigation effect opens selected activity and consumes only transient task params via ID-preserving replace', () => {
+  for (const [params, expected] of [[{ openTask: true, taskTitle: 'Segunda', openAulaId: 'different-id', subject: 'Literatura 3° B' }, 1], [{ openTask: true, taskTitle: 'missing' }, 0]] as const) {
     const mounted = mount({}, params);
     mounted.effects[0]();
     assert.equal(mounted.values.tab, 'actividades');
     assert.equal(mounted.values.selectedActivity, mounted.activities[expected]);
-    assert.deepEqual(mounted.views, [['aulas', undefined]]);
+    assert.deepEqual(plain(mounted.views), [['aulas', { openAulaId: aula.id }, 'replace']]);
   }
   const empty = mount({ activities: [] }, { openTask: true, taskTitle: 'missing' });
   empty.effects[0]();
@@ -197,7 +197,7 @@ test('teacher navigation effect opens selected activity, clears params once and 
   }
   const effect = statements.find(node => ts.isExpressionStatement(node) && ts.isCallExpression(node.expression)
     && node.expression.expression.getText() === 'useEffect') as ts.ExpressionStatement;
-  assert.equal(print((effect.expression as ts.CallExpression).arguments[1]), '[navigationParams, setView]');
+  assert.equal(print((effect.expression as ts.CallExpression).arguments[1]), '[navigationParams, setView, aula.id]');
 });
 
 test('teacher topic, report, invitation, material and activity callback bodies remain normalized baseline-identical', () => {
@@ -409,8 +409,9 @@ test('expanded teacher JSX retains selection, tab reset, clipboard timers, modal
   ]);
   if (migrated) {
     assert.match(pageOwner.getText(), /classroomDetailSession\.replaceCurriculum\(curriculum\);\s*setClassrooms\(\[classroom, \.\.\.classrooms\]\);/);
-    assert.match(pageEffect.getText(), /const aula = resolveTeacherClassroom\(classrooms, navigationParams\);\s*if \(aula\) setSelectedAula\(aula\);/);
-    assert.equal(print((pageEffect.expression as ts.CallExpression).arguments[1]), '[navigationParams, classrooms]');
+    assert.match(pageOwner.getText(), /const selectedAula = resolveTeacherClassroom\(classrooms, navigationParams\)/);
+    assert.match(pageEffect.getText(), /if \(navigationParams\?\.openAulaId && !selectedAula\) setView\('aulas', undefined, 'replace'\)/);
+    assert.equal(print((pageEffect.expression as ts.CallExpression).arguments[1]), '[navigationParams?.openAulaId, selectedAula, setView]');
     const first = detail.body!.statements[0];
     assert.ok(ts.isVariableStatement(first));
     assert.match(first.getText(), /= useTeacherClassroomDetail\(aula\)/);

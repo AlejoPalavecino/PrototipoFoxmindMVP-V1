@@ -431,7 +431,24 @@ test('student composition retains page selection/back props and one controller b
     const membershipEffects = nodesMatching(hook, (node): node is ts.CallExpression => ts.isCallExpression(node)
       && node.expression.getText() === 'useEffect');
     assert.equal(pageEffects.length, 1); assert.equal(membershipEffects.length, 1);
-    assert.equal(pageEffects[0].arguments[1].getText(), '[navigationParams, classrooms]');
+    assert.equal(pageEffects[0].arguments[1].getText(), '[navigationParams?.aulaId, selectedAula, setView]');
+    const pageVariables = nodesMatching(owner, ts.isVariableDeclaration);
+    const selection = pageVariables.find(node => node.name.getText() === 'selectedAula');
+    assert.ok(selection?.initializer && ts.isCallExpression(selection.initializer));
+    assert.equal(selection.initializer.expression.getText(), 'resolveStudentClassroom');
+    assert.deepEqual(selection.initializer.arguments.map(node => node.getText()), ['classrooms', 'navigationParams']);
+    assert.equal(nodesMatching(owner, ts.isCallExpression).filter(node => node.expression.getText() === 'useState').length, 0,
+      'Route identity must not survive in page-local selection state');
+    assert.match(pageEffects[0].arguments[0].getText(), /if \(navigationParams\?\.aulaId && !selectedAula\) setView\('aulas', undefined, 'replace'\)/);
+    const select = pageVariables.find(node => node.name.getText() === 'handleSelect');
+    const back = pageVariables.find(node => node.name.getText() === 'handleBack');
+    assert.ok(select?.initializer && back?.initializer);
+    assert.match(select.initializer.getText(), /setView\('aulas', \{ aulaId: aula.id \}\)/);
+    assert.match(back.initializer.getText(), /setView\('aulas', undefined, 'replace'\)/);
+    const list = renderedOwner(owner, 'StudentClassroomList');
+    const onSelect = list.consumer.attributes.properties.find(node => ts.isJsxAttribute(node) && node.name.getText() === 'onSelect') as ts.JsxAttribute;
+    assert.ok(onSelect.initializer && ts.isJsxExpression(onSelect.initializer) && onSelect.initializer.expression);
+    assert.equal(resolvedSymbol(onSelect.initializer.expression), resolvedSymbol(select.name));
     assert.equal(membershipEffects[0].arguments[1].getText(), '[]');
     assert.equal(nodesMatching(hook, ts.isIfStatement).length, 3, 'Rejected, duplicate and catalogue join branches retained');
     const dialog = renderedOwner(owner, 'StudentClassroomJoinDialog');

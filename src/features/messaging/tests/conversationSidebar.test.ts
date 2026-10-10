@@ -119,7 +119,7 @@ test('AST: selection access guard and synchronous composer isolation wiring (not
   assert.match(selection.getText(ast), /canAccessConversation\(conversation, currentUserId\)/);
   assert.match(selection.getText(ast), /setSelection/);
   assert.match(source, /isolateComposerContext\(storedComposerContext, activeConversationId\)/);
-  assert.match(source, /if \(composerContext !== storedComposerContext\) setComposerContext\(composerContext\)/);
+  assert.match(source, /if \(composerContext !== storedComposerContext\) \{\s*setComposerContext\(composerContext\);\s*setInputText\(''\)/);
   assert.match(source, /conversations\.filter\(conv => canAccessConversation\(conv, currentUserId\)\)/);
   assert.match(source, /resolveAccessibleConversation\(conversations, currentUserId, requestedConversationId\)/);
   assert.match(source, /const \{ replyingTo, attachedFile \} = composerContext/);
@@ -161,6 +161,132 @@ test('AST: controlled sidebar wiring, stable keys and no store/hooks', () => {
   const itemAttributes = nodes(item, ts.isJsxAttribute).map(node => node.getText(sidebar));
   assert.ok(itemAttributes.includes('key={conv.id}'));
   assert.ok(itemAttributes.includes('onClick={() => onSelectConversation(conv.id)}'));
+});
+
+// Execute actual render statements/callbacks with state slots; no DOM, React
+// scheduler or effects from unrelated read marking/scrolling are simulated.
+async function hubController(initialConversationId?: string, loaded?: any[]) {
+  const { resolveAccessibleConversation, isolateComposerContext } = await import(hubUrl.href);
+  const { messagingStore } = await import('../messagingStore');
+  const { canAccessConversation } = await import('../application/messageSending');
+  const source = readFileSync(hubUrl, 'utf8');
+  const ast = ts.createSourceFile('hub.tsx', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const owner = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'SharedMessagingHub') as ts.FunctionDeclaration;
+  const statements = owner.body!.statements.filter(node => !ts.isReturnStatement(node));
+  const backButton = nodes(owner, ts.isJsxAttribute).find(node => (node as ts.JsxAttribute).name.getText(ast) === 'onClick'
+    && node.getText(ast).includes('setIsMobileListVisible(true)')) as ts.JsxAttribute;
+  assert.ok(backButton?.initializer && ts.isJsxExpression(backButton.initializer));
+  const values: any[] = [];
+  const writes: any[] = [];
+  let cursor = 0, changed = false;
+  const corrections: (() => void)[] = [];
+  const globals: Record<string, any> = {
+    initialConversationId, currentRole: 'alumno', resolveAccessibleConversation, isolateComposerContext, canAccessConversation,
+    messagingStore: { getConversations: () => loaded ?? messagingStore.getConversations(),
+      getConversationById: (id: string) => (loaded ?? messagingStore.getConversations()).find(c => c.id === id) },
+    useAppContext: () => ({ setView: (...args: any[]) => { writes.push(args); globals.initialConversationId = args[1]?.conversationId; } }),
+    useState: (initial: any) => {
+      const index = cursor++;
+      if (!(index in values)) values[index] = typeof initial === 'function' ? initial() : initial;
+      return [values[index], (next: any) => {
+        values[index] = typeof next === 'function' ? next(values[index]) : next; changed = true;
+      }];
+    },
+    useRef: () => ({ current: null }),
+    useEffect: (effect: () => void) => { if (effect.toString().includes('setView')) corrections.push(effect); },
+  };
+  const code = ts.transpileModule(`(function () { ${statements.map(s => s.getText(ast)).join('\n')}
+    return { activeConversationId, isMobileListVisible, inputText, replyingTo, attachedFile,
+      selectConversation, setInputText, setReplyingTo, setAttachedFile,
+      back: ${backButton.initializer.expression!.getText(ast)} }; })`, {
+    compilerOptions: { target: ts.ScriptTarget.ESNext },
+  }).outputText;
+  const run = () => new Function(...Object.keys(globals), `return ${code}`)(...Object.values(globals))();
+  return {
+    writes, navigate: (id?: string) => { globals.initialConversationId = id; },
+    render() {
+      let result: ReturnType<typeof run>;
+      let attempts = 0;
+      do {
+        assert.ok(attempts++ < 10, 'render adjustments must converge');
+        cursor = 0; changed = false; corrections.length = 0; result = run();
+      } while (changed);
+      return result;
+    },
+    flush: () => corrections.forEach(effect => effect()),
+    add: (conversation: any) => { loaded!.push(conversation); },
+  };
+}
+
+test('hub URL selection pushes only accessible manual/new-thread IDs; default/list and prop changes converge', async () => {
+  const controller = await hubController();
+  let view = controller.render();
+  assert.equal(view.activeConversationId, 'dm-laura-valentina', 'desktop keeps default thread');
+  assert.equal(view.isMobileListVisible, true, 'no-ID mobile starts in list');
+  controller.flush(); assert.deepEqual(controller.writes, [], 'no-ID default must not rewrite list URL');
+  view.selectConversation('dm-laura-tomas'); view.selectConversation('missing');
+  assert.deepEqual(controller.writes, [], 'access guard runs before URL writes');
+  view.selectConversation('dm-laura-valentina');
+  assert.deepEqual(controller.writes, [['mensajes', { conversationId: 'dm-laura-valentina' }]], 'same default thread still gets an ID URL');
+  view = controller.render(); assert.equal(view.isMobileListVisible, false);
+  view.back();
+  assert.deepEqual(controller.writes.at(-1), ['mensajes', undefined, 'replace']);
+  view = controller.render(); controller.flush();
+  assert.equal(view.isMobileListVisible, true); assert.equal(controller.writes.length, 2);
+  controller.navigate('dm-foxy-copilot');
+  view = controller.render();
+  assert.equal(view.activeConversationId, 'dm-foxy-copilot'); assert.equal(view.isMobileListVisible, false);
+  view.setInputText('private draft'); view.setReplyingTo({ id: 'reply' }); view.setAttachedFile({ id: 'file' });
+  assert.equal(controller.render().inputText, 'private draft', 'same-thread rerender preserves draft');
+  controller.navigate();
+  view = controller.render();
+  assert.equal(view.activeConversationId, 'dm-laura-valentina', 'defined -> undefined resets prior thread');
+  assert.equal(view.isMobileListVisible, true);
+  assert.equal(view.inputText, ''); assert.equal(view.replyingTo, null); assert.equal(view.attachedFile, null);
+  controller.navigate('dm-foxy-copilot');
+  assert.equal(controller.render().activeConversationId, 'dm-foxy-copilot', 'browser Forward target wins');
+
+  const { messagingStore } = await import('../messagingStore');
+  const loaded = [...messagingStore.getConversations()];
+  const creation = await hubController(undefined, loaded);
+  const created = { ...loaded.find(c => c.id === 'dm-laura-valentina'), id: 'new-thread' };
+  creation.add(created);
+  creation.render().selectConversation(created.id); // Same callback bound to onConversationCreated.
+  assert.equal(creation.render().activeConversationId, created.id);
+  assert.deepEqual(creation.writes, [['mensajes', { conversationId: created.id }]]);
+  assert.match(readFileSync(hubUrl, 'utf8'), /onConversationCreated=\{selectConversation\}/);
+});
+
+test('requested missing/inaccessible conversation corrects with replace once; empty access replaces list', async () => {
+  for (const requested of ['missing', 'dm-laura-tomas']) {
+    const controller = await hubController(requested);
+    assert.equal(controller.render().activeConversationId, 'dm-laura-valentina');
+    controller.flush();
+    assert.deepEqual(controller.writes, [['mensajes', { conversationId: 'dm-laura-valentina' }, 'replace']]);
+    controller.render(); controller.flush(); assert.equal(controller.writes.length, 1);
+  }
+  const empty = await hubController('missing', []);
+  assert.equal(empty.render().activeConversationId, null);
+  empty.flush(); assert.deepEqual(empty.writes, [['mensajes', undefined, 'replace']]);
+  assert.equal(empty.render().isMobileListVisible, true);
+  empty.flush(); assert.equal(empty.writes.length, 1);
+  const valid = await hubController('dm-laura-valentina');
+  valid.render(); valid.flush(); assert.deepEqual(valid.writes, []);
+});
+
+test('messaging wrappers forward absent URL ID without inventing a mobile detail; teacher contact shortcuts remain transient', () => {
+  for (const role of ['alumno', 'docente']) {
+    const source = readFileSync(new URL(`../../../views/${role}/Mensajes${role === 'alumno' ? 'Alumno' : 'Docente'}.tsx`, import.meta.url), 'utf8');
+    const ast = ts.createSourceFile('wrapper.tsx', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const declaration = nodes(ast, ts.isVariableDeclaration).find(node => (node as ts.VariableDeclaration).name.getText(ast) === 'initialConvId') as ts.VariableDeclaration;
+    const resolve = (navigationParams: any) => new Function('navigationParams', `return ${declaration.initializer!.getText(ast)}`)(navigationParams);
+    assert.equal(resolve(undefined), undefined);
+    assert.equal(resolve({ conversationId: 'url-thread', contactId: '1' }), 'url-thread');
+    if (role === 'docente') {
+      assert.equal(resolve({ contactId: '1' }), 'dm-directora');
+      assert.equal(resolve({ contactId: '2' }), 'dm-laura-tomas');
+    }
+  }
 });
 
 test('presentation retains existing search/filter pinned suppression, mobile and empty branches', async () => {

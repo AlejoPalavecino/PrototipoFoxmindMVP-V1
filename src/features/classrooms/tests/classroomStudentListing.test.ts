@@ -58,7 +58,7 @@ if (ts.isJsxSelfClosingElement(consumer)) {
       assert.equal(supplied.body.arguments[0].kind, ts.SyntaxKind.TrueKeyword);
       return supplied.body.expression;
     })() : supplied;
-    const expected = name === 'onSelect' ? 'setSelectedAula' : name === 'onJoin' ? 'setIsJoinModalOpen' : 'classrooms';
+    const expected = name === 'onSelect' ? 'handleSelect' : name === 'onJoin' ? 'setIsJoinModalOpen' : 'classrooms';
     if (membershipMount && name !== 'onSelect') {
       assert.ok(membershipMount.initializer && ts.isCallExpression(membershipMount.initializer));
       const hook = resolvedSymbol(membershipMount.initializer.expression)?.valueDeclaration;
@@ -77,6 +77,11 @@ if (ts.isJsxSelfClosingElement(consumer)) {
       const state = checker.getShorthandAssignmentValueSymbol(property)?.valueDeclaration;
       assert.ok(state && ts.isBindingElement(state) && ts.isArrayBindingPattern(state.parent));
       assert.equal(state.parent.elements[name === 'onJoin' ? 1 : 0], state, 'Real membership snapshot/setter, not a detached fake alias');
+    } else if (name === 'onSelect') {
+      const callback = pageVariables.find(node => node.name.getText() === 'handleSelect');
+      assert.ok(callback?.initializer && ts.isArrowFunction(callback.initializer));
+      assert.equal(resolvedSymbol(used), resolvedSymbol(callback.name));
+      assert.match(callback.initializer.getText(), /setView\('aulas', \{ aulaId: aula.id \}\)/);
     } else {
       const binding = pageVariables.find(node => ts.isArrayBindingPattern(node.name)
         && node.name.elements.some(item => ts.isBindingElement(item) && item.name.getText() === expected));
@@ -94,7 +99,7 @@ function render(classrooms: any[]) {
   const globals: Record<string, any> = {
     React: { createElement }, motion: { div: 'motion.div' }, classrooms, getClassroomColorTheme,
     onSelect: (aula: any) => { selected = aula; }, onJoin: () => { joins++; },
-    setSelectedAula: (aula: any) => { selected = aula; },
+    handleSelect: (aula: any) => { selected = aula; },
     setIsJoinModalOpen: (open: boolean) => { assert.equal(open, true); joins++; },
   };
   for (const [name, supplied] of suppliedProps) {

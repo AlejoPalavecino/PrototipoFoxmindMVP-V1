@@ -189,10 +189,10 @@ export function useTeacherClassroomDetail(aula: Classroom) {
       const activity = resolveTeacherActivity(activities, navigationParams.taskTitle);
       setSelectedActivity(activity);
 
-      // Clear the params so it doesn't re-trigger if we navigate away and back
-      setView('aulas', undefined);
+      // Consume the transient task shortcut without erasing the resolved classroom.
+      setView('aulas', { openAulaId: aula.id }, 'replace');
     }
-  }, [navigationParams, setView]);
+  }, [navigationParams, setView, aula.id]);
 
   const handleCreateActivityFromModal = (newActivityData: CreatedActivityData) => {
     const newActivity = mapCreatedActivity(newActivityData);
