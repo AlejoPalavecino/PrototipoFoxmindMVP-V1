@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Role } from "./types";
-import type { AppView, SetAppView, StoredNavigationParams } from "./app/navigation";
+import { useUrlNavigation } from "./app/useUrlNavigation";
 import { createDefaultAppSettings } from "./app/settings";
 import { RoleSelection } from "./views/RoleSelection";
 import { DocenteLayout } from "./components/layout/DocenteLayout";
@@ -10,9 +9,7 @@ import { AccessibilityPanel } from "./components/ui/AccessibilityPanel";
 import { Toaster } from "./components/ui/Toaster";
 
 export default function App() {
-  const [role, setRole] = useState<Role>("none");
-  const [view, setView] = useState<AppView>("dashboard");
-  const [navigationParams, setNavigationParams] = useState<StoredNavigationParams | undefined>(undefined);
+  const { role, view, navigationParams, setRole, setView } = useUrlNavigation();
   const [settings, setSettings] = useState(createDefaultAppSettings());
 
   useEffect(() => {
@@ -28,17 +25,6 @@ export default function App() {
     
   }, [settings.textSize, settings.dyslexic, settings.contrast, settings.easyRead]);
 
-  const handleSetRole = (newRole: Role) => {
-    setRole(newRole);
-    setView("dashboard");
-    setNavigationParams(undefined);
-  };
-
-  const handleSetView: SetAppView = (newView, params) => {
-    setView(newView);
-    setNavigationParams(params);
-  };
-
   const updateSettings = (newSettings: Partial<typeof settings>) => {
     setSettings((prev) => ({ ...prev, ...newSettings }));
   };
@@ -50,8 +36,8 @@ export default function App() {
         view,
         navigationParams,
         settings,
-        setRole: handleSetRole,
-        setView: handleSetView,
+        setRole,
+        setView,
         updateSettings,
       }}
     >
