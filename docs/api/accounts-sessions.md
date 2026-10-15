@@ -109,7 +109,7 @@ Planned acceptance examples (not executed authentication tests):
 
 P3.1 completion requires structural/reference/example consistency checks of the contract, independent security/requirements review, and attributed agent records. `node --test tests/p31-contracts.test.mjs` checks local structure/references, selected schema boundaries and synthetic examples without new dependencies; it is not a complete OpenAPI/JSON-Schema validator (including format assertions). Per-operation `x-error-codes` narrows the shared error-envelope union. These are documentation checks, not an authentication behavioral RED/GREEN. It does not prove these endpoints execute, passwords are hashed, email is delivered, counters are atomic or sessions are secure in runtime. Existing53foundation tests are historical baseline evidence, not identity acceptance tests.
 
-Next authorized unit after contract closure is P3.2 local captured-email infrastructure; actual server behavior follows P3.3. Do not mark all P3 complete or start those units merely because this contract exists.
+P3.2 local captured-email preparation is completed: [capture operations](../local-email.md), [standalone sender](../mail-sender.md) and [verified handoff](../work-log/2026-10-15-01a13fc3-p32-local-email.md). Actual account/auth server behavior follows P3.3 only when authorized. Its integration must reconcile the sender's documented ASCII dot-atom/DNS subset with this planned Email schema; SMTP preparation does not implement token issuance/consumption or encrypted transactional outbox. Do not mark all P3 complete or start those units merely because this contract exists.
 
 ## Primary technical references
 

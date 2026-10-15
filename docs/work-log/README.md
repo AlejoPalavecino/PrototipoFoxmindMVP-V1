@@ -57,7 +57,13 @@ No passwords, access tokens, credential-bearing connection URLs, raw private pro
 
 Records are discovered by listing this directory; no shared index append is required from every child. The coordinator may add durable links from the roadmap for important checkpoints.
 
-- [P3.2 — Local captured-email coordinator, in progress](2026-10-15-01a13fc3-p32-local-email.md).
+- [P3.2 — Capture implementation and original failing evidence](2026-10-15-mva1tryy-p32-capture.md).
+- [P3.2 — Capture restart correction](2026-10-15-mva2a4up-p32-capture.md).
+- [P3.2 — Sender implementation and original failing evidence](2026-10-15-mva1ts7d-p32-sender.md).
+- [P3.2 — Sender uppercase-domain correction](2026-10-15-mva2a55j-p32-sender.md).
+- [P3.2 — Independent capture verification, UNIT A](2026-10-15-mva2tlkx-p32-capture-review.md).
+- [P3.2 — Independent sender verification, UNIT B](2026-10-15-mva2tlrh-p32-sender-review.md).
+- [P3.2 — Completed local captured-email coordinator handoff](2026-10-15-01a13fc3-p32-local-email.md).
 - [P3.2 — Attributed read-only preparation map](2026-10-15-mva1ed9l-p32-map.md).
 - [P3.1 — Independent contract security/requirements review](2026-10-15-mva0p514-p31-contract-review.md).
 - [P3.1 — Account/session contracts, coordinator](2026-10-15-01a13fc3-p31-contracts.md).
