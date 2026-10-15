@@ -1,0 +1,768 @@
+// Database invariants not expressible here live in the custom migration.
+generator client {
+  provider = "prisma-client"
+  output   = "../.generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TokenPurpose {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+enum EntryMethod {
+  CODE
+  INVITATION
+}
+
+enum EndReason {
+  LEFT
+  REMOVED
+}
+
+enum TopicStatus {
+  PENDING
+  NEXT
+  TAUGHT
+}
+
+enum ValidationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ScanStatus {
+  PENDING
+  RUNNING
+  CLEAN
+  REJECTED
+  ERROR
+}
+
+enum UploadStatus {
+  STARTED
+  UPLOADING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum ActivityType {
+  ASSIGNMENT
+  QUESTIONNAIRE
+  EVALUATION
+}
+
+enum ActivityStatus {
+  DRAFT
+  PUBLISHED
+  WITHDRAWN
+}
+
+enum QuestionType {
+  DEVELOPMENT
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+}
+
+enum ScoringRule {
+  EXACT
+  PARTIAL
+}
+
+enum EligibilityReason {
+  INITIAL_ENROLLMENT
+  REENTRY
+  TEACHER_AUTHORIZATION
+}
+
+enum AttemptStatus {
+  DRAFT
+  SUBMITTED
+}
+
+enum PostType {
+  NOTICE
+  QUERY
+}
+
+enum JobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+model User {
+  id                    String             @id @default(uuid()) @db.Uuid
+  created_at            DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime           @default(now()) @updatedAt @db.Timestamptz(6)
+  email                 String
+  email_normalized      String             @unique
+  first_name            String
+  last_name             String
+  password_hash         String
+  email_verified_at     DateTime?          @db.Timestamptz(6)
+  sessions              Session[]          @relation("Session_user_id")
+  tokens                AccountToken[]     @relation("AccountToken_user_id")
+  classroom_drafts      ClassroomDraft[]   @relation("ClassroomDraft_owner_id")
+  taught_classrooms     Classroom[]        @relation("Classroom_teacher_id")
+  enrollments           Enrollment[]       @relation("Enrollment_student_id")
+  ended_memberships     MembershipPeriod[] @relation("MembershipPeriod_ended_by_id")
+  sent_invitations      Invitation[]       @relation("Invitation_invited_by_id")
+  accepted_invitations  Invitation[]       @relation("Invitation_accepted_by_id")
+  uploaded_plans        StudyPlanVersion[] @relation("StudyPlanVersion_uploaded_by_id")
+  materials             Material[]         @relation("Material_created_by_id")
+  files                 FileObject[]       @relation("FileObject_uploaded_by_id")
+  authorized_activities StudentActivity[]  @relation("StudentActivity_authorized_by_id")
+  enabled_attempts      Attempt[]          @relation("Attempt_enabled_by_id")
+  graded_attempts       AttemptGrade[]     @relation("AttemptGrade_graded_by_id")
+  grade_corrections     GradeCorrection[]  @relation("GradeCorrection_actor_id")
+  posts                 WallPost[]         @relation("WallPost_author_id")
+  removed_posts         WallPost[]         @relation("WallPost_removed_by_id")
+  replies               WallReply[]        @relation("WallReply_author_id")
+  removed_replies       WallReply[]        @relation("WallReply_removed_by_id")
+  notifications         Notification[]     @relation("Notification_recipient_id")
+
+  @@map("users")
+}
+
+model Session {
+  id           String    @id @default(uuid()) @db.Uuid
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+  user_id      String    @db.Uuid
+  token_hash   String    @unique
+  expires_at   DateTime  @db.Timestamptz(6)
+  revoked_at   DateTime? @db.Timestamptz(6)
+  last_seen_at DateTime  @default(now()) @db.Timestamptz(6)
+  user         User      @relation("Session_user_id", fields: [user_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@index([user_id, revoked_at])
+  @@map("sessions")
+}
+
+model AccountToken {
+  id             String       @id @default(uuid()) @db.Uuid
+  created_at     DateTime     @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime     @default(now()) @updatedAt @db.Timestamptz(6)
+  user_id        String       @db.Uuid
+  purpose        TokenPurpose
+  token_hash     String       @unique
+  expires_at     DateTime     @db.Timestamptz(6)
+  consumed_at    DateTime?    @db.Timestamptz(6)
+  invalidated_at DateTime?    @db.Timestamptz(6)
+  user           User         @relation("AccountToken_user_id", fields: [user_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@index([user_id, purpose])
+  @@map("account_tokens")
+}
+
+model AccountActionControl {
+  id                String   @id @default(uuid()) @db.Uuid
+  created_at        DateTime @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+  action            String
+  subject_key       String
+  last_requested_at DateTime @db.Timestamptz(6)
+  window_started_at DateTime @db.Timestamptz(6)
+  request_count     Int      @default(0)
+
+  @@unique([action, subject_key])
+  @@map("account_action_controls")
+}
+
+model ClassroomDraft {
+  id                     String       @id @default(uuid()) @db.Uuid
+  created_at             DateTime     @default(now()) @db.Timestamptz(6)
+  updated_at             DateTime     @default(now()) @updatedAt @db.Timestamptz(6)
+  owner_id               String       @db.Uuid
+  payload                Json         @default("{}")
+  revision               BigInt       @default(0)
+  published_classroom_id String?      @db.Uuid
+  owner                  User         @relation("ClassroomDraft_owner_id", fields: [owner_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  published_classroom    Classroom?   @relation("Draft_publication", fields: [published_classroom_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  files                  FileObject[] @relation("File_draft")
+
+  @@index([owner_id])
+  @@map("classroom_drafts")
+}
+
+model Classroom {
+  id                  String             @id @default(uuid()) @db.Uuid
+  created_at          DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime           @default(now()) @updatedAt @db.Timestamptz(6)
+  teacher_id          String             @db.Uuid
+  name                String
+  subject             String
+  division            String
+  academic_year       Int
+  timezone            String
+  cover_key           String
+  storage_quota_bytes BigInt
+  archived_at         DateTime?          @db.Timestamptz(6)
+  teacher             User               @relation("Classroom_teacher_id", fields: [teacher_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  codes               ClassroomCode[]    @relation("ClassroomCode_classroom")
+  enrollments         Enrollment[]       @relation("Enrollment_classroom")
+  invitations         Invitation[]       @relation("Invitation_classroom")
+  units               Unit[]             @relation("Unit_classroom")
+  plan_versions       StudyPlanVersion[] @relation("StudyPlanVersion_classroom")
+  materials           Material[]         @relation("Material_classroom")
+  files               FileObject[]       @relation("FileObject_classroom")
+  activities          Activity[]         @relation("Activity_classroom")
+  posts               WallPost[]         @relation("WallPost_classroom")
+  notifications       Notification[]     @relation("Notification_classroom")
+  source_drafts       ClassroomDraft[]   @relation("Draft_publication")
+
+  @@index([teacher_id])
+  @@map("classrooms")
+}
+
+model ClassroomCode {
+  id           String    @id @default(uuid()) @db.Uuid
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+  classroom_id String    @db.Uuid
+  code_digest  String    @unique
+  issued_at    DateTime  @default(now()) @db.Timestamptz(6)
+  revoked_at   DateTime? @db.Timestamptz(6)
+  classroom    Classroom @relation("ClassroomCode_classroom", fields: [classroom_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@index([classroom_id])
+  @@map("classroom_codes")
+}
+
+model Enrollment {
+  id              String             @id @default(uuid()) @db.Uuid
+  created_at      DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime           @default(now()) @updatedAt @db.Timestamptz(6)
+  classroom_id    String             @db.Uuid
+  student_id      String             @db.Uuid
+  first_joined_at DateTime           @default(now()) @db.Timestamptz(6)
+  student         User               @relation("Enrollment_student_id", fields: [student_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  classroom       Classroom          @relation("Enrollment_classroom", fields: [classroom_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  periods         MembershipPeriod[] @relation("Membership_enrollment")
+  activities      StudentActivity[]  @relation("StudentActivity_enrollment")
+
+  @@unique([classroom_id, student_id])
+  @@unique([id, classroom_id])
+  @@index([student_id])
+  @@map("enrollments")
+}
+
+model MembershipPeriod {
+  id            String      @id @default(uuid()) @db.Uuid
+  created_at    DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime    @default(now()) @updatedAt @db.Timestamptz(6)
+  enrollment_id String      @db.Uuid
+  classroom_id  String      @db.Uuid
+  joined_at     DateTime    @default(now()) @db.Timestamptz(6)
+  ended_at      DateTime?   @db.Timestamptz(6)
+  end_reason    EndReason?
+  ended_by_id   String?     @db.Uuid
+  entry_method  EntryMethod
+  invitation_id String?     @db.Uuid
+  ended_by      User?       @relation("MembershipPeriod_ended_by_id", fields: [ended_by_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  enrollment    Enrollment  @relation("Membership_enrollment", fields: [enrollment_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+  invitation    Invitation? @relation("Membership_invitation", fields: [invitation_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@index([enrollment_id, joined_at])
+  @@map("membership_periods")
+}
+
+model Invitation {
+  id                         String             @id @default(uuid()) @db.Uuid
+  created_at                 DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at                 DateTime           @default(now()) @updatedAt @db.Timestamptz(6)
+  classroom_id               String             @db.Uuid
+  recipient_email_normalized String
+  invited_by_id              String             @db.Uuid
+  generation                 BigInt             @default(1)
+  issued_at                  DateTime           @default(now()) @db.Timestamptz(6)
+  expires_at                 DateTime           @db.Timestamptz(6)
+  accepted_at                DateTime?          @db.Timestamptz(6)
+  accepted_by_id             String?            @db.Uuid
+  revoked_at                 DateTime?          @db.Timestamptz(6)
+  invited_by                 User               @relation("Invitation_invited_by_id", fields: [invited_by_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  accepted_by                User?              @relation("Invitation_accepted_by_id", fields: [accepted_by_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  classroom                  Classroom          @relation("Invitation_classroom", fields: [classroom_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  membership_periods         MembershipPeriod[] @relation("Membership_invitation")
+
+  @@unique([id, classroom_id])
+  @@index([recipient_email_normalized, expires_at])
+  @@map("invitations")
+}
+
+model Unit {
+  id           String     @id @default(uuid()) @db.Uuid
+  created_at   DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime   @default(now()) @updatedAt @db.Timestamptz(6)
+  classroom_id String     @db.Uuid
+  name         String
+  position     Int
+  classroom    Classroom  @relation("Unit_classroom", fields: [classroom_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  topics       Topic[]    @relation("Topic_unit")
+  materials    Material[] @relation("Material_unit")
+  activities   Activity[] @relation("Activity_unit")
+
+  @@unique([id, classroom_id])
+  @@index([classroom_id, position])
+  @@map("units")
+}
+
+model Topic {
+  id           String      @id @default(uuid()) @db.Uuid
+  created_at   DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime    @default(now()) @updatedAt @db.Timestamptz(6)
+  classroom_id String      @db.Uuid
+  unit_id      String      @db.Uuid
+  name         String
+  position     Int
+  status       TopicStatus @default(PENDING)
+  unit         Unit        @relation("Topic_unit", fields: [unit_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+  materials    Material[]  @relation("Material_topic")
+  activities   Activity[]  @relation("Activity_topic")
+
+  @@unique([id, unit_id, classroom_id])
+  @@index([unit_id, position])
+  @@map("topics")
+}
+
+model StudyPlanVersion {
+  id             String     @id @default(uuid()) @db.Uuid
+  created_at     DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime   @default(now()) @updatedAt @db.Timestamptz(6)
+  classroom_id   String     @db.Uuid
+  version_number Int
+  file_id        String     @db.Uuid
+  uploaded_by_id String     @db.Uuid
+  uploaded_by    User       @relation("StudyPlanVersion_uploaded_by_id", fields: [uploaded_by_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  classroom      Classroom  @relation("StudyPlanVersion_classroom", fields: [classroom_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  file           FileObject @relation("Plan_file", fields: [file_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@unique([classroom_id, version_number])
+  @@map("study_plan_versions")
+}
+
+model Material {
+  id             String             @id @default(uuid()) @db.Uuid
+  created_at     DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime           @default(now()) @updatedAt @db.Timestamptz(6)
+  classroom_id   String             @db.Uuid
+  title          String
+  file_id        String             @db.Uuid
+  unit_id        String?            @db.Uuid
+  topic_id       String?            @db.Uuid
+  created_by_id  String             @db.Uuid
+  created_by     User               @relation("Material_created_by_id", fields: [created_by_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  classroom      Classroom          @relation("Material_classroom", fields: [classroom_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  file           FileObject         @relation("Material_file", fields: [file_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+  unit           Unit?              @relation("Material_unit", fields: [unit_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+  topic          Topic?             @relation("Material_topic", fields: [topic_id, unit_id, classroom_id], references: [id, unit_id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+  activity_links ActivityMaterial[] @relation("Link_material")
+
+  @@unique([id, classroom_id])
+  @@index([classroom_id, unit_id, topic_id])
+  @@map("materials")
+}
+
+model FileObject {
+  id                    String                    @id @default(uuid()) @db.Uuid
+  created_at            DateTime                  @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime                  @default(now()) @updatedAt @db.Timestamptz(6)
+  classroom_id          String?                   @db.Uuid
+  classroom_draft_id    String?                   @db.Uuid
+  uploaded_by_id        String                    @db.Uuid
+  storage_key           String                    @unique
+  original_name         String
+  extension             String
+  detected_mime_type    String?
+  size_bytes            BigInt
+  validation_status     ValidationStatus          @default(PENDING)
+  scan_status           ScanStatus                @default(PENDING)
+  validated_at          DateTime?                 @db.Timestamptz(6)
+  scanned_at            DateTime?                 @db.Timestamptz(6)
+  rejection_code        String?
+  uploaded_by           User                      @relation("FileObject_uploaded_by_id", fields: [uploaded_by_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  classroom             Classroom?                @relation("FileObject_classroom", fields: [classroom_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  plan_versions         StudyPlanVersion[]        @relation("Plan_file")
+  materials             Material[]                @relation("Material_file")
+  classroom_draft       ClassroomDraft?           @relation("File_draft", fields: [classroom_draft_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  uploads               Upload[]                  @relation("Upload_file")
+  activity_instructions ActivityInstructionFile[] @relation("Instruction_file")
+  attempt_attachments   AttemptAttachment[]       @relation("Attachment_file")
+
+  @@unique([id, classroom_id])
+  @@index([classroom_id])
+  @@index([classroom_draft_id])
+  @@index([scan_status, created_at])
+  @@map("files")
+}
+
+model Upload {
+  id                      String       @id @default(uuid()) @db.Uuid
+  created_at              DateTime     @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime     @default(now()) @updatedAt @db.Timestamptz(6)
+  file_id                 String       @unique @db.Uuid
+  status                  UploadStatus @default(STARTED)
+  reserved_bytes          BigInt
+  last_activity_at        DateTime     @default(now()) @db.Timestamptz(6)
+  completed_at            DateTime?    @db.Timestamptz(6)
+  reservation_released_at DateTime?    @db.Timestamptz(6)
+  file                    FileObject   @relation("Upload_file", fields: [file_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@index([status, last_activity_at])
+  @@map("uploads")
+}
+
+model Activity {
+  id                     String                    @id @default(uuid()) @db.Uuid
+  created_at             DateTime                  @default(now()) @db.Timestamptz(6)
+  updated_at             DateTime                  @default(now()) @updatedAt @db.Timestamptz(6)
+  classroom_id           String                    @db.Uuid
+  unit_id                String?                   @db.Uuid
+  topic_id               String?                   @db.Uuid
+  type                   ActivityType
+  title                  String?
+  instructions_text      String?
+  attachments_required   Boolean                   @default(false)
+  status                 ActivityStatus            @default(DRAFT)
+  published_at           DateTime?                 @db.Timestamptz(6)
+  deadline_at            DateTime?                 @db.Timestamptz(6)
+  allow_late_submissions Boolean                   @default(false)
+  first_started_at       DateTime?                 @db.Timestamptz(6)
+  classroom              Classroom                 @relation("Activity_classroom", fields: [classroom_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  unit                   Unit?                     @relation("Activity_unit", fields: [unit_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+  topic                  Topic?                    @relation("Activity_topic", fields: [topic_id, unit_id, classroom_id], references: [id, unit_id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+  instruction_files      ActivityInstructionFile[] @relation("Instruction_activity")
+  material_links         ActivityMaterial[]        @relation("Link_activity")
+  questions              Question[]                @relation("Question_activity")
+  student_activities     StudentActivity[]         @relation("StudentActivity_activity")
+  attempt_attachments    AttemptAttachment[]       @relation("Attachment_activity")
+  notifications          Notification[]            @relation("Notification_activity")
+
+  @@unique([id, classroom_id])
+  @@index([classroom_id, status, published_at])
+  @@index([unit_id, topic_id])
+  @@map("activities")
+}
+
+model ActivityInstructionFile {
+  created_at   DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime   @default(now()) @updatedAt @db.Timestamptz(6)
+  activity_id  String     @db.Uuid
+  classroom_id String     @db.Uuid
+  file_id      String     @db.Uuid
+  activity     Activity   @relation("Instruction_activity", fields: [activity_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+  file         FileObject @relation("Instruction_file", fields: [file_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@id([activity_id, file_id])
+  @@map("activity_instruction_files")
+}
+
+model ActivityMaterial {
+  created_at   DateTime @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+  activity_id  String   @db.Uuid
+  classroom_id String   @db.Uuid
+  material_id  String   @db.Uuid
+  activity     Activity @relation("Link_activity", fields: [activity_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+  material     Material @relation("Link_material", fields: [material_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@id([activity_id, material_id])
+  @@index([material_id])
+  @@map("activity_materials")
+}
+
+model Question {
+  id               String           @id @default(uuid()) @db.Uuid
+  created_at       DateTime         @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime         @default(now()) @updatedAt @db.Timestamptz(6)
+  activity_id      String           @db.Uuid
+  type             QuestionType
+  prompt           String
+  position         Int
+  available_points Decimal          @db.Decimal
+  scoring_rule     ScoringRule?
+  activity         Activity         @relation("Question_activity", fields: [activity_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  options          QuestionOption[] @relation("Option_question")
+  answers          Answer[]         @relation("Answer_question")
+  grades           QuestionGrade[]  @relation("QuestionGrade_question")
+
+  @@unique([id, activity_id])
+  @@index([activity_id, position])
+  @@map("questions")
+}
+
+model QuestionOption {
+  id          String            @id @default(uuid()) @db.Uuid
+  created_at  DateTime          @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime          @default(now()) @updatedAt @db.Timestamptz(6)
+  question_id String            @db.Uuid
+  text        String
+  position    Int
+  is_correct  Boolean           @default(false)
+  question    Question          @relation("Option_question", fields: [question_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  selections  AnswerSelection[] @relation("Selection_option")
+
+  @@unique([id, question_id])
+  @@index([question_id, position])
+  @@map("question_options")
+}
+
+model StudentActivity {
+  id                           String            @id @default(uuid()) @db.Uuid
+  created_at                   DateTime          @default(now()) @db.Timestamptz(6)
+  updated_at                   DateTime          @default(now()) @updatedAt @db.Timestamptz(6)
+  classroom_id                 String            @db.Uuid
+  enrollment_id                String            @db.Uuid
+  activity_id                  String            @db.Uuid
+  is_expected                  Boolean
+  eligibility_reason           EligibilityReason
+  eligible_at                  DateTime?         @db.Timestamptz(6)
+  authorized_by_id             String?           @db.Uuid
+  first_submission_deadline_at DateTime?         @db.Timestamptz(6)
+  effective_grade_id           String?           @db.Uuid
+  effective_grade_published    Boolean           @default(true)
+  authorized_by                User?             @relation("StudentActivity_authorized_by_id", fields: [authorized_by_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  enrollment                   Enrollment        @relation("StudentActivity_enrollment", fields: [enrollment_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+  activity                     Activity          @relation("StudentActivity_activity", fields: [activity_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+  attempts                     Attempt[]         @relation("Attempt_student_activity")
+  effective_grade              AttemptGrade?     @relation("Effective_grade", fields: [effective_grade_id, id, effective_grade_published], references: [id, student_activity_id, is_published], onDelete: Restrict, onUpdate: NoAction)
+
+  @@unique([enrollment_id, activity_id])
+  @@unique([id, activity_id])
+  @@index([activity_id])
+  @@map("student_activities")
+}
+
+model Attempt {
+  id                     String              @id @default(uuid()) @db.Uuid
+  created_at             DateTime            @default(now()) @db.Timestamptz(6)
+  updated_at             DateTime            @default(now()) @updatedAt @db.Timestamptz(6)
+  student_activity_id    String              @db.Uuid
+  activity_id            String              @db.Uuid
+  attempt_number         Int
+  status                 AttemptStatus       @default(DRAFT)
+  opened_at              DateTime            @default(now()) @db.Timestamptz(6)
+  enabled_by_id          String?             @db.Uuid
+  individual_deadline_at DateTime?           @db.Timestamptz(6)
+  submitted_at           DateTime?           @db.Timestamptz(6)
+  applied_deadline_at    DateTime?           @db.Timestamptz(6)
+  submitted_late         Boolean?
+  editor_token_hash      String?
+  editor_epoch           BigInt              @default(0)
+  revision               BigInt              @default(0)
+  enabled_by             User?               @relation("Attempt_enabled_by_id", fields: [enabled_by_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  student_activity       StudentActivity     @relation("Attempt_student_activity", fields: [student_activity_id, activity_id], references: [id, activity_id], onDelete: Restrict, onUpdate: NoAction)
+  answers                Answer[]            @relation("Answer_attempt")
+  attachments            AttemptAttachment[] @relation("Attachment_attempt")
+  grades                 AttemptGrade[]      @relation("Grade_attempt")
+  notifications          Notification[]      @relation("Notification_attempt")
+
+  @@unique([student_activity_id, attempt_number])
+  @@unique([id, activity_id])
+  @@unique([id, student_activity_id, activity_id])
+  @@index([activity_id, submitted_at])
+  @@map("attempts")
+}
+
+model Answer {
+  id               String            @id @default(uuid()) @db.Uuid
+  created_at       DateTime          @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime          @default(now()) @updatedAt @db.Timestamptz(6)
+  attempt_id       String            @db.Uuid
+  activity_id      String            @db.Uuid
+  question_id      String            @db.Uuid
+  development_text String?
+  saved_at         DateTime          @default(now()) @db.Timestamptz(6)
+  attempt          Attempt           @relation("Answer_attempt", fields: [attempt_id, activity_id], references: [id, activity_id], onDelete: Restrict, onUpdate: NoAction)
+  question         Question          @relation("Answer_question", fields: [question_id, activity_id], references: [id, activity_id], onDelete: Restrict, onUpdate: NoAction)
+  selections       AnswerSelection[] @relation("Selection_answer")
+
+  @@unique([attempt_id, question_id])
+  @@unique([id, question_id])
+  @@map("answers")
+}
+
+model AnswerSelection {
+  created_at  DateTime       @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime       @default(now()) @updatedAt @db.Timestamptz(6)
+  answer_id   String         @db.Uuid
+  question_id String         @db.Uuid
+  option_id   String         @db.Uuid
+  answer      Answer         @relation("Selection_answer", fields: [answer_id, question_id], references: [id, question_id], onDelete: Restrict, onUpdate: NoAction)
+  option      QuestionOption @relation("Selection_option", fields: [option_id, question_id], references: [id, question_id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@id([answer_id, option_id])
+  @@map("answer_selections")
+}
+
+model AttemptAttachment {
+  created_at   DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime   @default(now()) @updatedAt @db.Timestamptz(6)
+  attempt_id   String     @db.Uuid
+  activity_id  String     @db.Uuid
+  classroom_id String     @db.Uuid
+  file_id      String     @db.Uuid
+  position     Int
+  attempt      Attempt    @relation("Attachment_attempt", fields: [attempt_id, activity_id], references: [id, activity_id], onDelete: Restrict, onUpdate: NoAction)
+  activity     Activity   @relation("Attachment_activity", fields: [activity_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+  file         FileObject @relation("Attachment_file", fields: [file_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@id([attempt_id, file_id])
+  @@index([file_id])
+  @@map("attempt_attachments")
+}
+
+model AttemptGrade {
+  id                  String            @id @default(uuid()) @db.Uuid
+  created_at          DateTime          @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime          @default(now()) @updatedAt @db.Timestamptz(6)
+  attempt_id          String            @unique @db.Uuid
+  student_activity_id String            @db.Uuid
+  activity_id         String            @db.Uuid
+  final_grade         Decimal?          @db.Decimal
+  overall_feedback    String?
+  graded_by_id        String            @db.Uuid
+  published_at        DateTime?         @db.Timestamptz(6)
+  is_published        Boolean           @default(false)
+  graded_by           User              @relation("AttemptGrade_graded_by_id", fields: [graded_by_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  attempt             Attempt           @relation("Grade_attempt", fields: [attempt_id, student_activity_id, activity_id], references: [id, student_activity_id, activity_id], onDelete: Restrict, onUpdate: NoAction)
+  effective_for       StudentActivity[] @relation("Effective_grade")
+  question_grades     QuestionGrade[]   @relation("QuestionGrade_grade")
+  corrections         GradeCorrection[] @relation("Correction_grade")
+  notifications       Notification[]    @relation("Notification_grade")
+
+  @@unique([id, student_activity_id, is_published])
+  @@unique([id, activity_id])
+  @@unique([id, is_published])
+  @@map("attempt_grades")
+}
+
+model QuestionGrade {
+  id                 String       @id @default(uuid()) @db.Uuid
+  created_at         DateTime     @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime     @default(now()) @updatedAt @db.Timestamptz(6)
+  attempt_grade_id   String       @db.Uuid
+  activity_id        String       @db.Uuid
+  question_id        String       @db.Uuid
+  earned_numerator   Decimal      @db.Decimal
+  earned_denominator Decimal      @db.Decimal
+  feedback           String?
+  attempt_grade      AttemptGrade @relation("QuestionGrade_grade", fields: [attempt_grade_id, activity_id], references: [id, activity_id], onDelete: Restrict, onUpdate: NoAction)
+  question           Question     @relation("QuestionGrade_question", fields: [question_id, activity_id], references: [id, activity_id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@unique([attempt_grade_id, question_id])
+  @@map("question_grades")
+}
+
+model GradeCorrection {
+  id               String       @id @default(uuid()) @db.Uuid
+  created_at       DateTime     @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime     @default(now()) @updatedAt @db.Timestamptz(6)
+  attempt_grade_id String       @db.Uuid
+  published_marker Boolean      @default(true)
+  previous_grade   Decimal      @db.Decimal
+  new_grade        Decimal      @db.Decimal
+  reason           String
+  actor_id         String       @db.Uuid
+  corrected_at     DateTime     @default(now()) @db.Timestamptz(6)
+  actor            User         @relation("GradeCorrection_actor_id", fields: [actor_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  attempt_grade    AttemptGrade @relation("Correction_grade", fields: [attempt_grade_id, published_marker], references: [id, is_published], onDelete: Restrict, onUpdate: NoAction)
+
+  @@index([attempt_grade_id, corrected_at])
+  @@map("grade_corrections")
+}
+
+model WallPost {
+  id            String         @id @default(uuid()) @db.Uuid
+  created_at    DateTime       @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime       @default(now()) @updatedAt @db.Timestamptz(6)
+  classroom_id  String         @db.Uuid
+  author_id     String         @db.Uuid
+  type          PostType
+  body          String?
+  edited_at     DateTime?      @db.Timestamptz(6)
+  removed_at    DateTime?      @db.Timestamptz(6)
+  removed_by_id String?        @db.Uuid
+  author        User           @relation("WallPost_author_id", fields: [author_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  removed_by    User?          @relation("WallPost_removed_by_id", fields: [removed_by_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  classroom     Classroom      @relation("WallPost_classroom", fields: [classroom_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  replies       WallReply[]    @relation("Reply_post")
+  notifications Notification[] @relation("Notification_post")
+
+  @@unique([id, classroom_id])
+  @@index([classroom_id, created_at])
+  @@map("wall_posts")
+}
+
+model WallReply {
+  id            String         @id @default(uuid()) @db.Uuid
+  created_at    DateTime       @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime       @default(now()) @updatedAt @db.Timestamptz(6)
+  post_id       String         @db.Uuid
+  classroom_id  String         @db.Uuid
+  author_id     String         @db.Uuid
+  body          String?
+  edited_at     DateTime?      @db.Timestamptz(6)
+  removed_at    DateTime?      @db.Timestamptz(6)
+  removed_by_id String?        @db.Uuid
+  author        User           @relation("WallReply_author_id", fields: [author_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  removed_by    User?          @relation("WallReply_removed_by_id", fields: [removed_by_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  post          WallPost       @relation("Reply_post", fields: [post_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+  notifications Notification[] @relation("Notification_reply")
+
+  @@unique([id, classroom_id])
+  @@index([post_id, created_at])
+  @@map("wall_replies")
+}
+
+model Notification {
+  id               String        @id @default(uuid()) @db.Uuid
+  created_at       DateTime      @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime      @default(now()) @updatedAt @db.Timestamptz(6)
+  recipient_id     String        @db.Uuid
+  classroom_id     String        @db.Uuid
+  event_type       String
+  activity_id      String?       @db.Uuid
+  attempt_id       String?       @db.Uuid
+  attempt_grade_id String?       @db.Uuid
+  post_id          String?       @db.Uuid
+  reply_id         String?       @db.Uuid
+  read_at          DateTime?     @db.Timestamptz(6)
+  recipient        User          @relation("Notification_recipient_id", fields: [recipient_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  classroom        Classroom     @relation("Notification_classroom", fields: [classroom_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  activity         Activity?     @relation("Notification_activity", fields: [activity_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+  attempt          Attempt?      @relation("Notification_attempt", fields: [attempt_id, activity_id], references: [id, activity_id], onDelete: Restrict, onUpdate: NoAction)
+  attempt_grade    AttemptGrade? @relation("Notification_grade", fields: [attempt_grade_id, activity_id], references: [id, activity_id], onDelete: Restrict, onUpdate: NoAction)
+  post             WallPost?     @relation("Notification_post", fields: [post_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+  reply            WallReply?    @relation("Notification_reply", fields: [reply_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@index([recipient_id, created_at])
+  @@index([recipient_id, read_at])
+  @@map("notifications")
+}
+
+model BackgroundJob {
+  id                String    @id @default(uuid()) @db.Uuid
+  created_at        DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+  type              String
+  payload           Json
+  status            JobStatus @default(PENDING)
+  attempt_count     Int       @default(0)
+  available_at      DateTime  @default(now()) @db.Timestamptz(6)
+  claimed_until     DateTime? @db.Timestamptz(6)
+  claim_token       String?   @db.Uuid
+  completed_at      DateTime? @db.Timestamptz(6)
+  last_error_code   String?
+  deduplication_key String?   @unique
+
+  @@index([status, available_at])
+  @@map("background_jobs")
+}

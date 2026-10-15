@@ -1,0 +1,28 @@
+{
+  "name": "foxmind-database-foundation",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "db:up": "docker compose up -d --wait postgres",
+    "db:stop": "docker compose stop postgres",
+    "db:validate": "prisma validate",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:status": "prisma migrate status",
+    "test": "node scripts/test-database.mjs",
+    "test:red": "node scripts/test-database.mjs --empty",
+    "test:contract": "node --test --test-concurrency=1 tests/database.test.mjs"
+  },
+  "dependencies": {
+    "@prisma/client": "7.10.0",
+    "@prisma/adapter-pg": "7.10.0",
+    "pg": "8.23.1"
+  },
+  "devDependencies": {
+    "prisma": "7.10.0"
+  }
+}
