@@ -86,7 +86,7 @@ test("Nest sender sends both Spanish MIME purposes and preserves the previous pu
 test("malformed tokens/recipients never connect or capture, including header injection", async () => {
   await withSender({}, async (service, smtp) => {
     const badTokens = [undefined, "", "x".repeat(42), "x".repeat(44), "=".repeat(43), `${token.slice(0, -1)}B`, `${token}\r\nBcc: hidden@example.test`];
-    const badRecipients = [undefined, "", " a@example.test", "a@example.test ", "A <a@example.test>", "a@example.test,b@example.test", "a@example.test\r\nBcc: b@example.test", "a@example.test\u0000", "a@example.test\u007f", "a@example.test\u0085", "a@example.test\n", "a@example.test\r", "a..b@example.test", "a@-example.test"];
+    const badRecipients = [undefined, "", "A <a@example.test>", "a@example.test,b@example.test", "a@example.test\r\nBcc: b@example.test", "a@example.test\u0000", "a@example.test\u007f", "a@example.test\u0085", "a@example.test\n", "a@example.test\r", "a..b@example.test", "a@-example.test"];
     for (const method of ["sendVerification", "sendRecovery"]) {
       for (const bad of badTokens) await assert.rejects(service[method]({ to, token: bad }), errorIs("MAIL_INPUT_INVALID"));
       for (const bad of badRecipients) await assert.rejects(service[method]({ to: bad, token }), errorIs("MAIL_INPUT_INVALID"));

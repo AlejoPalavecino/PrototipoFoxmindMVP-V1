@@ -92,12 +92,14 @@ test("minimal request fixtures fit schemas and reject role/email/profile scope e
   for (const key of ["email", "role", "avatar", "password"]) assert.ok(!accepts({firstName:"Example",[key]:"unexpected"}, schema("ProfilePatch")));
   assert.equal(schema("UserIdentity").properties.email.readOnly, true);
 });
-test("email domains reject uppercase without rewriting local-part case, dots or plus", () => {
-  for (const value of ["User.Name+tag@example.test", "o'hara+group@example.test"]) {
-    assert.ok(accepts(value, schema("Email")));
+test("email contract declares international mailboxes and rejects uppercase Unicode domains", () => {
+  assert.equal(schema("Email").format, "idn-email");
+  assert.equal(schema("UserIdentity").properties.email.$ref, "#/components/schemas/Email");
+  for (const value of ["User.Name+tag@example.test", "o'hara+group@example.test", '"User Name"@example.test', "Üser+tag@bücher.test"]) {
+    assert.ok(accepts(value, schema("Email")), "accepted broad mailbox example");
   }
-  for (const value of ["User@EXAMPLE.test", "User@example.Test"]) {
-    assert.ok(!accepts(value, schema("Email")));
+  for (const value of ["User@EXAMPLE.test", "User@example.Test", "User@Bücher.test", "User@bÜcher.test"]) {
+    assert.ok(!accepts(value, schema("Email")), "uppercase domain rejected");
   }
 });
 test("raw Unicode password/name boundaries and opaque token shape are explicit", () => {

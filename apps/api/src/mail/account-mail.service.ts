@@ -2,24 +2,21 @@ import { Inject, Injectable, type OnModuleDestroy } from "@nestjs/common";
 import { createTransport, type SMTPTransportOptions } from "nodemailer";
 import { MAIL_CONFIGURATION, type MailConfiguration } from "./configuration.ts";
 import { MailError } from "./mail-error.ts";
+import { validateMailbox } from "./mailbox.ts";
 import { accountMessage } from "./templates.ts";
 
 export interface AccountMailInput { readonly to: string; readonly token: string }
 export interface MailAcceptance { readonly status: "accepted" }
 const SENDER = "no-reply@foxmind.test";
 
-function validateInput(input: AccountMailInput): void {
-  if (!input || typeof input.to !== "string" || typeof input.token !== "string") throw new MailError("MAIL_INPUT_INVALID");
-  const { to, token } = input;
-  // Accept one ASCII dot-atom mailbox with a lowercase domain. Reject uppercase
-  // domains before SMTP rather than letting Nodemailer normalize them. Preserve
-  // local-part case/dots/plus; never trim, expand lists or apply provider rules.
-  const atom = "[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+";
-  const mailbox = new RegExp(`^${atom}(?:\\.${atom})*@(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$`);
-  if (to.length > 254 || to.split("@")[0].length > 64 || /[\u0000-\u0020\u007f-\u009f]/u.test(to) || !mailbox.test(to) ||
-      !/^[A-Za-z0-9_-]{43}$/.test(token) || Buffer.from(token, "base64url").toString("base64url") !== token) {
+function validateInput(input: AccountMailInput): AccountMailInput {
+  if (!input || typeof input.token !== "string") throw new MailError("MAIL_INPUT_INVALID");
+  const to = validateMailbox(input.to);
+  const { token } = input;
+  if (!/^[A-Za-z0-9_-]{43}$/.test(token) || Buffer.from(token, "base64url").toString("base64url") !== token) {
     throw new MailError("MAIL_INPUT_INVALID");
   }
+  return { to, token };
 }
 
 @Injectable()
@@ -57,11 +54,10 @@ export class AccountMailService implements OnModuleDestroy {
   }
 
   private async send(purpose: "verification" | "recovery", input: AccountMailInput): Promise<MailAcceptance> {
-    validateInput(input);
-    if (this.closed) throw new MailError("MAIL_DELIVERY_UNAVAILABLE");
     // Copy validated primitives before any asynchronous boundary. Caller-supplied
     // headers, attachments, cc/bcc, envelope or transport fields are never spread.
-    const { to, token } = input;
+    const { to, token } = validateInput(input);
+    if (this.closed) throw new MailError("MAIL_DELIVERY_UNAVAILABLE");
     const operation = this.submit(purpose, to, token);
     this.pending.add(operation);
     try { return await operation; }

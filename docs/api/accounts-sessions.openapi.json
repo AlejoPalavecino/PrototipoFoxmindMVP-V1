@@ -1524,9 +1524,9 @@
       },
       "Email": {
         "type": "string",
-        "format": "email",
-        "pattern": "@[^A-Z]*$",
-        "description": "Valid email with an already-lowercase domain; reject uppercase domains with 422 before durable issuance or SMTP, do not silently lowercase. Trim outer email whitespace for canonical lookup and compare case-insensitively. Preserve accepted delivery spelling, including local-part case, dots and plus. No provider-specific rewrites. Explicit P3.2 user amendment."
+        "format": "idn-email",
+        "pattern": "@[^@\\p{Changes_When_Lowercased}]*$",
+        "description": "One valid bare international mailbox, including quoted and UTF-8 local parts and international DNS domains, validated by the shared maintained mailbox helper. Domain must already be lowercase, including Unicode: reject with 422 before durable issuance or SMTP, never silently lowercase or IDNA-convert first. Reject controls before trimming outer whitespace. Preserve trimmed delivery spelling/local-part case/dots/plus; compare identity separately case-insensitively, with no provider rewrites. Standard MIME/SMTPUTF8/IDNA wire encoding is not account-identifier rewriting. P3.3 compatibility amendment; identity endpoints remain planned."
       },
       "Password": {
         "type": "string",
@@ -1668,8 +1668,7 @@
             "readOnly": true
           },
           "email": {
-            "type": "string",
-            "format": "email",
+            "$ref": "#/components/schemas/Email",
             "readOnly": true
           },
           "firstName": {

@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../.build/p33-mail"
+  },
+  "include": ["src/mail/**/*.ts"]
+}
