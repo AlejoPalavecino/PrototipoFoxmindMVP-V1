@@ -62,11 +62,13 @@ Compose binds PostgreSQL only to `127.0.0.1`. Port 54329 is the default and can 
 | `npm run test:contract` | Run SQL contracts against DATABASE_URL; intended for an explicitly isolated test database only. |
 | `npm run test:red` | Run against a fresh empty database; intentional failing baseline. |
 
+For a bounded regression recheck only, set `FOXMIND_TEST_NAME_PATTERN` to a Node test-name regular expression before `npm test`, for example `raw text bounds|published grade`. This still uses a fresh container and runs migration/client checks, but filters contracts; unset it for the complete suite. The direct `test:contract` entry requires the runner's explicit isolated-database marker and is not the normal entry point.
+
 Never run migration reset, db push or ad-hoc destructive SQL on a database containing work you need to retain.
 
 ## Schema map
 
-`prisma/schema.prisma` is the physical field dictionary: it records field types, nullability, defaults, foreign-key relations and normal indexes. Every model maps to a snake_case PostgreSQL table. The second migration adds named SQL checks, partial unique indexes and two narrow integrity triggers.
+`prisma/schema.prisma` is the physical field dictionary: it records field types, nullability, defaults, foreign-key relations and normal indexes. Every model maps to a snake_case PostgreSQL table. The second migration adds named SQL checks, partial unique indexes and narrow integrity triggers. A third forward-only migration corrects raw text-length checks and guards the reverse attempt-status transition for published grades. Existing invalid data makes validation fail; no text or history is silently rewritten.
 
 | Area | Models | Integrity boundary |
 |---|---|---|
@@ -88,6 +90,8 @@ No global account role is stored. User-facing roles come from classroom ownershi
 Final grades use **unbounded NUMERIC plus range/precision checks**, not `NUMERIC(4,2)`. PostgreSQL would round `8.345` to `8.35` before a check on a fixed-scale column; that would violate the approved rejection of manual inputs with more than two decimal places. Question point inputs follow the same rule.
 
 QuestionGrade stores integer `earned_numerator` and positive integer `earned_denominator` in unbounded NUMERIC. This preserves exact fractions such as 4/3. The future grading service must perform rational arithmetic and final round-half-up, including `8.345 → 8.35`; **this migration does not implement that calculation or Spanish display formatting**.
+
+Text limits count the stored input, including surrounding spaces; trimming is used only to reject blank required input. Published grades keep their attempts submitted. Publication takes a shared row lock on the attempt, and status changes check for published grades, serializing the two opposing transitions.
 
 The `is_published`, `effective_grade_published` and `published_marker` fields support composite foreign keys to published records. SQL checks prevent caller-controlled marker values from bypassing that boundary. Publishing a grade on an unsubmitted attempt is rejected. A historical grade correction does not automatically change StudentActivity.effective_grade_id.
 

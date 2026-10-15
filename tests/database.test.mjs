@@ -278,6 +278,80 @@ contract("development answers preserve the 20000-character boundary", async f =>
   const answer = await insert("answers", { id: randomUUID(), attempt_id: f.attempt.id, activity_id: f.activity.id, question_id: f.question.id, development_text: "x".repeat(20000) });
   await rejected(() => db.query("UPDATE answers SET development_text=$1 WHERE id=$2", ["x".repeat(20001), answer.id]), "23514");
 });
+contract("raw text bounds reject surrounding-space overflow without trimming", async f => {
+  const file = await insert("files", { id: randomUUID(), classroom_id: f.room.id, uploaded_by_id: f.teacher.id, storage_key: randomUUID(), original_name: "material.pdf", extension: "pdf", size_bytes: "12" });
+  const material = await insert("materials", { id: randomUUID(), classroom_id: f.room.id, title: "Material", file_id: file.id, created_by_id: f.teacher.id });
+  const post = await insert("wall_posts", { id: randomUUID(), classroom_id: f.room.id, author_id: f.student.id, type: "QUERY", body: "Question" });
+  const reply = await insert("wall_replies", { id: randomUUID(), post_id: post.id, classroom_id: f.room.id, author_id: f.teacher.id, body: "Reply" });
+  await db.query("UPDATE attempts SET status='SUBMITTED',submitted_at=now(),submitted_late=false WHERE id=$1", [f.attempt.id]);
+  const grade = await insert("attempt_grades", { id: randomUUID(), attempt_id: f.attempt.id, student_activity_id: f.obligation.id, activity_id: f.activity.id, graded_by_id: f.teacher.id, final_grade: "8", published_at: new Date(), is_published: true });
+  const correction = await insert("grade_corrections", { id: randomUUID(), attempt_grade_id: grade.id, previous_grade: "8", new_grade: "6", reason: "Correction", actor_id: f.teacher.id });
+  const cases = [
+    ["users", "first_name", f.student.id, 80], ["users", "last_name", f.student.id, 80],
+    ["classrooms", "name", f.room.id, 120], ["classrooms", "subject", f.room.id, 120], ["classrooms", "division", f.room.id, 60],
+    ["units", "name", f.unit.id, 120], ["topics", "name", f.topic.id, 120],
+    ["materials", "title", material.id, 200], ["activities", "title", f.activity.id, 200],
+    ["wall_posts", "body", post.id, 5000], ["wall_replies", "body", reply.id, 5000],
+    ["grade_corrections", "reason", correction.id, 5000],
+  ];
+  for (const [table, column, id, maximum] of cases) {
+    const update = value => db.query(`UPDATE "${table}" SET "${column}"=$1 WHERE id=$2 RETURNING "${column}"`, [value, id]);
+    const boundary = ` ${"x".repeat(maximum - 2)} `;
+    assert.equal((await update(boundary)).rows[0][column], boundary, `${table}.${column} preserves valid input`);
+    await rejected(() => update(` ${"x".repeat(maximum)} `), "23514");
+    await rejected(() => update("   "), "23514");
+  }
+});
+contract("published grade prevents its submitted attempt from reverting to draft", async f => {
+  await db.query("UPDATE attempts SET status='SUBMITTED',submitted_at=now(),submitted_late=false WHERE id=$1", [f.attempt.id]);
+  const grade = await insert("attempt_grades", { id: randomUUID(), attempt_id: f.attempt.id, student_activity_id: f.obligation.id, activity_id: f.activity.id, graded_by_id: f.teacher.id, final_grade: "8", published_at: new Date(), is_published: true });
+  await db.query("UPDATE student_activities SET effective_grade_id=$1 WHERE id=$2", [grade.id, f.obligation.id]);
+  await rejected(() => db.query("UPDATE attempts SET status='DRAFT',submitted_at=NULL,submitted_late=NULL,applied_deadline_at=NULL WHERE id=$1", [f.attempt.id]), "23514");
+  assert.equal((await db.query("SELECT status FROM attempts WHERE id=$1", [f.attempt.id])).rows[0].status, "SUBMITTED");
+});
+test("published grade interlock serializes publication and draft reversion", async () => {
+  const publisher = new pg.Client({ connectionString: process.env.DATABASE_URL });
+  const editor = new pg.Client({ connectionString: process.env.DATABASE_URL });
+  await publisher.connect(); await editor.connect();
+  let f;
+  let grade;
+  try {
+    await db.query("BEGIN"); f = await fixture();
+    await db.query("UPDATE attempts SET status='SUBMITTED',submitted_at=now(),submitted_late=false WHERE id=$1", [f.attempt.id]);
+    grade = await insert("attempt_grades", { id: randomUUID(), attempt_id: f.attempt.id, student_activity_id: f.obligation.id, activity_id: f.activity.id, graded_by_id: f.teacher.id, final_grade: "8" });
+    await db.query("COMMIT");
+    await publisher.query("BEGIN");
+    await publisher.query("UPDATE attempt_grades SET is_published=true,published_at=now() WHERE id=$1", [grade.id]);
+    await editor.query("BEGIN; SET LOCAL lock_timeout='100ms'");
+    await assert.rejects(editor.query("UPDATE attempts SET status='DRAFT',submitted_at=NULL,submitted_late=NULL WHERE id=$1", [f.attempt.id]), e => e.code === "55P03");
+    await editor.query("ROLLBACK"); await publisher.query("COMMIT");
+    await assert.rejects(editor.query("UPDATE attempts SET status='DRAFT',submitted_at=NULL,submitted_late=NULL WHERE id=$1", [f.attempt.id]), e => e.code === "23514");
+    await db.query("UPDATE attempt_grades SET is_published=false,published_at=NULL WHERE id=$1", [grade.id]);
+    await editor.query("BEGIN");
+    await editor.query("UPDATE attempts SET status='DRAFT',submitted_at=NULL,submitted_late=NULL WHERE id=$1", [f.attempt.id]);
+    await publisher.query("BEGIN; SET LOCAL lock_timeout='100ms'");
+    await assert.rejects(publisher.query("UPDATE attempt_grades SET is_published=true,published_at=now() WHERE id=$1", [grade.id]), e => e.code === "55P03");
+    await publisher.query("ROLLBACK"); await editor.query("COMMIT");
+    await assert.rejects(publisher.query("UPDATE attempt_grades SET is_published=true,published_at=now() WHERE id=$1", [grade.id]), e => e.code === "23514");
+    assert.equal((await db.query("SELECT status FROM attempts WHERE id=$1", [f.attempt.id])).rows[0].status, "DRAFT");
+    assert.equal((await db.query("SELECT is_published FROM attempt_grades WHERE id=$1", [grade.id])).rows[0].is_published, false);
+  } finally {
+    await publisher.query("ROLLBACK"); await editor.query("ROLLBACK"); await db.query("ROLLBACK");
+    if (f && grade) {
+      await db.query("DELETE FROM attempt_grades WHERE id=$1", [grade.id]);
+      await db.query("DELETE FROM questions WHERE id=$1", [f.question.id]);
+      await db.query("DELETE FROM attempts WHERE id=$1", [f.attempt.id]);
+      await db.query("DELETE FROM student_activities WHERE id=$1", [f.obligation.id]);
+      await db.query("DELETE FROM activities WHERE id=$1", [f.activity.id]);
+      await db.query("DELETE FROM topics WHERE id=$1", [f.topic.id]);
+      await db.query("DELETE FROM units WHERE id=$1", [f.unit.id]);
+      await db.query("DELETE FROM enrollments WHERE id=$1", [f.enrollment.id]);
+      await db.query("DELETE FROM classrooms WHERE id=$1", [f.room.id]);
+      await db.query("DELETE FROM users WHERE id=ANY($1::uuid[])", [[f.teacher.id, f.student.id]]);
+    }
+    await publisher.end(); await editor.end();
+  }
+});
 contract("durable job deduplication and claim fields are consistent", async () => {
   const row = await insert("background_jobs", { id: randomUUID(), type: "SCAN_FILE", payload: { fileId: randomUUID() }, deduplication_key: randomUUID() });
   await rejected(() => insert("background_jobs", { ...row, id: randomUUID() }), "23505");

@@ -47,7 +47,10 @@ try {
     command([cli, "migrate", "diff", "--from-config-datasource", "--to-schema", "prisma/schema.prisma", "--exit-code"], env, "Schema drift check");
     command([cli, "generate"], env, "Prisma client generation");
   }
-  const run = spawnSync(process.execPath, ["--test", "--test-concurrency=1", "tests/database.test.mjs"], { env, stdio: "inherit", timeout: 60000 });
+  const testArgs = ["--test", "--test-concurrency=1"];
+  if (process.env.FOXMIND_TEST_NAME_PATTERN) testArgs.push(`--test-name-pattern=${process.env.FOXMIND_TEST_NAME_PATTERN}`);
+  testArgs.push("tests/database.test.mjs");
+  const run = spawnSync(process.execPath, testArgs, { env, stdio: "inherit", timeout: 60000 });
   if (run.error) throw run.error;
   result = run.status ?? 1;
   if (!empty && result === 0) command(["scripts/prisma-smoke.mjs"], env, "Prisma runtime smoke");
