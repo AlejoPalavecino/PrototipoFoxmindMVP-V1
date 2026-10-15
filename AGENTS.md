@@ -37,4 +37,4 @@ For a documentation-only task, run proportionate structural/link checks and stat
 
 ## Current boundary
 
-The baseline has a minimal NestJS/Prisma/PostgreSQL foundation and dependency remediation, not a finished application. P3 identity/access and the initial Next.js UI are next but not started. Always use the roadmap's latest checkpoint if this summary becomes older than the recorded work.
+The baseline has a minimal NestJS/Prisma/PostgreSQL foundation and dependency remediation, not a finished application. P3.1 account/session contracts are completed and independently reviewed. P3 remains in progress; P3.2 local captured-email infrastructure is next and not started. No authentication, email-inbox or Next.js implementation has started. Always use the roadmap's latest checkpoint and work record if this summary becomes older than the recorded work.

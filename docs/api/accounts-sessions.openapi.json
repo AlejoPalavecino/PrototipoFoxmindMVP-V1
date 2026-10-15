@@ -1,0 +1,2250 @@
+{
+  "openapi": "3.1.0",
+  "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+  "info": {
+    "title": "FoxMind P3.1 account/session contract",
+    "version": "0.1.0",
+    "description": "Design artifact only. Identity routes are NOT implemented; current NestJS app exposes health endpoints. Product policies are confirmed in the functional specification; see accounts-sessions.md for atomicity, transport, abuse and mail-secret handling. No live credential examples."
+  },
+  "servers": [
+    {
+      "url": "/api/v1",
+      "description": "Future same-origin browser transport to the NestJS authorization owner; no public deployment selected."
+    }
+  ],
+  "tags": [
+    {
+      "name": "Authentication"
+    },
+    {
+      "name": "Account"
+    }
+  ],
+  "paths": {
+    "/auth/session": {
+      "get": {
+        "operationId": "getSession",
+        "summary": "Inspect own session; no idle refresh",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200: Inspect own session; no idle refresh",
+            "headers": {
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "required": true,
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "foxmind_session HttpOnly; SameSite=Lax; Path=/; no Domain; Secure outside explicit local loopback HTTP. Raw value is never in JSON. Clearing uses matching scope and Max-Age=0. Clear an invalid/expired cookie.",
+                "required": false
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionState"
+                },
+                "examples": {
+                  "anonymous": {
+                    "value": {
+                      "authenticated": false
+                    }
+                  },
+                  "unverified": {
+                    "value": {
+                      "authenticated": true,
+                      "user": {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "email": "learner@example.test",
+                        "firstName": "Example",
+                        "lastName": "Learner",
+                        "emailVerified": false
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "default": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "x-implementation-status": "planned-not-implemented",
+        "x-email-verified-required": false,
+        "x-csrf-policy": "not-applicable-safe-read",
+        "x-touches-session-idle": false,
+        "x-rate-rule": "session-read",
+        "x-error-codes": {
+          "429": [
+            "RATE_LIMITED"
+          ],
+          "503": [
+            "SERVICE_UNAVAILABLE"
+          ],
+          "default": [
+            "INTERNAL_ERROR"
+          ]
+        }
+      }
+    },
+    "/auth/csrf": {
+      "get": {
+        "operationId": "getCsrf",
+        "summary": "Read current session-bound CSRF token",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200: Read current session-bound CSRF token",
+            "headers": {
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "required": true,
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CsrfToken"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "default": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "x-implementation-status": "planned-not-implemented",
+        "x-email-verified-required": false,
+        "x-csrf-policy": "not-applicable-safe-read",
+        "x-touches-session-idle": false,
+        "x-rate-rule": "csrf-read",
+        "x-error-codes": {
+          "401": [
+            "AUTH_REQUIRED"
+          ],
+          "429": [
+            "RATE_LIMITED"
+          ],
+          "503": [
+            "SERVICE_UNAVAILABLE"
+          ],
+          "default": [
+            "INTERNAL_ERROR"
+          ]
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "operationId": "register",
+        "summary": "Accept registration without revealing account existence",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "Exact configured APP_ORIGIN; reject missing/null/different origins. No arbitrary forwarded-header trust.",
+            "example": "http://127.0.0.1:3000"
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 43,
+              "maxLength": 43
+            },
+            "description": "Required whenever this otherwise-public mutation carries a valid session cookie; no anonymous session is created."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "202: Accept registration without revealing account existence",
+            "headers": {
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "required": true,
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Accepted"
+                },
+                "examples": {
+                  "newEmail": {
+                    "value": {
+                      "status": "accepted"
+                    }
+                  },
+                  "existingEmail": {
+                    "value": {
+                      "status": "accepted"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "422": {
+            "$ref": "#/components/responses/Validation"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "default": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "x-implementation-status": "planned-not-implemented",
+        "x-email-verified-required": false,
+        "x-csrf-policy": "required-when-valid-session-present",
+        "x-touches-session-idle": false,
+        "x-rate-rule": "registration",
+        "x-error-codes": {
+          "403": [
+            "ORIGIN_NOT_ALLOWED",
+            "CSRF_INVALID"
+          ],
+          "413": [
+            "REQUEST_TOO_LARGE"
+          ],
+          "415": [
+            "MEDIA_TYPE_UNSUPPORTED"
+          ],
+          "422": [
+            "VALIDATION_ERROR"
+          ],
+          "429": [
+            "RATE_LIMITED"
+          ],
+          "503": [
+            "SERVICE_UNAVAILABLE"
+          ],
+          "default": [
+            "INTERNAL_ERROR"
+          ]
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "operationId": "login",
+        "summary": "Authenticate, rotate and set opaque session cookie",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "Exact configured APP_ORIGIN; reject missing/null/different origins. No arbitrary forwarded-header trust.",
+            "example": "http://127.0.0.1:3000"
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 43,
+              "maxLength": 43
+            },
+            "description": "Required whenever this otherwise-public mutation carries a valid session cookie; no anonymous session is created."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200: Authenticate, rotate and set opaque session cookie",
+            "headers": {
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "required": true,
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "foxmind_session HttpOnly; SameSite=Lax; Path=/; no Domain; Secure outside explicit local loopback HTTP. Raw value is never in JSON. Clearing uses matching scope and Max-Age=0.",
+                "required": true
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticatedSession"
+                },
+                "examples": {
+                  "unverified": {
+                    "value": {
+                      "authenticated": true,
+                      "user": {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "email": "learner@example.test",
+                        "firstName": "Example",
+                        "lastName": "Learner",
+                        "emailVerified": false
+                      }
+                    }
+                  },
+                  "verified": {
+                    "value": {
+                      "authenticated": true,
+                      "user": {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "email": "learner@example.test",
+                        "firstName": "Example",
+                        "lastName": "Learner",
+                        "emailVerified": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "422": {
+            "$ref": "#/components/responses/Validation"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "default": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "x-implementation-status": "planned-not-implemented",
+        "x-email-verified-required": false,
+        "x-csrf-policy": "required-when-valid-session-present",
+        "x-touches-session-idle": false,
+        "x-rate-rule": "login",
+        "x-error-codes": {
+          "401": [
+            "AUTHENTICATION_FAILED"
+          ],
+          "403": [
+            "ORIGIN_NOT_ALLOWED",
+            "CSRF_INVALID"
+          ],
+          "413": [
+            "REQUEST_TOO_LARGE"
+          ],
+          "415": [
+            "MEDIA_TYPE_UNSUPPORTED"
+          ],
+          "422": [
+            "VALIDATION_ERROR"
+          ],
+          "429": [
+            "RATE_LIMITED"
+          ],
+          "503": [
+            "SERVICE_UNAVAILABLE"
+          ],
+          "default": [
+            "INTERNAL_ERROR"
+          ]
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "operationId": "logout",
+        "summary": "Revoke current session if present and clear cookie",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "Exact configured APP_ORIGIN; reject missing/null/different origins. No arbitrary forwarded-header trust.",
+            "example": "http://127.0.0.1:3000"
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 43,
+              "maxLength": 43
+            },
+            "description": "Required whenever this otherwise-public mutation carries a valid session cookie; no anonymous session is created."
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmptyInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "204: Revoke current session if present and clear cookie",
+            "headers": {
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "required": true,
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "foxmind_session HttpOnly; SameSite=Lax; Path=/; no Domain; Secure outside explicit local loopback HTTP. Raw value is never in JSON. Clearing uses matching scope and Max-Age=0.",
+                "required": true
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "422": {
+            "$ref": "#/components/responses/Validation"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "default": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "x-implementation-status": "planned-not-implemented",
+        "x-email-verified-required": false,
+        "x-csrf-policy": "required-when-valid-session-present",
+        "x-touches-session-idle": false,
+        "x-rate-rule": "general-identity",
+        "x-error-codes": {
+          "403": [
+            "ORIGIN_NOT_ALLOWED",
+            "CSRF_INVALID"
+          ],
+          "413": [
+            "REQUEST_TOO_LARGE"
+          ],
+          "415": [
+            "MEDIA_TYPE_UNSUPPORTED"
+          ],
+          "422": [
+            "VALIDATION_ERROR"
+          ],
+          "429": [
+            "RATE_LIMITED"
+          ],
+          "503": [
+            "SERVICE_UNAVAILABLE"
+          ],
+          "default": [
+            "INTERNAL_ERROR"
+          ]
+        }
+      }
+    },
+    "/auth/email-verification/resend": {
+      "post": {
+        "operationId": "resendEmailVerification",
+        "summary": "Durably accept verification resend, not email delivery",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [
+          {
+            "SessionCookie": [],
+            "CsrfHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "Exact configured APP_ORIGIN; reject missing/null/different origins. No arbitrary forwarded-header trust.",
+            "example": "http://127.0.0.1:3000"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmptyInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "202: Durably accept verification resend, not email delivery",
+            "headers": {
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "required": true,
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Accepted"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "$ref": "#/components/responses/AlreadyVerified"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "422": {
+            "$ref": "#/components/responses/Validation"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "default": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "x-implementation-status": "planned-not-implemented",
+        "x-email-verified-required": false,
+        "x-csrf-policy": "required",
+        "x-touches-session-idle": true,
+        "x-rate-rule": "verification-resend",
+        "x-error-codes": {
+          "401": [
+            "AUTH_REQUIRED"
+          ],
+          "403": [
+            "ORIGIN_NOT_ALLOWED",
+            "CSRF_INVALID"
+          ],
+          "409": [
+            "EMAIL_ALREADY_VERIFIED"
+          ],
+          "413": [
+            "REQUEST_TOO_LARGE"
+          ],
+          "415": [
+            "MEDIA_TYPE_UNSUPPORTED"
+          ],
+          "422": [
+            "VALIDATION_ERROR"
+          ],
+          "429": [
+            "RATE_LIMITED"
+          ],
+          "503": [
+            "SERVICE_UNAVAILABLE"
+          ],
+          "default": [
+            "INTERNAL_ERROR"
+          ]
+        }
+      }
+    },
+    "/auth/email-verification/confirm": {
+      "post": {
+        "operationId": "confirmEmailVerification",
+        "summary": "Consume valid verification token without enrollment or auto-login",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "Exact configured APP_ORIGIN; reject missing/null/different origins. No arbitrary forwarded-header trust.",
+            "example": "http://127.0.0.1:3000"
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 43,
+              "maxLength": 43
+            },
+            "description": "Required whenever this otherwise-public mutation carries a valid session cookie; no anonymous session is created."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200: Consume valid verification token without enrollment or auto-login",
+            "headers": {
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "required": true,
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "foxmind_session HttpOnly; SameSite=Lax; Path=/; no Domain; Secure outside explicit local loopback HTTP. Raw value is never in JSON. Clearing uses matching scope and Max-Age=0. Rotate only an already-authenticated same-user session, preserving its absolute deadline.",
+                "required": false
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Verified"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadLink"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "422": {
+            "$ref": "#/components/responses/Validation"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "default": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "x-implementation-status": "planned-not-implemented",
+        "x-email-verified-required": false,
+        "x-csrf-policy": "required-when-valid-session-present",
+        "x-touches-session-idle": false,
+        "x-rate-rule": "token-redemption",
+        "x-error-codes": {
+          "400": [
+            "LINK_INVALID"
+          ],
+          "403": [
+            "ORIGIN_NOT_ALLOWED",
+            "CSRF_INVALID"
+          ],
+          "413": [
+            "REQUEST_TOO_LARGE"
+          ],
+          "415": [
+            "MEDIA_TYPE_UNSUPPORTED"
+          ],
+          "422": [
+            "VALIDATION_ERROR"
+          ],
+          "429": [
+            "RATE_LIMITED"
+          ],
+          "503": [
+            "SERVICE_UNAVAILABLE"
+          ],
+          "default": [
+            "INTERNAL_ERROR"
+          ]
+        }
+      }
+    },
+    "/auth/password-recovery/request": {
+      "post": {
+        "operationId": "requestPasswordRecovery",
+        "summary": "Accept recovery request generically, including unknown accounts",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "Exact configured APP_ORIGIN; reject missing/null/different origins. No arbitrary forwarded-header trust.",
+            "example": "http://127.0.0.1:3000"
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 43,
+              "maxLength": 43
+            },
+            "description": "Required whenever this otherwise-public mutation carries a valid session cookie; no anonymous session is created."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecoveryRequestInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "202: Accept recovery request generically, including unknown accounts",
+            "headers": {
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "required": true,
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Accepted"
+                },
+                "examples": {
+                  "knownEmail": {
+                    "value": {
+                      "status": "accepted"
+                    }
+                  },
+                  "unknownEmail": {
+                    "value": {
+                      "status": "accepted"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "422": {
+            "$ref": "#/components/responses/Validation"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "default": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "x-implementation-status": "planned-not-implemented",
+        "x-email-verified-required": false,
+        "x-csrf-policy": "required-when-valid-session-present",
+        "x-touches-session-idle": false,
+        "x-rate-rule": "recovery-request",
+        "x-error-codes": {
+          "403": [
+            "ORIGIN_NOT_ALLOWED",
+            "CSRF_INVALID"
+          ],
+          "413": [
+            "REQUEST_TOO_LARGE"
+          ],
+          "415": [
+            "MEDIA_TYPE_UNSUPPORTED"
+          ],
+          "422": [
+            "VALIDATION_ERROR"
+          ],
+          "429": [
+            "RATE_LIMITED"
+          ],
+          "503": [
+            "SERVICE_UNAVAILABLE"
+          ],
+          "default": [
+            "INTERNAL_ERROR"
+          ]
+        }
+      }
+    },
+    "/auth/password-recovery/confirm": {
+      "post": {
+        "operationId": "confirmPasswordRecovery",
+        "summary": "Reset password and revoke every previous session; no auto-login",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "Exact configured APP_ORIGIN; reject missing/null/different origins. No arbitrary forwarded-header trust.",
+            "example": "http://127.0.0.1:3000"
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 43,
+              "maxLength": 43
+            },
+            "description": "Required whenever this otherwise-public mutation carries a valid session cookie; no anonymous session is created."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecoveryConfirmInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "204: Reset password and revoke every previous session; no auto-login",
+            "headers": {
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "required": true,
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "foxmind_session HttpOnly; SameSite=Lax; Path=/; no Domain; Secure outside explicit local loopback HTTP. Raw value is never in JSON. Clearing uses matching scope and Max-Age=0.",
+                "required": true
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadLink"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "422": {
+            "$ref": "#/components/responses/Validation"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "default": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "x-implementation-status": "planned-not-implemented",
+        "x-email-verified-required": false,
+        "x-csrf-policy": "required-when-valid-session-present",
+        "x-touches-session-idle": false,
+        "x-rate-rule": "token-redemption",
+        "x-error-codes": {
+          "400": [
+            "LINK_INVALID"
+          ],
+          "403": [
+            "ORIGIN_NOT_ALLOWED",
+            "CSRF_INVALID"
+          ],
+          "413": [
+            "REQUEST_TOO_LARGE"
+          ],
+          "415": [
+            "MEDIA_TYPE_UNSUPPORTED"
+          ],
+          "422": [
+            "VALIDATION_ERROR"
+          ],
+          "429": [
+            "RATE_LIMITED"
+          ],
+          "503": [
+            "SERVICE_UNAVAILABLE"
+          ],
+          "default": [
+            "INTERNAL_ERROR"
+          ]
+        }
+      }
+    },
+    "/account": {
+      "get": {
+        "operationId": "getProfile",
+        "summary": "Read own minimal verified profile",
+        "tags": [
+          "Account"
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200: Read own minimal verified profile",
+            "headers": {
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "required": true,
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "default": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "x-implementation-status": "planned-not-implemented",
+        "x-email-verified-required": true,
+        "x-csrf-policy": "not-applicable-safe-read",
+        "x-touches-session-idle": true,
+        "x-rate-rule": "general-identity",
+        "x-error-codes": {
+          "401": [
+            "AUTH_REQUIRED"
+          ],
+          "403": [
+            "EMAIL_VERIFICATION_REQUIRED"
+          ],
+          "429": [
+            "RATE_LIMITED"
+          ],
+          "503": [
+            "SERVICE_UNAVAILABLE"
+          ],
+          "default": [
+            "INTERNAL_ERROR"
+          ]
+        }
+      },
+      "patch": {
+        "operationId": "updateProfile",
+        "summary": "Update only supplied own name fields",
+        "tags": [
+          "Account"
+        ],
+        "security": [
+          {
+            "SessionCookie": [],
+            "CsrfHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "Exact configured APP_ORIGIN; reject missing/null/different origins. No arbitrary forwarded-header trust.",
+            "example": "http://127.0.0.1:3000"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfilePatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200: Update only supplied own name fields",
+            "headers": {
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "required": true,
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "422": {
+            "$ref": "#/components/responses/Validation"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "default": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "x-implementation-status": "planned-not-implemented",
+        "x-email-verified-required": true,
+        "x-csrf-policy": "required",
+        "x-touches-session-idle": true,
+        "x-rate-rule": "profile-update",
+        "x-error-codes": {
+          "401": [
+            "AUTH_REQUIRED"
+          ],
+          "403": [
+            "ORIGIN_NOT_ALLOWED",
+            "CSRF_INVALID",
+            "EMAIL_VERIFICATION_REQUIRED"
+          ],
+          "413": [
+            "REQUEST_TOO_LARGE"
+          ],
+          "415": [
+            "MEDIA_TYPE_UNSUPPORTED"
+          ],
+          "422": [
+            "VALIDATION_ERROR"
+          ],
+          "429": [
+            "RATE_LIMITED"
+          ],
+          "503": [
+            "SERVICE_UNAVAILABLE"
+          ],
+          "default": [
+            "INTERNAL_ERROR"
+          ]
+        }
+      }
+    },
+    "/account/password": {
+      "post": {
+        "operationId": "changePassword",
+        "summary": "Prove current password, revoke others and rotate current cookie",
+        "tags": [
+          "Account"
+        ],
+        "security": [
+          {
+            "SessionCookie": [],
+            "CsrfHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "Exact configured APP_ORIGIN; reject missing/null/different origins. No arbitrary forwarded-header trust.",
+            "example": "http://127.0.0.1:3000"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordChangeInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "204: Prove current password, revoke others and rotate current cookie",
+            "headers": {
+              "Cache-Control": {
+                "required": true,
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "required": true,
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "X-Request-Id": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              },
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "foxmind_session HttpOnly; SameSite=Lax; Path=/; no Domain; Secure outside explicit local loopback HTTP. Raw value is never in JSON. Clearing uses matching scope and Max-Age=0.",
+                "required": true
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "422": {
+            "$ref": "#/components/responses/Validation"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "default": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        },
+        "x-implementation-status": "planned-not-implemented",
+        "x-email-verified-required": true,
+        "x-csrf-policy": "required",
+        "x-touches-session-idle": true,
+        "x-rate-rule": "password-change",
+        "x-error-codes": {
+          "401": [
+            "AUTH_REQUIRED",
+            "AUTHENTICATION_FAILED"
+          ],
+          "403": [
+            "ORIGIN_NOT_ALLOWED",
+            "CSRF_INVALID",
+            "EMAIL_VERIFICATION_REQUIRED"
+          ],
+          "413": [
+            "REQUEST_TOO_LARGE"
+          ],
+          "415": [
+            "MEDIA_TYPE_UNSUPPORTED"
+          ],
+          "422": [
+            "VALIDATION_ERROR"
+          ],
+          "429": [
+            "RATE_LIMITED"
+          ],
+          "503": [
+            "SERVICE_UNAVAILABLE"
+          ],
+          "default": [
+            "INTERNAL_ERROR"
+          ]
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80,
+        "pattern": "\\S",
+        "description": "Count raw Unicode code points, including surrounding spaces. Reject whitespace-only; do not trim oversized input into validity."
+      },
+      "Email": {
+        "type": "string",
+        "format": "email",
+        "description": "Valid email; trim outer email whitespace for canonical lookup, compare case-insensitively, preserve delivery spelling. No dot/plus provider rewrites."
+      },
+      "Password": {
+        "type": "string",
+        "minLength": 16,
+        "maxLength": 128,
+        "writeOnly": true,
+        "description": "Valid Unicode scalar input, counted in code points. No trimming, normalization, truncation or extra character-class composition."
+      },
+      "AccountToken": {
+        "type": "string",
+        "minLength": 43,
+        "maxLength": 43,
+        "pattern": "^[A-Za-z0-9_-]{43}$",
+        "writeOnly": true,
+        "description": "Opaque canonical base64url encoding of32random bytes. Purpose/user/expiry/single-use state checked on server. Never log or return in API success bodies."
+      },
+      "EmptyInput": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "RegisterInput": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "$ref": "#/components/schemas/Name"
+          },
+          "lastName": {
+            "$ref": "#/components/schemas/Name"
+          },
+          "email": {
+            "$ref": "#/components/schemas/Email"
+          },
+          "password": {
+            "$ref": "#/components/schemas/Password"
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName",
+          "email",
+          "password"
+        ],
+        "additionalProperties": false
+      },
+      "LoginInput": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "$ref": "#/components/schemas/Email"
+          },
+          "password": {
+            "$ref": "#/components/schemas/Password"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "additionalProperties": false
+      },
+      "VerifyInput": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "$ref": "#/components/schemas/AccountToken"
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "additionalProperties": false
+      },
+      "RecoveryRequestInput": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "$ref": "#/components/schemas/Email"
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "additionalProperties": false
+      },
+      "RecoveryConfirmInput": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "$ref": "#/components/schemas/AccountToken"
+          },
+          "newPassword": {
+            "$ref": "#/components/schemas/Password"
+          }
+        },
+        "required": [
+          "token",
+          "newPassword"
+        ],
+        "additionalProperties": false
+      },
+      "PasswordChangeInput": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "$ref": "#/components/schemas/Password"
+          },
+          "newPassword": {
+            "$ref": "#/components/schemas/Password"
+          }
+        },
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ],
+        "additionalProperties": false
+      },
+      "ProfilePatch": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "$ref": "#/components/schemas/Name"
+          },
+          "lastName": {
+            "$ref": "#/components/schemas/Name"
+          }
+        },
+        "required": [],
+        "additionalProperties": false,
+        "minProperties": 1
+      },
+      "UserIdentity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "readOnly": true
+          },
+          "firstName": {
+            "$ref": "#/components/schemas/Name"
+          },
+          "lastName": {
+            "$ref": "#/components/schemas/Name"
+          },
+          "emailVerified": {
+            "type": "boolean",
+            "readOnly": true
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "firstName",
+          "lastName",
+          "emailVerified"
+        ],
+        "additionalProperties": false
+      },
+      "AnonymousSession": {
+        "type": "object",
+        "properties": {
+          "authenticated": {
+            "const": false
+          }
+        },
+        "required": [
+          "authenticated"
+        ],
+        "additionalProperties": false
+      },
+      "AuthenticatedSession": {
+        "type": "object",
+        "properties": {
+          "authenticated": {
+            "const": true
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserIdentity"
+          }
+        },
+        "required": [
+          "authenticated",
+          "user"
+        ],
+        "additionalProperties": false
+      },
+      "SessionState": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/AnonymousSession"
+          },
+          {
+            "$ref": "#/components/schemas/AuthenticatedSession"
+          }
+        ]
+      },
+      "Profile": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/UserIdentity"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "emailVerified": {
+                "const": true
+              }
+            },
+            "required": [
+              "emailVerified"
+            ]
+          }
+        ]
+      },
+      "Accepted": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "const": "accepted"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "additionalProperties": false
+      },
+      "Verified": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "const": "verified"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "additionalProperties": false
+      },
+      "CsrfToken": {
+        "type": "object",
+        "properties": {
+          "csrfToken": {
+            "type": "string",
+            "minLength": 43,
+            "maxLength": 43,
+            "pattern": "^[A-Za-z0-9_-]{43}$",
+            "readOnly": true,
+            "description": "Session-bound HMAC, not the raw session verifier; obtain again after rotation."
+          }
+        },
+        "required": [
+          "csrfToken"
+        ],
+        "additionalProperties": false
+      },
+      "FieldIssue": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "enum": [
+              "firstName",
+              "lastName",
+              "email",
+              "password",
+              "currentPassword",
+              "newPassword",
+              "token",
+              "body"
+            ]
+          },
+          "code": {
+            "enum": [
+              "REQUIRED",
+              "INVALID_FORMAT",
+              "TOO_SHORT",
+              "TOO_LONG",
+              "UNKNOWN_FIELD"
+            ]
+          }
+        },
+        "required": [
+          "field",
+          "code"
+        ],
+        "additionalProperties": false
+      },
+      "ErrorEnvelope": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "enum": [
+                  "VALIDATION_ERROR",
+                  "AUTHENTICATION_FAILED",
+                  "AUTH_REQUIRED",
+                  "EMAIL_VERIFICATION_REQUIRED",
+                  "ORIGIN_NOT_ALLOWED",
+                  "CSRF_INVALID",
+                  "LINK_INVALID",
+                  "EMAIL_ALREADY_VERIFIED",
+                  "RATE_LIMITED",
+                  "MEDIA_TYPE_UNSUPPORTED",
+                  "REQUEST_TOO_LARGE",
+                  "SERVICE_UNAVAILABLE",
+                  "INTERNAL_ERROR"
+                ]
+              },
+              "requestId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "fieldErrors": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "$ref": "#/components/schemas/FieldIssue"
+                }
+              }
+            },
+            "required": [
+              "code",
+              "requestId"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "responses": {
+      "BadLink": {
+        "description": "400: LINK_INVALID for wrong purpose/account, expired, consumed or invalidated token; no account/session/token mutation.",
+        "headers": {
+          "Cache-Control": {
+            "required": true,
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "X-Content-Type-Options": {
+            "required": true,
+            "schema": {
+              "const": "nosniff"
+            }
+          },
+          "X-Request-Id": {
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "401: AUTH_REQUIRED or AUTHENTICATION_FAILED as specified by operation; no account-existence distinction.",
+        "headers": {
+          "Cache-Control": {
+            "required": true,
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "X-Content-Type-Options": {
+            "required": true,
+            "schema": {
+              "const": "nosniff"
+            }
+          },
+          "X-Request-Id": {
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "403: ORIGIN_NOT_ALLOWED, CSRF_INVALID or EMAIL_VERIFICATION_REQUIRED as applicable.",
+        "headers": {
+          "Cache-Control": {
+            "required": true,
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "X-Content-Type-Options": {
+            "required": true,
+            "schema": {
+              "const": "nosniff"
+            }
+          },
+          "X-Request-Id": {
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        }
+      },
+      "AlreadyVerified": {
+        "description": "409: EMAIL_ALREADY_VERIFIED for the authenticated current user only.",
+        "headers": {
+          "Cache-Control": {
+            "required": true,
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "X-Content-Type-Options": {
+            "required": true,
+            "schema": {
+              "const": "nosniff"
+            }
+          },
+          "X-Request-Id": {
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        }
+      },
+      "TooLarge": {
+        "description": "413: REQUEST_TOO_LARGE before expensive work;16KiB body cap.",
+        "headers": {
+          "Cache-Control": {
+            "required": true,
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "X-Content-Type-Options": {
+            "required": true,
+            "schema": {
+              "const": "nosniff"
+            }
+          },
+          "X-Request-Id": {
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        }
+      },
+      "UnsupportedMedia": {
+        "description": "415: MEDIA_TYPE_UNSUPPORTED; only JSON bodies accepted.",
+        "headers": {
+          "Cache-Control": {
+            "required": true,
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "X-Content-Type-Options": {
+            "required": true,
+            "schema": {
+              "const": "nosniff"
+            }
+          },
+          "X-Request-Id": {
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        }
+      },
+      "Validation": {
+        "description": "422: VALIDATION_ERROR; unknown fields rejected; do not echo submitted values.",
+        "headers": {
+          "Cache-Control": {
+            "required": true,
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "X-Content-Type-Options": {
+            "required": true,
+            "schema": {
+              "const": "nosniff"
+            }
+          },
+          "X-Request-Id": {
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        }
+      },
+      "RateLimited": {
+        "description": "429: RATE_LIMITED, account-existence independent; no issuance/invalidation/cooldown restart.",
+        "headers": {
+          "Cache-Control": {
+            "required": true,
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "X-Content-Type-Options": {
+            "required": true,
+            "schema": {
+              "const": "nosniff"
+            }
+          },
+          "X-Request-Id": {
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "Retry-After": {
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "description": "Remaining wait in whole seconds, rounded up."
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        }
+      },
+      "Unavailable": {
+        "description": "503: SERVICE_UNAVAILABLE; no false successful persistence/delivery or partial credential mutation.",
+        "headers": {
+          "Cache-Control": {
+            "required": true,
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "X-Content-Type-Options": {
+            "required": true,
+            "schema": {
+              "const": "nosniff"
+            }
+          },
+          "X-Request-Id": {
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        }
+      },
+      "InternalError": {
+        "description": "Unexpected error, sanitized INTERNAL_ERROR; no stack, secret or account detail.",
+        "headers": {
+          "Cache-Control": {
+            "required": true,
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "X-Content-Type-Options": {
+            "required": true,
+            "schema": {
+              "const": "nosniff"
+            }
+          },
+          "X-Request-Id": {
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "SessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "foxmind_session",
+        "description": "Opaque stateful session, hash stored on server; no JWT/bearer/refresh flow. Idle1800s,absolute43200s."
+      },
+      "CsrfHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-CSRF-Token",
+        "description": "GET/auth/csrf session-bound HMAC; required for every mutation with a valid session. Session rotation invalidates old binding."
+      }
+    }
+  },
+  "x-status": "contract-only-not-implemented",
+  "x-confirmed-policy": {
+    "passwordMin": 16,
+    "passwordMax": 128,
+    "nameMax": 80,
+    "sessionIdleSeconds": 1800,
+    "sessionAbsoluteSeconds": 43200,
+    "verificationTtlSeconds": 3600,
+    "recoveryTtlSeconds": 900,
+    "resendMinimumSeconds": 60,
+    "duplicateRegistration": "generic-202",
+    "passwordChange": "revoke-others-rotate-current-preserve-absolute",
+    "passwordRecovery": "revoke-all-no-auto-login",
+    "emailReadOnly": true,
+    "globalClassroomRole": false
+  },
+  "x-validation-boundary": "Raw Unicode code points, valid scalar sequences, no whitespace-only names, additionalProperties false, canonical email lookup; no silent password normalization/truncation.",
+  "x-session-activity": "Health,session andCSRF polling do not renew idle; activity never extends absolute lifetime. Routine identifier rotation preserves absolute expiry.",
+  "x-accepted-semantics": "Durable request acceptance only; no delivery guarantee, implicit login, enrollment or invitation acceptance.",
+  "x-example-inputs": {
+    "register": {
+      "firstName": "Example",
+      "lastName": "Learner",
+      "email": "learner@example.test",
+      "password": "DocumentationExampleOnly123"
+    },
+    "login": {
+      "email": "learner@example.test",
+      "password": "DocumentationExampleOnly123"
+    },
+    "verify": {
+      "token": "QkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkI"
+    },
+    "reset": {
+      "token": "QkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkI",
+      "newPassword": "DocumentationNewExample123"
+    },
+    "change": {
+      "currentPassword": "DocumentationExampleOnly123",
+      "newPassword": "DocumentationNewExample123"
+    },
+    "profile": {
+      "firstName": "Example"
+    }
+  }
+}

@@ -146,6 +146,12 @@ For invalid codes, existing membership or an invitation opened with the wrong ac
 - Apply abuse protection to authentication and resend flows. Recovery responses must not disclose whether an account exists.
 - Successful password recovery closes previous sessions.
 
+### Confirmed P3.1 account/session policies
+
+- Sessions expire after 30 minutes without activity and have a maximum absolute lifetime of 12 hours. Activity renews the inactivity deadline, not the absolute deadline.
+- Changing a password from the profile closes the user's other sessions and renews the current session. This is distinct from password recovery, which closes all previous sessions.
+- Registration using an already registered email receives a generic response that does not reveal account existence. It must not overwrite the existing account or its password, grant enrollment, or silently accept an invitation.
+
 The local email-delivery approach is defined in section 14. Concrete anti-abuse thresholds and token implementation are technical configuration, not authorization to weaken these rules.
 
 ## 4. Navigation
