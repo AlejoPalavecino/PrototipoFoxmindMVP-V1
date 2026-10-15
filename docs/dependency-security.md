@@ -1,6 +1,6 @@
 # Dependency security remediation
 
-The targeted remediation keeps Prisma CLI/client/adapter at7.10.0 and replaces the two vulnerable transitive packages through version-scoped npm overrides. The full audit now reports **0 vulnerabilities**. Writer and independent compatibility checks passed against a fresh lockfile installation. Native candidate review/disposition is the remaining closure step.
+The targeted remediation keeps Prisma CLI/client/adapter at7.10.0 and replaces the two vulnerable transitive packages through version-scoped npm overrides. The full audit now reports **0 vulnerabilities**. Writer and independent compatibility checks passed against a fresh lockfile installation. Native four-lens review was approved and its exact acknowledgement completed; the implementation is committed locally as917bb39.
 
 ## Versions and scope
 
@@ -38,7 +38,9 @@ Tests use only owned disposable PostgreSQL containers. No schema/migration chang
 - Fresh lockfile installation: `npm ci --ignore-scripts --cache .npm-cache`, exit0,0vulnerabilities (job21).
 - Independent verification: PASS forR1–R4 on staged snapshotf2816487f1437d49225ccc8a6b82685e5909c10f; audit0, security8/8, build, HTTP7/7 and database38/38 plus migration checks/smoke all exit0, each once. Logs: `.test-artifacts/security-verify-S2KAx5/verifier-{audit,security,build,api,database}.log`.
 - Independent limits: MySQL remediation is supported by version/advisory evidence rather than MySQL runtime tests; snapshot identity/preservation evidence supplied by parent; no exhaustive security or production-readiness claim.
-- Parent final dependency regression and diff spot checks: PASS. Native candidate disposition: pending.
+- Parent final dependency regression and diff spot checks: PASS.
+- Native review `review-5fac2774d29b77cf`: four lenses admitted, APPROVED; exact acknowledgement completed with authority consumed (`native-approved-acknowledgement-completed`). No blocking finding or correction transition. Informational readability suggestionR2-001 is non-blocking later work, not a reason to rerun this review.
+- Implementation commit: `917bb39f9f7aa7f0c77edd70e0b107a0d9f951c1`. Its staged tree exactly matched reviewed tree062fa4f4b08203f04daeb8f9b226df491b96f50f before commit. No push, PR or deployment was performed.
 
 ## Maintenance
 
