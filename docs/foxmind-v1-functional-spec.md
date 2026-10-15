@@ -151,6 +151,7 @@ For invalid codes, existing membership or an invitation opened with the wrong ac
 - Sessions expire after 30 minutes without activity and have a maximum absolute lifetime of 12 hours. Activity renews the inactivity deadline, not the absolute deadline.
 - Changing a password from the profile closes the user's other sessions and renews the current session. This is distinct from password recovery, which closes all previous sessions.
 - Registration using an already registered email receives a generic response that does not reveal account existence. It must not overwrite the existing account or its password, grant enrollment, or silently accept an invitation.
+- Email domains must already be lowercase (explicit P3.2 decision). Reject uppercase domains before durable account/token issuance or SMTP; do not silently normalize them. Preserve the spelling/case, dots and plus of the local part before `@`. This does not change case-insensitive account lookup or authorize provider-specific rewrites.
 
 The local email-delivery approach is defined in section 14. Concrete anti-abuse thresholds and token implementation are technical configuration, not authorization to weaken these rules.
 

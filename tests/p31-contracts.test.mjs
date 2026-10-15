@@ -92,6 +92,14 @@ test("minimal request fixtures fit schemas and reject role/email/profile scope e
   for (const key of ["email", "role", "avatar", "password"]) assert.ok(!accepts({firstName:"Example",[key]:"unexpected"}, schema("ProfilePatch")));
   assert.equal(schema("UserIdentity").properties.email.readOnly, true);
 });
+test("email domains reject uppercase without rewriting local-part case, dots or plus", () => {
+  for (const value of ["User.Name+tag@example.test", "o'hara+group@example.test"]) {
+    assert.ok(accepts(value, schema("Email")));
+  }
+  for (const value of ["User@EXAMPLE.test", "User@example.Test"]) {
+    assert.ok(!accepts(value, schema("Email")));
+  }
+});
 test("raw Unicode password/name boundaries and opaque token shape are explicit", () => {
   for (const length of [16,128]) assert.ok(accepts("x".repeat(length), schema("Password")));
   for (const length of [15,129]) assert.ok(!accepts("x".repeat(length), schema("Password")));

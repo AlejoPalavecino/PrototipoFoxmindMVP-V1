@@ -1525,7 +1525,8 @@
       "Email": {
         "type": "string",
         "format": "email",
-        "description": "Valid email; trim outer email whitespace for canonical lookup, compare case-insensitively, preserve delivery spelling. No dot/plus provider rewrites."
+        "pattern": "@[^A-Z]*$",
+        "description": "Valid email with an already-lowercase domain; reject uppercase domains with 422 before durable issuance or SMTP, do not silently lowercase. Trim outer email whitespace for canonical lookup and compare case-insensitively. Preserve accepted delivery spelling, including local-part case, dots and plus. No provider-specific rewrites. Explicit P3.2 user amendment."
       },
       "Password": {
         "type": "string",

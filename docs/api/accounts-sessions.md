@@ -33,7 +33,7 @@ Base path:`/api/v1`. Requests with bodies use JSON only; unknown fields are422, 
 | PATCH `/account` | firstName and/or lastName |200profile | Verified session; at least one field, no email/role/password updates here. |
 | POST `/account/password` | currentPassword,newPassword |204 | Verified session and current-password proof; revoke others, rotate current cookie and CSRF binding. |
 
-Email canonicalization is a technical identity rule: trim surrounding email whitespace, compare case-insensitively, preserve delivery spelling, and never apply provider-specific dot/plus rewrites. Invalid syntax is422regardless of account existence. Names/passwords are not trimmed to make oversized input pass validation.
+Email canonicalization is a technical identity rule: trim surrounding email whitespace, compare case-insensitively and preserve accepted delivery spelling; never apply provider-specific dot/plus rewrites. Explicit user amendment during P3.2: the domain must already be lowercase. Reject uppercase domains with422before account/token/outbox issuance or SMTP, regardless of account existence; never silently lowercase them. Preserve local-part case, dots and plus. Invalid syntax is422regardless of account existence. Names/passwords are not trimmed to make oversized input pass validation.
 
 ### Cookie, origin and CSRF
 
