@@ -2,6 +2,7 @@ import { randomBytes } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { setTimeout } from 'node:timers/promises';
+import { createRequire } from 'node:module';
 import pg from 'pg';
 
 // Only this unique, disposable container is addressed. Never load env files,
@@ -28,7 +29,7 @@ function execute(file, args, env, label, max = 6000) {
 }
 const docker = (...args) => execute('docker', args, { ...process.env, POSTGRES_PASSWORD: password }, undefined);
 try {
-  execute(process.execPath, ['node_modules/typescript/bin/tsc', '-p', 'apps/api/tsconfig.p33-outbox.json'], process.env, 'Private TypeScript compilation', 8000);
+  execute(process.execPath, [createRequire(import.meta.url).resolve('typescript/bin/tsc'), '-p', 'apps/api/tsconfig.p33-outbox.json'], process.env, 'Private TypeScript compilation', 8000);
   // Assign ownership before run so even a lost response permits name-only cleanup.
   owned = true;
   docker('run', '--detach', '--rm', '--pull=never', '--name', name,
