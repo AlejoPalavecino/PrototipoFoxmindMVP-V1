@@ -57,6 +57,8 @@ No passwords, access tokens, credential-bearing connection URLs, raw private pro
 
 Records are discovered by listing this directory; no shared index append is required from every child. The coordinator may add durable links from the roadmap for important checkpoints.
 
+- [P3.3 — Account/auth coordinator, in progress](2026-10-15-01a13fc3-p33-accounts-auth.md).
+- [P3.3 — Attributed read-only requirements/persistence map](2026-10-15-mva38frg-p33-map.md).
 - [P3.2 — Capture implementation and original failing evidence](2026-10-15-mva1tryy-p32-capture.md).
 - [P3.2 — Capture restart correction](2026-10-15-mva2a4up-p32-capture.md).
 - [P3.2 — Sender implementation and original failing evidence](2026-10-15-mva1ts7d-p32-sender.md).
