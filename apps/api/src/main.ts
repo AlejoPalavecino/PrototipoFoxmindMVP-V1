@@ -1,0 +1,16 @@
+import type { INestApplication } from "@nestjs/common";
+import { createApplication } from "./application.ts";
+import { ConfigurationError, readConfiguration } from "./configuration.ts";
+
+let app: INestApplication | undefined;
+try {
+  const configuration = readConfiguration();
+  app = await createApplication(configuration);
+  await app.listen(configuration.port, "127.0.0.1");
+  const address = app.getHttpServer().address();
+  process.stdout.write(JSON.stringify({ event: "api.listening", host: "127.0.0.1", port: address.port }) + "\n");
+} catch (error) {
+  if (app) { try { await app.close(); } catch { /* Keep startup failure output sanitized. */ } }
+  process.stderr.write((error instanceof ConfigurationError ? error.message : "Backend startup failed.") + "\n");
+  process.exitCode = 1;
+}
