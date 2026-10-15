@@ -1,0 +1,140 @@
+# FoxMind implementation roadmap
+
+**Resume here:** P0–P2 are completed. P3 (identity/access and the initial web foundation) is next and has **not started**. No product implementation task is currently active.
+
+Last reconciled:2026-10-15. Implementation checkpoint:`917bb39`; verified evidence checkpoint:`1c08fa3`. This roadmap records project status, not blanket authorization to execute future phases.
+
+## Read and reconcile before continuing
+
+1. Read [AGENTS.md](../AGENTS.md) and this roadmap.
+2. Inspect the current branch, commit and working-tree changes. Compare them with the checkpoints below; never discard existing work to match a document.
+3. Read the applicable [work records](work-log/README.md), linked feature task document and relevant functional-spec sections.
+4. Continue the first unfinished authorized task. If status/proof conflicts, record the discrepancy before proceeding; do not silently assume a phase is complete.
+
+### Sources of truth
+
+| Source | Owns |
+|---|---|
+| [Functional specification](foxmind-v1-functional-spec.md) | Confirmed product rules, boundaries and acceptance examples. |
+| [Visual reference index](visual-reference-index.md) | Supplied29screenshots, visual direction and functional overrides. Screenshots are not implementation evidence. |
+| This roadmap | Phase order, current checkpoint, next work and links to detailed evidence. |
+| `odd/tasks/` | Detailed specifications/tasks/checks for tracked implementation units, when applicable. |
+| [Per-agent work records](work-log/README.md) | Who did what, scope, observed checks, commits, blockers and exact handoff. |
+
+The specification's original "completion boundary" describes its earlier documentation-only milestone. It is not the current implementation status. Later authorized work is evidenced below; product rules still come from that specification. A work record or old consent note does not grant current permission to publish, perform destructive work or change scope.
+
+## Phase overview
+
+| ID | Phase | Status | Outcome / dependency |
+|---|---|---|---|
+| P0 | Product and visual definition | completed | V1 rules and22decisions closed;29local visual references reviewed. |
+| P1 | Architecture and data model | completed | Next.js/React/TypeScript UI, modular NestJS backend, PostgreSQL/Prisma, private S3-compatible files; relational dictionary agreed. |
+| P2 | Technical foundations | completed |33-table schema,3migrations, local PostgreSQL definition, minimal NestJS/Prisma server, health/lifecycle tests and dependency remediation. Not all supporting services or product APIs. |
+| P3 | Identity/access and initial web foundation | not_started | **NEXT:** registration, verified email, sessions, recovery, minimal profile and actual web screens. |
+| P4 | Private file infrastructure | not_started | Private storage, upload validation, real scanner, quarantine, authorized retrieval, quota and safe incomplete-upload cleanup. |
+| P5 | Classrooms and enrollment | not_started | Creation/drafts, required plan/units/topics, invitations/codes, classroom-scoped roles, membership history and archive lifecycle. Requires P3/P4. |
+| P6 | Teaching plan, Library and Muro | not_started | Plan maintenance/states, teacher-managed materials, student consultation and moderated publication/reply threads. |
+| P7 | Activities, attempts and submissions | not_started | Authoring, practical assignments, questionnaires/evaluations, autosave, single editor, locks, deadlines, delivery and reopening. |
+| P8 | Grading and follow-up | not_started | Exact scoring, teacher publication/corrections, effective grades, audit history, individual/class averages and progress. |
+| P9 | Integrated local validation | not_started | Complete teacher/student journeys, authorization and failure paths, responsive behavior and local pilot preparation. |
+
+Statuses: `not_started`, `in_progress`, `blocked`, `completed`. A blocked phase names the external decision/proof it awaits. Dropped or superseded tasks remain recorded as such; they never count as completed.
+
+### Completed checkpoints: P0–P2
+
+| Deliverable | Evidence |
+|---|---|
+| Product scope and visual direction | [Functional spec](foxmind-v1-functional-spec.md), [visual index](visual-reference-index.md). |
+| Database model/migrations and isolated contracts | [Database task record](../odd/tasks/database-foundation.md), [operations](database.md), [verification](database-verification.md); implementation`5910345`, forward correction`489cce1`, evidence`373c56a`. |
+| Minimal NestJS backend | [Backend task record](../odd/tasks/backend-foundation.md), [operations](backend.md), [verification](backend-verification.md); implementation`766f342`, evidence`3da7bde`. |
+| Dependency alert remediation | [Security evidence](dependency-security.md); implementation`917bb39`, evidence`1c08fa3`. |
+
+Last verified baseline: full npm audit0known vulnerabilities;8dependency regressions,7HTTP/backend contracts and38database contracts PASS, plus build, migration replay/status/drift and Prisma smoke. These are previously observed results, not checks rerun by this documentation change. Dependency remediation also received independent verification and acknowledged native approval; earlier foundation review dispositions remain recorded separately, not retrospectively changed.
+
+### What is not implemented yet
+
+- No `apps/web` frontend, real registration/sign-in or account verification flow.
+- No functional classroom/activity/grading API; the backend currently exposes health endpoints only.
+- No private S3-compatible service, captured-email inbox or real scanner installed for FoxMind yet.
+- No persistent development database/API server left running by the completed isolated test work.
+- Standalone logo/illustration/cover assets still need preparation; screenshots are not reusable brand assets.
+
+Do not equate tables with working features, healthy connectivity with migration/domain correctness, or a clean audit with exhaustive security/production readiness. Framework close is tested; Windows signal-driven graceful shutdown remains unproven. Other non-blocking coverage limits are retained in the verification documents.
+
+## Execution approach
+
+Implement vertical slices where applicable: API contract and server behavior, matching web screens, then public-interface tests. Do not defer all UI work until the whole backend is finished. Start the Next.js shell during P3; evolve it with each module and the approved visual references.
+
+Tests accompany every phase. P9 integrates complete journeys; it is not the first verification step. Notifications and durable processing are wired into the modules that generate events, rather than postponed entirely to P8/P9. Keep academic email notifications within the approved scope; not every academic event sends email.
+
+### P3 — Next product work (authorization required)
+
+These are planning items, **not started checkboxes**. Create/reconcile the detailed task record when implementation is authorized and its size requires it.
+
+- [ ] P3.1 — Define account/session API contracts and security/abuse configuration against specification sections2,3and12.
+- [ ] P3.2 — Prepare a local captured-email inbox and real verification/recovery message flow; no external delivery provider is needed locally.
+- [ ] P3.3 — Implement registration, verification, sign-in/out, server sessions, password recovery and minimal profile. No exclusive global teacher/student role.
+- [ ] P3.4 — Create the initial Next.js shell and corresponding registration/verification/sign-in/recovery/profile screens, including truthful loading/error states.
+- [ ] P3.5 — Verify the complete registration → captured email → verification → sign-in → profile → sign-out journey, plus rejected/reused/expired tokens and previous-session revocation after recovery.
+
+Exit condition: a person can actually create and verify an account, enter/leave a session and recover access through the local web/API/email flow, with server-enforced boundaries and applicable checks. Tables, mocked email or hidden navigation alone do not satisfy it.
+
+### P4 — Private files
+
+- Implement private S3-compatible storage and real inspection/scanning, with separate upload/validation/scan states.
+- Enforce approved formats/limits, quarantine until checks succeed, authorized preview/download and classroom quota accounting.
+- Verify failed/unavailable scanning stays blocked; clean only incomplete abandoned uploads, never confirmed drafts/history.
+
+Exit condition: allowed files can be securely stored/retrieved by authorized users; unsafe/pending files remain inaccessible. Concrete tools and operational limits must be selected and verified before use, not inferred as already installed.
+
+### P5 — Classrooms and enrollment
+
+- Build the classroom wizard/private drafts with its required plan file and units/topics, cover catalog and fixed timezone.
+- Implement classroom-scoped teacher/student permissions, invitations/codes and membership periods/re-entry history.
+- Implement archive/reactivation, departure/removal and correct loss of access without deleting academic history.
+
+Exit condition: a verified creator can publish a valid classroom and a different verified user can join through the approved flow; forbidden and archived operations are rejected without changing stored records.
+
+### P6 — Teaching organization and communication
+
+- Maintain units/topics and their manual states; preserve study-plan versions and constrained deletion rules.
+- Implement Library materials/associations, teacher management and authorized student consultation.
+- Implement Muro posts/replies and moderation tombstones; retain replies when a parent is removed.
+
+Exit condition: teacher and student use the approved Plan/Library/Muro screens with their different capabilities enforced on the server.
+
+### P7 — Activities and participation
+
+- Build private authoring drafts/publication and the three approved activity types.
+- Implement questions/options, practical attachments, actual autosave and server-enforced single-editor transfer.
+- Implement immutable started content, deadlines/timezones, submission confirmation, preserved attempts and teacher reopening.
+
+Exit condition: students can complete and submit each activity type under the correct eligibility/time/file rules without overwriting history or exposing answer keys.
+
+### P8 — Grading and follow-up
+
+- Implement exact scoring and round-half-up, private teacher correction and explicit publication.
+- Implement effective-grade replacement and teacher-only published-grade correction audit, preserving attempts.
+- Implement individual/class progress, averages and the notification center with current membership/record permissions.
+
+Exit condition: published grades and metrics match the specification examples; missing work is not a zero and multiple attempts do not duplicate activity counts. Notifications for earlier implemented modules must already be connected as those modules land.
+
+### P9 — Integrated local validation
+
+- Exercise complete teacher/student workflows, cross-classroom authorization, revoked access and archived state.
+- Verify responsive web layouts, empty/loading/error/retry states and real supporting-service failures/recovery.
+- Prepare reproducible local setup, operational notes and a bounded local pilot checklist.
+
+Exit condition: the approved V1 works end to end locally with its acceptance examples and explicit limitations, not merely isolated endpoint tests. Any production rollout remains a separate user decision.
+
+## Work records and next-session handoff
+
+Every agent must report its contribution through the [work-record protocol](work-log/README.md), including read-only reviewers via their coordinator. Use one record per agent/task/session; do not let parallel agents append to the same file.
+
+Current consolidation record: [DOC-001](work-log/2026-10-15-01a13fc3-roadmap.md). Older completed work is evidenced by the task/verification documents above; no fictional historical agent logs are backfilled.
+
+For the next session, verify Git has not advanced beyond this checkpoint, read the latest work record, and start with **P3.1 account/session contracts** only when that implementation is authorized. If another agent has already started P3, resume its recorded first unfinished task instead of duplicating the work.
+
+## Deferred decisions and non-goals
+
+Hosting/provider/budget/production quotas/deployment topology remain deferred until local validation. AI is outside V1. Do not introduce microservices, Redis, WebSockets or other infrastructure without a demonstrated need and the applicable decision. No push/PR/release is implied by a phase status, roadmap entry or completed work log.
