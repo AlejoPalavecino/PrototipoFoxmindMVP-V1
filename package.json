@@ -24,7 +24,8 @@
     "mail:up": "node scripts/mail-compose.mjs up",
     "mail:stop": "node scripts/mail-compose.mjs stop",
     "mail:status": "node scripts/mail-compose.mjs status",
-    "test:mail-capture": "node --test --test-concurrency=1 tests/p32-mail-command.test.mjs tests/p32-mail-capture.test.mjs"
+    "test:mail-capture": "node --test --test-concurrency=1 tests/p32-mail-command.test.mjs tests/p32-mail-capture.test.mjs",
+    "test:mail": "npm run api:build && node --test --test-concurrency=1 tests/p32-mail-command.test.mjs tests/p32-mail-capture.test.mjs tests/p32-mailer.test.mjs tests/p32-mail-flow.test.mjs"
   },
   "dependencies": {
     "@nestjs/common": "12.1.3",
