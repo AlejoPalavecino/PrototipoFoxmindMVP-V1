@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "outDir": "../../.build/p33-security" },
+  "include": ["src/identity-security/**/*.ts", "src/identity-protocol.ts"]
+}
