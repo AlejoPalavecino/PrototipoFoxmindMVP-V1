@@ -2,7 +2,7 @@
 
 **Resume here:** P0–P2 are completed. **P3.1 account/session contracts are completed and independently reviewed.** P3 remains in progress; **P3.2 local captured-email infrastructure is next and not started**. No authentication or web implementation has started. See the [P3.1 handoff](work-log/2026-10-15-01a13fc3-p31-contracts.md).
 
-Last reconciled:2026-10-15. Implementation checkpoint:`917bb39`; verified evidence checkpoint:`1c08fa3`. This roadmap records project status, not blanket authorization to execute future phases.
+Last reconciled:2026-10-15. Runtime implementation checkpoint:`917bb39`; foundation evidence:`1c08fa3`. P3.1 contract checkpoint:`9f34f1f` (local work-unit; no publication claim). This roadmap records project status, not blanket authorization to execute future phases.
 
 ## Read and reconcile before continuing
 
