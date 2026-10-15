@@ -16,7 +16,7 @@ S4. User-selected review organization verbatim: "Cadena sobre una rama de funcio
 
 - T1 | S1–S4 | delegated parallel: capture infrastructure and SMTP sender, disjoint surfaces; parent owns package/lock/env/shared metadata | done | capture core3be5717/evidencef4f7f18; sender core50f398f/evidencecdc3bb9; own capture2/2, SMTP9/9/build, amendedcontract9/9 andwrapper1/1 PASS; independent acceptance remains T3.
 - T2 | S1–S4 | inline coordinator: real sender→SMTP→capture seam and baseline regression checks; create cohesive child boundaries | done | real Nest→SMTP→Mailpit focused1/1PASS/job29; combined job30exit0:75testsPASS, build/migrations/smoke/audit0; integrationcommit0c0b0e9.
-- T3 | S1–S4 | independent verification, due native review only, coordinator handoff/roadmap | done | independentA3/3/B19/19PASS and reports persisted, no blockers; native review not due; structural/phase/72links/whitespacePASS; local closing commit identity recorded after observation.
+- T3 | S1–S4 | independent verification, due native review only, coordinator handoff/roadmap | done | independentA3/3/B19/19PASS and reports persisted, no blockers; native review not due; structural/phase/72links/whitespacePASS; local closing commitc0a09405fe484d5624f7cc2bb64c8318947703a8 observed; final identity annotation is documentation-only.
 
 ## Log
 
