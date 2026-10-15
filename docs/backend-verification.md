@@ -1,5 +1,7 @@
 # Backend foundation verification
 
+Historical evidence for candidate766f342 follows. Its inherited audit warnings were subsequently addressed by the [dependency security remediation](dependency-security.md); the audit entries below are retained as historical results, not the current dependency status.
+
 Candidate: `766f342cdd6e2e1caa7a39ebced41615c03a06ac`, against `72342a1715e38286e7f0a591ef455788e9a0f7fb`. Verification is complete within the minimal foundation scope. Independent verification passed; the user explicitly closed this candidate without native review after a pre-lineage integration failure. This is not native approval or a clean dependency audit.
 
 ## Observed writer checks

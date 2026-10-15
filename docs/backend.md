@@ -69,6 +69,6 @@ Generated Prisma TypeScript remains at `.generated/prisma`. TypeScript compiles 
 - `npm run test:api`: isolated real-HTTP/configuration/lifecycle tests.
 - `npm test`: preserve all existing38 database contracts, migration replay/drift and Prisma runtime smoke.
 
-The installation's `npm audit` returned exit1 with four high-severity entries via Prisma CLI/config (`deepmerge-ts7.1.5`, `mysql2 3.15.3`). The same affected versions exist in baseline72342a1's lockfile; no Nest package appears in that advisory graph. This is **an unresolved dependency risk, not a clean audit**. No automatic force-fix or major Prisma downgrade was performed. The new HTTP code uses the PostgreSQL adapter and does not accept user-supplied merge graphs or MySQL connections; that bounded statement is not a guarantee that every future use is safe.
+The initial installation reported four high-severity entries through Prisma CLI/config. The [dependency remediation](dependency-security.md) now scopes overrides to `deepmerge-ts8.0.2` and `mysql2 3.24.6`, retaining Prisma7.10.0. The complete audit reports0known vulnerabilities and the existing build/API/database suites pass. No dependency class is omitted and no force-fix or major Prisma downgrade was used. A clean scan is time-bound evidence, not a guarantee of exhaustive dependency safety.
 
-API feature implementation, production security hardening, dependency remediation, structured operational logging and deployment require separate work and verification. No production readiness is claimed.
+API feature implementation, production security hardening, future dependency updates, structured operational logging and deployment require separate work and verification. No production readiness is claimed.

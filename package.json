@@ -18,7 +18,9 @@
     "test:contract": "node --test --test-concurrency=1 tests/database.test.mjs",
     "api:build": "npm run db:generate && tsc -p apps/api/tsconfig.json",
     "api:start": "node .build/api/apps/api/src/main.js",
-    "test:api": "node scripts/test-backend.mjs"
+    "test:api": "node scripts/test-backend.mjs",
+    "test:dependencies": "node --test tests/dependency-security.test.mjs",
+    "audit:security": "npm audit"
   },
   "dependencies": {
     "@nestjs/common": "12.1.3",
@@ -29,6 +31,14 @@
     "pg": "8.23.1",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2"
+  },
+  "overrides": {
+    "@prisma/config@7.10.0": {
+      "deepmerge-ts": "8.0.2"
+    },
+    "prisma@7.10.0": {
+      "mysql2": "3.24.6"
+    }
   },
   "devDependencies": {
     "@types/node": "24.19.2",
