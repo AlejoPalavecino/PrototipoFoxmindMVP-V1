@@ -57,6 +57,8 @@ No passwords, access tokens, credential-bearing connection URLs, raw private pro
 
 Records are discovered by listing this directory; no shared index append is required from every child. The coordinator may add durable links from the roadmap for important checkpoints.
 
+- [P3.2 — Local captured-email coordinator, in progress](2026-10-15-01a13fc3-p32-local-email.md).
+- [P3.2 — Attributed read-only preparation map](2026-10-15-mva1ed9l-p32-map.md).
 - [P3.1 — Independent contract security/requirements review](2026-10-15-mva0p514-p31-contract-review.md).
 - [P3.1 — Account/session contracts, coordinator](2026-10-15-01a13fc3-p31-contracts.md).
 - [P3.1 — Read-only requirements map, attributed by coordinator](2026-10-15-mv9zsb0p-p31-requirements-map.md).

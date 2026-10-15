@@ -1,6 +1,6 @@
 # FoxMind implementation roadmap
 
-**Resume here:** P0–P2 are completed. **P3.1 account/session contracts are completed and independently reviewed.** P3 remains in progress; **P3.2 local captured-email infrastructure is next and not started**. No authentication or web implementation has started. See the [P3.1 handoff](work-log/2026-10-15-01a13fc3-p31-contracts.md).
+**Resume here:** P0–P2 are completed. **P3.1 account/session contracts are completed and independently reviewed.** P3 remains in progress; **P3.2 local captured-email infrastructure is authorized and in progress**: [tasks](../odd/tasks/p32-local-email.md), [coordinator](work-log/2026-10-15-01a13fc3-p32-local-email.md). No authentication or web implementation has started. P3.1 remains completed; do not recreate its contracts.
 
 Last reconciled:2026-10-15. Runtime implementation checkpoint:`917bb39`; foundation evidence:`1c08fa3`. P3.1 contract checkpoint:`9f34f1f` (local work-unit; no publication claim). This roadmap records project status, not blanket authorization to execute future phases.
 
@@ -30,7 +30,7 @@ The specification's original "completion boundary" describes its earlier documen
 | P0 | Product and visual definition | completed | V1 rules and22decisions closed;29local visual references reviewed. |
 | P1 | Architecture and data model | completed | Next.js/React/TypeScript UI, modular NestJS backend, PostgreSQL/Prisma, private S3-compatible files; relational dictionary agreed. |
 | P2 | Technical foundations | completed |33-table schema,3migrations, local PostgreSQL definition, minimal NestJS/Prisma server, health/lifecycle tests and dependency remediation. Not all supporting services or product APIs. |
-| P3 | Identity/access and initial web foundation | in_progress | **P3.1 completed:** verified contracts/policies only. **NEXT P3.2:** captured-email infrastructure. Authentication/mail/web implementation has not started. |
+| P3 | Identity/access and initial web foundation | in_progress | **P3.1 completed:** verified contracts/policies only. **P3.2 in_progress:** isolated captured-email infrastructure/sender; runtime acceptance pending. Authentication/web not started. |
 | P4 | Private file infrastructure | not_started | Private storage, upload validation, real scanner, quarantine, authorized retrieval, quota and safe incomplete-upload cleanup. |
 | P5 | Classrooms and enrollment | not_started | Creation/drafts, required plan/units/topics, invitations/codes, classroom-scoped roles, membership history and archive lifecycle. Requires P3/P4. |
 | P6 | Teaching plan, Library and Muro | not_started | Plan maintenance/states, teacher-managed materials, student consultation and moderated publication/reply threads. |
@@ -55,7 +55,7 @@ Last verified baseline: full npm audit0known vulnerabilities;8dependency regress
 
 - No `apps/web` frontend, real registration/sign-in or account verification flow.
 - No functional classroom/activity/grading API; the backend currently exposes health endpoints only.
-- No private S3-compatible service, captured-email inbox or real scanner installed for FoxMind yet.
+- No private S3-compatible service or real scanner installed yet. P3.2 mail capture is under implementation, not yet accepted as working.
 - No persistent development database/API server left running by the completed isolated test work.
 - Standalone logo/illustration/cover assets still need preparation; screenshots are not reusable brand assets.
 
@@ -67,12 +67,12 @@ Implement vertical slices where applicable: API contract and server behavior, ma
 
 Tests accompany every phase. P9 integrates complete journeys; it is not the first verification step. Notifications and durable processing are wired into the modules that generate events, rather than postponed entirely to P8/P9. Keep academic email notifications within the approved scope; not every academic event sends email.
 
-### P3 — Contracts completed; implementation still pending
+### P3 — Local email preparation in progress
 
-P3.1 artifacts and independent contract verification are complete. This is not runtime authentication, email delivery or a completed P3. P3.2–P3.5 have not started and are not authorized merely by the roadmap. Create/reconcile detailed task records when the authorized work's size requires them.
+P3.1 artifacts and independent contract verification are complete. The user has now authorized P3.2; follow its [feature tasks](../odd/tasks/p32-local-email.md) and per-agent records. Mail capture implementation/acceptance is in progress. P3.3–P3.5 have not started and are not authorized merely by the roadmap. SMTP capture/templates do not implement authentication, token consumption, encrypted transactional outbox or a completed P3.
 
 - [x] P3.1 — Account/session API contracts and security/abuse configuration against specification sections2,3and12: [guide](api/accounts-sessions.md), [OpenAPI](api/accounts-sessions.openapi.json), [coordinator evidence](work-log/2026-10-15-01a13fc3-p31-contracts.md), [independent review](work-log/2026-10-15-mva0p514-p31-contract-review.md).8offline contract checks and independent R1–R6 PASS; endpoints not implemented.
-- [ ] P3.2 — **NEXT, not started:** prepare a local captured-email inbox and real verification/recovery message flow; no external delivery provider is needed locally.
+- [ ] P3.2 — **IN PROGRESS, authorized bounded corrections:** prepare a local captured-email inbox and real verification/recovery message flow; no external delivery provider is needed locally. [Tasks](../odd/tasks/p32-local-email.md), [coordinator](work-log/2026-10-15-01a13fc3-p32-local-email.md); initial real SMTP capture observed, but restart/persistence check fails; sender has8/9focused checks passing with a delivery-spelling/domain-case mismatch. User authorized one bounded restart correction and chose uppercase-domain rejection (no normalization), now explicit in the amended contract. Corrections/checks pending; no overall acceptance or account/token issuance/consumption is claimed.
 - [ ] P3.3 — Implement registration, verification, sign-in/out, server sessions, password recovery and minimal profile. No exclusive global teacher/student role.
 - [ ] P3.4 — Create the initial Next.js shell and corresponding registration/verification/sign-in/recovery/profile screens, including truthful loading/error states.
 - [ ] P3.5 — Verify the complete registration → captured email → verification → sign-in → profile → sign-out journey, plus rejected/reused/expired tokens and previous-session revocation after recovery.
@@ -133,7 +133,7 @@ Every agent must report its contribution through the [work-record protocol](work
 
 Completed P3.1 records: [coordinator handoff](work-log/2026-10-15-01a13fc3-p31-contracts.md), [attributed read-only requirements map](work-log/2026-10-15-mv9zsb0p-p31-requirements-map.md) and [independent security/requirements review](work-log/2026-10-15-mva0p514-p31-contract-review.md). Historical consolidation record: [DOC-001](work-log/2026-10-15-01a13fc3-roadmap.md). Older completed work is evidenced by the task/verification documents above; no fictional historical agent logs are backfilled.
 
-For the next session, inspect Git and the P3.1 handoff, then continue with **P3.2 local captured-email infrastructure only when authorized**. Do not repeat the three confirmed policy questions, recreate completed contracts or infer whole-P3 completion. P3.3 implementation must explicitly cover abuse-counter storage outages as fail-closed503, retained as a non-blocking review advisory. If another agent has advanced further, reconcile its evidence and resume the actual first unfinished task.
+Current authorized work is **P3.2 local captured-email infrastructure**, in progress. Inspect Git, its [feature tasks](../odd/tasks/p32-local-email.md) and [coordinator record](work-log/2026-10-15-01a13fc3-p32-local-email.md), then resume the actual unfinished task. P3.3 needs its own authorization. Do not repeat the three confirmed policy questions, recreate completed contracts or infer whole-P3 completion. P3.3 implementation must explicitly cover abuse-counter storage outages as fail-closed503, retained as a non-blocking review advisory. If another agent has advanced further, reconcile its evidence and resume the actual first unfinished task.
 
 ## Deferred decisions and non-goals
 
