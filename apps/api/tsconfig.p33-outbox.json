@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "outDir": "../../.build/p33-outbox" },
+  "include": ["src/account-mail-outbox/**/*.ts", "src/identity-protocol.ts"]
+}
