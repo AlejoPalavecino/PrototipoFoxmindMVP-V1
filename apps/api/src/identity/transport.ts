@@ -5,7 +5,7 @@ import { clearSessionCookie, parseVerifier, sessionCookie, validateBodyShape, ID
 import { IdentityHttpError, publicIdentityError } from './errors.ts';
 import { IdentityRuntime, publicUser } from './runtime.ts';
 
-const implemented = new Set(['GET /auth/session', 'GET /auth/csrf', 'POST /auth/login', 'POST /auth/logout']);
+const implemented = new Set(['GET /auth/session', 'GET /auth/csrf', 'POST /auth/login', 'POST /auth/logout', 'POST /auth/register', 'GET /account', 'PATCH /account']);
 export function readSessionCookie(header: string | undefined): { present: boolean; verifier: string | null } {
   const values = (header ?? '').split(';').map(part => part.trim()).filter(part => part.startsWith('foxmind_session='));
   if (!values.length) return { present: false, verifier: null };
@@ -64,7 +64,7 @@ export function installIdentityTransport(app: INestApplication, runtime: Identit
       const ip = request.socket.remoteAddress;
       if (!ip) throw new IdentityHttpError('SERVICE_UNAVAILABLE');
       await runtime.generalAdmission(ip, context);
-      if (request.method === 'POST') {
+      if (request.method === 'POST' || request.method === 'PATCH') {
         config.assertOrigin(request.headers.origin);
         // Authenticate persisted active state FIRST; HMAC alone must never grant authorization.
         if (context && !config.validateCsrf(context.verifier, request.headers['x-csrf-token'])) throw new IdentityHttpError('CSRF_INVALID');
@@ -73,12 +73,19 @@ export function installIdentityTransport(app: INestApplication, runtime: Identit
           const result = await runtime.login(body, ip, context);
           response.setHeader('Set-Cookie', sessionCookie(config, result.verifier, result.expiresAt.getTime(), Math.max(Date.now(), result.now.getTime())));
           json(response, 200, result.state);
+        } else if (route === 'POST /auth/register') {
+          await runtime.register(body, ip);
+          json(response, 202, { status: 'accepted' });
+        } else if (route === 'PATCH /account') {
+          json(response, 200, await runtime.profile(context, ip, body));
         } else {
           validateBodyShape(body, []);
           await runtime.logout(context);
           response.setHeader('Set-Cookie', clearSessionCookie(config));
           json(response, 204);
         }
+      } else if (route === 'GET /account') {
+        json(response, 200, await runtime.profile(context, ip));
       } else if (route === 'GET /auth/session') {
         json(response, 200, context ? { authenticated: true, user: publicUser(context.user) } : { authenticated: false });
       } else {

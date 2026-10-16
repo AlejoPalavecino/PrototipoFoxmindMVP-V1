@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { Module, type DynamicModule } from "@nestjs/common";
+import { Inject, Module, type DynamicModule, type OnModuleDestroy } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import type { ApiConfiguration } from "./configuration.ts";
 import { DatabaseModule } from "./database/database.module.ts";
@@ -9,7 +9,11 @@ import { IdentityModule, IdentityRuntime, installIdentityTransport, type Identit
 export interface ApplicationOptions { readonly identity?: IdentityRuntimePorts }
 
 @Module({})
-class AppModule {
+class AppModule implements OnModuleDestroy {
+  constructor(@Inject(IdentityRuntime) private readonly identity: IdentityRuntime) {}
+  // Nest destroys the root module before imported modules. Drain worker/sender before Prisma teardown,
+  // for both framework close and native shutdown hooks; relying on beforeApplicationShutdown is too late.
+  onModuleDestroy(): Promise<void> { return this.identity.shutdownMail(); }
   static register(configuration: ApiConfiguration, options: ApplicationOptions): DynamicModule {
     const database = DatabaseModule.register(configuration.databaseUrl);
     return {
