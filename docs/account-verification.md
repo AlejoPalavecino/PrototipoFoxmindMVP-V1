@@ -1,6 +1,6 @@
 # Email confirmation and resend — independently verified backend
 
-The two contracted T3-V operations passed the parent combined regression (72 checks/real build) and independent security/concurrency/environment verification (41 checks/own real build), without blocking findings. This is scoped backend proof, not completion of T3 or P3: recovery, password change and the frontend/full journey remain unfinished. The [normative contracts](api/accounts-sessions.md) still own schemas; implementation-status reconciliation is a separate closure slice. Native assessment was unavailable, not approved or waived; T2's human choice is not inherited.
+The two contracted T3-V operations passed the parent combined regression (72 checks/real build) and independent security/concurrency/environment verification (41 checks/own real build), without blocking findings. This is scoped backend proof, not completion of T3 or P3: recovery, password change and the frontend/full journey remain unfinished. The [normative contracts](api/accounts-sessions.md) still own schemas; implementation-status metadata now records nine implemented and three recovery/password-change operations planned. Native assessment was unavailable, not approved or waived; T2's human choice is not inherited.
 
 Initial confirmation RED was unavailable during fixture setup. The human accepted documenting only that historical exception (S8), never relabeling it as meaningful RED or retroactive GREEN. The original failed preparation and later corrected independent snapshot retain separate reports.
 

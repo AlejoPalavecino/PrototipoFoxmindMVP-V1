@@ -41,15 +41,15 @@ function accepts(value, schema) {
 const operations = Object.entries(contract.paths).flatMap(([path, item]) => Object.entries(item).map(([method, op]) => ({ path, method, op })));
 const schema = name => contract.components.schemas[name];
 
-test("partially implemented OpenAPI retains twelve operations, seven verified T2 statuses and local resolvable refs", () => {
+test("partially implemented OpenAPI retains twelve operations, nine verified statuses and local resolvable refs", () => {
   assert.equal(contract.openapi, "3.1.0");
   assert.equal(contract["x-status"], "partially-implemented");
   assert.equal(contract.servers[0].url, "/api/v1");
   assert.equal(operations.length, 12);
   assert.equal(new Set(operations.map(x => x.op.operationId)).size, 12);
-  const implemented = new Set(['getSession', 'getCsrf', 'login', 'logout', 'register', 'getProfile', 'updateProfile']);
+  const implemented = new Set(['getSession', 'getCsrf', 'login', 'logout', 'register', 'getProfile', 'updateProfile', 'resendEmailVerification', 'confirmEmailVerification']);
   for (const { op } of operations) assert.equal(op['x-implementation-status'], implemented.has(op.operationId) ? 'implemented' : 'planned-not-implemented');
-  assert.equal(operations.filter(({ op }) => op['x-implementation-status'] === 'implemented').length, 7);
+  assert.equal(operations.filter(({ op }) => op['x-implementation-status'] === 'implemented').length, 9);
   function walk(value) {
     if (!value || typeof value !== "object") return;
     if (value.$ref) resolve(value.$ref);
