@@ -4,7 +4,7 @@
   "info": {
     "title": "FoxMind P3.1 account/session contract",
     "version": "0.1.0",
-    "description": "Design artifact only. Identity routes are NOT implemented; current NestJS app exposes health endpoints. Product policies are confirmed in the functional specification; see accounts-sessions.md for atomicity, transport, abuse and mail-secret handling. No live credential examples."
+    "description": "Partially implemented P3.3 D1: session, CSRF, login and logout run against PostgreSQL. The other eight operations remain planned. Product policies are confirmed in the functional specification; see accounts-sessions.md and identity-http.md for scope, atomicity, transport and abuse handling. No live credential examples."
   },
   "servers": [
     {
@@ -98,7 +98,7 @@
             "$ref": "#/components/responses/InternalError"
           }
         },
-        "x-implementation-status": "planned-not-implemented",
+        "x-implementation-status": "implemented",
         "x-email-verified-required": false,
         "x-csrf-policy": "not-applicable-safe-read",
         "x-touches-session-idle": false,
@@ -174,7 +174,7 @@
             "$ref": "#/components/responses/InternalError"
           }
         },
-        "x-implementation-status": "planned-not-implemented",
+        "x-implementation-status": "implemented",
         "x-email-verified-required": false,
         "x-csrf-policy": "not-applicable-safe-read",
         "x-touches-session-idle": false,
@@ -466,7 +466,7 @@
             "$ref": "#/components/responses/InternalError"
           }
         },
-        "x-implementation-status": "planned-not-implemented",
+        "x-implementation-status": "implemented",
         "x-email-verified-required": false,
         "x-csrf-policy": "required-when-valid-session-present",
         "x-touches-session-idle": false,
@@ -596,7 +596,7 @@
             "$ref": "#/components/responses/InternalError"
           }
         },
-        "x-implementation-status": "planned-not-implemented",
+        "x-implementation-status": "implemented",
         "x-email-verified-required": false,
         "x-csrf-policy": "required-when-valid-session-present",
         "x-touches-session-idle": false,
@@ -1526,7 +1526,7 @@
         "type": "string",
         "format": "idn-email",
         "pattern": "@[^@\\p{Changes_When_Lowercased}]*$",
-        "description": "One valid bare international mailbox, including quoted and UTF-8 local parts and international DNS domains, validated by the shared maintained mailbox helper. Domain must already be lowercase, including Unicode: reject with 422 before durable issuance or SMTP, never silently lowercase or IDNA-convert first. Reject controls before trimming outer whitespace. Preserve trimmed delivery spelling/local-part case/dots/plus; compare identity separately case-insensitively, with no provider rewrites. Standard MIME/SMTPUTF8/IDNA wire encoding is not account-identifier rewriting. P3.3 compatibility amendment; identity endpoints remain planned."
+        "description": "One valid bare international mailbox, including quoted and UTF-8 local parts and international DNS domains, validated by the shared maintained mailbox helper. Domain must already be lowercase, including Unicode: reject with 422 before durable issuance or SMTP, never silently lowercase or IDNA-convert first. Reject controls before trimming outer whitespace. Preserve trimmed delivery spelling/local-part case/dots/plus; compare identity separately case-insensitively, with no provider rewrites. Standard MIME/SMTPUTF8/IDNA wire encoding is not account-identifier rewriting. P3.3 compatibility amendment; four D1 identity operations are implemented, eight remain planned."
       },
       "Password": {
         "type": "string",
@@ -2202,7 +2202,7 @@
       }
     }
   },
-  "x-status": "contract-only-not-implemented",
+  "x-status": "partially-implemented",
   "x-confirmed-policy": {
     "passwordMin": 16,
     "passwordMax": 128,

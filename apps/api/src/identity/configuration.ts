@@ -1,0 +1,15 @@
+import { readIdentityConfiguration, type IdentityConfiguration } from '../identity-security/index.ts';
+import { loadOutboxKeyring, type OutboxKeyring } from '../account-mail-outbox/index.ts';
+import { readMailConfiguration, type MailConfiguration } from '../mail/index.ts';
+
+export interface IdentityRuntimeConfiguration {
+  readonly security: IdentityConfiguration;
+  readonly outbox: OutboxKeyring;
+  readonly mail: MailConfiguration;
+}
+export function readIdentityRuntimeConfiguration(env: Readonly<Record<string, string | undefined>>): IdentityRuntimeConfiguration {
+  const security = readIdentityConfiguration(env, '127.0.0.1');
+  // Proxy-chain parsing is not implemented in D1. Reject opt-in rather than imply trust.
+  if (security.trustedProxyCidrs.length) throw new Error('Identity configuration unavailable.');
+  return Object.freeze({ security, outbox: loadOutboxKeyring(env), mail: readMailConfiguration(env) });
+}

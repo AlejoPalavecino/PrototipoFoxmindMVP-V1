@@ -5,12 +5,13 @@ import { once } from "node:events";
 import { setTimeout } from "node:timers/promises";
 import pg from "pg";
 import { createApplication } from "../.build/api/apps/api/src/application.js";
+import { readConfiguration } from "../.build/api/apps/api/src/configuration.js";
 
 if (process.env.FOXMIND_TEST_DATABASE !== "isolated-container" || !/^[a-f0-9]{64}$/.test(process.env.FOXMIND_API_TEST_CONTAINER ?? "")) {
   throw new Error("Use npm run test:api: an owned isolated database is required");
 }
 const main = ".build/api/apps/api/src/main.js";
-const configuration = { databaseUrl: process.env.DATABASE_URL, port: 0 };
+const configuration = readConfiguration({ ...process.env, API_PORT: '0' });
 let app;
 let origin;
 before(async () => {
@@ -97,8 +98,24 @@ test("compiled CLI starts on loopback and supports an ephemeral port", async () 
     }
   }
 });
-test("unimplemented product endpoints remain absent", async () => {
-  assert.equal((await get("/api/v1/classrooms")).status, 404);
+test("only the four D1 identity operations replace planned-route 404s", async () => {
+  assert.equal((await get('/api/v1/auth/session')).status, 200);
+  assert.equal((await get('/api/v1/auth/csrf')).status, 401);
+  const mutate = (path, method = 'POST', body = '{}') => fetch(`${origin}/api/v1${path}`, {
+    method, headers: { Origin: process.env.APP_ORIGIN, 'Content-Type': 'application/json' }, body,
+  });
+  assert.equal((await mutate('/auth/login')).status, 422);
+  assert.equal((await mutate('/auth/logout')).status, 204);
+  assert.equal((await get('/api/v1/account')).status, 404);
+  for (const [path, method] of [['/auth/register', 'POST'], ['/account', 'PATCH'], ['/auth/email-verification/resend', 'POST'],
+    ['/auth/email-verification/confirm', 'POST'], ['/auth/password-recovery/request', 'POST'],
+    ['/auth/password-recovery/confirm', 'POST'], ['/account/password', 'POST']]) assert.equal((await mutate(path, method)).status, 404);
+  assert.equal((await get('/api/v1/classrooms')).status, 404);
+});
+test('unrelated unknown-route JSON parsing behavior is preserved', async () => {
+  const response = await fetch(`${origin}/api/v1/unknown`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{' });
+  assert.equal(response.status, 400);
+  assert.equal(response.headers.get('x-request-id'), null);
 });
 test("application close releases the HTTP listener and owned Prisma pool", async () => {
   const monitor = new pg.Client({ connectionString: process.env.DATABASE_URL });

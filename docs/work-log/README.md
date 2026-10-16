@@ -64,6 +64,10 @@ Records are discovered by listing this directory; no shared index append is requ
 - [P3.3 — Fresh independent outbox verification](2026-10-15-mva6nxu9-p33-outbox-recheck.md).
 - [P3.3 — Acknowledged native security review](2026-10-15-01a13fc3-p33-native-security.md).
 - [P3.3 — Acknowledged native runner/evidence review](2026-10-15-01a13fc3-p33-native-runner.md).
+- [P3.3 — Read-only TCP-reset mapping, partial](2026-10-15-mvaaj6z5-p33-tcp-map.md).
+- [P3.3 — Sole correlated TCP capture, cause unproven](2026-10-15-mvaapb6w-p33-tcp-capture.md).
+- [P3.3 — Outage-fixture isolation and targeted proof](2026-10-15-mvabi7zz-p33-d1-test-isolation.md).
+- [P3.3 — Independent D1 verification, completed](2026-10-15-mvabvep1-p33-d1-verification.md).
 - [P3.3 — Account/auth coordinator, in progress](2026-10-15-01a13fc3-p33-accounts-auth.md).
 - [P3.3 — Attributed read-only requirements/persistence map](2026-10-15-mva38frg-p33-map.md).
 - [P3.2 — Capture implementation and original failing evidence](2026-10-15-mva1tryy-p32-capture.md).

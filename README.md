@@ -12,6 +12,7 @@ FoxMind is a local-first educational platform in development. The current reposi
 
 - [Database setup and isolated verification](docs/database.md).
 - [Backend setup, commands and limits](docs/backend.md).
+- [Identity HTTP startup and D1 verification](docs/identity-http.md): session/CSRF/login/logout only; provision required identity keys/origin before `npm run api:start`. Registration/profile/token flows and frontend remain separate.
 - [Dependency remediation and audit evidence](docs/dependency-security.md).
 
 Follow the setup guides before running persistent services. Credentials come from the terminal environment, not committed files. Roadmap items and historical work records do not authorize publication or destructive operations; follow the current user's scope.

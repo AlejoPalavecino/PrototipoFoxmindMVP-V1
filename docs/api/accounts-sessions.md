@@ -1,6 +1,6 @@
 # P3.1 — Account/session contract and security policy
 
-**Contract only: none of these identity routes is implemented.** The current NestJS app still exposes health endpoints only. This document and the [OpenAPI contract](accounts-sessions.openapi.json) define P3.1; P3.2 prepares captured email, P3.3 implements the server, P3.4 the web screens and P3.5 the complete journey.
+**Partially implemented:** P3.3 T2 D1 implements only GET `/auth/session`, GET `/auth/csrf`, POST `/auth/login` and POST `/auth/logout`, backed by PostgreSQL. The other eight operations below remain planned and return 404. See [identity HTTP setup, integration API and proof boundaries](../identity-http.md). This document and the [OpenAPI contract](accounts-sessions.openapi.json) retain the complete P3.1 design; P3.4 web screens and the P3.5 complete journey have not started.
 
 ## Authority and confirmed policies
 
@@ -35,7 +35,7 @@ Base path:`/api/v1`. Requests with bodies use JSON only; unknown fields are422, 
 
 Email canonicalization is a technical identity rule: trim surrounding email whitespace, compare case-insensitively and preserve accepted delivery spelling; never apply provider-specific dot/plus rewrites. Explicit user amendment during P3.2: the domain must already be lowercase, including Unicode. Reject uppercase domains with422before account/token/outbox issuance or SMTP, regardless of account existence and before any validator/IDNA case conversion; never silently lowercase them. Preserve local-part case, dots and plus. P3.3's confirmed broad format includes quoted local parts (including spaces), UTF-8 local parts and international DNS domains, represented by OpenAPI `idn-email`. One bare mailbox only: no display names/lists/IP domains, and reject controls before outer trimming. Invalid syntax is422regardless of account existence. Names/passwords are not trimmed to make oversized input pass validation.
 
-The shared public `validateMailbox(input: unknown): string` in `apps/api/src/mail/index.ts` uses maintained `validator.isEmail`, returning preserved trimmed delivery spelling or sanitized `MAIL_INPUT_INVALID`. Future HTTP code must call it before account lookup/mutation and translate that error to422. Account comparison/persistence remains future integration work, not helper behavior. Standard SMTP/MIME/SMTPUTF8/IDNA wire representation is distinct from stored identity: an international domain may appear as its ASCII A-label on the wire, while stored/displayed account input stays unchanged. The [sender guide](../mail-sender.md#delivery-spelling-versus-wire-representation) and real isolated Mailpit tests specify exact local-part preservation and domain IDNA equivalence.
+The shared public `validateMailbox(input: unknown): string` in `apps/api/src/mail/index.ts` uses maintained `validator.isEmail`, returning preserved trimmed delivery spelling or sanitized `MAIL_INPUT_INVALID`. D1 login calls it before lookup and translates that error to422; future writes must do the same. IdentityStore canonicalizes the accepted trimmed input with PostgreSQL `lower(text)` for lookup and future `email_normalized` writes, preserving delivery spelling separately. No existing data is rewritten, and JavaScript lowercasing is not assumed equivalent to PostgreSQL Unicode behavior. Canonicalization is not mailbox-helper behavior. Standard SMTP/MIME/SMTPUTF8/IDNA wire representation is distinct from stored identity: an international domain may appear as its ASCII A-label on the wire, while stored/displayed account input stays unchanged. The [sender guide](../mail-sender.md#delivery-spelling-versus-wire-representation) and real isolated Mailpit tests specify exact local-part preservation and domain IDNA equivalence.
 
 ### Cookie, origin and CSRF
 
@@ -56,7 +56,7 @@ The shared public `validateMailbox(input: unknown): string` in `apps/api/src/mai
 
 ## Security/abuse configuration
 
-These are initial implementation defaults, not existing runtime behavior or new product capabilities. Do not weaken the confirmed TTL/password/resend/session policies via silent environment overrides.
+These are the full identity design defaults. D1 enforces the session/login/general-request policies; the remaining operation policies await D2/T3. Do not weaken confirmed TTL/password/resend/session policies via silent environment overrides.
 
 | Setting | Contract |
 |---|---|
@@ -68,8 +68,8 @@ These are initial implementation defaults, not existing runtime behavior or new 
 | `AUTH_CSRF_HMAC_KEY` |Independent random key of at least32bytes; no hardcoded default or raw session in output. Missing/invalid key prevents identity-module startup. |
 | `AUTH_ABUSE_HMAC_KEY` |Independent random key, at least32bytes, for identifier/IP bucket keys; do not persist raw rejected emails/IPs in bucket keys. |
 | `AUTH_OUTBOX_KEYS_JSON` / `AUTH_OUTBOX_ACTIVE_KEY_ID` |Environment-supplied AES-256 keyring/current key ID; explicit versions and unique nonces, no plaintext persistence/fallback. |
-| `AUTH_LOCAL_HTTP` |Default false. May be true only for explicit local mode with loopback-only HTTP APP_ORIGIN and API binding; never disables Secure for a remote origin. These future auth keys are not required by the current health-only server. |
-| `AUTH_TRUSTED_PROXY_CIDRS` |Empty by default (socket peer only); accept forwarded client/origin data only from this explicitly configured trusted proxy set. Never let caller headers bypass origin/IP controls. |
+| `AUTH_LOCAL_HTTP` |Default false. May be true only for explicit local mode with loopback-only HTTP APP_ORIGIN and API binding; never disables Secure for a remote origin. Identity startup now requires validated keys/config even for a server used only for health checks; there is no health-only bypass. |
+| `AUTH_TRUSTED_PROXY_CIDRS` |Empty by default (socket peer only). D1 rejects nonempty CIDR configuration because trusted proxy-chain handling is not implemented; arbitrary forwarded headers are ignored. A future explicit implementation must not let caller headers bypass origin/IP controls. |
 | `AUTH_RATE_LIMITS_JSON` |Overrides only the named action budgets below; positive integer limits/windows and resend cooldown at least60seconds. Unknown actions/invalid configuration fail identity-module startup, never disable a guard. `session-read`/`csrf-read` inherit the general identity budget. |
 
 ### Initial rate limits
@@ -95,7 +95,7 @@ Rejected validation/credentials/tokens/authorization must not change account dat
 
 Serialize credential/token/session-changing operations for the affected user. A login that verified an old password before concurrent reset/change must recheck the credential snapshot after obtaining the mutation lock, or fail; it must not create a new valid session using a stale password after revocation. Resend/consume races must issue at most one accepted current token; a consumed/invalidated/expired link never gains enrollment or auth state. Establish consistent lock order and assert outcomes using the public API against isolated PostgreSQL in P3.3.
 
-Planned acceptance examples (not executed authentication tests):
+Full-scope acceptance examples (D1 runtime evidence is in the [identity guide](../identity-http.md); registration/profile/token cases remain planned):
 
 - 15/129-character password rejected;16/128accepted. Raw81-character name rejected even with surrounding spaces;80accepted if not whitespace-only.
 - Valid registration new/existing email returns identical202shape; duplicate path preserves original account/password/session and creates no implicit invitation acceptance.
@@ -111,7 +111,7 @@ Planned acceptance examples (not executed authentication tests):
 
 P3.1 completion requires structural/reference/example consistency checks of the contract, independent security/requirements review, and attributed agent records. `node --test tests/p31-contracts.test.mjs` checks local structure/references, selected schema boundaries and synthetic examples without new dependencies; it is not a complete OpenAPI/JSON-Schema validator (including format assertions). Per-operation `x-error-codes` narrows the shared error-envelope union. These are documentation checks, not an authentication behavioral RED/GREEN. It does not prove these endpoints execute, passwords are hashed, email is delivered, counters are atomic or sessions are secure in runtime. Existing53foundation tests are historical baseline evidence, not identity acceptance tests.
 
-P3.2 local captured-email preparation is completed: [capture operations](../local-email.md), [standalone sender](../mail-sender.md) and [verified handoff](../work-log/2026-10-15-01a13fc3-p32-local-email.md). P3.3 T1 mailbox compatibility now resolves the earlier ASCII-subset advisory: public helper/sender checks and real fresh Mailpit capture pass for quoted-space and Unicode-local/international-domain delivery, with unchanged mixed-case/dot/plus spelling and uppercase-domain rejection. See [writer evidence](../work-log/2026-10-15-mva3zlb4-p33-mail-compatibility.md); this is not independent review or identity HTTP evidence. All twelve identity endpoints remain planned; account persistence, token issuance/consumption and encrypted-outbox integration are not implemented by this mailbox unit. Do not mark P3.3/all P3 complete or infer frontend authorization.
+P3.2 local captured-email preparation is completed: [capture operations](../local-email.md), [standalone sender](../mail-sender.md) and [verified handoff](../work-log/2026-10-15-01a13fc3-p32-local-email.md). P3.3 T1 mailbox compatibility now resolves the earlier ASCII-subset advisory: public helper/sender checks and real fresh Mailpit capture pass for quoted-space and Unicode-local/international-domain delivery, with unchanged mixed-case/dot/plus spelling and uppercase-domain rejection. See [writer evidence](../work-log/2026-10-15-mva3zlb4-p33-mail-compatibility.md); this is not independent review or identity HTTP evidence. The mailbox unit itself implemented no identity endpoint. Subsequent D1 implements only session/CSRF/login/logout; registration/profile/token issuance/consumption and live encrypted-outbox integration remain future D2/T3 work. D1 uses shared atomic attempt admission: a denied bucket may still consume other applicable attempt buckets, while invalid bodies consume only general admission; rejected requests never issue credentials or mutate account/session state. Do not mark T2/P3.3/all P3 complete or infer frontend authorization.
 
 ## Primary technical references
 
