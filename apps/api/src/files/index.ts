@@ -1,6 +1,7 @@
 export { FileService, type FileServiceOptions } from './service.ts';
 export { FilesModule } from './files.module.ts';
 export { FileCleanupWorker } from './cleanup-worker.ts';
+export { createFileAccess, type AttemptWriteAuthorizer } from './access.ts';
 export { createFilesHandler } from './http.ts';
 export { S3Storage } from './storage.ts';
 export { ClamdScanner } from './scanner.ts';

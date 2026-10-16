@@ -60,7 +60,7 @@ export class FileStore {
       if (!membership || (action === 'upload' && target.purpose !== 'attachment')) throw new FileError('FORBIDDEN');
     }
     if (target.scope.kind === 'classroom' && action === 'upload' && target.purpose === 'attachment' && scope.owner === userId) throw new FileError('FORBIDDEN');
-    await this.access.authorize(tx, userId, target, action);
+    await this.access.authorize(tx, userId, target, action, request);
     return { quota: scope.quota, userId };
   }
   async load(tx: FileTransaction, id: string): Promise<FileRow> {

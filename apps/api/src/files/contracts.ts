@@ -13,7 +13,7 @@ export interface FileAccess {
   authenticate(tx: FileTransaction, request: unknown, action: FileAction): Promise<string>;
   // Must resolve target/record permission and current attempt eligibility/editor/deadline where applicable.
   // Called under user -> scope locks, including at finalization after external I/O.
-  authorize(tx: FileTransaction, userId: string, target: FileTarget, action: FileAction): Promise<void>;
+  authorize(tx: FileTransaction, userId: string, target: FileTarget, action: FileAction, request: unknown): Promise<void>;
 }
 export interface FileDatabase {
   $transaction<T>(operation: (tx: { $queryRawUnsafe<T>(sql: string, ...values: any[]): Promise<T> }) => Promise<T>,
