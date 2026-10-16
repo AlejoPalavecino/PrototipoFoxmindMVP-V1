@@ -21,9 +21,9 @@ export function compileIdentityApi(deadline) {
   const run = spawnSync(process.execPath, [createRequire(import.meta.url).resolve('typescript/bin/tsc'), '-p', 'apps/api/tsconfig.json'], {
     env: process.env, encoding: 'utf8', timeout: Math.max(1, Math.min(6000, deadline - Date.now())), windowsHide: true,
   });
+  if (run.stdout) process.stdout.write(run.stdout);
+  if (run.stderr) process.stderr.write(run.stderr);
   console.log(`API TypeScript compilation: exit ${run.status ?? 'unavailable'}`);
-  if (run.stdout) console.log(run.stdout);
-  if (run.stderr) console.error(run.stderr);
   if (run.error || run.status !== 0) throw new Error('API compilation unavailable');
 }
 

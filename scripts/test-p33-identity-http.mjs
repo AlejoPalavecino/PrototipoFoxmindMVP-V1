@@ -1,22 +1,34 @@
 import { spawnSync } from 'node:child_process';
-import { withIdentityDatabase, identityTestEnvironment, compileIdentityApi } from './p33-identity-test-env.mjs';
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
-const started = Date.now();
-let result = 1;
-try {
-  await withIdentityDatabase(async ({ url, container, name, deadline }) => {
-    compileIdentityApi(deadline);
-    const env = { ...process.env, ...identityTestEnvironment(), DATABASE_URL: url,
-      P33_IDENTITY_ISOLATED: name, FOXMIND_API_TEST_CONTAINER: container };
-    delete env.NODE_TEST_CONTEXT;
-    const run = spawnSync(process.execPath, ['--test', '--test-concurrency=1', 'tests/p33-identity-http.test.mjs'], {
-      env, encoding: 'utf8', timeout: Math.max(1, deadline - Date.now()), windowsHide: true,
+export async function runIdentityHttp({ prepare } = {}) {
+  const { withIdentityDatabase, identityTestEnvironment, compileIdentityApi } = await import('./p33-identity-test-env.mjs');
+  const started = Date.now();
+  let result = 1;
+  try {
+    await withIdentityDatabase(async ({ url, container, name, deadline }) => {
+      await (prepare ?? compileIdentityApi)(deadline);
+      const env = { ...process.env, ...identityTestEnvironment(), DATABASE_URL: url,
+        P33_IDENTITY_ISOLATED: name, FOXMIND_API_TEST_CONTAINER: container };
+      delete env.NODE_TEST_CONTEXT;
+      const run = spawnSync(process.execPath, ['--test', '--test-concurrency=1', 'tests/p33-identity-http.test.mjs'], {
+        env, encoding: 'utf8', timeout: Math.max(1, deadline - Date.now()), windowsHide: true,
+      });
+      if (run.stdout) process.stdout.write(run.stdout);
+      if (run.stderr) process.stderr.write(run.stderr);
+      if (run.error) console.error('Identity HTTP tests unavailable or timed out');
+      result = run.status ?? 1;
     });
-    console.log(run.stdout ?? '');
-    console.error(run.stderr ?? '');
-    if (run.error) console.error('Identity HTTP tests unavailable or timed out');
-    result = run.status ?? 1;
-  });
-} catch { console.error('Identity HTTP runner unavailable (sanitized)'); result = 1; }
-console.log(`Identity HTTP runner: exit ${result}; elapsed ${Date.now() - started}ms`);
-process.exitCode = result;
+  } catch { console.error('Identity HTTP runner unavailable (sanitized)'); result = 1; }
+  console.log(`Identity HTTP runner: exit ${result}; elapsed ${Date.now() - started}ms`);
+  return result;
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  const args = process.argv.slice(2);
+  const usage = 'Usage: node scripts/test-p33-identity-http.mjs';
+  if (args.length === 1 && args[0] === '--help') console.log(usage);
+  else if (args.length) { console.error(usage); process.exitCode = 2; }
+  else process.exitCode = await runIdentityHttp();
+}

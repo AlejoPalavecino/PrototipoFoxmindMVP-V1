@@ -1,6 +1,6 @@
 # Run the local FoxMind backend
 
-The NestJS backend provides health checks and P3.3 D1 PostgreSQL-backed session/CSRF/login/logout. Registration, profile, account-token flows, classroom permissions, activities and uploads remain unimplemented. It binds to `127.0.0.1`. Read [identity startup and integration boundaries](identity-http.md) before starting it; this is not production readiness.
+The verified checkpoint provides health checks and seven implemented, independently verified P3.3 T2 operations: session/CSRF/login/logout/register/account GET/account PATCH, backed by PostgreSQL and transactional verification mail. Exactly five T3 operations remain not implemented (verification resend/confirmation, recovery request/confirmation and account password change); classroom permissions, activities and uploads are also unimplemented. See [registration/profile behavior, accepted proof and retained failures/limits](registration-profile.md), [attributed independent PASS/no blockers](work-log/2026-10-16-mvb63m78-p33-t2-verification.md), [current coordinator](work-log/2026-10-16-01a14539-p33-t2-resume.md) and [execution plan C3](../odd/tasks/p33-t2-execution.md). Human explicitly leaves ONLY current T2 code/tests/docs natively unreviewed, not natively approved or exempting future work. P3 and the full web journey remain unfinished. It binds to `127.0.0.1`. Read [identity startup and integration boundaries](identity-http.md) before starting it; this is not production readiness.
 
 ## Quick path
 
@@ -12,7 +12,7 @@ npm run api:build
 npm run test:api
 ```
 
-The build generates local Prisma source. The test command uses a cached PostgreSQL image and disposable tmpfs container, applies existing SQL migrations via the driver, compiles TypeScript via Node dependency resolution and exercises real HTTP endpoints. It overrides incoming database and identity configuration with owned ephemeral values and removes only its owned container. One test pauses/resumes that database to observe readiness failure/recovery; no development volume or SMTP inbox is used. Its work deadline is26seconds plus bounded cleanup; no timeout retry.
+The parent-adopted build alias is `node scripts/build-api.mjs`: direct Node-resolved Prisma generation then strict TypeScript project compilation, without receipts/cache. For T2, the combined `node scripts/test-p33-t2.mjs` (alias `npm run test:p33:t2`) runs: build once in that invocation, then all four D2 groups, C1 deadline, D1, backend and offline contracts sequentially/fail-fast. No public skip-build option or persistent approval exists. Standalone backend/D1/D2 test commands retain their actual compiler at the unchanged6s cap. The backend test uses a cached PostgreSQL image and disposable tmpfs container, applies existing SQL migrations via the driver, and exercises real HTTP endpoints. It overrides incoming database and identity configuration with owned ephemeral values and removes only its owned container. One test pauses/resumes that database to observe readiness failure/recovery; no development volume or SMTP inbox is used. Its work deadline is26seconds plus bounded cleanup; no timeout retry.
 
 For local development, configure `POSTGRES_PASSWORD` and `DATABASE_URL` in the current terminal using the [database guide](database.md), and provision the required identity origin, independent HMAC keys and outbox keyring from [identity startup](identity-http.md#startup-without-environment-files). No `.env` file is loaded or required. Then:
 
@@ -51,29 +51,31 @@ Other startup failures use `Backend startup failed.` without connection strings 
 
 Both endpoints set `Cache-Control:no-store`. Readiness executes `SELECT 1`: it proves connectivity, **not migration completeness, permissions or functionality of the academic model**. Database connections are lazy, so liveness can remain available while the database is unavailable. The pool is bounded to5 connections with1-second connection/query/statement limits. Recovery after a temporary database pause is tested.
 
-No CORS policy or Swagger is enabled. Only GET auth/session, GET auth/csrf, POST auth/login and POST auth/logout implement the [account contract](api/accounts-sessions.md); all eight remaining identity operations and classroom routes still return404. Identity responses have no-store/nosniff/request IDs and sanitized errors. These public health endpoints must not be mistaken for identity readiness or an application authorization layer.
+No CORS policy or Swagger is enabled. GET auth/session, GET auth/csrf, POST auth/login, POST auth/logout, POST auth/register and GET/PATCH account are the seven verified [account-contract](api/accounts-sessions.md) operations. The five T3 operations and classroom routes still return404. OpenAPI now marks exactly seven implemented and five planned/not implemented. Identity responses have no-store/nosniff/request IDs and sanitized errors. These public health endpoints must not be mistaken for identity readiness or an application authorization layer.
 
 ## Lifecycle and structure
 
 - `apps/api/src/configuration.ts`: validated environment and sanitized errors.
 - `apps/api/src/application.ts`: Nest module composition and versioned route prefix.
 - `apps/api/src/database/`: injected database URL and one shared Prisma provider/pool; root and IdentityModule reuse the same dynamic-module object.
-- `apps/api/src/identity/`: validated B/C/mail composition, singleton async B password service, shared SQL transaction/lock/canonicalization/admission helpers and four-operation transport. No scheduler or account-token producer in D1.
+- `apps/api/src/identity/`: validated B/C/mail composition, singleton async B password service, shared SQL helpers and identity/account transport. T2 adds transactional token/job issuance and one bounded nonoverlapping C worker/sender lifecycle; see its scoped proof and limits above.
 - `apps/api/src/health/`: fixed response shapes with sanitized failure handling.
 - `apps/api/src/main.ts`: loopback listener and structured startup event.
 
-The application registers SIGINT/SIGTERM shutdown hooks and calls Prisma disconnect through Nest's module destruction lifecycle. Normal framework close releases the HTTP listener and the provider-owned PostgreSQL connections; both effects are checked against the real isolated database. Forced termination cannot guarantee hooks execute (including platform-dependent Windows signal behavior); it is not claimed as a graceful-shutdown proof.
+The application registers SIGINT/SIGTERM shutdown hooks. Root-module destruction first drains identity worker/sender, then imported Prisma destruction disconnects the shared pool; the grouped lifecycle proof passed parent and independent checks. Normal framework close releases the HTTP listener and the provider-owned PostgreSQL connections; both effects are checked against the real isolated database. Forced termination cannot guarantee hooks execute (including platform-dependent Windows signal behavior); it is not claimed as a graceful-shutdown proof.
 
 Generated Prisma TypeScript remains at `.generated/prisma`. TypeScript compiles it and backend source into ignored `.build/api`, rewriting relative `.ts` imports to `.js`. The schema, deployed migrations and database command names are unchanged. Root package scripts manage this initial backend; no extra CLI/global installation is required.
 
 ## Verification and limitations
 
-- `npm run api:build`: generate Prisma and compile the backend.
+- `npm run api:build`: directly generate Prisma then strictly compile the backend via the adopted wrapper. No receipts, dependency fingerprinting or old-output acceptance. Historical failed receipt controls are retired, not passed; see the [unchanged C2 record](work-log/2026-10-16-c2-sequential-mvb4asm3.md).
+- `node scripts/test-p33-t2.mjs`: one real build per invocation then sequential D2/C1/D1/backend/offline checks. Only a trusted same-process successful-build continuation avoids duplicate compilation. Adopted parent alias: `test:p33:t2`. Existing26s work/30s outer stage limits stay; cleanup remains fixture-owned and can outlive the outer scheduling deadline. No automatic retries, source edits during execution or full T2/P3 acceptance from [synthetic B1 proof](work-log/2026-10-16-build-once-mvb5aiy5.md).
 - `npm run test:api`: isolated real-HTTP/configuration/lifecycle tests after the build.
 - `node scripts/test-p33-identity-http.mjs`: focused isolated D1 HTTP/session/rate/concurrency contracts after the build.
-- `node --test tests/p31-contracts.test.mjs`: offline twelve-operation schema checks, with only four marked implemented.
+- `node scripts/test-p33-registration-profile.mjs --group=<registration|account|sessions|lifecycle>`: one mandatory predeclared D2 group, each with fresh owned PostgreSQL/Mailpit and the unchanged26s work/30s outer limits. Groups preserve cases1–7/8–12/13–14/15–17; no retry or automatic subdivision. Earlier full17 run timed out after seven registration passes; later parent and independent grouped checks passed all17 without changing that historical failure.
+- `node --test tests/p31-contracts.test.mjs`: offline twelve-operation schema checks, now asserting seven implemented/five planned statuses after accepted T2 public proof.
 - `npm test`: preserve all existing38 database contracts, migration replay/drift and Prisma runtime smoke.
 
 The initial installation reported four high-severity entries through Prisma CLI/config. The [dependency remediation](dependency-security.md) now scopes overrides to `deepmerge-ts8.0.2` and `mysql2 3.24.6`, retaining Prisma7.10.0. The complete audit reports0known vulnerabilities and the existing build/API/database suites pass. No dependency class is omitted and no force-fix or major Prisma downgrade was used. A clean scan is time-bound evidence, not a guarantee of exhaustive dependency safety.
 
-Remaining identity/product implementation, production security hardening, future dependency updates, structured operational logging and deployment require separate work and verification. No production readiness is claimed.
+Accepted T2 proof is parent56PASS/build0 and independent33PASS/compiler0/reported cleanup0, not a fresh rerun by this metadata closure. Original failed receipt controls, Docker-unavailable job-1 and compiler/reset-cause limits remain in the linked records. Five T3 operations, frontend/full web journey, remaining product implementation, production security hardening, future dependency updates, structured operational logging and deployment require separate work and verification. No production readiness is claimed.
