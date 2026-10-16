@@ -39,7 +39,7 @@ RED must fail on missing requested behavior, followed by focused GREEN and scope
 
 ## Handoff
 
-Isolated implementation is present. Next: freeze committed P4 units and resolve applicable independent/native review without reusing another candidate's authority. Integration remains explicitly deferred. The integrating coordinator must supply actual P3 session/CSRF/admission and P5/P7 record adapters, reconcile dependency/schema changes, and observe full app/browser proof before overall P4 closure. Do not merge uncommitted P3 candidates here.
+Isolated implementation is present in local commits3cc5393/adapters,ec7ce6f/content,5babdee/durable-core andd17e48a/persistent-lifecycle, plus metadata21e7fe2. Applicable independent/native acceptance remains pending. Native negotiated status explicitly stopped withmanaged_assets_outdated; global Gentle-AI sync was not run because shared/P3 runtime changes are outside this scope. Reconcile that maintenance separately, then use fresh per-unit preflight/consent and independent verification. Integration remains explicitly deferred. Its coordinator must supply actual P3 session/CSRF/admission and P5/P7 record/draft-promotion adapters, reconcile dependency/schema changes, and observe full app/browser proof before overall P4 closure. Do not merge uncommitted P3 candidates here.
 
 ## Evidence and retained failures
 
