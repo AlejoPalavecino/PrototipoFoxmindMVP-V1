@@ -12,7 +12,7 @@ S4. User request verbatim: "Te autorizo a que hagas todo lo necesarios para term
 ## Tasks
 
 - P3-A | S1–S3 | T2 corrections/build-once/C3 verification and local closure | done | parent56PASS/build0/cleanup0, independent33PASS/no blockers, metadata9PASS+parent9PASS/structural114links7anchors. Commits273b339/21b9110/303c5cb/d6cc3fc/33bbd15/20cc033 observed. CurrentT2 explicitly natively unreviewed by human choice; wholeP3 incomplete.
-- P3-B | S1–S3 | implement and verify remaining P3.3 verification/resend/recovery/password-change endpoints | pending | depends on P3-A; commit pending.
+- P3-B | S1–S4 | implement and verify remaining P3.3 verification/resend/recovery/password-change endpoints | in_progress | T2 tracking closure2c1b4df observed; new dependent feat/p33-token-flows, same protected historical dirt preserved. One bounded read-only helper/contract map precedes detailed T3 spec and source writes; no endpoint implementation proof yet.
 - P3-C | S1–S3 | implement P3.4 initial web shell/screens against verified API | pending | depends on P3-B; dependency decisions/installation separately validated; commit pending.
 - P3-D | S1–S3 | P3.5 isolated end-to-end journeys and security/error cases; independent verification/applicable review and reconciled handoff | pending | depends on P3-C; commit pending.
 
