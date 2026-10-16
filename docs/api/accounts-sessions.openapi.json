@@ -4,7 +4,7 @@
   "info": {
     "title": "FoxMind P3.1 account/session contract",
     "version": "0.1.0",
-    "description": "Partially implemented P3.3 D1: session, CSRF, login and logout run against PostgreSQL. The other eight operations remain planned. Product policies are confirmed in the functional specification; see accounts-sessions.md and identity-http.md for scope, atomicity, transport and abuse handling. No live credential examples."
+    "description": "Partially implemented P3.3: seven T2 operations (session, CSRF, login, logout, registration and account GET/PATCH) are implemented and independently verified against PostgreSQL and isolated SMTP fixtures. Five T3 operations remain planned, not implemented; P3 and the full web journey remain unfinished. See ../work-log/2026-10-16-mvb63m78-p33-t2-verification.md for attributed scoped PASS, ../work-log/2026-10-16-01a14539-p33-t2-resume.md and ../../odd/tasks/p33-t2-execution.md for current coordination. The human explicitly leaves only current T2 code/tests/docs natively unreviewed; no native approval or future review skip. Product policies remain confirmed in the functional specification; see accounts-sessions.md and identity-http.md for scope, atomicity, transport and abuse handling. No live credential examples."
   },
   "servers": [
     {
@@ -303,7 +303,7 @@
             "$ref": "#/components/responses/InternalError"
           }
         },
-        "x-implementation-status": "planned-not-implemented",
+        "x-implementation-status": "implemented",
         "x-email-verified-required": false,
         "x-csrf-policy": "required-when-valid-session-present",
         "x-touches-session-idle": false,
@@ -1233,7 +1233,7 @@
             "$ref": "#/components/responses/InternalError"
           }
         },
-        "x-implementation-status": "planned-not-implemented",
+        "x-implementation-status": "implemented",
         "x-email-verified-required": true,
         "x-csrf-policy": "not-applicable-safe-read",
         "x-touches-session-idle": true,
@@ -1348,7 +1348,7 @@
             "$ref": "#/components/responses/InternalError"
           }
         },
-        "x-implementation-status": "planned-not-implemented",
+        "x-implementation-status": "implemented",
         "x-email-verified-required": true,
         "x-csrf-policy": "required",
         "x-touches-session-idle": true,
