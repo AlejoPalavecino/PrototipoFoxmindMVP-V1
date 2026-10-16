@@ -37,7 +37,7 @@ Account spelling is the helper's exact trimmed result. Standard transport encodi
 
 Verification links use `/verify-email#token=...` and say **1 hora**. Recovery links use `/recover-password#token=...` and say **15 minutos**. Both include plain text and escaped HTML with no remote resources. Links never use token-bearing queries/backend GETs and never automatically confirm anything. P3.3 must implement encrypted transactional outbox/expiry checks and token security; nothing here persists plaintext tokens.
 
-Local SMTP intentionally ignores STARTTLS only because the host is fixed loopback and the peer is a capture inbox. Do not repurpose this configuration for production delivery. Connection/greeting timeouts are3000ms, socket inactivity timeout5000ms. File/URL content resolution is disabled at both transport and message levels. There is no automatic retry, verification-on-send, relay configuration or delivery-state storage.
+Local SMTP intentionally ignores STARTTLS only because the host is fixed loopback and the peer is a capture inbox. Do not repurpose this configuration for production delivery. Connection/greeting timeouts are3000ms, socket inactivity timeout5000ms. The public Nodemailer `getSocket` hook receives a service-owned loopback `net.Socket` only after connection; ownership begins before `connect()`, with a3000ms setup timer and one-shot error/close/connect completion. File/URL content resolution is disabled at both transport and message levels. There is no automatic retry, verification-on-send, relay configuration or delivery-state storage.
 
 ## Focused proof and limits
 
@@ -55,6 +55,30 @@ After parallel writers settle, the coordinator owns `npm run api:build` and the 
 The existing P3.2 baseline tests use `scripts/mail-smtp-fixture.mjs`, an independent ephemeral loopback SMTP peer with in-memory capture. They exercise public configuration, Nest resolution/close, both wire-level MIME messages/envelopes, previous-purpose regression, malformed/header-injection rejection before connection, uppercase-domain rejection with unchanged SMTP counters/capture, exact mixed-case/dotted/plus local-part preservation for both purposes, unavailable/rejecting/stalled SMTP and sanitized failures. They require no PostgreSQL or development inbox and do not read real tokens or account records. Run `npm run test:mail` for the combined public checks, including `tests/p32-mail-flow.test.mjs`: the actual standalone Nest service sends both purpose-specific fixture messages through SMTP to a fresh owned Mailpit instance; its public inbox API verifies recipients, plain/HTML fragment links/lifetimes and unchanged inbox count after uppercase-domain rejection. It never uses or purges the persistent development inbox. This is mail-transport evidence, not account verification or token consumption.
 
 The focused SMTP fixture alone is **not Mailpit evidence**. The P3.3 `tests/p33-mailbox-flow.test.mjs` proof uses the fresh owned `withMailpit` helper and its public inbox API; it does not read or purge the development inbox. The coordinator retains independent verification/review ownership. These checks do not prove authentication, token expiry enforcement, durable outbox, browser behavior or delivery to a person.
+
+## Terminal cancellation and lifecycle deadline
+
+`AccountMailService.cancelPending(): void` is an idempotent **terminal** emergency operation. It prevents new valid sends and synchronously destroys all owned sockets, including connecting sockets. Queued socket-provider calls also fail closed; already-submitted operations settle through the same sanitized `MAIL_DELIVERY_UNAVAILABLE` boundary. Input validation still runs first. It neither retries nor claims acceptance. Do not use nonpooled `transport.close()` as a per-send cancellation API.
+
+Ordinary `onModuleDestroy()` remains graceful: prevent new sends, drain already-submitted sends (including socket setup not yet started), then close the transport. It does not invoke emergency cancellation. The existing `IdentityMailLifecycle` instead invokes terminal cancellation **before** rejecting its absolute12000ms deadline, stops future ticks, and drains the underlying sends on shutdown. The existing `runOnce` and30000ms job lease are unchanged. This bounds SMTP activity, not arbitrary database teardown; no exactly-once delivery claim follows from cancellation.
+
+Private component checks (no Docker, whole-API build or sensitive files):
+
+```sh
+node node_modules/typescript/bin/tsc -p apps/api/tsconfig.p33-mail.json
+node --test --test-concurrency=1 tests/p33-mail-cancellation.test.mjs
+node scripts/test-p33-mail-cancellation.mjs --regressions
+```
+
+The regression command runs the unchanged P3.2 sender tests and P3.3 mailbox component tests. A process-local public Node resolution hook redirects only the P3.2 mail entry to current private output, avoiding stale `.build/api` results without modifying tests, compiler flags or root output. It does not run the Mailpit/Docker flow checks. All child tests run serially under a26000ms cap.
+
+**Deferred parent integration check**, only after C2 settles and a successful combined strict API build:
+
+```sh
+node scripts/test-p33-mail-cancellation.mjs --deadline
+```
+
+This prepares an owned fresh PostgreSQL fixture and exercises HTTP registration, actual lifecycle/runOnce sending, a trickling incomplete SMTP DATA response beyond the inactivity timeout, absolute deadline cancellation/destruction, responsive HTTP, no overlapping send, prompt idempotent stop/close and durable retry after a replacement lifecycle starts. It uses the production12000ms deadline without timing bypasses; no Mailpit or development data. This writer does not claim that deferred integration check has run. See [sequential C1 evidence](work-log/2026-10-16-c1-sequential-mvb3yfqi.md); historical timeouts and prior runtime failures remain separate evidence.
 
 ## Review and rollback boundary
 
