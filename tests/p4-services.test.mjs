@@ -17,6 +17,7 @@ import { FileError } from '../.build/api/apps/api/src/files/errors.js';
 import { createFilesHandler } from '../.build/api/apps/api/src/files/http.js';
 import { zip, office } from './p4-fixtures.mjs';
 import { verifyRecordAccess } from './p4-record-access.mjs';
+import { verifyPromotion } from './p4-promotion.mjs';
 
 test('P4 real private storage, scanner and durable upload lifecycle', { timeout: 240000 }, async t => {
   await withP4Services(async runtime => {
@@ -263,7 +264,15 @@ test('P4 real private storage, scanner and durable upload lifecycle', { timeout:
         const start = await isolated.begin(actor, scope, mutable);
         assert.equal(start.sizeBytes, expected);
       });
+      await t.test('usage cannot switch scope after record authorization has completed', async () => {
+        const expected = await service.usage(actor, scope), mutableScope = { ...scope };
+        const isolated = new FileService({ ...options, access: { ...access, async authorize(...args) {
+          await access.authorize(...args); mutableScope.id = otherClassroom;
+        } } });
+        assert.deepEqual(await isolated.usage(actor, mutableScope), expected);
+      });
       await verifyRecordAccess(t, { sql, options, users, sessions, classroom, bytes });
+      await verifyPromotion(t, { sql, options, users, sessions, bytes });
     } finally { await prisma?.$disconnect(); await sql.end(); }
   });
 });

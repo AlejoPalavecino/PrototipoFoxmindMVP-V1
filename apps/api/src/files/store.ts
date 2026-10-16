@@ -74,7 +74,11 @@ export class FileStore {
     const row = await this.load(tx, id);
     const actor = await this.authorize(tx, request, targetOf(row), action);
     if (action === 'upload' && row.uploaded_by_id !== actor.userId) throw new FileError('FORBIDDEN');
-    return this.load(tx, id); // Scope lock protects the refresh against completion/cleanup races.
+    const current = await this.load(tx, id);
+    // A draft publication may have completed while this transaction waited for its source lock.
+    // Retry with the new scope instead of acquiring destination locks in reverse order.
+    if (current.classroom_id !== row.classroom_id || current.classroom_draft_id !== row.classroom_draft_id) throw new FileError('UPLOAD_CONFLICT');
+    return current;
   }
   async usage(tx: FileTransaction, scope: FileScope): Promise<bigint> {
     const column = scope.kind === 'classroom' ? 'classroom_id' : 'classroom_draft_id';

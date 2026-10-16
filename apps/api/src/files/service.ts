@@ -7,6 +7,8 @@ import type { FileScope, FileDatabase, FileAccess } from './contracts.ts';
 import type { ObjectStorage } from './storage.ts';
 import type { FileScanner } from './scanner.ts';
 import { cleanIncomplete } from './cleanup.ts';
+import { promoteDraftPlan } from './promotion.ts';
+import type { FileTransaction } from './contracts.ts';
 
 export interface FileServiceOptions {
   database: FileDatabase; access: FileAccess; storage: ObjectStorage; scanner: FileScanner;
@@ -69,6 +71,7 @@ export class FileService {
     return this.store.transaction(async tx => view(await this.store.loadAuthorized(tx, request, id, 'status')));
   }
   async usage(request: unknown, scope: FileScope) {
+    scope = { ...scope };
     return this.store.transaction(async tx => {
       const { quota } = await this.store.authorize(tx, request, { scope, purpose: 'plan', targetId: null }, 'usage');
       const usedBytes = await this.store.usage(tx, scope);
@@ -164,4 +167,10 @@ export class FileService {
     });
   }
   async cleanup(limit = 100) { return cleanIncomplete(this.store, this.storage, limit); }
+  async promoteDraftPlan(request: unknown, id: string, classroomId: string): Promise<void> {
+    return this.store.transaction(tx => this.promoteDraftPlanInTransaction(tx, request, id, classroomId));
+  }
+  async promoteDraftPlanInTransaction(tx: FileTransaction, request: unknown, id: string, classroomId: string): Promise<void> {
+    return promoteDraftPlan(this.store, tx, request, id, classroomId);
+  }
 }

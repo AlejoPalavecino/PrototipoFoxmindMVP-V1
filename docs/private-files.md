@@ -74,7 +74,7 @@ Cleanup claims only old incomplete uploads under the same scope lock, blocks con
 
 There is no permissive/default adapter. Isolated tests use synthetic accounts and explicitly labelled test-only authentication/editor ports; the concrete record resolver is exercised against real domain records in PostgreSQL with actual storage/scanner I/O. These tests do not claim P3/P5/P7 application acceptance. See [HTTP contract](api/files.md). Neither the module nor the middleware supplies replacement authentication.
 
-Classroom publication also needs an explicit draft-file promotion design in P5: the current immutable scope deliberately rejects arbitrary reparenting. Reconcile an authorized transactional quota/scope transfer with draft publication before linking its plan; do not bypass the file identity trigger. This is deferred domain integration, and no working classroom-publication journey is claimed here.
+P5 publication calls `promoteDraftPlanInTransaction(tx, request, fileId, classroomId)` after assigning that draft's `published_classroom_id`, inside the same domain transaction. The standalone wrapper `promoteDraftPlan` is available for an already established publication. Only the verified draft owner who also teaches the destination may transfer a ready plan into that exact active classroom. Classroom then draft locks serialize quota transfer and concurrent uploads/promotions; repetition is idempotent. A forward database guard independently restricts that one scope transition, proof and quota while retaining immutable bytes/key/name/owner. Publication rollback also rolls back the transfer. Arbitrary reparenting remains rejected. This is a P4 integration primitive; the P5 publication wizard and application journey remain deferred.
 
 ## Verification
 
@@ -84,7 +84,7 @@ npm run test:p4 -- --persistent
 ```
 
 The first builds this worktree, checks policy/adapters/parsers/configuration and runs real PostgreSQL/S3/ClamAV journeys. The second also validates retained object/database state across an actual container restart, removes only its owned probe and stops persistent services while preserving their volumes. Fixture cleanup is label-restricted and reported separately. Independent/native acceptance and real application/browser integration remain separate proof.
-# Automatic incomplete-upload cleanup
+## Automatic incomplete-upload cleanup
 
 Installing `FilesModule` starts an immediate incomplete-upload sweep and repeats it every60seconds after the previous sweep finishes. Sweeps never overlap. Module shutdown cancels future sweeps and awaits its own bounded in-flight operation. Errors produce a fixed diagnostic without file or request data and remain retryable on the next sweep. Direct `FileService` consumers must own an equivalent lifecycle or install `FileCleanupWorker`; constructing a service alone does not start background work.
 
