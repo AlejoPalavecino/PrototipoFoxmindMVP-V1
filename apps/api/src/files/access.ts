@@ -26,9 +26,9 @@ export function createFileAccess(ports: { authenticate: FileAccess['authenticate
       if (!link) deny(); return;
     }
     if (target.purpose === 'instructions') {
-      const [activity] = await tx.query<{ status: string; first_started_at: Date | null }>(
-        'SELECT status::text,first_started_at FROM activities WHERE id=$1::uuid AND classroom_id=$2::uuid FOR SHARE', target.targetId, target.scope.id);
-      if (!activity) deny();
+      const [activity] = await tx.query<{ type: string; status: string; first_started_at: Date | null }>(
+        'SELECT type::text,status::text,first_started_at FROM activities WHERE id=$1::uuid AND classroom_id=$2::uuid FOR SHARE', target.targetId, target.scope.id);
+      if (!activity || activity.type !== 'ASSIGNMENT') deny();
       if (action === 'upload') { if (!teacher || activity.first_started_at !== null) deny(); return; }
       if (teacher) return;
       if (activity.status !== 'PUBLISHED' || !target.fileId) deny();

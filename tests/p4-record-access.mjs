@@ -38,6 +38,11 @@ export async function verifyRecordAccess(t, { sql, options, users, sessions, cla
     await sql.query('UPDATE membership_periods SET ended_at=NULL,end_reason=NULL,ended_by_id=NULL WHERE id=$1', [period]);
   });
   await t.test('private activity instructions stay private until publication and lock after participation', async () => {
+    for (const type of ['QUESTIONNAIRE', 'EVALUATION']) {
+      await sql.query('UPDATE activities SET type=$2::"ActivityType" WHERE id=$1', [activity, type]);
+      try { await assert.rejects(service.begin(sessions[0], scope, { ...intent, purpose: 'instructions' }, activity), { code: 'FORBIDDEN' }); }
+      finally { await sql.query(`UPDATE activities SET type='ASSIGNMENT' WHERE id=$1`, [activity]); }
+    }
     instruction = await service.begin(sessions[0], scope, { ...intent, purpose: 'instructions' }, activity);
     await service.receive(sessions[0], instruction.id, bytes);
     await sql.query(`INSERT INTO activity_instruction_files(updated_at,activity_id,classroom_id,file_id) VALUES(now(),$1,$2,$3)`, [activity, classroom, instruction.id]);

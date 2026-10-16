@@ -49,14 +49,15 @@ The persistent scanner starts with the full signature-bearing image and runs Fre
 | XML/image inspection | 16 MB per XML part; UTF-8/UTF-16; no DTD/entities/macros; 25 million pixels |
 | Parser worker | 128 MB V8 old heap, 16 MB young heap, 15 s wall time; input/expanded buffers separately bounded |
 | Scanner | 50 MB input; 200 MB scan work; recursion 8; 1,000 files; limit/encryption alerts deny access |
-| Host concurrency | One buffered transfer/inspection or read per FileService instance; no unbounded body queue |
+| Host concurrency | One buffered transfer/inspection or read per FileService instance; one shared HTTP PUT/GET transfer per installed handler through response finish/close; no unbounded body/output queue |
 | External calls | Storage 10 s; scanner 15 s; operation lease 90 s |
+| HTTP output | Absolute 30 s from starting response bytes; stalled output is destroyed and releases its transfer slot |
 | Database | Short transactions: 2 s acquisition/4 s transaction ceiling; no external I/O inside |
 | Cleanup | Incomplete uploads inactive at least 24 h; at most 100 candidates; stop starting claims after 30 s plus one bounded in-flight operation |
 
 Expanded/parser bounds may reject a compressed file even when upload size is allowed. Rejection never becomes a clean verdict. Contents are never extracted onto host paths or executed. Classroom quota is taken from its stored value; draft quota is a required explicit bigint configuration with no production default. Quota exhaustion blocks new reservations while preserving authorized reads.
 
-OOXML structural parts must use their actual package/document namespaces and exact internal Office document relationship type; an arbitrary matching suffix or a renamed XML root is insufficient. Transitional and strict document namespaces are admitted. This structural inspection complements real malware scanning; neither bypasses the other.
+OOXML structural parts and their Override/Relationship children must resolve their actual package/document namespaces, including inherited declarations, changed default namespaces and prefixes. Only exact internal Office document relationship types are accepted. Transitional and strict document namespaces are admitted. This structural inspection complements real malware scanning; neither bypasses the other.
 
 ## Lifecycle and recovery
 

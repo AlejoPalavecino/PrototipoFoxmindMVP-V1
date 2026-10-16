@@ -39,6 +39,20 @@ function body(request: IncomingMessage, limit: number, expected?: number): Promi
     request.on('data', data); request.once('end', end); request.once('aborted', abort); request.once('error', abort);
   });
 }
+function sendContent(response: ServerResponse, bytes: Buffer): Promise<void> {
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const done = (error?: FileError) => {
+      if (settled) return; settled = true; clearTimeout(timer);
+      response.off('finish', finish); response.off('close', close); response.off('error', close);
+      if (error) reject(error); else resolve();
+    };
+    const finish = () => done(), close = () => done(new FileError('SERVICE_UNAVAILABLE'));
+    const timer = setTimeout(() => { response.destroy(); close(); }, 30000);
+    response.once('finish', finish); response.once('close', close); response.once('error', close);
+    try { response.end(bytes); } catch { close(); }
+  });
+}
 
 /** Opt-in middleware. It is deliberately not registered in the P3 application. */
 export function createFilesHandler(service: FileService) {
@@ -88,9 +102,11 @@ export function createFilesHandler(service: FileService) {
           if ([...url.searchParams.keys()].some(key => key !== 'mode') || url.searchParams.getAll('mode').length > 1) throw new FileError('INVALID_UPLOAD');
           const mode = url.searchParams.get('mode') ?? 'download';
           if (mode !== 'download' && mode !== 'preview') throw new FileError('INVALID_UPLOAD');
+          if (transferring) throw new FileError('SERVICE_UNAVAILABLE');
+          transferring = true; ownsTransfer = true;
           const file = await service.read(request, id, mode);
           for (const [name, value] of Object.entries(file.headers)) response.setHeader(name, value);
-          response.statusCode = 200; response.end(file.bytes);
+          response.statusCode = 200; await sendContent(response, file.bytes);
         } else throw new FileError('NOT_FOUND');
       } else throw new FileError('NOT_FOUND');
     })().catch(error => {

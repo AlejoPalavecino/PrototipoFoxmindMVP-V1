@@ -12,8 +12,31 @@ const office = {
   pptx: ['ppt/presentation.xml', 'presentationml.presentation', 'presentation'],
   xlsx: ['xl/workbook.xml', 'spreadsheetml.sheet', 'workbook'],
 } as const;
-interface XmlPart { value: Record<string, any>; root: string; namespace: string | null }
+interface XmlPart { element: Record<string, any>; root: string; namespace: string | null; namespaces: Map<string, string> }
 function reject(): never { throw new Error('uninspectable'); }
+function namespaces(element: Record<string, any>, inherited = new Map<string, string>()): Map<string, string> {
+  const result = new Map(inherited);
+  for (const [key, value] of Object.entries(element)) {
+    if (key === '@_xmlns') result.set('', String(value));
+    else if (key.startsWith('@_xmlns:')) result.set(key.slice('@_xmlns:'.length), String(value));
+  }
+  return result;
+}
+function structuralChildren(part: XmlPart, local: string): Record<string, any>[] {
+  const result: Record<string, any>[] = [];
+  for (const [qualified, raw] of Object.entries(part.element)) {
+    if (qualified.startsWith('@_')) continue;
+    const names = qualified.split(':');
+    if (names.at(-1) !== local) continue;
+    for (const value of Array.isArray(raw) ? raw : [raw]) {
+      const element = value && typeof value === 'object' ? value : {};
+      const context = namespaces(element, part.namespaces);
+      if (names.length > 2 || context.get(names.length === 2 ? names[0] : '') !== part.namespace) reject();
+      result.push(element);
+    }
+  }
+  return result;
+}
 function xml(bytes: Buffer): XmlPart {
   if (bytes.length > limits.xml) reject();
   const encoding = (bytes[0] === 0xff && bytes[1] === 0xfe) || (bytes[0] === 0x3c && bytes[1] === 0)
@@ -25,9 +48,9 @@ function xml(bytes: Buffer): XmlPart {
   if (roots.length !== 1) reject();
   const qualified = roots[0], names = qualified.split(':');
   if (names.length > 2) reject();
-  const declaration = names.length === 2 ? `@_xmlns:${names[0]}` : '@_xmlns';
-  return { value: new XMLParser({ ignoreAttributes: false, removeNSPrefix: true, processEntities: false }).parse(text),
-    root: names.at(-1)!, namespace: raw[qualified]?.[declaration] ?? null };
+  const element = raw[qualified] && typeof raw[qualified] === 'object' ? raw[qualified] : {};
+  const context = namespaces(element);
+  return { element, namespaces: context, root: names.at(-1)!, namespace: context.get(names.length === 2 ? names[0] : '') ?? null };
 }
 function next(zip: ZipFile): Promise<Entry | null> {
   return new Promise((resolve, rejectPromise) => {
@@ -88,10 +111,8 @@ async function archive(bytes: Buffer, extension: string, budget: { expanded: num
         || relationships?.root !== 'Relationships' || relationships.namespace !== 'http://schemas.openxmlformats.org/package/2006/relationships'
         || main?.root !== root || ![`http://schemas.openxmlformats.org/${family}/2006/main`,
           `http://purl.oclc.org/ooxml/${family}/main`].includes(main.namespace ?? '')) reject();
-      const types = contentTypes.value.Types?.Override;
-      const overrides = Array.isArray(types) ? types : [types];
-      const relation = relationships.value.Relationships?.Relationship;
-      const relations = Array.isArray(relation) ? relation : [relation];
+      const overrides = structuralChildren(contentTypes, 'Override');
+      const relations = structuralChildren(relationships, 'Relationship');
       if (!overrides.some(v => v?.['@_PartName'] === `/${part}`
         && v?.['@_ContentType'] === `application/vnd.openxmlformats-officedocument.${type}.main+xml`)
         || !relations.some(v => ['http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument',

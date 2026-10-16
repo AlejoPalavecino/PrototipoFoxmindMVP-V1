@@ -27,7 +27,7 @@ The specification's original "completion boundary" describes its earlier documen
 
 ## Phase overview
 
-P4 parallel workstream (current separate user authorization): [isolated implementation/tasks](../odd/tasks/p4-private-files.md), [operations](private-files.md), [work record](work-log/2026-10-16-id-unavailable-p4-isolated.md), branch `codex/p4-private-files`. Storage/inspection/scanning/quota/cleanup and opt-in HTTP are implemented and exercised in isolation; actual P3/domain integration and independent/native acceptance remain pending. This worktree-local entry does not change the original P3 coordinator's scope/checkpoint or grant merge/publication authority.
+P4 parallel workstream (current separate user authorization): [isolated implementation/tasks](../odd/tasks/p4-private-files.md), [operations](private-files.md), [current audit/fixes](work-log/2026-10-16-id-unavailable-p4-audit.md), branch `codex/p4-private-files`. Audit closed automatic cleanup, concrete record access, atomic plan promotion, usage snapshot, Office namespaces/activity type and bounded HTTP output gaps. Current isolated writer proof: build0/61PASS, six migrations/drift0, actual persistent restart/owned cleanup0; P4 services stopped. Both independent scoped rechecks PASS and their reported defects are closed; corrected-candidate native consent/review is next after authorized maintenance cleared the blocker. Actual P3/domain integration remains deferred by user. This worktree-local entry does not change the original P3 coordinator's scope/checkpoint or grant merge/publication authority.
 
 | ID | Phase | Status | Outcome / dependency |
 |---|---|---|---|
@@ -35,7 +35,7 @@ P4 parallel workstream (current separate user authorization): [isolated implemen
 | P1 | Architecture and data model | completed | Next.js/React/TypeScript UI, modular NestJS backend, PostgreSQL/Prisma, private S3-compatible files; relational dictionary agreed. |
 | P2 | Technical foundations | completed |33-table schema,3migrations, local PostgreSQL definition, minimal NestJS/Prisma server, health/lifecycle tests and dependency remediation. Not all supporting services or product APIs. |
 | P3 | Identity/access and initial web foundation | in_progress | **P3.1 completed:** verified contracts/policies only. **P3.2 completed:** isolated SMTP capture/templates and independent verification. **P3.3 in_progress:** foundations and seven-operation T2 independently verified; five T3 operations pending. Web/P3.4 not started. |
-| P4 | Private file infrastructure | in_progress | Isolated private storage/validation/real scan/quota/cleanup and opt-in HTTP implemented with writer proof; actual application integration and independent/native acceptance pending. |
+| P4 | Private file infrastructure | in_progress | Isolated units A-D build0/61PASS; two independent scoped rechecks PASS after corrections. Unit E native disposition pending; actual integration deferred by user. |
 | P5 | Classrooms and enrollment | not_started | Creation/drafts, required plan/units/topics, invitations/codes, classroom-scoped roles, membership history and archive lifecycle. Requires P3/P4. |
 | P6 | Teaching plan, Library and Muro | not_started | Plan maintenance/states, teacher-managed materials, student consultation and moderated publication/reply threads. |
 | P7 | Activities, attempts and submissions | not_started | Authoring, practical assignments, questionnaires/evaluations, autosave, single editor, locks, deadlines, delivery and reopening. |

@@ -13,6 +13,10 @@ test('valid PDF, OOXML, PNG, JPEG and ordinary ZIP are inspected without executi
     .replace('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'http://purl.oclc.org/ooxml/wordprocessingml/main')
     .replace('http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument', 'http://purl.oclc.org/ooxml/officeDocument/relationships/officeDocument')) })));
   assert.match(await inspectContent(strict, 'docx'), /openxmlformats/);
+  const prefixed = office('docx', [], entries => entries.map(entry => ({ ...entry, bytes: Buffer.from(entry.bytes.toString()
+    .replace('<Types xmlns=', '<ct:Types xmlns:ct=').replace('</Types>', '</ct:Types>').replace('<Override ', '<ct:Override ')
+    .replace('<Relationships xmlns=', '<r:Relationships xmlns:r=').replace('</Relationships>', '</r:Relationships>').replace('<Relationship ', '<r:Relationship ')) })));
+  assert.match(await inspectContent(prefixed, 'docx'), /openxmlformats/);
   const image = sharp({ create: { width: 2, height: 2, channels: 3, background: 'white' } });
   assert.equal(await inspectContent(await image.clone().png().toBuffer(), 'png'), 'image/png');
   assert.equal(await inspectContent(await image.clone().jpeg().toBuffer(), 'jpg'), 'image/jpeg');
@@ -48,6 +52,9 @@ test('Office structural parts require real XML namespaces and exact document rel
     ['word/document.xml', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'urn:forged:word'],
     ['[Content_Types].xml', 'http://schemas.openxmlformats.org/package/2006/content-types', 'urn:forged:types'],
     ['_rels/.rels', 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument', 'urn:forged/officeDocument'],
+    ['[Content_Types].xml', '<Override ', '<Override xmlns="urn:forged" '],
+    ['_rels/.rels', '<Relationship ', '<Relationship xmlns="urn:forged" '],
+    ['_rels/.rels', '<Relationship ', '<foreign:Relationship xmlns:foreign="urn:forged" '],
   ]) {
     const bytes = office('docx', [], entries => entries.map(entry => entry.name === part
       ? { ...entry, bytes: Buffer.from(entry.bytes.toString().replace(from, to)) } : entry));

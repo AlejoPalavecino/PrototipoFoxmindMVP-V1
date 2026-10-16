@@ -6,7 +6,7 @@ User now requests P4 design and implementation in a separate worktree, integrati
 
 Continuation: "Bien, continuá con el diseño e implementación de todo lo que falta de P4 en ese worktree, sin tocar P3. La integración la hacemos después." This authorizes necessary worktree-local dependency installation and owned P4 storage/scanner/database services and component verification. Do not alter P3 source, the original checkout or its existing data; keep actual application integration deferred.
 
-Normative sources: [functional specification](../../docs/foxmind-v1-functional-spec.md) sections 2/5/7/14/15; [schema](../../prisma/schema.prisma); [roadmap](../../docs/implementation-roadmap.md). Current evidence: [work record](../../docs/work-log/2026-10-16-id-unavailable-p4-isolated.md). Preparation in the original checkout was inspected; its untracked files were not copied as implementation.
+Normative sources: [functional specification](../../docs/foxmind-v1-functional-spec.md) sections 2/5/7/14/15; [schema](../../prisma/schema.prisma); [roadmap](../../docs/implementation-roadmap.md). Evidence: [initial work record](../../docs/work-log/2026-10-16-id-unavailable-p4-isolated.md), [current audit/fixes](../../docs/work-log/2026-10-16-id-unavailable-p4-audit.md). Preparation in the original checkout was inspected; its untracked files were not copied as implementation.
 
 ## Requirements and integration design
 
@@ -25,8 +25,8 @@ Normative sources: [functional specification](../../docs/foxmind-v1-functional-s
 |---|---|---|
 | P4-A | Isolated worktree, scope, contracts and deterministic policy/security gates with tests | implemented candidate; 11 checks/strict compilation PASS, independent/review acceptance pending |
 | P4-B | Official-source storage/scanner selection, bounded private adapters and real component proof | implemented; actual SeaweedFS/ClamAV and content checks PASS |
-| P4-C | Durable upload/quota transitions, immutable completion, recovery and cleanup | implemented; actual PostgreSQL/S3/ClamAV lifecycle, failure/concurrency and retention checks PASS |
-| P4-D | Opt-in Nest/HTTP adapter, configuration and protected transfer/read contracts | implemented and isolated HTTP checks PASS; real P3/P5/P7 integration deferred by user |
+| P4-C | Durable upload/quota transitions, immutable completion, recovery and cleanup | implemented; automatic cleanup, atomic draft-plan promotion/rollback and quota races now verified |
+| P4-D | Opt-in Nest/HTTP adapter, configuration and protected transfer/read contracts | implemented; actual Nest lifecycle and concrete domain-record resolver verified with real SQL/S3/ClamAV; real P3/P5/P7 integration deferred by user |
 | P4-E | Independent security/concurrency verification, applicable native disposition and integrated exit proof | writer verification PASS; independent/native disposition pending; application exit proof deferred |
 
 Risk: authorization, untrusted parser/archive data, external services and quota/cleanup races require independent verification before phase acceptance. Use cohesive behavior work units with tests/docs, about 400 authored lines each; report overages without compression. No P3-native waiver carries forward.
@@ -39,7 +39,7 @@ RED must fail on missing requested behavior, followed by focused GREEN and scope
 
 ## Handoff
 
-Isolated implementation is present in local commits3cc5393/adapters,ec7ce6f/content,5babdee/durable-core andd17e48a/persistent-lifecycle, plus metadata21e7fe2. Applicable independent/native acceptance remains pending. Native negotiated status explicitly stopped withmanaged_assets_outdated; global Gentle-AI sync was not run because shared/P3 runtime changes are outside this scope. Reconcile that maintenance separately, then use fresh per-unit preflight/consent and independent verification. Integration remains explicitly deferred. Its coordinator must supply actual P3 session/CSRF/admission and P5/P7 record/draft-promotion adapters, reconcile dependency/schema changes, and observe full app/browser proof before overall P4 closure. Do not merge uncommitted P3 candidates here.
+Latest audit closed implementation gaps in local units f2f9a0e/automatic cleanup,18c2de8/real record access,3e7c28c/atomic plan promotion and usage snapshot,bdda8d6/OOXML namespaces,ce31410/exclusive persistence probes. Two authorized read-only reviewers found three further P2 issues; coordinator fixed descendant namespace resolution, instruction activity type and bounded HTTP output. Both independent rechecks PASS: [access17checks](../../docs/work-log/2026-10-16-p4_access_review-p4-audit.md), [content/output33checks](../../docs/work-log/2026-10-16-p4_content_review-p4-audit.md), with original failures retained. Full corrected-candidate runner: build0/61PASS (33component/lifecycle/output +27real service +1persistent restart), drift0/six migrations, owned cleanup0 and all P4 services exited. All isolated A-D units have observed writer proof; independent scoped rechecks close reported issues. P4-E native disposition remains open. Authorized global Gentle-AI sync0 updated one managed settings file and cleared managed_assets_outdated; no P3 source changed. Native corrected-candidate consent/review is next, with no prior waiver inferred. Integration remains deferred by user. Its coordinator must wire accepted P3 session/CSRF/admission and P7 editor/deadline/count ports into the supplied concrete resolver, call P4 transactional promotion from P5 publication, reconcile dependencies/migrations and observe full app/browser proof. Do not merge uncommitted P3 candidates here or declare overall accepted100% from isolated proof.
 
 ## Evidence and retained failures
 
@@ -48,5 +48,17 @@ Isolated implementation is present in local commits3cc5393/adapters,ec7ce6f/cont
 - Initial real service run: one actual S3/ClamAV component PASS; service stub failures followed, including one dependent missing-fixture TypeError that is not meaningful RED proof for authorization. Subsequent public-service GREEN9PASS, then expanded GREEN15PASS.
 - HTTP rejection regression observed200 versus400 for GET-with-body, then fixed. Initial HTTP/configuration/lifecycle helper additions had no pre-implementation RED; do not retroactively claim that they did. Later functional/real proof is recorded separately; independent acceptance remains required.
 - SQL invariant RED exposed NULL CHECK semantics and phase-only link guarding. Metadata-snapshot RED observed50,000,001 versus583bytes. Added a forward hardening migration (never rewrote the already-applied custody migration) and snapshotted metadata before async calls. Changed-candidate real service GREEN18PASS.
-- Final `node scripts/test-p4.mjs --persistent`: strict build0, policy/adapters/content/configuration26PASS, real service18PASS, persistent migration/restart1PASS. Owned fixture cleanup0; persistent services stopped with volumes/config retained. Writer proof is not independent/native approval.
+- Earlier `node scripts/test-p4.mjs --persistent`: strict build0, policy/adapters/content/configuration26PASS, real service18PASS, persistent migration/restart1PASS. Superseded by current59PASS audit proof above; retained as history. Writer proof is not independent/native approval.
 - Dependency regressions plus unchanged account contracts17PASS; full npm audit0known vulnerabilities. Schema drift check and structural checks are recorded in the work log when observed, never assumed from build.
+
+## Audit requirement coverage (isolated implementation)
+
+| P4 boundary | Implementation and observed proof |
+|---|---|
+| Private bytes; no anonymous download/overwrite | S3 conditional writes, mediated digest-checked reads; actual anonymous403/overwrite412 |
+| Approved content/limits and quarantine | Policy boundaries, real PDF/image/OOXML/ZIP parsing, exact namespaces, archive ceilings; real ClamAV clean/EICAR/outage |
+| Current authorization | Verified account/session recheck, scope/archive/membership locks, actual linked material/instruction records, private student attempts; revocation during scan |
+| Quota and preserved history | Reservations/completion idempotence, concurrent quota denial, completed/draft/history retention, owned automatic incomplete cleanup only |
+| Draft publication compatibility | Ready plan transfer to its actual classroom with same teacher/owner; immutable bytes, quota serialization, rollback and SQL guards |
+| Runtime/setup | Opt-in HTTP/Nest lifecycle, explicit config, dedicated persistent services, real restart proof and stopped retained volumes |
+| Acceptance still external | Independent/native review and user-deferred P3/P5/P7/browser integration; no source edits/integration/publication inferred |

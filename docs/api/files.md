@@ -30,3 +30,6 @@ Errors are JSON `{error:{code}}`; internal driver/parser/scanner text is never r
 | 503 | SERVICE_UNAVAILABLE with positive Retry-After |
 
 Quota exhaustion preserves authorized reads. Scanner/storage failure never returns confirmation success or speculatively releases quota. Cleanup is an internal bounded service operation; there is no HTTP cleanup/delete route. Confirmed drafts and history are preserved. Actual P3 cookie/session/CSRF and P5/P7 record controls remain required for integration. See [operations](../private-files.md).
+## Bounded response delivery
+
+An installed file handler shares one transfer slot across PUT uploads and GET content responses. Content retrieval holds it until response finish/close/error, including time spent under backpressure. A second transfer receives503 with Retry-After3. A stalled response is destroyed after an absolute30-second output deadline and the slot becomes available again. Install one handler per file service ingress; direct FileService consumers own the lifetime of buffers they retain.
