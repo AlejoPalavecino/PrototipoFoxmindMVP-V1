@@ -35,7 +35,7 @@ export async function withIdentityDatabase(run) {
   let owned = false;
   let client;
   const docker = (...args) => {
-    const result = spawnSync('docker', args, { env, encoding: 'utf8', timeout: Math.max(1, Math.min(4000, deadline - Date.now())) });
+    const result = spawnSync('docker', args, { env, encoding: 'utf8', timeout: Math.max(1, Math.min(args[0] === 'run' ? 8000 : 4000, deadline - Date.now())) });
     if (result.error || result.status !== 0) throw new Error('Owned Docker operation unavailable');
     return result.stdout.trim();
   };

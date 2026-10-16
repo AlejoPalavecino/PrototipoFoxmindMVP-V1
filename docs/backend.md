@@ -68,6 +68,14 @@ Generated Prisma TypeScript remains at `.generated/prisma`. TypeScript compiles 
 
 ## Verification and limitations
 
+### Owned identity fixture launch allowance (T3-F / S10)
+
+The human-approved operational exception gives only Docker `run` an8000ms ceiling in `withIdentityDatabase`. All other work-phase Docker calls retain4000ms; each call remains clamped to the remaining26000ms global work deadline (minimum1ms), never a fresh8s when less time remains. Outer scheduling stays30000ms; PostgreSQL connect1000ms/query2000ms, cleanup inspect/unpause1000ms each/removal2000ms and standalone compilation6000ms are unchanged. Names, ownership labels, image/arguments and cleanup/defaults remain unchanged; no new configuration, retry or bypass is provided.
+
+[Task evidence](work-log/2026-10-16-fixture-launch-budget-mvbjmtkq.md) separates pure fake-Docker budget/orchestration tests from the single permitted real setup-only validation. Setup readiness/migration replay is not app/auth regression proof. The [prior diagnostic](work-log/2026-10-16-mvbj715b-p33-fixture-diagnosis.md) observed launch ETIMEDOUT at4015ms under4000ms, cleanup inspection1/removal0; those failed observations are not rewritten. Docker latency and historical causality remain unknown: this allowance does not prove their cause fixed. Subsequent parent combined regression passed72 checks with a real build; independent auth/environment verification passed41 checks with its own real build and actual fixture cleanup. These are separate candidate evidence, not proof of Docker latency causality or completion of T3/P3. Native assessment remains unavailable, not approved.
+
+### Commands and retained limits
+
 - `npm run api:build`: directly generate Prisma then strictly compile the backend via the adopted wrapper. No receipts, dependency fingerprinting or old-output acceptance. Historical failed receipt controls are retired, not passed; see the [unchanged C2 record](work-log/2026-10-16-c2-sequential-mvb4asm3.md).
 - `node scripts/test-p33-t2.mjs`: one real build per invocation then sequential D2/C1/D1/backend/offline checks. Only a trusted same-process successful-build continuation avoids duplicate compilation. Adopted parent alias: `test:p33:t2`. Existing26s work/30s outer stage limits stay; cleanup remains fixture-owned and can outlive the outer scheduling deadline. No automatic retries, source edits during execution or full T2/P3 acceptance from [synthetic B1 proof](work-log/2026-10-16-build-once-mvb5aiy5.md).
 - `npm run test:api`: isolated real-HTTP/configuration/lifecycle tests after the build.
