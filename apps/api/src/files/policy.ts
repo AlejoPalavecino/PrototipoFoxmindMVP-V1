@@ -33,6 +33,7 @@ const sha256 = /^[a-f0-9]{64}$/;
 export function validateUploadIntent(intent: UploadIntent): { extension: string; maxBytes: number } {
   if (!intent || !purposes.has(intent.purpose) || typeof intent.name !== 'string'
     || intent.name.length === 0 || intent.name.length > 255 || intent.name !== intent.name.trim()
+    || Buffer.from(intent.name, 'utf8').toString('utf8') !== intent.name
     || /[\u0000-\u001f\u007f/\\:]/u.test(intent.name) || intent.name.endsWith('.')
     || !Number.isSafeInteger(intent.bytes) || intent.bytes <= 0) {
     throw new FilePolicyError('INVALID_UPLOAD');

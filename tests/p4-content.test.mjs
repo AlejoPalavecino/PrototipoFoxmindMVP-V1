@@ -1,0 +1,41 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { PDFDocument } from 'pdf-lib';
+import sharp from 'sharp';
+import { inspectContent } from '../apps/api/src/files/content.ts';
+import { zip, office } from './p4-fixtures.mjs';
+
+test('valid PDF, OOXML, PNG, JPEG and ordinary ZIP are inspected without execution', async () => {
+  const pdf = await PDFDocument.create(); pdf.addPage();
+  assert.equal(await inspectContent(Buffer.from(await pdf.save()), 'pdf'), 'application/pdf');
+  for (const ext of ['docx', 'pptx', 'xlsx']) assert.match(await inspectContent(office(ext), ext), /openxmlformats/);
+  const image = sharp({ create: { width: 2, height: 2, channels: 3, background: 'white' } });
+  assert.equal(await inspectContent(await image.clone().png().toBuffer(), 'png'), 'image/png');
+  assert.equal(await inspectContent(await image.clone().jpeg().toBuffer(), 'jpg'), 'image/jpeg');
+  assert.equal(await inspectContent(zip([{ name: 'notes.txt' }]), 'zip'), 'application/zip');
+});
+test('renaming content and malformed PDF/image/Office do not satisfy validation', async () => {
+  for (const [bytes, ext] of [[Buffer.from('plain text'), 'pdf'], [office('xlsx'), 'docx'],
+    [Buffer.from('%PDF-1.7\n%%EOF'), 'pdf'], [Buffer.from('89504e470d0a1a0a', 'hex'), 'png'],
+    [zip([{ name: 'a.txt' }]), 'docx']]) {
+    await assert.rejects(inspectContent(bytes, ext), { code: 'FILE_REJECTED' });
+  }
+});
+test('encrypted archives, traversal paths, duplicate entries and dishonest sizes are rejected', async () => {
+  for (const entries of [[{ name: 'private.txt', encrypted: true }], [{ name: '../escape' }],
+    [{ name: 'same' }, { name: 'same' }], [{ name: 'bad', declaredSize: 200_000_001 }]]) {
+    await assert.rejects(inspectContent(zip(entries), 'zip'), { code: 'FILE_REJECTED' });
+  }
+});
+test('macro payloads and XML entities cannot hide inside an OOXML document', async () => {
+  for (const extra of [[{ name: 'word/vbaProject.bin' }],
+    [{ name: 'word/extra.xml', bytes: Buffer.from('<!DOCTYPE a [<!ENTITY x "secret">]><a>&x;</a>') }]]) {
+    await assert.rejects(inspectContent(office('docx', extra), 'docx'), { code: 'FILE_REJECTED' });
+  }
+});
+test('nested encrypted or excessive archive depth never passes outer ZIP validation', async () => {
+  await assert.rejects(inspectContent(zip([{ name: 'inner.zip', bytes: zip([{ name: 'hidden', encrypted: true }]) }]), 'zip'), { code: 'FILE_REJECTED' });
+  let bytes = zip([{ name: 'file.txt' }]);
+  for (let n = 0; n < 6; n++) bytes = zip([{ name: 'nested.zip', bytes }]);
+  await assert.rejects(inspectContent(bytes, 'zip'), { code: 'FILE_REJECTED' });
+});

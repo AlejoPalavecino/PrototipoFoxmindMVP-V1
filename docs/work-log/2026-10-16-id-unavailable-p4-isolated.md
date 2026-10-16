@@ -61,3 +61,5 @@ Observed commands/results (each run is its actual candidate state, not retroacti
 - CLI help returned0; unknown test-runner option returned2 before running tools. Relative-link/staged checks and commit identities recorded below after observation.
 
 Rollback is by P4 behavior work units: private adapter/dependencies; bounded parsers/policy; durable custody/quota/HTTP core; isolated service lifecycle; documentation. Database rollback is not destructive down-migration: preserve data and apply safe forward corrections. The original P3 checkout is not a rollback surface. Service/core tests deliberately cover real boundaries; mocks prove only error-handling cases. End-to-end real P3 cookies/CSRF, P5/P7 record adapters, browser UI and independent/native approval remain absent, as requested or explicitly pending.
+
+Observed local work-unit commit: 3cc5393f661a2b4bb549616bb097dbcebc51f068 (bounded private storage/scanner/dependencies/owned fixture plus adapter checks). Generated lockfile excluded from review-budget count; other authored changes below400. Native/independent acceptance not claimed.
