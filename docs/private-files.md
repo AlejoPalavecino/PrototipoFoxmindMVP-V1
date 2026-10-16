@@ -84,3 +84,7 @@ npm run test:p4 -- --persistent
 ```
 
 The first builds this worktree, checks policy/adapters/parsers/configuration and runs real PostgreSQL/S3/ClamAV journeys. The second also validates retained object/database state across an actual container restart, removes only its owned probe and stops persistent services while preserving their volumes. Fixture cleanup is label-restricted and reported separately. Independent/native acceptance and real application/browser integration remain separate proof.
+# Automatic incomplete-upload cleanup
+
+Installing `FilesModule` starts an immediate incomplete-upload sweep and repeats it every60seconds after the previous sweep finishes. Sweeps never overlap. Module shutdown cancels future sweeps and awaits its own bounded in-flight operation. Errors produce a fixed diagnostic without file or request data and remain retryable on the next sweep. Direct `FileService` consumers must own an equivalent lifecycle or install `FileCleanupWorker`; constructing a service alone does not start background work.
+

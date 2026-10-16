@@ -12,7 +12,8 @@ export function testP4(args) {
   const steps = [
     ['build', ['scripts/build-api.mjs'], 30000],
     ['policy/adapters/content/configuration', ['--test', '--test-concurrency=1', 'tests/p4-file-policy.test.mjs',
-      'tests/p4-adapters.test.mjs', 'tests/p4-content.test.mjs', 'tests/p4-configuration.test.mjs'], 30000],
+      'tests/p4-adapters.test.mjs', 'tests/p4-content.test.mjs', 'tests/p4-configuration.test.mjs',
+      'tests/p4-cleanup-worker.test.mjs'], 30000],
     ['real isolated service journeys', ['--test', 'tests/p4-services.test.mjs'], 240000],
   ];
   if (args[0] === '--persistent') steps.push(['local services up', ['scripts/p4-local.mjs', 'up'], 200000],
