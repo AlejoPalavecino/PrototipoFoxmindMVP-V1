@@ -1,7 +1,7 @@
 import { createServer } from "node:net";
 
 // Independent, deliberately small SMTP peer: no Nodemailer internals or storage.
-export async function createSmtpFixture({ rejectRecipient = false, rejectData = false, stallGreeting = false, stallData = false } = {}) {
+export async function createSmtpFixture({ rejectRecipient = false, rejectData = false, stallGreeting = false, stallData = false, trickleData = false } = {}) {
   let receivedData;
   const dataReceived = new Promise(resolve => { receivedData = resolve; });
   const sockets = new Set();
@@ -11,7 +11,8 @@ export async function createSmtpFixture({ rejectRecipient = false, rejectData = 
     connections += 1;
     sockets.add(socket);
     socket.on("error", () => {});
-    socket.on("close", () => sockets.delete(socket));
+    let trickle;
+    socket.on("close", () => { clearInterval(trickle); sockets.delete(socket); });
     if (stallGreeting) return;
     socket.write("220 fixture ESMTP\r\n");
     let buffer = "";
@@ -28,7 +29,12 @@ export async function createSmtpFixture({ rejectRecipient = false, rejectData = 
           if (line !== ".") { body.push(line.replace(/^\.\./, ".")); continue; }
           data = false;
           receivedData();
-          if (stallData) continue;
+          if (stallData) {
+            // An incomplete SMTP response keeps activity alive without accepting DATA.
+            // Only deadline tests opt in; ordinary stall tests retain inactivity timeout.
+            if (trickleData) trickle ??= setInterval(() => socket.write(" "), 100);
+            continue;
+          }
           if (rejectData) socket.write("554 fixture-private-response\r\n");
           else {
             messages.push({ envelope, raw: body.join("\r\n") });
@@ -58,6 +64,10 @@ export async function createSmtpFixture({ rejectRecipient = false, rejectData = 
     messages,
     dataReceived,
     get connections() { return connections; },
+    get activeConnections() { return sockets.size; },
+    async waitForIdle() {
+      await Promise.all([...sockets].map(socket => new Promise(resolve => socket.once("close", resolve))));
+    },
     async close() {
       for (const socket of sockets) socket.destroy();
       await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve()));

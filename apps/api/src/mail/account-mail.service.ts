@@ -1,4 +1,5 @@
 import { Inject, Injectable, type OnModuleDestroy } from "@nestjs/common";
+import { Socket } from "node:net";
 import { createTransport, type SMTPTransportOptions } from "nodemailer";
 import { MAIL_CONFIGURATION, type MailConfiguration } from "./configuration.ts";
 import { MailError } from "./mail-error.ts";
@@ -23,12 +24,15 @@ function validateInput(input: AccountMailInput): AccountMailInput {
 export class AccountMailService implements OnModuleDestroy {
   private readonly transport;
   private readonly pending = new Set<Promise<MailAcceptance>>();
+  private readonly sockets = new Set<Socket>();
   private closed = false;
+  private cancelled = false;
 
   constructor(@Inject(MAIL_CONFIGURATION) private readonly configuration: MailConfiguration) {
     const options: SMTPTransportOptions = {
       host: "127.0.0.1",
       port: configuration.smtpPort,
+      getSocket: (_options, callback) => this.openSocket(callback),
       secure: false,
       // Plain SMTP is intentional ONLY for the fixed local capture peer.
       ignoreTLS: true,
@@ -43,6 +47,40 @@ export class AccountMailService implements OnModuleDestroy {
     };
     // SMTP transport, not SMTPPool: each send closes its own connection.
     this.transport = createTransport(options);
+  }
+
+  private openSocket(callback: Parameters<NonNullable<SMTPTransportOptions["getSocket"]>>[1]): void {
+    // Ordinary close drains already-submitted sends, even if getSocket runs later.
+    if (this.cancelled) { callback(new MailError("MAIL_DELIVERY_UNAVAILABLE")); return; }
+    const socket = new Socket();
+    this.sockets.add(socket); // Own it BEFORE connect, including cancellation during setup.
+    let settled = false;
+    const finish = (failed: boolean): void => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      socket.removeListener("connect", connected);
+      if (failed) {
+        socket.destroy();
+        callback(new MailError("MAIL_DELIVERY_UNAVAILABLE"));
+      } else callback(null, { connection: socket });
+    };
+    const connected = (): void => finish(this.cancelled || socket.destroyed);
+    const timer = setTimeout(() => finish(true), 3000);
+    socket.once("connect", connected);
+    // Retain a harmless error listener through teardown; SMTP owns its own handlers
+    // after handoff. The one-shot finish also covers close-before-connect without error.
+    socket.on("error", () => finish(true));
+    socket.once("close", () => { this.sockets.delete(socket); finish(true); });
+    try { socket.connect({ host: "127.0.0.1", port: this.configuration.smtpPort }); }
+    catch { finish(true); }
+  }
+
+  /** Terminal emergency cancellation; ordinary module close remains graceful. */
+  cancelPending(): void {
+    this.closed = true;
+    this.cancelled = true;
+    for (const socket of this.sockets) socket.destroy();
   }
 
   async sendVerification(input: AccountMailInput): Promise<MailAcceptance> {
