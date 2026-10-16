@@ -1,0 +1,53 @@
+name: foxmind-p4-files
+services:
+  postgres:
+    image: postgres:17.10-bookworm
+    environment:
+      POSTGRES_DB: foxmind_p4
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${P4_POSTGRES_PASSWORD:?Use node scripts/p4-local.mjs}
+    ports: ["127.0.0.1:55434:5432"]
+    volumes: ["p4_database:/var/lib/postgresql/data"]
+    mem_limit: 512m
+    cpus: 0.75
+    pids_limit: 128
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "foxmind_p4"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+  storage:
+    image: chrislusf/seaweedfs:4.48@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
+    command: ["mini", "-dir=/data", "-s3.config=/config/s3.json", "-bucket=foxmind-private", "-admin.ui=false", "-webdav=false"]
+    ports: ["127.0.0.1:18334:8333"]
+    volumes:
+      - p4_objects:/data
+      - ./.p4-local/s3.json:/config/s3.json:ro
+    mem_limit: 768m
+    cpus: 1
+    pids_limit: 128
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:9333/cluster/status"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+  scanner:
+    image: clamav/clamav:1.5.4@sha256:638d90201ee7ee6a82d249a2fc23b132e578673b5f1f2766852b127676ca1ef6
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["freshclam --daemon --config-file=/etc/clamav/freshclam.conf; exec clamd --foreground --config-file=/etc/clamav/clamd.conf"]
+    ports: ["127.0.0.1:13311:3310"]
+    volumes:
+      - p4_signatures:/var/lib/clamav
+      - ./config/p4-clamd.conf:/etc/clamav/clamd.conf:ro
+    mem_limit: 4g
+    cpus: 1.5
+    pids_limit: 256
+    healthcheck:
+      test: ["CMD", "clamdscan", "--ping=1", "--config-file=/etc/clamav/clamd.conf"]
+      interval: 3s
+      timeout: 2s
+      retries: 50
+volumes:
+  p4_database:
+  p4_objects:
+  p4_signatures:

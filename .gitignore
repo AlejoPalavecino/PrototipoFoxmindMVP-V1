@@ -5,3 +5,4 @@ node_modules/
 .build/
 coverage/
 .test-artifacts/
+.p4-local/

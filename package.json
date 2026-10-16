@@ -18,6 +18,8 @@
     "test:contract": "node --test --test-concurrency=1 tests/database.test.mjs",
     "api:build": "node scripts/build-api.mjs",
     "test:p33:t2": "node scripts/test-p33-t2.mjs",
+    "test:p4": "node scripts/test-p4.mjs",
+    "p4:local": "node scripts/p4-local.mjs",
     "api:start": "node .build/api/apps/api/src/main.js",
     "test:api": "node scripts/test-backend.mjs",
     "test:dependencies": "node --test tests/dependency-security.test.mjs",
