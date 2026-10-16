@@ -6,7 +6,7 @@
 - Current branch: `feat/p33-mail-outbox`; chain mailcompatibility→identity-security→mail-outbox; tracker `feat/p33-accounts` atplanning1a1ee46.
 - Starting commit: `093d26c9ebd63fe1c8c5dee96ae2a53d550b95b3`.
 - Phase/specs: P3.3 [T1–T4 / S1–S7](../../odd/tasks/p33-accounts-auth.md).
-- Status: `in_progress` — user explicitly authorized necessary portable-runner repair/new independent proof and P3.3 continuation; C remains unapproved until observed verification.
+- Status: `in_progress` for P3.3; T1 foundations verified, T2 HTTP implementation next.
 
 ## Request and scope
 
@@ -20,7 +20,7 @@ Created feature file, full Engram mirror and visible4task projection before any 
 
 ## Verification
 
-Git/environment read-only reconciliation exit0; no source/runtime checks for P3.3 yet. Prior75P3.2 tests/audit and independent reports are baseline evidence only, not rerun. No new auth/native review/independent approval claimed.
+T1 writer checks and parent spots A19/B13/C14 passed. Joint root build/baseline job32 exited0/audit0. Independent A19/B13 passed; original C attempt was blocked before tests (compiler path), preserved historically. Explicitly authorized portability repair01eed2c passed public regression and root14; fresh independent C mva6nxu9-n-i94w generated its own client and passed14actualchecks/runner/cleanup0. Bnative review-8ced980b9dd75143 and repair/evidence review-bdd51fa6c183ced6 both approved and acknowledged, authorityburned; exact records persisted separately. No STATUS after burn or advisory-driven correction. These are foundation approvals, not HTTP/auth/P3.3 completion or delivery authority.
 
 ## Commits and outcomes
 
@@ -28,4 +28,4 @@ Observed localcommits: planning1a1ee46fc8d8ba7e7dc7c4016e071bf484c1cd6d; mailab0
 
 ## Handoff
 
-T1 in progress: dependencies installed and passive shared protocol constants defined; three disjoint writers launched together: mva3zlb4-g-fiv4(mail),mva3zljz-h-adpv(security),mva3zlsv-i-1jb3(outbox). Each owns private output/tsconfig and pre-source record with actualID. Allthreewriters now settled: Aprivatecompile/19PASS,Bprivatecompile/13PASS,Cprivatecompile/14PASS/Postgres/cleanup. Parent reviewed deliveredcriticalsource and spotchecked A19/B13/C14 with exits0; own logs .test-artifacts/p33-{mail,security,outbox}-review.log. No writers active or polling/relaunch. Whole-rootbuild/baseline job32nowexit0/48s/audit0; no rerun. Allthreecodeunitcommitsobserved. Actualperunitassess: A/CnativeRiskmedium/escalatedhigh/reviewDuefalseunder_budget; BnativeRiskhigh/reviewDuetruehigh_risk. Allrequireindependentverification; no nativeINSPECT/STARTyet. Independentverifiersnowrunning: A mva54ep8-j-v2bc,B mva54ev3-k-6ncr,C mva54f11-l-8gp5 in sourcearchives .test-artifacts/p33-verify-{mail-Y1BTtk,security-UjrZFR,outbox-k34QW8}; envfilesexcluded/currentchecklistoverlaydeclared. Allfinalreportsnowsettled/persisted: A19PASS/B13PASS with exits0; Cgeneration0butrunner1/MODULE_NOT_FOUND/localcompilerpath,0publicchecks/nofixtures. Cindependentproofblocked, notproducttestfailure or14PASS. Noautomaticretry/fallback;newexplicitrepair/recheckauthorizationneededbeforeT1closure. Bnativehighreviewstilldue/notstarted(noapproval)., and no HTTPimplementation claim. Then T2/T3 dependent HTTP flows, T4 actual API/Postgres/Mailpit/concurrency proof and applicable independent/native review. Do not start frontend or ask old session/casing policies again. No.env reads/edits or secret values in records.
+T1 foundations are verified; all writers/verifiers finished and their records are preserved. New user authorization verbatim: "Continua con la implementacion. Te autorizo a que hagas lo necesarios para cerrar esta parte de P3". Repair01eed2c/evidencebde8614 and later boundary8ea56d4 observed; original failed C report remains unchanged, new mva6nxu9 report is PASS14. Both due native transactions are approved+acknowledged/burned, with no publication authority. A final documentation replacement initially failed without modifying this record; corrected against its actual contents, not a product/test failure. Finish T1 evidence commit, then T2 seven HTTP operations (session/CSRF/register/login/logout/account GET/PATCH); T3 remaining five verification/recovery/password-change operations. T4 integrates actual HTTP/Postgres/Mailpit/concurrency and applicable independent/due native review. No frontend, repeated policy questions, .env access or secret values in records.

@@ -57,6 +57,13 @@ No passwords, access tokens, credential-bearing connection URLs, raw private pro
 
 Records are discovered by listing this directory; no shared index append is required from every child. The coordinator may add durable links from the roadmap for important checkpoints.
 
+- [P3.3 — Independent mailbox verification](2026-10-15-mva54ep8-p33-mail-review.md).
+- [P3.3 — Independent security-primitives verification](2026-10-15-mva54ev3-p33-security-review.md).
+- [P3.3 — Original outbox verification blockage](2026-10-15-mva54f11-p33-outbox-review.md).
+- [P3.3 — Portable runner repair](2026-10-15-mva6ffka-p33-runner-repair.md).
+- [P3.3 — Fresh independent outbox verification](2026-10-15-mva6nxu9-p33-outbox-recheck.md).
+- [P3.3 — Acknowledged native security review](2026-10-15-01a13fc3-p33-native-security.md).
+- [P3.3 — Acknowledged native runner/evidence review](2026-10-15-01a13fc3-p33-native-runner.md).
 - [P3.3 — Account/auth coordinator, in progress](2026-10-15-01a13fc3-p33-accounts-auth.md).
 - [P3.3 — Attributed read-only requirements/persistence map](2026-10-15-mva38frg-p33-map.md).
 - [P3.2 — Capture implementation and original failing evidence](2026-10-15-mva1tryy-p32-capture.md).
