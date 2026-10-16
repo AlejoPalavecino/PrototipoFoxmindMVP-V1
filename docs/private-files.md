@@ -74,6 +74,8 @@ Cleanup claims only old incomplete uploads under the same scope lock, blocks con
 
 There is no permissive/default adapter. Isolated tests use explicitly labelled test-only session/record ports and synthetic accounts; they do not claim P3/P5/P7 acceptance. See [HTTP contract](api/files.md). Neither the module nor the middleware supplies replacement authentication.
 
+Classroom publication also needs an explicit draft-file promotion design in P5: the current immutable scope deliberately rejects arbitrary reparenting. Reconcile an authorized transactional quota/scope transfer with draft publication before linking its plan; do not bypass the file identity trigger. This is deferred domain integration, and no working classroom-publication journey is claimed here.
+
 ## Verification
 
 ```powershell

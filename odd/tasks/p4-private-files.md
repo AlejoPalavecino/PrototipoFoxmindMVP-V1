@@ -4,6 +4,8 @@
 
 User now requests P4 design and implementation in a separate worktree, integrating later. Base: 33fd80f62b9735e43124dc2df1a4d12c81f01c8a; branch codex/p4-private-files. This authority belongs to the current P4 workstream; the separate P3 task still closes P3 and stops. No merge, push, release, paid services or existing-data cleanup requested.
 
+Continuation: "Bien, continuá con el diseño e implementación de todo lo que falta de P4 en ese worktree, sin tocar P3. La integración la hacemos después." This authorizes necessary worktree-local dependency installation and owned P4 storage/scanner/database services and component verification. Do not alter P3 source, the original checkout or its existing data; keep actual application integration deferred.
+
 Normative sources: [functional specification](../../docs/foxmind-v1-functional-spec.md) sections 2/5/7/14/15; [schema](../../prisma/schema.prisma); [roadmap](../../docs/implementation-roadmap.md). Current evidence: [work record](../../docs/work-log/2026-10-16-id-unavailable-p4-isolated.md). Preparation in the original checkout was inspected; its untracked files were not copied as implementation.
 
 ## Requirements and integration design
@@ -22,10 +24,10 @@ Normative sources: [functional specification](../../docs/foxmind-v1-functional-s
 | Unit | Deliverable | State |
 |---|---|---|
 | P4-A | Isolated worktree, scope, contracts and deterministic policy/security gates with tests | implemented candidate; 11 checks/strict compilation PASS, independent/review acceptance pending |
-| P4-B | Official-source storage/scanner selection, bounded private adapters and real component proof | pending |
-| P4-C | Durable upload/quota transitions, immutable completion, recovery and cleanup | pending |
-| P4-D | Accepted P3 authentication/CSRF and domain-permission integration, protected transfer/read contracts | pending, integration later |
-| P4-E | Independent security/concurrency verification, applicable native disposition and integrated exit proof | pending |
+| P4-B | Official-source storage/scanner selection, bounded private adapters and real component proof | implemented; actual SeaweedFS/ClamAV and content checks PASS |
+| P4-C | Durable upload/quota transitions, immutable completion, recovery and cleanup | implemented; actual PostgreSQL/S3/ClamAV lifecycle, failure/concurrency and retention checks PASS |
+| P4-D | Opt-in Nest/HTTP adapter, configuration and protected transfer/read contracts | implemented and isolated HTTP checks PASS; real P3/P5/P7 integration deferred by user |
+| P4-E | Independent security/concurrency verification, applicable native disposition and integrated exit proof | writer verification PASS; independent/native disposition pending; application exit proof deferred |
 
 Risk: authorization, untrusted parser/archive data, external services and quota/cleanup races require independent verification before phase acceptance. Use cohesive behavior work units with tests/docs, about 400 authored lines each; report overages without compression. No P3-native waiver carries forward.
 
@@ -37,4 +39,14 @@ RED must fail on missing requested behavior, followed by focused GREEN and scope
 
 ## Handoff
 
-First unfinished implementation: P4-B service selection/adapters and real component verification. P4-A has observed RED (9 failures/2 passes), GREEN (11 passes) and strict TypeScript compilation; independent verification/native disposition remain pending. P3 remains owned by the original coordinator. Reconcile its accepted identity API and current dependency graph before P4-D; do not merge uncommitted P3 candidates into this worktree. P4 remains incomplete until all units have applicable observed proof.
+Isolated implementation is present. Next: freeze committed P4 units and resolve applicable independent/native review without reusing another candidate's authority. Integration remains explicitly deferred. The integrating coordinator must supply actual P3 session/CSRF/admission and P5/P7 record adapters, reconcile dependency/schema changes, and observe full app/browser proof before overall P4 closure. Do not merge uncommitted P3 candidates here.
+
+## Evidence and retained failures
+
+- Original policy RED9fail/2pass -> GREEN11PASS and strict compile are retained in the original record.
+- Adapter RED6fail -> GREEN6PASS. Parser RED5fail -> intermediate valid-Office failure -> worker execArgv failure -> GREEN5PASS. The actual strict worktree build subsequently passed. Worker stdout/stderr is drained privately, never raw file data logged.
+- Initial real service run: one actual S3/ClamAV component PASS; service stub failures followed, including one dependent missing-fixture TypeError that is not meaningful RED proof for authorization. Subsequent public-service GREEN9PASS, then expanded GREEN15PASS.
+- HTTP rejection regression observed200 versus400 for GET-with-body, then fixed. Initial HTTP/configuration/lifecycle helper additions had no pre-implementation RED; do not retroactively claim that they did. Later functional/real proof is recorded separately; independent acceptance remains required.
+- SQL invariant RED exposed NULL CHECK semantics and phase-only link guarding. Metadata-snapshot RED observed50,000,001 versus583bytes. Added a forward hardening migration (never rewrote the already-applied custody migration) and snapshotted metadata before async calls. Changed-candidate real service GREEN18PASS.
+- Final `node scripts/test-p4.mjs --persistent`: strict build0, policy/adapters/content/configuration26PASS, real service18PASS, persistent migration/restart1PASS. Owned fixture cleanup0; persistent services stopped with volumes/config retained. Writer proof is not independent/native approval.
+- Dependency regressions plus unchanged account contracts17PASS; full npm audit0known vulnerabilities. Schema drift check and structural checks are recorded in the work log when observed, never assumed from build.
