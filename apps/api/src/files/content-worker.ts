@@ -12,14 +12,22 @@ const office = {
   pptx: ['ppt/presentation.xml', 'presentationml.presentation', 'presentation'],
   xlsx: ['xl/workbook.xml', 'spreadsheetml.sheet', 'workbook'],
 } as const;
+interface XmlPart { value: Record<string, any>; root: string; namespace: string | null }
 function reject(): never { throw new Error('uninspectable'); }
-function xml(bytes: Buffer): Record<string, any> {
+function xml(bytes: Buffer): XmlPart {
   if (bytes.length > limits.xml) reject();
   const encoding = (bytes[0] === 0xff && bytes[1] === 0xfe) || (bytes[0] === 0x3c && bytes[1] === 0)
     ? 'utf-16le' : (bytes[0] === 0xfe && bytes[1] === 0xff) || (bytes[0] === 0 && bytes[1] === 0x3c) ? 'utf-16be' : 'utf-8';
   const text = new TextDecoder(encoding, { fatal: true }).decode(bytes);
   if (/<!DOCTYPE|<!ENTITY|macroEnabled|vbaProject/i.test(text) || XMLValidator.validate(text) !== true) reject();
-  return new XMLParser({ ignoreAttributes: false, removeNSPrefix: true, processEntities: false }).parse(text);
+  const raw = new XMLParser({ ignoreAttributes: false, processEntities: false }).parse(text);
+  const roots = Object.keys(raw).filter(key => !key.startsWith('?'));
+  if (roots.length !== 1) reject();
+  const qualified = roots[0], names = qualified.split(':');
+  if (names.length > 2) reject();
+  const declaration = names.length === 2 ? `@_xmlns:${names[0]}` : '@_xmlns';
+  return { value: new XMLParser({ ignoreAttributes: false, removeNSPrefix: true, processEntities: false }).parse(text),
+    root: names.at(-1)!, namespace: raw[qualified]?.[declaration] ?? null };
 }
 function next(zip: ZipFile): Promise<Entry | null> {
   return new Promise((resolve, rejectPromise) => {
@@ -38,7 +46,7 @@ async function archive(bytes: Buffer, extension: string, budget: { expanded: num
     }));
   // Keep an error handler attached while an entry stream is being consumed.
   let failed = false; zip.on('error', () => { failed = true; });
-  const names = new Set<string>(), parts = new Map<string, Record<string, any>>();
+  const names = new Set<string>(), parts = new Map<string, XmlPart>();
   try {
     for (let entry = await next(zip); entry; entry = await next(zip)) {
       budget.entries++;
@@ -74,14 +82,21 @@ async function archive(bytes: Buffer, extension: string, budget: { expanded: num
     if (failed || names.size === 0) reject();
     if (extension in office) {
       const [part, type, root] = office[extension as keyof typeof office];
-      const types = parts.get('[Content_Types].xml')?.Types?.Override;
+      const contentTypes = parts.get('[Content_Types].xml'), relationships = parts.get('_rels/.rels'), main = parts.get(part);
+      const family = { docx: 'wordprocessingml', pptx: 'presentationml', xlsx: 'spreadsheetml' }[extension];
+      if (contentTypes?.root !== 'Types' || contentTypes.namespace !== 'http://schemas.openxmlformats.org/package/2006/content-types'
+        || relationships?.root !== 'Relationships' || relationships.namespace !== 'http://schemas.openxmlformats.org/package/2006/relationships'
+        || main?.root !== root || ![`http://schemas.openxmlformats.org/${family}/2006/main`,
+          `http://purl.oclc.org/ooxml/${family}/main`].includes(main.namespace ?? '')) reject();
+      const types = contentTypes.value.Types?.Override;
       const overrides = Array.isArray(types) ? types : [types];
-      const relation = parts.get('_rels/.rels')?.Relationships?.Relationship;
+      const relation = relationships.value.Relationships?.Relationship;
       const relations = Array.isArray(relation) ? relation : [relation];
-      if (!Object.hasOwn(parts.get(part) ?? {}, root) || !overrides.some(v => v?.['@_PartName'] === `/${part}`
+      if (!overrides.some(v => v?.['@_PartName'] === `/${part}`
         && v?.['@_ContentType'] === `application/vnd.openxmlformats-officedocument.${type}.main+xml`)
-        || !relations.some(v => v?.['@_Type']?.endsWith('/officeDocument') && v?.['@_Target']?.replace(/^\//, '') === part
-          && v?.['@_TargetMode'] !== 'External')) reject();
+        || !relations.some(v => ['http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument',
+          'http://purl.oclc.org/ooxml/officeDocument/relationships/officeDocument'].includes(v?.['@_Type'])
+          && v?.['@_Target']?.replace(/^\//, '') === part && [undefined, 'Internal'].includes(v?.['@_TargetMode']))) reject();
     }
   } finally { zip.close(); }
 }

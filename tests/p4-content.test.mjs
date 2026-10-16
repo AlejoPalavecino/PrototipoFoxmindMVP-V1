@@ -9,6 +9,10 @@ test('valid PDF, OOXML, PNG, JPEG and ordinary ZIP are inspected without executi
   const pdf = await PDFDocument.create(); pdf.addPage();
   assert.equal(await inspectContent(Buffer.from(await pdf.save()), 'pdf'), 'application/pdf');
   for (const ext of ['docx', 'pptx', 'xlsx']) assert.match(await inspectContent(office(ext), ext), /openxmlformats/);
+  const strict = office('docx', [], entries => entries.map(entry => ({ ...entry, bytes: Buffer.from(entry.bytes.toString()
+    .replace('http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'http://purl.oclc.org/ooxml/wordprocessingml/main')
+    .replace('http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument', 'http://purl.oclc.org/ooxml/officeDocument/relationships/officeDocument')) })));
+  assert.match(await inspectContent(strict, 'docx'), /openxmlformats/);
   const image = sharp({ create: { width: 2, height: 2, channels: 3, background: 'white' } });
   assert.equal(await inspectContent(await image.clone().png().toBuffer(), 'png'), 'image/png');
   assert.equal(await inspectContent(await image.clone().jpeg().toBuffer(), 'jpg'), 'image/jpeg');
@@ -38,4 +42,15 @@ test('nested encrypted or excessive archive depth never passes outer ZIP validat
   let bytes = zip([{ name: 'file.txt' }]);
   for (let n = 0; n < 6; n++) bytes = zip([{ name: 'nested.zip', bytes }]);
   await assert.rejects(inspectContent(bytes, 'zip'), { code: 'FILE_REJECTED' });
+});
+test('Office structural parts require real XML namespaces and exact document relationship types', async () => {
+  for (const [part, from, to] of [
+    ['word/document.xml', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'urn:forged:word'],
+    ['[Content_Types].xml', 'http://schemas.openxmlformats.org/package/2006/content-types', 'urn:forged:types'],
+    ['_rels/.rels', 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument', 'urn:forged/officeDocument'],
+  ]) {
+    const bytes = office('docx', [], entries => entries.map(entry => entry.name === part
+      ? { ...entry, bytes: Buffer.from(entry.bytes.toString().replace(from, to)) } : entry));
+    await assert.rejects(inspectContent(bytes, 'docx'), { code: 'FILE_REJECTED' });
+  }
 });

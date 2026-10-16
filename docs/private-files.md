@@ -56,6 +56,8 @@ The persistent scanner starts with the full signature-bearing image and runs Fre
 
 Expanded/parser bounds may reject a compressed file even when upload size is allowed. Rejection never becomes a clean verdict. Contents are never extracted onto host paths or executed. Classroom quota is taken from its stored value; draft quota is a required explicit bigint configuration with no production default. Quota exhaustion blocks new reservations while preserving authorized reads.
 
+OOXML structural parts must use their actual package/document namespaces and exact internal Office document relationship type; an arbitrary matching suffix or a renamed XML root is insufficient. Transitional and strict document namespaces are admitted. This structural inspection complements real malware scanning; neither bypasses the other.
+
 ## Lifecycle and recovery
 
 `begin` snapshots/adopts metadata, verifies the authenticated account, locks user then scope, checks actual record access and reserves quota. File creator, scope, key, size, name, purpose and record target become immutable. Backend-generated keys never leave the module.

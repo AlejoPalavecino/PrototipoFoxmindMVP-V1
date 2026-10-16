@@ -18,14 +18,14 @@ export function zip(entries) {
   end.writeUInt32LE(directory.length, 12); end.writeUInt32LE(offset, 16);
   return Buffer.concat([...local, directory, end]);
 }
-export function office(ext, extra = []) {
+export function office(ext, extra = [], transform = entries => entries) {
   const names = { docx: ['word/document.xml', 'wordprocessingml.document', '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body/></w:document>'],
     pptx: ['ppt/presentation.xml', 'presentationml.presentation', '<p:presentation xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"/>'],
     xlsx: ['xl/workbook.xml', 'spreadsheetml.sheet', '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"/>'] };
   const [part, type, xml] = names[ext];
-  return zip([
+  return zip(transform([
     { name: '[Content_Types].xml', bytes: Buffer.from(`<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Override PartName="/${part}" ContentType="application/vnd.openxmlformats-officedocument.${type}.main+xml"/></Types>`) },
     { name: '_rels/.rels', bytes: Buffer.from(`<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="${part}"/></Relationships>`) },
     { name: part, bytes: Buffer.from(xml) }, ...extra,
-  ]);
+  ]));
 }
