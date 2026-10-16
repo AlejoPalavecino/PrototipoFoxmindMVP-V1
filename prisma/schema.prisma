@@ -393,6 +393,7 @@ model FileObject {
   materials             Material[]                @relation("Material_file")
   classroom_draft       ClassroomDraft?           @relation("File_draft", fields: [classroom_draft_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
   uploads               Upload[]                  @relation("Upload_file")
+  custody               FileCustody?
   activity_instructions ActivityInstructionFile[] @relation("Instruction_file")
   attempt_attachments   AttemptAttachment[]       @relation("Attachment_file")
 
@@ -417,6 +418,23 @@ model Upload {
 
   @@index([status, last_activity_at])
   @@map("uploads")
+}
+
+// P4 proof/lease metadata. Account/session models are unchanged.
+model FileCustody {
+  file_id          String    @id @db.Uuid
+  purpose          String
+  target_id        String?   @db.Uuid
+  phase            String    @default("reserved")
+  digest           String?
+  validated_digest String?
+  scanned_digest   String?
+  operation_id     String?   @db.Uuid
+  lease_until      DateTime? @db.Timestamptz(6)
+  file             FileObject @relation(fields: [file_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@index([phase, lease_until])
+  @@map("file_custodies")
 }
 
 model Activity {
