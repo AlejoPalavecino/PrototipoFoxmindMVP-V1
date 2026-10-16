@@ -68,6 +68,7 @@ Records are discovered by listing this directory; no shared index append is requ
 - [P3.3 — Sole correlated TCP capture, cause unproven](2026-10-15-mvaapb6w-p33-tcp-capture.md).
 - [P3.3 — Outage-fixture isolation and targeted proof](2026-10-15-mvabi7zz-p33-d1-test-isolation.md).
 - [P3.3 — Independent D1 verification, completed](2026-10-15-mvabvep1-p33-d1-verification.md).
+- [P3.3 — Acknowledged native D1 closure](2026-10-15-01a13fc3-p33-native-d1.md).
 - [P3.3 — Account/auth coordinator, in progress](2026-10-15-01a13fc3-p33-accounts-auth.md).
 - [P3.3 — Attributed read-only requirements/persistence map](2026-10-15-mva38frg-p33-map.md).
 - [P3.2 — Capture implementation and original failing evidence](2026-10-15-mva1tryy-p32-capture.md).
