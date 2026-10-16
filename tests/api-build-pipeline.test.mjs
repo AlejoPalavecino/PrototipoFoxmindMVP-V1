@@ -7,7 +7,7 @@ import { buildApi } from '../scripts/build-api.mjs';
 import { runP33T2 } from '../scripts/test-p33-t2.mjs';
 
 // Synthetic stages prove orchestration only. No real compiler, database or network.
-const files = ['build-api', 'test-p33-t2', 'test-p33-registration-profile', 'test-p33-identity-http', 'test-backend', 'test-p33-mail-cancellation'];
+const files = ['build-api', 'test-p33-t2', 'test-p33-registration-profile', 'test-p33-verification', 'test-p33-identity-http', 'test-backend', 'test-p33-mail-cancellation'];
 function fixture() {
   mkdirSync('.test-artifacts/p33-d2-plan-c2-mvb4asm3', { recursive: true });
   const root = mkdtempSync(resolve('.test-artifacts/p33-d2-plan-c2-mvb4asm3/build-once-'));
@@ -50,6 +50,9 @@ function resources(f, compileFails = false) {
     f.put(`tests/${file}.test.mjs`, `import { test } from 'node:test';
       test('D2 registration synthetic ${file}', () => console.log('SYNTHETIC_CHECK_${file}'));`);
   }
+  f.put('tests/p33-verification.test.mjs', `import { test } from 'node:test';\n` +
+    ['confirm', 'resend'].map(name =>
+      `test('T3 ${name} synthetic', () => console.log('SYNTHETIC_CHECK_p33-verification-${name}'));`).join('\n'));
   f.put('tests/p33-registration-profile.test.mjs', `import { test } from 'node:test';\n` +
     ['registration', 'rollback', 'authorized', 'SMTP'].map(name =>
       `test('D2 ${name} synthetic', () => console.log('SYNTHETIC_CHECK_p33-registration-profile'));`).join('\n'));
@@ -105,7 +108,7 @@ test('public direct build preserves exact stage streams/exits and never continue
   }
 });
 
-const expected = ['build', 'registration', 'account', 'sessions', 'lifecycle', 'deadline', 'identity', 'backend', 'offline'];
+const expected = ['build', 'registration', 'account', 'sessions', 'lifecycle', 'confirm', 'resend', 'deadline', 'identity', 'backend', 'offline'];
 function stages(log, failure) {
   const stage = async (name, options) => {
     log.push(name);
@@ -115,6 +118,7 @@ function stages(log, failure) {
   return {
     build: () => stage('build'),
     registration: (group, options) => stage(group, options),
+    verification: (group, options) => stage(group, options),
     mail: (mode, options) => { assert.equal(mode, '--deadline'); return stage('deadline', options); },
     identity: options => stage('identity', options),
     backend: options => stage('backend', options),
@@ -151,9 +155,9 @@ test('public pipeline builds once and skips only redundant preparation after suc
   assert.equal(run.stderr, 'SYNTHETIC_GENERATION_STDERR\nSYNTHETIC_COMPILATION_STDERR\n');
   for (const label of ['SYNTHETIC_GENERATION\n', 'SYNTHETIC_COMPILATION\n']) assert.equal(run.stdout.split(label).length-1, 1);
   assert.doesNotMatch(run.stdout, /SYNTHETIC_DEFAULT_COMPILER/);
-  assert.equal(run.stdout.split('Same-invocation API output; no new compiler invoked').length-1, 7);
+  assert.equal(run.stdout.split('Same-invocation API output; no new compiler invoked').length-1, 9);
   const checks = [...run.stdout.matchAll(/SYNTHETIC_CHECK_([^\r\n]+)/g)].map(match => match[1]);
-  assert.deepEqual(checks, ['p33-registration-profile', 'p33-registration-profile', 'p33-registration-profile', 'p33-registration-profile', 'p33-mail-deadline', 'p33-identity-http', 'backend', 'p31-contracts']);
+  assert.deepEqual(checks, ['p33-registration-profile', 'p33-registration-profile', 'p33-registration-profile', 'p33-registration-profile', 'p33-verification-confirm', 'p33-verification-resend', 'p33-mail-deadline', 'p33-identity-http', 'backend', 'p31-contracts']);
 });
 test('public pipeline generation/compiler failure opens no fixtures and returns exact exit', () => {
   for (const [generation, compilation, code] of [[9, 0, 9], [0, 7, 7]]) {
@@ -180,6 +184,8 @@ test('public pipeline check failure returns its exit and opens no later fixtures
 test('standalone runners retain default compilation and stop after preparation failure', () => {
   for (const [file, args, check] of [
     ['test-p33-registration-profile', ['--group=registration'], 'p33-registration-profile'],
+    ['test-p33-verification', ['--group=confirm'], 'p33-verification-confirm'],
+    ['test-p33-verification', ['--group=resend'], 'p33-verification-resend'],
     ['test-p33-identity-http', [], 'p33-identity-http'],
     ['test-backend', [], 'backend'],
     ['test-p33-mail-cancellation', ['--deadline'], 'p33-mail-deadline'],

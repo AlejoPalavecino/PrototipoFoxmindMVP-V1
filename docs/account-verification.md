@@ -14,6 +14,8 @@ node scripts/test-p33-verification.mjs --group=resend
 
 Each standalone group strictly compiles and owns a fresh PostgreSQL/Mailpit fixture. The fixed groups contain eight cases each, with the existing 26-second work/30-second outer budget. There is no retry, timing bypass, automatic redivision or public skip-build option. Help and invalid CLI options load no fixture resources.
 
+The parent integration command is `node scripts/test-p33-t2.mjs`: actual Prisma generation/strict compilation once, four D2 groups, both verification groups, mail deadline, D1/backend regressions and offline contracts, sequentially and fail-fast. Only that invocation's successful build supplies trusted in-process preparation; standalone commands still compile.
+
 ### Fixture launch exception, not functional acceptance
 
 Human-approved S10 changes only the owned PostgreSQL Docker `run` ceiling to8000ms. Other work-phase Docker commands stay4000ms, clamped with run to the remaining26000ms global work deadline (minimum1ms); outer scheduling stays30000ms. SQL query2000ms/connect1000ms, cleanup inspection/unpause1000ms each/removal2000ms and compilation6000ms are unchanged. There is no fresh8s allowance after less global time remains, no retry/configuration/bypass and no ownership/default/argument change.

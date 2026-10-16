@@ -36,6 +36,7 @@ async function boundedStage(run) {
 export async function runP33T2({
   build = buildApi,
   registration = async (...args) => (await import('./test-p33-registration-profile.mjs')).runRegistrationProfile(...args),
+  verification = async (...args) => (await import('./test-p33-verification.mjs')).runVerification(...args),
   mail = async (...args) => (await import('./test-p33-mail-cancellation.mjs')).runMailCancellation(...args),
   identity = async (...args) => (await import('./test-p33-identity-http.mjs')).runIdentityHttp(...args),
   backend = async (...args) => (await import('./test-backend.mjs')).runBackend(...args),
@@ -53,6 +54,8 @@ export async function runP33T2({
     () => registration('account', preparation),
     () => registration('sessions', preparation),
     () => registration('lifecycle', preparation),
+    () => verification('confirm', preparation),
+    () => verification('resend', preparation),
     () => mail('--deadline', preparation),
     () => identity(preparation),
     () => backend(preparation),
@@ -68,7 +71,7 @@ export async function runP33T2({
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   const args = process.argv.slice(2);
   const usage = 'Usage: node scripts/test-p33-t2.mjs';
-  if (args.length === 1 && args[0] === '--help') console.log(`${usage}\nStrict build once, D2 four groups, C1 deadline, D1, backend, offline; sequential and fail-fast.`);
+  if (args.length === 1 && args[0] === '--help') console.log(`${usage}\nStrict build once, D2 four groups, T3 verification confirm/resend, C1 deadline, D1, backend, offline; sequential and fail-fast.`);
   else if (args.length) { console.error(usage); process.exitCode = 2; }
   else {
     try { process.exitCode = await runP33T2(); }
