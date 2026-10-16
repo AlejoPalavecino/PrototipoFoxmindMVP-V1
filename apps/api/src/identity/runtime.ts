@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { enqueueAccountMail } from '../account-mail-outbox/index.ts';
+import { enqueueAccountMail, cancelAccountMailForToken } from '../account-mail-outbox/index.ts';
 import { IdentityMailLifecycle } from './mail-lifecycle.ts';
 import type { User } from '../../../../.generated/prisma/client.ts';
 import { generateVerifier, sessionTokenDigest, newSessionWindow, validateBodyShape, validatePassword, validateName, accountTokenDigest, IDENTITY_POLICY, type PasswordService } from '../identity-security/index.ts';
@@ -96,6 +96,81 @@ export class IdentityRuntime {
       await enqueueAccountMail(tx, this.configuration.outbox, { jobId: randomUUID(), tokenId, userId,
         purpose: 'EMAIL_VERIFICATION', expiresAt: expiresAt.toISOString(), rawToken });
       await this.ports.beforeRegistrationCommit?.();
+    });
+  }
+  async confirmEmailVerification(body: unknown, ip: string, current: AuthenticatedContext | null) {
+    const input = validateBodyShape(body, ['token'], ['token']);
+    let digest: string;
+    try { digest = accountTokenDigest('EMAIL_VERIFICATION', input.token); }
+    catch { throw new IdentityHttpError('VALIDATION_ERROR'); }
+    const rule = this.configuration.security.rateLimits['token-redemption'];
+    await this.store.admit(this.configuration.security, [{ action: 'token-redemption', namespace: 'ip', subject: ip, budget: rule.ip }]);
+    return this.store.transaction(async tx => {
+      // Lookup locates the mutation owner only. Nothing in this snapshot grants consumption.
+      const snapshot = await tx.accountToken.findUnique({ where: { token_hash: digest } });
+      if (!snapshot) throw new IdentityHttpError('LINK_INVALID');
+      await this.store.lockUsers(tx, [snapshot.user_id, ...(current ? [current.user.id] : [])]);
+      if (current && (current.user.id !== snapshot.user_id || !await this.store.activeInTransaction(tx, current))) {
+        throw new IdentityHttpError('LINK_INVALID');
+      }
+      const now = await this.store.now(tx);
+      // Conditional at the actual mutation instant, after lock waits; exactly one redemption wins.
+      const consumed = await tx.$queryRaw<{ id: string }[]>`UPDATE account_tokens SET consumed_at=clock_timestamp()
+        WHERE id=${snapshot.id}::uuid AND user_id=${snapshot.user_id}::uuid
+          AND purpose='EMAIL_VERIFICATION' AND token_hash=${digest}
+          AND expires_at>clock_timestamp() AND consumed_at IS NULL AND invalidated_at IS NULL RETURNING id`;
+      if (consumed.length !== 1) throw new IdentityHttpError('LINK_INVALID');
+      const user = await tx.user.findUnique({ where: { id: snapshot.user_id } });
+      if (!user) throw new IdentityHttpError('LINK_INVALID');
+      if (!user.email_verified_at) await tx.user.update({ where: { id: user.id }, data: { email_verified_at: now } });
+      let rotation;
+      if (current) {
+        const session = await tx.session.findUniqueOrThrow({ where: { id: current.sessionId } });
+        const verifier = generateVerifier();
+        await tx.session.update({ where: { id: session.id }, data: { revoked_at: now } });
+        // Confirmation rotates the binding, but renews neither idle nor original absolute lifetime.
+        await tx.session.create({ data: { user_id: user.id, token_hash: sessionTokenDigest(verifier),
+          created_at: session.created_at, last_seen_at: session.last_seen_at, expires_at: session.expires_at } });
+        rotation = { verifier, expiresAt: session.expires_at, now };
+      }
+      await cancelAccountMailForToken(tx, snapshot.id);
+      return rotation;
+    });
+  }
+  async resendEmailVerification(body: unknown, ip: string, context: AuthenticatedContext | null): Promise<void> {
+    validateBodyShape(body, []);
+    if (!context) throw new IdentityHttpError('AUTH_REQUIRED');
+    if (context.user.email_verified_at) throw new IdentityHttpError('EMAIL_ALREADY_VERIFIED');
+    const rule = this.configuration.security.rateLimits['verification-resend'];
+    const buckets: AdmissionBucket[] = [{ action: 'verification-resend', namespace: 'ip', subject: ip, budget: rule.ip }];
+    if (rule.identifier) buckets.push({ action: 'verification-resend', namespace: 'identifier', subject: context.user.id, budget: rule.identifier });
+    await this.store.admit(this.configuration.security, buckets);
+    await this.store.transaction(async tx => {
+      await this.store.lockUsers(tx, [context.user.id]);
+      if (!await this.store.activeInTransaction(tx, context)) throw new IdentityHttpError('AUTH_REQUIRED');
+      const user = await tx.user.findUnique({ where: { id: context.user.id } });
+      if (!user) throw new IdentityHttpError('AUTH_REQUIRED');
+      if (user.email_verified_at) throw new IdentityHttpError('EMAIL_ALREADY_VERIFIED');
+      const now = await this.store.now(tx);
+      // Keep all successful history, including consumed/invalidated proof. Attempt buckets are separate.
+      const latest = await tx.accountToken.findFirst({ where: { user_id: user.id, purpose: 'EMAIL_VERIFICATION' }, orderBy: { created_at: 'desc' } });
+      const cooldown = Math.max(IDENTITY_POLICY.resendMinimumSeconds, rule.cooldownSeconds ?? 60);
+      const remaining = latest ? latest.created_at.getTime() + cooldown * 1000 - now.getTime() : 0;
+      if (remaining > 0) throw new IdentityHttpError('RATE_LIMITED', Math.max(1, Math.ceil(remaining / 1000)));
+      const previous = await tx.accountToken.findMany({ where: { user_id: user.id, purpose: 'EMAIL_VERIFICATION',
+        consumed_at: null, invalidated_at: null }, orderBy: { id: 'asc' } });
+      for (const token of previous) {
+        await tx.accountToken.update({ where: { id: token.id }, data: { invalidated_at: now } });
+      }
+      const rawToken = generateVerifier(), tokenId = randomUUID();
+      const expiresAt = new Date(now.getTime() + IDENTITY_POLICY.verificationTtlSeconds * 1000);
+      await tx.accountToken.create({ data: { id: tokenId, user_id: user.id, purpose: 'EMAIL_VERIFICATION',
+        token_hash: accountTokenDigest('EMAIL_VERIFICATION', rawToken), created_at: now, expires_at: expiresAt } });
+      await tx.session.update({ where: { id: context.sessionId }, data: { last_seen_at: now } });
+      // User -> token/session -> job order, shared with consumption and the existing mail worker.
+      for (const token of previous) await cancelAccountMailForToken(tx, token.id);
+      await enqueueAccountMail(tx, this.configuration.outbox, { jobId: randomUUID(), tokenId, userId: user.id,
+        purpose: 'EMAIL_VERIFICATION', expiresAt: expiresAt.toISOString(), rawToken });
     });
   }
   async profile(context: AuthenticatedContext | null, ip: string, body?: unknown) {

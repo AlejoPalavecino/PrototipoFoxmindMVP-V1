@@ -230,7 +230,7 @@ test('D2 media/16KiB/error transport is scoped to actual new operations', async 
     await error(await send(path, { method, cookie, csrf: token, body: {}, headers: { 'Content-Type': 'text/plain' } }), 415, 'MEDIA_TYPE_UNSUPPORTED');
     await error(await send(path, { method, cookie, csrf: token, body: ' '.repeat(16385) }), 413, 'REQUEST_TOO_LARGE');
   }
-  for (const path of ['/auth/email-verification/resend', '/auth/email-verification/confirm', '/auth/password-recovery/request', '/auth/password-recovery/confirm', '/account/password']) await status(await send(path, { method: 'POST', body: {} }), 404);
+  for (const path of ['/auth/password-recovery/request', '/auth/password-recovery/confirm', '/account/password']) await status(await send(path, { method: 'POST', body: {} }), 404);
 });
 test('D2 authorized GET/PATCH renew idle, rejected patches and safe reads do not; absolute lifetime never extends', async () => {
   const get = await session(verified, { idle: -1798.5 }), patch = await session(verified, { idle: -1798.5 });

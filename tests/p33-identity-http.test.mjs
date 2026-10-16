@@ -386,9 +386,9 @@ test('D1 identity SQL/counter outage fails closed while unrelated liveness remai
     await healthy('restored');
   } finally { trace.close(); }
 });
-test('D1 preserves health/unknown routes and leaves five T3 operations absent after D2', async () => {
+test('D1 preserves health/unknown routes and leaves three later T3 operations absent', async () => {
   for (const path of ['/health/live', '/health/ready']) assert.equal((await send(path)).status, 200);
-  for (const [path, method] of [['/auth/email-verification/resend', 'POST'], ['/auth/email-verification/confirm', 'POST'], ['/auth/password-recovery/request', 'POST'], ['/auth/password-recovery/confirm', 'POST'], ['/account/password', 'POST'], ['/classrooms', 'GET']]) {
+  for (const [path, method] of [['/auth/password-recovery/request', 'POST'], ['/auth/password-recovery/confirm', 'POST'], ['/account/password', 'POST'], ['/classrooms', 'GET']]) {
     assert.equal((await send(path, { method, body: method === 'GET' ? undefined : {} })).status, 404);
   }
   const response = await send('/unknown', { method: 'POST', body: '{' });

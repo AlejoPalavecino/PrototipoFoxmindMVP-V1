@@ -98,7 +98,7 @@ test("compiled CLI starts on loopback and supports an ephemeral port", async () 
     }
   }
 });
-test("only seven D1/D2 identity operations replace planned-route 404s", async () => {
+test("D1/D2 and candidate verification replace only their planned-route 404s", async () => {
   assert.equal((await get('/api/v1/auth/session')).status, 200);
   assert.equal((await get('/api/v1/auth/csrf')).status, 401);
   const mutate = (path, method = 'POST', body = '{}') => fetch(`${origin}/api/v1${path}`, {
@@ -109,8 +109,9 @@ test("only seven D1/D2 identity operations replace planned-route 404s", async ()
   assert.equal((await get('/api/v1/account')).status, 401);
   assert.equal((await mutate('/auth/register')).status, 422);
   assert.equal((await mutate('/account', 'PATCH')).status, 401);
-  for (const [path, method] of [['/auth/email-verification/resend', 'POST'],
-    ['/auth/email-verification/confirm', 'POST'], ['/auth/password-recovery/request', 'POST'],
+  assert.equal((await mutate('/auth/email-verification/resend')).status, 401);
+  assert.equal((await mutate('/auth/email-verification/confirm')).status, 422);
+  for (const [path, method] of [['/auth/password-recovery/request', 'POST'],
     ['/auth/password-recovery/confirm', 'POST'], ['/account/password', 'POST']]) assert.equal((await mutate(path, method)).status, 404);
   assert.equal((await get('/api/v1/classrooms')).status, 404);
 });
