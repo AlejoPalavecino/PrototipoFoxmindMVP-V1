@@ -21,6 +21,9 @@ test('P5 durable encrypted invitation dispatch, restart, stale generation and re
       assert.ok(job.payload.envelope);assert.ok(!JSON.stringify(job.payload).includes('Quoted User'));
       assert.ok(!JSON.stringify(job.payload).includes('Class'));
     });
+    await t.test('teacher invitation list preserves original quoted mailbox spelling for resend',async()=>{
+      assert.equal((await service.listInvitations({actor:owner},room))[0].recipient,'"Quoted User"@example.test');
+    });
     await t.test('worker reconstructed after service restart dispatches preserved original recipient once',async()=>{
       const worker=new InvitationDeliveryWorker({database,key,send:async(message)=>{sent.push(message);}});
       await worker.sweep();await worker.sweep();

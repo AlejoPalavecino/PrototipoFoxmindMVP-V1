@@ -106,4 +106,19 @@ export class MembershipService extends DraftService {
         periods:periods.filter(p=>p.enrollment_id===r.enrollment_id).map(({enrollment_id:_,...p})=>p)}));
     });
   }
+  studentSummary(request:unknown,id:string,studentId:string) {
+    return this.run(request,false,async(tx,actor)=>{
+      await this.classroom(tx,actor,id,false,true);
+      if(!uuid(studentId))return fail('FORBIDDEN');
+      const [student]=await tx.query<{id:string;firstName:string;lastName:string}>(`SELECT e.id,u.first_name AS "firstName",u.last_name AS "lastName"
+        FROM enrollments e JOIN users u ON u.id=e.student_id WHERE e.classroom_id=$1::uuid AND e.student_id=$2::uuid`,id,studentId);
+      if(!student)return fail('FORBIDDEN');
+      const attempts=await tx.query(`SELECT a.id,activity.title,a.submitted_at AS "submittedAt",a.attempt_number AS number,
+        g.final_grade::text AS grade,g.is_published AS published FROM attempts a
+        JOIN student_activities sa ON sa.id=a.student_activity_id JOIN activities activity ON activity.id=a.activity_id
+        LEFT JOIN attempt_grades g ON g.attempt_id=a.id WHERE sa.enrollment_id=$1::uuid AND sa.classroom_id=$2::uuid
+        AND a.status='SUBMITTED' ORDER BY a.submitted_at DESC,a.id`,student.id,id);
+      return {firstName:student.firstName,lastName:student.lastName,attempts};
+    });
+  }
 }

@@ -25,7 +25,7 @@ export class DraftService extends ClassroomCore {
   }
   listDrafts(request:unknown) {
     return this.run(request,false,async(tx,actor)=>(await tx.query<DraftRow>(`SELECT * FROM classroom_drafts
-      WHERE owner_id=$1::uuid AND published_classroom_id IS NULL ORDER BY updated_at DESC,id LIMIT 500`,actor.id)).map(row=>this.draftView(row)));
+      WHERE owner_id=$1::uuid AND published_classroom_id IS NULL ORDER BY updated_at DESC,id`,actor.id)).map(row=>this.draftView(row)));
   }
   getDraft(request:unknown,id:string) {return this.run(request,false,async(tx,actor)=>this.draftView(await this.draft(tx,actor,id)));}
   async saveDraft(request:unknown,id:string,input:unknown) {

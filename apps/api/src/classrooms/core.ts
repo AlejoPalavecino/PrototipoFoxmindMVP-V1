@@ -69,7 +69,7 @@ export class ClassroomCore {
       const rows = await tx.query<ClassroomRow>(`SELECT c.*,concat(u.first_name,' ',u.last_name) AS teacher_name FROM classrooms c
         JOIN users u ON u.id=c.teacher_id WHERE c.teacher_id=$1::uuid OR EXISTS(SELECT 1 FROM enrollments e
         JOIN membership_periods m ON m.enrollment_id=e.id WHERE e.classroom_id=c.id AND e.student_id=$1::uuid AND m.ended_at IS NULL)
-        ORDER BY c.created_at DESC,c.id LIMIT 500`,actor.id);
+        ORDER BY c.created_at DESC,c.id`,actor.id);
       return {teach:rows.filter(c=>c.teacher_id===actor.id).map(c=>this.summary(c,actor.id)),
         study:rows.filter(c=>c.teacher_id!==actor.id).map(c=>this.summary(c,actor.id))};
     });

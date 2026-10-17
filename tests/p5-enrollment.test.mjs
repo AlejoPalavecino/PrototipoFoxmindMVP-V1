@@ -104,5 +104,30 @@ test('P5 enrollment, invitation, privacy and membership lifecycle on real SQL',{
       await denied(service.updateSettings(T,room,{revision:row.revision,name:'Stale',subject:'S',division:'D',academicYear:2027}),'CONFLICT');
       await assert.rejects(pool.query("UPDATE classrooms SET timezone='Europe/Paris' WHERE id=$1",[room]));
     });
+    await t.test('pending invitation from before departure is revoked and reentry needs a new identity',async()=>{
+      const before=await service.invite(T,room,`${stranger}@example.test`);
+      const p=await service.previewCode(O,code);await service.confirmCode(O,p.confirmation);await service.leave(O,room);
+      await denied(service.acceptInvitation(O,before.id),'ENROLLMENT_UNAVAILABLE');
+      const after=await service.invite(T,room,`${stranger}@example.test`);assert.notEqual(after.id,before.id);
+      await service.acceptInvitation(O,after.id);assert.equal((await service.members(T,room)).length,1);
+      assert.equal((await service.studentSummary(T,room,stranger)).attempts.length,0);
+      await denied(service.studentSummary(S,room,stranger),'FORBIDDEN');
+    });
+    await t.test('archive blocks pending acceptance/revoke and invalid confirmations leave no changes',async()=>{
+      const pending=await service.invite(T,room,`${student}@example.test`);
+      const detail=await service.detail(T,room);await service.setArchive(T,room,{archived:true,revision:detail.revision});
+      await denied(service.acceptInvitation(S,pending.id),'ENROLLMENT_UNAVAILABLE');
+      await denied(service.revokeInvitation(T,room,pending.id),'CONFLICT');
+      await denied(service.confirmCode(S,'tampered'),'ENROLLMENT_UNAVAILABLE');
+      assert.equal((await pool.query('SELECT count(*)::int AS n FROM membership_periods WHERE ended_at IS NULL')).rows[0].n,1);
+    });
+    await t.test('authentication is rechecked after waiting for the user lock',async()=>{
+      let valid=true,first;const called=new Promise(resolve=>{first=resolve;});
+      const locked=await pool.connect();await locked.query('BEGIN');await locked.query('SELECT id FROM users WHERE id=$1 FOR UPDATE',[stranger]);
+      const guarded=new ClassroomService({database,files,authenticate:async()=>{first();if(!valid)throw new Error('revoked fixture');return stranger;},
+        signingKey:Buffer.alloc(32,1),deliveryKey:Buffer.alloc(32,2),classroomQuotaBytes:100000000n,webOrigin:'http://127.0.0.1:3005'});
+      const operation=guarded.listDrafts({});await called;valid=false;await locked.query('COMMIT');locked.release();
+      await assert.rejects(operation);assert.equal((await service.listDrafts(O)).length,0);
+    });
   });
 });

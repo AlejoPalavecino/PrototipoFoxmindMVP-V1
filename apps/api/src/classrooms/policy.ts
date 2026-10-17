@@ -39,8 +39,9 @@ export function draftPayload(input: unknown, publish: boolean): DraftPayload {
     out.academicYear = source.academicYear;
   }
   if (publish || source.timezone !== undefined) {
-    out.timezone = text(source.timezone, 100);
-    try { new Intl.DateTimeFormat('es', {timeZone: out.timezone}).format(); } catch { fail('INVALID_INPUT'); }
+    out.timezone = text(source.timezone, 100, publish);
+    if(publish&&/^[+-]/.test(out.timezone))fail('INVALID_INPUT');
+    if(publish)try { new Intl.DateTimeFormat('es', {timeZone: out.timezone}).format(); } catch { fail('INVALID_INPUT'); }
   }
   if (publish || source.coverKey !== undefined) {
     if (!covers.some(c => c.key === source.coverKey)) fail('INVALID_INPUT');
@@ -57,6 +58,7 @@ export function draftPayload(input: unknown, publish: boolean): DraftPayload {
       if (!Array.isArray(unit.topics) || unit.topics.length > 100 || (publish && !unit.topics.length)) fail('INVALID_INPUT');
       return { name: text(unit.name,120,publish), topics: unit.topics.map((t: unknown) => ({name:text(object(t,['name']).name,120,publish)})) };
     });
+    if(out.units!.reduce((count,unit)=>count+unit.topics.length,0)>500)fail('INVALID_INPUT');
   }
   return out;
 }

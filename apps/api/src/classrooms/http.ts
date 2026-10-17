@@ -58,6 +58,7 @@ export function createClassroomsHandler(service:InvitationService,options:Admiss
       else if(path.length===2&&path[1]==='archive'&&method==='POST')value=await service.setArchive(req,path[0],exact(['archived','revision']));
       else if(path.length===2&&path[1]==='code'&&method==='POST'){exact([]);value=await service.rotateCode(req,path[0]);}
       else if(path.length===2&&['members','history'].includes(path[1])&&method==='GET')value=await service.members(req,path[0],path[1]==='history');
+      else if(path.length===3&&path[1]==='members'&&method==='GET')value=await service.studentSummary(req,path[0],path[2]);
       else if(path.length===2&&path[1]==='invitations'&&method==='GET')value=await service.listInvitations(req,path[0]);
       else if(path.length===2&&path[1]==='invitations'&&method==='POST')value=await service.invite(req,path[0],exact(['email']).email);
       else if(path.length===4&&path[1]==='invitations'&&path[3]==='revoke'&&method==='POST'){exact([]);value=await service.revokeInvitation(req,path[0],path[2]);}

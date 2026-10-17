@@ -61,13 +61,21 @@ export class InvitationService extends MembershipService {
       AND i.expires_at>clock_timestamp() AND c.archived_at IS NULL AND c.teacher_id<>$2::uuid
       AND NOT EXISTS(SELECT 1 FROM enrollments e JOIN membership_periods m ON m.enrollment_id=e.id
         WHERE e.classroom_id=c.id AND e.student_id=$2::uuid AND (m.ended_at IS NULL OR m.ended_at>=i.issued_at))
-      ORDER BY i.issued_at DESC,i.id LIMIT 500`,actor.email_normalized,actor.id));
+      ORDER BY i.issued_at DESC,i.id`,actor.email_normalized,actor.id));
   }
   listInvitations(request:unknown,classroomId:string) {
     return this.run(request,false,async(tx,actor)=>{
       await this.classroom(tx,actor,classroomId,false,true);
-      return tx.query(`SELECT id,recipient_email_normalized AS recipient,generation::text,issued_at AS "issuedAt",expires_at AS "expiresAt",
-        accepted_at AS "acceptedAt",revoked_at AS "revokedAt" FROM invitations WHERE classroom_id=$1::uuid ORDER BY issued_at DESC,id LIMIT 500`,classroomId);
+      const rows=await tx.query<{id:string;generation:string;envelope:string|null;deliveryStatus:string|null;deliveryError:string|null}>(
+        `SELECT i.id,i.generation::text,i.issued_at AS "issuedAt",i.expires_at AS "expiresAt",i.accepted_at AS "acceptedAt",i.revoked_at AS "revokedAt",
+        j.payload->>'envelope' AS envelope,j.status::text AS "deliveryStatus",j.last_error_code AS "deliveryError" FROM invitations i
+        LEFT JOIN background_jobs j ON j.deduplication_key='p5:'||i.id::text||':'||i.generation::text
+        WHERE i.classroom_id=$1::uuid ORDER BY i.issued_at DESC,i.id`,classroomId);
+      return rows.map(({envelope,...row})=>{
+        if(!envelope)return fail('SERVICE_UNAVAILABLE');
+        const recipient=validateMailbox(decryptDelivery(this.ports.deliveryKey,envelope,`p5:${row.id}:${row.generation}`).to);
+        return {...row,recipient};
+      });
     });
   }
   acceptInvitation(request:unknown,id:string) {
