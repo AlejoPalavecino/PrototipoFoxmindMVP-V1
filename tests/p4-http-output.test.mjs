@@ -11,7 +11,7 @@ class Response extends EventEmitter {
   constructor(hold = false) { super(); this.hold = hold; }
   setHeader() {}
   end(bytes) { this.body = bytes; this.headersSent = true; if (!this.hold) this.emit('finish'); }
-  destroy() { this.destroyed = true; this.body = undefined; this.emit('close'); }
+  destroy() { if (this.destroyed) return; this.destroyed = true; this.body = undefined; this.emit('close'); }
 }
 test('a stalled download retains the transfer slot until finish or close', async () => {
   let reads = 0;
@@ -37,4 +37,17 @@ test('a stalled output expires and releases its slot after the absolute send dea
     t.mock.timers.tick(30000); await turn(); assert.equal(stalled.destroyed, true);
     const next = new Response(); handler(request(), next, () => {}); await turn(); assert.equal(next.statusCode, 200);
   } finally { stalled.destroy(); await turn(); }
+});
+test('disconnect during a pending read releases the transfer without an extra send timeout', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  let reads = 0, resolveRead;
+  const file = { bytes: Buffer.alloc(1), headers: {} };
+  const handler = createFilesHandler({ async read() { reads++; if (reads === 1) await new Promise(resolve => { resolveRead = resolve; }); return file; } });
+  const first = new Response(true);
+  try {
+    handler(request(), first, () => {}); await turn(); first.destroy(); resolveRead(); await turn();
+    const second = new Response(); handler(request(), second, () => {}); await turn();
+    assert.equal(reads, 2); assert.equal(second.statusCode, 200);
+    assert.equal(first.body, undefined);
+  } finally { first.destroy(); t.mock.timers.tick(30000); await turn(); }
 });

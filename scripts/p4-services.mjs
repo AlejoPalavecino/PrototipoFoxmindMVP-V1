@@ -12,6 +12,7 @@ export const P4_IMAGES = {
   scanner: 'clamav/clamav:1.5.4@sha256:638d90201ee7ee6a82d249a2fc23b132e578673b5f1f2766852b127676ca1ef6',
   database: 'postgres:17.10-bookworm',
 };
+export const P4_SCANNER_START = 'freshclam --stdout --config-file=/etc/clamav/p4-freshclam.conf || true; exec clamd --foreground --config-file=/etc/clamav/clamd.conf';
 /** Own all fixture resources. Never attach to existing development containers/volumes. */
 export async function withP4Services(run) {
   const tag = randomBytes(8).toString('hex'), prefix = `foxmind-p4-${tag}`;
@@ -51,8 +52,9 @@ export async function withP4Services(run) {
       '--publish', '127.0.0.1::8333', '--mount', `type=bind,source=${auth},target=/config/s3.json,readonly`, '--tmpfs', '/data'],
       ['mini', '-dir=/data', '-s3.config=/config/s3.json', '-bucket=foxmind-private', '-admin.ui=false', '-webdav=false']);
     const scanner = start('scan', P4_IMAGES.scanner, ['--memory=4g', '--cpus=1.5', '--pids-limit=256',
-      '--publish', '127.0.0.1::3310', '--mount', `type=bind,source=${config},target=/etc/clamav/clamd.conf,readonly`, '--entrypoint=clamd'],
-      ['--foreground', '--config-file=/etc/clamav/clamd.conf']);
+      '--publish', '127.0.0.1::3310', '--mount', `type=bind,source=${config},target=/etc/clamav/clamd.conf,readonly`,
+      '--mount', `type=bind,source=${resolve('config/p4-freshclam.conf')},target=/etc/clamav/p4-freshclam.conf,readonly`, '--entrypoint=/bin/sh'],
+      ['-c', P4_SCANNER_START]);
     const databasePort = port(db, 5432), s3Port = port(storage, 8333), scannerPort = port(scanner, 3310);
     const databaseUrl = `postgresql://postgres:${secret}@127.0.0.1:${databasePort}/p4`;
     const endpoint = `http://127.0.0.1:${s3Port}`;

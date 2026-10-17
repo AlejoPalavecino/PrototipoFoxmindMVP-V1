@@ -33,3 +33,5 @@ Quota exhaustion preserves authorized reads. Scanner/storage failure never retur
 ## Bounded response delivery
 
 An installed file handler shares one transfer slot across PUT uploads and GET content responses. Content retrieval holds it until response finish/close/error, including time spent under backpressure. A second transfer receives503 with Retry-After3. A stalled response is destroyed after an absolute30-second output deadline and the slot becomes available again. Install one handler per file service ingress; direct FileService consumers own the lifetime of buffers they retain.
+
+If the client disconnects while the bounded storage read is pending, the handler releases admission when that read settles, without starting another30-second output wait or attempting to send into the destroyed response.

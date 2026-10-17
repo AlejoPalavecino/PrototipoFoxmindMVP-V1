@@ -40,6 +40,7 @@ function body(request: IncomingMessage, limit: number, expected?: number): Promi
   });
 }
 function sendContent(response: ServerResponse, bytes: Buffer): Promise<void> {
+  if (response.destroyed) return Promise.resolve();
   return new Promise((resolve, reject) => {
     let settled = false;
     const done = (error?: FileError) => {
@@ -105,6 +106,7 @@ export function createFilesHandler(service: FileService) {
           if (transferring) throw new FileError('SERVICE_UNAVAILABLE');
           transferring = true; ownsTransfer = true;
           const file = await service.read(request, id, mode);
+          if (response.destroyed) return;
           for (const [name, value] of Object.entries(file.headers)) response.setHeader(name, value);
           response.statusCode = 200; await sendContent(response, file.bytes);
         } else throw new FileError('NOT_FOUND');

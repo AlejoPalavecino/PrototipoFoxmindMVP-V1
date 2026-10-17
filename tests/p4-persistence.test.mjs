@@ -6,6 +6,7 @@ import { createFileInfrastructure } from '../apps/api/src/files/configuration.ts
 import { p4Local, p4LocalConfiguration } from '../scripts/p4-local.mjs';
 import pg from 'pg';
 import { readdir } from 'node:fs/promises';
+import { cleanupProbe } from '../scripts/p4-probe-cleanup.mjs';
 
 test('dedicated local volumes retain object bytes and PostgreSQL state across actual container restart', { timeout: 90000 }, async () => {
   const configuration = await p4LocalConfiguration(), infrastructure = createFileInfrastructure(configuration);
@@ -36,8 +37,12 @@ test('dedicated local volumes retain object bytes and PostgreSQL state across ac
     await infrastructure.scanner.scan(bytes);
   } finally {
     try {
-      if (ownsTable) { client ??= await connect(); await client.query(`DROP TABLE ${probeTable}`); }
-      if (ownsObject) await infrastructure.storage.remove(key);
-    } finally { await client?.end(); infrastructure.close(); await p4Local('stop'); }
+      await cleanupProbe([
+        { name: 'database', async run() { if (ownsTable) { client ??= await connect(); await client.query(`DROP TABLE ${probeTable}`); } } },
+        { name: 'object', async run() { if (ownsObject) await infrastructure.storage.remove(key); } },
+      ]);
+    } finally {
+      try { await client?.end(); } finally { infrastructure.close(); await p4Local('stop'); }
+    }
   }
 });

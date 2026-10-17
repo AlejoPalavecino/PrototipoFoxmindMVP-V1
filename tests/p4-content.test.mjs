@@ -61,3 +61,13 @@ test('Office structural parts require real XML namespaces and exact document rel
     await assert.rejects(inspectContent(bytes, 'docx'), { code: 'FILE_REJECTED' });
   }
 });
+test('macro-related prose is allowed while actual package macro metadata remains rejected', async () => {
+  const prose = office('docx', [], entries => entries.map(entry => entry.name === 'word/document.xml'
+    ? { ...entry, bytes: Buffer.from(entry.bytes.toString().replace('<w:body/>', '<w:body><w:p><w:r><w:t>macroEnabled and vbaProject are tutorial terms</w:t></w:r></w:p></w:body>')) } : entry));
+  assert.match(await inspectContent(prose, 'docx'), /openxmlformats/);
+  const typedMacro = office('docx', [{ name: 'word/payload.bin' }], entries => entries.map(entry => entry.name === '[Content_Types].xml'
+    ? { ...entry, bytes: Buffer.from(entry.bytes.toString().replace('</Types>', '<Override PartName="/word/payload.bin" ContentType="application/vnd.ms-office.vbaProject"/></Types>')) } : entry));
+  await assert.rejects(inspectContent(typedMacro, 'docx'), { code: 'FILE_REJECTED' });
+  const relatedMacro = office('docx', [{ name: 'word/_rels/document.xml.rels', bytes: Buffer.from('<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="m1" Type="http://schemas.microsoft.com/office/2006/relationships/vbaProject" Target="payload.bin"/></Relationships>') }]);
+  await assert.rejects(inspectContent(relatedMacro, 'docx'), { code: 'FILE_REJECTED' });
+});

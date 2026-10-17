@@ -59,6 +59,8 @@ Expanded/parser bounds may reject a compressed file even when upload size is all
 
 OOXML structural parts and their Override/Relationship children must resolve their actual package/document namespaces, including inherited declarations, changed default namespaces and prefixes. Only exact internal Office document relationship types are accepted. Transitional and strict document namespaces are admitted. This structural inspection complements real malware scanning; neither bypasses the other.
 
+Macro detection inspects executable part names and package content-type/relationship metadata, including nested relationships. Ordinary document prose may discuss macro-related terms. XML DTD/entity rejection and actual ClamAV scanning remain enforced.
+
 ## Lifecycle and recovery
 
 `begin` snapshots/adopts metadata, verifies the authenticated account, locks user then scope, checks actual record access and reserves quota. File creator, scope, key, size, name, purpose and record target become immutable. Backend-generated keys never leave the module.
@@ -87,6 +89,8 @@ npm run test:p4 -- --persistent
 ```
 
 The first builds this worktree, checks policy/adapters/parsers/configuration and runs real PostgreSQL/S3/ClamAV journeys. The second also validates retained object/database state across an actual container restart, removes only its owned probe and stops persistent services while preserving their volumes. Fixture cleanup is label-restricted and reported separately. Independent/native acceptance and real application/browser integration remain separate proof.
+
+The disposable scanner attempts one signature refresh before starting clamd, with5s connect/10s receive ceilings and one attempt. Failed updates may use an existing database only while ClamAV's seven-day freshness rule still admits it; stale databases keep readiness blocked. Persistent services keep their existing update daemon. Persistence-probe cleanup attempts database and object deletion independently, reports every failed stage without private provider diagnostics, and still stops its owned services.
 ## Automatic incomplete-upload cleanup
 
 Installing `FilesModule` starts an immediate incomplete-upload sweep and repeats it every60seconds after the previous sweep finishes. Sweeps never overlap. Module shutdown cancels future sweeps and awaits its own bounded in-flight operation. Errors produce a fixed diagnostic without file or request data and remain retryable on the next sweep. Direct `FileService` consumers must own an equivalent lifecycle or install `FileCleanupWorker`; constructing a service alone does not start background work.

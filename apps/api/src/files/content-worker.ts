@@ -42,7 +42,7 @@ function xml(bytes: Buffer): XmlPart {
   const encoding = (bytes[0] === 0xff && bytes[1] === 0xfe) || (bytes[0] === 0x3c && bytes[1] === 0)
     ? 'utf-16le' : (bytes[0] === 0xfe && bytes[1] === 0xff) || (bytes[0] === 0 && bytes[1] === 0x3c) ? 'utf-16be' : 'utf-8';
   const text = new TextDecoder(encoding, { fatal: true }).decode(bytes);
-  if (/<!DOCTYPE|<!ENTITY|macroEnabled|vbaProject/i.test(text) || XMLValidator.validate(text) !== true) reject();
+  if (/<!DOCTYPE|<!ENTITY/i.test(text) || XMLValidator.validate(text) !== true) reject();
   const raw = new XMLParser({ ignoreAttributes: false, processEntities: false }).parse(text);
   const roots = Object.keys(raw).filter(key => !key.startsWith('?'));
   if (roots.length !== 1) reject();
@@ -95,6 +95,13 @@ async function archive(bytes: Buffer, extension: string, budget: { expanded: num
       if (name.endsWith('/')) { if (total !== 0) reject(); continue; }
       if (name.endsWith('.xml') || name.endsWith('.rels')) {
         const value = xml(content);
+        if (name === '[Content_Types].xml' || name.endsWith('.rels')) {
+          for (const tag of ['Override', 'Default', 'Relationship']) {
+            for (const element of structuralChildren(value, tag)) {
+              if (['@_ContentType', '@_Type'].some(key => /macroEnabled|vbaProject/i.test(String(element[key] ?? '')))) reject();
+            }
+          }
+        }
         if (name === '[Content_Types].xml' || name === '_rels/.rels' || Object.values(office).some(v => v[0] === name)) parts.set(name, value);
       }
       const kind = await fileTypeFromBuffer(content).catch(() => undefined);
