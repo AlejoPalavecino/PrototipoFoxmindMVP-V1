@@ -31,3 +31,11 @@ First unit rollback: remove policy/tests plus this P5 task/record only; no publi
 ## Handoff
 
 First unfinished: freeze P5 contracts/acceptance and meaningful RED, then persistence/domain slices, invitation delivery, opt-in transport and reusable UI; observe real isolated tests and report review/integration limits explicitly. Shared roadmap changed only after reconciling the final isolated checkpoint; full phase exit stays pending deferred integration.
+
+## Implementation evidence update
+
+Policy work-unit d977361 observed. Initial strict build failed TS2366 on catch return; corrected explicit return, subsequent fresh Prisma generation/strict build0. Persistent tests initially used source TS and hit inherited parameter-property strip-only incompatibility; changed service imports to freshly compiled output, no P3 mail source changed. Initial enrollment12FAIL includes eleven missing behavior/call-order failures and a synchronous assertion-harness failure (not all meaningful domain RED). Corrected async public validation; real-SQL enrollment suite12PASS. Full focused policy/draft/enrollment/delivery run27PASS, each owned database cleanup0 and seven migration replay/status/drift checks inside fixtures.
+
+Delivery first missing-worker RED; first implementation4PASS/2FAIL included parent and a fixture-selection mistake (reactivated old job still scheduled later). Corrected fixture due time, also rechecked due/attempt bounds under job lock to prevent concurrent workers bypassing backoff. Subsequent full focused run27PASS. Real SMTP not yet verified, injected sender tests do not claim it. HTTP missing-module RED then opt-in HTTP5PASS with actual loopback requests/admission/privacy/shape checks. No native or independent approval.
+
+P5-B rollback: core/contracts/drafts, P5-only migration/schema revision, owned database fixture and draft tests. Forward rollback must preserve any existing data; no automatic migration deletion on applied databases. Database fixture rejects external URL input and owns a random tmpfs container with a matching ownership label before cleanup. This isolates P3/P4 services.
