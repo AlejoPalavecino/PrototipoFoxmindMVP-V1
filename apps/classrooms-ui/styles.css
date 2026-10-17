@@ -1,0 +1,650 @@
+@layer p5 {
+  .p5-app {
+    --ink: #292434;
+    --muted: #5d6884;
+    --line: #d9dfeb;
+    --orange: #b94808;
+    --soft: #fff1e3;
+    --surface: #fff;
+    color: var(--ink);
+    font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+    background: #f5f8fc;
+    min-height: 100vh;
+    font-size: 16px;
+    line-height: 1.5;
+    padding: 20px 24px 64px;
+  }
+  .p5-app * {
+    box-sizing: border-box;
+  }
+  .p5-app h1,
+  .p5-app h2,
+  .p5-app h3,
+  .p5-app p {
+    margin: 0 0 14px;
+  }
+  .p5-app h1 {
+    font-size: clamp(2rem, 3.4vw, 3.3rem);
+    line-height: 1.12;
+    letter-spacing: -1.3px;
+    font-weight: 800;
+  }
+  .p5-app h2 {
+    font-size: 1.7rem;
+    line-height: 1.25;
+    letter-spacing: -0.5px;
+  }
+  .p5-app h3 {
+    font-size: 1.15rem;
+    line-height: 1.35;
+  }
+  .p5-app p,
+  .p5-app small {
+    color: var(--muted);
+  }
+  .p5-app small {
+    display: block;
+    font-size: 0.85rem;
+  }
+  .p5-app button,
+  .p5-app input,
+  .p5-app select {
+    font: inherit;
+  }
+  .p5-app button {
+    min-height: 44px;
+    border: 1px solid #bfcbdc;
+    border-radius: 11px;
+    background: white;
+    color: #303d60;
+    padding: 10px 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .p5-app button:hover:enabled {
+    background: #f1f4f8;
+  }
+  .p5-app button.primary {
+    color: white;
+    background: var(--orange);
+    border-color: var(--orange);
+    box-shadow: 0 4px 12px #be55141a;
+  }
+  .p5-app button.primary:hover:enabled {
+    background: #963703;
+  }
+  .p5-app button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .p5-app :focus-visible {
+    outline: 3px solid #216ba5;
+    outline-offset: 3px;
+  }
+  .p5-app a {
+    color: #934009;
+    text-underline-offset: 4px;
+  }
+  .p5-app label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-weight: 700;
+    color: #303d60;
+  }
+  .p5-app input:not([type='radio']) {
+    width: 100%;
+    min-height: 48px;
+    border: 1px solid #bfcbde;
+    border-radius: 10px;
+    padding: 10px 14px;
+    background: #fff;
+    color: #293453;
+  }
+  .p5-app fieldset {
+    padding: 0;
+    border: 0;
+    margin: 0;
+    min-width: 0;
+  }
+  .p5-app hr {
+    border: 0;
+    border-top: 1px solid var(--line);
+    margin: 30px 0;
+  }
+  .p5-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    max-width: 1280px;
+    margin: 0 auto 48px;
+    padding: 18px 28px;
+    background: #fff;
+    border-radius: 22px;
+    box-shadow: 0 9px 28px #20335708;
+  }
+  .p5-brand {
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: -1.2px;
+    text-decoration: none !important;
+    color: #2c211d !important;
+  }
+  .p5-brand span {
+    color: var(--orange);
+  }
+  .p5-nav .p5-nav-active {
+    border: 0;
+    background: var(--soft);
+    color: var(--orange);
+    border-radius: 24px;
+  }
+  .p5-profile {
+    font-weight: 700;
+    color: #303d60;
+  }
+  .p5-main {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .p5-lead {
+    font-size: 1.1rem;
+    max-width: 70ch;
+    margin-bottom: 30px !important;
+  }
+  .p5-page-head,
+  .p5-section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+  .p5-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .p5-actions button {
+    white-space: nowrap;
+  }
+  .p5-search {
+    margin: 32px 0;
+    max-width: 600px;
+  }
+  .p5-classroom-group {
+    margin: 34px 0 46px;
+  }
+  .p5-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+  }
+  .p5-card {
+    background: white;
+    border: 1px solid #e9edf3;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 26px #26355206;
+  }
+  .p5-card > div {
+    padding: 24px;
+  }
+  .p5-card h3 {
+    font-size: 1.35rem;
+    overflow-wrap: anywhere;
+  }
+  .p5-card button {
+    width: 100%;
+    margin-top: 16px;
+  }
+  .p5-cover {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 8/3;
+    object-fit: cover;
+  }
+  .p5-empty {
+    border: 1px dashed #c8d1e1;
+    border-radius: 14px;
+    padding: 24px;
+    max-width: 70ch;
+  }
+  .p5-surface {
+    background: white;
+    border: 1px solid #edf0f4;
+    border-radius: 22px;
+    padding: 36px;
+    box-shadow: 0 12px 32px #233c5806;
+  }
+  .p5-notice {
+    padding: 14px 20px;
+    background: #fff8ee;
+    border: 1px solid #efcfaa;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    color: #774319;
+    overflow-wrap: anywhere;
+  }
+  .p5-notice.error {
+    background: #fff0f0;
+    border-color: #e3acac;
+    color: #882424;
+  }
+  .p5-notice button {
+    margin-left: 10px;
+  }
+  .p5-invitations {
+    padding: 26px;
+    background: #fff3e5;
+    border: 1px solid #efd5b6;
+    border-radius: 18px;
+    margin: 24px 0;
+  }
+  .p5-invitations article {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding-top: 12px;
+  }
+  .p5-drafts {
+    margin: 26px 0;
+  }
+  .p5-drafts > button {
+    margin: 0 12px 12px 0;
+    text-align: left;
+    padding: 16px 22px;
+  }
+  .p5-drafts span {
+    display: block;
+    font-weight: 400;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  .p5-link {
+    border: 0 !important;
+    box-shadow: none !important;
+    color: #586883 !important;
+    background: none !important;
+    padding: 6px 0 !important;
+    margin-bottom: 20px;
+  }
+  .p5-steps {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin: 32px 0;
+  }
+  .p5-steps li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+  .p5-steps li span {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #e7ecf3;
+    font-weight: 700;
+  }
+  .p5-steps li.active {
+    color: var(--orange);
+    font-weight: 700;
+  }
+  .p5-steps li.active span {
+    background: var(--orange);
+    color: white;
+  }
+  .p5-save {
+    font-size: 0.82rem;
+    color: var(--muted);
+    text-align: right;
+  }
+  .p5-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    margin: 26px 0;
+  }
+  .p5-wide {
+    grid-column: 1/-1;
+  }
+  .p5-covers {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin: 20px 0 30px;
+  }
+  .p5-covers label {
+    border: 2px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    gap: 0;
+  }
+  .p5-covers label.selected {
+    border-color: var(--orange);
+    background: #fff8f0;
+  }
+  .p5-covers label > span {
+    padding: 12px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .p5-covers input {
+    accent-color: var(--orange);
+    width: 18px;
+    height: 18px;
+  }
+  .p5-form-footer {
+    border-top: 1px solid var(--line);
+    margin-top: 30px;
+    padding-top: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .p5-form-footer button {
+    min-width: 130px;
+  }
+  .p5-drop {
+    border: 2px dashed #bdc9dc;
+    border-radius: 16px;
+    min-height: 180px;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    text-align: center;
+    background: #f9fbff;
+  }
+  .p5-drop input {
+    max-width: 380px;
+  }
+  .p5-file {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 20px;
+    padding: 18px;
+    background: #f4f7fa;
+    border-radius: 12px;
+  }
+  .p5-file strong {
+    overflow-wrap: anywhere;
+  }
+  .p5-file span {
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+  .p5-unit {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px;
+    margin: 18px 0;
+  }
+  .p5-topic {
+    display: flex;
+    align-items: end;
+    gap: 12px;
+    margin: 18px 0;
+  }
+  .p5-topic label {
+    flex: 1;
+  }
+  .p5-review {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    align-items: center;
+    gap: 24px;
+    margin: 20px 0;
+  }
+  .p5-review svg {
+    border-radius: 12px;
+  }
+  .p5-room-head {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    margin-bottom: 30px;
+  }
+  .p5-room-head h1 {
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    overflow-wrap: anywhere;
+  }
+  .p5-room-cover {
+    width: 220px;
+    flex: 0 0 220px;
+    border-radius: 18px;
+    overflow: hidden;
+  }
+  .p5-tabs {
+    display: flex;
+    gap: 22px;
+    overflow-x: auto;
+    margin: 24px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .p5-tabs button {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    white-space: nowrap;
+    padding: 14px 6px;
+  }
+  .p5-tabs button[aria-current] {
+    border-bottom: 3px solid var(--orange);
+    color: var(--orange);
+  }
+  .p5-tag {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 7px;
+    background: #eff2f7;
+    color: #56617b;
+    font-size: 0.78rem;
+    margin: 0 0 8px 10px;
+  }
+  .p5-roster,
+  .p5-invite-list {
+    list-style: none;
+    padding: 0;
+  }
+  .p5-roster li,
+  .p5-invite-list li {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .p5-roster li > div:first-of-type,
+  .p5-invite-list li > span {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .p5-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: #f3e9df;
+    color: #704a31;
+    font-weight: 700;
+    flex: 0 0 44px;
+  }
+  .p5-code {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin: 18px 0;
+  }
+  .p5-code code {
+    font-size: 1.1rem;
+    padding: 12px 16px;
+    background: #f5f7fa;
+    border: 1px dashed #c0cad9;
+    border-radius: 8px;
+    overflow-wrap: anywhere;
+    max-width: 100%;
+  }
+  .p5-student-footer {
+    border-top: 1px solid var(--line);
+    margin-top: 30px;
+    padding-top: 24px;
+  }
+  .p5-dialog {
+    border: 1px solid #e2e6ef;
+    border-radius: 22px;
+    max-width: 560px;
+    width: calc(100% - 32px);
+    padding: 28px;
+    box-shadow: 0 30px 100px #172a4533;
+    max-height: 90vh;
+    color: var(--ink);
+  }
+  .p5-dialog::backdrop {
+    background: #16223b66;
+    backdrop-filter: blur(3px);
+  }
+  .p5-dialog > header {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .p5-dialog .p5-close {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 4px;
+    font-size: 1.6rem;
+    border: 0;
+  }
+  @media (max-width: 950px) {
+    .p5-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .p5-page-head {
+      align-items: start;
+      flex-direction: column;
+    }
+    .p5-roster li {
+      flex-wrap: wrap;
+    }
+    .p5-roster .p5-actions {
+      padding-left: 60px;
+    }
+  }
+  @media (max-width: 600px) {
+    .p5-app {
+      padding: 12px 14px 40px;
+    }
+    .p5-nav {
+      margin-bottom: 30px;
+      padding: 14px 16px;
+      gap: 10px;
+      border-radius: 16px;
+    }
+    .p5-brand {
+      font-size: 1.5rem;
+    }
+    .p5-profile {
+      font-size: 0.8rem;
+      max-width: 100px;
+      overflow-wrap: anywhere;
+    }
+    .p5-nav button {
+      padding: 8px 12px;
+    }
+    .p5-grid,
+    .p5-fields {
+      grid-template-columns: 1fr;
+    }
+    .p5-surface {
+      padding: 22px 18px;
+      border-radius: 16px;
+    }
+    .p5-page-head,
+    .p5-section-head {
+      gap: 16px;
+      align-items: start;
+    }
+    .p5-section-head {
+      flex-direction: column;
+    }
+    .p5-steps {
+      gap: 8px;
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .p5-steps li {
+      font-size: 0.8rem;
+    }
+    .p5-save {
+      text-align: left;
+    }
+    .p5-covers {
+      gap: 8px;
+    }
+    .p5-covers label > span {
+      padding: 10px 5px;
+      font-size: 0.75rem;
+    }
+    .p5-invitations article {
+      flex-direction: column;
+      align-items: start;
+    }
+    .p5-review {
+      grid-template-columns: 1fr;
+    }
+    .p5-review svg {
+      max-width: 240px;
+    }
+    .p5-room-head {
+      flex-direction: column;
+      align-items: start;
+      gap: 16px;
+    }
+    .p5-room-cover {
+      width: 100%;
+      flex-basis: auto;
+      max-width: 400px;
+    }
+    .p5-invite-list li {
+      align-items: start;
+      flex-direction: column;
+    }
+    .p5-dialog {
+      padding: 22px;
+    }
+    .p5-form-footer button {
+      min-width: 0;
+    }
+    .p5-roster .p5-actions {
+      padding-left: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .p5-app * {
+      transition: none !important;
+    }
+  }
+}
