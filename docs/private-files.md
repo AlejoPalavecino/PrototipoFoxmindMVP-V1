@@ -1,6 +1,6 @@
 # Private files — isolated P4 implementation
 
-P4 is being built in the managed `foxmind-p4-files` worktree on `codex/p4-private-files`, from commit `33fd80f`. The original checkout continues P3. Integration is deferred; this worktree contains no copied uncommitted P3 authentication candidate.
+P4's isolated implementation and native review are complete in the managed `foxmind-p4-files` worktree on `codex/p4-private-files`, from base `33fd80f`. The original checkout continues P3. Start with the [deferred integration handoff](p4-integration-handoff.md) after P3 closes. Integration remains deferred; this worktree contains no copied uncommitted P3 authentication candidate.
 
 ## Implemented policy boundary
 
@@ -20,7 +20,7 @@ The P3 identity adapter must provide a server-authenticated user and recheck ses
 
 Storage is [SeaweedFS 4.48](https://github.com/seaweedfs/seaweedfs/releases/tag/4.48); scanner is [ClamAV 1.5.4](https://github.com/Cisco-Talos/clamav/releases/tag/clamav-1.5.4). Their tested image digests are pinned in the P4 Compose/fixture definitions. Official references: [ClamAV Docker lifecycle](https://docs.clamav.net/manual/Installing/Docker.html) and [ClamD protocol](https://docs.clamav.net/manual/Usage/ClamdProtocol.html). A limit/error never counts as clean. Production quotas, hosting and the real P3/domain bridge remain deferred.
 
-Track work and acceptance in [P4 tasks](../odd/tasks/p4-private-files.md) and the [work record](work-log/2026-10-16-id-unavailable-p4-isolated.md). P4 cannot close until real service and integrated security/concurrency proof is observed.
+Track work and acceptance in [P4 tasks](../odd/tasks/p4-private-files.md), the [initial work record](work-log/2026-10-16-id-unavailable-p4-isolated.md) and [current native closure](work-log/2026-10-16-id-unavailable-p4-native-review.md). Real isolated service/security/concurrency proof passed; full phase closure still requires application integration and its applicable acceptance proof.
 
 ## Dedicated local services
 

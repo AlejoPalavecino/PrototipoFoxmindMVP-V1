@@ -23,7 +23,7 @@ Normative sources: [functional specification](../../docs/foxmind-v1-functional-s
 
 | Unit | Deliverable | State |
 |---|---|---|
-| P4-A | Isolated worktree, scope, contracts and deterministic policy/security gates with tests | implemented candidate; 11 checks/strict compilation PASS, independent/review acceptance pending |
+| P4-A | Isolated worktree, scope, contracts and deterministic policy/security gates with tests | implemented; original 11 checks/strict compile PASS, included in later 68PASS and acknowledged native scopes |
 | P4-B | Official-source storage/scanner selection, bounded private adapters and real component proof | implemented; actual SeaweedFS/ClamAV and content checks PASS |
 | P4-C | Durable upload/quota transitions, immutable completion, recovery and cleanup | implemented; automatic cleanup, atomic draft-plan promotion/rollback and quota races now verified |
 | P4-D | Opt-in Nest/HTTP adapter, configuration and protected transfer/read contracts | implemented; actual Nest lifecycle and concrete domain-record resolver verified with real SQL/S3/ClamAV; real P3/P5/P7 integration deferred by user |
@@ -41,7 +41,7 @@ RED must fail on missing requested behavior, followed by focused GREEN and scope
 
 Latest isolated implementation is complete and natively reviewed. Earlier units f2f9a0e/cleanup,18c2de8/record access,3e7c28c/promotion,bdda8d6/Office andce31410/probes remain history. Independent scoped [access17checks](../../docs/work-log/2026-10-16-p4_access_review-p4-audit.md)/[content-output33checks](../../docs/work-log/2026-10-16-p4_content_review-p4-audit.md) closed their three reported P2 issues in46611f2. Native review of all48paths used ten complete reduced scopes after the whole candidate exceeded context budget; four warning findings were fixed in2ea8523, then separately reviewed/approved/acknowledged with no findings. [Native coordinator and attributed records](../../docs/work-log/2026-10-16-id-unavailable-p4-native-review.md) retain exact bindings, original failures and limits. Current runner build0/68PASS (40component/startup/cleanup/output +27real service +1persistent restart), six migrations/drift0, owned cleanup0 and all P4 services exited. Source native approval is bound to2ea8523; passive closure documentation is separate. No known isolated defect from these reviews remains open.
 
-Integration remains explicitly deferred. Its later coordinator must wire accepted P3 session/CSRF/admission and P7 editor/deadline/count ports into the supplied resolver, call P4 promotion from P5 publication, reconcile migrations/dependencies and observe full app/browser proof. Do not merge uncommitted P3 candidates here or mark full application/phase accepted100% from isolated proof. No P3 source, push, merge, PR or publication occurred.
+Integration remains explicitly deferred until accepted P3 closure. Follow the [integration handoff](../../docs/p4-integration-handoff.md) for payload, trusted ports, migration/dependency reconciliation, lifecycle, staged domain connections and browser acceptance. Its later coordinator must preserve final P3 metadata rather than copy this branch's historical P3 summary. Do not merge uncommitted P3 candidates here or mark full application/phase accepted100% from isolated proof. No P3 source, push, merge, PR or publication occurred.
 
 ## Evidence and retained failures
 
@@ -50,7 +50,7 @@ Integration remains explicitly deferred. Its later coordinator must wire accepte
 - Initial real service run: one actual S3/ClamAV component PASS; service stub failures followed, including one dependent missing-fixture TypeError that is not meaningful RED proof for authorization. Subsequent public-service GREEN9PASS, then expanded GREEN15PASS.
 - HTTP rejection regression observed200 versus400 for GET-with-body, then fixed. Initial HTTP/configuration/lifecycle helper additions had no pre-implementation RED; do not retroactively claim that they did. Later functional/real proof is recorded separately; independent acceptance remains required.
 - SQL invariant RED exposed NULL CHECK semantics and phase-only link guarding. Metadata-snapshot RED observed50,000,001 versus583bytes. Added a forward hardening migration (never rewrote the already-applied custody migration) and snapshotted metadata before async calls. Changed-candidate real service GREEN18PASS.
-- Earlier `node scripts/test-p4.mjs --persistent`: strict build0, policy/adapters/content/configuration26PASS, real service18PASS, persistent migration/restart1PASS. Superseded by current59PASS audit proof above; retained as history. Writer proof is not independent/native approval.
+- Earlier `node scripts/test-p4.mjs --persistent`: strict build0, policy/adapters/content/configuration26PASS, real service18PASS, persistent migration/restart1PASS. Superseded first by the historical59PASS audit checkpoint, then by current68PASS native-correction proof above; retained as history. Writer proof is not independent/native approval.
 - Dependency regressions plus unchanged account contracts17PASS; full npm audit0known vulnerabilities. Schema drift check and structural checks are recorded in the work log when observed, never assumed from build.
 
 ## Audit requirement coverage (isolated implementation)
@@ -63,4 +63,4 @@ Integration remains explicitly deferred. Its later coordinator must wire accepte
 | Quota and preserved history | Reservations/completion idempotence, concurrent quota denial, completed/draft/history retention, owned automatic incomplete cleanup only |
 | Draft publication compatibility | Ready plan transfer to its actual classroom with same teacher/owner; immutable bytes, quota serialization, rollback and SQL guards |
 | Runtime/setup | Opt-in HTTP/Nest lifecycle, explicit config, dedicated persistent services, real restart proof and stopped retained volumes |
-| Acceptance still external | Independent/native review and user-deferred P3/P5/P7/browser integration; no source edits/integration/publication inferred |
+| Acceptance still external | Independent/native isolated review completed; P3/P5/P7 application/browser integration deferred; no integration/publication inferred |
