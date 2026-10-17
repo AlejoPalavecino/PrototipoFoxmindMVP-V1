@@ -17,15 +17,23 @@ Base 767174bc61f2fc3a80c3937c4a0519b1b90523e0; branch codex/p5-classrooms. User 
 
 | ID | Outcome | State |
 |---|---|---|
-| P5-A | Contracts, policy, cover assets and meaningful RED/GREEN | in_progress |
-| P5-B | Draft persistence/publication, P4 plan promotion, settings and read models | pending |
-| P5-C | Code previews, invitation delivery/acceptance and concurrency | pending |
-| P5-D | Membership periods, archive/reentry, privacy and retained history | pending |
-| P5-E | Opt-in API and reusable responsive UI with truthful states | pending |
-| P5-F | Real isolated runtime/browser verification, review disposition and handoff | pending |
+| P5-A | Contracts, policy, cover assets and meaningful RED/GREEN | implemented; writer policy checks PASS; independent/native pending |
+| P5-B | Draft persistence/publication, P4 plan promotion, settings and read models | implemented; writer SQL/runtime proof PASS; independent/native pending |
+| P5-C | Code previews, invitation delivery/acceptance and concurrency | implemented; writer SQL/actual captured SMTP proof PASS; independent/native pending |
+| P5-D | Membership periods, archive/reentry, privacy and retained history | implemented; writer SQL/runtime/history proof PASS; independent/native pending |
+| P5-E | Opt-in API and reusable responsive UI with truthful states | implemented; types/bundle/browser proof PASS; final P3 shell deferred |
+| P5-F | Real isolated runtime/browser verification, review disposition and handoff | writer46checks PASS plus22regressions; independent/native consent requested; full integration deferred |
 
 Each behavioral work unit keeps its tests/docs together. Risks: authorization, privacy, durable email, migration/concurrency and file promotion. Review overages reported, never compressed to meet budget. Native reviews require candidate-specific consent; implement and verify concrete candidates before asking. No independent-review success without an actual independent reviewer.
 
 ## Exit
 
 Isolated scope: verified fixture teacher publishes a valid persistent classroom using real safe P4 plan; different verified fixture student previews/confirms or accepts invitation; unauthorized, stale, duplicate, archived and former-member operations rejected without changing records. UI exposes actual isolated API results with loading/errors/retries. Full P5 phase exit additionally requires later accepted P3 identity/web integration; fixture authentication never proves that integration.
+
+## Implemented checkpoint and review boundary
+
+Isolated source/runtime candidate `f3263e56b3a336aaa6f25ca577bca74fab3fc6e0`. All P5-A through P5-E implementation/writer checks are complete; review acceptance remains pending. [Operations/API/UI handoff](../../docs/classrooms.md). Fresh API build0, UI types0/bundle0, focused37PASS + real9PASS =46checks, additional inherited22PASS and full npm audit0. Exact failures, missing preimplementation RED coverage, browser/axe limitations, cleanup interruption and corrective runs remain in the coordinator record.
+
+No source edits after the frozen candidate; subsequent task/roadmap/record changes are passive evidence. Original compact local units precede standard readability formatting; resulting formatting/UI/runtime commits exceed400 authored lines (see record). This is explicitly reported, not compressed or authorized for oversized publication. No native/independent approval or publication exception inferred. A candidate-specific request for native review and optional independent read-only agents is pending; an unanswered/default UI option is not consent.
+
+First unfinished acceptance action: obtain the actual candidate-specific review answer, then run only authorized review/verification, persist attributed evidence and correct any findings with a new candidate and applicable consent. Integration remains for the later chain P3 → P4 → P5; do not merge active/uncommitted P3 or later P4 into this isolated branch now.

@@ -36,7 +36,7 @@ P4 parallel workstream (current separate user authorization): [isolated implemen
 | P2 | Technical foundations | completed |33-table schema,3migrations, local PostgreSQL definition, minimal NestJS/Prisma server, health/lifecycle tests and dependency remediation. Not all supporting services or product APIs. |
 | P3 | Identity/access and initial web foundation | in_progress | **P3.1 completed:** verified contracts/policies only. **P3.2 completed:** isolated SMTP capture/templates and independent verification. **P3.3 in_progress:** foundations and seven-operation T2 independently verified; five T3 operations pending. Web/P3.4 not started. |
 | P4 | Private file infrastructure | in_progress | Isolated implementation build0/68PASS; independent scoped rechecks PASS; original/corrected native scopes approved and acknowledged (source2ea8523). Actual application/browser integration deferred by user. |
-| P5 | Classrooms and enrollment | not_started | Creation/drafts, required plan/units/topics, invitations/codes, classroom-scoped roles, membership history and archive lifecycle. Requires P3/P4. |
+| P5 | Classrooms and enrollment | in_progress | Separate user-authorized worktree codex/p5-classrooms from P4 checkpoint767174b: isolated implementation/writer proof46PASS plus22regressions. [Tasks](../odd/tasks/p5-classrooms.md), [record](work-log/2026-10-16-id-unavailable-p5-classrooms.md), [operations](classrooms.md). Independent/native acceptance and chained P3/P4 integration pending. |
 | P6 | Teaching plan, Library and Muro | not_started | Plan maintenance/states, teacher-managed materials, student consultation and moderated publication/reply threads. |
 | P7 | Activities, attempts and submissions | not_started | Authoring, practical assignments, questionnaires/evaluations, autosave, single editor, locks, deadlines, delivery and reopening. |
 | P8 | Grading and follow-up | not_started | Exact scoring, teacher publication/corrections, effective grades, audit history, individual/class averages and progress. |
@@ -92,6 +92,8 @@ Exit condition: a person can actually create and verify an account, enter/leave 
 Exit condition: allowed files can be securely stored/retrieved by authorized users; unsafe/pending files remain inaccessible. Concrete tools and operational limits must be selected and verified before use, not inferred as already installed.
 
 ### P5 — Classrooms and enrollment
+
+Worktree-local checkpoint: source/runtime `f3263e5` implements the isolated P5 scope with fresh API build0, UI types/bundle0,37focused +9actual SQL/S3/ClamAV/SMTP checks PASS and selected browser journeys. This is writer proof, not independent/native approval or final P3 identity/Next.js acceptance. Detailed [tasks](../odd/tasks/p5-classrooms.md) retain failures, review consent boundary and exact later integration handoff. The user's current instruction defers chained integration and protects P3/P4; their earlier summaries above remain inherited historical context, not authority for this P5 workstream. This change exists only in the P5 worktree; it does not rewrite the active P3/P4 coordinator checkouts.
 
 - Build the classroom wizard/private drafts with its required plan file and units/topics, cover catalog and fixed timezone.
 - Implement classroom-scoped teacher/student permissions, invitations/codes and membership periods/re-entry history.
