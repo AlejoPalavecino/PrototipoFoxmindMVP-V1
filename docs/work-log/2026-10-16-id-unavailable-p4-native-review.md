@@ -1,4 +1,4 @@
-# P4 native review — baseline approved, corrections in progress
+# P4 native review — implementation and corrective review approved
 
 - Agent / role: P4 coordinator, native orchestration and fix writer.
 - Session or task ID: unavailable; not invented.
@@ -6,7 +6,7 @@
 - Branch / worktree: codex/p4-private-files / C:/Users/alejo/.codex/worktrees/foxmind-p4-files/ProtipoFoxMind.
 - Starting candidate: 46611f2815f087487d675342769031382505ed0e.
 - Phase: P4-E, following odd/tasks/p4-private-files.md.
-- Status: in_progress.
+- Status: completed (isolated native review and corrections; integration deferred).
 
 ## Request and native scope
 
@@ -56,4 +56,10 @@ Baseline native evidence and12 attributed records committed569b7f7. That documen
 
 ## Boundaries and exact handoff
 
-P3 source and integration remain untouched; no push/merge/PR/deployment. Functional61PASS at46611f2 remains prior evidence, separate from native static proof. Complete corrected-candidate runner, record actual failures/outcomes, commit reviewable corrective code with tests, and obtain native disposition for those changed paths. Native result files/context/capability tokens stay in ignored local runtime storage; logs preserve hashes and lineages, no acknowledgement tokens.
+Corrective implementation committed2ea8523 after baseline proof569b7f7. User explicitly confirmed the new14-file/125-line review. [Native corrective reviewer](2026-10-16-native_corrections-p4.md) returned complete inspection/no findings; native capture approved and exact acknowledgement succeeded for review-17764602cbacc596, target sha256:9dab50bdffaf28706d886c5afd6d1f53405ec0a42b033babda97b83e8cd9432a, consumed revision sha256:845450627b91c7f3c74c10ad5f3ae7ebeb2db3b32bf6d4c915ef474559cee9ac. Fresh native status then stopped withtarget_already_acknowledged. All four original WARNING findings are resolved for the corrected source. Eleven total acknowledged dispositions cover the original ten scopes plus corrective scope; thirteen actual selected-lens reviewer records are preserved, while passive low-risk evidence used native verification without a reviewer lens.
+
+P3 source and integration remain untouched; no push/merge/PR/deployment. Final functional build0/68PASS, migrations/drift/owned cleanup0 and stopped persistent services are coordinator proof; native reviewers performed static inspection only. Original61PASS remains historical, not current. Final local-link checks and Git proof are recorded below; this documentation-only closure needs no new functional run because no implementation changed after the68PASS candidate. Native context/capability tokens stay in ignored local runtime storage; logs preserve hashes/lineages without acknowledgement tokens. Source native approval is bound to2ea8523; later documentation records do not claim a fresh source approval or expanded acceptance.
+
+Next product action is the later user-authorized integration: connect accepted P3 authentication/admission and P5/P7 domain flows, reconcile migrations/dependencies and verify full browser/API/data journeys. No known P4-only implementation defect remains open from these reviews; full application/phase exit remains deferred, not marked completed by this isolated result.
+
+Final closure checks:74local P4/native documentation links PASS, git diff --check0, and no implementation/config/test/schema/package difference from approved source2ea8523fdd2b8ca68cf4c7d7a46d33b63ba83c38. Original checkout observed read-only at0fd271c; dedicated P4 postgres/storage/scanner all exited. Closing commit contains passive records/roadmap only; it is not falsely described as a newly natively reviewed implementation candidate. Worktree cleanliness is checked after that commit, whose identity is not invented in advance.

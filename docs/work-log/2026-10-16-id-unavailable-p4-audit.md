@@ -1,4 +1,4 @@
-# P4 audit and completion — in progress
+# P4 isolated audit and native closure — completed within scope
 
 - Agent / role: current P4 coordinator and audit/fix writer.
 - Session or task ID: unavailable; no registered runtime identity exposed.
@@ -6,7 +6,7 @@
 - Branch / worktree: codex/p4-private-files / C:/Users/alejo/.codex/worktrees/foxmind-p4-files/ProtipoFoxMind.
 - Starting commit: 179eb4c1d0b39b38ba4e02249f2c60958cad31ce; initially clean.
 - Phase/tasks: P4; odd/tasks/p4-private-files.md; functional specification sections2/5/7/14/15.
-- Status: in_progress.
+- Status: completed (isolated audit/fixes/native closure; integration deferred).
 
 ## Request and scope
 
@@ -69,3 +69,5 @@ Slice plan exact48-path coverage: policy182lines, adapters252, content273, recor
 Native content and HTTP units approved with WARNING findings R3-content-text-rejection and R3-early-response-close, respectively; exact approved acknowledgements observed. Coordinator will resolve both actual reliability defects rather than treating warning approval as full closure: allow harmless Office prose while retaining package macro rejection, and release HTTP transfer after disconnection during pending read. Regression RED/GREEN and a separate native review of the correction will follow. Remaining frozen baseline reviews continue; HEAD stays46611f2 until their canonical captures finish.
 
 All ten reduced-scope native approvals acknowledged for frozen46611f2;12 attributed selected-lens records and coordinator summary in2026-10-16-id-unavailable-p4-native-review.md preserve canonical hashes/lineages. Local-runtime reliability additionally reported stale fixture signature provisioning and sequential probe cleanup; four warnings total, no native blocker/critical. Writer fixed all four with meaningful RED8PASS2FAIL plus cleanup/startup2PASS3FAIL -> focused GREEN10+5PASS -> full runner build0/68PASS (40component+27real+1persistent), six migrations/drift0, owned cleanup0 and stopped retained services. Tests model stale/update control flow with contained fake commands; actual service tests use real ClamAV/freshclam and scanner freshness enforcement. Do not claim actual aged-CVD proof. Corrective changes still require their own final native disposition; baseline approval alone is not approval of changed code.
+
+Final update: baseline/native records committed569b7f7; corrections2ea8523. User confirmed final candidate-specific review. Native /root/native_corrections inspected complete frozen14-file125-line patch, no findings; capture approved and exact acknowledgement completed for review-17764602cbacc596. Fresh status confirms target_already_acknowledged. See [native coordinator](2026-10-16-id-unavailable-p4-native-review.md) and its thirteen attributed reviewer records. All four native warnings are resolved for2ea8523; no known isolated implementation defect remains from this audit. Current scope is completed; full P4 application exit/integration remains deferred by the user. Last read-only checks observe all P4 services exited, original main still0fd271c, clean source worktree at2ea8523, Git diff check0 and67local documentation links PASS. Closing edits only reconcile records/roadmap; no functional retest needed for those passive edits. Next exact action is later integration under its own user request, not further P3 work in this worktree.

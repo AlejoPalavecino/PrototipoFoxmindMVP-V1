@@ -29,3 +29,5 @@ Native capture-result admitted the unchanged schema JSON; approved acknowledgeme
 ## Handoff
 
 Coordinator owns fixes, regressions and changed-candidate review; original warnings remain recorded and are not called resolved by approval alone.
+
+Subsequent coordinator update: both warnings were corrected in2ea8523 and independently inspected by /root/native_corrections. Its [approved native corrective record](2026-10-16-native_corrections-p4.md) closes them for that source; the original reviewer did not author or re-review the fixes.
