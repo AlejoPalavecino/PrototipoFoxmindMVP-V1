@@ -15,6 +15,10 @@ export interface IdentityRuntimePorts {
   readonly beforeRegistrationCommit?: () => Promise<void>;
   /** After validation, before user lock; never replaces persisted authorization. */
   readonly beforeProfileCommit?: () => Promise<void>;
+  /** Trusted post-hash/pre-transaction synchronization; no request/environment binding. */
+  readonly beforeRecoveryCommit?: () => Promise<void>;
+  /** Trusted post-hash synchronization; persisted authorization is rechecked under the user lock. */
+  readonly beforePasswordChangeCommit?: () => Promise<void>;
 }
 export function publicUser(user: User) {
   return { id: user.id, email: user.email, firstName: user.first_name, lastName: user.last_name, emailVerified: user.email_verified_at !== null };
@@ -171,6 +175,117 @@ export class IdentityRuntime {
       for (const token of previous) await cancelAccountMailForToken(tx, token.id);
       await enqueueAccountMail(tx, this.configuration.outbox, { jobId: randomUUID(), tokenId, userId: user.id,
         purpose: 'EMAIL_VERIFICATION', expiresAt: expiresAt.toISOString(), rawToken });
+    });
+  }
+  async requestPasswordRecovery(body: unknown, ip: string): Promise<void> {
+    const input = validateBodyShape(body, ['email'], ['email']);
+    const email = validateMailbox(input.email), canonical = await this.store.canonicalEmail(email);
+    const rule = this.configuration.security.rateLimits['recovery-request'];
+    const buckets: AdmissionBucket[] = [{ action: 'recovery-request', namespace: 'ip', subject: ip, budget: rule.ip }];
+    if (rule.identifier) buckets.push({ action: 'recovery-request', namespace: 'identifier', subject: canonical, budget: rule.identifier });
+    await this.store.admit(this.configuration.security, buckets);
+    // Comparable maintained work on BOTH paths, outside transactions and before account-dependent work.
+    const rawToken = generateVerifier();
+    await this.passwords.dummyCheck(rawToken);
+    const digest = accountTokenDigest('PASSWORD_RESET', rawToken);
+    const action = 'identity.v1:recovery-request:success';
+    const key = this.configuration.security.abuseDigest('recovery-request', `success\0${canonical}`);
+    await this.store.transaction(async tx => {
+      // Private success history, NOT an admission bucket. Uniqueness also serializes unknown identifiers.
+      await tx.$executeRaw`INSERT INTO account_action_controls
+        (id,action,subject_key,last_requested_at,window_started_at,request_count)
+        VALUES (${randomUUID()}::uuid,${action},${key},clock_timestamp(),clock_timestamp(),0)
+        ON CONFLICT (action,subject_key) DO NOTHING`;
+      const [marker] = await tx.$queryRaw<{ last_requested_at: Date; request_count: number }[]>`
+        SELECT last_requested_at,request_count FROM account_action_controls
+        WHERE action=${action} AND subject_key=${key} FOR UPDATE`;
+      // Marker -> sorted users -> tokens -> jobs. No consumption path takes this marker after users.
+      const snapshot = await tx.user.findUnique({ where: { email_normalized: canonical } });
+      if (snapshot) await this.store.lockUsers(tx, [snapshot.id]);
+      const user = snapshot ? await tx.user.findUnique({ where: { id: snapshot.id } }) : null;
+      const now = await this.store.now(tx);
+      const cooldown = Math.max(IDENTITY_POLICY.resendMinimumSeconds, rule.cooldownSeconds ?? 60);
+      const remaining = marker.request_count === 0 ? 0 : marker.last_requested_at.getTime() + cooldown * 1000 - now.getTime();
+      if (remaining > 0) throw new IdentityHttpError('RATE_LIMITED', Math.max(1, Math.ceil(remaining / 1000)));
+      const expiresAt = new Date(now.getTime() + IDENTITY_POLICY.recoveryTtlSeconds * 1000);
+      if (user && user.email_normalized === canonical) {
+        const previous = await tx.accountToken.findMany({ where: { user_id: user.id, purpose: 'PASSWORD_RESET',
+          consumed_at: null, invalidated_at: null }, orderBy: { id: 'asc' } });
+        for (const token of previous) await tx.accountToken.update({ where: { id: token.id }, data: { invalidated_at: now } });
+        const tokenId = randomUUID();
+        await tx.accountToken.create({ data: { id: tokenId, user_id: user.id, purpose: 'PASSWORD_RESET',
+          token_hash: digest, created_at: now, expires_at: expiresAt } });
+        for (const token of previous) await cancelAccountMailForToken(tx, token.id);
+        await enqueueAccountMail(tx, this.configuration.outbox, { jobId: randomUUID(), tokenId, userId: user.id,
+          purpose: 'PASSWORD_RESET', expiresAt: expiresAt.toISOString(), rawToken });
+      }
+      // Unknown identifiers also commit successful acceptance; no user/token/mail is created for them.
+      const changed = await tx.$executeRaw`UPDATE account_action_controls SET last_requested_at=${now},
+        window_started_at=${now},request_count=1,updated_at=${now} WHERE action=${action} AND subject_key=${key}`;
+      if (changed !== 1) throw new IdentityHttpError('SERVICE_UNAVAILABLE');
+    });
+  }
+  async confirmPasswordRecovery(body: unknown, ip: string, current: AuthenticatedContext | null): Promise<void> {
+    const input = validateBodyShape(body, ['token', 'newPassword'], ['token', 'newPassword']);
+    const password = validatePassword(input.newPassword);
+    let digest: string;
+    try { digest = accountTokenDigest('PASSWORD_RESET', input.token); }
+    catch { throw new IdentityHttpError('VALIDATION_ERROR'); }
+    const rule = this.configuration.security.rateLimits['token-redemption'];
+    await this.store.admit(this.configuration.security, [{ action: 'token-redemption', namespace: 'ip', subject: ip, budget: rule.ip }]);
+    // This snapshot locates the lock owner only; every consumption condition is checked again below.
+    const snapshot = await this.store.transaction(tx => tx.accountToken.findUnique({ where: { token_hash: digest } }));
+    if (!snapshot) throw new IdentityHttpError('LINK_INVALID');
+    const hash = await this.passwords.hash(password);
+    await this.ports.beforeRecoveryCommit?.();
+    await this.store.transaction(async tx => {
+      await this.store.lockUsers(tx, [snapshot.user_id, ...(current ? [current.user.id] : [])]);
+      if (current && (current.user.id !== snapshot.user_id || !await this.store.activeInTransaction(tx, current))) {
+        throw new IdentityHttpError('LINK_INVALID');
+      }
+      const consumed = await tx.$queryRaw<{ id: string }[]>`UPDATE account_tokens SET consumed_at=clock_timestamp()
+        WHERE id=${snapshot.id}::uuid AND user_id=${snapshot.user_id}::uuid
+          AND purpose='PASSWORD_RESET' AND token_hash=${digest} AND expires_at>clock_timestamp()
+          AND consumed_at IS NULL AND invalidated_at IS NULL RETURNING id`;
+      if (consumed.length !== 1) throw new IdentityHttpError('LINK_INVALID');
+      const now = await this.store.now(tx);
+      await tx.user.update({ where: { id: snapshot.user_id }, data: { password_hash: hash } });
+      await tx.session.updateMany({ where: { user_id: snapshot.user_id, revoked_at: null }, data: { revoked_at: now } });
+      const previous = await tx.accountToken.findMany({ where: { user_id: snapshot.user_id, purpose: 'PASSWORD_RESET',
+        consumed_at: null, invalidated_at: null }, orderBy: { id: 'asc' } });
+      for (const token of previous) await tx.accountToken.update({ where: { id: token.id }, data: { invalidated_at: now } });
+      for (const tokenId of [snapshot.id, ...previous.map(token => token.id)].sort()) await cancelAccountMailForToken(tx, tokenId);
+      // The successful-request marker and verification-purpose state deliberately remain untouched.
+    });
+  }
+  async changePassword(body: unknown, ip: string, context: AuthenticatedContext | null) {
+    if (!context) throw new IdentityHttpError('AUTH_REQUIRED');
+    if (!context.user.email_verified_at) throw new IdentityHttpError('EMAIL_VERIFICATION_REQUIRED');
+    const input = validateBodyShape(body, ['currentPassword', 'newPassword'], ['currentPassword', 'newPassword']);
+    const currentPassword = validatePassword(input.currentPassword), newPassword = validatePassword(input.newPassword);
+    const rule = this.configuration.security.rateLimits['password-change'];
+    const buckets: AdmissionBucket[] = [{ action: 'password-change', namespace: 'ip', subject: ip, budget: rule.ip }];
+    if (rule.identifier) buckets.push({ action: 'password-change', namespace: 'identifier', subject: context.user.id, budget: rule.identifier });
+    await this.store.admit(this.configuration.security, buckets);
+    const snapshot = await this.store.transaction(tx => tx.user.findUnique({ where: { id: context.user.id } }));
+    if (!snapshot || !await this.passwords.verify(currentPassword, snapshot.password_hash)) throw new IdentityHttpError('AUTHENTICATION_FAILED');
+    const hash = await this.passwords.hash(newPassword);
+    await this.ports.beforePasswordChangeCommit?.();
+    const verifier = generateVerifier();
+    return this.store.transaction(async tx => {
+      await this.store.lockUsers(tx, [context.user.id]);
+      if (!await this.store.activeInTransaction(tx, context)) throw new IdentityHttpError('AUTH_REQUIRED');
+      const user = await tx.user.findUnique({ where: { id: context.user.id } });
+      if (!user || user.password_hash !== snapshot.password_hash) throw new IdentityHttpError('AUTHENTICATION_FAILED');
+      if (!user.email_verified_at) throw new IdentityHttpError('EMAIL_VERIFICATION_REQUIRED');
+      const session = await tx.session.findUniqueOrThrow({ where: { id: context.sessionId } });
+      const now = await this.store.now(tx);
+      await tx.user.update({ where: { id: user.id }, data: { password_hash: hash } });
+      await tx.session.updateMany({ where: { user_id: user.id, revoked_at: null }, data: { revoked_at: now } });
+      // Rotate all bearer/CSRF bindings without extending the original absolute lifetime.
+      await tx.session.create({ data: { user_id: user.id, token_hash: sessionTokenDigest(verifier),
+        created_at: session.created_at, last_seen_at: now, expires_at: session.expires_at } });
+      return { verifier, expiresAt: session.expires_at, now };
     });
   }
   async profile(context: AuthenticatedContext | null, ip: string, body?: unknown) {

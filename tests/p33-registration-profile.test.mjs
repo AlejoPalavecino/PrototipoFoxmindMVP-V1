@@ -11,6 +11,7 @@ import { createPasswordService, generateVerifier, sessionTokenDigest } from '../
 import { IdentityRuntime } from '../.build/api/apps/api/src/identity/index.js';
 import { createSmtpFixture } from '../scripts/mail-smtp-fixture.mjs';
 
+if (process.send) { process.send({ type: 'foxmind-test-ready' }); process.disconnect(); }
 if (!/^foxmind-identity-[a-f0-9]+$/.test(process.env.P33_IDENTITY_ISOLATED ?? '') || !/^http:\/\/127\.0\.0\.1:\d+$/.test(process.env.P33_OWNED_INBOX ?? '')) throw new Error('Owned D2 runner required');
 const origin = 'http://127.0.0.1:3000';
 const password = 'Only a fixture password 😀';
@@ -230,7 +231,7 @@ test('D2 media/16KiB/error transport is scoped to actual new operations', async 
     await error(await send(path, { method, cookie, csrf: token, body: {}, headers: { 'Content-Type': 'text/plain' } }), 415, 'MEDIA_TYPE_UNSUPPORTED');
     await error(await send(path, { method, cookie, csrf: token, body: ' '.repeat(16385) }), 413, 'REQUEST_TOO_LARGE');
   }
-  for (const path of ['/auth/password-recovery/request', '/auth/password-recovery/confirm', '/account/password']) await status(await send(path, { method: 'POST', body: {} }), 404);
+  await status(await send('/account/password', { method: 'POST', body: {} }), 401);
 });
 test('D2 authorized GET/PATCH renew idle, rejected patches and safe reads do not; absolute lifetime never extends', async () => {
   const get = await session(verified, { idle: -1798.5 }), patch = await session(verified, { idle: -1798.5 });

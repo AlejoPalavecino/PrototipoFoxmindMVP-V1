@@ -8,6 +8,7 @@ function fixture() {
   mkdirSync('.test-artifacts/p33-d2-plan-c2-mvb4asm3', { recursive: true });
   const root = mkdtempSync(resolve('.test-artifacts/p33-d2-plan-c2-mvb4asm3/cli-'));
   mkdirSync(join(root, 'scripts'));
+  writeFileSync(join(root, 'scripts/p33-test-process.mjs'), readFileSync('scripts/p33-test-process.mjs'));
   writeFileSync(join(root, 'scripts/test-p33-registration-profile.mjs'), readFileSync('scripts/test-p33-registration-profile.mjs'));
   // Resource imports must be lazy: neither helper exists in this project.
   return root;
@@ -49,7 +50,8 @@ test('each public group selects its exact original cases using fresh synthetic h
       }
     `);
     mkdirSync(join(cwd, 'tests'));
-    writeFileSync(join(cwd, 'tests/p33-registration-profile.test.mjs'), `import { test } from 'node:test';\n` + names().map((name, i) => `test(${JSON.stringify(name)}, () => console.log('EXECUTED_CASE_${i + 1}'));`).join('\n'));
+    writeFileSync(join(cwd, 'tests/p33-registration-profile.test.mjs'), `if(process.send){process.send({type:'foxmind-test-ready'});process.disconnect();}
+import { test } from 'node:test';\n` + names().map((name, i) => `test(${JSON.stringify(name)}, () => console.log('EXECUTED_CASE_${i + 1}'));`).join('\n'));
     const env = { ...process.env }; delete env.NODE_TEST_CONTEXT;
     const run = spawnSync(process.execPath, ['scripts/test-p33-registration-profile.mjs', `--group=${group}`], { cwd, env, encoding: 'utf8', timeout: 2500 });
     assert.equal(run.status, 0, run.stderr); assert.equal(run.stderr, '');

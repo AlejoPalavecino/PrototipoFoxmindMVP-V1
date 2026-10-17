@@ -6,7 +6,8 @@ import { IdentityHttpError, publicIdentityError } from './errors.ts';
 import { IdentityRuntime, publicUser } from './runtime.ts';
 
 const implemented = new Set(['GET /auth/session', 'GET /auth/csrf', 'POST /auth/login', 'POST /auth/logout', 'POST /auth/register', 'GET /account', 'PATCH /account',
-  'POST /auth/email-verification/confirm', 'POST /auth/email-verification/resend']);
+  'POST /auth/email-verification/confirm', 'POST /auth/email-verification/resend',
+  'POST /auth/password-recovery/request', 'POST /auth/password-recovery/confirm', 'POST /account/password']);
 export function readSessionCookie(header: string | undefined): { present: boolean; verifier: string | null } {
   const values = (header ?? '').split(';').map(part => part.trim()).filter(part => part.startsWith('foxmind_session='));
   if (!values.length) return { present: false, verifier: null };
@@ -84,6 +85,17 @@ export function installIdentityTransport(app: INestApplication, runtime: Identit
         } else if (route === 'POST /auth/email-verification/resend') {
           await runtime.resendEmailVerification(body, ip, context);
           json(response, 202, { status: 'accepted' });
+        } else if (route === 'POST /auth/password-recovery/request') {
+          await runtime.requestPasswordRecovery(body, ip);
+          json(response, 202, { status: 'accepted' });
+        } else if (route === 'POST /auth/password-recovery/confirm') {
+          await runtime.confirmPasswordRecovery(body, ip, context);
+          response.setHeader('Set-Cookie', clearSessionCookie(config));
+          json(response, 204);
+        } else if (route === 'POST /account/password') {
+          const rotation = await runtime.changePassword(body, ip, context);
+          response.setHeader('Set-Cookie', sessionCookie(config, rotation.verifier, rotation.expiresAt.getTime(), Math.max(Date.now(), rotation.now.getTime())));
+          json(response, 204);
         } else if (route === 'PATCH /account') {
           json(response, 200, await runtime.profile(context, ip, body));
         } else {

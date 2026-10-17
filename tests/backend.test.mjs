@@ -7,6 +7,7 @@ import pg from "pg";
 import { createApplication } from "../.build/api/apps/api/src/application.js";
 import { readConfiguration } from "../.build/api/apps/api/src/configuration.js";
 
+if (process.send) { process.send({ type: 'foxmind-test-ready' }); process.disconnect(); }
 if (process.env.FOXMIND_TEST_DATABASE !== "isolated-container" || !/^[a-f0-9]{64}$/.test(process.env.FOXMIND_API_TEST_CONTAINER ?? "")) {
   throw new Error("Use npm run test:api: an owned isolated database is required");
 }
@@ -98,7 +99,7 @@ test("compiled CLI starts on loopback and supports an ephemeral port", async () 
     }
   }
 });
-test("D1/D2 and candidate verification replace only their planned-route 404s", async () => {
+test("existing identity and candidate token flows replace only implemented planned-route 404s", async () => {
   assert.equal((await get('/api/v1/auth/session')).status, 200);
   assert.equal((await get('/api/v1/auth/csrf')).status, 401);
   const mutate = (path, method = 'POST', body = '{}') => fetch(`${origin}/api/v1${path}`, {
@@ -111,8 +112,9 @@ test("D1/D2 and candidate verification replace only their planned-route 404s", a
   assert.equal((await mutate('/account', 'PATCH')).status, 401);
   assert.equal((await mutate('/auth/email-verification/resend')).status, 401);
   assert.equal((await mutate('/auth/email-verification/confirm')).status, 422);
-  for (const [path, method] of [['/auth/password-recovery/request', 'POST'],
-    ['/auth/password-recovery/confirm', 'POST'], ['/account/password', 'POST']]) assert.equal((await mutate(path, method)).status, 404);
+  assert.equal((await mutate('/auth/password-recovery/request')).status, 422);
+  assert.equal((await mutate('/auth/password-recovery/confirm')).status, 422);
+  assert.equal((await mutate('/account/password')).status, 401);
   assert.equal((await get('/api/v1/classrooms')).status, 404);
 });
 test('unrelated unknown-route JSON parsing behavior is preserved', async () => {

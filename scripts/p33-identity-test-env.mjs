@@ -19,7 +19,7 @@ export function identityTestEnvironment() {
 
 export function compileIdentityApi(deadline) {
   const run = spawnSync(process.execPath, [createRequire(import.meta.url).resolve('typescript/bin/tsc'), '-p', 'apps/api/tsconfig.json'], {
-    env: process.env, encoding: 'utf8', timeout: Math.max(1, Math.min(6000, deadline - Date.now())), windowsHide: true,
+    env: process.env, encoding: 'utf8', timeout: Math.max(1, Math.min(30000, deadline - Date.now())), windowsHide: true,
   });
   if (run.stdout) process.stdout.write(run.stdout);
   if (run.stderr) process.stderr.write(run.stderr);
@@ -28,14 +28,15 @@ export function compileIdentityApi(deadline) {
 }
 
 export async function withIdentityDatabase(run) {
-  const deadline = Date.now() + 26000;
+  // Provisioning is infrastructure, not the execution budget for product assertions.
+  const deadline = Date.now() + 90000;
   const name = `foxmind-identity-${randomBytes(8).toString('hex')}`;
   const password = randomBytes(24).toString('hex');
   const env = { ...process.env, POSTGRES_PASSWORD: password };
   let owned = false;
   let client;
   const docker = (...args) => {
-    const result = spawnSync('docker', args, { env, encoding: 'utf8', timeout: Math.max(1, Math.min(args[0] === 'run' ? 8000 : 4000, deadline - Date.now())) });
+    const result = spawnSync('docker', args, { env, encoding: 'utf8', windowsHide: true, timeout: Math.max(1, Math.min(args[0] === 'run' ? 30000 : 15000, deadline - Date.now())) });
     if (result.error || result.status !== 0) throw new Error('Owned Docker operation unavailable');
     return result.stdout.trim();
   };
@@ -62,14 +63,14 @@ export async function withIdentityDatabase(run) {
       if (/^\d+_/.test(entry)) await client.query(readFileSync(`prisma/migrations/${entry}/migration.sql`, 'utf8'));
     }
     await client.end(); client = undefined;
-    return await run({ url, container, name, deadline });
+    return await run({ url, container, name, deadline: Date.now() + 30000 });
   } finally {
     if (client) { try { await client.end(); } catch {} }
     if (owned) {
       // Resume only our owned fixture if an outage assertion was interrupted.
-      const paused = spawnSync('docker', ['inspect', '--format', '{{.State.Paused}}', name], { encoding: 'utf8', timeout: 1000 });
-      if (paused.stdout?.trim() === 'true') spawnSync('docker', ['unpause', name], { stdio: 'pipe', timeout: 1000 });
-      const result = spawnSync('docker', ['rm', '--force', name], { stdio: 'pipe', timeout: 2000 });
+      const paused = spawnSync('docker', ['inspect', '--format', '{{.State.Paused}}', name], { encoding: 'utf8', windowsHide: true, timeout: 10000 });
+      if (paused.stdout?.trim() === 'true') spawnSync('docker', ['unpause', name], { stdio: 'pipe', windowsHide: true, timeout: 10000 });
+      const result = spawnSync('docker', ['rm', '--force', name], { stdio: 'pipe', windowsHide: true, timeout: 15000 });
       console.log(`Owned identity database cleanup: exit ${result.status ?? 'unavailable'}`);
       if (result.status !== 0) throw new Error('Owned database cleanup unavailable');
     }

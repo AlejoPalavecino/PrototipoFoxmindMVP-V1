@@ -20,14 +20,22 @@ function runTests(mode, files, deadline, additionalEnv = {}, imports = []) {
 export async function runMailCancellation(mode = '--cancellation', { prepare } = {}) {
   if (!modes.includes(mode)) throw new Error('Invalid mail check mode');
   if (mode === '--deadline') {
+    const { runIdentityTestProcess } = await import('./p33-test-process.mjs');
     const { withIdentityDatabase, identityTestEnvironment, compileIdentityApi } = await import('./p33-identity-test-env.mjs');
     try {
       return await withIdentityDatabase(async ({ url, name, deadline }) => {
         // Standalone deadline use now compiles; the coordinator alone supplies preparation.
         await (prepare ?? compileIdentityApi)(deadline);
-        return runTests(mode, ['tests/p33-mail-deadline.test.mjs'], deadline, {
-          ...identityTestEnvironment(), DATABASE_URL: url, P33_IDENTITY_ISOLATED: name,
+        const env = { ...process.env, ...identityTestEnvironment(), DATABASE_URL: url, P33_IDENTITY_ISOLATED: name };
+        delete env.NODE_TEST_CONTEXT;
+        const result = await runIdentityTestProcess(['--test', '--test-isolation=none', '--test-concurrency=1', 'tests/p33-mail-deadline.test.mjs'], {
+          env, workMs: 26000,
         });
+        if (result.stdout) process.stdout.write(result.stdout);
+        if (result.stderr) process.stderr.write(result.stderr);
+        if (result.errorCode || result.phase !== 'complete') console.error('Mail checks unavailable or timed out');
+        console.log(`Mail deadline tests: exit ${result.status ?? 'unavailable'}`);
+        return result.status ?? 1;
       });
     } catch { console.error('Owned mail deadline runner unavailable (sanitized)'); return 1; }
   }

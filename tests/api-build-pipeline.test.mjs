@@ -7,20 +7,20 @@ import { buildApi } from '../scripts/build-api.mjs';
 import { runP33T2 } from '../scripts/test-p33-t2.mjs';
 
 // Synthetic stages prove orchestration only. No real compiler, database or network.
-const files = ['build-api', 'test-p33-t2', 'test-p33-registration-profile', 'test-p33-verification', 'test-p33-identity-http', 'test-backend', 'test-p33-mail-cancellation'];
+const files = ['build-api', 'test-p33-t2', 'test-p33-registration-profile', 'test-p33-verification', 'test-p33-recovery', 'test-p33-password-change', 'test-p33-identity-http', 'test-backend', 'test-p33-mail-cancellation'];
 function fixture() {
   mkdirSync('.test-artifacts/p33-d2-plan-c2-mvb4asm3', { recursive: true });
   const root = mkdtempSync(resolve('.test-artifacts/p33-d2-plan-c2-mvb4asm3/build-once-'));
   const put = (path, content) => {
     mkdirSync(join(root, path, '..'), { recursive: true });
-    writeFileSync(join(root, path), content);
+    writeFileSync(join(root, path), path.startsWith('tests/') ? `if(process.send){process.send({type:'foxmind-test-ready'});process.disconnect();}\n${content}` : content);
   };
   for (const file of files) put(`scripts/${file}.mjs`, readFileSync(`scripts/${file}.mjs`));
   return { root, put };
 }
 function cli(f, file, args = []) {
   const env = { ...process.env }; delete env.NODE_TEST_CONTEXT;
-  return spawnSync(process.execPath, [`scripts/${file}.mjs`, ...args], { cwd: f.root, env, encoding: 'utf8', timeout: 2000 });
+  return spawnSync(process.execPath, [`scripts/${file}.mjs`, ...args], { cwd: f.root, env, encoding: 'utf8', timeout: 5000 });
 }
 function tools(f, generation = 0, compilation = 0) {
   // Mirror the installed package's root export trap: the CLI is an explicit subpath.
@@ -35,6 +35,7 @@ function tools(f, generation = 0, compilation = 0) {
     console.log('SYNTHETIC_COMPILATION'); console.error('SYNTHETIC_COMPILATION_STDERR'); process.exit(${compilation});`);
 }
 function resources(f, compileFails = false) {
+  f.put('scripts/p33-test-process.mjs', readFileSync('scripts/p33-test-process.mjs'));
   f.put('scripts/p33-identity-test-env.mjs', `
     export const identityTestEnvironment = () => ({});
     export function compileIdentityApi() { console.log('SYNTHETIC_DEFAULT_COMPILER'); ${compileFails ? "throw new Error('synthetic failure');" : ''} }
@@ -53,6 +54,12 @@ function resources(f, compileFails = false) {
   f.put('tests/p33-verification.test.mjs', `import { test } from 'node:test';\n` +
     ['confirm', 'resend'].map(name =>
       `test('T3 ${name} synthetic', () => console.log('SYNTHETIC_CHECK_p33-verification-${name}'));`).join('\n'));
+  f.put('tests/p33-recovery.test.mjs', `import { test } from 'node:test';\n` +
+    [['request-core', 'request'], ['issuance', 'issuance'], ['confirm', 'confirm']].map(([prefix, group]) =>
+      `test('R ${prefix} synthetic', () => console.log('SYNTHETIC_CHECK_p33-recovery-${group}'));`).join('\n'));
+  f.put('tests/p33-password-change.test.mjs', `import { test } from 'node:test';\n` +
+    ['core', 'guards', 'ip', 'races'].map(group =>
+      `test('P ${group} synthetic', () => console.log('SYNTHETIC_CHECK_p33-password-${group}'));`).join('\n'));
   f.put('tests/p33-registration-profile.test.mjs', `import { test } from 'node:test';\n` +
     ['registration', 'rollback', 'authorized', 'SMTP'].map(name =>
       `test('D2 ${name} synthetic', () => console.log('SYNTHETIC_CHECK_p33-registration-profile'));`).join('\n'));
@@ -108,7 +115,7 @@ test('public direct build preserves exact stage streams/exits and never continue
   }
 });
 
-const expected = ['build', 'registration', 'account', 'sessions', 'lifecycle', 'confirm', 'resend', 'deadline', 'identity', 'backend', 'offline'];
+const expected = ['build', 'registration', 'account', 'sessions', 'lifecycle', 'confirm', 'resend', 'recovery-request', 'recovery-issuance', 'recovery-confirm', 'password-core', 'password-guards', 'password-ip', 'password-races', 'deadline', 'identity', 'backend', 'offline'];
 function stages(log, failure) {
   const stage = async (name, options) => {
     log.push(name);
@@ -119,6 +126,8 @@ function stages(log, failure) {
     build: () => stage('build'),
     registration: (group, options) => stage(group, options),
     verification: (group, options) => stage(group, options),
+    recovery: (group, options) => stage(`recovery-${group}`, options),
+    password: (group, options) => stage(`password-${group}`, options),
     mail: (mode, options) => { assert.equal(mode, '--deadline'); return stage('deadline', options); },
     identity: options => stage('identity', options),
     backend: options => stage('backend', options),
@@ -155,9 +164,9 @@ test('public pipeline builds once and skips only redundant preparation after suc
   assert.equal(run.stderr, 'SYNTHETIC_GENERATION_STDERR\nSYNTHETIC_COMPILATION_STDERR\n');
   for (const label of ['SYNTHETIC_GENERATION\n', 'SYNTHETIC_COMPILATION\n']) assert.equal(run.stdout.split(label).length-1, 1);
   assert.doesNotMatch(run.stdout, /SYNTHETIC_DEFAULT_COMPILER/);
-  assert.equal(run.stdout.split('Same-invocation API output; no new compiler invoked').length-1, 9);
+  assert.equal(run.stdout.split('Same-invocation API output; no new compiler invoked').length-1, 16);
   const checks = [...run.stdout.matchAll(/SYNTHETIC_CHECK_([^\r\n]+)/g)].map(match => match[1]);
-  assert.deepEqual(checks, ['p33-registration-profile', 'p33-registration-profile', 'p33-registration-profile', 'p33-registration-profile', 'p33-verification-confirm', 'p33-verification-resend', 'p33-mail-deadline', 'p33-identity-http', 'backend', 'p31-contracts']);
+  assert.deepEqual(checks, ['p33-registration-profile', 'p33-registration-profile', 'p33-registration-profile', 'p33-registration-profile', 'p33-verification-confirm', 'p33-verification-resend', 'p33-recovery-request', 'p33-recovery-issuance', 'p33-recovery-confirm', 'p33-password-core', 'p33-password-guards', 'p33-password-ip', 'p33-password-races', 'p33-mail-deadline', 'p33-identity-http', 'backend', 'p31-contracts']);
 });
 test('public pipeline generation/compiler failure opens no fixtures and returns exact exit', () => {
   for (const [generation, compilation, code] of [[9, 0, 9], [0, 7, 7]]) {
@@ -186,6 +195,10 @@ test('standalone runners retain default compilation and stop after preparation f
     ['test-p33-registration-profile', ['--group=registration'], 'p33-registration-profile'],
     ['test-p33-verification', ['--group=confirm'], 'p33-verification-confirm'],
     ['test-p33-verification', ['--group=resend'], 'p33-verification-resend'],
+    ['test-p33-recovery', ['--group=request'], 'p33-recovery-request'],
+    ['test-p33-recovery', ['--group=issuance'], 'p33-recovery-issuance'],
+    ['test-p33-recovery', ['--group=confirm'], 'p33-recovery-confirm'],
+    ...['core', 'guards', 'ip', 'races'].map(group => ['test-p33-password-change', [`--group=${group}`], `p33-password-${group}`]),
     ['test-p33-identity-http', [], 'p33-identity-http'],
     ['test-backend', [], 'backend'],
     ['test-p33-mail-cancellation', ['--deadline'], 'p33-mail-deadline'],
@@ -239,6 +252,6 @@ test('standalone compiler helper has no receipt or environment bypass', () => {
   assert.equal(run.stderr, 'SYNTHETIC_COMPILATION_STDERR\n');
   const helper = readFileSync('scripts/p33-identity-test-env.mjs', 'utf8');
   assert.doesNotMatch(helper, /receipt|SKIP_BUILD|REUSE_BUILD/);
-  assert.match(helper, /Math\.min\(6000, deadline - Date\.now\(\)\)/);
-  assert.match(helper, /Date\.now\(\) \+ 26000/);
+  assert.match(helper, /Math\.min\(30000, deadline - Date\.now\(\)\)/);
+  assert.match(helper, /Date\.now\(\) \+ 90000/);
 });

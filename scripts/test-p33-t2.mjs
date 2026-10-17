@@ -15,28 +15,21 @@ function runOfflineContracts() {
   return run.status ?? 1;
 }
 
-// Keep the 30s outer stage ceiling, not a 30s limit on the whole pipeline.
-// On expiry no later stage starts; existing fixture finally blocks still own cleanup.
+// Module startup has its own 30s phase; provisioning is separately bounded and functional work stays at26s.
+// Await the stage's bounded child and owned cleanup before reporting a late result.
 async function boundedStage(run) {
-  const deadline = Date.now() + 30000;
-  let timer;
-  try {
-    const code = await Promise.race([
-      Promise.resolve().then(run),
-      new Promise((_, reject) => {
-        timer = setTimeout(() => reject(new Error('T2 stage exceeded 30s outer limit')), 30000);
-      }),
-    ]);
-    // Synchronous children can defer timer delivery; do not accept a late result.
-    if (Date.now() >= deadline) throw new Error('T2 stage exceeded 30s outer limit');
-    return code;
-  } finally { clearTimeout(timer); }
+  const deadline = Date.now() + 180000;
+  const code = await run();
+  if (Date.now() >= deadline) throw new Error('T2 stage exceeded startup plus work limit after cleanup');
+  return code;
 }
 
 export async function runP33T2({
   build = buildApi,
   registration = async (...args) => (await import('./test-p33-registration-profile.mjs')).runRegistrationProfile(...args),
   verification = async (...args) => (await import('./test-p33-verification.mjs')).runVerification(...args),
+  recovery = async (...args) => (await import('./test-p33-recovery.mjs')).runRecovery(...args),
+  password = async (...args) => (await import('./test-p33-password-change.mjs')).runPasswordChange(...args),
   mail = async (...args) => (await import('./test-p33-mail-cancellation.mjs')).runMailCancellation(...args),
   identity = async (...args) => (await import('./test-p33-identity-http.mjs')).runIdentityHttp(...args),
   backend = async (...args) => (await import('./test-backend.mjs')).runBackend(...args),
@@ -56,6 +49,13 @@ export async function runP33T2({
     () => registration('lifecycle', preparation),
     () => verification('confirm', preparation),
     () => verification('resend', preparation),
+    () => recovery('request', preparation),
+    () => recovery('issuance', preparation),
+    () => recovery('confirm', preparation),
+    () => password('core', preparation),
+    () => password('guards', preparation),
+    () => password('ip', preparation),
+    () => password('races', preparation),
     () => mail('--deadline', preparation),
     () => identity(preparation),
     () => backend(preparation),
@@ -71,7 +71,7 @@ export async function runP33T2({
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   const args = process.argv.slice(2);
   const usage = 'Usage: node scripts/test-p33-t2.mjs';
-  if (args.length === 1 && args[0] === '--help') console.log(`${usage}\nStrict build once, D2 four groups, T3 verification confirm/resend, C1 deadline, D1, backend, offline; sequential and fail-fast.`);
+  if (args.length === 1 && args[0] === '--help') console.log(`${usage}\nStrict build once, D2 four groups, T3 verification confirm/resend, recovery request/issuance/confirm, password core/guards/ip/races, C1 deadline, D1, backend, offline; sequential and fail-fast.`);
   else if (args.length) { console.error(usage); process.exitCode = 2; }
   else {
     try { process.exitCode = await runP33T2(); }

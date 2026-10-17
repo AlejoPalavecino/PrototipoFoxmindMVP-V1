@@ -10,6 +10,7 @@ import { AccountMailService } from '../.build/api/apps/api/src/mail/index.js';
 import { createSmtpFixture } from '../scripts/mail-smtp-fixture.mjs';
 
 // Deferred integration proof: successful parent combined build + fresh owned DB only.
+if (process.send) { process.send({ type: 'foxmind-test-ready' }); process.disconnect(); }
 if (!/^foxmind-identity-[a-f0-9]+$/.test(process.env.P33_IDENTITY_ISOLATED ?? '')) throw new Error('Owned deadline runner required');
 const origin = 'http://127.0.0.1:3000';
 async function until(check, ms, label) {

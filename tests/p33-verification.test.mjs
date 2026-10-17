@@ -8,6 +8,7 @@ import { readConfiguration } from '../.build/api/apps/api/src/configuration.js';
 import { createPasswordService, generateVerifier, accountTokenDigest, sessionTokenDigest } from '../.build/api/apps/api/src/identity-security/index.js';
 import { IdentityRuntime } from '../.build/api/apps/api/src/identity/index.js';
 
+if (process.send) { process.send({ type: 'foxmind-test-ready' }); process.disconnect(); }
 if (!/^foxmind-identity-[a-f0-9]+$/.test(process.env.P33_IDENTITY_ISOLATED ?? '')
   || !/^http:\/\/127\.0\.0\.1:\d+$/.test(process.env.P33_OWNED_INBOX ?? '')) throw new Error('Owned verification runner required');
 const origin = 'http://127.0.0.1:3000';

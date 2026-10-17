@@ -1,8 +1,8 @@
-import { spawnSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 export async function runIdentityHttp({ prepare } = {}) {
+  const { runIdentityTestProcess } = await import('./p33-test-process.mjs');
   const { withIdentityDatabase, identityTestEnvironment, compileIdentityApi } = await import('./p33-identity-test-env.mjs');
   const started = Date.now();
   let result = 1;
@@ -12,12 +12,12 @@ export async function runIdentityHttp({ prepare } = {}) {
       const env = { ...process.env, ...identityTestEnvironment(), DATABASE_URL: url,
         P33_IDENTITY_ISOLATED: name, FOXMIND_API_TEST_CONTAINER: container };
       delete env.NODE_TEST_CONTEXT;
-      const run = spawnSync(process.execPath, ['--test', '--test-concurrency=1', 'tests/p33-identity-http.test.mjs'], {
-        env, encoding: 'utf8', timeout: Math.max(1, deadline - Date.now()), windowsHide: true,
+      const run = await runIdentityTestProcess(['--test', '--test-isolation=none', '--test-concurrency=1', 'tests/p33-identity-http.test.mjs'], {
+        env, workMs: 26000,
       });
       if (run.stdout) process.stdout.write(run.stdout);
       if (run.stderr) process.stderr.write(run.stderr);
-      if (run.error) console.error('Identity HTTP tests unavailable or timed out');
+      if (run.errorCode || run.phase !== 'complete') console.error('Identity HTTP tests unavailable or timed out');
       result = run.status ?? 1;
     });
   } catch { console.error('Identity HTTP runner unavailable (sanitized)'); result = 1; }

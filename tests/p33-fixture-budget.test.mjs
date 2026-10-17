@@ -43,53 +43,53 @@ async function probe({ times = [0], failure = 'run', paused = false, removal = 0
   }
 }
 
-test('fixture launch alone receives an 8000ms ceiling (synthetic cleanup only)', async () => {
+test('fixture launch alone receives an 30000ms ceiling (synthetic cleanup only)', async () => {
   const calls = await probe();
-  assert.equal(calls[0].timeout, 8000);
+  assert.equal(calls[0].timeout, 30000);
 });
 
-test('health inspection retains 4000ms and cleanup retains 1000/2000ms', async () => {
+test('health inspection retains 15000ms and cleanup retains 10000/15000ms', async () => {
   const calls = await probe({ failure: 'health' });
   assert.deepEqual(calls.slice(1), [
-    { timeout: 4000, status: 1 }, { timeout: 1000, status: 0 }, { timeout: 2000, status: 0 },
+    { timeout: 15000, status: 1 }, { timeout: 10000, status: 0 }, { timeout: 15000, status: 0 },
   ]);
 });
 
-test('port inspection also retains 4000ms without opening PostgreSQL', async () => {
+test('port inspection also retains 15000ms without opening PostgreSQL', async () => {
   const calls = await probe({ failure: 'port' });
   assert.deepEqual(calls.slice(1), [
-    { timeout: 4000, status: 0 }, { timeout: 4000, status: 1 },
-    { timeout: 1000, status: 0 }, { timeout: 2000, status: 0 },
+    { timeout: 15000, status: 0 }, { timeout: 15000, status: 1 },
+    { timeout: 10000, status: 0 }, { timeout: 15000, status: 0 },
   ]);
 });
 
-test('launch clamps to remaining 26000ms global budget and the 1ms floor', async () => {
-  for (const [elapsed, expected] of [[23000, 3000], [25999, 1], [27000, 1]]) {
+test('launch clamps to remaining 90000ms global budget and the 1ms floor', async () => {
+  for (const [elapsed, expected] of [[87000, 3000], [89999, 1], [91000, 1]]) {
     const calls = await probe({ times: [0, elapsed] });
     assert.equal(calls[0].timeout, expected);
     assert.deepEqual(calls.slice(1), [
-      { timeout: 1000, status: 0 }, { timeout: 2000, status: 0 },
+      { timeout: 10000, status: 0 }, { timeout: 15000, status: 0 },
     ]);
   }
 });
 
 test('other Docker operations still clamp to the remaining global deadline', async () => {
-  const health = await probe({ failure: 'health', times: [0, 0, 20000, 23500] });
+  const health = await probe({ failure: 'health', times: [0, 0, 84000, 87500] });
   assert.equal(health[1].timeout, 2500);
-  const port = await probe({ failure: 'port', times: [0, 0, 0, 0, 24000] });
+  const port = await probe({ failure: 'port', times: [0, 0, 0, 0, 88000] });
   assert.equal(port[2].timeout, 2000);
 });
 
-test('paused synthetic fixture retains 1000ms unpause and 2000ms removal after deadline', async () => {
-  const calls = await probe({ times: [0, 27000], paused: true });
+test('paused synthetic fixture retains 10000ms unpause and 15000ms removal after deadline', async () => {
+  const calls = await probe({ times: [0, 91000], paused: true });
   assert.deepEqual(calls.slice(1), [
-    { timeout: 1000, status: 0 }, { timeout: 1000, status: 0 }, { timeout: 2000, status: 0 },
+    { timeout: 10000, status: 0 }, { timeout: 10000, status: 0 }, { timeout: 15000, status: 0 },
   ]);
 });
 
 test('cleanup failure remains a failure, not fabricated setup success', async () => {
   const calls = await probe({ removal: 1 });
   assert.deepEqual(calls.slice(1), [
-    { timeout: 1000, status: 0 }, { timeout: 2000, status: 1 },
+    { timeout: 10000, status: 0 }, { timeout: 15000, status: 1 },
   ]);
 });

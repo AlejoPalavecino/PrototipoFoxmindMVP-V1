@@ -8,6 +8,7 @@ function fixture() {
   mkdirSync('.test-artifacts/p33-d2-plan-c2-mvb4asm3', { recursive: true });
   const root = mkdtempSync(resolve('.test-artifacts/p33-d2-plan-c2-mvb4asm3/verification-cli-'));
   mkdirSync(join(root, 'scripts'));
+  writeFileSync(join(root, 'scripts/p33-test-process.mjs'), readFileSync('scripts/p33-test-process.mjs'));
   writeFileSync(join(root, 'scripts/test-p33-verification.mjs'), readFileSync('scripts/test-p33-verification.mjs'));
   return root;
 }
@@ -24,7 +25,7 @@ test('verification help and closed invalid options are lazy without compiler or 
     if (status === 0) {
       assert.equal(run.stderr, '');
       for (const [name, cases] of Object.entries(groups)) assert.ok(run.stdout.includes(`${name}: cases ${cases[0]}–${cases.at(-1)} (${cases.length})`));
-      assert.match(run.stdout, /26s work, 30s outer/);
+      assert.match(run.stdout, /90s provisioning, 30s module startup, 26s work/);
     } else assert.equal(run.stdout, '');
   }
 });
@@ -58,7 +59,8 @@ test('verification standalone groups compile once select exact cases preserve st
       }
     `);
     mkdirSync(join(cwd, 'tests'));
-    writeFileSync(join(cwd, 'tests/p33-verification.test.mjs'), `import { test } from 'node:test';\n` + names().map((name, i) =>
+    writeFileSync(join(cwd, 'tests/p33-verification.test.mjs'), `if(process.send){process.send({type:'foxmind-test-ready'});process.disconnect();}
+import { test } from 'node:test';\n` + names().map((name, i) =>
       `test(${JSON.stringify(name)}, () => console.log('EXECUTED_CASE_${i + 1}'));`).join('\n'));
     const env = { ...process.env }; delete env.NODE_TEST_CONTEXT;
     const run = spawnSync(process.execPath, ['scripts/test-p33-verification.mjs', `--group=${group}`], { cwd, env, encoding: 'utf8', timeout: 2500 });

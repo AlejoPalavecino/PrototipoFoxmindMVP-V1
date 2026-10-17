@@ -11,6 +11,7 @@ import { readConfiguration } from '../.build/api/apps/api/src/configuration.js';
 import { createPasswordService, generateVerifier, sessionTokenDigest } from '../.build/api/apps/api/src/identity-security/index.js';
 import { identityTestEnvironment } from '../scripts/p33-identity-test-env.mjs';
 
+if (process.send) { process.send({ type: 'foxmind-test-ready' }); process.disconnect(); }
 if (!/^foxmind-identity-[a-f0-9]+$/.test(process.env.P33_IDENTITY_ISOLATED ?? '')) throw new Error('Owned identity runner required');
 const browserOrigin = 'http://127.0.0.1:3000';
 const password = 'A test-only password 😀';
@@ -386,11 +387,10 @@ test('D1 identity SQL/counter outage fails closed while unrelated liveness remai
     await healthy('restored');
   } finally { trace.close(); }
 });
-test('D1 preserves health/unknown routes and leaves three later T3 operations absent', async () => {
+test('D1 preserves health/unknown routes and password change requires authentication', async () => {
   for (const path of ['/health/live', '/health/ready']) assert.equal((await send(path)).status, 200);
-  for (const [path, method] of [['/auth/password-recovery/request', 'POST'], ['/auth/password-recovery/confirm', 'POST'], ['/account/password', 'POST'], ['/classrooms', 'GET']]) {
-    assert.equal((await send(path, { method, body: method === 'GET' ? undefined : {} })).status, 404);
-  }
+  assert.equal((await send('/account/password', { method: 'POST', body: {} })).status, 401);
+  assert.equal((await send('/classrooms')).status, 404);
   const response = await send('/unknown', { method: 'POST', body: '{' });
   assert.equal(response.status, 400); // Existing Nest parser behavior outside identity is retained.
 });
