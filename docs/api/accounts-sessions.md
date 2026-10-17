@@ -1,6 +1,6 @@
 # P3.1 — Account/session contract and security policy
 
-**Verified checkpoint:** nine P3.3 backend operations are implemented and independently verified: session/CSRF, login/logout, registration, account GET/PATCH and email verification confirmation/resend. The [OpenAPI contract](accounts-sessions.openapi.json) marks exactly nine implemented and three recovery/password-change operations planned. T3-V passed parent72 checks/real build and [independent41 checks/own fresh build/no blockers](../work-log/2026-10-16-mvbkihar-p33-verification-recheck.md); see [verification behavior/limits](../account-verification.md), [current coordinator](../work-log/2026-10-16-01a14539-p33-token-flows.md) and [current tasks](../../odd/tasks/p33-token-flows.md). [T2 historical56/33 proof](../work-log/2026-10-16-mvb63m78-p33-t2-verification.md) and its human-selected natively-unreviewed disposition remain scoped to T2; current T3 native assessment unavailable, not approved or waived. Normative schemas/policies unchanged. Three T3 operations, P3.4 screens and P3.5 journeys remain unfinished; P3 is not complete.
+**Verified checkpoint:** all twelve backend operations and the local account web journey are implemented and independently verified. [Current independent proof](../work-log/2026-10-17-p3-verify-final.md): backend99PASS, controls39PASS, real browser10PASS, live web16PASS, rejection invariants9PASS, baseline comparisons7PASS, strict builds and owned cleanup0. [Web guide](../p3-web.md), [recovery](../password-recovery.md), [password change](../password-change.md). P3 is completed locally. Native review is off/global, disabled/unmanaged; earlier failed and partial checks remain historical evidence. P4/P5 are not integrated and nothing was published.
 
 ## Authority and confirmed policies
 
@@ -56,7 +56,7 @@ The shared public `validateMailbox(input: unknown): string` in `apps/api/src/mai
 
 ## Security/abuse configuration
 
-These are the full identity design defaults. The backend enforces session/login/registration/profile/verification/general-request policies; three recovery/password-change operation policies await implementation. Do not weaken confirmed TTL/password/resend/session policies via silent environment overrides.
+These are the full identity design defaults. The backend enforces all declared identity, recovery and password-change policies. Do not weaken confirmed TTL/password/resend/session policies via silent environment overrides.
 
 | Setting | Contract |
 |---|---|
@@ -95,7 +95,7 @@ Rejected validation/credentials/tokens/authorization must not change account dat
 
 Serialize credential/token/session-changing operations for the affected user. A login that verified an old password before concurrent reset/change must recheck the credential snapshot after obtaining the mutation lock, or fail; it must not create a new valid session using a stale password after revocation. Resend/consume races must issue at most one accepted current token; a consumed/invalidated/expired link never gains enrollment or auth state. Establish consistent lock order and assert outcomes using the public API against isolated PostgreSQL in P3.3.
 
-Full-scope acceptance examples (T2 runtime evidence is in the [identity guide](../identity-http.md) and [registration/profile guide](../registration-profile.md); verification cases now have [scoped independent proof](../account-verification.md); recovery/password-change cases remain planned):
+Full-scope acceptance examples (T2 runtime evidence is in the [identity guide](../identity-http.md) and [registration/profile guide](../registration-profile.md); verification cases now have [scoped independent proof](../account-verification.md); recovery/password-change cases now have independent backend and real-browser proof):
 
 - 15/129-character password rejected;16/128accepted. Raw81-character name rejected even with surrounding spaces;80accepted if not whitespace-only.
 - Valid registration new/existing email returns identical202shape; duplicate path preserves original account/password/session and creates no implicit invitation acceptance.

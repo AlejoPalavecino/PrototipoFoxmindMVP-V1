@@ -4,12 +4,12 @@
   "info": {
     "title": "FoxMind P3.1 account/session contract",
     "version": "0.1.0",
-    "description": "Partially implemented P3.3: nine operations are implemented and independently verified: session/CSRF, login/logout, registration, account GET/PATCH and email verification confirm/resend. Three recovery/password-change operations remain planned; frontend and the full P3 journey remain unfinished. T3-V parent72PASS/build0 and independent41PASS/freshbuild0/ownedcleanup0 are attributed in ../work-log/2026-10-16-mvbkihar-p33-verification-recheck.md and ../work-log/2026-10-16-01a14539-p33-token-flows.md. Native assessment unavailable, not approved or waived; historical T2-only disposition is not inherited."
+    "description": "All twelve P3 account/session operations are implemented and independently verified. Full P3 local browser/API/PostgreSQL/captured-email journeys passed after one bounded web correction. Independent backend99, controls39, browser10 and live web16 checks passed; rejected-state9 and baseline CLI7 probes passed, with actual owned cleanup. See ../work-log/2026-10-17-p3-verify-final.md. Native review is off/global, disabled/unmanaged; no native approval or production deployment is claimed. P4/P5 remain outside this integrated checkpoint."
   },
   "servers": [
     {
       "url": "/api/v1",
-      "description": "Future same-origin browser transport to the NestJS authorization owner; no public deployment selected."
+      "description": "Same-origin Next.js transport to the NestJS authorization owner; local P3 verified, no public deployment selected."
     }
   ],
   "tags": [
@@ -1008,7 +1008,7 @@
             "$ref": "#/components/responses/InternalError"
           }
         },
-        "x-implementation-status": "planned-not-implemented",
+        "x-implementation-status": "implemented",
         "x-email-verified-required": false,
         "x-csrf-policy": "required-when-valid-session-present",
         "x-touches-session-idle": false,
@@ -1138,7 +1138,7 @@
             "$ref": "#/components/responses/InternalError"
           }
         },
-        "x-implementation-status": "planned-not-implemented",
+        "x-implementation-status": "implemented",
         "x-email-verified-required": false,
         "x-csrf-policy": "required-when-valid-session-present",
         "x-touches-session-idle": false,
@@ -1476,7 +1476,7 @@
             "$ref": "#/components/responses/InternalError"
           }
         },
-        "x-implementation-status": "planned-not-implemented",
+        "x-implementation-status": "implemented",
         "x-email-verified-required": true,
         "x-csrf-policy": "required",
         "x-touches-session-idle": true,
@@ -2202,7 +2202,7 @@
       }
     }
   },
-  "x-status": "partially-implemented",
+  "x-status": "implemented",
   "x-confirmed-policy": {
     "passwordMin": 16,
     "passwordMax": 128,

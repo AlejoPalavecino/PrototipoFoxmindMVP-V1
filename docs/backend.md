@@ -1,6 +1,6 @@
 # Run the local FoxMind backend
 
-The verified checkpoint provides health and nine independently verified identity/account/verification operations. [Confirmation/resend](account-verification.md) passed parent72 and independent41 checks/real builds/owned cleanup0. Recovery request/confirmation and password change remain three planned operations; classrooms/uploads and full web/P3 journeys unfinished. Native T3 assessment unavailable, not approved or waived; historical T2-only disposition not inherited.
+The verified checkpoint provides health, all twelve account/session operations and the real Next.js account web. [Independent P3 proof](work-log/2026-10-17-p3-verify-final.md): backend99PASS, controls39PASS, real browser10PASS, live web16PASS and actual owned cleanup0. [Web guide](p3-web.md), [recovery](password-recovery.md), [password change](password-change.md). P3 is completed locally; classrooms/uploads and P4/P5 integration remain outside this checkpoint. Native review is off/global, disabled/unmanaged; no production-readiness or publication claim.
 
 ## Quick path
 
@@ -51,7 +51,7 @@ Other startup failures use `Backend startup failed.` without connection strings 
 
 Both endpoints set `Cache-Control:no-store`. Readiness executes `SELECT 1`: it proves connectivity, **not migration completeness, permissions or functionality of the academic model**. Database connections are lazy, so liveness can remain available while the database is unavailable. The pool is bounded to5 connections with1-second connection/query/statement limits. Recovery after a temporary database pause is tested.
 
-No CORS policy or Swagger is enabled. Nine [account-contract](api/accounts-sessions.md) operations implemented: session/CSRF, login/logout, registration, account GET/PATCH and verification confirmation/resend. Three recovery/password-change operations and classroom routes remain404. OpenAPI marks nine implemented/three planned. Identity responses retain no-store/nosniff/request IDs/sanitized errors; health is not proof of complete identity/classroom flows.
+No CORS policy or Swagger is enabled. All twelve [account-contract](api/accounts-sessions.md) operations are implemented: session/CSRF, login/logout, registration, account GET/PATCH, verification confirmation/resend, recovery request/confirmation and authenticated password change. Classroom routes remain404. OpenAPI marks twelve implemented. Identity responses retain no-store/nosniff/request IDs/sanitized errors; health alone remains no proof of academic product flows.
 
 ## Lifecycle and structure
 
@@ -68,7 +68,9 @@ Generated Prisma TypeScript remains at `.generated/prisma`. TypeScript compiles 
 
 ## Verification and limitations
 
-### Owned identity fixture launch allowance (T3-F / S10)
+### Historical identity fixture launch allowance (T3-F / S10)
+
+The following allowance describes that historical candidate. Current separately bounded setup/startup/work/cleanup is documented in [P3 verification runtime](p3-test-runtime.md), adopted under the later full P3 completion authorization. Old failures are retained, not retroactively passed.
 
 The human-approved operational exception gives only Docker `run` an8000ms ceiling in `withIdentityDatabase`. All other work-phase Docker calls retain4000ms; each call remains clamped to the remaining26000ms global work deadline (minimum1ms), never a fresh8s when less time remains. Outer scheduling stays30000ms; PostgreSQL connect1000ms/query2000ms, cleanup inspect/unpause1000ms each/removal2000ms and standalone compilation6000ms are unchanged. Names, ownership labels, image/arguments and cleanup/defaults remain unchanged; no new configuration, retry or bypass is provided.
 
@@ -77,13 +79,13 @@ The human-approved operational exception gives only Docker `run` an8000ms ceilin
 ### Commands and retained limits
 
 - `npm run api:build`: directly generate Prisma then strictly compile the backend via the adopted wrapper. No receipts, dependency fingerprinting or old-output acceptance. Historical failed receipt controls are retired, not passed; see the [unchanged C2 record](work-log/2026-10-16-c2-sequential-mvb4asm3.md).
-- `node scripts/test-p33-t2.mjs`: one real build per invocation then sequential D2, T3 verification confirm/resend, C1, D1, backend and offline checks. Only a trusted same-process successful-build continuation avoids duplicate compilation. Adopted parent alias: `test:p33:t2`. Existing26s work/30s outer stage limits stay; cleanup remains fixture-owned and can outlive the outer scheduling deadline. No automatic retries, source edits during execution or full T2/P3 acceptance from [synthetic B1 proof](work-log/2026-10-16-build-once-mvb5aiy5.md).
+- `node scripts/test-p33-t2.mjs`: one actual strict build, then all fixed registration/profile/session/lifecycle, verification, recovery and password-change groups, mail deadline, identity, backend and offline checks. Sequential/fail-fast, with trusted preparation only after this invocation succeeds. See [current setup/startup/work/cleanup bounds](p3-test-runtime.md). Independent99PASS; no retry, source receipt or persisted build bypass.
 - `npm run test:api`: isolated real-HTTP/configuration/lifecycle tests after the build.
 - `node scripts/test-p33-identity-http.mjs`: focused isolated D1 HTTP/session/rate/concurrency contracts after the build.
-- `node scripts/test-p33-registration-profile.mjs --group=<registration|account|sessions|lifecycle>`: one mandatory predeclared D2 group, each with fresh owned PostgreSQL/Mailpit and the unchanged26s work/30s outer limits. Groups preserve cases1–7/8–12/13–14/15–17; no retry or automatic subdivision. Earlier full17 run timed out after seven registration passes; later parent and independent grouped checks passed all17 without changing that historical failure.
-- `node --test tests/p31-contracts.test.mjs`: offline twelve-operation schema checks, now asserting nine implemented/three planned statuses after accepted T2 and T3-V public proof.
+- `node scripts/test-p33-registration-profile.mjs --group=<registration|account|sessions|lifecycle>`: mandatory fixed groups with owned PostgreSQL/Mailpit. Functional work remains26s after separate initialization; see current runtime bounds. Cases remain7/5/2/3. Historical timeout evidence remains in the attributed records.
+- `node --test tests/p31-contracts.test.mjs`: nine offline checks of the twelve implemented operation schemas/statuses and unchanged policies; not a substitute for public runtime proof.
 - `npm test`: preserve all existing38 database contracts, migration replay/drift and Prisma runtime smoke.
 
 The initial installation reported four high-severity entries through Prisma CLI/config. The [dependency remediation](dependency-security.md) now scopes overrides to `deepmerge-ts8.0.2` and `mysql2 3.24.6`, retaining Prisma7.10.0. The complete audit reports0known vulnerabilities and the existing build/API/database suites pass. No dependency class is omitted and no force-fix or major Prisma downgrade was used. A clean scan is time-bound evidence, not a guarantee of exhaustive dependency safety.
 
-Historical T2 parent56/independent33 and subsequent T3-V parent72/independent41 real-build/cleanup proof remain separately attributed, not rerun for this passive checkpoint. Prior failed receipt/fixture/partial-snapshot evidence preserved. Three recovery/password operations, frontend/full journey, other product behavior and production hardening unimplemented/unproved. No production readiness/native approval claimed.
+Historical T2 parent56/independent33 and T3-V parent72/independent41 remain separately attributed. Current full P3 acceptance is the independent99/39 backend/control and corrected10/16 browser/web evidence linked above, with cleanup0. Prior failed receipt/fixture/snapshot/browser checks remain recorded with their resolved causes. Other academic modules and production hardening remain outside P3; no native approval is claimed.
