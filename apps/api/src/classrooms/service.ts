@@ -1,1 +1,1 @@
-export {InvitationService as ClassroomService} from './invitations.ts';
+export { InvitationService as ClassroomService } from './invitations.ts';
