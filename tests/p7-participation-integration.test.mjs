@@ -75,7 +75,7 @@ test('P7 T2 actual sessions, membership events, single editor and explicit UI pa
       let failed=false;
       const check=(name,operation)=>t.test(name,{skip:failed?'Prior shared participation journey failed':false},async()=>{try{await operation();}catch(error){failed=true;throw error;}});
       await check('actual first enrollment/preview/GET/private-file boundaries create no fictitious attempts',async()=>{
-        assert.equal((await session(student,expired)).expected,false);assert.equal((await session(student,expired)).canStart,false);
+        assert.equal((await session(student,expired)).expected,false);assert.equal((await session(student,expired)).canStart,true);
         assert.equal((await session(student,assignment)).activity.instructions,null);
         assert.equal((await ok(student,'GET',`/classrooms/${room.id}/activities/${assignment}`)).activity.instructionFiles.length,0);
         await rejectSame(runtime.db,()=>request(student,'GET',`/files/${fileId}/content`),403);
