@@ -1,8 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import type { Prisma, User } from '../../../../.generated/prisma/client.ts';
 import type { PrismaService } from '../database/prisma.service.ts';
-import { sessionTokenDigest, sessionIsActive, IDENTITY_POLICY, type Budget, type IdentityConfiguration, type RateAction } from '../identity-security/index.ts';
+import { sessionTokenDigest, IDENTITY_POLICY, type Budget, type IdentityConfiguration, type RateAction } from '../identity-security/index.ts';
 import { IdentityHttpError } from './errors.ts';
+import { authenticateSession } from './session-query.ts';
 
 export type IdentityTransaction = Prisma.TransactionClient;
 export interface AuthenticatedContext {
@@ -40,16 +41,7 @@ export class IdentityStore {
     for (const id of [...new Set(ids)].sort()) await tx.$queryRaw`SELECT id FROM users WHERE id = ${id}::uuid FOR UPDATE`;
   }
   async authenticate(verifier: string): Promise<AuthenticatedContext | null> {
-    return this.transaction(async tx => {
-      const session = await tx.session.findUnique({ where: { token_hash: sessionTokenDigest(verifier) }, include: { user: true } });
-      if (!session || session.revoked_at) return null;
-      const now = await this.now(tx);
-      if (!sessionIsActive({
-        absoluteExpiresAt: session.expires_at.getTime(),
-        idleExpiresAt: Math.min(session.expires_at.getTime(), session.last_seen_at.getTime() + IDENTITY_POLICY.sessionIdleSeconds * 1000),
-      }, now.getTime())) return null;
-      return { sessionId: session.id, user: session.user, verifier, absoluteExpiresAt: session.expires_at };
-    });
+    return this.transaction(tx => authenticateSession({ query: (sql, ...values) => tx.$queryRawUnsafe(sql, ...values) }, verifier));
   }
   /** Revalidate under the user mutation lock, after any wait; stateless CSRF is not authorization. */
   async activeInTransaction(tx: IdentityTransaction, context: AuthenticatedContext): Promise<boolean> {

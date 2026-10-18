@@ -1,6 +1,8 @@
 # FoxMind implementation roadmap
 
-**Resume here (2026-10-17): P3 is completed locally.** All twelve account/session operations, initial Next.js account screens and the real browser → API → PostgreSQL → captured-email journeys are independently verified. [Final verification](work-log/2026-10-17-p3-verify-final.md), [coordinator](work-log/2026-10-17-id-unavailable-p3-completion.md), [tasks](../odd/tasks/p3-completion.md), [web guide](p3-web.md). Backend99PASS, controls39PASS, browser10PASS, live web16PASS, rejection invariants9PASS and baseline CLI7PASS; strict builds, audit0 and owned cleanup0. STOP at P3. P4/P5 are not integrated, no publication. Native review is off/global, disabled/unmanaged.
+**Resume here (2026-10-18): P3 and integrated P4 are completed locally.** Work is on `codex/p4-p3-integration`, combining accepted P3 `5e86d1e` and isolated P4 `a3fb61e`. [Independent verification](work-log/2026-10-18-p4-verify-final.md) passed combined9/P3browser10/focused36, fresh builds, six migrations/drift0, real private storage/scanning, restart persistence and cleanup0. Parent controls5PASS and own legacy P4 checks67PASS. Start with [integration tasks](../odd/tasks/p4-p3-integration.md), [coordinator](work-log/2026-10-17-root-p4-integration.md) and [guide](p4-integration.md). Historical P3 pipeline81PASS/1FAIL remains attributed with baseline-reproduced1500ms startup timing; it is not global pipeline PASS. Native review off/global, disabled/unmanaged. STOP at P4: no P5 integration or publication is authorized. Original P3 checkout and retained development data remain preserved.
+
+P3's accepted twelve account/session operations, initial Next.js screens and real browser/API/SQL/captured-email journeys remain documented in [final verification](work-log/2026-10-17-p3-verify-final.md), [coordinator](work-log/2026-10-17-id-unavailable-p3-completion.md), [tasks](../odd/tasks/p3-completion.md) and [web guide](p3-web.md). Historical backend99/control39/browser10/live web16 and strict builds/audit0/cleanup0 are evidence for that accepted checkpoint, not fresh results for the P4 candidate.
 
 ## Historical checkpoints (superseded execution status)
 
@@ -44,8 +46,8 @@ The specification's original "completion boundary" describes its earlier documen
 | P0 | Product and visual definition | completed | V1 rules and22decisions closed;29local visual references reviewed. |
 | P1 | Architecture and data model | completed | Next.js/React/TypeScript UI, modular NestJS backend, PostgreSQL/Prisma, private S3-compatible files; relational dictionary agreed. |
 | P2 | Technical foundations | completed |33-table schema,3migrations, local PostgreSQL definition, minimal NestJS/Prisma server, health/lifecycle tests and dependency remediation. Not all supporting services or product APIs. |
-| P3 | Identity/access and initial web foundation | completed | Twelve operations and actual Next account screens; independent backend99/control39/browser10/live web16, strict builds and cleanup0. Current task ends here; P4/P5 integration deferred. |
-| P4 | Private file infrastructure | not_started | Private storage, upload validation, real scanner, quarantine, authorized retrieval, quota and safe incomplete-upload cleanup. |
+| P3 | Identity/access and initial web foundation | completed | Accepted baseline`5e86d1e`: twelve operations, actual Next screens and independent account/browser evidence; preserve while integrating P4. |
+| P4 | Private file infrastructure | completed | Real P3 session/CSRF and web binary connections, private S3/validation/scan/quarantine/quotas, authorized retrieval and persistent restart independently verified; [proof](work-log/2026-10-18-p4-verify-final.md). |
 | P5 | Classrooms and enrollment | not_started | Creation/drafts, required plan/units/topics, invitations/codes, classroom-scoped roles, membership history and archive lifecycle. Requires P3/P4. |
 | P6 | Teaching plan, Library and Muro | not_started | Plan maintenance/states, teacher-managed materials, student consultation and moderated publication/reply threads. |
 | P7 | Activities, attempts and submissions | not_started | Authoring, practical assignments, questionnaires/evaluations, autosave, single editor, locks, deadlines, delivery and reopening. |
@@ -67,10 +69,10 @@ Last verified baseline: full npm audit0known vulnerabilities;8dependency regress
 
 ### What is not implemented yet
 
-- No `apps/web` frontend or complete recovery journey. Nine backend identity/account/verification operations independently verified.
-- No functional classroom/activity/grading API. Health and nine identity/account/verification operations available; recovery request/confirmation and password change unimplemented.
-- No private S3-compatible service or real scanner installed by this workstream. Registration/verification encrypted mail and verification token consumption verified; recovery remains T3. P4 outside this coordinator's scope.
-- No persistent development database/API server left running by the completed isolated test work.
+- P5 classroom creation/enrollment/publication flows are not integrated. Isolated P5 work requires separate authorization and reconciliation, not automatic import.
+- P6 plan/Library/Muro and P7–P9 activities/submissions/grading/full pilot journeys are not integrated by this P4 task.
+- P4 `/files` operates on existing authorized contexts; test SQL fixtures do not implement the future classroom wizard or enrollment API.
+- No production deployment or persistent development API/database service was established by disposable verification fixtures.
 - Standalone logo/illustration/cover assets still need preparation; screenshots are not reusable brand assets.
 
 Do not equate tables with working features, healthy connectivity with migration/domain correctness, or a clean audit with exhaustive security/production readiness. Framework close is tested; Windows signal-driven graceful shutdown remains unproven. Other non-blocking coverage limits are retained in the verification documents.
