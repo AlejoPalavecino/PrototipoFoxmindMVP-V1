@@ -38,3 +38,10 @@ Latestuserexplicitlyauthorizesonependingcompatibilityrepeatwithsame360schild, no
 ## T2 own compatibility proof completed
 ExplicitL11same-budgetrepeatPASS:4leaf5TAP/118.79s/RetryAfter42once/cleanup0both/sourceunchanged. Parentparticipationclientspotcheck1PASS. T2ownrequiredchecksnowobserved withhistoricalfailedrunsretained; nofullP7acceptance. ReconcilecoherentT2unit/commitonfeaturebranchthenT3filedraftssubmission. NoP8/mainpublicationuntilwholefeatureproof.
 
+
+## T3 parent receipt-timing correction
+OwnwriterreportedinitialrealTP4leaf5TAPPASS/affected57/differentialexact9434bytesstderr0; controlled18PASSafterfixtureint8/quotafix, earlier120s/31.8sfixturefailuresretained. Parentspottedandacknowledgedownhandoffmistake: freshpost-lockclockmustnotreplacetrustedcomplete-bodyreceipttimestamp definedbyfunctionalS1. Workerconfirmedcurrentimplementationusedlaterclockandwrongcrossingexpectation. Parentrequiresserver-onlyreceiptcapture, currentpermission/editor/file/deadlineconfigrechecksafterlocks, timelinessfromcompletebodyreceipt; beforedeadline+lockwaitremainsontime, exact/afterlateorreject, clienttimestampsignored. OnecoherentT3correctionandtargetedproofpendingafteralreadyrunningP4runner; no dependentT4/P8/fullphaseacceptance.
+
+
+## T3 own proof accepted / T4 map
+T3writer final partial timing503 was a positive fixture holding1000+100ms across unchanged1000msdatabase budget. Coordinator authorized only test400ms+100ms preparation adjustment and one targeted recheck:4leaf5TAP/39.373s/cleanup0/283sourcesonlyfixturechanged/347compiledunchanged. Cause of original503 remains unproven; historical proof retained. Parent bridge2PASS, nativeoffglobal. T3ownproof accepted; independent fullP7pending. Readonly /root/p7_readiness_verify inspectedT4/S1-S4 and returned exactsave/submit/UI surfaces plus existing attempt-access/receipt reuse; no writes/builds. Full source handoff retained in conversation. T4nextafterT3commit, noP8.

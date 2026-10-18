@@ -1,1 +1,1 @@
-export { ActivityParticipationService as ClassroomService } from './activity-participation.ts';
+export { PracticalSubmissionService as ClassroomService } from './practical-submissions.ts';

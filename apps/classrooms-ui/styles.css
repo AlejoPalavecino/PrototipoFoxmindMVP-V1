@@ -712,3 +712,5 @@
 .p7-transfer-confirm { border: 1px solid #cf893d; border-radius: .75rem; padding: 1rem; margin-top: 1rem; }
 .p7-attempt article { padding: .75rem 0; border-top: 1px solid var(--border, #dfe6ed); }
 .p7-attempt a { overflow-wrap: anywhere; }
+
+.p7-attachment-list,.p7-submissions ul{list-style:none;padding:0;display:grid;gap:12px}.p7-attachment-list li,.p7-submissions li{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid #dce5e8;border-radius:10px}.p7-attachment-list li>div{min-width:0;overflow-wrap:anywhere}.p7-attachment-list small{display:block}.p7-practical,.p7-submit-confirm{display:grid;gap:12px}.p7-practical input[type=file]{max-width:100%}.p7-submit-confirm{padding:16px;border:2px solid #a8cdcf;border-radius:12px}

@@ -130,8 +130,16 @@ export interface AttemptSessionData {
   reception: { deadlineAt: string | null; open: boolean; late: boolean }; canStart: boolean; canTransfer: boolean;
   attempt: { id: string; number: number; status: 'DRAFT' | 'SUBMITTED'; openedAt: string; submittedAt: string | null;
     appliedDeadlineAt: string | null; submittedLate: boolean | null; epoch: string; revision: string;
+    attachments?: AttemptAttachment[];
     answers: { questionId: string; text: string | null; optionIds: string[]; savedAt: string }[] } | null;
   editor?: AttemptEditor;
+}
+export interface AttemptAttachment extends FileState {
+  extension: string; sizeBytes: string; selected: boolean;
+}
+export interface AssignmentReceipt {
+  id: string; number: number; submittedAt: string; appliedDeadlineAt: string | null; submittedLate: boolean;
+  firstName: string; lastName: string; attachments: AttemptAttachment[];
 }
 export interface ActivityEligibilityData {
   revision: string; published: boolean; students: { studentId: string; firstName: string; lastName: string;
@@ -203,6 +211,7 @@ export interface ClassroomClient {
   ): Promise<T>;
   upload(draftId: string, file: File): Promise<FileState>;
   uploadClassroom?(classroomId: string, file: File, purpose: 'plan' | 'material'): Promise<FileState>;
+  uploadAttachment?(classroomId: string, attemptId: string, file: File, editor: AttemptEditor): Promise<FileState>;
   uploadInstruction?(classroomId: string, activityId: string, file: File): Promise<FileState>;
   fileStatus(id: string, signal?: AbortSignal): Promise<FileState>;
   fileUrl(id: string, preview?: boolean): string;
@@ -300,6 +309,19 @@ export function createClassroomClient(options: {
         scope: { kind: 'classroom', id: classroomId }, purpose: 'instructions', targetId: activityId, name: file.name, bytes: file.size,
       });
       return response<FileState>(`/files/${started.id}/content`, 'PUT', file);
+    },
+    uploadAttachment: async (classroomId, attemptId, file, editor) => {
+      if (file.size > 50_000_000) throw new ApiError('MATERIAL_FILE_TOO_LARGE');
+      if (!/\.(pdf|docx|pptx|xlsx|jpg|jpeg|png|zip)$/i.test(file.name)) throw new ApiError('MATERIAL_FILE_TYPE_NOT_ALLOWED');
+      if (!/^[A-Za-z0-9_-]{43}$/.test(editor.token) || !/^(0|[1-9][0-9]{0,18})$/.test(editor.epoch)) throw new ApiError('INVALID_INPUT');
+      const started = await response<{ id: string }>('/files', 'POST', {
+        scope: { kind: 'classroom', id: classroomId }, purpose: 'attachment', targetId: attemptId, name: file.name, bytes: file.size,
+      }, undefined, editor);
+      try { return await response<FileState>(`/files/${started.id}/content`, 'PUT', file, undefined, editor); }
+      catch (error) {
+        if (error instanceof ApiError && error.code === 'FILE_REJECTED') throw new ApiError('MATERIAL_FILE_REJECTED', error.status, error.retryAfter);
+        throw error;
+      }
     },
     fileUrl: (id, preview = false) =>
       `${prefix}/files/${encodeURIComponent(id)}/content?mode=${preview ? 'preview' : 'download'}`,

@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import type { ActivityEligibilityData, AttemptEditor, AttemptSessionData, ClassroomClient, DeadlineResolution, Detail } from './api.ts';
+import { PracticalAttempt } from './PracticalAttempt.tsx';
 import { Dialog, Notice } from './components.tsx';
 import { activityDate, activityTypeLabels } from './ActivityAuthoring.tsx';
 
@@ -50,7 +51,8 @@ export function AttemptSession({ api, room, initial, onClose, onChanged }: {
           <ul>{question.options.map(option => <li key={option.id ?? option.text}>{option.text}{option.id && answer?.optionIds.includes(option.id) ? ' · Selección confirmada' : ''}</li>)}</ul>
           {answer?.text ? <p className="p7-multiline">Respuesta confirmada: {answer.text}</p> : null}</article>;
       })}
-      <p>Esta etapa permite iniciar, recuperar y transferir el intento. No ofrece guardado de respuestas, carga de entregas ni envío todavía.</p>
+      {activity.type === 'ASSIGNMENT' ? <PracticalAttempt api={api} classroomId={room.id} data={data} editor={ownsEditor ? editor : null} refresh={refresh} />
+        : <p>Esta etapa permite iniciar, recuperar y transferir el intento. No ofrece guardado de respuestas ni envio todavia.</p>}
       <footer className="p5-form-footer"><button disabled={busy} onClick={() => void run(refresh)}>Actualizar estado confirmado</button>
         {data.canTransfer && !ownsEditor ? <button disabled={busy} onClick={() => setConfirm(true)}>Transferir edición a esta pestaña</button> : null}</footer>
       {confirm && attempt ? <section className="p7-transfer-confirm" aria-label="Confirmar transferencia de edición">

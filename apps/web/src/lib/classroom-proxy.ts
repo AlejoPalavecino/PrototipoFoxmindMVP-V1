@@ -23,6 +23,10 @@ const routes: Rule[] = [
   rule(`/${uuid}/activities/${uuid}/start`, { POST: [] }),
   rule(`/${uuid}/activities/${uuid}/authorize-first`, { POST: ['revision', 'studentId', 'deadline'] }),
   rule(`/${uuid}/attempts/${uuid}/transfer`, { POST: ['revision'] }),
+  rule(`/${uuid}/attempts/${uuid}/attachments-remove`, { POST: ['revision', 'fileId'] }),
+  rule(`/${uuid}/attempts/${uuid}/submit-practical`, { POST: ['revision', 'confirm'] }),
+  rule(`/${uuid}/activities/${uuid}/submissions`, { GET: null }),
+  rule(`/${uuid}/attempts/${uuid}/receipt`, { GET: null }),
   rule('/notifications', { GET: null }),
   rule(`/notifications/${uuid}/(?:read|open)`, { POST: [] }),
   rule(`/${uuid}/settings`, { PATCH: ['revision', 'name', 'subject', 'division', 'academicYear'] }),
@@ -178,6 +182,16 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
       reject(400, 'INVALID_INPUT'); return;
     }
   }
+  const practicalWrite = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/(?:attachments-remove|submit-practical)$`).test(url.pathname);
+  const practicalRead = /\/(?:submissions|receipt)$/.test(url.pathname);
+  if (practicalWrite && (typeof request.headers['x-attempt-editor'] !== 'string'
+    || !/^[A-Za-z0-9_-]{43}$/.test(request.headers['x-attempt-editor'])
+    || typeof request.headers['x-attempt-epoch'] !== 'string' || !/^(0|[1-9][0-9]{0,18})$/.test(request.headers['x-attempt-epoch']))) {
+    reject(400, 'INVALID_INPUT'); return;
+  }
+  if (practicalRead && (request.headers['x-attempt-editor'] !== undefined || request.headers['x-attempt-epoch'] !== undefined)) {
+    reject(400, 'INVALID_INPUT'); return;
+  }
   let origin: string, expected: number | undefined;
   try { origin = destination(configuredOrigin); } catch { reject(503, 'SERVICE_UNAVAILABLE'); return; }
   try { expected = length(request.headers['content-length']); } catch { reject(400, 'INVALID_INPUT'); return; }
@@ -190,8 +204,10 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
     try {
       metadata = await body(request, requestLimit, expected);
       const parsed = JSON.parse(metadata.toString('utf8'));
-      if (!schema(parsed, selected.methods[method] ?? [], url.pathname.endsWith('/wall'))
-        || (url.pathname.endsWith('/activities') && !activitySchema(parsed))) throw new Error('Invalid schema');
+      if ((!practicalWrite && !schema(parsed, selected.methods[method] ?? [], url.pathname.endsWith('/wall')))
+        || (url.pathname.endsWith('/activities') && !activitySchema(parsed))
+        || (practicalWrite && (!object(parsed, selected.methods[method] ?? []) || typeof parsed.revision !== 'string'
+          || (url.pathname.endsWith('/attachments-remove') ? typeof parsed.fileId !== 'string' || !new RegExp(`^${uuid}$`).test(parsed.fileId) : parsed.confirm !== true)))) throw new Error('Invalid schema');
     } catch (error) { reject(error instanceof RangeError ? 413 : 400, error instanceof RangeError ? 'REQUEST_TOO_LARGE' : 'INVALID_INPUT'); return; }
   }
   if (response.destroyed) return;
@@ -200,7 +216,7 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
     for (const name of ['cookie', 'origin', 'x-csrf-token', 'content-type']) {
       const value = request.headers[name]; if (typeof value === 'string') headers[name] = value;
     }
-    if (transfer) for (const name of ['x-attempt-editor', 'x-attempt-epoch']) {
+    if (transfer || practicalWrite) for (const name of ['x-attempt-editor', 'x-attempt-epoch']) {
       const value = request.headers[name]; if (typeof value === 'string') headers[name] = value;
     }
     if (metadata) headers['content-length'] = String(metadata.length);

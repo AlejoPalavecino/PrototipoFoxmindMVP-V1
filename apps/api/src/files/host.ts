@@ -6,6 +6,7 @@ import { IdentityHttpError, publicIdentityError } from '../identity/errors.ts';
 import type { IdentityRuntime } from '../identity/runtime.ts';
 import { readSessionCookie } from '../identity/transport.ts';
 import { authenticateSession } from '../identity/session-query.ts';
+import type { AttemptWriteAuthorizer } from './access.ts';
 import { createFileAccess } from './access.ts';
 import { FileError } from './errors.ts';
 import { createFilesHandler } from './http.ts';
@@ -21,7 +22,7 @@ function writeGuard(security: IdentityConfiguration, request: IncomingMessage, v
 }
 
 /** No admission or lifetime writes: every invocation uses exactly the caller-owned transaction. */
-export function createIdentityFileAccess(security: IdentityConfiguration) {
+export function createIdentityFileAccess(security: IdentityConfiguration, authorizeAttemptWrite?: AttemptWriteAuthorizer) {
   return createFileAccess({
     async authenticate(tx, input) {
       const request = input as IncomingMessage;
@@ -32,7 +33,7 @@ export function createIdentityFileAccess(security: IdentityConfiguration) {
       catch (error) { throw new FileIdentityError(publicIdentityError(error)); }
       return context.user.id;
     },
-    async authorizeAttemptWrite() { throw new FileError('FORBIDDEN'); },
+    authorizeAttemptWrite: authorizeAttemptWrite ?? (async () => { throw new FileError('FORBIDDEN'); }),
   });
 }
 
