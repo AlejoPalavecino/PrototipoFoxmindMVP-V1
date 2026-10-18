@@ -45,3 +45,5 @@ Cleanup: integrated processes0failures; owned P4 Docker resources0failures; P3 o
 ## Handoff
 
 Verification completed without a correction round. Coordinator must reconcile closure metadata and commit locally, with no P5 integration/publication. Parent spot check: integration controls5PASS after this handoff. Worker retained `C:/Users/alejo/AppData/Local/Temp/foxmind-p4-final-verify-94MWIo` for parent-owned cleanup, including baseline-P3/baseline-P4, copied dependencies, generated builds and ignored proof artifacts. Cleanup disposition is recorded by the coordinator separately; the verifier deleted no scratch.
+
+Coordinator post-verification update: owned scratch removed after safe exact-root validation; no junction traversal. Observed merge`d22c522` preserves both parents and all functional bytes of the frozen candidate; only closure metadata changed. Parent controls5PASS and link checks passed. These actions belong to the coordinator, not the read-only verifier.
