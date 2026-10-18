@@ -10,6 +10,7 @@ import { submissionReceipt } from './submission-receipt.ts';
 import type { Transaction } from './contracts.ts';
 import { requireReady } from '../files/service.ts';
 import type { FileRow } from '../files/store.ts';
+import { activityEvent } from './activity-events.ts';
 
 function capability(request: unknown) {
   const headers = (request as IncomingMessage).headers;
@@ -17,7 +18,7 @@ function capability(request: unknown) {
 }
 
 export class PracticalSubmissionService extends ActivityParticipationService {
-  private async attachmentViews(tx: Transaction, attemptId: string, draft: boolean) {
+  protected async attachmentViews(tx: Transaction, attemptId: string, draft: boolean) {
     const files = await tx.query<FileRow & { selected: boolean }>(`SELECT f.*,u.status::text AS upload_status,u.completed_at,
       u.last_activity_at,u.reservation_released_at,c.purpose,c.target_id,c.phase,c.digest,c.validated_digest,c.scanned_digest,
       c.operation_id,c.lease_until,(aa.file_id IS NOT NULL) AS selected
@@ -105,6 +106,7 @@ export class PracticalSubmissionService extends ActivityParticipationService {
         `UPDATE attempts SET status='SUBMITTED',submitted_at=$2,applied_deadline_at=$3,submitted_late=$4,
         editor_token_hash=NULL,editor_epoch=editor_epoch+1,revision=revision+1,updated_at=$2 WHERE id=$1::uuid RETURNING *`,
       attemptId, receivedAt, receipt.reception.deadline, receipt.reception.late);
+      await activityEvent(tx, classroomId, first.attempt.activity_id, 'SUBMISSION_RECEIVED', null, attemptId);
       return { id: submitted.id, status: 'SUBMITTED' as const, submittedAt: submitted.submitted_at,
         appliedDeadlineAt: submitted.applied_deadline_at, submittedLate: submitted.submitted_late, revision: submitted.revision.toString() };
     });

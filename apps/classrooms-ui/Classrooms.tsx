@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useCallback, lazy, Suspense, type ReactNode } from 'react';
-import type { ClassroomClient, Classroom, Draft, Invitation, WallTarget } from './api.ts';
+import type { ClassroomClient, Classroom, Draft, Invitation, NotificationTarget } from './api.ts';
 import { Cover, Dialog, Notice } from './components.tsx';
 import { Notifications } from './Notifications.tsx';
 const Wizard = lazy(() =>
@@ -35,7 +35,7 @@ export function ClassroomsApp({
     [search, setSearch] = useState(''),
     [draft, setDraft] = useState<Draft | null>(null),
     [classroomId, setClassroomId] = useState<string | null>(null);
-  const [wallTarget, setWallTarget] = useState<WallTarget | null>(null), [notificationRefresh, setNotificationRefresh] = useState(0);
+  const [wallTarget, setWallTarget] = useState<NotificationTarget | null>(null), [notificationRefresh, setNotificationRefresh] = useState(0);
   const refreshNotifications = useCallback(() => setNotificationRefresh(value => value + 1), []);
   const [join, setJoin] = useState(false),
     [code, setCode] = useState(''),

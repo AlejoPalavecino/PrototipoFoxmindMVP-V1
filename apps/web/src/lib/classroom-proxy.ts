@@ -22,6 +22,9 @@ const routes: Rule[] = [
   rule(`/${uuid}/activities/${uuid}/(?:session|eligibility)`, { GET: null }),
   rule(`/${uuid}/activities/${uuid}/start`, { POST: [] }),
   rule(`/${uuid}/activities/${uuid}/authorize-first`, { POST: ['revision', 'studentId', 'deadline'] }),
+  rule(`/${uuid}/activities/${uuid}/(?:history|history-submissions)`, { GET: null }),
+  rule(`/${uuid}/activities/${uuid}/reopen`, { POST: ['revision', 'studentId', 'deadline', 'confirm'] }),
+  rule(`/${uuid}/attempts/${uuid}/history`, { GET: null }),
   rule(`/${uuid}/attempts/${uuid}/transfer`, { POST: ['revision'] }),
   rule(`/${uuid}/attempts/${uuid}/attachments-remove`, { POST: ['revision', 'fileId'] }),
   rule(`/${uuid}/attempts/${uuid}/submit-practical`, { POST: ['revision', 'confirm'] }),
@@ -186,7 +189,8 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
   }
   const answerWrite = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/(?:answer|submit-answers)$`).test(url.pathname);
   const practicalWrite = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/(?:attachments-remove|submit-practical)$`).test(url.pathname);
-  const practicalRead = /\/(?:submissions|receipt)$/.test(url.pathname);
+  const historyRoute = new RegExp(`^/api/v1/classrooms/${uuid}/(?:activities/${uuid}/(?:history|history-submissions|reopen)|attempts/${uuid}/history)$`).test(url.pathname);
+  const practicalRead = /\/(?:submissions|receipt)$/.test(url.pathname) || historyRoute;
   if ((practicalWrite || answerWrite) && (typeof request.headers['x-attempt-editor'] !== 'string'
     || !/^[A-Za-z0-9_-]{43}$/.test(request.headers['x-attempt-editor'])
     || typeof request.headers['x-attempt-epoch'] !== 'string' || !/^(0|[1-9][0-9]{0,18})$/.test(request.headers['x-attempt-epoch']))) {
@@ -207,7 +211,13 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
     try {
       metadata = await body(request, requestLimit, expected);
       const parsed = JSON.parse(metadata.toString('utf8'));
-      if ((!practicalWrite && !answerWrite && !schema(parsed, selected.methods[method] ?? [], url.pathname.endsWith('/wall')))
+      const reopening = url.pathname.endsWith('/reopen');
+      const validReopening = !reopening || object(parsed, ['revision', 'studentId', 'deadline', 'confirm'])
+        && typeof parsed.revision === 'string' && typeof parsed.studentId === 'string' && new RegExp(`^${uuid}$`).test(parsed.studentId)
+        && parsed.confirm === true && (parsed.deadline === null || object(parsed.deadline, ['local', 'offsetMinutes'], false)
+          && typeof parsed.deadline.local === 'string' && (!Object.hasOwn(parsed.deadline, 'offsetMinutes') || Number.isInteger(parsed.deadline.offsetMinutes)));
+      if ((!practicalWrite && !answerWrite && !reopening && !schema(parsed, selected.methods[method] ?? [], url.pathname.endsWith('/wall')))
+        || !validReopening
         || (url.pathname.endsWith('/activities') && !activitySchema(parsed))
         || (answerWrite && (!object(parsed, selected.methods[method] ?? []) || typeof parsed.revision !== 'string'
           || (url.pathname.endsWith('/answer') ? typeof parsed.questionId !== 'string' || !new RegExp(`^${uuid}$`).test(parsed.questionId)

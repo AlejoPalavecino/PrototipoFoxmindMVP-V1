@@ -25,7 +25,9 @@ export function AttemptSession({ api, room, initial, onClose, onChanged }: {
     setData(next);
     setEditor(previous => next.editor ?? (previous && next.attempt?.epoch === previous.epoch ? previous : null));
   }, []);
-  const refresh = useCallback(async () => accept(await api.call<AttemptSessionData>(`${path}/session`)), [api, path, accept]);
+  const refresh = useCallback(async () => {
+    accept(await api.call<AttemptSessionData>(`${path}/session`)); await onChanged();
+  }, [api, path, accept, onChanged]);
   useEffect(() => {
     const focus = () => { void refresh().catch(e => setError(e.message)); };
     window.addEventListener('focus', focus);

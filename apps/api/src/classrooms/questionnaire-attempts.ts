@@ -10,6 +10,7 @@ import { fail } from './policy.ts';
 import { submissionReceipt } from './submission-receipt.ts';
 import type { ActivityRow } from './activity-authoring.ts';
 import type { Transaction } from './contracts.ts';
+import { activityEvent } from './activity-events.ts';
 
 function capability(request: unknown) {
   const headers = (request as IncomingMessage).headers;
@@ -76,6 +77,7 @@ export class QuestionnaireAttemptService extends PracticalSubmissionService {
         applied_deadline_at=$3,submitted_late=$4,editor_token_hash=NULL,editor_epoch=editor_epoch+1,
         revision=revision+1,updated_at=$2 WHERE id=$1::uuid RETURNING *`,
       attemptId, receivedAt, receipt.reception.deadline, receipt.reception.late);
+      await activityEvent(tx, classroomId, first.attempt.activity_id, 'SUBMISSION_RECEIVED', null, attemptId);
       return { id: saved.id, status: 'SUBMITTED' as const, submittedAt: saved.submitted_at,
         appliedDeadlineAt: saved.applied_deadline_at, submittedLate: saved.submitted_late,
         revision: saved.revision.toString(), unansweredCount };

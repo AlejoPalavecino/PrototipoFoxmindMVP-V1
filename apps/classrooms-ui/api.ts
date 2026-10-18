@@ -152,17 +152,28 @@ export interface DeadlineResolution {
   zone: string; local: string; reason: 'NONEXISTENT' | 'AMBIGUOUS' | null;
   choices: { instant: string; offsetMinutes: number; offset: string }[];
 }
-export interface ClassroomNotification {
+interface NotificationBase {
   id: string;
   classroomId: string;
   classroomName: string;
-  eventType: 'WALL_NOTICE' | 'WALL_QUERY' | 'WALL_REPLY';
-  postId: string;
-  replyId: string | null;
   createdAt: string;
   readAt: string | null;
 }
+export type ClassroomNotification = NotificationBase & ({ eventType: 'WALL_NOTICE' | 'WALL_QUERY' | 'WALL_REPLY'; postId: string; replyId: string | null }
+  | { eventType: 'ACTIVITY_PUBLISHED' | 'ACTIVITY_DEADLINE_CHANGED' | 'FIRST_SUBMISSION_ENABLED' | 'ATTEMPT_REOPENED' | 'SUBMISSION_RECEIVED';
+      activityId: string; activityTitle: string; attemptId: string | null });
 export interface WallTarget { classroomId: string; postId: string; replyId: string | null }
+export type AcademicTarget = { kind: 'activity' | 'attempt' | 'submission'; classroomId: string; activityId: string; attemptId: string | null };
+export type NotificationTarget = WallTarget | AcademicTarget;
+export interface AttemptHistoryRow {
+  id: string; number: number; status: 'DRAFT' | 'SUBMITTED'; openedAt: string; submittedAt: string | null;
+  appliedDeadlineAt: string | null; individualDeadlineAt: string | null; submittedLate: boolean | null;
+  studentId: string; firstName: string; lastName: string; currentMember: boolean;
+}
+export interface AttemptHistoryData {
+  activity: ActivitySummary; attempts: AttemptHistoryRow[]; revision?: string; canReopen?: boolean;
+  delivered?: boolean; pendingResubmission?: boolean;
+}
 export function canPreviewMaterial(material: Pick<Material, 'extension' | 'ready' | 'deleted'>): boolean {
   return material.ready && !material.deleted && ['pdf', 'jpg', 'jpeg', 'png'].includes(material.extension);
 }

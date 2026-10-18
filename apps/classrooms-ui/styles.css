@@ -721,3 +721,6 @@
 .p7-questionnaire textarea { width: 100%; min-height: 9rem; resize: vertical; box-sizing: border-box; }
 .p7-questionnaire .p7-choice { display: flex; align-items: flex-start; gap: .65rem; margin-block: .75rem; white-space: pre-wrap; overflow-wrap: anywhere; }
 .p7-questionnaire .p7-choice input { width: auto; flex: 0 0 auto; margin-top: .2rem; }
+.p7-history-list { list-style: none; padding: 0; display: grid; gap: 1rem; }
+.p7-history-list > li, .p7-history-detail { padding: 1rem; border: 1px solid #e2e8f0; border-radius: 0.75rem; }
+.p7-history-detail { margin-top: 1rem; overflow-wrap: anywhere; }

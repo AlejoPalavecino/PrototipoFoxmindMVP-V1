@@ -188,6 +188,18 @@ export function createClassroomsHandler(
         value = await service.activityDeadlineChoices(req, path[0], exact(['local']));
       else if (path.length === 3 && path[1] === 'activities' && method === 'GET')
         value = await service.activityDetail(req, path[0], path[2]);
+      else if (path.length === 4 && path[1] === 'activities' && ['history', 'history-submissions', 'reopen'].includes(path[3])) {
+        if (!uuid(path[0]) || !uuid(path[2]) || req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
+          return fail('INVALID_INPUT');
+        if (path[3] === 'history' && method === 'GET') value = await service.activityHistory(req, path[0], path[2]);
+        else if (path[3] === 'history-submissions' && method === 'GET') value = await service.activitySubmissions(req, path[0], path[2]);
+        else if (path[3] === 'reopen' && method === 'POST') value = await service.reopenActivity(req, path[0], path[2], exact(['revision', 'studentId', 'deadline', 'confirm']));
+        else return fail('INVALID_INPUT');
+      } else if (path.length === 4 && path[1] === 'attempts' && path[3] === 'history' && method === 'GET') {
+        if (!uuid(path[0]) || !uuid(path[2]) || req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
+          return fail('INVALID_INPUT');
+        value = await service.activityAttempt(req, path[0], path[2]);
+      }
       else if (path.length === 4 && path[1] === 'activities' && ['session', 'start', 'eligibility', 'authorize-first'].includes(path[3])) {
         if (!uuid(path[0]) || !uuid(path[2])) return fail('INVALID_INPUT');
         if (req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)

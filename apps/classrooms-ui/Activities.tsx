@@ -1,19 +1,19 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
-import type { ActivityData, ActivitySummary, ActivityType, AttemptSessionData, ClassroomClient, Detail, Material } from './api.ts';
+import type { AcademicTarget, ActivityData, ActivitySummary, ActivityType, AttemptSessionData, ClassroomClient, Detail, Material } from './api.ts';
 import { Dialog, Notice } from './components.tsx';
 import { ActivityAuthoring, ActivityPreview, activityDate, activityTypeLabels } from './ActivityAuthoring.tsx';
-import { AssignmentSubmissions } from './AssignmentSubmissions.tsx';
+import { AttemptHistory } from './AttemptHistory.tsx';
 import { AttemptSession, FirstSubmissionAuthorization } from './AttemptSession.tsx';
 
-export function Activities({ api, room, reload }: { api: ClassroomClient; room: Detail; reload: () => Promise<void> }) {
+export function Activities({ api, room, reload, target, onChanged }: { api: ClassroomClient; room: Detail; reload: () => Promise<void>; target?: AcademicTarget | null; onChanged?: () => void }) {
   const [activities, setActivities] = useState<ActivitySummary[]>([]), [loaded, setLoaded] = useState(false);
   const [editing, setEditing] = useState<ActivityData | null>(null), [preview, setPreview] = useState<ActivityData | null>(null);
   const [materials, setMaterials] = useState<Material[]>([]), [type, setType] = useState<ActivityType>('ASSIGNMENT');
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState('');
   const [session, setSession] = useState<AttemptSessionData | null>(null), [authorization, setAuthorization] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<{ action: 'publish' | 'withdraw'; activity: ActivitySummary } | null>(null);
-  const [submissions, setSubmissions] = useState<string | null>(null);
+  const [history, setHistory] = useState<{ activityId: string; attemptId?: string | null } | null>(null);
   const teacher = room.role === 'teacher', writable = teacher && !room.archived;
   const load = useCallback(async (signal?: AbortSignal) => {
     const result = await api.call<{ activities: ActivitySummary[] }>(`/${room.id}/activities`, 'GET', undefined, signal);
@@ -22,11 +22,19 @@ export function Activities({ api, room, reload }: { api: ClassroomClient; room: 
   useEffect(() => { const controller = new AbortController(); void load(controller.signal).catch(e => {
     if (!controller.signal.aborted) setError(e.message);
   }); return () => controller.abort(); }, [load]);
+  useEffect(() => {
+    if (!target) return;
+    const controller = new AbortController();
+    if (target.kind !== 'activity') setHistory({ activityId: target.activityId, attemptId: target.attemptId });
+    else void api.call<AttemptSessionData>(`/${room.id}/activities/${target.activityId}/session`, 'GET', undefined, controller.signal)
+      .then(setSession).catch(e => { if (!controller.signal.aborted) setError(e.message); });
+    return () => controller.abort();
+  }, [api, room.id, target]);
   async function run(operation: () => Promise<void>) {
     setBusy(true); setError(''); setNotice('');
     try { await operation(); } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
   }
-  async function refresh() { await Promise.all([reload(), load()]); }
+  async function refresh() { await Promise.all([reload(), load()]); onChanged?.(); }
   async function edit(id: string) {
     const [data, library] = await Promise.all([api.call<ActivityData>(`/${room.id}/activities/${id}/preview`), api.call<Material[]>(`/${room.id}/library`)]);
     setMaterials(library); setEditing(data);
@@ -60,13 +68,14 @@ export function Activities({ api, room, reload }: { api: ClassroomClient; room: 
         }
         setSession(next);
       })}>{teacher ? 'Vista previa docente' : activity.type === 'ASSIGNMENT' ? 'Abrir trabajo práctico' : 'Consultar actividad'}</button>
-        {teacher && activity.type === 'ASSIGNMENT' ? <button disabled={busy} onClick={() => setSubmissions(activity.id)}>Ver entregas recibidas</button> : null}
+        <button disabled={busy} onClick={() => setHistory({ activityId: activity.id })}>{teacher ? 'Ver entregas recibidas' : 'Ver mis intentos'}</button>
         {writable ? <><button disabled={busy} onClick={() => void run(() => edit(activity.id))}>{activity.status === 'DRAFT' ? 'Continuar borrador' : 'Editar actividad'}</button>
           {activity.status === 'PUBLISHED' ? <button disabled={busy} onClick={() => setAuthorization(activity.id)}>Habilitar primera entrega</button> : null}
           {!activity.locked ? <button disabled={busy} onClick={() => setConfirm({ activity, action: activity.status === 'PUBLISHED' ? 'withdraw' : 'publish' })}>
             {activity.status === 'PUBLISHED' ? 'Retirar actividad' : 'Publicar'}</button> : null}</> : null}</div>
     </article>)}</div>
-    {submissions ? <AssignmentSubmissions api={api} room={room} activityId={submissions} onClose={() => setSubmissions(null)} /> : null}
+    {history ? <AttemptHistory key={history.activityId + (history.attemptId ?? '')} api={api} room={room} activityId={history.activityId} attemptId={history.attemptId}
+      onClose={() => setHistory(null)} onChanged={refresh} onResume={setSession} /> : null}
     {preview ? <Dialog title={preview.activity.title ?? 'Vista previa de actividad'} onClose={() => setPreview(null)}>
       <ActivityPreview api={api} activity={preview.activity} teacher={teacher} />
     </Dialog> : null}

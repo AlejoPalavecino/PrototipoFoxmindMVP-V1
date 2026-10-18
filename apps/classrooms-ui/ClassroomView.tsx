@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { ClassroomClient, Detail, Invitation, Member, WallTarget } from './api.ts';
+import type { ClassroomClient, Detail, Invitation, Member, NotificationTarget } from './api.ts';
 import { Cover, Dialog, Notice, initials } from './components.tsx';
 import { Plan } from './Plan.tsx';
 import { Library } from './Library.tsx';
@@ -31,14 +31,14 @@ export function ClassroomView({
   id: string;
   onExit: () => void;
   initialCode: string | null;
-  wallTarget?: WallTarget | null;
+  wallTarget?: NotificationTarget | null;
   onWallChanged?: () => void;
 }) {
   const [room, setRoom] = useState<Detail | null>(null),
     [members, setMembers] = useState<Member[]>([]),
     [history, setHistory] = useState<Member[]>([]),
     [invitations, setInvitations] = useState<Invitation[]>([]);
-  const [tab, setTab] = useState(wallTarget ? 'wall' : 'members'),
+  const [tab, setTab] = useState(wallTarget ? 'postId' in wallTarget ? 'wall' : 'activities' : 'members'),
     [error, setError] = useState(''),
     [notice, setNotice] = useState(''),
     [busy, setBusy] = useState(false);
@@ -101,7 +101,7 @@ export function ClassroomView({
     });
     return () => controller.abort();
   }, [load]);
-  useEffect(() => { if (wallTarget) setTab('wall'); }, [wallTarget]);
+  useEffect(() => { if (wallTarget) setTab('postId' in wallTarget ? 'wall' : 'activities'); }, [wallTarget]);
   useEffect(() => {
     const nav = tabs.current;
     if (!nav) return;
@@ -422,8 +422,8 @@ export function ClassroomView({
             ) : null}
             {tab === 'plan' ? <Plan api={api} room={room} reload={load} /> : null}
             {tab === 'library' ? <Library api={api} room={room} reload={load} /> : null}
-            {tab === 'wall' ? <Wall api={api} room={room} reload={load} target={wallTarget} onChanged={onWallChanged} /> : null}
-            {tab === 'activities' ? <Activities api={api} room={room} reload={load} /> : null}
+            {tab === 'wall' ? <Wall api={api} room={room} reload={load} target={wallTarget && 'postId' in wallTarget ? wallTarget : null} onChanged={onWallChanged} /> : null}
+            {tab === 'activities' ? <Activities api={api} room={room} reload={load} target={wallTarget && 'kind' in wallTarget ? wallTarget : null} onChanged={onWallChanged} /> : null}
             {tab === 'settings' && teacher ? (
               <>
                 <h2>Configuración del aula</h2>

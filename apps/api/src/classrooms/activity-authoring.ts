@@ -7,6 +7,7 @@ import { deadlineChoices, resolveDeadline } from './activity-time.ts';
 import { requireReady } from '../files/service.ts';
 import type { Transaction } from './contracts.ts';
 import { recordActivityEligibility } from './activity-eligibility.ts';
+import { activityEvent, deadlineChanged } from './activity-events.ts';
 
 export interface ActivityRow {
   id: string; classroom_id: string; type: ActivityType; title: string | null; unit_id: string | null; topic_id: string | null;
@@ -79,6 +80,8 @@ export class ActivityAuthoringService extends WallService {
           this.checkDeadlineChange(row, deadline, op.allowLate);
           await tx.query(`UPDATE activities SET deadline_at=$2,allow_late_submissions=$3,updated_at=$4 WHERE id=$1::uuid RETURNING id`,
             id, deadline, op.allowLate, actor.now);
+          if (row.status === 'PUBLISHED' && deadlineChanged(row.deadline_at, deadline, row.allow_late_submissions, op.allowLate))
+            await activityEvent(tx, classroomId, id, 'ACTIVITY_DEADLINE_CHANGED');
         } else if (op.action === 'save') {
           // Reject all content saves after participation, even an apparently identical payload.
           // Metadata and deadline have separate, narrower commands and never rebuild question identities.
@@ -91,6 +94,8 @@ export class ActivityAuthoringService extends WallService {
             attachments_required=$6,deadline_at=$7,allow_late_submissions=$8,updated_at=$9 WHERE id=$1::uuid RETURNING id`,
             id, payload.title, payload.unitId, payload.topicId, payload.instructions, payload.attachmentRequired, deadline, payload.allowLate, actor.now);
           await this.replaceContent(tx, row, payload);
+          if (row.status === 'PUBLISHED' && deadlineChanged(row.deadline_at, deadline, row.allow_late_submissions, payload.allowLate))
+            await activityEvent(tx, classroomId, id, 'ACTIVITY_DEADLINE_CHANGED');
         } else if (op.action === 'publish') {
           if (row.first_started_at || row.status === 'PUBLISHED') return fail('CONFLICT');
           const view = await this.activityView(tx, row, room.timezone, true);
@@ -104,6 +109,7 @@ export class ActivityAuthoringService extends WallService {
           await this.validateLinks(tx, request, row, payload);
           await tx.query(`UPDATE activities SET status='PUBLISHED',published_at=$2,updated_at=$2 WHERE id=$1::uuid RETURNING id`, id, actor.now);
           await recordActivityEligibility(tx, classroomId, { publication: id });
+          await activityEvent(tx, classroomId, id, 'ACTIVITY_PUBLISHED');
         } else if (op.action === 'withdraw') {
           if (row.first_started_at || row.status !== 'PUBLISHED') return fail('CONFLICT');
           await tx.query(`UPDATE activities SET status='WITHDRAWN',updated_at=$2 WHERE id=$1::uuid RETURNING id`, id, actor.now);

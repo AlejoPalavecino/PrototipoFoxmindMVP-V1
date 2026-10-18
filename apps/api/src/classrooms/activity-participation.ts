@@ -6,6 +6,7 @@ import { revision } from './drafts.ts';
 import { digest, fail, uuid } from './policy.ts';
 import { receptionPolicy } from './attempt-policy.ts';
 import type { Transaction } from './contracts.ts';
+import { activityEvent } from './activity-events.ts';
 
 export { resolveAttemptContext, assertAttemptWrite } from './attempt-access.ts';
 import { resolveAttemptContext, type AttemptRow, type Obligation } from './attempt-access.ts';
@@ -128,6 +129,7 @@ export class ActivityParticipationService extends ActivityAuthoringService {
       await tx.query(`UPDATE student_activities SET is_expected=true,eligibility_reason='TEACHER_AUTHORIZATION',eligible_at=$2,
         authorized_by_id=$3::uuid,first_submission_deadline_at=$4,updated_at=$2 WHERE id=$1::uuid RETURNING id`,
       obligation.id, now, actor.id, deadline);
+      await activityEvent(tx, classroomId, activityId, 'FIRST_SUBMISSION_ENABLED', body.studentId);
       return this.advanceRevision(tx, classroomId, room.revision);
     });
   }

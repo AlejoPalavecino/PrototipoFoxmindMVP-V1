@@ -4,6 +4,7 @@ import { revision } from './drafts.ts';
 import { fail, object, uuid } from './policy.ts';
 import { wallOperation } from './wall-policy.ts';
 import type { Actor, Transaction } from './contracts.ts';
+import { academicNotificationSelection, academicTarget, type AcademicNotification } from './academic-notifications.ts';
 
 interface ContentRow {
   id: string;
@@ -120,7 +121,11 @@ export class WallService extends LibraryService {
   }
 
   listNotifications(request: unknown) {
-    return this.run(request, false, (tx, actor) => tx.query<NotificationRow>(`${notificationSelection} ORDER BY n.created_at DESC,n.id`, actor.id));
+    return this.run(request, false, async (tx, actor) => {
+      const wall = await tx.query<NotificationRow>(`${notificationSelection} ORDER BY n.created_at DESC,n.id`, actor.id);
+      const academic = await tx.query<AcademicNotification>(academicNotificationSelection, actor.id);
+      return [...wall, ...academic].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || a.id.localeCompare(b.id));
+    });
   }
 
   readNotification(request: unknown, id: string) {
@@ -138,11 +143,14 @@ export class WallService extends LibraryService {
       const [owned] = await tx.query<{ classroom_id: string }>('SELECT classroom_id FROM notifications WHERE id=$1::uuid AND recipient_id=$2::uuid', id, actor.id);
       if (!owned) return fail('FORBIDDEN');
       await this.classroom(tx, actor, owned.classroom_id);
-      const [target] = await tx.query<NotificationRow>(`${notificationSelection} AND n.id=$2::uuid FOR UPDATE OF n`, actor.id, id);
+      const [wall] = await tx.query<NotificationRow>(`${notificationSelection} AND n.id=$2::uuid FOR UPDATE OF n`, actor.id, id);
+      const [academic] = wall ? [] : await tx.query<AcademicNotification>(`${academicNotificationSelection} AND n.id=$2::uuid FOR UPDATE OF n`, actor.id, id);
+      const target = wall ?? academic;
       if (!target) return fail('FORBIDDEN');
       await tx.query(`UPDATE notifications SET read_at=COALESCE(read_at,clock_timestamp()),
         updated_at=CASE WHEN read_at IS NULL THEN clock_timestamp() ELSE updated_at END WHERE id=$1::uuid RETURNING id`, id);
-      return open ? { classroomId: target.classroomId, postId: target.postId, replyId: target.replyId } : { read: true };
+      return open ? wall ? { classroomId: wall.classroomId, postId: wall.postId, replyId: wall.replyId }
+        : academicTarget(academic) : { read: true };
     });
   }
 }

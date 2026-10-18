@@ -1,1 +1,1 @@
-export { QuestionnaireAttemptService as ClassroomService } from './questionnaire-attempts.ts';
+export { ActivityHistoryService as ClassroomService } from './activity-history.ts';
