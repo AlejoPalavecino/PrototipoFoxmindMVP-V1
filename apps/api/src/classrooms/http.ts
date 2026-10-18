@@ -204,6 +204,13 @@ export function createClassroomsHandler(
           editorCapability(req.headers['x-attempt-editor'], req.headers['x-attempt-epoch']);
         value = await service.transferAttemptEditor(req, path[0], path[2], exact(['revision']));
       }
+      else if (path.length === 4 && path[1] === 'attempts' && ['answer', 'submit-answers'].includes(path[3]) && method === 'POST') {
+        if (!uuid(path[0]) || !uuid(path[2])) return fail('INVALID_INPUT');
+        editorCapability(req.headers['x-attempt-editor'], req.headers['x-attempt-epoch']);
+        value = path[3] === 'answer'
+          ? await service.saveAttemptAnswer(req, path[0], path[2], exact(['revision', 'questionId', 'text', 'optionIds']))
+          : await service.submitQuestionnaireAttempt(req, path[0], path[2], exact(['revision', 'confirm', 'confirmIncomplete']));
+      }
       else if (path.length === 4 && path[1] === 'attempts' && ['attachments-remove', 'submit-practical'].includes(path[3]) && method === 'POST') {
         if (!uuid(path[0]) || !uuid(path[2])) return fail('INVALID_INPUT');
         editorCapability(req.headers['x-attempt-editor'], req.headers['x-attempt-epoch']);

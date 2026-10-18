@@ -45,3 +45,12 @@ OwnwriterreportedinitialrealTP4leaf5TAPPASS/affected57/differentialexact9434byte
 
 ## T3 own proof accepted / T4 map
 T3writer final partial timing503 was a positive fixture holding1000+100ms across unchanged1000msdatabase budget. Coordinator authorized only test400ms+100ms preparation adjustment and one targeted recheck:4leaf5TAP/39.373s/cleanup0/283sourcesonlyfixturechanged/347compiledunchanged. Cause of original503 remains unproven; historical proof retained. Parent bridge2PASS, nativeoffglobal. T3ownproof accepted; independent fullP7pending. Readonly /root/p7_readiness_verify inspectedT4/S1-S4 and returned exactsave/submit/UI surfaces plus existing attempt-access/receipt reuse; no writes/builds. Full source handoff retained in conversation. T4nextafterT3commit, noP8.
+
+## T4 partial / new overview regression after bounded correction
+/root/p7_questionnaire Sol/xhigh implementedanswers/autosave/incompletesubmission. Initial17focused/APItypesNext0/actual8TAP/affected47/exact4026byteoldtransport. One self-reviewlostackqueuecorrection withRED then7targetPASS/typesNext0/actualrecovery3TAP; TPtiming5TAPPASS. Parentdiffspotcheckconfirmedremovedpre-startsafequestions/optionslistinAttemptSession; thisunrequestedpreviousoutputregressionisblocker, notadvisory. Correctionbudgetconsumed, workerterminalpartial/sourcepreserved. NoT5/P8/commit/push. Needsyourdecision: authorizetargetedpreservationfix+recheck, notnewfullsweep. Ownedresourcescleanup0/scratchretained. Workerrecordcontains19ownedpathsandexactevidence.
+
+## Human-authorized T4 overview preservation
+Latestuserexplicitlyauthorizesonenarrowcorrectionandverificationwithoutlimitexpansion. ReconciledHEADc89e973andpreservedT4dirty. Restorepre-startsafequestions/optionswithoutimplicitstart/answerkeys/duplicatepoststartcontrols; meaningfulREDthenfix,targetedactualproofandtypes/buildatunchangedbudgets. Historicalfailuresremain. NoP8; fullP7verification/publicationstillpending.
+
+## T4 own proof accepted
+ExplicitL19correctionrestoredprestartsafeoverviewfourlines. RED1PASS1FAIL→GREEN2PASS/typesNext0/actual2leaf3TAP39.139s/cleanup0/19otherfiles124compiledAPIunchanged. Parentrender2PASS. T4ownproofresolved; finalindependentpending. ReadonlyT5mapattributedto/root/p7_readiness_verify covered S1-S4/newattemptprefillhistory/P7events/targetauthorization/navigation/legacyWALLpreservation, no writes/builds. NoP8.

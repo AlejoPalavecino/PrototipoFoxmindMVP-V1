@@ -1,7 +1,8 @@
 'use client';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ActivityEligibilityData, AttemptEditor, AttemptSessionData, ClassroomClient, DeadlineResolution, Detail } from './api.ts';
 import { PracticalAttempt } from './PracticalAttempt.tsx';
+import { QuestionnaireAttempt } from './QuestionnaireAttempt.tsx';
 import { Dialog, Notice } from './components.tsx';
 import { activityDate, activityTypeLabels } from './ActivityAuthoring.tsx';
 
@@ -11,8 +12,16 @@ export function AttemptSession({ api, room, initial, onClose, onChanged }: {
 }) {
   const [data, setData] = useState(initial), [editor, setEditor] = useState<AttemptEditor | null>(initial.editor ?? null);
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [confirm, setConfirm] = useState(false);
+  const [controlWarning, setControlWarning] = useState(false), previousEpoch = useRef(initial.attempt?.epoch);
+  const previousAttempt = useRef(initial.attempt?.id);
   const path = `/${room.id}/activities/${initial.activity.id}`;
   const accept = useCallback((next: AttemptSessionData) => {
+    // A focus read started before takeover must not replace the newer editor capability/session.
+    if (next.attempt?.id === previousAttempt.current && next.attempt?.epoch !== undefined && previousEpoch.current !== undefined
+      && BigInt(next.attempt.epoch) < BigInt(previousEpoch.current)) return;
+    if (previousEpoch.current !== undefined && next.attempt?.epoch !== previousEpoch.current && next.attempt?.status === 'DRAFT') setControlWarning(true);
+    previousEpoch.current = next.attempt?.epoch;
+    previousAttempt.current = next.attempt?.id;
     setData(next);
     setEditor(previous => next.editor ?? (previous && next.attempt?.epoch === previous.epoch ? previous : null));
   }, []);
@@ -32,6 +41,7 @@ export function AttemptSession({ api, room, initial, onClose, onChanged }: {
     <section className="p7-attempt" aria-label={activity.type === 'EVALUATION' ? 'Evaluación · sesión reducida' : 'Sesión de actividad'}>
       <header><small>{activityTypeLabels[activity.type]}</small><p>{activityDate(data.reception.deadlineAt, activity.zone)}</p></header>
       {error ? <Notice error>{error} No se confirmaron cambios. Vuelve a consultar el estado antes de continuar.</Notice> : null}
+      {controlWarning ? <Notice>El control de edición cambió. Se cargó el último borrador confirmado; los cambios no confirmados de la sesión anterior no se transfieren.</Notice> : null}
       {!data.expected ? <Notice>Solo consulta: esta actividad no forma parte de tus entregas esperadas. El docente puede habilitar la primera entrega con un plazo individual futuro.</Notice> : null}
       {data.archived ? <Notice>Aula archivada: solo consulta.</Notice> : !data.reception.open ? <Notice>Recepción cerrada. Puedes consultar el estado confirmado; comenzar o abrir antes no reserva una entrega a tiempo.</Notice> : null}
       {attempt ? <><p>Intento {attempt.number} · {attempt.status === 'SUBMITTED' ? 'Entregado · solo consulta' : 'Borrador confirmado · no entregado'}</p>
@@ -45,14 +55,13 @@ export function AttemptSession({ api, room, initial, onClose, onChanged }: {
       <ul>{activity.instructionFiles.map(file => <li key={file.id}>{file.ready ? <><a href={api.fileUrl(file.id)} target="_blank" rel="noreferrer">Descargar {file.name}</a>
         {file.extension === 'pdf' ? <> · <a href={api.fileUrl(file.id, true)} target="_blank" rel="noreferrer">Vista previa PDF</a></> : null}</> : `${file.name} · No disponible por revisión de seguridad`}</li>)}</ul>
       <ul>{activity.materials.map(material => <li key={material.id}><a href={api.fileUrl(material.fileId)} target="_blank" rel="noreferrer">{material.title}</a></li>)}</ul>
-      {activity.questions.map((question, index) => {
-        const answer = attempt?.answers.find(saved => saved.questionId === question.id);
-        return <article key={question.id ?? index}><h4>Pregunta {index + 1} · {question.points} puntos</h4><p className="p7-multiline">{question.prompt}</p>
-          <ul>{question.options.map(option => <li key={option.id ?? option.text}>{option.text}{option.id && answer?.optionIds.includes(option.id) ? ' · Selección confirmada' : ''}</li>)}</ul>
-          {answer?.text ? <p className="p7-multiline">Respuesta confirmada: {answer.text}</p> : null}</article>;
-      })}
+      {!attempt ? activity.questions.map((question, index) => <article key={question.id ?? index}>
+        <h4>Pregunta {index + 1} · {question.points} puntos</h4><p className="p7-multiline">{question.prompt}</p>
+        <ul>{question.options.map(option => <li key={option.id ?? option.text}>{option.text}</li>)}</ul>
+      </article>) : null}
       {activity.type === 'ASSIGNMENT' ? <PracticalAttempt api={api} classroomId={room.id} data={data} editor={ownsEditor ? editor : null} refresh={refresh} />
-        : <p>Esta etapa permite iniciar, recuperar y transferir el intento. No ofrece guardado de respuestas ni envio todavia.</p>}
+        : attempt ? <QuestionnaireAttempt key={`${attempt.id}:${attempt.epoch}:${ownsEditor ? 'edit' : 'view'}`} api={api} classroomId={room.id}
+          data={data} editor={ownsEditor ? editor : null} refresh={refresh} /> : null}
       <footer className="p5-form-footer"><button disabled={busy} onClick={() => void run(refresh)}>Actualizar estado confirmado</button>
         {data.canTransfer && !ownsEditor ? <button disabled={busy} onClick={() => setConfirm(true)}>Transferir edición a esta pestaña</button> : null}</footer>
       {confirm && attempt ? <section className="p7-transfer-confirm" aria-label="Confirmar transferencia de edición">

@@ -125,13 +125,16 @@ export interface ActivityDetail extends ActivitySummary {
 }
 export interface ActivityData { revision: string; preview: boolean; activity: ActivityDetail }
 export interface AttemptEditor { token: string; epoch: string }
+export interface QuestionAnswer { questionId: string; text: string | null; optionIds: string[]; savedAt: string }
+export interface AnswerConfirmation { revision: string; answer: QuestionAnswer }
 export interface AttemptSessionData {
   activity: ActivityDetail; expected: boolean; eligibilityReason: string | null; archived: boolean; serverTime: string;
   reception: { deadlineAt: string | null; open: boolean; late: boolean }; canStart: boolean; canTransfer: boolean;
+  unansweredCount?: number;
   attempt: { id: string; number: number; status: 'DRAFT' | 'SUBMITTED'; openedAt: string; submittedAt: string | null;
     appliedDeadlineAt: string | null; submittedLate: boolean | null; epoch: string; revision: string;
     attachments?: AttemptAttachment[];
-    answers: { questionId: string; text: string | null; optionIds: string[]; savedAt: string }[] } | null;
+    answers: QuestionAnswer[] } | null;
   editor?: AttemptEditor;
 }
 export interface AttemptAttachment extends FileState {
