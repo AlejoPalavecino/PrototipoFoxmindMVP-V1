@@ -7,7 +7,7 @@ import type { IdentityRuntime } from '../identity/runtime.ts';
 import { readSessionCookie } from '../identity/transport.ts';
 import { authenticateSession } from '../identity/session-query.ts';
 import type { ClassroomPorts } from './contracts.ts';
-import type { InvitationService } from './invitations.ts';
+import type { ClassroomService as InvitationService } from './service.ts';
 import type { InvitationDeliveryWorker } from './delivery.ts';
 import { ClassroomIdentityError } from './errors.ts';
 import { createClassroomsHandler } from './http.ts';

@@ -1,7 +1,8 @@
 'use client';
 import { useState, useEffect, useCallback, lazy, Suspense, type ReactNode } from 'react';
-import type { ClassroomClient, Classroom, Draft, Invitation } from './api.ts';
+import type { ClassroomClient, Classroom, Draft, Invitation, WallTarget } from './api.ts';
 import { Cover, Dialog, Notice } from './components.tsx';
+import { Notifications } from './Notifications.tsx';
 const Wizard = lazy(() =>
   import('./Wizard.tsx').then((module) => ({ default: module.Wizard })),
 );
@@ -34,6 +35,8 @@ export function ClassroomsApp({
     [search, setSearch] = useState(''),
     [draft, setDraft] = useState<Draft | null>(null),
     [classroomId, setClassroomId] = useState<string | null>(null);
+  const [wallTarget, setWallTarget] = useState<WallTarget | null>(null), [notificationRefresh, setNotificationRefresh] = useState(0);
+  const refreshNotifications = useCallback(() => setNotificationRefresh(value => value + 1), []);
   const [join, setJoin] = useState(false),
     [code, setCode] = useState(''),
     [preview, setPreview] = useState<{
@@ -86,6 +89,7 @@ export function ClassroomsApp({
   const leaveView = () => {
     setDraft(null);
     setClassroomId(null);
+    setWallTarget(null);
     void action(() => load());
   };
   async function accept(invitation: Invitation) {
@@ -139,6 +143,9 @@ export function ClassroomsApp({
         >
           Mis Aulas
         </button>
+        {!draft ? <Notifications api={api} refresh={notificationRefresh} onOpen={target => {
+          setWallTarget(target); setSharedCode(null); setClassroomId(target.classroomId);
+        }} /> : null}
         <span className="p5-profile">{displayName}</span>
         {!draft ? accountActions : null}
       </nav>
@@ -160,10 +167,13 @@ export function ClassroomsApp({
         ) : classroomId ? (
           <Suspense fallback={<Notice>Cargando aula…</Notice>}>
             <ClassroomView
+              key={classroomId}
               api={api}
               id={classroomId}
               onExit={leaveView}
               initialCode={sharedCode}
+              wallTarget={wallTarget?.classroomId === classroomId ? wallTarget : null}
+              onWallChanged={refreshNotifications}
             />
           </Suspense>
         ) : (

@@ -1,7 +1,10 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
-import type { ClassroomClient, Detail, Invitation, Member } from './api.ts';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import type { ClassroomClient, Detail, Invitation, Member, WallTarget } from './api.ts';
 import { Cover, Dialog, Notice, initials } from './components.tsx';
+import { Plan } from './Plan.tsx';
+import { Library } from './Library.tsx';
+import { Wall } from './Wall.tsx';
 
 interface Summary {
   firstName: string;
@@ -20,20 +23,25 @@ export function ClassroomView({
   id,
   onExit,
   initialCode,
+  wallTarget,
+  onWallChanged,
 }: {
   api: ClassroomClient;
   id: string;
   onExit: () => void;
   initialCode: string | null;
+  wallTarget?: WallTarget | null;
+  onWallChanged?: () => void;
 }) {
   const [room, setRoom] = useState<Detail | null>(null),
     [members, setMembers] = useState<Member[]>([]),
     [history, setHistory] = useState<Member[]>([]),
     [invitations, setInvitations] = useState<Invitation[]>([]);
-  const [tab, setTab] = useState('members'),
+  const [tab, setTab] = useState(wallTarget ? 'wall' : 'members'),
     [error, setError] = useState(''),
     [notice, setNotice] = useState(''),
     [busy, setBusy] = useState(false);
+  const tabs = useRef<HTMLElement>(null);
   const [code, setCode] = useState(initialCode),
     [email, setEmail] = useState(''),
     [inviting, setInviting] = useState(false),
@@ -92,6 +100,22 @@ export function ClassroomView({
     });
     return () => controller.abort();
   }, [load]);
+  useEffect(() => { if (wallTarget) setTab('wall'); }, [wallTarget]);
+  useEffect(() => {
+    const nav = tabs.current;
+    if (!nav) return;
+    const reveal = () => {
+      const active = nav.querySelector<HTMLElement>('[aria-current="page"]');
+      if (!active) return;
+      const bounds = nav.getBoundingClientRect(), selected = active.getBoundingClientRect();
+      if (selected.left < bounds.left) nav.scrollLeft += Math.floor(selected.left - bounds.left);
+      else if (selected.right > bounds.right) nav.scrollLeft += Math.ceil(selected.right - bounds.right);
+    };
+    reveal();
+    const observer = new ResizeObserver(reveal);
+    observer.observe(nav);
+    return () => observer.disconnect();
+  }, [tab, room?.id, room?.role, wallTarget]);
   async function action(task: () => Promise<void>) {
     setBusy(true);
     setError('');
@@ -150,11 +174,13 @@ export function ClassroomView({
             </Notice>
           ) : null}
           {notice ? <Notice>{notice}</Notice> : null}
-          <nav className="p5-tabs" aria-label="Secciones del aula">
+          <nav ref={tabs} className="p5-tabs" aria-label="Secciones del aula">
             {[
               { key: 'members', label: teacher ? 'Alumnos' : 'Compañeros' },
               ...(teacher ? [{ key: 'history', label: 'Historial' }] : []),
               { key: 'plan', label: 'Plan' },
+              { key: 'library', label: 'Biblioteca' },
+              { key: 'wall', label: 'Muro' },
               ...(teacher ? [{ key: 'settings', label: 'Configuración' }] : []),
             ].map((item) => (
               <button
@@ -392,43 +418,9 @@ export function ClassroomView({
                 ) : null}
               </>
             ) : null}
-            {tab === 'plan' ? (
-              <>
-                <h2>Plan de estudio</h2>
-                {room.plans.map((plan) => (
-                  <p key={plan.id}>
-                    <a
-                      href={api.fileUrl(plan.fileId)}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Descargar plan · Versión {plan.version}
-                    </a>
-                  </p>
-                ))}
-                {room.units.map((unit, index) => (
-                  <section className="p5-unit" key={unit.id}>
-                    <h3>
-                      Unidad {index + 1} · {unit.name}
-                    </h3>
-                    <ul>
-                      {unit.topics.map((topic) => (
-                        <li key={topic.id}>
-                          {topic.name}
-                          <span className="p5-tag">
-                            {topic.status === 'TAUGHT'
-                              ? 'Dado'
-                              : topic.status === 'NEXT'
-                                ? 'Siguiente'
-                                : 'Pendiente'}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </section>
-                ))}
-              </>
-            ) : null}
+            {tab === 'plan' ? <Plan api={api} room={room} reload={load} /> : null}
+            {tab === 'library' ? <Library api={api} room={room} reload={load} /> : null}
+            {tab === 'wall' ? <Wall api={api} room={room} reload={load} target={wallTarget} onChanged={onWallChanged} /> : null}
             {tab === 'settings' && teacher ? (
               <>
                 <h2>Configuración del aula</h2>

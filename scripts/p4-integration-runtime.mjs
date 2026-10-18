@@ -31,7 +31,7 @@ export async function withP4IntegrationRuntime(callback, { classrooms = false } 
       db = new pg.Client({ connectionString: runtime.databaseUrl, connectionTimeoutMillis: 2000, query_timeout: 5000 });
       await db.connect();
       const migrations = readdirSync('prisma/migrations').filter(name => /^\d+_/.test(name)).sort();
-      if (migrations.length !== 7) throw new Error('Unexpected combined migration inventory');
+      if (migrations.length !== 8) throw new Error('Unexpected combined migration inventory');
       const prisma = command => {
         const result = spawnSync(process.execPath, ['node_modules/prisma/build/index.js', ...command], {
           env: { ...process.env, DATABASE_URL: runtime.databaseUrl }, encoding: 'utf8', windowsHide: true, timeout: 60000,
@@ -72,6 +72,17 @@ export async function withP4IntegrationRuntime(callback, { classrooms = false } 
         }
         if (!ready) throw new Error('Owned integration web readiness unavailable');
         return await callback({ origin, inbox: httpOrigin, get db() { return db; }, migrations,
+          async stopLibraryDeletion() {
+            if (!classrooms) throw new Error('Classroom host not enabled');
+            const { LibraryCleanupWorker } = await import('../.build/api/apps/api/src/classrooms/library-cleanup.js');
+            await api.get(LibraryCleanupWorker).onModuleDestroy();
+          },
+          async privateFileBytes(fileId) {
+            const { FileService } = await import('../.build/api/apps/api/src/files/service.js');
+            const [file] = (await db.query('SELECT storage_key,size_bytes FROM files WHERE id=$1::uuid', [fileId])).rows;
+            if (!file) throw new Error('Owned fixture file missing');
+            return api.get(FileService).storage.get(file.storage_key, Number(file.size_bytes));
+          },
           async stopInvitationDelivery() {
             if (!classrooms) throw new Error('Classroom host not enabled');
             const { InvitationDeliveryWorker } = await import('../.build/api/apps/api/src/classrooms/delivery.js');

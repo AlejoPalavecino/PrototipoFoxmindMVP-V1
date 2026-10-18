@@ -23,6 +23,7 @@ export interface FileRow {
   rejection_code: string | null; upload_status: 'STARTED' | 'UPLOADING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
   completed_at: Date | null; last_activity_at: Date; reservation_released_at: Date | null;
   purpose: FilePurpose; target_id: string | null; phase: string; digest: string | null;
+  blob_deleted_at: Date | null;
   validated_digest: string | null; scanned_digest: string | null; operation_id: string | null; lease_until: Date | null;
 }
 export function targetOf(row: FileRow): FileTarget {
@@ -84,6 +85,7 @@ export class FileStore {
   }
   async loadAuthorized(tx: FileTransaction, request: unknown, id: string, action: FileAction): Promise<FileRow> {
     const row = await this.load(tx, id);
+    if (row.blob_deleted_at) throw new FileError('FORBIDDEN');
     const actor = await this.authorize(tx, request, targetOf(row), action);
     if (action === 'upload' && row.uploaded_by_id !== actor.userId) throw new FileError('FORBIDDEN');
     const current = await this.load(tx, id);
@@ -96,7 +98,7 @@ export class FileStore {
     const column = scope.kind === 'classroom' ? 'classroom_id' : 'classroom_draft_id';
     const [row] = await tx.query<{ used: bigint }>(`SELECT COALESCE(SUM(f.size_bytes),0)::bigint AS used FROM files f
       LEFT JOIN uploads u ON u.file_id=f.id WHERE f.${column}=$1::uuid
-      AND (u.id IS NULL OR u.status='COMPLETED' OR u.reservation_released_at IS NULL)`, scope.id);
+      AND f.blob_deleted_at IS NULL AND (u.id IS NULL OR u.status='COMPLETED' OR u.reservation_released_at IS NULL)`, scope.id);
     return row.used;
   }
 }

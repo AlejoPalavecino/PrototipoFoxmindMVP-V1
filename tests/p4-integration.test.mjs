@@ -45,7 +45,7 @@ test('P4 integrated browser, persisted P3 sessions and actual private services',
           VALUES($1,now(),$2,'P4 owned fixture','Testing','A',2026,'America/Argentina/Buenos_Aires','fixture',100000000)`, [classroom, owner.id]);
         await db.query('INSERT INTO enrollments(id,updated_at,classroom_id,student_id) VALUES($1,now(),$2,$3)', [enrollment, classroom, student.id]);
         await db.query(`INSERT INTO membership_periods(id,updated_at,enrollment_id,classroom_id,entry_method) VALUES($1,now(),$2,$3,'CODE')`, [period, enrollment, classroom]);
-        assert.equal(runtime.migrations.length, 7);
+        assert.equal(runtime.migrations.length, 8);
       });
       await t.test('actual file picker uploads more than16KiB through Next and real scan', async () => {
         await page.goto(`${origin}/files?kind=draft&id=${draft}&purpose=plan`);

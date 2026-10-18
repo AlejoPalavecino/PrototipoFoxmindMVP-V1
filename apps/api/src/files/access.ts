@@ -19,6 +19,14 @@ export function createFileAccess(ports: { authenticate: FileAccess['authenticate
     if (action === 'usage') { if (!teacher) deny(); return; }
     if (target.purpose === 'plan' || target.purpose === 'material') {
       if (target.targetId !== null) deny();
+      if (target.purpose === 'material' && target.fileId) {
+        const rows = await tx.query<{ deleted_at: Date | null }>(
+          'SELECT deleted_at FROM materials WHERE file_id=$1::uuid AND classroom_id=$2::uuid FOR SHARE', target.fileId, target.scope.id);
+        if (rows.some(row => row.deleted_at) || (action === 'upload' && rows.length > 0)) deny();
+        if (teacher) return;
+        if (action === 'upload' || rows.length === 0) deny();
+        return;
+      }
       if (teacher) return;
       if (action === 'upload' || !target.fileId) deny();
       const table = target.purpose === 'plan' ? 'study_plan_versions' : 'materials';

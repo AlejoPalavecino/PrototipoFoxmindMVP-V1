@@ -1,0 +1,50 @@
+# P6 implementation — in progress
+
+- Agent / role: /root, coordinator and inline writer.
+- Task ID: /root; authoritative session ID unavailable.
+- Date: 2026-10-18.
+- Branch/worktree: codex/p6-teaching; reused managed p4-p3-integration/ProtipoFoxMind.
+- Starting commit: accepted main a75deaebbe0938b302d09fefe0b612edfd96bef9.
+- Phase/specs: [P6 S1–S4/T1–T6](../../odd/tasks/p6-teaching.md).
+- Status: in_progress.
+
+## Scope
+
+Full P6 in authorized order Plan,Library,Muro+notifications,integratedproof. User explicitly authorizes verified merge/push to existing origin main; no P7/deployment/retaineddata mutation. Preserve original dirty checkout, actual P3 session/CSRF, P4 security and P5 scoped membership/archive behavior. Nativeoff/global, disabled/unmanaged. Engram exact project operational/no invented session.
+
+## Work and verification
+
+Read prior readiness31 and current roadmap/functional rules/workrecord protocol, actual cleanmain/remotea75deae confirmed. Parent-owned inline route initially; large task tracking before source writes. Tests must observe meaningfulRED→GREEN and exact previous behavior. Long ownchecks/final independent Sol/xhigh delegated only at applicable triggers. No runtimePASS or completion yet.
+
+## Initial handoff (historical)
+
+First unfinished T1: Plan maintenance endpoints, UI and focused regression. No source writes yet. No future phase scope inferred.
+
+## T1 Plan implementation self-check
+
+Initial owned SQLfixture failures omitted membership classroom_id then entry_method; both tests exit1,cleanup0, no featureREDclaimed. Correctedfixture then node --test tests/p6-plan.test.mjs observed meaningfulRED7 missingchangePlan. Parameterized Plan service/auth/sharedrevision and UI implemented; initial API compile failed hostbase/derivedtype, corrected DI composition while preserving originalInvitationService token. FreshAPIbuild0/Plan7PASS/cleanup0/session25252closed; Next+standaloneUIstrictTS0; affected node --test --test-concurrency=1 tests/p5-host.test.mjs tests/p5-http.test.mjs tests/p5-session-bridge.test.mjs tests/p5-web-proxy.test.mjs tests/p5-ui-client.test.mjs exit0/24PASS/0skip/session90071closed. Plan actualreadyfileversion/browser acceptance deferred to T4/T5, not claimed complete. Risk:items1,2,3,4. No newdependencies/migration or P7.
+
+Plan workunit commit694cab70d8716faed9380f17a06d8afa3f2da74f observed,398add46delete; advisoryoverage reported, no codegolf. Next coherentLibraryunit delegated at contextbackstop to keep long-running coordinator continuity thin; no split code/tests/UI writers and no dependentparallelphase. Existing explicit Sol/xhigh implementation authorization retained. Parent remains Git/tracker/harness owner. Full acceptance/mainpublication pending.
+
+## T2 Library attributed handoff
+
+/root/p5_backend_integration Sol/xhigh,context-backstop,paths-injected,ownrecord2026-10-18-p6-library-implementation.md: implementedAPI/UI/immutablematerial/custodydeletion/quotalifecycle, migration8. MeaningfulRED andprep failuresretained; freshAPIbuild0/Library12PASS/UItypes0/affectedP4-P5-Plan54PASS/SQLcleanup0; baselineclient8requestsidentical. Parentclientspotcheck3PASS. Reviewassessreportedhigh/unassessableuntrackedinventory; no nativeSTATUS/START becauseoff/global. Final independentsecurity/data/concurrencyproofpending. ParentpreparedactualPlanintegrationtest/helper(syntax0 only), adaptedexactthreecombinedmigrationcounts7→8. WorkerownedOSscratchfoxmind-p6-library-differential-nWOeDQ retained; priorcleanupdenialnotbypassed. Risk:items1–4. Fullactualstorage/browser/dataupgradependingT4/T5.
+
+## Current handoff
+
+Plancommit694cab7/own7+24passed; Librarycommit562650c/own12+54passed, finalacceptancepending. T3/root/p6_wall_implementation Sol/xhigh currentlywritesonecoherentMuro+notificationunit, parent ownsdisjointT4harness. NewactualPlan/Librarytests/helper and runtimeownedworker/storagehooks syntax0 only; no globalbuild/runwhilewriteractive. Runner CLIRED3→GREEN3 atunchangednewsynthetic5s; defaultpendingMurotestfile. NewrunnerforecastsAPI30s/Next180s/three330sfixtureswith360schildbounds, noexistingbudgetchange. Manifestnewscriptinsertfirstguardfailedwithoutwrite, correctedexactinsertion/no depschanged. Firstnextaction waitT3handoff, spotcheck/commitunit, completeactualMuroharness then delegatedownlongchecks; independentfinalafterownGREEN. Mainstilla75deae/unpublishedP6.
+
+## T3 scoped disposition
+Writer focused18PASS/build0/types0; final inherited42PASS/1FAIL retained. Fresh bounded diagnostic baseline/current1PASS each, no cause established; see attributed p6-proxy-diagnostic record. Parent clientspotcheck3PASS. Source unit accepted only for feature branch; full actual integration and final independent proof pending, no main publication. Nativeoff/global. Parent owns new P6 real harness, syntax-only so far.
+
+
+## T4 own proof and final freeze preparation
+T3commitb38f8e0; scannerLFfix9b722eb, no securityfreshnessweakening. Attributedowncheck record containsallprep/assertionfailures, boundeddiagnoses andexactcorrections. ActualPlan5leaf/6TAP, Library4/5, Wall6/7PASS; newPlan375/320alsoPASS. P5integrated13real+16controlled, isolated37+9, P4integration9/P3browser10allPASS, cleanup0. ParentreadactualLibrary/Wall320screens, Plan320also visuallyreadback (wrappedcontrols/contents). NewactualharnessplusLibraryaria-labelcorrection readycoherentcommit; highriskretained. FinalfreshindependentSol/xhighwholefeatureandbaselineupgrade7to8pending; no mainmerge/publication.
+
+## Independent bounded correction B1
+FreshindependentSol/xhighfoundactual320notification→Muroactive-tabinvisible, documentoverflowchecksinsufficient. Fullattributedrecordp6-verify-final.md preservessuccessfulruntime/regressions/upgrade/differentials andinitialAPIbudget/snapshotlimitations. Parentcommitted-probe-equivalentactualnewtestobservedRED1(30swaitForFunction, cleanup0). Addedlocalnavref/effect+ResizeObserver to revealonlyselectedtab within existinghorizontalnav onselection/notification/reflow; nofocus/verticalscroll/auth/datachange. Bothstricttypes0. OwnNext+focusedmobile+existingcontrolledUIsuitependingthenoneindependenttargetedexactGitblobrecheck, no newfullsweep.
+
+
+## Accepted P6, publication pending
+
+IndependentfullP615leaf18TAP/focused68/P5integrated13+16/isolated46/P49/P3browser10, actualpopulated7to8conservation34tables45rows andCLI18/client8differententials passed. B1singlecorrection20d9f27 independentlyclosedbyexactGitblobfreshscratch/builds/mobile1PASS; parentspotcheckcontrols3PASS. ExplicitfirstAPIaggregate30unavailable/archiveCRLF-pathlimitations retained, noexactglobalfullsweepclaim. CurrentfullP6exitconditionaccepted, noP7. Passiveclosure/links then fetchactualoriginmain/checkbase/merge/push andexactremoteSHA confirmation authorizednext. Originaldirtycheckout5e86d1e unchanged/retaineddatauntouched. AllOSscratchretainedundercleanuprestriction; ownedruntimecleanup0. Risk:items1–5; nativeoff/global disabled/unmanaged.

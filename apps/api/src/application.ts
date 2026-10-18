@@ -8,8 +8,10 @@ import { IdentityModule, IdentityRuntime, installIdentityTransport, type Identit
 import { FilesModule, FileService, createFileInfrastructure, installFilesTransport, FileHostLifecycle, type FileInfrastructure } from './files/index.ts';
 import { ClassroomsModule } from './classrooms/classrooms.module.ts';
 import { InvitationService } from './classrooms/invitations.ts';
+import type { ClassroomService } from './classrooms/service.ts';
 import { localInvitationSender } from './classrooms/delivery.ts';
 import { ClassroomHostLifecycle, installClassroomsTransport } from './classrooms/host.ts';
+import { LibraryCleanupWorker } from './classrooms/library-cleanup.ts';
 
 export interface ApplicationOptions { readonly identity?: IdentityRuntimePorts }
 
@@ -17,11 +19,14 @@ export interface ApplicationOptions { readonly identity?: IdentityRuntimePorts }
 class AppModule implements OnModuleDestroy {
   constructor(@Inject(IdentityRuntime) private readonly identity: IdentityRuntime,
     @Optional() @Inject(FileHostLifecycle) private readonly files?: FileHostLifecycle,
-    @Optional() @Inject(ClassroomHostLifecycle) private readonly classrooms?: ClassroomHostLifecycle) {}
+    @Optional() @Inject(ClassroomHostLifecycle) private readonly classrooms?: ClassroomHostLifecycle,
+    @Optional() @Inject(LibraryCleanupWorker) private readonly library?: LibraryCleanupWorker) {}
   // Nest destroys the root module before imported modules. Drain worker/sender before Prisma teardown,
   // for both framework close and native shutdown hooks; relying on beforeApplicationShutdown is too late.
   async onModuleDestroy(): Promise<void> {
-    const outcomes = await Promise.allSettled([this.identity.shutdownMail(), this.files?.close(), this.classrooms?.close()]);
+    // Explicit material deletion uses the shared storage port; drain it before file infrastructure closes.
+    const deletion = await Promise.allSettled([this.library?.onModuleDestroy()]);
+    const outcomes = [...deletion, ...await Promise.allSettled([this.identity.shutdownMail(), this.files?.close(), this.classrooms?.close()])];
     const failed = outcomes.find(outcome => outcome.status === 'rejected');
     if (failed?.status === 'rejected') throw failed.reason;
   }
@@ -53,7 +58,7 @@ export async function createApplication(configuration: ApiConfiguration, options
     const identity = app.get(IdentityRuntime);
     installIdentityTransport(app, identity);
     if (configuration.files) installFilesTransport(app, identity, app.get(FileService));
-    if (configuration.classrooms) installClassroomsTransport(app, identity, app.get(InvitationService));
+    if (configuration.classrooms) installClassroomsTransport(app, identity, app.get<ClassroomService>(InvitationService));
     app.setGlobalPrefix("api/v1");
     app.getHttpAdapter().getInstance().disable("x-powered-by");
     app.enableShutdownHooks(["SIGINT", "SIGTERM"]);
