@@ -64,9 +64,9 @@ test('transactional enrollment/publication, initial attempts and editor authoriz
       assert.equal(rows.find(r=>r.activity_id===expired).is_expected,false);
       assert.equal(rows.find(r=>r.activity_id===open).is_expected,true);
       assert.ok(rows.every(r=>r.eligibility_reason==='INITIAL_ENROLLMENT'));
-      assert.equal((await service.activitySession(S,room,expired)).canStart,false);
-      assert.equal((await service.activitySession(S,room,expired)).activity.instructions,'Instructions');
-      await rejects(()=>service.startActivity(S,room,expired,{}),'FORBIDDEN');
+      assert.equal((await service.activitySession(S,room,expired)).canStart,true);
+      assert.equal((await service.activitySession(S,room,expired)).activity.instructions,null);
+      assert.equal((await service.activityDetail(S,room,expired)).activity.instructions,null);
       const before=await records(S);
       await change({action:'deadline',id:expired,deadline:{local:'2030-01-01T18:00'},allowLate:true});
       assert.deepEqual(await records(S),before,'General extension does not rewrite event decisions');

@@ -25,7 +25,7 @@ export class ActivityParticipationService extends ActivityAuthoringService {
     if (row.type !== 'ASSIGNMENT' || archived) return view;
     const obligation = await this.obligation(tx, row.classroom_id, row.id, studentId);
     const [attempt] = obligation ? await tx.query('SELECT id FROM attempts WHERE student_activity_id=$1::uuid LIMIT 1', obligation.id) : [];
-    if (obligation?.is_expected && !attempt) return { ...view, instructions: null, instructionFiles: [], materials: [] };
+    if (!attempt) return { ...view, instructions: null, instructionFiles: [], materials: [] };
     return view;
   }
 
@@ -51,7 +51,7 @@ export class ActivityParticipationService extends ActivityAuthoringService {
       const activity = await this.activity(tx, classroomId, activityId);
       if (activity.status !== 'PUBLISHED') return fail('FORBIDDEN');
       const obligation = await this.obligation(tx, classroomId, activityId, actor.id);
-      if (!obligation?.is_expected) return fail('FORBIDDEN');
+      if (!obligation || (!obligation.is_expected && activity.type !== 'ASSIGNMENT')) return fail('FORBIDDEN');
       let [attempt] = await tx.query<AttemptRow>(`SELECT * FROM attempts WHERE student_activity_id=$1::uuid
         ORDER BY attempt_number DESC LIMIT 1 FOR UPDATE`, obligation.id);
       const [{ now }] = await tx.query<{ now: Date }>('SELECT clock_timestamp() AS now');
@@ -61,8 +61,8 @@ export class ActivityParticipationService extends ActivityAuthoringService {
       if (attempt) return this.sessionView(tx, activity, room.timezone, false, obligation, attempt, now);
       if (!reception.open && activity.type !== 'ASSIGNMENT') return fail('CONFLICT');
       // A real first instruction opening locks TP content even after reception closes.
-      // It is not a submission, does not reserve timeliness, and grants no editor while closed.
-      const token = reception.open ? randomBytes(32).toString('base64url') : null;
+      // It is not a submission or an eligibility change; only expected work with open reception gets an editor.
+      const token = obligation.is_expected && reception.open ? randomBytes(32).toString('base64url') : null;
       [attempt] = await tx.query<AttemptRow>(`INSERT INTO attempts(id,updated_at,student_activity_id,activity_id,attempt_number,
         opened_at,individual_deadline_at,editor_token_hash,editor_epoch,revision)
         VALUES($1::uuid,$2,$3::uuid,$4::uuid,1,$2,$5,$6,$7,0) RETURNING *`,
@@ -121,14 +121,19 @@ export class ActivityParticipationService extends ActivityAuthoringService {
       if (!member) return fail('FORBIDDEN');
       const obligation = await this.obligation(tx, classroomId, activityId, body.studentId);
       if (!obligation || obligation.is_expected) return fail('CONFLICT');
-      const [prior] = await tx.query('SELECT id FROM attempts WHERE student_activity_id=$1::uuid FOR UPDATE', obligation.id);
-      if (prior) return fail('CONFLICT');
+      const prior = await tx.query<AttemptRow>('SELECT * FROM attempts WHERE student_activity_id=$1::uuid ORDER BY attempt_number FOR UPDATE', obligation.id);
+      // A real instruction-only opening is still the first submission opportunity, not a resubmission.
+      // Never reuse submitted history or a reopened/additional attempt through this initial-authorization path.
+      if (prior.length && (activity.type !== 'ASSIGNMENT' || prior.length !== 1 || prior[0].attempt_number !== 1
+        || prior[0].status !== 'DRAFT' || prior[0].submitted_at !== null)) return fail('CONFLICT');
       const deadline = resolveDeadline(room.timezone, body.deadline);
       const [{ now }] = await tx.query<{ now: Date }>('SELECT clock_timestamp() AS now');
       if (!deadline || deadline <= now) return fail('INVALID_INPUT');
       await tx.query(`UPDATE student_activities SET is_expected=true,eligibility_reason='TEACHER_AUTHORIZATION',eligible_at=$2,
         authorized_by_id=$3::uuid,first_submission_deadline_at=$4,updated_at=$2 WHERE id=$1::uuid RETURNING id`,
       obligation.id, now, actor.id, deadline);
+      if (prior.length) await tx.query(`UPDATE attempts SET individual_deadline_at=$2,updated_at=$3
+        WHERE id=$1::uuid RETURNING id`, prior[0].id, deadline, now);
       await activityEvent(tx, classroomId, activityId, 'FIRST_SUBMISSION_ENABLED', body.studentId);
       return this.advanceRevision(tx, classroomId, room.revision);
     });
@@ -138,9 +143,9 @@ export class ActivityParticipationService extends ActivityAuthoringService {
     obligation: Obligation | null, attempt: AttemptRow | null, now: Date) {
     const reception = receptionPolicy(activity.deadline_at, attempt?.individual_deadline_at ?? obligation?.first_submission_deadline_at ?? null,
       activity.allow_late_submissions, now);
-    const needsStart = !!obligation?.is_expected && !attempt;
+    const needsStart = !!obligation && (obligation.is_expected || activity.type === 'ASSIGNMENT') && !attempt;
     let view = await this.activityView(tx, activity, zone, false);
-    if (activity.type === 'ASSIGNMENT' && needsStart && !archived) view = { ...view, instructions: null, instructionFiles: [], materials: [] };
+    if (activity.type === 'ASSIGNMENT' && !attempt && !archived) view = { ...view, instructions: null, instructionFiles: [], materials: [] };
     const answers = attempt ? await tx.query<{ questionId: string; text: string | null; savedAt: Date; optionIds: string[] }>(`SELECT
       a.question_id AS "questionId",a.development_text AS text,a.saved_at AS "savedAt",
       COALESCE((SELECT array_agg(s.option_id ORDER BY s.option_id) FROM answer_selections s WHERE s.answer_id=a.id),'{}'::uuid[]) AS "optionIds"

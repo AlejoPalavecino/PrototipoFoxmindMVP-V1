@@ -4,8 +4,9 @@ Current students can start their initial attempt, resume the same draft, consult
 
 ## Student flow
 
-- **Trabajo práctico:** **Abrir trabajo práctico** performs an explicit authenticated mutation before exposing eligible instructions. Ordinary detail/session and raw file reads cannot bypass that first-start boundary. Historical consultation-only students can read without creating a fictitious attempt.
+- **Trabajo práctico:** **Abrir trabajo práctico** performs an explicit authenticated mutation before exposing instructions to a current student, including consultation-only enrollment. Ordinary detail/session and raw file reads cannot bypass that first-start boundary and never create an attempt.
 - Closed reception does not prevent instruction consultation: an explicit first TP opening records the real DRAFT/content lock but returns no editor and no submission. Archived classrooms remain strictly write-free and permit instruction consultation without creating an attempt, because their content is already immutable.
+- Consultation-only enrollment stays `expected=false` even when late reception is open. Its initial DRAFT grants no editor, upload, submission or grade. A later teacher first-submission authorization preserves that same initial attempt and confirmed data, installs the future individual deadline, and allows a subsequent explicit editor transfer; it does not reopen an attempt or grant an editor merely by reading instructions. Submitted history and additional attempts cannot use this first-authorization path.
 - **Cuestionario / Evaluación:** consultation is read-only until **Comenzar**. Teacher preview never starts an attempt.
 - An existing attempt is resumed, never incremented or replaced. Submitted attempts are consultation-only.
 - The first acquisition returns a random capability only to that requesting tab. Other reads/tabs/devices initially receive consultation without a secret.
@@ -22,7 +23,7 @@ Publication and successful actual enrollment call the same transaction-only help
 | First enrollment | Existing undated/future activities are expected; already expired activities remain consultation-only even when late reception is allowed. |
 | Actual re-entry after departure/removal | Preserve old rows/history; record missing absence activities as expected only when undated/still open. |
 | Republication/general extension | Do not overwrite previous eligibility decisions. |
-| Teacher first authorization | Current roster, published consultation-only activity, future individual deadline, explicit actor/reason/time; creates no attempt or submission. |
+| Teacher first authorization | Current roster, published consultation-only activity, future individual deadline, explicit actor/reason/time; creates no attempt or submission. If the TP was already consulted, preserve its sole initial unsubmitted DRAFT and apply the individual deadline to it. |
 
 Actual membership periods distinguish first entry from re-entry. No last-activated field is invented and no historical retained-data backfill is performed.
 
