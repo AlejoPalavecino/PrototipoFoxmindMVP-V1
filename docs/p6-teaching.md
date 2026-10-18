@@ -1,6 +1,6 @@
 # P6 teaching organization
 
-P6 is in progress on codex/p6-teaching from accepted main a75deae. No P7 implementation or production deployment. [Tasks](../odd/tasks/p6-teaching.md), [coordinator](work-log/2026-10-18-root-p6-teaching.md).
+P6 is implemented and independently verified on codex/p6-teaching from accepted main a75deae; authorized main publication is pending. No P7 implementation or production deployment. [Tasks](../odd/tasks/p6-teaching.md), [coordinator](work-log/2026-10-18-root-p6-teaching.md).
 
 ## Plan transport and invariants
 
@@ -12,7 +12,7 @@ New plan uploads use the same P4 classroom plan scope and complete safety/custod
 
 ## Observed checks and remaining acceptance
 
-Own meaningful Plan RED7 missing changePlan then fresh APIbuild0/GREEN7 with owned SQLcleanup0; earlier malformed fixture preparation failures remain in the coordinator log. Both Next and standaloneUI strict TypeScript0; P5 host/HTTP/session/proxy/client24PASS. These are implementation/self-check evidence, not final full-P6 browser/version acceptance. Actual P6 own journeys now passed15leaf/18TAP across separate runs, affected P5 integrated13real+16controlled/isolated46, P4integration9 and P3browser10 passed. Historical preparation failures remain attributed in the own-check record; the monolithic P6 runner has not yet passed as one command. Fresh whole-feature independent Sol/xhigh and migration7to8 acceptance remain pending. Nativeoff/global, disabled/unmanaged; no native approval claimed.
+Own meaningful Plan RED7 missing changePlan then fresh APIbuild0/GREEN7 with owned SQLcleanup0; earlier malformed fixture preparation failures remain in the coordinator log. Both Next and standaloneUI strict TypeScript0; P5 host/HTTP/session/proxy/client24PASS. These are implementation/self-check evidence, not final full-P6 browser/version acceptance. Actual P6 own journeys now passed15leaf/18TAP across separate runs, affected P5 integrated13real+16controlled/isolated46, P4integration9 and P3browser10 passed. Historical preparation failures remain attributed in the own-check record; the monolithic P6 runner has not yet passed as one command. Independent Sol/xhigh full behavior/conservation proof and the bounded exact-byte mobile correction recheck are accepted; see [final evidence](work-log/2026-10-18-p6-verify-final.md). The initial monolithic API-budget failure and first Windows archive preparation limitations remain explicitly attributed, not relabeled global PASS. Nativeoff/global, disabled/unmanaged; no native approval claimed.
 
 ## Complete P6 guides and local proof
 
