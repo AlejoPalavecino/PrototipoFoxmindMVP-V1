@@ -107,8 +107,8 @@ test('P7 TP actual P3/browser/private storage/ClamAV persistence and confirmed r
     assert.equal((await runtime.db.query('SELECT count(*)::int n FROM attempt_grades')).rows[0].n,0);
     await rejectSame(runtime.db,()=>request(device,'POST',`/classrooms/${room.id}/attempts/${attempt.id}/attachments-remove`,{revision:persisted.attempt.revision,fileId:replacement.id},editorHeaders(newEditor)),409);
     await teacher.getByRole('button',{name:'Ver entregas recibidas',exact:true}).click();
-    await teacher.getByRole('button',{name:'Abrir entrega de Files Fixture · intento 1',exact:true}).click();
-    await teacher.getByRole('link',{name:'Descargar entrega replacement.pdf',exact:true}).waitFor();
+    await teacher.getByRole('button',{name:'Consultar intento 1',exact:true}).click();
+    await teacher.getByRole('link',{name:'Descargar replacement.pdf',exact:true}).waitFor();
     const downloaded=await request(teacher,'GET',`/files/${replacement.id}/content`);assert.equal(downloaded.status,200);assert.equal(downloaded.digest,digest(bytes));
     await rejectSame(runtime.db,()=>request(teacher,'GET',`/files/${first.id}/content`),403);
     assert.equal(await device.evaluate(()=>[...Object.keys(localStorage),...Object.keys(sessionStorage)].some(k=>/attempt|editor/i.test(k))),false);
