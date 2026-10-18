@@ -116,6 +116,7 @@ export interface ClassroomClient {
     signal?: AbortSignal,
   ): Promise<T>;
   upload(draftId: string, file: File): Promise<FileState>;
+  uploadClassroom?(classroomId: string, file: File, purpose: 'plan' | 'material'): Promise<FileState>;
   fileStatus(id: string, signal?: AbortSignal): Promise<FileState>;
   fileUrl(id: string, preview?: boolean): string;
 }
@@ -183,6 +184,12 @@ export function createClassroomClient(options: {
     },
     fileStatus: (id, signal) =>
       response<FileState>(`/files/${id}`, 'GET', undefined, signal),
+    uploadClassroom: async (classroomId, file, purpose) => {
+      const started = await response<{ id: string }>('/files', 'POST', {
+        scope: { kind: 'classroom', id: classroomId }, purpose, name: file.name, bytes: file.size,
+      });
+      return response<FileState>(`/files/${started.id}/content`, 'PUT', file);
+    },
     fileUrl: (id, preview = false) =>
       `${prefix}/files/${encodeURIComponent(id)}/content?mode=${preview ? 'preview' : 'download'}`,
   };

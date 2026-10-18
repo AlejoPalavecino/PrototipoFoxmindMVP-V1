@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import type { InvitationService } from './invitations.ts';
+import type { PlanService as InvitationService } from './plan.ts';
 import { ClassroomError, fail, object } from './policy.ts';
 import { ClassroomIdentityError } from './errors.ts';
 
@@ -162,6 +162,8 @@ export function createClassroomsHandler(
         value = await service.acceptInvitation(req, path[1]);
       } else if (path.length === 1 && method === 'GET')
         value = await service.detail(req, path[0]);
+      else if (path.length === 2 && path[1] === 'plan' && method === 'POST')
+        value = await service.changePlan(req, path[0], exact(['revision', 'operation']));
       else if (
         path.length === 2 &&
         path[1] === 'settings' &&

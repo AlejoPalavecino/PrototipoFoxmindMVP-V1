@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { ClassroomClient, Detail, Invitation, Member } from './api.ts';
 import { Cover, Dialog, Notice, initials } from './components.tsx';
+import { Plan } from './Plan.tsx';
 
 interface Summary {
   firstName: string;
@@ -392,43 +393,7 @@ export function ClassroomView({
                 ) : null}
               </>
             ) : null}
-            {tab === 'plan' ? (
-              <>
-                <h2>Plan de estudio</h2>
-                {room.plans.map((plan) => (
-                  <p key={plan.id}>
-                    <a
-                      href={api.fileUrl(plan.fileId)}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Descargar plan · Versión {plan.version}
-                    </a>
-                  </p>
-                ))}
-                {room.units.map((unit, index) => (
-                  <section className="p5-unit" key={unit.id}>
-                    <h3>
-                      Unidad {index + 1} · {unit.name}
-                    </h3>
-                    <ul>
-                      {unit.topics.map((topic) => (
-                        <li key={topic.id}>
-                          {topic.name}
-                          <span className="p5-tag">
-                            {topic.status === 'TAUGHT'
-                              ? 'Dado'
-                              : topic.status === 'NEXT'
-                                ? 'Siguiente'
-                                : 'Pendiente'}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </section>
-                ))}
-              </>
-            ) : null}
+            {tab === 'plan' ? <Plan api={api} room={room} reload={load} /> : null}
             {tab === 'settings' && teacher ? (
               <>
                 <h2>Configuración del aula</h2>

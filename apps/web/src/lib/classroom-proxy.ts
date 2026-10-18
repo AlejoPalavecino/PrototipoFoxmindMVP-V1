@@ -13,6 +13,7 @@ const routes: Rule[] = [
   rule('/codes/preview', { POST: ['code'] }), rule('/codes/confirm', { POST: ['confirmation'] }),
   rule('/invitations', { GET: null }), rule(`/invitations/${uuid}/accept`, { POST: [] }),
   rule(`/${uuid}`, { GET: null }),
+  rule(`/${uuid}/plan`, { POST: ['revision', 'operation'] }),
   rule(`/${uuid}/settings`, { PATCH: ['revision', 'name', 'subject', 'division', 'academicYear'] }),
   rule(`/${uuid}/archive`, { POST: ['archived', 'revision'] }), rule(`/${uuid}/code`, { POST: [] }),
   rule(`/${uuid}/(?:members|history)`, { GET: null }), rule(`/${uuid}/members/${uuid}`, { GET: null }),
@@ -63,7 +64,8 @@ function object(value: unknown, keys: string[], required = true): value is Recor
 function schema(value: unknown, keys: string[]): boolean {
   if (!object(value, keys)) return false;
   for (const key of keys) {
-    if (key === 'archived') { if (typeof value[key] !== 'boolean') return false; }
+    if (key === 'operation') { if (!value[key] || typeof value[key] !== 'object' || Array.isArray(value[key])) return false; }
+    else if (key === 'archived') { if (typeof value[key] !== 'boolean') return false; }
     else if (key === 'academicYear') { if (!Number.isInteger(value[key])) return false; }
     else if (key !== 'payload' && typeof value[key] !== 'string') return false;
   }
