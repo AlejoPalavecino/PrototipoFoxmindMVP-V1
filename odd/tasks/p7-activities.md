@@ -16,8 +16,8 @@ Delivery: exception-ok, coherent behavior/test/UI/docs work-unit commits followe
 - T2 | S1,S3 | delegated context-backstop after T1: membership eligibility/deadline/attempt/editor core and corresponding UI/tests | implemented; own proof passed; full independent acceptance pending | commitd62d58c | Risk:items1,2,3,4
 - T3 | S1,S3 | delegated context-backstop after T2: actual TP instruction-start/files/private drafts/confirmed submission vertical slice | implemented; own proof passed; full independent acceptance pending | commitc89e973 | Risk:items1,2,3,4
 - T4 | S1,S3 | delegated context-backstop: questionnaire/evaluation taking, confirmed autosave and incomplete submission | implemented; own proof passed; full independent acceptance pending | commit40609b7 | Risk:items1,2,3,4
-- T5 | S1,S3 | delegated context-backstop: reopen/prefill/history and complete P7 notification targets | implemented; own proof passed; full independent acceptance pending | commit pending | Risk:items1,2,3,4
-- T6 | S1,S2 | inline real integrated harness; delegate long own checks | pending | real three-type browser/API/SQL/files/races/time/restarts/migrations and affected P3–P6 regressions | Risk:items1–5
+- T5 | S1,S3 | delegated context-backstop: reopen/prefill/history and complete P7 notification targets | implemented; own proof passed; full independent acceptance pending | commita897ca8 | Risk:items1,2,3,4
+- T6 | S1,S2 | inline real integrated harness; delegate long own checks | in_progress | real three-type browser/API/SQL/files/races/time/restarts/migrations and affected P3–P6 regressions | Risk:items1–5
 - T7 | S1–S4 | delegated independent whole-feature Verify Sol/xhigh after own checks | pending | exact immutable preparation and bounded correction if required | Risk:items1–5
 - T8 | S3,S4 | inline accepted closure/merge/push/remote confirmation | pending | no publication before full accepted proof | Risk:none for passive closure
 
@@ -65,3 +65,5 @@ Delivery: exception-ok, coherent behavior/test/UI/docs work-unit commits followe
 - L21: ObservedT4commit40609b7043b62b46b3b4ed8cdc734ffd955f7097/1293add15delete coherentbehaviorUItestsdocs/advisoryoverageretained. Nativeoffglobal/noSTART. T5sequentialcontextbackstopwriterafterT4ownproof; exacthistory/events/notificationnavigationseamsmapped; alltypesreopen+prefill+priorhistory/gradeconservation andP7notificationsonly. Parentrunner/packageuncommittedseparate.
 
 - L22: T5implementedalltypesprefill/history/reopen+transactionalnotifications/navigation. Ownfocused15+rollback1/affected85/APItypesNext0/actualnotifications5TAP/questionnairehistory1leaf/correctedTPevaluationrestart4TAP/TPtiming5TAPPASS/cleanup0. Onecorrectionpinnedlegacyhistoryproxybase200current400thenexact4445bytepair0stderr0exits; samebatchfixturelabelcorrection. Initialfailures/0testprepkept; parentproxy1PASS. Readonlymapattributedrecordpersisted. Coherentunitadvisory400overage; finalP7T6/T7pending/noP8.
+
+- L23: ObservedT5commita897ca83a7beabf6ccd547ad65514ea56ea5d919/987add34delete. T6runnerfinalplanRED3PASS1FAILmissingpractical-timing→GREEN4PASSwithnineactualimplementedjourneysandnoP8. API30/Next180/journey330child360 unchanged. LongownchecksdelegatedbeforeT7freshindependent; nofullrunnerPASSyet.
