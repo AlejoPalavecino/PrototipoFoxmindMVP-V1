@@ -1,4 +1,4 @@
-# P6 implementation — in progress
+# P6 implementation — completed and published
 
 - Agent / role: /root, coordinator and inline writer.
 - Task ID: /root; authoritative session ID unavailable.
@@ -6,7 +6,7 @@
 - Branch/worktree: codex/p6-teaching; reused managed p4-p3-integration/ProtipoFoxMind.
 - Starting commit: accepted main a75deaebbe0938b302d09fefe0b612edfd96bef9.
 - Phase/specs: [P6 S1–S4/T1–T6](../../odd/tasks/p6-teaching.md).
-- Status: in_progress.
+- Status: completed.
 
 ## Scope
 
@@ -48,3 +48,11 @@ FreshindependentSol/xhighfoundactual320notification→Muroactive-tabinvisible, d
 ## Accepted P6, publication pending
 
 IndependentfullP615leaf18TAP/focused68/P5integrated13+16/isolated46/P49/P3browser10, actualpopulated7to8conservation34tables45rows andCLI18/client8differententials passed. B1singlecorrection20d9f27 independentlyclosedbyexactGitblobfreshscratch/builds/mobile1PASS; parentspotcheckcontrols3PASS. ExplicitfirstAPIaggregate30unavailable/archiveCRLF-pathlimitations retained, noexactglobalfullsweepclaim. CurrentfullP6exitconditionaccepted, noP7. Passiveclosure/links then fetchactualoriginmain/checkbase/merge/push andexactremoteSHA confirmation authorizednext. Originaldirtycheckout5e86d1e unchanged/retaineddatauntouched. AllOSscratchretainedundercleanuprestriction; ownedruntimecleanup0. Risk:items1–5; nativeoff/global disabled/unmanaged.
+
+## Observed commits and main publication
+
+- Plan694cab70d8716faed9380f17a06d8afa3f2da74f; Library562650cbc22305ad050da75235755369aa2c9260; Murob38f8e0fc21ba980ca29dce59515a76866361663.
+- ScannerLF9b722eb54f23ca563f9a8a0908ef7ab7f669115f; actualharness3b1aef9134cc6c054a0606bc43d11ac90e35282b; boundedmobilecorrection20d9f27c5b4f09d7ba30dcd29ce1f3e97f036522; passiveacceptedclosure9ad0b38ebdd21e420a30e81e758744d7102d1ec7.
+- Actualfetch showed main/originmain a75deae/no divergence. Authorized main merge 8eee463ba3868900af998fe1d2ee6a6ef41dbb7f created, tree comparison against acceptedfeature exit0; push succeeded, git ls-remote origin refs/heads/main returned exactmergeSHA. Managedmainclean. Finalpassivepublicationrecord will advanceonlydocumentation; itsfinalSHAverifiedafterpush, notinventedhere.
+
+No further product work authorized: STOP beforeP7. OriginaldirtyP3checkout5e86d1e/threehistoricalmodifiedfiles/untrackedartifacts preserved. No retaineddata/developmentMailpit/foreignvolumes deleted. AllP6ownedruntimecleanup0, retainedOSscratchdistinguishedfromruntimecleanup. Finalprooflimits andhistoricalfailuresremaininindependentrecord; no nativeapprovalclaimed.

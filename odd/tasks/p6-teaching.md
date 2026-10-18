@@ -17,7 +17,7 @@ Runner: Node/API/production Next/owned PostgreSQL/S3/ClamAV/Mailpit/browser. For
 - T3 | S1,S3 | delegated afterT2: context-backstop fresh coherent Muro+P6notifications/API/UI+tests/docs unit | completed; independent integrated acceptance observed; historical broad failure retained | commitb38f8e0 | Risk:items1,2,3,4
 - T4 | S1,S4 | inline real integratedharness; delegate long own execution | completed; own + independent runtime/conservation proof | actual P3/P4/P5 regression+P6browser/API/SQL/files/persistence/upgrade | Risk:items1–5 as applicable
 - T5 | S1–S4 | delegated independent Verify Sol/xhigh after own checks; named security/data/concurrency risks | completed | whole-feature + B1 targeted exact-byte recheck20d9f27 | Risk:items1–4
-- T6 | S3,S4 | inline passiveclosure/merge/push/exactremoteconfirmation | pending | no publication before accepted proof | Risk:none for passive metadata
+- T6 | S3,S4 | inline passiveclosure/merge/push/exactremoteconfirmation | completed | merge8eee463 pushed and actualremoteSHAconfirmed | Risk:none for passive metadata
 
 ## Log
 
@@ -55,3 +55,5 @@ Runner: Node/API/production Next/owned PostgreSQL/S3/ClamAV/Mailpit/browser. For
 
 
 - L16: TargetedindependentB1CLOSED on20d9f27 with exactGitblob434/400files/UTF8beforeafterhashes/zero links innewNode-mkdtempscratch. FreshAPI0/27789ms<30s, Next0/23700ms<180s, types0, controls3PASS, actualmobile1PASS at3203751280320; allcleanup0. Parentcontrols3PASS. WholeP6acceptedusingearlierfullnormalized-equivalentbehaviorproof plusexacttargetedcorrection/isolation; no falseexactglobalclaim, historicalaggregateAPIunavailable retained. T1–T5completed; T6authorizedmerge/pushstillpending, noP7.
+
+- L17: Passiveacceptedclosure9ad0b38 after69relative-links/readbackPASS. Fetchedactualoriginmain=a75deae/no divergence; managedcheckoutswitchedmain, authorized--no-ffmerge8eee463ba3868900af998fe1d2ee6a6ef41dbb7f treeidenticalfeature, pushsuccessful/exactactualremoteSHAconfirmed. T6complete; passivepublicationrecordwilladvancefinalSHAonlydocs. Originaldirtycheckout5e86d1e preserved, noP7/no retaineddatachange/nativeoffglobal.
