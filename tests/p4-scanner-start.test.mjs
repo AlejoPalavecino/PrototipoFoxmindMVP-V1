@@ -2,6 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { P4_IMAGES, P4_SCANNER_START } from '../scripts/p4-services.mjs';
+import { readFile } from 'node:fs/promises';
+
+test('Linux-mounted FreshClam configuration preserves LF line endings', async () => {
+  const config = await readFile('config/p4-freshclam.conf', 'utf8');
+  assert.equal(config.includes('\r'), false, 'FreshClam parses CR as part of numeric arguments');
+  assert.match(config, /^MaxAttempts 1$/m);
+});
 for (const mode of ['refresh-required', 'offline-stale', 'offline-fresh']) {
   test(`scanner fixture startup preserves freshness boundary: ${mode}`, () => {
     const script = `set -eu

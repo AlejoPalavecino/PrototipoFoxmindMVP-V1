@@ -1,0 +1,2 @@
+# This file is bind-mounted into Linux FreshClam, whose numeric parser rejects CR.
+config/p4-freshclam.conf text eol=lf
