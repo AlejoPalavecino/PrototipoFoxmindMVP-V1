@@ -690,3 +690,37 @@
   .p6-wall-threads > article { padding: 12px; }
   .p6-wall-replies { padding-left: 12px; }
 }
+.p7-create, .p7-option { display: flex; align-items: end; flex-wrap: wrap; gap: 1rem; }
+.p7-create { margin-block: 1.5rem; }
+.p7-activity-list { display: grid; gap: 1rem; margin-block: 1.5rem; }
+.p7-activity-list > article, .p7-authoring, .p7-preview > article { padding: 1.25rem; border: 1px solid var(--line, #e4e8ee); border-radius: 1rem; background: #fff; min-width: 0; overflow-wrap: anywhere; }
+.p7-activity-list > article { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+.p7-authoring fieldset { margin-block: 1rem; min-width: 0; }
+.p7-authoring input, .p7-authoring select, .p7-authoring textarea { max-width: 100%; }
+.p7-authoring .p7-check { display: flex; flex-direction: row; align-items: center; gap: .5rem; }
+.p7-check input[type=checkbox] { width: auto; flex: 0 0 auto; }
+.p7-question { padding: 1rem; border: 1px solid #e4e8ee; border-radius: .75rem; }
+.p7-option > label:first-child { flex: 1 1 12rem; }
+.p7-multiline { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 600px) {
+  .p7-authoring { padding: .75rem; }
+  .p7-activity-list > article > div, .p7-create > label { min-width: 0; width: 100%; }
+  .p7-option { align-items: stretch; }
+}
+/* Participation keeps the existing dialog and mobile classroom navigation. */
+.p7-attempt header { border-bottom: 1px solid var(--border, #dfe6ed); padding-bottom: .75rem; }
+.p7-transfer-confirm { border: 1px solid #cf893d; border-radius: .75rem; padding: 1rem; margin-top: 1rem; }
+.p7-attempt article { padding: .75rem 0; border-top: 1px solid var(--border, #dfe6ed); }
+.p7-attempt a { overflow-wrap: anywhere; }
+
+.p7-attachment-list,.p7-submissions ul{list-style:none;padding:0;display:grid;gap:12px}.p7-attachment-list li,.p7-submissions li{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid #dce5e8;border-radius:10px}.p7-attachment-list li>div{min-width:0;overflow-wrap:anywhere}.p7-attachment-list small{display:block}.p7-practical,.p7-submit-confirm{display:grid;gap:12px}.p7-practical input[type=file]{max-width:100%}.p7-submit-confirm{padding:16px;border:2px solid #a8cdcf;border-radius:12px}
+/* P7 answer taking extends the existing activity dialog without changing navigation structure. */
+.p7-question-navigation { display: flex; flex-wrap: wrap; gap: .5rem; margin-block: 1rem; }
+.p7-question-navigation [aria-current="step"] { outline: 2px solid var(--primary, #5b54c5); outline-offset: 2px; }
+.p7-questionnaire fieldset { min-width: 0; border: 1px solid #d8dbe8; border-radius: .75rem; padding: 1rem; }
+.p7-questionnaire textarea { width: 100%; min-height: 9rem; resize: vertical; box-sizing: border-box; }
+.p7-questionnaire .p7-choice { display: flex; align-items: flex-start; gap: .65rem; margin-block: .75rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.p7-questionnaire .p7-choice input { width: auto; flex: 0 0 auto; margin-top: .2rem; }
+.p7-history-list { list-style: none; padding: 0; display: grid; gap: 1rem; }
+.p7-history-list > li, .p7-history-detail { padding: 1rem; border: 1px solid #e2e8f0; border-radius: 0.75rem; }
+.p7-history-detail { margin-top: 1rem; overflow-wrap: anywhere; }

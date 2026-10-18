@@ -16,6 +16,22 @@ const routes: Rule[] = [
   rule(`/${uuid}/plan`, { POST: ['revision', 'operation'] }),
   rule(`/${uuid}/library`, { GET: null, POST: ['revision', 'operation'] }),
   rule(`/${uuid}/wall`, { GET: null, POST: ['revision', 'operation'] }),
+  rule(`/${uuid}/activities`, { GET: null, POST: ['revision', 'operation'] }),
+  rule(`/${uuid}/activities/deadline`, { POST: ['local'] }),
+  rule(`/${uuid}/activities/${uuid}(?:/preview)?`, { GET: null }),
+  rule(`/${uuid}/activities/${uuid}/(?:session|eligibility)`, { GET: null }),
+  rule(`/${uuid}/activities/${uuid}/start`, { POST: [] }),
+  rule(`/${uuid}/activities/${uuid}/authorize-first`, { POST: ['revision', 'studentId', 'deadline'] }),
+  rule(`/${uuid}/activities/${uuid}/(?:history|history-submissions)`, { GET: null }),
+  rule(`/${uuid}/activities/${uuid}/reopen`, { POST: ['revision', 'studentId', 'deadline', 'confirm'] }),
+  rule(`/${uuid}/attempts/${uuid}/history`, { GET: null }),
+  rule(`/${uuid}/attempts/${uuid}/transfer`, { POST: ['revision'] }),
+  rule(`/${uuid}/attempts/${uuid}/attachments-remove`, { POST: ['revision', 'fileId'] }),
+  rule(`/${uuid}/attempts/${uuid}/submit-practical`, { POST: ['revision', 'confirm'] }),
+  rule(`/${uuid}/attempts/${uuid}/answer`, { POST: ['revision', 'questionId', 'text', 'optionIds'] }),
+  rule(`/${uuid}/attempts/${uuid}/submit-answers`, { POST: ['revision', 'confirm', 'confirmIncomplete'] }),
+  rule(`/${uuid}/activities/${uuid}/submissions`, { GET: null }),
+  rule(`/${uuid}/attempts/${uuid}/receipt`, { GET: null }),
   rule('/notifications', { GET: null }),
   rule(`/notifications/${uuid}/(?:read|open)`, { POST: [] }),
   rule(`/${uuid}/settings`, { PATCH: ['revision', 'name', 'subject', 'division', 'academicYear'] }),
@@ -71,6 +87,11 @@ function schema(value: unknown, keys: string[], wall = false): boolean {
     if (key === 'operation') { if (!value[key] || typeof value[key] !== 'object' || Array.isArray(value[key])) return false; }
     else if (key === 'archived') { if (typeof value[key] !== 'boolean') return false; }
     else if (key === 'academicYear') { if (!Number.isInteger(value[key])) return false; }
+    else if (key === 'deadline') {
+      const item = value[key];
+      if (!object(item, ['local', 'offsetMinutes'], false) || typeof item.local !== 'string'
+        || (Object.hasOwn(item, 'offsetMinutes') && !Number.isInteger(item.offsetMinutes))) return false;
+    }
     else if (key !== 'payload' && typeof value[key] !== 'string') return false;
   }
   if (wall) {
@@ -106,6 +127,36 @@ function schema(value: unknown, keys: string[], wall = false): boolean {
   return true;
 }
 
+function activitySchema(value: unknown): boolean {
+  if (!object(value, ['revision', 'operation']) || typeof value.revision !== 'string') return false;
+  const op = value.operation;
+  if (!object(op, ['action', 'id', 'type', 'payload', 'title', 'unitId', 'topicId', 'deadline', 'allowLate'], false) || typeof op.action !== 'string') return false;
+  const shapes: Record<string, string[]> = {
+    create: ['action', 'type'], save: ['action', 'id', 'payload'], publish: ['action', 'id'], withdraw: ['action', 'id'],
+    metadata: ['action', 'id', 'title', 'unitId', 'topicId'], deadline: ['action', 'id', 'deadline', 'allowLate'],
+  };
+  if (!Object.hasOwn(shapes, op.action) || !object(op, shapes[op.action])) return false;
+  if (op.action === 'create') return typeof op.type === 'string' && ['ASSIGNMENT', 'QUESTIONNAIRE', 'EVALUATION'].includes(op.type);
+  if (typeof op.id !== 'string' || !new RegExp(`^${uuid}$`).test(op.id)) return false;
+  const association = (p: Record<string, unknown>) => typeof p.title === 'string'
+    && [p.unitId, p.topicId].every(id => id === null || typeof id === 'string' && new RegExp(`^${uuid}$`).test(id));
+  const deadline = (item: unknown) => item === null || object(item, ['local', 'offsetMinutes'], false)
+    && Object.hasOwn(item, 'local') && typeof item.local === 'string'
+    && (!Object.hasOwn(item, 'offsetMinutes') || Number.isInteger(item.offsetMinutes));
+  if (op.action === 'metadata') return association(op);
+  if (op.action === 'deadline') return typeof op.allowLate === 'boolean' && deadline(op.deadline);
+  if (op.action !== 'save') return true;
+  const p = op.payload;
+  if (!object(p, ['title', 'unitId', 'topicId', 'instructions', 'attachmentRequired', 'instructionFileIds', 'materialIds', 'questions', 'deadline', 'allowLate'])
+    || !association(p) || typeof p.instructions !== 'string' || typeof p.attachmentRequired !== 'boolean' || typeof p.allowLate !== 'boolean'
+    || !deadline(p.deadline) || !Array.isArray(p.questions)) return false;
+  if (![p.instructionFileIds, p.materialIds].every(ids => Array.isArray(ids) && ids.every(id => typeof id === 'string' && new RegExp(`^${uuid}$`).test(id)))) return false;
+  return p.questions.every(q => object(q, ['type', 'prompt', 'points', 'scoringRule', 'options'])
+    && typeof q.type === 'string' && typeof q.prompt === 'string' && typeof q.points === 'string'
+    && (q.scoringRule === null || typeof q.scoringRule === 'string') && Array.isArray(q.options)
+    && q.options.every(o => object(o, ['text', 'correct']) && typeof o.text === 'string' && typeof o.correct === 'boolean'));
+}
+
 /** Dedicated bounded P5 transport; Nest alone owns identity, authorization and domain validation. */
 export async function proxyClassroomRequest(request: IncomingMessage, response: ServerResponse, configuredOrigin: string | undefined): Promise<void> {
   const reject = (status: number, code: string) => {
@@ -127,6 +178,27 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
   const method = request.method ?? 'GET';
   if (!Object.hasOwn(selected.methods, method)) { reject(405, 'METHOD_NOT_ALLOWED'); return; }
   if (url.search) { reject(400, 'INVALID_INPUT'); return; }
+  const participation = /\/(?:session|eligibility|start|authorize-first|transfer)$/.test(url.pathname);
+  const transfer = /\/attempts\/[^/]+\/transfer$/.test(url.pathname);
+  if (participation && (request.headers['x-attempt-editor'] !== undefined || request.headers['x-attempt-epoch'] !== undefined)) {
+    if (!transfer || typeof request.headers['x-attempt-editor'] !== 'string'
+      || !/^[A-Za-z0-9_-]{43}$/.test(request.headers['x-attempt-editor'])
+      || typeof request.headers['x-attempt-epoch'] !== 'string' || !/^(0|[1-9][0-9]{0,18})$/.test(request.headers['x-attempt-epoch'])) {
+      reject(400, 'INVALID_INPUT'); return;
+    }
+  }
+  const answerWrite = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/(?:answer|submit-answers)$`).test(url.pathname);
+  const practicalWrite = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/(?:attachments-remove|submit-practical)$`).test(url.pathname);
+  const historyRoute = new RegExp(`^/api/v1/classrooms/${uuid}/(?:activities/${uuid}/(?:history|history-submissions|reopen)|attempts/${uuid}/history)$`).test(url.pathname);
+  const practicalRead = /\/(?:submissions|receipt)$/.test(url.pathname) || historyRoute;
+  if ((practicalWrite || answerWrite) && (typeof request.headers['x-attempt-editor'] !== 'string'
+    || !/^[A-Za-z0-9_-]{43}$/.test(request.headers['x-attempt-editor'])
+    || typeof request.headers['x-attempt-epoch'] !== 'string' || !/^(0|[1-9][0-9]{0,18})$/.test(request.headers['x-attempt-epoch']))) {
+    reject(400, 'INVALID_INPUT'); return;
+  }
+  if (practicalRead && (request.headers['x-attempt-editor'] !== undefined || request.headers['x-attempt-epoch'] !== undefined)) {
+    reject(400, 'INVALID_INPUT'); return;
+  }
   let origin: string, expected: number | undefined;
   try { origin = destination(configuredOrigin); } catch { reject(503, 'SERVICE_UNAVAILABLE'); return; }
   try { expected = length(request.headers['content-length']); } catch { reject(400, 'INVALID_INPUT'); return; }
@@ -138,13 +210,30 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
     if (!/^application\/json(?:;|$)/i.test(request.headers['content-type'] ?? '')) { reject(400, 'INVALID_INPUT'); return; }
     try {
       metadata = await body(request, requestLimit, expected);
-      if (!schema(JSON.parse(metadata.toString('utf8')), selected.methods[method] ?? [], url.pathname.endsWith('/wall'))) throw new Error('Invalid schema');
+      const parsed = JSON.parse(metadata.toString('utf8'));
+      const reopening = url.pathname.endsWith('/reopen');
+      const validReopening = !reopening || object(parsed, ['revision', 'studentId', 'deadline', 'confirm'])
+        && typeof parsed.revision === 'string' && typeof parsed.studentId === 'string' && new RegExp(`^${uuid}$`).test(parsed.studentId)
+        && parsed.confirm === true && (parsed.deadline === null || object(parsed.deadline, ['local', 'offsetMinutes'], false)
+          && typeof parsed.deadline.local === 'string' && (!Object.hasOwn(parsed.deadline, 'offsetMinutes') || Number.isInteger(parsed.deadline.offsetMinutes)));
+      if ((!practicalWrite && !answerWrite && !reopening && !schema(parsed, selected.methods[method] ?? [], url.pathname.endsWith('/wall')))
+        || !validReopening
+        || (url.pathname.endsWith('/activities') && !activitySchema(parsed))
+        || (answerWrite && (!object(parsed, selected.methods[method] ?? []) || typeof parsed.revision !== 'string'
+          || (url.pathname.endsWith('/answer') ? typeof parsed.questionId !== 'string' || !new RegExp(`^${uuid}$`).test(parsed.questionId)
+            || typeof parsed.text !== 'string' || !Array.isArray(parsed.optionIds) || !parsed.optionIds.every(id => typeof id === 'string' && new RegExp(`^${uuid}$`).test(id))
+            : parsed.confirm !== true || typeof parsed.confirmIncomplete !== 'boolean')))
+        || (practicalWrite && (!object(parsed, selected.methods[method] ?? []) || typeof parsed.revision !== 'string'
+          || (url.pathname.endsWith('/attachments-remove') ? typeof parsed.fileId !== 'string' || !new RegExp(`^${uuid}$`).test(parsed.fileId) : parsed.confirm !== true)))) throw new Error('Invalid schema');
     } catch (error) { reject(error instanceof RangeError ? 413 : 400, error instanceof RangeError ? 'REQUEST_TOO_LARGE' : 'INVALID_INPUT'); return; }
   }
   if (response.destroyed) return;
   await new Promise<void>(resolve => {
     const headers: Record<string, string> = {};
     for (const name of ['cookie', 'origin', 'x-csrf-token', 'content-type']) {
+      const value = request.headers[name]; if (typeof value === 'string') headers[name] = value;
+    }
+    if (transfer || practicalWrite || answerWrite) for (const name of ['x-attempt-editor', 'x-attempt-epoch']) {
       const value = request.headers[name]; if (typeof value === 'string') headers[name] = value;
     }
     if (metadata) headers['content-length'] = String(metadata.length);

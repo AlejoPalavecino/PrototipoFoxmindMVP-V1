@@ -13,6 +13,7 @@ import type { FileTransaction } from './contracts.ts';
 export interface FileServiceOptions {
   database: FileDatabase; access: FileAccess; storage: ObjectStorage; scanner: FileScanner;
   draftQuotaBytes: bigint;
+  onReadyTransition?: (tx: FileTransaction, request: unknown, row: FileRow) => Promise<void>;
 }
 const digestOf = (bytes: Buffer) => createHash('sha256').update(bytes).digest('hex');
 export function requireReady(row: FileRow): void {
@@ -33,12 +34,14 @@ export class FileService {
   readonly storage: ObjectStorage;
   readonly scanner: FileScanner;
   private busy = false;
+  private readonly onReadyTransition: FileServiceOptions['onReadyTransition'];
   constructor(options: FileServiceOptions) {
     if (!options?.database || typeof options.access?.authenticate !== 'function' || typeof options.access?.authorize !== 'function'
       || !options.storage || !options.scanner || typeof options.draftQuotaBytes !== 'bigint' || options.draftQuotaBytes < 0n) {
       throw new FileError('SERVICE_UNAVAILABLE');
     }
     this.store = new FileStore(options.database, options.access, options.draftQuotaBytes);
+    this.onReadyTransition = options.onReadyTransition;
     this.storage = options.storage; this.scanner = options.scanner;
   }
   private async slot<T>(run: () => Promise<T>): Promise<T> {
@@ -124,7 +127,9 @@ export class FileService {
             reserved_bytes=0,reservation_released_at=clock_timestamp(),updated_at=clock_timestamp() WHERE file_id=$1::uuid RETURNING id`, id);
           await tx.query(`UPDATE file_custodies SET phase='ready',scanned_digest=$2,operation_id=NULL,lease_until=NULL
             WHERE file_id=$1::uuid RETURNING file_id`, id, digest);
-          return view(await this.store.load(tx, id));
+          const ready = await this.store.load(tx, id);
+          await this.onReadyTransition?.(tx, request, ready);
+          return view(ready);
         });
       } catch (error) {
         const rejected = error instanceof FileError && error.code === 'FILE_REJECTED';

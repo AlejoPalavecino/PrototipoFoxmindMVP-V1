@@ -1,0 +1,95 @@
+# P7 activities implementation — in progress
+
+- Agent/task: /root, coordinator; authoritative session ID unavailable.
+- Date:2026-10-18.
+- Branch/worktree: codex/p7-activities, reused managed integration checkout.
+- Baseline: accepted main b4829e2e198a185f96a0ad0914b8ba2b7200c9d0, actual remote matched.
+- Specs/tasks: [P7 feature document](../../odd/tasks/p7-activities.md), S1–S4/T1–T8.
+- Status: in_progress; no P7 acceptance or publication yet.
+
+## Scope and preparation
+
+Full P7 in authorized readiness order, no P8/deployment/retained-data changes. Preserve original dirty P3 checkout, accepted P3–P6 and actual identity/membership/archive/private-file boundaries. Explicit user authorization includes final verified merge/push through the existing HTTPS Git origin. Native off/global, disabled/unmanaged; no native review consent or approval inferred.
+
+Read Engram readiness58, current roadmap/work-record protocol and mapping handoff. Reconciled live Git and remote main, created feature branch. Existing P7 schema/constraints are foundations, not runtime acceptance. T1 route delegated at long-session context backstop with exact surfaces/skills; parent owns Git/shared tracking and later integration harness. Separate bounded writer records must be attributed, and all failures/cleanup/proof remain explicit.
+
+## Handoff
+
+First unfinished T1: coherent teacher activity authoring/private drafts/publication/time validation/API/proxy/actual UI/tests/docs. No source implementation written yet. Later tasks remain pending, no P8 scope inferred. Risk:items1–5 for full feature.
+
+## T1 attributed implementation and proof
+/root/p7_authoring implementedcoherentauthoring/API/privateDTO/DST/UI/instructions/tests withinallowedsurfaces; domain10PASS/otherfocused4PASS/APItypesNext0/affected61PASS. Initialfixtures/labelREDandlastarchive400preservedinworkerrecord. Boundedreadonlydiagnosticprovedfailed429prereqs/undefinedrevision, not validarchiveproductdefect; parentnewharnessonlyassertsvaliddetail/honorsactualRetryAfteronce. Exactpure24oldroutes/clientdifferentialexits0/stdout5249bytes/stderr0identical afterexternalmodulemetadatafix, originalwarningscomparisonfailurekept. One scopedactualproof4leaf5TAPPASS with34sserverwait/archive200/archivedwrite409/file200, cleanup0both, unchanged330/360bounds. Parenttimehelper1PASS; actual320imageinspected. Nativeassesshigh/unassessableuntrackedinventory/offglobal(noSTART). T1implemented/ownproofaccepted forfeaturebranch, finalindependentfullP7acceptancepending. NextT2eligibility/deadline/editorcore; noP8.
+
+
+## Disjoint final-runner preparation
+ParentwhileT2writerownsapps: newP7runnerCLIRED3missingcommand→GREEN3help/invalid/combinations, no fixtures/builds launched. Addedonepackagecommand/no dependencies/lockchange. DefaultplannedAPI30s/Next180s andfiveowned330sjourneys(child360s), stopsfirstfailure; futurepractical/taking/reopeningfilesnotpresentyet, defaultNOTexecuted/PASSclaimed. Sourceapp/buildconcurrencyavoided. This isT6preparationonly.
+
+
+## T2 implementation / required proof unavailable
+/root/p7_participation implementedtransactionalpublication/enrollmenteligibility, firstauthorization/currentdeadline, initialattempt/editorhash+epoch transfer, explicitclosedTPreadonlystart/contentlock/archivedno-writeconsultation, actualUI. Owninitial13/clarifiedtarget9/affected84/APItypesNext0/finalactual4leaf5TAPPASS/exactoldroutesclientdifferentialPASS; productionattemptUPLOADstilldenieduntilT3. Parentclientspotcheck1PASS. ActualT1compatibility failed2PASS2FAIL1SKIP; boundedreadonlydiagnosticprovedteachercreate409staleexpectedrev3afterstudentstart, correctconcurrency. ParentharnessonlyvisibleActualizaractividades+positiveHTTPassertions, noproductionfix.
+
+One scopedvalid-current-proofexecutionthen ETIMEDOUT/SIGTERM atunchanged360s, onlyservicesready/firstPrismamigrate0, noTAP/cleanupconfirmation; rootcauseunproven andunusualwalltimingkept. Parentauthenticatedexactowner1aeaacec78aa3492/mounts andremovedonly3ownedcontainers/2volumes/network; finalownerinventoriesempty. Processcleanupnotclaimed. No scratch/developmentMailpit/retaineddata deleted. Stoppedwritesafterincident; T2uncommittedpreserved, no T3-T5implementation yet. T6runnerCLI3PASSonly/defaultunrun. Mainactualremote remainsb4829e2; localfeatureT1a5aeee6+T2dirty, no P7merge/push. Needs your decision: authorizeonescopedrepeatofpendingcompatibilitytest atsame360s afterownedfixturecleanup; noautomaticretry/limitexpansion.
+
+
+## Authorized single same-budget repetition
+Latestuserexplicitlyauthorizesonependingcompatibilityrepeatwithsame360schild, noP8/SolxhighVerify. ActualtestSHAde564c87881c34f008159706a2ebdc4898a79b151ebee422d8b757d6003b3ee6 matchedheldcandidate; sourceunchangedexceptpassiveauthorizationlog. No automaticrepeat/rebuild/policychange. Resumeexactscopedproofonce, thenreconcileT2beforedependentT3.
+
+
+## T2 own compatibility proof completed
+ExplicitL11same-budgetrepeatPASS:4leaf5TAP/118.79s/RetryAfter42once/cleanup0both/sourceunchanged. Parentparticipationclientspotcheck1PASS. T2ownrequiredchecksnowobserved withhistoricalfailedrunsretained; nofullP7acceptance. ReconcilecoherentT2unit/commitonfeaturebranchthenT3filedraftssubmission. NoP8/mainpublicationuntilwholefeatureproof.
+
+
+## T3 parent receipt-timing correction
+OwnwriterreportedinitialrealTP4leaf5TAPPASS/affected57/differentialexact9434bytesstderr0; controlled18PASSafterfixtureint8/quotafix, earlier120s/31.8sfixturefailuresretained. Parentspottedandacknowledgedownhandoffmistake: freshpost-lockclockmustnotreplacetrustedcomplete-bodyreceipttimestamp definedbyfunctionalS1. Workerconfirmedcurrentimplementationusedlaterclockandwrongcrossingexpectation. Parentrequiresserver-onlyreceiptcapture, currentpermission/editor/file/deadlineconfigrechecksafterlocks, timelinessfromcompletebodyreceipt; beforedeadline+lockwaitremainsontime, exact/afterlateorreject, clienttimestampsignored. OnecoherentT3correctionandtargetedproofpendingafteralreadyrunningP4runner; no dependentT4/P8/fullphaseacceptance.
+
+
+## T3 own proof accepted / T4 map
+T3writer final partial timing503 was a positive fixture holding1000+100ms across unchanged1000msdatabase budget. Coordinator authorized only test400ms+100ms preparation adjustment and one targeted recheck:4leaf5TAP/39.373s/cleanup0/283sourcesonlyfixturechanged/347compiledunchanged. Cause of original503 remains unproven; historical proof retained. Parent bridge2PASS, nativeoffglobal. T3ownproof accepted; independent fullP7pending. Readonly /root/p7_readiness_verify inspectedT4/S1-S4 and returned exactsave/submit/UI surfaces plus existing attempt-access/receipt reuse; no writes/builds. Full source handoff retained in conversation. T4nextafterT3commit, noP8.
+
+## T4 partial / new overview regression after bounded correction
+/root/p7_questionnaire Sol/xhigh implementedanswers/autosave/incompletesubmission. Initial17focused/APItypesNext0/actual8TAP/affected47/exact4026byteoldtransport. One self-reviewlostackqueuecorrection withRED then7targetPASS/typesNext0/actualrecovery3TAP; TPtiming5TAPPASS. Parentdiffspotcheckconfirmedremovedpre-startsafequestions/optionslistinAttemptSession; thisunrequestedpreviousoutputregressionisblocker, notadvisory. Correctionbudgetconsumed, workerterminalpartial/sourcepreserved. NoT5/P8/commit/push. Needsyourdecision: authorizetargetedpreservationfix+recheck, notnewfullsweep. Ownedresourcescleanup0/scratchretained. Workerrecordcontains19ownedpathsandexactevidence.
+
+## Human-authorized T4 overview preservation
+Latestuserexplicitlyauthorizesonenarrowcorrectionandverificationwithoutlimitexpansion. ReconciledHEADc89e973andpreservedT4dirty. Restorepre-startsafequestions/optionswithoutimplicitstart/answerkeys/duplicatepoststartcontrols; meaningfulREDthenfix,targetedactualproofandtypes/buildatunchangedbudgets. Historicalfailuresremain. NoP8; fullP7verification/publicationstillpending.
+
+## T4 own proof accepted
+ExplicitL19correctionrestoredprestartsafeoverviewfourlines. RED1PASS1FAIL→GREEN2PASS/typesNext0/actual2leaf3TAP39.139s/cleanup0/19otherfiles124compiledAPIunchanged. Parentrender2PASS. T4ownproofresolved; finalindependentpending. ReadonlyT5mapattributedto/root/p7_readiness_verify covered S1-S4/newattemptprefillhistory/P7events/targetauthorization/navigation/legacyWALLpreservation, no writes/builds. NoP8.
+
+## T5 own proof accepted
+T5worker/root/p7_history returned28ownedpaths/nooverreach. Focused15+rollback1/affected85/APItypesNext0/actualnotifications5TAP/historyquestionnaire1leaf+targetedTPevaluationrestart4TAP/TPtiming5TAPPASS/cleanup0. InitialTPbadfixturelabelandsharedproxyregressionpreserved; onecoherentcorrectionrestoredlegacyhistorybase200/current400, exactoldtransport4445bytes0stderr0exitsafterfix. Parentproxy1PASS. P6mobileWALLcompatibilitycoverednewactualnotifications, oldfullP6browsernotrepeated. NoP8 orfullacceptance.
+
+## T6 first failure and read-only diagnosis
+Attributedexecutor/root/p7_own_checks:firstfullrunner1/74.35s/APIandNext0/authoring2leafPASS1FAIL1SKIP/cleanup0/source506unchanged; remaining8andregressionsskipped. Exactlogs Temp/foxmind-p7-own-checks-2pEshe. Readonly/root/p7_historyexternalinstrumentationobservednotifications429andCSRF429RetryAfter52aftercontentsave200; no publicationPOST/no409. Diagnosticfinalizerhadscopebug, capturedJSONsurvived/exactownedprocesscleanup/sourceunchanged; rawTemp/foxmind-p7-authoring-diagnostic-0SsOzF. Parenttest-onlyboundedpublicationadmissionpreparationfix:honoractualRetryAfteronce/retryvisibleconfirmationonce/assertPOST200; no production/budgetchange. Targetedauthoringthenunexecutedremainingchecksnext; nofullrunnerretry.
+
+## T6 continuation and TP teacher-history fixture
+Readonlyexecutor/root/p7_own_checks: targetedauthoring5TAPPASS94.227s(actual52sonce), firstparticipation5TAPPASS38.962s; practicalfirst3leafPASS1FAIL(parent2FAIL)/69.423s waitingobsoleteT3teacherreceiptbutton. Source506/compiled433unchanged/cleanup0; exactowner7107afd2b76a0d75empty. Sixlaterjourneys/allregressionsskipped. ParentboundedsourcecheckconfirmsT5alltypehistorynowusesConsultarintento1andDescargarreplacement.pdf; oldTPcomponentremainsbutnotmountedatrequestednewhistoryentry. Thisisanoutdatedpre-T5fixture, notproofsubmittedhistoryunavailable. Test-onlytwo-labelpreparationcorrection/no production/budgetchange; nodecheck0. ActualtargetedTPproofthenFIRSTremainingchecksnext, originalfailuresretained.
+
+## T6 attributed staged own proof completed
+Readonly/root/p7_own_checks latest18commands0/839.790s onb98e737; allnineP7journeyscombined35leaf44TAPPASS. Focused120/UIwebtsc0/P6actual19/P4normal41+27/P5normal37+9/backend8/P3browser10/dependency8/audit0/diff0. Exactcommands/rawlogs/manifests/cleanupaudit OSfoxmind-p7-own-practical-continuation-JENf2E; earlierauthoringparticipationrawfoxmind-p7-own-continuation-nVRTZN. Source506unchanged/compiled433unchangedthroughP7stagebeforeoldrunnerrebuilds/allcleanup0/sixprintedexactowners18metadataaudits0empty. WarningspgconcurrentqueryandP5use-clientdirectiveretained. Historicaldefaultfullrunner1/twostagedfailureskept; stagedproofNOTretroactivefullrunnerPASS. Parentcontrols4PASS. WholefeaturefreshindependentSol/xhighnext; noP8/publishyet.
+
+## T7 independent proof unavailable
+FreshSolxhigh/root/p7_final_verifybbc809c/b4829e2 firstdefaultcommand1at30061ms:Prisma0/APITypeScriptunavailable/noTSdiagnostic/unknowncause. NoNext/journey/independentprobes/laterchecks; noretry/budgetincrease. Original249dirty+managed507unchanged/noDockerstarted. Attributedreportpersistedp7-independent-verify.md. Parentqualifiesstrictpreparation:excludedtracked.engram/config.jsonrequiresrawblobrestoration/full507434manifestbeforeanynewauthorizedattempt; physicaldepsnolinks31519each otherwiseobserved. Scratchretainedfoxmind-p7-verify-wUgA95. Needsexplicitonefreshproofrepeatatcurrent30s; noP7acceptance/publication/P8.
+
+## Authorized single same30s independent preparation repetition
+LatesthumanexplicitlyauthorizesONEfreshpreparationrepeatatcurrent30s/Solxhighandverifiedmainmergepush/noP8. Reconciledmanaged84b917ecleanandoriginaldirtypreserved. Holdsourcecandidatebbc809c/baseb4829e2 (latercommitsonlypassiverecords). Fullrawtracked507434incloperationalconfig/freshOSbuilds/physicaldeps/noexistingpartialartifacts beforeoneinvocation. OnpasscontinuefirstremainingT7checks; onfailstopnoautomaticrepeat. Historicalunavailableproofkept.
+
+## T7 authorized repeat passed / independent B1
+VerifierSolxhighONErepeatcorrectedfull507434/rawphysicalfreshbuilds/API30s0/Next0/default44TAP35leaf0fail0skip613.484s/focused120/types0/legacy29routes116observations31412bytesexact/dependency8audit0. IndependentactualB1probeexpectedfalseTPinstructionsvisiblewithoutattempt/contentlock, teachercontentchange200not409/domainchanges. Parentboundedspotcheckconfirmedexpectedgates in start/session/studentdetail/fileaccess andfirstauthorizationpriorattemptguard; correctionmustpreserveactualreadonlyinitialDRAFTthenfutureauthorization, not submissioneligibility/durationchanges. Onecoherentindependentcorrectionbatchthenonetargetedrecheck. WholeP7notaccepted/P8untouched. Attributedreadonlyreportp7-independent-verify-repeat.md andrawOSfoxmind-p7-verify-repeat-rkJc5c; nofullsweepretry.
+
+## B1 own correction complete
+Writer/root/p7_consultation_fix Solxhigh sevenallowedfiles/onecoherentbatch. RED3behaviorleaves→GREENexactdomainparticipationP4bridge26PASS/API4760ms0under30/ownedDBcleanup0/checkonlysyntaxUTF8diff0. ParentP4sessionbridge6PASS. FixseparatesactualTPopening/contentlockfromexpected/reception andpreventsrawinstructionbypass; futurefirstauthorizationinitialDRAFTsameID/numberanddeadline, archivedviewwritefree. Permanentactualregressionwriterunrun. Commit/freezeandoriginalindependentSolxhighTARGETEDB1+necessaryauthorization/archiveonlynext; nofullsweep.
+
+## B1 independent targeted proof unavailable
+OriginalSolxhighverifierfreshALL512raw/physical31519deps/no links/buildreuse, corrected0ec37c7firstrequiredAPIbuild1/30094ms/Prisma0/TSunavailable/nodiagnostic/unknowncause. Next/controlled26/actualB1notstarted; noretry/budgetchange. Sourcecorrected512+original249dirtystatusunchanged/noDockerallocated. Priorbbcdefault44/focused120/transportauditretainedforoldcandidateonly. Attributedp7-b1-independent-recheck.md/OSfoxmind-p7-b1-recheck-Ftk20u. Missingproofnotdemonstratedremainingbug. Needsexplicitdecisionbeforeanotherattemptorindependent-onlybudgetexception; nevermutatesharedpolicyautomatically. NoP8/mergepush.
+
+## Human-authorized independent-only preparation90s
+LatesthumanexplicitlyallowsONLYthisB1targetedindependentpreparation30→90s; sharedlimitsunchanged. Reconciledcleane4770af/passivecontinuation, holdcorrectedsource0ec37c7. ExternalOSscratchdrivercallsoriginalbuildApiwithboundedruninjection/oneaggregate90sforPrisma+compile, keepingtrackedhelper30sbytesandallothersunchanged. Freshrawphysicaldeps/nobuildreuse; Next180/control26/actualB1330/360 followonpass, nofullsweep/retry/P8. Userreaffirmedverifiedmergepushmain.
+
+## B1 product acceptance / canonical expectation disposition
+IndependentSolxhigh90soutsidepreparation0/20.675s/Next0/24.036s/controlled26PASS/actualB11PASS49.532s/cleanup0/sharedhelperunchanged. ALL512raw/physical31519nolinks/no reusedbuilds. OneoverstrictliveCRLFvsrawLFauxiliarycomparisonqualifiedreadonly; nostartretry/sourcechange. B1runtimeacceptedincludingfuturefirstauthorization/archive. FinalreadbackfoundSAMEB1oldcanonicalcanStartfalseassertion; parenttest-onlyfalse→truealignsverifiedrule, notnewproductfix. Allotherexpectedfalse/nofictitiousattemptchecksunchanged. Singlecanonicalparticipationtargetedproofnext/no fullsweep. Attributedreportp7-b1-90s-verification.md.
+
+## Final independent acceptance / delivery pending
+OriginalSolxhighverifieracceptedS1S2d9cdf06, no remainingblocker. Finalcanonical4leaf5TAP/78.297s/APIoutside90s28.618s/Next22.274s/cleanup0/ALL514raw/original249dirtyunchanged. Priorwholebbc44/focused120/strict/transport/securityandcorrected0ec26+actualB1 retaincandidateprovenance. Parentbridge6PASS. Attributedfinalrecord/roadmap/task/boundarypassiveclosureupdated; shared30sunchanged/nativeoffglobal/P8notstarted. AuthorizedHTTPSfetchoriginmain/localmainb4829e2 ancestor; deliverynext. No code changes after verification.
+
+## Passive closure structural recovery
+Parentdetectedroadmapline-countdropinstagedcommitstatbeforedelivery:LF-onlyparagraphdelimiterdidnotmatchpre-existingCRLFandremovedmiddlehistory. Restoredfullroadmapfromexactd9cdf06GitblobwithCRLF-awarefirstparagraphreplacementandtwoexplicitstatusupdates; all167lines/requiredhistoricalphaseheadingsretained. No product/verification/sourcebytesaffected. Newpassivedoccommitrecordsrecovery; no reset/amend/originalcheckoutchange.

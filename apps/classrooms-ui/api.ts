@@ -104,17 +104,76 @@ export interface WallPost extends WallContent {
   replies: WallContent[];
 }
 export interface WallData { revision: string; posts: WallPost[] }
-export interface ClassroomNotification {
+export type ActivityType = 'ASSIGNMENT' | 'QUESTIONNAIRE' | 'EVALUATION';
+export interface ActivityQuestion {
+  id?: string;
+  type: 'DEVELOPMENT' | 'SINGLE_CHOICE' | 'MULTIPLE_CHOICE';
+  prompt: string;
+  points: string;
+  scoringRule?: 'EXACT' | 'PARTIAL' | null;
+  options: { id?: string; text: string; correct?: boolean }[];
+}
+export interface ActivitySummary {
+  id: string; type: ActivityType; title: string | null; unitId: string | null; topicId: string | null;
+  status: 'DRAFT' | 'PUBLISHED' | 'WITHDRAWN'; publishedAt: string | null; deadlineAt: string | null;
+  allowLate: boolean; locked: boolean; zone: string;
+}
+export interface ActivityDetail extends ActivitySummary {
+  instructions: string | null; attachmentRequired: boolean; questions: ActivityQuestion[];
+  instructionFiles: { id: string; name: string; extension: string; ready: boolean }[];
+  materials: { id: string; title: string; fileId: string; extension: string }[];
+}
+export interface ActivityData { revision: string; preview: boolean; activity: ActivityDetail }
+export interface AttemptEditor { token: string; epoch: string }
+export interface QuestionAnswer { questionId: string; text: string | null; optionIds: string[]; savedAt: string }
+export interface AnswerConfirmation { revision: string; answer: QuestionAnswer }
+export interface AttemptSessionData {
+  activity: ActivityDetail; expected: boolean; eligibilityReason: string | null; archived: boolean; serverTime: string;
+  reception: { deadlineAt: string | null; open: boolean; late: boolean }; canStart: boolean; canTransfer: boolean;
+  unansweredCount?: number;
+  attempt: { id: string; number: number; status: 'DRAFT' | 'SUBMITTED'; openedAt: string; submittedAt: string | null;
+    appliedDeadlineAt: string | null; submittedLate: boolean | null; epoch: string; revision: string;
+    attachments?: AttemptAttachment[];
+    answers: QuestionAnswer[] } | null;
+  editor?: AttemptEditor;
+}
+export interface AttemptAttachment extends FileState {
+  extension: string; sizeBytes: string; selected: boolean;
+}
+export interface AssignmentReceipt {
+  id: string; number: number; submittedAt: string; appliedDeadlineAt: string | null; submittedLate: boolean;
+  firstName: string; lastName: string; attachments: AttemptAttachment[];
+}
+export interface ActivityEligibilityData {
+  revision: string; published: boolean; students: { studentId: string; firstName: string; lastName: string;
+    expected: boolean; reason: string | null; individualDeadlineAt: string | null }[];
+}
+export interface DeadlineResolution {
+  zone: string; local: string; reason: 'NONEXISTENT' | 'AMBIGUOUS' | null;
+  choices: { instant: string; offsetMinutes: number; offset: string }[];
+}
+interface NotificationBase {
   id: string;
   classroomId: string;
   classroomName: string;
-  eventType: 'WALL_NOTICE' | 'WALL_QUERY' | 'WALL_REPLY';
-  postId: string;
-  replyId: string | null;
   createdAt: string;
   readAt: string | null;
 }
+export type ClassroomNotification = NotificationBase & ({ eventType: 'WALL_NOTICE' | 'WALL_QUERY' | 'WALL_REPLY'; postId: string; replyId: string | null }
+  | { eventType: 'ACTIVITY_PUBLISHED' | 'ACTIVITY_DEADLINE_CHANGED' | 'FIRST_SUBMISSION_ENABLED' | 'ATTEMPT_REOPENED' | 'SUBMISSION_RECEIVED';
+      activityId: string; activityTitle: string; attemptId: string | null });
 export interface WallTarget { classroomId: string; postId: string; replyId: string | null }
+export type AcademicTarget = { kind: 'activity' | 'attempt' | 'submission'; classroomId: string; activityId: string; attemptId: string | null };
+export type NotificationTarget = WallTarget | AcademicTarget;
+export interface AttemptHistoryRow {
+  id: string; number: number; status: 'DRAFT' | 'SUBMITTED'; openedAt: string; submittedAt: string | null;
+  appliedDeadlineAt: string | null; individualDeadlineAt: string | null; submittedLate: boolean | null;
+  studentId: string; firstName: string; lastName: string; currentMember: boolean;
+}
+export interface AttemptHistoryData {
+  activity: ActivitySummary; attempts: AttemptHistoryRow[]; revision?: string; canReopen?: boolean;
+  delivered?: boolean; pendingResubmission?: boolean;
+}
 export function canPreviewMaterial(material: Pick<Material, 'extension' | 'ready' | 'deleted'>): boolean {
   return material.ready && !material.deleted && ['pdf', 'jpg', 'jpeg', 'png'].includes(material.extension);
 }
@@ -157,6 +216,7 @@ export class ApiError extends Error {
   }
 }
 export interface ClassroomClient {
+  attempt?<T>(path: string, data: unknown, editor?: AttemptEditor, signal?: AbortSignal): Promise<T>;
   call<T>(
     path: string,
     method?: string,
@@ -165,6 +225,8 @@ export interface ClassroomClient {
   ): Promise<T>;
   upload(draftId: string, file: File): Promise<FileState>;
   uploadClassroom?(classroomId: string, file: File, purpose: 'plan' | 'material'): Promise<FileState>;
+  uploadAttachment?(classroomId: string, attemptId: string, file: File, editor: AttemptEditor): Promise<FileState>;
+  uploadInstruction?(classroomId: string, activityId: string, file: File): Promise<FileState>;
   fileStatus(id: string, signal?: AbortSignal): Promise<FileState>;
   fileUrl(id: string, preview?: boolean): string;
 }
@@ -182,12 +244,17 @@ export function createClassroomClient(options: {
     method = 'GET',
     data?: unknown,
     signal?: AbortSignal,
+    editor?: AttemptEditor,
   ): Promise<T> {
     const headers: Record<string, string> = {};
     if (method !== 'GET') {
       headers['X-CSRF-Token'] = await options.csrfToken();
       headers['Content-Type'] =
         data instanceof File ? 'application/octet-stream' : 'application/json';
+    }
+    if (editor) {
+      headers['X-Attempt-Editor'] = editor.token;
+      headers['X-Attempt-Epoch'] = editor.epoch;
     }
     let res: Response;
     try { res = await request(prefix + path, {
@@ -216,6 +283,7 @@ export function createClassroomClient(options: {
     catch { throw new ApiError('SERVICE_UNAVAILABLE', 503); }
   }
   return {
+    attempt: (path, data, editor, signal) => response('/classrooms' + path, 'POST', data, signal, editor),
     call: (path, method, data, signal) =>
       response('/classrooms' + path, method, data, signal),
     upload: async (draftId, file) => {
@@ -245,6 +313,27 @@ export function createClassroomClient(options: {
       } catch (error) {
         if (material && error instanceof ApiError && ['FILE_TOO_LARGE', 'FILE_TYPE_NOT_ALLOWED', 'FILE_REJECTED'].includes(error.code))
           throw new ApiError(`MATERIAL_${error.code}`, error.status, error.retryAfter);
+        throw error;
+      }
+    },
+    uploadInstruction: async (classroomId, activityId, file) => {
+      if (file.size > 20_000_000) throw new ApiError('FILE_TOO_LARGE');
+      if (!/\.(pdf|docx)$/i.test(file.name)) throw new ApiError('FILE_TYPE_NOT_ALLOWED');
+      const started = await response<{ id: string }>('/files', 'POST', {
+        scope: { kind: 'classroom', id: classroomId }, purpose: 'instructions', targetId: activityId, name: file.name, bytes: file.size,
+      });
+      return response<FileState>(`/files/${started.id}/content`, 'PUT', file);
+    },
+    uploadAttachment: async (classroomId, attemptId, file, editor) => {
+      if (file.size > 50_000_000) throw new ApiError('MATERIAL_FILE_TOO_LARGE');
+      if (!/\.(pdf|docx|pptx|xlsx|jpg|jpeg|png|zip)$/i.test(file.name)) throw new ApiError('MATERIAL_FILE_TYPE_NOT_ALLOWED');
+      if (!/^[A-Za-z0-9_-]{43}$/.test(editor.token) || !/^(0|[1-9][0-9]{0,18})$/.test(editor.epoch)) throw new ApiError('INVALID_INPUT');
+      const started = await response<{ id: string }>('/files', 'POST', {
+        scope: { kind: 'classroom', id: classroomId }, purpose: 'attachment', targetId: attemptId, name: file.name, bytes: file.size,
+      }, undefined, editor);
+      try { return await response<FileState>(`/files/${started.id}/content`, 'PUT', file, undefined, editor); }
+      catch (error) {
+        if (error instanceof ApiError && error.code === 'FILE_REJECTED') throw new ApiError('MATERIAL_FILE_REJECTED', error.status, error.retryAfter);
         throw error;
       }
     },

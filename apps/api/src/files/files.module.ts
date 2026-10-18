@@ -1,4 +1,5 @@
 import { Module, type DynamicModule } from '@nestjs/common';
+import { authorizeAttemptFileWrite, linkReadyAttemptAttachment } from './attempt-bridge.ts';
 import { FileService, type FileServiceOptions } from './service.ts';
 import { FileCleanupWorker } from './cleanup-worker.ts';
 import { PrismaService } from '../database/prisma.service.ts';
@@ -19,8 +20,8 @@ export class FilesModule {
     return { module: FilesModule, imports: [database, identity], providers: [
       { provide: FileService, inject: [PrismaService, IdentityRuntime],
         useFactory: (database: PrismaService, runtime: IdentityRuntime) => new FileService({ database,
-          access: createIdentityFileAccess(runtime.configuration.security), storage: infrastructure.storage,
-          scanner: infrastructure.scanner, draftQuotaBytes: configuration.draftQuotaBytes }) },
+          access: createIdentityFileAccess(runtime.configuration.security, authorizeAttemptFileWrite), storage: infrastructure.storage,
+          scanner: infrastructure.scanner, draftQuotaBytes: configuration.draftQuotaBytes, onReadyTransition: linkReadyAttemptAttachment }) },
       { provide: FileCleanupWorker, inject: [FileService], useFactory: (service: FileService) => new FileCleanupWorker(service) },
       { provide: FileHostLifecycle, inject: [FileCleanupWorker],
         useFactory: (worker: FileCleanupWorker) => new FileHostLifecycle(worker, infrastructure) },

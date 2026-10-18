@@ -3,6 +3,10 @@ import type { ClassroomService as InvitationService } from './service.ts';
 import { ClassroomError, fail, object } from './policy.ts';
 import { ClassroomIdentityError } from './errors.ts';
 import { wallOperation } from './wall-policy.ts';
+import { activityOperation } from './activity-policy.ts';
+import { editorCapability } from './attempt-policy.ts';
+import { uuid } from './policy.ts';
+import { captureSubmissionReceipt } from './submission-receipt.ts';
 
 interface Admission {
   admit(request: IncomingMessage, write: boolean, response: ServerResponse): Promise<void>;
@@ -53,7 +57,7 @@ function readBody(req: IncomingMessage): Promise<unknown> {
       if (size > 512 * 1024) finish(new ClassroomError('INVALID_INPUT'));
       else chunks.push(chunk);
     };
-    const end = () => finish(),
+    const end = () => { captureSubmissionReceipt(req); finish(); },
       abort = () => finish(new ClassroomError('INVALID_INPUT'));
     const timer = setTimeout(
       () => finish(new ClassroomError('SERVICE_UNAVAILABLE')),
@@ -174,6 +178,68 @@ export function createClassroomsHandler(
         value = await service.listMaterials(req, path[0]);
       else if (path.length === 2 && path[1] === 'library' && method === 'POST')
         value = await service.changeLibrary(req, path[0], exact(['revision', 'operation']));
+      else if (path.length === 2 && path[1] === 'activities' && method === 'GET')
+        value = await service.listActivities(req, path[0]);
+      else if (path.length === 2 && path[1] === 'activities' && method === 'POST') {
+        const data = exact(['revision', 'operation']);
+        activityOperation(data.operation);
+        value = await service.changeActivities(req, path[0], data);
+      } else if (path.length === 3 && path[1] === 'activities' && path[2] === 'deadline' && method === 'POST')
+        value = await service.activityDeadlineChoices(req, path[0], exact(['local']));
+      else if (path.length === 3 && path[1] === 'activities' && method === 'GET')
+        value = await service.activityDetail(req, path[0], path[2]);
+      else if (path.length === 4 && path[1] === 'activities' && ['history', 'history-submissions', 'reopen'].includes(path[3])) {
+        if (!uuid(path[0]) || !uuid(path[2]) || req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
+          return fail('INVALID_INPUT');
+        if (path[3] === 'history' && method === 'GET') value = await service.activityHistory(req, path[0], path[2]);
+        else if (path[3] === 'history-submissions' && method === 'GET') value = await service.activitySubmissions(req, path[0], path[2]);
+        else if (path[3] === 'reopen' && method === 'POST') value = await service.reopenActivity(req, path[0], path[2], exact(['revision', 'studentId', 'deadline', 'confirm']));
+        else return fail('INVALID_INPUT');
+      } else if (path.length === 4 && path[1] === 'attempts' && path[3] === 'history' && method === 'GET') {
+        if (!uuid(path[0]) || !uuid(path[2]) || req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
+          return fail('INVALID_INPUT');
+        value = await service.activityAttempt(req, path[0], path[2]);
+      }
+      else if (path.length === 4 && path[1] === 'activities' && ['session', 'start', 'eligibility', 'authorize-first'].includes(path[3])) {
+        if (!uuid(path[0]) || !uuid(path[2])) return fail('INVALID_INPUT');
+        if (req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
+          return fail('INVALID_INPUT');
+        if (path[3] === 'session' && method === 'GET') value = await service.activitySession(req, path[0], path[2]);
+        else if (path[3] === 'eligibility' && method === 'GET') value = await service.activityEligibility(req, path[0], path[2]);
+        else if (path[3] === 'start' && method === 'POST') value = await service.startActivity(req, path[0], path[2], exact([]));
+        else if (path[3] === 'authorize-first' && method === 'POST')
+          value = await service.authorizeFirstSubmission(req, path[0], path[2], exact(['revision', 'studentId', 'deadline']));
+        else return fail('INVALID_INPUT');
+      } else if (path.length === 4 && path[1] === 'attempts' && path[3] === 'transfer' && method === 'POST') {
+        if (!uuid(path[0]) || !uuid(path[2])) return fail('INVALID_INPUT');
+        if (req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
+          editorCapability(req.headers['x-attempt-editor'], req.headers['x-attempt-epoch']);
+        value = await service.transferAttemptEditor(req, path[0], path[2], exact(['revision']));
+      }
+      else if (path.length === 4 && path[1] === 'attempts' && ['answer', 'submit-answers'].includes(path[3]) && method === 'POST') {
+        if (!uuid(path[0]) || !uuid(path[2])) return fail('INVALID_INPUT');
+        editorCapability(req.headers['x-attempt-editor'], req.headers['x-attempt-epoch']);
+        value = path[3] === 'answer'
+          ? await service.saveAttemptAnswer(req, path[0], path[2], exact(['revision', 'questionId', 'text', 'optionIds']))
+          : await service.submitQuestionnaireAttempt(req, path[0], path[2], exact(['revision', 'confirm', 'confirmIncomplete']));
+      }
+      else if (path.length === 4 && path[1] === 'attempts' && ['attachments-remove', 'submit-practical'].includes(path[3]) && method === 'POST') {
+        if (!uuid(path[0]) || !uuid(path[2])) return fail('INVALID_INPUT');
+        editorCapability(req.headers['x-attempt-editor'], req.headers['x-attempt-epoch']);
+        value = path[3] === 'attachments-remove'
+          ? await service.removeAttemptAttachment(req, path[0], path[2], exact(['revision', 'fileId']))
+          : await service.submitPracticalAttempt(req, path[0], path[2], exact(['revision', 'confirm']));
+      } else if (path.length === 4 && path[1] === 'activities' && path[3] === 'submissions' && method === 'GET') {
+        if (!uuid(path[0]) || !uuid(path[2]) || req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
+          return fail('INVALID_INPUT');
+        value = await service.assignmentSubmissions(req, path[0], path[2]);
+      } else if (path.length === 4 && path[1] === 'attempts' && path[3] === 'receipt' && method === 'GET') {
+        if (!uuid(path[0]) || !uuid(path[2]) || req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
+          return fail('INVALID_INPUT');
+        value = await service.assignmentSubmission(req, path[0], path[2]);
+      }
+      else if (path.length === 4 && path[1] === 'activities' && path[3] === 'preview' && method === 'GET')
+        value = await service.activityDetail(req, path[0], path[2], true);
       else if (path.length === 2 && path[1] === 'wall' && method === 'GET')
         value = await service.listWall(req, path[0]);
       else if (path.length === 2 && path[1] === 'wall' && method === 'POST') {

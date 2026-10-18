@@ -1,1 +1,1 @@
-export { WallService as ClassroomService } from './wall.ts';
+export { ActivityHistoryService as ClassroomService } from './activity-history.ts';

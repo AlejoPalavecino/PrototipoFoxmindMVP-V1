@@ -42,7 +42,17 @@ export function createFileAccess(ports: { authenticate: FileAccess['authenticate
       if (activity.status !== 'PUBLISHED' || !target.fileId) deny();
       const [link] = await tx.query(`SELECT 1 AS allowed FROM activity_instruction_files
         WHERE activity_id=$1::uuid AND file_id=$2::uuid AND classroom_id=$3::uuid FOR SHARE`, target.targetId, target.fileId, target.scope.id);
-      if (!link) deny(); return;
+      if (!link) deny();
+      // Reading never starts participation. Every active-room student explicitly opens the TP first,
+      // including consultation-only enrollment; archived consultation remains write-free.
+      const [participation] = await tx.query<{ started: boolean }>(`SELECT
+        EXISTS(SELECT 1 FROM attempts a WHERE a.student_activity_id=sa.id) AS started
+        FROM student_activities sa JOIN enrollments e ON e.id=sa.enrollment_id
+        WHERE sa.activity_id=$1::uuid AND sa.classroom_id=$2::uuid AND e.student_id=$3::uuid FOR SHARE OF sa,e`,
+      target.targetId, target.scope.id, userId);
+      const [state] = await tx.query<{ archived_at: Date | null }>('SELECT archived_at FROM classrooms WHERE id=$1::uuid', target.scope.id);
+      if (!state?.archived_at && !participation?.started) deny();
+      return;
     }
     if (target.purpose !== 'attachment') deny();
     const [attempt] = await tx.query<{ student_id: string; status: string; type: string; activity_status: string; is_expected: boolean }>(

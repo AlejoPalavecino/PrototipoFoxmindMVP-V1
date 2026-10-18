@@ -96,12 +96,28 @@ export async function proxyFileRequest(request: IncomingMessage, response: Serve
       });
     } catch (error) { reject(error instanceof RangeError ? 413 : 400, error instanceof RangeError ? 'FILE_TOO_LARGE' : 'INVALID_UPLOAD'); return; }
   }
+  const editor = request.headers['x-attempt-editor'], epoch = request.headers['x-attempt-epoch'];
+  const hasEditor = editor !== undefined || epoch !== undefined;
+  if (hasEditor) {
+    let attachment = method === 'PUT' && filePath.test(url.pathname) && url.pathname.endsWith('/content') && !url.search;
+    if (method === 'POST' && url.pathname === '/api/v1/files' && !url.search) {
+      try {
+        const data = JSON.parse(metadata!.toString('utf8'));
+        attachment = data.purpose === 'attachment' && data.scope?.kind === 'classroom'
+          && typeof data.targetId === 'string' && new RegExp(`^${uuid}$`, 'i').test(data.targetId)
+          && typeof data.scope.id === 'string' && new RegExp(`^${uuid}$`, 'i').test(data.scope.id);
+      } catch { attachment = false; }
+    }
+    if (!attachment || typeof editor !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(editor)
+      || typeof epoch !== 'string' || !/^(0|[1-9][0-9]{0,18})$/.test(epoch)) { reject(400, 'INVALID_UPLOAD'); return; }
+  }
   if (response.destroyed) return;
   await new Promise<void>(resolve => {
     const headers: Record<string, string> = {};
     for (const name of ['cookie', 'origin', 'x-csrf-token', 'content-type']) {
       const value = request.headers[name]; if (typeof value === 'string') headers[name] = value;
     }
+    if (hasEditor) { headers['x-attempt-editor'] = editor as string; headers['x-attempt-epoch'] = epoch as string; }
     if (metadata) headers['content-length'] = String(metadata.length);
     else if (method === 'PUT') headers['content-length'] = String(length);
     let settled = false, upstreamResponse: IncomingMessage | undefined, uploadCounter: Transform | undefined, responseCounter: Transform | undefined;
