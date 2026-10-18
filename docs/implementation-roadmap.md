@@ -51,7 +51,7 @@ The specification's original "completion boundary" describes its earlier documen
 | P5 | Classrooms and enrollment | completed | Creation/drafts, required plan/units/topics, invitations/codes, classroom-scoped roles, membership history and archive lifecycle. Requires P3/P4. |
 | P6 | Teaching plan, Library and Muro | completed | Actual scoped Plan/Library/Muro and notifications, durable files/restarts, populated migration upgrade and independent mobile correction verified and published to main (merge8eee463). |
 | P7 | Activities, attempts and submissions | completed | Independent whole-feature and bounded B1 evidence accepted; source0ec37c7/final fixtured9cdf06; published to main via remotely confirmed merge8e4fd2e. |
-| P8 | Grading and follow-up | not_started | Exact scoring, teacher publication/corrections, effective grades, audit history, individual/class averages and progress. |
+| P8 | Grading and follow-up | in_progress | Full P8 explicitly authorized after P7; see tasks and coordinator below. No P9. |
 | P9 | Integrated local validation | not_started | Complete teacher/student journeys, authorization and failure paths, responsive behavior and local pilot preparation. |
 
 Statuses: `not_started`, `in_progress`, `blocked`, `completed`. A blocked phase names the external decision/proof it awaits. Dropped or superseded tasks remain recorded as such; they never count as completed.
@@ -164,3 +164,7 @@ Hosting/provider/budget/production quotas/deployment topology remain deferred un
 ## Current P7 authorization (2026-10-18)
 
 Full P7 implementation and verified main merge/push are now explicitly authorized: [tasks](../odd/tasks/p7-activities.md), [coordinator](work-log/2026-10-18-root-p7-activities.md). P7 implementation, independent acceptance and authorized main merge/push are complete (merge8e4fd2e, remote confirmed). No P8 or deployment authorization. Earlier STOP-before-P7 statements are historical scope, superseded only for this explicitly requested P7. P3–P6 acceptance and original dirty checkout remain preserved.
+
+## Current P8 authorization (2026-10-18)
+
+Full P8 implementation and verified main merge/push are now explicitly authorized: [tasks](../odd/tasks/p8-grading.md), [coordinator](work-log/2026-10-18-root-p8-grading.md). The first confirmed submission determines on-time/late classification; resubmissions remain in history. Previous STOP-before-P8 statements describe the accepted P7 checkpoint and are superseded only for this explicit P8 work. No P9, deployment or retained-data changes.
