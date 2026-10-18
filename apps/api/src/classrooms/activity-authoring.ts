@@ -6,8 +6,9 @@ import { activityOperation, activityPayload, activityType, exactActivityObject, 
 import { deadlineChoices, resolveDeadline } from './activity-time.ts';
 import { requireReady } from '../files/service.ts';
 import type { Transaction } from './contracts.ts';
+import { recordActivityEligibility } from './activity-eligibility.ts';
 
-interface ActivityRow {
+export interface ActivityRow {
   id: string; classroom_id: string; type: ActivityType; title: string | null; unit_id: string | null; topic_id: string | null;
   instructions_text: string | null; attachments_required: boolean; status: 'DRAFT' | 'PUBLISHED' | 'WITHDRAWN';
   published_at: Date | null; deadline_at: Date | null; allow_late_submissions: boolean; first_started_at: Date | null;
@@ -39,7 +40,9 @@ export class ActivityAuthoringService extends WallService {
       const room = await this.classroom(tx, actor, classroomId, false, preview);
       const row = await this.activity(tx, classroomId, id), teacher = room.teacher_id === actor.id;
       if (!teacher && row.status !== 'PUBLISHED') return fail('FORBIDDEN');
-      return { revision: room.revision.toString(), preview: teacher, activity: await this.activityView(tx, row, room.timezone, teacher) };
+      return { revision: room.revision.toString(), preview: teacher, activity: teacher
+        ? await this.activityView(tx, row, room.timezone, true)
+        : await this.studentActivityView(tx, row, room.timezone, actor.id, room.archived_at !== null) };
     });
   }
 
@@ -100,6 +103,7 @@ export class ActivityAuthoringService extends WallService {
           await this.activityAssociation(tx, classroomId, payload.unitId, payload.topicId, true);
           await this.validateLinks(tx, request, row, payload);
           await tx.query(`UPDATE activities SET status='PUBLISHED',published_at=$2,updated_at=$2 WHERE id=$1::uuid RETURNING id`, id, actor.now);
+          await recordActivityEligibility(tx, classroomId, { publication: id });
         } else if (op.action === 'withdraw') {
           if (row.first_started_at || row.status !== 'PUBLISHED') return fail('CONFLICT');
           await tx.query(`UPDATE activities SET status='WITHDRAWN',updated_at=$2 WHERE id=$1::uuid RETURNING id`, id, actor.now);
@@ -170,6 +174,10 @@ export class ActivityAuthoringService extends WallService {
     return { id: row.id, type: row.type, title: row.title, unitId: row.unit_id, topicId: row.topic_id,
       status: row.status, publishedAt: row.published_at, deadlineAt: row.deadline_at, allowLate: row.allow_late_submissions,
       locked: row.first_started_at !== null, zone };
+  }
+
+  protected studentActivityView(tx: Transaction, row: ActivityRow, zone: string, _studentId: string, _archived = false) {
+    return this.activityView(tx, row, zone, false);
   }
 
   protected async activityView(tx: Transaction, row: ActivityRow, zone: string, teacher: boolean) {

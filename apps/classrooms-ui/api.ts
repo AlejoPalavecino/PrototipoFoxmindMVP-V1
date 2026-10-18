@@ -124,6 +124,19 @@ export interface ActivityDetail extends ActivitySummary {
   materials: { id: string; title: string; fileId: string; extension: string }[];
 }
 export interface ActivityData { revision: string; preview: boolean; activity: ActivityDetail }
+export interface AttemptEditor { token: string; epoch: string }
+export interface AttemptSessionData {
+  activity: ActivityDetail; expected: boolean; eligibilityReason: string | null; archived: boolean; serverTime: string;
+  reception: { deadlineAt: string | null; open: boolean; late: boolean }; canStart: boolean; canTransfer: boolean;
+  attempt: { id: string; number: number; status: 'DRAFT' | 'SUBMITTED'; openedAt: string; submittedAt: string | null;
+    appliedDeadlineAt: string | null; submittedLate: boolean | null; epoch: string; revision: string;
+    answers: { questionId: string; text: string | null; optionIds: string[]; savedAt: string }[] } | null;
+  editor?: AttemptEditor;
+}
+export interface ActivityEligibilityData {
+  revision: string; published: boolean; students: { studentId: string; firstName: string; lastName: string;
+    expected: boolean; reason: string | null; individualDeadlineAt: string | null }[];
+}
 export interface DeadlineResolution {
   zone: string; local: string; reason: 'NONEXISTENT' | 'AMBIGUOUS' | null;
   choices: { instant: string; offsetMinutes: number; offset: string }[];
@@ -181,6 +194,7 @@ export class ApiError extends Error {
   }
 }
 export interface ClassroomClient {
+  attempt?<T>(path: string, data: unknown, editor?: AttemptEditor, signal?: AbortSignal): Promise<T>;
   call<T>(
     path: string,
     method?: string,
@@ -207,12 +221,17 @@ export function createClassroomClient(options: {
     method = 'GET',
     data?: unknown,
     signal?: AbortSignal,
+    editor?: AttemptEditor,
   ): Promise<T> {
     const headers: Record<string, string> = {};
     if (method !== 'GET') {
       headers['X-CSRF-Token'] = await options.csrfToken();
       headers['Content-Type'] =
         data instanceof File ? 'application/octet-stream' : 'application/json';
+    }
+    if (editor) {
+      headers['X-Attempt-Editor'] = editor.token;
+      headers['X-Attempt-Epoch'] = editor.epoch;
     }
     let res: Response;
     try { res = await request(prefix + path, {
@@ -241,6 +260,7 @@ export function createClassroomClient(options: {
     catch { throw new ApiError('SERVICE_UNAVAILABLE', 503); }
   }
   return {
+    attempt: (path, data, editor, signal) => response('/classrooms' + path, 'POST', data, signal, editor),
     call: (path, method, data, signal) =>
       response('/classrooms' + path, method, data, signal),
     upload: async (draftId, file) => {

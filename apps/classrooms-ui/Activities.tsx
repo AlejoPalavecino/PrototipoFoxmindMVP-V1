@@ -1,14 +1,16 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
-import type { ActivityData, ActivitySummary, ActivityType, ClassroomClient, Detail, Material } from './api.ts';
+import type { ActivityData, ActivitySummary, ActivityType, AttemptSessionData, ClassroomClient, Detail, Material } from './api.ts';
 import { Dialog, Notice } from './components.tsx';
 import { ActivityAuthoring, ActivityPreview, activityDate, activityTypeLabels } from './ActivityAuthoring.tsx';
+import { AttemptSession, FirstSubmissionAuthorization } from './AttemptSession.tsx';
 
 export function Activities({ api, room, reload }: { api: ClassroomClient; room: Detail; reload: () => Promise<void> }) {
   const [activities, setActivities] = useState<ActivitySummary[]>([]), [loaded, setLoaded] = useState(false);
   const [editing, setEditing] = useState<ActivityData | null>(null), [preview, setPreview] = useState<ActivityData | null>(null);
   const [materials, setMaterials] = useState<Material[]>([]), [type, setType] = useState<ActivityType>('ASSIGNMENT');
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState('');
+  const [session, setSession] = useState<AttemptSessionData | null>(null), [authorization, setAuthorization] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<{ action: 'publish' | 'withdraw'; activity: ActivitySummary } | null>(null);
   const teacher = room.role === 'teacher', writable = teacher && !room.archived;
   const load = useCallback(async (signal?: AbortSignal) => {
@@ -47,15 +49,25 @@ export function Activities({ api, room, reload }: { api: ClassroomClient; room: 
       <div><small>{activityTypeLabels[activity.type]} · {activity.status === 'DRAFT' ? 'Borrador privado' : activity.status === 'WITHDRAWN' ? 'Retirada' : 'Publicada'}</small>
         <h3>{activity.title ?? 'Borrador sin título'}</h3><p>{activityDate(activity.deadlineAt, activity.zone)}</p>
         {activity.locked ? <small>Contenido bloqueado por participación</small> : null}</div>
-      <div className="p5-actions"><button disabled={busy} onClick={() => void run(async () => setPreview(await api.call<ActivityData>(
-        `/${room.id}/activities/${activity.id}${teacher ? '/preview' : ''}`)))}>{teacher ? 'Vista previa docente' : 'Consultar actividad'}</button>
+      <div className="p5-actions"><button disabled={busy} onClick={() => void run(async () => {
+        if (teacher) { setPreview(await api.call<ActivityData>(`/${room.id}/activities/${activity.id}/preview`)); return; }
+        let next = await api.call<AttemptSessionData>(`/${room.id}/activities/${activity.id}/session`);
+        if (activity.type === 'ASSIGNMENT' && next.canStart) {
+          if (!api.attempt) throw new Error('El flujo de intentos no está disponible.');
+          next = await api.attempt<AttemptSessionData>(`/${room.id}/activities/${activity.id}/start`, {}); await refresh();
+        }
+        setSession(next);
+      })}>{teacher ? 'Vista previa docente' : activity.type === 'ASSIGNMENT' ? 'Abrir trabajo práctico' : 'Consultar actividad'}</button>
         {writable ? <><button disabled={busy} onClick={() => void run(() => edit(activity.id))}>{activity.status === 'DRAFT' ? 'Continuar borrador' : 'Editar actividad'}</button>
+          {activity.status === 'PUBLISHED' ? <button disabled={busy} onClick={() => setAuthorization(activity.id)}>Habilitar primera entrega</button> : null}
           {!activity.locked ? <button disabled={busy} onClick={() => setConfirm({ activity, action: activity.status === 'PUBLISHED' ? 'withdraw' : 'publish' })}>
             {activity.status === 'PUBLISHED' ? 'Retirar actividad' : 'Publicar'}</button> : null}</> : null}</div>
     </article>)}</div>
     {preview ? <Dialog title={preview.activity.title ?? 'Vista previa de actividad'} onClose={() => setPreview(null)}>
       <ActivityPreview api={api} activity={preview.activity} teacher={teacher} />
     </Dialog> : null}
+    {session ? <AttemptSession key={session.activity.id} api={api} room={room} initial={session} onClose={() => setSession(null)} onChanged={refresh} /> : null}
+    {authorization ? <FirstSubmissionAuthorization api={api} room={room} activityId={authorization} onClose={() => setAuthorization(null)} onChanged={refresh} /> : null}
     {confirm ? <Dialog title={confirm.action === 'publish' ? 'Publicar actividad' : 'Retirar actividad'} onClose={() => !busy && setConfirm(null)}>
       <p>{confirm.action === 'publish' ? 'La actividad guardada será visible para los estudiantes. Los cambios que no hayas guardado en el editor no se publicarán.' : 'La actividad dejará de estar visible para estudiantes. Solo se permite antes de la primera participación.'}</p>
       {error ? <Notice error>{error}</Notice> : null}

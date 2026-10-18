@@ -19,6 +19,10 @@ const routes: Rule[] = [
   rule(`/${uuid}/activities`, { GET: null, POST: ['revision', 'operation'] }),
   rule(`/${uuid}/activities/deadline`, { POST: ['local'] }),
   rule(`/${uuid}/activities/${uuid}(?:/preview)?`, { GET: null }),
+  rule(`/${uuid}/activities/${uuid}/(?:session|eligibility)`, { GET: null }),
+  rule(`/${uuid}/activities/${uuid}/start`, { POST: [] }),
+  rule(`/${uuid}/activities/${uuid}/authorize-first`, { POST: ['revision', 'studentId', 'deadline'] }),
+  rule(`/${uuid}/attempts/${uuid}/transfer`, { POST: ['revision'] }),
   rule('/notifications', { GET: null }),
   rule(`/notifications/${uuid}/(?:read|open)`, { POST: [] }),
   rule(`/${uuid}/settings`, { PATCH: ['revision', 'name', 'subject', 'division', 'academicYear'] }),
@@ -74,6 +78,11 @@ function schema(value: unknown, keys: string[], wall = false): boolean {
     if (key === 'operation') { if (!value[key] || typeof value[key] !== 'object' || Array.isArray(value[key])) return false; }
     else if (key === 'archived') { if (typeof value[key] !== 'boolean') return false; }
     else if (key === 'academicYear') { if (!Number.isInteger(value[key])) return false; }
+    else if (key === 'deadline') {
+      const item = value[key];
+      if (!object(item, ['local', 'offsetMinutes'], false) || typeof item.local !== 'string'
+        || (Object.hasOwn(item, 'offsetMinutes') && !Number.isInteger(item.offsetMinutes))) return false;
+    }
     else if (key !== 'payload' && typeof value[key] !== 'string') return false;
   }
   if (wall) {
@@ -160,6 +169,15 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
   const method = request.method ?? 'GET';
   if (!Object.hasOwn(selected.methods, method)) { reject(405, 'METHOD_NOT_ALLOWED'); return; }
   if (url.search) { reject(400, 'INVALID_INPUT'); return; }
+  const participation = /\/(?:session|eligibility|start|authorize-first|transfer)$/.test(url.pathname);
+  const transfer = /\/attempts\/[^/]+\/transfer$/.test(url.pathname);
+  if (participation && (request.headers['x-attempt-editor'] !== undefined || request.headers['x-attempt-epoch'] !== undefined)) {
+    if (!transfer || typeof request.headers['x-attempt-editor'] !== 'string'
+      || !/^[A-Za-z0-9_-]{43}$/.test(request.headers['x-attempt-editor'])
+      || typeof request.headers['x-attempt-epoch'] !== 'string' || !/^(0|[1-9][0-9]{0,18})$/.test(request.headers['x-attempt-epoch'])) {
+      reject(400, 'INVALID_INPUT'); return;
+    }
+  }
   let origin: string, expected: number | undefined;
   try { origin = destination(configuredOrigin); } catch { reject(503, 'SERVICE_UNAVAILABLE'); return; }
   try { expected = length(request.headers['content-length']); } catch { reject(400, 'INVALID_INPUT'); return; }
@@ -180,6 +198,9 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
   await new Promise<void>(resolve => {
     const headers: Record<string, string> = {};
     for (const name of ['cookie', 'origin', 'x-csrf-token', 'content-type']) {
+      const value = request.headers[name]; if (typeof value === 'string') headers[name] = value;
+    }
+    if (transfer) for (const name of ['x-attempt-editor', 'x-attempt-epoch']) {
       const value = request.headers[name]; if (typeof value === 'string') headers[name] = value;
     }
     if (metadata) headers['content-length'] = String(metadata.length);

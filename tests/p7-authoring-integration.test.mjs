@@ -93,17 +93,26 @@ test('P7 T1 real P3 sessions, authoring UI, private ready instructions and safe 
         assert.equal((await api(student, 'GET', `/classrooms/${roomId}/activities`)).body.activities.length, 0);
         await page.getByRole('button', { name: 'Confirmar publicación', exact: true }).click();
         await page.getByText('Estado de publicación confirmado.', { exact: true }).waitFor();
-        assert.equal((await api(student, 'GET', `/files/${instructions}/content`)).status, 200);
+        assert.equal((await api(student, 'GET', `/files/${instructions}/content`)).status, 403,
+          'Eligible assignment instructions require the explicit first-opening start boundary');
         await openClassroom(student, runtime.origin, 'P7 authoring classroom');
         await student.getByRole('button', { name: 'Actividades', exact: true }).click();
-        await student.getByRole('article', { name: 'Browser assignment', exact: true }).getByRole('button', { name: 'Consultar actividad', exact: true }).click();
+        await student.getByRole('article', { name: 'Browser assignment', exact: true }).getByRole('button', { name: 'Abrir trabajo práctico', exact: true }).click();
         await student.getByRole('link', { name: 'Descargar instructions.pdf', exact: true }).waitFor();
         assert.equal(await student.getByRole('button', { name: 'Guardar actividad', exact: true }).count(), 0);
       });
       await check('questionnaire/evaluation browser editors cover all question types and invalid questions remain visibly unsaved', async () => {
+        // The other actor's first start legitimately changed the classroom revision.
+        const refreshed = Promise.all([`/api/v1/classrooms/${roomId}`, `/api/v1/classrooms/${roomId}/activities`]
+          .map(path => page.waitForResponse(response => new URL(response.url()).pathname === path && response.request().method() === 'GET')));
+        await page.getByRole('button', { name: 'Actualizar actividades', exact: true }).click();
+        for (const response of await refreshed) assert.equal(response.status(), 200);
         for (const [type, name] of [['QUESTIONNAIRE', 'Browser questionnaire'], ['EVALUATION', 'Browser evaluation']]) {
           await page.getByLabel('Tipo de actividad', { exact: true }).selectOption(type);
+          const created = page.waitForResponse(response => new URL(response.url()).pathname === `/api/v1/classrooms/${roomId}/activities`
+            && response.request().method() === 'POST');
           await page.getByRole('button', { name: 'Crear borrador de actividad', exact: true }).click();
+          assert.equal((await created).status(), 200, 'Current teacher revision must create the requested draft');
           await page.getByLabel('Título de la actividad', { exact: true }).fill(name);
           await page.getByLabel('Unidad de la actividad', { exact: true }).selectOption({ label: 'First unit' });
           await page.getByLabel('Tema de la actividad', { exact: true }).selectOption({ label: 'First topic' });

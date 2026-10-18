@@ -1,1 +1,1 @@
-export { ActivityAuthoringService as ClassroomService } from './activity-authoring.ts';
+export { ActivityParticipationService as ClassroomService } from './activity-participation.ts';

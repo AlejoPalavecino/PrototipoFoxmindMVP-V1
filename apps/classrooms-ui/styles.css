@@ -707,3 +707,8 @@
   .p7-activity-list > article > div, .p7-create > label { min-width: 0; width: 100%; }
   .p7-option { align-items: stretch; }
 }
+/* Participation keeps the existing dialog and mobile classroom navigation. */
+.p7-attempt header { border-bottom: 1px solid var(--border, #dfe6ed); padding-bottom: .75rem; }
+.p7-transfer-confirm { border: 1px solid #cf893d; border-radius: .75rem; padding: 1rem; margin-top: 1rem; }
+.p7-attempt article { padding: .75rem 0; border-top: 1px solid var(--border, #dfe6ed); }
+.p7-attempt a { overflow-wrap: anywhere; }

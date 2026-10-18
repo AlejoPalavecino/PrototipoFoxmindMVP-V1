@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { DraftService, revision } from './drafts.ts';
 import { digest, fail, object, uuid } from './policy.ts';
 import type { Actor, Transaction } from './contracts.ts';
+import { recordActivityEligibility } from './activity-eligibility.ts';
 
 export class MembershipService extends DraftService {
   rotateCode(request: unknown, id: string) {
@@ -144,14 +145,15 @@ export class MembershipService extends DraftService {
     if (active) return fail('ENROLLMENT_UNAVAILABLE');
     const periodId = randomUUID();
     await tx.query(
-      `INSERT INTO membership_periods(id,updated_at,enrollment_id,classroom_id,entry_method,invitation_id)
-      VALUES($1::uuid,clock_timestamp(),$2::uuid,$3::uuid,$4::"EntryMethod",$5::uuid) RETURNING id`,
+      `INSERT INTO membership_periods(id,updated_at,joined_at,enrollment_id,classroom_id,entry_method,invitation_id)
+      VALUES($1::uuid,clock_timestamp(),clock_timestamp(),$2::uuid,$3::uuid,$4::"EntryMethod",$5::uuid) RETURNING id`,
       periodId,
       enrollment.id,
       classroomId,
       invitationId ? 'INVITATION' : 'CODE',
       invitationId,
     );
+    await recordActivityEligibility(tx, classroomId, { enrollment: enrollment.id });
     await this.membershipEvent(tx, enrollment.id, periodId, 'joined');
   }
   protected async membershipEvent(

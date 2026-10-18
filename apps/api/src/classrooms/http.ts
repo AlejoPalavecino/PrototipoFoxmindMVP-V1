@@ -4,6 +4,8 @@ import { ClassroomError, fail, object } from './policy.ts';
 import { ClassroomIdentityError } from './errors.ts';
 import { wallOperation } from './wall-policy.ts';
 import { activityOperation } from './activity-policy.ts';
+import { editorCapability } from './attempt-policy.ts';
+import { uuid } from './policy.ts';
 
 interface Admission {
   admit(request: IncomingMessage, write: boolean, response: ServerResponse): Promise<void>;
@@ -185,6 +187,22 @@ export function createClassroomsHandler(
         value = await service.activityDeadlineChoices(req, path[0], exact(['local']));
       else if (path.length === 3 && path[1] === 'activities' && method === 'GET')
         value = await service.activityDetail(req, path[0], path[2]);
+      else if (path.length === 4 && path[1] === 'activities' && ['session', 'start', 'eligibility', 'authorize-first'].includes(path[3])) {
+        if (!uuid(path[0]) || !uuid(path[2])) return fail('INVALID_INPUT');
+        if (req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
+          return fail('INVALID_INPUT');
+        if (path[3] === 'session' && method === 'GET') value = await service.activitySession(req, path[0], path[2]);
+        else if (path[3] === 'eligibility' && method === 'GET') value = await service.activityEligibility(req, path[0], path[2]);
+        else if (path[3] === 'start' && method === 'POST') value = await service.startActivity(req, path[0], path[2], exact([]));
+        else if (path[3] === 'authorize-first' && method === 'POST')
+          value = await service.authorizeFirstSubmission(req, path[0], path[2], exact(['revision', 'studentId', 'deadline']));
+        else return fail('INVALID_INPUT');
+      } else if (path.length === 4 && path[1] === 'attempts' && path[3] === 'transfer' && method === 'POST') {
+        if (!uuid(path[0]) || !uuid(path[2])) return fail('INVALID_INPUT');
+        if (req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
+          editorCapability(req.headers['x-attempt-editor'], req.headers['x-attempt-epoch']);
+        value = await service.transferAttemptEditor(req, path[0], path[2], exact(['revision']));
+      }
       else if (path.length === 4 && path[1] === 'activities' && path[3] === 'preview' && method === 'GET')
         value = await service.activityDetail(req, path[0], path[2], true);
       else if (path.length === 2 && path[1] === 'wall' && method === 'GET')
