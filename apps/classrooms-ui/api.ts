@@ -73,6 +73,24 @@ export interface FileState {
   scan: string;
   rejectionCode: string | null;
 }
+export interface Material {
+  id: string;
+  title: string;
+  fileId: string;
+  fileName: string;
+  extension: string;
+  sizeBytes: string;
+  unitId: string | null;
+  topicId: string | null;
+  ready: boolean;
+  previewable: boolean;
+  linked: boolean;
+  deleted: boolean;
+  deletionPending: boolean;
+}
+export function canPreviewMaterial(material: Pick<Material, 'extension' | 'ready' | 'deleted'>): boolean {
+  return material.ready && !material.deleted && ['pdf', 'jpg', 'jpeg', 'png'].includes(material.extension);
+}
 const messages: Record<string, string> = {
   AUTH_REQUIRED: 'Tu sesión finalizó. Inicia sesión para continuar.',
   EMAIL_VERIFICATION_REQUIRED: 'Verifica tu correo para continuar.',
@@ -94,6 +112,9 @@ const messages: Record<string, string> = {
   FILE_REJECTED: 'El archivo no superó la revisión. Elegí otro PDF o DOCX.',
   FILE_TOO_LARGE: 'El plan puede pesar hasta 20 MB.',
   FILE_TYPE_NOT_ALLOWED: 'El plan debe ser un PDF o DOCX.',
+  MATERIAL_FILE_TOO_LARGE: 'El material puede pesar hasta 50 MB.',
+  MATERIAL_FILE_TYPE_NOT_ALLOWED: 'El material debe ser PDF, DOCX, PPTX, XLSX, JPG, JPEG, PNG o ZIP.',
+  MATERIAL_FILE_REJECTED: 'El archivo no superó la revisión de seguridad. Elige otro archivo permitido; este material no se publicó.',
 };
 export class ApiError extends Error {
   code: string;
@@ -185,10 +206,20 @@ export function createClassroomClient(options: {
     fileStatus: (id, signal) =>
       response<FileState>(`/files/${id}`, 'GET', undefined, signal),
     uploadClassroom: async (classroomId, file, purpose) => {
-      const started = await response<{ id: string }>('/files', 'POST', {
-        scope: { kind: 'classroom', id: classroomId }, purpose, name: file.name, bytes: file.size,
-      });
-      return response<FileState>(`/files/${started.id}/content`, 'PUT', file);
+      const material = purpose === 'material';
+      if (file.size > (material ? 50_000_000 : 20_000_000)) throw new ApiError(material ? 'MATERIAL_FILE_TOO_LARGE' : 'FILE_TOO_LARGE');
+      if (!(material ? /\.(pdf|docx|pptx|xlsx|jpg|jpeg|png|zip)$/i : /\.(pdf|docx)$/i).test(file.name))
+        throw new ApiError(material ? 'MATERIAL_FILE_TYPE_NOT_ALLOWED' : 'FILE_TYPE_NOT_ALLOWED');
+      try {
+        const started = await response<{ id: string }>('/files', 'POST', {
+          scope: { kind: 'classroom', id: classroomId }, purpose, name: file.name, bytes: file.size,
+        });
+        return await response<FileState>(`/files/${started.id}/content`, 'PUT', file);
+      } catch (error) {
+        if (material && error instanceof ApiError && ['FILE_TOO_LARGE', 'FILE_TYPE_NOT_ALLOWED', 'FILE_REJECTED'].includes(error.code))
+          throw new ApiError(`MATERIAL_${error.code}`, error.status, error.retryAfter);
+        throw error;
+      }
     },
     fileUrl: (id, preview = false) =>
       `${prefix}/files/${encodeURIComponent(id)}/content?mode=${preview ? 'preview' : 'download'}`,

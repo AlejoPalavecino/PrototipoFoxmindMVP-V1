@@ -8,6 +8,7 @@ import { IdentityRuntime } from '../identity/runtime.ts';
 import { FileService } from '../files/service.ts';
 import type { ClassroomRuntimeConfiguration } from './configuration.ts';
 import { ClassroomHostLifecycle, createIdentityClassroomAuthentication } from './host.ts';
+import { LibraryCleanupWorker } from './library-cleanup.ts';
 
 @Module({})
 export class ClassroomsModule {
@@ -24,9 +25,11 @@ export class ClassroomsModule {
         useFactory: (database: PrismaService) => new InvitationDeliveryWorker({
           database, key: configuration.deliveryKey, send: sender.send,
         }) },
+      { provide: LibraryCleanupWorker, inject: [PrismaService, FileService],
+        useFactory: (database: PrismaService, files: FileService) => new LibraryCleanupWorker(database, files.storage) },
       { provide: ClassroomHostLifecycle, inject: [InvitationDeliveryWorker],
         useFactory: (worker: InvitationDeliveryWorker) => new ClassroomHostLifecycle(worker, sender) },
-    ], exports: [InvitationService, ClassroomHostLifecycle] };
+    ], exports: [InvitationService, ClassroomHostLifecycle, LibraryCleanupWorker] };
   }
   static register(
     ports: ClassroomPorts,

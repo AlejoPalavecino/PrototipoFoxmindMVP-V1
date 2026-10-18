@@ -660,3 +660,10 @@
       transition: none !important;
     }
   }
+/* P6 Library extends the existing classroom surface and responsive controls. */
+.p6-library-upload, .p6-library-list article { border: 1px solid #deded4; border-radius: 16px; padding: 20px; margin-block: 20px; }
+.p6-library-list { display: grid; gap: 12px; }
+.p6-library-list article { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.p6-library-list small { display: block; margin-block: 8px; }
+.p6-library form fieldset { display: grid; gap: 12px; min-width: 0; }
+.p6-library .p5-actions { flex-wrap: wrap; }

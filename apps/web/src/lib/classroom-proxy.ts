@@ -14,6 +14,7 @@ const routes: Rule[] = [
   rule('/invitations', { GET: null }), rule(`/invitations/${uuid}/accept`, { POST: [] }),
   rule(`/${uuid}`, { GET: null }),
   rule(`/${uuid}/plan`, { POST: ['revision', 'operation'] }),
+  rule(`/${uuid}/library`, { GET: null, POST: ['revision', 'operation'] }),
   rule(`/${uuid}/settings`, { PATCH: ['revision', 'name', 'subject', 'division', 'academicYear'] }),
   rule(`/${uuid}/archive`, { POST: ['archived', 'revision'] }), rule(`/${uuid}/code`, { POST: [] }),
   rule(`/${uuid}/(?:members|history)`, { GET: null }), rule(`/${uuid}/members/${uuid}`, { GET: null }),

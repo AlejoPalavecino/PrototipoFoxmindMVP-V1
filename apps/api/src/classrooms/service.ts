@@ -1,1 +1,1 @@
-export { PlanService as ClassroomService } from './plan.ts';
+export { LibraryService as ClassroomService } from './library.ts';

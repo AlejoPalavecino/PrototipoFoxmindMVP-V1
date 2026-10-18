@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { ClassroomClient, Detail, Invitation, Member } from './api.ts';
 import { Cover, Dialog, Notice, initials } from './components.tsx';
 import { Plan } from './Plan.tsx';
+import { Library } from './Library.tsx';
 
 interface Summary {
   firstName: string;
@@ -156,6 +157,7 @@ export function ClassroomView({
               { key: 'members', label: teacher ? 'Alumnos' : 'Compañeros' },
               ...(teacher ? [{ key: 'history', label: 'Historial' }] : []),
               { key: 'plan', label: 'Plan' },
+              { key: 'library', label: 'Biblioteca' },
               ...(teacher ? [{ key: 'settings', label: 'Configuración' }] : []),
             ].map((item) => (
               <button
@@ -394,6 +396,7 @@ export function ClassroomView({
               </>
             ) : null}
             {tab === 'plan' ? <Plan api={api} room={room} reload={load} /> : null}
+            {tab === 'library' ? <Library api={api} room={room} reload={load} /> : null}
             {tab === 'settings' && teacher ? (
               <>
                 <h2>Configuración del aula</h2>
