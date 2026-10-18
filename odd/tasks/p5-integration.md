@@ -12,12 +12,12 @@ P5 source `9a91ad6115ce219e34cf95ab912c0c5e27466523` / implementation `f3263e5`,
 
 ## Tasks
 
-- T1 | S1,S3 | inline: Engram repair, preserve baseline and import/reconcile P5; parent owns Git/manifests/migrations | completed; merge commit pending | Engram save1/read1; import/conflicts reconciled; lock35direct0problems; migrations7/drift0 | Risk: items1,5
-- T2 | S1 | delegated backend unit; parallel with independent web unit/disjoint surfaces | completed; independent acceptance passed | real security/config/module/mail lifecycle; RED2+targetedRED1→32PASS/build0 | Risk: items1,2,3,4,5
-- T3 | S1 | delegated web unit; parallel with backend/disjoint surfaces | completed; independent acceptance passed | Next/session/proxy/client/routes/styles/navigation;29PASS/3conditionalbrowserSKIP/types0 | Risk: items2,3
-- T4 | S1,S2 | parent inline owned integration harness; delegated long execution | completed; own/independent acceptance passed | latestcombined9real+16controlledPASS;legacyP546/P49/P3browser10PASS;cleanup0 | Risk: items1,2,3,4,5
-- T5 | S1–S4 | delegated fresh independent Verify Sol/xhigh after own checks | completed after one bounded correction/targeted independent recheck | initial four commands/upgrade PASS; Unicode blocker corrected; fresh targeted4PASS + original repro PASS | Risk: items1–5
-- T6 | S2,S3 | inline: reconcile checkpoint, work-unit commits, main merge/push and actual remote confirmation | in_progress; local acceptance complete | no publication before accepted proof | Risk: none for passive metadata; human-authorized delivery
+- T1 | S1,S3 | inline: Engram repair, preserve baseline and import/reconcile P5; parent owns Git/manifests/migrations | completed; merge677f1c8 | Engram save1/read1; import/conflicts reconciled; lock35direct0problems; migrations7/drift0 | Risk: items1,5
+- T2 | S1 | delegated backend unit; parallel with independent web unit/disjoint surfaces | completed; merge677f1c8/independent accepted | real security/config/module/mail lifecycle; RED2+targetedRED1→32PASS/build0 | Risk: items1,2,3,4,5
+- T3 | S1 | delegated web unit; parallel with backend/disjoint surfaces | completed; merge677f1c8/independent accepted | Next/session/proxy/client/routes/styles/navigation;29PASS/3conditionalbrowserSKIP/types0 | Risk: items2,3
+- T4 | S1,S2 | parent inline owned integration harness; delegated long execution | completed; merge677f1c8/own+independent accepted | latestcombined13real+16controlledPASS;legacyP546/P49/P3browser10PASS;cleanup0 | Risk: items1,2,3,4,5
+- T5 | S1–S4 | delegated fresh independent Verify Sol/xhigh after own checks | completed; merge677f1c8/one bounded correction+targeted independent recheck | initial four commands/upgrade PASS; Unicode blocker corrected; fresh targeted4PASS + original repro PASS | Risk: items1–5
+- T6 | S2,S3 | inline: reconcile checkpoint, work-unit commits, main merge/push and actual remote confirmation | completed; merge677f1c8 pushed/remote confirmed | fresh fetch main==origin1a70101,ff-only/no-force,ls-remote677f1c8 | Risk: none for passive metadata; human-authorized delivery
 
 ## Log
 
@@ -48,3 +48,5 @@ P5 source `9a91ad6115ce219e34cf95ab912c0c5e27466523` / implementation `f3263e5`,
 - L21: Independent targetedrecheck/root/p5_verify_final Sol/xhigh on correctedtree112cc1875e68231ac264fd5e739cb196c7ad100a PASS: freshAPI/Nextbuild0,newactualinternational4PASS and unchangedoriginalreproexit0/formerlyfailed; pendingvisible/accept200/onemembership. Allownedcleanup0/exactresourceinventory0, no repositorywrites. S1/S3/S4satisfied,S2localprerequisitesatisfied; prior nonaffected independentproofretained. Parentfinalcontrols8PASS/frozentreeunchanged. CloseT5; onlypassiveclosure/GitpublicationT6remain. No nativeapproval/offglobal.
 
 - L22: OwnedOSscratch deletion command rejected byexecutionpolicy beforelaunch; no deletion/workaround. Fournewownedrootsretained; actualfixtureprocess/Docker/SQLcleanup0 remainsdistinct. No retainedforeign/devresources touched. Preserve cleanupunavailable limitation inhandoff; accepted functionalproofunchanged.
+
+- L23: Observed merge677f1c8e1d85869de56e21ac7e00bfd4d448ad30 with parents80cb428+9a91ad6, preserving12isolatedP5commits/P3/P4ancestry. Functional paths unchanged from correctedfrozen112cc187. Freshfetchmain==origin1a70101/divergence0, clean managedcheckout switchedmain/ff-only codex/p5-integration/pushoriginmain:main exit0. Actual ls-remote confirmed677f1c8 fullSHAequalslocalHEAD. T1–T6completed; passivefinalpublicationrecord follows, no functionalmutation. OriginaldirtycheckoutHEAD5e86d1e preserved. Nativeoff/global; noP6+.

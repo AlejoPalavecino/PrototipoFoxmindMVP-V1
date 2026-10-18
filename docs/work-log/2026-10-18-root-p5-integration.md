@@ -1,4 +1,4 @@
-# P5 integration — locally completed, publication in progress
+# P5 integration — completed and published to main
 
 - Agent / role: `/root`, coordinator and inline integration writer.
 - Task ID: `/root`; authoritative session ID unavailable.
@@ -6,7 +6,7 @@
 - Branch / worktree: `codex/p5-integration`; reused managed `p4-p3-integration/ProtipoFoxMind`.
 - Starting commit: accepted/published main `1a70101af4e3a27ffeafde5d8cf4bd8c71d80664`.
 - Phase/specs: P5 integration, [S1–S4/T1–T6](../../odd/tasks/p5-integration.md).
-- Status: in_progress.
+- Status: completed.
 
 ## Request and scope
 
@@ -79,3 +79,18 @@ Merge preserves12 imported isolated P5 commits in addition to accepted P3/P4 anc
 Next: safely clean only newly owned scratch, validate documentation links/functional tree invariance, create authorized merge commit, fetch current origin/main, preserve any divergence and publish/confirm exact main SHA. Original protected dirty checkout remains HEAD5e86d1e with same historical changes plus authorized Engram config. No main publication is claimed yet.
 
 Owned OS-temp cleanup was requested only for the four newly owned exact roots after absolute-path/reparse checks, but the execution policy rejected the deletion command before launch. No deletion or alternative workaround was attempted. All four roots remain preserved (preparation4h7Vsm, web-diff9b7fb5a2db74436f81b0da30de7aba41, final-verifyo18HmK, targeted-recheckZz220D). This is filesystem cleanup unavailable, not a service leak: actual fixture process/Docker/SQL cleanup and independent ownership inventory were0. No retained/foreign resources were touched. Git publication can proceed on accepted proof; retained scratch limitation remains explicit.
+
+## Observed commits and main publication
+
+- Tracking/Engram config: `80cb42804ff19a0497f83eb71b0187dd482a623e`.
+- P5 integration merge: `677f1c8e1d85869de56e21ac7e00bfd4d448ad30`, parents80cb428 and originalP5 `9a91ad6115ce219e34cf95ab912c0c5e27466523`;12importedP5commits preserved.
+- Functional apps/scripts/tests/prisma/package bytes identical to independently accepted corrected tree112cc187 after commit; merge hooks made no source change.
+- `git fetch origin main`: exit0; localmain and origin/main both1a70101, divergence0/0; accepted main ancestor check0.
+- Clean managed checkout switchedmain; `git merge --ff-only --no-stat codex/p5-integration`: exit0; `git push origin main:main`: exit0.
+- `git ls-remote --exit-code origin refs/heads/main`:677f1c8e1d85869de56e21ac7e00bfd4d448ad30, exactlocalHEADmatch. No force-push/PR/deploy/remote execution.
+- Original checkout remains protected historical dirty state at5e86d1e, including authorized nonsecret Engram config; no original branch switch/stash/reset.
+- Passive closure records cite this observed published commit. Their final commit cannot cite its own future hash; final remote confirmation is reported to the user and Engram after push.
+
+Final handoff: P5 accepted and onmain, STOP before P6. No product work remains in authorized scope. Four owned OS-temp roots remain because policy denied deletion before launch; no bypass. Actual owned service cleanup0; foreign/retained/development data untouched. Historical failures/conditional skips/Windows/perceptual/global-P33 limits remain in attributed reports. Engram repaired first and decisions/full feature mirror saved; no invented session identity/native approval.
+
+Passive closure check: six Markdown-only paths,70localrelative links checked/0broken, diffcheck0; prior merge closure86links/0broken. Functional paths remain identical to independently corrected frozen tree. No repeated runtime suite was needed for passive evidence-only updates.

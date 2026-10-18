@@ -49,3 +49,5 @@ Same independent `/root/p5_verify_final`, Sol/xhigh, new exact-index OS-temp cop
 S1 satisfied by prior independent nonaffected proof plus targeted correction; S2 local proof prerequisite satisfied, actual publication remains coordinator work; S3/S4 satisfied. No reported blocker remains. No second full sweep/native review or invented PASS. Parent final spot check controls8PASS/0skip and corrected frozen index unchanged. Risk:item2 for correction, items1–5 for integrated feature. Native off/global, disabled/unmanaged; functional verification is not native approval.
 
 Coordinator cleanup disposition: deletion of the four newly owned OS-temp roots was rejected before process launch. They remain preserved; no bypass/retry. This does not change the reported process/Docker/SQL cleanup0. See coordinator record for exact roots.
+
+Coordinator delivery update: independently accepted functional bytes are held by merge677f1c8, pushed to main and exact remote ref confirmed. This is coordinator publication evidence, not a verifier remote operation. See [delivery record](2026-10-18-root-p5-integration.md#observed-commits-and-main-publication).

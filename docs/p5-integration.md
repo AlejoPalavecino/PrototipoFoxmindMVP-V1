@@ -1,6 +1,6 @@
 # P5 integration with accepted identity and private files
 
-P5 classroom behavior is connected to accepted P3 sessions and P4 custody in the actual API/Next application. Local acceptance passed fresh independent verification and one bounded international-mailbox correction/recheck; main publication is tracked separately. [Tasks](../odd/tasks/p5-integration.md), [coordinator](work-log/2026-10-18-root-p5-integration.md), [backend configuration](p5-host.md), [web composition](p5-web.md).
+P5 classroom behavior is connected to accepted P3 sessions and P4 custody in the actual API/Next application. Local acceptance passed fresh independent verification and one bounded international-mailbox correction/recheck; merge677f1c8 is published to main with exact remote confirmation in the coordinator record. [Tasks](../odd/tasks/p5-integration.md), [coordinator](work-log/2026-10-18-root-p5-integration.md), [backend configuration](p5-host.md), [web composition](p5-web.md).
 
 ## Local verification
 
@@ -28,3 +28,7 @@ Invitation matching uses transaction-local parameterized PostgreSQL `lower(text)
 ## Observed acceptance
 
 [Independent proof](work-log/2026-10-18-p5-verify-final.md): original combined9real+16controlled, isolated46, P49, P3browser10; actual six-to-seven migration upgrade preserved34oldtables; audit0/35direct/707lockedges0problems. The sole matching blocker was corrected and fresh targeted4PASS/original reproPASS. Own corrected combined13real+16controlled and focused42PASS, parentcontrols8PASS; all reported owned cleanup0. Controlled UI cases are not counted as real identity journeys. Historical failed preparation and P3 baseline timing advisory remain attributed; no native approval or production readiness is claimed. No P6+ implementation/deployment.
+
+## Delivery and retained limitations
+
+[Merge/publication record](work-log/2026-10-18-root-p5-integration.md#observed-commits-and-main-publication): merge677f1c8 preserves12P5commits and accepted main ancestry; fast-forward/no-force push and actual remote ref equality observed. Original dirty checkout preserved; no P6+ work/deployment. Four newly owned OS-temp roots remain because deletion was rejected before launch, while actual fixture process/Docker/SQL cleanup was0. No deletion workaround was attempted.
