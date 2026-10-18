@@ -1,4 +1,4 @@
-# P3 + P4 main publication — in progress
+# P3 + P4 main publication — completed
 
 - Agent / role: `/root`, coordinator and Git delivery operator.
 - Task ID: `/root`; authoritative session ID unavailable.
@@ -6,7 +6,7 @@
 - Starting branch / worktree: `codex/p4-p3-integration`, managed integration worktree.
 - Starting commit: `b75b969`; verified integration merge `d22c522`.
 - Phase/specs: P4 delivery, [integration S1–S6](../../odd/tasks/p4-p3-integration.md).
-- Status: in_progress.
+- Status: completed; first remote confirmation observed, passive confirmation metadata follows.
 
 ## Request and scope
 
@@ -25,3 +25,10 @@ Record authorization, commit passive metadata, switch only this clean integratio
 Publication not yet observed. Next action: fast-forward local main and perform the authorized push, then record actual remote confirmation. Stop before P5.
 
 Risk: none for source behavior; Git publication is explicitly human-authorized delivery, not new functional implementation or native review consent.
+
+
+## Observed publication
+
+Authorization metadata commit `299cfe926e8bf1d9ac5e9d6bab869f339af07ca3` was created after verified integration `d22c522` and closure `b75b969`. `git switch main` affected only the clean managed integration worktree. `git merge --ff-only codex/p4-p3-integration` advanced local main without conflicts; `git push origin main:main` succeeded without force. `git ls-remote --exit-code origin refs/heads/main` then returned exactly299cfe926e8bf1d9ac5e9d6bab869f339af07ca3. This is actual remote confirmation, not an inferred push.
+
+The final passive confirmation commit updates this record and current checkpoint, then is pushed and checked against remote main again. Its identity is reported from Git after creation, not invented inside itself. No application source changed, no functional suites repeated for passive delivery metadata, no PR/deployment/branch deletion or P5 integration. Original checkout protected dirty files remain untouched. Next product action: STOP before P5 until separately authorized.

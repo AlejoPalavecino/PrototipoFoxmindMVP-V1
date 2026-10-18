@@ -28,3 +28,5 @@ Historical isolated68PASS and prior native receipts remain evidence for their ex
 The user authorized a90second outer budget only for the runner's policy/adapters/content/configuration group. The fresh API build still has its30second limit; scanner, parser, transfer and application operation budgets are unchanged.
 
 Local integration merge: `d22c5224d755d1d4b9f0bf69dfa55b5a23626036` on `codex/p4-p3-integration`, with accepted P3 and isolated P4 as parents. This is not a push or a merge into the original dirty P3 checkout. Stop before P5 until separately authorized.
+
+Publication update2026-10-18: user explicitly authorized P3+P4 main delivery via configured origin HTTPS credential. Fast-forward and push succeeded; remote main was confirmed at299cfe9. [Delivery record](work-log/2026-10-18-root-p4-main-publication.md). Original dirty checkout remains preserved; no P5 integration or deployment.
