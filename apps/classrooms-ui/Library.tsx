@@ -14,11 +14,11 @@ function MaterialForm({ room, initial, busy, label, onSave }: {
     <fieldset disabled={busy}>
       <legend>{label}</legend>
       <label>Nombre del material<input required maxLength={200} value={title} onChange={event => setTitle(event.target.value)} /></label>
-      <label>Unidad del material<select value={unitId} onChange={event => { setUnit(event.target.value); setTopic(''); }}>
+      <label>Unidad del material<select aria-label="Unidad del material" value={unitId} onChange={event => { setUnit(event.target.value); setTopic(''); }}>
         <option value="">Material extra / recomendado</option>
         {room.units.map(unit => <option key={unit.id} value={unit.id}>{unit.name}</option>)}
       </select></label>
-      <label>Tema del material<select value={topicId} disabled={!unitId} onChange={event => setTopic(event.target.value)}>
+      <label>Tema del material<select aria-label="Tema del material" value={topicId} disabled={!unitId} onChange={event => setTopic(event.target.value)}>
         <option value="">Sin tema específico</option>
         {topics.map(topic => <option key={topic.id} value={topic.id}>{topic.name}</option>)}
       </select></label>

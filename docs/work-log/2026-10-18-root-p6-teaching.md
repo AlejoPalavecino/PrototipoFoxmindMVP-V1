@@ -37,3 +37,6 @@ Plancommit694cab7/own7+24passed; Librarycommit562650c/own12+54passed, finalaccep
 ## T3 scoped disposition
 Writer focused18PASS/build0/types0; final inherited42PASS/1FAIL retained. Fresh bounded diagnostic baseline/current1PASS each, no cause established; see attributed p6-proxy-diagnostic record. Parent clientspotcheck3PASS. Source unit accepted only for feature branch; full actual integration and final independent proof pending, no main publication. Nativeoff/global. Parent owns new P6 real harness, syntax-only so far.
 
+
+## T4 own proof and final freeze preparation
+T3commitb38f8e0; scannerLFfix9b722eb, no securityfreshnessweakening. Attributedowncheck record containsallprep/assertionfailures, boundeddiagnoses andexactcorrections. ActualPlan5leaf/6TAP, Library4/5, Wall6/7PASS; newPlan375/320alsoPASS. P5integrated13real+16controlled, isolated37+9, P4integration9/P3browser10allPASS, cleanup0. ParentreadactualLibrary/Wall320screens, Plan320also visuallyreadback (wrappedcontrols/contents). NewactualharnessplusLibraryaria-labelcorrection readycoherentcommit; highriskretained. FinalfreshindependentSol/xhighwholefeatureandbaselineupgrade7to8pending; no mainmerge/publication.

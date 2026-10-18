@@ -15,7 +15,7 @@ Runner: Node/API/production Next/owned PostgreSQL/S3/ClamAV/Mailpit/browser. For
 - T1 | S1,S3 | inline (no writer trigger): Plan API/UI/versions/manualstates/deletion + regression tests/docs | implemented; final integrated acceptance pending | commit694cab7 | Risk:items1,2,3,4
 - T2 | S1,S3 | delegated afterT1: context-backstop fresh bounded Library lifecycle/API/UI/files unit | implemented; integrated acceptance pending | commit562650c | Risk:items1,2,3,4
 - T3 | S1,S3 | delegated afterT2: context-backstop fresh coherent Muro+P6notifications/API/UI+tests/docs unit | implemented; integrated acceptance pending; inherited broad failure retained with targeted disposition | commitb38f8e0 | Risk:items1,2,3,4
-- T4 | S1,S4 | inline real integratedharness; delegate long own execution | in_progress | actual P3/P4/P5 regression+P6browser/API/SQL/files/persistence/upgrade | Risk:items1–5 as applicable
+- T4 | S1,S4 | inline real integratedharness; delegate long own execution | own checks passed; independent acceptance pending | actual P3/P4/P5 regression+P6browser/API/SQL/files/persistence/upgrade | Risk:items1–5 as applicable
 - T5 | S1–S4 | delegated independent Verify Sol/xhigh after own checks; named security/data/concurrency risks | pending | whole-feature/freshOSscratch/proof then one bounded correction if needed | Risk:items1–4
 - T6 | S3,S4 | inline passiveclosure/merge/push/exactremoteconfirmation | pending | no publication before accepted proof | Risk:none for passive metadata
 
@@ -39,3 +39,11 @@ Runner: Node/API/production Next/owned PostgreSQL/S3/ClamAV/Mailpit/browser. For
 
 - L10: First own actualrunner freshAPI/NextPASS but fixtureinspectfailedbeforeproduct0PASS1FAIL; othergroupsunrun. Diagnosticprovedscannerexit1/configMaxAttemptsCRLFparsefail. Narroweol=lfGit rule+worktreeLF, focusedRED→scanner-start4PASS withalloldfreshnessmodes; no freshness/deadlinechange. Attributedownrecordretainsoriginalfailure. T3actualcommitb38f8e0. Next rerun actualrunnerafterconfirmedformatfix.
 
+
+- L11: ActualPlan fourleafPASS but finalhome failed; instrumentedrun proved drafts/invitations429/RetryAfter46 while session/notifs/list200. Added explicitnewharness admissionpacing fromactualserverRetryAfter andoneexistingvisibleUIretry/all200required; no product/rate/deadlinechange. Failedrunsremainattributed, finalacceptancepending.
+
+
+- L12: OwncheckedPlan5/6PASS, Library4/5PASS, Wall6/7PASS (leaf/TAP) onseparateexactruns; affectedP5integrated13real+16controlled, isolated37+9, P4integration9, P3browser10allPASS/cleanup0. Historicalrunnerfailuresretained/notglobalPASS. ParentLibrary320/Wall320imagesreadback; addPlan375/320capturechecks thenownPlanoncebeforefreeze. Libraryexplicitselectlabels ownactualGREEN, overwriteexact403alignedexistingpolicy. Finalindependentwholefeature/upgradeproofpending.
+
+
+- L13: FinalownPlan375/320responsiveprobe5leaf6TAPPASS/cleanup0; no deadlinesorpolicychanged. Parentfreezesharness+Librarylabelcorrection afteractualscreensreadback, thenfreshindependentSol/xhighwholefeature includingbaseline7to8 proof. No nativeSTART/offglobalunchanged.

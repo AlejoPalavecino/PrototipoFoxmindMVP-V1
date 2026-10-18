@@ -37,7 +37,8 @@
     "test:web": "node --test tests/p3-web-client.test.mjs tests/p3-web-proxy.test.mjs",
     "test:p3:browser": "node scripts/test-p3-browser.mjs",
     "test:p4:integration": "node scripts/test-p4-integration.mjs",
-    "test:p5:integration": "node scripts/test-p5-integration.mjs"
+    "test:p5:integration": "node scripts/test-p5-integration.mjs",
+    "test:p6:integration": "node scripts/test-p6-integration.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1152.0",
