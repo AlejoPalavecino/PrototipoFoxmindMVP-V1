@@ -47,3 +47,9 @@ Runner: Node/API/production Next/owned PostgreSQL/S3/ClamAV/Mailpit/browser. For
 
 
 - L13: FinalownPlan375/320responsiveprobe5leaf6TAPPASS/cleanup0; no deadlinesorpolicychanged. Parentfreezesharness+Librarylabelcorrection afteractualscreensreadback, thenfreshindependentSol/xhighwholefeature includingbaseline7to8 proof. No nativeSTART/offglobalunchanged.
+
+- L14: Frozen3b1aef9 independentfullsweepruntimeP618TAP/regressions/focused68/upgrade7to8all34tables45rows/differential18CLI+8clientpassed. InitialmonolithicAPI30unavailable retained; archiveCRLF-only/3passivePNGpathlimitations mean notexactbyteclaim. B1mobileactiveMurotaboutside320nav confirmed. Onecorrectionbatchaddsselectednavreveal+ResizeObserver andactualmobile/reflowregression(ownRED1), preservesdesign/policies. Bothtypes0; ownfocusedGREENthenexactGitblobtargetedrecheckpending. S1/S2notclosedyet.
+
+
+- L15: B1correctionownGREEN: freshNext0/mobile1PASS, actualP5integration9TAP+controlled16PASS, types0, cleanup0. Existinghorizontalnavnowrevealsselectedtab at320→375→1280→320. FreezeboundedcorrectionthenoneindependenttargetedB1+exactUTF8Gitblobisolationaudit. Notanotherfullsweep; initialAPIunavailable/archivepreplimitationsretainexplicitstatus.
+

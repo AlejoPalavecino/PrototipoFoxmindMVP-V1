@@ -14,6 +14,7 @@ if (args.length === 1 && args[0] === '--help') {
     ...['plan', 'library', 'wall'].map(unit => [
       ['--test', '--test-isolation=none', '--test-concurrency=1', `tests/p6-${unit}-integration.test.mjs`], 360000,
     ]),
+    [['--test', '--test-isolation=none', '--test-concurrency=1', 'tests/p6-mobile-navigation.test.mjs'], 180000],
   ];
   for (const [command, timeout] of steps) {
     if (process.exitCode) break;

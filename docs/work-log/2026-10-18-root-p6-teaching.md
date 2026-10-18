@@ -40,3 +40,7 @@ Writer focused18PASS/build0/types0; final inherited42PASS/1FAIL retained. Fresh 
 
 ## T4 own proof and final freeze preparation
 T3commitb38f8e0; scannerLFfix9b722eb, no securityfreshnessweakening. Attributedowncheck record containsallprep/assertionfailures, boundeddiagnoses andexactcorrections. ActualPlan5leaf/6TAP, Library4/5, Wall6/7PASS; newPlan375/320alsoPASS. P5integrated13real+16controlled, isolated37+9, P4integration9/P3browser10allPASS, cleanup0. ParentreadactualLibrary/Wall320screens, Plan320also visuallyreadback (wrappedcontrols/contents). NewactualharnessplusLibraryaria-labelcorrection readycoherentcommit; highriskretained. FinalfreshindependentSol/xhighwholefeatureandbaselineupgrade7to8pending; no mainmerge/publication.
+
+## Independent bounded correction B1
+FreshindependentSol/xhighfoundactual320notification→Muroactive-tabinvisible, documentoverflowchecksinsufficient. Fullattributedrecordp6-verify-final.md preservessuccessfulruntime/regressions/upgrade/differentials andinitialAPIbudget/snapshotlimitations. Parentcommitted-probe-equivalentactualnewtestobservedRED1(30swaitForFunction, cleanup0). Addedlocalnavref/effect+ResizeObserver to revealonlyselectedtab within existinghorizontalnav onselection/notification/reflow; nofocus/verticalscroll/auth/datachange. Bothstricttypes0. OwnNext+focusedmobile+existingcontrolledUIsuitependingthenoneindependenttargetedexactGitblobrecheck, no newfullsweep.
+

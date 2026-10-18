@@ -17,3 +17,5 @@ Own meaningful Plan RED7 missing changePlan then fresh APIbuild0/GREEN7 with own
 ## Complete P6 guides and local proof
 
 See [Library](p6-library.md), [Muro and notifications](p6-muro.md), [own checks](work-log/2026-10-18-p6-own-checks.md). Run `npm run test:p6:integration` for fresh API/production Next builds and real Plan/Library/Muro journeys in disposable services. `--help` has no fixture side effects. The new runner retains API30s/Next180s and gives each real P6 journey330s with child360s; no P7 authoring. Tests honor actual server Retry-After once through the existing visible retry control instead of disabling rate admission. Linux-mounted FreshClam configuration is pinned to LF, preserving security freshness.
+
+The runner also includes the120s mobile notification/reflow regression (180s child), retaining selected-tab visibility in the existing horizontally scrollable navigation.

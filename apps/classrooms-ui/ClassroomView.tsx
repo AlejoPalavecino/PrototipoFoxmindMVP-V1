@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { ClassroomClient, Detail, Invitation, Member, WallTarget } from './api.ts';
 import { Cover, Dialog, Notice, initials } from './components.tsx';
 import { Plan } from './Plan.tsx';
@@ -41,6 +41,7 @@ export function ClassroomView({
     [error, setError] = useState(''),
     [notice, setNotice] = useState(''),
     [busy, setBusy] = useState(false);
+  const tabs = useRef<HTMLElement>(null);
   const [code, setCode] = useState(initialCode),
     [email, setEmail] = useState(''),
     [inviting, setInviting] = useState(false),
@@ -100,6 +101,21 @@ export function ClassroomView({
     return () => controller.abort();
   }, [load]);
   useEffect(() => { if (wallTarget) setTab('wall'); }, [wallTarget]);
+  useEffect(() => {
+    const nav = tabs.current;
+    if (!nav) return;
+    const reveal = () => {
+      const active = nav.querySelector<HTMLElement>('[aria-current="page"]');
+      if (!active) return;
+      const bounds = nav.getBoundingClientRect(), selected = active.getBoundingClientRect();
+      if (selected.left < bounds.left) nav.scrollLeft += Math.floor(selected.left - bounds.left);
+      else if (selected.right > bounds.right) nav.scrollLeft += Math.ceil(selected.right - bounds.right);
+    };
+    reveal();
+    const observer = new ResizeObserver(reveal);
+    observer.observe(nav);
+    return () => observer.disconnect();
+  }, [tab, room?.id, room?.role, wallTarget]);
   async function action(task: () => Promise<void>) {
     setBusy(true);
     setError('');
@@ -158,7 +174,7 @@ export function ClassroomView({
             </Notice>
           ) : null}
           {notice ? <Notice>{notice}</Notice> : null}
-          <nav className="p5-tabs" aria-label="Secciones del aula">
+          <nav ref={tabs} className="p5-tabs" aria-label="Secciones del aula">
             {[
               { key: 'members', label: teacher ? 'Alumnos' : 'Compañeros' },
               ...(teacher ? [{ key: 'history', label: 'Historial' }] : []),
