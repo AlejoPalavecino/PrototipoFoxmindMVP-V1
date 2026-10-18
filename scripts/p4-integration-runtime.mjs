@@ -1,5 +1,6 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { createServer } from 'node:net';
+import { randomBytes } from 'node:crypto';
 import { readdirSync } from 'node:fs';
 import { setTimeout as delay } from 'node:timers/promises';
 import pg from 'pg';
@@ -21,8 +22,8 @@ function ownedDocker(runtime, action, name) {
   if (result.status !== 0) throw new Error(`Owned integration ${action} unavailable`);
 }
 
-/** Real P3 authentication plus P4 services; no synthetic authenticated sessions or P5 implementation. */
-export async function withP4IntegrationRuntime(callback) {
+/** Real persisted P3 identity plus owned private services; optional integrated classrooms. */
+export async function withP4IntegrationRuntime(callback, { classrooms = false } = {}) {
   return withP4Services(async runtime => {
     let db, api, web;
     const paused = new Set();
@@ -30,7 +31,7 @@ export async function withP4IntegrationRuntime(callback) {
       db = new pg.Client({ connectionString: runtime.databaseUrl, connectionTimeoutMillis: 2000, query_timeout: 5000 });
       await db.connect();
       const migrations = readdirSync('prisma/migrations').filter(name => /^\d+_/.test(name)).sort();
-      if (migrations.length !== 6) throw new Error('Unexpected combined migration inventory');
+      if (migrations.length !== 7) throw new Error('Unexpected combined migration inventory');
       const prisma = command => {
         const result = spawnSync(process.execPath, ['node_modules/prisma/build/index.js', ...command], {
           env: { ...process.env, DATABASE_URL: runtime.databaseUrl }, encoding: 'utf8', windowsHide: true, timeout: 60000,
@@ -50,7 +51,10 @@ export async function withP4IntegrationRuntime(callback) {
           APP_ORIGIN: origin, MAIL_SMTP_PORT: String(smtpPort), FILES_ENABLED: '1', FILES_S3_ENDPOINT: infra.endpoint,
           FILES_S3_REGION: infra.region, FILES_S3_BUCKET: infra.bucket, FILES_S3_ACCESS_KEY_ID: infra.accessKeyId,
           FILES_S3_SECRET_ACCESS_KEY: infra.secretAccessKey, FILES_SCANNER_HOST: infra.scannerHost,
-          FILES_SCANNER_PORT: String(infra.scannerPort), FILES_DRAFT_QUOTA_BYTES: '500000' });
+          FILES_SCANNER_PORT: String(infra.scannerPort), FILES_DRAFT_QUOTA_BYTES: '500000',
+          ...(classrooms ? { CLASSROOMS_ENABLED: '1', CLASSROOMS_QUOTA_BYTES: '100000000',
+            CLASSROOMS_SIGNING_KEY: randomBytes(32).toString('base64url'),
+            CLASSROOMS_DELIVERY_KEY: randomBytes(32).toString('base64url') } : {}) });
         api = await createApplication(configuration); await api.listen(0, '127.0.0.1');
         const apiPort = api.getHttpServer().address().port;
         web = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'start', 'apps/web', '--hostname', '127.0.0.1', '--port', String(port)], {
@@ -68,6 +72,11 @@ export async function withP4IntegrationRuntime(callback) {
         }
         if (!ready) throw new Error('Owned integration web readiness unavailable');
         return await callback({ origin, inbox: httpOrigin, get db() { return db; }, migrations,
+          async stopInvitationDelivery() {
+            if (!classrooms) throw new Error('Classroom host not enabled');
+            const { InvitationDeliveryWorker } = await import('../.build/api/apps/api/src/classrooms/delivery.js');
+            await api.get(InvitationDeliveryWorker).onModuleDestroy();
+          },
           async restartApi() { await api.close(); api = undefined; api = await createApplication(configuration); await api.listen(apiPort, '127.0.0.1'); },
           async restartData() {
             await api.close(); api = undefined; await db.end(); db = undefined;

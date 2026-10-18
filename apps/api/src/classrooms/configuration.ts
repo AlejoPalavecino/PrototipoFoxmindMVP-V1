@@ -1,0 +1,32 @@
+import { ClassroomError } from './policy.ts';
+
+export interface ClassroomRuntimeConfiguration {
+  readonly classroomQuotaBytes: bigint;
+  readonly signingKey: Buffer;
+  readonly deliveryKey: Buffer;
+  readonly webOrigin: string;
+}
+function invalid(): never { throw new ClassroomError('SERVICE_UNAVAILABLE'); }
+function key(raw: string | undefined): Buffer {
+  if (!raw || !/^[A-Za-z0-9_-]{43}$/.test(raw)) return invalid();
+  const value = Buffer.from(raw, 'base64url');
+  if (value.length !== 32 || value.toString('base64url') !== raw || value.every(byte => byte === value[0])) return invalid();
+  return value;
+}
+
+/** Disabled by absence. No implicit production quota, generated restart keys or independent origin. */
+export function readClassroomsConfiguration(env: Readonly<Record<string, string | undefined>>,
+  webOrigin: string): ClassroomRuntimeConfiguration | undefined {
+  if (env.CLASSROOMS_ENABLED === undefined) return undefined;
+  if (env.CLASSROOMS_ENABLED !== '1') return invalid();
+  const quota = env.CLASSROOMS_QUOTA_BYTES;
+  if (!quota || !/^[1-9][0-9]{0,18}$/.test(quota) || BigInt(quota) > 9223372036854775807n) return invalid();
+  try {
+    const origin = new URL(webOrigin);
+    if (origin.origin !== webOrigin || origin.username || origin.password ||
+      !(origin.protocol === 'https:' || (origin.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(origin.hostname)))) return invalid();
+  } catch { return invalid(); }
+  const signingKey = key(env.CLASSROOMS_SIGNING_KEY), deliveryKey = key(env.CLASSROOMS_DELIVERY_KEY);
+  if (signingKey.equals(deliveryKey)) return invalid();
+  return Object.freeze({ classroomQuotaBytes: BigInt(quota), signingKey, deliveryKey, webOrigin });
+}

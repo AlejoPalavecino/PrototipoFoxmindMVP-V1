@@ -1,11 +1,13 @@
 import { readIdentityRuntimeConfiguration, type IdentityRuntimeConfiguration } from './identity/configuration.ts';
 import { readFilesConfiguration, type FileRuntimeConfiguration } from './files/configuration.ts';
+import { readClassroomsConfiguration, type ClassroomRuntimeConfiguration } from './classrooms/configuration.ts';
 
 export interface ApiConfiguration {
   readonly databaseUrl: string;
   readonly port: number;
   readonly identity: IdentityRuntimeConfiguration;
   readonly files?: FileRuntimeConfiguration;
+  readonly classrooms?: ClassroomRuntimeConfiguration;
 }
 
 export class ConfigurationError extends Error {}
@@ -25,5 +27,7 @@ export function readConfiguration(environment: NodeJS.ProcessEnv = process.env):
   }
   const files = readFilesConfiguration(environment);
   const configuration = { databaseUrl, port: Number(rawPort), identity: readIdentityRuntimeConfiguration(environment) };
-  return files ? { ...configuration, files } : configuration;
+  const classrooms = readClassroomsConfiguration(environment, configuration.identity.security.origin);
+  if (classrooms && !files) throw new ConfigurationError('Invalid configuration: classrooms require private files.');
+  return { ...configuration, ...(files ? { files } : {}), ...(classrooms ? { classrooms } : {}) };
 }

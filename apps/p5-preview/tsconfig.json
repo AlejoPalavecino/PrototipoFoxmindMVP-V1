@@ -1,0 +1,1 @@
+{"extends":"../classrooms-ui/tsconfig.json","include":["./*.tsx","../classrooms-ui/*.tsx","../classrooms-ui/*.ts"]}

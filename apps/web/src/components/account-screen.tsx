@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { AccountError, createAccountClient, validateAccountFields, type AccountSession, type AccountUser } from '../lib/account-client';
+import { classroomAuthHref, classroomDestination } from '../lib/classroom-client';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -53,6 +54,23 @@ export function AccountScreen({ view }: { view: AccountView }) {
   const locked = busy || waitSeconds > 0 || loading;
   const user = session?.authenticated ? session.user : undefined;
   const verified = Boolean(user?.emailVerified);
+  const [classroomNext, setClassroomNext] = useState<string | null>(null);
+  useEffect(() => {
+    if (!router.isReady) return;
+    const requested = classroomDestination(router.query.next);
+    // The remembered value is only a bounded local classroom path, never proof
+    // or identity. It survives reopening a verification email in this tab.
+    try {
+      if (requested) {
+        sessionStorage.setItem('foxmind-classroom-next', JSON.stringify({ path: requested, expires: Date.now() + 30 * 60_000 }));
+        setClassroomNext(requested);
+      } else if (view === 'verify-email') {
+        const saved = JSON.parse(sessionStorage.getItem('foxmind-classroom-next') ?? 'null');
+        setClassroomNext(saved && saved.expires > Date.now() ? classroomDestination(saved.path) : null);
+      } else setClassroomNext(null);
+    } catch { setClassroomNext(requested); }
+  }, [router.isReady, router.query.next, view]);
+  const nextAccountHref = (target: 'sign-in' | 'verify-email' | 'register') => classroomAuthHref(target, classroomNext);
 
   const report = useCallback((error: unknown) => {
     const safe = error instanceof AccountError ? error : new AccountError('SERVICE_UNAVAILABLE', 503);
@@ -120,7 +138,10 @@ export function AccountScreen({ view }: { view: AccountView }) {
       if (path === '/auth/login') {
         const next = response.session ?? await client.session();
         setSession(next);
-        if (next.authenticated) await router.push(next.user.emailVerified ? '/profile' : '/verify-email');
+        if (next.authenticated) {
+          if (next.user.emailVerified && classroomNext) { try { sessionStorage.removeItem('foxmind-classroom-next'); } catch {} }
+          await router.push(next.user.emailVerified ? classroomNext ?? '/profile' : nextAccountHref('verify-email'));
+        }
       } else if (path === '/auth/logout') {
         setSession({ authenticated: false }); setProfile(undefined);
         await router.push('/sign-in');
@@ -160,7 +181,7 @@ export function AccountScreen({ view }: { view: AccountView }) {
     <header className="topbar">
       <Link href={user ? (verified ? '/profile' : '/verify-email') : '/sign-in'} className="wordmark" aria-label="FoxMind"><span>Fox</span>Mind</Link>
       <nav aria-label="Cuenta">
-        {user ? <><Link href={verified ? '/profile' : '/verify-email'} className="nav-current">{verified ? 'Mi perfil' : 'Verificar correo'}</Link><span className="nav-name">{user.firstName}</span></> : <Link href={view === 'register' ? '/sign-in' : '/register'}>{view === 'register' ? 'Iniciar sesión' : 'Crear cuenta'}</Link>}
+        {user ? <>{verified ? <Link href="/mis-aulas">Mis Aulas</Link> : null}<Link href={verified ? '/profile' : nextAccountHref('verify-email')} className="nav-current">{verified ? 'Mi perfil' : 'Verificar correo'}</Link><span className="nav-name">{user.firstName}</span></> : <Link href={nextAccountHref(view === 'register' ? 'sign-in' : 'register')}>{view === 'register' ? 'Iniciar sesión' : 'Crear cuenta'}</Link>}
       </nav>
     </header>
     <main id="main" className={view === 'profile' ? 'main profile-main' : 'main auth-main'}>
@@ -172,14 +193,14 @@ export function AccountScreen({ view }: { view: AccountView }) {
         {!loading && !session ? <div className="state"><p>No se pudo comprobar tu sesión.</p><Button disabled={busy || waitSeconds > 0} onClick={() => void load()}>Volver a intentar</Button></div> : null}
 
         {session && view === 'sign-in' ? <>
-          {user ? <div className="notice">Ya tienes una sesión abierta. <Link href={verified ? '/profile' : '/verify-email'}>Continuar con mi cuenta</Link></div> : null}
+          {user ? <div className="notice">Ya tienes una sesión abierta. <Link href={verified ? classroomNext ?? '/profile' : nextAccountHref('verify-email')}>Continuar con mi cuenta</Link></div> : null}
           <form noValidate onSubmit={submit('/auth/login', 'Sesión iniciada.')}><fieldset disabled={locked}>
             <Field name="email" label="Correo electrónico" autoComplete="username" />
             <Field name="password" label="Contraseña" password autoComplete="current-password" />
             <div className="form-link"><Link href="/forgot-password">Olvidé mi contraseña</Link></div>
             <Button type="submit" className="full-width">{busy ? 'Iniciando sesión…' : 'Iniciar sesión'}</Button>
           </fieldset></form>
-          <p className="after-form">¿Aún no tienes una cuenta? <Link href="/register">Crear cuenta</Link></p>
+          <p className="after-form">¿Aún no tienes una cuenta? <Link href={nextAccountHref('register')}>Crear cuenta</Link></p>
         </> : null}
 
         {session && view === 'register' ? <>
@@ -189,7 +210,7 @@ export function AccountScreen({ view }: { view: AccountView }) {
             <Field name="password" label="Contraseña" password autoComplete="new-password" />
             <Button type="submit" className="full-width">{busy ? 'Creando cuenta…' : 'Crear cuenta'}</Button>
           </fieldset></form>
-          <p className="after-form">¿Ya tienes cuenta? <Link href="/sign-in">Iniciar sesión</Link></p>
+          <p className="after-form">¿Ya tienes cuenta? <Link href={nextAccountHref('sign-in')}>Iniciar sesión</Link></p>
         </> : null}
 
         {session && view === 'verify-email' ? <div className="verification-content">
@@ -197,8 +218,8 @@ export function AccountScreen({ view }: { view: AccountView }) {
             <form noValidate onSubmit={submit('/auth/email-verification/confirm', 'Tu correo está verificado. Ya puedes continuar con tu cuenta.')}><Button disabled={locked} type="submit">{busy ? 'Verificando…' : 'Confirmar verificación'}</Button></form></> : null}
           {user && !verified ? <><h2>Revisa tu correo</h2><p>Enviamos el enlace a <strong className="email-value">{user.email}</strong>. Abre el mensaje y confirma la verificación.</p><p>Si recargas esta página después de abrir un enlace, vuelve a abrir el mensaje original para usarlo.</p>
             <div className="actions"><Button disabled={locked} onClick={() => void action('/auth/email-verification/resend', {}, 'Solicitud aceptada. Revisa tu correo; usa el enlace más reciente.')}>{busy ? 'Enviando…' : 'Reenviar correo'}</Button><Button variant="outline" disabled={locked} onClick={() => void load()}>Actualizar estado</Button>{signOut}</div></> : null}
-          {verified ? <><h2>Tu correo está verificado</h2><Link className="button button-primary" href="/profile">Ir a mi perfil</Link><div className="actions">{signOut}</div></> : null}
-          {!user ? <><p>Abre el enlace original del correo para verificar tu cuenta. Si necesitas un nuevo mensaje, inicia sesión y solicita el reenvío.</p><div className="actions"><Link className="button button-primary" href="/sign-in">Iniciar sesión</Link><Link href="/register">Crear cuenta</Link></div></> : null}
+          {verified ? <><h2>Tu correo está verificado</h2><Link className="button button-primary" href={classroomNext ?? '/profile'}>{classroomNext ? 'Ir a Mis Aulas' : 'Ir a mi perfil'}</Link><div className="actions">{signOut}</div></> : null}
+          {!user ? <><p>Abre el enlace original del correo para verificar tu cuenta. Si necesitas un nuevo mensaje, inicia sesión y solicita el reenvío.</p><div className="actions"><Link className="button button-primary" href={nextAccountHref('sign-in')}>Iniciar sesión</Link><Link href={nextAccountHref('register')}>Crear cuenta</Link></div></> : null}
         </div> : null}
 
         {session && view === 'forgot-password' ? <>

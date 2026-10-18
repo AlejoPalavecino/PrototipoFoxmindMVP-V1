@@ -22,7 +22,8 @@ export async function account(page, origin, inbox, email, beforeVerification) {
     const messages = await (await fetch(`${inbox}/api/v1/messages`)).json();
     for (const message of messages.messages.filter(message => message.To.some(to => to.Address === email))) {
       const detail = await (await fetch(`${inbox}/api/v1/message/${message.ID}`)).json();
-      link = /http:\/\/127\.0\.0\.1:\d+\/verify-email#token=[A-Za-z0-9_-]{43}/.exec(detail.Text)?.[0];
+      const candidate = /http:\/\/127\.0\.0\.1:\d+\/verify-email#token=[A-Za-z0-9_-]{43}/.exec(detail.Text)?.[0];
+      if (candidate) { link = candidate; break; }
     }
     if (!link) await delay(100);
   }
@@ -35,7 +36,7 @@ export async function account(page, origin, inbox, email, beforeVerification) {
 export async function api(page, method, path, body, headers = {}) {
   return page.evaluate(async ({ method, path, body, headers }) => {
     const requestHeaders = { ...headers };
-    if (method === 'POST' || method === 'PUT') {
+    if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
       const result = await fetch('/api/v1/auth/csrf');
       if (result.ok && !requestHeaders['x-csrf-token']) requestHeaders['x-csrf-token'] = (await result.json()).csrfToken;
     }
