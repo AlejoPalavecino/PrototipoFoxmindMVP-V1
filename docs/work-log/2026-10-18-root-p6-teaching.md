@@ -16,7 +16,7 @@ Full P6 in authorized order Plan,Library,Muro+notifications,integratedproof. Use
 
 Read prior readiness31 and current roadmap/functional rules/workrecord protocol, actual cleanmain/remotea75deae confirmed. Parent-owned inline route initially; large task tracking before source writes. Tests must observe meaningfulRED→GREEN and exact previous behavior. Long ownchecks/final independent Sol/xhigh delegated only at applicable triggers. No runtimePASS or completion yet.
 
-## Handoff
+## Initial handoff (historical)
 
 First unfinished T1: Plan maintenance endpoints, UI and focused regression. No source writes yet. No future phase scope inferred.
 
@@ -29,3 +29,11 @@ Plan workunit commit694cab70d8716faed9380f17a06d8afa3f2da74f observed,398add46de
 ## T2 Library attributed handoff
 
 /root/p5_backend_integration Sol/xhigh,context-backstop,paths-injected,ownrecord2026-10-18-p6-library-implementation.md: implementedAPI/UI/immutablematerial/custodydeletion/quotalifecycle, migration8. MeaningfulRED andprep failuresretained; freshAPIbuild0/Library12PASS/UItypes0/affectedP4-P5-Plan54PASS/SQLcleanup0; baselineclient8requestsidentical. Parentclientspotcheck3PASS. Reviewassessreportedhigh/unassessableuntrackedinventory; no nativeSTATUS/START becauseoff/global. Final independentsecurity/data/concurrencyproofpending. ParentpreparedactualPlanintegrationtest/helper(syntax0 only), adaptedexactthreecombinedmigrationcounts7→8. WorkerownedOSscratchfoxmind-p6-library-differential-nWOeDQ retained; priorcleanupdenialnotbypassed. Risk:items1–4. Fullactualstorage/browser/dataupgradependingT4/T5.
+
+## Current handoff
+
+Plancommit694cab7/own7+24passed; Librarycommit562650c/own12+54passed, finalacceptancepending. T3/root/p6_wall_implementation Sol/xhigh currentlywritesonecoherentMuro+notificationunit, parent ownsdisjointT4harness. NewactualPlan/Librarytests/helper and runtimeownedworker/storagehooks syntax0 only; no globalbuild/runwhilewriteractive. Runner CLIRED3→GREEN3 atunchangednewsynthetic5s; defaultpendingMurotestfile. NewrunnerforecastsAPI30s/Next180s/three330sfixtureswith360schildbounds, noexistingbudgetchange. Manifestnewscriptinsertfirstguardfailedwithoutwrite, correctedexactinsertion/no depschanged. Firstnextaction waitT3handoff, spotcheck/commitunit, completeactualMuroharness then delegatedownlongchecks; independentfinalafterownGREEN. Mainstilla75deae/unpublishedP6.
+
+## T3 scoped disposition
+Writer focused18PASS/build0/types0; final inherited42PASS/1FAIL retained. Fresh bounded diagnostic baseline/current1PASS each, no cause established; see attributed p6-proxy-diagnostic record. Parent clientspotcheck3PASS. Source unit accepted only for feature branch; full actual integration and final independent proof pending, no main publication. Nativeoff/global. Parent owns new P6 real harness, syntax-only so far.
+

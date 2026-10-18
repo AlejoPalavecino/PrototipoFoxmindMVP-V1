@@ -2,6 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { ClassroomService as InvitationService } from './service.ts';
 import { ClassroomError, fail, object } from './policy.ts';
 import { ClassroomIdentityError } from './errors.ts';
+import { wallOperation } from './wall-policy.ts';
 
 interface Admission {
   admit(request: IncomingMessage, write: boolean, response: ServerResponse): Promise<void>;
@@ -160,6 +161,11 @@ export function createClassroomsHandler(
       ) {
         exact([]);
         value = await service.acceptInvitation(req, path[1]);
+      } else if (path.join('/') === 'notifications' && method === 'GET')
+        value = await service.listNotifications(req);
+      else if (path.length === 3 && path[0] === 'notifications' && ['read', 'open'].includes(path[2]) && method === 'POST') {
+        exact([]);
+        value = path[2] === 'open' ? await service.openNotification(req, path[1]) : await service.readNotification(req, path[1]);
       } else if (path.length === 1 && method === 'GET')
         value = await service.detail(req, path[0]);
       else if (path.length === 2 && path[1] === 'plan' && method === 'POST')
@@ -168,6 +174,13 @@ export function createClassroomsHandler(
         value = await service.listMaterials(req, path[0]);
       else if (path.length === 2 && path[1] === 'library' && method === 'POST')
         value = await service.changeLibrary(req, path[0], exact(['revision', 'operation']));
+      else if (path.length === 2 && path[1] === 'wall' && method === 'GET')
+        value = await service.listWall(req, path[0]);
+      else if (path.length === 2 && path[1] === 'wall' && method === 'POST') {
+        const data = exact(['revision', 'operation']);
+        wallOperation(data.operation);
+        value = await service.changeWall(req, path[0], data);
+      }
       else if (
         path.length === 2 &&
         path[1] === 'settings' &&

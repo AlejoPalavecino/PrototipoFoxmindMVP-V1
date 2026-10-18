@@ -88,6 +88,33 @@ export interface Material {
   deleted: boolean;
   deletionPending: boolean;
 }
+export interface WallContent {
+  id: string;
+  authorName: string;
+  initials: string;
+  body: string | null;
+  createdAt: string;
+  editedAt: string | null;
+  removedAt: string | null;
+  canEdit: boolean;
+  canRemove: boolean;
+}
+export interface WallPost extends WallContent {
+  type: 'NOTICE' | 'QUERY';
+  replies: WallContent[];
+}
+export interface WallData { revision: string; posts: WallPost[] }
+export interface ClassroomNotification {
+  id: string;
+  classroomId: string;
+  classroomName: string;
+  eventType: 'WALL_NOTICE' | 'WALL_QUERY' | 'WALL_REPLY';
+  postId: string;
+  replyId: string | null;
+  createdAt: string;
+  readAt: string | null;
+}
+export interface WallTarget { classroomId: string; postId: string; replyId: string | null }
 export function canPreviewMaterial(material: Pick<Material, 'extension' | 'ready' | 'deleted'>): boolean {
   return material.ready && !material.deleted && ['pdf', 'jpg', 'jpeg', 'png'].includes(material.extension);
 }

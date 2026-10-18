@@ -15,6 +15,9 @@ const routes: Rule[] = [
   rule(`/${uuid}`, { GET: null }),
   rule(`/${uuid}/plan`, { POST: ['revision', 'operation'] }),
   rule(`/${uuid}/library`, { GET: null, POST: ['revision', 'operation'] }),
+  rule(`/${uuid}/wall`, { GET: null, POST: ['revision', 'operation'] }),
+  rule('/notifications', { GET: null }),
+  rule(`/notifications/${uuid}/(?:read|open)`, { POST: [] }),
   rule(`/${uuid}/settings`, { PATCH: ['revision', 'name', 'subject', 'division', 'academicYear'] }),
   rule(`/${uuid}/archive`, { POST: ['archived', 'revision'] }), rule(`/${uuid}/code`, { POST: [] }),
   rule(`/${uuid}/(?:members|history)`, { GET: null }), rule(`/${uuid}/members/${uuid}`, { GET: null }),
@@ -62,13 +65,28 @@ function object(value: unknown, keys: string[], required = true): value is Recor
   return Boolean(value && typeof value === 'object' && !Array.isArray(value) &&
     Object.keys(value).every(key => keys.includes(key)) && (!required || keys.every(key => Object.hasOwn(value, key))));
 }
-function schema(value: unknown, keys: string[]): boolean {
+function schema(value: unknown, keys: string[], wall = false): boolean {
   if (!object(value, keys)) return false;
   for (const key of keys) {
     if (key === 'operation') { if (!value[key] || typeof value[key] !== 'object' || Array.isArray(value[key])) return false; }
     else if (key === 'archived') { if (typeof value[key] !== 'boolean') return false; }
     else if (key === 'academicYear') { if (!Number.isInteger(value[key])) return false; }
     else if (key !== 'payload' && typeof value[key] !== 'string') return false;
+  }
+  if (wall) {
+    const op = value.operation;
+    if (!object(op, ['action', 'id', 'postId', 'body', 'confirm'], false) || typeof op.action !== 'string') return false;
+    const shapes: Record<string, string[]> = {
+      publish: ['action', 'body'], reply: ['action', 'postId', 'body'],
+      editPost: ['action', 'id', 'body'], editReply: ['action', 'id', 'body'],
+      removePost: ['action', 'id', 'confirm'], removeReply: ['action', 'id', 'confirm'],
+    };
+    const shape = Object.hasOwn(shapes, op.action) ? shapes[op.action] : undefined;
+    if (!shape || !object(op, shape)) return false;
+    for (const [key, item] of Object.entries(op)) {
+      if (key === 'confirm') { if (item !== true) return false; }
+      else if (typeof item !== 'string' || ((key === 'id' || key === 'postId') && !new RegExp(`^${uuid}$`).test(item))) return false;
+    }
   }
   if (!keys.includes('payload')) return true;
   const payload = value.payload;
@@ -120,7 +138,7 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
     if (!/^application\/json(?:;|$)/i.test(request.headers['content-type'] ?? '')) { reject(400, 'INVALID_INPUT'); return; }
     try {
       metadata = await body(request, requestLimit, expected);
-      if (!schema(JSON.parse(metadata.toString('utf8')), selected.methods[method] ?? [])) throw new Error('Invalid schema');
+      if (!schema(JSON.parse(metadata.toString('utf8')), selected.methods[method] ?? [], url.pathname.endsWith('/wall'))) throw new Error('Invalid schema');
     } catch (error) { reject(error instanceof RangeError ? 413 : 400, error instanceof RangeError ? 'REQUEST_TOO_LARGE' : 'INVALID_INPUT'); return; }
   }
   if (response.destroyed) return;
