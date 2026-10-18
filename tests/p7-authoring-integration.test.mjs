@@ -138,7 +138,24 @@ test('P7 T1 real P3 sessions, authoring UI, private ready instructions and safe 
           await page.getByText('Cambios confirmados por el servidor.', { exact: false }).waitFor();
           await page.getByRole('button', { name: 'Cerrar editor', exact: true }).click();
           await page.getByRole('article', { name, exact: true }).getByRole('button', { name: 'Publicar', exact: true }).click();
+          const publicationResponse = () => page.waitForResponse(response => {
+            const path = new URL(response.url()).pathname;
+            return (path === '/api/v1/auth/csrf' && response.status() === 429)
+              || (path === `/api/v1/classrooms/${roomId}/activities` && response.request().method() === 'POST');
+          });
+          let publication = publicationResponse();
           await page.getByRole('button', { name: 'Confirmar publicación', exact: true }).click();
+          let response = await publication;
+          if (response.status() === 429) {
+            const seconds = Number(response.headers()['retry-after']);
+            assert.ok(Number.isInteger(seconds) && seconds > 0 && seconds <= 60, 'Actual bounded publication Retry-After required');
+            console.log(`P7 fixture respects actual publication Retry-After=${seconds}s once`);
+            await delay(seconds * 1000);
+            publication = publicationResponse();
+            await page.getByRole('button', { name: 'Confirmar publicación', exact: true }).click();
+            response = await publication;
+          }
+          assert.equal(response.status(), 200, 'Publication mutation must be confirmed before expecting its notice');
           await page.getByText('Estado de publicación confirmado.', { exact: true }).waitFor();
           const safe = await api(student, 'GET', `/classrooms/${roomId}/activities/${before.id}`);
           assert.equal(safe.status, 200); assert.equal(safe.body.activity.questions.length, 3);
