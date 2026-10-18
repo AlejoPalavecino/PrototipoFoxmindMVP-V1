@@ -5,7 +5,7 @@ import { Dialog, Notice } from './components.tsx';
 
 const labels = { WALL_NOTICE: 'Nuevo aviso del docente', WALL_QUERY: 'Nueva consulta de estudiante', WALL_REPLY: 'Respuesta a tu publicación',
   ACTIVITY_PUBLISHED: 'Nueva actividad publicada', ACTIVITY_DEADLINE_CHANGED: 'Cambio de plazo o recepción',
-  FIRST_SUBMISSION_ENABLED: 'Primera entrega habilitada', ATTEMPT_REOPENED: 'Nuevo intento habilitado', SUBMISSION_RECEIVED: 'Nueva entrega recibida' };
+  FIRST_SUBMISSION_ENABLED: 'Primera entrega habilitada', ATTEMPT_REOPENED: 'Nuevo intento habilitado', SUBMISSION_RECEIVED: 'Nueva entrega recibida', GRADE_PUBLISHED: 'Calificación publicada' };
 export function Notifications({ api, refresh, onOpen }: { api: ClassroomClient; refresh: number; onOpen: (target: NotificationTarget) => void }) {
   const [items, setItems] = useState<ClassroomNotification[] | null>(null), [open, setOpen] = useState(false);
   const [error, setError] = useState(''), [busy, setBusy] = useState(false);

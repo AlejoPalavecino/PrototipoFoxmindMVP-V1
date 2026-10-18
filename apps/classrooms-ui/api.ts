@@ -138,6 +138,15 @@ export interface GradingData {
   grade: { id: string | null; isPublished: boolean; publishedAt: string | null;
     finalGrade: string | null; overallFeedback: string | null; pending: boolean };
 }
+export type PublishedResultData = { status: 'pending'; attemptId: string } | {
+  status: 'published'; activity: { id: string; title: string; type: string };
+  attempt: { id: string; number: number; submittedAt: string };
+  grade: { id: string; finalGrade: string; publishedAt: string; overallFeedback: string | null; isEffective: boolean };
+  questions: { id: string; type: string; prompt: string; points: string;
+    answer: { text: string | null; selectedOptions: { id: string; text: string }[] };
+    earned: { numerator: string; denominator: string }; feedback: string | null }[];
+  attachments: { id: string; name: string; ready: boolean }[];
+};
 export interface QuestionAnswer { questionId: string; text: string | null; optionIds: string[]; savedAt: string }
 export interface AnswerConfirmation { revision: string; answer: QuestionAnswer }
 export interface AttemptSessionData {
@@ -174,9 +183,10 @@ interface NotificationBase {
 }
 export type ClassroomNotification = NotificationBase & ({ eventType: 'WALL_NOTICE' | 'WALL_QUERY' | 'WALL_REPLY'; postId: string; replyId: string | null }
   | { eventType: 'ACTIVITY_PUBLISHED' | 'ACTIVITY_DEADLINE_CHANGED' | 'FIRST_SUBMISSION_ENABLED' | 'ATTEMPT_REOPENED' | 'SUBMISSION_RECEIVED';
-      activityId: string; activityTitle: string; attemptId: string | null });
+      activityId: string; activityTitle: string; attemptId: string | null }
+  | { eventType: 'GRADE_PUBLISHED'; activityId: string; activityTitle: string; attemptId: string; gradeId: string });
 export interface WallTarget { classroomId: string; postId: string; replyId: string | null }
-export type AcademicTarget = { kind: 'activity' | 'attempt' | 'submission'; classroomId: string; activityId: string; attemptId: string | null };
+export type AcademicTarget = { kind: 'activity' | 'attempt' | 'submission' | 'grade'; classroomId: string; activityId: string; attemptId: string | null; gradeId?: string };
 export type NotificationTarget = WallTarget | AcademicTarget;
 export interface AttemptHistoryRow {
   id: string; number: number; status: 'DRAFT' | 'SUBMITTED'; openedAt: string; submittedAt: string | null;

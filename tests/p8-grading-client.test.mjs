@@ -12,11 +12,18 @@ test('private correction client sends canonical decimal text with fresh CSRF, ne
   assert.equal(calls[0].headers['X-Attempt-Editor'], undefined);
   await client.call(`/${id}/attempts/${id}/grading`); assert.equal(calls[1].method, 'GET'); assert.equal(calls[1].body, undefined);
 });
-test('actual all-type history hosts teacher-only private correction without a publication affordance', async () => {
+test('actual all-type history keeps private saving separate from explicit saved-state publication', async () => {
   const history = await readFile(new URL('../apps/classrooms-ui/AttemptHistory.tsx', import.meta.url), 'utf8');
   const editor = await readFile(new URL('../apps/classrooms-ui/GradingEditor.tsx', import.meta.url), 'utf8');
   assert.match(history, /teacher && attempt.status === 'SUBMITTED'.*Corregir intento/);
   assert.match(history, /<GradingEditor/); assert.match(editor, /Guardar corrección privada/);
   assert.match(editor, /overallGrade: data.activity.type === 'ASSIGNMENT'/); assert.match(editor, /manualPoints/);
-  assert.match(editor, /No se ha publicado/); assert.ok(!editor.includes('Aprobado')); assert.ok(!editor.includes('/publish'));
+  assert.match(editor, /No se ha publicado/); assert.ok(!editor.includes('Aprobado'));
+  const saving = editor.slice(editor.indexOf("api.call<GradingData>(path, 'POST'"), editor.indexOf('Guardar corrección privada'));
+  assert.ok(!saving.includes('/publish-grade')); assert.ok(!saving.includes('confirm: true'));
+  assert.match(editor, /canPublish = .*data.grade.id.*!data.grade.pending.*!dirty.*!busy/);
+  assert.match(editor, /setConfirming\(true\)/); assert.match(editor, /Cancelar publicación/);
+  assert.match(editor, /publish-grade`, 'POST', \{ revision: data.revision, confirm: true \}/);
+  const publishing = editor.slice(editor.indexOf('publish-grade'), editor.indexOf('Confirmar publicación</button>'));
+  assert.ok(!publishing.includes('overallGrade')); assert.ok(!publishing.includes('saveAttempt'));
 });

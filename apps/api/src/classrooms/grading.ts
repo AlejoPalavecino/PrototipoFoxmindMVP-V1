@@ -22,13 +22,14 @@ export class GradingService extends ActivityHistoryService {
     const [attempt] = await tx.query<AttemptRow & { student_id: string; first_name: string; last_name: string }>(`SELECT a.*,e.student_id,u.first_name,u.last_name
       FROM attempts a JOIN student_activities sa ON sa.id=a.student_activity_id
       JOIN enrollments e ON e.id=sa.enrollment_id JOIN users u ON u.id=e.student_id
-      WHERE a.id=$1::uuid AND sa.classroom_id=$2::uuid AND e.classroom_id=$2::uuid
+      WHERE a.id=$1::uuid AND sa.classroom_id=$2::uuid AND e.classroom_id=$2::uuid AND sa.activity_id=a.activity_id
       FOR UPDATE OF a,sa,e`, attemptId, classroomId);
     // A current teacher retains historical academic records after a student leaves.
     if (!attempt || attempt.status !== 'SUBMITTED') return fail('FORBIDDEN');
     const activity = await this.activity(tx, classroomId, attempt.activity_id);
     const [grade] = await tx.query<GradeRow>(`SELECT id,final_grade::text,overall_feedback,is_published,published_at
-      FROM attempt_grades WHERE attempt_id=$1::uuid FOR UPDATE`, attemptId);
+      FROM attempt_grades WHERE attempt_id=$1::uuid AND student_activity_id=$2::uuid AND activity_id=$3::uuid FOR UPDATE`,
+    attemptId, attempt.student_activity_id, activity.id);
     return { room, attempt, activity, grade };
   }
 
@@ -49,7 +50,7 @@ export class GradingService extends ActivityHistoryService {
       return { ...question, answer: answer ?? { questionId: question.id, text: null, optionIds: [] }, manual,
         manualPoints: points, earned: scoreJson(earned), feedback: row?.feedback ?? null };
     });
-    const final = activity.type === 'ASSIGNMENT'
+    const final = grade?.is_published || activity.type === 'ASSIGNMENT'
       ? grade?.final_grade === null || grade?.final_grade === undefined ? null : fixedHundredths(hundredths(grade.final_grade))
       : finalGrade(questions.map(question => question.earned === null ? null
         : { numerator: BigInt(question.earned.numerator), denominator: BigInt(question.earned.denominator) }), questions.map(question => question.points));

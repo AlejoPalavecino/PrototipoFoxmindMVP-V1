@@ -10,10 +10,12 @@ export function GradingEditor({ api, roomId, attemptId, onClose, onChanged }: {
   const [data, setData] = useState<GradingData | null>(null), [overall, setOverall] = useState(''), [feedback, setFeedback] = useState('');
   const [points, setPoints] = useState<Record<string, string>>({}), [comments, setComments] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [saved, setSaved] = useState(false);
+  const [dirty, setDirty] = useState(false), [confirming, setConfirming] = useState(false);
   const restore = useCallback((next: GradingData) => {
     setData(next); setOverall(next.grade.finalGrade ?? ''); setFeedback(next.grade.overallFeedback ?? '');
     setPoints(Object.fromEntries(next.activity.questions.map(q => [q.id, q.manualPoints ?? ''])));
     setComments(Object.fromEntries(next.activity.questions.map(q => [q.id, q.feedback ?? ''])));
+    setDirty(false); setConfirming(false);
   }, []);
   const load = useCallback(async (signal?: AbortSignal) => restore(await api.call<GradingData>(path, 'GET', undefined, signal)), [api, path, restore]);
   useEffect(() => { const controller = new AbortController(); setData(null); setSaved(false);
@@ -23,7 +25,8 @@ export function GradingEditor({ api, roomId, attemptId, onClose, onChanged }: {
     setBusy(true); setError(''); setSaved(false);
     try { await work(); } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
   }
-  const change = () => setSaved(false), writable = !!data?.canSave && !busy;
+  const change = () => { setSaved(false); setDirty(true); setConfirming(false); }, writable = !!data?.canSave && !busy;
+  const canPublish = !!data?.canSave && !!data.grade.id && !data.grade.pending && !dirty && !busy;
   return <section className="p8-grading" aria-label="Corrección privada del intento">
     <header><h4>Corrección del intento {data?.attempt.number ?? ''}</h4><button disabled={busy} onClick={onClose}>Volver al historial</button></header>
     {error ? <Notice error>{error} Tus cambios no se han confirmado. Puedes revisar o recargar la corrección.</Notice> : null}
@@ -53,8 +56,18 @@ export function GradingEditor({ api, roomId, attemptId, onClose, onChanged }: {
           const next = await api.call<GradingData>(path, 'POST', { revision: data.revision, overallGrade: data.activity.type === 'ASSIGNMENT' ? overall || null : null,
             overallFeedback: feedback || null, questions: data.activity.questions.map(q => ({ questionId: q.id, points: q.manual ? points[q.id] || null : null, feedback: comments[q.id] || null })) });
           restore(next); setSaved(true); await onChanged();
-        })}>{busy ? 'Guardando…' : 'Guardar corrección privada'}</button> : null}</footer>
+        })}>{busy ? 'Guardando…' : 'Guardar corrección privada'}</button> : null}
+        {data.canSave ? <button disabled={!canPublish} onClick={() => setConfirming(true)}>Publicar calificación</button> : null}</footer>
+      {dirty ? <Notice>Hay cambios sin guardar. Guarda la corrección privada antes de publicar.</Notice> : null}
       {saved ? <Notice>Corrección privada guardada. No se ha publicado.</Notice> : null}
+      {confirming ? <section aria-label="Confirmar publicación de calificación"><h4>Publicar calificación y devolución</h4>
+        <p>El estudiante verá la calificación guardada y su devolución. Esta publicación reemplaza la calificación vigente de la actividad, aunque sea menor.</p>
+        <div className="p5-actions"><button disabled={busy} onClick={() => setConfirming(false)}>Cancelar publicación</button>
+          <button className="primary" disabled={!canPublish} onClick={() => void run(async () => {
+            const next = await api.call<GradingData>(`/${roomId}/attempts/${attemptId}/publish-grade`, 'POST', { revision: data.revision, confirm: true });
+            restore(next); await onChanged();
+          })}>Confirmar publicación</button></div>
+      </section> : null}
     </>}
   </section>;
 }

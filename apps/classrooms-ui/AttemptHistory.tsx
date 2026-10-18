@@ -4,6 +4,7 @@ import type { AttemptHistoryData, AttemptHistoryRow, AttemptSessionData, Classro
 import { Dialog, Notice } from './components.tsx';
 import { activityDate } from './ActivityAuthoring.tsx';
 import { GradingEditor } from './GradingEditor.tsx';
+import { PublishedResult } from './PublishedResult.tsx';
 
 export function AttemptHistory({ api, room, activityId, attemptId, onClose, onChanged, onResume }: {
   api: ClassroomClient; room: Detail; activityId: string; attemptId?: string | null; onClose: () => void;
@@ -60,6 +61,7 @@ export function AttemptHistory({ api, room, activityId, attemptId, onClose, onCh
           {question.type === 'DEVELOPMENT' ? <p className="p7-multiline">{answer?.text || 'Sin respuesta'}</p>
             : <ul>{question.options.filter(option => answer?.optionIds.includes(option.id!)).map(option => <li key={option.id}>{option.text}</li>)}</ul>}</article>; })}
       <ul>{selected.attempt.attachments?.map(file => <li key={file.id}>{file.ready ? <a href={api.fileUrl(file.id)} target="_blank" rel="noreferrer">Descargar {file.name}</a> : `${file.name} · No disponible`}</li>)}</ul>
+      {selected.attempt.status === 'SUBMITTED' ? <PublishedResult key={selected.attempt.id} api={api} roomId={room.id} attemptId={selected.attempt.id} /> : null}
     </section> : null}
     {reopening ? <section aria-label="Confirmar nuevo intento"><h4>Habilitar otro intento para {reopening.firstName} {reopening.lastName}</h4>
       <p>Se creará un nuevo borrador con las respuestas o archivos de la última entrega para revisar. El original y su calificación se conservan. El estudiante debe transferir explícitamente la edición y confirmar una nueva entrega.</p>

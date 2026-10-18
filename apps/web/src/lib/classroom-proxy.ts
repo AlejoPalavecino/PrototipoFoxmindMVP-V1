@@ -26,6 +26,8 @@ const routes: Rule[] = [
   rule(`/${uuid}/activities/${uuid}/reopen`, { POST: ['revision', 'studentId', 'deadline', 'confirm'] }),
   rule(`/${uuid}/attempts/${uuid}/history`, { GET: null }),
   rule(`/${uuid}/attempts/${uuid}/grading`, { GET: null, POST: ['revision', 'overallGrade', 'overallFeedback', 'questions'] }),
+  rule(`/${uuid}/attempts/${uuid}/publish-grade`, { POST: ['revision', 'confirm'] }),
+  rule(`/${uuid}/attempts/${uuid}/result`, { GET: null }),
   rule(`/${uuid}/attempts/${uuid}/transfer`, { POST: ['revision'] }),
   rule(`/${uuid}/attempts/${uuid}/attachments-remove`, { POST: ['revision', 'fileId'] }),
   rule(`/${uuid}/attempts/${uuid}/submit-practical`, { POST: ['revision', 'confirm'] }),
@@ -205,12 +207,13 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
   const historyRoute = new RegExp(`^/api/v1/classrooms/${uuid}/(?:activities/${uuid}/(?:history|history-submissions|reopen)|attempts/${uuid}/history)$`).test(url.pathname);
   const practicalRead = /\/(?:submissions|receipt)$/.test(url.pathname) || historyRoute;
   const gradingRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/grading$`).test(url.pathname);
+  const publicationRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/(?:publish-grade|result)$`).test(url.pathname);
   if ((practicalWrite || answerWrite) && (typeof request.headers['x-attempt-editor'] !== 'string'
     || !/^[A-Za-z0-9_-]{43}$/.test(request.headers['x-attempt-editor'])
     || typeof request.headers['x-attempt-epoch'] !== 'string' || !/^(0|[1-9][0-9]{0,18})$/.test(request.headers['x-attempt-epoch']))) {
     reject(400, 'INVALID_INPUT'); return;
   }
-  if ((practicalRead || gradingRoute) && (request.headers['x-attempt-editor'] !== undefined || request.headers['x-attempt-epoch'] !== undefined)) {
+  if ((practicalRead || gradingRoute || publicationRoute) && (request.headers['x-attempt-editor'] !== undefined || request.headers['x-attempt-epoch'] !== undefined)) {
     reject(400, 'INVALID_INPUT'); return;
   }
   let origin: string, expected: number | undefined;
@@ -230,9 +233,11 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
         && typeof parsed.revision === 'string' && typeof parsed.studentId === 'string' && new RegExp(`^${uuid}$`).test(parsed.studentId)
         && parsed.confirm === true && (parsed.deadline === null || object(parsed.deadline, ['local', 'offsetMinutes'], false)
           && typeof parsed.deadline.local === 'string' && (!Object.hasOwn(parsed.deadline, 'offsetMinutes') || Number.isInteger(parsed.deadline.offsetMinutes)));
-      if ((!practicalWrite && !answerWrite && !reopening && !gradingRoute && !schema(parsed, selected.methods[method] ?? [], url.pathname.endsWith('/wall')))
+      if ((!practicalWrite && !answerWrite && !reopening && !gradingRoute && !publicationRoute && !schema(parsed, selected.methods[method] ?? [], url.pathname.endsWith('/wall')))
         || !validReopening
         || (gradingRoute && !gradingSchema(parsed))
+        || (publicationRoute && (!object(parsed, ['revision', 'confirm']) || typeof parsed.revision !== 'string'
+          || !/^(0|[1-9][0-9]{0,18})$/.test(parsed.revision) || parsed.confirm !== true))
         || (url.pathname.endsWith('/activities') && !activitySchema(parsed))
         || (answerWrite && (!object(parsed, selected.methods[method] ?? []) || typeof parsed.revision !== 'string'
           || (url.pathname.endsWith('/answer') ? typeof parsed.questionId !== 'string' || !new RegExp(`^${uuid}$`).test(parsed.questionId)
