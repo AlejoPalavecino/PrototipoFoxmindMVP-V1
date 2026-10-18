@@ -12,14 +12,14 @@ Delivery: exception-ok, coherent behavior/test/UI/docs work-unit commits followe
 
 ## Tasks
 
-- T1 | S1,S3 | delegated context-backstop: coherent teacher activity authoring/private publication + actual UI/files/time validation/tests/docs | implemented; own proof passed; full independent acceptance pending | commita5aeee6 | Risk:items1,2,3,4
-- T2 | S1,S3 | delegated context-backstop after T1: membership eligibility/deadline/attempt/editor core and corresponding UI/tests | B1 corrected; own targeted proof passed; independent targeted acceptance pending | commitd62d58c | Risk:items1,2,3,4
-- T3 | S1,S3 | delegated context-backstop after T2: actual TP instruction-start/files/private drafts/confirmed submission vertical slice | implemented; own proof passed; full independent acceptance pending | commitc89e973 | Risk:items1,2,3,4
-- T4 | S1,S3 | delegated context-backstop: questionnaire/evaluation taking, confirmed autosave and incomplete submission | implemented; own proof passed; full independent acceptance pending | commit40609b7 | Risk:items1,2,3,4
-- T5 | S1,S3 | delegated context-backstop: reopen/prefill/history and complete P7 notification targets | implemented; own proof passed; full independent acceptance pending | commita897ca8 | Risk:items1,2,3,4
-- T6 | S1,S2 | inline real integrated harness; delegated long own checks | completed; staged own proof, historical default-run failure retained | real three-type browser/API/SQL/files/races/time/restarts/migrations and affected P3–P6 regressions | Risk:items1–5
-- T7 | S1–S4 | delegated independent whole-feature Verify Sol/xhigh after own checks | in_progress; human-authorized independent-only90s preparation then targeted B1 proof | exact immutable preparation and bounded correction if required | Risk:items1–5
-- T8 | S3,S4 | inline accepted closure/merge/push/remote confirmation | pending | no publication before full accepted proof | Risk:none for passive closure
+- T1 | S1,S3 | delegated context-backstop: authoring/private publication | completed; independent accepted | commita5aeee6 | Risk:items1,2,3,4
+- T2 | S1,S3 | delegated context-backstop: eligibility/attempt/editor plus B1 consultation correction | completed; independent accepted | commitd62d58c +0ec37c7 | Risk:items1,2,3,4
+- T3 | S1,S3 | delegated context-backstop: private TP draft/files/confirmed submission | completed; independent accepted | commitc89e973 | Risk:items1,2,3,4
+- T4 | S1,S3 | delegated context-backstop: questionnaire/evaluation taking/autosave/confirmation | completed; independent accepted | commit40609b7 | Risk:items1,2,3,4
+- T5 | S1,S3 | delegated context-backstop: reopen/prefill/history/P7 notifications | completed; independent accepted | commita897ca8 | Risk:items1,2,3,4
+- T6 | S1,S2 | inline harness + delegated long own checks | completed; staged own proof and independent default evidence separately attributed | commitae6f6e5 +96a6e3d +b98e737 | Risk:items1–5
+- T7 | S1–S3 | delegated independent whole-feature Sol/xhigh + bounded B1 recheck | completed; S1/S2 accepted under scoped independent90s preparation; no corrected shared30s default claim | sourced9cdf06 / final proof docs/work-log/2026-10-18-p7-verify-final.md | Risk:items1–5
+- T8 | S3,S4 | inline passive closure/authorized main merge/push/remote confirmation | in_progress; local acceptance complete, publication pending | commit pending | Risk:none for passive closure
 
 ## Log
 
@@ -87,3 +87,5 @@ Delivery: exception-ok, coherent behavior/test/UI/docs work-unit commits followe
 - L32 (2026-10-18): "Sí, autorizo ampliar solo esa preparación de 30 a 90 segundos, sin cambiar los límites compartidos. Continuá con P7, sin P8; Verify con 6.1 Sol en xhigh y, cuando esté verificado, hacé el merge y push a main." AuthorizesONLYindependenttargetedB1freshpreparationaggregate90s; sharedscripts/build-api.mjsremains30sbyte-identical. UseoutsideOSscratchverificationdriverwithoriginalexportedbuildApi/runinjectionboundedbyONE90sdeadlineforPrisma+APIcompile, no candidate/source/scriptmutation. Freshraw0ec37c7/physicaldeps/no partialbuildreuse; Next180/control26/B1actual330child360 unchanged; no fullsweep/auto-retry/P8. Afteracceptedproofonlyauthorizedmainmergepush/exactremoteSHA.
 
 - L33: L32scoped90spreparationONEoutsideoriginalbuildApirundriver0/20675ms/Next0/24036ms/control26PASS40154ms/actualB11PASS49532ms/cleanup0; ALL512raw/no links/shared30shelperunchanged/original249+managed513unchanged. B1productindependentlycleared. FinalreadbackfoundoldcanonicalparticipationfixturecanStartfalseforineligibleTPcontradictsSAMEB1correctedtrue; notnewproductdefect. ParentONEtestassertfalse→trueonly, expectedfalse/nofictitiousattemptchecksretained, no productionchange/newproductcorrection. Nodecheck0. TargetedcanonicalparticipationjourneyonlyfollowstoalignB1proof, nofullsweep/otherpassingrepeats. Attributed90sreportp7-b1-90s-verification.md; priorunavailablefailuresretained.
+
+- L34: Independentfinald9cdf06S1S2VERIFIED/no remainingblocker. ONEcanonicalB1fixturetargetAPI90s0/28618ms/Next0/22274ms/canonical4leaf5TAP0fail0skip78297ms/cleanup0/ALL514rawphysicaldepsnolinks/shared30shelperunchanged/original249dirty+managed514unchanged. Proofchainretainspriorbbc44/120/transport/security +corrected0ec26/actualB11; no newfullsweep/correctedshareddefault30sPASS. Attributedfinalp7-verify-final.md. Parentbridge6PASS/liveoriginmainb4829e2ancestorverified. Onlypassiveclosure/deliverynext,noP8.
