@@ -690,3 +690,20 @@
   .p6-wall-threads > article { padding: 12px; }
   .p6-wall-replies { padding-left: 12px; }
 }
+.p7-create, .p7-option { display: flex; align-items: end; flex-wrap: wrap; gap: 1rem; }
+.p7-create { margin-block: 1.5rem; }
+.p7-activity-list { display: grid; gap: 1rem; margin-block: 1.5rem; }
+.p7-activity-list > article, .p7-authoring, .p7-preview > article { padding: 1.25rem; border: 1px solid var(--line, #e4e8ee); border-radius: 1rem; background: #fff; min-width: 0; overflow-wrap: anywhere; }
+.p7-activity-list > article { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+.p7-authoring fieldset { margin-block: 1rem; min-width: 0; }
+.p7-authoring input, .p7-authoring select, .p7-authoring textarea { max-width: 100%; }
+.p7-authoring .p7-check { display: flex; flex-direction: row; align-items: center; gap: .5rem; }
+.p7-check input[type=checkbox] { width: auto; flex: 0 0 auto; }
+.p7-question { padding: 1rem; border: 1px solid #e4e8ee; border-radius: .75rem; }
+.p7-option > label:first-child { flex: 1 1 12rem; }
+.p7-multiline { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 600px) {
+  .p7-authoring { padding: .75rem; }
+  .p7-activity-list > article > div, .p7-create > label { min-width: 0; width: 100%; }
+  .p7-option { align-items: stretch; }
+}

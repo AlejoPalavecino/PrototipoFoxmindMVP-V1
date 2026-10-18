@@ -104,6 +104,30 @@ export interface WallPost extends WallContent {
   replies: WallContent[];
 }
 export interface WallData { revision: string; posts: WallPost[] }
+export type ActivityType = 'ASSIGNMENT' | 'QUESTIONNAIRE' | 'EVALUATION';
+export interface ActivityQuestion {
+  id?: string;
+  type: 'DEVELOPMENT' | 'SINGLE_CHOICE' | 'MULTIPLE_CHOICE';
+  prompt: string;
+  points: string;
+  scoringRule?: 'EXACT' | 'PARTIAL' | null;
+  options: { id?: string; text: string; correct?: boolean }[];
+}
+export interface ActivitySummary {
+  id: string; type: ActivityType; title: string | null; unitId: string | null; topicId: string | null;
+  status: 'DRAFT' | 'PUBLISHED' | 'WITHDRAWN'; publishedAt: string | null; deadlineAt: string | null;
+  allowLate: boolean; locked: boolean; zone: string;
+}
+export interface ActivityDetail extends ActivitySummary {
+  instructions: string | null; attachmentRequired: boolean; questions: ActivityQuestion[];
+  instructionFiles: { id: string; name: string; extension: string; ready: boolean }[];
+  materials: { id: string; title: string; fileId: string; extension: string }[];
+}
+export interface ActivityData { revision: string; preview: boolean; activity: ActivityDetail }
+export interface DeadlineResolution {
+  zone: string; local: string; reason: 'NONEXISTENT' | 'AMBIGUOUS' | null;
+  choices: { instant: string; offsetMinutes: number; offset: string }[];
+}
 export interface ClassroomNotification {
   id: string;
   classroomId: string;
@@ -165,6 +189,7 @@ export interface ClassroomClient {
   ): Promise<T>;
   upload(draftId: string, file: File): Promise<FileState>;
   uploadClassroom?(classroomId: string, file: File, purpose: 'plan' | 'material'): Promise<FileState>;
+  uploadInstruction?(classroomId: string, activityId: string, file: File): Promise<FileState>;
   fileStatus(id: string, signal?: AbortSignal): Promise<FileState>;
   fileUrl(id: string, preview?: boolean): string;
 }
@@ -247,6 +272,14 @@ export function createClassroomClient(options: {
           throw new ApiError(`MATERIAL_${error.code}`, error.status, error.retryAfter);
         throw error;
       }
+    },
+    uploadInstruction: async (classroomId, activityId, file) => {
+      if (file.size > 20_000_000) throw new ApiError('FILE_TOO_LARGE');
+      if (!/\.(pdf|docx)$/i.test(file.name)) throw new ApiError('FILE_TYPE_NOT_ALLOWED');
+      const started = await response<{ id: string }>('/files', 'POST', {
+        scope: { kind: 'classroom', id: classroomId }, purpose: 'instructions', targetId: activityId, name: file.name, bytes: file.size,
+      });
+      return response<FileState>(`/files/${started.id}/content`, 'PUT', file);
     },
     fileUrl: (id, preview = false) =>
       `${prefix}/files/${encodeURIComponent(id)}/content?mode=${preview ? 'preview' : 'download'}`,

@@ -5,6 +5,7 @@ import { Cover, Dialog, Notice, initials } from './components.tsx';
 import { Plan } from './Plan.tsx';
 import { Library } from './Library.tsx';
 import { Wall } from './Wall.tsx';
+import { Activities } from './Activities.tsx';
 
 interface Summary {
   firstName: string;
@@ -180,6 +181,7 @@ export function ClassroomView({
               ...(teacher ? [{ key: 'history', label: 'Historial' }] : []),
               { key: 'plan', label: 'Plan' },
               { key: 'library', label: 'Biblioteca' },
+              { key: 'activities', label: 'Actividades' },
               { key: 'wall', label: 'Muro' },
               ...(teacher ? [{ key: 'settings', label: 'Configuración' }] : []),
             ].map((item) => (
@@ -421,6 +423,7 @@ export function ClassroomView({
             {tab === 'plan' ? <Plan api={api} room={room} reload={load} /> : null}
             {tab === 'library' ? <Library api={api} room={room} reload={load} /> : null}
             {tab === 'wall' ? <Wall api={api} room={room} reload={load} target={wallTarget} onChanged={onWallChanged} /> : null}
+            {tab === 'activities' ? <Activities api={api} room={room} reload={load} /> : null}
             {tab === 'settings' && teacher ? (
               <>
                 <h2>Configuración del aula</h2>

@@ -16,6 +16,9 @@ const routes: Rule[] = [
   rule(`/${uuid}/plan`, { POST: ['revision', 'operation'] }),
   rule(`/${uuid}/library`, { GET: null, POST: ['revision', 'operation'] }),
   rule(`/${uuid}/wall`, { GET: null, POST: ['revision', 'operation'] }),
+  rule(`/${uuid}/activities`, { GET: null, POST: ['revision', 'operation'] }),
+  rule(`/${uuid}/activities/deadline`, { POST: ['local'] }),
+  rule(`/${uuid}/activities/${uuid}(?:/preview)?`, { GET: null }),
   rule('/notifications', { GET: null }),
   rule(`/notifications/${uuid}/(?:read|open)`, { POST: [] }),
   rule(`/${uuid}/settings`, { PATCH: ['revision', 'name', 'subject', 'division', 'academicYear'] }),
@@ -106,6 +109,36 @@ function schema(value: unknown, keys: string[], wall = false): boolean {
   return true;
 }
 
+function activitySchema(value: unknown): boolean {
+  if (!object(value, ['revision', 'operation']) || typeof value.revision !== 'string') return false;
+  const op = value.operation;
+  if (!object(op, ['action', 'id', 'type', 'payload', 'title', 'unitId', 'topicId', 'deadline', 'allowLate'], false) || typeof op.action !== 'string') return false;
+  const shapes: Record<string, string[]> = {
+    create: ['action', 'type'], save: ['action', 'id', 'payload'], publish: ['action', 'id'], withdraw: ['action', 'id'],
+    metadata: ['action', 'id', 'title', 'unitId', 'topicId'], deadline: ['action', 'id', 'deadline', 'allowLate'],
+  };
+  if (!Object.hasOwn(shapes, op.action) || !object(op, shapes[op.action])) return false;
+  if (op.action === 'create') return typeof op.type === 'string' && ['ASSIGNMENT', 'QUESTIONNAIRE', 'EVALUATION'].includes(op.type);
+  if (typeof op.id !== 'string' || !new RegExp(`^${uuid}$`).test(op.id)) return false;
+  const association = (p: Record<string, unknown>) => typeof p.title === 'string'
+    && [p.unitId, p.topicId].every(id => id === null || typeof id === 'string' && new RegExp(`^${uuid}$`).test(id));
+  const deadline = (item: unknown) => item === null || object(item, ['local', 'offsetMinutes'], false)
+    && Object.hasOwn(item, 'local') && typeof item.local === 'string'
+    && (!Object.hasOwn(item, 'offsetMinutes') || Number.isInteger(item.offsetMinutes));
+  if (op.action === 'metadata') return association(op);
+  if (op.action === 'deadline') return typeof op.allowLate === 'boolean' && deadline(op.deadline);
+  if (op.action !== 'save') return true;
+  const p = op.payload;
+  if (!object(p, ['title', 'unitId', 'topicId', 'instructions', 'attachmentRequired', 'instructionFileIds', 'materialIds', 'questions', 'deadline', 'allowLate'])
+    || !association(p) || typeof p.instructions !== 'string' || typeof p.attachmentRequired !== 'boolean' || typeof p.allowLate !== 'boolean'
+    || !deadline(p.deadline) || !Array.isArray(p.questions)) return false;
+  if (![p.instructionFileIds, p.materialIds].every(ids => Array.isArray(ids) && ids.every(id => typeof id === 'string' && new RegExp(`^${uuid}$`).test(id)))) return false;
+  return p.questions.every(q => object(q, ['type', 'prompt', 'points', 'scoringRule', 'options'])
+    && typeof q.type === 'string' && typeof q.prompt === 'string' && typeof q.points === 'string'
+    && (q.scoringRule === null || typeof q.scoringRule === 'string') && Array.isArray(q.options)
+    && q.options.every(o => object(o, ['text', 'correct']) && typeof o.text === 'string' && typeof o.correct === 'boolean'));
+}
+
 /** Dedicated bounded P5 transport; Nest alone owns identity, authorization and domain validation. */
 export async function proxyClassroomRequest(request: IncomingMessage, response: ServerResponse, configuredOrigin: string | undefined): Promise<void> {
   const reject = (status: number, code: string) => {
@@ -138,7 +171,9 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
     if (!/^application\/json(?:;|$)/i.test(request.headers['content-type'] ?? '')) { reject(400, 'INVALID_INPUT'); return; }
     try {
       metadata = await body(request, requestLimit, expected);
-      if (!schema(JSON.parse(metadata.toString('utf8')), selected.methods[method] ?? [], url.pathname.endsWith('/wall'))) throw new Error('Invalid schema');
+      const parsed = JSON.parse(metadata.toString('utf8'));
+      if (!schema(parsed, selected.methods[method] ?? [], url.pathname.endsWith('/wall'))
+        || (url.pathname.endsWith('/activities') && !activitySchema(parsed))) throw new Error('Invalid schema');
     } catch (error) { reject(error instanceof RangeError ? 413 : 400, error instanceof RangeError ? 'REQUEST_TOO_LARGE' : 'INVALID_INPUT'); return; }
   }
   if (response.destroyed) return;

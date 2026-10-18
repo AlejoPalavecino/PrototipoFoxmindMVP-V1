@@ -3,6 +3,7 @@ import type { ClassroomService as InvitationService } from './service.ts';
 import { ClassroomError, fail, object } from './policy.ts';
 import { ClassroomIdentityError } from './errors.ts';
 import { wallOperation } from './wall-policy.ts';
+import { activityOperation } from './activity-policy.ts';
 
 interface Admission {
   admit(request: IncomingMessage, write: boolean, response: ServerResponse): Promise<void>;
@@ -174,6 +175,18 @@ export function createClassroomsHandler(
         value = await service.listMaterials(req, path[0]);
       else if (path.length === 2 && path[1] === 'library' && method === 'POST')
         value = await service.changeLibrary(req, path[0], exact(['revision', 'operation']));
+      else if (path.length === 2 && path[1] === 'activities' && method === 'GET')
+        value = await service.listActivities(req, path[0]);
+      else if (path.length === 2 && path[1] === 'activities' && method === 'POST') {
+        const data = exact(['revision', 'operation']);
+        activityOperation(data.operation);
+        value = await service.changeActivities(req, path[0], data);
+      } else if (path.length === 3 && path[1] === 'activities' && path[2] === 'deadline' && method === 'POST')
+        value = await service.activityDeadlineChoices(req, path[0], exact(['local']));
+      else if (path.length === 3 && path[1] === 'activities' && method === 'GET')
+        value = await service.activityDetail(req, path[0], path[2]);
+      else if (path.length === 4 && path[1] === 'activities' && path[3] === 'preview' && method === 'GET')
+        value = await service.activityDetail(req, path[0], path[2], true);
       else if (path.length === 2 && path[1] === 'wall' && method === 'GET')
         value = await service.listWall(req, path[0]);
       else if (path.length === 2 && path[1] === 'wall' && method === 'POST') {

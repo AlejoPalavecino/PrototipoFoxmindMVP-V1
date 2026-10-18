@@ -50,7 +50,7 @@ The specification's original "completion boundary" describes its earlier documen
 | P4 | Private file infrastructure | completed | Real P3 session/CSRF and web binary connections, private S3/validation/scan/quarantine/quotas, authorized retrieval and persistent restart independently verified; [proof](work-log/2026-10-18-p4-verify-final.md). |
 | P5 | Classrooms and enrollment | completed | Creation/drafts, required plan/units/topics, invitations/codes, classroom-scoped roles, membership history and archive lifecycle. Requires P3/P4. |
 | P6 | Teaching plan, Library and Muro | completed | Actual scoped Plan/Library/Muro and notifications, durable files/restarts, populated migration upgrade and independent mobile correction verified and published to main (merge8eee463). |
-| P7 | Activities, attempts and submissions | not_started | Authoring, practical assignments, questionnaires/evaluations, autosave, single editor, locks, deadlines, delivery and reopening. |
+| P7 | Activities, attempts and submissions | in_progress | Authoring, practical assignments, questionnaires/evaluations, autosave, single editor, locks, deadlines, delivery and reopening. |
 | P8 | Grading and follow-up | not_started | Exact scoring, teacher publication/corrections, effective grades, audit history, individual/class averages and progress. |
 | P9 | Integrated local validation | not_started | Complete teacher/student journeys, authorization and failure paths, responsive behavior and local pilot preparation. |
 
@@ -160,3 +160,7 @@ T2 historical parent56/independent33 and current T3-V parent72/independent41/act
 ## Deferred decisions and non-goals
 
 Hosting/provider/budget/production quotas/deployment topology remain deferred until local validation. AI is outside V1. Do not introduce microservices, Redis, WebSockets or other infrastructure without a demonstrated need and the applicable decision. No push/PR/release is implied by a phase status, roadmap entry or completed work log.
+
+## Current P7 authorization (2026-10-18)
+
+Full P7 implementation and verified main merge/push are now explicitly authorized: [tasks](../odd/tasks/p7-activities.md), [coordinator](work-log/2026-10-18-root-p7-activities.md). Work proceeds in readiness order; no P8 or deployment authorization. Earlier STOP-before-P7 statements are historical scope, superseded only for this explicitly requested P7. P3–P6 acceptance and original dirty checkout remain preserved.

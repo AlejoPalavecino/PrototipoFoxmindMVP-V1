@@ -1,1 +1,1 @@
-export { WallService as ClassroomService } from './wall.ts';
+export { ActivityAuthoringService as ClassroomService } from './activity-authoring.ts';
