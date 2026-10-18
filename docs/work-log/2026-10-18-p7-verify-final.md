@@ -101,3 +101,6 @@ Risk: candidate items1–5; verifier changed no source.
 
 ## Coordinator acceptance and scope
 Persisted by /root from independent /root/p7_final_verify, user-requested gpt-6.1-sol/xhigh. S1/S2 accepted; source0ec37c7 and final fixture d9cdf06 are unchanged after this proof. Parent spot-check P4 session bridge6PASS. Source-mutating work is frozen; only passive records/roadmap/boundary remain before delivery. Native review remains off/global, disabled/unmanaged, with no native approval. Live authorized HTTPS fetch confirmed origin/main and localmain b4829e2, an ancestor of this candidate. Main merge/push remains coordinator-only and will be recorded after observation. P8 remains not started.
+
+## Coordinator delivery observed after independent acceptance
+The coordinator (not verifier) merged verified P7 to existing main as8e4fd2eb7bf3a55555518104825c52f6076c00dc and pushed through the existing HTTPSorigin. Exactgitls-remotemain matchedthatmerge. Executablebytes remainidenticaltoacceptedfixtured9cdf06/correctedsource0ec37c7. A subsequentpassivepublicationrecordcontains this observation; finaltipis confirmed separately afterthatpush. NoP8/deployment/nativeapproval implied.

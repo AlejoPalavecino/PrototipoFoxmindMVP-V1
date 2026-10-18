@@ -19,7 +19,7 @@ Delivery: exception-ok, coherent behavior/test/UI/docs work-unit commits followe
 - T5 | S1,S3 | delegated context-backstop: reopen/prefill/history/P7 notifications | completed; independent accepted | commita897ca8 | Risk:items1,2,3,4
 - T6 | S1,S2 | inline harness + delegated long own checks | completed; staged own proof and independent default evidence separately attributed | commitae6f6e5 +96a6e3d +b98e737 | Risk:items1–5
 - T7 | S1–S3 | delegated independent whole-feature Sol/xhigh + bounded B1 recheck | completed; S1/S2 accepted under scoped independent90s preparation; no corrected shared30s default claim | sourced9cdf06 / final proof docs/work-log/2026-10-18-p7-verify-final.md | Risk:items1–5
-- T8 | S3,S4 | inline passive closure/authorized main merge/push/remote confirmation | in_progress; local acceptance complete, publication pending | commit pending | Risk:none for passive closure
+- T8 | S3,S4 | inline passive closure/authorized main merge/push/remote confirmation | completed; merge and push observed, exact remote SHA confirmed | merge8e4fd2e | Risk:none for passive closure
 
 ## Log
 
@@ -89,3 +89,5 @@ Delivery: exception-ok, coherent behavior/test/UI/docs work-unit commits followe
 - L33: L32scoped90spreparationONEoutsideoriginalbuildApirundriver0/20675ms/Next0/24036ms/control26PASS40154ms/actualB11PASS49532ms/cleanup0; ALL512raw/no links/shared30shelperunchanged/original249+managed513unchanged. B1productindependentlycleared. FinalreadbackfoundoldcanonicalparticipationfixturecanStartfalseforineligibleTPcontradictsSAMEB1correctedtrue; notnewproductdefect. ParentONEtestassertfalse→trueonly, expectedfalse/nofictitiousattemptchecksretained, no productionchange/newproductcorrection. Nodecheck0. TargetedcanonicalparticipationjourneyonlyfollowstoalignB1proof, nofullsweep/otherpassingrepeats. Attributed90sreportp7-b1-90s-verification.md; priorunavailablefailuresretained.
 
 - L34: Independentfinald9cdf06S1S2VERIFIED/no remainingblocker. ONEcanonicalB1fixturetargetAPI90s0/28618ms/Next0/22274ms/canonical4leaf5TAP0fail0skip78297ms/cleanup0/ALL514rawphysicaldepsnolinks/shared30shelperunchanged/original249dirty+managed514unchanged. Proofchainretainspriorbbc44/120/transport/security +corrected0ec26/actualB11; no newfullsweep/correctedshareddefault30sPASS. Attributedfinalp7-verify-final.md. Parentbridge6PASS/liveoriginmainb4829e2ancestorverified. Onlypassiveclosure/deliverynext,noP8.
+
+- L35: Authorizeddeliveryobserved: managedmainreconciledoriginb4829e2, --no-ffmerge8e4fd2eb7bf3a55555518104825c52f6076c00dc, gitpushoriginmain0andgitls-remoterefs/heads/mainEXACTsameSHA. Executableapps/scripts/tests/prisma/package/lockbytesunchangedvsacceptedd9cdf06before/aftermerge; managedclean/originaldirtypreserved. Finalpassivepublicationrecordfollowsthisobservedmerge; source/acceptance unchanged. T1-T8complete/P8notstarted/shared30sunchanged/nativeoffglobal/no deploy.
