@@ -676,8 +676,8 @@ model QuestionGrade {
   attempt_grade_id   String       @db.Uuid
   activity_id        String       @db.Uuid
   question_id        String       @db.Uuid
-  earned_numerator   Decimal      @db.Decimal
-  earned_denominator Decimal      @db.Decimal
+  earned_numerator   Decimal?     @db.Decimal
+  earned_denominator Decimal?     @db.Decimal
   feedback           String?
   attempt_grade      AttemptGrade @relation("QuestionGrade_grade", fields: [attempt_grade_id, activity_id], references: [id, activity_id], onDelete: Restrict, onUpdate: NoAction)
   question           Question     @relation("QuestionGrade_question", fields: [question_id, activity_id], references: [id, activity_id], onDelete: Restrict, onUpdate: NoAction)

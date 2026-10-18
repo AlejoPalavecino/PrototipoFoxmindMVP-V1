@@ -25,6 +25,7 @@ const routes: Rule[] = [
   rule(`/${uuid}/activities/${uuid}/(?:history|history-submissions)`, { GET: null }),
   rule(`/${uuid}/activities/${uuid}/reopen`, { POST: ['revision', 'studentId', 'deadline', 'confirm'] }),
   rule(`/${uuid}/attempts/${uuid}/history`, { GET: null }),
+  rule(`/${uuid}/attempts/${uuid}/grading`, { GET: null, POST: ['revision', 'overallGrade', 'overallFeedback', 'questions'] }),
   rule(`/${uuid}/attempts/${uuid}/transfer`, { POST: ['revision'] }),
   rule(`/${uuid}/attempts/${uuid}/attachments-remove`, { POST: ['revision', 'fileId'] }),
   rule(`/${uuid}/attempts/${uuid}/submit-practical`, { POST: ['revision', 'confirm'] }),
@@ -127,6 +128,18 @@ function schema(value: unknown, keys: string[], wall = false): boolean {
   return true;
 }
 
+function gradingSchema(value: unknown): boolean {
+  if (!object(value, ['revision', 'overallGrade', 'overallFeedback', 'questions'], false)
+    || !['revision', 'overallGrade', 'questions'].every(key => Object.hasOwn(value, key))
+    || typeof value.revision !== 'string' || !Array.isArray(value.questions)) return false;
+  const decimal = (input: unknown) => typeof input === 'string' && /^(?:0|[1-9]\d*)(?:\.\d{1,2})?$/.test(input);
+  const feedback = (input: unknown) => input === null || input === undefined || typeof input === 'string';
+  if (!(value.overallGrade === null || decimal(value.overallGrade)) || !feedback(value.overallFeedback)) return false;
+  return value.questions.every(row => object(row, ['questionId', 'points', 'feedback'], false)
+    && typeof row.questionId === 'string' && new RegExp(`^${uuid}$`).test(row.questionId)
+    && Object.hasOwn(row, 'points') && (row.points === null || decimal(row.points)) && feedback(row.feedback));
+}
+
 function activitySchema(value: unknown): boolean {
   if (!object(value, ['revision', 'operation']) || typeof value.revision !== 'string') return false;
   const op = value.operation;
@@ -191,12 +204,13 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
   const practicalWrite = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/(?:attachments-remove|submit-practical)$`).test(url.pathname);
   const historyRoute = new RegExp(`^/api/v1/classrooms/${uuid}/(?:activities/${uuid}/(?:history|history-submissions|reopen)|attempts/${uuid}/history)$`).test(url.pathname);
   const practicalRead = /\/(?:submissions|receipt)$/.test(url.pathname) || historyRoute;
+  const gradingRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/grading$`).test(url.pathname);
   if ((practicalWrite || answerWrite) && (typeof request.headers['x-attempt-editor'] !== 'string'
     || !/^[A-Za-z0-9_-]{43}$/.test(request.headers['x-attempt-editor'])
     || typeof request.headers['x-attempt-epoch'] !== 'string' || !/^(0|[1-9][0-9]{0,18})$/.test(request.headers['x-attempt-epoch']))) {
     reject(400, 'INVALID_INPUT'); return;
   }
-  if (practicalRead && (request.headers['x-attempt-editor'] !== undefined || request.headers['x-attempt-epoch'] !== undefined)) {
+  if ((practicalRead || gradingRoute) && (request.headers['x-attempt-editor'] !== undefined || request.headers['x-attempt-epoch'] !== undefined)) {
     reject(400, 'INVALID_INPUT'); return;
   }
   let origin: string, expected: number | undefined;
@@ -216,8 +230,9 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
         && typeof parsed.revision === 'string' && typeof parsed.studentId === 'string' && new RegExp(`^${uuid}$`).test(parsed.studentId)
         && parsed.confirm === true && (parsed.deadline === null || object(parsed.deadline, ['local', 'offsetMinutes'], false)
           && typeof parsed.deadline.local === 'string' && (!Object.hasOwn(parsed.deadline, 'offsetMinutes') || Number.isInteger(parsed.deadline.offsetMinutes)));
-      if ((!practicalWrite && !answerWrite && !reopening && !schema(parsed, selected.methods[method] ?? [], url.pathname.endsWith('/wall')))
+      if ((!practicalWrite && !answerWrite && !reopening && !gradingRoute && !schema(parsed, selected.methods[method] ?? [], url.pathname.endsWith('/wall')))
         || !validReopening
+        || (gradingRoute && !gradingSchema(parsed))
         || (url.pathname.endsWith('/activities') && !activitySchema(parsed))
         || (answerWrite && (!object(parsed, selected.methods[method] ?? []) || typeof parsed.revision !== 'string'
           || (url.pathname.endsWith('/answer') ? typeof parsed.questionId !== 'string' || !new RegExp(`^${uuid}$`).test(parsed.questionId)

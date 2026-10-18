@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { AttemptHistoryData, AttemptHistoryRow, AttemptSessionData, ClassroomClient, DeadlineResolution, Detail } from './api.ts';
 import { Dialog, Notice } from './components.tsx';
 import { activityDate } from './ActivityAuthoring.tsx';
+import { GradingEditor } from './GradingEditor.tsx';
 
 export function AttemptHistory({ api, room, activityId, attemptId, onClose, onChanged, onResume }: {
   api: ClassroomClient; room: Detail; activityId: string; attemptId?: string | null; onClose: () => void;
@@ -13,6 +14,7 @@ export function AttemptHistory({ api, room, activityId, attemptId, onClose, onCh
   const [reopening, setReopening] = useState<AttemptHistoryRow | null>(null), [local, setLocal] = useState('');
   const [resolution, setResolution] = useState<DeadlineResolution | null>(null), [offset, setOffset] = useState<number | null>(null);
   const [busy, setBusy] = useState(false), [error, setError] = useState('');
+  const [grading, setGrading] = useState<string | null>(null);
   const load = useCallback(async (signal?: AbortSignal) => {
     setData(await api.call<AttemptHistoryData>(`${path}/${teacher ? 'history-submissions' : 'history'}`, 'GET', undefined, signal));
   }, [api, path, teacher]);
@@ -46,10 +48,12 @@ export function AttemptHistory({ api, room, activityId, attemptId, onClose, onCh
           })}>Continuar borrador</button> : null}
           {teacher && data.canReopen && attempt.currentMember && attempt.status === 'SUBMITTED'
             && !data.attempts.some(a => a.studentId === attempt.studentId && (a.status === 'DRAFT' || a.number > attempt.number))
-            ? <button disabled={busy} onClick={() => { setReopening(attempt); setLocal(''); setOffset(null); setResolution(null); }}>Habilitar otro intento</button> : null}</div>
+            ? <button disabled={busy} onClick={() => { setReopening(attempt); setLocal(''); setOffset(null); setResolution(null); }}>Habilitar otro intento</button> : null}
+          {teacher && attempt.status === 'SUBMITTED' ? <button disabled={busy} onClick={() => { setGrading(attempt.id); setSelected(null); setReopening(null); }}>Corregir intento {attempt.number}</button> : null}</div>
       </li>)}</ul>
       <button disabled={busy} onClick={() => void run(() => load())}>Actualizar historial</button>
     </>}
+    {grading ? <GradingEditor api={api} roomId={room.id} attemptId={grading} onClose={() => setGrading(null)} onChanged={async () => { await Promise.all([load(), onChanged()]); }} /> : null}
     {selected?.attempt ? <section className="p7-history-detail" aria-label="Intento histórico confirmado"><h4>Intento {selected.attempt.number} · solo consulta</h4>
       {selected.activity.questions.map((question, index) => { const answer = selected.attempt!.answers.find(a => a.questionId === question.id);
         return <article key={question.id}><h4>Pregunta {index + 1}</h4><p className="p7-multiline">{question.prompt}</p>

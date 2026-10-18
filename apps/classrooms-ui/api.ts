@@ -125,6 +125,19 @@ export interface ActivityDetail extends ActivitySummary {
 }
 export interface ActivityData { revision: string; preview: boolean; activity: ActivityDetail }
 export interface AttemptEditor { token: string; epoch: string }
+export interface GradingQuestion extends ActivityQuestion {
+  id: string;
+  answer: { questionId: string; text: string | null; optionIds: string[] };
+  manual: boolean; manualPoints: string | null; earned: { numerator: string; denominator: string } | null; feedback: string | null;
+}
+export interface GradingData {
+  revision: string; archived: boolean; canSave: boolean;
+  activity: Omit<ActivityDetail, 'questions'> & { questions: GradingQuestion[] };
+  attempt: { id: string; number: number; submittedAt: string; submittedLate: boolean;
+    firstName: string; lastName: string; attachments: { id: string; name: string; ready: boolean }[] };
+  grade: { id: string | null; isPublished: boolean; publishedAt: string | null;
+    finalGrade: string | null; overallFeedback: string | null; pending: boolean };
+}
 export interface QuestionAnswer { questionId: string; text: string | null; optionIds: string[]; savedAt: string }
 export interface AnswerConfirmation { revision: string; answer: QuestionAnswer }
 export interface AttemptSessionData {

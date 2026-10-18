@@ -7,6 +7,7 @@ import { activityOperation } from './activity-policy.ts';
 import { editorCapability } from './attempt-policy.ts';
 import { uuid } from './policy.ts';
 import { captureSubmissionReceipt } from './submission-receipt.ts';
+import { privateGradingInput } from './grading-policy.ts';
 
 interface Admission {
   admit(request: IncomingMessage, write: boolean, response: ServerResponse): Promise<void>;
@@ -199,6 +200,13 @@ export function createClassroomsHandler(
         if (!uuid(path[0]) || !uuid(path[2]) || req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
           return fail('INVALID_INPUT');
         value = await service.activityAttempt(req, path[0], path[2]);
+      }
+      else if (path.length === 4 && path[1] === 'attempts' && path[3] === 'grading') {
+        if (!uuid(path[0]) || !uuid(path[2]) || req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
+          return fail('INVALID_INPUT');
+        if (method === 'GET') value = await service.getAttemptGrading(req, path[0], path[2]);
+        else if (method === 'POST') value = await service.saveAttemptGrading(req, path[0], path[2], privateGradingInput(body));
+        else return fail('INVALID_INPUT');
       }
       else if (path.length === 4 && path[1] === 'activities' && ['session', 'start', 'eligibility', 'authorize-first'].includes(path[3])) {
         if (!uuid(path[0]) || !uuid(path[2])) return fail('INVALID_INPUT');
