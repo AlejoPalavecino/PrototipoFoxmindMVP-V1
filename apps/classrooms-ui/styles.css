@@ -732,3 +732,6 @@
 .p8-final-grade { font-weight: 700; }
 .p8-result { border-top: 1px solid #d9ddd7; margin-top: 1rem; padding-top: 1rem; overflow-wrap: anywhere; }
 .p8-result article { padding-block: .5rem; }
+.p8-published-correction { border-top: 1px solid #dce2e9; margin-top: 1.5rem; padding-top: 1rem; }
+.p8-correction-audit { padding-left: 1.5rem; }
+.p8-correction-audit li { margin-block: 1rem; overflow-wrap: anywhere; }

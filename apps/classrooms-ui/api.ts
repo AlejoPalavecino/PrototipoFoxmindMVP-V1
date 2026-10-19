@@ -138,6 +138,12 @@ export interface GradingData {
   grade: { id: string | null; isPublished: boolean; publishedAt: string | null;
     finalGrade: string | null; overallFeedback: string | null; pending: boolean };
 }
+export interface GradeCorrectionsData {
+  revision: string; archived: boolean; canCorrect: boolean;
+  grade: { id: string; finalGrade: string; publishedAt: string };
+  corrections: { id: string; previousGrade: string; newGrade: string; reason: string;
+    actor: { id: string; firstName: string; lastName: string }; correctedAt: string }[];
+}
 export type PublishedResultData = { status: 'pending'; attemptId: string } | {
   status: 'published'; activity: { id: string; title: string; type: string };
   attempt: { id: string; number: number; submittedAt: string };
@@ -184,7 +190,7 @@ interface NotificationBase {
 export type ClassroomNotification = NotificationBase & ({ eventType: 'WALL_NOTICE' | 'WALL_QUERY' | 'WALL_REPLY'; postId: string; replyId: string | null }
   | { eventType: 'ACTIVITY_PUBLISHED' | 'ACTIVITY_DEADLINE_CHANGED' | 'FIRST_SUBMISSION_ENABLED' | 'ATTEMPT_REOPENED' | 'SUBMISSION_RECEIVED';
       activityId: string; activityTitle: string; attemptId: string | null }
-  | { eventType: 'GRADE_PUBLISHED'; activityId: string; activityTitle: string; attemptId: string; gradeId: string });
+  | { eventType: 'GRADE_PUBLISHED' | 'GRADE_CORRECTED'; activityId: string; activityTitle: string; attemptId: string; gradeId: string });
 export interface WallTarget { classroomId: string; postId: string; replyId: string | null }
 export type AcademicTarget = { kind: 'activity' | 'attempt' | 'submission' | 'grade'; classroomId: string; activityId: string; attemptId: string | null; gradeId?: string };
 export type NotificationTarget = WallTarget | AcademicTarget;

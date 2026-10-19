@@ -59,3 +59,15 @@ SQLone-linefixAPI0/publicationSQL13PASS/cleanup0. Firstactualquiz/evalpassed2, T
 
 ## T2 own proof closure
 T2worker24surfaces, authorizedSQLfixprovedSQL13PASS; HTTPproxyclient4PASS/affected55, originalactualQandE2PASSplusdistinctTP3PASS81.4s(no429), restart/revocation/fileshash/notificationtargetpassed/cleanup0. Legacy184cases52460stdoutbytesstderr/exitsidentical. Parentpublicationclient2PASS/diffcheck0. Historicalfailuresqualificationsretained. IndependentwholeP8pending; noP9. Coherentunitover400advisory, no omittedtests/formatcompression. RollbackT2publication/results/grade-eventswithitsUItestsdocs, retainingT1privategrading. ParentT5runnerpackagecontrolsremainoutsideT2commit.
+
+## Attributed T3 read-only map
+/root/p8_readiness_verify169staticT3S1S4mapcoveredexistingauditshape/constraints+samepublishedgrade/correctionevent/safestudentDTO. Parentfunctional540-550/resultsourceonecheck. No workerwrites/runtimeacceptance. T3boundedwritercontextbackstop exactsurfacesderived; no schema/deps needed, noT4/P9.
+
+## T3 partial, bounded missing-proof hold
+/root/p8_corrections18authorizedsurfacesimplementedpublishedfinalcorrection/reason/audit/event withsamegradeidentity/publishedtime/immutableevidence. Focused15/affected68/APItypesNext0/exactlegacy194cases57550bytesPASS; originalTPcompletePASS. OriginalQ429thenexplicitremainingQ/Etargetprephelper-shadowfailureexactrename+2callsauthorizedandtargetedrun: QcompletePASS, Eteacher+ownsafeAPI200passedbutnotificationopenGET429RetryAfter46; restart/revocation/signedoutskip. Allcleanup0/10producthashesunchanged/noproductcorrection. Parentexacttestline177+workrecordreadback/diffcheck0. Stoppedatboundedproof; noT3commit/T4/P9/mainpublish. Needhumanone narrowlytargetedEremainingnotification+restart/accessproofunchanged330/360withobservedRetryAfterwait/visibleopen, notnewfullsweep/productfix/limitincrease.
+
+## Human-authorized remaining T3 verification
+User "Si te autorizo" authorizes exactly one remaining E notification-result/restart/access proof with current330/360limits and actualRetryAfterwait, no product edits or TP/Q repetition. Reconciled HEAD40cf46b/T3dirty/parentT5dirty; preserve prior outcomes. Resume /root/p8_corrections under original skills/invariants and expanded exact test-only surface, no broader correction/retry permission.
+
+## T3 own proof closure after human authorization
+Authorized E-final4PASS/0FAIL/0SKIP46.7s; cleanexactnotificationzeroresult/mobile/noaudit/restartfullstate/revocation403nohashmutation/teacherhistory/signedout401. No429/retry/productedit/rebuild/TPQreplay; product10/API91/Next222hashesunchanged/cleanup0. Combinedwithattributedfocused15/affected68/buildtypes0/legacy194cases57550bytes/originalTP+distinctQ, T3ownproofcomplete. Parentclientspotcheck/diffcheck0. Historicalfailuresretained; wholeP8independentpending.19workerfiles; rollbackT3correctionauditevents/UIretainsT1T2. Coherentverticalunitmayexceed400advisory; no omittedtests/codegolf. T4mapaftercommit; noP9.

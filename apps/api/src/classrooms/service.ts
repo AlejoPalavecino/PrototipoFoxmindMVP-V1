@@ -1,1 +1,1 @@
-export { GradePublicationService as ClassroomService } from './grade-publication.ts';
+export { GradeCorrectionService as ClassroomService } from './grade-corrections.ts';

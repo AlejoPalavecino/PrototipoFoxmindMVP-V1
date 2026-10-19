@@ -27,6 +27,7 @@ const routes: Rule[] = [
   rule(`/${uuid}/attempts/${uuid}/history`, { GET: null }),
   rule(`/${uuid}/attempts/${uuid}/grading`, { GET: null, POST: ['revision', 'overallGrade', 'overallFeedback', 'questions'] }),
   rule(`/${uuid}/attempts/${uuid}/publish-grade`, { POST: ['revision', 'confirm'] }),
+  rule(`/${uuid}/attempts/${uuid}/grade-corrections`, { GET: null, POST: ['revision', 'newGrade', 'reason', 'confirm'] }),
   rule(`/${uuid}/attempts/${uuid}/result`, { GET: null }),
   rule(`/${uuid}/attempts/${uuid}/transfer`, { POST: ['revision'] }),
   rule(`/${uuid}/attempts/${uuid}/attachments-remove`, { POST: ['revision', 'fileId'] }),
@@ -142,6 +143,13 @@ function gradingSchema(value: unknown): boolean {
     && Object.hasOwn(row, 'points') && (row.points === null || decimal(row.points)) && feedback(row.feedback));
 }
 
+function gradeCorrectionSchema(value: unknown): boolean {
+  return object(value, ['revision', 'newGrade', 'reason', 'confirm']) && typeof value.revision === 'string'
+    && /^(0|[1-9][0-9]{0,18})$/.test(value.revision) && value.confirm === true
+    && typeof value.newGrade === 'string' && /^(?:[0-9](?:\.\d{1,2})?|10(?:\.0{1,2})?)$/.test(value.newGrade)
+    && typeof value.reason === 'string' && !!value.reason.trim() && value.reason.length <= 5000;
+}
+
 function activitySchema(value: unknown): boolean {
   if (!object(value, ['revision', 'operation']) || typeof value.revision !== 'string') return false;
   const op = value.operation;
@@ -208,12 +216,13 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
   const practicalRead = /\/(?:submissions|receipt)$/.test(url.pathname) || historyRoute;
   const gradingRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/grading$`).test(url.pathname);
   const publicationRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/(?:publish-grade|result)$`).test(url.pathname);
+  const correctionRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/grade-corrections$`).test(url.pathname);
   if ((practicalWrite || answerWrite) && (typeof request.headers['x-attempt-editor'] !== 'string'
     || !/^[A-Za-z0-9_-]{43}$/.test(request.headers['x-attempt-editor'])
     || typeof request.headers['x-attempt-epoch'] !== 'string' || !/^(0|[1-9][0-9]{0,18})$/.test(request.headers['x-attempt-epoch']))) {
     reject(400, 'INVALID_INPUT'); return;
   }
-  if ((practicalRead || gradingRoute || publicationRoute) && (request.headers['x-attempt-editor'] !== undefined || request.headers['x-attempt-epoch'] !== undefined)) {
+  if ((practicalRead || gradingRoute || publicationRoute || correctionRoute) && (request.headers['x-attempt-editor'] !== undefined || request.headers['x-attempt-epoch'] !== undefined)) {
     reject(400, 'INVALID_INPUT'); return;
   }
   let origin: string, expected: number | undefined;
@@ -233,9 +242,10 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
         && typeof parsed.revision === 'string' && typeof parsed.studentId === 'string' && new RegExp(`^${uuid}$`).test(parsed.studentId)
         && parsed.confirm === true && (parsed.deadline === null || object(parsed.deadline, ['local', 'offsetMinutes'], false)
           && typeof parsed.deadline.local === 'string' && (!Object.hasOwn(parsed.deadline, 'offsetMinutes') || Number.isInteger(parsed.deadline.offsetMinutes)));
-      if ((!practicalWrite && !answerWrite && !reopening && !gradingRoute && !publicationRoute && !schema(parsed, selected.methods[method] ?? [], url.pathname.endsWith('/wall')))
+      if ((!practicalWrite && !answerWrite && !reopening && !gradingRoute && !publicationRoute && !correctionRoute && !schema(parsed, selected.methods[method] ?? [], url.pathname.endsWith('/wall')))
         || !validReopening
         || (gradingRoute && !gradingSchema(parsed))
+        || (correctionRoute && !gradeCorrectionSchema(parsed))
         || (publicationRoute && (!object(parsed, ['revision', 'confirm']) || typeof parsed.revision !== 'string'
           || !/^(0|[1-9][0-9]{0,18})$/.test(parsed.revision) || parsed.confirm !== true))
         || (url.pathname.endsWith('/activities') && !activitySchema(parsed))

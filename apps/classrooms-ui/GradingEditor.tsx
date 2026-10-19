@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { ClassroomClient, GradingData } from './api.ts';
 import { Notice } from './components.tsx';
+import { PublishedGradeCorrection } from './PublishedGradeCorrection.tsx';
 
 export function GradingEditor({ api, roomId, attemptId, onClose, onChanged }: {
   api: ClassroomClient; roomId: string; attemptId: string; onClose: () => void; onChanged: () => Promise<void>;
@@ -68,6 +69,8 @@ export function GradingEditor({ api, roomId, attemptId, onClose, onChanged }: {
             restore(next); await onChanged();
           })}>Confirmar publicación</button></div>
       </section> : null}
+      {data.grade.isPublished ? <PublishedGradeCorrection api={api} roomId={roomId} attemptId={attemptId}
+        onChanged={async () => { await load(); await onChanged(); }} /> : null}
     </>}
   </section>;
 }
