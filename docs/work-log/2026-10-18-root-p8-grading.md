@@ -71,3 +71,9 @@ User "Si te autorizo" authorizes exactly one remaining E notification-result/res
 
 ## T3 own proof closure after human authorization
 Authorized E-final4PASS/0FAIL/0SKIP46.7s; cleanexactnotificationzeroresult/mobile/noaudit/restartfullstate/revocation403nohashmutation/teacherhistory/signedout401. No429/retry/productedit/rebuild/TPQreplay; product10/API91/Next222hashesunchanged/cleanup0. Combinedwithattributedfocused15/affected68/buildtypes0/legacy194cases57550bytes/originalTP+distinctQ, T3ownproofcomplete. Parentclientspotcheck/diffcheck0. Historicalfailuresretained; wholeP8independentpending.19workerfiles; rollbackT3correctionauditevents/UIretainsT1T2. Coherentverticalunitmayexceed400advisory; no omittedtests/codegolf. T4mapaftercommit; noP9.
+
+## Attributed T4 read-only map
+/root/p8_readiness_verify180mappedS1S2S4expectedobligations/currentmembership/firstconfirmedlate/effectivegrade/exactindividualmeans/taughtplanandactualshell+historicalsummary. Parentonefunctional608-664/shellspotcheck. No mapperwrites/runtimeproof; no schema/depsneeded. T4exactsurfacesderived, sequentialcontextbackstopwriter; preserveparentT5harness; noP9.
+
+## T4 own proof closure
+18allowedfilesreadonlyprogress/currenthistoryUI/S1S2S4. Pure4/SQL10+transportclient3target/affected72/APItypesNext0/firstactual7PASS44.4s126safeHTTPzero429/restartprivacyhashcleanup0. Twoexternaldifferentialpreparationdispositionspreserved(parserbothfail→identicaltransform; randomproxyIDs→identicaldeterministicUUIDbeforeimport), final201cases50498bytesexactstdout/emptyerr/exits0pair. Parentpure4PASS/diffcheck0. Rollbackadditiveprogressservice/routes/UI/testsdocsretainsT1T3anddata; coherentunitover400advisory/noomittedtests/codegolf. FinalwholeP8independentpending; T5next/noP9.

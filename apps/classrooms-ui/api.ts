@@ -144,6 +144,24 @@ export interface GradeCorrectionsData {
   corrections: { id: string; previousGrade: string; newGrade: string; reason: string;
     actor: { id: string; firstName: string; lastName: string }; correctedAt: string }[];
 }
+export interface CompletionProgress {
+  expected: number; delivered: number; pending: number; onTime: number; late: number; pendingResubmissions: number;
+  percentage: string | null; emptyLabel: string | null;
+}
+export interface ProgressActivity {
+  id: string; title: string; type: ActivityType; expected: boolean;
+  firstSubmission: { id: string; number: number; submittedAt: string; appliedDeadlineAt: string | null; late: boolean } | null;
+  pendingResubmission: boolean; grade: string | null;
+}
+export interface StudentProgress {
+  studentId: string; firstName: string; lastName: string; currentMember: boolean;
+  completion: CompletionProgress; performance: { graded: number; average: string | null }; activities: ProgressActivity[];
+}
+export type ProgressData = { revision: string; archived: boolean; plan: { total: number; taught: number; percentage: string | null } } & (
+  { scope: 'classroom'; studentCount: number; students: StudentProgress[]; completion: CompletionProgress;
+    performance: { gradedStudents: number; average: string | null } }
+  | ({ scope: 'self' | 'member' } & StudentProgress)
+);
 export type PublishedResultData = { status: 'pending'; attemptId: string } | {
   status: 'published'; activity: { id: string; title: string; type: string };
   attempt: { id: string; number: number; submittedAt: string };

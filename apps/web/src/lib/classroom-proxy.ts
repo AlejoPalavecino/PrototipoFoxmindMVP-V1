@@ -13,6 +13,8 @@ const routes: Rule[] = [
   rule('/codes/preview', { POST: ['code'] }), rule('/codes/confirm', { POST: ['confirmation'] }),
   rule('/invitations', { GET: null }), rule(`/invitations/${uuid}/accept`, { POST: [] }),
   rule(`/${uuid}`, { GET: null }),
+  rule(`/${uuid}/progress`, { GET: null }),
+  rule(`/${uuid}/members/${uuid}/progress`, { GET: null }),
   rule(`/${uuid}/plan`, { POST: ['revision', 'operation'] }),
   rule(`/${uuid}/library`, { GET: null, POST: ['revision', 'operation'] }),
   rule(`/${uuid}/wall`, { GET: null, POST: ['revision', 'operation'] }),
@@ -217,12 +219,13 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
   const gradingRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/grading$`).test(url.pathname);
   const publicationRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/(?:publish-grade|result)$`).test(url.pathname);
   const correctionRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/grade-corrections$`).test(url.pathname);
+  const progressRoute = new RegExp(`^/api/v1/classrooms/${uuid}/(?:progress|members/${uuid}/progress)$`).test(url.pathname);
   if ((practicalWrite || answerWrite) && (typeof request.headers['x-attempt-editor'] !== 'string'
     || !/^[A-Za-z0-9_-]{43}$/.test(request.headers['x-attempt-editor'])
     || typeof request.headers['x-attempt-epoch'] !== 'string' || !/^(0|[1-9][0-9]{0,18})$/.test(request.headers['x-attempt-epoch']))) {
     reject(400, 'INVALID_INPUT'); return;
   }
-  if ((practicalRead || gradingRoute || publicationRoute || correctionRoute) && (request.headers['x-attempt-editor'] !== undefined || request.headers['x-attempt-epoch'] !== undefined)) {
+  if ((practicalRead || gradingRoute || publicationRoute || correctionRoute || progressRoute) && (request.headers['x-attempt-editor'] !== undefined || request.headers['x-attempt-epoch'] !== undefined)) {
     reject(400, 'INVALID_INPUT'); return;
   }
   let origin: string, expected: number | undefined;

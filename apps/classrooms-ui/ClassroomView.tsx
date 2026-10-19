@@ -6,6 +6,7 @@ import { Plan } from './Plan.tsx';
 import { Library } from './Library.tsx';
 import { Wall } from './Wall.tsx';
 import { Activities } from './Activities.tsx';
+import { Progress } from './Progress.tsx';
 
 interface Summary {
   firstName: string;
@@ -46,7 +47,7 @@ export function ClassroomView({
   const [code, setCode] = useState(initialCode),
     [email, setEmail] = useState(''),
     [inviting, setInviting] = useState(false),
-    [summary, setSummary] = useState<Summary | null>(null);
+    [summary, setSummary] = useState<(Summary & { studentId: string }) | null>(null);
   const [confirm, setConfirm] = useState<{
     title: string;
     text: string;
@@ -182,6 +183,7 @@ export function ClassroomView({
               { key: 'plan', label: 'Plan' },
               { key: 'library', label: 'Biblioteca' },
               { key: 'activities', label: 'Actividades' },
+              { key: 'progress', label: teacher ? 'Progreso' : 'Mi progreso' },
               { key: 'wall', label: 'Muro' },
               ...(teacher ? [{ key: 'settings', label: 'Configuración' }] : []),
             ].map((item) => (
@@ -262,11 +264,12 @@ export function ClassroomView({
                               disabled={busy}
                               onClick={() =>
                                 void action(async () =>
-                                  setSummary(
-                                    await api.call<Summary>(
+                                  setSummary({
+                                    ...await api.call<Summary>(
                                       `/${id}/members/${member.studentId}`,
                                     ),
-                                  ),
+                                    studentId: member.studentId!,
+                                  }),
                                 )
                               }
                             >
@@ -421,6 +424,7 @@ export function ClassroomView({
               </>
             ) : null}
             {tab === 'plan' ? <Plan api={api} room={room} reload={load} /> : null}
+            {tab === 'progress' ? <Progress api={api} classroomId={id} /> : null}
             {tab === 'library' ? <Library api={api} room={room} reload={load} /> : null}
             {tab === 'wall' ? <Wall api={api} room={room} reload={load} target={wallTarget && 'postId' in wallTarget ? wallTarget : null} onChanged={onWallChanged} /> : null}
             {tab === 'activities' ? <Activities api={api} room={room} reload={load} target={wallTarget && 'kind' in wallTarget ? wallTarget : null} onChanged={onWallChanged} /> : null}
@@ -610,6 +614,7 @@ export function ClassroomView({
           title={`${summary.firstName} ${summary.lastName}`}
           onClose={() => setSummary(null)}
         >
+          <Progress api={api} classroomId={id} studentId={summary.studentId} />
           <h3>Entregas y calificaciones</h3>
           {summary.attempts.length ? (
             <ul>
