@@ -1,4 +1,4 @@
-# P8 grading implementation — in progress
+# P8 grading implementation — independently accepted; delivery pending
 
 - Agent / role: /root, coordinator.
 - Session or task ID: /root; authoritative memory session ID unavailable.
@@ -6,7 +6,7 @@
 - Branch/worktree: codex/p8-grading in the existing managed integration checkout.
 - Baseline: accepted main553dfcc8d70a91dfa4a6e196574b5fa80ac49982.
 - Phase/specs: [P8 tasks](../../odd/tasks/p8-grading.md), S1-S6/T1-T7.
-- Status: in_progress; no P8 acceptance or publication yet.
+- Status: implementation and independent verification completed2026-10-19; authorized Git delivery pending.
 
 ## Request and scope
 
@@ -16,11 +16,11 @@ Full P8 in the authorized readiness order, followed by independent gpt-6.1-sol/x
 
 Read canonical Engram readiness141/143, current roadmap/specification/work-record protocol and relevant skills. Resolved exact runtime cwd to prototipofoxmindmvp-v1, omitted unavailable session identity; lifecycle review found no stale memories. Reconciled clean managed main553dfcc and created feature branch before writes. Confirmed native review off/global and multi-agent enabled. Created the seven-task feature document before source implementation. Schema existence is not behavior acceptance; use existing foundations and prove all new public boundaries.
 
-## Verification
+## Initial verification snapshot (historical)
 
 Only initial state/requirements/skill reads observed. No P8 runtime tests/builds or functional acceptance yet. Future attributed worker records will retain actual RED/GREEN, failures, skips, budgets, cleanup and handoff. No secret values or private student data may enter records.
 
-## Handoff
+## Initial handoff (historical)
 
 First unfinished T1: map exact service/HTTP/proxy/UI seams, derive narrow allowed edit surfaces, then implement the coherent exact-scoring/private-correction slice under the feature document. Parent owns Git/shared records; no dependent parallel writers. Risk:items1-5 for the full P8 feature.
 
@@ -80,3 +80,14 @@ Authorized E-final4PASS/0FAIL/0SKIP46.7s; cleanexactnotificationzeroresult/mobil
 
 ## Parent T5 integrated runner preparation
 T4commit6621902/857add8delete; namedsecurityassessmenthigh/noSTARTmodeoffglobal. RunnerguardsRED3PASS1FAILmissingdistinctpubTP/finalEtargets→exacttargets/helpadded→GREEN4PASS; keepAPI30/Next180/actual330child360/stopfirstfailure/noDeps. T5longsuiteforecast: freshbuilds plus sevenactualP8ownedjourneys and broadnonactualregression group, roughly10-20minutes, disposableDB/privatefiles/scan/mail/browser only. FirstfullT5defaultwillrunonceandstopfirstfailure; no retry/limitincrease/P9.
+
+## Independent whole-feature verification partial
+/root/p8_final_verifySolxhighfresh8cb4ee3actual30/focused75/P3399/affected121/strict/audit0/legacy468casesexact passed; independentlyauthoredrealclock+exactmeanspassed. Fresh573source/31474deps/46generatedlauncherexclusions/noreusedbuilds. Historicalpreparationincidentsandfailedextraexperimentsretained in attributed docs/work-log/2026-10-18-p8-independent-verify.md; noappdefectdemonstrated. MissingrequiredS1positiveend-to-endnonemptyperquestionfeedbackvisibleinstudentpublishedresult. UIexperimentfirstomittednativeclassroommodule404; fixguardCRLFthenPowerShellcontinuedunpatchedconsumingboundedreentry404, cleanup0. No furtherUIretry. Needhumanexacttargetedfeedbackproof/verifiedfailfast/nativeclassrooms:true/unchanged330360. T6partial/T7pending/main553dfcc/noP9; taskmirrorupdated.
+
+## Final independent acceptance and delivery preparation — 2026-10-19
+
+T1-T6 complete. Frozen8cb4ee3 independently passed fresh actual30/focused75/nativeP3399/affected121/strict/audit0/exact468-case baseline differential plus precision/real-clock/average/history probes. Human-authorized published per-question feedback proof1PASS42927ms/child43171ms closes the last required gap: positive own GET200, three feedbacks visible at375px, positive reload/no audit or key leakage; both screenshots independently viewed. Cleanup0/raw573/artifacts459 unchanged. No source/build/dependency/policy/limit change or repeated full sweep. Parent strict UI spotcheck0/result digest readback. Full attributed report:2026-10-18-p8-independent-verify.md.
+
+Historical failures/skips/unavailable extra experiments remain explicit. Baseline outbox unavailable is advisory, not PASS; retained P4-local helper untouched, owned actual restart is separate proof. Native off/global disabled/unmanaged/no native approval. Original dirty P3 checkout HEAD5e86d1e/status read back unchanged. Stop at P8; no P9/deployment.
+
+T7 passive closure and structural checks precede Git delivery. Reconcile existing HTTPS origin/main, preserve ancestry and merge/push without force. No source integration changes after accepted freeze. Append actual merge/ref evidence only after observing it, never invent a future commit identity.
