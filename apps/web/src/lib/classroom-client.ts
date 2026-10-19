@@ -3,10 +3,10 @@ import { createAccountClient } from './account-client.ts';
 
 const invitationId = /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i;
 
-/** Only this local product destination can cross an account flow. */
+/** Only these literal local product destinations can cross an account flow. */
 export function classroomDestination(value: string | string[] | undefined): string | null {
   if (typeof value !== 'string' || value.length > 120) return null;
-  if (value === '/mis-aulas') return value;
+  if (value === '/mis-aulas' || value === '/inicio') return value;
   const match = /^\/mis-aulas\?invitacion=([^&?#]+)$/.exec(value);
   return match && invitationId.test(match[1]) ? `/mis-aulas?invitacion=${match[1]}` : null;
 }

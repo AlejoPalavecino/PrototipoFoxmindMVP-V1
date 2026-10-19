@@ -181,7 +181,7 @@ export function AccountScreen({ view }: { view: AccountView }) {
     <header className="topbar">
       <Link href={user ? (verified ? '/profile' : '/verify-email') : '/sign-in'} className="wordmark" aria-label="FoxMind"><span>Fox</span>Mind</Link>
       <nav aria-label="Cuenta">
-        {user ? <>{verified ? <Link href="/mis-aulas">Mis Aulas</Link> : null}<Link href={verified ? '/profile' : nextAccountHref('verify-email')} className="nav-current">{verified ? 'Mi perfil' : 'Verificar correo'}</Link><span className="nav-name">{user.firstName}</span></> : <Link href={nextAccountHref(view === 'register' ? 'sign-in' : 'register')}>{view === 'register' ? 'Iniciar sesión' : 'Crear cuenta'}</Link>}
+        {user ? <>{verified ? <><Link href="/inicio">Inicio</Link><Link href="/mis-aulas">Mis Aulas</Link></> : null}<Link href={verified ? '/profile' : nextAccountHref('verify-email')} className="nav-current">{verified ? 'Mi perfil' : 'Verificar correo'}</Link><span className="nav-name">{user.firstName}</span></> : <Link href={nextAccountHref(view === 'register' ? 'sign-in' : 'register')}>{view === 'register' ? 'Iniciar sesión' : 'Crear cuenta'}</Link>}
       </nav>
     </header>
     <main id="main" className={view === 'profile' ? 'main profile-main' : 'main auth-main'}>
@@ -218,7 +218,7 @@ export function AccountScreen({ view }: { view: AccountView }) {
             <form noValidate onSubmit={submit('/auth/email-verification/confirm', 'Tu correo está verificado. Ya puedes continuar con tu cuenta.')}><Button disabled={locked} type="submit">{busy ? 'Verificando…' : 'Confirmar verificación'}</Button></form></> : null}
           {user && !verified ? <><h2>Revisa tu correo</h2><p>Enviamos el enlace a <strong className="email-value">{user.email}</strong>. Abre el mensaje y confirma la verificación.</p><p>Si recargas esta página después de abrir un enlace, vuelve a abrir el mensaje original para usarlo.</p>
             <div className="actions"><Button disabled={locked} onClick={() => void action('/auth/email-verification/resend', {}, 'Solicitud aceptada. Revisa tu correo; usa el enlace más reciente.')}>{busy ? 'Enviando…' : 'Reenviar correo'}</Button><Button variant="outline" disabled={locked} onClick={() => void load()}>Actualizar estado</Button>{signOut}</div></> : null}
-          {verified ? <><h2>Tu correo está verificado</h2><Link className="button button-primary" href={classroomNext ?? '/profile'}>{classroomNext ? 'Ir a Mis Aulas' : 'Ir a mi perfil'}</Link><div className="actions">{signOut}</div></> : null}
+          {verified ? <><h2>Tu correo está verificado</h2><Link className="button button-primary" href={classroomNext ?? '/profile'}>{classroomNext === '/inicio' ? 'Ir a Inicio' : classroomNext ? 'Ir a Mis Aulas' : 'Ir a mi perfil'}</Link><div className="actions">{signOut}</div></> : null}
           {!user ? <><p>Abre el enlace original del correo para verificar tu cuenta. Si necesitas un nuevo mensaje, inicia sesión y solicita el reenvío.</p><div className="actions"><Link className="button button-primary" href={nextAccountHref('sign-in')}>Iniciar sesión</Link><Link href={nextAccountHref('register')}>Crear cuenta</Link></div></> : null}
         </div> : null}
 

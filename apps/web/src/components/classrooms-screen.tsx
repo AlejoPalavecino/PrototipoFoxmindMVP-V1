@@ -9,12 +9,12 @@ import { classroomAuthHref, classroomDestination, createWebClassroomClient } fro
 
 const account = createAccountClient();
 
-export function ClassroomsScreen() {
+export function ClassroomsScreen({ initialPresentation = 'classrooms' }: { initialPresentation?: 'home' | 'classrooms' }) {
   const router = useRouter();
   const [user, setUser] = useState<AccountUser>();
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-  const destination = classroomDestination(router.asPath) ?? '/mis-aulas';
+  const destination = classroomDestination(router.asPath) ?? (initialPresentation === 'home' ? '/inicio' : '/mis-aulas');
   const requireAccount = useCallback((code: string) => {
     setUser(undefined);
     void router.replace(classroomAuthHref(code === 'EMAIL_VERIFICATION_REQUIRED' ? 'verify-email' : 'sign-in', destination));
@@ -40,10 +40,11 @@ export function ClassroomsScreen() {
   }
   const invitation = destination.includes('?') ? destination.slice(destination.indexOf('=') + 1) : undefined;
   return <>
-    <Head><title>Mis Aulas · FoxMind</title><meta name="description" content="Tus aulas, borradores e invitaciones de FoxMind." /></Head>
+    <Head><title>{initialPresentation === 'home' ? 'Inicio' : 'Mis Aulas'} · FoxMind</title><meta name="description" content="Tus aulas, borradores e invitaciones de FoxMind." /></Head>
     {user ? <>
       {error ? <div className="p5-app p5-gate"><Notice error>{error}</Notice></div> : null}
       <ClassroomsApp api={api} displayName={`${user.firstName} ${user.lastName}`} requestedInvitation={invitation}
+        initialPresentation={initialPresentation} onNavigate={presentation => { void router.push(presentation === 'home' ? '/inicio' : '/mis-aulas'); }}
         accountActions={<div className="p5-actions p5-account-actions"><Link href="/profile">Mi perfil</Link><button disabled={busy} onClick={() => void logout()}>{busy ? 'Cerrando sesión…' : 'Cerrar sesión'}</button></div>} />
     </> : <div className="p5-app"><main className="p5-main">
       {error ? <Notice error>{error} <button onClick={() => void load()}>Volver a intentar</button></Notice> : <Notice>Comprobando tu sesión…</Notice>}
