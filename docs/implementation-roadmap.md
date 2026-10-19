@@ -1,6 +1,6 @@
 # FoxMind implementation roadmap
 
-**Resume here (2026-10-19): P8 is implemented and independently verified; authorized main publication is the remaining delivery action.** Accepted source `8cb4ee3`; [independent proof](work-log/2026-10-18-p8-independent-verify.md), [tasks](../odd/tasks/p8-grading.md), [coordinator](work-log/2026-10-18-root-p8-grading.md). Fresh actual30/focused75/nativeP3399/affected121/strict/audit0/exact468-case baseline proof passed; authorized targeted feedback1 closes student per-question visibility. Preserve historical failures and baseline advisories, never relabel them PASS. Native review off/global, disabled/unmanaged. **STOP before P9; no deployment.**
+**Resume here (2026-10-19): P8 is implemented, independently verified and published to main via merge `d2a7909`; exact remote ref confirmed.** Accepted frozen source `8cb4ee3`, closure `8900b2d`; [independent proof](work-log/2026-10-18-p8-independent-verify.md), [tasks](../odd/tasks/p8-grading.md), [coordinator](work-log/2026-10-18-root-p8-grading.md). Fresh actual30/focused75/nativeP3399/affected121/strict/audit0/exact468-case baseline proof and authorized targeted feedback1 passed. Historical failures and baseline unavailable advisories remain NOT PASS. Native review off/global, disabled/unmanaged. A passive publication record may follow the merge. **STOP before P9; no deployment.**
 
 P3's accepted twelve account/session operations, initial Next.js screens and real browser/API/SQL/captured-email journeys remain documented in [final verification](work-log/2026-10-17-p3-verify-final.md), [coordinator](work-log/2026-10-17-id-unavailable-p3-completion.md), [tasks](../odd/tasks/p3-completion.md) and [web guide](p3-web.md). Historical backend99/control39/browser10/live web16 and strict builds/audit0/cleanup0 are evidence for that accepted checkpoint, not fresh results for the P4 candidate.
 
@@ -51,7 +51,7 @@ The specification's original "completion boundary" describes its earlier documen
 | P5 | Classrooms and enrollment | completed | Creation/drafts, required plan/units/topics, invitations/codes, classroom-scoped roles, membership history and archive lifecycle. Requires P3/P4. |
 | P6 | Teaching plan, Library and Muro | completed | Actual scoped Plan/Library/Muro and notifications, durable files/restarts, populated migration upgrade and independent mobile correction verified and published to main (merge8eee463). |
 | P7 | Activities, attempts and submissions | completed | Independent whole-feature and bounded B1 evidence accepted; source0ec37c7/final fixtured9cdf06; published to main via remotely confirmed merge8e4fd2e. |
-| P8 | Grading and follow-up | completed | Exact private scoring, publication/results, audited correction and current/historical progress independently accepted on8cb4ee3 plus targeted feedback1; main delivery pending. No P9. |
+| P8 | Grading and follow-up | completed | Exact private scoring, publication/results, audited correction and current/historical progress independently accepted on8cb4ee3 plus targeted feedback1; published via remotely confirmed merge d2a7909. No P9. |
 | P9 | Integrated local validation | not_started | Complete teacher/student journeys, authorization and failure paths, responsive behavior and local pilot preparation. |
 
 Statuses: `not_started`, `in_progress`, `blocked`, `completed`. A blocked phase names the external decision/proof it awaits. Dropped or superseded tasks remain recorded as such; they never count as completed.
@@ -172,3 +172,6 @@ Full P8 implementation and verified main merge/push are now explicitly authorize
 ## P8 final verification (2026-10-19)
 
 P8 exit conditions are satisfied: exact scoring/private correction, explicit publication and safe own results, effective replacement, teacher-only audited published correction, current/historical individual/class progress, first-confirmed punctuality and grade notifications. Existing P3-P7 screens and behavior remain connected. [Independent record](work-log/2026-10-18-p8-independent-verify.md) retains per-spec acceptance, provenance and historical failures/advisories. Shared30/180/330-360s budgets unchanged; final targeted proof1 did not rebuild/repeat the full suite. Authorized merge/push remains separate until exact remote readback. P9 not started; deployment not authorized.
+## P8 publication (2026-10-19)
+
+Authorized main merge d2a7909aa5d65d13d655d2b8932d6a478b19f9eb was pushed without force; exact remote ref and local HEAD matched. Verified product tree is unchanged. Passive publication-record updates may follow that merge. All P8 tasks are complete; P9 remains not_started and requires new authorization.

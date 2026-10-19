@@ -1,4 +1,4 @@
-# P8 grading implementation — independently accepted; delivery pending
+# P8 grading implementation — verified and published to main
 
 - Agent / role: /root, coordinator.
 - Session or task ID: /root; authoritative memory session ID unavailable.
@@ -6,7 +6,7 @@
 - Branch/worktree: codex/p8-grading in the existing managed integration checkout.
 - Baseline: accepted main553dfcc8d70a91dfa4a6e196574b5fa80ac49982.
 - Phase/specs: [P8 tasks](../../odd/tasks/p8-grading.md), S1-S6/T1-T7.
-- Status: implementation and independent verification completed2026-10-19; authorized Git delivery pending.
+- Status: completed2026-10-19; independently verified and published to main via merge d2a7909, exact remote ref confirmed.
 
 ## Request and scope
 
@@ -91,3 +91,12 @@ T1-T6 complete. Frozen8cb4ee3 independently passed fresh actual30/focused75/nati
 Historical failures/skips/unavailable extra experiments remain explicit. Baseline outbox unavailable is advisory, not PASS; retained P4-local helper untouched, owned actual restart is separate proof. Native off/global disabled/unmanaged/no native approval. Original dirty P3 checkout HEAD5e86d1e/status read back unchanged. Stop at P8; no P9/deployment.
 
 T7 passive closure and structural checks precede Git delivery. Reconcile existing HTTPS origin/main, preserve ancestry and merge/push without force. No source integration changes after accepted freeze. Append actual merge/ref evidence only after observing it, never invent a future commit identity.
+## Observed Git delivery — completed 2026-10-19
+
+Passive closure8900b2d88fbc2e036c3abc39d06ab578a1fbf7bc passed five-file/61-relative-link checks,174roadmap lines and diff-check0; accepted product bytes unchanged. Native informational assessment medium/under_budget, review remains off/global disabled/unmanaged; no START/native approval.
+
+Existing HTTPS origin/main fetched and ls-remote confirmed553dfcc8d70a91dfa4a6e196574b5fa80ac49982. Managed checkout switched from clean codex/p8-grading to main, fast-forward baseline unchanged, then non-fast-forward merge created d2a7909aa5d65d13d655d2b8932d6a478b19f9eb. Merge tree exactly equals feature closure8900b2d; apps/prisma/scripts/tests/package/lock exactly equal independently verified8cb4ee3. `git push origin main` succeeded without force; `git ls-remote origin refs/heads/main` and local HEAD both returned exact d2a7909aa5d65d13d655d2b8932d6a478b19f9eb. Managed status clean. No PR/deployment/P9 or retained DB migration.
+
+Original runtime dirty P3 checkout remained on HEAD5e86d1e58afaae8856778f840027f724db36adf0 with the same three modified historical records and untracked historical paths. No switch/reset/stash/cleanup there. All temporary evidence is retained; owned fixture/process cleanup0 remains attributed in verification records.
+
+T1-T7 and S1-S6 complete within requested P8 scope. A passive publication-record commit may follow this merge; its exact final remote tip is checked after push and reported by the coordinator, not predicted inside its own commit. Stop here before P9. Risk: items1-5 for delivered behavior; none for this passive publication update.

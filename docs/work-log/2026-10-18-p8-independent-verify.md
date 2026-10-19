@@ -67,3 +67,7 @@ Final per-spec verdict: S1 and S2 verified; S3 complete required coverage with r
 Probe SHA256e14da1699faa4d1e6eda8425e18ae436d42294c19c3898931eeeed505c069731; supervisor4f5c8b7187b34d3455a343045bf0ebe16f8c9121ee8e425bbcea85ab69114748; result274caaae9d7513ad71d6f052672a3a58d4bbbc35d4e2fb5b9e9b3e7f068754cb. Exact result/logs/safe responses and both screenshots retained under external p8-feedback-once.* and p8-feedback-once-evidence/. Historical dependency/lifecycle/UI404/CRLF/PowerShell/live-byte-guard failures remain explicit, not retroactive PASS. Baseline outbox and retained-helper P4-local unavailable advisories remain NOT PASS and were not rerun.
 
 T6 completed; parent may now perform authorized passive closure and main merge/push/exact remote ref readback. No P9. Risk: items1-5; skill_resolution: paths-injected.
+
+## Coordinator publication readback (2026-10-19)
+
+After T6 acceptance, parent created passive closure8900b2d, merged and pushed main as d2a7909aa5d65d13d655d2b8932d6a478b19f9eb. Exact ls-remote and local HEAD matched; merged product tree equals frozen8cb4ee3. S5's conditional parent delivery is now fulfilled. This does not attribute Git or source mutation to the read-only verifier. A passive publication record may follow; no new application check or P9 was performed.
