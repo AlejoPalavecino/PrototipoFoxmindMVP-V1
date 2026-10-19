@@ -77,3 +77,6 @@ Authorized E-final4PASS/0FAIL/0SKIP46.7s; cleanexactnotificationzeroresult/mobil
 
 ## T4 own proof closure
 18allowedfilesreadonlyprogress/currenthistoryUI/S1S2S4. Pure4/SQL10+transportclient3target/affected72/APItypesNext0/firstactual7PASS44.4s126safeHTTPzero429/restartprivacyhashcleanup0. Twoexternaldifferentialpreparationdispositionspreserved(parserbothfail→identicaltransform; randomproxyIDs→identicaldeterministicUUIDbeforeimport), final201cases50498bytesexactstdout/emptyerr/exits0pair. Parentpure4PASS/diffcheck0. Rollbackadditiveprogressservice/routes/UI/testsdocsretainsT1T3anddata; coherentunitover400advisory/noomittedtests/codegolf. FinalwholeP8independentpending; T5next/noP9.
+
+## Parent T5 integrated runner preparation
+T4commit6621902/857add8delete; namedsecurityassessmenthigh/noSTARTmodeoffglobal. RunnerguardsRED3PASS1FAILmissingdistinctpubTP/finalEtargets→exacttargets/helpadded→GREEN4PASS; keepAPI30/Next180/actual330child360/stopfirstfailure/noDeps. T5longsuiteforecast: freshbuilds plus sevenactualP8ownedjourneys and broadnonactualregression group, roughly10-20minutes, disposableDB/privatefiles/scan/mail/browser only. FirstfullT5defaultwillrunonceandstopfirstfailure; no retry/limitincrease/P9.
