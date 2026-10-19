@@ -1,0 +1,29 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { createClassroomClient } from '../apps/classrooms-ui/api.ts';
+const id = 'a1111111-1111-4111-8111-111111111111';
+test('private correction client sends canonical decimal text with fresh CSRF, never an attempt capability', async () => {
+  const calls = []; let csrf = 0;
+  const client = createClassroomClient({ csrfToken: async () => String(++csrf), fetch: async (path, options) => { calls.push({ path, ...options }); return Response.json({}); } });
+  const body = { revision: '4', overallGrade: '8.50', overallFeedback: null, questions: [] };
+  await client.call(`/${id}/attempts/${id}/grading`, 'POST', body);
+  assert.equal(calls[0].body, JSON.stringify(body)); assert.equal(calls[0].headers['X-CSRF-Token'], '1');
+  assert.equal(calls[0].headers['X-Attempt-Editor'], undefined);
+  await client.call(`/${id}/attempts/${id}/grading`); assert.equal(calls[1].method, 'GET'); assert.equal(calls[1].body, undefined);
+});
+test('actual all-type history keeps private saving separate from explicit saved-state publication', async () => {
+  const history = await readFile(new URL('../apps/classrooms-ui/AttemptHistory.tsx', import.meta.url), 'utf8');
+  const editor = await readFile(new URL('../apps/classrooms-ui/GradingEditor.tsx', import.meta.url), 'utf8');
+  assert.match(history, /teacher && attempt.status === 'SUBMITTED'.*Corregir intento/);
+  assert.match(history, /<GradingEditor/); assert.match(editor, /Guardar corrección privada/);
+  assert.match(editor, /overallGrade: data.activity.type === 'ASSIGNMENT'/); assert.match(editor, /manualPoints/);
+  assert.match(editor, /No se ha publicado/); assert.ok(!editor.includes('Aprobado'));
+  const saving = editor.slice(editor.indexOf("api.call<GradingData>(path, 'POST'"), editor.indexOf('Guardar corrección privada'));
+  assert.ok(!saving.includes('/publish-grade')); assert.ok(!saving.includes('confirm: true'));
+  assert.match(editor, /canPublish = .*data.grade.id.*!data.grade.pending.*!dirty.*!busy/);
+  assert.match(editor, /setConfirming\(true\)/); assert.match(editor, /Cancelar publicación/);
+  assert.match(editor, /publish-grade`, 'POST', \{ revision: data.revision, confirm: true \}/);
+  const publishing = editor.slice(editor.indexOf('publish-grade'), editor.indexOf('Confirmar publicación</button>'));
+  assert.ok(!publishing.includes('overallGrade')); assert.ok(!publishing.includes('saveAttempt'));
+});

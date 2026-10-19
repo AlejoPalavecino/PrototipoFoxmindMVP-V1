@@ -7,6 +7,9 @@ import { activityOperation } from './activity-policy.ts';
 import { editorCapability } from './attempt-policy.ts';
 import { uuid } from './policy.ts';
 import { captureSubmissionReceipt } from './submission-receipt.ts';
+import { privateGradingInput } from './grading-policy.ts';
+import { publicationInput } from './grade-publication.ts';
+import { gradeCorrectionInput } from './grade-corrections.ts';
 
 interface Admission {
   admit(request: IncomingMessage, write: boolean, response: ServerResponse): Promise<void>;
@@ -200,6 +203,27 @@ export function createClassroomsHandler(
           return fail('INVALID_INPUT');
         value = await service.activityAttempt(req, path[0], path[2]);
       }
+      else if (path.length === 4 && path[1] === 'attempts' && ['publish-grade', 'result'].includes(path[3])) {
+        if (!uuid(path[0]) || !uuid(path[2]) || req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
+          return fail('INVALID_INPUT');
+        if (path[3] === 'result' && method === 'GET') value = await service.getAttemptResult(req, path[0], path[2]);
+        else if (path[3] === 'publish-grade' && method === 'POST') value = await service.publishAttemptGrade(req, path[0], path[2], publicationInput(body));
+        else return fail('INVALID_INPUT');
+      }
+      else if (path.length === 4 && path[1] === 'attempts' && path[3] === 'grade-corrections') {
+        if (!uuid(path[0]) || !uuid(path[2]) || req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
+          return fail('INVALID_INPUT');
+        if (method === 'GET') value = await service.getGradeCorrections(req, path[0], path[2]);
+        else if (method === 'POST') value = await service.correctPublishedGrade(req, path[0], path[2], gradeCorrectionInput(body));
+        else return fail('INVALID_INPUT');
+      }
+      else if (path.length === 4 && path[1] === 'attempts' && path[3] === 'grading') {
+        if (!uuid(path[0]) || !uuid(path[2]) || req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
+          return fail('INVALID_INPUT');
+        if (method === 'GET') value = await service.getAttemptGrading(req, path[0], path[2]);
+        else if (method === 'POST') value = await service.saveAttemptGrading(req, path[0], path[2], privateGradingInput(body));
+        else return fail('INVALID_INPUT');
+      }
       else if (path.length === 4 && path[1] === 'activities' && ['session', 'start', 'eligibility', 'authorize-first'].includes(path[3])) {
         if (!uuid(path[0]) || !uuid(path[2])) return fail('INVALID_INPUT');
         if (req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
@@ -272,6 +296,12 @@ export function createClassroomsHandler(
         method === 'GET'
       )
         value = await service.members(req, path[0], path[1] === 'history');
+      else if ((path.length === 2 && path[1] === 'progress')
+        || (path.length === 4 && path[1] === 'members' && path[3] === 'progress')) {
+        if (method !== 'GET' || !uuid(path[0]) || (path.length === 4 && !uuid(path[2]))
+          || req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined) return fail('INVALID_INPUT');
+        value = path.length === 2 ? await service.getProgress(req, path[0]) : await service.getStudentProgress(req, path[0], path[2]);
+      }
       else if (path.length === 3 && path[1] === 'members' && method === 'GET')
         value = await service.studentSummary(req, path[0], path[2]);
       else if (

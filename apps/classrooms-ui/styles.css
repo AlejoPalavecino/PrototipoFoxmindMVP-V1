@@ -724,3 +724,25 @@
 .p7-history-list { list-style: none; padding: 0; display: grid; gap: 1rem; }
 .p7-history-list > li, .p7-history-detail { padding: 1rem; border: 1px solid #e2e8f0; border-radius: 0.75rem; }
 .p7-history-detail { margin-top: 1rem; overflow-wrap: anywhere; }
+.p8-grading { border-top: 2px solid #cbd5e1; margin-top: 1.5rem; padding-top: 1rem; min-width: 0; }
+.p8-grading header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .75rem; }
+.p8-grading article { border: 1px solid #dbe3ee; border-radius: .75rem; margin: 1rem 0; padding: 1rem; overflow-wrap: anywhere; }
+.p8-grading label { display: grid; gap: .4rem; margin: .8rem 0; }
+.p8-grading input, .p8-grading textarea { box-sizing: border-box; width: 100%; min-width: 0; }
+.p8-final-grade { font-weight: 700; }
+.p8-result { border-top: 1px solid #d9ddd7; margin-top: 1rem; padding-top: 1rem; overflow-wrap: anywhere; }
+.p8-result article { padding-block: .5rem; }
+.p8-published-correction { border-top: 1px solid #dce2e9; margin-top: 1.5rem; padding-top: 1rem; }
+.p8-correction-audit { padding-left: 1.5rem; }
+.p8-correction-audit li { margin-block: 1rem; overflow-wrap: anywhere; }
+
+/* Follow-up extends the existing shell and keeps its three independent measures visible. */
+.p8-progress, .p8-progress section { min-width: 0; overflow-wrap: anywhere; }
+.p8-progress-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 1rem; }
+.p8-progress-metrics > section, .p8-progress-students > li, .p8-progress-activities > li { padding: 1rem; border: 1px solid var(--line, #dce2e9); border-radius: .75rem; }
+.p8-progress-value { font-size: 1.2rem; font-weight: 700; }
+.p8-progress-students, .p8-progress-activities { list-style: none; padding: 0; display: grid; gap: .75rem; }
+.p8-progress small { display: block; color: var(--muted, #56616d); }
+@media (max-width: 600px) {
+  .p8-progress .p5-section-head { align-items: stretch; flex-direction: column; }
+}

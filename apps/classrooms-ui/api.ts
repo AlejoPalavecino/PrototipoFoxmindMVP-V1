@@ -125,6 +125,52 @@ export interface ActivityDetail extends ActivitySummary {
 }
 export interface ActivityData { revision: string; preview: boolean; activity: ActivityDetail }
 export interface AttemptEditor { token: string; epoch: string }
+export interface GradingQuestion extends ActivityQuestion {
+  id: string;
+  answer: { questionId: string; text: string | null; optionIds: string[] };
+  manual: boolean; manualPoints: string | null; earned: { numerator: string; denominator: string } | null; feedback: string | null;
+}
+export interface GradingData {
+  revision: string; archived: boolean; canSave: boolean;
+  activity: Omit<ActivityDetail, 'questions'> & { questions: GradingQuestion[] };
+  attempt: { id: string; number: number; submittedAt: string; submittedLate: boolean;
+    firstName: string; lastName: string; attachments: { id: string; name: string; ready: boolean }[] };
+  grade: { id: string | null; isPublished: boolean; publishedAt: string | null;
+    finalGrade: string | null; overallFeedback: string | null; pending: boolean };
+}
+export interface GradeCorrectionsData {
+  revision: string; archived: boolean; canCorrect: boolean;
+  grade: { id: string; finalGrade: string; publishedAt: string };
+  corrections: { id: string; previousGrade: string; newGrade: string; reason: string;
+    actor: { id: string; firstName: string; lastName: string }; correctedAt: string }[];
+}
+export interface CompletionProgress {
+  expected: number; delivered: number; pending: number; onTime: number; late: number; pendingResubmissions: number;
+  percentage: string | null; emptyLabel: string | null;
+}
+export interface ProgressActivity {
+  id: string; title: string; type: ActivityType; expected: boolean;
+  firstSubmission: { id: string; number: number; submittedAt: string; appliedDeadlineAt: string | null; late: boolean } | null;
+  pendingResubmission: boolean; grade: string | null;
+}
+export interface StudentProgress {
+  studentId: string; firstName: string; lastName: string; currentMember: boolean;
+  completion: CompletionProgress; performance: { graded: number; average: string | null }; activities: ProgressActivity[];
+}
+export type ProgressData = { revision: string; archived: boolean; plan: { total: number; taught: number; percentage: string | null } } & (
+  { scope: 'classroom'; studentCount: number; students: StudentProgress[]; completion: CompletionProgress;
+    performance: { gradedStudents: number; average: string | null } }
+  | ({ scope: 'self' | 'member' } & StudentProgress)
+);
+export type PublishedResultData = { status: 'pending'; attemptId: string } | {
+  status: 'published'; activity: { id: string; title: string; type: string };
+  attempt: { id: string; number: number; submittedAt: string };
+  grade: { id: string; finalGrade: string; publishedAt: string; overallFeedback: string | null; isEffective: boolean };
+  questions: { id: string; type: string; prompt: string; points: string;
+    answer: { text: string | null; selectedOptions: { id: string; text: string }[] };
+    earned: { numerator: string; denominator: string }; feedback: string | null }[];
+  attachments: { id: string; name: string; ready: boolean }[];
+};
 export interface QuestionAnswer { questionId: string; text: string | null; optionIds: string[]; savedAt: string }
 export interface AnswerConfirmation { revision: string; answer: QuestionAnswer }
 export interface AttemptSessionData {
@@ -161,9 +207,10 @@ interface NotificationBase {
 }
 export type ClassroomNotification = NotificationBase & ({ eventType: 'WALL_NOTICE' | 'WALL_QUERY' | 'WALL_REPLY'; postId: string; replyId: string | null }
   | { eventType: 'ACTIVITY_PUBLISHED' | 'ACTIVITY_DEADLINE_CHANGED' | 'FIRST_SUBMISSION_ENABLED' | 'ATTEMPT_REOPENED' | 'SUBMISSION_RECEIVED';
-      activityId: string; activityTitle: string; attemptId: string | null });
+      activityId: string; activityTitle: string; attemptId: string | null }
+  | { eventType: 'GRADE_PUBLISHED' | 'GRADE_CORRECTED'; activityId: string; activityTitle: string; attemptId: string; gradeId: string });
 export interface WallTarget { classroomId: string; postId: string; replyId: string | null }
-export type AcademicTarget = { kind: 'activity' | 'attempt' | 'submission'; classroomId: string; activityId: string; attemptId: string | null };
+export type AcademicTarget = { kind: 'activity' | 'attempt' | 'submission' | 'grade'; classroomId: string; activityId: string; attemptId: string | null; gradeId?: string };
 export type NotificationTarget = WallTarget | AcademicTarget;
 export interface AttemptHistoryRow {
   id: string; number: number; status: 'DRAFT' | 'SUBMITTED'; openedAt: string; submittedAt: string | null;

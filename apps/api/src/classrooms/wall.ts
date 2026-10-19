@@ -5,6 +5,7 @@ import { fail, object, uuid } from './policy.ts';
 import { wallOperation } from './wall-policy.ts';
 import type { Actor, Transaction } from './contracts.ts';
 import { academicNotificationSelection, academicTarget, type AcademicNotification } from './academic-notifications.ts';
+import { gradeNotificationSelection, gradeTarget, type GradeNotification } from './grade-notifications.ts';
 
 interface ContentRow {
   id: string;
@@ -124,7 +125,8 @@ export class WallService extends LibraryService {
     return this.run(request, false, async (tx, actor) => {
       const wall = await tx.query<NotificationRow>(`${notificationSelection} ORDER BY n.created_at DESC,n.id`, actor.id);
       const academic = await tx.query<AcademicNotification>(academicNotificationSelection, actor.id);
-      return [...wall, ...academic].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || a.id.localeCompare(b.id));
+      const grades = await tx.query<GradeNotification>(gradeNotificationSelection, actor.id);
+      return [...wall, ...academic, ...grades].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || a.id.localeCompare(b.id));
     });
   }
 
@@ -145,12 +147,13 @@ export class WallService extends LibraryService {
       await this.classroom(tx, actor, owned.classroom_id);
       const [wall] = await tx.query<NotificationRow>(`${notificationSelection} AND n.id=$2::uuid FOR UPDATE OF n`, actor.id, id);
       const [academic] = wall ? [] : await tx.query<AcademicNotification>(`${academicNotificationSelection} AND n.id=$2::uuid FOR UPDATE OF n`, actor.id, id);
-      const target = wall ?? academic;
+      const [grade] = wall || academic ? [] : await tx.query<GradeNotification>(`${gradeNotificationSelection} AND n.id=$2::uuid FOR UPDATE OF n`, actor.id, id);
+      const target = wall ?? academic ?? grade;
       if (!target) return fail('FORBIDDEN');
       await tx.query(`UPDATE notifications SET read_at=COALESCE(read_at,clock_timestamp()),
         updated_at=CASE WHEN read_at IS NULL THEN clock_timestamp() ELSE updated_at END WHERE id=$1::uuid RETURNING id`, id);
       return open ? wall ? { classroomId: wall.classroomId, postId: wall.postId, replyId: wall.replyId }
-        : academicTarget(academic) : { read: true };
+        : academic ? academicTarget(academic) : gradeTarget(grade) : { read: true };
     });
   }
 }

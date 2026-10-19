@@ -1,1 +1,1 @@
-export { ActivityHistoryService as ClassroomService } from './activity-history.ts';
+export { ProgressService as ClassroomService } from './progress.ts';

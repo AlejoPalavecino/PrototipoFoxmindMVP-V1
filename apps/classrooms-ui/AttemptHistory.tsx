@@ -3,6 +3,8 @@ import { useCallback, useEffect, useState } from 'react';
 import type { AttemptHistoryData, AttemptHistoryRow, AttemptSessionData, ClassroomClient, DeadlineResolution, Detail } from './api.ts';
 import { Dialog, Notice } from './components.tsx';
 import { activityDate } from './ActivityAuthoring.tsx';
+import { GradingEditor } from './GradingEditor.tsx';
+import { PublishedResult } from './PublishedResult.tsx';
 
 export function AttemptHistory({ api, room, activityId, attemptId, onClose, onChanged, onResume }: {
   api: ClassroomClient; room: Detail; activityId: string; attemptId?: string | null; onClose: () => void;
@@ -13,6 +15,7 @@ export function AttemptHistory({ api, room, activityId, attemptId, onClose, onCh
   const [reopening, setReopening] = useState<AttemptHistoryRow | null>(null), [local, setLocal] = useState('');
   const [resolution, setResolution] = useState<DeadlineResolution | null>(null), [offset, setOffset] = useState<number | null>(null);
   const [busy, setBusy] = useState(false), [error, setError] = useState('');
+  const [grading, setGrading] = useState<string | null>(null);
   const load = useCallback(async (signal?: AbortSignal) => {
     setData(await api.call<AttemptHistoryData>(`${path}/${teacher ? 'history-submissions' : 'history'}`, 'GET', undefined, signal));
   }, [api, path, teacher]);
@@ -46,16 +49,19 @@ export function AttemptHistory({ api, room, activityId, attemptId, onClose, onCh
           })}>Continuar borrador</button> : null}
           {teacher && data.canReopen && attempt.currentMember && attempt.status === 'SUBMITTED'
             && !data.attempts.some(a => a.studentId === attempt.studentId && (a.status === 'DRAFT' || a.number > attempt.number))
-            ? <button disabled={busy} onClick={() => { setReopening(attempt); setLocal(''); setOffset(null); setResolution(null); }}>Habilitar otro intento</button> : null}</div>
+            ? <button disabled={busy} onClick={() => { setReopening(attempt); setLocal(''); setOffset(null); setResolution(null); }}>Habilitar otro intento</button> : null}
+          {teacher && attempt.status === 'SUBMITTED' ? <button disabled={busy} onClick={() => { setGrading(attempt.id); setSelected(null); setReopening(null); }}>Corregir intento {attempt.number}</button> : null}</div>
       </li>)}</ul>
       <button disabled={busy} onClick={() => void run(() => load())}>Actualizar historial</button>
     </>}
+    {grading ? <GradingEditor api={api} roomId={room.id} attemptId={grading} onClose={() => setGrading(null)} onChanged={async () => { await Promise.all([load(), onChanged()]); }} /> : null}
     {selected?.attempt ? <section className="p7-history-detail" aria-label="Intento histórico confirmado"><h4>Intento {selected.attempt.number} · solo consulta</h4>
       {selected.activity.questions.map((question, index) => { const answer = selected.attempt!.answers.find(a => a.questionId === question.id);
         return <article key={question.id}><h4>Pregunta {index + 1}</h4><p className="p7-multiline">{question.prompt}</p>
           {question.type === 'DEVELOPMENT' ? <p className="p7-multiline">{answer?.text || 'Sin respuesta'}</p>
             : <ul>{question.options.filter(option => answer?.optionIds.includes(option.id!)).map(option => <li key={option.id}>{option.text}</li>)}</ul>}</article>; })}
       <ul>{selected.attempt.attachments?.map(file => <li key={file.id}>{file.ready ? <a href={api.fileUrl(file.id)} target="_blank" rel="noreferrer">Descargar {file.name}</a> : `${file.name} · No disponible`}</li>)}</ul>
+      {selected.attempt.status === 'SUBMITTED' ? <PublishedResult key={selected.attempt.id} api={api} roomId={room.id} attemptId={selected.attempt.id} /> : null}
     </section> : null}
     {reopening ? <section aria-label="Confirmar nuevo intento"><h4>Habilitar otro intento para {reopening.firstName} {reopening.lastName}</h4>
       <p>Se creará un nuevo borrador con las respuestas o archivos de la última entrega para revisar. El original y su calificación se conservan. El estudiante debe transferir explícitamente la edición y confirmar una nueva entrega.</p>
