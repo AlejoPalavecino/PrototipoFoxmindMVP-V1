@@ -116,6 +116,7 @@
   }
   .p5-nav {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 20px;
@@ -661,6 +662,27 @@
     }
   }
 /* P6 Library extends the existing classroom surface and responsive controls. */
+/* Inicio reuses the existing catalog art and classroom grammar, not screenshot assets. */
+.p9-home { min-width: 0; }
+.p9-home-hero { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); align-items: center; gap: 32px; padding: 38px; border-radius: 26px; background: linear-gradient(115deg, #fff1e3, #ffe2c2); border: 1px solid #efcfac; }
+.p9-home-hero h1 { overflow-wrap: anywhere; }
+.p9-home-hero .p5-lead { margin-bottom: 16px !important; }
+.p9-home-art { min-width: 0; overflow: hidden; border-radius: 24px; }
+.p9-home-art .p5-cover { width: 100%; height: auto; }
+.p9-home-pending { display: flex; gap: 20px; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--line); }
+.p9-home-pending p { margin: 0; }
+.p9-home-news { padding: 28px; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; }
+.p9-home-news ul { padding: 0; list-style: none; margin: 0; }
+.p9-home-news li { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 0; border-top: 1px solid var(--line); }
+.p9-home-news li > div { min-width: 0; overflow-wrap: anywhere; }
+.p9-home-news li button { flex-shrink: 0; }
+@media (max-width: 680px) {
+  .p9-home-hero { grid-template-columns: minmax(0, 1fr); padding: 24px 18px; gap: 20px; }
+  .p9-home-art { max-width: 300px; }
+  .p9-home-pending, .p9-home-news li { flex-direction: column; align-items: flex-start; }
+  .p9-home-news { padding: 22px 18px; }
+  .p9-home .p5-actions button, .p9-home-news button { white-space: normal; max-width: 100%; }
+}
 .p6-library-upload, .p6-library-list article { border: 1px solid #deded4; border-radius: 16px; padding: 20px; margin-block: 20px; }
 .p6-library-list { display: grid; gap: 12px; }
 .p6-library-list article { margin: 0; min-width: 0; overflow-wrap: anywhere; }

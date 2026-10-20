@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, lazy, Suspense, type ReactNode } from
 import type { ClassroomClient, Classroom, Draft, Invitation, NotificationTarget } from './api.ts';
 import { Cover, Dialog, Notice } from './components.tsx';
 import { Notifications } from './Notifications.tsx';
+import { Home } from './Home.tsx';
 const Wizard = lazy(() =>
   import('./Wizard.tsx').then((module) => ({ default: module.Wizard })),
 );
@@ -22,12 +23,17 @@ export function ClassroomsApp({
   displayName,
   accountActions,
   requestedInvitation,
+  initialPresentation = 'classrooms',
+  onNavigate,
 }: {
   api: ClassroomClient;
   displayName: string;
   accountActions?: ReactNode;
   requestedInvitation?: string;
+  initialPresentation?: 'home' | 'classrooms';
+  onNavigate?: (presentation: 'home' | 'classrooms') => void;
 }) {
+  const [presentation, setPresentation] = useState(initialPresentation);
   const [data, setData] = useState<HomeData | null>(null),
     [error, setError] = useState(''),
     [notice, setNotice] = useState('');
@@ -86,11 +92,17 @@ export function ClassroomsApp({
       setBusy(false);
     }
   }
-  const leaveView = () => {
+  const showPresentation = (next: 'home' | 'classrooms') => {
     setDraft(null);
     setClassroomId(null);
     setWallTarget(null);
+    setPresentation(next);
+    if (next !== initialPresentation && onNavigate) { onNavigate(next); return; }
     void action(() => load());
+  };
+  const leaveView = () => showPresentation('classrooms');
+  const openTarget = (target: NotificationTarget) => {
+    setWallTarget(target); setSharedCode(null); setClassroomId(target.classroomId);
   };
   async function accept(invitation: Invitation) {
     await api.call(`/invitations/${invitation.id}/accept`, 'POST', {});
@@ -135,17 +147,19 @@ export function ClassroomsApp({
         >
           <span>Fox</span>Mind
         </a>
+        {!draft ? <button className={!classroomId && presentation === 'home' ? 'p5-nav-active' : undefined}
+          aria-current={!classroomId && presentation === 'home' ? 'page' : undefined}
+          onClick={() => showPresentation('home')}>Inicio</button> : null}
         <button
-          className="p5-nav-active"
+          className={presentation === 'classrooms' || classroomId ? 'p5-nav-active' : undefined}
+          aria-current={presentation === 'classrooms' || classroomId ? 'page' : undefined}
           onClick={() => {
             if (!draft) leaveView();
           }}
         >
           Mis Aulas
         </button>
-        {!draft ? <Notifications api={api} refresh={notificationRefresh} onOpen={target => {
-          setWallTarget(target); setSharedCode(null); setClassroomId(target.classroomId);
-        }} /> : null}
+        {!draft ? <Notifications api={api} refresh={notificationRefresh} onOpen={openTarget} /> : null}
         <span className="p5-profile">{displayName}</span>
         {!draft ? accountActions : null}
       </nav>
@@ -176,6 +190,15 @@ export function ClassroomsApp({
               onWallChanged={refreshNotifications}
             />
           </Suspense>
+        ) : presentation === 'home' ? (
+          <>
+            {error ? <Notice error>{error} <button disabled={busy} onClick={() => void action(() => load())}>Volver a intentar</button></Notice> : null}
+            {!data && !error ? <Notice>Cargando tus aulas…</Notice> : null}
+            <Home api={api} displayName={displayName} data={error ? null : data} busy={busy}
+              onCreate={() => void action(async () => { setDraft(await api.call<Draft>('/drafts', 'POST', {})); })}
+              onJoin={() => { setJoin(true); setJoinError(''); setPreview(null); }}
+              onClassrooms={leaveView} onEnter={id => { setSharedCode(null); setClassroomId(id); }} onOpenTarget={target => { openTarget(target); refreshNotifications(); }} />
+          </>
         ) : (
           <>
             <header className="p5-page-head">

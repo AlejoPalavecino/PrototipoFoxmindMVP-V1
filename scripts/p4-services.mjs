@@ -26,7 +26,7 @@ export async function withP4Services(run, { persistent = false } = {}) {
     'Foreground yes', 'User clamav', 'DatabaseDirectory /var/lib/clamav', 'TCPSocket 3310', 'TCPAddr 0.0.0.0',
     'MaxThreads 2', 'MaxQueue 4', 'ReadTimeout 15', 'CommandReadTimeout 5', 'SendBufTimeout 1000',
     'StreamMaxLength 50000000', 'MaxFileSize 100000000', 'MaxScanSize 200000000', 'MaxRecursion 8',
-    'MaxFiles 1000', 'MaxScanTime 12000', 'AlertExceedsMax yes', 'AlertEncrypted yes', 'AlertOLE2Macros yes',
+    'MaxFiles 1000', 'MaxScanTime 25000', 'AlertExceedsMax yes', 'AlertEncrypted yes', 'AlertOLE2Macros yes',
     'ScanArchive yes', 'ScanPDF yes', 'ScanXMLDOCS yes', 'AlertBrokenMedia yes', 'FailIfCvdOlderThan 7',
   ].join('\n') + '\n');
   const names = [], volumes = [];

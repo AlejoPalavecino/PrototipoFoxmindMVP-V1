@@ -7,26 +7,20 @@ import pg from 'pg';
 import { withP4Services } from './p4-services.mjs';
 import { withMailpit } from './mailpit-test-runtime.mjs';
 import { identityTestEnvironment } from './p33-identity-test-env.mjs';
+import { readIntegrationOptions, createOwnedServiceControls } from './p9-runtime-controls.mjs';
 
 async function freePort() {
   const server = createServer();
   await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
   const port = server.address().port; await new Promise(resolve => server.close(resolve)); return port;
 }
-function ownedDocker(runtime, action, name) {
-  if (!runtime.names.includes(name)) throw new Error('Unowned integration resource');
-  const check = spawnSync('docker', ['inspect', '--format', '{{index .Config.Labels "foxmind.p4.owner"}}', name],
-    { encoding: 'utf8', windowsHide: true, timeout: 5000 });
-  if (check.status !== 0 || check.stdout.trim() !== runtime.owner) throw new Error('Integration resource ownership unavailable');
-  const result = spawnSync('docker', [action, name], { encoding: 'utf8', windowsHide: true, timeout: 15000 });
-  if (result.status !== 0) throw new Error(`Owned integration ${action} unavailable`);
-}
-
 /** Real persisted P3 identity plus owned private services; optional integrated classrooms. */
-export async function withP4IntegrationRuntime(callback, { classrooms = false } = {}) {
+export async function withP4IntegrationRuntime(callback, options = {}) {
+  // Reject ignored/unsafe options before allocating any Docker or filesystem resources.
+  const { classrooms, classroomQuotaBytes } = readIntegrationOptions(options);
   return withP4Services(async runtime => {
-    let db, api, web;
-    const paused = new Set();
+    let db, api, web, failure, result;
+    const controls = createOwnedServiceControls(runtime);
     try {
       db = new pg.Client({ connectionString: runtime.databaseUrl, connectionTimeoutMillis: 2000, query_timeout: 5000 });
       await db.connect();
@@ -43,7 +37,8 @@ export async function withP4IntegrationRuntime(callback, { classrooms = false } 
       prisma(['migrate', 'diff', '--from-config-datasource', '--to-schema', 'prisma/schema.prisma', '--exit-code']);
       const applied = await db.query('SELECT migration_name FROM _prisma_migrations WHERE finished_at IS NOT NULL AND rolled_back_at IS NULL ORDER BY migration_name');
       if (JSON.stringify(applied.rows.map(row => row.migration_name)) !== JSON.stringify(migrations)) throw new Error('Combined migration history mismatch');
-      return await withMailpit(async ({ smtpPort, httpOrigin }) => {
+      result = await withMailpit(async mail => {
+        const { smtpPort, httpOrigin } = mail;
         const port = await freePort(), origin = `http://127.0.0.1:${port}`, infra = runtime.infrastructure;
         const { createApplication } = await import('../.build/api/apps/api/src/application.js');
         const { readConfiguration } = await import('../.build/api/apps/api/src/configuration.js');
@@ -52,7 +47,7 @@ export async function withP4IntegrationRuntime(callback, { classrooms = false } 
           FILES_S3_REGION: infra.region, FILES_S3_BUCKET: infra.bucket, FILES_S3_ACCESS_KEY_ID: infra.accessKeyId,
           FILES_S3_SECRET_ACCESS_KEY: infra.secretAccessKey, FILES_SCANNER_HOST: infra.scannerHost,
           FILES_SCANNER_PORT: String(infra.scannerPort), FILES_DRAFT_QUOTA_BYTES: '500000',
-          ...(classrooms ? { CLASSROOMS_ENABLED: '1', CLASSROOMS_QUOTA_BYTES: '100000000',
+          ...(classrooms ? { CLASSROOMS_ENABLED: '1', CLASSROOMS_QUOTA_BYTES: String(classroomQuotaBytes),
             CLASSROOMS_SIGNING_KEY: randomBytes(32).toString('base64url'),
             CLASSROOMS_DELIVERY_KEY: randomBytes(32).toString('base64url') } : {}) });
         api = await createApplication(configuration); await api.listen(0, '127.0.0.1');
@@ -72,6 +67,14 @@ export async function withP4IntegrationRuntime(callback, { classrooms = false } 
         }
         if (!ready) throw new Error('Owned integration web readiness unavailable');
         return await callback({ origin, inbox: httpOrigin, get db() { return db; }, migrations,
+          get classroomQuotaBytes() { return configuration.classrooms?.classroomQuotaBytes; },
+          inspectServices: controls.inspectServices,
+          inspectServiceBindings: controls.inspectBindings,
+          pauseDatabase: controls.pauseDatabase, resumeDatabase: controls.resumeDatabase,
+          pauseStorage: controls.pauseStorage, resumeStorage: controls.resumeStorage,
+          pauseScanner: controls.pauseScanner, resumeScanner: controls.resumeScanner,
+          inspectMail: mail.inspect, pauseMail: mail.pause, resumeMail: mail.resume,
+          inspectMailBindings: mail.inspectBindings,
           async stopLibraryDeletion() {
             if (!classrooms) throw new Error('Classroom host not enabled');
             const { LibraryCleanupWorker } = await import('../.build/api/apps/api/src/classrooms/library-cleanup.js');
@@ -96,14 +99,14 @@ export async function withP4IntegrationRuntime(callback, { classrooms = false } 
             prisma(['migrate', 'diff', '--from-config-datasource', '--to-schema', 'prisma/schema.prisma', '--exit-code']);
             api = await createApplication(configuration); await api.listen(apiPort, '127.0.0.1');
           },
-          pauseScanner() { const name = runtime.names.find(name => name.endsWith('-scan')); ownedDocker(runtime, 'pause', name); paused.add(name); },
-          resumeScanner() { for (const name of paused) { ownedDocker(runtime, 'unpause', name); paused.delete(name); } },
         });
       });
+    } catch (error) {
+      failure = error;
     } finally {
       const failures = [];
       const clean = async operation => { try { await operation(); } catch (error) { failures.push(error); } };
-      await clean(async () => { for (const name of paused) ownedDocker(runtime, 'unpause', name); });
+      await clean(() => controls.restore());
       await clean(async () => {
         if (!web || web.exitCode !== null) return;
         const exited = new Promise(resolve => web.once('exit', resolve)); web.kill();
@@ -113,7 +116,9 @@ export async function withP4IntegrationRuntime(callback, { classrooms = false } 
       await clean(async () => { if (api) await api.close(); });
       await clean(async () => { await db?.end(); });
       console.log(`P4 integrated process cleanup failures: ${failures.length}`);
-      if (failures.length) throw new AggregateError(failures, 'P4 integration process cleanup failed');
+      if (failures.length) failure = new AggregateError([...(failure ? [failure] : []), ...failures], 'P4 integration process cleanup failed');
     }
+    if (failure) throw failure;
+    return result;
   }, { persistent: true });
 }
