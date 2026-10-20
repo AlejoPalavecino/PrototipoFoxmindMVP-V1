@@ -3,7 +3,7 @@ export class ClamdScanner implements FileScanner {
   readonly host: string;
   readonly port: number;
   readonly timeoutMs: number;
-  constructor(host: string, port: number, timeoutMs = 15000) {
+  constructor(host: string, port: number, timeoutMs = 30000) {
     if (!host || !Number.isInteger(port) || port < 1 || port > 65535
       || !Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 30000) throw new FileError('SERVICE_UNAVAILABLE');
     this.host = host; this.port = port; this.timeoutMs = timeoutMs;

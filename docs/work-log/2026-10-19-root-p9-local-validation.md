@@ -6,7 +6,7 @@
 - Worktree: managed p4-p3-integration checkout, branch codex/p9-local-validation.
 - Baseline: accepted/published main53a798670a0415aafc469fd3c2bf2276e2f0055f.
 - Scope: full P9 in requested order, no deployment; tasks S1-S6/T1-T7.
-- Status: in_progress; matrix/tracking first, no P9 acceptance yet.
+- Status: in_progress; T3 joined and five50M capacity ownPASS; T4 actual service-failure/recovery mapping underway, finalwholeP9Verify pending.
 
 ## Request and boundaries
 
@@ -85,3 +85,117 @@ T2commitd578a82549dfccb89e0d2b0cb7fcfa80d4508278(14files1209add15delete),managed
 Writer p9_runtime_controls changedexact7surfaces,notproductAPI/schema/deps. Validatedowned-onlyquota(default100000000/actual100000001n),exactper-serviceownership+stableSMTPports. Firstactual158271msexit1newpausedliveportguarddefect/processcleanup1-owned0retained. Singlecorrection+targetedrecheck53599msexit0/5PASS0FAIL0SKIP(excluding2passedbodies)directlyconfirmedpausedDocker29.7.2omitslivemaps/configuredloopbackbindingsstable. ExactadmissionID/name/UUID/membership retained/freshomissionsandmismatchesreject. Scannerresumeonlyscanner,stableSMTPidentityvolumeports/listeners,callbackerror/finallyunpausebeforedestroyproved. Finalcleanup0/0/exactresourcesremoved. Writerunit9PASS/mailCLI1PASS/static0; parentunit9PASS/runtimecodeownershipspotcheck/diff0. No full250MB/T3journey/T4outageclaim. RawGitdefault/CLIcompatibilitysyntheticdiffonly. NoAPI/Nextbuild/install/pull/remote/Git/deploy. Threeexternalruntimepathsretained. Unitcoherentcommitnext; fullfeatureindependentVerifyT6.
 
 Parent staging check caught one trailing blank line at new worker-record EOF (untracked files were absent from earlier ordinary diff check). Parent removed only EOF whitespace before candidate commit; no executable/source change or test rerun. Staged-byte check is authoritative for newly added files.
+
+## Runtime prerequisite committed; T3 joined journeys next
+
+Commitb1f024a3eda682a3aa52dd6f5a5d3c61c7126f12(9files629add23delete),managedclean; highinformationalassessmentitem2/offglobal/noSTART. T3nextsequentialcontext-backstopwriterowns6joinedtestfiles+sharedhelper/guide/recordonly. FullrealP3-P8publicflows/unionacademicrejectionhash/perquestionfeedback+restart,notcontrolledSQLactors. Eachfirstactual330/360,nomonolith/rebuild/fullHome. Real5x50Mforecasts250MBscratch+250MBstorage/~2GBlogicaltransport,sufficientownedquota/defaultunchanged. No productfixwithoutreproducedevidence/exactsurface. T4actualoutages/finalindependentwholeP9remainpending.
+
+## T3 joined journeys: bounded correction exhausted
+
+Writer /root/p9_joined_journeys prepared ten authorized files, helper5PASS after one JSON/binary-return regression, eight MJS syntax/new-file whitespace/link checks0. Parent helper spotcheck5PASS/exit0 and diffcheck0. No product changes, rebuilds, installs, pulls or accepted Home/control replays.
+
+First teaching35,852ms exit1 was a new helper binary-return defect. One coherent correction resolved that blocker; targeted teaching48,817ms exit1 then hit a NEW Plan NEXT response wait12s. Original-plan digest200 and scanned versions[2,1] now proved. Fixture label/value/onChange/POST/route match source, but no request trace/selected-value/post-action SQL was captured. Screenshot has teacher Plan/Pendiente topics/no application alerts; no product defect established. Budget exhausted: no second correction or runtime. Both process/owned cleanup0; exact owned prefixes empty. Real verified account/mail/enrollment/scoped-role/foreign403+unchanged academic hashes reached. V1-025 pinned, V1-005 subset only. Five Q/E/TP/membership/large-file actual commands NEVER launched; feedback durability/250MB unproven.
+
+First unfinished: explicit one isolated remaining Plan diagnostic proof decision at unchanged330/360, capturing safe request/status, selected value and SQL without speculative product fix or accepted-body replay. T3 files uncommitted; featureHEADb1f024a, T4-T7 pending. No merge/push/deploy/final independent acceptance. Four external scratch paths in worker record retained, no recursive cleanup. Full task228L25 mirrors exact state.
+
+## Authorized isolated Plan diagnostic
+
+Human authorizes exactly one Plan check330/360, no product changes or approved scenario replay. Reconciled b1f024a/ten new T3 files/parent tracking with full228L25. New narrow diagnostic preserves relevant two-version setup and captures safe request/status, version/topic identity, selected value and read-only persisted state. No speculative product fix, builds, other five journey execution or deployment in this unit.
+
+## Plan diagnostic: exact-label fixture mismatch identified
+
+Exactly one authorized diagnostic exited1/33,074ms at pre-action exact locator count0. Screenshot contains the select; source Plan67-69 nests select/options in its label, and installed Playwright includes their text in exact-label equality. Existing accepted P6 uses non-exact matching. Full computed label text was not captured, so explanation is explicitly source-grounded. Both real scanned versions and appendPOST200/revision0→1/current teacherGET200 were observed; topic IDs stayed identical, statusPENDING. No NEXT action/POST/post-action SQL proof was produced; no application defect or successful mutation claimed.
+
+Writer changed only new diagnostic, guide and separate attributed record.596 protected hashes including nine previous T3 files unchanged. Cleanup0/0/exact resources empty; no other five journeys/builds/product edits. Parent syntax0/markup+guard spotcheck/diff0. Proposed only two fixture surfaces: teaching34/37 and diagnostic control/action, Plan-region-scoped non-exact label+count1, retaining failed-exact/all-select diagnostics. Not applied and no second run. Need explicit fixture correction + one isolated330/360 recheck decision. Full task228L27/Engram275-277 persist evidence. Two new scratch paths in diagnostic record retained. No merge/push/deploy/final independent acceptance.
+
+## Authorized two-fixture locator correction and one Plan check
+
+Human explicitly authorizes only teaching/diagnostic locator corrections and one corrected isolated Plan330/360. Reconciled b1f024a/current twelve new files+parent tracking with full228L27. Scope to actual Plan section, use non-exact label plus uniqueness guard, retain exact-count/all-select diagnostics. No product/runtime/build edits, accepted body replay, broad teaching sweep or other five journey commands in this bounded unit.
+
+## Corrected isolated Plan proof passed; resume unproved T3 work
+
+Exact one correctedPlanPASS33,169ms/1PASS0FAIL0SKIP under330/360, actual exactcount0/nonexactunique1/rawlabel including optiontexts. NativePENDING→NEXT/completedPOST200/current topic/revision1→2/settledDOM+SQLNEXT/secondPENDING/no application errors confirmed.595 protected hashes unchanged; cleanup0/0/exact resources empty. Parent syntax2/diff0/scopedcount guard spotcheck. No product/build/Git/deploy in writer unit. Remaining TAUGHT/Library/Muro/scopednews/restart is separate first remainder proof, not another old teaching sweep; five other journeys still never executed. Audit all prepared unexecuted select/option/response predicates before first commands. Existing full P9 authorization continues, no generic continuation request; fail-fast and no automatic repeats remain. Full task228L30.
+
+## Five first joined journeys passed; maximum-file proof blocked
+
+Attributed writer completed first remaining teaching90,344ms/Q52,549/E49,294/TP44,225/membership44,553ms at unchanged330/360. Actual TAUGHT/Library/Muro/news/restart, positive per-question feedback through publication/own UI/reload/API-data restart, TP8.50/private bytes, membership historical/current means/reentry/archive/stale/revoked denial hashes passed. Exact row subsets/exclusions are in worker record; no broad family/P9 PASS. Static helper5PASS/syntax9/endings11PASS and parent max-file syntax/diff0.
+
+First capacity44,391ms failed raw exact50,000,000-byte Next PUT422 after intent201/reservation. Zero max files approved; remaining capacity assertions never reached. Retained ZIP size/CRC/EOCD structure consistent; parser versus Clam rejection still unknown because raw JSON/failure SQL/verdict were not retained before cleanup. No product defect asserted and no post-stop runtime/request/parser invocation/correction/limit change. Native cleanup counters0/0 on all six, owner folders empty, but no independent post-stop Docker inventory claim.590 protected hashes unchanged/nine prepared test/helper files frozen. T3 files uncommitted; no merge/push/deploy. Need one isolated same50M diagnostic330/360 with safe error/validation/scan/custody/digest/verdict capture before cleanup, no five-success replay or security/timeout relaxation. Fulltask228L32, Engram285-288; seven new external scratch paths remain retained in worker record.
+
+## Authorized one isolated same50M diagnostic
+
+Human explicitly authorizes one330/360 diagnostic, same50MB bytes, no approved replay/product/limit changes. Reconciled b1f024a/current new files/parent tracking with full228L32. New narrow fixture will preserve safe public JSON and scoped validation/scan/custody/digests plus bounded owned scanner verdict before cleanup. At most one public raw PUT; necessary same-byte native parser/scanner observations stay within original limits and are diagnostic only. No full capacity/five-file acceptance inferred, build or product/runtime change.
+
+## Maximum-file diagnostic identifies antivirus time heuristic
+
+One authorized diagnostic60370ms/native1PASS0FAIL0SKIP explicitly captures rejection, NOT capacity acceptance. Same50M publicPUT422/13529ms/FILE_REJECTED; before cleanup validationAPPROVED/exactdigest but scanREJECTED/custodyrejected/readyfalse/scanned_digestnull; attemptDRAFT0/attachments0/unrelated hash unchanged. Owned native same-byte scan12218ms returned Heuristics.Limits.Exceeded.MaxScanTime FOUND. Parser probe not run because application validation approved. This is a time-budget heuristic, not a concrete malware signature or completed clean verdict.600 protected hashes unchanged/cleanup0/0/ownerfolderempty. Parent syntax/diff0/evidence readback; no source/runtime/limit/build/other-command changes.
+
+Recommend retain original repeated-A50M stress case as safe rejection evidence and add a separate representative50M stored-ZIP positive fixture with varied bounded-line ASCII. Hypothesis untested; no sample generated/scanned. Changing scanner/client budgets would alter explicitly protected limits, so not done. Needs one explicit fixture batch plus gated five-file330/360 command, first must approve/hash before2-5, retain all250MB/quota/privatebytes/receipt/restart/small-sixth409 assertions, no approved-flow or oldstress replay. Fulltask228L35/Engram291-293; two new OS-temp paths retained in own record. No merge/push/deploy or whole-P9 independent acceptance.
+
+## Authorized positive-only maximum capacity check
+
+Latest human quote is preserved in taskL36. Separate representative exact50M stored-ZIP positive generator/unit checks, old repeated-A generator/fixed-SHA diagnostic unchanged; one five-file command only, first200/APPROVED/CLEAN/ready/digest before2-5, all quota/download/receipt/restart/small-sixth409 assertions retained. No approved body replay, product/runtime/limit/build/deployment changes or automatic second execution. Parent owns tracking/Git/matrix; sequential bounded writer under context backstop, final independent Sol/xhigh pending.
+
+## Positive fixtures prepared; engine unavailable before capacity launch
+
+Writer /root/p9_positive_capacity own record attributes unit RED1PASS2FAIL then GREEN3PASS0FAIL0SKIP/11335ms, syntax3/structural checks and1050 protected unchanged hashes. Parent read record/generator/unit, spotchecked capacity syntax0 and diff0. Original repeated-A stress helper/diagnostic unchanged; no product/runtime/build/security/limit changes. First read-only docker version exited1 because dockerDesktopLinuxEngine named pipe absent. Actual capacity command NOT RUN, no allocated runtime/upload/scanner/retry; cleanupN/A, exactly-one authorization UNCONSUMED. Restore local Docker engine, then reconcile and execute existing one330/360 capacity command, not a repetition. Real capacity and T4-T7/final Sol-xhigh/main merge-push remain pending; no deployment. External scratch foxmind-p9-positive-capacity-run-ZU3HMU retained. Full taskL37/mirror228 and Engram297-299 preserve handoff. Risk: items2,3,4,5.
+
+## Resume after human Docker initialization report
+
+Human statement recorded verbatim taskL38; verify actual readiness and candidate/build hashes, then one previously unlaunched capacity command330/360. No accepted unit/flow replay or source/limit changes. Same bounded worker owns exact prior guide/record only; parent task/matrix/Git ownership unchanged. Stop actual failure retaining evidence; no repeat inferred.
+
+## One positive capacity execution consumed — scanner rejection
+
+Docker readiness/four exact images0; frozen candidate/build/protected1050 hashes match. Exactly once330/360 capacity exit1/176532ms/native0PASS1FAIL0SKIP. First50M rawNextPUT422 FILE_REJECTED; safe precleanupSQL/publicGET validationAPPROVED with expected=validatedSHA87c87df114bc78e95430afc0e8b16d54b2ce27708162f8155a319e1ae084c9fd, scanREJECTED/custodyrejected/readyfalse/scanned_digestnull, attemptDRAFT0/attachments0; used50027593/reserved50000000 within300M. Zero maximum files accepted; gate prevented2-5/sixth409/receipt/restart. Precise scanner signature unobserved, no old-cause inference. Process/ownedcleanup0/0/exactownerfolderempty; no poststopDockerinventory. No source/probe/retry/build/approved replay/remote/deploy change. Parent record/source readback/syntax0/diff0. Actual command authorization now consumed. Need human disposition for narrowly scoped owned scanner diagnostic exact retained new bytes330/360, no public journey replay/product/limits change; not launched. FulltaskL39/mirror228, Engram301-303. Risk: items2,3,4,5.
+
+## Authorized one retained-positive-file antivirus diagnostic
+
+Exact human quote/taskL40. Same50M retained max-1.zip/SHA87c87df114bc78e95430afc0e8b16d54b2ce27708162f8155a319e1ae084c9fd, one native antivirus scan/fresh owned scanner, original limits330/360 and12sClam/15sclient; safe exact verdict retained before finally cleanup. No public upload/parser/accepted-flow replay or product/runtime/build/limit changes; no repeat. Parent owns Git/task/matrix/mirror; sequential bounded context-backstop worker/new record. Diagnostic not capacity acceptance.
+
+## Representative scanner diagnostic completed; policy decision pending
+
+Exactly one antivirus-only330/360 diagnosticexit0/50243ms/native1PASS0FAIL0SKIP means evidence captured, NOT capacity acceptance. Exact retained50M/SHA unchanged, oneINSTREAM13219ms returned Heuristics.Limits.Exceeded.MaxScanTime FOUND; actual image/config matches12sClam15sclient.1054protected/all3candidatehashesunchanged, minimal ownedservicescleanup0/ownerfolderempty/integratedprocessN/A, no publicflow/parser/regeneration/secondscan/product/build/runtime/limitchanges. Parent syntax0/diff0/recordreadback. FulltaskL41-L42/mirror228/Engram306-308. Proposed not applied: scanner12->25s and client15->30s, all other protections/budgets retained; higher bounded per-file cost/no promisedPASS, ONE targetedcapacityverification330/360 only after explicit humanconsent. Do not silently weaken policy or shrink full50M acceptance. WholeP9/independentSolxhigh/mainmergepushpending; nodeployment. Risk: items2,3,4,5.
+
+## Authorized exact scanner/client budget correction
+
+Exact human/taskL43 authorizes only antivirus12->25s and client15->30s; preserve all other policy/size/quota/parser/timeouts/protections. Focused deterministic tests then ONE necessary fresh API build30s before ONE capacity330/360 command, no approvedflow/diagnostic replay or secondactual. Parent owns Git/task/matrix, separate coherent securitybudget unit and source/test/guide/newrecord bounded writer. Final independentSolxhigh after ownproof, no mainpublication before completeP9/no deploy.
+
+## Exact correction ownPASS; fresh API preparation unavailable
+
+Only two requested substitutions, focusedRED2PASS2FAIL/GREEN4PASS and baseline differential as L44. One API build30s failedexit1/30061ms at Prisma generation: exit unavailable, emptystderr/TypeScriptnotreached.919protected/177generatedhashesunchanged, compiledscannerstill15000, no stale proof. No retry/Docker/upload/scan; capacityNOTLAUNCHED and authorizationUNCONSUMED, cleanupN/A. Parentexactdiff/syntax0/diff0/recordreadback. L45human asks remainingstatus, not retryconsent. Remaining T3freshbuild+realcapacity/T4outages/T5guide/T6freshindependentSolxhigh/T7mainmergepush, no deployment. Fullmirror228/Engram311-314/ownrecordlinkedL44. Riskitems2,3,5.
+
+## Authorized one API preparation retry
+
+Exact taskL46: one API buildretry30s/outer32s, only success permits existing one capacity330/360. Frozen source, no units/approvedflows/diagnostics or further retries. Parent persists lossless ordered Engram task chunks+manifest before continuation because50K single-save cap is near; exact full readback required, no history truncation.
+
+## Fresh build retry passed; capacity still rejected at scan boundary
+
+L47: buildretry6575ms/Prisma0/TypeScript0/freshdefault30000; onlycompiledscannerchanged. ONEconditionalcapacity108551ms/0PASS1FAIL0SKIP first50M422FILE_REJECTED, validationAPPROVED/scanREJECTED/readyfalse/custodyrejected/scanned_digestnull, exactpositiveSHAunchanged/attemptDRAFT0attachments0. Zeroapprovedmaxfiles; downstreamstopped. Precise25s-run signatureunobserved/noadditionalprobe/retry. Nativeprocess0/owned0/exactownerfolderempty/source919/generated177/candidate3hashesunchangedafterrun. Parentrecord/syntax0/diff0; bothauthorizationsconsumed. L48proposal requires humanconsent for one samebyte effectiveconfig/rawverdict/resource diagnostic without budgetchanges/approvedreplay; notlaunched. Fullmirror228orderedparts/readback, Engram320-321. Main/freshindependentSolxhigh/fullP9pending/nodeploy. Risk2,3,5.
+
+## Authorized current-budget resource diagnostic and conditional investigator
+
+Exact taskL49 user quote authorizes ONEsamefile25/30s native scan330/360/config/verdict/ownedresources; if nonclean launch fresh read-only root-cause agent, no automatic secondscan/build/upload/fix. Capture concurrent metrics without blocking scanclient eventloop. Parent task/Git/matrix ownership, no deployment, finalfullP9independentSolxhighpending.
+
+## Resource diagnostic and requested fresh investigation completed
+
+L50one50Mscan25841ms/MaxScanTimeFOUND at effective25/30; diagnosticcapture1PASS47160ms notcapacity. SampleCPU~onecore/memory~1.2GiB, no provenpressure/throttle, ownedcleanup0/frozenhashesunchanged. Requested freshSolxhigh/root/p9_scanner_root_cause launchedafterfailure and completedread-onlyofficial/localanalysis. Underlyingperformancecauseunproven; no evidence-backedfix or reasonforblindbudgetincrease. Parentattributedreport docs/work-log/2026-10-19-p9-scanner-root-cause-investigation.md/sourceverdictspotcheck, fulltaskL50-L52/mirror/Engram324-328. Proposeddebugtrace+DBidentities+cgroupcountermeasurementone25/30/330-360 requiresnewconsent; notlaunched. No extra runtime/fix/replay/Git/main/deploy. FullP9/finalVerify/mainpending.
+
+## Authorized one detailed diagnostic
+
+Exact taskL53 permits same retained50M,25/30s and330/360, diagnostic-onlyDebug, actualsignatureDBidentity, beforeafterownedcgroupcounter and boundedasynctrace capture. No product/source/build/otherlimit/resourcechange or replay/secondscan/fix. GeneratedownedephemeralconfigDebugonly maychange, verifyactualpoststartupconfigurationandownership. Parent tasks/Git/matrix; rootcauseagentmayinterpretretainednewresultsread-onlywithoutanothernativeexecution. No deploy.
+
+## Detailed trace localizes outer ZIP PCRE workload
+
+FulltaskL54-L56/detailedwriter and attributedrootcauseappend record exactoneScan1/native1PASScaptureonly/MaxScanTime25s; extractedtextfinished then235PCREreportsouter50Mmapconsume~23.2s. Parenttrace/count/upstreamfunctionspotcheckconfirmed misleadingcli_unziploginsidePCREloop; no provenbadsignature/enginebug. ActualDBidentitiesandcgroupcounterssaved, ownthrottle/OOMnotobserved/Debugoverheadunmeasured. No furthernative/fix/replay. ProposednewconsentONLYpositivevalidbinaryassetZIPfixtures/nojunk/alllimitscurrentplusONEgatedfive50Mcapacity, preserveASCIIstress. Anothergenericdiagnosticnotrecommended. Engram332-337/fullmirror228orderedparts. FullP9/finalSolxhigh/mainpending,nodeploy.
+
+## Authorized binary positive fixtures and one capacity command
+
+Exact replysi and precedingrequest preservedtaskL57. Separate valid meaningfulbinaryassetZIPs/unit independentdecode exact50M/five distinct, oldASCII/stressfilesunchanged, no padding/renameddata/ignoredbytes/scannerexclusion. One gatedexistingcapacity330/360, current25/30/allotherassertions retained. No product/build/runtime/approvedflow/diagnosticpreflight replay. Stopactualfailure/no automaticretry. ParentGit/tracking/fullmirror beforewriter, finalSolxhigh/mainconditionalfullacceptance,nodeploy.
+
+## T3 capacity own proof passed; continue T4
+
+L58 binarypositiveunitRED2PASS1FAIL/GREEN3PASS0FAIL18.5s/PythonfullZIP-WAVdecode. ONEactual131029ms/native1PASS0FAIL0SKIP allfiveexact50M200APPROVED/CLEAN/allhashes,firstgatebefore2-5,selected250MB/quota/privatebytes/sixth409unchangedacademicstate/receipt/restartPASS. Usage250027594/reserved0/default100Munchanged. Frozen1104/currentbuilds/25-30/noDebug unchanged, cleanup0/0/ownerfolderempty. Parentrecord/generator/syntax/diff0spotcheck; ownrecordbinary-capacity-worker/exactscratchretained; Engram340-344/fulltaskL58. T3owncompleteonly, finalindependentT6pending. T4read-onlymapneverexecutedserviceoutage/mailretrycontractsnext; no approvedbodyreplay/nodeploy.
+
+## T3 coherent work-unit packaging
+
+Stage36explicitpaths excludesoriginalcheckout/scratch/generatedoutputs. Newdetaildiagnostic extraEOFblank normalizedbyparentONLY, executabletexttrimEndidentical/syntaxchecked; historicalhashproofsretainedbeforepackaging, no functionalreplay. Nativeassessinitialunavailableuntrackedmetadata/notlowrisk; modeoffglobal/noSTART. T3unitincludesactualjoined/filecapacityproof+boundedscannerdefaultchange, finalindependentwholeP9securityverificationstillT6.

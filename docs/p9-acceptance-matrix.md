@@ -285,3 +285,12 @@ P9 proof: Server-authorized open/read, role and current target checks, no unrequ
 ## Verification ledger
 
 Initial structural check: all170 source rows map to15 families, unique IDs, all referenced fixture paths exist. No P9 functional PASS yet. Update this ledger and exact row evidence after observed applicable proof; preserve failures/skips/unavailable checks and candidate identities.
+
+## P9 scoped own-proof ledger — Independent closure pending
+
+The original170 rows and their full-P9 status are unchanged. These observations are scoped own proof, not blanket row/family acceptance; final independent reconciliation belongs to T6.
+
+- T3 first joined teaching remainder, questionnaire, evaluation, practical and membership commands passed once: [attributed exact coverage and exclusions](work-log/2026-10-19-p9-teaching-remainder-worker.md). No approved command was replayed to obtain capacity proof.
+- V1-021/G07: [one binary positive capacity execution](work-log/2026-10-20-p9-binary-capacity-worker.md) passed five exact50000000-byte distinct private attachments, APPROVED/CLEAN/ready/digest/download gates, exact250MB quota usage, explicit receipt and actual data restart. Owned300M quota includes existing usage; shared100M default unchanged.
+- V1-057 count-boundary evidence in the same command: a valid4096-byte sixth allocation returned409/UPLOAD_CONFLICT despite sufficient remaining quota, preserving all existing attachments and full academic hash. This is the observed allocation boundary, not an invented additional six-file submit test.
+- Repeated-text ZIP rejection diagnostics remain historical negative/stress evidence; they are not positive capacity or malware verdicts. Current positive files are independently decoded valid educational PCM assets within stored ZIPs, not direct audio uploads or a change to the V1 allowlist.
