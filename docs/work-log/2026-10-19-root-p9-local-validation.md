@@ -6,7 +6,7 @@
 - Worktree: managed p4-p3-integration checkout, branch codex/p9-local-validation.
 - Baseline: accepted/published main53a798670a0415aafc469fd3c2bf2276e2f0055f.
 - Scope: full P9 in requested order, no deployment; tasks S1-S6/T1-T7.
-- Status: in_progress; T3 joined and five50M capacity ownPASS; T4 actual service-failure/recovery mapping underway, finalwholeP9Verify pending.
+- Status: needs_decision; T3 joined/capacity ownPASS committed; T4 DB/storage/scanner ownPASS but SMTP fixture refresh locator blocked naturalretry proof; finalP9 pending.
 
 ## Request and boundaries
 
@@ -199,3 +199,31 @@ L58 binarypositiveunitRED2PASS1FAIL/GREEN3PASS0FAIL18.5s/PythonfullZIP-WAVdecode
 ## T3 coherent work-unit packaging
 
 Stage36explicitpaths excludesoriginalcheckout/scratch/generatedoutputs. Newdetaildiagnostic extraEOFblank normalizedbyparentONLY, executabletexttrimEndidentical/syntaxchecked; historicalhashproofsretainedbeforepackaging, no functionalreplay. Nativeassessinitialunavailableuntrackedmetadata/notlowrisk; modeoffglobal/noSTART. T3unitincludesactualjoined/filecapacityproof+boundedscannerdefaultchange, finalindependentwholeP9securityverificationstillT6.
+
+## T3 committed; bounded T4 proof starts
+
+T3commit3f0af33d6a56c3fae36d6138778ea3048c4fb7ea/36files3785add7delete, codehashesunchanged/stagedcheck0/nativeassessHIGHsecurity/offglobal/noSTARTorapproval. No push/main. FinalindependentwholeP9securityproofT6pending. T4map345-346 parentpersistednewattributedrecord/retained-reservation spotcheck. ExactnewtestsDB-CSRFunsaved/manualretry,storage-scannerfailedfilecancel-newintent,SMTPnonmemberqueue/failure/natural60sretry/capturedemail. Once330/360each,currentbuilds/policiesfrozen,no control/Home/joined/capacityreplay. Resource/timeforecastrelayed; nextboundedwriter onlytwo newtests/guide/ownrecord, sourcefixonlyafterobserveddefectandparentscope.
+
+## T4 service recovery passed; SMTP proof blocked by fixture locator
+
+L63service94689ms1PASS/SMTP55900ms1FAIL onceeach330/360, nocorrection/retry. DBunsaved/noPOST/manualpersist andstorage-scanner503/cancel-newintentCLEANprivatehashPASS; SMTPqueue+actualsendfailureproved, naturalretry/captureunproved because two testrefreshlocators assumeActualizar aula outside rooterror. Parent source confirmsrooterror-only; notproductdeliveryfailure. Cleanup0/0each/frozen1060/buildsunchanged. L64proposesONLYtwofixture-refreshcorrections usingexistingopenClassroompublicloadandONEremainingSMTPcheck330/360withnecessarypublicsetup, no service/capacityreplay. Notapplied/needhuman. Ownrecord349-353/fulltask/mirror; T4filesuncommitted, T3commit3f0af33local/nopush/main/deploy.
+
+
+## Authorized finite P9 closure
+
+User authorization is quoted verbatim in taskS7/L65. Current scope: complete known SMTP fixture preparation and one pending330/360 proof, reconcile170-row evidence and local operation/pilot documentation, then fresh independent Sol/xhigh whole-candidate Verify with unchanged budgets. Parallel writers have disjoint surfaces; parent owns Git/task/mirror/roadmap. At most one final correction batch and one targeted recheck. No deployment; main merge/push only after full acceptance. The prior CRLF-sensitive task insertion failed before writing; this newline-agnostic insertion was read back successfully.
+
+
+## Finite closure preparation complete; Docker engine unavailable
+
+TaskL66 records both attributed writer handoffs. Known SMTP refresh fixes complete; single330/360 command failed exit1/13884ms before callback with P4 Docker network unavailable, no SMTP body reached. Parent docker info read-only exit1 confirms absent dockerDesktopLinuxEngine named pipe. No retry/environment mutation/Verify/main publication. Matrix170 exact rows/six cells and436links structurally checked by curator; local-operation/README/finiteVerify plan completed as preparation only. Parent git diff --check0. Source/runtime/build limits25/30 and330/360 unchanged, nativeoffglobal. First unfinished task: restored-engine disposition and one pending SMTP proof, then immutable candidate/fresh Solxhigh Verify. All uncommitted work retained; no accepted body replay or deployment.
+
+
+## L67 Docker restored; single SMTP execution authorized
+
+Parent docker info read-only29.7.2/exit0, known Git state/exact Engram mirror reconciled. User exact authorization recorded taskL67/S7. One prepared SMTP330/360 run only, current25/30/builds preserved; successful proof continues existing finite Verify/main plan. No deployment/limit expansion/accepted-body replay.
+
+
+## L67 SMTP passed; freeze for independent acceptance
+
+L67 single restored-Docker SMTP proof passed exit0/151554ms/native1PASS0FAIL0SKIP at unchanged330/360: real queued200, failureattempt1, natural60s retryCOMPLETEDattempt2, intended captured recipient/link, truthful UI/public reentry, academic/membership unchanged and exact Mailpit identity/ports. Nativeprocess/ownedcleanup0/0,836protected hashes/builds25-30 unchanged. Parent reconciles record, updates current matrix/plan/local-guide prerequisite while retaining failures. Next syntax/diff/170rowshape checks and curated coherent T4/localdocs commits; then fresh Solxhigh wholefeature finite Verify. Nativeoffglobal, no deployment, no publication before acceptance.

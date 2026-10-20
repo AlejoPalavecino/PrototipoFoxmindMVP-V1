@@ -1,18 +1,32 @@
 # FoxMind
 
-FoxMind is a local-first educational platform in development. The current repository contains the PostgreSQL/Prisma model, a minimal NestJS backend and verification tooling; it is not yet a finished classroom application.
+FoxMind is a locally runnable educational application: Next.js/React web, NestJS API, PostgreSQL, private file storage/scanning and captured email. Accepted P3–P8 cover accounts/sessions, classrooms/enrollment, Plan/Library/Muro, activities/attempts and private/published grading/progress. P9 adds Inicio and joined local validation; final independent P9 acceptance and conditional main publication remain pending. This repository is not a deployed service or a real pilot.
 
-## Continue development
+## Start here
 
-- [Implementation roadmap and current phase](docs/implementation-roadmap.md): start here to find the next unfinished product work.
-- [Agent entry instructions](AGENTS.md) and [per-agent work records](docs/work-log/README.md): leave an attributable handoff for the next session.
-- [Functional specification](docs/foxmind-v1-functional-spec.md) and [visual references](docs/visual-reference-index.md): agreed product rules and design direction.
+- [Current roadmap and exact next work](docs/implementation-roadmap.md).
+- [Local operation and synthetic pilot preparation](docs/p9-local-operation.md): prerequisites, environment ownership, startup, actual user flows, recovery and boundaries.
+- [Full 170-row V1 acceptance matrix](docs/p9-acceptance-matrix.md) and [finite independent verification plan](docs/p9-verification-plan.md): distinguish inherited acceptance, scoped own proof and independent pending.
+- [Functional specification](docs/foxmind-v1-functional-spec.md) and [visual references](docs/visual-reference-index.md).
 
-## Run and verify the existing foundation
+## Local development
 
-- [Database setup and isolated verification](docs/database.md).
-- [Backend setup, commands and limits](docs/backend.md).
-- [Identity HTTP startup and verified T2 checkpoint](docs/identity-http.md): provision required identity keys/origin before `npm run api:start`. Seven operations are implemented and independently verified: session/CSRF/login/logout/register/account GET/account PATCH; five T3 operations remain not implemented. [Registration/profile proof and limits](docs/registration-profile.md), [attributed independent PASS/no blockers](docs/work-log/2026-10-16-mvb63m78-p33-t2-verification.md), [current coordinator](docs/work-log/2026-10-16-01a14539-p33-t2-resume.md) and [execution plan C3](odd/tasks/p33-t2-execution.md) record accepted parent56PASS/build0 and independent33PASS/compiler0/cleanup0. Human selected "Continuar esta unidad sin revisión nativa" only for current T2 code/tests/docs: explicitly natively unreviewed, not native approval or a future review exemption. T3, P3 and the full web journey remain unfinished.
-- [Dependency remediation and audit evidence](docs/dependency-security.md).
+Use Node24 and lock-matching dependencies. Product operation requires a separately provisioned/migrated PostgreSQL database, private S3-compatible bucket, ClamAV and local Mailpit, with complete identity/file/classroom configuration. Account-only startup and isolated preview identities are not the complete product. Provision only explicitly authorized resources; no environment file or secret-file read is required by the application.
 
-Follow the setup guides before running persistent services. Credentials come from the terminal environment, not committed files. Roadmap items and historical work records do not authorize publication or destructive operations; follow the current user's scope.
+After that setup, the existing package commands are:
+
+```powershell
+npm run api:build
+npm run web:build
+# In separate correctly configured terminals:
+npm run api:start
+npm run web:start
+```
+
+These commands are a developer entry point, not a verification result or permission to migrate retained data. Follow the [local guide](docs/p9-local-operation.md) for exact origin/configuration ownership and the [verification plan](docs/p9-verification-plan.md) for bounded API30s/Next180s builds and fresh owned runtime proof. Ordinary sign-in lands on `/profile`; verified accounts can open `/inicio` and `/mis-aulas`. Local captured mail is not real external delivery.
+
+## Continue safely
+
+Read [agent instructions](AGENTS.md) and [work-record protocol](docs/work-log/README.md) before changes. Preserve the original dirty checkout, retained development volumes/inbox, security/size/quota/freshness policies and historical failed/unavailable evidence. Do not use the retained P4-local project as disposable verification infrastructure.
+
+Local development does not authorize deployment, remote execution, real participants/data or destructive cleanup. Current P9 main merge/push is conditional on full verified acceptance; Git publication is not deployment. Native review is off/global (`disabled/unmanaged`), with no native approval claimed.
