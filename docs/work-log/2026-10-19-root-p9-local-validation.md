@@ -232,3 +232,23 @@ L67 single restored-Docker SMTP proof passed exit0/151554ms/native1PASS0FAIL0SKI
 ## Independent finite Verify incomplete; acceptance withheld
 
 Frozen98fd12d/tree99b3722 verified by fresh Solxhigh. API/Next/20focused/3binary/strict checks and differentials passed; physical/raw/170row/retainedfivecapacity proof reconciled. FirstHome probe failed once at secondaccount actualverificationmail prerequisite10s (exit1/74212ms); cause unproven and no job/SMTPdisposition retained. Scannerjoined and independentSMTP neverlaunched by failfast. Cleanup0/0 and frozeninputs unchanged. Full attributed report persisted as2026-10-20-p9-finite-independent-verify.md. No confirmed productfix, finalcorrectionbudget unapplied; no retry/buildrepeat/main/deploy. Single missingproof decision required, not thirteen productdefects or permissionforanother sweep.
+
+
+## L70 one identity/mail diagnostic authorized
+
+Exactuserquote/taskS7-L70 recorded; currentf19256e clean and Docker29.7.2 confirmed. One targeted prerequisite diagnostic only10s/330-360, record queue/job/SMTP/recipient evidence beforecleanup; no productchange/rebuild/approvedsuite replay. SameindependentSolxhighactor, immutableinputschecked before reuse. Diagnosticnotacceptance; finalremainingprobes/mainconditional.
+
+
+## Identity/mail diagnosis passed; complete pending independent boundaries
+
+One39796ms diagnostic passed two unchanged public account10s helpers with queue/recipient/token proof beforecleanup. Failure not reproduced/cause unproven; no productfix. Full attributed report persisted separately. User continuation proceeds only pending independentHome remainder/scannerjoined/SMTP once330/360/sequentialfailfast, no repeats of approvedbuilds/units/gates/ownbodies. SameSolxhigh actor audits exact pendingprobe preparation and captures failures beforecleanup; no moreautomaticretry or limitexpansion. Mainpublication conditionalfullacceptance.
+
+
+## One correction batch: verifier session expectation
+
+DirectedHome44,689ms failed on externalexpected401 afterlogout204; baselineaccepted GET/auth/session instead200/authenticatedfalse. Verifieracknowledgedmiss, notproductdefect. ObservedHome/mobile/news retained, revocation/body/hash/login/invitation pending; seam/SMTPnotlaunched. Fullattributedhandoffpersisted. Apply originalonecorrectionbudget to externalassertion+remainingcontractaudit, then one directedcompletion of ONLYpendingHome tail/firstseam/firstSMTP. No approvedreplay/buildrepeat/limits/productchange. Anynew/persistentblocker afterthis stops; no anothercycle/mainpublication untilacceptance.
+
+
+## Final independent acceptance reconciled
+
+SamefreshSolxhighactor accepted complete localP9 at98fd12d afteroneexternalcorrection/onetargetedrecheck. FinalHomeTAIL44832/seam112634/SMTP105756ms each1PASS330-360. Parentverified fullhandoffSHA/170rowledger/conditionalrow069 actualspec829 (also324/334/751); no localgap. Attributedfinalreport and exactJSONledger persisted, priorfailure/diagnosis/directedreports preserved. Nativecleanup0/0each/manifests628-574-32079-527 unchanged. Parentupdatesmatrix/roadmap/task/localguide/README/passiveplan, no productchange. RemoteHTTPSmain53a7986 confirmed; nextpassivedocstructuralchecks/coherentcommit thennormalmainmergepush/no force/exactremoteSHA. No deployment/furtherfunctionalruntime.

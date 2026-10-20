@@ -1,6 +1,6 @@
 # FoxMind local operation and synthetic pilot preparation
 
-**Local development only.** Accepted P3–P8 provide accounts, private files, classrooms/enrollment, Plan/Library/Muro, activities/attempts and private/published grading/progress. P9 adds Inicio and joined local evidence; its final independent acceptance and publication remain pending in the [roadmap](implementation-roadmap.md) and [170-row matrix](p9-acceptance-matrix.md). This is not production readiness, permission to deploy, or an invitation to use real participants/data.
+**Local development only.** Accepted P3–P8 provide accounts, private files, classrooms/enrollment, Plan/Library/Muro, activities/attempts and private/published grading/progress. P9 adds Inicio and joined local evidence; its final independent local acceptance is complete; publication is tracked separately in the [roadmap](implementation-roadmap.md) and [170-row matrix](p9-acceptance-matrix.md). This is not production readiness, permission to deploy, or an invitation to use real participants/data.
 
 ## Choose an owned local environment first
 
@@ -66,4 +66,9 @@ Only exact-owner fixture controls may pause/resume resources. Fresh admission ch
 
 ## Evidence and next action
 
-[Home proof](p9-home.md), [joined journeys](p9-joined-journeys.md), [owned controls](p9-runtime-controls.md), [five50M report](work-log/2026-10-20-p9-binary-capacity-worker.md), [matrix](p9-acceptance-matrix.md) and [finite independent plan](p9-verification-plan.md) distinguish inherited acceptance, own proof and pending independent closure. L67 SMTP own proof now passed after Docker restoration; prior L65 setup failure stays attributed. Final independent Verify/main publication remain pending, and this guide claims no deployment or native approval.
+[Home proof](p9-home.md), [joined journeys](p9-joined-journeys.md), [owned controls](p9-runtime-controls.md), [five50M report](work-log/2026-10-20-p9-binary-capacity-worker.md), [matrix](p9-acceptance-matrix.md) and [finite independent plan](p9-verification-plan.md) distinguish inherited acceptance, own proof and pending independent closure. L67 SMTP own proof now passed after Docker restoration; prior L65 setup failure stays attributed. Final independent Verify is now complete; main publication is tracked separately, and this guide claims no deployment or native approval.
+
+
+## Accepted local checkpoint
+
+[Final independent Sol/xhigh report](work-log/2026-10-20-p9-final-independent-verify.md) and [exact ledger](p9-final-row-ledger.json) supersede earlier pending-verification notes. Full local P9 is verified; this guide remains synthetic/local only. Hosting, numerical productionquota and deployment decisions are explicitly deferred, not silently chosen. No new participant or retained-data operation is authorized.

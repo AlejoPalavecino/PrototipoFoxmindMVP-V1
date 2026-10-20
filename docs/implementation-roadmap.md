@@ -1,6 +1,6 @@
 # FoxMind implementation roadmap
 
-**Resume here (2026-10-19): P9 local implementation is authorized and in progress over accepted main `53a7986`; deployment is not authorized.** Start with [P9 tasks](../odd/tasks/p9-local-validation.md), [170-row acceptance matrix](p9-acceptance-matrix.md) and [coordinator](work-log/2026-10-19-root-p9-local-validation.md). P3-P8 acceptance and original dirty checkout remain preserved. Static matrix links are not new runtime PASS. Verify uses gpt-6.1-sol/xhigh; main publication is authorized only after full acceptance.
+**Resume here (2026-10-20): P9 local V1 is independently accepted on98fd12d; final passive closure/main publication is coordinator-owned. No deployment is authorized.** Read [final Sol/xhigh proof](work-log/2026-10-20-p9-final-independent-verify.md), [exact170-row ledger](p9-final-row-ledger.json) and [P9 tasks](../odd/tasks/p9-local-validation.md). All required local proof is complete; productionquota/hosting remain explicitly deferred. Earlier partial states below are historical, not current blockers.
 
 P3's accepted twelve account/session operations, initial Next.js screens and real browser/API/SQL/captured-email journeys remain documented in [final verification](work-log/2026-10-17-p3-verify-final.md), [coordinator](work-log/2026-10-17-id-unavailable-p3-completion.md), [tasks](../odd/tasks/p3-completion.md) and [web guide](p3-web.md). Historical backend99/control39/browser10/live web16 and strict builds/audit0/cleanup0 are evidence for that accepted checkpoint, not fresh results for the P4 candidate.
 
@@ -52,7 +52,7 @@ The specification's original "completion boundary" describes its earlier documen
 | P6 | Teaching plan, Library and Muro | completed | Actual scoped Plan/Library/Muro and notifications, durable files/restarts, populated migration upgrade and independent mobile correction verified and published to main (merge8eee463). |
 | P7 | Activities, attempts and submissions | completed | Independent whole-feature and bounded B1 evidence accepted; source0ec37c7/final fixtured9cdf06; published to main via remotely confirmed merge8e4fd2e. |
 | P8 | Grading and follow-up | completed | Exact private scoring, publication/results, audited correction and current/historical progress independently accepted on8cb4ee3 plus targeted feedback1; published via remotely confirmed merge d2a7909. No P9. |
-| P9 | Integrated local validation | in_progress | Full P9 explicitly authorized over53a7986, no deployment; acceptance matrix and tasks linked below. |
+| P9 | Integrated local validation | completed | Complete local V1 independently verified over53a7986; productcandidate98fd12d, exact170rowledger, bounded correction/recheck consumed. No deployment; main publication tracked separately. |
 
 Statuses: `not_started`, `in_progress`, `blocked`, `completed`. A blocked phase names the external decision/proof it awaits. Dropped or superseded tasks remain recorded as such; they never count as completed.
 
@@ -67,7 +67,7 @@ Statuses: `not_started`, `in_progress`, `blocked`, `completed`. A blocked phase 
 
 Last verified baseline: full npm audit0known vulnerabilities;8dependency regressions,7HTTP/backend contracts and38database contracts PASS, plus build, migration replay/status/drift and Prisma smoke. These are previously observed results, not checks rerun by this documentation change. Dependency remediation also received independent verification and acknowledged native approval; earlier foundation review dispositions remain recorded separately, not retrospectively changed.
 
-### What is not implemented yet
+### Historical P5 checkpoint boundaries (superseded by completed phase table)
 
 - P5 classroom creation/enrollment/publication is now integrated and locally independently accepted; Merge677f1c8 is published and remotely confirmed; see the current P5 record.
 - P6 plan/Library/Muro and P7–P9 activities/submissions/grading/full pilot journeys are not implemented by this P5 integration.
@@ -185,3 +185,8 @@ User explicitly authorizes complete P9 in the reviewed order, Verify gpt-6.1-sol
 ## P9 finite verification checkpoint (2026-10-20)
 
 P9 own implementation/recovery/capacity and local guide preparation are committed through98fd12d; SMTP naturalretry/capturedrecipient own proof passed after Docker restoration. [Independent Sol/xhigh record](work-log/2026-10-20-p9-finite-independent-verify.md) reports fresh bounded builds/units/differentials and immutable/retained evidence passed, but mandatory active Home setup failed at secondaccount capturedverification; downstream independent probes were not launched. P9 remains in_progress/not accepted, no mainmergepush or deployment. One missing-proof decision is required; no demonstrated productfix or automatic retry/full sweep/limit expansion. Historical earlier checkpoint claims remain attributed.
+
+
+## P9 final local acceptance (2026-10-20)
+
+Complete P9 local V1 accepted from [final wholefeature Sol/xhigh verification](work-log/2026-10-20-p9-final-independent-verify.md), [exact170-row ledger](p9-final-row-ledger.json) and [tasks](../odd/tasks/p9-local-validation.md). Productbytes98fd12d unchanged throughout independent raw/physical/freshbuild/differential/actualbrowser-API-SQL-files-mail proof. Oneexternal sessionstatus correction andonetargetedrecheck consumed; all requiredlocalproofcomplete. All170 exactoutcomes accounted:169explicitlocal/inherited evidence,069conditionalnumericalGBchoice beforehosting/deployment. No deployment, realpilot or nativeapproval. Earlier partial/failure/checkpoint text remains attributedhistory, notpermission/blocker. Mainmergepush follows authorized coordinator delivery/exactremote readback separately.

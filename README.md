@@ -1,12 +1,12 @@
 # FoxMind
 
-FoxMind is a locally runnable educational application: Next.js/React web, NestJS API, PostgreSQL, private file storage/scanning and captured email. Accepted P3–P8 cover accounts/sessions, classrooms/enrollment, Plan/Library/Muro, activities/attempts and private/published grading/progress. P9 adds Inicio and joined local validation; final independent P9 acceptance and conditional main publication remain pending. This repository is not a deployed service or a real pilot.
+FoxMind is a locally runnable educational application: Next.js/React web, NestJS API, PostgreSQL, private file storage/scanning and captured email. Accepted P3–P8 cover accounts/sessions, classrooms/enrollment, Plan/Library/Muro, activities/attempts and private/published grading/progress. P9 adds Inicio and joined local validation; final independent local P9 acceptance is complete; main publication is recorded separately in the roadmap. This repository is not a deployed service or a real pilot.
 
 ## Start here
 
 - [Current roadmap and exact next work](docs/implementation-roadmap.md).
 - [Local operation and synthetic pilot preparation](docs/p9-local-operation.md): prerequisites, environment ownership, startup, actual user flows, recovery and boundaries.
-- [Full 170-row V1 acceptance matrix](docs/p9-acceptance-matrix.md) and [finite independent verification plan](docs/p9-verification-plan.md): distinguish inherited acceptance, scoped own proof and independent pending.
+- [Full 170-row V1 acceptance matrix](docs/p9-acceptance-matrix.md) and [finite independent verification plan](docs/p9-verification-plan.md): distinguish inherited acceptance, scoped own proof and final independent local acceptance.
 - [Functional specification](docs/foxmind-v1-functional-spec.md) and [visual references](docs/visual-reference-index.md).
 
 ## Local development
