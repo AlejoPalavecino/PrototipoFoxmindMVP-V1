@@ -1,6 +1,6 @@
 # Finite independent P9 verification plan
 
-**Status: preparation, not an executed verdict.** Whole-feature S1–S7 Verify uses fresh `gpt-6.1-sol` / `xhigh`, after SMTP proof and all known preparation fixes are recorded and the coordinator freezes a tracked candidate. Baseline: accepted main `53a798670a0415aafc469fd3c2bf2276e2f0055f`. No deployment, real participants, secret reads, retained-data mutation, limit expansion or native review START.
+**Status: executed partially; mandatory active proof incomplete.** Whole-feature S1–S7 Verify uses fresh `gpt-6.1-sol` / `xhigh`, after SMTP proof and all known preparation fixes are recorded and the coordinator freezes a tracked candidate. Baseline: accepted main `53a798670a0415aafc469fd3c2bf2276e2f0055f`. No deployment, real participants, secret reads, retained-data mutation, limit expansion or native review START.
 
 **Own SMTP prerequisite satisfied:** L67 single restored-Docker SMTP proof passed exit0/151554ms/native1PASS0FAIL0SKIP at unchanged330/360: real queued200, failureattempt1, natural60s retryCOMPLETEDattempt2, intended captured recipient/link, truthful UI/public reentry, academic/membership unchanged and exact Mailpit identity/ports. Nativeprocess/ownedcleanup0/0,836protected hashes/builds25-30 unchanged. L65 setup failure remains historical. Fresh independent whole-feature Verify below remains pending; no main publication. [Attributed SMTP record](work-log/2026-10-20-p9-failure-recovery-worker.md).
 
@@ -85,3 +85,8 @@ These are observed tracked implementation sources at checkpoint3f0af33, **not** 
 | [`tests/p9-binary-max-files.mjs`](../tests/p9-binary-max-files.mjs) | `9b81ad5cd4e38bea448a717626adbb88adff3ed7` | `dcf061d8aec89f17b0d4d6152fc9553fddfd534f4ca9fe940859aa4edf9be631` |
 | [`tests/p9-large-files-integration.test.mjs`](../tests/p9-large-files-integration.test.mjs) | `acd94fa3af2ab9ea3eb0c9ed20bd5feeb6405182` | `01a1ae5cc9d1d6852e14089e1c2cf6726c267db1afbc561ab608beca2be02f46` |
 | [`tests/p9-scanner-budgets.test.mjs`](../tests/p9-scanner-budgets.test.mjs) | `4c288d68714414ef178b5a858967858e5ca06b6d` | `6435fcfd3c05212b654e3de02818ff618e2424701f351ecc69a674322be17b9f` |
+
+
+## First frozen independent outcome
+
+[Fresh Sol/xhigh record](work-log/2026-10-20-p9-finite-independent-verify.md) binds candidate98fd12d/tree99b3722. Builds/units/differentials and physical/retained evidence passed; the once-only Home command stopped at missing secondaccount capturedverification prerequisite. No confirmed productdefect/correction; downstream independent probes were not launched. No automatic retry, new full sweep, main publication or deployment. The coordinator must resolve the single missing-proof decision; original finite budgets and unconsumed correction bound remain unchanged.

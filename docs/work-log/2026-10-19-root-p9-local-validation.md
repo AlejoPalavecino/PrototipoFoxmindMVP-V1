@@ -227,3 +227,8 @@ Parent docker info read-only29.7.2/exit0, known Git state/exact Engram mirror re
 ## L67 SMTP passed; freeze for independent acceptance
 
 L67 single restored-Docker SMTP proof passed exit0/151554ms/native1PASS0FAIL0SKIP at unchanged330/360: real queued200, failureattempt1, natural60s retryCOMPLETEDattempt2, intended captured recipient/link, truthful UI/public reentry, academic/membership unchanged and exact Mailpit identity/ports. Nativeprocess/ownedcleanup0/0,836protected hashes/builds25-30 unchanged. Parent reconciles record, updates current matrix/plan/local-guide prerequisite while retaining failures. Next syntax/diff/170rowshape checks and curated coherent T4/localdocs commits; then fresh Solxhigh wholefeature finite Verify. Nativeoffglobal, no deployment, no publication before acceptance.
+
+
+## Independent finite Verify incomplete; acceptance withheld
+
+Frozen98fd12d/tree99b3722 verified by fresh Solxhigh. API/Next/20focused/3binary/strict checks and differentials passed; physical/raw/170row/retainedfivecapacity proof reconciled. FirstHome probe failed once at secondaccount actualverificationmail prerequisite10s (exit1/74212ms); cause unproven and no job/SMTPdisposition retained. Scannerjoined and independentSMTP neverlaunched by failfast. Cleanup0/0 and frozeninputs unchanged. Full attributed report persisted as2026-10-20-p9-finite-independent-verify.md. No confirmed productfix, finalcorrectionbudget unapplied; no retry/buildrepeat/main/deploy. Single missingproof decision required, not thirteen productdefects or permissionforanother sweep.

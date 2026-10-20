@@ -180,3 +180,8 @@ Authorized main merge d2a7909aa5d65d13d655d2b8932d6a478b19f9eb was pushed withou
 ## Current P9 authorization (2026-10-19)
 
 User explicitly authorizes complete P9 in the reviewed order, Verify gpt-6.1-sol/xhigh, decisions in Engram and main merge/push only after acceptance; no deployment. [Tasks](../odd/tasks/p9-local-validation.md), [170-row acceptance matrix](p9-acceptance-matrix.md) and [coordinator](work-log/2026-10-19-root-p9-local-validation.md). Accepted P3-P8 and original dirty checkout remain preserved. Earlier STOP-before-P9 statements are historical and superseded only by this request. P9 is in progress, not accepted; no runtime proof is inferred from static matrix links.
+
+
+## P9 finite verification checkpoint (2026-10-20)
+
+P9 own implementation/recovery/capacity and local guide preparation are committed through98fd12d; SMTP naturalretry/capturedrecipient own proof passed after Docker restoration. [Independent Sol/xhigh record](work-log/2026-10-20-p9-finite-independent-verify.md) reports fresh bounded builds/units/differentials and immutable/retained evidence passed, but mandatory active Home setup failed at secondaccount capturedverification; downstream independent probes were not launched. P9 remains in_progress/not accepted, no mainmergepush or deployment. One missing-proof decision is required; no demonstrated productfix or automatic retry/full sweep/limit expansion. Historical earlier checkpoint claims remain attributed.

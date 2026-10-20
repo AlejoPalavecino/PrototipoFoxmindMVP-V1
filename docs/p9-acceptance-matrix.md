@@ -367,3 +367,8 @@ Inherited accepted records: [P6](work-log/2026-10-18-p6-verify-final.md), [P7](w
 - SMTP natural retry/captured intended recipient own proof is complete: L67 single restored-Docker SMTP proof passed exit0/151554ms/native1PASS0FAIL0SKIP at unchanged330/360: real queued200, failureattempt1, natural60s retryCOMPLETEDattempt2, intended captured recipient/link, truthful UI/public reentry, academic/membership unchanged and exact Mailpit identity/ports. Nativeprocess/ownedcleanup0/0,836protected hashes/builds25-30 unchanged. [Attributed record](work-log/2026-10-20-p9-failure-recovery-worker.md). Final independent acceptance remains pending.
 - Whole-feature S1-S7 independent Sol/xhigh reconciliation and fresh preparation/builds/probes remain pending. See [the finite verification plan](p9-verification-plan.md). No final PASS, main merge/push or deployment is claimed here.
 - Baseline native outbox unavailable and retained P4-local helper unavailable remain advisories, not PASS; do not run or repair them merely to make the ledger green.
+
+
+## First independent frozen-candidate outcome
+
+[Fresh Sol/xhigh Verify](work-log/2026-10-20-p9-finite-independent-verify.md) reconciled all170 exact outcomes/266 source references and retained capacity/service/SMTP evidence, plus fresh bounded builds/units/differentials. Mandatory active proof is incomplete: secondaccount capturedverification prerequisite failed within existing10s, cause unproven. Homeclassroom assertions and downstream scanner/joined/SMTP probes were not executed. Explicit fresh-scope gaps:V1-001,023,025,038,039,056,062,064,066,157,158,159,170. These are missing samples, not13demonstrated productdefects. Preserve all row distinctions; no wholeP9PASS or mainpublication.
