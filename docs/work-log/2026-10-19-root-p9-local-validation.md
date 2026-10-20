@@ -252,3 +252,8 @@ DirectedHome44,689ms failed on externalexpected401 afterlogout204; baselineaccep
 ## Final independent acceptance reconciled
 
 SamefreshSolxhighactor accepted complete localP9 at98fd12d afteroneexternalcorrection/onetargetedrecheck. FinalHomeTAIL44832/seam112634/SMTP105756ms each1PASS330-360. Parentverified fullhandoffSHA/170rowledger/conditionalrow069 actualspec829 (also324/334/751); no localgap. Attributedfinalreport and exactJSONledger persisted, priorfailure/diagnosis/directedreports preserved. Nativecleanup0/0each/manifests628-574-32079-527 unchanged. Parentupdatesmatrix/roadmap/task/localguide/README/passiveplan, no productchange. RemoteHTTPSmain53a7986 confirmed; nextpassivedocstructuralchecks/coherentcommit thennormalmainmergepush/no force/exactremoteSHA. No deployment/furtherfunctionalruntime.
+
+
+## Main publication confirmed
+
+Branchclosure4d8096a621652e420acbb750cff22e8c4c08cc7f merged--no-ff into main ase3a5e723a6bdbb8c6cbc2ca9484af6a632addab6. NormalconfiguredHTTPSpush succeeded; livegitlsremote/localHEAD/originmain exactsameSHA. Workingtreeclean immediatelyaftermergepush. Verified98fd12d productbytesunchanged (only12passivedoc-ledgerpaths). T7complete/taskL74 androadmapupdated; passivepublicationrecord commit/push follows, no executablechecks/rebuild/deploy/force. Originaldirtycheckout/retainedresources preserved. Finalremotehead recorded in Engram after lastpassivepush.

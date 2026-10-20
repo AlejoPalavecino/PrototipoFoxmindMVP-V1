@@ -1,6 +1,6 @@
 # FoxMind implementation roadmap
 
-**Resume here (2026-10-20): P9 local V1 is independently accepted on98fd12d; final passive closure/main publication is coordinator-owned. No deployment is authorized.** Read [final Sol/xhigh proof](work-log/2026-10-20-p9-final-independent-verify.md), [exact170-row ledger](p9-final-row-ledger.json) and [P9 tasks](../odd/tasks/p9-local-validation.md). All required local proof is complete; productionquota/hosting remain explicitly deferred. Earlier partial states below are historical, not current blockers.
+**Resume here (2026-10-20): P9 is complete, independently verified locally and merged/pushed to main viae3a5e72, exact remote readback confirmed. No deployment was performed or authorized.** Read [final Sol/xhigh proof](work-log/2026-10-20-p9-final-independent-verify.md), [exact170-row ledger](p9-final-row-ledger.json), [publication record](work-log/2026-10-20-p9-main-publication.md) and [completed tasks](../odd/tasks/p9-local-validation.md). Hosting/numerical productionquota remain explicitly deferred; historical partial states below are not current blockers.
 
 P3's accepted twelve account/session operations, initial Next.js screens and real browser/API/SQL/captured-email journeys remain documented in [final verification](work-log/2026-10-17-p3-verify-final.md), [coordinator](work-log/2026-10-17-id-unavailable-p3-completion.md), [tasks](../odd/tasks/p3-completion.md) and [web guide](p3-web.md). Historical backend99/control39/browser10/live web16 and strict builds/audit0/cleanup0 are evidence for that accepted checkpoint, not fresh results for the P4 candidate.
 
@@ -52,7 +52,7 @@ The specification's original "completion boundary" describes its earlier documen
 | P6 | Teaching plan, Library and Muro | completed | Actual scoped Plan/Library/Muro and notifications, durable files/restarts, populated migration upgrade and independent mobile correction verified and published to main (merge8eee463). |
 | P7 | Activities, attempts and submissions | completed | Independent whole-feature and bounded B1 evidence accepted; source0ec37c7/final fixtured9cdf06; published to main via remotely confirmed merge8e4fd2e. |
 | P8 | Grading and follow-up | completed | Exact private scoring, publication/results, audited correction and current/historical progress independently accepted on8cb4ee3 plus targeted feedback1; published via remotely confirmed merge d2a7909. No P9. |
-| P9 | Integrated local validation | completed | Complete local V1 independently verified over53a7986; productcandidate98fd12d, exact170rowledger, bounded correction/recheck consumed. No deployment; main publication tracked separately. |
+| P9 | Integrated local validation | completed | Complete local V1 independently verified over53a7986; productcandidate98fd12d, exact170rowledger, bounded correction/recheck consumed. No deployment; mergee3a5e72 pushed to main with exact remote readback. |
 
 Statuses: `not_started`, `in_progress`, `blocked`, `completed`. A blocked phase names the external decision/proof it awaits. Dropped or superseded tasks remain recorded as such; they never count as completed.
 
@@ -190,3 +190,8 @@ P9 own implementation/recovery/capacity and local guide preparation are committe
 ## P9 final local acceptance (2026-10-20)
 
 Complete P9 local V1 accepted from [final wholefeature Sol/xhigh verification](work-log/2026-10-20-p9-final-independent-verify.md), [exact170-row ledger](p9-final-row-ledger.json) and [tasks](../odd/tasks/p9-local-validation.md). Productbytes98fd12d unchanged throughout independent raw/physical/freshbuild/differential/actualbrowser-API-SQL-files-mail proof. Oneexternal sessionstatus correction andonetargetedrecheck consumed; all requiredlocalproofcomplete. All170 exactoutcomes accounted:169explicitlocal/inherited evidence,069conditionalnumericalGBchoice beforehosting/deployment. No deployment, realpilot or nativeapproval. Earlier partial/failure/checkpoint text remains attributedhistory, notpermission/blocker. Mainmergepush follows authorized coordinator delivery/exactremote readback separately.
+
+
+## P9 authorized main publication (2026-10-20)
+
+Mergee3a5e723a6bdbb8c6cbc2ca9484af6a632addab6 includes verified localV1 and passiveclosure4d8096a621652e420acbb750cff22e8c4c08cc7f; normalHTTPSpushmain succeeded and localHEAD/originmain/liveremoteSHA matched exactly. [Publication record](work-log/2026-10-20-p9-main-publication.md). T1-T7 complete; no productbytes changed after independent98fd12d, only passiveevidence/closure. Final passivepublication-record update is separate from the verifiedmerge and preserves its producttree. No deployment/realpilot/productionquota choice or nativeapproval.
