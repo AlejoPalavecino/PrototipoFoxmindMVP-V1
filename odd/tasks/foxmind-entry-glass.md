@@ -148,21 +148,21 @@ Desktop: left educational book composition plus right readable frosted form; sam
 
 ## Tasks
 
-Current execution state: T0–T6 completed within the authorized local scope. Independent gpt-6.1-sol/xhigh PASS S1–S5; no confirmed blocker. Native review off/global, disabled/unmanaged. No deployment, merge, push or retained-data mutation. Commit identity is recorded by the subsequent attributed closure after the implementation commit exists.
+Current execution state: T0–T6 completed within the authorized local scope. Independent gpt-6.1-sol/xhigh PASS S1–S5; no confirmed blocker. Native review off/global, disabled/unmanaged. No deployment, merge, push or retained-data mutation. Implementation and all T0–T6 evidence commit:984e78ca3add445da9a7b144e0099f63b9c2a735. This subsequent passive closure records the observed identity.
 
-| Task | Route / reason | Status | Observed evidence |
-|---|---|---|---|
-| T0 | delegated read-only map, evidence-budget trigger | complete | actual P9 source1eb5700, dirty original preserved, isolated feature branch |
-| T1 | inline, shared ownership not independent parallel units | complete | shared-navbar focused/browser, P6 mobile, files-context and exact academic body measurement |
-| T2 | inline | complete | own/independent account browser, password visibility/clearing, nonsecret retention |
-| T3 | inline | complete | actual P3 account/recovery/token/session journeys and companion captures |
-| T4 | inline | complete | own Home12/recovery6, independent teacher/student/dual/news destination/rejection proof |
-| T5 | inline | complete | widths320/390/768/1024/1440/1448, CSS200%zoom, reduced motion, keyboard/focus, contrast |
-| T6 | delegated long checks and independent Risk2/3/4 verification | complete | builds/clients plus independent glass7/P3browser10/P4integration9/matchedUI6, cleanup0; parent client4PASS and24inputs zero drift |
+| Task | Route / reason | Status | Observed evidence | Commit |
+|---|---|---|---|---|
+| T0 | delegated read-only map, evidence-budget trigger | complete | actual P9 source1eb5700, dirty original preserved, isolated feature branch | 984e78c |
+| T1 | inline, shared ownership not independent parallel units | complete | shared-navbar focused/browser, P6 mobile, files-context and exact academic body measurement | 984e78c |
+| T2 | inline | complete | own/independent account browser, password visibility/clearing, nonsecret retention | 984e78c |
+| T3 | inline | complete | actual P3 account/recovery/token/session journeys and companion captures | 984e78c |
+| T4 | inline | complete | own Home12/recovery6, independent teacher/student/dual/news destination/rejection proof | 984e78c |
+| T5 | inline | complete | widths320/390/768/1024/1440/1448, CSS200%zoom, reduced motion, keyboard/focus, contrast | 984e78c |
+| T6 | delegated long checks and independent Risk2/3/4 verification | complete | builds/clients plus independent glass7/P3browser10/P4integration9/matchedUI6, cleanup0; parent client4PASS and24inputs zero drift | 984e78c |
 
 Historical planning task definitions and earlier checkpoints follow; their future/pending wording is not the current execution status.
 | ID | Specs | Work | Exit evidence |
-|---|---|---|---|
+|---|---|---|---|---|
 | T0 | S1–S5 | Resolve real target checkout, route/component map, current requirements, baseline tests and dirty state; inspect assets and current user instructions. | Exact root/branch/HEAD and relevant routes/files/commands recorded; no guessed hosted-source mapping; scoped allowed edit surfaces derived. |
 | T1 | S1,S3,S4 | Establish shared tokens, scoped backdrop/asset handling and reusable navbar; migrate all current header consumers without changing page bodies. | One source of navbar truth, public/private states, desktop/mobile keyboard navigation; representative academic screens retain behavior/layout. |
 | T2 | S2–S4 | Login and registration visual integration with existing handlers. | Matched desktop/mobile captures; real isolated account success/error cases and current password/session contracts preserved. |
@@ -255,3 +255,5 @@ None of these justifies silently reducing the requested scope or rebuilding miss
 - L29:24frozen inputs parent hash spot-check0drift; parent entryclient4PASS, diff-check0, native mode readback off/global.88independent evidence files preserved in ignored .test-artifacts/entry-glass/independent before parent-owned scratch cleanup. Files-context screenshot caught menu fade, not settled-menu visual proof. Attributed report and visual QA updated. No local preview retained, test processes/resources cleanup0; Docker application itself left available.
 - L30: Delivery remains local feature-only. One coherent shared-entry system unit includes all source, deterministic/real regressions and docs; it exceeds400line planning heuristic because splitting shared header/account/Home consumers would separate verified behavior/tests or leave inconsistent screens. No code golf, PR/chain creation or publishing. Rollback boundary:entire glass unit restores prior UI; backend/data unchanged. Conventional implementation commit followed by passive attributed closure for its actual identity; no self-referential hash invented.
 - L31: Parent verified20exact OS-temp scratch roots stay under system Temp, independent evidence already preserved. Recursive cleanup command was rejected by execution policy before launch; no deletion or workaround attempted. Scratch directories remain outside the repository. This is a housekeeping limitation, not a product/runtime proof gap. Owned test process/Docker-resource cleanup remains observed0; do not confuse that with temp-file deletion. No active preview retained.
+
+- L32: Observed local implementation commit984e78ca3add445da9a7b144e0099f63b9c2a735,26files/1121additions102deletions(two raster binaries excluded), coherent unit with tests/docs. Native off/global, no native assessment/approval or PR/publication. Post-commit broad manifest assertion reported4expected coordinator-doc differences; narrowed permitted-doc classification confirmed20source/test/asset inputs zero drift. No commit hook/source mutation. Subsequent passive closure only records actual identity and housekeeping limit; Risk:none for that document-only closure.
