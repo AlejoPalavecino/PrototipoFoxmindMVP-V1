@@ -162,7 +162,7 @@ Current execution state: T0–T6 completed within the authorized local scope. In
 
 Historical planning task definitions and earlier checkpoints follow; their future/pending wording is not the current execution status.
 | ID | Specs | Work | Exit evidence |
-|---|---|---|---|---|
+|---|---|---|---|
 | T0 | S1–S5 | Resolve real target checkout, route/component map, current requirements, baseline tests and dirty state; inspect assets and current user instructions. | Exact root/branch/HEAD and relevant routes/files/commands recorded; no guessed hosted-source mapping; scoped allowed edit surfaces derived. |
 | T1 | S1,S3,S4 | Establish shared tokens, scoped backdrop/asset handling and reusable navbar; migrate all current header consumers without changing page bodies. | One source of navbar truth, public/private states, desktop/mobile keyboard navigation; representative academic screens retain behavior/layout. |
 | T2 | S2–S4 | Login and registration visual integration with existing handlers. | Matched desktop/mobile captures; real isolated account success/error cases and current password/session contracts preserved. |
