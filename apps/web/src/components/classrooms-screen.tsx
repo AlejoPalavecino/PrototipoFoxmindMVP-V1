@@ -44,6 +44,7 @@ export function ClassroomsScreen({ initialPresentation = 'classrooms' }: { initi
     {user ? <>
       {error ? <div className="p5-app p5-gate"><Notice error>{error}</Notice></div> : null}
       <ClassroomsApp api={api} displayName={`${user.firstName} ${user.lastName}`} requestedInvitation={invitation}
+        requestedNotification={typeof router.query.notificacion === 'string' && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(router.query.notificacion) ? router.query.notificacion : undefined}
         initialPresentation={initialPresentation} onNavigate={presentation => { void router.push(presentation === 'home' ? '/inicio' : '/mis-aulas'); }}
         accountActions={<div className="p5-actions p5-account-actions"><Link href="/profile">Mi perfil</Link><button disabled={busy} onClick={() => void logout()}>{busy ? 'Cerrando sesión…' : 'Cerrar sesión'}</button></div>} />
     </> : <div className="p5-app"><main className="p5-main">

@@ -6,7 +6,9 @@ import { Dialog, Notice } from './components.tsx';
 const labels = { WALL_NOTICE: 'Nuevo aviso del docente', WALL_QUERY: 'Nueva consulta de estudiante', WALL_REPLY: 'Respuesta a tu publicación',
   ACTIVITY_PUBLISHED: 'Nueva actividad publicada', ACTIVITY_DEADLINE_CHANGED: 'Cambio de plazo o recepción',
   FIRST_SUBMISSION_ENABLED: 'Primera entrega habilitada', ATTEMPT_REOPENED: 'Nuevo intento habilitado', SUBMISSION_RECEIVED: 'Nueva entrega recibida', GRADE_PUBLISHED: 'Calificación publicada', GRADE_CORRECTED: 'Calificación corregida' };
-export function Notifications({ api, refresh, onOpen }: { api: ClassroomClient; refresh: number; onOpen: (target: NotificationTarget) => void }) {
+type Destination = { onOpen: (target: NotificationTarget) => void; onSelect?: never }
+  | { onSelect: (notificationId: string) => void; onOpen?: never };
+export function Notifications({ api, refresh, onOpen, onSelect }: { api: ClassroomClient; refresh: number } & Destination) {
   const [items, setItems] = useState<ClassroomNotification[] | null>(null), [open, setOpen] = useState(false);
   const [error, setError] = useState(''), [busy, setBusy] = useState(false);
   const load = useCallback(async (signal?: AbortSignal) => {
@@ -36,6 +38,7 @@ export function Notifications({ api, refresh, onOpen }: { api: ClassroomClient; 
         <strong>{labels[item.eventType]}</strong><p>{item.classroomName}</p>
         <small><time dateTime={item.createdAt}>{new Date(item.createdAt).toLocaleString('es-AR')}</time> · {item.readAt ? 'Leída' : 'Sin leer'}</small>
         <div className="p5-actions"><button disabled={busy} onClick={() => void run(async () => {
+          if (onSelect) { setOpen(false); onSelect(item.id); return; }
           const target = await api.call<NotificationTarget>(`/notifications/${item.id}/open`, 'POST', {});
           await load(); setOpen(false); onOpen(target);
         })}>Abrir publicación</button>

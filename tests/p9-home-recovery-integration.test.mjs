@@ -1,3 +1,4 @@
+import { navigationLink, visibleNavigation, profileAction } from './entry-glass-browser-helpers.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, writeFile } from 'node:fs/promises';
@@ -91,8 +92,8 @@ async function completedLists(responses) {
 
 async function listSettled(page) {
   await page.waitForFunction(() => {
-    const primary = document.querySelector('.p9-home-hero button.primary');
-    return primary && !primary.disabled && document.querySelector('.p9-home [aria-label="Enseño"]')
+    const create = [...document.querySelectorAll('.entry-classrooms button')].find(button => button.textContent === 'Crear aula');
+    return create && !create.disabled && document.querySelector('.entry-contexts [aria-pressed="true"]')
       && !document.querySelector('.p5-main > [role="alert"]');
   });
   assert.equal(await listAlert(page).count(), 0, 'Classroom-list owner must clear its own error after its completed action');
@@ -186,7 +187,7 @@ test('P9 actual Home remaining recovery, responsive and account proof', { timeou
         await openReadyHome(page, runtime.origin, observation);
         const news = newsRegion(page);
         await actorContext.setOffline(true);
-        await page.getByRole('navigation', { name: 'Navegación principal', exact: true }).getByRole('button', { name: 'Inicio', exact: true }).click();
+        await (await navigationLink(page, 'Inicio')).click();
         await listAlert(page).getByRole('button', { name: 'Volver a intentar', exact: true }).waitFor();
         assert.equal(await page.getByRole('region', { name: 'Enseño', exact: true }).count(), 0, 'List owner conceals old cards after offline failure');
         await news.getByRole('button', { name: 'Actualizar novedades', exact: true }).click();
@@ -213,18 +214,18 @@ test('P9 actual Home remaining recovery, responsive and account proof', { timeou
 
       await check('Home320/375/1280 preserves keyboard focus, reflow and reduced motion', async (page, observation, errors) => {
         await openReadyHome(page, runtime.origin, observation);
-        const nav = page.getByRole('navigation', { name: 'Navegación principal', exact: true });
+        // Responsive navigation is resolved anew after each viewport change.
         for (const width of [320, 375, 1280]) {
           await page.setViewportSize({ width, height: 900 });
           assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `Home overflow ${width}`);
-          await page.keyboard.press('Tab'); await nav.getByRole('button', { name: 'Inicio', exact: true }).focus();
-          assert.equal(await nav.getByRole('button', { name: 'Inicio', exact: true }).evaluate(element => document.activeElement === element && getComputedStyle(element).outlineStyle !== 'none'), true, 'Actual Home keyboard focus must remain visible');
+          await page.keyboard.press('Tab'); await (await navigationLink(page, 'Inicio')).focus();
+          assert.equal(await (await navigationLink(page, 'Inicio')).evaluate(element => document.activeElement === element && getComputedStyle(element).outlineStyle !== 'none'), true, 'Actual Home keyboard focus must remain visible');
           await page.keyboard.press('Tab');
-          assert.equal(await nav.getByRole('button', { name: 'Mis Aulas', exact: true }).evaluate(element => document.activeElement === element), true, 'Mis Aulas remains keyboard reachable');
+          assert.equal(await (await navigationLink(page, 'Mis aulas')).evaluate(element => document.activeElement === element), true, 'Mis Aulas remains keyboard reachable');
           await page.screenshot({ path: join(artifacts, `remaining-inicio-${width}.png`), fullPage: true });
         }
         await page.emulateMedia({ reducedMotion: 'reduce' });
-        assert.equal(await nav.getByRole('button', { name: 'Inicio', exact: true }).evaluate(element => getComputedStyle(element).transitionDuration), '0s');
+        assert.equal(await (await navigationLink(page, 'Inicio')).evaluate(element => getComputedStyle(element).transitionDuration), '0s');
         assert.deepEqual(errors, [], 'No actual Home page errors');
       });
 
@@ -237,7 +238,7 @@ test('P9 actual Home remaining recovery, responsive and account proof', { timeou
         await page.locator('.p5-drafts').getByRole('button').filter({ has: page.getByText(draftName, { exact: true }) }).click();
         assert.equal((await successfulJson(await loaded, 'draft read')).id, draft.body.id);
         await page.getByRole('heading', { name: 'Datos generales', exact: true }).waitFor();
-        assert.equal(await page.getByRole('button', { name: 'Inicio', exact: true }).count(), 0, 'Wizard hides global Inicio');
+        assert.equal(await (await navigationLink(page, 'Inicio')).count(), 0, 'Wizard hides global Inicio');
         assert.equal(await page.getByRole('link', { name: 'Mi perfil', exact: true }).count(), 0, 'Wizard hides account navigation while saving is owned');
         // Saving an unchanged draft may correctly be a no-op; make this owned edit explicit.
         const savedName = `${draftName} saved`;
@@ -269,7 +270,7 @@ test('P9 actual Home remaining recovery, responsive and account proof', { timeou
           assert.equal((await api(anonymous, 'POST', '/auth/logout')).status, 204, 'Logout clears the real session and returns the accepted no-content contract');
           const denied = await rejectSame(runtime.db, () => api(anonymous, 'GET', '/classrooms'), 401);
           assert.equal(denied.body.error.code, 'AUTH_REQUIRED', 'Revoked session must retain the real identity error contract');
-          await anonymous.getByRole('button', { name: 'Inicio', exact: true }).click();
+          await (await navigationLink(anonymous, 'Inicio')).click();
           await anonymous.waitForURL(url => url.pathname === '/sign-in' && url.searchParams.get('next') === '/inicio');
           assert.equal(await anonymous.getByRole('region', { name: 'Enseño', exact: true }).count(), 0, 'Revoked account sees no Home classroom data');
         } catch (error) { await captureAlerts(browser, observations, artifacts, 'login-continuation-revocation'); throw error; }
@@ -280,17 +281,17 @@ test('P9 actual Home remaining recovery, responsive and account proof', { timeou
         const ready = page.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/account' && response.request().method() === 'GET');
         await page.goto(`${runtime.origin}/profile`); await successfulJson(await ready, 'account navigation');
         await page.getByRole('heading', { name: 'Files Fixture', exact: true }).waitFor();
-        const nav = page.getByRole('navigation', { name: 'Cuenta', exact: true });
+        // Responsive navigation is resolved anew after each viewport change.
         for (const width of [320, 375, 1280]) {
           await page.setViewportSize({ width, height: 900 });
-          const metrics = await nav.evaluate(element => ({ overflow: document.documentElement.scrollWidth > innerWidth,
+          const metrics = await (await visibleNavigation(page)).evaluate(element => ({ overflow: document.documentElement.scrollWidth > innerWidth,
             links: [...element.querySelectorAll('a')].map(link => { const bounds = link.getBoundingClientRect(); return { label: link.textContent, left: bounds.left, right: bounds.right }; }) }));
           await page.screenshot({ path: join(artifacts, `remaining-profile-${width}.png`), fullPage: true });
           assert.equal(metrics.overflow, false, `Account navigation overflow ${width}: ${JSON.stringify(metrics)}`);
           assert.ok(metrics.links.every(link => link.left >= 0 && link.right <= width), `Account links remain visible ${width}`);
-          await page.keyboard.press('Tab'); await nav.getByRole('link', { name: 'Inicio', exact: true }).focus();
+          await page.keyboard.press('Tab'); await (await navigationLink(page, 'Inicio')).focus();
           await page.keyboard.press('Tab');
-          assert.equal(await nav.getByRole('link', { name: 'Mis Aulas', exact: true }).evaluate(element => document.activeElement === element), true, 'Verified Mis Aulas remains keyboard reachable');
+          assert.equal(await (await navigationLink(page, 'Mis aulas')).evaluate(element => document.activeElement === element), true, 'Verified Mis Aulas remains keyboard reachable');
         }
       });
     } catch (error) { await captureAlerts(browser, observations, artifacts, 'prerequisite-or-host'); throw error; }
