@@ -1,23 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
-import { dirname, resolve } from 'node:path';
-import ts from 'typescript';
+import { loadTsModule as component } from './helpers/load-ts-module.mjs';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { classroomDestination, classroomAuthHref } from '../apps/web/src/lib/classroom-client.ts';
-
-function component(path) {
-  const filename = resolve(path);
-  const code = ts.transpileModule(readFileSync(filename, 'utf8'), {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2023 },
-  }).outputText;
-  const module = { exports: {} }, nativeRequire = createRequire(filename);
-  const require = id => id.endsWith('.tsx') ? component(resolve(dirname(filename), id)) : nativeRequire(id);
-  new Function('require', 'module', 'exports', code)(require, module, module.exports);
-  return module.exports;
-}
 
 test('Inicio continuation is additive, literal and does not widen the closed destination allowlist', () => {
   assert.equal(classroomDestination('/inicio'), '/inicio');

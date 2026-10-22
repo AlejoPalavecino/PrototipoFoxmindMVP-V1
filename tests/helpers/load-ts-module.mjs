@@ -1,0 +1,30 @@
+import { existsSync, readFileSync, statSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { dirname, resolve } from 'node:path';
+import ts from 'typescript';
+
+// Test-only in-memory loading of real source modules, including extensionless TS helpers.
+export function loadTsModule(path) {
+  const cache = new Map();
+  function load(filename) {
+    filename = resolve(filename);
+    if (cache.has(filename)) return cache.get(filename).exports;
+    const module = { exports: {} }, nativeRequire = createRequire(filename);
+    cache.set(filename, module);
+    const code = ts.transpileModule(readFileSync(filename, 'utf8'), {
+      compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2023 },
+    }).outputText;
+    const require = specifier => {
+      if (specifier.startsWith('.')) {
+        const base = resolve(dirname(filename), specifier);
+        const source = [base, `${base}.tsx`, `${base}.ts`]
+          .find(candidate => /\.tsx?$/.test(candidate) && existsSync(candidate) && statSync(candidate).isFile());
+        if (source) return load(source);
+      }
+      return nativeRequire(specifier);
+    };
+    new Function('require', 'module', 'exports', code)(require, module, module.exports);
+    return module.exports;
+  }
+  return load(path);
+}
