@@ -1,0 +1,36 @@
+{
+  "generator": "built-in image_gen",
+  "files": [
+    {
+      "file": "01-inicio-editorial.png",
+      "width": 1487,
+      "height": 1058,
+      "bytes": 1421202,
+      "sha256": "e8992f2a6ede31b5ee7189dcc0606fc3d7f5f563538340413a4dd9eec2be0721"
+    },
+    {
+      "file": "02-inicio-luminous.png",
+      "width": 1487,
+      "height": 1058,
+      "bytes": 1605079,
+      "sha256": "371fc2d6c5ec3c0fbdf8db3a6d724d9bef91f1fa59a6d08da01e2d0a1f7713fa"
+    },
+    {
+      "file": "03-inicio-graphic.png",
+      "width": 1487,
+      "height": 1058,
+      "bytes": 1397581,
+      "sha256": "4bd1c8e1418f43e054211b7afc088a4029821b434883bdfffbc969b295430aa0"
+    }
+  ],
+  "references": [
+    {
+      "file": "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\archive\\marca-original\\Zorro.png",
+      "sha256": "df0263ae5f09255837632315d46add8580c6ce92b840463e53f01d1f18a2691e"
+    },
+    {
+      "file": "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\archive\\marca-original\\ZorroH.png",
+      "sha256": "acd6c0e2ba754455e4f845532500d421d75af438a1fed27fb059fd1f4392f353"
+    }
+  ]
+}

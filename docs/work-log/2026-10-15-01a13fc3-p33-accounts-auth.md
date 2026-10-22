@@ -3,7 +3,7 @@
 - Agent / role: primary coordinator el Gentleman.
 - Session ID: `01a13fc3-5dac-75fc-a82f-71fe21722f18`.
 - Date: 2026-10-15.
-- Current branch: `feat/p33-identity-http` from T1 closure37ab579; earlier chain mailcompatibility→identity-security→mail-outbox; tracker `feat/p33-accounts` atplanning1a1ee46.
+- Current branch: `feat/p33-registration-profile` from D1 closure3f63c58327508b31063c3ca91bce5d1f7be4c4f1; prior code D1c63fe6a; earlier mailcompatibility→identity-security→mail-outbox chain preserved. Tracker feat/p33-accounts remains planning1a1ee46.
 - Starting commit: `093d26c9ebd63fe1c8c5dee96ae2a53d550b95b3`.
 - Phase/specs: P3.3 [T1–T4 / S1–S7](../../odd/tasks/p33-accounts-auth.md).
 - Status: `in_progress` for P3.3/T2. D1 four endpoints independently verified/native approved+acknowledged; D2 registration/profile three next.
