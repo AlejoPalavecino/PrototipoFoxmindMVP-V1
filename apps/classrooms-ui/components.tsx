@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef, type ReactNode } from 'react';
+import { openDialog } from '../shared-ui/dialog-focus';
 export const coverCatalog = [
   { key: 'explore', label: 'Explorar' },
   { key: 'create', label: 'Crear' },
@@ -72,21 +73,21 @@ export function Dialog({
   title,
   children,
   onClose,
+  className = '',
 }: {
   title: string;
   children: ReactNode;
   onClose: () => void;
+  className?: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null),
     titleId = 'p5-dialog-title';
   useEffect(() => {
-    const dialog = ref.current!;
-    dialog.showModal();
-    return () => dialog.close();
+    return openDialog(ref.current!);
   }, []);
   return (
     <dialog
-      className="p5-dialog"
+      className={`p5-dialog ${className}`}
       ref={ref}
       aria-labelledby={titleId}
       onCancel={(event) => {

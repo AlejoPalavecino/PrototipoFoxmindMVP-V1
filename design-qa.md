@@ -1,3 +1,39 @@
+# Entry glass correction QA
+
+Final result: PASS for the scoped corrections and closer visual alignment, with explicit limits below; not pixel-perfect reproduction or full accessibility certification.
+
+## Targets and evidence
+Source: C:/Users/alejo/.codex/visualizations/2026/10/21/01a15cce-4a2f-7ef2-8cb3-0f21f5f84c24/foxmind-entry-glass-handoff/assets/{style-reference,login-glass,register-glass}.png.
+Implementation: http://127.0.0.1:51920, isolated real API/data. Source and runtime captures were opened together in each comparison input.
+Captures: C:/Users/alejo/.codex/visualizations/2026/10/21/01a15cce-4a2f-7ef2-8cb3-0f21f5f84c24/glass-implementation-audit/.
+Desktop target and login/register capture1448x1086; Home capture1433x1075 with scrollbar/viewport screenshot rounding, same requested1448x1086 CSS viewport. This small frame difference is not treated as product drift. Mobile320x800 and390x844 checked; no approved mobile bitmap exists.
+State mismatch: source Home has two illustrative classrooms and populated news; runtime has one actual test classroom and no news. No records invented to fill the mock.
+
+## Iterations
+1. Prior live audit: notification Escape lost focus; title split at320px; successful anonymous verification retained stale instructions; navbar only scaled separate underlines. These were blocked items.
+2. Correction build: focus restored, modal centered/readable, guidance selected by success, one measured moving pill. Screenshot20 revealed inherited24px cover padding; corrected with scoped zero padding/inset. Generic link selector also excluded primary CTA links to preserve navy contrast.
+3. Final build and screenshot25: artwork fills banner; link DOM color navy on orange. Notification21 and final live close checks confirm title and focus. Independent shared behavior probes PASS. No remaining P0/P1/P2 differences in this bounded correction scope; remaining differences below are intentional constraints or separately disclosed coverage gaps.
+
+## Five fidelity surfaces
+| Surface | Observed comparison and decision |
+|---|---|
+| Fonts/typography | Strong navy hierarchy, enlarged hero/form headings and labels. Existing local font retained; not the mock's exact typeface. Secondary copy remains smaller than illustrative target. |
+| Spacing/layout | Floating rounded navbar, split desktop auth layout, four-field registration and Home sections preserved. Mobile stacks fields/hides decoration; actual long names wrap. Home blank grid area reflects one real classroom, not missing UI. |
+| Colors/tokens | Lavender/pearl/peach backdrop, white rims and glass blur, orange actions. Navy CTA labels and darker orange links intentionally replace low-contrast white/orange mock combinations. Panels more opaque than image for readable live content. |
+| Images/icons | Existing generated book/backdrop reused, official local icons replace text glyphs in scoped Home/navbar. Actual illustrations differ from mock, but maintain material/palette. No screenshot text baked into UI; no stretched card art after padding fix. |
+| Copy/content | Real labels, password16–128 policy, redirects, classroom contexts and empty news preserved. No invented grades/notifications/social login/roles. Confirmation copy now separates success from pending proof. |
+
+Full-resolution pairs made navbar, form labels, spacing and card controls readable without a separate crop; mobile screenshots cover dialog/title/close control and stacked fields. Screenshots22/23 show updated login/register;25 final Home;21 modal320;24 register320;26 teacher Home390.
+
+## Functional and proof boundaries
+Parent live checks: both account logins, preserved default/profile and next=/inicio, both Home contexts, classroom entry, shared navbar destinations/current marker geometry, notification and shared-dialog focus, mobile disclosure Escape, no horizontal overflow in checked320px states, captured console errors0.
+Focused suite23PASS2SKIP; production buildPASS; independent baseline/candidate probesPASS; parent final spot-check8PASS. Skips are origin-dependent cooldown-navigation and early token-fragment tests. Reduced-motion branch/cancellation verified deterministically, not via OS setting. No full performance/WCAG/native-zoom certification. Previous form-error association advisory remains a follow-up, not a fixed claim.
+No new account/classroom/news records during this pass. Anonymous successful verification copy has deterministic rendering proof; actual initial registration/verification belongs to previous audit. Native review off/global, disabled/unmanaged.
+
+
+---
+## Historical initial implementation QA (preserved; superseded only for corrected surfaces above)
+
 # Entry glass — verified captured scope
 
 Final result: passed within the requested local verification scope. Independent gpt-6.1-sol/xhigh PASS S1–S5; no product blocker. Earlier missing-proof checkpoints below are preserved history, resolved by explicit bounded continuations.

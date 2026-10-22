@@ -1,7 +1,8 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import type { Classroom, ClassroomClient, ClassroomNotification, Draft, Invitation, NotificationTarget } from './api.ts';
-import { Cover, Notice } from './components.tsx';
+import { coverCatalog, Notice } from './components.tsx';
+import { EntryIcon } from '../shared-ui/EntryIcon';
 
 interface HomeData {
   teach: Classroom[];
@@ -60,8 +61,8 @@ export function Home({ displayName, data, busy, onCreate, onJoin, onClassrooms, 
     {data ? <>
       <section className="entry-classrooms" aria-label="Tus aulas">
       <div className="p5-section-head"><h2>Tus aulas</h2><div className="p5-actions">
-        <button disabled={busy} onClick={onCreate}>Crear aula</button>
-        <button disabled={busy} onClick={onJoin}>Unirse con código</button>
+        <button disabled={busy} onClick={onCreate}><EntryIcon name="plus-circle-fill" />Crear aula</button>
+        <button disabled={busy} onClick={onJoin}><EntryIcon name="people-fill" />Unirse con código</button>
       </div></div>
       <div className="entry-contexts" role="group" aria-label="Perspectiva de tus aulas">
         <button type="button" aria-pressed={active === 'study'} onClick={() => setSelected('study')}>Estudio ({data.study.length})</button>
@@ -71,13 +72,16 @@ export function Home({ displayName, data, busy, onCreate, onJoin, onClassrooms, 
       {(['teach', 'study'] as const).map(kind => <section className="p5-classroom-group" key={kind} hidden={active !== kind} aria-label={kind === 'teach' ? 'Enseño' : 'Estudio'}>
         <h2 className="entry-sr-only">{kind === 'teach' ? 'Enseño' : 'Estudio'}</h2>
         {data[kind].length ? <div className="p5-grid">{data[kind].map(room => <article className="p5-card" key={room.id}>
-          <Cover kind={room.coverKey} />
+          <div className={`entry-class-cover entry-cover-${room.coverKey}`}>
+            <img className="entry-cover-landscape" src="/entry-glass/backdrop.webp" alt="" width="1448" height="1086" />
+            <img className="entry-cover-book" src="/entry-glass/book.webp" alt={`Portada ${coverCatalog.find(cover => cover.key === room.coverKey)?.label ?? 'Explorar'}`} width="780" height="600" />
+          </div>
           <div>
             <h3>{room.name}</h3>
             {room.archived ? <span className="p5-tag">Archivada · Solo lectura</span> : null}
             <p>{room.subject}</p><p>{room.division} · Ciclo lectivo {room.academicYear}</p>
             <p>Docente: {room.teacher}</p>
-            <button className="primary" disabled={busy} onClick={() => onEnter(room.id)}>Entrar al aula</button>
+            <button className="primary" disabled={busy} onClick={() => onEnter(room.id)}><EntryIcon name="book" />Entrar al aula<EntryIcon name="arrow-right" /></button>
           </div>
         </article>)}</div> : data.teach.length + data.study.length > 0 ? <p className="p5-empty">{kind === 'teach' ? 'Aún no creaste un aula. Comparte lo que sabes creando la primera.' : 'Aún no estudias en un aula. Usa un código o acepta una invitación desde Mis Aulas.'}</p> : null}
       </section>)}

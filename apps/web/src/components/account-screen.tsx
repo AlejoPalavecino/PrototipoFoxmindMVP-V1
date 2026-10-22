@@ -8,6 +8,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { AccountNavbar } from './account-navbar';
+import { VerificationGuidance } from '../../../shared-ui/VerificationGuidance';
 
 declare global { interface Window { __foxmindTakeToken?: () => string | null } }
 export type AccountView = 'sign-in' | 'register' | 'verify-email' | 'forgot-password' | 'recover-password' | 'profile';
@@ -224,7 +225,7 @@ export function AccountScreen({ view }: { view: AccountView }) {
           {user && !verified ? <><h2>Revisa tu correo</h2><p>Enviamos el enlace a <strong className="email-value">{user.email}</strong>. Abre el mensaje y confirma la verificación.</p><p>Si recargas esta página después de abrir un enlace, vuelve a abrir el mensaje original para usarlo.</p>
             <div className="actions"><Button disabled={locked} onClick={() => void action('/auth/email-verification/resend', {}, 'Solicitud aceptada. Revisa tu correo; usa el enlace más reciente.')}>{busy ? 'Enviando…' : 'Reenviar correo'}</Button><Button variant="outline" disabled={locked} onClick={() => void load()}>Actualizar estado</Button>{signOut}</div></> : null}
           {verified ? <><h2>Tu correo está verificado</h2><Link className="button button-primary" href={classroomNext ?? '/profile'}>{classroomNext === '/inicio' ? 'Ir a Inicio' : classroomNext ? 'Ir a Mis Aulas' : 'Ir a mi perfil'}</Link><div className="actions">{signOut}</div></> : null}
-          {!user ? <><p>Abre el enlace original del correo para verificar tu cuenta. Si necesitas un nuevo mensaje, inicia sesión y solicita el reenvío.</p><div className="actions"><Link className="button button-primary" href={nextAccountHref('sign-in')}>Iniciar sesión</Link><Link href={nextAccountHref('register')}>Crear cuenta</Link></div></> : null}
+          {!user ? <><VerificationGuidance confirmed={Boolean(message && !message.error && !hasToken)} /><div className="actions"><Link className="button button-primary" href={nextAccountHref('sign-in')}>Iniciar sesión</Link><Link href={nextAccountHref('register')}>Crear cuenta</Link></div></> : null}
         </div> : null}
 
         {session && view === 'forgot-password' ? <>

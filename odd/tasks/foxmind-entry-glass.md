@@ -1,5 +1,5 @@
 # FoxMind entry experience — glass design and implementation handoff
-Status: completed and independently verified within local scope, 2026-10-21. Branch: codex/foxmind-entry-glass. Test runner: node --test; Next typecheck/build; isolated native browser journeys.
+Status: original implementation completed 2026-10-21; authorized audit corrections T7–T9 verified locally 2026-10-22. Branch: codex/foxmind-entry-glass. Test runner: node --test; Next typecheck/build; isolated native browser journeys.
 Project: prototipofoxmindmvp-v1. Target: isolated foxmind-entry-glass worktree from main 1eb57002eec7200192fd8efa2c8b65e306554826. Local work-unit commits only; PR/delivery strategy deferred because no PR, deployment, push or merge is authorized. Forecast: 900–1400 authored lines plus adopted plan; preserve scope rather than compressing code.
 Objective: implement the selected visual direction for account entry, Inicio and a consistent shared navbar without changing academic or account rules.
 
@@ -16,6 +16,8 @@ Objective: implement the selected visual direction for account entry, Inicio and
 - S3: "Me gusta la idea. Quiero que me muestres una propuesta visual del inicio de sesión, crear cuenta e inicio, con el mismo navbar, antes de implementarlo."
 - S4: "Dame otra propuesta pero con el estilo que te adjunto"
 - S5: "Bien ahora arma el diseño y plan para llevar a cabo este desarrollo y guardalo engram para que en otra sesión lance al agente e implemente esto"
+
+- S6: "Bien, corregí los problemas que encontraste y pulí la UI para que quede más fiel a la propuesta. Después volvé a auditarla y guardá los resultados en Engram."
 
 Interpretation: S4's attached glass reference and the subsequent three glass mockups are the visual baseline for this plan. Earlier flat concepts are NOT the implementation target. S5 requests preparation and persistence now, with implementation in a later session.
 
@@ -148,6 +150,13 @@ Desktop: left educational book composition plus right readable frosted form; sam
 
 ## Tasks
 
+### Authorized audit corrections — 2026-10-22
+T7 | S6 | inline: dialog focus/title, verification feedback | completed | RED4 then focused GREEN8; live Escape/close return focus and mobile title fits.
+T8 | S1,S4,S6 | inline: one moving navbar marker, scoped visual polish, locally vendored MIT icons | completed | production build PASS; desktop/mobile rendered comparison; real cover padding and link color corrected.
+T9 | S6 | independent verification for Risk3 shared dialog/navbar; parent live re-audit | completed within stated proof limits | candidate23PASS2SKIP, baseline19PASS2SKIP, independent shared-invariant probes PASS; parent spot-check8PASS and live re-audit. Local commit identity recorded after creation.
+Route: inline units share CSS/components; no parallel writer reason. Reuse current branch and preserve preview fixtures. Forecast below400 authored lines excluding upstream icon assets. Existing delivery boundary: local only; no PR/push/merge. No security, API or account-policy changes.
+
+
 Current execution state: T0–T6 completed within the authorized local scope. Independent gpt-6.1-sol/xhigh PASS S1–S5; no confirmed blocker. Native review off/global, disabled/unmanaged. No deployment, merge, push or retained-data mutation. Implementation and all T0–T6 evidence commit:984e78ca3add445da9a7b144e0099f63b9c2a735. This subsequent passive closure records the observed identity.
 
 | Task | Route / reason | Status | Observed evidence | Commit |
@@ -257,3 +266,10 @@ None of these justifies silently reducing the requested scope or rebuilding miss
 - L31: Parent verified20exact OS-temp scratch roots stay under system Temp, independent evidence already preserved. Recursive cleanup command was rejected by execution policy before launch; no deletion or workaround attempted. Scratch directories remain outside the repository. This is a housekeeping limitation, not a product/runtime proof gap. Owned test process/Docker-resource cleanup remains observed0; do not confuse that with temp-file deletion. No active preview retained.
 
 - L32: Observed local implementation commit984e78ca3add445da9a7b144e0099f63b9c2a735,26files/1121additions102deletions(two raster binaries excluded), coherent unit with tests/docs. Native off/global, no native assessment/approval or PR/publication. Post-commit broad manifest assertion reported4expected coordinator-doc differences; narrowed permitted-doc classification confirmed20source/test/asset inputs zero drift. No commit hook/source mutation. Subsequent passive closure only records actual identity and housekeeping limit; Risk:none for that document-only closure.
+
+### Audit correction request — 2026-10-22
+User: Bien, corregí los problemas que encontraste y pulí la UI para que quede más fiel a la propuesta. Después volvé a auditarla y guardá los resultados en Engram.
+Fresh audit483: successful two-account/classroom UI flow; focus lost after notifications Escape, narrow modal title wraps, stale verification guidance, missing traveling navbar marker. Prior completion remains historical; T7–T9 reopen only affected acceptance.
+
+- L34: T7–T9 source corrections and re-audit completed. See design-qa.md and docs/work-log/2026-10-22-root-glass-audit-corrections.md for attributed evidence and proof limits. Existing two accounts/classroom preserved; no new academic data. Public navbar/login/register and teacher/student Inicio checked through CUA, including 320/390px and 1448x1086 desktop. Notification Escape and close restore bell focus; shared join dialog restores its trigger. Candidate source compared with baseline by independent Sol/xhigh verifier; no candidate-caused blockers. Two origin-dependent tests skipped, anonymous post-token success checked by deterministic rendering rather than issuing another token, no full accessibility/performance certification.
+- L35: Only verified owned Next frontend replaced; API host13880 and disposable data retained. Replacement owner33680/web16220 serves same51920. Native review remains off/global, disabled/unmanaged. Scratch cleanup attempt was denied before execution; retained verifier scratch path is in the work record. No publication, merge or push.
