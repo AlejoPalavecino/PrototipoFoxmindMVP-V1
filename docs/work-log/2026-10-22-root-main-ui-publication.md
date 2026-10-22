@@ -6,7 +6,7 @@
 - Branch / worktree: codex/foxmind-entry-glass, isolated glass worktree; main is checked out separately in p4-p3-integration.
 - Starting commit: c6a4c08c94040ca6b115ce8b4899d532fcc82a6f; initial main/origin main1eb57002eec7200192fd8efa2c8b65e306554826.
 - Phase: local design delivery and explicit Git publication, not deployment.
-- Status: blocked on the requested decision about other in-progress documentary work; own commits and pre-integration checks completed.
+- Status: in_progress; the inclusion decision below is resolved, integration and final verification remain underway.
 
 ## Authorized outcome and boundaries
 
@@ -38,3 +38,9 @@ Fresh committed-branch suite:84total,80PASS,0FAIL,4explicit optional origin-depe
 Before merge, main acquired19tracked documentation edits plus its untracked indexes/records from the separate documentary task. The tracked-clean guard correctly aborted before merge; main still1eb5700. There is a real overlap in docs/implementation-roadmap.md between the glass range and that other work. No reset, stash, stage of other changes, overwrite, merge or push occurred. Main and original untracked design/audit proposals remain untouched. Original/main untracked docs/odd inventories had no different-byte duplicate path at the captured inventory.
 
 Pending user answer: include/publish the other documents/proposals in their current state, or keep them outside this UI delivery. After the answer, capture stable hashes and privacy-check the authorized files, preserve those exact bytes in separate commits, reconcile the roadmap overlap without dropping either result, integrate, rerun checks/build and verify exact pushed main SHA. Source and main merge/push are not complete. No deployment or service/data changes occurred in this commit-preparation pass.
+
+## Superseding explicit inclusion — 2026-10-22
+
+User answered: include the other changes, preserve both roadmap contributions and do not mark in-progress records completed; verify and push main without sensitive data or deployment. The earlier decision hold above is historical, not a current blocker. Original safe documentation/proposals will be committed on their existing branch and only that new documentation commit cherry-picked, avoiding integration of the old P3 branch history. Main's existing documentary snapshot will be committed separately before merging glass. No reset/stash/switch of the original checkout.
+
+Fresh inventory: original48 safe docs/odd candidates (23,092,171 bytes, largest1,853,859), main26 documentary candidates. The original historical P3 and P4 preparation records and main's newly present reorganization-map record remain in_progress. The stage1 owner has independently changed its own record to completed with documentary checks before this inventory; this publication task does not edit or grant that status. Preserve the exact sampled bytes/statuses. Scan found no high-confidence secret in original; main's two database example matches are unchanged pre-existing HEAD content, not runtime credentials. No private configuration, real account data or local metadata is included. Snapshot hashes retained outside the repository.
