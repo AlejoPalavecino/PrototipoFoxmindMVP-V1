@@ -2,6 +2,12 @@
 
 Este índice distingue **referencias, exploraciones y código implementado**. La base documental elegida es `main`; no se copió, movió, borró ni aprobó ningún diseño con esta etapa.
 
+## Incorporación posterior — 2026-10-22
+
+Una autorización posterior permitió publicar las cuatro familias conservando sus rutas: [Taller](foxmind-taller-mockups/README.md), [marca original](foxmind-original-brand-options/README.md), [tercera ronda](foxmind-exploration-round3/README.md) y [cuarta ronda](foxmind-learning-concepts-round4/README.md). Son propuestas estáticas, no nuevas selecciones ni funcionalidades. Los enlaces locales y límites de la etapa inicial se conservan abajo como historial.
+
+El diseño glass implementado se integró en main mediante419482e; [guía](../entry-glass.md), [registro de plataforma](../work-log/2026-10-21-root-platform-glass.md) y [entrega actual](../work-log/2026-10-22-root-main-ui-publication.md). La [auditoría histórica](../audits/2026-10-21-docs-audit/README.md) también está disponible en este clon. Incorporar estos archivos no ejecuta la propuesta de reorganización documental ni completa sus registros en curso.
+
 ## Referencias de producto
 
 - [Catálogo visual original](../visual-reference-index.md): 29 referencias conservadas en `docs/references/`.

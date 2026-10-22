@@ -57,5 +57,3 @@ FIRST group "Hoy · 21 oct." contains muted teal note "No tenés entregas para h
 SECOND group "Viernes · 23 oct." contains the main future deadline row: orange left border on white, tiny label "Entrega · 18:00", strong title "Luz natural y encuadre", "Introducción a la fotografía", status "Pendiente", deep teal button WHITE "Ver actividad". Date/time prominently anchors task, not a giant hero.
 RIGHT column heading "Tus aulas". Section "Estudio" with two neat simple text rows "Introducción a la fotografía" and "Escritura creativa", small flat line icons and arrow links; section "Enseño" with "Taller de dibujo" / "Grupo A · 2026". NO full-color illustrated cover cards, no course progress bars.
 Bottom tiny quiet note "Las fechas corresponden a cada aula." No new calendar capabilities, no streaks, no counts or invented metrics. Make the interface feel effortlessly understandable and energetic: rhythm, clear hierarchy, temporal structure and confident lime/teal/orange visual language. Actual app screenshot not infographic poster.
-
-

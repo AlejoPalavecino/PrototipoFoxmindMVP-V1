@@ -4,7 +4,15 @@
 
 P3's accepted twelve account/session operations, initial Next.js screens and real browser/API/SQL/captured-email journeys remain documented in [final verification](work-log/2026-10-17-p3-verify-final.md), [coordinator](work-log/2026-10-17-id-unavailable-p3-completion.md), [tasks](../odd/tasks/p3-completion.md) and [web guide](p3-web.md). Historical backend99/control39/browser10/live web16 and strict builds/audit0/cleanup0 are evidence for that accepted checkpoint, not fresh results for this documentation change or later candidates.
 
+## Current integration checkpoint — 2026-10-22
+
+The user explicitly authorized committing all safe pending work, integrating glass and its corrections into main, preserving both documentary contributions and ongoing record statuses, re-verifying and pushing main without deployment or sensitive data. This later delivery scope supersedes the earlier documentation-only publication restriction, not its history or product rules. [Publication record](work-log/2026-10-22-root-main-ui-publication.md) owns the current checks and exact delivery result.
+
+Main now contains documentation snapshot26d423d, historical documentation/proposals1156e8c (cherry-picked only from original4395484, not the old P3 branch history), and glass merge419482e. The documentation section below and the entry-glass checkpoints at the end are both retained. Historical in_progress records remain in_progress; publishing a proposal does not select or implement it. Final integrated verification/push remains pending in this checkpoint; no deployment or retained-data operation is authorized.
+
 ## Current documentation scope
+
+This section records the earlier documentation stage. Its scope and findings remain attributed to that stage; the later integration authorization is recorded immediately above.
 
 **Base reconciled on 2026-10-22: `main`, starting HEAD `1eb57002eec7200192fd8efa2c8b65e306554826`.** The user selected this base for documentation indexing and contradictory-status corrections only. Read the [documentation index](README.md) and [stage record](work-log/2026-10-22-root-docs-stage1.md). Original local designs and historical records remain in place; no file migration, new product implementation, service execution, commit or publication is authorized by this stage.
 

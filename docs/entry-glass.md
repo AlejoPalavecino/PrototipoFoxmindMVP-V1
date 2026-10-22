@@ -30,4 +30,10 @@ Production Next builds must run in the isolated feature checkout, not in another
 
 Native review remains off/global. No deployment, merge or push is authorized by this feature.
 
+## Later platform extension and publication — 2026-10-22
+
+The earlier feature boundary above is historical. A later explicit user request authorized extending the selected system across existing academic surfaces and publishing safe pending changes to main, without deployment or retained-data changes. [Platform work record](work-log/2026-10-21-root-platform-glass.md) and [current integration/publication record](work-log/2026-10-22-root-main-ui-publication.md) retain exact verification, skipped checks and delivery status.
+
+Shared `platform-glass.css` now extends the navy/lavender/pearl/orange tokens to classroom lists, classroom sections, plans, library/wall, activities, authoring, submissions, grading/progress and private-file presentation. It is imported by Next and the standalone classroom entry after the academic base styles, before the scoped entry layer. Existing Home/navbar composition remains scoped; no new domain handlers, authorization policy, persistence or dependencies were introduced. Native dialog sizing/centering, compact subheadings, disabled states, visible focus and reduced-motion/forced-colors treatments are part of that presentation layer. Synthetic dense-surface checks and scoped regressions do not certify every real-data state or universal accessibility.
+
 Final scoped verification: independent Sol/xhigh passed real glass7, account10, private-file9 and matched baseline6 cases, all exit0/0SKIP. Academic body measured geometry/text/styles remained equal at1448/390 with baseline GET-only and unchanged domain hash. Exact evidence and historical setup failures are in the attributed work record. Universal accessibility/native browser zoom and standalone Vite runtime are not claimed.

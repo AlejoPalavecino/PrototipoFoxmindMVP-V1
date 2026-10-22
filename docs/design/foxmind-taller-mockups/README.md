@@ -31,4 +31,3 @@ El generador aclara algunos naranjas y textos auxiliares respecto de los tokens 
 - [Registro de trabajo](../../work-log/2026-10-21-id-unavailable-playful-mockups.md).
 
 Siguiente paso: feedback sobre esta familia de pantallas. No implementar, integrar ni publicar sin una solicitud posterior. Resolver primero el checkout que sirve la aplicación real.
-

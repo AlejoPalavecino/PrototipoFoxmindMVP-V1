@@ -77,5 +77,3 @@ Password helper exact "Entre 16 y 128 caracteres."
 Small mint info notice with mail icon "Después, verificá tu correo para usar tus aulas."
 Full width solid burnt-orange #C2410C button white "Crear cuenta".
 Bottom "¿Ya tenés cuenta? Iniciar sesión". Render readable full text with balanced spacing, no cut-off footer. Form labels outside inputs, clear input boundaries, opaque white/light ivory form background, no excessive nested cards. NO Google, confirmation password, role selection, consent checkbox, additional fields. Don't add large illustration below form, don't add marketing metrics. Match desktop character and style but form-first on mobile.
-
-

@@ -37,6 +37,8 @@ For a documentation-only task, run proportionate structural/link checks and stat
 
 ## Current boundary
 
+**Later integration/publication request (2026-10-22):** the user explicitly authorized including safe pending documents/proposals and glass UI/fixes in main, preserving both roadmap contributions and all ongoing-record statuses, verifying and pushing main. Follow the [current delivery record](docs/work-log/2026-10-22-root-main-ui-publication.md). This supersedes only the earlier documentation stage's no-publication boundary; it does not authorize deployment, retained-data changes, secret reads or execution of the proposed documentation migration. The earlier stage and P8/P9 boundaries below remain historical evidence, not reusable consent.
+
 **Documentation reconciliation (2026-10-22):** main contains accepted local P0–P9 and the recorded P9 publication; see the [roadmap](docs/implementation-roadmap.md) and [documentation index](docs/README.md). The current request is indexing and contradictory-status corrections only, preserving designs/history with no file moves/deletions. No product implementation, runtime, new publication or deployment is authorized by this request. The P8/P9 execution authorizations retained below are historical, not reusable consent.
 
 ### Historical P8/P9 execution boundary
