@@ -1,0 +1,1998 @@
+{
+  "summary": {
+    "scanned_at_utc": "2026-10-22T02:57:49.617553+00:00",
+    "branch": "feat/p33-token-flows",
+    "head": "5e86d1e58afaae8856778f840027f724db36adf0",
+    "files": 145,
+    "bytes": 45908021,
+    "extensions": {
+      ".md": 100,
+      ".json": 4,
+      ".png": 41
+    },
+    "tracked": 112,
+    "untracked": 33,
+    "by_folder": {
+      ".": 19,
+      "api": 2,
+      "design/foxmind-exploration-round3": 6,
+      "design/foxmind-original-brand-options": 6,
+      "design/foxmind-taller-mockups": 9,
+      "references": 29,
+      "work-log": 74
+    },
+    "links": {
+      "ok": 293,
+      "external_not_fetched": 12
+    },
+    "manifest": [
+      {
+        "file": "docs/design/foxmind-exploration-round3/01-inicio-editorial-fotografico.png",
+        "ok": true,
+        "size_recorded": false,
+        "size_matches": null
+      },
+      {
+        "file": "docs/design/foxmind-exploration-round3/02-inicio-espacial.png",
+        "ok": true,
+        "size_recorded": false,
+        "size_matches": null
+      },
+      {
+        "file": "docs/design/foxmind-exploration-round3/03-inicio-fluido.png",
+        "ok": true,
+        "size_recorded": false,
+        "size_matches": null
+      },
+      {
+        "file": "docs/design/foxmind-original-brand-options/01-inicio-editorial.png",
+        "ok": true,
+        "size_recorded": true,
+        "size_matches": true
+      },
+      {
+        "file": "docs/design/foxmind-original-brand-options/02-inicio-luminous.png",
+        "ok": true,
+        "size_recorded": true,
+        "size_matches": true
+      },
+      {
+        "file": "docs/design/foxmind-original-brand-options/03-inicio-graphic.png",
+        "ok": true,
+        "size_recorded": true,
+        "size_matches": true
+      },
+      {
+        "file": "docs/design/foxmind-taller-mockups/aula-desktop.png",
+        "ok": true,
+        "size_recorded": true,
+        "size_matches": true
+      },
+      {
+        "file": "docs/design/foxmind-taller-mockups/aula-mobile.png",
+        "ok": true,
+        "size_recorded": true,
+        "size_matches": true
+      },
+      {
+        "file": "docs/design/foxmind-taller-mockups/inicio-desktop.png",
+        "ok": true,
+        "size_recorded": true,
+        "size_matches": true
+      },
+      {
+        "file": "docs/design/foxmind-taller-mockups/inicio-mobile.png",
+        "ok": true,
+        "size_recorded": true,
+        "size_matches": true
+      },
+      {
+        "file": "docs/design/foxmind-taller-mockups/registro-desktop.png",
+        "ok": true,
+        "size_recorded": true,
+        "size_matches": true
+      },
+      {
+        "file": "docs/design/foxmind-taller-mockups/registro-mobile.png",
+        "ok": true,
+        "size_recorded": true,
+        "size_matches": true
+      }
+    ],
+    "external_assets": [
+      {
+        "manifest": "docs/design/foxmind-original-brand-options/manifest.json",
+        "path": "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\archive\\marca-original\\Zorro.png",
+        "exists": true,
+        "inside_repository": false
+      },
+      {
+        "manifest": "docs/design/foxmind-original-brand-options/manifest.json",
+        "path": "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\archive\\marca-original\\ZorroH.png",
+        "exists": true,
+        "inside_repository": false
+      }
+    ],
+    "identical_files": [],
+    "zero_incoming_markdown": [
+      "docs/account-mail-outbox.md",
+      "docs/design/foxmind-exploration-round3/README.md",
+      "docs/design/foxmind-original-brand-options/README.md",
+      "docs/work-log/2026-10-15-mva3zljz-p33-security.md",
+      "docs/work-log/2026-10-15-mva3zlsv-p33-outbox.md",
+      "docs/work-log/2026-10-15-mvaeddt8-p33-d2-correction-map.md",
+      "docs/work-log/2026-10-16-01a14539-p33-mail-deadline.md",
+      "docs/work-log/2026-10-16-id-unavailable-p4-preparation-2242.md",
+      "docs/work-log/2026-10-16-id-unavailable-p5-chain-feasibility.md",
+      "docs/work-log/2026-10-16-id-unavailable-pi-status-2045.md",
+      "docs/work-log/2026-10-16-id-unavailable-status-098094b8.md",
+      "docs/work-log/2026-10-16-id-unavailable-status-2232.md",
+      "docs/work-log/2026-10-16-mvaeya07-p33-mail-cancellation.md",
+      "docs/work-log/2026-10-16-mvaeya2u-p33-d2-execution-plan.md",
+      "docs/work-log/2026-10-16-mvb7e55g-p33-t3-map.md",
+      "docs/work-log/2026-10-16-t2-closure-mvb6iyk6.md",
+      "docs/work-log/2026-10-17-id-unavailable-project-status.md",
+      "docs/work-log/2026-10-17-p34-web.md",
+      "docs/work-log/2026-10-17-recovery-recheck-password-red.md",
+      "docs/work-log/2026-10-17-recovery-verify-web-dependencies.md",
+      "docs/work-log/2026-10-21-id-unavailable-learning-concepts-round4.md",
+      "docs/work-log/2026-10-21-id-unavailable-ui-taste-use-860170c2.md",
+      "docs/work-log/2026-10-21-id-unavailable-ui-ux-skill-use-990c8561.md"
+    ],
+    "self_test": "PASS",
+    "limitations": [
+      "Link subset, not full CommonMark; bare/code paths excluded.",
+      "Anchor candidates require manual review; external URLs not fetched.",
+      "Incoming links counted only from baseline docs Markdown.",
+      "No functional, security, remote-ref or human visual acceptance tests.",
+      "Baseline excludes this audit folder and its own work log."
+    ],
+    "structural": {
+      "markdown_lines": 7495,
+      "missing_h1": [],
+      "table_candidates": [],
+      "guide_node_script_targets": 11,
+      "missing_script_targets": [],
+      "guide_npm_run_names": 19,
+      "missing_npm_run_names": [],
+      "openapi_refs": 132,
+      "bad_openapi_refs": [],
+      "openapi_operations": 12,
+      "openapi_statuses": {
+        "implemented": 12
+      }
+    }
+  },
+  "links": [
+    {
+      "source": "docs/account-mail-outbox.md",
+      "line": 3,
+      "target": "../odd/tasks/p33-accounts-auth.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/account-verification.md",
+      "line": 3,
+      "target": "api/accounts-sessions.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/account-verification.md",
+      "line": 23,
+      "target": "work-log/2026-10-16-fixture-launch-budget-mvbjmtkq.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/account-verification.md",
+      "line": 23,
+      "target": "work-log/2026-10-16-mvbj715b-p33-fixture-diagnosis.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/account-verification.md",
+      "line": 27,
+      "target": "api/accounts-sessions.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/account-verification.md",
+      "line": 27,
+      "target": "api/accounts-sessions.openapi.json",
+      "result": "ok"
+    },
+    {
+      "source": "docs/account-verification.md",
+      "line": 46,
+      "target": "work-log/2026-10-16-t3-verification-mvb7th8c.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/account-verification.md",
+      "line": 46,
+      "target": "work-log/2026-10-16-mvbk7it5-p33-verification-review.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/account-verification.md",
+      "line": 46,
+      "target": "work-log/2026-10-16-mvbkihar-p33-verification-recheck.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/api/accounts-sessions.md",
+      "line": 3,
+      "target": "../work-log/2026-10-17-p3-verify-final.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/api/accounts-sessions.md",
+      "line": 3,
+      "target": "../p3-web.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/api/accounts-sessions.md",
+      "line": 3,
+      "target": "../password-recovery.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/api/accounts-sessions.md",
+      "line": 3,
+      "target": "../password-change.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/api/accounts-sessions.md",
+      "line": 7,
+      "target": "../foxmind-v1-functional-spec.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/api/accounts-sessions.md",
+      "line": 7,
+      "target": "../work-log/2026-10-15-01a13fc3-p31-contracts.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/api/accounts-sessions.md",
+      "line": 38,
+      "target": "../mail-sender.md#delivery-spelling-versus-wire-representation",
+      "result": "ok"
+    },
+    {
+      "source": "docs/api/accounts-sessions.md",
+      "line": 98,
+      "target": "../identity-http.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/api/accounts-sessions.md",
+      "line": 98,
+      "target": "../registration-profile.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/api/accounts-sessions.md",
+      "line": 98,
+      "target": "../account-verification.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/api/accounts-sessions.md",
+      "line": 114,
+      "target": "../local-email.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/api/accounts-sessions.md",
+      "line": 114,
+      "target": "../mail-sender.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/api/accounts-sessions.md",
+      "line": 114,
+      "target": "../work-log/2026-10-15-01a13fc3-p32-local-email.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/api/accounts-sessions.md",
+      "line": 114,
+      "target": "../work-log/2026-10-15-mva3zlb4-p33-mail-compatibility.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/api/accounts-sessions.md",
+      "line": 118,
+      "target": "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html",
+      "result": "external_not_fetched"
+    },
+    {
+      "source": "docs/api/accounts-sessions.md",
+      "line": 119,
+      "target": "https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html",
+      "result": "external_not_fetched"
+    },
+    {
+      "source": "docs/api/accounts-sessions.md",
+      "line": 120,
+      "target": "https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html",
+      "result": "external_not_fetched"
+    },
+    {
+      "source": "docs/api/accounts-sessions.md",
+      "line": 121,
+      "target": "https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html",
+      "result": "external_not_fetched"
+    },
+    {
+      "source": "docs/backend-verification.md",
+      "line": 3,
+      "target": "dependency-security.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/backend-verification.md",
+      "line": 48,
+      "target": "backend.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/backend.md",
+      "line": 3,
+      "target": "work-log/2026-10-17-p3-verify-final.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/backend.md",
+      "line": 3,
+      "target": "p3-web.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/backend.md",
+      "line": 3,
+      "target": "password-recovery.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/backend.md",
+      "line": 3,
+      "target": "password-change.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/backend.md",
+      "line": 17,
+      "target": "database.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/backend.md",
+      "line": 17,
+      "target": "identity-http.md#startup-without-environment-files",
+      "result": "ok"
+    },
+    {
+      "source": "docs/backend.md",
+      "line": 34,
+      "target": "identity-http.md#startup-without-environment-files",
+      "result": "ok"
+    },
+    {
+      "source": "docs/backend.md",
+      "line": 54,
+      "target": "api/accounts-sessions.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/backend.md",
+      "line": 73,
+      "target": "p3-test-runtime.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/backend.md",
+      "line": 77,
+      "target": "work-log/2026-10-16-fixture-launch-budget-mvbjmtkq.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/backend.md",
+      "line": 77,
+      "target": "work-log/2026-10-16-mvbj715b-p33-fixture-diagnosis.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/backend.md",
+      "line": 81,
+      "target": "work-log/2026-10-16-c2-sequential-mvb4asm3.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/backend.md",
+      "line": 82,
+      "target": "p3-test-runtime.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/backend.md",
+      "line": 89,
+      "target": "dependency-security.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/database-verification.md",
+      "line": 39,
+      "target": "database.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/dependency-security.md",
+      "line": 53,
+      "target": "https://github.com/advisories/GHSA-ggr8-5vv4-36mx",
+      "result": "external_not_fetched"
+    },
+    {
+      "source": "docs/dependency-security.md",
+      "line": 54,
+      "target": "https://github.com/RebeccaStevens/deepmerge-ts/releases/tag/v8.0.0",
+      "result": "external_not_fetched"
+    },
+    {
+      "source": "docs/dependency-security.md",
+      "line": 55,
+      "target": "https://github.com/advisories/GHSA-3f6p-5ww8-9rcr",
+      "result": "external_not_fetched"
+    },
+    {
+      "source": "docs/dependency-security.md",
+      "line": 56,
+      "target": "https://github.com/advisories/GHSA-rgwj-5xj2-c3m3",
+      "result": "external_not_fetched"
+    },
+    {
+      "source": "docs/design/foxmind-exploration-round3/README.md",
+      "line": 5,
+      "target": "01-inicio-editorial-fotografico.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/design/foxmind-exploration-round3/README.md",
+      "line": 6,
+      "target": "02-inicio-espacial.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/design/foxmind-exploration-round3/README.md",
+      "line": 7,
+      "target": "03-inicio-fluido.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/design/foxmind-exploration-round3/README.md",
+      "line": 14,
+      "target": "PROMPTS.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/design/foxmind-exploration-round3/README.md",
+      "line": 15,
+      "target": "manifest.json",
+      "result": "ok"
+    },
+    {
+      "source": "docs/design/foxmind-exploration-round3/README.md",
+      "line": 16,
+      "target": "../../work-log/2026-10-21-id-unavailable-design-exploration-round3.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/design/foxmind-original-brand-options/README.md",
+      "line": 5,
+      "target": "01-inicio-editorial.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/design/foxmind-original-brand-options/README.md",
+      "line": 6,
+      "target": "02-inicio-luminous.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/design/foxmind-original-brand-options/README.md",
+      "line": 7,
+      "target": "03-inicio-graphic.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/design/foxmind-original-brand-options/README.md",
+      "line": 18,
+      "target": "PROMPTS.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/design/foxmind-original-brand-options/README.md",
+      "line": 19,
+      "target": "manifest.json",
+      "result": "ok"
+    },
+    {
+      "source": "docs/design/foxmind-original-brand-options/README.md",
+      "line": 20,
+      "target": "../../work-log/2026-10-21-id-unavailable-original-brand-exploration.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/design/foxmind-taller-mockups/README.md",
+      "line": 7,
+      "target": "inicio-desktop.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/design/foxmind-taller-mockups/README.md",
+      "line": 7,
+      "target": "inicio-mobile.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/design/foxmind-taller-mockups/README.md",
+      "line": 8,
+      "target": "aula-desktop.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/design/foxmind-taller-mockups/README.md",
+      "line": 8,
+      "target": "aula-mobile.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/design/foxmind-taller-mockups/README.md",
+      "line": 9,
+      "target": "registro-desktop.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/design/foxmind-taller-mockups/README.md",
+      "line": 9,
+      "target": "registro-mobile.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/design/foxmind-taller-mockups/README.md",
+      "line": 27,
+      "target": "PROMPTS.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/design/foxmind-taller-mockups/README.md",
+      "line": 28,
+      "target": "manifest.json",
+      "result": "ok"
+    },
+    {
+      "source": "docs/design/foxmind-taller-mockups/README.md",
+      "line": 31,
+      "target": "../../work-log/2026-10-21-id-unavailable-playful-mockups.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/foxmind-v1-functional-spec.md",
+      "line": 11,
+      "target": "visual-reference-index.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/foxmind-v1-functional-spec.md",
+      "line": 684,
+      "target": "visual-reference-index.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/foxmind-v1-functional-spec.md",
+      "line": 696,
+      "target": "references/Panel%20de%20actividades%20de%20FoxMind.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/foxmind-v1-functional-spec.md",
+      "line": 697,
+      "target": "references/Panel%20educativo%20FoxMind%20de%20aprendizaje.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/foxmind-v1-functional-spec.md",
+      "line": 698,
+      "target": "references/FoxMind_Inicio_Docente_Lucia.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/foxmind-v1-functional-spec.md",
+      "line": 699,
+      "target": "references/Panel%20FoxMind_%20Mis%20aulas%20de%20fotograf%C3%ADa.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/foxmind-v1-functional-spec.md",
+      "line": 700,
+      "target": "references/Evaluaci%C3%B3n%20de%20iluminaci%C3%B3n%20en%20FoxMind.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/identity-http.md",
+      "line": 3,
+      "target": "account-verification.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/identity-http.md",
+      "line": 3,
+      "target": "work-log/2026-10-16-mvbkihar-p33-verification-recheck.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/identity-http.md",
+      "line": 3,
+      "target": "../odd/tasks/p33-token-flows.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/identity-http.md",
+      "line": 3,
+      "target": "work-log/2026-10-16-01a14539-p33-token-flows.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/identity-http.md",
+      "line": 17,
+      "target": "api/accounts-sessions.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/identity-http.md",
+      "line": 21,
+      "target": "backend.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/identity-http.md",
+      "line": 28,
+      "target": "identity-security.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/identity-http.md",
+      "line": 66,
+      "target": "registration-profile.md#live-worker-ownership-and-shutdown",
+      "result": "ok"
+    },
+    {
+      "source": "docs/identity-http.md",
+      "line": 81,
+      "target": "registration-profile.md#reproduce-and-evidence-limits",
+      "result": "ok"
+    },
+    {
+      "source": "docs/identity-http.md",
+      "line": 91,
+      "target": "work-log/2026-10-15-mva7tp2v-p33-identity-http.md#follow-up--parent-seam-failure-task-mva8ozc1-p-bg99",
+      "result": "ok"
+    },
+    {
+      "source": "docs/identity-http.md",
+      "line": 97,
+      "target": "work-log/2026-10-15-mvabi7zz-p33-d1-test-isolation.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 3,
+      "target": "work-log/2026-10-17-p3-verify-final.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 3,
+      "target": "work-log/2026-10-17-id-unavailable-p3-completion.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 3,
+      "target": "../odd/tasks/p3-completion.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 3,
+      "target": "p3-web.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 11,
+      "target": "work-log/2026-10-16-mvbovr28-p33-recovery-verification.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 11,
+      "target": "work-log/2026-10-16-01a14539-p33-recovery.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 13,
+      "target": "work-log/2026-10-17-recovery-verify.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 13,
+      "target": "work-log/2026-10-17-id-unavailable-p3-completion.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 15,
+      "target": "work-log/2026-10-17-recovery-recheck.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 17,
+      "target": "work-log/2026-10-17-prisma-startup-diagnostic.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 19,
+      "target": "../odd/tasks/p3-completion.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 23,
+      "target": "../AGENTS.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 25,
+      "target": "work-log/README.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 32,
+      "target": "foxmind-v1-functional-spec.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 33,
+      "target": "visual-reference-index.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 36,
+      "target": "work-log/README.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 61,
+      "target": "foxmind-v1-functional-spec.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 61,
+      "target": "visual-reference-index.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 62,
+      "target": "../odd/tasks/database-foundation.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 62,
+      "target": "database.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 62,
+      "target": "database-verification.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 63,
+      "target": "../odd/tasks/backend-foundation.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 63,
+      "target": "backend.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 63,
+      "target": "backend-verification.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 64,
+      "target": "dependency-security.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 88,
+      "target": "work-log/2026-10-17-p3-verify-final.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 90,
+      "target": "api/accounts-sessions.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 90,
+      "target": "api/accounts-sessions.openapi.json",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 90,
+      "target": "work-log/2026-10-15-01a13fc3-p31-contracts.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 90,
+      "target": "work-log/2026-10-15-mva0p514-p31-contract-review.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 91,
+      "target": "../odd/tasks/p32-local-email.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 91,
+      "target": "work-log/2026-10-15-01a13fc3-p32-local-email.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 92,
+      "target": "../odd/tasks/p33-token-flows.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 93,
+      "target": "p3-web.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 93,
+      "target": "../odd/tasks/p34-web.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 94,
+      "target": "work-log/2026-10-17-p3-verify-final.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 148,
+      "target": "work-log/README.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 150,
+      "target": "work-log/2026-10-15-01a13fc3-p31-contracts.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 150,
+      "target": "work-log/2026-10-15-mv9zsb0p-p31-requirements-map.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 150,
+      "target": "work-log/2026-10-15-mva0p514-p31-contract-review.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 150,
+      "target": "work-log/2026-10-15-01a13fc3-roadmap.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 152,
+      "target": "../odd/tasks/p33-token-flows.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 152,
+      "target": "work-log/2026-10-16-01a14539-p33-token-flows.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 152,
+      "target": "work-log/2026-10-16-mvbkihar-p33-verification-recheck.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/implementation-roadmap.md",
+      "line": 152,
+      "target": "../odd/tasks/p3-completion.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/mail-sender.md",
+      "line": 3,
+      "target": "api/accounts-sessions.md#token-and-email-lifecycle",
+      "result": "ok"
+    },
+    {
+      "source": "docs/mail-sender.md",
+      "line": 3,
+      "target": "../odd/tasks/p32-local-email.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/mail-sender.md",
+      "line": 51,
+      "target": "work-log/2026-10-15-mva3zlb4-p33-mail-compatibility.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/mail-sender.md",
+      "line": 81,
+      "target": "work-log/2026-10-16-c1-sequential-mvb3yfqi.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/p3-web.md",
+      "line": 69,
+      "target": "work-log/2026-10-17-p3-verify-final.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/password-change.md",
+      "line": 25,
+      "target": "work-log/2026-10-17-id-unavailable-p3-completion.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/password-recovery.md",
+      "line": 5,
+      "target": "work-log/2026-10-17-p3-verify-final.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/password-recovery.md",
+      "line": 5,
+      "target": "api/accounts-sessions.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/password-recovery.md",
+      "line": 5,
+      "target": "p3-test-runtime.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/password-recovery.md",
+      "line": 11,
+      "target": "api/accounts-sessions.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/password-recovery.md",
+      "line": 31,
+      "target": "work-log/2026-10-16-mvbm1i0h-p33-recovery-design.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/password-recovery.md",
+      "line": 33,
+      "target": "work-log/2026-10-16-01a14539-p33-recovery.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/registration-profile.md",
+      "line": 3,
+      "target": "account-verification.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/registration-profile.md",
+      "line": 3,
+      "target": "work-log/2026-10-16-mvbkihar-p33-verification-recheck.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/registration-profile.md",
+      "line": 3,
+      "target": "../odd/tasks/p33-token-flows.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/registration-profile.md",
+      "line": 3,
+      "target": "work-log/2026-10-16-01a14539-p33-token-flows.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/registration-profile.md",
+      "line": 5,
+      "target": "work-log/2026-10-16-c2-sequential-mvb4asm3.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/registration-profile.md",
+      "line": 5,
+      "target": "work-log/2026-10-16-build-once-mvb5aiy5.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/registration-profile.md",
+      "line": 21,
+      "target": "work-log/2026-10-16-c1-sequential-mvb3yfqi.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/registration-profile.md",
+      "line": 31,
+      "target": "work-log/2026-10-15-mvad21p6-p33-registration-profile.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 3,
+      "target": "foxmind-v1-functional-spec.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 15,
+      "target": "references/Panel%20de%20actividades%20de%20FoxMind.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 16,
+      "target": "references/Panel%20educativo%20FoxMind%20de%20aprendizaje.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 16,
+      "target": "references/FoxMind_Inicio_Docente_Lucia.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 17,
+      "target": "references/Panel%20FoxMind_%20Mis%20aulas%20de%20fotograf%C3%ADa.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 17,
+      "target": "references/Imagen%20de%20ChatGPT%2014%20oct%202026%2C%2023_51_21.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 18,
+      "target": "references/Evaluaci%C3%B3n%20de%20iluminaci%C3%B3n%20en%20FoxMind.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 25,
+      "target": "references/Panel%20de%20actividades%20de%20FoxMind.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 26,
+      "target": "references/Panel%20educativo%20FoxMind%20de%20aprendizaje.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 27,
+      "target": "references/FoxMind_Inicio_Docente_Lucia.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 28,
+      "target": "references/Panel%20FoxMind_%20Mis%20aulas%20de%20fotograf%C3%ADa.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 29,
+      "target": "references/Imagen%20de%20ChatGPT%2014%20oct%202026%2C%2023_51_21.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 30,
+      "target": "references/Evaluaci%C3%B3n%20de%20iluminaci%C3%B3n%20en%20FoxMind.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 31,
+      "target": "references/Crear%20aula%20en%20FoxMind.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 32,
+      "target": "references/FoxMind_CrearAula_Paso2_PlanDeEstudio.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 33,
+      "target": "references/FoxMind_CrearAula_Paso3_UnidadesYTemas.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 34,
+      "target": "references/FoxMind_CrearAula_Paso4_Revision.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 35,
+      "target": "references/InvitarAlumnos.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 36,
+      "target": "references/IngresarCodigoInvitacion.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 37,
+      "target": "references/TabAlumnos-Aula.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 38,
+      "target": "references/TabCompa%C3%B1eros-Alumno.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 39,
+      "target": "references/FoxMind_Plan_Docente_Lucia.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 40,
+      "target": "references/FoxMind_Plan_Alumno_Sofia.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 41,
+      "target": "references/FoxMind_Biblioteca_Docente_Lucia.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 42,
+      "target": "references/FoxMind_Biblioteca_Estudiante_Sofia.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 43,
+      "target": "references/Subirmaterial.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 44,
+      "target": "references/MuroAula.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 45,
+      "target": "references/CrearActividad.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 46,
+      "target": "references/FoxMind_Crear_Evaluacion_Docente_Lucia.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 47,
+      "target": "references/FoxMind_Entrega_Trabajo_Practico_Sofia.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 48,
+      "target": "references/FoxMind_Corregir_Evaluacion_Lucia.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 49,
+      "target": "references/FoxMind_Resultado_Evaluacion_Sofia.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 50,
+      "target": "references/FoxMind_Progreso_Docente_Lucia.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 51,
+      "target": "references/FoxMind_Mi_Progreso_Estudiante_Sofia.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 52,
+      "target": "references/TabActividades.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/visual-reference-index.md",
+      "line": 53,
+      "target": "references/FoxMind_Mi_Perfil_Sofia.png",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-01a13fc3-p31-contracts.md",
+      "line": 8,
+      "target": "../implementation-roadmap.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-01a13fc3-p31-contracts.md",
+      "line": 50,
+      "target": "2026-10-15-mva0p514-p31-contract-review.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-01a13fc3-p31-contracts.md",
+      "line": 64,
+      "target": "../foxmind-v1-functional-spec.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-01a13fc3-p31-contracts.md",
+      "line": 65,
+      "target": "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html",
+      "result": "external_not_fetched"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-01a13fc3-p31-contracts.md",
+      "line": 66,
+      "target": "https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html",
+      "result": "external_not_fetched"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-01a13fc3-p31-contracts.md",
+      "line": 67,
+      "target": "https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html",
+      "result": "external_not_fetched"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-01a13fc3-p31-contracts.md",
+      "line": 68,
+      "target": "https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html",
+      "result": "external_not_fetched"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-01a13fc3-p32-local-email.md",
+      "line": 8,
+      "target": "../../odd/tasks/p32-local-email.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-01a13fc3-p32-local-email.md",
+      "line": 19,
+      "target": "2026-10-15-mva1ed9l-p32-map.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-01a13fc3-p32-local-email.md",
+      "line": 34,
+      "target": "2026-10-15-mva2tlkx-p32-capture-review.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-01a13fc3-p32-local-email.md",
+      "line": 35,
+      "target": "2026-10-15-mva2tlrh-p32-sender-review.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-01a13fc3-p33-accounts-auth.md",
+      "line": 8,
+      "target": "../../odd/tasks/p33-accounts-auth.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-01a13fc3-p33-native-d1.md",
+      "line": 6,
+      "target": "../../odd/tasks/p33-accounts-auth.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-01a13fc3-p33-native-runner.md",
+      "line": 6,
+      "target": "../../odd/tasks/p33-accounts-auth.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-01a13fc3-p33-native-security.md",
+      "line": 7,
+      "target": "../../odd/tasks/p33-accounts-auth.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-mva1ed9l-p32-map.md",
+      "line": 8,
+      "target": "../../odd/tasks/p32-local-email.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-mva1tryy-p32-capture.md",
+      "line": 8,
+      "target": "../../odd/tasks/p32-local-email.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-mva1ts7d-p32-sender.md",
+      "line": 8,
+      "target": "../../odd/tasks/p32-local-email.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-mva2a4up-p32-capture.md",
+      "line": 8,
+      "target": "../../odd/tasks/p32-local-email.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-mva2a4up-p32-capture.md",
+      "line": 9,
+      "target": "2026-10-15-mva1tryy-p32-capture.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-mva2a55j-p32-sender.md",
+      "line": 8,
+      "target": "../../odd/tasks/p32-local-email.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-mva2a55j-p32-sender.md",
+      "line": 17,
+      "target": "2026-10-15-mva1ts7d-p32-sender.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-mva2tlkx-p32-capture-review.md",
+      "line": 8,
+      "target": "../../odd/tasks/p32-local-email.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-mva2tlrh-p32-sender-review.md",
+      "line": 8,
+      "target": "../../odd/tasks/p32-local-email.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-mva38frg-p33-map.md",
+      "line": 7,
+      "target": "../../odd/tasks/p33-accounts-auth.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-mva3zlb4-p33-mail-compatibility.md",
+      "line": 8,
+      "target": "../../odd/tasks/p33-accounts-auth.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-mva3zljz-p33-security.md",
+      "line": 8,
+      "target": "../../odd/tasks/p33-accounts-auth.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-mva3zlsv-p33-outbox.md",
+      "line": 8,
+      "target": "../../odd/tasks/p33-accounts-auth.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-mva6ffka-p33-runner-repair.md",
+      "line": 8,
+      "target": "../../odd/tasks/p33-accounts-auth.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-mva7tp2v-p33-identity-http.md",
+      "line": 8,
+      "target": "../../odd/tasks/p33-accounts-auth.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-mva7tp2v-p33-identity-http.md",
+      "line": 17,
+      "target": "2026-10-15-unavailable-d1-p33-identity-http.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-mvaaj6z5-p33-tcp-map.md",
+      "line": 7,
+      "target": "../../odd/tasks/p33-accounts-auth.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-mvabi7zz-p33-d1-test-isolation.md",
+      "line": 8,
+      "target": "../../odd/tasks/p33-accounts-auth.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-mvad21p6-p33-registration-profile.md",
+      "line": 8,
+      "target": "../../odd/tasks/p33-accounts-auth.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-15-unavailable-d1-p33-identity-http.md",
+      "line": 21,
+      "target": "2026-10-15-mva7tp2v-p33-identity-http.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-16-01a14539-p33-mail-deadline.md",
+      "line": 19,
+      "target": "2026-10-16-mvb63m78-p33-t2-verification.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-16-01a14539-p33-recovery.md",
+      "line": 13,
+      "target": "2026-10-16-mvbovr28-p33-recovery-verification.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-16-build-once-mvb5aiy5.md",
+      "line": 7,
+      "target": "../../odd/tasks/p33-build-once.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-16-id-unavailable-p4-preparation-2242.md",
+      "line": 8,
+      "target": "../implementation-roadmap.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-16-id-unavailable-p4-preparation-2242.md",
+      "line": 8,
+      "target": "../foxmind-v1-functional-spec.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-16-id-unavailable-p5-chain-feasibility.md",
+      "line": 8,
+      "target": "../implementation-roadmap.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-16-id-unavailable-p5-chain-feasibility.md",
+      "line": 8,
+      "target": "../foxmind-v1-functional-spec.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-16-id-unavailable-pi-status-2045.md",
+      "line": 8,
+      "target": "../implementation-roadmap.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-16-id-unavailable-pi-status-2045.md",
+      "line": 8,
+      "target": "../../odd/tasks/p33-token-flows.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-16-id-unavailable-pi-status-2045.md",
+      "line": 8,
+      "target": "2026-10-16-01a14539-p33-recovery.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-16-id-unavailable-status-2232.md",
+      "line": 8,
+      "target": "../implementation-roadmap.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-16-id-unavailable-status-2232.md",
+      "line": 8,
+      "target": "../../odd/tasks/p3-completion.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-16-id-unavailable-status-2232.md",
+      "line": 8,
+      "target": "../../odd/tasks/p33-token-flows.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-16-mvaeya07-p33-mail-cancellation.md",
+      "line": 8,
+      "target": "../../odd/tasks/p33-t2-execution.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-16-mvaeya2u-p33-d2-execution-plan.md",
+      "line": 7,
+      "target": "../../odd/tasks/p33-t2-execution.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-16-mvaeya2u-p33-d2-execution-plan.md",
+      "line": 7,
+      "target": "../../odd/tasks/p33-accounts-auth.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-16-mvbkihar-p33-verification-recheck.md",
+      "line": 15,
+      "target": "2026-10-16-mvbk7it5-p33-verification-review.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-16-mvbovr28-p33-recovery-verification.md",
+      "line": 8,
+      "target": "../../odd/tasks/p33-token-flows.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-16-mvbovr28-p33-recovery-verification.md",
+      "line": 75,
+      "target": "2026-10-16-01a14539-p33-recovery.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-16-t2-closure-mvb6iyk6.md",
+      "line": 20,
+      "target": "2026-10-16-mvb63m78-p33-t2-verification.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-16-t2-closure-mvb6iyk6.md",
+      "line": 20,
+      "target": "2026-10-16-01a14539-p33-t2-resume.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-16-t2-closure-mvb6iyk6.md",
+      "line": 20,
+      "target": "../../odd/tasks/p33-t2-execution.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-17-id-unavailable-p3-completion.md",
+      "line": 8,
+      "target": "../../odd/tasks/p3-completion.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-17-id-unavailable-p3-completion.md",
+      "line": 8,
+      "target": "../../odd/tasks/p33-token-flows.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-17-id-unavailable-p3-completion.md",
+      "line": 25,
+      "target": "2026-10-17-p3-verify-final.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-17-id-unavailable-p3-completion.md",
+      "line": 84,
+      "target": "2026-10-17-recovery-verify.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-17-id-unavailable-p3-completion.md",
+      "line": 106,
+      "target": "2026-10-17-recovery-recheck.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-17-id-unavailable-p3-completion.md",
+      "line": 114,
+      "target": "2026-10-17-prisma-startup-diagnostic.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-17-id-unavailable-p3-completion.md",
+      "line": 132,
+      "target": "../p3-test-runtime.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-17-id-unavailable-project-status.md",
+      "line": 8,
+      "target": "../implementation-roadmap.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-17-id-unavailable-project-status.md",
+      "line": 8,
+      "target": "../../odd/tasks/p3-completion.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-17-id-unavailable-project-status.md",
+      "line": 8,
+      "target": "../../odd/tasks/p33-token-flows.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-17-p3-verify-final.md",
+      "line": 10,
+      "target": "../../odd/tasks/p3-completion.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-17-p3-verify-final.md",
+      "line": 11,
+      "target": "../../odd/tasks/p33-token-flows.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-17-p3-verify-final.md",
+      "line": 11,
+      "target": "../../odd/tasks/p34-web.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-17-p34-web.md",
+      "line": 8,
+      "target": "../../odd/tasks/p3-completion.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-17-p34-web.md",
+      "line": 8,
+      "target": "../../odd/tasks/p34-web.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-17-recovery-recheck-password-red.md",
+      "line": 9,
+      "target": "../../odd/tasks/p3-completion.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-17-recovery-verify-web-dependencies.md",
+      "line": 9,
+      "target": "../../odd/tasks/p3-completion.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-21-id-unavailable-design-exploration-round3.md",
+      "line": 8,
+      "target": "../foxmind-v1-functional-spec.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-21-id-unavailable-learning-concepts-round4.md",
+      "line": 8,
+      "target": "../foxmind-v1-functional-spec.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-21-id-unavailable-original-brand-exploration.md",
+      "line": 8,
+      "target": "../foxmind-v1-functional-spec.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-21-id-unavailable-original-brand-exploration.md",
+      "line": 8,
+      "target": "../design/foxmind-taller-mockups/README.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-21-id-unavailable-playful-mockups.md",
+      "line": 8,
+      "target": "../foxmind-v1-functional-spec.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-21-id-unavailable-playful-mockups.md",
+      "line": 8,
+      "target": "2026-10-21-id-unavailable-playful-ux-proposal.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-21-id-unavailable-playful-mockups.md",
+      "line": 24,
+      "target": "../design/foxmind-taller-mockups/README.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-21-id-unavailable-playful-mockups.md",
+      "line": 24,
+      "target": "../design/foxmind-taller-mockups/PROMPTS.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-21-id-unavailable-playful-mockups.md",
+      "line": 24,
+      "target": "../design/foxmind-taller-mockups/manifest.json",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-21-id-unavailable-playful-ux-proposal.md",
+      "line": 8,
+      "target": "../implementation-roadmap.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-21-id-unavailable-playful-ux-proposal.md",
+      "line": 8,
+      "target": "../foxmind-v1-functional-spec.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-21-id-unavailable-playful-ux-proposal.md",
+      "line": 8,
+      "target": "../visual-reference-index.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-21-id-unavailable-ui-taste-use-860170c2.md",
+      "line": 8,
+      "target": "../implementation-roadmap.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-21-id-unavailable-ui-taste-use-860170c2.md",
+      "line": 8,
+      "target": "README.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-21-id-unavailable-ui-ux-skill-use-990c8561.md",
+      "line": 8,
+      "target": "../implementation-roadmap.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/2026-10-21-id-unavailable-ui-ux-skill-use-990c8561.md",
+      "line": 8,
+      "target": "README.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 3,
+      "target": "../implementation-roadmap.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 60,
+      "target": "2026-10-15-mva54ep8-p33-mail-review.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 61,
+      "target": "2026-10-15-mva54ev3-p33-security-review.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 62,
+      "target": "2026-10-15-mva54f11-p33-outbox-review.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 63,
+      "target": "2026-10-15-mva6ffka-p33-runner-repair.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 64,
+      "target": "2026-10-15-mva6nxu9-p33-outbox-recheck.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 65,
+      "target": "2026-10-15-01a13fc3-p33-native-security.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 66,
+      "target": "2026-10-15-01a13fc3-p33-native-runner.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 67,
+      "target": "2026-10-15-mvaaj6z5-p33-tcp-map.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 68,
+      "target": "2026-10-15-mvaapb6w-p33-tcp-capture.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 69,
+      "target": "2026-10-15-mvabi7zz-p33-d1-test-isolation.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 70,
+      "target": "2026-10-15-mvabvep1-p33-d1-verification.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 71,
+      "target": "2026-10-15-01a13fc3-p33-native-d1.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 72,
+      "target": "2026-10-15-01a13fc3-p33-accounts-auth.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 73,
+      "target": "2026-10-15-mva38frg-p33-map.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 74,
+      "target": "2026-10-15-mva1tryy-p32-capture.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 75,
+      "target": "2026-10-15-mva2a4up-p32-capture.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 76,
+      "target": "2026-10-15-mva1ts7d-p32-sender.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 77,
+      "target": "2026-10-15-mva2a55j-p32-sender.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 78,
+      "target": "2026-10-15-mva2tlkx-p32-capture-review.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 79,
+      "target": "2026-10-15-mva2tlrh-p32-sender-review.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 80,
+      "target": "2026-10-15-01a13fc3-p32-local-email.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 81,
+      "target": "2026-10-15-mva1ed9l-p32-map.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 82,
+      "target": "2026-10-15-mva0p514-p31-contract-review.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 83,
+      "target": "2026-10-15-01a13fc3-p31-contracts.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 84,
+      "target": "2026-10-15-mv9zsb0p-p31-requirements-map.md",
+      "result": "ok"
+    },
+    {
+      "source": "docs/work-log/README.md",
+      "line": 85,
+      "target": "2026-10-15-01a13fc3-roadmap.md",
+      "result": "ok"
+    }
+  ]
+}

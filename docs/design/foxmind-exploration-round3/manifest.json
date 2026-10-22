@@ -1,0 +1,23 @@
+{
+  "generator": "built-in image_gen",
+  "files": [
+    {
+      "file": "01-inicio-editorial-fotografico.png",
+      "width": 1487,
+      "height": 1058,
+      "sha256": "c36bdf08379cc33864f05d5f1ada8dcd2e94f0f58c3233bb5b71128fdd535a91"
+    },
+    {
+      "file": "02-inicio-espacial.png",
+      "width": 1487,
+      "height": 1058,
+      "sha256": "18b07178afa2d88da3c00c5aae60c832625cf79407b6e5581ec459f541d2d343"
+    },
+    {
+      "file": "03-inicio-fluido.png",
+      "width": 1487,
+      "height": 1058,
+      "sha256": "ac35b84d223847b9fd910d9fd49f69fe72074b2e1f168caf8fa9698746e7891a"
+    }
+  ]
+}
