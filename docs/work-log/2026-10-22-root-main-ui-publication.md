@@ -6,7 +6,7 @@
 - Branch / worktree: codex/foxmind-entry-glass, isolated glass worktree; main is checked out separately in p4-p3-integration.
 - Starting commit: c6a4c08c94040ca6b115ce8b4899d532fcc82a6f; initial main/origin main1eb57002eec7200192fd8efa2c8b65e306554826.
 - Phase: local design delivery and explicit Git publication, not deployment.
-- Status: in_progress; the inclusion decision below is resolved, integration and final verification remain underway.
+- Status: completed for the authorized integration, verification and main publication; unrelated ongoing records remain ongoing.
 
 ## Authorized outcome and boundaries
 
@@ -65,3 +65,13 @@ Production build is safe in main: observed only one Next process2260, owned by g
 - CUA actual same-source browser smoke: expired session returned to the existing sign-in page; submitted the browser's already-filled existing credentials without reading/copying values, successful Inicio. Open/close join dialog without entry/submission restored focus to its trigger; mobile account menu navigated to Mis aulas; returned to Inicio. Account still0teaching/0study classrooms. No domain records created/modified/deleted, no data cleanup; ordinary login creates only its normal session. No complete stateful P3–P9 replay or blanket accessibility claim.
 
 During verification the other documentation task produced seven more reorganization-proposal artifacts under docs/audits/2026-10-22-reorganization-map. Snapshot hashes stabilized and were checked before staging. All JSON/CSV parsed, Python syntax compiled without execution,0high-confidence secret flags. They are preserved as an in-progress proposal snapshot, not a completed migration/verified plan. Its owning record stays in_progress and is not edited by this delivery task. No proposed move/copy/generator was executed by this task. Final publication record will name the observed commit and remote readback.
+
+## Observed publication and exact handoff
+
+Additional proposal snapshot commit6df71ce and coordinator reconciliationbddf191a4b319c37dcbdea0814eecae6afb91359 were observed. Normal `git push origin main` succeeded,1eb5700..bddf191. Subsequent `git rev-parse HEAD`, `git rev-parse origin/main` and `git ls-remote origin refs/heads/main` all matched that exact full SHA. Main was clean before push. No force, history rewrite, PR or deployment command.
+
+Roadmap preservation was additionally verified with explicit UTF-8:0removed/replaced documentary-baseline lines, complete glass appended checkpoints present. An earlier one-off comparison failed because Python's Windows default text encoding disagreed with Git UTF-8; the corrected read-only comparison passed and found no lost work. That diagnostic failure did not change source or statuses. Extra blank EOF housekeeping is the only alteration to original proposal text; all binaries unchanged.
+
+This passive closure records the already observed push and does not change product bytes. It is committed and pushed separately; final remote readback for the passive commit is reported in the delivery response, avoiding an invented self-commit hash. Earlier checkpoint/pending paragraphs are preserved as dated history, not current blockers. The unrelated reorganization-map record and historic P3/P4 preparations remain in_progress. Future work begins by inspecting their actual current state, not by executing the proposed migration or claiming acceptance from publication.
+
+Retained API/frontend and data remain running and unchanged; browser is left at Inicio. No retained-data cleanup, volume operation, secret/config read or deployment occurred. The previously denied external scratch/junction cleanup remains unperformed with no workaround; it is outside Git and not a missing source commit. Local .atl/.engram metadata remain excluded. No product task remains in this publication scope; future product/migration work requires its own explicit request.
