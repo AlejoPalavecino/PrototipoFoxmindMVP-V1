@@ -1,10 +1,10 @@
-/* Entry glass is scoped: academic page bodies keep their existing styles. */
+/* Entry compositions stay scoped; foundational colors are shared platform-wide. */
 .fm-navbar, .entry-page, .entry-home {
-  --entry-ink: #10113f;
-  --entry-muted: #505a86;
-  --entry-orange: #b94808;
+  --entry-ink: var(--fm-ink, #10113f);
+  --entry-muted: var(--fm-muted, #505a86);
+  --entry-orange: var(--fm-link, #b94808);
   --entry-line: #c3c6df;
-  font-family: 'Segoe UI', 'Trebuchet MS', Arial, sans-serif;
+  font-family: var(--fm-font-sans, 'Segoe UI', 'Trebuchet MS', Arial, sans-serif);
 }
 .fm-navbar {
   position: relative;

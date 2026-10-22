@@ -32,7 +32,7 @@ export default function Files() {
     <Head><title>Archivos privados | FoxMind</title><meta name="referrer" content="no-referrer" /></Head>
     <a className="skip-link" href="#main">Saltar al contenido</a>
     <AccountNavbar session={session} accountActions={session?.authenticated ? <div className="fm-profile-actions"><Link href="/profile">Mi perfil</Link><button disabled={busy} onClick={() => void logout()}>Cerrar sesión</button></div> : undefined} />
-    <main id="main" className="main profile-main">
+    <main id="main" className="main profile-main platform-files">
       <div className="page-heading"><div><h1>Archivos privados</h1><p>Plan y materiales del contexto actual.</p></div></div>
       {error ? <p role="alert">{error}</p> : null}
       <section className="surface">{context ? <PrivateFilePanel key={`${context.kind}:${context.id}:${context.purpose}`} context={context} onSessionChange={setSession} /> : <p>Abre los archivos desde un borrador o aula existente con su contexto completo.</p>}</section>

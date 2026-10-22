@@ -1,0 +1,211 @@
+/* Quiet academic surfaces extend the entry palette without its illustrated backdrop.
+   Keep this before entry-glass.css: entry compositions and navbar own their cascade. */
+.p5-app:not(.entry-home) {
+  background: var(--fm-pearl);
+  padding: 24px clamp(16px, 4.2vw, 60px) 64px;
+}
+.p5-app:not(.entry-home) > .p5-main { max-width: 1320px; }
+.p5-app :is(.p5-main, .p5-dialog), .platform-files { min-width: 0; }
+.p5-main :is(h1, h2, h3, h4, h5, legend), .p5-dialog :is(h2, h3, h4, h5, legend) { color: var(--fm-ink); overflow-wrap: anywhere; }
+.p5-main h3, .p5-dialog h3 { font-size: 1.15rem; font-weight: 750; line-height: 1.35; }
+.p5-main h4, .p5-dialog h4 { font-size: 1rem; font-weight: 700; line-height: 1.4; }
+.p5-main h5, .p5-dialog h5 { font-size: .9375rem; font-weight: 700; line-height: 1.4; }
+.p5-main :is(label, select, textarea), .p5-dialog :is(label, select, textarea) { color: var(--fm-ink); font: inherit; }
+.p5-main label, .p5-dialog label { font-weight: 650; min-width: 0; }
+.p5-main :is(.p5-fields, .p5-fields > *, .p5-page-head > *, .p5-section-head > *, .p5-room-head > *, .p5-topic > *, .p7-option > *) { min-width: 0; }
+.p5-main :is(.p5-page-head, .p5-section-head) :is(h1, h2) { letter-spacing: -.8px; }
+.p5-main :is(.p5-actions, .p5-form-footer) button, .p5-dialog button { white-space: normal; overflow-wrap: anywhere; max-width: 100%; }
+.p5-main a, .p5-dialog a { color: var(--fm-link); }
+.p5-main :is(button, input, select, textarea):focus-visible, .p5-dialog :focus-visible,
+.platform-files :focus-visible { outline: 3px solid var(--fm-focus); outline-offset: 3px; }
+
+/* A single control grammar, including controls that were previously browser-default. */
+.p5-main button, .p5-dialog button {
+  color: var(--fm-ink);
+  border-color: var(--fm-control-line);
+  border-radius: var(--fm-radius-control);
+  background: var(--fm-surface);
+}
+.p5-main button:hover:enabled, .p5-dialog button:hover:enabled { background: var(--fm-lavender-soft); }
+.p5-main button.primary, .p5-dialog button.primary {
+  color: var(--fm-ink);
+  background: var(--fm-accent);
+  border-color: var(--fm-link);
+  box-shadow: 0 5px 14px #d459001a, inset 0 1px 0 #ffd499;
+}
+.p5-main button.primary:hover:enabled, .p5-dialog button.primary:hover:enabled { background: var(--fm-accent-hover); }
+.p5-main :is(button, input, select, textarea):disabled, .p5-dialog :is(button, input, select, textarea):disabled,
+.platform-files :disabled { cursor: not-allowed; box-shadow: none; }
+.p5-main :is(input:not([type='radio']):not([type='checkbox']), select, textarea),
+.p5-dialog :is(input:not([type='radio']):not([type='checkbox']), select, textarea) {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 48px;
+  padding: 11px 14px;
+  border: 1px solid var(--fm-control-line);
+  border-radius: var(--fm-radius-control);
+  background: var(--fm-surface);
+  color: var(--fm-ink);
+  font: inherit;
+  line-height: 1.5;
+}
+.p5-main :is(input:not([type='radio']):not([type='checkbox']), select, textarea):disabled,
+.p5-dialog :is(input:not([type='radio']):not([type='checkbox']), select, textarea):disabled {
+  color: var(--fm-muted);
+  background: var(--fm-lavender-soft);
+  opacity: 1;
+}
+.p5-main textarea, .p5-dialog textarea { min-height: 120px; resize: vertical; }
+.p5-main :is(input, textarea)::placeholder, .p5-dialog :is(input, textarea)::placeholder { color: var(--fm-muted); opacity: 1; }
+.p5-main :is(input[type='checkbox'], input[type='radio']), .p5-dialog :is(input[type='checkbox'], input[type='radio']) {
+  width: 20px;
+  height: 20px;
+  min-height: 20px;
+  padding: 0;
+  flex: 0 0 20px;
+  margin: 0;
+  accent-color: var(--fm-focus);
+}
+.p5-main :is(.p7-check, .p7-choice), .p5-dialog :is(.p7-check, .p7-choice) {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  min-width: 0;
+  padding-block: 8px;
+}
+.p5-main input[type='file'], .p5-dialog input[type='file'], .platform-files input[type='file'] { height: auto; white-space: normal; overflow-wrap: anywhere; padding: 8px; }
+.p5-main input::file-selector-button, .p5-dialog input::file-selector-button, .platform-files input::file-selector-button {
+  min-height: 40px;
+  max-width: 100%;
+  margin-inline-end: 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--fm-control-line);
+  border-radius: 9px;
+  background: var(--fm-lavender-soft);
+  color: var(--fm-ink);
+  font: inherit;
+  white-space: normal;
+  cursor: pointer;
+}
+.p5-main [aria-invalid='true'], .p5-dialog [aria-invalid='true'], .platform-files [aria-invalid='true'] { border-color: var(--fm-error); }
+
+/* Outer context has more presence than the nested reading and editing surfaces. */
+.p5-app:not(.entry-home) .p5-card {
+  min-width: 0;
+  border-color: var(--fm-line);
+  border-radius: var(--fm-radius-card);
+  background: var(--fm-glass);
+  box-shadow: 0 8px 22px #28215a08;
+}
+.p5-app:not(.entry-home) .p5-card h3 { color: var(--fm-ink); font-weight: 750; }
+.p5-app:not(.entry-home) .p5-card > div { padding: 24px; }
+.p5-app:not(.entry-home) .p5-room-head {
+  padding: clamp(20px, 3vw, 32px);
+  border: 1px solid var(--fm-line);
+  border-radius: var(--fm-radius-panel);
+  background: var(--fm-glass);
+  box-shadow: var(--fm-shadow-panel);
+}
+.p5-app:not(.entry-home) .p5-room-head p { margin-bottom: 6px; }
+.p5-app:not(.entry-home) .p5-room-cover { border: 1px solid var(--fm-line); border-radius: 16px; }
+.p5-app:not(.entry-home) .p5-surface {
+  border-color: var(--fm-line);
+  border-radius: var(--fm-radius-panel);
+  background: var(--fm-glass);
+  box-shadow: var(--fm-shadow-panel);
+}
+.p5-main .p5-tabs { gap: 12px; padding: 4px 4px 0; border-color: var(--fm-line); }
+.p5-main .p5-tabs button { flex: 0 0 auto; border: 0; border-radius: 12px 12px 0 0; background: transparent; padding: 14px 16px; white-space: nowrap; }
+.p5-main .p5-tabs button[aria-current] { color: var(--fm-link); background: #fff5ec; box-shadow: inset 0 -3px var(--fm-link); }
+.p5-main .p5-tag { color: var(--fm-muted); background: var(--fm-lavender-soft); border-radius: 8px; }
+.p5-main .p5-avatar, .entry-profile .initials { background: var(--fm-lavender-soft); color: var(--fm-ink); }
+.p5-main .p5-empty { color: var(--fm-muted); border-color: var(--fm-control-line); background: var(--fm-surface); border-radius: 16px; }
+.p5-main :is(.p5-invitations, .p5-drop) { border-color: var(--fm-line); background: #fff8f1; }
+.p5-main .p5-drop { border-color: var(--fm-control-line); }
+.p5-main .p5-file { background: var(--fm-lavender-soft); }
+.p5-main .p5-drafts > button { border-color: var(--fm-line); background: var(--fm-surface); }
+.p5-main .p5-steps li span { background: var(--fm-lavender-soft); }
+.p5-main .p5-steps li.active { color: var(--fm-link); }
+.p5-main .p5-steps li.active span { background: var(--fm-accent); color: var(--fm-ink); }
+.p5-main .p5-covers label.selected { border-color: var(--fm-link); background: #fff5ec; }
+.p5-main .p5-covers label:focus-within { outline: 3px solid var(--fm-focus); outline-offset: 3px; }
+.p5-main .p5-unit { border-color: var(--fm-line); background: var(--fm-surface); border-radius: 16px; }
+.p5-main .p5-unit :is(form, fieldset), .p5-main section[aria-label='Plan de estudio'] > fieldset { display: grid; gap: 12px; margin-block: 16px; }
+.p5-main .p5-unit li { padding-block: 12px; overflow-wrap: anywhere; }
+.p5-main .p5-unit ul { padding-left: 22px; }
+.p5-main legend, .p5-dialog legend { font-weight: 700; margin-bottom: 10px; }
+
+/* Consistent inner panels preserve the established Plan, Library and Muro structure. */
+.p5-main :is(.p6-library-upload, .p6-library-list article, .p6-wall-threads > article,
+  .p7-activity-list > article, .p7-authoring, .p7-preview > article, .p7-question,
+  .p8-progress-metrics > section, .p8-progress-students > li, .p8-progress-activities > li),
+.p5-dialog :is(.p7-questionnaire fieldset, .p7-history-list > li, .p7-history-detail, .p8-grading article,
+  .p7-attachment-list li, .p7-submissions li) {
+  min-width: 0;
+  border-color: var(--fm-line);
+  border-radius: 16px;
+  background: var(--fm-surface);
+}
+.p5-main .p7-question { margin-block: 20px; }
+.p5-main .p7-question > label, .p5-main .p7-authoring > fieldset > label { margin-bottom: 16px; }
+.p5-main .p7-option { padding-block: 12px; border-top: 1px solid var(--fm-line); }
+.p5-main .p7-option > label:first-child { flex-basis: 16rem; }
+.p5-main .p6-wall-author > div { min-width: 0; overflow-wrap: anywhere; }
+.p5-main .p6-wall-replies { border-color: var(--fm-lavender); }
+.p5-main .p8-progress-value { color: var(--fm-ink); font-size: 1.5rem; letter-spacing: -.5px; }
+.p5-dialog .p8-grading, .p5-dialog .p8-result { border-color: var(--fm-line); }
+.p5-dialog :is(.p7-transfer-confirm, .p7-submit-confirm) { border-color: var(--fm-control-line); background: var(--fm-lavender-soft); }
+.p5-main .p5-notice, .p5-dialog .p5-notice { background: #fff5ec; border-color: #e3b38e; color: #7c360c; }
+.p5-main .p5-notice.error, .p5-dialog .p5-notice.error { background: var(--fm-error-soft); border-color: #e3acac; color: var(--fm-error); }
+
+/* Native dialog placement is explicit because the host reset removes UA margins. */
+.p5-dialog {
+  margin: auto;
+  min-width: 0;
+  max-width: min(560px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  border-color: var(--fm-line);
+  border-radius: var(--fm-radius-panel);
+  background: var(--fm-surface);
+  color: var(--fm-ink);
+  box-shadow: 0 24px 80px #10113f33;
+}
+.p5-dialog::backdrop { background: #10113f66; }
+.p5-dialog > header { min-width: 0; gap: 12px; }
+.p5-dialog > header h2 { min-width: 0; overflow-wrap: anywhere; font-size: 24px; }
+.p5-dialog .p5-close { flex: 0 0 44px; }
+.platform-files .verification-content { min-width: 0; margin-top: 28px; }
+.platform-files .verification-content h2 { overflow-wrap: anywhere; }
+.platform-files .page-heading p, .entry-profile .page-footer { color: var(--fm-muted); }
+
+@media (max-width: 600px) {
+  .p5-app:not(.entry-home) { padding: 16px 16px 40px; }
+  .p5-app:not(.entry-home) .p5-room-head, .p5-app:not(.entry-home) .p5-surface { padding: 22px 18px; border-radius: 22px; }
+  .p5-main .p5-tabs { gap: 4px; }
+  .p5-main .p5-tabs button { padding-inline: 12px; }
+  .p5-main :is(.p5-topic, .p5-form-footer) { flex-wrap: wrap; }
+  .p5-main .p5-topic label { flex-basis: 100%; }
+  .p5-main .p5-form-footer > *, .p5-dialog .p5-form-footer > * { min-width: 0; }
+  .p5-main .p5-unit { padding: 18px 14px; }
+  .p5-dialog { padding: 22px 18px; border-radius: 22px; }
+  .p5-dialog > header h2 { font-size: 22px; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .p5-app:not(.entry-home) :is(.p5-surface, .p5-room-head, .p5-card), .platform-files .surface { background: var(--fm-surface); backdrop-filter: none; }
+  .p5-dialog::backdrop { backdrop-filter: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .p5-main *, .p5-dialog * { transition: none !important; animation: none !important; }
+}
+@media (forced-colors: active) {
+  .p5-app:not(.entry-home) :is(.p5-surface, .p5-room-head, .p5-card), .p5-dialog, .platform-files .surface { background: Canvas; border-color: CanvasText; box-shadow: none; }
+  .p5-main :focus-visible, .p5-dialog :focus-visible, .platform-files :focus-visible { outline-color: Highlight; }
+  .p5-main .p5-tabs button[aria-current] { border-bottom: 3px solid Highlight; }
+  .p5-main :is(input, select, textarea, button), .p5-dialog :is(input, select, textarea, button) { border-color: ButtonText; }
+}
