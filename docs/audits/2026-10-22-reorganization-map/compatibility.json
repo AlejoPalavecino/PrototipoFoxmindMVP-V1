@@ -60,6 +60,19 @@
     "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
   },
   {
+    "old_path": "docs/entry-glass.md",
+    "canonical": "docs/engineering/design-system/entry-glass.md",
+    "old_ids": [
+      "account-forms",
+      "entry-glass-experience",
+      "inicio-and-styling",
+      "later-platform-extension-and-publication--2026-10-22",
+      "shared-navigation",
+      "verification"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
     "old_path": "docs/identity-http.md",
     "canonical": "docs/engineering/identity/identity-http.md",
     "old_ids": [

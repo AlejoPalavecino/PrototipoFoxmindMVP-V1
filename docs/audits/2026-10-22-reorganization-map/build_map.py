@@ -62,6 +62,7 @@ GROUPS = {
     'engineering/grading': 'p8-private-grading.md p8-publication.md p8-published-corrections.md p8-progress.md',
     'engineering/home': 'p9-home.md',
     'engineering/testing': 'p3-test-runtime.md p9-runtime-controls.md',
+    'engineering/design-system': 'entry-glass.md',
     'verification/p9': 'p9-joined-journeys.md p9-failure-recovery.md p9-verification-plan.md',
     'design': 'visual-reference-index.md',
 }
@@ -69,7 +70,7 @@ MOVES = {f'docs/{name}': f'docs/{folder}/{name}' for folder, names in GROUPS.ite
 
 
 def immutable(name):
-    return (name.startswith('docs/work-log/') and name != 'docs/work-log/README.md') or name.endswith('.json') or name in {
+    return (name.startswith('docs/work-log/') and name != 'docs/work-log/README.md') or name.startswith('docs/audits/') or name.endswith('.json') or name in {
         'docs/backend-verification.md', 'docs/database-verification.md', 'docs/dependency-security.md',
         'docs/p4-integration-handoff.md', 'docs/private-files.md', 'docs/classrooms.md'
     }
@@ -158,7 +159,8 @@ def main():
         same = name in sources and sha(p) == sha(sources[name])
         collision = name in sources and not same
         optional = p.resolve() in copy_sources
-        local_rows.append(dict(workspace='original-P3', source=name, sha256=sha(p), action='optional_copy_only_if_authorized' if optional else 'keep_external_no_import', proposed_main_destination=name if optional else '', collision='same_hash_existing' if same else 'different_hash_do_not_overwrite' if collision else 'no_main_counterpart', reason='Preservar original; misma profundidad para enlaces de familia/registro' if optional else 'No fusionar copias historicas con main; consulta local por registro y hash'))
+        existing_design = optional and name in sources
+        local_rows.append(dict(workspace='original-P3', source=name, sha256=sha(p), action='keep_existing_copy_compare_provenance_no_overwrite' if existing_design else 'optional_copy_only_if_authorized' if optional else 'keep_external_no_import', proposed_main_destination=name if optional else '', collision='same_hash_existing' if same else 'different_hash_do_not_overwrite' if collision else 'no_main_counterpart', reason='Ya existe copia en main; conservar ambas versiones y revisar diferencias sin fusion automatica' if existing_design else 'Preservar original; misma profundidad para enlaces de familia/registro' if optional else 'No fusionar copias historicas con main; consulta local por registro y hash'))
     brand_root = ORIGINAL.parent / 'archive/marca-original'
     for basename in ['Zorro.png', 'ZorroH.png']:
         p = brand_root / basename
@@ -167,7 +169,7 @@ def main():
     csv_out('local-preservation-map.csv', local_rows, ['workspace','source','sha256','action','proposed_main_destination','collision','reason'])
 
     # Scan a finite, secret-free set: current docs + tracked repository sources.
-    scan = {name: p for name, p in sources.items() if p.suffix.lower() in ['.md', '.json']}
+    scan = {name: p for name, p in sources.items() if p.suffix.lower() in ['.md', '.json', '.csv', '.py']}
     for name in tracked:
         p = ROOT / name
         if not name or not p.is_file() or p.name.startswith('.env'):
@@ -192,9 +194,13 @@ def main():
                 if not q.exists():
                     link_errors.append(dict(source=consumer,line=no,target=href))
                     continue
-                if not q.is_relative_to(ROOT) or rel(q) not in sources:
+                if not q.is_relative_to(ROOT):
                     continue
                 target = rel(q)
+                if target not in sources:
+                    # Links to odd/tasks, README, source/tests and directories
+                    # also need rebasing when the referring guide relocates.
+                    virtual_routes.add(target)
                 affected = consumer in MOVES or target in MOVES
                 effective = target if immutable(consumer) else future(target)
                 rewritten = href if immutable(consumer) else new_href(future(consumer), effective, u.fragment, u.query)
@@ -220,7 +226,7 @@ def main():
             for target in sorted(matches):
                 affected = consumer in MOVES or target in MOVES
                 comment = line.lstrip().startswith(('//','#','/*','*'))
-                kind = 'code_comment' if p.suffix != '.md' and comment else 'code_reference_review' if p.suffix != '.md' else 'literal_reference_review'
+                kind = 'artifact_literal_review' if consumer.startswith('docs/') and p.suffix in ['.json','.csv'] else 'code_comment' if p.suffix != '.md' and comment else 'code_reference_review' if p.suffix != '.md' else 'literal_reference_review'
                 action = 'retain_historical_literal_via_stub' if immutable(consumer) else 'manual_context_review_not_global_replace' if affected else 'keep'
                 consumers.append(dict(consumer=consumer,line=no,kind=kind,target=target,proposed_target=future(target),future_consumer=future(consumer),future_href='',affected=affected,action=action))
     csv_out('consumers.csv', consumers, ['consumer','line','kind','target','proposed_target','future_consumer','future_href','affected','action'])
@@ -253,10 +259,12 @@ def main():
         'reference_kinds': dict(collections.Counter(c['kind'] for c in consumers)),
         'affected_reference_rows': sum(c['affected'] for c in consumers),
         'affected_consumer_files': len({c['consumer'] for c in consumers if c['affected']}),
-        'non_markdown_references': [c for c in consumers if c['kind'] in ['code_comment','code_reference_review']],
+        'repository_code_references': [c for c in consumers if c['kind'] in ['code_comment','code_reference_review'] and c['consumer'].startswith(('tests/','scripts/','apps/'))],
         'current_link_errors': link_errors, 'virtual_link_errors': virtual_errors,
         'original_files': len(original_docs), 'local_design_files': len(list((ORIGINAL/'docs/design').rglob('*.*'))),
-        'optional_design_and_record_copies': len(copy_sources),
+        'design_dependency_closure_files': len(copy_sources),
+        'new_optional_design_and_record_copies': sum(not (ROOT/rel(p,ORIGINAL)).exists() for p in copy_sources),
+        'existing_design_files_to_keep': sum((ROOT/rel(p,ORIGINAL)).exists() for p in copy_sources),
         'optional_historical_record_dependencies': sorted(rel(p,ORIGINAL) for p in copy_sources if p.is_relative_to(ORIGINAL/'docs/work-log')),
         'optional_brand_asset_copies': 2, 'optional_copy_link_errors': optional_errors,
         'casefold_destination_collisions': 0, 'occupied_new_destinations': 0,
@@ -265,7 +273,7 @@ def main():
     }
     dump('checks.json', summary)
     assert not link_errors and not virtual_errors and not optional_errors, 'See checks.json; map not validated'
-    print(json.dumps(summary,ensure_ascii=False,indent=2))
+    print(json.dumps({k:v for k,v in summary.items() if k not in ['destination_groups','limitations']},ensure_ascii=False,indent=2))
 
 
 if __name__ == '__main__':
