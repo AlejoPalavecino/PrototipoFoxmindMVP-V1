@@ -1,6 +1,6 @@
 # P6 teaching organization
 
-P6 is completed and published to main via remotely confirmed merge8eee463, preserving accepted baseline a75deae. No P7 implementation or production deployment. [Tasks](../odd/tasks/p6-teaching.md), [coordinator](work-log/2026-10-18-root-p6-teaching.md).
+P6 is completed and published to main via remotely confirmed merge8eee463, preserving accepted baseline a75deae. That P6 slice did not implement P7; later P7–P9 acceptance is recorded in the [main roadmap](implementation-roadmap.md). No production deployment is claimed. [Tasks](../odd/tasks/p6-teaching.md), [coordinator](work-log/2026-10-18-root-p6-teaching.md).
 
 ## Plan transport and invariants
 

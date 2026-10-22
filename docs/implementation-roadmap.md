@@ -2,7 +2,20 @@
 
 **Resume here (2026-10-20): P9 is complete, independently verified locally and merged/pushed to main viae3a5e72, exact remote readback confirmed. No deployment was performed or authorized.** Read [final Sol/xhigh proof](work-log/2026-10-20-p9-final-independent-verify.md), [exact170-row ledger](p9-final-row-ledger.json), [publication record](work-log/2026-10-20-p9-main-publication.md) and [completed tasks](../odd/tasks/p9-local-validation.md). Hosting/numerical productionquota remain explicitly deferred; historical partial states below are not current blockers.
 
-P3's accepted twelve account/session operations, initial Next.js screens and real browser/API/SQL/captured-email journeys remain documented in [final verification](work-log/2026-10-17-p3-verify-final.md), [coordinator](work-log/2026-10-17-id-unavailable-p3-completion.md), [tasks](../odd/tasks/p3-completion.md) and [web guide](p3-web.md). Historical backend99/control39/browser10/live web16 and strict builds/audit0/cleanup0 are evidence for that accepted checkpoint, not fresh results for the P4 candidate.
+P3's accepted twelve account/session operations, initial Next.js screens and real browser/API/SQL/captured-email journeys remain documented in [final verification](work-log/2026-10-17-p3-verify-final.md), [coordinator](work-log/2026-10-17-id-unavailable-p3-completion.md), [tasks](../odd/tasks/p3-completion.md) and [web guide](p3-web.md). Historical backend99/control39/browser10/live web16 and strict builds/audit0/cleanup0 are evidence for that accepted checkpoint, not fresh results for this documentation change or later candidates.
+
+## Current documentation scope
+
+**Base reconciled on 2026-10-22: `main`, starting HEAD `1eb57002eec7200192fd8efa2c8b65e306554826`.** The user selected this base for documentation indexing and contradictory-status corrections only. Read the [documentation index](README.md) and [stage record](work-log/2026-10-22-root-docs-stage1.md). Original local designs and historical records remain in place; no file migration, new product implementation, service execution, commit or publication is authorized by this stage.
+
+| View | Recorded state / next decision |
+|---|---|
+| Completed product | P0–P9 local V1, at the dated accepted candidates below; P9 publication is historical evidence, not a fresh remote check by this edit |
+| Documentation maintenance | Index and state reconciliation in this stage; observed outcome and handoff belong to its work record |
+| Design follow-up | Local proposals and separate glass worktree retain their own selection/verification state; consult the [design registry](design/README.md), not a phase-completion assumption |
+| Deferred / not authorized here | File reorganization, further implementation, hosting/deployment, real pilot/data operations and new publication require a later explicit scope |
+
+The dated P3–P9 scope notes below explain past execution. They are not today's instructions or reusable consent. No old failed check is converted to PASS. Historical test counts and native dispositions stay candidate-scoped.
 
 ## Historical checkpoints (superseded execution status)
 
@@ -10,15 +23,15 @@ The following dated preparation failures and decision holds remain historical ev
 
 Last reconciled:2026-10-16. T3-V parent actual build/72PASS and independent fresh build/41PASS with reported actual cleanup0, no blocker. Local F404a94a, proofc81b810, core2fecee9 and orchestration769db2f; checkpoint metadata closure is being recorded. Native assessment unavailable/package-local-binary-missing, not approved or waived. Historical T2 closure2c1b4df parent56/independent33 and its human-selected natively-unreviewed disposition retain their own scope; no RDD switch change/future waiver. Earlier foundation/P3.1/P3.2 dispositions unchanged.
 
-**Current blocker:** recovery candidate passed parent88/actual build0, but its independent verifier stopped at preparation exit1 on an invented minimum declaration-file assertion. All five assigned checks remain unrun; no application failure or independent acceptance was established. [Attributed partial report](work-log/2026-10-16-mvbovr28-p33-recovery-verification.md), [current coordinator/handoff](work-log/2026-10-16-01a14539-p33-recovery.md). Await explicit human disposition before any preflight correction/verification; accepted checkpoint stays nine, P3 is not complete, source/tests remain frozen.
+**Historical P3 blocker (subsequently resolved):** recovery candidate passed parent88/actual build0, but its independent verifier stopped at preparation exit1 on an invented minimum declaration-file assertion. All five assigned checks remain unrun; no application failure or independent acceptance was established. [Attributed partial report](work-log/2026-10-16-mvbovr28-p33-recovery-verification.md), [current coordinator/handoff](work-log/2026-10-16-01a14539-p33-recovery.md). Await explicit human disposition before any preflight correction/verification; accepted checkpoint stays nine, P3 is not complete, source/tests remain frozen.
 
 **2026-10-17 superseding handoff:** user authorized correcting preparation and closing P3 only, without integrating P4/P5. Preparation now passed88-file inventory/hash equality, including zero actual declaration files. First independent pure check failed14PASS/1FAIL on a synthetic child null exit with a2000ms helper timeout; real build and three recovery groups remain unrun. [Current attributed report](work-log/2026-10-17-recovery-verify.md), [current coordinator](work-log/2026-10-17-id-unavailable-p3-completion.md). Await bounded synthetic-deadline correction disposition under the newly supplied AGENTS failure policy. Accepted checkpoint remains nine; no runtime recovery acceptance or P3 closure. The earlier preparation failure above is historical and resolved by the new preparation, not erased.
 
-**Latest 2026-10-17 update:** user approved synthetic2000→5000ms only. Fresh90-file snapshot passed and targeted synthetic recheck1PASS. The following real build failed during Prisma generation (exit1/30156ms, `Prisma generation: exit unavailable`, no stderr or TypeScript); recovery groups remain unrun. [Latest independent report](work-log/2026-10-17-recovery-recheck.md). P3 remains blocked on unavailable build proof pending a bounded diagnostic decision; no automatic retry/budget increase. Native review is now observed off/global, disabled/unmanaged. No P4/P5 integration.
+**Historical 2026-10-17 update:** user approved synthetic2000→5000ms only. Fresh90-file snapshot passed and targeted synthetic recheck1PASS. The following real build failed during Prisma generation (exit1/30156ms, `Prisma generation: exit unavailable`, no stderr or TypeScript); recovery groups remain unrun. [Latest independent report](work-log/2026-10-17-recovery-recheck.md). P3 remains blocked on unavailable build proof pending a bounded diagnostic decision; no automatic retry/budget increase. Native review is now observed off/global, disabled/unmanaged. No P4/P5 integration.
 
 Authorized diagnostic subsequently confirmed ETIMEDOUT/SIGTERM at30035ms, within the unchanged configured30s ceiling. Trace stops while loading the Prisma config module; underlying cause is unproven. [Diagnostic/handoff](work-log/2026-10-17-prisma-startup-diagnostic.md). No source fix, new timeout or runtime acceptance; next proposed diagnostic isolates module loading without generation.
 
-Current objective is **close P3 and stop** (user: "Bueno tu nuevo objetivo es cerrar P3 y terminar ahi"). P4 is outside this task. Necessary safe P3 decisions remain limited to session01a14539-ab7b-77dc-8eee-546a8c3dd168: [scope/tasks](../odd/tasks/p3-completion.md). No future-session, publication, destructive-data, sensitive-file or native-consent authority is inferred. Original P3.3 feature/coordinator records remain unchanged under separate historical document-only authority; use the linked current companion records rather than their older T2 state.
+The historical objective for that P3 session was **close P3 and stop** (user: "Bueno tu nuevo objetivo es cerrar P3 y terminar ahi"). P4 is outside this task. Necessary safe P3 decisions remain limited to session01a14539-ab7b-77dc-8eee-546a8c3dd168: [scope/tasks](../odd/tasks/p3-completion.md). No future-session, publication, destructive-data, sensitive-file or native-consent authority is inferred. Original P3.3 feature/coordinator records remain unchanged under separate historical document-only authority; use the linked current companion records rather than their older T2 state.
 
 ## Read and reconcile before continuing
 
@@ -46,12 +59,12 @@ The specification's original "completion boundary" describes its earlier documen
 | P0 | Product and visual definition | completed | V1 rules and22decisions closed;29local visual references reviewed. |
 | P1 | Architecture and data model | completed | Next.js/React/TypeScript UI, modular NestJS backend, PostgreSQL/Prisma, private S3-compatible files; relational dictionary agreed. |
 | P2 | Technical foundations | completed |33-table schema,3migrations, local PostgreSQL definition, minimal NestJS/Prisma server, health/lifecycle tests and dependency remediation. Not all supporting services or product APIs. |
-| P3 | Identity/access and initial web foundation | completed | Accepted baseline`5e86d1e`: twelve operations, actual Next screens and independent account/browser evidence; preserve while integrating P4. |
+| P3 | Identity/access and initial web foundation | completed | Accepted baseline`5e86d1e`: twelve operations, actual Next screens and independent account/browser evidence; retained as the integrated baseline for later phases. |
 | P4 | Private file infrastructure | completed | Real P3 session/CSRF and web binary connections, private S3/validation/scan/quarantine/quotas, authorized retrieval and persistent restart independently verified; [proof](work-log/2026-10-18-p4-verify-final.md). |
 | P5 | Classrooms and enrollment | completed | Creation/drafts, required plan/units/topics, invitations/codes, classroom-scoped roles, membership history and archive lifecycle. Requires P3/P4. |
 | P6 | Teaching plan, Library and Muro | completed | Actual scoped Plan/Library/Muro and notifications, durable files/restarts, populated migration upgrade and independent mobile correction verified and published to main (merge8eee463). |
 | P7 | Activities, attempts and submissions | completed | Independent whole-feature and bounded B1 evidence accepted; source0ec37c7/final fixtured9cdf06; published to main via remotely confirmed merge8e4fd2e. |
-| P8 | Grading and follow-up | completed | Exact private scoring, publication/results, audited correction and current/historical progress independently accepted on8cb4ee3 plus targeted feedback1; published via remotely confirmed merge d2a7909. No P9. |
+| P8 | Grading and follow-up | completed | Exact private scoring, publication/results, audited correction and current/historical progress independently accepted on8cb4ee3 plus targeted feedback1; published via remotely confirmed merge d2a7909. Later P9 acceptance is recorded separately. |
 | P9 | Integrated local validation | completed | Complete local V1 independently verified over53a7986; productcandidate98fd12d, exact170rowledger, bounded correction/recheck consumed. No deployment; mergee3a5e72 pushed to main with exact remote readback. |
 
 Statuses: `not_started`, `in_progress`, `blocked`, `completed`. A blocked phase names the external decision/proof it awaits. Dropped or superseded tasks remain recorded as such; they never count as completed.
@@ -65,7 +78,7 @@ Statuses: `not_started`, `in_progress`, `blocked`, `completed`. A blocked phase 
 | Minimal NestJS backend | [Backend task record](../odd/tasks/backend-foundation.md), [operations](backend.md), [verification](backend-verification.md); implementation`766f342`, evidence`3da7bde`. |
 | Dependency alert remediation | [Security evidence](dependency-security.md); implementation`917bb39`, evidence`1c08fa3`. |
 
-Last verified baseline: full npm audit0known vulnerabilities;8dependency regressions,7HTTP/backend contracts and38database contracts PASS, plus build, migration replay/status/drift and Prisma smoke. These are previously observed results, not checks rerun by this documentation change. Dependency remediation also received independent verification and acknowledged native approval; earlier foundation review dispositions remain recorded separately, not retrospectively changed.
+Historical foundation baseline: full npm audit0known vulnerabilities;8dependency regressions,7HTTP/backend contracts and38database contracts PASS, plus build, migration replay/status/drift and Prisma smoke. These are previously observed results, not checks rerun by this documentation change. Dependency remediation also received independent verification and acknowledged native approval; earlier foundation review dispositions remain recorded separately, not retrospectively changed.
 
 ### Historical P5 checkpoint boundaries (superseded by completed phase table)
 
@@ -78,6 +91,8 @@ Last verified baseline: full npm audit0known vulnerabilities;8dependency regress
 Do not equate tables with working features, healthy connectivity with migration/domain correctness, or a clean audit with exhaustive security/production readiness. Framework close is tested; Windows signal-driven graceful shutdown remains unproven. Other non-blocking coverage limits are retained in the verification documents.
 
 ## Execution approach
+
+The following phase descriptions preserve requirements and exit conditions. Their current completion status comes from the phase table and linked acceptance records, not from their original future-tense wording.
 
 Implement vertical slices where applicable: API contract and server behavior, matching web screens, then public-interface tests. Do not defer all UI work until the whole backend is finished. Start the Next.js shell during P3; evolve it with each module and the approved visual references.
 
@@ -159,32 +174,44 @@ T2 historical parent56/independent33 and current T3-V parent72/independent41/act
 
 ## Deferred decisions and non-goals
 
-Hosting/provider/budget/production quotas/deployment topology remain deferred until local validation. AI is outside V1. Do not introduce microservices, Redis, WebSockets or other infrastructure without a demonstrated need and the applicable decision. No push/PR/release is implied by a phase status, roadmap entry or completed work log.
+Hosting/provider/budget/production quotas/deployment topology remain deferred before any deployment; accepted local V1 validation did not select them. AI is outside V1. Do not introduce microservices, Redis, WebSockets or other infrastructure without a demonstrated need and the applicable decision. No push/PR/release is implied by a phase status, roadmap entry or completed work log.
 
-## Current P7 authorization (2026-10-18)
+<a id="current-p7-authorization-2026-10-18"></a>
+
+## Historical P7 authorization (2026-10-18)
 
 Full P7 implementation and verified main merge/push are now explicitly authorized: [tasks](../odd/tasks/p7-activities.md), [coordinator](work-log/2026-10-18-root-p7-activities.md). P7 implementation, independent acceptance and authorized main merge/push are complete (merge8e4fd2e, remote confirmed). No P8 or deployment authorization. Earlier STOP-before-P7 statements are historical scope, superseded only for this explicitly requested P7. P3–P6 acceptance and original dirty checkout remain preserved.
 
-## Current P8 authorization (2026-10-18)
+<a id="current-p8-authorization-2026-10-18"></a>
+
+## Historical P8 authorization (2026-10-18)
 
 Full P8 implementation and verified main merge/push are now explicitly authorized: [tasks](../odd/tasks/p8-grading.md), [coordinator](work-log/2026-10-18-root-p8-grading.md). The first confirmed submission determines on-time/late classification; resubmissions remain in history. Previous STOP-before-P8 statements describe the accepted P7 checkpoint and are superseded only for this explicit P8 work. No P9, deployment or retained-data changes.
 
-## P8 final verification (2026-10-19)
+<a id="p8-final-verification-2026-10-19"></a>
 
-P8 exit conditions are satisfied: exact scoring/private correction, explicit publication and safe own results, effective replacement, teacher-only audited published correction, current/historical individual/class progress, first-confirmed punctuality and grade notifications. Existing P3-P7 screens and behavior remain connected. [Independent record](work-log/2026-10-18-p8-independent-verify.md) retains per-spec acceptance, provenance and historical failures/advisories. Shared30/180/330-360s budgets unchanged; final targeted proof1 did not rebuild/repeat the full suite. Authorized merge/push remains separate until exact remote readback. P9 not started; deployment not authorized.
-## P8 publication (2026-10-19)
+## Historical P8 final verification (2026-10-19)
 
-Authorized main merge d2a7909aa5d65d13d655d2b8932d6a478b19f9eb was pushed without force; exact remote ref and local HEAD matched. Verified product tree is unchanged. Passive publication-record updates may follow that merge. All P8 tasks are complete; P9 remains not_started and requires new authorization.
+P8 exit conditions are satisfied: exact scoring/private correction, explicit publication and safe own results, effective replacement, teacher-only audited published correction, current/historical individual/class progress, first-confirmed punctuality and grade notifications. Existing P3-P7 screens and behavior remain connected. [Independent record](work-log/2026-10-18-p8-independent-verify.md) retains per-spec acceptance, provenance and historical failures/advisories. Shared30/180/330-360s budgets unchanged; final targeted proof1 did not rebuild/repeat the full suite. Authorized merge/push remains separate until exact remote readback. At that P8 checkpoint P9 had not started; the later P9 closure below supersedes that execution state. Deployment was not authorized.
+<a id="p8-publication-2026-10-19"></a>
+
+## Historical P8 publication (2026-10-19)
+
+Authorized main merge d2a7909aa5d65d13d655d2b8932d6a478b19f9eb was pushed without force; exact remote ref and local HEAD matched. Verified product tree is unchanged. Passive publication-record updates may follow that merge. All P8 tasks were complete at that checkpoint; P9 was then not_started. Later P9 authorization, acceptance and publication are recorded below, not inferred from P8.
 
 
-## Current P9 authorization (2026-10-19)
+<a id="current-p9-authorization-2026-10-19"></a>
 
-User explicitly authorizes complete P9 in the reviewed order, Verify gpt-6.1-sol/xhigh, decisions in Engram and main merge/push only after acceptance; no deployment. [Tasks](../odd/tasks/p9-local-validation.md), [170-row acceptance matrix](p9-acceptance-matrix.md) and [coordinator](work-log/2026-10-19-root-p9-local-validation.md). Accepted P3-P8 and original dirty checkout remain preserved. Earlier STOP-before-P9 statements are historical and superseded only by this request. P9 is in progress, not accepted; no runtime proof is inferred from static matrix links.
+## Historical P9 authorization (2026-10-19)
+
+User explicitly authorizes complete P9 in the reviewed order, Verify gpt-6.1-sol/xhigh, decisions in Engram and main merge/push only after acceptance; no deployment. [Tasks](../odd/tasks/p9-local-validation.md), [170-row acceptance matrix](p9-acceptance-matrix.md) and [coordinator](work-log/2026-10-19-root-p9-local-validation.md). Accepted P3-P8 and original dirty checkout remain preserved. Earlier STOP-before-P9 statements are historical and superseded only by this request. At this historical authorization checkpoint P9 was in progress, not accepted; the later final acceptance supersedes that execution state. Static matrix links alone were not runtime proof.
 
 
-## P9 finite verification checkpoint (2026-10-20)
+<a id="p9-finite-verification-checkpoint-2026-10-20"></a>
 
-P9 own implementation/recovery/capacity and local guide preparation are committed through98fd12d; SMTP naturalretry/capturedrecipient own proof passed after Docker restoration. [Independent Sol/xhigh record](work-log/2026-10-20-p9-finite-independent-verify.md) reports fresh bounded builds/units/differentials and immutable/retained evidence passed, but mandatory active Home setup failed at secondaccount capturedverification; downstream independent probes were not launched. P9 remains in_progress/not accepted, no mainmergepush or deployment. One missing-proof decision is required; no demonstrated productfix or automatic retry/full sweep/limit expansion. Historical earlier checkpoint claims remain attributed.
+## Historical P9 finite verification checkpoint (2026-10-20)
+
+P9 own implementation/recovery/capacity and local guide preparation are committed through98fd12d; SMTP naturalretry/capturedrecipient own proof passed after Docker restoration. [Independent Sol/xhigh record](work-log/2026-10-20-p9-finite-independent-verify.md) reports fresh bounded builds/units/differentials and immutable/retained evidence passed, but mandatory active Home setup failed at secondaccount capturedverification; downstream independent probes were not launched. At this historical finite checkpoint P9 remained in_progress/not accepted, without mainmergepush or deployment; the later final report and publication below supersede that state. One missing-proof decision is required; no demonstrated productfix or automatic retry/full sweep/limit expansion. Historical earlier checkpoint claims remain attributed.
 
 
 ## P9 final local acceptance (2026-10-20)

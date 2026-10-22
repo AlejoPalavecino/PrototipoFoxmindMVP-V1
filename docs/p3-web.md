@@ -1,6 +1,6 @@
 # Local account web
 
-The P3 web is a Next.js Pages Router app in `apps/web`, with React/TypeScript, Tailwind CSS and customized shadcn-style native button/input/label primitives. It provides the complete account UI without classroom or file integration.
+The P3 web is a Next.js Pages Router app in `apps/web`, with React/TypeScript, Tailwind CSS and customized shadcn-style native button/input/label primitives. It provides the account UI; later [file web integration](p4-web.md), [classroom web integration](p5-web.md) and [Inicio](p9-home.md) are documented separately and already present on main.
 
 ## Run locally
 
@@ -66,4 +66,4 @@ Profile layout follows the supplied profile image's pale background, rounded top
 
 ## Accepted local P3 checkpoint
 
-[Independent full verification](work-log/2026-10-17-p3-verify-final.md): actual API/Next builds0, real browser10PASS with SQL/captured mail/restart/reuse/expiry/revocation, live web16PASS, strict types0, owned resource cleanup0. Coordinator inspected settled320/375/1280px forms with visible keyboard focus. Earlier failures remain attributed. No P4/P5 integration or production deployment.
+[Independent full verification](work-log/2026-10-17-p3-verify-final.md): actual API/Next builds0, real browser10PASS with SQL/captured mail/restart/reuse/expiry/revocation, live web16PASS, strict types0, owned resource cleanup0. Coordinator inspected settled320/375/1280px forms with visible keyboard focus. Earlier failures remain attributed. P4/P5 were outside that P3 proof; their later acceptance is recorded in the [main roadmap](implementation-roadmap.md). No production deployment is claimed.

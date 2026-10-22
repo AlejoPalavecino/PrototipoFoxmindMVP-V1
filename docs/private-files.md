@@ -1,6 +1,6 @@
 # Private files — isolated P4 implementation
 
-P4's isolated implementation and native review are complete in the managed `foxmind-p4-files` worktree on `codex/p4-private-files`, from base `33fd80f`. The original checkout continues P3. Start with the [deferred integration handoff](p4-integration-handoff.md) after P3 closes. Integration remains deferred; this worktree contains no copied uncommitted P3 authentication candidate.
+**Historical isolated P4 checkpoint:** this guide preserves the policy and proof from `codex/p4-private-files`, base `33fd80f`. The later [P3/P4 integration](p4-integration.md) is accepted on main; P5 and subsequent V1 acceptance are in the [roadmap](implementation-roadmap.md). The [old handoff](p4-integration-handoff.md) describes the earlier waiting state, not a current integration blocker. Isolated native dispositions remain candidate-scoped.
 
 ## Implemented policy boundary
 

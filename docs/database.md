@@ -1,6 +1,6 @@
 # Run and verify the FoxMind database
 
-The approved V1 model is implemented as a PostgreSQL schema and versioned Prisma migrations. This is a database foundation, not a running FoxMind application: API permissions, authentication flows, file scanning, academic workflows and UI are not implemented yet.
+The approved V1 model is implemented as a PostgreSQL schema and versioned Prisma migrations. This guide covers the database layer, not whole-application acceptance. Accounts, private files and academic web workflows were subsequently integrated; consult the [main roadmap](implementation-roadmap.md) and [local operation guide](p9-local-operation.md). Database contracts alone do not prove API permissions or user journeys.
 
 ## Quick path
 
@@ -99,9 +99,11 @@ The `is_published`, `effective_grade_published` and `published_marker` fields su
 
 Enrollment survives departure. MembershipPeriod records actual entry/exit periods. StudentActivity records the student's obligation separately from attempts. Attempt stores submission receipt and the applied deadline/timeliness snapshot, so later deadline extensions need not rewrite history. Explicit foreign keys restrict destructive deletion of referenced academic records.
 
-Published activity content is not copied into every attempt: the approved content-lock policy makes its identity stable. The future backend must enforce that lock transactionally.
+Published activity content is not copied into every attempt: the approved content-lock policy makes its identity stable. The backend, not the schema alone, must enforce that lock transactionally.
 
-## Rules reserved for the backend
+<a id="rules-reserved-for-the-backend"></a>
+
+## Responsibilities enforced above the database
 
 These are required by the functional specification but **not provided by this schema or its tests**:
 

@@ -11,7 +11,7 @@ Call `readIdentityConfiguration(providedEnv, actualApiListenHost)` and await
 `createPasswordService(capacity)` **once per identity-module instance**, before
 accepting traffic. Reuse that password service for every credential operation.
 Neither function reads `process.env`. Identity startup must abort on failure;
-the existing health-only app is not wired to these functions yet.
+the integrated identity runtime already composes these primitives; see [startup](identity-http.md#startup-without-environment-files) and [P3 acceptance](work-log/2026-10-17-p3-verify-final.md). Passive imports do not replace startup validation.
 
 | Supplied setting | Accepted value |
 | --- | --- |
@@ -126,7 +126,7 @@ protocol constants, and does not regenerate Prisma or compile other writers.
 Tests use the public compiled index, with locally measured two-hash timing (not
 upstream benchmark claims). This verifies primitives only, not HTTP/auth journeys.
 
-Future HTTP/domain work must authenticate before CSRF validation (including
+HTTP/domain integration must authenticate before CSRF validation (including
 otherwise-public mutations with a valid session), enforce strict Origin for all
 mutations, atomically persist digests and fixed token TTL/single-use state,
 serialize per-user credential changes, recheck stale credential snapshots after

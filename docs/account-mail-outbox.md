@@ -1,6 +1,6 @@
 # Encrypted account-mail outbox (P3.3 T1)
 
-This is a library, not an HTTP endpoint or scheduled worker. It implements the encrypted durable-mail foundation of [S4–S7](../odd/tasks/p33-accounts-auth.md). It does not issue/consume account tokens, verify accounts, implement abuse controls or claim user delivery. Future AuthModule integration remains required.
+This is a library, not an HTTP endpoint or scheduled worker. It implements the encrypted durable-mail foundation of [S4–S7](../odd/tasks/p33-accounts-auth.md). It does not issue/consume account tokens, verify accounts, implement abuse controls or claim user delivery. The identity runtime now owns scheduling, transactional enqueue/cancel and shutdown; see [live integration](registration-profile.md#live-worker-ownership-and-shutdown) and [full P3 proof](work-log/2026-10-17-p3-verify-final.md). This library boundary does not itself claim those journeys.
 
 ## Public boundary
 
@@ -27,7 +27,9 @@ Envelopes have version `v:1`, `keyId`, a fresh 12-byte random nonce, ciphertext 
 
 The job stores only versioned association metadata and its envelope: no plaintext token, recipient or link. The worker loads immutable `User.email` through the active token association, preserving delivery spelling. Account-token digest is SHA-256 of the parent-owned `ACCOUNT_TOKEN_DIGEST_DOMAIN`, NUL, stored purpose, NUL, raw canonical verifier. This unit has no runtime dependency on identity-security or the mail implementation.
 
-## Future HTTP/domain integration
+<a id="future-httpdomain-integration"></a>
+
+## HTTP/domain integration responsibilities
 
 1. Validate key configuration during identity startup, before enabling identity routes. Map `OUTBOX_CONFIG_INVALID`, `OUTBOX_KEY_UNAVAILABLE` and `OUTBOX_STORAGE_UNAVAILABLE` to fail-closed identity availability handling; never echo their causes or supplied values.
 2. In a single caller-owned Prisma transaction, lock the affected user before token/job rows, create/update the token and successful issuance cooldown, then call `enqueueAccountMail`. The helper also obtains the user mutation lock and checks active token ID/user/purpose/digest/exact expiry before insertion. It never starts or commits a transaction. Parent integration must derive every new `email_normalized` and retain the unique index. No migration or existing-data rewrite is needed here.

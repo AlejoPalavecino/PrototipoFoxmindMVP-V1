@@ -1,6 +1,8 @@
-# P4 — Integración pendiente del cierre de P3
+<a id="p4--integración-pendiente-del-cierre-de-p3"></a>
 
-P4 está preparada y validada como implementación aislada en `codex/p4-private-files`. Conservar este worktree hasta integrar. El siguiente paso es **esperar el cierre verificado de P3**; después, reconciliar ambas ramas y conectar los contratos descritos aquí. Este documento no ejecuta ni autoriza esa integración.
+# P4 — Handoff histórico previo a la integración
+
+**Handoff histórico previo a la integración.** P4 estaba validada de forma aislada y esperaba el cierre de P3 cuando se preparó esta guía. La posterior [integración aceptada](p4-integration.md) y el [roadmap de main](implementation-roadmap.md) sustituyen ese estado de espera. Se conservan referencias, instrucciones y resultados históricos para trazabilidad; no se solicita repetir la integración ni se amplía autorización.
 
 | Referencia congelada | Evidencia |
 |---|---|
@@ -11,7 +13,7 @@ P4 está preparada y validada como implementación aislada en `codex/p4-private-
 | Persistencia y limpieza observadas | Seis migraciones, drift0, limpieza de recursos propios exit0; servicios P4 detenidos y volúmenes conservados |
 | Revisión | Rechecks independientes y once disposiciones nativas reconocidas; cuatro advertencias corregidas, sin hallazgos pendientes de esas revisiones |
 
-La [evidencia nativa](work-log/2026-10-16-id-unavailable-p4-native-review.md) distingue revisión estática, pruebas del coordinador, fallos históricos y límites. Las 68 comprobaciones no prueban integración con la aplicación ni ausencia absoluta de errores. La fase completa sigue `in_progress` hasta su aceptación integrada.
+La [evidencia nativa](work-log/2026-10-16-id-unavailable-p4-native-review.md) distingue revisión estática, pruebas del coordinador, fallos históricos y límites. Las 68 comprobaciones no prueban integración con la aplicación ni ausencia absoluta de errores. En aquel checkpoint la fase completa seguía `in_progress` hasta la aceptación integrada, posteriormente documentada en la guía enlazada arriba.
 
 ## 1. Recuperar el contexto correcto
 

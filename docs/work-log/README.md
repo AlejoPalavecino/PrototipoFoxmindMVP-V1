@@ -53,9 +53,11 @@ Include an interruption/decision timeline if needed. Do not rewrite another agen
 
 No passwords, access tokens, credential-bearing connection URLs, raw private prompts or student personal data belong in these records. Record useful errors with secrets redacted. The protocol is a project instruction, not runtime enforcement of every possible external agent; the coordinator verifies compliance before closing work.
 
-## Current records
+<a id="current-records"></a>
 
-Records are discovered by listing this directory; no shared index append is required from every child. The coordinator may add durable links from the roadmap for important checkpoints.
+## Selected historical records
+
+This is a selected historical list, not an active-task board. Use the [documentation index](../README.md) and [roadmap](../implementation-roadmap.md) for current phase evidence. Records are discovered by listing this directory; no shared index append is required from every child. The coordinator may add durable links from the roadmap for important checkpoints.
 
 - [P3.3 — Independent mailbox verification](2026-10-15-mva54ep8-p33-mail-review.md).
 - [P3.3 — Independent security-primitives verification](2026-10-15-mva54ev3-p33-security-review.md).

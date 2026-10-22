@@ -4,6 +4,8 @@ FoxMind is a locally runnable educational application: Next.js/React web, NestJS
 
 ## Start here
 
+- [Documentation index — product, guides, evidence and local designs](docs/README.md).
+
 - [Current roadmap and exact next work](docs/implementation-roadmap.md).
 - [Local operation and synthetic pilot preparation](docs/p9-local-operation.md): prerequisites, environment ownership, startup, actual user flows, recovery and boundaries.
 - [Full 170-row V1 acceptance matrix](docs/p9-acceptance-matrix.md) and [finite independent verification plan](docs/p9-verification-plan.md): distinguish inherited acceptance, scoped own proof and final independent local acceptance.

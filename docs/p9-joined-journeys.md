@@ -2,7 +2,11 @@
 
 Six independent disposable fixtures join actual verified P3 accounts and captured mail to P4-P8 classroom, file, activity and grade behavior. These are own-proof fixtures, not independent whole-P9 acceptance. Product source, production policies and the shared100000000-byte integration default are unchanged.
 
-## Current authorized run order
+**Accepted status:** [final P9 independent proof](work-log/2026-10-20-p9-final-independent-verify.md), [exact ledger](p9-final-row-ledger.json) and the [main roadmap](implementation-roadmap.md) supersede the partial execution states below. The dated diagnostics, one-shot authorizations and failed/pending observations are preserved history, not current run instructions or permission to retry.
+
+<a id="current-authorized-run-order"></a>
+
+## Historical authorized run order
 
 Use the existing successfully built API and production Next output, local Docker engine and exact pinned local images. Do not rebuild, install or pull for these product-unchanged fixtures. Each command has test330s and child360s limits; stop on the first failure. Do not automatically repeat accepted bodies or enlarge limits.
 
@@ -45,7 +49,9 @@ The academic rejection hash includes the union of existing P6 records and P7/P8 
 
 Each runtime restores and destroys only its owned disposable services in finally. External scratch and failure screenshots/logs remain for the coordinator; no recursive scratch deletion. The development Mailpit volume and original dirty checkout are never used. See [the attributed execution record](work-log/2026-10-19-p9-joined-journeys-worker.md) and [170-row acceptance matrix](p9-acceptance-matrix.md) for observed versus pending evidence.
 
-## Current execution status
+<a id="current-execution-status"></a>
+
+## Historical execution status (superseded by final P9 acceptance)
 
 Helper deterministic tests5PASS after observed RED and the JSON/binary regression; all8MJS syntax and10new-file whitespace/endings checks passed. First teaching exit1/35852ms hit the new accessor's JSON-only assumption. Its single corrected targeted recheck resolved that blocker and passed original-plan download/hash plus real second-plan version assertions, then exit1/48817ms on a NEW first Plan-selection response wait (12s). The screenshot shows teacher Plan/Pendiente, no application alert. Source label/value/POST route and wait predicate match; causality is unknown because request/selected-value evidence was not captured. No product defect is proven.
 

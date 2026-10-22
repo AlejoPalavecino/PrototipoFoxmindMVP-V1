@@ -1,14 +1,16 @@
 # Standalone account mail sender
 
-P3.2 prepares Spanish verification/recovery messages over local SMTP; P3.3 T1 adds broad mailbox compatibility with real isolated Mailpit proof. This sender does **not** register routes, verify accounts, issue/consume tokens, persist jobs, retry messages or implement the web journey. The existing health application does not import this module and retains its startup requirements. See [P3.1 email contracts](api/accounts-sessions.md#token-and-email-lifecycle) and the [P3.2 task](../odd/tasks/p32-local-email.md).
+P3.2 prepares Spanish verification/recovery messages over local SMTP; P3.3 T1 adds broad mailbox compatibility with real isolated Mailpit proof. This sender does **not** register routes, verify accounts, issue/consume tokens, persist jobs, retry messages or implement the web journey. The integrated identity runtime now composes this sender through its mail lifecycle; health-only observations here describe the original standalone slice. See [live ownership](registration-profile.md#live-worker-ownership-and-shutdown) and [P3 final proof](work-log/2026-10-17-p3-verify-final.md). See [P3.1 email contracts](api/accounts-sessions.md#token-and-email-lifecycle) and the [P3.2 task](../odd/tasks/p32-local-email.md).
 
-## Future integration seam
+<a id="future-integration-seam"></a>
+
+## Integration seam
 
 Import from `apps/api/src/mail/index.ts` (compiled entry: `.build/api/apps/api/src/mail/index.js`):
 
 ```ts
 const configuration = readMailConfiguration(process.env);
-// Import MailModule.register(configuration) in the future account worker module.
+// The identity mail lifecycle composes this module; this is the sender-level seam.
 // Resolve AccountMailService through Nest; callers supply an already-issued token.
 await service.sendVerification({ to, token });
 await service.sendRecovery({ to, token });
@@ -29,7 +31,7 @@ Nest registration validates and snapshots configuration without connecting. The 
 
 The user explicitly selected uppercase-domain rejection because Nodemailer10.1.1 lowercases domains even with structured recipient fields and an explicit envelope. `validateMailbox(input: unknown): string`, exported from the public mail index, checks controls and the original domain before calling `validator.isEmail`; it returns the trimmed delivery input or throws sanitized `MailError`/`MAIL_INPUT_INVALID`. The same helper is used by both unchanged sender methods. It explicitly enables UTF-8 local parts, requires a TLD, and disables display names, IP domains, underscores and provider-specific checks. No `normalizeEmail`, URL pre-normalization or home-made RFC grammar is used.
 
-Future HTTP validation should call this helper **before any account lookup/write or durable token/mail issuance**, translate invalid input to the contract's422, and persist/display its returned spelling. Case-insensitive identity comparison is a separate operation; never substitute that comparison value for delivery spelling. The public schema uses `idn-email` plus a Unicode domain-case precondition; it does not implement identity endpoints.
+HTTP validation should call this helper **before any account lookup/write or durable token/mail issuance**, translate invalid input to the contract's422, and persist/display its returned spelling. Case-insensitive identity comparison is a separate operation; never substitute that comparison value for delivery spelling. The public schema uses `idn-email` plus a Unicode domain-case precondition; it does not implement identity endpoints.
 
 ### Delivery spelling versus wire representation
 
@@ -72,7 +74,7 @@ node scripts/test-p33-mail-cancellation.mjs --regressions
 
 The regression command runs the unchanged P3.2 sender tests and P3.3 mailbox component tests. A process-local public Node resolution hook redirects only the P3.2 mail entry to current private output, avoiding stale `.build/api` results without modifying tests, compiler flags or root output. It does not run the Mailpit/Docker flow checks. All child tests run serially under a26000ms cap.
 
-**Deferred parent integration check**, only after C2 settles and a successful combined strict API build:
+**Historical C1 integration handoff:** the command below was deferred by that writer; it was subsequently exercised by the parent/independent T2 integration and full P3 proof linked above. This is not a pending current acceptance gate or a request to rerun it:
 
 ```sh
 node scripts/test-p33-mail-cancellation.mjs --deadline

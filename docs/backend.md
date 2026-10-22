@@ -1,6 +1,6 @@
 # Run the local FoxMind backend
 
-The verified checkpoint provides health, all twelve account/session operations and the real Next.js account web. [Independent P3 proof](work-log/2026-10-17-p3-verify-final.md): backend99PASS, controls39PASS, real browser10PASS, live web16PASS and actual owned cleanup0. [Web guide](p3-web.md), [recovery](password-recovery.md), [password change](password-change.md). P3 is completed locally; classrooms/uploads and P4/P5 integration remain outside this checkpoint. Native review is off/global, disabled/unmanaged; no production-readiness or publication claim.
+The verified checkpoint provides health, all twelve account/session operations and the real Next.js account web. [Independent P3 proof](work-log/2026-10-17-p3-verify-final.md): backend99PASS, controls39PASS, real browser10PASS, live web16PASS and actual owned cleanup0. [Web guide](p3-web.md), [recovery](password-recovery.md), [password change](password-change.md). This account checkpoint preceded P4/P5; current main also contains integrated files/classrooms and later V1 flows. See the [main roadmap](implementation-roadmap.md), [P4 host](p4-host.md) and [P5 host](p5-host.md) for those opt-in modules. Native review is off/global, disabled/unmanaged; no production-readiness or publication claim.
 
 ## Quick path
 
@@ -51,7 +51,7 @@ Other startup failures use `Backend startup failed.` without connection strings 
 
 Both endpoints set `Cache-Control:no-store`. Readiness executes `SELECT 1`: it proves connectivity, **not migration completeness, permissions or functionality of the academic model**. Database connections are lazy, so liveness can remain available while the database is unavailable. The pool is bounded to5 connections with1-second connection/query/statement limits. Recovery after a temporary database pause is tested.
 
-No CORS policy or Swagger is enabled. All twelve [account-contract](api/accounts-sessions.md) operations are implemented: session/CSRF, login/logout, registration, account GET/PATCH, verification confirmation/resend, recovery request/confirmation and authenticated password change. Classroom routes remain404. OpenAPI marks twelve implemented. Identity responses retain no-store/nosniff/request IDs/sanitized errors; health alone remains no proof of academic product flows.
+No CORS policy or Swagger is enabled. All twelve [account-contract](api/accounts-sessions.md) operations are implemented: session/CSRF, login/logout, registration, account GET/PATCH, verification confirmation/resend, recovery request/confirmation and authenticated password change. Classroom routes were outside the P3 checkpoint; current opt-in routing is documented in the [P5 host guide](p5-host.md). OpenAPI marks twelve implemented. Identity responses retain no-store/nosniff/request IDs/sanitized errors; health alone remains no proof of academic product flows.
 
 ## Lifecycle and structure
 

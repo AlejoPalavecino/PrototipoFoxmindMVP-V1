@@ -1,6 +1,6 @@
 # FoxMind V1 functional specification
 
-FoxMind is a web platform for independent courses and training. This document consolidates the product decisions confirmed in the conversation. It authorizes neither application implementation nor deployment; the current deliverable is documentation only.
+FoxMind is a web platform for independent courses and training. This document consolidates the product decisions confirmed in the conversation. This normative specification does not itself authorize implementation or deployment. Its original documentation-only milestone is historical; the [roadmap](implementation-roadmap.md) owns later implementation status and current scope.
 
 ## Reading guide
 
@@ -975,4 +975,4 @@ Suggested implementation order, not an execution authorization:
 4. Activity authoring, answer drafts and submissions.
 5. Grading, publication, individual summaries and progress.
 
-**Current completion boundary:** functional specification and visual reference inventory. No application scaffolding, dependency installation, backend, database provisioning, deployment or delivery has been authorized by this document.
+**Historical specification-delivery boundary:** functional specification and visual reference inventory. This document itself authorized no scaffolding, dependency installation, backend, database provisioning, deployment or delivery; later separately authorized acceptance is recorded in the [roadmap](implementation-roadmap.md).
