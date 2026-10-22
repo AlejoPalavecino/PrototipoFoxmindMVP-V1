@@ -7,6 +7,8 @@ import { classroomAuthHref, classroomDestination } from '../lib/classroom-client
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
+import { AccountNavbar } from './account-navbar';
+import { VerificationGuidance } from '../../../shared-ui/VerificationGuidance';
 
 declare global { interface Window { __foxmindTakeToken?: () => string | null } }
 export type AccountView = 'sign-in' | 'register' | 'verify-email' | 'forgot-password' | 'recover-password' | 'profile';
@@ -20,20 +22,26 @@ const content: Record<AccountView, { title: string; description: string }> = {
   profile: { title: 'Mi perfil', description: 'Revisa y actualiza tus datos personales.' },
 };
 
-function Field({ name, label, password, value, autoComplete, onChange }: {
+export function AccountField({ name, label, password, value, autoComplete, onChange }: {
   name: string; label: string; password?: boolean; value?: string; autoComplete?: string; onChange?: (value: string) => void;
 }) {
-  const passwordHelp = password && name !== 'currentPassword';
+  const [shown, setShown] = useState(false);
+  const passwordHelp = password && autoComplete === 'new-password';
   return <div className="field">
     <Label htmlFor={name}>{label}</Label>
-    <Input id={name} name={name} type={password ? 'password' : 'text'} required
+    <div className={password ? 'password-control' : undefined}>
+    <Input id={name} name={name} type={password && !shown ? 'password' : 'text'} required data-password-field={password || undefined}
       autoComplete={autoComplete} inputMode={name === 'email' ? 'email' : undefined}
       autoCapitalize={name === 'email' ? 'none' : undefined} spellCheck={name === 'email' ? false : undefined}
       value={value} onChange={onChange ? event => onChange(event.target.value) : undefined}
       aria-describedby={passwordHelp ? `${name}-help` : undefined} />
+    {password ? <button type="button" aria-label={`${shown ? 'Ocultar' : 'Mostrar'} ${label.toLowerCase()}`} aria-controls={name}
+      aria-pressed={shown} className="password-toggle" onClick={() => setShown(current => !current)}>{shown ? 'Ocultar' : 'Mostrar'}</button> : null}
+    </div>
     {passwordHelp ? <p className="field-help" id={`${name}-help`}>Entre 16 y 128 caracteres. Puedes usar espacios y cualquier idioma.</p> : null}
   </div>;
 }
+const Field = AccountField;
 
 export function AccountScreen({ view }: { view: AccountView }) {
   const router = useRouter();
@@ -169,7 +177,7 @@ export function AccountScreen({ view }: { view: AccountView }) {
       }
       void action(path, data, success, method).then(() => {
         // Remove password values from the visible form after each request.
-        form.querySelectorAll<HTMLInputElement>('input[type="password"]').forEach(input => { input.value = ''; });
+        form.querySelectorAll<HTMLInputElement>('input[data-password-field]').forEach(input => { input.value = ''; });
       });
     };
   }
@@ -178,15 +186,13 @@ export function AccountScreen({ view }: { view: AccountView }) {
   return <>
     <Head><title>{`${content[view].title} · FoxMind`}</title><meta name="description" content="Accede a tu cuenta FoxMind." /></Head>
     <a className="skip-link" href="#main">Saltar al contenido</a>
-    <header className="topbar">
-      <Link href={user ? (verified ? '/profile' : '/verify-email') : '/sign-in'} className="wordmark" aria-label="FoxMind"><span>Fox</span>Mind</Link>
-      <nav aria-label="Cuenta">
-        {user ? <>{verified ? <><Link href="/inicio">Inicio</Link><Link href="/mis-aulas">Mis Aulas</Link></> : null}<Link href={verified ? '/profile' : nextAccountHref('verify-email')} className="nav-current">{verified ? 'Mi perfil' : 'Verificar correo'}</Link><span className="nav-name">{user.firstName}</span></> : <Link href={nextAccountHref(view === 'register' ? 'sign-in' : 'register')}>{view === 'register' ? 'Iniciar sesión' : 'Crear cuenta'}</Link>}
-      </nav>
-    </header>
+    <div className={`entry-page${view === 'profile' ? ' entry-profile' : ''}`}>
+    <AccountNavbar session={session} view={view} signInHref={nextAccountHref('sign-in')} registerHref={nextAccountHref('register')} verifyHref={nextAccountHref('verify-email')}
+      accountActions={user ? <div className="fm-profile-actions"><Link href={verified ? '/profile' : nextAccountHref('verify-email')}>{verified ? 'Mi perfil' : 'Verificar correo'}</Link>{signOut}</div> : undefined} />
     <main id="main" className={view === 'profile' ? 'main profile-main' : 'main auth-main'}>
-      <div className="page-heading"><div className="heading-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="10" r="5"/><path d="M6 29v-5a10 10 0 0 1 20 0v5"/></svg></div><div><h1>{content[view].title}</h1><p>{content[view].description}</p></div></div>
+      {view !== 'profile' ? <aside className="entry-story" aria-hidden="true"><h2>Tu aula.<br />Tu próximo paso.</h2><p>Enseñar y aprender, en un mismo lugar.</p><img src="/entry-glass/book.webp" width="780" height="600" alt="" fetchPriority="high" /></aside> : null}
       <section className="surface" aria-label={content[view].title} aria-busy={loading || busy}>
+        <div className="page-heading"><div><h1>{content[view].title}</h1><p>{content[view].description}</p></div></div>
         {loading ? <p role="status" className="loading">Cargando tu cuenta…</p> : null}
         {message ? <div ref={status} tabIndex={-1} className={`notice ${message.error ? 'notice-error' : 'notice-success'}`} role={message.error ? 'alert' : 'status'}>{message.text}</div> : null}
         {waitSeconds > 0 ? <p className="cooldown" role="status">Podrás volver a intentar en {waitSeconds} segundos.</p> : null}
@@ -219,7 +225,7 @@ export function AccountScreen({ view }: { view: AccountView }) {
           {user && !verified ? <><h2>Revisa tu correo</h2><p>Enviamos el enlace a <strong className="email-value">{user.email}</strong>. Abre el mensaje y confirma la verificación.</p><p>Si recargas esta página después de abrir un enlace, vuelve a abrir el mensaje original para usarlo.</p>
             <div className="actions"><Button disabled={locked} onClick={() => void action('/auth/email-verification/resend', {}, 'Solicitud aceptada. Revisa tu correo; usa el enlace más reciente.')}>{busy ? 'Enviando…' : 'Reenviar correo'}</Button><Button variant="outline" disabled={locked} onClick={() => void load()}>Actualizar estado</Button>{signOut}</div></> : null}
           {verified ? <><h2>Tu correo está verificado</h2><Link className="button button-primary" href={classroomNext ?? '/profile'}>{classroomNext === '/inicio' ? 'Ir a Inicio' : classroomNext ? 'Ir a Mis Aulas' : 'Ir a mi perfil'}</Link><div className="actions">{signOut}</div></> : null}
-          {!user ? <><p>Abre el enlace original del correo para verificar tu cuenta. Si necesitas un nuevo mensaje, inicia sesión y solicita el reenvío.</p><div className="actions"><Link className="button button-primary" href={nextAccountHref('sign-in')}>Iniciar sesión</Link><Link href={nextAccountHref('register')}>Crear cuenta</Link></div></> : null}
+          {!user ? <><VerificationGuidance confirmed={Boolean(message && !message.error && !hasToken)} /><div className="actions"><Link className="button button-primary" href={nextAccountHref('sign-in')}>Iniciar sesión</Link><Link href={nextAccountHref('register')}>Crear cuenta</Link></div></> : null}
         </div> : null}
 
         {session && view === 'forgot-password' ? <>
@@ -259,5 +265,6 @@ export function AccountScreen({ view }: { view: AccountView }) {
       </section>
       <footer className="page-footer">FoxMind · Enseñar y aprender, en un mismo lugar.</footer>
     </main>
+    </div>
   </>;
 }

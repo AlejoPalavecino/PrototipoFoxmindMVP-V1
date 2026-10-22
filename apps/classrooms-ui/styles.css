@@ -1,14 +1,16 @@
 /* Scoped selectors intentionally stay unlayered, above the host's global reset. */
   .p5-app {
-    --ink: #292434;
-    --muted: #5d6884;
-    --line: #d9dfeb;
-    --orange: #b94808;
-    --soft: #fff1e3;
-    --surface: #fff;
+    --ink: var(--fm-ink, #10113f);
+    --muted: var(--fm-muted, #505a86);
+    --line: var(--fm-line, #d8daeb);
+    --orange: var(--fm-link, #b94808);
+    --soft: var(--fm-peach, #ffe2c4);
+    --surface: var(--fm-surface, #fff);
+    --primary: var(--fm-focus, #4442a5);
+    --border: var(--line);
     color: var(--ink);
-    font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
-    background: #f5f8fc;
+    font-family: var(--fm-font-sans, 'Segoe UI', 'Trebuchet MS', Arial, sans-serif);
+    background: var(--fm-pearl, #f6f7fc);
     min-height: 100vh;
     font-size: 16px;
     line-height: 1.5;
@@ -94,7 +96,7 @@
     font-weight: 700;
     color: #303d60;
   }
-  .p5-app input:not([type='radio']) {
+  .p5-app input:not([type='radio']):not([type='checkbox']) {
     width: 100%;
     min-height: 48px;
     border: 1px solid #bfcbde;

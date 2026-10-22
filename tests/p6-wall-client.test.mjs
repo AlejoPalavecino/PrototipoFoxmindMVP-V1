@@ -4,10 +4,7 @@ import { createServer } from 'node:http';
 import { createClassroomClient } from '../apps/classrooms-ui/api.ts';
 import { proxyClassroomRequest } from '../apps/web/src/lib/classroom-proxy.ts';
 import { createClassroomsHandler } from '../.build/api/apps/api/src/classrooms/http.js';
-import { readFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
-import { dirname, resolve } from 'node:path';
-import ts from 'typescript';
+import { loadTsModule } from './helpers/load-ts-module.mjs';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
@@ -89,18 +86,7 @@ test('classroom client carries Unicode/multiline body intact, fresh CSRF and cur
 
 test('actual Muro content renderer escapes markup and renders removed markers rather than hidden original text', () => {
   // Compile the actual trusted TSX modules in memory; no emitted workspace files or synthetic renderer.
-  const require = createRequire(import.meta.url), cache = new Map();
-  function load(path) {
-    if (cache.has(path)) return cache.get(path).exports;
-    const module = { exports: {} }; cache.set(path, module);
-    const { outputText } = ts.transpileModule(readFileSync(path, 'utf8'), { compilerOptions: {
-      jsx: ts.JsxEmit.ReactJSX, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2023,
-    } });
-    new Function('require', 'module', 'exports', outputText)(specifier => specifier.startsWith('.')
-      ? load(resolve(dirname(path), specifier)) : require(specifier), module, module.exports);
-    return module.exports;
-  }
-  const { WallContentView } = load(resolve('apps/classrooms-ui/Wall.tsx'));
+  const { WallContentView } = loadTsModule('apps/classrooms-ui/Wall.tsx');
   const content = { id: room, authorName: '<img src=x onerror=alert(1)>', initials: '<>',
     body: '<script>alert(1)</script>\nPlain & safe', createdAt: '2026-10-18T12:00:00Z', editedAt: null, removedAt: null, canEdit: false, canRemove: false };
   const html = renderToStaticMarkup(React.createElement(WallContentView, { content }));

@@ -10,7 +10,7 @@ const client = createFileClient();
 const accounts = createAccountClient();
 function bytes(value: string) { const count = Number(value); return Number.isFinite(count) ? `${(count / 1_000_000).toLocaleString('es', { maximumFractionDigits: 2 })} MB` : '—'; }
 
-export function PrivateFilePanel({ context }: { context: FileContext }) {
+export function PrivateFilePanel({ context, onSessionChange }: { context: FileContext; onSessionChange?: (session: AccountSession | undefined) => void }) {
   const { kind, id, purpose } = context;
   const [session, setSession] = useState<AccountSession>();
   const [usage, setUsage] = useState<FileUsage>();
@@ -24,6 +24,7 @@ export function PrivateFilePanel({ context }: { context: FileContext }) {
   const [preview, setPreview] = useState(false);
   const remaining = Math.max(0, Math.ceil((deadline - now) / 1000));
   const verified = session?.authenticated && session.user.emailVerified;
+  useEffect(() => { onSessionChange?.(session); }, [session, onSessionChange]);
   const rejected = current ? fileState(current) === 'rejected' : false;
   const previewable = current?.ready && /\.(pdf|png|jpe?g)$/i.test(current.name);
   const report = useCallback((error: unknown) => {

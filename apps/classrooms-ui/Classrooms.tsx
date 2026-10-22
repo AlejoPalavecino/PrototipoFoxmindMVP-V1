@@ -4,6 +4,7 @@ import type { ClassroomClient, Classroom, Draft, Invitation, NotificationTarget 
 import { Cover, Dialog, Notice } from './components.tsx';
 import { Notifications } from './Notifications.tsx';
 import { Home } from './Home.tsx';
+import { AppNavbar } from '../shared-ui/AppNavbar.tsx';
 const Wizard = lazy(() =>
   import('./Wizard.tsx').then((module) => ({ default: module.Wizard })),
 );
@@ -23,6 +24,7 @@ export function ClassroomsApp({
   displayName,
   accountActions,
   requestedInvitation,
+  requestedNotification,
   initialPresentation = 'classrooms',
   onNavigate,
 }: {
@@ -30,6 +32,7 @@ export function ClassroomsApp({
   displayName: string;
   accountActions?: ReactNode;
   requestedInvitation?: string;
+  requestedNotification?: string;
   initialPresentation?: 'home' | 'classrooms';
   onNavigate?: (presentation: 'home' | 'classrooms') => void;
 }) {
@@ -104,6 +107,14 @@ export function ClassroomsApp({
   const openTarget = (target: NotificationTarget) => {
     setWallTarget(target); setSharedCode(null); setClassroomId(target.classroomId);
   };
+  useEffect(() => {
+    if (!requestedNotification) return;
+    let active = true;
+    void api.call<NotificationTarget>(`/notifications/${requestedNotification}/open`, 'POST', {})
+      .then(target => { if (active) { openTarget(target); refreshNotifications(); } })
+      .catch(failure => { if (active) setError(failure.message); });
+    return () => { active = false; };
+  }, [api, requestedNotification, refreshNotifications]);
   async function accept(invitation: Invitation) {
     await api.call(`/invitations/${invitation.id}/accept`, 'POST', {});
     setNotice(`Ya formás parte de ${invitation.name}.`);
@@ -135,35 +146,16 @@ export function ClassroomsApp({
     }
   }
   return (
-    <div className="p5-app">
-      <nav className="p5-nav" aria-label="Navegación principal">
-        <a
-          className="p5-brand"
-          href="#"
-          onClick={(event) => {
-            event.preventDefault();
-            if (!draft) leaveView();
-          }}
-        >
-          <span>Fox</span>Mind
-        </a>
-        {!draft ? <button className={!classroomId && presentation === 'home' ? 'p5-nav-active' : undefined}
-          aria-current={!classroomId && presentation === 'home' ? 'page' : undefined}
-          onClick={() => showPresentation('home')}>Inicio</button> : null}
-        <button
-          className={presentation === 'classrooms' || classroomId ? 'p5-nav-active' : undefined}
-          aria-current={presentation === 'classrooms' || classroomId ? 'page' : undefined}
-          onClick={() => {
-            if (!draft) leaveView();
-          }}
-        >
-          Mis Aulas
-        </button>
-        {!draft ? <Notifications api={api} refresh={notificationRefresh} onOpen={openTarget} /> : null}
-        <span className="p5-profile">{displayName}</span>
-        {!draft ? accountActions : null}
-      </nav>
-      <main className="p5-main">
+    <div className={`p5-app${!draft && !classroomId && presentation === 'home' ? ' entry-home' : ''}`}>
+      <a className="skip-link" href="#classroom-main">Saltar al contenido</a>
+      <AppNavbar logoHref="/mis-aulas" displayName={displayName}
+        links={draft ? [{ href: '/mis-aulas', label: 'Mis aulas', current: true }]
+          : [{ href: '/inicio', label: 'Inicio', current: !classroomId && presentation === 'home' },
+            { href: '/mis-aulas', label: 'Mis aulas', current: presentation === 'classrooms' || Boolean(classroomId) }]}
+        onNavigate={href => { if (!draft) showPresentation(href === '/inicio' ? 'home' : 'classrooms'); }}
+        notifications={!draft ? <Notifications api={api} refresh={notificationRefresh} onOpen={openTarget} /> : undefined}
+        accountActions={!draft ? accountActions : undefined} />
+      <main id="classroom-main" className="p5-main">
         {draft ? (
           <Suspense fallback={<Notice>Cargando asistente…</Notice>}>
             <Wizard

@@ -1,0 +1,26 @@
+/* Shared presentation vocabulary. Orange text and orange fills are distinct roles. */
+:root {
+  --fm-ink: #10113f;
+  --fm-muted: #505a86;
+  --fm-pearl: #f6f7fc;
+  --fm-lavender: #dcddfb;
+  --fm-lavender-soft: #eeeefa;
+  --fm-peach: #ffe2c4;
+  --fm-accent: #ff8500;
+  --fm-accent-hover: #f47700;
+  --fm-link: #b94808;
+  --fm-surface: #ffffff;
+  --fm-glass: #fffffff0;
+  --fm-line: #d8daeb;
+  --fm-control-line: #7f86a8;
+  --fm-focus: #4442a5;
+  --fm-error: #8c281c;
+  --fm-error-soft: #fff1ef;
+  --fm-success: #235d38;
+  --fm-success-soft: #edf8f1;
+  --fm-font-sans: 'Segoe UI', 'Trebuchet MS', Arial, sans-serif;
+  --fm-radius-panel: 26px;
+  --fm-radius-card: 20px;
+  --fm-radius-control: 13px;
+  --fm-shadow-panel: 0 12px 32px #28215a08, inset 0 1px 0 #fff;
+}

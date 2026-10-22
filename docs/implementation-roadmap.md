@@ -222,3 +222,13 @@ Complete P9 local V1 accepted from [final wholefeature Sol/xhigh verification](w
 ## P9 authorized main publication (2026-10-20)
 
 Mergee3a5e723a6bdbb8c6cbc2ca9484af6a632addab6 includes verified localV1 and passiveclosure4d8096a621652e420acbb750cff22e8c4c08cc7f; normalHTTPSpushmain succeeded and localHEAD/originmain/liveremoteSHA matched exactly. [Publication record](work-log/2026-10-20-p9-main-publication.md). T1-T7 complete; no productbytes changed after independent98fd12d, only passiveevidence/closure. Final passivepublication-record update is separate from the verifiedmerge and preserves its producttree. No deployment/realpilot/productionquota choice or nativeapproval.
+
+## Entry glass redesign — local checkpoint (2026-10-21)
+[Glass tasks](../odd/tasks/foxmind-entry-glass.md), [coordinator](work-log/2026-10-21-root-foxmind-entry-glass.md), [independent checkpoint](work-log/2026-10-21-glass-independent-verify.md), [visual report](../design-qa.md). Isolated codex/foxmind-entry-glass from1eb5700. Own builds/account/Home/mobile journeys passed; independent web builds/clients passed, but fresh API preparation exceeded original30s before independent runtime fixtures. Not accepted. One missing-proof disposition, no automatic retry/limit expansion/merge/push/deploy/retained-data mutation. Accepted P3–P9 backend checkpoints unchanged.
+
+Entry-glass checkpoint continuation:single authorized90s API preparation passed; independent fixture startup then stopped before UI because local Docker engine unavailable. No browser retry or acceptance; same local-only scope and frozen source.
+
+## Entry glass final local verification (2026-10-21)
+The complete authorized entry-glass UI scope is locally implemented and independently verified on codex/foxmind-entry-glass: [tasks](../odd/tasks/foxmind-entry-glass.md), [coordinator](work-log/2026-10-21-root-foxmind-entry-glass.md), [Sol/xhigh verification](work-log/2026-10-21-glass-independent-verify.md), [visual report](../design-qa.md). Single authorized Docker retry resolved prerequisite:glass7/P3browser10/P4integration9/matchedUI6 allPASS,0SKIP,cleanup0; S1–S5 PASS. Earlier unavailable checkpoints are history, not current blockers. Backend/P3–P9 contracts and retained data unchanged. Local commits only; no PR, merge, push or deployment; native off/global, no native approval.
+
+Local implementation commit984e78ca3add445da9a7b144e0099f63b9c2a735; coordinator subsequent document-only closure records it. No product bytes changed after independent verification:20source/test/asset hashes unchanged,4coordinator-doc differences intentional. Final local source tree remains separate from main; no deployment/merge/push.
