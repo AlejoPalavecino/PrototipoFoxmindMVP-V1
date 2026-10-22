@@ -1,0 +1,496 @@
+[
+  {
+    "old_path": "docs/account-mail-outbox.md",
+    "canonical": "docs/engineering/identity/account-mail-outbox.md",
+    "old_ids": [
+      "encrypted-account-mail-outbox-p33-t1",
+      "focused-verification",
+      "future-httpdomain-integration",
+      "httpdomain-integration-responsibilities",
+      "key-configuration-and-envelope",
+      "lease-retries-and-race-boundary",
+      "limits-and-rollback",
+      "public-boundary"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/account-verification.md",
+    "canonical": "docs/engineering/identity/account-verification.md",
+    "old_ids": [
+      "email-confirmation-and-resend--independently-verified-backend",
+      "evidence-and-limits",
+      "existing-public-contracts",
+      "fixture-launch-exception-not-functional-acceptance",
+      "run-the-focused-checks",
+      "transaction-boundaries"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/backend.md",
+    "canonical": "docs/engineering/local-development/backend.md",
+    "old_ids": [
+      "commands-and-retained-limits",
+      "configuration-and-startup",
+      "historical-identity-fixture-launch-allowance-t3-f--s10",
+      "http-contract",
+      "lifecycle-and-structure",
+      "quick-path",
+      "run-the-local-foxmind-backend",
+      "verification-and-limitations"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/database.md",
+    "canonical": "docs/engineering/local-development/database.md",
+    "old_ids": [
+      "change-and-rollback-boundaries",
+      "commands",
+      "persistent-local-development",
+      "precision-without-silent-rounding",
+      "quick-path",
+      "responsibilities-enforced-above-the-database",
+      "rules-reserved-for-the-backend",
+      "run-and-verify-the-foxmind-database",
+      "schema-map",
+      "stable-history"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/identity-http.md",
+    "canonical": "docs/engineering/identity/identity-http.md",
+    "old_ids": [
+      "focused-verification-and-limits",
+      "historical-outage-evidence-earlier-failures-retained-d1-subsequently-closed",
+      "identity-http--accountsession-integration",
+      "identity-http--p33-t2-seven-operation-verified-checkpoint",
+      "security-and-transaction-boundary",
+      "stable-d2t3-integration-api",
+      "startup-without-environment-files"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/identity-security.md",
+    "canonical": "docs/engineering/identity/identity-security.md",
+    "old_ids": [
+      "identity-security-primitives-p33--t1-b",
+      "password-work-and-errors",
+      "public-primitives",
+      "startup-configuration",
+      "verification-and-integration-handoff"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/local-email.md",
+    "canonical": "docs/engineering/local-development/local-email.md",
+    "old_ids": [
+      "development-retention",
+      "isolated-verification",
+      "local-captured-email",
+      "start-inspect-and-stop"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/mail-sender.md",
+    "canonical": "docs/engineering/identity/mail-sender.md",
+    "old_ids": [
+      "configuration-and-input-boundary",
+      "delivery-spelling-versus-wire-representation",
+      "focused-proof-and-limits",
+      "future-integration-seam",
+      "integration-seam",
+      "review-and-rollback-boundary",
+      "standalone-account-mail-sender",
+      "terminal-cancellation-and-lifecycle-deadline"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p3-test-runtime.md",
+    "canonical": "docs/engineering/testing/p3-test-runtime.md",
+    "old_ids": [
+      "focused-controls",
+      "p3-verification-runtime",
+      "separate-startup-from-assertions"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p3-web.md",
+    "canonical": "docs/engineering/identity/p3-web.md",
+    "old_ids": [
+      "accepted-local-p3-checkpoint",
+      "account-routes",
+      "local-account-web",
+      "run-locally",
+      "transport-and-tokens",
+      "verification-and-limits"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p4-host.md",
+    "canonical": "docs/engineering/files/p4-host.md",
+    "old_ids": [
+      "authentication-and-authorization",
+      "checks",
+      "errors-and-lifecycle",
+      "private-files-application-host"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p4-integration.md",
+    "canonical": "docs/engineering/files/p4-integration.md",
+    "old_ids": [
+      "local-composition",
+      "p4-integration-over-accepted-p3",
+      "verification"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p4-web.md",
+    "canonical": "docs/engineering/files/p4-web.md",
+    "old_ids": [
+      "browser-verification-contract",
+      "checks",
+      "private-file-web-integration"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p5-host.md",
+    "canonical": "docs/engineering/classrooms/p5-host.md",
+    "old_ids": [
+      "configuration",
+      "integrated-p5-api-host",
+      "invitation-lifecycle",
+      "security-and-files",
+      "verification-boundary"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p5-integration.md",
+    "canonical": "docs/engineering/classrooms/p5-integration.md",
+    "old_ids": [
+      "acceptance-boundaries",
+      "delivery-and-retained-limitations",
+      "international-recipient-identity",
+      "local-verification",
+      "observed-acceptance",
+      "p5-integration-with-accepted-identity-and-private-files"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p5-web.md",
+    "canonical": "docs/engineering/classrooms/p5-web.md",
+    "old_ids": [
+      "classrooms-in-the-production-web-application",
+      "entry-and-invitation-flow",
+      "transport-and-files",
+      "ui-composition-and-checking"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p6-library.md",
+    "canonical": "docs/engineering/teaching/p6-library.md",
+    "old_ids": [
+      "api",
+      "deletion-and-conservation",
+      "p6-library-private-materials-with-explicit-deletion",
+      "upgrade-and-evidence"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p6-muro.md",
+    "canonical": "docs/engineering/teaching/p6-muro.md",
+    "old_ids": [
+      "data-and-concurrency-rules",
+      "http-contracts",
+      "p6-muro-and-personal-notifications",
+      "p6-notification-scope",
+      "user-path",
+      "verification-and-remaining-acceptance"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p6-teaching.md",
+    "canonical": "docs/engineering/teaching/p6-teaching.md",
+    "old_ids": [
+      "complete-p6-guides-and-local-proof",
+      "observed-checks-and-remaining-acceptance",
+      "p6-teaching-organization",
+      "plan-transport-and-invariants"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p7-authoring.md",
+    "canonical": "docs/engineering/activities/p7-authoring.md",
+    "old_ids": [
+      "authoring-activities-p7-t1",
+      "public-interfaces",
+      "quick-path",
+      "remaining-phase-work",
+      "time-content-and-file-conservation",
+      "verification"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p7-history-notifications.md",
+    "canonical": "docs/engineering/activities/p7-history-notifications.md",
+    "old_ids": [
+      "data-boundaries",
+      "notification-events",
+      "p7-attempt-history-and-academic-notifications",
+      "public-routes",
+      "reopen-and-consult",
+      "verification-and-scope"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p7-participation.md",
+    "canonical": "docs/engineering/activities/p7-participation.md",
+    "old_ids": [
+      "deadline-policy",
+      "event-time-obligations",
+      "evidence-and-next-unit",
+      "interfaces",
+      "participation-and-editor-control-p7-t2",
+      "student-flow"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p7-practical-submissions.md",
+    "canonical": "docs/engineering/activities/p7-practical-submissions.md",
+    "old_ids": [
+      "api-additions",
+      "boundaries-that-matter",
+      "evidence-and-scope",
+      "practical-assignment-private-drafts-and-receipts",
+      "student-flow"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p7-questionnaire-attempts.md",
+    "canonical": "docs/engineering/activities/p7-questionnaire-attempts.md",
+    "old_ids": [
+      "concurrency-and-timeliness",
+      "confirmed-questionnaire-and-evaluation-attempts",
+      "proof-and-scope-boundary",
+      "public-api",
+      "student-flow"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p8-private-grading.md",
+    "canonical": "docs/engineering/grading/p8-private-grading.md",
+    "old_ids": [
+      "contracts-and-precision",
+      "private-teacher-correction",
+      "teacher-workflow",
+      "verification-and-handoff"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p8-progress.md",
+    "canonical": "docs/engineering/grading/p8-progress.md",
+    "old_ids": [
+      "calculation-rules",
+      "eligibility-and-history",
+      "existing-ui-behavior",
+      "p8-progress-three-independent-measures",
+      "read-only-api",
+      "verification"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p8-publication.md",
+    "canonical": "docs/engineering/grading/p8-publication.md",
+    "old_ids": [
+      "atomic-source-transition",
+      "explicit-grade-publication-and-safe-results",
+      "privacy-and-navigation",
+      "public-operations",
+      "verification"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p8-published-corrections.md",
+    "canonical": "docs/engineering/grading/p8-published-corrections.md",
+    "old_ids": [
+      "correct-a-published-final-grade-without-rewriting-history",
+      "preserved-evidence",
+      "public-boundary",
+      "teacher-workflow",
+      "verification"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p9-failure-recovery.md",
+    "canonical": "docs/verification/p9/p9-failure-recovery.md",
+    "old_ids": [
+      "boundaries",
+      "bounded-first-proof-commands",
+      "l65-finite-closure-attempt",
+      "l67-explicitly-authorized-restored-environment-result",
+      "observed-boundary",
+      "p9-owned-service-failure-and-manual-recovery"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p9-home.md",
+    "canonical": "docs/engineering/home/p9-home.md",
+    "old_ids": [
+      "implementation-boundaries",
+      "inicio-real-classroom-summaries-and-safe-navigation",
+      "own-home-proof--all-groups-observed-across-bounded-runs",
+      "own-verification",
+      "what-users-can-do"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p9-joined-journeys.md",
+    "canonical": "docs/verification/p9/p9-joined-journeys.md",
+    "old_ids": [
+      "current-authorized-run-order",
+      "current-execution-status",
+      "first-ordered-results--partial",
+      "historical-authorized-run-order",
+      "historical-execution-status-superseded-by-final-p9-acceptance",
+      "l28-exact-correction-authorization",
+      "l30-remaining-teaching-preparation",
+      "l33-isolated-same-byte-maximum-file-diagnostic",
+      "l36-representative-positive-maximum-size-capacity",
+      "l40-retained-representative-file-antivirus-diagnostic-only",
+      "l43-explicitly-authorized-scanner-budget-correction",
+      "l49-same-retained-filecurrent-configurationresource-diagnostic",
+      "l53-detailed-same-file-diagnostic-no-mitigation",
+      "l57-binary-classroom-asset-positive-fixtures",
+      "l57-observed-scoped-capacity-success",
+      "newly-authorized-isolated-plan-diagnostic",
+      "p9-joined-local-journeys",
+      "prepared-boundaries-per-journey",
+      "resource-forecast-and-safety"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p9-local-operation.md",
+    "canonical": "docs/engineering/local-development/p9-local-operation.md",
+    "old_ids": [
+      "accepted-local-checkpoint",
+      "choose-an-owned-local-environment-first",
+      "configuration-ownership",
+      "evidence-and-next-action",
+      "foxmind-local-operation-and-synthetic-pilot-preparation",
+      "product-quick-path",
+      "synthetic-pilot-checklist--preparation-only",
+      "truthful-failures-and-recovery"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p9-runtime-controls.md",
+    "canonical": "docs/engineering/testing/p9-runtime-controls.md",
+    "old_ids": [
+      "optional-classroom-quota",
+      "owned-integration-runtime-controls",
+      "proof-boundaries",
+      "public-fixture-hooks",
+      "quick-path"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/p9-verification-plan.md",
+    "canonical": "docs/verification/p9/p9-verification-plan.md",
+    "old_ids": [
+      "acceptance-model",
+      "baseline-and-conservation-checks",
+      "final-local-verification-pass",
+      "finite-independent-p9-verification-plan",
+      "first-frozen-independent-outcome",
+      "freeze-and-physical-preparation--before-any-build-or-runtime",
+      "installed-dependency-identities-observed-during-preparation",
+      "one-final-finding-batch-one-correction-one-targeted-recheck",
+      "predeclared-minimal-active-affected-boundary-checks",
+      "preparation-source-identity-index",
+      "single-authorized-correction-and-targeted-completion"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/password-change.md",
+    "canonical": "docs/engineering/identity/password-change.md",
+    "old_ids": [
+      "authenticated-password-change"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/password-recovery.md",
+    "canonical": "docs/engineering/identity/password-recovery.md",
+    "old_ids": [
+      "chosen-design-and-retained-proof-limits",
+      "fixed-public-checks",
+      "historical-initial-candidate-evidence",
+      "password-recovery"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/registration-profile.md",
+    "canonical": "docs/engineering/identity/registration-profile.md",
+    "old_ids": [
+      "accepted-proof-and-retained-limits",
+      "implemented-behavior-and-boundaries",
+      "live-worker-ownership-and-shutdown",
+      "registrationprofile--d2-independently-verified-t2-seven-operation-checkpoint",
+      "registrationprofile--integrated-account-behavior-and-historical-t2-proof",
+      "reproduce-and-evidence-limits"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  },
+  {
+    "old_path": "docs/visual-reference-index.md",
+    "canonical": "docs/design/visual-reference-index.md",
+    "old_ids": [
+      "components",
+      "composition-and-hierarchy",
+      "current-source-and-availability",
+      "foxmind-visual-reference-index",
+      "future-visual-verification",
+      "identity-and-asset-readiness",
+      "local-reference-inventory",
+      "primary-references-and-visual-priority",
+      "responsive-coverage-and-missing-views",
+      "visual-language-to-preserve",
+      "written-decisions-that-override-image-details"
+    ],
+    "strategy": "Permanent Markdown stub: explicit IDs, each linking to canonical section. No automatic redirect. No duplicated status or policy."
+  }
+]
