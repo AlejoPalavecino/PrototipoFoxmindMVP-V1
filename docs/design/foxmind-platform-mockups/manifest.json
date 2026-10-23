@@ -1,0 +1,248 @@
+{
+  "generated": "2026-10-22",
+  "kind": "static-desktop-mockups",
+  "tool": "built-in ImageGen",
+  "count": 24,
+  "images": [
+    {
+      "id": "01-login",
+      "title": "Iniciar sesión",
+      "group": "Acceso",
+      "file": "screens/01-login.png",
+      "width": 1487,
+      "height": 1058,
+      "sha256": "c2623fce58c9c93d07aa5b25b72fd8597a214aaaad1542dea34c13ac2448efbc",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-91497c8e-97d9-4978-b158-54498822cff6.png"
+    },
+    {
+      "id": "02-registro",
+      "title": "Crear cuenta",
+      "group": "Acceso",
+      "file": "screens/02-registro.png",
+      "width": 1487,
+      "height": 1058,
+      "sha256": "3313fdb9bb62f1c9023edc18d60fb453d93438ef046419d087b4b5b6bf913780",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-cd675e9d-13a8-48c1-841f-124fd54b0b37.png"
+    },
+    {
+      "id": "03-verificacion",
+      "title": "Verificar correo",
+      "group": "Acceso",
+      "file": "screens/03-verificacion.png",
+      "width": 1487,
+      "height": 1058,
+      "sha256": "e1f25b5df1aae04c5bd3ad476fc4e3887ece8a973f5a49055c56860f19e9a06c",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-580a03a6-7099-41aa-a3e1-9c247a670c7d.png"
+    },
+    {
+      "id": "04-mis-aulas",
+      "title": "Mis Aulas",
+      "group": "Aulas",
+      "file": "screens/04-mis-aulas.png",
+      "width": 1487,
+      "height": 1058,
+      "sha256": "976b50a2c03db13cdb1ba246ab4195336b52fb3d99f217c6de78408392d277f7",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-33fa3fad-a19f-46c8-92a7-06c9f468b48b.png"
+    },
+    {
+      "id": "05-crear-datos",
+      "title": "Crear aula · Datos generales",
+      "group": "Crear aula",
+      "file": "screens/05-crear-datos.png",
+      "width": 1486,
+      "height": 1058,
+      "sha256": "410f3d42ec4c005db3fee35563960cd4c1b5422234a811c9af71ac07c5b4ddf2",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-344523ce-0365-46d9-ae29-77eb45516753.png"
+    },
+    {
+      "id": "06-crear-plan",
+      "title": "Crear aula · Plan de estudio",
+      "group": "Crear aula",
+      "file": "screens/06-crear-plan.png",
+      "width": 1487,
+      "height": 1058,
+      "sha256": "b4225d9ff0475426e584d487019c49b2615b06a53d3847300a4af20a87ebcfc7",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-4d9cda84-71f3-45e1-9439-10fb643805bd.png"
+    },
+    {
+      "id": "07-crear-unidades",
+      "title": "Crear aula · Unidades y temas",
+      "group": "Crear aula",
+      "file": "screens/07-crear-unidades.png",
+      "width": 1487,
+      "height": 1058,
+      "sha256": "f388e1acf4892aa9d1707525537121c62fb8f8eed4980b622a4173f9e0abc319",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-c26b055e-def6-478c-b26a-715cb039d588.png"
+    },
+    {
+      "id": "08-crear-revision",
+      "title": "Crear aula · Revisión",
+      "group": "Crear aula",
+      "file": "screens/08-crear-revision.png",
+      "width": 1486,
+      "height": 1058,
+      "sha256": "0e15c4e3c4491e0f7ebca8194dcb294720bbacf6f73091d940346cef2668bab6",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-3486e92c-dfb5-4fc4-8302-53334773b122.png"
+    },
+    {
+      "id": "09-aula-creada",
+      "title": "Aula creada · Siguiente paso",
+      "group": "Crear aula",
+      "file": "screens/09-aula-creada.png",
+      "width": 1487,
+      "height": 1058,
+      "sha256": "6bf3562c093a8a627de27b5aef5e9198747c84e2aa29f73a8b2a31d07464512a",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-9a5306e1-b988-4b54-b756-923597e20ac9.png"
+    },
+    {
+      "id": "10-docente-actividades",
+      "title": "Docente · Actividades",
+      "group": "Docente",
+      "file": "screens/10-docente-actividades.png",
+      "width": 1487,
+      "height": 1058,
+      "sha256": "45dede2be8d5bfb4438f3aa6ff69655628073a5f96c3da33e44b36c11155cad5",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-d1b73095-6280-45c3-bc0f-088d67eb8a00.png"
+    },
+    {
+      "id": "11-docente-alumnos",
+      "title": "Docente · Alumnos",
+      "group": "Docente",
+      "file": "screens/11-docente-alumnos.png",
+      "width": 1488,
+      "height": 1057,
+      "sha256": "0c0749f538774252dd5f7ac7e8fd1a8ffedb65d9781885c6b5e1a197a384257a",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-c2930c46-c668-44b8-a1e1-2bb1904f1f83.png"
+    },
+    {
+      "id": "12-docente-historial",
+      "title": "Docente · Historial",
+      "group": "Docente",
+      "file": "screens/12-docente-historial.png",
+      "width": 1487,
+      "height": 1058,
+      "sha256": "3958a83458e01bec5132f35685750ed53f67a3c259966f63ed1b827ac096c92b",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-4fe2dc77-65ae-4afd-9520-0896d5a5c51a.png"
+    },
+    {
+      "id": "13-docente-plan",
+      "title": "Docente · Plan",
+      "group": "Docente",
+      "file": "screens/13-docente-plan.png",
+      "width": 1487,
+      "height": 1058,
+      "sha256": "fdc44b1e8a32c61d0c60679bf77743e9b2e47169349e1d6b45f10ca30e9b1949",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-61315af7-76c1-43cc-a4e7-19696c307264.png"
+    },
+    {
+      "id": "14-docente-biblioteca",
+      "title": "Docente · Biblioteca",
+      "group": "Docente",
+      "file": "screens/14-docente-biblioteca.png",
+      "width": 1487,
+      "height": 1058,
+      "sha256": "6e13fe52f3d588ecc6feeb10f904a481628be0408e809c966f9d76bbeaa9f0d5",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-e82c7f39-ddfd-4914-86e2-afd3ce88b579.png"
+    },
+    {
+      "id": "15-docente-progreso",
+      "title": "Docente · Progreso",
+      "group": "Docente",
+      "file": "screens/15-docente-progreso.png",
+      "width": 1487,
+      "height": 1058,
+      "sha256": "60e4ee99561efc16567aff2d3ab8bc47b36f61d80fa7de11645e773d5e8d655f",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-29b2c7a6-a492-4d81-95b7-07a8f024209f.png"
+    },
+    {
+      "id": "16-docente-muro",
+      "title": "Docente · Muro",
+      "group": "Docente",
+      "file": "screens/16-docente-muro.png",
+      "width": 1487,
+      "height": 1058,
+      "sha256": "8ea87f08114df71693b83e1debd6f895efb13b763ed0afdc43b0b86338a10335",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-864c4c8f-517b-48ad-9ccf-4053de2c5063.png"
+    },
+    {
+      "id": "17-docente-configuracion",
+      "title": "Docente · Configuración",
+      "group": "Docente",
+      "file": "screens/17-docente-configuracion.png",
+      "width": 1487,
+      "height": 1058,
+      "sha256": "c777cb9fcf5c2e16ca64cd4590a277f772010d979692aa9e541ee0edf7293042",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-c35a5a0c-e1fb-4893-8470-6326945d276c.png"
+    },
+    {
+      "id": "18-estudiante-actividades",
+      "title": "Estudiante · Actividades",
+      "group": "Estudiante",
+      "file": "screens/18-estudiante-actividades.png",
+      "width": 1486,
+      "height": 1059,
+      "sha256": "5e10f4194edbef921641fe6b8fc7630f4a18fe1bff4ff600b4b982abc110f21a",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-5a60340d-ba72-4c62-b5a2-920969f11843.png"
+    },
+    {
+      "id": "19-estudiante-companeros",
+      "title": "Estudiante · Compañeros",
+      "group": "Estudiante",
+      "file": "screens/19-estudiante-companeros.png",
+      "width": 1487,
+      "height": 1058,
+      "sha256": "bb4532eee95a6da93545507d48eb95c33559e5567a056471ec2bc181d9b6d293",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-6b16b183-a9ba-4321-8fde-c8fc9140f1b6.png"
+    },
+    {
+      "id": "20-estudiante-plan",
+      "title": "Estudiante · Plan",
+      "group": "Estudiante",
+      "file": "screens/20-estudiante-plan.png",
+      "width": 1487,
+      "height": 1058,
+      "sha256": "1946b499da4c25333124437879131dde2629cf21469f2f1068f3e7d8b4d5e46d",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-a2b3ca0b-a5aa-4696-92d9-f1c68c69ce40.png"
+    },
+    {
+      "id": "21-estudiante-biblioteca",
+      "title": "Estudiante · Biblioteca",
+      "group": "Estudiante",
+      "file": "screens/21-estudiante-biblioteca.png",
+      "width": 1487,
+      "height": 1058,
+      "sha256": "7e4c650048c8bd34f6aa34a6f1a33346f3c4b0efd037f2e73d7b8db58b6b5fa2",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-5951a35e-6fa5-492a-9318-127827daf21f.png"
+    },
+    {
+      "id": "22-estudiante-mi-progreso",
+      "title": "Estudiante · Mi progreso",
+      "group": "Estudiante",
+      "file": "screens/22-estudiante-mi-progreso.png",
+      "width": 1486,
+      "height": 1058,
+      "sha256": "f8dea10727d899fea7853a2bc816de85e59ab59a275bf1efb8b84d5d7a443167",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-535ded77-3443-415e-b569-9a1df8d4bdda.png"
+    },
+    {
+      "id": "23-estudiante-muro",
+      "title": "Estudiante · Muro",
+      "group": "Estudiante",
+      "file": "screens/23-estudiante-muro.png",
+      "width": 1487,
+      "height": 1058,
+      "sha256": "436288493d8585c3a2878028e8baa371693431c4c43c15e96082874249310898",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-c69f6d33-457a-4573-968a-dc59cf9e50d4.png"
+    },
+    {
+      "id": "24-mi-perfil",
+      "title": "Mi perfil",
+      "group": "Cuenta",
+      "file": "screens/24-mi-perfil.png",
+      "width": 1487,
+      "height": 1058,
+      "sha256": "c0f298ad40c3fa71cfd761fb00f019a93d2855126b329d94b41da232b13d6a6d",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-b0b15906-c928-48c8-b55f-0fe53c03cf07.png"
+    }
+  ]
+}
