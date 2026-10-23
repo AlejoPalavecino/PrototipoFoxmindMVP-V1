@@ -1,0 +1,62 @@
+{
+  "generator": "built-in image_gen",
+  "date": "2026-10-22",
+  "files": [
+    {
+      "file": "01-inicio-carpetas.png",
+      "width": 1487,
+      "height": 1058,
+      "bytes": 1399003,
+      "sha256": "54f7f3ffff5239d571d8b036d99bb9a5ac4f51fb013c3d7ec5649e627b66fd57"
+    },
+    {
+      "file": "02-inicio-ligero.png",
+      "width": 1487,
+      "height": 1058,
+      "bytes": 1376564,
+      "sha256": "4815f1185b4664d84f6a6738a5e2f61dd0c18c4706c4babccb3072529885c7e1"
+    },
+    {
+      "file": "03-inicio-educativo.png",
+      "width": 1487,
+      "height": 1058,
+      "bytes": 1491048,
+      "sha256": "0804393f2b2eb8a902fb5d1016689452671301345ed3879fd21b495fa66a90f8"
+    },
+    {
+      "file": "references/01-tabs-reference.png",
+      "width": 558,
+      "height": 523,
+      "bytes": 206239,
+      "sha256": "32110d7a4bdbce21eb273eef7fe9be787eb0c46e1b3871d9223b8f8c779c8dbd"
+    },
+    {
+      "file": "references/02-outline-reference.png",
+      "width": 1200,
+      "height": 900,
+      "bytes": 429253,
+      "sha256": "b2197e64661f22bf6dd35a88b366d6354ec5db997683944b0119ff859c6d35a6"
+    },
+    {
+      "file": "references/03-education-reference.png",
+      "width": 1200,
+      "height": 900,
+      "bytes": 849012,
+      "sha256": "1d830d7ac7e51740132a87b2ca4152c1862e6a9c167274055c44b331803a0fda"
+    },
+    {
+      "file": "references/04-original-fox.png",
+      "width": 1024,
+      "height": 1536,
+      "bytes": 765856,
+      "sha256": "df0263ae5f09255837632315d46add8580c6ce92b840463e53f01d1f18a2691e"
+    },
+    {
+      "file": "references/05-original-emblem.png",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 2303544,
+      "sha256": "acd6c0e2ba754455e4f845532500d421d75af438a1fed27fb059fd1f4392f353"
+    }
+  ]
+}
