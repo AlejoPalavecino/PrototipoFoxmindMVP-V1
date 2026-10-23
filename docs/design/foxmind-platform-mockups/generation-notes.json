@@ -1,0 +1,125 @@
+{
+  "tool": "Built-in ImageGen",
+  "reference": "C:/Users/alejo/.codex/generated_images/01a16167-f57d-7eb3-8bf0-69b2cffa7d35/exec-4d7c01c0-a6b3-4513-95be-64253a88b92d.png",
+  "secondaryReferences": {
+    "auth": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-91497c8e-97d9-4978-b158-54498822cff6.png",
+    "wizard": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-344523ce-0365-46d9-ae29-77eb45516753.png",
+    "teacher": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-d1b73095-6280-45c3-bc0f-088d67eb8a00.png",
+    "student": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-e32a07ee-2597-449c-a41c-0f5d0a222336.png"
+  },
+  "method": "One call per screen; inspected generated output; exact role and navigation reinforcement appended to base prompts.",
+  "edits": {
+    "05-crear-datos": "Upcoming step numerals instead of checks; Materia/División free text.",
+    "10-docente-actividades": "Inicio white inactive; Mis Aulas yellow active.",
+    "18-estudiante-actividades": "Encuadre y composición subtitle changed to Unidad 1 · La cámara.",
+    "22-estudiante-mi-progreso": "Encuadre subtitle changed to Unidad 1 after correcting generated text corruption.",
+    "23-estudiante-muro": "Mateo García/MG corrected to Mateo Silva/MS."
+  },
+  "outputs": [
+    {
+      "id": "01-login",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-91497c8e-97d9-4978-b158-54498822cff6.png"
+    },
+    {
+      "id": "02-registro",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-cd675e9d-13a8-48c1-841f-124fd54b0b37.png"
+    },
+    {
+      "id": "03-verificacion",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-580a03a6-7099-41aa-a3e1-9c247a670c7d.png"
+    },
+    {
+      "id": "04-mis-aulas",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-33fa3fad-a19f-46c8-92a7-06c9f468b48b.png"
+    },
+    {
+      "id": "05-crear-datos",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-344523ce-0365-46d9-ae29-77eb45516753.png",
+      "priorSource": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-b3550fd4-2a3c-4e23-8743-20118cf0e6fc.png"
+    },
+    {
+      "id": "06-crear-plan",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-4d9cda84-71f3-45e1-9439-10fb643805bd.png"
+    },
+    {
+      "id": "07-crear-unidades",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-c26b055e-def6-478c-b26a-715cb039d588.png"
+    },
+    {
+      "id": "08-crear-revision",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-3486e92c-dfb5-4fc4-8302-53334773b122.png"
+    },
+    {
+      "id": "09-aula-creada",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-9a5306e1-b988-4b54-b756-923597e20ac9.png"
+    },
+    {
+      "id": "10-docente-actividades",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-d1b73095-6280-45c3-bc0f-088d67eb8a00.png",
+      "priorSource": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-e5a5be76-23e6-41a7-b6e7-755905c72ebf.png"
+    },
+    {
+      "id": "11-docente-alumnos",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-c2930c46-c668-44b8-a1e1-2bb1904f1f83.png"
+    },
+    {
+      "id": "12-docente-historial",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-4fe2dc77-65ae-4afd-9520-0896d5a5c51a.png"
+    },
+    {
+      "id": "13-docente-plan",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-61315af7-76c1-43cc-a4e7-19696c307264.png"
+    },
+    {
+      "id": "14-docente-biblioteca",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-e82c7f39-ddfd-4914-86e2-afd3ce88b579.png"
+    },
+    {
+      "id": "15-docente-progreso",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-29b2c7a6-a492-4d81-95b7-07a8f024209f.png"
+    },
+    {
+      "id": "16-docente-muro",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-864c4c8f-517b-48ad-9ccf-4053de2c5063.png"
+    },
+    {
+      "id": "17-docente-configuracion",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-c35a5a0c-e1fb-4893-8470-6326945d276c.png"
+    },
+    {
+      "id": "18-estudiante-actividades",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-5a60340d-ba72-4c62-b5a2-920969f11843.png",
+      "priorSource": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-e32a07ee-2597-449c-a41c-0f5d0a222336.png"
+    },
+    {
+      "id": "19-estudiante-companeros",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-6b16b183-a9ba-4321-8fde-c8fc9140f1b6.png"
+    },
+    {
+      "id": "20-estudiante-plan",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-a2b3ca0b-a5aa-4696-92d9-f1c68c69ce40.png"
+    },
+    {
+      "id": "21-estudiante-biblioteca",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-5951a35e-6fa5-492a-9318-127827daf21f.png"
+    },
+    {
+      "id": "22-estudiante-mi-progreso",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-535ded77-3443-415e-b569-9a1df8d4bdda.png",
+      "priorSource": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-d5f53ecd-7c07-4b2d-80c9-028774108190.png",
+      "priorSources": [
+        "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-d5f53ecd-7c07-4b2d-80c9-028774108190.png",
+        "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-319c0b5c-2f5f-431a-b4e5-418e392e153f.png"
+      ]
+    },
+    {
+      "id": "23-estudiante-muro",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-c69f6d33-457a-4573-968a-dc59cf9e50d4.png",
+      "priorSource": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-7819c1a8-2e00-4075-9360-f043d55604e6.png"
+    },
+    {
+      "id": "24-mi-perfil",
+      "source": "C:\\Users\\alejo\\.codex\\generated_images\\01a16167-f57d-7eb3-8bf0-69b2cffa7d35\\exec-b0b15906-c928-48c8-b55f-0fe53c03cf07.png"
+    }
+  ]
+}
