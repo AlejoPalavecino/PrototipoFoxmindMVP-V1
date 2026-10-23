@@ -59,10 +59,10 @@ export function AppNavbar({ logoHref, links, displayName, notifications, account
     if (onNavigate) { event.preventDefault(); onNavigate(href); }
   };
   const navigation = links.map(link => <a key={link.href} href={link.href} aria-current={link.current ? 'page' : undefined}
-    onClick={event => follow(event, link.href)}><EntryIcon name={link.href.startsWith('/inicio') ? 'house-door-fill' : link.href.startsWith('/mis-aulas') ? 'book' : 'person-fill'} />{link.label}</a>);
+    onClick={event => follow(event, link.href)}><EntryIcon name={link.href.startsWith('/inicio') || link.href.startsWith('/sign-in') ? 'house-door-fill' : link.href.startsWith('/mis-aulas') || link.href.startsWith('/register') ? 'book' : 'person-fill'} />{link.label}</a>);
   return <header className={`fm-navbar${displayName || accountActions ? ' fm-navbar-private' : ''}`} ref={header}
     onBlur={event => { if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget as Node)) close(); }}>
-    <a href={logoHref} className="fm-wordmark" aria-label="FoxMind" onClick={event => follow(event, logoHref)}><span>Fox</span>Mind</a>
+    <a href={logoHref} className="fm-wordmark" aria-label="FoxMind" onClick={event => follow(event, logoHref)}><img src="/folders/foxy-logo.png" width="48" height="48" alt="" /><span>FoxMind</span></a>
     <nav ref={nav} className="fm-nav-links" aria-label="Navegación principal"><span ref={marker} className="fm-nav-marker" aria-hidden="true" hidden />{navigation}</nav>
     <div className="fm-nav-tools">
       {notifications}

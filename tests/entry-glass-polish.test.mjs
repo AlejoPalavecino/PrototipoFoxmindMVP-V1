@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
+import { dirname } from 'node:path';
 import ts from 'typescript';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -49,9 +50,13 @@ test('navbar marker movement uses actual old/new rectangles and suppresses zero/
   assert.equal(markerFrames({ ...from, width: 0 }, to, false), null);
 });
 
-test('notification title has a scoped narrow-layout safeguard without shrinking the close target', () => {
-  const css = readFileSync('apps/shared-ui/entry-glass.css', 'utf8');
-  assert.match(css, /\.p5-dialog\.entry-notifications[\s\S]*?margin:\s*auto/);
-  assert.match(css, /\.entry-notifications\s*>\s*header\s*h2\s*\{[^}]*font-size:\s*20px/);
-  assert.match(css, /\.entry-notifications\s+\.p5-close\s*\{[^}]*flex:\s*0 0 44px/);
+test('notification dialog inherits wrapping title safeguards without shrinking the close target', () => {
+  function cascade(path) {
+    const css = readFileSync(path, 'utf8');
+    return css.replace(/@import\s+['"]([^'"]+)['"];?/g, (_, imported) => cascade(resolve(dirname(path), imported)));
+  }
+  const css = cascade('apps/shared-ui/folders.css');
+  assert.match(css, /\.p5-dialog\s*\{[^}]*margin:\s*auto/);
+  assert.match(css, /\.p5-dialog\s*>\s*header\s*h2\s*\{[^}]*min-width:\s*0;[^}]*overflow-wrap:\s*anywhere/);
+  assert.match(css, /\.p5-dialog\s+\.p5-close\s*\{[^}]*flex:\s*0 0 44px/);
 });

@@ -1,0 +1,64 @@
+.entry-page { background: white; min-height: 100vh; display: flow-root; font-size: 18px; }
+.entry-page .auth-main { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); align-items: center; gap: 64px; width: calc(100% - 96px); max-width: 1380px; margin: 72px auto 32px; }
+.entry-story { min-width: 0; }
+.entry-story h2 { font-size: clamp(36px, 5vw, 72px); line-height: 1.08; font-weight: 850; letter-spacing: -2px; margin-bottom: 18px; }
+.entry-story h2 span { color: var(--fm-accent); }
+.entry-story p { font-size: clamp(18px, 2vw, 26px); line-height: 1.4; color: var(--fm-ink); }
+.entry-story img { display: block; width: min(100%, 580px); height: auto; margin: 12px auto 0; object-fit: contain; }
+.entry-page .surface { background: white; border-color: var(--fm-outline); box-shadow: var(--fm-paper-shadow); padding: 40px 44px; }
+.entry-page .surface.folder-panel { margin-top: 32px; }
+.entry-page .surface > .folder-tab { margin-top: -82px; margin-left: -45.5px; }
+.entry-page .page-heading { margin-bottom: 28px; }
+.entry-page h1 { font-size: clamp(28px, 3.1vw, 46px); line-height: 1.12; font-weight: 850; }
+.entry-page .page-heading p { font-size: 16px; }
+.entry-page .field-label { font-size: 22px; font-weight: 700; }
+.entry-page .input { height: 68px; border: 1.5px solid var(--fm-outline); border-radius: 9px; background: white; }
+.entry-page .input:read-only { background: #f8faf9; }
+.entry-page .field { margin-bottom: 30px; }
+.entry-page .button { border-radius: 10px; min-height: 64px; border: 1.5px solid var(--fm-outline); font-size: 20px; box-shadow: 2px 2px 0 #f6e1b8; }
+.entry-page .button-primary { color: var(--fm-ink); background: var(--fm-accent); }
+.entry-page .button-primary:hover:enabled { background: var(--fm-accent-hover); }
+.password-control { position: relative; }
+.password-control .input { padding-right: 92px; }
+.password-toggle { position: absolute; right: 4px; top: 4px; bottom: 4px; min-width: 76px; background: white; border: 0; border-radius: 6px; font: inherit; font-size: 14px; font-weight: 650; color: var(--fm-muted); cursor: pointer; }
+.password-toggle:hover { background: var(--fm-peach); }
+.after-form { border-top: 1px solid var(--fm-line); padding-top: 24px; font-size: 16px; }
+.account-steps { display: flex; flex-wrap: wrap; gap: 12px; padding: 12px 0; list-style: none; font-size: 14px; }
+.account-steps li { border: 1px solid var(--fm-outline); border-radius: 8px; padding: 10px; background: var(--fm-mint); }
+.entry-page .page-footer { grid-column: 1 / -1; color: var(--fm-muted); margin: 12px auto; }
+.entry-page .auth-verification { display: block; max-width: 760px; margin-top: 80px; }
+.verification-foxy { display: block; object-fit: contain; width: 140px; height: 140px; margin: 0 auto 24px; }
+.entry-profile .profile-main { max-width: 1040px; width: calc(100% - 64px); margin: 32px auto; }
+.entry-profile .profile-account { border: 0; box-shadow: none; padding: 0; }
+.entry-profile .profile-details, .entry-profile .password-section { padding: 28px; margin-top: 64px; }
+.entry-profile .profile-details > .folder-tab, .entry-profile .password-section > .folder-tab { margin: -69px 0 24px -29.5px; }
+.entry-profile .profile-summary { margin: 0 0 40px; }
+.entry-profile .initials { background: var(--fm-mint); color: var(--fm-ink); border: 1.5px solid var(--fm-outline); box-shadow: none; }
+.entry-profile .profile-verified { color: var(--fm-success); }
+.entry-profile .password-section form { max-width: none; }
+.breadcrumbs { margin-bottom: 24px; color: var(--fm-muted); }
+.entry-profile .signout-row { border: 0; }
+@media (max-width: 900px) {
+  .entry-page .auth-main { width: calc(100% - 48px); gap: 28px; }
+  .entry-story h2 { font-size: 42px; }
+  .entry-page .surface { padding: 28px 24px; }
+  .entry-page .surface > .folder-tab { margin-left: -25.5px; margin-top: -70px; }
+}
+@media (max-width: 700px) {
+  .entry-page { font-size: 16px; }
+  .entry-page .input { height: 54px; }
+  .entry-page .field-label { font-size: 18px; }
+  .entry-page .field { margin-bottom: 24px; }
+  .entry-page .button { min-height: 54px; font-size: 16px; }
+  .entry-page .auth-main { display: block; width: calc(100% - 32px); margin-top: 32px; }
+  .entry-story { display: none; }
+  .entry-page .surface { padding: 24px 20px; margin-top: 64px; }
+  .entry-page .surface > .folder-tab { margin-left: -21.5px; margin-top: -65px; }
+  .entry-page h1 { font-size: 28px; }
+  .entry-page .field-grid { grid-template-columns: 1fr; gap: 0; }
+  .entry-profile .profile-main { width: calc(100% - 32px); }
+  .entry-profile .profile-details, .entry-profile .password-section { padding: 20px 16px; }
+  .entry-profile .profile-details > .folder-tab, .entry-profile .password-section > .folder-tab { margin: -61px 0 20px -17.5px; }
+  .account-steps { gap: 6px; }
+  .verification-foxy { width: 100px; height: 100px; }
+}

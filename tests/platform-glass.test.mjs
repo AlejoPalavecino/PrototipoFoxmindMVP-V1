@@ -2,10 +2,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import postcss from 'postcss';
+import { dirname, resolve } from 'node:path';
 
 const read = path => existsSync(path) ? readFileSync(path, 'utf8') : '';
 const tokens = postcss.parse(read('apps/shared-ui/design-tokens.css'));
-const platform = postcss.parse(read('apps/shared-ui/platform-glass.css'));
+const platform = postcss.parse(read('apps/shared-ui/folders-controls.css'));
+function cascade(path) {
+  assert.ok(existsSync(path), `Missing selected stylesheet ${path}`);
+  return read(path).replace(/@import\s+['"]([^'"]+)['"];?/g, (_, imported) => cascade(resolve(dirname(path), imported)));
+}
+const folders = () => cascade('apps/shared-ui/folders.css');
 const academic = read('apps/classrooms-ui/styles.css');
 const declarations = new Map();
 tokens.walkDecls(declaration => declarations.set(declaration.prop, declaration.value));
@@ -34,8 +40,8 @@ function rule(selectorPart, property, value) {
   assert.ok(found, `${selectorPart}: ${property}: ${value}`);
 }
 
-test('one shared palette retains the selected entry colors and legible semantic pairs', () => {
-  for (const [name, expected] of Object.entries({ '--fm-ink': '#10113f', '--fm-muted': '#505a86', '--fm-pearl': '#f6f7fc', '--fm-accent': '#ff8500', '--fm-link': '#b94808' })) {
+test('one shared palette retains the selected folder colors and legible semantic pairs', () => {
+  for (const [name, expected] of Object.entries({ '--fm-ink': '#202522', '--fm-muted': '#56615c', '--fm-pearl': '#ffffff', '--fm-accent': '#ff782d', '--fm-link': '#9a3e00' })) {
     assert.equal(declarations.get(name), expected);
   }
   for (const [foreground, background] of [
@@ -45,18 +51,20 @@ test('one shared palette retains the selected entry colors and legible semantic 
   ]) assert.ok(contrast(color(foreground), color(background)) >= 4.5, `${foreground} on ${background} needs 4.5:1`);
   assert.ok(contrast(color('--fm-control-line'), color('--fm-surface')) >= 3);
   assert.ok(contrast(color('--fm-focus'), color('--fm-surface')) >= 3);
-  // Measure the actual 94% white card over the quiet pearl foundation, not white alone.
-  const glass = color('--fm-surface').map((channel, index) => .94 * channel + .06 * color('--fm-pearl')[index]);
-  assert.ok(contrast(color('--fm-muted'), glass) >= 4.5);
+  for (const tone of ['--fm-mint', '--fm-coral', '--fm-yellow']) {
+    assert.ok(contrast(color('--fm-ink'), color(tone)) >= 4.5, `Readable folder label on ${tone}`);
+  }
 });
 
-test('tokens load before their consumers and the existing entry composition wins last', () => {
+test('tokens load before their consumers and selected folder composition wins last', () => {
   const app = read('apps/web/pages/_app.tsx');
-  const paths = ['shared-ui/design-tokens.css', 'styles/globals.css', 'classrooms-ui/styles.css', 'shared-ui/platform-glass.css', 'shared-ui/entry-glass.css'];
+  const paths = ['shared-ui/design-tokens.css', 'styles/globals.css', 'classrooms-ui/styles.css', 'shared-ui/folders.css'];
   const indexes = paths.map(path => app.indexOf(path));
   assert.ok(indexes.every(index => index >= 0), 'Every stylesheet must be loaded');
   assert.deepEqual(indexes, [...indexes].sort((a, b) => a - b));
-  for (const source of [academic, read('apps/web/styles/globals.css'), read('apps/shared-ui/entry-glass.css')]) {
+  assert.doesNotMatch(app, /import\s+['"][^'"]*glass\.css/);
+  assert.ok(folders().includes(platform.toString()), 'Selected cascade retains native academic control safeguards');
+  for (const source of [academic, read('apps/web/styles/globals.css'), folders()]) {
     assert.match(source, /var\(--fm-ink/);
     assert.match(source, /var\(--fm-muted/);
     assert.match(source, /var\(--fm-font-sans/);
@@ -65,9 +73,10 @@ test('tokens load before their consumers and the existing entry composition wins
 
 test('standalone renderer uses the same palette and stylesheet cascade', () => {
   const standalone = read('apps/classrooms-ui/ClassroomsApp.tsx');
-  const indexes = ['shared-ui/design-tokens.css', './styles.css', 'shared-ui/platform-glass.css', 'shared-ui/entry-glass.css'].map(path => standalone.indexOf(path));
+  const indexes = ['shared-ui/design-tokens.css', './styles.css', 'shared-ui/folders.css'].map(path => standalone.indexOf(path));
   assert.ok(indexes.every(index => index >= 0), 'Standalone styles must not diverge from Next');
   assert.deepEqual(indexes, [...indexes].sort((a, b) => a - b));
+  assert.doesNotMatch(standalone, /import\s+['"][^'"]*glass\.css/);
 });
 
 test('checkboxes and radios never inherit full-width text input sizing', () => {
@@ -122,10 +131,14 @@ test('academic and dialog subheadings keep a compact hierarchy after the host he
       rule(`${scope} ${heading}`, 'font-weight', weight);
     }
   }
-  const entry = read('apps/shared-ui/entry-glass.css');
-  assert.match(entry, /\.entry-home \.p5-card h3\s*\{[^}]*font-size:\s*24px;[^}]*font-weight:\s*750/);
-  assert.match(entry, /\.entry-home \.p9-home-news h3\s*\{[^}]*font-size:\s*16px;[^}]*font-weight:\s*700/);
-  assert.match(entry, /\.entry-notifications\s*>\s*header\s*h2\s*\{[^}]*font-size:\s*20px/);
+  const entry = postcss.parse(folders());
+  let rowSize;
+  entry.walkRules('.folder-row h3', node => node.walkDecls('font-size', declaration => { rowSize = declaration.value; }));
+  assert.match(rowSize ?? '', /^\d+(?:\.\d+)?px$/);
+  assert.ok(parseFloat(rowSize) >= 16 && parseFloat(rowSize) <= 24, 'Folder row titles retain a compact, legible hierarchy');
+  // News inherits the shared h3 hierarchy above instead of the former Home-specific reset.
+  rule('.p5-dialog > header h2', 'min-width', '0');
+  rule('.p5-dialog > header h2', 'overflow-wrap', 'anywhere');
 });
 
 test('long content, mobile layouts and user accessibility preferences are retained', () => {
