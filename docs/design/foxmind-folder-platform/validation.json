@@ -1,0 +1,22 @@
+{
+  "local_links_checked": 13,
+  "broken_links": [],
+  "coverage_rows": 43,
+  "required_journeys": 22,
+  "reference_hashes_equal": 4,
+  "application_tests": "not_run_documentation_only",
+  "engram_full_readback_ids": [
+    551,
+    552,
+    553
+  ],
+  "documents": {
+    "BASELINE.md": "07eae6f34f20601839b98f5eb25aad8e894aced1979e409202ddeff332db9aef",
+    "COVERAGE-MATRIX.md": "881273c19206f57a8dc4c70a8de216ae5dc22dc63eedc87b5aaba8e1bfa6658c",
+    "ENGRAM.md": "4f36d119350a6ce397001e1c4e58bd9bbda22c0a8d35fb085dd1db0cc3adb98b",
+    "HANDOFF.md": "f8e20f713b6eb08e24674d85c549bcd5043f3be556617e89bf12284240acee9d",
+    "IMPLEMENTATION-PLAN.md": "009ab87afcf8f31c15bc083399d90e35a5b000990f4094f7607fd488649f3e7d",
+    "README.md": "1af6a8ce39ff5059d5e4d7fa47af9f6259f9f02360c0065cc53100d50b20bba4",
+    "VERIFICATION.md": "f3e768a10f06e98a83901871e28bbd7ba42c3bf434eb1dca0b3cf70c8234ce12"
+  }
+}
