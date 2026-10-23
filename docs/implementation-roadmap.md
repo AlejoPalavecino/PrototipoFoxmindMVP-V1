@@ -2,7 +2,7 @@
 
 ## Folder publication scope — 2026-10-22
 
-The user explicitly authorized integrating the verified folder presentation into main and pushing it to GitHub, without deployment. Main was fast-forwarded to candidate0d838a0; fresh97PASS/4optionalSKIP, production build, strict TypeScript and structural checks passed. [Publication evidence](work-log/2026-10-22-root-folder-publication.md) owns the exact push/readback result. The earlier local-only boundary below is historical and is superseded only for this delivery. No deployment or retained-data operation is included.
+The verified folder presentation was fast-forwarded into main and pushed to GitHub under the user's explicit instruction, without deployment. Candidate0d838a0 and integration record30ea2ab are included; exact live remote readback matched30ea2ab5f1cfccf0e263fd0586aeb9adcb823a59. Fresh97PASS/4optionalSKIP, production build, strict TypeScript and structural checks passed. [Publication evidence](work-log/2026-10-22-root-folder-publication.md) owns delivery details; this passive closure changes no product bytes. The earlier local-only boundary below is historical and superseded only for this delivery. GitHub deployments remained0; no deployment or retained-data operation occurred.
 
 ## Current locally verified folder presentation — 2026-10-22
 

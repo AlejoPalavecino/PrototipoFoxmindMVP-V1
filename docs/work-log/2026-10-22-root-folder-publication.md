@@ -5,7 +5,7 @@
 - Date: 2026-10-22, America/Buenos_Aires.
 - Starting candidate: 0d838a0 on codex/folder-style-platform.
 - Starting local and freshly fetched origin/main: 0bcb7d48dac76d49aa8e89b3ac76b32b03515425.
-- Status: in_progress.
+- Status: completed.
 - Scope: current direct user instruction, "Integra los cambios en main y súbelos a GitHub, sin desplegar todavía." This supersedes the preceding local-only delivery boundary for these exact folder changes. No unrelated feature implementation, retained-data operation or deployment.
 
 ## Preflight
@@ -24,3 +24,8 @@ The source candidate already has independent97PASS/4optionalSKIP, strict API/cla
 Fresh checks completed:101tests,97PASS/0FAIL/4optional origin-dependentSKIP, exit0 (10.537s); production Next build and web TypeScript exit0; strict classroom TypeScript exit0;6current-document/9relative-link/8reference-JSON structural check exit0; git diff --check exit0. No additional functional replay was needed because no product bytes changed after the independently tested candidate.
 
 git switch --ignore-other-worktrees main and git merge --ff-only codex/folder-style-platform both exit0. Main now contains the exact candidate0d838a027a06cfebac91093fe7e4f1f45b2b3629. git diff --exit-code0d838a0 over apps/tests/scripts/package manifests/prisma exit0, confirming the tested product is unchanged. The separate original checkout was not switched or modified. Live git ls-remote immediately before integration matched the fetched0bcb7d4 base. First unfinished action: commit this passive delivery record and roadmap, normal main push, then exact remote readback. No deployment authorized.
+
+## Observed delivery
+Commit30ea2ab5f1cfccf0e263fd0586aeb9adcb823a59 records the integration. Normal git push origin main:main succeeded, advancing0bcb7d4..30ea2ab. Subsequent HEAD, origin/main and live git ls-remote refs/heads/main all matched that full SHA. Tree was clean. Target GitHub deployments API returned0 after push; no deployment command, PR, force-push, retained-data or hosting mutation occurred.
+
+This final passive closure updates only the delivery record/roadmap. It is committed and pushed under the same authorization; exact final SHA readback is reported in the user response rather than inventing this file's own future commit identity. No product work remains in this scope. Future deployment requires the user's separate instruction. The original checkout and existing preview/data remain preserved.
