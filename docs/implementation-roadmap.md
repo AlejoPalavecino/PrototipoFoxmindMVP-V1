@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Folder publication scope — 2026-10-22
+
+The user explicitly authorized integrating the verified folder presentation into main and pushing it to GitHub, without deployment. Main was fast-forwarded to candidate0d838a0; fresh97PASS/4optionalSKIP, production build, strict TypeScript and structural checks passed. [Publication evidence](work-log/2026-10-22-root-folder-publication.md) owns the exact push/readback result. The earlier local-only boundary below is historical and is superseded only for this delivery. No deployment or retained-data operation is included.
+
 ## Current locally verified folder presentation — 2026-10-22
 
 The selected24folder-style mockups now guide the existing V1 throughout accounts, classroom navigation and academic flows, with generated Foxy artwork. Work is isolated on `codex/folder-style-platform` from complete main0bcb7d4; the original P3 checkout remains untouched. See [folder-theme guide](folder-theme.md), [coordinator evidence](work-log/2026-10-22-root-folder-implementation.md), [live verification](work-log/2026-10-22-folder-live-verify.md) and [visual QA](../design-qa.md). Local97PASS/4optionalSKIP, strict builds, real delivery/grading/publication journeys and bounded desktop/mobile comparison are recorded. Preview: http://127.0.0.1:57492 with disposable data. This is locally verified presentation work; no remote integration or deployment is included. Historical P0–P9 acceptance below stays scoped to its recorded candidates.
