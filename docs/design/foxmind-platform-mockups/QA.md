@@ -36,4 +36,3 @@ Inspección visual por el agente de cada salida de ImageGen mostrada en la conve
 ## Comprobaciones de archivos
 
 24 PNG finales copiados al repositorio, originales preservados. El manifiesto registra dimensiones reales y SHA-256. Comprobación de referencias locales de HTML y Markdown; sin dependencias remotas. No se ejecutaron tests de producto: no se cambió código de aplicación, servicios ni datos.
-

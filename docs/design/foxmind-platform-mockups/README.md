@@ -60,4 +60,3 @@ Lucía Ríos es docente y Marina López estudiante de Introducción a la fotogra
 ## Pendiente fuera de este set
 
 Variantes móviles, estados de error/vacío/carga, validaciones y confirmaciones, recuperación de contraseña, unirse por código, detalle/creación/resolución/calificación de actividades y prueba funcional de permisos. Se deben resolver en el trabajo posterior, sin inferir comportamiento de estas imágenes. Este set no reduce el alcance del plan transversal existente.
-
