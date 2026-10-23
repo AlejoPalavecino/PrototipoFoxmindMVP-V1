@@ -4,6 +4,7 @@ import type { ClassroomClient, Classroom, Draft, Invitation, NotificationTarget 
 import { Cover, Dialog, Notice } from './components.tsx';
 import { Notifications } from './Notifications.tsx';
 import { Home } from './Home.tsx';
+import { EntryIcon } from '../shared-ui/EntryIcon';
 import { AppNavbar } from '../shared-ui/AppNavbar.tsx';
 const Wizard = lazy(() =>
   import('./Wizard.tsx').then((module) => ({ default: module.Wizard })),
@@ -98,6 +99,7 @@ export function ClassroomsApp({
   const showPresentation = (next: 'home' | 'classrooms') => {
     setDraft(null);
     setClassroomId(null);
+    setSharedCode(null);
     setWallTarget(null);
     setPresentation(next);
     if (next !== initialPresentation && onNavigate) { onNavigate(next); return; }
@@ -131,6 +133,7 @@ export function ClassroomsApp({
           { confirmation: preview.confirmation },
         );
         setJoin(false);
+        setSharedCode(null);
         setClassroomId(result.id);
         setPreview(null);
         setCode('');
@@ -156,6 +159,10 @@ export function ClassroomsApp({
         notifications={!draft ? <Notifications api={api} refresh={notificationRefresh} onOpen={openTarget} /> : undefined}
         accountActions={!draft ? accountActions : undefined} />
       <main id="classroom-main" className="p5-main">
+        {classroomId && sharedCode ? <section className="folder-created" role="status">
+          <div><h2>Aula creada</h2><p>Tu espacio ya está listo. Compartí el código o invitá estudiantes desde Alumnos.</p></div>
+          <img src="/folders/foxy-welcome.png" alt="" width="120" height="120" />
+        </section> : null}
         {draft ? (
           <Suspense fallback={<Notice>Cargando asistente…</Notice>}>
             <Wizard
@@ -195,12 +202,12 @@ export function ClassroomsApp({
           <>
             <header className="p5-page-head">
               <div>
-                <h1>Mis Aulas</h1>
+                <h1>Mis <span>Aulas</span></h1>
                 <p className="p5-lead">
                   Lo que enseñás. Todo lo que podés aprender.
                 </p>
               </div>
-              <div className="p5-actions">
+              <div className="folder-classroom-tools"><div className="p5-actions">
                 <button
                   disabled={busy}
                   onClick={() => {
@@ -220,9 +227,12 @@ export function ClassroomsApp({
                     })
                   }
                 >
-                  ＋ Crear aula
+                  <EntryIcon name="plus-circle-fill" /> Crear aula
                 </button>
               </div>
+              {data ? <label className="p5-search">Buscar aula
+                <input type="search" placeholder="Nombre, materia o división" value={search} onChange={(event) => setSearch(event.target.value)} />
+              </label> : null}</div>
             </header>
             {notice ? <Notice>{notice}</Notice> : null}
             {error ? (
@@ -237,6 +247,59 @@ export function ClassroomsApp({
             {data && requestedInvitation && !data.invitations.some(item => item.id.toLowerCase() === requestedInvitation.toLowerCase()) ? (
               <Notice>Esta invitación no está pendiente para la cuenta actual. Puede haber vencido, haberse utilizado o corresponder a otro correo. Revisa tus invitaciones o cambia de cuenta desde tu perfil.</Notice>
             ) : null}
+            {data ? (
+              <>
+                <div className="folder-columns">{(['study', 'teach'] as const).map((kind) => (
+                  <section className={`p5-classroom-group folder-panel tone-${kind === 'teach' ? 'coral' : 'mint'}`} key={kind}>
+                    <h2 className="folder-tab">{kind === 'teach' ? 'Enseño' : 'Estudio'}</h2>
+                    <div className="folder-rows">
+                      {data[kind]
+                        .filter((room) =>
+                          `${room.name} ${room.subject} ${room.division}`
+                            .toLocaleLowerCase()
+                            .includes(search.toLocaleLowerCase()),
+                        )
+                        .map((room) => (
+                          <article className="folder-row" key={room.id}>
+                            <Cover kind={room.coverKey} />
+                            <div>
+                              <h3>{room.name}</h3>
+                              {room.archived ? (
+                                <span className="p5-tag">
+                                  Archivada · Solo lectura
+                                </span>
+                              ) : null}
+                              <p>{room.subject}</p>
+                              <p>{kind === 'teach' ? 'Vos sos docente' : `Docente: ${room.teacher}`}</p>
+                              <p>
+                                {room.division} · Ciclo lectivo{' '}
+                                {room.academicYear}
+                              </p>
+                              <button
+                                onClick={() => {
+                                  setSharedCode(null);
+                                  setClassroomId(room.id);
+                                }}
+                              >
+                                Entrar al aula
+                              </button>
+                            </div>
+                          </article>
+                        ))}
+                    </div>
+                    {data[kind].length === 0 ? (
+                      <p className="p5-empty">
+                        {kind === 'teach'
+                          ? 'Tu próxima aula empieza con lo que sabés. Creá una para compartirlo.'
+                          : 'Ingresá con un código o aceptá una invitación para empezar.'}
+                      </p>
+                    ) : null}
+                  </section>
+                ))}</div>
+              </>
+            ) : null}
+            {data && (data.invitations.length > 0 || data.drafts.length > 0) ? <section className="folder-panel tone-yellow folder-pending" aria-label="Pendientes">
+              <h2 className="folder-tab"><EntryIcon name="bell" />Pendientes</h2>
             {data?.invitations.length ? (
               <section className="p5-invitations">
                 <h2>Tenés una invitación</h2>
@@ -266,7 +329,7 @@ export function ClassroomsApp({
             ) : null}
             {data?.drafts.length ? (
               <section className="p5-drafts">
-                <h2>Continuar un borrador</h2>
+                <h3>Continuar un borrador</h3>
                 {data.drafts.map((item) => (
                   <button
                     key={item.id}
@@ -282,65 +345,7 @@ export function ClassroomsApp({
                 ))}
               </section>
             ) : null}
-            {data ? (
-              <>
-                <label className="p5-search">
-                  Buscar aula
-                  <input
-                    type="search"
-                    placeholder="Nombre, materia o división"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                </label>
-                {(['teach', 'study'] as const).map((kind) => (
-                  <section className="p5-classroom-group" key={kind}>
-                    <h2>{kind === 'teach' ? 'Enseño' : 'Estudio'}</h2>
-                    <div className="p5-grid">
-                      {data[kind]
-                        .filter((room) =>
-                          `${room.name} ${room.subject} ${room.division}`
-                            .toLocaleLowerCase()
-                            .includes(search.toLocaleLowerCase()),
-                        )
-                        .map((room) => (
-                          <article className="p5-card" key={room.id}>
-                            <Cover kind={room.coverKey} />
-                            <div>
-                              <h3>{room.name}</h3>
-                              {room.archived ? (
-                                <span className="p5-tag">
-                                  Archivada · Solo lectura
-                                </span>
-                              ) : null}
-                              <p>{room.subject}</p>
-                              <p>
-                                {room.division} · Ciclo lectivo{' '}
-                                {room.academicYear}
-                              </p>
-                              <button
-                                onClick={() => {
-                                  setSharedCode(null);
-                                  setClassroomId(room.id);
-                                }}
-                              >
-                                Entrar al aula
-                              </button>
-                            </div>
-                          </article>
-                        ))}
-                    </div>
-                    {data[kind].length === 0 ? (
-                      <p className="p5-empty">
-                        {kind === 'teach'
-                          ? 'Tu próxima aula empieza con lo que sabés. Creá una para compartirlo.'
-                          : 'Ingresá con un código o aceptá una invitación para empezar.'}
-                      </p>
-                    ) : null}
-                  </section>
-                ))}
-              </>
-            ) : null}
+            </section> : null}
           </>
         )}
       </main>

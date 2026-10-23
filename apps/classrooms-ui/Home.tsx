@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import type { Classroom, ClassroomClient, ClassroomNotification, Draft, Invitation, NotificationTarget } from './api.ts';
-import { coverCatalog, Notice } from './components.tsx';
+import { Cover, Notice } from './components.tsx';
 import { EntryIcon } from '../shared-ui/EntryIcon';
 
 interface HomeData {
@@ -31,8 +31,6 @@ export function Home({ displayName, data, busy, onCreate, onJoin, onClassrooms, 
   onOpenTarget: (target: NotificationTarget) => void;
 }) {
   const [news, setNews] = useState<ClassroomNotification[] | null>(null);
-  const [selected, setSelected] = useState<'teach' | 'study' | null>(null);
-  const active = selected ?? (data?.teach.length ? 'teach' : data?.study.length ? 'study' : 'teach');
   const [error, setError] = useState(''), [newsBusy, setNewsBusy] = useState(false);
   const loadNews = useCallback(async (signal?: AbortSignal) => {
     const items = await api.call<ClassroomNotification[]>('/notifications', 'GET', undefined, signal);
@@ -53,10 +51,13 @@ export function Home({ displayName, data, busy, onCreate, onJoin, onClassrooms, 
     finally { setNewsBusy(false); }
   }
   return <section className="p9-home" aria-label="Inicio">
-    <header className="entry-home-greeting">
+    <header className="entry-home-greeting folder-home-greeting">
+      <div>
         <h1>Hola, {displayName}</h1>
         <p className="entry-home-lead">Continúa con tus aulas.</p>
         {data ? <small>{data.teach.length} {data.teach.length === 1 ? 'aula en Enseño' : 'aulas en Enseño'} y {data.study.length} {data.study.length === 1 ? 'aula en Estudio' : 'aulas en Estudio'}.</small> : null}
+      </div>
+      <img className="folder-home-foxy" src="/folders/foxy-reading.png" alt="" width="240" height="240" />
     </header>
     {data ? <>
       <section className="entry-classrooms" aria-label="Tus aulas">
@@ -64,18 +65,11 @@ export function Home({ displayName, data, busy, onCreate, onJoin, onClassrooms, 
         <button disabled={busy} onClick={onCreate}><EntryIcon name="plus-circle-fill" />Crear aula</button>
         <button disabled={busy} onClick={onJoin}><EntryIcon name="people-fill" />Unirse con código</button>
       </div></div>
-      <div className="entry-contexts" role="group" aria-label="Perspectiva de tus aulas">
-        <button type="button" aria-pressed={active === 'study'} onClick={() => setSelected('study')}>Estudio ({data.study.length})</button>
-        <button type="button" aria-pressed={active === 'teach'} onClick={() => setSelected('teach')}>Enseño ({data.teach.length})</button>
-      </div>
       {data.teach.length + data.study.length === 0 ? <p className="entry-empty">Aún no tienes aulas. Crea una para enseñar o únete con un código para empezar a aprender.</p> : null}
-      {(['teach', 'study'] as const).map(kind => <section className="p5-classroom-group" key={kind} hidden={active !== kind} aria-label={kind === 'teach' ? 'Enseño' : 'Estudio'}>
-        <h2 className="entry-sr-only">{kind === 'teach' ? 'Enseño' : 'Estudio'}</h2>
-        {data[kind].length ? <div className="p5-grid">{data[kind].map(room => <article className="p5-card" key={room.id}>
-          <div className={`entry-class-cover entry-cover-${room.coverKey}`}>
-            <img className="entry-cover-landscape" src="/entry-glass/backdrop.webp" alt="" width="1448" height="1086" />
-            <img className="entry-cover-book" src="/entry-glass/book.webp" alt={`Portada ${coverCatalog.find(cover => cover.key === room.coverKey)?.label ?? 'Explorar'}`} width="780" height="600" />
-          </div>
+      <div className="folder-columns">{(['study', 'teach'] as const).map(kind => <section className={`p5-classroom-group folder-panel tone-${kind === 'teach' ? 'coral' : 'mint'}`} key={kind} aria-label={kind === 'teach' ? 'Enseño' : 'Estudio'}>
+        <h2 className="folder-tab"><EntryIcon name={kind === 'teach' ? 'people-fill' : 'book'} />{kind === 'teach' ? 'Enseño' : 'Estudio'}</h2>
+        {data[kind].length ? <div className="folder-rows">{data[kind].map(room => <article className="folder-row" key={room.id}>
+          <Cover kind={room.coverKey} />
           <div>
             <h3>{room.name}</h3>
             {room.archived ? <span className="p5-tag">Archivada · Solo lectura</span> : null}
@@ -84,15 +78,17 @@ export function Home({ displayName, data, busy, onCreate, onJoin, onClassrooms, 
             <button className="primary" disabled={busy} onClick={() => onEnter(room.id)}><EntryIcon name="book" />Entrar al aula<EntryIcon name="arrow-right" /></button>
           </div>
         </article>)}</div> : data.teach.length + data.study.length > 0 ? <p className="p5-empty">{kind === 'teach' ? 'Aún no creaste un aula. Comparte lo que sabes creando la primera.' : 'Aún no estudias en un aula. Usa un código o acepta una invitación desde Mis Aulas.'}</p> : null}
-      </section>)}
+      </section>)}</div>
       </section>
-      {(data.drafts.length > 0 || data.invitations.length > 0) ? <div className="p9-home-pending">
+      {(data.drafts.length > 0 || data.invitations.length > 0) ? <section className="p9-home-pending folder-panel tone-yellow" aria-label="Pendientes">
+        <h2 className="folder-tab">Pendientes</h2>
         <p>{data.drafts.length} {data.drafts.length === 1 ? 'borrador privado' : 'borradores privados'} · {data.invitations.length} {data.invitations.length === 1 ? 'invitación pendiente' : 'invitaciones pendientes'}</p>
         <button disabled={busy} onClick={onClassrooms}>Ver borradores e invitaciones</button>
-      </div> : null}
+      </section> : null}
     </> : null}
-    <section id="novedades" className="p9-home-news" aria-label="Novedades" aria-busy={newsBusy}>
-      <div className="p5-section-head"><h2>Novedades</h2><button disabled={newsBusy} onClick={() => void run(() => loadNews())}>Actualizar novedades</button></div>
+    <section id="novedades" className="p9-home-news folder-panel tone-yellow" aria-label="Novedades" aria-busy={newsBusy}>
+      <h2 className="folder-tab">Novedades</h2>
+      <div className="p5-section-head"><button disabled={newsBusy} onClick={() => void run(() => loadNews())}>Actualizar novedades</button></div>
       <p>Avisos, actividades y resultados de tus aulas. El acceso se comprueba al abrir cada novedad.</p>
       {error ? <Notice error>{error} <button disabled={newsBusy} onClick={() => void run(() => loadNews())}>Reintentar novedades</button></Notice> : null}
       {!news && !error ? <Notice>Cargando novedades…</Notice> : null}
