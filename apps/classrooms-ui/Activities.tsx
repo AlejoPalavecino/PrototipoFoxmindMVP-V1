@@ -55,11 +55,11 @@ export function Activities({ api, room, reload, target, onChanged }: { api: Clas
       onSaved={async () => { await refresh(); setNotice('Cambios confirmados por el servidor. Guardar no publica un borrador.'); }}
       onClose={() => setEditing(null)} /> : null}
     {loaded && activities.length === 0 ? <p className="p5-empty">Todavía no hay actividades disponibles.</p> : null}
-    <div className="p7-activity-list">{activities.map(activity => <article key={activity.id} aria-label={activity.title ?? 'Borrador sin título'}>
-      <div><small>{activityTypeLabels[activity.type]} · {activity.status === 'DRAFT' ? 'Borrador privado' : activity.status === 'WITHDRAWN' ? 'Retirada' : 'Publicada'}</small>
+    <div className="p7-activity-list">{activities.map(activity => <article className="folder-row" key={activity.id} aria-label={activity.title ?? 'Borrador sin título'}>
+      <div className="folder-row-content"><small>{activityTypeLabels[activity.type]} · {activity.status === 'DRAFT' ? 'Borrador privado' : activity.status === 'WITHDRAWN' ? 'Retirada' : 'Publicada'}</small>
         <h3>{activity.title ?? 'Borrador sin título'}</h3><p>{activityDate(activity.deadlineAt, activity.zone)}</p>
         {activity.locked ? <small>Contenido bloqueado por participación</small> : null}</div>
-      <div className="p5-actions"><button disabled={busy} onClick={() => void run(async () => {
+      <div className="p5-actions folder-row-actions"><button disabled={busy} onClick={() => void run(async () => {
         if (teacher) { setPreview(await api.call<ActivityData>(`/${room.id}/activities/${activity.id}/preview`)); return; }
         let next = await api.call<AttemptSessionData>(`/${room.id}/activities/${activity.id}/session`);
         if (activity.type === 'ASSIGNMENT' && next.canStart) {

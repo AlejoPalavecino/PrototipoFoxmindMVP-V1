@@ -21,12 +21,12 @@ export function Plan({ api, room, reload }: { api: ClassroomClient; room: Detail
     [result[index], result[index + direction]] = [result[index + direction], result[index]];
     return result;
   };
-  return <section aria-label="Plan de estudio">
-    <h2>Plan de estudio</h2>
+  return <section className="folder-plan" aria-label="Plan de estudio">
+    <header className="p5-section-head"><h2>Plan de estudio</h2>
+      <button disabled={busy} onClick={() => void run(reload)}>Actualizar Plan</button></header>
     {error && <Notice error>{error}</Notice>}
     {notice && <Notice>{notice}</Notice>}
-    <button disabled={busy} onClick={() => void run(reload)}>Actualizar Plan</button>
-    {room.plans.map(plan => <p key={plan.id}><a href={api.fileUrl(plan.fileId)} target="_blank" rel="noreferrer">Descargar plan · Versión {plan.version}</a></p>)}
+    {room.plans.map(plan => <p className="folder-plan-file" key={plan.id}><a href={api.fileUrl(plan.fileId)} target="_blank" rel="noreferrer">Descargar plan · Versión {plan.version}</a></p>)}
     {writable && <fieldset disabled={busy}>
       <legend>Nueva versión del archivo</legend>
       <label>Archivo del plan (PDF o DOCX)<input type="file" accept=".pdf,.docx" onChange={event => {
@@ -46,7 +46,7 @@ export function Plan({ api, room, reload }: { api: ClassroomClient; room: Detail
     </fieldset>}
     {room.units.map((unit, index) => <section className="p5-unit" key={unit.id}>
       <h3>Unidad {index + 1} · {unit.name}</h3>
-      {writable && <fieldset disabled={busy}>
+      {writable && <details className="folder-disclosure"><summary>Administrar unidad · {unit.name}</summary><fieldset disabled={busy}>
         <legend>Administrar {unit.name}</legend>
         <form onSubmit={event => {
           event.preventDefault(); const form = new FormData(event.currentTarget);
@@ -55,27 +55,27 @@ export function Plan({ api, room, reload }: { api: ClassroomClient; room: Detail
         <button disabled={index === 0} onClick={() => void run(() => change({ action: 'reorderUnits', ids: move(room.units.map(item => item.id!), index, -1) }))}>Subir unidad</button>
         <button disabled={index === room.units.length - 1} onClick={() => void run(() => change({ action: 'reorderUnits', ids: move(room.units.map(item => item.id!), index, 1) }))}>Bajar unidad</button>
         <button onClick={() => setConfirm({ action: 'deleteUnit', id: unit.id, confirm: true })}>Eliminar unidad</button>
-      </fieldset>}
-      <ul>{unit.topics.map((topic, topicIndex) => <li key={topic.id}>
-        <span>{topic.name}</span><span className="p5-tag">{topic.status === 'TAUGHT' ? 'Dado' : topic.status === 'NEXT' ? 'Siguiente' : 'Pendiente'}</span>
-        {writable && <fieldset disabled={busy}>
+      </fieldset></details>}
+      <ul>{unit.topics.map((topic, topicIndex) => <li className="folder-topic-row" key={topic.id}>
+        <div className="folder-row-content"><span>{topic.name}</span><span className="p5-tag" data-status={topic.status}>{topic.status === 'TAUGHT' ? 'Dado' : topic.status === 'NEXT' ? 'Siguiente' : 'Pendiente'}</span></div>
+        {writable && <label>Estado de {topic.name}<select disabled={busy} value={topic.status} onChange={event => void run(() => change({ action: 'setTopicState', id: topic.id, status: event.target.value }))}>
+          <option value="PENDING">Pendiente</option><option value="NEXT">Siguiente</option><option value="TAUGHT">Dado</option>
+        </select></label>}
+        {writable && <details className="folder-disclosure"><summary>Administrar tema · {topic.name}</summary><fieldset disabled={busy}>
           <legend>Administrar {topic.name}</legend>
           <form onSubmit={event => {
             event.preventDefault(); const form = new FormData(event.currentTarget);
             void run(() => change({ action: 'renameTopic', id: topic.id, name: form.get('name') }));
           }}><label>Nombre del tema<input name="name" key={`${topic.id}-${topic.name}`} defaultValue={topic.name} required maxLength={120} /></label><button>Renombrar tema</button></form>
-          <label>Estado de {topic.name}<select value={topic.status} onChange={event => void run(() => change({ action: 'setTopicState', id: topic.id, status: event.target.value }))}>
-            <option value="PENDING">Pendiente</option><option value="NEXT">Siguiente</option><option value="TAUGHT">Dado</option>
-          </select></label>
           <button disabled={topicIndex === 0} onClick={() => void run(() => change({ action: 'reorderTopics', unitId: unit.id, ids: move(unit.topics.map(item => item.id!), topicIndex, -1) }))}>Subir tema</button>
           <button disabled={topicIndex === unit.topics.length - 1} onClick={() => void run(() => change({ action: 'reorderTopics', unitId: unit.id, ids: move(unit.topics.map(item => item.id!), topicIndex, 1) }))}>Bajar tema</button>
           <button onClick={() => setConfirm({ action: 'deleteTopic', id: topic.id, confirm: true })}>Eliminar tema</button>
-        </fieldset>}
+        </fieldset></details>}
       </li>)}</ul>
-      {writable && <form onSubmit={event => {
+      {writable && <details className="folder-disclosure"><summary>Agregar tema a {unit.name}</summary><form onSubmit={event => {
         event.preventDefault(); const target = event.currentTarget, name = new FormData(target).get('name');
         void run(async () => { await change({ action: 'addTopic', unitId: unit.id, name }); target.reset(); });
-      }}><fieldset disabled={busy}><legend>Agregar tema a {unit.name}</legend><label>Nuevo tema<input name="name" required maxLength={120} /></label><button>Agregar tema</button></fieldset></form>}
+      }}><fieldset disabled={busy}><legend>Agregar tema a {unit.name}</legend><label>Nuevo tema<input name="name" required maxLength={120} /></label><button>Agregar tema</button></fieldset></form></details>}
     </section>)}
     {writable && <form onSubmit={event => { event.preventDefault(); void run(async () => { await change({ action: 'addUnit', name: unitName }); setUnitName(''); }); }}>
       <fieldset disabled={busy}><legend>Agregar unidad</legend><label>Nueva unidad<input required maxLength={120} value={unitName} onChange={event => setUnitName(event.target.value)} /></label><button>Agregar unidad</button></fieldset>

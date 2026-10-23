@@ -186,7 +186,7 @@ export function Wizard({
       (payload.units ?? []).map((u, i) => (i === index ? { ...u, name } : u)),
     );
   return (
-    <div className="p5-wizard">
+    <div className="p5-wizard folder-wizard">
       <button
         className="p5-link"
         onClick={() => {
@@ -197,28 +197,29 @@ export function Wizard({
       >
         Mis Aulas / Guardar y salir
       </button>
-      <h1>Crear aula</h1>
+      <h1>Crear <span>aula</span></h1>
       <p className="p5-lead">Un espacio para compartir lo que sabés.</p>
       <ol className="p5-steps">
         {steps.map((label, index) => (
           <li
             key={label}
             aria-current={index === step ? 'step' : undefined}
-            className={index <= step ? 'active' : ''}
+            className={index < step ? 'complete' : index === step ? 'active' : ''}
           >
-            <span>{index < step ? '✓' : index + 1}</span>
+            <span>{index < step ? '\u2713' : index + 1}</span>
             {label}
           </li>
         ))}
       </ol>
       {error ? <Notice error>{error}</Notice> : null}
       <form
-        className="p5-surface"
+        className="p5-surface folder-panel tone-yellow"
         onSubmit={(event) => {
           event.preventDefault();
           void (step === 3 ? publish() : next());
         }}
       >
+        <h2 className="folder-tab">{step === 3 ? 'Revisá tu aula' : steps[step]}</h2>
         <header className="p5-section-head">
           <div>
             <h2>{step === 3 ? 'Revisá tu aula' : steps[step]}</h2>

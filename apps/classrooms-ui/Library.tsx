@@ -58,7 +58,7 @@ export function Library({ api, room, reload }: { api: ClassroomClient; room: Det
     {notice ? <Notice>{notice}</Notice> : null}
     {!loaded && !error ? <Notice>Cargando materiales…</Notice> : null}
     {writable ? <div className="p6-library-upload">
-      <h3>Publicar material</h3>
+      <details className="folder-disclosure"><summary>Publicar material</summary>
       <p>PDF, DOCX, PPTX, XLSX, JPG, JPEG, PNG o ZIP · hasta 50 MB por archivo.</p>
       <label>Archivo del material<input type="file" disabled={busy} accept=".pdf,.docx,.pptx,.xlsx,.jpg,.jpeg,.png,.zip" onChange={event => {
         const selected = event.target.files?.[0]; event.target.value = '';
@@ -68,6 +68,7 @@ export function Library({ api, room, reload }: { api: ClassroomClient; room: Det
           setFile(await api.uploadClassroom(room.id, selected, 'material'));
         });
       }} /></label>
+      </details>
       {file ? <>
         <Notice>{file.ready ? `Archivo aprobado: ${file.name}. Completa los datos para publicarlo.` : file.rejectionCode || ['ERROR', 'REJECTED'].includes(file.scan)
           ? 'El archivo no está aprobado. No se publicará ni podrá descargarse; elige otro archivo o consulta nuevamente la revisión.'
@@ -81,9 +82,10 @@ export function Library({ api, room, reload }: { api: ClassroomClient; room: Det
     {loaded && materials.length === 0 ? <p className="p5-empty">Todavía no hay materiales disponibles.</p> : null}
     <div className="p6-library-list">{materials.map(material => {
       const unit = room.units.find(item => item.id === material.unitId), topic = unit?.topics.find(item => item.id === material.topicId);
-      return <article key={material.id} aria-label={material.title}>
-        <h3>{material.title}</h3><p>{unit ? `${unit.name}${topic ? ` · ${topic.name}` : ''}` : 'Material extra / recomendado'}</p>
-        <small>{material.fileName} · {Number(material.sizeBytes).toLocaleString()} bytes</small>
+      return <article className="folder-row" key={material.id} aria-label={material.title}>
+        <div className="folder-row-content"><h3>{material.title}</h3><p>{unit ? `${unit.name}${topic ? ` · ${topic.name}` : ''}` : 'Material extra / recomendado'}</p>
+          <small>{material.fileName} · {Number(material.sizeBytes).toLocaleString()} bytes</small></div>
+        <div className="folder-row-actions">
         {material.deleted ? <Notice>{material.deletionPending ? 'Material eliminado. El borrado del archivo está pendiente; su espacio sigue reservado hasta confirmarlo.' : 'Material y archivo eliminados. El espacio fue liberado.'}</Notice>
           : material.ready ? <div className="p5-actions">
             {canPreviewMaterial(material) && material.previewable ? <a href={api.fileUrl(material.fileId, true)} target="_blank" rel="noreferrer">Vista previa</a> : null}
@@ -94,6 +96,7 @@ export function Library({ api, room, reload }: { api: ClassroomClient; room: Det
           <button disabled={busy || material.linked} onClick={() => setDeleting(material)}>Eliminar material</button>
           {material.linked ? <small>Vinculado a una actividad: no se puede eliminar.</small> : null}
         </div> : null}
+        </div>
       </article>;
     })}</div>
     {editing ? <Dialog title="Editar material" onClose={() => !busy && setEditing(null)}>

@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { ClassroomClient, Detail, Invitation, Member, NotificationTarget } from './api.ts';
 import { Cover, Dialog, Notice, initials } from './components.tsx';
+import { EntryIcon } from '../shared-ui/EntryIcon';
 import { Plan } from './Plan.tsx';
 import { Library } from './Library.tsx';
 import { Wall } from './Wall.tsx';
@@ -139,6 +140,8 @@ export function ClassroomView({
     await load();
   }
   const teacher = room?.role === 'teacher';
+  const tabLabels: Record<string, string> = { members: teacher ? 'Alumnos' : 'Compañeros', history: 'Historial', plan: 'Plan', library: 'Biblioteca', activities: 'Actividades', progress: teacher ? 'Progreso' : 'Mi progreso', wall: 'Muro', settings: 'Configuración' };
+  const tabIcons: Record<string, string> = { members: 'people-fill', history: 'list', plan: 'list', library: 'book', activities: 'book', progress: 'list', wall: 'people-fill', settings: 'person-fill' };
   return (
     <>
       <button className="p5-link" onClick={onExit}>
@@ -165,7 +168,7 @@ export function ClassroomView({
                 {room.academicYear}
               </p>
               <h1>{room.name}</h1>
-              <p>Docente: {room.teacher}</p>
+              <p><span className={`p5-tag folder-role tone-${teacher ? 'coral' : 'mint'}`}>{teacher ? 'Docente' : 'Estudiante'}</span> · Docente: {room.teacher}</p>
               <small>{room.timezone}</small>
             </div>
           </header>
@@ -176,7 +179,7 @@ export function ClassroomView({
             </Notice>
           ) : null}
           {notice ? <Notice>{notice}</Notice> : null}
-          <nav ref={tabs} className="p5-tabs" aria-label="Secciones del aula">
+          <nav ref={tabs} className={`p5-tabs folder-room-tabs tone-${teacher ? 'coral' : 'mint'}`} aria-label="Secciones del aula">
             {[
               { key: 'members', label: teacher ? 'Alumnos' : 'Compañeros' },
               ...(teacher ? [{ key: 'history', label: 'Historial' }] : []),
@@ -192,11 +195,12 @@ export function ClassroomView({
                 aria-current={tab === item.key ? 'page' : undefined}
                 onClick={() => setTab(item.key)}
               >
-                {item.label}
+                <EntryIcon name={tabIcons[item.key]} />{item.label}
               </button>
             ))}
           </nav>
-          <section className="p5-surface">
+          <section className={`p5-surface folder-panel tone-${teacher ? 'coral' : 'mint'}`} aria-labelledby="classroom-section-title">
+            <h2 id="classroom-section-title" className="folder-tab"><EntryIcon name={tabIcons[tab]} />{tabLabels[tab]}</h2>
             {tab === 'members' || tab === 'history' ? (
               <>
                 <header className="p5-section-head">
