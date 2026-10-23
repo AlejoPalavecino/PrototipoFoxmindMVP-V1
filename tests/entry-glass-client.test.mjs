@@ -62,13 +62,16 @@ test('password visibility is an explicit non-submit control, with policy only fo
   assert.match(registration, /autocomplete="new-password"/i);
 });
 
-test('home prioritizes populated study context and keeps both classroom perspectives', () => {
+test('home retains populated study context with both classroom perspectives visible', () => {
   const { Home } = component('apps/classrooms-ui/Home.tsx');
   const room = { id: 'actual', name: 'Actual class', subject: 'Science', division: 'B', academicYear: 2026, coverKey: 'explore', teacher: 'Actual teacher' };
   const html = render(Home, { displayName: 'Student', data: { teach: [], study: [room], drafts: [], invitations: [] }, busy: false,
     onCreate() {}, onJoin() {}, onClassrooms() {}, onEnter() {}, api: { call: async () => [] }, onOpenTarget() {} });
-  assert.match(html, /aria-pressed="true"[^>]*>Estudio/);
-  assert.match(html, /aria-pressed="false"[^>]*>Enseño/);
+  for (const label of ['Estudio', 'Enseño']) {
+    const group = [...html.matchAll(/<section\b([^>]*)>/g)].find(([, attributes]) => attributes.includes(`aria-label="${label}"`));
+    assert.ok(group, `Missing ${label} section`);
+    assert.doesNotMatch(group[1], /\bhidden(?:=|\s|$)|aria-hidden="true"/);
+  }
   assert.match(html, /Actual class/);
   assert.match(html, /Docente:.*Actual teacher/);
   assert.match(html, /Novedades/);

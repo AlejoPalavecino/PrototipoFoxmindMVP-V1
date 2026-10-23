@@ -9,17 +9,18 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { AccountNavbar } from './account-navbar';
 import { VerificationGuidance } from '../../../shared-ui/VerificationGuidance';
+import { AccountFolderIcon, AccountSteps, AccountStory } from '../../../shared-ui/AccountStory';
 
 declare global { interface Window { __foxmindTakeToken?: () => string | null } }
 export type AccountView = 'sign-in' | 'register' | 'verify-email' | 'forgot-password' | 'recover-password' | 'profile';
 const client = createAccountClient();
 const content: Record<AccountView, { title: string; description: string }> = {
-  'sign-in': { title: 'Bienvenido a FoxMind', description: 'Inicia sesión para continuar con tu cuenta.' },
+  'sign-in': { title: 'Qué bueno verte de nuevo', description: 'Inicia sesión para continuar con tu cuenta.' },
   register: { title: 'Crea tu cuenta', description: 'Un espacio para enseñar y aprender. Comienza con tus datos.' },
   'verify-email': { title: 'Verifica tu correo', description: 'Confirma tu dirección para empezar a usar FoxMind.' },
   'forgot-password': { title: 'Recupera tu acceso', description: 'Te enviaremos las instrucciones para crear una nueva contraseña.' },
   'recover-password': { title: 'Crea una nueva contraseña', description: 'El enlace de recuperación es válido durante 15 minutos y se utiliza una sola vez.' },
-  profile: { title: 'Mi perfil', description: 'Revisa y actualiza tus datos personales.' },
+  profile: { title: 'Mi perfil', description: 'Tus datos y la seguridad de tu cuenta.' },
 };
 
 export function AccountField({ name, label, password, value, autoComplete, onChange }: {
@@ -189,10 +190,13 @@ export function AccountScreen({ view }: { view: AccountView }) {
     <div className={`entry-page${view === 'profile' ? ' entry-profile' : ''}`}>
     <AccountNavbar session={session} view={view} signInHref={nextAccountHref('sign-in')} registerHref={nextAccountHref('register')} verifyHref={nextAccountHref('verify-email')}
       accountActions={user ? <div className="fm-profile-actions"><Link href={verified ? '/profile' : nextAccountHref('verify-email')}>{verified ? 'Mi perfil' : 'Verificar correo'}</Link>{signOut}</div> : undefined} />
-    <main id="main" className={view === 'profile' ? 'main profile-main' : 'main auth-main'}>
-      {view !== 'profile' ? <aside className="entry-story" aria-hidden="true"><h2>Tu aula.<br />Tu próximo paso.</h2><p>Enseñar y aprender, en un mismo lugar.</p><img src="/entry-glass/book.webp" width="780" height="600" alt="" fetchPriority="high" /></aside> : null}
-      <section className="surface" aria-label={content[view].title} aria-busy={loading || busy}>
-        <div className="page-heading"><div><h1>{content[view].title}</h1><p>{content[view].description}</p></div></div>
+    <main id="main" className={view === 'profile' ? 'main profile-main' : `main auth-main${view === 'verify-email' ? ' auth-verification' : ''}`}>
+      {view !== 'profile' && view !== 'verify-email' ? <AccountStory register={view === 'register'} /> : null}
+      <section className={view === 'profile' ? 'surface profile-account' : 'surface folder-panel tone-yellow'} aria-label={content[view].title} aria-busy={loading || busy}>
+        {view !== 'profile' ? <span className="folder-tab" aria-hidden="true"><AccountFolderIcon kind={view === 'sign-in' ? 'home' : view === 'register' ? 'book' : 'mail'} />{view === 'sign-in' ? 'Iniciar sesión' : view === 'register' ? 'Crear cuenta' : content[view].title}</span> : null}
+        {view === 'profile' ? <nav className="breadcrumbs" aria-label="Ubicación"><Link href="/inicio">Inicio</Link><span aria-hidden="true"> / </span><span aria-current="page">Mi perfil</span></nav> : null}
+        {view === 'verify-email' ? <img className="verification-foxy" src="/folders/foxy-welcome.png" width="220" height="220" alt="" /> : null}
+        <div className="page-heading"><div><h1>{view === 'profile' ? <>Mi <span>perfil</span></> : content[view].title}</h1><p>{content[view].description}</p></div></div>
         {loading ? <p role="status" className="loading">Cargando tu cuenta…</p> : null}
         {message ? <div ref={status} tabIndex={-1} className={`notice ${message.error ? 'notice-error' : 'notice-success'}`} role={message.error ? 'alert' : 'status'}>{message.text}</div> : null}
         {waitSeconds > 0 ? <p className="cooldown" role="status">Podrás volver a intentar en {waitSeconds} segundos.</p> : null}
@@ -210,12 +214,14 @@ export function AccountScreen({ view }: { view: AccountView }) {
         </> : null}
 
         {session && view === 'register' ? <>
+          <AccountSteps />
           <form noValidate onSubmit={submit('/auth/register', 'Si los datos son válidos para crear una cuenta, recibirás un correo de verificación. Revisa también la carpeta de correo no deseado. Si ya tienes cuenta, puedes iniciar sesión o recuperar el acceso.')}><fieldset disabled={locked}>
             <div className="field-grid"><Field name="firstName" label="Nombre" autoComplete="given-name" /><Field name="lastName" label="Apellido" autoComplete="family-name" /></div>
             <Field name="email" label="Correo electrónico" autoComplete="email" />
             <Field name="password" label="Contraseña" password autoComplete="new-password" />
             <Button type="submit" className="full-width">{busy ? 'Creando cuenta…' : 'Crear cuenta'}</Button>
           </fieldset></form>
+          <p className="field-help registration-next">Después vas a verificar tu correo para acceder a las aulas.</p>
           <p className="after-form">¿Ya tienes cuenta? <Link href={nextAccountHref('sign-in')}>Iniciar sesión</Link></p>
         </> : null}
 
@@ -248,15 +254,17 @@ export function AccountScreen({ view }: { view: AccountView }) {
           {user && !verified ? <div className="state"><h2>Primero verifica tu correo</h2><p>La edición del perfil estará disponible después de verificar tu dirección.</p><Link className="button button-primary" href="/verify-email">Verificar correo</Link></div> : null}
           {verified && !profile && !loading ? <div className="state"><p>No pudimos cargar tus datos.</p><Button disabled={locked} onClick={() => void load()}>Volver a intentar</Button></div> : null}
           {verified && profile ? <>
-            <div className="profile-summary"><span className="initials" aria-hidden="true">{[...profile.firstName][0]}{[...profile.lastName][0]}</span><div><h2>{profile.firstName} {profile.lastName}</h2><p>Información de tu cuenta</p></div></div>
+            <div className="profile-summary"><span className="initials" aria-hidden="true">{[...profile.firstName][0]}{[...profile.lastName][0]}</span><div><h2>{profile.firstName} {profile.lastName}</h2><p className="profile-verified">Correo verificado</p></div></div>
+            <section className="profile-details folder-panel tone-yellow" aria-labelledby="profile-details-heading">
+            <h2 id="profile-details-heading" className="folder-tab"><AccountFolderIcon kind="person" />Datos personales</h2>
             <form noValidate onSubmit={submit('/account', 'Guardaste los cambios de tu perfil.', 'PATCH')}><fieldset disabled={locked}>
               <div className="field-grid"><Field name="firstName" label="Nombre" autoComplete="given-name" value={firstName} onChange={setFirstName} /><Field name="lastName" label="Apellido" autoComplete="family-name" value={lastName} onChange={setLastName} /></div>
               <div className="field"><Label htmlFor="profile-email">Correo electrónico</Label><Input id="profile-email" value={profile.email} readOnly autoComplete="email" aria-describedby="email-help" /><p id="email-help" className="field-help">El correo no se puede modificar desde el perfil.</p></div>
               <div className="form-actions"><Button variant="outline" onClick={() => { setFirstName(profile.firstName); setLastName(profile.lastName); setMessage(undefined); }}>Cancelar</Button><Button type="submit">{busy ? 'Guardando…' : 'Guardar cambios'}</Button></div>
-            </fieldset></form>
-            <section className="password-section" aria-labelledby="password-heading"><h2 id="password-heading">Cambiar contraseña</h2><p>Tu sesión se renovará y se cerrarán las demás sesiones de tu cuenta.</p>
+            </fieldset></form></section>
+            <section className="password-section folder-panel tone-mint" aria-labelledby="password-heading"><h2 id="password-heading" className="folder-tab"><AccountFolderIcon kind="lock" />Seguridad</h2><p>Tu sesión se renovará y se cerrarán las demás sesiones de tu cuenta.</p>
               <form noValidate onSubmit={submit('/account/password', 'Contraseña actualizada. Tu sesión continúa y las demás sesiones se cerraron.')}><fieldset disabled={locked}>
-                <Field name="currentPassword" label="Contraseña actual" password autoComplete="current-password" /><Field name="newPassword" label="Nueva contraseña" password autoComplete="new-password" />
+                <div className="field-grid"><Field name="currentPassword" label="Contraseña actual" password autoComplete="current-password" /><Field name="newPassword" label="Nueva contraseña" password autoComplete="new-password" /></div>
                 <Button type="submit">{busy ? 'Actualizando…' : 'Cambiar contraseña'}</Button>
               </fieldset></form>
             </section><div className="signout-row">{signOut}</div>
