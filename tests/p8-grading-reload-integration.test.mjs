@@ -11,7 +11,7 @@ import { classroom, openClassroom, planPdf } from './p6-integration-helpers.mjs'
 
 test('P8 targeted TP private editor reload confirms actual 200 before restoring saved fields and clean visual state', { timeout: 330000 }, async () => {
   await withP4IntegrationRuntime(async runtime => {
-    assert.equal(runtime.migrations.length, 9);
+    assert.equal(runtime.migrations.length, 11);
     const scratch = await mkdtemp(join(tmpdir(), 'foxmind-p8-tp-reload-')); console.log(`P8 targeted TP retained evidence: ${scratch}`);
     const browser = await chromium.launch({ headless: true });
     try {

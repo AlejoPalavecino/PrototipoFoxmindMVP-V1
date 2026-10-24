@@ -24,8 +24,8 @@ class SqlPrivateEventRepository implements PrivateEventRepository {
   async create(id: string, payload: EventPayload) {
     const rows = await this.tx.query<EventRow>(`INSERT INTO agenda_events
       (owner_id,id,title,description,category,schedule_kind,start_date,end_date_exclusive,start_local,end_local,
-       time_zone,start_offset_minutes,end_offset_minutes,start_at,end_at,repeat_kind,repeat_until)
-      VALUES($1::uuid,$2::uuid,$3,$4,$5,$6,$7::date,$8::date,$9,$10,$11,$12::int,$13::int,$14::timestamptz,$15::timestamptz,$16,$17::date)
+       time_zone,start_offset_minutes,end_offset_minutes,start_at,end_at,repeat_kind,repeat_until,color)
+      VALUES($1::uuid,$2::uuid,$3,$4,$5,$6,$7::date,$8::date,$9,$10,$11,$12::int,$13::int,$14::timestamptz,$15::timestamptz,$16,$17::date,$18)
       ON CONFLICT(id) DO NOTHING RETURNING ${eventColumns}`, this.owner, id, ...eventValues(payload));
     if (!rows[0]) throw new AgendaError('CONFLICT');
     return fromEventRow(rows[0]);
@@ -35,8 +35,8 @@ class SqlPrivateEventRepository implements PrivateEventRepository {
     const [row] = await this.tx.query<EventRow>(`UPDATE agenda_events SET title=$3,description=$4,category=$5,schedule_kind=$6,
       start_date=$7::date,end_date_exclusive=$8::date,start_local=$9,end_local=$10,time_zone=$11,
       start_offset_minutes=$12::int,end_offset_minutes=$13::int,start_at=$14::timestamptz,end_at=$15::timestamptz,
-      repeat_kind=$16,repeat_until=$17::date,revision=revision+1,updated_at=clock_timestamp()
-      WHERE owner_id=$1::uuid AND id=$2::uuid AND revision=$18::bigint RETURNING ${eventColumns}`,
+      repeat_kind=$16,repeat_until=$17::date,color=$18,revision=revision+1,updated_at=clock_timestamp()
+      WHERE owner_id=$1::uuid AND id=$2::uuid AND revision=$19::bigint RETURNING ${eventColumns}`,
     this.owner, id, ...eventValues(payload), revision);
     if (!row) throw new AgendaError('CONFLICT');
     return fromEventRow(row);

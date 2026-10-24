@@ -1,4 +1,5 @@
 import type { AgendaRange, EventPayload, EventRepeat, EventSchedule } from './agenda.ts';
+import { EVENT_COLORS } from './agenda.ts';
 import { agendaDate, agendaMinute, agendaObject, agendaZone, invalid } from './agenda-values.ts';
 import { validateAgendaSeries } from './agenda-series.ts';
 
@@ -29,12 +30,16 @@ function parseRepeat(input: unknown): EventRepeat {
   return { kind: 'WEEKLY', untilDate: agendaDate(item.untilDate) };
 }
 export function parseAgendaEvent(input: unknown): EventPayload {
-  const item = agendaObject(input, ['title', 'description', 'category', 'schedule', 'repeat']);
+  const item = agendaObject(input, ['title', 'description', 'category', 'schedule', 'repeat', 'color']);
   if (typeof item.title !== 'string' || !item.title.trim() || item.title.trim().length > 160
     || typeof item.description !== 'string' || item.description.length > 4000
     || !['CLASS', 'ACTIVITY', 'EVALUATION'].includes(String(item.category)) || typeof item.category !== 'string') return invalid();
   const payload: EventPayload = { title: item.title.trim(), description: item.description,
     category: item.category as EventPayload['category'], schedule: parseSchedule(item.schedule), repeat: parseRepeat(item.repeat) };
+  if (item.color !== undefined) {
+    if (typeof item.color !== 'string' || !EVENT_COLORS.some(color => color === item.color)) return invalid();
+    payload.color = item.color as NonNullable<EventPayload['color']>;
+  }
   validateAgendaSeries(payload);
   return payload;
 }

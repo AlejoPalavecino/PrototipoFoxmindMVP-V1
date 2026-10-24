@@ -1,4 +1,6 @@
 export type EventKind = 'CLASS' | 'ACTIVITY' | 'EVALUATION';
+export const EVENT_COLORS = ['BLUE', 'GREEN', 'YELLOW', 'ORANGE', 'PINK', 'PURPLE'] as const;
+export type EventColor = (typeof EVENT_COLORS)[number];
 export type AgendaTarget = { classroomId: string; activityId: string | null };
 export type EventSchedule =
   | { kind: 'TIMED'; timeZone: string; startLocal: string; endLocal: string;
@@ -11,6 +13,7 @@ export interface EventPayload {
   category: EventKind;
   schedule: EventSchedule;
   repeat: EventRepeat;
+  color?: EventColor;
 }
 export interface PrivateEvent extends EventPayload {
   id: string;

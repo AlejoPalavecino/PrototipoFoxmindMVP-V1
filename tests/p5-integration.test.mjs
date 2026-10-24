@@ -65,7 +65,7 @@ test('P5 actual Next, P3 identity and P4 private services integrated journeys', 
           assert.equal((await rejectSame(() => api(page, 'POST', '/classrooms/drafts', {}))).status, 403);
         });
         student = await account(studentPage, origin, inbox, `p5-student-${suffix}@example.test`);
-        assert.equal(runtime.migrations.length, 9);
+        assert.equal(runtime.migrations.length, 11);
         assert.equal((await db.query('SELECT count(*)::int AS n FROM classrooms')).rows[0].n, 0);
       });
 

@@ -7,10 +7,11 @@ export interface EventRow {
   start_offset_minutes: number | null; end_offset_minutes: number | null;
   repeat_kind: 'NONE' | 'WEEKLY'; repeat_until: string | null;
   revision: bigint; created_at: Date; updated_at: Date;
+  color: EventPayload['color'] | null;
 }
 export const eventColumns = `id,title,description,category,schedule_kind,start_date::text,end_date_exclusive::text,
   start_local,end_local,time_zone,start_offset_minutes,end_offset_minutes,repeat_kind,repeat_until::text,
-  revision,created_at,updated_at`;
+  revision,created_at,updated_at,color`;
 export function fromEventRow(row: EventRow): PrivateEvent {
   const schedule: EventPayload['schedule'] = row.schedule_kind === 'ALL_DAY'
     ? { kind: 'ALL_DAY', startDate: row.start_date, endDateExclusive: row.end_date_exclusive }
@@ -19,7 +20,8 @@ export function fromEventRow(row: EventRow): PrivateEvent {
         ...(row.end_offset_minutes === null ? {} : { endOffsetMinutes: row.end_offset_minutes }) };
   return { id: row.id, title: row.title, description: row.description, category: row.category, schedule,
     repeat: row.repeat_kind === 'NONE' ? { kind: 'NONE' } : { kind: 'WEEKLY', untilDate: row.repeat_until! },
-    revision: String(row.revision), createdAt: row.created_at.toISOString(), updatedAt: row.updated_at.toISOString() };
+    revision: String(row.revision), createdAt: row.created_at.toISOString(), updatedAt: row.updated_at.toISOString(),
+    ...(row.color === null ? {} : { color: row.color }) };
 }
 export function eventValues(payload: EventPayload): unknown[] {
   const schedule = payload.schedule;
@@ -32,5 +34,5 @@ export function eventValues(payload: EventPayload): unknown[] {
     timed?.startLocal ?? null, timed?.endLocal ?? null, timed?.timeZone ?? null,
     timed?.startOffsetMinutes ?? null, timed?.endOffsetMinutes ?? null,
     instants?.startAt ?? null, instants?.endAt ?? null, payload.repeat.kind,
-    payload.repeat.kind === 'WEEKLY' ? payload.repeat.untilDate : null];
+    payload.repeat.kind === 'WEEKLY' ? payload.repeat.untilDate : null, payload.color ?? null];
 }
