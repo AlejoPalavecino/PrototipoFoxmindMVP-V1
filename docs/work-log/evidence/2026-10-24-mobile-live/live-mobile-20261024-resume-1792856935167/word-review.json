@@ -1,0 +1,99 @@
+{
+  "testRunId": "live-mobile-20261024-resume-1792856935167",
+  "stage": "word-review",
+  "currentJob": "714cfedc-234e-410f-b4b2-0c2b554fc28f",
+  "planFileId": "d31afdc1-4667-4705-9c99-fa7baaa3828d",
+  "appUrl": "http://127.0.0.1:60061/mis-aulas",
+  "space": 3,
+  "applied": true,
+  "published": false,
+  "units": [
+    {
+      "name": "La luz — captura móvil Word",
+      "topics": [
+        {
+          "name": "Exposición capturada Word"
+        },
+        {
+          "name": "Tema: Composición"
+        },
+        {
+          "name": "Práctica capturada Word"
+        }
+      ]
+    },
+    {
+      "name": "Unidad 2: La cámara",
+      "topics": [
+        {
+          "name": "Tema: Apertura"
+        },
+        {
+          "name": "Tema: Velocidad"
+        }
+      ]
+    }
+  ],
+  "captures": [
+    {
+      "path": "docs/work-log/evidence/2026-10-24-mobile-live/live-mobile-20261024-resume-1792856935167/word-review-375-1.png",
+      "width": 375,
+      "height": 812,
+      "capturedAt": "2026-10-24T15:55:39.148Z",
+      "sha256": "5771a62669b8610838a638ed0923fcc4ed88d946a67f9a899579f3b00175c692"
+    },
+    {
+      "path": "docs/work-log/evidence/2026-10-24-mobile-live/live-mobile-20261024-resume-1792856935167/word-review-375-2.png",
+      "width": 375,
+      "height": 812,
+      "capturedAt": "2026-10-24T15:55:39.323Z",
+      "sha256": "1da6ee9bd3fc655f365127f5ad4569973faf482d056493833fe2907f08efc5f8"
+    },
+    {
+      "path": "docs/work-log/evidence/2026-10-24-mobile-live/live-mobile-20261024-resume-1792856935167/word-review-375-3.png",
+      "width": 375,
+      "height": 812,
+      "capturedAt": "2026-10-24T15:55:39.503Z",
+      "sha256": "08f5777288fc474bc7e8d38ca2c70cfee85fca9b99bcae541da362dcf1b8de4d"
+    },
+    {
+      "path": "docs/work-log/evidence/2026-10-24-mobile-live/live-mobile-20261024-resume-1792856935167/word-review-375-4.png",
+      "width": 375,
+      "height": 812,
+      "capturedAt": "2026-10-24T15:55:39.713Z",
+      "sha256": "c826b685937ff416fd534f0c0fcbba527e52925a87d36b60abe1dee85981a1a8"
+    },
+    {
+      "path": "docs/work-log/evidence/2026-10-24-mobile-live/live-mobile-20261024-resume-1792856935167/word-review-320-1.png",
+      "width": 320,
+      "height": 812,
+      "capturedAt": "2026-10-24T15:55:39.956Z",
+      "sha256": "839987299b76768af538a6f5e14513b7a187e2585a8af249bf9d93c80f050d5c"
+    },
+    {
+      "path": "docs/work-log/evidence/2026-10-24-mobile-live/live-mobile-20261024-resume-1792856935167/word-review-320-2.png",
+      "width": 320,
+      "height": 812,
+      "capturedAt": "2026-10-24T15:55:40.135Z",
+      "sha256": "35b539423f685dadd21a070f70bcc3d21d1e187859a439563b1dfc6f588c8acc"
+    },
+    {
+      "path": "docs/work-log/evidence/2026-10-24-mobile-live/live-mobile-20261024-resume-1792856935167/word-review-320-3.png",
+      "width": 320,
+      "height": 812,
+      "capturedAt": "2026-10-24T15:55:40.304Z",
+      "sha256": "829be473febebbc56d132f214d629402f9b1722324546aaabb3063c7711b73c6"
+    },
+    {
+      "path": "docs/work-log/evidence/2026-10-24-mobile-live/live-mobile-20261024-resume-1792856935167/word-review-320-4.png",
+      "width": 320,
+      "height": 812,
+      "capturedAt": "2026-10-24T15:55:40.478Z",
+      "sha256": "f73d7184d40aef62b8b885e396d1a6c0cf39f2bfc56d625c9c5c4ac6030edfc4"
+    }
+  ],
+  "coordinatorVisualAccepted": true,
+  "coordinatorAcceptedAt": "2026-10-24T15:55:58.313Z",
+  "evidenceKind": "live application screenshots, inspected before allowing the next UI action",
+  "humanOrNativeApproval": false
+}

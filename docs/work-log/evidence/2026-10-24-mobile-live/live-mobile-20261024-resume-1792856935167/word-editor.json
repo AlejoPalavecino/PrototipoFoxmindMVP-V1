@@ -1,0 +1,113 @@
+{
+  "testRunId": "live-mobile-20261024-resume-1792856935167",
+  "stage": "word-editor",
+  "currentJob": "714cfedc-234e-410f-b4b2-0c2b554fc28f",
+  "planFileId": "d31afdc1-4667-4705-9c99-fa7baaa3828d",
+  "appUrl": "http://127.0.0.1:60061/mis-aulas",
+  "space": 3,
+  "applied": false,
+  "published": false,
+  "units": [
+    {
+      "name": "La luz — captura móvil Word",
+      "topics": [
+        {
+          "name": "Exposición capturada Word"
+        },
+        {
+          "name": "Tema: Composición"
+        },
+        {
+          "name": "Práctica capturada Word"
+        }
+      ]
+    },
+    {
+      "name": "Unidad 2: La cámara",
+      "topics": [
+        {
+          "name": "Tema: Apertura"
+        },
+        {
+          "name": "Tema: Velocidad"
+        }
+      ]
+    }
+  ],
+  "captures": [
+    {
+      "path": "docs/work-log/evidence/2026-10-24-mobile-live/live-mobile-20261024-resume-1792856935167/word-editor-375-1.png",
+      "width": 375,
+      "height": 812,
+      "capturedAt": "2026-10-24T15:55:14.757Z",
+      "sha256": "97838686a3f68159da2fc0c8f6512e0e4f98907bbc9807f0fa30ecc99e7698f4"
+    },
+    {
+      "path": "docs/work-log/evidence/2026-10-24-mobile-live/live-mobile-20261024-resume-1792856935167/word-editor-375-2.png",
+      "width": 375,
+      "height": 812,
+      "capturedAt": "2026-10-24T15:55:14.935Z",
+      "sha256": "acf7730fe8e0a0c0c3f9b8043de937e2d6fb293f5b84b3b4b68c1651d67fd9c6"
+    },
+    {
+      "path": "docs/work-log/evidence/2026-10-24-mobile-live/live-mobile-20261024-resume-1792856935167/word-editor-375-3.png",
+      "width": 375,
+      "height": 812,
+      "capturedAt": "2026-10-24T15:55:15.115Z",
+      "sha256": "6848fa593e1d93d27c31d9149ad775bf405dddb6a09ea3f4fadd4769011d4bc3"
+    },
+    {
+      "path": "docs/work-log/evidence/2026-10-24-mobile-live/live-mobile-20261024-resume-1792856935167/word-editor-375-4.png",
+      "width": 375,
+      "height": 812,
+      "capturedAt": "2026-10-24T15:55:15.293Z",
+      "sha256": "18c66ee15c7497b7e91ff2b18a4c415e2cd7203491530e90c17f6b8b20009696"
+    },
+    {
+      "path": "docs/work-log/evidence/2026-10-24-mobile-live/live-mobile-20261024-resume-1792856935167/word-editor-375-5.png",
+      "width": 375,
+      "height": 812,
+      "capturedAt": "2026-10-24T15:55:15.466Z",
+      "sha256": "9b744c0f29c03c7a8ab10dbff4610b9d2498d3ae61bd790515de190ab3bab1ae"
+    },
+    {
+      "path": "docs/work-log/evidence/2026-10-24-mobile-live/live-mobile-20261024-resume-1792856935167/word-editor-320-1.png",
+      "width": 320,
+      "height": 812,
+      "capturedAt": "2026-10-24T15:55:15.718Z",
+      "sha256": "09d5beb1b9c4c588909aca67c14e7381f0542ced1229d0e52780505af0b15233"
+    },
+    {
+      "path": "docs/work-log/evidence/2026-10-24-mobile-live/live-mobile-20261024-resume-1792856935167/word-editor-320-2.png",
+      "width": 320,
+      "height": 812,
+      "capturedAt": "2026-10-24T15:55:15.894Z",
+      "sha256": "02cd55b1e8b2931d585a927344b5e26e8a63df49fcc7fc619cba0e0066f11196"
+    },
+    {
+      "path": "docs/work-log/evidence/2026-10-24-mobile-live/live-mobile-20261024-resume-1792856935167/word-editor-320-3.png",
+      "width": 320,
+      "height": 812,
+      "capturedAt": "2026-10-24T15:55:16.061Z",
+      "sha256": "b218b502223452e93179603cb72be6db93c7ff60c4ecf7e8deb059caee10297c"
+    },
+    {
+      "path": "docs/work-log/evidence/2026-10-24-mobile-live/live-mobile-20261024-resume-1792856935167/word-editor-320-4.png",
+      "width": 320,
+      "height": 812,
+      "capturedAt": "2026-10-24T15:55:16.220Z",
+      "sha256": "fa0f2c0b4601cb62018fb96dae5770fa4cc3372683f1d5500093ffdcda8041db"
+    },
+    {
+      "path": "docs/work-log/evidence/2026-10-24-mobile-live/live-mobile-20261024-resume-1792856935167/word-editor-320-5.png",
+      "width": 320,
+      "height": 812,
+      "capturedAt": "2026-10-24T15:55:16.393Z",
+      "sha256": "b3c6ef1bcd1e8e61e168483126807fd9775b2d54c7ef0e6a0103500c56107e22"
+    }
+  ],
+  "coordinatorVisualAccepted": true,
+  "coordinatorAcceptedAt": "2026-10-24T15:55:38.404Z",
+  "evidenceKind": "live application screenshots, inspected before allowing the next UI action",
+  "humanOrNativeApproval": false
+}
