@@ -1,0 +1,5 @@
+# Main runtime design — completed
+
+Date2026-10-24; main worktree integrate-classroom-gemini, starting f1e5964. Persisted by /root coordinator. Feature [classroom AI](../../odd/tasks/classroom-ai-extraction.md), operational start with Agenda. No host identity registered for memory writes.
+
+Agent/role/task: /root/main_gemini_runtime_design / architect. Static review found old launcher keys exist only in memory and its cleanup destroys owned services. New keys with shared writable DB would let old workers claim incompatible envelopes; S3 cleanup also must remain scoped. Delivery keys are needed even for historical invitations. Source0invitations/0livejobs/0activeAI and expired one-hour account windows permit new stable keys only in an isolated data copy. Recommended clone versus fencing old API; user explicitly chose cloning both datasets. Sessions/passwords persist; keys are not extracted from process memory. No writes, SQL/services or private reads by architect. Status: design choice resolved by user; root verified gates and recovery.

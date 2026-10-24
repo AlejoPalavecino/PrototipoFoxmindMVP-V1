@@ -2,6 +2,8 @@
 
 ## Classroom AI + Agenda — integrated into local main, 2026-10-24
 
+Current manual-test runtime (2026-10-24): main Agenda+Gemini is running at http://127.0.0.1:52171, inbox http://127.0.0.1:52169, on an explicitly authorized independent data clone. The prior Gemini dataset was also recovered at60061/inbox49493 after a Docker interruption; logical databases and buckets are separate on persistent infrastructure. Original37business tables/four objects verified exact, main12/source10migration histories and31independent readiness checks passed. Original Google key loads internally from its existing private file; no startup Google calls. [Operational record and restart handoff](work-log/2026-10-24-root-main-gemini-runtime.md). Apps left running; no product changes, push or deployment.
+
 User explicitly authorized merging classroom-gemini into local main while preserving Agenda and all unrelated changes, without push. Merge1472fa1 combines both parents and preserves both feature histories. Final API/Next builds,174combined tests, isolated P5 journeys and both scoped rejudgments passed; a direct Node24 domain-import incompatibility was fixed test-first without changing the error contract. Both historical feature checkpoints below remain attributed. [Integration record](work-log/2026-10-24-root-classroom-ai-main-integration.md). main was advanced locally with expected-old CAS; original checkout and other branches/source worktree are preserved. No push, PR, deployment or retained-database changes.
 
 ## Agenda — published to GitHub main, 2026-10-24
