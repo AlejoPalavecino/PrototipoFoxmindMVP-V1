@@ -6,7 +6,9 @@ const invitationId = /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i;
 /** Only these literal local product destinations can cross an account flow. */
 export function classroomDestination(value: string | string[] | undefined): string | null {
   if (typeof value !== 'string' || value.length > 120) return null;
-  if (value === '/mis-aulas' || value === '/inicio') return value;
+  if (value === '/mis-aulas' || value === '/inicio' || value === '/agenda') return value;
+  const target = /^\/mis-aulas\?aula=([^&?#]+)(?:&actividad=([^&?#]+))?$/.exec(value);
+  if (target && invitationId.test(target[1]) && (!target[2] || invitationId.test(target[2]))) return value;
   const match = /^\/mis-aulas\?invitacion=([^&?#]+)$/.exec(value);
   return match && invitationId.test(match[1]) ? `/mis-aulas?invitacion=${match[1]}` : null;
 }
