@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Agenda — current isolated work, 2026-10-23
+
+The user requested a new Agenda section with upcoming academic deadlines and private events, and confirmed weekly recurrence alongside single events. Work is isolated on `codex/foxmind-agenda` from main `ed06f88`; the historical P3 checkout remains untouched. [Agenda task and contract](../odd/tasks/agenda.md), [user guide](agenda.md), and [coordinator evidence](work-log/2026-10-23-root-agenda.md) own the current scope. Status: **implemented and functionally verified locally**; private events, weekly recurrence and real academic journeys passed. The final month-navigation regression and fresh web checks are recorded in the [2026-10-24 closure](work-log/2026-10-24-root-agenda-closure.md). Local reviewable commits are prepared; pixel acceptance remains unavailable (zero captures), explicitly separate from functional proof. No main integration or publication has occurred for Agenda.
+
 ## Folder publication scope — 2026-10-22
 
 The verified folder presentation was fast-forwarded into main and pushed to GitHub under the user's explicit instruction, without deployment. Candidate0d838a0 and integration record30ea2ab are included; exact live remote readback matched30ea2ab5f1cfccf0e263fd0586aeb9adcb823a59. Fresh97PASS/4optionalSKIP, production build, strict TypeScript and structural checks passed. [Publication evidence](work-log/2026-10-22-root-folder-publication.md) owns delivery details; this passive closure changes no product bytes. The earlier local-only boundary below is historical and superseded only for this delivery. GitHub deployments remained0; no deployment or retained-data operation occurred.

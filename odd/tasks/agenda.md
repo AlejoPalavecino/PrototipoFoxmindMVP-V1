@@ -198,8 +198,11 @@ Comandos mínimos después de GREEN: `npm run api:build`, `npx tsc --noEmit -p a
 ## Estado y próximo paso
 
 - [x] Diseño y revisión de DoR contra código/docs reales.
-- [x] D1 respondida por el usuario: A, únicos y semanales; contrato temporal congelado.
-- [ ] RED independiente, implementación, integración/UI, revisión y comprobaciones.
-- [ ] Coordinador registra aceptación y procede con integración autorizada.
+- [x] D1 respondida por el usuario: únicos y semanales.
+- [x] RED independiente, implementación, persistencia, navegación y recorridos funcionales reales.
+- [x] Revisiones y correcciones J1–J4; verificación final J4 y builds. El juicio dual histórico terminó ESCALATED; J4 se cerró por seguimiento expresamente autorizado.
+- [x] Commits locales por unidades revisables en codex/foxmind-agenda.
+- [ ] Aceptación visual por capturas: ego(lite) devolvió timeout y produjo0imágenes aun con intervención humana. DOM móvil y recorrido funcional sí tienen evidencia.
+- [ ] Integración a main/publicación: fuera del alcance de esta entrega, pendiente de instrucción futura.
 
-Próximo paso exacto: coordinador despacha a `test_runner` con este contrato y DoT para crear RED en la primera unidad A0/A1. La decisión L3 y D1 ya fueron transmitidas; no pedirlas de nuevo. El coordinador controla integración y cualquier publicación autorizada de manera independiente.
+[Cierre del coordinador](../../docs/work-log/2026-10-24-root-agenda-closure.md), [verificación final](../../docs/work-log/2026-10-24-agenda-final-verify.md) y [revisión puntual](../../docs/work-log/2026-10-24-agenda-final-review.md) conservan resultados y límites. Próximo paso exacto: revisar los commits locales para una integración futura; no repetir D1 ni presentar capturas inexistentes como aprobación.
