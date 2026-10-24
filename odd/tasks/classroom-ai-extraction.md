@@ -257,3 +257,12 @@ Evidencia móvil local: a3f6b0859d253a2d2991f8b82b7a0dee7645d42e. Chromium con e
 Plan real capturado e inspeccionado a375/320 para ambos formatos, sin desbordamiento/solapamientos observados. Las fotos live anteriores a crear no se recuperaron: DOM/touch/geometry reales se complementaron con19 renders estáticos claramente identificados del componente real y CSS compilado, sin handlers/API/modelo. No sustituyen ni fingen fotos E2E. [Cierre móvil](../../docs/work-log/2026-10-24-root-mobile-ai.md) y [alcance visual/interacciones](../../docs/work-log/2026-10-24-mobile-ai-browser.md) detallan límites, recuperación autorizada únicamente de la cuenta sintética y swipe Word no completado. Sin certificación de dispositivo físico/Safari/teclado nativo ni declaración retrospectiva de todas las fotos históricas faltantes.
 
 Runtime87655 sigue activo en http://127.0.0.1:60061, inbox http://127.0.0.1:57642; se entregó Space3, sin garantizar Plan visible al cierre. No push, PR o despliegue. La fuente de producto sigue siendo la corrección previa; estos commits guardan la verificación móvil y su checkpoint.
+
+
+### Capturas live antes de crear — cierre del 2026-10-24
+
+La nueva petición cierra las capturas faltantes del editor editado y la revisión previa a crear: PDF y DOCX,375×812/320×812,36 PNG originales de la aplicación real. Una extracción Gemini automática por formato devolvió2unidades/4temas; edición y tema agregado llevaron a2/5. Se capturó antes de aplicar y antes de crear, con cuatro controles visuales coordinados. Ambas aulas nuevas pasaron recarga y detalle autenticado200 con igualdad exacta. [Índice con fotos/manifiestos](../../docs/work-log/evidence/2026-10-24-mobile-live/live-mobile-20261024-resume-1792856935167/README.md), [coordinador](../../docs/work-log/2026-10-24-root-live-mobile-captures.md), [tester atribuido](../../docs/work-log/2026-10-24-live-mobile-browser.md).
+
+Sin defecto visual/interacción demostrado ni cambios de producto. Errores del driver fueron corregidos fuera del repositorio y quedan atribuidos. No se cuentan renders SSR como fotos live. Emulación Chromium táctil; sin certificación física/Safari/teclado nativo ni nueva prueba swipe Word. Space3 entregado con emulación/touch retirados; runtime87655 preservado en60061/inbox57642. Commits locales solamente, sin publicación remota.
+
+Live-mobile capture evidence commits observed locally: PDF5fadfd8 (309 authored lines) and Wordb070d15 (368), with passed read-only audit linked in the coordinator record. No product source changes or remote publication.
