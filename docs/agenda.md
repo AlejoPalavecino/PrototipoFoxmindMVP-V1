@@ -14,6 +14,14 @@ Los eventos personales son privados. No publican actividades en un aula, no alte
 
 ## Fechas y entregas
 
+El formulario compacto reúne tipo y título, día y horario, duración de 30/60/90 minutos o fin manual. Al activar día completo conserva las horas elegidas para poder volver atrás. La repetición semanal muestra cuántos eventos se crearán y su último día; inicialmente sugiere cinco encuentros y permite cambiar el final.
+
+El alcance y la evidencia de este flujo se siguen en [la mejora del formulario](../odd/tasks/agenda-compact-event-form.md).
+
+Los eventos nuevos usan automáticamente la zona de la agenda. Una indicación como «Hora de Buenos Aires» aclara la referencia; en más opciones se puede elegir otra ciudad sin escribir códigos de zona. Editar conserva la zona guardada. Cambiarla mantiene la fecha y hora escritas, como explica el selector. Las notas y los eventos de varios días también están en más opciones.
+
+Antes de guardar se muestra un resumen y los errores aparecen junto al campo correspondiente. Cerrar con cambios pide confirmación. Tras crear un evento, la agenda selecciona su día y ofrece «Ver evento». Editar mantiene el día que se estaba consultando y permite ir explícitamente al inicio de la serie.
+
 Los eventos con horario conservan la zona horaria elegida y su hora local. La repetición semanal mantiene esa hora aunque cambie el desplazamiento respecto de UTC. Si una hora no existe o se repite por un cambio estacional, debe resolverse explícitamente; una serie con futuras ocurrencias conflictivas se rechaza en lugar de desplazar u omitir una clase.
 
 Los eventos de día completo son fechas de calendario, sin conversión a medianoche UTC. Los plazos académicos conservan la zona horaria del aula. Cambiar la vista de la agenda no cambia esos plazos.

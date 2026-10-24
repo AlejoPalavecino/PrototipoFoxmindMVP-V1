@@ -11,7 +11,8 @@ if (args.length === 1 && args[0] === '--help') {
 } else {
   process.exitCode = buildApi();
   if (!process.exitCode) {
-    const suites = ['contracts', 'time', 'events', 'client', 'proxy', 'http', 'database', 'academic', 'identity', 'regressions', 'ui'];
+    const suites = ['contracts', 'time', 'events', 'client', 'proxy', 'http', 'database', 'academic', 'identity', 'regressions', 'ui',
+      'event-form-model', 'event-form-editor', 'event-form-view', 'event-form-result'];
     const result = spawnSync(process.execPath, ['--test', '--test-concurrency=1',
       ...suites.map(name => `tests/agenda-${name}.test.mjs`)], {
       stdio: 'inherit', windowsHide: true, timeout: 360000,
