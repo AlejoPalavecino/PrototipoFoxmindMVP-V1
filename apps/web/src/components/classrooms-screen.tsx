@@ -6,6 +6,8 @@ import { ClassroomsApp } from '../../../classrooms-ui/Classrooms';
 import { Notice } from '../../../classrooms-ui/components';
 import { createAccountClient, type AccountUser } from '../lib/account-client';
 import { classroomAuthHref, classroomDestination, createWebClassroomClient } from '../lib/classroom-client';
+import { createWebAgendaClient } from '../lib/agenda-client';
+import { useAgendaTarget } from '../../../classrooms-ui/useAgendaTarget';
 
 const account = createAccountClient();
 
@@ -20,6 +22,8 @@ export function ClassroomsScreen({ initialPresentation = 'classrooms' }: { initi
     void router.replace(classroomAuthHref(code === 'EMAIL_VERIFICATION_REQUIRED' ? 'verify-email' : 'sign-in', destination));
   }, [router, destination]);
   const api = useMemo(() => createWebClassroomClient(fetch, requireAccount), [requireAccount]);
+  const agendaApi = useMemo(() => createWebAgendaClient(fetch, requireAccount), [requireAccount]);
+  const target = useAgendaTarget(agendaApi, destination, Boolean(user));
   const load = useCallback(async () => {
     setError('');
     try {
@@ -38,15 +42,17 @@ export function ClassroomsScreen({ initialPresentation = 'classrooms' }: { initi
     catch (failure) { setError((failure as Error).message); }
     finally { setBusy(false); }
   }
-  const invitation = destination.includes('?') ? destination.slice(destination.indexOf('=') + 1) : undefined;
+  const invitation = destination.startsWith('/mis-aulas?invitacion=') ? destination.slice(destination.indexOf('=') + 1) : undefined;
   return <>
     <Head><title>{initialPresentation === 'home' ? 'Inicio' : 'Mis Aulas'} · FoxMind</title><meta name="description" content="Tus aulas, borradores e invitaciones de FoxMind." /></Head>
     {user ? <>
       {error ? <div className="p5-app p5-gate"><Notice error>{error}</Notice></div> : null}
-      <ClassroomsApp api={api} displayName={`${user.firstName} ${user.lastName}`} requestedInvitation={invitation}
+      {target.requested && !target.target ? <div className="p5-main"><Notice error={Boolean(target.error)}>{target.error ?? 'Comprobando acceso a la actividad…'}
+        {target.error ? <button onClick={target.reload}>Volver a intentar</button> : null}</Notice><Link href="/agenda">Volver a Agenda</Link></div> :
+      <ClassroomsApp api={api} displayName={`${user.firstName} ${user.lastName}`} requestedInvitation={invitation} requestedTarget={target.target}
         requestedNotification={typeof router.query.notificacion === 'string' && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(router.query.notificacion) ? router.query.notificacion : undefined}
-        initialPresentation={initialPresentation} onNavigate={presentation => { void router.push(presentation === 'home' ? '/inicio' : '/mis-aulas'); }}
-        accountActions={<div className="p5-actions p5-account-actions"><Link href="/profile">Mi perfil</Link><button disabled={busy} onClick={() => void logout()}>{busy ? 'Cerrando sesión…' : 'Cerrar sesión'}</button></div>} />
+        initialPresentation={initialPresentation} onNavigate={presentation => { void router.push(presentation === 'home' ? '/inicio' : presentation === 'agenda' ? '/agenda' : '/mis-aulas'); }}
+        accountActions={<div className="p5-actions p5-account-actions"><Link href="/profile">Mi perfil</Link><button disabled={busy} onClick={() => void logout()}>{busy ? 'Cerrando sesión…' : 'Cerrar sesión'}</button></div>} />}
     </> : <div className="p5-app"><main className="p5-main">
       {error ? <Notice error>{error} <button onClick={() => void load()}>Volver a intentar</button></Notice> : <Notice>Comprobando tu sesión…</Notice>}
       <Link href={classroomAuthHref('sign-in', destination)}>Iniciar sesión</Link>

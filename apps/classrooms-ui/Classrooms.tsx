@@ -26,6 +26,7 @@ export function ClassroomsApp({
   accountActions,
   requestedInvitation,
   requestedNotification,
+  requestedTarget,
   initialPresentation = 'classrooms',
   onNavigate,
 }: {
@@ -35,7 +36,8 @@ export function ClassroomsApp({
   requestedInvitation?: string;
   requestedNotification?: string;
   initialPresentation?: 'home' | 'classrooms';
-  onNavigate?: (presentation: 'home' | 'classrooms') => void;
+  onNavigate?: (presentation: 'home' | 'classrooms' | 'agenda') => void;
+  requestedTarget?: { classroomId: string; activityId: string | null };
 }) {
   const [presentation, setPresentation] = useState(initialPresentation);
   const [data, setData] = useState<HomeData | null>(null),
@@ -110,6 +112,11 @@ export function ClassroomsApp({
     setWallTarget(target); setSharedCode(null); setClassroomId(target.classroomId);
   };
   useEffect(() => {
+    if (!requestedTarget) return;
+    setDraft(null); setSharedCode(null); setClassroomId(requestedTarget.classroomId);
+    setWallTarget(requestedTarget.activityId ? { kind: 'activity', ...requestedTarget, activityId: requestedTarget.activityId, attemptId: null } : null);
+  }, [requestedTarget]);
+  useEffect(() => {
     if (!requestedNotification) return;
     let active = true;
     void api.call<NotificationTarget>(`/notifications/${requestedNotification}/open`, 'POST', {})
@@ -154,8 +161,12 @@ export function ClassroomsApp({
       <AppNavbar logoHref="/mis-aulas" displayName={displayName}
         links={draft ? [{ href: '/mis-aulas', label: 'Mis aulas', current: true }]
           : [{ href: '/inicio', label: 'Inicio', current: !classroomId && presentation === 'home' },
-            { href: '/mis-aulas', label: 'Mis aulas', current: presentation === 'classrooms' || Boolean(classroomId) }]}
-        onNavigate={href => { if (!draft) showPresentation(href === '/inicio' ? 'home' : 'classrooms'); }}
+            { href: '/mis-aulas', label: 'Mis aulas', current: presentation === 'classrooms' || Boolean(classroomId) },
+            { href: '/agenda', label: 'Agenda' }]}
+        onNavigate={href => {
+          if (href === '/agenda') { if (onNavigate) onNavigate('agenda'); else window.location.assign('/agenda'); return; }
+          if (!draft) showPresentation(href === '/inicio' ? 'home' : 'classrooms');
+        }}
         notifications={!draft ? <Notifications api={api} refresh={notificationRefresh} onOpen={openTarget} /> : undefined}
         accountActions={!draft ? accountActions : undefined} />
       <main id="classroom-main" className="p5-main">

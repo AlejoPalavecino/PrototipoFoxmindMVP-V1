@@ -25,11 +25,14 @@ export function Activities({ api, room, reload, target, onChanged }: { api: Clas
   useEffect(() => {
     if (!target) return;
     const controller = new AbortController();
+    setSession(null); setPreview(null); setHistory(null); setError('');
     if (target.kind !== 'activity') setHistory({ activityId: target.activityId, attemptId: target.attemptId });
+    else if (teacher) void api.call<ActivityData>(`/${room.id}/activities/${target.activityId}/preview`, 'GET', undefined, controller.signal)
+      .then(data => { if (!controller.signal.aborted) setPreview(data); }).catch(e => { if (!controller.signal.aborted) setError(e.message); });
     else void api.call<AttemptSessionData>(`/${room.id}/activities/${target.activityId}/session`, 'GET', undefined, controller.signal)
-      .then(setSession).catch(e => { if (!controller.signal.aborted) setError(e.message); });
+      .then(data => { if (!controller.signal.aborted) setSession(data); }).catch(e => { if (!controller.signal.aborted) setError(e.message); });
     return () => controller.abort();
-  }, [api, room.id, target]);
+  }, [api, room.id, target, teacher]);
   async function run(operation: () => Promise<void>) {
     setBusy(true); setError(''); setNotice('');
     try { await operation(); } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
