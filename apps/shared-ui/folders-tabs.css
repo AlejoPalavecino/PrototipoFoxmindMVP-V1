@@ -1,0 +1,112 @@
+/* Native fixed-cap frames keep the shoulder and slope intact as labels grow. */
+.folder-panel {
+  --folder-tab-frame: url('../web/public/folders/tab-frame-yellow.svg');
+  isolation: isolate;
+}
+.folder-panel.tone-mint { --folder-tab-frame: url('../web/public/folders/tab-frame-mint.svg'); }
+.folder-panel.tone-coral { --folder-tab-frame: url('../web/public/folders/tab-frame-coral.svg'); }
+.folder-panel::before {
+  content: '';
+  position: absolute;
+  inset: -32px -1.5px auto;
+  height: 32px;
+  border: 1.5px solid var(--fm-outline);
+  border-bottom: 0;
+  border-radius: 14px 14px 0 0;
+  background: white;
+  pointer-events: none;
+  z-index: -1;
+}
+/* Repaint the front lip above the rear paper and the tab's open lower join. */
+.folder-panel::after {
+  content: '';
+  position: absolute;
+  inset: -1.5px -1.5px auto;
+  height: 14px;
+  border: 1.5px solid var(--fm-outline);
+  border-bottom: 0;
+  border-radius: 14px 14px 0 0;
+  pointer-events: none;
+  z-index: 2;
+}
+.folder-panel.folder-panel > .folder-tab,
+.folder-panel.folder-panel > .p5-section-head .folder-tab {
+  position: absolute;
+  left: -1.5px;
+  top: -1.5px;
+  transform: translateY(-100%);
+  box-sizing: border-box;
+  width: fit-content;
+  max-width: calc(100% + 3px);
+  min-height: 58px;
+  margin: 0;
+  padding: 12px 40px 12px 44px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  isolation: isolate;
+  z-index: 1;
+  font-size: 22px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.folder-tab::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border: 1.5px solid var(--fm-outline);
+  border-bottom: 0;
+  border-image: var(--folder-tab-frame) 0 32 fill / 0 32px / 0 stretch;
+  background: linear-gradient(var(--folder-tone), var(--folder-tone)) center 2px / calc(100% - 64px) calc(100% - 2px) no-repeat;
+  background-origin: border-box;
+}
+.folder-tab .entry-icon { width: 24px; height: 24px; }
+.p5-wizard > .p5-surface.folder-panel { margin-top: 96px; }
+/* Decoration skews independently; semantic targets, labels and focus stay square. */
+.fm-nav-links a,
+.p5-main .p5-tabs button {
+  --folder-nav-fill: white;
+  position: relative;
+  isolation: isolate;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.fm-nav-links a::before,
+.p5-main .p5-tabs button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: skewX(18deg);
+  border: 1.5px solid var(--fm-outline);
+  border-radius: 7px 7px 0 0;
+  background: var(--folder-nav-fill);
+  pointer-events: none;
+  z-index: -1;
+}
+.fm-nav-links a[aria-current='page'] { --folder-nav-fill: var(--fm-yellow); background: transparent; }
+.fm-nav-links a:hover { --folder-nav-fill: var(--fm-peach); background: transparent; }
+.p5-main .p5-tabs { gap: 5px; padding-inline: 10px; }
+.p5-main .p5-tabs button { --folder-nav-fill: var(--fm-mint); padding-inline: 24px; }
+.p5-main .p5-tabs button[aria-current='page'] { --folder-nav-fill: var(--fm-coral); background: transparent; }
+.p5-main .p5-tabs.tone-mint button { --folder-nav-fill: white; background: transparent; }
+.p5-main .p5-tabs.tone-mint button[aria-current='page'] { --folder-nav-fill: var(--fm-mint); background: transparent; }
+.p5-app .p5-main .p5-tabs button:hover { --folder-nav-fill: var(--fm-yellow); background: transparent; }
+.fm-nav-links a:focus-visible,
+.p5-main .p5-tabs button:focus-visible { outline: 3px solid var(--fm-ink); outline-offset: 3px; }
+@media (max-width: 700px) {
+  .entry-page .auth-main > .surface.folder-panel { margin-top: 96px; }
+  .folder-panel.folder-panel > .folder-tab,
+  .folder-panel.folder-panel > .p5-section-head .folder-tab { font-size: 18px; }
+  .p5-main .p5-tabs button { padding-inline: 20px; }
+}
+@media (forced-colors: active) {
+  .fm-nav-links a[aria-current='page'] { text-decoration: underline; text-underline-offset: .2em; }
+  .folder-tab::before { border: 1.5px solid CanvasText; border-bottom: 0; border-image: none; background: Canvas; }
+  .folder-panel::before { border-color: CanvasText; background: Canvas; }
+  .fm-nav-links a::before,
+  .p5-main .p5-tabs button::before { border-color: CanvasText; background: Canvas; }
+}
