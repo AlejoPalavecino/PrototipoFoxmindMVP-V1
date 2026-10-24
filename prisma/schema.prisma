@@ -127,8 +127,36 @@ model User {
   replies               WallReply[]        @relation("WallReply_author_id")
   removed_replies       WallReply[]        @relation("WallReply_removed_by_id")
   notifications         Notification[]     @relation("Notification_recipient_id")
+  agenda_events         AgendaEvent[]      @relation("AgendaEvent_owner")
 
   @@map("users")
+}
+
+model AgendaEvent {
+  id                   String   @id @db.Uuid
+  owner_id             String   @db.Uuid
+  title                String
+  description          String
+  category             String
+  schedule_kind        String
+  start_date           DateTime @db.Date
+  end_date_exclusive   DateTime @db.Date
+  start_local          String?
+  end_local            String?
+  time_zone            String?
+  start_offset_minutes Int?
+  end_offset_minutes   Int?
+  start_at             DateTime? @db.Timestamptz(6)
+  end_at               DateTime? @db.Timestamptz(6)
+  repeat_kind          String
+  repeat_until         DateTime? @db.Date
+  revision             BigInt   @default(0)
+  created_at           DateTime @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+  owner                User     @relation("AgendaEvent_owner", fields: [owner_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@index([owner_id, start_date], map: "agenda_events_owner_start_idx")
+  @@map("agenda_events")
 }
 
 model Session {
