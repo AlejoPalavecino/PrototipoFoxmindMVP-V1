@@ -1,5 +1,6 @@
 export { FileService, type FileServiceOptions } from './service.ts';
 export { createApprovedPlanReader } from './approved-plan-reader.ts';
+export { createDurableApprovedPlanReader } from './durable-plan-reader.ts';
 export { extractDocxPlanDocument } from './docx-text.ts';
 export { FilesModule } from './files.module.ts';
 export { FileCleanupWorker } from './cleanup-worker.ts';
