@@ -57,6 +57,8 @@ Para comprobarlo: iniciar sesión con un docente verificado, crear un borrador, 
 
 ## Arquitectura y operación
 
+El esquema enviado a Gemini conserva la estructura JSON, los campos requeridos y los objetos cerrados. Los tamaños de las listas se validan en FoxMind: hasta 100 unidades, 100 temas por unidad y 500 temas totales; no se envían como `maxItems` porque esa combinación provocó un 400 con el modelo probado. También se validan los nombres de hasta 120 puntos Unicode y los warnings permitidos. Una respuesta que exceda estos límites se rechaza; simplificar el esquema del proveedor no amplía el currículo aceptado.
+
 Los contratos compartidos viven en `src/core/domain`. El módulo `apps/api/src/ai` contiene el adaptador Gemini y la configuración. El caso de uso de aulas, su cola PostgreSQL y su worker viven en `apps/api/src/classrooms/ai`. El lector de documentos pertenece a files y conserva la frontera de acceso privado. Futuras capacidades pueden reutilizar proveedor/configuración sin acoplar sus reglas de negocio al SDK.
 
 PostgreSQL conserva trabajos, propuestas, revisiones y reservas de consumo. El worker reclama trabajos mediante leases y comprueba que mantiene su autorización antes de usar el archivo o guardar la respuesta. No mantiene una transacción SQL durante almacenamiento, parsing o llamadas a Google. El cierre del backend drena el worker antes de cerrar almacenamiento y conexiones.
