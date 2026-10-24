@@ -1,6 +1,10 @@
 # FoxMind implementation roadmap
 
-## Agenda — integrated locally into main, 2026-10-24
+## Agenda — published to GitHub main, 2026-10-24
+
+After separately authorizing publication without deployment, the user-approved Agenda history was pushed normally to origin/main. Live remote readback matched d09c5941102bbdae6922e013d91ce48e719808ab; GitHub deployments remained0. [Publication evidence](work-log/2026-10-24-root-agenda-github-publication.md) records preflight and delivery. This supersedes the local-only boundary immediately below for source publication only. No deployment, PR, force-push or retained-data operation. A passive documentary closure follows under the same push authorization.
+
+### Local integration checkpoint
 
 The user manually tested and accepted event colors, then explicitly authorized integrating all Agenda work into main. Local main fast-forwarded from ed06f885 to32fecce3 with exact ref/tree equality: calendar, academic deadlines, private unique/weekly events, compact form and persisted colors. Fresh final-source Agenda suite93PASS/0FAIL/0SKIP and strict web types passed. [Integration evidence](work-log/2026-10-24-root-agenda-main-integration.md) owns the local delivery and documentary closure. Current preview http://127.0.0.1:49642/agenda remains available; retained data and unrelated checkouts are preserved. No push, PR or deployment. Automated screenshot limitations remain historical evidence; user manual acceptance does not invent automated captures.
 
