@@ -12,6 +12,9 @@ import type { ClassroomService } from './classrooms/service.ts';
 import { localInvitationSender } from './classrooms/delivery.ts';
 import { ClassroomHostLifecycle, installClassroomsTransport } from './classrooms/host.ts';
 import { LibraryCleanupWorker } from './classrooms/library-cleanup.ts';
+import { AgendaService, createAgendaUnitOfWork } from './agenda/index.ts';
+import { createAgendaAuthentication, installAgendaTransport } from './agenda/integration.ts';
+import { PrismaService } from './database/prisma.service.ts';
 
 export interface ApplicationOptions { readonly identity?: IdentityRuntimePorts }
 
@@ -43,6 +46,9 @@ class AppModule implements OnModuleDestroy {
         ...(configuration.classrooms && files && invitationSender
           ? [ClassroomsModule.integrated(database, identity, files, configuration.classrooms, invitationSender)] : [])],
       controllers: [HealthController],
+      providers: [{ provide: AgendaService, inject: [PrismaService, IdentityRuntime],
+        useFactory: (database: PrismaService, runtime: IdentityRuntime) => new AgendaService(
+          createAgendaUnitOfWork(database, createAgendaAuthentication(runtime.configuration.security))) }],
     };
   }
 }
@@ -57,6 +63,7 @@ export async function createApplication(configuration: ApiConfiguration, options
     app = await NestFactory.create(AppModule.register(configuration, options, infrastructure, invitationSender), { logger: false, abortOnError: false });
     const identity = app.get(IdentityRuntime);
     installIdentityTransport(app, identity);
+    installAgendaTransport(app, identity, app.get(AgendaService));
     if (configuration.files) installFilesTransport(app, identity, app.get(FileService));
     if (configuration.classrooms) installClassroomsTransport(app, identity, app.get<ClassroomService>(InvitationService));
     app.setGlobalPrefix("api/v1");

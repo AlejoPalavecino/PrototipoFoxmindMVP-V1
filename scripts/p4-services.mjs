@@ -63,7 +63,7 @@ export async function withP4Services(run, { persistent = false } = {}) {
     };
     docker('network', 'create', '--label', `foxmind.p4.owner=${tag}`, prefix); network = true;
     const db = start('db', P4_IMAGES.database, ['--memory=512m', '--cpus=0.75', '--pids-limit=128',
-      '--publish', await publish(5432), ...dataMount('db-data', '/var/lib/postgresql/data'), '--env', 'POSTGRES_PASSWORD', '--env', 'POSTGRES_DB=p4'], []);
+      '--publish', await publish(5432), ...dataMount('db-data', '/var/lib/postgresql/data'), '--env', 'POSTGRES_PASSWORD', '--env', 'POSTGRES_DB=p4_test'], []);
     const storage = start('s3', P4_IMAGES.storage, ['--memory=768m', '--cpus=1', '--pids-limit=128',
       '--publish', await publish(8333), '--mount', `type=bind,source=${auth},target=/config/s3.json,readonly`, ...dataMount('s3-data', '/data')],
       ['mini', '-dir=/data', '-s3.config=/config/s3.json', '-bucket=foxmind-private', '-admin.ui=false', '-webdav=false']);
@@ -72,7 +72,7 @@ export async function withP4Services(run, { persistent = false } = {}) {
       '--mount', `type=bind,source=${resolve('config/p4-freshclam.conf')},target=/etc/clamav/p4-freshclam.conf,readonly`, '--entrypoint=/bin/sh'],
       ['-c', P4_SCANNER_START]);
     const databasePort = port(db, 5432), s3Port = port(storage, 8333), scannerPort = port(scanner, 3310);
-    const databaseUrl = `postgresql://postgres:${secret}@127.0.0.1:${databasePort}/p4`;
+    const databaseUrl = `postgresql://postgres:${secret}@127.0.0.1:${databasePort}/p4_test`;
     const endpoint = `http://127.0.0.1:${s3Port}`;
     s3 = new S3Client({ endpoint, region: 'us-east-1', credentials: { accessKeyId, secretAccessKey: secret },
       forcePathStyle: true, maxAttempts: 1, requestChecksumCalculation: 'WHEN_REQUIRED', responseChecksumValidation: 'WHEN_REQUIRED' });
