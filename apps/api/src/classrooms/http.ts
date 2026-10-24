@@ -10,9 +10,12 @@ import { captureSubmissionReceipt } from './submission-receipt.ts';
 import { privateGradingInput } from './grading-policy.ts';
 import { publicationInput } from './grade-publication.ts';
 import { gradeCorrectionInput } from './grade-corrections.ts';
+import { extractionRoute, extractionHttpError } from './ai/http.ts';
+import type { ClassroomAiService } from './ai/index.ts';
 
 interface Admission {
   admit(request: IncomingMessage, write: boolean, response: ServerResponse): Promise<void>;
+  ai?: ClassroomAiService;
 }
 const statuses = {
   INVALID_INPUT: 400,
@@ -130,6 +133,8 @@ export function createClassroomsHandler(
           return fail('INVALID_INPUT');
         return b;
       };
+      const extraction = await extractionRoute(options.ai, req, path, method, body);
+      if (extraction) { json(res, extraction.status, extraction.value); return; }
       if (!path.length && method === 'GET') value = await service.mine(req);
       else if (path.join('/') === 'drafts' && method === 'GET')
         value = await service.listDrafts(req);
@@ -346,6 +351,8 @@ export function createClassroomsHandler(
       json(res, 200, value);
     })()
       .catch((e) => {
+        const extractionError = extractionHttpError(e);
+        if (extractionError) { json(res, extractionError.status, { error: { code: extractionError.code } }); return; }
         if (e instanceof ClassroomIdentityError) {
           if (e.retryAfter) res.setHeader('Retry-After', String(e.retryAfter));
           if (!req.complete) {
