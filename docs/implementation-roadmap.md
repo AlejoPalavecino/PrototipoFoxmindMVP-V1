@@ -1,5 +1,7 @@
 # FoxMind implementation roadmap
 
+Current runtime state (2026-10-24): user explicitly requested stopping all FoxMind processes/containers. Both API/Next supervisors ended cleanly and all five active containers stopped with exit0. Zero FoxMind process/listener/container remains; all40retained named volumes and private key/configuration/backups remain. Earlier running URLs are historical and currently unavailable. [Shutdown evidence](work-log/2026-10-24-root-foxmind-shutdown.md). No automatic restart, push or deployment.
+
 ## Classroom AI + Agenda — integrated into local main, 2026-10-24
 
 Current manual-test runtime (2026-10-24): main Agenda+Gemini is running at http://127.0.0.1:52171, inbox http://127.0.0.1:52169, on an explicitly authorized independent data clone. The prior Gemini dataset was also recovered at60061/inbox49493 after a Docker interruption; logical databases and buckets are separate on persistent infrastructure. Original37business tables/four objects verified exact, main12/source10migration histories and31independent readiness checks passed. Original Google key loads internally from its existing private file; no startup Google calls. [Operational record and restart handoff](work-log/2026-10-24-root-main-gemini-runtime.md). Apps left running; no product changes, push or deployment.
