@@ -1,0 +1,25 @@
+.agenda-color-blue { --agenda-color-bg: #dbeafe; --agenda-color-accent: #1d4ed8; }
+.agenda-color-green { --agenda-color-bg: #dcfce7; --agenda-color-accent: #166534; }
+.agenda-color-yellow { --agenda-color-bg: #fef3c7; --agenda-color-accent: #854d0e; }
+.agenda-color-orange { --agenda-color-bg: #ffedd5; --agenda-color-accent: #9a3412; }
+.agenda-color-pink { --agenda-color-bg: #fce7f3; --agenda-color-accent: #9d174d; }
+.agenda-color-purple { --agenda-color-bg: #f3e8ff; --agenda-color-accent: #6b21a8; }
+.agenda-color-swatch.class, .agenda-color-indicator.class { --agenda-color-bg: var(--fm-mint); --agenda-color-accent: var(--fm-outline); }
+.agenda-color-swatch.activity, .agenda-color-indicator.activity { --agenda-color-bg: var(--fm-yellow); --agenda-color-accent: var(--fm-outline); }
+.agenda-color-swatch.evaluation, .agenda-color-indicator.evaluation, .agenda-color-indicator.deadline { --agenda-color-bg: var(--fm-coral); --agenda-color-accent: var(--fm-outline); }
+.agenda-dot[class*='agenda-color-'], .agenda-event[class*='agenda-color-'] {
+  background: var(--agenda-color-bg); border-left: 3px solid var(--agenda-color-accent); color: var(--fm-ink);
+}
+.agenda-event[class*='agenda-color-'] { padding-inline: 12px; border-radius: 6px; }
+.agenda-event[class*='agenda-color-'] .agenda-date { color: inherit; }
+.agenda-color-fields { display: grid; gap: 10px; border: 0; margin: 0; padding: 0; min-width: 0; }
+.agenda-color-fields legend { margin-bottom: 8px; font-size: 14px; font-weight: 650; }
+.agenda-color-swatch { width: 16px; height: 16px; flex: 0 0 16px; border-radius: 50%; background: var(--agenda-color-bg); border: 2px solid var(--agenda-color-accent); }
+.agenda-day-indicators { display: none; }
+@media (max-width: 800px) {
+  .agenda-day-indicators { display: flex; justify-content: center; gap: 3px; margin-top: 5px; }
+  .agenda-color-indicator { width: 8px; height: 8px; flex: 0 0 8px; background: var(--agenda-color-accent); border: 1px solid var(--agenda-color-accent); border-radius: 50%; }
+}
+@media (forced-colors: active) {
+  .agenda-color-swatch, .agenda-color-indicator { border-color: CanvasText; }
+}

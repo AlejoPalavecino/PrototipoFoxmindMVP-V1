@@ -11,3 +11,6 @@ export { validateDraft, eventFailure } from './event-validation.ts';
 export { repeatPreview, draftSummary } from './event-summary.ts';
 export { zoneChoices, zoneLabel } from './event-zones.ts';
 export { eventFocusDay } from './event-result.ts';
+export { EventColorFields } from './EventColorFields.tsx';
+export { eventColorOptions, eventColorClass, eventColorLabel } from './event-colors.ts';
+export type { EventColorChoice, EventColorOption } from './event-colors.ts';

@@ -18,6 +18,8 @@ El formulario compacto reúne tipo y título, día y horario, duración de 30/60
 
 El alcance y la evidencia de este flujo se siguen en [la mejora del formulario](../odd/tasks/agenda-compact-event-form.md).
 
+Cada evento personal permite elegir Azul, Verde, Amarillo, Naranja, Rosa o Violeta, o dejar Automático para usar la categoría. La elección se guarda con el evento y aparece en el calendario, sus indicadores móviles y la lista del día. Se puede cambiar al editar o volver a Automático; una serie comparte el color en todas sus fechas. Los eventos anteriores conservan su aspecto y las entregas académicas mantienen su presentación propia. [Contrato y verificación de color](../odd/tasks/agenda-event-color.md).
+
 Los eventos nuevos usan automáticamente la zona de la agenda. Una indicación como «Hora de Buenos Aires» aclara la referencia; en más opciones se puede elegir otra ciudad sin escribir códigos de zona. Editar conserva la zona guardada. Cambiarla mantiene la fecha y hora escritas, como explica el selector. Las notas y los eventos de varios días también están en más opciones.
 
 Antes de guardar se muestra un resumen y los errores aparecen junto al campo correspondiente. Cerrar con cambios pide confirmación. Tras crear un evento, la agenda selecciona su día y ofrece «Ver evento». Editar mantiene el día que se estaba consultando y permite ir explícitamente al inicio de la serie.

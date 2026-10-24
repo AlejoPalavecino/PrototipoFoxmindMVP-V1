@@ -4,6 +4,7 @@ import { EventWhenFields } from './EventWhenFields.tsx';
 import { EventRepeatFields } from './EventRepeatFields.tsx';
 import { EventAdvancedFields } from './EventAdvancedFields.tsx';
 import { FieldIssue, fieldAria } from './EventFieldIssue.tsx';
+import { EventColorFields } from './EventColorFields.tsx';
 
 export type EventFieldProps = { draft: EventDraft; onChange: (draft: EventDraft) => void; issues: readonly DraftIssue[] };
 const categories = [{ value: 'CLASS', label: 'Clase', example: 'Clase de Historia' },
@@ -21,6 +22,7 @@ export function EventFields({ draft, onChange, issues }: EventFieldProps) {
         placeholder={categories.find(category => category.value === draft.category)?.example}
         onChange={event => onChange({ ...draft, title: event.target.value })} {...fieldAria(issues, 'title')} /></label>
       <FieldIssue issues={issues} field="title" /><small>Solo visible para vos. No crea una actividad del aula.</small>
+      <EventColorFields draft={draft} onChange={onChange} issues={issues} />
     </section>
     <EventWhenFields draft={draft} onChange={onChange} issues={issues} />
     <EventRepeatFields draft={draft} onChange={onChange} issues={issues} />

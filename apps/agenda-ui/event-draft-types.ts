@@ -1,7 +1,9 @@
 import type { EventKind, EventPayload, PrivateEvent } from '../../src/core/domain/index.ts';
+import type { EventColorChoice } from './event-colors.ts';
 
 export interface EventDraft {
   title: string; description: string; category: EventKind;
+  color: EventColorChoice;
   allDay: boolean; startDate: string; endDate: string;
   startTime: string; endTime: string; zone: string;
   weekly: boolean; until: string; untilEdited: boolean;
@@ -9,7 +11,7 @@ export interface EventDraft {
   endMode: 'DURATION' | 'MANUAL'; durationMinutes: number;
 }
 export type DraftField = 'title' | 'category' | 'startDate' | 'startTime'
-  | 'endDate' | 'endTime' | 'until' | 'description' | 'zone';
+  | 'endDate' | 'endTime' | 'until' | 'description' | 'zone' | 'color';
 export interface TemporalChoice { offsetMinutes: number; instant: string; label: string }
 export interface DraftIssue {
   field: DraftField; message: string; choices?: readonly TemporalChoice[];

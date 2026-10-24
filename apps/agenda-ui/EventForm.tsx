@@ -7,6 +7,7 @@ import { useEventEditor } from './useEventEditor.ts';
 import type { DraftIssue, EventEditorOutcome } from './event-draft-types.ts';
 import { eventDraft } from './event-draft.ts';
 import { draftSummary } from './event-summary.ts';
+import { eventColorLabel } from './event-colors.ts';
 
 export function EventForm({ api, event, day, zone, onClose, onSaved }: {
   api: AgendaClient; event?: PrivateEvent; day: string; zone: string; onClose: () => void; onSaved: (outcome: EventEditorOutcome) => void;
@@ -45,5 +46,6 @@ function useIssueFocus(ref: RefObject<HTMLFormElement | null>, issues: readonly 
 function StoredEvent({ event, zone }: { event: PrivateEvent; zone: string }) {
   return <Notice><strong>Versión guardada: {event.title}</strong><p>{event.description || 'Sin notas.'}</p>
     <p>{draftSummary(eventDraft(event, '', zone))}</p>
+    <p>Color: {eventColorLabel(event.color)}</p>
     Tus campos se conservaron. Revisalos antes de guardar sobre esta versión.</Notice>;
 }

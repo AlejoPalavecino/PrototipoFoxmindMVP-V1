@@ -2,10 +2,12 @@ import { draftPayload } from './event-draft.ts';
 import { validDraftDate, validDraftTime } from './event-draft-time.ts';
 import { repeatPreview } from './event-summary.ts';
 import { zoneLabel } from './event-zones.ts';
+import { eventColorOptions } from './event-colors.ts';
 import type { DraftIssue, DraftValidation, EventDraft, TemporalChoice } from './event-draft-types.ts';
 
 function fieldIssues(draft: EventDraft): DraftIssue[] {
   const issues: DraftIssue[] = [];
+  if (!eventColorOptions.some(option => option.value === draft.color)) issues.push({ field: 'color', message: 'Elegí un color de evento válido.' });
   if (!draft.title.trim() || draft.title.trim().length > 160) issues.push({ field: 'title', message: 'Escribí un título de hasta 160 caracteres.' });
   if (!['CLASS', 'EVALUATION', 'ACTIVITY'].includes(draft.category)) issues.push({ field: 'category', message: 'Elegí un tipo de evento.' });
   if (!validDraftDate(draft.startDate)) issues.push({ field: 'startDate', message: 'Elegí una fecha de inicio válida.' });

@@ -1,5 +1,6 @@
 import type { AgendaItem } from './calendar.ts';
 import { dayLabel, monthDays, onDay } from './calendar.ts';
+import { eventColorClass } from './event-colors.ts';
 
 export function AgendaMonth({ month, selected, zone, items, onSelect, onMonth, loading }: {
   month: string; selected: string; zone: string; items: AgendaItem[]; loading: boolean;
@@ -19,9 +20,12 @@ export function AgendaMonth({ month, selected, zone, items, onSelect, onMonth, l
         aria-pressed={selected === day} aria-label={`${dayLabel(day)}${entries.length ? `, ${entries.length} eventos o entregas` : ''}`}
         onClick={() => onSelect(day)}><span className="agenda-day-number">{Number(day.slice(-2))}</span>
         <span className="agenda-day-preview" aria-hidden="true">{entries.slice(0, 2).map(item => <span key={item.kind === 'PRIVATE_EVENT' ? item.occurrenceId : item.id}
-          className={`agenda-dot ${item.kind === 'PRIVATE_EVENT' ? item.event.category.toLowerCase() : 'deadline'}`}>{item.kind === 'PRIVATE_EVENT' ? item.event.title : item.title}</span>)}
+          className={`agenda-dot ${item.kind === 'PRIVATE_EVENT' ? eventColorClass(item.event) : 'deadline'}`}>{item.kind === 'PRIVATE_EVENT' ? item.event.title : item.title}</span>)}
           {entries.length > 2 ? <small>+{entries.length - 2} más</small> : null}</span>
         {entries.length ? <span className="agenda-day-count" aria-hidden="true">{entries.length}</span> : null}
+        <span className="agenda-day-indicators" aria-hidden="true">{entries.slice(0, 3).map(item => <span
+          key={item.kind === 'PRIVATE_EVENT' ? item.occurrenceId : item.id}
+          className={`agenda-color-indicator ${item.kind === 'PRIVATE_EVENT' ? eventColorClass(item.event) : 'deadline'}`} />)}</span>
       </button>;
     })}</div>
     <p className="agenda-calendar-note">Elegí un día para ver sus eventos y entregas.</p>

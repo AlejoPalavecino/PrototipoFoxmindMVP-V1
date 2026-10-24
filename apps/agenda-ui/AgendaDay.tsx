@@ -1,6 +1,7 @@
 import type { AgendaTarget, PrivateEvent } from '../../src/core/domain/index.ts';
 import { categoryLabels, dayLabel, deadlineLabel, onDay, type AgendaItem } from './calendar.ts';
 import { DeadlineCard } from './Upcoming.tsx';
+import { eventColorClass } from './event-colors.ts';
 
 export function AgendaDay({ day, zone, items, busy, focusEventId, focusRequest, onEdit, onOpen, onCreate }: {
   day: string; zone: string; items: AgendaItem[]; busy: boolean;
@@ -21,7 +22,7 @@ export function AgendaDay({ day, zone, items, busy, focusEventId, focusRequest, 
     {!entries.length ? <p className="agenda-empty">Un día libre en tu agenda. Agregá lo que quieras recordar.</p> : null}
     <div className="agenda-day-list">{entries.map(item => item.kind === 'ACADEMIC_DEADLINE'
       ? <DeadlineCard key={item.id} item={item} busy={busy} onOpen={onOpen} />
-      : <article key={item.occurrenceId} id={`agenda-event-${item.occurrenceId}`} data-event-id={item.event.id} tabIndex={-1} className={`agenda-event ${item.event.category.toLowerCase()}`}>
+      : <article key={item.occurrenceId} id={`agenda-event-${item.occurrenceId}`} data-event-id={item.event.id} tabIndex={-1} className={`agenda-event ${eventColorClass(item.event)}`}>
         <span className="p5-tag">{categoryLabels[item.event.category]} · Privado{item.event.repeat.kind === 'WEEKLY' ? ' · Semanal' : ''}</span>
         <h3>{item.event.title}</h3><p className="agenda-date">{item.startAt ? deadlineLabel(item.startAt, item.event.schedule.kind === 'TIMED' ? item.event.schedule.timeZone : zone) : 'Día completo'}</p>
         {item.event.description ? <p className="agenda-description">{item.event.description}</p> : null}

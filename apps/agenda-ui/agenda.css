@@ -1,3 +1,4 @@
+@import './event-colors.css';
 .agenda-main { max-width: 1416px; }
 .agenda-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .12em; margin-bottom: 12px; }
 .agenda-header h1 { margin-top: 0; }
