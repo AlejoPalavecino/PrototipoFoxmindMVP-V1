@@ -1,10 +1,10 @@
-# FoxMind repository consolidation — main ready, active checkout retirement pending
+# FoxMind repository consolidation — completed
 
 - Agent/role/task: /root coordinator; host session ID unavailable.
 - Date: 2026-10-24.
 - Initial main: f4f9519c3c7e4e17e74f8096dadc4841b93fd0b5.
 - Scope: user asks to finish all loose changes, integrate main and leave no loose branches or unsynchronized work. Consolidate into canonical original checkout and synchronize GitHub main, without deployment. Preserve recoverable history and private/retained data before retiring worktrees.
-- Status: completed for Git consolidation and synchronized main delivery. Physical retirement of the app-protected active checkout remains pending user action.
+- Status: completed; canonical main is the only registered checkout and local branch. Historical app-location holds below are resolved by the final retirement section.
 
 ## Inventory and plan
 
@@ -53,3 +53,15 @@ Local documentary closure and normal main push will synchronize the fully consol
 Closure commit24bade119b42f694142033bee72f89299429be1eobserved after independent audit. Fresh origin fetch showed0behind/5ahead(includes preserved historical439ancestor); normal git push advanced GitHub main f4f9519..24bade1, exit0. Direct git ls-remote readback matched24bade1exactly; canonical working tree clean. GitHub deployment inventory was0before delivery, with no tracked deployment workflows or deploy operation. This passive delivery record is committed/pushed under the same consolidation/synchronization authorization; no new production edit or own future commit identity is invented. Final readback remains the authoritative current tip.
 
 New development can proceed in the original directory on the only branch main. Recovery location is the sibling FoxMind-Recovery-2026-10-24-cleanup directory, with bundles,75original files and intact local worktree/private data. The one retained managed checkout is this active chat's clean detached mirror, not an unmerged branch; app removal remains explicitly unfinished rather than hidden or force-bypassed.
+
+## Final worktree retirement — resumed after user moved to Local
+
+User explicitly confirmed Local and authorized retiring the last worktree and verifying sole clean/synchronized main, no deployment. New chat cwd is an independent Local task directory outside the remaining worktree and outside the canonical repo. App archive now returns Could not verify the task's primary checkout rather than the former active-primary guard. Its projectless Local context cannot identify the Git repo; use canonical Git verification and native Git worktree removal for the expressly authorized linked checkout, without removing the current chat directory or canonical primary.
+
+Explorer /root/repo_status independently confirmed main/remote d14b99640c723d6240e589011614e9cbbcfa0c67,0/0divergence, one local main branch,0stashes and clean detached remaining checkout with identical committed tree. No new private-content reads or product tests. All needed ignored evidence was preserved earlier; remaining ignored paths are only generated dependencies/build output. Verify recovery bundle and exact registered non-primary path before normal removal; no force/recursive filesystem fallback.
+
+## Final retirement observed
+
+Verified the exact resolved non-primary path, equal target/main HEADs, clean target status, shared Git common directory and valid final-main.bundle before executing normal git worktree remove(without force) from canonical main. Command exited0; git worktree list returned only the original primary checkout. Three generated Turbopack reparse links remained under the former .next/node_modules cache. Inspected the entire residue: only those3links and empty parent directories, no source/private files. Unlinked each via non-recursive Directory.Delete, without traversing or removing dependency targets, then deleted only checked empty parent directories. Former worktree root is now absent; all36canonical direct dependency package versions still match and no production files changed.
+
+Prior app archive errors are capability/context limitations, not remaining Git worktrees. The chat's current Local task directory is outside both the canonical repo and retired worktree and was not removed. No app database edits, protected-primary force removal, secret reads, retained-data operations, deployment or new runtime were used. Final documentation now records sole canonical main checkout; earlier location holds remain historical evidence only. Independent final Git/filesystem audit and local documentation commit/synchronization follow under the user's current explicit instruction.
