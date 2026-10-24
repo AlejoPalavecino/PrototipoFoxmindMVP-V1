@@ -65,7 +65,8 @@ test('P5 actual Next, P3 identity and P4 private services integrated journeys', 
           assert.equal((await rejectSame(() => api(page, 'POST', '/classrooms/drafts', {}))).status, 403);
         });
         student = await account(studentPage, origin, inbox, `p5-student-${suffix}@example.test`);
-        assert.equal(runtime.migrations.length, 9);
+        assert.equal(runtime.migrations.length, 10);
+        assert.equal(runtime.migrations.at(-1), '202610230001_classroom_ai');
         assert.equal((await db.query('SELECT count(*)::int AS n FROM classrooms')).rows[0].n, 0);
       });
 
@@ -222,8 +223,11 @@ test('P5 actual Next, P3 identity and P4 private services integrated journeys', 
           assert.ok(layout.nameHeight <= 2 * layout.nameLineHeight + 1, 'Fixture name is not squeezed into vertical fragments');
           await page.screenshot({ path: `.test-artifacts/p5-integration/history-${width}.png`, fullPage: true });
         }
+        await page.getByRole('button', { name: /^Abrir menú de cuenta/ }).click();
         await page.getByRole('link', { name: 'Mi perfil', exact: true }).click(); await page.waitForURL('**/profile');
-        await page.getByRole('link', { name: 'Mis Aulas', exact: true }).click(); await page.waitForURL('**/mis-aulas');
+        await page.getByRole('button', { name: /^Abrir menú de cuenta/ }).click();
+        await page.getByRole('navigation', { name: 'Navegación móvil', exact: true })
+          .getByRole('link', { name: 'Mis aulas', exact: true }).click(); await page.waitForURL('**/mis-aulas');
         // Separate controlled-response UI regressions exercise the real production
         // pages; they are not substituted for the real identity/service proof above.
         await new Promise((resolve, reject) => {

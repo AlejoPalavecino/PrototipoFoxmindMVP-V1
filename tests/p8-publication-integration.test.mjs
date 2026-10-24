@@ -22,7 +22,8 @@ async function ok(...args) { const result = await request(...args); assert.equal
 
 test('P8 actual all-type delivery -> saved private correction -> cancel -> explicit publication -> safe own result/notification/restart', { timeout: 330000 }, async t => {
   await withP4IntegrationRuntime(async runtime => {
-    assert.equal(runtime.migrations.length, 9);
+    assert.equal(runtime.migrations.length, 10);
+    assert.equal(runtime.migrations.at(-1), '202610230001_classroom_ai');
     const scratch = await mkdtemp(join(tmpdir(), 'foxmind-p8-publication-')); console.log(`P8 retained browser evidence: ${scratch}`);
     const browser = await chromium.launch({ headless: true });
     try {
