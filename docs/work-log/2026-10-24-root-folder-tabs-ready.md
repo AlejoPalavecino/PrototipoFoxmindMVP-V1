@@ -5,7 +5,7 @@
 - Branch/worktree: codex/folder-tabs-ready, folder-tabs-ready/ProtipoFoxMind.
 - Starting commit: b00b6fb451b32101db859e03eee776c1810c4eb0 (current main).
 - Phase/task: bounded folder silhouette correction, prior2026-10-23tab-shape design/implementation records.
-- Status: completed for bounded correction and independent verification; local commit preparation follows.
+- Status: completed for bounded correction and independent verification; local implementation committed.
 
 ## Request and scope
 
@@ -56,3 +56,9 @@ Stopped final runtime via exact stop38380after verifier finished Space1with no r
 Fresh final Next production build0(includes types), prior separate strict web tsc0/API build0, final actual Vite3SVG200, actual Next3SVG200, SVG XML3PASS and documentation link/whitespace checks constitute proportionate proof. No dedicated lint script exists. Backend/business suites were not repeated because all production edits are CSS/SVG; no artificial CSS-text tests added. Native browser zoom/physical-device/Safari/new Gemini E2E are not claimed. Equivalent200percent reflow and wizard1/2scope remain explicit in live report.
 
 Local reviewable commits will preserve design/history, production correction and final evidence separately, each within400authored changed lines. Rollback boundary is the new CSS import/frame file/3SVGs plus this feature's documentation/evidence; no API, migration, session policy or unrelated Agenda/Gemini behavior changes. First remaining action after local commits: user-requested integration of codex/folder-tabs-ready into main. This task grants no main merge, push or deployment. Main/remote remain b00b6fb; original tab branch and pending files are preserved.
+
+## Observed local commits and environment restoration
+
+Historical design/reference/records committed as573430a(233authored lines). Production correction and attributed source/coordinator records committed as37f2bd0(222authored lines). Final proof/QA/checkpoint closure follows as a separate local work unit; its own identity is not invented before creation. No post-review production edit occurred; final source SHA remains091E845C5EBFFA631F932365E7DDDEA15E4B1B3A16026A0D5AFBE1E21A43A826.
+
+After final cleanup, docker ps returned empty. docker desktop stop exited0, restoring the daemon's initial stopped state after this task's temporary start. Owned services and browser Space are closed. Main integration and GitHub publication remain unperformed; branch/history/evidence are the reviewable handoff.

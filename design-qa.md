@@ -1,6 +1,19 @@
 # Folder theme visual QA
 
-final result: passed (bounded local implementation review)
+final result: passed (2026-10-24 bounded folder-tab correction; local integration candidate)
+
+## Current verified correction — 2026-10-24
+
+The selected shoulder/flat-top/sloped-edge folder shape is verified on `codex/folder-tabs-ready`, based on main `b00b6fb`. Registration, profile, Inicio, Mis aulas, Agenda, classroom sections and wizard headings were inspected in real Ego screenshots at desktop/390/320. Fresh final shared-tone, fallback, long-label, forced-color and wizard-spacing captures pass. Mobile account/header and wizard/stepper occlusions were corrected; the SVG-suppressed fallback remains readable and current global navigation stays distinguishable under forced colors.
+
+[Independent live proof](docs/work-log/2026-10-24-tabs-live-verify.md), [final review](docs/work-log/2026-10-24-tabs-final-review.md), [selected original PNGs](docs/work-log/evidence/2026-10-24-folder-tabs/README.md) and [coordinator/handoff](docs/work-log/2026-10-24-root-folder-tabs-ready.md) retain failures and scope. Actual200percent native browser zoom was unavailable; equivalent744x500/DPR2reflow was verified. Wizard proof covers steps1/2; no new AI/upload journey or physical-device/Safari acceptance. No main integration, push or deployment.
+
+## Historical correction preparation — 2026-10-23
+The user rejected the previous rectangular folder tabs and selected references/folder-tab-user-selected.png inside the retained mockup package. The previous full-platform acceptance below is historical and does not prove this requested silhouette. Current target: rounded left shoulder, raised flat top, inclined right edge and continuous front/back folder outline for every panel tab and related navigation. Existing content/flows remain.
+
+Ego Space1 is the same preview surface. Page.captureScreenshot, native screenshot and fromSurface:false each timed out even with document.visibilityState visible; restoring/bringing forward the window and the user's confirmation did not resolve capture. No fabricated screenshot or new visual PASS is claimed. Implementation can progress independently; alternate browser permission is pending under the user's Ego-only project rule. Current correction record: docs/work-log/2026-10-23-root-folder-tabs.md.
+
+## Historical full-platform review — 2026-10-22
 
 ## Targets and evidence
 The selected visual truth is `docs/design/foxmind-platform-mockups/screens/01-login.png` through `24-mi-perfil.png`. All24 desktop states were captured from the real owned V1 fixture at http://127.0.0.1:57492 in Ego Lite Space1, pagep1. Desktop viewport1487×1058, device scale1. Source dimensions differ by at most one pixel; comparison composites preserve original pixels without density resampling. Evidence is local under `.test-artifacts/folders/final-*` and `compare-<reference-name>.png`; credentials are excluded from version control.

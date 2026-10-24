@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Folder tabs — verified local integration candidate, 2026-10-24
+
+The selected shoulder/slope correction is complete on `codex/folder-tabs-ready`, based on main `b00b6fb`. Fresh builds/types, actual Next/Vite SVG loading, real desktop/390/320 screenshots, native focus/navigation and final scoped independent review passed. Account/header and wizard/stepper overlaps, normal frame fallback and forced-color global selection were corrected. [Coordinator and exact handoff](work-log/2026-10-24-root-folder-tabs-ready.md), [independent proof](work-log/2026-10-24-tabs-live-verify.md), [review](work-log/2026-10-24-tabs-final-review.md), [selected PNGs](work-log/evidence/2026-10-24-folder-tabs/README.md). Native browser200percent zoom was unavailable; equivalent reflow was observed. Wizard proof covers steps1/2without a new provider/upload journey. Original dirty tab worktree remains untouched. This is a locally committed integration candidate, not a main merge, push or deployment; existing phase checkpoints below are unchanged.
+
 Current runtime state (2026-10-24): user explicitly requested stopping all FoxMind processes/containers. Both API/Next supervisors ended cleanly and all five active containers stopped with exit0. Zero FoxMind process/listener/container remains; all40retained named volumes and private key/configuration/backups remain. Earlier running URLs are historical and currently unavailable. [Shutdown evidence](work-log/2026-10-24-root-foxmind-shutdown.md). No automatic restart, push or deployment.
 
 ## Classroom AI + Agenda — integrated into local main, 2026-10-24

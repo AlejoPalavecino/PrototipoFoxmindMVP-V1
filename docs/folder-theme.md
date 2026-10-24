@@ -22,6 +22,10 @@ The two account perspectives are shown together on Inicio and Mis Aulas. The tea
 
 Artwork and illustrative mock data are not permission rules. Filters, fake grades, fictitious pending activities or unsupported APIs have not been added to imitate a screenshot. Plan management uses native disclosures for secondary rename/reorder/delete actions; topic state stays visible. Library file selection is collapsible while upload/validation/result feedback remains visible.
 
+## Verified tab silhouette candidate
+
+The local `codex/folder-tabs-ready` candidate adds a shared SVG frame with fixed shoulder/slope caps, contextual yellow/mint/coral fills and inclined native navigation. Account and wizard panels reserve enough space above their headings; an opaque center and thin CSS outline keep fallback labels readable. Forced colors preserve a non-color active-navigation marker. [Verification and integration handoff](work-log/2026-10-24-root-folder-tabs-ready.md) and [selected browser evidence](work-log/evidence/2026-10-24-folder-tabs/README.md) define the completed local correction and its limits. This candidate has not been integrated into main or published.
+
 ## Foxy
 
 Three transparent PNG assets live in `apps/web/public/folders/`: welcome, reading and logo. Their provenance and prompt intent are in that directory's README. Existing locally vendored Bootstrap Icons supply UI symbols, including the new official envelope and lock assets under the same license.

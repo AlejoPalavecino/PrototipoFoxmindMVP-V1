@@ -1,4 +1,4 @@
-# Folder tabs bounded corrections — source handoff
+# Folder tabs bounded corrections — completed source handoff
 
 - Agent / role: `/root/tabs_fixes`, production CSS worker.
 - Session or task ID: `/root/tabs_fixes`; independent session ID unavailable.
@@ -6,7 +6,7 @@
 - Branch / worktree: `codex/folder-tabs-ready`, `C:/Users/alejo/.codex/worktrees/folder-tabs-ready/ProtipoFoxMind`.
 - Starting commit: `b00b6fb451b32101db859e03eee776c1810c4eb0`.
 - Phase and detailed task/spec links: bounded folder-tab visual correction; [design contract](2026-10-23-tab-shape-design.md), [coordinator](2026-10-24-root-folder-tabs-ready.md).
-- Status: in_progress.
+- Status: completed, production source handoff only.
 
 ## Request and scope
 
@@ -46,3 +46,9 @@ The verifier's fresh `.test-artifacts/tabs-ready/register-final-svg-suppressed.p
 Coordinator confirmed a new visual overlap in wizard320: tab top approximately 427px versus stepper bottom 443px. Inspected actual `wizard-data-final-320.png` and `wizard-plan-final-320.png`: the tab covers the lower Unidades y temas step. Read the wizard stepper/form structure and its existing 32px stepper margins. The direct form is the wizard's folder panel, with an absolutely positioned tab protruding above it; existing spacing does not reserve that height. Coordinator authorized source editing immediately, with runtime/build retained by coordinator.
 
 Applied one CSS rule: `.p5-wizard > .p5-surface.folder-panel { margin-top: 96px; }` at all widths. This scope changes only the wizard panel after its stepper or intervening Notice; 96px reserves the 58px minimum tab and both mobile two-line (~74px) and desktop two-line (~86px) headings. Retained all earlier fallback/forced-colors fixes with no general layout changes. CSS now has 112 lines. `git diff --check` returned exit 0 with no output after this correction. No new tests, types, builds, runtime or browser operations; fresh visual proof remains verifier-owned. Source ownership returned to coordinator.
+
+## Final attributed evidence reconciliation
+
+Read the completed [live verifier report](2026-10-24-tabs-live-verify.md) and [final reviewer report](2026-10-24-tabs-final-review.md). Both reconcile the final 112-line stylesheet SHA256 `091E845C5EBFFA631F932365E7DDDEA15E4B1B3A16026A0D5AFBE1E21A43A826`. The independent verifier inspected 17 final PNGs: scoped normal/suppressed-frame, long-label, contextual-tone, forced-color, profile/Agenda and wizard checks PASS; wizard stepper/tab gap is 37.3px for both inspected steps at1487/390/320. The independent reviewer reports `VEREDICTO_DOD: LGTM_SIN_HALLAZGOS` for this exact bounded candidate. These checks and verdict are attributed to those agents, not rerun or authored by this production worker. Native browser200% zoom remains unproven; equivalent reflow and the reports' other scope limits remain explicit.
+
+The coordinator reports observing implementation commit `37f2bd0`; this worker created no commit and performed no publication. This later reconciliation supersedes the earlier pending handoff statuses while preserving their chronology. Production handoff is completed; delivery/checkpoint ownership remains with coordinator. Only this own record was edited for closure; no source, test, runtime or new verification operation occurred.
