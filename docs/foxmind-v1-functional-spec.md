@@ -219,7 +219,7 @@ The agreed design flow is:
 3. `Unidades y temas`.
 4. `Revisión`, then `Crear aula`.
 
-The teacher manually details units and topics. No automatic extraction or AI generation is included. Invitations occur after classroom creation.
+The teacher can manually detail units and topics. The approved [classroom AI extension](../odd/tasks/classroom-ai-extraction.md) adds optional extraction of units/topics from an approved PDF or DOCX study plan using Gemini API (Google AI Studio), processed by durable PostgreSQL background jobs. The teacher reviews and edits the proposal before explicitly applying it to the draft; existing manual units require replacement confirmation in the interface. Applying a proposal does not publish the classroom. Manual creation remains available when AI is disabled or extraction fails. This exception authorizes study-plan extraction only, not AI grading or other generation. Invitations occur after classroom creation.
 
 ### Confirmed creation requirements and drafts
 
