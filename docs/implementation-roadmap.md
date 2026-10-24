@@ -4,6 +4,8 @@
 
 All current product work, including Agenda/Gemini and the verified folder tabs, is integrated and published through main `f4f9519`. The later [publication record](work-log/2026-10-24-root-tabs-main-publication.md) supersedes earlier local-only publication statements below. The [repository consolidation record](work-log/2026-10-24-root-repo-consolidation.md) reconciles remaining historical logs, duplicate design snapshots and obsolete branch/worktree registrations. Older dated handoffs remain historical, not current blockers or new feature authority. Services remain stopped; no deployment is part of this cleanup.
 
+Canonical development now uses the original project directory on the sole local branch `main`; all35other branch refs are retired after verified history preservation. Fresh canonical API/Next builds pass. The only extra registered checkout is this chat's clean detached view, protected from removal by the app until the user changes the chat location; it contains no unique work. Recovery data stays outside the repo and is not published. Exact synchronized delivery and remaining app action are tracked in the consolidation record.
+
 ## Folder tabs — integrated into local main, 2026-10-24
 
 User authorized local integration only. Main fast-forwarded from `b00b6fb` to the exact independently verified candidate `a6fe079`, with identical committed trees before documentary closure. [Integration and preservation evidence](work-log/2026-10-24-root-tabs-main-integration.md). Other worktrees and their pending changes are preserved. No push, deployment or runtime restart. The candidate preparation below remains attributed historical evidence; its no-main-integration boundary is superseded only for this local delivery.

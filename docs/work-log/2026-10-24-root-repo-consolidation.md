@@ -1,10 +1,10 @@
-# FoxMind repository consolidation — in progress
+# FoxMind repository consolidation — main ready, active checkout retirement pending
 
 - Agent/role/task: /root coordinator; host session ID unavailable.
 - Date: 2026-10-24.
 - Initial main: f4f9519c3c7e4e17e74f8096dadc4841b93fd0b5.
 - Scope: user asks to finish all loose changes, integrate main and leave no loose branches or unsynchronized work. Consolidate into canonical original checkout and synchronize GitHub main, without deployment. Preserve recoverable history and private/retained data before retiring worktrees.
-- Status: in_progress.
+- Status: Git consolidation verified; synchronized delivery follows. Physical retirement of the app-protected active checkout remains pending user action.
 
 ## Inventory and plan
 
@@ -23,3 +23,27 @@ Explorer /root/repo_status returned a read-only inventory:36local branches,13reg
 Coordinator created and successfully verified external all-refs-before-cleanup.bundle(81refs, complete history) before mutations. Recovery directory is the sibling FoxMind-Recovery-2026-10-24-cleanup outside the canonical repo. It is not a publication artifact. Independent reviewer /root/tabs_review compared all48snapshot paths:43exact and5onlyline-end/EOF; original75non-metadata loose files:55byte-exact,8line-end/EOF only,1PROMPTS differing only one space/EOF,11unique safe historical logs.3local metadata files remain opaque. Reviewer inspected all11logs, sensitive scan found no candidate,12local links resolve, and returned LGTM_SIN_HALLAZGOS for classification/preservation strategy. Its first image comparison hit ENOBUFS; corrected16MiB read completed0. No raw prompt or metadata contents copied into this record.
 
 All existing design and historical snapshot content is already preserved in main; retain main's normalized versions. Executed a no-content ours merge of4395484to preserve its ancestry without reverting later product/docs. Parent/merge trees equal; no product patch. Copied11unique dated logs plus the latest four-commit publication record into main as historical evidence, preserving original statuses. Added ignores for local .atl/.engram metadata; their local contents are preserved, not published. Worktree/private-file preservation and actual retirement still pending.
+
+## Canonical checkout and preservation
+
+Observed commits5961781(historical ancestry, unchanged tree),ebb778e(12safe loose records,373lines),8046c49(consolidation plan/local ignore policy). Both external recovery bundles verified complete before retiring any refs. All75non-metadata loose originals moved unchanged to recovery/original-loose; meaningful content is on main. Previous primary dependencies preserved externally; current36installed package versions match package.json exactly and were moved into the canonical checkout without a junction or lockfile edit.
+
+Moved five obsolete worktrees intact to recovery, including ignored evidence/runtime/private configuration and the historical native-view index. Per-worktree Git indexes were saved separately before pruning. Windows held the integration root directory open, so its atomic move stopped safely after the prior four moves; preserved its children intact without killing a process, then removed obsolete registrations. A normal main checkout correctly refused to overwrite the original untracked .engram/config.json: archived that local binding opaquely and retried a normal switch successfully. Main already tracks its own binding, which remains unchanged; .atl/local additions are ignored. No force checkout/reset/clean or private-content read occurred. All private top-level file lengths/mtimes checked in completed atomic moves remained equal; retained Docker volumes/services were not operated on.
+
+Canonical original path now checks out main8046c49and is clean before this report update.34fully merged local branches removed with git branch -d after bundle verification. Six already-missing registrations and five retired registrations pruned; only canonical main plus this chat's attached tab worktree remain. API fresh generate/TypeScript build passed under unchanged configured deadline; final canonical Next build pending. No product/source/schema/test/dependency diff exists against f4f9519.
+
+## App lifecycle limitation — user action pending
+
+archive_worktree explicitly rejected the last attached tab worktree: The task's primary checkout cannot be removed. attach_worktree also rejected the canonical original path because it is not a managed worktree. The app guard is not native review rejection, and no force-removal bypass was attempted. Requested that user move this chat to the canonical local checkout so the final worktree can be archived without breaking the chat. Its ignored .test-artifacts evidence is already preserved externally; its untracked publication log is already committed on main. Final branch/worktree retirement and synchronized delivery remain pending that action, while other checks continue.
+
+## Main branch ready; remaining app-managed checkout
+
+Preserved the attached untracked publication record externally (its exact content is already on main), detached that checkout at current main and deleted the final fully merged feature branch normally. All35non-main branch refs are now removed; only main remains, with origin/main configured as upstream and0stashes. The extra attached checkout is clean and contains no unique work. It will be moved to each final main commit to avoid a stale delivery state, but physical/app retirement remains gated by the already requested chat-location change. No destructive workaround for the app guard.
+
+Fresh canonical API generate/TypeScript and Next production builds passed, with all36direct installed package versions matching package.json. Next reported an unrelated user-home pnpm-lock outside this Git repository and correctly ignored it; no home configuration was changed. Production apps/src/prisma/scripts/tests/package/lockfile diff against f4f9519is empty; no behavior tests/browser rerun for this source-identical Git/docs cleanup. Independent safety audit and final documentation checks follow before synchronized delivery. Recovery manifest confirms75original loose files,5saved Git indexes and5preserved worktree directories, plus original memory binding and attached ignored evidence. No private contents read or deployed.
+
+## Final independent audit
+
+Reviewer /root/tabs_review returned scoped LGTM_SIN_HALLAZGOS for publication preparation. Independently observed only main8046c49with upstreamorigin/main,4/0ahead/behind,0stashes, two clean/source-identical checkout heads before this doc update, and no production diff. Verified both bundles(81refs each, including4395484), all75saved file hashes/lengths,5preserved worktree directories and5nonemptysaved indexes; binding/evidence directories exist without private-content reads. Documentation3files/127links0errors, whitespace0and sensitive-diff scan0candidates. Builds/dependency verification is coordinator-observed, not falsely reviewer-executed. The physical app-checkout limitation remains explicitly open; no native approval or total-retirement claim.
+
+Local documentary closure and normal main push will synchronize the fully consolidated main history. No deployment, runtime restart, retained-data deletion, force-push or private-file publication. Canonical main is the checkout to use for future development. The remaining clean detached active checkout has no branch or unique work and will follow the final main commit; removing it still requires the app to release this chat's primary location.
