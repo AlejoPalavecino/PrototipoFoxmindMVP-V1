@@ -1,4 +1,4 @@
-# Classroom AI integration into main — in progress
+# Classroom AI integration into main — completed locally
 
 - Agent / role: /root / coordinator
 - Task ID: /root; authoritative memory session unavailable
@@ -7,7 +7,7 @@
 - Starting main: 10a33d3535d0c4ebdfdaeac033bd6e7a3f348dce
 - Source branch: codex/classroom-gemini at 25d20c6a61b9b6a3f197f44c8e1f7ad34c298682
 - Feature: [classroom AI extraction](../../odd/tasks/classroom-ai-extraction.md)
-- Status: in_progress
+- Status: completed
 
 ## Authorized scope and preservation
 
@@ -21,7 +21,7 @@ git merge-tree --write-tree main codex/classroom-gemini detected11 conflict path
 
 ## Handoff
 
-Pending: perform merge in detached integration worktree; resolve conflicts preserving both feature contracts, verify combined candidate, review, local merge commit, atomic main update and preservation checks. Record actual commands/results/failures and commit identities after observation. No push or PR.
+Initial pending work was completed below. Current handoff: local main is integrated and verified; preserve both source worktrees/runtime and unrelated original checkout. No work remains within this request; publication requires separate authorization.
 
 ## Resolved integration and observed checks
 
@@ -36,3 +36,11 @@ Preservation checker initially confirmed132main-exclusive/135AI-exclusive paths 
 ## Local delivery plan
 
 Final product tree is fixe8df4116; only attributed records/checkpoint documentation will be added before merge commit. Existing23AI work units remain as history; no squash/rewrite. The merge brings reviewed history and fewer than400 newly authored reconciliation/test/doc lines; no generated-code compression or artificial test split. Rollback requires a separately authorized revert of the merge, preserving other branches. After observed merge identity, root advances local main with expected-old CAS only if old main/source/other checkouts still match; stale registered main path must remain physically absent. No push or PR.
+
+## Actual local merge and main delivery
+
+Observed merge1472fa1298a9effad6d39860580364f0adb288bc has exact parents10a33d3535d0c4ebdfdaeac033bd6e7a3f348dce and25d20c6a61b9b6a3f197f44c8e1f7ad34c298682. Final product tree matches reviewed/tested e8df4116; only eight attributed documentation records were added before commit. Eight-record local link check13PASS; whitespace checks0. Remerge reconciliation statistic:206insertions/67deletions across24paths, including documentation and conflict-marker removal; previous reviewed units were not rewritten.
+
+Guarded local update rechecked clean integration tree, exact main/source, two parents, both ancestry links and absent/prunable old main checkout. Expected-old CAS advanced main10a33d3→1472fa1. Switched only the new integration worktree to main, ignoring solely the known absent old main registration; did not prune metadata. main/HEAD readback matched1472fa1 and checkout was clean. Original feature checkout branch/head/untracked status remains exact;131main-exclusive and135AI-exclusive paths match parents, with only reviewed AgendaError compatibility block excepted, and all3newmigrationblobs unchanged. Other branches and remote-tracking refs unchanged.
+
+This subsequent document-only closure updates roadmap/feature/index and records the actual merge. Its own hash is not invented before commit. No database migrations applied to retained data, no secret copied, no platform runtime stopped and no push/PR/deployment performed. Main is available at C:/Users/alejo/.codex/worktrees/integrate-classroom-gemini/ProtipoFoxMind; classroom-gemini remains at25d20c6 with its private runtime configuration untouched. Engram writes remain unavailable without host registration.

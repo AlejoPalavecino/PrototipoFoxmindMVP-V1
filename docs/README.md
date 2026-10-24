@@ -28,6 +28,7 @@
 | Correo | [Mailpit local](local-email.md), [sender](mail-sender.md), [outbox cifrada](account-mail-outbox.md) |
 | Archivos privados | [Host API](p4-host.md), [web](p4-web.md), [integración aceptada](p4-integration.md), [handoff histórico previo](p4-integration-handoff.md) |
 | Aulas e inscripción | [Host API](p5-host.md), [web](p5-web.md), [integración aceptada](p5-integration.md) |
+| IA para el plan de estudio | [Gemini y configuración](classroom-ai.md), [contrato y tareas](../odd/tasks/classroom-ai-extraction.md), [integración local con Agenda](work-log/2026-10-24-root-classroom-ai-main-integration.md) |
 | Organización y comunicación | [Plan](p6-teaching.md), [Biblioteca](p6-library.md), [Muro y notificaciones](p6-muro.md) |
 | Agenda y organización personal | [Eventos privados y próximas entregas](agenda.md), [contrato y tareas](../odd/tasks/agenda.md) |
 | Actividades y participación | [Autoría](p7-authoring.md), [participación](p7-participation.md), [trabajos prácticos](p7-practical-submissions.md), [cuestionarios/evaluaciones](p7-questionnaire-attempts.md), [historial/notificaciones](p7-history-notifications.md) |

@@ -1,8 +1,8 @@
 # FoxMind implementation roadmap
 
-## Classroom AI + Agenda — local integration in progress, 2026-10-24
+## Classroom AI + Agenda — integrated into local main, 2026-10-24
 
-User explicitly authorized merging classroom-gemini into local main while preserving Agenda and all unrelated changes, without push. Both historical feature checkpoints below remain attributed; this combined candidate is being checked in an isolated integration worktree. [Integration record](work-log/2026-10-24-root-classroom-ai-main-integration.md). No remote publication or database operation is authorized by this merge.
+User explicitly authorized merging classroom-gemini into local main while preserving Agenda and all unrelated changes, without push. Merge1472fa1 combines both parents and preserves both feature histories. Final API/Next builds,174combined tests, isolated P5 journeys and both scoped rejudgments passed; a direct Node24 domain-import incompatibility was fixed test-first without changing the error contract. Both historical feature checkpoints below remain attributed. [Integration record](work-log/2026-10-24-root-classroom-ai-main-integration.md). main was advanced locally with expected-old CAS; original checkout and other branches/source worktree are preserved. No push, PR, deployment or retained-database changes.
 
 ## Agenda — published to GitHub main, 2026-10-24
 

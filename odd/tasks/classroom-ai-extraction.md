@@ -266,3 +266,8 @@ La nueva petición cierra las capturas faltantes del editor editado y la revisi�
 Sin defecto visual/interacción demostrado ni cambios de producto. Errores del driver fueron corregidos fuera del repositorio y quedan atribuidos. No se cuentan renders SSR como fotos live. Emulación Chromium táctil; sin certificación física/Safari/teclado nativo ni nueva prueba swipe Word. Space3 entregado con emulación/touch retirados; runtime87655 preservado en60061/inbox57642. Commits locales solamente, sin publicación remota.
 
 Live-mobile capture evidence commits observed locally: PDF5fadfd8 (309 authored lines) and Wordb070d15 (368), with passed read-only audit linked in the coordinator record. No product source changes or remote publication.
+
+
+### Integración local con Agenda — 2026-10-24
+
+Por autorización explícita posterior, merge1472fa1298a9effad6d39860580364f0adb288bc integra AI25d20c6 con mainAgenda10a33d3, conservando ambos historiales y las otras modificaciones. Doce migraciones con nombres/SQL originales; upgrade conserva evento de Agenda coloreado. Compilaciones finales API/Next,174PASS/0FAIL/0SKIP, P5integración y rejuicio dual pasaron. Se corrigió una incompatibilidad del barrel compartido con Node24 usando campos explícitos en AgendaError, con RED→GREEN y contrato intacto. [Integración y preservación observadas](../../docs/work-log/2026-10-24-root-classroom-ai-main-integration.md), [revisión](../../docs/work-log/2026-10-24-gemini-merge-review-ledger.md). main actualizado localmente con CAS, sin push/PR/despliegue ni cambios en datos retenidos; rama/worktree classroom-gemini preservados.
