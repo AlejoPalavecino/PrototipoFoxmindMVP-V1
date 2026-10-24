@@ -6,7 +6,7 @@
 - Branch / worktree: canonical main.
 - Starting commit: d14b99640c723d6240e589011614e9cbbcfa0c67.
 - Phase: repository documentary closure.
-- Status: in_progress pending commit and exact remote readback.
+- Status: completed for the documentary delivery; exact first-publication readback observed below.
 
 ## Request and scope
 
@@ -27,3 +27,9 @@ Rollback boundary: this documentary unit only (README, roadmap and three work re
 ### Observed prepublication checks
 
 Coordinator checked 127 relative Markdown link destinations across all five files: PASS, zero missing targets. git diff --check passed. Read-only explorer /root/repo_status_explorer independently checked the original four-file candidate and its local links, returning approval with no blocking findings; it did not execute publication or functional tests. Coordinator owns the subsequent audit annotation and this delivery record. Engram reads worked for the explorer; the prior inquiry's write/summary attempts were blocked by unregistered host session, so the repository records remain authoritative.
+
+## Observed delivery
+
+Committed cf464e76f71bfd2ec66aa267776c11078825f894 (five Markdown files, 78 insertions/five deletions). Normal git push origin main succeeded from d14b996 to cf464e7. Direct git ls-remote --heads origin main returned exactly cf464e76f71bfd2ec66aa267776c11078825f894; git status --short --branch showed no pending paths and git rev-list --left-right --count main...origin/main returned 0/0. No deployment or runtime operations were executed.
+
+This subsequent passive evidence update records the already observed delivery and is published under the same explicit authorization. Its final commit identity and live readback are reported by the coordinator after publication, rather than invented in its own contents. No implementation task remains in this scope.
