@@ -187,3 +187,7 @@ RED: `node --test --test-concurrency=1 tests/agenda-event-form-model.test.mjs te
 - [x] F5 pruebas independientes, navegador funcional, revisión y cierre documental atribuible. Captura final intentada una vez: timeout, cero píxeles; aceptación visual no disponible.
 
 Siguiente acción: prueba manual del usuario en http://127.0.0.1:58411/agenda antes de decidir integración. El coordinador conserva la API/base del preview existente y sirve la compilación nueva en el mismo origen. [Verificación independiente](../../docs/work-log/2026-10-24-compact-form-verify.md) y [cierre/commits](../../docs/work-log/2026-10-24-root-compact-event-form.md). Este diseño no autoriza push, integración a main, publicación o despliegue.
+
+## Entrega local posterior — 2026-10-24
+
+La prueba manual posterior del usuario y su autorización explícita culminaron en la integración local de toda la agenda, incluido este formulario, a main32fecce3. [Registro de integración](../../docs/work-log/2026-10-24-root-agenda-main-integration.md). Preview vigente http://127.0.0.1:49642/agenda. Sustituye el siguiente paso histórico anterior; sin publicación remota ni despliegue, sin inventar capturas automatizadas.

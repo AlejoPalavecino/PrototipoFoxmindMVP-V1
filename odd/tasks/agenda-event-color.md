@@ -123,3 +123,7 @@ RED: `node --test --test-concurrency=1 tests/agenda-event-color-contracts.test.m
 - [x] C4 verificación independiente funcional, revisión y cierre atribuible; una captura falló por ventana minimizada,0píxeles/sin aceptación visual. Cuatro eventos QA eliminados y Space7 cerrado.
 
 Siguiente acción: prueba manual del usuario en la nueva preview, con el mismo acceso sintético ya proporcionado; no integrar todavía. [Diseño previo a RED](../../docs/work-log/2026-10-24-event-color-design.md), [verificación independiente](../../docs/work-log/2026-10-24-event-color-verify.md) y [coordinador/commits](../../docs/work-log/2026-10-24-root-agenda-event-color.md). La evidencia funcional y de geometría no equivale a aceptación por píxeles ni aprobación nativa. Sin push, PR, integración a main o despliegue.
+
+## Entrega local posterior — 2026-10-24
+
+El usuario probó los colores, los aceptó y autorizó integrar la agenda a main. Integración local observada en32fecce3;93pruebas finales y tipos estrictos pasaron. [Registro de integración](../../docs/work-log/2026-10-24-root-agenda-main-integration.md). Preview vigente http://127.0.0.1:49642/agenda. Sustituye el próximo paso histórico de prueba previa; no hubo push, PR ni despliegue. La aceptación manual del usuario no se atribuye a capturas automatizadas inexistentes.
