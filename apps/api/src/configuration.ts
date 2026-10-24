@@ -1,6 +1,7 @@
 import { readIdentityRuntimeConfiguration, type IdentityRuntimeConfiguration } from './identity/configuration.ts';
 import { readFilesConfiguration, type FileRuntimeConfiguration } from './files/configuration.ts';
 import { readClassroomsConfiguration, type ClassroomRuntimeConfiguration } from './classrooms/configuration.ts';
+import { readAiConfiguration, type AiConfiguration } from './ai/index.ts';
 
 export interface ApiConfiguration {
   readonly databaseUrl: string;
@@ -8,6 +9,7 @@ export interface ApiConfiguration {
   readonly identity: IdentityRuntimeConfiguration;
   readonly files?: FileRuntimeConfiguration;
   readonly classrooms?: ClassroomRuntimeConfiguration;
+  readonly ai?: AiConfiguration;
 }
 
 export class ConfigurationError extends Error {}
@@ -29,5 +31,9 @@ export function readConfiguration(environment: NodeJS.ProcessEnv = process.env):
   const configuration = { databaseUrl, port: Number(rawPort), identity: readIdentityRuntimeConfiguration(environment) };
   const classrooms = readClassroomsConfiguration(environment, configuration.identity.security.origin);
   if (classrooms && !files) throw new ConfigurationError('Invalid configuration: classrooms require private files.');
-  return { ...configuration, ...(files ? { files } : {}), ...(classrooms ? { classrooms } : {}) };
+  let ai: AiConfiguration | null;
+  try { ai = readAiConfiguration(environment); }
+  catch { throw new ConfigurationError('Invalid configuration: AI extraction configuration is unavailable.'); }
+  if (ai && !classrooms) throw new ConfigurationError('Invalid configuration: AI extraction requires classrooms.');
+  return { ...configuration, ...(files ? { files } : {}), ...(classrooms ? { classrooms } : {}), ...(ai ? { ai } : {}) };
 }

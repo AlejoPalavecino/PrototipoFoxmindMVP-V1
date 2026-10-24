@@ -98,6 +98,8 @@ enum JobStatus {
 }
 
 model User {
+  curriculum_extractions ClassroomCurriculumExtraction[]
+  classroom_ai_requests ClassroomAiRequest[]
   id                    String             @id @default(uuid()) @db.Uuid
   created_at            DateTime           @default(now()) @db.Timestamptz(6)
   updated_at            DateTime           @default(now()) @updatedAt @db.Timestamptz(6)
@@ -206,6 +208,7 @@ model AccountActionControl {
 }
 
 model ClassroomDraft {
+  curriculum_extractions ClassroomCurriculumExtraction[]
   id                     String       @id @default(uuid()) @db.Uuid
   created_at             DateTime     @default(now()) @db.Timestamptz(6)
   updated_at             DateTime     @default(now()) @updatedAt @db.Timestamptz(6)
@@ -406,6 +409,7 @@ model Material {
 }
 
 model FileObject {
+  curriculum_extractions ClassroomCurriculumExtraction[]
   id                    String                    @id @default(uuid()) @db.Uuid
   created_at            DateTime                  @default(now()) @db.Timestamptz(6)
   updated_at            DateTime                  @default(now()) @updatedAt @db.Timestamptz(6)
@@ -819,4 +823,74 @@ model BackgroundJob {
 
   @@index([status, available_at])
   @@map("background_jobs")
+}
+
+model ClassroomCurriculumExtraction {
+  id String @id @db.Uuid
+  owner_id String @db.Uuid
+  draft_id String @db.Uuid
+  file_id String @db.Uuid
+  source_digest String
+  base_revision BigInt
+  schema_version String
+  prompt_version String
+  model String
+  generation Int @default(0)
+  state String @default("QUEUED")
+  proposal Json?
+  error_code String?
+  created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  updated_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  completed_at DateTime? @db.Timestamptz(6)
+  next_attempt_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  dispatch_count Int @default(0)
+  lease_nonce String? @db.Uuid
+  lease_until DateTime? @db.Timestamptz(6)
+  dispatch_started_at DateTime? @db.Timestamptz(6)
+  retry_of String? @unique @db.Uuid
+  apply_request_id String? @db.Uuid
+  apply_input_hash String?
+  applied_revision BigInt?
+  input_tokens BigInt?
+  output_tokens BigInt?
+  reserved_microusd BigInt @default(0)
+  usage_day DateTime? @db.Date
+  owner User @relation(fields: [owner_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  draft ClassroomDraft @relation(fields: [draft_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  file FileObject @relation(fields: [file_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  predecessor ClassroomCurriculumExtraction? @relation("ExtractionRetry", fields: [retry_of], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  successor ClassroomCurriculumExtraction? @relation("ExtractionRetry")
+  requests ClassroomAiRequest[]
+
+  @@unique([draft_id, file_id, source_digest, schema_version, prompt_version, generation], map: "classroom_curriculum_extracti_draft_id_file_id_source_diges_key")
+  @@unique([owner_id, apply_request_id])
+  @@index([state, next_attempt_at], map: "classroom_curriculum_extractions_queue")
+  @@map("classroom_curriculum_extractions")
+}
+
+model ClassroomAiRequest {
+  owner_id String @db.Uuid
+  request_id String @db.Uuid
+  operation String
+  input_hash String
+  extraction_id String @db.Uuid
+  owner User @relation(fields: [owner_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  extraction ClassroomCurriculumExtraction @relation(fields: [extraction_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@id([owner_id, request_id])
+  @@map("classroom_ai_requests")
+}
+
+model AiUsageDaily {
+  day DateTime @db.Date
+  scope String
+  capability String @default("study-plan-v1")
+  request_count Int @default(0)
+  reserved_microusd BigInt @default(0)
+  consumed_microusd BigInt @default(0)
+  input_tokens BigInt @default(0)
+  output_tokens BigInt @default(0)
+
+  @@id([day, scope, capability])
+  @@map("ai_usage_daily")
 }

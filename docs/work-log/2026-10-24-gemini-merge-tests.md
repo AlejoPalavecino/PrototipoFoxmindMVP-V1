@@ -1,0 +1,11 @@
+# Combined Agenda and AI verification — completed
+
+Agent/role/task: /root/gemini_merge_tests / test_runner. Date: 2026-10-24. Worktree: integrate-classroom-gemini. Starting main10a33d3; sourceAI25d20c6. Feature: [classroom AI extraction](../../odd/tasks/classroom-ai-extraction.md). Persisted by /root coordinator; authoritative memory session unavailable.
+
+Owned six conflicted P4/P5/P8 integration tests and scoped additions in classroom-ai-migration, p8-grading-migration, classroom-ai-host and new domain-barrel test. Inventory now asserts12 and exact final agenda/AI/color migration names. AI additive-upgrade test builds the full main baseline excluding onlyAI, inserts a colored Agenda event, snapshots populated rows and proves AI migration preserves every prior row. Existing business assertions remain intact. Same-host smoke with AI enabled creates/reads PURPLE Agenda event201/200, no-store and private403, checks SQL owner/color and no provider dispatch; existing AI auth/CSRF and shutdown checks remain.
+
+First combined36-file run failed exit1:122PASS/34FAIL reported dot events, all traced to unsupported AgendaError parameter properties through the newly shared direct-import barrel. These are historical dot events, not an invented official test total. New direct-import regression ran RED0PASS/1FAIL before production changed, ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX at agenda.ts53.
+
+After worker fix and final builds, reran the same36 files plus domain-barrel exactly once, under unchanged360s process budget, Node --test --test-concurrency=1 with dot stdout and spec evidence file. Final official footer: 174tests/174PASS/0FAIL/0CANCELLED/0SKIPPED/0TODO; duration72919.0617ms, exit0. Files: classroom-ai-* and agenda-* excluding their four export-only helpers, plus p8-grading-migration and p8-migration-inventory. All Docker resources are random-owned disposable test databases; no retained URLs/data or Gemini real calls. No later source/assertion changes.
+
+Root separately ran final API/Next builds and P5 integration. Test runner made no production/doc/ref/staging/memory changes. Status: completed; handoff source/tree frozen for local delivery after both scoped rejudgments. No physical UI acceptance is newly claimed by this merge.

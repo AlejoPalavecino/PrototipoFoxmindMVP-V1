@@ -12,7 +12,10 @@ test('populated eight-migration baseline upgrades pending rational pairs without
     const db = new pg.Client({ ...pool.options, password: pool.options.password, database: 'p8_upgrade' }); await db.connect();
     try {
       const names = (await readdir('prisma/migrations')).filter(name => /^\d+_/.test(name)).sort();
-      assert.equal(names.length, 9); const baseline = names.slice(0, -1); assert.equal(baseline.length, 8);
+      assert.equal(names.length, 12);
+      assert.equal(names[8], '202610180002_p8_pending_question_scores');
+      assert.deepEqual(names.slice(9), ['202610230001_agenda_events', '202610230001_classroom_ai', '202610240001_agenda_event_color']);
+      const baseline = names.slice(0, 8); assert.equal(baseline.length, 8);
       for (const name of baseline) await db.query(await readFile(`prisma/migrations/${name}/migration.sql`, 'utf8'));
       const insert = async (table, data) => {
         const value = { id: randomUUID(), updated_at: new Date(), ...data }, keys = Object.keys(value);
@@ -35,7 +38,7 @@ test('populated eight-migration baseline upgrades pending rational pairs without
       const before = await snapshot();
       await assert.rejects(() => db.query('UPDATE question_grades SET earned_numerator=NULL,earned_denominator=NULL WHERE id=$1', [score.id]), { code: '23502' });
       assert.equal(await snapshot(), before); // Meaningful SQL RED: the populated baseline cannot preserve a pending correction.
-      await db.query(await readFile(`prisma/migrations/${names.at(-1)}/migration.sql`, 'utf8'));
+      await db.query(await readFile(`prisma/migrations/${names[8]}/migration.sql`, 'utf8'));
       assert.equal(await snapshot(), before);
       const nullable = (await db.query("SELECT is_nullable FROM information_schema.columns WHERE table_name='question_grades' AND column_name IN ('earned_numerator','earned_denominator') ORDER BY column_name")).rows;
       assert.deepEqual(nullable.map(row => row.is_nullable), ['YES', 'YES']);

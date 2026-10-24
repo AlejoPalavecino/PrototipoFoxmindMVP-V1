@@ -50,6 +50,11 @@ export interface AgendaPage {
   nextCursor: string | null;
 }
 export class AgendaError extends Error {
-  constructor(readonly code: 'INVALID_INPUT' | 'CONFLICT' | 'FORBIDDEN' | 'SERVICE_UNAVAILABLE',
-    readonly details?: unknown) { super(code); }
+  readonly code: 'INVALID_INPUT' | 'CONFLICT' | 'FORBIDDEN' | 'SERVICE_UNAVAILABLE';
+  readonly details?: unknown;
+  constructor(code: AgendaError['code'], details?: unknown) {
+    super(code);
+    this.code = code;
+    this.details = details;
+  }
 }

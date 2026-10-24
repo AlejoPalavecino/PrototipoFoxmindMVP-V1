@@ -1,5 +1,6 @@
 import { request as httpRequest, type IncomingMessage, type ServerResponse } from 'node:http';
 import { request as httpsRequest } from 'node:https';
+import { parseStartExtraction, parseRetryExtraction, parseApplyExtraction } from '../../../../src/core/domain/index.ts';
 
 const requestLimit = 512 * 1024;
 const responseLimit = 2 * 1024 * 1024;
@@ -10,6 +11,10 @@ const routes: Rule[] = [
   rule('', { GET: null }), rule('/drafts', { GET: null, POST: [] }),
   rule(`/drafts/${uuid}`, { GET: null, PATCH: ['revision', 'payload'] }),
   rule(`/drafts/${uuid}/publish`, { POST: ['revision'] }),
+  rule(`/drafts/${uuid}/curriculum-extractions`, { POST: ['revision', 'planFileId'] }),
+  rule(`/drafts/${uuid}/curriculum-extractions/${uuid}`, { GET: null }),
+  rule(`/drafts/${uuid}/curriculum-extractions/${uuid}/retry`, { POST: ['revision', 'requestId'] }),
+  rule(`/drafts/${uuid}/curriculum-extractions/${uuid}/apply`, { POST: ['revision', 'requestId', 'units'] }),
   rule('/codes/preview', { POST: ['code'] }), rule('/codes/confirm', { POST: ['confirmation'] }),
   rule('/invitations', { GET: null }), rule(`/invitations/${uuid}/accept`, { POST: [] }),
   rule(`/${uuid}`, { GET: null }),
@@ -145,6 +150,15 @@ function gradingSchema(value: unknown): boolean {
     && Object.hasOwn(row, 'points') && (row.points === null || decimal(row.points)) && feedback(row.feedback));
 }
 
+function extractionSchema(path: string, value: unknown): boolean {
+  try {
+    if (path.endsWith('/apply')) parseApplyExtraction(value);
+    else if (path.endsWith('/retry')) parseRetryExtraction(value);
+    else parseStartExtraction(value);
+    return true;
+  } catch { return false; }
+}
+
 function gradeCorrectionSchema(value: unknown): boolean {
   return object(value, ['revision', 'newGrade', 'reason', 'confirm']) && typeof value.revision === 'string'
     && /^(0|[1-9][0-9]{0,18})$/.test(value.revision) && value.confirm === true
@@ -220,6 +234,7 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
   const publicationRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/(?:publish-grade|result)$`).test(url.pathname);
   const correctionRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/grade-corrections$`).test(url.pathname);
   const progressRoute = new RegExp(`^/api/v1/classrooms/${uuid}/(?:progress|members/${uuid}/progress)$`).test(url.pathname);
+  const extractionRoute = url.pathname.includes('/curriculum-extractions');
   if ((practicalWrite || answerWrite) && (typeof request.headers['x-attempt-editor'] !== 'string'
     || !/^[A-Za-z0-9_-]{43}$/.test(request.headers['x-attempt-editor'])
     || typeof request.headers['x-attempt-epoch'] !== 'string' || !/^(0|[1-9][0-9]{0,18})$/.test(request.headers['x-attempt-epoch']))) {
@@ -245,7 +260,8 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
         && typeof parsed.revision === 'string' && typeof parsed.studentId === 'string' && new RegExp(`^${uuid}$`).test(parsed.studentId)
         && parsed.confirm === true && (parsed.deadline === null || object(parsed.deadline, ['local', 'offsetMinutes'], false)
           && typeof parsed.deadline.local === 'string' && (!Object.hasOwn(parsed.deadline, 'offsetMinutes') || Number.isInteger(parsed.deadline.offsetMinutes)));
-      if ((!practicalWrite && !answerWrite && !reopening && !gradingRoute && !publicationRoute && !correctionRoute && !schema(parsed, selected.methods[method] ?? [], url.pathname.endsWith('/wall')))
+      if ((!practicalWrite && !answerWrite && !reopening && !gradingRoute && !publicationRoute && !correctionRoute && !extractionRoute && !schema(parsed, selected.methods[method] ?? [], url.pathname.endsWith('/wall')))
+        || (extractionRoute && !extractionSchema(url.pathname, parsed))
         || !validReopening
         || (gradingRoute && !gradingSchema(parsed))
         || (correctionRoute && !gradeCorrectionSchema(parsed))

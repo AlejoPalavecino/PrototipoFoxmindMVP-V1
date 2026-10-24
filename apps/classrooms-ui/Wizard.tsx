@@ -8,6 +8,8 @@ import {
 } from 'react';
 import type { ClassroomClient, Draft, Payload, FileState } from './api.ts';
 import { Cover, coverCatalog, Notice } from './components.tsx';
+import { PlanExtraction } from './PlanExtraction.tsx';
+import { usePlanExtraction } from './use-plan-extraction.ts';
 
 const steps = [
   'Datos generales',
@@ -52,10 +54,10 @@ export function Wizard({
     };
   }, []);
   const save = useCallback(async () => {
-    const snapshot = JSON.stringify(latest.current);
     queue.current = queue.current
       .catch(() => {})
       .then(async () => {
+        const snapshot = JSON.stringify(latest.current);
         if (snapshot === saved.current) return;
         if (failed.current)
           throw new Error(
@@ -81,6 +83,23 @@ export function Wizard({
       });
     await queue.current;
   }, [api, draft.id]);
+  const extraction = usePlanExtraction({
+    api, draftId: draft.id,
+    readyFileId: !uploading && file?.ready && file.id === payload.planFileId ? file.id : undefined,
+    save, getDraft: () => ({ ...draft, payload: latest.current, revision: revision.current }),
+    serialize: async operation => {
+      const next = queue.current.catch(() => {}).then(operation);
+      queue.current = next;
+      await next;
+    },
+    onApplied: result => {
+      latest.current = result.draft.payload;
+      revision.current = result.draft.revision;
+      saved.current = JSON.stringify(result.draft.payload);
+      setPayload(result.draft.payload);
+      setStatus('Borrador guardado');
+    },
+  });
   useEffect(() => {
     if (JSON.stringify(payload) === saved.current) return;
     setStatus('Cambios sin guardar');
@@ -189,6 +208,7 @@ export function Wizard({
     <div className="p5-wizard folder-wizard">
       <button
         className="p5-link"
+        disabled={extraction.busy}
         onClick={() => {
           void save()
             .then(onExit)
@@ -237,7 +257,10 @@ export function Wizard({
             {status}
           </span>
         </header>
-        <fieldset disabled={uploading || publishing}>
+        <fieldset disabled={uploading || publishing || extraction.busy}>
+          <div hidden={step !== 2 && !(step === 1 && payload.planFileId && file?.ready)}>
+            <PlanExtraction extraction={extraction} hasUnits={Boolean(payload.units?.length)} review={step === 2} />
+          </div>
           {step === 0 ? (
             <>
               <div className="p5-fields">
@@ -367,6 +390,7 @@ export function Wizard({
           ) : null}
           {step === 2 ? (
             <>
+              <h3>Tus unidades y temas</h3>
               <div className="p5-units">
                 {(payload.units ?? []).map((unit, index) => (
                   <section className="p5-unit" key={index}>
@@ -522,7 +546,7 @@ export function Wizard({
         <footer className="p5-form-footer">
           <button
             type="button"
-            disabled={publishing || uploading || step === 0}
+            disabled={publishing || uploading || extraction.busy || step === 0}
             onClick={() => setStep((s) => s - 1)}
           >
             Volver
@@ -530,7 +554,7 @@ export function Wizard({
           <button
             type="submit"
             className="primary"
-            disabled={uploading || publishing}
+            disabled={uploading || publishing || extraction.busy}
           >
             {publishing
               ? 'Creando aula…'

@@ -1,0 +1,97 @@
+{
+  "testRunId": "live-mobile-20261024-resume-1792856935167",
+  "format": "Word",
+  "currentJob": "714cfedc-234e-410f-b4b2-0c2b554fc28f",
+  "classroomId": "025844be-2d27-4bb5-862e-11a8cadf3462",
+  "planFileId": "d31afdc1-4667-4705-9c99-fa7baaa3828d",
+  "status": 200,
+  "units": [
+    {
+      "name": "La luz — captura móvil Word",
+      "topics": [
+        {
+          "name": "Exposición capturada Word"
+        },
+        {
+          "name": "Tema: Composición"
+        },
+        {
+          "name": "Práctica capturada Word"
+        }
+      ]
+    },
+    {
+      "name": "Unidad 2: La cámara",
+      "topics": [
+        {
+          "name": "Tema: Apertura"
+        },
+        {
+          "name": "Tema: Velocidad"
+        }
+      ]
+    }
+  ],
+  "reloaded": true,
+  "editorGate": true,
+  "reviewGate": true,
+  "geometry": [
+    {
+      "width": 375,
+      "height": 812,
+      "documentWidth": 375,
+      "bodyWidth": 375,
+      "touchPoints": 1
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "documentWidth": 375,
+      "bodyWidth": 375,
+      "touchPoints": 1
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "documentWidth": 375,
+      "bodyWidth": 375,
+      "touchPoints": 1
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "documentWidth": 375,
+      "bodyWidth": 375,
+      "touchPoints": 1
+    },
+    {
+      "width": 320,
+      "height": 812,
+      "documentWidth": 320,
+      "bodyWidth": 320,
+      "touchPoints": 1
+    },
+    {
+      "width": 320,
+      "height": 812,
+      "documentWidth": 320,
+      "bodyWidth": 320,
+      "touchPoints": 1
+    },
+    {
+      "width": 320,
+      "height": 812,
+      "documentWidth": 320,
+      "bodyWidth": 320,
+      "touchPoints": 1
+    },
+    {
+      "width": 320,
+      "height": 812,
+      "documentWidth": 320,
+      "bodyWidth": 320,
+      "touchPoints": 1
+    }
+  ],
+  "evidenceKind": "authenticated browser reload and classroom detail API equality after gated creation"
+}

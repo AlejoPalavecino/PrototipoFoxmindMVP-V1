@@ -9,13 +9,18 @@ import { FileService } from '../files/service.ts';
 import type { ClassroomRuntimeConfiguration } from './configuration.ts';
 import { ClassroomHostLifecycle, createIdentityClassroomAuthentication } from './host.ts';
 import { LibraryCleanupWorker } from './library-cleanup.ts';
+import { ClassroomAiRuntime, type AiRuntimeOverride } from './ai/runtime.ts';
+import type { AiConfiguration } from '../ai/index.ts';
 
 @Module({})
 export class ClassroomsModule {
   static integrated(database: DynamicModule, identity: DynamicModule, files: DynamicModule,
     configuration: ClassroomRuntimeConfiguration,
-    sender: Pick<DeliveryOptions, 'send'> & { close(): void }): DynamicModule {
+    sender: Pick<DeliveryOptions, 'send'> & { close(): void }, ai?: AiConfiguration, override?: AiRuntimeOverride): DynamicModule {
     return { module: ClassroomsModule, imports: [database, identity, files], providers: [
+      ...(ai ? [{ provide: ClassroomAiRuntime, inject: [PrismaService, IdentityRuntime, FileService],
+        useFactory: (database: PrismaService, runtime: IdentityRuntime, files: FileService) =>
+          new ClassroomAiRuntime(database, createIdentityClassroomAuthentication(runtime.configuration.security), files, ai, override) }] : []),
       { provide: InvitationService, inject: [PrismaService, IdentityRuntime, FileService],
         useFactory: (database: PrismaService, runtime: IdentityRuntime, fileService: FileService) => new ClassroomService({
           ...configuration, database, files: fileService.store,
@@ -29,7 +34,7 @@ export class ClassroomsModule {
         useFactory: (database: PrismaService, files: FileService) => new LibraryCleanupWorker(database, files.storage) },
       { provide: ClassroomHostLifecycle, inject: [InvitationDeliveryWorker],
         useFactory: (worker: InvitationDeliveryWorker) => new ClassroomHostLifecycle(worker, sender) },
-    ], exports: [InvitationService, ClassroomHostLifecycle, LibraryCleanupWorker] };
+    ], exports: [InvitationService, ClassroomHostLifecycle, LibraryCleanupWorker, ...(ai ? [ClassroomAiRuntime] : [])] };
   }
   static register(
     ports: ClassroomPorts,

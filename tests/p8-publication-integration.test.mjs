@@ -22,7 +22,12 @@ async function ok(...args) { const result = await request(...args); assert.equal
 
 test('P8 actual all-type delivery -> saved private correction -> cancel -> explicit publication -> safe own result/notification/restart', { timeout: 330000 }, async t => {
   await withP4IntegrationRuntime(async runtime => {
-    assert.equal(runtime.migrations.length, 11);
+    assert.equal(runtime.migrations.length, 12);
+    assert.deepEqual(runtime.migrations.slice(-3), [
+      '202610230001_agenda_events',
+      '202610230001_classroom_ai',
+      '202610240001_agenda_event_color',
+    ]);
     const scratch = await mkdtemp(join(tmpdir(), 'foxmind-p8-publication-')); console.log(`P8 retained browser evidence: ${scratch}`);
     const browser = await chromium.launch({ headless: true });
     try {

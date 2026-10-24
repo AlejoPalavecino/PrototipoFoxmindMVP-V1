@@ -4,3 +4,6 @@ export { parseAgendaEvent, parseAgendaRange } from './agenda-validation.ts';
 export { validateAgendaSeries, expandAgendaEvent, seriesSchedules } from './agenda-series.ts';
 export { scheduleInstants } from './agenda-time.ts';
 export { agendaId, agendaRevision, agendaObject, localMinuteAt } from './agenda-values.ts';
+export * from './study-plan.ts';
+export * from './classroom-ai.ts';
+export { studyPlanSchemaV1 } from './study-plan-schema.ts';

@@ -761,6 +761,18 @@
 .p8-correction-audit li { margin-block: 1rem; overflow-wrap: anywhere; }
 
 /* Follow-up extends the existing shell and keeps its three independent measures visible. */
+.p5-extraction { margin-block: 1.5rem; padding: 1.25rem; border: 1px solid var(--line, #dce2e9); border-radius: 1rem; background: var(--surface, #fffdf5); min-width: 0; overflow-wrap: anywhere; }
+.p5-extraction h3 { margin-top: 0; }
+.p5-extraction-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: .75rem; }
+.p5-extraction-editor > fieldset { display: grid; gap: 1rem; min-width: 0; }
+.p5-extraction .p5-extraction-confirm { display: flex; align-items: flex-start; gap: .75rem; padding: 1rem; border: 1px solid var(--line, #dce2e9); border-radius: .75rem; }
+.p5-extraction-confirm input[type="checkbox"] { width: auto; flex: 0 0 auto; margin-top: .25rem; }
+.p5-extraction-unit input { min-width: 0; width: 100%; }
+@media (max-width: 600px) {
+  .p5-extraction { padding: .85rem; }
+  .p5-extraction-unit .p5-section-head { align-items: stretch; flex-direction: column; }
+  .p5-extraction-actions > button { width: 100%; }
+}
 .p8-progress, .p8-progress section { min-width: 0; overflow-wrap: anywhere; }
 .p8-progress-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 1rem; }
 .p8-progress-metrics > section, .p8-progress-students > li, .p8-progress-activities > li { padding: 1rem; border: 1px solid var(--line, #dce2e9); border-radius: .75rem; }
