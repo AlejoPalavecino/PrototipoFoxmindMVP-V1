@@ -6,3 +6,7 @@ node_modules/
 coverage/
 .test-artifacts/
 .p4-local/
+
+# Machine-local agent registries and memory binding (never product source).
+.atl/
+.engram/
