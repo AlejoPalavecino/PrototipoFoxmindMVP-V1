@@ -44,3 +44,7 @@ Read previous real-smoke record: application FAILED/AI_UNAVAILABLE, exact-adapte
 
 - Read-only reviewer /root/gemini_setup_review returned APPROVED / LGTM_SIN_HALLAZGOS for functional repair after final records and guide diff inspection. Independent builds76PASS/cleanup0 and real browser/API acceptance remain attributed to their executors, not rerun by reviewer. Unknown401 and visual limitations remain explicit; no secrets observed in reviewed files. No native approval or remote authorization inferred. Report persisted by coordinator.
 - Coordinator git diff --check PASS; new linked documentation targets exist (Node check exit0). No source/test changes after independent verification, only documentation. Local work units: schema correction + regression + guide + attributable evidence, then acceptance checkpoint with the observed implementation commit. No code/test split, size exception or remote operation required.
+
+## Observed implementation commit and checkpoint
+
+Implementation/evidence commit 0c6b4df412097daeba4d21e9fbdad55c3e404de0 was created locally and observed after approved functional DoD:262insertions/3deletions across schema, regression, guide and four attributed records (265changed lines, under400). This later coordinator update records its actual identity without inventing a self-referential hash. The following documentation unit reconciles roadmap/feature acceptance with that verified commit; it does not change runtime behavior. Previous failing smoke records remain intact. No remote publication.
