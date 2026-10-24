@@ -165,6 +165,7 @@ Global navigation uses a **top bar**, not a persistent left sidebar:
 - FoxMind identity.
 - `Inicio`.
 - `Mis Aulas`.
+- `Agenda` (requested addition, 2026-10-23).
 - Notifications access.
 - Profile menu with `Mi Perfil` / `Configuración`.
 
@@ -186,6 +187,12 @@ Mobile uses compact global navigation and horizontally scrollable classroom tabs
 - `Mis Aulas` must support both `Crear aula` and `Unirse con código` for the same account.
 - Earlier exclusively teacher/student global screenshots are visual examples, not an exclusive-role account model.
 - Both `Mis Aulas` and classroom summaries on `Inicio` use two blocks: `Enseño` and `Estudio`. No global role switch is provided.
+
+### Agenda addition — 2026-10-23
+
+The user requested a global organization section alongside Inicio and Mis aulas, with upcoming real academic deliveries and personal classes, activities and evaluations. The user explicitly confirmed both single events and weekly recurrence for the initial delivery. Events belong privately to the verified account; they do not create classroom activities or change academic deadlines. The calendar supports timed and all-day events; weekly series are edited/deleted as a whole with a visible notice. Upcoming deliveries reuse current academic permissions, eligibility, submission state and effective deadlines, including applicable individual extensions.
+
+See [Agenda behavior and limits](agenda.md) and [the implementation task](../odd/tasks/agenda.md) for the bounded temporal contract, tests and current implementation status. This addition does not authorize reminders by email, external-calendar synchronization or shared events.
 
 ### Confirmed V1 notifications
 

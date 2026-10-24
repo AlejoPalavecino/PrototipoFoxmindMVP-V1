@@ -29,6 +29,7 @@
 | Archivos privados | [Host API](p4-host.md), [web](p4-web.md), [integración aceptada](p4-integration.md), [handoff histórico previo](p4-integration-handoff.md) |
 | Aulas e inscripción | [Host API](p5-host.md), [web](p5-web.md), [integración aceptada](p5-integration.md) |
 | Organización y comunicación | [Plan](p6-teaching.md), [Biblioteca](p6-library.md), [Muro y notificaciones](p6-muro.md) |
+| Agenda y organización personal | [Eventos privados y próximas entregas](agenda.md), [contrato y tareas](../odd/tasks/agenda.md) |
 | Actividades y participación | [Autoría](p7-authoring.md), [participación](p7-participation.md), [trabajos prácticos](p7-practical-submissions.md), [cuestionarios/evaluaciones](p7-questionnaire-attempts.md), [historial/notificaciones](p7-history-notifications.md) |
 | Calificaciones y seguimiento | [Corrección privada](p8-private-grading.md), [publicación](p8-publication.md), [rectificaciones auditadas](p8-published-corrections.md), [progreso](p8-progress.md) |
 | Inicio y validación local | [Inicio](p9-home.md), [recorridos integrados e historial de prueba](p9-joined-journeys.md), [fallos y recuperación](p9-failure-recovery.md), [operación local](p9-local-operation.md) |
