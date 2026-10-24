@@ -1,33 +1,35 @@
 import { useRef, useState } from 'react';
 import type { PrivateEvent } from '../../src/core/domain/index.ts';
 import type { AgendaClient } from './api.ts';
-import { draftPayload, eventDraft, eventFailure, type EventDraft } from './event-draft.ts';
+import { eventDraft, isDraftDirty } from './event-draft.ts';
+import { eventFailure } from './event-validation.ts';
+import { removeEditor, reviewEditor, saveEditor, type EditorActions } from './event-editor-actions.ts';
+import type { DraftIssue, EventDraft, EventEditor, EventEditorOutcome } from './event-draft-types.ts';
 
-export function useEventEditor(api: AgendaClient, original: PrivateEvent | undefined, day: string, zone: string, onSaved: (message: string) => void) {
-  const [draft, setDraft] = useState(() => eventDraft(original, day, zone));
-  const [version, setVersion] = useState(original), [busy, setBusy] = useState(false);
-  const [error, setError] = useState(''), [conflict, setConflict] = useState(false), [stored, setStored] = useState<PrivateEvent>();
-  const id = useRef(original?.id ?? crypto.randomUUID()), locked = useRef(false);
+export function useEventEditor(api: AgendaClient, original: PrivateEvent | undefined, day: string,
+  zone: string, onSaved: (outcome: EventEditorOutcome) => void): EventEditor {
+  const [baseline] = useState(() => eventDraft(original, day, zone));
+  const [draft, setDraft] = useState(baseline), [busy, setBusy] = useState(false);
+  const [error, setError] = useState(''), [issues, setIssues] = useState<readonly DraftIssue[]>([]);
+  const [conflict, setConflict] = useState(false), [stored, setStored] = useState<PrivateEvent>();
+  const id = useRef(original?.id ?? crypto.randomUUID()), version = useRef(original);
+  const locked = useRef(false), conflicted = useRef(false), completed = useRef(false);
+  const dirty = isDraftDirty(draft, baseline);
   const run = async (operation: () => Promise<void>) => {
-    if (locked.current) return; locked.current = true; setBusy(true); setError('');
-    try { await operation(); } catch (failure) { setError(eventFailure(failure)); setConflict((failure as { code?: string }).code === 'CONFLICT'); }
-    finally { locked.current = false; setBusy(false); }
+    if (locked.current) return;
+    locked.current = true; setBusy(true); setError('');
+    try { await operation(); }
+    catch (failure) {
+      const translated = eventFailure(failure, draft); setError(translated.message); setIssues(translated.issues);
+      if (failure !== null && typeof failure === 'object' && 'code' in failure && failure.code === 'CONFLICT') {
+        conflicted.current = true; setConflict(true);
+      }
+    } finally { locked.current = false; setBusy(false); }
   };
-  const save = () => run(async () => {
-    const payload = draftPayload(draft);
-    if ((original?.repeat.kind === 'WEEKLY' || payload.repeat.kind === 'WEEKLY') && !window.confirm('Guardar estos cambios afecta toda la serie, incluidas las fechas pasadas. ¿Continuar?')) return;
-    if (version) await api.replace(id.current, version.revision, payload);
-    else await api.put(id.current, payload);
-    onSaved('Evento guardado.');
-  });
-  const remove = () => run(async () => {
-    if (!version || !window.confirm(version.repeat.kind === 'WEEKLY' ? 'Se eliminará toda la serie, incluidas las fechas pasadas. ¿Eliminar serie?' : '¿Eliminar este evento privado?')) return;
-    const current = await api.get(id.current);
-    if (current.revision !== version.revision) throw Object.assign(new Error('El evento cambió. Revisá la versión guardada antes de eliminar.'), { code: 'CONFLICT' });
-    await api.remove(id.current, version.revision); onSaved('Evento eliminado.');
-  });
-  const review = () => run(async () => {
-    const current = await api.get(id.current); setStored(current); setVersion(current); setConflict(false);
-  });
-  return { draft, setDraft: (value: EventDraft) => setDraft(value), busy, error, conflict, stored, save, remove, review };
+  const state: EditorActions = { api, original, draft, id, version, conflict: conflicted, completed,
+    onSaved, setIssues, setError, setStored, run,
+    clearConflict: () => { conflicted.current = false; setConflict(false); } };
+  return { draft, setDraft: (value: EventDraft) => { if (!locked.current) setDraft(value); }, busy, dirty, error,
+    issues, conflict, stored, save: () => saveEditor(state), remove: () => removeEditor(state), review: () => reviewEditor(state),
+    requestClose: () => !locked.current && (!dirty || window.confirm('¿Descartar los cambios del evento?')) };
 }

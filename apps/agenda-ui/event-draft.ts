@@ -1,37 +1,43 @@
-import { parseAgendaEvent, type EventKind, type EventPayload, type PrivateEvent } from '../../src/core/domain/index.ts';
+import { parseAgendaEvent, type EventPayload, type PrivateEvent } from '../../src/core/domain/index.ts';
 import { shiftDay } from './calendar.ts';
+import type { EventDraft } from './event-draft-types.ts';
+export type { EventDraft } from './event-draft-types.ts';
+export { changeDraftStart, changeDraftEnd, setDraftDuration, toggleAllDay,
+  changeDraftZone, changeDraftUntil } from './event-draft-time.ts';
+export { eventFailure } from './event-validation.ts';
 
-export interface EventDraft {
-  title: string; description: string; category: EventKind; allDay: boolean;
-  start: string; end: string; zone: string; weekly: boolean; until: string;
-  startOffset: string; endOffset: string;
-}
 export function eventDraft(event: PrivateEvent | undefined, day: string, zone: string): EventDraft {
-  const schedule = event?.schedule;
+  const schedule = event?.schedule, timed = schedule?.kind === 'TIMED' ? schedule : undefined;
+  const startDate = schedule?.kind === 'ALL_DAY' ? schedule.startDate : timed?.startLocal.slice(0, 10) ?? day;
   return {
     title: event?.title ?? '', description: event?.description ?? '', category: event?.category ?? 'CLASS',
-    allDay: schedule?.kind === 'ALL_DAY',
-    start: schedule?.kind === 'ALL_DAY' ? schedule.startDate : schedule?.startLocal ?? `${day}T09:00`,
-    end: schedule?.kind === 'ALL_DAY' ? shiftDay(schedule.endDateExclusive, -1) : schedule?.endLocal ?? `${day}T10:00`,
-    zone: schedule?.kind === 'TIMED' ? schedule.timeZone : zone,
-    weekly: event?.repeat.kind === 'WEEKLY', until: event?.repeat.kind === 'WEEKLY' ? event.repeat.untilDate : day,
-    startOffset: schedule?.kind === 'TIMED' && schedule.startOffsetMinutes !== undefined ? String(schedule.startOffsetMinutes) : '',
-    endOffset: schedule?.kind === 'TIMED' && schedule.endOffsetMinutes !== undefined ? String(schedule.endOffsetMinutes) : '',
+    allDay: schedule?.kind === 'ALL_DAY', startDate,
+    endDate: schedule?.kind === 'ALL_DAY' ? shiftDay(schedule.endDateExclusive, -1) : timed?.endLocal.slice(0, 10) ?? day,
+    startTime: timed?.startLocal.slice(11) ?? '09:00', endTime: timed?.endLocal.slice(11) ?? '10:00',
+    zone: timed?.timeZone ?? zone, weekly: event?.repeat.kind === 'WEEKLY',
+    until: event?.repeat.kind === 'WEEKLY' ? event.repeat.untilDate : shiftDay(startDate, 28),
+    untilEdited: event?.repeat.kind === 'WEEKLY', endMode: event ? 'MANUAL' : 'DURATION', durationMinutes: 60,
+    ...(timed?.startOffsetMinutes === undefined ? {} : { startOffset: timed.startOffsetMinutes }),
+    ...(timed?.endOffsetMinutes === undefined ? {} : { endOffset: timed.endOffsetMinutes }),
   };
 }
 export function draftPayload(draft: EventDraft): EventPayload {
-  const schedule = draft.allDay ? { kind: 'ALL_DAY', startDate: draft.start.slice(0, 10), endDateExclusive: shiftDay(draft.end.slice(0, 10), 1) }
-    : { kind: 'TIMED', timeZone: draft.zone, startLocal: draft.start, endLocal: draft.end,
-      ...(draft.startOffset === '' ? {} : { startOffsetMinutes: Number(draft.startOffset) }),
-      ...(draft.endOffset === '' ? {} : { endOffsetMinutes: Number(draft.endOffset) }) };
+  const schedule = draft.allDay
+    ? { kind: 'ALL_DAY', startDate: draft.startDate, endDateExclusive: shiftDay(draft.endDate, 1) }
+    : { kind: 'TIMED', timeZone: draft.zone, startLocal: `${draft.startDate}T${draft.startTime}`,
+      endLocal: `${draft.endDate}T${draft.endTime}`,
+      ...(draft.startOffset === undefined ? {} : { startOffsetMinutes: draft.startOffset }),
+      ...(draft.endOffset === undefined ? {} : { endOffsetMinutes: draft.endOffset }) };
   return parseAgendaEvent({ title: draft.title, description: draft.description, category: draft.category, schedule,
     repeat: draft.weekly ? { kind: 'WEEKLY', untilDate: draft.until } : { kind: 'NONE' } });
 }
-export function toggleAllDay(draft: EventDraft, allDay: boolean): EventDraft {
-  return { ...draft, allDay, start: `${draft.start.slice(0, 10)}${allDay ? '' : 'T09:00'}`, end: `${draft.end.slice(0, 10)}${allDay ? '' : 'T10:00'}`, startOffset: '', endOffset: '' };
+function comparable(draft: EventDraft): unknown {
+  return { title: draft.title.trim(), description: draft.description, category: draft.category,
+    startDate: draft.startDate, endDate: draft.endDate, allDay: draft.allDay,
+    ...(draft.allDay ? {} : { startTime: draft.startTime, endTime: draft.endTime, zone: draft.zone,
+      startOffset: draft.startOffset, endOffset: draft.endOffset }),
+    weekly: draft.weekly, ...(draft.weekly ? { until: draft.until } : {}) };
 }
-export function eventFailure(failure: unknown): string {
-  const error = failure as { message?: string; code?: string; details?: unknown };
-  const message = error.code === 'INVALID_INPUT' ? 'Revisá las fechas y la zona: el fin debe ser posterior y cada horario de la serie debe existir sin ambigüedad.' : error.message ?? 'No se pudo completar la acción.';
-  return error.details ? `${message} Detalle temporal: ${JSON.stringify(error.details)}` : message;
+export function isDraftDirty(draft: EventDraft, baseline: EventDraft): boolean {
+  return JSON.stringify(comparable(draft)) !== JSON.stringify(comparable(baseline));
 }
