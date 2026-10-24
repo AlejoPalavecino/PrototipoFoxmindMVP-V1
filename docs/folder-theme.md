@@ -24,7 +24,7 @@ Artwork and illustrative mock data are not permission rules. Filters, fake grade
 
 ## Verified tab silhouette candidate
 
-The local `codex/folder-tabs-ready` candidate adds a shared SVG frame with fixed shoulder/slope caps, contextual yellow/mint/coral fills and inclined native navigation. Account and wizard panels reserve enough space above their headings; an opaque center and thin CSS outline keep fallback labels readable. Forced colors preserve a non-color active-navigation marker. [Verification and integration handoff](work-log/2026-10-24-root-folder-tabs-ready.md) and [selected browser evidence](work-log/evidence/2026-10-24-folder-tabs/README.md) define the completed local correction and its limits. This candidate has not been integrated into main or published.
+The verified `codex/folder-tabs-ready` implementation adds a shared SVG frame with fixed shoulder/slope caps, contextual yellow/mint/coral fills and inclined native navigation. Account and wizard panels reserve enough space above their headings; an opaque center and thin CSS outline keep fallback labels readable. Forced colors preserve a non-color active-navigation marker. [Verification](work-log/2026-10-24-root-folder-tabs-ready.md), [selected browser evidence](work-log/evidence/2026-10-24-folder-tabs/README.md) and [local main integration](work-log/2026-10-24-root-tabs-main-integration.md) define the correction and its limits. Integrated into local main via fast-forward to `a6fe079`; no remote publication or deployment.
 
 ## Foxy
 

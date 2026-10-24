@@ -1,8 +1,10 @@
 # Folder theme visual QA
 
-final result: passed (2026-10-24 bounded folder-tab correction; local integration candidate)
+final result: passed (2026-10-24 bounded folder-tab correction; integrated into local main)
 
 ## Current verified correction — 2026-10-24
+
+Local main now contains the exact verified candidate `a6fe079`; [integration proof](docs/work-log/2026-10-24-root-tabs-main-integration.md). The preparation/verification text below remains historical; its no-main-integration statement is superseded only for local integration. No push or deployment.
 
 The selected shoulder/flat-top/sloped-edge folder shape is verified on `codex/folder-tabs-ready`, based on main `b00b6fb`. Registration, profile, Inicio, Mis aulas, Agenda, classroom sections and wizard headings were inspected in real Ego screenshots at desktop/390/320. Fresh final shared-tone, fallback, long-label, forced-color and wizard-spacing captures pass. Mobile account/header and wizard/stepper occlusions were corrected; the SVG-suppressed fallback remains readable and current global navigation stays distinguishable under forced colors.
 

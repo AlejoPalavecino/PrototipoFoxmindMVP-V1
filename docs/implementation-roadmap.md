@@ -1,6 +1,8 @@
 # FoxMind implementation roadmap
 
-## Folder tabs — verified local integration candidate, 2026-10-24
+## Folder tabs — integrated into local main, 2026-10-24
+
+User authorized local integration only. Main fast-forwarded from `b00b6fb` to the exact independently verified candidate `a6fe079`, with identical committed trees before documentary closure. [Integration and preservation evidence](work-log/2026-10-24-root-tabs-main-integration.md). Other worktrees and their pending changes are preserved. No push, deployment or runtime restart. The candidate preparation below remains attributed historical evidence; its no-main-integration boundary is superseded only for this local delivery.
 
 The selected shoulder/slope correction is complete on `codex/folder-tabs-ready`, based on main `b00b6fb`. Fresh builds/types, actual Next/Vite SVG loading, real desktop/390/320 screenshots, native focus/navigation and final scoped independent review passed. Account/header and wizard/stepper overlaps, normal frame fallback and forced-color global selection were corrected. [Coordinator and exact handoff](work-log/2026-10-24-root-folder-tabs-ready.md), [independent proof](work-log/2026-10-24-tabs-live-verify.md), [review](work-log/2026-10-24-tabs-final-review.md), [selected PNGs](work-log/evidence/2026-10-24-folder-tabs/README.md). Native browser200percent zoom was unavailable; equivalent reflow was observed. Wizard proof covers steps1/2without a new provider/upload journey. Original dirty tab worktree remains untouched. This is a locally committed integration candidate, not a main merge, push or deployment; existing phase checkpoints below are unchanged.
 
