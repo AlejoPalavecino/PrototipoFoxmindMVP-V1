@@ -6,4 +6,8 @@ export { scheduleInstants } from './agenda-time.ts';
 export { agendaId, agendaRevision, agendaObject, localMinuteAt } from './agenda-values.ts';
 export * from './study-plan.ts';
 export * from './classroom-ai.ts';
+export * from './activity-generation.ts';
+export { parseStartActivityGeneration, parseApplyActivityGeneration } from './activity-generation-request.ts';
+export { parseActivityProposal } from './activity-proposal.ts';
+export { activityProposalSchemaV1, activityGenerationResponseSchemaV1 } from './activity-proposal-schema.ts';
 export { studyPlanSchemaV1 } from './study-plan-schema.ts';
