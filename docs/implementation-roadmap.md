@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Default login destination — 2026-10-25
+
+User-requested navigation correction: ordinary verified sign-in now opens `/inicio`, as do default existing-session and verified-email continuations. Explicit allowed classroom/invitation destinations and unverified-email gates are preserved. [Coordinator record](work-log/2026-10-25-root-login-inicio.md), [independent verification](work-log/2026-10-25-login_verify.md), [structural review](work-log/2026-10-25-login_review.md). Fresh API/Next/types and focused clients passed; all five real functional browser groups passed. Optional ego capture timed out; visual acceptance is unavailable and the combined opt-in run is not reported as wholly passing. Local branch delivery only; existing phase acceptance stays historical.
+
 ## Repository consolidation — 2026-10-24
 
 All current product work, including Agenda/Gemini and the verified folder tabs, is integrated and published through main `f4f9519`. The later [publication record](work-log/2026-10-24-root-tabs-main-publication.md) supersedes earlier local-only publication statements below. The [repository consolidation record](work-log/2026-10-24-root-repo-consolidation.md) reconciles remaining historical logs, duplicate design snapshots and obsolete branch/worktree registrations. Older dated handoffs remain historical, not current blockers or new feature authority. After the user-authorized [canonical local restart](work-log/2026-10-24-root-local-restart.md) and manual testing, the user requested [closing FoxMind again](work-log/2026-10-24-root-local-stop.md): API/Next and all four main support containers are now stopped, preserving current data/configuration and all40retained volumes. Historical URLs below are unavailable until a new requested restart. No deployment.
