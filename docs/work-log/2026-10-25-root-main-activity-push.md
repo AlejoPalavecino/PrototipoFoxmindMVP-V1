@@ -5,7 +5,7 @@
 - Date: 2026-10-25.
 - Starting main: 3058def23361e5ef7f87b2fe41f809daa1aaab66.
 - Phase/task: [API verificada](2026-10-25-root-api-build-main.md).
-- Status: in_progress.
+- Status: completed.
 
 ## Request and scope
 
@@ -27,4 +27,6 @@ Merge20d64c08bc02af1a767f0537778e30e74f5934fb observado, padres3058def y8619cd0;
 
 ## Handoff
 
-Publicar main y confirmar SHA remoto exacto; persistir resultado real y cierre documental sin inferir despliegue.
+Publicación observada: merge b6ddbd1312d956b4e473ef1b05dd94e561500ec5, padres20d64c0/9322d57, fuente idéntica al candidato combinado ya probado. Canónico comprobado refs/heads/main/tracked limpio, merge --ff-only exit0. Push normal origin refs/heads/main:refs/heads/main exit0 avanzó8619cd0→b6ddbd1. Lectura viva git ls-remote, main local y origin/main coincidieron exactamente b6ddbd1312d956b4e473ef1b05dd94e561500ec5. GitHub deployments antes/después0; no comando despliegue, PR, force-push ni cambios retenidos.
+
+Cierre documental también corrige codificación del roadmap: el helper de resolución había decodificado stdout Git con encoding Windows implícito; reconstruido desde los dos commits originales con decode UTF-8 explícito, conservando sus bloques. Sin cambio de producto. Este cierre pasivo sigue en commit sólo documental bajo la misma autorización con readback exacto; no inventa aquí su propia identidad. Ningún pendiente funcional/de publicación del producto. Sin escritura de memoria atribuida por hook de identidad no registrado; recuperación completa en Git/roadmap/records.
