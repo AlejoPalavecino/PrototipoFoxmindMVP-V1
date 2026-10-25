@@ -2,6 +2,8 @@
 
 ## Default login destination — 2026-10-25
 
+Later user-authorized publication: [remote-based delivery](work-log/2026-10-25-root-login-publication.md) isolates login changes from unpublished activity AI work. Fresh remote-base API/Next/types/client checks and all five functional browser groups passed. Ego real login reached Inicio; a capture-selector failure was corrected and the retained screen was inspected without replaying the fixture. The combined opt-in run remains recorded as FAIL; no merge or deployment is authorized.
+
 User-requested navigation correction: ordinary verified sign-in now opens `/inicio`, as do default existing-session and verified-email continuations. Explicit allowed classroom/invitation destinations and unverified-email gates are preserved. [Coordinator record](work-log/2026-10-25-root-login-inicio.md), [independent verification](work-log/2026-10-25-login_verify.md), [structural review](work-log/2026-10-25-login_review.md). Fresh API/Next/types and focused clients passed; all five real functional browser groups passed. Optional ego capture timed out; visual acceptance is unavailable and the combined opt-in run is not reported as wholly passing. Local branch delivery only; existing phase acceptance stays historical.
 
 ## Repository consolidation — 2026-10-24

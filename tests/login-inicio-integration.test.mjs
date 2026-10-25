@@ -66,7 +66,8 @@ test('login defaults to Inicio and preserves bounded account continuations', { t
         const scratch = await mkdtemp(join(tmpdir(), 'foxmind-login-ego-'));
         const script = join(scratch, 'round-01.test.mjs');
         const screenshot = join(scratch, 'inicio.png').replaceAll('\\', '/');
-        await writeFile(script, `const task = await taskSpace('qa-login-inicio');
+        const spaceName = process.env.FOXMIND_LOGIN_EGO_SPACE ?? 'qa-login-inicio';
+        await writeFile(script, `const task = await taskSpace(${JSON.stringify(spaceName)});
 const page = task.page('p1');
 await page.goto(${JSON.stringify(`${runtime.origin}/sign-in`)});
 console.log({ spaceId: task.spaceId, name: task.name });
@@ -75,7 +76,7 @@ await page.fill('loc=role:textbox[name="Correo electrónico"]', ${JSON.stringify
 await page.fill('input[name="password"]', ${JSON.stringify(password)});
 await page.click('loc=role:button[name="Iniciar sesión"]', { label: 'Iniciar sesión en FoxMind' });
 await page.waitForURL('**/inicio');
-await page.waitForSelector('text=Enseño');
+await page.waitForSelector('loc=role:heading[name="Enseño"]');
 const layout = await page.evaluate(() => ({ width: innerWidth, scrollWidth: document.documentElement.scrollWidth }));
 if (layout.scrollWidth > layout.width) throw new Error('Inicio horizontal overflow');
 console.log({ layout, screenshot: await page.screenshot({ path: ${JSON.stringify(screenshot)} }) });
