@@ -1,0 +1,74 @@
+{
+  "date": "2026-10-25",
+  "status": "PASS",
+  "rasterFiles": 48,
+  "transparentVariants": 9,
+  "masterFiles": 16,
+  "bytes": 1199184,
+  "largestBytes": 68732,
+  "svgFiles": 51,
+  "flowIds": 82,
+  "existingPages": 11,
+  "localMarkdownLinks": 292,
+  "contrasts": [
+    {
+      "name": "ink/orange",
+      "foreground": "#202522",
+      "background": "#FF782D",
+      "minimum": 4.5,
+      "ratio": 5.91
+    },
+    {
+      "name": "ink/hover",
+      "foreground": "#202522",
+      "background": "#F2691C",
+      "minimum": 4.5,
+      "ratio": 5.05
+    },
+    {
+      "name": "muted/white",
+      "foreground": "#5B6260",
+      "background": "#FFFFFF",
+      "minimum": 4.5,
+      "ratio": 6.25
+    },
+    {
+      "name": "link/white",
+      "foreground": "#9A3E00",
+      "background": "#FFFFFF",
+      "minimum": 4.5,
+      "ratio": 6.86
+    },
+    {
+      "name": "danger/white",
+      "foreground": "#B3261E",
+      "background": "#FFFFFF",
+      "minimum": 4.5,
+      "ratio": 6.54
+    },
+    {
+      "name": "success/white",
+      "foreground": "#156442",
+      "background": "#FFFFFF",
+      "minimum": 4.5,
+      "ratio": 7.16
+    },
+    {
+      "name": "focus/canvas",
+      "foreground": "#4453B8",
+      "background": "#FCFAF7",
+      "minimum": 3,
+      "ratio": 6.35
+    },
+    {
+      "name": "control/white",
+      "foreground": "#7A817E",
+      "background": "#FFFFFF",
+      "minimum": 3,
+      "ratio": 3.99
+    }
+  ],
+  "failures": [],
+  "warnings": [],
+  "scope": "Artifact structure, decode, hashes, vector contents, links and source existence. No product functional test."
+}
