@@ -1,0 +1,86 @@
+{
+  "date": "2026-10-25",
+  "reviewedProductTree": "9ad34da620d1336700a88dccf5fabeb78f3689d9",
+  "motionLeaf": {
+    "file": "apps/shared-ui/foxmind-3d-controls.css",
+    "blob": "b0630c998f3494633954e1da4149aff018d002f0",
+    "addedLines": 12,
+    "method": "L1 CSS syntax/AST and final Next build; no new live pixel claim"
+  },
+  "files": [
+    {
+      "source": "foxmind-3d-legacy-final.test.tap",
+      "path": "checks/legacy-api.tap",
+      "bytes": 40207,
+      "sourceSha256": "8f4899e77823efffe073968bbfd7f4bbbcb3a3cae6443a8140da44be40c06de8",
+      "sha256": "8f4899e77823efffe073968bbfd7f4bbbcb3a3cae6443a8140da44be40c06de8",
+      "summary": {
+        "tests": 122,
+        "pass": 122,
+        "fail": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "source": "foxmind-3d-group5-final-new-affected.test.tap",
+      "path": "checks/new-and-affected.tap",
+      "bytes": 45474,
+      "sourceSha256": "dbc1cbc9359d010dec69e3d1907cd1e7d721c5bf8488d5be4bb009d6412b0973",
+      "sha256": "e4998d1a4fa47a0075980b4a473893b367901375f603c124bc39f2ba0730e82e",
+      "summary": {
+        "tests": 180,
+        "pass": 176,
+        "fail": 0,
+        "skipped": 4
+      }
+    },
+    {
+      "source": "foxmind-3d-group5-regressions-green.test.tap",
+      "path": "checks/regressions-postgres.tap",
+      "bytes": 6654,
+      "sourceSha256": "f5f4b2e594b760c017af81c4f0354d6962a01e54c74ce1af9c07c61bde8248a4",
+      "sha256": "61b3195521d2503696613c50ffba559e97fe7ac48f17c8ddbddacfc1a6a2c773",
+      "summary": {
+        "tests": 23,
+        "pass": 23,
+        "fail": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "source": "foxmind-3d-group5-api-build.test.log",
+      "path": "checks/api-build.log",
+      "bytes": 225,
+      "sourceSha256": "99f2e016b6613cdddac7b9008fb2a81dbe244ea12dcab66f4d104808035f3f44",
+      "sha256": "02fb3cc88dbb3dc07aad2aaee0edc19384796f8b312a77bf018835b775d65319"
+    },
+    {
+      "source": "foxmind-3d-final-css-next-build.test.log",
+      "path": "checks/web-build.log",
+      "bytes": 1329,
+      "sourceSha256": "cc53f8fdbbf8b85eb9808f5fc1eda6b33aa0d11835690f5c80c6991ce6aec6fd",
+      "sha256": "e7c9b1ab06610c53dc241379ca60cc48ae18f88f923ee6180bfe13f0a859b48d"
+    },
+    {
+      "source": "foxmind-3d-final-css-ast.test.log",
+      "path": "checks/motion-css.log",
+      "bytes": 87,
+      "sourceSha256": "3085a8158be3647aa3bfcd2a95df709cdca5ff68aaa29369157a587bac03b579",
+      "sha256": "74bcbb9bd58af70d4295797d19c18ba3f626dae719099a66d10c3662820cdf25"
+    },
+    {
+      "source": "foxmind-3d-final-space-finish.test.log",
+      "path": "checks/space-finish.log",
+      "bytes": 250,
+      "sourceSha256": "017107b4932688c281ae06d7ebe4701aa2c5c4d6feb94305fa20c22c699b3028",
+      "sha256": "c2570a7960c194427529f9bbbdea5163f6ebd2faa71e610d7a98594c96241e1e"
+    }
+  ],
+  "notes": [
+    "Suites may overlap; their counts are not a sum of unique tests.",
+    "Four skipped cases are historical optional browser conditions, not hidden new failures.",
+    "Initial failed runs remain described in the coordinator ledger; only final safe green streams are copied here.",
+    "Preserved text normalizes CRLF, trailing spaces and terminal blank lines; source and preserved hashes are separate.",
+    "No screenshot, native zoom200 or comprehensive performance conformity is claimed."
+  ]
+}

@@ -1,0 +1,2 @@
+QA_BROWSER_RESTORE_COMPLETE media-default/network-unblocked/cache-default/device-metrics-cleared/timezone-default
+SPACE_FINISH_RESULT { spaceId: 9, closedSpace: true, keptManagedLabels: [], closedManagedLabels: [ 'p1' ], preservedUnmanagedCount: 0 }
