@@ -1,3 +1,4 @@
+import { CLASSROOM_COVER_KEYS, isClassroomCoverKey } from '../../../../src/core/domain/index.ts';
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 
 export type ClassroomErrorCode =
@@ -21,11 +22,8 @@ export const uuid = (x: unknown): x is string =>
   /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(x);
 export const digest = (x: string) =>
   createHash('sha256').update(x).digest('hex');
-export const covers = [
-  { key: 'explore', label: 'Explorar', color: '#e99e5a' },
-  { key: 'create', label: 'Crear', color: '#869b84' },
-  { key: 'discover', label: 'Descubrir', color: '#8f8cbd' },
-] as const;
+const coverLabels = ['Explorar', 'Crear', 'Descubrir', 'Literatura', 'Matemática', 'Biología', 'Sociedad', 'Ciencias', 'Creatividad', 'General'];
+export const covers = CLASSROOM_COVER_KEYS.map((key, index) => ({ key, label: coverLabels[index], color: '#e99e5a' }));
 export interface CurriculumUnit {
   name: string;
   topics: { name: string }[];
@@ -97,7 +95,7 @@ export function draftPayload(input: unknown, publish: boolean): DraftPayload {
       }
   }
   if (publish || source.coverKey !== undefined) {
-    if (!covers.some((c) => c.key === source.coverKey)) fail('INVALID_INPUT');
+    if (!isClassroomCoverKey(source.coverKey)) fail('INVALID_INPUT');
     out.coverKey = source.coverKey;
   }
   if (publish || source.planFileId !== undefined) {

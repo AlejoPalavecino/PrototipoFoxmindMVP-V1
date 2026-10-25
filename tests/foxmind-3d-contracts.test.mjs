@@ -145,3 +145,17 @@ test('S0 exact review totals, safe page counts and bounded cursor cannot become 
   assert.throws(() => parseHomeModuleResponse(wrong), invalid);
   assert.throws(() => parseHomeModuleResponse({ ...moduleResponse('pending'), subjectId: id(20), role: 'teacher' }), invalid);
 });
+
+test('S0 cover writes accept exactly ten keys while display maps legacy aliases and unknown fallback', () => {
+  const { CLASSROOM_COVER_KEYS, isClassroomCoverKey, classroomCoverAsset } = domain();
+  const expected = ['explore', 'create', 'discover', 'literature', 'math', 'biology', 'society', 'science', 'creative', 'general'];
+  assert.deepEqual([...CLASSROOM_COVER_KEYS], expected);
+  for (const key of expected) assert.equal(isClassroomCoverKey(key), true, key);
+  for (const key of [null, undefined, [], 1, '', 'GENERAL', 'unknown', ' general', 'general '])
+    assert.equal(isClassroomCoverKey(key), false, String(key));
+  for (const [legacy, asset] of [['explore', 'general'], ['create', 'creative'], ['discover', 'science']])
+    assert.equal(classroomCoverAsset(legacy), asset);
+  for (const key of expected.slice(3)) assert.equal(classroomCoverAsset(key), key);
+  assert.equal(classroomCoverAsset('unknown-from-an-old-record'), 'general');
+  assert.equal(isClassroomCoverKey('unknown-from-an-old-record'), false, 'Presentation fallback must never authorize an unknown write');
+});

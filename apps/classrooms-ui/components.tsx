@@ -1,15 +1,27 @@
 'use client';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { openDialog } from '../shared-ui/dialog-focus';
+import { FoxmindIllustration } from '../shared-ui/index.ts';
+import { classroomCoverAsset } from '../../src/core/domain/index.ts';
 export const coverCatalog = [
-  { key: 'explore', label: 'Explorar' },
-  { key: 'create', label: 'Crear' },
-  { key: 'discover', label: 'Descubrir' },
+  { key: 'literature', label: 'Literatura' },
+  { key: 'math', label: 'Matemática' },
+  { key: 'biology', label: 'Biología' },
+  { key: 'society', label: 'Sociedad' },
+  { key: 'science', label: 'Ciencia y tecnología' },
+  { key: 'creative', label: 'Arte y creatividad' },
+  { key: 'general', label: 'General' },
 ];
-export function Cover({ kind = 'explore' }: { kind?: string }) {
-  const selected = coverCatalog.find((cover) => cover.key === kind) ?? coverCatalog[0];
-  return <div className={`folder-cover folder-cover-${selected.key}`} role="img" aria-label={`Portada ${selected.label}`}>
-    <img className="folder-cover-art" src={`/folders/cover-${selected.key}.png`} width="192" height="192" alt="" loading="lazy" />
+export function coverOptions(current?: string) {
+  return current && ['explore', 'create', 'discover'].includes(current)
+    ? [{ key: current, label: 'Portada actual' }, ...coverCatalog] : coverCatalog;
+}
+export function Cover({ kind = 'explore', priority = false }: { kind?: string; priority?: boolean }) {
+  const selected = coverCatalog.find((cover) => cover.key === kind) ?? coverCatalog[6];
+  const asset = classroomCoverAsset(kind);
+  return <div className={`folder-cover fm3-cover folder-cover-${selected.key}`}>
+    <FoxmindIllustration name={`covers/${asset}`} className="folder-cover-art" priority={priority}
+      sizes="(max-width: 600px) calc(100vw - 48px), (max-width: 1100px) 45vw, 360px" />
   </div>;
 }
 

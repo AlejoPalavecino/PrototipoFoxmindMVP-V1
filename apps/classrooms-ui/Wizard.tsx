@@ -7,7 +7,7 @@ import {
   type ChangeEvent,
 } from 'react';
 import type { ClassroomClient, Draft, Payload, FileState } from './api.ts';
-import { Cover, coverCatalog, Notice } from './components.tsx';
+import { Cover, coverOptions, Notice } from './components.tsx';
 import { PlanExtraction } from './PlanExtraction.tsx';
 import { usePlanExtraction } from './use-plan-extraction.ts';
 
@@ -313,7 +313,7 @@ export function Wizard({
               </div>
               <h3>Elegí una portada</h3>
               <div className="p5-covers">
-                {coverCatalog.map((cover) => (
+                {coverOptions(payload.coverKey).map((cover) => (
                   <label
                     key={cover.key}
                     className={payload.coverKey === cover.key ? 'selected' : ''}

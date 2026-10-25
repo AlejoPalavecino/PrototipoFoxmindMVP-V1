@@ -15,3 +15,4 @@ export { studyPlanSchemaV1 } from './study-plan-schema.ts';
 export * from './home.ts';
 export * from './home-ports.ts';
 export * from './home-validation.ts';
+export * from './classroom-cover.ts';
