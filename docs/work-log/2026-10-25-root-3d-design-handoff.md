@@ -45,7 +45,7 @@ Observed final evidence:
 
 Package lives in `docs/design/foxmind-3d/`: assets/masters/provenance, foundations/tokens, six detailed contracts, coverage, implementation plan D0–D10, local HTML atlas/catalogue and checks. `docs/design/README.md` links the selected direction without changing product phase acceptance. Existing untracked design histories and `.taste-skill/` are preserved and excluded from delivery commits.
 
-Local work-unit commits follow after verification on the delivery branch. Authored changes are split into reviewable units; generated JSON indices/manifests/reports and binary graphics are associated with their producing unit and reported separately from the authored-line budget. No push, PR or deployment is part of this design request. Runtime identity unavailable: no agent-attributed Engram writes or invented session.
+Twelve local work-unit commits were created and inspected on `codex/foxmind-3d-design-kit`, from `cbf9050e64baa187dac44bec7435c340f0636524` through package delivery `e6bad2689b3300e7853fd90b2b75404214f502db`. [Exact commits and budgets](../design/foxmind-3d/checks/local-commits.json) record 139–353 authored changed lines per unit. Generated JSON indices/manifests/reports, generated vector/raster assets and review-data.js are separately identified; no source was compressed to fit a commit. This later record update cites observed commits, not its own future hash. No push, PR or deployment occurred. Runtime identity unavailable: no agent-attributed Engram writes or invented session.
 
 Rollback boundary: this new design directory, this task's five work records and the added design-index entry; no product files or retained data need rollback. Runtime harness for product: N/A; local atlas browser proof is recorded above.
 
