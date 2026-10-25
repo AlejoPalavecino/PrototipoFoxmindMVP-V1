@@ -1,0 +1,26 @@
+{
+  "observedAt": "2026-10-25T17:44:57.220Z",
+  "container": "foxmind-p4-fdc3978f0ef1773a-db",
+  "database": "activity_ai_real_test",
+  "readOnly": true,
+  "query": "SELECT json_build_object('id',a.id,'type',a.type,'status',a.status,'topicLinks',(SELECT count(*) FROM activity_topics WHERE activity_id=a.id),'studentActivities',(SELECT count(*) FROM student_activities WHERE activity_id=a.id),'expected',(SELECT count(*) FROM student_activities WHERE activity_id=a.id AND is_expected),'attempts',(SELECT count(*) FROM attempts WHERE activity_id=a.id),'submittedAttempts',(SELECT count(*) FROM attempts WHERE activity_id=a.id AND submitted_at IS NOT NULL),'grades',(SELECT count(*) FROM attempt_grades WHERE activity_id=a.id),'publishedGrades',(SELECT count(*) FROM attempt_grades WHERE activity_id=a.id AND is_published),'finalGrade',(SELECT final_grade::text FROM attempt_grades WHERE activity_id=a.id AND is_published),'firstSubmittedLate',(SELECT submitted_late FROM attempts WHERE activity_id=a.id AND submitted_at IS NOT NULL ORDER BY attempt_number LIMIT 1),'notifications',(SELECT json_object_agg(event_type,n) FROM (SELECT event_type,count(*) n FROM notifications WHERE activity_id=a.id GROUP BY event_type) events)) FROM activities a WHERE a.id='78ed3f1f-14d2-497e-94c8-64d6adf98ad8';",
+  "row": {
+    "id": "78ed3f1f-14d2-497e-94c8-64d6adf98ad8",
+    "type": "QUESTIONNAIRE",
+    "status": "PUBLISHED",
+    "topicLinks": 2,
+    "studentActivities": 1,
+    "expected": 1,
+    "attempts": 1,
+    "submittedAttempts": 1,
+    "grades": 1,
+    "publishedGrades": 1,
+    "finalGrade": "10.00",
+    "firstSubmittedLate": false,
+    "notifications": {
+      "ACTIVITY_PUBLISHED": 1,
+      "GRADE_PUBLISHED": 1,
+      "SUBMISSION_RECEIVED": 1
+    }
+  }
+}
