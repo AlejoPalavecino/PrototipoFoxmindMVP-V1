@@ -1,4 +1,5 @@
 export { Agenda } from './Agenda.tsx';
+export type { AgendaEventRequest } from './useAgendaEventTarget.ts';
 export { AgendaClientError } from './api.ts';
 export type { AgendaClient } from './api.ts';
 export { EventForm } from './EventForm.tsx';

@@ -8,6 +8,7 @@ import { AccountNavbar } from './account-navbar';
 import { createAccountClient, type AccountSession } from '../lib/account-client';
 import { createWebAgendaClient } from '../lib/agenda-client';
 import { classroomAuthHref } from '../lib/classroom-client';
+import { parseAgendaEventTarget } from '../lib/agenda-target';
 
 const account = createAccountClient();
 function useAgendaSession() {
@@ -38,6 +39,7 @@ function useAgendaSession() {
 export function AgendaScreen() {
   const router = useRouter(), identity = useAgendaSession();
   const api = useMemo(() => createWebAgendaClient(fetch, identity.requireAccount), [identity.requireAccount]);
+  const requestedEvent = parseAgendaEventTarget(router.query);
   return <div className="p5-app agenda-app">
     <Head><title>Agenda · FoxMind</title><meta name="description" content="Tu calendario privado y los próximos plazos de tus aulas." /></Head>
     <a className="skip-link" href="#agenda-main">Saltar al contenido</a>
@@ -45,7 +47,8 @@ export function AgendaScreen() {
       <AccountNavbar session={identity.session} view="agenda" accountActions={<div className="p5-actions p5-account-actions"><Link href="/profile">Mi perfil</Link>
         <button disabled={identity.busy} onClick={() => void identity.logout()}>{identity.busy ? 'Cerrando sesión…' : 'Cerrar sesión'}</button></div>} />
       {identity.error ? <Notice error>{identity.error}</Notice> : null}
-      <Agenda api={api} onOpen={target => { void router.push(`/mis-aulas?aula=${target.classroomId}${target.activityId ? `&actividad=${target.activityId}` : ''}`); }} />
+      {router.isReady && Object.keys(router.query).length > 0 && !requestedEvent ? <Notice error>El enlace del evento no es válido. Puedes consultar tu agenda.</Notice> : null}
+      <Agenda key={identity.session.user.id} api={api} requestedEvent={requestedEvent} onOpen={target => { void router.push(`/mis-aulas?aula=${target.classroomId}${target.activityId ? `&actividad=${target.activityId}` : ''}`); }} />
     </> : <main id="agenda-main" className="p5-main">{identity.error ? <Notice error>{identity.error} <button onClick={() => void identity.load()}>Volver a intentar</button></Notice>
       : <Notice>Comprobando tu sesión…</Notice>}<Link href={classroomAuthHref('sign-in', '/agenda')}>Iniciar sesión</Link></main>}
   </div>;

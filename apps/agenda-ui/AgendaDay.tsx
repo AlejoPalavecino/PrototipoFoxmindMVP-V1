@@ -17,8 +17,8 @@ export function AgendaDay({ day, zone, items, busy, focusEventId, focusRequest, 
       .find(element => element.dataset.eventId === focusEventId);
     card?.focus();
   }, [focusEventId, focusRequest, day, items]);
-  return <section ref={container} className="agenda-selected folder-panel tone-yellow" aria-label="Eventos del día seleccionado">
-    <h2 className="folder-tab">{dayLabel(day)}</h2>
+  return <section ref={container} className="agenda-selected fm3d-agenda-card" aria-label="Eventos del día seleccionado">
+    <h2>{dayLabel(day)}</h2>
     {!entries.length ? <p className="agenda-empty">Un día libre en tu agenda. Agregá lo que quieras recordar.</p> : null}
     <div className="agenda-day-list">{entries.map(item => item.kind === 'ACADEMIC_DEADLINE'
       ? <DeadlineCard key={item.id} item={item} busy={busy} onOpen={onOpen} />

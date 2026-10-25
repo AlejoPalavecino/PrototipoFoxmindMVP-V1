@@ -1,5 +1,6 @@
 import type { AcademicDeadline, AgendaTarget } from '../../src/core/domain/index.ts';
 import { deadlineLabel } from './calendar.ts';
+import { FoxmindIllustration } from '../shared-ui/index.ts';
 
 export function DeadlineCard({ item, onOpen, busy }: { item: AcademicDeadline; onOpen: (target: AgendaTarget) => void; busy: boolean }) {
   return <article className="agenda-deadline">
@@ -13,11 +14,12 @@ export function DeadlineCard({ item, onOpen, busy }: { item: AcademicDeadline; o
 export function Upcoming({ items, loading, error, busy, onOpen }: {
   items: AcademicDeadline[]; loading: boolean; error: string; busy: boolean; onOpen: (target: AgendaTarget) => void;
 }) {
-  return <aside className="agenda-upcoming folder-panel tone-coral" aria-label="Próximas entregas">
-    <h2 className="folder-tab">Próximas entregas</h2>
+  return <aside className="agenda-upcoming fm3d-agenda-card" aria-label="Próximas entregas">
+    <h2>Próximas entregas</h2>
     <p>Los próximos plazos de tus aulas.</p>
     {loading ? <p role="status">Consultando entregas…</p> : error ? <p>Las entregas no están disponibles. Reintentá la consulta.</p>
       : items.length ? items.map(item => <DeadlineCard key={item.id} item={item} onOpen={onOpen} busy={busy} />)
-        : <div className="agenda-empty"><img src="/folders/foxy-reading.png" alt="" width="120" height="120" /><p>No tenés entregas próximas pendientes.</p></div>}
+        : <div className="agenda-empty"><p>No tenés entregas próximas pendientes.</p></div>}
+    {!loading && !error ? <FoxmindIllustration className="agenda-side-scene" name="scenes/agenda" sizes="220px" /> : null}
   </aside>;
 }
