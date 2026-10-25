@@ -32,8 +32,8 @@ Verificación funcional observada; captura visual opcional no disponible.
 
 ## Commits and outcomes
 
-Sin commit todavía. Rollback acotado al fallback de navegación y sus pruebas/documentación.
+Commit local observado: `8b77233` — `fix(auth): open Inicio after ordinary sign-in`,13archivos/293inserciones/16eliminaciones, incluyendo registros atribuidos. Rollback acotado al fallback de navegación y sus pruebas/documentación. Sin push, PR, integración main o despliegue.
 
 ## Handoff
 
-Implementación y cinco grupos funcionales completos; sin blocker funcional observado. Captura ego no disponible, limitación explícita. Preparar commit local acotado y entregar rama codex/login-inicio. Publicación remota/PR requiere confirmación humana conforme instrucciones del usuario; sin integración main o despliegue autorizado.
+Implementación y cinco grupos funcionales completos; sin blocker funcional observado. Captura ego no disponible, limitación explícita. Rama local codex/login-inicio lista para revisión; propuesta de PR: «fix(auth): abrir Inicio después de iniciar sesión», sólo este cambio respecto de main local. Origin está por detrás de main local por trabajo ajeno; antes de preparar publicación revisar diff remoto y evitar incorporar ese historial sin autorización. Publicación remota/PR requiere confirmación humana conforme instrucciones del usuario; sin integración main o despliegue autorizado.
