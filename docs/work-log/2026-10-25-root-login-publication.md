@@ -34,6 +34,8 @@ Tester final command: `$env:FOXMIND_LOGIN_EGO='1'; $env:FOXMIND_LOGIN_EGO_SPACE=
 
 Local publication candidates: aada3a4 (cherry-pick8b77233), cc7cca6 (cherry-pick4dfeafe). Source change remains exactly three existing lines. Test-only Space override permits a new publication Space without claiming an already-finished Space.
 
+Normal push succeeded at375e9c85a22e3e97fe596e2b4bc1e3d477d551ea. Created and attached [PR1](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/pull/1), base main/head codex/login-inicio-pr, OPEN/non-draft, native bug label read back. GitHub readback MERGEABLE/CLEAN, no check runs;14files/335additions/16deletions. Exact ls-remote matched candidate; main remained727614d9ed05818fab1295271bfd9654820dc74f. This passive record update follows separately; no source change or new test claim.
+
 ## Handoff
 
-Preparation and scoped functional verification complete. Normal branch push and PR creation authorized; execution/readback recorded below after they occur. Keep this worktree for PR review/follow-up. Original checkout and unpublished AI/design history remain preserved. No merge or deployment.
+Publication complete; PR1 awaits human review/merge decision. Keep this worktree for PR review/follow-up. Original checkout and unpublished AI/design history remain preserved. No merge or deployment.
