@@ -1,107 +1,37 @@
 'use client';
-import { useCallback, useEffect, useState } from 'react';
-import type { Classroom, ClassroomClient, ClassroomNotification, Draft, Invitation, NotificationTarget } from './api.ts';
-import { Cover, Notice } from './components.tsx';
-import { EntryIcon } from '../shared-ui/EntryIcon';
-
-interface HomeData {
-  teach: Classroom[];
-  study: Classroom[];
-  drafts: Draft[];
-  invitations: Invitation[];
+import { useState } from 'react';
+import type { HomeModuleName,HomeTarget } from '../../src/core/domain/index.ts';
+import type { ClassroomClient,NotificationTarget,Classroom,Draft,Invitation } from './api.ts';
+import type { HomeClient } from './home-api.ts';
+import { FoxmindIllustration,FoxmindIcon } from '../shared-ui/index.ts';
+import { useHome } from './use-home.ts';
+import { HomeModule } from './HomeModule.tsx';
+import { HomeModulePanel } from './HomeModulePanel.tsx';
+import { HomeShortcuts } from './HomeShortcuts.tsx';
+import { homeParticipation } from './home-labels.ts';
+export interface HomeProps {
+  displayName:string;subjectId?:string;homeClient?:HomeClient;busy?:boolean;
+  onCreate:()=>void;onJoin:()=>void;onClassrooms:()=>void;onAction:(target:HomeTarget)=>void;onAgenda?:()=>void;
+  api?:ClassroomClient;data?:{teach:Classroom[];study:Classroom[];drafts:Draft[];invitations:Invitation[]}|null;
+  onEnter?:(id:string)=>void;onOpenTarget?:(target:NotificationTarget)=>void;
 }
-
-const newsLabels: Record<ClassroomNotification['eventType'], string> = {
-  WALL_NOTICE: 'Nuevo aviso del docente', WALL_QUERY: 'Nueva consulta de estudiante', WALL_REPLY: 'Respuesta a tu publicación',
-  ACTIVITY_PUBLISHED: 'Nueva actividad publicada', ACTIVITY_DEADLINE_CHANGED: 'Cambio de plazo o recepción',
-  FIRST_SUBMISSION_ENABLED: 'Primera entrega habilitada', ATTEMPT_REOPENED: 'Nuevo intento habilitado',
-  SUBMISSION_RECEIVED: 'Nueva entrega recibida', GRADE_PUBLISHED: 'Calificación publicada', GRADE_CORRECTED: 'Calificación corregida',
-};
-
-/** Home is a view of current authorized data, never a second role or membership source. */
-export function Home({ displayName, data, busy, onCreate, onJoin, onClassrooms, onEnter, api, onOpenTarget }: {
-  displayName: string;
-  data: HomeData | null;
-  busy: boolean;
-  onCreate: () => void;
-  onJoin: () => void;
-  onClassrooms: () => void;
-  onEnter: (id: string) => void;
-  api: ClassroomClient;
-  onOpenTarget: (target: NotificationTarget) => void;
-}) {
-  const [news, setNews] = useState<ClassroomNotification[] | null>(null);
-  const [error, setError] = useState(''), [newsBusy, setNewsBusy] = useState(false);
-  const loadNews = useCallback(async (signal?: AbortSignal) => {
-    const items = await api.call<ClassroomNotification[]>('/notifications', 'GET', undefined, signal);
-    setNews(items); setError('');
-  }, [api]);
-  useEffect(() => {
-    const controller = new AbortController();
-    void loadNews(controller.signal).catch(failure => {
-      if (!controller.signal.aborted) { setNews(null); setError(failure.message); }
-    });
-    return () => controller.abort();
-  }, [loadNews]);
-  async function run(work: () => Promise<void>) {
-    if (newsBusy) return;
-    setNewsBusy(true); setError('');
-    try { await work(); }
-    catch (failure) { setNews(null); setError((failure as Error).message); }
-    finally { setNewsBusy(false); }
-  }
-  return <section className="p9-home" aria-label="Inicio">
-    <header className="entry-home-greeting folder-home-greeting">
-      <div>
-        <h1>Hola, {displayName}</h1>
-        <p className="entry-home-lead">Continúa con tus aulas.</p>
-        {data ? <small>{data.teach.length} {data.teach.length === 1 ? 'aula en Enseño' : 'aulas en Enseño'} y {data.study.length} {data.study.length === 1 ? 'aula en Estudio' : 'aulas en Estudio'}.</small> : null}
-      </div>
-      <img className="folder-home-foxy" src="/folders/foxy-reading.png" alt="" width="240" height="240" />
-    </header>
-    {data ? <>
-      <section className="entry-classrooms" aria-label="Tus aulas">
-      <div className="p5-section-head"><h2>Tus aulas</h2><div className="p5-actions">
-        <button disabled={busy} onClick={onCreate}><EntryIcon name="plus-circle-fill" />Crear aula</button>
-        <button disabled={busy} onClick={onJoin}><EntryIcon name="people-fill" />Unirse con código</button>
-      </div></div>
-      {data.teach.length + data.study.length === 0 ? <p className="entry-empty">Aún no tienes aulas. Crea una para enseñar o únete con un código para empezar a aprender.</p> : null}
-      <div className="folder-columns">{(['study', 'teach'] as const).map(kind => <section className={`p5-classroom-group folder-panel tone-${kind === 'teach' ? 'coral' : 'mint'}`} key={kind} aria-label={kind === 'teach' ? 'Enseño' : 'Estudio'}>
-        <h2 className="folder-tab"><EntryIcon name={kind === 'teach' ? 'people-fill' : 'book'} />{kind === 'teach' ? 'Enseño' : 'Estudio'}</h2>
-        {data[kind].length ? <div className="folder-rows">{data[kind].map(room => <article className="folder-row" key={room.id}>
-          <Cover kind={room.coverKey} />
-          <div>
-            <h3>{room.name}</h3>
-            {room.archived ? <span className="p5-tag">Archivada · Solo lectura</span> : null}
-            <p>{room.subject}</p><p>{room.division} · Ciclo lectivo {room.academicYear}</p>
-            <p>Docente: {room.teacher}</p>
-            <button className="primary" disabled={busy} onClick={() => onEnter(room.id)}><EntryIcon name="book" />Entrar al aula<EntryIcon name="arrow-right" /></button>
-          </div>
-        </article>)}</div> : data.teach.length + data.study.length > 0 ? <p className="p5-empty">{kind === 'teach' ? 'Aún no creaste un aula. Comparte lo que sabes creando la primera.' : 'Aún no estudias en un aula. Usa un código o acepta una invitación desde Mis Aulas.'}</p> : null}
-      </section>)}</div>
-      </section>
-      {(data.drafts.length > 0 || data.invitations.length > 0) ? <section className="p9-home-pending folder-panel tone-yellow" aria-label="Pendientes">
-        <h2 className="folder-tab">Pendientes</h2>
-        <p>{data.drafts.length} {data.drafts.length === 1 ? 'borrador privado' : 'borradores privados'} · {data.invitations.length} {data.invitations.length === 1 ? 'invitación pendiente' : 'invitaciones pendientes'}</p>
-        <button disabled={busy} onClick={onClassrooms}>Ver borradores e invitaciones</button>
-      </section> : null}
-    </> : null}
-    <section id="novedades" className="p9-home-news folder-panel tone-yellow" aria-label="Novedades" aria-busy={newsBusy}>
-      <h2 className="folder-tab">Novedades</h2>
-      <div className="p5-section-head"><button disabled={newsBusy} onClick={() => void run(() => loadNews())}>Actualizar novedades</button></div>
-      <p>Avisos, actividades y resultados de tus aulas. El acceso se comprueba al abrir cada novedad.</p>
-      {error ? <Notice error>{error} <button disabled={newsBusy} onClick={() => void run(() => loadNews())}>Reintentar novedades</button></Notice> : null}
-      {!news && !error ? <Notice>Cargando novedades…</Notice> : null}
-      {news?.length === 0 ? <p>No hay novedades disponibles.</p> : null}
-      <ul>{news?.slice(0, 5).map(item => <li key={item.id} className={item.readAt ? '' : 'entry-news-unread'}>
-        <div><h3>{newsLabels[item.eventType]}</h3><p>{item.classroomName}</p>
-          <small><time dateTime={item.createdAt}>{new Date(item.createdAt).toLocaleString('es-AR')}</time> · {item.readAt ? 'Leída' : 'Sin leer'}</small>
-        </div>
-        <button disabled={newsBusy} onClick={() => void run(async () => {
-          const target = await api.call<NotificationTarget>(`/notifications/${item.id}/open`, 'POST', {});
-          onOpenTarget(target);
-        })}>Abrir novedad</button>
-      </li>)}</ul>
-    </section>
+export function Home(props:HomeProps) {
+  const {displayName,subjectId,homeClient,busy,onAction,onCreate,onJoin,onClassrooms}=props;
+  const home=useHome(homeClient,subjectId),[panel,setPanel]=useState<HomeModuleName|null>(null);
+  const data=home.data,onAgenda=props.onAgenda??(()=>{window.location.assign('/agenda');});
+  const module=(name:HomeModuleName)=><HomeModule key={name} name={name} page={data!.modules[name]} timeZone={data!.timeZone}
+    onAction={onAction} onRetry={()=>void home.retry(name)} onExpand={()=>setPanel(name)} busy={busy}/>;
+  if(home.loading)return <section className="fm-home fm-home-loading" aria-label="Inicio" aria-busy="true"><h1>Hola, {displayName}</h1><p role="status">Cargando tus actividades y próximos pasos…</p><div className="fm-home-skeleton"/></section>;
+  if(!data)return <section className="fm-home fm-home-global-error" aria-label="Inicio"><h1>Hola, {displayName}</h1><p role="alert">No pudimos comprobar tu Inicio. Actualiza para volver a consultar tus aulas y permisos.</p><button onClick={()=>void home.refresh()}>Reintentar Inicio</button></section>;
+  if(panel && homeClient)return <section className="fm-home"><HomeModulePanel key={`${panel}:${data.generatedAt}`} name={panel} data={data} client={homeClient} onClose={()=>{const previous=panel;setPanel(null);requestAnimationFrame(()=>document.querySelector<HTMLButtonElement>(`[data-home-expand="${previous}"]`)?.focus());}} onAction={onAction} onUnauthorized={()=>void home.refresh()}/></section>;
+  return <section className={`fm-home fm-home--${data.participation}`} aria-label="Inicio">
+    <header className="fm-home-greeting"><div><h1>¡Hola, {displayName}!</h1><p>{data.participation==='teach'?'Tus clases y próximos pasos, en un solo lugar.':'Tus actividades y próximos pasos, en un solo lugar.'}</p><small>{homeParticipation(data)}</small></div>
+      <FoxmindIllustration name={data.participation==='teach'?'hero/welcome-teach':'hero/welcome-learn'} priority className="fm-home-hero" sizes="(max-width: 767px) 600px, 960px"/></header>
+    <div className="fm-home-toolbar"><small>Actualizado {new Date(data.generatedAt).toLocaleTimeString('es-AR',{timeZone:data.timeZone,hour:'2-digit',minute:'2-digit'})}</small><button onClick={()=>void home.refresh()}><FoxmindIcon name="refresh"/>Actualizar</button></div>
+    {data.setup.drafts+data.setup.invitations>0?<section className="fm-home-setup"><p>{data.setup.drafts} borradores privados · {data.setup.invitations} invitaciones pendientes</p><button onClick={onClassrooms}>Ver borradores e invitaciones</button></section>:null}
+    {data.participation==='none'?<section className="fm-home-welcome"><FoxmindIllustration name="states/empty" sizes="120px"/><div><h2>{data.memberships.archived?'Tu historial sigue aquí':'Tu próximo paso empieza aquí'}</h2><p>{data.memberships.archived?'Consulta tus aulas archivadas o comienza una nueva experiencia.':'Puedes aprender y enseñar con la misma cuenta.'}</p><button onClick={onCreate} disabled={busy}>Crear mi primera aula</button> <button onClick={onJoin} disabled={busy}>Unirme con código</button></div></section>:null}
+    <div className="fm-home-columns"><div className="fm-home-work">{module('pending')}{module('review')}{module('queries')}{module('materials')}</div>
+      <aside className="fm-home-aside">{module('agenda')}<button className="fm-home-agenda-link" onClick={onAgenda}>Abrir Agenda<FoxmindIcon name="arrow-right"/></button>{module('feedback')}{module('classrooms')}</aside></div>
+    <HomeShortcuts data={data} onAction={onAction} onCreate={onCreate} onJoin={onJoin} onClassrooms={onClassrooms} onAgenda={onAgenda} busy={busy}/>
   </section>;
 }

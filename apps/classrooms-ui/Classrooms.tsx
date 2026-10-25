@@ -1,6 +1,8 @@
 'use client';
 import { useState, useEffect, useCallback, lazy, Suspense, type ReactNode } from 'react';
 import type { ClassroomClient, Classroom, Draft, Invitation, NotificationTarget } from './api.ts';
+import type { HomeTarget } from '../../src/core/domain/index.ts';
+import type { HomeClient } from './home-api.ts';
 import { Dialog, Notice } from './components.tsx';
 import { ClassroomCollection } from './ClassroomCollection.tsx';
 import { Notifications } from './Notifications.tsx';
@@ -24,6 +26,8 @@ interface HomeData {
 export function ClassroomsApp({
   api,
   displayName,
+  subjectId,
+  homeClient,
   accountActions,
   requestedInvitation,
   requestedNotification,
@@ -33,6 +37,8 @@ export function ClassroomsApp({
 }: {
   api: ClassroomClient;
   displayName: string;
+  subjectId?: string;
+  homeClient?: HomeClient;
   accountActions?: ReactNode;
   requestedInvitation?: string;
   requestedNotification?: string;
@@ -49,6 +55,7 @@ export function ClassroomsApp({
     [draft, setDraft] = useState<Draft | null>(null),
     [classroomId, setClassroomId] = useState<string | null>(null);
   const [wallTarget, setWallTarget] = useState<NotificationTarget | null>(null), [notificationRefresh, setNotificationRefresh] = useState(0);
+  const [homeTarget, setHomeTarget] = useState<HomeTarget | null>(null);
   const refreshNotifications = useCallback(() => setNotificationRefresh(value => value + 1), []);
   const [join, setJoin] = useState(false),
     [code, setCode] = useState(''),
@@ -82,12 +89,13 @@ export function ClassroomsApp({
     [api],
   );
   useEffect(() => {
+    if (initialPresentation === 'home') return;
     const controller = new AbortController();
     void load(controller.signal).catch((e) => {
       if (!controller.signal.aborted) setError(e.message);
     });
     return () => controller.abort();
-  }, [load]);
+  }, [load, initialPresentation]);
   async function action(task: () => Promise<void>) {
     setBusy(true);
     setError('');
@@ -104,17 +112,23 @@ export function ClassroomsApp({
     setClassroomId(null);
     setSharedCode(null);
     setWallTarget(null);
+    setHomeTarget(null);
+    setError('');
     setPresentation(next);
     if (next !== initialPresentation && onNavigate) { onNavigate(next); return; }
-    void action(() => load());
+    if (next === 'classrooms') void action(() => load());
   };
   const leaveView = () => showPresentation('classrooms');
   const openTarget = (target: NotificationTarget) => {
-    setWallTarget(target); setSharedCode(null); setClassroomId(target.classroomId);
+    setHomeTarget(null); setWallTarget(target); setSharedCode(null); setClassroomId(target.classroomId);
+  };
+  const openHomeTarget = (target: HomeTarget) => {
+    if (target.kind === 'private-event') { window.location.assign(`/agenda?event=${encodeURIComponent(target.eventId)}&date=${encodeURIComponent(target.date)}`); return; }
+    setDraft(null); setSharedCode(null); setWallTarget(null); setHomeTarget(target); setClassroomId(target.classroomId);
   };
   useEffect(() => {
     if (!requestedTarget) return;
-    setDraft(null); setSharedCode(null); setClassroomId(requestedTarget.classroomId);
+    setDraft(null); setSharedCode(null); setHomeTarget(null); setClassroomId(requestedTarget.classroomId);
     setWallTarget(requestedTarget.activityId ? { kind: 'activity', ...requestedTarget, activityId: requestedTarget.activityId, attemptId: null } : null);
   }, [requestedTarget]);
   useEffect(() => {
@@ -199,17 +213,18 @@ export function ClassroomsApp({
               onExit={leaveView}
               initialCode={sharedCode}
               wallTarget={wallTarget?.classroomId === classroomId ? wallTarget : null}
+              homeTarget={homeTarget && 'classroomId' in homeTarget && homeTarget.classroomId === classroomId ? homeTarget : null}
               onWallChanged={refreshNotifications}
             />
           </Suspense>
         ) : presentation === 'home' ? (
           <>
-            {error ? <Notice error>{error} <button disabled={busy} onClick={() => void action(() => load())}>Volver a intentar</button></Notice> : null}
-            {!data && !error ? <Notice>Cargando tus aulas…</Notice> : null}
-            <Home api={api} displayName={displayName} data={error ? null : data} busy={busy}
+            {error ? <Notice error>{error} <button disabled={busy} onClick={() => setError('')}>Cerrar aviso</button></Notice> : null}
+            <Home displayName={displayName} subjectId={subjectId} homeClient={homeClient} busy={busy}
+              onAction={openHomeTarget} onAgenda={() => { if (onNavigate) onNavigate('agenda'); else window.location.assign('/agenda'); }}
               onCreate={() => void action(async () => { setDraft(await api.call<Draft>('/drafts', 'POST', {})); })}
               onJoin={() => { setJoin(true); setJoinError(''); setPreview(null); }}
-              onClassrooms={leaveView} onEnter={id => { setSharedCode(null); setClassroomId(id); }} onOpenTarget={target => { openTarget(target); refreshNotifications(); }} />
+              onClassrooms={leaveView} />
           </>
         ) : (
           <>

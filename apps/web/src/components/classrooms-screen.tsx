@@ -7,6 +7,7 @@ import { Notice } from '../../../classrooms-ui/components';
 import { createAccountClient, type AccountUser } from '../lib/account-client';
 import { classroomAuthHref, classroomDestination, createWebClassroomClient } from '../lib/classroom-client';
 import { createWebAgendaClient } from '../lib/agenda-client';
+import { createWebHomeClient } from '../lib/home-client';
 import { useAgendaTarget } from '../../../classrooms-ui/useAgendaTarget';
 
 const account = createAccountClient();
@@ -23,6 +24,7 @@ export function ClassroomsScreen({ initialPresentation = 'classrooms' }: { initi
   }, [router, destination]);
   const api = useMemo(() => createWebClassroomClient(fetch, requireAccount), [requireAccount]);
   const agendaApi = useMemo(() => createWebAgendaClient(fetch, requireAccount), [requireAccount]);
+  const homeClient = useMemo(() => createWebHomeClient(fetch, requireAccount), [requireAccount]);
   const target = useAgendaTarget(agendaApi, destination, Boolean(user));
   const load = useCallback(async () => {
     setError('');
@@ -49,7 +51,7 @@ export function ClassroomsScreen({ initialPresentation = 'classrooms' }: { initi
       {error ? <div className="p5-app p5-gate"><Notice error>{error}</Notice></div> : null}
       {target.requested && !target.target ? <div className="p5-main"><Notice error={Boolean(target.error)}>{target.error ?? 'Comprobando acceso a la actividad…'}
         {target.error ? <button onClick={target.reload}>Volver a intentar</button> : null}</Notice><Link href="/agenda">Volver a Agenda</Link></div> :
-      <ClassroomsApp api={api} displayName={`${user.firstName} ${user.lastName}`} requestedInvitation={invitation} requestedTarget={target.target}
+      <ClassroomsApp key={user.id} subjectId={user.id} homeClient={homeClient} api={api} displayName={`${user.firstName} ${user.lastName}`} requestedInvitation={invitation} requestedTarget={target.target}
         requestedNotification={typeof router.query.notificacion === 'string' && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(router.query.notificacion) ? router.query.notificacion : undefined}
         initialPresentation={initialPresentation} onNavigate={presentation => { void router.push(presentation === 'home' ? '/inicio' : presentation === 'agenda' ? '/agenda' : '/mis-aulas'); }}
         accountActions={<div className="p5-actions p5-account-actions"><Link href="/profile">Mi perfil</Link><button disabled={busy} onClick={() => void logout()}>{busy ? 'Cerrando sesión…' : 'Cerrar sesión'}</button></div>} />}
