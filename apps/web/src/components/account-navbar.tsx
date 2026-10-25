@@ -18,8 +18,8 @@ export function AccountNavbar({ session, view, signInHref = '/sign-in', register
   const api = useMemo(() => createWebClassroomClient(), []);
   const user = session?.authenticated ? session.user : undefined;
   const verified = Boolean(user?.emailVerified);
-  return <AppNavbar logoHref={user ? (verified ? '/profile' : verifyHref) : '/sign-in'}
-    displayName={user ? `${user.firstName} ${user.lastName}` : undefined}
+  return <AppNavbar logoHref={user ? (verified ? '/inicio' : verifyHref) : '/sign-in'}
+    displayName={user ? `${user.firstName} ${user.lastName}` : undefined} currentPath={view ? `/${view}` : undefined}
     links={verified ? [{ href: '/inicio', label: 'Inicio' }, { href: '/mis-aulas', label: 'Mis aulas' }, { href: '/agenda', label: 'Agenda', current: view === 'agenda' }]
       : user ? [{ href: verifyHref, label: 'Verificar correo', current: view === 'verify-email' }]
         : [{ href: signInHref, label: 'Iniciar sesión', current: view === 'sign-in' }, { href: registerHref, label: 'Crear cuenta', current: view === 'register' }]}

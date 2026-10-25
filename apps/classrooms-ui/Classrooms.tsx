@@ -164,6 +164,7 @@ export function ClassroomsApp({
             { href: '/mis-aulas', label: 'Mis aulas', current: presentation === 'classrooms' || Boolean(classroomId) },
             { href: '/agenda', label: 'Agenda' }]}
         onNavigate={href => {
+          if (href === '/profile' || href === '/settings') { window.location.assign(href); return; }
           if (href === '/agenda') { if (onNavigate) onNavigate('agenda'); else window.location.assign('/agenda'); return; }
           if (!draft) showPresentation(href === '/inicio' ? 'home' : 'classrooms');
         }}

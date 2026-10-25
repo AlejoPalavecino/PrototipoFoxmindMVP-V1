@@ -1,0 +1,129 @@
+.fm3d-theme .fm3d-shell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 0;
+  padding: 24px 32px;
+  background: var(--fm-surface);
+  border: 0;
+  box-shadow: none;
+  min-width: 0;
+}
+.fm3d-shell a { color: var(--fm-ink); text-decoration: none; }
+.fm3d-shell .fm3d-shell-nav { display: flex; gap: 8px; }
+.fm3d-shell-nav a, .fm3d-shell-account > a {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-radius: 12px;
+  padding: 14px;
+  min-height: 48px;
+  font-size: 16px;
+  transition: background-color var(--fm-motion);
+}
+.fm3d-shell a[aria-current='page'] { background: var(--fm-orange-soft); color: var(--fm-link); }
+.fm3d-shell-nav a:hover, .fm3d-shell-account > a:hover { background: var(--fm-orange-soft); }
+.fm3d-shell-tools { display: flex; align-items: center; gap: 12px; }
+.fm3d-shell-avatar {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #efedef;
+  font-weight: 700;
+  font-size: 18px;
+  flex: 0 0 auto;
+}
+.fm3d-shell .p6-notifications-toggle { display: inline-flex; position: relative; align-items: center; justify-content: center; width: 44px; border: 0; background: none; }
+.fm3d-shell-account { display: grid; gap: 8px; }
+.fm3d-shell-name { margin: 0; padding: 8px 14px; overflow-wrap: anywhere; font-size: 14px; color: var(--fm-muted); }
+.fm3d-shell .fm3d-shell-toggle { display: none; }
+.fm3d-shell button { cursor: pointer; font: inherit; min-height: 44px; border-radius: 12px; }
+.fm3d-shell-account .p5-actions, .fm3d-shell-account .fm-profile-actions { display: grid; gap: 8px; }
+.fm3d-shell-account :is(.p5-actions, .fm-profile-actions) > a[href='/profile'] { display: none; }
+.fm3d-shell-account :is(.p5-actions, .fm-profile-actions) > button { background: none; color: var(--fm-ink); border: 1px solid var(--fm-border); }
+.fm3d-drawer {
+  inset: 0 auto 0 0;
+  margin: 0;
+  width: min(320px, calc(100vw - 32px));
+  height: 100dvh;
+  max-height: 100dvh;
+  border: 0;
+  border-radius: 0 20px 20px 0;
+  padding: 24px;
+  background: var(--fm-surface, #fff);
+  color: var(--fm-ink, #202522);
+}
+.fm3d-drawer::backdrop { background: #20252270; }
+.fm3d-drawer > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.fm3d-drawer > header h2 { margin: 0; font-size: 22px; }
+.fm3d-drawer > header button { width: 44px; padding: 10px; border: 0; background: none; }
+.fm3d-drawer .fm3d-shell-nav { display: grid; margin-block: 24px; }
+.fm3d-drawer .fm3d-shell-account { border-top: 1px solid var(--fm-border); padding-top: 20px; }
+@media (min-width: 1024px) {
+  .fm3d-theme:has(.fm3d-shell[data-private='true']) {
+    --fm-sidebar: clamp(208px, 15.1vw, 232px);
+    padding-left: calc(var(--fm-sidebar) + 16px);
+  }
+  .fm3d-theme .fm3d-shell[data-private='true'] {
+    position: fixed;
+    inset: 16px auto 16px 16px;
+    z-index: 10;
+    width: var(--fm-sidebar);
+    height: calc(100dvh - 32px);
+    overflow-y: auto;
+    border-radius: 20px;
+    padding: 24px 12px;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: start;
+    gap: 28px;
+  }
+  .fm3d-shell[data-private='true'] .fm3d-shell-brand { padding: 0 8px; }
+  .fm3d-shell[data-private='true'] .fm3d-shell-nav { display: grid; }
+  .fm3d-shell[data-private='true'] .fm3d-shell-account { margin-top: auto; }
+  .fm3d-shell[data-private='true'] .fm3d-shell-tools {
+    position: fixed;
+    top: 0;
+    left: calc(var(--fm-sidebar) + 16px);
+    right: 0;
+    height: 72px;
+    padding: 12px 24px;
+    justify-content: flex-end;
+    background: var(--fm-canvas);
+    z-index: 11;
+  }
+  .fm3d-shell[data-private='true'] > .fm3d-shell-account :is(.fm3d-shell-name, .p5-account-actions, .fm-profile-actions) { display: none; }
+  .fm3d-theme:has(.fm3d-shell[data-private='true']) .p5-app {
+    padding: 80px 12px 48px;
+    max-width: none;
+    width: 100%;
+  }
+  .fm3d-theme:has(.fm3d-shell[data-private='true']) .p5-main {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+  .fm3d-theme:has(.fm3d-shell[data-private='true']) .profile-main {
+    width: calc(100% - 24px);
+    max-width: none;
+    margin: 0 12px;
+    padding-top: 80px;
+  }
+}
+@media (max-width: 1023px) {
+  .fm3d-theme .fm3d-shell { padding: 16px; gap: 12px; }
+  .fm3d-shell .fm3d-brand { width: 160px; }
+  .fm3d-shell[data-private='true'] > :is(.fm3d-shell-nav, .fm3d-shell-account) { display: none; }
+  .fm3d-shell .fm3d-shell-toggle { display: inline-flex; align-items: center; justify-content: center; width: 44px; border: 0; background: var(--fm-orange-soft); }
+}
+@media (max-width: 520px) {
+  .fm3d-shell:not([data-private='true']) { flex-wrap: wrap; }
+  .fm3d-shell:not([data-private='true']) .fm3d-shell-nav { flex-wrap: wrap; }
+  .fm3d-shell .fm3d-brand { width: 144px; }
+  .fm3d-shell[data-private='true'] .fm3d-brand { width: 128px; }
+  .fm3d-shell-tools { gap: 4px; }
+  .fm3d-shell-avatar { width: 40px; height: 40px; font-size: 16px; }
+}

@@ -6,6 +6,42 @@ import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 import { withAgendaDatabase } from './agenda-database-helpers.test.mjs';
 import { homeFixture } from './foxmind-3d-repository-fixture.test.mjs';
 
+for (const presentation of ['home', 'classrooms']) test(`JD01 ${presentation}: account destinations retain exact routing`, async () => {
+  const { ClassroomsApp } = loadTsModule('apps/classrooms-ui/Classrooms.tsx');
+  const previous = globalThis.window, assigned = [], routed = [];
+  globalThis.window = { location: { assign: href => assigned.push(href) } };
+  const view = hookView(ClassroomsApp, { initialPresentation: presentation, displayName: 'Synthetic',
+    api: { call: async path => path === '' ? { teach: [], study: [] } : [] }, onNavigate: path => routed.push(path) });
+  try {
+    await view.flush();
+    const navbar = descendants(view.tree, node => node.type?.name === 'AppNavbar')[0];
+    assert.ok(navbar);
+    for (const path of ['/profile', '/settings', '/profile']) navbar.props.onNavigate(path);
+    assert.deepEqual(assigned, ['/profile', '/settings', '/profile'], 'profile, settings and avatar must reach their guarded pages');
+    assert.deepEqual(routed, [], 'account routes must never become classroom presentation');
+  } finally { view.close(); globalThis.window = previous; }
+});
+
+test('JD01 AppNavbar preserves modified native clicks and intercepts plain account activation exactly once', async () => {
+  const { AppNavbar } = loadTsModule('apps/shared-ui/AppNavbar.tsx');
+  const routed = [], view = hookView(AppNavbar, { logoHref: '/mis-aulas', displayName: 'Synthetic',
+    links: [{ href: '/mis-aulas', label: 'Mis aulas' }], onNavigate: href => routed.push(href) });
+  try {
+    await view.flush();
+    const account = descendants(view.tree, node => node.type?.name === 'ShellAccount')[0];
+    assert.ok(account);
+    for (const modifier of ['metaKey', 'ctrlKey', 'shiftKey', 'altKey', 'button']) {
+      let prevented = false;
+      account.props.follow({ button: 0, [modifier]: modifier === 'button' ? 1 : true,
+        preventDefault() { prevented = true; } }, '/settings');
+      assert.equal(prevented, false); assert.deepEqual(routed, []);
+    }
+    let count = 0;
+    account.props.follow({ button: 0, preventDefault() { count++; } }, '/settings');
+    assert.equal(count, 1); assert.deepEqual(routed, ['/settings']);
+  } finally { view.close(); }
+});
+
 test('JD02-JD05 PostgreSQL regressions use real persisted rows and rollback', { timeout: 120000 }, async t => {
   const api = await import('../apps/api/src/home/index.ts');
   await withAgendaDatabase(async ({ transaction }) => {
