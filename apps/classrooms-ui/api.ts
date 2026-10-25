@@ -213,6 +213,7 @@ export interface WallTarget { classroomId: string; postId: string; replyId: stri
 export type AcademicTarget = { kind: 'activity' | 'attempt' | 'submission' | 'grade'; classroomId: string; activityId: string; attemptId: string | null; gradeId?: string };
 export type NotificationTarget = WallTarget | AcademicTarget;
 export interface AttemptHistoryRow {
+  gradePublished?: boolean;
   id: string; number: number; status: 'DRAFT' | 'SUBMITTED'; openedAt: string; submittedAt: string | null;
   appliedDeadlineAt: string | null; individualDeadlineAt: string | null; submittedLate: boolean | null;
   studentId: string; firstName: string; lastName: string; currentMember: boolean;

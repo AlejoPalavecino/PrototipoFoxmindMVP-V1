@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { canPreviewMaterial, type ClassroomClient, type Detail, type FileState, type Material } from './api.ts';
 import { Dialog, Notice } from './components.tsx';
 
@@ -27,12 +27,18 @@ function MaterialForm({ room, initial, busy, label, onSave }: {
   </form>;
 }
 
-export function Library({ api, room, reload }: { api: ClassroomClient; room: Detail; reload: () => Promise<void> }) {
+export function Library({ api, room, reload, targetMaterialId, openUpload }: { api: ClassroomClient; room: Detail; reload: () => Promise<void>; targetMaterialId?: string; openUpload?: boolean }) {
+  const root = useRef<HTMLElement>(null);
   const [materials, setMaterials] = useState<Material[]>([]), [loaded, setLoaded] = useState(false);
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState('');
   const [file, setFile] = useState<FileState | null>(null), [editing, setEditing] = useState<Material | null>(null);
   const [deleting, setDeleting] = useState<Material | null>(null);
   const writable = room.role === 'teacher' && !room.archived;
+  useEffect(() => {
+    if (!targetMaterialId || !loaded) return;
+    const selected = Array.from(root.current?.querySelectorAll<HTMLElement>('[data-material-id]') ?? []).find(item => item.dataset.materialId === targetMaterialId);
+    selected?.focus();
+  }, [targetMaterialId, loaded, materials]);
   const load = useCallback(async (signal?: AbortSignal) => {
     const result = await api.call<Material[]>(`/${room.id}/library`, 'GET', undefined, signal);
     setMaterials(result); setLoaded(true);
@@ -50,7 +56,7 @@ export function Library({ api, room, reload }: { api: ClassroomClient; room: Det
     await api.call(`/${room.id}/library`, 'POST', { revision: room.revision, operation });
     await Promise.all([reload(), load()]);
   }
-  return <section aria-label="Biblioteca del aula" className="p6-library">
+  return <section ref={root} aria-label="Biblioteca del aula" className="p6-library">
     <header className="p5-section-head"><div><h2>Biblioteca</h2><p>Materiales de consulta del aula, incluidas las lecturas extra.</p></div>
       <button disabled={busy} onClick={() => void run(async () => { await Promise.all([reload(), load()]); })}>Actualizar Biblioteca</button>
     </header>
@@ -58,7 +64,7 @@ export function Library({ api, room, reload }: { api: ClassroomClient; room: Det
     {notice ? <Notice>{notice}</Notice> : null}
     {!loaded && !error ? <Notice>Cargando materiales…</Notice> : null}
     {writable ? <div className="p6-library-upload">
-      <details className="folder-disclosure"><summary>Publicar material</summary>
+      <details className="folder-disclosure" open={openUpload || undefined}><summary>Publicar material</summary>
       <p>PDF, DOCX, PPTX, XLSX, JPG, JPEG, PNG o ZIP · hasta 50 MB por archivo.</p>
       <label>Archivo del material<input type="file" disabled={busy} accept=".pdf,.docx,.pptx,.xlsx,.jpg,.jpeg,.png,.zip" onChange={event => {
         const selected = event.target.files?.[0]; event.target.value = '';
@@ -80,9 +86,11 @@ export function Library({ api, room, reload }: { api: ClassroomClient; room: Det
       </> : null}
     </div> : null}
     {loaded && materials.length === 0 ? <p className="p5-empty">Todavía no hay materiales disponibles.</p> : null}
+    {loaded && targetMaterialId && !materials.some(item => item.id === targetMaterialId) ? <Notice>El material ya no está disponible para tu cuenta.</Notice> : null}
+    {openUpload && !writable ? <Notice>No podés publicar material en esta aula con tus permisos actuales.</Notice> : null}
     <div className="p6-library-list">{materials.map(material => {
       const unit = room.units.find(item => item.id === material.unitId), topic = unit?.topics.find(item => item.id === material.topicId);
-      return <article className="folder-row" key={material.id} aria-label={material.title}>
+      return <article className={`folder-row${material.id === targetMaterialId ? ' fm3-target-selected' : ''}`} key={material.id} aria-label={material.title} data-material-id={material.id} tabIndex={material.id === targetMaterialId ? -1 : undefined}>
         <div className="folder-row-content"><h3>{material.title}</h3><p>{unit ? `${unit.name}${topic ? ` · ${topic.name}` : ''}` : 'Material extra / recomendado'}</p>
           <small>{material.fileName} · {Number(material.sizeBytes).toLocaleString()} bytes</small></div>
         <div className="folder-row-actions">

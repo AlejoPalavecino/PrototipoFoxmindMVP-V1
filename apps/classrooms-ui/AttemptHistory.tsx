@@ -6,8 +6,9 @@ import { activityDate } from './ActivityAuthoring.tsx';
 import { GradingEditor } from './GradingEditor.tsx';
 import { PublishedResult } from './PublishedResult.tsx';
 
-export function AttemptHistory({ api, room, activityId, attemptId, onClose, onChanged, onResume }: {
+export function AttemptHistory({ api, room, activityId, attemptId, filter, onClose, onChanged, onResume }: {
   api: ClassroomClient; room: Detail; activityId: string; attemptId?: string | null; onClose: () => void;
+  filter?: 'unpublished';
   onChanged: () => Promise<void>; onResume: (data: AttemptSessionData) => void;
 }) {
   const teacher = room.role === 'teacher', path = `/${room.id}/activities/${activityId}`;
@@ -16,6 +17,7 @@ export function AttemptHistory({ api, room, activityId, attemptId, onClose, onCh
   const [resolution, setResolution] = useState<DeadlineResolution | null>(null), [offset, setOffset] = useState<number | null>(null);
   const [busy, setBusy] = useState(false), [error, setError] = useState('');
   const [grading, setGrading] = useState<string | null>(null);
+  const visibleAttempts = data?.attempts.filter(attempt => filter !== 'unpublished' || (attempt.status === 'SUBMITTED' && attempt.gradePublished === false)) ?? [];
   const load = useCallback(async (signal?: AbortSignal) => {
     setData(await api.call<AttemptHistoryData>(`${path}/${teacher ? 'history-submissions' : 'history'}`, 'GET', undefined, signal));
   }, [api, path, teacher]);
@@ -37,8 +39,9 @@ export function AttemptHistory({ api, room, activityId, attemptId, onClose, onCh
       <h3>{data.activity.title}</h3><p>{activityDate(data.activity.deadlineAt, data.activity.zone)}</p>
       {!teacher && data.delivered ? <Notice>Actividad entregada. Un nuevo borrador pendiente no reemplaza la entrega anterior ni su calificación publicada.</Notice> : null}
       {data.pendingResubmission ? <Notice>Reentrega pendiente: todavía no es una nueva entrega recibida.</Notice> : null}
-      {!data.attempts.length ? <p>No hay intentos registrados.</p> : null}
-      <ul className="p7-history-list">{data.attempts.map(attempt => <li key={attempt.id}>
+      {filter === 'unpublished' ? <p>Entregas con corrección todavía no publicada.</p> : null}
+      {!visibleAttempts.length ? <p>{filter === 'unpublished' ? 'No hay entregas pendientes de publicación.' : 'No hay intentos registrados.'}</p> : null}
+      <ul className="p7-history-list">{visibleAttempts.map(attempt => <li key={attempt.id}>
         <strong>{teacher ? `${attempt.lastName}, ${attempt.firstName} · ` : ''}Intento {attempt.number}</strong>
         <p>{attempt.status === 'SUBMITTED' ? 'Entregado' : attempt.number > 1 ? 'Reentrega pendiente' : 'Borrador · no entregado'}
           {attempt.submittedAt ? ` · ${new Date(attempt.submittedAt).toLocaleString('es', { timeZone: room.timezone })} · ${room.timezone}` : ''}
