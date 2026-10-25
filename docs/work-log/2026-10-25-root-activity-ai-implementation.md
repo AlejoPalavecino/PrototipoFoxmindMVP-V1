@@ -6,7 +6,7 @@
 - Branch / worktree: codex/classroom-activity-ai; C:/Users/alejo/.codex/worktrees/classroom-activity-ai/ProtipoFoxMind.
 - Starting commit: af48e69 (decisiones documentales aceptadas).
 - Phase and tasks: [actividades IA](../../odd/tasks/classroom-activity-ai.md).
-- Status: in_progress.
+- Status: completed.
 
 ## Request and scope
 
@@ -52,7 +52,7 @@ Ambos jueces R1 scopedAPPROVED cerraron ledger y detectaron mismo INFO de recupe
 
 ## Commits and outcomes
 
-Base documental af48e69; entrega local preparada tras DoD y verificación completos. Commits por unidades de<=400líneas se registrarán después de observar su identidad real; ninguna identidad futura inventada. Frontera de rollback: revertir las unidades de esta extensión conservando las doce migraciones históricas; una migración aplicada en otro entorno requeriría un procedimiento forward explícito, no reescritura de historia. No se aplicó ninguna a datos retenidos.
+Base documental af48e69; entrega local realizada tras DoD y verificación completos:14unidades2b2dfa2..629ae96, máximo368líneas textuales por unidad. Identidades observadas, no inventadas. Frontera de rollback: revertir las unidades de esta extensión conservando las doce migraciones históricas; una migración aplicada en otro entorno requeriría un procedimiento forward explícito, no reescritura de historia. No se aplicó ninguna a datos retenidos.
 
 Plan local validado antes de escribir Git:14unidades/113rutas, máximo368líneas textuales cambiadas por unidad, sin comprimir código ni omitir tests. Orden por dependencia: contrato; schema/inventarios; multi-tema; dominio; proveedor; lectores; solicitudes/snapshots/apply; admisión/worker; runtime/HTTP; pruebas de límites/publicación; cliente/controles; UI integrada; regresiones de recuperación/auditoría; preview/evidencia. Algunas garantías transversales se entregan como unidades de verificación sobre los componentes ya incorporados, evitando commits que superen400líneas. Compilaciones y pruebas corresponden al candidato final aceptado; el particionado Git no altera sus bytes. Histórico de pruebas RED anterior a producción permanece en los registros, sin inferir orden TDD sólo del orden de commits.
 
@@ -62,4 +62,25 @@ QA final completada sobre54153: tipos3 aplicados, revisión/regen/recuperación,
 
 Se detuvo runtime16878 limpio (owned cleanup0); última compilación Next con hook2líneas exit0 y nueva fixture63684 en http://127.0.0.1:50800 con migrate deploy/diff PASS. Verificador comprobó montaje real, generación/aplicar/save/reopen y capturas1440/390/320; coordinador inspeccionó desktop/mobile exportados. [Matriz final](2026-10-25-activity_independent_verify.md) DoT1–9 completa; source/test diff7d475→working vacío. EgoSpace3 finalizado conservando p1docente en editor, emulación retirada; runtime50800 activo sólo con datos/proveedor sintéticos para revisión humana.
 
-Primera acción pendiente de entrega: persistir unidades Git locales y verificar rama limpia/equivalencia del producto al target aceptado. Después siguiente paso humano es revisar el resultado local; no integración, push/PR ni despliegue autorizados.
+Entrega local observada: rama limpia y `git diff --exit-code 7d47529b560902f82411a53e2f7fc4ebe90ef94e HEAD -- apps src prisma scripts tests` exit0 después de las14unidades. Canonical main sigue727614d9ed05818fab1295271bfd9654820dc74f; archivos untracked ajenos, incluidos los nuevos durante la sesión, preservados sin leer/editar/committear. UTF8 estricto y251enlaces locales PASS; whitespace PASS. Resumen Engram de cierre intentado sin session_id inventada: hook rechazó porque no pudo confirmar identidad host. No persistencia de memoria afirmada; repo contiene toda la continuidad.
+
+## Identidades de entrega observadas
+
+| Commit local | Unidad |
+|---|---|
+| 2b2dfa2 | Contrato y aceptación |
+| d2db346 | Schema e inventarios |
+| e8b84d7 | Multi-tema compatible |
+| ccac5b6 | Dominio de propuestas |
+| bae910e | Adaptador Gemini estructurado |
+| 7cd1051 | Lectores privados PDF/Word |
+| 31f5f35 | Solicitudes/snapshots/aplicación |
+| cc5036d | Cola/worker/admisión compartida |
+| 0f26cd7 | Composición runtime y HTTP |
+| 870d4b7 | Pruebas de límites/publicación |
+| c611b07 | Cliente y controles |
+| a41318c | UI manual/IA integrada |
+| fc4e6b3 | Recuperación incierta y revisión |
+| 629ae96 | Preview/evidencia reproducible |
+
+Este cierre documental se guarda después de observar esos commits; no cambia bytes de producto ni inventa su propio hash futuro. Próximo paso humano: revisar el resultado local y decidir una eventual integración/publicación por separado. Runtime50800 y Space3p1docente quedan para esa revisión con proveedor/datos sintéticos; no se realizó llamada real a Gemini. Ninguna acción de implementación/verificación requerida queda pendiente.
