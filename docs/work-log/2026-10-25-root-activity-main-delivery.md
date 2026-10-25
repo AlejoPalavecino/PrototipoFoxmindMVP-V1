@@ -34,4 +34,6 @@ Cierre comprobado antes del commit pasivo: main y feature577445ccb42a09f4e0ce65c
 
 ## Outcomes and handoff
 
+Solicitud posterior de la misma fecha: [cierre de preparación API](2026-10-25-root-api-build-main.md) verificó npm run api:build sobre main exacto y122regresiones PASS con640inputs intactos, sin cambiar código/deadline. Supera únicamente la prueba faltante indicada debajo, que permanece histórica. También reconcilia main577445c con checkout canónico concurrente login4dfeafe; no inferir rama de una ruta ni del HEAD solo.
+
 Main integrado al candidato probado577445c y fuente congelada; build web canónico PASS, API canónico pendiente por presupuesto de compilación. Próximo trabajo técnico: resolver preparación del runtime canónico antes de usarlo; no más retry inmediato, cambios especulativos ni ampliación de límites. Esta entrega cierra commits/integración de fuente con la limitación indicada. Cierre pasivo sólo documental sigue a577445c; su identidad se comprobará después, sin inventarla aquí. Sin push/PR/despliegue. Memoria atribuida no disponible por hook, sin escrituras de recuperación inventadas.

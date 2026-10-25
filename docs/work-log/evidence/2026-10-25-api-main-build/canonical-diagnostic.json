@@ -1,0 +1,19 @@
+{
+  "exit": 0,
+  "stages": [
+    {
+      "stage": "Prisma generation",
+      "elapsedMs": 1319,
+      "status": 0,
+      "errorCode": null,
+      "signal": null
+    },
+    {
+      "stage": "API TypeScript compilation",
+      "elapsedMs": 3908,
+      "status": 0,
+      "errorCode": null,
+      "signal": null
+    }
+  ]
+}
