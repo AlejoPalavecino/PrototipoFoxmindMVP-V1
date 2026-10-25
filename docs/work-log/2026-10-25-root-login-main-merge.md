@@ -6,7 +6,7 @@
 - Branch / worktree: managed login-inicio-pr; local integration branch follows
 - Starting commit: PR af79cbcd6d9a96724f846ce6f39d6ab8120af0a0; local main3058def
 - Phase/spec: P3 authentication / P9 Inicio
-- Status: in_progress
+- Status: completed
 
 ## Request and scope
 
@@ -30,6 +30,8 @@ Independent read-only reviewer /root/login_review: LGTM_SIN_HALLAZGOS. Exact par
 
 Remote merge8619cd0; local combined merge67d3bae. Main local update and canonical readback follow below.
 
+Local main advanced with expected-old3058def guard to563e2b5. Canonical tracked-clean checkout switched normally from codex/login-inicio to main; exact before/after untracked path inventory preserved all23files. No reset/stash/force operation. Main includes the remote merge and all unpublished AI history; no local integration commits were pushed. Engram write remained unavailable from earlier host-registration hook rejection; repository records retain continuity.
+
 ## Handoff
 
-Merge PR with expected-head guard, fetch and integrate new remote main into local main in isolated managed checkout. Resolve only documentary overlap preserving both histories, verify, then update canonical checkout normally with untracked work intact. No deployment.
+Requested merge and canonical local update complete. Canonical project uses main; remote contains only approved login publication, while local AI history remains ahead and unpublished. Historical branches/worktrees retained for recovery and concurrent work. No runtime restart, deployment or retained-data operation. Future publication of AI work requires its own authorization.
