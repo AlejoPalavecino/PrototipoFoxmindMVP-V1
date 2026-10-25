@@ -5,7 +5,7 @@
 - Date: 2026-10-25.
 - Starting branch/worktree: codex/classroom-activity-ai, ef72a8a.
 - Phase/task: preparación API posterior a [integración](2026-10-25-root-activity-main-delivery.md).
-- Status: in_progress.
+- Status: completed.
 
 ## Request and scope
 
@@ -31,4 +31,6 @@ No modificación de fuentes, tests, dependencias o límites: la preparación fre
 
 ## Handoff
 
-Verificación API completa PASS sin cambio de comportamiento; no corresponde RED de un defecto no reproducido. Commit local con evidencia/records, después avance de main por compare-and-swap desde577445c sólo si ancestry/ref siguen vigentes. Preservar HEAD/rama/estado canónicos de login. Sin push/despliegue/migraciones retenidas. Primer pendiente actual: cerrar esa entrega y observar refs reales; no nuevas pruebas para cambios sólo documentales.
+Verificación API completa PASS sin cambio de comportamiento; no corresponde RED de un defecto no reproducido. Commit1f3a64a2df4bc8a6991d2892170f361986f2cb1f observado,137inserciones/1eliminación. Main avanzó mediante compare-and-swap desde577445c, ancestry PASS y sin checkout que use main. Readback exacto main=candidato1f3a64a;8rutas documentales y0producto cambiado. La rama concurrente codex/login-inicio permaneció4dfeafe antes/después, sin checkout/stage/reset/stash ni incorporar ese trabajo. Los640hashes seguían intactos,7enlaces válidos y diffcheck exit0 antes del commit.
+
+La presente actualización de estado es sólo documental y sigue en commit separado al candidato observado, sin inventar su propia identidad. No quedan verificaciones funcionales pendientes para este alcance; build API y122regresiones pasaron sobre la misma fuente que queda en main. No más retries ni cambios especulativos. Sin push/despliegue/migraciones retenidas. Memoria atribuida no registrada por hook; no intentos de escritura ni sesión inventada.
