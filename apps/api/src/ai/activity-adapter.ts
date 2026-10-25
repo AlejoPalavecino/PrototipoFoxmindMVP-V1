@@ -1,4 +1,4 @@
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, type Content } from '@google/genai';
 import { createHash } from 'node:crypto';
 import { activityGenerationSchemaVersion, activityGenerationResponseSchemaV1, type ActivityGenerationInput,
   type StructuredActivityGenerationPort } from '../../../../src/core/domain/index.ts';
@@ -9,6 +9,11 @@ import { activityContents, activitySystemInstruction } from './activity-prompt.t
 import { activityResponse } from './activity-response.ts';
 
 type Configuration = Pick<AiConfiguration, 'model' | 'maxInputTokens' | 'maxOutputTokens' | 'deadlineMs'>;
+function countContents(input: ActivityGenerationInput): Content[] {
+  // Developer API counts contents only; include generation controls conservatively as text.
+  const controls = `${activitySystemInstruction}\n${JSON.stringify(activityGenerationResponseSchemaV1)}`;
+  return [{ role: 'user', parts: [{ text: controls }] }, ...activityContents(input)];
+}
 export function createGeminiActivityGenerationAdapter(configuration: AiConfiguration) {
   const client = new GoogleGenAI({ apiKey: configuration.apiKey, vertexai: false,
     httpOptions: { retryOptions: { attempts: 1 }, timeout: configuration.deadlineMs } });
@@ -20,10 +25,10 @@ export class GeminiActivityGenerationAdapter implements StructuredActivityGenera
   constructor(options: { client: GeminiClient; configuration: Configuration }) { this.options = options; }
   async countActivityTokens(input: ActivityGenerationInput): Promise<number> {
     return this.withDeadline(input, false, async signal => {
-      const contents = activityContents(input);
+      const contents = countContents(input);
       const fingerprint = this.digest(input);
       const response = await this.options.client.models.countTokens({ model: this.options.configuration.model, contents,
-        config: { abortSignal: signal, systemInstruction: activitySystemInstruction, httpOptions: { retryOptions: { attempts: 1 } } } });
+        config: { abortSignal: signal, httpOptions: { retryOptions: { attempts: 1 } } } });
       const count = response.totalTokens;
       if (!Number.isSafeInteger(count) || count! < 0) throw new AiError('AI_UNAVAILABLE');
       if (count! > this.options.configuration.maxInputTokens) throw new AiError('AI_INPUT_LIMIT');
@@ -46,7 +51,7 @@ export class GeminiActivityGenerationAdapter implements StructuredActivityGenera
     });
   }
   private digest(input: ActivityGenerationInput): string {
-    return createHash('sha256').update(JSON.stringify(activityContents(input))).digest('hex');
+    return createHash('sha256').update(JSON.stringify(countContents(input))).digest('hex');
   }
   private async withDeadline<T>(input: ActivityGenerationInput, dispatched: boolean | (() => boolean), operation: (signal: AbortSignal) => Promise<T>): Promise<T> {
     if (input.signal.aborted) throw new AiError('AI_TIMEOUT');

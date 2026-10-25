@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { activityGenerationResponseSchemaV1 } from '../src/core/domain/index.ts';
+import { activitySystemInstruction } from '../apps/api/src/ai/activity-prompt.ts';
 const configuration = { model: 'gemini-test-fixture', maxInputTokens: 100000, maxOutputTokens: 16384, deadlineMs: 50 };
 const input = () => ({ schemaVersion: 'activity-proposal-v1', type: 'ASSIGNMENT', unit: { id: 'u', name: 'Luz' },
   topics: [{ id: 't', name: 'Exposición' }], objective: 'Relacionar conceptos', groupLevel: 'Segundo año', difficulty: 'BASIC',
@@ -26,7 +28,17 @@ test('A2 full request token preflight and structured output are grounded without
   const { adapter, calls } = await fixture(), request = input();
   assert.deepEqual(await adapter.generateActivity(request), { json, inputTokens: 20, outputTokens: 35 });
   assert.deepEqual(calls.map(([kind]) => kind), ['count', 'generate']);
-  assert.deepEqual(calls[0][1].contents, calls[1][1].contents);
+  const counted = calls[0][1].contents, generated = calls[1][1].contents;
+  assert.deepEqual(counted.slice(-generated.length), generated);
+  const prefix = counted.slice(0, -generated.length);
+  assert.ok(prefix.length > 0, 'count must include system instruction and output schema');
+  const controlText = prefix.flatMap(content => content.parts ?? []).map(part => {
+    assert.deepEqual(Object.keys(part), ['text']); return part.text;
+  }).join('\n');
+  assert.ok(controlText.includes(activitySystemInstruction));
+  assert.ok(controlText.includes(JSON.stringify(activityGenerationResponseSchemaV1)));
+  assert.ok(controlText.length <= activitySystemInstruction.length + JSON.stringify(activityGenerationResponseSchemaV1).length + 512);
+  assert.equal(calls[0][1].config.systemInstruction, undefined);
   const params = calls[1][1];
   assert.equal(params.config.responseMimeType, 'application/json'); assert.equal(params.config.responseJsonSchema.type, 'object');
   assert.equal(params.config.tools?.length ?? 0, 0); assert.equal(params.config.automaticContinuation, false);
