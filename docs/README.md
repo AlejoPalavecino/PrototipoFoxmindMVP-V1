@@ -10,6 +10,7 @@
 | Entender reglas y alcance V1 | [Especificación funcional](foxmind-v1-functional-spec.md) |
 | Ejecutar la aplicación local | [Operación local y límites](p9-local-operation.md), [backend](backend.md), [base de datos](database.md) y [correo capturado](local-email.md) |
 | Consultar diseños y propuestas locales | [Índice de diseño](design/README.md) |
+| Revisar la migración FoxMind 3D implementada en rama local | [Guía](foxmind-3d.md), [82 recorridos y evidencia](foxmind-3d-verification.md), [vistas de la aplicación](work-log/evidence/2026-10-25-foxmind-3d/README.md) |
 | Comprobar una entrega o retomar una tarea | [Evidencia por fase](#evidencia-y-trabajo-detallado) y [protocolo de registros](work-log/README.md) |
 
 ## Producto y contratos
