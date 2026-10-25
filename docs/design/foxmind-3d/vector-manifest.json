@@ -1,263 +1,302 @@
 {
-  "version": 1,
-  "brand": 8,
+  "version": 2,
+  "brand": 6,
   "icons": 42,
   "sprites": 1,
   "assets": [
     {
       "id": "brand/favicon",
       "path": "assets/brand/favicon.svg",
-      "bytes": 1746
+      "bytes": 190156,
+      "representation": "hybrid-original-raster"
     },
     {
       "id": "brand/logo-horizontal-inverse",
       "path": "assets/brand/logo-horizontal-inverse.svg",
-      "bytes": 4262
+      "bytes": 192694,
+      "representation": "hybrid-original-raster"
     },
     {
       "id": "brand/logo-horizontal",
       "path": "assets/brand/logo-horizontal.svg",
-      "bytes": 4262
-    },
-    {
-      "id": "brand/logo-mono",
-      "path": "assets/brand/logo-mono.svg",
-      "bytes": 3229
+      "bytes": 192694,
+      "representation": "hybrid-original-raster"
     },
     {
       "id": "brand/logo-stacked",
       "path": "assets/brand/logo-stacked.svg",
-      "bytes": 4351
-    },
-    {
-      "id": "brand/mark-mono",
-      "path": "assets/brand/mark-mono.svg",
-      "bytes": 735
+      "bytes": 192693,
+      "representation": "hybrid-original-raster"
     },
     {
       "id": "brand/mark",
       "path": "assets/brand/mark.svg",
-      "bytes": 1746
+      "bytes": 190156,
+      "representation": "hybrid-original-raster"
     },
     {
       "id": "brand/wordmark",
       "path": "assets/brand/wordmark.svg",
-      "bytes": 2632
+      "bytes": 2632,
+      "representation": "vector"
     },
     {
       "id": "icons/archive",
       "path": "assets/icons/archive.svg",
-      "bytes": 209
+      "bytes": 209,
+      "representation": "vector"
     },
     {
       "id": "icons/arrow-left",
       "path": "assets/icons/arrow-left.svg",
-      "bytes": 199
+      "bytes": 199,
+      "representation": "vector"
     },
     {
       "id": "icons/arrow-right",
       "path": "assets/icons/arrow-right.svg",
-      "bytes": 200
+      "bytes": 200,
+      "representation": "vector"
     },
     {
       "id": "icons/attach",
       "path": "assets/icons/attach.svg",
-      "bytes": 249
+      "bytes": 249,
+      "representation": "vector"
     },
     {
       "id": "icons/bell",
       "path": "assets/icons/bell.svg",
-      "bytes": 219
+      "bytes": 219,
+      "representation": "vector"
     },
     {
       "id": "icons/book",
       "path": "assets/icons/book.svg",
-      "bytes": 244
+      "bytes": 244,
+      "representation": "vector"
     },
     {
       "id": "icons/calendar",
       "path": "assets/icons/calendar.svg",
-      "bytes": 263
+      "bytes": 263,
+      "representation": "vector"
     },
     {
       "id": "icons/chat",
       "path": "assets/icons/chat.svg",
-      "bytes": 276
+      "bytes": 276,
+      "representation": "vector"
     },
     {
       "id": "icons/check",
       "path": "assets/icons/check.svg",
-      "bytes": 193
+      "bytes": 193,
+      "representation": "vector"
     },
     {
       "id": "icons/chevron-down",
       "path": "assets/icons/chevron-down.svg",
-      "bytes": 191
+      "bytes": 191,
+      "representation": "vector"
     },
     {
       "id": "icons/chevron-right",
       "path": "assets/icons/chevron-right.svg",
-      "bytes": 191
+      "bytes": 191,
+      "representation": "vector"
     },
     {
       "id": "icons/clipboard",
       "path": "assets/icons/clipboard.svg",
-      "bytes": 289
+      "bytes": 289,
+      "representation": "vector"
     },
     {
       "id": "icons/clock",
       "path": "assets/icons/clock.svg",
-      "bytes": 221
+      "bytes": 221,
+      "representation": "vector"
     },
     {
       "id": "icons/close",
       "path": "assets/icons/close.svg",
-      "bytes": 199
+      "bytes": 199,
+      "representation": "vector"
     },
     {
       "id": "icons/copy",
       "path": "assets/icons/copy.svg",
-      "bytes": 202
+      "bytes": 202,
+      "representation": "vector"
     },
     {
       "id": "icons/download",
       "path": "assets/icons/download.svg",
-      "bytes": 213
+      "bytes": 213,
+      "representation": "vector"
     },
     {
       "id": "icons/edit",
       "path": "assets/icons/edit.svg",
-      "bytes": 212
+      "bytes": 212,
+      "representation": "vector"
     },
     {
       "id": "icons/eye-off",
       "path": "assets/icons/eye-off.svg",
-      "bytes": 252
+      "bytes": 252,
+      "representation": "vector"
     },
     {
       "id": "icons/eye",
       "path": "assets/icons/eye.svg",
-      "bytes": 254
+      "bytes": 254,
+      "representation": "vector"
     },
     {
       "id": "icons/file",
       "path": "assets/icons/file.svg",
-      "bytes": 217
+      "bytes": 217,
+      "representation": "vector"
     },
     {
       "id": "icons/filter",
       "path": "assets/icons/filter.svg",
-      "bytes": 202
+      "bytes": 202,
+      "representation": "vector"
     },
     {
       "id": "icons/folder",
       "path": "assets/icons/folder.svg",
-      "bytes": 197
+      "bytes": 197,
+      "representation": "vector"
     },
     {
       "id": "icons/help",
       "path": "assets/icons/help.svg",
-      "bytes": 242
+      "bytes": 242,
+      "representation": "vector"
     },
     {
       "id": "icons/home",
       "path": "assets/icons/home.svg",
-      "bytes": 236
+      "bytes": 236,
+      "representation": "vector"
     },
     {
       "id": "icons/link",
       "path": "assets/icons/link.svg",
-      "bytes": 243
+      "bytes": 243,
+      "representation": "vector"
     },
     {
       "id": "icons/lock",
       "path": "assets/icons/lock.svg",
-      "bytes": 259
+      "bytes": 259,
+      "representation": "vector"
     },
     {
       "id": "icons/logout",
       "path": "assets/icons/logout.svg",
-      "bytes": 211
+      "bytes": 211,
+      "representation": "vector"
     },
     {
       "id": "icons/menu",
       "path": "assets/icons/menu.svg",
-      "bytes": 202
+      "bytes": 202,
+      "representation": "vector"
     },
     {
       "id": "icons/minus",
       "path": "assets/icons/minus.svg",
-      "bytes": 187
+      "bytes": 187,
+      "representation": "vector"
     },
     {
       "id": "icons/more",
       "path": "assets/icons/more.svg",
-      "bytes": 259
+      "bytes": 259,
+      "representation": "vector"
     },
     {
       "id": "icons/plus",
       "path": "assets/icons/plus.svg",
-      "bytes": 195
+      "bytes": 195,
+      "representation": "vector"
     },
     {
       "id": "icons/profile",
       "path": "assets/icons/profile.svg",
-      "bytes": 234
+      "bytes": 234,
+      "representation": "vector"
     },
     {
       "id": "icons/progress",
       "path": "assets/icons/progress.svg",
-      "bytes": 200
+      "bytes": 200,
+      "representation": "vector"
     },
     {
       "id": "icons/refresh",
       "path": "assets/icons/refresh.svg",
-      "bytes": 210
+      "bytes": 210,
+      "representation": "vector"
     },
     {
       "id": "icons/search",
       "path": "assets/icons/search.svg",
-      "bytes": 226
+      "bytes": 226,
+      "representation": "vector"
     },
     {
       "id": "icons/settings",
       "path": "assets/icons/settings.svg",
-      "bytes": 270
+      "bytes": 270,
+      "representation": "vector"
     },
     {
       "id": "icons/shield",
       "path": "assets/icons/shield.svg",
-      "bytes": 227
+      "bytes": 227,
+      "representation": "vector"
     },
     {
       "id": "icons/spark",
       "path": "assets/icons/spark.svg",
-      "bytes": 236
+      "bytes": 236,
+      "representation": "vector"
     },
     {
       "id": "icons/sprite",
       "path": "assets/icons/sprite.svg",
-      "bytes": 8785
+      "bytes": 8785,
+      "representation": "vector"
     },
     {
       "id": "icons/trash",
       "path": "assets/icons/trash.svg",
-      "bytes": 227
+      "bytes": 227,
+      "representation": "vector"
     },
     {
       "id": "icons/upload",
       "path": "assets/icons/upload.svg",
-      "bytes": 213
+      "bytes": 213,
+      "representation": "vector"
     },
     {
       "id": "icons/users",
       "path": "assets/icons/users.svg",
-      "bytes": 274
+      "bytes": 274,
+      "representation": "vector"
     },
     {
       "id": "icons/warning",
       "path": "assets/icons/warning.svg",
-      "bytes": 206
+      "bytes": 206,
+      "representation": "vector"
     }
   ]
 }

@@ -29,7 +29,7 @@ Títulos en Trebuchet MS Bold con fallback Segoe UI; cuerpo en Segoe UI/Arial. S
 
 Espaciado 4/8/12/16/24/32/48 px. Campo y botón con radio 12; tarjeta 20; diálogo 24; etiqueta 8. Alto de control 44–48 px, objetivos táctiles al menos 44 px cuando son acciones principales. Sombra `0 4px 18px #20252208`, borde 1 px; no apilar tarjetas dentro de tarjetas sin relación real.
 
-El SVG es una reconstrucción vectorial simplificada de Foxy, no un trazado idéntico del PNG histórico. La mascota 3D interpreta las referencias seleccionadas; el archivo histórico no cambia. Marca horizontal mínimo 160 px, símbolo mínimo 24 px (32 preferido), margen libre equivalente a 1/4 de la altura del símbolo. Usar variante inversa en fondo oscuro y mono para una sola tinta. No deformar, poner sombras nuevas ni cambiar el naranja.
+El logo es el **ZorroH.png original del usuario**, conservado completo y con transparencia. Las composiciones SVG incorporan esa imagen original; solo el nombre está en trazados. No sustituirlo por la cabeza simplificada propuesta anteriormente ni por una reinterpretación 3D. Marca horizontal mínimo 160 px, símbolo mínimo 32 px (48 preferido por su detalle), margen libre equivalente a 1/4 de la altura de la figura. La variante inversa aclara únicamente el nombre; Foxy mantiene sus colores. No hay variante monocroma aprobada. No deformar, recortar, añadir sombras ni cambiar el naranja. Las escenas 3D continúan como ilustraciones, separadas del logo.
 
 ## Composición común
 

@@ -54,9 +54,13 @@ for (const [id, body] of Object.entries(icons)) {
 const symbols = Object.entries(icons).map(([id, body]) => `<symbol id="${id}" viewBox="0 0 24 24" ${attrs}>${body}</symbol>`).join('\n');
 await fs.writeFile(path.join(root, 'assets/icons/sprite.svg'), `<svg xmlns="http://www.w3.org/2000/svg">\n${symbols}\n</svg>\n`);
 const entries=[];
+const brandManifest=JSON.parse(await fs.readFile(path.join(root,'brand-manifest.json'),'utf8'));
 for (const group of ['brand','icons']) for (const name of await fs.readdir(path.join(root,'assets',group))) {
+  if(!name.endsWith('.svg'))continue;
   const relative=`assets/${group}/${name}`;
-  entries.push({id:`${group}/${name.replace('.svg','')}`,path:relative,bytes:(await fs.stat(path.join(root,relative))).size});
+  const brand=brandManifest.svgAssets.find(a=>a.path===relative);
+  entries.push({id:`${group}/${name.replace('.svg','')}`,path:relative,bytes:(await fs.stat(path.join(root,relative))).size,representation:brand?.representation||'vector'});
 }
-await fs.writeFile(path.join(root,'vector-manifest.json'),JSON.stringify({version:1,brand:8,icons:Object.keys(icons).length,sprites:1,assets:entries},null,2)+'\n');
-console.log(JSON.stringify({brand:8,icons:Object.keys(icons).length,sprites:1}));
+const counts={brand:brandManifest.svgAssets.length,icons:Object.keys(icons).length,sprites:1};
+await fs.writeFile(path.join(root,'vector-manifest.json'),JSON.stringify({version:2,...counts,assets:entries},null,2)+'\n');
+console.log(JSON.stringify(counts));

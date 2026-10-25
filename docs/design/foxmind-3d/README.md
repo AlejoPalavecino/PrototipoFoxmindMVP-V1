@@ -6,7 +6,7 @@ La dirección elegida combina **Foxy naranja en 3D, superficies claras y accione
 
 ## Empezar por aquí
 
-1. [Abrir el catálogo gráfico](review/index.html): ilustraciones WebP, marca vectorial y acceso al atlas.
+1. [Abrir el catálogo gráfico](review/index.html): ilustraciones WebP, logo original y acceso al atlas.
 2. [Recorrer las pantallas y estados](review/screens.html): elegir flujo, variante y estado; revisar desktop o reducir el ancho para móvil. Funciona como archivo local, con datos sintéticos. Los controles de producto son demostrativos.
 3. [Leer el plan de implementación](implementation-plan.md): etapas D0–D10, archivos afectados, dependencias, contratos nuevos explícitos y criterios de salida.
 4. [Consultar los 82 flujos](coverage.md): cada recorrido enlaza a contrato y vista. Incluye las 11 páginas actuales y las herramientas internas del aula.
@@ -17,13 +17,13 @@ La dirección elegida combina **Foxy naranja en 3D, superficies claras y accione
 |---|---|
 | Ilustraciones originales | 16: dos bienvenidas, cuatro escenas de cuenta/Agenda, tres estados transparentes y siete familias de portadas |
 | WebP para interfaz | 48 archivos, tres medidas por ilustración; 1.199.184 bytes en total, máximo 68.732 bytes por archivo |
-| Marca SVG real | 8 variantes; contornos vectoriales sin imagen raster embebida |
+| Logo original | ZorroH conservado sin pérdida; 3 WebP responsive y 6 SVG: 5 composiciones con imagen original embebida + wordmark vectorial |
 | Iconografía | 42 SVG de controles y un sprite común |
 | Conservación | 16 masters lossless WebP, prompts/manifiesto y 10 referencias del usuario en WebP |
 
-[Guía de uso de recursos](ASSETS.md) · [Manifiesto de imágenes](asset-manifest.json) · [Manifiesto SVG](vector-manifest.json) · [Vista del conjunto](checks/asset-contact-sheet.webp) · [Marca vectorial](checks/brand-preview.webp).
+[Guía de uso de recursos](ASSETS.md) · [Manifiesto de imágenes](asset-manifest.json) · [Manifiesto SVG](vector-manifest.json) · [Logo original](brand-manifest.json) · [Vista del conjunto](checks/asset-contact-sheet.webp) · [Vista de marca](checks/brand-preview.webp).
 
-La mascota 3D y el símbolo SVG son nuevas interpretaciones del concepto aprobado; los originales históricos quedan intactos. Textos, calendarios, nombres, estados y botones se implementarán como UI, no incrustados en imágenes.
+El logo usa el **ZorroH.png original indicado por el usuario**, sin redibujarlo ni recolorearlo. Se retiró el símbolo propuesto y sus variantes monocromas. Las escenas 3D siguen siendo ilustraciones del concepto aprobado. Textos, calendarios, nombres, estados y botones se implementarán como UI, no incrustados en imágenes.
 
 ## Especificaciones de todos los flujos
 

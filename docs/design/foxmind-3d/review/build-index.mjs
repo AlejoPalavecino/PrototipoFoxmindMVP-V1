@@ -59,7 +59,8 @@ for (const doc of documents) {
 const manifest = JSON.parse(fs.readFileSync(path.join(design,'asset-manifest.json'),'utf8'));
 const vectors = JSON.parse(fs.readFileSync(path.join(design,'vector-manifest.json'),'utf8'));
 const icons = vectors.assets.filter(asset=>asset.id.startsWith('icons/')&&asset.id!=='icons/sprite');
-const brands = fs.readdirSync(path.join(design,'assets','brand')).filter(f=>f.endsWith('.svg')).map(name=>({ id:'brand/'+name.replace('.svg',''), default:'assets/brand/'+name,description:'Marca vectorial · '+name,variants:[] }));
+const brandManifest=JSON.parse(fs.readFileSync(path.join(design,'brand-manifest.json'),'utf8'));
+const brands = brandManifest.svgAssets.map(asset=>({ id:asset.path.replace('assets/','').replace('.svg',''), default:asset.path,description:asset.representation==='vector'?'Nombre en trazados SVG':'Foxy original · composición SVG con imagen original',variants:asset.path.endsWith('/mark.svg')?brandManifest.variants:[] }));
 fs.writeFileSync(path.join(root,'screen-index.json'),JSON.stringify(index,null,2)+'\n');
 fs.writeFileSync(path.join(root,'review-data.js'),'window.FOX_REVIEW = '+JSON.stringify({screens:index,assets:[...brands,...manifest.assets],icons},null,2)+';\n');
 console.log(JSON.stringify({ids:index.length,families:new Set(index.map(s=>s.family)).size,variantFrames:index.reduce((n,s)=>n+s.variants.length,0),stateFrames:index.reduce((n,s)=>n+s.variants.length*s.states.length,0),illustrations:manifest.assets.length,responsiveRasterFiles:manifest.assets.reduce((n,a)=>n+a.variants.length,0),brandSVGs:brands.length,iconSVGs:icons.length}));

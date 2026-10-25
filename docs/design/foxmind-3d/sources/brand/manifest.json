@@ -1,0 +1,11 @@
+{
+  "source": "archive/marca-original/ZorroH.png",
+  "originalSha256": "acd6c0e2ba754455e4f845532500d421d75af438a1fed27fb059fd1f4392f353",
+  "width": 1536,
+  "height": 1024,
+  "hasAlpha": true,
+  "canonical": "sources/brand/zorroh-original.webp",
+  "canonicalSha256": "a8580a4d5d33e5d8dd0c2565a51fe765e27e2367a339c04ef7cd7a618f2e47b5",
+  "visiblePixelsAndAlphaPreserved": true,
+  "processing": "Lossless format conversion only; no crop, recoloring or redrawing."
+}

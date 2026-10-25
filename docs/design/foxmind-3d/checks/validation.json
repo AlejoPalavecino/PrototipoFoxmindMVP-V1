@@ -6,10 +6,13 @@
   "masterFiles": 16,
   "bytes": 1199184,
   "largestBytes": 68732,
-  "svgFiles": 51,
+  "svgFiles": 49,
+  "originalLogoWebPs": 3,
+  "hybridBrandSVGs": 5,
+  "originalLogoSha256": "acd6c0e2ba754455e4f845532500d421d75af438a1fed27fb059fd1f4392f353",
   "flowIds": 82,
   "existingPages": 11,
-  "localMarkdownLinks": 292,
+  "localMarkdownLinks": 299,
   "contrasts": [
     {
       "name": "ink/orange",
@@ -70,5 +73,5 @@
   ],
   "failures": [],
   "warnings": [],
-  "scope": "Artifact structure, decode, hashes, vector contents, links and source existence. No product functional test."
+  "scope": "Artifact structure, decode, hashes, original logo identity, explicit hybrid SVGs, vector icons, links and source existence. No product functional test."
 }

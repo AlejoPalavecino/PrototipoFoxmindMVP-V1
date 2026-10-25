@@ -21,12 +21,31 @@ for(const a of manifest.assets){
  }
 }
 const vector=JSON.parse(await fs.readFile(path.join(root,'vector-manifest.json'),'utf8'));
+const brand=JSON.parse(await fs.readFile(path.join(root,'brand-manifest.json'),'utf8'));
+const provenance=JSON.parse(await fs.readFile(path.join(root,brand.source),'utf8'));
+const hash=buffer=>crypto.createHash('sha256').update(buffer).digest('hex');
+assert(hash(await fs.readFile(path.join(root,provenance.canonical)))===provenance.canonicalSha256,'original canonical logo identity');
+for(const v of brand.variants){
+ const buffer=await fs.readFile(path.join(root,v.path)),m=await sharp(buffer).metadata();
+ assert(hash(buffer)===v.sha256&&buffer.length===v.bytes&&m.format==='webp'&&m.hasAlpha&&m.width===v.width&&m.height===v.height,`original logo WebP ${v.path}`);
+}
 let svg=0;
 for(const v of vector.assets){
  const source=await fs.readFile(path.join(root,v.path),'utf8');
- assert(/<svg\b/.test(source)&&!/<(?:image|script|foreignObject|text)\b/i.test(source),`true SVG ${v.path}`);
- assert(!/https?:\/\/(?!www\.w3\.org)/.test(source)&&!/data:image/i.test(source),`external SVG ${v.path}`);
- if(!v.path.endsWith('sprite.svg'))await sharp(Buffer.from(source)).resize(64).raw().toBuffer();
+ const approved=brand.svgAssets.find(a=>a.path===v.path&&a.representation==='hybrid-original-raster');
+ assert(/<svg\b/.test(source)&&!/<(?:script|foreignObject|text)\b/i.test(source),`safe SVG ${v.path}`);
+ if(approved){
+  const embedded=[...source.matchAll(/href="data:image\/png;base64,([A-Za-z0-9+/=]+)"/g)];
+  assert(embedded.length===1&&hash(Buffer.from(embedded[0][1],'base64'))===approved.embeddedSha256,`approved original embedded logo ${v.path}`);
+  assert(brand.variants.some(a=>a.path===approved.embeddedRaster&&a.sha256===approved.sourceRasterSha256),'embedded source registered');
+  const expectedPNG=await sharp(path.join(root,approved.embeddedRaster)).png({compressionLevel:9}).toBuffer();
+  assert(hash(expectedPNG)===approved.embeddedSha256,'embedded raster matches original WebP pixels');
+ }else assert(!/<image\b|data:image/i.test(source),`true vector ${v.path}`);
+ assert(!/https?:\/\/(?!www\.w3\.org)|(?:href|src)="(?!data:image\/png;base64,)/i.test(source),`external SVG ${v.path}`);
+ if(!v.path.endsWith('sprite.svg')){
+  const rendered=await sharp(Buffer.from(source)).resize(64).ensureAlpha().raw().toBuffer();
+  assert(rendered.some((value,i)=>i%4===3&&value>0),`nonempty rendered SVG ${v.path}`);
+ }
  svg++;
 }
 const walk=async dir=>(await Promise.all((await fs.readdir(dir,{withFileTypes:true})).map(e=>e.isDirectory()?walk(path.join(dir,e.name)):path.join(dir,e.name)))).flat();
@@ -51,7 +70,7 @@ const lum=h=>rgb(h).reduce((v,x,i)=>v+x*[.2126,.7152,.0722][i],0);
 const ratio=(a,b)=>{const x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
 const pairs=[['ink/orange','#202522','#FF782D',4.5],['ink/hover','#202522','#F2691C',4.5],['muted/white','#5B6260','#FFFFFF',4.5],['link/white','#9A3E00','#FFFFFF',4.5],['danger/white','#B3261E','#FFFFFF',4.5],['success/white','#156442','#FFFFFF',4.5],['focus/canvas','#4453B8','#FCFAF7',3],['control/white','#7A817E','#FFFFFF',3]];
 const contrasts=pairs.map(([name,foreground,background,minimum])=>{const observed=ratio(foreground,background);assert(observed>=minimum,`contrast ${name}`);return{name,foreground,background,minimum,ratio:Number(observed.toFixed(2))}});
-const report={date:'2026-10-25',status:failures.length?'FAIL':'PASS',rasterFiles:raster,transparentVariants:alpha,masterFiles:manifest.assets.length,bytes,largestBytes:maxBytes,svgFiles:svg,flowIds:cov.flows.length,existingPages:cov.existingPages.length,localMarkdownLinks:links,contrasts,failures,warnings,scope:'Artifact structure, decode, hashes, vector contents, links and source existence. No product functional test.'};
+const report={date:'2026-10-25',status:failures.length?'FAIL':'PASS',rasterFiles:raster,transparentVariants:alpha,masterFiles:manifest.assets.length,bytes,largestBytes:maxBytes,svgFiles:svg,originalLogoWebPs:brand.variants.length,hybridBrandSVGs:brand.svgAssets.filter(a=>a.representation==='hybrid-original-raster').length,originalLogoSha256:provenance.originalSha256,flowIds:cov.flows.length,existingPages:cov.existingPages.length,localMarkdownLinks:links,contrasts,failures,warnings,scope:'Artifact structure, decode, hashes, original logo identity, explicit hybrid SVGs, vector icons, links and source existence. No product functional test.'};
 await fs.mkdir(path.join(root,'checks'),{recursive:true});
 await fs.writeFile(path.join(root,'checks/validation.json'),JSON.stringify(report,null,2)+'\n');
 console.log(JSON.stringify(report));if(failures.length)process.exitCode=1;

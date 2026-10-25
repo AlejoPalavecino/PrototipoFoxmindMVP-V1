@@ -4,11 +4,15 @@ Estas comprobaciones validan **artefactos de diseño**, no la implementación fu
 
 ## Recursos y cobertura
 
-[validation.json](validation.json) registra la ejecución de `node docs/design/foxmind-3d/tools/validate-handoff.mjs`: decodificación real de WebP, medidas, bytes, hashes, transparencia, ausencia de metadata, estructura SVG sin raster embebido, enlaces Markdown, 82 IDs y archivos de las rutas actuales. Los ratios de contraste corresponden a los tokens propuestos, no a toda combinación posible de una futura app.
+[validation.json](validation.json) registra la ejecución de `node docs/design/foxmind-3d/tools/validate-handoff.mjs`: decodificación real de WebP, medidas, bytes, hashes, transparencia, ausencia de metadata, vectores de iconos/wordmark, identidad del logo original y cinco SVG híbridos explícitos, enlaces Markdown, 82 IDs y archivos de las rutas actuales. Los ratios de contraste corresponden a los tokens propuestos, no a toda combinación posible de una futura app.
 
 [Marca](brand-preview.webp) y [hoja de contacto](asset-contact-sheet.webp) fueron inspeccionadas visualmente. Los 16 recursos se generaron y revisaron individualmente antes de exportarse. Los masters no están incluidos en el presupuesto de transferencia.
 
 ## Atlas y navegador
+
+Las capturas de `browser-20261025/` son evidencia histórica anterior a la corrección del logo; no definen la marca vigente. El [registro de corrección](../../../work-log/2026-10-25-root-original-logo.md) identifica el original, los exports y la nueva comprobación visual. Los archivos activos del catálogo y atlas usan el logo actualizado.
+
+La [verificación del logo original](original-logo-20261025/browser-results.json) comprobó carga y layout por DOM en Inicio a 1440/320 px y acceso a 390 px, sin imágenes rotas ni desbordes. Las capturas de navegador nuevas no estuvieron disponibles por timeout de `Page.captureScreenshot`; la prueba visual actual es [brand-preview.webp](brand-preview.webp), renderizada con Sharp e inspeccionada por coordinador y reviewer. No se presenta esa imagen como captura del navegador.
 
 El agente del atlas registra su control estructural en [review/validation.json](../review/validation.json): IDs, enlaces, variantes y constructores. Los estados comunes se reutilizan; no se cuentan como diseños independientes ni como casos funcionales pasados.
 

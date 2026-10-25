@@ -1,6 +1,6 @@
 # Recursos listos para integrar
 
-**16 ilustraciones originales, 48 WebP responsive, 8 variantes SVG de marca y 42 iconos SVG.** Se entregan además un sprite de iconos, 16 masters WebP sin pérdida, los prompts de generación y 10 referencias del usuario convertidas a WebP. [Catálogo visual](review/index.html) · [manifest raster](asset-manifest.json) · [manifest vector](vector-manifest.json).
+**16 ilustraciones originales, 48 WebP responsive, 6 composiciones SVG de marca y 42 iconos SVG.** El logo original suma 3 WebP transparentes y un master lossless propio. Se entregan además un sprite de iconos, 16 masters WebP de ilustraciones, los prompts de generación y 10 referencias del usuario convertidas a WebP. [Catálogo visual](review/index.html) · [manifest raster](asset-manifest.json) · [manifest SVG](vector-manifest.json) · [manifest de marca](brand-manifest.json).
 
 ## Qué usar en cada lugar
 
@@ -15,12 +15,13 @@
 | `states/empty`, `success`, `unavailable` | Vacío, confirmación, error/búsqueda con texto apropiado; 160 / 320 / 640 px, transparencia real. Reutilizables en todos los flujos. |
 | `covers/literature`, `math`, `biology` | Familias principales; 320 / 640 / 1200 px, composición 3:2. |
 | `covers/society`, `science`, `creative`, `general` | Sociales, ciencias/tecnología, arte y cualquier otra materia; mismos tamaños. No restringen materias posibles. |
-| `brand/logo-horizontal.svg` | Shell y acceso; texto convertido a paths, sin dependencias tipográficas ni raster embebido. |
+| `brand/logo-horizontal.svg` | Shell y acceso; ZorroH original embebido y nombre en paths, sin dependencias externas. |
 | `brand/mark.svg`, `favicon.svg` | Isotipo y favicon. |
-| `brand/logo-horizontal-inverse.svg`, `logo-mono.svg`, `mark-mono.svg`, `wordmark.svg`, `logo-stacked.svg` | Variantes para fondo oscuro, una tinta, marca tipográfica y composición vertical. |
+| `brand/logo-horizontal-inverse.svg`, `wordmark.svg`, `logo-stacked.svg` | Fondo oscuro (solo cambia el nombre), marca tipográfica y composición vertical. |
+| `brand/zorroh-128.webp`, `zorroh-256.webp`, `zorroh-512.webp` | Logo original con transparencia; anchos 128, 256 y 512 px. Mantener proporción y figura completa. |
 | `icons/*.svg`, `icons/sprite.svg` | Controles de navegación, archivo, edición, calendario, estado y seguridad. 24×24, stroke 1.8, `currentColor`. |
 
-Los SVG de marca son una reconstrucción vectorial nueva y simplificada a partir de la identidad visual. La mascota 3D es una interpretación coherente de las referencias elegidas. El PNG original de Foxy en la app queda intacto. El wordmark usa contornos generados desde Trebuchet MS Bold instalada en el equipo; no distribuye un archivo de fuente. Los iconos son trazados originales del paquete.
+El símbolo canónico es **archive/marca-original/ZorroH.png**, elegido por el usuario. [Procedencia y hash](sources/brand/manifest.json) registra su conversión lossless a [master WebP](sources/brand/zorroh-original.webp), comprobada píxel a píxel sobre color visible y alpha. No se redibuja, recorta ni recolorea. Cinco SVG son composiciones híbridas con la imagen original embebida: no se presentan como vectores puros. Dentro del SVG se usa PNG para compatibilidad con renderizadores; los tres archivos de imagen para integrar son WebP (4.3–34.8 KiB). Para minimizar transferencia se puede componer el logo con WebP y wordmark.svg en HTML. El wordmark y los 42 iconos sí son trazados vectoriales. Se retiraron las variantes monocromas del símbolo anterior. Las ilustraciones 3D son independientes del logo. El wordmark conserva los contornos de Trebuchet MS Bold ya exportados; no distribuye una fuente ni requiere tenerla instalada.
 
 ## Archivos de producción y masters
 
@@ -60,9 +61,11 @@ Desde la raíz del repo, usando Node y `sharp` ya disponible:
 
 ```powershell
 node docs/design/foxmind-3d/tools/export-assets.mjs
+node docs/design/foxmind-3d/tools/build-brand.mjs
 node docs/design/foxmind-3d/tools/build-icons.mjs
+node docs/design/foxmind-3d/review/build-index.mjs
 node docs/design/foxmind-3d/tools/build-coverage.mjs
 node docs/design/foxmind-3d/tools/validate-handoff.mjs
 ```
 
-`build-brand.ps1` reconstruye los ocho SVG en Windows con System.Drawing y Trebuchet MS instalada; los SVG exportados son portables y no necesitan ejecutar ese script. `prepare-handoff.mjs` conserva referencias y genera pruebas de contacto; solo su primera ejecución necesita los adjuntos originales. Ninguna herramienta cambia archivos del producto.
+`build-brand.mjs` reconstruye seis SVG y tres WebP desde las fuentes canónicas incluidas; `build-brand.ps1` es un acceso compatible al mismo generador. No necesita el archivo del archivo histórico ni fuentes instaladas para regenerar. Los SVG son portables y autocontenidos. `prepare-handoff.mjs` conserva referencias y genera pruebas de contacto; solo su primera ejecución necesita los adjuntos originales. Ninguna herramienta cambia archivos del producto.

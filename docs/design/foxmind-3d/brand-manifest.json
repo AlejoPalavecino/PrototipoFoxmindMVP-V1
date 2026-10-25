@@ -1,0 +1,73 @@
+{
+  "version": 2,
+  "source": "sources/brand/manifest.json",
+  "variants": [
+    {
+      "path": "assets/brand/zorroh-128.webp",
+      "width": 128,
+      "height": 85,
+      "bytes": 4364,
+      "sha256": "96e21830557239e41a34e4dcd9de32555ed8c75069c94a36d0b879b953195e68"
+    },
+    {
+      "path": "assets/brand/zorroh-256.webp",
+      "width": 256,
+      "height": 171,
+      "bytes": 11578,
+      "sha256": "9322b316d5c7269598cdea24fbfb7d61f5086b9722be17224ec779a774e29c76"
+    },
+    {
+      "path": "assets/brand/zorroh-512.webp",
+      "width": 512,
+      "height": 341,
+      "bytes": 35648,
+      "sha256": "a0e7816d9c260f339a585d420bf0cc307fc02eeb38f33b861a5f3aeaebae1ce1"
+    }
+  ],
+  "svgAssets": [
+    {
+      "path": "assets/brand/mark.svg",
+      "representation": "hybrid-original-raster",
+      "embeddedRaster": "assets/brand/zorroh-512.webp",
+      "sourceRasterSha256": "a0e7816d9c260f339a585d420bf0cc307fc02eeb38f33b861a5f3aeaebae1ce1",
+      "embeddedFormat": "png",
+      "embeddedSha256": "3e3195316051d9c5d2842bcab628e524d8e845f1a446ba185fc36b7d394ce980"
+    },
+    {
+      "path": "assets/brand/favicon.svg",
+      "representation": "hybrid-original-raster",
+      "embeddedRaster": "assets/brand/zorroh-512.webp",
+      "sourceRasterSha256": "a0e7816d9c260f339a585d420bf0cc307fc02eeb38f33b861a5f3aeaebae1ce1",
+      "embeddedFormat": "png",
+      "embeddedSha256": "3e3195316051d9c5d2842bcab628e524d8e845f1a446ba185fc36b7d394ce980"
+    },
+    {
+      "path": "assets/brand/logo-horizontal.svg",
+      "representation": "hybrid-original-raster",
+      "embeddedRaster": "assets/brand/zorroh-512.webp",
+      "sourceRasterSha256": "a0e7816d9c260f339a585d420bf0cc307fc02eeb38f33b861a5f3aeaebae1ce1",
+      "embeddedFormat": "png",
+      "embeddedSha256": "3e3195316051d9c5d2842bcab628e524d8e845f1a446ba185fc36b7d394ce980"
+    },
+    {
+      "path": "assets/brand/logo-horizontal-inverse.svg",
+      "representation": "hybrid-original-raster",
+      "embeddedRaster": "assets/brand/zorroh-512.webp",
+      "sourceRasterSha256": "a0e7816d9c260f339a585d420bf0cc307fc02eeb38f33b861a5f3aeaebae1ce1",
+      "embeddedFormat": "png",
+      "embeddedSha256": "3e3195316051d9c5d2842bcab628e524d8e845f1a446ba185fc36b7d394ce980"
+    },
+    {
+      "path": "assets/brand/logo-stacked.svg",
+      "representation": "hybrid-original-raster",
+      "embeddedRaster": "assets/brand/zorroh-512.webp",
+      "sourceRasterSha256": "a0e7816d9c260f339a585d420bf0cc307fc02eeb38f33b861a5f3aeaebae1ce1",
+      "embeddedFormat": "png",
+      "embeddedSha256": "3e3195316051d9c5d2842bcab628e524d8e845f1a446ba185fc36b7d394ce980"
+    },
+    {
+      "path": "assets/brand/wordmark.svg",
+      "representation": "vector"
+    }
+  ]
+}

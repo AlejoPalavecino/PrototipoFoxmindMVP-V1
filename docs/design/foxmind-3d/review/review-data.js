@@ -1967,51 +1967,61 @@ window.FOX_REVIEW = {
   ],
   "assets": [
     {
-      "id": "brand/favicon",
-      "default": "assets/brand/favicon.svg",
-      "description": "Marca vectorial · favicon.svg",
-      "variants": []
+      "id": "brand/mark",
+      "default": "assets/brand/mark.svg",
+      "description": "Foxy original · composición SVG con imagen original",
+      "variants": [
+        {
+          "path": "assets/brand/zorroh-128.webp",
+          "width": 128,
+          "height": 85,
+          "bytes": 4364,
+          "sha256": "96e21830557239e41a34e4dcd9de32555ed8c75069c94a36d0b879b953195e68"
+        },
+        {
+          "path": "assets/brand/zorroh-256.webp",
+          "width": 256,
+          "height": 171,
+          "bytes": 11578,
+          "sha256": "9322b316d5c7269598cdea24fbfb7d61f5086b9722be17224ec779a774e29c76"
+        },
+        {
+          "path": "assets/brand/zorroh-512.webp",
+          "width": 512,
+          "height": 341,
+          "bytes": 35648,
+          "sha256": "a0e7816d9c260f339a585d420bf0cc307fc02eeb38f33b861a5f3aeaebae1ce1"
+        }
+      ]
     },
     {
-      "id": "brand/logo-horizontal-inverse",
-      "default": "assets/brand/logo-horizontal-inverse.svg",
-      "description": "Marca vectorial · logo-horizontal-inverse.svg",
+      "id": "brand/favicon",
+      "default": "assets/brand/favicon.svg",
+      "description": "Foxy original · composición SVG con imagen original",
       "variants": []
     },
     {
       "id": "brand/logo-horizontal",
       "default": "assets/brand/logo-horizontal.svg",
-      "description": "Marca vectorial · logo-horizontal.svg",
+      "description": "Foxy original · composición SVG con imagen original",
       "variants": []
     },
     {
-      "id": "brand/logo-mono",
-      "default": "assets/brand/logo-mono.svg",
-      "description": "Marca vectorial · logo-mono.svg",
+      "id": "brand/logo-horizontal-inverse",
+      "default": "assets/brand/logo-horizontal-inverse.svg",
+      "description": "Foxy original · composición SVG con imagen original",
       "variants": []
     },
     {
       "id": "brand/logo-stacked",
       "default": "assets/brand/logo-stacked.svg",
-      "description": "Marca vectorial · logo-stacked.svg",
-      "variants": []
-    },
-    {
-      "id": "brand/mark-mono",
-      "default": "assets/brand/mark-mono.svg",
-      "description": "Marca vectorial · mark-mono.svg",
-      "variants": []
-    },
-    {
-      "id": "brand/mark",
-      "default": "assets/brand/mark.svg",
-      "description": "Marca vectorial · mark.svg",
+      "description": "Foxy original · composición SVG con imagen original",
       "variants": []
     },
     {
       "id": "brand/wordmark",
       "default": "assets/brand/wordmark.svg",
-      "description": "Marca vectorial · wordmark.svg",
+      "description": "Nombre en trazados SVG",
       "variants": []
     },
     {
@@ -2707,212 +2717,254 @@ window.FOX_REVIEW = {
     {
       "id": "icons/archive",
       "path": "assets/icons/archive.svg",
-      "bytes": 209
+      "bytes": 209,
+      "representation": "vector"
     },
     {
       "id": "icons/arrow-left",
       "path": "assets/icons/arrow-left.svg",
-      "bytes": 199
+      "bytes": 199,
+      "representation": "vector"
     },
     {
       "id": "icons/arrow-right",
       "path": "assets/icons/arrow-right.svg",
-      "bytes": 200
+      "bytes": 200,
+      "representation": "vector"
     },
     {
       "id": "icons/attach",
       "path": "assets/icons/attach.svg",
-      "bytes": 249
+      "bytes": 249,
+      "representation": "vector"
     },
     {
       "id": "icons/bell",
       "path": "assets/icons/bell.svg",
-      "bytes": 219
+      "bytes": 219,
+      "representation": "vector"
     },
     {
       "id": "icons/book",
       "path": "assets/icons/book.svg",
-      "bytes": 244
+      "bytes": 244,
+      "representation": "vector"
     },
     {
       "id": "icons/calendar",
       "path": "assets/icons/calendar.svg",
-      "bytes": 263
+      "bytes": 263,
+      "representation": "vector"
     },
     {
       "id": "icons/chat",
       "path": "assets/icons/chat.svg",
-      "bytes": 276
+      "bytes": 276,
+      "representation": "vector"
     },
     {
       "id": "icons/check",
       "path": "assets/icons/check.svg",
-      "bytes": 193
+      "bytes": 193,
+      "representation": "vector"
     },
     {
       "id": "icons/chevron-down",
       "path": "assets/icons/chevron-down.svg",
-      "bytes": 191
+      "bytes": 191,
+      "representation": "vector"
     },
     {
       "id": "icons/chevron-right",
       "path": "assets/icons/chevron-right.svg",
-      "bytes": 191
+      "bytes": 191,
+      "representation": "vector"
     },
     {
       "id": "icons/clipboard",
       "path": "assets/icons/clipboard.svg",
-      "bytes": 289
+      "bytes": 289,
+      "representation": "vector"
     },
     {
       "id": "icons/clock",
       "path": "assets/icons/clock.svg",
-      "bytes": 221
+      "bytes": 221,
+      "representation": "vector"
     },
     {
       "id": "icons/close",
       "path": "assets/icons/close.svg",
-      "bytes": 199
+      "bytes": 199,
+      "representation": "vector"
     },
     {
       "id": "icons/copy",
       "path": "assets/icons/copy.svg",
-      "bytes": 202
+      "bytes": 202,
+      "representation": "vector"
     },
     {
       "id": "icons/download",
       "path": "assets/icons/download.svg",
-      "bytes": 213
+      "bytes": 213,
+      "representation": "vector"
     },
     {
       "id": "icons/edit",
       "path": "assets/icons/edit.svg",
-      "bytes": 212
+      "bytes": 212,
+      "representation": "vector"
     },
     {
       "id": "icons/eye-off",
       "path": "assets/icons/eye-off.svg",
-      "bytes": 252
+      "bytes": 252,
+      "representation": "vector"
     },
     {
       "id": "icons/eye",
       "path": "assets/icons/eye.svg",
-      "bytes": 254
+      "bytes": 254,
+      "representation": "vector"
     },
     {
       "id": "icons/file",
       "path": "assets/icons/file.svg",
-      "bytes": 217
+      "bytes": 217,
+      "representation": "vector"
     },
     {
       "id": "icons/filter",
       "path": "assets/icons/filter.svg",
-      "bytes": 202
+      "bytes": 202,
+      "representation": "vector"
     },
     {
       "id": "icons/folder",
       "path": "assets/icons/folder.svg",
-      "bytes": 197
+      "bytes": 197,
+      "representation": "vector"
     },
     {
       "id": "icons/help",
       "path": "assets/icons/help.svg",
-      "bytes": 242
+      "bytes": 242,
+      "representation": "vector"
     },
     {
       "id": "icons/home",
       "path": "assets/icons/home.svg",
-      "bytes": 236
+      "bytes": 236,
+      "representation": "vector"
     },
     {
       "id": "icons/link",
       "path": "assets/icons/link.svg",
-      "bytes": 243
+      "bytes": 243,
+      "representation": "vector"
     },
     {
       "id": "icons/lock",
       "path": "assets/icons/lock.svg",
-      "bytes": 259
+      "bytes": 259,
+      "representation": "vector"
     },
     {
       "id": "icons/logout",
       "path": "assets/icons/logout.svg",
-      "bytes": 211
+      "bytes": 211,
+      "representation": "vector"
     },
     {
       "id": "icons/menu",
       "path": "assets/icons/menu.svg",
-      "bytes": 202
+      "bytes": 202,
+      "representation": "vector"
     },
     {
       "id": "icons/minus",
       "path": "assets/icons/minus.svg",
-      "bytes": 187
+      "bytes": 187,
+      "representation": "vector"
     },
     {
       "id": "icons/more",
       "path": "assets/icons/more.svg",
-      "bytes": 259
+      "bytes": 259,
+      "representation": "vector"
     },
     {
       "id": "icons/plus",
       "path": "assets/icons/plus.svg",
-      "bytes": 195
+      "bytes": 195,
+      "representation": "vector"
     },
     {
       "id": "icons/profile",
       "path": "assets/icons/profile.svg",
-      "bytes": 234
+      "bytes": 234,
+      "representation": "vector"
     },
     {
       "id": "icons/progress",
       "path": "assets/icons/progress.svg",
-      "bytes": 200
+      "bytes": 200,
+      "representation": "vector"
     },
     {
       "id": "icons/refresh",
       "path": "assets/icons/refresh.svg",
-      "bytes": 210
+      "bytes": 210,
+      "representation": "vector"
     },
     {
       "id": "icons/search",
       "path": "assets/icons/search.svg",
-      "bytes": 226
+      "bytes": 226,
+      "representation": "vector"
     },
     {
       "id": "icons/settings",
       "path": "assets/icons/settings.svg",
-      "bytes": 270
+      "bytes": 270,
+      "representation": "vector"
     },
     {
       "id": "icons/shield",
       "path": "assets/icons/shield.svg",
-      "bytes": 227
+      "bytes": 227,
+      "representation": "vector"
     },
     {
       "id": "icons/spark",
       "path": "assets/icons/spark.svg",
-      "bytes": 236
+      "bytes": 236,
+      "representation": "vector"
     },
     {
       "id": "icons/trash",
       "path": "assets/icons/trash.svg",
-      "bytes": 227
+      "bytes": 227,
+      "representation": "vector"
     },
     {
       "id": "icons/upload",
       "path": "assets/icons/upload.svg",
-      "bytes": 213
+      "bytes": 213,
+      "representation": "vector"
     },
     {
       "id": "icons/users",
       "path": "assets/icons/users.svg",
-      "bytes": 274
+      "bytes": 274,
+      "representation": "vector"
     },
     {
       "id": "icons/warning",
       "path": "assets/icons/warning.svg",
-      "bytes": 206
+      "bytes": 206,
+      "representation": "vector"
     }
   ]
 };
