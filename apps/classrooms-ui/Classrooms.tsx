@@ -1,7 +1,8 @@
 'use client';
 import { useState, useEffect, useCallback, lazy, Suspense, type ReactNode } from 'react';
 import type { ClassroomClient, Classroom, Draft, Invitation, NotificationTarget } from './api.ts';
-import { Cover, Dialog, Notice } from './components.tsx';
+import { Dialog, Notice } from './components.tsx';
+import { ClassroomCollection } from './ClassroomCollection.tsx';
 import { Notifications } from './Notifications.tsx';
 import { Home } from './Home.tsx';
 import { EntryIcon } from '../shared-ui/EntryIcon';
@@ -156,7 +157,7 @@ export function ClassroomsApp({
     }
   }
   return (
-    <div className={`p5-app${!draft && !classroomId && presentation === 'home' ? ' entry-home' : ''}`}>
+    <div className={`p5-app fm3-classrooms${!draft && !classroomId && presentation === 'home' ? ' entry-home' : ''}`}>
       <a className="skip-link" href="#classroom-main">Saltar al contenido</a>
       <AppNavbar logoHref="/mis-aulas" displayName={displayName}
         links={draft ? [{ href: '/mis-aulas', label: 'Mis aulas', current: true }]
@@ -173,7 +174,7 @@ export function ClassroomsApp({
       <main id="classroom-main" className="p5-main">
         {classroomId && sharedCode ? <section className="folder-created" role="status">
           <div><h2>Aula creada</h2><p>Tu espacio ya está listo. Compartí el código o invitá estudiantes desde Alumnos.</p></div>
-          <img src="/folders/foxy-welcome.png" alt="" width="120" height="120" />
+          <img src="/foxmind-3d/states/success-320.webp" alt="" width="120" height="120" />
         </section> : null}
         {draft ? (
           <Suspense fallback={<Notice>Cargando asistente…</Notice>}>
@@ -214,9 +215,9 @@ export function ClassroomsApp({
           <>
             <header className="p5-page-head">
               <div>
-                <h1>Mis <span>Aulas</span></h1>
+                <h1>Mis aulas</h1>
                 <p className="p5-lead">
-                  Lo que enseñás. Todo lo que podés aprender.
+                  Tus clases, bien organizadas.
                 </p>
               </div>
               <div className="folder-classroom-tools"><div className="p5-actions">
@@ -242,9 +243,7 @@ export function ClassroomsApp({
                   <EntryIcon name="plus-circle-fill" /> Crear aula
                 </button>
               </div>
-              {data ? <label className="p5-search">Buscar aula
-                <input type="search" placeholder="Nombre, materia o división" value={search} onChange={(event) => setSearch(event.target.value)} />
-              </label> : null}</div>
+              </div>
             </header>
             {notice ? <Notice>{notice}</Notice> : null}
             {error ? (
@@ -259,57 +258,8 @@ export function ClassroomsApp({
             {data && requestedInvitation && !data.invitations.some(item => item.id.toLowerCase() === requestedInvitation.toLowerCase()) ? (
               <Notice>Esta invitación no está pendiente para la cuenta actual. Puede haber vencido, haberse utilizado o corresponder a otro correo. Revisa tus invitaciones o cambia de cuenta desde tu perfil.</Notice>
             ) : null}
-            {data ? (
-              <>
-                <div className="folder-columns">{(['study', 'teach'] as const).map((kind) => (
-                  <section className={`p5-classroom-group folder-panel tone-${kind === 'teach' ? 'coral' : 'mint'}`} key={kind}>
-                    <h2 className="folder-tab">{kind === 'teach' ? 'Enseño' : 'Estudio'}</h2>
-                    <div className="folder-rows">
-                      {data[kind]
-                        .filter((room) =>
-                          `${room.name} ${room.subject} ${room.division}`
-                            .toLocaleLowerCase()
-                            .includes(search.toLocaleLowerCase()),
-                        )
-                        .map((room) => (
-                          <article className="folder-row" key={room.id}>
-                            <Cover kind={room.coverKey} />
-                            <div>
-                              <h3>{room.name}</h3>
-                              {room.archived ? (
-                                <span className="p5-tag">
-                                  Archivada · Solo lectura
-                                </span>
-                              ) : null}
-                              <p>{room.subject}</p>
-                              <p>{kind === 'teach' ? 'Vos sos docente' : `Docente: ${room.teacher}`}</p>
-                              <p>
-                                {room.division} · Ciclo lectivo{' '}
-                                {room.academicYear}
-                              </p>
-                              <button
-                                onClick={() => {
-                                  setSharedCode(null);
-                                  setClassroomId(room.id);
-                                }}
-                              >
-                                Entrar al aula
-                              </button>
-                            </div>
-                          </article>
-                        ))}
-                    </div>
-                    {data[kind].length === 0 ? (
-                      <p className="p5-empty">
-                        {kind === 'teach'
-                          ? 'Tu próxima aula empieza con lo que sabés. Creá una para compartirlo.'
-                          : 'Ingresá con un código o aceptá una invitación para empezar.'}
-                      </p>
-                    ) : null}
-                  </section>
-                ))}</div>
-              </>
-            ) : null}
+            {data ? <ClassroomCollection teach={data.teach} study={data.study} search={search} onSearch={setSearch}
+              onEnter={id => { setSharedCode(null); setClassroomId(id); }} /> : null}
             {data && (data.invitations.length > 0 || data.drafts.length > 0) ? <section className="folder-panel tone-yellow folder-pending" aria-label="Pendientes">
               <h2 className="folder-tab"><EntryIcon name="bell" />Pendientes</h2>
             {data?.invitations.length ? (

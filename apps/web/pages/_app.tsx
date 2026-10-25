@@ -7,6 +7,7 @@ import '../../classrooms-ui/styles.css';
 import '../../shared-ui/folders.css';
 import '../../agenda-ui/agenda.css';
 import '../../shared-ui/foxmind-3d.css';
+import '../../classrooms-ui/foxmind-classrooms.css';
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   useEffect(() => {
