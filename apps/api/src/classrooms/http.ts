@@ -13,9 +13,13 @@ import { gradeCorrectionInput } from './grade-corrections.ts';
 import { extractionRoute, extractionHttpError } from './ai/http.ts';
 import type { ClassroomAiService } from './ai/index.ts';
 
+import { activityGenerationRoute } from './activity-ai/http.ts';
+import type { ActivityAiService } from './activity-ai/index.ts';
+
 interface Admission {
   admit(request: IncomingMessage, write: boolean, response: ServerResponse): Promise<void>;
   ai?: ClassroomAiService;
+  activityAi?: ActivityAiService;
 }
 const statuses = {
   INVALID_INPUT: 400,
@@ -133,6 +137,8 @@ export function createClassroomsHandler(
           return fail('INVALID_INPUT');
         return b;
       };
+      const generation = await activityGenerationRoute(options.activityAi, req, path, method, body);
+      if (generation) { json(res, generation.status, generation.value); return; }
       const extraction = await extractionRoute(options.ai, req, path, method, body);
       if (extraction) { json(res, extraction.status, extraction.value); return; }
       if (!path.length && method === 'GET') value = await service.mine(req);
