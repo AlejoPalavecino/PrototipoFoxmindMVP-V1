@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Login merged to main — 2026-10-25
+
+User authorized merging PR1 and updating the local project without deployment. [Merge/local delivery record](work-log/2026-10-25-root-login-main-merge.md): GitHub main8619cd0 contains the scoped login PR; local integration preserves the26unpublished AI commits from3058def and both roadmap contributions. Fresh combined API/Next/types and28focused client checks passed. Earlier publication-only boundaries below are historical; no deployment or publication of local AI work is inferred.
+
 ## Default login destination — 2026-10-25
 
 Later user-authorized publication: [remote-based delivery](work-log/2026-10-25-root-login-publication.md) isolates login changes from unpublished activity AI work. Fresh remote-base API/Next/types/client checks and all five functional browser groups passed. Ego real login reached Inicio; a capture-selector failure was corrected and the retained screen was inspected without replaying the fixture. The combined opt-in run remains recorded as FAIL; no merge or deployment is authorized.
