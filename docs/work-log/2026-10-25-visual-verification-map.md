@@ -1,0 +1,14 @@
+# FoxMind 3D — mapa de verificación atribuida
+- Agent / role: architect delegado; documentación, sin revisión adicional de producto.
+- Task ID: `/root/visual_architecture`.
+- Date: 2026-10-25.
+- Branch/base: `codex/foxmind-3d-migration` / `eecb769151b12abb5ae9e1f15839b54c772e446f` (contexto transmitido por coordinador; sin operar Git).
+- Scope: [mapa82](../foxmind-3d-verification.md); solo este registro y el mapa.
+- Status: completed para el mapa documental; aceptación de producto/fases corresponde al coordinador.
+- Sources: coverage82, tarea D0–D10, tres registros de implementación, root, ledger y README de evidencia real.
+- Work: distinguir paso ego directo de conservación por código/pruebas/tipos; ninguna equivalencia con82E2E.
+- Verification:82IDs/82esperados,0faltantes,0duplicados,0links/paths rotos;27IDs con paso ego (WALL-04 reutiliza NAV-02),55sin nuevo recorrido GUI completo; mapa110líneas/registro14. Sin tests funcionales por cambio documental.
+- Judgment boundary: árbol `9ad34da620d1336700a88dccf5fabeb78f3689d9` aprobado por ambos jueces; CSS posterior12líneas separado.
+- Limits: screenshots nativos/zoom200%/LCP/INP/Safari/dispositivos físicos no certificados; wizard solo hasta paso2.
+- Commits: ninguno por este agente; no cambios de Git/producto/tests/roadmap/otros registros.
+- Handoff: ambos documentos congelados; coordinador incorpora mapa/evidencias y decide aceptación local con advisories, conserva límite9ad+CSS posterior separado y registra entrega. Sin publicación remota autorizada.
