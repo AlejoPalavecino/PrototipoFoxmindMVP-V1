@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import type { ActivityData, ActivityDetail, ActivityQuestion, ClassroomClient, DeadlineResolution, Detail, FileState, Material } from './api.ts';
 import { Notice } from './components.tsx';
+import { ActivityCurriculum } from './ActivityCurriculum.tsx';
 
 export const activityTypeLabels = { ASSIGNMENT: 'Trabajo práctico', QUESTIONNAIRE: 'Cuestionario', EVALUATION: 'Evaluación' };
 export function activityMinute(instant: string | null, zone: string) {
@@ -14,11 +15,11 @@ export function activityDate(instant: string | null, zone: string) {
   return instant ? `${new Intl.DateTimeFormat('es', { timeZone: zone, dateStyle: 'medium', timeStyle: 'short' }).format(new Date(instant))} · ${zone}` : `Sin fecha límite · ${zone}`;
 }
 
-function QuestionEditor({ question, index, update, remove }: {
-  question: ActivityQuestion; index: number; update: (question: ActivityQuestion) => void; remove: () => void;
+export function QuestionEditor({ question, index, update, remove, fixedType = false }: {
+  question: ActivityQuestion; index: number; update: (question: ActivityQuestion) => void; remove?: () => void; fixedType?: boolean;
 }) {
   return <fieldset className="p7-question"><legend>Pregunta {index + 1}</legend>
-    <label>Tipo de pregunta<select aria-label="Tipo de pregunta" value={question.type} onChange={e => {
+    <label>Tipo de pregunta<select aria-label="Tipo de pregunta" disabled={fixedType} value={question.type} onChange={e => {
       const type = e.target.value as ActivityQuestion['type'];
       update({ ...question, type, scoringRule: type === 'DEVELOPMENT' ? null : 'EXACT', options: type === 'DEVELOPMENT' ? []
         : [{ text: '', correct: true }, { text: '', correct: type === 'MULTIPLE_CHOICE' }] });
@@ -36,7 +37,7 @@ function QuestionEditor({ question, index, update, remove }: {
       <button type="button" onClick={() => update({ ...question, options: question.options.filter((_, n) => n !== position) })}>Quitar opción</button>
     </div>)}
     {question.type !== 'DEVELOPMENT' ? <button type="button" onClick={() => update({ ...question, options: [...question.options, { text: '', correct: false }] })}>Agregar opción</button> : null}
-    <button type="button" onClick={remove}>Quitar pregunta</button>
+    {remove ? <button type="button" onClick={remove}>Quitar pregunta</button> : null}
   </fieldset>;
 }
 
@@ -44,7 +45,7 @@ export function ActivityAuthoring({ api, room, data, materials, onSaved, onClose
   api: ClassroomClient; room: Detail; data: ActivityData; materials: Material[]; onSaved: () => Promise<void>; onClose: () => void;
 }) {
   const activity = data.activity;
-  const [title, setTitle] = useState(activity.title ?? ''), [unitId, setUnit] = useState(activity.unitId ?? ''), [topicId, setTopic] = useState(activity.topicId ?? '');
+  const [title, setTitle] = useState(activity.title ?? ''), [unitId, setUnit] = useState(activity.unitId ?? ''), [topicIds, setTopics] = useState(activity.topicIds ?? (activity.topicId ? [activity.topicId] : []));
   const [instructions, setInstructions] = useState(activity.instructions ?? ''), [attachmentRequired, setRequired] = useState(activity.attachmentRequired);
   const [questions, setQuestions] = useState(activity.questions), [files, setFiles] = useState(activity.instructionFiles);
   const [materialIds, setMaterialIds] = useState(activity.materials.map(m => m.id));
@@ -81,11 +82,11 @@ export function ActivityAuthoring({ api, room, data, materials, onSaved, onClose
     {error ? <Notice error>{error} Los cambios no confirmados permanecen en este editor; no se garantiza su recuperación al cerrarlo.</Notice> : null}
     <p role="status">{busy ? 'Guardando o verificando…' : dirty ? 'Cambios sin guardar. Las preguntas incompletas o inválidas no se guardan.' : 'Último estado confirmado cargado.'}</p>
     <form onSubmit={e => { e.preventDefault(); void run(async () => {
-      if (activity.locked) await change({ action: 'metadata', id: activity.id, title, unitId: unitId || null, topicId: topicId || null });
+      if (activity.locked) await change({ action: 'metadata', id: activity.id, title, unitId: unitId || null, topicIds });
       else {
         const value = await deadline();
         if (upload && !upload.ready) throw new Error('El archivo pendiente todavía no está aprobado. Consulta su revisión o descártalo antes de guardar.');
-        await change({ action: 'save', id: activity.id, payload: { title, unitId: unitId || null, topicId: topicId || null, instructions, attachmentRequired,
+        await change({ action: 'save', id: activity.id, payload: { title, unitId: unitId || null, topicIds, instructions, attachmentRequired,
           instructionFileIds: files.map(f => f.id), materialIds, deadline: value, allowLate,
           questions: questions.map(q => ({ type: q.type, prompt: q.prompt, points: q.points, scoringRule: q.scoringRule ?? null,
             options: q.options.map(o => ({ text: o.text, correct: o.correct ?? false })) })) } });
@@ -95,10 +96,13 @@ export function ActivityAuthoring({ api, room, data, materials, onSaved, onClose
       <fieldset disabled={busy || room.archived}>
         <legend>Organización de la actividad</legend>
         <label>Título de la actividad<input maxLength={200} value={title} onChange={e => setTitle(e.target.value)} /></label>
-        <div className="p5-fields"><label>Unidad de la actividad<select aria-label="Unidad de la actividad" value={unitId} onChange={e => { setUnit(e.target.value); setTopic(''); }}>
+        <div className="p5-fields"><label>Unidad de la actividad<select aria-label="Unidad de la actividad" value={unitId} onChange={e => { setUnit(e.target.value); setTopics([]); }}>
           <option value="">Selecciona una unidad</option>{room.units.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}</select></label>
-          <label>Tema de la actividad<select aria-label="Tema de la actividad" disabled={!unitId} value={topicId} onChange={e => setTopic(e.target.value)}>
-            <option value="">Selecciona un tema</option>{topics.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label></div>
+          <fieldset disabled={!unitId}><legend>Temas de la actividad</legend>
+            {topics.map(t => <label className="p7-check" key={t.id}><input type="checkbox" checked={topicIds.includes(t.id!)}
+              onChange={e => setTopics(e.target.checked ? [...topicIds, t.id!] : topicIds.filter(id => id !== t.id))} />{t.name}</label>)}
+            {!topics.length ? <p>Selecciona una unidad para ver sus temas.</p> : null}
+            <small>Selecciona uno o más temas de esta unidad para publicar.</small></fieldset></div>
       </fieldset>
       <fieldset disabled={busy || locked}>
         <legend>Consignas y recursos</legend>
@@ -142,9 +146,10 @@ export function ActivityAuthoring({ api, room, data, materials, onSaved, onClose
 }
 
 /** Read-only preview/consultation is deliberately separate from a future attempt-taking route. */
-export function ActivityPreview({ api, activity, teacher }: { api: ClassroomClient; activity: ActivityDetail; teacher: boolean }) {
+export function ActivityPreview({ api, activity, teacher, room }: { api: ClassroomClient; activity: ActivityDetail; teacher: boolean; room?: Detail }) {
   return <section className="p7-preview" aria-label={teacher ? 'Vista previa docente' : 'Consulta de actividad'}>
     <p>{activityTypeLabels[activity.type]} · {activityDate(activity.deadlineAt, activity.zone)}</p>
+    <ActivityCurriculum room={room} activity={activity} />
     {teacher ? <Notice>Vista previa docente: no inicia un intento ni activa el bloqueo de contenido.</Notice> : <Notice>Consulta de actividad. El flujo de intentos y entrega todavía está pendiente; consultar aquí no es una entrega.</Notice>}
     {activity.instructions ? <p className="p7-multiline">{activity.instructions}</p> : null}
     {activity.type === 'ASSIGNMENT' ? <p>{activity.attachmentRequired ? 'La entrega requiere al menos un archivo aprobado.' : 'La entrega permite no adjuntar archivos, con confirmación explícita.'}</p> : null}

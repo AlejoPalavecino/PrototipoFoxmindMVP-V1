@@ -3,10 +3,13 @@ import { useCallback, useEffect, useState } from 'react';
 import type { AcademicTarget, ActivityData, ActivitySummary, ActivityType, AttemptSessionData, ClassroomClient, Detail, Material } from './api.ts';
 import { Dialog, Notice } from './components.tsx';
 import { ActivityAuthoring, ActivityPreview, activityDate, activityTypeLabels } from './ActivityAuthoring.tsx';
+import { ActivityGeneration } from './ActivityGeneration.tsx';
+import { ActivityCurriculum } from './ActivityCurriculum.tsx';
 import { AttemptHistory } from './AttemptHistory.tsx';
 import { AttemptSession, FirstSubmissionAuthorization } from './AttemptSession.tsx';
 
 export function Activities({ api, room, reload, target, onChanged }: { api: ClassroomClient; room: Detail; reload: () => Promise<void>; target?: AcademicTarget | null; onChanged?: () => void }) {
+  const [generating, setGenerating] = useState(false);
   const [activities, setActivities] = useState<ActivitySummary[]>([]), [loaded, setLoaded] = useState(false);
   const [editing, setEditing] = useState<ActivityData | null>(null), [preview, setPreview] = useState<ActivityData | null>(null);
   const [materials, setMaterials] = useState<Material[]>([]), [type, setType] = useState<ActivityType>('ASSIGNMENT');
@@ -48,12 +51,15 @@ export function Activities({ api, room, reload, target, onChanged }: { api: Clas
     {error ? <Notice error>{error} Los cambios no confirmados no se consideran guardados.</Notice> : null}
     {notice ? <Notice>{notice}</Notice> : null}
     {!loaded && !error ? <Notice>Cargando actividades…</Notice> : null}
-    {writable && !editing ? <div className="p7-create"><label>Tipo de actividad<select aria-label="Tipo de actividad" value={type} onChange={e => setType(e.target.value as ActivityType)}>
+    {writable && !editing && !generating ? <div className="p7-create"><label>Tipo de actividad<select aria-label="Tipo de actividad" value={type} onChange={e => setType(e.target.value as ActivityType)}>
       {Object.entries(activityTypeLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
       <button className="primary" disabled={busy} onClick={() => void run(async () => {
         const created = await api.call<{ id: string }>(`/${room.id}/activities`, 'POST', { revision: room.revision, operation: { action: 'create', type } });
         await refresh(); await edit(created.id);
-      })}>Crear borrador de actividad</button></div> : null}
+      })}>Crear manualmente</button>
+      <button disabled={busy} onClick={() => setGenerating(true)}>Generar con IA</button></div> : null}
+    {generating && writable ? <ActivityGeneration api={api} room={room} onClose={() => setGenerating(false)}
+      onApplied={async id => { await refresh(); await edit(id); setGenerating(false); }} /> : null}
     {editing ? <ActivityAuthoring key={editing.activity.id} api={api} room={room} data={editing} materials={materials}
       onSaved={async () => { await refresh(); setNotice('Cambios confirmados por el servidor. Guardar no publica un borrador.'); }}
       onClose={() => setEditing(null)} /> : null}
@@ -61,6 +67,7 @@ export function Activities({ api, room, reload, target, onChanged }: { api: Clas
     <div className="p7-activity-list">{activities.map(activity => <article className="folder-row" key={activity.id} aria-label={activity.title ?? 'Borrador sin título'}>
       <div className="folder-row-content"><small>{activityTypeLabels[activity.type]} · {activity.status === 'DRAFT' ? 'Borrador privado' : activity.status === 'WITHDRAWN' ? 'Retirada' : 'Publicada'}</small>
         <h3>{activity.title ?? 'Borrador sin título'}</h3><p>{activityDate(activity.deadlineAt, activity.zone)}</p>
+        <ActivityCurriculum room={room} activity={activity} />
         {activity.locked ? <small>Contenido bloqueado por participación</small> : null}</div>
       <div className="p5-actions folder-row-actions"><button disabled={busy} onClick={() => void run(async () => {
         if (teacher) { setPreview(await api.call<ActivityData>(`/${room.id}/activities/${activity.id}/preview`)); return; }
@@ -80,7 +87,7 @@ export function Activities({ api, room, reload, target, onChanged }: { api: Clas
     {history ? <AttemptHistory key={history.activityId + (history.attemptId ?? '')} api={api} room={room} activityId={history.activityId} attemptId={history.attemptId}
       onClose={() => setHistory(null)} onChanged={refresh} onResume={setSession} /> : null}
     {preview ? <Dialog title={preview.activity.title ?? 'Vista previa de actividad'} onClose={() => setPreview(null)}>
-      <ActivityPreview api={api} activity={preview.activity} teacher={teacher} />
+      <ActivityPreview api={api} room={room} activity={preview.activity} teacher={teacher} />
     </Dialog> : null}
     {session ? <AttemptSession key={session.activity.id} api={api} room={room} initial={session} onClose={() => setSession(null)} onChanged={refresh} /> : null}
     {authorization ? <FirstSubmissionAuthorization api={api} room={room} activityId={authorization} onClose={() => setAuthorization(null)} onChanged={refresh} /> : null}
