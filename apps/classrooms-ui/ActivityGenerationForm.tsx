@@ -46,9 +46,9 @@ export function ActivityGenerationForm({ room, value, update, sources, disabled 
         onChange={e => patch({ acknowledgedWarnings: e.target.checked ? ['DOCX_IMAGES_OMITTED'] : [] })} />Entiendo: {generationWarnings.DOCX_IMAGES_OMITTED}</label> : null}
     </fieldset>
     <fieldset><legend>Extensión de la propuesta</legend><div className="p5-fields">
-      {(value.type === 'ASSIGNMENT' ? [['assignment', 'Consignas', 20]] : [['development', 'Desarrollo', 10], ['singleChoice', 'Selección única', 10], ['multipleChoice', 'Selección múltiple', 10]]).map(([key, label, max]) =>
+      {(value.type === 'ASSIGNMENT' ? [['assignment', 'Consignas', 20]] : [['development', 'Desarrollo', 30], ['singleChoice', 'Selección única', 30], ['multipleChoice', 'Selección múltiple', 30]]).map(([key, label, max]) =>
         <label key={String(key)}>{label}<input type="number" min={value.type === 'ASSIGNMENT' ? 1 : 0} max={max} required
           value={value.counts[key as keyof typeof value.counts]} onChange={e => patch({ counts: { ...value.counts, [key]: Number(e.target.value) } })} /></label>)}
-    </div></fieldset>
+    </div>{value.type !== 'ASSIGNMENT' ? <p role="status">{value.counts.development + value.counts.singleChoice + value.counts.multipleChoice} de 30 preguntas en total.</p> : null}</fieldset>
   </fieldset>;
 }

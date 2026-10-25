@@ -48,6 +48,9 @@ export function useActivityGeneration(api: ClassroomClient, room: Detail, onAppl
   }
   async function generate(value: GenerationFormValue, predecessor?: GenerationView, acknowledge = false) {
     await run(async () => {
+      const total = value.counts.development + value.counts.singleChoice + value.counts.multipleChoice;
+      if (value.type !== 'ASSIGNMENT' && (!Number.isInteger(total) || total < 1 || total > 30))
+        throw new Error('Seleccioná entre 1 y 30 preguntas en total, sumando los tres tipos.');
       const body = { ...value, revision: room.revision };
       const input = { ...body, requestId: requestId(JSON.stringify([predecessor?.id ?? 'start', body])) };
       const next = predecessor ? await client.regenerate(predecessor.id, input, acknowledge) : await client.start(input);

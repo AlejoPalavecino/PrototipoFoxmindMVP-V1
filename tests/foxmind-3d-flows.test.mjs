@@ -55,3 +55,28 @@ test('D3 API draft validation preserves three legacy cover keys and accepts seve
   for (const coverKey of ['unknown', '', 'GENERAL', null, ['general']])
     assert.throws(() => draftPayload({ coverKey }, false), { code: 'INVALID_INPUT' });
 });
+
+test('D5 each question subtype permits thirty without the old ten-item UI restriction', () => {
+  const { ActivityGenerationForm, defaultGenerationForm } = loadTsModule('apps/classrooms-ui/ActivityGenerationForm.tsx');
+  for (const key of ['development', 'singleChoice', 'multipleChoice']) {
+    const value = { ...defaultGenerationForm(), type: 'QUESTIONNAIRE', counts: { assignment: 0, development: 0, singleChoice: 0, multipleChoice: 0, [key]: 30 } };
+    const tree = ActivityGenerationForm({ room: room('teacher'), value, update() {}, sources: [], disabled: false });
+    const selected = descendants(tree, node => node.type === 'input' && node.props.type === 'number' && node.props.value === 30);
+    assert.equal(selected.length, 1); assert.equal(selected[0].props.max, 30, key);
+  }
+});
+
+test('D5 a combined thirty-one-question request never dispatches generation', async () => {
+  const { ActivityGeneration } = loadTsModule('apps/classrooms-ui/ActivityGeneration.tsx');
+  const calls = [], view = hookView(ActivityGeneration, { room: room('teacher'), onApplied: async () => {}, onClose() {},
+    api: { call: async (...args) => { calls.push(args); return args[0].endsWith('/sources') ? { revision: '2', sources: [] } : { jobs: [] }; } } });
+  try {
+    await view.flush();
+    const fields = descendants(view.tree, node => node.type?.name === 'ActivityGenerationForm')[0];
+    fields.props.update({ ...fields.props.value, type: 'QUESTIONNAIRE', counts: { assignment: 0, development: 16, singleChoice: 15, multipleChoice: 0 } });
+    await view.flush();
+    const form = descendants(view.tree, node => node.type === 'form')[0];
+    await form.props.onSubmit({ preventDefault() {} }); await view.flush();
+    assert.equal(calls.filter(([, method]) => method === 'POST').length, 0, 'The total limit is enforced before consuming a generation');
+  } finally { view.close(); }
+});
