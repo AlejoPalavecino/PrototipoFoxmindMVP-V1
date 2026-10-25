@@ -360,11 +360,11 @@ test('P9 actual Inicio, mixed classroom roles, safe news and additive account na
         assert.equal(await page.getByRole('link', { name: 'Mi perfil', exact: true }).count(), 0);
       });
 
-      await check('ordinary login still lands on profile; explicit Inicio and revoked-session continuations remain safe', async () => {
+      await check('ordinary login lands on Inicio; explicit Inicio and revoked-session continuations remain safe', async () => {
         await anonymous.goto(`${runtime.origin}/sign-in`);
         await anonymous.getByLabel('Correo electrónico', { exact: true }).fill(teacherEmail);
         await anonymous.getByLabel('Contraseña', { exact: true }).fill(password);
-        await anonymous.getByRole('button', { name: 'Iniciar sesión', exact: true }).click(); await anonymous.waitForURL('**/profile');
+        await anonymous.getByRole('button', { name: 'Iniciar sesión', exact: true }).click(); await anonymous.waitForURL('**/inicio');
         assert.equal((await api(anonymous, 'POST', '/auth/logout')).status, 204, 'Logout clears the real session and returns the accepted no-content contract');
         await anonymous.goto(`${runtime.origin}/sign-in?next=%2Finicio`);
         await anonymous.getByLabel('Correo electrónico', { exact: true }).fill(teacherEmail);

@@ -251,15 +251,15 @@ test('P9 actual Home remaining recovery, responsive and account proof', { timeou
         await page.getByRole('heading', { name: 'Mis Aulas', exact: true }).waitFor();
       });
 
-      await check('ordinary login stays on profile while explicit Inicio and revocation preserve the exact gate', async () => {
+      await check('ordinary login lands on Inicio while explicit Inicio and revocation preserve the exact gate', async () => {
         const anonymousContext = await browser.newContext(), anonymous = await anonymousContext.newPage();
         const observation = observeReads(anonymous); observations.set(anonymous, observation);
         try {
           await anonymous.goto(`${runtime.origin}/sign-in`);
           await anonymous.getByLabel('Correo electrónico', { exact: true }).fill(email);
           await anonymous.getByLabel('Contraseña', { exact: true }).fill(password);
-          await anonymous.getByRole('button', { name: 'Iniciar sesión', exact: true }).click(); await anonymous.waitForURL('**/profile');
-          const current = await api(anonymous, 'GET', '/account'); assert.equal(current.status, 200, 'Actual default profile account read');
+          await anonymous.getByRole('button', { name: 'Iniciar sesión', exact: true }).click(); await anonymous.waitForURL('**/inicio');
+          const current = await api(anonymous, 'GET', '/account'); assert.equal(current.status, 200, 'Actual authenticated account read after default Inicio login');
           assert.equal((await api(anonymous, 'POST', '/auth/logout')).status, 204, 'Logout clears the real session and returns the accepted no-content contract');
           await anonymous.goto(`${runtime.origin}/sign-in?next=%2Finicio`);
           await anonymous.getByLabel('Correo electrónico', { exact: true }).fill(email);

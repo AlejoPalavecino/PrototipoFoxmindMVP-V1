@@ -149,7 +149,7 @@ export function AccountScreen({ view }: { view: AccountView }) {
         setSession(next);
         if (next.authenticated) {
           if (next.user.emailVerified && classroomNext) { try { sessionStorage.removeItem('foxmind-classroom-next'); } catch {} }
-          await router.push(next.user.emailVerified ? classroomNext ?? '/profile' : nextAccountHref('verify-email'));
+          await router.push(next.user.emailVerified ? classroomNext ?? '/inicio' : nextAccountHref('verify-email'));
         }
       } else if (path === '/auth/logout') {
         setSession({ authenticated: false }); setProfile(undefined);
@@ -203,7 +203,7 @@ export function AccountScreen({ view }: { view: AccountView }) {
         {!loading && !session ? <div className="state"><p>No se pudo comprobar tu sesión.</p><Button disabled={busy || waitSeconds > 0} onClick={() => void load()}>Volver a intentar</Button></div> : null}
 
         {session && view === 'sign-in' ? <>
-          {user ? <div className="notice">Ya tienes una sesión abierta. <Link href={verified ? classroomNext ?? '/profile' : nextAccountHref('verify-email')}>Continuar con mi cuenta</Link></div> : null}
+          {user ? <div className="notice">Ya tienes una sesión abierta. <Link href={verified ? classroomNext ?? '/inicio' : nextAccountHref('verify-email')}>Continuar con mi cuenta</Link></div> : null}
           <form noValidate onSubmit={submit('/auth/login', 'Sesión iniciada.')}><fieldset disabled={locked}>
             <Field name="email" label="Correo electrónico" autoComplete="username" />
             <Field name="password" label="Contraseña" password autoComplete="current-password" />
@@ -230,7 +230,7 @@ export function AccountScreen({ view }: { view: AccountView }) {
             <form noValidate onSubmit={submit('/auth/email-verification/confirm', 'Tu correo está verificado. Ya puedes continuar con tu cuenta.')}><Button disabled={locked} type="submit">{busy ? 'Verificando…' : 'Confirmar verificación'}</Button></form></> : null}
           {user && !verified ? <><h2>Revisa tu correo</h2><p>Enviamos el enlace a <strong className="email-value">{user.email}</strong>. Abre el mensaje y confirma la verificación.</p><p>Si recargas esta página después de abrir un enlace, vuelve a abrir el mensaje original para usarlo.</p>
             <div className="actions"><Button disabled={locked} onClick={() => void action('/auth/email-verification/resend', {}, 'Solicitud aceptada. Revisa tu correo; usa el enlace más reciente.')}>{busy ? 'Enviando…' : 'Reenviar correo'}</Button><Button variant="outline" disabled={locked} onClick={() => void load()}>Actualizar estado</Button>{signOut}</div></> : null}
-          {verified ? <><h2>Tu correo está verificado</h2><Link className="button button-primary" href={classroomNext ?? '/profile'}>{classroomNext === '/inicio' ? 'Ir a Inicio' : classroomNext ? 'Ir a Mis Aulas' : 'Ir a mi perfil'}</Link><div className="actions">{signOut}</div></> : null}
+          {verified ? <><h2>Tu correo está verificado</h2><Link className="button button-primary" href={classroomNext ?? '/inicio'}>{classroomNext && classroomNext !== '/inicio' ? 'Ir a Mis Aulas' : 'Ir a Inicio'}</Link><div className="actions">{signOut}</div></> : null}
           {!user ? <><VerificationGuidance confirmed={Boolean(message && !message.error && !hasToken)} /><div className="actions"><Link className="button button-primary" href={nextAccountHref('sign-in')}>Iniciar sesión</Link><Link href={nextAccountHref('register')}>Crear cuenta</Link></div></> : null}
         </div> : null}
 

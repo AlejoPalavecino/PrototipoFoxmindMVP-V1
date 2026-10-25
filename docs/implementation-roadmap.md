@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Main source publication — requested 2026-10-25
+
+User explicitly authorized pushing main to GitHub without deployment. [Current publication record](work-log/2026-10-25-root-main-activity-push.md) reconciles the verified activity/API history with remote login PR1 merge8619cd0, preserving both histories and roadmap sections. Combined production web build and16focused checks passed; original API122PASS source is unchanged. Publication readback follows in that record; earlier no-push statements remain historical for their own stages. No deployment or retained-data change is authorized.
+
 ## API build preparation — verified, 2026-10-25
 
 The requested follow-up closed the API build proof without changing code or the shared30s policy. Fresh `npm run api:build` on exact main577445c passed;22files/122tests passed with640unchanged inputs, compiled HTTP host and owned PostgreSQL/private-document fixtures. The canonical checkout's API also compiled (Prisma1319ms/TypeScript3908ms); it belongs to concurrent codex/login-inicio, so that observation is distinguished from exact-main proof. [Current coordinator/delivery](work-log/2026-10-25-root-api-build-main.md), [independent verification](work-log/2026-10-25-api_build_verify.md), [evidence](work-log/evidence/2026-10-25-api-main-build/summary.json). Earlier timeout remains history with cause unproved; no speculative patch, deadline expansion, new Google calls or remote publication.
@@ -13,6 +17,11 @@ Local main fast-forwarded to577445c with exact candidate tree and unrelated untr
 ## Activity AI and multiple topics — implemented and verified locally, 2026-10-25
 
 The user-approved local extension is implemented on `codex/classroom-activity-ai`: manual or generated TP/questionnaire/evaluation, multiple topics within one unit, explicit PDF/DOCX/teacher-context sources, private reviewed proposals and explicit draft/publication. [Feature/contract](../odd/tasks/classroom-activity-ai.md), [teacher guide](activity-ai.md), [coordinator/delivery](work-log/2026-10-25-root-activity-ai-implementation.md), [independent Sol6.1/xhigh proof](work-log/2026-10-25-activity_independent_verify.md) and [selected live captures](work-log/evidence/2026-10-25-activity-ai/README.md) own evidence. Frozen baseline104PASS plus final hook-delta20PASS, fresh API/Next builds, all nine DoT groups and both scoped rejudgments passed. Final product tree7d47529b560902f82411a53e2f7fc4ebe90ef94e; no product changes after acceptance. Three-type real API/data/browser journeys used a controlled provider, not real Gemini. Initial failures and one inherited submission-label advisory remain attributed; no new feature blocker remains. Local delivery/commit identities belong to the coordinator record. Existing P0–P9 acceptance stays historical; no main integration, remote publication or deployment is authorized.
+## Default login destination — 2026-10-25
+
+Later user-authorized publication: [remote-based delivery](work-log/2026-10-25-root-login-publication.md) isolates login changes from unpublished activity AI work. Fresh remote-base API/Next/types/client checks and all five functional browser groups passed. Ego real login reached Inicio; a capture-selector failure was corrected and the retained screen was inspected without replaying the fixture. The combined opt-in run remains recorded as FAIL; no merge or deployment is authorized.
+
+User-requested navigation correction: ordinary verified sign-in now opens `/inicio`, as do default existing-session and verified-email continuations. Explicit allowed classroom/invitation destinations and unverified-email gates are preserved. [Coordinator record](work-log/2026-10-25-root-login-inicio.md), [independent verification](work-log/2026-10-25-login_verify.md), [structural review](work-log/2026-10-25-login_review.md). Fresh API/Next/types and focused clients passed; all five real functional browser groups passed. Optional ego capture timed out; visual acceptance is unavailable and the combined opt-in run is not reported as wholly passing. Local branch delivery only; existing phase acceptance stays historical.
 
 ## Repository consolidation — 2026-10-24
 
