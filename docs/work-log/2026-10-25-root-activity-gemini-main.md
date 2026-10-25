@@ -6,7 +6,7 @@
 - Branch/worktree: codex/classroom-activity-ai; C:/Users/alejo/.codex/worktrees/classroom-activity-ai/ProtipoFoxMind.
 - Starting commit: 3c74eb6.
 - Phase/task: [actividades IA](../../odd/tasks/classroom-activity-ai.md), extensión de verificación/entrega.
-- Status: in_progress.
+- Status: completed.
 
 ## Request and scope
 
@@ -18,7 +18,7 @@ Rama feature limpia3c74eb6 al inicio; roadmap/protocolo/guías revisados. Bootst
 
 ## Verification
 
-Pendiente: prueba Gemini real, flujo docente/estudiante, esquema/fuentes/tipos/privacidad, builds y revisión de integración. Evidencia sintética anterior se conserva atribuida, no se etiqueta como real.
+Plan inicial, completado en los checkpoints posteriores: prueba Gemini real, flujo docente/estudiante, esquema/fuentes/tipos/privacidad, builds y revisión de integración. Evidencia sintética anterior se conserva atribuida, no se etiqueta como real. El build API canónico posterior tiene una limitación explícita en la entrega siguiente.
 
 Bootstrap/main preflight: main727614d9 y feature3c74eb6, origin/main igual tras fetch. Canonical sin staged/tracked changes;14archivos untracked ajenos, sin colisiones con rutas feature. No contenidos ajenos leídos ni modificados. Preview controlado63684 se detuvo por marcador propio: exit0/ownedcleanup0 antes de recompilar .next.
 
@@ -54,4 +54,4 @@ Commits locales observados: e9f8b30 conteoSDK (201líneas cambiadas), dca3444 ai
 
 ## Handoff
 
-Verificación completa aceptada y candidatos de producto congelados. Siguiente acción: commit de este cierre documental, preflight Git actual y FF main local preservando untracked ajenos; builds API/Next canónicos frescos y lectura exacta refs/tree, luego registro pasivo de entrega. Sin push/PR/despliegue ni migraciones sobre bases retenidas. Ambos runtimes propios ya limpiados; Space3 ajeno preservado, Space4 conserva sólo última pantalla histórica sin servidor activo.
+Verificación real aceptada y producto congelado. Main avanzó por FF a577445c con igualdad exacta HEAD/tree y18untracked ajenos preservados. [Entrega canónica y limitación](2026-10-25-root-activity-main-delivery.md): frontend PASS; API canónico no completó presupuesto compartido30s (Prisma PASS, TypeScript ETIMEDOUT sin diagnósticos). No se afirma PASS de ese build ni runtime canónico. Fuente integrada coincide con la que pasó API/110tests en worktree; próximo trabajo es preparar el runtime canónico antes de usarlo, con diagnóstico específico y sin retry ciego. Sin push/PR/despliegue ni migraciones sobre bases retenidas. Ambos runtimes propios ya limpiados; Space3 ajeno preservado, Space4 conserva sólo última pantalla histórica sin servidor activo.
