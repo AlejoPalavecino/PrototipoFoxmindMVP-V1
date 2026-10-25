@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="FoxMind"><title>FoxMind</title><g stroke="#4B2417" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+<path fill="#FF782D" d="M53 154C17 134 9 68 28 20Q31 10 41 17C75 38 104 69 113 98L143 98C153 69 181 38 215 17Q225 10 228 20C247 68 239 134 203 154Z"/>
+<path fill="#FFE6B7" d="M52 128C29 109 29 64 38 35C61 53 83 79 91 104Z"/>
+<path fill="#FFE6B7" d="M204 128C227 109 227 64 218 35C195 53 173 79 165 104Z"/>
+<path fill="#FF782D" d="M35 154C46 118 68 90 103 85L94 68Q111 67 125 83L124 59Q143 61 156 87C190 92 211 119 221 154L246 168C233 211 191 241 128 243C65 241 23 211 10 168Z"/>
+<path fill="#FFF1CF" stroke="none" d="M20 172L44 157L35 178Q64 160 89 174Q108 185 128 183Q148 185 167 174Q192 160 221 178L212 157L236 172C221 209 183 232 128 234C73 232 35 209 20 172Z"/>
+<path fill="#FFF7E4" d="M72 160C58 149 61 115 81 108C102 101 115 120 111 144C108 163 89 171 72 160Z"/>
+<path fill="#FFF7E4" d="M184 160C198 149 195 115 175 108C154 101 141 120 145 144C148 163 167 171 184 160Z"/>
+<ellipse fill="#4B2417" stroke="none" cx="92" cy="140" rx="13" ry="20"/>
+<ellipse fill="#4B2417" stroke="none" cx="164" cy="140" rx="13" ry="20"/>
+<ellipse fill="#FFFFFF" stroke="none" cx="96" cy="131" rx="5" ry="7"/>
+<ellipse fill="#FFFFFF" stroke="none" cx="160" cy="131" rx="5" ry="7"/>
+<path fill="none" d="M64 99Q80 85 96 94M160 94Q176 85 192 99"/>
+<path fill="#4B2417" d="M111 170Q128 162 145 170Q148 181 128 189Q108 181 111 170Z"/>
+<path fill="#4B2417" d="M85 190Q103 209 128 198Q153 209 171 190Q157 226 128 228Q99 226 85 190Z"/>
+<path fill="#EF603A" stroke="none" d="M108 218Q129 204 149 218Q129 233 108 218Z"/>
+<path fill="none" d="M128 188V199"/>
+</g></svg>
