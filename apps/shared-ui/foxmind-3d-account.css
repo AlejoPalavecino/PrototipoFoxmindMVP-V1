@@ -1,0 +1,76 @@
+.fm3d-theme .entry-page .auth-main {
+  max-width: 1120px;
+  gap: 48px;
+  margin: 48px auto 24px;
+}
+.fm3d-theme .entry-story h2 { font-size: clamp(28px, 3vw, 42px); letter-spacing: -.025em; }
+.fm3d-theme .entry-story h2 span { color: inherit; }
+.fm3d-theme .entry-story p { font-size: 18px; }
+.fm3d-theme .entry-story .fm3d-illustration { max-height: 450px; }
+.fm3d-theme .entry-story .fm3d-illustration img { max-height: 450px; object-fit: cover; }
+.fm3d-theme .entry-page .surface {
+  padding: 32px;
+  border: 1px solid var(--fm-border);
+  border-radius: var(--fm-radius-card);
+  box-shadow: var(--fm-shadow);
+}
+.fm3d-theme .entry-page .surface > .folder-tab { display: none; }
+.fm3d-theme .entry-page h1 { font-size: clamp(28px, 3vw, 36px); }
+.fm3d-theme .entry-page .field-label { font-size: 16px; }
+.fm3d-theme .entry-page .input { height: 50px; }
+.fm3d-theme .entry-page .field { margin-bottom: 22px; }
+.fm3d-theme .entry-page .button { min-height: 48px; font-size: 16px; box-shadow: none; }
+.fm3d-theme .entry-page .field-help { font-size: 14px; color: var(--fm-muted); }
+.fm3d-theme .account-steps li { border: 0; background: var(--fm-orange-soft); }
+.fm3d-theme .entry-page .auth-verification { max-width: 680px; }
+.fm3d-theme .verification-foxy { width: 140px; height: auto; margin: 0 auto 24px; }
+.fm3d-theme .entry-profile .profile-main {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+  gap: 28px;
+  max-width: 1200px;
+  align-items: start;
+}
+.fm3d-theme .entry-profile .profile-account { padding: 0; background: none; border: 0; box-shadow: none; }
+.fm3d-theme .entry-profile .fm3d-account-card {
+  position: static;
+  padding: 24px;
+  margin-top: 20px;
+  border: 1px solid var(--fm-border);
+  border-radius: 20px;
+  background: var(--fm-surface);
+  box-shadow: var(--fm-shadow);
+}
+.fm3d-theme .entry-profile .fm3d-account-card h2 { margin: 0 0 12px; font-size: 24px; }
+.fm3d-theme .entry-profile .fm3d-account-card p { font-size: 16px; }
+.fm3d-theme .entry-profile .password-section { border-top: 1px solid var(--fm-border); }
+.fm3d-theme .entry-profile .profile-summary { margin: 24px 0; border: 0; }
+.fm3d-theme .entry-profile .initials { border: 0; background: var(--fm-orange-soft); }
+.fm3d-account-art { padding-top: 96px; min-width: 0; }
+.fm3d-theme .entry-profile .fm3d-account-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 0 0 20px;
+  background: var(--fm-orange-soft);
+}
+.fm3d-account-summary > div { min-width: 0; flex: 1 1 160px; }
+.fm3d-theme .entry-profile .fm3d-account-summary h2 { font-size: 22px; overflow-wrap: anywhere; }
+.fm3d-account-summary p { margin: 0; overflow-wrap: anywhere; }
+.fm3d-account-summary > .button { width: 100%; }
+.fm3d-account-art .fm3d-illustration { background: var(--fm-orange-soft); }
+.fm3d-account-art .fm3d-illustration img { object-fit: contain; }
+.fm3d-theme .entry-profile .page-footer { grid-column: 1 / -1; }
+@media (max-width: 900px) {
+  .fm3d-theme .entry-profile .profile-main { grid-template-columns: 1fr; }
+  .fm3d-account-art { display: none; }
+}
+@media (max-width: 700px) {
+  .fm3d-theme .entry-page .auth-main { display: block; margin-top: 24px; width: calc(100% - 32px); }
+  .fm3d-theme .entry-page .surface { margin-top: 0; padding: 24px 20px; }
+  .fm3d-theme .entry-profile .profile-main { width: calc(100% - 32px); }
+  .fm3d-theme .entry-profile .fm3d-account-card { padding: 24px 20px; }
+  .fm3d-theme .entry-profile .profile-account { padding: 0; }
+  .fm3d-theme .entry-page .form-actions { flex-wrap: wrap; }
+}

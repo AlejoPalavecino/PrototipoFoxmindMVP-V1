@@ -1,0 +1,5 @@
+/* Import once from Pages Router _app, after existing presentation styles. */
+@import './foxmind-3d-tokens.css';
+@import './foxmind-3d-graphics.css';
+@import './foxmind-3d-controls.css';
+@import './foxmind-3d-account.css';
