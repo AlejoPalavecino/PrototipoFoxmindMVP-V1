@@ -4,7 +4,7 @@
 - Date: 2026-10-25.
 - Branch/base: codex/foxmind-3d-migration, from eecb769151b12abb5ae9e1f15839b54c772e446f (accepted design kit and original-logo correction).
 - Scope: user now explicitly authorizes local implementation of the complete visual migration and real membership-driven Inicio, delegated through global AGENTS workflow. References are the ten newly attached selected mockups; preserve original ZorroH branding, use prepared WebP assets, responsive layouts and reduced-motion-aware gentle transitions. Cover current flows and permissions. No remote publication/deployment or retained-data mutation authorized.
-- Status: in_progress — implementation and local verification complete; local Git delivery is being assembled.
+- Status: completed — local implementation, verification and exact-tree Git delivery complete; limitations remain explicit below.
 
 ## Read-only bootstrap attribution
 
@@ -69,3 +69,13 @@ Original-request entrance motion is a distinct L1 decorative leaf, not another J
 Tester restored emulation/media/network/cache/timezone and finished Space9 exactly once (closedSpace true,p1closed,kept0,unmanaged0), after Docker[]/ownedcleanup0. Final native200%zoom/LCP/INP/physical-Safari checks remain unavailable advisories; no broad accessibility/performance PASS is claimed. Full wizard GUI creation was not observed in the new traversal. The [82-row map](../foxmind-3d-verification.md) explicitly marks27IDs with at least one direct ego step and55with code/related-regression/type evidence; these are not82independent GUIE2Es. Coordinator accepts the local implementation and observed verification with those explicit platform/advisory limits, preserving historical P0–P9 acceptance rather than manufacturing new per-state proof.
 
 Next exact action: create bounded semantic local commits from the final immutable delivery tree, preserve reviewed product bytes plus the identified L1 leaf, verify final-tree equality and append actual commit identities afterward. No push, PR, main merge or deployment is requested/performed. No data/schema migration or retained-state change occurred. The memory runtime identity remained unavailable throughout; durable recovery is these repository records, not an invented memory write.
+
+## Completed local delivery
+
+The preceding next action is now fulfilled. `/root/local_delivery` constructed44semantic commit objects using an isolated index, with6835authored changed lines total, maximum393per unit and zero budget exceptions. Its earlier24-unit architecture proposal is historical; the actual chain resolves the SQL-library split without its proposed overage. Tests, scripts, helpers and authored docs count; only copied assets and mechanically generated evidence are excluded. [Durable commit/check manifest](evidence/2026-10-25-foxmind-3d/delivery.json) records every actual identity and budget.
+
+Final implementation commit `526337636d1ce2b2c99e30509e3e584ef64e79ce` has TREE `72e03f5d6d49f0772219d296094ed69642b70264`, exactly the coordinator-frozen delivery tree. Root independently checked branch/base, ancestor relation, shared index tree, final commit tree, no unstaged changes and diff-check; then advanced only `codex/foxmind-3d-migration` with compare-and-swap from `eecb769151b12abb5ae9e1f15839b54c772e446f`. Observed tracked status was clean. Original unrelated untracked histories remain uncommitted. No remote ref was touched.
+
+Attribution: delivery agent observed86passing isolated-prefix checks (44AST/import closure,20web types,8API types,1pre-UoW SQL-library types,13pure-suite executions), plus44Git diff checks. These are not44live runtime/DB verifications; final functional and browser proof remains attributed above. Root additionally checked17changed Markdown documents/472local links/0broken. Runtime identity remained unavailable; no attributed memory write was attempted.
+
+D1–D9 implementation and D10 local verification/delivery are accepted with the explicit native screenshot/zoom/performance/device and per-ID GUI evidence limitations already recorded. This does not mark82new E2Es as passed. No implementation remains pending in this request. Next work, if requested, is human visual feedback or separately authorized remote publication; no service or browser Space is left running by this task. This passive documentation closure follows the implementation commit and does not invent its own hash.

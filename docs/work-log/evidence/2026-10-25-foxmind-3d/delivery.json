@@ -1,0 +1,1943 @@
+{
+  "date": "2026-10-25",
+  "actor": "/root/local_delivery",
+  "persistedBy": "/root",
+  "base": "eecb769151b12abb5ae9e1f15839b54c772e446f",
+  "finalCommit": "526337636d1ce2b2c99e30509e3e584ef64e79ce",
+  "finalTree": "72e03f5d6d49f0772219d296094ed69642b70264",
+  "exactTree": true,
+  "units": [
+    {
+      "id": "U01",
+      "purpose": "chore(ui): prepare approved FoxMind 3D graphics",
+      "commit": "179a28a17566a3fdde62627ae1feb81e14af4489",
+      "tree": "87e94240cdaf534b7df2889c2d21d61b0b31a3dd",
+      "parent": "eecb769151b12abb5ae9e1f15839b54c772e446f",
+      "authoredChangedLines": 365,
+      "generatedTextExempt": 92,
+      "paths": [
+        "apps/web/public/foxmind-3d/brand/favicon.svg",
+        "apps/web/public/foxmind-3d/brand/logo-horizontal-inverse.svg",
+        "apps/web/public/foxmind-3d/brand/logo-horizontal.svg",
+        "apps/web/public/foxmind-3d/brand/logo-stacked.svg",
+        "apps/web/public/foxmind-3d/brand/mark.svg",
+        "apps/web/public/foxmind-3d/brand/wordmark.svg",
+        "apps/web/public/foxmind-3d/brand/zorroh-128.webp",
+        "apps/web/public/foxmind-3d/brand/zorroh-256.webp",
+        "apps/web/public/foxmind-3d/brand/zorroh-512.webp",
+        "apps/web/public/foxmind-3d/covers/biology-320.webp",
+        "apps/web/public/foxmind-3d/covers/biology-640.webp",
+        "apps/web/public/foxmind-3d/covers/biology.webp",
+        "apps/web/public/foxmind-3d/covers/creative-320.webp",
+        "apps/web/public/foxmind-3d/covers/creative-640.webp",
+        "apps/web/public/foxmind-3d/covers/creative.webp",
+        "apps/web/public/foxmind-3d/covers/general-320.webp",
+        "apps/web/public/foxmind-3d/covers/general-640.webp",
+        "apps/web/public/foxmind-3d/covers/general.webp",
+        "apps/web/public/foxmind-3d/covers/literature-320.webp",
+        "apps/web/public/foxmind-3d/covers/literature-640.webp",
+        "apps/web/public/foxmind-3d/covers/literature.webp",
+        "apps/web/public/foxmind-3d/covers/math-320.webp",
+        "apps/web/public/foxmind-3d/covers/math-640.webp",
+        "apps/web/public/foxmind-3d/covers/math.webp",
+        "apps/web/public/foxmind-3d/covers/science-320.webp",
+        "apps/web/public/foxmind-3d/covers/science-640.webp",
+        "apps/web/public/foxmind-3d/covers/science.webp",
+        "apps/web/public/foxmind-3d/covers/society-320.webp",
+        "apps/web/public/foxmind-3d/covers/society-640.webp",
+        "apps/web/public/foxmind-3d/covers/society.webp",
+        "apps/web/public/foxmind-3d/hero/welcome-learn-480.webp",
+        "apps/web/public/foxmind-3d/hero/welcome-learn-960.webp",
+        "apps/web/public/foxmind-3d/hero/welcome-learn.webp",
+        "apps/web/public/foxmind-3d/hero/welcome-teach-480.webp",
+        "apps/web/public/foxmind-3d/hero/welcome-teach-960.webp",
+        "apps/web/public/foxmind-3d/hero/welcome-teach.webp",
+        "apps/web/public/foxmind-3d/icons/archive.svg",
+        "apps/web/public/foxmind-3d/icons/arrow-left.svg",
+        "apps/web/public/foxmind-3d/icons/arrow-right.svg",
+        "apps/web/public/foxmind-3d/icons/attach.svg",
+        "apps/web/public/foxmind-3d/icons/bell.svg",
+        "apps/web/public/foxmind-3d/icons/book.svg",
+        "apps/web/public/foxmind-3d/icons/calendar.svg",
+        "apps/web/public/foxmind-3d/icons/chat.svg",
+        "apps/web/public/foxmind-3d/icons/check.svg",
+        "apps/web/public/foxmind-3d/icons/chevron-down.svg",
+        "apps/web/public/foxmind-3d/icons/chevron-right.svg",
+        "apps/web/public/foxmind-3d/icons/clipboard.svg",
+        "apps/web/public/foxmind-3d/icons/clock.svg",
+        "apps/web/public/foxmind-3d/icons/close.svg",
+        "apps/web/public/foxmind-3d/icons/copy.svg",
+        "apps/web/public/foxmind-3d/icons/download.svg",
+        "apps/web/public/foxmind-3d/icons/edit.svg",
+        "apps/web/public/foxmind-3d/icons/eye-off.svg",
+        "apps/web/public/foxmind-3d/icons/eye.svg",
+        "apps/web/public/foxmind-3d/icons/file.svg",
+        "apps/web/public/foxmind-3d/icons/filter.svg",
+        "apps/web/public/foxmind-3d/icons/folder.svg",
+        "apps/web/public/foxmind-3d/icons/help.svg",
+        "apps/web/public/foxmind-3d/icons/home.svg",
+        "apps/web/public/foxmind-3d/icons/link.svg",
+        "apps/web/public/foxmind-3d/icons/lock.svg",
+        "apps/web/public/foxmind-3d/icons/logout.svg",
+        "apps/web/public/foxmind-3d/icons/menu.svg",
+        "apps/web/public/foxmind-3d/icons/minus.svg",
+        "apps/web/public/foxmind-3d/icons/more.svg",
+        "apps/web/public/foxmind-3d/icons/plus.svg",
+        "apps/web/public/foxmind-3d/icons/profile.svg",
+        "apps/web/public/foxmind-3d/icons/progress.svg",
+        "apps/web/public/foxmind-3d/icons/refresh.svg",
+        "apps/web/public/foxmind-3d/icons/search.svg",
+        "apps/web/public/foxmind-3d/icons/settings.svg",
+        "apps/web/public/foxmind-3d/icons/shield.svg",
+        "apps/web/public/foxmind-3d/icons/spark.svg",
+        "apps/web/public/foxmind-3d/icons/sprite.svg",
+        "apps/web/public/foxmind-3d/icons/trash.svg",
+        "apps/web/public/foxmind-3d/icons/upload.svg",
+        "apps/web/public/foxmind-3d/icons/users.svg",
+        "apps/web/public/foxmind-3d/icons/warning.svg",
+        "apps/web/public/foxmind-3d/scenes/agenda-320.webp",
+        "apps/web/public/foxmind-3d/scenes/agenda-640.webp",
+        "apps/web/public/foxmind-3d/scenes/agenda.webp",
+        "apps/web/public/foxmind-3d/scenes/auth-320.webp",
+        "apps/web/public/foxmind-3d/scenes/auth-640.webp",
+        "apps/web/public/foxmind-3d/scenes/auth.webp",
+        "apps/web/public/foxmind-3d/scenes/profile-320.webp",
+        "apps/web/public/foxmind-3d/scenes/profile-640.webp",
+        "apps/web/public/foxmind-3d/scenes/profile.webp",
+        "apps/web/public/foxmind-3d/scenes/security-320.webp",
+        "apps/web/public/foxmind-3d/scenes/security-640.webp",
+        "apps/web/public/foxmind-3d/scenes/security.webp",
+        "apps/web/public/foxmind-3d/states/empty-160.webp",
+        "apps/web/public/foxmind-3d/states/empty-320.webp",
+        "apps/web/public/foxmind-3d/states/empty.webp",
+        "apps/web/public/foxmind-3d/states/success-160.webp",
+        "apps/web/public/foxmind-3d/states/success-320.webp",
+        "apps/web/public/foxmind-3d/states/success.webp",
+        "apps/web/public/foxmind-3d/states/unavailable-160.webp",
+        "apps/web/public/foxmind-3d/states/unavailable-320.webp",
+        "apps/web/public/foxmind-3d/states/unavailable.webp",
+        "apps/shared-ui/FoxmindBrand.tsx",
+        "apps/shared-ui/FoxmindIcon.tsx",
+        "apps/shared-ui/FoxmindIllustration.tsx",
+        "apps/shared-ui/foxmind-assets.ts",
+        "apps/shared-ui/raster-catalog.ts",
+        "apps/shared-ui/index.ts",
+        "apps/shared-ui/foxmind-3d-tokens.css",
+        "apps/shared-ui/foxmind-3d-graphics.css",
+        "apps/shared-ui/foxmind-3d-controls.css",
+        "docs/work-log/2026-10-25-visual-foundations.md"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.219
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/web/tsconfig.json",
+            "--noEmit",
+            "--incremental",
+            "false",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 3.546
+        }
+      ]
+    },
+    {
+      "id": "U02",
+      "purpose": "docs(ui): record the local 3D execution contract",
+      "commit": "4a7cd38cb98dff8dfce61da12f1b128f686c1427",
+      "tree": "031e78c9fd2e096545e5eaf978806252ce34dc64",
+      "parent": "179a28a17566a3fdde62627ae1feb81e14af4489",
+      "authoredChangedLines": 392,
+      "generatedTextExempt": 0,
+      "paths": [
+        "odd/tasks/foxmind-3d-migration.md",
+        "docs/work-log/2026-10-25-visual-architecture.md",
+        "docs/work-log/2026-10-25-root-visual-migration.md"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.219
+        }
+      ]
+    },
+    {
+      "id": "U03",
+      "purpose": "test(harness): resolve import meta through its syntax tree",
+      "commit": "51bdab4757ff91d7a602441fe3784704efd56d2d",
+      "tree": "55a232ac849726c3ebf7b2f8a8eb9f614fa2be75",
+      "parent": "4a7cd38cb98dff8dfce61da12f1b128f686c1427",
+      "authoredChangedLines": 56,
+      "generatedTextExempt": 0,
+      "paths": [
+        "tests/helpers/load-ts-module.mjs",
+        "tests/foxmind-3d-loader.test.mjs",
+        "tests/foxmind-3d-flows-loader.test.mjs"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.234
+        },
+        {
+          "command": [
+            "node",
+            "--experimental-transform-types",
+            "--test",
+            "--test-reporter=dot",
+            "tests/foxmind-3d-loader.test.mjs",
+            "tests/foxmind-3d-flows-loader.test.mjs"
+          ],
+          "exit": 0,
+          "seconds": 0.329
+        }
+      ]
+    },
+    {
+      "id": "U04",
+      "purpose": "feat(home): validate strict membership dashboard data",
+      "commit": "346272f8c6a0a256c845251c3294f44dea7295b7",
+      "tree": "bdc3750fa91dbd83ea2425f2f8844ee302733135",
+      "parent": "51bdab4757ff91d7a602441fe3784704efd56d2d",
+      "authoredChangedLines": 384,
+      "generatedTextExempt": 0,
+      "paths": [
+        "src/core/domain/home-ports.ts",
+        "src/core/domain/home-rows-validation.ts",
+        "src/core/domain/home-target.ts",
+        "src/core/domain/home-validation.ts",
+        "src/core/domain/home-values.ts",
+        "src/core/domain/home.ts",
+        "src/core/domain/index.ts",
+        "tests/foxmind-3d-contracts.test.mjs"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.281
+        },
+        {
+          "command": [
+            "node",
+            "--experimental-transform-types",
+            "--test",
+            "--test-reporter=dot",
+            "tests/foxmind-3d-contracts.test.mjs"
+          ],
+          "exit": 0,
+          "seconds": 0.907
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/web/tsconfig.json",
+            "--noEmit",
+            "--incremental",
+            "false",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 3.484
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/api/tsconfig.json",
+            "--noEmit",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 3.297
+        }
+      ]
+    },
+    {
+      "id": "U05",
+      "purpose": "feat(classrooms): retain legacy covers and accept seven new choices",
+      "commit": "b7641a031b5057507d0aee1d62cde187e6255829",
+      "tree": "37128d227ec09a1af6f9f4a865fee8560421dfd9",
+      "parent": "346272f8c6a0a256c845251c3294f44dea7295b7",
+      "authoredChangedLines": 96,
+      "generatedTextExempt": 0,
+      "paths": [
+        "src/core/domain/classroom-cover.ts",
+        "src/core/domain/index.ts",
+        "apps/api/src/classrooms/policy.ts",
+        "apps/classrooms-ui/components.tsx",
+        "apps/classrooms-ui/Wizard.tsx",
+        "tests/foxmind-3d-contracts.test.mjs",
+        "tests/foxmind-3d-flows.test.mjs",
+        "docs/work-log/2026-10-25-visual-classrooms.md"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.266
+        },
+        {
+          "command": [
+            "node",
+            "--experimental-transform-types",
+            "--test",
+            "--test-reporter=dot",
+            "tests/foxmind-3d-contracts.test.mjs",
+            "tests/foxmind-3d-flows.test.mjs"
+          ],
+          "exit": 0,
+          "seconds": 0.937
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/web/tsconfig.json",
+            "--noEmit",
+            "--incremental",
+            "false",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 3.11
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/api/tsconfig.json",
+            "--noEmit",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 2.968
+        }
+      ]
+    },
+    {
+      "id": "U06",
+      "purpose": "refactor(attempts): share the effective reception policy",
+      "commit": "3864eed3d1d1bc441624712ab7369e7703182cf5",
+      "tree": "f2b7458b12ef756d00d4d4cdca9b20debd1f9710",
+      "parent": "b7641a031b5057507d0aee1d62cde187e6255829",
+      "authoredChangedLines": 15,
+      "generatedTextExempt": 0,
+      "paths": [
+        "src/core/domain/activity-reception.ts",
+        "src/core/domain/index.ts",
+        "apps/api/src/classrooms/attempt-policy.ts",
+        "apps/api/src/classrooms/index.ts"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.265
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/web/tsconfig.json",
+            "--noEmit",
+            "--incremental",
+            "false",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 3
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/api/tsconfig.json",
+            "--noEmit",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 2.969
+        }
+      ]
+    },
+    {
+      "id": "U07",
+      "purpose": "feat(home): compose read only projections through one unit",
+      "commit": "4aea9c8629eb89fc8bfdfa66b6d612f5c2f8aa8a",
+      "tree": "676ace58d59b2be584affa9c59c809b2ac99b1a9",
+      "parent": "3864eed3d1d1bc441624712ab7369e7703182cf5",
+      "authoredChangedLines": 113,
+      "generatedTextExempt": 0,
+      "paths": [
+        "apps/api/src/home/service.ts",
+        "apps/api/src/home/index.ts",
+        "tests/foxmind-3d-service.test.mjs"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.297
+        },
+        {
+          "command": [
+            "node",
+            "--experimental-transform-types",
+            "--test",
+            "--test-reporter=dot",
+            "tests/foxmind-3d-service.test.mjs"
+          ],
+          "exit": 0,
+          "seconds": 0.187
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/web/tsconfig.json",
+            "--noEmit",
+            "--incremental",
+            "false",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 2.984
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/api/tsconfig.json",
+            "--noEmit",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 3
+        }
+      ]
+    },
+    {
+      "id": "U08",
+      "purpose": "feat(home): prepare bounded authorized SQL projections",
+      "commit": "ca11a04847b5fb53616e599a08dbf2e6ceca18d8",
+      "tree": "e196cb8d6bc7005b70d19290d2f0d0715be27fb4",
+      "parent": "4aea9c8629eb89fc8bfdfa66b6d612f5c2f8aa8a",
+      "authoredChangedLines": 307,
+      "generatedTextExempt": 0,
+      "paths": [
+        "apps/api/src/home/cursor.ts",
+        "apps/api/src/home/database-types.ts",
+        "apps/api/src/home/miniagenda.ts",
+        "apps/api/src/home/pending-policy.ts",
+        "apps/api/src/home/private-timing.ts",
+        "apps/api/src/home/queries-content.ts",
+        "apps/api/src/home/queries-feedback.ts",
+        "apps/api/src/home/queries-participation.ts",
+        "apps/api/src/home/queries-pending.ts",
+        "apps/api/src/home/queries-review.ts",
+        "apps/api/src/home/query-values.ts",
+        "apps/api/src/home/read-port.ts",
+        "apps/api/src/home/sql-page.ts",
+        "docs/work-log/2026-10-25-visual-home.md"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.281
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/web/tsconfig.json",
+            "--noEmit",
+            "--incremental",
+            "false",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 3.047
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/api/tsconfig.json",
+            "--noEmit",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 3.031
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "--noEmit",
+            "--strict",
+            "--skipLibCheck",
+            "--target",
+            "ES2023",
+            "--module",
+            "NodeNext",
+            "--moduleResolution",
+            "NodeNext",
+            "--allowImportingTsExtensions",
+            "apps/api/src/home/read-port.ts"
+          ],
+          "exit": 0,
+          "seconds": 0.938
+        }
+      ]
+    },
+    {
+      "id": "U09",
+      "purpose": "feat(home): authorize transactional PostgreSQL dashboard reads",
+      "commit": "2ae4fe1ff05a8e43d9cf944c2b9f9621867d14b7",
+      "tree": "f6e94aa23b64baeb66df94b13828326c6293aafa",
+      "parent": "ca11a04847b5fb53616e599a08dbf2e6ceca18d8",
+      "authoredChangedLines": 393,
+      "generatedTextExempt": 0,
+      "paths": [
+        "apps/api/src/home/unit-of-work.ts",
+        "apps/api/src/home/index.ts",
+        "tests/foxmind-3d-repository.test.mjs",
+        "tests/foxmind-3d-repository-fixture.test.mjs",
+        "tests/foxmind-3d-regressions.test.mjs"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.297
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/web/tsconfig.json",
+            "--noEmit",
+            "--incremental",
+            "false",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 3.016
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/api/tsconfig.json",
+            "--noEmit",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 3
+        }
+      ]
+    },
+    {
+      "id": "U10",
+      "purpose": "feat(home): expose guarded aggregate and module routes",
+      "commit": "ef2c7ea623fbe7ef90e8221c746340caad260055",
+      "tree": "1c0bed64978a4bae799300b3123036254b74f9b5",
+      "parent": "2ae4fe1ff05a8e43d9cf944c2b9f9621867d14b7",
+      "authoredChangedLines": 210,
+      "generatedTextExempt": 0,
+      "paths": [
+        "apps/api/src/home/http.ts",
+        "apps/api/src/home/host.ts",
+        "apps/api/src/home/integration.ts",
+        "apps/api/src/home/index.ts",
+        "apps/api/src/application.ts",
+        "apps/web/pages/api/v1/home/[[...path]].ts",
+        "apps/web/src/lib/home-proxy.ts",
+        "tests/foxmind-3d-http.test.mjs"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.313
+        },
+        {
+          "command": [
+            "node",
+            "--experimental-transform-types",
+            "--test",
+            "--test-reporter=dot",
+            "tests/foxmind-3d-http.test.mjs"
+          ],
+          "exit": 0,
+          "seconds": 0.359
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/web/tsconfig.json",
+            "--noEmit",
+            "--incremental",
+            "false",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 3.141
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/api/tsconfig.json",
+            "--noEmit",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 3
+        }
+      ]
+    },
+    {
+      "id": "U11",
+      "purpose": "feat(home): fetch validated same origin dashboard responses",
+      "commit": "a2d5bf207c1ee17ec88d3d2a20bc99c8c11f4809",
+      "tree": "95c513d11ab347595b81060b6b33d5696b7ce4be",
+      "parent": "ef2c7ea623fbe7ef90e8221c746340caad260055",
+      "authoredChangedLines": 94,
+      "generatedTextExempt": 0,
+      "paths": [
+        "apps/web/src/lib/home-client.ts",
+        "apps/classrooms-ui/home-api.ts",
+        "tests/foxmind-3d-client.test.mjs"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.312
+        },
+        {
+          "command": [
+            "node",
+            "--experimental-transform-types",
+            "--test",
+            "--test-reporter=dot",
+            "tests/foxmind-3d-client.test.mjs"
+          ],
+          "exit": 0,
+          "seconds": 0.969
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/web/tsconfig.json",
+            "--noEmit",
+            "--incremental",
+            "false",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 2.985
+        }
+      ]
+    },
+    {
+      "id": "U12",
+      "purpose": "refactor(account): prepare reusable guarded forms and artwork",
+      "commit": "ab5cb57af38c22cb68a3d3fc6f250cc95140895c",
+      "tree": "038ae7e180ab57c7b365c8cd4d8a273fbf90bcb8",
+      "parent": "a2d5bf207c1ee17ec88d3d2a20bc99c8c11f4809",
+      "authoredChangedLines": 254,
+      "generatedTextExempt": 0,
+      "paths": [
+        "apps/web/src/components/account-artwork.tsx",
+        "apps/web/src/components/account-field.tsx",
+        "apps/web/src/components/account-flow-forms.tsx",
+        "apps/web/src/components/account-profile.tsx",
+        "apps/web/src/components/account-view.ts",
+        "apps/shared-ui/AccountStory.tsx",
+        "apps/shared-ui/foxmind-3d-account.css",
+        "apps/shared-ui/foxmind-3d.css"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.329
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/web/tsconfig.json",
+            "--noEmit",
+            "--incremental",
+            "false",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 3.296
+        }
+      ]
+    },
+    {
+      "id": "U13",
+      "purpose": "feat(account): separate profile from guarded settings",
+      "commit": "1eb9bee89ef553362107827b32282fdc350dd62b",
+      "tree": "1c9637c3c37a3c5f3ed317ae3ba60a0f18b602e6",
+      "parent": "ab5cb57af38c22cb68a3d3fc6f250cc95140895c",
+      "authoredChangedLines": 228,
+      "generatedTextExempt": 0,
+      "paths": [
+        "apps/web/src/components/account-settings.tsx",
+        "apps/web/src/components/account-screen.tsx",
+        "apps/web/pages/settings.tsx",
+        "apps/web/src/lib/classroom-client.ts",
+        "tests/foxmind-3d-flows-account.test.mjs",
+        "tests/foxmind-3d-flows.test.mjs"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.344
+        },
+        {
+          "command": [
+            "node",
+            "--experimental-transform-types",
+            "--test",
+            "--test-reporter=dot",
+            "tests/foxmind-3d-flows-account.test.mjs",
+            "tests/foxmind-3d-flows.test.mjs"
+          ],
+          "exit": 0,
+          "seconds": 0.578
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/web/tsconfig.json",
+            "--noEmit",
+            "--incremental",
+            "false",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 3.313
+        }
+      ]
+    },
+    {
+      "id": "U14",
+      "purpose": "feat(navigation): add the responsive shell and exact account routing",
+      "commit": "5d056530f3d55a88a66c40b84dfdb374a3bbb187",
+      "tree": "da9d4d6730ba6bb7fa6e29740f587e31f3206072",
+      "parent": "1eb9bee89ef553362107827b32282fdc350dd62b",
+      "authoredChangedLines": 319,
+      "generatedTextExempt": 0,
+      "paths": [
+        "apps/shared-ui/AppNavbar.tsx",
+        "apps/shared-ui/NavbarParts.tsx",
+        "apps/shared-ui/foxmind-3d-shell.css",
+        "apps/shared-ui/foxmind-3d.css",
+        "apps/web/src/components/account-navbar.tsx",
+        "apps/web/pages/_app.tsx",
+        "tests/foxmind-3d-regressions.test.mjs",
+        "apps/classrooms-ui/Classrooms.tsx"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.359
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/web/tsconfig.json",
+            "--noEmit",
+            "--incremental",
+            "false",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 3.032
+        }
+      ]
+    },
+    {
+      "id": "U15",
+      "purpose": "feat(classrooms): show one searchable membership collection",
+      "commit": "b5bae30c538977247b7304ee31c3f9053bdeed02",
+      "tree": "cb9920f09424353b2321e60a5cc32d7e16f7286f",
+      "parent": "5d056530f3d55a88a66c40b84dfdb374a3bbb187",
+      "authoredChangedLines": 313,
+      "generatedTextExempt": 0,
+      "paths": [
+        "apps/classrooms-ui/ClassroomCollection.tsx",
+        "apps/classrooms-ui/collection-filter.ts",
+        "apps/classrooms-ui/foxmind-classroom-cards.css",
+        "apps/classrooms-ui/ClassroomsApp.tsx",
+        "apps/classrooms-ui/foxmind-classrooms.css",
+        "apps/web/pages/_app.tsx",
+        "apps/classrooms-ui/Classrooms.tsx",
+        "tests/foxmind-3d-flows-collection.test.mjs"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.36
+        },
+        {
+          "command": [
+            "node",
+            "--experimental-transform-types",
+            "--test",
+            "--test-reporter=dot",
+            "tests/foxmind-3d-flows-collection.test.mjs"
+          ],
+          "exit": 0,
+          "seconds": 0.671
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/web/tsconfig.json",
+            "--noEmit",
+            "--incremental",
+            "false",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 3.204
+        }
+      ]
+    },
+    {
+      "id": "U16",
+      "purpose": "style(classrooms): retain compact readable classroom context",
+      "commit": "8750affd2adb6becc22fea651efd5f1b1ee5e1f1",
+      "tree": "f92092ecf38ceea9fd0f868fb310a6dd44aa69c4",
+      "parent": "b5bae30c538977247b7304ee31c3f9053bdeed02",
+      "authoredChangedLines": 118,
+      "generatedTextExempt": 0,
+      "paths": [
+        "apps/classrooms-ui/ClassroomHeader.tsx",
+        "apps/classrooms-ui/foxmind-classroom-workspace.css",
+        "apps/classrooms-ui/ClassroomView.tsx",
+        "apps/classrooms-ui/foxmind-classrooms.css"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.36
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/web/tsconfig.json",
+            "--noEmit",
+            "--incremental",
+            "false",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 3
+        }
+      ]
+    },
+    {
+      "id": "U17",
+      "purpose": "feat(classrooms): adapt real activity and material destinations",
+      "commit": "d776bf5037df0cc12662b7bd6e602683286435ab",
+      "tree": "03f440570ac176883b320729488f2a76647b7dfe",
+      "parent": "8750affd2adb6becc22fea651efd5f1b1ee5e1f1",
+      "authoredChangedLines": 107,
+      "generatedTextExempt": 0,
+      "paths": [
+        "apps/classrooms-ui/Activities.tsx",
+        "apps/classrooms-ui/AttemptHistory.tsx",
+        "apps/classrooms-ui/Library.tsx",
+        "apps/classrooms-ui/open-activity-session.ts",
+        "apps/classrooms-ui/api.ts",
+        "apps/api/src/classrooms/activity-history.ts",
+        "tests/foxmind-3d-flows-attempt.test.mjs",
+        "tests/foxmind-3d-repository-history.test.mjs"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.359
+        },
+        {
+          "command": [
+            "node",
+            "--experimental-transform-types",
+            "--test",
+            "--test-reporter=dot",
+            "tests/foxmind-3d-flows-attempt.test.mjs"
+          ],
+          "exit": 0,
+          "seconds": 1.172
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/web/tsconfig.json",
+            "--noEmit",
+            "--incremental",
+            "false",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 2.969
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/api/tsconfig.json",
+            "--noEmit",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 2.937
+        }
+      ]
+    },
+    {
+      "id": "U18",
+      "purpose": "feat(plan): open contextual curriculum and authorized Home targets",
+      "commit": "b0c6a8ee0bb9e70830a4eb3c4d0321fd0ada3643",
+      "tree": "6bc1b08087c0405ac0570e4e4348291a62f0ccfd",
+      "parent": "d776bf5037df0cc12662b7bd6e602683286435ab",
+      "authoredChangedLines": 302,
+      "generatedTextExempt": 0,
+      "paths": [
+        "apps/classrooms-ui/Plan.tsx",
+        "apps/classrooms-ui/PlanWorkspace.tsx",
+        "apps/classrooms-ui/use-plan-workspace.ts",
+        "apps/classrooms-ui/classroom-home-target.ts",
+        "apps/classrooms-ui/ClassroomView.tsx",
+        "apps/classrooms-ui/foxmind-classroom-learning.css",
+        "apps/classrooms-ui/foxmind-classrooms.css",
+        "tests/foxmind-3d-flows-plan.test.mjs",
+        "tests/foxmind-3d-flows-targets.test.mjs",
+        "tests/foxmind-3d-flows.test.mjs"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.375
+        },
+        {
+          "command": [
+            "node",
+            "--experimental-transform-types",
+            "--test",
+            "--test-reporter=dot",
+            "tests/foxmind-3d-flows-plan.test.mjs",
+            "tests/foxmind-3d-flows-targets.test.mjs",
+            "tests/foxmind-3d-flows.test.mjs"
+          ],
+          "exit": 0,
+          "seconds": 2.219
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/web/tsconfig.json",
+            "--noEmit",
+            "--incremental",
+            "false",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 3.078
+        }
+      ]
+    },
+    {
+      "id": "U19",
+      "purpose": "fix(authoring): enforce thirty total generated questions",
+      "commit": "1c0408dd5652f1ae30ddb0ba248d081584ee9dfb",
+      "tree": "7656d0d9df0303b15a67f0665abdc8f5dc04632c",
+      "parent": "b0c6a8ee0bb9e70830a4eb3c4d0321fd0ada3643",
+      "authoredChangedLines": 32,
+      "generatedTextExempt": 0,
+      "paths": [
+        "apps/classrooms-ui/ActivityGenerationForm.tsx",
+        "apps/classrooms-ui/use-activity-generation.ts",
+        "tests/foxmind-3d-flows.test.mjs"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.406
+        },
+        {
+          "command": [
+            "node",
+            "--experimental-transform-types",
+            "--test",
+            "--test-reporter=dot",
+            "tests/foxmind-3d-flows.test.mjs"
+          ],
+          "exit": 0,
+          "seconds": 1.844
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/web/tsconfig.json",
+            "--noEmit",
+            "--incremental",
+            "false",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 3.063
+        }
+      ]
+    },
+    {
+      "id": "U20",
+      "purpose": "feat(agenda): open authorized private events on their day",
+      "commit": "5aa4aedb70a3d8d0550c9926ac92b33fdc0da4d9",
+      "tree": "8f625185ecf16b53010dbdaaedfe568925ddef39",
+      "parent": "1c0408dd5652f1ae30ddb0ba248d081584ee9dfb",
+      "authoredChangedLines": 160,
+      "generatedTextExempt": 0,
+      "paths": [
+        "apps/agenda-ui/Agenda.tsx",
+        "apps/agenda-ui/AgendaDay.tsx",
+        "apps/agenda-ui/AgendaMonth.tsx",
+        "apps/agenda-ui/Upcoming.tsx",
+        "apps/agenda-ui/foxmind-agenda.css",
+        "apps/agenda-ui/index.ts",
+        "apps/agenda-ui/useAgendaEventTarget.ts",
+        "apps/web/src/lib/agenda-target.ts",
+        "apps/web/src/components/agenda-screen.tsx",
+        "tests/foxmind-3d-flows-agenda.test.mjs",
+        "apps/web/pages/_app.tsx"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.453
+        },
+        {
+          "command": [
+            "node",
+            "--experimental-transform-types",
+            "--test",
+            "--test-reporter=dot",
+            "tests/foxmind-3d-flows-agenda.test.mjs"
+          ],
+          "exit": 0,
+          "seconds": 0.375
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/web/tsconfig.json",
+            "--noEmit",
+            "--incremental",
+            "false",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 3.047
+        }
+      ]
+    },
+    {
+      "id": "U21",
+      "purpose": "style(home): prepare data driven dashboard widgets",
+      "commit": "7a0eb53e64ed9cd581c0d5c5005ae1cad2667e0f",
+      "tree": "a0b1785efd0a36713e9edf51e275bc222d62f325",
+      "parent": "5aa4aedb70a3d8d0550c9926ac92b33fdc0da4d9",
+      "authoredChangedLines": 212,
+      "generatedTextExempt": 0,
+      "paths": [
+        "apps/classrooms-ui/HomeCover.tsx",
+        "apps/classrooms-ui/HomeModule.tsx",
+        "apps/classrooms-ui/HomeModulePanel.tsx",
+        "apps/classrooms-ui/HomeRow.tsx",
+        "apps/classrooms-ui/HomeShortcuts.tsx",
+        "apps/classrooms-ui/home-labels.ts",
+        "apps/classrooms-ui/foxmind-home.css",
+        "apps/web/pages/_app.tsx"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.422
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/web/tsconfig.json",
+            "--noEmit",
+            "--incremental",
+            "false",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 3.078
+        }
+      ]
+    },
+    {
+      "id": "U22",
+      "purpose": "feat(home): activate membership based learning and teaching dashboards",
+      "commit": "271125a98556ef4dbeb6ba5c31dbc8fedb51da3e",
+      "tree": "f1d525d4c793af50240a62f5574cd1b9e9fd4b0e",
+      "parent": "7a0eb53e64ed9cd581c0d5c5005ae1cad2667e0f",
+      "authoredChangedLines": 342,
+      "generatedTextExempt": 0,
+      "paths": [
+        "apps/classrooms-ui/Home.tsx",
+        "apps/classrooms-ui/use-home.ts",
+        "apps/classrooms-ui/Classrooms.tsx",
+        "apps/web/src/components/classrooms-screen.tsx",
+        "tests/foxmind-3d-client-lifecycle.test.mjs",
+        "tests/foxmind-3d-flows-loading.test.mjs",
+        "tests/p9-home-client.test.mjs"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.438
+        },
+        {
+          "command": [
+            "node",
+            "--experimental-transform-types",
+            "--test",
+            "--test-reporter=dot",
+            "tests/foxmind-3d-client-lifecycle.test.mjs",
+            "tests/foxmind-3d-flows-loading.test.mjs",
+            "tests/p9-home-client.test.mjs"
+          ],
+          "exit": 0,
+          "seconds": 0.672
+        },
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\node_modules\\typescript\\bin\\tsc",
+            "-p",
+            "apps/web/tsconfig.json",
+            "--noEmit",
+            "--incremental",
+            "false",
+            "--pretty",
+            "false"
+          ],
+          "exit": 0,
+          "seconds": 3.109
+        }
+      ]
+    },
+    {
+      "id": "U23",
+      "purpose": "test(ui): retain account membership and grading live journeys",
+      "commit": "5e781b3bb172f0ab3547783d7a77bae51cae580d",
+      "tree": "99a35802f63fd80db9483910ae5fbeb68d561a73",
+      "parent": "271125a98556ef4dbeb6ba5c31dbc8fedb51da3e",
+      "authoredChangedLines": 348,
+      "generatedTextExempt": 0,
+      "paths": [
+        "tests/foxmind-3d-live.test.mjs",
+        "tests/foxmind-3d-live-controlled.test.mjs",
+        "tests/helpers/foxmind-3d-ego/export-page.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-01.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-02.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-03.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-04.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-05.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-06.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-07.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-08.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-09.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-10.test.mjs"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.453
+        }
+      ]
+    },
+    {
+      "id": "U24",
+      "purpose": "test(ui): retain authoring mobile and recovery journeys",
+      "commit": "e78c3d7671a4076a3a1c5a7cd478ae3d89c9696b",
+      "tree": "ecc2e69855e284c5426bb22952547a36184b1e30",
+      "parent": "5e781b3bb172f0ab3547783d7a77bae51cae580d",
+      "authoredChangedLines": 180,
+      "generatedTextExempt": 0,
+      "paths": [
+        "tests/helpers/foxmind-3d-ego/round-11.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-12.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-13.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-14.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-15.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-16.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-17.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-18.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-19.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-20.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-21.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-22.test.mjs"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.438
+        }
+      ]
+    },
+    {
+      "id": "U25",
+      "purpose": "test(ui): retain final accessibility and timezone journeys",
+      "commit": "8b4c178b626cfc3d87e629fbbeaf0a0703b297fe",
+      "tree": "8f71a813867f1d0809586927ed65d4268a14ee99",
+      "parent": "e78c3d7671a4076a3a1c5a7cd478ae3d89c9696b",
+      "authoredChangedLines": 308,
+      "generatedTextExempt": 0,
+      "paths": [
+        "tests/helpers/foxmind-3d-ego/round-23.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-24.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-25.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-26.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-27.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-28.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-29.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-30.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-31.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-32.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-33.test.mjs",
+        "tests/helpers/foxmind-3d-ego/round-34.test.mjs"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.469
+        }
+      ]
+    },
+    {
+      "id": "U26",
+      "purpose": "test(ui): retain final accessibility and timezone journeys",
+      "commit": "0c37698be0df76f899cb1b21d538e41e7b72db25",
+      "tree": "991327e8e4c7b617aef52aa7a38a10c75e36d6c3",
+      "parent": "8b4c178b626cfc3d87e629fbbeaf0a0703b297fe",
+      "authoredChangedLines": 11,
+      "generatedTextExempt": 0,
+      "paths": [
+        "tests/helpers/foxmind-3d-ego/round-35.test.mjs"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.485
+        }
+      ]
+    },
+    {
+      "id": "U27",
+      "purpose": "docs(ui): reconcile the implementation checkpoint",
+      "commit": "f999fa1cb8c9c33e1765f9e7e8d5b665f165bc39",
+      "tree": "77c71747478722f71626b34fea2b3feefa3a8f9c",
+      "parent": "0c37698be0df76f899cb1b21d538e41e7b72db25",
+      "authoredChangedLines": 1,
+      "generatedTextExempt": 0,
+      "paths": [
+        "docs/README.md"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.453
+        }
+      ]
+    },
+    {
+      "id": "U28",
+      "purpose": "docs(ui): reconcile the implementation checkpoint",
+      "commit": "27a820446c7fa9877d1e6e5a767e50430f7ed90e",
+      "tree": "de95eba65d01442d2b2dbeae440f07e258f46c09",
+      "parent": "f999fa1cb8c9c33e1765f9e7e8d5b665f165bc39",
+      "authoredChangedLines": 2,
+      "generatedTextExempt": 0,
+      "paths": [
+        "docs/design/foxmind-3d/README.md"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.453
+        }
+      ]
+    },
+    {
+      "id": "U29",
+      "purpose": "docs(ui): preserve foxmind 3d verification evidence",
+      "commit": "8be9396b35f7a3f851e482ffb5cc1a2434213ce8",
+      "tree": "30c123bc8c9fc6d800d5e99ebd78a65607322354",
+      "parent": "27a820446c7fa9877d1e6e5a767e50430f7ed90e",
+      "authoredChangedLines": 110,
+      "generatedTextExempt": 0,
+      "paths": [
+        "docs/foxmind-3d-verification.md"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.469
+        }
+      ]
+    },
+    {
+      "id": "U30",
+      "purpose": "docs(ui): preserve foxmind 3d evidence",
+      "commit": "8868ef1a17243938c7b6687f309dc02e52c615cd",
+      "tree": "ca20170179dee4d71f43e5234b68016b57b822bb",
+      "parent": "8be9396b35f7a3f851e482ffb5cc1a2434213ce8",
+      "authoredChangedLines": 41,
+      "generatedTextExempt": 0,
+      "paths": [
+        "docs/foxmind-3d.md"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.469
+        }
+      ]
+    },
+    {
+      "id": "U31",
+      "purpose": "docs(ui): reconcile the implementation checkpoint",
+      "commit": "67f654c26e98d110021d4d3d66d958e22116feff",
+      "tree": "5cac7cdf3b112b9ad824c1fc3ad3e582ac7f3c69",
+      "parent": "8868ef1a17243938c7b6687f309dc02e52c615cd",
+      "authoredChangedLines": 4,
+      "generatedTextExempt": 0,
+      "paths": [
+        "docs/implementation-roadmap.md"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.469
+        }
+      ]
+    },
+    {
+      "id": "U32",
+      "purpose": "docs(ui): preserve jd fix visual evidence",
+      "commit": "81ec5dade57a9a7334a143ee1e44d3eaeb6d9eab",
+      "tree": "7bf2285b72ef0aa2d667afbc7262f36a115de88a",
+      "parent": "67f654c26e98d110021d4d3d66d958e22116feff",
+      "authoredChangedLines": 66,
+      "generatedTextExempt": 0,
+      "paths": [
+        "docs/work-log/2026-10-25-jd-fix-visual.md"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.438
+        }
+      ]
+    },
+    {
+      "id": "U33",
+      "purpose": "docs(ui): preserve local delivery evidence",
+      "commit": "58c805ee8bc92234984a97dc4545a237d85c40d7",
+      "tree": "885a5e7e42b523ab020bdd4e110b39e25efe39ef",
+      "parent": "81ec5dade57a9a7334a143ee1e44d3eaeb6d9eab",
+      "authoredChangedLines": 29,
+      "generatedTextExempt": 0,
+      "paths": [
+        "docs/work-log/2026-10-25-local-delivery.md"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.453
+        }
+      ]
+    },
+    {
+      "id": "U34",
+      "purpose": "docs(ui): preserve root visual judgment evidence",
+      "commit": "fb76b1f533895747722622fc1cfc3f56237adc02",
+      "tree": "7d94dd4108b7cdfbaf78b08bf32294e4e488cbd2",
+      "parent": "58c805ee8bc92234984a97dc4545a237d85c40d7",
+      "authoredChangedLines": 181,
+      "generatedTextExempt": 0,
+      "paths": [
+        "docs/work-log/2026-10-25-root-visual-judgment.md"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.438
+        }
+      ]
+    },
+    {
+      "id": "U35",
+      "purpose": "docs(ui): preserve root visual migration evidence",
+      "commit": "ea3137268a8b2eb258fbc192a8ddba079d731719",
+      "tree": "847e00f6a2508b413727110f049eedff018d6e80",
+      "parent": "fb76b1f533895747722622fc1cfc3f56237adc02",
+      "authoredChangedLines": 53,
+      "generatedTextExempt": 0,
+      "paths": [
+        "docs/work-log/2026-10-25-root-visual-migration.md"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.484
+        }
+      ]
+    },
+    {
+      "id": "U36",
+      "purpose": "docs(ui): preserve visual classrooms evidence",
+      "commit": "22c734b65b37243aee0de63a581be73f52872489",
+      "tree": "5c060554557532177e1497931868c8587c81aa51",
+      "parent": "ea3137268a8b2eb258fbc192a8ddba079d731719",
+      "authoredChangedLines": 74,
+      "generatedTextExempt": 0,
+      "paths": [
+        "docs/work-log/2026-10-25-visual-classrooms.md"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.469
+        }
+      ]
+    },
+    {
+      "id": "U37",
+      "purpose": "docs(ui): preserve visual commit plan evidence",
+      "commit": "9cce5c8ad262b4e2daf48ba746312784749f991f",
+      "tree": "b456a8c444c97a20c42918e5b5d24c5eefad1bae",
+      "parent": "22c734b65b37243aee0de63a581be73f52872489",
+      "authoredChangedLines": 91,
+      "generatedTextExempt": 0,
+      "paths": [
+        "docs/work-log/2026-10-25-visual-commit-plan.md"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.469
+        }
+      ]
+    },
+    {
+      "id": "U38",
+      "purpose": "docs(ui): preserve visual foundations evidence",
+      "commit": "7f115daeb5daafa4f7618b61c08646dbfea94653",
+      "tree": "f33070b9d24a22d2362a58761e6affca61c1ff7c",
+      "parent": "9cce5c8ad262b4e2daf48ba746312784749f991f",
+      "authoredChangedLines": 269,
+      "generatedTextExempt": 0,
+      "paths": [
+        "docs/work-log/2026-10-25-visual-foundations.md"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.469
+        }
+      ]
+    },
+    {
+      "id": "U39",
+      "purpose": "docs(ui): preserve visual home evidence",
+      "commit": "39ecc09726bc123f6afa42e0735a2a1a266c1c2b",
+      "tree": "a01d61186a894cd69f8cc9e68f7c06f4c6b72da0",
+      "parent": "7f115daeb5daafa4f7618b61c08646dbfea94653",
+      "authoredChangedLines": 105,
+      "generatedTextExempt": 0,
+      "paths": [
+        "docs/work-log/2026-10-25-visual-home.md"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.454
+        }
+      ]
+    },
+    {
+      "id": "U40",
+      "purpose": "docs(ui): preserve visual verification map evidence",
+      "commit": "65bdb12e8b9628e9f795e4bb92774cd7351a3d79",
+      "tree": "77259cff56b11f4b971e922d9755cf177a5e8f64",
+      "parent": "39ecc09726bc123f6afa42e0735a2a1a266c1c2b",
+      "authoredChangedLines": 14,
+      "generatedTextExempt": 0,
+      "paths": [
+        "docs/work-log/2026-10-25-visual-verification-map.md"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.453
+        }
+      ]
+    },
+    {
+      "id": "U41",
+      "purpose": "docs(ui): preserve README evidence",
+      "commit": "1a295f8a0d08309892d23bcb20e883c5be4edc87",
+      "tree": "5b7da78dd1e63003c46baefe96742a4ed093b757",
+      "parent": "65bdb12e8b9628e9f795e4bb92774cd7351a3d79",
+      "authoredChangedLines": 38,
+      "generatedTextExempt": 0,
+      "paths": [
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/README.md"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.454
+        }
+      ]
+    },
+    {
+      "id": "U42",
+      "purpose": "docs(ui): preserve collect checks evidence",
+      "commit": "463a05e6fd678cc51408893663e8e8da2199a747",
+      "tree": "1c1c48e910cdde2104b4be6739a82121075945fe",
+      "parent": "1a295f8a0d08309892d23bcb20e883c5be4edc87",
+      "authoredChangedLines": 46,
+      "generatedTextExempt": 0,
+      "paths": [
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/collect-checks.mjs"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.468
+        }
+      ]
+    },
+    {
+      "id": "U43",
+      "purpose": "docs(ui): preserve export proof evidence",
+      "commit": "8b132d858e73bb622d9342c0c42a5c414f9b0755",
+      "tree": "284c0dc6840229f89932947ab117f29404fa6878",
+      "parent": "463a05e6fd678cc51408893663e8e8da2199a747",
+      "authoredChangedLines": 52,
+      "generatedTextExempt": 0,
+      "paths": [
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/export-proof.mjs"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.453
+        }
+      ]
+    },
+    {
+      "id": "U44",
+      "purpose": "docs(ui): retain generated final browser evidence",
+      "commit": "526337636d1ce2b2c99e30509e3e584ef64e79ce",
+      "tree": "72e03f5d6d49f0772219d296094ed69642b70264",
+      "parent": "8b132d858e73bb622d9342c0c42a5c414f9b0755",
+      "authoredChangedLines": 0,
+      "generatedTextExempt": 2600,
+      "paths": [
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/agenda-movil.webp",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/agenda.webp",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/aulas-movil.webp",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/aulas-tablet.webp",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/aulas.webp",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/checks.json",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/checks/api-build.log",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/checks/legacy-api.tap",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/checks/motion-css.log",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/checks/new-and-affected.tap",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/checks/regressions-postgres.tap",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/checks/space-finish.log",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/checks/web-build.log",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/configuracion-movil.webp",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/configuracion.webp",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/inicio-movil.webp",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/inicio.webp",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/manifest.json",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/perfil-movil.webp",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/perfil.webp",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/plan-estudiante.webp",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/plan-movil.webp",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/plan.webp",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/sources/agenda-movil.pdf",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/sources/agenda.pdf",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/sources/aulas-movil.pdf",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/sources/aulas-tablet.pdf",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/sources/aulas.pdf",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/sources/configuracion-movil.pdf",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/sources/configuracion.pdf",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/sources/inicio-movil.pdf",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/sources/inicio.pdf",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/sources/perfil-movil.pdf",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/sources/perfil.pdf",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/sources/plan-estudiante.pdf",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/sources/plan-movil.pdf",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/sources/plan.pdf",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/vista-general.webp"
+      ],
+      "checks": [
+        {
+          "command": [
+            "node",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\check-prefix.mjs",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\prefix-29204",
+            "C:\\Users\\alejo\\Documents\\ProyectosAlejo\\FoxMind\\ProtipoFoxMind\\.test-artifacts\\foxmind-3d-delivery\\current-paths.json"
+          ],
+          "exit": 0,
+          "seconds": 0.453
+        }
+      ]
+    }
+  ],
+  "refsChanged": false,
+  "authoredTotal": 6835,
+  "maximumAuthored": 393,
+  "unitChecks": "AST/import closure, applicable API/web/SQL types and selected pure suites; not per-prefix runtime or DB verification"
+}
