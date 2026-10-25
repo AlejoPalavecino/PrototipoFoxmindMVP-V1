@@ -17,6 +17,9 @@ import { createAgendaAuthentication, installAgendaTransport } from './agenda/int
 import { PrismaService } from './database/prisma.service.ts';
 import { ClassroomAiRuntime, type AiRuntimeOverride } from './classrooms/ai/runtime.ts';
 
+import { createHomeService, createHomeUnitOfWork, type HomeService } from './home/index.ts';
+import { installHomeTransport } from './home/integration.ts';
+
 import { ActivityAiRuntime } from './classrooms/activity-ai/runtime.ts';
 
 export interface ApplicationOptions { readonly identity?: IdentityRuntimePorts; readonly ai?: AiRuntimeOverride }
@@ -51,7 +54,9 @@ class AppModule implements OnModuleDestroy {
         ...(configuration.classrooms && files && invitationSender
           ? [ClassroomsModule.integrated(database, identity, files, configuration.classrooms, invitationSender, configuration.ai, options.ai)] : [])],
       controllers: [HealthController],
-      providers: [{ provide: AgendaService, inject: [PrismaService, IdentityRuntime],
+      providers: [{ provide: 'HomeService', inject: [PrismaService, IdentityRuntime],
+        useFactory: (database: PrismaService, runtime: IdentityRuntime) => createHomeService(
+          createHomeUnitOfWork(database, createAgendaAuthentication(runtime.configuration.security))) }, { provide: AgendaService, inject: [PrismaService, IdentityRuntime],
         useFactory: (database: PrismaService, runtime: IdentityRuntime) => new AgendaService(
           createAgendaUnitOfWork(database, createAgendaAuthentication(runtime.configuration.security))) }],
     };
@@ -69,6 +74,7 @@ export async function createApplication(configuration: ApiConfiguration, options
     const identity = app.get(IdentityRuntime);
     installIdentityTransport(app, identity);
     installAgendaTransport(app, identity, app.get(AgendaService));
+    installHomeTransport(app, identity, app.get<HomeService>('HomeService'));
     if (configuration.files) installFilesTransport(app, identity, app.get(FileService));
     if (configuration.classrooms) installClassroomsTransport(app, identity, app.get<ClassroomService>(InvitationService),
       { ai: configuration.ai ? app.get(ClassroomAiRuntime).service : undefined,
