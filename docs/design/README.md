@@ -2,6 +2,10 @@
 
 Este índice distingue **referencias, exploraciones y código implementado**. La base documental elegida es `main`; no se copió, movió, borró ni aprobó ningún diseño con esta etapa.
 
+## Dirección seleccionada — FoxMind 3D, 2026-10-25
+
+El usuario eligió la dirección Foxy 3D y solicitó preparar todos sus recursos y el plan antes de implementar. El [paquete FoxMind 3D](foxmind-3d/README.md) contiene SVG de marca/iconos, ilustraciones WebP, especificaciones de 82 flujos, atlas local y plan por etapas. Es una entrega de diseño posterior a la etapa histórica descrita debajo; no reemplaza la UI actual ni demuestra implementación, publicación o despliegue. [Registro de esta entrega](../work-log/2026-10-25-root-3d-design-handoff.md).
+
 ## Incorporación posterior — 2026-10-22
 
 Una autorización posterior permitió publicar las cuatro familias conservando sus rutas: [Taller](foxmind-taller-mockups/README.md), [marca original](foxmind-original-brand-options/README.md), [tercera ronda](foxmind-exploration-round3/README.md) y [cuarta ronda](foxmind-learning-concepts-round4/README.md). Son propuestas estáticas, no nuevas selecciones ni funcionalidades. Los enlaces locales y límites de la etapa inicial se conservan abajo como historial.
