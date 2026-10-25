@@ -3,6 +3,7 @@ import { QuestionnaireAttemptService } from './questionnaire-attempts.ts';
 import { exactActivityObject } from './activity-policy.ts';
 import { resolveDeadline } from './activity-time.ts';
 import { receptionPolicy } from './attempt-policy.ts';
+import { readActivityTopics } from './activity-topics.ts';
 import { revision } from './drafts.ts';
 import { fail, uuid } from './policy.ts';
 import { requireReady } from '../files/service.ts';
@@ -35,7 +36,8 @@ export class ActivityHistoryService extends QuestionnaireAttemptService {
       const activity = await this.activity(tx, classroomId, activityId);
       if (activity.status !== 'PUBLISHED') return fail('FORBIDDEN');
       const attempts = await this.historyRows(tx, classroomId, activityId, actor.id);
-      return { activity: this.activitySummary(activity, room.timezone), attempts,
+      return { activity: { ...this.activitySummary(activity, room.timezone),
+        topicIds: await readActivityTopics(tx, activity.id, activity.topic_id) }, attempts,
         delivered: attempts.some(a => a.status === 'SUBMITTED'), pendingResubmission: attempts.some(a => a.number > 1 && a.status === 'DRAFT') };
     });
   }
@@ -46,7 +48,8 @@ export class ActivityHistoryService extends QuestionnaireAttemptService {
       const activity = await this.activity(tx, classroomId, activityId);
       const attempts = await this.historyRows(tx, classroomId, activityId, null);
       // A pending reopening is metadata only. Never reveal its private answers or files to the teacher.
-      return { revision: room.revision.toString(), activity: this.activitySummary(activity, room.timezone), attempts,
+      return { revision: room.revision.toString(), activity: { ...this.activitySummary(activity, room.timezone),
+        topicIds: await readActivityTopics(tx, activity.id, activity.topic_id) }, attempts,
         canReopen: !room.archived_at && activity.status === 'PUBLISHED' };
     });
   }

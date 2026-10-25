@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { replaceActivityContent } from './activity-content.ts';
 import { WallService } from './wall.ts';
 import { revision } from './drafts.ts';
 import { fail, object, text, uuid } from './policy.ts';
@@ -8,6 +9,7 @@ import { requireReady } from '../files/service.ts';
 import type { Transaction } from './contracts.ts';
 import { recordActivityEligibility } from './activity-eligibility.ts';
 import { activityEvent, deadlineChanged } from './activity-events.ts';
+import { activityTopics, validateActivityTopics, replaceActivityTopics, readActivityTopics } from './activity-topics.ts';
 
 export interface ActivityRow {
   id: string; classroom_id: string; type: ActivityType; title: string | null; unit_id: string | null; topic_id: string | null;
@@ -32,7 +34,8 @@ export class ActivityAuthoringService extends WallService {
       const teacher = room.teacher_id === actor.id;
       const rows = await tx.query<ActivityRow>(`SELECT * FROM activities WHERE classroom_id=$1::uuid
         AND ($2::boolean OR status='PUBLISHED') ORDER BY created_at DESC,id`, classroomId, teacher);
-      return { revision: room.revision.toString(), activities: rows.map(row => this.activitySummary(row, room.timezone)) };
+      return { revision: room.revision.toString(), activities: await Promise.all(rows.map(async row => ({ ...this.activitySummary(row, room.timezone),
+        topicIds: await readActivityTopics(tx, row.id, row.topic_id) }))) };
     });
   }
 
@@ -71,9 +74,12 @@ export class ActivityAuthoringService extends WallService {
         const row = await this.activity(tx, classroomId, id);
         if (op.action === 'metadata') {
           const title = text(op.title, 200, row.status === 'PUBLISHED') || null;
-          await this.activityAssociation(tx, classroomId, op.unitId, op.topicId, row.status === 'PUBLISHED');
+          const selection = activityTopics(op, row.status === 'PUBLISHED');
+          await validateActivityTopics(tx, classroomId, selection.unitId, selection.topicIds);
+          await replaceActivityTopics(tx, id, classroomId, selection.unitId, []);
           await tx.query(`UPDATE activities SET title=$2,unit_id=$3::uuid,topic_id=$4::uuid,updated_at=$5 WHERE id=$1::uuid RETURNING id`,
-            id, title, op.unitId, op.topicId, actor.now);
+            id, title, selection.unitId, selection.topicId, actor.now);
+          await replaceActivityTopics(tx, id, classroomId, selection.unitId, selection.topicIds);
         } else if (op.action === 'deadline') {
           if (typeof op.allowLate !== 'boolean') return fail('INVALID_INPUT');
           const deadline = resolveDeadline(room.timezone, op.deadline);
@@ -88,25 +94,28 @@ export class ActivityAuthoringService extends WallService {
           if (row.first_started_at) return fail('CONFLICT');
           const payload = activityPayload(op.payload, row.type, row.status === 'PUBLISHED');
           const deadline = resolveDeadline(room.timezone, payload.deadline);
-          await this.activityAssociation(tx, classroomId, payload.unitId, payload.topicId, row.status === 'PUBLISHED');
+          await validateActivityTopics(tx, classroomId, payload.unitId, payload.topicIds);
           await this.validateLinks(tx, request, row, payload);
+          await replaceActivityTopics(tx, id, classroomId, payload.unitId, []);
           await tx.query(`UPDATE activities SET title=$2,unit_id=$3::uuid,topic_id=$4::uuid,instructions_text=$5,
             attachments_required=$6,deadline_at=$7,allow_late_submissions=$8,updated_at=$9 WHERE id=$1::uuid RETURNING id`,
             id, payload.title, payload.unitId, payload.topicId, payload.instructions, payload.attachmentRequired, deadline, payload.allowLate, actor.now);
-          await this.replaceContent(tx, row, payload);
+          await replaceActivityTopics(tx, id, classroomId, payload.unitId, payload.topicIds);
+          await replaceActivityContent(tx, row, payload);
           if (row.status === 'PUBLISHED' && deadlineChanged(row.deadline_at, deadline, row.allow_late_submissions, payload.allowLate))
             await activityEvent(tx, classroomId, id, 'ACTIVITY_DEADLINE_CHANGED');
         } else if (op.action === 'publish') {
           if (row.first_started_at || row.status === 'PUBLISHED') return fail('CONFLICT');
           const view = await this.activityView(tx, row, room.timezone, true);
-          const payload = activityPayload({ title: view.title ?? '', unitId: view.unitId, topicId: view.topicId,
+          const payload = activityPayload({ title: view.title ?? '', unitId: view.unitId, topicIds: view.topicIds,
             instructions: view.instructions ?? '', attachmentRequired: view.attachmentRequired,
             instructionFileIds: view.instructionFiles.map(f => f.id), materialIds: view.materials.map(m => m.id),
             questions: view.questions.map(q => ({ type: q.type, prompt: q.prompt, points: q.points, scoringRule: q.scoringRule,
               options: q.options.map(o => ({ text: o.text, correct: o.correct })) })),
             deadline: null, allowLate: view.allowLate }, row.type, true);
-          await this.activityAssociation(tx, classroomId, payload.unitId, payload.topicId, true);
+          await validateActivityTopics(tx, classroomId, payload.unitId, payload.topicIds);
           await this.validateLinks(tx, request, row, payload);
+          await this.ports.validateActivityGeneration?.(tx, request, id);
           await tx.query(`UPDATE activities SET status='PUBLISHED',published_at=$2,updated_at=$2 WHERE id=$1::uuid RETURNING id`, id, actor.now);
           await recordActivityEligibility(tx, classroomId, { publication: id });
           await activityEvent(tx, classroomId, id, 'ACTIVITY_PUBLISHED');
@@ -123,19 +132,6 @@ export class ActivityAuthoringService extends WallService {
     if (!row.first_started_at) return;
     if (row.deadline_at === null ? deadline !== null : deadline === null || deadline.getTime() < row.deadline_at.getTime()) return fail('CONFLICT');
     if (row.allow_late_submissions && !allowLate) return fail('CONFLICT');
-  }
-
-  private async activityAssociation(tx: Transaction, classroomId: string, unitId: unknown, topicId: unknown, required: boolean) {
-    if ((unitId !== null && !uuid(unitId)) || (topicId !== null && !uuid(topicId))
-      || (topicId !== null && unitId === null) || (required && (unitId === null || topicId === null))) return fail('INVALID_INPUT');
-    if (unitId !== null) {
-      const [unit] = await tx.query('SELECT id FROM units WHERE id=$1::uuid AND classroom_id=$2::uuid FOR SHARE', unitId, classroomId);
-      if (!unit) return fail('FORBIDDEN');
-    }
-    if (topicId !== null) {
-      const [topic] = await tx.query('SELECT id FROM topics WHERE id=$1::uuid AND unit_id=$2::uuid AND classroom_id=$3::uuid FOR SHARE', topicId, unitId, classroomId);
-      if (!topic) return fail('FORBIDDEN');
-    }
   }
 
   private async validateLinks(tx: Transaction, request: unknown, row: ActivityRow, payload: ActivityPayload) {
@@ -156,28 +152,8 @@ export class ActivityAuthoringService extends WallService {
     }
   }
 
-  private async replaceContent(tx: Transaction, row: ActivityRow, payload: ActivityPayload) {
-    // Reachable only before first participation, under the same classroom lock used by starts.
-    await tx.query('DELETE FROM question_options WHERE question_id IN (SELECT id FROM questions WHERE activity_id=$1::uuid) RETURNING id', row.id);
-    await tx.query('DELETE FROM questions WHERE activity_id=$1::uuid RETURNING id', row.id);
-    await tx.query('DELETE FROM activity_instruction_files WHERE activity_id=$1::uuid RETURNING file_id', row.id);
-    await tx.query('DELETE FROM activity_materials WHERE activity_id=$1::uuid RETURNING material_id', row.id);
-    for (const file of payload.instructionFileIds) await tx.query(`INSERT INTO activity_instruction_files(activity_id,classroom_id,file_id)
-      VALUES($1::uuid,$2::uuid,$3::uuid) RETURNING file_id`, row.id, row.classroom_id, file);
-    for (const material of payload.materialIds) await tx.query(`INSERT INTO activity_materials(activity_id,classroom_id,material_id)
-      VALUES($1::uuid,$2::uuid,$3::uuid) RETURNING material_id`, row.id, row.classroom_id, material);
-    for (const [position, q] of payload.questions.entries()) {
-      const id = randomUUID();
-      await tx.query(`INSERT INTO questions(id,updated_at,activity_id,type,prompt,position,available_points,scoring_rule)
-        VALUES($1::uuid,clock_timestamp(),$2::uuid,$3::"QuestionType",$4,$5,$6::numeric,$7::"ScoringRule") RETURNING id`,
-        id, row.id, q.type, q.prompt, position, q.points, q.scoringRule);
-      for (const [optionPosition, option] of q.options.entries()) await tx.query(`INSERT INTO question_options(id,updated_at,question_id,text,position,is_correct)
-        VALUES($1::uuid,clock_timestamp(),$2::uuid,$3,$4,$5) RETURNING id`, randomUUID(), id, option.text, optionPosition, option.correct);
-    }
-  }
-
   protected activitySummary(row: ActivityRow, zone: string) {
-    return { id: row.id, type: row.type, title: row.title, unitId: row.unit_id, topicId: row.topic_id,
+    return { id: row.id, type: row.type, title: row.title, unitId: row.unit_id, topicId: row.topic_id, topicIds: row.topic_id ? [row.topic_id] : [],
       status: row.status, publishedAt: row.published_at, deadlineAt: row.deadline_at, allowLate: row.allow_late_submissions,
       locked: row.first_started_at !== null, zone };
   }
@@ -199,7 +175,7 @@ export class ActivityAuthoringService extends WallService {
     const materials = await tx.query<{ id: string; title: string; fileId: string; extension: string }>(`SELECT m.id,m.title,m.file_id AS "fileId",f.extension
       FROM activity_materials a JOIN materials m ON m.id=a.material_id JOIN files f ON f.id=m.file_id WHERE a.activity_id=$1::uuid ORDER BY m.created_at,m.id`, row.id);
     // Explicit DTO construction: never spread SQL rows or expose answer keys/private grade/editor state to students.
-    return { ...this.activitySummary(row, zone), instructions: row.instructions_text, attachmentRequired: row.attachments_required,
+    return { ...this.activitySummary(row, zone), topicIds: await readActivityTopics(tx, row.id, row.topic_id), instructions: row.instructions_text, attachmentRequired: row.attachments_required,
       instructionFiles, materials, questions: questions.map(q => ({ id: q.id, type: q.type, prompt: q.prompt, points: q.points,
         ...(teacher ? { scoringRule: q.scoringRule } : {}), options: options.filter(o => o.question_id === q.id)
           .map(o => ({ id: o.id, text: o.text, ...(teacher ? { correct: o.correct } : {}) })) })) };

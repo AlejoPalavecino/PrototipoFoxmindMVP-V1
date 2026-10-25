@@ -79,7 +79,8 @@ export class PlanService extends InvitationService {
           if (!unit && target.status !== 'PENDING') return fail('CONFLICT');
           const column = unit ? 'unit_id' : 'topic_id';
           const [linked] = await tx.query(`SELECT 1 FROM materials WHERE ${column}=$1::uuid
-            UNION ALL SELECT 1 FROM activities WHERE ${column}=$1::uuid${unit ? ' UNION ALL SELECT 1 FROM topics WHERE unit_id=$1::uuid' : ''} LIMIT 1`, op.id);
+            UNION ALL SELECT 1 FROM activities WHERE ${column}=$1::uuid
+            UNION ALL SELECT 1 FROM activity_topics WHERE ${column}=$1::uuid${unit ? ' UNION ALL SELECT 1 FROM topics WHERE unit_id=$1::uuid' : ''} LIMIT 1`, op.id);
           if (linked) return fail('CONFLICT');
           await tx.query(`DELETE FROM ${unit ? 'units' : 'topics'} WHERE id=$1::uuid RETURNING id`, op.id);
           break;

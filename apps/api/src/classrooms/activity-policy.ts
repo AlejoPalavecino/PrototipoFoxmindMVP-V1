@@ -1,4 +1,5 @@
 import { fail, object, text, uuid } from './policy.ts';
+import { activityTopics } from './activity-topics.ts';
 
 export type ActivityType = 'ASSIGNMENT' | 'QUESTIONNAIRE' | 'EVALUATION';
 export interface AuthoringQuestion {
@@ -7,7 +8,7 @@ export interface AuthoringQuestion {
   options: { text: string; correct: boolean }[];
 }
 export interface ActivityPayload {
-  title: string | null; unitId: string | null; topicId: string | null; instructions: string | null;
+  title: string | null; unitId: string | null; topicId: string | null; topicIds: string[]; instructions: string | null;
   attachmentRequired: boolean; instructionFileIds: string[]; materialIds: string[];
   questions: AuthoringQuestion[]; deadline: unknown; allowLate: boolean;
 }
@@ -47,30 +48,35 @@ export function authoringQuestion(input: unknown): AuthoringQuestion {
   return { type: q.type, prompt: multiline(q.prompt, 20000, true), points: q.points, scoringRule: q.scoringRule, options };
 }
 export function activityPayload(input: unknown, type: ActivityType, published: boolean): ActivityPayload {
-  const p = exactActivityObject(input, ['title', 'unitId', 'topicId', 'instructions', 'attachmentRequired', 'instructionFileIds', 'materialIds', 'questions', 'deadline', 'allowLate']);
+  const keys = ['title', 'unitId', 'instructions', 'attachmentRequired', 'instructionFileIds', 'materialIds', 'questions', 'deadline', 'allowLate'];
+  const p = object(input, [...keys, 'topicId', 'topicIds']);
+  if (keys.some(key => !Object.hasOwn(p, key))) return fail('INVALID_INPUT');
+  const selection = activityTopics(p, published);
   if (typeof p.attachmentRequired !== 'boolean' || typeof p.allowLate !== 'boolean' || !Array.isArray(p.questions)) return fail('INVALID_INPUT');
   const title = text(p.title, 200, published) || null;
-  for (const id of [p.unitId, p.topicId]) if (id !== null && !uuid(id)) return fail('INVALID_INPUT');
-  if ((p.topicId !== null && p.unitId === null) || (published && (p.unitId === null || p.topicId === null))) return fail('INVALID_INPUT');
   const instructions = multiline(p.instructions, 5000) || null;
   const instructionFileIds = ids(p.instructionFileIds), materialIds = ids(p.materialIds);
   const questions = p.questions.map(authoringQuestion);
   if (type === 'ASSIGNMENT') {
     if (questions.length || (published && !instructions?.trim() && !instructionFileIds.length)) return fail('INVALID_INPUT');
   } else if (instructionFileIds.length || p.attachmentRequired || (published && !questions.length)) return fail('INVALID_INPUT');
-  return { title, unitId: p.unitId, topicId: p.topicId, instructions, attachmentRequired: p.attachmentRequired,
+  return { title, ...selection, instructions, attachmentRequired: p.attachmentRequired,
     instructionFileIds, materialIds, questions, deadline: p.deadline, allowLate: p.allowLate };
 }
 
 export function activityOperation(input: unknown) {
-  const op = object(input, ['action', 'id', 'type', 'payload', 'title', 'unitId', 'topicId', 'deadline', 'allowLate']);
+  const op = object(input, ['action', 'id', 'type', 'payload', 'title', 'unitId', 'topicId', 'topicIds', 'deadline', 'allowLate']);
   const shapes: Record<string, string[]> = {
     create: ['action', 'type'], save: ['action', 'id', 'payload'], publish: ['action', 'id'], withdraw: ['action', 'id'],
-    metadata: ['action', 'id', 'title', 'unitId', 'topicId'], deadline: ['action', 'id', 'deadline', 'allowLate'],
+    metadata: ['action', 'id', 'title', 'unitId'], deadline: ['action', 'id', 'deadline', 'allowLate'],
   };
   const shape = typeof op.action === 'string' && Object.hasOwn(shapes, op.action) ? shapes[op.action] : undefined;
   if (!shape) return fail('INVALID_INPUT');
-  exactActivityObject(op, shape);
+  if (op.action === 'metadata') {
+    object(op, [...shape, 'topicId', 'topicIds']);
+    if (shape.some(key => !Object.hasOwn(op, key))) return fail('INVALID_INPUT');
+    activityTopics(op, false);
+  } else exactActivityObject(op, shape);
   if (op.action === 'create') activityType(op.type);
   else if (!uuid(op.id)) return fail('INVALID_INPUT');
   return op;
