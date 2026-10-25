@@ -1,0 +1,13 @@
+:root {
+  --fm-canvas:#fcfaf7; --fm-surface:#fff; --fm-ink:#202522; --fm-muted:#5b6260;
+  --fm-border:#d9ddda; --fm-control-border:#7a817e; --fm-orange:#ff782d;
+  --fm-orange-hover:#f2691c; --fm-orange-soft:#fff0e5; --fm-link:#9a3e00;
+  --fm-focus:#4453b8; --fm-danger:#b3261e; --fm-success:#156442;
+  --fm-lavender:#e9e3fa; --fm-mint:#c3f1df; --fm-yellow:#ffe99b; --fm-coral:#ffc4af;
+  --fm-font-heading:'Trebuchet MS','Segoe UI',sans-serif;
+  --fm-font-body:'Segoe UI',Arial,sans-serif;
+  --fm-radius-field:12px; --fm-radius-card:20px; --fm-radius-dialog:24px;
+  --fm-shadow:0 4px 18px #20252208; --fm-sidebar:232px; --fm-content-max:1440px;
+  --fm-motion:180ms;
+}
+@media(prefers-reduced-motion:reduce){:root{--fm-motion:0ms}}
