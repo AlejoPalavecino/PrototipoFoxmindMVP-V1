@@ -1,0 +1,25 @@
+{
+  "scope": "Local catalogue; lazy images eagerly loaded only for this inspection",
+  "observations": [
+    {
+      "filter": "covers",
+      "cards": 7,
+      "icons": 42
+    },
+    {
+      "width": 1440,
+      "scrollWidth": 1425,
+      "broken": []
+    },
+    {
+      "width": 390,
+      "scrollWidth": 375,
+      "broken": []
+    },
+    {
+      "width": 320,
+      "scrollWidth": 305,
+      "broken": []
+    }
+  ]
+}
