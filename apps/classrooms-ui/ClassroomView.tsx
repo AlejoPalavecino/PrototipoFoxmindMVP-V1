@@ -1,7 +1,8 @@
 'use client';
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { ClassroomClient, Detail, Invitation, Member, NotificationTarget } from './api.ts';
-import { Cover, Dialog, Notice, initials } from './components.tsx';
+import type { AcademicTarget, ClassroomClient, Detail, Invitation, Member, NotificationTarget } from './api.ts';
+import { Dialog, Notice, initials } from './components.tsx';
+import { ClassroomHeader } from './ClassroomHeader.tsx';
 import { EntryIcon } from '../shared-ui/EntryIcon';
 import { Plan } from './Plan.tsx';
 import { Library } from './Library.tsx';
@@ -158,20 +159,7 @@ export function ClassroomView({
       {!room && !error ? <Notice>Cargando aula…</Notice> : null}
       {room ? (
         <>
-          <header className="p5-room-head">
-            <div className="p5-room-cover">
-              <Cover kind={room.coverKey} />
-            </div>
-            <div>
-              <p>
-                {room.subject} · {room.division} · Ciclo lectivo{' '}
-                {room.academicYear}
-              </p>
-              <h1>{room.name}</h1>
-              <p><span className={`p5-tag folder-role tone-${teacher ? 'coral' : 'mint'}`}>{teacher ? 'Docente' : 'Estudiante'}</span> · Docente: {room.teacher}</p>
-              <small>{room.timezone}</small>
-            </div>
-          </header>
+          <ClassroomHeader room={room} />
           {room.archived ? (
             <Notice>
               Esta aula está archivada. Podés consultar su contenido; los

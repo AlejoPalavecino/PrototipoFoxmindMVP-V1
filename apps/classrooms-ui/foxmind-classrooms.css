@@ -1,4 +1,5 @@
 @import './foxmind-classroom-cards.css';
+@import './foxmind-classroom-workspace.css';
 
 /* Module surface grammar. The private shell owns its sidebar and page gutters. */
 .fm3-classrooms.p5-app { --fm3-canvas: var(--fm-pearl, #faf9f6); --fm3-panel: var(--fm-surface, #fff); background: var(--fm3-canvas); }

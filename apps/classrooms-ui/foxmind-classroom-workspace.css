@@ -1,0 +1,81 @@
+/* Header art is contextual; all classroom information remains selectable HTML. */
+.fm3-classrooms.p5-app .p5-main .p5-room-head.fm3-room-header { position: relative; grid-template-columns: none; place-content: normal; place-items: normal; display: flex; flex-flow: row nowrap; justify-content: flex-start; align-items: center; gap: 0; min-height: 224px; padding: 22px; margin: 8px 0 16px; border: 0; border-radius: 18px; background: var(--fm-peach); box-shadow: none; overflow: hidden; isolation: isolate; }
+.fm3-classrooms.p5-app .p5-main .fm3-room-header > .p5-room-cover { display: block; position: absolute; inset: 0 0 0 auto; width: 49%; height: 100%; flex: none; margin: 0; border: 0; border-radius: 0; box-shadow: none; mask-image: linear-gradient(to right, transparent, black 60%); pointer-events: none; z-index: -1; }
+.fm3-classrooms .fm3-room-header .fm3-cover { width: 100%; height: 100%; min-height: 0; border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+.fm3-classrooms .fm3-room-header .folder-cover-art { width: 100%; height: 100%; border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+.fm3-classrooms .fm3-room-header .folder-cover-art img { width: 100%; height: 100%; object-fit: contain; object-position: right center; border-radius: 0; }
+.fm3-classrooms.p5-app .p5-main .fm3-room-header > .fm3-room-heading { display: block; position: relative; flex: 0 1 58%; align-self: center; justify-self: start; min-width: 0; width: 58%; max-width: 58%; margin: 0; padding: 0; text-align: left; transform: none; }
+.fm3-classrooms .fm3-room-header h1 { font-size: clamp(28px, 3vw, 40px); letter-spacing: -1.2px; line-height: 1.1; margin-bottom: 12px; }
+.fm3-classrooms .fm3-room-header p { margin-bottom: 8px; }
+.fm3-classrooms .fm3-room-context { font-size: 14px; }
+.fm3-classrooms .fm3-room-teacher { font-size: 14px; }
+.fm3-classrooms .fm3-room-teacher > span { white-space: normal; }
+.fm3-classrooms .p5-main .p5-tabs { padding: 4px 8px; gap: 2px; margin: 0 0 18px; background: var(--fm3-panel); border: 1px solid var(--fm-line); border-radius: 12px; box-shadow: none; scrollbar-width: thin; }
+.fm3-classrooms .p5-main .p5-tabs button { display: inline-flex; flex: 0 0 auto; gap: 7px; padding: 12px 15px; margin: 0; background: transparent; color: var(--fm-muted); border: 0; border-bottom: 3px solid transparent; border-radius: 0; box-shadow: none; min-height: 50px; font-size: 15px; }
+.fm3-classrooms .p5-main .p5-tabs button::before { content: none; }
+.fm3-classrooms .p5-main .p5-tabs button[aria-current='page'] { background: transparent; color: var(--fm-link); border-bottom-color: var(--fm-accent); }
+.fm3-classrooms .p5-main .p5-tabs button:hover:enabled { background: var(--fm-peach); }
+.fm3-classrooms .p5-main .p5-tabs .entry-icon { width: 18px; height: 18px; }
+.fm3-classrooms .p5-main .p5-surface.folder-panel { margin-top: 0; }
+.fm3-classrooms .p5-main .p5-surface.fm3-plan-surface { padding: 0; border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+.fm3-classrooms .p5-surface > .folder-tab { color: var(--fm-muted); }
+.fm3-classrooms #classroom-section-title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.fm3-classrooms .p5-main .p5-unit { padding: 20px; margin-block: 18px; border: 1px solid var(--fm-line); border-radius: 12px; background: var(--fm3-panel); }
+.fm3-classrooms .folder-plan > .p5-unit > h3 { font-size: 22px; }
+.fm3-classrooms .folder-plan .p5-unit > ul { list-style: none; margin: 16px 0 0; padding: 0; }
+.fm3-classrooms .folder-plan .folder-topic-row { display: flex; align-items: start; gap: 12px; padding: 14px 0 14px 20px; border: 0; border-left: 2px solid var(--fm-line); position: relative; }
+.fm3-classrooms .folder-plan .folder-topic-row::before { content: ''; position: absolute; width: 10px; height: 10px; border-radius: 50%; background: var(--fm-line); left: -6px; top: 23px; }
+.fm3-classrooms .folder-plan .folder-topic-row:has([data-status='TAUGHT'])::before { background: var(--fm-focus); }
+.fm3-classrooms .folder-plan .folder-topic-row:has([data-status='NEXT'])::before { background: var(--fm-accent); }
+.fm3-classrooms .folder-topic-row > .folder-row-content { display: flex; align-items: start; justify-content: space-between; gap: 12px; min-width: 0; flex-basis: 100%; }
+.fm3-classrooms .folder-topic-row .p5-tag { flex: 0 0 auto; }
+.fm3-classrooms .folder-plan-file { background: var(--fm-lavender-soft, #f3efff); padding: 14px 18px; border-radius: 10px; }
+.fm3-classrooms .folder-disclosure { margin-block: 12px; border: 1px solid var(--fm-line); border-radius: 10px; background: var(--fm3-panel); }
+.fm3-classrooms .folder-disclosure > summary { padding-block: 12px; min-height: 48px; cursor: pointer; font-size: 15px; color: var(--fm-ink); }
+.fm3-classrooms .p5-roster { margin-block: 20px; }
+.fm3-classrooms .p5-roster > li { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; border: 0; border-bottom: 1px solid var(--fm-line); border-radius: 0; padding: 18px 0; background: var(--fm3-panel); }
+.fm3-classrooms .p5-avatar { background: var(--fm-lavender-soft, #f3efff); border: 0; color: var(--fm-ink); }
+.fm3-classrooms .p5-code { background: var(--fm-pearl); border: 1px solid var(--fm-line); border-radius: 12px; padding: 16px; display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+.fm3-classrooms .p5-code code { font-size: 24px; letter-spacing: 3px; }
+.fm3-classrooms .p5-invite-list > li { padding: 16px 0; border-bottom: 1px solid var(--fm-line); }
+.fm3-plan-workspace { display: grid; grid-template-columns: minmax(220px, .85fr) minmax(0, 2fr); gap: 20px; align-items: start; margin-block: 20px; }
+.fm3-plan-navigation { border: 1px solid var(--fm-line); border-radius: 14px; padding: 18px 12px; min-width: 0; background: var(--fm3-panel); }
+.fm3-classrooms .fm3-plan-navigation > h3 { padding-inline: 8px; font-size: 24px; }
+.fm3-plan-navigation section { margin-top: 14px; }
+.fm3-plan-navigation h4 { display: flex; gap: 10px; align-items: center; margin: 0; padding: 10px 8px; background: var(--fm-pearl); border-radius: 9px; }
+.fm3-plan-navigation h4 > span { display: grid; place-items: center; min-width: 30px; min-height: 30px; border-radius: 8px; background: var(--fm-lavender-soft, #f3efff); }
+.fm3-classrooms .fm3-plan-navigation button { width: 100%; text-align: left; display: flex; gap: 10px; justify-content: space-between; align-items: center; border: 0; border-left: 2px solid var(--fm-line); border-radius: 0; background: transparent; padding: 14px 10px; margin: 0; font-size: 15px; font-weight: 500; }
+.fm3-classrooms .fm3-plan-navigation button[aria-current='true'] { background: var(--fm-peach); border-left-color: var(--fm-accent); border-radius: 8px; font-weight: 750; }
+.fm3-plan-navigation button > small { flex-shrink: 0; font-size: 12px; border-radius: 12px; background: var(--fm-lavender-soft, #f3efff); padding: 3px 8px; }
+.fm3-plan-context { padding: 22px; border: 1px solid var(--fm-line); border-radius: 14px; background: var(--fm3-panel); min-width: 0; }
+.fm3-classrooms .fm3-plan-context > h3 { font-size: clamp(24px, 2.7vw, 36px); line-height: 1.15; margin: 12px 0; }
+.fm3-classrooms .fm3-plan-context > h4 { font-size: 21px; margin: 24px 0 14px; }
+.fm3-plan-resource { padding: 18px; border-radius: 12px; background: var(--fm-lavender-soft, #f3efff); display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-block: 12px; }
+.fm3-plan-resource.is-activity { background: var(--fm-peach); }
+.fm3-plan-resource > div { min-width: 0; }
+.fm3-classrooms .fm3-plan-resource h4 { font-size: 19px; margin: 0 0 6px; }
+.fm3-classrooms .fm3-plan-resource p { font-size: 14px; margin: 0; overflow-wrap: anywhere; }
+.fm3-plan-resource > a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 9px 14px; border: 1px solid var(--fm-control-line, var(--fm-line)); border-radius: 9px; background: var(--fm3-panel); text-decoration: none; font-weight: 700; }
+.fm3-plan-resource > :is(button, a) { flex: 0 0 auto; max-width: 48%; }
+@media (max-width: 900px) {
+  .fm3-plan-workspace { grid-template-columns: minmax(190px, .8fr) minmax(0, 1.3fr); gap: 14px; }
+  .fm3-plan-context { padding: 18px 14px; }
+  .fm3-plan-resource { flex-direction: column; align-items: stretch; }
+  .fm3-plan-resource > :is(button, a) { max-width: 100%; }
+  .fm3-classrooms.p5-app .p5-main .fm3-room-header > .p5-room-cover { width: 42%; }
+  .fm3-classrooms.p5-app .p5-main .fm3-room-header > .fm3-room-heading { flex-basis: 66%; width: 66%; max-width: 66%; }
+  .fm3-classrooms .p5-main .p5-tabs button { padding-inline: 12px; }
+}
+@media (max-width: 600px) {
+  .fm3-plan-workspace { grid-template-columns: minmax(0, 1fr); }
+  .fm3-plan-navigation { max-height: 320px; overflow-y: auto; }
+  .fm3-classrooms.p5-app .p5-main .p5-room-head.fm3-room-header { gap: 12px; padding: 18px 14px; min-height: 0; }
+  .fm3-classrooms.p5-app .p5-main .fm3-room-header > .p5-room-cover { display: none; }
+  .fm3-classrooms.p5-app .p5-main .fm3-room-header > .fm3-room-heading { flex-basis: 100%; width: 100%; max-width: 100%; }
+  .fm3-classrooms .fm3-room-header h1 { font-size: 30px; }
+  .fm3-classrooms .fm3-room-context { font-size: 13px; }
+  .fm3-classrooms .p5-main .p5-tabs { margin-bottom: 14px; }
+  .fm3-classrooms .p5-main .p5-tabs button { font-size: 14px; padding-inline: 10px; }
+  .fm3-classrooms .p5-main .p5-unit { padding: 16px 12px; }
+  .fm3-classrooms .p5-roster > li > .p5-actions { flex-basis: 100%; }
+}
