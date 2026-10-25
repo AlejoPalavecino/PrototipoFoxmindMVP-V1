@@ -1,5 +1,6 @@
 import { request as httpRequest, type IncomingMessage, type ServerResponse } from 'node:http';
 import { request as httpsRequest } from 'node:https';
+import { generationSchema } from './activity-generation-proxy.ts';
 import { parseStartExtraction, parseRetryExtraction, parseApplyExtraction } from '../../../../src/core/domain/index.ts';
 
 const requestLimit = 512 * 1024;
@@ -23,6 +24,10 @@ const routes: Rule[] = [
   rule(`/${uuid}/plan`, { POST: ['revision', 'operation'] }),
   rule(`/${uuid}/library`, { GET: null, POST: ['revision', 'operation'] }),
   rule(`/${uuid}/wall`, { GET: null, POST: ['revision', 'operation'] }),
+  rule(`/${uuid}/activity-generations`, { GET: null, POST: [] }),
+  rule(`/${uuid}/activity-generations/sources`, { GET: null }),
+  rule(`/${uuid}/activity-generations/${uuid}`, { GET: null }),
+  rule(`/${uuid}/activity-generations/${uuid}/(?:apply|regenerate)`, { POST: [] }),
   rule(`/${uuid}/activities`, { GET: null, POST: ['revision', 'operation'] }),
   rule(`/${uuid}/activities/deadline`, { POST: ['local'] }),
   rule(`/${uuid}/activities/${uuid}(?:/preview)?`, { GET: null }),
@@ -169,16 +174,25 @@ function gradeCorrectionSchema(value: unknown): boolean {
 function activitySchema(value: unknown): boolean {
   if (!object(value, ['revision', 'operation']) || typeof value.revision !== 'string') return false;
   const op = value.operation;
-  if (!object(op, ['action', 'id', 'type', 'payload', 'title', 'unitId', 'topicId', 'deadline', 'allowLate'], false) || typeof op.action !== 'string') return false;
+  if (!object(op, ['action', 'id', 'type', 'payload', 'title', 'unitId', 'topicId', 'topicIds', 'deadline', 'allowLate'], false) || typeof op.action !== 'string') return false;
   const shapes: Record<string, string[]> = {
     create: ['action', 'type'], save: ['action', 'id', 'payload'], publish: ['action', 'id'], withdraw: ['action', 'id'],
-    metadata: ['action', 'id', 'title', 'unitId', 'topicId'], deadline: ['action', 'id', 'deadline', 'allowLate'],
+    metadata: ['action', 'id', 'title', 'unitId'], deadline: ['action', 'id', 'deadline', 'allowLate'],
   };
-  if (!Object.hasOwn(shapes, op.action) || !object(op, shapes[op.action])) return false;
+  if (!Object.hasOwn(shapes, op.action)) return false;
+  if (op.action === 'metadata') {
+    if (!object(op, [...shapes.metadata, 'topicId', 'topicIds'], false)
+      || !shapes.metadata.every(key => Object.hasOwn(op, key))) return false;
+  } else if (!object(op, shapes[op.action])) return false;
   if (op.action === 'create') return typeof op.type === 'string' && ['ASSIGNMENT', 'QUESTIONNAIRE', 'EVALUATION'].includes(op.type);
   if (typeof op.id !== 'string' || !new RegExp(`^${uuid}$`).test(op.id)) return false;
   const association = (p: Record<string, unknown>) => typeof p.title === 'string'
-    && [p.unitId, p.topicId].every(id => id === null || typeof id === 'string' && new RegExp(`^${uuid}$`).test(id));
+    && (p.unitId === null || typeof p.unitId === 'string' && new RegExp(`^${uuid}$`).test(p.unitId))
+    && (Object.hasOwn(p, 'topicIds') ? Array.isArray(p.topicIds) && p.topicIds.length <= 100
+      && p.topicIds.every(id => typeof id === 'string' && new RegExp(`^${uuid}$`).test(id))
+      && new Set(p.topicIds).size === p.topicIds.length
+      && (!Object.hasOwn(p, 'topicId') || p.topicId === (p.topicIds[0] ?? null))
+      : Object.hasOwn(p, 'topicId') && (p.topicId === null || typeof p.topicId === 'string' && new RegExp(`^${uuid}$`).test(p.topicId)));
   const deadline = (item: unknown) => item === null || object(item, ['local', 'offsetMinutes'], false)
     && Object.hasOwn(item, 'local') && typeof item.local === 'string'
     && (!Object.hasOwn(item, 'offsetMinutes') || Number.isInteger(item.offsetMinutes));
@@ -186,7 +200,8 @@ function activitySchema(value: unknown): boolean {
   if (op.action === 'deadline') return typeof op.allowLate === 'boolean' && deadline(op.deadline);
   if (op.action !== 'save') return true;
   const p = op.payload;
-  if (!object(p, ['title', 'unitId', 'topicId', 'instructions', 'attachmentRequired', 'instructionFileIds', 'materialIds', 'questions', 'deadline', 'allowLate'])
+  if (!object(p, ['title', 'unitId', 'topicId', 'topicIds', 'instructions', 'attachmentRequired', 'instructionFileIds', 'materialIds', 'questions', 'deadline', 'allowLate'], false)
+    || !['title', 'unitId', 'instructions', 'attachmentRequired', 'instructionFileIds', 'materialIds', 'questions', 'deadline', 'allowLate'].every(key => Object.hasOwn(p, key))
     || !association(p) || typeof p.instructions !== 'string' || typeof p.attachmentRequired !== 'boolean' || typeof p.allowLate !== 'boolean'
     || !deadline(p.deadline) || !Array.isArray(p.questions)) return false;
   if (![p.instructionFileIds, p.materialIds].every(ids => Array.isArray(ids) && ids.every(id => typeof id === 'string' && new RegExp(`^${uuid}$`).test(id)))) return false;
@@ -234,6 +249,7 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
   const publicationRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/(?:publish-grade|result)$`).test(url.pathname);
   const correctionRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/grade-corrections$`).test(url.pathname);
   const progressRoute = new RegExp(`^/api/v1/classrooms/${uuid}/(?:progress|members/${uuid}/progress)$`).test(url.pathname);
+  const generationRoute = url.pathname.includes('/activity-generations');
   const extractionRoute = url.pathname.includes('/curriculum-extractions');
   if ((practicalWrite || answerWrite) && (typeof request.headers['x-attempt-editor'] !== 'string'
     || !/^[A-Za-z0-9_-]{43}$/.test(request.headers['x-attempt-editor'])
@@ -260,7 +276,8 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
         && typeof parsed.revision === 'string' && typeof parsed.studentId === 'string' && new RegExp(`^${uuid}$`).test(parsed.studentId)
         && parsed.confirm === true && (parsed.deadline === null || object(parsed.deadline, ['local', 'offsetMinutes'], false)
           && typeof parsed.deadline.local === 'string' && (!Object.hasOwn(parsed.deadline, 'offsetMinutes') || Number.isInteger(parsed.deadline.offsetMinutes)));
-      if ((!practicalWrite && !answerWrite && !reopening && !gradingRoute && !publicationRoute && !correctionRoute && !extractionRoute && !schema(parsed, selected.methods[method] ?? [], url.pathname.endsWith('/wall')))
+      if ((!practicalWrite && !answerWrite && !reopening && !gradingRoute && !publicationRoute && !correctionRoute && !extractionRoute && !generationRoute && !schema(parsed, selected.methods[method] ?? [], url.pathname.endsWith('/wall')))
+        || (generationRoute && !generationSchema(url.pathname, parsed))
         || (extractionRoute && !extractionSchema(url.pathname, parsed))
         || !validReopening
         || (gradingRoute && !gradingSchema(parsed))

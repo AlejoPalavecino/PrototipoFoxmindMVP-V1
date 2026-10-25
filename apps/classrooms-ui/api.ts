@@ -114,7 +114,7 @@ export interface ActivityQuestion {
   options: { id?: string; text: string; correct?: boolean }[];
 }
 export interface ActivitySummary {
-  id: string; type: ActivityType; title: string | null; unitId: string | null; topicId: string | null;
+  id: string; type: ActivityType; title: string | null; unitId: string | null; topicId: string | null; topicIds: string[];
   status: 'DRAFT' | 'PUBLISHED' | 'WITHDRAWN'; publishedAt: string | null; deadlineAt: string | null;
   allowLate: boolean; locked: boolean; zone: string;
 }
