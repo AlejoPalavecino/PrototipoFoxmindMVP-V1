@@ -23,6 +23,8 @@ Combinación verificada: Next producción sesión47022 exit0/errornull, types3.8
 
 Reviewer atribuido /root/api_build_delivery_review, read-only: LGTM_SIN_HALLAZGOS; comparó padres3058def/8619cd0/base727614d, ambas contribuciones roadmap íntegras; API/src/Prisma/scripts/manifests iguales HEAD, login y4tests importados iguales origin. Diffcheck0/unstagedvacío/unmergedvacío/sin marcadores. Sin tests/builds/escrituras/operaciones remotas por reviewer. DoD condicionado a NextPASS (ya observado root) y readback de padres/refs después de publicar.
 
+Merge20d64c08bc02af1a767f0537778e30e74f5934fb observado, padres3058def y8619cd0;384líneas cambiadas contra primer padre. Guard previo a update-ref detectó que otro chat había adelantado main9322d57 y lo tenía checked-out en canónico; abortó antes de modificar main o ejecutar push. Ese main había fusionado los mismos padres en67d3bae y añadido dos cierres documentales. Se integra main9322d57 preservando ese historial; sólo conflicto de orden/duplicación roadmap, resuelto usando íntegro roadmap main y anteponiendo nuestro único bloque de publicación. Producto apps/src/prisma/tests/scripts exactamente igual a20d64c0 ya compilado/probado; no se repiten tests por documentos. Canónico sólo avanzará mediante merge --ff-only con rama/estado comprobados, nunca update-ref sobre checkout activo.
+
 ## Handoff
 
 Publicar main y confirmar SHA remoto exacto; persistir resultado real y cierre documental sin inferir despliegue.
