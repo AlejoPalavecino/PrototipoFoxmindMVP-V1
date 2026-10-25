@@ -5,13 +5,15 @@ import type { ClassroomAiOptions, JobRow } from './contracts.ts';
 import type { Transaction } from '../contracts.ts';
 
 async function recover(tx: Transaction, options: ClassroomAiOptions): Promise<void> {
-  const rows = await tx.query<JobRow>(`SELECT * FROM classroom_curriculum_extractions WHERE state='RUNNING'
-    AND lease_until<=clock_timestamp() FOR UPDATE SKIP LOCKED`);
-  for (const row of rows) {
-    await settle(tx, row, options.configuration);
-    await tx.query(`UPDATE classroom_curriculum_extractions SET state=$2,error_code=$3,lease_nonce=NULL,
-      lease_until=NULL,updated_at=clock_timestamp() WHERE id=$1::uuid RETURNING id`, row.id,
-    row.dispatch_started_at ? 'FAILED' : 'QUEUED', row.dispatch_started_at ? 'PROVIDER_OUTCOME_UNKNOWN' : null);
+  for (const table of ['classroom_curriculum_extractions', 'activity_ai_generations'] as const) {
+    const rows = await tx.query<JobRow>(`SELECT * FROM ${table} WHERE state='RUNNING'
+      AND lease_until<=clock_timestamp() FOR UPDATE SKIP LOCKED`);
+    for (const row of rows) {
+      await settle(tx, row, options.configuration, undefined, table);
+      await tx.query(`UPDATE ${table} SET state=$2,error_code=$3,lease_nonce=NULL,
+        lease_until=NULL,updated_at=clock_timestamp() WHERE id=$1::uuid RETURNING id`, row.id,
+      row.dispatch_started_at ? 'FAILED' : 'QUEUED', row.dispatch_started_at ? 'PROVIDER_OUTCOME_UNKNOWN' : null);
+    }
   }
 }
 export function claim(options: ClassroomAiOptions): Promise<JobRow | null> {
@@ -19,11 +21,17 @@ export function claim(options: ClassroomAiOptions): Promise<JobRow | null> {
     await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123002)');
     await recover(tx, options);
     const [active] = await tx.query<{ count: number }>(`SELECT count(*)::int AS count
-      FROM classroom_curriculum_extractions WHERE state='RUNNING' AND lease_until>clock_timestamp()`);
+      FROM (SELECT id FROM classroom_curriculum_extractions WHERE state='RUNNING' AND lease_until>clock_timestamp()
+      UNION ALL SELECT id FROM activity_ai_generations WHERE state='RUNNING' AND lease_until>clock_timestamp()) running`);
     if (active!.count >= options.configuration.maxConcurrency) return null;
     const [next] = await tx.query<JobRow>(`SELECT q.* FROM classroom_curriculum_extractions q
       WHERE q.state='QUEUED' AND q.next_attempt_at<=clock_timestamp()
       AND NOT EXISTS(SELECT 1 FROM classroom_curriculum_extractions r WHERE r.owner_id=q.owner_id AND r.state='RUNNING')
+      AND NOT EXISTS(SELECT 1 FROM activity_ai_generations r WHERE r.owner_id=q.owner_id AND r.state='RUNNING')
+      AND NOT EXISTS(SELECT 1 FROM activity_ai_generations a WHERE a.state='QUEUED' AND a.next_attempt_at<=clock_timestamp()
+        AND (a.created_at,a.id)<(q.created_at,q.id)
+        AND NOT EXISTS(SELECT 1 FROM classroom_curriculum_extractions r WHERE r.owner_id=a.owner_id AND r.state='RUNNING')
+        AND NOT EXISTS(SELECT 1 FROM activity_ai_generations r WHERE r.owner_id=a.owner_id AND r.state='RUNNING'))
       ORDER BY q.created_at,q.id LIMIT 1 FOR UPDATE SKIP LOCKED`);
     if (!next) return null;
     const [row] = await tx.query<JobRow>(`UPDATE classroom_curriculum_extractions SET state='RUNNING',
