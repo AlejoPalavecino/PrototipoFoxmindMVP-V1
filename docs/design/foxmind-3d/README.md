@@ -4,6 +4,8 @@ La dirección elegida combina **Foxy naranja en 3D, superficies claras y accione
 
 **Estado:** paquete de diseño local. No reemplaza la interfaz actual, no cambia backend ni datos y no está desplegado. Base inspeccionada: `main/e7f5d6f67520516fe56fe9794ab8d1ac97633bdd`, 25 de octubre de 2026. La aprobación del concepto no equivale a implementación ni publicación.
 
+**Actualización de ejecución:** la posterior migración autorizada está implementada localmente; ver [guía de implementación](../../foxmind-3d.md), [mapa de verificación](../../foxmind-3d-verification.md) y [evidencia de la aplicación real](../../work-log/evidence/2026-10-25-foxmind-3d/README.md). El estado anterior describe la entrega de diseño original y queda como historia; estas maquetas no sustituyen la evidencia real.
+
 ## Empezar por aquí
 
 1. [Abrir el catálogo gráfico](review/index.html): ilustraciones WebP, logo original y acceso al atlas.
