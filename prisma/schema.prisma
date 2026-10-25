@@ -98,6 +98,8 @@ enum JobStatus {
 }
 
 model User {
+  activity_generations ActivityAiGeneration[] @relation("ActivityGeneration_owner")
+  activity_generation_requests ActivityAiRequest[] @relation("ActivityRequest_owner")
   curriculum_extractions ClassroomCurriculumExtraction[]
   classroom_ai_requests ClassroomAiRequest[]
   id                    String             @id @default(uuid()) @db.Uuid
@@ -225,6 +227,7 @@ model ClassroomDraft {
 }
 
 model Classroom {
+  activity_generations ActivityAiGeneration[] @relation("ActivityGeneration_classroom")
   id                  String             @id @default(uuid()) @db.Uuid
   revision            BigInt             @default(0)
   created_at          DateTime           @default(now()) @db.Timestamptz(6)
@@ -359,6 +362,7 @@ model Topic {
   unit         Unit        @relation("Topic_unit", fields: [unit_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
   materials    Material[]  @relation("Material_topic")
   activities   Activity[]  @relation("Activity_topic")
+  activity_links ActivityTopic[] @relation("ActivityTopic_topic")
 
   @@unique([id, unit_id, classroom_id])
   @@index([unit_id, position])
@@ -478,6 +482,7 @@ model FileCustody {
 }
 
 model Activity {
+  generated_by ActivityAiGeneration[] @relation("ActivityGeneration_applied")
   id                     String                    @id @default(uuid()) @db.Uuid
   created_at             DateTime                  @default(now()) @db.Timestamptz(6)
   updated_at             DateTime                  @default(now()) @updatedAt @db.Timestamptz(6)
@@ -497,6 +502,7 @@ model Activity {
   unit                   Unit?                     @relation("Activity_unit", fields: [unit_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
   topic                  Topic?                    @relation("Activity_topic", fields: [topic_id, unit_id, classroom_id], references: [id, unit_id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
   instruction_files      ActivityInstructionFile[] @relation("Instruction_activity")
+  topic_links            ActivityTopic[]           @relation("ActivityTopic_activity")
   material_links         ActivityMaterial[]        @relation("Link_activity")
   questions              Question[]                @relation("Question_activity")
   student_activities     StudentActivity[]         @relation("StudentActivity_activity")
@@ -506,6 +512,7 @@ model Activity {
   @@unique([id, classroom_id])
   @@index([classroom_id, status, published_at])
   @@index([unit_id, topic_id])
+  @@unique([id, unit_id, classroom_id])
   @@map("activities")
 }
 
@@ -893,4 +900,84 @@ model AiUsageDaily {
 
   @@id([day, scope, capability])
   @@map("ai_usage_daily")
+}
+
+model ActivityTopic {
+  activity_id String @db.Uuid
+  topic_id String @db.Uuid
+  unit_id String @db.Uuid
+  classroom_id String @db.Uuid
+  position Int
+  activity Activity @relation("ActivityTopic_activity", fields: [activity_id, unit_id, classroom_id], references: [id, unit_id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+  topic Topic @relation("ActivityTopic_topic", fields: [topic_id, unit_id, classroom_id], references: [id, unit_id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@id([activity_id, topic_id])
+  @@unique([activity_id, position])
+  @@index([topic_id])
+  @@index([unit_id])
+  @@map("activity_topics")
+}
+
+model ActivityAiGeneration {
+  id String @id @db.Uuid
+  owner_id String @db.Uuid
+  classroom_id String @db.Uuid
+  unit_id String @db.Uuid
+  type ActivityType
+  base_revision BigInt
+  request_hash String
+  input_payload Json
+  curriculum_snapshot Json
+  source_snapshot Json
+  source_report Json @default("[]")
+  schema_version String
+  prompt_version String
+  model String
+  generation Int @default(0)
+  predecessor_id String? @db.Uuid
+  state String @default("QUEUED")
+  proposal Json?
+  error_code String?
+  missing_information Json @default("[]")
+  created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  updated_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  completed_at DateTime? @db.Timestamptz(6)
+  next_attempt_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  dispatch_count Int @default(0)
+  lease_nonce String? @db.Uuid
+  lease_until DateTime? @db.Timestamptz(6)
+  dispatch_started_at DateTime? @db.Timestamptz(6)
+  apply_request_id String? @db.Uuid
+  apply_input_hash String?
+  applied_activity_id String? @unique @db.Uuid
+  applied_revision BigInt?
+  input_tokens BigInt?
+  output_tokens BigInt?
+  reserved_microusd BigInt @default(0)
+  usage_day DateTime? @db.Date
+  owner User @relation("ActivityGeneration_owner", fields: [owner_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  classroom Classroom @relation("ActivityGeneration_classroom", fields: [classroom_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  predecessor ActivityAiGeneration? @relation("ActivityGeneration_predecessor", fields: [predecessor_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  successors ActivityAiGeneration[] @relation("ActivityGeneration_predecessor")
+  applied_activity Activity? @relation("ActivityGeneration_applied", fields: [applied_activity_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+  requests ActivityAiRequest[]
+
+  @@unique([owner_id, apply_request_id])
+  @@index([state, next_attempt_at])
+  @@index([owner_id, classroom_id, created_at, id])
+  @@index([predecessor_id])
+  @@map("activity_ai_generations")
+}
+
+model ActivityAiRequest {
+  owner_id String @db.Uuid
+  request_id String @db.Uuid
+  operation String
+  input_hash String
+  generation_id String @db.Uuid
+  owner User @relation("ActivityRequest_owner", fields: [owner_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  generation ActivityAiGeneration @relation(fields: [generation_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@id([owner_id, request_id])
+  @@map("activity_ai_requests")
 }

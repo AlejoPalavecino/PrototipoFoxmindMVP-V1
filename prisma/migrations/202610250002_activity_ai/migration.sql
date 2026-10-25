@@ -1,0 +1,51 @@
+CREATE TABLE activity_ai_generations (
+  id uuid PRIMARY KEY,
+  owner_id uuid NOT NULL REFERENCES users(id) ON DELETE RESTRICT ON UPDATE NO ACTION,
+  classroom_id uuid NOT NULL REFERENCES classrooms(id) ON DELETE RESTRICT ON UPDATE NO ACTION,
+  unit_id uuid NOT NULL,
+  type "ActivityType" NOT NULL,
+  base_revision bigint NOT NULL CHECK (base_revision >= 0),
+  request_hash text NOT NULL,
+  input_payload jsonb NOT NULL,
+  curriculum_snapshot jsonb NOT NULL,
+  source_snapshot jsonb NOT NULL,
+  source_report jsonb NOT NULL DEFAULT '[]',
+  schema_version text NOT NULL,
+  prompt_version text NOT NULL,
+  model text NOT NULL,
+  generation integer NOT NULL DEFAULT 0 CHECK (generation >= 0),
+  predecessor_id uuid REFERENCES activity_ai_generations(id) ON DELETE RESTRICT ON UPDATE NO ACTION,
+  state text NOT NULL DEFAULT 'QUEUED' CHECK (state IN ('QUEUED','RUNNING','READY','FAILED','STALE','APPLIED')),
+  proposal jsonb,
+  error_code text,
+  missing_information jsonb NOT NULL DEFAULT '[]',
+  created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+  updated_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+  completed_at timestamptz,
+  next_attempt_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+  dispatch_count integer NOT NULL DEFAULT 0 CHECK (dispatch_count BETWEEN 0 AND 1),
+  lease_nonce uuid,
+  lease_until timestamptz,
+  dispatch_started_at timestamptz,
+  apply_request_id uuid,
+  apply_input_hash text,
+  applied_activity_id uuid UNIQUE,
+  applied_revision bigint,
+  input_tokens bigint,
+  output_tokens bigint,
+  reserved_microusd bigint NOT NULL DEFAULT 0 CHECK (reserved_microusd >= 0),
+  usage_day date,
+  FOREIGN KEY (applied_activity_id,classroom_id) REFERENCES activities(id,classroom_id) ON DELETE RESTRICT ON UPDATE NO ACTION,
+  UNIQUE (owner_id,apply_request_id)
+);
+CREATE INDEX activity_ai_generations_state_next_attempt_at_idx ON activity_ai_generations(state,next_attempt_at);
+CREATE INDEX activity_ai_generations_owner_id_classroom_id_created_at_id_idx ON activity_ai_generations(owner_id,classroom_id,created_at,id);
+CREATE INDEX activity_ai_generations_predecessor_id_idx ON activity_ai_generations(predecessor_id);
+CREATE TABLE activity_ai_requests (
+  owner_id uuid NOT NULL REFERENCES users(id) ON DELETE RESTRICT ON UPDATE NO ACTION,
+  request_id uuid NOT NULL,
+  operation text NOT NULL CHECK (operation IN ('start','regenerate','apply')),
+  input_hash text NOT NULL,
+  generation_id uuid NOT NULL REFERENCES activity_ai_generations(id) ON DELETE RESTRICT ON UPDATE NO ACTION,
+  PRIMARY KEY (owner_id,request_id)
+);

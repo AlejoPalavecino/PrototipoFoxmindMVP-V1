@@ -65,11 +65,13 @@ test('P5 actual Next, P3 identity and P4 private services integrated journeys', 
           assert.equal((await rejectSame(() => api(page, 'POST', '/classrooms/drafts', {}))).status, 403);
         });
         student = await account(studentPage, origin, inbox, `p5-student-${suffix}@example.test`);
-        assert.equal(runtime.migrations.length, 12);
-        assert.deepEqual(runtime.migrations.slice(-3), [
+        assert.equal(runtime.migrations.length, 14);
+        assert.deepEqual(runtime.migrations.slice(-5), [
           '202610230001_agenda_events',
           '202610230001_classroom_ai',
           '202610240001_agenda_event_color',
+          '202610250001_activity_topics',
+          '202610250002_activity_ai',
         ]);
         assert.equal((await db.query('SELECT count(*)::int AS n FROM classrooms')).rows[0].n, 0);
       });

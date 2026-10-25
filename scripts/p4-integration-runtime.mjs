@@ -25,7 +25,8 @@ export async function withP4IntegrationRuntime(callback, options = {}) {
       db = new pg.Client({ connectionString: runtime.databaseUrl, connectionTimeoutMillis: 2000, query_timeout: 5000 });
       await db.connect();
       const migrations = readdirSync('prisma/migrations').filter(name => /^\d+_/.test(name)).sort();
-      if (migrations.length !== 12 || migrations.at(-1) !== '202610240001_agenda_event_color')
+      if (migrations.length !== 14 || migrations.at(-3) !== '202610240001_agenda_event_color'
+        || migrations.at(-2) !== '202610250001_activity_topics' || migrations.at(-1) !== '202610250002_activity_ai')
         throw new Error('Unexpected combined migration inventory');
       const prisma = command => {
         const result = spawnSync(process.execPath, ['node_modules/prisma/build/index.js', ...command], {

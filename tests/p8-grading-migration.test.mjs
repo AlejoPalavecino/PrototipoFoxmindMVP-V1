@@ -12,9 +12,10 @@ test('populated eight-migration baseline upgrades pending rational pairs without
     const db = new pg.Client({ ...pool.options, password: pool.options.password, database: 'p8_upgrade' }); await db.connect();
     try {
       const names = (await readdir('prisma/migrations')).filter(name => /^\d+_/.test(name)).sort();
-      assert.equal(names.length, 12);
+      assert.equal(names.length, 14);
       assert.equal(names[8], '202610180002_p8_pending_question_scores');
-      assert.deepEqual(names.slice(9), ['202610230001_agenda_events', '202610230001_classroom_ai', '202610240001_agenda_event_color']);
+      assert.deepEqual(names.slice(9, 12), ['202610230001_agenda_events', '202610230001_classroom_ai', '202610240001_agenda_event_color']);
+      assert.deepEqual(names.slice(12), ['202610250001_activity_topics', '202610250002_activity_ai']);
       const baseline = names.slice(0, 8); assert.equal(baseline.length, 8);
       for (const name of baseline) await db.query(await readFile(`prisma/migrations/${name}/migration.sql`, 'utf8'));
       const insert = async (table, data) => {
