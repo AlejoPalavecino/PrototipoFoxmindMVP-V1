@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
 
 // Test-only in-memory loading of real source modules, including extensionless TS helpers.
@@ -13,6 +14,15 @@ export function loadTsModule(path) {
     cache.set(filename, module);
     const code = ts.transpileModule(readFileSync(filename, 'utf8'), {
       compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2023 },
+      transformers: { before: [context => source => {
+        const visit = node => {
+          if (ts.isPropertyAccessExpression(node) && node.name.text === 'url'
+            && ts.isMetaProperty(node.expression) && node.expression.keywordToken === ts.SyntaxKind.ImportKeyword
+            && node.expression.name.text === 'meta') return context.factory.createStringLiteral(pathToFileURL(filename).href);
+          return ts.visitEachChild(node, visit, context);
+        };
+        return ts.visitNode(source, visit);
+      }] },
     }).outputText;
     const require = specifier => {
       if (specifier.startsWith('.')) {
