@@ -1,0 +1,1869 @@
+{
+  "baseline": "e7f5d6f67520516fe56fe9794ab8d1ac97633bdd",
+  "date": "2026-10-25",
+  "totalFlows": 82,
+  "existingPages": [
+    {
+      "route": "/",
+      "source": "apps/web/pages/index.tsx",
+      "ids": "AUTH-01"
+    },
+    {
+      "route": "/sign-in",
+      "source": "apps/web/pages/sign-in.tsx",
+      "ids": "AUTH-01"
+    },
+    {
+      "route": "/register",
+      "source": "apps/web/pages/register.tsx",
+      "ids": "AUTH-02"
+    },
+    {
+      "route": "/verify-email",
+      "source": "apps/web/pages/verify-email.tsx",
+      "ids": "AUTH-03"
+    },
+    {
+      "route": "/forgot-password",
+      "source": "apps/web/pages/forgot-password.tsx",
+      "ids": "AUTH-04"
+    },
+    {
+      "route": "/recover-password",
+      "source": "apps/web/pages/recover-password.tsx",
+      "ids": "AUTH-05"
+    },
+    {
+      "route": "/inicio",
+      "source": "apps/web/pages/inicio.tsx",
+      "ids": "HOME-01, HOME-02, NAV-02"
+    },
+    {
+      "route": "/mis-aulas",
+      "source": "apps/web/pages/mis-aulas.tsx",
+      "ids": "CLASS, PLAN, LIB, WALL, PEOPLE, ACT, AI, SUB, GRADE, PROG"
+    },
+    {
+      "route": "/agenda",
+      "source": "apps/web/pages/agenda.tsx",
+      "ids": "AGENDA-01..10"
+    },
+    {
+      "route": "/profile",
+      "source": "apps/web/pages/profile.tsx",
+      "ids": "ACC-01, ACC-02"
+    },
+    {
+      "route": "/files",
+      "source": "apps/web/pages/files.tsx",
+      "ids": "LIB-05"
+    }
+  ],
+  "newRoute": {
+    "route": "/settings",
+    "ids": "ACC-02",
+    "status": "proposed"
+  },
+  "flows": [
+    {
+      "id": "NAV-01",
+      "title": "shell global y orientación",
+      "spec": "flows/account-and-navigation.md#nav-01--shell-global-y-orientación",
+      "visual": "review/screens.html#NAV-01/study/normal",
+      "phase": "D2",
+      "assets": "brand/logo-horizontal + icons",
+      "family": "Inicio",
+      "variants": [
+        "study",
+        "teach",
+        "mixed",
+        "none"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "AUTH-01",
+      "title": "iniciar sesión",
+      "spec": "flows/account-and-navigation.md#auth-01--iniciar-sesión",
+      "visual": "review/screens.html#AUTH-01/default/normal",
+      "phase": "D2",
+      "assets": "scenes/auth + scenes/security",
+      "family": "Acceso",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "error",
+        "success"
+      ]
+    },
+    {
+      "id": "AUTH-02",
+      "title": "crear cuenta",
+      "spec": "flows/account-and-navigation.md#auth-02--crear-cuenta",
+      "visual": "review/screens.html#AUTH-02/default/normal",
+      "phase": "D2",
+      "assets": "scenes/auth + scenes/security",
+      "family": "Acceso",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "error",
+        "success"
+      ]
+    },
+    {
+      "id": "AUTH-03",
+      "title": "verificar correo",
+      "spec": "flows/account-and-navigation.md#auth-03--verificar-correo",
+      "visual": "review/screens.html#AUTH-03/default/normal",
+      "phase": "D2",
+      "assets": "scenes/auth + scenes/security",
+      "family": "Acceso",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "error",
+        "success"
+      ]
+    },
+    {
+      "id": "AUTH-04",
+      "title": "solicitar recuperación",
+      "spec": "flows/account-and-navigation.md#auth-04--solicitar-recuperación",
+      "visual": "review/screens.html#AUTH-04/default/normal",
+      "phase": "D2",
+      "assets": "scenes/auth + scenes/security",
+      "family": "Acceso",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "error",
+        "success"
+      ]
+    },
+    {
+      "id": "AUTH-05",
+      "title": "establecer nueva contraseña",
+      "spec": "flows/account-and-navigation.md#auth-05--establecer-nueva-contraseña",
+      "visual": "review/screens.html#AUTH-05/default/normal",
+      "phase": "D2",
+      "assets": "scenes/auth + scenes/security",
+      "family": "Acceso",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "error",
+        "success"
+      ]
+    },
+    {
+      "id": "ACC-01",
+      "title": "Mi perfil",
+      "spec": "flows/account-and-navigation.md#acc-01--mi-perfil",
+      "visual": "review/screens.html#ACC-01/default/normal",
+      "phase": "D2",
+      "assets": "scenes/profile + scenes/security",
+      "family": "Cuenta",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "error",
+        "success"
+      ]
+    },
+    {
+      "id": "ACC-02",
+      "title": "Configuración y cerrar sesión",
+      "spec": "flows/account-and-navigation.md#acc-02--configuración-y-cerrar-sesión",
+      "visual": "review/screens.html#ACC-02/default/normal",
+      "phase": "D2",
+      "assets": "scenes/profile + scenes/security",
+      "family": "Cuenta",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "error",
+        "success"
+      ]
+    },
+    {
+      "id": "HOME-01",
+      "title": "Inicio según aulas actuales",
+      "spec": "flows/account-and-navigation.md#home-01--inicio-según-aulas-actuales",
+      "visual": "review/screens.html#HOME-01/study/normal",
+      "phase": "D9",
+      "assets": "hero/welcome-learn + hero/welcome-teach",
+      "family": "Inicio",
+      "variants": [
+        "study",
+        "teach",
+        "mixed",
+        "none"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "HOME-02",
+      "title": "vacíos, fallos y actualidad",
+      "spec": "flows/account-and-navigation.md#home-02--vacíos-fallos-y-actualidad",
+      "visual": "review/screens.html#HOME-02/study/normal",
+      "phase": "D9",
+      "assets": "hero/welcome-learn + hero/welcome-teach",
+      "family": "Inicio",
+      "variants": [
+        "study",
+        "teach",
+        "mixed",
+        "none"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "NAV-02",
+      "title": "notificaciones y novedades",
+      "spec": "flows/account-and-navigation.md#nav-02--notificaciones-y-novedades",
+      "visual": "review/screens.html#NAV-02/default/normal",
+      "phase": "D4",
+      "assets": "brand/logo-horizontal + icons",
+      "family": "Notificaciones",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "ACT-01",
+      "title": "Encontrar una actividad y elegir su recorrido",
+      "spec": "flows/activity-authoring.md#act-01--encontrar-una-actividad-y-elegir-su-recorrido",
+      "visual": "review/screens.html#ACT-01/teacher/normal",
+      "phase": "D5",
+      "assets": "icons/clipboard + states/*",
+      "family": "Actividades",
+      "variants": [
+        "teacher",
+        "student"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "ACT-02",
+      "title": "Crear un borrador manual y organizarlo",
+      "spec": "flows/activity-authoring.md#act-02--crear-un-borrador-manual-y-organizarlo",
+      "visual": "review/screens.html#ACT-02/tp/normal",
+      "phase": "D5",
+      "assets": "icons/clipboard + states/*",
+      "family": "Autoría manual",
+      "variants": [
+        "tp",
+        "quiz",
+        "exam"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "ACT-03",
+      "title": "Escribir un trabajo práctico y sus recursos",
+      "spec": "flows/activity-authoring.md#act-03--escribir-un-trabajo-práctico-y-sus-recursos",
+      "visual": "review/screens.html#ACT-03/tp/normal",
+      "phase": "D5",
+      "assets": "icons/clipboard + states/*",
+      "family": "Autoría · Trabajo práctico",
+      "variants": [
+        "tp"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "ACT-04",
+      "title": "Construir cuestionario o evaluación",
+      "spec": "flows/activity-authoring.md#act-04--construir-cuestionario-o-evaluación",
+      "visual": "review/screens.html#ACT-04/quiz/normal",
+      "phase": "D5",
+      "assets": "icons/clipboard + states/*",
+      "family": "Autoría · Preguntas",
+      "variants": [
+        "quiz",
+        "exam"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "ACT-05",
+      "title": "Elegir plazo y política de recepción",
+      "spec": "flows/activity-authoring.md#act-05--elegir-plazo-y-política-de-recepción",
+      "visual": "review/screens.html#ACT-05/tp/normal",
+      "phase": "D5",
+      "assets": "icons/clipboard + states/*",
+      "family": "Autoría · Plazo",
+      "variants": [
+        "tp",
+        "quiz",
+        "exam"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "ACT-06",
+      "title": "Revisar, publicar o retirar",
+      "spec": "flows/activity-authoring.md#act-06--revisar-publicar-o-retirar",
+      "visual": "review/screens.html#ACT-06/tp/normal",
+      "phase": "D5",
+      "assets": "icons/clipboard + states/*",
+      "family": "Publicación",
+      "variants": [
+        "tp",
+        "quiz",
+        "exam"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "ACT-07",
+      "title": "Corregir organización después de participación",
+      "spec": "flows/activity-authoring.md#act-07--corregir-organización-después-de-participación",
+      "visual": "review/screens.html#ACT-07/tp/normal",
+      "phase": "D5",
+      "assets": "icons/clipboard + states/*",
+      "family": "Autoría · Contenido bloqueado",
+      "variants": [
+        "tp",
+        "quiz",
+        "exam"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "AI-01",
+      "title": "Preparar una generación explícita y sus fuentes",
+      "spec": "flows/activity-authoring.md#ai-01--preparar-una-generación-explícita-y-sus-fuentes",
+      "visual": "review/screens.html#AI-01/tp/normal",
+      "phase": "D5",
+      "assets": "icons/spark + states/*",
+      "family": "Autoría con IA",
+      "variants": [
+        "tp",
+        "quiz",
+        "exam"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "AI-02",
+      "title": "Seguir y recuperar el trabajo durable",
+      "spec": "flows/activity-authoring.md#ai-02--seguir-y-recuperar-el-trabajo-durable",
+      "visual": "review/screens.html#AI-02/tp/normal",
+      "phase": "D5",
+      "assets": "icons/spark + states/*",
+      "family": "Autoría con IA",
+      "variants": [
+        "tp",
+        "quiz",
+        "exam"
+      ],
+      "states": [
+        "normal",
+        "queued",
+        "running",
+        "ready",
+        "failed",
+        "stale",
+        "applied",
+        "unknown",
+        "loading",
+        "error",
+        "readonly",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "AI-03",
+      "title": "Revisar propuesta privada y vista estudiante",
+      "spec": "flows/activity-authoring.md#ai-03--revisar-propuesta-privada-y-vista-estudiante",
+      "visual": "review/screens.html#AI-03/tp/normal",
+      "phase": "D5",
+      "assets": "icons/spark + states/*",
+      "family": "Autoría con IA",
+      "variants": [
+        "tp",
+        "quiz",
+        "exam"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "AI-04",
+      "title": "Aplicar la propuesta como nuevo borrador",
+      "spec": "flows/activity-authoring.md#ai-04--aplicar-la-propuesta-como-nuevo-borrador",
+      "visual": "review/screens.html#AI-04/tp/normal",
+      "phase": "D5",
+      "assets": "icons/spark + states/*",
+      "family": "Autoría con IA",
+      "variants": [
+        "tp",
+        "quiz",
+        "exam"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "AI-05",
+      "title": "Regenerar, resolver fallos y preservar trabajo",
+      "spec": "flows/activity-authoring.md#ai-05--regenerar-resolver-fallos-y-preservar-trabajo",
+      "visual": "review/screens.html#AI-05/tp/normal",
+      "phase": "D5",
+      "assets": "icons/spark + states/*",
+      "family": "Autoría con IA",
+      "variants": [
+        "tp",
+        "quiz",
+        "exam"
+      ],
+      "states": [
+        "normal",
+        "error",
+        "unknown",
+        "stale",
+        "readonly",
+        "conflict",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "AGENDA-01",
+      "title": "consultar mes, día y zona de vista",
+      "spec": "flows/agenda.md#agenda-01--consultar-mes-día-y-zona-de-vista",
+      "visual": "review/screens.html#AGENDA-01/default/normal",
+      "phase": "D8",
+      "assets": "scenes/agenda + icons/calendar",
+      "family": "Agenda",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "success",
+        "conflict"
+      ]
+    },
+    {
+      "id": "AGENDA-02",
+      "title": "leer eventos del día",
+      "spec": "flows/agenda.md#agenda-02--leer-eventos-del-día",
+      "visual": "review/screens.html#AGENDA-02/default/normal",
+      "phase": "D8",
+      "assets": "scenes/agenda + icons/calendar",
+      "family": "Agenda",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "success",
+        "conflict"
+      ]
+    },
+    {
+      "id": "AGENDA-03",
+      "title": "próximas entregas y apertura autorizada",
+      "spec": "flows/agenda.md#agenda-03--próximas-entregas-y-apertura-autorizada",
+      "visual": "review/screens.html#AGENDA-03/default/normal",
+      "phase": "D8",
+      "assets": "scenes/agenda + icons/calendar",
+      "family": "Agenda",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "success",
+        "conflict"
+      ]
+    },
+    {
+      "id": "AGENDA-04",
+      "title": "crear evento privado",
+      "spec": "flows/agenda.md#agenda-04--crear-evento-privado",
+      "visual": "review/screens.html#AGENDA-04/default/normal",
+      "phase": "D8",
+      "assets": "scenes/agenda + icons/calendar",
+      "family": "Evento privado",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "success",
+        "conflict"
+      ]
+    },
+    {
+      "id": "AGENDA-05",
+      "title": "repetición semanal completa",
+      "spec": "flows/agenda.md#agenda-05--repetición-semanal-completa",
+      "visual": "review/screens.html#AGENDA-05/default/normal",
+      "phase": "D8",
+      "assets": "scenes/agenda + icons/calendar",
+      "family": "Evento privado",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "success",
+        "conflict"
+      ]
+    },
+    {
+      "id": "AGENDA-06",
+      "title": "resolver horas inexistentes o repetidas",
+      "spec": "flows/agenda.md#agenda-06--resolver-horas-inexistentes-o-repetidas",
+      "visual": "review/screens.html#AGENDA-06/default/normal",
+      "phase": "D8",
+      "assets": "scenes/agenda + icons/calendar",
+      "family": "Evento privado",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "success",
+        "conflict"
+      ]
+    },
+    {
+      "id": "AGENDA-07",
+      "title": "editar sin cambiar el día consultado",
+      "spec": "flows/agenda.md#agenda-07--editar-sin-cambiar-el-día-consultado",
+      "visual": "review/screens.html#AGENDA-07/default/normal",
+      "phase": "D8",
+      "assets": "scenes/agenda + icons/calendar",
+      "family": "Evento privado",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "success",
+        "conflict"
+      ]
+    },
+    {
+      "id": "AGENDA-08",
+      "title": "eliminar evento o serie",
+      "spec": "flows/agenda.md#agenda-08--eliminar-evento-o-serie",
+      "visual": "review/screens.html#AGENDA-08/default/normal",
+      "phase": "D8",
+      "assets": "scenes/agenda + icons/calendar",
+      "family": "Evento privado",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "success",
+        "conflict"
+      ]
+    },
+    {
+      "id": "AGENDA-09",
+      "title": "conflicto entre pestañas y recuperación",
+      "spec": "flows/agenda.md#agenda-09--conflicto-entre-pestañas-y-recuperación",
+      "visual": "review/screens.html#AGENDA-09/default/normal",
+      "phase": "D8",
+      "assets": "scenes/agenda + icons/calendar",
+      "family": "Evento privado",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "success",
+        "conflict"
+      ]
+    },
+    {
+      "id": "AGENDA-10",
+      "title": "éxito confirmado, fallos y sesión",
+      "spec": "flows/agenda.md#agenda-10--éxito-confirmado-fallos-y-sesión",
+      "visual": "review/screens.html#AGENDA-10/default/normal",
+      "phase": "D8",
+      "assets": "scenes/agenda + icons/calendar",
+      "family": "Agenda",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "success",
+        "conflict"
+      ]
+    },
+    {
+      "id": "PLAN-01",
+      "title": "Consultar unidades, temas y trabajo asociado",
+      "spec": "flows/classroom-workspace.md#plan-01--consultar-unidades-temas-y-trabajo-asociado",
+      "visual": "review/screens.html#PLAN-01/teacher/normal",
+      "phase": "D4",
+      "assets": "covers/* + icons",
+      "family": "Plan de estudio",
+      "variants": [
+        "teacher",
+        "student"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "PLAN-02",
+      "title": "Marcar el estado de enseñanza",
+      "spec": "flows/classroom-workspace.md#plan-02--marcar-el-estado-de-enseñanza",
+      "visual": "review/screens.html#PLAN-02/teacher/normal",
+      "phase": "D4",
+      "assets": "covers/* + icons",
+      "family": "Plan de estudio",
+      "variants": [
+        "teacher"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "PLAN-03",
+      "title": "Añadir, renombrar y reordenar currículo",
+      "spec": "flows/classroom-workspace.md#plan-03--añadir-renombrar-y-reordenar-currículo",
+      "visual": "review/screens.html#PLAN-03/teacher/normal",
+      "phase": "D4",
+      "assets": "covers/* + icons",
+      "family": "Plan de estudio",
+      "variants": [
+        "teacher"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "PLAN-04",
+      "title": "Eliminar tema o unidad sin borrar historial",
+      "spec": "flows/classroom-workspace.md#plan-04--eliminar-tema-o-unidad-sin-borrar-historial",
+      "visual": "review/screens.html#PLAN-04/teacher/normal",
+      "phase": "D4",
+      "assets": "covers/* + icons",
+      "family": "Plan de estudio",
+      "variants": [
+        "teacher"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "PLAN-05",
+      "title": "Descargar y publicar versiones del archivo del plan",
+      "spec": "flows/classroom-workspace.md#plan-05--descargar-y-publicar-versiones-del-archivo-del-plan",
+      "visual": "review/screens.html#PLAN-05/teacher/normal",
+      "phase": "D4",
+      "assets": "covers/* + icons",
+      "family": "Plan de estudio",
+      "variants": [
+        "teacher",
+        "student"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "LIB-01",
+      "title": "Encontrar, consultar y descargar materiales",
+      "spec": "flows/classroom-workspace.md#lib-01--encontrar-consultar-y-descargar-materiales",
+      "visual": "review/screens.html#LIB-01/teacher/normal",
+      "phase": "D4",
+      "assets": "icons/file + states/*",
+      "family": "Biblioteca",
+      "variants": [
+        "teacher",
+        "student"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "LIB-02",
+      "title": "Cargar archivo privado y publicar material",
+      "spec": "flows/classroom-workspace.md#lib-02--cargar-archivo-privado-y-publicar-material",
+      "visual": "review/screens.html#LIB-02/teacher/normal",
+      "phase": "D4",
+      "assets": "icons/file + states/*",
+      "family": "Biblioteca",
+      "variants": [
+        "teacher"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "LIB-03",
+      "title": "Editar nombre/asociación conservando el archivo",
+      "spec": "flows/classroom-workspace.md#lib-03--editar-nombreasociación-conservando-el-archivo",
+      "visual": "review/screens.html#LIB-03/teacher/normal",
+      "phase": "D4",
+      "assets": "icons/file + states/*",
+      "family": "Biblioteca",
+      "variants": [
+        "teacher"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "LIB-04",
+      "title": "Eliminar material no vinculado",
+      "spec": "flows/classroom-workspace.md#lib-04--eliminar-material-no-vinculado",
+      "visual": "review/screens.html#LIB-04/teacher/normal",
+      "phase": "D4",
+      "assets": "icons/file + states/*",
+      "family": "Biblioteca",
+      "variants": [
+        "teacher"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "LIB-05",
+      "title": "Pantalla contextual de archivos privados",
+      "spec": "flows/classroom-workspace.md#lib-05--pantalla-contextual-de-archivos-privados",
+      "visual": "review/screens.html#LIB-05/teacher/normal",
+      "phase": "D4",
+      "assets": "icons/file + states/*",
+      "family": "Biblioteca",
+      "variants": [
+        "teacher"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "WALL-01",
+      "title": "Leer avisos y consultas",
+      "spec": "flows/classroom-workspace.md#wall-01--leer-avisos-y-consultas",
+      "visual": "review/screens.html#WALL-01/teacher/normal",
+      "phase": "D4",
+      "assets": "icons/chat + states/*",
+      "family": "Muro",
+      "variants": [
+        "teacher",
+        "student"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "WALL-02",
+      "title": "Publicar aviso/consulta y responder",
+      "spec": "flows/classroom-workspace.md#wall-02--publicar-avisoconsulta-y-responder",
+      "visual": "review/screens.html#WALL-02/teacher/normal",
+      "phase": "D4",
+      "assets": "icons/chat + states/*",
+      "family": "Muro",
+      "variants": [
+        "teacher",
+        "student"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "WALL-03",
+      "title": "Editar o moderar texto",
+      "spec": "flows/classroom-workspace.md#wall-03--editar-o-moderar-texto",
+      "visual": "review/screens.html#WALL-03/teacher/normal",
+      "phase": "D4",
+      "assets": "icons/chat + states/*",
+      "family": "Muro",
+      "variants": [
+        "teacher",
+        "student"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "WALL-04",
+      "title": "Continuar un hilo desde notificaciones",
+      "spec": "flows/classroom-workspace.md#wall-04--continuar-un-hilo-desde-notificaciones",
+      "visual": "review/screens.html#WALL-04/teacher/normal",
+      "phase": "D4",
+      "assets": "icons/chat + states/*",
+      "family": "Muro",
+      "variants": [
+        "teacher",
+        "student"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "PEOPLE-01",
+      "title": "Consultar participantes según rol",
+      "spec": "flows/classroom-workspace.md#people-01--consultar-participantes-según-rol",
+      "visual": "review/screens.html#PEOPLE-01/teacher/normal",
+      "phase": "D3",
+      "assets": "icons/users + states/*",
+      "family": "Participantes",
+      "variants": [
+        "teacher",
+        "student"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "PEOPLE-02",
+      "title": "Resumen académico y antiguos estudiantes",
+      "spec": "flows/classroom-workspace.md#people-02--resumen-académico-y-antiguos-estudiantes",
+      "visual": "review/screens.html#PEOPLE-02/teacher/normal",
+      "phase": "D3",
+      "assets": "icons/users + states/*",
+      "family": "Participantes",
+      "variants": [
+        "teacher"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "PEOPLE-03",
+      "title": "Invitar, administrar invitaciones y código",
+      "spec": "flows/classroom-workspace.md#people-03--invitar-administrar-invitaciones-y-código",
+      "visual": "review/screens.html#PEOPLE-03/teacher/normal",
+      "phase": "D3",
+      "assets": "icons/users + states/*",
+      "family": "Participantes",
+      "variants": [
+        "teacher"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "PEOPLE-04",
+      "title": "Remover o salir conservando historial",
+      "spec": "flows/classroom-workspace.md#people-04--remover-o-salir-conservando-historial",
+      "visual": "review/screens.html#PEOPLE-04/teacher/normal",
+      "phase": "D3",
+      "assets": "icons/users + states/*",
+      "family": "Participantes",
+      "variants": [
+        "teacher",
+        "student"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "CLASS-01",
+      "title": "Mis aulas y recuperación de pendientes",
+      "spec": "flows/classrooms-and-membership.md#class-01--mis-aulas-y-recuperación-de-pendientes",
+      "visual": "review/screens.html#CLASS-01/default/normal",
+      "phase": "D3",
+      "assets": "covers/* + states/*",
+      "family": "Aulas",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "CLASS-02",
+      "title": "datos generales del aula",
+      "spec": "flows/classrooms-and-membership.md#class-02--datos-generales-del-aula",
+      "visual": "review/screens.html#CLASS-02/default/normal",
+      "phase": "D3",
+      "assets": "covers/* + states/*",
+      "family": "Crear aula · Datos",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "error",
+        "conflict",
+        "success"
+      ]
+    },
+    {
+      "id": "CLASS-03",
+      "title": "subir el plan de estudio",
+      "spec": "flows/classrooms-and-membership.md#class-03--subir-el-plan-de-estudio",
+      "visual": "review/screens.html#CLASS-03/default/normal",
+      "phase": "D3",
+      "assets": "covers/* + states/*",
+      "family": "Crear aula · Archivo",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "error",
+        "conflict",
+        "success"
+      ]
+    },
+    {
+      "id": "CLASS-04",
+      "title": "extracción, revisión y aplicación explícita",
+      "spec": "flows/classrooms-and-membership.md#class-04--extracción-revisión-y-aplicación-explícita",
+      "visual": "review/screens.html#CLASS-04/default/normal",
+      "phase": "D3",
+      "assets": "covers/* + states/*",
+      "family": "Crear aula · IA",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "conflict",
+        "success"
+      ]
+    },
+    {
+      "id": "CLASS-05",
+      "title": "unidades manuales y control del borrador",
+      "spec": "flows/classrooms-and-membership.md#class-05--unidades-manuales-y-control-del-borrador",
+      "visual": "review/screens.html#CLASS-05/default/normal",
+      "phase": "D3",
+      "assets": "covers/* + states/*",
+      "family": "Crear aula · Unidades",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "conflict",
+        "success"
+      ]
+    },
+    {
+      "id": "CLASS-06",
+      "title": "revisar, crear y empezar a invitar",
+      "spec": "flows/classrooms-and-membership.md#class-06--revisar-crear-y-empezar-a-invitar",
+      "visual": "review/screens.html#CLASS-06/default/normal",
+      "phase": "D3",
+      "assets": "covers/* + states/*",
+      "family": "Crear aula · Revisión",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "error",
+        "conflict",
+        "success"
+      ]
+    },
+    {
+      "id": "CLASS-07",
+      "title": "unirse con código",
+      "spec": "flows/classrooms-and-membership.md#class-07--unirse-con-código",
+      "visual": "review/screens.html#CLASS-07/default/normal",
+      "phase": "D3",
+      "assets": "covers/* + states/*",
+      "family": "Ingreso e invitaciones",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "CLASS-08",
+      "title": "aceptar invitación",
+      "spec": "flows/classrooms-and-membership.md#class-08--aceptar-invitación",
+      "visual": "review/screens.html#CLASS-08/default/normal",
+      "phase": "D3",
+      "assets": "covers/* + states/*",
+      "family": "Ingreso e invitaciones",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "CLASS-09",
+      "title": "contexto y navegación dentro del aula",
+      "spec": "flows/classrooms-and-membership.md#class-09--contexto-y-navegación-dentro-del-aula",
+      "visual": "review/screens.html#CLASS-09/teacher/normal",
+      "phase": "D3",
+      "assets": "covers/* + states/*",
+      "family": "Plan de estudio",
+      "variants": [
+        "teacher",
+        "student"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "CLASS-10",
+      "title": "miembros actuales e historial",
+      "spec": "flows/classrooms-and-membership.md#class-10--miembros-actuales-e-historial",
+      "visual": "review/screens.html#CLASS-10/teacher/normal",
+      "phase": "D3",
+      "assets": "covers/* + states/*",
+      "family": "Participantes",
+      "variants": [
+        "teacher",
+        "student"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "CLASS-11",
+      "title": "invitar, reenviar y revocar",
+      "spec": "flows/classrooms-and-membership.md#class-11--invitar-reenviar-y-revocar",
+      "visual": "review/screens.html#CLASS-11/default/normal",
+      "phase": "D3",
+      "assets": "covers/* + states/*",
+      "family": "Ingreso e invitaciones",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "CLASS-12",
+      "title": "compartir y regenerar código",
+      "spec": "flows/classrooms-and-membership.md#class-12--compartir-y-regenerar-código",
+      "visual": "review/screens.html#CLASS-12/default/normal",
+      "phase": "D3",
+      "assets": "covers/* + states/*",
+      "family": "Ingreso e invitaciones",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "CLASS-13",
+      "title": "salir y remover sin borrar historia",
+      "spec": "flows/classrooms-and-membership.md#class-13--salir-y-remover-sin-borrar-historia",
+      "visual": "review/screens.html#CLASS-13/teacher/normal",
+      "phase": "D3",
+      "assets": "covers/* + states/*",
+      "family": "Participantes",
+      "variants": [
+        "teacher",
+        "student"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "CLASS-14",
+      "title": "configuración, archivar y reactivar",
+      "spec": "flows/classrooms-and-membership.md#class-14--configuración-archivar-y-reactivar",
+      "visual": "review/screens.html#CLASS-14/default/normal",
+      "phase": "D3",
+      "assets": "covers/* + states/*",
+      "family": "Configuración del aula",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "CLASS-15",
+      "title": "conservar el plan después de crear",
+      "spec": "flows/classrooms-and-membership.md#class-15--conservar-el-plan-después-de-crear",
+      "visual": "review/screens.html#CLASS-15/teacher/normal",
+      "phase": "D4",
+      "assets": "covers/* + states/*",
+      "family": "Plan de estudio",
+      "variants": [
+        "teacher",
+        "student"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "SUB-01",
+      "title": "Abrir una actividad y comenzar cuando corresponde",
+      "spec": "flows/submissions-and-grading.md#sub-01--abrir-una-actividad-y-comenzar-cuando-corresponde",
+      "visual": "review/screens.html#SUB-01/tp/normal",
+      "phase": "D6",
+      "assets": "icons/clipboard + states/*",
+      "family": "Resolución y entrega",
+      "variants": [
+        "tp",
+        "quiz",
+        "exam"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "SUB-02",
+      "title": "Elegibilidad, primera matrícula y reingreso",
+      "spec": "flows/submissions-and-grading.md#sub-02--elegibilidad-primera-matrícula-y-reingreso",
+      "visual": "review/screens.html#SUB-02/tp/normal",
+      "phase": "D6",
+      "assets": "icons/clipboard + states/*",
+      "family": "Resolución y entrega",
+      "variants": [
+        "tp",
+        "quiz",
+        "exam"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "SUB-03",
+      "title": "Resolver preguntas con guardado verificable",
+      "spec": "flows/submissions-and-grading.md#sub-03--resolver-preguntas-con-guardado-verificable",
+      "visual": "review/screens.html#SUB-03/quiz/normal",
+      "phase": "D6",
+      "assets": "icons/clipboard + states/*",
+      "family": "Resolución · Preguntas",
+      "variants": [
+        "quiz",
+        "exam"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "SUB-04",
+      "title": "Preparar archivos de un TP",
+      "spec": "flows/submissions-and-grading.md#sub-04--preparar-archivos-de-un-tp",
+      "visual": "review/screens.html#SUB-04/tp/normal",
+      "phase": "D6",
+      "assets": "icons/clipboard + states/*",
+      "family": "Resolución · Trabajo práctico",
+      "variants": [
+        "tp"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "SUB-05",
+      "title": "Consultar otro dispositivo y transferir edición",
+      "spec": "flows/submissions-and-grading.md#sub-05--consultar-otro-dispositivo-y-transferir-edición",
+      "visual": "review/screens.html#SUB-05/tp/normal",
+      "phase": "D6",
+      "assets": "icons/clipboard + states/*",
+      "family": "Transferencia de edición",
+      "variants": [
+        "tp",
+        "quiz",
+        "exam"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "SUB-06",
+      "title": "Confirmar envío y recibir comprobante",
+      "spec": "flows/submissions-and-grading.md#sub-06--confirmar-envío-y-recibir-comprobante",
+      "visual": "review/screens.html#SUB-06/tp/normal",
+      "phase": "D6",
+      "assets": "icons/clipboard + states/*",
+      "family": "Confirmación y comprobante",
+      "variants": [
+        "tp",
+        "quiz",
+        "exam"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "SUB-07",
+      "title": "Consultar historial y habilitar reentrega",
+      "spec": "flows/submissions-and-grading.md#sub-07--consultar-historial-y-habilitar-reentrega",
+      "visual": "review/screens.html#SUB-07/tp/normal",
+      "phase": "D6",
+      "assets": "icons/clipboard + states/*",
+      "family": "Historial y reentrega",
+      "variants": [
+        "tp",
+        "quiz",
+        "exam",
+        "teacher-tp",
+        "teacher-quiz",
+        "teacher-exam"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "SUB-08",
+      "title": "Habilitar primera entrega fuera de la obligación original",
+      "spec": "flows/submissions-and-grading.md#sub-08--habilitar-primera-entrega-fuera-de-la-obligación-original",
+      "visual": "review/screens.html#SUB-08/tp/normal",
+      "phase": "D6",
+      "assets": "icons/clipboard + states/*",
+      "family": "Habilitación individual",
+      "variants": [
+        "tp",
+        "quiz",
+        "exam"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "GRADE-01",
+      "title": "Abrir y guardar corrección privada",
+      "spec": "flows/submissions-and-grading.md#grade-01--abrir-y-guardar-corrección-privada",
+      "visual": "review/screens.html#GRADE-01/tp/normal",
+      "phase": "D7",
+      "assets": "icons/check + states/*",
+      "family": "Corrección y resultados",
+      "variants": [
+        "tp",
+        "quiz",
+        "exam"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "GRADE-02",
+      "title": "Calcular y publicar calificación",
+      "spec": "flows/submissions-and-grading.md#grade-02--calcular-y-publicar-calificación",
+      "visual": "review/screens.html#GRADE-02/tp/normal",
+      "phase": "D7",
+      "assets": "icons/check + states/*",
+      "family": "Corrección y resultados",
+      "variants": [
+        "tp",
+        "quiz",
+        "exam"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "GRADE-03",
+      "title": "Rectificar nota publicada con motivo y auditoría privada",
+      "spec": "flows/submissions-and-grading.md#grade-03--rectificar-nota-publicada-con-motivo-y-auditoría-privada",
+      "visual": "review/screens.html#GRADE-03/tp/normal",
+      "phase": "D7",
+      "assets": "icons/check + states/*",
+      "family": "Corrección y resultados",
+      "variants": [
+        "tp",
+        "quiz",
+        "exam"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "GRADE-04",
+      "title": "Ver resultado propio y devolución publicada",
+      "spec": "flows/submissions-and-grading.md#grade-04--ver-resultado-propio-y-devolución-publicada",
+      "visual": "review/screens.html#GRADE-04/tp/normal",
+      "phase": "D7",
+      "assets": "icons/check + states/*",
+      "family": "Resultado publicado",
+      "variants": [
+        "tp",
+        "quiz",
+        "exam"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "GRADE-05",
+      "title": "Llegar desde notificación académica al objeto correcto",
+      "spec": "flows/submissions-and-grading.md#grade-05--llegar-desde-notificación-académica-al-objeto-correcto",
+      "visual": "review/screens.html#GRADE-05/default/normal",
+      "phase": "D7",
+      "assets": "icons/check + states/*",
+      "family": "Notificaciones",
+      "variants": [
+        "default"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "PROG-01",
+      "title": "Mi progreso: entregas, notas y Plan separados",
+      "spec": "flows/submissions-and-grading.md#prog-01--mi-progreso-entregas-notas-y-plan-separados",
+      "visual": "review/screens.html#PROG-01/student/normal",
+      "phase": "D7",
+      "assets": "icons/progress + states/*",
+      "family": "Progreso",
+      "variants": [
+        "student"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "PROG-02",
+      "title": "Progreso del aula y cálculo de promedio actual",
+      "spec": "flows/submissions-and-grading.md#prog-02--progreso-del-aula-y-cálculo-de-promedio-actual",
+      "visual": "review/screens.html#PROG-02/teacher/normal",
+      "phase": "D7",
+      "assets": "icons/progress + states/*",
+      "family": "Progreso",
+      "variants": [
+        "teacher"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    },
+    {
+      "id": "PROG-03",
+      "title": "Seguimiento individual docente e historial",
+      "spec": "flows/submissions-and-grading.md#prog-03--seguimiento-individual-docente-e-historial",
+      "visual": "review/screens.html#PROG-03/teacher/normal",
+      "phase": "D7",
+      "assets": "icons/progress + states/*",
+      "family": "Progreso individual",
+      "variants": [
+        "teacher"
+      ],
+      "states": [
+        "normal",
+        "loading",
+        "empty",
+        "error",
+        "readonly",
+        "conflict",
+        "success",
+        "unavailable"
+      ]
+    }
+  ]
+}
