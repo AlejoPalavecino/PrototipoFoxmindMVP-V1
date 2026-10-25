@@ -1,4 +1,5 @@
 export { FileService, type FileServiceOptions } from './service.ts';
+export { createDurableActivitySourceReader } from './activity-source-reader.ts';
 export { createApprovedPlanReader } from './approved-plan-reader.ts';
 export { createDurableApprovedPlanReader } from './durable-plan-reader.ts';
 export { extractDocxPlanDocument } from './docx-text.ts';
