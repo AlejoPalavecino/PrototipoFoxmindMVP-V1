@@ -8,6 +8,7 @@ import '../../shared-ui/folders.css';
 import '../../agenda-ui/agenda.css';
 import '../../shared-ui/foxmind-3d.css';
 import '../../classrooms-ui/foxmind-classrooms.css';
+import '../../classrooms-ui/foxmind-home.css';
 import '../../agenda-ui/foxmind-agenda.css';
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
