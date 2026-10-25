@@ -98,17 +98,17 @@ test('P3 real browser accounts, captured mail, session rotation, recovery, failu
         await page.getByRole('alert').waitFor(); assert.equal((await state(page)).user.emailVerified, true);
       });
       await t.test('profile persists in SQL across API restart with immutable email and no role setting', async () => {
-        await page.goto(`${origin}/profile`); await visible(page, 'Información de tu cuenta');
+        await page.goto(`${origin}/profile`); await page.getByLabel('Nombre', { exact: true }).waitFor();
         await fill(page, { Nombre: 'Ada María', Apellido: 'Lovelace' }); await submit(page, 'Guardar cambios');
         await visible(page, 'Guardaste los cambios');
         assert.equal(await page.getByLabel('Correo electrónico', { exact: true }).getAttribute('readonly'), '');
         assert.equal(await page.getByRole('combobox').count(), 0);
-        await restartApi(); await page.reload(); await visible(page, 'Información de tu cuenta');
+        await restartApi(); await page.reload(); await page.getByLabel('Nombre', { exact: true }).waitFor();
         assert.equal(await page.getByLabel('Nombre', { exact: true }).inputValue(), 'Ada María');
         assert.equal((await state(page)).user.lastName, 'Lovelace');
       });
       await t.test('password change renews current session and revokes another real browser session', async () => {
-        await login(second, origin, email, original); await second.waitForURL('**/profile');
+        await login(second, origin, email, original); await second.waitForURL('**/inicio');
         const before = (await context.cookies()).find(cookie => cookie.name === 'foxmind_session');
         await fill(page, { 'Contraseña actual': original, 'Nueva contraseña': changed }); await submit(page, 'Cambiar contraseña');
         await visible(page, 'Tu sesión continúa');
@@ -117,11 +117,12 @@ test('P3 real browser accounts, captured mail, session rotation, recovery, failu
         assert.deepEqual(await state(second), { authenticated: false });
         await submit(page, 'Cerrar sesión'); await page.waitForURL('**/sign-in');
         await login(page, origin, email, original); await page.getByRole('alert').waitFor();
-        await login(page, origin, email, changed); await page.waitForURL('**/profile');
+        await login(page, origin, email, changed); await page.waitForURL('**/inicio');
+        await page.goto(`${origin}/profile`); await page.getByLabel('Nombre', { exact: true }).waitFor();
       });
       let recovery;
       await t.test('captured recovery requires explicit confirmation and revokes all sessions without login', async () => {
-        await login(second, origin, email, changed); await second.waitForURL('**/profile');
+        await login(second, origin, email, changed); await second.waitForURL('**/inicio');
         await submit(page, 'Cerrar sesión'); await page.waitForURL('**/sign-in');
         await page.goto(`${origin}/forgot-password`); await fill(page, { 'Correo electrónico': email }); await submit(page, 'Enviar enlace de recuperación');
         await visible(page, 'Si existe una cuenta'); [recovery] = await capture(inbox, email, 'recover-password');
@@ -133,7 +134,8 @@ test('P3 real browser accounts, captured mail, session rotation, recovery, failu
         await openProof(page, recovery); await fill(page, { 'Nueva contraseña': original }); await submit(page, 'Confirmar nueva contraseña');
         await page.getByRole('alert').waitFor();
         await login(page, origin, email, changed); await page.getByRole('alert').waitFor();
-        await login(page, origin, email, recovered); await page.waitForURL('**/profile');
+        await login(page, origin, email, recovered); await page.waitForURL('**/inicio');
+        await page.goto(`${origin}/profile`); await page.getByLabel('Nombre', { exact: true }).waitFor();
       });
       await t.test('expired verification and recovery links reject without changing credentials', async () => {
         await submit(page, 'Cerrar sesión'); await page.waitForURL('**/sign-in');
@@ -163,7 +165,8 @@ test('P3 real browser accounts, captured mail, session rotation, recovery, failu
         await openProof(page, links[1]); await submit(page, 'Confirmar verificación'); await page.getByRole('alert').waitFor();
         await openProof(page, links[0]); await submit(page, 'Confirmar verificación'); await visible(page, 'Tu correo está verificado');
         assert.deepEqual(await state(page), { authenticated: false });
-        await login(page, origin, current.user.email, original); await page.waitForURL('**/profile');
+        await login(page, origin, current.user.email, original); await page.waitForURL('**/inicio');
+        await page.goto(`${origin}/profile`); await page.getByLabel('Nombre', { exact: true }).waitFor();
       });
       await t.test('quoted and international mailboxes retain spelling through real browser and SMTP', async () => {
         for (const mailbox of [`"Quoted Learner ${Date.now()}"@example.test`, `Élève${Date.now()}@bücher.example`]) {

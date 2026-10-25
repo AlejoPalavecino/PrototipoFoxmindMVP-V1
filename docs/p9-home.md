@@ -1,6 +1,6 @@
 # Inicio: real classroom summaries and safe navigation
 
-`/inicio` is an additional authenticated, verified-email view. Ordinary sign-in still lands on `/profile`; an explicit `next=/inicio` continues to Inicio. Existing `/mis-aulas` and exact invitation continuations retain their encoding and validation. Other paths, query strings, fragments, arrays and remote URLs remain rejected.
+`/inicio` is the default destination after ordinary sign-in for an authenticated account with verified email (user-requested change, 2026-10-25). Continuing an existing session or completing email verification also defaults to Inicio. Explicit allowed continuations, including `/mis-aulas` and exact invitations, retain their encoding and validation. Unverified accounts still pass through email verification; Mi perfil remains accessible from account navigation. Other paths, query strings, fragments, arrays and remote URLs remain rejected.
 
 ## What users can do
 
