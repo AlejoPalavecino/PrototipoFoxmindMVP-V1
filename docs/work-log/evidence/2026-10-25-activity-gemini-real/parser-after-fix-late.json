@@ -1,0 +1,166 @@
+{
+  "kind": "bounded-post-parserfix-parsing",
+  "googleCalls": 0,
+  "results": [
+    {
+      "round": 1,
+      "extension": "docx",
+      "ok": true,
+      "elapsedMs": 140,
+      "pages": null,
+      "textChars": 147
+    },
+    {
+      "round": 1,
+      "extension": "pdf",
+      "ok": true,
+      "elapsedMs": 329,
+      "pages": 1,
+      "textChars": null
+    },
+    {
+      "round": 2,
+      "extension": "docx",
+      "ok": true,
+      "elapsedMs": 129,
+      "pages": null,
+      "textChars": 147
+    },
+    {
+      "round": 2,
+      "extension": "pdf",
+      "ok": true,
+      "elapsedMs": 301,
+      "pages": 1,
+      "textChars": null
+    },
+    {
+      "round": 3,
+      "extension": "docx",
+      "ok": true,
+      "elapsedMs": 136,
+      "pages": null,
+      "textChars": 147
+    },
+    {
+      "round": 3,
+      "extension": "pdf",
+      "ok": true,
+      "elapsedMs": 314,
+      "pages": 1,
+      "textChars": null
+    },
+    {
+      "round": 4,
+      "extension": "docx",
+      "ok": true,
+      "elapsedMs": 124,
+      "pages": null,
+      "textChars": 147
+    },
+    {
+      "round": 4,
+      "extension": "pdf",
+      "ok": true,
+      "elapsedMs": 303,
+      "pages": 1,
+      "textChars": null
+    },
+    {
+      "round": 5,
+      "extension": "docx",
+      "ok": true,
+      "elapsedMs": 127,
+      "pages": null,
+      "textChars": 147
+    },
+    {
+      "round": 5,
+      "extension": "pdf",
+      "ok": true,
+      "elapsedMs": 310,
+      "pages": 1,
+      "textChars": null
+    },
+    {
+      "round": 6,
+      "extension": "docx",
+      "ok": true,
+      "elapsedMs": 118,
+      "pages": null,
+      "textChars": 147
+    },
+    {
+      "round": 6,
+      "extension": "pdf",
+      "ok": true,
+      "elapsedMs": 331,
+      "pages": 1,
+      "textChars": null
+    },
+    {
+      "round": 7,
+      "extension": "docx",
+      "ok": true,
+      "elapsedMs": 152,
+      "pages": null,
+      "textChars": 147
+    },
+    {
+      "round": 7,
+      "extension": "pdf",
+      "ok": true,
+      "elapsedMs": 918,
+      "pages": 1,
+      "textChars": null
+    },
+    {
+      "round": 8,
+      "extension": "docx",
+      "ok": true,
+      "elapsedMs": 261,
+      "pages": null,
+      "textChars": 147
+    },
+    {
+      "round": 8,
+      "extension": "pdf",
+      "ok": true,
+      "elapsedMs": 524,
+      "pages": 1,
+      "textChars": null
+    },
+    {
+      "round": 9,
+      "extension": "docx",
+      "ok": true,
+      "elapsedMs": 214,
+      "pages": null,
+      "textChars": 147
+    },
+    {
+      "round": 9,
+      "extension": "pdf",
+      "ok": true,
+      "elapsedMs": 583,
+      "pages": 1,
+      "textChars": null
+    },
+    {
+      "round": 10,
+      "extension": "docx",
+      "ok": true,
+      "elapsedMs": 790,
+      "pages": null,
+      "textChars": 147
+    },
+    {
+      "round": 10,
+      "extension": "pdf",
+      "ok": true,
+      "elapsedMs": 631,
+      "pages": 1,
+      "textChars": null
+    }
+  ]
+}
