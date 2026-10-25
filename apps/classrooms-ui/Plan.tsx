@@ -2,8 +2,9 @@
 import { useState } from 'react';
 import type { ClassroomClient, Detail, FileState } from './api.ts';
 import { Dialog, Notice } from './components.tsx';
+import { PlanWorkspace } from './PlanWorkspace.tsx';
 
-export function Plan({ api, room, reload }: { api: ClassroomClient; room: Detail; reload: () => Promise<void> }) {
+export function Plan({ api, room, reload, onOpenActivity }: { api: ClassroomClient; room: Detail; reload: () => Promise<void>; onOpenActivity?: (id: string) => void }) {
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState('');
   const [unitName, setUnitName] = useState(''), [file, setFile] = useState<FileState | null>(null);
   const [confirm, setConfirm] = useState<Record<string, unknown> | null>(null);
@@ -26,6 +27,7 @@ export function Plan({ api, room, reload }: { api: ClassroomClient; room: Detail
       <button disabled={busy} onClick={() => void run(reload)}>Actualizar Plan</button></header>
     {error && <Notice error>{error}</Notice>}
     {notice && <Notice>{notice}</Notice>}
+    <PlanWorkspace api={api} room={room} onOpenActivity={onOpenActivity ?? (() => {})} />
     {room.plans.map(plan => <p className="folder-plan-file" key={plan.id}><a href={api.fileUrl(plan.fileId)} target="_blank" rel="noreferrer">Descargar plan · Versión {plan.version}</a></p>)}
     {writable && <fieldset disabled={busy}>
       <legend>Nueva versión del archivo</legend>
@@ -44,7 +46,7 @@ export function Plan({ api, room, reload }: { api: ClassroomClient; room: Detail
         })}>Publicar nueva versión</button>
       </>}
     </fieldset>}
-    {room.units.map((unit, index) => <section className="p5-unit" key={unit.id}>
+    {writable && room.units.map((unit, index) => <section className="p5-unit" key={unit.id}>
       <h3>Unidad {index + 1} · {unit.name}</h3>
       {writable && <details className="folder-disclosure"><summary>Administrar unidad · {unit.name}</summary><fieldset disabled={busy}>
         <legend>Administrar {unit.name}</legend>

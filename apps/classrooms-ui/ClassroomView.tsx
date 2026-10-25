@@ -3,6 +3,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import type { AcademicTarget, ClassroomClient, Detail, Invitation, Member, NotificationTarget } from './api.ts';
 import { Dialog, Notice, initials } from './components.tsx';
 import { ClassroomHeader } from './ClassroomHeader.tsx';
+import type { HomeTarget } from '../../src/core/domain/index.ts';
+import { homeClassroomTab, homeNotificationTarget } from './classroom-home-target.ts';
 import { EntryIcon } from '../shared-ui/EntryIcon';
 import { Plan } from './Plan.tsx';
 import { Library } from './Library.tsx';
@@ -28,6 +30,7 @@ export function ClassroomView({
   onExit,
   initialCode,
   wallTarget,
+  homeTarget,
   onWallChanged,
 }: {
   api: ClassroomClient;
@@ -35,17 +38,20 @@ export function ClassroomView({
   onExit: () => void;
   initialCode: string | null;
   wallTarget?: NotificationTarget | null;
+  homeTarget?: HomeTarget | null;
   onWallChanged?: () => void;
 }) {
   const [room, setRoom] = useState<Detail | null>(null),
     [members, setMembers] = useState<Member[]>([]),
     [history, setHistory] = useState<Member[]>([]),
     [invitations, setInvitations] = useState<Invitation[]>([]);
-  const [tab, setTab] = useState(wallTarget ? 'postId' in wallTarget ? 'wall' : 'activities' : 'members'),
+  const [tab, setTab] = useState(wallTarget ? 'postId' in wallTarget ? 'wall' : 'activities' : homeClassroomTab(homeTarget)),
     [error, setError] = useState(''),
     [notice, setNotice] = useState(''),
     [busy, setBusy] = useState(false);
   const tabs = useRef<HTMLElement>(null);
+  const [planActivity, setPlanActivity] = useState<AcademicTarget | null>(null);
+  const destination = wallTarget ?? (homeTarget && 'classroomId' in homeTarget && homeTarget.classroomId === id ? homeNotificationTarget(homeTarget) : null);
   const [code, setCode] = useState(initialCode),
     [email, setEmail] = useState(''),
     [inviting, setInviting] = useState(false),
@@ -104,7 +110,8 @@ export function ClassroomView({
     });
     return () => controller.abort();
   }, [load]);
-  useEffect(() => { if (wallTarget) setTab('postId' in wallTarget ? 'wall' : 'activities'); }, [wallTarget]);
+  useEffect(() => { if (wallTarget) { setPlanActivity(null); setTab('postId' in wallTarget ? 'wall' : 'activities'); } }, [wallTarget]);
+  useEffect(() => { if (!wallTarget && homeTarget) { setPlanActivity(null); setTab(homeClassroomTab(homeTarget)); } }, [homeTarget, wallTarget]);
   useEffect(() => {
     const nav = tabs.current;
     if (!nav) return;
@@ -169,13 +176,13 @@ export function ClassroomView({
           {notice ? <Notice>{notice}</Notice> : null}
           <nav ref={tabs} className={`p5-tabs folder-room-tabs tone-${teacher ? 'coral' : 'mint'}`} aria-label="Secciones del aula">
             {[
-              { key: 'members', label: teacher ? 'Alumnos' : 'Compañeros' },
-              ...(teacher ? [{ key: 'history', label: 'Historial' }] : []),
               { key: 'plan', label: 'Plan' },
+              { key: 'wall', label: 'Muro' },
               { key: 'library', label: 'Biblioteca' },
               { key: 'activities', label: 'Actividades' },
               { key: 'progress', label: teacher ? 'Progreso' : 'Mi progreso' },
-              { key: 'wall', label: 'Muro' },
+              { key: 'members', label: teacher ? 'Alumnos' : 'Compañeros' },
+              ...(teacher ? [{ key: 'history', label: 'Historial' }] : []),
               ...(teacher ? [{ key: 'settings', label: 'Configuración' }] : []),
             ].map((item) => (
               <button
@@ -187,7 +194,7 @@ export function ClassroomView({
               </button>
             ))}
           </nav>
-          <section className={`p5-surface folder-panel tone-${teacher ? 'coral' : 'mint'}`} aria-labelledby="classroom-section-title">
+          <section className={`p5-surface ${tab === 'plan' ? 'fm3-plan-surface' : `folder-panel tone-${teacher ? 'coral' : 'mint'}`}`} aria-labelledby="classroom-section-title">
             <h2 id="classroom-section-title" className="folder-tab"><EntryIcon name={tabIcons[tab]} />{tabLabels[tab]}</h2>
             {tab === 'members' || tab === 'history' ? (
               <>
@@ -415,11 +422,14 @@ export function ClassroomView({
                 ) : null}
               </>
             ) : null}
-            {tab === 'plan' ? <Plan api={api} room={room} reload={load} /> : null}
+            {tab === 'plan' ? <Plan api={api} room={room} reload={load} onOpenActivity={activityId => {
+              setPlanActivity({ kind: 'activity', classroomId: id, activityId, attemptId: null }); setTab('activities');
+            }} /> : null}
             {tab === 'progress' ? <Progress api={api} classroomId={id} /> : null}
-            {tab === 'library' ? <Library api={api} room={room} reload={load} /> : null}
-            {tab === 'wall' ? <Wall api={api} room={room} reload={load} target={wallTarget && 'postId' in wallTarget ? wallTarget : null} onChanged={onWallChanged} /> : null}
-            {tab === 'activities' ? <Activities api={api} room={room} reload={load} target={wallTarget && 'kind' in wallTarget ? wallTarget : null} onChanged={onWallChanged} /> : null}
+            {tab === 'library' ? <Library api={api} room={room} reload={load} targetMaterialId={homeTarget?.kind === 'material' ? homeTarget.materialId : undefined} openUpload={homeTarget?.kind === 'upload-material'} /> : null}
+            {tab === 'wall' ? <Wall api={api} room={room} reload={load} target={destination && 'postId' in destination ? destination : null} onChanged={onWallChanged} /> : null}
+            {tab === 'activities' ? <Activities api={api} room={room} reload={load} target={planActivity ?? (destination && 'kind' in destination ? destination : null)}
+              openAuthoring={homeTarget?.kind === 'create-activity'} submissionFilter={homeTarget?.kind === 'submissions' ? 'unpublished' : undefined} onChanged={onWallChanged} /> : null}
             {tab === 'settings' && teacher ? (
               <>
                 <h2>Configuración del aula</h2>
