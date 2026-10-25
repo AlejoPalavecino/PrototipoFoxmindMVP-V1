@@ -19,11 +19,11 @@ FoxMind is a web platform for independent courses and training. This document co
 - One account may teach in some classrooms and study in others.
 - V1 includes classrooms, invitations, plans, materials, activities, submissions, grading, classroom conversations and progress.
 - Questionnaires and evaluations are answered inside FoxMind, not only through file submissions.
-- AI is deferred until after the platform has been validated.
+- AI was deferred in the initial V1; later approved extensions cover study-plan extraction (§5) and teacher-reviewed activity generation (§8). Their implementation status belongs to the roadmap.
 
 ### Outside the confirmed V1 scope
 
-- AI assistants, generated plans/questions, AI grading and student tutors.
+- AI assistants, generated study plans, AI grading and student tutors. Teacher-reviewed question/activity generation is now an approved extension under §8; it does not authorize these other capabilities.
 - Google sign-in.
 - Configurable grade weights by activity type.
 - Configurable passing thresholds and automatic pass/fail classification.
@@ -226,7 +226,7 @@ The agreed design flow is:
 3. `Unidades y temas`.
 4. `Revisión`, then `Crear aula`.
 
-The teacher can manually detail units and topics. The approved [classroom AI extension](../odd/tasks/classroom-ai-extraction.md) adds optional extraction of units/topics from an approved PDF or DOCX study plan using Gemini API (Google AI Studio), processed by durable PostgreSQL background jobs. The teacher reviews and edits the proposal before explicitly applying it to the draft; existing manual units require replacement confirmation in the interface. Applying a proposal does not publish the classroom. Manual creation remains available when AI is disabled or extraction fails. This exception authorizes study-plan extraction only, not AI grading or other generation. Invitations occur after classroom creation.
+The teacher can manually detail units and topics. The approved [classroom AI extension](../odd/tasks/classroom-ai-extraction.md) adds optional extraction of units/topics from an approved PDF or DOCX study plan using Gemini API (Google AI Studio), processed by durable PostgreSQL background jobs. The teacher reviews and edits the proposal before explicitly applying it to the draft; existing manual units require replacement confirmation in the interface. Applying a proposal does not publish the classroom. Manual creation remains available when AI is disabled or extraction fails. This extraction capability remains separate from the later activity-generation extension in §8; neither authorizes AI grading. Invitations occur after classroom creation.
 
 ### Confirmed creation requirements and drafts
 
@@ -348,7 +348,7 @@ All metadata edits remain subject to the archived classroom's read-only state.
 - `Cuestionario`.
 - `Evaluación`.
 
-Teachers create a named activity and must select both a unit and a topic belonging to that unit. These associations are required for every activity type. Teachers may link Library materials.
+Teachers create a named activity and must select a unit and one or more topics belonging to that unit. These associations are required for every published activity type. The 2026-10-25 approved extension preserves existing activities with one topic and counts each activity once in completion/grade metrics even when it covers several topics. Teachers may link Library materials.
 
 A practical-assignment instruction may be written in `Observaciones`, supplied as a PDF/DOCX file, or both; at least one is required. The teacher configures whether student attachments are mandatory. If mandatory, require at least one valid attachment; otherwise, allow an explicitly confirmed submission with no attachments.
 
@@ -357,6 +357,8 @@ Changing an activity or material association must preserve the unit/topic depend
 Questionnaires and evaluations support development questions and choice questions with one or multiple correct answers, as defined by the teacher. Each choice question requires at least two options: single-choice requires exactly one correct option, and multiple-choice requires at least two correct options.
 
 ### Confirmed activity authoring and publication
+
+The [activity AI extension](../odd/tasks/classroom-activity-ai.md), accepted and authorized for local implementation on 2026-10-25, adds a choice between manual authoring and AI generation for practical assignments, questionnaires and evaluations. Teachers select a unit, topics and explicit sources, provide teaching objectives/context and review the generated proposal before applying it as a new private draft. Initial document input is PDF/DOCX, limited independently of the broader Library upload policy; unavailable, unsupported or partially readable sources must be disclosed. Generation is grounded in the selected sources and teacher context; insufficient material requires clarification rather than silently broadening the syllabus. Selection answer keys remain teacher-private under existing result-publication rules. AI grading, generated solutions for practical/development questions and PDF export are outside this initial extension. Manual authoring works when AI is disabled or unavailable. Proposal approval and activity publication remain separate actions; implementation and verification progress are recorded in the roadmap.
 
 - Teachers save activities as private drafts and explicitly press `Publicar`. Only published activities are visible to students and trigger new-activity notifications.
 - Before the first student attempt, a published activity may be edited or withdrawn. Apply the existing file-conservation rules when changing links.
