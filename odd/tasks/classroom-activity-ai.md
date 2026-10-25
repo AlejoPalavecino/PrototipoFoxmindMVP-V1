@@ -1,8 +1,8 @@
 # Crear actividades manuales o con IA
 
-Propuesta para revisión del usuario, 2026-10-25. **No aprobada para implementación.**
+Diseño con D1:A, D2:A y D3:A aceptadas por el usuario el 2026-10-25. **Implementación pendiente de confirmación explícita.**
 
-ESTADO_DISENO: BLOQUEADO_POR_AMBIGUEDAD
+ESTADO_DISENO: DECISIONES_PRODUCTO_ACEPTADAS; CONTRATO_TECNICO_Y_AUTORIZACION_IMPLEMENTACION_PENDIENTES
 
 ## Resultado propuesto
 
@@ -34,7 +34,9 @@ El docente puede escribir consignas o subir su PDF/DOCX para un trabajo práctic
 
 Las claves y orientaciones docentes no se guardan como materiales de Biblioteca ni se envían a estudiantes antes de la visibilidad de resultados ya autorizada. No se añade corrección por IA. Un TP generado se guarda como texto editable; exportar a PDF no forma parte de esta propuesta inicial.
 
-## Decisiones pendientes
+## Decisiones aceptadas — 2026-10-25
+
+El usuario confirmó: «Si voy con tus recomendaciones para D1, D2 y D3». Se aceptan las tres opciones A. La comparación original se conserva debajo como fundamento; las alternativas B no fueron elegidas.
 
 | ID | Opción A | Opción B | Recomendación propuesta |
 |---|---|---|---|
@@ -48,7 +50,7 @@ Las orientaciones generadas de resolución para TP/desarrollo quedan propuestas 
 
 - Mantener stack existente. Nueva capacidad de generación de actividades con contratos puros en `src/core/domain` y adaptador de proveedor detrás de un puerto; no acoplar reglas de actividades al SDK ni cambiar extracción a generación implícita.
 - Reutilizar infraestructura de trabajos durables, cuotas y presupuesto donde las interfaces lo permitan; contabilidad conjunta para evitar dos presupuestos independientes accidentales. Fijar límites operativos y formatos antes de implementar.
-- Contratos conceptuales: solicitud con aula, tipo, selección curricular, fuentes, contexto y parámetros; trabajo con estado y snapshot; propuesta con contenido por tipo, fuentes y advertencias; aplicación explícita con revisión del borrador. La cardinalidad final depende de D1; aún no hay contrato listo para RED.
+- Contratos conceptuales: solicitud con aula, tipo, selección curricular, fuentes, contexto y parámetros; trabajo con estado y snapshot; propuesta con contenido por tipo, fuentes y advertencias; aplicación explícita con revisión del borrador. D1 fija una unidad y uno o más temas de esa unidad; queda concretar el contrato técnico compatible con actividades existentes antes de RED.
 - Sólo docente autorizado en aula activa; fuentes aprobadas, privadas, de la misma aula y accesibles. No datos de estudiantes, notas o entregas en el contexto de IA.
 - Capturar identidad/digest de fuentes y revisión curricular; revalidar antes de aplicar y publicar. Un cambio relevante vuelve obsoleto el resultado; no aplicar fuentes borradas o permisos revocados.
 - Idempotencia de generar/aplicar: doble clic y recarga no duplican trabajos, actividades, reservas ni despachos locales. No se garantiza facturación exactamente una vez del proveedor. Los reintentos de resultado incierto no son automáticos; explicar estado y consumo posible.
@@ -68,4 +70,4 @@ Las orientaciones generadas de resolución para TP/desarrollo quedan propuestas 
 
 ## Primer paso pendiente
 
-Conversar D1–D3. Incorporar respuestas al diseño; solicitar confirmación de implementación conforme al pedido del usuario. Ninguna recomendación en este documento equivale a decisión aceptada.
+Las decisiones D1–D3 están aceptadas. Confirmar implementación conforme al pedido del usuario y, después, completar contrato técnico, revisión de impacto multi-tema y criterios de prueba antes de RED. La aceptación de estas decisiones no autoriza integración, publicación remota o despliegue.

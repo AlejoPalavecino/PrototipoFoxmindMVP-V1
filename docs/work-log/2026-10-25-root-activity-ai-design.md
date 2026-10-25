@@ -1,4 +1,4 @@
-# Actividades con IA — diseño pendiente de aprobación
+# Actividades con IA — decisiones de producto aceptadas
 
 - Agent / role: coordinator.
 - Session or task ID: /root (runtime task path).
@@ -29,8 +29,12 @@ El checkout original conserva dos registros ajenos untracked. La base real main 
 
 ## Commits and outcomes
 
-Unidad documental preparada para commit local después de revisión. Diseño y recomendaciones no son decisiones de producto aceptadas. La interrupción de la primera tarea de arquitectura dejó sólo un informe parcial; se solicitó cierre a /root/finish_activity_design sin reabrir bootstrap. No implementación iniciada.
+Propuesta inicial y registros preservados en commit local ff94dc8, observado después de crearlo. En ese checkpoint las recomendaciones no estaban aceptadas. La interrupción de la primera tarea de arquitectura dejó sólo un informe parcial; se solicitó cierre a /root/finish_activity_design sin reabrir bootstrap. No implementación iniciada.
+
+El 2026-10-25 el usuario aceptó las recomendaciones D1:A (varios temas de una unidad), D2:A (fuentes seleccionadas y contexto docente) y D3:A (PDF/DOCX inicial). Se actualizó únicamente la propuesta y este registro. La confirmación de implementación solicitada separadamente sigue pendiente; sin código, runtime o publicación. Estado documental reconciliado con `git status --short --branch`: rama propia limpia antes de esta actualización.
+
+Revisión atribuida, persistida por coordinador: /root/review_activity_decisions (reviewer, 2026-10-25) leyó skill caveman-review y ambos documentos; observó `git diff`, `git diff --check` exit 0 y tabla de decisiones con Get-Content. Sin hallazgos: A/A/A reflejadas y ejecución pendiente. No escribió archivos ni Git; tests funcionales N/A. Handoff: commit documental local, después confirmación de implementación. Coordinador verificó enlaces locales Markdown PASS; no repitió escrituras Engram mientras el binding de sesión siguiera sin resolver.
 
 ## Handoff
 
-Presentar propuesta y decisiones al usuario; registrar su confirmación antes de RED o implementación. No inferir aprobación por crear worktree o guardar propuesta.
+Pedir confirmación de implementación con el alcance D1–D3 aceptado; luego completar contrato técnico y pruebas antes de RED. No repetir las decisiones de producto ya resueltas ni inferir permiso de publicación remota.
