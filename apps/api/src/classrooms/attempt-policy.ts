@@ -1,12 +1,7 @@
 import { timingSafeEqual } from 'node:crypto';
 import { digest, fail } from './policy.ts';
 
-/** Use only server receipt time observed after the relevant transaction locks. */
-export function receptionPolicy(general: Date | null, individual: Date | null, allowLate: boolean, now: Date) {
-  const deadline = individual && (!general || individual > general) ? individual : general;
-  const late = deadline !== null && now.getTime() >= deadline.getTime();
-  return { deadline, open: !late || allowLate, late };
-}
+export { activityReceptionPolicy as receptionPolicy } from '../../../../src/core/domain/index.ts';
 
 export interface EditorCapability { token: string; epoch: string }
 export function editorCapability(token: unknown, epoch: unknown): EditorCapability {
