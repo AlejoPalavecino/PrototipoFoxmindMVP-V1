@@ -1,23 +1,30 @@
 import { useMemo, type ReactNode } from 'react';
 import { useRouter } from 'next/router';
 import { AppNavbar } from '../../../shared-ui/AppNavbar';
+import Link from 'next/link';
+import { FoxmindBrand } from '../../../shared-ui/index';
 import { Notifications } from '../../../classrooms-ui/Notifications';
 import { createWebClassroomClient } from '../lib/classroom-client';
 import type { AccountSession } from '../lib/account-client';
 
 /** The page supplies its existing session and logout operation. */
-export function AccountNavbar({ session, view, signInHref = '/sign-in', registerHref = '/register', verifyHref = '/verify-email', accountActions }: {
+export function AccountNavbar({ session, view, signInHref = '/sign-in', registerHref = '/register', verifyHref = '/verify-email', accountActions, minimal = false }: {
   session?: AccountSession;
   view?: string;
   signInHref?: string;
   registerHref?: string;
   verifyHref?: string;
   accountActions?: ReactNode;
+  minimal?: boolean;
 }) {
   const router = useRouter();
   const api = useMemo(() => createWebClassroomClient(), []);
   const user = session?.authenticated ? session.user : undefined;
   const verified = Boolean(user?.emailVerified);
+  if (minimal) return <header className="auth-brand-header">
+    <Link href={user ? (verified ? '/inicio' : verifyHref) : signInHref} aria-label="FoxMind"><FoxmindBrand decorative /></Link>
+    {accountActions}
+  </header>;
   return <AppNavbar logoHref={user ? (verified ? '/inicio' : verifyHref) : '/sign-in'}
     displayName={user ? `${user.firstName} ${user.lastName}` : undefined} currentPath={view ? `/${view}` : undefined}
     links={verified ? [{ href: '/inicio', label: 'Inicio' }, { href: '/mis-aulas', label: 'Mis aulas' }, { href: '/agenda', label: 'Agenda', current: view === 'agenda' }]

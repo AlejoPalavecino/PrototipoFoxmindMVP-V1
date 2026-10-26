@@ -6,7 +6,8 @@ import type { AccountSubmit } from './account-profile';
 import { AccountField as Field } from './account-field';
 import { Button } from './ui/button';
 import { VerificationGuidance } from '../../../shared-ui/VerificationGuidance';
-import { AccountSteps } from '../../../shared-ui/AccountStory';
+import { FoxmindIcon } from '../../../shared-ui/index';
+import { EntryIcon } from '../../../shared-ui/EntryIcon';
 
 interface FlowProps {
   view: AccountView; session?: AccountSession; user?: AccountUser; verified: boolean; classroomNext: string | null;
@@ -24,12 +25,12 @@ function Login({view, session, user, verified, classroomNext, nextAccountHref, l
 {session && view === 'sign-in' ? <>
           {user ? <div className="notice">Ya tienes una sesión abierta. <Link href={verified ? classroomNext ?? '/inicio' : nextAccountHref('verify-email')}>Continuar con mi cuenta</Link></div> : null}
           <form noValidate onSubmit={submit('/auth/login', 'Sesión iniciada.')}><fieldset disabled={locked}>
-            <Field name="email" label="Correo electrónico" autoComplete="username" />
-            <Field name="password" label="Contraseña" password autoComplete="current-password" />
+            <Field appearance="polished" name="email" label="Correo electrónico" autoComplete="username" />
+            <Field appearance="polished" name="password" label="Contraseña" password autoComplete="current-password" />
             <div className="form-link"><Link href="/forgot-password">Olvidé mi contraseña</Link></div>
-            <Button type="submit" className="full-width">{busy ? 'Iniciando sesión…' : 'Iniciar sesión'}</Button>
+            <Button type="submit" className="full-width">{busy ? 'Iniciando sesión…' : 'Iniciar sesión'}<FoxmindIcon name="arrow-right" /></Button>
           </fieldset></form>
-          <p className="after-form">¿Aún no tienes una cuenta? <Link href={nextAccountHref('register')}>Crear cuenta</Link></p>
+          <p className="after-form">¿Todavía no tenés cuenta? <Link href={nextAccountHref('register')}>Crear cuenta</Link></p>
         </> : null}
   </>;
 }
@@ -37,15 +38,14 @@ function Login({view, session, user, verified, classroomNext, nextAccountHref, l
 function Register({view, session, user, verified, classroomNext, nextAccountHref, locked, busy, hasToken, submit, message, signOut, load, action}: FlowProps) {
   return <>
 {session && view === 'register' ? <>
-          <AccountSteps />
           <form noValidate onSubmit={submit('/auth/register', 'Si los datos son válidos para crear una cuenta, recibirás un correo de verificación. Revisa también la carpeta de correo no deseado. Si ya tienes cuenta, puedes iniciar sesión o recuperar el acceso.')}><fieldset disabled={locked}>
-            <div className="field-grid"><Field name="firstName" label="Nombre" autoComplete="given-name" /><Field name="lastName" label="Apellido" autoComplete="family-name" /></div>
-            <Field name="email" label="Correo electrónico" autoComplete="email" />
-            <Field name="password" label="Contraseña" password autoComplete="new-password" />
-            <Button type="submit" className="full-width">{busy ? 'Creando cuenta…' : 'Crear cuenta'}</Button>
+            <div className="field-grid"><Field appearance="polished" name="firstName" label="Nombre" autoComplete="given-name" /><Field appearance="polished" name="lastName" label="Apellido" autoComplete="family-name" /></div>
+            <Field appearance="polished" name="email" label="Correo electrónico" autoComplete="email" />
+            <Field appearance="polished" name="password" label="Contraseña" password autoComplete="new-password" />
+            <Button type="submit" className="full-width">{busy ? 'Creando cuenta…' : 'Crear cuenta'}<FoxmindIcon name="arrow-right" /></Button>
           </fieldset></form>
-          <p className="field-help registration-next">Después vas a verificar tu correo para acceder a las aulas.</p>
-          <p className="after-form">¿Ya tienes cuenta? <Link href={nextAccountHref('sign-in')}>Iniciar sesión</Link></p>
+          <p className="field-help registration-next"><EntryIcon name="envelope" />Después te enviaremos un correo para verificar tu cuenta.</p>
+          <p className="after-form">¿Ya tenés cuenta? <Link href={nextAccountHref('sign-in')}>Iniciar sesión</Link></p>
         </> : null}
   </>;
 }
