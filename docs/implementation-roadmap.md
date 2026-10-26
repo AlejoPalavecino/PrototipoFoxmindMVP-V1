@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Permanent local demo accounts — created, 2026-10-26
+
+Two verified synthetic accounts and three retained classrooms now support teaching/learning flows, with PDFs, published activities, one submission awaiting review and two private events. [Reuse/access guide](local-demo-account.md), [coordinator](work-log/2026-10-26-root-permanent-demo.md) and [worker](work-log/2026-10-26-permanent-demo-worker.md) distinguish successful fresh-session API checks from unavailable graphical/reboot acceptance and an extra login rerun limited by HTTP429 (unknown Retry-After). Credentials are locally DPAPI protected; no product/schema change, reset, provider request or remote publication. Reuse these accounts; do not rerun disposable seeds.
+
 ## Authentication notebook responsiveness — implemented locally, 2026-10-26
 
 User requested preserving the approved auth style while correcting oversized notebook presentation. Scoped CSS now adapts to both available width/height, removes the878px minimum and nowrap, compacts controls/type/padding and preserves large-screen/mobile behavior. No JSX/auth/navigation/data change. [Coordinator](work-log/2026-10-26-root-auth-responsive.md) and [native QA](work-log/evidence/2026-10-26-auth-responsive/design-qa.md) record28observations(26exact+2observed902rather than requested901), visible notebook primary CTAs, no horizontal overflow, existing8PASS, strict types/isolated build PASS and0open review findings after password-padding correction. Natural vertical scroll and inline-link/zoom/hardware limits stay explicit. Live52171unchanged; local main delivery only.
