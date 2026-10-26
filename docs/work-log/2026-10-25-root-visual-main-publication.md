@@ -6,7 +6,7 @@
 - Starting branch / commit: codex/foxmind-3d-migration / 59d313a.
 - Scope: user explicitly requests saving every remaining loose change and pushing to main so the working tree is clean. This supersedes only the preceding local-only publication boundary; no deployment or retained-data operation is requested.
 - Phase: visual migration delivery, historical design preservation.
-- Status: in_progress.
+- Status: completed.
 
 ## Reconciliation and plan
 
@@ -27,3 +27,9 @@ Read-only explorer `/root/publication_bootstrap` confirmed main/origin-main/live
 ## Independent publication review
 
 Persisted by root for read-only reviewer `/root/publication_review`: LGTM_SIN_HALLAZGOS,0new findings. Reviewed546paths in e7f5d6f..59d313a and all27preserved pending files through bdccbe3. JSON/link/diff hygiene passed; new files ordinary100644, no detected credentials or unexpected executables. apps/src match reviewed9ad34da except the known12line L1 CSS leaf. No changes to apps/src/tests/scripts/env/package after59d313a. Seven preexisting file:// links in the historical design index are unchanged and not new findings. Reviewer did not edit/commit/write memory or replay runtime/DB. Recommended ordinary authorized publication and final ref verification.
+
+## Observed publication and closure
+
+Committed publication checkpoint `330ffd9fa9efe5a27efaecf3cdb4e851488dad4d`; fetched again, confirmed origin/main ancestry, switched this checkout to main and fast-forwarded from e7f5d6f to330ffd9 without conflicts. Ordinary `git push origin main` succeeded (e7f5d6f..330ffd9). `git rev-parse HEAD main origin/main` and independent live `git ls-remote --heads origin refs/heads/main` all returned330ffd9fa9efe5a27efaecf3cdb4e851488dad4d. Full `git status --short` returned no entries, including untracked files. All loose design history is now committed and published. No reset/stash/force-push/deletion or other-worktree change.
+
+This passive documentation closure follows the observed publication and will be pushed ordinarily; it records the verified preceding identity rather than inventing its own. No product bytes changed during publication, so no functional/runtime rerun was necessary. No deploy, database, private-config, retained-data or memory-write operation was performed. No task work remains; current checkout is main and the implementation branch is preserved.
