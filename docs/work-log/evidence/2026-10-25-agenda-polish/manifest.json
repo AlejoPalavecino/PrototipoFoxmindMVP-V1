@@ -1,0 +1,182 @@
+{
+  "date": "2026-10-25",
+  "fixture": true,
+  "authenticatedE2E": false,
+  "method": "Native ego actual Agenda/AppNavbar/CSS with typed in-memory AgendaClient",
+  "navbarFrozen": {
+    "apps/shared-ui/AppNavbar.tsx": "a38979a600128884860beffd2b615886d76b305f",
+    "apps/shared-ui/NavbarParts.tsx": "9d4c325b43cfa4a2b6a2d3514e383ea26de799fc",
+    "apps/shared-ui/foxmind-3d-shell.css": "4f05ef33bb549b45572840df7ca41dec7cccd88c",
+    "apps/classrooms-ui/foxmind-home-shell.css": "41db1631bb89c0af7b6b9191d88b294f6e650c83"
+  },
+  "images": [
+    {
+      "path": "actions-conflict.png",
+      "role": "baseline-action-or-detail",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 157752,
+      "sha256": "c9c02e5eefe4528096b7680548a0c28ae2169c8a1c0d3ce8256acf9685a88e81"
+    },
+    {
+      "path": "actions-created-edited.png",
+      "role": "baseline-action-or-detail",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 124226,
+      "sha256": "a93e88c3aa38a6aa0853a30b474a39e10991fd0778bb562bc4f38dbf7ac2a1ba"
+    },
+    {
+      "path": "baseline-1536.png",
+      "role": "baseline-action-or-detail",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 99777,
+      "sha256": "42fbc05aaa2c670e90a45792d9a891b8ed48b5f0dbfa48d549790f19b2352f23"
+    },
+    {
+      "path": "dialog-320.png",
+      "role": "baseline-action-or-detail",
+      "width": 320,
+      "height": 812,
+      "bytes": 39647,
+      "sha256": "7aca6ac88a2fdf42b4f74459bba8a1e2b437e6b290da6c8bb2698ca3bc8b8a4e"
+    },
+    {
+      "path": "empty-selected-proof.png",
+      "role": "baseline-action-or-detail",
+      "width": 1536,
+      "height": 706,
+      "bytes": 99728,
+      "sha256": "01e88563a09274dcf931cdf0da66fdc35be3735a8b5b414d0515ff84c3780ee1"
+    },
+    {
+      "path": "final-all-day-1536.png",
+      "role": "accepted-stable-fixture",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 114153,
+      "sha256": "1767d5a2dd7aa1a3d8a1cd41596b9aa52b7aa6bf6db9d51033aa8e0a14437406"
+    },
+    {
+      "path": "final-empty-1536.png",
+      "role": "accepted-stable-fixture",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 223039,
+      "sha256": "24f27157c05062aa9962c04ae8bfe03a8da266b96bb190e34634dd18c63a6a26"
+    },
+    {
+      "path": "final-empty-390.png",
+      "role": "accepted-stable-fixture",
+      "width": 390,
+      "height": 844,
+      "bytes": 36109,
+      "sha256": "9619eb6e53099a03eb4e7c7c0269becbe9366cd601d71387ce016e3c64b67415"
+    },
+    {
+      "path": "final-error-1536.png",
+      "role": "accepted-stable-fixture",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 76929,
+      "sha256": "d67c8857b053aeca4a5aed1225435dd8ede31a2feb1a249d4ae6732759a1ae5b"
+    },
+    {
+      "path": "final-loading-1536.png",
+      "role": "accepted-stable-fixture",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 74127,
+      "sha256": "4235bf1abee99de7a51b589762e001a2473dbd78d88783cb7e06a0e80b23e810"
+    },
+    {
+      "path": "final-populated-1536.png",
+      "role": "accepted-stable-fixture",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 115311,
+      "sha256": "d1a44b2fd742f1313f632498efb2da4c7e0d6a64ab7a4a41d320ded41986959e"
+    },
+    {
+      "path": "final-populated-1920.png",
+      "role": "accepted-stable-fixture",
+      "width": 1920,
+      "height": 1080,
+      "bytes": 122539,
+      "sha256": "85ac5c0cff1d0c8d2c5ce6c4dfa7988d1a43c9ff79978c5018f59fb01a438aee"
+    },
+    {
+      "path": "final-populated-320.png",
+      "role": "accepted-stable-fixture",
+      "width": 320,
+      "height": 812,
+      "bytes": 34158,
+      "sha256": "0498fa0cd721f21187c65a05a27a41c4d6ebcd6e44668a815c595bd771de60dd"
+    },
+    {
+      "path": "final-populated-390.png",
+      "role": "accepted-stable-fixture",
+      "width": 390,
+      "height": 844,
+      "bytes": 36679,
+      "sha256": "89a5811356764197640ac8f2f79839e2f827a877ba0489a23c0ae97143064bc6"
+    },
+    {
+      "path": "final-populated-768.png",
+      "role": "accepted-stable-fixture",
+      "width": 768,
+      "height": 1024,
+      "bytes": 49126,
+      "sha256": "1c78e3a4d0949bf6f3596dae00d505dace564cfc561d1247b4f4275a7daf9475"
+    },
+    {
+      "path": "final-reference-1536.png",
+      "role": "accepted-stable-fixture",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 116030,
+      "sha256": "d406542ff1eea82e07391e90d596ae63466bd1e74fca8169ded1a44bd97eb366"
+    },
+    {
+      "path": "keyboard-focus-1536.png",
+      "role": "baseline-action-or-detail",
+      "width": 1536,
+      "height": 706,
+      "bytes": 81572,
+      "sha256": "968a26eb01cfff11ab10755e76aaca866fcbe05d9a7d720da68eef28b7dc83b3"
+    },
+    {
+      "path": "reference-1536.png",
+      "role": "baseline-action-or-detail",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 156573,
+      "sha256": "7dbd6fa7a530c32423ca0e6120d5715f586183016bc71de7fbb2bb77c206b170"
+    },
+    {
+      "path": "reference-bottom-1536.png",
+      "role": "baseline-action-or-detail",
+      "width": 1536,
+      "height": 706,
+      "bytes": 178230,
+      "sha256": "2f6127e3c6b64aabe2423e45960095f866eb30048a7b533b5a5b2bf3d3d49428"
+    },
+    {
+      "path": "reference-bottom-320.png",
+      "role": "baseline-action-or-detail",
+      "width": 320,
+      "height": 812,
+      "bytes": 92322,
+      "sha256": "f2b01cf45b7d62a96f30933bdb7709381be81132cb2e4c79b4755e43663acd18"
+    },
+    {
+      "path": "references/agenda.png",
+      "role": "approved-reference",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 1815685,
+      "sha256": "95386c1ac47488b3f8e4f75febdb993eae35dbb1240434de83100c6b869bbc0f"
+    }
+  ]
+}

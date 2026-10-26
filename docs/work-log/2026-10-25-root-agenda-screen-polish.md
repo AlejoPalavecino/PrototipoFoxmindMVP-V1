@@ -3,7 +3,7 @@
 - Agent: /root, orchestrator; runtime identity unavailable, no attributed memory writes.
 - Date: 2026-10-25; main startinge637cc9a7a42547dc43c7e7ab1daced803b6ee86.
 - Scope: user requests Agenda match the attached generated reference and explicitly retain the newly approved navbar as fixed shared design. Continue live local main edits; no push/deployment or retained account/event mutation.
-- Status: in_progress.
+- Status: completed — Agenda implementation, independent date/fixture/native QA and local delivery accepted; navbar preserved exactly.
 
 ## Target and boundaries
 
@@ -28,3 +28,9 @@ Root synchronized final Agenda source including Segoe16 into the existing isolat
 Tester independently rendered actual production Agenda/AppNavbar/CSS in a typed isolated AgendaClient fixture53271, not authenticated E2E. Eleven stable desktop/tablet/mobile/state views inspected with the reference,42cells and no horizontal overflow. Seven grouped in-memory action checks cover validation/focus/create/edit-CAS/conflict/open/month/Today/zone; additional keyboard/dialog checks and seven contrasts passed (minimum5.73:1). Native selector errors and transition-state captures were corrected with observable-state waits, not hidden or reported as app failures. Exact details/limits and attributed readonly reports are in [native QA](evidence/2026-10-25-agenda-polish/design-qa.md). Day cells at320px are38.51×64, not universal44square; other controls retain44px dimensions. Full accessibility/physical-device/real-account-persistence claims are not made.
 
 Reviewer /root/agenda_polish_review personally inspected final source/diff, nine representative native views, metrics and frozen navbar hashes; LGTM_SIN_HALLAZGOS,0findings. It confirmed no existing test/env/Prisma/core/calendar/hook/EventForm/nav changes and did not edit, replay services/data, commit or write memory. Root persists its attribution here. Space6 finished exactly once, own harness62668/53271stopped; user52171PID25740/API52170PID42496 remained. User's current-state screenshot was not copied to test evidence; approved generated reference is saved. Next exact action: bounded local commits, structural/artifact checks and final Git/live verification. No push/deployment requested or performed.
+
+## Local delivery and final handoff
+
+Observed commits:32c3214 delivers date helpers, presentation/actions/legend and independent tests/design (277authored changed lines);692f0ac delivers scoped Agenda styling/checkpoint (190authored lines). Passive QA closure follows, counting authored test harness/scripts while excluding mechanical snapshots/metrics/native images from the400line author budget. [Manifest](evidence/2026-10-25-agenda-polish/manifest.json) preserves21PNG dimensions/hashes and frozen navigation blob identities.
+
+No requested implementation remains. Live http://127.0.0.1:52171/agenda uses the user's existing real data; synthetic fixtures never populate their account. The approved navbar remains the fixed shared navigation for this screen; no source or runtime-style override was introduced. Main remains local; no push/deployment/private configuration read/event-data mutation. Current date/time and42cells remain dynamic instead of being hardcoded to the generated screenshot. Historical intermediate proof stays separate from final stable captures.

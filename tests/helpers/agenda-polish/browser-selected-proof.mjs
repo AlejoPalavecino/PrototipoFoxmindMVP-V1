@@ -1,0 +1,12 @@
+const task = await taskSpace(6), page = task.page('p1');
+const fs = await import('node:fs/promises');
+const evidence = 'C:/Users/alejo/Documents/ProyectosAlejo/FoxMind/ProtipoFoxMind/docs/work-log/evidence/2026-10-25-agenda-polish';
+await page.goto('http://127.0.0.1:53271/?mode=empty');
+await page.waitForSelector('.agenda-selected', { state: 'visible' });
+await page.mouse.move(10, 10, { label: 'apart cursor from calendar' });
+await page.waitForFunction(() => [...document.querySelectorAll('.agenda-day')].filter(el => el.getAttribute('aria-pressed') === 'true').length === 1);
+const state = await page.evaluate(() => ({ day: [...document.querySelectorAll('.agenda-day')].filter(el => el.getAttribute('aria-pressed') === 'true').map(el => ({ label: el.getAttribute('aria-label'), background: getComputedStyle(el).backgroundColor, border: getComputedStyle(el).border, animations: el.getAnimations().map(a => a.playState) })), today: [...document.querySelectorAll('[aria-current="date"]')].map(el => ({ label: el.getAttribute('aria-label'), numberOutline: getComputedStyle(el.querySelector('.agenda-day-number')).outline })) }));
+await fs.writeFile(evidence + '/selected-state-proof.json', JSON.stringify(state, null, 2));
+await page.screenshot({ path: evidence + '/empty-selected-proof.png' });
+console.log(state);
+console.log(await page.snapshot());

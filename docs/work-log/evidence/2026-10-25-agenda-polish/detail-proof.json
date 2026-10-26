@@ -1,0 +1,97 @@
+[
+  {
+    "action": "keyboard focus",
+    "label": "Mes siguiente",
+    "outline": "rgb(140, 107, 218) solid 2.4px",
+    "focusVisible": true
+  },
+  {
+    "action": "mobile dialog",
+    "focus": "Cerrar diálogo",
+    "dialog": {
+      "x": 16,
+      "y": 16,
+      "width": 288,
+      "height": 780,
+      "top": 16,
+      "right": 304,
+      "bottom": 796,
+      "left": 16
+    },
+    "overflow": 0,
+    "bodyOverflow": 0
+  },
+  {
+    "action": "Escape restores trigger focus",
+    "text": "Editar evento",
+    "inEvent": true
+  },
+  {
+    "action": "contrast",
+    "values": [
+      {
+        "selector": "h1",
+        "foreground": "rgb(8, 11, 48)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 19.075757903698687,
+        "font": "\"Fredoka Auth\", \"Trebuchet MS\", sans-serif",
+        "size": "40px",
+        "weight": "650"
+      },
+      {
+        "selector": ".p5-lead",
+        "foreground": "rgb(24, 55, 98)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 11.920427833728422,
+        "font": "\"Segoe UI\", sans-serif",
+        "size": "18px",
+        "weight": "400"
+      },
+      {
+        "selector": ".agenda-selected h2",
+        "foreground": "rgb(8, 11, 48)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 19.075757903698687,
+        "font": "\"Fredoka Auth\", \"Trebuchet MS\", sans-serif",
+        "size": "28px",
+        "weight": "600"
+      },
+      {
+        "selector": ".agenda-event h3",
+        "foreground": "rgb(8, 11, 48)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 19.075757903698687,
+        "font": "\"Fredoka Auth\", \"Trebuchet MS\", sans-serif",
+        "size": "20px",
+        "weight": "550"
+      },
+      {
+        "selector": ".agenda-header .primary",
+        "foreground": "rgb(8, 11, 48)",
+        "background": "rgb(255, 120, 45)",
+        "ratio": 7.24559113474951,
+        "font": "\"Segoe UI\", sans-serif",
+        "size": "18px",
+        "weight": "750"
+      },
+      {
+        "selector": ".agenda-legend",
+        "foreground": "rgb(83, 100, 155)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 5.731472147020704,
+        "font": "\"Segoe UI\", sans-serif",
+        "size": "13px",
+        "weight": "400"
+      },
+      {
+        "selector": ".agenda-date",
+        "foreground": "rgb(8, 11, 48)",
+        "background": "rgb(255, 255, 255)",
+        "ratio": 19.075757903698687,
+        "font": "\"Segoe UI\", sans-serif",
+        "size": "12px",
+        "weight": "400"
+      }
+    ]
+  }
+]

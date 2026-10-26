@@ -1,0 +1,203 @@
+[p1 "127.0.0.1:53271/?mode=populated" | space "qa-agenda-polish"(6): 1 managed, 0 untracked — p1* "127.0.0.1:53271/?mode=populated"]
+root
+  container
+    anchor [ref=2018, loc=href:/?mode=populated#agenda-main, url=http://127.0.0.1:53271/?mode=populated#agenda-main]
+      text "Saltar al contenido"
+    container
+      anchor "FoxMind" [ref=2019, loc=css:a[aria-label="FoxMind"], url=http://127.0.0.1:53271/mis-aulas]
+        image
+      container
+        anchor "Mi perfil de Alex Prueba" [ref=2020, loc=css:a[aria-label="Mi perfil de Alex Prueba"], url=http://127.0.0.1:53271/profile]
+          text "AP"
+        button "Abrir menú de navegación" [ref=2021, loc=css:button[aria-label="Abrir menú de navegación"]]
+          svg_root
+    container
+      container
+        container
+          heading
+            text "Mi"
+            text "Agenda"
+          paragraph
+            text "Tus eventos y entregas, en un solo lugar."
+        container
+          button [ref=2022]
+            text "+ Nuevo evento"
+          paragraph
+            text "Hora de Buenos Aires"
+            button [ref=2023]
+              text "Cambiar"
+      container
+        container "Calendario mensual"
+          container
+            button "Mes anterior" [ref=2024, loc=css:button[aria-label="Mes anterior"]]
+              text "‹"
+            button "Mes siguiente" [ref=2025, loc=css:button[aria-label="Mes siguiente"]]
+              text "›"
+            button [ref=2026]
+              text "Hoy"
+            heading
+              text "Octubre De 2026"
+          container
+            text "Lun"
+            text "Mar"
+            text "Mié"
+            text "Jue"
+            text "Vie"
+            text "Sáb"
+            text "Dom"
+          container
+            button "lunes, 28 de septiembre" [ref=2027, loc=css:button[aria-label="lunes, 28 de septiembre"]]
+              text "28"
+            button "martes, 29 de septiembre" [ref=2028, loc=css:button[aria-label="martes, 29 de septiembre"]]
+              text "29"
+            button "miércoles, 30 de septiembre" [ref=2029, loc=css:button[aria-label="miércoles, 30 de septiembre"]]
+              text "30"
+            button "jueves, 1 de octubre" [ref=2030, loc=css:button[aria-label="jueves, 1 de octubre"]]
+              text "1"
+            button "viernes, 2 de octubre" [ref=2031, loc=css:button[aria-label="viernes, 2 de octubre"]]
+              text "2"
+            button "sábado, 3 de octubre" [ref=2032, loc=css:button[aria-label="sábado, 3 de octubre"]]
+              text "3"
+            button "domingo, 4 de octubre" [ref=2033, loc=css:button[aria-label="domingo, 4 de octubre"]]
+              text "4"
+            button "lunes, 5 de octubre" [ref=2034, loc=css:button[aria-label="lunes, 5 de octubre"]]
+              text "5"
+            button "martes, 6 de octubre" [ref=2035, loc=css:button[aria-label="martes, 6 de octubre"]]
+              text "6"
+            button "miércoles, 7 de octubre" [ref=2036, loc=css:button[aria-label="miércoles, 7 de octubre"]]
+              text "7"
+            button "jueves, 8 de octubre" [ref=2037, loc=css:button[aria-label="jueves, 8 de octubre"]]
+              text "8"
+            button "viernes, 9 de octubre" [ref=2038, loc=css:button[aria-label="viernes, 9 de octubre"]]
+              text "9"
+            button "sábado, 10 de octubre" [ref=2039, loc=css:button[aria-label="sábado, 10 de octubre"]]
+              text "10"
+            button "domingo, 11 de octubre" [ref=2040, loc=css:button[aria-label="domingo, 11 de octubre"]]
+              text "11"
+            button "lunes, 12 de octubre" [ref=2041, loc=css:button[aria-label="lunes, 12 de octubre"]]
+              text "12"
+            button "martes, 13 de octubre" [ref=2042, loc=css:button[aria-label="martes, 13 de octubre"]]
+              text "13"
+            button "miércoles, 14 de octubre" [ref=2043, loc=css:button[aria-label="miércoles, 14 de octubre"]]
+              text "14"
+            button "jueves, 15 de octubre" [ref=2044, loc=css:button[aria-label="jueves, 15 de octubre"]]
+              text "15"
+            button "viernes, 16 de octubre" [ref=2045, loc=css:button[aria-label="viernes, 16 de octubre"]]
+              text "16"
+            button "sábado, 17 de octubre" [ref=2046, loc=css:button[aria-label="sábado, 17 de octubre"]]
+              text "17"
+            button "domingo, 18 de octubre" [ref=2047, loc=css:button[aria-label="domingo, 18 de octubre"]]
+              text "18"
+            button "lunes, 19 de octubre" [ref=2048, loc=css:button[aria-label="lunes, 19 de octubre"]]
+              text "19"
+            button "martes, 20 de octubre" [ref=2049, loc=css:button[aria-label="martes, 20 de octubre"]]
+              text "20"
+            button "miércoles, 21 de octubre" [ref=2050, loc=css:button[aria-label="miércoles, 21 de octubre"]]
+              text "21"
+            button "jueves, 22 de octubre" [ref=2051, loc=css:button[aria-label="jueves, 22 de octubre"]]
+              text "22"
+            button "viernes, 23 de octubre" [ref=2052, loc=css:button[aria-label="viernes, 23 de octubre"]]
+              text "23"
+            button "sábado, 24 de octubre" [ref=2053, loc=css:button[aria-label="sábado, 24 de octubre"]]
+              text "24"
+            button "domingo, 25 de octubre, hoy" [ref=2054, loc=css:button[aria-label="domingo, 25 de octubre, hoy"]]
+              text "25"
+            button "lunes, 26 de octubre" [ref=2055, loc=css:button[aria-label="lunes, 26 de octubre"]]
+              text "26"
+            button "martes, 27 de octubre" [ref=2056, loc=css:button[aria-label="martes, 27 de octubre"]]
+              text "27"
+            button "miércoles, 28 de octubre, 2 eventos o entregas" [ref=2057, loc=css:button[aria-label="miércoles, 28 de octubre, 2 eventos o entregas"]]
+              text "28"
+              text "2"
+            button "jueves, 29 de octubre" [ref=2058, loc=css:button[aria-label="jueves, 29 de octubre"]]
+              text "29"
+            button "viernes, 30 de octubre" [ref=2059, loc=css:button[aria-label="viernes, 30 de octubre"]]
+              text "30"
+            button "sábado, 31 de octubre" [ref=2060, loc=css:button[aria-label="sábado, 31 de octubre"]]
+              text "31"
+            button "domingo, 1 de noviembre" [ref=2061, loc=css:button[aria-label="domingo, 1 de noviembre"]]
+              text "1"
+            button "lunes, 2 de noviembre" [ref=2062, loc=css:button[aria-label="lunes, 2 de noviembre"]]
+              text "2"
+            button "martes, 3 de noviembre" [ref=2063, loc=css:button[aria-label="martes, 3 de noviembre"]]
+              text "3"
+            button "miércoles, 4 de noviembre" [ref=2064, loc=css:button[aria-label="miércoles, 4 de noviembre"]]
+              text "4"
+            button "jueves, 5 de noviembre" [ref=2065, loc=css:button[aria-label="jueves, 5 de noviembre"]]
+              text "5"
+            button "viernes, 6 de noviembre" [ref=2066, loc=css:button[aria-label="viernes, 6 de noviembre"]]
+              text "6"
+            button "sábado, 7 de noviembre" [ref=2067, loc=css:button[aria-label="sábado, 7 de noviembre"]]
+              text "7"
+            button "domingo, 8 de noviembre" [ref=2068, loc=css:button[aria-label="domingo, 8 de noviembre"]]
+              text "8"
+          paragraph
+            text "Elegí un día para ver sus eventos y entregas."
+          svg_root
+          text "Evento personal · Solo vos"
+          svg_root
+          text "Entrega del aula"
+        container "Eventos del día seleccionado"
+          heading
+            text "Miércoles 28"
+          paragraph
+            text "Octubre de 2026"
+          container [ref=2069]
+            paragraph
+              text "09:00 – 10:00"
+            heading
+              text "Repasar contenidos"
+            paragraph
+              svg_root
+              text "Evento personal · Solo vos"
+            text "Clase"
+            text "· Privado"
+            paragraph
+              text "28 oct, 09:00 a. m. · America/Argentina/Buenos_Aires"
+            paragraph
+              text "Un recordatorio privado de prueba."
+            button [ref=2070]
+              text "Editar"
+              text "evento"
+          container
+            container
+              text "28"
+              text "OCT"
+            paragraph
+              text "22:00"
+            text "Estudio"
+            heading
+              text "La célula y sus funciones"
+            paragraph
+              text "Ciencias Naturales · 3º A"
+            paragraph
+              text "28 oct, 10:00 p. m. · America/Argentina/Buenos_Aires"
+            button [ref=2071]
+              text "Abrir actividad"
+              svg_root
+          button [ref=2072]
+            text "+ Agregar evento este día"
+        container "Próximas entregas"
+          heading
+            text "Próximas entregas"
+          paragraph
+            text "Los próximos plazos de tus aulas."
+          container
+            container
+              text "28"
+              text "OCT"
+            paragraph
+              text "22:00"
+            text "Estudio"
+            heading
+              text "La célula y sus funciones"
+            paragraph
+              text "Ciencias Naturales · 3º A"
+            paragraph
+              text "28 oct, 10:00 p. m. · America/Argentina/Buenos_Aires"
+            button [ref=2073]
+              text "Abrir actividad"
+              svg_root
+          image
+    output [ref=2074]
+  alert

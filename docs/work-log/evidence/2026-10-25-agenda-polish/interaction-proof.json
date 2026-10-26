@@ -1,0 +1,131 @@
+[
+  {
+    "action": "invalid blocks API and focuses title",
+    "focus": "title",
+    "calls": "",
+    "text": "Nuevo evento\n×\nEscribí un título de hasta 160 caracteres.\nQué voy a organizar\nClase\nEvaluación\nActividad\nTítulo\n\nEscribí un título de hasta 160 caracteres.\n\nSolo visible para vos. No crea una actividad del aula.\nColor del evento\nAutomático\nAzul\nVerde\nAmarillo\nNaranja\nRosa\nVioleta\nAutomático usa el color de la categoría\nCuándo\nDía completo\nFecha\nHora de inicio\nHora de Buenos Aires\nDuración\n30 min\n60 min\n90 min\nAjustar fin\nCómo se repite\nUna vez\nCada semana\nMás opciones\n\nSin título · miércoles, 28 de octubre · 09:00–10:00\n\nCancelar\nCrear evento"
+  },
+  {
+    "action": "create",
+    "calls": [
+      {
+        "method": "put",
+        "args": [
+          "b6d327ec-62e3-47a8-82a3-cd3919029e20",
+          {
+            "title": "Evento sintético creado",
+            "description": "",
+            "category": "CLASS",
+            "schedule": {
+              "kind": "TIMED",
+              "timeZone": "America/Argentina/Buenos_Aires",
+              "startLocal": "2026-10-28T09:00",
+              "endLocal": "2026-10-28T10:00"
+            },
+            "repeat": {
+              "kind": "NONE"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "action": "edit sends CAS revision",
+    "calls": [
+      {
+        "method": "put",
+        "args": [
+          "b6d327ec-62e3-47a8-82a3-cd3919029e20",
+          {
+            "title": "Evento sintético creado",
+            "description": "",
+            "category": "CLASS",
+            "schedule": {
+              "kind": "TIMED",
+              "timeZone": "America/Argentina/Buenos_Aires",
+              "startLocal": "2026-10-28T09:00",
+              "endLocal": "2026-10-28T10:00"
+            },
+            "repeat": {
+              "kind": "NONE"
+            }
+          }
+        ]
+      },
+      {
+        "method": "replace",
+        "args": [
+          "b6d327ec-62e3-47a8-82a3-cd3919029e20",
+          "fixture-r2",
+          {
+            "title": "Evento sintético editado",
+            "description": "",
+            "category": "CLASS",
+            "schedule": {
+              "kind": "TIMED",
+              "timeZone": "America/Argentina/Buenos_Aires",
+              "startLocal": "2026-10-28T09:00",
+              "endLocal": "2026-10-28T10:00"
+            },
+            "repeat": {
+              "kind": "NONE"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "action": "conflict review preserves local changes",
+    "title": "Cambios locales conservados",
+    "text": "Editar evento\n×\nVersión guardada: Repasar contenidos\n\nUn recordatorio privado de prueba.\n\nRepasar contenidos · miércoles, 28 de octubre · 09:00–10:00\n\nColor: Naranja\n\nTus campos se conservaron. Revisalos antes de guardar sobre esta versión.\nQué voy a organizar\nClase\nEvaluación\nActividad\nTítulo\nSolo visible para vos. No crea una actividad del aula.\nColor del evento\nAutomático\nAzul\nVerde\nAmarillo\nNaranja\nRosa\nVioleta\nAutomático usa el color de la categoría\nCuándo\nDía completo\nFecha\nHora de inicio\nHora de Buenos Aires\nDuración\n30 min\n60 min\n90 min\nAjustar fin\nHora de fin\nCómo se repite\nUna vez\nCada semana\nMás opciones · Con datos\nNotas\n(opcional)\nOcupa varios días\n\nHora de Buenos Aires\nCambiar\n\nCambios locales conservados · miércoles, 28 de octubre · 09:00–10:00\n\nEliminar\nCancelar\nGuardar cambios",
+    "calls": [
+      {
+        "method": "replace",
+        "args": [
+          "11111111-1111-4111-8111-111111111111",
+          "fixture-r1",
+          {
+            "title": "Cambios locales conservados",
+            "description": "Un recordatorio privado de prueba.",
+            "category": "CLASS",
+            "schedule": {
+              "kind": "TIMED",
+              "timeZone": "America/Argentina/Buenos_Aires",
+              "startLocal": "2026-10-28T09:00",
+              "endLocal": "2026-10-28T10:00"
+            },
+            "repeat": {
+              "kind": "NONE"
+            },
+            "color": "ORANGE"
+          }
+        ]
+      },
+      {
+        "method": "get",
+        "args": [
+          "11111111-1111-4111-8111-111111111111"
+        ]
+      }
+    ]
+  },
+  {
+    "action": "open activity target",
+    "target": {
+      "classroomId": "11111111-1111-4111-8111-111111111111",
+      "activityId": "11111111-1111-4111-8111-111111111111"
+    }
+  },
+  {
+    "action": "prev next and today",
+    "selected": "date",
+    "cells": 42
+  },
+  {
+    "action": "viewer zone change preserves classroom deadline",
+    "value": "Asia/Tokyo",
+    "deadline": "Próximas entregas\n\nLos próximos plazos de tus aulas.\n\n28\nOCT\n\n22:00\n\nEstudio\nLa célula y sus funciones\n\nCiencias Naturales · 3º A\n\n28 oct, 10:00 p. m. · America/Argentina/Buenos_Aires\n\nAbrir actividad"
+  }
+]
