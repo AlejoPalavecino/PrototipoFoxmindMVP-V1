@@ -6,7 +6,7 @@
 - Branch / worktree: canonical main.
 - Starting commit: b43048d.
 - Phase: repository maintenance; continuation of 2026-10-25-root-worktree-cleanup.md.
-- Status: blocked (empty-directory removal); owner inspection completed.
+- Status: completed (directory removed after user restarted Codex).
 
 ## Request and scope
 
@@ -24,3 +24,7 @@ Read-only explorer /root/worktree_cleanup_check inspected Engram and command-lin
 ## Outcomes and handoff
 
 Owner identified; shared Codex runtime preserved. No functional tests needed for diagnostics without product changes. Microsoft documents that forced handle closure may destabilize the owning application. Do not force-close handle 10F0. Close/restart Codex when active work is saved, then remove the empty directory nonrecursively after confirming its exact path and zero children. Only local documentary commit; no push. No additional worktree or pending source exists.
+
+## Restart follow-up and observed completion
+
+User confirmed restarting Codex and requested finishing removal. Starting HEAD dee45e83c9dd24f56c8bc2f61cce243907099be4; working tree clean. Coordinator verified the exact resolved target above, ordinary non-reparse directory and zero children, then used nonrecursive Directory.Delete successfully (exit 0). Final Test-Path returned False. Git worktree inventory lists only the canonical main checkout. No process termination, force-close, recursive deletion, product change or remote publication. Prior blocked outcomes remain historical evidence; cleanup is now complete. Local documentary closure follows; no further cleanup action remains.
