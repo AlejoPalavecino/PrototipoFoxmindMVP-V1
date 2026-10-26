@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Navbar palette and Home Create/Join polish — implemented locally, 2026-10-25
+
+Private navigation/drawer now use restrained slate text, warm selected state, consistent icon/label weights and visible lavender focus. Home Create/Join have52px targets,16px corners, strong labels and orange/lavender hierarchy. Three CSS leaves only; no auth/navigation/data logic changes. [Coordinator](work-log/2026-10-25-root-nav-cta-polish.md) and [native fixture QA](work-log/evidence/2026-10-25-nav-cta/design-qa.md) record PostCSS3/3, focused Home4PASS, isolated web build PASS, contrast/mobile/keyboard/callback checks and0review findings. Fixture-only visual scope/disabled and public-header limits remain explicit. Live52171unchanged, local main delivery only; no new push/deployment.
+
 ## Inicio reference matching — implemented locally, 2026-10-25
 
 User requested matching the approved teacher/student3D mockups after seeing the actual none-account dashboard. Current main now has aligned left greeting/right miniagenda, scoped rounded typography/navy styling, larger actionable rows/date tiles and honest first-use composition. The tested visibility gate hides only ready-empty nonagenda shelves under none; errors, populated archived rows and applicable active-role empty states remain. Teacher tools precede materials; actual targets and all authorization/backend contracts are unchanged. [Coordinator](work-log/2026-10-25-root-home-screen-polish.md) and [native fixture QA](work-log/evidence/2026-10-25-home-polish/design-qa.md) record RED→GREEN, focused tests, strict types, final isolated web build PASS,13state/viewport captures,14actions and0review findings. Fixture pixels are not authenticated E2E; live52171/52170 remain running unchanged. Local commits follow in coordinator record; no new push/deployment/data operation.

@@ -1,0 +1,24 @@
+# Navigation and Home CTA — bounded visual contract
+
+- Agent/role: `/root/nav_cta_design`, architect; actual task ID available; date 2026-10-25.
+- Branch/worktree: main, canonical checkout; observed start `297e4183e4abcf60b474cb3875731c408d27c144`, ahead 8; only coordinator record untracked at inspection.
+- Phase/task: [current request](2026-10-25-root-nav-cta-polish.md); [3D Inicio semantics](../../odd/tasks/foxmind-3d-migration.md#semántica-exacta-de-inicio); [roadmap](../implementation-roadmap.md).
+- Status: completed design; implementation and rendered acceptance pending. This agent owns only this record, with no source/test/memory writes.
+- Inspected: coordinator scope, roadmap checkpoint, work-record protocol, functional specification navigation/entry requirements, the three assigned CSS leaves and user reference screenshot; screenshot is input, not test evidence.
+- Skills: `sdd-ambiguity-gate`, `clean-architecture`, `team-docs-strategy`; coordinator explorer's Engram read is recorded, not repeated or rewritten here.
+- ESTADO_DISENO: LISTO_PARA_TDD_RED; RED is N/A for this reversible CSS-only change under the active low-impact testing rule.
+- DoR: data/idempotency, lifecycle, failures, concurrency and permissions unchanged; GRASP keeps each visual responsibility in its existing CSS leaf. No critical business/structural ambiguity.
+- Shared ownership: implementation worker exclusively edits `apps/shared-ui/foxmind-3d-shell.css`, targeting existing private-shell navigation/account links and `.fm3d-drawer` links; minimal auth header and brand retain their rules.
+- Navigation contract: normal label/icon `#41465e`, 18px/600, icons 24px; current page `#9a3e00` on peach `#fff0e5`; quiet borders, warm gentle hover, no heavy shadow; visible 3px lavender focus `#8a70b5` with offset.
+- Home shell ownership: same worker edits only the palette/type/icon overrides in `apps/classrooms-ui/foxmind-home-shell.css`; its higher specificity must agree with private shared navigation and drawer, rather than restoring existing blue/26px values.
+- Home CTA ownership: same worker edits `.fm-home-entry-actions` rules in `apps/classrooms-ui/foxmind-home-layout.css`; existing two buttons retain handlers, structure, text, targets and responsive stacking.
+- CTA contract: minimum 52px height, 16px radius, weight 700, horizontal padding 20px, gap 10px and 24px icons; Create `#ff782d`/text `#35170b`; Join `#f5f0ff`/text `#35295d`/border `#d9cff0`.
+- States: hover/pressed only when enabled; existing disabled/busy behavior remains apparent without enabled hover treatment; keyboard focus stays visible; reduced-motion removes introduced transitions/transforms; touch rows remain at least 44px tall.
+- ESTRATEGIA_EQUIPO_Y_SUPUESTOS: one CSS writer, independent tester/reviewer, coordinator owns roadmap/commits; no worktree needed for these disjoint assigned surfaces. Focus shade/offset and quiet warm hover are reversible assumptions.
+- CONTRATOS_Y_PLAN_POR_SLICE: shared navigation → Home specificity alignment → Home entry actions; CSS selectors are the only contract; no domain/API/schema/DB change, new modal or stylesheet split. Keep patch below 400 authored lines.
+- CRITERIOS_DE_TEST_DOT: existing focused checks/type/build as coordinator selects; unit/integration Docker RED N/A because no behavior changes or CSS mirror tests; no server/DB/secret operation requested.
+- Rendered DoT: tester uses a dedicated ego(lite) Space on existing `http://127.0.0.1:52171`; inspect actual desktop Home/private route and mobile drawer, wrapping/overflow, 52px CTA targets, hover/current/disabled/focus and reduced-motion; exercise existing create/join entry without submitting data.
+- Contrast calculation: standard sRGB WCAG ratios are normal slate/white 9.28:1, active/peach 6.15:1, Create 6.24:1, Join 11.55:1, focus/white 4.15:1; rendered state combinations still require QA.
+- Observed checks: `git status --short --branch` and `git log -1 --format=%H` exit 0; targeted reads exit 0; initial `rg docs/functional*` failed on a Windows glob and was corrected to exact `docs/foxmind-v1-functional-spec.md` (exit 0).
+- Documentation verification: PowerShell readback PASS, 24 lines, six referenced targets present, no trailing whitespace; no functional/native QA performed by this designer. No commit created or publication requested.
+- Handoff: coordinator sends this bounded contract to CSS writer, then independent rendered QA/review; only coordinator reconciles delivered evidence and records local commit identity.

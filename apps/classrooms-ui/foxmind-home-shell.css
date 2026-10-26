@@ -1,9 +1,9 @@
 /* Home owns this visual adaptation; other routes keep their existing shell. */
 .fm3d-theme:has(.fm-home) { --fm-ink: #080b30; --fm-muted: #405fc2; --fm-font-heading: 'Fredoka Auth', 'Trebuchet MS', sans-serif; --fm-canvas: #fcfaf7; --fm-link: #d34b10; }
 .fm3d-theme:has(.fm-home) .fm3d-shell { color: #080b30; }
-.fm3d-theme:has(.fm-home) .fm3d-shell :is(.fm3d-shell-nav,.fm3d-shell-account) a { font-size: 19px; color: #152b8e; }
-.fm3d-theme:has(.fm-home) .fm3d-shell a[aria-current='page'] { color: #da4810; background: #fff0e5; }
-.fm3d-theme:has(.fm-home) .fm3d-shell .fm3d-icon { width: 26px; height: 26px; flex-shrink: 0; }
+.fm3d-theme:has(.fm-home) .fm3d-shell :is(.fm3d-shell-nav,.fm3d-shell-account) a { font-size: 18px; font-weight: 600; color: #41465e; }
+.fm3d-theme:has(.fm-home) .fm3d-shell a[aria-current='page'] { color: #9a3e00; background: #fff0e5; }
+.fm3d-theme:has(.fm-home) .fm3d-shell .fm3d-icon { width: 24px; height: 24px; flex-shrink: 0; }
 @media(min-width: 1024px) {
   .fm3d-theme:has(.fm-home) { --fm-sidebar: 232px; padding-left: 248px; }
   .fm3d-theme:has(.fm-home) .p5-app.entry-home { padding: 86px 12px 32px; width: 100%; max-width: none; }

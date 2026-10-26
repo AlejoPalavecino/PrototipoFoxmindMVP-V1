@@ -26,7 +26,23 @@
 .fm-home-welcome .fm3d-illustration { width: 160px; flex-shrink: 0; background: #fff9f2; border-radius: 20px; }
 .fm-home-welcome p { color: #405fc2; margin: 12px 0 18px; }
 .fm-home-entry-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-.fm-home-entry-actions button:first-child { background: #ff782d; border-color: #ed6922; }
+.fm-home .fm-home-entry-actions button {
+  min-height: 52px;
+  padding: 12px 20px;
+  border-radius: 16px;
+  gap: 10px;
+  font-weight: 700;
+  background: #f5f0ff;
+  color: #35295d;
+  border: 1px solid #d9cff0;
+  box-shadow: none;
+}
+.fm-home .fm-home-entry-actions button:first-child { background: #ff782d; color: #35170b; border-color: #ed6922; }
+.fm-home .fm-home-entry-actions button:hover:enabled { background: #ede5fb; border-color: #b9a4dc; }
+.fm-home .fm-home-entry-actions button:first-child:hover:enabled { background: #f2691c; border-color: #cf5510; }
+.fm-home .fm-home-entry-actions button:focus-visible { outline: 3px solid #7458ab; outline-offset: 3px; }
+.fm-home .fm-home-entry-actions button:disabled { box-shadow: none; }
+.fm-home .fm-home-entry-actions .fm3d-icon { width: 24px; height: 24px; flex-shrink: 0; }
 .fm-home .fm-home-find-rooms { color: #405fc2; background: #ffffffc4; border-color: #d1d6e6; border-radius: 32px; justify-content: flex-start; min-height: 48px; width: min(500px,100%); padding: 10px 20px; margin-bottom: 16px; }
 .fm-home-find-rooms svg:last-child { margin-left: auto; }
 @media(min-width: 1024px) {
