@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Agenda reference matching with frozen navbar — implemented locally, 2026-10-25
+
+Agenda now follows the approved3D reference with balanced calendar/day/upcoming columns, local rounded typography, monthly Today toolbar, date tiles/privacy/legend and wide Foxy artwork. The newly approved navbar's four files/hashes are exactly unchanged; no Agenda override affects it. Calendar42cells, hooks, event forms/CRUD, timezone/auth/data policies remain. [Coordinator](work-log/2026-10-25-root-agenda-screen-polish.md) and [native fixture QA](work-log/evidence/2026-10-25-agenda-polish/design-qa.md) record meaningful RED→53focusedPASS, strict types, isolated web buildPASS, eleven stable views, in-memory action/contrast checks and0review findings. Component-fixture evidence is not authenticated E2E;320px day-cell fit exception and42versus5-row mock difference are explicit. User52171/API52170untouched; local main delivery only, no new push/deployment/event-data operation.
+
 ## Navbar palette and Home Create/Join polish — implemented locally, 2026-10-25
 
 Private navigation/drawer now use restrained slate text, warm selected state, consistent icon/label weights and visible lavender focus. Home Create/Join have52px targets,16px corners, strong labels and orange/lavender hierarchy. Three CSS leaves only; no auth/navigation/data logic changes. [Coordinator](work-log/2026-10-25-root-nav-cta-polish.md) and [native fixture QA](work-log/evidence/2026-10-25-nav-cta/design-qa.md) record PostCSS3/3, focused Home4PASS, isolated web build PASS, contrast/mobile/keyboard/callback checks and0review findings. Fixture-only visual scope/disabled and public-header limits remain explicit. Live52171unchanged, local main delivery only; no new push/deployment.
