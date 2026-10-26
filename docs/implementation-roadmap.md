@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Inicio reference matching — implemented locally, 2026-10-25
+
+User requested matching the approved teacher/student3D mockups after seeing the actual none-account dashboard. Current main now has aligned left greeting/right miniagenda, scoped rounded typography/navy styling, larger actionable rows/date tiles and honest first-use composition. The tested visibility gate hides only ready-empty nonagenda shelves under none; errors, populated archived rows and applicable active-role empty states remain. Teacher tools precede materials; actual targets and all authorization/backend contracts are unchanged. [Coordinator](work-log/2026-10-25-root-home-screen-polish.md) and [native fixture QA](work-log/evidence/2026-10-25-home-polish/design-qa.md) record RED→GREEN, focused tests, strict types, final isolated web build PASS,13state/viewport captures,14actions and0review findings. Fixture pixels are not authenticated E2E; live52171/52170 remain running unchanged. Local commits follow in coordinator record; no new push/deployment/data operation.
+
 ## Approved sign-in and registration polish — implemented locally, 2026-10-25
 
 User authorized editing current main and viewing live changes. The two approved authentication mockups are implemented using original ZorroH, existing auth WebP, locally served Fredoka, scoped split layout and form-first mobile presentation. [Coordinator](work-log/2026-10-25-root-auth-screen-polish.md) and [native visual QA](work-log/evidence/2026-10-25-auth-polish/design-qa.md) record independent checks: final isolated Next build PASS, focused16PASS/0FAIL/2historical opt-inSKIP, six accepted desktop/mobile views and0new review findings. Prior legacy entry-glass failures remain documented, not hidden. Same local52171URL now has development HMR; no account/data/provider operation or new push/deployment. Local commit identities follow in coordinator record.
