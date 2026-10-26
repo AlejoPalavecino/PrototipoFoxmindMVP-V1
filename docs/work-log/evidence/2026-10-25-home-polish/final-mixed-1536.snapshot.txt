@@ -1,0 +1,260 @@
+[p1 "127.0.0.1:53271/?mode=mixed" | space "qa-home-polish"(3): 1 managed, 0 untracked — p1* "127.0.0.1:53271/?mode=mixed"]
+root
+  container
+    anchor [ref=857, loc=href:/?mode=mixed#classroom-main, url=http://127.0.0.1:53271/?mode=mixed#classroom-main]
+      text "Saltar al contenido"
+    container
+      anchor "FoxMind" [ref=858, loc=css:a[aria-label="FoxMind"], url=http://127.0.0.1:53271/mis-aulas]
+        image
+      container "Navegación principal"
+        anchor [ref=859, loc=href:/inicio, url=http://127.0.0.1:53271/inicio]
+          svg_root
+          text "Inicio"
+        anchor [ref=860, url=http://127.0.0.1:53271/mis-aulas]
+          svg_root
+          text "Mis aulas"
+        anchor [ref=861, loc=href:/agenda, url=http://127.0.0.1:53271/agenda]
+          svg_root
+          text "Agenda"
+      anchor "Mi perfil de Alex Prueba" [ref=862, loc=css:a[aria-label="Mi perfil de Alex Prueba"], url=http://127.0.0.1:53271/profile]
+        text "AP"
+      container
+        anchor [ref=863, loc=href:/settings, url=http://127.0.0.1:53271/settings]
+          svg_root
+          text "Configuración"
+        anchor [ref=864, url=http://127.0.0.1:53271/profile]
+          svg_root
+          text "Mi perfil"
+    container "Inicio"
+      button [ref=865]
+        svg_root
+        text "Buscar aulas en FoxMind"
+        svg_root
+      container
+        container
+          container
+            container
+              heading
+                text "¡Hola,"
+                text "Alex Prueba"
+                text "!"
+              paragraph
+                text "Tus actividades"
+                text "y próximos pasos, en un solo lugar."
+              text "Domingo, 25 De Octubre"
+              text "1 aula en Estudio · 1 aula en Enseño"
+            image
+          container
+            container
+              text "Actualizado"
+              text "09:00 a. m."
+            button [ref=866]
+              svg_root
+              text "Actualizar"
+          container "Para entregar"
+            heading
+              text "Para entregar"
+            unordered_list
+              list_item
+                image
+                container
+                  heading
+                    text "La célula y sus funciones"
+                  container
+                    container
+                      text "Ciencias Naturales"
+                      text "·"
+                      text "3º A"
+                    container
+                      text "Primera entrega"
+                      text "·"
+                      text "Pendiente"
+                    text "Sin fecha límite"
+                button "Ver actividad: La célula y sus funciones" [ref=867, loc=css:button[aria-label="Ver actividad: La célula y sus funciones"]]
+                  text "Ver actividad"
+                  svg_root
+          container "Para revisar"
+            heading
+              text "Para revisar"
+            paragraph
+              text "6"
+              text "entregas ·"
+              text "4"
+              text "por revisar ·"
+              text "2"
+              text "listas para publicar"
+            unordered_list
+              list_item
+                image
+                container
+                  heading
+                    text "Trabajo práctico: Ecosistemas"
+                  container
+                    container
+                      text "Ciencias Naturales"
+                      text "·"
+                      text "3º A"
+                    container
+                      text "4"
+                      text "por revisar ·"
+                      text "2"
+                      text "listas para publicar"
+                button "Revisar entregas: Trabajo práctico: Ecosistemas" [ref=868, loc=css:button[aria-label="Revisar entregas: Trabajo práctico: Ecosistemas"]]
+                  text "Revisar entregas"
+                  svg_root
+          container "Consultas recientes"
+            heading
+              text "Consultas recientes"
+            unordered_list
+              list_item
+                image
+                container
+                  heading
+                    text "¿Cómo se organiza una célula?"
+                  container
+                    container
+                      text "Ciencias Naturales"
+                      text "·"
+                      text "3º A"
+                    container
+                      text "Actualizada"
+                      text "25 oct, 09:00 a. m."
+                button "Abrir consulta: ¿Cómo se organiza una célula?" [ref=869, loc=css:button[aria-label="Abrir consulta: ¿Cómo se organiza una célula?"]]
+                  text "Abrir consulta"
+                  svg_root
+          container "Material reciente"
+            container
+              heading
+                text "Material reciente"
+              button [ref=870]
+                text "Ver todas"
+                container
+                  text ":"
+                  text "Material reciente"
+            unordered_list
+              list_item
+                image
+                heading
+                  text "Guía de estudio: seres vivos"
+                text "Ciencias Naturales"
+                text "·"
+                text "3º A"
+                text "PDF"
+                text "· Publicado"
+                text "25 oct, 09:00 a. m."
+                button "Abrir material: Guía de estudio: seres vivos" [ref=871, loc=css:button[aria-label="Abrir material: Guía de estudio: seres vivos"]]
+                  text "Abrir material"
+                  svg_root
+          container "Accesos rápidos"
+            heading
+              text "Accesos rápidos"
+            button [ref=872]
+              svg_root
+              text "Mis aulas"
+              text "Estudio, Enseño e historial"
+            button [ref=873]
+              svg_root
+              text "Mi Agenda"
+              text "Organiza tu semana"
+            button [ref=874]
+              svg_root
+              text "Unirme a un aula"
+              text "Con código o invitación"
+            heading
+              text "Herramientas del aula"
+            container
+              text "Aula destino"
+              combobox [ref=875]
+                text "Ciencias Naturales · 3º A"
+            button [ref=876]
+              svg_root
+              text "Crear actividad"
+              text "Ciencias Naturales"
+              text "·"
+              text "3º A"
+            button [ref=877]
+              svg_root
+              text "Subir material"
+              text "Ciencias Naturales"
+              text "·"
+              text "3º A"
+            button [ref=878]
+              svg_root
+              text "Publicar aviso"
+              text "Ciencias Naturales"
+              text "·"
+              text "3º A"
+            button [ref=879]
+              text "Crear aula"
+        container
+          container "Tu miniagenda"
+            container
+              heading
+                text "Tu miniagenda"
+              button [ref=880]
+                text "Abrir Agenda"
+                svg_root
+            paragraph
+              text "Próximos 90 días · Zona"
+              text "America/Argentina/Buenos_Aires"
+            unordered_list
+              list_item
+                container
+                  text "LUN"
+                  text "26"
+                container
+                  heading
+                    text "Repasar contenidos"
+                  container
+                    text "Evento personal"
+                    text "·"
+                    text "2026-10-26 · Todo el día"
+                    text "· Zona original: UTC"
+                button "Abrir: Repasar contenidos" [ref=881, loc=css:button[aria-label="Abrir: Repasar contenidos"]]
+                  text "Abrir"
+                  svg_root
+          container "Devoluciones disponibles"
+            heading
+              text "Devoluciones disponibles"
+            unordered_list
+              list_item
+                image
+                container
+                  heading
+                    text "Ecosistemas: devolución publicada"
+                  container
+                    container
+                      text "Ciencias Naturales"
+                      text "·"
+                      text "3º A"
+                    container
+                      text "Nota"
+                      text "8"
+                      text "· Intento"
+                      text "1"
+                      text "· Disponible"
+                      text "Publicada"
+                      text "25 oct, 09:00 a. m."
+                button "Ver devolución: Ecosistemas: devolución publicada" [ref=882, loc=css:button[aria-label="Ver devolución: Ecosistemas: devolución publicada"]]
+                  text "Ver devolución"
+                  svg_root
+          container "Tus aulas"
+            container
+              heading
+                text "Tus aulas"
+              text "1"
+            unordered_list
+              list_item
+                image
+                container
+                  heading
+                    text "Ciencias Naturales"
+                  container
+                    text "Ciencias Naturales"
+                    text "·"
+                    text "3º A"
+                button "Entrar al aula: Ciencias Naturales" [ref=883, loc=css:button[aria-label="Entrar al aula: Ciencias Naturales"]]
+                  text "Entrar al aula"
+                  svg_root
+    output [ref=884]
+  alert

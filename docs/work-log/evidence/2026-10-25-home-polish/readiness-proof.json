@@ -1,0 +1,10 @@
+{
+  "title": "¡Hola, Alex Prueba!",
+  "fixture": true,
+  "authenticatedE2E": false,
+  "ready": true,
+  "reducedMotion": false,
+  "failedImages": [],
+  "externalAPIRequests": [],
+  "animations": "0.16s"
+}

@@ -4,7 +4,7 @@
 - Date: 2026-10-25, America/Buenos_Aires.
 - Branch / starting commit: main / 27233bab657683a00782f304000652619acce50c.
 - Scope: user requests reviewing/redesigning Inicio to match attached teacher/student3D references, contrasting their actual local account-without-aulas screenshot. Continue direct local main edits/live preview authorized in this ongoing screen-polish work. No push/deployment or account/data mutation.
-- Status: in_progress.
+- Status: completed — local implementation, independent source/fixture QA and bounded local delivery complete.
 
 ## Visual target and constraints
 
@@ -29,3 +29,9 @@ Root ran production Next build in an isolated source/config copy with existing d
 Tester exclusively authored tests/helpers and used actual production React components/CSS in a typed synthetic HomeClient test harness53271. This is native browser component-fixture evidence, not authenticated E2E or real data. Thirteen state/viewport captures, fourteen interactions, error retry, pagination/return focus, three teacher tools, feedback, reduced motion and mobile drawer passed. Source/mock were compared jointly. After Space3/harness closed, the bounded teacher-order follow-up used a new Space4 and only one teacher recapture/three target checks, then closed. Both owned Spaces finished once; both harness lifecycles stopped, user web52171/PID25740 and API52170/PID42496 remained. [Full QA and limitations](evidence/2026-10-25-home-polish/design-qa.md) distinguish fixtures from live authentication. Current-state user screenshot was not copied to repository; saved references are the synthetic approved mocks.
 
 Read-only reviewer /root/home_polish_review inspected final diff and nine native views, including latest teacher-order image, and personally ran diff-check: LGTM_SIN_HALLAZGOS,0findings. API/core/auth/env/schema unchanged; file/function limits conform and no test weakening. Root persisted this attribution; reviewer did not write source, data, memory, commits or operate runtime. P3 date capitalizes De Octubre; no pixel-identical/full-WCAG/performance/physical-device claim. All requested implementation and independent checks are complete; next exact step is semantic local commits and final links/hash/Git/live verification. No push/deployment requested or performed.
+
+## Local delivery and final handoff
+
+Observed local commits:9b046fa delivers state/date behavior, composition and independent tests/contracts (243authored changed lines);e99643e delivers the reference CSS/layout plus attributed coordinator checkpoint (312authored changed lines). Final passive QA commit follows, with author-created harness/scripts counted and generated captures/snapshots/manifests excluded from the400line author budget. [Artifact dimensions/hashes](evidence/2026-10-25-home-polish/manifest.json) preserve nineteen PNGs, including two exact approved references; all current-state synthetic fixtures stay separate from real-user information. No source referenced only in an OS temporary directory is needed to recover the implementation.
+
+No implementation task remains. The user's live Inicio remains http://127.0.0.1:52171/inicio with existing real membership data; users without aulas receive the honest first-use state rather than the populated fixture data. Main stays local, no new push/deployment or private configuration access. Current feature modifies neither the auth polish nor API/data policies. Historical intermediate captures remain identified; latest accepted teacher is final-teach-order-1536.png. Memory remains unavailable for attributed writes; repository records are the durable handoff.

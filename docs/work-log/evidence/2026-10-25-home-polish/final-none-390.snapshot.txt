@@ -1,0 +1,66 @@
+[p1 "127.0.0.1:53271/?mode=none" | space "qa-home-polish"(3): 1 managed, 0 untracked — p1* "127.0.0.1:53271/?mode=none"]
+root
+  container
+    anchor [ref=1045, loc=href:/?mode=none#classroom-main, url=http://127.0.0.1:53271/?mode=none#classroom-main]
+      text "Saltar al contenido"
+    container
+      anchor "FoxMind" [ref=1046, loc=css:a[aria-label="FoxMind"], url=http://127.0.0.1:53271/mis-aulas]
+        image
+      container
+        anchor "Mi perfil de Alex Prueba" [ref=1047, loc=css:a[aria-label="Mi perfil de Alex Prueba"], url=http://127.0.0.1:53271/profile]
+          text "AP"
+        button "Abrir menú de navegación" [ref=1048, loc=css:button[aria-label="Abrir menú de navegación"]]
+          svg_root
+    container "Inicio"
+      button [ref=1049]
+        svg_root
+        text "Buscar aulas en FoxMind"
+        svg_root
+      container
+        container
+          container
+            container
+              heading
+                text "¡Hola,"
+                text "Alex Prueba"
+                text "!"
+              paragraph
+                text "Tus actividades"
+                text "y próximos pasos, en un solo lugar."
+              text "Domingo, 25 De Octubre"
+              text "Crea un aula o únete para dar el primer paso."
+            image
+          container
+            container
+              text "Actualizado"
+              text "09:00 a. m."
+            button [ref=1050]
+              svg_root
+              text "Actualizar"
+          container
+            image
+            container
+              heading
+                text "Tu próximo paso empieza aquí"
+              paragraph
+                text "Puedes aprender y enseñar con la misma cuenta. Crea tu aula o únete con el código de tu docente."
+              button [ref=1051]
+                text "Crear mi primera aula"
+                svg_root
+              button [ref=1052]
+                text "Unirme con código"
+                svg_root
+        container "Tu miniagenda"
+          container
+            heading
+              text "Tu miniagenda"
+            button [ref=1053]
+              text "Abrir Agenda"
+              svg_root
+          paragraph
+            text "Próximos 90 días · Zona"
+            text "America/Argentina/Buenos_Aires"
+          paragraph
+            text "No hay próximos inicios en los próximos 90 días."
+    output [ref=1054]
+  alert
