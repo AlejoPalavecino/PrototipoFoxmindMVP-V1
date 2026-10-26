@@ -3,7 +3,7 @@
 - Agent: /root, orchestrator; runtime identity unavailable, no attributed memory writes.
 - Date: 2026-10-26, America/Buenos_Aires; main starting32c47502433439bc48fd9662cb7a43cb78549430.
 - Scope: user likes current sign-in/register art direction but reports oversized notebook presentation compared with27inch display. Adjust to actual viewport width/height while retaining approved style. Continue authorized local main/live edits; no push/deployment, account or data changes.
-- Status: in_progress.
+- Status: completed.
 
 ## Diagnosis and ownership
 
@@ -26,3 +26,7 @@ Read-only reviewer /root/auth_responsive_review found one registration padding s
 Worker TypeScript/PostCSS/diff passed. Root synced only final3product files into the existing isolated current-source build and observed Next exit0 within180s, TypeScript6s/compile17.1s, without overwriting live .next. Existing workspace-lockfile advisory remains. Tester's Space7 finished exactly once; no server restart/account submit/mutation/credentials/config/provider/Engram write. After handoff root renamed eight browser-only helper files to .mjs and corrected artifact names to observed902dimensions; original captured JSON values remain untouched. Exact source/artifact verification and local delivery follow; no push/deployment requested.
 
 Rollback boundary: remove auth-responsive.css and its _app.tsx import, restore the two auth-polish.css rules; no unrelated behavior is part of this unit. Evidence manifest:20 native PNG hashes/sizes and local report links verified. Browser helpers remain a separate historical QA utility unit to avoid automatic test discovery.
+
+## Local delivery and handoff
+
+Implementation/native evidence committed as aed6b89f4857ed52d859445285a6fddcf81f4fcd. Historical browser helpers are retained separately as non-discoverable .mjs utilities; their naming correction uses measured viewport dimensions and is not a replay of the completed browser session. No requested implementation remains. User can refresh /sign-in and /register on52171; natural scrolling remains on small screens. No push/deployment. No attributed memory writes because host identity remains unavailable.
