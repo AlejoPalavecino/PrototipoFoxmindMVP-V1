@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## FoxMind 3D main publication — authorized delivery, 2026-10-25
+
+User explicitly authorized preserving loose changes and pushing main. [Current publication record](work-log/2026-10-25-root-visual-main-publication.md) controls this delivery: preserve13direction JSON and14historical design records, integrate the verified3D implementation by fast-forward and ordinary non-force push. Earlier local-only/no-publication text below is historical for its stage. No deployment or retained-data operation is requested. Actual push/ref confirmation is recorded in the current publication record after observation.
+
 ## FoxMind 3D visual migration — implemented and locally verified, 2026-10-25
 
 Local delivery is complete at `526337636d1ce2b2c99e30509e3e584ef64e79ce` on `codex/foxmind-3d-migration`:44semantic commits, maximum393authored changed lines, no exceptions; final tree72e03f5d6d49f0772219d296094ed69642b70264 exactly matched the frozen candidate. [Commit/check manifest](work-log/evidence/2026-10-25-foxmind-3d/delivery.json) and coordinator closing section supersede earlier pending-delivery text. Passive documentary closure follows; no push, PR or deployment occurred.
