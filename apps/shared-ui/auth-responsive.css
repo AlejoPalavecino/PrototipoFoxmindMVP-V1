@@ -1,0 +1,100 @@
+.entry-auth-polish :is(.auth-main > *, .page-heading > *, form, fieldset) {
+  min-width: 0;
+}
+.fm3d-theme .entry-auth-polish h1 {
+  overflow-wrap: anywhere;
+}
+
+/* Compact the split layout when either useful dimension is limited. */
+@media (min-width: 901px) and (max-width: 1440px),
+       (min-width: 901px) and (max-height: 900px) {
+  .fm3d-theme .entry-auth-polish {
+    font-size: 18px;
+  }
+  .entry-auth-polish .auth-brand-header {
+    min-height: 80px;
+    padding: 16px 32px;
+  }
+  .entry-auth-polish .auth-brand-header .fm3d-brand {
+    width: 184px;
+  }
+  .fm3d-theme .entry-auth-polish .auth-main {
+    grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
+    width: calc(100% - 48px);
+    gap: 20px;
+    min-height: calc(100svh - 104px);
+    margin-bottom: 24px;
+  }
+  .entry-auth-polish .auth-story-copy {
+    padding: clamp(24px, 4svh, 36px) clamp(24px, 3vw, 44px);
+  }
+  .fm3d-theme .entry-auth-polish .auth-story h2,
+  .fm3d-theme .entry-auth-polish.auth-sign-in .auth-story h2 {
+    font-size: clamp(36px, min(3.8vw, 6.1svh), 52px);
+  }
+  .fm3d-theme .entry-auth-polish .auth-story p {
+    font-size: clamp(18px, 1.5vw, 22px);
+  }
+  .fm3d-theme .entry-auth-polish .surface,
+  .fm3d-theme .entry-auth-polish.auth-register .surface {
+    padding: clamp(24px, 3.4svh, 32px) clamp(24px, 2.4vw, 36px) 24px;
+  }
+  .fm3d-theme .entry-auth-polish h1 {
+    font-size: clamp(36px, min(3.5vw, 5.8svh), 48px);
+    margin-bottom: 8px;
+  }
+  .fm3d-theme .entry-auth-polish .auth-eyebrow,
+  .fm3d-theme .entry-auth-polish.auth-register .auth-eyebrow {
+    margin-bottom: 12px;
+  }
+  .fm3d-theme .entry-auth-polish .page-heading,
+  .fm3d-theme .entry-auth-polish.auth-register .page-heading {
+    margin-bottom: 20px;
+  }
+  .fm3d-theme .entry-auth-polish .page-heading p {
+    font-size: 18px;
+  }
+  .fm3d-theme .entry-auth-polish .field,
+  .fm3d-theme .entry-auth-polish.auth-register .field {
+    margin-bottom: 14px;
+  }
+  .fm3d-theme .entry-auth-polish .field-label,
+  .fm3d-theme .entry-auth-polish.auth-register .field-label {
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+  .fm3d-theme .entry-auth-polish .input,
+  .fm3d-theme .entry-auth-polish.auth-register .input {
+    height: 50px;
+    font-size: 18px;
+    padding-block: 10px;
+    padding-left: 16px;
+  }
+  .entry-auth-polish .form-link {
+    font-size: 16px;
+    margin: 0 0 20px;
+  }
+  .fm3d-theme .entry-auth-polish .button-primary,
+  .fm3d-theme .entry-auth-polish.auth-register .button-primary {
+    min-height: 54px;
+    font-size: 20px;
+    margin-top: 4px;
+  }
+  .fm3d-theme .entry-auth-polish .after-form,
+  .fm3d-theme .entry-auth-polish.auth-register .after-form {
+    margin-top: 20px;
+    padding-top: 18px;
+    font-size: 16px;
+  }
+  .fm3d-theme .entry-auth-polish .page-footer,
+  .fm3d-theme .entry-auth-polish.auth-register .page-footer {
+    padding-top: 20px;
+    font-size: 14px;
+  }
+  .entry-auth-polish .registration-next {
+    margin-top: 12px;
+  }
+  .entry-auth-polish .field-grid {
+    gap: 16px;
+  }
+}

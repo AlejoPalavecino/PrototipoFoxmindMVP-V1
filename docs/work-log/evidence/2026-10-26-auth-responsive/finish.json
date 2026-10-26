@@ -1,0 +1,9 @@
+{
+  "spaceId": 7,
+  "name": "qa-auth-responsive",
+  "focus": {
+    "name": "password",
+    "outline": "rgb(68, 83, 184) solid 2.4px"
+  },
+  "cleanup": "finish keep[] invoked after this evidence write"
+}

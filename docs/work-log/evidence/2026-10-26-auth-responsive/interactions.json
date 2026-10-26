@@ -1,0 +1,138 @@
+{
+  "shown": {
+    "type": "text",
+    "pressed": "true",
+    "buttonType": "button"
+  },
+  "registerShown": {
+    "type": "text",
+    "pressed": "true"
+  },
+  "focus": [
+    {
+      "tag": "INPUT",
+      "name": "email",
+      "text": "",
+      "aria": null,
+      "outline": "rgb(68, 83, 184) solid 2.4px",
+      "boxShadow": "none"
+    },
+    {
+      "tag": "INPUT",
+      "name": "password",
+      "text": "",
+      "aria": null,
+      "outline": "rgb(68, 83, 184) solid 2.4px",
+      "boxShadow": "none"
+    },
+    {
+      "tag": "BUTTON",
+      "name": null,
+      "text": "",
+      "aria": "Mostrar contraseña",
+      "outline": "rgb(68, 83, 184) solid 2.4px",
+      "boxShadow": "none"
+    },
+    {
+      "tag": "A",
+      "name": null,
+      "text": "Olvidé mi contraseña",
+      "aria": null,
+      "outline": "rgb(68, 83, 184) solid 2.4px",
+      "boxShadow": "none"
+    },
+    {
+      "tag": "BUTTON",
+      "name": null,
+      "text": "Iniciar sesión",
+      "aria": null,
+      "outline": "rgb(68, 83, 184) solid 2.4px",
+      "boxShadow": "none"
+    }
+  ],
+  "links": [
+    {
+      "text": "Saltar al contenido",
+      "href": "#main"
+    },
+    {
+      "text": "",
+      "href": "/sign-in?next=%2Fmis-aulas"
+    },
+    {
+      "text": "Olvidé mi contraseña",
+      "href": "/forgot-password"
+    },
+    {
+      "text": "Crear cuenta",
+      "href": "/register?next=%2Fmis-aulas"
+    }
+  ],
+  "navigated": "http://localhost:52171/register?next=%2Fmis-aulas",
+  "reflow": [
+    {
+      "route": "sign-in",
+      "simulation": "640x360 CSS viewport equivalent reflow area of 1280x720 at 200%; native zoom NOT tested; heading transient DOM fixture",
+      "before": {
+        "width": 640,
+        "height": 360,
+        "client": 625,
+        "scrollWidth": 625,
+        "scrollHeight": 903,
+        "titleHeight": 129.75
+      },
+      "after": {
+        "ctaY": 304.3500061035156,
+        "ctaBottom": 360.3500061035156,
+        "ctaHeight": 56,
+        "visible": false,
+        "inputs": [
+          {
+            "font": "18px",
+            "display": "block"
+          },
+          {
+            "font": "18px",
+            "display": "block"
+          }
+        ]
+      }
+    },
+    {
+      "route": "register",
+      "simulation": "640x360 CSS viewport equivalent reflow area of 1280x720 at 200%; native zoom NOT tested; heading transient DOM fixture",
+      "before": {
+        "width": 640,
+        "height": 360,
+        "client": 625,
+        "scrollWidth": 625,
+        "scrollHeight": 1015,
+        "titleHeight": 129.75
+      },
+      "after": {
+        "ctaY": 295.95001220703125,
+        "ctaBottom": 359.95001220703125,
+        "ctaHeight": 64,
+        "visible": true,
+        "inputs": [
+          {
+            "font": "20px",
+            "display": "block"
+          },
+          {
+            "font": "20px",
+            "display": "block"
+          },
+          {
+            "font": "20px",
+            "display": "block"
+          },
+          {
+            "font": "20px",
+            "display": "block"
+          }
+        ]
+      }
+    }
+  ]
+}

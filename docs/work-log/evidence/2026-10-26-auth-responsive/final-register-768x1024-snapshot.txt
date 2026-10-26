@@ -1,0 +1,48 @@
+[p1 "Creá tu cuenta · FoxMind" | space "qa-auth-responsive"(7): 1 managed, 0 untracked — p1* "Creá tu cuenta · FoxMind"]
+root
+  container
+    anchor "FoxMind" [ref=230, loc=css:a[aria-label="FoxMind"], url=http://localhost:52171/sign-in?next=%2Fmis-aulas]
+      image
+    container "Creá tu cuenta"
+      paragraph
+        text "QUÉ BUENO VERTE"
+      container
+        heading
+          text "Creá tu cuenta"
+        paragraph
+          text "Tu próximo paso empieza acá."
+      form
+        group [ref=231]
+          container
+            container
+              text "Nombre"
+              textbox [ref=232, loc=css:input[name="firstName"]]
+                text "Tu nombre"
+            container
+              text "Apellido"
+              textbox [ref=233, loc=css:input[name="lastName"]]
+                text "Tu apellido"
+          container
+            text "Correo electrónico"
+            textbox [ref=234, loc=css:input[name="email"]]
+              text "nombre@ejemplo.com"
+          container
+            text "Contraseña"
+            container
+              textbox [ref=235, loc=css:input[name="password"]]
+              button "Mostrar contraseña" [ref=236, loc=css:button[aria-label="Mostrar contraseña"]]
+                svg_root
+            paragraph
+              text "Entre 16 y 128 caracteres. Podés usar espacios."
+          button [ref=237]
+            text "Crear cuenta"
+            svg_root
+      paragraph
+        text "Después te enviaremos un correo para verificar tu cuenta."
+      paragraph
+        text "¿Ya tenés cuenta?"
+        anchor [ref=238, url=http://localhost:52171/sign-in?next=%2Fmis-aulas]
+          text "Iniciar sesión"
+      text "FoxMind · Un espacio para aprender y enseñar."
+  button "Open Next.js Dev Tools" [ref=239, loc=css:button[aria-label="Open Next.js Dev Tools"]]
+    svg_root

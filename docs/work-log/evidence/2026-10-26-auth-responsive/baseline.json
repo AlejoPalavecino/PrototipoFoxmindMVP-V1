@@ -1,0 +1,254 @@
+[
+  {
+    "url": "/sign-in",
+    "viewport": [
+      1366,
+      768
+    ],
+    "scroll": [
+      1351,
+      1026
+    ],
+    "font": true,
+    "heading": {
+      "x": 812.875,
+      "y": 226.40000915527344,
+      "width": 395.26251220703125,
+      "height": 62.61249923706055,
+      "bottom": 289.012508392334,
+      "font": "60.8048px",
+      "lineHeight": "62.6289px",
+      "display": "block",
+      "text": "¡Hola de nuevo!"
+    },
+    "story": {
+      "x": 36,
+      "y": 112,
+      "width": 708.0750122070312,
+      "height": 878,
+      "bottom": 990,
+      "font": "20px",
+      "lineHeight": "30px",
+      "display": "block",
+      "text": "Tu próximodescubrimientoempieza acá.Un espacio para aprender y enseñar."
+    },
+    "copy": {
+      "x": 36,
+      "y": 112,
+      "width": 708.0750122070312,
+      "height": 366,
+      "bottom": 478,
+      "font": "20px",
+      "lineHeight": "30px",
+      "display": "block",
+      "text": "Tu próximodescubrimientoempieza acá.Un espacio para aprender y enseñar."
+    },
+    "surface": {
+      "x": 764.0750122070312,
+      "y": 112,
+      "width": 551.125,
+      "height": 878,
+      "bottom": 990,
+      "font": "20px",
+      "lineHeight": "30px",
+      "display": "flex",
+      "text": "QUÉ BUENO VERTE¡Hola de nuevo!Entrá para seguir con tus aulas.Correo electrónicoContraseñaOlvidé mi "
+    },
+    "inputs": [
+      {
+        "x": 812.875,
+        "y": 429.9875183105469,
+        "width": 453.5249938964844,
+        "height": 68,
+        "bottom": 497.9875183105469,
+        "font": "22px",
+        "lineHeight": "33px",
+        "display": "block",
+        "text": ""
+      },
+      {
+        "x": 812.875,
+        "y": 564.9874877929688,
+        "width": 453.5249938964844,
+        "height": 68,
+        "bottom": 632.9874877929688,
+        "font": "22px",
+        "lineHeight": "33px",
+        "display": "block",
+        "text": ""
+      }
+    ],
+    "cta": {
+      "x": 812.875,
+      "y": 706.9874877929688,
+      "width": 453.5249938964844,
+      "height": 74,
+      "bottom": 780.9874877929688,
+      "font": "24px",
+      "lineHeight": "33.6px",
+      "display": "inline-flex",
+      "text": "Iniciar sesión"
+    },
+    "targets": [
+      {
+        "x": 1210.4000244140625,
+        "y": 574.9874877929688,
+        "width": 48,
+        "height": 48,
+        "bottom": 622.9874877929688,
+        "font": "14px",
+        "lineHeight": "21px",
+        "display": "block",
+        "text": ""
+      },
+      {
+        "x": 812.875,
+        "y": 706.9874877929688,
+        "width": 453.5249938964844,
+        "height": 74,
+        "bottom": 780.9874877929688,
+        "font": "24px",
+        "lineHeight": "33.6px",
+        "display": "inline-flex",
+        "text": "Iniciar sesión"
+      }
+    ]
+  },
+  {
+    "url": "/register",
+    "viewport": [
+      1366,
+      768
+    ],
+    "scroll": [
+      1351,
+      1026
+    ],
+    "font": true,
+    "heading": {
+      "x": 812.875,
+      "y": 198.40000915527344,
+      "width": 387.9125061035156,
+      "height": 62.61249923706055,
+      "bottom": 261.012508392334,
+      "font": "60.8048px",
+      "lineHeight": "62.6289px",
+      "display": "block",
+      "text": "Creá tu cuenta"
+    },
+    "story": {
+      "x": 36,
+      "y": 112,
+      "width": 708.0750122070312,
+      "height": 878,
+      "bottom": 990,
+      "font": "20px",
+      "lineHeight": "30px",
+      "display": "block",
+      "text": "Un lugar paratodas tus ideas.Aprendé, enseñá y descubrí con FoxMind."
+    },
+    "copy": {
+      "x": 36,
+      "y": 112,
+      "width": 708.0750122070312,
+      "height": 322.2749938964844,
+      "bottom": 434.2749938964844,
+      "font": "20px",
+      "lineHeight": "30px",
+      "display": "block",
+      "text": "Un lugar paratodas tus ideas.Aprendé, enseñá y descubrí con FoxMind."
+    },
+    "surface": {
+      "x": 764.0750122070312,
+      "y": 112,
+      "width": 551.125,
+      "height": 878,
+      "bottom": 990,
+      "font": "20px",
+      "lineHeight": "30px",
+      "display": "flex",
+      "text": "QUÉ BUENO VERTECreá tu cuentaTu próximo paso empieza acá.NombreApellidoCorreo electrónicoContraseñaE"
+    },
+    "inputs": [
+      {
+        "x": 812.875,
+        "y": 360.9875183105469,
+        "width": 217.7624969482422,
+        "height": 58,
+        "bottom": 418.9875183105469,
+        "font": "20px",
+        "lineHeight": "30px",
+        "display": "block",
+        "text": ""
+      },
+      {
+        "x": 1048.6375732421875,
+        "y": 360.9875183105469,
+        "width": 217.7624969482422,
+        "height": 58,
+        "bottom": 418.9875183105469,
+        "font": "20px",
+        "lineHeight": "30px",
+        "display": "block",
+        "text": ""
+      },
+      {
+        "x": 812.875,
+        "y": 470.9875183105469,
+        "width": 453.5249938964844,
+        "height": 58,
+        "bottom": 528.9875183105469,
+        "font": "20px",
+        "lineHeight": "30px",
+        "display": "block",
+        "text": ""
+      },
+      {
+        "x": 812.875,
+        "y": 580.9874877929688,
+        "width": 453.5249938964844,
+        "height": 58,
+        "bottom": 638.9874877929688,
+        "font": "20px",
+        "lineHeight": "30px",
+        "display": "block",
+        "text": ""
+      }
+    ],
+    "cta": {
+      "x": 812.875,
+      "y": 700.9874877929688,
+      "width": 453.5249938964844,
+      "height": 64,
+      "bottom": 764.9874877929688,
+      "font": "24px",
+      "lineHeight": "33.6px",
+      "display": "inline-flex",
+      "text": "Crear cuenta"
+    },
+    "targets": [
+      {
+        "x": 1210.4000244140625,
+        "y": 585.9874877929688,
+        "width": 48,
+        "height": 48,
+        "bottom": 633.9874877929688,
+        "font": "14px",
+        "lineHeight": "21px",
+        "display": "block",
+        "text": ""
+      },
+      {
+        "x": 812.875,
+        "y": 700.9874877929688,
+        "width": 453.5249938964844,
+        "height": 64,
+        "bottom": 764.9874877929688,
+        "font": "24px",
+        "lineHeight": "33.6px",
+        "display": "inline-flex",
+        "text": "Crear cuenta"
+      }
+    ]
+  }
+]

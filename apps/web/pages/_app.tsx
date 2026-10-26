@@ -11,6 +11,7 @@ import '../../classrooms-ui/foxmind-classrooms.css';
 import '../../classrooms-ui/foxmind-home.css';
 import '../../agenda-ui/foxmind-agenda.css';
 import '../../shared-ui/auth-polish.css';
+import '../../shared-ui/auth-responsive.css';
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   useEffect(() => {

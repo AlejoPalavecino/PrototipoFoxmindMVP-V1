@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Authentication notebook responsiveness — implemented locally, 2026-10-26
+
+User requested preserving the approved auth style while correcting oversized notebook presentation. Scoped CSS now adapts to both available width/height, removes the878px minimum and nowrap, compacts controls/type/padding and preserves large-screen/mobile behavior. No JSX/auth/navigation/data change. [Coordinator](work-log/2026-10-26-root-auth-responsive.md) and [native QA](work-log/evidence/2026-10-26-auth-responsive/design-qa.md) record28observations(26exact+2observed902rather than requested901), visible notebook primary CTAs, no horizontal overflow, existing8PASS, strict types/isolated build PASS and0open review findings after password-padding correction. Natural vertical scroll and inline-link/zoom/hardware limits stay explicit. Live52171unchanged; local main delivery only.
+
 ## Agenda reference matching with frozen navbar — implemented locally, 2026-10-25
 
 Agenda now follows the approved3D reference with balanced calendar/day/upcoming columns, local rounded typography, monthly Today toolbar, date tiles/privacy/legend and wide Foxy artwork. The newly approved navbar's four files/hashes are exactly unchanged; no Agenda override affects it. Calendar42cells, hooks, event forms/CRUD, timezone/auth/data policies remain. [Coordinator](work-log/2026-10-25-root-agenda-screen-polish.md) and [native fixture QA](work-log/evidence/2026-10-25-agenda-polish/design-qa.md) record meaningful RED→53focusedPASS, strict types, isolated web buildPASS, eleven stable views, in-memory action/contrast checks and0review findings. Component-fixture evidence is not authenticated E2E;320px day-cell fit exception and42versus5-row mock difference are explicit. User52171/API52170untouched; local main delivery only, no new push/deployment/event-data operation.

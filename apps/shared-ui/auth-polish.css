@@ -37,7 +37,7 @@
   display: block;
   overflow: hidden;
   border-radius: 22px;
-  min-height: 878px;
+  min-height: 0;
 }
 .fm3d-theme .entry-auth-polish .auth-story .fm3d-illustration {
   position: absolute;
@@ -95,7 +95,7 @@
   letter-spacing: .06em;
   margin: 0 0 24px;
 }
-.fm3d-theme .entry-auth-polish h1 { font-size: clamp(40px, 4.45vw, 68px); white-space: nowrap; }
+.fm3d-theme .entry-auth-polish h1 { font-size: clamp(40px, 4.45vw, 68px); white-space: normal; }
 .fm3d-theme .entry-auth-polish.auth-sign-in .auth-story h2 { font-size: clamp(42px, 4.17vw, 64px); }
 .fm3d-theme .entry-auth-polish .page-heading { margin-bottom: 48px; }
 .fm3d-theme .entry-auth-polish .field-label { font-size: 22px; color: #080b30; margin-bottom: 8px; }
