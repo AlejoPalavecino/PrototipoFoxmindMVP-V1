@@ -2,6 +2,7 @@ import { FoxmindIcon } from '../shared-ui/index.ts';
 import { HomeCover } from './HomeCover.tsx';
 import { homeLabels,homeTime,type HomeRowItem,type HomeAction } from './home-labels.ts';
 import type { HomeModuleName } from '../../src/core/domain/index.ts';
+import { homeAgendaDate } from './home-presentation.ts';
 function RowDetails({item,timeZone}:{item:HomeRowItem;timeZone:string}) {
   return <div className="fm-home-row-detail">
     {item.classroom?<span className="fm-home-room-label">{item.classroom.name} · {item.classroom.division}{item.classroom.archived?' · Archivada · Solo lectura':''}</span>:null}
@@ -17,11 +18,16 @@ function RowDetails({item,timeZone}:{item:HomeRowItem;timeZone:string}) {
 }
 export function HomeRow({item,module,timeZone,onAction,busy}:{item:HomeRowItem;module:HomeModuleName;timeZone:string;onAction:HomeAction;busy?:boolean}) {
   return <li className={`fm-home-row fm-home-row--${module}`}>
-    {item.classroom?<HomeCover coverKey={item.classroom.coverKey}/>:
+    {'source' in item?<AgendaDate item={item} timeZone={timeZone}/>:item.classroom?<HomeCover coverKey={item.classroom.coverKey}/>:
       <span className="fm-home-event-icon"><FoxmindIcon name="calendar"/></span>}
     <div className="fm-home-row-copy"><h3>{item.title}</h3><RowDetails item={item} timeZone={timeZone}/></div>
     <button disabled={busy} className="fm-home-row-action" onClick={()=>onAction(item.target)} aria-label={`${'reception' in item && item.reception==='closed'?'Consultar actividad':homeLabels[module].action}: ${item.title}`}>
       {'reception' in item && item.reception==='closed'?'Consultar actividad':homeLabels[module].action}<FoxmindIcon name="arrow-right"/>
     </button>
   </li>;
+}
+
+function AgendaDate({item,timeZone}:{item:Extract<HomeRowItem,{source:string}>;timeZone:string}) {
+  const date=homeAgendaDate(item,timeZone);
+  return <time className="fm-home-agenda-date" dateTime={date.dateTime}><span>{date.weekday}</span><strong>{date.day}</strong></time>;
 }

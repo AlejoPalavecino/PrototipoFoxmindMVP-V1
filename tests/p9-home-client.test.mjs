@@ -36,7 +36,7 @@ test('Home renders authorized aggregate identity and archived history without in
     await view.flush(); const html = renderToStaticMarkup(view.tree);
     assert.match(html, /Hola, Actual Learner/);
     assert.match(html, /Real classroom &lt;script&gt;/); assert.match(html, /Archivada · Solo lectura/);
-    assert.match(html, /Tus aulas/); assert.match(html, /Material reciente/);
+    assert.match(html, /Tus aulas/); assert.doesNotMatch(html, /Material reciente/);
     assert.doesNotMatch(html, /Cambiar rol|role="switch"|lucia@example|Nota promedio/);
     assert.doesNotMatch(html, /Para entregar|Para revisar/, 'Archived history alone must not invent active participation');
   } finally { view.close(); if (previousWindow === undefined) delete globalThis.window; else globalThis.window = previousWindow; }
