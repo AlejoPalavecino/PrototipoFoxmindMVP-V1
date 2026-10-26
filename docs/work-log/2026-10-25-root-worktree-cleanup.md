@@ -6,7 +6,7 @@
 - Branch / worktree: main, canonical project directory.
 - Starting commit: 6ed483cc7a048096ce426c49250f538f978b1789.
 - Phase: repository maintenance; no product-phase change.
-- Status: completed.
+- Status: blocked.
 
 ## Request and scope
 
@@ -30,4 +30,6 @@ Coordinator resolved and checked the absolute authorized target, then executed o
 
 ## Handoff
 
-No extra registered worktree remains. Functional tests are unnecessary for administrative checkout removal without product changes. No shared roadmap phase update is required. Preserve existing branches; no push or deployment is authorized by this maintenance request. This record is the only local documentary commit; its identity will be reported after observation.
+Final correction after observing removal output: all residual junctions and subdirectories were removed, but deleting the now-empty checkout root failed because another process holds it open. A second nonrecursive deletion attempt confirmed that lock; Test-Path remains True and child count is 0. The preceding False claim was premature and is superseded by this actual observation. Process-name inspection found no non-shell process command line naming this worktree; no unrelated process was terminated. No extra registered worktree or pending source remains, but the empty directory still needs deletion after its holder releases it. Status is blocked only for that filesystem step.
+
+Functional tests are unnecessary for administrative checkout removal without product changes. No shared roadmap phase update is required. Preserve existing branches; no push or deployment is authorized by this maintenance request. Local documentary commits 7bd0bbf and 654a119 record the administrative work; this corrective follow-up records the lock accurately. Next: close the application/terminal holding the old directory and remove that empty directory nonrecursively.
