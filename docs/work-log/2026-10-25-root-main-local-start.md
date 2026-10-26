@@ -37,3 +37,7 @@ Ego-browser Space1, p1, "FoxMind main local 2026-10-25 restart": live sign-in sn
 Current handoff: user can test existing accounts at http://127.0.0.1:52171/sign-in, captured email at http://127.0.0.1:52169. Services remain running. Enter/SIGTERM to the verified preview supervisor stops only API/Next; infrastructure and all persistent data remain. Future restarts use the same canonical preview launcher with fourteen-migration gate and current builds. No unfinished startup work remains.
 
 Corrected anonymous Home query with timeZone=America/Argentina/Buenos_Aires returned 401, confirming current web-to-API authorization boundary. Ego finish keep p1 completed exit0. No authenticated data was accessed during these HTTP/browser smoke checks.
+
+## User-requested test login account
+
+User subsequently requested an account for signing in. Coordinator created one new synthetic account through the running web registration API (202), fetched only its addressed verification email through a recipient-filtered local Mailpit search, explicitly confirmed the proof (200), and verified login/session authenticated=true. The diagnostic session was then logged out (204). Existing accounts were not modified; no classroom or global role was assigned. Credentials were delivered directly to the requesting user and are excluded from this record; verification/session tokens were never printed or saved. This is a later authorized account-creation action, separate from startup smoke. No product change, provider request or push.
