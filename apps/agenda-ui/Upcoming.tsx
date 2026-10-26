@@ -1,14 +1,23 @@
 import type { AcademicDeadline, AgendaTarget } from '../../src/core/domain/index.ts';
 import { deadlineLabel } from './calendar.ts';
-import { FoxmindIllustration } from '../shared-ui/index.ts';
+import { FoxmindIllustration, FoxmindIcon } from '../shared-ui/index.ts';
+import { deadlineParts } from './agenda-presentation.ts';
+
+function DeadlineDateTile({ item }: { item: AcademicDeadline }) {
+  const date = deadlineParts(item.deadlineAt, item.timeZone);
+  return <div className="agenda-deadline-tile" aria-hidden="true"><strong>{date.day}</strong><span>{date.month}</span></div>;
+}
 
 export function DeadlineCard({ item, onOpen, busy }: { item: AcademicDeadline; onOpen: (target: AgendaTarget) => void; busy: boolean }) {
   return <article className="agenda-deadline">
+    <DeadlineDateTile item={item} /><div className="agenda-deadline-content">
+    <p className="agenda-deadline-time">{deadlineParts(item.deadlineAt, item.timeZone).time}</p>
     <span className="p5-tag">{item.role === 'teacher' ? 'Enseño' : 'Estudio'}{item.resubmission ? ' · Reentrega' : ''}</span>
     <h3>{item.title}</h3><p>{item.classroomName}</p>
     <p className="agenda-date">{deadlineLabel(item.deadlineAt, item.timeZone)}</p>
     {!item.pending ? <small>Sin entrega pendiente</small> : null}
-    <button disabled={busy} onClick={() => onOpen(item.target)}>Abrir actividad <span aria-hidden="true">↗</span></button>
+    <button disabled={busy} onClick={() => onOpen(item.target)}>Abrir actividad <FoxmindIcon name="arrow-right" /></button>
+    </div>
   </article>;
 }
 export function Upcoming({ items, loading, error, busy, onOpen }: {
@@ -20,6 +29,6 @@ export function Upcoming({ items, loading, error, busy, onOpen }: {
     {loading ? <p role="status">Consultando entregas…</p> : error ? <p>Las entregas no están disponibles. Reintentá la consulta.</p>
       : items.length ? items.map(item => <DeadlineCard key={item.id} item={item} onOpen={onOpen} busy={busy} />)
         : <div className="agenda-empty"><p>No tenés entregas próximas pendientes.</p></div>}
-    {!loading && !error ? <FoxmindIllustration className="agenda-side-scene" name="scenes/agenda" sizes="220px" /> : null}
+    {!loading && !error ? <FoxmindIllustration className="agenda-side-scene" name="scenes/agenda" sizes="(max-width: 900px) 100vw, 34vw" /> : null}
   </aside>;
 }

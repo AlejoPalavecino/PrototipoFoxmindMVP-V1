@@ -32,14 +32,14 @@ export function Agenda({ api, onOpen, requestedEvent }: { api: AgendaClient; onO
     finally { locked.current = false; setBusy(false); }
   };
   return <main id="agenda-main" className="p5-main agenda-main">
-    <AgendaHeader onCreate={() => setEditing({})} onToday={view.today} zone={view.zone} onZone={view.changeZone} />
+    <AgendaHeader onCreate={() => setEditing({})} zone={view.zone} onZone={view.changeZone} />
     {result.notice ? <Notice>{result.notice} {result.event ? <button onClick={result.showEvent}>{result.event.repeat.kind === 'WEEKLY' ? 'Ver inicio de la serie' : 'Ver evento'}</button> : null}</Notice> : null}
     {error ? <Notice error>{error}</Notice> : null}
     {requested.error ? <Notice error>{requested.error}</Notice> : null}
     {data.error ? <Notice error>{data.error} <button onClick={() => void data.reload()}>Volver a intentar</button></Notice> : null}
     {data.loading ? <Notice>Consultando tu agenda…</Notice> : null}
     <div className="agenda-layout"><div className="agenda-primary">
-      <AgendaMonth month={view.month} selected={view.day} zone={view.zone} items={data.items} onSelect={view.select} onMonth={view.move} loading={data.loading} />
+      <AgendaMonth month={view.month} selected={view.day} zone={view.zone} items={data.items} onSelect={view.select} onMonth={view.move} onToday={view.today} loading={data.loading} />
       {!data.loading && !data.error ? <AgendaDay day={view.day} zone={view.zone} items={data.items} busy={busy} focusEventId={result.focusEventId ?? (view.day === requestedEvent?.date ? requested.focusEventId : undefined)} focusRequest={result.focusRequest} onEdit={event => setEditing({ event })} onOpen={target => void open(target)} onCreate={() => setEditing({})} /> : null}
     </div><Upcoming items={data.upcoming} loading={data.loading} error={data.error} busy={busy} onOpen={target => void open(target)} /></div>
     {editing ? <EventForm api={api} event={editing.event} day={view.day} zone={view.zone} onClose={() => setEditing(null)} onSaved={result.saved} /> : null}
