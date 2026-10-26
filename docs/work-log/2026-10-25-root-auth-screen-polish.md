@@ -4,7 +4,7 @@
 - Date: 2026-10-25, America/Buenos_Aires.
 - Branch / starting commit: main / dfe2b849fa50e876bb37df3cce1f79464a7ba58b.
 - Scope: implement the two recently approved ImageGen sign-in/create-account mockups directly on current main, keeping the user's local app running for live feedback. This request authorizes local edits and commits, not new push/deployment or retained account/data changes.
-- Status: in_progress.
+- Status: completed — approved local implementation, independent QA/review and local source commits complete.
 
 ## Reference and implementation contract
 
@@ -39,3 +39,5 @@ The user's52171preview was production-only, with no HMR. To satisfy live-edit in
 Implementation and independent visual/source/build acceptance complete; next action is bounded local commits and structural checks. No push/deployment requested. Native evidence/approved-reference copies and [actual dimensions/hashes](evidence/2026-10-25-auth-polish/manifest.json) are saved with the project; no flattened screenshot is used as a runtime UI. Historical failed captures/experiments remain distinct from accepted-* images.
 
 Local preparatory commit37f330f contains the30KB WOFF2, OFL and architect contract (160authored lines, plus binary). Upstream OFL had one trailing space; normalized whitespace without changing any non-whitespace license character, then rechecked the complete commit diff. No licensing terms or font bytes changed. The first local-only commit was amended before any publication to include this hygiene correction; its obsolete identity is not a delivered checkpoint.
+
+Implementation commit1ca8520 contains scoped UI/styles and attributed execution records (368authored changed lines); source/runtime acceptance above applies to its final product bytes. No unrelated product files, tests or generated next-env drift are included. This passive QA closure follows the implementation and preserves approved references, actual native screenshots, rejected visual iterations and dimensions/hashes. All requested implementation work is complete. The existing live URL remains http://127.0.0.1:52171/sign-in (or /register); user can refresh or follow account links. Main stays local, no push/deployment requested or performed.

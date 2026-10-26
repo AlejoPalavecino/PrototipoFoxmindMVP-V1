@@ -1,0 +1,191 @@
+{
+  "date": "2026-10-25",
+  "method": "Native ego browser/CDP PNG capture; references copied from approved ImageGen results",
+  "note": "Use actual dimensions, not historical filenames. Error evidence is desktop1905x867; no mobile error acceptance claim.",
+  "images": [
+    {
+      "path": "accepted-register-1536.png",
+      "role": "accepted",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 656602,
+      "sha256": "4862f77668375a47c46ec4c570a942179a11a9c3705ba1c2abf00cca6ee84af6"
+    },
+    {
+      "path": "accepted-register-320.png",
+      "role": "accepted",
+      "width": 320,
+      "height": 844,
+      "bytes": 38892,
+      "sha256": "5a5e0da22c6d2d7ea906dc170ed72b0b209ebdb82e806a2c97a455444f114f00"
+    },
+    {
+      "path": "accepted-register-390.png",
+      "role": "accepted",
+      "width": 390,
+      "height": 844,
+      "bytes": 43698,
+      "sha256": "295fae28d6c22be57974eb6022f0292b962588e7e8945108f0bd6c38c6e4ac0f"
+    },
+    {
+      "path": "accepted-register-desktop-error-1905.png",
+      "role": "accepted",
+      "width": 1905,
+      "height": 867,
+      "bytes": 812289,
+      "sha256": "63018c7294f0eb10bf1a4fcb598a4aae7a228becfabfbd7f1589890862d2b5de"
+    },
+    {
+      "path": "accepted-sign-in-1536.png",
+      "role": "accepted",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 652397,
+      "sha256": "77d1157e69e24bba471f310ce7f40aae364391715399b20f0841ec32eac02d84"
+    },
+    {
+      "path": "accepted-sign-in-320.png",
+      "role": "accepted",
+      "width": 320,
+      "height": 844,
+      "bytes": 33443,
+      "sha256": "673f4926e03a4258cbc16726e94605c43159f1d84516cdd54f78d557f9a54560"
+    },
+    {
+      "path": "accepted-sign-in-390.png",
+      "role": "accepted",
+      "width": 390,
+      "height": 844,
+      "bytes": 34570,
+      "sha256": "afb234f77f131557e2e4462a240034f95dc89de8dd9115ceaa869809513a4cb3"
+    },
+    {
+      "path": "baseline-register.png",
+      "role": "historical-iteration",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 307391,
+      "sha256": "e1582ed4acd6f3b5602cb328904c42fd2159e8d2bf7edada190aa4e89552b101"
+    },
+    {
+      "path": "baseline-sign-in.png",
+      "role": "historical-iteration",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 305284,
+      "sha256": "c1be9e776c436c9080a097b81acb6b9c288a22b12c72fa6cd10552f8c7183751"
+    },
+    {
+      "path": "final-register-320-error.png",
+      "role": "historical-iteration",
+      "width": 320,
+      "height": 844,
+      "bytes": 38964,
+      "sha256": "86f9d13b0fd59de9e1e7106f94942396fc2eb01119fd3fa406b65b3513472e0c"
+    },
+    {
+      "path": "final-register-390.png",
+      "role": "historical-iteration",
+      "width": 390,
+      "height": 844,
+      "bytes": 40544,
+      "sha256": "bddd778ef5000476e9866ba3017586987f7059cebec8e5d070ed4193a577e76c"
+    },
+    {
+      "path": "final-register-desktop.png",
+      "role": "historical-iteration",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 706170,
+      "sha256": "2291c554b697f7510008034356465add4c12acbdeee45134846e119f5b3817e2"
+    },
+    {
+      "path": "final-sign-in-desktop.png",
+      "role": "historical-iteration",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 689419,
+      "sha256": "48d0cde72c832defc94aa800346b4f915039de0275f13facb98841f47a1161db"
+    },
+    {
+      "path": "final2-register-320.png",
+      "role": "historical-iteration",
+      "width": 320,
+      "height": 844,
+      "bytes": 38880,
+      "sha256": "e096fe4e35c8cb3250245654a5a34a23527c8b6edfe6b4af9ac2e2d4db77f6ad"
+    },
+    {
+      "path": "final2-register-390.png",
+      "role": "historical-iteration",
+      "width": 390,
+      "height": 844,
+      "bytes": 43689,
+      "sha256": "ac6c7a03ea99500d99376566383ceed1fb115c63bca00b7aa77443d354efb02a"
+    },
+    {
+      "path": "final2-register-desktop.png",
+      "role": "historical-iteration",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 656535,
+      "sha256": "bad536c4a651e2ff62f796a9266fe57ca10ab271a85adceb0f33e0f7cb70dcf2"
+    },
+    {
+      "path": "final2-sign-in-320.png",
+      "role": "historical-iteration",
+      "width": 320,
+      "height": 844,
+      "bytes": 33425,
+      "sha256": "156d92b31c9b26009b9f2983d8b7e57af3ad6ab55e958708cf707cf5cf2da312"
+    },
+    {
+      "path": "final2-sign-in-390.png",
+      "role": "historical-iteration",
+      "width": 390,
+      "height": 844,
+      "bytes": 34558,
+      "sha256": "78fc874c5f1482d38b655ca3a89387e838e595046079a6539fa64b265d16b912"
+    },
+    {
+      "path": "final2-sign-in-desktop.png",
+      "role": "historical-iteration",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 654003,
+      "sha256": "6fd49cc0ad9f44425e96148755458153dbc71ae2c350ba831bf9c05017fd07bd"
+    },
+    {
+      "path": "final3-register-desktop.png",
+      "role": "historical-iteration",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 601332,
+      "sha256": "8b1bbe6b6b9cfcddcec0542e5765e84edd75c18e9c0486ab5a474b8b435ca68a"
+    },
+    {
+      "path": "final3-sign-in-desktop.png",
+      "role": "historical-iteration",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 594601,
+      "sha256": "ab8a6df6de9ef5c798d4420698e6041f9d4afcf9d39e205cabcf862b4e0a4c2b"
+    },
+    {
+      "path": "references/sign-in.png",
+      "role": "approved-reference",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 1657213,
+      "sha256": "efa70bdbc7b37f27a61d10ff33f40529f187e370ebcdc77d0070d32f05b64775"
+    },
+    {
+      "path": "references/register.png",
+      "role": "approved-reference",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 1621162,
+      "sha256": "21b94ebad59e3b65547972670b35b054f355fed93a10cf574944eabce968281e"
+    }
+  ]
+}
