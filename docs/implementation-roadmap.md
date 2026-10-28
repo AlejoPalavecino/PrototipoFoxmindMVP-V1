@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Inicio refinements — published 2026-10-28
+
+Compact mobile greeting and agenda, quieter setup notice and corrected count inflection were committed as `6d1a0f526e6c88ce69f4d5cde0696e0f01a46c07` and pushed to main at the user's request. [Implementation evidence](work-log/2026-10-28-root-inicio-refinements.md) records focused tests, types and synthetic responsive checks; [publication record](work-log/2026-10-28-root-inicio-publication.md) distinguishes the running local server from unverified authenticated rendering. No deployment or retained-data operation.
+
 ## Platform visual polish — integrated locally into main, 2026-10-28
 
 User authorized integration and a clean branch. Main fast-forwarded from `fa3ce749` to verified visual candidate `e884341`; product tree matched exactly. [Integration record](work-log/2026-10-28-root-visual-integration.md) preserves the outcome and backup of prior untracked preparation documents. This supersedes the earlier no-main-integration boundary for this local integration only; no push or deployment was requested.

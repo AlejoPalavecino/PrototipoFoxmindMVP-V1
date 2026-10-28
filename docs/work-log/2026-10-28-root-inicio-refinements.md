@@ -1,4 +1,6 @@
-# Inicio refinements — verified locally, commit pending
+# Inicio refinements — verified and published
+
+Publication follow-up: commit `6d1a0f526e6c88ce69f4d5cde0696e0f01a46c07` passed the staged Gitleaks scan and was pushed to main. See [publication record](2026-10-28-root-inicio-publication.md). The pending statements below are historical at the time of implementation.
 
 - Agent / role: /root coordinator; implementation /root/implement_inicio; tests and visual QA /root/test_inicio; independent review /root/review_inicio. Read-only reports persisted by coordinator.
 - Session or task IDs: /root, /root/implement_inicio, /root/test_inicio, /root/review_inicio
@@ -6,7 +8,7 @@
 - Branch / worktree: main, canonical checkout
 - Starting commit: 551697b
 - Phase: Inicio refinements; docs/implementation-roadmap.md
-- Status: in_progress (commit pending)
+- Status: completed for the scoped implementation.
 
 ## Request and scope
 User authorized corrections after authenticated Inicio audit: compact greeting and agenda, lower setup notice prominence, improve singular/plural; retain brand, timezone information, actions and existing data.
