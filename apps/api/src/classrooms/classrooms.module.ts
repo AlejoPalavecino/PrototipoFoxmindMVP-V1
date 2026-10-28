@@ -11,6 +11,7 @@ import { ClassroomHostLifecycle, createIdentityClassroomAuthentication } from '.
 import { LibraryCleanupWorker } from './library-cleanup.ts';
 import { ClassroomAiRuntime, type AiRuntimeOverride } from './ai/runtime.ts';
 import { ActivityAiRuntime } from './activity-ai/runtime.ts';
+import { StudentAiRuntime } from './student-ai/runtime.ts';
 import { validateActivityGeneration } from './activity-ai/index.ts';
 import type { AiConfiguration } from '../ai/index.ts';
 
@@ -29,6 +30,8 @@ export class ClassroomsModule {
     configuration: ClassroomRuntimeConfiguration,
     sender: Pick<DeliveryOptions, 'send'> & { close(): void }, ai?: AiConfiguration, override?: AiRuntimeOverride): DynamicModule {
     return { module: ClassroomsModule, imports: [database, identity, files], providers: [
+      ...(ai && (!override || override.studentProvider) ? [{ provide: StudentAiRuntime, inject: [InvitationService],
+        useFactory: (classrooms: ClassroomService) => new StudentAiRuntime(classrooms, ai, override?.studentProvider) }] : []),
       ...(ai ? [{ provide: ActivityAiRuntime, inject: [InvitationService, FileService],
         useFactory: (classrooms: ClassroomService, files: FileService) =>
           new ActivityAiRuntime(classrooms, files, ai, override?.activityProvider) }, { provide: ClassroomAiRuntime, inject: [PrismaService, IdentityRuntime, FileService],
@@ -36,7 +39,7 @@ export class ClassroomsModule {
           new ClassroomAiRuntime(database, createIdentityClassroomAuthentication(runtime.configuration.security), files, ai, override) }] : []),
       { provide: InvitationService, inject: [PrismaService, IdentityRuntime, FileService],
         useFactory: (database: PrismaService, runtime: IdentityRuntime, fileService: FileService) => integratedClassrooms({
-          ...configuration, database, files: fileService.store,
+          ...configuration, database, files: fileService.store, studentAiEnabled: !!ai && (!override || !!override.studentProvider),
           authenticate: createIdentityClassroomAuthentication(runtime.configuration.security),
         }, fileService) },
       { provide: InvitationDeliveryWorker, inject: [PrismaService],
@@ -47,7 +50,8 @@ export class ClassroomsModule {
         useFactory: (database: PrismaService, files: FileService) => new LibraryCleanupWorker(database, files.storage) },
       { provide: ClassroomHostLifecycle, inject: [InvitationDeliveryWorker],
         useFactory: (worker: InvitationDeliveryWorker) => new ClassroomHostLifecycle(worker, sender) },
-    ], exports: [InvitationService, ClassroomHostLifecycle, LibraryCleanupWorker, ...(ai ? [ClassroomAiRuntime, ActivityAiRuntime] : [])] };
+    ], exports: [InvitationService, ClassroomHostLifecycle, LibraryCleanupWorker, ...(ai ? [ClassroomAiRuntime, ActivityAiRuntime] : []),
+      ...(ai && (!override || override.studentProvider) ? [StudentAiRuntime] : [])] };
   }
   static register(
     ports: ClassroomPorts,

@@ -5,7 +5,9 @@ import { ClassroomAiService } from './service.ts';
 import { ClassroomAiWorker } from './worker.ts';
 
 import type { StructuredActivityGenerationPort } from '../../../../../src/core/domain/index.ts';
-export interface AiRuntimeOverride { provider: StructuredExtractionPort; activityProvider?: StructuredActivityGenerationPort }
+import type { StudentAiProvider } from '../student-ai/worker.ts';
+export interface AiRuntimeOverride { provider: StructuredExtractionPort; activityProvider?: StructuredActivityGenerationPort;
+  studentProvider?: StudentAiProvider }
 export class ClassroomAiRuntime {
   readonly service: ClassroomAiService;
   readonly worker: ClassroomAiWorker;

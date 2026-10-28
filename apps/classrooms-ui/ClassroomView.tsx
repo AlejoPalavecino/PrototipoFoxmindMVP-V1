@@ -11,6 +11,7 @@ import { Library } from './Library.tsx';
 import { Wall } from './Wall.tsx';
 import { Activities } from './Activities.tsx';
 import { Progress } from './Progress.tsx';
+import { StudentAiSummary } from './StudentAiSummary.tsx';
 
 interface Summary {
   firstName: string;
@@ -235,7 +236,13 @@ export function ClassroomView({
                 <ul className="p5-roster">
                   {(tab === 'history' ? history : members).map(
                     (member, index) => (
-                      <li key={member.enrollmentId ?? index}>
+                      <li key={member.enrollmentId ?? index}
+                        style={teacher ? { cursor: 'pointer' } : undefined}
+                        onClick={event => {
+                          if (teacher && !(event.target as HTMLElement).closest('button')) {
+                            event.currentTarget.querySelector<HTMLButtonElement>('[data-open-summary]')?.click();
+                          }
+                        }}>
                         <span className="p5-avatar" aria-hidden="true">
                           {initials(member.firstName, member.lastName)}
                         </span>
@@ -260,6 +267,7 @@ export function ClassroomView({
                         {teacher ? (
                           <div className="p5-actions">
                             <button
+                              data-open-summary
                               disabled={busy}
                               onClick={() =>
                                 void action(async () =>
@@ -616,6 +624,7 @@ export function ClassroomView({
           title={`${summary.firstName} ${summary.lastName}`}
           onClose={() => setSummary(null)}
         >
+          <StudentAiSummary api={api} classroomId={id} studentId={summary.studentId} />
           <Progress api={api} classroomId={id} studentId={summary.studentId} />
           <h3>Entregas y calificaciones</h3>
           {summary.attempts.length ? (
