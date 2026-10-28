@@ -1,0 +1,31 @@
+- link "Saltar al contenido":
+  - /url: "#main"
+- banner:
+  - link "FoxMind":
+    - /url: /verify-email
+  - navigation "Navegación principal":
+    - link "Verificar correo":
+      - /url: /verify-email
+      - text: Verificar correo
+  - paragraph: Alex Prueba
+  - link "Verificar correo":
+    - /url: /verify-email
+  - button "Cerrar sesión"
+- main:
+  - region "Verifica tu correo":
+    - heading "Verifica tu correo" [level=1]
+    - paragraph: Confirma tu dirección para empezar a usar FoxMind.
+    - heading "Confirma tu dirección" [level=2]
+    - paragraph: Al continuar se utilizará el enlace que abriste desde tu correo. El enlace vence después de una hora.
+    - button "Confirmar verificación"
+    - heading "Revisa tu correo" [level=2]
+    - paragraph:
+      - text: Enviamos el enlace a
+      - strong: alex@example.test
+      - text: . Abre el mensaje y confirma la verificación.
+    - paragraph: Si recargas esta página después de abrir un enlace, vuelve a abrir el mensaje original para usarlo.
+    - button "Reenviar correo"
+    - button "Actualizar estado"
+    - button "Cerrar sesión"
+  - generic: FoxMind · Enseñar y aprender, en un mismo lugar.
+- alert

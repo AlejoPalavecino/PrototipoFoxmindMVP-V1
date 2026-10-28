@@ -1,0 +1,40 @@
+npm notice run foxmind-database-foundation@0.1.0 web:build
+npm notice run next build apps/web
+▲ Next.js 16.4.2 (Turbopack)
+✓ Running next.config.mjs took 49ms
+
+  Running TypeScript ...
+  Finished TypeScript in 3.1s ...
+  Creating an optimized production build ...
+✓ Compiled successfully in 5.9s
+  Collecting page data using 19 workers ...
+  Generating static pages using 19 workers (0/5) ...
+  Generating static pages using 19 workers (1/5)
+  Generating static pages using 19 workers (2/5)
+  Generating static pages using 19 workers (3/5)
+✓ Generating static pages using 19 workers (5/5) in 739ms
+  Finalizing page optimization ...
+
+Route (pages)
+┌ ƒ /
+├   /_app
+├ ○ /404
+├ ○ /agenda
+├ ƒ /api/v1/[...path]
+├ ƒ /api/v1/agenda/[[...path]]
+├ ƒ /api/v1/classrooms/[[...path]]
+├ ƒ /api/v1/files/[[...path]]
+├ ƒ /api/v1/home/[[...path]]
+├ ƒ /files
+├ ƒ /forgot-password
+├ ○ /inicio
+├ ○ /mis-aulas
+├ ƒ /profile
+├ ƒ /recover-password
+├ ƒ /register
+├ ƒ /settings
+├ ƒ /sign-in
+└ ƒ /verify-email
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand

@@ -1,0 +1,22 @@
+[
+  {
+    "fixtureMarker": true,
+    "route": "/inicio?mode=mixed",
+    "status": 200
+  },
+  {
+    "fixtureMarker": true,
+    "route": "/mis-aulas",
+    "status": 200
+  },
+  {
+    "fixtureMarker": true,
+    "route": "/classroom?mode=teacher",
+    "status": 200
+  },
+  {
+    "fixtureMarker": true,
+    "route": "/profile",
+    "status": 200
+  }
+]

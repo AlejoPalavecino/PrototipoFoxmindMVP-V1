@@ -1,0 +1,17 @@
+- link "Saltar al contenido":
+  - /url: "#main"
+- banner:
+  - link "FoxMind":
+    - /url: /sign-in
+  - navigation "Navegación principal":
+    - link "Iniciar sesión":
+      - /url: /sign-in
+      - text: Iniciar sesión
+    - link "Crear cuenta":
+      - /url: /register
+      - text: Crear cuenta
+- main:
+  - heading "Archivos privados" [level=1]
+  - paragraph: Plan y materiales del contexto actual.
+  - paragraph: Abre los archivos desde un borrador o aula existente con su contexto completo.
+  - generic: FoxMind · Enseñar y aprender, en un mismo lugar.

@@ -1,0 +1,23 @@
+- link "Saltar al contenido":
+  - /url: "#main"
+- banner:
+  - link "FoxMind":
+    - /url: /sign-in
+  - navigation "Navegación principal":
+    - link "Iniciar sesión":
+      - /url: /sign-in
+      - text: Iniciar sesión
+    - link "Crear cuenta":
+      - /url: /register
+      - text: Crear cuenta
+- main:
+  - region "Mi perfil":
+    - navigation "Ubicación":
+      - link "Inicio":
+        - /url: /inicio
+      - text: / Mi perfil
+    - heading "Mi perfil" [level=1]
+    - paragraph: Tus datos, siempre a mano.
+    - status: Cargando tu cuenta…
+  - generic: FoxMind · Enseñar y aprender, en un mismo lugar.
+- alert

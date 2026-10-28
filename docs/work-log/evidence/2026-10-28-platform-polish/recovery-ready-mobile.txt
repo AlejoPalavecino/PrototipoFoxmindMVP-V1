@@ -1,0 +1,24 @@
+- link "Saltar al contenido":
+  - /url: "#main"
+- banner:
+  - link "FoxMind":
+    - /url: /sign-in
+  - navigation "Navegación principal":
+    - link "Iniciar sesión":
+      - /url: /sign-in
+      - text: Iniciar sesión
+    - link "Crear cuenta":
+      - /url: /register
+      - text: Crear cuenta
+- main:
+  - region "Recupera tu acceso":
+    - heading "Recupera tu acceso" [level=1]
+    - paragraph: Te enviaremos las instrucciones para crear una nueva contraseña.
+    - generic: Correo electrónico
+    - textbox "Correo electrónico"
+    - button "Enviar enlace de recuperación"
+    - paragraph:
+      - link "Volver a iniciar sesión":
+        - /url: /sign-in
+  - generic: FoxMind · Enseñar y aprender, en un mismo lugar.
+- alert

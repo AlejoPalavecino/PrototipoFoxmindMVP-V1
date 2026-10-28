@@ -1,0 +1,48 @@
+- link "Saltar al contenido":
+  - /url: "#classroom-main"
+- banner:
+  - link "FoxMind":
+    - /url: /mis-aulas
+  - button "Notificaciones":
+    - generic: Notificaciones
+  - link "Mi perfil de Alex Prueba":
+    - /url: /profile
+    - generic: AP
+  - button "Abrir menú de navegación":
+- main:
+  - heading "Mis aulas" [level=1]
+  - paragraph: Tus clases, bien organizadas.
+  - button "Unirse con código"
+  - button "Crear aula": Crear aula
+  - generic: Buscar aula
+  - searchbox "Buscar aula"
+  - navigation "Filtrar aulas":
+    - button "Todas · 3" [pressed]
+    - button "Donde estudio · 1"
+    - button "Donde enseño · 2"
+  - article:
+    - heading "Lengua y Literatura" [level=3]
+    - generic: Estudiás en esta aula
+    - paragraph: Literatura · 3º A · 2026
+    - paragraph: "Docente: Alex Prueba"
+    - button "Entrar al aula":
+      - text: Entrar al aula
+      - generic: →
+  - article:
+    - heading "Ciencias Naturales" [level=3]
+    - generic: Enseñás en esta aula
+    - paragraph: Biología · 3º A · 2026
+    - paragraph: "Docente: Vos"
+    - button "Entrar al aula":
+      - text: Entrar al aula
+      - generic: →
+  - article:
+    - heading "Matemática" [level=3]
+    - generic: Enseñás en esta aula
+    - paragraph: Matemática · 3º A · 2026
+    - paragraph: "Docente: Vos"
+    - button "Entrar al aula":
+      - text: Entrar al aula
+      - generic: →
+  - status: Mostrando 3 de 3 aulas
+- alert

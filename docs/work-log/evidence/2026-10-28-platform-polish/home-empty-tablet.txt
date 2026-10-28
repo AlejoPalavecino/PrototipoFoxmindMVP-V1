@@ -1,0 +1,14 @@
+- link "Saltar al contenido":
+  - /url: "#classroom-main"
+- banner:
+  - link "FoxMind":
+    - /url: /mis-aulas
+  - link "Mi perfil de Alex Prueba":
+    - /url: /profile
+    - generic: AP
+  - button "Abrir menú de navegación":
+- main:
+  - region "Inicio":
+    - heading "Hola, Alex Prueba" [level=1]
+    - status: Cargando tus actividades y próximos pasos…
+- status

@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Platform visual polish — verified in isolated copy, 2026-10-28
+
+User-authorized branch `codex/foxmind-visual-polish` unifies shared typography/palette/navigation, Home/classroom learning surfaces, Agenda and account/files presentation while preserving existing images, layout, states and contracts. One duplicate Wizard heading and empty auxiliary auth decoration were removed. [Coordinator](work-log/2026-10-28-root-platform-visual-polish.md), [design contract](work-log/2026-10-28-astra_visual_design.md) and [integrated-browser evidence](work-log/evidence/2026-10-28-platform-polish/design-qa.md) distinguish observed responsive/keyboard/component-fixture checks from unperformed authenticated E2E, native zoom and real upload/provider journeys. Final production buildPASS;46focusedPASS/0FAIL/2historical optionalSKIP; independent dual review and final delta review0findings. All execution delegates Astra/high or xhigh per session preference. Local commit identities follow in coordinator record; no main integration, push, PR or deployment. Original52171/52170runtime and retained data remain intact; preview53181 uses synthetic data.
+
 ## Permanent local demo accounts — created, 2026-10-26
 
 Two verified synthetic accounts and three retained classrooms now support teaching/learning flows, with PDFs, published activities, one submission awaiting review and two private events. [Reuse/access guide](local-demo-account.md), [coordinator](work-log/2026-10-26-root-permanent-demo.md) and [worker](work-log/2026-10-26-permanent-demo-worker.md) distinguish successful fresh-session API checks from unavailable graphical/reboot acceptance and an extra login rerun limited by HTTP429 (unknown Retry-After). Credentials are locally DPAPI protected; no product/schema change, reset, provider request or remote publication. Reuse these accounts; do not rerun disposable seeds.
