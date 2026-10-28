@@ -37,7 +37,9 @@ Paths: `apps/shared-ui/{workspace*,education*,AiProgress.tsx,index.ts}`, `apps/c
 
 ## Delivery and handoff
 
-Local work-unit identities and selected captures follow after observed commits. Diagnostic rounds/screenshots remain in `.test-artifacts/education-experience-20261028/`. Keep the admitted demo runtime available. No existing classroom, draft, event, submission or grade was edited; only two failed generation records added. No attributed Engram writes: runtime registration was unavailable.
+The shell/summary unit was committed locally after staged whitespace and Gitleaks checks passed (259 authored changed lines). Guided-work changes are the next local unit. Diagnostic rounds/screenshots remain in `.test-artifacts/education-experience-20261028/`. Keep the admitted demo runtime available. No existing classroom, draft, event, submission or grade was edited; only two failed generation records added. No attributed Engram writes: runtime registration was unavailable.
+
+After moving the Agenda test unchanged to `tests/education-agenda.test.mjs`, both education test files passed together (7 checks). Final production build passed after the last source/style changes. Generated development-only `next-env.d.ts` path changes were restored to their tracked production declaration; live output directories were preserved.
 
 Whole-product acceptance still requires successful real upload/provider/application and submission/grading persistence journeys, plus Safari/physical-device review. No “100% production-ready” claim or blind generation retry. No push, main merge, PR or deployment.
 

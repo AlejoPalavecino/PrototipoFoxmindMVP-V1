@@ -2,6 +2,7 @@
 import type { PlanExtractionState } from './use-plan-extraction.ts';
 import { ExtractionEditor } from './ExtractionEditor.tsx';
 import { extractionMessage } from './extraction-messages.ts';
+import { AiProgress } from '../shared-ui/index.ts';
 
 export function PlanExtraction({ extraction, hasUnits, review }: {
   extraction: PlanExtractionState; hasUnits: boolean; review: boolean;
@@ -11,8 +12,9 @@ export function PlanExtraction({ extraction, hasUnits, review }: {
   return <section className="p5-extraction" aria-label="Unidades sugeridas a partir del plan" aria-busy={busy}>
     <h3>Del plan a tus unidades</h3>
     <p>Gemini analiza tu plan para sugerir unidades y temas. Vos los revisás y decidís cuáles usar antes de crear el aula.</p>
+    {pending ? <AiProgress state={view.state as 'QUEUED' | 'RUNNING'} task="plan" /> : null}
     <div role="status" aria-live="polite">
-      {message ? <p>{message}</p> : pending ? <p>Estamos leyendo el plan. Podés continuar y cargar unidades manualmente mientras esperás.</p>
+      {message ? <p>{message}</p> : pending ? null
         : !view ? <p>El análisis comienza cuando el plan está aprobado y guardado.</p> : null}
       {view?.state === 'FAILED' && <p>{extractionMessage(view.error)}</p>}
       {view?.state === 'STALE' && <p>Esta propuesta ya no corresponde al plan actual. Continuá manualmente o volvé a abrir el borrador.</p>}

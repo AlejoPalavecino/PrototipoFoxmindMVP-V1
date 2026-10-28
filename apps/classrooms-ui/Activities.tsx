@@ -48,7 +48,8 @@ export function Activities({ api, room, reload, target, onChanged, openAuthoring
     const [data, library] = await Promise.all([api.call<ActivityData>(`/${room.id}/activities/${id}/preview`), api.call<Material[]>(`/${room.id}/library`)]);
     setMaterials(library); setEditing(data);
   }
-  return <section className="p7-activities" aria-label="Actividades del aula">
+  return <section className={`p7-activities${editing || generating ? ' education-task-active' : ''}`} aria-label="Actividades del aula">
+    {editing || generating ? <p className="education-task-context">{room.name} · {generating ? 'Asistente de actividades' : 'Editor de actividad'}</p> : null}
     <header className="p5-section-head"><div><h2>Actividades</h2><p>{teacher ? 'Prepara borradores privados y publica cuando estén listos.' : 'Las actividades publicadas de tu aula.'}</p></div>
       <button disabled={busy} onClick={() => void run(refresh)}>Actualizar actividades</button></header>
     {error ? <Notice error>{error} Los cambios no confirmados no se consideran guardados.</Notice> : null}
@@ -68,7 +69,7 @@ export function Activities({ api, room, reload, target, onChanged, openAuthoring
       onSaved={async () => { await refresh(); setNotice('Cambios confirmados por el servidor. Guardar no publica un borrador.'); }}
       onClose={() => setEditing(null)} /> : null}
     {loaded && activities.length === 0 ? <p className="p5-empty">Todavía no hay actividades disponibles.</p> : null}
-    <div className="p7-activity-list">{activities.map(activity => <article className="folder-row" key={activity.id} aria-label={activity.title ?? 'Borrador sin título'}>
+    <div className="p7-activity-list" hidden={Boolean(editing || generating)}>{activities.map(activity => <article className="folder-row" key={activity.id} aria-label={activity.title ?? 'Borrador sin título'}>
       <div className="folder-row-content"><small>{activityTypeLabels[activity.type]} · {activity.status === 'DRAFT' ? 'Borrador privado' : activity.status === 'WITHDRAWN' ? 'Retirada' : 'Publicada'}</small>
         <h3>{activity.title ?? 'Borrador sin título'}</h3><p>{activityDate(activity.deadlineAt, activity.zone)}</p>
         <ActivityCurriculum room={room} activity={activity} />
@@ -80,10 +81,10 @@ export function Activities({ api, room, reload, target, onChanged, openAuthoring
         setSession(next);
       })}>{teacher ? 'Vista previa docente' : activity.type === 'ASSIGNMENT' ? 'Abrir trabajo práctico' : 'Consultar actividad'}</button>
         <button disabled={busy} onClick={() => setHistory({ activityId: activity.id })}>{teacher ? 'Ver entregas recibidas' : 'Ver mis intentos'}</button>
-        {writable ? <><button disabled={busy} onClick={() => void run(() => edit(activity.id))}>{activity.status === 'DRAFT' ? 'Continuar borrador' : 'Editar actividad'}</button>
+        {writable ? <details className="education-activity-more"><summary>Más opciones</summary><div><button disabled={busy} onClick={() => void run(() => edit(activity.id))}>{activity.status === 'DRAFT' ? 'Continuar borrador' : 'Editar actividad'}</button>
           {activity.status === 'PUBLISHED' ? <button disabled={busy} onClick={() => setAuthorization(activity.id)}>Habilitar primera entrega</button> : null}
           {!activity.locked ? <button disabled={busy} onClick={() => setConfirm({ activity, action: activity.status === 'PUBLISHED' ? 'withdraw' : 'publish' })}>
-            {activity.status === 'PUBLISHED' ? 'Retirar actividad' : 'Publicar'}</button> : null}</> : null}</div>
+            {activity.status === 'PUBLISHED' ? 'Retirar actividad' : 'Publicar'}</button> : null}</div></details> : null}</div>
     </article>)}</div>
     {history ? <AttemptHistory key={history.activityId + (history.attemptId ?? '')} api={api} room={room} activityId={history.activityId} attemptId={history.attemptId} filter={teacher ? submissionFilter : undefined}
       onClose={() => setHistory(null)} onChanged={refresh} onResume={setSession} /> : null}

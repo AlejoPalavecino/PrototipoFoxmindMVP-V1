@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ClassroomClient, GradingData } from './api.ts';
 import { Notice } from './components.tsx';
 import { PublishedGradeCorrection } from './PublishedGradeCorrection.tsx';
@@ -8,6 +8,8 @@ export function GradingEditor({ api, roomId, attemptId, onClose, onChanged }: {
   api: ClassroomClient; roomId: string; attemptId: string; onClose: () => void; onChanged: () => Promise<void>;
 }) {
   const path = `/${roomId}/attempts/${attemptId}/grading`;
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => { heading.current?.focus(); }, [attemptId]);
   const [data, setData] = useState<GradingData | null>(null), [overall, setOverall] = useState(''), [feedback, setFeedback] = useState('');
   const [points, setPoints] = useState<Record<string, string>>({}), [comments, setComments] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [saved, setSaved] = useState(false);
@@ -29,7 +31,7 @@ export function GradingEditor({ api, roomId, attemptId, onClose, onChanged }: {
   const change = () => { setSaved(false); setDirty(true); setConfirming(false); }, writable = !!data?.canSave && !busy;
   const canPublish = !!data?.canSave && !!data.grade.id && !data.grade.pending && !dirty && !busy;
   return <section className="p8-grading" aria-label="Corrección privada del intento">
-    <header><h4>Corrección del intento {data?.attempt.number ?? ''}</h4><button disabled={busy} onClick={onClose}>Volver al historial</button></header>
+    <header><h4 ref={heading} tabIndex={-1}>Corrección del intento {data?.attempt.number ?? ''}</h4><button disabled={busy} onClick={onClose}>Volver al historial</button></header>
     {error ? <Notice error>{error} Tus cambios no se han confirmado. Puedes revisar o recargar la corrección.</Notice> : null}
     {!data ? <Notice>Cargando corrección…</Notice> : <>
       <h4>{data.activity.title} · {data.attempt.firstName} {data.attempt.lastName}</h4>

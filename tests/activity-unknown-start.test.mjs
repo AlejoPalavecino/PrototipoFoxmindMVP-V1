@@ -127,7 +127,7 @@ test('A01 reopening after a newer READY successor preserves historical uncertain
     assert.notEqual(stateView.tree.props.state.view?.error, 'PROVIDER_OUTCOME_UNKNOWN', 'A resolved historical ancestor cannot reactivate the uncertain gate');
     assert.deepEqual(stateView.tree.props.state.jobs.map(job => job.id), [successor.id, ancestor.id]);
     assert.equal(stateView.tree.props.state.jobs[1].error, 'PROVIDER_OUTCOME_UNKNOWN', 'Historical outcome remains visible in recent generations');
-    const generate = descendants(formView.tree, node => node.type === 'button' && node.props.children === 'Generar borrador')[0];
+    const generate = descendants(formView.tree, node => node.type?.name === 'GenerationSetup')[0];
     assert.ok(generate); assert.equal(generate.props.disabled, false);
     assert.equal(calls.some(([, method]) => method === 'POST'), false);
   } finally { stateView.close(); formView.close(); }

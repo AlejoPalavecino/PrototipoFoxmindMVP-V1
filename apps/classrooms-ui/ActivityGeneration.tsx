@@ -3,7 +3,9 @@ import { useEffect, useState } from 'react';
 import type { ActivityProposal } from '../../src/core/domain/index.ts';
 import type { ClassroomClient, Detail } from './api.ts';
 import { Notice } from './components.tsx';
-import { ActivityGenerationForm, defaultGenerationForm } from './ActivityGenerationForm.tsx';
+import { defaultGenerationForm } from './ActivityGenerationForm.tsx';
+import { GenerationSetup } from './GenerationSetup.tsx';
+import { AiProgress } from '../shared-ui/index.ts';
 import { ActivityGenerationProposal } from './ActivityGenerationProposal.tsx';
 import { generationErrors, generationStates, generationWarnings, type GenerationView } from './activity-generation-api.ts';
 import { useActivityGeneration } from './use-activity-generation.ts';
@@ -15,6 +17,7 @@ export function ActivityGeneration({ api, room, onApplied, onClose }: {
   const [form, setForm] = useState(defaultGenerationForm), [review, setReview] = useState<{ id: string; proposal: ActivityProposal } | null>(null);
   const [dirty, setDirty] = useState(false), [replacement, setReplacement] = useState<GenerationView | null>(null);
   const [charge, setCharge] = useState(false), [regenerating, setRegenerating] = useState(false);
+  const [sending, setSending] = useState(false);
   const view = generation.view, active = view && ['QUEUED', 'RUNNING'].includes(view.state);
   const uncertain = view?.error === 'PROVIDER_OUTCOME_UNKNOWN';
   useEffect(() => { setCharge(false); }, [view?.id]);
@@ -30,17 +33,16 @@ export function ActivityGeneration({ api, room, onApplied, onClose }: {
     <header className="p5-section-head"><div><h3>Generar con IA</h3><p>Una propuesta privada para revisar. Crear un borrador no publica la actividad.</p></div>
       <button type="button" disabled={generation.busy} onClick={onClose}>Cerrar generación</button></header>
     {generation.error ? <Notice error>{generation.error}</Notice> : null}
-    <form onSubmit={event => { event.preventDefault(); if (editable) void generation.generate(form); }}>
-      <ActivityGenerationForm room={room} value={form} update={setForm} sources={generation.sources} disabled={generation.busy || Boolean(active) || !editable} />
-      <footer className="p5-form-footer"><button className="primary" disabled={generation.busy || Boolean(active) || uncertain || !editable}>Generar borrador</button></footer>
-    </form>
-    <p>Generar utiliza IA y puede consumir cuota. Abrir esta pantalla, elegir fuentes o actualizar el estado no genera contenido.</p>
+    {sending || active ? <AiProgress state={active ? view.state as 'QUEUED' | 'RUNNING' : 'SENDING'} task="activity" /> : null}
+    <details className="education-generation-settings" open={!active && !review && !sending}><summary>Configurar propuesta</summary>
+      <GenerationSetup room={room} value={form} update={setForm} sources={generation.sources} disabled={generation.busy || Boolean(active) || uncertain || !editable}
+        generate={async value => { if (!editable) return; setSending(true); try { await generation.generate(value); } finally { setSending(false); } }} />
+    </details>
     <div className="p5-actions"><button disabled={generation.busy} onClick={() => void generation.refresh()}>Actualizar fuentes y generaciones</button></div>
-    {view ? <section aria-label="Estado de generación"><h4>{generationStates[view.state] ?? view.state}</h4>
-      {active ? <Notice>Puedes cerrar esta pantalla y recuperar el estado desde Generaciones recientes. Cerrar no cancela un trabajo ya enviado.</Notice> : null}
+    {view && !active ? <section aria-label="Estado de generación"><h4>{generationStates[view.state] ?? view.state}</h4>
       {view.error ? <Notice error>{generationErrors[view.error] ?? 'No se pudo completar esta generación.'}</Notice> : null}
       {view.state === 'STALE' ? <Notice>El programa o alguna fuente cambió. Revisa las fuentes y solicita una propuesta nueva.</Notice> : null}
-      {view.missingInformation?.length ? <ul>{view.missingInformation.map((item, index) => <li key={index}>{item}</li>)}</ul> : null}
+      {view.missingInformation?.length ? <details><summary>Detalle de la información faltante</summary><ul>{view.missingInformation.map((item, index) => <li key={index}>{item}</li>)}</ul></details> : null}
       {view.sourceReport?.length ? <details><summary>Lectura de las fuentes</summary><ul>{view.sourceReport.map(source => <li key={source.sourceId}>
         {generation.sources.find(candidate => candidate.sourceId === source.sourceId)?.title ?? source.sourceId} · {source.status}
         {source.pageCount !== null ? ` · ${source.pageCount} páginas` : ''}{source.warnings.map(warning => <p key={warning}>{generationWarnings[warning] ?? warning}</p>)}</li>)}</ul></details> : null}
@@ -61,10 +63,10 @@ export function ActivityGeneration({ api, room, onApplied, onClose }: {
       <footer className="p5-form-footer"><button className="primary" disabled={generation.busy || !editable || (view?.id === review.id && view.state !== 'READY')}
         onClick={() => void generation.apply(review.id, review.proposal)}>Usar propuesta revisada como borrador</button></footer>
       <p>Luego podrás ajustar entrega, fecha, materiales y publicación en el editor habitual.</p></> : null}
-    <section aria-label="Generaciones recientes"><h4>Generaciones recientes</h4>
+    <details className="education-generation-history"><summary>Generaciones recientes · {generation.jobs.length}</summary><section aria-label="Generaciones recientes"><h4>Generaciones recientes</h4>
       {!generation.jobs.length ? <p>No hay generaciones recientes.</p> : <ul>{generation.jobs.map(job => <li key={job.id}>
         {generationStates[job.state] ?? job.state}{job.createdAt ? ` · ${new Date(job.createdAt).toLocaleString('es')}` : ''}
         <button disabled={generation.busy} onClick={() => void generation.open(job.id)}>Recuperar generación</button></li>)}</ul>}
-    </section>
+    </section></details>
   </section>;
 }

@@ -35,7 +35,7 @@ export function AttemptHistory({ api, room, activityId, attemptId, filter, onClo
   }
   return <Dialog title={teacher ? 'Entregas e historial de intentos' : 'Mi historial de intentos'} onClose={onClose}>
     {error ? <Notice error>{error} Actualiza el historial antes de volver a intentar.</Notice> : null}
-    {!data ? <Notice>Cargando historial…</Notice> : <>
+    {!data ? <Notice>Cargando historial…</Notice> : <div className="education-attempt-history" hidden={Boolean(grading)}>
       <h3>{data.activity.title}</h3><p>{activityDate(data.activity.deadlineAt, data.activity.zone)}</p>
       {!teacher && data.delivered ? <Notice>Actividad entregada. Un nuevo borrador pendiente no reemplaza la entrega anterior ni su calificación publicada.</Notice> : null}
       {data.pendingResubmission ? <Notice>Reentrega pendiente: todavía no es una nueva entrega recibida.</Notice> : null}
@@ -56,7 +56,7 @@ export function AttemptHistory({ api, room, activityId, attemptId, filter, onClo
           {teacher && attempt.status === 'SUBMITTED' ? <button disabled={busy} onClick={() => { setGrading(attempt.id); setSelected(null); setReopening(null); }}>Corregir intento {attempt.number}</button> : null}</div>
       </li>)}</ul>
       <button disabled={busy} onClick={() => void run(() => load())}>Actualizar historial</button>
-    </>}
+    </div>}
     {grading ? <GradingEditor api={api} roomId={room.id} attemptId={grading} onClose={() => setGrading(null)} onChanged={async () => { await Promise.all([load(), onChanged()]); }} /> : null}
     {selected?.attempt ? <section className="p7-history-detail" aria-label="Intento histórico confirmado"><h4>Intento {selected.attempt.number} · solo consulta</h4>
       {selected.activity.questions.map((question, index) => { const answer = selected.attempt!.answers.find(a => a.questionId === question.id);

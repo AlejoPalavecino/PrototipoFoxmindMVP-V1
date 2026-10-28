@@ -27,7 +27,7 @@ test('A5 generation form opens with explicit pedagogical controls and performs n
     calls.push(args); return args[0].endsWith('/sources') ? { revision: room.revision, sources: [] } : { jobs: [] };
   } }, onApplied: async () => {}, onClose() {} };
   const html = render(ActivityGeneration, props);
-  for (const label of [/Objetivo/i, /Nivel/i, /Dificultad/i, /Duración/i, /Contexto/i, /Generar borrador/i]) assert.match(html, label);
+  for (const label of [/Objetivo/i, /Nivel/i, /Dificultad/i, /Duración/i, /Contexto/i, /Revisar y generar/i, /Continuar/i]) assert.match(html, label);
   assert.equal(calls.length, 0);
   const view = hookView(ActivityGeneration, props);
   try {

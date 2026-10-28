@@ -72,11 +72,11 @@ test('D5 a combined thirty-one-question request never dispatches generation', as
     api: { call: async (...args) => { calls.push(args); return args[0].endsWith('/sources') ? { revision: '2', sources: [] } : { jobs: [] }; } } });
   try {
     await view.flush();
-    const fields = descendants(view.tree, node => node.type?.name === 'ActivityGenerationForm')[0];
+    const fields = descendants(view.tree, node => node.type?.name === 'GenerationSetup')[0];
     fields.props.update({ ...fields.props.value, type: 'QUESTIONNAIRE', counts: { assignment: 0, development: 16, singleChoice: 15, multipleChoice: 0 } });
     await view.flush();
-    const form = descendants(view.tree, node => node.type === 'form')[0];
-    await form.props.onSubmit({ preventDefault() {} }); await view.flush();
+    const setup = descendants(view.tree, node => node.type?.name === 'GenerationSetup')[0];
+    await setup.props.generate(setup.props.value); await view.flush();
     assert.equal(calls.filter(([, method]) => method === 'POST').length, 0, 'The total limit is enforced before consuming a generation');
   } finally { view.close(); }
 });
