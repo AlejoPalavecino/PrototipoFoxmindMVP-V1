@@ -1,11 +1,11 @@
-/* Scoped until the shell owner opts in: existing pages retain their current theme. */
+/* Shared presentation values for all opted-in FoxMind surfaces. */
 .fm3d-theme {
   --fm-canvas: #fcfaf7;
   --fm-surface: #fff;
-  --fm-ink: #202522;
-  --fm-muted: #5b6260;
-  --fm-border: #d9ddda;
-  --fm-control-border: #7a817e;
+  --fm-ink: #080b30;
+  --fm-muted: #53649b;
+  --fm-border: #e2e5f0;
+  --fm-control-border: #7c86a6;
   --fm-orange: #ff782d;
   --fm-orange-hover: #f2691c;
   --fm-orange-soft: #fff0e5;
@@ -14,16 +14,19 @@
   --fm-danger: #b3261e;
   --fm-success: #156442;
   --fm-lavender: #e9e3fa;
+  --fm-lavender-soft: #f4f1fb;
   --fm-mint: #c3f1df;
   --fm-yellow: #ffe99b;
   --fm-coral: #ffc4af;
-  --fm-font-heading: 'Trebuchet MS', 'Segoe UI', sans-serif;
+  --fm-font-heading: 'Fredoka Auth', 'Segoe UI', sans-serif;
   --fm-font-body: 'Segoe UI', Arial, sans-serif;
   --fm-radius-field: 12px;
+  --fm-radius-action: 16px;
   --fm-radius-card: 20px;
   --fm-radius-dialog: 24px;
-  --fm-shadow: 0 4px 18px #20252208;
+  --fm-shadow: 0 4px 18px #080b3008;
   --fm-sidebar: 232px;
+  --fm-toolbar-height: 80px;
   --fm-content-max: 1440px;
   --fm-motion: 180ms;
   --fm-space-1: 4px;
@@ -39,6 +42,7 @@
   --fm-line: var(--fm-border);
   --fm-outline: var(--fm-control-border);
   --fm-control-line: var(--fm-control-border);
+  --fm-radius-control: var(--fm-radius-field);
   --fm-peach: var(--fm-orange-soft);
   --fm-error: var(--fm-danger);
 }

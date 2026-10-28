@@ -3,9 +3,17 @@
   background: var(--fm-canvas);
   color: var(--fm-ink);
   font-family: var(--fm-font-body);
+  font-size: 16px;
+  line-height: 1.5;
 }
 .fm3d-theme :is(.entry-page, .p5-app) { background: var(--fm-canvas); }
-.fm3d-theme :is(h1, h2, h3) { font-family: var(--fm-font-heading); letter-spacing: -.025em; }
+.fm3d-theme :is(h1, h2, h3) {
+  font-family: var(--fm-font-heading);
+  font-weight: 700;
+  letter-spacing: -.025em;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
 .fm3d-theme :is(h1, h2, h3) > span { color: inherit; }
 .fm3d-theme :is(a, button, input, select, textarea):focus-visible {
   outline: 3px solid var(--fm-focus);
@@ -15,19 +23,34 @@
   box-shadow: none;
   border-radius: var(--fm-radius-field);
   min-height: 44px;
+  font-family: var(--fm-font-body);
+  font-weight: 600;
+  line-height: 1.4;
   transition: background-color var(--fm-motion), opacity var(--fm-motion);
 }
 .fm3d-theme :is(.button-primary, .p5-app button.primary) {
   background: var(--fm-orange);
   color: var(--fm-ink);
   border-color: transparent;
+  border-radius: var(--fm-radius-action);
+  min-height: 48px;
 }
 .fm3d-theme :is(.button-primary, .p5-app button.primary):hover:enabled { background: var(--fm-orange-hover); }
-.fm3d-theme :is(.input, .p5-app input, .p5-app select, .p5-app textarea) {
+.fm3d-theme :is(.input, .p5-app input:where(:not([type='checkbox']):not([type='radio'])), .p5-app select, .p5-app textarea) {
   border: 1px solid var(--fm-control-border);
   border-radius: var(--fm-radius-field);
   background: var(--fm-surface);
+  color: var(--fm-ink);
+  font-family: var(--fm-font-body);
   font-size: 16px;
+}
+.fm3d-theme :is(.button, .p5-app button):disabled {
+  cursor: not-allowed;
+  opacity: .55;
+  box-shadow: none;
+}
+.fm3d-theme :is(.input, .p5-app input, .p5-app select, .p5-app textarea)[aria-invalid='true'] {
+  border-color: var(--fm-danger);
 }
 .fm3d-theme .folder-panel {
   background: var(--fm-surface);
@@ -48,7 +71,10 @@
 .fm3d-theme .p5-dialog { border-radius: var(--fm-radius-dialog); }
 .fm3d-theme .entry-page main a:not(.button) { color: var(--fm-link); }
 @media (prefers-reduced-motion: reduce) {
-  .fm3d-theme *, .fm3d-theme *::before, .fm3d-theme *::after { scroll-behavior: auto; }
+  .fm3d-theme *, .fm3d-theme *::before, .fm3d-theme *::after {
+    scroll-behavior: auto;
+    transition-duration: 0ms !important;
+  }
 }
 @keyframes fm3d-enter {
   from { opacity: .72; transform: translateY(4px); }

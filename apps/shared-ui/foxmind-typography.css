@@ -1,0 +1,8 @@
+/* Kept under its established family name for existing auth, Home and Agenda. */
+@font-face {
+  font-family: 'Fredoka Auth';
+  src: url('/fonts/fredoka-variable.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+}

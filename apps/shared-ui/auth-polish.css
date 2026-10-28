@@ -1,11 +1,3 @@
-@font-face {
-  font-family: 'Fredoka Auth';
-  src: url('/fonts/fredoka-variable.woff2') format('woff2');
-  font-style: normal;
-  font-weight: 300 700;
-  font-display: swap;
-}
-
 .fm3d-theme .entry-auth-polish {
   background: #fcfaf7;
   color: #080b30;
