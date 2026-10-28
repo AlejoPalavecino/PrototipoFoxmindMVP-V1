@@ -1,7 +1,7 @@
 # Student journey — main integration and publication
 
 - Agent: root, solo; runtime identity unavailable, no attributed memory writes.
-- Date:2026-10-28. Status: in_progress (verification passed; remote publication next).
+- Date:2026-10-28. Status: completed (verified main publication; passive documentation closure follows).
 - Scope: current user explicitly authorizes integrating and pushing the completed student-journey changes to main, verifying functionality and preserving parallel student-AI work. No deployment or new academic/provider operation.
 - Source: `0f3407daf722eabab9670f66056584e45ddb5d8a`, containing implementation `e1d9b4820c5ba0ce66aa89b50692da320d8bc1ce` and its passive evidence closure. [Journey proof](2026-10-28-root-student-journey.md).
 
@@ -32,4 +32,6 @@ Added test-only `waitForAttemptClock` before direct fixture submissions in the P
 
 ## Delivery handoff
 
-Verification is complete; commit the test-clock repair and this evidence, push main normally (no force), then verify the exact remote ref. Keep the dedicated main worktree clean and available; preserve the original AI checkout. Rollback of the new test-only unit does not revert product changes or mutate any persisted data. No deployment or remote CI result is claimed.
+Test-clock repair/evidence committed as `5ab9dbaa91c965aef45651863d355b217cce73ab`; staged whitespace and secret checks passed. Normal `git push origin main` succeeded from `abcfbab` to `5ab9dba`. `git ls-remote --exit-code origin refs/heads/main` returned exactly the local HEAD, and the dedicated main checkout was clean. This passive documentation closure records that observed publication and will be pushed with the same exact-ref/clean-tree check; unchanged product tests do not need another run.
+
+The requested integration/publication is complete. Keep the dedicated main worktree available and preserve the original AI checkout. Rollback of the test-only unit does not revert product changes or mutate persisted data. No deployment or remote CI result is claimed.

@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Student journey — integrated and published on main, 2026-10-28
+
+Current human authorization explicitly includes main integration/push while preserving parallel student-AI work. Main fast-forwarded to the reviewed `0f3407d`; the isolated verification added a bounded Windows/Docker clock wait only in test fixtures. [Delivery record](work-log/2026-10-28-root-student-main-publication.md):78 PASS/0 FAIL/0 SKIP, API/web builds and strict types PASS, preview smoke200 and secret checks clean. Normal push and exact remote ref `5ab9dbaa91c965aef45651863d355b217cce73ab` confirmed; passive documentation closure follows. Main's dedicated checkout is clean, while the original AI checkout/branch retains its pending work. This supersedes only the student journey's earlier local-only delivery status below. No deployment or new academic/provider operation.
+
 ## Student submission and feedback journey — verified locally, 2026-10-28
 
 Current user-requested student audit closes the bounded authenticated journey: Biología evaluation autosave/resume→delivery→teacher private correction/publication→student notification/result/progress; Literatura PDF upload/recovery→delivery→published feedback/file after reload. The UI prioritizes feedback, removes duplicate answers and false pending labels, and preserves confirmed receipts after refresh failure. [Coordinator and limits](work-log/2026-10-28-root-student-journey.md), [visual proof](work-log/evidence/2026-10-28-student-journey/README.md):27 focused PASS, strict web types and production build PASS;1440/390/320px checked. Local only; concurrent student-AI work is separate and preserved. This supersedes the earlier missing-proof statements only for these tested journeys, not every P8/P9 case or physical-device/Safari acceptance.
