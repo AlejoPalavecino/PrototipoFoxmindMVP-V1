@@ -1,0 +1,57 @@
+/* The private-file route keeps its upload, validation and preview states visible. */
+.fm3d-theme .platform-files { max-width: 1100px; font-size: 16px; }
+.fm3d-theme .platform-files .page-heading { margin-bottom: 24px; }
+.fm3d-theme .platform-files .page-heading h1 { font-size: clamp(32px, 3vw, 44px); font-weight: 600; }
+.fm3d-theme .platform-files .page-heading p { font-size: 17px; line-height: 1.5; }
+.fm3d-theme .platform-files .surface {
+  padding: clamp(20px, 3vw, 32px);
+  border: 1px solid var(--fm-border);
+  border-radius: 20px;
+  background: var(--fm-surface);
+  box-shadow: var(--fm-shadow);
+}
+.fm3d-theme .platform-files :is(.surface, .page-heading > *, section, form) { min-width: 0; }
+.fm3d-theme .platform-files p { overflow-wrap: anywhere; }
+.fm3d-theme .platform-files [aria-label='Espacio disponible'] {
+  padding: 14px 16px;
+  border: 1px solid var(--fm-border);
+  border-radius: 12px;
+  background: #f5f6fb;
+  color: var(--fm-ink);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.fm3d-theme .platform-files form { margin-top: 24px; }
+.fm3d-theme .platform-files .field-label { display: block; font-size: 16px; font-weight: 600; }
+.fm3d-theme .platform-files input[type='file'] {
+  min-height: 64px;
+  padding: 10px;
+  border: 1px dashed var(--fm-control-border);
+  border-radius: 12px;
+  background: #fcfaf7;
+  font-size: 14px;
+}
+.fm3d-theme .platform-files input::file-selector-button {
+  min-height: 44px;
+  margin-right: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--fm-control-border);
+  border-radius: 10px;
+  color: var(--fm-ink);
+  background: var(--fm-surface);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.fm3d-theme .platform-files input:not(:disabled)::file-selector-button:hover { background: var(--fm-lavender-soft); }
+.fm3d-theme .platform-files .verification-content { padding-top: 24px; border-top: 1px solid var(--fm-border); }
+.fm3d-theme .platform-files .verification-content h2 { font-size: 24px; font-weight: 600; }
+.fm3d-theme .platform-files .verification-content iframe { margin-top: 24px; border-radius: 12px; background: #f5f6fb; }
+.fm3d-theme .platform-files .actions { gap: 12px; }
+.fm3d-theme .platform-files .button { min-height: 48px; padding: 12px 20px; overflow-wrap: anywhere; }
+.fm3d-theme .platform-files .button-primary { border-radius: 16px; }
+.fm3d-theme .platform-files .page-footer { font-size: 14px; }
+@media (max-width: 420px) {
+  .fm3d-theme .platform-files .actions > .button { width: 100%; }
+  .fm3d-theme .platform-files input::file-selector-button { display: block; margin-bottom: 8px; }
+}

@@ -1,3 +1,5 @@
+@import './foxmind-3d-files.css';
+
 .fm3d-theme .entry-page .auth-main {
   max-width: 1120px;
   gap: 48px;
@@ -15,6 +17,9 @@
   box-shadow: var(--fm-shadow);
 }
 .fm3d-theme .entry-page .surface > .folder-tab { display: none; }
+/* Legacy folder lips are empty decoration on auxiliary authentication cards. */
+.fm3d-theme .entry-page:not(.entry-auth-polish) .auth-main > .surface.folder-panel::before,
+.fm3d-theme .entry-page:not(.entry-auth-polish) .auth-main > .surface.folder-panel::after { content: none; }
 .fm3d-theme .entry-page h1 { font-size: clamp(28px, 3vw, 36px); }
 .fm3d-theme .entry-page .field-label { font-size: 16px; }
 .fm3d-theme .entry-page .input { height: 50px; }
@@ -62,6 +67,43 @@
 .fm3d-account-art .fm3d-illustration { background: var(--fm-orange-soft); }
 .fm3d-account-art .fm3d-illustration img { object-fit: contain; }
 .fm3d-theme .entry-profile .page-footer { grid-column: 1 / -1; }
+/* Auxiliary auth and account screens share a quieter form rhythm. */
+.fm3d-theme .entry-page:not(.entry-auth-polish) :is(.auth-main, .profile-main) { font-size: 16px; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) :is(h1, h2) { font-weight: 600; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .page-heading { margin-bottom: 24px; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .page-heading p { font-size: 17px; line-height: 1.5; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) :is(.surface, .page-heading > *, form) { min-width: 0; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .input {
+  height: 52px;
+  border-color: var(--fm-control-border);
+  border-radius: 12px;
+  font-size: 16px;
+}
+.fm3d-theme .entry-page:not(.entry-auth-polish) .input:read-only { background: #f5f6fb; color: var(--fm-muted); }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .field-label { display: block; margin-bottom: 8px; font-weight: 600; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .field-help { line-height: 1.5; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .password-toggle { border-radius: 8px; color: var(--fm-link); }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .button { padding: 12px 20px; border-radius: 12px; overflow-wrap: anywhere; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .button-primary { border-color: transparent; border-radius: 16px; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .button-outline { border-color: var(--fm-control-border); }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .after-form { border-color: var(--fm-border); margin-top: 24px; padding-top: 20px; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .actions { gap: 12px; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .actions > a:not(.button) { display: inline-flex; align-items: center; min-height: 44px; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) :is(.notice, .cooldown, .loading) { font-size: 15px; line-height: 1.5; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) :is(.notice, .cooldown) { margin-bottom: 20px; padding: 14px 16px; border-radius: 12px; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .cooldown { background: var(--fm-orange-soft); color: #8b3c00; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .state { padding: 24px; background: #f5f6fb; border: 1px solid var(--fm-border); border-radius: 16px; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .verification-content { line-height: 1.55; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .verification-content h2 { font-size: 24px; margin-bottom: 12px; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .account-steps { gap: 8px; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .account-steps li { border-radius: 12px; padding: 12px 14px; line-height: 1.5; }
+.fm3d-theme .entry-profile .breadcrumbs { font-size: 14px; margin-bottom: 20px; overflow-wrap: anywhere; }
+.fm3d-theme .entry-profile .fm3d-account-card > p { margin-bottom: 24px; line-height: 1.5; }
+.fm3d-theme .entry-profile .fm3d-account-summary > div > p { margin-bottom: 0; }
+.fm3d-theme .entry-profile .form-actions { padding-top: 20px; margin-top: 24px; border-color: var(--fm-border); gap: 12px; }
+.fm3d-theme .entry-profile .form-actions .button { min-width: 0; }
+.fm3d-theme .entry-profile .profile-account > .page-heading h1 { font-size: clamp(32px, 3vw, 44px); }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .page-footer { font-size: 14px; line-height: 1.5; }
 @media (max-width: 900px) {
   .fm3d-theme .entry-profile .profile-main { grid-template-columns: 1fr; }
   .fm3d-account-art { display: none; }
@@ -73,4 +115,10 @@
   .fm3d-theme .entry-profile .fm3d-account-card { padding: 24px 20px; }
   .fm3d-theme .entry-profile .profile-account { padding: 0; }
   .fm3d-theme .entry-page .form-actions { flex-wrap: wrap; }
+  .fm3d-theme .entry-page:not(.entry-auth-polish) .state { padding: 20px 16px; }
+  .fm3d-theme .entry-page:not(.entry-auth-polish) .auth-verification { margin-top: 24px; }
+}
+@media (max-width: 420px) {
+  .fm3d-theme .entry-profile .form-actions .button { flex: 1 1 100%; }
+  .fm3d-theme .entry-page:not(.entry-auth-polish) .verification-content .actions > .button { width: 100%; }
 }
