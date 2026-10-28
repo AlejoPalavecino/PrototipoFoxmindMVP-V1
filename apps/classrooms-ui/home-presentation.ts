@@ -10,15 +10,21 @@ export function homeGreetingDate(generatedAt: string, timeZone: string): string 
   return new Intl.DateTimeFormat('es-AR', { timeZone, weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(generatedAt));
 }
 
-export function homeAgendaDate(item: AgendaItem, timeZone: string): { weekday: string; day: string; dateTime: string } {
+export function homeAgendaDate(item: AgendaItem, timeZone: string): { weekday: string; day: string; month: string; dateTime: string } {
   const dateTime = item.allDay ? item.date : item.startAt!;
   const instant = new Date(item.allDay ? `${dateTime}T12:00:00.000Z` : dateTime);
   const zone = item.allDay ? 'UTC' : timeZone;
   return {
     weekday: new Intl.DateTimeFormat('es-AR', { timeZone: zone, weekday: 'short' }).format(instant).replace('.', ''),
     day: new Intl.DateTimeFormat('es-AR', { timeZone: zone, day: 'numeric' }).format(instant),
+    month: new Intl.DateTimeFormat('es-AR', { timeZone: zone, month: 'short' }).format(instant).replace('.', ''),
     dateTime,
   };
+}
+
+export function homeAgendaTime(item: AgendaItem, timeZone: string): string {
+  if (item.allDay) return 'Todo el día';
+  return new Intl.DateTimeFormat('es-AR', { timeZone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(item.startAt!));
 }
 
 export function homeSetupSummary({ drafts, invitations }: { drafts: number; invitations: number }): string {

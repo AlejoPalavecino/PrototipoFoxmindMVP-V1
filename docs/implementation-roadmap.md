@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Miniagenda reference alignment — 2026-10-28
+
+Inicio miniagenda now uses date tiles, classroom labels, time and a right-hand arrow following the supplied reference. Month and time-zone context remain available. [Work record](work-log/2026-10-28-root-miniagenda-reference.md) documents fixture visual comparison, focused tests and limits; local delivery only.
+
 ## Inicio refinements — published 2026-10-28
 
 Compact mobile greeting and agenda, quieter setup notice and corrected count inflection were committed as `6d1a0f526e6c88ce69f4d5cde0696e0f01a46c07` and pushed to main at the user's request. [Implementation evidence](work-log/2026-10-28-root-inicio-refinements.md) records focused tests, types and synthetic responsive checks; [publication record](work-log/2026-10-28-root-inicio-publication.md) distinguishes the running local server from unverified authenticated rendering. No deployment or retained-data operation.

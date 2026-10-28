@@ -79,3 +79,8 @@
 @media(prefers-reduced-motion:reduce) {
   .fm-home *, .fm-home *::before, .fm-home *::after { animation: none!important; transition: none!important; scroll-behavior: auto!important; }
 }
+@media(max-width: 520px) {
+  .fm-home-module--agenda > header { gap: 4px; }
+  .fm3-classrooms .fm-home-module--agenda > header h2 { font-size: clamp(20px, 6vw, 26px); }
+  .fm-home-module--agenda > header .fm-home-agenda-link { font-size: clamp(14px, 4vw, 17px); white-space: nowrap; }
+}
