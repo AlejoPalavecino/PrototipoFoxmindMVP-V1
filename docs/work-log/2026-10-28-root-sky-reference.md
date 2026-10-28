@@ -33,6 +33,6 @@ Generated one welcome image using the existing FoxMind mascot illustration and t
 
 ## Delivery and handoff
 
-Implementation and evidence are local on `codex/foxmind-ux-redesign`; exact commit identity follows after commit. Keep the authenticated result at52171 available. Admitted runtime was restarted through its existing launcher after closing its owned Next child: prior supervisor exited cleanly, new supervisor PID17292; existing infrastructure/data retained. No reset, migration, seed or private-configuration output.
+Implementation and evidence committed as `a0c9f2d` on `codex/foxmind-ux-redesign`; working tree clean after that commit. The authenticated Inicio result at52171 was returned to the user via Ego Space16 `finish({keep:['p1']})`. Admitted runtime was restarted through its existing launcher after closing its owned Next child: prior supervisor exited cleanly, new supervisor PID17292; existing infrastructure/data retained. No reset, migration, seed or private-configuration output.
 
 No academic/account writes or new AI requests in this visual follow-up. Earlier provider/application and submission/grading-persistence acceptance gaps, and physical-device/Safari verification, remain outside this bounded visual PASS. Next product acceptance should address those recorded journeys; no push, PR, main merge or deployment performed. Rollback this work unit restores the prior shared theme/Home composition and removes only the added welcome variants/catalog entry and its evidence; no data rollback required.
