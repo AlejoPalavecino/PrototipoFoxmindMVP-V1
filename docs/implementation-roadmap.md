@@ -1,8 +1,8 @@
 # FoxMind implementation roadmap
 
-## Inicio visual work — publication requested 2026-10-28
+## Inicio visual work — published 2026-10-28
 
-The user requested publishing the miniagenda and Inicio refinement commits and leaving the checkout clean. [Delivery record](work-log/2026-10-28-root-inicio-final-publication.md) tracks the exact Git verification and preservation of the generated development type file; no deployment or retained-data operation.
+The miniagenda and Inicio refinement commits were pushed through `827d3a1` at the user's request. [Delivery record](work-log/2026-10-28-root-inicio-final-publication.md) records remote verification and preservation of the generated development type file; no deployment or retained-data operation.
 
 ## Inicio typography and visual refinement — 2026-10-28
 

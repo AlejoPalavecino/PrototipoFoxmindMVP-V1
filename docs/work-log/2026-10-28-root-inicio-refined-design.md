@@ -1,5 +1,7 @@
 # Inicio refined design — in progress
 
+Publication follow-up: implementation commit `6ddbb25` was published through `827d3a1`; see [delivery record](2026-10-28-root-inicio-final-publication.md). The pending-commit wording below reflects the state before that delivery.
+
 - Agent / role: /root coordinator.
 - Session or task ID: /root.
 - Date: 2026-10-28.
