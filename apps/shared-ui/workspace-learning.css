@@ -1,0 +1,95 @@
+.fm3d-theme .fm3-classroom-collection { gap: 18px; }
+.fm3d-theme .fm3-plan-mobile-selection { display: none; }
+.fm3d-theme .fm-plan-management { margin-top: 20px; border: 1px solid var(--fm-border); background: white; border-radius: 12px; padding: 0 20px; }
+.fm3d-theme .fm-plan-management > summary { padding-block: 16px; cursor: pointer; font-weight: 650; font-size: 14px; min-height: 56px; }
+.fm3d-theme .fm-plan-management > summary span { color: var(--fm-muted); font-weight: 400; font-size: 12px; margin-left: 12px; }
+.fm3d-theme .fm-plan-management[open] { padding-bottom: 20px; }
+.fm3d-theme .fm-plan-management[open] > summary { margin-bottom: 16px; border-bottom: 1px solid var(--fm-border); }
+.fm3d-theme .fm3-classroom-grid { gap: 18px; }
+.fm3d-theme .fm3-classroom-card { padding: 0; border-radius: 14px; box-shadow: var(--fm-shadow); transition: border-color 160ms, box-shadow 160ms; }
+.fm3d-theme .fm3-classroom-card:hover { border-color: #b7c0cf; box-shadow: 0 4px 16px #202a3b0a; }
+.fm3d-theme .fm3-classroom-card > .fm3-cover { height: 140px; aspect-ratio: auto; border-radius: 0; }
+.fm3d-theme .fm3-classroom-card > .fm3-cover .folder-cover-art { height: 100%; aspect-ratio: auto; object-fit: cover; }
+.fm3d-theme .fm3-classroom-card-body { padding: 18px; gap: 10px; }
+.fm3d-theme .fm3-classrooms .p5-main .fm3-classroom-card h3 { font-size: 19px; letter-spacing: -.025em; }
+.fm3d-theme .fm3-membership { font-size: 11px; padding: 4px 8px; gap: 6px; border-radius: 6px; }
+.fm3d-theme .fm3-membership .entry-icon { width: 15px; height: 15px; }
+.fm3d-theme .fm3-classroom-facts { padding-top: 12px; }
+.fm3d-theme .fm3-classroom-facts > p { font-size: 12px; }
+.fm3d-theme .fm3-classroom-card-body > button.primary { background: #f6f7f9; border: 1px solid var(--fm-border); color: var(--fm-ink); justify-content: space-between; font-size: 13px; }
+.fm3d-theme .fm3-classroom-card-body > button.primary:hover:enabled { background: var(--fm-orange-soft); border-color: #e4b793; }
+.fm3d-theme .fm3-collection-toolbar { gap: 16px; }
+.fm3d-theme .fm3-classrooms.p5-app .p5-main label.fm3-collection-search { height: 46px; min-height: 46px; border-radius: 9px; }
+.fm3d-theme .fm3-classrooms.p5-app .p5-main .fm3-collection-search > input { height: 44px; min-height: 44px; font-size: 14px; }
+.fm3d-theme .fm3-collection-filters { padding: 2px; border-radius: 9px; }
+.fm3d-theme .fm3-classrooms .p5-main .fm3-collection-filters button { font-size: 12px; padding: 8px 10px; }
+.fm3d-theme .fm3-classrooms.p5-app .p5-main .p5-room-head.fm3-room-header { min-height: 138px; padding: 22px 24px; border-radius: 14px; margin-bottom: 18px; background: #fff3e9; }
+.fm3d-theme .fm3-classrooms.p5-app .p5-main .fm3-room-header > .p5-room-cover { width: 28%; }
+.fm3d-theme .fm3-classrooms.p5-app .p5-main .fm3-room-header > .fm3-room-heading { flex-basis: 74%; width: 74%; max-width: 74%; }
+.fm3d-theme .fm3-classrooms .fm3-room-header h1 { font-size: 28px; margin-block: 4px 8px; }
+.fm3d-theme .fm3-room-context, .fm3d-theme .fm3-room-teacher { font-size: 12px; }
+.fm3d-theme .fm3-room-heading p { margin-bottom: 6px; }
+.fm3d-theme .fm3-classrooms .p5-main .p5-tabs { padding: 4px; border-radius: 10px; gap: 3px; margin-block: 0 20px; background: #fff; border: 1px solid var(--fm-border); }
+.fm3d-theme .fm3-classrooms .p5-main .p5-tabs button { min-height: 44px; padding: 8px 12px; font-size: 13px; border-radius: 7px; color: var(--fm-muted); }
+.fm3d-theme .fm3-classrooms .p5-main .p5-tabs button[aria-current='page'] { color: #953f12; background: #fff0e5; border-bottom-color: transparent; box-shadow: none; }
+.fm3d-theme .p5-tabs .entry-icon { width: 17px; height: 17px; }
+.fm3d-theme .fm3-plan-workspace { grid-template-columns: minmax(200px,.7fr) minmax(0,2fr); gap: 18px; margin-block: 14px; }
+.fm3d-theme .fm3-plan-navigation { padding: 16px 10px; border-radius: 12px; }
+.fm3d-theme .fm3-classrooms .p5-main .fm3-plan-navigation > h3 { font-size: 16px; }
+.fm3d-theme .fm3-classrooms .p5-main .fm3-plan-navigation h4 { font-size: 13px; padding: 8px; gap: 8px; }
+.fm3d-theme .fm3-plan-navigation h4 > span { min-width: 24px; min-height: 24px; }
+.fm3d-theme .fm3-classrooms .p5-main .fm3-plan-navigation button { font-size: 13px; padding: 10px; gap: 6px; }
+.fm3d-theme .fm3-plan-navigation button > small { font-size: 10px; }
+.fm3d-theme .fm3-plan-context { padding: 22px; border-radius: 12px; }
+.fm3d-theme .fm3-classrooms .p5-main .fm3-plan-context > h3 { font-size: 23px; margin: 8px 0 12px; }
+.fm3d-theme .fm3-classrooms .p5-main .fm3-plan-context > h4 { font-size: 15px; margin: 20px 0 10px; }
+.fm3d-theme .fm3-plan-resource { padding: 14px; gap: 12px; border-radius: 10px; }
+.fm3d-theme .fm3-classrooms .p5-main .fm3-plan-resource h4 { font-size: 14px; }
+.fm3d-theme .fm3-plan-resource > a { font-size: 12px; padding: 8px 12px; border-radius: 8px; }
+.fm3d-theme .fm3-classrooms .p5-main .p5-unit { padding: 18px; border-radius: 12px; }
+.fm3d-theme .fm3-classrooms .p5-roster > li { padding-block: 12px; }
+.fm3d-theme .p5-wizard { max-width: 1000px; margin-inline: auto; }
+.fm3d-theme .p5-wizard > h1 { margin-bottom: 6px; }
+.fm3d-theme .p5-wizard .p5-steps { margin-block: 20px; padding: 4px; gap: 4px; background: #fff; border-radius: 10px; }
+.fm3d-theme .p5-wizard .p5-steps li { padding: 8px; gap: 8px; font-size: 12px; border: 0; background: transparent; }
+.fm3d-theme .p5-wizard .p5-steps li > span { width: 28px; height: 28px; font-size: 12px; }
+.fm3d-theme .p5-wizard .p5-steps li.active { background: var(--fm-orange-soft); }
+.fm3d-theme .p5-wizard .p5-steps li.complete { background: var(--fm-mint); }
+.fm3d-theme .p5-wizard > .p5-surface.folder-panel { margin-top: 0; }
+.fm3d-theme .p5-wizard .p5-section-head { margin-bottom: 20px; }
+.fm3d-theme .p5-wizard .p5-section-head p { font-size: 14px; margin: 4px 0 0; }
+.fm3d-theme .p5-wizard .p5-save { font-size: 11px; padding: 6px 10px; background: #eff6f1; color: #286143; }
+.fm3d-theme .p5-wizard .p5-covers { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 10px; }
+.fm3d-theme .p5-wizard .p5-covers > label { padding: 5px; border-radius: 10px; }
+.fm3d-theme .p5-wizard .p5-covers .fm3-cover { height: 72px; aspect-ratio: auto; border-radius: 6px; }
+.fm3d-theme .p5-wizard .p5-covers .folder-cover-art { height: 100%; aspect-ratio: auto; }
+.fm3d-theme .p5-wizard .p5-covers > label > span { font-size: 11px; gap: 5px; padding: 6px 2px 2px; }
+.fm3d-theme .p5-wizard .p5-form-footer { position: sticky; bottom: 12px; z-index: 3; padding: 12px; margin: 20px -8px -8px; border: 1px solid var(--fm-border); border-radius: 10px; background: #fff; box-shadow: 0 4px 20px #202a3b0d; }
+.fm3d-theme .p5-wizard .p5-form-footer > * { min-width: 0; }
+.fm3d-theme :is(.p7-activity, .p7-question, .p7-attempt, .p6-material, .p6-post) { border-radius: 12px; }
+.fm3d-theme .p5-main :is(.p7-activity, .p6-post, .p6-material) { padding: 18px; }
+.fm3d-theme .p5-main :is(.p7-activity, .p6-post, .p6-material) h3 { font-size: 17px; }
+.fm3d-theme .p5-main .p5-tag { font-size: 11px; border-radius: 6px; padding: 3px 8px; }
+@media(max-width:1023px) { .fm3d-theme .p5-wizard .p5-form-footer { bottom: calc(80px + env(safe-area-inset-bottom)); } }
+@media(max-width:700px) {
+  .fm3d-theme .fm3-plan-mobile-selection { display: grid; gap: 6px; margin: 0; }
+  .fm3d-theme .fm3-plan-workspace > .fm3-plan-navigation { display: none; }
+  .fm3d-theme .fm3-plan-workspace { grid-template-columns: minmax(0,1fr); }
+  .fm3d-theme .fm3-plan-navigation { max-height: 220px; overflow-y: auto; }
+  .fm3d-theme .fm3-classrooms .p5-main .p5-tabs { display: flex; flex-wrap: nowrap; overflow-x: auto; padding: 4px; }
+  .fm3d-theme .fm3-classrooms .p5-main .p5-tabs button { flex: 0 0 auto; font-size: 12px; }
+  .fm3d-theme .fm3-classrooms.p5-app .p5-main .p5-room-head.fm3-room-header { padding: 18px; min-height: 0; }
+  .fm3d-theme .fm3-classrooms .fm3-room-header h1 { font-size: 25px; }
+  .fm3d-theme .fm3-plan-context { padding: 18px; }
+  .fm3d-theme .p5-wizard .p5-covers { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .fm3d-theme .p5-wizard .p5-steps { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:600px) {
+  .fm3d-theme .fm3-classroom-card > .fm3-cover { height: 116px; }
+  .fm3d-theme .fm3-classroom-card-body { padding: 16px; }
+  .fm3d-theme .fm3-classrooms.p5-app .p5-main .fm3-room-header > .fm3-room-heading { width: 100%; max-width: 100%; flex-basis: 100%; }
+  .fm3d-theme .fm3-classrooms.p5-app .p5-main .fm3-room-header > .p5-room-cover { display: none; }
+  .fm3d-theme .fm3-classrooms .p5-main .fm3-collection-filters button { flex: 1 1 0; padding-inline: 6px; font-size: 11px; white-space: normal; }
+  .fm3d-theme .p5-wizard .p5-form-footer { gap: 8px; flex-direction: row; flex-wrap: nowrap; }
+  .fm3d-theme .p5-wizard .p5-form-footer > button { flex: 1; width: auto; }
+}

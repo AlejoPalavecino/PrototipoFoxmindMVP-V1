@@ -39,7 +39,7 @@ Self-reviewed using React best practices: no new network requests, effects, depe
 
 ## Commits and outcomes
 
-Local semantic delivery is being split into shell/account/Agenda presentation and compact academic workflows. No push, merge to main, PR or deployment. Exact commit identities are recorded only after creation.
+Shell/account/Agenda presentation committed locally as `ac026a5` (343 authored changed lines). Compact academic workflows are the next local unit. `gitleaks protect --staged` found no leaks before the shell commit. No push, merge to main, PR or deployment. Exact later commit identities are recorded only after creation.
 
 Rollback boundary: the shell unit can be reverted with its presentation imports and navbar location label; the learning unit removes its three CSS imports plus disclosures/topic chooser/copy and corresponding tests. No DB migration or retained-data rollback is involved. All final acceptance results above refer to the combined candidate.
 

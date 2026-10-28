@@ -28,6 +28,12 @@ export function PlanWorkspace({ api, room, onOpenActivity }: {
   const materials = state.data?.materials.filter(item => item.ready && !item.deleted && item.topicId === topic?.id) ?? [];
   const activities = state.data?.activities.filter(item => (item.topicIds ?? [item.topicId]).includes(topic?.id ?? '')) ?? [];
   return <div className="fm3-plan-workspace">
+    {topics.length ? <label className="fm3-plan-mobile-selection">Tema del plan
+      <select aria-label="Tema del plan" value={topic?.id ?? ''} onChange={event => setSelected(event.target.value)}>
+        {room.units.map(item => <optgroup key={item.id} label={item.name}>{item.topics.map(candidate =>
+          <option key={candidate.id} value={candidate.id}>{candidate.name} · {candidate.status === 'TAUGHT' ? 'Dado' : candidate.status === 'NEXT' ? 'Siguiente' : 'Pendiente'}</option>)}</optgroup>)}
+      </select>
+    </label> : null}
     <nav aria-label="Unidades del plan" className="fm3-plan-navigation"><h3>Unidades</h3>
       {room.units.map((item, index) => <section key={item.id ?? index}><h4><span>{index + 1}</span>{item.name}</h4>
         {item.topics.map(candidate => <button key={candidate.id} aria-current={candidate.id === topic?.id ? 'true' : undefined} onClick={() => setSelected(candidate.id)}>

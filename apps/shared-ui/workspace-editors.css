@@ -1,0 +1,54 @@
+/* Long academic work uses one surface, short labels and explicit save states. */
+.fm3d-theme .fm3-classrooms .p5-main :is(.p7-authoring,.p8-grading,.p5-extraction,.p6-wall-compose,.p6-library-upload) { border-radius: 12px; padding: 18px; }
+.fm3d-theme .p5-main .p5-surface > :is(.p7-authoring,.p8-grading) { border: 0; padding: 0; }
+.fm3d-theme .fm3-classrooms .p5-main .p7-generation > header { padding: 16px; border-radius: 10px; }
+.fm3d-theme .fm3-classrooms .p5-main .p7-generation-fields > fieldset { padding: 16px; margin-block: 16px; border-radius: 10px; }
+.fm3d-theme .p7-generation legend, .fm3d-theme .p7-authoring legend { font-size: 14px; font-weight: 650; padding-inline: 6px; }
+.fm3d-theme .p7-generation-fields > .p5-fields { margin-block: 16px; }
+.fm3d-theme .p7-generation :is(p,small), .fm3d-theme .p7-authoring :is(p,small) { font-size: 13px; line-height: 1.5; }
+.fm3d-theme .p7-generation .p5-fields { gap: 14px; }
+.fm3d-theme .p7-authoring > header { gap: 12px; align-items: start; margin-bottom: 16px; padding-bottom: 16px; }
+.fm3d-theme .p7-authoring > header p { margin: 4px 0 0; }
+.fm3d-theme .p7-authoring > fieldset { border: 0; padding: 0; margin-block: 20px; }
+.fm3d-theme .p7-authoring > fieldset > legend { padding: 0 0 12px; font-size: 16px; }
+.fm3d-theme .p7-authoring .p7-check { padding: 10px 12px; border-radius: 8px; }
+.fm3d-theme .p7-authoring .p7-question { padding: 16px; margin-block: 16px; border-radius: 10px; }
+.fm3d-theme .p5-main :is(.p6-library-list,.p7-activity-list) > .folder-row { padding: 16px; border-radius: 12px; gap: 12px; }
+.fm3d-theme .p5-main .folder-row-actions { gap: 6px; }
+.fm3d-theme .p5-main .folder-row-actions button { font-size: 12px; padding: 8px 10px; }
+.fm3d-theme .p5-main .p6-wall-threads > article { padding: 18px; border-radius: 12px; }
+.fm3d-theme .p5-main .p8-progress-metrics > section { padding: 16px; border-radius: 12px; }
+.fm3d-theme .p5-main .p8-progress-value { font-size: 28px; }
+.fm3d-theme .p5-dialog .p7-attempt { padding: 0; border: 0; background: transparent; }
+.fm3d-theme .p5-dialog .p7-attempt > header { display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: center; padding-bottom: 10px; }
+.fm3d-theme .p5-dialog .p7-attempt > header p { margin: 0; font-size: 12px; }
+.fm3d-theme .p5-dialog .p7-attempt > p { margin-block: 12px; font-size: 13px; }
+.fm3d-theme .p5-dialog .p7-attempt > ul { font-size: 13px; margin-block: 12px; padding-left: 20px; }
+.fm3d-theme .p5-dialog .p7-attempt .p5-notice { font-size: 12px; padding: 10px 12px; }
+.fm3d-theme .p7-questionnaire .p7-save-guidance { padding: 12px; background: #f5f7fa; border-radius: 8px; font-size: 12px; line-height: 1.5; margin-block: 12px; }
+.fm3d-theme .p7-questionnaire .p7-question-navigation { gap: 6px; padding: 4px 0 12px; }
+.fm3d-theme .p7-questionnaire .p7-question-navigation button { font-size: 12px; padding: 8px 12px; }
+.fm3d-theme .p5-dialog .p7-questionnaire > article { padding: 16px; border-radius: 10px; margin-block: 12px; }
+.fm3d-theme .p5-dialog .p7-questionnaire > article h4 { font-size: 16px; margin: 0 0 12px; }
+.fm3d-theme .p5-dialog .p7-questionnaire fieldset { padding: 0; border: 0; }
+.fm3d-theme .p5-dialog .p7-questionnaire .p7-choice { padding: 12px; min-height: 44px; border-radius: 8px; }
+.fm3d-theme .p5-dialog .p7-questionnaire textarea { min-height: 140px; }
+.fm3d-theme .platform-files { font-size: 15px; }
+.fm3d-theme .platform-files .page-heading h1 { font-size: 30px; }
+.fm3d-theme .platform-files .page-heading p { font-size: 15px; }
+.fm3d-theme .platform-files .surface { padding: 24px; border-radius: 14px; box-shadow: none; }
+.fm3d-theme .platform-files .field-label { font-size: 14px; }
+.fm3d-theme .p5-wizard .p5-extraction p { font-size: 13px; line-height: 1.5; margin-block: 8px; }
+.fm3d-theme .p5-wizard .p5-review { display: flex; align-items: center; gap: 14px; }
+.fm3d-theme .p5-wizard .p5-review > .fm3-cover { flex: 0 0 84px; width: 84px; height: 72px; aspect-ratio: auto; border-radius: 10px; }
+.fm3d-theme .p5-wizard .p5-review .folder-cover-art { width: 100%; height: 100%; aspect-ratio: auto; }
+.fm3d-theme .p5-wizard .p5-review > div:not(.fm3-cover) { min-width: 0; }
+.fm3d-theme .p5-wizard .p5-review h3 { font-size: 18px; }
+.fm3d-theme .p5-wizard .p5-review p { font-size: 12px; overflow-wrap: anywhere; }
+@media(max-width:600px) {
+  .fm3d-theme .p7-authoring > header { flex-direction: row; flex-wrap: wrap; }
+  .fm3d-theme .p7-generation > header p { font-size: 13px; }
+  .fm3d-theme .p7-generation .p5-fields { gap: 12px; }
+  .fm3d-theme .fm3-classrooms .p5-main .p7-generation-fields > fieldset { padding: 12px; }
+  .fm3d-theme .platform-files .surface { padding: 18px; }
+}

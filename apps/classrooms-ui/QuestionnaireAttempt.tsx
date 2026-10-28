@@ -43,8 +43,7 @@ export function QuestionnaireAttempt({ api, classroomId, data, editor, refresh }
     {attempt.status === 'SUBMITTED' || receipt ? <Notice>Comprobante de entrega · pendiente de corrección. No hay una calificación publicada en este comprobante.
       <br />Recepción: {(receipt ?? attempt).submittedAt ? new Date((receipt ?? attempt).submittedAt!).toLocaleString('es', { timeZone: data.activity.zone }) : 'No disponible'} · {data.activity.zone}.
       {(receipt ?? attempt).submittedLate ? ' Entrega fuera de plazo.' : ' Entrega a tiempo.'} {activityDate((receipt ?? attempt).appliedDeadlineAt, data.activity.zone)}</Notice>
-      : <p>El guardado automático se intenta después de dos segundos sin cambios y al cambiar de pregunta. Guardar NO entrega la actividad.
-        Los cambios sin confirmar solo permanecen en esta pantalla: no se garantiza recuperarlos al cerrar o recargar sin conexión.</p>}
+      : <p className="p7-save-guidance">Intentamos guardar a los 2 segundos sin cambios y al cambiar de pregunta. <strong>Guardar no entrega.</strong> Si cerrás o recargás sin conexión, podés perder los cambios sin confirmar.</p>}
     {error || draft.error ? <Notice error>{error || draft.error} Las respuestas siguen en pantalla; no se confirmó su guardado.</Notice> : null}
     <nav className="p7-question-navigation" aria-label="Navegación de preguntas">{questions.map((q, position) =>
       <button key={q.id} aria-current={position === index ? 'step' : undefined} onClick={() => navigate(position)}>Pregunta {position + 1}</button>)}</nav>

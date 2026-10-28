@@ -1,5 +1,11 @@
 # FoxMind implementation roadmap
 
+## Platform UX/UI redesign — local implementation verified, 2026-10-28
+
+Current redesign lives on `codex/foxmind-ux-redesign`, starting from clean main `2b58fbe`. It introduces a compact shared shell, account/Agenda styling, classroom and academic-work surfaces, Home resource disclosure, teacher-only Plan administration disclosure and mobile topic selection. Original fox/logo and graphic assets are preserved. [Coordinator record](work-log/2026-10-28-root-platform-redesign.md) and [visual QA](work-log/evidence/2026-10-28-platform-redesign/README.md) record 69 PASS / 0 FAIL / 2 optional SKIP, strict types and production build PASS, plus synthetic component-browser evidence at 320/390/768/1366/1440px.
+
+Local implementation is verified; whole-product authenticated acceptance remains unfinished. Next: teacher/student end-to-end journeys on an available authorized disposable runtime, including uploads, submissions and grading. The usual runtime at 52171 was unavailable; fixture screenshots do not replace authenticated proof. This session uses no subagents and makes no independent/native-review claim. No main integration, push, PR or deployment. Historical milestones below remain historical and retain their original scope.
+
 ## Inicio visual work — published 2026-10-28
 
 The miniagenda and Inicio refinement commits were pushed through `827d3a1` at the user's request. [Delivery record](work-log/2026-10-28-root-inicio-final-publication.md) records remote verification and preservation of the generated development type file; no deployment or retained-data operation.

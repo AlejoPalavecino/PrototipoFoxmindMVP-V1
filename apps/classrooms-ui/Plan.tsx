@@ -29,7 +29,8 @@ export function Plan({ api, room, reload, onOpenActivity }: { api: ClassroomClie
     {notice && <Notice>{notice}</Notice>}
     <PlanWorkspace api={api} room={room} onOpenActivity={onOpenActivity ?? (() => {})} />
     {room.plans.map(plan => <p className="folder-plan-file" key={plan.id}><a href={api.fileUrl(plan.fileId)} target="_blank" rel="noreferrer">Descargar plan · Versión {plan.version}</a></p>)}
-    {writable && <fieldset disabled={busy}>
+    {writable && <details className="fm-plan-management"><summary>Administrar plan <span>Unidades, temas y versiones del archivo</span></summary>
+    <fieldset disabled={busy}>
       <legend>Nueva versión del archivo</legend>
       <label>Archivo del plan (PDF o DOCX)<input type="file" accept=".pdf,.docx" onChange={event => {
         const selected = event.target.files?.[0]; event.target.value = '';
@@ -45,7 +46,7 @@ export function Plan({ api, room, reload, onOpenActivity }: { api: ClassroomClie
           await change({ action: 'appendVersion', fileId: file.id }); setFile(null);
         })}>Publicar nueva versión</button>
       </>}
-    </fieldset>}
+    </fieldset>
     {writable && room.units.map((unit, index) => <section className="p5-unit" key={unit.id}>
       <h3>Unidad {index + 1} · {unit.name}</h3>
       {writable && <details className="folder-disclosure"><summary>Administrar unidad · {unit.name}</summary><fieldset disabled={busy}>
@@ -82,6 +83,7 @@ export function Plan({ api, room, reload, onOpenActivity }: { api: ClassroomClie
     {writable && <form onSubmit={event => { event.preventDefault(); void run(async () => { await change({ action: 'addUnit', name: unitName }); setUnitName(''); }); }}>
       <fieldset disabled={busy}><legend>Agregar unidad</legend><label>Nueva unidad<input required maxLength={120} value={unitName} onChange={event => setUnitName(event.target.value)} /></label><button>Agregar unidad</button></fieldset>
     </form>}
+    </details>}
     {confirm && <Dialog title="Confirmar eliminación" onClose={() => !busy && setConfirm(null)}>
       <p>Solo se puede eliminar un tema pendiente sin vínculos o una unidad vacía sin vínculos. No se eliminarán registros relacionados.</p>
       <button disabled={busy} onClick={() => void run(async () => { await change(confirm); setConfirm(null); })}>Confirmar eliminación</button>
