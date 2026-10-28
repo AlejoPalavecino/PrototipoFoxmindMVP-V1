@@ -51,6 +51,9 @@ export function ClassroomView({
     [notice, setNotice] = useState(''),
     [busy, setBusy] = useState(false);
   const tabs = useRef<HTMLElement>(null);
+  const roster = useRef<HTMLUListElement>(null);
+  const rosterRevealPending = useRef(true);
+  const [rosterLoaded, setRosterLoaded] = useState(false);
   const [planActivity, setPlanActivity] = useState<AcademicTarget | null>(null);
   const destination = wallTarget ?? (homeTarget && 'classroomId' in homeTarget && homeTarget.classroomId === id ? homeNotificationTarget(homeTarget) : null);
   const [code, setCode] = useState(initialCode),
@@ -98,6 +101,7 @@ export function ClassroomView({
           : Promise.resolve([]),
       ]);
       setMembers(current);
+      setRosterLoaded(true);
       setHistory(past);
       setInvitations(pending);
       setError('');
@@ -149,6 +153,17 @@ export function ClassroomView({
     await load();
   }
   const teacher = room?.role === 'teacher';
+  useEffect(() => { rosterRevealPending.current = true; }, [tab]);
+  useEffect(() => {
+    if (!teacher || tab !== 'members' || !rosterLoaded || !rosterRevealPending.current) return;
+    rosterRevealPending.current = false;
+    const button = roster.current?.querySelector<HTMLButtonElement>('[data-open-summary]');
+    if (!button) return;
+    const bounds = button.getBoundingClientRect();
+    if (bounds.top < 140 || bounds.bottom > window.innerHeight - 100) {
+      button.scrollIntoView({ block: 'center', inline: 'nearest' });
+    }
+  }, [tab, teacher, rosterLoaded, members.length]);
   const tabLabels: Record<string, string> = { members: teacher ? 'Alumnos' : 'Compañeros', history: 'Historial', plan: 'Plan', library: 'Biblioteca', activities: 'Actividades', progress: teacher ? 'Progreso' : 'Mi progreso', wall: 'Muro', settings: 'Configuración' };
   const tabIcons: Record<string, string> = { members: 'people-fill', history: 'list', plan: 'list', library: 'book', activities: 'book', progress: 'list', wall: 'people-fill', settings: 'person-fill' };
   return (
@@ -233,7 +248,7 @@ export function ClassroomView({
                       : 'Todavía no hay estudiantes en el aula.'}
                   </p>
                 ) : null}
-                <ul className="p5-roster">
+                <ul className="p5-roster" ref={roster}>
                   {(tab === 'history' ? history : members).map(
                     (member, index) => (
                       <li key={member.enrollmentId ?? index}
