@@ -1,4 +1,4 @@
-# Warm product refinement — implementation verified, local delivery in progress
+# Warm product refinement — completed locally
 
 - Agent: /root, sole implementation. Runtime session ID unavailable; no attributed memory writes or subagents.
 - Branch: codex/foxmind-ux-redesign; clean start 0d7366e. Date:2026-10-28.
@@ -12,7 +12,7 @@ Keep existing composition and functionality; move draft visibility to existing M
 
 ## Verification and handoff
 
-- Status: in_progress (local commit organization pending). Product changes and relevant verification completed. This record belongs to the root task; runtime session ID unavailable.
+- Status: completed. Product changes, relevant verification and local delivery completed. This record belongs to the root task; runtime session ID unavailable.
 - API build `npm run api:build`: PASS. Strict web types `node node_modules/typescript/bin/tsc --noEmit -p apps/web/tsconfig.json`: PASS. Isolated production build `node node_modules/next/dist/bin/next build .test-artifacts/education-production-build/apps/web`: PASS after final TSX changes. Existing multiple-lockfile root warnings remain advisory; no live `.next` replacement.
 - Final focused suite: 86 PASS / 0 FAIL / 0 SKIP, `node --experimental-transform-types --test --test-concurrency=1 --test-reporter=spec` with `agenda-recurrence`, `agenda-view-modes`, `agenda-events`, `agenda-database`, `agenda-event-form-model`, `agenda-event-form-editor`, `agenda-event-form-view`, `agenda-ui`, `agenda-contracts`, `agenda-time`, `agenda-event-color-view`, `activity-migration-inventory`, `workspace-disclosure`, `education-experience`, `education-agenda`, `activity-ai-ui` under `tests/*.test.mjs`.
 - Additional final `tests/classroom-zones.test.mjs`: 1 PASS / 0 FAIL. Preserves the full worldwide city catalog, UTC and inherited nonstandard zones without duplicate canonical choices; unfinished empty zone does not crash. This caught the risk of limiting classroom creation to the short Agenda suggestions. 419 city choices observed in browser.
@@ -39,4 +39,6 @@ Keep existing composition and functionality; move draft visibility to existing M
 
 Local units: Agenda behavior/schema + tests/docs; warm shared visuals/assets; learning flows + tests/QA/checkpoint. No push, PR or deployment. For rollback, remove the visual/flow units independently; revert recurrence code only after dealing explicitly with any newly created DAILY/MONTHLY data (do not blindly restore the old DB constraint). Historical submission/grading and physical-device/Safari acceptance gaps remain outside this refinement.
 
-Next exact action: finish local commit checks, record their observed identities, and leave the preview on Inicio for review.
+Observed commits: `1ee7c83` Agenda/domain/schema/tests (291 authored changed lines), `0179c09` palette/motion/assets (344), `0fcfb52` learning flows/tests/QA (144). `git diff --cached --check` and `gitleaks protect --staged --redact` PASS before each commit; no leaks. Generated `apps/web/next-env.d.ts` restored to its clean starting version; tracked working tree clean after the three units. No remote publication.
+
+Ego Space18 finished successfully, retaining only p1 on the actual [Inicio preview](http://127.0.0.1:52171/inicio) at1440px for the user. No outstanding implementation in this bounded refinement. Next action is user visual review; future publication or broader academic acceptance is a separate scope. This passive closure is recorded after the implementation commit identities exist.
