@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Student summary button — published on main, 2026-10-28
+
+The roster keeps the student summary button visible when entering Alumnos, without jumping back when the roster changes. [Delivery record](work-log/2026-10-28-root-student-scroll-publication.md) documents authenticated pointer/keyboard verification, focused regression and main publication. The prior demo credential rotation and local migration records were included; no deployment.
+
 ## Individual student AI — integrated and published on main, 2026-10-28
 
 User authorized integration and publication. Merge `067c4a37a484b052f914584177a3ffba47b22530` preserves the published student journey and adds verified individual AI. [Delivery record](work-log/2026-10-28-root-student-ai-publication.md): API/web builds and types, independent synthetic tests, expanded AI regression and secret scan passed; remote main matched the merge after push. The earlier real Gemini synthetic journey and isolated migrations remain documented below. No deployment or retained-data migration.

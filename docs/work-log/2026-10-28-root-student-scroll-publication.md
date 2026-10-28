@@ -6,7 +6,7 @@
 - Branch / worktree: main / foxmind-student-publication
 - Starting commit: 78b69372b9435687e4fc69ba19627847b893fcb6
 - Phase and detailed task/spec links: [corrección y rotación](2026-10-28-root-demo-rotation-student-scroll.md)
-- Status: in_progress
+- Status: completed
 
 ## Request and scope
 Integrar y subir la corrección a main con verificación. Incluye sus cuatro commits locales antecesores, entre ellos registros operativos; sin despliegue ni alteración de datos.
@@ -20,7 +20,7 @@ Explorer /root/explorer revisó estado Git y alcance en solo lectura. Fetch orig
 El build web previo sobre código `6a4db72` pasó y es el mismo código de producto en el HEAD preparado (el commit posterior cambia solo registros). No se reconstruyó la salida Next en uso para evitar perturbar la aplicación local. `git diff --check origin/main HEAD` PASS y `gitleaks git --log-opts='origin/main..HEAD'` PASS, cuatro commits sin secretos.
 
 ## Commits and outcomes
-Ninguno durante esta entrega todavía.
+Normal push published `1477a2ec0995993b1be2901ef60435da6f03977d`; HEAD, origin/main and live remote matched. This later documentary closure changes no product code.
 
 ## Handoff
-Completar comprobaciones, push normal y confirmar ref remoto.
+Correction published; commit and push this documentary closure and verify the final ref. No deployment.
