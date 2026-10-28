@@ -1,25 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
-import { dirname, resolve } from 'node:path';
-import ts from 'typescript';
+import { loadTsModule } from './helpers/load-ts-module.mjs';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
-// Use the existing real-TSX render runner pattern: no emitted files, fake renderer or Git-history dependency.
-const require = createRequire(import.meta.url), cache = new Map();
-function load(path) {
-  if (cache.has(path)) return cache.get(path).exports;
-  const module = { exports: {} }; cache.set(path, module);
-  const { outputText } = ts.transpileModule(readFileSync(path, 'utf8'), { compilerOptions: {
-    jsx: ts.JsxEmit.ReactJSX, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2023,
-  } });
-  new Function('require', 'module', 'exports', outputText)(specifier => specifier.startsWith('.')
-    ? load(resolve(dirname(path), specifier)) : require(specifier), module, module.exports);
-  return module.exports;
-}
-const { AttemptSession } = load(resolve('apps/classrooms-ui/AttemptSession.tsx'));
+// Resolve extensionless shared UI imports with the repository's real-source loader.
+const { AttemptSession } = loadTsModule('apps/classrooms-ui/AttemptSession.tsx');
 const room = { id: 'a1111111-1111-4111-8111-111111111111' };
 const questions = [
   { id: 'development', type: 'DEVELOPMENT', prompt: 'First <script>literal</script>\nquestion', points: '2', options: [] },

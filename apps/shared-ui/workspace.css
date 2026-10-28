@@ -11,3 +11,5 @@
 @import './sky-theme.css';
 @import './sky-home.css';
 @import './warm-polish.css';
+/* Student submissions and feedback keep the warm palette and compact hierarchy. */
+@import './student-journey.css';

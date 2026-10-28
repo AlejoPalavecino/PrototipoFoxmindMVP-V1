@@ -41,12 +41,12 @@ export function Notifications({ api, refresh, onOpen, onSelect }: { api: Classro
       {visible?.length === 0 ? <p className="p5-empty">{onlyUnread ? 'No tenés novedades pendientes de leer.' : 'Cuando haya novedades en tus aulas, aparecerán aquí.'}</p> : null}
       <ul className="p6-notifications">{visible?.map(item => <li key={item.id} className={item.readAt ? '' : 'unread'}>
         <strong>{labels[item.eventType]}</strong><p>{item.classroomName}</p>
-        <small><time dateTime={item.createdAt}>{new Date(item.createdAt).toLocaleString('es-AR')}</time> · {item.readAt ? 'Leída' : 'Sin leer'}</small>
+        <small><time dateTime={item.createdAt}>{new Date(item.createdAt).toLocaleString('es-AR', { hourCycle: 'h23', dateStyle: 'short', timeStyle: 'short' })}</time> · {item.readAt ? 'Leída' : 'Sin leer'}</small>
         <div className="p5-actions"><button disabled={busy} onClick={() => void run(async () => {
           if (onSelect) { setOpen(false); onSelect(item.id); return; }
           const target = await api.call<NotificationTarget>(`/notifications/${item.id}/open`, 'POST', {});
           await load(); setOpen(false); onOpen(target);
-        })}>{item.eventType.startsWith('WALL_') ? 'Abrir conversación' : 'Ver actividad'}</button>
+        })}>{item.eventType.startsWith('WALL_') ? 'Abrir conversación' : item.eventType.startsWith('GRADE_') ? 'Ver devolución' : 'Ver actividad'}</button>
         {!item.readAt ? <button disabled={busy} onClick={() => void run(async () => {
           await api.call(`/notifications/${item.id}/read`, 'POST', {}); await load();
         })}>Marcar como leída</button> : null}</div>

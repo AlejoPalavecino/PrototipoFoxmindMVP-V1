@@ -1,0 +1,28 @@
+.fm3d-theme .p5-dialog .p7-history-detail { border: 0; padding: 0; margin-top: 16px; background: transparent; }
+.fm3d-theme .p7-history-detail > h3 { margin: 20px 0 4px; outline: none; }
+.fm3d-theme .p7-history-detail > p { color: var(--fm-muted); margin: 0 0 20px; }
+.fm3d-theme .p5-dialog .p8-result { padding: 0; border: 0; background: transparent; }
+.fm3d-theme .student-grade-summary { padding: 20px; background: #fff2e1; border: 1px solid #e8c5a4; border-radius: 16px; }
+.fm3d-theme .student-grade-summary .p8-final-grade { display: grid; gap: 8px; margin: 0; padding: 0; border: 0; background: transparent; }
+.fm3d-theme .student-grade-summary .p8-final-grade > span { color: #71472d; font-size: 13px; font-weight: 600; }
+.fm3d-theme .student-grade-summary .p8-final-grade > strong { color: #9a3e13; font-size: 36px; line-height: 1.15; }
+.fm3d-theme .student-grade-summary .p8-final-grade small { display: inline; font-size: 16px; font-weight: 500; }
+.fm3d-theme .student-grade-summary > p { margin: 12px 0 4px; }
+.fm3d-theme .student-feedback { border-left: 3px solid #b35a2b; background: #fff8ed; padding: 14px 16px; margin-block: 16px; border-radius: 0 12px 12px 0; }
+.fm3d-theme .student-feedback :is(h5,h6) { font-size: 14px; margin: 0 0 8px; }
+.fm3d-theme .student-feedback > p { margin: 0; line-height: 1.6; }
+.fm3d-theme .p8-result > .student-result-question { border: 1px solid var(--fm-border); border-radius: 14px; padding: 18px; margin-block: 18px; }
+.fm3d-theme .student-result-question > header { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.fm3d-theme .student-result-question > header h5 { margin: 0; font-size: 15px; }
+.fm3d-theme .student-result-question > header span { background: #eef2e8; color: #425b37; border-radius: 8px; padding: 6px 10px; font-size: 12px; }
+.fm3d-theme .student-result-question > h6 { font-size: 12px; color: var(--fm-muted); margin: 18px 0 4px; }
+.fm3d-theme .student-saved-answers { border: 1px solid var(--fm-border); border-radius: 12px; padding: 14px; margin-block: 16px; }
+.fm3d-theme .student-saved-answers > summary { font-weight: 600; color: var(--fm-accent); cursor: pointer; }
+.fm3d-theme .student-resume { padding: 14px; background: #fff2e1; border: 1px solid #e8c5a4; border-radius: 12px; margin-block: 12px; }
+.fm3d-theme .student-resume > p { margin-top: 0; }
+.fm3d-theme .p7-attempt .p7-transfer-confirm { margin-block: 12px; }
+@media(max-width:600px) {
+  .fm3d-theme .student-grade-summary { padding: 16px; }
+  .fm3d-theme .p8-result > .student-result-question { padding: 14px; }
+  .fm3d-theme .student-feedback { padding: 12px; }
+}

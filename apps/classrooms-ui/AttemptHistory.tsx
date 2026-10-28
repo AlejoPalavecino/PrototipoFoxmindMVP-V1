@@ -1,10 +1,11 @@
 'use client';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { AttemptHistoryData, AttemptHistoryRow, AttemptSessionData, ClassroomClient, DeadlineResolution, Detail } from './api.ts';
 import { Dialog, Notice } from './components.tsx';
 import { activityDate } from './ActivityAuthoring.tsx';
 import { GradingEditor } from './GradingEditor.tsx';
 import { PublishedResult } from './PublishedResult.tsx';
+import { AttemptAnswers } from './AttemptAnswers.tsx';
 
 export function AttemptHistory({ api, room, activityId, attemptId, filter, onClose, onChanged, onResume }: {
   api: ClassroomClient; room: Detail; activityId: string; attemptId?: string | null; onClose: () => void;
@@ -17,6 +18,8 @@ export function AttemptHistory({ api, room, activityId, attemptId, filter, onClo
   const [resolution, setResolution] = useState<DeadlineResolution | null>(null), [offset, setOffset] = useState<number | null>(null);
   const [busy, setBusy] = useState(false), [error, setError] = useState('');
   const [grading, setGrading] = useState<string | null>(null);
+  const detailHeading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => { detailHeading.current?.focus(); }, [selected]);
   const visibleAttempts = data?.attempts.filter(attempt => filter !== 'unpublished' || (attempt.status === 'SUBMITTED' && attempt.gradePublished === false)) ?? [];
   const load = useCallback(async (signal?: AbortSignal) => {
     setData(await api.call<AttemptHistoryData>(`${path}/${teacher ? 'history-submissions' : 'history'}`, 'GET', undefined, signal));
@@ -35,9 +38,9 @@ export function AttemptHistory({ api, room, activityId, attemptId, filter, onClo
   }
   return <Dialog title={teacher ? 'Entregas e historial de intentos' : 'Mi historial de intentos'} onClose={onClose}>
     {error ? <Notice error>{error} Actualiza el historial antes de volver a intentar.</Notice> : null}
-    {!data ? <Notice>Cargando historial…</Notice> : <div className="education-attempt-history" hidden={Boolean(grading)}>
+    {!data ? <Notice>Cargando historial…</Notice> : <div className="education-attempt-history" hidden={Boolean(grading || selected)}>
       <h3>{data.activity.title}</h3><p>{activityDate(data.activity.deadlineAt, data.activity.zone)}</p>
-      {!teacher && data.delivered ? <Notice>Actividad entregada. Un nuevo borrador pendiente no reemplaza la entrega anterior ni su calificación publicada.</Notice> : null}
+      {!teacher && data.delivered ? <Notice>Actividad entregada. Abrí un intento para ver tus respuestas y la devolución del docente.</Notice> : null}
       {data.pendingResubmission ? <Notice>Reentrega pendiente: todavía no es una nueva entrega recibida.</Notice> : null}
       {filter === 'unpublished' ? <p>Entregas con corrección todavía no publicada.</p> : null}
       {!visibleAttempts.length ? <p>{filter === 'unpublished' ? 'No hay entregas pendientes de publicación.' : 'No hay intentos registrados.'}</p> : null}
@@ -58,13 +61,11 @@ export function AttemptHistory({ api, room, activityId, attemptId, filter, onClo
       <button disabled={busy} onClick={() => void run(() => load())}>Actualizar historial</button>
     </div>}
     {grading ? <GradingEditor api={api} roomId={room.id} attemptId={grading} onClose={() => setGrading(null)} onChanged={async () => { await Promise.all([load(), onChanged()]); }} /> : null}
-    {selected?.attempt ? <section className="p7-history-detail" aria-label="Intento histórico confirmado"><h4>Intento {selected.attempt.number} · solo consulta</h4>
-      {selected.activity.questions.map((question, index) => { const answer = selected.attempt!.answers.find(a => a.questionId === question.id);
-        return <article key={question.id}><h4>Pregunta {index + 1}</h4><p className="p7-multiline">{question.prompt}</p>
-          {question.type === 'DEVELOPMENT' ? <p className="p7-multiline">{answer?.text || 'Sin respuesta'}</p>
-            : <ul>{question.options.filter(option => answer?.optionIds.includes(option.id!)).map(option => <li key={option.id}>{option.text}</li>)}</ul>}</article>; })}
-      <ul>{selected.attempt.attachments?.map(file => <li key={file.id}>{file.ready ? <a href={api.fileUrl(file.id)} target="_blank" rel="noreferrer">Descargar {file.name}</a> : `${file.name} · No disponible`}</li>)}</ul>
-      {selected.attempt.status === 'SUBMITTED' ? <PublishedResult key={selected.attempt.id} api={api} roomId={room.id} attemptId={selected.attempt.id} /> : null}
+    {selected?.attempt ? <section className="p7-history-detail" aria-label="Intento histórico confirmado">
+      <button onClick={() => setSelected(null)}>{teacher ? 'Volver al historial' : 'Volver a mis intentos'}</button>
+      <h3 ref={detailHeading} tabIndex={-1}>{selected.activity.title}</h3><p>Intento {selected.attempt.number} · {selected.attempt.status === 'SUBMITTED' ? 'Entregado' : 'Borrador sin entregar'}</p>
+      {selected.attempt.status === 'SUBMITTED' ? <PublishedResult key={selected.attempt.id} api={api} roomId={room.id} attemptId={selected.attempt.id} zone={room.timezone}
+        pendingContent={<AttemptAnswers api={api} data={selected} />} /> : <AttemptAnswers api={api} data={selected} />}
     </section> : null}
     {reopening ? <section aria-label="Confirmar nuevo intento"><h4>Habilitar otro intento para {reopening.firstName} {reopening.lastName}</h4>
       <p>Se creará un nuevo borrador con las respuestas o archivos de la última entrega para revisar. El original y su calificación se conservan. El estudiante debe transferir explícitamente la edición y confirmar una nueva entrega.</p>

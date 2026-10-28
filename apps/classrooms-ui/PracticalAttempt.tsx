@@ -9,9 +9,11 @@ export function PracticalAttempt({ api, classroomId, data, editor, refresh }: {
 }) {
   const [file, setFile] = useState<File | null>(null), [phase, setPhase] = useState<'selected' | 'uploading' | 'error'>('selected');
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [confirm, setConfirm] = useState(false);
+  const [receipt, setReceipt] = useState<{ submittedAt: string; submittedLate: boolean; appliedDeadlineAt: string | null } | null>(null);
   const attempt = data.attempt;
   if (!attempt) return null;
-  const files = attempt.attachments ?? [], submitted = attempt.status === 'SUBMITTED';
+  const files = attempt.attachments ?? [], submitted = attempt.status === 'SUBMITTED' || receipt !== null;
+  const delivery = receipt ?? attempt;
   const editable = !submitted && !!editor && data.canTransfer && editor.epoch === attempt.epoch;
   const ready = files.every(item => item.selected && item.ready);
   const canSubmit = editable && !file && ready && (!data.activity.attachmentRequired || files.length > 0);
@@ -22,10 +24,11 @@ export function PracticalAttempt({ api, classroomId, data, editor, refresh }: {
   }
   return <section className="p7-practical" aria-label="Archivos y entrega del trabajo práctico">
     <h4>{submitted ? 'Comprobante de entrega' : 'Archivos del borrador'}</h4>
-    {error ? <Notice error>{error} El archivo no se considera confirmado. Consulta el estado recuperado antes de continuar.</Notice> : null}
-    {submitted ? <Notice>Entregado · pendiente de corrección. No hay una calificación publicada en este comprobante.
-      <br />Recepción: {attempt.submittedAt ? new Date(attempt.submittedAt).toLocaleString('es', { timeZone: data.activity.zone }) : 'No disponible'} · {data.activity.zone}.
-      {attempt.submittedLate ? ' Entrega fuera de plazo.' : ' Entrega a tiempo.'} {activityDate(attempt.appliedDeadlineAt, data.activity.zone)}</Notice>
+    {error ? <Notice error>{error} {submitted ? 'Tu entrega ya está confirmada. No pudimos actualizar la vista; podés volver a consultar el estado.'
+      : 'El archivo no se considera confirmado. Consulta el estado recuperado antes de continuar.'}</Notice> : null}
+    {submitted ? <Notice><strong>Entrega confirmada.</strong> Podés consultar la calificación desde «Ver devolución».
+      <br />Recepción: {delivery.submittedAt ? new Date(delivery.submittedAt).toLocaleString('es', { timeZone: data.activity.zone }) : 'No disponible'} · {data.activity.zone}.
+      {delivery.submittedLate ? ' Entrega fuera de plazo.' : ' Entrega a tiempo.'} {activityDate(delivery.appliedDeadlineAt, data.activity.zone)}</Notice>
       : <p>Los archivos confirmados se recuperan al volver a abrir el intento. Seleccionar o subir un archivo NO entrega el trabajo.
         {data.activity.attachmentRequired ? ' Debes adjuntar al menos un archivo aprobado.' : ' Puedes confirmar una entrega sin archivos.'} Hasta 5 archivos de 50 MB cada uno, según el espacio disponible del aula.</p>}
     <ul className="p7-attachment-list">{files.map(item => <li key={item.id}>
@@ -60,8 +63,9 @@ export function PracticalAttempt({ api, classroomId, data, editor, refresh }: {
       <button disabled={busy} onClick={() => setConfirm(false)}>Cancelar entrega</button>
       <button className="primary" disabled={busy || !canSubmit} onClick={() => void run(async () => {
         if (!api.attempt) throw new Error('El envío no está disponible.');
-        await api.attempt(`/${classroomId}/attempts/${attempt.id}/submit-practical`, { revision: attempt.revision, confirm: true }, editor!);
-        setConfirm(false);
+        const result = await api.attempt<{ submittedAt: string; submittedLate: boolean; appliedDeadlineAt: string | null }>(
+          `/${classroomId}/attempts/${attempt.id}/submit-practical`, { revision: attempt.revision, confirm: true }, editor!);
+        setReceipt(result); setConfirm(false);
       })}>Confirmar envío del trabajo</button></section> : null}
   </section>;
 }

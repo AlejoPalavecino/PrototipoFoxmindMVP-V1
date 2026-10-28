@@ -73,7 +73,7 @@ export function Activities({ api, room, reload, target, onChanged, openAuthoring
       <div className="folder-row-content"><small>{activityTypeLabels[activity.type]} · {activity.status === 'DRAFT' ? 'Borrador privado' : activity.status === 'WITHDRAWN' ? 'Retirada' : 'Publicada'}</small>
         <h3>{activity.title ?? 'Borrador sin título'}</h3><p>{activityDate(activity.deadlineAt, activity.zone)}</p>
         <ActivityCurriculum room={room} activity={activity} />
-        {activity.locked ? <small>Contenido bloqueado por participación</small> : null}</div>
+        {teacher && activity.locked ? <small>Contenido bloqueado por participación</small> : null}</div>
       <div className="p5-actions folder-row-actions"><button disabled={busy} onClick={() => void run(async () => {
         if (teacher) { setPreview(await api.call<ActivityData>(`/${room.id}/activities/${activity.id}/preview`)); return; }
         const next = await openActivitySession(api, room.id, activity.id);
@@ -91,7 +91,8 @@ export function Activities({ api, room, reload, target, onChanged, openAuthoring
     {preview ? <Dialog title={preview.activity.title ?? 'Vista previa de actividad'} onClose={() => setPreview(null)}>
       <ActivityPreview api={api} room={room} activity={preview.activity} teacher={teacher} />
     </Dialog> : null}
-    {session ? <AttemptSession key={session.activity.id} api={api} room={room} initial={session} onClose={() => setSession(null)} onChanged={refresh} /> : null}
+    {session ? <AttemptSession key={session.activity.id} api={api} room={room} initial={session} onClose={() => setSession(null)} onChanged={refresh}
+      onViewResult={attemptId => { setHistory({ activityId: session.activity.id, attemptId }); setSession(null); }} /> : null}
     {authorization ? <FirstSubmissionAuthorization api={api} room={room} activityId={authorization} onClose={() => setAuthorization(null)} onChanged={refresh} /> : null}
     {confirm ? <Dialog title={confirm.action === 'publish' ? 'Publicar actividad' : 'Retirar actividad'} onClose={() => !busy && setConfirm(null)}>
       <p>{confirm.action === 'publish' ? 'La actividad guardada será visible para los estudiantes. Los cambios que no hayas guardado en el editor no se publicarán.' : 'La actividad dejará de estar visible para estudiantes. Solo se permite antes de la primera participación.'}</p>

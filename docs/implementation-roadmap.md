@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Student submission and feedback journey — verified locally, 2026-10-28
+
+Current user-requested student audit closes the bounded authenticated journey: Biología evaluation autosave/resume→delivery→teacher private correction/publication→student notification/result/progress; Literatura PDF upload/recovery→delivery→published feedback/file after reload. The UI prioritizes feedback, removes duplicate answers and false pending labels, and preserves confirmed receipts after refresh failure. [Coordinator and limits](work-log/2026-10-28-root-student-journey.md), [visual proof](work-log/evidence/2026-10-28-student-journey/README.md):27 focused PASS, strict web types and production build PASS;1440/390/320px checked. Local only; concurrent student-AI work is separate and preserved. This supersedes the earlier missing-proof statements only for these tested journeys, not every P8/P9 case or physical-device/Safari acceptance.
+
 ## UX refinement and real AI fixes — integrated and published on main, 2026-10-28
 
 The user authorized main integration/publication of the reviewed UX branch. Main fast-forwarded from `2b58fbe` to `c2236f0`; the GitHub main ref was verified equal after push. [Delivery record](work-log/2026-10-28-root-warm-main-publication.md):139 PASS/0 FAIL/0 SKIP on main, API/strict web/production buildsPASS, read-only preview readiness and asset smokePASS,15-commit secret scan clean. Product tree exactly matches the reviewed branch. This supersedes only the earlier local-only publication statuses below; historical acceptance limits remain. No deployment or retained-data operation. A passive documentation closure follows the verified product push.

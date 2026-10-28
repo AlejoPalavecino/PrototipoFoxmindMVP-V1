@@ -7,8 +7,9 @@ import { Dialog, Notice } from './components.tsx';
 import { activityDate, activityTypeLabels } from './ActivityAuthoring.tsx';
 
 /** Capabilities live only in this mounted tab's memory, never URLs, cookies or shared storage. */
-export function AttemptSession({ api, room, initial, onClose, onChanged }: {
+export function AttemptSession({ api, room, initial, onClose, onChanged, onViewResult }: {
   api: ClassroomClient; room: Detail; initial: AttemptSessionData; onClose: () => void; onChanged: () => Promise<void>;
+  onViewResult?: (attemptId: string) => void;
 }) {
   const [data, setData] = useState(initial), [editor, setEditor] = useState<AttemptEditor | null>(initial.editor ?? null);
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [confirm, setConfirm] = useState(false);
@@ -42,13 +43,24 @@ export function AttemptSession({ api, room, initial, onClose, onChanged }: {
   return <Dialog title={activity.title ?? 'Actividad'} onClose={onClose}>
     <section className="p7-attempt" aria-label={activity.type === 'EVALUATION' ? 'Evaluación · sesión reducida' : 'Sesión de actividad'}>
       <header><small>{activityTypeLabels[activity.type]}</small><p>{activityDate(data.reception.deadlineAt, activity.zone)}</p></header>
+      {attempt?.status === 'SUBMITTED' && onViewResult ? <button className="primary" onClick={() => onViewResult(attempt.id)}>Ver devolución</button> : null}
       {error ? <Notice error>{error} No se confirmaron cambios. Vuelve a consultar el estado antes de continuar.</Notice> : null}
-      {controlWarning ? <Notice>El control de edición cambió. Se cargó el último borrador confirmado; los cambios no confirmados de la sesión anterior no se transfieren.</Notice> : null}
+      {controlWarning && attempt?.status === 'DRAFT' ? <Notice>Recuperamos tus respuestas guardadas. Los cambios sin guardar de otra pestaña no se transfieren.</Notice> : null}
       {!data.expected ? <Notice>Solo consulta: esta actividad no forma parte de tus entregas esperadas. El docente puede habilitar la primera entrega con un plazo individual futuro.</Notice> : null}
       {data.archived ? <Notice>Aula archivada: solo consulta.</Notice> : !data.reception.open ? <Notice>Recepción cerrada. Puedes consultar el estado confirmado; comenzar o abrir antes no reserva una entrega a tiempo.</Notice> : null}
-      {attempt ? <><p>Intento {attempt.number} · {attempt.status === 'SUBMITTED' ? 'Entregado · solo consulta' : 'Borrador confirmado · no entregado'}</p>
-        <Notice>{ownsEditor ? 'Control de edición en esta pestaña.' : 'Solo consulta en esta pestaña o dispositivo.'} Solo se restaura el último estado confirmado por el servidor.</Notice>
+      {attempt ? <><p>Intento {attempt.number} · {attempt.status === 'SUBMITTED' ? 'Entregado · solo consulta' : 'Borrador · todavía sin entregar'}</p>
+        {attempt.status === 'DRAFT' && !ownsEditor && data.canTransfer ? <div className="student-resume"><p>Tu borrador guardado está listo. Para seguir trabajando, activá la edición en esta pestaña.</p>
+          <button className="primary" disabled={busy} onClick={() => setConfirm(true)}>Continuar en esta pestaña</button></div> : null}
       </> : data.canStart ? <p>{activity.type === 'ASSIGNMENT' ? 'Abrir las instrucciones inicia el primer intento y bloquea su contenido.' : 'Consultar no inicia un intento. Presiona Comenzar cuando quieras iniciarlo.'}</p> : null}
+      {confirm && attempt ? <section className="p7-transfer-confirm" aria-label="Confirmar transferencia de edición">
+        <h4>Continuar con tus respuestas guardadas</h4><p>La otra pestaña o dispositivo dejará de poder guardar y entregar. Recuperarás el último borrador guardado; los cambios sin guardar de la otra sesión no se transfieren.</p>
+        <div className="p5-actions"><button disabled={busy} onClick={() => setConfirm(false)}>Cancelar transferencia</button>
+          <button className="primary" disabled={busy} onClick={() => void run(async () => {
+            if (!api.attempt) throw new Error('El flujo de intentos no está disponible.');
+            accept(await api.attempt<AttemptSessionData>(`/${room.id}/attempts/${attempt.id}/transfer`, { revision: attempt.revision }));
+            setConfirm(false);
+          })}>Confirmar transferencia</button></div>
+      </section> : null}
       {data.canStart ? <button className="primary" disabled={busy} onClick={() => void run(async () => {
         if (!api.attempt) throw new Error('El flujo de intentos no está disponible.');
         accept(await api.attempt<AttemptSessionData>(`${path}/start`, {})); await onChanged();
@@ -61,20 +73,10 @@ export function AttemptSession({ api, room, initial, onClose, onChanged }: {
         <h4>Pregunta {index + 1} · {question.points} puntos</h4><p className="p7-multiline">{question.prompt}</p>
         <ul>{question.options.map(option => <li key={option.id ?? option.text}>{option.text}</li>)}</ul>
       </article>) : null}
-      {activity.type === 'ASSIGNMENT' ? <PracticalAttempt api={api} classroomId={room.id} data={data} editor={ownsEditor ? editor : null} refresh={refresh} />
+      {activity.type === 'ASSIGNMENT' ? <PracticalAttempt key={`${attempt?.id}:${attempt?.epoch}`} api={api} classroomId={room.id} data={data} editor={ownsEditor ? editor : null} refresh={refresh} />
         : attempt ? <QuestionnaireAttempt key={`${attempt.id}:${attempt.epoch}:${ownsEditor ? 'edit' : 'view'}`} api={api} classroomId={room.id}
           data={data} editor={ownsEditor ? editor : null} refresh={refresh} /> : null}
-      <footer className="p5-form-footer"><button disabled={busy} onClick={() => void run(refresh)}>Actualizar estado confirmado</button>
-        {data.canTransfer && !ownsEditor ? <button disabled={busy} onClick={() => setConfirm(true)}>Transferir edición a esta pestaña</button> : null}</footer>
-      {confirm && attempt ? <section className="p7-transfer-confirm" aria-label="Confirmar transferencia de edición">
-        <h4>Transferir control de edición</h4><p>La pestaña o dispositivo anterior perderá el permiso para guardar, cargar archivos y enviar. Los cambios no confirmados de esa sesión no se transfieren: se restaurará solo el último borrador confirmado. No se crea otro intento ni se entrega la actividad.</p>
-        <button disabled={busy} onClick={() => setConfirm(false)}>Cancelar transferencia</button>
-        <button className="primary" disabled={busy} onClick={() => void run(async () => {
-          if (!api.attempt) throw new Error('El flujo de intentos no está disponible.');
-          accept(await api.attempt<AttemptSessionData>(`/${room.id}/attempts/${attempt.id}/transfer`, { revision: attempt.revision }));
-          setConfirm(false);
-        })}>Confirmar transferencia</button>
-      </section> : null}
+      <footer className="p5-form-footer"><button disabled={busy} onClick={() => void run(refresh)}>Actualizar estado confirmado</button></footer>
     </section>
   </Dialog>;
 }

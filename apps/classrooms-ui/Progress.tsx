@@ -41,7 +41,7 @@ export function Progress({ api, classroomId, studentId }: { api: ClassroomClient
         <section aria-label="Rendimiento académico">
           <h3>Rendimiento académico</h3>
           <p className="p8-progress-value">{data.performance.average === null ? 'Sin calificaciones publicadas' : `Promedio: ${decimal(data.performance.average)}`}</p>
-          <p>{data.scope === 'classroom' ? `${data.performance.gradedStudents} estudiantes con calificaciones publicadas` : `${data.performance.graded} actividades con calificación publicada`}</p>
+          <p>{data.scope === 'classroom' ? `${data.performance.gradedStudents} estudiantes con calificaciones publicadas` : `${data.performance.graded} ${data.performance.graded === 1 ? 'actividad' : 'actividades'} con calificación publicada`}</p>
           <small>Solo calificaciones publicadas vigentes. El trabajo pendiente no equivale a cero.</small>
         </section>
         <section aria-label="Avance del plan de estudio">
@@ -68,7 +68,7 @@ export function Progress({ api, classroomId, studentId }: { api: ClassroomClient
             <strong>{activity.title}</strong>
             <p>{!activity.expected ? 'Solo consulta: no se cuenta como pendiente' : activity.firstSubmission
               ? `Entregada · ${activity.firstSubmission.late ? 'Tarde' : 'A tiempo'}` : 'Pendiente de entrega'}</p>
-            {activity.firstSubmission ? <p>Primera entrega: {new Date(activity.firstSubmission.submittedAt).toLocaleString('es-AR')}</p> : null}
+            {activity.firstSubmission ? <p>Primera entrega: {new Date(activity.firstSubmission.submittedAt).toLocaleString('es-AR', { hourCycle: 'h23', dateStyle: 'short', timeStyle: 'short' })}</p> : null}
             {activity.pendingResubmission ? <p>Reentrega pendiente; la entrega anterior se conserva.</p> : null}
             <p>{activity.grade === null ? 'Sin calificación publicada' : `Calificación vigente: ${decimal(activity.grade)}`}</p>
           </li>)}

@@ -40,11 +40,13 @@ export function QuestionnaireAttempt({ api, classroomId, data, editor, refresh }
     if (editable) void draft.flush().catch(e => setError(e.message));
   }
   return <section className="p7-questionnaire" aria-label="Respuestas y entrega">
-    {attempt.status === 'SUBMITTED' || receipt ? <Notice>Comprobante de entrega · pendiente de corrección. No hay una calificación publicada en este comprobante.
+    {attempt.status === 'SUBMITTED' || receipt ? <Notice><strong>Entrega confirmada.</strong> Podés consultar la calificación desde «Ver devolución».
       <br />Recepción: {(receipt ?? attempt).submittedAt ? new Date((receipt ?? attempt).submittedAt!).toLocaleString('es', { timeZone: data.activity.zone }) : 'No disponible'} · {data.activity.zone}.
       {(receipt ?? attempt).submittedLate ? ' Entrega fuera de plazo.' : ' Entrega a tiempo.'} {activityDate((receipt ?? attempt).appliedDeadlineAt, data.activity.zone)}</Notice>
-      : <p className="p7-save-guidance">Intentamos guardar a los 2 segundos sin cambios y al cambiar de pregunta. <strong>Guardar no entrega.</strong> Si cerrás o recargás sin conexión, podés perder los cambios sin confirmar.</p>}
-    {error || draft.error ? <Notice error>{error || draft.error} Las respuestas siguen en pantalla; no se confirmó su guardado.</Notice> : null}
+      : editable ? <p className="p7-save-guidance">Tus respuestas se guardan automáticamente. <strong>Guardar no entrega.</strong> Antes de salir, esperá la confirmación de guardado.</p> : null}
+    {error || draft.error ? <Notice error>{error || draft.error} {receipt || attempt.status === 'SUBMITTED'
+      ? 'Tu entrega ya está confirmada. No pudimos actualizar la vista; podés volver a consultar el estado.'
+      : 'Las respuestas siguen en pantalla; no se confirmó su guardado.'}</Notice> : null}
     <nav className="p7-question-navigation" aria-label="Navegación de preguntas">{questions.map((q, position) =>
       <button key={q.id} aria-current={position === index ? 'step' : undefined} onClick={() => navigate(position)}>Pregunta {position + 1}</button>)}</nav>
     {question && entry ? <article aria-label={`Pregunta ${index + 1}`}><h4>Pregunta {index + 1} · {question.points} puntos</h4>
@@ -64,11 +66,11 @@ export function QuestionnaireAttempt({ api, classroomId, data, editor, refresh }
       <p role="status" aria-live="polite">{editable ? states[entry.state] : 'Respuesta confirmada · solo consulta'}</p>
     </article> : null}
     {editable ? <footer className="p5-form-footer">
-      <button disabled={busy} onClick={() => void run(() => draft.flush())}>Reintentar guardado</button>
+      <button disabled={busy || (!draft.dirty && !draft.error)} onClick={() => void run(() => draft.flush())}>{draft.error ? 'Reintentar guardado' : 'Guardar respuestas'}</button>
       <button className="primary" disabled={busy} onClick={() => void run(async () => { await draft.flush(); setConfirm(unanswered()); })}>Enviar respuestas</button>
     </footer> : null}
     {confirm !== null && editable ? <section className="p7-submit-confirm" aria-label="Confirmar entrega de respuestas"><h4>Confirmar entrega</h4>
-      <p>Quedan {confirm} preguntas sin responder. {confirm > 0 ? 'Las preguntas sin responder obtendrán cero puntos en este intento. Debes confirmar explícitamente la entrega incompleta.' : 'Todas las preguntas tienen una respuesta confirmada.'}
+      <p>{confirm > 0 ? `Quedan ${confirm} preguntas sin responder y obtendrán cero puntos. Confirmá si querés entregar así.` : 'Todas las preguntas tienen una respuesta guardada.'}
         Después de confirmar, las respuestas quedarán bloqueadas. El docente debe revisar y publicar el resultado.</p>
       <button disabled={busy} onClick={() => setConfirm(null)}>Cancelar entrega</button>
       <button className="primary" disabled={busy || draft.dirty || draft.saving} onClick={() => void run(async () => {

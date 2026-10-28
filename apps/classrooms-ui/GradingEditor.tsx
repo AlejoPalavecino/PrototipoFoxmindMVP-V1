@@ -37,7 +37,7 @@ export function GradingEditor({ api, roomId, attemptId, onClose, onChanged }: {
       <h4>{data.activity.title} · {data.attempt.firstName} {data.attempt.lastName}</h4>
       <Notice>{data.grade.isPublished ? 'Calificación publicada · solo consulta.' : 'Corrección privada: el estudiante no ve esta calificación. Guardar no publica ni envía notificaciones.'}</Notice>
       {data.archived ? <Notice>Aula archivada · la corrección es de solo consulta.</Notice> : null}
-      <p className="p8-final-grade">{data.grade.finalGrade === null ? 'Calificación pendiente de corrección manual' : `Calificación calculada: ${data.grade.finalGrade.replace('.', ',')}`}</p>
+      <p className="p8-final-grade">{data.grade.finalGrade === null ? 'Calificación pendiente de corrección manual' : `${data.grade.isPublished ? 'Calificación publicada' : 'Calificación calculada'}: ${data.grade.finalGrade.replace('.', ',')}`}</p>
       <ul>{data.attempt.attachments.map(file => <li key={file.id}>{file.ready
         ? <a href={api.fileUrl(file.id)} target="_blank" rel="noreferrer">Descargar {file.name}</a> : `${file.name} · No disponible`}</li>)}</ul>
       {data.activity.type === 'ASSIGNMENT' ? <label>Calificación general · 0 a 10<input aria-label="Calificación general" inputMode="decimal" placeholder="Pendiente" value={overall.replace('.', ',')}
