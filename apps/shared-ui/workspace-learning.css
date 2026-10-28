@@ -5,12 +5,12 @@
 .fm3d-theme .fm-plan-management > summary span { color: var(--fm-muted); font-weight: 400; font-size: 12px; margin-left: 12px; }
 .fm3d-theme .fm-plan-management[open] { padding-bottom: 20px; }
 .fm3d-theme .fm-plan-management[open] > summary { margin-bottom: 16px; border-bottom: 1px solid var(--fm-border); }
-.fm3d-theme .fm3-classroom-grid { gap: 18px; }
-.fm3d-theme .fm3-classroom-card { padding: 0; border-radius: 14px; box-shadow: var(--fm-shadow); transition: border-color 160ms, box-shadow 160ms; }
+.fm3d-theme .fm3-classrooms .fm3-classroom-grid { gap: 16px; grid-template-columns: repeat(2,minmax(0,1fr)); }
+.fm3d-theme .fm3-classrooms .fm3-classroom-card { display: grid; grid-template-columns: 108px minmax(0,1fr); padding: 0; border-radius: 14px; box-shadow: none; transition: border-color 160ms, box-shadow 160ms; }
 .fm3d-theme .fm3-classroom-card:hover { border-color: #b7c0cf; box-shadow: 0 4px 16px #202a3b0a; }
-.fm3d-theme .fm3-classroom-card > .fm3-cover { height: 140px; aspect-ratio: auto; border-radius: 0; }
+.fm3d-theme .fm3-classrooms .fm3-classroom-card > .fm3-cover { width: 100%; height: 100%; aspect-ratio: auto; border-radius: 0; }
 .fm3d-theme .fm3-classroom-card > .fm3-cover .folder-cover-art { height: 100%; aspect-ratio: auto; object-fit: cover; }
-.fm3d-theme .fm3-classroom-card-body { padding: 18px; gap: 10px; }
+.fm3d-theme .fm3-classroom-card-body { padding: 16px; gap: 8px; }
 .fm3d-theme .fm3-classrooms .p5-main .fm3-classroom-card h3 { font-size: 19px; letter-spacing: -.025em; }
 .fm3d-theme .fm3-membership { font-size: 11px; padding: 4px 8px; gap: 6px; border-radius: 6px; }
 .fm3d-theme .fm3-membership .entry-icon { width: 15px; height: 15px; }
@@ -23,10 +23,10 @@
 .fm3d-theme .fm3-classrooms.p5-app .p5-main .fm3-collection-search > input { height: 44px; min-height: 44px; font-size: 14px; }
 .fm3d-theme .fm3-collection-filters { padding: 2px; border-radius: 9px; }
 .fm3d-theme .fm3-classrooms .p5-main .fm3-collection-filters button { font-size: 12px; padding: 8px 10px; }
-.fm3d-theme .fm3-classrooms.p5-app .p5-main .p5-room-head.fm3-room-header { min-height: 138px; padding: 22px 24px; border-radius: 14px; margin-bottom: 18px; background: #fff3e9; }
+.fm3d-theme .fm3-classrooms.p5-app .p5-main .p5-room-head.fm3-room-header { min-height: 108px; padding: 16px 20px; border-radius: 16px; margin-bottom: 16px; background: #eaf0e4; border: 1px solid #d6e0ce; }
 .fm3d-theme .fm3-classrooms.p5-app .p5-main .fm3-room-header > .p5-room-cover { width: 28%; }
 .fm3d-theme .fm3-classrooms.p5-app .p5-main .fm3-room-header > .fm3-room-heading { flex-basis: 74%; width: 74%; max-width: 74%; }
-.fm3d-theme .fm3-classrooms .fm3-room-header h1 { font-size: 28px; margin-block: 4px 8px; }
+.fm3d-theme .fm3-classrooms .fm3-room-header h1 { font-size: 26px; margin-block: 4px 6px; }
 .fm3d-theme .fm3-room-context, .fm3d-theme .fm3-room-teacher { font-size: 12px; }
 .fm3d-theme .fm3-room-heading p { margin-bottom: 6px; }
 .fm3d-theme .fm3-classrooms .p5-main .p5-tabs { padding: 4px; border-radius: 10px; gap: 3px; margin-block: 0 20px; background: #fff; border: 1px solid var(--fm-border); }
@@ -72,6 +72,7 @@
 .fm3d-theme .p5-main .p5-tag { font-size: 11px; border-radius: 6px; padding: 3px 8px; }
 @media(max-width:1023px) { .fm3d-theme .p5-wizard .p5-form-footer { bottom: calc(80px + env(safe-area-inset-bottom)); } }
 @media(max-width:700px) {
+  .fm3d-theme .fm3-classrooms .fm3-classroom-grid { grid-template-columns: minmax(0,1fr); }
   .fm3d-theme .fm3-plan-mobile-selection { display: grid; gap: 6px; margin: 0; }
   .fm3d-theme .fm3-plan-workspace > .fm3-plan-navigation { display: none; }
   .fm3d-theme .fm3-plan-workspace { grid-template-columns: minmax(0,1fr); }
@@ -85,7 +86,7 @@
   .fm3d-theme .p5-wizard .p5-steps { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
 }
 @media(max-width:600px) {
-  .fm3d-theme .fm3-classroom-card > .fm3-cover { height: 116px; }
+  .fm3d-theme .fm3-classrooms .fm3-classroom-card { grid-template-columns: 76px minmax(0,1fr); }
   .fm3d-theme .fm3-classroom-card-body { padding: 16px; }
   .fm3d-theme .fm3-classrooms.p5-app .p5-main .fm3-room-header > .fm3-room-heading { width: 100%; max-width: 100%; flex-basis: 100%; }
   .fm3d-theme .fm3-classrooms.p5-app .p5-main .fm3-room-header > .p5-room-cover { display: none; }

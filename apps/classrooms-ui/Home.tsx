@@ -28,16 +28,16 @@ export function Home(props:HomeProps) {
   const shortcuts=data.participation!=='none'?<HomeShortcuts key="shortcuts" data={data} onAction={onAction} onCreate={onCreate} onJoin={onJoin} onClassrooms={onClassrooms} onAgenda={onAgenda} busy={busy}/>:null;
   const finalModules=data.participation==='teach'?[shortcuts,module('materials')]:[module('materials'),shortcuts];
   return <section className={`fm-home fm-home--${data.participation}`} aria-label="Inicio">
+    <HomeGreeting data={data} displayName={displayName}/>
     <div className="fm-home-actions"><button className="fm-home-find-rooms" onClick={onClassrooms}><FoxmindIcon name="book"/>Ver mis aulas<FoxmindIcon name="arrow-right"/></button>
       {data.participation!=='none'?<div><button onClick={onJoin} disabled={busy}>Unirme con código</button><button className="primary" onClick={onCreate} disabled={busy}>Crear aula</button></div>:null}</div>
     <div className="fm-home-columns"><div className="fm-home-work">
-    <HomeGreeting data={data} displayName={displayName}/>
     <div className="fm-home-toolbar"><small>Actualizado {new Date(data.generatedAt).toLocaleTimeString('es-AR',{timeZone:data.timeZone,hour:'2-digit',minute:'2-digit'})}</small><button onClick={()=>void home.refresh()}><FoxmindIcon name="refresh"/>Actualizar</button></div>
     {data.setup.drafts+data.setup.invitations>0?<section className="fm-home-setup"><p>{homeSetupSummary(data.setup)}</p><button onClick={onClassrooms}>Ver borradores e invitaciones</button></section>:null}
     {data.participation==='none'?<HomeWelcome data={data} onCreate={onCreate} onJoin={onJoin} busy={busy}/>:null}
     {module('pending')}{module('review')}{module('queries')}
-    {finalModules.some(Boolean)?<details className="fm-home-resources" open={data.modules.materials.status==='error'||undefined}><summary>Materiales y accesos rápidos<span>Biblioteca y herramientas de tus aulas</span></summary><div>{finalModules}</div></details>:null}
-    </div><aside className="fm-home-aside">{module('agenda')}{module('feedback')}{module('classrooms')}</aside></div>
+    {finalModules.some(Boolean)?<details className="fm-home-resources" open={data.modules.materials.status==='error'||data.modules.classrooms.status==='error'||undefined}><summary>Mis recursos y aulas<span>Biblioteca, aulas y herramientas de trabajo</span></summary><div>{finalModules}{module('classrooms')}</div></details>:module('classrooms')}
+    </div><aside className="fm-home-aside">{module('agenda')}{module('feedback')}</aside></div>
   </section>;
 }
 

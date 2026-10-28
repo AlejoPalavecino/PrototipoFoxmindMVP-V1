@@ -27,8 +27,10 @@ export function Upcoming({ items, loading, error, busy, onOpen }: {
     <h2>Próximas entregas</h2>
     <p>Los próximos plazos de tus aulas.</p>
     {loading ? <p role="status">Consultando entregas…</p> : error ? <p>Las entregas no están disponibles. Reintentá la consulta.</p>
-      : items.length ? items.map(item => <DeadlineCard key={item.id} item={item} onOpen={onOpen} busy={busy} />)
+      : items.length ? <><DeadlineCard item={items[0]} onOpen={onOpen} busy={busy} />
+        {items.length > 1 ? <details className="education-upcoming-more"><summary>Ver {items.length - 1} entregas más</summary>
+          {items.slice(1).map(item => <DeadlineCard key={item.id} item={item} onOpen={onOpen} busy={busy} />)}</details> : null}</>
         : <div className="agenda-empty"><p>No tenés entregas próximas pendientes.</p></div>}
-    {!loading && !error ? <FoxmindIllustration className="agenda-side-scene" name="scenes/agenda" sizes="(max-width: 900px) 100vw, 34vw" /> : null}
+    {!loading && !error && !items.length ? <FoxmindIllustration className="agenda-side-scene" name="scenes/agenda" sizes="(max-width: 900px) 100vw, 34vw" /> : null}
   </aside>;
 }
