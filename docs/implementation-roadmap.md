@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Inicio visual work — publication requested 2026-10-28
+
+The user requested publishing the miniagenda and Inicio refinement commits and leaving the checkout clean. [Delivery record](work-log/2026-10-28-root-inicio-final-publication.md) tracks the exact Git verification and preservation of the generated development type file; no deployment or retained-data operation.
+
 ## Inicio typography and visual refinement — 2026-10-28
 
 Home-only CSS refines type hierarchy, surfaces and controls while preserving FoxMind branding and the selected miniagenda. [Work record](work-log/2026-10-28-root-inicio-refined-design.md) records responsive synthetic visual evidence, focused tests and the separate legacy test failures. Local delivery only.
