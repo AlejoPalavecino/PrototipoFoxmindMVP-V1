@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Individual student AI — verified locally, 2026-10-28
+
+Teacher classroom cards open an individual analysis based on anonymous academic evidence. Activity references are resolved to current titles through a private, snapshot-checked server mapping; titles and identifiers are not sent to the provider. The [verification record](work-log/2026-10-28-root-student-ai-verification.md) documents 14 focused tests and an authenticated synthetic student/teacher journey with a real Gemini response, reload and cleanup. The two new migrations were tested only on an isolated database. No deployment or remote publication was performed.
+
 ## Student submission and feedback journey — verified locally, 2026-10-28
 
 Current user-requested student audit closes the bounded authenticated journey: Biología evaluation autosave/resume→delivery→teacher private correction/publication→student notification/result/progress; Literatura PDF upload/recovery→delivery→published feedback/file after reload. The UI prioritizes feedback, removes duplicate answers and false pending labels, and preserves confirmed receipts after refresh failure. [Coordinator and limits](work-log/2026-10-28-root-student-journey.md), [visual proof](work-log/evidence/2026-10-28-student-journey/README.md):27 focused PASS, strict web types and production build PASS;1440/390/320px checked. Local only; concurrent student-AI work is separate and preserved. This supersedes the earlier missing-proof statements only for these tested journeys, not every P8/P9 case or physical-device/Safari acceptance.
