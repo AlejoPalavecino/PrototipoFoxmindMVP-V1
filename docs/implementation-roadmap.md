@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Platform visual polish — integrated locally into main, 2026-10-28
+
+User authorized integration and a clean branch. Main fast-forwarded from `fa3ce749` to verified visual candidate `e884341`; product tree matched exactly. [Integration record](work-log/2026-10-28-root-visual-integration.md) preserves the outcome and backup of prior untracked preparation documents. This supersedes the earlier no-main-integration boundary for this local integration only; no push or deployment was requested.
+
 ## Platform visual polish — verified in isolated copy, 2026-10-28
 
 User-authorized branch `codex/foxmind-visual-polish` unifies shared typography/palette/navigation, Home/classroom learning surfaces, Agenda and account/files presentation while preserving existing images, layout, states and contracts. One duplicate Wizard heading and empty auxiliary auth decoration were removed. [Coordinator](work-log/2026-10-28-root-platform-visual-polish.md), [design contract](work-log/2026-10-28-astra_visual_design.md) and [integrated-browser evidence](work-log/evidence/2026-10-28-platform-polish/design-qa.md) distinguish observed responsive/keyboard/component-fixture checks from unperformed authenticated E2E, native zoom and real upload/provider journeys. Final production buildPASS;46focusedPASS/0FAIL/2historical optionalSKIP; independent dual review and final delta review0findings. All execution delegates Astra/high or xhigh per session preference. Local commit identities follow in coordinator record; no main integration, push, PR or deployment. Original52171/52170runtime and retained data remain intact; preview53181 uses synthetic data.
