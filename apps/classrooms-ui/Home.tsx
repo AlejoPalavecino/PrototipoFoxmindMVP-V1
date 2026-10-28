@@ -28,25 +28,26 @@ export function Home(props:HomeProps) {
   const shortcuts=data.participation!=='none'?<HomeShortcuts key="shortcuts" data={data} onAction={onAction} onCreate={onCreate} onJoin={onJoin} onClassrooms={onClassrooms} onAgenda={onAgenda} busy={busy}/>:null;
   const finalModules=data.participation==='teach'?[shortcuts,module('materials')]:[module('materials'),shortcuts];
   return <section className={`fm-home fm-home--${data.participation}`} aria-label="Inicio">
-    <HomeGreeting data={data} displayName={displayName}/>
-    <div className="fm-home-actions"><button className="fm-home-find-rooms" onClick={onClassrooms}><FoxmindIcon name="book"/>Ver mis aulas<FoxmindIcon name="arrow-right"/></button>
-      {data.participation!=='none'?<div><button onClick={onJoin} disabled={busy}>Unirme con código</button><button className="primary" onClick={onCreate} disabled={busy}>Crear aula</button></div>:null}</div>
     <div className="fm-home-columns"><div className="fm-home-work">
-    <div className="fm-home-toolbar"><small>Actualizado {new Date(data.generatedAt).toLocaleTimeString('es-AR',{timeZone:data.timeZone,hour:'2-digit',minute:'2-digit'})}</small><button onClick={()=>void home.refresh()}><FoxmindIcon name="refresh"/>Actualizar</button></div>
+    <HomeGreeting data={data} displayName={displayName} onClassrooms={onClassrooms}/>
+    <div className="fm-home-actions"><button className="fm-home-find-rooms" onClick={onClassrooms}><FoxmindIcon name="book"/>Ver mis aulas<FoxmindIcon name="arrow-right"/></button>
+      {data.participation!=='none'?<div><button onClick={onJoin} disabled={busy}><FoxmindIcon name="users"/>Unirme con código</button><button onClick={onCreate} disabled={busy}><FoxmindIcon name="plus"/>Crear aula</button></div>:null}</div>
     {data.setup.drafts+data.setup.invitations>0?<section className="fm-home-setup"><p>{homeSetupSummary(data.setup)}</p><button onClick={onClassrooms}>Ver borradores e invitaciones</button></section>:null}
     {data.participation==='none'?<HomeWelcome data={data} onCreate={onCreate} onJoin={onJoin} busy={busy}/>:null}
     {module('pending')}{module('review')}{module('queries')}
     {finalModules.some(Boolean)?<details className="fm-home-resources" open={data.modules.materials.status==='error'||data.modules.classrooms.status==='error'||undefined}><summary>Mis recursos y aulas<span>Biblioteca, aulas y herramientas de trabajo</span></summary><div>{finalModules}{module('classrooms')}</div></details>:module('classrooms')}
+    <div className="fm-home-toolbar"><small>Actualizado {new Date(data.generatedAt).toLocaleTimeString('es-AR',{timeZone:data.timeZone,hour:'2-digit',minute:'2-digit'})}</small><button onClick={()=>void home.refresh()}><FoxmindIcon name="refresh"/>Actualizar</button></div>
     </div><aside className="fm-home-aside">{module('agenda')}{module('feedback')}</aside></div>
   </section>;
 }
 
-function HomeGreeting({data,displayName}:{data:HomeResponse;displayName:string}) {
+function HomeGreeting({data,displayName,onClassrooms}:{data:HomeResponse;displayName:string;onClassrooms:()=>void}) {
   return <header className="fm-home-greeting"><div><h1>¡Hola, {displayName}!</h1>
     <p>{data.participation==='teach'?'Tus clases':'Tus actividades'} y próximos pasos, en un solo lugar.</p>
     <time dateTime={data.generatedAt}>{homeGreetingDate(data.generatedAt,data.timeZone)}</time>
+    <button className="primary fm-sky-hero-action" onClick={onClassrooms}>Ir a mis aulas<FoxmindIcon name="arrow-right"/></button>
     <span className="sr-only">{homeParticipation(data)}</span></div>
-    <FoxmindIllustration name={data.participation==='teach'?'hero/welcome-teach':'hero/welcome-learn'} priority className="fm-home-hero" sizes="(max-width: 767px) 700px, 960px"/>
+    <FoxmindIllustration name="hero/welcome-sky" priority className="fm-home-hero" sizes="(max-width: 900px) 100vw, 70vw"/>
   </header>;
 }
 

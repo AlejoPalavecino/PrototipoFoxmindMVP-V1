@@ -1,4 +1,29 @@
-# Folder theme visual QA
+# FoxMind visual QA
+
+## Current sky learning direction — 2026-10-28
+
+final result: passed — bounded visual adaptation on `codex/foxmind-ux-redesign`; local only.
+
+The user selected the attached Lingora dashboard as the platform-wide concept, superseding the earlier warm/green direction. App-owned content, excluding the tablet bezel, is the reference. The implementation retains FoxMind branding and real educational data: pale sky canvas, light sidebar, blue primary actions, navy rounded headings, pastel shortcuts, illustrated greeting and supporting agenda column. [Side-by-side comparison and captures](docs/work-log/evidence/2026-10-28-sky-reference/README.md), [coordinator](docs/work-log/2026-10-28-root-sky-reference.md).
+
+The source crop (1130×787) and actual Inicio (1440×1000) were normalized to equal displayed size and inspected together. Deliberate differences: existing fox/cover imagery, three real navigation destinations, pending/review work and personal agenda replace the reference's language courses, virtual currency, leaderboard and daily-goal data. No unsupported product features were invented. The reference has no mobile state; mobile uses the same art direction with bottom navigation, full-width tasks and an independently positioned decorative illustration.
+
+### Observed scope
+
+- Real authenticated Inicio, Mis aulas, Agenda, Perfil and Configuración at 1440/768/390/320px; eight teacher sections at 1440/390/320px; six student sections at 390px. All 50 document-width observations fit their viewport. Main-route images loaded successfully.
+- Actual hero navigation, native styled picker/Escape, AI setup and grading entry/return. No activity, grade, event or account changes saved.
+- Controlled actual-component fixtures: sign-in/register forms, classroom creation and labelled RUNNING/QUEUED AI waiting screens at desktop/mobile. Fixture captures are not real provider or publication proof.
+- Focused functional checks: 22 PASS, 0 FAIL, 0 SKIP; strict web types and isolated production build PASS. Existing external-lockfile warnings remain advisory. No configured lint command or independent/native review is claimed.
+
+### Corrections and limits
+
+Initial captures exposed orange task actions and a mobile hero crop behind text. Scoped selectors now unify blue actions; mobile artwork sits below the text with the existing fox retained. Heading weights, wizard selection and hover colors were aligned. Refresh metadata moved below the task list. Final source/render comparison, mobile 320px, native picker, auth and wizard captures were opened after correction. An early auth capture contained a loading state; final evidence waits for actual fields.
+
+The dev CSS import cache initially served earlier content, including after a restart. Updating the stylesheet entry invalidated that cache; the final browser reports the new WebP and blue task-action color. Minimized-window screenshot failure was resolved by restoring the owned browser window. One student-tab attempt encountered a development reload; the actual classroom was reopened before the successful six-section check.
+
+No unresolved P0/P1/P2 visual issue remains in the inspected states. This is not complete production, accessibility, physical-device or Safari acceptance. Earlier successful-real-AI/application and submission/grading-persistence gaps remain as recorded in the educational-experience handoff. Historical evidence below retains its original scope.
+
+## Historical folder theme visual QA
 
 final result: passed (2026-10-24 bounded folder-tab correction; integrated into local main)
 

@@ -45,7 +45,7 @@ test('Home keeps pending work visible and places recoverable resources behind an
       { status: 'ready', items: [], totalItems: 0, nextCursor: null }])) };
   const actions = [];
   const view = hookView(Home, { displayName: 'Alex', subjectId: 'subject', homeClient: { read: async () => data },
-    onCreate: () => actions.push('create'), onJoin: () => actions.push('join'), onClassrooms() {}, onAction() {} });
+    onCreate: () => actions.push('create'), onJoin: () => actions.push('join'), onClassrooms: () => actions.push('classrooms'), onAction() {} });
   try {
     await view.flush();
     const resources = descendants(view.tree, n => n.type === 'details' && n.props.className === 'fm-home-resources')[0];
@@ -60,6 +60,10 @@ test('Home keeps pending work visible and places recoverable resources behind an
       assert.ok(button, label); button.props.onClick();
     }
     assert.deepEqual(actions, ['create','join']);
+    const greeting = descendants(view.tree, n => n.type?.name === 'HomeGreeting')[0];
+    const greetingTree = greeting.type(greeting.props);
+    descendants(greetingTree, n => n.type === 'button' && text(n).trim() === 'Ir a mis aulas')[0].props.onClick();
+    assert.deepEqual(actions, ['create','join','classrooms'], 'The illustrated entry uses the existing classroom navigation');
   } finally { view.close(); if (previousWindow === undefined) delete globalThis.window; else globalThis.window = previousWindow; }
 });
 

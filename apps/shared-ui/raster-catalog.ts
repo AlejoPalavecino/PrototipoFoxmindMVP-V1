@@ -1,5 +1,9 @@
-/** Exact production sizes from the approved asset manifest. No masters are served. */
+/** Production WebP variants; manifests live in docs/design/foxmind-3d. No masters are served. */
 export const illustrationCatalog = {
+  'hero/welcome-sky': {
+    position: 'right center',
+    variants: [[480, 160, '/foxmind-3d/hero/welcome-sky-480.webp'], [960, 320, '/foxmind-3d/hero/welcome-sky-960.webp'], [1600, 533, '/foxmind-3d/hero/welcome-sky-1600.webp']],
+  },
   'hero/welcome-learn': {
     position: 'right center',
     variants: [[480, 160, '/foxmind-3d/hero/welcome-learn-480.webp'], [960, 320, '/foxmind-3d/hero/welcome-learn-960.webp'], [1600, 533, '/foxmind-3d/hero/welcome-learn.webp']],

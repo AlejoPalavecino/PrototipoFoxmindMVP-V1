@@ -1,0 +1,63 @@
+/* User-selected sky-blue learning concept, shared by every application surface. */
+.fm3d-theme {
+  --fm-canvas: #eef7ff; --fm-ink: #122347; --fm-muted: #526783;
+  --fm-border: #dce9f5; --fm-line: #dce9f5; --fm-control-border: #a6bdd7;
+  --fm-control-line: #a6bdd7; --fm-accent: #066bec; --fm-accent-soft: #dceeff;
+  --fm-link: #075dc5; --fm-focus: #126de1; --fm-surface: #fff; --fm-pearl: #f4f9ff;
+  --fm-peach: #e1f0ff; --fm-mint: #e5f6ed; --fm-lavender-soft: #efecff;
+  --fm-font-heading: 'Fredoka Auth','Segoe UI',sans-serif;
+}
+.fm3d-theme :is(.fm3-classrooms,.entry-page,.agenda-main,.agenda-dialog) { --fm-ink: #122347; --fm-muted: #526783; --fm-font-heading: 'Fredoka Auth','Segoe UI',sans-serif; }
+.fm3d-theme :is(.p5-main,.p5-dialog,.entry-page,.agenda-main,.agenda-dialog) :is(h1,h2,h3,h4) { letter-spacing: -.015em; }
+.fm3d-theme :is(.fm3-classrooms .p5-main,.fm3-classrooms .p5-dialog,.entry-page,.agenda-main,.agenda-dialog) :is(h1,h2,h3,h4) { font-weight: 500; }
+.fm3d-theme :is(.p5-main,.p5-dialog,.entry-page) :is(button,.button) { border-radius: 12px; }
+.fm3d-theme :is(.p5-main,.p5-dialog,.entry-page) :is(button.primary,.button-primary),
+.fm3d-theme .entry-auth-polish:is(.auth-register,.auth-sign-in) .button-primary { background: var(--fm-accent); color: #fff; border-color: transparent; border-radius: 24px; }
+.fm3d-theme :is(.p5-main,.p5-dialog,.entry-page) :is(button.primary,.button-primary):hover:enabled { background: #0057c5; border-color: transparent; }
+.fm3d-theme :is(button,a,input,select,textarea,summary):focus-visible { outline-color: #126de1; }
+.fm3d-theme .fm3d-shell[data-private='true'] { background: #f8fbff; border-color: var(--fm-border); }
+.fm3d-theme .fm3d-shell[data-private='true'] .fm3d-shell-brand { background: transparent; }
+.fm3d-theme .fm3d-shell[data-private='true'] :is(.fm3d-shell-nav,.fm3d-shell-account) > a { color: #405472; border-radius: 14px; }
+.fm3d-theme .fm3d-shell[data-private='true'] :is(.fm3d-shell-nav,.fm3d-shell-account) > a[aria-current='page'] { color: #0565db; background: #dceeff; }
+.fm3d-theme .fm3d-shell[data-private='true'] :is(.fm3d-shell-nav,.fm3d-shell-account) > a:hover { background: #e6f2ff; color: #075dc5; }
+.fm3d-theme .fm3d-shell[data-private='true'] .fm3d-shell-account :is(.fm3d-shell-name,button) { color: #405472; }
+.fm3d-theme .fm3d-shell[data-private='true'] .fm3d-shell-account button:hover { background: #e6f2ff; }
+.fm3d-theme .fm3d-shell[data-private='true'] > .fm3d-shell-account { border-color: #dce9f5; }
+.fm3d-theme .fm3d-shell[data-private='true'] .fm3d-shell-tools { background: #eef7ff; border-color: transparent; }
+.fm3d-theme .fm3d-shell-avatar { background: #e0edff; color: #075dc5; border-color: #cfe3fb; }
+.fm3d-theme .p5-app:not(.entry-home) .p5-surface, .fm3d-theme .p5-main .folder-panel { border-radius: 20px; border-color: var(--fm-border); background: #fff; }
+.fm3d-theme .fm3-classrooms .fm3-classroom-card { border-radius: 20px; border-color: #d7e8f8; }
+.fm3d-theme .fm3-classrooms .fm3-classroom-card:hover { border-color: #8bbaf0; box-shadow: 0 6px 20px #2572bc0c; }
+.fm3d-theme .fm3-classroom-card-body > button.primary { color: #075dc5; background: #e5f2ff; border-color: transparent; border-radius: 22px; }
+.fm3d-theme .fm3-classroom-card-body > button.primary:hover:enabled { color: #fff; background: #075dc5; border-color: transparent; }
+.fm3d-theme .p5-wizard .p5-steps li.active { background: #e1efff; color: #075dc5; }
+.fm3d-theme .p5-wizard .p5-steps li.active > span { background: #066bec; color: #fff; }
+.fm3d-theme .fm3-classrooms.p5-app .p5-main .p5-room-head.fm3-room-header { background: #dcedff; border-color: #cce3f9; border-radius: 22px; }
+.fm3d-theme .fm3-classrooms .p5-main .p5-tabs { border-radius: 16px; border-color: #deebf8; }
+.fm3d-theme .fm3-classrooms .p5-main .p5-tabs button { border-radius: 12px; }
+.fm3d-theme .fm3-classrooms .p5-main .p5-tabs button[aria-current='page'] { background: #066bec; color: white; }
+.fm3d-theme .p5-main .p7-create { border-color: #d6e9fa; background: #edf6ff; border-radius: 16px; }
+.fm3d-theme .education-generation-summary, .fm3d-theme .education-generation-setup .p7-check:has(input:checked) { background: #e8f3ff; border-color: #a8cdf7; }
+.fm3d-theme .education-steps li { background: #edf4fc; }
+.fm3d-theme .education-steps li[aria-current='step'] { background: #066bec; }
+.fm3d-theme .education-indeterminate { background: #d6e8fb; }
+.fm3d-theme :is(.p5-main,.p5-dialog) :is(.p7-generation,.p5-extraction) > .education-ai-progress { background: #e8f4ff; border-color: #c7dff7; }
+.fm3d-theme .p5-dialog .p8-grading > article { background: #f1f7ff; border-color: #d5e6f8; }
+.fm3d-theme .agenda-main .fm3d-agenda-card, .fm3d-theme .entry-profile .fm3d-account-card { border-radius: 20px; border-color: #dce9f5; }
+.fm3d-theme .agenda-main .agenda-calendar .agenda-day[aria-pressed='true'] { background: #e2f0ff; border-color: #2679e2; }
+.fm3d-theme .agenda-main .agenda-day-number { color: #27466d; }
+.fm3d-theme .entry-auth-polish .auth-story { background: #dcefff; }
+.fm3d-theme .entry-auth-polish .auth-eyebrow { color: #075dc5; }
+.fm3d-theme .entry-profile .fm3d-account-art .fm3d-illustration { border-radius: 20px; }
+.fm3d-theme select option { color: #122347; }
+.fm3d-theme select:disabled { background: #eff5fb; color: #62768f; }
+@supports(appearance:base-select) {
+  .fm3d-theme select::picker(select) { color: #122347; border-color: #bed5ee; box-shadow: 0 12px 32px #174b7e22; }
+  .fm3d-theme select option:is(:checked,:focus,:hover) { color: #075dc5; background: #e4f1ff; }
+  .fm3d-theme select option::checkmark { color: #066bec; }
+}
+@media(min-width:1024px) { .fm3d-theme .fm3d-shell[data-private='true'] { border-right: 1px solid #deebf8; } }
+@media(forced-colors:active) {
+  .fm3d-theme { --fm-canvas: Canvas; --fm-ink: CanvasText; --fm-border: CanvasText; --fm-accent: Highlight; }
+  .fm3d-theme :is(button,a,input,select,textarea,summary):focus-visible { outline-color: Highlight; }
+}

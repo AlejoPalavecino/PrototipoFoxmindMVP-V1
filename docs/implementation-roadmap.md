@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Selected sky learning concept — local, 2026-10-28
+
+The user's new screenshot supersedes the prior warm/green art direction. Shared sky/blue styling now spans navigation, Home, classrooms, Agenda, accounts, forms, wizard and AI/grading states; existing functions, fox/logo and covers remain. A generated fox welcome has three production WebP variants. [Coordinator](work-log/2026-10-28-root-sky-reference.md), [comparison evidence](work-log/evidence/2026-10-28-sky-reference/README.md) and [current visual QA](../design-qa.md) record 50 authenticated route/tab width observations, focused 22 PASS, strict types and production build PASS. No existing academic data was edited in this visual follow-up. Local branch only; whole-product real-provider/persistence and physical-device/Safari gaps below are unchanged.
+
 ## Educational direction and guided workflows — local, 2026-10-28
 
 Follow-up request authorizes a distinct visual direction and testing with the permanent demo account. Local units `f425fa1` (warm educational shell, compact Inicio/aulas/Agenda, styled native selects) and `78e4125` (guided workflows) introduce three-step AI setup, actual-state waiting, focused editing/correction and grouped secondary actions. Original fox/graphics and business contracts are preserved. See [current coordinator](work-log/2026-10-28-root-education-experience.md) and [selected authenticated evidence](work-log/evidence/2026-10-28-education-experience/README.md).

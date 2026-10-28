@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "created": "2026-10-28",
+  "id": "hero/welcome-sky",
+  "description": "Foxy reading in a sky-blue learning landscape; adapted from the existing welcome-learn mascot and the user-selected dashboard direction.",
+  "generator": "Built-in Image Gen",
+  "sourceDimensions": {
+    "width": 2172,
+    "height": 724
+  },
+  "encoding": "WebP quality 84",
+  "decorative": true,
+  "alt": "",
+  "objectPosition": "right center",
+  "textSafe": "Left half on desktop; separate bottom image placement on mobile.",
+  "variants": [
+    {
+      "path": "apps/web/public/foxmind-3d/hero/welcome-sky-480.webp",
+      "width": 480,
+      "height": 160,
+      "bytes": 9570,
+      "format": "webp",
+      "sha256": "a7755f6a2328ee45854ce3f02a66f5f168e30ac7a3baaf9392387a36eb8c3a74"
+    },
+    {
+      "path": "apps/web/public/foxmind-3d/hero/welcome-sky-960.webp",
+      "width": 960,
+      "height": 320,
+      "bytes": 23462,
+      "format": "webp",
+      "sha256": "fb9b96b4c42b4b003251afb3d6dd9e216466033c9b98b99d0e97406dd2a9ff6c"
+    },
+    {
+      "path": "apps/web/public/foxmind-3d/hero/welcome-sky-1600.webp",
+      "width": 1600,
+      "height": 533,
+      "bytes": 45104,
+      "format": "webp",
+      "sha256": "e8a2f45f0c8c279fd3e4b4dee1c27e651cd6a6e3109648ba9cf226ee8cd37382"
+    }
+  ]
+}

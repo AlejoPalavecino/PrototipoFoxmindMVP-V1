@@ -1,4 +1,4 @@
-/* Current product presentation. Imported last in each application entry. */
+/* Shared product presentation: sky learning concept, responsive tasks and controls. */
 @import './workspace-foundation.css';
 @import './workspace-navigation.css';
 @import './workspace-home.css';
@@ -8,3 +8,5 @@
 @import './workspace-agenda.css';
 @import './education-controls.css';
 @import './education-flows.css';
+@import './sky-theme.css';
+@import './sky-home.css';
