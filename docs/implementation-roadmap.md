@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Individual student AI — integrated and published on main, 2026-10-28
+
+User authorized integration and publication. Merge `067c4a37a484b052f914584177a3ffba47b22530` preserves the published student journey and adds verified individual AI. [Delivery record](work-log/2026-10-28-root-student-ai-publication.md): API/web builds and types, independent synthetic tests, expanded AI regression and secret scan passed; remote main matched the merge after push. The earlier real Gemini synthetic journey and isolated migrations remain documented below. No deployment or retained-data migration.
+
 ## Student journey — integrated and published on main, 2026-10-28
 
 Current human authorization explicitly includes main integration/push while preserving parallel student-AI work. Main fast-forwarded to the reviewed `0f3407d`; the isolated verification added a bounded Windows/Docker clock wait only in test fixtures. [Delivery record](work-log/2026-10-28-root-student-main-publication.md):78 PASS/0 FAIL/0 SKIP, API/web builds and strict types PASS, preview smoke200 and secret checks clean. Normal push and exact remote ref `5ab9dbaa91c965aef45651863d355b217cce73ab` confirmed; passive documentation closure follows. Main's dedicated checkout is clean, while the original AI checkout/branch retains its pending work. This supersedes only the student journey's earlier local-only delivery status below. No deployment or new academic/provider operation.

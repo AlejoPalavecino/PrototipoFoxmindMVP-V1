@@ -6,7 +6,7 @@
 - Branch / worktree: main / foxmind-student-publication
 - Starting commit: 9ea77244d1cbd05e3993891674e4c6a9e3cba5d6
 - Phase and detailed task/spec links: [análisis individual](../student-ai.md), [verificación](2026-10-28-root-student-ai-verification.md)
-- Status: in_progress
+- Status: completed
 
 ## Request and scope
 El usuario autorizó integrar la funcionalidad en main, verificarla y subir los cambios al repositorio. Sin despliegue ni migración de datos retenidos.
@@ -24,7 +24,7 @@ La regresión ampliada inicial sin transformación TypeScript produjo seis fallo
 La prueba real Gemini previa del candidato, con estudiante sintético, UI y recarga, se documenta en [verificación](2026-10-28-root-student-ai-verification.md). No se repitió la llamada real ni se aplicaron migraciones a datos retenidos.
 
 ## Commits and outcomes
-Ninguno todavía.
+Merge local `067c4a37a484b052f914584177a3ffba47b22530` integra la rama de IA y preserva ambos aportes del roadmap. Push normal a main confirmado: HEAD, origin/main y `git ls-remote origin refs/heads/main` coincidieron en ese SHA. El presente cierre documental sigue al merge verificado y no cambia producto.
 
 ## Handoff
-Finalizar commit de merge, subir main y verificar exactamente el remoto. No desplegar ni migrar datos retenidos.
+La funcionalidad está publicada en main. Cierre documental pendiente de commit y push; verificar su ref final. No desplegar ni migrar datos retenidos.
