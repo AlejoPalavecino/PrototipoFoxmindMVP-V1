@@ -1,0 +1,107 @@
+[
+  {
+    "width": 320,
+    "route": "inicio",
+    "viewport": 320,
+    "scroll": 320,
+    "height": 1930
+  },
+  {
+    "width": 320,
+    "route": "mis-aulas",
+    "viewport": 320,
+    "scroll": 320,
+    "height": 1617
+  },
+  {
+    "width": 320,
+    "route": "agenda",
+    "viewport": 320,
+    "scroll": 320,
+    "height": 2278
+  },
+  {
+    "width": 320,
+    "route": "profile",
+    "viewport": 320,
+    "scroll": 320,
+    "height": 1206
+  },
+  {
+    "width": 320,
+    "route": "settings",
+    "viewport": 320,
+    "scroll": 320,
+    "height": 1085
+  },
+  {
+    "width": 768,
+    "route": "inicio",
+    "viewport": 768,
+    "scroll": 753,
+    "height": 1648
+  },
+  {
+    "width": 768,
+    "route": "mis-aulas",
+    "viewport": 768,
+    "scroll": 753,
+    "height": 1659
+  },
+  {
+    "width": 768,
+    "route": "agenda",
+    "viewport": 768,
+    "scroll": 753,
+    "height": 2246
+  },
+  {
+    "width": 768,
+    "route": "profile",
+    "viewport": 768,
+    "scroll": 753,
+    "height": 1029
+  },
+  {
+    "width": 768,
+    "route": "settings",
+    "viewport": 768,
+    "scroll": 753,
+    "height": 1010
+  },
+  {
+    "width": 1440,
+    "route": "inicio",
+    "viewport": 1440,
+    "scroll": 1440,
+    "height": 1000
+  },
+  {
+    "width": 1440,
+    "route": "mis-aulas",
+    "viewport": 1440,
+    "scroll": 1425,
+    "height": 1018
+  },
+  {
+    "width": 1440,
+    "route": "agenda",
+    "viewport": 1440,
+    "scroll": 1425,
+    "height": 1470
+  },
+  {
+    "width": 1440,
+    "route": "profile",
+    "viewport": 1440,
+    "scroll": 1440,
+    "height": 1000
+  },
+  {
+    "width": 1440,
+    "route": "settings",
+    "viewport": 1440,
+    "scroll": 1440,
+    "height": 1000
+  }
+]

@@ -1,0 +1,170 @@
+[
+  {
+    "width": 1440,
+    "label": "Plan",
+    "viewport": 1440,
+    "scroll": 1425,
+    "height": 1081
+  },
+  {
+    "width": 1440,
+    "label": "Muro",
+    "viewport": 1440,
+    "scroll": 1440,
+    "height": 1000
+  },
+  {
+    "width": 1440,
+    "label": "Biblioteca",
+    "viewport": 1440,
+    "scroll": 1440,
+    "height": 1000
+  },
+  {
+    "width": 1440,
+    "label": "Actividades",
+    "viewport": 1440,
+    "scroll": 1440,
+    "height": 1000
+  },
+  {
+    "width": 1440,
+    "label": "Progreso",
+    "viewport": 1440,
+    "scroll": 1425,
+    "height": 1126
+  },
+  {
+    "width": 1440,
+    "label": "Alumnos",
+    "viewport": 1440,
+    "scroll": 1440,
+    "height": 1000
+  },
+  {
+    "width": 1440,
+    "label": "Historial",
+    "viewport": 1440,
+    "scroll": 1440,
+    "height": 1000
+  },
+  {
+    "width": 1440,
+    "label": "Configuración",
+    "viewport": 1440,
+    "scroll": 1425,
+    "height": 1007
+  },
+  {
+    "width": 390,
+    "label": "Plan",
+    "viewport": 390,
+    "scroll": 390,
+    "height": 1378
+  },
+  {
+    "width": 390,
+    "label": "Muro",
+    "viewport": 390,
+    "scroll": 390,
+    "height": 1038
+  },
+  {
+    "width": 390,
+    "label": "Biblioteca",
+    "viewport": 390,
+    "scroll": 390,
+    "height": 1113
+  },
+  {
+    "width": 390,
+    "label": "Actividades",
+    "viewport": 390,
+    "scroll": 390,
+    "height": 1254
+  },
+  {
+    "width": 390,
+    "label": "Progreso",
+    "viewport": 390,
+    "scroll": 390,
+    "height": 1566
+  },
+  {
+    "width": 390,
+    "label": "Alumnos",
+    "viewport": 390,
+    "scroll": 390,
+    "height": 1103
+  },
+  {
+    "width": 390,
+    "label": "Historial",
+    "viewport": 390,
+    "scroll": 390,
+    "height": 920
+  },
+  {
+    "width": 390,
+    "label": "Configuración",
+    "viewport": 390,
+    "scroll": 390,
+    "height": 1269
+  },
+  {
+    "width": 320,
+    "label": "Plan",
+    "viewport": 320,
+    "scroll": 320,
+    "height": 1443
+  },
+  {
+    "width": 320,
+    "label": "Muro",
+    "viewport": 320,
+    "scroll": 320,
+    "height": 1056
+  },
+  {
+    "width": 320,
+    "label": "Biblioteca",
+    "viewport": 320,
+    "scroll": 320,
+    "height": 1154
+  },
+  {
+    "width": 320,
+    "label": "Actividades",
+    "viewport": 320,
+    "scroll": 320,
+    "height": 1366
+  },
+  {
+    "width": 320,
+    "label": "Progreso",
+    "viewport": 320,
+    "scroll": 320,
+    "height": 1706
+  },
+  {
+    "width": 320,
+    "label": "Alumnos",
+    "viewport": 320,
+    "scroll": 320,
+    "height": 1213
+  },
+  {
+    "width": 320,
+    "label": "Historial",
+    "viewport": 320,
+    "scroll": 320,
+    "height": 920
+  },
+  {
+    "width": 320,
+    "label": "Configuración",
+    "viewport": 320,
+    "scroll": 320,
+    "height": 1286
+  }
+]

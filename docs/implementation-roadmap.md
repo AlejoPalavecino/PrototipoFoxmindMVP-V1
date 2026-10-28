@@ -1,5 +1,11 @@
 # FoxMind implementation roadmap
 
+## Educational direction and guided workflows — local, 2026-10-28
+
+Follow-up request authorizes a distinct visual direction and testing with the permanent demo account. Local units `f425fa1` (warm educational shell, compact Inicio/aulas/Agenda, styled native selects) and `78e4125` (guided workflows) introduce three-step AI setup, actual-state waiting, focused editing/correction and grouped secondary actions. Original fox/graphics and business contracts are preserved. See [current coordinator](work-log/2026-10-28-root-education-experience.md) and [selected authenticated evidence](work-log/evidence/2026-10-28-education-experience/README.md).
+
+Actual runtime 52171 was restored and authenticated; 39 route/tab viewport observations had no document overflow. Regression: 103 PASS / 0 FAIL / 2 optional SKIP; strict types and production build PASS. Two bounded AI jobs failed recoverably (file reading limit, insufficient source information); no activity or grade was published. Successful real provider/application, submission/grading persistence and physical-device/Safari acceptance remain unverified. This supersedes only the earlier unavailable-runtime observation, not historical acceptance boundaries. No main merge, push, PR or deployment.
+
 ## Platform UX/UI redesign — local implementation verified, 2026-10-28
 
 Current redesign lives on `codex/foxmind-ux-redesign`, starting from clean main `2b58fbe`. It introduces a compact shared shell, account/Agenda styling, classroom and academic-work surfaces, Home resource disclosure, teacher-only Plan administration disclosure and mobile topic selection. Original fox/logo and graphic assets are preserved. [Coordinator record](work-log/2026-10-28-root-platform-redesign.md) and [visual QA](work-log/evidence/2026-10-28-platform-redesign/README.md) record 69 PASS / 0 FAIL / 2 optional SKIP, strict types and production build PASS, plus synthetic component-browser evidence at 320/390/768/1366/1440px.
