@@ -26,8 +26,8 @@ function parseSchedule(input: unknown): EventSchedule {
 function parseRepeat(input: unknown): EventRepeat {
   const item = agendaObject(input, ['kind', 'untilDate']);
   if (item.kind === 'NONE') { agendaObject(item, ['kind']); return { kind: 'NONE' }; }
-  if (item.kind !== 'WEEKLY') return invalid();
-  return { kind: 'WEEKLY', untilDate: agendaDate(item.untilDate) };
+  if (item.kind !== 'DAILY' && item.kind !== 'WEEKLY' && item.kind !== 'MONTHLY') return invalid();
+  return { kind: item.kind, untilDate: agendaDate(item.untilDate) };
 }
 export function parseAgendaEvent(input: unknown): EventPayload {
   const item = agendaObject(input, ['title', 'description', 'category', 'schedule', 'repeat', 'color']);

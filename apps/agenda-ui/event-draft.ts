@@ -15,9 +15,10 @@ export function eventDraft(event: PrivateEvent | undefined, day: string, zone: s
     allDay: schedule?.kind === 'ALL_DAY', startDate,
     endDate: schedule?.kind === 'ALL_DAY' ? shiftDay(schedule.endDateExclusive, -1) : timed?.endLocal.slice(0, 10) ?? day,
     startTime: timed?.startLocal.slice(11) ?? '09:00', endTime: timed?.endLocal.slice(11) ?? '10:00',
-    zone: timed?.timeZone ?? zone, weekly: event?.repeat.kind === 'WEEKLY',
-    until: event?.repeat.kind === 'WEEKLY' ? event.repeat.untilDate : shiftDay(startDate, 28),
-    untilEdited: event?.repeat.kind === 'WEEKLY', endMode: event ? 'MANUAL' : 'DURATION', durationMinutes: 60,
+    zone: timed?.timeZone ?? zone, weekly: !!event && event.repeat.kind !== 'NONE',
+    frequency: event && event.repeat.kind !== 'NONE' ? event.repeat.kind : 'WEEKLY',
+    until: event && event.repeat.kind !== 'NONE' ? event.repeat.untilDate : shiftDay(startDate, 28),
+    untilEdited: !!event && event.repeat.kind !== 'NONE', endMode: event ? 'MANUAL' : 'DURATION', durationMinutes: 60,
     ...(timed?.startOffsetMinutes === undefined ? {} : { startOffset: timed.startOffsetMinutes }),
     ...(timed?.endOffsetMinutes === undefined ? {} : { endOffset: timed.endOffsetMinutes }),
   };
@@ -31,7 +32,7 @@ export function draftPayload(draft: EventDraft): EventPayload {
       ...(draft.endOffset === undefined ? {} : { endOffsetMinutes: draft.endOffset }) };
   return parseAgendaEvent({ title: draft.title, description: draft.description, category: draft.category, schedule,
     ...(draft.color === 'AUTO' ? {} : { color: draft.color }),
-    repeat: draft.weekly ? { kind: 'WEEKLY', untilDate: draft.until } : { kind: 'NONE' } });
+    repeat: draft.weekly ? { kind: draft.frequency ?? 'WEEKLY', untilDate: draft.until } : { kind: 'NONE' } });
 }
 function comparable(draft: EventDraft): unknown {
   return { title: draft.title.trim(), description: draft.description, category: draft.category,
@@ -39,7 +40,7 @@ function comparable(draft: EventDraft): unknown {
     startDate: draft.startDate, endDate: draft.endDate, allDay: draft.allDay,
     ...(draft.allDay ? {} : { startTime: draft.startTime, endTime: draft.endTime, zone: draft.zone,
       startOffset: draft.startOffset, endOffset: draft.endOffset }),
-    weekly: draft.weekly, ...(draft.weekly ? { until: draft.until } : {}) };
+    weekly: draft.weekly, ...(draft.weekly ? { until: draft.until, frequency: draft.frequency ?? 'WEEKLY' } : {}) };
 }
 export function isDraftDirty(draft: EventDraft, baseline: EventDraft): boolean {
   return JSON.stringify(comparable(draft)) !== JSON.stringify(comparable(baseline));

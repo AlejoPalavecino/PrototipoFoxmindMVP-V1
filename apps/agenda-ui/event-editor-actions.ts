@@ -19,7 +19,7 @@ export function saveEditor(state: EditorActions): Promise<void> {
     state.setIssues(validation.issues);
     if (!validation.ok) { state.setError(validation.issues[0]?.message ?? 'Revisá el evento.'); return; }
     const payload = validation.payload, version = state.version.current;
-    if (version && (version.repeat.kind === 'WEEKLY' || payload.repeat.kind === 'WEEKLY')
+    if (version && (version.repeat.kind !== 'NONE' || payload.repeat.kind !== 'NONE')
       && !window.confirm('Guardar estos cambios afecta toda la serie, incluidas las fechas pasadas. ¿Continuar?')) return;
     const event = version ? await state.api.replace(state.id.current, version.revision, payload)
       : await state.api.put(state.id.current, payload);
@@ -34,7 +34,7 @@ export function removeEditor(state: EditorActions): Promise<void> {
     if (!version) return;
     const current = await state.api.get(state.id.current);
     if (current.revision !== version.revision) throw Object.assign(new Error('El evento cambió. Revisá la versión guardada antes de eliminar.'), { code: 'CONFLICT' });
-    if (!window.confirm(version.repeat.kind === 'WEEKLY'
+    if (!window.confirm(version.repeat.kind !== 'NONE'
       ? 'Se eliminará toda la serie, incluidas las fechas pasadas. ¿Eliminar serie?' : '¿Eliminar este evento privado?')) return;
     await state.api.remove(state.id.current, version.revision);
     state.completed.current = true;

@@ -19,9 +19,9 @@ const historical = [
   ['202610240001_agenda_event_color', 'e73a3582284512cf7ede7b9d497d48e10632fdd8e7ff133905a819c39e17dd3f'],
 ];
 const canonicalDigest = bytes => createHash('sha256').update(bytes.toString('utf8').replace(/\r\n/g, '\n')).digest('hex');
-test('activity migrations append exactly two entries without rewriting the twelve historical SQL files', async () => {
+test('activity and recurrence migrations append without rewriting the twelve historical SQL files', async () => {
   const names = (await readdir('prisma/migrations')).filter(name => /^\d+_/.test(name)).sort();
-  assert.deepEqual(names, [...historical.map(([name]) => name), '202610250001_activity_topics', '202610250002_activity_ai']);
+  assert.deepEqual(names, [...historical.map(([name]) => name), '202610250001_activity_topics', '202610250002_activity_ai', '202610280001_agenda_recurrence']);
   for (const [name, digest] of historical) {
     const bytes = await readFile(`prisma/migrations/${name}/migration.sql`);
     assert.equal(canonicalDigest(bytes), digest, name);

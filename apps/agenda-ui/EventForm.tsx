@@ -17,14 +17,14 @@ export function EventForm({ api, event, day, zone, onClose, onSaved }: {
   useIssueFocus(form, editor.issues, editor.busy);
   const close = () => { if (editor.requestClose()) onClose(); };
   return <Dialog title={event ? 'Editar evento' : 'Nuevo evento'} className="agenda-dialog" onClose={close}>
-    {event?.repeat.kind === 'WEEKLY' ? <Notice>Estás editando toda la serie semanal, incluidas sus fechas pasadas.</Notice> : null}
+    {event && event.repeat.kind !== 'NONE' ? <Notice>Estás editando toda la serie, incluidas sus fechas pasadas.</Notice> : null}
     {editor.error ? <Notice error>{editor.error}</Notice> : null}
     {editor.conflict ? <button disabled={editor.busy} onClick={() => void editor.review()}>Revisar versión guardada y conservar mis cambios</button> : null}
     {editor.stored ? <StoredEvent event={editor.stored} zone={zone} /> : null}
     <form ref={form} noValidate onSubmit={submit => { submit.preventDefault(); void editor.save(); }}>
-      <fieldset disabled={editor.busy} className="agenda-fields"><EventFields draft={editor.draft} onChange={editor.setDraft} issues={editor.issues} /></fieldset>
+      <div className="agenda-form-body"><fieldset disabled={editor.busy} className="agenda-fields"><EventFields draft={editor.draft} onChange={editor.setDraft} issues={editor.issues} /></fieldset></div>
       <footer className="p5-form-footer">
-        {event ? <button type="button" className="danger" disabled={editor.busy || editor.conflict} onClick={() => void editor.remove()}>Eliminar{event.repeat.kind === 'WEEKLY' ? ' serie' : ''}</button> : null}
+        {event ? <button type="button" className="danger" disabled={editor.busy || editor.conflict} onClick={() => void editor.remove()}>Eliminar{event.repeat.kind !== 'NONE' ? ' serie' : ''}</button> : null}
         <button type="button" disabled={editor.busy} onClick={close}>Cancelar</button>
         <button className="primary" disabled={editor.busy || editor.conflict}>{editor.busy ? 'Guardando…' : event ? 'Guardar cambios' : 'Crear evento'}</button>
       </footer>

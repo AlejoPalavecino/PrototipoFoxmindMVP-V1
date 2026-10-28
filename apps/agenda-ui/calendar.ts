@@ -1,6 +1,17 @@
 import type { AgendaPage, AgendaRange } from '../../src/core/domain/index.ts';
 
 export type AgendaItem = AgendaPage['items'][number];
+export type CalendarMode = 'MONTH' | 'WEEK' | 'DAY';
+export function calendarRange(mode: CalendarMode, day: string, month: string, timeZone: string): AgendaRange {
+  if (mode === 'DAY') return { startDate: day, endDateExclusive: shiftDay(day, 1), timeZone };
+  if (mode === 'WEEK') {
+    const weekday = new Date(`${day}T12:00:00Z`).getUTCDay();
+    const startDate = shiftDay(day, -((weekday + 6) % 7));
+    return { startDate, endDateExclusive: shiftDay(startDate, 7), timeZone };
+  }
+  const days = monthDays(month);
+  return { startDate: days[0], endDateExclusive: shiftDay(days[41], 1), timeZone };
+}
 export const categoryLabels = { CLASS: 'Clase', ACTIVITY: 'Actividad', EVALUATION: 'Evaluación' };
 export function dateAt(instant: string | number, timeZone: string): string {
   const parts = new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date(instant));

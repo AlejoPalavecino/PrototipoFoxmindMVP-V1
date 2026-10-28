@@ -1,5 +1,9 @@
 # Agenda global y eventos privados
 
+## Ampliación autorizada del 28 de octubre de 2026
+
+El pedido de refinamiento agrega vistas mes/semana/día, observaciones visibles y repetición diaria/mensual a la semanal existente. Conserva privacidad, sesión/CSRF, revisiones, idempotencia y edición/borrado de serie completa. Mensual usa el mismo número de día y omite meses sin esa fecha; toda serie exige fecha final y hasta 53 ocurrencias. Contrato compartido en `agenda-repeat.ts`, migración aditiva `202610280001_agenda_recurrence` y pruebas de rango/persistencia/DST. [Comportamiento vigente](../../docs/agenda.md) y [evidencia actual](../../docs/work-log/2026-10-28-root-warm-product-polish.md). Las decisiones de la primera entrega que siguen se conservan como historia.
+
 ESTADO_DISENO: LISTO_PARA_TDD_RED
 
 El alcance solicitado añade `Agenda` junto a `Inicio` y `Mis aulas`, próximas entregas obtenidas de datos reales y eventos personales para clases, actividades y evaluaciones. La implementación está autorizada en el worktree `codex/foxmind-agenda`. El usuario confirmó por medio del coordinador eventos únicos y repetición semanal desde la primera versión. Este documento fija el contrato previo a RED; no registra implementación ni pruebas funcionales ejecutadas.

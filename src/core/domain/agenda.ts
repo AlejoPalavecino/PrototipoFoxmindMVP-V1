@@ -6,7 +6,7 @@ export type EventSchedule =
   | { kind: 'TIMED'; timeZone: string; startLocal: string; endLocal: string;
       startOffsetMinutes?: number; endOffsetMinutes?: number }
   | { kind: 'ALL_DAY'; startDate: string; endDateExclusive: string };
-export type EventRepeat = { kind: 'NONE' } | { kind: 'WEEKLY'; untilDate: string };
+export type EventRepeat = { kind: 'NONE' } | { kind: 'DAILY' | 'WEEKLY' | 'MONTHLY'; untilDate: string };
 export interface EventPayload {
   title: string;
   description: string;

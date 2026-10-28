@@ -26,6 +26,10 @@ export function EventFields({ draft, onChange, issues }: EventFieldProps) {
     </section>
     <EventWhenFields draft={draft} onChange={onChange} issues={issues} />
     <EventRepeatFields draft={draft} onChange={onChange} issues={issues} />
+    <section className="agenda-form-group"><label>Observaciones <small>(opcional)</small><textarea name="description" rows={3} maxLength={4000} value={draft.description}
+      placeholder="Qué preparar, qué llevar o algún detalle que quieras recordar…"
+      onChange={event => onChange({ ...draft, description: event.target.value })} {...fieldAria(issues, 'description')} /></label>
+      <FieldIssue issues={issues} field="description" /></section>
     <EventAdvancedFields draft={draft} onChange={onChange} issues={issues} />
     <p className="agenda-form-summary" aria-live="polite">{draftSummary(draft)}</p>
   </>;

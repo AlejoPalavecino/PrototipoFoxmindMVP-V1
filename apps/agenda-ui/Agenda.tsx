@@ -6,7 +6,8 @@ import { AgendaMonth } from './AgendaMonth.tsx';
 import { AgendaDay } from './AgendaDay.tsx';
 import { Upcoming } from './Upcoming.tsx';
 import { EventForm } from './EventForm.tsx';
-import { monthRange } from './calendar.ts';
+import { calendarRange, type CalendarMode } from './calendar.ts';
+import { AgendaPeriod } from './AgendaPeriod.tsx';
 import { useAgenda } from './useAgenda.ts';
 import { useAgendaView } from './useAgendaView.ts';
 import { AgendaHeader } from './AgendaHeader.tsx';
@@ -14,7 +15,8 @@ import { useAgendaResult } from './useAgendaResult.ts';
 import { useAgendaEventTarget, type AgendaEventRequest } from './useAgendaEventTarget.ts';
 
 export function Agenda({ api, onOpen, requestedEvent }: { api: AgendaClient; onOpen: (target: AgendaTarget) => void; requestedEvent?: AgendaEventRequest | null }) {
-  const view = useAgendaView(), data = useAgenda(api, monthRange(view.month, view.zone));
+  const [mode, setMode] = useState<CalendarMode>('MONTH');
+  const view = useAgendaView(), data = useAgenda(api, calendarRange(mode, view.day, view.month, view.zone));
   const [editing, setEditing] = useState<{ event?: PrivateEvent } | null>(null);
   const [error, setError] = useState(''), [busy, setBusy] = useState(false);
   const result = useAgendaResult(view, data.reload, () => setEditing(null));
@@ -33,13 +35,16 @@ export function Agenda({ api, onOpen, requestedEvent }: { api: AgendaClient; onO
   };
   return <main id="agenda-main" className="p5-main agenda-main">
     <AgendaHeader onCreate={() => setEditing({})} zone={view.zone} onZone={view.changeZone} />
-    {result.notice ? <Notice>{result.notice} {result.event ? <button onClick={result.showEvent}>{result.event.repeat.kind === 'WEEKLY' ? 'Ver inicio de la serie' : 'Ver evento'}</button> : null}</Notice> : null}
+    <nav className="agenda-mode-controls" aria-label="Vista de agenda">{(['MONTH', 'WEEK', 'DAY'] as const).map(value =>
+      <button key={value} aria-pressed={mode === value} onClick={() => setMode(value)}>{{ MONTH: 'Mes', WEEK: 'Semana', DAY: 'Día' }[value]}</button>)}</nav>
+    {result.notice ? <Notice>{result.notice} {result.event ? <button onClick={result.showEvent}>{result.event.repeat.kind !== 'NONE' ? 'Ver inicio de la serie' : 'Ver evento'}</button> : null}</Notice> : null}
     {error ? <Notice error>{error}</Notice> : null}
     {requested.error ? <Notice error>{requested.error}</Notice> : null}
     {data.error ? <Notice error>{data.error} <button onClick={() => void data.reload()}>Volver a intentar</button></Notice> : null}
     {data.loading ? <Notice>Consultando tu agenda…</Notice> : null}
     <div className="agenda-layout"><div className="agenda-primary">
-      <AgendaMonth month={view.month} selected={view.day} zone={view.zone} items={data.items} onSelect={view.select} onMonth={view.move} onToday={view.today} loading={data.loading} />
+      {mode === 'MONTH' ? <AgendaMonth month={view.month} selected={view.day} zone={view.zone} items={data.items} onSelect={day => { view.select(day); setMode('DAY'); }} onMonth={view.move} onToday={view.today} loading={data.loading} />
+        : <AgendaPeriod mode={mode} day={view.day} zone={view.zone} items={data.items} onSelect={view.select} onToday={view.today} loading={data.loading} />}
       {!data.loading && !data.error ? <AgendaDay day={view.day} zone={view.zone} items={data.items} busy={busy} focusEventId={result.focusEventId ?? (view.day === requestedEvent?.date ? requested.focusEventId : undefined)} focusRequest={result.focusRequest} onEdit={event => setEditing({ event })} onOpen={target => void open(target)} onCreate={() => setEditing({})} /> : null}
     </div><Upcoming items={data.upcoming} loading={data.loading} error={data.error} busy={busy} onOpen={target => void open(target)} /></div>
     {editing ? <EventForm api={api} event={editing.event} day={view.day} zone={view.zone} onClose={() => setEditing(null)} onSaved={result.saved} /> : null}

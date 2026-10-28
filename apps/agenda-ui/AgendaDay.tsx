@@ -29,10 +29,10 @@ export function AgendaDay({ day, zone, items, busy, focusEventId, focusRequest, 
       : <article key={item.occurrenceId} id={`agenda-event-${item.occurrenceId}`} data-event-id={item.event.id} tabIndex={-1} className={`agenda-event ${eventColorClass(item.event)}`}>
         <p className="agenda-event-time">{eventTimeLabel(item)}</p><h3>{item.event.title}</h3>
         <p className="agenda-privacy"><FoxmindIcon name="lock" />Evento personal · Solo vos</p>
-        <span className="p5-tag">{categoryLabels[item.event.category]} · Privado{item.event.repeat.kind === 'WEEKLY' ? ' · Semanal' : ''}</span>
+        <span className="p5-tag">{categoryLabels[item.event.category]} · Privado{({ NONE: '', DAILY: ' · Diario', WEEKLY: ' · Semanal', MONTHLY: ' · Mensual' })[item.event.repeat.kind]}</span>
         <p className="agenda-date">{item.startAt ? deadlineLabel(item.startAt, item.event.schedule.kind === 'TIMED' ? item.event.schedule.timeZone : zone) : 'Día completo'}</p>
         {item.event.description ? <p className="agenda-description">{item.event.description}</p> : null}
-        <button disabled={busy} onClick={() => onEdit(item.event)}>Editar{item.event.repeat.kind === 'WEEKLY' ? ' serie' : ' evento'}</button>
+        <button disabled={busy} onClick={() => onEdit(item.event)}>Editar{item.event.repeat.kind !== 'NONE' ? ' serie' : ' evento'}</button>
       </article>)}</div>
     <button className="agenda-add-day" disabled={busy} onClick={onCreate}>+ Agregar evento este día</button>
   </section>;

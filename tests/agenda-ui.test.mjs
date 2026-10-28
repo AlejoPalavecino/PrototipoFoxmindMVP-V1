@@ -83,7 +83,7 @@ test('a delayed forbidden open after month navigation revalidates the current mo
   const api = {
     async list(range, _cursor, signal) {
       queries.push({ ...range, signal });
-      if (range.startDate === '2026-12-01') return decemberList.promise;
+      if (range.startDate === '2026-11-30') return decemberList.promise;
       return page(denied ? [november] : [old]);
     },
     async upcoming() { return navigated ? latestUpcoming.promise : page([old]); },
@@ -100,7 +100,7 @@ test('a delayed forbidden open after month navigation revalidates the current mo
     component('Upcoming').props.onOpen(target); await view.flush();
     navigated = true; component('AgendaMonth').props.onMonth(1); await view.flush();
     assert.equal(component('AgendaMonth').props.month, '2026-12');
-    assert.equal(queries.at(-1).startDate, '2026-12-01');
+    assert.equal(queries.at(-1).startDate, '2026-11-30', 'The December grid includes its visible Monday in November');
     assert.equal(component('AgendaMonth').props.items.length, 0, 'Navigation must clear the previous range while December is pending');
     denied = true; opening.reject(new AgendaClientError('FORBIDDEN', 403)); await view.flush();
     assert.ok(!renderToStaticMarkup(view.tree).includes(old.title), 'A denied target must remain absent while revalidation is pending');

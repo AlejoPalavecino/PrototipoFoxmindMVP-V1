@@ -4,9 +4,9 @@ Agenda reúne los eventos privados de cada cuenta y los plazos académicos a los
 
 ## Organizar la semana
 
-- Consultar el mes y seleccionar un día para ver sus eventos.
+- Alternar entre mes, semana y día. Elegir una fecha del mes abre el detalle diario; la semana permite recorrer siete días con sus eventos.
 - Crear una clase, actividad o evaluación personal, con título, descripción y horario o día completo.
-- Repetir un evento semanalmente hasta una fecha final, con un máximo de 53 ocurrencias por serie.
+- Repetir un evento cada día, semana o mes hasta una fecha final inclusiva, con un máximo de 53 ocurrencias por serie.
 - Editar o eliminar un evento único o una serie completa. La interfaz debe indicar el alcance sobre la serie, también para fechas pasadas.
 - Consultar las próximas entregas y abrir la actividad correspondiente.
 
@@ -14,13 +14,13 @@ Los eventos personales son privados. No publican actividades en un aula, no alte
 
 ## Fechas y entregas
 
-El formulario compacto reúne tipo y título, día y horario, duración de 30/60/90 minutos o fin manual. Al activar día completo conserva las horas elegidas para poder volver atrás. La repetición semanal muestra cuántos eventos se crearán y su último día; inicialmente sugiere cinco encuentros y permite cambiar el final.
+El formulario compacto reúne tipo y título, día y horario, duración de 30/60/90 minutos o fin manual. Al activar día completo conserva las horas elegidas para poder volver atrás. La repetición muestra cuántos eventos se crearán y su último día; permite cambiar la frecuencia y el final. La mensual mantiene el número de día original: por ejemplo, una serie del 31 omite febrero y abril, sin desplazarse al mes siguiente. El formulario explica esta regla antes de guardar.
 
 El alcance y la evidencia de este flujo se siguen en [la mejora del formulario](../odd/tasks/agenda-compact-event-form.md).
 
 Cada evento personal permite elegir Azul, Verde, Amarillo, Naranja, Rosa o Violeta, o dejar Automático para usar la categoría. La elección se guarda con el evento y aparece en el calendario, sus indicadores móviles y la lista del día. Se puede cambiar al editar o volver a Automático; una serie comparte el color en todas sus fechas. Los eventos anteriores conservan su aspecto y las entregas académicas mantienen su presentación propia. [Contrato y verificación de color](../odd/tasks/agenda-event-color.md).
 
-Los eventos nuevos usan automáticamente la zona de la agenda. Una indicación como «Hora de Buenos Aires» aclara la referencia; en más opciones se puede elegir otra ciudad sin escribir códigos de zona. Editar conserva la zona guardada. Cambiarla mantiene la fecha y hora escritas, como explica el selector. Las notas y los eventos de varios días también están en más opciones.
+Los eventos nuevos usan automáticamente la zona de la agenda. Una indicación como «Hora de Buenos Aires» aclara la referencia; en más opciones se puede elegir otra ciudad sin escribir códigos de zona. Editar conserva la zona guardada. Cambiarla mantiene la fecha y hora escritas, como explica el selector. Las observaciones opcionales están a la vista; los eventos de varios días siguen en más opciones.
 
 Antes de guardar se muestra un resumen y los errores aparecen junto al campo correspondiente. Cerrar con cambios pide confirmación. Tras crear un evento, la agenda selecciona su día y ofrece «Ver evento». Editar mantiene el día que se estaba consultando y permite ir explícitamente al inicio de la serie.
 
@@ -42,6 +42,6 @@ Las revisiones detectan cambios simultáneos entre pestañas. Un conflicto permi
 
 Para verificar contratos, persistencia y sesiones en bases desechables: `npm run test:agenda` (requiere Docker). El comando compila la API desde cero antes de ejecutar las suites y regresiones de Agenda. La compilación web y la comprobación visual se registran por separado; este comando no las sustituye.
 
-Incluye eventos únicos y repetición semanal. No incluye edición de una ocurrencia individual dentro de una serie, recordatorios por correo, sincronización con calendarios externos, invitados ni eventos compartidos.
+Incluye eventos únicos y repetición diaria, semanal y mensual. No incluye edición de una ocurrencia individual dentro de una serie, recordatorios por correo, sincronización con calendarios externos, invitados ni eventos compartidos.
 
-Los cambios se desarrollan en `codex/foxmind-agenda`, separado de main. La nueva migración se valida en recursos desechables propios; los datos de desarrollo existentes se conservan. Los resultados observados, limitaciones y estado de integración pertenecen al [registro del coordinador](work-log/2026-10-23-root-agenda.md).
+La entrega original y sus límites históricos están en el [registro de Agenda](work-log/2026-10-23-root-agenda.md). La ampliación local del 28 de octubre vive en `codex/foxmind-ux-redesign`; la migración conserva los eventos anteriores. Pruebas, recorrido real con la cuenta demo y alcance de entrega: [refinamiento actual](work-log/2026-10-28-root-warm-product-polish.md).

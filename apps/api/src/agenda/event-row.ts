@@ -5,7 +5,7 @@ export interface EventRow {
   schedule_kind: 'TIMED' | 'ALL_DAY'; start_date: string; end_date_exclusive: string;
   start_local: string | null; end_local: string | null; time_zone: string | null;
   start_offset_minutes: number | null; end_offset_minutes: number | null;
-  repeat_kind: 'NONE' | 'WEEKLY'; repeat_until: string | null;
+  repeat_kind: EventPayload['repeat']['kind']; repeat_until: string | null;
   revision: bigint; created_at: Date; updated_at: Date;
   color: EventPayload['color'] | null;
 }
@@ -19,7 +19,7 @@ export function fromEventRow(row: EventRow): PrivateEvent {
         ...(row.start_offset_minutes === null ? {} : { startOffsetMinutes: row.start_offset_minutes }),
         ...(row.end_offset_minutes === null ? {} : { endOffsetMinutes: row.end_offset_minutes }) };
   return { id: row.id, title: row.title, description: row.description, category: row.category, schedule,
-    repeat: row.repeat_kind === 'NONE' ? { kind: 'NONE' } : { kind: 'WEEKLY', untilDate: row.repeat_until! },
+    repeat: row.repeat_kind === 'NONE' ? { kind: 'NONE' } : { kind: row.repeat_kind, untilDate: row.repeat_until! },
     revision: String(row.revision), createdAt: row.created_at.toISOString(), updatedAt: row.updated_at.toISOString(),
     ...(row.color === null ? {} : { color: row.color }) };
 }
@@ -34,5 +34,5 @@ export function eventValues(payload: EventPayload): unknown[] {
     timed?.startLocal ?? null, timed?.endLocal ?? null, timed?.timeZone ?? null,
     timed?.startOffsetMinutes ?? null, timed?.endOffsetMinutes ?? null,
     instants?.startAt ?? null, instants?.endAt ?? null, payload.repeat.kind,
-    payload.repeat.kind === 'WEEKLY' ? payload.repeat.untilDate : null, payload.color ?? null];
+    payload.repeat.kind !== 'NONE' ? payload.repeat.untilDate : null, payload.color ?? null];
 }

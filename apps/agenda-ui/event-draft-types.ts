@@ -7,6 +7,7 @@ export interface EventDraft {
   allDay: boolean; startDate: string; endDate: string;
   startTime: string; endTime: string; zone: string;
   weekly: boolean; until: string; untilEdited: boolean;
+  frequency?: 'DAILY' | 'WEEKLY' | 'MONTHLY';
   startOffset?: number; endOffset?: number;
   endMode: 'DURATION' | 'MANUAL'; durationMinutes: number;
 }

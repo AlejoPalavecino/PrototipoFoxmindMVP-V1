@@ -1,15 +1,13 @@
 import type { AgendaRange, EventOccurrence, EventPayload, EventSchedule, PrivateEvent } from './agenda.ts';
-import { agendaDate, invalid, localMinuteAt, shiftDate } from './agenda-values.ts';
+import { invalid, localMinuteAt, shiftDate } from './agenda-values.ts';
+import { agendaRepeatDates } from './agenda-repeat.ts';
 import { scheduleInstants } from './agenda-time.ts';
 
 export function seriesSchedules(payload: EventPayload): EventSchedule[] {
   const schedule = payload.schedule;
   const start = schedule.kind === 'TIMED' ? schedule.startLocal.slice(0, 10) : schedule.startDate;
-  const until = payload.repeat.kind === 'NONE' ? start : agendaDate(payload.repeat.untilDate);
-  const count = Math.floor((Date.parse(until) - Date.parse(start)) / 604800000) + 1;
-  if (count < 1 || count > 53 || until < start) return invalid();
-  return Array.from({ length: count }, (_, index) => {
-    const days = index * 7;
+  return agendaRepeatDates(start, payload.repeat).map((date, index) => {
+    const days = (Date.parse(date) - Date.parse(start)) / 86400000;
     if (schedule.kind === 'ALL_DAY') return { ...schedule,
       startDate: shiftDate(schedule.startDate, days), endDateExclusive: shiftDate(schedule.endDateExclusive, days) };
     // Offsets disambiguate the first occurrence only. Future ambiguous dates require another schedule.

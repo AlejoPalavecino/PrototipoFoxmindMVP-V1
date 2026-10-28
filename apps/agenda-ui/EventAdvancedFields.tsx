@@ -8,9 +8,6 @@ export function EventAdvancedFields({ draft, onChange, issues }: EventFieldProps
   const [multiple, setMultiple] = useState(draft.startDate !== draft.endDate);
   const hasSecondary = issues.some(issue => ['description', 'endDate', 'zone'].includes(issue.field));
   return <details className="agenda-advanced" open={hasSecondary || multiple || Boolean(draft.description) || undefined}><summary>Más opciones{draft.description || multiple ? ' · Con datos' : ''}</summary>
-    <label>Notas <small>(opcional)</small><textarea name="description" rows={3} maxLength={4000} value={draft.description}
-      onChange={event => onChange({ ...draft, description: event.target.value })} {...fieldAria(issues, 'description')} /></label>
-    <FieldIssue issues={issues} field="description" />
     <label className="agenda-check"><input type="checkbox" checked={multiple || draft.startDate !== draft.endDate}
       onChange={event => { setMultiple(event.target.checked); if (!event.target.checked) onChange(changeDraftEnd(draft, { date: draft.startDate })); }} />Ocupa varios días</label>
     {multiple || draft.startDate !== draft.endDate || issues.some(issue => issue.field === 'endDate') ? <label>{draft.allDay ? 'Último día (incluido)' : 'Fecha de fin'}
