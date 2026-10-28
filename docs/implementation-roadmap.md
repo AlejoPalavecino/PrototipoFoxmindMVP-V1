@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## UX refinement and real AI fixes — integrated and published on main, 2026-10-28
+
+The user authorized main integration/publication of the reviewed UX branch. Main fast-forwarded from `2b58fbe` to `c2236f0`; the GitHub main ref was verified equal after push. [Delivery record](work-log/2026-10-28-root-warm-main-publication.md):139 PASS/0 FAIL/0 SKIP on main, API/strict web/production buildsPASS, read-only preview readiness and asset smokePASS,15-commit secret scan clean. Product tree exactly matches the reviewed branch. This supersedes only the earlier local-only publication statuses below; historical acceptance limits remain. No deployment or retained-data operation. A passive documentation closure follows the verified product push.
+
 ## Warm fox refinement and Agenda views — local, 2026-10-28
 
 The user's latest refinement keeps the approved learning composition and replaces its blue palette with orange/cream/brown pastels. Home drops draft/refresh-time clutter, classrooms retain drafts, teaching progress and conversation/notification/form presentation are clearer, and shared motion respects reduced-motion preferences. A transparent generated fox ships in three WebP sizes; original logo/covers remain. Agenda adds month/week/day navigation plus bounded daily/weekly/monthly recurrence and visible notes. [Coordinator](work-log/2026-10-28-root-warm-product-polish.md) and [visual proof](work-log/evidence/2026-10-28-warm-product/README.md):86 focusedPASS plus1 city-catalogPASS, API/web build and strict typesPASS, authenticated responsive checks and real monthly create→reload→future occurrence→cleanupPASS. Schema-only preview migration preserved all prior event rows. Local branch only; historical grading/submission and physical-device/Safari gaps remain unchanged.
