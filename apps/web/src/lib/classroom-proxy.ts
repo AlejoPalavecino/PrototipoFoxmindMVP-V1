@@ -20,7 +20,7 @@ const routes: Rule[] = [
   rule('/invitations', { GET: null }), rule(`/invitations/${uuid}/accept`, { POST: [] }),
   rule(`/${uuid}`, { GET: null }),
   rule(`/${uuid}/progress`, { GET: null }),
-  rule(`/${uuid}/members/${uuid}/progress`, { GET: null }),
+  rule(`/${uuid}/members/${uuid}/(?:progress|ai-summary)`, { GET: null }),
   rule(`/${uuid}/plan`, { POST: ['revision', 'operation'] }),
   rule(`/${uuid}/library`, { GET: null, POST: ['revision', 'operation'] }),
   rule(`/${uuid}/wall`, { GET: null, POST: ['revision', 'operation'] }),
@@ -248,7 +248,7 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
   const gradingRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/grading$`).test(url.pathname);
   const publicationRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/(?:publish-grade|result)$`).test(url.pathname);
   const correctionRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/grade-corrections$`).test(url.pathname);
-  const progressRoute = new RegExp(`^/api/v1/classrooms/${uuid}/(?:progress|members/${uuid}/progress)$`).test(url.pathname);
+  const progressRoute = new RegExp(`^/api/v1/classrooms/${uuid}/(?:progress|members/${uuid}/(?:progress|ai-summary))$`).test(url.pathname);
   const generationRoute = url.pathname.includes('/activity-generations');
   const extractionRoute = url.pathname.includes('/curriculum-extractions');
   if ((practicalWrite || answerWrite) && (typeof request.headers['x-attempt-editor'] !== 'string'

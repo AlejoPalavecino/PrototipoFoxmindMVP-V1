@@ -98,6 +98,7 @@ enum JobStatus {
 }
 
 model User {
+  student_ai_reports StudentAiReport[]
   activity_generations ActivityAiGeneration[] @relation("ActivityGeneration_owner")
   activity_generation_requests ActivityAiRequest[] @relation("ActivityRequest_owner")
   curriculum_extractions ClassroomCurriculumExtraction[]
@@ -227,6 +228,7 @@ model ClassroomDraft {
 }
 
 model Classroom {
+  student_ai_reports StudentAiReport[]
   activity_generations ActivityAiGeneration[] @relation("ActivityGeneration_classroom")
   id                  String             @id @default(uuid()) @db.Uuid
   revision            BigInt             @default(0)
@@ -273,6 +275,7 @@ model ClassroomCode {
 }
 
 model Enrollment {
+  student_ai_reports StudentAiReport[]
   id              String             @id @default(uuid()) @db.Uuid
   created_at      DateTime           @default(now()) @db.Timestamptz(6)
   updated_at      DateTime           @default(now()) @updatedAt @db.Timestamptz(6)
@@ -980,4 +983,34 @@ model ActivityAiRequest {
 
   @@id([owner_id, request_id])
   @@map("activity_ai_requests")
+}
+
+model StudentAiReport {
+  id String @id @db.Uuid
+  enrollment_id String @db.Uuid
+  classroom_id String @db.Uuid
+  owner_id String @db.Uuid
+  evidence_hash String
+  state String @default("QUEUED")
+  report Json?
+  created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  updated_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  lease_nonce String? @db.Uuid
+  lease_until DateTime? @db.Timestamptz(6)
+  dispatch_count Int @default(0)
+  dispatch_started_at DateTime? @db.Timestamptz(6)
+  attempt_count Int @default(1)
+  reserved_microusd BigInt @default(0)
+  usage_day DateTime? @db.Date
+  input_tokens BigInt?
+  output_tokens BigInt?
+  error_code String?
+  reference_map Json?
+  enrollment Enrollment @relation(fields: [enrollment_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  classroom Classroom @relation(fields: [classroom_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  owner User @relation(fields: [owner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([enrollment_id, evidence_hash])
+  @@index([enrollment_id, created_at(sort: Desc)], map: "student_ai_reports_enrollment_idx")
+  @@map("student_ai_reports")
 }

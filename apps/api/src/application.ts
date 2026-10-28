@@ -21,6 +21,7 @@ import { createHomeService, createHomeUnitOfWork, type HomeService } from './hom
 import { installHomeTransport } from './home/integration.ts';
 
 import { ActivityAiRuntime } from './classrooms/activity-ai/runtime.ts';
+import { StudentAiRuntime } from './classrooms/student-ai/runtime.ts';
 
 export interface ApplicationOptions { readonly identity?: IdentityRuntimePorts; readonly ai?: AiRuntimeOverride }
 
@@ -31,12 +32,13 @@ class AppModule implements OnModuleDestroy {
     @Optional() @Inject(ClassroomHostLifecycle) private readonly classrooms?: ClassroomHostLifecycle,
     @Optional() @Inject(LibraryCleanupWorker) private readonly library?: LibraryCleanupWorker,
     @Optional() @Inject(ClassroomAiRuntime) private readonly ai?: ClassroomAiRuntime,
-    @Optional() @Inject(ActivityAiRuntime) private readonly activityAi?: ActivityAiRuntime) {}
+    @Optional() @Inject(ActivityAiRuntime) private readonly activityAi?: ActivityAiRuntime,
+    @Optional() @Inject(StudentAiRuntime) private readonly studentAi?: StudentAiRuntime) {}
   // Nest destroys the root module before imported modules. Drain worker/sender before Prisma teardown,
   // for both framework close and native shutdown hooks; relying on beforeApplicationShutdown is too late.
   async onModuleDestroy(): Promise<void> {
     // Explicit material deletion uses the shared storage port; drain it before file infrastructure closes.
-    const deletion = await Promise.allSettled([this.library?.onModuleDestroy(), this.ai?.onModuleDestroy(), this.activityAi?.onModuleDestroy()]);
+    const deletion = await Promise.allSettled([this.library?.onModuleDestroy(), this.ai?.onModuleDestroy(), this.activityAi?.onModuleDestroy(), this.studentAi?.onModuleDestroy()]);
     const outcomes = [...deletion, ...await Promise.allSettled([this.identity.shutdownMail(), this.files?.close(), this.classrooms?.close()])];
     const failed = outcomes.find(outcome => outcome.status === 'rejected');
     if (failed?.status === 'rejected') throw failed.reason;

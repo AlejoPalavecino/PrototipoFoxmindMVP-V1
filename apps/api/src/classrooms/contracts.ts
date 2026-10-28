@@ -10,6 +10,7 @@ export interface Actor {
   now: Date;
 }
 export interface ClassroomPorts {
+  studentAiEnabled?: boolean;
   validateActivityGeneration?(tx: Transaction, request: unknown, activityId: string): Promise<void>;
   database: FileDatabase;
   // Actual P3 session validator; repeatable under user lock, Origin/CSRF on mutation.

@@ -307,6 +307,10 @@ export function createClassroomsHandler(
         method === 'GET'
       )
         value = await service.members(req, path[0], path[1] === 'history');
+      else if (path.length === 4 && path[1] === 'members' && path[3] === 'ai-summary') {
+        if (method !== 'GET' || !uuid(path[0]) || !uuid(path[2])) return fail('INVALID_INPUT');
+        value = await service.getStudentAiReport(req, path[0], path[2]);
+      }
       else if ((path.length === 2 && path[1] === 'progress')
         || (path.length === 4 && path[1] === 'members' && path[3] === 'progress')) {
         if (method !== 'GET' || !uuid(path[0]) || (path.length === 4 && !uuid(path[2]))
