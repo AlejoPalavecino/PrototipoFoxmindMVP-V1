@@ -7,7 +7,7 @@ import { defaultGenerationForm } from './ActivityGenerationForm.tsx';
 import { GenerationSetup } from './GenerationSetup.tsx';
 import { AiProgress } from '../shared-ui/index.ts';
 import { ActivityGenerationProposal } from './ActivityGenerationProposal.tsx';
-import { generationErrors, generationStates, generationWarnings, type GenerationView } from './activity-generation-api.ts';
+import { generationErrors, generationStates, generationWarnings, generationSourceTitle, type GenerationView } from './activity-generation-api.ts';
 import { useActivityGeneration } from './use-activity-generation.ts';
 
 export function ActivityGeneration({ api, room, onApplied, onClose }: {
@@ -44,8 +44,8 @@ export function ActivityGeneration({ api, room, onApplied, onClose }: {
       {view.state === 'STALE' ? <Notice>El programa o alguna fuente cambió. Revisa las fuentes y solicita una propuesta nueva.</Notice> : null}
       {view.missingInformation?.length ? <details><summary>Detalle de la información faltante</summary><ul>{view.missingInformation.map((item, index) => <li key={index}>{item}</li>)}</ul></details> : null}
       {view.sourceReport?.length ? <details><summary>Lectura de las fuentes</summary><ul>{view.sourceReport.map(source => <li key={source.sourceId}>
-        {generation.sources.find(candidate => candidate.sourceId === source.sourceId)?.title ?? source.sourceId} · {source.status}
-        {source.pageCount !== null ? ` · ${source.pageCount} páginas` : ''}{source.warnings.map(warning => <p key={warning}>{generationWarnings[warning] ?? warning}</p>)}</li>)}</ul></details> : null}
+        {generationSourceTitle(source.sourceId, generation.sources)} · {source.status === 'READ' ? 'Lectura completada' : 'Revisar fuente'}
+        {source.pageCount !== null ? ` · ${source.pageCount} ${source.pageCount === 1 ? 'página' : 'páginas'}` : ''}{source.warnings.map(warning => <p key={warning}>{generationWarnings[warning] ?? warning}</p>)}</li>)}</ul></details> : null}
       {view.state === 'APPLIED' && view.appliedActivityId ? <button disabled={generation.busy} onClick={() => void onApplied(view.appliedActivityId!)}>Abrir borrador creado</button> : null}
       {view.state === 'READY' && view.proposal && review?.id !== view.id ? <button disabled={generation.busy} onClick={() => accept(view)}>Revisar esta propuesta</button> : null}
       {['READY', 'FAILED', 'STALE'].includes(view.state) && editable ? <button disabled={generation.busy} onClick={() => setRegenerating(true)}>Preparar regeneración completa</button> : null}
@@ -59,7 +59,7 @@ export function ActivityGeneration({ api, room, onApplied, onClose }: {
       <button onClick={() => { if (replacement.proposal) setReview({ id: replacement.id, proposal: structuredClone(replacement.proposal) }); setDirty(false); setReplacement(null); }}>Reemplazar ediciones</button>
       <button onClick={() => setReplacement(null)}>Conservar ediciones</button></div> : null}
     {review ? <><p role="status">{dirty ? 'Propuesta editada sin aplicar.' : 'Propuesta guardada cargada para revisión.'}</p>
-      <ActivityGenerationProposal proposal={review.proposal} disabled={generation.busy || !editable} update={proposal => { setReview({ ...review, proposal }); setDirty(true); }} />
+      <ActivityGenerationProposal proposal={review.proposal} sources={generation.sources} disabled={generation.busy || !editable} update={proposal => { setReview({ ...review, proposal }); setDirty(true); }} />
       <footer className="p5-form-footer"><button className="primary" disabled={generation.busy || !editable || (view?.id === review.id && view.state !== 'READY')}
         onClick={() => void generation.apply(review.id, review.proposal)}>Usar propuesta revisada como borrador</button></footer>
       <p>Luego podrás ajustar entrega, fecha, materiales y publicación en el editor habitual.</p></> : null}

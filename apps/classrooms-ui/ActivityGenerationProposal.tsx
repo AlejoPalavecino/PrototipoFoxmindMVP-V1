@@ -2,10 +2,11 @@
 import { useState } from 'react';
 import type { ActivityProposal } from '../../src/core/domain/index.ts';
 import { QuestionEditor } from './ActivityAuthoring.tsx';
-import { generationWarnings } from './activity-generation-api.ts';
+import { generationWarnings, generationSourceTitle, type GenerationSource } from './activity-generation-api.ts';
 
-export function ActivityGenerationProposal({ proposal, update, disabled }: {
+export function ActivityGenerationProposal({ proposal, update, disabled, sources = [] }: {
   proposal: ActivityProposal; update: (value: ActivityProposal) => void; disabled: boolean;
+  sources?: Pick<GenerationSource, 'sourceId' | 'title'>[];
 }) {
   const [preview, setPreview] = useState(false);
   const patch = (value: Partial<ActivityProposal>) => update({ ...proposal, ...value });
@@ -24,7 +25,7 @@ export function ActivityGenerationProposal({ proposal, update, disabled }: {
       <p>La cantidad y combinación de preguntas corresponde a lo solicitado. Para cambiarla, prepara una nueva generación.</p>
     </fieldset>
     <details><summary>Fuentes de cada consigna o pregunta</summary><ul>{proposal.evidence.map(item => <li key={item.item + item.index}>
-      {item.item === 'assignment' ? 'Consigna' : 'Pregunta'} {item.index + 1}: {item.references.map(ref => `${ref.sourceId === 'teacher-context' ? 'Contexto docente' : ref.sourceId}${ref.page === null ? '' : `, página ${ref.page}`}`).join('; ')}</li>)}</ul></details>
+      {item.item === 'assignment' ? 'Consigna' : 'Pregunta'} {item.index + 1}: {item.references.map(ref => `${generationSourceTitle(ref.sourceId, sources)}${ref.page === null ? '' : `, página ${ref.page}`}`).join('; ')}</li>)}</ul></details>
     <button type="button" onClick={() => setPreview(!preview)}>{preview ? 'Cerrar vista estudiante' : 'Previsualizar como estudiante'}</button>
     {preview ? <section className="p7-preview" aria-label="Vista estudiante de propuesta"><h4>{proposal.title}</h4><p className="p7-multiline">{proposal.instructions}</p>
       <ol>{proposal.assignmentPrompts.map((prompt, index) => <li className="p7-multiline" key={index}>{prompt}</li>)}</ol>

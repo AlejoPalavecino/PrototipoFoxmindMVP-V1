@@ -99,3 +99,14 @@ test('A2 provider can explicitly request missing information without inventing a
   assert.deepEqual((await adapter.generateActivity(input())).json, json);
   assert.equal(calls.filter(([kind]) => kind === 'generate').length, 1);
 });
+
+test('A2 context-only generation presents teacher content as a citable source, not generation controls', async () => {
+  const { adapter, calls } = await fixture(), request = input();
+  await adapter.generateActivity(request);
+  const parts = calls[1][1].contents.flatMap(content => content.parts ?? []);
+  const records = parts.filter(part => part.text).map(part => JSON.parse(part.text));
+  const source = records.find(record => record.sourceId === 'teacher-context');
+  assert.deepEqual(source, { sourceId: 'teacher-context', page: null, content: request.context });
+  assert.equal(records[0].context, undefined, 'Teacher evidence is separated from requested counts and objective');
+  assert.deepEqual(calls[0][1].contents.at(-1), calls[1][1].contents.at(-1), 'Preflight includes the exact citable content');
+});

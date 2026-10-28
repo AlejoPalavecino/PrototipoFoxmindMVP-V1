@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Real activity AI generation and application — local, 2026-10-28
+
+The subsequent user request closes the pending real-provider activity journey for the permanent demo account. Two real Gemini requests succeeded: context-only (two prompts, reviewed title, applied once as a private draft, verified after reload/reentry) and PDF plus context (one-page source read and cited, saved proposal recovered). Named teacher evidence now reaches generation/token preflight explicitly; review displays understandable source names/statuses. [Coordinator](work-log/2026-10-28-root-real-ai-completion.md) and [actual evidence](work-log/evidence/2026-10-28-real-ai/README.md):58PASS/0FAIL/0SKIP, API build, strict web types, isolated production build and desktop/mobile checks PASS. Historical failures retained; original PDF failure cause is not proven and limits are unchanged. Submission/grading persistence and physical-device/Safari gaps below remain. No remote integration/publication/deployment.
+
 ## Selected sky learning concept — local, 2026-10-28
 
 The user's new screenshot supersedes the prior warm/green art direction. Shared sky/blue styling now spans navigation, Home, classrooms, Agenda, accounts, forms, wizard and AI/grading states; existing functions, fox/logo and covers remain. A generated fox welcome has three production WebP variants. [Coordinator](work-log/2026-10-28-root-sky-reference.md), [comparison evidence](work-log/evidence/2026-10-28-sky-reference/README.md) and [current visual QA](../design-qa.md) record 50 authenticated route/tab width observations, focused 22 PASS, strict types and production build PASS. No existing academic data was edited in this visual follow-up. Local branch only; whole-product real-provider/persistence and physical-device/Safari gaps below are unchanged.

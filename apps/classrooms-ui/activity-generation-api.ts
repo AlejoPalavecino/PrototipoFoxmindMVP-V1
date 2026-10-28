@@ -10,6 +10,10 @@ export interface GenerationSource {
   sizeBytes: number; unitId: string | null; topicId: string | null; available: boolean;
   reason: 'UNSUPPORTED_FORMAT' | 'AI_INPUT_LIMIT' | 'FILE_NOT_READY' | null;
 }
+export function generationSourceTitle(sourceId: string, sources: Pick<GenerationSource, 'sourceId' | 'title'>[]) {
+  if (sourceId === 'teacher-context') return 'Contexto docente';
+  return sources.find(source => source.sourceId === sourceId)?.title ?? 'Fuente de esta generación';
+}
 export const generationWarnings: Record<string, string> = {
   DOCX_IMAGES_OMITTED: 'Word: se lee el texto; las imágenes no se interpretan.',
   INSUFFICIENT_CONTENT: 'Las fuentes no aportan suficiente información. Añade contenido o aclara el contexto.',
