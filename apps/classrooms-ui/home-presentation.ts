@@ -20,3 +20,18 @@ export function homeAgendaDate(item: AgendaItem, timeZone: string): { weekday: s
     dateTime,
   };
 }
+
+export function homeSetupSummary({ drafts, invitations }: { drafts: number; invitations: number }): string {
+  return [
+    drafts > 0 ? `${drafts} ${drafts === 1 ? 'borrador privado' : 'borradores privados'}` : '',
+    invitations > 0 ? `${invitations} ${invitations === 1 ? 'invitación pendiente' : 'invitaciones pendientes'}` : '',
+  ].filter(Boolean).join(' · ');
+}
+
+export function homeReviewCount(count: number): string {
+  return `${count} ${count === 1 ? 'actividad' : 'actividades'}`;
+}
+
+export function homeReviewSummary({ attempts, needsReview, readyToPublish }: { attempts: number; needsReview: number; readyToPublish: number }): string {
+  return `${attempts} ${attempts === 1 ? 'entrega' : 'entregas'} · ${needsReview} por revisar · ${readyToPublish} ${readyToPublish === 1 ? 'lista' : 'listas'} para publicar`;
+}

@@ -8,10 +8,10 @@ function RowDetails({item,timeZone}:{item:HomeRowItem;timeZone:string}) {
     {item.classroom?<span className="fm-home-room-label">{item.classroom.name} · {item.classroom.division}{item.classroom.archived?' · Archivada · Solo lectura':''}</span>:null}
     {'deadlineAt' in item?<><span>{item.state==='resubmission'?'Reentrega habilitada':'Primera entrega'} · {item.late?'Plazo vencido':'Pendiente'}</span>
       <span>{item.deadlineAt?`Plazo: ${homeTime(item.deadlineAt,timeZone)}`:'Sin fecha límite'}{item.reception==='closed'?' · Recepción cerrada. Puedes consultar la actividad.':''}</span></>:null}
-    {'needsReview' in item?<span>{item.needsReview} por revisar · {item.readyToPublish} listas para publicar</span>:null}
+    {'needsReview' in item?<span>{item.needsReview} por revisar · {item.readyToPublish} {item.readyToPublish===1?'lista':'listas'} para publicar</span>:null}
     {'finalGrade' in item?<span>Nota {item.finalGrade} · Intento {item.attemptNumber} · Disponible<br/>Publicada {homeTime(item.publishedAt,timeZone)}</span>:null}
     {'source' in item?<span>{item.source==='PRIVATE_EVENT'?'Evento personal':'Plazo académico'} · {item.allDay?`${item.date} · Todo el día`:homeTime(item.startAt!,timeZone)}
-      {item.timeZone!==timeZone?` · Zona original: ${item.timeZone}`:''}</span>:null}
+      {item.timeZone!==timeZone?<small className="fm-home-original-zone">Zona original: {item.timeZone}</small>:null}</span>:null}
     {'extension' in item?<span>{item.extension.toUpperCase()} · Publicado {homeTime(item.publishedAt,timeZone)}</span>:null}
     {'updatedAt' in item?<span>Actualizada {homeTime(item.updatedAt,timeZone)}</span>:null}
   </div>;

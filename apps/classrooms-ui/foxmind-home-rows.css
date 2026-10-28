@@ -16,6 +16,12 @@
 .fm-home .fm-home-agenda-date { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 72px; min-height: 88px; border-radius: 14px; background: #eee5ff; color: #191b67; grid-row: 1; }
 .fm-home-agenda-date span { text-transform: uppercase; font-size: 16px; }
 .fm-home-agenda-date strong { font-family: var(--fm-font-heading); font-size: 38px; line-height: 1.1; font-weight: 600; }
+.fm-home-agenda-zone { font-size: 13px; color: var(--fm-muted); }
+.fm-home-original-zone { display: block; font-size: 13px; color: var(--fm-muted); }
+.fm-home-aside .fm-home-row--agenda { grid-template-columns: 56px minmax(0,1fr); gap: 8px 12px; padding: 8px; }
+.fm-home .fm-home-row--agenda .fm-home-agenda-date { width: 56px; min-height: 68px; }
+.fm-home-row--agenda .fm-home-agenda-date span { font-size: 13px; }
+.fm-home-row--agenda .fm-home-agenda-date strong { font-size: 30px; }
 .fm-home-row--agenda:nth-child(3n+2) .fm-home-agenda-date { background: #fff0b6; color: #544000; }
 .fm-home-row--agenda:nth-child(3n) .fm-home-agenda-date { background: #ffe6d7; color: #872912; }
 .fm-home .fm-home-row--queries { grid-template-columns: 48px minmax(0,1fr); column-gap: 14px; }

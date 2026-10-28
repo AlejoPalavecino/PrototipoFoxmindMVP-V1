@@ -20,8 +20,9 @@
 .fm-home-toolbar { display: flex; justify-content: space-between; gap: 12px; align-items: center; color: var(--fm-muted); margin-block: -12px; }
 .fm-home-toolbar small { font-size: 13px; }
 .fm-home-toolbar button { border-color: transparent; background: transparent; padding: 4px 8px; min-height: 44px; font-size: 14px; }
-.fm-home-setup { padding: 14px 18px; border: 1px solid #e6dba6; background: #fff8df; border-radius: 14px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
-.fm-home-setup p { margin: 0; }
+.fm-home-setup { padding: 8px 12px; border: 1px solid #eee5cc; background: #fffaf0; border-radius: 12px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+.fm-home-setup p { margin: 0; font-size: 14px; color: var(--fm-muted); }
+.fm-home .fm-home-setup button { padding: 6px 10px; font-size: 14px; }
 .fm-home-welcome { display: flex; gap: 24px; align-items: center; padding: 28px 24px; background: #fff; border-radius: 18px; border: 1px solid var(--fm-line); }
 .fm-home-welcome .fm3d-illustration { width: 160px; flex-shrink: 0; background: #fff9f2; border-radius: 20px; }
 .fm-home-welcome p { color: var(--fm-muted); margin: 12px 0 18px; }
@@ -55,13 +56,16 @@
   .fm-home-columns { grid-template-columns: minmax(0,1fr); }
 }
 @media(max-width: 739px) {
-  .fm-home-greeting { padding: 24px 20px 148px; min-height: 340px; align-items: flex-start; }
+  .fm-home-greeting { padding: 20px 20px 100px; min-height: 0; align-items: flex-start; }
   .fm-home-greeting > div { width: 100%; }
   .fm-home h1 { font-size: 38px; }
   .fm-home-greeting p { font-size: 18px; margin-bottom: 14px; }
   .fm-home-greeting time { font-size: 16px; }
-  .fm-home .fm-home-hero { inset: auto 0 0; height: 160px; }
+  .fm-home .fm-home-hero { inset: auto 0 0; height: 110px; }
   .fm-home-greeting::after { background: linear-gradient(#fff3e2 35%,#fff3e2ed 50%,#fff3e200 76%); }
+  .fm-home-toolbar { flex-wrap: wrap; gap: 0 8px; }
+  .fm-home-toolbar small, .fm-home .fm-home-toolbar button { white-space: nowrap; }
+  .fm-home .fm-home-toolbar button { flex-shrink: 0; }
   .fm-home-welcome { gap: 16px; padding: 24px 20px; flex-direction: column; align-items: flex-start; }
   .fm-home-welcome .fm3d-illustration { width: 120px; align-self: center; }
   .fm-home-entry-actions { flex-direction: column; }

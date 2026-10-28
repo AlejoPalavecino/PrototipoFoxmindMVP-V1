@@ -9,7 +9,7 @@ import { HomeModule } from './HomeModule.tsx';
 import { HomeModulePanel } from './HomeModulePanel.tsx';
 import { HomeShortcuts } from './HomeShortcuts.tsx';
 import { homeParticipation } from './home-labels.ts';
-import { homeGreetingDate,shouldShowHomeModule } from './home-presentation.ts';
+import { homeGreetingDate,homeSetupSummary,shouldShowHomeModule } from './home-presentation.ts';
 export interface HomeProps {
   displayName:string;subjectId?:string;homeClient?:HomeClient;busy?:boolean;
   onCreate:()=>void;onJoin:()=>void;onClassrooms:()=>void;onAction:(target:HomeTarget)=>void;onAgenda?:()=>void;
@@ -32,7 +32,7 @@ export function Home(props:HomeProps) {
     <div className="fm-home-columns"><div className="fm-home-work">
     <HomeGreeting data={data} displayName={displayName}/>
     <div className="fm-home-toolbar"><small>Actualizado {new Date(data.generatedAt).toLocaleTimeString('es-AR',{timeZone:data.timeZone,hour:'2-digit',minute:'2-digit'})}</small><button onClick={()=>void home.refresh()}><FoxmindIcon name="refresh"/>Actualizar</button></div>
-    {data.setup.drafts+data.setup.invitations>0?<section className="fm-home-setup"><p>{data.setup.drafts} borradores privados · {data.setup.invitations} invitaciones pendientes</p><button onClick={onClassrooms}>Ver borradores e invitaciones</button></section>:null}
+    {data.setup.drafts+data.setup.invitations>0?<section className="fm-home-setup"><p>{homeSetupSummary(data.setup)}</p><button onClick={onClassrooms}>Ver borradores e invitaciones</button></section>:null}
     {data.participation==='none'?<HomeWelcome data={data} onCreate={onCreate} onJoin={onJoin} busy={busy}/>:null}
     {module('pending')}{module('review')}{module('queries')}{finalModules}
     </div><aside className="fm-home-aside">{module('agenda')}{module('feedback')}{module('classrooms')}</aside></div>
