@@ -32,6 +32,21 @@ for (const state of [{ role: 'student' }, { archived: true }]) test(`Read-only P
     await view.flush();
     assert.equal(descendants(view.tree, n => n.type === 'details' && n.props.className === 'fm-plan-management').length, 0);
     assert.equal(descendants(view.tree, n => n.type?.name === 'PlanWorkspace').length, 1);
+    assert.equal(descendants(view.tree, n => n.type?.name === 'PlanWorkspace')[0].props.onTopicState, undefined);
+  } finally { view.close(); }
+});
+
+test('focused topic progress uses the classroom revision and reloads after the authorized change', async () => {
+  const { Plan } = loadTsModule('apps/classrooms-ui/Plan.tsx');
+  const calls = []; let reloaded = 0;
+  const view = hookView(Plan, { room, api: { call: async (...args) => calls.push(args) }, reload: async () => { reloaded++; } });
+  try {
+    await view.flush();
+    descendants(view.tree, n => n.type?.name === 'PlanWorkspace')[0].props.onTopicState('topic', 'TAUGHT');
+    await view.flush();
+    assert.deepEqual(calls, [['/room/plan', 'POST', { revision: '1', operation: { action: 'setTopicState', id: 'topic', status: 'TAUGHT' } }]]);
+    assert.equal(reloaded, 1);
+    assert.match(text(view.tree), /Plan actualizado/);
   } finally { view.close(); }
 });
 

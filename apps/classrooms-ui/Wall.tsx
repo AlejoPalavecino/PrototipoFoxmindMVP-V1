@@ -10,9 +10,9 @@ function TextForm({ label, initial = '', busy, onSave, onCancel }: {
   const length = [...body].length;
   return <form onSubmit={event => { event.preventDefault(); void onSave(body); }}>
     <fieldset disabled={busy}>
-      <label>{label}<textarea required rows={4} value={body} aria-invalid={length > 5000 || undefined}
+      <label>{label}<textarea required rows={3} placeholder="Compartí una idea, una consulta o una respuesta con tu aula…" value={body} aria-invalid={length > 5000 || undefined}
         onChange={event => setBody(event.target.value)} /></label>
-      <small>{length.toLocaleString()} / 5.000 caracteres. Solo texto; visible para toda el aula.</small>
+      <small>{length.toLocaleString()} / 5.000 · Lo puede leer toda el aula.</small>
       <div className="p5-actions">
         {onCancel ? <button type="button" onClick={onCancel}>Cancelar</button> : null}
         <button className="primary" disabled={!body.trim() || length > 5000}>{label}</button>
@@ -74,7 +74,7 @@ export function Wall({ api, room, reload, target, onChanged }: {
     {content.canRemove ? <button disabled={busy} onClick={() => setRemoving({ content, reply })}>{reply ? 'Eliminar respuesta' : 'Eliminar publicación'}</button> : null}
   </div> : null;
   return <section ref={root} className="p6-wall" aria-label="Muro del aula">
-    <header className="p5-section-head"><div><h2>Muro</h2><p>Avisos y consultas del aula, con respuestas agrupadas.</p></div>
+    <header className="p5-section-head"><div><h2>Conversemos</h2><p>Un espacio para compartir avisos, hacer preguntas y aprender en comunidad.</p></div>
       <button disabled={busy} onClick={() => void run(async () => { await Promise.all([reload(), load()]); })}>Actualizar Muro</button>
     </header>
     {error ? <Notice error>{error} Actualiza el Muro antes de volver a intentar. Tu texto no se ha descartado.</Notice> : null}

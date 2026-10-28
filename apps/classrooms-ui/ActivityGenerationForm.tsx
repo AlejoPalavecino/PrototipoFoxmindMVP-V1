@@ -37,8 +37,9 @@ export function ActivityGenerationForm({ room, value, update, sources, disabled,
         <option value="BASIC">Básica</option><option value="INTERMEDIATE">Intermedia</option><option value="ADVANCED">Avanzada</option></select></label>
       <label>Duración aproximada (minutos)<input type="number" min={5} max={240} required value={value.durationMinutes}
         onChange={e => patch({ durationMinutes: Number(e.target.value) })} /></label></div>
-    <label>Contexto docente<textarea maxLength={5000} rows={4} value={value.context} onChange={e => patch({ context: e.target.value })} /></label>
-    <p>La propuesta utiliza únicamente las fuentes seleccionadas y tu contexto. Los títulos del programa delimitan el tema; añade contenido suficiente.</p>
+    <label>¿Qué trabajaron en clase?<textarea maxLength={5000} rows={4} placeholder="Incluí conceptos, ejemplos y lo que esperás que practiquen. También podés seleccionar un material debajo."
+      value={value.context} onChange={e => patch({ context: e.target.value })} /></label>
+    <p>Contexto docente: la IA usará tus explicaciones y los materiales que elijas. Cuanto más claro sea el contenido, más útil será la propuesta.</p>
     <fieldset><legend>Fuentes seleccionadas explícitamente · hasta 6 archivos</legend>
       <p>PDF/DOCX: hasta 20 MB en total, 100 páginas PDF o 200.000 caracteres Word. Puedes elegir materiales de otra unidad de esta aula.</p>
       {sources.map(source => <label className="p7-check" key={source.sourceId}><input type="checkbox" disabled={!source.available}

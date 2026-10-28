@@ -27,7 +27,8 @@ export function Plan({ api, room, reload, onOpenActivity }: { api: ClassroomClie
       <button disabled={busy} onClick={() => void run(reload)}>Actualizar Plan</button></header>
     {error && <Notice error>{error}</Notice>}
     {notice && <Notice>{notice}</Notice>}
-    <PlanWorkspace api={api} room={room} onOpenActivity={onOpenActivity ?? (() => {})} />
+    <PlanWorkspace api={api} room={room} onOpenActivity={onOpenActivity ?? (() => {})} busy={busy}
+      onTopicState={writable ? (id,status) => void run(() => change({ action: 'setTopicState', id, status })) : undefined} />
     {room.plans.map(plan => <p className="folder-plan-file" key={plan.id}><a href={api.fileUrl(plan.fileId)} target="_blank" rel="noreferrer">Descargar plan · Versión {plan.version}</a></p>)}
     {writable && <details className="fm-plan-management"><summary>Administrar plan <span>Unidades, temas y versiones del archivo</span></summary>
     <fieldset disabled={busy}>

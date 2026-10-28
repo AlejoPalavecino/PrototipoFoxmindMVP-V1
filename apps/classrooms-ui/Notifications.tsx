@@ -12,6 +12,7 @@ type Destination = { onOpen: (target: NotificationTarget) => void; onSelect?: ne
 export function Notifications({ api, refresh, onOpen, onSelect }: { api: ClassroomClient; refresh: number } & Destination) {
   const [items, setItems] = useState<ClassroomNotification[] | null>(null), [open, setOpen] = useState(false);
   const [error, setError] = useState(''), [busy, setBusy] = useState(false);
+  const [onlyUnread, setOnlyUnread] = useState(false);
   const load = useCallback(async (signal?: AbortSignal) => {
     setItems(await api.call<ClassroomNotification[]>('/notifications', 'GET', undefined, signal));
   }, [api]);
@@ -25,24 +26,27 @@ export function Notifications({ api, refresh, onOpen, onSelect }: { api: Classro
     try { await work(); } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
   }
   const unread = items?.filter(item => !item.readAt).length ?? 0;
+  const visible = items?.filter(item => !onlyUnread || !item.readAt);
   return <>
-    <button className="p6-notifications-toggle" aria-label={`Notificaciones${unread ? `: ${unread} sin leer` : ''}`} onClick={() => {
+    <button className="p6-notifications-toggle" aria-haspopup="dialog" aria-expanded={open} aria-label={`Notificaciones${unread ? `: ${unread} sin leer` : ''}`} onClick={() => {
       setOpen(true); void run(() => load());
     }}><EntryIcon name="bell" /><span className="entry-sr-only">Notificaciones</span>{unread ? <span className="entry-unread-count">{unread}</span> : null}</button>
     {open ? <Dialog title="Notificaciones" className="entry-notifications" onClose={() => { if (!busy) setOpen(false); }}>
-      <p>Avisos, actividades y entregas de tus aulas. El acceso se verifica al abrir cada destino.</p>
+      <p>{unread ? `${unread} ${unread === 1 ? 'novedad sin leer' : 'novedades sin leer'}` : 'Estás al día'} · Avisos y actividad de tus aulas.</p>
       {error ? <Notice error>{error} El acceso puede haber cambiado; actualiza las notificaciones.</Notice> : null}
-      <button disabled={busy} onClick={() => void run(() => load())}>Actualizar notificaciones</button>
+      <div className="notification-filters"><button aria-pressed={!onlyUnread} onClick={() => setOnlyUnread(false)}>Todas</button>
+        <button aria-pressed={onlyUnread} onClick={() => setOnlyUnread(true)}>Sin leer · {unread}</button>
+        <button disabled={busy} onClick={() => void run(() => load())}>Actualizar notificaciones</button></div>
       {!items && !error ? <Notice>Cargando notificaciones…</Notice> : null}
-      {items?.length === 0 ? <p>No hay notificaciones disponibles.</p> : null}
-      <ul className="p6-notifications">{items?.map(item => <li key={item.id} className={item.readAt ? '' : 'unread'}>
+      {visible?.length === 0 ? <p className="p5-empty">{onlyUnread ? 'No tenés novedades pendientes de leer.' : 'Cuando haya novedades en tus aulas, aparecerán aquí.'}</p> : null}
+      <ul className="p6-notifications">{visible?.map(item => <li key={item.id} className={item.readAt ? '' : 'unread'}>
         <strong>{labels[item.eventType]}</strong><p>{item.classroomName}</p>
         <small><time dateTime={item.createdAt}>{new Date(item.createdAt).toLocaleString('es-AR')}</time> · {item.readAt ? 'Leída' : 'Sin leer'}</small>
         <div className="p5-actions"><button disabled={busy} onClick={() => void run(async () => {
           if (onSelect) { setOpen(false); onSelect(item.id); return; }
           const target = await api.call<NotificationTarget>(`/notifications/${item.id}/open`, 'POST', {});
           await load(); setOpen(false); onOpen(target);
-        })}>Abrir publicación</button>
+        })}>{item.eventType.startsWith('WALL_') ? 'Abrir conversación' : 'Ver actividad'}</button>
         {!item.readAt ? <button disabled={busy} onClick={() => void run(async () => {
           await api.call(`/notifications/${item.id}/read`, 'POST', {}); await load();
         })}>Marcar como leída</button> : null}</div>

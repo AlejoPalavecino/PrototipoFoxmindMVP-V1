@@ -4,12 +4,14 @@ import {
   useRef,
   useState,
   useCallback,
+  useMemo,
   type ChangeEvent,
 } from 'react';
 import type { ClassroomClient, Draft, Payload, FileState } from './api.ts';
 import { Cover, coverOptions, Notice } from './components.tsx';
 import { PlanExtraction } from './PlanExtraction.tsx';
 import { usePlanExtraction } from './use-plan-extraction.ts';
+import { classroomZones } from './classroom-zones.ts';
 
 const steps = [
   'Datos generales',
@@ -37,6 +39,7 @@ export function Wizard({
   const [step, setStep] = useState(0),
     [status, setStatus] = useState('Borrador guardado'),
     [error, setError] = useState('');
+  const zones = useMemo(() => classroomZones(payload.timezone ?? 'UTC'), [payload.timezone]);
   const [file, setFile] = useState<FileState | null>(null),
     [uploading, setUploading] = useState(false),
     [publishing, setPublishing] = useState(false);
@@ -272,6 +275,7 @@ export function Wizard({
                         : 'División'}
                     <input
                       required
+                      placeholder={key === 'name' ? 'Ej.: Matemáticas · Primer año' : key === 'subject' ? 'Ej.: Matemáticas' : 'Ej.: 1.º A'}
                       maxLength={key === 'division' ? 60 : 120}
                       value={payload[key] ?? ''}
                       onChange={(e) => update(key, e.target.value)}
@@ -295,19 +299,17 @@ export function Wizard({
                   />
                 </label>
                 <label className="p5-wide">
-                  Zona horaria
-                  <input
-                    list="p5-timezones"
+                  Ciudad y horario del aula
+                  <select
                     required
                     value={payload.timezone ?? ''}
                     onChange={(e) => update('timezone', e.target.value)}
-                  />
-                  <datalist id="p5-timezones">
-                    {Intl.supportedValuesOf('timeZone').map((zone) => (
-                      <option key={zone} value={zone} />
+                  >
+                    {zones.map((zone) => (
+                      <option key={zone.value} value={zone.value}>{zone.label}</option>
                     ))}
-                  </datalist>
-                  <small>Se conserva fija después de crear el aula.</small>
+                  </select>
+                  <small>Usamos tu horario local para entregas y eventos. Revisalo antes de publicar: después queda fijo.</small>
                 </label>
               </div>
               <h3>Elegí una portada</h3>

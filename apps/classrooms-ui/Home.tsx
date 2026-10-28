@@ -9,7 +9,7 @@ import { HomeModule } from './HomeModule.tsx';
 import { HomeModulePanel } from './HomeModulePanel.tsx';
 import { HomeShortcuts } from './HomeShortcuts.tsx';
 import { homeParticipation } from './home-labels.ts';
-import { homeGreetingDate,homeSetupSummary,shouldShowHomeModule } from './home-presentation.ts';
+import { homeGreetingDate,shouldShowHomeModule } from './home-presentation.ts';
 export interface HomeProps {
   displayName:string;subjectId?:string;homeClient?:HomeClient;busy?:boolean;
   onCreate:()=>void;onJoin:()=>void;onClassrooms:()=>void;onAction:(target:HomeTarget)=>void;onAgenda?:()=>void;
@@ -20,7 +20,7 @@ export function Home(props:HomeProps) {
   const {displayName,subjectId,homeClient,busy,onAction,onCreate,onJoin,onClassrooms}=props;
   const home=useHome(homeClient,subjectId),[panel,setPanel]=useState<HomeModuleName|null>(null);
   const data=home.data,onAgenda=props.onAgenda??(()=>{window.location.assign('/agenda');});
-  const module=(name:HomeModuleName)=>data && shouldShowHomeModule(data.participation,name,data.modules[name])?<HomeModule key={name} name={name} page={data.modules[name]} timeZone={data.timeZone}
+  const module=(name:HomeModuleName)=>data && !(['queries','feedback'].includes(name) && data.modules[name].status==='ready' && !data.modules[name].items.length) && shouldShowHomeModule(data.participation,name,data.modules[name])?<HomeModule key={name} name={name} page={data.modules[name]} timeZone={data.timeZone}
     onAction={onAction} onRetry={()=>void home.retry(name)} onExpand={()=>setPanel(name)} onAgenda={onAgenda} busy={busy}/>:null;
   if(home.loading)return <section className="fm-home fm-home-loading" aria-label="Inicio" aria-busy="true"><h1>Hola, {displayName}</h1><p role="status">Cargando tus actividades y próximos pasos…</p><div className="fm-home-skeleton"/></section>;
   if(!data)return <section className="fm-home fm-home-global-error" aria-label="Inicio"><h1>Hola, {displayName}</h1><p role="alert">No pudimos comprobar tu Inicio. Actualiza para volver a consultar tus aulas y permisos.</p><button onClick={()=>void home.refresh()}>Reintentar Inicio</button></section>;
@@ -32,11 +32,11 @@ export function Home(props:HomeProps) {
     <HomeGreeting data={data} displayName={displayName} onClassrooms={onClassrooms}/>
     <div className="fm-home-actions"><button className="fm-home-find-rooms" onClick={onClassrooms}><FoxmindIcon name="book"/>Ver mis aulas<FoxmindIcon name="arrow-right"/></button>
       {data.participation!=='none'?<div><button onClick={onJoin} disabled={busy}><FoxmindIcon name="users"/>Unirme con código</button><button onClick={onCreate} disabled={busy}><FoxmindIcon name="plus"/>Crear aula</button></div>:null}</div>
-    {data.setup.drafts+data.setup.invitations>0?<section className="fm-home-setup"><p>{homeSetupSummary(data.setup)}</p><button onClick={onClassrooms}>Ver borradores e invitaciones</button></section>:null}
     {data.participation==='none'?<HomeWelcome data={data} onCreate={onCreate} onJoin={onJoin} busy={busy}/>:null}
     {module('pending')}{module('review')}{module('queries')}
-    {finalModules.some(Boolean)?<details className="fm-home-resources" open={data.modules.materials.status==='error'||data.modules.classrooms.status==='error'||undefined}><summary>Mis recursos y aulas<span>Biblioteca, aulas y herramientas de trabajo</span></summary><div>{finalModules}{module('classrooms')}</div></details>:module('classrooms')}
-    <div className="fm-home-toolbar"><small>Actualizado {new Date(data.generatedAt).toLocaleTimeString('es-AR',{timeZone:data.timeZone,hour:'2-digit',minute:'2-digit'})}</small><button onClick={()=>void home.refresh()}><FoxmindIcon name="refresh"/>Actualizar</button></div>
+    {module('classrooms')}
+    {finalModules.some(Boolean)?<details className="fm-home-resources" open={data.modules.materials.status==='error'||undefined}><summary>Recursos y herramientas<span>Biblioteca y accesos de trabajo</span></summary><div>{finalModules}</div></details>:null}
+    <div className="fm-home-toolbar"><button aria-label="Actualizar Inicio" onClick={()=>void home.refresh()}><FoxmindIcon name="refresh"/>Actualizar</button></div>
     </div><aside className="fm-home-aside">{module('agenda')}{module('feedback')}</aside></div>
   </section>;
 }
@@ -47,7 +47,7 @@ function HomeGreeting({data,displayName,onClassrooms}:{data:HomeResponse;display
     <time dateTime={data.generatedAt}>{homeGreetingDate(data.generatedAt,data.timeZone)}</time>
     <button className="primary fm-sky-hero-action" onClick={onClassrooms}>Ir a mis aulas<FoxmindIcon name="arrow-right"/></button>
     <span className="sr-only">{homeParticipation(data)}</span></div>
-    <FoxmindIllustration name="hero/welcome-sky" priority className="fm-home-hero" sizes="(max-width: 900px) 100vw, 70vw"/>
+    <FoxmindIllustration name="hero/foxy-warm" priority className="fm-home-hero" sizes="(max-width: 600px) 130px, 300px"/>
   </header>;
 }
 
