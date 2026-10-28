@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { waitForAttemptClock } from './helpers/attempt-clock.mjs';
 export { withGradingFixture, tableHash, gradingTables, protectedTables } from './p8-grading-helpers.mjs';
 
 export async function saveComplete(f, attempt, points = '2', overallGrade = '6') {
@@ -20,6 +21,7 @@ export async function resubmit(f, activity) {
   let state = await f.service.activitySession(f.S, f.room, activity.id);
   state = await f.service.transferAttemptEditor(f.S, f.room, state.attempt.id, { revision: state.attempt.revision });
   const request = { ...f.S, headers: { 'x-attempt-editor': state.editor.token, 'x-attempt-epoch': state.editor.epoch } };
+  await waitForAttemptClock(state.attempt.openedAt);
   await f.service.submitPracticalAttempt(request, f.room, state.attempt.id, { revision: state.attempt.revision, confirm: true });
   return state.attempt.id;
 }
@@ -42,6 +44,7 @@ export async function exactActivity(f, partial = false) {
   await f.service.saveAttemptAnswer(request, f.room, state.attempt.id, { revision: state.attempt.revision, questionId: question.id,
     text: partial ? '' : 'Exact answer', optionIds: partial ? question.options.slice(0, 2).map(o => o.id) : [] });
   const latest = await f.service.activitySession(f.S, f.room, id);
+  await waitForAttemptClock(state.attempt.openedAt);
   await f.service.submitQuestionnaireAttempt(request, f.room, state.attempt.id, { revision: latest.attempt.revision, confirm: true, confirmIncomplete: false });
   return state.attempt.id;
 }

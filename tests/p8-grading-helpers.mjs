@@ -4,6 +4,7 @@ import pg from 'pg';
 import { withP5Database } from '../scripts/p5-database.mjs';
 import { ClassroomService } from '../.build/api/apps/api/src/classrooms/service.js';
 import { FileStore } from '../.build/api/apps/api/src/files/store.js';
+import { waitForAttemptClock } from './helpers/attempt-clock.mjs';
 
 export const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 export async function tableHash(pool, tables) {
@@ -49,6 +50,7 @@ export async function withGradingFixture(callback) {
         state = await service.activitySession(S, room, id);
       }
       if (submitted) {
+        await waitForAttemptClock(state.attempt.openedAt);
         if (type === 'ASSIGNMENT') await service.submitPracticalAttempt(request, room, state.attempt.id, { revision: state.attempt.revision, confirm: true });
         else await service.submitQuestionnaireAttempt(request, room, state.attempt.id, { revision: state.attempt.revision, confirm: true, confirmIncomplete: blank });
       }

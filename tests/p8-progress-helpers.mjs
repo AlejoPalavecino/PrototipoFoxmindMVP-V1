@@ -1,4 +1,5 @@
 import { withGradingFixture, tableHash, gradingTables } from './p8-grading-helpers.mjs';
+import { waitForAttemptClock } from './helpers/attempt-clock.mjs';
 export { withGradingFixture, tableHash, gradingTables };
 export const academicTables = [...gradingTables, 'units', 'topics'];
 export async function withProgressFixture(callback) {
@@ -17,6 +18,7 @@ export async function withProgressFixture(callback) {
       if (!state.attempt) state = await f.service.startActivity(request, f.room, activity.id, {});
       else state = await f.service.transferAttemptEditor(request, f.room, state.attempt.id, { revision: state.attempt.revision });
       const editorRequest = { ...request, headers: { 'x-attempt-editor': state.editor.token, 'x-attempt-epoch': state.editor.epoch } };
+      await waitForAttemptClock(state.attempt.openedAt);
       await f.service.submitPracticalAttempt(editorRequest, f.room, state.attempt.id, { revision: state.attempt.revision, confirm: true });
       return state.attempt.id;
     };
