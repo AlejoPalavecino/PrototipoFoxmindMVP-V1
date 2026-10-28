@@ -1,8 +1,8 @@
-.fm-home-row { border: 1px solid #e8ecf5; border-radius: 14px; padding: 10px; display: grid; grid-template-columns: 136px minmax(0,1fr); column-gap: 20px; row-gap: 10px; align-items: center; min-width: 0; }
+.fm-home-row { border: 1px solid var(--fm-line); border-radius: 14px; padding: 10px; display: grid; grid-template-columns: 136px minmax(0,1fr); column-gap: 20px; row-gap: 10px; align-items: center; min-width: 0; }
 .fm-home .fm-home-row-cover { display: block; flex-shrink: 0; width: 136px; height: 100px; aspect-ratio: auto; border-radius: 12px; overflow: hidden; grid-row: 1; background: #fff5e8; }
 .fm-home-row-cover img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .fm-home-row-copy { min-width: 0; }
-.fm-home-row-detail { display: flex; flex-direction: column; gap: 4px; color: #405fc2; font-size: 16px; line-height: 1.35; overflow-wrap: anywhere; }
+.fm-home-row-detail { display: flex; flex-direction: column; gap: 4px; color: var(--fm-muted); font-size: 16px; line-height: 1.35; overflow-wrap: anywhere; }
 .fm-home-room-label { display: block; background: #ede4ff; color: #222364; padding: 3px 12px; border-radius: 20px; width: fit-content; max-width: 100%; }
 .fm-home-row--review .fm-home-room-label { background: #c3f1df; color: #175839; }
 .fm-home .fm-home-row-action { grid-column: 2; justify-self: start; font-size: 17px; font-weight: 600; border-color: #a8331a; color: #8f2915; }
@@ -15,12 +15,12 @@
 .fm-home-aside .fm-home-row-action { font-size: 16px; }
 .fm-home .fm-home-agenda-date { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 72px; min-height: 88px; border-radius: 14px; background: #eee5ff; color: #191b67; grid-row: 1; }
 .fm-home-agenda-date span { text-transform: uppercase; font-size: 16px; }
-.fm-home-agenda-date strong { font-family: 'Fredoka Auth', sans-serif; font-size: 38px; line-height: 1.1; font-weight: 600; }
+.fm-home-agenda-date strong { font-family: var(--fm-font-heading); font-size: 38px; line-height: 1.1; font-weight: 600; }
 .fm-home-row--agenda:nth-child(3n+2) .fm-home-agenda-date { background: #fff0b6; color: #544000; }
 .fm-home-row--agenda:nth-child(3n) .fm-home-agenda-date { background: #ffe6d7; color: #872912; }
 .fm-home .fm-home-row--queries { grid-template-columns: 48px minmax(0,1fr); column-gap: 14px; }
 .fm-home .fm-home-row--queries .fm-home-row-cover { width: 48px; height: 48px; }
-.fm-home-row--queries .fm-home-room-label { padding: 0; background: transparent; color: #405fc2; }
+.fm-home-row--queries .fm-home-room-label { padding: 0; background: transparent; color: var(--fm-muted); }
 .fm-home-row--queries h3 { font-size: 21px; }
 .fm-home-row--classrooms .fm-home-room-label { background: #e6f6eb; }
 @media(min-width: 1400px) {

@@ -1,17 +1,5 @@
-/* Home owns this visual adaptation; other routes keep their existing shell. */
-.fm3d-theme:has(.fm-home) { --fm-ink: #080b30; --fm-muted: #405fc2; --fm-font-heading: 'Fredoka Auth', 'Trebuchet MS', sans-serif; --fm-canvas: #fcfaf7; --fm-link: #d34b10; }
-.fm3d-theme:has(.fm-home) .fm3d-shell { color: #080b30; }
-.fm3d-theme:has(.fm-home) .fm3d-shell :is(.fm3d-shell-nav,.fm3d-shell-account) a { font-size: 18px; font-weight: 600; color: #41465e; }
-.fm3d-theme:has(.fm-home) .fm3d-shell a[aria-current='page'] { color: #9a3e00; background: #fff0e5; }
-.fm3d-theme:has(.fm-home) .fm3d-shell .fm3d-icon { width: 24px; height: 24px; flex-shrink: 0; }
-@media(min-width: 1024px) {
-  .fm3d-theme:has(.fm-home) { --fm-sidebar: 232px; padding-left: 248px; }
-  .fm3d-theme:has(.fm-home) .p5-app.entry-home { padding: 86px 12px 32px; width: 100%; max-width: none; }
-  .fm3d-theme:has(.fm-home) .entry-home > .p5-main { width: 100%; max-width: none; margin: 0; }
-  .fm3d-theme:has(.fm-home) .fm3d-shell[data-private='true'] { padding: 24px 8px; gap: 24px; }
-  .fm3d-theme:has(.fm-home) .fm3d-shell[data-private='true'] .fm3d-shell-tools { height: 80px; left: 248px; padding: 12px 24px; background: #fcfaf7; }
-}
+/* The common private shell owns sidebar, toolbar and desktop content gutters. */
+.fm3d-theme .entry-home > .p5-main { width: 100%; max-width: none; margin: 0; }
 @media(max-width: 1023px) {
-  .fm3d-theme:has(.fm-home) .p5-app.entry-home { padding: 12px 16px 32px; }
-  .fm3d-theme:has(.fm-home) .entry-home > .p5-main { width: 100%; max-width: none; margin: 0; }
+  .fm3d-theme .p5-app.entry-home { padding: 12px 16px 32px; }
 }

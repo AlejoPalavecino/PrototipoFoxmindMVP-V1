@@ -1,0 +1,23 @@
+/* AI preparation and review remain explicit, separate steps with all warnings visible. */
+.fm3-classrooms .p5-main .p7-generation > header { padding: 20px; border: 1px solid var(--fm-line); border-radius: 16px; background: var(--fm-lavender-soft); }
+.fm3-classrooms .p7-generation > header p { margin-bottom: 0; max-width: 65ch; }
+.fm3-classrooms .p5-main .p7-generation-fields > fieldset { padding: 20px; margin-block: 20px; border: 1px solid var(--fm-line); border-radius: 14px; background: var(--fm-pearl); }
+.fm3-classrooms .p7-generation > form { margin-bottom: 24px; }
+.fm3-classrooms .p7-generation > section { margin-top: 24px; padding: 20px; border: 1px solid var(--fm-line); border-radius: 16px; background: var(--fm-surface); min-width: 0; overflow-wrap: anywhere; }
+.fm3-classrooms .p7-generation > section > h4:first-child { margin-top: 0; }
+.fm3-classrooms .p7-generation > section > ul { list-style: none; padding: 0; display: grid; gap: 12px; }
+.fm3-classrooms .p7-generation > section > ul > li { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; justify-content: space-between; border: 1px solid var(--fm-line); border-radius: 12px; padding: 14px; background: var(--fm-pearl); }
+.fm3-classrooms .p7-generation details { margin-block: 20px; border: 1px solid var(--fm-line); border-radius: 12px; background: var(--fm-pearl); }
+.fm3-classrooms .p7-generation summary { min-height: 48px; padding: 12px 16px; cursor: pointer; color: var(--fm-ink); font-weight: 600; }
+.fm3-classrooms .p7-generation details > ul { padding: 0 20px 16px 36px; margin: 0; }
+.fm3-classrooms .p7-generation details li { margin-top: 12px; overflow-wrap: anywhere; }
+.fm3-classrooms .p7-generation .p7-preview { margin-top: 20px; border-top: 1px solid var(--fm-line); padding-top: 16px; }
+.fm3-classrooms .p7-generation .p5-notice > button { margin: 8px 8px 0 0; }
+.fm3-classrooms .p5-extraction > h3 { color: var(--fm-ink); }
+.fm3-classrooms .p5-extraction .p5-extraction-unit { background: var(--fm-pearl); }
+@media (max-width: 700px) {
+  .fm3-classrooms .p5-main .p7-generation > header,
+  .fm3-classrooms .p5-main .p7-generation-fields > fieldset,
+  .fm3-classrooms .p7-generation > section { padding: 16px 12px; }
+  .fm3-classrooms .p7-generation > section > ul > li > button { width: 100%; }
+}

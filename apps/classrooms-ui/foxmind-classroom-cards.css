@@ -6,16 +6,16 @@
 .fm3-classrooms.p5-app .p5-main .fm3-collection-search > input { display: block; flex: 1 1 0; align-self: center; width: 0; min-width: 0; height: 50px; min-height: 50px; margin: 0; border: 0; box-shadow: none; background: transparent; padding: 12px 0; font-weight: 400; }
 .fm3-collection-filters { display: flex; align-items: stretch; gap: 4px; border: 1px solid var(--fm-line); background: var(--fm3-panel); border-radius: 12px; padding: 4px; min-width: 0; overflow-x: auto; scrollbar-width: thin; overscroll-behavior-x: contain; }
 .fm3-classrooms .p5-main .fm3-collection-filters button { border: 0; border-radius: 9px; background: transparent; box-shadow: none; padding: 10px 12px; min-height: 44px; flex: 1 0 auto; color: var(--fm-muted); font-size: 15px; font-weight: 500; white-space: nowrap; }
-.fm3-classrooms .p5-main .fm3-collection-filters button[aria-pressed='true'] { color: var(--fm-link); background: var(--fm-peach); font-weight: 750; }
+.fm3-classrooms .p5-main .fm3-collection-filters button[aria-pressed='true'] { color: var(--fm-link); background: var(--fm-peach); font-weight: 700; }
 .fm3-classrooms .p5-main .fm3-collection-filters button:hover:enabled { background: var(--fm-peach); }
 .fm3-classrooms .fm3-collection-count { color: var(--fm-muted); font-size: 14px; margin: 0; }
 .fm3-classroom-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
-.fm3-classroom-card { min-width: 0; border: 1px solid var(--fm-line); border-radius: 18px; background: var(--fm3-panel); overflow: hidden; display: flex; flex-direction: column; padding: 10px; }
+.fm3-classroom-card { min-width: 0; border: 1px solid var(--fm-line); border-radius: 20px; background: var(--fm3-panel); box-shadow: 0 4px 18px #080b3005; overflow: hidden; display: flex; flex-direction: column; padding: 10px; }
 .fm3-classrooms .fm3-cover { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; border-radius: 12px; background: var(--fm-peach); overflow: hidden; flex: none; }
 .fm3-classrooms .fm3-cover .folder-cover-art { display: block; width: 100%; height: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
-.fm3-classroom-card-body { padding: 18px 4px 4px; display: flex; flex: 1; flex-direction: column; align-items: start; gap: 12px; }
-.fm3-classrooms .p5-main .fm3-classroom-card h3 { margin: 0; font-size: clamp(23px, 2vw, 28px); line-height: 1.18; letter-spacing: -.8px; overflow-wrap: anywhere; }
-.fm3-membership { display: inline-flex; align-items: center; gap: 8px; padding: 5px 10px; font-size: 14px; line-height: 1.5; background: var(--fm-lavender-soft, #f3efff); color: var(--fm-ink); border-radius: 9px; }
+.fm3-classroom-card-body { padding: 20px 8px 8px; display: flex; flex: 1; flex-direction: column; align-items: start; gap: 12px; }
+.fm3-classrooms .p5-main .fm3-classroom-card h3 { margin: 0; font-size: clamp(22px, 2vw, 26px); line-height: 1.18; letter-spacing: -.8px; overflow-wrap: anywhere; }
+.fm3-membership { display: inline-flex; align-items: center; gap: 8px; padding: 5px 10px; font-size: 14px; line-height: 1.5; background: var(--fm-lavender-soft, #f3efff); color: var(--fm-ink); border-radius: 20px; }
 .fm3-membership.is-teacher { background: var(--fm-mint); }
 .fm3-membership .entry-icon { width: 20px; height: 20px; }
 .fm3-classroom-facts { width: 100%; margin: 0; border-top: 1px solid var(--fm-line); padding-top: 12px; }
@@ -27,8 +27,8 @@
 .fm3-classrooms .p5-covers > label.selected { border-color: var(--fm-focus); background: var(--fm-lavender-soft, #f3efff); box-shadow: none; }
 .fm3-classrooms .p5-covers > label > span { display: flex; align-items: center; gap: 8px; padding-top: 8px; }
 .fm3-classrooms .p5-review { display: grid; grid-template-columns: minmax(0, 200px) minmax(0, 1fr); align-items: center; gap: 20px; }
-.fm3-classrooms .p5-steps { border: 1px solid var(--fm-line); border-radius: 12px; margin-block: 24px; }
-.fm3-classrooms .p5-steps li { background: var(--fm3-panel); border-color: var(--fm-line); }
+.fm3-classrooms .p5-steps { border: 1px solid var(--fm-line); border-radius: 16px; margin-block: 24px; padding: 8px; gap: 8px; }
+.fm3-classrooms .p5-steps li { background: var(--fm3-panel); border-color: var(--fm-line); padding: 12px; border-radius: 12px; min-width: 0; }
 .fm3-classrooms .p5-steps li.active { background: var(--fm-peach); }
 .fm3-classrooms .p5-steps li.complete { background: var(--fm-mint); }
 .fm3-classrooms .p5-wizard > .p5-surface.folder-panel { margin-top: 24px; }

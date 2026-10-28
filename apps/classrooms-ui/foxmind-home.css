@@ -4,8 +4,8 @@
 @import './foxmind-home-shell.css';
 
 .fm-home {
-  --home-ink: #080b30;
-  --home-blue: #405fc2;
+  --home-ink: var(--fm-ink);
+  --home-blue: var(--fm-muted);
   color: var(--home-ink);
   font-family: 'Segoe UI', sans-serif;
   font-size: 18px;
@@ -15,20 +15,20 @@
   margin: 0;
 }
 .fm3-classrooms .fm-home :is(h1,h2,h3) {
-  font-family: 'Fredoka Auth', 'Trebuchet MS', sans-serif;
+  font-family: var(--fm-font-heading);
   font-weight: 600;
   line-height: 1.15;
   letter-spacing: -.035em;
   color: var(--home-ink);
   overflow-wrap: anywhere;
 }
-.fm-home h1 { font-size: clamp(36px,3.5vw,54px); margin: 0 0 10px; }
+.fm-home h1 { font-size: clamp(34px,3vw,48px); margin: 0 0 10px; }
 .fm3-classrooms .fm-home h2 { font-size: 30px; margin: 0; }
 .fm3-classrooms .fm-home h3 { font-size: 23px; margin: 0 0 6px; }
 .fm-home p { line-height: 1.45; }
 .fm-home button {
   min-height: 44px;
-  border: 1px solid #cfd4e4;
+  border: 1px solid var(--fm-control-line);
   border-radius: 12px;
   background: #fff;
   color: var(--home-ink);
@@ -46,8 +46,8 @@
 .fm-home :is(button,select):focus-visible { outline: 3px solid #4453b8; outline-offset: 3px; }
 .fm-home-module {
   background: #fff;
-  border: 1px solid #f1f2f6;
-  border-radius: 18px;
+  border: 1px solid var(--fm-line);
+  border-radius: 20px;
   padding: 16px 12px 12px;
   min-width: 0;
 }
@@ -56,7 +56,7 @@
   margin-left: auto;
   background: transparent;
   border-color: transparent;
-  color: #1838b1;
+  color: var(--fm-link);
   padding: 4px;
   font-size: 17px;
 }

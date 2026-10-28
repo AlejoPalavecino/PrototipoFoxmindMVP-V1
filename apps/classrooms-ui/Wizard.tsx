@@ -239,7 +239,6 @@ export function Wizard({
           void (step === 3 ? publish() : next());
         }}
       >
-        <h2 className="folder-tab">{step === 3 ? 'Revisá tu aula' : steps[step]}</h2>
         <header className="p5-section-head">
           <div>
             <h2>{step === 3 ? 'Revisá tu aula' : steps[step]}</h2>
