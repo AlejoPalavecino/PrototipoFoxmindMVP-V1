@@ -1,0 +1,42 @@
+.fm3d-theme .fm3d-shell .fm3d-brand { width: 164px; }
+.fm3d-theme .fm3d-shell[data-private='true'] :is(.fm3d-shell-nav, .fm3d-shell-account) > a { min-height: 44px; font-size: 14px; font-weight: 600; padding: 10px 12px; gap: 12px; border-radius: 9px; color: var(--fm-muted); }
+.fm3d-theme .fm3d-shell[data-private='true'] a[aria-current='page'] { background: var(--fm-orange-soft); color: #943d0e; }
+.fm3d-theme .fm3d-shell[data-private='true'] .fm3d-icon { width: 20px; height: 20px; }
+.fm3d-theme .fm3d-shell-avatar { width: 40px; height: 40px; font-size: 13px; }
+.fm3d-shell-location { margin-right: auto; color: var(--fm-muted); font-size: 13px; font-weight: 600; }
+.fm3d-theme .fm3d-shell-account { gap: 4px; }
+.fm3d-theme .fm3d-shell-name { font-size: 12px; padding: 10px 12px 0; }
+.fm3d-theme .fm3d-shell-account :is(.p5-account-actions, .fm-profile-actions, .p5-actions) { display: grid; gap: 6px; margin: 0; }
+.fm3d-theme .fm3d-shell-account :is(.p5-account-actions, .fm-profile-actions, .p5-actions) > button { min-height: 44px; font-size: 13px; border: 0; padding: 10px 12px; text-align: left; color: var(--fm-muted); background: transparent; }
+.fm3d-theme .fm3d-shell-account :is(.p5-account-actions, .fm-profile-actions, .p5-actions) > button:hover { background: #f1f3f6; }
+@media(min-width:1024px) {
+  .fm3d-theme:has(.fm3d-shell[data-private='true']) { padding-left: var(--fm-sidebar); }
+  .fm3d-theme .fm3d-shell[data-private='true'] { inset: 0 auto 0 0; width: var(--fm-sidebar); height: 100dvh; padding: 28px 16px 16px; border: 0; border-right: 1px solid var(--fm-border); border-radius: 0; gap: 32px; }
+  .fm3d-theme .fm3d-shell[data-private='true'] .fm3d-shell-brand { padding: 0 4px; }
+  .fm3d-theme .fm3d-shell[data-private='true'] .fm3d-shell-nav { gap: 6px; }
+  .fm3d-theme .fm3d-shell[data-private='true'] .fm3d-shell-tools { left: var(--fm-sidebar); height: var(--fm-toolbar-height); padding: 10px 32px; border-bottom: 1px solid var(--fm-border); background: #ffffff; }
+  .fm3d-theme .fm3d-shell[data-private='true'] > .fm3d-shell-account { border-top: 1px solid var(--fm-border); padding-top: 14px; }
+  .fm3d-theme .fm3d-shell[data-private='true'] > .fm3d-shell-account :is(.fm3d-shell-name, .p5-account-actions, .fm-profile-actions) { display: block; }
+  .fm3d-theme:has(.fm3d-shell[data-private='true']) .p5-app { padding: calc(var(--fm-toolbar-height) + 28px) 32px 40px; }
+  .fm3d-theme:has(.fm3d-shell[data-private='true']) .profile-main { width: calc(100% - 64px); margin: 0 32px; padding-top: calc(var(--fm-toolbar-height) + 28px); }
+  .fm3d-theme .p5-main { max-width: 1440px; margin-inline: auto; }
+}
+@media(max-width:1023px) {
+  .fm3d-theme .p5-app > .fm3d-shell[data-private='true'] { margin: -24px -20px 20px; }
+  .fm3d-theme .fm3d-shell[data-private='true'] { position: sticky; top: 0; z-index: 10; padding: 10px 16px; min-height: 64px; border-bottom: 1px solid var(--fm-border); background: #fff; }
+  .fm3d-theme .fm3d-shell[data-private='true'] > .fm3d-shell-nav { display: flex; position: fixed; inset: auto 0 0; padding: 6px 12px calc(6px + env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid var(--fm-border); justify-content: space-around; z-index: 12; gap: 6px; }
+  .fm3d-theme .fm3d-shell[data-private='true'] > .fm3d-shell-nav a { flex: 1; flex-direction: column; gap: 3px; min-height: 54px; font-size: 11px; padding: 6px; }
+  .fm3d-theme .fm3d-shell .fm3d-shell-tools { gap: 8px; }
+  .fm3d-shell-location { display: none; }
+  .fm3d-theme:has(.fm3d-shell[data-private='true']) { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+  .fm3d-theme .p5-app, .fm3d-theme .p5-app.entry-home { padding: 24px 20px; }
+  .fm3d-theme .fm3d-shell[data-private='true'] .fm3d-brand { width: 140px; }
+  .fm3d-theme .fm3d-shell[data-private='true'] .fm3d-shell-toggle { background: #f1f3f6; }
+  .fm3d-theme .fm3d-drawer { padding: 24px 18px; width: min(320px, calc(100vw - 24px)); }
+}
+@media(max-width:600px) {
+  .fm3d-theme .p5-app > .fm3d-shell[data-private='true'] { margin: -20px -14px 20px; }
+  .fm3d-theme .p5-app, .fm3d-theme .p5-app.entry-home { padding: 20px 14px; }
+  .fm3d-theme .fm3d-shell[data-private='true'] { padding-inline: 14px; }
+  .fm3d-theme .fm3d-shell[data-private='true'] .fm3d-brand { width: 124px; }
+}

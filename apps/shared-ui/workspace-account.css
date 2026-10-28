@@ -1,0 +1,64 @@
+.fm3d-theme .entry-auth-polish { background: var(--fm-canvas); color: var(--fm-ink); font-size: 16px; }
+.fm3d-theme .entry-auth-polish .auth-brand-header { min-height: 76px; padding: 20px 32px; max-width: 1240px; margin-inline: auto; }
+.fm3d-theme .entry-auth-polish .auth-brand-header .fm3d-brand { width: 164px; }
+.fm3d-theme .entry-auth-polish .auth-main { width: calc(100% - 64px); max-width: 1160px; grid-template-columns: minmax(0,1fr) minmax(0,1fr); min-height: min(680px,calc(100dvh - 108px)); gap: 0; margin: 0 auto 32px; border: 1px solid var(--fm-border); border-radius: 20px; overflow: hidden; background: white; }
+.fm3d-theme .entry-auth-polish .auth-story { border-radius: 0; }
+.fm3d-theme .entry-auth-polish .auth-story-copy { padding: 32px; }
+.fm3d-theme .entry-auth-polish .auth-story h2 { font-family: var(--fm-font-heading); font-size: clamp(28px,3vw,40px); font-weight: 650; line-height: 1.15; letter-spacing: -.035em; }
+.fm3d-theme .entry-auth-polish .auth-story p { font-size: 15px; color: #48576c; }
+.fm3d-theme .entry-auth-polish:is(.auth-register,.auth-sign-in) .surface { padding: 36px 40px 24px; border: 0; border-radius: 0; justify-content: center; }
+.fm3d-theme .entry-auth-polish h1 { font-family: var(--fm-font-heading); font-size: 30px; font-weight: 650; letter-spacing: -.03em; line-height: 1.2; }
+.fm3d-theme .entry-auth-polish .page-heading { margin-bottom: 24px; }
+.fm3d-theme .entry-auth-polish .page-heading p { font-size: 15px; color: var(--fm-muted); }
+.fm3d-theme .entry-auth-polish .auth-eyebrow { font-size: 10px; letter-spacing: .12em; margin-bottom: 12px; color: #9c410f; }
+.fm3d-theme .entry-auth-polish .field { margin-bottom: 18px; }
+.fm3d-theme .entry-auth-polish:is(.auth-register,.auth-sign-in) .field-label { font-size: 13px; margin-bottom: 6px; font-weight: 600; }
+.fm3d-theme .entry-auth-polish:is(.auth-register,.auth-sign-in) .input { height: 46px; padding: 10px 12px; font-size: 16px; border-radius: 9px; border-color: var(--fm-control-border); }
+.fm3d-theme .entry-auth-polish .password-control .input { padding-right: 56px; }
+.fm3d-theme .entry-auth-polish .password-toggle { width: 44px; min-width: 44px; height: 44px; padding: 10px; right: 2px; }
+.fm3d-theme .entry-auth-polish .password-toggle svg { width: 22px; height: 22px; }
+.fm3d-theme .entry-auth-polish .input::placeholder { color: #69778b; }
+.fm3d-theme .entry-auth-polish:is(.auth-register,.auth-sign-in) .button-primary { min-height: 46px; font-size: 14px; border-radius: 9px; background: var(--fm-orange); color: #292017; }
+.fm3d-theme .entry-auth-polish .form-link { font-size: 12px; margin: -4px 0 18px; }
+.fm3d-theme .entry-auth-polish .after-form { font-size: 13px; margin-top: 20px; padding-top: 18px; }
+.fm3d-theme .entry-auth-polish a:not(.button) { color: var(--fm-link); }
+.fm3d-theme .entry-auth-polish .field-help { font-size: 12px; }
+.fm3d-theme .entry-auth-polish:is(.auth-register,.auth-sign-in) .page-footer { font-size: 11px; margin: 24px 0 0; padding-top: 0; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .auth-main { gap: 32px; max-width: 980px; margin-top: 32px; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .surface { border-radius: 14px; padding: 24px; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .auth-main .surface { margin-top: 0; }
+.fm3d-theme .entry-page > .fm3d-shell[data-private='false'] { max-width: 1160px; margin-inline: auto; }
+.fm3d-theme .entry-profile .profile-main { grid-template-columns: minmax(0,1fr) 280px; gap: 24px; }
+.fm3d-theme .entry-profile .fm3d-account-card { border-radius: 14px; padding: 22px; margin-top: 16px; }
+.fm3d-theme .entry-profile .profile-account > .page-heading h1 { font-size: 30px; }
+.fm3d-theme .entry-profile .fm3d-account-card h2 { font-size: 18px; }
+.fm3d-theme .entry-profile .fm3d-account-card p { font-size: 14px; }
+.fm3d-theme .fm3d-account-art { padding-top: 64px; }
+.fm3d-theme .fm3d-account-art .fm3d-illustration { max-height: 200px; border-radius: 14px; overflow: hidden; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .field { margin-bottom: 18px; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .input { height: 46px; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .field-label { font-size: 13px; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .field-help { font-size: 12px; }
+.fm3d-theme .entry-profile .breadcrumbs { font-size: 12px; margin-bottom: 14px; }
+.fm3d-theme .entry-page:not(.entry-auth-polish) .page-footer { font-size: 11px; }
+.fm3d-theme .entry-profile .password-section { margin-top: 24px; padding-top: 22px; }
+.fm3d-theme .entry-profile .form-actions { margin-top: 18px; padding-top: 18px; }
+@media(max-width:900px) {
+  .fm3d-theme .entry-profile .profile-main { grid-template-columns: minmax(0,1fr); }
+  .fm3d-theme .entry-auth-polish:is(.auth-register,.auth-sign-in) .surface { padding: 28px; }
+  .fm3d-theme .entry-auth-polish .auth-story-copy { padding: 24px; }
+}
+@media(max-width:700px) {
+  .fm3d-theme .entry-page > .fm3d-shell[data-private='false'] { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px; padding: 18px 24px 8px; min-height: 0; }
+  .fm3d-theme .entry-page > .fm3d-shell[data-private='false'] .fm3d-shell-brand { margin: 0; }
+  .fm3d-theme .entry-page > .fm3d-shell[data-private='false'] .fm3d-shell-nav { display: flex; flex-direction: row; flex-basis: 100%; gap: 8px; margin: 0; }
+  .fm3d-theme .entry-page > .fm3d-shell[data-private='false'] .fm3d-shell-nav a { min-height: 44px; font-size: 12px; padding: 8px; gap: 6px; }
+  .fm3d-theme .entry-page > .fm3d-shell[data-private='false'] :is(.fm3d-shell-tools,.fm3d-shell-account):empty { display: none; }
+  .fm3d-theme .entry-auth-polish .auth-brand-header { min-height: 72px; padding: 18px 24px; }
+  .fm3d-theme .entry-auth-polish .auth-main { display: block; width: calc(100% - 28px); min-height: 0; max-width: 460px; margin-bottom: 24px; border-radius: 16px; }
+  .fm3d-theme .entry-auth-polish .auth-story { display: none; }
+  .fm3d-theme .entry-auth-polish:is(.auth-register,.auth-sign-in) .surface { padding: 28px 22px; }
+  .fm3d-theme .entry-auth-polish h1 { font-size: 28px; }
+  .fm3d-theme .entry-profile .profile-main { width: calc(100% - 28px); margin: 24px 14px; }
+  .fm3d-theme .entry-profile .fm3d-account-card { padding: 18px; }
+}

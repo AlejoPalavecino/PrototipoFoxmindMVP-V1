@@ -23,7 +23,7 @@ export function AppNavbar(props: AppNavbarProps) {
   return <header className={`fm3d-shell${privateShell ? ' fm-navbar-private' : ''}`} data-private={privateShell}>
     <a href={props.logoHref} className="fm3d-shell-brand" aria-label="FoxMind" onClick={event => follow(event, props.logoHref)}><FoxmindBrand decorative /></a>
     <ShellLinks links={props.links} follow={follow} />
-    <div className="fm3d-shell-tools">{props.notifications}
+    <div className="fm3d-shell-tools">{privateShell ? <span className="fm3d-shell-location">{props.currentPath === '/profile' ? 'Mi perfil' : props.currentPath === '/settings' ? 'Configuración' : props.links.find(link => link.current)?.label ?? 'Tu espacio de aprendizaje'}</span> : null}{props.notifications}
       {privateShell ? <a className="fm3d-shell-avatar" href="/profile" aria-label={`Mi perfil${props.displayName ? ` de ${props.displayName}` : ''}`}
         onClick={event => follow(event, '/profile')}><span aria-hidden="true">{initials}</span></a> : null}
       {privateShell ? <button type="button" className="fm3d-shell-toggle" aria-label="Abrir menú de navegación"

@@ -1,0 +1,63 @@
+.fm3d-theme .agenda-main { font-size: 14px; }
+.fm3d-theme .agenda-main .agenda-header { margin-bottom: 20px; gap: 16px; }
+.fm3d-theme .agenda-main .agenda-header h1 { font-size: 32px; }
+.fm3d-theme .agenda-main .agenda-header .p5-lead { font-size: 15px; color: var(--fm-muted); }
+.fm3d-theme .agenda-main .agenda-tools { gap: 6px; }
+.fm3d-theme .agenda-main .agenda-tools .primary { font-size: 14px; min-height: 44px; padding: 10px 16px; border-radius: 9px; }
+.fm3d-theme .agenda-main .agenda-zone-control { font-size: 11px; }
+.fm3d-theme .agenda-main .agenda-zone-control button { font-size: 12px; }
+.fm3d-theme .agenda-main .agenda-layout { grid-template-columns: minmax(0,1.9fr) minmax(280px,1fr); gap: 18px; margin-top: 0; }
+.fm3d-theme .agenda-main .fm3d-agenda-card { border-radius: 14px; border-color: var(--fm-border); box-shadow: none; }
+.fm3d-theme .agenda-main .agenda-calendar { padding: 16px; }
+.fm3d-theme .agenda-main .agenda-month-head { margin-bottom: 14px; }
+.fm3d-theme .agenda-main .agenda-month-head h3 { font-size: 20px; margin-left: 8px; }
+.fm3d-theme .agenda-main .agenda-month-head button { min-width: 44px; min-height: 44px; border-radius: 8px; }
+.fm3d-theme .agenda-main .agenda-month-head .agenda-today-control { font-size: 12px; padding-inline: 14px; }
+.fm3d-theme .agenda-main .agenda-week { font-size: 12px; padding-block: 10px; color: var(--fm-muted); background: #fafbfc; }
+.fm3d-theme .agenda-main .agenda-grid { grid-auto-rows: minmax(66px,auto); }
+.fm3d-theme .agenda-main .agenda-calendar .agenda-day { min-height: 66px; padding: 6px; }
+.fm3d-theme .agenda-main .agenda-calendar .agenda-day[aria-pressed='true'] { padding: 5px; }
+.fm3d-theme .agenda-main .agenda-day-number { font-size: 13px; width: 25px; height: 25px; }
+.fm3d-theme .agenda-main .agenda-dot { font-size: 10px; min-height: 18px; }
+.fm3d-theme .agenda-main .agenda-calendar-note { font-size: 11px; margin-block: 10px; }
+.fm3d-theme .agenda-main .agenda-legend { padding: 10px; font-size: 11px; gap: 10px 16px; border-radius: 8px; }
+.fm3d-theme .agenda-main .agenda-legend .fm3d-icon { width: 18px; height: 18px; }
+.fm3d-theme .agenda-main .agenda-selected, .fm3d-theme .agenda-main .agenda-upcoming { padding: 16px; }
+.fm3d-theme .agenda-main .fm3d-agenda-card > h2 { font-size: 18px; }
+.fm3d-theme .agenda-main .agenda-selected-subtitle { font-size: 12px; margin-bottom: 14px; }
+.fm3d-theme .agenda-main .agenda-event { border-left-width: 4px; border-radius: 10px; padding: 12px; }
+.fm3d-theme .agenda-main :is(.agenda-event h3, .agenda-deadline h3) { font-size: 14px; }
+.fm3d-theme .agenda-main :is(.agenda-event-time, .agenda-deadline-time) { font-size: 12px; }
+.fm3d-theme .agenda-main .agenda-privacy { font-size: 11px; }
+.fm3d-theme .agenda-main .agenda-description { font-size: 12px; margin-block: 8px; }
+.fm3d-theme .agenda-main .agenda-date { font-size: 10px; }
+.fm3d-theme .agenda-main .agenda-event button { font-size: 12px; border-color: var(--fm-border); margin-top: 8px; }
+.fm3d-theme .agenda-main .agenda-deadline { padding: 12px; gap: 10px; border-radius: 10px; }
+.fm3d-theme .agenda-main .agenda-deadline-tile { flex-basis: 42px; min-height: 52px; border-radius: 8px; padding: 6px; }
+.fm3d-theme .agenda-main .agenda-deadline-tile strong { font-family: var(--fm-font-body); font-size: 23px; font-weight: 650; }
+.fm3d-theme .agenda-main .agenda-deadline-tile span { font-size: 10px; }
+.fm3d-theme .agenda-main .agenda-deadline-content > p:not(.agenda-date) { font-size: 12px; }
+.fm3d-theme .agenda-main .agenda-deadline button { font-size: 12px; }
+.fm3d-theme .agenda-main .agenda-side-scene { height: 110px; width: calc(100% + 32px); margin: 12px -16px -16px; border-radius: 0; }
+.fm3d-theme .agenda-main .agenda-side-scene img { object-fit: cover; }
+.fm3d-theme .agenda-dialog h2 { font-family: var(--fm-font-body); font-size: 22px; }
+.fm3d-theme .agenda-dialog .agenda-fields { gap: 16px; margin-block: 20px; }
+.fm3d-theme .agenda-dialog .agenda-fields label { font-size: 13px; gap: 6px; }
+.fm3d-theme .agenda-dialog .agenda-fields :is(input:not([type='radio']):not([type='checkbox']),select) { min-height: 44px; padding: 10px 12px; }
+.fm3d-theme .agenda-dialog .agenda-form-summary { font-size: 12px; padding: 12px; border-radius: 9px; }
+@media(max-width:1100px) {
+  .fm3d-theme .agenda-main .agenda-layout { grid-template-columns: minmax(0,1fr); }
+  .fm3d-theme .agenda-main :is(.agenda-calendar,.agenda-selected,.agenda-upcoming) { grid-column: auto; grid-row: auto; }
+}
+@media(max-width:600px) {
+  .fm3d-theme .agenda-main .agenda-header h1 { font-size: 28px; }
+  .fm3d-theme .agenda-main .agenda-header { flex-wrap: wrap; }
+  .fm3d-theme .agenda-main .agenda-tools { width: 100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+  .fm3d-theme .agenda-main .agenda-calendar { padding: 10px; }
+  .fm3d-theme .agenda-main .agenda-month-head { gap: 4px; }
+  .fm3d-theme .agenda-main .agenda-month-head h3 { font-size: 16px; margin-left: 4px; }
+  .fm3d-theme .agenda-main .agenda-grid { grid-auto-rows: minmax(48px,auto); }
+  .fm3d-theme .agenda-main .agenda-calendar .agenda-day { min-height: 48px; padding: 3px; }
+  .fm3d-theme .agenda-main .agenda-calendar .agenda-day[aria-pressed='true'] { padding: 2px; }
+  .fm3d-theme .agenda-main .agenda-day-number { margin-inline: auto; }
+}

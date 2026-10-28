@@ -3,4 +3,5 @@ import '../shared-ui/design-tokens.css';
 import './styles.css';
 import '../shared-ui/folders.css';
 import './foxmind-classrooms.css';
+import '../shared-ui/workspace.css';
 export { ClassroomsApp } from './Classrooms.tsx';

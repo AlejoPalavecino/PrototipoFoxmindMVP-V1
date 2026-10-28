@@ -1,0 +1,5 @@
+/* Current product presentation. Imported last in each application entry. */
+@import './workspace-foundation.css';
+@import './workspace-navigation.css';
+@import './workspace-account.css';
+@import './workspace-agenda.css';

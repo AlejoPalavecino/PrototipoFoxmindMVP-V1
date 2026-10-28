@@ -1,0 +1,79 @@
+.fm3d-theme {
+  --fm-canvas: #f7f8fa;
+  --fm-ink: #202a3b;
+  --fm-muted: #586579;
+  --fm-border: #e3e7ed;
+  --fm-line: var(--fm-border);
+  --fm-control-border: #9aa5b5;
+  --fm-orange: #ff893e;
+  --fm-orange-hover: #ff9a59;
+  --fm-orange-soft: #fff0e5;
+  --fm-peach: var(--fm-orange-soft);
+  --fm-lavender-soft: #f1f2fb;
+  --fm-mint: #e2f3e9;
+  --fm-link: #9c410f;
+  --fm-sidebar: 212px;
+  --fm-toolbar-height: 64px;
+  --fm-font-heading: 'Segoe UI', Arial, sans-serif;
+  --fm-font-body: 'Segoe UI', Arial, sans-serif;
+  --fm-shadow: 0 2px 8px #202a3b04;
+  background: var(--fm-canvas);
+  color: var(--fm-ink);
+  min-height: 100dvh;
+  font-family: var(--fm-font-body);
+  line-height: 1.5;
+}
+.fm3d-theme :is(.fm3-classrooms, .entry-page, .agenda-main, .agenda-dialog) { --fm-ink: #202a3b; --fm-muted: #586579; --fm-font-heading: 'Segoe UI', Arial, sans-serif; }
+.fm3d-theme :is(.fm3-classrooms .p5-main, .fm3-classrooms .p5-dialog, .entry-page, .agenda-main, .agenda-dialog) :is(h1,h2,h3,h4) { font-family: var(--fm-font-heading); color: var(--fm-ink); font-weight: 650; letter-spacing: -.025em; line-height: 1.25; }
+.fm3d-theme :is(.fm3-classrooms .p5-main, .entry-page, .agenda-main) h1 { font-size: clamp(26px, 2.4vw, 34px); }
+.fm3d-theme :is(.fm3-classrooms .p5-main, .entry-page, .agenda-main, .p5-dialog) h2 { font-size: 20px; }
+.fm3d-theme :is(.fm3-classrooms .p5-main, .entry-page, .agenda-main, .p5-dialog) h3 { font-size: 17px; }
+.fm3d-theme :is(.p5-lead, .page-heading p, .agenda-header .p5-lead) { font-size: 15px; color: var(--fm-muted); line-height: 1.5; }
+.fm3d-theme :is(.p5-main, .p5-dialog, .entry-page) p { color: var(--fm-muted); }
+.fm3d-theme :is(.p5-main, .p5-dialog, .entry-page) :is(button, .button) { border-radius: 10px; min-height: 44px; font-size: 14px; font-weight: 600; padding: 10px 16px; box-shadow: none; }
+.fm3d-theme :is(.p5-main, .p5-dialog, .entry-page) :is(button.primary, .button-primary) { border-radius: 10px; min-height: 44px; color: #292017; background: var(--fm-orange); border-color: transparent; }
+.fm3d-theme :is(.p5-main, .p5-dialog, .entry-page) :is(button.primary, .button-primary):hover:enabled { background: var(--fm-orange-hover); }
+.fm3d-theme :is(.p5-main, .p5-dialog, .entry-page) :is(input:not([type='checkbox']):not([type='radio']), select, textarea) { font-size: 16px; border-radius: 9px; border-color: var(--fm-control-border); }
+.fm3d-theme :is(.p5-main, .p5-dialog) input:not([type='checkbox']):not([type='radio']) { min-height: 44px; padding: 10px 12px; }
+.fm3d-theme :is(.p5-main, .p5-dialog) select { min-height: 44px; padding: 10px 12px; }
+.fm3d-theme :is(.p5-main, .p5-dialog) label { font-size: 14px; font-weight: 600; }
+.fm3d-theme :is(.p5-main, .p5-dialog) :is(.p5-fields, .field-grid) { gap: 16px 20px; }
+.fm3d-theme :is(.p5-main, .p5-dialog) :is(.p5-notice, .notice) { padding: 12px 16px; border-radius: 10px; font-size: 14px; }
+.fm3d-theme :is(button,a,input,select,textarea,summary):focus-visible { outline: 3px solid #5366b8; outline-offset: 3px; }
+.fm3d-theme :is(button, input, select, textarea):disabled { cursor: not-allowed; }
+.fm3d-theme :is(.p5-main, .profile-main) { scroll-margin-top: 80px; }
+.fm3d-theme .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.fm3d-theme .p5-app:not(.entry-home) .p5-surface { padding: 24px; border: 1px solid var(--fm-border); border-radius: 14px; box-shadow: none; }
+.fm3d-theme .p5-app:not(.entry-home) .p5-surface.folder-panel { border-color: var(--fm-border); box-shadow: none; }
+.fm3d-theme .p5-app:not(.entry-home) .p5-surface.fm3-plan-surface { padding: 0; border: 0; border-radius: 0; background: transparent; }
+.fm3d-theme .p5-app :is(p, label) { line-height: 1.5; }
+.fm3d-theme .p5-main :is(.p5-section-head p, .folder-row-content > p, .p8-progress-metrics p) { font-size: 14px; line-height: 1.5; }
+.fm3d-theme .p5-main .p5-section-head { margin-bottom: 18px; }
+.fm3d-theme .p5-main .folder-panel { border: 1px solid var(--fm-border); border-radius: 14px; padding: 22px; margin-top: 16px; box-shadow: none; }
+.fm3d-theme .p5-main .folder-panel::before, .fm3d-theme .p5-main .folder-panel::after { content: none; }
+.fm3d-theme .p5-main .folder-panel > .folder-tab { font-size: 20px; margin-bottom: 18px; }
+.fm3d-theme .p5-main .p5-page-head { margin-bottom: 24px; gap: 16px; }
+.fm3d-theme .p5-main .p5-page-head h1 { margin-bottom: 6px; }
+.fm3d-theme .p5-main .p5-link { min-height: 44px; margin-bottom: 12px; padding: 8px 0; font-size: 13px; }
+.fm3d-theme .p5-main .p5-empty { padding: 24px 18px; border-radius: 12px; font-size: 15px; }
+.fm3d-theme .p5-dialog { width: min(720px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); padding: 24px; border-radius: 18px; }
+.fm3d-theme .p5-dialog > header { position: sticky; top: -24px; padding-block: 8px 16px; background: white; z-index: 2; border-bottom: 1px solid var(--fm-border); margin-bottom: 20px; }
+.fm3d-theme .p5-dialog > header h2 { font-size: 22px; margin: 0; }
+.fm3d-theme .p5-dialog::backdrop { background: #15213566; backdrop-filter: blur(3px); }
+.fm3d-theme .p5-form-footer { gap: 12px; padding-top: 20px; margin-top: 24px; border-top: 1px solid var(--fm-border); }
+@media(max-width: 600px) {
+  .fm3d-theme .p5-app:not(.entry-home) .p5-surface { padding: 18px 14px; }
+  .fm3d-theme .p5-main .p5-section-head { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .fm3d-theme .p5-main .p5-section-head h2 { margin: 0; }
+  .fm3d-theme .p5-main .folder-panel { padding: 18px 14px; }
+  .fm3d-theme .p5-main .p5-page-head { margin-bottom: 18px; }
+  .fm3d-theme .p5-dialog { padding: 18px; width: calc(100vw - 16px); max-height: calc(100dvh - 16px); }
+  .fm3d-theme .p5-dialog > header { top: -18px; }
+  .fm3d-theme .p5-form-footer { flex-wrap: wrap; }
+}
+@media(prefers-reduced-motion:reduce) { .fm3d-theme *, .fm3d-theme *::before, .fm3d-theme *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+@media(forced-colors:active) {
+  .fm3d-theme { --fm-ink: CanvasText; --fm-muted: CanvasText; --fm-border: CanvasText; --fm-canvas: Canvas; --fm-surface: Canvas; }
+  .fm3d-theme :is(button,a,input,select,textarea,summary):focus-visible { outline-color: Highlight; }
+  .fm3d-theme :is(.p5-main,.p5-dialog,.entry-page) :is(button.primary,.button-primary) { background: ButtonFace; color: ButtonText; border: 1px solid ButtonText; }
+}
