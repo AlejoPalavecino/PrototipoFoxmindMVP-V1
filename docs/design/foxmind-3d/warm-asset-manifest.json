@@ -1,0 +1,26 @@
+{
+  "source": "Generated from existing FoxMind mascot reference, 2026-10-28",
+  "assets": [
+    {
+      "file": "apps/web/public/foxmind-3d/hero/foxy-warm-160.webp",
+      "width": 160,
+      "height": 160,
+      "alpha": true,
+      "bytes": 9584
+    },
+    {
+      "file": "apps/web/public/foxmind-3d/hero/foxy-warm-320.webp",
+      "width": 320,
+      "height": 320,
+      "alpha": true,
+      "bytes": 21930
+    },
+    {
+      "file": "apps/web/public/foxmind-3d/hero/foxy-warm-640.webp",
+      "width": 640,
+      "height": 640,
+      "alpha": true,
+      "bytes": 51772
+    }
+  ]
+}

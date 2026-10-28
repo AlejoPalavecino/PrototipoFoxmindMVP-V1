@@ -1,4 +1,4 @@
-/* Shared product presentation: sky learning concept, responsive tasks and controls. */
+/* Shared product presentation: warm learning concept, responsive tasks and controls. */
 @import './workspace-foundation.css';
 @import './workspace-navigation.css';
 @import './workspace-home.css';
@@ -10,3 +10,4 @@
 @import './education-flows.css';
 @import './sky-theme.css';
 @import './sky-home.css';
+@import './warm-polish.css';

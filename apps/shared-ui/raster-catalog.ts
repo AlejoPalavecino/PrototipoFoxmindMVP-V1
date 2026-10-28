@@ -1,5 +1,9 @@
 /** Production WebP variants; manifests live in docs/design/foxmind-3d. No masters are served. */
 export const illustrationCatalog = {
+  'hero/foxy-warm': {
+    position: 'center',
+    variants: [[160, 160, '/foxmind-3d/hero/foxy-warm-160.webp'], [320, 320, '/foxmind-3d/hero/foxy-warm-320.webp'], [640, 640, '/foxmind-3d/hero/foxy-warm-640.webp']],
+  },
   'hero/welcome-sky': {
     position: 'right center',
     variants: [[480, 160, '/foxmind-3d/hero/welcome-sky-480.webp'], [960, 320, '/foxmind-3d/hero/welcome-sky-960.webp'], [1600, 533, '/foxmind-3d/hero/welcome-sky-1600.webp']],

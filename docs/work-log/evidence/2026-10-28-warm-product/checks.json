@@ -1,0 +1,63 @@
+{
+  "contrast": [
+    {
+      "role": "primary text",
+      "foreground": "#ffffff",
+      "background": "#ae481c",
+      "ratio": 5.61,
+      "minimum": 4.5
+    },
+    {
+      "role": "body",
+      "foreground": "#38271f",
+      "background": "#fbf6ee",
+      "ratio": 13.2,
+      "minimum": 4.5
+    },
+    {
+      "role": "secondary",
+      "foreground": "#736052",
+      "background": "#fbf6ee",
+      "ratio": 5.54,
+      "minimum": 4.5
+    },
+    {
+      "role": "field boundary",
+      "foreground": "#a48b74",
+      "background": "#fffdfa",
+      "ratio": 3.17,
+      "minimum": 3
+    },
+    {
+      "role": "placeholder",
+      "foreground": "#806b59",
+      "background": "#fffdfa",
+      "ratio": 4.97,
+      "minimum": 4.5
+    }
+  ],
+  "css": "3 parsed successfully",
+  "assets": [
+    {
+      "file": "apps/web/public/foxmind-3d/hero/foxy-warm-160.webp",
+      "width": 160,
+      "height": 160,
+      "alpha": true,
+      "bytes": 9584
+    },
+    {
+      "file": "apps/web/public/foxmind-3d/hero/foxy-warm-320.webp",
+      "width": 320,
+      "height": 320,
+      "alpha": true,
+      "bytes": 21930
+    },
+    {
+      "file": "apps/web/public/foxmind-3d/hero/foxy-warm-640.webp",
+      "width": 640,
+      "height": 640,
+      "alpha": true,
+      "bytes": 51772
+    }
+  ]
+}
