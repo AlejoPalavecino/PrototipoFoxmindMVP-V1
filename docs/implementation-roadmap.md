@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Inicio typography and visual refinement — 2026-10-28
+
+Home-only CSS refines type hierarchy, surfaces and controls while preserving FoxMind branding and the selected miniagenda. [Work record](work-log/2026-10-28-root-inicio-refined-design.md) records responsive synthetic visual evidence, focused tests and the separate legacy test failures. Local delivery only.
+
 ## Miniagenda reference alignment — 2026-10-28
 
 Inicio miniagenda now uses date tiles, classroom labels, time and a right-hand arrow following the supplied reference. Month and time-zone context remain available. [Work record](work-log/2026-10-28-root-miniagenda-reference.md) documents fixture visual comparison, focused tests and limits; local delivery only.

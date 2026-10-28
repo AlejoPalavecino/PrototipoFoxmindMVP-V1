@@ -1,5 +1,5 @@
-.fm-home-columns { display: grid; grid-template-columns: minmax(0,1.66fr) minmax(0,1fr); gap: 16px; align-items: start; }
-.fm-home-work,.fm-home-aside { min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+.fm-home-columns { display: grid; grid-template-columns: minmax(0,1.66fr) minmax(0,1fr); gap: 20px; align-items: start; }
+.fm-home-work,.fm-home-aside { min-width: 0; display: flex; flex-direction: column; gap: 20px; }
 .fm-home-greeting {
   background: #fff2df;
   border-radius: 18px;
@@ -7,13 +7,13 @@
   isolation: isolate;
   overflow: hidden;
   min-height: 206px;
-  padding: 30px 24px;
+  padding: 30px 28px;
   display: flex;
   align-items: center;
 }
 .fm-home-greeting > div { position: relative; z-index: 1; width: 60%; }
-.fm-home-greeting p { font-size: 18px; line-height: 1.5; margin: 0 0 20px; max-width: 32ch; color: #102e72; }
-.fm-home-greeting time { display: block; font-size: 16px; color: #254ca3; }
+.fm-home-greeting p { font-size: 16px; line-height: 1.5; margin: 0 0 16px; max-width: 32ch; color: #102e72; }
+.fm-home-greeting time { display: block; font-size: 14px; color: #254ca3; }
 .fm-home .fm-home-hero { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; aspect-ratio: auto!important; border-radius: 0; background: transparent; pointer-events: none; z-index: -1; }
 .fm-home .fm-home-hero img { object-fit: cover; width: 100%; height: 100%; object-position: right center; }
 .fm-home-greeting::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg,#fff3e2e8 0%,#fff3e2c9 38%,#fff3e200 76%); z-index: -1; pointer-events: none; }
@@ -30,8 +30,8 @@
 .fm-home .fm-home-entry-actions button {
   min-height: 52px;
   padding: 12px 20px;
-  border-radius: 16px;
-  gap: 10px;
+  border-radius: 12px;
+  gap: 8px;
   font-weight: 700;
   background: #f5f0ff;
   color: #35295d;
@@ -43,7 +43,7 @@
 .fm-home .fm-home-entry-actions button:first-child:hover:enabled { background: #f2691c; border-color: #cf5510; }
 .fm-home .fm-home-entry-actions button:focus-visible { outline: 3px solid #7458ab; outline-offset: 3px; }
 .fm-home .fm-home-entry-actions button:disabled { box-shadow: none; }
-.fm-home .fm-home-entry-actions .fm3d-icon { width: 24px; height: 24px; flex-shrink: 0; }
+.fm-home .fm-home-entry-actions .fm3d-icon { width: 20px; height: 20px; flex-shrink: 0; }
 .fm-home .fm-home-find-rooms { color: var(--fm-muted); background: #ffffffc4; border-color: #d1d6e6; border-radius: 32px; justify-content: flex-start; min-height: 48px; width: min(500px,100%); padding: 10px 20px; margin-bottom: 16px; }
 .fm-home-find-rooms svg:last-child { margin-left: auto; }
 @media(min-width: 1024px) {
@@ -58,9 +58,9 @@
 @media(max-width: 739px) {
   .fm-home-greeting { padding: 20px 20px 100px; min-height: 0; align-items: flex-start; }
   .fm-home-greeting > div { width: 100%; }
-  .fm-home h1 { font-size: 38px; }
-  .fm-home-greeting p { font-size: 18px; margin-bottom: 14px; }
-  .fm-home-greeting time { font-size: 16px; }
+  .fm3-classrooms .fm-home h1 { font-size: 30px; }
+  .fm-home-greeting p { font-size: 16px; margin-bottom: 14px; }
+  .fm-home-greeting time { font-size: 14px; }
   .fm-home .fm-home-hero { inset: auto 0 0; height: 110px; }
   .fm-home-greeting::after { background: linear-gradient(#fff3e2 35%,#fff3e2ed 50%,#fff3e200 76%); }
   .fm-home-toolbar { flex-wrap: wrap; gap: 0 8px; }
