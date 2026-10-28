@@ -6,7 +6,7 @@
 - Branch / worktree: main / foxmind-student-publication
 - Starting commit: 408ef1a6b8cae400125af958bda9d4353ada1394
 - Phase and detailed task/spec links: [análisis individual](../student-ai.md), [publicación](2026-10-28-root-student-ai-publication.md)
-- Status: blocked (READY verification awaits the user's quota decision)
+- Status: completed
 
 ## Request and scope
 El usuario autorizó aplicar las migraciones necesarias y verificar el análisis en la aplicación local. Preservar datos existentes, preparar respaldo verificable y no desplegar ni publicar cambios remotos.
@@ -23,8 +23,14 @@ API readiness 200 y web sign-in 200; preview main `408ef1a` en `http://127.0.0.1
 
 Incidente: auxiliar DPAPI de /root/ui mostró credenciales demo en salida interna durante inspección. No registrarlas aquí; recomendar rotación al usuario. No se modificaron contraseñas.
 
+## User-authorized one-off verification
+
+El usuario autorizó aumentar temporalmente el límite docente de 5 a 6 exclusivamente para esta prueba y restaurarlo. Se usó un proceso aislado con configuración en memoria de 6, limitado a la matrícula demo de Matemáticas; el proceso principal y archivo de configuración permanecieron en 5. El helper ajustó únicamente la elegibilidad temporal del trabajo demo previamente fallido por cuota, sin dispatch anterior ni reserva, y procesó una única generación. Resultado Gemini `READY`, `dispatch_count=1`; proceso temporal terminó y la configuración persistente comprobada permanece en 5. El contador de uso consumido conserva la sexta solicitud efectivamente realizada.
+
+Verificador /root/ui comprobó en Space 31 ficha docente demo con resumen, fortalezas, apoyos, recomendaciones, límites y referencia A1 con título; tras recarga completa y reapertura, informe y referencia persistieron. Lectura posterior confirmó `READY` y un solo dispatch, sin regeneración por abrir/recargar. Los detalles están en el registro UI atribuido.
+
 ## Commits and outcomes
 No product changes or publication. The application was started from main `408ef1a`; the two migrations were applied to the admitted local database after a validated backup.
 
 ## Handoff
-User decision pending: maintain the configured daily actor limit or temporarily increase it by one for verification. Do not increase quota or force a retry without that decision. The worker retries budget-exceeded jobs after its configured delay. If authorized, target only synthetic demonstration evidence and verify READY/reload; restore temporary settings afterward. Investigate and fix the confirmed scroll overlap separately if authorized. Recommend rotation of the accidentally exposed demo credential. Application remains available at http://127.0.0.1:52171; no deployment or remote publication.
+Migración y verificación solicitadas completas. El límite permanente sigue en 5; otras solicitudes de la cuenta deben respetarlo. Recomendar rotación de la credencial demo expuesta. El solapamiento con barras fijas a ciertas posiciones de scroll queda pendiente de corrección. Aplicación disponible en http://127.0.0.1:52171; no hubo despliegue ni publicación remota.
