@@ -17,6 +17,6 @@
 - Un fallo previo del test concurrente P7 no se reprodujo en diagnóstico posterior; su causa permanece desconocida.
 - No se verificó Gemini real ni un recorrido completo autenticado; la última corrección del número de pregunta tiene prueba de componente, sin nueva captura visual.
 
-## Estrategia pendiente
+## Estrategia elegida
 
-El diff completo alcanza 3092 líneas añadidas/eliminadas. Elegir la estrategia de revisión y confirmar publicación remota antes de crear PR o ramas remotas. No se autorizó despliegue.
+El diff completo alcanza 3092 líneas añadidas/eliminadas. El usuario eligió PRs encadenadas con rama integradora; el detalle está en el [registro de cadena](2026-10-29-root-cadena-issue2.md). Confirmar publicación remota antes de crear PR o ramas remotas. No se autorizó despliegue.
