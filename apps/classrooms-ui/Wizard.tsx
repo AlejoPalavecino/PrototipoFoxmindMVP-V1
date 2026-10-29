@@ -8,7 +8,7 @@ import {
 } from 'react';
 import type { ClassroomClient, Draft, Payload, FileState } from './api.ts';
 import { Notice } from './components.tsx';
-import { PlanExtraction } from './PlanExtraction.tsx';
+import { WizardSuggestions } from './WizardSuggestions.tsx';
 import { usePlanExtraction } from './use-plan-extraction.ts';
 import { WizardGeneral } from './WizardGeneral.tsx';
 import { WizardPlan } from './WizardPlan.tsx';
@@ -276,7 +276,7 @@ export function Wizard({
         </header>
         <fieldset disabled={uploading || publishing || extraction.busy}>
           <div hidden={step !== 2 && !(step === 1 && payload.planFileId && file?.ready)}>
-            <PlanExtraction extraction={extraction} hasUnits={Boolean(payload.units?.length)} review={step === 2} />
+            <WizardSuggestions extraction={extraction} hasUnits={Boolean(payload.units?.length)} review={step === 2} />
           </div>
           {step === 0 ? <WizardGeneral payload={payload} zones={zones} onUpdate={update} /> : null}
           {step === 1 ? <WizardPlan file={file} uploading={uploading} disabled={blocked} inputRef={fileInputRef}
