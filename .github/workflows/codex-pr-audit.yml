@@ -1,0 +1,54 @@
+# Disabled template: enabling requires separate review of permissions, credentials, and base-ref handling.
+name: Codex Headless Architecture & Security Gate (disabled)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  codex-audit:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks Secret Scan
+        uses: gitleaks/gitleaks-action@v2
+
+      - name: Setup Node.js & OpenAI Codex CLI
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Install Codex CLI
+        run: npm install -g @openai/codex
+
+      - name: Run Headless Architecture & DoD Review (codex exec)
+        run: |
+          mkdir -p ./ci/artifacts
+          git diff origin/${{ github.base_ref }}...HEAD > /tmp/pr_changes.diff
+          cat /tmp/pr_changes.diff | codex --ask-for-approval never exec \
+            --model gpt-6.1-sol \
+            -c model_reasoning_effort="high" \
+            --sandbox read-only \
+            --ephemeral \
+            --json \
+            --output-schema ./ci/schemas/review-report.schema.json \
+            --output-last-message ./ci/artifacts/review-verdict.json \
+            "Audita el diff suministrado por stdin contra AGENTS.md. Verifica Bajo Acoplamiento (GRASP), Regla de Dependencia (Clean Architecture), integridad de tests TDD (prohibido relajar aserciones), sincronización de .env.example y ausencia de vulnerabilidades. Emite el veredicto estrictamente bajo el JSON Schema."
+
+      - name: Enforce Verdict Gate
+        run: |
+          VERDICT=$(jq -r '.verdict' ./ci/artifacts/review-verdict.json)
+          SUMMARY=$(jq -r '.summary' ./ci/artifacts/review-verdict.json)
+          echo "Veredicto Codex CI: $VERDICT - $SUMMARY"
+          if [ "$VERDICT" != "PASS" ]; then
+            jq -r '.violations[] | "[\(.severity)] \(.category) en \(.file):\(.line) -> \(.issue) | Fix: \(.fix)"' ./ci/artifacts/review-verdict.json
+            exit 1
+          fi
