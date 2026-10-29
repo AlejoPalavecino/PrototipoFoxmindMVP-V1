@@ -1,5 +1,15 @@
 # FoxMind visual QA
 
+## Current Inicio reference — 2026-10-28
+
+final result: passed
+
+Bounded Home presentation contract, using synthetic real-component fixtures. [Reference comparison, responsive captures, interaction proof and limitations](docs/work-log/evidence/2026-10-28-inicio-reference/README.md), [agent record](docs/work-log/2026-10-28-test_runner-inicio-reference.md).
+
+The supplied warm FoxMind reference now guides Inicio: illustrated hero, pastel shortcuts, classroom cards, learning/teaching groups and agenda/activity rail. The final 1784×882 comparison and 320px mobile were inspected after hero/target/density corrections. Five viewport checks fit; four keyboard callbacks, focus, partial-error retries, role states and pagination/return passed. Exact activity counts replace unsupported progress percentages and achievements. The final focused suite passed37; seven unrelated legacy visual-test failures were reproduced at the starting commit and preserved. This is not authenticated backend E2E, native review or physical-device/Safari acceptance.
+
+The historical reports below retain their original scope and findings.
+
 ## Current sky learning direction — 2026-10-28
 
 final result: passed — bounded visual adaptation on `codex/foxmind-ux-redesign`; local only.

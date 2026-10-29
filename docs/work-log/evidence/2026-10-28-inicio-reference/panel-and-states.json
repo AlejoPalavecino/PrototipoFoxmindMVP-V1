@@ -1,0 +1,43 @@
+{
+  "panel": {
+    "rows": 8,
+    "more": false
+  },
+  "returned": {
+    "focus": "classrooms",
+    "rows": 5
+  },
+  "groups": [
+    {
+      "mode": "mixed",
+      "present": [
+        "Mi aprendizaje",
+        "Mi actividad docente"
+      ]
+    },
+    {
+      "mode": "teach",
+      "present": [
+        "Mi actividad docente"
+      ]
+    },
+    {
+      "mode": "study",
+      "present": [
+        "Mi aprendizaje"
+      ]
+    },
+    {
+      "mode": "none",
+      "present": []
+    },
+    {
+      "mode": "archived",
+      "present": []
+    }
+  ],
+  "loading": {
+    "busy": "true",
+    "text": "Cargando tus actividades y próximos pasos…"
+  }
+}
