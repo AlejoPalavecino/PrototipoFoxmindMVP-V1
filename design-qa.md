@@ -1,5 +1,40 @@
 # FoxMind visual QA
 
+## Current Crear aula reference — final, 2026-10-29
+
+final result: passed — bounded synthetic four-step verification.
+
+[Reference, final screenshots and receipts](docs/work-log/evidence/2026-10-28-wizard-reference/README.md), [QA continuation](docs/work-log/2026-10-29-wizard_qa_finish.md), [independent review](docs/work-log/2026-10-29-wizard_review_finish.md). All four final source/render comparisons, focused controls and320/390 boards were inspected. Centered1046px form, compact desktop units/review, cream/orange surfaces, seven cover choices and ambient WebP follow the references. Initial icon overlap, sticky footer, desktop density and compressed mobile filename are corrected.
+
+Final12 viewport states have no horizontal overflow or clipped block labels. Desktop primary actions end at915.55/888.80/928.75/921.05px within the942px CSS viewport. Mobile controls remain44px with16px input text; keyboard focus/actions are reachable through normal scrolling. Synthetic file/drop/save/extraction/review/publication busy and error flows passed. Proposal edits persist across steps without application; collapsed invalid units reopen and focus. Long-name journey collected329 runtime/console events with0 errors.
+
+No unresolved P0/P1/P2. Standard iconography, supported copy and scrollbar gutter remain minor P3 differences. File-only approval and explicit suggestion replacement/publication contracts are preserved; no pasted-plan field or invented metadata. Final focused17PASS, strict types and production build PASS are coordinator evidence. No authenticated backend E2E, real provider/publication, native review or physical-device/Safari claim. The initial blocked report below remains history.
+
+## Historical Crear aula reference — initial continuation, 2026-10-29
+
+final result: blocked
+
+Bounded synthetic four-step continuation by `/root/wizard_qa_finish`. Sources: `docs/work-log/evidence/2026-10-28-wizard-reference/step-{1..4}-reference.png`, each1672×941. Render source: real Wizard with in-memory ports at `http://127.0.0.1:53195/wizard?mode=proposal`. Desktop-v2 captures each1672×941, requested CSS1672×941/DPR1; Ego reports CSS height942 from rounding. No resampling required. Combined `compare-step-{1..4}-v2.png` source-left/render-right opened for all four states. Mobile has no supplied reference: 320/390×844 screenshots assess reflow and usability, not pixel matching.
+
+**Findings**
+
+- [P2] Desktop composition/density displaces the final controls below the supplied frame. Reference form starts nearx414/y195 and all step actions remain visible; rendered formx253/y230, width1000, bottoms1032/1001/1212/1144. Step3 cuts the second unit despite fewer topics. Evidence: four v2 comparisons and `desktop-v2.json`. Fix: center the main region and scope inherited margins/line heights/padding to the wizard while preserving accessible controls and full content.
+- [P2] At320px the file card compresses the filename/status into a narrow vertical strip. Evidence: `step-2-320-v2.png` and `mobile-320-board-v2.png`. Fix: give the file text a useful flex basis and wrap its replacement action to the next row.
+
+**Comparison history and fidelity surfaces**
+
+Root identified and corrected initial icon/text padding and sticky footer overlap; v2 rendered visible inputs have44px left padding and footer static. Fixture navbar initially failed to select the private shell; QA changed fixture-only routing props, preserving production navigation. V2 compares Segoe UI hierarchy/weights, warm cream/brown/orange tokens, real WebP category imagery and generated ambient background, and supported wizard copy. Remaining composition findings above block visual acceptance. Intentional content constraints: file approval replaces fabricated size/time metadata; no unsupported pasted-plan field; editable suggestion counts, explicit replacement semantics and fixed-timezone copy remain truthful. Existing brand/category assets and standard library icons are reused as authorized; source's illustrative file-upload artwork is represented by its standard upload icon.
+
+**Interactions and checks**
+
+Nine bounded synthetic cases passed: missing-plan gate; approved picker/save-before-extraction; pending and rejected gates; upload busy; save busy; save error/no exit/publication; publish busy; publish error/explicit retry. Prior navigation receipt proves proposal retention, invalid collapsed-field reopening/focus, and review edits without mutation/publication. Eight mobile state checks have no horizontal overflow or clipped block labels; inputs16px and buttons≥44px. Long names/topics and keyboard input focus passed. Final mobile keyboard screenshot `keyboard-footer-mobile-final.png` shows visible focus and reachable publication action above the fixed navigation. Round17's misleading `keyboard-footer-focus-320.png` filename records a desktop-reset viewport; it is historical, superseded by round18's explicit320×844 capture. Runtime/console collection for the long-label journey:329 events,0 errors (`keyboard-long-console.json`); not a full-session console claim.
+
+**Implementation Checklist**
+
+- Correct the two P2 findings, recapture affected desktop/mobile states and compare source/render again.
+- Save focused source/render crops and final findings; keep the preview open for inspection.
+- No backend E2E, real publication/provider, physical-device/Safari, broad regression rerun or deployment is claimed. Source17PASS/types/build are earlier coordinator evidence, not rerun by this QA continuation.
+
 ## Current Mis aulas reference — 2026-10-28
 
 final result: passed — bounded synthetic collection verification.

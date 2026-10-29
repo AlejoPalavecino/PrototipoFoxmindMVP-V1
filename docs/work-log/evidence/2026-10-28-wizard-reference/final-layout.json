@@ -1,0 +1,831 @@
+[
+  {
+    "width": 1672,
+    "step": 1,
+    "innerWidth": 1672,
+    "innerHeight": 942,
+    "dpr": 1.0000000149011612,
+    "client": 1657,
+    "scroll": 1657,
+    "height": 950,
+    "form": {
+      "x": 406.3999938964844,
+      "y": 195.90000915527344,
+      "width": 1046,
+      "height": 742.4500122070312,
+      "top": 195.90000915527344,
+      "right": 1452.3999938964844,
+      "bottom": 938.3500213623047,
+      "left": 406.3999938964844
+    },
+    "primary": {
+      "x": 1303.9625244140625,
+      "y": 871.5499877929688,
+      "width": 118.8375015258789,
+      "height": 44,
+      "top": 871.5499877929688,
+      "right": 1422.8000259399414,
+      "bottom": 915.5499877929688,
+      "left": 1303.9625244140625
+    },
+    "clipped": [],
+    "inputs": [
+      {
+        "font": "14px",
+        "height": 44,
+        "padding": "44px"
+      },
+      {
+        "font": "14px",
+        "height": 44,
+        "padding": "44px"
+      },
+      {
+        "font": "14px",
+        "height": 44,
+        "padding": "44px"
+      },
+      {
+        "font": "14px",
+        "height": 44,
+        "padding": "44px"
+      }
+    ],
+    "smallButtons": [],
+    "regions": {
+      ".p5-fields": {
+        "x": 429.20001220703125,
+        "y": 279.8999938964844,
+        "width": 1000.4000244140625,
+        "height": 267.20001220703125,
+        "top": 279.8999938964844,
+        "right": 1429.6000366210938,
+        "bottom": 547.1000061035156,
+        "left": 429.20001220703125
+      },
+      ".p5-covers": {
+        "x": 429.20001220703125,
+        "y": 598.3500366210938,
+        "width": 1000.4000244140625,
+        "height": 251.1999969482422,
+        "top": 598.3500366210938,
+        "right": 1429.6000366210938,
+        "bottom": 849.5500335693359,
+        "left": 429.20001220703125
+      },
+      ".wizard-plan-upload": null,
+      ".p5-units > .p5-unit": null,
+      ".wizard-review-blocks > section": null
+    }
+  },
+  {
+    "width": 1672,
+    "step": 2,
+    "innerWidth": 1672,
+    "innerHeight": 942,
+    "dpr": 1.0000000149011612,
+    "client": 1672,
+    "scroll": 1672,
+    "height": 942,
+    "form": {
+      "x": 414,
+      "y": 195.90000915527344,
+      "width": 1046,
+      "height": 715.7000122070312,
+      "top": 195.90000915527344,
+      "right": 1460,
+      "bottom": 911.6000213623047,
+      "left": 414
+    },
+    "primary": {
+      "x": 1311.5625,
+      "y": 844.7999877929688,
+      "width": 118.8375015258789,
+      "height": 44,
+      "top": 844.7999877929688,
+      "right": 1430.400001525879,
+      "bottom": 888.7999877929688,
+      "left": 1311.5625
+    },
+    "clipped": [],
+    "inputs": [],
+    "smallButtons": [],
+    "regions": {
+      ".p5-fields": null,
+      ".p5-covers": null,
+      ".wizard-plan-upload": {
+        "x": 436.8000183105469,
+        "y": 279.8999938964844,
+        "width": 618.7999877929688,
+        "height": 390.5500183105469,
+        "top": 279.8999938964844,
+        "right": 1055.6000061035156,
+        "bottom": 670.4500122070312,
+        "left": 436.8000183105469
+      },
+      ".p5-units > .p5-unit": null,
+      ".wizard-review-blocks > section": null
+    }
+  },
+  {
+    "width": 1672,
+    "step": 3,
+    "innerWidth": 1672,
+    "innerHeight": 942,
+    "dpr": 1.0000000149011612,
+    "client": 1657,
+    "scroll": 1657,
+    "height": 963,
+    "form": {
+      "x": 406.3999938964844,
+      "y": 195.90000915527344,
+      "width": 1046,
+      "height": 755.6500244140625,
+      "top": 195.90000915527344,
+      "right": 1452.3999938964844,
+      "bottom": 951.5500335693359,
+      "left": 406.3999938964844
+    },
+    "primary": {
+      "x": 1303.9625244140625,
+      "y": 884.75,
+      "width": 118.8375015258789,
+      "height": 44,
+      "top": 884.75,
+      "right": 1422.8000259399414,
+      "bottom": 928.75,
+      "left": 1303.9625244140625
+    },
+    "clipped": [],
+    "inputs": [
+      {
+        "font": "14px",
+        "height": 32,
+        "padding": "14px"
+      },
+      {
+        "font": "14px",
+        "height": 32,
+        "padding": "14px"
+      },
+      {
+        "font": "14px",
+        "height": 32,
+        "padding": "14px"
+      },
+      {
+        "font": "14px",
+        "height": 32,
+        "padding": "14px"
+      },
+      {
+        "font": "14px",
+        "height": 32,
+        "padding": "14px"
+      },
+      {
+        "font": "14px",
+        "height": 32,
+        "padding": "14px"
+      }
+    ],
+    "smallButtons": [
+      {
+        "text": "Quitar unidad 1",
+        "height": 36
+      },
+      {
+        "text": "",
+        "height": 36
+      },
+      {
+        "text": "",
+        "height": 32
+      },
+      {
+        "text": "",
+        "height": 32
+      },
+      {
+        "text": "Agregar tema",
+        "height": 37.60000228881836
+      },
+      {
+        "text": "Quitar unidad 2",
+        "height": 36
+      },
+      {
+        "text": "",
+        "height": 36
+      },
+      {
+        "text": "",
+        "height": 32
+      },
+      {
+        "text": "",
+        "height": 32
+      },
+      {
+        "text": "Agregar tema",
+        "height": 37.60000228881836
+      },
+      {
+        "text": "Agregar unidad",
+        "height": 37.60000228881836
+      }
+    ],
+    "regions": {
+      ".p5-fields": null,
+      ".p5-covers": null,
+      ".wizard-plan-upload": null,
+      ".p5-units > .p5-unit": {
+        "x": 429.20001220703125,
+        "y": 406.75,
+        "width": 1000.4000244140625,
+        "height": 203.1999969482422,
+        "top": 406.75,
+        "right": 1429.6000366210938,
+        "bottom": 609.9499969482422,
+        "left": 429.20001220703125
+      },
+      ".wizard-review-blocks > section": null
+    }
+  },
+  {
+    "width": 1672,
+    "step": 4,
+    "innerWidth": 1672,
+    "innerHeight": 942,
+    "dpr": 1.0000000149011612,
+    "client": 1657,
+    "scroll": 1657,
+    "height": 956,
+    "form": {
+      "x": 406.3999938964844,
+      "y": 195.90000915527344,
+      "width": 1046,
+      "height": 747.9500122070312,
+      "top": 195.90000915527344,
+      "right": 1452.3999938964844,
+      "bottom": 943.8500213623047,
+      "left": 406.3999938964844
+    },
+    "primary": {
+      "x": 1302.8875732421875,
+      "y": 877.0499877929688,
+      "width": 119.9124984741211,
+      "height": 44,
+      "top": 877.0499877929688,
+      "right": 1422.8000717163086,
+      "bottom": 921.0499877929688,
+      "left": 1302.8875732421875
+    },
+    "clipped": [],
+    "inputs": [],
+    "smallButtons": [
+      {
+        "text": "Editar datos",
+        "height": 32
+      },
+      {
+        "text": "Cambiar archivo",
+        "height": 32
+      },
+      {
+        "text": "Editar unidades",
+        "height": 32
+      }
+    ],
+    "regions": {
+      ".p5-fields": null,
+      ".p5-covers": null,
+      ".wizard-plan-upload": null,
+      ".p5-units > .p5-unit": null,
+      ".wizard-review-blocks > section": {
+        "x": 429.20001220703125,
+        "y": 279.8999938964844,
+        "width": 1000.4000244140625,
+        "height": 180.60000610351562,
+        "top": 279.8999938964844,
+        "right": 1429.6000366210938,
+        "bottom": 460.5,
+        "left": 429.20001220703125
+      }
+    }
+  },
+  {
+    "width": 390,
+    "step": 1,
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "dpr": 1.0000000149011612,
+    "client": 375,
+    "scroll": 375,
+    "height": 1631,
+    "form": {
+      "x": 14,
+      "y": 321.25,
+      "width": 347.20001220703125,
+      "height": 1214.050048828125,
+      "top": 321.25,
+      "right": 361.20001220703125,
+      "bottom": 1535.300048828125,
+      "left": 14
+    },
+    "primary": {
+      "x": 192.60000610351562,
+      "y": 1469.7000732421875,
+      "width": 145,
+      "height": 44,
+      "top": 1469.7000732421875,
+      "right": 337.6000061035156,
+      "bottom": 1513.7000732421875,
+      "left": 192.60000610351562
+    },
+    "clipped": [],
+    "inputs": [
+      {
+        "font": "16px",
+        "height": 44,
+        "padding": "44px"
+      },
+      {
+        "font": "16px",
+        "height": 44,
+        "padding": "44px"
+      },
+      {
+        "font": "16px",
+        "height": 44,
+        "padding": "44px"
+      },
+      {
+        "font": "16px",
+        "height": 44,
+        "padding": "44px"
+      }
+    ],
+    "smallButtons": [],
+    "regions": {
+      ".p5-fields": {
+        "x": 26.80000114440918,
+        "y": 469.8500061035156,
+        "width": 321.6000061035156,
+        "height": 457.3999938964844,
+        "top": 469.8500061035156,
+        "right": 348.4000072479248,
+        "bottom": 927.25,
+        "left": 26.80000114440918
+      },
+      ".p5-covers": {
+        "x": 26.80000114440918,
+        "y": 978.5,
+        "width": 321.6000061035156,
+        "height": 462.3999938964844,
+        "top": 978.5,
+        "right": 348.4000072479248,
+        "bottom": 1440.8999938964844,
+        "left": 26.80000114440918
+      },
+      ".wizard-plan-upload": null,
+      ".p5-units > .p5-unit": null,
+      ".wizard-review-blocks > section": null
+    }
+  },
+  {
+    "width": 390,
+    "step": 2,
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "dpr": 1.0000000149011612,
+    "client": 375,
+    "scroll": 375,
+    "height": 1704,
+    "form": {
+      "x": 14,
+      "y": 321.25,
+      "width": 347.20001220703125,
+      "height": 1287,
+      "top": 321.25,
+      "right": 361.20001220703125,
+      "bottom": 1608.25,
+      "left": 14
+    },
+    "primary": {
+      "x": 192.60000610351562,
+      "y": 1542.6500244140625,
+      "width": 145,
+      "height": 44,
+      "top": 1542.6500244140625,
+      "right": 337.6000061035156,
+      "bottom": 1586.6500244140625,
+      "left": 192.60000610351562
+    },
+    "clipped": [],
+    "inputs": [],
+    "smallButtons": [],
+    "regions": {
+      ".p5-fields": null,
+      ".p5-covers": null,
+      ".wizard-plan-upload": {
+        "x": 26.80000114440918,
+        "y": 450.25,
+        "width": 321.6000061035156,
+        "height": 430.5500183105469,
+        "top": 450.25,
+        "right": 348.4000072479248,
+        "bottom": 880.8000183105469,
+        "left": 26.80000114440918
+      },
+      ".p5-units > .p5-unit": null,
+      ".wizard-review-blocks > section": null
+    }
+  },
+  {
+    "width": 390,
+    "step": 3,
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "dpr": 1.0000000149011612,
+    "client": 375,
+    "scroll": 375,
+    "height": 1660,
+    "form": {
+      "x": 14,
+      "y": 321.25,
+      "width": 347.20001220703125,
+      "height": 1243.050048828125,
+      "top": 321.25,
+      "right": 361.20001220703125,
+      "bottom": 1564.300048828125,
+      "left": 14
+    },
+    "primary": {
+      "x": 192.60000610351562,
+      "y": 1498.7000732421875,
+      "width": 145,
+      "height": 44,
+      "top": 1498.7000732421875,
+      "right": 337.6000061035156,
+      "bottom": 1542.7000732421875,
+      "left": 192.60000610351562
+    },
+    "clipped": [],
+    "inputs": [
+      {
+        "font": "16px",
+        "height": 44,
+        "padding": "14px"
+      },
+      {
+        "font": "16px",
+        "height": 44,
+        "padding": "14px"
+      },
+      {
+        "font": "16px",
+        "height": 44,
+        "padding": "14px"
+      },
+      {
+        "font": "16px",
+        "height": 44,
+        "padding": "14px"
+      },
+      {
+        "font": "16px",
+        "height": 44,
+        "padding": "14px"
+      },
+      {
+        "font": "16px",
+        "height": 44,
+        "padding": "14px"
+      }
+    ],
+    "smallButtons": [],
+    "regions": {
+      ".p5-fields": null,
+      ".p5-covers": null,
+      ".wizard-plan-upload": null,
+      ".p5-units > .p5-unit": {
+        "x": 26.80000114440918,
+        "y": 715.7000122070312,
+        "width": 321.6000061035156,
+        "height": 346.1000061035156,
+        "top": 715.7000122070312,
+        "right": 348.4000072479248,
+        "bottom": 1061.8000183105469,
+        "left": 26.80000114440918
+      },
+      ".wizard-review-blocks > section": null
+    }
+  },
+  {
+    "width": 390,
+    "step": 4,
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "dpr": 1.0000000149011612,
+    "client": 375,
+    "scroll": 375,
+    "height": 1606,
+    "form": {
+      "x": 14,
+      "y": 321.25,
+      "width": 347.20001220703125,
+      "height": 1189.4000244140625,
+      "top": 321.25,
+      "right": 361.20001220703125,
+      "bottom": 1510.6500244140625,
+      "left": 14
+    },
+    "primary": {
+      "x": 192.60000610351562,
+      "y": 1445.050048828125,
+      "width": 145,
+      "height": 44,
+      "top": 1445.050048828125,
+      "right": 337.6000061035156,
+      "bottom": 1489.050048828125,
+      "left": 192.60000610351562
+    },
+    "clipped": [],
+    "inputs": [],
+    "smallButtons": [],
+    "regions": {
+      ".p5-fields": null,
+      ".p5-covers": null,
+      ".wizard-plan-upload": null,
+      ".p5-units > .p5-unit": null,
+      ".wizard-review-blocks > section": {
+        "x": 26.80000114440918,
+        "y": 450.25,
+        "width": 321.6000061035156,
+        "height": 325.3000183105469,
+        "top": 450.25,
+        "right": 348.4000072479248,
+        "bottom": 775.5500183105469,
+        "left": 26.80000114440918
+      }
+    }
+  },
+  {
+    "width": 320,
+    "step": 1,
+    "innerWidth": 320,
+    "innerHeight": 844,
+    "dpr": 1.0000000149011612,
+    "client": 305,
+    "scroll": 305,
+    "height": 1672,
+    "form": {
+      "x": 14,
+      "y": 330.8500061035156,
+      "width": 276.8000183105469,
+      "height": 1245.25,
+      "top": 330.8500061035156,
+      "right": 290.8000183105469,
+      "bottom": 1576.1000061035156,
+      "left": 14
+    },
+    "primary": {
+      "x": 157.40000915527344,
+      "y": 1510.5,
+      "width": 109.80000305175781,
+      "height": 44,
+      "top": 1510.5,
+      "right": 267.20001220703125,
+      "bottom": 1554.5,
+      "left": 157.40000915527344
+    },
+    "clipped": [],
+    "inputs": [
+      {
+        "font": "16px",
+        "height": 44,
+        "padding": "44px"
+      },
+      {
+        "font": "16px",
+        "height": 44,
+        "padding": "44px"
+      },
+      {
+        "font": "16px",
+        "height": 44,
+        "padding": "44px"
+      },
+      {
+        "font": "16px",
+        "height": 44,
+        "padding": "44px"
+      }
+    ],
+    "smallButtons": [],
+    "regions": {
+      ".p5-fields": {
+        "x": 26.80000114440918,
+        "y": 479.45001220703125,
+        "width": 251.1999969482422,
+        "height": 475.6000061035156,
+        "top": 479.45001220703125,
+        "right": 277.99999809265137,
+        "bottom": 955.0500183105469,
+        "left": 26.80000114440918
+      },
+      ".p5-covers": {
+        "x": 26.80000114440918,
+        "y": 1006.2999877929688,
+        "width": 251.1999969482422,
+        "height": 475.3999938964844,
+        "top": 1006.2999877929688,
+        "right": 277.99999809265137,
+        "bottom": 1481.6999816894531,
+        "left": 26.80000114440918
+      },
+      ".wizard-plan-upload": null,
+      ".p5-units > .p5-unit": null,
+      ".wizard-review-blocks > section": null
+    }
+  },
+  {
+    "width": 320,
+    "step": 2,
+    "innerWidth": 320,
+    "innerHeight": 844,
+    "dpr": 1.0000000149011612,
+    "client": 305,
+    "scroll": 305,
+    "height": 1835,
+    "form": {
+      "x": 14,
+      "y": 330.8500061035156,
+      "width": 276.8000183105469,
+      "height": 1408,
+      "top": 330.8500061035156,
+      "right": 290.8000183105469,
+      "bottom": 1738.8500061035156,
+      "left": 14
+    },
+    "primary": {
+      "x": 157.40000915527344,
+      "y": 1673.25,
+      "width": 109.80000305175781,
+      "height": 44,
+      "top": 1673.25,
+      "right": 267.20001220703125,
+      "bottom": 1717.25,
+      "left": 157.40000915527344
+    },
+    "clipped": [],
+    "inputs": [],
+    "smallButtons": [],
+    "regions": {
+      ".p5-fields": null,
+      ".p5-covers": null,
+      ".wizard-plan-upload": {
+        "x": 26.80000114440918,
+        "y": 479.45001220703125,
+        "width": 251.1999969482422,
+        "height": 430.5500183105469,
+        "top": 479.45001220703125,
+        "right": 277.99999809265137,
+        "bottom": 910.0000305175781,
+        "left": 26.80000114440918
+      },
+      ".p5-units > .p5-unit": null,
+      ".wizard-review-blocks > section": null
+    }
+  },
+  {
+    "width": 320,
+    "step": 3,
+    "innerWidth": 320,
+    "innerHeight": 844,
+    "dpr": 1.0000000149011612,
+    "client": 305,
+    "scroll": 305,
+    "height": 1791,
+    "form": {
+      "x": 14,
+      "y": 330.8500061035156,
+      "width": 276.8000183105469,
+      "height": 1364.050048828125,
+      "top": 330.8500061035156,
+      "right": 290.8000183105469,
+      "bottom": 1694.9000549316406,
+      "left": 14
+    },
+    "primary": {
+      "x": 157.40000915527344,
+      "y": 1629.300048828125,
+      "width": 109.80000305175781,
+      "height": 44,
+      "top": 1629.300048828125,
+      "right": 267.20001220703125,
+      "bottom": 1673.300048828125,
+      "left": 157.40000915527344
+    },
+    "clipped": [],
+    "inputs": [
+      {
+        "font": "16px",
+        "height": 44,
+        "padding": "14px"
+      },
+      {
+        "font": "16px",
+        "height": 44,
+        "padding": "14px"
+      },
+      {
+        "font": "16px",
+        "height": 44,
+        "padding": "14px"
+      },
+      {
+        "font": "16px",
+        "height": 44,
+        "padding": "14px"
+      },
+      {
+        "font": "16px",
+        "height": 44,
+        "padding": "14px"
+      },
+      {
+        "font": "16px",
+        "height": 44,
+        "padding": "14px"
+      }
+    ],
+    "smallButtons": [],
+    "regions": {
+      ".p5-fields": null,
+      ".p5-covers": null,
+      ".wizard-plan-upload": null,
+      ".p5-units > .p5-unit": {
+        "x": 26.80000114440918,
+        "y": 762.2999877929688,
+        "width": 251.1999969482422,
+        "height": 388.1000061035156,
+        "top": 762.2999877929688,
+        "right": 277.99999809265137,
+        "bottom": 1150.3999938964844,
+        "left": 26.80000114440918
+      },
+      ".wizard-review-blocks > section": null
+    }
+  },
+  {
+    "width": 320,
+    "step": 4,
+    "innerWidth": 320,
+    "innerHeight": 844,
+    "dpr": 1.0000000149011612,
+    "client": 305,
+    "scroll": 305,
+    "height": 1782,
+    "form": {
+      "x": 14,
+      "y": 330.8500061035156,
+      "width": 276.8000183105469,
+      "height": 1355.9000244140625,
+      "top": 330.8500061035156,
+      "right": 290.8000183105469,
+      "bottom": 1686.7500305175781,
+      "left": 14
+    },
+    "primary": {
+      "x": 157.40000915527344,
+      "y": 1621.1500244140625,
+      "width": 109.80000305175781,
+      "height": 44,
+      "top": 1621.1500244140625,
+      "right": 267.20001220703125,
+      "bottom": 1665.1500244140625,
+      "left": 157.40000915527344
+    },
+    "clipped": [],
+    "inputs": [],
+    "smallButtons": [],
+    "regions": {
+      ".p5-fields": null,
+      ".p5-covers": null,
+      ".wizard-plan-upload": null,
+      ".p5-units > .p5-unit": null,
+      ".wizard-review-blocks > section": {
+        "x": 26.80000114440918,
+        "y": 479.45001220703125,
+        "width": 251.1999969482422,
+        "height": 353.3000183105469,
+        "top": 479.45001220703125,
+        "right": 277.99999809265137,
+        "bottom": 832.7500305175781,
+        "left": 26.80000114440918
+      }
+    }
+  }
+]

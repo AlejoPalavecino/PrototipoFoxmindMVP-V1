@@ -1,4 +1,4 @@
-# Selected Crear aula references — in progress
+# Selected Crear aula references — completed locally
 
 - Agent / role: /root coordinator.
 - Session or task ID: /root; runtime memory registration unavailable.
@@ -6,7 +6,7 @@
 - Branch / worktree: codex/inicio-reference-astra; isolated foxmind-inicio-astra/ProtipoFoxMind.
 - Starting commit: 7a742de70c766bea3e5557566dc341b9c2ff9742; clean tree observed.
 - Phase/task: existing P5 creation wizard; follows [Mis aulas refinement](2026-10-28-root-classrooms-reference.md).
-- Status: in_progress.
+- Status: completed (2026-10-29 final verification and delivery below).
 
 ## Request and scope
 
@@ -22,7 +22,7 @@ Product Design user-context preflight exited0 with no saved context. Current scr
 
 ## Verification
 
-Pending contract, meaningful behavior test-first changes where needed, focused pure regressions, build and live synthetic four-step QA. Every test entrypoint/dependency must be inspected before execution: no broad suites or automatic database helpers. Memory writes remain unavailable until host registration.
+Initial verification plan: contract, meaningful behavior test-first changes where needed, focused pure regressions, build and live synthetic four-step QA. Every test entrypoint/dependency was inspected before execution: no broad suites or automatic database helpers. Memory writes remain unavailable until host registration.
 
 Tester inspected full imports and observed RED before implementation: `node --test --test-concurrency=1 tests/wizard-reference-drop.test.mjs tests/wizard-reference-navigation.test.mjs tests/classroom-ai-ui.test.mjs tests/p5-ui-client.test.mjs` — eight existing cases PASS, six new cases FAIL (drop3, collapse2, review editing1), exit1. Worker notified to begin GREEN. Dedicated typed in-memory fixture on53195 is being prepared; existing previews stay untouched.
 
@@ -57,3 +57,9 @@ Unit B committed as `c7fa319` after both staged checks passed (233 authored line
 Unit C committed as `ebbd192` after both staged checks passed (311 authored lines). Unit D preserves a stable READY suggestion editor tree across steps, retaining unapplied edits. Suggestions3 progressed RED→GREEN and native edit→Plan→Units retained the value with zero apply calls. Rollback is the suggestion wrapper/controller substitution and focused tests; extraction API/hooks remain unchanged. Original review's interrupted handoff accompanies this correction.
 
 Unit D committed as `ee63671` after both staged checks passed (81 authored lines). Unit E adds the complete reference skin, responsive rules, draft-only root marker, stylesheet entries and optimized ambient WebP; it includes the final header/state markup. Final17PASS/build/12 viewport checks and independent LGTM cover this frozen source. Rollback is the scoped visual skin/imports/root marker/assets and final presentation markup; behavior units remain separable.
+
+Unit E committed as `cb3ef19` after both staged checks passed (350 authored lines plus two WebP binaries). Working Wizard has no unstaged difference after the incremental staging sequence; its three reviewed source/style SHA256 identities remain unchanged. Unit F closes reusable synthetic fixture/evidence, attributable records and roadmap; rollback removes only that verification package and summary, not the product implementation.
+
+Root restored Ego Space3/pagep1 to prepared desktop preview and observed the actual general-data fields, saved draft status and Continue action, then `finish({keep:['p1']})` returned successfully, exit0. This final preview handoff is root-operated, distinct from QA's visual/interaction proof. No requested work remains; publication is outside this local task. Final closure commit identity is available from Git history after this record is committed.
+
+Closure verification passed:10 local Markdown records/index checked with0 broken relative links;3 frozen source hashes match independent review;12 layout receipts agree. Unit F has289 authored changed lines plus1,056 generated JSON lines and12 image binaries; staged whitespace/secret scan passed. The historical interrupted worker/tester statuses remain intact, with final acceptance attributed to the continuation/root records.
