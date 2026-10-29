@@ -7,7 +7,9 @@ import { FoxmindIllustration,FoxmindIcon } from '../shared-ui/index.ts';
 import { useHome } from './use-home.ts';
 import { HomeModule } from './HomeModule.tsx';
 import { HomeModulePanel } from './HomeModulePanel.tsx';
-import { HomeShortcuts } from './HomeShortcuts.tsx';
+import { HomeShortcuts,HomeTeacherTools } from './HomeShortcuts.tsx';
+import { HomeActivitySummary } from './HomeActivitySummary.tsx';
+import { HomeFoxyNote } from './HomeFoxyNote.tsx';
 import { homeParticipation } from './home-labels.ts';
 import { homeGreetingDate,shouldShowHomeModule } from './home-presentation.ts';
 export interface HomeProps {
@@ -25,29 +27,35 @@ export function Home(props:HomeProps) {
   if(home.loading)return <section className="fm-home fm-home-loading" aria-label="Inicio" aria-busy="true"><h1>Hola, {displayName}</h1><p role="status">Cargando tus actividades y próximos pasos…</p><div className="fm-home-skeleton"/></section>;
   if(!data)return <section className="fm-home fm-home-global-error" aria-label="Inicio"><h1>Hola, {displayName}</h1><p role="alert">No pudimos comprobar tu Inicio. Actualiza para volver a consultar tus aulas y permisos.</p><button onClick={()=>void home.refresh()}>Reintentar Inicio</button></section>;
   if(panel && homeClient)return <section className="fm-home"><HomeModulePanel key={`${panel}:${data.generatedAt}`} name={panel} data={data} client={homeClient} onClose={()=>{const previous=panel;setPanel(null);requestAnimationFrame(()=>document.querySelector<HTMLButtonElement>(`[data-home-expand="${previous}"]`)?.focus());}} onAction={onAction} onUnauthorized={()=>void home.refresh()}/></section>;
-  const shortcuts=data.participation!=='none'?<HomeShortcuts key="shortcuts" data={data} onAction={onAction} onCreate={onCreate} onJoin={onJoin} onClassrooms={onClassrooms} onAgenda={onAgenda} busy={busy}/>:null;
-  const finalModules=data.participation==='teach'?[shortcuts,module('materials')]:[module('materials'),shortcuts];
+  const learning=[module('pending'),module('feedback')],teaching=[module('review'),module('queries')];
+  const materials=module('materials');
   return <section className={`fm-home fm-home--reference fm-home--${data.participation}`} aria-label="Inicio">
     <div className="fm-home-columns"><div className="fm-home-work">
     <HomeGreeting data={data} displayName={displayName} onClassrooms={onClassrooms}/>
-    <div className="fm-home-actions"><button className="fm-home-find-rooms" onClick={onClassrooms}><FoxmindIcon name="book"/>Ver mis aulas<FoxmindIcon name="arrow-right"/></button>
-      {data.participation!=='none'?<div><button onClick={onJoin} disabled={busy}><FoxmindIcon name="users"/>Unirme con código</button><button onClick={onCreate} disabled={busy}><FoxmindIcon name="plus"/>Crear aula</button></div>:null}</div>
+    <HomeShortcuts data={data} onAction={onAction} onCreate={onCreate} onJoin={onJoin} onClassrooms={onClassrooms} onAgenda={onAgenda} busy={busy}/>
     {data.participation==='none'?<HomeWelcome data={data} onCreate={onCreate} onJoin={onJoin} busy={busy}/>:null}
-    {module('pending')}{module('review')}{module('queries')}
     {module('classrooms')}
-    {finalModules.some(Boolean)?<details className="fm-home-resources" open={data.modules.materials.status==='error'||undefined}><summary>Recursos y herramientas<span>Biblioteca y accesos de trabajo</span></summary><div>{finalModules}</div></details>:null}
-    <div className="fm-home-toolbar"><button aria-label="Actualizar Inicio" onClick={()=>void home.refresh()}><FoxmindIcon name="refresh"/>Actualizar</button></div>
-    </div><aside className="fm-home-aside">{module('agenda')}{module('feedback')}</aside></div>
+    <div className="fm-home-learning-groups">
+      {learning.some(Boolean)?<section className="fm-home-learning-group" aria-label="Mi aprendizaje"><header><FoxmindIcon name="book"/><h2>Mi aprendizaje</h2></header>{learning}</section>:null}
+      {teaching.some(Boolean)?<section className="fm-home-teaching-group" aria-label="Mi actividad docente"><header><FoxmindIcon name="users"/><h2>Mi actividad docente</h2></header>{teaching}<HomeTeacherTools data={data} onAction={onAction} onClassrooms={onClassrooms} busy={busy}/></section>:null}
+    </div>
+    {!teaching.some(Boolean) && data.memberships.teach>0?<HomeTeacherTools data={data} onAction={onAction} onClassrooms={onClassrooms} busy={busy}/>:null}
+    {materials?<details className="fm-home-resources" open={data.modules.materials.status==='error'||undefined}><summary>Recursos y herramientas<span>Biblioteca y accesos de trabajo</span></summary><div>{materials}</div></details>:null}
+    <div className="fm-home-toolbar"><time dateTime={data.generatedAt}>{homeGreetingDate(data.generatedAt,data.timeZone)}</time><button aria-label="Actualizar Inicio" onClick={()=>void home.refresh()}><FoxmindIcon name="refresh"/>Actualizar</button></div>
+    </div><aside className="fm-home-aside">{module('agenda')}<HomeActivitySummary data={data}/><HomeFoxyNote/></aside></div>
   </section>;
 }
 
 function HomeGreeting({data,displayName,onClassrooms}:{data:HomeResponse;displayName:string;onClassrooms:()=>void}) {
-  return <header className="fm-home-greeting"><div><h1>¡Hola, {displayName}!</h1>
+  return <header className="fm-home-greeting"><div><span className="fm-home-welcome-eyebrow"><FoxmindIcon name="spark"/>¡Qué bueno verte por aquí!</span><h1>¡Hola, <span>{displayName}</span>!</h1>
     <p>{data.participation==='teach'?'Tus clases':'Tus actividades'} y próximos pasos, en un solo lugar.</p>
-    <time dateTime={data.generatedAt}>{homeGreetingDate(data.generatedAt,data.timeZone)}</time>
     <button className="primary fm-sky-hero-action" onClick={onClassrooms}>Ir a mis aulas<FoxmindIcon name="arrow-right"/></button>
     <span className="sr-only">{homeParticipation(data)}</span></div>
-    <FoxmindIllustration name="hero/foxy-warm" priority className="fm-home-hero" sizes="(max-width: 600px) 130px, 300px"/>
+    <picture className="fm-home-reference-scene" aria-hidden="true"><img
+      src="/foxmind-3d/hero/inicio-reference-1600.webp"
+      srcSet="/foxmind-3d/hero/inicio-reference-480.webp 480w, /foxmind-3d/hero/inicio-reference-960.webp 960w, /foxmind-3d/hero/inicio-reference-1600.webp 1600w"
+      sizes="(max-width: 900px) 100vw, 70vw" width="1600" height="533" alt="" loading="eager" fetchPriority="high"/>
+    </picture>
   </header>;
 }
 

@@ -34,7 +34,7 @@ test('Home renders authorized aggregate identity and archived history without in
     onCreate() {}, onJoin() {}, onClassrooms() {}, onAction() {} });
   try {
     await view.flush(); const html = renderToStaticMarkup(view.tree);
-    assert.match(html, /Hola, Actual Learner/);
+    assert.match(html.replace(/<[^>]*>/g, ''), /Hola, Actual Learner/);
     assert.match(html, /Real classroom &lt;script&gt;/); assert.match(html, /Archivada · Solo lectura/);
     assert.match(html, /Tus aulas/); assert.doesNotMatch(html, /Material reciente/);
     assert.doesNotMatch(html, /Cambiar rol|role="switch"|lucia@example|Nota promedio/);

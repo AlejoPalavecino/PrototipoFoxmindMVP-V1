@@ -68,10 +68,11 @@ test('Home keeps pending work visible and places recoverable resources behind an
     assert.equal(descendants(resources, n => n.type?.name === 'HomeModule' && ['pending','review'].includes(n.props.name)).length, 0);
     assert.equal(descendants(view.tree, n => n.type?.name === 'HomeModule' && ['pending','review'].includes(n.props.name)).length, 2);
     assert.equal(descendants(resources, n => n.type?.name === 'HomeModule' && n.props.name === 'materials').length, 1);
-    const toolbar = descendants(view.tree, n => n.props.className === 'fm-home-actions')[0];
-    assert.ok(toolbar);
+    const shortcuts = descendants(view.tree, n => n.type?.name === 'HomeShortcuts')[0];
+    assert.ok(shortcuts);
+    const toolbar = shortcuts.type(shortcuts.props);
     for (const label of ['Crear aula', 'Unirme con código']) {
-      const button = descendants(toolbar, n => n.type === 'button' && text(n).trim() === label)[0];
+      const button = descendants(toolbar, n => n.type === 'button' && text(n).trim().startsWith(label))[0];
       assert.ok(button, label); button.props.onClick();
     }
     assert.deepEqual(actions, ['create','join']);
