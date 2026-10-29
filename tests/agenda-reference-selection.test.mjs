@@ -1,0 +1,35 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { loadTsModule } from './helpers/load-ts-module.mjs';
+import { descendants, hookView } from './agenda-ui-helpers.test.mjs';
+
+test('selecting a calendar day keeps the monthly grid and updates the selected day panel', async () => {
+  const { Agenda } = loadTsModule('apps/agenda-ui/Agenda.tsx');
+  const previousWindow = globalThis.window, previousStorage = globalThis.sessionStorage;
+  globalThis.window = new EventTarget();
+  globalThis.sessionStorage = { getItem: () => JSON.stringify({ month: '2026-11', day: '2026-11-02', zone: 'UTC' }), setItem() {} };
+  let writes = 0;
+  const page = { serverTime: '2026-11-01T12:00:00.000Z', items: [], nextCursor: null };
+  const api = { async list() { return page; }, async upcoming() { return page; }, async put() { writes++; } };
+  const view = hookView(Agenda, { api, onOpen() {} });
+  const component = name => descendants(view.tree, node => node.type?.name === name)[0];
+  const button = name => descendants(view.tree, node => node.type === 'button' && node.props.children === name)[0];
+  try {
+    await view.flush();
+    assert.equal(component('AgendaMonth').props.selected, '2026-11-02');
+    component('AgendaMonth').props.onSelect('2026-11-19');
+    await view.flush();
+    assert.ok(component('AgendaMonth'), 'The monthly calendar remains visible after selecting a day');
+    assert.equal(component('AgendaMonth').props.selected, '2026-11-19');
+    assert.equal(component('AgendaDay').props.day, '2026-11-19');
+    assert.equal(button('Mes').props['aria-pressed'], true);
+    assert.equal(writes, 0, 'Selecting a day never writes an event');
+    button('Día').props.onClick(); await view.flush();
+    assert.equal(button('Día').props['aria-pressed'], true, 'Explicit day mode remains available');
+    assert.equal(component('AgendaPeriod').props.day, '2026-11-19');
+  } finally {
+    view.close();
+    if (previousWindow === undefined) delete globalThis.window; else globalThis.window = previousWindow;
+    if (previousStorage === undefined) delete globalThis.sessionStorage; else globalThis.sessionStorage = previousStorage;
+  }
+});

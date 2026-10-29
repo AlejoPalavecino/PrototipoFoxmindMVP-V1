@@ -43,10 +43,12 @@ export function Agenda({ api, onOpen, requestedEvent }: { api: AgendaClient; onO
     {data.error ? <Notice error>{data.error} <button onClick={() => void data.reload()}>Volver a intentar</button></Notice> : null}
     {data.loading ? <Notice>Consultando tu agenda…</Notice> : null}
     <div className="agenda-layout"><div className="agenda-primary">
-      {mode === 'MONTH' ? <AgendaMonth month={view.month} selected={view.day} zone={view.zone} items={data.items} onSelect={day => { view.select(day); setMode('DAY'); }} onMonth={view.move} onToday={view.today} loading={data.loading} />
+      {mode === 'MONTH' ? <AgendaMonth month={view.month} selected={view.day} zone={view.zone} items={data.items} onSelect={view.select} onMonth={view.move} onToday={view.today} loading={data.loading} />
         : <AgendaPeriod mode={mode} day={view.day} zone={view.zone} items={data.items} onSelect={view.select} onToday={view.today} loading={data.loading} />}
       {!data.loading && !data.error ? <AgendaDay day={view.day} zone={view.zone} items={data.items} busy={busy} focusEventId={result.focusEventId ?? (view.day === requestedEvent?.date ? requested.focusEventId : undefined)} focusRequest={result.focusRequest} onEdit={event => setEditing({ event })} onOpen={target => void open(target)} onCreate={() => setEditing({})} /> : null}
-    </div><Upcoming items={data.upcoming} loading={data.loading} error={data.error} busy={busy} onOpen={target => void open(target)} /></div>
+    </div><Upcoming items={data.upcoming} loading={data.loading} error={data.error} busy={busy} onOpen={target => void open(target)} />
+      <aside className="agenda-foxy-note"><div><strong>¡Vas muy bien!</strong><p>Organizá tu tiempo y acercate a tus metas.</p></div><img src="/foxmind-3d/agenda-reference/agenda-foxy-note-640.webp" alt="" /></aside>
+    </div>
     {editing ? <EventForm api={api} event={editing.event} day={view.day} zone={view.zone} onClose={() => setEditing(null)} onSaved={result.saved} /> : null}
   </main>;
 }

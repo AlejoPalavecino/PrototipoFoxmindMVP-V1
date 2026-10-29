@@ -2,6 +2,8 @@ import type { AgendaItem } from './calendar.ts';
 import { dateAt, dayLabel, monthDays, onDay } from './calendar.ts';
 import { eventColorClass } from './event-colors.ts';
 import { AgendaLegend } from './AgendaLegend.tsx';
+import { FoxmindIcon } from '../shared-ui/index.ts';
+import { deadlineParts, eventTimeLabel } from './agenda-presentation.ts';
 
 export function AgendaMonth({ month, selected, zone, items, onSelect, onMonth, onToday, loading }: {
   month: string; selected: string; zone: string; items: AgendaItem[]; loading: boolean;
@@ -22,7 +24,7 @@ export function AgendaMonth({ month, selected, zone, items, onSelect, onMonth, o
         aria-current={day === today ? 'date' : undefined} aria-pressed={selected === day} aria-label={`${dayLabel(day)}${day === today ? ', hoy' : ''}${entries.length ? `, ${entries.length} eventos o entregas` : ''}`}
         onClick={() => onSelect(day)}><span className="agenda-day-number">{Number(day.slice(-2))}</span>
         <span className="agenda-day-preview" aria-hidden="true">{entries.slice(0, 2).map(item => <span key={item.kind === 'PRIVATE_EVENT' ? item.occurrenceId : item.id}
-          className={`agenda-dot ${item.kind === 'PRIVATE_EVENT' ? eventColorClass(item.event) : 'deadline'}`}>{item.kind === 'PRIVATE_EVENT' ? item.event.title : item.title}</span>)}
+          className={`agenda-dot ${item.kind === 'PRIVATE_EVENT' ? eventColorClass(item.event) : 'deadline'}`}><FoxmindIcon name={item.kind === 'PRIVATE_EVENT' ? 'calendar' : 'file'} /><span><b>{item.kind === 'PRIVATE_EVENT' ? eventTimeLabel(item) : deadlineParts(item.deadlineAt, item.timeZone).time}</b><span>{item.kind === 'PRIVATE_EVENT' ? item.event.title : item.title}</span></span></span>)}
           {entries.length > 2 ? <small>+{entries.length - 2} más</small> : null}</span>
         {entries.length ? <span className="agenda-day-count" aria-hidden="true">{entries.length}</span> : null}
         <span className="agenda-day-indicators" aria-hidden="true">{entries.slice(0, 3).map(item => <span

@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Selected Agenda reference — locally verified, 2026-10-29
+
+Agenda and new-event form now follow the selected warm FoxMind direction with responsive WebP artwork, compact monthly toolbar and selected-day rail. Selecting a date keeps the monthly grid visible; existing timezone, recurrence, privacy and event operations are preserved. [Coordinator](work-log/2026-10-29-root-agenda-reference.md), [visual evidence](work-log/evidence/2026-10-29-agenda-reference/README.md):48 focused PASS, strict types and isolated build PASS, bounded synthetic desktop/mobile form and calendar QA, independent source review. No authenticated backend E2E, real event change, remote publication or deployment.
+
 ## Classroom interior visual follow-up — 2026-10-29
 
 Following the user's request to improve resemblance without implementing missing functions, the eight existing tabs received a final typography, icon, card and layout pass; real data and actions remain. [Work record](work-log/2026-10-29-root-interior-fidelity.md), [visual QA](../design-qa.md): eight desktop and16 mobile synthetic states inspected,11 focused PASS, strict types and isolated build PASS, independent source review without findings. Differences from mock content/controls and artwork remain; no pixel-perfect or authenticated-backend claim. Local isolated branch only.

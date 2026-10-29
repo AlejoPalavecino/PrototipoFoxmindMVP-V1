@@ -21,6 +21,8 @@ import '../../classrooms-ui/interior-plan-reference.css';
 import '../../classrooms-ui/interior-library-fidelity.css';
 import '../../classrooms-ui/interior-progress-reference.css';
 import '../../classrooms-ui/interior-activity-reference.css';
+import '../../agenda-ui/agenda-reference.css';
+import '../../agenda-ui/agenda-event-reference.css';
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   useEffect(() => {
