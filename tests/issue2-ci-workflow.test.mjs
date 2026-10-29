@@ -81,7 +81,7 @@ const finalSlice = [...slice06, 'apps/api/src/classrooms/grading-ai/service.ts',
   'tests/grading-ai-integration.test.mjs', 'tests/grading-ai-files-integration.test.mjs', 'odd/tasks/grading-ai-issue-2.md'];
 async function runSuiteBlock(files, simulateTimeout = false) {
   const text = await workflow();
-  const match = text.match(/- name:\s*Run grading AI suite for this revision\s*\n\s*shell:\s*bash\s*\n\s*run:\s*\|\s*\n((?: {10}[^\n]*\n?)+)/);
+  const match = text.match(/- name:\s*Run grading AI suite for this revision\s*\n\s*shell:\s*bash\s*\n\s*run:\s*\|\s*\n((?:(?: {10}[^\n]*|[ \t]*\r?)\n)+)/);
   assert.ok(match, 'feature suite must expose its bash script');
   const script = match[1].replace(/^ {10}/gm, '');
   const root = await mkdtemp(join(tmpdir(), 'issue2-ci-test-'));
@@ -121,7 +121,7 @@ test('final marker enforces both integration files and executes each once in com
 
 test('affected P7/P8 and proxy regressions run serially and propagate test failures', async () => {
   const text = await workflow();
-  const match = text.match(/- name:\s*Run affected P7\/P8 regressions\s*\n\s*shell:\s*bash\s*\n\s*run:\s*\|\s*\n((?: {10}[^\n]*\n?)+)/);
+  const match = text.match(/- name:\s*Run affected P7\/P8 regressions\s*\n\s*shell:\s*bash\s*\n\s*run:\s*\|\s*\n((?:(?: {10}[^\n]*|[ \t]*\r?)\n)+)/);
   assert.ok(match, 'missing explicit affected regression step');
   const script = match[1].replace(/^ {10}/gm, '');
   const required = ['p7-authoring', 'p7-practical', 'p7-questionnaire', 'p8-grading', 'p8-publication', 'p8-scoring', 'p5-web-proxy']
@@ -177,4 +177,16 @@ for (const [source, missing] of [
   const result = await runSuiteBlock(files);
   assert.notEqual(result.code, 0, `${source} must require ${missing}`);
   assert.ok(result.output.includes(missing)); assert.doesNotMatch(result.output, /NODE_ARG:/);
+});
+
+test('workflow Bash extraction preserves the full suite block with LF and CRLF line endings', async () => {
+  const raw = await readFile(file, 'utf8');
+  for (const ending of ['\n', '\r\n']) {
+    const source = raw.replace(/\r?\n/g, ending).replace(/^\s*#.*$/gm, '');
+    const match = source.match(/- name:\s*Run grading AI suite for this revision\s*\n\s*shell:\s*bash\s*\n\s*run:\s*\|\s*\n((?:(?: {10}[^\n]*|[ \t]*\r?)\n)+)/);
+    assert.ok(match, 'script block located');
+    assert.match(match[1], /Cobertura parcial/, `complete suite content retained for ${JSON.stringify(ending)}`);
+    assert.match(match[1], /grading-ai-integration\.test\.mjs/, 'final integration guard retained');
+    assert.match(match[1], /timeout\s+360s\s+node/, 'per-file bounded runner retained');
+  }
 });
