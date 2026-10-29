@@ -19,3 +19,4 @@ export * from './home-validation.ts';
 export * from './classroom-cover.ts';
 export { activityReceptionPolicy } from './activity-reception.ts';
 export * from './student-ai.ts';
+export * from './grading-ai.ts';
