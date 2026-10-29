@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { AcademicTarget, ClassroomClient, Detail, Invitation, Member, NotificationTarget } from './api.ts';
-import { Dialog, Notice, initials } from './components.tsx';
+import { Cover, Dialog, Notice, initials } from './components.tsx';
 import { ClassroomHeader } from './ClassroomHeader.tsx';
 import type { HomeTarget } from '../../src/core/domain/index.ts';
 import { homeClassroomTab, homeNotificationTarget } from './classroom-home-target.ts';
@@ -216,7 +216,7 @@ export function ClassroomView({
               <>
                 <header className="p5-section-head">
                   <div>
-                    <h2>
+                    <h2><EntryIcon name={tab === 'history' ? 'list' : 'people-fill'} />
                       {tab === 'history'
                         ? 'Historial de estudiantes'
                         : teacher
@@ -267,7 +267,7 @@ export function ClassroomView({
                           </strong>
                           {teacher
                             ? member.periods?.map((period, i) => (
-                                <small key={i}>
+                                <small key={i} className={tab === 'history' ? 'classroom-history-date' : undefined}>
                                   {new Date(period.joinedAt).toLocaleDateString(
                                     'es-AR',
                                   )}{' '}
@@ -324,10 +324,12 @@ export function ClassroomView({
                     ),
                   )}
                 </ul>
+                {tab === 'history' ? <aside className="classroom-history-explainer"><div className="classroom-history-art"><Cover kind="general" /></div><h3>Sobre el historial</h3><p>Los registros de quienes salieron del aula se conservan para que puedas mantener un seguimiento completo.</p><p className="classroom-history-note">Sus actividades, entregas y participaciones siguen disponibles en tus reportes y progreso.</p></aside> : null}
                 {teacher && tab === 'members' ? (
-                  <>
+                  <aside className="classroom-members-aside">
+                    <section className="classroom-members-code">
                     <hr />
-                    <h3>Código del aula</h3>
+                    <h3><EntryIcon name="grid" /> Código del aula</h3>
                     <p>
                       Solo sirve para el primer ingreso. Para reingresar, hace
                       falta una invitación nueva.
@@ -368,7 +370,9 @@ export function ClassroomView({
                     >
                       Generar código nuevo
                     </button>
-                    <h3>Invitaciones</h3>
+                    </section>
+                    <section className="classroom-members-invitations">
+                    <h3><EntryIcon name="envelope" /> Invitaciones enviadas</h3>
                     {invitations.length === 0 ? (
                       <p>No hay invitaciones enviadas.</p>
                     ) : (
@@ -441,7 +445,8 @@ export function ClassroomView({
                         ))}
                       </ul>
                     )}
-                  </>
+                    </section>
+                  </aside>
                 ) : null}
               </>
             ) : null}
@@ -455,7 +460,8 @@ export function ClassroomView({
               openAuthoring={homeTarget?.kind === 'create-activity'} submissionFilter={homeTarget?.kind === 'submissions' ? 'unpublished' : undefined} onChanged={onWallChanged} /> : null}
             {tab === 'settings' && teacher ? (
               <>
-                <h2>Configuración del aula</h2>
+                <h2><EntryIcon name="grid" /> Configuración del aula</h2>
+                <p className="classroom-settings-intro">Administrá la información general de tu aula, su portada y las opciones de archivado.</p>
                 <form
                   onSubmit={(event) => {
                     event.preventDefault();
@@ -470,6 +476,8 @@ export function ClassroomView({
                   }}
                 >
                   <fieldset disabled={busy || room.archived}>
+                    <h3><EntryIcon name="book" /> Datos del aula</h3>
+                    <p>Editá la información básica de tu aula. Estos datos se mostrarán a los alumnos.</p>
                     <div className="p5-fields">
                       {(['name', 'subject', 'division'] as const).map((key) => (
                         <label key={key}>
@@ -512,6 +520,8 @@ export function ClassroomView({
                     <button className="primary">Guardar cambios</button>
                   </fieldset>
                 </form>
+                <section className="classroom-settings-cover"><div><h3><EntryIcon name="grid" /> Portada del aula</h3><p>Esta portada se muestra en la parte superior y ayuda a identificar el aula.</p></div><Cover kind={room.coverKey} /></section>
+                <section className="classroom-settings-archive">
                 <hr />
                 <h3>{room.archived ? 'Reactivar aula' : 'Archivar aula'}</h3>
                 <p>
@@ -539,6 +549,7 @@ export function ClassroomView({
                 >
                   {room.archived ? 'Reactivar aula' : 'Archivar aula'}
                 </button>
+                </section>
               </>
             ) : null}
             {!teacher ? (

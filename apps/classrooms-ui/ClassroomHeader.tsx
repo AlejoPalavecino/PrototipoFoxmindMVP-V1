@@ -3,7 +3,9 @@ import { Cover } from './components.tsx';
 
 export function ClassroomHeader({ room }: { room: Detail }) {
   return <header className="p5-room-head fm3-room-header">
-    <div className="p5-room-cover"><Cover kind={room.coverKey} priority /></div>
+    <div className="p5-room-cover">{room.coverKey === 'literature'
+      ? <img className="classroom-literature-hero" src="/foxmind-3d/classroom-interior/library-hero-1600.webp" alt="" />
+      : <Cover kind={room.coverKey} priority />}</div>
     <div className="fm3-room-heading">
       <p className="fm3-room-context">{room.subject} · {room.division} · Ciclo lectivo {room.academicYear}</p>
       <h1>{room.name}</h1>
