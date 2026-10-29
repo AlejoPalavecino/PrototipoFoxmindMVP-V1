@@ -36,25 +36,37 @@ export function PlanWorkspace({ api, room, onOpenActivity, onTopicState, busy = 
       </select>
     </label> : null}
     <nav aria-label="Unidades del plan" className="fm3-plan-navigation"><h3>Unidades</h3>
-      {room.units.map((item, index) => <section key={item.id ?? index}><h4><span>{index + 1}</span>{item.name}</h4>
-        <div className="fm3-unit-progress"><progress aria-label={`Temas dados de ${item.name}`} value={item.topics.filter(candidate => candidate.status === 'TAUGHT').length} max={Math.max(1,item.topics.length)} />
-          {item.topics.filter(candidate => candidate.status === 'TAUGHT').length} de {item.topics.length} temas dados</div>
-        {item.topics.map(candidate => <button key={candidate.id} aria-current={candidate.id === topic?.id ? 'true' : undefined} onClick={() => setSelected(candidate.id)}>
-          <span>{candidate.name}</span><small>{candidate.status === 'TAUGHT' ? 'Dado' : candidate.status === 'NEXT' ? 'Siguiente' : 'Pendiente'}</small>
-        </button>)}</section>)}
+      {room.units.map((item, index) => {
+        const taught = item.topics.filter(candidate => candidate.status === 'TAUGHT').length;
+        const selected = item.id === unit?.id;
+        const target = item.topics.find(candidate => candidate.status === 'NEXT') ?? item.topics[0];
+        return <section key={item.id ?? index} className={selected ? 'is-selected' : undefined}>
+          <button className="fm3-unit-select" disabled={!target} aria-pressed={selected} onClick={() => setSelected(target?.id)}>
+            <span className="fm3-unit-number">{index + 1}</span>
+            <span className="fm3-unit-body"><span className="fm3-unit-heading"><strong>{item.name}</strong><small>{item.topics.length} {item.topics.length === 1 ? 'tema' : 'temas'}</small></span>
+              <span className="fm3-unit-progress"><progress aria-label={`Temas dados de ${item.name}`} value={taught} max={Math.max(1, item.topics.length)} /><small>{item.topics.length ? Math.round(taught * 100 / item.topics.length) : 0}%</small></span></span>
+            <span aria-hidden="true" className="fm3-unit-chevron">›</span>
+          </button>
+          {selected && item.topics.length > 1 ? <details className="fm3-unit-topics"><summary>Elegir tema</summary>
+            {item.topics.map(candidate => <button key={candidate.id} aria-current={candidate.id === topic?.id ? 'true' : undefined} onClick={() => setSelected(candidate.id)}>
+              <span>{candidate.name}</span><small>{candidate.status === 'TAUGHT' ? 'Dado' : candidate.status === 'NEXT' ? 'Siguiente' : 'Pendiente'}</small>
+            </button>)}
+          </details> : selected && target ? <span className="fm3-only-topic"><button aria-current="true" onClick={() => setSelected(target.id)}>{target.name} · {target.status === 'NEXT' ? 'Siguiente' : target.status === 'TAUGHT' ? 'Dado' : 'Pendiente'}</button></span> : null}
+        </section>;
+      })}
     </nav>
     <section className="fm3-plan-context" aria-label="Tema seleccionado">
-      {!topic ? <p>No hay temas en el plan de esta aula.</p> : <><small>{unit?.name} · Tema seleccionado</small><h3>{topic.name}</h3>
+      {!topic ? <p>No hay temas en el plan de esta aula.</p> : <><small>{unit?.name} › Tema {unit ? unit.topics.indexOf(topic) + 1 : 1} de {unit?.topics.length ?? 1}</small><h3>{topic.name}</h3>
         <span className="p5-tag" data-status={topic.status}>{topic.status === 'TAUGHT' ? 'Dado' : topic.status === 'NEXT' ? 'Siguiente' : 'Pendiente'}</span>
-        {room.role === 'teacher' && !room.archived && onTopicState ? <label className="fm3-topic-state">Avance de este tema
+        {room.role === 'teacher' && !room.archived && onTopicState ? <details className="fm3-topic-state"><summary>Actualizar avance del tema</summary><label>Avance de este tema
           <select aria-label={`Avance de ${topic.name}`} value={topic.status} disabled={busy}
             onChange={event => onTopicState(topic.id!, event.target.value as 'PENDING' | 'NEXT' | 'TAUGHT')}>
             <option value="PENDING">Pendiente</option><option value="NEXT">Lo vemos a continuación</option><option value="TAUGHT">Ya lo trabajamos</option>
-          </select><small>Indica lo trabajado en clase; no cambia las calificaciones.</small></label> : null}
+          </select><small>Indica lo trabajado en clase; no cambia las calificaciones.</small></label></details> : null}
         {state.error ? <div role="alert">{state.error} <button onClick={state.retry}>Reintentar materiales y actividades</button></div> : !state.data ? <p role="status">Cargando materiales y actividades…</p> : <>
-          <h4>1 · Explorá el material</h4>{materials.map(item => materialRow(api, item))}
+          <h4 className="fm3-plan-step"><span>1</span> Explorá el material</h4><p className="fm3-step-copy">Leé y explorá el material para comprender los conceptos principales.</p>{materials.map(item => materialRow(api, item))}
           {!materials.length ? <p>Todavía no hay materiales publicados para este tema.</p> : null}
-          <h4>2 · Poné en práctica</h4>{activities.map(item => activityRow(item, onOpenActivity))}
+          <h4 className="fm3-plan-step is-green"><span>2</span> Poné en práctica</h4><p className="fm3-step-copy">Realizá las actividades para aplicar lo aprendido.</p>{activities.map(item => activityRow(item, onOpenActivity))}
           {!activities.length ? <p>No hay actividades disponibles para este tema.</p> : null}
         </>}
       </>}

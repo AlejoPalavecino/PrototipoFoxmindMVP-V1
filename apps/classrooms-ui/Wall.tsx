@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { ClassroomClient, Detail, WallContent, WallData, WallPost, WallTarget } from './api.ts';
 import { Dialog, Notice } from './components.tsx';
+import { EntryIcon } from '../shared-ui/EntryIcon';
 
 function TextForm({ label, initial = '', busy, onSave, onCancel }: {
   label: string; initial?: string; busy: boolean; onSave: (body: string) => Promise<void>; onCancel?: () => void;
@@ -74,7 +75,7 @@ export function Wall({ api, room, reload, target, onChanged }: {
     {content.canRemove ? <button disabled={busy} onClick={() => setRemoving({ content, reply })}>{reply ? 'Eliminar respuesta' : 'Eliminar publicación'}</button> : null}
   </div> : null;
   return <section ref={root} className="p6-wall" aria-label="Muro del aula">
-    <header className="p5-section-head"><div><h2>Muro del aula</h2><p>Un espacio para compartir avisos, hacer preguntas y aprender en comunidad.</p></div>
+    <header className="p5-section-head"><div className="interior-social-heading"><EntryIcon name="book" /><div><h2>Muro del aula</h2><p>Un espacio para compartir avisos, hacer preguntas y aprender en comunidad.</p></div></div>
       <button disabled={busy} onClick={() => void run(async () => { await Promise.all([reload(), load()]); })}>Actualizar Muro</button>
     </header>
     {error ? <Notice error>{error} Actualiza el Muro antes de volver a intentar. Tu texto no se ha descartado.</Notice> : null}

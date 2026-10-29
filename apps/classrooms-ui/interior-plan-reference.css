@@ -36,3 +36,55 @@
   .classroom-interior-reference .p5-main :is(.fm3-plan-navigation,.fm3-plan-context) { padding: 16px; }
   .classroom-interior-reference .p5-main .fm3-plan-resource { flex-direction: column; align-items: stretch; }
 }
+
+/* Compact reference layout keeps unit navigation separate from topic resources. */
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-plan-workspace { grid-template-columns: minmax(260px, .93fr) minmax(0, 2fr); gap: 18px; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-plan-navigation { padding: 18px 16px; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-plan-navigation > section { margin: 12px 0 0; padding: 0; border: 1px solid #f2e8de; border-radius: 10px; overflow: hidden; background: #fffdfa; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-plan-navigation > section.is-selected { border-left: 2px solid #f4772a; background: #ffecdb; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-plan-navigation .fm3-unit-select { display: flex; width: 100%; min-height: 72px; padding: 12px; gap: 14px; border: 0; background: transparent; color: #241713; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-unit-number { display: grid; place-items: center; flex: 0 0 36px; height: 36px; border-radius: 50%; background: #f9ddc7; font-weight: 700; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-unit-body { display: grid; flex: 1; min-width: 0; gap: 10px; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-unit-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-unit-heading strong { overflow-wrap: anywhere; font-size: 14px; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-unit-heading small { flex: none; color: #756b6a; font-size: 12px; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-unit-progress { display: flex; align-items: center; gap: 12px; padding: 0; margin: 0; color: #9a3b16; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-unit-progress progress { flex: 1; height: 9px; margin: 0; accent-color: #ec792d; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-unit-chevron { font-size: 24px; line-height: 1; color: #b6410e; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-unit-topics { padding: 0 12px 8px 60px; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-unit-topics summary { color: #a53e0e; cursor: pointer; font-size: 12px; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-unit-topics button { margin-top: 4px; border: 0; border-radius: 8px; padding: 8px; font-size: 13px; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-plan-navigation > section.is-selected { position: relative; overflow: visible; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-plan-navigation > section.is-selected:has(.fm3-unit-topics) .fm3-unit-heading small { visibility: hidden; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-unit-topics { position: absolute; z-index: 3; top: 10px; right: 34px; min-width: 80px; padding: 0; margin: 0; border: 0; background: transparent; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-unit-topics summary { min-height: 0; padding: 0; margin: 0; border: 0; background: transparent; line-height: 20px; font-size: 12px; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-unit-topics[open] { min-width: 190px; padding: 8px; border: 1px solid #f2e8de; border-radius: 10px; background: #fffdfa; box-shadow: 0 8px 20px #704d2c20; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-only-topic { display: none; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-plan-context { padding: 18px 24px; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-plan-context > h3 { font-size: 23px; margin: 6px 0; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-topic-state { display: block; margin: 8px 0; padding: 0; background: transparent; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-topic-state summary { cursor: pointer; color: #a84212; font-size: 13px; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-topic-state label { display: grid; gap: 6px; margin-top: 8px; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-plan-context > h4.fm3-plan-step { display: flex; align-items: center; gap: 14px; margin: 16px 0 0; font-size: 16px; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-plan-step > span { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: 50%; background: #ffdbc4; color: #8e2d0d; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-plan-step.is-green > span { background: #c6eabf; color: #215623; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-step-copy { margin: -2px 0 8px 54px; font-size: 13px; color: #756b6a; }
+.fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-plan-resource { margin-left: 54px; }
+@media (max-width: 700px) {
+  .fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-plan-workspace { grid-template-columns: minmax(0, 1fr); }
+  .fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-plan-resource { margin-left: 0; }
+  .fm3d-theme .fm3-classrooms.classroom-interior-reference .p5-main .fm3-step-copy { margin-left: 0; }
+}
+
+/* Match the reference hierarchy while keeping the existing plan controls. */
+.fm3d-theme .classroom-interior-reference .p5-main .folder-plan > .p5-section-head > div { position: relative; padding-left: 48px; }
+.fm3d-theme .classroom-interior-reference .p5-main .folder-plan > .p5-section-head > div::before { content: ''; position: absolute; top: 2px; left: 0; width: 30px; height: 30px; background: #c43f0a; mask: url('/foxmind-3d/icons/book.svg') center / contain no-repeat; -webkit-mask: url('/foxmind-3d/icons/book.svg') center / contain no-repeat; }
+.fm3d-theme .classroom-interior-reference .p5-main .fm3-unit-progress progress { appearance: none; -webkit-appearance: none; overflow: hidden; border: 0; border-radius: 20px; background: #e8ddd3; }
+.fm3d-theme .classroom-interior-reference .p5-main .fm3-unit-progress progress::-webkit-progress-bar { background: #e8ddd3; border-radius: 20px; }
+.fm3d-theme .classroom-interior-reference .p5-main .fm3-unit-progress progress::-webkit-progress-value { background: #ed7b2d; border-radius: 20px; }
+.fm3d-theme .classroom-interior-reference .p5-main .fm3-unit-progress progress::-moz-progress-bar { background: #ed7b2d; border-radius: 20px; }
+.fm3d-theme .classroom-interior-reference .p5-main .fm3-plan-resource { gap: 12px; }
+.fm3d-theme .classroom-interior-reference .p5-main .fm3-plan-resource > div { min-width: 0; }
+.fm3d-theme .classroom-interior-reference .p5-main .fm3-plan-resource :is(h4,p,small) { line-height: 1.35; }
+.fm3d-theme .classroom-interior-reference .p5-main .fm3-plan-resource p { margin: 4px 0 0; color: #77727a; font-size: 13px; }
+.fm3d-theme .classroom-interior-reference .p5-main .fm3-plan-resource > a { flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 8px 16px; border: 1px solid #eaa47b; border-radius: 10px; color: #b53a0a; background: #fff; font-size: 13px; font-weight: 700; text-decoration: none; }

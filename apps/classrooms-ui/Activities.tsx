@@ -8,6 +8,7 @@ import { ActivityCurriculum } from './ActivityCurriculum.tsx';
 import { AttemptHistory } from './AttemptHistory.tsx';
 import { AttemptSession, FirstSubmissionAuthorization } from './AttemptSession.tsx';
 import { openActivitySession } from './open-activity-session.ts';
+import { EntryIcon } from '../shared-ui/EntryIcon';
 
 export function Activities({ api, room, reload, target, onChanged, openAuthoring, submissionFilter }: { api: ClassroomClient; room: Detail; reload: () => Promise<void>; target?: AcademicTarget | null; onChanged?: () => void; openAuthoring?: boolean; submissionFilter?: 'unpublished' }) {
   const authoring = useRef<HTMLSelectElement>(null);
@@ -50,7 +51,7 @@ export function Activities({ api, room, reload, target, onChanged, openAuthoring
   }
   return <section className={`p7-activities${editing || generating ? ' education-task-active' : ''}`} aria-label="Actividades del aula">
     {editing || generating ? <p className="education-task-context">{room.name} · {generating ? 'Asistente de actividades' : 'Editor de actividad'}</p> : null}
-    <header className="p5-section-head"><div><h2>Actividades</h2><p>{teacher ? 'Prepara borradores privados y publica cuando estén listos.' : 'Las actividades publicadas de tu aula.'}</p></div>
+    <header className="p5-section-head"><div className="interior-social-heading"><EntryIcon name="book" /><div><h2>Actividades</h2><p>{teacher ? 'Prepara borradores privados y publica cuando estén listos. Organizá las actividades de tu aula y realizá seguimiento de las entregas.' : 'Las actividades publicadas de tu aula.'}</p></div></div>
       <button disabled={busy} onClick={() => void run(refresh)}>Actualizar actividades</button></header>
     {error ? <Notice error>{error} Los cambios no confirmados no se consideran guardados.</Notice> : null}
     {notice ? <Notice>{notice}</Notice> : null}
@@ -70,7 +71,7 @@ export function Activities({ api, room, reload, target, onChanged, openAuthoring
       onClose={() => setEditing(null)} /> : null}
     {loaded && activities.length === 0 ? <p className="p5-empty">Todavía no hay actividades disponibles.</p> : null}
     <div className="p7-activity-list" hidden={Boolean(editing || generating)}>{activities.map(activity => <article className={`folder-row interior-activity-${activity.status.toLowerCase()}`} key={activity.id} aria-label={activity.title ?? 'Borrador sin título'}>
-      <div className="folder-row-content"><small>{activityTypeLabels[activity.type]} · {activity.status === 'DRAFT' ? 'Borrador privado' : activity.status === 'WITHDRAWN' ? 'Retirada' : 'Publicada'}</small>
+      <span className="interior-activity-icon"><EntryIcon name="book" /></span><div className="folder-row-content"><small className="interior-activity-status">{activity.status === 'DRAFT' ? 'Borrador privado' : activity.status === 'WITHDRAWN' ? 'Retirada' : 'Publicada'}</small><small className="interior-activity-type">{activityTypeLabels[activity.type]}</small>
         <h3>{activity.title ?? 'Borrador sin título'}</h3><p>{activityDate(activity.deadlineAt, activity.zone)}</p>
         <ActivityCurriculum room={room} activity={activity} />
         {teacher && activity.locked ? <small>Contenido bloqueado por participación</small> : null}</div>
