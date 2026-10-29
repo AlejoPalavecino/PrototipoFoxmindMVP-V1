@@ -31,6 +31,7 @@ function Login({view, session, user, verified, classroomNext, nextAccountHref, l
             <Button type="submit" className="full-width">{busy ? 'Iniciando sesión…' : 'Iniciar sesión'}<FoxmindIcon name="arrow-right" /></Button>
           </fieldset></form>
           <p className="after-form">¿Todavía no tenés cuenta? <Link href={nextAccountHref('register')}>Crear cuenta</Link></p>
+          <div className="auth-reference-security"><FoxmindIcon name="shield" /><p><strong>Tu cuenta, bajo tu control.</strong>Podés recuperar el acceso por correo si olvidás tu contraseña.</p></div>
         </> : null}
   </>;
 }

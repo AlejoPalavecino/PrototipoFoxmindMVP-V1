@@ -159,7 +159,7 @@ export function AccountScreen({ view }: { view: AccountView }) {
   return <>
     <Head><title>{`${content[view].title} · FoxMind`}</title><meta name="description" content="Accede a tu cuenta FoxMind." /></Head>
     <a className="skip-link" href="#main">Saltar al contenido</a>
-    <div className={`entry-page${polished ? ` entry-auth-polish auth-${view}` : ''}${(view === 'profile' || view === 'settings') ? ' entry-profile' : ''}`}>
+    <div className={`entry-page${polished ? ` entry-auth-polish entry-auth-reference auth-${view}` : ''}${(view === 'profile' || view === 'settings') ? ' entry-profile' : ''}`}>
     <AccountNavbar minimal={polished} session={session} view={view} signInHref={nextAccountHref('sign-in')} registerHref={nextAccountHref('register')} verifyHref={nextAccountHref('verify-email')}
       accountActions={user ? <div className="fm-profile-actions"><Link href={verified ? '/profile' : nextAccountHref('verify-email')}>{verified ? 'Mi perfil' : 'Verificar correo'}</Link>{signOut}</div> : undefined} />
     <main id="main" className={(view === 'profile' || view === 'settings') ? 'main profile-main' : `main auth-main${view === 'verify-email' ? ' auth-verification' : ''}`}>
@@ -168,7 +168,6 @@ export function AccountScreen({ view }: { view: AccountView }) {
         {!polished && view !== 'profile' && view !== 'settings' ? <span className="folder-tab" aria-hidden="true"><AccountFolderIcon kind="mail" />{content[view].title}</span> : null}
         {(view === 'profile' || view === 'settings') ? <nav className="breadcrumbs" aria-label="Ubicación"><Link href="/inicio">Inicio</Link><span aria-hidden="true"> / </span><span aria-current="page">{content[view].title}</span></nav> : null}
         {view === 'verify-email' ? <FoxmindIllustration className="verification-foxy" name="scenes/auth" sizes="140px" /> : null}
-        {polished ? <p className="auth-eyebrow">QUÉ BUENO VERTE</p> : null}
         <div className="page-heading"><div><h1>{content[view].title}</h1><p>{content[view].description}</p></div></div>
         {loading ? <p role="status" className="loading">Cargando tu cuenta…</p> : null}
         {message ? <div ref={status} tabIndex={-1} className={`notice ${message.error ? 'notice-error' : 'notice-success'}`} role={message.error ? 'alert' : 'status'}>{message.text}</div> : null}
@@ -186,7 +185,6 @@ export function AccountScreen({ view }: { view: AccountView }) {
         {session && !loading && view === 'settings' ? !verified ? <div className="state"><h2>{user ? 'Primero verifica tu correo' : 'Inicia sesión para ver Configuración'}</h2>
           <Link className="button button-primary" href={user ? nextAccountHref('verify-email') : classroomAuthHref('sign-in', '/settings')}>{user ? 'Verificar correo' : 'Iniciar sesión'}</Link></div>
           : <AccountSettings user={user!} locked={locked} busy={busy} submit={submit} signOut={signOut} /> : null}
-        {polished ? <footer className="page-footer">FoxMind · Un espacio para aprender y enseñar.</footer> : null}
       </section>
       {(view === 'profile' || view === 'settings') && verified && !loading ? <AccountArtwork user={profile ?? user!} settings={view === 'settings'} /> : null}
       {!polished ? <footer className="page-footer">FoxMind · Enseñar y aprender, en un mismo lugar.</footer> : null}
