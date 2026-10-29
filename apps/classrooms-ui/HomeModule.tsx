@@ -3,6 +3,7 @@ import { homeLabels,type HomeAction } from './home-labels.ts';
 import { HomeAgendaRow,HomeRow } from './HomeRow.tsx';
 import { homeReviewCount,homeReviewSummary } from './home-presentation.ts';
 import { FoxmindIcon } from '../shared-ui/index.ts';
+const moduleIcons={pending:'clock',review:'clipboard',feedback:'check',agenda:'calendar',queries:'chat',materials:'folder',classrooms:'book'} as const;
 export function HomeModule({name,page,timeZone,onAction,onRetry,onExpand,onAgenda,busy}:{
   name:HomeModuleName;page:HomeModules[HomeModuleName];timeZone:string;onAction:HomeAction;
   onRetry:()=>void;onExpand?:()=>void;onAgenda?:()=>void;busy?:boolean;
@@ -10,7 +11,7 @@ export function HomeModule({name,page,timeZone,onAction,onRetry,onExpand,onAgend
   if(page.status==='not-applicable')return null;
   const label=homeLabels[name];
   return <section className={`fm-home-module fm-home-module--${name}`} aria-label={label.title}>
-    <header><h2>{label.title}</h2>{name!=='agenda' && page.status==='ready' && page.totalItems!==null?<span className="fm-home-count">{name==='review'?homeReviewCount(page.totalItems):page.totalItems}</span>:null}
+    <header><FoxmindIcon name={moduleIcons[name]}/><h2>{label.title}</h2>{name!=='agenda' && page.status==='ready' && page.totalItems!==null?<span className="fm-home-count">{name==='review'?homeReviewCount(page.totalItems):page.totalItems}</span>:null}
       {name==='agenda' && onAgenda?<button className="fm-home-agenda-link" onClick={onAgenda}>Abrir agenda<FoxmindIcon name="arrow-right"/></button>:null}
       {page.status==='ready' && page.nextCursor && onExpand?<button data-home-expand={name} onClick={onExpand}>Ver todas<span className="sr-only">: {label.title}</span></button>:null}</header>
     {name==='agenda'?<p className="fm-home-hint">Próximos 90 días <span className="fm-home-agenda-zone">· Zona {timeZone}</span></p>:null}

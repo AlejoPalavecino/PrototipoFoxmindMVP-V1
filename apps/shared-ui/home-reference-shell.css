@@ -1,0 +1,22 @@
+/* Home shell only: the application's other destinations retain their existing shell. */
+.fm3d-theme:has(.entry-home) { --fm-sidebar: 225px; --fm-canvas: #fffbf5; }
+.fm3d-theme .entry-home { --fm-font-heading: 'Segoe UI', Arial, sans-serif; --fm-ink: #111b2d; background: #fffbf5; }
+.fm3d-theme .entry-home .fm3d-shell-avatar { width: 44px; height: 44px; background: #ebe9ff; color: #20176e; }
+.fm3d-theme .entry-home .fm3d-shell-brand { min-height: 44px; display: flex; align-items: center; }
+.fm3d-theme .entry-home .fm3d-shell-location { font-size: 13px; font-weight: 500; color: #70503c; }
+.fm3d-theme .entry-home .fm3d-shell[data-private='true'] .fm3d-shell-tools { background: #fff8f0; }
+.fm3d-theme .entry-home .fm3d-shell[data-private='true'] :is(.fm3d-shell-nav,.fm3d-shell-account) > a { color: #434c58; }
+.fm3d-theme .entry-home .fm3d-shell[data-private='true'] a[aria-current='page'] { background: #ffead7; color: #db3700; }
+@media (min-width: 1024px) {
+  .fm3d-theme:has(.entry-home) .p5-app.entry-home { padding: 64px 20px 40px 18px; }
+  .fm3d-theme .entry-home > .p5-main { max-width: 1700px; }
+  .fm3d-theme .entry-home .fm3d-shell[data-private='true'] { padding: 18px 16px 16px; gap: 24px; background: #fffdfa; border-right-color: #f0e7dd; }
+  .fm3d-theme .entry-home .fm3d-shell[data-private='true'] .fm3d-shell-brand { padding: 0 8px; }
+  .fm3d-theme .entry-home .fm3d-shell .fm3d-brand { width: 175px; }
+  .fm3d-theme .entry-home .fm3d-shell[data-private='true'] :is(.fm3d-shell-nav,.fm3d-shell-account) > a { min-height: 50px; font-size: 14px; font-weight: 600; padding: 12px 14px; }
+  .fm3d-theme .entry-home .fm3d-shell[data-private='true'] .fm3d-shell-tools { padding: 10px 24px; }
+  .fm3d-theme .entry-home .fm3d-shell[data-private='true'] .fm3d-shell-nav { gap: 2px; }
+}
+@media (max-width: 600px) {
+  .fm3d-theme .entry-home .fm3d-shell[data-private='true'] .fm3d-brand { width: 120px; }
+}

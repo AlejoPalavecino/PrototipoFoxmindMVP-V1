@@ -9,7 +9,7 @@ export function HomeCover({ coverKey }: { coverKey: string }) {
   const [failed, setFailed] = useState(false);
   return <span className="fm-home-row-cover" aria-hidden="true">
     <img src={src} srcSet={asset.variants.map(([w, , url]) => `${url} ${w}w`).join(', ')}
-      sizes="(max-width: 389px) 48px, 72px" width={width} height={height}
+      sizes="(max-width: 600px) calc(100vw - 32px), (max-width: 1200px) 40vw, 24vw" width={width} height={height}
       alt="" loading="eager" decoding="sync" fetchPriority="low"
       style={{ objectPosition: asset.position, visibility: failed ? 'hidden' : undefined }}
       onError={() => setFailed(true)} onLoad={() => setFailed(false)} />

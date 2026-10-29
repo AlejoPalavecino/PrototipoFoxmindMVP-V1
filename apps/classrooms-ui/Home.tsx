@@ -27,7 +27,7 @@ export function Home(props:HomeProps) {
   if(panel && homeClient)return <section className="fm-home"><HomeModulePanel key={`${panel}:${data.generatedAt}`} name={panel} data={data} client={homeClient} onClose={()=>{const previous=panel;setPanel(null);requestAnimationFrame(()=>document.querySelector<HTMLButtonElement>(`[data-home-expand="${previous}"]`)?.focus());}} onAction={onAction} onUnauthorized={()=>void home.refresh()}/></section>;
   const shortcuts=data.participation!=='none'?<HomeShortcuts key="shortcuts" data={data} onAction={onAction} onCreate={onCreate} onJoin={onJoin} onClassrooms={onClassrooms} onAgenda={onAgenda} busy={busy}/>:null;
   const finalModules=data.participation==='teach'?[shortcuts,module('materials')]:[module('materials'),shortcuts];
-  return <section className={`fm-home fm-home--${data.participation}`} aria-label="Inicio">
+  return <section className={`fm-home fm-home--reference fm-home--${data.participation}`} aria-label="Inicio">
     <div className="fm-home-columns"><div className="fm-home-work">
     <HomeGreeting data={data} displayName={displayName} onClassrooms={onClassrooms}/>
     <div className="fm-home-actions"><button className="fm-home-find-rooms" onClick={onClassrooms}><FoxmindIcon name="book"/>Ver mis aulas<FoxmindIcon name="arrow-right"/></button>

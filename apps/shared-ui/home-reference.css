@@ -1,0 +1,147 @@
+/* Selected Inicio reference. Overrides stay within this composition. */
+.fm3d-theme .fm-home--reference {
+  --home-ink: #111b2d;
+  --fm-ink: #111b2d;
+  --fm-muted: #617084;
+  --fm-font-heading: 'Segoe UI', Arial, sans-serif;
+  --fm-accent: #d73700;
+  --fm-link: #c53000;
+  color: var(--home-ink);
+}
+.fm3d-theme .fm-home--reference .fm-home-columns { grid-template-columns: minmax(0, 2.65fr) minmax(300px, 1fr); gap: 24px; }
+.fm3d-theme .fm-home--reference .fm-home-work { display: flex; gap: 18px; }
+.fm3d-theme .fm-home--reference .fm-home-aside { gap: 16px; }
+.fm3d-theme .fm-home.fm-home--reference :is(h1,h2,h3) { font-family: var(--fm-font-heading); color: #111b2d; font-weight: 700; letter-spacing: -.025em; }
+.fm3d-theme .fm-home--reference h2 { font-size: 19px; }
+.fm3d-theme .fm-home--reference h3 { font-size: 14px; line-height: 1.35; }
+.fm3d-theme .fm-home--reference .fm-home-greeting { min-height: 245px; padding: 20px 40px; background: #ffedcc; border-radius: 20px; }
+.fm3d-theme .fm-home--reference .fm-home-greeting > div { width: 64%; }
+.fm3d-theme .fm-home--reference .fm-home-greeting h1 { font: 750 clamp(28px,2.35vw,43px)/1.12 var(--fm-font-heading); color: #321c0c; margin: 10px 0 8px; }
+.fm3d-theme .fm-home--reference .fm-home-greeting h1 > span { color: #db3c06; }
+.fm3d-theme .fm-home--reference .fm-home-greeting p { font-size: 17px; line-height: 1.4; max-width: 35ch; color: #253041; margin: 0; }
+.fm3d-theme .fm-home--reference .fm-home-toolbar { justify-content: space-between; }
+.fm3d-theme .fm-home--reference .fm-home-toolbar time { font-size: 11px; color: #705744; }
+.fm3d-theme .fm-home--reference .fm-home-welcome-eyebrow { display: inline-flex; align-items: center; gap: 6px; border-radius: 24px; padding: 5px 10px; background: #ffe0a3; color: #873715; font-size: 11px; font-weight: 650; }
+.fm3d-theme .fm-home--reference .fm-home-welcome-eyebrow .fm3d-icon { width: 16px; height: 16px; }
+.fm3d-theme .fm-home--reference .fm-home-reference-scene { position: absolute; inset: 0; z-index: -1; pointer-events: none; display: flex; justify-content: flex-end; }
+.fm3d-theme .fm-home--reference .fm-home-reference-scene img { width: auto; max-width: 100%; height: 100%; object-fit: contain; object-position: right bottom; mask-image: linear-gradient(to right, transparent, #000 18%); }
+.fm3d-theme .fm-home--reference .fm-sky-hero-action { margin-top: 14px; min-height: 46px; padding: 10px 22px; border-radius: 16px; background: #d73700; color: #fff; font-size: 15px; gap: 16px; max-width: none; }
+.fm3d-theme .fm-home--reference .fm-sky-hero-action:hover:enabled { background: #b92e00; }
+.fm3d-theme .fm-home--reference .fm-home-module { border-color: #f0e4d8; border-radius: 18px; padding: 20px; background: white; box-shadow: 0 2px 6px #75431708; }
+.fm3d-theme .fm-home--reference .fm-home-module > header { gap: 10px; margin-bottom: 10px; }
+.fm3d-theme .fm-home--reference .fm-home-module > header > .fm3d-icon { color: #ef3c10; width: 23px; height: 23px; }
+.fm3d-theme .fm-home--reference .fm-home-module > header button { font-size: 13px; color: #d13606; }
+.fm3d-theme .fm-home--reference .fm-home-count { background: #eeece9; color: #344050; border-radius: 20px; font-size: 12px; padding: 1px 8px; }
+.fm3d-theme .fm-home--reference :is(.fm-home-row-detail,.fm-home-room-label,.fm-home-agenda-time,.fm-home-agenda-meta,.fm-home-hint) { color: #617084; }
+.fm3d-theme .fm-home--reference .fm-home-shortcuts { background: none; padding: 0 6px; border: 0; box-shadow: none; gap: 6px; }
+.fm3d-theme .fm-home--reference .fm-home-shortcuts > header { margin: 0; min-height: 30px; }
+.fm3d-theme .fm-home--reference .fm-home-shortcuts > header p { font-size: 12px; margin: 0 0 0 8px; color: #617084; }
+.fm3d-theme .fm-home--reference .fm-home-shortcuts .fm-home-shortcut-grid { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; }
+.fm3d-theme .fm-home--reference .fm-home-shortcuts .fm-home-shortcut-grid button { min-height: 74px; padding: 10px 12px; gap: 10px; flex-wrap: nowrap; align-items: center; border: 1px solid #fbe2cc; border-radius: 15px; background: #fff0e4; box-shadow: 0 2px 5px #75431708; color: #172131; font-size: 13px; }
+.fm3d-theme .fm-home--reference .fm-home-shortcuts .fm-home-shortcut-grid button:nth-child(2) { background: #eef8f2; border-color: #dbede3; }
+.fm3d-theme .fm-home--reference .fm-home-shortcuts .fm-home-shortcut-grid button:nth-child(3) { background: #fff6df; border-color: #f5ebcf; }
+.fm3d-theme .fm-home--reference .fm-home-shortcuts .fm-home-shortcut-grid button:nth-child(4) { background: #eaf4ff; border-color: #dceafa; }
+.fm3d-theme .fm-home--reference .fm-home-shortcuts .fm-home-shortcut-grid button > .fm3d-icon { width: 24px; height: 24px; padding: 10px; color: #ef3c10; background: white; border-radius: 13px; box-shadow: 0 2px 4px #84502b12; }
+.fm3d-theme .fm-home--reference .fm-home-shortcuts .fm-home-shortcut-grid button:nth-child(2) > .fm3d-icon { color: #00a77c; }
+.fm3d-theme .fm-home--reference .fm-home-shortcuts .fm-home-shortcut-grid button:nth-child(3) > .fm3d-icon { color: #c57b00; }
+.fm3d-theme .fm-home--reference .fm-home-shortcuts .fm-home-shortcut-grid button:nth-child(4) > .fm3d-icon { color: #0781de; }
+.fm3d-theme .fm-home--reference .fm-home-shortcut-grid small { font-size: 12px; line-height: 1.4; margin-top: 3px; color: #556070; }
+.fm3d-theme .fm-home--reference .fm-home-shortcut-arrow { margin-left: auto; display: flex; color: #cf3800; }
+.fm3d-theme .fm-home--reference .fm-home-shortcut-arrow .fm3d-icon { width: 16px; height: 16px; }
+.fm3d-theme .fm-home--reference .fm-home-module--classrooms { padding: 0 6px; background: none; border: 0; box-shadow: none; }
+.fm3d-theme .fm-home--reference .fm-home-module--classrooms > header { min-height: 28px; }
+.fm3d-theme .fm-home--reference .fm-home-module--classrooms > ul { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; }
+.fm3d-theme .fm-home--reference .fm-home-work .fm-home-module--classrooms .fm-home-row { display: flex; flex-direction: column; align-items: stretch; gap: 0; padding: 0; overflow: hidden; background: white; border: 1px solid #f2dfcd; border-radius: 16px; box-shadow: 0 3px 5px #8248190a; }
+.fm3d-theme .fm-home--reference .fm-home-work .fm-home-module--classrooms .fm-home-row-cover { width: 100%; height: 80px; border-radius: 0; box-shadow: none; }
+.fm3d-theme .fm-home--reference .fm-home-module--classrooms .fm-home-row-copy { padding: 10px 16px 8px; }
+.fm3d-theme .fm-home--reference .fm-home-classroom-role { display: inline-flex; margin-top: 6px; padding: 2px 8px; border-radius: 12px; background: #e4f5ee; color: #17684f; font-size: 11px; font-weight: 650; }
+.fm3d-theme .fm-home--reference .fm-home-classroom-role--teacher { background: #fff0df; color: #a53a0f; }
+.fm3d-theme .fm-home--reference .fm-home-work .fm-home-module--classrooms li .fm-home-row-action { margin: auto 14px 12px; min-height: 44px; border-radius: 11px; background: #fff0e1; color: #d13500; font-size: 13px; padding: 8px 12px; justify-content: center; }
+.fm3d-theme .fm-home--reference .fm-home-learning-groups { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; padding: 0 6px; align-items: start; }
+.fm3d-theme .fm-home--reference .fm-home-learning-groups:has(> :only-child) { grid-template-columns: minmax(0,1fr); }
+.fm3d-theme .fm-home--reference .fm-home-learning-groups:empty { display: none; }
+.fm3d-theme .fm-home--reference :is(.fm-home-learning-group,.fm-home-teaching-group) { min-width: 0; border: 1px solid #e5ece7; border-radius: 17px; background: #f2f8f5; overflow: hidden; }
+.fm3d-theme .fm-home--reference .fm-home-teaching-group { background: #fff5eb; border-color: #f2e3d6; }
+.fm3d-theme .fm-home--reference .fm-home-learning-groups > section > header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; }
+.fm3d-theme .fm-home--reference .fm-home-learning-groups > section > header .fm3d-icon { color: #00a278; width: 23px; height: 23px; }
+.fm3d-theme .fm-home--reference .fm-home-teaching-group > header .fm3d-icon { color: #ed460a; }
+.fm3d-theme .fm-home--reference .fm-home-learning-groups .fm-home-module { padding: 12px 16px; border: 0; border-radius: 12px; box-shadow: none; }
+.fm3d-theme .fm-home--reference .fm-home-learning-groups .fm-home-module + .fm-home-module { border-top: 1px solid #eeeae4; border-radius: 0; }
+.fm3d-theme .fm-home--reference .fm-home-learning-groups .fm-home-module > header h2 { font-size: 13px; }
+.fm3d-theme .fm-home--reference .fm-home-learning-groups .fm-home-module > header > .fm3d-icon { width: 17px; height: 17px; }
+.fm3d-theme .fm-home--reference .fm-home-learning-groups .fm-home-row { grid-template-columns: 52px minmax(0,1fr); gap: 8px 10px; padding-block: 8px; }
+.fm3d-theme .fm-home--reference .fm-home-learning-groups .fm-home-row-cover { width: 52px; height: 52px; border-radius: 10px; }
+.fm3d-theme .fm-home--reference .fm-home-learning-groups .fm-home-module li .fm-home-row-action { grid-column: 2; grid-row: auto; justify-self: start; background: #fff1e5; color: #c43100; padding: 8px 12px; font-size: 12px; border-radius: 10px; }
+.fm3d-theme .fm-home--reference .fm-home-hint { font-size: 11px; }
+.fm3d-theme .fm-home--reference .fm-home-teacher-tools { border: 0; margin: 0; padding: 0 16px 12px; }
+.fm3d-theme .fm-home--reference .fm-home-teacher-tools summary { min-height: 44px; padding-block: 12px; cursor: pointer; font-size: 13px; font-weight: 600; }
+.fm3d-theme .fm-home--reference .fm-home-teacher-tools .fm-home-shortcut-grid { grid-template-columns: minmax(0,1fr); }
+.fm3d-theme .fm-home--reference .fm-home-teacher-tools .fm-home-shortcut-grid button { background: white; }
+.fm3d-theme .fm-home--reference .fm-home-module--agenda { padding: 16px 20px; }
+.fm3d-theme .fm-home--reference .fm-home-module--agenda > header { margin-bottom: 4px; }
+.fm3d-theme .fm-home--reference .fm-home-module--agenda .fm-home-hint { margin-bottom: 4px; }
+.fm3d-theme .fm-home--reference .fm-home-row--agenda { grid-template-columns: 60px minmax(0,1fr) 44px; gap: 12px; padding-block: 10px; }
+.fm3d-theme .fm-home--reference .fm-home-row--agenda .fm-home-agenda-date { width: 60px; min-height: 80px; border-radius: 13px; background: #fff0e3; color: #a33208; }
+.fm3d-theme .fm-home--reference .fm-home-row--agenda:nth-child(2n) .fm-home-agenda-date { background: #fff2d0; color: #795211; }
+.fm3d-theme .fm-home--reference .fm-home-row--agenda .fm-home-agenda-date strong { font-size: 30px; }
+.fm3d-theme .fm-home--reference .fm-home-row--agenda .fm-home-agenda-date span { font-size: 11px; }
+.fm3d-theme .fm-home--reference .fm-home-row--agenda .fm-home-agenda-action { border-radius: 50%; background: #fff0e1; color: #c43100; }
+.fm3d-theme .fm-home--reference .fm-home-agenda-meta { font-size: 10px; margin-top: 4px; }
+.fm3d-theme .fm-home--reference .fm-home-activity-summary { border: 1px solid #f0e4d8; background: white; border-radius: 18px; padding: 16px 20px; box-shadow: 0 2px 6px #75431708; }
+.fm3d-theme .fm-home--reference .fm-home-activity-summary > header { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+.fm3d-theme .fm-home--reference .fm-home-activity-summary > header .fm3d-icon { color: #00a176; width: 25px; height: 25px; }
+.fm3d-theme .fm-home--reference .fm-home-activity-summary dl { margin: 0; display: grid; gap: 6px; }
+.fm3d-theme .fm-home--reference .fm-home-stat { display: grid; grid-template-columns: 32px minmax(0,1fr) auto; gap: 10px; align-items: center; }
+.fm3d-theme .fm-home--reference .fm-home-stat-icon { display: grid; place-items: center; width: 32px; height: 32px; background: #e6f7ef; color: #008362; border-radius: 10px; }
+.fm3d-theme .fm-home--reference .fm-home-stat--teach .fm-home-stat-icon, .fm3d-theme .fm-home--reference .fm-home-stat--review .fm-home-stat-icon { background: #fff0e5; color: #d33a00; }
+.fm3d-theme .fm-home--reference .fm-home-stat--pending .fm-home-stat-icon { background: #e8f4ff; color: #0073c4; }
+.fm3d-theme .fm-home--reference .fm-home-stat dt { font-size: 13px; color: #617084; }
+.fm3d-theme .fm-home--reference .fm-home-stat dd { font-size: 21px; font-weight: 750; margin: 0; }
+.fm3d-theme .fm-home--reference .fm-home-summary-unavailable { font-size: 12px; margin: 14px 0 0; }
+.fm3d-theme .fm-home--reference .fm-home-foxy-note { position: relative; min-height: 195px; padding: 20px; border: 1px solid #f3e6cd; border-radius: 18px; background: #fff6df; overflow: hidden; }
+.fm3d-theme .fm-home--reference .fm-home-foxy-note > div { position: relative; z-index: 1; max-width: 68%; }
+.fm3d-theme .fm-home--reference .fm-home-foxy-eyebrow { display: inline-flex; gap: 6px; align-items: center; color: #08785c; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+.fm3d-theme .fm-home--reference .fm-home-foxy-eyebrow .fm3d-icon { width: 19px; height: 19px; }
+.fm3d-theme .fm-home--reference .fm-home-foxy-note h2 { margin: 14px 0 8px; font-size: 21px; }
+.fm3d-theme .fm-home--reference .fm-home-foxy-note p { font-size: 12px; line-height: 1.5; margin: 0 0 8px; }
+.fm3d-theme .fm-home--reference .fm-home-foxy-note small { color: #9b3b14; font-size: 11px; }
+.fm3d-theme .fm-home--reference .fm-home-foxy-note .fm3d-illustration { position: absolute; right: -20px; bottom: -12px; width: 155px; mix-blend-mode: multiply; }
+@media (max-width: 1500px) and (min-width: 901px) {
+  .fm3d-theme .fm-home--reference .fm-home-shortcuts .fm-home-shortcut-grid { gap: 8px; }
+  .fm3d-theme .fm-home--reference .fm-home-shortcuts .fm-home-shortcut-grid button { padding: 10px 8px; gap: 7px; font-size: 12px; }
+  .fm3d-theme .fm-home--reference .fm-home-shortcuts .fm-home-shortcut-grid button > .fm3d-icon { width: 20px; height: 20px; padding: 7px; }
+  .fm3d-theme .fm-home--reference .fm-home-shortcut-arrow { display: none; }
+  .fm3d-theme .fm-home--reference .fm-home-greeting { padding: 24px; }
+}
+@media (max-width: 1199px) {
+  .fm3d-theme .fm-home--reference .fm-home-columns { grid-template-columns: minmax(0,1fr); }
+  .fm3d-theme .fm-home--reference .fm-home-aside { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); align-items: start; }
+  .fm3d-theme .fm-home--reference .fm-home-foxy-note { grid-column: 1 / -1; }
+  .fm3d-theme .fm-home--reference .fm-home-foxy-note > div { max-width: 75%; }
+}
+@media (max-width: 700px) {
+  .fm3d-theme .fm-home--reference .fm-home-shortcuts .fm-home-shortcut-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .fm3d-theme .fm-home--reference .fm-home-module--classrooms > ul { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .fm3d-theme .fm-home--reference .fm-home-learning-groups { grid-template-columns: minmax(0,1fr); }
+  .fm3d-theme .fm-home--reference .fm-home-greeting { padding: 22px 24px 132px; }
+  .fm3d-theme .fm-home--reference .fm-home-greeting > div { width: 100%; }
+  .fm3d-theme .fm-home--reference .fm-home-reference-scene { top: auto; height: 150px; }
+  .fm3d-theme .fm-home--reference .fm-home-greeting h1 { font-size: 30px; }
+  .fm3d-theme .fm-home--reference .fm-home-greeting p { font-size: 15px; }
+  .fm3d-theme .fm-home--reference .fm-home-aside { display: flex; }
+}
+@media (max-width: 460px) {
+  .fm3d-theme .fm-home--reference .fm-home-shortcuts > header p { display: none; }
+  .fm3d-theme .fm-home--reference .fm-home-shortcuts .fm-home-shortcut-grid button { padding: 10px; gap: 8px; font-size: 12px; }
+  .fm3d-theme .fm-home--reference .fm-home-shortcuts .fm-home-shortcut-grid button > .fm3d-icon { padding: 7px; width: 18px; height: 18px; }
+  .fm3d-theme .fm-home--reference .fm-home-shortcut-arrow { display: none; }
+  .fm3d-theme .fm-home--reference .fm-home-module--classrooms > ul { grid-template-columns: minmax(0,1fr); }
+  .fm3d-theme .fm-home--reference .fm-home-greeting { padding: 20px 20px 120px; }
+  .fm3d-theme .fm-home--reference .fm-home-greeting h1 { font-size: 28px; }
+  .fm3d-theme .fm-home--reference .fm-home-module--agenda { padding: 16px; }
+  .fm3d-theme .fm-home--reference .fm-home-module--agenda > header { gap: 7px; }
+  .fm3d-theme .fm-home--reference .fm-home-module--agenda > header h2 { font-size: 18px; }
+  .fm3d-theme .fm-home--reference .fm-home-module--agenda > header button { font-size: 12px; }
+  .fm3d-theme .fm-home--reference .fm-home-row--agenda { grid-template-columns: 48px minmax(0,1fr) 44px; gap: 8px; }
+  .fm3d-theme .fm-home--reference .fm-home-row--agenda .fm-home-agenda-date { width: 48px; }
+}

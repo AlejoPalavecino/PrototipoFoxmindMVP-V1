@@ -22,6 +22,8 @@ Local, independently reviewable units under 400 authored changed lines. Preserve
 Source review and final bounded browser QA are independently owned by reviewer/test_runner; see their attributed records. Each staged unit still requires observed snapshot checks, whitespace check and staged gitleaks before its local commit. Commit identities will be appended only after creation.
 
 - Unit 1 staged snapshot `.test-artifacts/review-unit-1`: `node --test --test-reporter=dot --test-concurrency=1 tests/home-reference-summary.test.mjs tests/home-polish-presentation.test.mjs` passed 7 tests/exit 0. Staged whitespace check and `gitleaks protect --staged --redact --no-banner` passed; no leaks. Reviewer approved this independently usable unit. No browser boundary is introduced until composition integration. Commit not yet created at this entry.
+- Unit 1 committed as `0f26eb239293ac9be2c0aa8b1bb843164fc40c25` after the recorded checks (119 authored changed lines including record).
+- Unit 2 staged snapshot `.test-artifacts/review-unit-2`: summary, presentation, refinement-copy, miniagenda, workspace-disclosure, education-experience and p9-home-client suites passed 27 tests/exit 0 with `node --test --test-reporter=dot --test-concurrency=1`. The snapshot contains the original composition plus only its new root class and visual/card changes; the working tree's later composition was not substituted. Staged whitespace passed. Reviewer approved the progressive boundary; final responsive visual evidence applies to the completed composition. Commit pending staged secret scan.
 
 ## Handoff
 

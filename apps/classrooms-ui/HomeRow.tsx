@@ -20,7 +20,9 @@ export function HomeRow({item,module,timeZone,onAction,busy}:{item:HomeRowItem;m
   return <li className={`fm-home-row fm-home-row--${module}`}>
     {'source' in item?<AgendaDate item={item} timeZone={timeZone}/>:item.classroom?<HomeCover coverKey={item.classroom.coverKey}/>:
       <span className="fm-home-event-icon"><FoxmindIcon name="calendar"/></span>}
-    <div className="fm-home-row-copy"><h3>{item.title}</h3><RowDetails item={item} timeZone={timeZone}/></div>
+    <div className="fm-home-row-copy"><h3>{item.title}</h3>
+      {module==='classrooms' && item.classroom?<span className="fm-home-room-label">{item.classroom.division}{item.classroom.archived?' · Archivada · Solo lectura':''}</span>:<RowDetails item={item} timeZone={timeZone}/>}
+      {module==='classrooms' && item.classroom?<span className={`fm-home-classroom-role fm-home-classroom-role--${item.classroom.role}`}>{item.classroom.role==='teacher'?'Enseño':'Estudio'}</span>:null}</div>
     <button disabled={busy} className="fm-home-row-action" onClick={()=>onAction(item.target)} aria-label={`${'reception' in item && item.reception==='closed'?'Consultar actividad':homeLabels[module].action}: ${item.title}`}>
       {'reception' in item && item.reception==='closed'?'Consultar actividad':homeLabels[module].action}<FoxmindIcon name="arrow-right"/>
     </button>

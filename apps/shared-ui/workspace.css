@@ -13,3 +13,5 @@
 @import './warm-polish.css';
 /* Student submissions and feedback keep the warm palette and compact hierarchy. */
 @import './student-journey.css';
+@import './home-reference.css';
+@import './home-reference-shell.css';
