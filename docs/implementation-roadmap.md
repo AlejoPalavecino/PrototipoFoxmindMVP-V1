@@ -1,8 +1,8 @@
 # FoxMind implementation roadmap
 
-## Corrección asistida por IA — issue #2, implementación local
+## Corrección asistida por IA — issue #2, integrada en main
 
-El aula puede habilitar sugerencias automáticas privadas para entregas; el docente revisa y publica la corrección. La [especificación](../odd/tasks/grading-ai-issue-2.md) y el [registro](work-log/2026-10-29-root-issue2-correccion-ia.md) describen pruebas, límites y antecedentes. Trabajo en rama aislada, pendiente de estrategia de PR; sin publicación ni despliegue.
+El aula puede habilitar sugerencias automáticas privadas para entregas; el docente revisa y publica la corrección. La [especificación](../odd/tasks/grading-ai-issue-2.md) y el [registro inicial](work-log/2026-10-29-root-issue2-correccion-ia.md) conservan antecedentes. Implementación y correcciones integradas en main, incluida PR #16 (eee511e); [verificación real de TP con PDF](work-log/2026-10-29-root-gemini-grading.md) y [cuestionario/evaluación con Gemini real](work-log/2026-10-29-root-gemini-questionnaire-evaluation.md): propuesta, edición/aplicación privada, privacidad previa y publicación docente observadas. Q/E verifican desarrollo manual y opción única EXACT; no acreditan todos los formatos ni casos límite. Sin despliegue. Estos registros posteriores permanecen locales.
 
 ## Selected Agenda reference — locally verified, 2026-10-29
 
