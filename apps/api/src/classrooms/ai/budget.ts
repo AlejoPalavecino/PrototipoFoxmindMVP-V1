@@ -2,7 +2,7 @@ import type { Transaction } from '../contracts.ts';
 import type { ClassroomAiConfiguration } from './contracts.ts';
 
 type BudgetJob = { id: string; owner_id: string };
-export type BudgetTable = 'classroom_curriculum_extractions' | 'activity_ai_generations' | 'student_ai_reports';
+export type BudgetTable = 'classroom_curriculum_extractions' | 'activity_ai_generations' | 'student_ai_reports' | 'grading_ai_jobs';
 
 function decimal(value: number): [bigint, bigint] {
   const [mantissa, exponent = '0'] = String(value).split('e');
