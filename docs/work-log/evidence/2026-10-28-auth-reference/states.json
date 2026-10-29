@@ -1,0 +1,79 @@
+[
+  {
+    "loading": {
+      "busy": "true",
+      "status": "Cargando tu cuenta…",
+      "formCount": 0
+    }
+  },
+  {
+    "failedSession": {
+      "alert": "No pudimos conectar con FoxMind. Vuelve a intentar en unos momentos.",
+      "retry": true,
+      "formCount": 0
+    }
+  },
+  {
+    "rate": {
+      "disabled": true,
+      "toggle": true,
+      "cleared": true,
+      "cooldown": "Podrás volver a intentar en 60 segundos.",
+      "alert": "Se alcanzó el límite de intentos. Espera antes de volver a intentar.",
+      "width": 390,
+      "scroll": 375
+    }
+  },
+  {
+    "focus": [
+      {
+        "name": "email",
+        "label": null,
+        "text": "",
+        "outline": "none",
+        "ring": "none"
+      },
+      {
+        "name": "password",
+        "label": null,
+        "text": "",
+        "outline": "solid",
+        "ring": "none"
+      },
+      {
+        "name": null,
+        "label": "Mostrar contraseña",
+        "text": "",
+        "outline": "solid",
+        "ring": "none"
+      },
+      {
+        "name": null,
+        "label": null,
+        "text": "Olvidé mi contraseña",
+        "outline": "solid",
+        "ring": "none"
+      },
+      {
+        "name": null,
+        "label": null,
+        "text": "Iniciar sesión",
+        "outline": "solid",
+        "ring": "none"
+      },
+      {
+        "name": null,
+        "label": null,
+        "text": "Crear cuenta",
+        "outline": "solid",
+        "ring": "none"
+      }
+    ]
+  },
+  {
+    "recovery": {
+      "path": "/forgot-password",
+      "reference": 0
+    }
+  }
+]

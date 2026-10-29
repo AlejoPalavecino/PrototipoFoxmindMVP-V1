@@ -1,5 +1,15 @@
 # FoxMind visual QA
 
+## Current auth references — 2026-10-28
+
+final result: passed
+
+Bounded synthetic login/register verification. Fidelity surfaces reviewed: existing local Fredoka display type and readable body text; 53/47 split, gutters, control sizing and mobile reflow; warm cream, brown and orange colors; distinct sharp WebP illustrations with final full-bleed framing; and copy adapted to supported account behavior. Compact story text/benefits remain a P3 difference from the references.
+
+[Reference comparison, final screenshots and state receipts](docs/work-log/evidence/2026-10-28-auth-reference/README.md), [agent record](docs/work-log/2026-10-28-test_runner-auth-reference.md). Both supplied references were inspected together with final renders. Cream split cards, orange actions and fox illustrations follow the selected direction while existing authentication contracts remain. Initial artwork bands and benefits overlay were corrected; remaining compact typography/benefit density is P3.
+
+Both flows passed16 responsive states and six final reference/notebook rechecks, including1366×600,390px and320px. Inputs remain16px/48px, controls meet44px targets, no horizontal overflow or clipped labels was observed, and keyboard navigation reaches controls through vertical scrolling. Next-preserving navigation, password toggle without submission, busy/error/cooldown states, password clearing and recovery passed in real components with synthetic responses. New navigation tests progressed RED to GREEN3PASS; coordinator reported final21PASS/2existing opt-in SKIP and production buildPASS. No real authentication/backend, native review, physical-device/Safari or native zoom claim. Prior QA history remains below.
+
 ## Current Inicio reference — 2026-10-28
 
 final result: passed

@@ -1,0 +1,146 @@
+[
+  {
+    "view": "/sign-in",
+    "width": 887,
+    "height": 884,
+    "scrollWidth": 887,
+    "cardHeight": 752.4000244140625,
+    "inputs": [
+      {
+        "name": "email",
+        "height": 48
+      },
+      {
+        "name": "password",
+        "height": 48
+      }
+    ],
+    "clipped": [],
+    "submitReachable": true,
+    "path": "C:/Users/alejo/.codex/worktrees/foxmind-inicio-astra/ProtipoFoxMind/docs/work-log/evidence/2026-10-28-auth-reference/sign-in-887-final.png"
+  },
+  {
+    "view": "/sign-in",
+    "width": 1024,
+    "height": 768,
+    "scrollWidth": 1009,
+    "cardHeight": 660.4000244140625,
+    "inputs": [
+      {
+        "name": "email",
+        "height": 48
+      },
+      {
+        "name": "password",
+        "height": 48
+      }
+    ],
+    "clipped": [],
+    "submitReachable": true,
+    "path": "C:/Users/alejo/.codex/worktrees/foxmind-inicio-astra/ProtipoFoxMind/.test-artifacts/auth-reference/sign-in-1024x768-final.png"
+  },
+  {
+    "view": "/sign-in",
+    "width": 1366,
+    "height": 600,
+    "scrollWidth": 1351,
+    "cardHeight": 621.2875366210938,
+    "inputs": [
+      {
+        "name": "email",
+        "height": 48
+      },
+      {
+        "name": "password",
+        "height": 48
+      }
+    ],
+    "clipped": [],
+    "submitReachable": true,
+    "path": "C:/Users/alejo/.codex/worktrees/foxmind-inicio-astra/ProtipoFoxMind/.test-artifacts/auth-reference/sign-in-1366x600-final.png"
+  },
+  {
+    "view": "/register",
+    "width": 886,
+    "height": 884,
+    "scrollWidth": 886,
+    "cardHeight": 752.4000244140625,
+    "inputs": [
+      {
+        "name": "firstName",
+        "height": 48
+      },
+      {
+        "name": "lastName",
+        "height": 48
+      },
+      {
+        "name": "email",
+        "height": 48
+      },
+      {
+        "name": "password",
+        "height": 48
+      }
+    ],
+    "clipped": [],
+    "submitReachable": true,
+    "path": "C:/Users/alejo/.codex/worktrees/foxmind-inicio-astra/ProtipoFoxMind/docs/work-log/evidence/2026-10-28-auth-reference/register-885-final.png"
+  },
+  {
+    "view": "/register",
+    "width": 1024,
+    "height": 768,
+    "scrollWidth": 1009,
+    "cardHeight": 660.4000244140625,
+    "inputs": [
+      {
+        "name": "firstName",
+        "height": 48
+      },
+      {
+        "name": "lastName",
+        "height": 48
+      },
+      {
+        "name": "email",
+        "height": 48
+      },
+      {
+        "name": "password",
+        "height": 48
+      }
+    ],
+    "clipped": [],
+    "submitReachable": true,
+    "path": "C:/Users/alejo/.codex/worktrees/foxmind-inicio-astra/ProtipoFoxMind/.test-artifacts/auth-reference/register-1024x768-final.png"
+  },
+  {
+    "view": "/register",
+    "width": 1366,
+    "height": 600,
+    "scrollWidth": 1351,
+    "cardHeight": 646.1875,
+    "inputs": [
+      {
+        "name": "firstName",
+        "height": 48
+      },
+      {
+        "name": "lastName",
+        "height": 48
+      },
+      {
+        "name": "email",
+        "height": 48
+      },
+      {
+        "name": "password",
+        "height": 48
+      }
+    ],
+    "clipped": [],
+    "submitReachable": true,
+    "path": "C:/Users/alejo/.codex/worktrees/foxmind-inicio-astra/ProtipoFoxMind/.test-artifacts/auth-reference/register-1366x600-final.png"
+  }
+]
