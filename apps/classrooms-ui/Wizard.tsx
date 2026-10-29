@@ -7,11 +7,13 @@ import {
   useMemo,
 } from 'react';
 import type { ClassroomClient, Draft, Payload, FileState } from './api.ts';
-import { Cover, coverOptions, Notice } from './components.tsx';
+import { Notice } from './components.tsx';
 import { PlanExtraction } from './PlanExtraction.tsx';
 import { usePlanExtraction } from './use-plan-extraction.ts';
 import { WizardGeneral } from './WizardGeneral.tsx';
 import { WizardPlan } from './WizardPlan.tsx';
+import { WizardUnits } from './WizardUnits.tsx';
+import { WizardReview } from './WizardReview.tsx';
 import { classroomZones } from './classroom-zones.ts';
 
 const steps = [
@@ -44,7 +46,8 @@ export function Wizard({
   const [file, setFile] = useState<FileState | null>(null),
     [uploading, setUploading] = useState(false),
     [publishing, setPublishing] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [collapsed, setCollapsed] = useState<Set<number>>(() => new Set());
+  const unitsRef = useRef<HTMLDivElement>(null), fileInputRef = useRef<HTMLInputElement>(null);
   const latest = useRef(payload),
     revision = useRef(draft.revision),
     queue = useRef<Promise<unknown>>(Promise.resolve()),
@@ -102,6 +105,7 @@ export function Wizard({
       revision.current = result.draft.revision;
       saved.current = JSON.stringify(result.draft.payload);
       setPayload(result.draft.payload);
+      setCollapsed(new Set());
       setStatus('Borrador guardado');
     },
   });
@@ -174,6 +178,11 @@ export function Wizard({
             unit.topics.some((topic) => !topic.name.trim()),
         ))
     ) {
+      setCollapsed(new Set());
+      if (unitsRef.current) requestAnimationFrame(() => {
+        const inputs = Array.from(unitsRef.current?.querySelectorAll<HTMLInputElement>('input') ?? []);
+        inputs.find(input => !input.value.trim() || !input.validity.valid)?.focus();
+      });
       setError(
         'Agregá al menos una unidad con un tema y completá sus nombres.',
       );
@@ -203,11 +212,15 @@ export function Wizard({
       setPublishing(false);
     }
   }
-  const changeUnit = (index: number, name: string) =>
-    update(
-      'units',
-      (payload.units ?? []).map((u, i) => (i === index ? { ...u, name } : u)),
-    );
+  const changeUnits = (units: NonNullable<Payload['units']>) => {
+    if (blocked) return;
+    if (units.length !== (payload.units?.length ?? 0)) setCollapsed(new Set());
+    update('units', units);
+  };
+  const toggleUnit = (index: number) => {
+    if (blocked) return;
+    setCollapsed(previous => { const next = new Set(previous); if (next.has(index)) next.delete(index); else next.add(index); return next; });
+  };
   return (
     <div className="p5-wizard folder-wizard">
       <button
@@ -273,160 +286,10 @@ export function Wizard({
               void api.fileStatus(file.id).then(state => { setFile(state); if (state.ready) update('planFileId', state.id); })
                 .catch(failure => setError(failure.message));
             }} /> : null}
-          {step === 2 ? (
-            <>
-              <h3>Tus unidades y temas</h3>
-              <div className="p5-units">
-                {(payload.units ?? []).map((unit, index) => (
-                  <section className="p5-unit" key={index}>
-                    <div className="p5-section-head">
-                      <h3>Unidad {index + 1}</h3>
-                      <button
-                        type="button"
-                        className="p5-link"
-                        onClick={() =>
-                          update(
-                            'units',
-                            payload.units!.filter((_, i) => i !== index),
-                          )
-                        }
-                      >
-                        Quitar unidad {index + 1}
-                      </button>
-                    </div>
-                    <label>
-                      Nombre de la unidad
-                      <input
-                        required
-                        maxLength={120}
-                        value={unit.name}
-                        onChange={(e) => changeUnit(index, e.target.value)}
-                      />
-                    </label>
-                    {unit.topics.map((topic, topicIndex) => (
-                      <div className="p5-topic" key={topicIndex}>
-                        <label>
-                          Tema {topicIndex + 1}
-                          <input
-                            required
-                            maxLength={120}
-                            value={topic.name}
-                            onChange={(e) =>
-                              update(
-                                'units',
-                                payload.units!.map((u, i) =>
-                                  i === index
-                                    ? {
-                                        ...u,
-                                        topics: u.topics.map((t, j) =>
-                                          j === topicIndex
-                                            ? { name: e.target.value }
-                                            : t,
-                                        ),
-                                      }
-                                    : u,
-                                ),
-                              )
-                            }
-                          />
-                        </label>
-                        <button
-                          type="button"
-                          aria-label={`Quitar tema ${topicIndex + 1} de unidad ${index + 1}`}
-                          onClick={() =>
-                            update(
-                              'units',
-                              payload.units!.map((u, i) =>
-                                i === index
-                                  ? {
-                                      ...u,
-                                      topics: u.topics.filter(
-                                        (_, j) => j !== topicIndex,
-                                      ),
-                                    }
-                                  : u,
-                              ),
-                            )
-                          }
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        update(
-                          'units',
-                          payload.units!.map((u, i) =>
-                            i === index
-                              ? { ...u, topics: [...u.topics, { name: '' }] }
-                              : u,
-                          ),
-                        )
-                      }
-                    >
-                      Agregar tema
-                    </button>
-                  </section>
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={() =>
-                  update('units', [
-                    ...(payload.units ?? []),
-                    { name: '', topics: [{ name: '' }] },
-                  ])
-                }
-              >
-                Agregar unidad
-              </button>
-            </>
-          ) : null}
-          {step === 3 ? (
-            <>
-              <div className="p5-review">
-                <Cover kind={payload.coverKey} />
-                <div>
-                  <h3>{payload.name || 'Aula sin nombre'}</h3>
-                  <p>
-                    {payload.subject} · {payload.division} ·{' '}
-                    {payload.academicYear}
-                  </p>
-                  <p>{payload.timezone}</p>
-                </div>
-              </div>
-              <section className="p5-unit">
-                <h3>Plan de estudio</h3>
-                <p>
-                  {file?.ready
-                    ? `${file.name} · Aprobado`
-                    : 'Falta un plan aprobado'}
-                </p>
-                <button type="button" onClick={() => setStep(1)}>
-                  Editar plan
-                </button>
-              </section>
-              <section className="p5-unit">
-                <h3>Unidades y temas</h3>
-                {(payload.units ?? []).map((unit, index) => (
-                  <div key={index}>
-                    <strong>{unit.name}</strong>
-                    <ul>
-                      {unit.topics.map((topic, i) => (
-                        <li key={i}>{topic.name}</li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </section>
-              <Notice>
-                Después de crear el aula, podrás invitar estudiantes por correo
-                o compartir un código.
-              </Notice>
-            </>
-          ) : null}
+          {step === 2 ? <WizardUnits units={payload.units ?? []} collapsed={collapsed} containerRef={unitsRef}
+            onChange={changeUnits} onToggle={toggleUnit} /> : null}
+          {step === 3 ? <WizardReview payload={payload} file={file} zones={zones}
+            onEdit={nextStep => { if (!blocked) setStep(nextStep); }} /> : null}
         </fieldset>
         <footer className="p5-form-footer">
           <button
