@@ -11,6 +11,7 @@ import type { ClassroomClient, Draft, Payload, FileState } from './api.ts';
 import { Cover, coverOptions, Notice } from './components.tsx';
 import { PlanExtraction } from './PlanExtraction.tsx';
 import { usePlanExtraction } from './use-plan-extraction.ts';
+import { WizardGeneral } from './WizardGeneral.tsx';
 import { classroomZones } from './classroom-zones.ts';
 
 const steps = [
@@ -263,78 +264,7 @@ export function Wizard({
           <div hidden={step !== 2 && !(step === 1 && payload.planFileId && file?.ready)}>
             <PlanExtraction extraction={extraction} hasUnits={Boolean(payload.units?.length)} review={step === 2} />
           </div>
-          {step === 0 ? (
-            <>
-              <div className="p5-fields">
-                {(['name', 'subject', 'division'] as const).map((key) => (
-                  <label key={key}>
-                    {key === 'name'
-                      ? 'Nombre del aula'
-                      : key === 'subject'
-                        ? 'Materia'
-                        : 'División'}
-                    <input
-                      required
-                      placeholder={key === 'name' ? 'Ej.: Matemáticas · Primer año' : key === 'subject' ? 'Ej.: Matemáticas' : 'Ej.: 1.º A'}
-                      maxLength={key === 'division' ? 60 : 120}
-                      value={payload[key] ?? ''}
-                      onChange={(e) => update(key, e.target.value)}
-                    />
-                  </label>
-                ))}
-                <label>
-                  Ciclo lectivo
-                  <input
-                    type="number"
-                    required
-                    min="1"
-                    max="9999"
-                    value={payload.academicYear ?? ''}
-                    onChange={(e) =>
-                      update(
-                        'academicYear',
-                        e.target.value ? Number(e.target.value) : undefined,
-                      )
-                    }
-                  />
-                </label>
-                <label className="p5-wide">
-                  Ciudad y horario del aula
-                  <select
-                    required
-                    value={payload.timezone ?? ''}
-                    onChange={(e) => update('timezone', e.target.value)}
-                  >
-                    {zones.map((zone) => (
-                      <option key={zone.value} value={zone.value}>{zone.label}</option>
-                    ))}
-                  </select>
-                  <small>Usamos tu horario local para entregas y eventos. Revisalo antes de publicar: después queda fijo.</small>
-                </label>
-              </div>
-              <h3>Elegí una portada</h3>
-              <div className="p5-covers">
-                {coverOptions(payload.coverKey).map((cover) => (
-                  <label
-                    key={cover.key}
-                    className={payload.coverKey === cover.key ? 'selected' : ''}
-                  >
-                    <Cover kind={cover.key} />
-                    <span>
-                      <input
-                        type="radio"
-                        required
-                        name="cover"
-                        checked={payload.coverKey === cover.key}
-                        onChange={() => update('coverKey', cover.key)}
-                      />
-                      {cover.label}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </>
-          ) : null}
+          {step === 0 ? <WizardGeneral payload={payload} zones={zones} onUpdate={update} /> : null}
           {step === 1 ? (
             <>
               <label className="p5-drop">
