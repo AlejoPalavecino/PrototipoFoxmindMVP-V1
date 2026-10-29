@@ -186,9 +186,11 @@ export class DraftService extends ClassroomCore {
       'subject',
       'division',
       'academicYear',
+      'aiGradingEnabled',
     ]);
+    if (Object.hasOwn(body, 'aiGradingEnabled') && typeof body.aiGradingEnabled !== 'boolean') return fail('INVALID_INPUT');
     const expected = revision(body.revision),
-      { revision: _, ...fields } = body;
+      { revision: _, aiGradingEnabled, ...fields } = body;
     const payload = draftPayload(fields, false);
     if (
       ['name', 'subject', 'division', 'academicYear'].some(
@@ -201,14 +203,19 @@ export class DraftService extends ClassroomCore {
     return this.run(request, true, async (tx, actor) => {
       const row = await this.classroom(tx, actor, id, true, true);
       if (row.revision.toString() !== expected) return fail('CONFLICT');
+      if (aiGradingEnabled === true && !row.ai_grading_enabled && this.ports.gradingAiAvailable !== true)
+        return fail('SERVICE_UNAVAILABLE');
       await tx.query(
         `UPDATE classrooms SET name=$2,subject=$3,division=$4,academic_year=$5,
+        ai_grading_epoch=ai_grading_epoch+CASE WHEN ai_grading_enabled AND $6::boolean IS FALSE THEN 1 ELSE 0 END,
+        ai_grading_enabled=COALESCE($6::boolean,ai_grading_enabled),
         revision=revision+1,updated_at=clock_timestamp() WHERE id=$1::uuid RETURNING id`,
         id,
         payload.name,
         payload.subject,
         payload.division,
         payload.academicYear,
+        aiGradingEnabled ?? null,
       );
       return { revision: (row.revision + 1n).toString() };
     });

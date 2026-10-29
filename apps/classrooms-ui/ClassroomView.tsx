@@ -70,6 +70,7 @@ export function ClassroomView({
     subject: '',
     division: '',
     academicYear: 2026,
+    aiGradingEnabled: false,
   });
   const load = useCallback(
     async (signal?: AbortSignal) => {
@@ -85,6 +86,7 @@ export function ClassroomView({
         subject: detail.subject,
         division: detail.division,
         academicYear: detail.academicYear,
+        aiGradingEnabled: detail.aiGradingEnabled ?? false,
       });
       const [current, past, pending] = await Promise.all([
         api.call<Member[]>(`/${id}/members`, undefined, undefined, signal),
@@ -466,8 +468,10 @@ export function ClassroomView({
                   onSubmit={(event) => {
                     event.preventDefault();
                     void action(async () => {
+                      const { aiGradingEnabled, ...classroomSettings } = settings;
                       await api.call(`/${id}/settings`, 'PATCH', {
-                        ...settings,
+                        ...classroomSettings,
+                        ...(room.aiGradingAvailable === false && aiGradingEnabled ? {} : { aiGradingEnabled }),
                         revision: room.revision,
                       });
                       setNotice('Cambios guardados.');
@@ -517,6 +521,13 @@ export function ClassroomView({
                       </label>
                     </div>
                     <p>Zona horaria fija: {room.timezone}</p>
+                    <label className="p7-check"><input type="checkbox" checked={settings.aiGradingEnabled}
+                      disabled={room.aiGradingAvailable === false}
+                      onChange={(event) => setSettings(previous => ({ ...previous, aiGradingEnabled: event.target.checked }))} />
+                      Corrección asistida por IA para esta aula</label>
+                    {room.aiGradingAvailable === false ? <><p>Corrección con IA no disponible en este momento. Las entregas no generarán sugerencias.</p>
+                      {settings.aiGradingEnabled ? <button type="button" onClick={() => setSettings(previous => ({ ...previous, aiGradingEnabled: false }))}>Desactivar para esta aula</button> : null}</> : null}
+                    <p>Al activar esta opción, se generarán sugerencias para las nuevas entregas. El docente revisa y publica cada calificación.</p>
                     <button className="primary">Guardar cambios</button>
                   </fieldset>
                 </form>
