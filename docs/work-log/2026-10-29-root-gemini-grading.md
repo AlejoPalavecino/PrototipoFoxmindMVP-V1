@@ -1,0 +1,18 @@
+# Verificación real de Gemini para corrección asistida
+
+- Agente: coordinador /root; sesión real no disponible; fecha 2026-10-29.
+- Rama codex/gemini-grading-verification; base 7ae4604983102a1624578cf9e29472009760e0c0.
+- Estado: in_progress. Solicitud: verificar con Gemini real desde entrega de alumno hasta revisión y publicación docente.
+- Alcance: infraestructura efímera y datos sintéticos; no desplegar, alterar datos retenidos ni registrar credenciales o respuestas privadas. La prueba debe distinguir servicio/proveedor real y aceptación en navegador.
+- El proceso actual no tiene AI_API_KEY ni GEMINI_API_KEY en su entorno; se consultó al usuario sobre la configuración disponible sin solicitar valores.
+- Handoff: inspeccionar harness y plan de prueba; resolver configuración segura del proveedor antes de ejecución real.
+- El usuario autorizó reutilizar configuración existente y confirmó archivo seguro. Verificación de presencia sin imprimir valores encontró credencial y configuración faltante: modelo y parámetros públicos de presupuesto/tarifa.
+- /root/explorer consultó Google AI: gemini-3.5-flash-lite admite PDF y salida estructurada; tarifa standard publicada USD 0.30/M entrada y 2.50/M salida con thinking. Context7 sin cuota. Fuentes: https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash-lite y https://ai.google.dev/gemini-api/docs/pricing. Verificación 2026-10-29.
+- /root/contract_green encontró endpoint PATCH settings rechazaba aiGradingEnabled; /root/red produjo RED (2 FAIL/2 PASS HTTP+PostgreSQL), corrección backend dio 5 PASS y build PASS. Falta revisión independiente y prueba en navegador.
+- /root/architect detectó que harness podía activar otros workers y ampliar gasto; se prepara aislamiento de proveedores y máximo una generación, además de respetar plazo Prisma30s.
+- Revisión independiente /root/reviewer: sin hallazgos sobre el cambio HTTP; `git diff --check` PASS. Revisión estática sin reejecución de tests.
+- `npm ci --ignore-scripts --no-audit --no-fund`, `npm run api:build` y `npm run web:build`: PASS. `tests/grading-ai-settings-http.test.mjs`: 5 PASS con PostgreSQL y HTTP efímeros; identidad sintética. `tests/grading-ai-gemini-real.test.mjs` solo recibió `node --check` y no se ejecutó.
+- /root/architect revisó aislamiento y límites; observaciones sobre watchdog, contadores y limpieza se corrigieron en el harness temporal.
+- /root/red verificó con navegador y autenticación sintética que el docente activa y guarda la opción y que el alumno confirma una entrega con PDF aprobado. El panel docente mostró «No disponible»; no hubo propuesta READY y no se aplicó ni publicó una calificación.
+- El wrapper observó count=1, generate=1, blocked=0. Esto acredita invocaciones al adaptador, no éxito del proveedor ni procesamiento del PDF. No se retuvo el error subyacente. Limpieza de artefactos, servicios y volúmenes efímeros: 0 fallos.
+- Estado: verificación incompleta; se requiere diagnóstico adicional y autorización para una nueva generación. La corrección HTTP permanece local, no está en main. Reversión: apps/api/src/classrooms/http.ts y tests/grading-ai-settings-http.test.mjs.
