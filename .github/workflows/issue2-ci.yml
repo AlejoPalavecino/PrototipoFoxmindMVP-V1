@@ -1,0 +1,93 @@
+name: FoxMind checks
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Build API and generate Prisma client
+        run: npm run api:build
+      - name: Check web types
+        run: npx tsc --noEmit -p apps/web/tsconfig.json
+      - name: Build web application
+        run: timeout 180s npm run web:build
+      - name: Verify CI workflow contract
+        run: node --test tests/issue2-ci-workflow.test.mjs
+      - name: Pull fixture images
+        run: |
+          docker pull postgres:17.10-bookworm
+          docker pull chrislusf/seaweedfs:4.48@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
+          docker pull clamav/clamav:1.5.4@sha256:638d90201ee7ee6a82d249a2fc23b132e578673b5f1f2766852b127676ca1ef6
+      - name: Run affected P7/P8 regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          for test_file in tests/p7-authoring.test.mjs tests/p7-practical.test.mjs tests/p7-questionnaire.test.mjs \
+            tests/p8-grading.test.mjs tests/p8-publication.test.mjs tests/p8-scoring.test.mjs tests/p5-web-proxy.test.mjs; do
+            timeout 360s node --experimental-transform-types --disable-warning=ExperimentalWarning --test --test-concurrency=1 "$test_file"
+          done
+      - name: Run grading AI suite for this revision
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          files=(tests/grading-ai-*.test.mjs)
+          if [[ -f src/core/domain/grading-ai.ts && ! -f tests/grading-ai-contract.test.mjs ]]; then
+            echo 'Falta el test requerido del contrato de corrección IA.' >&2; exit 1
+          fi
+          if [[ -f apps/api/src/classrooms/grading-ai/enqueue.ts && ! -f tests/grading-ai-enqueue.test.mjs ]]; then
+            echo 'Falta el test requerido de encolado de corrección IA.' >&2; exit 1
+          fi
+          # Each implemented slice requires its own focused proof; later revisions accumulate checks.
+          for pair in \
+            'apps/api/src/classrooms/grading-ai/provider.ts:tests/grading-ai-provider.test.mjs' \
+            'apps/api/src/classrooms/grading-ai/snapshot.ts:tests/grading-ai-snapshot.test.mjs' \
+            'apps/api/src/classrooms/grading-ai/sql-queue.ts:tests/grading-ai-sql.test.mjs' \
+            'apps/api/src/classrooms/grading-ai/runtime.ts:tests/grading-ai-runtime.test.mjs' \
+            'apps/api/src/classrooms/grading-ai/runtime.ts:tests/grading-ai-before-count.test.mjs' \
+            'apps/api/src/classrooms/grading-ai/service.ts:tests/grading-ai-api.test.mjs' \
+            'apps/api/src/files/grading-ai-attachment-reader.ts:tests/grading-ai-attachment-reader.test.mjs' \
+            'apps/api/src/files/durable-grading-ai-attachment-reader.ts:tests/grading-ai-durable-reader.test.mjs' \
+            'apps/api/src/files/durable-grading-ai-instruction-reader.ts:tests/grading-ai-instruction-reader.test.mjs' \
+            'apps/classrooms-ui/GradingAiReview.tsx:tests/grading-ai-review-ui.test.mjs'; do
+            source=${pair%%:*}; required=${pair#*:}
+            if [[ -f "$source" && ! -f "$required" ]]; then
+              echo "Falta test requerido para $source: $required" >&2; exit 1
+            fi
+          done
+          if [[ -f apps/api/src/classrooms/classrooms.module.ts ]] && grep -q GradingAiRuntime apps/api/src/classrooms/classrooms.module.ts; then
+            for required in tests/grading-ai-host.test.mjs tests/grading-ai-authorization.test.mjs; do
+              if [[ ! -f "$required" ]]; then
+                echo "Falta test requerido del host: $required" >&2; exit 1
+              fi
+            done
+          fi
+          if [[ -f odd/tasks/grading-ai-issue-2.md ]]; then
+            for required in tests/grading-ai-preflight.test.mjs tests/grading-ai-lifecycle.test.mjs tests/grading-ai-integration.test.mjs tests/grading-ai-files-integration.test.mjs; do
+              if [[ ! -f "$required" ]]; then
+                echo "Falta integración obligatoria: $required" >&2; exit 1
+              fi
+            done
+          else
+            echo 'Cobertura parcial: la marca de funcionalidad completa aún no existe.'
+          fi
+          if (( ${#files[@]} == 0 )); then
+            echo 'No hay pruebas grading-ai en esta revisión base.'
+          else
+            for test_file in "${files[@]}"; do
+              timeout 360s node --experimental-transform-types --disable-warning=ExperimentalWarning --test --test-concurrency=1 "$test_file"
+            done
+          fi
