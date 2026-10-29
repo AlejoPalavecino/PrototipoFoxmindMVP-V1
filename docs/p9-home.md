@@ -14,7 +14,13 @@
 
 No new API endpoint, schema, dependency, account role or academic email was added. `ClassroomsScreen` retains the accepted P3 session/verification gate. `ClassroomsApp` defaults to the existing Mis Aulas presentation; Inicio is optional. Its wizard navigation restrictions and reduced evaluation header are not replaced.
 
-The warm hero, existing typography and Cover catalog reuse the accepted classroom component grammar. No original standalone fox artwork is available in this checkout. Reference screenshots are not cropped into assets, and replacement fox art is not invented. Visual comparison therefore must retain that explicit asset limitation rather than claim exact screenshot fidelity.
+The initial P9 implementation reused the classroom component grammar and had no standalone fox artwork; that was an asset limitation of the historical delivery. Later warm-product work added a generated transparent fox. The user-requested [Inicio reference redesign](work-log/2026-10-28-root-inicio-reference-astra.md) adds a separately generated panoramic scene in responsive WebP sizes, retaining the existing brand and subject covers. The supplied dashboard screenshot is retained as visual evidence, not cropped into interface assets.
+
+### Selected Inicio reference — local redesign, 2026-10-28
+
+The latest request authorizes a cream/orange Inicio with its existing sidebar styled to the selected reference, replacing the historical top-bar visual requirement only for this screen. It preserves real navigation destinations, the mobile drawer, classroom-scoped roles and all seven Home modules. Four visible shortcuts open Mis aulas, Crear aula, Agenda and Unirme con código. Classroom cards retain their roles, archived state and module pagination. Pending work and feedback are grouped under Mi aprendizaje; review and queries remain under Mi actividad docente. Resources retain their recoverable disclosure.
+
+HomeResponse does not provide a global completion percentage or achievements. Tu actividad therefore presents exact membership counts, available pending/feedback totals and review.totals.needsReview. Missing, unavailable or paginated values are never presented as invented zeroes or completion percentages. Existing permission-scoped targets, retry behavior and timezone details remain authoritative. The [design contract](work-log/2026-10-28-architect-inicio-reference.md) and current coordinator record distinguish fixture visual proof from authenticated backend evidence.
 
 ## Own verification
 
