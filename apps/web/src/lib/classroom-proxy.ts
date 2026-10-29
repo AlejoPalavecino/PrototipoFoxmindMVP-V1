@@ -38,6 +38,8 @@ const routes: Rule[] = [
   rule(`/${uuid}/activities/${uuid}/reopen`, { POST: ['revision', 'studentId', 'deadline', 'confirm'] }),
   rule(`/${uuid}/attempts/${uuid}/history`, { GET: null }),
   rule(`/${uuid}/attempts/${uuid}/grading`, { GET: null, POST: ['revision', 'overallGrade', 'overallFeedback', 'questions'] }),
+  rule(`/${uuid}/attempts/${uuid}/grading-ai`, { GET: null }),
+  rule(`/${uuid}/attempts/${uuid}/grading-ai/${uuid}/(?:apply|discard)`, { POST: [] }),
   rule(`/${uuid}/attempts/${uuid}/publish-grade`, { POST: ['revision', 'confirm'] }),
   rule(`/${uuid}/attempts/${uuid}/grade-corrections`, { GET: null, POST: ['revision', 'newGrade', 'reason', 'confirm'] }),
   rule(`/${uuid}/attempts/${uuid}/result`, { GET: null }),
@@ -50,7 +52,7 @@ const routes: Rule[] = [
   rule(`/${uuid}/attempts/${uuid}/receipt`, { GET: null }),
   rule('/notifications', { GET: null }),
   rule(`/notifications/${uuid}/(?:read|open)`, { POST: [] }),
-  rule(`/${uuid}/settings`, { PATCH: ['revision', 'name', 'subject', 'division', 'academicYear'] }),
+  rule(`/${uuid}/settings`, { PATCH: ['revision', 'name', 'subject', 'division', 'academicYear', 'aiGradingEnabled'] }),
   rule(`/${uuid}/archive`, { POST: ['archived', 'revision'] }), rule(`/${uuid}/code`, { POST: [] }),
   rule(`/${uuid}/(?:members|history)`, { GET: null }), rule(`/${uuid}/members/${uuid}`, { GET: null }),
   rule(`/${uuid}/invitations`, { GET: null, POST: ['email'] }),
@@ -98,10 +100,11 @@ function object(value: unknown, keys: string[], required = true): value is Recor
     Object.keys(value).every(key => keys.includes(key)) && (!required || keys.every(key => Object.hasOwn(value, key))));
 }
 function schema(value: unknown, keys: string[], wall = false): boolean {
-  if (!object(value, keys)) return false;
+  if (!object(value, keys, false) || !keys.filter(key => key !== 'aiGradingEnabled').every(key => Object.hasOwn(value, key))) return false;
   for (const key of keys) {
+    if (key === 'aiGradingEnabled' && !Object.hasOwn(value, key)) continue;
     if (key === 'operation') { if (!value[key] || typeof value[key] !== 'object' || Array.isArray(value[key])) return false; }
-    else if (key === 'archived') { if (typeof value[key] !== 'boolean') return false; }
+    else if (key === 'archived' || key === 'aiGradingEnabled') { if (typeof value[key] !== 'boolean') return false; }
     else if (key === 'academicYear') { if (!Number.isInteger(value[key])) return false; }
     else if (key === 'deadline') {
       const item = value[key];
@@ -200,9 +203,10 @@ function activitySchema(value: unknown): boolean {
   if (op.action === 'deadline') return typeof op.allowLate === 'boolean' && deadline(op.deadline);
   if (op.action !== 'save') return true;
   const p = op.payload;
-  if (!object(p, ['title', 'unitId', 'topicId', 'topicIds', 'instructions', 'attachmentRequired', 'instructionFileIds', 'materialIds', 'questions', 'deadline', 'allowLate'], false)
+  if (!object(p, ['title', 'unitId', 'topicId', 'topicIds', 'instructions', 'attachmentRequired', 'instructionFileIds', 'materialIds', 'questions', 'deadline', 'allowLate', 'aiGradingRubric'], false)
     || !['title', 'unitId', 'instructions', 'attachmentRequired', 'instructionFileIds', 'materialIds', 'questions', 'deadline', 'allowLate'].every(key => Object.hasOwn(p, key))
     || !association(p) || typeof p.instructions !== 'string' || typeof p.attachmentRequired !== 'boolean' || typeof p.allowLate !== 'boolean'
+    || (Object.hasOwn(p, 'aiGradingRubric') && typeof p.aiGradingRubric !== 'string')
     || !deadline(p.deadline) || !Array.isArray(p.questions)) return false;
   if (![p.instructionFileIds, p.materialIds].every(ids => Array.isArray(ids) && ids.every(id => typeof id === 'string' && new RegExp(`^${uuid}$`).test(id)))) return false;
   return p.questions.every(q => object(q, ['type', 'prompt', 'points', 'scoringRule', 'options'])
@@ -246,6 +250,7 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
   const historyRoute = new RegExp(`^/api/v1/classrooms/${uuid}/(?:activities/${uuid}/(?:history|history-submissions|reopen)|attempts/${uuid}/history)$`).test(url.pathname);
   const practicalRead = /\/(?:submissions|receipt)$/.test(url.pathname) || historyRoute;
   const gradingRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/grading$`).test(url.pathname);
+  const gradingAiRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/grading-ai(?:/${uuid}/(?:apply|discard))?$`).test(url.pathname);
   const publicationRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/(?:publish-grade|result)$`).test(url.pathname);
   const correctionRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/grade-corrections$`).test(url.pathname);
   const progressRoute = new RegExp(`^/api/v1/classrooms/${uuid}/(?:progress|members/${uuid}/(?:progress|ai-summary))$`).test(url.pathname);
@@ -256,7 +261,7 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
     || typeof request.headers['x-attempt-epoch'] !== 'string' || !/^(0|[1-9][0-9]{0,18})$/.test(request.headers['x-attempt-epoch']))) {
     reject(400, 'INVALID_INPUT'); return;
   }
-  if ((practicalRead || gradingRoute || publicationRoute || correctionRoute || progressRoute) && (request.headers['x-attempt-editor'] !== undefined || request.headers['x-attempt-epoch'] !== undefined)) {
+  if ((practicalRead || gradingRoute || gradingAiRoute || publicationRoute || correctionRoute || progressRoute) && (request.headers['x-attempt-editor'] !== undefined || request.headers['x-attempt-epoch'] !== undefined)) {
     reject(400, 'INVALID_INPUT'); return;
   }
   let origin: string, expected: number | undefined;
@@ -276,10 +281,16 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
         && typeof parsed.revision === 'string' && typeof parsed.studentId === 'string' && new RegExp(`^${uuid}$`).test(parsed.studentId)
         && parsed.confirm === true && (parsed.deadline === null || object(parsed.deadline, ['local', 'offsetMinutes'], false)
           && typeof parsed.deadline.local === 'string' && (!Object.hasOwn(parsed.deadline, 'offsetMinutes') || Number.isInteger(parsed.deadline.offsetMinutes)));
-      if ((!practicalWrite && !answerWrite && !reopening && !gradingRoute && !publicationRoute && !correctionRoute && !extractionRoute && !generationRoute && !schema(parsed, selected.methods[method] ?? [], url.pathname.endsWith('/wall')))
+      const aiKeys = url.pathname.endsWith('/apply') ? ['requestId', 'revision', 'snapshotHash', 'proposal'] : ['requestId', 'revision'];
+      const validGradingAi = !gradingAiRoute || object(parsed, aiKeys) && typeof parsed.requestId === 'string'
+        && new RegExp(`^${uuid}$`).test(parsed.requestId) && typeof parsed.revision === 'string' && /^(0|[1-9][0-9]{0,17})$/.test(parsed.revision)
+        && (url.pathname.endsWith('/discard') || typeof parsed.snapshotHash === 'string' && /^[a-f0-9]{64}$/.test(parsed.snapshotHash)
+          && !!parsed.proposal && typeof parsed.proposal === 'object' && !Array.isArray(parsed.proposal));
+      if ((!practicalWrite && !answerWrite && !reopening && !gradingRoute && !gradingAiRoute && !publicationRoute && !correctionRoute && !extractionRoute && !generationRoute && !schema(parsed, selected.methods[method] ?? [], url.pathname.endsWith('/wall')))
         || (generationRoute && !generationSchema(url.pathname, parsed))
         || (extractionRoute && !extractionSchema(url.pathname, parsed))
         || !validReopening
+        || !validGradingAi
         || (gradingRoute && !gradingSchema(parsed))
         || (correctionRoute && !gradeCorrectionSchema(parsed))
         || (publicationRoute && (!object(parsed, ['revision', 'confirm']) || typeof parsed.revision !== 'string'

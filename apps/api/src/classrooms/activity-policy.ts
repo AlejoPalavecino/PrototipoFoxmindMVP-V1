@@ -10,7 +10,7 @@ export interface AuthoringQuestion {
 export interface ActivityPayload {
   title: string | null; unitId: string | null; topicId: string | null; topicIds: string[]; instructions: string | null;
   attachmentRequired: boolean; instructionFileIds: string[]; materialIds: string[];
-  questions: AuthoringQuestion[]; deadline: unknown; allowLate: boolean;
+  questions: AuthoringQuestion[]; deadline: unknown; allowLate: boolean; aiGradingRubric?: string;
 }
 export function activityType(value: unknown): ActivityType {
   if (typeof value !== 'string' || !['ASSIGNMENT', 'QUESTIONNAIRE', 'EVALUATION'].includes(value)) return fail('INVALID_INPUT');
@@ -49,8 +49,9 @@ export function authoringQuestion(input: unknown): AuthoringQuestion {
 }
 export function activityPayload(input: unknown, type: ActivityType, published: boolean): ActivityPayload {
   const keys = ['title', 'unitId', 'instructions', 'attachmentRequired', 'instructionFileIds', 'materialIds', 'questions', 'deadline', 'allowLate'];
-  const p = object(input, [...keys, 'topicId', 'topicIds']);
+  const p = object(input, [...keys, 'topicId', 'topicIds', 'aiGradingRubric']);
   if (keys.some(key => !Object.hasOwn(p, key))) return fail('INVALID_INPUT');
+  const aiGradingRubric = Object.hasOwn(p, 'aiGradingRubric') ? multiline(p.aiGradingRubric, 5000) : '';
   const selection = activityTopics(p, published);
   if (typeof p.attachmentRequired !== 'boolean' || typeof p.allowLate !== 'boolean' || !Array.isArray(p.questions)) return fail('INVALID_INPUT');
   const title = text(p.title, 200, published) || null;
@@ -61,7 +62,7 @@ export function activityPayload(input: unknown, type: ActivityType, published: b
     if (questions.length || (published && !instructions?.trim() && !instructionFileIds.length)) return fail('INVALID_INPUT');
   } else if (instructionFileIds.length || p.attachmentRequired || (published && !questions.length)) return fail('INVALID_INPUT');
   return { title, ...selection, instructions, attachmentRequired: p.attachmentRequired,
-    instructionFileIds, materialIds, questions, deadline: p.deadline, allowLate: p.allowLate };
+    instructionFileIds, materialIds, questions, deadline: p.deadline, allowLate: p.allowLate, aiGradingRubric };
 }
 
 export function activityOperation(input: unknown) {

@@ -47,6 +47,7 @@ export function ActivityAuthoring({ api, room, data, materials, onSaved, onClose
   const activity = data.activity;
   const [title, setTitle] = useState(activity.title ?? ''), [unitId, setUnit] = useState(activity.unitId ?? ''), [topicIds, setTopics] = useState(activity.topicIds ?? (activity.topicId ? [activity.topicId] : []));
   const [instructions, setInstructions] = useState(activity.instructions ?? ''), [attachmentRequired, setRequired] = useState(activity.attachmentRequired);
+  const [aiGradingRubric, setAiGradingRubric] = useState(activity.aiGradingRubric ?? '');
   const [questions, setQuestions] = useState(activity.questions), [files, setFiles] = useState(activity.instructionFiles);
   const [materialIds, setMaterialIds] = useState(activity.materials.map(m => m.id));
   const [local, setLocal] = useState(activityMinute(activity.deadlineAt, room.timezone)), [allowLate, setLate] = useState(activity.allowLate);
@@ -86,7 +87,7 @@ export function ActivityAuthoring({ api, room, data, materials, onSaved, onClose
       else {
         const value = await deadline();
         if (upload && !upload.ready) throw new Error('El archivo pendiente todavía no está aprobado. Consulta su revisión o descártalo antes de guardar.');
-        await change({ action: 'save', id: activity.id, payload: { title, unitId: unitId || null, topicIds, instructions, attachmentRequired,
+        await change({ action: 'save', id: activity.id, payload: { title, unitId: unitId || null, topicIds, instructions, attachmentRequired, aiGradingRubric,
           instructionFileIds: files.map(f => f.id), materialIds, deadline: value, allowLate,
           questions: questions.map(q => ({ type: q.type, prompt: q.prompt, points: q.points, scoringRule: q.scoringRule ?? null,
             options: q.options.map(o => ({ text: o.text, correct: o.correct ?? false })) })) } });
@@ -107,6 +108,8 @@ export function ActivityAuthoring({ api, room, data, materials, onSaved, onClose
       <fieldset disabled={busy || locked}>
         <legend>Consignas y recursos</legend>
         <label>Observaciones<textarea maxLength={5000} rows={5} value={instructions} onChange={e => setInstructions(e.target.value)} /></label>
+        <label>Rúbrica opcional para la corrección con IA<textarea maxLength={5000} rows={4} value={aiGradingRubric} onChange={e => setAiGradingRubric(e.target.value)} /></label>
+        <small>Solo el docente ve estos criterios. Si los dejás vacíos, se usarán la consigna y los puntajes de la actividad.</small>
         {activity.type === 'ASSIGNMENT' ? <>
           <p>Escribe observaciones, adjunta instrucciones PDF/DOCX o utiliza ambas opciones. Al publicar se requiere al menos una.</p>
           <label className="p7-check"><input type="checkbox" checked={attachmentRequired} onChange={e => setRequired(e.target.checked)} />Archivos de entrega obligatorios</label>

@@ -38,6 +38,8 @@ export interface Classroom {
   revision: string;
 }
 export interface Detail extends Classroom {
+  aiGradingEnabled?: boolean;
+  aiGradingAvailable?: boolean;
   units: Unit[];
   plans: { id: string; fileId: string; version: number }[];
 }
@@ -119,6 +121,7 @@ export interface ActivitySummary {
   allowLate: boolean; locked: boolean; zone: string;
 }
 export interface ActivityDetail extends ActivitySummary {
+  aiGradingRubric?: string;
   instructions: string | null; attachmentRequired: boolean; questions: ActivityQuestion[];
   instructionFiles: { id: string; name: string; extension: string; ready: boolean }[];
   materials: { id: string; title: string; fileId: string; extension: string }[];

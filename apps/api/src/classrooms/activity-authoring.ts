@@ -13,7 +13,7 @@ import { activityTopics, validateActivityTopics, replaceActivityTopics, readActi
 
 export interface ActivityRow {
   id: string; classroom_id: string; type: ActivityType; title: string | null; unit_id: string | null; topic_id: string | null;
-  instructions_text: string | null; attachments_required: boolean; status: 'DRAFT' | 'PUBLISHED' | 'WITHDRAWN';
+  instructions_text: string | null; ai_grading_rubric?: string; attachments_required: boolean; status: 'DRAFT' | 'PUBLISHED' | 'WITHDRAWN';
   published_at: Date | null; deadline_at: Date | null; allow_late_submissions: boolean; first_started_at: Date | null;
 }
 interface QuestionRow { id: string; type: string; prompt: string; points: string; scoringRule: string | null }
@@ -98,8 +98,10 @@ export class ActivityAuthoringService extends WallService {
           await this.validateLinks(tx, request, row, payload);
           await replaceActivityTopics(tx, id, classroomId, payload.unitId, []);
           await tx.query(`UPDATE activities SET title=$2,unit_id=$3::uuid,topic_id=$4::uuid,instructions_text=$5,
-            attachments_required=$6,deadline_at=$7,allow_late_submissions=$8,updated_at=$9 WHERE id=$1::uuid RETURNING id`,
-            id, payload.title, payload.unitId, payload.topicId, payload.instructions, payload.attachmentRequired, deadline, payload.allowLate, actor.now);
+            attachments_required=$6,deadline_at=$7,allow_late_submissions=$8,updated_at=$9,
+            ai_grading_rubric=COALESCE($10::text,ai_grading_rubric) WHERE id=$1::uuid RETURNING id`,
+            id, payload.title, payload.unitId, payload.topicId, payload.instructions, payload.attachmentRequired, deadline, payload.allowLate, actor.now,
+            Object.hasOwn(op.payload, 'aiGradingRubric') ? payload.aiGradingRubric : null);
           await replaceActivityTopics(tx, id, classroomId, payload.unitId, payload.topicIds);
           await replaceActivityContent(tx, row, payload);
           if (row.status === 'PUBLISHED' && deadlineChanged(row.deadline_at, deadline, row.allow_late_submissions, payload.allowLate))
@@ -175,7 +177,7 @@ export class ActivityAuthoringService extends WallService {
     const materials = await tx.query<{ id: string; title: string; fileId: string; extension: string }>(`SELECT m.id,m.title,m.file_id AS "fileId",f.extension
       FROM activity_materials a JOIN materials m ON m.id=a.material_id JOIN files f ON f.id=m.file_id WHERE a.activity_id=$1::uuid ORDER BY m.created_at,m.id`, row.id);
     // Explicit DTO construction: never spread SQL rows or expose answer keys/private grade/editor state to students.
-    return { ...this.activitySummary(row, zone), topicIds: await readActivityTopics(tx, row.id, row.topic_id), instructions: row.instructions_text, attachmentRequired: row.attachments_required,
+    return { ...this.activitySummary(row, zone), ...(teacher ? { aiGradingRubric: row.ai_grading_rubric ?? '' } : {}), topicIds: await readActivityTopics(tx, row.id, row.topic_id), instructions: row.instructions_text, attachmentRequired: row.attachments_required,
       instructionFiles, materials, questions: questions.map(q => ({ id: q.id, type: q.type, prompt: q.prompt, points: q.points,
         ...(teacher ? { scoringRule: q.scoringRule } : {}), options: options.filter(o => o.question_id === q.id)
           .map(o => ({ id: o.id, text: o.text, ...(teacher ? { correct: o.correct } : {}) })) })) };
