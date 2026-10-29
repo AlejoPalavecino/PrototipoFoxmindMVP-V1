@@ -23,7 +23,7 @@ export function Plan({ api, room, reload, onOpenActivity }: { api: ClassroomClie
     return result;
   };
   return <section className="folder-plan" aria-label="Plan de estudio">
-    <header className="p5-section-head"><h2>Plan de estudio</h2>
+    <header className="p5-section-head"><div><h2>Plan de estudio</h2><p>Organizá los temas, explorá materiales y acompañá el aprendizaje.</p></div>
       <button disabled={busy} onClick={() => void run(reload)}>Actualizar Plan</button></header>
     {error && <Notice error>{error}</Notice>}
     {notice && <Notice>{notice}</Notice>}

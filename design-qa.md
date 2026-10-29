@@ -1,5 +1,9 @@
 # FoxMind visual QA
 
+## Classroom interior references — 2026-10-29
+
+Final result: passed for inspected synthetic states; populated history and durable screenshot evidence unavailable. Eight desktop tabs and eight tabs at320/390px were inspected by `/root/classroom_tests`, with no horizontal document overflow. Desktop header, tabs, breadcrumb, plan contrast, wall width, progress hierarchy and student/code layout were corrected and rechecked. The invitation dialog fits320px; student, archived, empty, error and loading states were observed. Screenshots were inspected in memory only. Real data, authenticated E2E, real submission/provider and physical devices were not tested. Existing supported features/data determine the differences from mock-only favorites, reactions, cover upload and fictional history events. [Coordinator record](docs/work-log/2026-10-29-root-classroom-interior-reference.md).
+
 ## Current Crear aula reference — final, 2026-10-29
 
 final result: passed — bounded synthetic four-step verification.

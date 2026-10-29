@@ -1,0 +1,38 @@
+/* Scoped to classroom interior; all displayed data comes from the existing plan and library. */
+.classroom-interior-reference .p5-main .folder-plan > .p5-section-head,
+.classroom-interior-reference .p5-main .p6-library > .p5-section-head { margin: 18px 0; align-items: center; }
+.classroom-interior-reference .p5-main :is(.folder-plan,.p6-library) > .p5-section-head h2 { margin: 0 0 4px; font-size: 24px; }
+.classroom-interior-reference .p5-main :is(.folder-plan,.p6-library) > .p5-section-head p { margin: 0; color: #756b6a; font-size: 14px; }
+.classroom-interior-reference .p5-main .fm3-plan-workspace { grid-template-columns: minmax(250px, .92fr) minmax(0, 2fr); gap: 18px; align-items: stretch; }
+.classroom-interior-reference .p5-main :is(.fm3-plan-navigation,.fm3-plan-context) { border: 1px solid #f0e4d9; border-radius: 16px; background: #fff; padding: 20px; }
+.classroom-interior-reference .p5-main .fm3-plan-navigation > h3 { padding: 0; font-size: 18px; margin: 0; }
+.classroom-interior-reference .p5-main .fm3-plan-navigation section { border: 1px solid #f2e8de; background: #fffcf9; border-radius: 10px; padding: 8px; }
+.classroom-interior-reference .p5-main .fm3-plan-navigation h4 { background: transparent; font-size: 15px; padding: 6px; }
+.classroom-interior-reference .p5-main .fm3-plan-navigation h4 > span { border-radius: 50%; background: #ffdfc7; }
+.classroom-interior-reference .p5-main .fm3-unit-progress { font-size: 12px; padding: 0 8px 6px; color: #756b6a; }
+.classroom-interior-reference .p5-main .fm3-unit-progress progress { width: 100%; accent-color: #f47b2c; }
+.classroom-interior-reference .p5-main .fm3-plan-navigation button { font-size: 14px; min-height: 44px; padding: 8px; }
+.classroom-interior-reference .p5-main .fm3-plan-navigation button[aria-current='true'] { background: #ffecdb; border-left-color: #f47428; }
+.classroom-interior-reference .p5-main .fm3-plan-context > h3 { font-size: 24px; margin: 8px 0; }
+.fm3d-theme .classroom-interior-reference .p5-main .folder-plan .p5-tag[data-status='NEXT'] { color: #79300e; background: #ffead3; }
+.fm3d-theme .classroom-interior-reference .p5-main .folder-plan .p5-tag[data-status='TAUGHT'] { color: #245a30; background: #e5f3e1; }
+.fm3d-theme .classroom-interior-reference .p5-main .folder-plan .p5-tag[data-status='PENDING'] { color: #59483f; background: #f5eee7; }
+.classroom-interior-reference .p5-main .fm3-plan-context > h4 { font-size: 16px; margin: 20px 0 8px; }
+.classroom-interior-reference .p5-main .fm3-plan-resource { margin-block: 8px; padding: 12px; background: #fcf6ef; border: 1px solid #f5e7da; border-radius: 10px; }
+.classroom-interior-reference .p5-main .fm3-plan-resource.is-activity { background: #fff0e4; }
+.classroom-interior-reference .p5-main .fm3-plan-resource h4 { font-size: 15px; margin: 0 0 4px; }
+.classroom-interior-reference .p5-main .folder-plan-file { background: #f8eee3; }
+.classroom-interior-reference .p5-main .interior-library-search { display: block; max-width: 580px; margin: 18px 0; font-weight: 600; }
+.classroom-interior-reference .p5-main .interior-library-search input { display: block; width: 100%; min-height: 48px; margin-top: 5px; padding: 10px 14px; border: 1px solid #eaded4; border-radius: 10px; background: #fff; font-size: 16px; }
+.classroom-interior-reference .p5-main .p6-library-list { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; }
+.classroom-interior-reference .p5-main .p6-library-list > .folder-row { min-width: 0; padding: 20px; border: 1px solid #f0e4d9; border-radius: 15px; background: #fff; }
+.classroom-interior-reference .p5-main .p6-library-list h3 { font-size: 17px; margin-bottom: 6px; overflow-wrap: anywhere; }
+.classroom-interior-reference .p5-main .p6-library-list :is(p,small) { color: #756b6a; overflow-wrap: anywhere; }
+.classroom-interior-reference .p5-main .p6-library-list .folder-row-actions { margin-top: auto; }
+@media (max-width: 1000px) { .classroom-interior-reference .p5-main .p6-library-list { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 700px) {
+  .classroom-interior-reference .p5-main .fm3-plan-workspace,
+  .classroom-interior-reference .p5-main .p6-library-list { grid-template-columns: minmax(0,1fr); }
+  .classroom-interior-reference .p5-main :is(.fm3-plan-navigation,.fm3-plan-context) { padding: 16px; }
+  .classroom-interior-reference .p5-main .fm3-plan-resource { flex-direction: column; align-items: stretch; }
+}

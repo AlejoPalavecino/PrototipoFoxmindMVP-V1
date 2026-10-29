@@ -29,16 +29,24 @@ function MaterialForm({ room, initial, busy, label, onSave }: {
 
 export function Library({ api, room, reload, targetMaterialId, openUpload }: { api: ClassroomClient; room: Detail; reload: () => Promise<void>; targetMaterialId?: string; openUpload?: boolean }) {
   const root = useRef<HTMLElement>(null);
+  const targetFocusPending = useRef(false);
   const [materials, setMaterials] = useState<Material[]>([]), [loaded, setLoaded] = useState(false);
+  const [query, setQuery] = useState('');
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState('');
   const [file, setFile] = useState<FileState | null>(null), [editing, setEditing] = useState<Material | null>(null);
   const [deleting, setDeleting] = useState<Material | null>(null);
   const writable = room.role === 'teacher' && !room.archived;
+  const filtered = materials.filter(material => material.title.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()));
   useEffect(() => {
-    if (!targetMaterialId || !loaded) return;
+    targetFocusPending.current = Boolean(targetMaterialId);
+    if (targetMaterialId) setQuery('');
+  }, [targetMaterialId]);
+  useEffect(() => {
+    if (!targetFocusPending.current || !targetMaterialId || !loaded || query.trim()) return;
     const selected = Array.from(root.current?.querySelectorAll<HTMLElement>('[data-material-id]') ?? []).find(item => item.dataset.materialId === targetMaterialId);
     selected?.focus();
-  }, [targetMaterialId, loaded, materials]);
+    targetFocusPending.current = false;
+  }, [targetMaterialId, loaded, materials, query]);
   const load = useCallback(async (signal?: AbortSignal) => {
     const result = await api.call<Material[]>(`/${room.id}/library`, 'GET', undefined, signal);
     setMaterials(result); setLoaded(true);
@@ -57,7 +65,7 @@ export function Library({ api, room, reload, targetMaterialId, openUpload }: { a
     await Promise.all([reload(), load()]);
   }
   return <section ref={root} aria-label="Biblioteca del aula" className="p6-library">
-    <header className="p5-section-head"><div><h2>Biblioteca</h2><p>Materiales de consulta del aula, incluidas las lecturas extra.</p></div>
+    <header className="p5-section-head"><div><h2>Biblioteca del aula</h2><p>Accedé a los materiales y recursos de esta clase.</p></div>
       <button disabled={busy} onClick={() => void run(async () => { await Promise.all([reload(), load()]); })}>Actualizar Biblioteca</button>
     </header>
     {error ? <Notice error>{error} Actualiza la Biblioteca y vuelve a intentar.</Notice> : null}
@@ -88,7 +96,9 @@ export function Library({ api, room, reload, targetMaterialId, openUpload }: { a
     {loaded && materials.length === 0 ? <p className="p5-empty">Todavía no hay materiales disponibles.</p> : null}
     {loaded && targetMaterialId && !materials.some(item => item.id === targetMaterialId) ? <Notice>El material ya no está disponible para tu cuenta.</Notice> : null}
     {openUpload && !writable ? <Notice>No podés publicar material en esta aula con tus permisos actuales.</Notice> : null}
-    <div className="p6-library-list">{materials.map(material => {
+    {loaded && materials.length > 0 ? <label className="interior-library-search">Buscar materiales<input type="search" aria-label="Buscar materiales por título" placeholder="Buscar materiales por título..." value={query} onChange={event => setQuery(event.target.value)} /></label> : null}
+    {loaded && materials.length > 0 && filtered.length === 0 ? <p className="p5-empty">No se encontraron materiales para esta búsqueda.</p> : null}
+    <div className="p6-library-list">{filtered.map(material => {
       const unit = room.units.find(item => item.id === material.unitId), topic = unit?.topics.find(item => item.id === material.topicId);
       return <article className={`folder-row${material.id === targetMaterialId ? ' fm3-target-selected' : ''}`} key={material.id} aria-label={material.title} data-material-id={material.id} tabIndex={material.id === targetMaterialId ? -1 : undefined}>
         <div className="folder-row-content"><h3>{material.title}</h3><p>{unit ? `${unit.name}${topic ? ` · ${topic.name}` : ''}` : 'Material extra / recomendado'}</p>

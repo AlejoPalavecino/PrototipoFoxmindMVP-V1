@@ -16,6 +16,9 @@ import '../../shared-ui/workspace.css';
 import '../../shared-ui/auth-reference.css';
 import '../../shared-ui/classrooms-reference.css';
 import '../../shared-ui/wizard-reference.css';
+import '../../classrooms-ui/interior-shell-reference.css';
+import '../../classrooms-ui/interior-plan-reference.css';
+import '../../classrooms-ui/interior-activity-reference.css';
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   useEffect(() => {

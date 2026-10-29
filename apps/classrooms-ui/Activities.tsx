@@ -69,7 +69,7 @@ export function Activities({ api, room, reload, target, onChanged, openAuthoring
       onSaved={async () => { await refresh(); setNotice('Cambios confirmados por el servidor. Guardar no publica un borrador.'); }}
       onClose={() => setEditing(null)} /> : null}
     {loaded && activities.length === 0 ? <p className="p5-empty">Todavía no hay actividades disponibles.</p> : null}
-    <div className="p7-activity-list" hidden={Boolean(editing || generating)}>{activities.map(activity => <article className="folder-row" key={activity.id} aria-label={activity.title ?? 'Borrador sin título'}>
+    <div className="p7-activity-list" hidden={Boolean(editing || generating)}>{activities.map(activity => <article className={`folder-row interior-activity-${activity.status.toLowerCase()}`} key={activity.id} aria-label={activity.title ?? 'Borrador sin título'}>
       <div className="folder-row-content"><small>{activityTypeLabels[activity.type]} · {activity.status === 'DRAFT' ? 'Borrador privado' : activity.status === 'WITHDRAWN' ? 'Retirada' : 'Publicada'}</small>
         <h3>{activity.title ?? 'Borrador sin título'}</h3><p>{activityDate(activity.deadlineAt, activity.zone)}</p>
         <ActivityCurriculum room={room} activity={activity} />

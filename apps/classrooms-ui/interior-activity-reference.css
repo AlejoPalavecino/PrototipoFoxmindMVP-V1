@@ -1,0 +1,90 @@
+/* Classroom interior: shared warm surfaces while preserving component states. */
+.classroom-interior-reference :is(.p6-wall,.p7-activities,.p8-progress) {
+  color: #251c19;
+}
+.classroom-interior-reference :is(.p6-wall,.p7-activities,.p8-progress) .p5-section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 4px 0 18px;
+}
+.classroom-interior-reference :is(.p6-wall,.p7-activities,.p8-progress) .p5-section-head h2 {
+  margin: 0 0 4px;
+  font-size: 25px;
+  line-height: 1.2;
+  color: #15151a;
+}
+.classroom-interior-reference :is(.p6-wall,.p7-activities,.p8-progress) .p5-section-head p {
+  margin: 0;
+  color: #706a70;
+}
+.fm3-classrooms.classroom-interior-reference .p5-main .p6-wall {
+  display: grid;
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+  grid-template-columns: minmax(0, 1fr) minmax(250px, 29%);
+  gap: 10px 18px;
+  align-items: start;
+}
+.classroom-interior-reference .p6-wall > .p5-section-head { grid-column: 1 / -1; margin-bottom: 4px; }
+.classroom-interior-reference .p6-wall > :is(form,.p6-wall-threads,.p5-empty) { grid-column: 1; min-width: 0; }
+.classroom-interior-reference .p6-wall > form,
+.classroom-interior-reference .p6-wall-threads > article,
+.classroom-interior-reference .interior-wall-guide,
+.classroom-interior-reference .p7-activities,
+.classroom-interior-reference .p8-progress-metrics > section,
+.classroom-interior-reference .p8-progress > section {
+  background: #fff;
+  border: 1px solid #f1e4d9;
+  border-radius: 16px;
+}
+.classroom-interior-reference .p6-wall > form { padding: 18px; }
+.classroom-interior-reference .p6-wall > form label { font-weight: 700; }
+.classroom-interior-reference .p6-wall > form textarea { margin-top: 12px; width: 100%; border-radius: 10px; }
+.classroom-interior-reference .p6-wall-threads { display: grid; gap: 10px; }
+.classroom-interior-reference .p6-wall-threads > article { padding: 16px 18px; }
+.classroom-interior-reference .p6-wall-threads > article[aria-label='Aviso del aula'] { background: #fff4e9; border-color: #ffdbc0; }
+.classroom-interior-reference .interior-wall-guide {
+  grid-column: 2;
+  grid-row: 2 / span 5;
+  padding: 22px;
+  background: #fffaf3;
+}
+.classroom-interior-reference .interior-wall-guide h3 { margin: 0 0 16px; font-size: 19px; }
+.classroom-interior-reference .interior-wall-guide ol { list-style: none; counter-reset: wall-guide; padding: 0; margin: 0; display: grid; gap: 10px; }
+.classroom-interior-reference .interior-wall-guide li { counter-increment: wall-guide; position: relative; min-height: 72px; padding: 13px 12px 13px 58px; background: #fff; border-radius: 12px; }
+.classroom-interior-reference .interior-wall-guide li::before { content: counter(wall-guide); position: absolute; left: 12px; top: 12px; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: #ffe5d4; color: #a9340b; font-weight: 700; }
+.classroom-interior-reference .interior-wall-guide li:nth-child(2)::before { background: #e3f4df; color: #30702e; }
+.classroom-interior-reference .interior-wall-guide li:nth-child(3)::before { background: #e9e4ff; color: #4c359c; }
+.classroom-interior-reference .interior-wall-guide p { margin: 5px 0 0; color: #706a70; font-size: 13px; }
+.classroom-interior-reference .p7-activities { padding: 22px; }
+.classroom-interior-reference .p7-create { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; padding: 16px; background: #fff9f1; border: 1px solid #f7dfc6; border-radius: 14px; }
+.classroom-interior-reference .p7-create label { display: grid; gap: 6px; min-width: min(320px, 100%); }
+.fm3-classrooms.classroom-interior-reference .p5-main .p7-activities .p7-activity-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin-top: 16px; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p7-activities .p7-activity-list[hidden] { display: none; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p7-activities .p7-activity-list > .folder-row { display: flex; flex-direction: row; justify-content: space-between; gap: 18px; padding: 16px; background: #fff; border: 1px solid #f0e5dd; border-left: 4px solid #9593a0; border-radius: 12px; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p7-activities .p7-activity-list > .interior-activity-published { border-left-color: #3bad64; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p7-activities .p7-activity-list h3 { margin: 6px 0; font-size: 17px; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p7-activities .p7-activity-list p { margin: 5px 0; color: #6b6a76; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p7-activities .p7-activity-list .folder-row-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-content: start; gap: 8px; }
+.classroom-interior-reference .p8-progress-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 14px; }
+.classroom-interior-reference .p8-progress-metrics > section { min-width: 0; padding: 20px; }
+.classroom-interior-reference .p8-progress-metrics > section:last-child { background: #f0f8ff; border-color: #dceaf7; }
+.classroom-interior-reference .p8-progress-metrics h3 { margin: 0 0 18px; font-size: 17px; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p8-progress .p8-progress-metrics p.p8-progress-value { color: #b13c0b; font-size: 30px; font-weight: 800; line-height: 1.2; }
+.classroom-interior-reference .p8-progress-metrics small { display: block; padding: 12px; border-radius: 10px; background: #fff6ee; color: #665d5b; }
+.classroom-interior-reference .p8-progress-metrics > section:last-child small { background: #e6efff; }
+.classroom-interior-reference .p8-progress > section { padding: 18px; }
+.classroom-interior-reference .p8-progress-students { padding: 0; list-style: none; }
+.classroom-interior-reference .p8-progress-students li { display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; gap: 14px; padding: 12px; border-bottom: 1px solid #f0e8e2; }
+.classroom-interior-reference .p8-progress-students li p { margin: 0; }
+@media (max-width: 800px) {
+  .fm3-classrooms.classroom-interior-reference .p5-main .p6-wall { grid-template-columns: minmax(0,1fr); }
+  .classroom-interior-reference .interior-wall-guide { grid-column: 1; grid-row: auto; }
+  .classroom-interior-reference .p8-progress-metrics { grid-template-columns: 1fr; }
+  .fm3-classrooms.classroom-interior-reference .p5-main .p7-activities .p7-activity-list > .folder-row { flex-direction: column; }
+  .fm3-classrooms.classroom-interior-reference .p5-main .p7-activities .p7-activity-list .folder-row-actions { justify-content: flex-start; }
+  .classroom-interior-reference .p8-progress-students li { grid-template-columns: 1fr; gap: 5px; }
+}

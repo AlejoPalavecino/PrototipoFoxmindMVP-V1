@@ -210,7 +210,7 @@ export function ClassroomView({
               </button>
             ))}
           </nav>
-          <section className={`p5-surface ${tab === 'plan' ? 'fm3-plan-surface' : `folder-panel tone-${teacher ? 'coral' : 'mint'}`}`} aria-labelledby="classroom-section-title">
+          <section data-classroom-tab={tab} className={`p5-surface ${tab === 'plan' ? 'fm3-plan-surface' : `folder-panel tone-${teacher ? 'coral' : 'mint'}`}`} aria-labelledby="classroom-section-title">
             <h2 id="classroom-section-title" className="folder-tab"><EntryIcon name={tabIcons[tab]} />{tabLabels[tab]}</h2>
             {tab === 'members' || tab === 'history' ? (
               <>

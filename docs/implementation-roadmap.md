@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Classroom interior references — locally verified, 2026-10-29
+
+The eight existing classroom sections now use the selected warm visual direction with responsive shell, cards and real data. Library supports local title search and preserves deep links. [Coordinator and verification](work-log/2026-10-29-root-classroom-interior-reference.md): focused3 PASS, types/build PASS, bounded synthetic desktop/mobile QA and independent review; populated history and authenticated/backend acceptance were not verified. Local isolated branch only, no publication or deployment.
+
 ## Selected Crear aula references — verified locally, 2026-10-29
 
 The four-step creation wizard now follows the selected general-data, study-plan, units/topics and review references. Scoped cream/orange styling, seven existing covers and lightweight ambient WebP accompany guarded file drop, collapsible units with invalid-field focus, direct review editing and preserved proposal edits. Existing draft/save/revision/conflict/upload/extraction/publication contracts remain. [Coordinator/local units](work-log/2026-10-28-root-wizard-reference.md), [independent review](work-log/2026-10-29-wizard_review_finish.md), [visual/flow proof](work-log/evidence/2026-10-28-wizard-reference/README.md):17 focused PASS, strict types and final production build PASS;12 final viewport states and synthetic error/busy/keyboard journeys passed. Initial visual failures were corrected and retained as history. No remaining requested wizard work; preview uses in-memory ports. Local isolated branch only, without real backend/provider acceptance or remote publication/deployment. Earlier product-phase boundaries remain unchanged.

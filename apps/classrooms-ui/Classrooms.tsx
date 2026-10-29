@@ -172,7 +172,7 @@ export function ClassroomsApp({
     }
   }
   return (
-    <div className={`p5-app fm3-classrooms${draft ? ' entry-wizard-reference' : !classroomId ? presentation === 'home' ? ' entry-home' : ' entry-classrooms-reference' : ''}`}>
+    <div className={`p5-app fm3-classrooms${draft ? ' entry-wizard-reference' : !classroomId ? presentation === 'home' ? ' entry-home' : ' entry-classrooms-reference' : ' classroom-interior-reference'}`}>
       <a className="skip-link" href="#classroom-main">Saltar al contenido</a>
       <AppNavbar logoHref="/mis-aulas" displayName={displayName}
         links={draft ? [{ href: '/mis-aulas', label: 'Mis aulas', current: true }]
