@@ -5,13 +5,16 @@ import { InvitationDeliveryWorker, type DeliveryOptions } from './delivery.ts';
 import type { ClassroomPorts } from './contracts.ts';
 import { PrismaService } from '../database/prisma.service.ts';
 import { IdentityRuntime } from '../identity/runtime.ts';
-import { FileService, createDurableActivitySourceReader } from '../files/index.ts';
+import { FileService, createDurableActivitySourceReader, createDurableGradingAiAttachmentReader, createDurableGradingAiInstructionReader } from '../files/index.ts';
 import type { ClassroomRuntimeConfiguration } from './configuration.ts';
 import { ClassroomHostLifecycle, createIdentityClassroomAuthentication } from './host.ts';
 import { LibraryCleanupWorker } from './library-cleanup.ts';
 import { ClassroomAiRuntime, type AiRuntimeOverride } from './ai/runtime.ts';
 import { ActivityAiRuntime } from './activity-ai/runtime.ts';
 import { StudentAiRuntime } from './student-ai/runtime.ts';
+import { GradingAiRuntime, type GradingAiFileGrant } from './grading-ai/runtime.ts';
+import { GeminiGradingAiProvider } from './grading-ai/provider.ts';
+import { GoogleGenAI } from '@google/genai';
 import { validateActivityGeneration } from './activity-ai/index.ts';
 import type { AiConfiguration } from '../ai/index.ts';
 
@@ -30,6 +33,18 @@ export class ClassroomsModule {
     configuration: ClassroomRuntimeConfiguration,
     sender: Pick<DeliveryOptions, 'send'> & { close(): void }, ai?: AiConfiguration, override?: AiRuntimeOverride): DynamicModule {
     return { module: ClassroomsModule, imports: [database, identity, files], providers: [
+      ...(ai && (!override || override.gradingProvider) ? [{ provide: GradingAiRuntime, inject: [PrismaService, FileService],
+        useFactory: (database: PrismaService, files: FileService) => {
+          let runtime: GradingAiRuntime;
+          const authorize = (grant: import('../files/index.ts').GradingAttachmentGrant, signal: AbortSignal, tx?: import('../files/index.ts').FileTransaction) =>
+            runtime.authorizeClaim(grant as GradingAiFileGrant, signal, tx);
+          const reader = createDurableGradingAiAttachmentReader({ files, authorize });
+          const instructionReader = createDurableGradingAiInstructionReader({ files, authorize });
+          const provider = override?.gradingProvider ?? new GeminiGradingAiProvider(new GoogleGenAI({ apiKey: ai.apiKey, vertexai: false,
+            httpOptions: { retryOptions: { attempts: 1 }, timeout: ai.deadlineMs } }), ai);
+          runtime = new GradingAiRuntime({ database, configuration: ai, provider, reader, instructionReader });
+          return runtime;
+        } }] : []),
       ...(ai && (!override || override.studentProvider) ? [{ provide: StudentAiRuntime, inject: [InvitationService],
         useFactory: (classrooms: ClassroomService) => new StudentAiRuntime(classrooms, ai, override?.studentProvider) }] : []),
       ...(ai ? [{ provide: ActivityAiRuntime, inject: [InvitationService, FileService],
@@ -40,6 +55,7 @@ export class ClassroomsModule {
       { provide: InvitationService, inject: [PrismaService, IdentityRuntime, FileService],
         useFactory: (database: PrismaService, runtime: IdentityRuntime, fileService: FileService) => integratedClassrooms({
           ...configuration, database, files: fileService.store, studentAiEnabled: !!ai && (!override || !!override.studentProvider),
+          gradingAiAvailable: !!ai && (!override || !!override.gradingProvider),
           authenticate: createIdentityClassroomAuthentication(runtime.configuration.security),
         }, fileService) },
       { provide: InvitationDeliveryWorker, inject: [PrismaService],
@@ -51,7 +67,8 @@ export class ClassroomsModule {
       { provide: ClassroomHostLifecycle, inject: [InvitationDeliveryWorker],
         useFactory: (worker: InvitationDeliveryWorker) => new ClassroomHostLifecycle(worker, sender) },
     ], exports: [InvitationService, ClassroomHostLifecycle, LibraryCleanupWorker, ...(ai ? [ClassroomAiRuntime, ActivityAiRuntime] : []),
-      ...(ai && (!override || override.studentProvider) ? [StudentAiRuntime] : [])] };
+      ...(ai && (!override || override.studentProvider) ? [StudentAiRuntime] : []),
+      ...(ai && (!override || override.gradingProvider) ? [GradingAiRuntime] : [])] };
   }
   static register(
     ports: ClassroomPorts,
