@@ -1,0 +1,55 @@
+/* Library layout: the summary and all cards use only actual loaded material data. */
+.fm3-classrooms.classroom-interior-reference .p5-main .p5-surface[data-classroom-tab='library'] {
+  padding: 0; border: 0; background: transparent; box-shadow: none;
+}
+.fm3-classrooms.classroom-interior-reference .p5-main .p6-library { padding: 0; border: 0; background: transparent; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p6-library > .interior-library-heading {
+  display: flex; align-items: center; justify-content: space-between; gap: 18px; margin: 16px 0 8px;
+}
+.interior-library-title, .interior-social-heading { display: flex; align-items: flex-start; gap: 16px; }
+.interior-library-title > .entry-icon, .interior-social-heading > .entry-icon { flex: 0 0 30px; width: 30px; height: 30px; color: #c6420b; }
+.interior-library-summary { min-width: 280px; display: flex; align-items: center; gap: 14px; padding: 15px 18px; border: 1px solid #f0e1d2; border-radius: 15px; background: #fffaf5; }
+.interior-library-summary-icon, .interior-material-icon { flex: 0 0 54px; display: grid; place-items: center; width: 54px; height: 54px; border-radius: 14px; background: #ffead9; color: #cd3c0a; }
+.interior-library-summary strong, .interior-library-summary small { display: block; }
+.interior-library-summary small { color: #746d72; font-size: 12px; }
+.interior-library-summary button { margin-left: auto; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p6-library-upload { margin: 8px 0; padding: 0; border: 0; background: transparent; }
+@media (min-width: 701px) {
+  .fm3-classrooms.classroom-interior-reference .p5-main .p6-library-upload:has(> details:not([open]):last-child) { float: right; margin: 12px 0 0 12px; }
+}
+.fm3-classrooms.classroom-interior-reference .p5-main .p6-library-upload > details { padding: 0; border: 0; background: transparent; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p6-library-upload summary { display: inline-flex; min-height: 40px; align-items: center; padding: 8px 16px; border: 1px solid #d8703b; border-radius: 11px; color: #c03a08; background: #fff; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p6-library-upload details[open] { margin-bottom: 12px; padding: 12px; border: 1px solid #f0dfd1; border-radius: 12px; background: #fffaf4; }
+.fm3-classrooms.classroom-interior-reference .p5-main .interior-library-search { margin: 12px 0 16px; font-size: 0; }
+.fm3-classrooms.classroom-interior-reference .p5-main .interior-library-search input { margin: 0; font-size: 14px; min-height: 46px; }
+.fm3-classrooms.classroom-interior-reference .p5-main .interior-library-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 16px; margin: 12px 0 16px; }
+.fm3-classrooms.classroom-interior-reference .p5-main .interior-library-toolbar .interior-library-search { flex: 1 1 330px; max-width: 580px; min-width: 0; margin: 0; }
+.fm3-classrooms.classroom-interior-reference .p5-main .interior-library-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.fm3-classrooms.classroom-interior-reference .p5-main .interior-library-filters button { min-height: 42px; padding: 8px 16px; border: 1px solid #f0e1d2; border-radius: 24px; background: #fff; color: #453832; font-size: 13px; }
+.fm3-classrooms.classroom-interior-reference .p5-main .interior-library-filters button[aria-pressed='true'] { border-color: #c43f0a; background: #c43f0a; color: #fff; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p6-library-list { clear: both; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p6-library-list > .folder-row { display: flex; flex-direction: column; min-height: 215px; padding: 16px 20px; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p6-library-list .folder-row-content { display: flex; gap: 14px; flex: 1; align-items: flex-start; }
+.interior-material-copy { min-width: 0; }
+.interior-material-type { display: inline-block; border-radius: 50px; padding: 4px 12px; color: #a92d09; background: #ffe8d8; font-size: 12px; font-weight: 700; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p6-library-list h3 { margin: 8px 0 4px; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p6-library-list .folder-row-actions { align-self: stretch; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p6-library-list .p5-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p6-library-list .interior-material-menu { margin-left: auto; position: relative; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p6-library-list .interior-material-menu > summary { display: flex; align-items: center; min-height: 42px; padding: 7px 10px; cursor: pointer; border: 1px solid #f0e4d9; border-radius: 10px; background: #fff; color: #b63b0a; font-size: 12px; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p6-library-list .interior-material-menu[open] { flex-basis: 100%; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p6-library-list .interior-material-menu[open] > .p5-actions { margin-top: 8px; }
+@media (max-width: 1000px) { .fm3-classrooms.classroom-interior-reference .p5-main .p6-library-list { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (max-width: 700px) {
+  .fm3-classrooms.classroom-interior-reference .p5-main .p6-library > .interior-library-heading { align-items: stretch; flex-direction: column; }
+  .interior-library-summary { min-width: 0; }
+  .fm3-classrooms.classroom-interior-reference .p5-main .p6-library-list { grid-template-columns: minmax(0,1fr); }
+}
+
+/* Existing file actions use the same outlined controls as the reference. */
+.fm3-classrooms.classroom-interior-reference .p5-main .interior-material-icon > .entry-icon,
+.fm3-classrooms.classroom-interior-reference .p5-main .interior-library-summary-icon > .entry-icon { mask-image: url('/foxmind-3d/icons/file.svg') !important; -webkit-mask-image: url('/foxmind-3d/icons/file.svg') !important; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p6-library-list .folder-row-actions .p5-actions a { display: inline-flex; align-items: center; min-height: 40px; padding: 8px 12px; border: 1px solid #f2b48d; border-radius: 9px; color: #bc390a; background: #fff; font-size: 12px; font-weight: 700; text-decoration: none; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p6-library-list .folder-row-content p { margin: 5px 0; font-size: 13px; line-height: 1.4; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p6-library-list .folder-row-content small { font-size: 12px; }
+.fm3-classrooms.classroom-interior-reference .p5-main .p6-library-list .interior-material-menu > summary { min-height: 40px; }

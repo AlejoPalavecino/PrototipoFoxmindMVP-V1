@@ -8,5 +8,7 @@ import '../shared-ui/classrooms-reference.css';
 import '../shared-ui/wizard-reference.css';
 import './interior-shell-reference.css';
 import './interior-plan-reference.css';
+import './interior-library-fidelity.css';
+import './interior-progress-reference.css';
 import './interior-activity-reference.css';
 export { ClassroomsApp } from './Classrooms.tsx';

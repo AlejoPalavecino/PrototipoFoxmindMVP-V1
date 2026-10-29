@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { canPreviewMaterial, type ClassroomClient, type Detail, type FileState, type Material } from './api.ts';
 import { Dialog, Notice } from './components.tsx';
+import { EntryIcon } from '../shared-ui/EntryIcon';
 
 interface Metadata { title: string; unitId: string | null; topicId: string | null }
 function MaterialForm({ room, initial, busy, label, onSave }: {
@@ -32,21 +33,23 @@ export function Library({ api, room, reload, targetMaterialId, openUpload }: { a
   const targetFocusPending = useRef(false);
   const [materials, setMaterials] = useState<Material[]>([]), [loaded, setLoaded] = useState(false);
   const [query, setQuery] = useState('');
+  const [scope, setScope] = useState<'all' | 'plan' | 'extra'>('all');
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState('');
   const [file, setFile] = useState<FileState | null>(null), [editing, setEditing] = useState<Material | null>(null);
   const [deleting, setDeleting] = useState<Material | null>(null);
   const writable = room.role === 'teacher' && !room.archived;
-  const filtered = materials.filter(material => material.title.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()));
+  const filtered = materials.filter(material => material.title.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())
+    && (scope === 'all' || (scope === 'plan' ? material.unitId != null : material.unitId == null)));
   useEffect(() => {
     targetFocusPending.current = Boolean(targetMaterialId);
-    if (targetMaterialId) setQuery('');
+    if (targetMaterialId) { setQuery(''); setScope('all'); }
   }, [targetMaterialId]);
   useEffect(() => {
-    if (!targetFocusPending.current || !targetMaterialId || !loaded || query.trim()) return;
+    if (!targetFocusPending.current || !targetMaterialId || !loaded || query.trim() || scope !== 'all') return;
     const selected = Array.from(root.current?.querySelectorAll<HTMLElement>('[data-material-id]') ?? []).find(item => item.dataset.materialId === targetMaterialId);
     selected?.focus();
     targetFocusPending.current = false;
-  }, [targetMaterialId, loaded, materials, query]);
+  }, [targetMaterialId, loaded, materials, query, scope]);
   const load = useCallback(async (signal?: AbortSignal) => {
     const result = await api.call<Material[]>(`/${room.id}/library`, 'GET', undefined, signal);
     setMaterials(result); setLoaded(true);
@@ -65,8 +68,8 @@ export function Library({ api, room, reload, targetMaterialId, openUpload }: { a
     await Promise.all([reload(), load()]);
   }
   return <section ref={root} aria-label="Biblioteca del aula" className="p6-library">
-    <header className="p5-section-head"><div><h2>Biblioteca del aula</h2><p>Accedé a los materiales y recursos de esta clase.</p></div>
-      <button disabled={busy} onClick={() => void run(async () => { await Promise.all([reload(), load()]); })}>Actualizar Biblioteca</button>
+    <header className="p5-section-head interior-library-heading"><div className="interior-library-title"><EntryIcon name="book" /><div><h2>Biblioteca del aula</h2><p>Accedé a todos los materiales y recursos de esta clase.</p></div></div>
+      <div className="interior-library-summary"><span className="interior-library-summary-icon"><EntryIcon name="book" /></span><div><strong>{loaded ? `${materials.length} ${materials.length === 1 ? 'material' : 'materiales'}` : 'Biblioteca'}</strong><small>en esta biblioteca</small></div><button disabled={busy} onClick={() => void run(async () => { await Promise.all([reload(), load()]); })}>Actualizar Biblioteca</button></div>
     </header>
     {error ? <Notice error>{error} Actualiza la Biblioteca y vuelve a intentar.</Notice> : null}
     {notice ? <Notice>{notice}</Notice> : null}
@@ -96,24 +99,27 @@ export function Library({ api, room, reload, targetMaterialId, openUpload }: { a
     {loaded && materials.length === 0 ? <p className="p5-empty">Todavía no hay materiales disponibles.</p> : null}
     {loaded && targetMaterialId && !materials.some(item => item.id === targetMaterialId) ? <Notice>El material ya no está disponible para tu cuenta.</Notice> : null}
     {openUpload && !writable ? <Notice>No podés publicar material en esta aula con tus permisos actuales.</Notice> : null}
-    {loaded && materials.length > 0 ? <label className="interior-library-search">Buscar materiales<input type="search" aria-label="Buscar materiales por título" placeholder="Buscar materiales por título..." value={query} onChange={event => setQuery(event.target.value)} /></label> : null}
+    {loaded && materials.length > 0 ? <div className="interior-library-toolbar"><label className="interior-library-search">Buscar materiales<input type="search" aria-label="Buscar materiales por título" placeholder="Buscar materiales por título..." value={query} onChange={event => setQuery(event.target.value)} /></label>
+      <nav className="interior-library-filters" aria-label="Filtrar materiales por origen">
+        {([['all', 'Todos'], ['plan', 'Materiales del plan'], ['extra', 'Archivos del aula']] as const).map(([value, label]) => <button key={value} type="button" aria-pressed={scope === value} onClick={() => setScope(value)}>{label}</button>)}
+      </nav></div> : null}
     {loaded && materials.length > 0 && filtered.length === 0 ? <p className="p5-empty">No se encontraron materiales para esta búsqueda.</p> : null}
     <div className="p6-library-list">{filtered.map(material => {
       const unit = room.units.find(item => item.id === material.unitId), topic = unit?.topics.find(item => item.id === material.topicId);
       return <article className={`folder-row${material.id === targetMaterialId ? ' fm3-target-selected' : ''}`} key={material.id} aria-label={material.title} data-material-id={material.id} tabIndex={material.id === targetMaterialId ? -1 : undefined}>
-        <div className="folder-row-content"><h3>{material.title}</h3><p>{unit ? `${unit.name}${topic ? ` · ${topic.name}` : ''}` : 'Material extra / recomendado'}</p>
-          <small>{material.fileName} · {Number(material.sizeBytes).toLocaleString()} bytes</small></div>
+        <div className="folder-row-content"><span className="interior-material-icon"><EntryIcon name="book" /></span><div className="interior-material-copy"><span className="interior-material-type">{material.fileName.includes('.') ? material.fileName.split('.').pop()?.toUpperCase() : 'Archivo'}</span><h3>{material.title}</h3><p>{unit ? `${unit.name}${topic ? ` · ${topic.name}` : ''}` : 'Material extra / recomendado'}</p>
+          <small>{material.fileName} · {Number(material.sizeBytes).toLocaleString()} bytes</small></div></div>
         <div className="folder-row-actions">
         {material.deleted ? <Notice>{material.deletionPending ? 'Material eliminado. El borrado del archivo está pendiente; su espacio sigue reservado hasta confirmarlo.' : 'Material y archivo eliminados. El espacio fue liberado.'}</Notice>
           : material.ready ? <div className="p5-actions">
             {canPreviewMaterial(material) && material.previewable ? <a href={api.fileUrl(material.fileId, true)} target="_blank" rel="noreferrer">Vista previa</a> : null}
             <a href={api.fileUrl(material.fileId)} target="_blank" rel="noreferrer">Descargar material</a>
           </div> : <Notice>Archivo no disponible: la revisión de seguridad no permite descargarlo.</Notice>}
-        {writable && !material.deleted ? <div className="p5-actions">
+        {writable && !material.deleted ? <details className="interior-material-menu"><summary aria-label={`Más opciones para ${material.title}`}>Más opciones</summary><div className="p5-actions">
           <button disabled={busy} onClick={() => setEditing(material)}>Editar datos</button>
           <button disabled={busy || material.linked} onClick={() => setDeleting(material)}>Eliminar material</button>
           {material.linked ? <small>Vinculado a una actividad: no se puede eliminar.</small> : null}
-        </div> : null}
+        </div></details> : null}
         </div>
       </article>;
     })}</div>

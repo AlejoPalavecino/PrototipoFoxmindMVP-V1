@@ -1,0 +1,79 @@
+.fm3-classrooms.classroom-interior-reference .p5-main .p5-surface[data-classroom-tab='progress'] {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.fm3-classrooms.classroom-interior-reference .p5-main .p8-progress { max-width: none; }
+.fm3-classrooms.classroom-interior-reference .p8-progress > .p5-section-head { align-items: flex-start; margin: 0 0 22px; }
+.fm3-classrooms.classroom-interior-reference .p8-progress > .p5-section-head h2 { margin: 0 0 4px; font-size: 24px; }
+.fm3-classrooms.classroom-interior-reference .p8-progress > .p5-section-head p { margin: 0; color: #77727a; font-size: 14px; }
+.fm3-classrooms.classroom-interior-reference .p8-progress-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.fm3-classrooms.classroom-interior-reference .p8-progress-metrics > section,
+.fm3-classrooms.classroom-interior-reference .p8-progress > section[aria-label='Estudiantes actuales'],
+.fm3-classrooms.classroom-interior-reference .p8-progress > section[aria-label='Actividades del seguimiento'] {
+  min-width: 0; padding: 16px; border: 1px solid #f1e4d7; border-radius: 15px; background: #fff;
+}
+.fm3-classrooms.classroom-interior-reference .p8-progress-metrics > section:last-child { background: #eff7ff; border-color: #deedfb; }
+.fm3-classrooms.classroom-interior-reference .p8-progress-metrics h3 { margin: 0 0 20px; font-size: 17px; }
+.fm3-classrooms.classroom-interior-reference .p8-metric-body { display: flex; align-items: center; gap: 20px; min-height: 168px; }
+.fm3-classrooms.classroom-interior-reference .p8-ring { display: grid; flex: 0 0 152px; width: 152px; height: 152px; padding: 13px; border-radius: 50%; }
+.fm3-classrooms.classroom-interior-reference .p8-ring > span { display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 50%; background: white; }
+.fm3-classrooms.classroom-interior-reference .p8-ring strong { font-size: 25px; line-height: 1.2; color: #171719; }
+.fm3-classrooms.classroom-interior-reference .p8-ring small { font-size: 12px; color: #6c6873; }
+.fm3-classrooms.classroom-interior-reference .p8-metric-details { flex: 1; min-width: 0; }
+.fm3-classrooms.classroom-interior-reference .p8-metric-details p { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-size: 12px; }
+.fm3-classrooms.classroom-interior-reference .p8-metric-details p:first-child { display: block; margin-bottom: 12px; }
+.fm3-classrooms.classroom-interior-reference .p8-metric-details b { margin-left: auto; }
+.fm3-classrooms.classroom-interior-reference .p8-dot { flex: 0 0 13px; width: 13px; height: 13px; border-radius: 50%; background: #c9c9c9; }
+.fm3-classrooms.classroom-interior-reference .p8-dot.is-green { background: #55be7b; }
+.fm3-classrooms.classroom-interior-reference .p8-dot.is-yellow { background: #ffcd62; }
+.fm3-classrooms.classroom-interior-reference .p8-dot.is-orange { background: #ffa342; }
+.fm3-classrooms.classroom-interior-reference .p8-dot.is-red { background: #f5776d; }
+.fm3-classrooms.classroom-interior-reference .p8-progress-metrics > section > small { display: block; margin-top: 16px; padding: 13px; border-radius: 10px; background: #fff4e9; color: #675d59; line-height: 1.45; }
+.fm3-classrooms.classroom-interior-reference .p8-progress-metrics > section:last-child > small { background: #e4eaff; color: #314984; }
+.fm3-classrooms.classroom-interior-reference .p8-plan-bar,
+.fm3-classrooms.classroom-interior-reference .p8-student-completion progress { width: 100%; height: 12px; border: 0; border-radius: 9px; accent-color: #56bd7b; }
+.fm3-classrooms.classroom-interior-reference .p8-plan-bar { margin: 8px 0 18px; accent-color: #628dfc; }
+.fm3-classrooms.classroom-interior-reference .p8-progress > section[aria-label='Estudiantes actuales'],
+.fm3-classrooms.classroom-interior-reference .p8-progress > section[aria-label='Actividades del seguimiento'] { margin-top: 14px; }
+.fm3-classrooms.classroom-interior-reference .p8-progress-students { list-style: none; padding: 0; margin: 0 0 12px; }
+.fm3-classrooms.classroom-interior-reference .p8-students-head,
+.fm3-classrooms.classroom-interior-reference .p8-progress-students > li { display: grid; grid-template-columns: minmax(140px, 1fr) minmax(160px, 1fr) minmax(110px, .7fr) minmax(105px, .7fr); gap: 12px; align-items: center; padding: 10px 14px; }
+.fm3-classrooms.classroom-interior-reference .p8-students-head { margin-top: 12px; border-radius: 10px 10px 0 0; background: #fbf5ee; color: #635956; font-size: 11px; }
+.fm3-classrooms.classroom-interior-reference .p8-progress-students > li { border: 1px solid #efe7df; border-radius: 10px; }
+.fm3-classrooms.classroom-interior-reference .p8-progress-students > li strong { display: flex; align-items: center; gap: 10px; }
+.fm3-classrooms.classroom-interior-reference .p8-progress-students > li p { margin: 0; font-size: 13px; }
+.fm3-classrooms.classroom-interior-reference .p8-student-avatar { display: inline-grid; place-items: center; flex: 0 0 32px; width: 32px; height: 32px; border-radius: 50%; background: #eee7ff; color: #30206d; font-size: 11px; }
+.fm3-classrooms.classroom-interior-reference .p8-student-completion { display: flex; align-items: center; gap: 12px; font-size: 12px; }
+.fm3-classrooms.classroom-interior-reference .p8-student-completion progress { max-width: 120px; }
+.fm3-classrooms.classroom-interior-reference .p8-student-state { display: inline-block; padding: 4px 10px; border-radius: 999px; background: #f1f0f5; color: #635c72; white-space: nowrap; }
+.fm3-classrooms.classroom-interior-reference .p8-student-state.is-pending { background: #fff3d9; color: #865200; }
+.fm3-classrooms.classroom-interior-reference .p8-student-state.is-current { background: #e5f6e7; color: #247a3a; }
+@media (max-width: 1050px) { .fm3-classrooms.classroom-interior-reference .p8-progress-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 700px) {
+  .fm3-classrooms.classroom-interior-reference .p8-progress-metrics { grid-template-columns: minmax(0, 1fr); }
+  .fm3-classrooms.classroom-interior-reference .p8-students-head { display: none; }
+  .fm3-classrooms.classroom-interior-reference .p8-progress-students > li { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .fm3-classrooms.classroom-interior-reference .p8-ring { flex-basis: 112px; width: 112px; height: 112px; padding: 10px; }
+}
+.classroom-interior-reference .p8-progress-lower { display: grid; grid-template-columns: minmax(0, 2.3fr) minmax(260px, 1fr); gap: 16px; margin-top: 14px; }
+.classroom-interior-reference .p8-progress-guidance { padding: 20px; border: 1px solid #e5dfff; border-radius: 16px; background: #f4f1ff; color: #40347e; }
+.classroom-interior-reference .p8-progress-guidance h3 { margin: 0 0 12px; color: #3d1bad; }
+@media (max-width: 900px) { .classroom-interior-reference .p8-progress-lower { grid-template-columns: 1fr; } }
+
+.fm3-classrooms.classroom-interior-reference .p8-progress-metrics h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.fm3-classrooms.classroom-interior-reference .p8-progress-metrics h3 > .entry-icon {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  background-color: #e54b10;
+}
+.fm3-classrooms.classroom-interior-reference .p8-progress-metrics > section:nth-child(2) h3 > .entry-icon { background-color: #f5a100; }
+.fm3-classrooms.classroom-interior-reference .p8-progress-metrics > section:nth-child(3) h3 > .entry-icon { background-color: #1b55a4; }
+.fm3-classrooms.classroom-interior-reference .p8-progress-metrics > section > small { font-size: 13px; }
+.fm3-classrooms.classroom-interior-reference .p8-progress-guidance p { font-size: 14px; line-height: 1.5; }

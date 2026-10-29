@@ -26,6 +26,32 @@ async function library(rows = materials, targetMaterialId) {
 }
 const search = view => nodes(view, n => n.type === 'input' && (n.props.type === 'search' || /buscar|búsqueda|busqueda/i.test(`${n.props.placeholder ?? ''} ${n.props['aria-label'] ?? ''}`)))[0];
 
+test('filtros de biblioteca combinan origen y búsqueda sin solicitudes nuevas', async () => {
+  const rows = [
+    { ...materials[0], unitId: 'u1', topicId: 't1' },
+    { ...materials[1], unitId: null, topicId: null },
+    { ...materials[0], id: 'c', title: 'Cuentos del plan', unitId: 'u1', topicId: null },
+  ];
+  const { view, calls } = await library(rows);
+  const filter = label => nodes(view, n => n.type === 'button' && content(n).trim() === label)[0];
+  try {
+    assert.ok(filter('Todos'), 'debe existir filtro Todos');
+    assert.ok(filter('Materiales del plan'), 'debe existir filtro de materiales del plan');
+    assert.ok(filter('Archivos del aula'), 'debe existir filtro de archivos del aula');
+    filter('Materiales del plan').props.onClick(); await view.flush();
+    assert.deepEqual(articles(view).map(n => n.props['data-material-id']), ['a', 'c']);
+    search(view).props.onChange({ target: { value: 'cuentos' } }); await view.flush();
+    assert.deepEqual(articles(view).map(n => n.props['data-material-id']), ['c']);
+    filter('Archivos del aula').props.onClick(); await view.flush();
+    assert.deepEqual(articles(view).map(n => n.props['data-material-id']), ['b']);
+    filter('Todos').props.onClick(); await view.flush();
+    assert.deepEqual(articles(view).map(n => n.props['data-material-id']), ['b', 'c']);
+    search(view).props.onChange({ target: { value: '' } }); await view.flush();
+    assert.deepEqual(articles(view).map(n => n.props['data-material-id']), ['a', 'b', 'c']);
+    assert.equal(calls.length, 1, 'los filtros no generan nuevas solicitudes');
+  } finally { view.close(); }
+});
+
 test('biblioteca filtra títulos localmente y recupera sus acciones al limpiar', async () => {
   const { view, calls } = await library();
   try {
@@ -51,6 +77,21 @@ test('un enlace profundo posterior deja visible el material aunque la búsqueda 
     props.targetMaterialId = 'b';
     search(view).props.onChange({ target: { value: 'Guía ' } }); await view.flush();
     assert.equal(articles(view).find(n => n.props['data-material-id'] === 'b')?.props.tabIndex, -1, 'el destino debe poder recibir foco');
+    assert.equal(calls.length, 1);
+  } finally { view.close(); }
+});
+
+test('enlace profundo posterior recupera un material oculto por filtro de origen', async () => {
+  const rows = [{ ...materials[0], unitId: 'u1' }, { ...materials[1], unitId: null }];
+  const { view, props, calls } = await library(rows);
+  try {
+    const filter = nodes(view, n => n.type === 'button' && content(n).trim() === 'Materiales del plan')[0];
+    assert.ok(filter, 'el filtro de plan debe existir');
+    filter.props.onClick(); await view.flush();
+    assert.deepEqual(articles(view).map(n => n.props['data-material-id']), ['a']);
+    props.targetMaterialId = 'b';
+    search(view).props.onChange({ target: { value: ' ' } }); await view.flush();
+    assert.equal(articles(view).find(n => n.props['data-material-id'] === 'b')?.props.tabIndex, -1);
     assert.equal(calls.length, 1);
   } finally { view.close(); }
 });
