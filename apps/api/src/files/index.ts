@@ -13,3 +13,6 @@ export { FileError } from './errors.ts';
 export { createFileInfrastructure, readFilesConfiguration, type FileInfrastructureConfiguration, type FileInfrastructure, type FileRuntimeConfiguration } from './configuration.ts';
 export { installFilesTransport, createIdentityFileAccess, FileHostLifecycle } from './host.ts';
 export type { FileAccess, FileScope, FileTarget, FileTransaction, FileAction } from './contracts.ts';
+export { createGradingAiAttachmentReader, type GradingAttachmentGrant, type GradingAttachmentSnapshot, type GradingAttachmentPorts } from './grading-ai-attachment-reader.ts';
+export { createDurableGradingAiAttachmentReader } from './durable-grading-ai-attachment-reader.ts';
+export { createDurableGradingAiInstructionReader, type GradingInstructionGrant } from './durable-grading-ai-instruction-reader.ts';
