@@ -1,0 +1,32 @@
+name: Solicitud de funcionalidad
+description: Proponer una funcionalidad o mejora para FoxMind.
+title: "[Funcionalidad] "
+body:
+  - type: textarea
+    id: problema
+    attributes:
+      label: Problema u oportunidad
+      description: Describe la necesidad y a quién afecta.
+    validations:
+      required: true
+  - type: textarea
+    id: solucion
+    attributes:
+      label: Funcionalidad propuesta
+      description: Explica el comportamiento esperado y su alcance.
+    validations:
+      required: true
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Criterios de aceptación
+      description: Enumera resultados verificables y casos relevantes.
+    validations:
+      required: true
+  - type: textarea
+    id: contexto
+    attributes:
+      label: Contexto y decisiones pendientes
+      description: Incluye dependencias, restricciones y decisiones pendientes.
+    validations:
+      required: false
