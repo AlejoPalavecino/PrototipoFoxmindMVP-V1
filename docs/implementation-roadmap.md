@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Corrección asistida por IA — issue #2, implementación local
+
+El aula puede habilitar sugerencias automáticas privadas para entregas; el docente revisa y publica la corrección. La [especificación](../odd/tasks/grading-ai-issue-2.md) y el [registro](work-log/2026-10-29-root-issue2-correccion-ia.md) describen pruebas, límites y antecedentes. Trabajo en rama aislada, pendiente de estrategia de PR; sin publicación ni despliegue.
+
 ## Selected Agenda reference — locally verified, 2026-10-29
 
 Agenda and new-event form now follow the selected warm FoxMind direction with responsive WebP artwork, compact monthly toolbar and selected-day rail. Selecting a date keeps the monthly grid visible; existing timezone, recurrence, privacy and event operations are preserved. [Coordinator](work-log/2026-10-29-root-agenda-reference.md), [visual evidence](work-log/evidence/2026-10-29-agenda-reference/README.md):48 focused PASS, strict types and isolated build PASS, bounded synthetic desktop/mobile form and calendar QA, independent source review. No authenticated backend E2E, real event change, remote publication or deployment.
