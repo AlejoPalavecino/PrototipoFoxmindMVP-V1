@@ -7,7 +7,7 @@ import { FoxmindIllustration,FoxmindIcon } from '../shared-ui/index.ts';
 import { useHome } from './use-home.ts';
 import { HomeModule } from './HomeModule.tsx';
 import { HomeModulePanel } from './HomeModulePanel.tsx';
-import { HomeShortcuts,HomeTeacherTools } from './HomeShortcuts.tsx';
+import { HomeShortcuts } from './HomeShortcuts.tsx';
 import { HomeActivitySummary } from './HomeActivitySummary.tsx';
 import { HomeFoxyNote } from './HomeFoxyNote.tsx';
 import { homeParticipation } from './home-labels.ts';
@@ -37,9 +37,8 @@ export function Home(props:HomeProps) {
     {module('classrooms')}
     <div className="fm-home-learning-groups">
       {learning.some(Boolean)?<section className="fm-home-learning-group" aria-label="Mi aprendizaje"><header><FoxmindIcon name="book"/><h2>Mi aprendizaje</h2></header>{learning}</section>:null}
-      {teaching.some(Boolean)?<section className="fm-home-teaching-group" aria-label="Mi actividad docente"><header><FoxmindIcon name="users"/><h2>Mi actividad docente</h2></header>{teaching}<HomeTeacherTools data={data} onAction={onAction} onClassrooms={onClassrooms} busy={busy}/></section>:null}
+      {teaching.some(Boolean)?<section className="fm-home-teaching-group" aria-label="Mi actividad docente"><header><FoxmindIcon name="users"/><h2>Mi actividad docente</h2></header>{teaching}</section>:null}
     </div>
-    {!teaching.some(Boolean) && data.memberships.teach>0?<HomeTeacherTools data={data} onAction={onAction} onClassrooms={onClassrooms} busy={busy}/>:null}
     {materials?<details className="fm-home-resources" open={data.modules.materials.status==='error'||undefined}><summary>Recursos y herramientas<span>Biblioteca y accesos de trabajo</span></summary><div>{materials}</div></details>:null}
     <div className="fm-home-toolbar"><time dateTime={data.generatedAt}>{homeGreetingDate(data.generatedAt,data.timeZone)}</time><button aria-label="Actualizar Inicio" onClick={()=>void home.refresh()}><FoxmindIcon name="refresh"/>Actualizar</button></div>
     </div><aside className="fm-home-aside">{module('agenda')}<HomeActivitySummary data={data}/><HomeFoxyNote/></aside></div>
