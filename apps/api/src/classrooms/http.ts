@@ -228,6 +228,14 @@ export function createClassroomsHandler(
         else if (method === 'POST') value = await service.correctPublishedGrade(req, path[0], path[2], gradeCorrectionInput(body));
         else return fail('INVALID_INPUT');
       }
+      else if (path[1] === 'attempts' && path[3] === 'grading-ai' && (path.length === 4 || path.length === 6)) {
+        if (!uuid(path[0]) || !uuid(path[2]) || req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
+          return fail('INVALID_INPUT');
+        if (path.length === 4 && method === 'GET') value = await service.getGradingAi(req, path[0], path[2]);
+        else if (path.length === 6 && method === 'POST' && path[5] === 'apply') value = await service.applyGradingAi(req, path[0], path[2], path[4], body);
+        else if (path.length === 6 && method === 'POST' && path[5] === 'discard') value = await service.discardGradingAi(req, path[0], path[2], path[4], body);
+        else return fail('INVALID_INPUT');
+      }
       else if (path.length === 4 && path[1] === 'attempts' && path[3] === 'grading') {
         if (!uuid(path[0]) || !uuid(path[2]) || req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
           return fail('INVALID_INPUT');
