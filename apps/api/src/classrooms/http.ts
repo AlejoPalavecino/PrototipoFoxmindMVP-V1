@@ -131,8 +131,8 @@ export function createClassroomsHandler(
       const body = write ? await readBody(req) : undefined,
         path = url.pathname.split('/').slice(2);
       let value: unknown;
-      const exact = (keys: string[]) => {
-        const b = object(body, keys);
+      const exact = (keys: string[], optional: string[] = []) => {
+        const b = object(body, [...keys, ...optional]);
         if (keys.some((k) => !Object.hasOwn(b, k)))
           return fail('INVALID_INPUT');
         return b;
@@ -298,7 +298,7 @@ export function createClassroomsHandler(
         value = await service.updateSettings(
           req,
           path[0],
-          exact(['revision', 'name', 'subject', 'division', 'academicYear']),
+          exact(['revision', 'name', 'subject', 'division', 'academicYear'], ['aiGradingEnabled']),
         );
       else if (path.length === 2 && path[1] === 'archive' && method === 'POST')
         value = await service.setArchive(

@@ -91,3 +91,32 @@ test('evidencia conserva tipo, selección por referencia y desarrollo vacío con
   assert.deepEqual(decoded.answers[0].selectedOptionRefs, [decoded.questions[0].options[1].ref]);
   assert.equal(decoded.questions[1].type, 'DEVELOPMENT'); assert.equal(decoded.answers[1].text, '');
 });
+
+test('contrato de Gemini distingue nota de TP y abstención cuando falta evidencia', async () => {
+  const f = await fixture(), request = input(); request.evidence.type = 'ASSIGNMENT';
+  request.evidence.questions = []; request.evidence.answers = [];
+  await f.provider.countGradingAiTokens(request); await f.provider.generateGradingAi(request);
+  const counted = f.calls[0][1], generated = f.calls[1][1];
+  const rules = generated.config.systemInstruction;
+  assert.match(rules, /overallGrade/i);
+  assert.match(rules, /(?:0\s*(?:a|y|hasta|[-–])\s*10|entre\s+0\s+y\s+10)/i);
+  assert.match(rules, /(?:decimal|decimales)/i);
+  assert.match(rules, /(?:insuficiente|imposible|falta\s+(?:de\s+)?evidencia)/i);
+  assert.match(rules, /(?:absten|abstenci|no\s+(?:invent|calific)|null)/i);
+  assert.ok(JSON.stringify(counted.contents).includes(rules));
+  const { validateGradingAiProposal } = await import('../src/core/domain/grading-ai.ts');
+  assert.throws(() => validateGradingAiProposal({ ...proposal, overallGrade: null }, { type: 'ASSIGNMENT', questions: [] }));
+});
+
+test('contrato de Gemini distingue puntos manuales de objetivos en cuestionarios y evaluaciones', async () => {
+  for (const type of ['QUESTIONNAIRE', 'EVALUATION']) {
+    const f = await fixture(), request = input(); request.evidence.type = type;
+    await f.provider.countGradingAiTokens(request); await f.provider.generateGradingAi(request);
+    const counted = f.calls[0][1], generated = f.calls[1][1], rules = generated.config.systemInstruction;
+    assert.match(rules, /overallGrade[^.\n]*null|null[^.\n]*overallGrade/i);
+    assert.match(rules, /(?:manual|desarrollo)/i);
+    assert.match(rules, /(?:máximo|maximo|puntaje|puntos)/i);
+    assert.match(rules, /(?:objetiv|opción|opcion)[^.\n]*(?:null|nulo)|(?:null|nulo)[^.\n]*(?:objetiv|opción|opcion)/i);
+    assert.ok(JSON.stringify(counted.contents).includes(rules));
+  }
+});
