@@ -1,4 +1,4 @@
-import type { AgendaItem, HomeModuleName, HomeModules, Participation } from '../../src/core/domain/index.ts';
+import type { AgendaItem, HomeModuleName, HomeModules, HomeResponse, Participation } from '../../src/core/domain/index.ts';
 
 export function shouldShowHomeModule(participation: Participation, name: HomeModuleName, page: HomeModules[HomeModuleName]): boolean {
   if (page.status === 'not-applicable') return false;
@@ -40,4 +40,28 @@ export function homeReviewCount(count: number): string {
 
 export function homeReviewSummary({ attempts, needsReview, readyToPublish }: { attempts: number; needsReview: number; readyToPublish: number }): string {
   return `${attempts} ${attempts === 1 ? 'entrega' : 'entregas'} · ${needsReview} por revisar · ${readyToPublish} ${readyToPublish === 1 ? 'lista' : 'listas'} para publicar`;
+}
+
+export interface HomeActivityStat {
+  key: 'study' | 'teach' | 'pending' | 'feedback' | 'review';
+  label: string;
+  value: number;
+}
+
+/** Counts are independent facts from the aggregate, never a completion metric. */
+export function homeActivityStats(data: HomeResponse): HomeActivityStat[] {
+  const stats: HomeActivityStat[] = [];
+  if (data.memberships.study > 0) stats.push({ key: 'study', label: 'Aulas donde estudias', value: data.memberships.study });
+  if (data.memberships.teach > 0) stats.push({ key: 'teach', label: 'Aulas donde enseñas', value: data.memberships.teach });
+  const { pending, feedback, review } = data.modules;
+  if (pending.status === 'ready' && pending.totalItems !== null) {
+    stats.push({ key: 'pending', label: 'Actividades por entregar', value: pending.totalItems });
+  }
+  if (feedback.status === 'ready' && feedback.totalItems !== null) {
+    stats.push({ key: 'feedback', label: 'Devoluciones disponibles', value: feedback.totalItems });
+  }
+  if (review.status === 'ready' && review.totals) {
+    stats.push({ key: 'review', label: 'Entregas por revisar', value: review.totals.needsReview });
+  }
+  return stats;
 }
