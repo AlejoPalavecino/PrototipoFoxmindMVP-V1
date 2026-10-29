@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { Classroom } from './api.ts';
-import { Cover } from './components.tsx';
-import { EntryIcon } from '../shared-ui/EntryIcon';
-import { FoxmindIcon } from '../shared-ui/index.ts';
-import { filterClassroomCards, type ClassroomFilter } from './collection-filter.ts';
+import { ClassroomCard } from './ClassroomCollectionCard.tsx';
+import { ClassroomCollectionFilters, activeCollectionFilters } from './ClassroomCollectionFilters.tsx';
+import { filterClassroomCards, type ClassroomFilter, type ClassroomFilterOptions } from './collection-filter.ts';
 
 interface Props {
   teach: Classroom[];
@@ -13,48 +12,25 @@ interface Props {
   onSearch?: (search: string) => void;
 }
 
-function ClassroomCard({ room, onEnter }: { room: Classroom; onEnter: Props['onEnter'] }) {
-  const teacher = room.role === 'teacher';
-  return <article className="fm3-classroom-card">
-    <Cover kind={room.coverKey} />
-    <div className="fm3-classroom-card-body">
-      <h3>{room.name}</h3>
-      <span className={`fm3-membership ${teacher ? 'is-teacher' : ''}`}>
-        <EntryIcon name={teacher ? 'people-fill' : 'book'} />
-        {teacher ? 'Enseñás en esta aula' : 'Estudiás en esta aula'}
-      </span>
-      {room.archived ? <span className="p5-tag">Archivada · Solo lectura</span> : null}
-      <div className="fm3-classroom-facts">
-        <p>{room.subject} · {room.division} · {room.academicYear}</p>
-        <p>Docente: {teacher ? 'Vos' : room.teacher}</p>
-      </div>
-      <button className="primary" onClick={() => onEnter(room.id)}>
-        Entrar al aula <span aria-hidden="true">→</span>
-      </button>
-    </div>
-  </article>;
-}
-
 export function ClassroomCollection({ teach, study, search, onEnter, onSearch }: Props) {
-  const [filter, setFilter] = useState<ClassroomFilter>('all');
+  const [role, setRole] = useState<ClassroomFilter>('all');
+  const [options, setOptions] = useState<ClassroomFilterOptions>({});
+  const [expanded, setExpanded] = useState(false);
+  const [view, setView] = useState<'grid' | 'list'>('grid');
+  const toggleRef = useRef<HTMLButtonElement>(null);
   const all = filterClassroomCards(teach, study, 'all', '');
-  const visible = filterClassroomCards(teach, study, filter, search);
-  const filters: { key: ClassroomFilter; label: string }[] = [
-    { key: 'all', label: 'Todas' }, { key: 'study', label: 'Donde estudio' }, { key: 'teach', label: 'Donde enseño' },
-  ];
+  const visible = filterClassroomCards(teach, study, role, search, options);
+  const narrowed = Boolean(search.trim()) || activeCollectionFilters(options) > 0;
   return <div className="fm3-classroom-collection">
-    <div className="fm3-collection-toolbar">
-      <label className="fm3-collection-search"><span className="entry-sr-only">Buscar aula</span>
-        <FoxmindIcon name="search" /><input type="search" placeholder="Buscar por nombre, materia o división…" value={search} onChange={event => onSearch?.(event.target.value)} />
-      </label>
-      <nav className="fm3-collection-filters" aria-label="Filtrar aulas">{filters.map(item => <button key={item.key}
-        aria-pressed={filter === item.key} onClick={() => setFilter(item.key)}>
-        {item.label} · {filterClassroomCards(teach, study, item.key, '').length}
-      </button>)}</nav>
+    <ClassroomCollectionFilters all={all} search={search} onSearch={onSearch} role={role} onRole={setRole}
+      options={options} onOptions={setOptions} expanded={expanded} onToggle={() => setExpanded(value => !value)}
+      view={view} onView={setView} toggleRef={toggleRef}
+      onClear={() => { toggleRef.current?.focus(); setOptions({}); }} />
+    <div className={`fm3-classroom-grid${view === 'list' ? ' is-list' : ''}`}>
+      {visible.map(room => <ClassroomCard key={room.id} room={room} onEnter={onEnter} />)}
     </div>
-    <div className="fm3-classroom-grid">{visible.map(room => <ClassroomCard key={room.id} room={room} onEnter={onEnter} />)}</div>
     {!visible.length ? <p className="p5-empty">{!all.length ? 'Aún no tenés aulas. Creá una o ingresá con un código para empezar.'
-      : search.trim() ? 'No hay coincidencias entre tus aulas cargadas.' : 'No tenés aulas en esta participación.'}</p> : null}
+      : narrowed ? 'No hay coincidencias entre tus aulas cargadas.' : 'No tenés aulas en esta participación.'}</p> : null}
     {all.length ? <p className="fm3-collection-count" role="status">Mostrando {visible.length} de {all.length} aulas</p> : null}
   </div>;
 }

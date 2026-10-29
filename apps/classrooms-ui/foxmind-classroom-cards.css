@@ -10,6 +10,7 @@
 .fm3-classrooms .p5-main .fm3-collection-filters button:hover:enabled { background: var(--fm-peach); }
 .fm3-classrooms .fm3-collection-count { color: var(--fm-muted); font-size: 14px; margin: 0; }
 .fm3-classroom-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
+.fm3-classroom-grid.is-list { grid-template-columns: minmax(0, 1fr); }
 .fm3-classroom-card { min-width: 0; border: 1px solid var(--fm-line); border-radius: 20px; background: var(--fm3-panel); box-shadow: 0 4px 18px #080b3005; overflow: hidden; display: flex; flex-direction: column; padding: 10px; }
 .fm3-classrooms .fm3-cover { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; border-radius: 12px; background: var(--fm-peach); overflow: hidden; flex: none; }
 .fm3-classrooms .fm3-cover .folder-cover-art { display: block; width: 100%; height: 100%; aspect-ratio: 3 / 2; object-fit: cover; }

@@ -49,6 +49,9 @@ Commit only locally on codex/inicio-reference-astra. Each unit receives staged d
 
 Actual commit IDs are recorded only after each command succeeds; this record's own final commit identity is recoverable from Git history.
 
+- `51e2494841b199ff6af66f4bf1f06c7804711596`: pure filtering, focused tests and design/baseline records; 195 changed lines. Staged diff validation and `gitleaks protect --staged --redact --no-banner` passed before commit.
+- Accessible control unit includes the genuine component-state tests, focus fix and minimal legacy harness expansion. The observed 11-case collection run and independent keyboard fixture receipt cover its behavior; no backend test is required for this local state boundary.
+
 ## Handoff
 
 Requested Mis aulas redesign and local verification are complete. Preview uses synthetic data and stays available on53194; earlier Home/auth previews and original checkout remain untouched. Next action is user review of the selected composition. Publication, deployment and real-account journeys require their own scope; no push or PR was performed.

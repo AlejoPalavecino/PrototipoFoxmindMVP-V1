@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
-import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
+import { descendants } from './agenda-ui-helpers.test.mjs';
+import { collectionView as hookView } from './helpers/classrooms-reference/collection-view.mjs';
 
 const room = (id, role, name = id, subject = 'Biología', division = 'A') => ({ id, role, name, subject, division,
   academicYear: 2026, timezone: 'UTC', coverKey: 'biology', teacher: 'Synthetic', revision: '0', archived: false });
