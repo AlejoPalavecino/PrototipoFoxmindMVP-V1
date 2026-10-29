@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Classroom interior visual follow-up — 2026-10-29
+
+Following the user's request to improve resemblance without implementing missing functions, the eight existing tabs received a final typography, icon, card and layout pass; real data and actions remain. [Work record](work-log/2026-10-29-root-interior-fidelity.md), [visual QA](../design-qa.md): eight desktop and16 mobile synthetic states inspected,11 focused PASS, strict types and isolated build PASS, independent source review without findings. Differences from mock content/controls and artwork remain; no pixel-perfect or authenticated-backend claim. Local isolated branch only.
+
 ## Classroom interior references — locally verified, 2026-10-29
 
 The eight existing classroom sections now use the selected warm visual direction with responsive shell, cards and real data. Library supports local title search and preserves deep links. [Coordinator and verification](work-log/2026-10-29-root-classroom-interior-reference.md): focused3 PASS, types/build PASS, bounded synthetic desktop/mobile QA and independent review; populated history and authenticated/backend acceptance were not verified. Local isolated branch only, no publication or deployment.

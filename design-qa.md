@@ -1,5 +1,15 @@
 # FoxMind visual QA
 
+## Classroom interior — visual-only follow-up, 2026-10-29
+
+final result: passed for the user-requested single visual pass, with differences noted. User excluded adding missing functionality. QA `/root/final_visual_qa` inspected eight desktop tabs at1672×941 and16 mobile views at320/390, with no horizontal document overflow; measured visible buttons were at least39px, not a general44px accessibility claim. Existing search, filters and topic selection worked in synthetic fixture. Typography, icons, buttons, card density, progress and student/history hierarchy were adjusted. Remaining differences include original hero art, unsupported content and controls, and wall posts naturally taller due to existing responses/actions; no pixel-perfect claim. Final screenshots were inspected in memory; the durable images below show the earlier version. Coordinator/independent review observed11 focused PASS and types; isolated build PASS. No authenticated backend E2E or real-data mutation. [Work record](docs/work-log/2026-10-29-root-interior-fidelity.md).
+
+## Classroom interior fidelity follow-up — 2026-10-29
+
+final result: blocked — exact match to the eight selected references is not yet verified.
+
+Rebuilt each screen's structure with a populated synthetic Literatura fixture and generated WebP banner. [Eight current desktop captures](docs/work-log/evidence/2026-10-29-interior-fidelity/) document actual renders; the tester compared source/render at1672×941 and checked all tabs at320/390. Plan, library, wall, activities, progress, roster and settings were compacted and rechecked; local library filters and deep-link reset were exercised. User references include favorites, media types, roster filters and historical event kinds that current product contracts do not supply. History dates/timeline, progress columns and several decorative details still differ; no exact fidelity claim. The tester reports no mobile horizontal overflow in16 checked states. Focused11PASS, TypeScript and isolated build PASS; independent source review returned no findings. No authenticated backend/provider acceptance. Keep previous reports as history, not as evidence that this new exact-match request passed.
+
 ## Classroom interior references — 2026-10-29
 
 Final result: passed for inspected synthetic states; populated history and durable screenshot evidence unavailable. Eight desktop tabs and eight tabs at320/390px were inspected by `/root/classroom_tests`, with no horizontal document overflow. Desktop header, tabs, breadcrumb, plan contrast, wall width, progress hierarchy and student/code layout were corrected and rechecked. The invitation dialog fits320px; student, archived, empty, error and loading states were observed. Screenshots were inspected in memory only. Real data, authenticated E2E, real submission/provider and physical devices were not tested. Existing supported features/data determine the differences from mock-only favorites, reactions, cover upload and fictional history events. [Coordinator record](docs/work-log/2026-10-29-root-classroom-interior-reference.md).
