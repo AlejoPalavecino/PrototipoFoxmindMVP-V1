@@ -8,12 +8,13 @@ import {
 } from 'react';
 import type { ClassroomClient, Draft, Payload, FileState } from './api.ts';
 import { Notice } from './components.tsx';
-import { WizardSuggestions } from './WizardSuggestions.tsx';
-import { usePlanExtraction } from './use-plan-extraction.ts';
+import { FoxmindIcon, type IconKey } from '../shared-ui/index.ts';
 import { WizardGeneral } from './WizardGeneral.tsx';
 import { WizardPlan } from './WizardPlan.tsx';
 import { WizardUnits } from './WizardUnits.tsx';
 import { WizardReview } from './WizardReview.tsx';
+import { WizardSuggestions } from './WizardSuggestions.tsx';
+import { usePlanExtraction } from './use-plan-extraction.ts';
 import { classroomZones } from './classroom-zones.ts';
 
 const steps = [
@@ -235,7 +236,7 @@ export function Wizard({
       >
         Mis Aulas / Guardar y salir
       </button>
-      <h1>Crear <span>aula</span></h1>
+      <h1>Crear aula</h1>
       <p className="p5-lead">Un espacio para compartir lo que sabés.</p>
       <ol className="p5-steps">
         {steps.map((label, index) => (
@@ -251,6 +252,7 @@ export function Wizard({
       </ol>
       {error ? <Notice error>{error}</Notice> : null}
       <form
+        data-wizard-step={step}
         className="p5-surface folder-panel tone-yellow"
         onSubmit={(event) => {
           event.preventDefault();
@@ -258,7 +260,9 @@ export function Wizard({
         }}
       >
         <header className="p5-section-head">
-          <div>
+          <div className="wizard-section-title">
+            <span className="wizard-section-icon"><FoxmindIcon name={(['book', 'file', 'book', 'clipboard'] as IconKey[])[step]} /></span>
+            <div>
             <h2>{step === 3 ? 'Revisá tu aula' : steps[step]}</h2>
             <p>
               {step === 0
@@ -268,9 +272,10 @@ export function Wizard({
                   : step === 2
                     ? 'Organizá las unidades y sus temas.'
                     : 'Verificá la información antes de publicarla.'}
-            </p>
+            </p></div>
           </div>
-          <span className="p5-save" role="status">
+          <span className="p5-save" role="status" data-state={status === 'Borrador guardado' ? 'saved' : status === 'No se pudo guardar' ? 'error' : 'pending'}>
+            <FoxmindIcon name={status === 'Borrador guardado' ? 'check' : status === 'No se pudo guardar' ? 'warning' : 'clock'} />
             {status}
           </span>
         </header>
