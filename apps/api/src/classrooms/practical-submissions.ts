@@ -1,3 +1,4 @@
+import { enqueueSubmittedAttemptGradingAi } from './grading-ai/enqueue.ts';
 import type { IncomingMessage } from 'node:http';
 import { ActivityParticipationService } from './activity-participation.ts';
 import type { ActivityRow } from './activity-authoring.ts';
@@ -106,6 +107,7 @@ export class PracticalSubmissionService extends ActivityParticipationService {
         `UPDATE attempts SET status='SUBMITTED',submitted_at=$2,applied_deadline_at=$3,submitted_late=$4,
         editor_token_hash=NULL,editor_epoch=editor_epoch+1,revision=revision+1,updated_at=$2 WHERE id=$1::uuid RETURNING *`,
       attemptId, receivedAt, receipt.reception.deadline, receipt.reception.late);
+      await enqueueSubmittedAttemptGradingAi(tx, { classroomId, activityId: first.attempt.activity_id, attemptId }, this.ports.gradingAiAvailable === true);
       await activityEvent(tx, classroomId, first.attempt.activity_id, 'SUBMISSION_RECEIVED', null, attemptId);
       return { id: submitted.id, status: 'SUBMITTED' as const, submittedAt: submitted.submitted_at,
         appliedDeadlineAt: submitted.applied_deadline_at, submittedLate: submitted.submitted_late, revision: submitted.revision.toString() };
