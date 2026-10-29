@@ -2,7 +2,7 @@ import { useMemo, type ReactNode } from 'react';
 import { useRouter } from 'next/router';
 import { AppNavbar } from '../../../shared-ui/AppNavbar';
 import Link from 'next/link';
-import { FoxmindBrand } from '../../../shared-ui/index';
+import { FoxmindBrand, FoxmindIcon } from '../../../shared-ui/index';
 import { Notifications } from '../../../classrooms-ui/Notifications';
 import { createWebClassroomClient } from '../lib/classroom-client';
 import type { AccountSession } from '../lib/account-client';
@@ -22,7 +22,12 @@ export function AccountNavbar({ session, view, signInHref = '/sign-in', register
   const user = session?.authenticated ? session.user : undefined;
   const verified = Boolean(user?.emailVerified);
   if (minimal) return <header className="auth-brand-header">
-    <Link href={user ? (verified ? '/inicio' : verifyHref) : signInHref} aria-label="FoxMind"><FoxmindBrand decorative /></Link>
+    <div className="auth-reference-brand"><Link href={user ? (verified ? '/inicio' : verifyHref) : signInHref} aria-label="FoxMind"><FoxmindBrand decorative /></Link>
+      <p>Un espacio para aprender y enseñar.</p></div>
+    {!user && !accountActions && (view === 'sign-in' || view === 'register') ? <div className="auth-reference-switch">
+      <span>{view === 'register' ? '¿Ya tenés cuenta?' : '¿No tenés cuenta?'}</span>
+      <Link href={view === 'register' ? signInHref : registerHref}>{view === 'register' ? 'Iniciar sesión' : 'Crear cuenta'}<FoxmindIcon name="arrow-right" /></Link>
+    </div> : null}
     {accountActions}
   </header>;
   return <AppNavbar logoHref={user ? (verified ? '/inicio' : verifyHref) : '/sign-in'}
