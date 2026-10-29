@@ -16,3 +16,11 @@
 - El registro de capturas README conserva trabajo ajeno bloqueado, no completado; su incorporación documental no autoriza reanudar runtime privado, obtener capturas ni publicar un README nuevo. El registro de arranque local conserva evidencias históricas; no se ejecutó su helper ni se inspeccionó configuración retenida.
 - next-env.d.ts solo difiere en imports generados .next/dev frente a .next. Se preservará copia del archivo antes de restaurar contenido versionado; no se trata de una corrección de producto.
 - No se ejecutan pruebas funcionales: esta consolidación solo añade documentación y restaura un archivo generado a su contenido original. Verificaciones aplicables: git diff --check, escaneo de secretos y revisión independiente documental.
+
+## Resultado local
+
+- /root/reviewer revisó los diez documentos staged sin hallazgos, comprobó enlaces y diff; no ejecutó runtime. Gitleaks del coordinador sin hallazgos. Consolidación 483ff4d.
+- Una vez comprobados parches equivalentes y preservados archivos únicos, reconciliación de ascendencia 09ef63a con estrategia ours; árbol antes/después idéntico, comprobado por tree SHA. No reintrodujo código antiguo. Comparación de apps/src/prisma/package/scripts/tests contra origin/main sin cambios.
+- Las cuatro copias originales se trasladaron a .test-artifacts/repository-cleanup-20261029 dentro del checkout principal tras comprobar hashes iguales a documentos integrados. next-env.d.ts generado también conservado allí antes de restaurar versión Git. Sin eliminación de configuración privada.
+- main local avanzó por fast-forward a la consolidación y su status quedó vacío. Todas las ramas locales actuales resultaron ancestros de main; no hay funcionalidad pendiente en ellas. Tres worktrees detached ancestrales y los worktrees compartidos siguen conservados. Las ramas ocupadas no se eliminan mientras otros chats las usan.
+- Estado: limpieza e integración local completadas; publicación remota de la documentación pendiente de confirmación explícita según AGENTS.md. No se volvió a ejecutar Gemini ni servicios privados.
