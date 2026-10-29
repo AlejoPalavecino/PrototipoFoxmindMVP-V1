@@ -1,36 +1,66 @@
-# FoxMind
+<div align="center">
+  <img src="apps/web/public/foxmind-3d/brand/logo-horizontal.svg" alt="FoxMind" width="300" />
 
-FoxMind is a locally runnable educational application: Next.js/React web, NestJS API, PostgreSQL, private file storage/scanning and captured email. Accepted P3–P8 cover accounts/sessions, classrooms/enrollment, Plan/Library/Muro, activities/attempts and private/published grading/progress. P9 adds Inicio and joined local validation; final independent local P9 acceptance is complete; main publication is recorded separately in the roadmap. This repository is not a deployed service or a real pilot.
+  **Un espacio para enseñar, aprender y avanzar juntos.**
 
-## Start here
+  Aulas, actividades y organización en una plataforma educativa para docentes y estudiantes.
 
-- [Documentation index — product, guides, evidence and local designs](docs/README.md).
+  [Conocé FoxMind](#conocé-foxmind) · [Empezar en local](#empezar-en-local) · [Documentación](#documentación)
+</div>
 
-- [Current roadmap and exact next work](docs/implementation-roadmap.md).
-- [Local operation and synthetic pilot preparation](docs/p9-local-operation.md): prerequisites, environment ownership, startup, actual user flows, recovery and boundaries.
-- [Full 170-row V1 acceptance matrix](docs/p9-acceptance-matrix.md) and [finite independent verification plan](docs/p9-verification-plan.md): distinguish inherited acceptance, scoped own proof and final independent local acceptance.
-- [Functional specification](docs/foxmind-v1-functional-spec.md) and [visual references](docs/visual-reference-index.md).
+<br />
 
-## Local development
+![Inicio de FoxMind con aulas, accesos y agenda](docs/work-log/evidence/2026-10-28-education-experience/home-desktop.webp)
 
-Use Node24 and lock-matching dependencies. Product operation requires a separately provisioned/migrated PostgreSQL database, private S3-compatible bucket, ClamAV and local Mailpit, with complete identity/file/classroom configuration. Account-only startup and isolated preview identities are not the complete product. Provision only explicitly authorized resources; no environment file or secret-file read is required by the application.
+## Conocé FoxMind
 
-After that setup, the existing package commands are:
+FoxMind reúne la experiencia de una clase en un mismo lugar. Los docentes pueden organizar contenidos y actividades, y los estudiantes encuentran sus aulas, entregas y devoluciones en una interfaz clara y cercana. Una misma cuenta puede enseñar en un aula y aprender en otra.
 
-```powershell
-npm run api:build
-npm run web:build
-# In separate correctly configured terminals:
-npm run api:start
-npm run web:start
-```
+| Para organizar | Para aprender y enseñar |
+| --- | --- |
+| **Aulas** · Creá o integrá espacios para cada materia. | **Actividades** · Prepará trabajos y cuestionarios, y seguí sus entregas. |
+| **Plan y biblioteca** · Ordená unidades, temas y recursos. | **Devoluciones** · Revisá trabajos, publicá calificaciones y consultá el progreso. |
+| **Agenda** · Consultá eventos y próximas entregas. | **Muro** · Compartí novedades dentro del aula. |
 
-These commands are a developer entry point, not a verification result or permission to migrate retained data. Follow the [local guide](docs/p9-local-operation.md) for exact origin/configuration ownership and the [verification plan](docs/p9-verification-plan.md) for bounded API30s/Next180s builds and fresh owned runtime proof. Ordinary sign-in lands on `/profile`; verified accounts can open `/inicio` and `/mis-aulas`. Local captured mail is not real external delivery.
+## Un vistazo a la plataforma
 
-## Continue safely
+<table>
+  <tr>
+    <td width="50%"><strong>Dentro del aula</strong><br />Accedé a los espacios y herramientas de una materia.</td>
+    <td width="50%"><strong>Agenda</strong><br />Visualizá tus eventos y organizá tus próximos días.</td>
+  </tr>
+  <tr>
+    <td><img src="docs/work-log/evidence/2026-10-28-education-experience/teacher-tabs.webp" alt="Secciones de un aula en FoxMind" /></td>
+    <td><img src="docs/work-log/evidence/2026-10-28-education-experience/agenda-desktop.webp" alt="Agenda de FoxMind" /></td>
+  </tr>
+</table>
 
-Read [agent instructions](AGENTS.md) and [work-record protocol](docs/work-log/README.md) before changes. Work in canonical main at the original project directory. Preserve retained development volumes/inbox, security/size/quota/freshness policies, external recovery data and historical failed/unavailable evidence. Do not use the retained P4-local project as disposable verification infrastructure.
+<sub>Capturas de la aplicación local con una cuenta demo y datos sintéticos, tomadas el 28 de octubre de 2026. La interfaz continúa evolucionando.</sub>
 
-Repository cleanup on2026-10-24 consolidated the historical dirty checkout into canonical `main` at the original project directory, now the sole registered checkout. Use it for new development; old branches/worktree data are preserved in an external recovery bundle/directory. The [consolidation record](docs/work-log/2026-10-24-root-repo-consolidation.md) records completed final worktree retirement and preservation proof. Retained development data and security policies remain protected.
+## Tecnologías
 
-Local development does not authorize deployment, remote execution, real participants/data or destructive cleanup. Current P9 main merge/push is conditional on full verified acceptance; Git publication is not deployment. Native review is off/global (`disabled/unmanaged`), with no native approval claimed.
+| Interfaz | Servidor | Datos y servicios locales |
+| --- | --- | --- |
+| Next.js · React · TypeScript | NestJS · TypeScript | PostgreSQL · almacenamiento privado compatible con S3 · ClamAV · Mailpit |
+
+## Empezar en local
+
+Necesitás **Node.js 24** y las dependencias correspondientes al archivo de bloqueo. La aplicación completa también requiere PostgreSQL, almacenamiento privado compatible con S3, ClamAV, Mailpit y la configuración de identidad y aulas. La base de datos debe estar preparada por separado antes de iniciar los servicios.
+
+1. Consultá la [guía de operación local](docs/p9-local-operation.md) para preparar los servicios y la configuración.
+2. Instalá las dependencias del proyecto con `npm ci`.
+3. Una vez preparado el entorno, compilá y ejecutá la API y la web según las instrucciones de la guía.
+
+La guía detalla las variables, los orígenes y los límites de cada servicio. Mailpit captura correo localmente; no envía mensajes reales a destinatarios externos.
+
+## Documentación
+
+- [Índice de documentación](docs/README.md) · Guías, contratos y evidencia.
+- [Roadmap](docs/implementation-roadmap.md) · Estado verificado y próximos pasos.
+- [Especificación funcional](docs/foxmind-v1-functional-spec.md) · Alcance y reglas del producto.
+- [Operación local](docs/p9-local-operation.md) · Preparación, ejecución y recuperación.
+- [Instrucciones para agentes y colaboradores](AGENTS.md) · Continuidad del trabajo y registros.
+
+## Estado del proyecto
+
+FoxMind cuenta con una V1 validada localmente y continúa evolucionando. Las verificaciones, sus límites y los próximos trabajos están registrados en el [roadmap](docs/implementation-roadmap.md). El repositorio no representa por sí solo un servicio desplegado ni un piloto con participantes reales.
