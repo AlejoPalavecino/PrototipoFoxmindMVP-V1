@@ -144,6 +144,7 @@ export class ClassroomCore {
       archived: !!row.archived_at,
       teacher: row.teacher_name,
       role: actorId === row.teacher_id ? 'teacher' : 'student',
+      ...(actorId === row.teacher_id ? { aiGradingEnabled: row.ai_grading_enabled ?? false, aiGradingAvailable: this.ports.gradingAiAvailable === true } : {}),
       revision: row.revision?.toString(),
     };
   }
