@@ -1,0 +1,7 @@
+# Agenda reference — synthetic visual and interaction evidence
+
+The [user reference](source.png) is 1780×883. [Agenda](agenda-desktop.png) and [new event](event-desktop.png) show the real components with an in-memory fixture; both saved PNGs are 1905×867, so these particular images are not exact-size overlays. The independent tester separately inspected matched desktop reference-sized captures and recaptured at1200/1366 after corrections; its comparison was in memory. The source shows November, while this fixture shows October. New-event layout derives from the same style because no separate form screenshot was supplied.
+
+QA inspected desktop, 1200/1366, and Mes/Semana/Día at320/390 without horizontal overflow in observed states. New/edit events made exactly one synthetic in-memory write each; invalid title produced an associated error and focus, no write. Month selection stayed in Mes, and zone change did not write. Desktop initially showed excess top padding, rail height and notebook overlap; corrections were recaptured. Rail may be taller than the reference because real private-event details remain visible.
+
+Generated hero WebPs are 1600×533 (49,856 bytes), 960×320 (22,730 bytes); the note illustration is640×291 (13,714 bytes). No real account, DB, provider, authenticated E2E, physical device or Safari is covered. [Coordinator record](../../2026-10-29-root-agenda-reference.md) contains test commands, review and handoff.
