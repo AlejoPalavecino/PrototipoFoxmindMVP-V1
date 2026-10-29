@@ -73,7 +73,14 @@ export class GradingService extends ActivityHistoryService {
   saveAttemptGrading(request: unknown, classroomId: string, attemptId: string, input: unknown) {
     const body = privateGradingInput(input);
     return this.run(request, true, async (tx, actor) => {
-      const context = await this.gradingContext(tx, actor, classroomId, attemptId, true), { room, attempt, activity } = context;
+      const context = await this.gradingContext(tx, actor, classroomId, attemptId, true);
+      return this.savePrivateGrading(tx, actor, classroomId, context, body);
+    });
+  }
+
+  protected async savePrivateGrading(tx: Transaction, actor: Actor, classroomId: string,
+    context: Awaited<ReturnType<GradingService['gradingContext']>>, body: PrivateGradingInput) {
+    const { room, attempt, activity } = context;
       if (room.revision.toString() !== body.revision || context.grade?.is_published) return fail('CONFLICT');
       const view = await this.gradingView(tx, context);
       const scored = this.scoreCorrection(view, body);
@@ -91,7 +98,6 @@ export class GradingService extends ActivityHistoryService {
       activity.id, row.questionId, row.score?.numerator.toString() ?? null, row.score?.denominator.toString() ?? null, row.feedback);
       await this.advanceRevision(tx, classroomId, room.revision);
       return this.gradingView(tx, { ...context, grade, room: { ...room, revision: room.revision + 1n } });
-    });
   }
 
   protected scoreCorrection(view: Awaited<ReturnType<GradingService['gradingView']>>, body: PrivateGradingInput) {

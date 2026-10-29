@@ -1,4 +1,4 @@
-import { GradingService } from './grading.ts';
+import { GradingAiService } from './grading-ai/service.ts';
 import { revision } from './drafts.ts';
 import { fail, object, uuid } from './policy.ts';
 import { fixedHundredths, hundredths, scoreJson } from './scoring.ts';
@@ -10,7 +10,7 @@ export function publicationInput(input: unknown) {
   return { revision: revision(body.revision), confirm: true as const };
 }
 
-export class GradePublicationService extends GradingService {
+export class GradePublicationService extends GradingAiService {
   publishAttemptGrade(request: unknown, classroomId: string, attemptId: string, input: unknown) {
     const body = publicationInput(input);
     return this.run(request, true, async (tx, actor) => {

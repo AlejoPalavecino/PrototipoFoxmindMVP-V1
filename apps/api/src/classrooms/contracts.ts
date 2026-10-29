@@ -10,6 +10,7 @@ export interface Actor {
   now: Date;
 }
 export interface ClassroomPorts {
+  gradingAiAvailable?: boolean;
   studentAiEnabled?: boolean;
   validateActivityGeneration?(tx: Transaction, request: unknown, activityId: string): Promise<void>;
   database: FileDatabase;
@@ -28,6 +29,8 @@ export interface ClassroomPorts {
 export interface ClassroomRow {
   id: string;
   teacher_id: string;
+  ai_grading_enabled?: boolean;
+  ai_grading_epoch?: bigint;
   name: string;
   subject: string;
   division: string;
