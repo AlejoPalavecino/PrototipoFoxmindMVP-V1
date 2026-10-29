@@ -1,0 +1,40 @@
+{
+  "initial": {
+    "titles": [
+      "Historia — Mundos conectados",
+      "Biología — Exploración",
+      "Literatura — Ideas y relatos",
+      "Matemática — Problemas cotidianos"
+    ],
+    "count": "Mostrando 4 de 4 aulas",
+    "requests": 4,
+    "mutations": [],
+    "pending": "PendientesTenés una invitaciónGeografía — Aula invitadaLuz Ejemplo te invita a su aula.Vence el 28/11/2026Aceptar invitaciónContinuar un borradorCiencias — Nuevo proyectoContinuar creación"
+  },
+  "filtered": {
+    "titles": [
+      "Matemática — Problemas cotidianos"
+    ],
+    "count": "Mostrando 1 de 4 aulas",
+    "requests": 4,
+    "mutations": [],
+    "pending": "PendientesTenés una invitaciónGeografía — Aula invitadaLuz Ejemplo te invita a su aula.Vence el 28/11/2026Aceptar invitaciónContinuar un borradorCiencias — Nuevo proyectoContinuar creación"
+  },
+  "closed": {
+    "expanded": "false",
+    "label": "Más filtros · 3"
+  },
+  "final": {
+    "titles": [
+      "Biología — Exploración",
+      "Literatura — Ideas y relatos",
+      "Matemática — Problemas cotidianos"
+    ],
+    "count": "Mostrando 3 de 4 aulas",
+    "requests": 4,
+    "mutations": [],
+    "pending": "PendientesTenés una invitaciónGeografía — Aula invitadaLuz Ejemplo te invita a su aula.Vence el 28/11/2026Aceptar invitaciónContinuar un borradorCiencias — Nuevo proyectoContinuar creación"
+  },
+  "keyboardLayout": true,
+  "noRequests": true
+}

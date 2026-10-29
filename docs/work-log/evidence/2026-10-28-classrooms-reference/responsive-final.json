@@ -1,0 +1,100 @@
+[
+  {
+    "layout": "grid",
+    "width": 1784,
+    "height": 882,
+    "scroll": 1769,
+    "columns": "165px 574.3px",
+    "cardHeight": 181.60000610351562,
+    "heroHeight": 220,
+    "pendingTop": 785.7999877929688,
+    "clipped": [],
+    "tiny": [],
+    "images": true
+  },
+  {
+    "layout": "grid",
+    "width": 1440,
+    "height": 900,
+    "scroll": 1425,
+    "columns": "135px 432.3px",
+    "cardHeight": 181.60000610351562,
+    "heroHeight": 220,
+    "pendingTop": 785.7999877929688,
+    "clipped": [],
+    "tiny": [],
+    "images": true
+  },
+  {
+    "layout": "grid",
+    "width": 1024,
+    "height": 768,
+    "scroll": 1009,
+    "columns": "165px 569.2px",
+    "cardHeight": 181.60000610351562,
+    "heroHeight": 250,
+    "pendingTop": 1265,
+    "clipped": [],
+    "tiny": [],
+    "images": true
+  },
+  {
+    "layout": "grid",
+    "width": 768,
+    "height": 900,
+    "scroll": 753,
+    "columns": "165px 546.2px",
+    "cardHeight": 181.60000610351562,
+    "heroHeight": 250,
+    "pendingTop": 1285.800048828125,
+    "clipped": [],
+    "tiny": [],
+    "images": true
+  },
+  {
+    "layout": "grid",
+    "width": 390,
+    "height": 844,
+    "scroll": 375,
+    "columns": "82px 263.6px",
+    "cardHeight": 219.60000610351562,
+    "heroHeight": 300.5500183105469,
+    "pendingTop": 1543.8499755859375,
+    "clipped": [],
+    "tiny": [],
+    "images": true
+  },
+  {
+    "layout": "grid",
+    "width": 320,
+    "height": 740,
+    "scroll": 305,
+    "columns": "82px 193.2px",
+    "cardHeight": 219.60000610351562,
+    "heroHeight": 320.0500183105469,
+    "pendingTop": 1630.8499755859375,
+    "clipped": [],
+    "tiny": [],
+    "images": true
+  },
+  {
+    "layout": "list",
+    "width": 320,
+    "height": 740,
+    "scroll": 305,
+    "columns": "82px 193.2px",
+    "cardHeight": 219.60000610351562,
+    "heroHeight": 320.0500183105469,
+    "pendingTop": 1630.8499755859375,
+    "clipped": [],
+    "tiny": [],
+    "images": true
+  },
+  {
+    "keyboardEntry": {
+      "text": "Entrar al aula ",
+      "outline": "solid",
+      "bottom": 323.6499938964844
+    }
+  }
+]

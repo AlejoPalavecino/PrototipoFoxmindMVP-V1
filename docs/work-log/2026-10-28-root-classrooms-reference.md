@@ -52,7 +52,12 @@ Actual commit IDs are recorded only after each command succeeds; this record's o
 - `51e2494841b199ff6af66f4bf1f06c7804711596`: pure filtering, focused tests and design/baseline records; 195 changed lines. Staged diff validation and `gitleaks protect --staged --redact --no-banner` passed before commit.
 - Accessible control unit includes the genuine component-state tests, focus fix and minimal legacy harness expansion. The observed 11-case collection run and independent keyboard fixture receipt cover its behavior; no backend test is required for this local state boundary.
 - `55b5f3052d8d6de6618f50a4cc90586577a98300`: accessible filters and collection views; 272 changed lines. Staged diff and secret scan passed. The next visual unit carries the scoped styles, hero and asset/worker records; its responsive proof and final build are described above.
+- `510a757e69a5769cf615b84c354201d7f2ad248c`: warm reference composition, responsive styles and WebP art; 326 changed text lines plus three binary assets. Staged diff and secret scan passed.
+- Final proof unit preserves the synthetic fixture, generated screenshots/JSON, independent review, runner record and roadmap/design-QA links. Authored fixture/documentation stays below400 changed lines; generated receipts remain readable and are not compressed to fit a budget.
+- Coordinator's structural check passed for seven records,33 relative links and eight JSON receipts. Final proof staging contains approximately231 authored changed lines plus229 generated JSON lines and eight binary captures. Staged diff and secret scan passed; final commit identity remains in Git history.
 
 ## Handoff
 
 Requested Mis aulas redesign and local verification are complete. Preview uses synthetic data and stays available on53194; earlier Home/auth previews and original checkout remain untouched. Next action is user review of the selected composition. Publication, deployment and real-account journeys require their own scope; no push or PR was performed.
+
+Test runner finished dedicated Ego Space38 with p1 retained at desktop1784 and handed the live preview process (exec session2982) to coordinator. No browser or product edits remain. Future fixture reproduction: `node tests/helpers/classrooms-reference/harness.mjs`, then Next dev against `.test-artifacts/classrooms-reference/apps/web` on53194; no upstream API or credential setup is needed.

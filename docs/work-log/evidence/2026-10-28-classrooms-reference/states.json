@@ -1,0 +1,25 @@
+[
+  {
+    "loading": true,
+    "cards": 0
+  },
+  {
+    "retry": true
+  },
+  {
+    "empty": true,
+    "pendingAbsent": true
+  },
+  {
+    "busy": true
+  },
+  {
+    "escapeWithoutConfirmation": true
+  },
+  {
+    "draftResume": true
+  },
+  {
+    "classroomEntry": true
+  }
+]

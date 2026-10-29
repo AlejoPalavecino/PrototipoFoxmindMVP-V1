@@ -1,5 +1,13 @@
 # FoxMind visual QA
 
+## Current Mis aulas reference — 2026-10-28
+
+final result: passed — bounded synthetic collection verification.
+
+[Reference, final screenshots and behavior receipts](docs/work-log/evidence/2026-10-28-classrooms-reference/README.md), [agent record and execution incident](docs/work-log/2026-10-28-test_runner-classrooms-reference.md). The warm panoramic hero, horizontal cards and collection toolbar follow the selected screenshot while retaining actual role counts, academic year, archive state and invitations/drafts. Unsupported percentages, rosters and schedules were omitted.
+
+Seven final layout/viewport checks passed at1784/1440/1024/768/390/320px, including320px list; earlier long-name,24-room, archived, loading/error/empty/busy cases passed. Desktop density, tablet artwork overlap and mobile list sizing were corrected. Teacher search and advanced filters preserve global counts; view changes produce no requests. Synthetic create/join/invitation/draft/classroom flows and keyboard focus passed. Independent review found clear-filter focus falling to BODY; final live recheck confirms focus returns to Más filtros. Focused13PASS/0FAIL after correction. This is frontend fixture evidence, not real backend authentication or data-mutation acceptance. An accidental disposable database suite ran during initial baseline selection; the linked record preserves it and excludes it from acceptance. Previous reports remain below.
+
 ## Current auth references — 2026-10-28
 
 final result: passed
