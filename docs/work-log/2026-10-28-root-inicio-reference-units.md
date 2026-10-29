@@ -1,4 +1,4 @@
-# Inicio reference work units — in progress
+# Inicio reference work units — completed locally
 
 - Agent / role: /root coordinator.
 - Session or task ID: /root.
@@ -6,7 +6,7 @@
 - Branch / worktree: codex/inicio-reference-astra, isolated managed worktree.
 - Starting commit: 9fa596c37774353390835eb41c7cb2f8d480644a.
 - Phase/task: requested Inicio redesign; [Home behavior](../p9-home.md).
-- Status: in_progress.
+- Status: completed for local work-unit delivery.
 
 ## Scope and review boundaries
 
@@ -28,7 +28,8 @@ Source review and final bounded browser QA are independently owned by reviewer/t
 - Unit 3 staged snapshot `.test-artifacts/review-unit-3`: `node --test --test-reporter=dot --test-concurrency=1 tests/home-reference-summary.test.mjs tests/home-reference-dashboard.test.mjs tests/workspace-disclosure.test.mjs tests/p9-home-client.test.mjs tests/home-polish-presentation.test.mjs tests/home-refinement-copy.test.mjs tests/home-miniagenda-reference.test.mjs tests/education-experience.test.mjs tests/foxmind-3d-client-lifecycle.test.mjs` passed 37 tests/exit 0. The complete product candidate also passed an isolated production build with unchanged Next/PostCSS configuration, final strict types, and independent ego-browser QA across five widths. Reviewer returned LGTM_SIN_HALLAZGOS. Seven separate historical visual-suite failures were reproduced at the starting commit and remain explicit in the final QA record. Commit pending staged secret scan.
 - Unit 3 committed as `226d0afd5e3db12b4b1977dceeb671014fa62124` after staged secret scan passed without leaks (305 authored changed lines).
 - Documentation and QA evidence are separated into bounded units to preserve the 400-line review limit. No more product changes are pending.
+- Records `92e94e2` (235 lines), fixture `b0d87eb` (290 lines) and evidence `396897d` (340 lines) each passed staged whitespace/security checks. Fixture scripts passed syntax checks and 39 relative document targets resolved. Documentation-only closure does not require repeating functional tests; product bytes remain those already verified.
 
 ## Handoff
 
-Prepare and validate the staged units in the order above. No remote publication or deployment requested.
+Product, fixture and evidence units are committed locally, with this passive closure following their observed identities. Retained preview is synthetic; the separate production launch was rejected by automatic policy as recorded in the coordinator log. No remote publication or deployment requested.

@@ -1,5 +1,9 @@
 # FoxMind implementation roadmap
 
+## Selected Inicio reference — verified locally, 2026-10-28
+
+The requested isolated ASTRA session implements the supplied warm fox dashboard in `codex/inicio-reference-astra`: responsive WebP hero, functional shortcuts, classroom covers, learning/teaching groups and real agenda/activity summaries. Unsupported percentage/achievement figures are not invented. [Coordinator and local commits](work-log/2026-10-28-root-inicio-reference-astra.md), [independent review](work-log/2026-10-28-reviewer-inicio-reference.md), [visual/interaction evidence](work-log/evidence/2026-10-28-inicio-reference/README.md):37 focused PASS, production build and strict types PASS, five responsive widths and keyboard/retry/pagination checks PASS. Synthetic component preview only; authenticated E2E is not claimed. Seven legacy test failures were reproduced at the starting commit. Automatic approval review blocked the separate production-server launch; no bypass, remote publication or deployment occurred. Prior acceptance boundaries remain.
+
 ## Student summary button — published on main, 2026-10-28
 
 The roster keeps the student summary button visible when entering Alumnos, without jumping back when the roster changes. [Delivery record](work-log/2026-10-28-root-student-scroll-publication.md) documents authenticated pointer/keyboard verification, focused regression and main publication. The prior demo credential rotation and local migration records were included; no deployment.
