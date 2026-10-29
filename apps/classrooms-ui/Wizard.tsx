@@ -5,13 +5,13 @@ import {
   useState,
   useCallback,
   useMemo,
-  type ChangeEvent,
 } from 'react';
 import type { ClassroomClient, Draft, Payload, FileState } from './api.ts';
 import { Cover, coverOptions, Notice } from './components.tsx';
 import { PlanExtraction } from './PlanExtraction.tsx';
 import { usePlanExtraction } from './use-plan-extraction.ts';
 import { WizardGeneral } from './WizardGeneral.tsx';
+import { WizardPlan } from './WizardPlan.tsx';
 import { classroomZones } from './classroom-zones.ts';
 
 const steps = [
@@ -44,6 +44,7 @@ export function Wizard({
   const [file, setFile] = useState<FileState | null>(null),
     [uploading, setUploading] = useState(false),
     [publishing, setPublishing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const latest = useRef(payload),
     revision = useRef(draft.revision),
     queue = useRef<Promise<unknown>>(Promise.resolve()),
@@ -104,6 +105,7 @@ export function Wizard({
       setStatus('Borrador guardado');
     },
   });
+  const blocked = uploading || publishing || extraction.busy;
   useEffect(() => {
     if (JSON.stringify(payload) === saved.current) return;
     setStatus('Cambios sin guardar');
@@ -138,9 +140,8 @@ export function Wizard({
   }, [status, uploading]);
   const update = (key: keyof Payload, value: unknown) =>
     setPayload((previous) => ({ ...previous, [key]: value }));
-  async function upload(event: ChangeEvent<HTMLInputElement>) {
-    const chosen = event.target.files?.[0];
-    if (!chosen) return;
+  async function upload(chosen: File | undefined) {
+    if (!chosen || blocked) return;
     setUploading(true);
     setError('');
     try {
@@ -155,7 +156,6 @@ export function Wizard({
       setError((e as Error).message);
     } finally {
       setUploading(false);
-      event.target.value = '';
     }
   }
   async function next() {
@@ -212,8 +212,9 @@ export function Wizard({
     <div className="p5-wizard folder-wizard">
       <button
         className="p5-link"
-        disabled={extraction.busy}
+        disabled={blocked}
         onClick={() => {
+          if (blocked) return;
           void save()
             .then(onExit)
             .catch((e) => setError(e.message));
@@ -265,60 +266,13 @@ export function Wizard({
             <PlanExtraction extraction={extraction} hasUnits={Boolean(payload.units?.length)} review={step === 2} />
           </div>
           {step === 0 ? <WizardGeneral payload={payload} zones={zones} onUpdate={update} /> : null}
-          {step === 1 ? (
-            <>
-              <label className="p5-drop">
-                {uploading
-                  ? 'Subiendo y revisando el archivo…'
-                  : 'Elegir plan de estudio'}
-                <input
-                  type="file"
-                  accept=".pdf,.docx"
-                  onChange={(event) => void upload(event)}
-                />
-                <small>PDF o DOCX · Hasta 20 MB</small>
-              </label>
-              {file ? (
-                <div className="p5-file">
-                  <strong>{file.name}</strong>
-                  <span>
-                    {file.ready
-                      ? 'Aprobado para usar'
-                      : `Carga: ${file.upload} · Validación: ${file.validation} · Análisis: ${file.scan}`}
-                  </span>
-                  {file.ready ? (
-                    <a
-                      href={api.fileUrl(file.id)}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Descargar plan
-                    </a>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        void api
-                          .fileStatus(file.id)
-                          .then((state) => {
-                            setFile(state);
-                            if (state.ready) update('planFileId', state.id);
-                          })
-                          .catch((e) => setError(e.message))
-                      }
-                    >
-                      Consultar estado
-                    </button>
-                  )}
-                </div>
-              ) : (
-                <p>
-                  El plan estará disponible cuando supere la validación y el
-                  análisis de seguridad.
-                </p>
-              )}
-            </>
-          ) : null}
+          {step === 1 ? <WizardPlan file={file} uploading={uploading} disabled={blocked} inputRef={fileInputRef}
+            fileUrl={id => api.fileUrl(id)} onFile={upload} onError={setError}
+            onRefresh={() => {
+              if (blocked || !file) return;
+              void api.fileStatus(file.id).then(state => { setFile(state); if (state.ready) update('planFileId', state.id); })
+                .catch(failure => setError(failure.message));
+            }} /> : null}
           {step === 2 ? (
             <>
               <h3>Tus unidades y temas</h3>
