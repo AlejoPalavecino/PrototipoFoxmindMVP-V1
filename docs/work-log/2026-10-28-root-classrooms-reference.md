@@ -51,6 +51,7 @@ Actual commit IDs are recorded only after each command succeeds; this record's o
 
 - `51e2494841b199ff6af66f4bf1f06c7804711596`: pure filtering, focused tests and design/baseline records; 195 changed lines. Staged diff validation and `gitleaks protect --staged --redact --no-banner` passed before commit.
 - Accessible control unit includes the genuine component-state tests, focus fix and minimal legacy harness expansion. The observed 11-case collection run and independent keyboard fixture receipt cover its behavior; no backend test is required for this local state boundary.
+- `55b5f3052d8d6de6618f50a4cc90586577a98300`: accessible filters and collection views; 272 changed lines. Staged diff and secret scan passed. The next visual unit carries the scoped styles, hero and asset/worker records; its responsive proof and final build are described above.
 
 ## Handoff
 

@@ -1,0 +1,64 @@
+/* Higher scope specificity keeps these responsive rules authoritative after the base import. */
+@media (min-width: 1024px) {
+  .fm3d-theme:has(.entry-classrooms-reference) .p5-app.entry-classrooms-reference { padding: 64px 24px 40px 24px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .fm3d-shell[data-private='true'] { padding: 18px 16px 16px; gap: 24px; background: #fffdfa; border-right-color: #f0e7dd; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .fm3d-shell[data-private='true'] .fm3d-shell-brand { padding: 0 8px; background: transparent; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .fm3d-shell .fm3d-brand { width: 175px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .fm3d-shell[data-private='true'] :is(.fm3d-shell-nav,.fm3d-shell-account) > a { min-height: 50px; font-size: 14px; font-weight: 600; padding: 12px 14px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .fm3d-shell[data-private='true'] .fm3d-shell-tools { padding: 10px 24px; background: #fff8f0; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .fm3d-shell[data-private='true'] .fm3d-shell-nav { gap: 2px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .fm3d-shell[data-private='true'] .fm3d-shell-account { border-top-color: #eee5da; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .fm3d-shell[data-private='true'] .fm3d-shell-account :is(.fm3d-shell-name,button) { color: #535963; }
+}
+@media (max-width: 1500px) {
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-hero-copy { max-width: 54%; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-hero-copy h1 { font-size: 34px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-hero-actions { top: auto; bottom: 22px; right: 18px; gap: 8px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-hero-actions button { padding-inline: 12px; font-size: 13px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-hero-benefits { max-width: 58%; gap: 8px 14px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-hero-benefits li { font-size: 10px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-hero-benefits li > span { width: 30px; height: 30px; border-radius: 9px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .fm3-classroom-card { grid-template-columns: 135px minmax(0,1fr); }
+  .fm3d-theme .p5-app.entry-classrooms-reference .fm3-classroom-card-body { padding: 14px; }
+}
+@media (max-width: 1300px) {
+  .fm3d-theme .p5-app.entry-classrooms-reference .fm3-classroom-grid { grid-template-columns: minmax(0,1fr); }
+  .fm3d-theme .p5-app.entry-classrooms-reference .fm3-classroom-card { grid-template-columns: 165px minmax(0,1fr); }
+  .fm3d-theme .p5-app.entry-classrooms-reference .p5-main .folder-pending { grid-template-columns: minmax(0,1fr); }
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-reference-hero { min-height: 250px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-hero-copy { max-width: 52%; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-hero-copy h1 { font-size: 30px; letter-spacing: -1px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-hero-copy p { font-size: 15px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-hero-actions { position: static; grid-column: 1 / -1; max-width: 52%; justify-self: start; flex-wrap: wrap; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-hero-benefits { display: none; }
+}
+@media (max-width: 760px) {
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-reference-hero { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; min-height: 0; padding: 22px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-reference-hero > picture { opacity: .2; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-hero-copy { max-width: 100%; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-hero-copy h1 { font-size: 32px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-hero-actions { position: static; max-width: 100%; flex-wrap: wrap; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-hero-actions button { min-height: 46px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-hero-benefits { display: none; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .fm3-collection-search { flex-basis: 100%; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .fm3-collection-filters { flex-basis: 100%; gap: 6px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .p5-main .fm3-collection-filters button { font-size: 12px; padding: 10px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-advanced-filters { grid-template-columns: minmax(0,1fr); }
+  .fm3d-theme .p5-app.entry-classrooms-reference .fm3-classroom-grid .fm3-classroom-card { grid-template-columns: 110px minmax(0,1fr); }
+  .fm3d-theme .p5-app.entry-classrooms-reference .fm3-classroom-card-body { display: flex; padding: 14px; gap: 8px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .p5-main .fm3-classroom-card h3 { font-size: 18px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .p5-main .fm3-classroom-card-body > button { margin-top: auto; width: 100%; padding-inline: 8px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .p5-invitations article { align-items: flex-start; flex-wrap: wrap; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .p5-drafts > button { align-items: flex-start; flex-direction: column; gap: 6px; }
+}
+@media (max-width: 420px) {
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-reference-hero { padding: 18px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-reference-hero > picture { display: none; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-hero-copy h1 { font-size: 29px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-hero-actions { width: 100%; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .collection-hero-actions button { flex: 1 1 100%; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .fm3-classroom-grid .fm3-classroom-card { grid-template-columns: 82px minmax(0,1fr); }
+  .fm3d-theme .p5-app.entry-classrooms-reference .fm3-classroom-card-body { padding: 12px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .fm3-classroom-facts > p { font-size: 12px; }
+  .fm3d-theme .p5-app.entry-classrooms-reference .p5-main .fm3-collection-search > input { font-size: 16px; }
+}

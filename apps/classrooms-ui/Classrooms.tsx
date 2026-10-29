@@ -5,6 +5,7 @@ import type { HomeTarget } from '../../src/core/domain/index.ts';
 import type { HomeClient } from './home-api.ts';
 import { Dialog, Notice } from './components.tsx';
 import { ClassroomCollection } from './ClassroomCollection.tsx';
+import { ClassroomCollectionHero } from './ClassroomCollectionHero.tsx';
 import { Notifications } from './Notifications.tsx';
 import { Home } from './Home.tsx';
 import { EntryIcon } from '../shared-ui/EntryIcon';
@@ -171,7 +172,7 @@ export function ClassroomsApp({
     }
   }
   return (
-    <div className={`p5-app fm3-classrooms${!draft && !classroomId && presentation === 'home' ? ' entry-home' : ''}`}>
+    <div className={`p5-app fm3-classrooms${!draft && !classroomId ? presentation === 'home' ? ' entry-home' : ' entry-classrooms-reference' : ''}`}>
       <a className="skip-link" href="#classroom-main">Saltar al contenido</a>
       <AppNavbar logoHref="/mis-aulas" displayName={displayName}
         links={draft ? [{ href: '/mis-aulas', label: 'Mis aulas', current: true }]
@@ -228,38 +229,9 @@ export function ClassroomsApp({
           </>
         ) : (
           <>
-            <header className="p5-page-head">
-              <div>
-                <h1>Mis aulas</h1>
-                <p className="p5-lead">
-                  Tus clases, bien organizadas.
-                </p>
-              </div>
-              <div className="folder-classroom-tools"><div className="p5-actions">
-                <button
-                  disabled={busy}
-                  onClick={() => {
-                    setJoin(true);
-                    setJoinError('');
-                    setPreview(null);
-                  }}
-                >
-                  Unirse con código
-                </button>
-                <button
-                  className="primary"
-                  disabled={busy}
-                  onClick={() =>
-                    void action(async () => {
-                      setDraft(await api.call<Draft>('/drafts', 'POST', {}));
-                    })
-                  }
-                >
-                  <EntryIcon name="plus-circle-fill" /> Crear aula
-                </button>
-              </div>
-              </div>
-            </header>
+            <ClassroomCollectionHero busy={busy}
+              onJoin={() => { setJoin(true); setJoinError(''); setPreview(null); }}
+              onCreate={() => void action(async () => { setDraft(await api.call<Draft>('/drafts', 'POST', {})); })} />
             {notice ? <Notice>{notice}</Notice> : null}
             {error ? (
               <Notice error>
@@ -276,7 +248,7 @@ export function ClassroomsApp({
             {data ? <ClassroomCollection teach={data.teach} study={data.study} search={search} onSearch={setSearch}
               onEnter={id => { setSharedCode(null); setClassroomId(id); }} /> : null}
             {data && (data.invitations.length > 0 || data.drafts.length > 0) ? <section className="folder-panel tone-yellow folder-pending" aria-label="Pendientes">
-              <h2 className="folder-tab"><EntryIcon name="bell" />Pendientes</h2>
+              <h2 className="folder-tab"><EntryIcon name="bell" />Pendientes <span className="collection-pending-count">{data.invitations.length + data.drafts.length}</span></h2>
             {data?.invitations.length ? (
               <section className="p5-invitations">
                 <h2>Tenés una invitación</h2>

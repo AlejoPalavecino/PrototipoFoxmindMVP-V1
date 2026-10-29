@@ -14,6 +14,7 @@ import '../../shared-ui/auth-polish.css';
 import '../../shared-ui/auth-responsive.css';
 import '../../shared-ui/workspace.css';
 import '../../shared-ui/auth-reference.css';
+import '../../shared-ui/classrooms-reference.css';
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   useEffect(() => {
