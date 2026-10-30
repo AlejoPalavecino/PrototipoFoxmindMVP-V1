@@ -123,17 +123,23 @@ test('S5/S6 concurrent claims send once, SMTP runs outside transaction, owned-ty
   let release, entered;
   const enteredPromise = new Promise(resolve => { entered = resolve; });
   const gate = new Promise(resolve => { release = resolve; });
-  const smtp = sender(f, async () => { entered(); await gate; return { status: 'accepted' }; });
+  let smtpEntered = false;
+  const smtp = sender(f, async () => { smtpEntered = true; entered(); await gate; return { status: 'accepted' }; });
+  const startedAt = Date.now();
   const first = work(smtp);
-  await enteredPromise;
-  const second = await work(smtp);
-  assert.equal(second.status, 'idle');
-  // This would time out if SMTP held a transaction/user-row lock.
-  await sql.query('UPDATE users SET updated_at=updated_at WHERE id=$1', [f.userId]);
-  release();
-  assert.equal((await first).status, 'accepted');
-  assert.equal(smtp.calls.length === 1 && smtp.calls[0].matches, true);
-  assert.equal((await state(f.jobId)).status === 'COMPLETED' && !(await state(f.jobId)).has_secret, true);
+  try {
+    await Promise.race([enteredPromise, first.then(result => {
+      throw new Error(`phase=first elapsedMs=${Date.now() - startedAt} status=${result.status} entered=${smtpEntered}`);
+    })]);
+    const second = await work(smtp);
+    assert.equal(second.status, 'idle');
+    // This would time out if SMTP held a transaction/user-row lock.
+    await sql.query('UPDATE users SET updated_at=updated_at WHERE id=$1', [f.userId]);
+    release();
+    assert.equal((await first).status, 'accepted');
+    assert.equal(smtp.calls.length === 1 && smtp.calls[0].matches, true);
+    assert.equal((await state(f.jobId)).status === 'COMPLETED' && !(await state(f.jobId)).has_secret, true);
+  } finally { release(); await Promise.allSettled([first]); }
   const other = await sql.query(`SELECT status='PENDING' AND attempt_count=0 AND payload='{"marker":true}'::jsonb AS intact FROM background_jobs WHERE id=$1`, [unrelated]);
   assert.equal(other.rows[0].intact, true);
   const simultaneous = await fixture(); await enqueue(simultaneous);
@@ -169,12 +175,19 @@ test('S5 cancellation wipes pending/running work and stale owner cannot restore 
   let release, entered;
   const gate = new Promise(resolve => { release = resolve; });
   const started = new Promise(resolve => { entered = resolve; });
-  const smtp = sender(f, async () => { entered(); await gate; return { status: 'accepted' }; });
-  const pending = work(smtp); await started;
-  await db.$transaction(tx => outbox.cancelAccountMailForToken(tx, f.tokenId));
-  release();
-  assert.equal((await pending).status, 'lease-lost');
-  assert.equal((await state(f.jobId)).status === 'FAILED' && !(await state(f.jobId)).has_secret, true);
+  let smtpEntered = false;
+  const smtp = sender(f, async () => { smtpEntered = true; entered(); await gate; return { status: 'accepted' }; });
+  const startedAt = Date.now();
+  const pending = work(smtp);
+  try {
+    await Promise.race([started, pending.then(result => {
+      throw new Error(`phase=cancellation elapsedMs=${Date.now() - startedAt} status=${result.status} entered=${smtpEntered}`);
+    })]);
+    await db.$transaction(tx => outbox.cancelAccountMailForToken(tx, f.tokenId));
+    release();
+    assert.equal((await pending).status, 'lease-lost');
+    assert.equal((await state(f.jobId)).status === 'FAILED' && !(await state(f.jobId)).has_secret, true);
+  } finally { release(); await Promise.allSettled([pending]); }
 });
 
 test('S5 key rotation keeps old pending envelopes; missing key retains valid work for recovery', async () => {
@@ -225,22 +238,48 @@ test('S5 lease takeover fences old completion/retry; expired worker cannot clear
     const newStarted = new Promise(resolve => { enterNew = resolve; });
     const oldGate = new Promise(resolve => { releaseOld = resolve; });
     const newGate = new Promise(resolve => { releaseNew = resolve; });
+    let oldEntered = false, newEntered = false;
     const oldSmtp = sender(f, async () => {
-      enterOld(); await oldGate;
+      oldEntered = true; enterOld(); await oldGate;
       if (!oldAccepted) throw new Error('fixture old failure');
       return { status: 'accepted' };
     });
-    const newSmtp = sender(f, async () => { enterNew(); await newGate; return { status: 'accepted' }; });
-    const oldRun = work(oldSmtp, keyring(), { leaseMs: 80 }); await oldStarted;
-    await setTimeout(110);
-    const newRun = work(newSmtp, keyring(), { leaseMs: 1000 }); await newStarted;
-    releaseOld();
-    assert.equal((await oldRun).status, 'lease-lost');
-    const held = await state(f.jobId);
-    assert.equal(held.status === 'RUNNING' && held.has_secret && !held.unclaimed, true);
-    releaseNew();
-    assert.equal((await newRun).status, 'accepted');
-    assert.equal((await state(f.jobId)).has_secret, false);
+    const newSmtp = sender(f, async () => { newEntered = true; enterNew(); await newGate; return { status: 'accepted' }; });
+    const startedAt = Date.now();
+    const readLease = async () => (await sql.query(`SELECT status,claim_token,payload ? 'secret' AS has_secret,
+      md5(payload::text) AS payload_hash,claimed_until > clock_timestamp() AS live
+      FROM background_jobs WHERE id=$1::uuid AND type=$2`, [f.jobId, outbox.ACCOUNT_MAIL_JOB_TYPE])).rows[0];
+    const oldRun = work(oldSmtp, keyring(), { leaseMs: 1000 });
+    let newRun;
+    try {
+      await Promise.race([oldStarted, oldRun.then(result => {
+        throw new Error(`phase=old oldAccepted=${oldAccepted} elapsedMs=${Date.now() - startedAt} status=${result.status} entered=${oldEntered}`);
+      })]);
+      const old = await readLease();
+      assert.ok(old && old.status === 'RUNNING' && old.has_secret && old.live && old.claim_token !== null);
+      const expired = await sql.query(`UPDATE background_jobs SET claimed_until=clock_timestamp()-interval '1 millisecond'
+        WHERE id=$1::uuid AND type=$2 AND status='RUNNING' AND claim_token=$3::uuid AND claimed_until > clock_timestamp()
+        RETURNING claimed_until <= clock_timestamp() AS expired`, [f.jobId, outbox.ACCOUNT_MAIL_JOB_TYPE, old.claim_token]);
+      assert.equal(expired.rowCount, 1); assert.equal(expired.rows[0].expired, true);
+      newRun = work(newSmtp, keyring(), { leaseMs: 1000 });
+      await Promise.race([newStarted, newRun.then(result => {
+        throw new Error(`phase=new oldAccepted=${oldAccepted} elapsedMs=${Date.now() - startedAt} status=${result.status} entered=${newEntered}`);
+      })]);
+      const current = await readLease();
+      assert.ok(current && current.status === 'RUNNING' && current.has_secret && current.live && current.claim_token !== null);
+      assert.equal(current.claim_token !== old.claim_token, true); assert.equal(current.payload_hash === old.payload_hash, true);
+      releaseOld();
+      assert.equal((await oldRun).status, 'lease-lost');
+      const held = await readLease();
+      assert.ok(held && held.status === 'RUNNING' && held.has_secret && held.claim_token === current.claim_token && held.payload_hash === current.payload_hash);
+      releaseNew();
+      assert.equal((await newRun).status, 'accepted');
+      const completed = await state(f.jobId);
+      assert.equal(completed.status === 'COMPLETED' && !completed.has_secret, true);
+    } finally {
+      releaseOld(); releaseNew();
+      await Promise.allSettled([oldRun, ...(newRun ? [newRun] : [])]);
+    }
   }
 });
 

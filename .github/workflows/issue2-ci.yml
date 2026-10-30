@@ -24,6 +24,12 @@ jobs:
         run: npx tsc --noEmit -p apps/web/tsconfig.json
       - name: Build web application
         run: timeout 180s npm run web:build
+      - name: Check architecture boundaries
+        run: npm run lint:boundaries
+      - name: Run representative pure and transport suites
+        run: |
+          node scripts/run-ci-suite.mjs --suite pure
+          node scripts/run-ci-suite.mjs --suite transport
       - name: Verify CI workflow contract
         run: node --test tests/issue2-ci-workflow.test.mjs
       - name: Pull fixture images
@@ -91,3 +97,56 @@ jobs:
               timeout 360s node --experimental-transform-types --disable-warning=ExperimentalWarning --test --test-concurrency=1 "$test_file"
             done
           fi
+
+  integration-owned:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    strategy:
+      fail-fast: true
+      matrix:
+        suite: [integration-owned]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run api:build
+      - run: timeout 180s npm run web:build
+      - run: npx playwright install --with-deps chromium
+      - name: Pull owned fixture images
+        run: |
+          docker pull postgres:17.10-bookworm
+          docker pull chrislusf/seaweedfs:4.48@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
+          docker pull clamav/clamav:1.5.4@sha256:638d90201ee7ee6a82d249a2fc23b132e578673b5f1f2766852b127676ca1ef6
+      - name: Run owned disposable integration suite
+        run: node scripts/run-ci-suite.mjs --suite ${{ matrix.suite }}
+
+  complete-suite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        group: [fast, owned-db, owned-services, owned-browser, wrappers]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - if: matrix.group == 'owned-browser' || matrix.group == 'wrappers'
+        run: npx playwright install --with-deps chromium
+      - if: matrix.group != 'fast'
+        name: Pull disposable fixture images
+        run: |
+          docker pull postgres:17.10-bookworm
+          docker pull chrislusf/seaweedfs:4.48@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
+          docker pull clamav/clamav:1.5.4@sha256:638d90201ee7ee6a82d249a2fc23b132e578673b5f1f2766852b127676ca1ef6
+          docker pull axllent/mailpit:v1.31.6
+          docker pull axllent/mailpit:v1.31.6@sha256:23fe39e81bde596a918000b3135c0f85dc8bb4c9ea6be274b051143f3e300387
+      - name: Run selected complete-suite group
+        run: npm run test:complete -- --group ${{ matrix.group }}

@@ -1,0 +1,544 @@
+[
+  {
+    "id": "fast",
+    "kind": "fast",
+    "files": [
+      "tests/activity-ai-adapter.test.mjs",
+      "tests/activity-ai-contracts.test.mjs",
+      "tests/activity-ai-polling.test.mjs",
+      "tests/activity-ai-proxy.test.mjs",
+      "tests/activity-ai-ui.test.mjs",
+      "tests/activity-curricular-context.test.mjs",
+      "tests/activity-document-format-isolation.test.mjs",
+      "tests/activity-gemini-count-compatibility.test.mjs",
+      "tests/activity-migration-inventory.test.mjs",
+      "tests/activity-multitopic.test.mjs",
+      "tests/agenda-client.test.mjs",
+      "tests/agenda-contracts.test.mjs",
+      "tests/agenda-event-color-contracts.test.mjs",
+      "tests/agenda-event-color-model.test.mjs",
+      "tests/agenda-event-color-view.test.mjs",
+      "tests/agenda-event-form-editor.test.mjs",
+      "tests/agenda-event-form-model.test.mjs",
+      "tests/agenda-event-form-result.test.mjs",
+      "tests/agenda-event-form-view.test.mjs",
+      "tests/agenda-events.test.mjs",
+      "tests/agenda-http.test.mjs",
+      "tests/agenda-polish-presentation.test.mjs",
+      "tests/agenda-proxy.test.mjs",
+      "tests/agenda-reference-selection.test.mjs",
+      "tests/agenda-time.test.mjs",
+      "tests/agenda-ui.test.mjs",
+      "tests/agenda-view-modes.test.mjs",
+      "tests/api-build-pipeline.test.mjs",
+      "tests/attempt-clock-fixture.test.mjs",
+      "tests/audit-architecture.test.mjs",
+      "tests/audit-boundaries-guard.test.mjs",
+      "tests/audit-browser-action-observer.test.mjs",
+      "tests/audit-ci-execution.test.mjs",
+      "tests/audit-ci-runner.test.mjs",
+      "tests/audit-complete-suite.test.mjs",
+      "tests/audit-cursor-canonical.test.mjs",
+      "tests/audit-notifications-contract.test.mjs",
+      "tests/audit-progress-linear.test.mjs",
+      "tests/audit-public-ports-import.test.mjs",
+      "tests/audit-resource-lazy.test.mjs",
+      "tests/audit-scheduler-diagnostics.test.mjs",
+      "tests/audit-shared-contracts.test.mjs",
+      "tests/audit-wall-proxy.test.mjs",
+      "tests/auth-reference-navigation.test.mjs",
+      "tests/classroom-ai-abort.test.mjs",
+      "tests/classroom-ai-adapter.test.mjs",
+      "tests/classroom-ai-configuration.test.mjs",
+      "tests/classroom-ai-contracts.test.mjs",
+      "tests/classroom-ai-document.test.mjs",
+      "tests/classroom-ai-gemini-schema.test.mjs",
+      "tests/classroom-ai-proxy.test.mjs",
+      "tests/classroom-ai-ui.test.mjs",
+      "tests/classroom-library-search.test.mjs",
+      "tests/classroom-zones.test.mjs",
+      "tests/classrooms-reference-controls.test.mjs",
+      "tests/classrooms-reference-filter.test.mjs",
+      "tests/dependency-security.test.mjs",
+      "tests/domain-barrel.test.mjs",
+      "tests/education-agenda.test.mjs",
+      "tests/education-experience.test.mjs",
+      "tests/entry-glass-client.test.mjs",
+      "tests/entry-glass-polish.test.mjs",
+      "tests/folder-platform.test.mjs",
+      "tests/foxmind-3d-client-lifecycle.test.mjs",
+      "tests/foxmind-3d-client.test.mjs",
+      "tests/foxmind-3d-contracts.test.mjs",
+      "tests/foxmind-3d-flows-account.test.mjs",
+      "tests/foxmind-3d-flows-agenda.test.mjs",
+      "tests/foxmind-3d-flows-attempt.test.mjs",
+      "tests/foxmind-3d-flows-collection.test.mjs",
+      "tests/foxmind-3d-flows-loading.test.mjs",
+      "tests/foxmind-3d-flows-plan.test.mjs",
+      "tests/foxmind-3d-flows-targets.test.mjs",
+      "tests/foxmind-3d-flows.test.mjs",
+      "tests/foxmind-3d-http.test.mjs",
+      "tests/foxmind-3d-loader.test.mjs",
+      "tests/foxmind-3d-service.test.mjs",
+      "tests/grading-ai-attachment-reader.test.mjs",
+      "tests/grading-ai-availability.test.mjs",
+      "tests/grading-ai-contract.test.mjs",
+      "tests/grading-ai-durable-reader.test.mjs",
+      "tests/grading-ai-enqueue.test.mjs",
+      "tests/grading-ai-host.test.mjs",
+      "tests/grading-ai-instruction-reader.test.mjs",
+      "tests/grading-ai-provider.test.mjs",
+      "tests/grading-ai-review-ui.test.mjs",
+      "tests/grading-ai-snapshot.test.mjs",
+      "tests/grading-ai-ui.test.mjs",
+      "tests/home-miniagenda-reference.test.mjs",
+      "tests/home-polish-presentation.test.mjs",
+      "tests/home-reference-dashboard.test.mjs",
+      "tests/home-reference-summary.test.mjs",
+      "tests/home-refinement-copy.test.mjs",
+      "tests/issue2-ci-workflow.test.mjs",
+      "tests/p3-web-client.test.mjs",
+      "tests/p3-web-proxy.test.mjs",
+      "tests/p31-contracts.test.mjs",
+      "tests/p32-mail-command.test.mjs",
+      "tests/p32-mailer.test.mjs",
+      "tests/p33-d2-runner-options.test.mjs",
+      "tests/p33-fixture-budget.test.mjs",
+      "tests/p33-identity-security.test.mjs",
+      "tests/p33-mail-cancellation.test.mjs",
+      "tests/p33-mailbox.test.mjs",
+      "tests/p33-recovery-runner.test.mjs",
+      "tests/p33-test-process.test.mjs",
+      "tests/p33-verification-runner.test.mjs",
+      "tests/p4-adapters.test.mjs",
+      "tests/p4-cleanup-worker.test.mjs",
+      "tests/p4-configuration.test.mjs",
+      "tests/p4-content.test.mjs",
+      "tests/p4-file-policy.test.mjs",
+      "tests/p4-host.test.mjs",
+      "tests/p4-http-output.test.mjs",
+      "tests/p4-integration-controls.test.mjs",
+      "tests/p4-probe-cleanup.test.mjs",
+      "tests/p4-session-bridge.test.mjs",
+      "tests/p4-web-client.test.mjs",
+      "tests/p4-web-proxy.test.mjs",
+      "tests/p5-host.test.mjs",
+      "tests/p5-http.test.mjs",
+      "tests/p5-integration-controls.test.mjs",
+      "tests/p5-policy.test.mjs",
+      "tests/p5-session-bridge.test.mjs",
+      "tests/p5-ui-client.test.mjs",
+      "tests/p5-web-client.test.mjs",
+      "tests/p5-web-proxy.test.mjs",
+      "tests/p6-integration-controls.test.mjs",
+      "tests/p6-library-client.test.mjs",
+      "tests/p6-wall-client.test.mjs",
+      "tests/p7-authoring-client.test.mjs",
+      "tests/p7-authoring-http.test.mjs",
+      "tests/p7-authoring-proxy.test.mjs",
+      "tests/p7-authoring-time.test.mjs",
+      "tests/p7-history-client.test.mjs",
+      "tests/p7-history-http.test.mjs",
+      "tests/p7-history-proxy.test.mjs",
+      "tests/p7-integration-controls.test.mjs",
+      "tests/p7-participation-client.test.mjs",
+      "tests/p7-participation-http.test.mjs",
+      "tests/p7-participation-proxy.test.mjs",
+      "tests/p7-practical-bridge.test.mjs",
+      "tests/p7-practical-client.test.mjs",
+      "tests/p7-practical-http.test.mjs",
+      "tests/p7-practical-proxy.test.mjs",
+      "tests/p7-questionnaire-autosave.test.mjs",
+      "tests/p7-questionnaire-client.test.mjs",
+      "tests/p7-questionnaire-http.test.mjs",
+      "tests/p7-questionnaire-overview.test.mjs",
+      "tests/p7-questionnaire-proxy.test.mjs",
+      "tests/p8-corrections-client.test.mjs",
+      "tests/p8-corrections-http.test.mjs",
+      "tests/p8-corrections-proxy.test.mjs",
+      "tests/p8-grading-client.test.mjs",
+      "tests/p8-grading-http.test.mjs",
+      "tests/p8-grading-proxy.test.mjs",
+      "tests/p8-integration-controls.test.mjs",
+      "tests/p8-migration-inventory.test.mjs",
+      "tests/p8-progress-calculation.test.mjs",
+      "tests/p8-progress-client.test.mjs",
+      "tests/p8-progress-http.test.mjs",
+      "tests/p8-progress-proxy.test.mjs",
+      "tests/p8-publication-client.test.mjs",
+      "tests/p8-publication-http.test.mjs",
+      "tests/p8-publication-proxy.test.mjs",
+      "tests/p8-scoring.test.mjs",
+      "tests/p9-binary-max-files.test.mjs",
+      "tests/p9-home-client.test.mjs",
+      "tests/p9-journey-helpers.test.mjs",
+      "tests/p9-positive-max-files.test.mjs",
+      "tests/p9-runtime-controls.test.mjs",
+      "tests/p9-scanner-budgets.test.mjs",
+      "tests/platform-glass.test.mjs",
+      "tests/student-ai-contract.test.mjs",
+      "tests/student-ai-references.test.mjs",
+      "tests/student-feedback-journey.test.mjs",
+      "tests/student-summary-scroll.test.mjs",
+      "tests/wizard-reference-drop.test.mjs",
+      "tests/wizard-reference-navigation.test.mjs",
+      "tests/wizard-reference-suggestions.test.mjs",
+      "tests/workspace-disclosure.test.mjs"
+    ]
+  },
+  {
+    "id": "owned-db",
+    "kind": "owned",
+    "files": [
+      "tests/activity-ai-budget.test.mjs",
+      "tests/activity-ai-host.test.mjs",
+      "tests/activity-ai-jobs.test.mjs",
+      "tests/activity-ai-lifecycle.test.mjs",
+      "tests/activity-ai-publication.test.mjs",
+      "tests/activity-ai-reader.test.mjs",
+      "tests/activity-ai-source-limits.test.mjs",
+      "tests/activity-input-limit-host.test.mjs",
+      "tests/activity-multitopic-database.test.mjs",
+      "tests/activity-review-regressions.test.mjs",
+      "tests/activity-unknown-start.test.mjs",
+      "tests/agenda-academic.test.mjs",
+      "tests/agenda-database.test.mjs",
+      "tests/agenda-event-color-database.test.mjs",
+      "tests/agenda-identity.test.mjs",
+      "tests/agenda-recurrence.test.mjs",
+      "tests/agenda-regressions.test.mjs",
+      "tests/audit-activity-ai-lock.test.mjs",
+      "tests/audit-lock-concurrency.test.mjs",
+      "tests/audit-notifications-database.test.mjs",
+      "tests/audit-wall-database.test.mjs",
+      "tests/audit-wall-http-database.test.mjs",
+      "tests/classroom-ai-budget.test.mjs",
+      "tests/classroom-ai-host.test.mjs",
+      "tests/classroom-ai-jobs.test.mjs",
+      "tests/classroom-ai-lifecycle.test.mjs",
+      "tests/classroom-ai-migration.test.mjs",
+      "tests/classroom-ai-reader.test.mjs",
+      "tests/classroom-ai-states.test.mjs",
+      "tests/foxmind-3d-regressions.test.mjs",
+      "tests/foxmind-3d-repository-history.test.mjs",
+      "tests/foxmind-3d-repository.test.mjs",
+      "tests/grading-ai-api.test.mjs",
+      "tests/grading-ai-authorization.test.mjs",
+      "tests/grading-ai-availability-sql.test.mjs",
+      "tests/grading-ai-before-count.test.mjs",
+      "tests/grading-ai-integration.test.mjs",
+      "tests/grading-ai-lifecycle.test.mjs",
+      "tests/grading-ai-pdf.test.mjs",
+      "tests/grading-ai-preflight.test.mjs",
+      "tests/grading-ai-runtime-files.test.mjs",
+      "tests/grading-ai-runtime.test.mjs",
+      "tests/grading-ai-settings-http.test.mjs",
+      "tests/grading-ai-settings.test.mjs",
+      "tests/grading-ai-sql.test.mjs",
+      "tests/p5-delivery.test.mjs",
+      "tests/p5-drafts.test.mjs",
+      "tests/p5-enrollment.test.mjs",
+      "tests/p6-library.test.mjs",
+      "tests/p6-notifications.test.mjs",
+      "tests/p6-plan.test.mjs",
+      "tests/p6-wall.test.mjs",
+      "tests/p7-authoring.test.mjs",
+      "tests/p7-consultation.test.mjs",
+      "tests/p7-history.test.mjs",
+      "tests/p7-notifications.test.mjs",
+      "tests/p7-participation.test.mjs",
+      "tests/p7-practical.test.mjs",
+      "tests/p7-questionnaire.test.mjs",
+      "tests/p8-corrections.test.mjs",
+      "tests/p8-grading-migration.test.mjs",
+      "tests/p8-grading.test.mjs",
+      "tests/p8-progress.test.mjs",
+      "tests/p8-publication.test.mjs",
+      "tests/student-ai-integration.test.mjs"
+    ]
+  },
+  {
+    "id": "owned-browser",
+    "kind": "owned",
+    "files": [
+      "tests/entry-glass-browser.test.mjs",
+      "tests/login-inicio-integration.test.mjs",
+      "tests/p4-integration.test.mjs",
+      "tests/p5-integration.test.mjs",
+      "tests/p5-international-invitations.test.mjs",
+      "tests/p6-library-integration.test.mjs",
+      "tests/p6-mobile-navigation.test.mjs",
+      "tests/p6-plan-integration.test.mjs",
+      "tests/p6-wall-integration.test.mjs",
+      "tests/p7-authoring-integration.test.mjs",
+      "tests/p7-consultation-integration.test.mjs",
+      "tests/p7-history-integration.test.mjs",
+      "tests/p7-notifications-integration.test.mjs",
+      "tests/p7-participation-integration.test.mjs",
+      "tests/p7-practical-integration.test.mjs",
+      "tests/p7-practical-timing-integration.test.mjs",
+      "tests/p7-questionnaire-integration.test.mjs",
+      "tests/p7-questionnaire-overview-integration.test.mjs",
+      "tests/p7-questionnaire-recovery-integration.test.mjs",
+      "tests/p8-corrections-e-final-integration.test.mjs",
+      "tests/p8-corrections-integration.test.mjs",
+      "tests/p8-corrections-remaining-integration.test.mjs",
+      "tests/p8-grading-integration.test.mjs",
+      "tests/p8-grading-reload-integration.test.mjs",
+      "tests/p8-progress-integration.test.mjs",
+      "tests/p8-publication-integration.test.mjs",
+      "tests/p8-publication-tp-integration.test.mjs",
+      "tests/p9-evaluation-journey-integration.test.mjs",
+      "tests/p9-home-integration.test.mjs",
+      "tests/p9-home-recovery-integration.test.mjs",
+      "tests/p9-large-files-integration.test.mjs",
+      "tests/p9-mail-recovery-integration.test.mjs",
+      "tests/p9-max-file-diagnostic-integration.test.mjs",
+      "tests/p9-membership-journey-integration.test.mjs",
+      "tests/p9-plan-diagnostic-integration.test.mjs",
+      "tests/p9-practical-journey-integration.test.mjs",
+      "tests/p9-questionnaire-journey-integration.test.mjs",
+      "tests/p9-runtime-controls-integration.test.mjs",
+      "tests/p9-service-recovery-integration.test.mjs",
+      "tests/p9-teaching-journey-integration.test.mjs",
+      "tests/p9-teaching-remainder-integration.test.mjs"
+    ]
+  },
+  {
+    "id": "owned-services",
+    "kind": "owned",
+    "files": [
+      "tests/grading-ai-files-integration.test.mjs",
+      "tests/p4-services.test.mjs",
+      "tests/p5-runtime.test.mjs",
+      "tests/p32-mail-capture.test.mjs",
+      "tests/p32-mail-flow.test.mjs",
+      "tests/p33-mailbox-flow.test.mjs",
+      "tests/p4-scanner-start.test.mjs",
+      "tests/p33-outbox-runner.test.mjs"
+    ]
+  },
+  {
+    "id": "wrapper-database",
+    "kind": "wrapper",
+    "files": [
+      "tests/database.test.mjs"
+    ],
+    "command": [
+      "node",
+      "scripts/test-database.mjs"
+    ]
+  },
+  {
+    "id": "wrapper-backend",
+    "kind": "wrapper",
+    "files": [
+      "tests/backend.test.mjs"
+    ],
+    "command": [
+      "node",
+      "scripts/test-backend.mjs"
+    ]
+  },
+  {
+    "id": "wrapper-p3-browser",
+    "kind": "wrapper",
+    "files": [
+      "tests/p3-browser.test.mjs"
+    ],
+    "command": [
+      "node",
+      "scripts/test-p3-browser.mjs"
+    ]
+  },
+  {
+    "id": "wrapper-p33-mail-deadline",
+    "kind": "wrapper",
+    "files": [
+      "tests/p33-mail-deadline.test.mjs"
+    ],
+    "command": [
+      "node",
+      "scripts/test-p33-mail-cancellation.mjs",
+      "--deadline"
+    ]
+  },
+  {
+    "id": "wrapper-p33-identity-http",
+    "kind": "wrapper",
+    "files": [
+      "tests/p33-identity-http.test.mjs"
+    ],
+    "command": [
+      "node",
+      "scripts/test-p33-identity-http.mjs"
+    ]
+  },
+  {
+    "id": "wrapper-p33-account-mail-outbox",
+    "kind": "wrapper",
+    "files": [
+      "tests/p33-account-mail-outbox.test.mjs"
+    ],
+    "command": [
+      "node",
+      "scripts/test-p33-outbox.mjs"
+    ]
+  },
+  {
+    "id": "p33-registration-profile-registration",
+    "kind": "wrapper",
+    "files": [
+      "tests/p33-registration-profile.test.mjs"
+    ],
+    "command": [
+      "node",
+      "scripts/test-p33-registration-profile.mjs",
+      "--group=registration"
+    ]
+  },
+  {
+    "id": "p33-registration-profile-account",
+    "kind": "wrapper",
+    "files": [
+      "tests/p33-registration-profile.test.mjs"
+    ],
+    "command": [
+      "node",
+      "scripts/test-p33-registration-profile.mjs",
+      "--group=account"
+    ]
+  },
+  {
+    "id": "p33-registration-profile-sessions",
+    "kind": "wrapper",
+    "files": [
+      "tests/p33-registration-profile.test.mjs"
+    ],
+    "command": [
+      "node",
+      "scripts/test-p33-registration-profile.mjs",
+      "--group=sessions"
+    ]
+  },
+  {
+    "id": "p33-registration-profile-lifecycle",
+    "kind": "wrapper",
+    "files": [
+      "tests/p33-registration-profile.test.mjs"
+    ],
+    "command": [
+      "node",
+      "scripts/test-p33-registration-profile.mjs",
+      "--group=lifecycle"
+    ]
+  },
+  {
+    "id": "p33-verification-confirm",
+    "kind": "wrapper",
+    "files": [
+      "tests/p33-verification.test.mjs"
+    ],
+    "command": [
+      "node",
+      "scripts/test-p33-verification.mjs",
+      "--group=confirm"
+    ]
+  },
+  {
+    "id": "p33-verification-resend",
+    "kind": "wrapper",
+    "files": [
+      "tests/p33-verification.test.mjs"
+    ],
+    "command": [
+      "node",
+      "scripts/test-p33-verification.mjs",
+      "--group=resend"
+    ]
+  },
+  {
+    "id": "p33-recovery-request",
+    "kind": "wrapper",
+    "files": [
+      "tests/p33-recovery.test.mjs"
+    ],
+    "command": [
+      "node",
+      "scripts/test-p33-recovery.mjs",
+      "--group=request"
+    ]
+  },
+  {
+    "id": "p33-recovery-issuance",
+    "kind": "wrapper",
+    "files": [
+      "tests/p33-recovery.test.mjs"
+    ],
+    "command": [
+      "node",
+      "scripts/test-p33-recovery.mjs",
+      "--group=issuance"
+    ]
+  },
+  {
+    "id": "p33-recovery-confirm",
+    "kind": "wrapper",
+    "files": [
+      "tests/p33-recovery.test.mjs"
+    ],
+    "command": [
+      "node",
+      "scripts/test-p33-recovery.mjs",
+      "--group=confirm"
+    ]
+  },
+  {
+    "id": "p33-password-change-core",
+    "kind": "wrapper",
+    "files": [
+      "tests/p33-password-change.test.mjs"
+    ],
+    "command": [
+      "node",
+      "scripts/test-p33-password-change.mjs",
+      "--group=core"
+    ]
+  },
+  {
+    "id": "p33-password-change-guards",
+    "kind": "wrapper",
+    "files": [
+      "tests/p33-password-change.test.mjs"
+    ],
+    "command": [
+      "node",
+      "scripts/test-p33-password-change.mjs",
+      "--group=guards"
+    ]
+  },
+  {
+    "id": "p33-password-change-ip",
+    "kind": "wrapper",
+    "files": [
+      "tests/p33-password-change.test.mjs"
+    ],
+    "command": [
+      "node",
+      "scripts/test-p33-password-change.mjs",
+      "--group=ip"
+    ]
+  },
+  {
+    "id": "p33-password-change-races",
+    "kind": "wrapper",
+    "files": [
+      "tests/p33-password-change.test.mjs"
+    ],
+    "command": [
+      "node",
+      "scripts/test-p33-password-change.mjs",
+      "--group=races"
+    ]
+  }
+]
