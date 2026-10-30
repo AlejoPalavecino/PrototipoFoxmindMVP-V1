@@ -10,6 +10,8 @@ export { createFilesHandler } from './http.ts';
 export { S3Storage } from './storage.ts';
 export { ClamdScanner } from './scanner.ts';
 export { FileError } from './errors.ts';
+export { FileStore, FileIdentityError } from './store.ts';
+export { promoteDraftPlan } from './promotion.ts';
 export { createFileInfrastructure, readFilesConfiguration, type FileInfrastructureConfiguration, type FileInfrastructure, type FileRuntimeConfiguration } from './configuration.ts';
 export { installFilesTransport, createIdentityFileAccess, FileHostLifecycle } from './host.ts';
 export type { FileAccess, FileScope, FileTarget, FileTransaction, FileAction } from './contracts.ts';

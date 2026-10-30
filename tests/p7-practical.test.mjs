@@ -14,6 +14,7 @@ import { authorizeAttemptFileWrite, linkReadyAttemptAttachment } from '../.build
 import { FileError } from '../.build/api/apps/api/src/files/errors.js';
 import { PDFDocument } from 'pdf-lib';
 import { captureSubmissionReceipt } from '../.build/api/apps/api/src/classrooms/submission-receipt.js';
+import { waitForAttemptClock } from './helpers/attempt-clock.mjs';
 import pg from 'pg';
 
 // Controlled SQL authentication/scanner below are explicitly not actual P3 or production ClamAV proof.
@@ -152,6 +153,9 @@ test('TP public service and file ports preserve drafts, receipts, quotas and con
   });
   await check('optional attachment-free explicit receipt is not a grade and has no invented lateness',async()=>{
    const activity=await create(false),started=await service.startActivity(S,room,activity,{});
+   await assert.rejects(() => pool.query("UPDATE attempts SET status='SUBMITTED',submitted_at=opened_at-interval '1 millisecond',submitted_late=false WHERE id=$1", [started.attempt.id]), e => e.code === '23514' && e.constraint === 'attempt_submission_check');
+   assert.equal((await pool.query('SELECT status::text AS status FROM attempts WHERE id=$1',[started.attempt.id])).rows[0].status,'DRAFT');
+   await waitForAttemptClock(started.attempt.openedAt);
    const send=()=>service.submitPracticalAttempt({...S,headers:{'x-attempt-editor':started.editor.token,'x-attempt-epoch':started.editor.epoch}},room,started.attempt.id,{revision:'0',confirm:true});
    const concurrent=await Promise.allSettled([send(),send()]);assert.equal(concurrent.filter(r=>r.status==='fulfilled').length,1);
    assert.equal(concurrent.find(r=>r.status==='rejected').reason.code,'CONFLICT');const result=concurrent.find(r=>r.status==='fulfilled').value;

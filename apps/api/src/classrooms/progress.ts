@@ -1,5 +1,5 @@
 import { displayReferences, studentSnapshot, type StudentProgress } from './student-ai/snapshot.ts';
-import { GradeCorrectionService } from './grade-corrections.ts';
+import type { ClassroomCore } from './core.ts';
 import { completion, gradeMean, meanScore, performance, taughtProgress } from './progress-calculation.ts';
 import { roundHalfUp } from './scoring.ts';
 import { fail, uuid } from './policy.ts';
@@ -13,7 +13,13 @@ interface ProgressActivity {
 }
 
 /** Read persisted academic facts under the same classroom lock as their writers. GET never assigns work. */
-export class ProgressService extends GradeCorrectionService {
+export class ProgressService {
+  private readonly run: ClassroomCore['run'];
+  private readonly classroom: ClassroomCore['classroom'];
+  private readonly ports: ClassroomCore['ports'];
+  constructor(context: Pick<ClassroomCore, 'run' | 'classroom' | 'ports'>) {
+    this.run = context.run.bind(context); this.classroom = context.classroom.bind(context); this.ports = context.ports;
+  }
   private async progressRows(tx: Transaction, classroomId: string, studentId: string | null) {
     return tx.query<ProgressActivity>(`SELECT e.student_id AS "studentId",a.id,a.title,a.type::text,sa.is_expected AS expected,
       CASE WHEN first.id IS NULL THEN NULL ELSE jsonb_build_object('id',first.id,'number',first.attempt_number,
@@ -51,13 +57,19 @@ export class ProgressService extends GradeCorrectionService {
         AND EXISTS(SELECT 1 FROM membership_periods m WHERE m.enrollment_id=e.id AND m.ended_at IS NULL))) ORDER BY u.last_name,u.first_name,e.student_id`, roomId, selected);
     if (selected && students.length !== 1) return fail('FORBIDDEN');
     const rows = await this.progressRows(tx, roomId, selected);
+    const byStudent = new Map<string, ProgressActivity[]>();
+    for (const row of rows) {
+      const activities = byStudent.get(row.studentId) ?? [];
+      activities.push(row);
+      byStudent.set(row.studentId, activities);
+    }
     const topics = await tx.query<{ total: number; taught: number }>(`SELECT count(*)::int AS total,
       count(*) FILTER(WHERE status='TAUGHT')::int AS taught FROM topics WHERE classroom_id=$1::uuid`, roomId);
     const plan = taughtProgress(topics[0].total, topics[0].taught);
-    const summaries = students.map(student => this.studentProgress(student, rows.filter(row => row.studentId === student.studentId)));
+    const summaries = students.map(student => this.studentProgress(student, byStudent.get(student.studentId) ?? []));
     if (selected) return { ...summaries[0], plan };
     const individualMeans = students.flatMap(student => {
-      const mean = gradeMean(rows.filter(row => row.studentId === student.studentId).flatMap(row => row.grade === null ? [] : [row.grade]));
+      const mean = gradeMean((byStudent.get(student.studentId) ?? []).flatMap(row => row.grade === null ? [] : [row.grade]));
       return mean === null ? [] : [mean];
     });
     const average = meanScore(individualMeans), expected = summaries.reduce((sum, row) => sum + row.completion.expected, 0);

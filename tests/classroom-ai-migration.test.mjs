@@ -1,3 +1,4 @@
+import { migrationInventory } from './helpers/migration-inventory.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readdir, readFile } from 'node:fs/promises';
@@ -12,11 +13,11 @@ test('C3 additive AI migration preserves populated P0-P9 drafts, approved plans 
     try {
       const names = (await readdir('prisma/migrations')).filter(name => /^\d+_/.test(name)).sort();
       const aiMigration = '202610230001_classroom_ai';
-      assert.equal(names.length, 14);
-      assert.deepEqual(names.slice(9, 12), ['202610230001_agenda_events', aiMigration, '202610240001_agenda_event_color']);
-      assert.deepEqual(names.slice(12), ['202610250001_activity_topics', '202610250002_activity_ai']);
+      assert.deepEqual(names, migrationInventory);
+      const colorIndex = names.indexOf('202610240001_agenda_event_color');
+      assert.ok(names.indexOf(aiMigration) >= 0 && colorIndex > names.indexOf(aiMigration));
       // Upgrade the complete populated main schema, including retained agenda colors.
-      for (const name of names.slice(0, 12).filter(name => name !== aiMigration))
+      for (const name of names.slice(0, colorIndex + 1).filter(name => name !== aiMigration))
         await db.query(await readFile(`prisma/migrations/${name}/migration.sql`, 'utf8'));
       const fixture = await aiFixture(db);
       await db.query(`INSERT INTO agenda_events(id,owner_id,title,description,category,schedule_kind,

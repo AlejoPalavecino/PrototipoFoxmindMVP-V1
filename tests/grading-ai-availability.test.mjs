@@ -38,21 +38,18 @@ test('sin IA global rechaza activar y permite desactivar o guardar ajustes anter
   await assert.doesNotReject(DraftService.prototype.updateSettings.call(service, {}, id, settings({})));
 });
 
-test('interfaz docente muestra indisponibilidad y bloquea activación sin borrar selección guardada', async () => {
-  const { ClassroomView } = loadTsModule('apps/classrooms-ui/ClassroomView.tsx');
+test('interfaz docente muestra indisponibilidad y bloquea activación sin borrar selección guardada', () => {
+  const { ClassroomSettings } = loadTsModule('apps/classrooms-ui/ClassroomSettings.tsx');
   const detail = { id, revision: '2', role: 'teacher', archived: false, name: 'Aula', subject: 'Materia', division: 'A', academicYear: 2026,
     teacher: 'Docente', timezone: 'UTC', coverKey: 'explore', plans: [], units: [], aiGradingEnabled: true, aiGradingAvailable: false };
-  const view = hookView(ClassroomView, { api: { call: async path => path === `/${id}` ? detail : [] }, id, initialCode: null, onExit() {} });
-  try {
-    await view.flush(); const tab = descendants(view.tree, n => n.type === 'button' && text(n).includes('Configuración'))[0];
-    assert.ok(tab); tab.props.onClick(); await view.flush();
-    const label = descendants(view.tree, n => n.type === 'label' && /correcci[oó]n.*IA/i.test(text(n)))[0]; assert.ok(label);
-    const toggle = descendants(label, n => n.type === 'input' && n.props.type === 'checkbox')[0]; assert.ok(toggle);
-    assert.equal(toggle.props.checked, true); assert.equal(toggle.props.disabled, true);
-    assert.match(text(view.tree), /(?:no disponible|deshabilitad[ao]).*(?:IA|correcci[oó]n)|(?:IA|correcci[oó]n).*(?:no disponible|deshabilitad[ao])/i);
-  } finally { view.close(); }
+  const tree = ClassroomSettings({ api: {}, id, room: detail, settings: { name:'Aula', subject:'Materia', division:'A', academicYear:2026, aiGradingEnabled:true },
+    setSettings() {}, settingsRevision:'2', setSettingsRevision() {}, settingsConflict:false, setSettingsConflict() {}, reloadSettings:async()=>{},
+    isCurrentRoom:()=>true, busy:false, load:async()=>{}, action:async()=>{}, setNotice() {}, setConfirm() {} });
+  const label = descendants(tree, n => n.type === 'label' && /correcci[oó]n.*IA/i.test(text(n)))[0]; assert.ok(label);
+  const toggle = descendants(label, n => n.type === 'input' && n.props.type === 'checkbox')[0]; assert.ok(toggle);
+  assert.equal(toggle.props.checked, true); assert.equal(toggle.props.disabled, true);
+  assert.match(text(tree), /(?:no disponible|deshabilitad[ao]).*(?:IA|correcci[oó]n)|(?:IA|correcci[oó]n).*(?:no disponible|deshabilitad[ao])/i);
 });
-
 
 test('aula ya activa con IA global apagada puede guardar otros datos sin perder preferencia', async () => {
   const writes = []; const tx = { query: async (sql, ...args) => { writes.push({sql,args}); return [{ id }]; } };

@@ -3,11 +3,16 @@ import { setTimeout as delay } from 'node:timers/promises';
 
 /** Observe real start and refresh responses; recover admission once through existing visible controls. */
 export async function openPublicationPractical(page, roomId, activityId, open) {
-  const responses = [], root = `/api/v1/classrooms/${roomId}`;
+  const responses = [], requests = [], root = `/api/v1/classrooms/${roomId}`;
+  const captureRequest = request => {
+    const path = new URL(request.url()).pathname;
+    if (path.startsWith(root)) requests.push({ path, method: request.method() });
+  };
   const capture = response => {
     const path = new URL(response.url()).pathname;
     if (path.startsWith(root)) responses.push({ response, path, method: response.request().method() });
   };
+  page.on('request', captureRequest);
   page.on('response', capture);
   const observed = async (path, method, after = 0) => {
     const deadline = Date.now() + 12000;
@@ -36,7 +41,7 @@ export async function openPublicationPractical(page, roomId, activityId, open) {
       const started = await start.response.json();
       assert.equal(started.attempt.status, 'DRAFT'); assert.equal(started.canTransfer, true);
       assert.ok(started.editor); assert.equal(started.editor.epoch, started.attempt.epoch);
-      for (const path of [`${root}/activities`, `${root}/members`]) await admitted(await observed(path, 'GET', start.index + 1), recover);
+      await admitted(await observed(`${root}/activities`, 'GET', start.index + 1), recover);
     } else assert.equal(current.attempt?.status, 'DRAFT');
   }
   try {
@@ -49,7 +54,7 @@ export async function openPublicationPractical(page, roomId, activityId, open) {
       await opening(responses.length, false);
     }
     await page.getByRole('region', { name: 'Sesión de actividad', exact: true }).waitFor();
-    const transfer = page.getByRole('button', { name: 'Transferir edición a esta pestaña', exact: true });
+    const transfer = page.getByRole('button', { name: 'Continuar en esta pestaña', exact: true });
     if (await transfer.isVisible()) {
       await transfer.click();
       const result = page.waitForResponse(response => new URL(response.url()).pathname.startsWith(`${root}/attempts/`)
@@ -59,5 +64,7 @@ export async function openPublicationPractical(page, roomId, activityId, open) {
     }
     await page.getByLabel('Seleccionar archivo del trabajo', { exact: true }).waitFor();
     assert.equal(await page.getByRole('region', { name: 'Sesión de actividad', exact: true }).getByRole('alert').count(), 0);
-  } finally { page.off('response', capture); }
+    assert.equal(requests.some(request => request.path === `${root}/members` && request.method === 'GET'), false,
+      'Activities and practical start must not fetch the independent Members resource');
+  } finally { page.off('response', capture); page.off('request', captureRequest); }
 }

@@ -9,6 +9,13 @@ const original = 'Original browser password 😀', changed = 'Changed browser pa
 async function visible(page, text) { await page.getByText(text, { exact: false }).first().waitFor({ state: 'visible', timeout: 15000 }); }
 async function fill(page, values) { for (const [label, value] of Object.entries(values)) await page.getByLabel(label, { exact: true }).fill(value); }
 async function submit(page, name) { const button = page.getByRole('button', { name, exact: true }); await button.waitFor({ state: 'visible' }); await button.click({ timeout: 15000 }); }
+function logoutButton(page) {
+  const path = new URL(page.url()).pathname;
+  const container = path === '/verify-email' ? page.getByRole('region', { name: 'Verifica tu correo', exact: true })
+    : path === '/settings' ? page.getByRole('region', { name: 'Configuración', exact: true }) : page;
+  return container.getByRole('button', { name: 'Cerrar sesión', exact: true });
+}
+async function logout(page) { const button = logoutButton(page); await button.waitFor({ state: 'visible' }); await button.click({ timeout: 15000 }); }
 async function login(page, origin, email, password) {
   await page.goto(`${origin}/sign-in`);
   await fill(page, { 'Correo electrónico': email, 'Contraseña': password }); await submit(page, 'Iniciar sesión');
@@ -110,12 +117,13 @@ test('P3 real browser accounts, captured mail, session rotation, recovery, failu
       await t.test('password change renews current session and revokes another real browser session', async () => {
         await login(second, origin, email, original); await second.waitForURL('**/inicio');
         const before = (await context.cookies()).find(cookie => cookie.name === 'foxmind_session');
+        await page.goto(`${origin}/settings`);
         await fill(page, { 'Contraseña actual': original, 'Nueva contraseña': changed }); await submit(page, 'Cambiar contraseña');
         await visible(page, 'Tu sesión continúa');
         const after = (await context.cookies()).find(cookie => cookie.name === 'foxmind_session');
         assert.notEqual(before?.value, after?.value); assert.equal((await state(page)).authenticated, true);
         assert.deepEqual(await state(second), { authenticated: false });
-        await submit(page, 'Cerrar sesión'); await page.waitForURL('**/sign-in');
+        await logout(page); await page.waitForURL('**/sign-in');
         await login(page, origin, email, original); await page.getByRole('alert').waitFor();
         await login(page, origin, email, changed); await page.waitForURL('**/inicio');
         await page.goto(`${origin}/profile`); await page.getByLabel('Nombre', { exact: true }).waitFor();
@@ -123,7 +131,7 @@ test('P3 real browser accounts, captured mail, session rotation, recovery, failu
       let recovery;
       await t.test('captured recovery requires explicit confirmation and revokes all sessions without login', async () => {
         await login(second, origin, email, changed); await second.waitForURL('**/inicio');
-        await submit(page, 'Cerrar sesión'); await page.waitForURL('**/sign-in');
+        await logout(page); await page.waitForURL('**/sign-in');
         await page.goto(`${origin}/forgot-password`); await fill(page, { 'Correo electrónico': email }); await submit(page, 'Enviar enlace de recuperación');
         await visible(page, 'Si existe una cuenta'); [recovery] = await capture(inbox, email, 'recover-password');
         await openProof(page, recovery); await visible(page, 'Confirmar nueva contraseña');
@@ -138,7 +146,7 @@ test('P3 real browser accounts, captured mail, session rotation, recovery, failu
         await page.goto(`${origin}/profile`); await page.getByLabel('Nombre', { exact: true }).waitFor();
       });
       await t.test('expired verification and recovery links reject without changing credentials', async () => {
-        await submit(page, 'Cerrar sesión'); await page.waitForURL('**/sign-in');
+        await logout(page); await page.waitForURL('**/sign-in');
         const expiredEmail = `Expired${Date.now()}@example.test`;
         await page.goto(`${origin}/register`); await fill(page, { Nombre: 'Expiry', Apellido: 'Learner', 'Correo electrónico': expiredEmail, 'Contraseña': original });
         await submit(page, 'Crear cuenta'); await visible(page, 'recibirás un correo');
@@ -158,8 +166,8 @@ test('P3 real browser accounts, captured mail, session rotation, recovery, failu
         const links = await capture(inbox, current.user.email, 'verify-email', 2);
         assert.equal(links.length, 2);
         assert.equal(await page.getByRole('button', { name: 'Reenviar correo', exact: true }).isDisabled(), true);
-        assert.equal(await page.getByRole('button', { name: 'Cerrar sesión', exact: true }).isEnabled(), true);
-        await submit(page, 'Cerrar sesión'); await page.waitForURL('**/sign-in');
+        assert.equal(await logoutButton(page).isEnabled(), true);
+        await logout(page); await page.waitForURL('**/sign-in');
         assert.deepEqual(await state(page), { authenticated: false });
         // Reopening the expired/superseded link remains rejected after an actual resend.
         await openProof(page, links[1]); await submit(page, 'Confirmar verificación'); await page.getByRole('alert').waitFor();
@@ -170,7 +178,7 @@ test('P3 real browser accounts, captured mail, session rotation, recovery, failu
       });
       await t.test('quoted and international mailboxes retain spelling through real browser and SMTP', async () => {
         for (const mailbox of [`"Quoted Learner ${Date.now()}"@example.test`, `Élève${Date.now()}@bücher.example`]) {
-          await submit(page, 'Cerrar sesión'); await page.waitForURL('**/sign-in');
+          await logout(page); await page.waitForURL('**/sign-in');
           await page.goto(`${origin}/register`);
           await fill(page, { Nombre: 'Élève', Apellido: 'Learner', 'Correo electrónico': mailbox, 'Contraseña': original });
           await submit(page, 'Crear cuenta'); await visible(page, 'recibirás un correo');
@@ -180,9 +188,9 @@ test('P3 real browser accounts, captured mail, session rotation, recovery, failu
         }
       });
       await t.test('responsive forms, keyboard focus and safe failure retry preserve navigation', async () => {
-        await submit(page, 'Cerrar sesión'); await page.waitForURL('**/sign-in');
+        await logout(page); await page.waitForURL('**/sign-in');
         for (const width of [320, 375, 1280]) {
-          await page.setViewportSize({ width, height: 900 }); await page.goto(`${origin}/register`); await visible(page, 'Crea tu cuenta');
+          await page.setViewportSize({ width, height: 900 }); await page.goto(`${origin}/register`); await page.getByRole('heading', { name: 'Creá tu cuenta', exact: true }).waitFor();
           await page.getByRole('button', { name: 'Crear cuenta', exact: true }).waitFor({ state: 'visible' });
           assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
           await page.keyboard.press('Tab'); assert.ok(await page.evaluate(() => document.activeElement instanceof HTMLElement && document.activeElement !== document.body));

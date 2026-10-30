@@ -5,7 +5,7 @@ import { openClassroom, planPdf } from './p6-integration-helpers.mjs';
 import { digest } from './p4-integration-helpers.mjs';
 import { openPublicationPractical } from './p8-publication-browser-helpers.mjs';
 import { withJourney, ok, request, createActivity, session, rootOf, rejectUnchanged, academicHash,
-  assertReadyFile, openOwnResult } from './p9-journey-helpers.mjs';
+  assertReadyFile, openOwnResult } from './p9-journey-helpers-current.mjs';
 
 test('P9 joined practical: real private validated attachment, explicit receipt, private 0-10 correction and durable publication', { timeout: 330000 }, async () => {
   await withJourney('practical', async world => {

@@ -1,7 +1,7 @@
 import { request as httpRequest, type IncomingMessage, type ServerResponse } from 'node:http';
 import { request as httpsRequest } from 'node:https';
 import { generationSchema } from './activity-generation-proxy.ts';
-import { parseStartExtraction, parseRetryExtraction, parseApplyExtraction } from '../../../../src/core/domain/index.ts';
+import { parseStartExtraction, parseRetryExtraction, parseApplyExtraction, parseWallQuery, parseWallMutation, privateGradingInput, gradeCorrectionInput, gradePublicationInput, parseNotificationQuery } from '../../../../src/core/domain/index.ts';
 
 const requestLimit = 512 * 1024;
 const responseLimit = 2 * 1024 * 1024;
@@ -24,6 +24,8 @@ const routes: Rule[] = [
   rule(`/${uuid}/plan`, { POST: ['revision', 'operation'] }),
   rule(`/${uuid}/library`, { GET: null, POST: ['revision', 'operation'] }),
   rule(`/${uuid}/wall`, { GET: null, POST: ['revision', 'operation'] }),
+  rule(`/${uuid}/wall/${uuid}`, { GET: null }),
+  rule(`/${uuid}/wall/${uuid}/replies`, { GET: null }),
   rule(`/${uuid}/activity-generations`, { GET: null, POST: [] }),
   rule(`/${uuid}/activity-generations/sources`, { GET: null }),
   rule(`/${uuid}/activity-generations/${uuid}`, { GET: null }),
@@ -50,7 +52,7 @@ const routes: Rule[] = [
   rule(`/${uuid}/attempts/${uuid}/submit-answers`, { POST: ['revision', 'confirm', 'confirmIncomplete'] }),
   rule(`/${uuid}/activities/${uuid}/submissions`, { GET: null }),
   rule(`/${uuid}/attempts/${uuid}/receipt`, { GET: null }),
-  rule('/notifications', { GET: null }),
+  rule('/notifications', { GET: null }), rule('/notifications/page', { GET: null }),
   rule(`/notifications/${uuid}/(?:read|open)`, { POST: [] }),
   rule(`/${uuid}/settings`, { PATCH: ['revision', 'name', 'subject', 'division', 'academicYear', 'aiGradingEnabled'] }),
   rule(`/${uuid}/archive`, { POST: ['archived', 'revision'] }), rule(`/${uuid}/code`, { POST: [] }),
@@ -99,7 +101,7 @@ function object(value: unknown, keys: string[], required = true): value is Recor
   return Boolean(value && typeof value === 'object' && !Array.isArray(value) &&
     Object.keys(value).every(key => keys.includes(key)) && (!required || keys.every(key => Object.hasOwn(value, key))));
 }
-function schema(value: unknown, keys: string[], wall = false): boolean {
+function schema(value: unknown, keys: string[]): boolean {
   if (!object(value, keys, false) || !keys.filter(key => key !== 'aiGradingEnabled').every(key => Object.hasOwn(value, key))) return false;
   for (const key of keys) {
     if (key === 'aiGradingEnabled' && !Object.hasOwn(value, key)) continue;
@@ -112,21 +114,6 @@ function schema(value: unknown, keys: string[], wall = false): boolean {
         || (Object.hasOwn(item, 'offsetMinutes') && !Number.isInteger(item.offsetMinutes))) return false;
     }
     else if (key !== 'payload' && typeof value[key] !== 'string') return false;
-  }
-  if (wall) {
-    const op = value.operation;
-    if (!object(op, ['action', 'id', 'postId', 'body', 'confirm'], false) || typeof op.action !== 'string') return false;
-    const shapes: Record<string, string[]> = {
-      publish: ['action', 'body'], reply: ['action', 'postId', 'body'],
-      editPost: ['action', 'id', 'body'], editReply: ['action', 'id', 'body'],
-      removePost: ['action', 'id', 'confirm'], removeReply: ['action', 'id', 'confirm'],
-    };
-    const shape = Object.hasOwn(shapes, op.action) ? shapes[op.action] : undefined;
-    if (!shape || !object(op, shape)) return false;
-    for (const [key, item] of Object.entries(op)) {
-      if (key === 'confirm') { if (item !== true) return false; }
-      else if (typeof item !== 'string' || ((key === 'id' || key === 'postId') && !new RegExp(`^${uuid}$`).test(item))) return false;
-    }
   }
   if (!keys.includes('payload')) return true;
   const payload = value.payload;
@@ -146,18 +133,6 @@ function schema(value: unknown, keys: string[], wall = false): boolean {
   return true;
 }
 
-function gradingSchema(value: unknown): boolean {
-  if (!object(value, ['revision', 'overallGrade', 'overallFeedback', 'questions'], false)
-    || !['revision', 'overallGrade', 'questions'].every(key => Object.hasOwn(value, key))
-    || typeof value.revision !== 'string' || !Array.isArray(value.questions)) return false;
-  const decimal = (input: unknown) => typeof input === 'string' && /^(?:0|[1-9]\d*)(?:\.\d{1,2})?$/.test(input);
-  const feedback = (input: unknown) => input === null || input === undefined || typeof input === 'string';
-  if (!(value.overallGrade === null || decimal(value.overallGrade)) || !feedback(value.overallFeedback)) return false;
-  return value.questions.every(row => object(row, ['questionId', 'points', 'feedback'], false)
-    && typeof row.questionId === 'string' && new RegExp(`^${uuid}$`).test(row.questionId)
-    && Object.hasOwn(row, 'points') && (row.points === null || decimal(row.points)) && feedback(row.feedback));
-}
-
 function extractionSchema(path: string, value: unknown): boolean {
   try {
     if (path.endsWith('/apply')) parseApplyExtraction(value);
@@ -165,13 +140,6 @@ function extractionSchema(path: string, value: unknown): boolean {
     else parseStartExtraction(value);
     return true;
   } catch { return false; }
-}
-
-function gradeCorrectionSchema(value: unknown): boolean {
-  return object(value, ['revision', 'newGrade', 'reason', 'confirm']) && typeof value.revision === 'string'
-    && /^(0|[1-9][0-9]{0,18})$/.test(value.revision) && value.confirm === true
-    && typeof value.newGrade === 'string' && /^(?:[0-9](?:\.\d{1,2})?|10(?:\.0{1,2})?)$/.test(value.newGrade)
-    && typeof value.reason === 'string' && !!value.reason.trim() && value.reason.length <= 5000;
 }
 
 function activitySchema(value: unknown): boolean {
@@ -235,7 +203,16 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
   if (!selected) { reject(404, 'NOT_FOUND'); return; }
   const method = request.method ?? 'GET';
   if (!Object.hasOwn(selected.methods, method)) { reject(405, 'METHOD_NOT_ALLOWED'); return; }
-  if (url.search) { reject(400, 'INVALID_INPUT'); return; }
+  const wallPath = new RegExp(`^/api/v1/classrooms/${uuid}/wall(?:/${uuid}(?:/replies)?)?$`).test(url.pathname);
+  const notificationPage = url.pathname === '/api/v1/classrooms/notifications/page';
+  if (url.search && (!(wallPath || notificationPage) || method !== 'GET')) { reject(400, 'INVALID_INPUT'); return; }
+  if (wallPath && method === 'GET') {
+    try { parseWallQuery(url.searchParams, url.pathname.endsWith('/replies') ? 'replies' : url.pathname.endsWith('/wall') ? 'feed' : 'thread'); }
+    catch { reject(400, 'INVALID_INPUT'); return; }
+  }
+  if (notificationPage && method === 'GET') {
+    try { parseNotificationQuery(url.searchParams); } catch { reject(400, 'INVALID_INPUT'); return; }
+  }
   const participation = /\/(?:session|eligibility|start|authorize-first|transfer)$/.test(url.pathname);
   const transfer = /\/attempts\/[^/]+\/transfer$/.test(url.pathname);
   if (participation && (request.headers['x-attempt-editor'] !== undefined || request.headers['x-attempt-epoch'] !== undefined)) {
@@ -286,15 +263,16 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
         && new RegExp(`^${uuid}$`).test(parsed.requestId) && typeof parsed.revision === 'string' && /^(0|[1-9][0-9]{0,17})$/.test(parsed.revision)
         && (url.pathname.endsWith('/discard') || typeof parsed.snapshotHash === 'string' && /^[a-f0-9]{64}$/.test(parsed.snapshotHash)
           && !!parsed.proposal && typeof parsed.proposal === 'object' && !Array.isArray(parsed.proposal));
-      if ((!practicalWrite && !answerWrite && !reopening && !gradingRoute && !gradingAiRoute && !publicationRoute && !correctionRoute && !extractionRoute && !generationRoute && !schema(parsed, selected.methods[method] ?? [], url.pathname.endsWith('/wall')))
+      const wallWrite = url.pathname.endsWith('/wall');
+      if (wallWrite) parseWallMutation(parsed);
+      if (gradingRoute) privateGradingInput(parsed);
+      if (correctionRoute) gradeCorrectionInput(parsed);
+      if (publicationRoute) gradePublicationInput(parsed);
+      if ((!wallWrite && !practicalWrite && !answerWrite && !reopening && !gradingRoute && !gradingAiRoute && !publicationRoute && !correctionRoute && !extractionRoute && !generationRoute && !schema(parsed, selected.methods[method] ?? []))
         || (generationRoute && !generationSchema(url.pathname, parsed))
         || (extractionRoute && !extractionSchema(url.pathname, parsed))
         || !validReopening
         || !validGradingAi
-        || (gradingRoute && !gradingSchema(parsed))
-        || (correctionRoute && !gradeCorrectionSchema(parsed))
-        || (publicationRoute && (!object(parsed, ['revision', 'confirm']) || typeof parsed.revision !== 'string'
-          || !/^(0|[1-9][0-9]{0,18})$/.test(parsed.revision) || parsed.confirm !== true))
         || (url.pathname.endsWith('/activities') && !activitySchema(parsed))
         || (answerWrite && (!object(parsed, selected.methods[method] ?? []) || typeof parsed.revision !== 'string'
           || (url.pathname.endsWith('/answer') ? typeof parsed.questionId !== 'string' || !new RegExp(`^${uuid}$`).test(parsed.questionId)
@@ -316,7 +294,7 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
     if (metadata) headers['content-length'] = String(metadata.length);
     let settled = false, upstreamResponse: IncomingMessage | undefined;
     const transport = origin.startsWith('https:') ? httpsRequest : httpRequest;
-    const upstream = transport(`${origin}${url.pathname}`, { method, headers });
+    const upstream = transport(`${origin}${url.pathname}${url.search}`, { method, headers });
     const finish = () => {
       if (settled) return; settled = true;
       clearTimeout(deadline); request.off('aborted', disconnect); request.off('error', disconnect); response.off('close', disconnect); response.off('finish', finish);

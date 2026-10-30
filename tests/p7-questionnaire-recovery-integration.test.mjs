@@ -1,7 +1,8 @@
+import { startBrowserAttempt } from './helpers/browser-admission-step.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { chromium } from '@playwright/test';
+import { chromium, expect } from '@playwright/test';
 import { withP4IntegrationRuntime } from '../scripts/p4-integration-runtime.mjs';
 import { account, api } from './p4-integration-helpers.mjs';
 import { classroom, openClassroom } from './p6-integration-helpers.mjs';
@@ -27,7 +28,7 @@ test('questionnaire recovery from ambiguous acknowledgement and stale focus epoc
       await change({ action: 'publish', id });
       await openClassroom(student, runtime.origin, 'Answer recovery classroom'); await student.getByRole('button', { name: 'Actividades', exact: true }).click();
       await student.getByRole('article', { name: 'Recovery questionnaire', exact: true }).getByRole('button', { name: 'Consultar actividad', exact: true }).click();
-      const start = student.waitForResponse(r => r.url().endsWith(`/activities/${id}/start`)); await student.getByRole('button', { name: 'Comenzar', exact: true }).click(); assert.equal((await start).status(), 200);
+      const start = await startBrowserAttempt(student, room.id, id, 30000); assert.equal(start.status(), 200);
       const input = student.getByRole('textbox', { name: 'Respuesta a la pregunta 1', exact: true });
       const session = () => ok(student, 'GET', `/classrooms/${room.id}/activities/${id}/session`);
       let failed = false;
@@ -41,14 +42,13 @@ test('questionnaire recovery from ambiguous acknowledgement and stale focus epoc
         });
         try {
           await input.fill('Actual commit with lost acknowledgement');
-          await student.getByRole('button', { name: 'Reintentar guardado', exact: true }).click();
           await student.getByText('Las respuestas siguen en pantalla; no se confirmó su guardado.', { exact: false }).waitFor();
-          assert.equal(await input.inputValue(), 'Actual commit with lost acknowledgement'); assert.equal(await input.isEnabled(), true);
+          assert.equal(await input.inputValue(), 'Actual commit with lost acknowledgement'); await expect(input).toBeEnabled({ timeout: 30000 });
           assert.equal(await student.getByText('Guardado confirmado', { exact: true }).count(), 0);
           assert.equal((await session()).attempt.revision, committedRevision);
           await input.fill('Newer retained local intent');
           const retried = student.waitForResponse(r => r.url().endsWith('/answer') && r.request().postDataJSON().text === 'Newer retained local intent');
-          await student.getByRole('button', { name: 'Reintentar guardado', exact: true }).click();
+          await student.getByRole('button', { name: 'Guardar respuestas', exact: true }).click();
           const result = await retried; assert.equal(result.request().postDataJSON().revision, committedRevision); assert.equal(result.status(), 200);
           await student.getByText('Guardado confirmado', { exact: true }).waitFor();
           assert.equal((await session()).attempt.answers[0].text, 'Newer retained local intent');
@@ -67,13 +67,13 @@ test('questionnaire recovery from ambiguous acknowledgement and stale focus epoc
         });
         try {
           await student.evaluate(() => window.dispatchEvent(new Event('focus'))); await waiting;
-          await student.getByRole('button', { name: 'Transferir edición a esta pestaña', exact: true }).click();
+          await student.getByRole('button', { name: 'Continuar en esta pestaña', exact: true }).click();
           const transfer = student.waitForResponse(r => r.url().endsWith('/transfer')); await student.getByRole('button', { name: 'Confirmar transferencia', exact: true }).click();
           assert.equal((await transfer).status(), 200); await input.waitFor(); assert.equal(await input.isEnabled(), true);
           const oldRead = student.waitForResponse(r => r.url().endsWith(`/activities/${id}/session`)); release(); assert.equal((await oldRead).status(), 200);
-          await student.getByText('Control de edición en esta pestaña.', { exact: false }).waitFor(); assert.equal(await input.isEnabled(), true);
+          assert.equal(await input.isEnabled(), true); assert.equal(await student.getByRole('button', { name: 'Continuar en esta pestaña', exact: true }).count(), 0);
           const saved = student.waitForResponse(r => r.url().endsWith('/answer')); await input.fill('Still owns the newer epoch');
-          await student.getByRole('button', { name: 'Reintentar guardado', exact: true }).click(); assert.equal((await saved).status(), 200);
+          await student.getByRole('button', { name: 'Guardar respuestas', exact: true }).click(); assert.equal((await saved).status(), 200);
           assert.equal((await session()).attempt.answers[0].text, 'Still owns the newer epoch');
           for (const table of ['attempt_grades','question_grades','grade_corrections']) assert.equal((await runtime.db.query(`SELECT count(*)::int n FROM ${table}`)).rows[0].n, 0);
         } finally { release?.(); await student.unroute(`**/activities/${id}/session`); }

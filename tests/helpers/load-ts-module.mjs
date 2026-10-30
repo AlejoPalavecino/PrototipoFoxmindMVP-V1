@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
 
 // Test-only in-memory loading of real source modules, including extensionless TS helpers.
-export function loadTsModule(path) {
+export function loadTsModule(path, { stubs = {} } = {}) {
   const cache = new Map();
   function load(filename) {
     filename = resolve(filename);
@@ -25,9 +25,10 @@ export function loadTsModule(path) {
       }] },
     }).outputText;
     const require = specifier => {
+      if (Object.hasOwn(stubs, specifier)) return stubs[specifier];
       if (specifier.startsWith('.')) {
         const base = resolve(dirname(filename), specifier);
-        const source = [base, `${base}.tsx`, `${base}.ts`]
+        const source = [base, `${base}.tsx`, `${base}.ts`, resolve(base, 'index.tsx'), resolve(base, 'index.ts')]
           .find(candidate => /\.tsx?$/.test(candidate) && existsSync(candidate) && statSync(candidate).isFile());
         if (source) return load(source);
       }

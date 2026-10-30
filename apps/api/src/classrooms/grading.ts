@@ -1,5 +1,8 @@
 import { randomUUID } from 'node:crypto';
-import { ActivityHistoryService } from './activity-history.ts';
+import type { ClassroomCore } from './core.ts';
+import type { ActivityAuthoringService } from './activity-authoring.ts';
+import type { PlanService } from './plan.ts';
+import { isVerifiedRead } from './context.ts';
 import { privateGradingInput, type PrivateGradingInput } from './grading-policy.ts';
 import { fail, uuid } from './policy.ts';
 import { finalGrade, fixedHundredths, hundredths, questionScore, scoreJson } from './scoring.ts';
@@ -15,25 +18,34 @@ interface QuestionGradeRow {
 }
 
 /** Private teacher grading shares the existing classroom lock and revision CAS. */
-export class GradingService extends ActivityHistoryService {
-  protected async gradingContext(tx: Transaction, actor: Actor, classroomId: string, attemptId: string, write: boolean) {
+export class GradingService {
+  private readonly run: ClassroomCore['run'];
+  private readonly classroom: ClassroomCore['classroom'];
+  private readonly activity: ActivityAuthoringService['activity'];
+  private readonly activityView: ActivityAuthoringService['activityView'];
+  private readonly advanceRevision: PlanService['advanceRevision'];
+  constructor(context: Pick<ClassroomCore, 'run' | 'classroom'>, dependencies: Pick<ActivityAuthoringService, 'activity' | 'activityView'> & Pick<PlanService, 'advanceRevision'>) {
+    this.run = context.run.bind(context); this.classroom = context.classroom.bind(context);
+    this.activity = dependencies.activity; this.activityView = dependencies.activityView; this.advanceRevision = dependencies.advanceRevision;
+  }
+  async gradingContext(tx: Transaction, actor: Actor, classroomId: string, attemptId: string, write: boolean) {
     if (!uuid(attemptId)) return fail('FORBIDDEN');
     const room = await this.classroom(tx, actor, classroomId, write, true);
     const [attempt] = await tx.query<AttemptRow & { student_id: string; first_name: string; last_name: string }>(`SELECT a.*,e.student_id,u.first_name,u.last_name
       FROM attempts a JOIN student_activities sa ON sa.id=a.student_activity_id
       JOIN enrollments e ON e.id=sa.enrollment_id JOIN users u ON u.id=e.student_id
       WHERE a.id=$1::uuid AND sa.classroom_id=$2::uuid AND e.classroom_id=$2::uuid AND sa.activity_id=a.activity_id
-      FOR UPDATE OF a,sa,e`, attemptId, classroomId);
+      FOR ${isVerifiedRead(tx) && !write ? 'SHARE' : 'UPDATE'} OF a,sa,e`, attemptId, classroomId);
     // A current teacher retains historical academic records after a student leaves.
     if (!attempt || attempt.status !== 'SUBMITTED') return fail('FORBIDDEN');
     const activity = await this.activity(tx, classroomId, attempt.activity_id);
     const [grade] = await tx.query<GradeRow>(`SELECT id,final_grade::text,overall_feedback,is_published,published_at
-      FROM attempt_grades WHERE attempt_id=$1::uuid AND student_activity_id=$2::uuid AND activity_id=$3::uuid FOR UPDATE`,
+      FROM attempt_grades WHERE attempt_id=$1::uuid AND student_activity_id=$2::uuid AND activity_id=$3::uuid FOR ${isVerifiedRead(tx) && !write ? 'SHARE' : 'UPDATE'}`,
     attemptId, attempt.student_activity_id, activity.id);
     return { room, attempt, activity, grade };
   }
 
-  protected async gradingView(tx: Transaction, context: Awaited<ReturnType<GradingService['gradingContext']>>) {
+  async gradingView(tx: Transaction, context: Awaited<ReturnType<GradingService['gradingContext']>>) {
     const { room, activity, attempt, grade } = context;
     const view = await this.activityView(tx, activity, room.timezone, true);
     const answers = await tx.query<{ questionId: string; text: string | null; optionIds: string[] }>(`SELECT a.question_id AS "questionId",a.development_text AS text,
@@ -78,7 +90,7 @@ export class GradingService extends ActivityHistoryService {
     });
   }
 
-  protected async savePrivateGrading(tx: Transaction, actor: Actor, classroomId: string,
+  async savePrivateGrading(tx: Transaction, actor: Actor, classroomId: string,
     context: Awaited<ReturnType<GradingService['gradingContext']>>, body: PrivateGradingInput) {
     const { room, attempt, activity } = context;
       if (room.revision.toString() !== body.revision || context.grade?.is_published) return fail('CONFLICT');
@@ -100,7 +112,7 @@ export class GradingService extends ActivityHistoryService {
       return this.gradingView(tx, { ...context, grade, room: { ...room, revision: room.revision + 1n } });
   }
 
-  protected scoreCorrection(view: Awaited<ReturnType<GradingService['gradingView']>>, body: PrivateGradingInput) {
+  scoreCorrection(view: Awaited<ReturnType<GradingService['gradingView']>>, body: PrivateGradingInput) {
     if (view.activity.type === 'ASSIGNMENT') {
       if (body.questions.length) return fail('INVALID_INPUT');
       return { finalGrade: body.overallGrade === null ? null : fixedHundredths(hundredths(body.overallGrade)), questions: [] };

@@ -126,9 +126,10 @@ test('actual production route gates sessions and selects an invitation without a
     await page.goto(`${process.env.FOXMIND_WEB_TEST_ORIGIN}${target}`);
     const selected = page.getByRole('article', { name: 'Invitación seleccionada del correo' });
     await selected.getByRole('heading', { name: 'Aula invitada' }).waitFor();
-    await page.getByRole('button', { name: /^Abrir menú de cuenta/ }).click();
-    await page.getByRole('link', { name: 'Mi perfil', exact: true }).waitFor();
-    await page.getByRole('button', { name: /^Abrir menú de cuenta/ }).click();
+    await page.getByRole('button', { name: 'Abrir menú de navegación', exact: true }).click();
+    const drawer = page.getByRole('dialog', { name: 'Menú de navegación', exact: true });
+    await drawer.getByRole('link', { name: 'Mi perfil', exact: true }).waitFor();
+    await drawer.getByRole('button', { name: 'Cerrar menú de navegación', exact: true }).click();
     assert.equal(accepts, 0);
     assert.equal(tokens, 0);
     assert.equal(await page.getByText('Cambiar cuenta de prueba:').count(), 0);

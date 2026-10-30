@@ -40,6 +40,33 @@ test('wall mutation contract preserves confirmation and rejects extra keys', () 
   reject(parseWallMutation, [{ ...valid, operation: { ...valid.operation, confirm: false } },
     { ...valid, operation: { ...valid.operation, authorId: q } }, { ...valid, extra: true }]);
 });
+import { createServer } from 'node:http';
+import { proxyClassroomRequest } from '../apps/web/src/lib/classroom-proxy.ts';
+const id = 'a1111111-1111-4111-8111-111111111111';
+async function server(handler) { const s = createServer(handler); await new Promise(resolve => s.listen(0, '127.0.0.1', resolve)); return { url: `http://127.0.0.1:${s.address().port}`, close: () => new Promise(resolve => { s.closeAllConnections(); s.close(resolve); }) }; }
+test('shared grading corpus has identical parser and proxy acceptance', async () => {
+  const upstream = await server((req, res) => { req.resume(); res.setHeader('content-type', 'application/json'); res.end('{}'); });
+  const web = await server((req, res) => void proxyClassroomRequest(req, res, upstream.url));
+  const base = `${web.url}/api/v1/classrooms/${id}/attempts/${id}`;
+  const q = { questionId: id, points: '0', feedback: null };
+  const cases = [
+    ['grading', privateGradingInput, { revision: '0', overallGrade: '0', questions: [q] }, true],
+    ['grading', privateGradingInput, { revision: '0', overallGrade: null, questions: [q, q] }, false],
+    ['grading', privateGradingInput, { revision: '0', overallGrade: '0.001', questions: [] }, false],
+    ['grading', privateGradingInput, { revision: '0', overallGrade: null, questions: [], overallFeedback: '😀'.repeat(5001) }, false],
+    ['grade-corrections', gradeCorrectionInput, { revision: '0', newGrade: '0', reason: '  ajuste ', confirm: true }, true],
+    ['grade-corrections', gradeCorrectionInput, { revision: '0', newGrade: '10.01', reason: 'x', confirm: true }, false],
+    ['publish-grade', gradePublicationInput, { revision: '0', confirm: true }, true],
+    ['publish-grade', gradePublicationInput, { revision: '0', confirm: false }, false],
+  ];
+  try {
+    for (const [route, parse, payload, accepted] of cases) {
+      if (accepted) assert.doesNotThrow(() => parse(payload)); else assert.throws(() => parse(payload), /INVALID_INPUT/);
+      const res = await fetch(`${base}/${route}`, { method: 'POST', headers: { 'content-type': 'application/json', cookie: 'fixture=session', 'x-csrf-token': 'fixture' }, body: JSON.stringify(payload) });
+      assert.equal(res.status, accepted ? 200 : 400, `${route}: ${JSON.stringify(payload).slice(0, 150)}`);
+    }
+  } finally { await web.close(); await upstream.close(); }
+});
 
 
 test('published result rejects malformed rational scores, point values and question discriminants', () => {

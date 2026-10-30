@@ -1,7 +1,7 @@
 'use client';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { AcademicTarget, ClassroomClient, Detail, Invitation, Member, NotificationTarget } from './api.ts';
-import { Cover, Dialog, Notice, initials } from './components.tsx';
+import { Notice } from './components.tsx';
 import { ClassroomHeader } from './ClassroomHeader.tsx';
 import type { HomeTarget } from '../../src/core/domain/index.ts';
 import { homeClassroomTab, homeNotificationTarget } from './classroom-home-target.ts';
@@ -11,20 +11,16 @@ import { Library } from './Library.tsx';
 import { Wall } from './Wall.tsx';
 import { Activities } from './Activities.tsx';
 import { Progress } from './Progress.tsx';
-import { StudentAiSummary } from './StudentAiSummary.tsx';
+import { useClassroomResource } from './use-classroom-resource.ts';
+import { ClassroomSettings } from './ClassroomSettings.tsx';
+import { ClassroomDialogs } from './ClassroomDialogs.tsx';
+import { ClassroomRoster, type Summary } from './ClassroomRoster.tsx';
+import { ClassroomMembers } from './ClassroomMembers.tsx';
+import { ResourceNotice } from './ResourceNotice.tsx';
+import { useClassroomNavigation } from './use-classroom-navigation.ts';
+import { useClassroomSettings } from './use-classroom-settings.ts';
+import { useSettingsReload } from './use-settings-reload.ts';
 
-interface Summary {
-  firstName: string;
-  lastName: string;
-  attempts: {
-    id: string;
-    title: string;
-    submittedAt: string;
-    number: number;
-    grade: string | null;
-    published: boolean | null;
-  }[];
-}
 export function ClassroomView({
   api,
   id,
@@ -42,20 +38,32 @@ export function ClassroomView({
   homeTarget?: HomeTarget | null;
   onWallChanged?: () => void;
 }) {
-  const [room, setRoom] = useState<Detail | null>(null),
-    [members, setMembers] = useState<Member[]>([]),
-    [history, setHistory] = useState<Member[]>([]),
-    [invitations, setInvitations] = useState<Invitation[]>([]);
-  const [tab, setTab] = useState(wallTarget ? 'postId' in wallTarget ? 'wall' : 'activities' : homeClassroomTab(homeTarget)),
-    [error, setError] = useState(''),
-    [notice, setNotice] = useState(''),
-    [busy, setBusy] = useState(false);
-  const tabs = useRef<HTMLElement>(null);
-  const roster = useRef<HTMLUListElement>(null);
-  const rosterRevealPending = useRef(true);
-  const [rosterLoaded, setRosterLoaded] = useState(false);
+  const activeWallTarget = wallTarget?.classroomId === id ? wallTarget : null;
+  const activeHomeTarget = homeTarget && 'classroomId' in homeTarget && homeTarget.classroomId !== id ? null : homeTarget;
+  const [tab, setTab] = useState(activeWallTarget ? 'postId' in activeWallTarget ? 'wall' : 'activities' : homeClassroomTab(activeHomeTarget));
+  const [actionStates, setActionStates] = useState<Record<string, { error: string; busy: boolean }>>({});
+  const { error = '', busy = false } = actionStates[tab] ?? {};
+  const invitationAction = actionStates.invitations ?? { error: '', busy: false };
+  const [notice, setNotice] = useState('');
+  const detail = useClassroomResource<Detail>(api, `/${id}`, true);
+  const room = detail.data;
+  const teacher = room?.role === 'teacher';
+  const memberResource = useClassroomResource<Member[]>(api, `/${id}/members`, tab === 'members' && !!room);
+  const historyResource = useClassroomResource<Member[]>(api, `/${id}/history`, tab === 'history' && !!teacher);
+  const invitationResource = useClassroomResource<Invitation[]>(api, `/${id}/invitations`, tab === 'members' && !!teacher);
+  const members = memberResource.data ?? [];
+  const history = historyResource.data ?? [];
+  const invitations = invitationResource.data ?? [];
+  const rosterLoaded = memberResource.status === 'ready';
+  const load = detail.reload;
+  const identity = useRef({ id });
+  if (identity.current.id !== id) identity.current = { id };
+  const activeIdentity = identity.current;
+  const settingsOperation = useRef(0);
+  const isCurrentRoom = () => identity.current === activeIdentity;
+  const { tabs, roster } = useClassroomNavigation(tab, room, activeWallTarget, rosterLoaded, members.length);
   const [planActivity, setPlanActivity] = useState<AcademicTarget | null>(null);
-  const destination = wallTarget ?? (homeTarget && 'classroomId' in homeTarget && homeTarget.classroomId === id ? homeNotificationTarget(homeTarget) : null);
+  const destination = activeWallTarget ?? (activeHomeTarget && 'classroomId' in activeHomeTarget && activeHomeTarget.classroomId === id ? homeNotificationTarget(activeHomeTarget) : null);
   const [code, setCode] = useState(initialCode),
     [email, setEmail] = useState(''),
     [inviting, setInviting] = useState(false),
@@ -64,108 +72,37 @@ export function ClassroomView({
     title: string;
     text: string;
     run: () => Promise<void>;
+    scope?: string;
   } | null>(null);
-  const [settings, setSettings] = useState({
-    name: '',
-    subject: '',
-    division: '',
-    academicYear: 2026,
-    aiGradingEnabled: false,
-  });
-  const load = useCallback(
-    async (signal?: AbortSignal) => {
-      const detail = await api.call<Detail>(
-        `/${id}`,
-        undefined,
-        undefined,
-        signal,
-      );
-      setRoom(detail);
-      setSettings({
-        name: detail.name,
-        subject: detail.subject,
-        division: detail.division,
-        academicYear: detail.academicYear,
-        aiGradingEnabled: detail.aiGradingEnabled ?? false,
-      });
-      const [current, past, pending] = await Promise.all([
-        api.call<Member[]>(`/${id}/members`, undefined, undefined, signal),
-        detail.role === 'teacher'
-          ? api.call<Member[]>(`/${id}/history`, undefined, undefined, signal)
-          : Promise.resolve([]),
-        detail.role === 'teacher'
-          ? api.call<Invitation[]>(
-              `/${id}/invitations`,
-              undefined,
-              undefined,
-              signal,
-            )
-          : Promise.resolve([]),
-      ]);
-      setMembers(current);
-      setRosterLoaded(true);
-      setHistory(past);
-      setInvitations(pending);
-      setError('');
-    },
-    [api, id],
-  );
-  useEffect(() => {
-    const controller = new AbortController();
-    void load(controller.signal).catch((e) => {
-      if (!controller.signal.aborted) setError(e.message);
-    });
-    return () => controller.abort();
-  }, [load]);
-  useEffect(() => { if (wallTarget) { setPlanActivity(null); setTab('postId' in wallTarget ? 'wall' : 'activities'); } }, [wallTarget]);
-  useEffect(() => { if (!wallTarget && homeTarget) { setPlanActivity(null); setTab(homeClassroomTab(homeTarget)); } }, [homeTarget, wallTarget]);
-  useEffect(() => {
-    const nav = tabs.current;
-    if (!nav) return;
-    const reveal = () => {
-      const active = nav.querySelector<HTMLElement>('[aria-current="page"]');
-      if (!active) return;
-      const bounds = nav.getBoundingClientRect(), selected = active.getBoundingClientRect();
-      if (selected.left < bounds.left) nav.scrollLeft += Math.floor(selected.left - bounds.left);
-      else if (selected.right > bounds.right) nav.scrollLeft += Math.ceil(selected.right - bounds.right);
-    };
-    reveal();
-    const observer = new ResizeObserver(reveal);
-    observer.observe(nav);
-    return () => observer.disconnect();
-  }, [tab, room?.id, room?.role, wallTarget]);
-  async function action(task: () => Promise<void>) {
-    setBusy(true);
-    setError('');
-    try {
-      await task();
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setBusy(false);
+  const { settings, setSettings, settingsRevision, setSettingsRevision,
+    settingsConflict, setSettingsConflict } = useClassroomSettings(id, room);
+  useEffect(() => { setConfirm(null); setInviting(false); setSummary(null); setNotice(''); setActionStates({}); setCode(initialCode); setEmail(''); setPlanActivity(null); }, [id, initialCode]);
+  useEffect(() => { setConfirm(null); setInviting(false); }, [tab]);
+  useEffect(() => { setTab(activeWallTarget ? 'postId' in activeWallTarget ? 'wall' : 'activities' : homeClassroomTab(activeHomeTarget)); }, [id]);
+  useEffect(() => { if (activeWallTarget) { setPlanActivity(null); setTab('postId' in activeWallTarget ? 'wall' : 'activities'); } }, [activeWallTarget]);
+  useEffect(() => { if (!activeWallTarget && activeHomeTarget) { setPlanActivity(null); setTab(homeClassroomTab(activeHomeTarget)); } }, [activeHomeTarget, activeWallTarget]);
+  async function action(task: () => Promise<void>, section = tab) {
+    if (section === 'settings') settingsOperation.current++;
+    setActionStates(previous => ({ ...previous, [section]: { busy: true, error: '' } }));
+    try { await task(); }
+    catch (e) {
+      if (!isCurrentRoom()) return;
+      if ((e as { status?: number }).status === 409 && section === 'settings') setSettingsConflict(true);
+      setActionStates(previous => ({ ...previous, [section]: { busy: false, error: (e as Error).message } }));
+      return;
     }
+    if (isCurrentRoom()) setActionStates(previous => ({ ...previous, [section]: { busy: false, error: '' } }));
   }
+  const reloadSettings = useSettingsReload({ actionStates, settingsOperation, reload: detail.reloadWithResult,
+    isCurrentRoom, setSettings, setSettingsRevision, setSettingsConflict, setActionStates });
   async function invite() {
     await api.call(`/${id}/invitations`, 'POST', { email });
+    if (!isCurrentRoom()) return;
     setEmail('');
     setInviting(false);
-    setNotice(
-      'Invitación guardada para enviar. La inscripción requiere que la persona la acepte.',
-    );
-    await load();
+    setNotice('Invitación guardada para enviar. La inscripción requiere que la persona la acepte.');
+    await invitationResource.reload();
   }
-  const teacher = room?.role === 'teacher';
-  useEffect(() => { rosterRevealPending.current = true; }, [tab]);
-  useEffect(() => {
-    if (!teacher || tab !== 'members' || !rosterLoaded || !rosterRevealPending.current) return;
-    rosterRevealPending.current = false;
-    const button = roster.current?.querySelector<HTMLButtonElement>('[data-open-summary]');
-    if (!button) return;
-    const bounds = button.getBoundingClientRect();
-    if (bounds.top < 140 || bounds.bottom > window.innerHeight - 100) {
-      button.scrollIntoView({ block: 'center', inline: 'nearest' });
-    }
-  }, [tab, teacher, rosterLoaded, members.length]);
   const tabLabels: Record<string, string> = { members: teacher ? 'Alumnos' : 'Compañeros', history: 'Historial', plan: 'Plan', library: 'Biblioteca', activities: 'Actividades', progress: teacher ? 'Progreso' : 'Mi progreso', wall: 'Muro', settings: 'Configuración' };
   const tabIcons: Record<string, string> = { members: 'people-fill', history: 'list', plan: 'list', library: 'book', activities: 'book', progress: 'list', wall: 'people-fill', settings: 'person-fill' };
   return (
@@ -173,15 +110,8 @@ export function ClassroomView({
       <button className="p5-link" onClick={onExit}>
         Mis Aulas / Volver a mis aulas
       </button>
-      {error ? (
-        <Notice error>
-          {error}{' '}
-          <button onClick={() => void action(() => load())}>
-            Actualizar aula
-          </button>
-        </Notice>
-      ) : null}
-      {!room && !error ? <Notice>Cargando aula…</Notice> : null}
+      {detail.error ? <Notice error>{detail.error} <button onClick={() => void load()}>Actualizar aula</button></Notice> : null}
+      {!room && detail.status !== 'error' ? <Notice>Cargando aula…</Notice> : null}
       {room ? (
         <>
           <ClassroomHeader room={room} />
@@ -214,241 +144,20 @@ export function ClassroomView({
           </nav>
           <section data-classroom-tab={tab} className={`p5-surface ${tab === 'plan' ? 'fm3-plan-surface' : `folder-panel tone-${teacher ? 'coral' : 'mint'}`}`} aria-labelledby="classroom-section-title">
             <h2 id="classroom-section-title" className="folder-tab"><EntryIcon name={tabIcons[tab]} />{tabLabels[tab]}</h2>
+            {error ? <Notice error>{error}</Notice> : null}
+            {tab === 'members' || tab === 'history' ? (
+              <ResourceNotice resource={tab === 'history' ? historyResource : memberResource} />
+            ) : null}
             {tab === 'members' || tab === 'history' ? (
               <>
-                <header className="p5-section-head">
-                  <div>
-                    <h2><EntryIcon name={tab === 'history' ? 'list' : 'people-fill'} />
-                      {tab === 'history'
-                        ? 'Historial de estudiantes'
-                        : teacher
-                          ? 'Alumnos'
-                          : 'Compañeros'}
-                    </h2>
-                    <p>
-                      {tab === 'history'
-                        ? 'Las personas que salieron conservan sus registros.'
-                        : teacher
-                          ? 'Acompañá a quienes forman parte del aula.'
-                          : 'Las personas con las que compartís el aprendizaje.'}
-                    </p>
-                  </div>
-                  {teacher && tab === 'members' ? (
-                    <button
-                      className="primary"
-                      disabled={busy || room.archived}
-                      onClick={() => setInviting(true)}
-                    >
-                      Invitar estudiantes
-                    </button>
-                  ) : null}
-                </header>
-                {(tab === 'history' ? history : members).length === 0 ? (
-                  <p className="p5-empty">
-                    {tab === 'history'
-                      ? 'Todavía no hay salidas registradas.'
-                      : 'Todavía no hay estudiantes en el aula.'}
-                  </p>
-                ) : null}
-                <ul className="p5-roster" ref={roster}>
-                  {(tab === 'history' ? history : members).map(
-                    (member, index) => (
-                      <li key={member.enrollmentId ?? index}
-                        style={teacher ? { cursor: 'pointer' } : undefined}
-                        onClick={event => {
-                          if (teacher && !(event.target as HTMLElement).closest('button')) {
-                            event.currentTarget.querySelector<HTMLButtonElement>('[data-open-summary]')?.click();
-                          }
-                        }}>
-                        <span className="p5-avatar" aria-hidden="true">
-                          {initials(member.firstName, member.lastName)}
-                        </span>
-                        <div>
-                          <strong>
-                            {member.firstName} {member.lastName}
-                          </strong>
-                          {teacher
-                            ? member.periods?.map((period, i) => (
-                                <small key={i} className={tab === 'history' ? 'classroom-history-date' : undefined}>
-                                  {new Date(period.joinedAt).toLocaleDateString(
-                                    'es-AR',
-                                  )}{' '}
-                                  —{' '}
-                                  {period.endedAt
-                                    ? `${new Date(period.endedAt).toLocaleDateString('es-AR')} · ${period.endReason === 'LEFT' ? 'Salida voluntaria' : 'Removido por docente'}`
-                                    : 'Actualmente inscripto'}
-                                </small>
-                              ))
-                            : null}
-                        </div>
-                        {teacher ? (
-                          <div className="p5-actions">
-                            <button
-                              data-open-summary
-                              disabled={busy}
-                              onClick={() =>
-                                void action(async () =>
-                                  setSummary({
-                                    ...await api.call<Summary>(
-                                      `/${id}/members/${member.studentId}`,
-                                    ),
-                                    studentId: member.studentId!,
-                                  }),
-                                )
-                              }
-                            >
-                              Ver resumen
-                            </button>
-                            {tab === 'members' ? (
-                              <button
-                                disabled={busy || room.archived}
-                                onClick={() =>
-                                  setConfirm({
-                                    title: 'Remover estudiante',
-                                    text: `${member.firstName} perderá acceso al aula. Sus entregas, calificaciones y conversaciones se conservan.`,
-                                    run: async () => {
-                                      await api.call(
-                                        `/${id}/members/${member.studentId}/remove`,
-                                        'POST',
-                                        {},
-                                      );
-                                      await load();
-                                    },
-                                  })
-                                }
-                              >
-                                Remover
-                              </button>
-                            ) : null}
-                          </div>
-                        ) : null}
-                      </li>
-                    ),
-                  )}
-                </ul>
-                {tab === 'history' ? <aside className="classroom-history-explainer"><div className="classroom-history-art"><Cover kind="general" /></div><h3>Sobre el historial</h3><p>Los registros de quienes salieron del aula se conservan para que puedas mantener un seguimiento completo.</p><p className="classroom-history-note">Sus actividades, entregas y participaciones siguen disponibles en tus reportes y progreso.</p></aside> : null}
+                <ClassroomRoster tab={tab} teacher={!!teacher} room={room} busy={busy} members={members} history={history}
+                  memberResource={memberResource} historyResource={historyResource} roster={roster} api={api} id={id}
+                  isCurrentRoom={isCurrentRoom} setInviting={setInviting} setSummary={setSummary}
+                  setConfirm={setConfirm} action={action} />
                 {teacher && tab === 'members' ? (
-                  <aside className="classroom-members-aside">
-                    <section className="classroom-members-code">
-                    <hr />
-                    <h3><EntryIcon name="grid" /> Código del aula</h3>
-                    <p>
-                      Solo sirve para el primer ingreso. Para reingresar, hace
-                      falta una invitación nueva.
-                    </p>
-                    {code ? (
-                      <div className="p5-code">
-                        <code>{code}</code>
-                        <button
-                          onClick={() =>
-                            void action(async () => {
-                              await navigator.clipboard.writeText(code);
-                              setNotice('Código copiado.');
-                            })
-                          }
-                        >
-                          Copiar código
-                        </button>
-                      </div>
-                    ) : (
-                      <p>Generá un código nuevo para compartirlo.</p>
-                    )}
-                    <button
-                      disabled={busy || room.archived}
-                      onClick={() =>
-                        setConfirm({
-                          title: 'Generar un código nuevo',
-                          text: 'El código anterior dejará de funcionar. Las inscripciones actuales se conservan.',
-                          run: async () => {
-                            const result = await api.call<{ code: string }>(
-                              `/${id}/code`,
-                              'POST',
-                              {},
-                            );
-                            setCode(result.code);
-                          },
-                        })
-                      }
-                    >
-                      Generar código nuevo
-                    </button>
-                    </section>
-                    <section className="classroom-members-invitations">
-                    <h3><EntryIcon name="envelope" /> Invitaciones enviadas</h3>
-                    {invitations.length === 0 ? (
-                      <p>No hay invitaciones enviadas.</p>
-                    ) : (
-                      <ul className="p5-invite-list">
-                        {invitations.map((invitation) => (
-                          <li key={invitation.id}>
-                            <span>
-                              {invitation.recipient}
-                              <small>
-                                {invitation.acceptedAt
-                                  ? 'Aceptada'
-                                  : invitation.revokedAt
-                                    ? 'Revocada'
-                                    : new Date(invitation.expiresAt).getTime() <
-                                        Date.now()
-                                      ? 'Vencida'
-                                      : 'Pendiente'}
-                              </small>
-                              <small>
-                                {invitation.deliveryError ===
-                                'P5_INVITATION_STALE'
-                                  ? 'Correo no enviado: la invitación ya no está activa.'
-                                  : invitation.deliveryError
-                                    ? 'No se pudo enviar el correo. Podés reenviar la invitación.'
-                                    : invitation.deliveryStatus === 'COMPLETED'
-                                      ? 'Correo aceptado para envío.'
-                                      : 'Correo en cola de envío.'}
-                              </small>
-                            </span>
-                            {!invitation.acceptedAt && !invitation.revokedAt ? (
-                              <div className="p5-actions">
-                                <button
-                                  disabled={busy || room.archived}
-                                  onClick={() =>
-                                    void action(async () => {
-                                      await api.call(
-                                        `/${id}/invitations`,
-                                        'POST',
-                                        { email: invitation.recipient },
-                                      );
-                                      setNotice('Invitación renovada.');
-                                      await load();
-                                    })
-                                  }
-                                >
-                                  Reenviar
-                                </button>
-                                <button
-                                  disabled={busy || room.archived}
-                                  onClick={() =>
-                                    setConfirm({
-                                      title: 'Revocar invitación',
-                                      text: 'Esta invitación dejará de permitir el ingreso al aula.',
-                                      run: async () => {
-                                        await api.call(
-                                          `/${id}/invitations/${invitation.id}/revoke`,
-                                          'POST',
-                                          {},
-                                        );
-                                        await load();
-                                      },
-                                    })
-                                  }
-                                >
-                                  Revocar
-                                </button>
-                              </div>
-                            ) : null}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                    </section>
-                  </aside>
+                  <ClassroomMembers api={api} id={id} room={room} busy={busy} code={code} setCode={setCode}
+                    setNotice={setNotice} setConfirm={setConfirm} isCurrentRoom={isCurrentRoom}
+                    invitations={invitations} invitationAction={invitationAction} invitationResource={invitationResource} action={action} />
                 ) : null}
               </>
             ) : null}
@@ -456,113 +165,15 @@ export function ClassroomView({
               setPlanActivity({ kind: 'activity', classroomId: id, activityId, attemptId: null }); setTab('activities');
             }} /> : null}
             {tab === 'progress' ? <Progress api={api} classroomId={id} /> : null}
-            {tab === 'library' ? <Library api={api} room={room} reload={load} targetMaterialId={homeTarget?.kind === 'material' ? homeTarget.materialId : undefined} openUpload={homeTarget?.kind === 'upload-material'} /> : null}
+            {tab === 'library' ? <Library api={api} room={room} reload={load} targetMaterialId={activeHomeTarget?.kind === 'material' ? activeHomeTarget.materialId : undefined} openUpload={activeHomeTarget?.kind === 'upload-material'} /> : null}
             {tab === 'wall' ? <Wall api={api} room={room} reload={load} target={destination && 'postId' in destination ? destination : null} onChanged={onWallChanged} /> : null}
             {tab === 'activities' ? <Activities api={api} room={room} reload={load} target={planActivity ?? (destination && 'kind' in destination ? destination : null)}
-              openAuthoring={homeTarget?.kind === 'create-activity'} submissionFilter={homeTarget?.kind === 'submissions' ? 'unpublished' : undefined} onChanged={onWallChanged} /> : null}
-            {tab === 'settings' && teacher ? (
-              <>
-                <h2><EntryIcon name="grid" /> Configuración del aula</h2>
-                <p className="classroom-settings-intro">Administrá la información general de tu aula, su portada y las opciones de archivado.</p>
-                <form
-                  onSubmit={(event) => {
-                    event.preventDefault();
-                    void action(async () => {
-                      const { aiGradingEnabled, ...classroomSettings } = settings;
-                      await api.call(`/${id}/settings`, 'PATCH', {
-                        ...classroomSettings,
-                        ...(room.aiGradingAvailable === false && aiGradingEnabled ? {} : { aiGradingEnabled }),
-                        revision: room.revision,
-                      });
-                      setNotice('Cambios guardados.');
-                      await load();
-                    });
-                  }}
-                >
-                  <fieldset disabled={busy || room.archived}>
-                    <h3><EntryIcon name="book" /> Datos del aula</h3>
-                    <p>Editá la información básica de tu aula. Estos datos se mostrarán a los alumnos.</p>
-                    <div className="p5-fields">
-                      {(['name', 'subject', 'division'] as const).map((key) => (
-                        <label key={key}>
-                          {key === 'name'
-                            ? 'Nombre del aula'
-                            : key === 'subject'
-                              ? 'Materia'
-                              : 'División'}
-                          <input
-                            required
-                            maxLength={key === 'division' ? 60 : 120}
-                            value={settings[key]}
-                            onChange={(e) =>
-                              setSettings((previous) => ({
-                                ...previous,
-                                [key]: e.target.value,
-                              }))
-                            }
-                          />
-                        </label>
-                      ))}
-                      <label>
-                        Ciclo lectivo
-                        <input
-                          required
-                          type="number"
-                          min="1"
-                          max="9999"
-                          value={settings.academicYear}
-                          onChange={(e) =>
-                            setSettings((previous) => ({
-                              ...previous,
-                              academicYear: Number(e.target.value),
-                            }))
-                          }
-                        />
-                      </label>
-                    </div>
-                    <p>Zona horaria fija: {room.timezone}</p>
-                    <label className="p7-check"><input type="checkbox" checked={settings.aiGradingEnabled}
-                      disabled={room.aiGradingAvailable === false}
-                      onChange={(event) => setSettings(previous => ({ ...previous, aiGradingEnabled: event.target.checked }))} />
-                      Corrección asistida por IA para esta aula</label>
-                    {room.aiGradingAvailable === false ? <><p>Corrección con IA no disponible en este momento. Las entregas no generarán sugerencias.</p>
-                      {settings.aiGradingEnabled ? <button type="button" onClick={() => setSettings(previous => ({ ...previous, aiGradingEnabled: false }))}>Desactivar para esta aula</button> : null}</> : null}
-                    <p>Al activar esta opción, se generarán sugerencias para las nuevas entregas. El docente revisa y publica cada calificación.</p>
-                    <button className="primary">Guardar cambios</button>
-                  </fieldset>
-                </form>
-                <section className="classroom-settings-cover"><div><h3><EntryIcon name="grid" /> Portada del aula</h3><p>Esta portada se muestra en la parte superior y ayuda a identificar el aula.</p></div><Cover kind={room.coverKey} /></section>
-                <section className="classroom-settings-archive">
-                <hr />
-                <h3>{room.archived ? 'Reactivar aula' : 'Archivar aula'}</h3>
-                <p>
-                  {room.archived
-                    ? 'Se habilitarán las acciones habituales. Los plazos existentes se conservan.'
-                    : 'Se conserva todo el contenido y el aula pasa a ser de solo lectura.'}
-                </p>
-                <button
-                  disabled={busy}
-                  onClick={() =>
-                    setConfirm({
-                      title: room.archived ? 'Reactivar aula' : 'Archivar aula',
-                      text: room.archived
-                        ? 'La reactivación no modifica fechas límite ni historial.'
-                        : 'Mientras esté archivada, no se podrán realizar cambios ni nuevas inscripciones.',
-                      run: async () => {
-                        await api.call(`/${id}/archive`, 'POST', {
-                          archived: !room.archived,
-                          revision: room.revision,
-                        });
-                        await load();
-                      },
-                    })
-                  }
-                >
-                  {room.archived ? 'Reactivar aula' : 'Archivar aula'}
-                </button>
-                </section>
-              </>
-            ) : null}
+              openAuthoring={activeHomeTarget?.kind === 'create-activity'} submissionFilter={activeHomeTarget?.kind === 'submissions' ? 'unpublished' : undefined} onChanged={onWallChanged} /> : null}
+            {tab === 'settings' && teacher ? <ClassroomSettings api={api} id={id} room={room}
+              settings={settings} setSettings={setSettings} settingsRevision={settingsRevision}
+              setSettingsRevision={setSettingsRevision} settingsConflict={settingsConflict}
+              setSettingsConflict={setSettingsConflict} reloadSettings={reloadSettings} isCurrentRoom={isCurrentRoom}
+              busy={busy} load={load} action={action} setNotice={setNotice} setConfirm={setConfirm} /> : null}
             {!teacher ? (
               <footer className="p5-student-footer">
                 <button
@@ -573,7 +184,7 @@ export function ClassroomView({
                       text: 'Perderás acceso al aula. Tu historial se conserva y para volver necesitarás una invitación nueva del docente.',
                       run: async () => {
                         await api.call(`/${id}/leave`, 'POST', {});
-                        onExit();
+                        if (isCurrentRoom()) onExit();
                       },
                     })
                   }
@@ -585,107 +196,9 @@ export function ClassroomView({
           </section>
         </>
       ) : null}
-      {inviting ? (
-        <Dialog
-          title="Invitar estudiantes"
-          onClose={() => {
-            if (!busy) setInviting(false);
-          }}
-        >
-          <p>
-            Enviaremos una invitación que deberán aceptar con ese mismo correo.
-          </p>
-          {error ? <Notice error>{error}</Notice> : null}
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              void action(invite);
-            }}
-          >
-            <label>
-              Correo electrónico
-              <input
-                required
-                type="text"
-                inputMode="email"
-                autoFocus
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </label>
-            <footer className="p5-form-footer">
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => setInviting(false)}
-              >
-                Cancelar
-              </button>
-              <button className="primary" disabled={busy}>
-                {busy ? 'Guardando…' : 'Enviar invitación'}
-              </button>
-            </footer>
-          </form>
-        </Dialog>
-      ) : null}
-      {confirm ? (
-        <Dialog
-          title={confirm.title}
-          onClose={() => {
-            if (!busy) setConfirm(null);
-          }}
-        >
-          <p>{confirm.text}</p>
-          {error ? <Notice error>{error}</Notice> : null}
-          <footer className="p5-form-footer">
-            <button disabled={busy} onClick={() => setConfirm(null)}>
-              Cancelar
-            </button>
-            <button
-              className="primary"
-              disabled={busy}
-              onClick={() =>
-                void action(async () => {
-                  await confirm.run();
-                  setConfirm(null);
-                })
-              }
-            >
-              {busy ? 'Procesando…' : 'Confirmar'}
-            </button>
-          </footer>
-        </Dialog>
-      ) : null}
-      {summary ? (
-        <Dialog
-          title={`${summary.firstName} ${summary.lastName}`}
-          onClose={() => setSummary(null)}
-        >
-          <StudentAiSummary api={api} classroomId={id} studentId={summary.studentId} />
-          <Progress api={api} classroomId={id} studentId={summary.studentId} />
-          <h3>Entregas y calificaciones</h3>
-          {summary.attempts.length ? (
-            <ul>
-              {summary.attempts.map((attempt) => (
-                <li key={attempt.id}>
-                  <strong>{attempt.title}</strong>
-                  <p>
-                    Intento {attempt.number} ·{' '}
-                    {new Date(attempt.submittedAt).toLocaleDateString('es-AR')}
-                  </p>
-                  <p>
-                    {attempt.grade === null
-                      ? 'Sin calificación'
-                      : `${Number(attempt.grade).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} · ${attempt.published ? 'Publicada' : 'Sin publicar'}`}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>Todavía no hay entregas registradas.</p>
-          )}
-        </Dialog>
-      ) : null}
+      <ClassroomDialogs api={api} id={id} tab={tab} inviting={inviting} setInviting={setInviting}
+        email={email} setEmail={setEmail} invite={invite} invitationAction={invitationAction} actionStates={actionStates}
+        confirm={confirm} setConfirm={setConfirm} isCurrentRoom={isCurrentRoom} summary={summary} setSummary={setSummary} action={action} />
     </>
   );
 }

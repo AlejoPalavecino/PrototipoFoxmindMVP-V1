@@ -1,3 +1,4 @@
+import { startBrowserAttempt } from './helpers/browser-admission-step.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp } from 'node:fs/promises';
@@ -86,7 +87,7 @@ test('P7 T2 actual sessions, membership events, single editor and explicit UI pa
         const response=student.waitForResponse(res=>res.url().endsWith(`/activities/${assignment}/start`)&&res.request().method()==='POST');
         await student.getByRole('article',{name:'Open assignment',exact:true}).getByRole('button',{name:'Abrir trabajo práctico',exact:true}).click();
         const start=await response;assert.equal(start.status(),200);const data=await start.json();oldEditor=data.editor;attempt=data.attempt;
-        assert.ok(oldEditor.token);await student.getByText('Control de edición en esta pestaña.',{exact:false}).waitFor();
+        assert.ok(oldEditor.token);assert.equal(oldEditor.epoch,attempt.epoch);await student.getByLabel('Seleccionar archivo del trabajo',{exact:true}).waitFor();assert.equal(await student.getByLabel('Seleccionar archivo del trabajo',{exact:true}).isEnabled(),true);
         await student.getByRole('link',{name:'Descargar instructions.pdf',exact:true}).waitFor();
         assert.equal((await request(student,'GET',`/files/${fileId}/content`)).status,200);
         assert.equal((await session(device,assignment)).editor,undefined);
@@ -94,16 +95,16 @@ test('P7 T2 actual sessions, membership events, single editor and explicit UI pa
       await check('independent device initially consults, explicit transfer warns and rotates only the same attempt',async()=>{
         await openClassroom(device,runtime.origin,'P7 participation classroom');await device.getByRole('button',{name:'Actividades',exact:true}).click();
         await device.getByRole('article',{name:'Open assignment',exact:true}).getByRole('button',{name:'Abrir trabajo práctico',exact:true}).click();
-        await device.getByText('Solo consulta en esta pestaña o dispositivo.',{exact:false}).waitFor();
-        await device.getByRole('button',{name:'Transferir edición a esta pestaña',exact:true}).click();
-        await device.getByText('Los cambios no confirmados de esa sesión no se transfieren',{exact:false}).waitFor();
+        await device.getByRole('button',{name:'Continuar en esta pestaña',exact:true}).waitFor();assert.equal(await device.getByLabel('Seleccionar archivo del trabajo',{exact:true}).count(),0);
+        await device.getByRole('button',{name:'Continuar en esta pestaña',exact:true}).click();
+        await device.getByText('los cambios sin guardar de la otra sesión no se transfieren',{exact:false}).waitFor();
         const response=device.waitForResponse(res=>res.url().endsWith(`/attempts/${attempt.id}/transfer`));
         await device.getByRole('button',{name:'Confirmar transferencia',exact:true}).click();
         const transfer=await response;assert.equal(transfer.status(),200);const data=await transfer.json();newEditor=data.editor;
         assert.equal(data.attempt.id,attempt.id);assert.equal(data.attempt.number,1);assert.notEqual(newEditor.token,oldEditor.token);
         assert.equal(newEditor.epoch,'2');assert.deepEqual(data.attempt.answers,[]);
         await student.getByRole('button',{name:'Actualizar estado confirmado',exact:true}).click();
-        await student.getByText('Solo consulta en esta pestaña o dispositivo.',{exact:false}).waitFor();
+        await student.getByRole('button',{name:'Continuar en esta pestaña',exact:true}).waitFor();assert.equal(await student.getByLabel('Seleccionar archivo del trabajo',{exact:true}).count(),0);
         const probe=async editor=>{await runtime.db.query('BEGIN');try{return await assertAttemptWrite({query:async(sql,...args)=>(await runtime.db.query(sql,args)).rows},studentUser.id,room.id,attempt.id,editor);}finally{await runtime.db.query('ROLLBACK');}};
         await assert.rejects(()=>probe(oldEditor),{code:'FORBIDDEN'});await probe(newEditor);
         assert.equal((await runtime.db.query('SELECT count(*)::int n FROM attempts')).rows[0].n,1);
@@ -114,11 +115,13 @@ test('P7 T2 actual sessions, membership events, single editor and explicit UI pa
         await student.getByRole('button',{name:'Cerrar diálogo',exact:true}).click();
         await student.getByRole('article',{name:'Explicit quiz start',exact:true}).getByRole('button',{name:'Consultar actividad',exact:true}).click();
         assert.equal((await session(student,quiz)).attempt,null);
-        const response=student.waitForResponse(res=>res.url().endsWith(`/activities/${quiz}/start`));
-        await student.getByRole('button',{name:'Comenzar',exact:true}).click();assert.equal((await response).status(),200);
-        await student.getByText('Borrador confirmado · no entregado',{exact:false}).waitFor();
+        const response=await startBrowserAttempt(student,room.id,quiz,30000);assert.equal(response.status(),200);
+        await student.getByText('Borrador · todavía sin entregar',{exact:false}).waitFor();
+        const draftState=await session(student,quiz);assert.equal(draftState.attempt.status,'DRAFT');assert.notEqual(draftState.attempt.status,'SUBMITTED');
         await openClassroom(teacher,runtime.origin,'P7 participation classroom');await teacher.getByRole('button',{name:'Actividades',exact:true}).click();
-        await teacher.getByRole('article',{name:'Expired before enrollment',exact:true}).getByRole('button',{name:'Habilitar primera entrega',exact:true}).click();
+        const expiredCard=teacher.getByRole('article',{name:'Expired before enrollment',exact:true});
+        await expiredCard.getByText('Más opciones',{exact:true}).click();
+        await expiredCard.getByRole('button',{name:'Habilitar primera entrega',exact:true}).click();
         await teacher.getByLabel('Estudiante para primera entrega',{exact:true}).selectOption(studentUser.id);
         await teacher.getByLabel('Plazo individual futuro',{exact:true}).fill('2031-01-01T18:00');
         const authorization=teacher.waitForResponse(res=>res.url().endsWith(`/activities/${expired}/authorize-first`));

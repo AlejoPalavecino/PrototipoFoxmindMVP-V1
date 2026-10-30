@@ -1,7 +1,5 @@
 import type { IncomingMessage } from 'node:http';
-import { assertAttemptWrite } from '../classrooms/attempt-access.ts';
-import { editorCapability } from '../classrooms/attempt-policy.ts';
-import { ClassroomError } from '../classrooms/policy.ts';
+import { assertAttemptWrite, editorCapability, ClassroomError } from '../classrooms/index.ts';
 import type { AttemptWriteAuthorizer } from './access.ts';
 import type { FileTransaction, FileTarget } from './contracts.ts';
 import { FileError } from './errors.ts';

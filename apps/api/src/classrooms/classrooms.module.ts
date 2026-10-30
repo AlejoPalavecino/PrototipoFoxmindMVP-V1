@@ -17,6 +17,7 @@ import { GeminiGradingAiProvider } from './grading-ai/provider.ts';
 import { GoogleGenAI } from '@google/genai';
 import { validateActivityGeneration } from './activity-ai/index.ts';
 import type { AiConfiguration } from '../ai/index.ts';
+import { createDiagnosticSink } from '../diagnostics.ts';
 
 function integratedClassrooms(ports: ClassroomPorts, files: FileService): ClassroomService {
   // Publication checks existing provenance even while generation/provider configuration is disabled.
@@ -32,6 +33,7 @@ export class ClassroomsModule {
   static integrated(database: DynamicModule, identity: DynamicModule, files: DynamicModule,
     configuration: ClassroomRuntimeConfiguration,
     sender: Pick<DeliveryOptions, 'send'> & { close(): void }, ai?: AiConfiguration, override?: AiRuntimeOverride): DynamicModule {
+    const diagnostics = createDiagnosticSink(line => process.stderr.write(line));
     return { module: ClassroomsModule, imports: [database, identity, files], providers: [
       ...(ai && (!override || override.gradingProvider) ? [{ provide: GradingAiRuntime, inject: [PrismaService, FileService],
         useFactory: (database: PrismaService, files: FileService) => {
@@ -42,7 +44,7 @@ export class ClassroomsModule {
           const instructionReader = createDurableGradingAiInstructionReader({ files, authorize });
           const provider = override?.gradingProvider ?? new GeminiGradingAiProvider(new GoogleGenAI({ apiKey: ai.apiKey, vertexai: false,
             httpOptions: { retryOptions: { attempts: 1 }, timeout: ai.deadlineMs } }), ai);
-          runtime = new GradingAiRuntime({ database, configuration: ai, provider, reader, instructionReader });
+          runtime = new GradingAiRuntime({ database, configuration: ai, provider, reader, instructionReader, diagnostics });
           return runtime;
         } }] : []),
       ...(ai && (!override || override.studentProvider) ? [{ provide: StudentAiRuntime, inject: [InvitationService],
@@ -54,7 +56,7 @@ export class ClassroomsModule {
           new ClassroomAiRuntime(database, createIdentityClassroomAuthentication(runtime.configuration.security), files, ai, override) }] : []),
       { provide: InvitationService, inject: [PrismaService, IdentityRuntime, FileService],
         useFactory: (database: PrismaService, runtime: IdentityRuntime, fileService: FileService) => integratedClassrooms({
-          ...configuration, database, files: fileService.store, studentAiEnabled: !!ai && (!override || !!override.studentProvider),
+          ...configuration, database, files: fileService.store, diagnostics, studentAiEnabled: !!ai && (!override || !!override.studentProvider),
           gradingAiAvailable: !!ai && (!override || !!override.gradingProvider),
           authenticate: createIdentityClassroomAuthentication(runtime.configuration.security),
         }, fileService) },

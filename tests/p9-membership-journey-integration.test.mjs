@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { classroom, openClassroom } from './p6-integration-helpers.mjs';
+import { waitForAttemptClock } from './helpers/attempt-clock.mjs';
 import { withJourney, ok, request, rootOf, detail, createActivity, startPublic, session, editorHeaders,
   inviteExplicitly, rejectUnchanged, academicHash } from './p9-journey-helpers.mjs';
 
@@ -16,6 +17,8 @@ test('P9 joined membership: peer/foreign roles, stale editor/session, removal/re
     const attempts = [];
     for (const [actor, grade] of [[S, '8'], [P, '6']]) {
       const state = await startPublic(world, activity, actor.page), path = `${root}/attempts/${state.attempt.id}`;
+      await waitForAttemptClock(state.attempt.openedAt);
+      assert.ok(Date.now() >= Date.parse(state.attempt.openedAt), 'receipt clock has reached the confirmed opening');
       await ok(actor.page, 'POST', `${path}/submit-practical`, { revision: state.attempt.revision, confirm: true }, editorHeaders(state.editor));
       const saved = await ok(T.page, 'POST', `${path}/grading`, { revision: (await detail(T.page, room)).revision,
         overallGrade: grade, overallFeedback: `Preserved ${grade} feedback`, questions: [] });
@@ -69,7 +72,9 @@ test('P9 joined membership: peer/foreign roles, stale editor/session, removal/re
     assert.equal((await progress()).performance.average, '7.00');
     await openClassroom(T.page, runtime.origin, 'P9 membership classroom');
     await T.page.getByRole('button', { name: 'Progreso', exact: true }).click();
-    await T.page.getByText('Promedio: 7,00', { exact: true }).waitFor();
+    const aggregate = T.page.getByRole('region', { name: 'Rendimiento académico', exact: true });
+    await aggregate.getByText('promedio', { exact: true }).waitFor();
+    await aggregate.getByText('7,00', { exact: true }).waitFor();
     const cookie = (await device.context().cookies()).map(c => `${c.name}=${c.value}`).join('; ');
     assert.equal((await request(device, 'POST', '/auth/logout', {})).status, 204);
     const beforeRevoked = await academicHash(runtime.db);

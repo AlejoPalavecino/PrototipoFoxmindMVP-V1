@@ -44,7 +44,9 @@ test('P7 actual academic notification events navigate mobile activities/history 
       const notifications = page => ok(page, 'GET', '/classrooms/notifications');
       const openNotice = async (page, label) => {
         await page.getByRole('button', { name: /^Notificaciones/ }).click();
-        await page.getByRole('listitem').filter({ has: page.getByText(label, { exact: true }) }).first().getByRole('button', { name: 'Abrir publicación', exact: true }).click();
+        const row = page.getByRole('listitem').filter({ has: page.getByText(label, { exact: true }) });
+        const action = label === 'Nuevo aviso del docente' ? 'Abrir conversación' : 'Ver actividad';
+        await row.getByRole('button', { name: action, exact: true }).click();
       };
       let failed = false; const check = (name, fn) => t.test(name, { skip: failed ? 'Earlier actual notification prerequisite failed' : false }, async () => { try { await fn(); } catch (e) { failed = true; throw e; } });
       await check('private save is silent; publication opens actual mobile activity with visible current tab, no attempted start or leaked keys', async () => {
@@ -71,11 +73,14 @@ test('P7 actual academic notification events navigate mobile activities/history 
         await ok(student, 'POST', `/classrooms/${room.id}/attempts/${state.attempt.id}/submit-answers`, { revision: state.attempt.revision, confirm: true, confirmIncomplete: false }, h);
         const received = (await notifications(teacher)).find(n => n.eventType === 'SUBMISSION_RECEIVED'); assert.ok(received);
         await teacher.goto(`${runtime.origin}/mis-aulas`); await openNotice(teacher, 'Nueva entrega recibida');
+        await teacher.getByRole('region', { name: 'Intento histórico confirmado' }).getByText('Ver mis respuestas y archivos', { exact: true }).click();
         await teacher.getByRole('region', { name: 'Intento histórico confirmado' }).getByText('Answer', { exact: true }).waitFor();
+        await teacher.getByRole('region', { name: 'Intento histórico confirmado' }).getByRole('button', { name: 'Volver al historial', exact: true }).click();
         await teacher.getByRole('button', { name: 'Habilitar otro intento', exact: true }).click(); await teacher.getByRole('button', { name: 'Confirmar nuevo intento', exact: true }).click();
         await student.goto(`${runtime.origin}/mis-aulas`); await openNotice(student, 'Nuevo intento habilitado');
+        await student.getByRole('region', { name: 'Intento histórico confirmado' }).getByRole('button', { name: 'Volver a mis intentos', exact: true }).click();
         await student.getByText('Reentrega pendiente: todavía no es una nueva entrega recibida.', { exact: true }).waitFor();
-        await student.getByRole('button', { name: 'Continuar borrador', exact: true }).click(); await student.getByRole('button', { name: 'Transferir edición a esta pestaña', exact: true }).click();
+        await student.getByRole('button', { name: 'Continuar borrador', exact: true }).click(); await student.getByRole('button', { name: 'Continuar en esta pestaña', exact: true }).click();
         await student.getByRole('button', { name: 'Confirmar transferencia', exact: true }).click();
         assert.equal((await notifications(teacher)).filter(n => n.eventType === 'SUBMISSION_RECEIVED').length, 1);
       });

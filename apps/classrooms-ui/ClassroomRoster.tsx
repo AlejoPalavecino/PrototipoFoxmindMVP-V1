@@ -1,0 +1,130 @@
+import type { Dispatch, SetStateAction, RefObject, MutableRefObject } from 'react';
+import type { ClassroomClient, Detail, Member } from './api.ts';
+import { initials } from './components.tsx';
+import { EntryIcon } from '../shared-ui/EntryIcon';
+import { ClassroomHistory } from './ClassroomHistory.tsx';
+export interface Summary {
+  firstName: string; lastName: string;
+  attempts: { id: string; title: string; submittedAt: string; number: number; grade: string | null; published: boolean | null }[];
+}
+type Confirmation = { title: string; text: string; run: () => Promise<void>; scope?: string } | null;
+type Resource = { status: string; reload: () => Promise<void> };
+type Props = {
+  tab: string; teacher: boolean; room: Detail; busy: boolean; members: Member[]; history: Member[];
+  memberResource: Resource; historyResource: Resource; roster: RefObject<HTMLUListElement | null>;
+  api: ClassroomClient; id: string; isCurrentRoom: () => boolean;
+  setInviting: Dispatch<SetStateAction<boolean>>; setSummary: Dispatch<SetStateAction<(Summary & { studentId: string }) | null>>;
+  setConfirm: Dispatch<SetStateAction<Confirmation>>; action: (task: () => Promise<void>, section?: string) => Promise<void>;
+};
+export function ClassroomRoster({ tab, teacher, room, busy, members, history, memberResource, historyResource,
+  roster, api, id, isCurrentRoom, setInviting, setSummary, setConfirm, action }: Props) {
+  return <>
+                <header className="p5-section-head">
+                  <div>
+                    <h2><EntryIcon name={tab === 'history' ? 'list' : 'people-fill'} />
+                      {tab === 'history'
+                        ? 'Historial de estudiantes'
+                        : teacher
+                          ? 'Alumnos'
+                          : 'Compañeros'}
+                    </h2>
+                    <p>
+                      {tab === 'history'
+                        ? 'Las personas que salieron conservan sus registros.'
+                        : teacher
+                          ? 'Acompañá a quienes forman parte del aula.'
+                          : 'Las personas con las que compartís el aprendizaje.'}
+                    </p>
+                  </div>
+                  {teacher && tab === 'members' ? (
+                    <button
+                      className="primary"
+                      disabled={busy || room.archived}
+                      onClick={() => setInviting(true)}
+                    >
+                      Invitar estudiantes
+                    </button>
+                  ) : null}
+                </header>
+                {(tab === 'history' ? historyResource : memberResource).status === 'ready' && (tab === 'history' ? history : members).length === 0 ? (
+                  <p className="p5-empty">
+                    {tab === 'history'
+                      ? 'Todavía no hay salidas registradas.'
+                      : 'Todavía no hay estudiantes en el aula.'}
+                  </p>
+                ) : null}
+                <ul className="p5-roster" ref={roster}>
+                  {(tab === 'history' ? history : members).map(
+                    (member, index) => (
+                      <li key={member.enrollmentId ?? index}
+                        style={teacher ? { cursor: 'pointer' } : undefined}
+                        onClick={event => {
+                          if (teacher && !(event.target as HTMLElement).closest('button')) {
+                            event.currentTarget.querySelector<HTMLButtonElement>('[data-open-summary]')?.click();
+                          }
+                        }}>
+                        <span className="p5-avatar" aria-hidden="true">
+                          {initials(member.firstName, member.lastName)}
+                        </span>
+                        <div>
+                          <strong>
+                            {member.firstName} {member.lastName}
+                          </strong>
+                          {teacher
+                            ? member.periods?.map((period, i) => (
+                                <small key={i} className={tab === 'history' ? 'classroom-history-date' : undefined}>
+                                  {new Date(period.joinedAt).toLocaleDateString(
+                                    'es-AR',
+                                  )}{' '}
+                                  —{' '}
+                                  {period.endedAt
+                                    ? `${new Date(period.endedAt).toLocaleDateString('es-AR')} · ${period.endReason === 'LEFT' ? 'Salida voluntaria' : 'Removido por docente'}`
+                                    : 'Actualmente inscripto'}
+                                </small>
+                              ))
+                            : null}
+                        </div>
+                        {teacher ? (
+                          <div className="p5-actions">
+                            <button
+                              data-open-summary
+                              disabled={busy}
+                              onClick={() =>
+                                void action(async () => {
+                                  const result = await api.call<Summary>(`/${id}/members/${member.studentId}`);
+                                  if (isCurrentRoom()) setSummary({ ...result, studentId: member.studentId! });
+                                })
+                              }
+                            >
+                              Ver resumen
+                            </button>
+                            {tab === 'members' ? (
+                              <button
+                                disabled={busy || room.archived}
+                                onClick={() =>
+                                  setConfirm({
+                                    title: 'Remover estudiante',
+                                    text: `${member.firstName} perderá acceso al aula. Sus entregas, calificaciones y conversaciones se conservan.`,
+                                    run: async () => {
+                                      await api.call(
+                                        `/${id}/members/${member.studentId}/remove`,
+                                        'POST',
+                                        {},
+                                      );
+                                      await memberResource.reload();
+                                    },
+                                  })
+                                }
+                              >
+                                Remover
+                              </button>
+                            ) : null}
+                          </div>
+                        ) : null}
+                      </li>
+                    ),
+                  )}
+                </ul>
+                {tab === 'history' ? <ClassroomHistory /> : null}
+  </>;
+}

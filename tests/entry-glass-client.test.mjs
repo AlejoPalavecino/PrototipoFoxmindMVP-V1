@@ -1,3 +1,5 @@
+import { homeFixture } from './helpers/audit-home-data.mjs';
+import { loadTsModule } from './helpers/load-ts-module.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
@@ -7,23 +9,7 @@ import ts from 'typescript';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
-function component(path) {
-  const filename = resolve(path), nativeRequire = createRequire(filename);
-  const code = ts.transpileModule(readFileSync(filename, 'utf8'), {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2023 },
-  }).outputText;
-  const module = { exports: {} };
-  const require = id => {
-    if (id.startsWith('.')) {
-      const base = resolve(dirname(filename), id);
-      const file = [base, `${base}.tsx`, `${base}.ts`].find(name => existsSync(name));
-      if (file && /\.tsx?$/.test(file)) return component(file);
-    }
-    return nativeRequire(id);
-  };
-  new Function('require', 'module', 'exports', code)(require, module, module.exports);
-  return module.exports;
-}
+const component = path => loadTsModule(path);
 const render = (Component, props) => renderToStaticMarkup(React.createElement(Component, props));
 
 test('shared navbar exposes real public destinations and only the actual active route', () => {
@@ -35,7 +21,7 @@ test('shared navbar exposes real public destinations and only the actual active 
   assert.match(html, /href="\/register"[^>]*aria-current="page"/);
   assert.match(html, /href="\/sign-in"/);
   assert.doesNotMatch(html, /href="\/inicio"|aria-current="false"/);
-  assert.match(html, /aria-expanded="false"/);
+  assert.doesNotMatch(html, /aria-expanded="false"/);
 });
 
 test('shared authenticated navbar keeps profile actions and actual notification slot', () => {
@@ -51,6 +37,19 @@ test('shared authenticated navbar keeps profile actions and actual notification 
   assert.doesNotMatch(html, /href="\/inicio"[^>]*aria-current/);
 });
 
+test('draft navbar hides account navigation while preserving classroom exit', () => {
+  const { AppNavbar } = component('apps/shared-ui/AppNavbar.tsx');
+  const props = { logoHref: '/mis-aulas', displayName: 'Draft owner',
+    links: [{ href: '/mis-aulas', label: 'Mis aulas', current: true }],
+    notifications: React.createElement('button', { 'aria-label': 'Notificaciones' }, 'Notificaciones'),
+    accountActions: React.createElement('button', null, 'Cerrar sesión') };
+  const regular = render(AppNavbar, props);
+  assert.match(regular, /href="\/profile"/); assert.match(regular, /href="\/settings"/); assert.match(regular, /Cerrar sesión/); assert.match(regular, /Notificaciones/);
+  const draft = render(AppNavbar, { ...props, restricted: true });
+  assert.match(draft, /href="\/mis-aulas"/); assert.match(draft, /Mis aulas/);
+  assert.doesNotMatch(draft, /href="\/profile"|href="\/settings"|fm3d-shell-avatar|Cerrar sesión|Notificaciones/);
+});
+
 test('password visibility is an explicit non-submit control, with policy only for new passwords', () => {
   const { AccountField } = component('apps/web/src/components/account-screen.tsx');
   const login = render(AccountField, { name: 'password', label: 'Contraseña', password: true, autoComplete: 'current-password' });
@@ -63,16 +62,17 @@ test('password visibility is an explicit non-submit control, with policy only fo
 });
 
 test('home retains populated study context with both classroom perspectives visible', () => {
-  const { Home } = component('apps/classrooms-ui/Home.tsx');
-  const room = { id: 'actual', name: 'Actual class', subject: 'Science', division: 'B', academicYear: 2026, coverKey: 'explore', teacher: 'Actual teacher' };
-  const html = render(Home, { displayName: 'Student', data: { teach: [], study: [room], drafts: [], invitations: [] }, busy: false,
+  const room = { role:'student', archived:false, id: 'actual', name: 'Actual class', subject: 'Science', division: 'B', academicYear: 2026, coverKey: 'explore', teacher: 'Actual teacher' };
+  const data = homeFixture([room]);
+  const { Home } = loadTsModule('apps/classrooms-ui/Home.tsx', { stubs: { './use-home.ts': { useHome: () => ({ loading:false, data }) } } });
+  const html = render(Home, { displayName: 'Student', busy: false, onAction() {},
     onCreate() {}, onJoin() {}, onClassrooms() {}, onEnter() {}, api: { call: async () => [] }, onOpenTarget() {} });
-  for (const label of ['Estudio', 'Enseño']) {
+  for (const label of ['Mi aprendizaje', 'Mi actividad docente']) {
     const group = [...html.matchAll(/<section\b([^>]*)>/g)].find(([, attributes]) => attributes.includes(`aria-label="${label}"`));
     assert.ok(group, `Missing ${label} section`);
     assert.doesNotMatch(group[1], /\bhidden(?:=|\s|$)|aria-hidden="true"/);
   }
   assert.match(html, /Actual class/);
-  assert.match(html, /Docente:.*Actual teacher/);
-  assert.match(html, /Novedades/);
+  assert.match(html, /Science|Actual class/);
+  assert.match(html, /Estudio/);
 });

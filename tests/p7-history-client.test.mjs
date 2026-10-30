@@ -20,5 +20,6 @@ test('actual UI wires all-type history/reopening and target navigation without f
   const [activities, history, view] = await Promise.all(['Activities.tsx', 'AttemptHistory.tsx', 'ClassroomView.tsx'].map(name => readFile(new URL(`../apps/classrooms-ui/${name}`, import.meta.url), 'utf8')));
   assert.match(activities, /<AttemptHistory/); assert.ok(!activities.includes("teacher && activity.type === 'ASSIGNMENT'"));
   assert.match(history, /Confirmar nuevo intento/); assert.match(history, /offsetMinutes/); assert.match(history, /currentMember/);
-  assert.match(view, /'postId' in wallTarget \? 'wall' : 'activities'/);
+  assert.match(view, /wallTarget\?\.classroomId === id \? wallTarget : null/);
+  assert.match(view, /'postId' in activeWallTarget \? 'wall' : 'activities'/);
 });

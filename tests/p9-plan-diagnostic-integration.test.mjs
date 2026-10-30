@@ -131,6 +131,7 @@ test('P9 single isolated Plan diagnostic: two-version identities, native NEXT ac
       await openClassroom(page, runtime.origin, 'P9 isolated Plan classroom');
       await page.getByRole('button', { name: 'Plan', exact: true }).click();
       await page.getByRole('heading', { name: 'Plan de estudio', exact: true }).waitFor();
+      await page.getByRole('region', { name: 'Plan de estudio', exact: true }).locator('summary').filter({ hasText: /^Administrar plan/ }).click();
       await page.waitForFunction(() => {
         const region = document.querySelector('section[aria-label="Plan de estudio"]');
         return region && [...region.querySelectorAll('select')].length > 0 && !region.querySelector('fieldset[disabled]');

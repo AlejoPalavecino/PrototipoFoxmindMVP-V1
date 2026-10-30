@@ -34,7 +34,7 @@ test('created result converts first date to view zone and loads the new month wi
     assert.equal(component(context.view, 'AgendaMonth').props.month, '2026-11');
     assert.equal(component(context.view, 'AgendaDay').props.day, '2026-11-30');
     assert.ok(queries.slice(before).length > 0);
-    assert.ok(queries.slice(before).every(value => value === '2026-11-01'));
+    assert.ok(queries.slice(before).every(value => value === '2026-10-26'));
     assert.equal(component(context.view, 'EventForm'), undefined);
     assert.match(renderToStaticMarkup(context.view.tree), /Ver evento/);
   } finally { context.close(); }

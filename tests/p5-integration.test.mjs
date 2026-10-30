@@ -1,3 +1,4 @@
+import { readdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { randomBytes } from 'node:crypto';
@@ -65,8 +66,8 @@ test('P5 actual Next, P3 identity and P4 private services integrated journeys', 
           assert.equal((await rejectSame(() => api(page, 'POST', '/classrooms/drafts', {}))).status, 403);
         });
         student = await account(studentPage, origin, inbox, `p5-student-${suffix}@example.test`);
-        assert.equal(runtime.migrations.length, 14);
-        assert.deepEqual(runtime.migrations.slice(-5), [
+        assert.deepEqual(runtime.migrations, readdirSync('prisma/migrations').filter(name => /^\d+_/.test(name)).sort());
+        assert.deepEqual(runtime.migrations.filter(name => ['202610230001_agenda_events', '202610230001_classroom_ai', '202610240001_agenda_event_color', '202610250001_activity_topics', '202610250002_activity_ai'].includes(name)), [
           '202610230001_agenda_events',
           '202610230001_classroom_ai',
           '202610240001_agenda_event_color',
@@ -85,13 +86,28 @@ test('P5 actual Next, P3 identity and P4 private services integrated journeys', 
         await page.getByLabel('Materia', { exact: true }).fill('Art');
         await page.getByLabel('División', { exact: true }).fill('Group A');
         await page.getByLabel('Ciclo lectivo', { exact: true }).fill('2026');
-        await page.getByLabel(/^Zona horaria/).fill('America/Argentina/Buenos_Aires');
+        const timezone = page.getByRole('combobox', { name: /^Ciudad y horario del aula/ });
+        assert.equal(await timezone.count(), 1);
+        const zones = await timezone.evaluate(select => {
+          const canonical = value => new Intl.DateTimeFormat('es', { timeZone: value }).resolvedOptions().timeZone;
+          const target = canonical('America/Argentina/Buenos_Aires');
+          const options = [...select.options].map(option => ({ value: option.value, canonical: canonical(option.value) }));
+          return { target, matches: options.filter(option => option.canonical === target) };
+        });
+        assert.equal(zones.matches.length, 1, 'Exactly one option represents Buenos Aires in this browser');
+        const selectedZone = zones.matches[0].value;
+        await timezone.selectOption(selectedZone);
+        assert.equal(await timezone.inputValue(), selectedZone);
+        assert.equal(await timezone.evaluate(select => new Intl.DateTimeFormat('es', { timeZone: select.value }).resolvedOptions().timeZone), zones.target);
         await page.locator('input[type=radio]').first().check();
         await page.getByRole('button', { name: 'Mis Aulas / Guardar y salir', exact: true }).click();
-        await page.getByRole('heading', { name: 'Mis Aulas', exact: true }).waitFor();
+        await page.getByRole('heading', { name: 'Tus clases, bien organizadas.', exact: true }).waitFor();
         await page.reload();
         await page.getByRole('button', { name: /Continuar creación/ }).click();
         assert.equal(await page.getByLabel('Nombre del aula', { exact: true }).inputValue(), 'Integrated photography');
+        assert.equal(await timezone.count(), 1);
+        assert.equal(await timezone.inputValue(), selectedZone);
+        assert.equal(await timezone.evaluate(select => new Intl.DateTimeFormat('es', { timeZone: select.value }).resolvedOptions().timeZone), zones.target);
         await page.getByRole('button', { name: 'Continuar', exact: true }).click();
         const reserved = page.waitForResponse(response => response.request().method() === 'POST' && new URL(response.url()).pathname === '/api/v1/files');
         await page.locator('input[type=file]').setInputFiles({ name: 'plan.pdf', mimeType: 'application/pdf', buffer: bytes });
@@ -106,6 +122,8 @@ test('P5 actual Next, P3 identity and P4 private services integrated journeys', 
         await page.getByRole('button', { name: 'Crear aula', exact: true }).click();
         const publishedResponse = await published; assert.equal(publishedResponse.status(), 200);
         const result = await publishedResponse.json(); room = result.id; code = result.code; assert.ok(room && code);
+        const publishedRoom = await api(page, 'GET', `/classrooms/${room}`);
+        assert.equal(publishedRoom.status, 200); assert.equal(publishedRoom.body.timezone, selectedZone);
         await page.getByRole('heading', { name: 'Integrated photography', exact: true }).waitFor();
         const stored = (await db.query('SELECT classroom_id,classroom_draft_id FROM files WHERE id=$1', [file])).rows[0];
         assert.equal(stored.classroom_id, room); assert.equal(stored.classroom_draft_id, null);
@@ -208,7 +226,7 @@ test('P5 actual Next, P3 identity and P4 private services integrated journeys', 
 
       await check('actual responsive classroom views, profile navigation and logout keep P3 boundaries', async () => {
         await page.goto(`${origin}/mis-aulas`);
-        await page.getByRole('heading', { name: 'Mis Aulas', exact: true }).waitFor();
+        await page.getByRole('heading', { name: 'Tus clases, bien organizadas.', exact: true }).waitFor();
         await page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Integrated photography', exact: true }) })
           .getByRole('button', { name: 'Entrar al aula', exact: true }).click();
         await page.getByRole('button', { name: 'Historial', exact: true }).click();
@@ -229,10 +247,9 @@ test('P5 actual Next, P3 identity and P4 private services integrated journeys', 
           assert.ok(layout.nameHeight <= 2 * layout.nameLineHeight + 1, 'Fixture name is not squeezed into vertical fragments');
           await page.screenshot({ path: `.test-artifacts/p5-integration/history-${width}.png`, fullPage: true });
         }
-        await page.getByRole('button', { name: /^Abrir menú de cuenta/ }).click();
-        await page.getByRole('link', { name: 'Mi perfil', exact: true }).click(); await page.waitForURL('**/profile');
-        await page.getByRole('button', { name: /^Abrir menú de cuenta/ }).click();
-        await page.getByRole('navigation', { name: 'Navegación móvil', exact: true })
+        await page.locator('header.fm3d-shell a.fm3d-shell-avatar').click(); await page.waitForURL('**/profile');
+        await page.getByRole('button', { name: 'Abrir menú de navegación', exact: true }).click();
+        await page.getByRole('dialog', { name: 'Menú de navegación', exact: true }).getByRole('navigation', { name: 'Navegación principal', exact: true })
           .getByRole('link', { name: 'Mis aulas', exact: true }).click(); await page.waitForURL('**/mis-aulas');
         // Separate controlled-response UI regressions exercise the real production
         // pages; they are not substituted for the real identity/service proof above.

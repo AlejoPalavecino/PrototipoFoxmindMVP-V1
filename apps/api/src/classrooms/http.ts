@@ -1,8 +1,8 @@
+import { parseWallQuery, parseWallMutation, parseNotificationQuery } from '../../../../src/core/domain/index.ts';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { ClassroomService as InvitationService } from './service.ts';
 import { ClassroomError, fail, object } from './policy.ts';
 import { ClassroomIdentityError } from './errors.ts';
-import { wallOperation } from './wall-policy.ts';
 import { activityOperation } from './activity-policy.ts';
 import { editorCapability } from './attempt-policy.ts';
 import { uuid } from './policy.ts';
@@ -116,7 +116,7 @@ export function createClassroomsHandler(
         return;
       }
       if (
-        url.search ||
+        (url.search && !(method === 'GET' && (url.pathname === '/classrooms/notifications/page' || /^\/classrooms\/[^/]+\/wall(?:\/[^/]+(?:\/replies)?)?$/.test(url.pathname)))) ||
         (!write &&
           (req.headers['transfer-encoding'] ||
             Number(req.headers['content-length'] ?? 0) > 0))
@@ -181,6 +181,8 @@ export function createClassroomsHandler(
         value = await service.acceptInvitation(req, path[1]);
       } else if (path.join('/') === 'notifications' && method === 'GET')
         value = await service.listNotifications(req);
+      else if (path.join('/') === 'notifications/page' && method === 'GET')
+        value = await service.listNotificationPage(req, notificationQuery(url));
       else if (path.length === 3 && path[0] === 'notifications' && ['read', 'open'].includes(path[2]) && method === 'POST') {
         exact([]);
         value = path[2] === 'open' ? await service.openNotification(req, path[1]) : await service.readNotification(req, path[1]);
@@ -284,10 +286,14 @@ export function createClassroomsHandler(
       else if (path.length === 4 && path[1] === 'activities' && path[3] === 'preview' && method === 'GET')
         value = await service.activityDetail(req, path[0], path[2], true);
       else if (path.length === 2 && path[1] === 'wall' && method === 'GET')
-        value = await service.listWall(req, path[0]);
+        value = await service.listWall(req, path[0], wallQuery(url, 'feed'));
+      else if (path.length === 3 && path[1] === 'wall' && method === 'GET')
+        value = await service.wallThread(req, path[0], path[2], wallQuery(url, 'thread').replyId);
+      else if (path.length === 4 && path[1] === 'wall' && path[3] === 'replies' && method === 'GET')
+        value = await service.listWallReplies(req, path[0], path[2], wallQuery(url, 'replies'));
       else if (path.length === 2 && path[1] === 'wall' && method === 'POST') {
-        const data = exact(['revision', 'operation']);
-        wallOperation(data.operation);
+        let data: ReturnType<typeof parseWallMutation>;
+        try { data = parseWallMutation(body); } catch { return fail('INVALID_INPUT'); }
         value = await service.changeWall(req, path[0], data);
       }
       else if (
@@ -388,4 +394,12 @@ export function createClassroomsHandler(
         active--;
       });
   };
+}
+
+function wallQuery(url: URL, kind: 'feed' | 'replies' | 'thread') {
+  try { return parseWallQuery(url.searchParams, kind); } catch { return fail('INVALID_INPUT'); }
+}
+
+function notificationQuery(url: URL) {
+  try { return parseNotificationQuery(url.searchParams); } catch { return fail('INVALID_INPUT'); }
 }

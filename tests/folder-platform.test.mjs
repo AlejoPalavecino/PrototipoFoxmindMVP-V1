@@ -1,3 +1,5 @@
+import { homeFixture } from './helpers/audit-home-data.mjs';
+import { loadTsModule } from './helpers/load-ts-module.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
@@ -9,23 +11,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 
 const read = path => readFileSync(path, 'utf8');
 // Transpile the actual composition, stubbing only Next's routing context for SSR.
-function component(path) {
-  const filename = resolve(path), nativeRequire = createRequire(filename), module = { exports: {} };
-  const code = ts.transpileModule(read(filename), {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2023 },
-  }).outputText;
-  const require = id => {
-    if (id === 'next/router') return { useRouter: () => ({ isReady: true, query: {}, push: async () => true }) };
-    if (id.startsWith('.')) {
-      const base = resolve(dirname(filename), id);
-      const file = [base, `${base}.tsx`, `${base}.ts`].find(name => existsSync(name));
-      if (file && /\.tsx?$/.test(file)) return component(file);
-    }
-    return nativeRequire(id);
-  };
-  new Function('require', 'module', 'exports', code)(require, module, module.exports);
-  return module.exports;
-}
+const component = path => loadTsModule(path, { stubs: { 'next/router': { useRouter: () => ({ isReady: true, query: {}, push: async () => true }) } } });
 const render = (Component, props) => renderToStaticMarkup(React.createElement(Component, props));
 const buttons = html => [...html.matchAll(/<button\b([^>]*)>([\s\S]*?)<\/button>/g)]
   .map(([, attributes, body]) => ({ attributes, text: body.replace(/<[^>]+>/g, '') }));
@@ -44,7 +30,7 @@ test('folder navbar carries the raster identity and preserves destinations/curre
     links: [{ href: '/inicio', label: 'Inicio' }, { href: '/mis-aulas', label: 'Mis aulas', current: true }],
     notifications: React.createElement('button', { 'aria-label': 'Notificaciones: 7 sin leer' }, '7'),
   });
-  assert.match(html, /<img\b[^>]*src="\/folders\/foxy-logo\.png"/);
+  assert.match(html, /<img\b[^>]*src="\/foxmind-3d\/brand\/logo-horizontal\.svg"/);
   assert.match(html, /href="\/mis-aulas"[^>]*aria-current="page"/);
   assert.doesNotMatch(html, /href="\/inicio"[^>]*aria-current/);
   assert.match(html, /Notificaciones: 7 sin leer/);
@@ -55,11 +41,11 @@ test('folder navbar carries the raster identity and preserves destinations/curre
 test('account SSR shows folder welcome illustration and real loading/entry navigation', () => {
   const { AccountScreen } = component('apps/web/src/components/account-screen.tsx');
   const html = render(AccountScreen, { view: 'sign-in' });
-  assert.match(html, /<img\b[^>]*src="\/folders\/foxy-welcome\.png"/);
+  assert.match(html, /<img\b[^>]*src="\/foxmind-3d\/auth-reference\/login-960\.webp"/);
   assert.match(html, /href="#main"/);
   assert.match(html, /id="main"/);
   assert.match(html, /Cargando tu cuenta/);
-  assert.match(html, /href="\/sign-in"[^>]*aria-current="page"/);
+  assert.match(html, /aria-label="FoxMind" href="\/sign-in"/);
   assert.match(html, /href="\/register"/);
 });
 
@@ -96,20 +82,20 @@ test('login client preserves raw credentials and fresh CSRF binding through sess
 });
 
 test('Home presents populated study and teaching groups together, with existing entry actions', () => {
-  const { Home } = component('apps/classrooms-ui/Home.tsx');
   const room = { subject: 'Science', division: 'B', academicYear: 2026, coverKey: 'explore', teacher: 'Actual teacher' };
-  const html = render(Home, { displayName: 'Learner', busy: false,
-    data: { study: [{ ...room, id: 'study', name: 'Study classroom' }], teach: [{ ...room, id: 'teach', name: 'Teaching classroom' }], drafts: [], invitations: [] },
+  const data = homeFixture([{ ...room, role:'student', archived:false, id:'study', name:'Study classroom' }, { ...room, role:'teacher', archived:false, id:'teach', name:'Teaching classroom' }]);
+  const { Home } = loadTsModule('apps/classrooms-ui/Home.tsx', { stubs: { './use-home.ts': { useHome: () => ({ loading:false, data }) } } });
+  const html = render(Home, { displayName: 'Learner', busy: false, onAction() {},
     onCreate() {}, onJoin() {}, onClassrooms() {}, onEnter() {}, api: { call: async () => [] }, onOpenTarget() {},
   });
-  for (const name of ['Estudio', 'Enseño']) {
+  for (const name of ['Mi aprendizaje', 'Mi actividad docente']) {
     const group = [...html.matchAll(/<section\b([^>]*)>/g)].find(([, attributes]) => attributes.includes(`aria-label="${name}"`));
     assert.ok(group, `Missing ${name} group`);
     assert.doesNotMatch(group[1], /\bhidden(?:=""|="hidden"|\s|$)|aria-hidden="true"/, `${name} must remain visible`);
   }
   assert.match(html, /Study classroom/);
   assert.match(html, /Teaching classroom/);
-  for (const label of ['Crear aula', 'Unirse con código', 'Actualizar novedades']) assert.ok(buttons(html).some(button => button.text.includes(label)), label);
+  for (const label of ['Crear aula', 'Unirme con código', 'Actualizar']) assert.ok(buttons(html).some(button => button.text.includes(label)), label);
   assert.equal(buttons(html).filter(button => button.text.includes('Entrar al aula')).length, 2);
   assert.doesNotMatch(html, /Lo próximo/);
 });

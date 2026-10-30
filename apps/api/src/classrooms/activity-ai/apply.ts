@@ -1,5 +1,5 @@
 import { parseActivityProposal, type ApplyActivityGeneration } from '../../../../../src/core/domain/index.ts';
-import { createActivityDraftInTransaction } from '../index.ts';
+import { createActivityDraftInTransaction } from '../public/index.ts';
 import type { Actor, Transaction } from '../contracts.ts';
 import { fail } from '../policy.ts';
 import { replay, recordRequest } from './requests.ts';

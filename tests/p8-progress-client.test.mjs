@@ -20,10 +20,12 @@ test('progress client reads self/class and explicit teacher member paths with no
 test('progress extends existing shell, captures member identity separately and clears stale data on refresh failure', async () => {
   const source = await readFile(new URL('../apps/classrooms-ui/Progress.tsx', import.meta.url), 'utf8');
   const shell = await readFile(new URL('../apps/classrooms-ui/ClassroomView.tsx', import.meta.url), 'utf8');
+  const roster = await readFile(new URL('../apps/classrooms-ui/ClassroomRoster.tsx', import.meta.url), 'utf8');
+  const dialogs = await readFile(new URL('../apps/classrooms-ui/ClassroomDialogs.tsx', import.meta.url), 'utf8');
   for (const label of ['Cumplimiento de entregas', 'Rendimiento académico', 'Avance del plan de estudio', 'Actualizar progreso', 'Reintentar progreso']) assert.ok(source.includes(label));
   assert.match(source, /setLoading\(true\); setData\(null\); setError\(''\)/);
   assert.match(source, /controller.signal.aborted/); assert.match(source, /return \(\) => controller.abort\(\)/);
   assert.match(shell, /key: 'progress', label: teacher \? 'Progreso' : 'Mi progreso'/);
-  assert.match(shell, /studentId: member.studentId!/); assert.match(shell, /studentId=\{summary.studentId\}/);
-  assert.ok(shell.includes('summary.attempts.map')); assert.match(source, /data.scope === 'classroom' \? <section aria-label="Estudiantes actuales"/);
+  assert.match(roster, /studentId: member.studentId!/); assert.match(dialogs, /studentId=\{summary.studentId\}/);
+  assert.ok(dialogs.includes('summary.attempts.map')); assert.match(source, /data.scope === 'classroom' \? <section aria-label="Estudiantes actuales"/);
 });

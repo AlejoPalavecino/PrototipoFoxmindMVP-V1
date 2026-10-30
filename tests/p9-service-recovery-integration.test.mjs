@@ -1,3 +1,4 @@
+import { startBrowserAttempt } from './helpers/browser-admission-step.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { writeFile } from 'node:fs/promises';
@@ -32,9 +33,8 @@ test('P9 first actual DB unsaved-answer and storage/scanner manual recovery', { 
       evidence.ownedBefore = runtime.inspectServices(); evidence.bindingsBefore = runtime.inspectServiceBindings(); await flush();
       const questionnaire = await createActivity(world, 'QUESTIONNAIRE', { title: 'P9 database recovery answer' });
       await openActivity(page, runtime.origin, { ...room, name: `P9 ${world.label} classroom` }, questionnaire);
-      let pending = page.waitForResponse(r => r.url().endsWith(`/${questionnaire.id}/start`) && r.request().method() === 'POST');
-      await page.getByRole('button', { name: 'Comenzar', exact: true }).click();
-      const start = await pending; assert.equal(start.status(), 200);
+      const start = await startBrowserAttempt(page, room.id, questionnaire.id, 12000);
+      let pending; assert.equal(start.status(), 200);
       const started = await start.json(); assert.ok(started.editor);
       const answerPath = `/api/v1${rootOf(room)}/attempts/${started.attempt.id}/answer`;
       const answerRequests = [], answerObserver = req => {

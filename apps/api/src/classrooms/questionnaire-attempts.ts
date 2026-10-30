@@ -1,7 +1,7 @@
 import { enqueueSubmittedAttemptGradingAi } from './grading-ai/enqueue.ts';
 import { randomUUID } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
-import { PracticalSubmissionService } from './practical-submissions.ts';
+import type { ClassroomCore } from './core.ts';
 import { assertAttemptWrite, type AttemptRow, type Obligation } from './attempt-access.ts';
 import { editorCapability } from './attempt-policy.ts';
 import { exactActivityObject } from './activity-policy.ts';
@@ -12,27 +12,22 @@ import { submissionReceipt } from './submission-receipt.ts';
 import type { ActivityRow } from './activity-authoring.ts';
 import type { Transaction } from './contracts.ts';
 import { activityEvent } from './activity-events.ts';
+import { questionnaireUnanswered } from './session-readers.ts';
 
 function capability(request: unknown) {
   const headers = (request as IncomingMessage).headers;
   return editorCapability(headers?.['x-attempt-editor'], headers?.['x-attempt-epoch']);
 }
 
-export class QuestionnaireAttemptService extends PracticalSubmissionService {
-  private async unanswered(tx: Transaction, activityId: string, attemptId: string) {
-    const rows = await tx.query<{ type: string; text: string | null; selected: boolean }>(`SELECT q.type::text,a.development_text AS text,
-      EXISTS(SELECT 1 FROM answer_selections s WHERE s.answer_id=a.id) AS selected FROM questions q
-      LEFT JOIN answers a ON a.question_id=q.id AND a.attempt_id=$2::uuid WHERE q.activity_id=$1::uuid
-      ORDER BY q.position,q.id`, activityId, attemptId);
-    // Match the client's Unicode whitespace definition while preserving the submitted text exactly.
-    return rows.filter(row => row.type === 'DEVELOPMENT' ? !row.text?.trim() : !row.selected).length;
+export class QuestionnaireAttemptService {
+  private readonly run: ClassroomCore['run'];
+  private readonly classroom: ClassroomCore['classroom'];
+  private readonly ports: ClassroomCore['ports'];
+  constructor(context: Pick<ClassroomCore, 'run' | 'classroom' | 'ports'>) {
+    this.run = context.run.bind(context); this.classroom = context.classroom.bind(context); this.ports = context.ports;
   }
-
-  protected override async sessionView(tx: Transaction, activity: ActivityRow, zone: string, archived: boolean,
-    obligation: Obligation | null, attempt: AttemptRow | null, now: Date) {
-    const view = await super.sessionView(tx, activity, zone, archived, obligation, attempt, now);
-    return { ...view, ...(view.attempt && activity.type !== 'ASSIGNMENT' ? { unansweredCount:
-      await this.unanswered(tx, activity.id, attempt!.id) } : {}) };
+  private async unanswered(tx: Transaction, activityId: string, attemptId: string) {
+    return questionnaireUnanswered(tx, activityId, attemptId);
   }
 
   saveAttemptAnswer(request: unknown, classroomId: string, attemptId: string, input: unknown) {

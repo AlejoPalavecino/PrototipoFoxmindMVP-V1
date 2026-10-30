@@ -70,6 +70,7 @@ test('P6 Library actual publication, immutable private material and durable expl
         await runtime.db.query("UPDATE activities SET status='PUBLISHED',published_at=clock_timestamp(),first_started_at=clock_timestamp() WHERE id=$1", [activity]);
         await page.getByRole('button', { name: 'Actualizar Biblioteca', exact: true }).click();
         const card = page.getByRole('article', { name: 'Topic material', exact: true });
+        await card.getByLabel('Más opciones para Topic material', { exact: true }).click();
         await card.getByRole('button', { name: 'Editar datos', exact: true }).click();
         const dialog = page.getByRole('dialog', { name: 'Editar material', exact: true });
         await dialog.getByLabel('Nombre del material', { exact: true }).fill('Reorganized linked material');
@@ -107,6 +108,7 @@ test('P6 Library actual publication, immutable private material and durable expl
         const usage = async () => BigInt((await api(page, 'GET', `/files/usage?kind=classroom&id=${room.id}`)).body.usedBytes);
         const before = await usage();
         const card = page.getByRole('article', { name: 'Extra through browser', exact: true });
+        await card.getByLabel('Más opciones para Extra through browser', { exact: true }).click();
         await card.getByRole('button', { name: 'Eliminar material', exact: true }).click();
         await page.getByRole('button', { name: 'Confirmar eliminación del material', exact: true }).click();
         await card.getByText(/Material eliminado\. El borrado del archivo está pendiente/).waitFor();

@@ -1,2 +1,8 @@
 # This file is bind-mounted into Linux FreshClam, whose numeric parser rejects CR.
 config/p4-freshclam.conf text eol=lf
+
+# P9 fixed SHA guards require canonical LF bytes on every checkout.
+tests/p9-journey-helpers.mjs text eol=lf
+tests/p9-max-file-diagnostic-integration.test.mjs text eol=lf
+tests/p9-positive-max-files.mjs text eol=lf
+tests/p9-positive-max-files.test.mjs text eol=lf

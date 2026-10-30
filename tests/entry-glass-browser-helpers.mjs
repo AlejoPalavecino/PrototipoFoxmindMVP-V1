@@ -2,16 +2,14 @@
 export async function visibleNavigation(page) {
   const desktop = page.getByRole('navigation', { name: 'Navegación principal', exact: true });
   if (await desktop.isVisible()) return desktop;
-  const mobile = page.getByRole('navigation', { name: 'Navegación móvil', exact: true });
-  if (!await mobile.isVisible()) await page.getByRole('button', { name: /^Abrir menú de (cuenta|navegación)/ }).press('Enter');
-  await mobile.waitFor();
-  return mobile;
+  const drawer = page.getByRole('dialog', { name: 'Menú de navegación', exact: true });
+  if (!await drawer.isVisible()) await page.getByRole('button', { name: 'Abrir menú de navegación', exact: true }).press('Enter');
+  await drawer.waitFor();
+  return drawer.getByRole('navigation', { name: 'Navegación principal', exact: true });
 }
 export async function navigationLink(page, label) {
   return (await visibleNavigation(page)).getByRole('link', { name: label, exact: true });
 }
 export async function profileAction(page) {
-  const trigger = page.getByRole('button', { name: /^Abrir menú de cuenta/ });
-  if (await trigger.getAttribute('aria-expanded') !== 'true') await trigger.click();
-  return page.locator('#fm-account-menu').getByRole('link', { name: 'Mi perfil', exact: true });
+  return page.locator('header.fm3d-shell a.fm3d-shell-avatar');
 }

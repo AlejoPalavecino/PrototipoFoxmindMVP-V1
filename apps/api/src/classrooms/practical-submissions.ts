@@ -1,6 +1,7 @@
 import { enqueueSubmittedAttemptGradingAi } from './grading-ai/enqueue.ts';
 import type { IncomingMessage } from 'node:http';
-import { ActivityParticipationService } from './activity-participation.ts';
+import type { ClassroomCore } from './core.ts';
+import type { ActivityAuthoringService } from './activity-authoring.ts';
 import type { ActivityRow } from './activity-authoring.ts';
 import { assertAttemptWrite, type AttemptRow, type Obligation } from './attempt-access.ts';
 import { editorCapability } from './attempt-policy.ts';
@@ -12,35 +13,24 @@ import type { Transaction } from './contracts.ts';
 import { requireReady } from '../files/service.ts';
 import type { FileRow } from '../files/store.ts';
 import { activityEvent } from './activity-events.ts';
+import { practicalAttachments } from './session-readers.ts';
 
 function capability(request: unknown) {
   const headers = (request as IncomingMessage).headers;
   return editorCapability(headers?.['x-attempt-editor'], headers?.['x-attempt-epoch']);
 }
 
-export class PracticalSubmissionService extends ActivityParticipationService {
-  protected async attachmentViews(tx: Transaction, attemptId: string, draft: boolean) {
-    const files = await tx.query<FileRow & { selected: boolean }>(`SELECT f.*,u.status::text AS upload_status,u.completed_at,
-      u.last_activity_at,u.reservation_released_at,c.purpose,c.target_id,c.phase,c.digest,c.validated_digest,c.scanned_digest,
-      c.operation_id,c.lease_until,(aa.file_id IS NOT NULL) AS selected
-      FROM files f JOIN uploads u ON u.file_id=f.id JOIN file_custodies c ON c.file_id=f.id
-      LEFT JOIN attempt_attachments aa ON aa.file_id=f.id AND aa.attempt_id=$1::uuid
-      WHERE aa.file_id IS NOT NULL OR ($2 AND c.purpose='attachment' AND c.target_id=$1::uuid
-        AND u.status NOT IN ('COMPLETED','CANCELLED','FAILED') AND u.reservation_released_at IS NULL)
-      ORDER BY aa.position NULLS LAST,f.created_at,f.id`, attemptId, draft);
-    return files.map(row => {
-      let ready = true; try { requireReady(row); } catch { ready = false; }
-      return { id: row.id, name: row.original_name, extension: row.extension, sizeBytes: row.size_bytes.toString(),
-        ready, selected: row.selected, upload: row.upload_status, validation: row.validation_status, scan: row.scan_status,
-        rejectionCode: row.rejection_code };
-    });
+export class PracticalSubmissionService {
+  private readonly run: ClassroomCore['run'];
+  private readonly classroom: ClassroomCore['classroom'];
+  private readonly ports: ClassroomCore['ports'];
+  private readonly activity: ActivityAuthoringService['activity'];
+  constructor(context: Pick<ClassroomCore, 'run' | 'classroom' | 'ports'>, dependencies: Pick<ActivityAuthoringService, 'activity'>) {
+    this.run = context.run.bind(context); this.classroom = context.classroom.bind(context); this.ports = context.ports;
+    this.activity = dependencies.activity;
   }
-
-  protected override async sessionView(tx: Transaction, activity: ActivityRow, zone: string, archived: boolean,
-    obligation: Obligation | null, attempt: AttemptRow | null, now: Date) {
-    const view = await super.sessionView(tx, activity, zone, archived, obligation, attempt, now);
-    return { ...view, ...(view.attempt && activity.type === 'ASSIGNMENT' ? { attempt: { ...view.attempt,
-      attachments: await this.attachmentViews(tx, attempt!.id, attempt!.status === 'DRAFT') } } : {}) };
+  private async attachmentViews(tx: Transaction, attemptId: string, draft: boolean) {
+    return practicalAttachments(tx, attemptId, draft);
   }
 
   removeAttemptAttachment(request: unknown, classroomId: string, attemptId: string, input: unknown) {

@@ -9,8 +9,8 @@ test(
   { timeout: 120000 },
   async (t) => {
     await withP5Database(async ({ pool, database }) => {
-      const { DraftService: ClassroomService } =
-        await import('../.build/api/apps/api/src/classrooms/drafts.js');
+      const { ClassroomService } =
+        await import('../.build/api/apps/api/src/classrooms/service.js');
       const teacher = randomUUID(),
         other = randomUUID(),
         unverified = randomUUID();

@@ -1,10 +1,12 @@
+import { inviteOperation } from './invitations-operations.ts';
 import {
   randomUUID,
   randomBytes,
   createCipheriv,
   createDecipheriv,
 } from 'node:crypto';
-import { MembershipService } from './memberships.ts';
+import type { MembershipService } from './memberships.ts';
+import type { ClassroomCore } from './core.ts';
 import { fail, uuid } from './policy.ts';
 import { validateMailbox } from '../mail/mailbox.ts';
 
@@ -30,82 +32,18 @@ export function decryptDelivery(key: Buffer, value: string, aad: string) {
     ]).toString(),
   );
 }
-export class InvitationService extends MembershipService {
-  async invite(request: unknown, classroomId: string, input: unknown) {
-    let email: string;
-    try {
-      email = validateMailbox(input);
-    } catch {
-      return fail('INVALID_INPUT');
-    }
-    return this.run(request, true, async (tx, actor) => {
-      const room = await this.classroom(tx, actor, classroomId, true, true);
-      // P3 identity owns PostgreSQL lower(text), not JavaScript's Unicode case mapping.
-      const [{ normalized }] = await tx.query<{ normalized: string }>(
-        'SELECT lower($1::text) AS normalized',
-        email,
-      );
-      if (normalized === actor.email_normalized)
-        return fail('ENROLLMENT_UNAVAILABLE');
-      const [active] = await tx.query(
-        `SELECT 1 FROM enrollments e JOIN users u ON u.id=e.student_id
-        JOIN membership_periods m ON m.enrollment_id=e.id WHERE e.classroom_id=$1::uuid AND u.email_normalized=$2 AND m.ended_at IS NULL`,
-        classroomId,
-        normalized,
-      );
-      if (active) return fail('CONFLICT');
-      // Classroom lock serializes pending-recipient lifecycle and prevents duplicate pending rows.
-      const [pending] = await tx.query<{
-        id: string;
-        generation: bigint;
-        can_resend: boolean;
-      }>(
-        `SELECT id,generation,
-        issued_at<=clock_timestamp()-interval '60 seconds' AS can_resend FROM invitations
-        WHERE classroom_id=$1::uuid AND recipient_email_normalized=$2 AND accepted_at IS NULL AND revoked_at IS NULL FOR UPDATE`,
-        classroomId,
-        normalized,
-      );
-      if (pending && !pending.can_resend) return fail('CONFLICT');
-      const id = pending?.id ?? randomUUID();
-      const [invitation] = pending
-        ? await tx.query<{ generation: bigint }>(
-            `UPDATE invitations SET generation=generation+1,
-        issued_at=clock_timestamp(),expires_at=clock_timestamp()+interval '7 days',updated_at=clock_timestamp()
-        WHERE id=$1::uuid RETURNING generation`,
-            id,
-          )
-        : await tx.query<{ generation: bigint }>(
-            `INSERT INTO invitations
-        (id,updated_at,classroom_id,recipient_email_normalized,invited_by_id,issued_at,expires_at)
-        VALUES($1::uuid,clock_timestamp(),$2::uuid,$3,$4::uuid,clock_timestamp(),clock_timestamp()+interval '7 days') RETURNING generation`,
-            id,
-            classroomId,
-            normalized,
-            actor.id,
-          );
-      const generation = invitation.generation.toString(),
-        aad = `p5:${id}:${generation}`;
-      const envelope = encryptDelivery(
-        this.ports.deliveryKey,
-        {
-          to: email,
-          classroom: room.name,
-          teacher: `${actor.first_name} ${actor.last_name}`,
-          url: `${this.ports.webOrigin}/mis-aulas?invitacion=${id}`,
-        },
-        aad,
-      );
-      await tx.query(
-        `INSERT INTO background_jobs(id,updated_at,type,payload,deduplication_key)
-        VALUES($1::uuid,clock_timestamp(),'p5.invitation',$2::jsonb,$3) RETURNING id`,
-        randomUUID(),
-        JSON.stringify({ invitationId: id, generation, envelope }),
-        aad,
-      );
-      return { id, generation, delivery: 'queued' };
-    });
+export class InvitationService {
+  readonly run: ClassroomCore['run'];
+  readonly classroom: ClassroomCore['classroom'];
+  readonly ports: ClassroomCore['ports'];
+  private readonly enroll: MembershipService['enroll'];
+  constructor(context: Pick<ClassroomCore, 'run' | 'classroom' | 'ports'>, dependencies: { enroll: MembershipService['enroll'] }) {
+    this.run = context.run.bind(context);
+    this.classroom = context.classroom.bind(context);
+    this.ports = context.ports;
+    this.enroll = dependencies.enroll;
   }
+  async invite(request: unknown, classroomId: string, input: unknown) { return inviteOperation(this, request, classroomId, input); }
   revokeInvitation(request: unknown, classroomId: string, id: string) {
     return this.run(request, true, async (tx, actor) => {
       await this.classroom(tx, actor, classroomId, true, true);

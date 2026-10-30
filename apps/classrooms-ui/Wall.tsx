@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import type { ClassroomClient, Detail, WallContent, WallData, WallPost, WallTarget } from './api.ts';
+import type { ClassroomClient, Detail, WallContent, WallData, WallPost, WallTarget, WallRepliesPage, WallThreadData } from './api.ts';
+import { parseWallData, parseWallThreadData, parseWallRepliesPage } from '../../src/core/domain/index.ts';
 import { Dialog, Notice } from './components.tsx';
 import { EntryIcon } from '../shared-ui/EntryIcon';
 
@@ -44,9 +45,17 @@ export function Wall({ api, room, reload, target, onChanged }: {
   const [replying, setReplying] = useState<string | null>(null);
   const root = useRef<HTMLElement>(null);
   const load = useCallback(async (signal?: AbortSignal) => {
-    const result = await api.call<WallData>(`/${room.id}/wall`, 'GET', undefined, signal);
+    const result = parseWallData(await api.call<WallData>(`/${room.id}/wall`, 'GET', undefined, signal));
+    if (target?.postId) {
+      const suffix = target.replyId ? `?replyId=${encodeURIComponent(target.replyId)}` : '';
+      try {
+        const selected = parseWallThreadData(await api.call<WallThreadData>(`/${room.id}/wall/${target.postId}${suffix}`, 'GET', undefined, signal));
+        result.posts = [selected.post, ...result.posts.filter(post => post.id !== selected.post.id)];
+        result.revision = selected.revision;
+      } catch (error) { if (signal?.aborted) throw error; setError((error as Error).message); }
+    }
     setData(result);
-  }, [api, room.id]);
+  }, [api, room.id, target?.postId, target?.replyId]);
   useEffect(() => {
     const controller = new AbortController();
     setData(null); setEditing(null); setRemoving(null); setReplying(null);
@@ -69,6 +78,21 @@ export function Wall({ api, room, reload, target, onChanged }: {
     await api.call(`/${room.id}/wall`, 'POST', { revision: data.revision, operation });
     await Promise.all([reload(), load()]);
     onChanged?.();
+  }
+  async function morePosts() {
+    if (!data?.nextCursor) return;
+    const page = parseWallData(await api.call<WallData>(`/${room.id}/wall?cursor=${encodeURIComponent(data.nextCursor)}`));
+    setData(current => current ? { ...page, posts: [...current.posts, ...page.posts.filter(post => !current.posts.some(item => item.id === post.id))] } : page);
+  }
+  async function moreReplies(post: WallPost, direction: 'next' | 'previous') {
+    const cursor = direction === 'next' ? post.repliesNextCursor : post.repliesPreviousCursor;
+    if (!cursor) return;
+    const page = parseWallRepliesPage(await api.call<WallRepliesPage>(`/${room.id}/wall/${post.id}/replies?cursor=${encodeURIComponent(cursor)}`));
+    setData(current => current ? { ...current, revision: page.revision, posts: current.posts.map(item => item.id !== post.id ? item : {
+      ...item, replies: direction === 'next' ? [...item.replies, ...page.replies] : [...page.replies, ...item.replies],
+      repliesNextCursor: direction === 'next' ? page.nextCursor : item.repliesNextCursor,
+      repliesPreviousCursor: direction === 'previous' ? page.previousCursor : item.repliesPreviousCursor,
+    }) } : current);
   }
   const controls = (content: WallContent, reply: boolean) => !room.archived && !content.removedAt ? <div className="p5-actions">
     {content.canEdit ? <button disabled={busy} onClick={() => setEditing({ content, reply })}>{reply ? 'Editar respuesta' : 'Editar publicación'}</button> : null}
@@ -96,16 +120,19 @@ export function Wall({ api, room, reload, target, onChanged }: {
       <span className="p5-tag">{post.type === 'NOTICE' ? 'Aviso' : 'Consulta'}</span>
       <WallContentView content={post}>{controls(post, false)}</WallContentView>
       <section className="p6-wall-replies" aria-label="Respuestas de la publicación">
-        <h3>Respuestas ({post.replies.length})</h3>
+        <h3>Respuestas ({post.replyCount})</h3>
+        {post.repliesPreviousCursor ? <button disabled={busy} onClick={() => void run(() => moreReplies(post, 'previous'))}>Respuestas anteriores</button> : null}
         {post.replies.map(reply => <article key={reply.id} data-wall-id={reply.id} tabIndex={-1}
           className={target?.replyId === reply.id ? 'p6-wall-selected' : undefined}>
           <WallContentView content={reply}>{controls(reply, true)}</WallContentView>
         </article>)}
+        {post.repliesNextCursor ? <button disabled={busy} onClick={() => void run(() => moreReplies(post, 'next'))}>Más respuestas</button> : null}
         {!room.archived && !post.removedAt ? replying === post.id ? <TextForm label="Enviar respuesta" busy={busy} onCancel={() => setReplying(null)}
           onSave={body => run(async () => { await change({ action: 'reply', postId: post.id, body }); setReplying(null); setNotice('Respuesta guardada.'); })} />
           : <button disabled={busy} onClick={() => setReplying(post.id)}>Responder publicación</button> : null}
       </section>
     </article>)}</div>
+    {data?.nextCursor ? <button disabled={busy} onClick={() => void run(morePosts)}>Más publicaciones</button> : null}
     {editing ? <Dialog title={editing.reply ? 'Editar respuesta' : 'Editar publicación'} onClose={() => { if (!busy) setEditing(null); }}>
       {error ? <Notice error>{error}</Notice> : null}
       <TextForm initial={editing.content.body ?? ''} label="Guardar texto" busy={busy} onCancel={() => setEditing(null)} onSave={body => run(async () => {

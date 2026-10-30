@@ -1,19 +1,24 @@
-import { GradePublicationService } from './grade-publication.ts';
+import type { ClassroomCore } from './core.ts';
+import type { GradingService } from './grading.ts';
+import type { PlanService } from './plan.ts';
 import { revision } from './drafts.ts';
 import { fail, object } from './policy.ts';
 import { fixedHundredths, hundredths } from './scoring.ts';
 import type { Transaction } from './contracts.ts';
+import { gradeCorrectionInput as parseCorrection } from '../../../../src/core/domain/index.ts';
 
 export function gradeCorrectionInput(input: unknown) {
-  const body = object(input, ['revision', 'newGrade', 'reason', 'confirm']);
-  if (Object.keys(body).length !== 4 || body.confirm !== true || typeof body.reason !== 'string'
-    || !body.reason.trim() || body.reason.length > 5000 || hundredths(body.newGrade) > 1000n) return fail('INVALID_INPUT');
-  return { revision: revision(body.revision), newGrade: fixedHundredths(hundredths(body.newGrade)),
-    reason: body.reason.trim(), confirm: true as const };
+  try { return parseCorrection(input); } catch { return fail('INVALID_INPUT'); }
 }
 
 /** A correction changes only the same published final grade, never its effective identity or scoring evidence. */
-export class GradeCorrectionService extends GradePublicationService {
+export class GradeCorrectionService {
+  private readonly run: ClassroomCore['run'];
+  private readonly gradingContext: GradingService['gradingContext'];
+  private readonly advanceRevision: PlanService['advanceRevision'];
+  constructor(context: Pick<ClassroomCore, 'run'>, dependencies: Pick<GradingService, 'gradingContext'> & Pick<PlanService, 'advanceRevision'>) {
+    this.run = context.run.bind(context); this.gradingContext = dependencies.gradingContext; this.advanceRevision = dependencies.advanceRevision;
+  }
   private async correctionView(tx: Transaction, context: Awaited<ReturnType<GradeCorrectionService['gradingContext']>>) {
     const { room, grade } = context;
     if (!grade?.is_published || grade.final_grade === null || !grade.published_at) return fail('CONFLICT');

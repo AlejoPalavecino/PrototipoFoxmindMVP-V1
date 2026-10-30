@@ -1,25 +1,16 @@
 import { randomUUID } from 'node:crypto';
-import { LibraryService } from './library.ts';
+import type { ClassroomCore } from './core.ts';
+import type { PlanService } from './plan.ts';
 import { revision } from './drafts.ts';
 import { fail, object, uuid } from './policy.ts';
-import { wallOperation } from './wall-policy.ts';
+import { parseWallMutation, type NotificationPageQuery } from '../../../../src/core/domain/index.ts';
+import { notificationPage } from './notification-page.ts';
+import { feed, repliesPage, thread } from './wall-read.ts';
+import type { WallPageQuery } from '../../../../src/core/domain/index.ts';
 import type { Actor, Transaction } from './contracts.ts';
 import { academicNotificationSelection, academicTarget, type AcademicNotification } from './academic-notifications.ts';
 import { gradeNotificationSelection, gradeTarget, type GradeNotification } from './grade-notifications.ts';
 
-interface ContentRow {
-  id: string;
-  author_id: string;
-  body: string | null;
-  createdAt: Date;
-  editedAt: Date | null;
-  removedAt: Date | null;
-  authorName: string;
-  first_name: string;
-  last_name: string;
-  post_id?: string;
-  type?: 'NOTICE' | 'QUERY';
-}
 interface NotificationRow {
   id: string;
   classroomId: string;
@@ -43,35 +34,44 @@ const notificationSelection = `SELECT n.id,n.classroom_id AS "classroomId",c.nam
     AND (c.teacher_id=$1::uuid OR EXISTS(SELECT 1 FROM enrollments e JOIN membership_periods m ON m.enrollment_id=e.id
       WHERE e.classroom_id=c.id AND e.student_id=$1::uuid AND m.ended_at IS NULL))`;
 
-export class WallService extends LibraryService {
-  listWall(request: unknown, classroomId: string) {
+export class WallService {
+  private readonly run: ClassroomCore['run'];
+  private readonly classroom: ClassroomCore['classroom'];
+  private readonly ports: ClassroomCore['ports'];
+  private readonly advanceRevision: PlanService['advanceRevision'];
+  constructor(context: Pick<ClassroomCore, 'run' | 'classroom' | 'ports'>, dependencies: Pick<PlanService, 'advanceRevision'>) {
+    this.run = context.run.bind(context);
+    this.classroom = context.classroom.bind(context);
+    this.ports = context.ports;
+    this.advanceRevision = dependencies.advanceRevision;
+  }
+  listWall(request: unknown, classroomId: string, query?: WallPageQuery) {
     return this.run(request, false, async (tx, actor) => {
-      const classroom = await this.classroom(tx, actor, classroomId);
-      const fields = `x.id,x.author_id,x.body,x.created_at AS "createdAt",x.edited_at AS "editedAt",x.removed_at AS "removedAt",
-        concat(u.first_name,' ',u.last_name) AS "authorName",u.first_name,u.last_name`;
-      const posts = await tx.query<ContentRow>(`SELECT ${fields},x.type FROM wall_posts x JOIN users u ON u.id=x.author_id
-        WHERE x.classroom_id=$1::uuid ORDER BY x.created_at DESC,x.id`, classroomId);
-      const replies = await tx.query<ContentRow>(`SELECT ${fields},x.post_id FROM wall_replies x JOIN users u ON u.id=x.author_id
-        WHERE x.classroom_id=$1::uuid ORDER BY x.created_at,x.id`, classroomId);
-      const view = (row: ContentRow) => ({
-        id: row.id, authorName: row.authorName,
-        initials: [row.first_name, row.last_name].map(name => [...name.trim()][0] ?? '').join('').toLocaleUpperCase(),
-        body: row.removedAt ? null : row.body, createdAt: row.createdAt, editedAt: row.editedAt, removedAt: row.removedAt,
-        canEdit: !classroom.archived_at && !row.removedAt && row.author_id === actor.id,
-        canRemove: !classroom.archived_at && !row.removedAt && (row.author_id === actor.id || classroom.teacher_id === actor.id),
-      });
-      const grouped = new Map<string, ReturnType<typeof view>[]>();
-      for (const reply of replies) {
-        const group = grouped.get(reply.post_id!) ?? [];
-        group.push(view(reply)); grouped.set(reply.post_id!, group);
-      }
-      return { revision: classroom.revision.toString(), posts: posts.map(post => ({ ...view(post), type: post.type, replies: grouped.get(post.id) ?? [] })) };
+      const room = await this.classroom(tx, actor, classroomId);
+      return feed(tx, actor, room, this.ports.signingKey, classroomId, query);
+    });
+  }
+  wallThread(request: unknown, classroomId: string, postId: string, replyId?: string) {
+    if (!uuid(postId) || (replyId !== undefined && !uuid(replyId))) return fail('INVALID_INPUT');
+    return this.run(request, false, async (tx, actor) => {
+      const room = await this.classroom(tx, actor, classroomId);
+      return thread(tx, actor, room, this.ports.signingKey, classroomId, postId, replyId);
+    });
+  }
+  listWallReplies(request: unknown, classroomId: string, postId: string, query?: WallPageQuery) {
+    if (!uuid(postId)) return fail('INVALID_INPUT');
+    return this.run(request, false, async (tx, actor) => {
+      const room = await this.classroom(tx, actor, classroomId);
+      const [post] = await tx.query<{ id: string }>('SELECT id FROM wall_posts WHERE classroom_id=$1::uuid AND id=$2::uuid', classroomId, postId);
+      if (!post) return fail('FORBIDDEN');
+      return repliesPage(tx, actor, room, this.ports.signingKey, classroomId, postId, query);
     });
   }
 
   changeWall(request: unknown, classroomId: string, input: unknown) {
-    const body = object(input, ['revision', 'operation']);
-    const expected = revision(body.revision), op = wallOperation(body.operation);
+    let body: ReturnType<typeof parseWallMutation>;
+    try { body = parseWallMutation(input); } catch { return fail('INVALID_INPUT'); }
+    const expected = body.revision, op = body.operation;
     return this.run(request, true, async (tx, actor) => {
       const classroom = await this.classroom(tx, actor, classroomId, true);
       if (classroom.revision.toString() !== expected) return fail('CONFLICT');
@@ -123,11 +123,11 @@ export class WallService extends LibraryService {
 
   listNotifications(request: unknown) {
     return this.run(request, false, async (tx, actor) => {
-      const wall = await tx.query<NotificationRow>(`${notificationSelection} ORDER BY n.created_at DESC,n.id`, actor.id);
-      const academic = await tx.query<AcademicNotification>(academicNotificationSelection, actor.id);
-      const grades = await tx.query<GradeNotification>(gradeNotificationSelection, actor.id);
-      return [...wall, ...academic, ...grades].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || a.id.localeCompare(b.id));
+      return (await notificationPage(tx, this.ports.signingKey, actor.id, notificationSelection)).items;
     });
+  }
+  listNotificationPage(request: unknown, query?: NotificationPageQuery) {
+    return this.run(request, false, async (tx, actor) => notificationPage(tx, this.ports.signingKey, actor.id, notificationSelection, query));
   }
 
   readNotification(request: unknown, id: string) {

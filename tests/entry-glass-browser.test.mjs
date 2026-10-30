@@ -17,7 +17,7 @@ const rgb = value => value.match(/[\d.]+/g).slice(0, 3).map(Number);
 function contrast(first, second) { const a = luminance(rgb(first)), b = luminance(rgb(second)); return (Math.max(a, b) + .05) / (Math.min(a, b) + .05); }
 async function fit(page, width) {
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `Page overflow at${width}`);
-  const boxes = await page.locator('.fm-navbar').evaluate(element => {
+  const boxes = await page.locator('header.auth-brand-header, header.fm3d-shell').evaluate(element => {
     const header = element.getBoundingClientRect();
     return { width: header.width, left: header.left, right: header.right, height: header.height };
   });
@@ -42,11 +42,16 @@ test('glass actual account, shared navigation, authorized news and responsive vi
             await page.setViewportSize({ width, height: width === 1448 ? 1086 : 900 });
             await fit(page, width);
             await page.screenshot({ path: resolve(artifacts, `${route}-${width}.png`), fullPage: true });
-            const nav = await visibleNavigation(page);
-            assert.equal(await nav.getByRole('link', { name: route === 'register' ? 'Crear cuenta' : 'Iniciar sesión', exact: true }).getAttribute('aria-current'), 'page');
+            const header = page.locator('header.auth-brand-header');
+            const target = route === 'register' ? 'Iniciar sesión' : 'Crear cuenta';
+            const link = header.getByRole('link', { name: target, exact: true });
+            assert.equal(await link.getAttribute('href'), route === 'register' ? '/sign-in' : '/register');
+            assert.equal(await page.getByRole('button', { name: /Abrir menú de (cuenta|navegación)/ }).count(), 0);
+            assert.equal(await header.getByRole('link', { name: /Mi perfil|Configuración/ }).count(), 0);
             if (width < 768) {
-              await page.keyboard.press('Escape');
-              assert.equal(await page.getByRole('button', { name: 'Abrir menú de navegación', exact: true }).evaluate(node => node === document.activeElement), true);
+              await header.getByRole('link', { name: 'FoxMind', exact: true }).focus();
+              await page.keyboard.press('Tab');
+              assert.equal(await link.evaluate(node => node === document.activeElement), true);
             }
           }
         }
@@ -83,9 +88,13 @@ test('glass actual account, shared navigation, authorized news and responsive vi
       assert.equal((await api(page, 'POST', `/classrooms/${room.id}/wall`, { revision: detail.revision, operation: { action: 'publish', body: 'Glass actual notification destination' } })).status, 200);
       await t.test('profile notifications retain actual unread count and open a freshly authorized academic destination', async () => {
         await peer.goto(`${runtime.origin}/profile`);
+        const notificationRead = peer.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/classrooms/notifications/page' && response.request().method() === 'GET');
         await peer.getByRole('button', { name: /^Notificaciones:.*sin leer/ }).click();
+        const notificationResponse = await notificationRead;
+        assert.equal(notificationResponse.status(), 200);
+        assert.ok((await notificationResponse.json()).items.some(item => item.classroomId === room.id && item.eventType === 'WALL_NOTICE'));
         const dialog = peer.getByRole('dialog', { name: 'Notificaciones', exact: true });
-        await dialog.getByRole('button', { name: 'Abrir publicación', exact: true }).first().click();
+        await dialog.getByRole('listitem').filter({ has: peer.getByText('Glass actual classroom', { exact: true }) }).getByRole('button', { name: 'Abrir conversación', exact: true }).click();
         await peer.waitForURL(/\/mis-aulas\?notificacion=/);
         await peer.getByRole('region', { name: 'Muro del aula', exact: true }).waitFor();
         await peer.getByText('Glass actual notification destination', { exact: true }).waitFor();
@@ -94,7 +103,7 @@ test('glass actual account, shared navigation, authorized news and responsive vi
         const inspect = request => { if (/\/notifications\/.*\/open$/.test(new URL(request.url()).pathname)) invalidOpens.push(request.url()); };
         peer.on('request', inspect);
         await peer.goto(`${runtime.origin}/mis-aulas?notificacion=not-a-notification`);
-        await peer.getByRole('heading', { name: 'Mis Aulas', exact: true }).waitFor();
+        await peer.getByRole('heading', { name: 'Tus clases, bien organizadas.', exact: true }).waitFor();
         peer.off('request', inspect);
         assert.deepEqual(invalidOpens, [], 'Invalid page input never becomes an arbitrary notification operation');
       });
@@ -102,7 +111,9 @@ test('glass actual account, shared navigation, authorized news and responsive vi
         for (const [actor, kind] of [[page, 'teach'], [peer, 'study']]) {
           await actor.goto(`${runtime.origin}/inicio`);
           await actor.getByRole('heading', { name: 'Glass actual classroom', exact: true }).waitFor();
-          assert.equal(await actor.getByRole('button', { name: kind === 'teach' ? 'Enseño (1)' : 'Estudio (1)', exact: true }).getAttribute('aria-pressed'), 'true');
+          const classroomCard = actor.getByRole('region', { name: 'Tus aulas', exact: true }).getByRole('listitem').filter({ has: actor.getByRole('heading', { name: 'Glass actual classroom', exact: true }) });
+          await classroomCard.getByText(kind === 'teach' ? 'Enseño' : 'Estudio', { exact: true }).waitFor();
+          await classroomCard.getByRole('button', { name: 'Entrar al aula: Glass actual classroom', exact: true }).waitFor();
           for (const width of [320, 390, 768, 1024, 1440, 1448]) {
             await actor.setViewportSize({ width, height: width === 1448 ? 1086 : 900 });
             await fit(actor, width);
@@ -133,8 +144,8 @@ test('glass actual account, shared navigation, authorized news and responsive vi
           await page.screenshot({ path: resolve(artifacts, `${route}-390.png`), fullPage: true });
         }
         await page.goto(`${runtime.origin}/files`);
-        await profileAction(page);
-        await page.locator('#fm-account-menu').getByRole('button', { name: 'Cerrar sesión', exact: true }).click();
+        await page.getByRole('button', { name: 'Abrir menú de navegación', exact: true }).click();
+        await page.getByRole('dialog', { name: 'Menú de navegación', exact: true }).getByRole('button', { name: 'Cerrar sesión', exact: true }).click();
         await page.waitForURL('**/sign-in');
         assert.deepEqual((await api(page, 'GET', '/auth/session')).body, { authenticated: false });
       });

@@ -1,14 +1,17 @@
 import type { Actor, Transaction } from '../contracts.ts';
 import { fail, uuid } from '../policy.ts';
 import type { ActivityAiOptions, JobRow } from './contracts.ts';
+import { registerTransactionMode } from '../context.ts';
 
 export function transaction<T>(options: ActivityAiOptions, operation: (tx: Transaction) => Promise<T>): Promise<T> {
   return options.classrooms.ports.database.$transaction(raw => operation({ query: (sql, ...args) => raw.$queryRawUnsafe(sql, ...args) }),
     { maxWait: 2000, timeout: 6000 });
 }
 export function authorized<T>(options: ActivityAiOptions, request: unknown, classroomId: string, write: boolean,
-  operation: (tx: Transaction, room: { id: string; teacher_id: string; revision: bigint; archived_at: Date | null }, actor: Actor) => Promise<T>) {
+  operation: (tx: Transaction, room: { id: string; teacher_id: string; revision: bigint; archived_at: Date | null }, actor: Actor) => Promise<T>,
+  lockIntent: 'read' | 'write' = write ? 'write' : 'read') {
   return transaction(options, async tx => {
+    registerTransactionMode(tx, lockIntent === 'write' || write);
     const id = await options.classrooms.ports.authenticate(tx, request, write);
     if (!uuid(id)) return fail('FORBIDDEN');
     const [user] = await tx.query<Actor & { email_verified_at: Date | null }>(

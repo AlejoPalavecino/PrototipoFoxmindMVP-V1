@@ -1,10 +1,11 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import type { ClassroomPorts, Transaction } from '../contracts.ts';
 import type { AiConfiguration } from '../../ai/index.ts';
 import { validateGradingAiProposal } from '../../../../../src/core/domain/index.ts';
 import { createGradingAiSqlQueue, type GradingAiLease } from './sql-queue.ts';
 import { gradingAiSnapshotFromSql } from './snapshot-sql.ts';
 import type { GradingAiEvidence } from './provider.ts';
+import { SerialJobScheduler } from './scheduler.ts';
 
 type Config = Pick<AiConfiguration, 'maxConcurrency' | 'deadlineMs' | 'dailyActorRequests' | 'dailyGlobalRequests'
   | 'maxInputTokens' | 'maxOutputTokens' | 'inputUsdPerMillion' | 'outputUsdPerMillion' | 'dailyBudgetUsd'>;
@@ -15,20 +16,19 @@ export interface GradingAiProvider {
 }
 export type GradingAiFileGrant = { jobId: string; leaseNonce: string; ownerId: string; classroomId: string; activityId: string; attemptId: string; fileId: string; digest: string };
 type Reader = { read(grant: GradingAiFileGrant, signal: AbortSignal): Promise<unknown> };
-type Options = { database: ClassroomPorts['database']; configuration: Config; provider: GradingAiProvider; reader: Reader; instructionReader?: Reader };
+type Options = { database: ClassroomPorts['database']; configuration: Config; provider: GradingAiProvider; reader: Reader; instructionReader?: Reader; diagnostics?: ClassroomPorts['diagnostics'] };
 export class GradingAiRuntime {
   private readonly queue;
   private active?: Promise<boolean>;
   private stopped = false;
   private controller?: AbortController;
-  private timer?: ReturnType<typeof setTimeout>;
-  constructor(private readonly options: Options) { this.queue = createGradingAiSqlQueue(options); }
-  onModuleInit(): void { this.poll(); }
-  private poll(): void {
-    if (this.stopped) return;
-    this.timer = setTimeout(() => { void this.runOnce().catch(() => false).finally(() => this.poll()); }, 30000); this.timer.unref();
+  private readonly scheduler: SerialJobScheduler;
+  constructor(private readonly options: Options) {
+    this.queue = createGradingAiSqlQueue(options);
+    this.scheduler = new SerialJobScheduler(() => this.runOnce(), { onError: () => this.diagnostic('grading-ai.scheduler', false, 0) });
   }
-  async onModuleDestroy(): Promise<void> { this.stopped = true; clearTimeout(this.timer); this.controller?.abort(); await this.active; }
+  onModuleInit(): void { this.scheduler.start(); }
+  async onModuleDestroy(): Promise<void> { this.stopped = true; this.controller?.abort(); await this.scheduler.stop(); await this.active; }
   runOnce(): Promise<boolean> {
     if (this.stopped) return Promise.resolve(false);
     if (this.active) return this.active;
@@ -64,8 +64,8 @@ export class GradingAiRuntime {
     }, { maxWait: 2000, timeout: 6000 });
   }
   private async run(shutdown: AbortSignal): Promise<boolean> {
-    await this.queue.recover();
-    const job = await this.queue.claim(); if (!job) return false;
+    await this.measured('grading-ai.recover', () => this.queue.recover());
+    const job = await this.measured('grading-ai.claim', () => this.queue.claim()); if (!job) return false;
     const signal = AbortSignal.any([shutdown, AbortSignal.timeout(this.options.configuration.deadlineMs)]);
     let usage: { inputTokens: number | null; outputTokens: number | null } | undefined;
     try {
@@ -126,7 +126,15 @@ export class GradingAiRuntime {
       usage = { inputTokens: response.inputTokens, outputTokens: response.outputTokens };
       const proposal = validateGradingAiProposal(response.json, snapshot.spec);
       await this.queue.finish(job, 'READY', proposal, async tx => (await gradingAiSnapshotFromSql(tx, job, {}, false, true)).fingerprint === loaded.fingerprint, loaded.fingerprint, usage);
-    } catch { await this.queue.finish(job, 'FAILED', undefined, undefined, undefined, usage); }
+    } catch { this.diagnostic('grading-ai.scheduler', false, 0); await this.queue.finish(job, 'FAILED', undefined, undefined, undefined, usage); }
     return true;
+  }
+  private diagnostic(operation: 'grading-ai.scheduler' | 'grading-ai.recover' | 'grading-ai.claim', success: boolean, durationMs: number) {
+    try { this.options.diagnostics?.record({ operation, code: success ? 'COMPLETED' : 'UNEXPECTED', outcome: success ? 'success' : 'failure', durationMs, correlationId: randomUUID() }); } catch {}
+  }
+  private async measured<T>(operation: 'grading-ai.recover' | 'grading-ai.claim', run: () => Promise<T>): Promise<T> {
+    const start = performance.now();
+    try { const result = await run(); this.diagnostic(operation, true, performance.now() - start); return result; }
+    catch (error) { this.diagnostic(operation, false, performance.now() - start); throw error; }
   }
 }

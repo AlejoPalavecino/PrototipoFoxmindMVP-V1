@@ -29,11 +29,19 @@ test('P9 first actual invitation SMTP failure and natural retry recovery', { tim
     };
     const reenter = async label => {
       const suffixes = ['', '/members', '/history', '/invitations'];
-      const reads = suffixes.map(suffix => page.waitForResponse(response =>
-        new URL(response.url()).pathname === `/api/v1${rootOf(room)}${suffix}` && response.request().method() === 'GET'));
-      const [, ...responses] = await Promise.all([
-        openClassroom(page, runtime.origin, `P9 ${world.label} classroom`), ...reads,
-      ]);
+      const read = suffix => page.waitForResponse(response =>
+        new URL(response.url()).pathname === `/api/v1${rootOf(room)}${suffix}` && response.request().method() === 'GET');
+      const detailRead = read('');
+      await openClassroom(page, runtime.origin, `P9 ${world.label} classroom`);
+      const detailResponse = await detailRead;
+      const memberRead = read('/members'), invitationRead = read('/invitations');
+      await page.getByRole('button', { name: 'Alumnos', exact: true }).click();
+      const memberResponse = await memberRead, invitationResponse = await invitationRead;
+      const historyRead = read('/history');
+      await page.getByRole('button', { name: 'Historial', exact: true }).click();
+      const historyResponse = await historyRead;
+      await page.getByRole('button', { name: 'Alumnos', exact: true }).click();
+      const responses = [detailResponse, memberResponse, historyResponse, invitationResponse];
       const bodies = await Promise.all(responses.map(async response => {
         assert.equal(response.status(), 200, 'Public classroom reentry must load actual admitted state');
         assert.equal(await response.finished(), null); return response.json();
@@ -53,6 +61,10 @@ test('P9 first actual invitation SMTP failure and natural retry recovery', { tim
       const membersBefore = (await runtime.db.query('SELECT count(*)::int n FROM membership_periods')).rows[0].n;
       assert.equal((await runtime.db.query('SELECT count(*)::int n FROM users WHERE email_normalized=$1', [recipient])).rows[0].n, 0);
       await openClassroom(page, runtime.origin, `P9 ${world.label} classroom`);
+      const memberRead = page.waitForResponse(response => new URL(response.url()).pathname === `/api/v1${rootOf(room)}/members` && response.request().method() === 'GET');
+      const invitationRead = page.waitForResponse(response => new URL(response.url()).pathname === `/api/v1${rootOf(room)}/invitations` && response.request().method() === 'GET');
+      await page.getByRole('button', { name: 'Alumnos', exact: true }).click();
+      assert.equal((await memberRead).status(), 200); assert.equal((await invitationRead).status(), 200);
       await page.getByRole('button', { name: 'Invitar estudiantes', exact: true }).click();
       await page.getByLabel('Correo electrónico', { exact: true }).fill(recipient);
       try {

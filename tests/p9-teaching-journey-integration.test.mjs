@@ -30,6 +30,7 @@ test('P9 joined teaching: verified accounts, scanned private classroom, explicit
     assert.deepEqual(plans.map(row => row.version), [2, 1]); assert.equal(plans[1].fileId, room.fileId);
     await openClassroom(T.page, runtime.origin, 'P9 teaching classroom');
     await T.page.getByRole('button', { name: 'Plan', exact: true }).click();
+    await T.page.getByRole('region', { name: 'Plan de estudio', exact: true }).locator('summary').filter({ hasText: /^Administrar plan/ }).click();
     const topicState = T.page.getByRole('region', { name: 'Plan de estudio', exact: true }).getByLabel('Estado de First topic');
     assert.equal(await topicState.count(), 1, 'One scoped First-topic state control is required');
     let response = T.page.waitForResponse(r => r.url().endsWith(`${room.id}/plan`) && r.request().method() === 'POST');
@@ -58,7 +59,12 @@ test('P9 joined teaching: verified accounts, scanned private classroom, explicit
     await openClassroom(S.page, runtime.origin, 'P9 teaching classroom');
     await S.page.getByRole('button', { name: 'Plan', exact: true }).click();
     await S.page.getByRole('link', { name: 'Descargar plan · Versión 2', exact: true }).waitFor();
-    assert.equal(await S.page.getByRole('combobox').count(), 0);
+    const studentPlan = S.page.getByRole('region', { name: 'Plan de estudio', exact: true });
+    assert.equal(await studentPlan.getByLabel('Tema del plan', { exact: true }).count(), 1);
+    assert.equal(await studentPlan.getByLabel('Estado de First topic', { exact: true }).count(), 0);
+    assert.equal(await studentPlan.getByLabel('Avance de First topic', { exact: true }).count(), 0);
+    assert.equal(await studentPlan.getByText('Administrar plan', { exact: false }).count(), 0);
+    assert.equal(await studentPlan.getByLabel('Archivo del plan (PDF o DOCX)', { exact: true }).count(), 0);
     await S.page.getByRole('button', { name: 'Biblioteca', exact: true }).click();
     await S.page.getByRole('article', { name: 'Joined published material', exact: true }).waitFor();
     assert.equal(await S.page.getByLabel('Archivo del material', { exact: true }).count(), 0);

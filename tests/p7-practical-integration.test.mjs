@@ -66,9 +66,9 @@ test('P7 TP actual P3/browser/private storage/ClamAV persistence and confirmed r
     assert.deepEqual((await ok(teacher,'GET',path+'/submissions')).submissions,[]);
     await runtime.restartApi();await open(student);
     await student.getByRole('link',{name:'Descargar first-work.pdf',exact:true}).waitFor();
-    await student.getByText('Solo consulta en esta pestaña o dispositivo.',{exact:false}).waitFor();
+    await student.getByRole('button',{name:'Continuar en esta pestaña',exact:true}).waitFor();assert.equal(await student.getByLabel('Seleccionar archivo del trabajo',{exact:true}).count(),0);
     const transfer=student.waitForResponse(r=>r.url().endsWith(`/attempts/${attempt.id}/transfer`));
-    await student.getByRole('button',{name:'Transferir edición a esta pestaña',exact:true}).click();await student.getByRole('button',{name:'Confirmar transferencia',exact:true}).click();
+    await student.getByRole('button',{name:'Continuar en esta pestaña',exact:true}).click();await student.getByRole('button',{name:'Confirmar transferencia',exact:true}).click();
     const moved=await transfer;assert.equal(moved.status(),200);editor=(await moved.json()).editor;
     await student.getByRole('button',{name:'Quitar first-work.pdf',exact:true}).waitFor();
    });
@@ -83,13 +83,13 @@ test('P7 TP actual P3/browser/private storage/ClamAV persistence and confirmed r
     assert.ok((await runtime.db.query('SELECT first_started_at FROM activities WHERE id=$1',[activity])).rows[0].first_started_at);
    });
    await check('second real tab transfers during actual paused scanner; stale upload cannot confirm or link',async()=>{
-    await open(device);await device.getByText('Solo consulta en esta pestaña o dispositivo.',{exact:false}).waitFor();
+    await open(device);await device.getByRole('button',{name:'Continuar en esta pestaña',exact:true}).waitFor();assert.equal(await device.getByLabel('Seleccionar archivo del trabajo',{exact:true}).count(),0);
     const allocated=await request(student,'POST','/files',{scope:{kind:'classroom',id:room.id},purpose:'attachment',targetId:attempt.id,name:'stale-editor.pdf',bytes:bytes.length},editorHeaders(editor));
     assert.equal(allocated.status,201);runtime.pauseScanner();
     const sending=request(student,'PUT',`/files/${allocated.body.id}/content`,{base64:bytes.toString('base64')},editorHeaders(editor));
     let inspecting=false;for(let i=0;i<30;i++){const row=(await runtime.db.query('SELECT phase FROM file_custodies WHERE file_id=$1',[allocated.body.id])).rows[0];if(row.phase==='inspecting'){inspecting=true;break;}await delay(100);}
     assert.equal(inspecting,true);assert.equal((await ok(student,'GET',`/files/${allocated.body.id}`)).ready,false);
-    await device.getByRole('button',{name:'Transferir edición a esta pestaña',exact:true}).click();
+    await device.getByRole('button',{name:'Continuar en esta pestaña',exact:true}).click();
     const transfer=device.waitForResponse(r=>r.url().endsWith(`/attempts/${attempt.id}/transfer`));await device.getByRole('button',{name:'Confirmar transferencia',exact:true}).click();
     const response=await transfer;assert.equal(response.status(),200);newEditor=(await response.json()).editor;runtime.resumeScanner();
     assert.equal((await sending).status,403);
@@ -102,12 +102,13 @@ test('P7 TP actual P3/browser/private storage/ClamAV persistence and confirmed r
     await device.getByRole('button',{name:'Enviar trabajo práctico',exact:true}).click();
     const sent=device.waitForResponse(r=>r.url().endsWith(`/attempts/${attempt.id}/submit-practical`));
     await device.getByRole('button',{name:'Confirmar envío del trabajo',exact:true}).click();const response=await sent;assert.equal(response.status(),200);
-    await device.getByRole('heading',{name:'Comprobante de entrega',exact:true}).waitFor();await device.getByText('Entregado · pendiente de corrección.',{exact:false}).waitFor();
+    await device.getByRole('heading',{name:'Comprobante de entrega',exact:true}).waitFor();await device.getByText('Entrega confirmada.',{exact:true}).waitFor();
     const persisted=await session(device);assert.equal(persisted.attempt.status,'SUBMITTED');assert.equal(persisted.attempt.attachments.length,1);assert.equal(persisted.canTransfer,false);
     assert.equal((await runtime.db.query('SELECT count(*)::int n FROM attempt_grades')).rows[0].n,0);
     await rejectSame(runtime.db,()=>request(device,'POST',`/classrooms/${room.id}/attempts/${attempt.id}/attachments-remove`,{revision:persisted.attempt.revision,fileId:replacement.id},editorHeaders(newEditor)),409);
     await teacher.getByRole('button',{name:'Ver entregas recibidas',exact:true}).click();
     await teacher.getByRole('button',{name:'Consultar intento 1',exact:true}).click();
+    await teacher.getByRole('region',{name:'Intento histórico confirmado'}).getByText('Ver mis respuestas y archivos',{exact:true}).click();
     await teacher.getByRole('link',{name:'Descargar replacement.pdf',exact:true}).waitFor();
     const downloaded=await request(teacher,'GET',`/files/${replacement.id}/content`);assert.equal(downloaded.status,200);assert.equal(downloaded.digest,digest(bytes));
     await rejectSame(runtime.db,()=>request(teacher,'GET',`/files/${first.id}/content`),403);

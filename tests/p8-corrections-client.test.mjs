@@ -1,3 +1,4 @@
+import { correctionsView } from './helpers/audit-grade-dto.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -6,11 +7,13 @@ const id = 'a1111111-1111-4111-8111-111111111111';
 
 test('correction client sends only final grade/reason/revision/confirmation with fresh CSRF; audit read has no body/editor', async () => {
   const calls = []; let csrf = 0;
-  const client = createClassroomClient({ csrfToken: async () => String(++csrf), fetch: async (path, options) => { calls.push({ path, ...options }); return Response.json({}); } });
+  const client = createClassroomClient({ csrfToken: async () => String(++csrf), fetch: async (path, options) => { calls.push({ path, ...options }); return Response.json(correctionsView); } });
   const body = { revision: '5', newGrade: '0', reason: 'Reason', confirm: true };
   await client.call(`/${id}/attempts/${id}/grade-corrections`, 'POST', body);
   assert.equal(calls[0].body, JSON.stringify(body)); assert.equal(calls[0].headers['X-CSRF-Token'], '1'); assert.equal(calls[0].headers['X-Attempt-Editor'], undefined);
   await client.call(`/${id}/attempts/${id}/grade-corrections`); assert.equal(calls[1].method, 'GET'); assert.equal(calls[1].body, undefined);
+  const malformed = createClassroomClient({ csrfToken: async () => 'fixture', fetch: async () => Response.json({}) });
+  await assert.rejects(() => malformed.call(`/${id}/attempts/${id}/grade-corrections`), { code: 'SERVICE_UNAVAILABLE' });
 });
 
 test('teacher correction component is reachable only from published grading and waits for fresh read before success', async () => {

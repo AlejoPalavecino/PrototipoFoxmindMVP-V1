@@ -1,6 +1,7 @@
-import type { FileDatabase, FileTransaction } from '../files/contracts.ts';
-import type { FileStore } from '../files/store.ts';
-export type Transaction = FileTransaction;
+import type { SqlDatabase, SqlTransaction } from '../../../../src/core/domain/sql.ts';
+import type { FileStore } from '../files/public/index.ts';
+import type { DiagnosticSink } from '../../../../src/core/domain/diagnostics.ts';
+export type Transaction = SqlTransaction;
 export interface Actor {
   id: string;
   email: string;
@@ -10,10 +11,11 @@ export interface Actor {
   now: Date;
 }
 export interface ClassroomPorts {
+  diagnostics?: DiagnosticSink;
   gradingAiAvailable?: boolean;
   studentAiEnabled?: boolean;
   validateActivityGeneration?(tx: Transaction, request: unknown, activityId: string): Promise<void>;
-  database: FileDatabase;
+  database: SqlDatabase;
   // Actual P3 session validator; repeatable under user lock, Origin/CSRF on mutation.
   authenticate(
     tx: Transaction,

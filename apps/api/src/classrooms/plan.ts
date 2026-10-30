@@ -1,12 +1,21 @@
 import { randomUUID } from 'node:crypto';
-import { InvitationService } from './invitations.ts';
+import type { ClassroomCore } from './core.ts';
+import { advanceClassroomRevision } from './context.ts';
 import { revision } from './drafts.ts';
 import { fail, object, text, uuid } from './policy.ts';
 import { requireReady } from '../files/service.ts';
 import type { Transaction } from './contracts.ts';
 
 /** P6 shares the user/classroom locks and optimistic revision of the existing host. */
-export class PlanService extends InvitationService {
+export class PlanService {
+  private readonly run: ClassroomCore['run'];
+  private readonly classroom: ClassroomCore['classroom'];
+  private readonly ports: ClassroomCore['ports'];
+  constructor(context: Pick<ClassroomCore, 'run' | 'classroom' | 'ports'>) {
+    this.run = context.run.bind(context);
+    this.classroom = context.classroom.bind(context);
+    this.ports = context.ports;
+  }
   async changePlan(request: unknown, classroomId: string, input: unknown) {
     const body = object(input, ['revision', 'operation']);
     const expected = revision(body.revision);
@@ -101,7 +110,7 @@ export class PlanService extends InvitationService {
     });
   }
 
-  protected async readyClassroomFile(tx: Transaction, request: unknown, classroomId: string, fileId: unknown, purpose: 'plan' | 'material') {
+  async readyClassroomFile(tx: Transaction, request: unknown, classroomId: string, fileId: unknown, purpose: 'plan' | 'material') {
     if (!uuid(fileId)) return fail('INVALID_INPUT');
     const row = await this.ports.files.load(tx, fileId);
     // Reject a foreign scope before attempting to lock/revalidate another classroom.
@@ -111,8 +120,7 @@ export class PlanService extends InvitationService {
     return current;
   }
 
-  protected async advanceRevision(tx: Transaction, classroomId: string, current: bigint) {
-    await tx.query('UPDATE classrooms SET revision=revision+1,updated_at=clock_timestamp() WHERE id=$1::uuid RETURNING id', classroomId);
-    return { revision: (current + 1n).toString() };
+  async advanceRevision(tx: Transaction, classroomId: string, current: bigint) {
+    return advanceClassroomRevision(tx, classroomId, current);
   }
 }

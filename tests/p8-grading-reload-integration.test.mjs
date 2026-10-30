@@ -1,3 +1,4 @@
+import { readdirSync } from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp } from 'node:fs/promises';
@@ -11,8 +12,8 @@ import { classroom, openClassroom, planPdf } from './p6-integration-helpers.mjs'
 
 test('P8 targeted TP private editor reload confirms actual 200 before restoring saved fields and clean visual state', { timeout: 330000 }, async () => {
   await withP4IntegrationRuntime(async runtime => {
-    assert.equal(runtime.migrations.length, 14);
-    assert.deepEqual(runtime.migrations.slice(-5), [
+    assert.deepEqual(runtime.migrations, readdirSync('prisma/migrations').filter(name => /^\d+_/.test(name)).sort());
+    assert.deepEqual(runtime.migrations.filter(name => ['202610230001_agenda_events', '202610230001_classroom_ai', '202610240001_agenda_event_color', '202610250001_activity_topics', '202610250002_activity_ai'].includes(name)), [
       '202610230001_agenda_events',
       '202610230001_classroom_ai',
       '202610240001_agenda_event_color',

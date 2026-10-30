@@ -1,3 +1,4 @@
+import { migrationInventory } from './helpers/migration-inventory.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readdir, readFile } from 'node:fs/promises';
@@ -21,7 +22,8 @@ const historical = [
 const canonicalDigest = bytes => createHash('sha256').update(bytes.toString('utf8').replace(/\r\n/g, '\n')).digest('hex');
 test('activity and recurrence migrations append without rewriting the twelve historical SQL files', async () => {
   const names = (await readdir('prisma/migrations')).filter(name => /^\d+_/.test(name)).sort();
-  assert.deepEqual(names, [...historical.map(([name]) => name), '202610250001_activity_topics', '202610250002_activity_ai', '202610280001_agenda_recurrence']);
+  assert.deepEqual(names, migrationInventory);
+  assert.deepEqual(names.slice(0, historical.length), historical.map(([name]) => name));
   for (const [name, digest] of historical) {
     const bytes = await readFile(`prisma/migrations/${name}/migration.sql`);
     assert.equal(canonicalDigest(bytes), digest, name);

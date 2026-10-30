@@ -1,1 +1,1 @@
-export { ProgressService as ClassroomService } from './progress.ts';
+export { ClassroomService } from './composition.ts';

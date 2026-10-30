@@ -33,11 +33,16 @@ export async function account(page, origin, inbox, email, beforeVerification) {
   await page.getByRole('heading', { name: 'Tu correo está verificado', exact: true }).waitFor();
   return (await api(page, 'GET', '/auth/session')).body.user;
 }
-export async function api(page, method, path, body, headers = {}) {
-  return page.evaluate(async ({ method, path, body, headers }) => {
+export async function api(page, method, path, body, headers = {}, options = {}) {
+  return page.evaluate(async ({ method, path, body, headers, options }) => {
     const requestHeaders = { ...headers };
     if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
       const result = await fetch('/api/v1/auth/csrf');
+      if (!result.ok && options.stopOnCsrfFailure) {
+        const responseHeaders = Object.fromEntries(result.headers);
+        const responseBody = result.headers.get('content-type')?.includes('application/json') ? await result.json() : await result.text();
+        return { status: result.status, headers: responseHeaders, body: responseBody };
+      }
       if (result.ok && !requestHeaders['x-csrf-token']) requestHeaders['x-csrf-token'] = (await result.json()).csrfToken;
     }
     let content;
@@ -46,13 +51,16 @@ export async function api(page, method, path, body, headers = {}) {
       requestHeaders['content-type'] = 'application/octet-stream';
     } else if (body !== undefined) { content = JSON.stringify(body); requestHeaders['content-type'] = 'application/json'; }
     const result = await fetch(`/api/v1${path}`, { method, headers: requestHeaders, body: content });
-    const responseHeaders = Object.fromEntries(result.headers);
-    if (result.status === 204) return { status: result.status, headers: responseHeaders };
-    if (result.headers.get('content-type')?.includes('application/json')) return { status: result.status, headers: responseHeaders, body: await result.json() };
-    const bytes = await result.arrayBuffer();
-    const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), x => x.toString(16).padStart(2, '0')).join('');
-    return { status: result.status, headers: responseHeaders, length: bytes.byteLength, digest: hash };
-  }, { method, path, body, headers });
+    return serialize(result);
+    async function serialize(result) {
+      const responseHeaders = Object.fromEntries(result.headers);
+      if (result.status === 204) return { status: result.status, headers: responseHeaders };
+      if (result.headers.get('content-type')?.includes('application/json')) return { status: result.status, headers: responseHeaders, body: await result.json() };
+      const bytes = await result.arrayBuffer();
+      const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), x => x.toString(16).padStart(2, '0')).join('');
+      return { status: result.status, headers: responseHeaders, length: bytes.byteLength, digest: hash };
+    }
+  }, { method, path, body, headers, options });
 }
 export async function fileSnapshot(db) {
   const rows = [];

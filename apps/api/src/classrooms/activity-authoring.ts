@@ -1,6 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import { replaceActivityContent } from './activity-content.ts';
-import { WallService } from './wall.ts';
+import type { ClassroomCore } from './core.ts';
+import type { PlanService } from './plan.ts';
+import type { studentActivityView } from './activity-session.ts';
+import { isVerifiedRead } from './context.ts';
 import { revision } from './drafts.ts';
 import { fail, object, text, uuid } from './policy.ts';
 import { activityOperation, activityPayload, activityType, exactActivityObject, type ActivityPayload, type ActivityType } from './activity-policy.ts';
@@ -20,10 +23,21 @@ interface QuestionRow { id: string; type: string; prompt: string; points: string
 interface OptionRow { id: string; question_id: string; text: string; correct: boolean }
 
 /** All authoring and future attempt-start operations serialize on the existing classroom lock. */
-export class ActivityAuthoringService extends WallService {
-  protected async activity(tx: Transaction, classroomId: string, id: string): Promise<ActivityRow> {
+export class ActivityAuthoringService {
+  private readonly run: ClassroomCore['run'];
+  private readonly classroom: ClassroomCore['classroom'];
+  private readonly ports: ClassroomCore['ports'];
+  private readonly readyClassroomFile: PlanService['readyClassroomFile'];
+  private readonly advanceRevision: PlanService['advanceRevision'];
+  private readonly studentActivityView: (...args: Parameters<typeof studentActivityView> extends [unknown, ...infer Rest] ? Rest : never) => ReturnType<typeof studentActivityView>;
+  constructor(context: Pick<ClassroomCore, 'run' | 'classroom' | 'ports'>, dependencies: Pick<PlanService, 'readyClassroomFile' | 'advanceRevision'> & { studentActivityView: ActivityAuthoringService['studentActivityView'] }) {
+    this.run = context.run.bind(context); this.classroom = context.classroom.bind(context); this.ports = context.ports;
+    this.readyClassroomFile = dependencies.readyClassroomFile; this.advanceRevision = dependencies.advanceRevision;
+    this.studentActivityView = dependencies.studentActivityView;
+  }
+  async activity(tx: Transaction, classroomId: string, id: string): Promise<ActivityRow> {
     if (!uuid(id)) return fail('FORBIDDEN');
-    const [row] = await tx.query<ActivityRow>('SELECT * FROM activities WHERE id=$1::uuid AND classroom_id=$2::uuid FOR UPDATE', id, classroomId);
+    const [row] = await tx.query<ActivityRow>(`SELECT * FROM activities WHERE id=$1::uuid AND classroom_id=$2::uuid FOR ${isVerifiedRead(tx) ? 'SHARE' : 'UPDATE'}`, id, classroomId);
     if (!row) return fail('FORBIDDEN');
     return row;
   }
@@ -154,17 +168,13 @@ export class ActivityAuthoringService extends WallService {
     }
   }
 
-  protected activitySummary(row: ActivityRow, zone: string) {
+  activitySummary(row: ActivityRow, zone: string) {
     return { id: row.id, type: row.type, title: row.title, unitId: row.unit_id, topicId: row.topic_id, topicIds: row.topic_id ? [row.topic_id] : [],
       status: row.status, publishedAt: row.published_at, deadlineAt: row.deadline_at, allowLate: row.allow_late_submissions,
       locked: row.first_started_at !== null, zone };
   }
 
-  protected studentActivityView(tx: Transaction, row: ActivityRow, zone: string, _studentId: string, _archived = false) {
-    return this.activityView(tx, row, zone, false);
-  }
-
-  protected async activityView(tx: Transaction, row: ActivityRow, zone: string, teacher: boolean) {
+  async activityView(tx: Transaction, row: ActivityRow, zone: string, teacher: boolean) {
     const questions = await tx.query<QuestionRow>(`SELECT id,type,prompt,available_points::text AS points,scoring_rule AS "scoringRule"
       FROM questions WHERE activity_id=$1::uuid ORDER BY position,id`, row.id);
     const options = await tx.query<OptionRow>(`SELECT o.id,o.question_id,o.text,o.is_correct AS correct FROM question_options o

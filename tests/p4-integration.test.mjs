@@ -1,3 +1,4 @@
+import { readdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { randomUUID, randomBytes } from 'node:crypto';
@@ -45,8 +46,8 @@ test('P4 integrated browser, persisted P3 sessions and actual private services',
           VALUES($1,now(),$2,'P4 owned fixture','Testing','A',2026,'America/Argentina/Buenos_Aires','fixture',100000000)`, [classroom, owner.id]);
         await db.query('INSERT INTO enrollments(id,updated_at,classroom_id,student_id) VALUES($1,now(),$2,$3)', [enrollment, classroom, student.id]);
         await db.query(`INSERT INTO membership_periods(id,updated_at,enrollment_id,classroom_id,entry_method) VALUES($1,now(),$2,$3,'CODE')`, [period, enrollment, classroom]);
-      assert.equal(runtime.migrations.length, 14);
-      assert.deepEqual(runtime.migrations.slice(-5), [
+      assert.deepEqual(runtime.migrations, readdirSync('prisma/migrations').filter(name => /^\d+_/.test(name)).sort());
+      assert.deepEqual(runtime.migrations.filter(name => ['202610230001_agenda_events', '202610230001_classroom_ai', '202610240001_agenda_event_color', '202610250001_activity_topics', '202610250002_activity_ai'].includes(name)), [
         '202610230001_agenda_events',
         '202610230001_classroom_ai',
         '202610240001_agenda_event_color',

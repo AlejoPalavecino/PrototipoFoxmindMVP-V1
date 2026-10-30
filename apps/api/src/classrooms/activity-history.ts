@@ -1,5 +1,8 @@
 import { randomUUID } from 'node:crypto';
-import { QuestionnaireAttemptService } from './questionnaire-attempts.ts';
+import type { ClassroomCore } from './core.ts';
+import type { ActivityAuthoringService } from './activity-authoring.ts';
+import type { PlanService } from './plan.ts';
+import type { sessionView } from './activity-session.ts';
 import { exactActivityObject } from './activity-policy.ts';
 import { resolveDeadline } from './activity-time.ts';
 import { receptionPolicy } from './attempt-policy.ts';
@@ -17,7 +20,22 @@ interface HistoryRow {
   studentId: string; firstName: string; lastName: string; currentMember: boolean; gradePublished: boolean;
 }
 
-export class ActivityHistoryService extends QuestionnaireAttemptService {
+export class ActivityHistoryService {
+  private readonly run: ClassroomCore['run'];
+  private readonly classroom: ClassroomCore['classroom'];
+  private readonly ports: ClassroomCore['ports'];
+  private readonly activity: ActivityAuthoringService['activity'];
+  private readonly activitySummary: ActivityAuthoringService['activitySummary'];
+  private readonly advanceRevision: PlanService['advanceRevision'];
+  private readonly sessionView: (...args: Parameters<typeof sessionView> extends [unknown, ...infer Rest] ? Rest : never) => ReturnType<typeof sessionView>;
+  constructor(context: Pick<ClassroomCore, 'run' | 'classroom' | 'ports'>, dependencies: {
+    activity: ActivityAuthoringService['activity']; activitySummary: ActivityAuthoringService['activitySummary'];
+    advanceRevision: PlanService['advanceRevision']; sessionView: ActivityHistoryService['sessionView'];
+  }) {
+    this.run = context.run.bind(context); this.classroom = context.classroom.bind(context); this.ports = context.ports;
+    this.activity = dependencies.activity; this.activitySummary = dependencies.activitySummary;
+    this.advanceRevision = dependencies.advanceRevision; this.sessionView = dependencies.sessionView;
+  }
   private async historyRows(tx: Transaction, classroomId: string, activityId: string, studentId: string | null) {
     return tx.query<HistoryRow>(`SELECT a.id,a.attempt_number AS number,a.status::text,a.opened_at AS "openedAt",
       a.submitted_at AS "submittedAt",a.applied_deadline_at AS "appliedDeadlineAt",a.individual_deadline_at AS "individualDeadlineAt",

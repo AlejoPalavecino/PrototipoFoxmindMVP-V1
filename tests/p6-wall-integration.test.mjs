@@ -82,7 +82,7 @@ test('P6 actual Muro, scoped notifications, moderation and retained history', { 
         studentNotification = (await notifications(student)).find(item => item.postId === notice.id && item.eventType === 'WALL_NOTICE');
         await student.getByRole('button', { name: /^Notificaciones/ }).click();
         await student.getByRole('dialog', { name: 'Notificaciones', exact: true }).locator('li')
-          .filter({ hasText: 'Nuevo aviso del docente' }).getByRole('button', { name: 'Abrir publicación', exact: true }).click();
+          .filter({ hasText: 'Nuevo aviso del docente' }).getByRole('button', { name: 'Abrir conversación', exact: true }).click();
         await student.waitForFunction(id => document.activeElement?.dataset.wallId === id, notice.id);
         assert.ok((await notifications(student)).find(item => item.id === studentNotification.id).readAt);
       });

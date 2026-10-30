@@ -1,7 +1,7 @@
 import type { ActivityGenerationView, ActivitySourceGrant, ActivitySourceSnapshot, ApprovedActivitySourceReader,
   StartActivityGeneration, ActivityProposal, ActivitySourceReport, StructuredActivityGenerationPort } from '../../../../../src/core/domain/index.ts';
 import type { ClassroomAiConfiguration } from '../ai/index.ts';
-import type { ActivityAuthoringService } from '../activity-authoring.ts';
+import type { ClassroomCore } from '../core.ts';
 import type { Transaction } from '../contracts.ts';
 
 export interface AiActivitySource extends ApprovedActivitySourceReader {
@@ -9,7 +9,7 @@ export interface AiActivitySource extends ApprovedActivitySourceReader {
   snapshotWorker?(tx: Transaction, grant: ActivitySourceGrant, signal: AbortSignal): Promise<ActivitySourceSnapshot>;
 }
 export interface ActivityAiOptions {
-  classrooms: ActivityAuthoringService; reader: AiActivitySource; provider: StructuredActivityGenerationPort;
+  classrooms: Pick<ClassroomCore, 'ports' | 'classroom'>; reader: AiActivitySource; provider: StructuredActivityGenerationPort;
   configuration: ClassroomAiConfiguration;
 }
 export interface CurriculumSnapshot {

@@ -1,16 +1,31 @@
-import { GradingAiService } from './grading-ai/service.ts';
+import type { ClassroomCore } from './core.ts';
+import type { ActivityAuthoringService } from './activity-authoring.ts';
+import type { GradingService } from './grading.ts';
+import type { PlanService } from './plan.ts';
 import { revision } from './drafts.ts';
 import { fail, object, uuid } from './policy.ts';
 import { fixedHundredths, hundredths, scoreJson } from './scoring.ts';
 import type { Transaction } from './contracts.ts';
+import { gradePublicationInput } from '../../../../src/core/domain/index.ts';
 
 export function publicationInput(input: unknown) {
-  const body = object(input, ['revision', 'confirm']);
-  if (Object.keys(body).length !== 2 || body.confirm !== true) return fail('INVALID_INPUT');
-  return { revision: revision(body.revision), confirm: true as const };
+  try { return gradePublicationInput(input); } catch { return fail('INVALID_INPUT'); }
 }
 
-export class GradePublicationService extends GradingAiService {
+export class GradePublicationService {
+  private readonly run: ClassroomCore['run'];
+  private readonly classroom: ClassroomCore['classroom'];
+  private readonly activity: ActivityAuthoringService['activity'];
+  private readonly activityView: ActivityAuthoringService['activityView'];
+  private readonly gradingContext: GradingService['gradingContext'];
+  private readonly gradingView: GradingService['gradingView'];
+  private readonly scoreCorrection: GradingService['scoreCorrection'];
+  private readonly advanceRevision: PlanService['advanceRevision'];
+  constructor(context: Pick<ClassroomCore, 'run' | 'classroom'>, dependencies: Pick<ActivityAuthoringService, 'activity' | 'activityView'> & Pick<GradingService, 'gradingContext' | 'gradingView' | 'scoreCorrection'> & Pick<PlanService, 'advanceRevision'>) {
+    this.run = context.run.bind(context); this.classroom = context.classroom.bind(context);
+    this.activity = dependencies.activity; this.activityView = dependencies.activityView; this.gradingContext = dependencies.gradingContext;
+    this.gradingView = dependencies.gradingView; this.scoreCorrection = dependencies.scoreCorrection; this.advanceRevision = dependencies.advanceRevision;
+  }
   publishAttemptGrade(request: unknown, classroomId: string, attemptId: string, input: unknown) {
     const body = publicationInput(input);
     return this.run(request, true, async (tx, actor) => {

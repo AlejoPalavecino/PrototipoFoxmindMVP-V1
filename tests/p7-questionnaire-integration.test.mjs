@@ -1,3 +1,4 @@
+import { startBrowserAttempt } from './helpers/browser-admission-step.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { request as httpRequest } from 'node:http';
@@ -6,7 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
-import { chromium } from '@playwright/test';
+import { chromium, expect } from '@playwright/test';
 import { withP4IntegrationRuntime } from '../scripts/p4-integration-runtime.mjs';
 import { account, api, digest } from './p4-integration-helpers.mjs';
 import { classroom, openClassroom, domainSnapshot } from './p6-integration-helpers.mjs';
@@ -69,8 +70,7 @@ test('P7 actual questionnaire/evaluation UI, confirmed drafts, editor transfer a
       const check = (name, action) => t.test(name, { skip: failed ? 'Prior actual questionnaire prerequisite failed' : false }, async () => { try { await action(); } catch (e) { failed = true; throw e; } });
       await check('actual start, two-second idle and question-navigation saves persist multiline and choice answers without submission', async () => {
         assert.equal((await session()).attempt, null); await open(student);
-        const start = student.waitForResponse(r => r.url().endsWith(`/activities/${quiz}/start`)); await student.getByRole('button', { name: 'Comenzar', exact: true }).click();
-        const result = await start; assert.equal(result.status(), 200); const state = await result.json(); attempt = state.attempt; editor = state.editor;
+        const result = await startBrowserAttempt(student, room.id, quiz, 30000); assert.equal(result.status(), 200); const state = await result.json(); attempt = state.attempt; editor = state.editor;
         const pending = answerResponse(student), began = Date.now(); await input(student).fill('  Confirmed first line\nSecond line 😀  ');
         const response = await pending; assert.equal(response.status(), 200); assert.ok(Date.now() - began >= 1900); await saved(student);
         assert.equal((await session()).attempt.answers[0].text, '  Confirmed first line\nSecond line 😀  ');
@@ -103,7 +103,7 @@ test('P7 actual questionnaire/evaluation UI, confirmed drafts, editor transfer a
         await student.route('**/attempts/*/answer', route => route.fulfill({ status: 503, contentType: 'application/json', body: '{"error":{"code":"SERVICE_UNAVAILABLE"}}' }));
         await input(student).fill('Failure must stay on screen'); await student.getByRole('button', { name: 'Enviar respuestas', exact: true }).click();
         await student.getByText('Las respuestas siguen en pantalla; no se confirmó su guardado.', { exact: false }).waitFor();
-        assert.equal(await input(student).inputValue(), 'Failure must stay on screen'); assert.equal(await input(student).isEnabled(), true);
+        assert.equal(await input(student).inputValue(), 'Failure must stay on screen'); await expect(input(student)).toBeEnabled({ timeout: 30000 });
         assert.equal(await student.getByRole('region', { name: 'Confirmar entrega de respuestas' }).count(), 0);
         assert.notEqual((await session()).attempt.answers.find(a => a.text !== null).text, 'Failure must stay on screen');
         await student.unroute('**/attempts/*/answer');
@@ -113,10 +113,10 @@ test('P7 actual questionnaire/evaluation UI, confirmed drafts, editor transfer a
       await check('second tab starts read-only; transfer reloads confirmed answers, warns and denies the previous editor without state mutation', async () => {
         await open(device); assert.equal(await input(device).isDisabled(), true); assert.equal(await input(device).inputValue(), 'Failure must stay on screen');
         await input(student).fill('Unconfirmed previous session must not transfer');
-        await device.getByRole('button', { name: 'Transferir edición a esta pestaña', exact: true }).click();
+        await device.getByRole('button', { name: 'Continuar en esta pestaña', exact: true }).click();
         const transfer = device.waitForResponse(r => r.url().endsWith(`/attempts/${attempt.id}/transfer`)); await device.getByRole('button', { name: 'Confirmar transferencia', exact: true }).click();
         const response = await transfer; assert.equal(response.status(), 200); const state = await response.json(); movedEditor = state.editor;
-        await device.getByText('El control de edición cambió.', { exact: false }).waitFor();
+        await device.getByText('Recuperamos tus respuestas guardadas.', { exact: false }).waitFor();
         assert.equal(await input(device).inputValue(), 'Failure must stay on screen'); assert.equal(await input(device).isEnabled(), true);
         const before = await fullSnapshot(), current = await session();
         const denied = await request(student, 'POST', `/classrooms/${room.id}/attempts/${attempt.id}/answer`, { revision: current.attempt.revision, questionId: current.activity.questions[0].id, text: 'stale overwrite', optionIds: [] }, headers(editor));
@@ -124,32 +124,35 @@ test('P7 actual questionnaire/evaluation UI, confirmed drafts, editor transfer a
         const focus = student.waitForResponse(r => r.url().endsWith(`/activities/${quiz}/session`)); await student.evaluate(() => window.dispatchEvent(new Event('focus'))); assert.equal((await focus).status(), 200);
         await input(student).waitFor(); assert.equal(await input(student).isDisabled(), true);
         await open(device); assert.equal(await input(device).isDisabled(), true); assert.equal(await input(device).inputValue(), 'Failure must stay on screen');
-        await device.getByRole('button', { name: 'Transferir edición a esta pestaña', exact: true }).click();
+        await device.getByRole('button', { name: 'Continuar en esta pestaña', exact: true }).click();
         const again = device.waitForResponse(r => r.url().endsWith('/transfer')); await device.getByRole('button', { name: 'Confirmar transferencia', exact: true }).click();
         const taken = await again; assert.equal(taken.status(), 200); movedEditor = (await taken.json()).editor;
       });
       await check('incomplete count/zero warning/cancel preserve draft; explicit confirmation creates a frozen receipt and no grade', async () => {
         const before = await fullSnapshot(); await device.getByRole('button', { name: 'Enviar respuestas', exact: true }).click();
-        await device.getByText('Quedan 1 preguntas sin responder.', { exact: false }).waitFor();
-        await device.getByText('Las preguntas sin responder obtendrán cero puntos', { exact: false }).waitFor();
+        await device.getByRole('region', { name: 'Confirmar entrega de respuestas', exact: true }).getByText('Quedan 1 preguntas sin responder y obtendrán cero puntos. Confirmá si querés entregar así.', { exact: false }).waitFor();
         await device.getByRole('button', { name: 'Cancelar entrega', exact: true }).click(); assert.equal(await fullSnapshot(), before); assert.equal(await input(device).isEnabled(), true);
         const current = await session(), deniedBefore = await fullSnapshot();
         const denied = await request(device, 'POST', `/classrooms/${room.id}/attempts/${attempt.id}/submit-answers`, { revision: current.attempt.revision, confirm: true, confirmIncomplete: false }, headers(movedEditor));
         assert.equal(denied.status, 409); assert.equal(await fullSnapshot(), deniedBefore);
         await device.getByRole('button', { name: 'Enviar respuestas', exact: true }).click();
         const submitted = device.waitForResponse(r => r.url().endsWith('/submit-answers')); await device.getByRole('button', { name: 'Confirmar entrega incompleta', exact: true }).click();
-        assert.equal((await submitted).status(), 200); await device.getByText('Comprobante de entrega · pendiente de corrección.', { exact: false }).waitFor();
+        assert.equal((await submitted).status(), 200); await device.getByText('Entrega confirmada.', { exact: true }).waitFor();
         assert.equal(await input(device).isDisabled(), true); assert.equal((await session()).attempt.status, 'SUBMITTED');
         await device.screenshot({ path: join(scratch, 'questionnaire-submitted.png'), fullPage: true });
       });
       await check('actual evaluation uses all three controls, complete confirmation and confirmed-only reload without result publication', async () => {
-        await open(student, 'Real evaluation'); const started = student.waitForResponse(r => r.url().endsWith(`/activities/${evaluation}/start`));
-        await student.getByRole('button', { name: 'Comenzar', exact: true }).click(); assert.equal((await started).status(), 200);
+        await open(student, 'Real evaluation'); const started = await startBrowserAttempt(student, room.id, evaluation, 30000);
+        assert.equal(started.status(), 200);
         await input(student).fill('Evaluation multiline\nanswer'); const first = answerResponse(student); await navigate(student, 2); assert.equal((await first).status(), 200);
         await student.getByRole('radio', { name: 'Single first', exact: true }).check(); const second = answerResponse(student); await navigate(student, 3); assert.equal((await second).status(), 200);
         await student.getByRole('checkbox', { name: 'Multiple first', exact: true }).check(); await student.getByRole('checkbox', { name: 'Multiple second', exact: true }).check();
         const third = answerResponse(student); await navigate(student, 1); assert.equal((await third).status(), 200);
-        await student.getByRole('button', { name: 'Enviar respuestas', exact: true }).click(); await student.getByText('Quedan 0 preguntas sin responder.', { exact: false }).waitFor();
+        await student.getByRole('button', { name: 'Enviar respuestas', exact: true }).click();
+        const completeConfirmation = student.getByRole('region', { name: 'Confirmar entrega de respuestas', exact: true });
+        await completeConfirmation.getByText('Todas las preguntas tienen una respuesta guardada.', { exact: false }).waitFor();
+        assert.equal(await completeConfirmation.getByRole('button', { name: 'Confirmar entrega incompleta', exact: true }).count(), 0);
+        await completeConfirmation.getByRole('button', { name: 'Confirmar envío de respuestas', exact: true }).waitFor();
         const response = student.waitForResponse(r => r.url().endsWith('/submit-answers')); await student.getByRole('button', { name: 'Confirmar envío de respuestas', exact: true }).click();
         const sent = await response; assert.equal(sent.status(), 200); assert.equal((await sent.json()).unansweredCount, 0);
         await open(student, 'Real evaluation'); assert.equal(await input(student).inputValue(), 'Evaluation multiline\nanswer'); assert.equal(await input(student).isDisabled(), true);

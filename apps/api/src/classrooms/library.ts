@@ -1,11 +1,22 @@
 import { randomUUID } from 'node:crypto';
-import { PlanService } from './plan.ts';
+import type { PlanService } from './plan.ts';
+import type { ClassroomCore } from './core.ts';
 import { revision } from './drafts.ts';
 import { fail, object, text, uuid } from './policy.ts';
 import type { Transaction } from './contracts.ts';
 
 /** Material identity and file bytes are permanent; organization may change independently of activity links. */
-export class LibraryService extends PlanService {
+export class LibraryService {
+  private readonly run: ClassroomCore['run'];
+  private readonly classroom: ClassroomCore['classroom'];
+  private readonly readyClassroomFile: PlanService['readyClassroomFile'];
+  private readonly advanceRevision: PlanService['advanceRevision'];
+  constructor(context: Pick<ClassroomCore, 'run' | 'classroom'>, dependencies: Pick<PlanService, 'readyClassroomFile' | 'advanceRevision'>) {
+    this.run = context.run.bind(context);
+    this.classroom = context.classroom.bind(context);
+    this.readyClassroomFile = dependencies.readyClassroomFile;
+    this.advanceRevision = dependencies.advanceRevision;
+  }
   listMaterials(request: unknown, classroomId: string) {
     return this.run(request, false, async (tx, actor) => {
       const classroom = await this.classroom(tx, actor, classroomId);

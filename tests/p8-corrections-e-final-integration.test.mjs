@@ -1,3 +1,4 @@
+import { startBrowserAttempt } from './helpers/browser-admission-step.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, writeFile } from 'node:fs/promises';
@@ -34,7 +35,7 @@ async function openCorrectedNotificationResult(page, attemptId) {
     const opening = page.waitForResponse(response => /\/notifications\/[^/]+\/open$/.test(new URL(response.url()).pathname)
       && response.request().method() === 'POST');
     const result = page.waitForResponse(response => response.url().endsWith('/' + attemptId + '/result') && response.request().method() === 'GET');
-    await notification.getByRole('button', { name: 'Abrir publicación', exact: true }).click();
+    await notification.getByRole('button', { name: 'Ver devolución', exact: true }).click();
     const [opened, own] = await Promise.all([opening, result]);
     assert.equal(opened.status(), 200); const target = await opened.json();
     assert.equal(target.kind, 'grade'); assert.equal(target.attemptId, attemptId);
@@ -46,7 +47,7 @@ async function openCorrectedNotificationResult(page, attemptId) {
     assert.ok(Number.isInteger(seconds) && seconds > 0 && seconds <= 60);
     const ownRegion = page.getByRole('region', { name: 'Resultado publicado del intento', exact: true });
     await ownRegion.getByRole('alert').waitFor();
-    assert.equal(await ownRegion.getByText('Calificación publicada:', { exact: false }).count(), 0);
+    assert.equal(await ownRegion.locator('.p8-final-grade').count(), 0);
     console.log('P8 notification result actual GET ' + new URL(ownResponse.url()).pathname + ' status429 Retry-After=' + seconds + 's; one visible notification reopen');
     await delay(seconds * 1000);
     await page.getByRole('dialog', { name: 'Mi historial de intentos', exact: true })
@@ -102,13 +103,13 @@ test('P8 authorized E-only notification-result, persisted restart and current-ac
       await check('real E submission and same-attempt published-zero correction establish only required prerequisites', async () => {
         await openClassroom(student, runtime.origin, name); await student.getByRole('button', { name: 'Actividades', exact: true }).click();
         await student.getByRole('article', { name: title, exact: true }).getByRole('button', { name: 'Consultar actividad', exact: true }).click();
-        await student.getByRole('button', { name: 'Comenzar', exact: true }).click();
+        await startBrowserAttempt(student, room.id, activityId, 12000);
         await student.getByRole('textbox', { name: 'Respuesta a la pregunta 1', exact: true }).fill('Original E answer remains unchanged 😀');
         await student.getByRole('button', { name: 'Enviar respuestas', exact: true }).click();
         const submitResponse = student.waitForResponse(response => response.url().endsWith('/submit-answers') && response.request().method() === 'POST');
         await student.getByRole('button', { name: 'Confirmar envío de respuestas', exact: true }).click();
         assert.equal((await submitResponse).status(), 200);
-        await student.getByText('Comprobante de entrega · pendiente de corrección.', { exact: false }).waitFor();
+        await student.getByText('Entrega confirmada.', { exact: true }).waitFor();
         attemptId = (await ok(student, 'GET', `/classrooms/${room.id}/activities/${activityId}/session`)).attempt.id;
         await openClassroom(teacher, runtime.origin, name); await teacher.getByRole('button', { name: 'Actividades', exact: true }).click();
         await teacher.getByRole('article', { name: title, exact: true }).getByRole('button', { name: 'Ver entregas recibidas', exact: true }).click();
@@ -158,8 +159,10 @@ test('P8 authorized E-only notification-result, persisted restart and current-ac
         assert.equal(own.grade.finalGrade, '0.00'); assert.equal(own.grade.isEffective, true); assert.equal(own.grade.publishedAt, publishedAt);
         assert.ok(!/Private E-only correction rationale|"(?:corrections|reason|actor|audit|correct|scoringRule)"/.test(JSON.stringify(own)));
         const resultRegion = student.getByRole('region', { name: 'Resultado publicado del intento', exact: true });
-        await resultRegion.getByText('Calificación publicada: 0,00', { exact: true }).waitFor();
-        await resultRegion.getByText('Calificación publicada: 0,00', { exact: true }).scrollIntoViewIfNeeded();
+        const gradeDisplay = resultRegion.locator('.p8-final-grade');
+        await gradeDisplay.getByText('Calificación publicada', { exact: true }).waitFor();
+        assert.equal((await gradeDisplay.locator('strong').innerText()).replace(/\s+/g, ' ').trim(), `${'0,00'} / 10`);
+        await gradeDisplay.scrollIntoViewIfNeeded();
         assert.ok(!(await resultRegion.innerText()).includes('Private E-only correction rationale'));
         assert.equal(await resultRegion.getByRole('alert').count(), 0);
         assert.equal(await student.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);

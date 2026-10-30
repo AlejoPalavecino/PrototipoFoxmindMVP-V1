@@ -53,10 +53,10 @@ test('P7 T1 real P3 sessions, authoring UI, private ready instructions and safe 
       await check('teacher private assignment editor explicitly resolves gaps/overlap and persists real scanned instructions', async () => {
         await openClassroom(page, runtime.origin, 'P7 authoring classroom');
         await page.getByRole('button', { name: 'Actividades', exact: true }).click();
-        await page.getByRole('button', { name: 'Crear borrador de actividad', exact: true }).click();
+        await page.getByRole('button', { name: 'Crear manualmente', exact: true }).click();
         await page.getByLabel('Título de la actividad', { exact: true }).fill('Browser assignment');
         await page.getByLabel('Unidad de la actividad', { exact: true }).selectOption({ label: 'First unit' });
-        await page.getByLabel('Tema de la actividad', { exact: true }).selectOption({ label: 'First topic' });
+        await page.getByRole('group', { name: 'Temas de la actividad', exact: true }).getByRole('checkbox', { name: 'First topic', exact: true }).check();
         await page.getByLabel('Observaciones', { exact: true }).fill('Read carefully.\nPreserve this second line.');
         await page.getByLabel('Fecha y hora del aula', { exact: true }).fill('2026-03-08T02:30');
         await page.getByRole('button', { name: 'Verificar hora', exact: true }).click();
@@ -89,6 +89,7 @@ test('P7 T1 real P3 sessions, authoring UI, private ready instructions and safe 
         assert.equal((await runtime.db.query('SELECT count(*)::int n FROM attempts')).rows[0].n, 0);
         assert.equal((await runtime.db.query('SELECT first_started_at FROM activities WHERE id=$1', [assignment])).rows[0].first_started_at, null);
         await page.getByRole('button', { name: 'Cerrar diálogo', exact: true }).click();
+        await article.getByText('Más opciones', { exact: true }).click();
         await article.getByRole('button', { name: 'Publicar', exact: true }).click();
         assert.equal((await api(student, 'GET', `/classrooms/${roomId}/activities`)).body.activities.length, 0);
         await page.getByRole('button', { name: 'Confirmar publicación', exact: true }).click();
@@ -111,11 +112,11 @@ test('P7 T1 real P3 sessions, authoring UI, private ready instructions and safe 
           await page.getByLabel('Tipo de actividad', { exact: true }).selectOption(type);
           const created = page.waitForResponse(response => new URL(response.url()).pathname === `/api/v1/classrooms/${roomId}/activities`
             && response.request().method() === 'POST');
-          await page.getByRole('button', { name: 'Crear borrador de actividad', exact: true }).click();
+          await page.getByRole('button', { name: 'Crear manualmente', exact: true }).click();
           assert.equal((await created).status(), 200, 'Current teacher revision must create the requested draft');
           await page.getByLabel('Título de la actividad', { exact: true }).fill(name);
           await page.getByLabel('Unidad de la actividad', { exact: true }).selectOption({ label: 'First unit' });
-          await page.getByLabel('Tema de la actividad', { exact: true }).selectOption({ label: 'First topic' });
+          await page.getByRole('group', { name: 'Temas de la actividad', exact: true }).getByRole('checkbox', { name: 'First topic', exact: true }).check();
           for (const [index, qtype] of ['DEVELOPMENT', 'SINGLE_CHOICE', 'MULTIPLE_CHOICE'].entries()) {
             await page.getByRole('button', { name: 'Agregar pregunta', exact: true }).click();
             const group = page.getByRole('group', { name: `Pregunta ${index + 1}`, exact: true });
@@ -137,7 +138,9 @@ test('P7 T1 real P3 sessions, authoring UI, private ready instructions and safe 
           await page.getByRole('button', { name: 'Guardar actividad', exact: true }).click();
           await page.getByText('Cambios confirmados por el servidor.', { exact: false }).waitFor();
           await page.getByRole('button', { name: 'Cerrar editor', exact: true }).click();
-          await page.getByRole('article', { name, exact: true }).getByRole('button', { name: 'Publicar', exact: true }).click();
+          const activityCard = page.getByRole('article', { name, exact: true });
+          await activityCard.getByText('Más opciones', { exact: true }).click();
+          await activityCard.getByRole('button', { name: 'Publicar', exact: true }).click();
           const publicationResponse = () => page.waitForResponse(response => {
             const path = new URL(response.url()).pathname;
             return (path === '/api/v1/auth/csrf' && response.status() === 429)

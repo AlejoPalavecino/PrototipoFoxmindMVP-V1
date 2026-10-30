@@ -27,13 +27,16 @@ test('P6 Plan actual sessions, production UI, private versions and persistence',
       await check('actual teacher management and student read-only Plan use the existing shell', async () => {
         await openClassroom(page, runtime.origin);
         await page.getByRole('button', { name: 'Plan', exact: true }).click();
+        await page.getByRole('region', { name: 'Plan de estudio', exact: true }).locator('summary').filter({ hasText: /^Administrar plan/ }).click();
         await page.getByLabel('Nueva unidad', { exact: true }).fill('Added through browser');
         await page.getByRole('button', { name: 'Agregar unidad', exact: true }).click();
         await page.getByRole('heading', { name: 'Unidad 2 · Added through browser', exact: true }).waitFor();
+        await page.locator('summary').filter({ hasText: /^Agregar tema a Added through browser$/ }).click();
         const added = page.getByRole('group', { name: 'Agregar tema a Added through browser', exact: true });
         await added.getByLabel('Nuevo tema', { exact: true }).fill('Browser topic');
         await added.getByRole('button', { name: 'Agregar tema', exact: true }).click();
         await page.getByLabel('Estado de Browser topic').waitFor();
+        await page.locator('summary').filter({ hasText: /^Administrar unidad · Added through browser$/ }).click();
         const management = page.getByRole('group', { name: 'Administrar Added through browser', exact: true });
         await management.getByLabel('Nombre de la unidad', { exact: true }).fill('Browser renamed unit');
         await management.getByRole('button', { name: 'Renombrar unidad', exact: true }).click();
@@ -43,6 +46,7 @@ test('P6 Plan actual sessions, production UI, private versions and persistence',
         await page.getByRole('heading', { name: 'Unidad 1 · Browser renamed unit', exact: true }).waitFor();
         await page.getByLabel('Nueva unidad', { exact: true }).fill('Disposable unit');
         await page.getByRole('button', { name: 'Agregar unidad', exact: true }).click();
+        await page.locator('summary').filter({ hasText: /^Administrar unidad · Disposable unit$/ }).click();
         const disposable = page.getByRole('group', { name: 'Administrar Disposable unit', exact: true });
         await disposable.getByRole('button', { name: 'Eliminar unidad', exact: true }).click();
         await page.getByRole('button', { name: 'Cancelar', exact: true }).click();
@@ -59,7 +63,14 @@ test('P6 Plan actual sessions, production UI, private versions and persistence',
         await openClassroom(studentPage, runtime.origin);
         await studentPage.getByRole('button', { name: 'Plan', exact: true }).click();
         assert.equal(await studentPage.getByLabel('Nueva unidad', { exact: true }).count(), 0);
-        assert.equal(await studentPage.getByRole('combobox').count(), 0);
+        const studentPlan = studentPage.getByRole('region', { name: 'Plan de estudio', exact: true });
+        assert.equal(await studentPlan.getByLabel('Tema del plan', { exact: true }).count(), 1);
+        for (const topic of ['First topic', 'Browser topic']) {
+          assert.equal(await studentPlan.getByLabel(`Estado de ${topic}`, { exact: true }).count(), 0);
+          assert.equal(await studentPlan.getByLabel(`Avance de ${topic}`, { exact: true }).count(), 0);
+        }
+        assert.equal(await studentPlan.getByText('Administrar plan', { exact: false }).count(), 0);
+        assert.equal(await studentPlan.getByLabel('Archivo del plan (PDF o DOCX)', { exact: true }).count(), 0);
         await studentPage.getByText('Browser topic', { exact: true }).waitFor();
         const state = await detail();
         assert.equal(state.units.flatMap(unit => unit.topics).filter(topic => topic.status === 'NEXT').length, 1);

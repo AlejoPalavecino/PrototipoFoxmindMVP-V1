@@ -1,6 +1,8 @@
 import { createHash } from 'node:crypto';
 import { validateGradingAiProposal, type GradingAiProposal } from '../../../../../src/core/domain/index.ts';
-import { GradingService } from '../grading.ts';
+import type { ClassroomCore } from '../core.ts';
+import type { GradingService } from '../grading.ts';
+import { isVerifiedRead } from '../context.ts';
 import { privateGradingInput } from '../grading-policy.ts';
 import { revision } from '../drafts.ts';
 import { fail, object, uuid } from '../policy.ts';
@@ -20,7 +22,7 @@ function canonical(value: unknown): string {
 function bodyHash(body: unknown) { return createHash('sha256').update(canonical(body)).digest('hex'); }
 async function jobById(tx: Transaction, classroomId: string, attemptId: string, jobId?: string): Promise<Job | null> {
   const rows = await tx.query<Job>(`SELECT * FROM grading_ai_jobs WHERE classroom_id=$1::uuid AND attempt_id=$2::uuid
-    AND ($3::uuid IS NULL OR id=$3::uuid) ORDER BY created_at DESC,id DESC LIMIT 1 FOR UPDATE`, classroomId, attemptId, jobId ?? null);
+    AND ($3::uuid IS NULL OR id=$3::uuid) ORDER BY created_at DESC,id DESC LIMIT 1 FOR ${isVerifiedRead(tx) ? 'SHARE' : 'UPDATE'}`, classroomId, attemptId, jobId ?? null);
   return rows[0] ?? null;
 }
 function parseApply(input: unknown) {
@@ -35,7 +37,13 @@ function parseDiscard(input: unknown) {
   return { requestId: body.requestId, revision: revision(body.revision) };
 }
 
-export class GradingAiService extends GradingService {
+export class GradingAiService {
+  private readonly run: ClassroomCore['run'];
+  private readonly gradingContext: GradingService['gradingContext'];
+  private readonly savePrivateGrading: GradingService['savePrivateGrading'];
+  constructor(context: Pick<ClassroomCore, 'run'>, dependencies: Pick<GradingService, 'gradingContext' | 'savePrivateGrading'>) {
+    this.run = context.run.bind(context); this.gradingContext = dependencies.gradingContext; this.savePrivateGrading = dependencies.savePrivateGrading;
+  }
   getGradingAi(request: unknown, classroomId: string, attemptId: string) {
     return this.run(request, false, async (tx, actor) => {
       const context = await this.gradingContext(tx, actor, classroomId, attemptId, false);

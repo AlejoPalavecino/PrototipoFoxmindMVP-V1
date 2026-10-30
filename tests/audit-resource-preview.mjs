@@ -1,0 +1,14 @@
+import { createServer } from 'node:http';
+import { createServer as createVite } from 'vite';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+const cacheDir = await mkdtemp(join(tmpdir(), 'foxmind-audit-vite-'));
+const vite = await createVite({ configFile: false, root: process.cwd(), cacheDir, server: { middlewareMode: true, hmr: false } });
+const server = createServer((req, res) => {
+  if (req.url === '/') { res.setHeader('content-type', 'text/html'); res.end('<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><div id="root"></div><script type="module" src="/tests/audit-resource-preview.jsx"></script></body></html>'); return; }
+  vite.middlewares(req, res, () => { res.writeHead(404); res.end(); });
+});
+await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+console.log(`PREVIEW http://127.0.0.1:${server.address().port}/`);
+for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => server.close(async () => { await vite.close(); await rm(cacheDir, { recursive: true, force: true }); process.exit(0); }));

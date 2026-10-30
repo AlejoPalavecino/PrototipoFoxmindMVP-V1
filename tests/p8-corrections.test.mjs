@@ -43,7 +43,8 @@ test('reasoned correction preserves publication/effectiveness/evidence and safel
       await reject(() => service.correctPublishedGrade(T, room, items[0].attempt, { ...body, revision: '0' }));
     });
     for (let index = 0; index < 3; index++) await check(`type ${index} exact final correction includes zero, old/new/server actor/time; all evidence immutable`, async () => {
-      const item = items[index], old = await service.getAttemptResult(S, room, item.attempt), from = Date.now();
+      const item = items[index], old = await service.getAttemptResult(S, room, item.attempt);
+      const from = (await pool.query('SELECT clock_timestamp() AS now')).rows[0].now;
       const immutable = ['activities', 'questions', 'question_options', 'attempts', 'answers', 'answer_selections', 'question_grades',
         'files', 'uploads', 'file_custodies', 'attempt_attachments', 'student_activities'];
       const hash = await tableHash(pool, immutable), oldAudit = await pool.query('SELECT to_jsonb(t) value FROM grade_corrections t ORDER BY id');
@@ -53,7 +54,9 @@ test('reasoned correction preserves publication/effectiveness/evidence and safel
       assert.deepEqual(corrected.grade.publishedAt, old.grade.publishedAt); assert.equal(corrected.revision, (BigInt(body.revision) + 1n).toString());
       assert.equal(row.previousGrade, old.grade.finalGrade); assert.equal(row.newGrade, corrected.grade.finalGrade);
       assert.equal(row.reason, 'Teacher-only rationale 😀'); assert.equal(row.actor.id, f.teacher);
-      assert.ok(new Date(row.correctedAt).getTime() >= from && new Date(row.correctedAt).getTime() <= Date.now());
+      const until = (await pool.query('SELECT clock_timestamp() AS now')).rows[0].now;
+      const correctedAt = new Date(row.correctedAt).getTime();
+      assert.ok(correctedAt > 0 && correctedAt >= from.getTime() && correctedAt <= until.getTime());
       assert.deepEqual(await service.getGradeCorrections(T, room, item.attempt), corrected);
       assert.equal(await tableHash(pool, immutable), hash);
       const retained = await pool.query('SELECT to_jsonb(t) value FROM grade_corrections t WHERE id<>$1 ORDER BY id', [row.id]);

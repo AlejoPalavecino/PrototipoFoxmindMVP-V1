@@ -42,6 +42,7 @@ test('P9 remaining teaching only: TAUGHT, immutable Library, Muro moderation/sco
     await openClassroom(teacher, runtime.origin, 'P9 teaching-remainder classroom');
     await teacher.getByRole('button', { name: 'Plan', exact: true }).click();
     const plan = teacher.getByRole('region', { name: 'Plan de estudio', exact: true });
+    await plan.locator('summary').filter({ hasText: /^Administrar plan/ }).click();
     const state = await unique(plan.getByLabel('Estado de First topic'));
     await confirmed(teacher, `${root}/plan`, 'POST', () => state.selectOption('TAUGHT'));
     await plan.getByText('Plan actualizado.', { exact: true }).waitFor();
@@ -55,6 +56,7 @@ test('P9 remaining teaching only: TAUGHT, immutable Library, Muro moderation/sco
     await teacher.getByRole('button', { name: 'Biblioteca', exact: true }).click();
     const library = teacher.getByRole('region', { name: 'Biblioteca del aula', exact: true });
     const bytes = await planPdf('P9 remaining immutable material'), expectedDigest = digest(bytes);
+    await library.locator('summary').filter({ hasText: /^Publicar material$/ }).click();
     await (await unique(library.getByLabel('Archivo del material', { exact: true }))).setInputFiles({
       name: 'remaining-material.pdf', mimeType: 'application/pdf', buffer: bytes });
     await library.getByText('Archivo aprobado: remaining-material.pdf. Completa los datos para publicarlo.', { exact: true }).waitFor();
@@ -76,7 +78,9 @@ test('P9 remaining teaching only: TAUGHT, immutable Library, Muro moderation/sco
     await rejectUnchanged(runtime.db, async () => request(student, 'POST', `${root}/library`, {
       revision: (await detail(teacher, room)).revision, operation: { action: 'delete', id: material.id, confirm: true } }), 403);
     await confirmed(teacher, `${root}/library`, 'GET', () => library.getByRole('button', { name: 'Actualizar Biblioteca', exact: true }).click());
-    await library.getByRole('article', { name: material.title, exact: true }).getByRole('button', { name: 'Editar datos', exact: true }).click();
+    const materialCard = library.getByRole('article', { name: material.title, exact: true });
+    await materialCard.getByLabel(`Más opciones para ${material.title}`, { exact: true }).click();
+    await materialCard.getByRole('button', { name: 'Editar datos', exact: true }).click();
     const editor = teacher.getByRole('dialog', { name: 'Editar material', exact: true });
     await editor.getByLabel('Nombre del material', { exact: true }).fill('Reorganized same private material');
     await editor.getByLabel('Unidad del material', { exact: true }).selectOption('');
@@ -88,7 +92,12 @@ test('P9 remaining teaching only: TAUGHT, immutable Library, Muro moderation/sco
     await openClassroom(student, runtime.origin, 'P9 teaching-remainder classroom');
     await student.getByRole('button', { name: 'Plan', exact: true }).click();
     await student.getByRole('region', { name: 'Plan de estudio', exact: true }).getByRole('heading', { name: 'Plan de estudio', exact: true }).waitFor();
-    assert.equal(await student.getByRole('combobox').count(), 0);
+    const studentPlan = student.getByRole('region', { name: 'Plan de estudio', exact: true });
+    assert.equal(await studentPlan.getByLabel('Tema del plan', { exact: true }).count(), 1);
+    assert.equal(await studentPlan.getByLabel('Estado de First topic', { exact: true }).count(), 0);
+    assert.equal(await studentPlan.getByLabel('Avance de First topic', { exact: true }).count(), 0);
+    assert.equal(await studentPlan.getByText('Administrar plan', { exact: false }).count(), 0);
+    assert.equal(await studentPlan.getByLabel('Archivo del plan (PDF o DOCX)', { exact: true }).count(), 0);
     await confirmed(student, `${root}/library`, 'GET', () => student.getByRole('button', { name: 'Biblioteca', exact: true }).click());
     const studentLibrary = student.getByRole('region', { name: 'Biblioteca del aula', exact: true });
     const card = studentLibrary.getByRole('article', { name: reorganized.title, exact: true }); await card.waitFor();
@@ -143,7 +152,7 @@ test('P9 remaining teaching only: TAUGHT, immutable Library, Muro moderation/sco
     await (await unique(student.getByRole('button', { name: /^Notificaciones/ }))).click();
     const studentNotifications = student.getByRole('dialog', { name: 'Notificaciones', exact: true });
     const noticeRow = studentNotifications.locator('li').filter({ hasText: 'Nuevo aviso del docente' }); await (await unique(noticeRow)).waitFor();
-    const target = await confirmed(student, `/classrooms/notifications/${noticeEvent.id}/open`, 'POST', () => noticeRow.getByRole('button', { name: 'Abrir publicación', exact: true }).click());
+    const target = await confirmed(student, `/classrooms/notifications/${noticeEvent.id}/open`, 'POST', () => noticeRow.getByRole('button', { name: 'Abrir conversación', exact: true }).click());
     assert.equal(target.classroomId, room.id); assert.equal(target.postId, notice.id);
     await student.waitForFunction(id => document.activeElement?.dataset.wallId === id, notice.id);
     assert.ok((await ok(student, 'GET', '/classrooms/notifications')).find(event => event.id === noticeEvent.id).readAt);

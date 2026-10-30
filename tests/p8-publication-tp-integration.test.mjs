@@ -1,3 +1,5 @@
+import { startBrowserAttempt } from './helpers/browser-admission-step.mjs';
+import { readdirSync } from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp } from 'node:fs/promises';
@@ -22,8 +24,8 @@ async function ok(...args) { const result = await request(...args); assert.equal
 
 test('P8 distinct TP delivery -> explicit publication -> clean own result -> private-file/API/data restart and current-access revocation', { timeout: 330000 }, async t => {
   await withP4IntegrationRuntime(async runtime => {
-    assert.equal(runtime.migrations.length, 14);
-    assert.deepEqual(runtime.migrations.slice(-5), [
+    assert.deepEqual(runtime.migrations, readdirSync('prisma/migrations').filter(name => /^\d+_/.test(name)).sort());
+    assert.deepEqual(runtime.migrations.filter(name => ['202610230001_agenda_events', '202610230001_classroom_ai', '202610240001_agenda_event_color', '202610250001_activity_topics', '202610250002_activity_ai'].includes(name)), [
       '202610230001_agenda_events',
       '202610230001_classroom_ai',
       '202610240001_agenda_event_color',
@@ -72,12 +74,12 @@ test('P8 distinct TP delivery -> explicit publication -> clean own result -> pri
           await student.getByRole('button', { name: 'Confirmar envío del trabajo', exact: true }).click(); assert.equal((await submitted).status(), 200);
           await student.getByRole('heading', { name: 'Comprobante de entrega', exact: true }).waitFor();
         } else {
-          await student.getByRole('button', { name: 'Comenzar', exact: true }).click();
+          await startBrowserAttempt(student, room.id, activity.id, 12000);
           await student.getByRole('textbox', { name: 'Respuesta a la pregunta 1', exact: true }).fill('Actual preserved answer 😀');
           await student.getByRole('button', { name: 'Enviar respuestas', exact: true }).click();
           const submitted = student.waitForResponse(r => r.url().endsWith('/submit-answers'));
           await student.getByRole('button', { name: 'Confirmar envío de respuestas', exact: true }).click(); assert.equal((await submitted).status(), 200);
-          await student.getByText('Comprobante de entrega · pendiente de corrección.', { exact: false }).waitFor();
+          await student.getByText('Entrega confirmada.', { exact: true }).waitFor();
         }
         activity.attempt = (await ok(student, 'GET', `/classrooms/${room.id}/activities/${activity.id}/session`)).attempt.id;
         const path = `/classrooms/${room.id}/attempts/${activity.attempt}/grading`, before = await protectedHash();
@@ -150,11 +152,13 @@ test('P8 distinct TP delivery -> explicit publication -> clean own result -> pri
         await student.getByRole('button', { name: /^Notificaciones/ }).click();
         const notification = student.locator('.p6-notifications li').filter({ hasText: 'Calificación publicada' }).first();
         const resultResponse = student.waitForResponse(r => r.url().endsWith(`/${activity.attempt}/result`) && r.request().method() === 'GET');
-        await notification.getByRole('button', { name: 'Abrir publicación', exact: true }).click();
+        await notification.getByRole('button', { name: 'Ver devolución', exact: true }).click();
         const opened = await resultResponse; assert.equal(opened.status(), 200); assert.equal((await opened.json()).attempt.id, activity.attempt);
         const resultRegion = student.getByRole('region', { name: 'Resultado publicado del intento', exact: true });
-        await resultRegion.getByText(`Calificación publicada: ${expected.replace('.', ',')}`, { exact: true }).waitFor();
-        await resultRegion.getByText(`Calificación publicada: ${expected.replace('.', ',')}`, { exact: true }).scrollIntoViewIfNeeded();
+        const gradeDisplay = resultRegion.locator('.p8-final-grade');
+        await gradeDisplay.getByText('Calificación publicada', { exact: true }).waitFor();
+        assert.equal((await gradeDisplay.locator('strong').innerText()).replace(/\s+/g, ' ').trim(), `${expected.replace('.', ',')} / 10`);
+        await gradeDisplay.scrollIntoViewIfNeeded();
         assert.equal(await resultRegion.getByRole('alert').count(), 0);
         assert.equal(await student.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
         await student.screenshot({ path: join(scratch, `student-result-${activity.type.toLowerCase()}.png`), fullPage: true });

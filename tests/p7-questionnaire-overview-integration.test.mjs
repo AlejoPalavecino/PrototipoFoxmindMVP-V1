@@ -1,3 +1,4 @@
+import { startBrowserAttempt } from './helpers/browser-admission-step.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
@@ -74,8 +75,8 @@ test('both actual pre-start overviews remain safe read-only views until explicit
             assert.equal((await runtime.db.query('SELECT count(*)::int n FROM attempts')).rows[0].n, expectedAttempts);
             await student.screenshot({ path: join(scratch, `${activity.type.toLowerCase()}-read-only-overview.png`), fullPage: true });
           } finally { student.off('request', observe); }
-          const dialog = student.getByRole('dialog'), started = student.waitForResponse(r => r.url().endsWith(`/activities/${activity.id}/start`));
-          await dialog.getByRole('button', { name: 'Comenzar', exact: true }).click(); const response = await started; assert.equal(response.status(), 200);
+          const dialog = student.getByRole('dialog');
+          const response = await startBrowserAttempt(student, room.id, activity.id, 30000); assert.equal(response.status(), 200);
           const state = await response.json(); assert.equal(state.attempt.status, 'DRAFT'); assert.equal(state.activity.locked, true); assert.deepEqual(state.attempt.answers, []);
           await dialog.getByRole('textbox', { name: 'Respuesta a la pregunta 1', exact: true }).waitFor();
           assert.equal(await dialog.getByRole('textbox').count(), 1); assert.equal(await dialog.getByRole('heading', { name: /^Pregunta [1-3] ·/ }).count(), 1);

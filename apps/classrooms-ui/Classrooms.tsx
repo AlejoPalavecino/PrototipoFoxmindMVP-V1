@@ -174,15 +174,16 @@ export function ClassroomsApp({
   return (
     <div className={`p5-app fm3-classrooms${draft ? ' entry-wizard-reference' : !classroomId ? presentation === 'home' ? ' entry-home' : ' entry-classrooms-reference' : ' classroom-interior-reference'}`}>
       <a className="skip-link" href="#classroom-main">Saltar al contenido</a>
-      <AppNavbar logoHref="/mis-aulas" displayName={displayName}
+      <AppNavbar logoHref="/mis-aulas" displayName={displayName} restricted={Boolean(draft)}
         links={draft ? [{ href: '/mis-aulas', label: 'Mis aulas', current: true }]
           : [{ href: '/inicio', label: 'Inicio', current: !classroomId && presentation === 'home' },
             { href: '/mis-aulas', label: 'Mis aulas', current: presentation === 'classrooms' || Boolean(classroomId) },
             { href: '/agenda', label: 'Agenda' }]}
         onNavigate={href => {
+          if (draft) return;
           if (href === '/profile' || href === '/settings') { window.location.assign(href); return; }
           if (href === '/agenda') { if (onNavigate) onNavigate('agenda'); else window.location.assign('/agenda'); return; }
-          if (!draft) showPresentation(href === '/inicio' ? 'home' : 'classrooms');
+          showPresentation(href === '/inicio' ? 'home' : 'classrooms');
         }}
         notifications={!draft ? <Notifications api={api} refresh={notificationRefresh} onOpen={openTarget} /> : undefined}
         accountActions={!draft ? accountActions : undefined} />

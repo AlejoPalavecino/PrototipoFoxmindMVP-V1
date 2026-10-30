@@ -9,6 +9,16 @@ import { chromium } from '@playwright/test';
 import { withP4IntegrationRuntime } from '../scripts/p4-integration-runtime.mjs';
 import { account, api, password } from './p4-integration-helpers.mjs';
 
+async function assertVerifiedHome(page, pending) {
+  const response = await pending; assert.equal(response.status(), 200);
+  const home = await response.json(), session = (await api(page, 'GET', '/auth/session')).body;
+  assert.equal(session.user.emailVerified, true); assert.equal(home.subjectId, session.user.id);
+  assert.equal(home.memberships.study, 0); assert.equal(home.memberships.teach, 0);
+  await page.getByRole('region', { name: 'Inicio', exact: true }).waitFor();
+  await page.getByRole('heading', { name: /Hola,/ }).waitFor();
+}
+const homeResponse = page => page.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/home' && response.request().method() === 'GET');
+
 async function signIn(page, origin, email, next) {
   await page.goto(`${origin}/sign-in${next === undefined ? '' : `?next=${encodeURIComponent(next)}`}`);
   await page.getByLabel('Correo electrónico', { exact: true }).fill(email);
@@ -33,14 +43,14 @@ test('login defaults to Inicio and preserves bounded account continuations', { t
       await t.test('confirmed verification offers Inicio by default', async () => {
         const next = page.getByRole('link', { name: 'Ir a Inicio', exact: true });
         assert.equal(await next.getAttribute('href'), '/inicio');
-        await next.click(); await page.waitForURL('**/inicio');
-        await page.getByRole('region', { name: 'Enseño', exact: true }).waitFor();
+        const pending = homeResponse(page); await next.click(); await page.waitForURL('**/inicio');
+        await assertVerifiedHome(page, pending);
       });
       await t.test('ordinary verified login reaches real Inicio', async () => {
         assert.equal((await api(page, 'POST', '/auth/logout')).status, 204);
-        await signIn(page, runtime.origin, email);
+        const pending = homeResponse(page); await signIn(page, runtime.origin, email);
         await page.waitForURL('**/inicio');
-        await page.getByRole('region', { name: 'Enseño', exact: true }).waitFor();
+        await assertVerifiedHome(page, pending);
         assert.equal((await api(page, 'GET', '/auth/session')).body.user.emailVerified, true);
       });
       await t.test('existing verified session continues to Inicio and retains explicit classroom next', async () => {
@@ -76,7 +86,7 @@ await page.fill('loc=role:textbox[name="Correo electrónico"]', ${JSON.stringify
 await page.fill('input[name="password"]', ${JSON.stringify(password)});
 await page.click('loc=role:button[name="Iniciar sesión"]', { label: 'Iniciar sesión en FoxMind' });
 await page.waitForURL('**/inicio');
-await page.waitForSelector('loc=role:heading[name="Enseño"]');
+await page.waitForSelector('loc=role:region[name="Inicio"]');
 const layout = await page.evaluate(() => ({ width: innerWidth, scrollWidth: document.documentElement.scrollWidth }));
 if (layout.scrollWidth > layout.width) throw new Error('Inicio horizontal overflow');
 console.log({ layout, screenshot: await page.screenshot({ path: ${JSON.stringify(screenshot)} }) });

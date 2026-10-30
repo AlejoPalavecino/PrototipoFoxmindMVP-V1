@@ -26,7 +26,7 @@ export class ActivityAiService {
       const jobs = [];
       for (const row of rows) jobs.push(await currentView(this.options, tx, request, row));
       return { jobs };
-    });
+    }, 'write');
   }
   start(request: unknown, classroomId: string, input: unknown) {
     const body = parseStartActivityGeneration(input), hash = inputHash('start', classroomId, null, body);
@@ -42,7 +42,7 @@ export class ActivityAiService {
   }
   get(request: unknown, classroomId: string, id: string) {
     return authorized(this.options, request, classroomId, false, async tx =>
-      currentView(this.options, tx, request, await job(tx, classroomId, id)));
+      currentView(this.options, tx, request, await job(tx, classroomId, id)), 'write');
   }
   regenerate(request: unknown, classroomId: string, id: string, input: unknown) {
     const keys = ['revision', 'requestId', 'type', 'unitId', 'topicIds', 'sourceIds', 'objective', 'groupLevel', 'difficulty', 'durationMinutes', 'context', 'counts', 'acknowledgedWarnings'];

@@ -42,22 +42,34 @@ export async function classroom(page, student, name = 'P6 classroom') {
 
 export async function openClassroom(page, origin, name = 'P6 classroom') {
   const evidence = [];
+  const pendingResponses = [];
+  const prepareResponse = predicate => {
+    const pending = page.waitForResponse(predicate).then(response => ({ response }), error => ({ error }));
+    pendingResponses.push(pending);
+    return pending;
+  };
+  const consumeResponse = async pending => {
+    const result = await pending;
+    if (result.error) throw result.error;
+    return result.response;
+  };
   const response = async result => {
     const path = new URL(result.url()).pathname;
-    if (!['/api/v1/auth/session', '/api/v1/classrooms', '/api/v1/classrooms/drafts',
+    const detail = /^\/api\/v1\/classrooms\/[a-f0-9-]{36}$/.test(path);
+    if (!detail && !['/api/v1/auth/session', '/api/v1/classrooms', '/api/v1/classrooms/drafts',
       '/api/v1/classrooms/invitations', '/api/v1/classrooms/notifications'].includes(path)) return;
     let code;
     if (!result.ok()) { try { const body = await result.json(); code = body.error?.code ?? body.code; } catch {} }
-    evidence.push({ path, status: result.status(), code, retryAfter: result.headers()['retry-after'] });
+    evidence.push({ path: detail ? '/api/v1/classrooms/:id' : path, status: result.status(), code, retryAfter: result.headers()['retry-after'] });
   };
   const failed = request => evidence.push({ failedPath: new URL(request.url()).pathname, error: request.failure()?.errorText });
   page.on('response', response); page.on('requestfailed', failed);
   try {
     const paths = ['/api/v1/classrooms', '/api/v1/classrooms/drafts', '/api/v1/classrooms/invitations'];
-    const homeResponses = () => Promise.all(paths.map(path => page.waitForResponse(value => new URL(value.url()).pathname === path)));
+    const homeResponses = () => paths.map(path => prepareResponse(value => new URL(value.url()).pathname === path));
     const initial = homeResponses();
     await page.goto(`${origin}/mis-aulas`);
-    const results = await initial;
+    const results = await Promise.all(initial.map(consumeResponse));
     const limited = results.filter(result => result.status() === 429);
     if (limited.length) {
       const seconds = Math.max(...limited.map(result => Number(result.headers()['retry-after'])));
@@ -66,16 +78,35 @@ export async function openClassroom(page, origin, name = 'P6 classroom') {
       await delay(seconds * 1000);
       const resumed = homeResponses();
       await page.getByRole('button', { name: 'Volver a intentar', exact: true }).click();
-      for (const result of await resumed) assert.equal(result.status(), 200, 'Single admission recovery must succeed');
+      for (const result of await Promise.all(resumed.map(consumeResponse))) assert.equal(result.status(), 200, 'Single admission recovery must succeed');
     }
+    const entered = prepareResponse(value => value.request().method() === 'GET'
+      && /^\/api\/v1\/classrooms\/[a-f0-9-]{36}$/.test(new URL(value.url()).pathname));
     await page.getByRole('article').filter({ has: page.getByRole('heading', { name, exact: true }) })
       .getByRole('button', { name: 'Entrar al aula', exact: true }).click();
+    let detail = await consumeResponse(entered);
+    if (detail.status() === 429) {
+      assert.equal((await detail.json()).error.code, 'RATE_LIMITED');
+      const raw = detail.headers()['retry-after']; assert.match(raw ?? '', /^\d+$/);
+      const seconds = Number(raw); assert.ok(Number.isSafeInteger(seconds) && seconds >= 1 && seconds <= 60);
+      await page.getByRole('alert').filter({ hasText: /límite de intentos/i }).waitFor();
+      await delay(seconds * 1000);
+      const path = new URL(detail.url()).pathname;
+      const resumed = prepareResponse(value => value.request().method() === 'GET' && new URL(value.url()).pathname === path);
+      await page.getByRole('button', { name: 'Actualizar aula', exact: true }).click();
+      detail = await consumeResponse(resumed);
+    }
+    assert.equal(detail.status(), 200, 'Classroom detail must be confirmed after at most one visible retry');
+    assert.equal((await detail.json()).name, name);
     await page.getByRole('heading', { name, exact: true }).waitFor();
   } catch (error) {
     console.error('P6 classroom navigation evidence', JSON.stringify({ path: new URL(page.url()).pathname,
       evidence, articleCount: await page.getByRole('article').count() }));
     throw error;
-  } finally { page.off('response', response); page.off('requestfailed', failed); }
+  } finally {
+    page.off('response', response); page.off('requestfailed', failed);
+    await Promise.all(pendingResponses);
+  }
 }
 
 export async function domainSnapshot(db) {

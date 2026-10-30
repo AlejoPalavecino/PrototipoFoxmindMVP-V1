@@ -1,3 +1,5 @@
+import { startBrowserAttempt } from './helpers/browser-admission-step.mjs';
+import { readdirSync } from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp } from 'node:fs/promises';
@@ -21,8 +23,8 @@ async function ok(...args) { const result = await request(...args); assert.equal
 
 test('P8 actual all-type student delivery -> teacher private correction -> reload/restart preserves safe student DTO and original records', { timeout: 330000 }, async t => {
   await withP4IntegrationRuntime(async runtime => {
-    assert.equal(runtime.migrations.length, 14);
-    assert.deepEqual(runtime.migrations.slice(-5), [
+    assert.deepEqual(runtime.migrations, readdirSync('prisma/migrations').filter(name => /^\d+_/.test(name)).sort());
+    assert.deepEqual(runtime.migrations.filter(name => ['202610230001_agenda_events', '202610230001_classroom_ai', '202610240001_agenda_event_color', '202610250001_activity_topics', '202610250002_activity_ai'].includes(name)), [
       '202610230001_agenda_events',
       '202610230001_classroom_ai',
       '202610240001_agenda_event_color',
@@ -69,12 +71,12 @@ test('P8 actual all-type student delivery -> teacher private correction -> reloa
           await student.getByRole('button', { name: 'Confirmar envío del trabajo', exact: true }).click(); assert.equal((await submitted).status(), 200);
           await student.getByRole('heading', { name: 'Comprobante de entrega', exact: true }).waitFor();
         } else {
-          await student.getByRole('button', { name: 'Comenzar', exact: true }).click();
+          await startBrowserAttempt(student, room.id, activity.id, 12000);
           await student.getByRole('textbox', { name: 'Respuesta a la pregunta 1', exact: true }).fill('Actual preserved answer 😀');
           await student.getByRole('button', { name: 'Enviar respuestas', exact: true }).click();
           const submitted = student.waitForResponse(r => r.url().endsWith('/submit-answers'));
           await student.getByRole('button', { name: 'Confirmar envío de respuestas', exact: true }).click(); assert.equal((await submitted).status(), 200);
-          await student.getByText('Comprobante de entrega · pendiente de corrección.', { exact: false }).waitFor();
+          await student.getByText('Entrega confirmada.', { exact: true }).waitFor();
         }
         activity.attempt = (await ok(student, 'GET', `/classrooms/${room.id}/activities/${activity.id}/session`)).attempt.id;
         const path = `/classrooms/${room.id}/attempts/${activity.attempt}/grading`, before = await protectedHash();
