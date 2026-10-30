@@ -4,7 +4,11 @@ Coordinador: `/root`; rama `codex/audit-remediation`, worktree aislado. Alcance:
 
 ## A — Contratos puros compartidos
 
-Formatos y validaciones comunes de Muro, notificaciones y calificaciones, con cinco casos puros de rechazo y precisión numérica. El caso adicional de comparación con proxy acompaña a sus consumidores en la unidad C. No se relajan campos, confirmaciones, límites ni valores cero/null. Los cinco casos están incluidos en FAST181 aprobado (783/0/5). Runtime N/A para esta unidad pura; consumidores HTTP verificados en C. Rollback: revertir los ocho archivos de contrato y sus cinco casos antes de aplicar C. Diff preparado:351 líneas aproximadamente, sin comprimir código. Commit pendiente de creación, con DoD funcional global ya aprobado.
+Formatos y validaciones comunes de Muro, notificaciones y calificaciones, con cinco casos puros de rechazo y precisión numérica. El caso adicional de comparación con proxy acompaña a sus consumidores en la unidad C. No se relajan campos, confirmaciones, límites ni valores cero/null. Los cinco casos están incluidos en FAST181 aprobado (783/0/5). Runtime N/A para esta unidad pura; consumidores HTTP verificados en C. Rollback: revertir los ocho archivos de contrato y sus cinco casos antes de aplicar C. Commit observado `69b1f17`:10 archivos,357 inserciones. Gitleaks del índice y diff-check pasaron antes del commit, sin hallazgos.
+
+## B — Arranque con validación previa a módulos pesados
+
+Configuración pura conservada y validada antes de importar la aplicación; mismos errores, reglas y precedencia. Dos casos de arranque incluidos en FAST181 aprobado; ocho rechazos reales de configuración inválida bajo el límite original1500ms. Runtime adicional comprobado con los builds e inicios de las suites completas. Rollback: configuración-base/configuración/main y los dos casos seleccionados, antes de aplicar C. Commit pendiente; índice con secretos y blancos se comprobará antes de guardarlo.
 
 ## Evidencia común y política de entrega
 
