@@ -1,5 +1,11 @@
 # FoxMind implementation roadmap
 
+## Auditoría y seis correcciones — verificadas localmente, 2026-10-30
+
+La [tarea de remediación](../odd/tasks/audit-remediation.md) y el [registro del coordinador](work-log/2026-10-30-root-audit-completion.md) reúnen alcance, cambios y evidencia. Las seis correcciones están implementadas, revisadas y verificadas localmente: Muro acotado, capacidades por composición, contratos críticos compartidos, secciones independientes, controles completos y mejoras de escala/diagnóstico. [Unidades de entrega local](work-log/2026-10-30-local-remediation-units.md). Sin publicación ni despliegue.
+
+Inventario305entrypoints/51exclusiones/23rutas: FAST181783/0/5 y navegador41completo169/0/0 sobre4aeae017; DB65394/0/0, servicios850/0/0 y wrappers19152/0/0 sobre sus mismas entradas verificadas. Total1548PASS/0FAIL/5omisiones históricas, sin NOTRUN inesperados. Build/tipos/fronteras/dependencias aprobados y recursos propios limpios; fuentes y dependencias fijadas intactas. Se preservan las exclusiones justificadas, límites de paginación/contratos y medición local descritos en la tarea; sin aceptación de carga productiva ni CI remoto. Los rechazos anteriores, incluido503de causa SQL no demostrada, permanecen documentados. No se cambiaron cuotas, permisos, plazos ni confirmaciones para conseguir una aprobación.
+
 ## Corrección asistida por IA — issue #2, integrada en main
 
 El aula puede habilitar sugerencias automáticas privadas para entregas; el docente revisa y publica la corrección. La [especificación](../odd/tasks/grading-ai-issue-2.md) y el [registro inicial](work-log/2026-10-29-root-issue2-correccion-ia.md) conservan antecedentes. Implementación y correcciones integradas en main, incluida PR #16 (eee511e); [verificación real de TP con PDF](work-log/2026-10-29-root-gemini-grading.md) y [cuestionario/evaluación con Gemini real](work-log/2026-10-29-root-gemini-questionnaire-evaluation.md): propuesta, edición/aplicación privada, privacidad previa y publicación docente observadas. Q/E verifican desarrollo manual y opción única EXACT; no acreditan todos los formatos ni casos límite. Sin despliegue. Estos registros posteriores permanecen locales.

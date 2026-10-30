@@ -4,6 +4,8 @@
 
 ## Empezar según lo que necesitás
 
+Entrega actual: [seis correcciones de auditoría verificadas localmente](../odd/tasks/audit-remediation.md), [evidencia y limitaciones](work-log/2026-10-30-root-audit-completion.md). Suite admitida completa:1548 comprobaciones aprobadas, cero fallos y cinco omisiones históricas; incluye los41recorridos completos de navegador. [Unidades locales](work-log/2026-10-30-local-remediation-units.md), sin publicación ni despliegue.
+
 | Necesidad | Dónde mirar |
 |---|---|
 | Saber qué está terminado, en seguimiento o pendiente | [Estado y próximos pasos](implementation-roadmap.md#current-documentation-scope) y [fases](implementation-roadmap.md#phase-overview) |
