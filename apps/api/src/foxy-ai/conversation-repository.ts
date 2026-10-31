@@ -47,10 +47,13 @@ export function createFoxyConversationRepository() {
         if (previous.input_hash !== hash) throw new RepositoryError('CONFLICT');
         const existing = await this.get(tx, owner, previous.conversation_id);
         if (!existing) throw new RepositoryError('CONFLICT');
+        if (existing.context.kind === 'CLASSROOM' && !(await tx.query(
+          'SELECT id FROM classrooms WHERE id=$1::uuid AND teacher_id=$2::uuid FOR SHARE', existing.context.classroomId, owner)).length)
+          throw new RepositoryError('NOT_FOUND');
         return { created: false, conversation: existing };
       }
       const classroomId = request.context.kind === 'CLASSROOM' ? request.context.classroomId : null;
-      if (classroomId && !(await tx.query('SELECT id FROM classrooms WHERE id=$1::uuid AND teacher_id=$2::uuid', classroomId, owner)).length)
+      if (classroomId && !(await tx.query('SELECT id FROM classrooms WHERE id=$1::uuid AND teacher_id=$2::uuid AND archived_at IS NULL FOR SHARE', classroomId, owner)).length)
         throw new RepositoryError('NOT_FOUND');
       const id = randomUUID();
       const [row] = await tx.query<Row>(`INSERT INTO foxy_conversations AS c(id,owner_id,title,context_kind,classroom_id)
@@ -71,6 +74,17 @@ export function createFoxyConversationRepository() {
       const rows = await tx.query<Row>(`SELECT ${columns} FROM foxy_conversations c WHERE ${visible}
         ORDER BY c.updated_at DESC,c.id DESC LIMIT $2`, owner, options.limit);
       return rows.map(fromRow);
+    },
+    async listPage(tx: SqlTransaction, owner: string, options: { limit: number; after: { updatedAt: string; id: string } | null }) {
+      activityUuid(owner);
+      if (!Number.isSafeInteger(options?.limit) || options.limit < 1 || options.limit > 100) throw new RepositoryError('INVALID_INPUT');
+      const rows = await tx.query<Row & { updated_at: Date }>(`SELECT ${columns},c.updated_at FROM foxy_conversations c WHERE ${visible}
+        AND ($2::timestamptz IS NULL OR (date_trunc('milliseconds',c.updated_at),c.id)<($2::timestamptz,$3::uuid))
+        ORDER BY date_trunc('milliseconds',c.updated_at) DESC,c.id DESC LIMIT $4`, owner,
+      options.after?.updatedAt ?? null, options.after?.id ?? null, options.limit + 1);
+      const last = rows[options.limit - 1];
+      return { items: rows.slice(0, options.limit).map(fromRow),
+        next: rows.length > options.limit && last ? { updatedAt: last.updated_at.toISOString(), id: last.id } : null };
     },
     async rename(tx: SqlTransaction, owner: string, id: string, revision: string, title: string) {
       activityUuid(owner); activityUuid(id); activityRevision(revision); validateTitle(title);

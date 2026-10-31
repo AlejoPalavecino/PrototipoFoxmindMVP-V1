@@ -17,3 +17,4 @@ export { createFoxyTurnPreparation } from './turn-preparation.ts';
 export { createFoxyTextWorker } from './worker.ts';
 export { createFoxyUnitOfWork } from './unit-of-work.ts';
 export type { FoxyActor } from './unit-of-work.ts';
+export { createFoxyConversationService } from './conversation-service.ts';
