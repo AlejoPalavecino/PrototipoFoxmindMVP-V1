@@ -19,3 +19,4 @@ export { createGradingAiAttachmentReader, type GradingAttachmentGrant, type Grad
 export { createDurableGradingAiAttachmentReader } from './durable-grading-ai-attachment-reader.ts';
 export { createDurableGradingAiInstructionReader, type GradingInstructionGrant } from './durable-grading-ai-instruction-reader.ts';
 export { createFoxyDocumentReader, type FoxyDocumentDescriptor } from './foxy-document-reader.ts';
+export { createDurableFoxyDocumentReader } from './foxy-durable-document-reader.ts';
