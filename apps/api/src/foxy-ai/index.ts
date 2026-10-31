@@ -14,3 +14,4 @@ export { projectFoxyTextInput } from './provider-input.ts';
 export { createFoxyTurnCompletion } from './turn-completion.ts';
 export { createFoxyClaimedTurnReader } from './turn-claimed-reader.ts';
 export { createFoxyTurnPreparation } from './turn-preparation.ts';
+export { createFoxyTextWorker } from './worker.ts';
