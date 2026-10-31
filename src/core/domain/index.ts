@@ -36,3 +36,4 @@ export { parseFoxySourceQuery } from './foxy-ai-source-query.ts';
 export type { FoxySourceKind, FoxySourceCursor, FoxySourceQuery } from './foxy-ai-source-query.ts';
 export { parseGroundedFoxyAnswer } from './foxy-ai-answer-grounded.ts';
 export type { FoxyAnswerReferenceMap, GroundedFoxyReference, GroundedFoxyAnswer } from './foxy-ai-answer-grounded.ts';
+export type { FoxyTextInput, FoxyTextResponse } from './foxy-ai-text.ts';
