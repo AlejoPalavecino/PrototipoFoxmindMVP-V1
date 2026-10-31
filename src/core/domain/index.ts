@@ -30,3 +30,5 @@ export type * from './foxy-ai.ts';
 export { parseCreateFoxyConversation, parseSendFoxyMessage } from './foxy-ai-validation.ts';
 export type * from './foxy-ai-resource.ts';
 export { parseFoxyAnswer, parseEditFoxyResource, parsePrepareFoxyPublication, parseConfirmFoxyPublication } from './foxy-ai-resource-validation.ts';
+export type * from './foxy-ai-visual.ts';
+export { parseStartFoxyVisual, parseFoxyDiagram } from './foxy-ai-visual-validation.ts';
