@@ -11,3 +11,4 @@ export { createFoxyClaimAuthority } from './claim-authority.ts';
 export type { FoxyClaimScope } from './claim-authority.ts';
 export { createFoxyDurableLoader } from './durable-loader.ts';
 export { projectFoxyTextInput } from './provider-input.ts';
+export { createFoxyTurnCompletion } from './turn-completion.ts';

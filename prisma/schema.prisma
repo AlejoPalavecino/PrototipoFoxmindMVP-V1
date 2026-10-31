@@ -1101,6 +1101,9 @@ model FoxyTurn {
   state String @default("QUEUED")
   purpose String
   message_text String
+  answer Json?
+  reference_map Json?
+  source_report Json?
   snapshot Json
   metadata Json
   lease_nonce String? @db.Uuid
