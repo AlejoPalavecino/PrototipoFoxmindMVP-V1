@@ -50,25 +50,30 @@ export class FileService {
     this.busy = true; try { return await run(); } finally { this.busy = false; }
   }
   async begin(request: unknown, scope: FileScope, intent: UploadIntent, targetId: string | null = null) {
+    validateUploadIntent(intent);
+    const snapshot = { purpose: intent.purpose, name: intent.name, bytes: intent.bytes }, scopeSnapshot = { ...scope };
+    if ((targetId !== null && !uuid(targetId)) || (['instructions', 'attachment'].includes(snapshot.purpose) && !targetId)) {
+      throw new FileError('INVALID_UPLOAD');
+    }
+    return this.store.transaction(tx => this.beginInTransaction(tx, request, scopeSnapshot, snapshot, targetId));
+  }
+  async beginInTransaction(tx: FileTransaction, request: unknown, scope: FileScope, intent: UploadIntent, targetId: string | null = null) {
     const admitted = validateUploadIntent(intent);
-    intent = { purpose: intent.purpose, name: intent.name, bytes: intent.bytes };
-    scope = { ...scope };
+    intent = { purpose: intent.purpose, name: intent.name, bytes: intent.bytes }; scope = { ...scope };
     if ((targetId !== null && !uuid(targetId)) || (['instructions', 'attachment'].includes(intent.purpose) && !targetId)) {
       throw new FileError('INVALID_UPLOAD');
     }
-    return this.store.transaction(async tx => {
-      const { quota, userId } = await this.store.authorize(tx, request, { scope, purpose: intent.purpose, targetId }, 'upload');
-      if (await this.store.usage(tx, scope) + BigInt(intent.bytes) > quota) throw new FileError('QUOTA_EXCEEDED');
-      const id = randomUUID(), uploadId = randomUUID();
-      await tx.query(`INSERT INTO files(id,updated_at,classroom_id,classroom_draft_id,uploaded_by_id,storage_key,original_name,extension,size_bytes)
-        VALUES($1::uuid,clock_timestamp(),$2::uuid,$3::uuid,$4::uuid,$5,$6,$7,$8::bigint) RETURNING id`, id,
-        scope.kind === 'classroom' ? scope.id : null, scope.kind === 'draft' ? scope.id : null, userId,
-        `p4/${id}/blob`, intent.name, admitted.extension, BigInt(intent.bytes));
-      await tx.query(`INSERT INTO uploads(id,updated_at,file_id,reserved_bytes)
-        VALUES($1::uuid,clock_timestamp(),$2::uuid,$3::bigint) RETURNING id`, uploadId, id, BigInt(intent.bytes));
-      await tx.query(`INSERT INTO file_custodies(file_id,purpose,target_id) VALUES($1::uuid,$2,$3::uuid) RETURNING file_id`, id, intent.purpose, targetId);
-      return view(await this.store.load(tx, id));
-    });
+    const { quota, userId } = await this.store.authorize(tx, request, { scope, purpose: intent.purpose, targetId }, 'upload');
+    if (await this.store.usage(tx, scope) + BigInt(intent.bytes) > quota) throw new FileError('QUOTA_EXCEEDED');
+    const id = randomUUID(), uploadId = randomUUID();
+    await tx.query(`INSERT INTO files(id,updated_at,classroom_id,classroom_draft_id,uploaded_by_id,storage_key,original_name,extension,size_bytes)
+      VALUES($1::uuid,clock_timestamp(),$2::uuid,$3::uuid,$4::uuid,$5,$6,$7,$8::bigint) RETURNING id`, id,
+      scope.kind === 'classroom' ? scope.id : null, scope.kind === 'draft' ? scope.id : null, userId,
+      `p4/${id}/blob`, intent.name, admitted.extension, BigInt(intent.bytes));
+    await tx.query(`INSERT INTO uploads(id,updated_at,file_id,reserved_bytes)
+      VALUES($1::uuid,clock_timestamp(),$2::uuid,$3::bigint) RETURNING id`, uploadId, id, BigInt(intent.bytes));
+    await tx.query(`INSERT INTO file_custodies(file_id,purpose,target_id) VALUES($1::uuid,$2,$3::uuid) RETURNING file_id`, id, intent.purpose, targetId);
+    return view(await this.store.load(tx, id));
   }
   async status(request: unknown, id: string) {
     return this.store.transaction(async tx => view(await this.store.loadAuthorized(tx, request, id, 'status')));

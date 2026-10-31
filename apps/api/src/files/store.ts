@@ -99,6 +99,6 @@ export class FileStore {
     const [row] = await tx.query<{ used: bigint }>(`SELECT COALESCE(SUM(f.size_bytes),0)::bigint AS used FROM files f
       LEFT JOIN uploads u ON u.file_id=f.id WHERE f.${column}=$1::uuid
       AND f.blob_deleted_at IS NULL AND (u.id IS NULL OR u.status='COMPLETED' OR u.reservation_released_at IS NULL)`, scope.id);
-    return row.used;
+    return BigInt(row.used);
   }
 }
