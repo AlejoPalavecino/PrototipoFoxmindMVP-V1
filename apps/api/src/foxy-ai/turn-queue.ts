@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto';
+import { createFoxyTextBudget, type FoxyTextBudgetConfiguration } from './text-budget.ts';
 import type { SqlDatabase, SqlTransaction } from '../../../../src/core/domain/index.ts';
 
-type Configuration = { maxConcurrency: number; deadlineMs: number; maxJobAgeMs: number };
+type Configuration = { maxConcurrency: number; deadlineMs: number; maxJobAgeMs: number } & FoxyTextBudgetConfiguration;
 type Options = { database: SqlDatabase; configuration: Configuration };
 export interface FoxyTurnLease { turnId: string; ownerId: string; conversationId: string; leaseNonce: string }
 type Row = { id: string; owner_id: string; conversation_id: string };
@@ -12,15 +13,20 @@ const running = `SELECT owner_id FROM foxy_turns WHERE state='RUNNING'
   UNION ALL SELECT owner_id FROM activity_ai_generations WHERE state='RUNNING' AND lease_until>clock_timestamp()
   UNION ALL SELECT owner_id FROM student_ai_reports WHERE state='RUNNING' AND lease_until>clock_timestamp()
   UNION ALL SELECT owner_id FROM grading_ai_jobs WHERE state='RUNNING' AND lease_until>clock_timestamp()`;
-async function recover(tx: SqlTransaction, maxJobAgeMs: number): Promise<number> {
+async function recover(tx: SqlTransaction, config: Configuration): Promise<number> {
+  await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)');
+  const budget = createFoxyTextBudget({ configuration: config });
   const leases = await tx.query<{ id: string; dispatch_started_at: Date | null }>(`SELECT id,dispatch_started_at FROM foxy_turns
     WHERE state='RUNNING' AND lease_until<=clock_timestamp() ORDER BY lease_until,id LIMIT 50 FOR UPDATE SKIP LOCKED`);
-  for (const row of leases) await tx.query(`UPDATE foxy_turns SET state=$2,error_code=$3,lease_nonce=NULL,lease_until=NULL,
+  for (const row of leases) {
+    await budget.settleExpired(tx, row.id);
+    await tx.query(`UPDATE foxy_turns SET state=$2,error_code=$3,lease_nonce=NULL,lease_until=NULL,
     updated_at=clock_timestamp() WHERE id=$1::uuid`, row.id, row.dispatch_started_at ? 'FAILED' : 'QUEUED',
   row.dispatch_started_at ? 'PROVIDER_OUTCOME_UNKNOWN' : null);
+  }
   const queued = await tx.query<{ id: string }>(`SELECT id FROM foxy_turns WHERE state='QUEUED'
     AND created_at+$1::bigint*interval '1 millisecond'<=clock_timestamp()
-    ORDER BY created_at,id LIMIT 50 FOR UPDATE SKIP LOCKED`, maxJobAgeMs);
+    ORDER BY created_at,id LIMIT 50 FOR UPDATE SKIP LOCKED`, config.maxJobAgeMs);
   for (const row of queued) await tx.query(`UPDATE foxy_turns SET state='FAILED',error_code='AI_TIMEOUT',
     updated_at=clock_timestamp() WHERE id=$1::uuid`, row.id);
   return leases.length + queued.length;
@@ -31,7 +37,7 @@ export function createFoxyTurnQueue(options: Options) {
   async function claim(): Promise<FoxyTurnLease | null> {
     return transact(async tx => {
       await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123002)');
-      await recover(tx, options.configuration.maxJobAgeMs);
+      await recover(tx, options.configuration);
       const [active] = await tx.query<{ count: number }>(`SELECT count(*)::int AS count FROM (${running}) jobs`);
       if (!active || active.count >= options.configuration.maxConcurrency) return null;
       const [row] = await tx.query<Row>(`SELECT t.id,t.owner_id,t.conversation_id FROM foxy_turns t
@@ -60,7 +66,7 @@ export function createFoxyTurnQueue(options: Options) {
   async function recoverExpired(): Promise<number> {
     return transact(async tx => {
       await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123002)');
-      return recover(tx, options.configuration.maxJobAgeMs);
+      return recover(tx, options.configuration);
     });
   }
   return { claim, current, recoverExpired };

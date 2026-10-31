@@ -6,3 +6,4 @@ export { FoxyGroundingSnapshotService } from './grounding-snapshot.ts';
 export { FoxyGroundingLoader } from './grounding-loader.ts';
 export { createFoxyTurnRepository } from './turn-repository.ts';
 export { createFoxyTurnQueue } from './turn-queue.ts';
+export { createFoxyTextBudget } from './text-budget.ts';
