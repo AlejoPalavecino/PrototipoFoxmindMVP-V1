@@ -8,12 +8,12 @@ Aplicar el [plan Astra](../../docs/audits/2026-10-30-astra-documentation-audit.m
 
 | Unidad | Estado | Criterio de salida |
 |---|---|---|
-| Estado y contratos vigentes | En curso | Extensiones IA, login, diseño y tarea issue #2 reconciliados con evidencia posterior, sin inventar alcance |
-| Guías por dominio | Pendiente | Rutas canónicas organizadas, enlaces activos actualizados y aliases/anclas compatibles |
-| Arquitectura, operación y verificación | Pendiente | Camino de lectura corto y guías actuales separadas de evidencia histórica |
-| Historia y diseños | Pendiente | Catálogo útil; registros, artefactos, cortes de auditoría y procedencia preservados |
-| Depuración confirmada | Pendiente | Cada retiro justificado por rol, equivalencia y consumidores; conservar lo dudoso |
-| Controles y entrega | Pendiente | Validaciones documentales y controles afectados pasan; revisión, main/remoto exactos y árboles limpios |
+| Estado y contratos vigentes | Verificado | Extensiones IA, login, diseño y tarea issue #2 reconciliados con evidencia posterior, sin inventar alcance |
+| Guías por dominio | Verificado |43rutas canónicas, aliases y228anclas compatibles |
+| Arquitectura, operación y verificación | Verificado | Camino de lectura corto y guías actuales separadas de evidencia histórica |
+| Historia y diseños | Verificado | Catálogo de550registros por16fechas;1448archivos históricos/procedencia preservados |
+| Depuración confirmada | Verificado | Cuerpos de guía concentrados en un destino; cuatro paresPNG conservados por rol/procedencia, sin borrados injustificados |
+| Controles y entrega | Controles aprobados; integración pendiente | CLI137/1657/0, FAST794/0/0, revisión y secretos; falta comprobar main/remoto y limpieza finales |
 
 ## Límites de compatibilidad
 
@@ -23,4 +23,4 @@ Conservar IDs normativos, 82 flujos, atribuciones, fallos y límites de aceptaci
 
 ## Evidencia y siguiente paso
 
-[Registro coordinador](../../docs/work-log/2026-10-30-root-documentation-reorganization.md). Plan en ejecución; el mapa de movimientos y los resultados se incorporarán al verificar los lotes. No se ha declarado una nueva aceptación funcional de la aplicación por esta reorganización.
+[Mapa activo](../../docs/documentation-map.json), [recibos del corte](../../docs/audits/2026-10-31-documentation-reorganization/), [unidades locales](../../docs/work-log/2026-10-31-documentation-units.md) y [registro coordinador](../../docs/work-log/2026-10-30-root-documentation-reorganization.md). La reorganización y los controles están verificados; queda la integración/sincronización autorizada. No se declara una nueva aceptación funcional de toda la aplicación por esta reorganización.

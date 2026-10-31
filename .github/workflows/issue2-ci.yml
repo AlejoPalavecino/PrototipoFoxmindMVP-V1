@@ -18,6 +18,8 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci
+      - name: Check current documentation and preserved evidence
+        run: npm run docs:check
       - name: Build API and generate Prisma client
         run: npm run api:build
       - name: Check web types

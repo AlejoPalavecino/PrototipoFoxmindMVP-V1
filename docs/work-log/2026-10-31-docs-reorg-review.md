@@ -15,3 +15,5 @@ Hallazgos resueltos: fila de login residual a/profile corregida a/inicio y recib
 ## Dictamen
 
 LGTM_SIN_HALLAZGOS para el alcance documental revisado, condicionado a controles finales y entrega del coordinador. CLI observado137archivos/1654enlaces/0incidencias. No ejecutó tests con fixtures ni Docker/UI, instalaciones, red, fuentes privadas, escrituras de archivos, memoria o commits. Root debe completar Gitleaks de índices definitivos, controles fijados, estados y comprobación de main/remoto/limpieza; la revisión no acredita publicación antes de ocurrir.
+
+Revisión final atribuida al mismo reviewer: leyó FAST181794/0/0,130314ms,exit0 sobre1eff14c4; CLI actualizado137/1657/0 y diff-check0. No hay otro hallazgo técnico. Unidad A62e14a9 observada. B puede cerrar técnicamente tras controles del índice; su exceso se declara como desviación, no cumplimiento del límite400 ni autorización otorgada por reviewer en nombre del usuario. Sin PR en esta integración directa. La responsabilidad de commits, referencias remotas y árboles limpios sigue en root.
