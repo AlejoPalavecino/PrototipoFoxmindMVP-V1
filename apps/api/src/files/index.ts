@@ -18,3 +18,4 @@ export type { FileAccess, FileScope, FileTarget, FileTransaction, FileAction } f
 export { createGradingAiAttachmentReader, type GradingAttachmentGrant, type GradingAttachmentSnapshot, type GradingAttachmentPorts } from './grading-ai-attachment-reader.ts';
 export { createDurableGradingAiAttachmentReader } from './durable-grading-ai-attachment-reader.ts';
 export { createDurableGradingAiInstructionReader, type GradingInstructionGrant } from './durable-grading-ai-instruction-reader.ts';
+export { createFoxyDocumentReader, type FoxyDocumentDescriptor } from './foxy-document-reader.ts';
