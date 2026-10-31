@@ -63,7 +63,8 @@ test('prepare pending blocks preparation metadata and SAVE/PREPARE block review 
   await a.confirmation.review();await a.confirmation.confirm();assert.equal(f.calls.length,0,kind);a.dispose();}
 });
 
-test('SAVE pending may delegate same save or retry to child single-flight',async()=>{
- const f=fixture(),a=create(f);f.setResource({pending:'SAVE'});f.runtime.resource.retry=async()=>f.calls.push(['retry']);await a.resource.save();await a.resource.retry();
- assert.deepEqual(f.calls.map(x=>x[0]),['save','retry']);a.dispose();
+test('SAVE pending or busy blocks save; only idle uncertain SAVE may retry',async()=>{
+ for(const phase of ['idle','busy','prepare','confirm','none']){const f=fixture(),a=create(f);f.runtime.resource.retry=async()=>f.calls.push(['retry']);
+  if(phase!=='none')f.setResource({pending:'SAVE',busy:phase==='busy'});if(phase==='prepare')f.setPreparation({pending:'PREPARE'});if(phase==='confirm')f.setConfirmation({pending:'CONFIRM'});
+  if(phase!=='none')await a.resource.save();await a.resource.retry();assert.deepEqual(f.calls.map(x=>x[0]),phase==='idle'?['retry']:[],phase);a.dispose();}
 });
