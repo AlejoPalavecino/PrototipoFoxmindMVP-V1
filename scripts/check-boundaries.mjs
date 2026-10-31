@@ -18,7 +18,7 @@ function dependencyViolation(file, specifier, root) {
   const match = file.match(/^apps\/api\/src\/([^/]+)\//);
   const destination = target.match(/^apps\/api\/src\/([^/]+)\/(.+)/);
   if (match && destination && match[1] !== destination[1] && !/^index(?:\.[cm]?tsx?)?$/.test(destination[2])
-    && !(['files', 'mail', 'classrooms'].includes(destination[1]) && destination[2] === 'public/index.ts')) return 'cross-module private API';
+    && !(['files', 'mail', 'classrooms', 'foxy-ai'].includes(destination[1]) && destination[2] === 'public/index.ts')) return 'cross-module private API';
   return null;
 }
 export function checkBoundaries(root = process.cwd()) {

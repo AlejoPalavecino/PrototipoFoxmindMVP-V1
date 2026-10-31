@@ -1,0 +1,4 @@
+# Foxy durable publication files P3B — 2026-10-31
+
+Status: in progress. Capability-scoped allocation, upload and proof using FileService gates and synthetic dependencies.
+Completed: capability-backed private access revalidates claim/file grants and signal; immutable bytes bounded and verified; real FileService receive enforces storage, inspection and scanner; proof rereads and hashes stored bytes. Public Foxy barrel exposes only three bridge ports; boundary checker permits that exact path and canary protects other private paths. Tests publication files PASS 3 using synthetic PostgreSQL/storage/scanner; boundary canaries PASS 5; api:build and lint:boundaries PASS. Initial boundary run rejected private imports; corrected through architecture-approved public barrel. No worker activation, publication state change, material, real data or provider.

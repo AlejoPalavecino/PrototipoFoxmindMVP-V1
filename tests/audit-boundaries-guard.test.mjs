@@ -49,3 +49,22 @@ test('mail and classrooms expose only their exact lightweight public barrels acr
     }
   } finally { await rm(root, { recursive: true, force: true }); }
 });
+
+test('files may import the exact Foxy lightweight public barrel', async () => {
+  const root=await mkdtemp(join(tmpdir(),'foxmind-audit-foxy-public-'));
+  try {
+    await put(root,'apps/api/src/foxy-ai/public/index.ts','export const port = 1;');
+    await put(root,'apps/api/src/files/consumer.ts',"import { port } from '../foxy-ai/public/index.ts'; export { port };");
+    assert.deepEqual(await checkBoundaries(root),[],'exact Foxy public barrel must be allowed');
+  } finally {await rm(root,{recursive:true,force:true});}
+});
+
+test('files cannot import Foxy internals or other files inside its public directory', async () => {
+  const root=await mkdtemp(join(tmpdir(),'foxmind-audit-foxy-private-'));
+  try {
+    for(const target of ['../foxy-ai/public/private.ts','../foxy-ai/publication-authority.ts']) {
+      await put(root,'apps/api/src/files/consumer.ts',`import { secret } from '${target}'; export { secret };`);
+      const violations=await checkBoundaries(root);assert.ok(violations.some(v=>v.includes('cross-module private API')),target);
+    }
+  } finally {await rm(root,{recursive:true,force:true});}
+});
