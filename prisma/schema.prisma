@@ -1121,7 +1121,37 @@ model FoxyTurn {
   conversation_revision BigInt
   created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
   conversation FoxyConversation @relation(fields: [conversation_id, owner_id], references: [id, owner_id], onDelete: Restrict, onUpdate: NoAction)
+  resource FoxyResource?
+  @@unique([id, conversation_id, owner_id])
   @@unique([owner_id, request_id])
   @@unique([conversation_id, sequence])
   @@map("foxy_turns")
+}
+model FoxyResource {
+  id String @id @db.Uuid
+  owner_id String @db.Uuid
+  conversation_id String @db.Uuid
+  source_turn_id String @unique @db.Uuid
+  title String
+  markdown String
+  revision BigInt @default(0)
+  created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  updated_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  turn FoxyTurn @relation(fields: [source_turn_id, conversation_id, owner_id], references: [id, conversation_id, owner_id], onDelete: Restrict, onUpdate: NoAction, map: "foxy_resources_turn_fkey")
+  requests FoxyResourceRequest[]
+  @@unique([source_turn_id, conversation_id, owner_id])
+  @@unique([id, owner_id])
+  @@map("foxy_resources")
+}
+
+model FoxyResourceRequest {
+  owner_id String @db.Uuid
+  request_id String @db.Uuid
+  resource_id String @db.Uuid
+  input_hash String
+  result Json
+  created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  resource FoxyResource @relation(fields: [resource_id, owner_id], references: [id, owner_id], onDelete: Restrict, onUpdate: NoAction, map: "foxy_resource_requests_resource_fkey")
+  @@id([owner_id, request_id])
+  @@map("foxy_resource_requests")
 }
