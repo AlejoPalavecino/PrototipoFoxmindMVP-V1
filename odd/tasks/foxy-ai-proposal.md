@@ -75,3 +75,16 @@ Antes de implementar también hay que acordar retención y borrado del historial
 ## Relación con el producto actual
 
 La [guía de IA](../docs/engineering/ai/README.md) documenta cuatro funciones existentes con reglas propias; la [generación de actividades](../docs/engineering/ai/activity-generation.md) ya exige fuentes elegidas, revisión y publicación separada. La [Biblioteca](../docs/engineering/teaching/library.md), el [plan](../docs/engineering/teaching/plan.md) y la [especificación funcional](../docs/foxmind-v1-functional-spec.md) conservan sus contratos actuales. El [roadmap](../docs/implementation-roadmap.md) refleja el estado aceptado; este documento es una propuesta independiente y no declara cambios implementados.
+
+## Decisiones del usuario — 2026-10-31
+
+El usuario autorizó desarrollar la feature completa en un worktree separado, en tareas pequeñas verificables. El contexto del aula debe comprender el plan, los materiales de Biblioteca y las actividades ya realizadas; debe permitir considerar temas anteriores, actuales y futuros y seleccionar el tema pertinente. La clasificación debe apoyarse en el estado real del plan, sin inventar un tema actual si el modelo de datos no lo identifica. Se incluye desde el inicio la preparación y publicación en Biblioteca tras revisión y confirmación docente, para que el material quede disponible a estudiantes. El tratamiento de imágenes y esquemas requiere concretar si incluye generación de imágenes con un modelo; consulta pendiente. Estas decisiones sustituyen las alternativas D1–D3 y el carácter exclusivamente propositivo del encabezado anterior; los detalles técnicos y de privacidad siguen sujetos a diseño. No autorizan despliegue ni publicación remota.
+
+### Aclaración de recursos visuales
+El usuario confirmó que la primera entrega incluye **esquemas e imágenes generadas con IA**, con revisión y publicación confirmada en Biblioteca. Requiere diseñar generación, representación, costos, validación y publicación; no equivale a confirmar proveedor, modelo, credenciales ni pruebas con datos reales.
+
+## Cortes de implementación
+
+F0/F1: contratos; F2: conversaciones privadas; F3/F4: fuentes autorizadas y contexto; F5/F6: generación y borradores; F7: publicación segura; F8–F11: transporte, interfaz y verificación. V0–V6: esquemas e imágenes, proveedor y presupuesto multimodal, almacenamiento privado, publicación y QA. Todos pendientes salvo contratos en verificación; no se declara feature completa.
+
+Los esquemas se proponen como datos estructurados acotados con render seguro. Las imágenes requieren almacenamiento privado del docente incluso en contexto general, validación y escaneo, antes de transferirse a Biblioteca. El presupuesto permanece compartido y debe contemplar precios por modalidad. Modelo y precios se validarán antes de habilitar despachos. Context7 no disponible por cuota; consultar [modelo candidato](https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite-image) y [precios](https://ai.google.dev/gemini-api/docs/pricing).

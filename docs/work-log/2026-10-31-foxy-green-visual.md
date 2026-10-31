@@ -22,4 +22,3 @@ Sin commit propio.
 
 ## Handoff
 Revisión independiente de los límites asumidos y del contrato; el renderizador seguro, proveedor, persistencia, escaneo y publicación no están implementados en este slice.
-
