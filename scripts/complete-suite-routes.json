@@ -60,6 +60,7 @@
       "tests/classrooms-reference-controls.test.mjs",
       "tests/classrooms-reference-filter.test.mjs",
       "tests/dependency-security.test.mjs",
+      "tests/documentation-links.test.mjs",
       "tests/domain-barrel.test.mjs",
       "tests/education-agenda.test.mjs",
       "tests/education-experience.test.mjs",
