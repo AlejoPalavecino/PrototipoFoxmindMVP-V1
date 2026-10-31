@@ -9,3 +9,4 @@ export { createFoxyTurnQueue } from './turn-queue.ts';
 export { createFoxyTextBudget } from './text-budget.ts';
 export { createFoxyClaimAuthority } from './claim-authority.ts';
 export type { FoxyClaimScope } from './claim-authority.ts';
+export { createFoxyDurableLoader } from './durable-loader.ts';
