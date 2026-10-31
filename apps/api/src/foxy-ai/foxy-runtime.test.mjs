@@ -38,8 +38,8 @@ test('enabled runtime uses injected provider without starting work during constr
     const f=fixture(configuration,{ countTokens:async()=>{throw Error('unexpected');}, generate:async()=>{throw Error('unexpected');} });
     const runtime=await create(f); assert.deepEqual(f.calls,[]); assert.ok(runtime.worker);
     assert.deepEqual(await runtime.services.capabilities(request),{textGeneration:{enabled:true},imageGeneration:{enabled:false},diagramGeneration:{enabled:false}});
-    runtime.onModuleInit(); runtime.onModuleInit(); assert.equal(timers.length,1); assert.equal(timers[0].unrefed,true);
-    await runtime.onModuleDestroy(); await runtime.onModuleDestroy(); assert.equal(timers[0].cleared,true);
+    runtime.onModuleInit(); runtime.onModuleInit(); assert.equal(timers.length,2); assert.ok(timers.every(timer=>timer.unrefed));
+    await runtime.onModuleDestroy(); await runtime.onModuleDestroy(); assert.ok(timers.every(timer=>timer.cleared));
     assert.equal(f.calls.includes('disconnect'),false); assert.equal(f.calls.includes('filesClose'),false);
   } finally { globalThis.setTimeout=originalSet; globalThis.clearTimeout=originalClear; }
 });
@@ -68,10 +68,10 @@ test('disabled runtime starts serial recovery maintenance without claims or prov
     const f=fixture(null,null),sql=[];
     f.options.database.$transaction=async fn=>fn({$queryRawUnsafe:async statement=>{sql.push(statement);return [];}});
     const runtime=await create(f); runtime.onModuleInit(); runtime.onModuleInit();
-    assert.equal(timers.length,1); timers[0].fn(); await new Promise(resolve=>originalSet(resolve,0));
+    assert.equal(timers.length,2); timers[0].fn(); await new Promise(resolve=>originalSet(resolve,0));
     assert.ok(sql.some(s=>/pg_advisory_xact_lock\(78123002\)/iu.test(s)));
     assert.ok(sql.some(s=>/lease_until\s*<=/iu.test(s))); assert.equal(sql.some(s=>/SET state='RUNNING'/iu.test(s)),false);
-    await runtime.onModuleDestroy(); assert.equal(timers.at(-1).cleared,true);
+    await runtime.onModuleDestroy(); assert.equal(timers[1].cleared,true); assert.equal(timers.at(-1).cleared,true);
   } finally { globalThis.setTimeout=originalSet;globalThis.clearTimeout=originalClear; }
 });
 

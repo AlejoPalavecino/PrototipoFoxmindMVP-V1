@@ -188,7 +188,7 @@ test('runtime restarts with text AI disabled and durably completes an already up
  await withAgendaDatabase(async({pool})=>{const x=await fixture(pool),signal=x.controller.signal;
   const allocated=await x.bridge.ensureFile(x.scope.capability,x.artifact,signal),child=await x.authority.createFileCapability(x.scope.capability,signal);
   await x.bridge.receive(child.capability,x.bytes,signal);x.authority.close(x.scope);
-  const {createFoxyRuntime}=await import('../foxy-ai/runtime.ts');
+  const {createFoxyRuntime}=await import(new URL('../../../../.build/api/apps/api/src/foxy-ai/runtime.js',import.meta.url));
   const options={database:x.database,files:x.files,authenticate:async()=>x.f.teacherActor,classrooms:{run:async()=>{},classroom:async()=>{}},configuration:null,provider:null};
   const first=createFoxyRuntime(options);assert.equal(first.worker,null);first.onModuleInit();await first.onModuleDestroy();
   await x.query("UPDATE foxy_publications SET lease_until=clock_timestamp()-interval '1 second' WHERE id=$1::uuid",x.publication.id);

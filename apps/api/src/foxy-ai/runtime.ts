@@ -17,6 +17,12 @@ import { createFoxyTextWorker } from './worker.ts';
 import { createFoxyTurnRecovery } from './turn-recovery.ts';
 import { createFoxyResourceRepository } from './resource-repository.ts';
 import { createFoxyResourceService } from './resource-service.ts';
+import { createFoxyPublicationQueue } from './publication-queue.ts';
+import { createFoxyPublicationAuthority } from './publication-authority.ts';
+import { createFoxyPublicationCompletion } from './publication-completion.ts';
+import { createFoxyPublicationWorker } from './publication-worker.ts';
+import { createFoxyPdfRenderer } from './pdf-worker.ts';
+import type { createDurableFoxyPublicationFiles } from '../files/index.ts';
 
 export const FOXY_RUNTIME = Symbol('FOXY_RUNTIME');
 
@@ -47,6 +53,21 @@ function workerFor(options: Options, configuration: Configuration, provider: Pro
     loader: createFoxyDurableLoader({ authority, documents }), budget,
     completion: createFoxyTurnCompletion({ database: options.database, budget, configuration }) });
 }
+function publicationWorkerFor(options: Options) {
+  const authority = createFoxyPublicationAuthority({ database: options.database });
+  type Bridge = ReturnType<typeof createDurableFoxyPublicationFiles>;
+  let bridge: Promise<Bridge> | undefined;
+  const get = () => bridge ??= import('../files/index.ts').then(({ createDurableFoxyPublicationFiles }) =>
+    createDurableFoxyPublicationFiles({ files: options.files, authority }));
+  const files: Bridge = {
+    ensureFile: async (...args: Parameters<Bridge['ensureFile']>) => (await get()).ensureFile(...args),
+    inspect: async (...args: Parameters<Bridge['inspect']>) => (await get()).inspect(...args),
+    receive: async (...args: Parameters<Bridge['receive']>) => (await get()).receive(...args),
+    proof: async (...args: Parameters<Bridge['proof']>) => (await get()).proof(...args),
+  };
+  return createFoxyPublicationWorker({ queue: createFoxyPublicationQueue({ database: options.database }), authority, files,
+    renderer: createFoxyPdfRenderer(), completion: createFoxyPublicationCompletion({ database: options.database }) });
+}
 function maintenance(database: SqlDatabase) {
   const recovery = createFoxyTurnRecovery({ database });
   let initialized = false, stopped = false, timer: ReturnType<typeof setTimeout> | undefined, active: Promise<unknown> | undefined;
@@ -62,7 +83,7 @@ export function createFoxyRuntime(options: Options) {
   const uow = createFoxyUnitOfWork(options), conversations = createFoxyConversationRepository(), turns = createFoxyTurnRepository();
   const enabled = valid(options.configuration, options.provider);
   const worker = enabled ? workerFor(options, options.configuration!, options.provider!) : null;
-  const lifecycle = worker ?? maintenance(options.database);
+  const lifecycle = worker ?? maintenance(options.database), publicationWorker = publicationWorkerFor(options);
   const services = { conversations: createFoxyConversationService({ uow, conversations }),
     turns: createFoxyTurnService({ uow, conversations, turns, configuration: { enabled, model: enabled ? options.configuration!.model : '' } }),
     catalog: new FoxyContextCatalogService(options.classrooms, conversations),
@@ -70,6 +91,6 @@ export function createFoxyRuntime(options: Options) {
     resources: createFoxyResourceService({ uow, resources: createFoxyResourceRepository() }),
     capabilities: (request: unknown) => uow.run(request, false, async () => ({ textGeneration: { enabled },
       imageGeneration: { enabled: false }, diagramGeneration: { enabled: false } })) };
-  return { services, worker, onModuleInit: () => lifecycle.onModuleInit(),
-    onModuleDestroy: async () => { await lifecycle.onModuleDestroy(); } };
+  return { services, worker, publicationWorker, onModuleInit: () => { lifecycle.onModuleInit(); publicationWorker.onModuleInit(); },
+    onModuleDestroy: async () => { await Promise.all([lifecycle.onModuleDestroy(), publicationWorker.onModuleDestroy()]); } };
 }
