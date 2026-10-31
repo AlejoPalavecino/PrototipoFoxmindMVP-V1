@@ -18,3 +18,4 @@ export { createFoxyTextWorker } from './worker.ts';
 export { createFoxyUnitOfWork } from './unit-of-work.ts';
 export type { FoxyActor } from './unit-of-work.ts';
 export { createFoxyConversationService } from './conversation-service.ts';
+export { createFoxyTurnService } from './turn-service.ts';

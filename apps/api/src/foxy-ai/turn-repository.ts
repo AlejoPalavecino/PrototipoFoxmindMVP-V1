@@ -1,11 +1,37 @@
 import { randomUUID } from 'node:crypto';
-import { parseSendFoxyMessage, type FoxyContext, type SendFoxyMessage, type SqlTransaction } from '../../../../src/core/domain/index.ts';
+import { parseFoxyAnswer, parseSendFoxyMessage, type FoxyContext, type SendFoxyMessage, type SqlTransaction } from '../../../../src/core/domain/index.ts';
 import type { FoxyGroundingSnapshot } from '../../../../src/core/domain/foxy-ai-grounding.ts';
 
 type Metadata = { model: string; promptVersion: string; schemaVersion: string };
 type ConversationRow = { id: string; revision: bigint; context_kind: 'GENERAL' | 'CLASSROOM'; classroom_id: string | null };
 type TurnRow = { id: string; sequence: number; state: string; input_hash: string; conversation_revision: bigint; conversation_id: string };
 type Page = { afterSequence: number; limit: number };
+type ReadRow = { id: string; sequence: number; state: string; purpose: string; message_text: string;
+  answer: unknown; error_code: string | null; created_at: Date; source_report: unknown };
+type Citation = { sourceId: string; documentKey: string | null; page: number | null };
+const readColumns = 't.id,t.sequence,t.state,t.purpose,t.message_text,t.answer,t.error_code,t.created_at,t.source_report';
+function citations(value: unknown): Citation[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap(item => {
+    if (!item || typeof item !== 'object' || !Array.isArray(item.citations)) return [];
+    return item.citations.flatMap((citation: unknown) => {
+      if (!citation || typeof citation !== 'object') return [];
+      const c = citation as Record<string, unknown>;
+      if (typeof c.sourceId !== 'string' || !/^(plan|material|activity):[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/iu.test(c.sourceId)
+        || (c.documentKey !== null && (typeof c.documentKey !== 'string' || !/^d[1-9][0-9]*$/u.test(c.documentKey)))
+        || (c.page !== null && (typeof c.page !== 'number' || !Number.isSafeInteger(c.page) || c.page < 1))
+        || (c.documentKey === null && c.page !== null)) return [];
+      return [{ sourceId: c.sourceId, documentKey: c.documentKey as string | null, page: c.page as number | null }];
+    });
+  });
+}
+function readView(row: ReadRow) {
+  return { id: row.id, sequence: row.sequence, state: row.state, purpose: row.purpose, message: row.message_text,
+    answer: row.state === 'READY' ? parseFoxyAnswer(row.answer) : null,
+    errorCode: row.state === 'FAILED' && typeof row.error_code === 'string' && /^[A-Z][A-Z0-9_]{1,79}$/u.test(row.error_code) ? row.error_code : null,
+    createdAt: row.created_at.toISOString(), citations: row.state === 'READY' ? citations(row.source_report) : [] };
+}
+
 function fail(code: 'INVALID_INPUT' | 'NOT_FOUND' | 'CONFLICT'): never { throw Object.assign(new Error(code), { code }); }
 function id(value: unknown): string {
   if (typeof value !== 'string' || !/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/iu.test(value)) return fail('INVALID_INPUT');
@@ -47,6 +73,14 @@ async function find(tx: SqlTransaction, owner: string, requestId: string): Promi
 }
 export function createFoxyTurnRepository() {
   return {
+    async replay(tx: SqlTransaction, owner: string, conversationId: string, requestId: string, hash: string) {
+      id(owner); id(conversationId); id(requestId);
+      if (typeof hash !== 'string' || !/^[a-f0-9]{64}$/u.test(hash)) return fail('INVALID_INPUT');
+      const previous = await find(tx, owner, requestId);
+      if (!previous) return null;
+      if (previous.input_hash !== hash || previous.conversation_id.toLowerCase() !== conversationId.toLowerCase()) return fail('CONFLICT');
+      return { created: false, turn: view(previous), conversationRevision: String(previous.conversation_revision) };
+    },
     async enqueue(tx: SqlTransaction, owner: string, conversationId: string, input: SendFoxyMessage,
       snapshot: FoxyGroundingSnapshot, hash: string, metadata: Metadata) {
       id(owner); id(conversationId); validateMeta(hash, metadata);
@@ -73,21 +107,21 @@ export function createFoxyTurnRepository() {
     },
     async get(tx: SqlTransaction, owner: string, conversationId: string, turnId: string) {
       id(owner); id(conversationId); id(turnId);
-      const [row] = await tx.query<TurnRow>(`SELECT t.* FROM foxy_turns t JOIN foxy_conversations c ON c.id=t.conversation_id AND c.owner_id=t.owner_id
+      const [row] = await tx.query<ReadRow>(`SELECT ${readColumns} FROM foxy_turns t JOIN foxy_conversations c ON c.id=t.conversation_id AND c.owner_id=t.owner_id
         WHERE t.owner_id=$1::uuid AND t.conversation_id=$2::uuid AND t.id=$3::uuid AND c.deleted_at IS NULL
         AND EXISTS (SELECT 1 FROM users u WHERE u.id=c.owner_id AND u.account_role='teacher')
         AND (c.context_kind='GENERAL' OR EXISTS (SELECT 1 FROM classrooms r WHERE r.id=c.classroom_id AND r.teacher_id=c.owner_id))`, owner, conversationId, turnId);
-      return row ? view(row) : null;
+      return row ? readView(row) : null;
     },
     async list(tx: SqlTransaction, owner: string, conversationId: string, page: Page) {
       id(owner); id(conversationId);
       if (!page || !Number.isSafeInteger(page.afterSequence) || page.afterSequence < 0 || !Number.isSafeInteger(page.limit) || page.limit < 1 || page.limit > 100) return fail('INVALID_INPUT');
-      const rows = await tx.query<TurnRow>(`SELECT t.* FROM foxy_turns t JOIN foxy_conversations c ON c.id=t.conversation_id AND c.owner_id=t.owner_id
+      const rows = await tx.query<ReadRow>(`SELECT ${readColumns} FROM foxy_turns t JOIN foxy_conversations c ON c.id=t.conversation_id AND c.owner_id=t.owner_id
         WHERE t.owner_id=$1::uuid AND t.conversation_id=$2::uuid AND t.sequence>$3 AND c.deleted_at IS NULL
         AND EXISTS (SELECT 1 FROM users u WHERE u.id=c.owner_id AND u.account_role='teacher')
         AND (c.context_kind='GENERAL' OR EXISTS (SELECT 1 FROM classrooms r WHERE r.id=c.classroom_id AND r.teacher_id=c.owner_id))
         ORDER BY t.sequence LIMIT $4`, owner, conversationId, page.afterSequence, page.limit);
-      return rows.map(view);
+      return rows.map(readView);
     },
   };
 }
