@@ -14,3 +14,9 @@ P3/P5 rápidos conservan doce casos puros. Los cuatro casos de navegador se ejec
 El placeholder manual se reemplaza por navegador real:894x486, desplazamiento efectivo, visibilidad/hit-test, teclado hasta30Tab y ausencia de recentrado tras actualización diferida. Se reutiliza el preview existente con lifecycle importable, sin arranque al importar, cache propia y propagación de fallos de cierre. Solo el escenario sintético incorpora controles de remoción; no se toca producto ni se usa Reactfiber/remount. Entrada resumen pasa de FAST a owned-browser:305/51/23, FAST180/browser42.
 
 Resumen final1/0/0 y Ego visual observado; FAST783/0/0, fronteras y metadata exit0. P5 completo13/0/0 y servicios propios limpios. Advisory: cache del preview CLI cancelado sin propiedad identificada, sin borrado arbitrario; callback normal sí cierra. Rollback: revertir B devuelve el resumen a condición manual/FAST y retira el lifecycle sintético, sin afectar A ni producto. Commit pendiente del escaneo y guardado; unidad menor de400líneas.
+
+Commit B observado937c6cf:5archivos,138inserciones/79eliminaciones; Gitleaks y diff-check del índice exit0. A y B están integrados por fast-forward y publicados en main, con937c6cf exacto confirmado por ls-remote.
+
+## C — Recibo documental de cierre
+
+Actualiza roadmap/índice/tarea y conserva diseño, RED, intentos rechazados, pruebas, fixture y revisión atribuidos. No cambia código ni reescribe el checkpoint histórico1548/0/5. Nueva aceptación: FAST783/0/0 y P5/resumen14/0/0; cinco casos explícitos y ninguna nueva exclusión. Se documenta que no hubo otra pasada navegador42entera. Rollback: revertir C cambia únicamente registros, manteniendo A/B. Controles proporcionales: enlaces locales, blancos y secretos del índice; no nueva suite funcional. La identidad de este recibo se obtiene tras el commit, sin predecirla.
