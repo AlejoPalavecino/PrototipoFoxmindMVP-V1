@@ -31,3 +31,4 @@ export { createFoxyPublicationRepository } from './publication-repository.ts';
 export { createFoxyPublicationQueue } from './publication-queue.ts';
 export { createFoxyPublicationFileAllocator } from './publication-file-allocator.ts';
 export { createFoxyPublicationAuthority } from './publication-authority.ts';
+export { createFoxyPublicationCompletion } from './publication-completion.ts';

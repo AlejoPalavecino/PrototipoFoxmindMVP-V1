@@ -1172,6 +1172,7 @@ model FoxyPublication {
   unit_id String? @db.Uuid
   topic_id String? @db.Uuid
   title String
+  error_code String?
   state String @default("PREPARING")
   revision BigInt @default(0)
   lease_nonce String? @db.Uuid
