@@ -20,3 +20,4 @@ export type { FoxyActor } from './unit-of-work.ts';
 export { createFoxyConversationService } from './conversation-service.ts';
 export { createFoxyTurnService } from './turn-service.ts';
 export { createFoxyHandler } from './http.ts';
+export { mapFoxyCitations } from './citation-mapping.ts';
