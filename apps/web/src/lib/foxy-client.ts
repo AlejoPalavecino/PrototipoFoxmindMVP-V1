@@ -1,5 +1,7 @@
 import { agendaId, type CreateFoxyConversation, type FoxyContext, type FoxyPurpose,
-  type FoxySourceKind, type FoxySourceCursor, type SendFoxyMessage } from '../../../../src/core/domain/index.ts';
+  type FoxySourceKind, type FoxySourceCursor, type SendFoxyMessage, type EditFoxyResource,
+  type PrepareFoxyPublication, type ConfirmFoxyPublication, type FoxyPublicationSummary,
+  type FoxyPublicationInspection, type FoxyPublicationConfirmation } from '../../../../src/core/domain/index.ts';
 
 export interface FoxyConversation { id: string; title: string; context: FoxyContext; revision: string }
 export interface FoxyConversationCursor { updatedAt: string; id: string }
@@ -15,6 +17,7 @@ export interface FoxySource { sourceId: string; kind: FoxySourceKind; title: str
   currentPlan: boolean | null; createdAt: string; publishedAt: string | null; documentCount: number }
 export interface FoxyCitation { id: string; sourceKind: FoxySourceKind | null; sourceTitle: string | null; documentTitle: string | null;
   page: number | null; availability: 'AVAILABLE' | 'TEXT_ONLY' | 'UNAVAILABLE'; href: string | null }
+export interface FoxyResource { id: string; conversationId: string; sourceTurnId: string; title: string; markdown: string; revision: string }
 type Page<T, C> = { items: T[]; next: C | null };
 type TurnPage = { items: FoxyTurn[]; nextAfterSequence: number | null };
 type TurnReceipt = { id: string; sequence: number; state: FoxyTurn['state'] };
@@ -53,13 +56,14 @@ export function createWebFoxyClient(fetcher: typeof fetch = fetch, onIdentityReq
     }
     try {
       combined.throwIfAborted();
+      const body = method === 'GET' ? undefined : JSON.stringify(data);
       const headers: Record<string, string> = {};
       if (method !== 'GET') {
         const csrf = await json<{ csrfToken: string }>('/api/v1/auth/csrf', { method: 'GET' });
         if (!csrf || typeof csrf.csrfToken !== 'string' || !csrf.csrfToken) throw new FoxyClientError('SERVICE_UNAVAILABLE', 503);
         headers['X-CSRF-Token'] = csrf.csrfToken; headers['Content-Type'] = 'application/json';
       }
-      return await json<T>(`${root}${path}`, { method, headers, ...(method === 'GET' ? {} : { body: JSON.stringify(data) }) });
+      return await json<T>(`${root}${path}`, { method, headers, ...(method === 'GET' ? {} : { body }) });
     } catch (error) {
       if (signal?.aborted) throw error;
       if (error instanceof FoxyClientError) {
@@ -72,7 +76,25 @@ export function createWebFoxyClient(fetcher: typeof fetch = fetch, onIdentityReq
   const conversationPath = (conversationId: string) => `/conversations/${agendaId(conversationId)}`;
   const turnsPath = (conversationId: string) => `${conversationPath(conversationId)}/turns`;
   const turnPath = (conversationId: string, turnId: string) => `${turnsPath(conversationId)}/${agendaId(turnId)}`;
+  const resourcePath = (id: string) => `/resources/${agendaId(id)}`;
+  const publicationPath = (id: string) => `/publications/${agendaId(id)}`;
   return {
+    resourceFromTurn: (id: string, turnId: string, signal?: AbortSignal) =>
+      call<{ created: boolean; resource: FoxyResource }>(`${turnPath(id, turnId)}/resource`, 'POST', {}, signal),
+    getResource: (id: string, signal?: AbortSignal) => call<FoxyResource>(resourcePath(id), 'GET', undefined, signal),
+    editResource: (id: string, input: EditFoxyResource, signal?: AbortSignal) =>
+      call<{ edited: boolean; resource: FoxyResource }>(resourcePath(id), 'PATCH', input, signal),
+    preparePublication: (id: string, input: PrepareFoxyPublication, signal?: AbortSignal) =>
+      call<{ created: boolean; publication: FoxyPublicationSummary }>(`${resourcePath(id)}/publications`, 'POST', input, signal),
+    listPublications: (id: string, page: { limit: number; afterId: string | null }, signal?: AbortSignal) =>
+      call<{ items: FoxyPublicationSummary[]; nextAfterId: string | null }>(`${resourcePath(id)}/publications${params(page)}`, 'GET', undefined, signal),
+    inspectPublication: (id: string, signal?: AbortSignal) => call<FoxyPublicationInspection>(publicationPath(id), 'GET', undefined, signal),
+    confirmPublication: (id: string, input: ConfirmFoxyPublication, signal?: AbortSignal) =>
+      call<FoxyPublicationConfirmation>(`${publicationPath(id)}/confirm`, 'POST', input, signal),
+    publicationFileUrl: (id: string, mode: 'preview' | 'download' = 'download') => {
+      if (!['preview', 'download'].includes(mode)) throw new FoxyClientError('INVALID_INPUT', 400);
+      return `${root}${publicationPath(id)}/file?mode=${mode}`;
+    },
     capabilities: (signal?: AbortSignal) => call<FoxyCapabilities>('/capabilities', 'GET', undefined, signal),
     listConversations: (page: { limit: number; after: FoxyConversationCursor | null }, signal?: AbortSignal) =>
       call<Page<FoxyConversation, FoxyConversationCursor>>(`/conversations${params(page)}`, 'GET', undefined, signal),

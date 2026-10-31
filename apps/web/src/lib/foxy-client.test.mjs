@@ -47,3 +47,39 @@ test('identity expiry notifies once, errors preserve status and aborted request 
   const aborted=create(async(_path,init)=>{init.signal.throwIfAborted();throw Error('unexpected');});
   await assert.rejects(aborted.capabilities(controller.signal));
 });
+
+test('resource and publication methods preserve bodies, int64 revisions, signal and fresh CSRF',async()=>{
+ const rid=randomUUID(),pid=randomUUID(),room=randomUUID(),calls=[];let csrf=0;const controller=new AbortController(),signal=controller.signal;
+ const edit={requestId:randomUUID(),revision:'9223372036854775806',title:'Guía',markdown:'Texto'},prepare={requestId:randomUUID(),resourceRevision:'1000000000000000000',classroomId:room,title:'Guía',unitId:null,topicId:null};
+ const confirm={requestId:randomUUID(),publicationRevision:'1000000000000000000',classroomRevision:'9223372036854775806',confirm:true};
+ const client=create(async(path,init)=>{calls.push({path,...init});if(String(path).includes('/auth/csrf'))return Response.json({csrfToken:`csrf-${++csrf}`});return Response.json({items:[],nextAfterId:null});});
+ await client.resourceFromTurn(cid,tid,signal);await client.getResource(rid,signal);await client.editResource(rid,edit,signal);
+ await client.preparePublication(rid,prepare,signal);await client.listPublications(rid,{limit:50,afterId:pid},signal);await client.inspectPublication(pid,signal);await client.confirmPublication(pid,confirm,signal);
+ const business=calls.filter(c=>!String(c.path).includes('/auth/csrf'));assert.deepEqual(business.map(c=>[new URL(c.path,'http://web.test').pathname,c.method]),[
+  [`${root}/conversations/${cid}/turns/${tid}/resource`,'POST'],[`${root}/resources/${rid}`,'GET'],[`${root}/resources/${rid}`,'PATCH'],
+  [`${root}/resources/${rid}/publications`,'POST'],[`${root}/resources/${rid}/publications`,'GET'],[`${root}/publications/${pid}`,'GET'],[`${root}/publications/${pid}/confirm`,'POST']]);
+ assert.deepEqual(business.filter(c=>['PATCH','POST'].includes(c.method)).map(c=>new Headers(c.headers).get('x-csrf-token')),['csrf-1','csrf-2','csrf-3','csrf-4']);
+ assert.deepEqual(JSON.parse(business[2].body),edit);assert.deepEqual(JSON.parse(business[3].body),prepare);assert.deepEqual(JSON.parse(business[6].body),confirm);
+ const q=new URL(business[4].path,'http://web.test').searchParams;assert.equal(q.get('limit'),'50');assert.equal(q.get('afterId'),pid);
+ for(const call of business){assert.equal(call.credentials,'same-origin');assert.equal(call.cache,'no-store');assert.ok(call.signal instanceof AbortSignal);}
+ controller.abort();assert.ok(business.every(call=>call.signal.aborted));
+});
+
+test('publication file URL stays same-origin and errors, abort and identity expiry never retry',async()=>{
+ const rid=randomUUID(),pid=randomUUID(),calls=[],notified=[];const client=create(async(path,init)=>{calls.push({path,init});
+  if(String(path).includes('/auth/csrf'))return Response.json({csrfToken:'csrf'});return Response.json({error:{code:'AUTH_REQUIRED'}},{status:401});},code=>notified.push(code));
+ for(const mode of ['preview','download'])assert.equal(client.publicationFileUrl(pid,mode),`${root}/publications/${pid}/file?mode=${mode}`);
+ await assert.rejects(client.inspectPublication(pid),e=>e.code==='AUTH_REQUIRED'&&e.status===401);assert.deepEqual(notified,['AUTH_REQUIRED']);assert.equal(calls.length,1);
+ const controller=new AbortController();controller.abort();let business=0;const aborted=create(async(path,init)=>{init.signal.throwIfAborted();business++;return Response.json({});});
+ await assert.rejects(aborted.getResource(rid,controller.signal));assert.equal(business,0);
+});
+
+for(const kind of ['edit','prepare','confirm'])test(`resource writes snapshot ${kind} before waiting for CSRF`,async()=>{
+ const rid=randomUUID(),pid=randomUUID(),room=randomUUID();
+  let release,entered;const gate=new Promise(r=>release=r),started=new Promise(r=>entered=r),calls=[];
+  const client=create(async(path,init)=>{if(String(path).includes('/auth/csrf')){entered();await gate;return Response.json({csrfToken:'bound'});}calls.push({path,body:JSON.parse(init.body)});return Response.json({ok:true});});
+  const value=kind==='edit'?{requestId:randomUUID(),revision:'1',title:'Original',markdown:'Texto original'}:kind==='prepare'?{requestId:randomUUID(),resourceRevision:'1',classroomId:room,title:'Original',unitId:null,topicId:null}:{requestId:randomUUID(),publicationRevision:'1',classroomRevision:'2',confirm:true};
+  const expected=structuredClone(value),run=kind==='edit'?client.editResource(rid,value):kind==='prepare'?client.preparePublication(rid,value):client.confirmPublication(pid,value);
+  await started;Object.assign(value,{requestId:randomUUID(),revision:'99',resourceRevision:'99',publicationRevision:'99',classroomRevision:'99',title:'Alterado',markdown:'Alterado'});release();await run;
+  assert.deepEqual(calls[0].body,expected,kind);
+});
