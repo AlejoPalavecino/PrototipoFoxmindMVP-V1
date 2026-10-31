@@ -39,9 +39,9 @@ await withP4IntegrationRuntime(async runtime => {
     if (!response.ok) throw new Error(`Fixture ${method} ${path}: ${response.status}`);
     return response.status === 204 ? undefined : response.json();
   }
-  async function register(firstName, email) {
+  async function register(firstName, email, accountRole) {
     const person = actor();
-    await call(person, 'POST', '/auth/register', { firstName, lastName: 'Demo', email, password });
+    await call(person, 'POST', '/auth/register', { firstName, lastName: 'Demo', email, password, accountRole });
     await call(person, 'POST', '/auth/login', { email, password });
     let token;
     for (let attempt = 0; attempt < 60 && !token; attempt++) {
@@ -58,10 +58,11 @@ await withP4IntegrationRuntime(async runtime => {
     return person;
   }
   const teacherEmail = 'docente-carpetas@example.test', studentEmail = 'estudiante-carpetas@example.test';
-  const teacher = await register('Lucía', teacherEmail);
-  const student = await register('Marina', studentEmail);
+  const teacher = await register('Lucía', teacherEmail, 'teacher');
+  const student = await register('Marina', studentEmail, 'student');
   const room = await classroom(teacher, student, 'Introducción a la fotografía');
-  const otherRoom = await classroom(student, teacher, 'Taller de dibujo');
+  const otherTeacher = await register('Mateo', 'otro-docente-carpetas@example.test', 'teacher');
+  const otherRoom = await classroom(otherTeacher, student, 'Taller de dibujo');
   const detail = await call(teacher, 'GET', `/classrooms/${room.id}`);
   const change = async operation => call(teacher, 'POST', `/classrooms/${room.id}/activities`, {
     revision: (await call(teacher, 'GET', `/classrooms/${room.id}`)).revision, operation,

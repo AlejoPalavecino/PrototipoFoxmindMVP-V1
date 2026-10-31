@@ -13,13 +13,13 @@ import { HomeFoxyNote } from './HomeFoxyNote.tsx';
 import { homeParticipation } from './home-labels.ts';
 import { homeGreetingDate,shouldShowHomeModule } from './home-presentation.ts';
 export interface HomeProps {
-  displayName:string;subjectId?:string;homeClient?:HomeClient;busy?:boolean;
+  accountRole:'teacher'|'student';displayName:string;subjectId?:string;homeClient?:HomeClient;busy?:boolean;
   onCreate:()=>void;onJoin:()=>void;onClassrooms:()=>void;onAction:(target:HomeTarget)=>void;onAgenda?:()=>void;
   api?:ClassroomClient;data?:{teach:Classroom[];study:Classroom[];drafts:Draft[];invitations:Invitation[]}|null;
   onEnter?:(id:string)=>void;onOpenTarget?:(target:NotificationTarget)=>void;
 }
 export function Home(props:HomeProps) {
-  const {displayName,subjectId,homeClient,busy,onAction,onCreate,onJoin,onClassrooms}=props;
+  const {accountRole,displayName,subjectId,homeClient,busy,onAction,onCreate,onJoin,onClassrooms}=props;
   const home=useHome(homeClient,subjectId),[panel,setPanel]=useState<HomeModuleName|null>(null);
   const data=home.data,onAgenda=props.onAgenda??(()=>{window.location.assign('/agenda');});
   const module=(name:HomeModuleName)=>data && !(['queries','feedback'].includes(name) && data.modules[name].status==='ready' && !data.modules[name].items.length) && shouldShowHomeModule(data.participation,name,data.modules[name])?<HomeModule key={name} name={name} page={data.modules[name]} timeZone={data.timeZone}
@@ -31,9 +31,9 @@ export function Home(props:HomeProps) {
   const materials=module('materials');
   return <section className={`fm-home fm-home--reference fm-home--${data.participation}`} aria-label="Inicio">
     <div className="fm-home-columns"><div className="fm-home-work">
-    <HomeGreeting data={data} displayName={displayName} onClassrooms={onClassrooms}/>
-    <HomeShortcuts data={data} onAction={onAction} onCreate={onCreate} onJoin={onJoin} onClassrooms={onClassrooms} onAgenda={onAgenda} busy={busy}/>
-    {data.participation==='none'?<HomeWelcome data={data} onCreate={onCreate} onJoin={onJoin} busy={busy}/>:null}
+    <HomeGreeting data={data} accountRole={accountRole} displayName={displayName} onClassrooms={onClassrooms}/>
+    <HomeShortcuts accountRole={accountRole} data={data} onAction={onAction} onCreate={onCreate} onJoin={onJoin} onClassrooms={onClassrooms} onAgenda={onAgenda} busy={busy}/>
+    {data.participation==='none'?<HomeWelcome accountRole={accountRole} data={data} onCreate={onCreate} onJoin={onJoin} busy={busy}/>:null}
     {module('classrooms')}
     <div className="fm-home-learning-groups">
       {learning.some(Boolean)?<section className="fm-home-learning-group" aria-label="Mi aprendizaje"><header><FoxmindIcon name="book"/><h2>Mi aprendizaje</h2></header>{learning}</section>:null}
@@ -45,11 +45,11 @@ export function Home(props:HomeProps) {
   </section>;
 }
 
-function HomeGreeting({data,displayName,onClassrooms}:{data:HomeResponse;displayName:string;onClassrooms:()=>void}) {
+function HomeGreeting({data,accountRole,displayName,onClassrooms}:{data:HomeResponse;accountRole:HomeProps['accountRole'];displayName:string;onClassrooms:()=>void}) {
   return <header className="fm-home-greeting"><div><span className="fm-home-welcome-eyebrow"><FoxmindIcon name="spark"/>¡Qué bueno verte por aquí!</span><h1>¡Hola, <span>{displayName}</span>!</h1>
     <p>{data.participation==='teach'?'Tus clases':'Tus actividades'} y próximos pasos, en un solo lugar.</p>
     <button className="primary fm-sky-hero-action" onClick={onClassrooms}>Ir a mis aulas<FoxmindIcon name="arrow-right"/></button>
-    <span className="sr-only">{homeParticipation(data)}</span></div>
+    <span className="sr-only">{homeParticipation(data,accountRole)}</span></div>
     <picture className="fm-home-reference-scene" aria-hidden="true"><img
       src="/foxmind-3d/hero/inicio-reference-1600.webp"
       srcSet="/foxmind-3d/hero/inicio-reference-480.webp 480w, /foxmind-3d/hero/inicio-reference-960.webp 960w, /foxmind-3d/hero/inicio-reference-1600.webp 1600w"
@@ -58,10 +58,10 @@ function HomeGreeting({data,displayName,onClassrooms}:{data:HomeResponse;display
   </header>;
 }
 
-function HomeWelcome({data,onCreate,onJoin,busy}:{data:HomeResponse;onCreate:()=>void;onJoin:()=>void;busy?:boolean}) {
+function HomeWelcome({accountRole,data,onCreate,onJoin,busy}:{accountRole:'teacher'|'student';data:HomeResponse;onCreate:()=>void;onJoin:()=>void;busy?:boolean}) {
   return <section className="fm-home-welcome"><FoxmindIllustration name="states/empty" sizes="180px"/>
     <div><h2>{data.memberships.archived?'Tu historial sigue aquí':'Tu próximo paso empieza aquí'}</h2>
-      <p>{data.memberships.archived?'Consulta tus aulas archivadas o comienza una nueva experiencia.':'Puedes aprender y enseñar con la misma cuenta. Crea tu aula o únete con el código de tu docente.'}</p>
-      <div className="fm-home-entry-actions"><button onClick={onCreate} disabled={busy}>Crear mi primera aula<FoxmindIcon name="plus"/></button><button onClick={onJoin} disabled={busy}>Unirme con código<FoxmindIcon name="arrow-right"/></button></div>
+      <p>{data.memberships.archived?'Consulta tus aulas archivadas o comienza una nueva experiencia.':accountRole==='teacher'?'Crea tu primera aula para empezar a enseñar.':'Unite a un aula con el código de tu docente.'}</p>
+      <div className="fm-home-entry-actions">{accountRole==='teacher'?<button onClick={onCreate} disabled={busy}>Crear mi primera aula<FoxmindIcon name="plus"/></button>:<button onClick={onJoin} disabled={busy}>Unirme con código<FoxmindIcon name="arrow-right"/></button>}</div>
     </div></section>;
 }

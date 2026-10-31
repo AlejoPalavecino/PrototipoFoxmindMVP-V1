@@ -11,7 +11,7 @@ try {
   await assert.rejects(prisma.$transaction(async tx => {
     const user = await tx.user.create({ data: {
       email: `${randomUUID()}@example.test`, email_normalized: `${randomUUID()}@example.test`,
-      first_name: "Prisma", last_name: "Smoke", password_hash: "fixture-not-a-real-hash",
+      first_name: "Prisma", last_name: "Smoke", password_hash: "fixture-not-a-real-hash", account_role: "teacher",
     } });
     const classroom = await tx.classroom.create({ data: {
       teacher_id: user.id, name: "Smoke", subject: "Light", division: "A", academic_year: 2026,

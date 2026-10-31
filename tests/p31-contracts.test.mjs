@@ -63,7 +63,7 @@ test("confirmed user policies and fixed verification/recovery boundaries are ret
   assert.equal(p.passwordChange, "revoke-others-rotate-current-preserve-absolute");
   assert.equal(p.passwordRecovery, "revoke-all-no-auto-login");
   assert.equal(p.duplicateRegistration, "generic-202");
-  assert.equal(p.globalClassroomRole, false);
+  assert.equal(p.globalClassroomRole, true);
   assert.equal(p.emailReadOnly, true);
 });
 test("mutation transport requires Origin and documents conditional or required CSRF", () => {
@@ -86,12 +86,16 @@ test("operation error codes are explicit and stay within declared response codes
   assert.deepEqual(contract.paths["/auth/login"].post["x-error-codes"]["401"], ["AUTHENTICATION_FAILED"]);
   assert.deepEqual(contract.paths["/account"].get["x-error-codes"]["403"], ["EMAIL_VERIFICATION_REQUIRED"]);
 });
-test("minimal request fixtures fit schemas and reject role/email/profile scope expansion", () => {
+test("registration requires an exclusive role and profile rejects identity scope expansion", () => {
   const fixtures = contract["x-example-inputs"];
   for (const [key, name] of Object.entries({register:"RegisterInput",login:"LoginInput",verify:"VerifyInput",reset:"RecoveryConfirmInput",change:"PasswordChangeInput",profile:"ProfilePatch"})) assert.ok(accepts(fixtures[key], schema(name)), name);
+  for (const accountRole of ["teacher", "student"]) assert.ok(accepts({...fixtures.register, accountRole}, schema("RegisterInput")));
+  for (const accountRole of [null, "", "admin", "Teacher"]) assert.ok(!accepts({...fixtures.register, accountRole}, schema("RegisterInput")));
+  const { accountRole, ...withoutRole } = fixtures.register;
+  assert.ok(!accepts(withoutRole, schema("RegisterInput")));
   assert.ok(!accepts({...fixtures.register,role:"teacher"}, schema("RegisterInput")));
   assert.ok(!accepts({}, schema("ProfilePatch")));
-  for (const key of ["email", "role", "avatar", "password"]) assert.ok(!accepts({firstName:"Example",[key]:"unexpected"}, schema("ProfilePatch")));
+  for (const key of ["email", "role", "accountRole", "avatar", "password"]) assert.ok(!accepts({firstName:"Example",[key]:"unexpected"}, schema("ProfilePatch")));
   assert.equal(schema("UserIdentity").properties.email.readOnly, true);
 });
 test("email contract declares international mailboxes and rejects uppercase Unicode domains", () => {

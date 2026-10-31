@@ -22,7 +22,8 @@ for(const width of [1784,1440,768,390,320]){
   results.push(state);await page.screenshot({path:`${dir}/final-mixed-${width}.png`});
 }
 await page.cdp('Emulation.setDeviceMetricsOverride',{width:1440,height:900,deviceScaleFactor:1,mobile:false});
-for(const [label,action] of [['Mis aulas','classrooms'],['Crear aula','create'],['Mi Agenda','agenda'],['Unirme con código','join']]){
+for(const [role,label,action] of [['teacher','Mis aulas','classrooms'],['teacher','Crear aula','create'],['teacher','Mi Agenda','agenda'],['student','Unirme con código','join']]){
+  await page.goto(`http://127.0.0.1:53191/inicio?mode=${role==='student'?'study':'teach'}&fixture=true`);await settled();
   await page.focus(`.fm-home-shortcuts button:has-text("${label}")`);await page.keyboard.press('Enter');
   await page.waitForFunction(value=>document.querySelector('[data-qa-action]').textContent===value,action);
   const focus=await page.evaluate(()=>({text:document.activeElement.textContent,outline:getComputedStyle(document.activeElement).outlineStyle,
@@ -42,9 +43,12 @@ for(const mode of ['teach','study','none','archived','unknown','long','error']){
   if(mode==='unknown')assert.doesNotMatch(state.summary,/Actividades por entregar|Devoluciones disponibles|Entregas por revisar/);
   results.push({mode,...state});await page.screenshot({path:`${dir}/final-${mode}.png`});
 }
-for(const name of ['pending','feedback','review','materials']){
+for(const [role,names] of [['teacher',['review','materials']],['student',['pending','feedback','materials']]]){
+  await page.goto(`http://127.0.0.1:53191/inicio?mode=error&role=${role}&fixture=true`);await settled();
+  for(const name of names){
   const selector=`.fm-home-module--${name} .fm-home-module-error button`;
   await page.click(selector);await page.waitForSelector(selector,{state:'detached'});
+  }
 }
 results.push({recovered:await page.evaluate(()=>({retries:document.querySelectorAll('.fm-home-module-error button').length,requests:document.querySelector('[data-qa-reads]').textContent}))});
 await page.cdp('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
@@ -53,6 +57,6 @@ results.push({reducedMotion:await page.evaluate(()=>({matches:matchMedia('(prefe
   running:document.getAnimations().filter(animation=>animation.playState==='running').length}))});
 await page.cdp('Emulation.setEmulatedMedia',{features:[]});
 await fs.writeFile(`${dir}/final-observations.json`,JSON.stringify(results,null,2));console.log(results);
-await page.goto('http://127.0.0.1:53191/inicio?mode=many&fixture=true');await settled();
+await page.goto('http://127.0.0.1:53191/inicio?mode=many&role=student&fixture=true');await settled();
 await page.click('[data-home-expand="classrooms"]');
 console.log(await page.snapshot());

@@ -20,8 +20,8 @@ export async function withGradingFixture(callback) {
   try { return await withP5Database(async ({ pool, database, env }) => {
     const teacher = randomUUID(), student = randomUUID(), foreign = randomUUID(), peer = randomUUID();
     const room = randomUUID(), unit = randomUUID(), topic = randomUUID();
-    for (const id of [teacher, student, foreign, peer]) await pool.query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-      VALUES($1,now(),$2,$2,'Grading','Fixture','fixture',now())`, [id, `${id}@example.test`]);
+    for (const [id, role] of [[teacher, 'teacher'], [student, 'student'], [foreign, 'teacher'], [peer, 'student']]) await pool.query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+      VALUES($1,now(),$2,$2,'Grading','Fixture','fixture',now(),$3)`, [id, `${id}@example.test`, role]);
     await pool.query(`INSERT INTO classrooms(id,updated_at,teacher_id,name,subject,division,academic_year,timezone,cover_key,storage_quota_bytes)
       VALUES($1,now(),$2,'Grading','Science','A',2026,'UTC','explore',100000000)`, [room, teacher]);
     await pool.query(`INSERT INTO units(id,updated_at,classroom_id,name,position) VALUES($1,now(),$2,'Unit',0)`, [unit, room]);

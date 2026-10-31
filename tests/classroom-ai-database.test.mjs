@@ -61,8 +61,8 @@ export async function aiFixture(pool, { verified = true, ownerId = randomUUID(),
   units = [{ name: 'Manual', topics: [{ name: 'Docente' }] }] } = {}) {
   const strangerId = randomUUID(), draftId = randomUUID(), fileId = randomUUID();
   for (const id of [ownerId, strangerId]) await pool.query(`INSERT INTO users
-    (id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-    VALUES($1,now(),$2,$2,'Synthetic','Teacher','fixture-only',CASE WHEN $3 THEN now() ELSE NULL END)
+    (id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+    VALUES($1,now(),$2,$2,'Synthetic','Teacher','fixture-only',CASE WHEN $3 THEN now() ELSE NULL END,'teacher')
     ON CONFLICT(id) DO NOTHING`, [id, `${id}@example.test`, verified]);
   const payload = { name: 'Fotografía', subject: 'Arte', division: 'A', academicYear: 2026,
     timezone: 'UTC', coverKey: 'explore', planFileId: fileId, units };

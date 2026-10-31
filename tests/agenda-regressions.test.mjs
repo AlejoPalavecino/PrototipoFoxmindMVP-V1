@@ -9,8 +9,8 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 
 async function user(query) {
   const id = randomUUID();
-  await query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-    VALUES($1,now(),$2,$2,'Agenda','Regression','not-login',now())`, id, `${id}@example.invalid`);
+  await query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+    VALUES($1,now(),$2,$2,'Agenda','Regression','not-login',now(),'teacher')`, id, `${id}@example.invalid`);
   return id;
 }
 

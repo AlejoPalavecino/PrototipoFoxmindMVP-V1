@@ -19,7 +19,7 @@ function expandGroups(node) {
   return { ...node, props: { ...node.props, children: expandGroups(node.props?.children) } };
 }
 
-async function withHome(aggregate, body) {
+async function withHome(aggregate, body, accountRole = 'teacher') {
   const previous = { window: globalThis.window, document: globalThis.document, frame: globalThis.requestAnimationFrame };
   globalThis.window = new EventTarget();
   const focus = [], requests = [], calls = [];
@@ -34,7 +34,7 @@ async function withHome(aggregate, body) {
     },
   };
   const { Home } = loadTsModule('apps/classrooms-ui/Home.tsx');
-  const view = hookView(Home, { displayName: 'Alex', subjectId: 'subject', homeClient: client,
+  const view = hookView(Home, { accountRole, displayName: 'Alex', subjectId: 'subject', homeClient: client,
     onCreate() {}, onJoin() {}, onClassrooms() {}, onAgenda() {}, onAction: target => calls.push(target) });
   try { await view.flush(); await body({ view, focus, requests, calls, client }); }
   finally {
@@ -45,23 +45,42 @@ async function withHome(aggregate, body) {
   }
 }
 
-test('Four quick links stay outside disclosures, dispatch existing callbacks once and honor busy state', async () => {
+test('Empty participation greeting suggests only the action available to the account role', async t => {
+  for (const [role, expected, forbidden] of [
+    ['teacher', /crea/i, /ún(e|i)te|unirte/i],
+    ['student', /ún(e|i)te|unirte/i, /crea/i],
+  ]) await t.test(role, async () => {
+    await withHome(data({}, { participation: 'none', memberships: { study: 0, teach: 0, archived: 0 } }), async ({ view }) => {
+      const greeting = descendants(view.tree, node => node.type?.name === 'HomeGreeting')[0];
+      assert.ok(greeting, 'Home greeting is rendered');
+      const accessibleMessage = descendants(greeting.type(greeting.props), node => node.props?.className === 'sr-only')[0];
+      assert.ok(accessibleMessage, 'Participation message is available to assistive technology');
+      assert.match(text(accessibleMessage), expected);
+      assert.doesNotMatch(text(accessibleMessage), forbidden);
+    }, role);
+  });
+});
+
+test('Role-specific quick links stay outside disclosures, dispatch once and honor busy state', async () => {
   const { HomeShortcuts } = loadTsModule('apps/classrooms-ui/HomeShortcuts.tsx');
-  for (const busy of [false, true]) {
+  for (const accountRole of ['teacher', 'student']) for (const busy of [false, true]) {
     const calls = [];
-    const view = hookView(HomeShortcuts, { data: data(), busy, onAction() {}, onCreate: () => calls.push('create'),
+    const view = hookView(HomeShortcuts, { accountRole, data: data(), busy, onAction() {}, onCreate: () => calls.push('create'),
       onJoin: () => calls.push('join'), onClassrooms: () => calls.push('classrooms'), onAgenda: () => calls.push('agenda') });
     try {
       await view.flush();
       const disclosures = descendants(view.tree, node => node.type === 'details');
-      for (const [label, action] of [['Mis aulas', 'classrooms'], ['Crear aula', 'create'], ['Mi Agenda', 'agenda'], ['Unirme con código', 'join']]) {
+      const roleLink = accountRole === 'teacher' ? ['Crear aula', 'create'] : ['Unirme con código', 'join'];
+      const forbidden = accountRole === 'teacher' ? 'Unirme con código' : 'Crear aula';
+      assert.equal(descendants(view.tree, node => node.type === 'button' && text(node).trim().startsWith(forbidden)).length, 0);
+      for (const [label, action] of [['Mis aulas', 'classrooms'], roleLink, ['Mi Agenda', 'agenda']]) {
         const buttons = descendants(view.tree, node => node.type === 'button' && text(node).trim().startsWith(label));
         const button = buttons.find(node => !disclosures.some(disclosure => descendants(disclosure, child => child === node).length));
-        assert.ok(button, `${label}: visible quick link`);
+        assert.ok(button, `${accountRole}: ${label} visible quick link`);
         assert.equal(Boolean(button.props.disabled), busy && ['create', 'join'].includes(action));
         if (!button.props.disabled) { button.props.onClick(); assert.equal(calls.at(-1), action); }
       }
-      assert.equal(calls.length, busy ? 2 : 4);
+      assert.equal(calls.length, busy ? 2 : 3);
     } finally { view.close(); }
   }
 });

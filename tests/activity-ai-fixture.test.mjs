@@ -7,8 +7,8 @@ export const configuration = { model: 'gemini-test-fixture', maxInputTokens: 100
 export async function fixture(local, overrides = {}) {
   const teacher = randomUUID(), stranger = randomUUID(), student = randomUUID(), room = randomUUID(), fileId = randomUUID();
   for (const id of [teacher, stranger, student]) await local.pool.query(`INSERT INTO users
-    (id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-    VALUES($1,now(),$2,$2,'Synthetic','Activity AI','fixture',now())`, [id, `${id}@example.test`]);
+    (id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+    VALUES($1,now(),$2,$2,'Synthetic','Activity AI','fixture',now(),$3)`, [id, `${id}@example.test`, id === student ? 'student' : 'teacher']);
   await local.pool.query(`INSERT INTO classrooms(id,updated_at,teacher_id,name,subject,division,academic_year,timezone,cover_key,storage_quota_bytes)
     VALUES($1,now(),$2,'Activity AI','Subject','A',2026,'UTC','explore',100000000)`, [room, teacher]);
   const enrollment = randomUUID();

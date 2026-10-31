@@ -25,8 +25,8 @@ async function fixture(purpose = 'EMAIL_VERIFICATION', expiresIn = 60000) {
   const userId = randomUUID(), tokenId = randomUUID(), jobId = randomUUID();
   const recipient = `Fixture+${randomUUID()}@foxmind.test`;
   const expiresAt = new Date(Date.now() + expiresIn);
-  await sql.query(`INSERT INTO users(id, updated_at, email, email_normalized, first_name, last_name, password_hash)
-    VALUES($1, now(), $2, lower($2), 'Fixture', 'Only', 'not-a-real-credential')`, [userId, recipient]);
+  await sql.query(`INSERT INTO users(id, updated_at, email, email_normalized, first_name, last_name, password_hash, account_role)
+    VALUES($1, now(), $2, lower($2), 'Fixture', 'Only', 'not-a-real-credential', 'student')`, [userId, recipient]);
   await sql.query(`INSERT INTO account_tokens(id, updated_at, user_id, purpose, token_hash, expires_at)
     VALUES($1, now(), $2, $3, $4, $5)`, [tokenId, userId, purpose, digest(rawToken, purpose), expiresAt]);
   return { jobId, tokenId, userId, purpose, expiresAt: expiresAt.toISOString(), rawToken, recipient };

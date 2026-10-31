@@ -40,6 +40,6 @@ createRoot(document.getElementById('root')!).render(
         </button>
       ))}
     </aside>
-    <ClassroomsApp api={api} displayName={context.name} />
+    <ClassroomsApp api={api} displayName={context.name} accountRole={context.accountRole} />
   </>,
 );

@@ -6,6 +6,7 @@ export interface Actor {
   id: string;
   email: string;
   email_normalized: string;
+  account_role: 'teacher' | 'student';
   first_name: string;
   last_name: string;
   now: Date;

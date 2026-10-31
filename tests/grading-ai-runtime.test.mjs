@@ -12,8 +12,8 @@ async function fixture(pool, database) {
   const teacher = randomUUID(), student = randomUUID(), room = randomUUID(), activity = randomUUID(), enrollment = randomUUID(),
     obligation = randomUUID(), attempt = randomUUID(), question = randomUUID();
   for (const id of [teacher, student]) await pool.query(`INSERT INTO users
-    (id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-    VALUES($1,now(),$2,$2,'Nombre','Sintético','fixture',now())`, [id, `${id}@example.test`]);
+    (id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+    VALUES($1,now(),$2,$2,'Nombre','Sintético','fixture',now(),$3)`, [id, `${id}@example.test`, id === student ? 'student' : 'teacher']);
   await pool.query(`INSERT INTO classrooms(id,updated_at,teacher_id,name,subject,division,academic_year,timezone,cover_key,storage_quota_bytes,ai_grading_enabled)
     VALUES($1,now(),$2,'Aula','Materia','A',2026,'UTC','explore',1000000,true)`, [room, teacher]);
   await pool.query(`INSERT INTO activities(id,updated_at,classroom_id,type,status,ai_grading_rubric,instructions_text)

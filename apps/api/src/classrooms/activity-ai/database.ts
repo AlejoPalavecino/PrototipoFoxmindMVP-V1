@@ -15,7 +15,7 @@ export function authorized<T>(options: ActivityAiOptions, request: unknown, clas
     const id = await options.classrooms.ports.authenticate(tx, request, write);
     if (!uuid(id)) return fail('FORBIDDEN');
     const [user] = await tx.query<Actor & { email_verified_at: Date | null }>(
-      `SELECT id,email,email_normalized,first_name,last_name,email_verified_at FROM users WHERE id=$1::uuid FOR ${write ? 'UPDATE' : 'SHARE'}`, id);
+      `SELECT id,email,email_normalized,first_name,last_name,account_role,email_verified_at FROM users WHERE id=$1::uuid FOR ${write ? 'UPDATE' : 'SHARE'}`, id);
     if (!user?.email_verified_at || await options.classrooms.ports.authenticate(tx, request, write) !== id) return fail('FORBIDDEN');
     const [time] = await tx.query<{ now: Date }>('SELECT clock_timestamp() AS now');
     const actor = { ...user, now: time!.now };

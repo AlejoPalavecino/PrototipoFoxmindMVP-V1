@@ -10,7 +10,7 @@ for (const presentation of ['home', 'classrooms']) test(`JD01 ${presentation}: a
   const { ClassroomsApp } = loadTsModule('apps/classrooms-ui/Classrooms.tsx');
   const previous = globalThis.window, assigned = [], routed = [];
   globalThis.window = { location: { assign: href => assigned.push(href) } };
-  const view = hookView(ClassroomsApp, { initialPresentation: presentation, displayName: 'Synthetic',
+  const view = hookView(ClassroomsApp, { initialPresentation: presentation, displayName: 'Synthetic', accountRole: 'teacher',
     api: { call: async path => path === '' ? { teach: [], study: [] } : [] }, onNavigate: path => routed.push(path) });
   try {
     await view.flush();
@@ -47,8 +47,7 @@ test('JD02-JD05 PostgreSQL regressions use real persisted rows and rollback', { 
   await withAgendaDatabase(async ({ transaction }) => {
     const check = (name, operation) => t.test(name, () => transaction(async local => {
       const f = await homeFixture(local.query);
-      const uow = api.createHomeUnitOfWork(local.database, async () => f.actor);
-      const page = (module, now = f.now, timeZone = 'UTC', cursor = null) => uow.run({}, false, async unit => {
+      const page = (module, now = f.now, timeZone = 'UTC', cursor = null) => api.createHomeUnitOfWork(local.database, async () => ['review', 'queries'].includes(module) ? f.teacherActor : f.actor).run({}, false, async unit => {
         unit.actor.now = now;
         await unit.read.participation();
         return unit.read.page(module, { module, timeZone, cursor });

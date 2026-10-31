@@ -11,6 +11,8 @@ await page.click('loc=role:button[name="Buscar aulas en FoxMind"]',{label:'Ver d
 proof.push({control:'Buscar aulas en FoxMind',observed:await action(),expected:'classrooms'});
 await page.click('loc=role:button[name="Crear mi primera aula"]',{label:'Verificar creación aislada'});
 proof.push({control:'Crear mi primera aula',observed:await action(),expected:'create'});
+await page.goto('http://127.0.0.1:53271/?mode=none&role=student');
+await page.waitForSelector('.fm-home-toolbar',{state:'visible'});
 await page.click('loc=role:button[name="Unirme con código"]',{label:'Verificar unión aislada'});
 proof.push({control:'Unirme con código',observed:await action(),expected:'join'});
 await page.click('loc=role:button[name="Abrir Agenda"]',{label:'Abrir agenda personal'});

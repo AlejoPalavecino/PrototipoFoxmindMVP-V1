@@ -6,7 +6,7 @@ La migración incorpora los recursos aprobados y el **Foxy original ZorroH** en 
 
 ## Cómo funciona Inicio
 
-El servidor deriva `study`, `teach`, `mixed` o `none` de las membresías activas de cada aula. Las archivadas, invitaciones y borradores se muestran como contextos separados; no cambian el rol global de una cuenta. Una persona mixta ve simultáneamente sus tareas como estudiante y sus entregas por corregir como docente.
+El servidor deriva `study`, `teach` o `none` de las relaciones activas por aula; cada cuenta tiene además un rol global exclusivo elegido al registrarse. Las aulas archivadas, invitaciones y borradores se muestran como contextos separados.
 
 - `GET /api/v1/home?timeZone=<IANA>` reúne participación y siete módulos autorizados: pendientes, revisión, devoluciones, miniagenda, consultas, material reciente y aulas.
 - `GET /api/v1/home/modules/<module>?timeZone=<IANA>&cursor=<opaque>` reintenta o amplía un módulo sin rehacer listas de todas las aulas en el navegador.

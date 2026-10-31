@@ -80,7 +80,8 @@
                         "email": "learner@example.test",
                         "firstName": "Example",
                         "lastName": "Learner",
-                        "emailVerified": false
+                        "emailVerified": false,
+                        "accountRole": "student"
                       }
                     }
                   }
@@ -421,7 +422,8 @@
                         "email": "learner@example.test",
                         "firstName": "Example",
                         "lastName": "Learner",
-                        "emailVerified": false
+                        "emailVerified": false,
+                        "accountRole": "student"
                       }
                     }
                   },
@@ -433,7 +435,8 @@
                         "email": "learner@example.test",
                         "firstName": "Example",
                         "lastName": "Learner",
-                        "emailVerified": true
+                        "emailVerified": true,
+                        "accountRole": "student"
                       }
                     }
                   }
@@ -1563,13 +1566,17 @@
           },
           "password": {
             "$ref": "#/components/schemas/Password"
+          },
+          "accountRole": {
+            "$ref": "#/components/schemas/AccountRole"
           }
         },
         "required": [
           "firstName",
           "lastName",
           "email",
-          "password"
+          "password",
+          "accountRole"
         ],
         "additionalProperties": false
       },
@@ -1659,6 +1666,10 @@
         "additionalProperties": false,
         "minProperties": 1
       },
+      "AccountRole": {
+        "type": "string",
+        "enum": ["teacher", "student"]
+      },
       "UserIdentity": {
         "type": "object",
         "properties": {
@@ -1680,6 +1691,10 @@
           "emailVerified": {
             "type": "boolean",
             "readOnly": true
+          },
+          "accountRole": {
+            "$ref": "#/components/schemas/AccountRole",
+            "readOnly": true
           }
         },
         "required": [
@@ -1687,7 +1702,8 @@
           "email",
           "firstName",
           "lastName",
-          "emailVerified"
+          "emailVerified",
+          "accountRole"
         ],
         "additionalProperties": false
       },
@@ -2216,7 +2232,7 @@
     "passwordChange": "revoke-others-rotate-current-preserve-absolute",
     "passwordRecovery": "revoke-all-no-auto-login",
     "emailReadOnly": true,
-    "globalClassroomRole": false
+    "globalClassroomRole": true
   },
   "x-validation-boundary": "Raw Unicode code points, valid scalar sequences, no whitespace-only names, additionalProperties false, canonical email lookup; no silent password normalization/truncation.",
   "x-session-activity": "Health,session andCSRF polling do not renew idle; activity never extends absolute lifetime. Routine identifier rotation preserves absolute expiry.",
@@ -2226,7 +2242,8 @@
       "firstName": "Example",
       "lastName": "Learner",
       "email": "learner@example.test",
-      "password": "DocumentationExampleOnly123"
+      "password": "DocumentationExampleOnly123",
+      "accountRole": "student"
     },
     "login": {
       "email": "learner@example.test",

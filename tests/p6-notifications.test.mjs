@@ -7,11 +7,11 @@ import { ClassroomService } from '../.build/api/apps/api/src/classrooms/service.
 
 test('P6 personal notifications are transactionally delivered and never restore access', { timeout: 120000 }, async t => {
   await withP5Database(async ({ pool, database }) => {
-    const teacher = randomUUID(), student = randomUUID(), peer = randomUUID(), former = randomUUID(), outsider = randomUUID(), room = randomUUID(), second = randomUUID();
-    for (const id of [teacher, student, peer, former, outsider]) await pool.query(`INSERT INTO users
-      (id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-      VALUES($1,now(),$2,$2,'Notification','Fixture','fixture',now())`, [id, `${id}@example.test`]);
-    for (const [id, owner] of [[room, teacher], [second, student]]) await pool.query(`INSERT INTO classrooms
+    const teacher = randomUUID(), student = randomUUID(), secondTeacher = randomUUID(), secondStudent = randomUUID(), peer = randomUUID(), former = randomUUID(), outsider = randomUUID(), room = randomUUID(), second = randomUUID();
+    for (const id of [teacher, student, secondTeacher, secondStudent, peer, former, outsider]) await pool.query(`INSERT INTO users
+      (id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+      VALUES($1,now(),$2,$2,'Notification','Fixture','fixture',now(),$3)`, [id, `${id}@example.test`, [teacher, secondTeacher].includes(id) ? 'teacher' : 'student']);
+    for (const [id, owner] of [[room, teacher], [second, secondTeacher]]) await pool.query(`INSERT INTO classrooms
       (id,updated_at,teacher_id,name,subject,division,academic_year,timezone,cover_key,storage_quota_bytes)
       VALUES($1,now(),$2,'Notification room','Subject','A',2026,'UTC','explore',100000000)`, [id, owner]);
     const enroll = async (classroom, user, ended = false) => {
@@ -21,11 +21,11 @@ test('P6 personal notifications are transactionally delivered and never restore 
         VALUES($1,now(),$2,$3,'CODE',CASE WHEN $4 THEN clock_timestamp() ELSE NULL END,$5,$6)`, [randomUUID(), id, classroom, ended, ended ? 'REMOVED' : null, ended ? teacher : null]);
     };
     for (const user of [student, peer, former]) await enroll(room, user, user === former);
-    await enroll(second, teacher);
+    await enroll(second, secondStudent);
     const authenticate = async (_tx, req) => req.actor;
     const files = new FileStore(database, { authenticate, authorize: async () => {} }, 100000000n);
     const service = new ClassroomService({ database, files, authenticate, signingKey: Buffer.alloc(32, 1), deliveryKey: Buffer.alloc(32, 2), classroomQuotaBytes: 100000000n, webOrigin: 'http://127.0.0.1:3005' });
-    const T = { actor: teacher }, S = { actor: student }, P = { actor: peer }, O = { actor: outsider };
+    const T = { actor: teacher }, S = { actor: student }, ST = { actor: secondTeacher }, SS = { actor: secondStudent }, P = { actor: peer }, O = { actor: outsider };
     const change = async (actor, classroom, operation) => service.changeWall(actor, classroom, { revision: (await service.detail(actor, classroom)).revision, operation });
     const snapshot = async () => JSON.stringify((await pool.query(`SELECT
       (SELECT jsonb_agg(to_jsonb(n) ORDER BY id) FROM notifications n) AS notifications,
@@ -47,8 +47,8 @@ test('P6 personal notifications are transactionally delivered and never restore 
       await change(S, room, { action: 'publish', body: 'Student query' });
       query = (await service.listWall(T, room)).posts[0].id;
       assert.deepEqual((await pool.query('SELECT recipient_id,event_type FROM notifications WHERE post_id=$1', [query])).rows, [{ recipient_id: teacher, event_type: 'WALL_QUERY' }]);
-      await change(S, second, { action: 'publish', body: 'Teacher here' });
-      assert.equal((await service.listNotifications(T)).some(n => n.classroomId === second && n.eventType === 'WALL_NOTICE'), true);
+      await change(ST, second, { action: 'publish', body: 'Teacher here' });
+      assert.equal((await service.listNotifications(SS)).some(n => n.classroomId === second && n.eventType === 'WALL_NOTICE'), true);
       assert.equal((await service.listNotifications(S)).some(n => n.classroomId === room && n.eventType === 'WALL_NOTICE'), true);
       assert.deepEqual(await service.listNotifications(O), []);
     });

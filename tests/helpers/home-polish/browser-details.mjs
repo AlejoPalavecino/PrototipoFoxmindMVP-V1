@@ -9,7 +9,7 @@ await page.waitForSelector('.fm-home-teacher-tools',{state:'visible'});
 await page.click('loc=role:button[name*="Crear actividad"]',{label:'Mostrar herramientas del aula'});
 await page.screenshot({path:dir+'/detail-teacher-tools-1536.png'});
 await page.cdp('Emulation.setDeviceMetricsOverride',{width:320,height:812,deviceScaleFactor:1,mobile:true});
-await page.goto('http://127.0.0.1:53271/?mode=mixed');
+await page.goto('http://127.0.0.1:53271/?mode=study');
 await page.waitForSelector('.fm-home-module--feedback',{state:'visible'});
 await page.click('loc=role:button[name="Ver devolución: Ecosistemas: devolución publicada"]',{label:'Mostrar devolución en móvil'});
 await page.screenshot({path:dir+'/detail-feedback-320.png'});

@@ -13,10 +13,10 @@ export async function withFoxmind3dLive(run, controlled = false) {
   return factory(async runtime => {
     const { createPasswordService } = await import('../.build/api/apps/api/src/identity-security/index.js');
     const passwords = await createPasswordService(), passwordHash = await passwords.hash(password), actors = {};
-    for (const role of ['mixed', 'teacher', 'student', 'empty', 'archived', 'unverified']) {
+    for (const role of ['primaryTeacher', 'teacher', 'student', 'studyStudent', 'empty', 'archived', 'unverified']) {
       const id = randomUUID(), email = `${role}-3d@example.test`;
-      await runtime.db.query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-        VALUES($1,now(),$2,$2,$3,'Synthetic',$4,CASE WHEN $5 THEN now() ELSE NULL END)`, [id, email, role, passwordHash, role !== 'unverified']);
+      await runtime.db.query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+        VALUES($1,now(),$2,$2,$3,'Synthetic',$4,CASE WHEN $5 THEN now() ELSE NULL END,$6)`, [id, email, role, passwordHash, role !== 'unverified', ['student', 'studyStudent'].includes(role) ? 'student' : 'teacher']);
       const cookies = new Map();
       const request = async (url, options = {}) => {
         const headers = new Headers(options.headers); headers.set('origin', runtime.origin);
@@ -30,8 +30,8 @@ export async function withFoxmind3dLive(run, controlled = false) {
       assert.equal((await api(person, 'POST', '/auth/login', { email, password })).status, 200);
       actors[role] = person;
     }
-    const teach = await classroom(actors.mixed, actors.student, 'Biología · preguntas sobre la vida');
-    const study = await classroom(actors.teacher, actors.mixed, 'Literatura · lecturas y conversaciones');
+    const teach = await classroom(actors.primaryTeacher, actors.student, 'Biología · preguntas sobre la vida');
+    const study = await classroom(actors.teacher, actors.studyStudent, 'Literatura · lecturas y conversaciones');
     const history = await classroom(actors.archived, null, 'Historia conservada');
     for (const [room, subject, cover] of [[teach, 'Biología', 'biology'], [study, 'Literatura', 'literature'], [history, 'Matemática', 'math']]) {
       await runtime.db.query('UPDATE classrooms SET subject=$2,cover_key=$3 WHERE id=$1', [room.id, subject, cover]);
@@ -39,7 +39,7 @@ export async function withFoxmind3dLive(run, controlled = false) {
     const detail = async (person, room) => (await api(person, 'GET', `/classrooms/${room.id}`)).body;
     const change = async (person, room, operation) => api(person, 'POST', `/classrooms/${room.id}/activities`, { revision: (await detail(person, room)).revision, operation });
     const activities = [];
-    for (const [person, room] of [[actors.mixed, teach], [actors.teacher, study]]) {
+    for (const [person, room] of [[actors.primaryTeacher, teach], [actors.teacher, study]]) {
       const unit = (await detail(person, room)).units[0];
       for (const [type, title] of [['ASSIGNMENT', 'Observar y explicar la luz'], ['QUESTIONNAIRE', 'Preguntas de exploración'], ['EVALUATION', 'Evaluación de conceptos']]) {
         const created = await change(person, room, { action: 'create', type }); assert.equal(created.status, 200);
@@ -65,21 +65,21 @@ export async function withFoxmind3dLive(run, controlled = false) {
     }
     const privateAttempt = submitted.find(item => item.type === 'ASSIGNMENT');
     const gradingPath = `/classrooms/${teach.id}/attempts/${privateAttempt.attemptId}/grading`;
-    const grading = await api(actors.mixed, 'GET', gradingPath); assert.equal(grading.status, 200);
-    assert.equal((await api(actors.mixed, 'POST', gradingPath, { revision: grading.body.revision, overallGrade: '0',
+    const grading = await api(actors.primaryTeacher, 'GET', gradingPath); assert.equal(grading.status, 200);
+    assert.equal((await api(actors.primaryTeacher, 'POST', gradingPath, { revision: grading.body.revision, overallGrade: '0',
       overallFeedback: 'Devolución sintética privada pendiente de publicar.', questions: [] })).status, 200);
     const wall = await api(actors.student, 'GET', `/classrooms/${teach.id}/wall`); assert.equal(wall.status, 200);
     assert.equal((await api(actors.student, 'POST', `/classrooms/${teach.id}/wall`, { revision: wall.body.revision,
       operation: { action: 'publish', body: '¿Cómo puedo relacionar los conceptos de esta unidad?' } })).status, 200);
     const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
-    assert.equal((await api(actors.mixed, 'PUT', `/agenda/events/${randomUUID()}`, { title: 'Lectura escolar de mañana', description: '', category: 'ACTIVITY',
+    assert.equal((await api(actors.primaryTeacher, 'PUT', `/agenda/events/${randomUUID()}`, { title: 'Lectura escolar de mañana', description: '', category: 'ACTIVITY',
       schedule: { kind: 'TIMED', timeZone: 'UTC', startLocal: `${tomorrow}T14:00`, endLocal: `${tomorrow}T15:00` }, repeat: { kind: 'NONE' } })).status, 201);
     const historic = await detail(actors.archived, history);
     assert.equal((await api(actors.archived, 'POST', `/classrooms/${history.id}/archive`, { revision: historic.revision, archived: true })).status, 200);
     // Verified real HTTP projections are a readiness gate, not invented UI data.
-    for (const role of ['mixed', 'teacher', 'student', 'empty', 'archived']) {
+    for (const role of ['primaryTeacher', 'teacher', 'student', 'studyStudent', 'empty', 'archived']) {
       const result = await api(actors[role], 'GET', '/home?timeZone=UTC'); assert.equal(result.status, 200);
-      assert.equal(result.body.participation, { mixed: 'mixed', teacher: 'teach', student: 'study', empty: 'none', archived: 'none' }[role]);
+      assert.equal(result.body.participation, { primaryTeacher: 'teach', teacher: 'teach', student: 'study', studyStudent: 'study', empty: 'none', archived: 'none' }[role]);
     }
     const extremeId = randomUUID(), extremeDay = new Date(Date.now() + 2 * 86400000).toISOString().slice(0, 10);
     const extremeAt = new Date(Date.parse(`${extremeDay}T00:30:00Z`) - 14 * 3600000);
@@ -87,7 +87,7 @@ export async function withFoxmind3dLive(run, controlled = false) {
     await runtime.db.query(`INSERT INTO agenda_events(id,owner_id,title,description,category,schedule_kind,start_date,end_date_exclusive,
       start_local,end_local,time_zone,start_at,end_at,repeat_kind)
       VALUES($1,$2,'Lectura en zona extrema','','CLASS','TIMED',$3,$4,$5,$6,'Pacific/Kiritimati',$7,$8,'NONE')`,
-    [extremeId, actors.mixed.id, extremeDay, new Date(Date.parse(`${extremeDay}T00:00:00Z`) + 86400000).toISOString().slice(0, 10),
+    [extremeId, actors.primaryTeacher.id, extremeDay, new Date(Date.parse(`${extremeDay}T00:00:00Z`) + 86400000).toISOString().slice(0, 10),
       `${extremeDay}T00:30`, `${extremeDay}T01:30`, extremeAt.toISOString(), new Date(extremeAt.getTime() + 3600000).toISOString()]);
     return run({ ...runtime, actors, rooms: { teach, study, history }, activities, submitted,
       extremeEvent: { id: extremeId, originalDate: extremeDay, viewDate: extremeViewDay } });

@@ -7,11 +7,11 @@ import { ClassroomService } from '../.build/api/apps/api/src/classrooms/service.
 
 test('P6 Muro preserves scoped authorship, grouped history and revision guards', { timeout: 120000 }, async t => {
   await withP5Database(async ({ pool, database }) => {
-    const teacher = randomUUID(), student = randomUUID(), peer = randomUUID(), foreign = randomUUID(), unverified = randomUUID(), room = randomUUID(), otherRoom = randomUUID();
-    for (const id of [teacher, student, peer, foreign, unverified]) await pool.query(`INSERT INTO users
-      (id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-      VALUES($1,now(),$2,$2,'Muro','Fixture','fixture',$3)`, [id, `${id}@example.test`, id === unverified ? null : new Date()]);
-    for (const [id, owner] of [[room, teacher], [otherRoom, student]]) await pool.query(`INSERT INTO classrooms
+    const teacher = randomUUID(), student = randomUUID(), secondTeacher = randomUUID(), secondStudent = randomUUID(), peer = randomUUID(), foreign = randomUUID(), unverified = randomUUID(), room = randomUUID(), otherRoom = randomUUID();
+    for (const id of [teacher, student, secondTeacher, secondStudent, peer, foreign, unverified]) await pool.query(`INSERT INTO users
+      (id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+      VALUES($1,now(),$2,$2,'Muro','Fixture','fixture',$3,$4)`, [id, `${id}@example.test`, id === unverified ? null : new Date(), [teacher, secondTeacher].includes(id) ? 'teacher' : 'student']);
+    for (const [id, owner] of [[room, teacher], [otherRoom, secondTeacher]]) await pool.query(`INSERT INTO classrooms
       (id,updated_at,teacher_id,name,subject,division,academic_year,timezone,cover_key,storage_quota_bytes)
       VALUES($1,now(),$2,'Wall fixture','Subject','A',2026,'UTC','explore',100000000)`, [id, owner]);
     for (const id of [student, peer, unverified]) {
@@ -22,7 +22,7 @@ test('P6 Muro preserves scoped authorship, grouped history and revision guards',
     const authenticate = async (_tx, req) => req.actor;
     const files = new FileStore(database, { authenticate, authorize: async () => {} }, 100000000n);
     const service = new ClassroomService({ database, files, authenticate, signingKey: Buffer.alloc(32, 1), deliveryKey: Buffer.alloc(32, 2), classroomQuotaBytes: 100000000n, webOrigin: 'http://127.0.0.1:3005' });
-    const T = { actor: teacher }, S = { actor: student }, P = { actor: peer }, F = { actor: foreign }, U = { actor: unverified };
+    const T = { actor: teacher }, S = { actor: student }, ST = { actor: secondTeacher }, SS = { actor: secondStudent }, P = { actor: peer }, F = { actor: foreign }, U = { actor: unverified };
     const snapshot = async () => JSON.stringify((await pool.query(`SELECT
       (SELECT jsonb_agg(to_jsonb(p) ORDER BY id) FROM wall_posts p) AS posts,
       (SELECT jsonb_agg(to_jsonb(r) ORDER BY id) FROM wall_replies r) AS replies,
@@ -51,8 +51,8 @@ test('P6 Muro preserves scoped authorship, grouped history and revision guards',
       assert.equal(posts[0].canEdit, false);
       assert.equal((await service.listWall(S, room)).posts[0].canEdit, true);
       assert.doesNotMatch(JSON.stringify(posts), /email|authorId|author_id|password|avatar/i);
-      await service.changeWall(S, otherRoom, { revision: '0', operation: { action: 'publish', body: 'Teacher in another room' } });
-      assert.equal((await service.listWall(S, otherRoom)).posts[0].type, 'NOTICE');
+      await service.changeWall(ST, otherRoom, { revision: '0', operation: { action: 'publish', body: 'Teacher in another room' } });
+      assert.equal((await service.listWall(ST, otherRoom)).posts[0].type, 'NOTICE');
     });
     await t.test('each reply belongs to a scoped parent and remains oldest first; post ordering has stable ties', async () => {
       await change(P, { action: 'reply', postId: post, body: 'First reply' });

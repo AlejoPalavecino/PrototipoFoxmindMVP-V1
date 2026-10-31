@@ -144,6 +144,9 @@ export function AccountScreen({ view }: { view: AccountView }) {
       event.preventDefault();
       const form = event.currentTarget;
       const data = Object.fromEntries([...new FormData(form)].filter((entry): entry is [string, string] => typeof entry[1] === 'string'));
+      if (path === '/auth/register' && data.accountRole !== 'teacher' && data.accountRole !== 'student') {
+        setMessage({ error: true, text: 'Selecciona docente o estudiante para tu cuenta.' }); return;
+      }
       if (path.endsWith('/confirm')) {
         if (!token.current) { setMessage({ error: true, text: 'Abre el enlace original del correo para continuar.' }); return; }
         data.token = token.current;

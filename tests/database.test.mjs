@@ -24,15 +24,15 @@ async function insert(table, values) {
   const parameters = keys.map(key => key === "payload" ? JSON.stringify(values[key]) : values[key]);
   return (await db.query(sql, parameters)).rows[0];
 }
-async function user() {
-  return insert("users", { id: randomUUID(), email: `${randomUUID()}@example.test`, email_normalized: `${randomUUID()}@example.test`, first_name: "Test", last_name: "User", password_hash: "fixture-not-a-real-password-hash" });
+async function user(account_role) {
+  return insert("users", { id: randomUUID(), email: `${randomUUID()}@example.test`, email_normalized: `${randomUUID()}@example.test`, first_name: "Test", last_name: "User", password_hash: "fixture-not-a-real-password-hash", account_role });
 }
 async function classroom(teacher) {
   return insert("classrooms", { id: randomUUID(), teacher_id: teacher.id, name: "Photography", subject: "Light", division: "A", academic_year: 2026, timezone: "America/Argentina/Buenos_Aires", cover_key: "fox", storage_quota_bytes: "1000000000" });
 }
 async function fixture() {
-  const teacher = await user();
-  const student = await user();
+  const teacher = await user("teacher");
+  const student = await user("student");
   const room = await classroom(teacher);
   const enrollment = await insert("enrollments", { id: randomUUID(), classroom_id: room.id, student_id: student.id });
   const unit = await insert("units", { id: randomUUID(), classroom_id: room.id, name: "Unit", position: 0 });
@@ -154,7 +154,7 @@ contract("available question points are positive with at most two decimals", asy
 });
 contract("obligations cannot join enrollment and activity from different classrooms", async f => {
   const other = await classroom(f.teacher);
-  const student = await user();
+  const student = await user("student");
   const enrollment = await insert("enrollments", { id: randomUUID(), classroom_id: f.room.id, student_id: student.id });
   // A fresh pair isolates the classroom FK from the separate unique-pair rule.
   await rejected(() => insert("student_activities", { id: randomUUID(), classroom_id: other.id, enrollment_id: enrollment.id, activity_id: f.activity.id, is_expected: true, eligibility_reason: "TEACHER_AUTHORIZATION" }), "23503");
@@ -246,7 +246,7 @@ contract("effective grade replacement preserves prior results until publication"
   await insert("grade_corrections", { id: randomUUID(), attempt_grade_id: first.id, previous_grade: "8", new_grade: "9", reason: "Historical correction", actor_id: f.teacher.id });
   await db.query("UPDATE attempt_grades SET final_grade=9 WHERE id=$1", [first.id]);
   assert.equal(await effective(), "6", "historical correction must not select the old attempt");
-  const student = await user();
+  const student = await user("student");
   const enrollment = await insert("enrollments", { id: randomUUID(), classroom_id: f.room.id, student_id: student.id });
   const other = await insert("student_activities", { id: randomUUID(), classroom_id: f.room.id, enrollment_id: enrollment.id, activity_id: f.activity.id, is_expected: true, eligibility_reason: "INITIAL_ENROLLMENT" });
   await rejected(() => db.query("UPDATE student_activities SET effective_grade_id=$1 WHERE id=$2", [second.id, other.id]), "23503");

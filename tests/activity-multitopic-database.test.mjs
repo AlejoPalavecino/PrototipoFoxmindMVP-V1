@@ -8,8 +8,8 @@ import { ClassroomService } from '../.build/api/apps/api/src/classrooms/service.
 async function fixture(local) {
   const teacher = randomUUID(), stranger = randomUUID(), student = randomUUID(), room = randomUUID();
   for (const id of [teacher, stranger, student]) await local.pool.query(`INSERT INTO users
-    (id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-    VALUES($1,now(),$2,$2,'Synthetic','Topics','fixture',now())`, [id, `${id}@example.test`]);
+    (id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+    VALUES($1,now(),$2,$2,'Synthetic','Topics','fixture',now(),$3)`, [id, `${id}@example.test`, id === student ? 'student' : 'teacher']);
   await local.pool.query(`INSERT INTO classrooms
     (id,updated_at,teacher_id,name,subject,division,academic_year,timezone,cover_key,storage_quota_bytes)
     VALUES($1,now(),$2,'Topics','Subject','A',2026,'UTC','explore',100000000)`, [room, teacher]);

@@ -11,7 +11,7 @@ test('D9 teacher submissions publish explicit gradePublished false/true without 
     await f.grade(a, privateAttempt, { value: '0' }); await f.grade(a, published, { value: '8', published: true });
     const service = new ClassroomService({ database, files: {}, authenticate: async (_tx, request) => request.actor,
       signingKey: Buffer.alloc(32, 1), deliveryKey: Buffer.alloc(32, 2), classroomQuotaBytes: 1000000n, webOrigin: 'http://127.0.0.1:3005' });
-    const result = await service.activitySubmissions({ actor: f.actor, headers: {} }, f.rooms.teach.id, a.id);
+    const result = await service.activitySubmissions({ actor: f.teacherActor, headers: {} }, f.rooms.teach.id, a.id);
     const states = Object.fromEntries(result.attempts.map(row => [row.id, row.gradePublished]));
     assert.deepEqual(states, { [ungraded]: false, [privateAttempt]: false, [published]: true });
     assert.ok(result.attempts.every(row => typeof row.gradePublished === 'boolean'));

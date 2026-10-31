@@ -84,7 +84,7 @@ async function captured(email, count = 1) {
 }
 async function registered() {
   const email = `Captured${++sequence}@example.test`;
-  await accepted(await send('/auth/register', { method: 'POST', body: { email, password, firstName: 'Original', lastName: 'Learner' } }));
+  await accepted(await send('/auth/register', { method: 'POST', body: { email, password, firstName: 'Original', lastName: 'Learner', accountRole: 'student' } }));
   const token = await captured(email);
   const response = await send('/auth/login', { method: 'POST', body: { email, password } });
   assert.equal(response.status, 200);
@@ -93,8 +93,8 @@ async function registered() {
 }
 async function seed({ verified = false, purpose = 'EMAIL_VERIFICATION', age = 61, expiry = 3600, invalidated = false, consumed = false } = {}) {
   const id = randomUUID(), token = generateVerifier(), tokenId = randomUUID(), email = `Seed${++sequence}@example.test`;
-  await db.query(`INSERT INTO users(id,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-    VALUES($1,$2,lower($2),'Original','Learner',$3,CASE WHEN $4 THEN clock_timestamp() ELSE NULL END)`, [id, email, hash, verified]);
+  await db.query(`INSERT INTO users(id,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+    VALUES($1,$2,lower($2),'Original','Learner',$3,CASE WHEN $4 THEN clock_timestamp() ELSE NULL END,'student')`, [id, email, hash, verified]);
   await db.query(`INSERT INTO account_tokens(id,user_id,purpose,token_hash,created_at,expires_at,invalidated_at,consumed_at)
     VALUES($1,$2,$3,$4,clock_timestamp()-$5*interval '1 second',clock_timestamp()+$6*interval '1 second',
       CASE WHEN $7 THEN clock_timestamp() ELSE NULL END,CASE WHEN $8 THEN clock_timestamp() ELSE NULL END)`,
@@ -327,7 +327,7 @@ test('T3 resend two concurrent requests issue once cancel queued stale mail and 
   // The previous outage case stopped the original scheduler. Queue a real registration, then replace
   // its unsent encrypted job before a healthy sender starts. Only the replacement may reach SMTP.
   const email = `Queued${++sequence}@example.test`;
-  await accepted(await send('/auth/register', { method: 'POST', body: { email, password, firstName: 'Original', lastName: 'Learner' } }));
+  await accepted(await send('/auth/register', { method: 'POST', body: { email, password, firstName: 'Original', lastName: 'Learner', accountRole: 'student' } }));
   const login = await send('/auth/login', { method: 'POST', body: { email, password } });
   assert.equal(login.status, 200);
   const queuedUser = (await login.json()).user, queuedCookie = login.headers.get('set-cookie').split(';')[0];

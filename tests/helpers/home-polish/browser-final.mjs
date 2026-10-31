@@ -3,7 +3,7 @@ const fs=await import('node:fs/promises');
 const evidence='C:/Users/alejo/Documents/ProyectosAlejo/FoxMind/ProtipoFoxMind/docs/work-log/evidence/2026-10-25-home-polish';
 const results=[];
 await page.cdp('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
-for(const [mode,width,height] of [['teach',1536,1024],['study',1920,1080],['mixed',1536,1024],['none',1536,1024],['archived',1536,1024],['error',1536,1024],['teach-empty',1536,1024],['study-empty',1536,1024],['mixed-empty',1536,1024],['teach',768,1024],['study',390,844],['mixed',320,812],['none',390,844]]) {
+for(const [mode,width,height] of [['teach',1536,1024],['study',1920,1080],['study',1536,1024],['none',1536,1024],['archived',1536,1024],['error',1536,1024],['teach-empty',1536,1024],['study-empty',1536,1024],['study-empty',1536,1024],['teach',768,1024],['study',390,844],['study',320,812],['none',390,844]]) {
  await page.cdp('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:width<500});
  await page.goto('http://127.0.0.1:53271/?mode='+mode);
  await page.waitForSelector('.fm-home-toolbar',{state:'visible'});

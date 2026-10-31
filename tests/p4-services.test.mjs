@@ -30,9 +30,9 @@ test('P4 real private storage, scanner and durable upload lifecycle', { timeout:
       }
       const users = Array.from({ length: 4 }, () => randomUUID()), sessions = users.map(() => randomUUID());
       for (let n = 0; n < users.length; n++) {
-        await sql.query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-          VALUES($1,now(),$2,$2,'Fixture','P4','not-a-login-password',CASE WHEN $3 THEN now() ELSE NULL END)`,
-          [users[n], `p4-${n}@example.invalid`, n !== 3]);
+        await sql.query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+          VALUES($1,now(),$2,$2,'Fixture','P4','not-a-login-password',CASE WHEN $3 THEN now() ELSE NULL END,$4)`,
+          [users[n], `p4-${n}@example.invalid`, n !== 3, n === 1 ? 'student' : 'teacher']);
         await sql.query(`INSERT INTO sessions(id,updated_at,user_id,token_hash,expires_at) VALUES($1,now(),$2,$3,now()+interval '1 hour')`,
           [sessions[n], users[n], `p4-fixture-${n}`]);
       }
@@ -271,7 +271,12 @@ test('P4 real private storage, scanner and durable upload lifecycle', { timeout:
         } } });
         assert.deepEqual(await isolated.usage(actor, mutableScope), expected);
       });
-      await verifyRecordAccess(t, { sql, options, users, sessions, classroom, bytes });
+      const peer = randomUUID(), peerSession = randomUUID();
+      await sql.query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+        VALUES($1,now(),$2,$2,'Peer','P4','not-a-login-password',now(),'student')`, [peer, `p4-${peer}@example.invalid`]);
+      await sql.query(`INSERT INTO sessions(id,updated_at,user_id,token_hash,expires_at) VALUES($1,now(),$2,$3,now()+interval '1 hour')`,
+        [peerSession, peer, `p4-fixture-${peer}`]);
+      await verifyRecordAccess(t, { sql, options, users: [users[0], users[1], peer], sessions: [sessions[0], sessions[1], peerSession], classroom, bytes });
       await verifyPromotion(t, { sql, options, users, sessions, bytes });
     } finally { await prisma?.$disconnect(); await sql.end(); }
   });

@@ -21,7 +21,7 @@ export interface IdentityRuntimePorts {
   readonly beforePasswordChangeCommit?: () => Promise<void>;
 }
 export function publicUser(user: User) {
-  return { id: user.id, email: user.email, firstName: user.first_name, lastName: user.last_name, emailVerified: user.email_verified_at !== null };
+  return { id: user.id, email: user.email, firstName: user.first_name, lastName: user.last_name, emailVerified: user.email_verified_at !== null, accountRole: user.account_role as 'teacher' | 'student' };
 }
 export class IdentityRuntime {
   private readonly mail: IdentityMailLifecycle;
@@ -72,7 +72,9 @@ export class IdentityRuntime {
     });
   }
   async register(body: unknown, ip: string): Promise<void> {
-    const input = validateBodyShape(body, ['firstName', 'lastName', 'email', 'password'], ['firstName', 'lastName', 'email', 'password']);
+    const input = validateBodyShape(body, ['firstName', 'lastName', 'email', 'password', 'accountRole'], ['firstName', 'lastName', 'email', 'password', 'accountRole']);
+    if (input.accountRole !== 'teacher' && input.accountRole !== 'student') throw new IdentityHttpError('VALIDATION_ERROR');
+    const accountRole = input.accountRole;
     const firstName = validateName(input.firstName), lastName = validateName(input.lastName);
     const email = validateMailbox(input.email), password = validatePassword(input.password);
     const canonical = await this.store.canonicalEmail(email);
@@ -86,8 +88,8 @@ export class IdentityRuntime {
       const userId = randomUUID();
       // Conflict is an ordinary duplicate, NOT an aborted Prisma transaction caught and reused.
       const inserted = await tx.$queryRaw<{ id: string }[]>`INSERT INTO users
-        (id,email,email_normalized,first_name,last_name,password_hash)
-        VALUES (${userId}::uuid,${email},${canonical},${firstName},${lastName},${hash})
+        (id,email,email_normalized,first_name,last_name,password_hash,account_role)
+        VALUES (${userId}::uuid,${email},${canonical},${firstName},${lastName},${hash},${accountRole})
         ON CONFLICT (email_normalized) DO NOTHING RETURNING id`;
       if (!inserted.length) return;
       await this.store.lockUsers(tx, [userId]);

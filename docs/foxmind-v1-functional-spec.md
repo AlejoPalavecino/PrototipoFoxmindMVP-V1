@@ -16,7 +16,7 @@ FoxMind is a web platform for independent courses and training. This document co
 
 - Initial audience: independent courses and training.
 - Two classroom roles: teacher (`Docente`) and student (`Alumno`).
-- One account may teach in some classrooms and study in others.
+- Each account selects one exclusive global role, teacher or student, during registration.
 - V1 includes classrooms, invitations, plans, materials, activities, submissions, grading, classroom conversations and progress.
 - Questionnaires and evaluations are answered inside FoxMind, not only through file submissions.
 - AI was deferred in the initial V1. Later approved extensions cover study-plan extraction (§5), teacher-reviewed activity generation (§8), individual student analysis and teacher-reviewed grading assistance. The [extension index](engineering/ai/README.md) links each existing contract and privacy policy; implementation status belongs to the roadmap.
@@ -36,13 +36,13 @@ No institutional administration, payments, rankings, streaks or certificates wer
 
 ### Confirmed
 
-- Any registered user can create a classroom without prior authorization.
-- The creator is the classroom's sole teacher, not a teacher globally.
+- A verified teacher account can create a classroom without prior authorization.
+- The creator is the classroom's sole teacher; ownership and access remain scoped to that classroom.
 - V1 does not support co-teachers or classroom ownership transfers.
 - A user cannot be both teacher and student in the same classroom; the sole teacher cannot enroll as a student in their own classroom.
-- A user joins other classrooms as a student through an invitation or code.
+- A student account joins classrooms through an invitation or code; a teacher account cannot enroll as a student.
 - Teacher permissions in one classroom do not grant access to another classroom's management or students' records.
-- Profile information must not present an exclusive global teacher/student role.
+- The account role is chosen at registration and cannot be changed through profile settings.
 - Email verification is required before classroom use: creating, joining, accepting invitations or accessing classroom content.
 
 | Capability | Teacher in that classroom | Student in that classroom |
@@ -89,6 +89,7 @@ Current progress and the separate teacher-accessible student history follow the 
 ### Confirmed access
 
 - Email and password registration/sign-in.
+- Registration requires an explicit teacher or student account role; the role is exclusive and fixed.
 - Email verification.
 - Password recovery.
 - No Google sign-in in V1.
@@ -184,9 +185,8 @@ Mobile uses compact global navigation and horizontally scrollable classroom tabs
 
 ### Adaptations required by the later role decision
 
-- `Mis Aulas` must support both `Crear aula` and `Unirse con código` for the same account.
-- Earlier exclusively teacher/student global screenshots are visual examples, not an exclusive-role account model.
-- Both `Mis Aulas` and classroom summaries on `Inicio` use two blocks: `Enseño` and `Estudio`. No global role switch is provided.
+- `Mis Aulas` offers `Crear aula` to teachers and `Unirse con código` to students.
+- `Inicio` and `Mis Aulas` present the actions and classroom context applicable to the account role; no role switch is provided.
 
 ### Agenda addition — 2026-10-23
 
@@ -199,7 +199,7 @@ See [Agenda behavior and limits](agenda.md) and [the implementation task](../odd
 - Provide an in-platform notification center, ordered newest first, with an option to mark notifications as read.
 - Notify students about teacher notices, new activities, deadline changes, published or corrected grades, reopened attempts and replies to their own publications.
 - Notify the classroom teacher about new submissions, student queries and replies to the teacher's own publications.
-- Notifications are classroom-role scoped: the same account may receive student events from one classroom and teacher events from another, without gaining a global role.
+- Notifications remain classroom-scoped and respect the account's exclusive role and current access.
 - Do not send an email for every academic event. Email remains available for invitations, verification and password recovery; additional notification preferences remain outside V1.
 - Opening a notification must enforce current classroom and target-record permissions. A notification does not restore revoked access or expose another student's private academic records.
 
@@ -680,7 +680,7 @@ The published-grade correction audit is teacher-only, as confirmed in section 9;
 - Display email without allowing email changes from the profile.
 - Change password.
 - Sign out.
-- No fixed global classroom role.
+- The fixed global account role is chosen during registration; profile updates cannot change it.
 
 Additional notification preferences and personalization are deferred. This does not remove functional platform notifications or email invitations.
 
@@ -767,7 +767,7 @@ These are verification targets for future implementation, **not checks already e
 
 | Scenario | Expected outcome |
 |---|---|
-| Account teaches and studies in different classrooms | Group Mis Aulas and Home classroom summaries under `Enseño` and `Estudio`, without a global role switch. |
+| Account registers as teacher or student | Require an explicit role, present its relevant actions and deny incompatible operations. |
 | Teacher completes classroom creation with missing required data, no plan or no unit/topic | Reject completion without publishing the classroom; an incomplete private draft may be saved. |
 | Teacher completes classroom data | Accept free-text Materia/División, allow duplicate classroom names, require selection from predefined cover illustrations and offer no cover upload. |
 | Teacher resumes an unfinished classroom creation | Restore their private draft without granting other users access or enrolling students. |
@@ -791,10 +791,10 @@ These are verification targets for future implementation, **not checks already e
 | Upload cleanup processes abandoned data | Clean only incomplete uploads after 24 h inactivity; retain confirmed drafts, historical submissions and linked files. |
 | Future local setup is functionally verified | Use containerized PostgreSQL/S3-compatible storage/test inbox/real scanner with frontend/backend on the host; test captured email flows and real scanning without an external email provider or a simulated pass. |
 | Text is exactly at its configured character maximum, exceeds it, or is whitespace-only in a required field | Accept the boundary length, reject excess/required whitespace with validation errors and never silently truncate. Apply the per-field maxima in section 5. |
-| Same account teaches in A and studies in B | Teacher capabilities apply in A only; B exposes student permissions. |
+| Teacher account attempts to enroll in another classroom | Reject enrollment without creating membership or changing its role. |
 | Classroom is created | Its creator is the sole teacher; V1 provides no co-teacher or ownership-transfer operation. |
 | Teacher tries to enroll as a student in their own classroom | Reject enrollment without creating another membership or changing their teacher role. |
-| Registered user with verified email creates a classroom | No teacher-approval step; creator becomes teacher of that classroom. |
+| Registered teacher with verified email creates a classroom | No teacher-approval step; creator becomes teacher of that classroom. |
 | Teacher archives a classroom | Preserve membership and classroom records, make it read-only, and do not publish pending grades. |
 | User tries to join, publish, submit or modify an archived classroom | Deny the write without changing classroom records; consultation remains subject to existing role permissions. |
 | Teacher reactivates a classroom | Restore normal operation without resetting deadlines, attempts, content locks or grades. |

@@ -14,7 +14,7 @@ const readFactory = (api, database, f) => {
   const authentications = [];
   const authenticate = async (_tx, request, write) => { authentications.push(write); return request.userId; };
   const service = api.createHomeService(api.createHomeUnitOfWork(database, authenticate));
-  return { service, authentications, read: () => service.read({ userId: f.actor }, zone),
+  return { service, authentications, read: (userId = f.actor) => service.read({ userId }, zone),
     page: (module, cursor = null, userId = f.actor, timeZone = 'UTC') => service.page({ userId }, { module, cursor, timeZone }) };
 };
 
@@ -26,13 +26,17 @@ test('D9 real PostgreSQL Home projections preserve permission, exact counts, pri
     const check = (name, operation) => t.test(name, () => transaction(async local => {
       const f = await homeFixture(local.query); await operation(f, readFactory(api, local.database, f), local);
     }));
-    await check('one mixed account has exact active membership/setup counts and archived history', async (f, home) => {
+    await check('separate accounts have exact active membership/setup counts and archived history', async (f, home) => {
       const result = await home.read();
-      assert.equal(result.subjectId, f.actor); assert.equal(result.participation, 'mixed');
-      assert.deepEqual(result.memberships, { study: 1, teach: 1, archived: 1 });
-      assert.deepEqual(result.setup, { drafts: 1, invitations: 1 });
-      assert.deepEqual(new Set(rows(result, 'classrooms').map(x => x.classroom.id)),
-        new Set([f.rooms.study.id, f.rooms.teach.id, f.rooms.archived.id]));
+      assert.equal(result.subjectId, f.actor); assert.equal(result.participation, 'study');
+      assert.deepEqual(result.memberships, { study: 1, teach: 0, archived: 0 });
+      assert.deepEqual(result.setup, { drafts: 0, invitations: 1 });
+      assert.deepEqual(new Set(rows(result, 'classrooms').map(x => x.classroom.id)), new Set([f.rooms.study.id]));
+      const teacher = await home.read(f.teacherActor);
+      assert.equal(teacher.participation, 'teach');
+      assert.deepEqual(teacher.memberships, { study: 0, teach: 1, archived: 1 });
+      assert.deepEqual(teacher.setup, { drafts: 1, invitations: 0 });
+      assert.deepEqual(new Set(rows(teacher, 'classrooms').map(x => x.classroom.id)), new Set([f.rooms.teach.id, f.rooms.archived.id]));
       assert.ok(home.authentications.length >= 1); assert.ok(home.authentications.every(value => value === false));
     });
     await check('published expected obligations only; submitted, nonexpected, foreign, draft and archived stay out', async (f, home) => {
@@ -79,7 +83,7 @@ test('D9 real PostgreSQL Home projections preserve permission, exact counts, pri
       await f.grade(a, current, { value: '0' });
       const published = await f.activity('teach'), done = await f.attempt(published); await f.grade(published, done, { published: true });
       await f.query("UPDATE membership_periods SET ended_at=now(),end_reason='LEFT',ended_by_id=$2 WHERE id=$1", f.rooms.teach.period, f.pupil);
-      const result = await home.read(), review = rows(result, 'review');
+      const result = await home.read(f.teacherActor), review = rows(result, 'review');
       assert.equal(review.length, 1); assert.equal(review[0].target.activityId, a.id);
       assert.equal(review[0].target.filter, 'unpublished'); assert.equal(review[0].needsReview, 1); assert.equal(review[0].readyToPublish, 1);
       assert.equal(result.modules.review.totalItems, 1);
@@ -93,7 +97,7 @@ test('D9 real PostgreSQL Home projections preserve permission, exact counts, pri
       for (const [position, question] of questions.entries()) await f.query(`INSERT INTO questions
         (id,updated_at,activity_id,type,prompt,position,available_points)
         VALUES($1,now(),$2,'DEVELOPMENT','Pregunta sintética',$3,5)`, question, a.id, position);
-      const counts = async () => { const value = (await home.page('review')).page; assert.equal(value.status, 'ready'); return value.totals; };
+      const counts = async () => { const value = (await home.page('review', null, f.teacherActor)).page; assert.equal(value.status, 'ready'); return value.totals; };
       assert.deepEqual(await counts(), { attempts: 1, needsReview: 1, readyToPublish: 0 });
       for (const [index, question] of questions.entries()) {
         await f.query(`INSERT INTO question_grades(id,updated_at,attempt_grade_id,activity_id,question_id,earned_numerator,earned_denominator)
@@ -135,9 +139,9 @@ test('D9 real PostgreSQL Home projections preserve permission, exact counts, pri
       await f.post('teach', { type: 'NOTICE' }); await f.post('teach', { removed: true }); await f.post('foreign');
       await f.material('foreign'); await f.material('study', { clean: false });
       const result = await home.read();
-      assert.deepEqual(rows(result, 'queries').map(x => x.target.postId), [query]);
+      assert.deepEqual(rows(await home.read(f.teacherActor), 'queries').map(x => x.target.postId), [query]);
       assert.deepEqual(rows(result, 'materials').map(x => x.target.materialId), [material]);
-      assert.equal(result.modules.queries.totalItems, null); assert.equal(result.modules.materials.totalItems, null);
+      assert.equal((await home.read(f.teacherActor)).modules.queries.totalItems, null); assert.equal(result.modules.materials.totalItems, null);
       assert.doesNotMatch(JSON.stringify(result), /storageKey|synthetic-home\/|Descripción privada/);
     });
     await check('a real SQL error rolls back its widget savepoint and later modules remain readable', async (f, _home, local) => {
@@ -150,11 +154,12 @@ test('D9 real PostgreSQL Home projections preserve permission, exact counts, pri
           return tx.$queryRawUnsafe(sql, ...values);
         },
       }), options) };
-      const result = await readFactory(api, database, f).read();
+      const result = await readFactory(api, database, f).read(f.teacherActor);
       assert.equal(injected, true, 'A real PostgreSQL error must be injected in the query widget');
       assert.deepEqual(result.modules.queries, { status: 'error', code: 'SERVICE_UNAVAILABLE', retryable: true });
-      assert.equal(rows(result, 'pending').length, 1);
-      assert.deepEqual(rows(result, 'materials').map(x => x.target.materialId), [material]);
+      const studentResult = await readFactory(api, local.database, f).read();
+      assert.equal(rows(studentResult, 'pending').length, 1);
+      assert.deepEqual(rows(studentResult, 'materials').map(x => x.target.materialId), [material]);
       assert.ok(rows(result, 'classrooms').length > 0, 'Transaction remains usable after the failed widget');
     });
     await check('miniagenda merges three future private/academic starts, excluding past, foreign, today all-day and beyond90d', async (f, home) => {

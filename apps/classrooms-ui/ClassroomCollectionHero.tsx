@@ -7,8 +7,8 @@ const benefits: { icon: IconKey; label: string }[] = [
   { icon: 'users', label: 'Conectá con tus docentes' },
 ];
 
-export function ClassroomCollectionHero({ busy, onJoin, onCreate }: {
-  busy: boolean; onJoin: () => void; onCreate: () => void;
+export function ClassroomCollectionHero({ accountRole, busy, onJoin, onCreate }: {
+  accountRole: 'teacher' | 'student'; busy: boolean; onJoin: () => void; onCreate: () => void;
 }) {
   return <header className="collection-reference-hero">
     <picture aria-hidden="true">
@@ -23,8 +23,8 @@ export function ClassroomCollectionHero({ busy, onJoin, onCreate }: {
       <p>Organizá tus clases y seguí aprendiendo<br className="collection-hero-break" /> en un mismo lugar.</p>
     </div>
     <div className="collection-hero-actions">
-      <button type="button" disabled={busy} onClick={onJoin}><FoxmindIcon name="users" />Unirse con código</button>
-      <button type="button" className="primary" disabled={busy} onClick={onCreate}><FoxmindIcon name="plus" />Crear aula</button>
+      {accountRole === 'student' ? <button type="button" disabled={busy} onClick={onJoin}><FoxmindIcon name="users" />Unirse con código</button> : null}
+      {accountRole === 'teacher' ? <button type="button" className="primary" disabled={busy} onClick={onCreate}><FoxmindIcon name="plus" />Crear aula</button> : null}
     </div>
     <ul className="collection-hero-benefits">{benefits.map(item => <li key={item.icon}>
       <span><FoxmindIcon name={item.icon} /></span>{item.label}

@@ -132,7 +132,7 @@ mutations, atomically persist digests and fixed token TTL/single-use state,
 serialize per-user credential changes, recheck stale credential snapshots after
 locking, revoke/rotate according to contract, and use shared atomic abuse storage
 that fails closed on outage. Safe session/CSRF/health polling cannot renew idle.
-No anonymous Session row, JWT, bearer alternative, global role, invitation or
+No anonymous Session row, JWT, bearer alternative, invitation or
 email restriction is introduced here.
 
 Rollback boundary: remove this standalone directory, its private tsconfig/test

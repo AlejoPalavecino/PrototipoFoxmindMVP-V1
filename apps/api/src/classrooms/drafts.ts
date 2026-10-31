@@ -31,7 +31,7 @@ export class DraftService {
     actor: Actor,
     id: string,
   ): Promise<DraftRow> {
-    if (!uuid(id)) return fail('FORBIDDEN');
+    if (actor.account_role !== 'teacher' || !uuid(id)) return fail('FORBIDDEN');
     const [row] = await tx.query<DraftRow>(
       'SELECT * FROM classroom_drafts WHERE id=$1::uuid AND owner_id=$2::uuid FOR UPDATE',
       id,
@@ -50,6 +50,7 @@ export class DraftService {
   }
   createDraft(request: unknown) {
     return this.run(request, true, async (tx, actor) => {
+      if (actor.account_role !== 'teacher') return fail('FORBIDDEN');
       const [row] = await tx.query<DraftRow>(
         `INSERT INTO classroom_drafts(id,owner_id,updated_at)
         VALUES($1::uuid,$2::uuid,clock_timestamp()) RETURNING *`,
@@ -61,7 +62,7 @@ export class DraftService {
   }
   listDrafts(request: unknown) {
     return this.run(request, false, async (tx, actor) =>
-      (
+      actor.account_role !== 'teacher' ? [] : (
         await tx.query<DraftRow>(
           `SELECT * FROM classroom_drafts
       WHERE owner_id=$1::uuid AND published_classroom_id IS NULL ORDER BY updated_at DESC,id`,

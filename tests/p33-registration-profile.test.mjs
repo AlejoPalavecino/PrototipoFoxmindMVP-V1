@@ -35,8 +35,8 @@ before(async () => {
 after(async () => { for (const app of apps) await app.close(); if (db) await db.end(); });
 async function seed(email, isVerified) {
   const id = randomUUID();
-  await db.query(`INSERT INTO users(id,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-    VALUES($1,$2,lower($2),'Original','Learner',$3,CASE WHEN $4 THEN now() ELSE NULL END)`, [id, email, hash, isVerified]);
+  await db.query(`INSERT INTO users(id,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+    VALUES($1,$2,lower($2),'Original','Learner',$3,CASE WHEN $4 THEN now() ELSE NULL END,'student')`, [id, email, hash, isVerified]);
   return id;
 }
 async function session(user = verified, { idle = 0, absolute = 43200 } = {}) {
@@ -50,7 +50,7 @@ async function send(path, { method = 'GET', body, cookie, csrf, headers = {}, ta
     headers: { ...(method !== 'GET' ? { Origin: origin, 'Content-Type': 'application/json' } : {}), ...(cookie ? { Cookie: cookie } : {}), ...(csrf ? { 'X-CSRF-Token': csrf } : {}), ...headers },
     ...(body === undefined ? {} : { body: typeof body === 'string' ? body : JSON.stringify(body) }), signal: AbortSignal.timeout(4000) });
 }
-const input = (email, extra = {}) => ({ email, firstName: 'Example', lastName: 'Learner', password, ...extra });
+const input = (email, extra = {}) => ({ email, firstName: 'Example', lastName: 'Learner', password, accountRole: 'student', ...extra });
 const register = (email, extra = {}, options = {}) => send('/auth/register', { method: 'POST', body: input(email, extra), ...options });
 const login = (email, raw = password, options = {}) => send('/auth/login', { method: 'POST', body: { email, password: raw }, ...options });
 function security(response) {
@@ -107,7 +107,7 @@ test('D2 registration accepts durably, sends actual Spanish verification asynchr
   }
   const response = await login(email); assert.equal(response.status, 200);
   const state = await response.json(); assert.ok(state.user.email === email, 'original delivery spelling'); assert.equal(state.user.emailVerified, false);
-  assert.deepEqual(Object.keys(state.user).sort(), ['email', 'emailVerified', 'firstName', 'id', 'lastName']);
+  assert.deepEqual(Object.keys(state.user).sort(), ['accountRole', 'email', 'emailVerified', 'firstName', 'id', 'lastName']);
   const cookie = response.headers.get('set-cookie').split(';')[0];
   await error(await send('/account', { cookie }), 403, 'EMAIL_VERIFICATION_REQUIRED');
   await status(await send('/classrooms', { cookie }), 404);
@@ -199,7 +199,7 @@ test('D2 profile GET/PATCH require verified persisted session and whitelist own 
   const changed = await send('/account', { method: 'PATCH', cookie, csrf: token, body: { firstName: '😀'.repeat(80) } });
   assert.equal(changed.status, 200); security(changed);
   const user = await changed.json(); assert.equal(user.lastName, original.lastName); assert.ok(user.email === original.email, 'email remains read-only');
-  assert.deepEqual(Object.keys(user).sort(), ['email', 'emailVerified', 'firstName', 'id', 'lastName']);
+  assert.deepEqual(Object.keys(user).sort(), ['accountRole', 'email', 'emailVerified', 'firstName', 'id', 'lastName']);
   assert.ok(user.firstName === '😀'.repeat(80));
   const second = await send('/account', { method: 'PATCH', cookie, csrf: token, body: { firstName: original.firstName, lastName: 'Family' } });
   assert.equal(second.status, 200); assert.equal((await second.json()).lastName, 'Family');

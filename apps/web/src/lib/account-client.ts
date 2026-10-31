@@ -1,4 +1,4 @@
-export interface AccountUser { id: string; firstName: string; lastName: string; email: string; emailVerified: boolean }
+export interface AccountUser { id: string; firstName: string; lastName: string; email: string; emailVerified: boolean; accountRole: 'teacher' | 'student' }
 export type AccountSession = { authenticated: false } | { authenticated: true; user: AccountUser };
 const messages: Record<string, string> = {
   AUTH_REQUIRED: 'Tu sesión finalizó. Inicia sesión para continuar.',

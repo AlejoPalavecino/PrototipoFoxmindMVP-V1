@@ -13,8 +13,8 @@ function payload(color) {
 }
 async function seed(query) {
   const ids = [randomUUID(), randomUUID()];
-  for (const id of ids) await query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-    VALUES($1,now(),$2,$2,'Color','Fixture','not-login',now())`, id, `${id}@example.invalid`);
+  for (const id of ids) await query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+    VALUES($1,now(),$2,$2,'Color','Fixture','not-login',now(),'teacher')`, id, `${id}@example.invalid`);
   return ids;
 }
 test('PostgreSQL colors preserve retry identity, CAS, clear semantics and owner privacy with rollback', { timeout: 60000 }, async t => {

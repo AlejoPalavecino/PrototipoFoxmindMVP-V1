@@ -27,6 +27,7 @@ interface HomeData {
 export function ClassroomsApp({
   api,
   displayName,
+  accountRole,
   subjectId,
   homeClient,
   accountActions,
@@ -38,6 +39,7 @@ export function ClassroomsApp({
 }: {
   api: ClassroomClient;
   displayName: string;
+  accountRole?: 'teacher' | 'student';
   subjectId?: string;
   homeClient?: HomeClient;
   accountActions?: ReactNode;
@@ -171,6 +173,7 @@ export function ClassroomsApp({
       setBusy(false);
     }
   }
+  if (accountRole !== 'teacher' && accountRole !== 'student') return <Notice error>No pudimos comprobar el rol de tu cuenta.</Notice>;
   return (
     <div className={`p5-app fm3-classrooms${draft ? ' entry-wizard-reference' : !classroomId ? presentation === 'home' ? ' entry-home' : ' entry-classrooms-reference' : ' classroom-interior-reference'}`}>
       <a className="skip-link" href="#classroom-main">Saltar al contenido</a>
@@ -222,7 +225,7 @@ export function ClassroomsApp({
         ) : presentation === 'home' ? (
           <>
             {error ? <Notice error>{error} <button disabled={busy} onClick={() => setError('')}>Cerrar aviso</button></Notice> : null}
-            <Home displayName={displayName} subjectId={subjectId} homeClient={homeClient} busy={busy}
+            <Home accountRole={accountRole} displayName={displayName} subjectId={subjectId} homeClient={homeClient} busy={busy}
               onAction={openHomeTarget} onAgenda={() => { if (onNavigate) onNavigate('agenda'); else window.location.assign('/agenda'); }}
               onCreate={() => void action(async () => { setDraft(await api.call<Draft>('/drafts', 'POST', {})); })}
               onJoin={() => { setJoin(true); setJoinError(''); setPreview(null); }}
@@ -230,7 +233,7 @@ export function ClassroomsApp({
           </>
         ) : (
           <>
-            <ClassroomCollectionHero busy={busy}
+            <ClassroomCollectionHero accountRole={accountRole} busy={busy}
               onJoin={() => { setJoin(true); setJoinError(''); setPreview(null); }}
               onCreate={() => void action(async () => { setDraft(await api.call<Draft>('/drafts', 'POST', {})); })} />
             {notice ? <Notice>{notice}</Notice> : null}
@@ -246,7 +249,7 @@ export function ClassroomsApp({
             {data && requestedInvitation && !data.invitations.some(item => item.id.toLowerCase() === requestedInvitation.toLowerCase()) ? (
               <Notice>Esta invitación no está pendiente para la cuenta actual. Puede haber vencido, haberse utilizado o corresponder a otro correo. Revisa tus invitaciones o cambia de cuenta desde tu perfil.</Notice>
             ) : null}
-            {data ? <ClassroomCollection teach={data.teach} study={data.study} search={search} onSearch={setSearch}
+            {data ? <ClassroomCollection accountRole={accountRole} teach={data.teach} study={data.study} search={search} onSearch={setSearch}
               onEnter={id => { setSharedCode(null); setClassroomId(id); }} /> : null}
             {data && (data.invitations.length > 0 || data.drafts.length > 0) ? <section className="folder-panel tone-yellow folder-pending" aria-label="Pendientes">
               <h2 className="folder-tab"><EntryIcon name="bell" />Pendientes <span className="collection-pending-count">{data.invitations.length + data.drafts.length}</span></h2>
@@ -266,13 +269,13 @@ export function ClassroomsApp({
                         )}
                       </small>
                     </div>
-                    <button
+                    {accountRole === 'student' ? <button
                       className="primary"
                       disabled={busy}
                       onClick={() => void action(() => accept(invitation))}
                     >
                       Aceptar invitación
-                    </button>
+                    </button> : <p>Las invitaciones para estudiar requieren una cuenta de estudiante.</p>}
                   </article>
                 ))}
               </section>

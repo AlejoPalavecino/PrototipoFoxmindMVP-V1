@@ -30,7 +30,7 @@ Los eventos de día completo son fechas de calendario, sin conversión a mediano
 
 Próximas entregas se calcula con datos académicos reales: membresía, actividad publicada, elegibilidad, último intento y plazo efectivo, incluyendo la prórroga individual aplicable. Una entrega confirmada deja de estar pendiente; una reentrega habilitada puede volver a aparecer. Los plazos vencidos, actividades sin fecha, aulas archivadas y accesos revocados no se presentan como próximas entregas pendientes.
 
-Una misma cuenta puede estudiar en unas aulas y enseñar en otras. La agenda distingue ambos contextos sin crear un rol global ni exponer al docente datos individuales del estudiante en el calendario.
+Cada cuenta tiene un rol exclusivo docente o estudiante. La agenda respeta sus permisos por aula sin exponer al docente datos individuales del estudiante en el calendario.
 
 ## Seguridad y recuperación
 

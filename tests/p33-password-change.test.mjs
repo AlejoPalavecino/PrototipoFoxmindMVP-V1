@@ -39,7 +39,7 @@ async function session(id, absolute = 43200) {
 }
 async function seed(verified = true, absolute = 43200) {
   const id = randomUUID(), email = `${id}@example.test`;
-  await db.query("INSERT INTO users(id,email,email_normalized,first_name,last_name,password_hash,email_verified_at) VALUES($1,$2,$2,'Original','Learner',$3,CASE WHEN $4 THEN clock_timestamp() ELSE NULL END)", [id, email, hash, verified]);
+  await db.query("INSERT INTO users(id,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role) VALUES($1,$2,$2,'Original','Learner',$3,CASE WHEN $4 THEN clock_timestamp() ELSE NULL END,'student')", [id, email, hash, verified]);
   return { id, email, ...await session(id, absolute) };
 }
 async function error(response, status, code) {

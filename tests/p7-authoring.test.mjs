@@ -21,8 +21,8 @@ test('P7 teacher authoring preserves privacy, validation, identity and lock boun
   await withP5Database(async ({ pool, database }) => {
     const teacher = randomUUID(), other = randomUUID(), student = randomUUID(), room = randomUUID(), foreign = randomUUID();
     for (const id of [teacher, other, student]) await pool.query(`INSERT INTO users
-      (id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-      VALUES($1,now(),$2,$2,'Activity','Fixture','fixture',now())`, [id, `${id}@example.test`]);
+      (id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+      VALUES($1,now(),$2,$2,'Activity','Fixture','fixture',now(),$3)`, [id, `${id}@example.test`, id === student ? 'student' : 'teacher']);
     for (const [id, owner] of [[room, teacher], [foreign, other]]) await pool.query(`INSERT INTO classrooms
       (id,updated_at,teacher_id,name,subject,division,academic_year,timezone,cover_key,storage_quota_bytes)
       VALUES($1,now(),$2,'Authoring fixture','Subject','A',2026,'America/New_York','explore',100000000)`, [id, owner]);

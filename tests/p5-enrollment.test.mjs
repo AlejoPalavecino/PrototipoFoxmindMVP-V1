@@ -14,22 +14,24 @@ test(
       const teacher = randomUUID(),
         student = randomUUID(),
         stranger = randomUUID(),
+        otherTeacher = randomUUID(),
         otherRoom = randomUUID(),
         room = randomUUID();
-      for (const [id, first] of [
-        [teacher, 'Teacher'],
-        [student, 'Student'],
-        [stranger, 'Other'],
+      for (const [id, first, role] of [
+        [teacher, 'Teacher', 'teacher'],
+        [student, 'Student', 'student'],
+        [stranger, 'Other', 'student'],
+        [otherTeacher, 'OtherTeacher', 'teacher'],
       ])
         await pool.query(
           `INSERT INTO users
-      (id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-      VALUES($1,now(),$2,$2,$3,'Fixture','fixture',now())`,
-          [id, `${id}@example.test`, first],
+      (id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+      VALUES($1,now(),$2,$2,$3,'Fixture','fixture',now(),$4)`,
+          [id, `${id}@example.test`, first, role],
         );
       for (const [id, owner] of [
         [room, teacher],
-        [otherRoom, stranger],
+        [otherRoom, otherTeacher],
       ])
         await pool.query(
           `INSERT INTO classrooms

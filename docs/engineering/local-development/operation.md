@@ -42,7 +42,7 @@ Existing build policies remain API30s and Next180s in their bounded runners; use
 
 1. Open the exact configured browser origin. Register/sign in with a synthetic account; use locally captured verification email and explicit confirmation. Ordinary login for a verified account goes to `/inicio`; explicit permitted destinations and invitation flows retain their own routing. Verification remains required.
 2. A teacher creates a private draft, uploads a real allowed plan and completes required classroom/unit/topic data before publication. File selection is not upload; uploaded bytes are not usable until validated, scanned CLEAN and ready.
-3. A second synthetic account joins by explicit code confirmation or accepts its own captured invitation. Opening a link, signing in or receiving queued mail does not enroll anyone. The same account may teach one classroom and study another, without a global role switch.
+3. A second synthetic account joins by explicit code confirmation or accepts its own captured invitation. Opening a link, signing in or receiving queued mail does not enroll anyone. A teacher account creates classrooms; a separate student account joins them. The account role is selected at registration and cannot be switched.
 4. Exercise Plan/Library/Muro and one actual activity/submission/grade publication. Drafts and private corrections remain private; selecting/uploading attachments is not a confirmed submission, and an unpublished grade is not a final student result.
 5. Observe confirmed autosave/receipt/publication and authorized downloads. Do not equate a screenshot, health check or policy-only test with browser→API→SQL→private-storage/captured-email acceptance. Record exact source/proof identities and owned cleanup.
 

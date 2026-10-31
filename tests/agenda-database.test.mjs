@@ -9,8 +9,8 @@ const payload = () => ({ title: 'Persistido', description: '', category: 'CLASS'
 const range = { startDate: '2026-11-01', endDateExclusive: '2026-12-01', timeZone: 'UTC' };
 async function seed(query) {
   const ids = [randomUUID(), randomUUID()];
-  for (const id of ids) await query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-    VALUES($1,now(),$2,$2,'Agenda','Fixture','not-a-login',now())`, id, `${id}@example.invalid`);
+  for (const id of ids) await query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+    VALUES($1,now(),$2,$2,'Agenda','Fixture','not-a-login',now(),'teacher')`, id, `${id}@example.invalid`);
   return ids;
 }
 test('agenda real PostgreSQL persistence, constraints and isolation with per-case rollback', { timeout: 60000 }, async t => {

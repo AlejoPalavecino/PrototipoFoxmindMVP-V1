@@ -71,19 +71,19 @@ export async function withP5Runtime(run, { port = 0, preview = false } = {}) {
       );
       let worker;
       try {
-        for (const [name, first, last, email] of [
-          ['Docente', 'Lucía', 'Moreno', 'lucia@example.test'],
-          ['Estudiante', 'Sofía', 'Ríos', 'sofia@example.test'],
-          ['Otra persona', 'Mateo', 'Paz', 'mateo@example.test'],
+        for (const [name, first, last, email, accountRole] of [
+          ['Docente', 'Lucía', 'Moreno', 'lucia@example.test', 'teacher'],
+          ['Estudiante', 'Sofía', 'Ríos', 'sofia@example.test', 'student'],
+          ['Otra persona', 'Mateo', 'Paz', 'mateo@example.test', 'student'],
         ]) {
           const id = randomUUID(),
             token = randomBytes(32).toString('base64url'),
             csrf = randomBytes(32).toString('base64url'),
             sessionId = randomUUID();
           await pool.query(
-            `INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-          VALUES($1,now(),$2,$2,$3,$4,'isolated-fixture-not-login',now())`,
-            [id, email, first, last],
+            `INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+          VALUES($1,now(),$2,$2,$3,$4,'isolated-fixture-not-login',now(),$5)`,
+            [id, email, first, last, accountRole],
           );
           await pool.query(
             `INSERT INTO sessions(id,updated_at,user_id,token_hash,expires_at) VALUES($1,now(),$2,$3,now()+interval '2 hours')`,
@@ -96,6 +96,7 @@ export async function withP5Runtime(run, { port = 0, preview = false } = {}) {
             csrf,
             name: `${first} ${last}`,
             email,
+            accountRole,
           };
           sessionMap.set(token, account);
           accounts[name] = account;
@@ -184,7 +185,7 @@ export async function withP5Runtime(run, { port = 0, preview = false } = {}) {
               );
             res.setHeader('Cache-Control', 'no-store');
             res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify({ name: account.name, csrf: account.csrf }));
+            res.end(JSON.stringify({ name: account.name, csrf: account.csrf, accountRole: account.accountRole }));
             return;
           }
           if (req.url === '/__fixture/choose' && req.method === 'POST') {

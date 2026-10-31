@@ -10,6 +10,7 @@ export async function previewCodeOperation(capability: MembershipService, reques
     if (typeof input !== 'string' || !/^[\w-]{24}$/.test(input))
       return fail('ENROLLMENT_UNAVAILABLE');
     return capability.run(request, true, async (tx, actor) => {
+      if (actor.account_role !== 'student') return fail('ENROLLMENT_UNAVAILABLE');
       const [code] = await tx.query<{
         id: string;
         classroom_id: string;
@@ -37,6 +38,7 @@ export async function previewCodeOperation(capability: MembershipService, reques
 
 export function confirmCodeOperation(capability: MembershipService, request: unknown, confirmation: unknown) {
     return capability.run(request, true, async (tx, actor) => {
+      if (actor.account_role !== 'student') return fail('ENROLLMENT_UNAVAILABLE');
       const data = capability.tokens.read(
         confirmation,
         actor.id,

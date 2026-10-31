@@ -4,16 +4,16 @@ import type { HomeResponse, HomeTarget } from '../../src/core/domain/index.ts';
 import { FoxmindIcon } from '../shared-ui/index.ts';
 
 interface HomeShortcutProps {
-  data: HomeResponse; onAction: (target: HomeTarget) => void; onCreate: () => void;
+  accountRole: 'teacher' | 'student'; data: HomeResponse; onAction: (target: HomeTarget) => void; onCreate: () => void;
   onJoin: () => void; onClassrooms: () => void; onAgenda: () => void; busy?: boolean;
 }
 
-export function HomeShortcuts({ onCreate, onJoin, onClassrooms, onAgenda, busy }: HomeShortcutProps) {
+export function HomeShortcuts({ accountRole, onCreate, onJoin, onClassrooms, onAgenda, busy }: HomeShortcutProps) {
   const links = [
-    { label: 'Mis aulas', detail: 'Estudio, Enseño e historial', icon: 'book', action: onClassrooms },
-    { label: 'Crear aula', detail: 'Organiza una materia', icon: 'plus', action: onCreate, disabled: busy },
+    { label: 'Mis aulas', detail: 'Tus aulas e historial', icon: 'book', action: onClassrooms },
+    ...(accountRole === 'teacher' ? [{ label: 'Crear aula', detail: 'Organiza una materia', icon: 'plus' as const, action: onCreate, disabled: busy }] : []),
     { label: 'Mi Agenda', detail: 'Organiza tu semana', icon: 'calendar', action: onAgenda },
-    { label: 'Unirme con código', detail: 'Encuentra tu próxima aula', icon: 'users', action: onJoin, disabled: busy },
+    ...(accountRole === 'student' ? [{ label: 'Unirme con código', detail: 'Encuentra tu próxima aula', icon: 'users' as const, action: onJoin, disabled: busy }] : []),
   ] as const;
   return <section className="fm-home-module fm-home-shortcuts" aria-label="Accesos rápidos">
     <header><FoxmindIcon name="spark" /><h2>Accesos rápidos</h2><p>Lo que necesitas, a un clic.</p></header>

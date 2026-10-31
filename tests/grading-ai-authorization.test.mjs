@@ -7,8 +7,8 @@ import { GradingAiRuntime } from '../apps/api/src/classrooms/grading-ai/runtime.
 const configuration={maxConcurrency:2,deadlineMs:30000,dailyActorRequests:20,dailyGlobalRequests:20,maxInputTokens:10000,maxOutputTokens:200,inputUsdPerMillion:1,outputUsdPerMillion:1,dailyBudgetUsd:5};
 async function fixture(pool) {
  const teacher=randomUUID(),student=randomUUID(),room=randomUUID(),activity=randomUUID(),enrollment=randomUUID(),obligation=randomUUID(),attempt=randomUUID(),job=randomUUID(),nonce=randomUUID(),file=randomUUID();
- for(const id of [teacher,student]) await pool.query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-  VALUES($1,now(),$2,$2,'Nombre','Prueba','fixture',now())`,[id,`${id}@example.test`]);
+ for(const id of [teacher,student]) await pool.query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+  VALUES($1,now(),$2,$2,'Nombre','Prueba','fixture',now(),$3)`,[id,`${id}@example.test`, id === student ? 'student' : 'teacher']);
  await pool.query(`INSERT INTO classrooms(id,updated_at,teacher_id,name,subject,division,academic_year,timezone,cover_key,storage_quota_bytes,ai_grading_enabled)
   VALUES($1,now(),$2,'Aula','Materia','A',2026,'UTC','explore',1000000,true)`,[room,teacher]);
  await pool.query(`INSERT INTO activities(id,updated_at,classroom_id,type,status,instructions_text) VALUES($1,now(),$2,'ASSIGNMENT','DRAFT','Resuelve')`,[activity,room]);

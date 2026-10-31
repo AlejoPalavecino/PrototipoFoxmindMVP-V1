@@ -1,5 +1,9 @@
 # Cuenta local permanente de demostración
 
+> **Actualización 2026-10-31:** la base local se reinició para el rol exclusivo. Las cuentas y aulas descritas más abajo son historia y ya no están en la base activa. Las nuevas cuentas verificadas son `docente-20261031-c2947ee0@example.test` y `estudiante-20261031-c2947ee0@example.test`. Con la aplicación en marcha, ingresar en `http://127.0.0.1:52171/sign-in`. Sus contraseñas están protegidas mediante Windows DPAPI CurrentUser; abrir el visor desde la raíz del proyecto con `powershell.exe -NoProfile -File .test-artifacts/exclusive-role-dev/credentials.ps1`. El correo y almacenamiento anteriores se conservaron y pueden contener recursos huérfanos.
+
+## Escenario histórico anterior al reinicio
+
 Cuenta creada el 26 de octubre de 2026 en la base persistente del entorno local de FoxMind. No pertenece a un entorno desechable de tests.
 
 ## Acceso

@@ -27,8 +27,8 @@ test('new recurrence kinds persist, reload, expand and remain owner-isolated', {
   const { createAgendaService, createAgendaUnitOfWork } = loadTsModule('apps/api/src/agenda/index.ts');
   await withAgendaDatabase(async ({ transaction }) => transaction(async ({ database, query }) => {
     const owner = randomUUID();
-    await query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-      VALUES($1,now(),$2,$2,'Synthetic','Teacher','fixture-only',now())`, owner, `${owner}@example.test`);
+    await query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+      VALUES($1,now(),$2,$2,'Synthetic','Teacher','fixture-only',now(),'teacher')`, owner, `${owner}@example.test`);
     const make = () => createAgendaService(createAgendaUnitOfWork(database, async (_tx, request) => request.userId));
     for (const kind of ['DAILY', 'MONTHLY']) {
       const id = randomUUID(), input = payload(kind, '2026-11-01', '2026-11-03');

@@ -1,6 +1,6 @@
 # Entender el producto y sus reglas
 
-FoxMind reúne aulas, contenidos, actividades, entregas y devoluciones. Una misma cuenta puede enseñar en unas aulas y estudiar en otras. La [especificación funcional](../foxmind-v1-functional-spec.md) conserva las reglas y sus identificadores; el [roadmap](../implementation-roadmap.md#estado-actual) conserva el estado aceptado.
+FoxMind reúne aulas, contenidos, actividades, entregas y devoluciones. Cada cuenta elige al registrarse un rol exclusivo de docente o estudiante. La [especificación funcional](../foxmind-v1-functional-spec.md) conserva las reglas y sus identificadores; el [roadmap](../implementation-roadmap.md#estado-actual) conserva el estado aceptado.
 
 ## Leer por necesidad
 

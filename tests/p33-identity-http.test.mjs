@@ -27,8 +27,8 @@ before(async () => {
   hash = await passwords.hash(password); newHash = await passwords.hash(changedPassword);
   for (const [kind, email, verified] of [['verified', fixtureEmail, true], ['unverified', 'Unverified@example.test', false], ['race', 'Race@example.test', true]]) {
     const id = randomUUID(); fixture[kind] = id;
-    await db.query(`INSERT INTO users(id,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-      VALUES($1,$2,lower($2),'Example','Learner',$3,CASE WHEN $4 THEN now() ELSE NULL END)`, [id, email, hash, verified]);
+    await db.query(`INSERT INTO users(id,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+      VALUES($1,$2,lower($2),'Example','Learner',$3,CASE WHEN $4 THEN now() ELSE NULL END,'student')`, [id, email, hash, verified]);
   }
   ({ app, base } = await start());
 });
@@ -90,7 +90,7 @@ test('D1 verified and unverified login uses fresh opaque cookie and preserved br
     const state = await response.json();
     assert.equal(state.authenticated, true); assert.ok(state.user.email === email, 'delivery spelling preserved');
     assert.equal(state.user.emailVerified, email === fixtureEmail);
-    assert.deepEqual(Object.keys(state.user).sort(), ['email', 'emailVerified', 'firstName', 'id', 'lastName']);
+    assert.deepEqual(Object.keys(state.user).sort(), ['accountRole', 'email', 'emailVerified', 'firstName', 'id', 'lastName']);
     const cookie = cookieOf(response);
     const read = await send('/auth/session', { cookie });
     assert.equal((await read.json()).user.id, state.user.id);

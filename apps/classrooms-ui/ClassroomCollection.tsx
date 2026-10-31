@@ -5,6 +5,7 @@ import { ClassroomCollectionFilters, activeCollectionFilters } from './Classroom
 import { filterClassroomCards, type ClassroomFilter, type ClassroomFilterOptions } from './collection-filter.ts';
 
 interface Props {
+  accountRole: 'teacher' | 'student';
   teach: Classroom[];
   study: Classroom[];
   search: string;
@@ -12,7 +13,7 @@ interface Props {
   onSearch?: (search: string) => void;
 }
 
-export function ClassroomCollection({ teach, study, search, onEnter, onSearch }: Props) {
+export function ClassroomCollection({ accountRole, teach, study, search, onEnter, onSearch }: Props) {
   const [role, setRole] = useState<ClassroomFilter>('all');
   const [options, setOptions] = useState<ClassroomFilterOptions>({});
   const [expanded, setExpanded] = useState(false);
@@ -29,7 +30,7 @@ export function ClassroomCollection({ teach, study, search, onEnter, onSearch }:
     <div className={`fm3-classroom-grid${view === 'list' ? ' is-list' : ''}`}>
       {visible.map(room => <ClassroomCard key={room.id} room={room} onEnter={onEnter} />)}
     </div>
-    {!visible.length ? <p className="p5-empty">{!all.length ? 'Aún no tenés aulas. Creá una o ingresá con un código para empezar.'
+    {!visible.length ? <p className="p5-empty">{!all.length ? accountRole === 'teacher' ? 'Aún no tenés aulas. Creá una para empezar.' : 'Aún no tenés aulas. Ingresá con un código para empezar.'
       : narrowed ? 'No hay coincidencias entre tus aulas cargadas.' : 'No tenés aulas en esta participación.'}</p> : null}
     {all.length ? <p className="fm3-collection-count" role="status">Mostrando {visible.length} de {all.length} aulas</p> : null}
   </div>;

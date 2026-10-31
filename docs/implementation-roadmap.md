@@ -14,6 +14,7 @@ Este resumen distingue lo integrado, lo verificado y los límites de las pruebas
 | Seis correcciones de auditoría | Implementadas y publicadas, con limitaciones y pruebas atribuidas | [Tarea](../odd/tasks/audit-remediation.md), [cierre](work-log/2026-10-30-root-audit-completion.md) |
 | Cinco comprobaciones históricas | Cerradas: FAST783/0/0 y P5/resumen14/0/0. No se repitió toda la selección de42archivos de navegador | [Cierre de los casos](work-log/2026-10-30-root-five-historical-checks.md) |
 | Reorganización documental | Aplicada y publicada en main166cf77:43guías canónicas, compatibilidad e historia preservadas; control documental y FAST794/0/0aprobados | [Plan único y evidencia](../odd/tasks/documentation-reorganization.md) |
+| Rol exclusivo por cuenta | Implementado y verificado localmente; registro, permisos y UI por rol. La base de desarrollo se reinició con dos cuentas sintéticas; migración para datos existentes no diseñada. Menú móvil verificado para ambos roles | [Implementación](work-log/2026-10-31-root-exclusive-role-implementation.md), [validación visual](work-log/2026-10-31-root-role-visual-final.md), [menú móvil](work-log/2026-10-31-root-mobile-menu.md) |
 
 ## Cómo retomar
 

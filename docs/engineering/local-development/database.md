@@ -83,7 +83,7 @@ Never run migration reset, db push or ad-hoc destructive SQL on a database conta
 | Communication | WallPost, WallReply, Notification | Tombstones preserve replies; destinations remain in their classroom. |
 | Deferred processing | BackgroundJob | Durable payload, deduplication key, lease token, attempts and retry-ready timestamp. |
 
-No global account role is stored. User-facing roles come from classroom ownership and current membership.
+Each user stores an exclusive global `teacher` or `student` account role. Classroom ownership and active membership remain necessary for access. The migration refuses to infer roles for existing users and requires an explicitly planned transition or an empty development database.
 
 ### Precision without silent rounding
 

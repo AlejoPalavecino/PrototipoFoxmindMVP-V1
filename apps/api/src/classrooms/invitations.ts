@@ -60,7 +60,7 @@ export class InvitationService {
   }
   pendingInvitations(request: unknown) {
     return this.run(request, false, async (tx, actor) =>
-      tx.query(
+      actor.account_role !== 'student' ? [] : tx.query(
         `SELECT i.id,i.expires_at AS "expiresAt",c.name,c.subject,c.division,
       c.academic_year AS "academicYear",concat(u.first_name,' ',u.last_name) AS teacher FROM invitations i
       JOIN classrooms c ON c.id=i.classroom_id JOIN users u ON u.id=c.teacher_id
@@ -105,6 +105,7 @@ export class InvitationService {
   }
   acceptInvitation(request: unknown, id: string) {
     return this.run(request, true, async (tx, actor) => {
+      if (actor.account_role !== 'student') return fail('ENROLLMENT_UNAVAILABLE');
       if (!uuid(id)) return fail('ENROLLMENT_UNAVAILABLE');
       const [snapshot] = await tx.query<{ classroom_id: string }>(
         'SELECT classroom_id FROM invitations WHERE id=$1::uuid',

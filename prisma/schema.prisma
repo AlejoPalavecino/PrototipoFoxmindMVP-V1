@@ -109,6 +109,7 @@ model User {
   updated_at            DateTime           @default(now()) @updatedAt @db.Timestamptz(6)
   email                 String
   email_normalized      String             @unique
+  account_role          String
   first_name            String
   last_name             String
   password_hash         String

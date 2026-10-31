@@ -95,8 +95,8 @@ async function captured(email, count = 1, purpose = 'PASSWORD_RESET') {
 }
 async function seed({ verified = false, purpose = 'PASSWORD_RESET', age = 61, expiry = 900, invalidated = false, consumed = false, email: deliveryEmail } = {}) {
   const id = randomUUID(), token = generateVerifier(), tokenId = randomUUID(), email = deliveryEmail ?? `Seed${++sequence}@example.test`;
-  await db.query(`INSERT INTO users(id,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-    VALUES($1,$2,lower($2),'Original','Learner',$3,CASE WHEN $4 THEN clock_timestamp() ELSE NULL END)`, [id, email, hash, verified]);
+  await db.query(`INSERT INTO users(id,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+    VALUES($1,$2,lower($2),'Original','Learner',$3,CASE WHEN $4 THEN clock_timestamp() ELSE NULL END,'student')`, [id, email, hash, verified]);
   await db.query(`INSERT INTO account_tokens(id,user_id,purpose,token_hash,created_at,expires_at,invalidated_at,consumed_at)
     VALUES($1,$2,$3,$4,clock_timestamp()-$5*interval '1 second',clock_timestamp()+$6*interval '1 second',
       CASE WHEN $7 THEN clock_timestamp() ELSE NULL END,CASE WHEN $8 THEN clock_timestamp() ELSE NULL END)`,
@@ -114,7 +114,7 @@ async function session(id, { absolute = 43200, idle = 0 } = {}) {
 async function unchanged(subject, mailCount = 0) {
   const current = await state(subject.cookie);
   assert.deepEqual(current, { authenticated: true, user: { id: subject.id, email: subject.email,
-    firstName: 'Original', lastName: 'Learner', emailVerified: subject.verified } });
+    firstName: 'Original', lastName: 'Learner', emailVerified: subject.verified, accountRole: 'student' } });
   assert.ok(await csrf(subject.cookie) === subject.csrf, 'binding unchanged');
   assert.equal((await messages(subject.email)).length, mailCount, 'rejection issued no mail');
 }
@@ -156,7 +156,7 @@ test('R request-core generic known and unknown wait for maintained work and pres
   assert.deepEqual(await state(), { authenticated: false });
   await unchanged(subject, 1); assert.equal((await messages(unknown)).length, 0);
   // Explicit later registration must create verification mail: recovery did not secretly create a user.
-  await accepted(await send('/auth/register', { method: 'POST', body: { email: unknown, password, firstName: 'Original', lastName: 'Learner' } }));
+  await accepted(await send('/auth/register', { method: 'POST', body: { email: unknown, password, firstName: 'Original', lastName: 'Learner', accountRole: 'student' } }));
   await captured(unknown, 1, 'EMAIL_VERIFICATION');
   assert.equal((await login({ email: unknown })).status, 200);
   const signed = await login(subject); assert.equal(signed.status, 200);

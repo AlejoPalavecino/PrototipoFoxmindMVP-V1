@@ -17,8 +17,8 @@ test('B1: consultation-only TP opening locks content without granting submission
     const teacher = randomUUID(), student = randomUUID(), foreign = randomUUID();
     const room = randomUUID(), unit = randomUUID(), topic = randomUUID();
     for (const id of [teacher, student, foreign]) await pool.query(`INSERT INTO users
-      (id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-      VALUES($1,now(),$2,$2,'Consultation','Fixture','fixture',now())`, [id, `${id}@example.test`]);
+      (id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+      VALUES($1,now(),$2,$2,'Consultation','Fixture','fixture',now(),$3)`, [id, `${id}@example.test`, id !== teacher ? 'student' : 'teacher']);
     await pool.query(`INSERT INTO classrooms(id,updated_at,teacher_id,name,subject,division,academic_year,timezone,cover_key,storage_quota_bytes)
       VALUES($1,now(),$2,'Consultation','Science','A',2026,'UTC','explore',100000000)`, [room, teacher]);
     await pool.query(`INSERT INTO units(id,updated_at,classroom_id,name,position) VALUES($1,now(),$2,'Unit',0)`, [unit, room]);

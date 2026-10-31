@@ -12,9 +12,9 @@ export const homeLabels:Record<HomeModuleName,{title:string;empty:string;action:
 export function homeTime(value:string,zone:string):string {
   return new Date(value).toLocaleString('es-AR',{timeZone:zone,day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
 }
-export function homeParticipation(data:HomeResponse):string {
+export function homeParticipation(data:HomeResponse,accountRole:'teacher'|'student'):string {
   const {study,teach,archived}=data.memberships;
-  if(data.participation==='none')return archived?'Tu historial de aulas sigue disponible.':'Crea un aula o únete para dar el primer paso.';
+  if(data.participation==='none')return archived?'Tu historial de aulas sigue disponible.':accountRole==='teacher'?'Crea un aula para dar el primer paso.':'Únete a un aula para dar el primer paso.';
   return `${study} ${study===1?'aula en Estudio':'aulas en Estudio'} · ${teach} ${teach===1?'aula en Enseño':'aulas en Enseño'}`;
 }
 export type HomeAction = (target:HomeTarget)=>void;

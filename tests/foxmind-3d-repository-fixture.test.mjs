@@ -2,16 +2,16 @@ import { randomUUID } from 'node:crypto';
 
 // Every caller runs this against an owned *_test transaction that is rolled back.
 export async function homeFixture(query) {
-  const [actor, other, pupil, outsider] = Array.from({ length: 4 }, () => randomUUID());
+  const [actor, teacherActor, other, pupil, outsider] = Array.from({ length: 5 }, () => randomUUID());
   const now = (await query('SELECT now() at'))[0].at.toISOString();
   const at = days => new Date(Date.parse(now) + days * 86400000).toISOString();
-  for (const id of [actor, other, pupil, outsider]) await query(`INSERT INTO users
-    (id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-    VALUES($1,now(),$2,$2,'Synthetic','Home','not-a-login',now())`, id, `${id}@example.test`);
+  for (const id of [actor, teacherActor, other, pupil, outsider]) await query(`INSERT INTO users
+    (id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+    VALUES($1,now(),$2,$2,'Synthetic','Home','not-a-login',now(),$3)`, id, `${id}@example.test`, [teacherActor, other].includes(id) ? 'teacher' : 'student');
   const rooms = {};
   for (const [name, teacher, student, archived] of [
-    ['study', other, actor, false], ['teach', actor, pupil, false],
-    ['foreign', other, pupil, false], ['archived', actor, pupil, true],
+    ['study', other, actor, false], ['teach', teacherActor, pupil, false],
+    ['foreign', other, pupil, false], ['archived', teacherActor, pupil, true],
   ]) {
     const [id, unit, topic, enrollment, period] = Array.from({ length: 5 }, () => randomUUID());
     await query(`INSERT INTO classrooms(id,updated_at,teacher_id,name,subject,division,academic_year,timezone,cover_key,storage_quota_bytes,archived_at)
@@ -22,7 +22,7 @@ export async function homeFixture(query) {
     await query("INSERT INTO membership_periods(id,updated_at,enrollment_id,classroom_id,entry_method) VALUES($1,now(),$2,$3,'CODE')", period, enrollment, id);
     rooms[name] = { id, unit, topic, teacher, student, enrollment, period };
   }
-  for (const owner of [actor, other]) await query(`INSERT INTO classroom_drafts(id,updated_at,owner_id,payload)
+  for (const owner of [teacherActor, other]) await query(`INSERT INTO classroom_drafts(id,updated_at,owner_id,payload)
     VALUES($1,now(),$2,'{}'::jsonb)`, randomUUID(), owner);
   await query(`INSERT INTO invitations(id,updated_at,classroom_id,recipient_email_normalized,invited_by_id,expires_at)
     VALUES($1,now(),$2,$3,$4,$5)`, randomUUID(), rooms.foreign.id, `${actor}@example.test`, other, at(1));
@@ -86,5 +86,5 @@ export async function homeFixture(query) {
     allDay ? null : 'UTC', allDay ? null : start, allDay ? null : end);
     return id;
   }
-  return { actor, other, pupil, outsider, rooms, now, at, query, activity, attempt, grade, post, material, event };
+  return { actor, teacherActor, other, pupil, outsider, rooms, now, at, query, activity, attempt, grade, post, material, event };
 }

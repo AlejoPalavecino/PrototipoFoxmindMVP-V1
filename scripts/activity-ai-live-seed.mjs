@@ -32,9 +32,9 @@ export async function seedActivityLive({ origin, inbox, directory }) {
     if (!response.ok) throw new Error(`Synthetic setup ${method} ${path}: ${response.status}`);
     return response.status === 204 ? null : response.json();
   }
-  async function register(firstName, email) {
+  async function register(firstName, email, accountRole) {
     const person = actor();
-    await call(person, 'POST', '/auth/register', { firstName, lastName: 'Demo', email, password });
+    await call(person, 'POST', '/auth/register', { firstName, lastName: 'Demo', email, password, accountRole });
     await call(person, 'POST', '/auth/login', { email, password });
     let token;
     for (let index = 0; index < 70 && !token; index++) {
@@ -49,7 +49,7 @@ export async function seedActivityLive({ origin, inbox, directory }) {
     await call(person, 'POST', '/auth/email-verification/confirm', { token }); return person;
   }
   const teacherEmail = 'docente-actividades@example.test', studentEmail = 'estudiante-actividades@example.test';
-  const teacher = await register('Lucía', teacherEmail), student = await register('Marina', studentEmail);
+  const teacher = await register('Lucía', teacherEmail, 'teacher'), student = await register('Marina', studentEmail, 'student');
   const pdf = await PDFDocument.create(), page = pdf.addPage(), font = await pdf.embedFont(StandardFonts.Helvetica);
   page.drawText('Unidad: La luz\nExposicion: luz acumulada durante un intervalo.\nUna mayor apertura deja entrar mas luz.\nEl contraste es la diferencia entre zonas claras y oscuras.', { x: 40, y: 740, font, size: 14, lineHeight: 24 });
   const pdfBytes = Buffer.from(await pdf.save());

@@ -32,6 +32,7 @@ export function ClassroomsScreen({ initialPresentation = 'classrooms' }: { initi
       const current = await account.session();
       if (!current.authenticated) { requireAccount('AUTH_REQUIRED'); return; }
       if (!current.user.emailVerified) { requireAccount('EMAIL_VERIFICATION_REQUIRED'); return; }
+      if (current.user.accountRole !== 'teacher' && current.user.accountRole !== 'student') { setError('No pudimos comprobar el rol de tu cuenta. Vuelve a iniciar sesion o intenta de nuevo.'); return; }
       setUser(current.user);
     } catch (failure) { setError((failure as Error).message); }
   }, [requireAccount]);
@@ -51,7 +52,7 @@ export function ClassroomsScreen({ initialPresentation = 'classrooms' }: { initi
       {error ? <div className="p5-app p5-gate"><Notice error>{error}</Notice></div> : null}
       {target.requested && !target.target ? <div className="p5-main"><Notice error={Boolean(target.error)}>{target.error ?? 'Comprobando acceso a la actividad…'}
         {target.error ? <button onClick={target.reload}>Volver a intentar</button> : null}</Notice><Link href="/agenda">Volver a Agenda</Link></div> :
-      <ClassroomsApp key={user.id} subjectId={user.id} homeClient={homeClient} api={api} displayName={`${user.firstName} ${user.lastName}`} requestedInvitation={invitation} requestedTarget={target.target}
+      <ClassroomsApp key={user.id} accountRole={user.accountRole} subjectId={user.id} homeClient={homeClient} api={api} displayName={`${user.firstName} ${user.lastName}`} requestedInvitation={invitation} requestedTarget={target.target}
         requestedNotification={typeof router.query.notificacion === 'string' && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(router.query.notificacion) ? router.query.notificacion : undefined}
         initialPresentation={initialPresentation} onNavigate={presentation => { void router.push(presentation === 'home' ? '/inicio' : presentation === 'agenda' ? '/agenda' : '/mis-aulas'); }}
         accountActions={<div className="p5-actions p5-account-actions"><Link href="/profile">Mi perfil</Link><button disabled={busy} onClick={() => void logout()}>{busy ? 'Cerrando sesión…' : 'Cerrar sesión'}</button></div>} />}

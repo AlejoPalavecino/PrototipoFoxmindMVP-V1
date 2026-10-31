@@ -43,6 +43,12 @@ function Register({view, session, user, verified, classroomNext, nextAccountHref
             <div className="field-grid"><Field appearance="polished" name="firstName" label="Nombre" autoComplete="given-name" /><Field appearance="polished" name="lastName" label="Apellido" autoComplete="family-name" /></div>
             <Field appearance="polished" name="email" label="Correo electrónico" autoComplete="email" />
             <Field appearance="polished" name="password" label="Contraseña" password autoComplete="new-password" />
+            <fieldset className="account-role-choice" aria-describedby="account-role-help">
+              <legend>¿Cómo vas a usar FoxMind?</legend>
+              <p id="account-role-help">Elegí un único rol para esta cuenta. Docente permite crear aulas; estudiante permite unirse a ellas. No podrás cambiarlo después.</p>
+              <label><input type="radio" name="accountRole" value="teacher" required /> Docente</label>
+              <label><input type="radio" name="accountRole" value="student" required /> Estudiante</label>
+            </fieldset>
             <Button type="submit" className="full-width">{busy ? 'Creando cuenta…' : 'Crear cuenta'}<FoxmindIcon name="arrow-right" /></Button>
           </fieldset></form>
           <p className="field-help registration-next"><EntryIcon name="envelope" />Después te enviaremos un correo para verificar tu cuenta.</p>

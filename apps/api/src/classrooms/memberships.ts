@@ -32,6 +32,7 @@ export class MembershipService {
     classroomId: string,
     invitationId: string | null,
   ) {
+    if (actor.account_role !== 'student') return fail('FORBIDDEN');
     let [enrollment] = await tx.query<{ id: string }>(
       'SELECT id FROM enrollments WHERE classroom_id=$1::uuid AND student_id=$2::uuid FOR UPDATE',
       classroomId,

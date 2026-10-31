@@ -7,11 +7,11 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 const now = '2026-10-23T12:00:00.000Z', future = '2026-11-02T15:00:00.000Z';
 const range = { startDate: '2026-10-01', endDateExclusive: '2026-12-01', timeZone: 'UTC' };
 async function seed(query, createAcademicAgenda) {
-  const [actor, other, pupil] = [randomUUID(), randomUUID(), randomUUID()];
-  for (const id of [actor, other, pupil]) await query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-    VALUES($1,now(),$2,$2,'Agenda','Fixture','not-login',now())`, id, `${id}@example.invalid`);
+  const [actor, teacherActor, other, pupil] = Array.from({ length: 4 }, () => randomUUID());
+  for (const id of [actor, teacherActor, other, pupil]) await query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+    VALUES($1,now(),$2,$2,'Agenda','Fixture','not-login',now(),$3)`, id, `${id}@example.invalid`, [actor, pupil].includes(id) ? 'student' : 'teacher');
   const rooms = [];
-  for (const [teacher, student] of [[other, actor], [actor, pupil]]) {
+  for (const [teacher, student] of [[other, actor], [teacherActor, pupil]]) {
     const [room, unit, topic, enrollment, period] = Array.from({ length: 5 }, () => randomUUID());
     await query(`INSERT INTO classrooms(id,updated_at,teacher_id,name,subject,division,academic_year,timezone,cover_key,storage_quota_bytes)
       VALUES($1,now(),$2,'Agenda aula','Ciencias','A',2026,'America/Argentina/Buenos_Aires','explore',1000000)`, room, teacher);
@@ -31,16 +31,16 @@ async function seed(query, createAcademicAgenda) {
     return { id, obligation, target: { classroomId: r.room, activityId: id } };
   };
   const port = userId => createAcademicAgenda({ query }, { userId, now });
-  return { actor, other, pupil, rooms, activity, port, query };
+  return { actor, teacherActor, other, pupil, rooms, activity, port, query };
 }
 test('academic agenda derives real obligations and current access without academic writes', { timeout: 60000 }, async t => {
   const { createAcademicAgenda } = loadTsModule('apps/api/src/classrooms/index.ts');
   assert.equal(typeof createAcademicAgenda, 'function');
   await withAgendaDatabase(async ({ pool, transaction }) => {
     const check = (name, run) => t.test(name, async () => transaction(async ({ query }) => run(await seed(query, createAcademicAgenda))));
-    await check('one account studies and teaches; teacher sees general deadline without individual metadata', async f => {
+    await check('separate student and teacher accounts see their deadlines without individual metadata', async f => {
       const studied = await f.activity(0), taught = await f.activity(1, { firstDeadline: '2026-11-20T15:00:00.000Z' });
-      const rows = await f.port(f.actor).upcoming(20);
+      const rows = [...await f.port(f.actor).upcoming(20), ...await f.port(f.teacherActor).upcoming(20)];
       assert.equal(rows.length, 2);
       const student = rows.find(x => x.target.activityId === studied.id), teacher = rows.find(x => x.target.activityId === taught.id);
       assert.equal(student.role, 'student'); assert.equal(teacher.role, 'teacher');

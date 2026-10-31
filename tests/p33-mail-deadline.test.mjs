@@ -54,7 +54,7 @@ test('real HTTP issuance: absolute SMTP deadline cancels before rejection, stops
   const password = 'Synthetic deadline password 😀';
   try {
     active = await start(peer.port);
-    const response = await request(active.base, '/auth/register', { email, password, firstName: 'Deadline', lastName: 'Fixture' });
+    const response = await request(active.base, '/auth/register', { email, password, firstName: 'Deadline', lastName: 'Fixture', accountRole: 'student' });
     assert.equal(response.status, 202);
     assert.deepEqual(await response.json(), { status: 'accepted' });
     await until(() => peer.activeConnections === 1, 2000, 'SMTP connection absent');

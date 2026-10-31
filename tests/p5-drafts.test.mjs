@@ -21,8 +21,8 @@ test(
       ])
         await pool.query(
           `INSERT INTO users
-      (id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-      VALUES($1,now(),$2,$2,'Test','User','fixture-only',CASE WHEN $3 THEN now() ELSE NULL END)`,
+      (id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+      VALUES($1,now(),$2,$2,'Test','User','fixture-only',CASE WHEN $3 THEN now() ELSE NULL END,'teacher')`,
           [id, `${id}@example.test`, verified],
         );
       const authenticate = async (tx, request) => {
