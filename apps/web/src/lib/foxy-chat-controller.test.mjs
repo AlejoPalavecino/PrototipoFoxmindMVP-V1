@@ -182,3 +182,13 @@ test('multi-tab page transfers polling to newer running turn after older poll co
   assert.equal(f.timers.filter(t=>!t.cleared).length,1);assert.equal(f.timers.find(t=>!t.cleared).ms,2000);
   await c.send('CHAT','Otro',{topicIds:[],sourceIds:[]});assert.equal(f.calls.filter(x=>x.name==='send').length,1);c.dispose();
 });
+
+test('definitive INVALID_INPUT clears uncertain retry and permits corrected input',async()=>{
+  const f=fixture(),c=create(f);await c.init();await c.select(f.a.id);
+  f.queue.push(Object.assign(Error('invalid'),{code:'INVALID_INPUT',status:400}));
+  await c.send('CHAT','Texto inválido',{topicIds:[],sourceIds:[]});
+  assert.equal(c.getState().pending,null);assert.ok(c.getState().error);
+  await c.retry();assert.equal(f.calls.filter(x=>x.name==='send').length,1);
+  await c.send('CHAT','Texto corregido',{topicIds:[],sourceIds:[]});
+  const sends=f.calls.filter(x=>x.name==='send');assert.equal(sends.length,2);assert.equal(sends[1].args[1].text,'Texto corregido');c.dispose();
+});

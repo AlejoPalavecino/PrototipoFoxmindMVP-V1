@@ -54,7 +54,7 @@ export function createFoxyChatController(options: Options) {
     const version = epoch; update({ busy: true, error: null, pending: intent });
     try {
       const receipt = await options.client.sendMessage(current.id, intent, abort.signal);
-      if (!valid(version)) return;
+      if (!valid(version)) return 'uncertain' as const;
       const revised = { ...current, revision: receipt.conversationRevision };
       update({ current: revised, conversations: state.conversations.map(item => item.id === revised.id ? revised : item), pending: null, busy: false, activeTurn: receipt.turn.state === 'QUEUED' || receipt.turn.state === 'RUNNING' ? receipt.turn : null });
       if (receipt.turn.state === 'QUEUED' || receipt.turn.state === 'RUNNING') poll(current.id, receipt.turn.id, version);
@@ -62,7 +62,14 @@ export function createFoxyChatController(options: Options) {
         try { const turn = await options.client.getTurn(current.id, receipt.turn.id, abort.signal); if (valid(version)) add(turn); }
         catch { if (valid(version)) update({ error: 'No pudimos actualizar la respuesta.' }); }
       }
-    } catch { if (valid(version)) update({ busy: false, error: 'No pudimos confirmar el envío. Podés reintentar.' }); }
+      return 'accepted' as const;
+    } catch (error) {
+      if (!valid(version)) return 'uncertain' as const;
+      if ((error as { code?: string }).code === 'INVALID_INPUT') {
+        update({ busy: false, pending: null, error: 'Revisá el mensaje antes de enviarlo.' }); return 'invalid' as const;
+      }
+      update({ busy: false, error: 'No pudimos confirmar el envío. Podés reintentar.' }); return 'uncertain' as const;
+    }
   }
   return {
     getState: () => state,
@@ -99,7 +106,7 @@ export function createFoxyChatController(options: Options) {
     select,
     async send(purpose: FoxyPurpose, text: string, selection: SendFoxyMessage['selection']) {
       if (disposed || !state.current || state.pending || state.busy || state.activeTurn) return;
-      await dispatch({ requestId: (options.uuid ?? (() => crypto.randomUUID()))(), revision: state.current.revision,
+      return dispatch({ requestId: (options.uuid ?? (() => crypto.randomUUID()))(), revision: state.current.revision,
         purpose, text, selection: structuredClone(selection) });
     },
     async retry() { if (!disposed && state.pending) await dispatch(state.pending); },

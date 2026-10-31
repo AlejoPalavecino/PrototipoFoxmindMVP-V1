@@ -6,6 +6,7 @@ import { Notice } from '../../../classrooms-ui/components';
 import { createAccountClient, type AccountSession } from '../lib/account-client';
 import { classroomAuthHref } from '../lib/classroom-client';
 import { AccountNavbar } from './account-navbar';
+import { FoxyWorkspaceSession } from './foxy-workspace-session';
 
 const account = createAccountClient();
 export function FoxyScreen() {
@@ -33,8 +34,8 @@ export function FoxyScreen() {
     {session?.authenticated ? <AccountNavbar session={session} view="foxy-ai" /> : null}
     <main id="foxy-main" className="p5-main">
       {error ? <><Notice error>{error}</Notice><button onClick={() => setRetry(value => value + 1)}>Volver a intentar</button> <Link href="/inicio">Ir a Inicio</Link></>
-        : session?.authenticated ? <section><h1>Foxy AI</h1><p>Tu espacio para crear recursos y desarrollar ideas para tus aulas.</p>
-          <Notice>Estamos preparando este espacio. Las herramientas de generación estarán disponibles próximamente.</Notice></section>
+        : session?.authenticated ? <FoxyWorkspaceSession onIdentityRequired={code => { setSession(undefined);
+          void router.replace(classroomAuthHref(code === 'EMAIL_VERIFICATION_REQUIRED' ? 'verify-email' : 'sign-in', '/foxy-ai')); }} />
           : <Notice>Comprobando tu sesión…</Notice>}
     </main>
   </div>;
