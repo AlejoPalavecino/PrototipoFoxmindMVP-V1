@@ -15,6 +15,8 @@ import { createFoxyTurnCompletion } from './turn-completion.ts';
 import { createFoxyClaimedTurnReader } from './turn-claimed-reader.ts';
 import { createFoxyTextWorker } from './worker.ts';
 import { createFoxyTurnRecovery } from './turn-recovery.ts';
+import { createFoxyResourceRepository } from './resource-repository.ts';
+import { createFoxyResourceService } from './resource-service.ts';
 
 export const FOXY_RUNTIME = Symbol('FOXY_RUNTIME');
 
@@ -65,6 +67,7 @@ export function createFoxyRuntime(options: Options) {
     turns: createFoxyTurnService({ uow, conversations, turns, configuration: { enabled, model: enabled ? options.configuration!.model : '' } }),
     catalog: new FoxyContextCatalogService(options.classrooms, conversations),
     citations: createFoxyCitationService({ uow, files: options.files }),
+    resources: createFoxyResourceService({ uow, resources: createFoxyResourceRepository() }),
     capabilities: (request: unknown) => uow.run(request, false, async () => ({ textGeneration: { enabled },
       imageGeneration: { enabled: false }, diagramGeneration: { enabled: false } })) };
   return { services, worker, onModuleInit: () => lifecycle.onModuleInit(),

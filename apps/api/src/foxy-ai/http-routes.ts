@@ -1,14 +1,15 @@
-import { parseFoxySourceQuery } from '../../../../src/core/domain/index.ts';
+import { parseEditFoxyResource, parseFoxySourceQuery } from '../../../../src/core/domain/index.ts';
 import type { IncomingMessage } from 'node:http';
 import type { createFoxyConversationService } from './conversation-service.ts';
 import type { createFoxyTurnService } from './turn-service.ts';
 import type { FoxyContextCatalogService } from './context-catalog.ts';
 import type { createFoxyCitationService } from './citation-service.ts';
+import type { createFoxyResourceService } from './resource-service.ts';
 import { body, create, cursor, id, integer, message, query, remove, rename } from './http-input.ts';
 
 type Services = { conversations: ReturnType<typeof createFoxyConversationService>; turns: ReturnType<typeof createFoxyTurnService>;
   catalog: Pick<FoxyContextCatalogService, 'curriculum' | 'sources'>; citations: ReturnType<typeof createFoxyCitationService>;
-  capabilities(request: IncomingMessage): Promise<unknown> };
+  resources: ReturnType<typeof createFoxyResourceService>; capabilities(request: IncomingMessage): Promise<unknown> };
 type Result = { status: number; body?: unknown; binary?: Uint8Array; headers?: Record<string, string> };
 const missing = (): Result => ({ status: 404, body: { error: { code: 'NOT_FOUND' } } });
 async function collection(services: Services, request: IncomingMessage, url: URL): Promise<Result> {
@@ -46,6 +47,17 @@ export async function foxyRoute(services: Services, request: IncomingMessage, ur
   const path = url.pathname.slice('/api/v1/foxy-ai'.length);
   if (path === '/capabilities' && request.method === 'GET') { query(url, []); return { status: 200, body: await services.capabilities(request) }; }
   if (path === '/conversations') return collection(services, request, url);
+  const resourceTurn = /^\/conversations\/([^/]+)\/turns\/([^/]+)\/resource$/u.exec(path);
+  if (resourceTurn && request.method === 'POST') {
+    query(url, []); const result = await services.resources.fromTurn(request, id(resourceTurn[1]!), id(resourceTurn[2]!));
+    return { status: result.created ? 201 : 200, body: result };
+  }
+  const resource = /^\/resources\/([^/]+)$/u.exec(path);
+  if (resource && (request.method === 'GET' || request.method === 'PATCH')) {
+    query(url, []); const resourceId = id(resource[1]!);
+    if (request.method === 'GET') return { status: 200, body: await services.resources.get(request, resourceId) };
+    return { status: 200, body: await services.resources.edit(request, resourceId, parseEditFoxyResource(await body(request))) };
+  }
   const citation = /^\/conversations\/([^/]+)\/turns\/([^/]+)\/citations(?:\/([^/]+)\/file)?$/u.exec(path);
   if (citation && request.method === 'GET') {
     const conversationId = id(citation[1]!), turnId = id(citation[2]!);

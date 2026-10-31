@@ -26,3 +26,4 @@ export { createFoxyRuntime, FOXY_RUNTIME } from './runtime.ts';
 export { installFoxyTransport, createFoxyAuthentication } from './host.ts';
 export { createFoxyTurnRecovery } from './turn-recovery.ts';
 export { createFoxyResourceRepository } from './resource-repository.ts';
+export { createFoxyResourceService } from './resource-service.ts';
