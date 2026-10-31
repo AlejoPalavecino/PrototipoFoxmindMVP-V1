@@ -1,8 +1,8 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { agendaId, parsePrepareFoxyPublication, type SqlTransaction } from '../../../../src/core/domain/index.ts';
+import { agendaId, parsePrepareFoxyPublication, type SqlTransaction, type FoxyPublicationState } from '../../../../src/core/domain/index.ts';
 
 type Row = { id: string; resource_id: string; resource_revision: bigint; classroom_id: string; unit_id: string | null;
-  topic_id: string | null; title: string; state: string; revision: bigint; input_hash: string };
+  topic_id: string | null; title: string; state: FoxyPublicationState; revision: bigint; input_hash: string };
 function fail(code: 'NOT_FOUND' | 'CONFLICT'): never { throw Object.assign(new Error(code), { code }); }
 function view(row: Row) {
   return { id: row.id, resourceId: row.resource_id, resourceRevision: String(row.resource_revision), classroomId: row.classroom_id,
@@ -25,6 +25,21 @@ export function createFoxyPublicationRepository() {
       const [row] = await tx.query<Row>('SELECT * FROM foxy_publications WHERE id=$1::uuid AND owner_id=$2::uuid', publicationId, owner);
       return row ? view(row) : null;
     },
+    async inspect(tx: SqlTransaction, owner: string, publicationId: string) {
+      agendaId(owner); agendaId(publicationId);
+      const [row] = await tx.query<Row & { classroom_revision: bigint; classroom_archived: boolean; error_code: string | null }>(`SELECT
+        p.id,p.resource_id,p.resource_revision,p.classroom_id,p.unit_id,p.topic_id,p.title,p.state,p.revision,
+        a.revision AS classroom_revision,(a.archived_at IS NOT NULL) AS classroom_archived,p.error_code
+        FROM foxy_publications p JOIN users u ON u.id=p.owner_id AND u.account_role='teacher' AND u.email_verified_at IS NOT NULL
+        JOIN classrooms a ON a.id=p.classroom_id AND a.teacher_id=p.owner_id
+        JOIN foxy_resources r ON r.id=p.resource_id AND r.owner_id=p.owner_id
+        JOIN foxy_conversations c ON c.id=r.conversation_id AND c.owner_id=r.owner_id AND c.deleted_at IS NULL
+        WHERE p.id=$1::uuid AND p.owner_id=$2::uuid
+        AND (c.context_kind='GENERAL' OR EXISTS (SELECT 1 FROM classrooms origin WHERE origin.id=c.classroom_id AND origin.teacher_id=p.owner_id))`, publicationId, owner);
+      if (!row) return fail('NOT_FOUND');
+      return { publication: view(row), classroomRevision: String(row.classroom_revision), classroomArchived: row.classroom_archived,
+        errorCode: row.error_code };
+    },
     async prepare(tx: SqlTransaction, owner: string, resourceId: string, input: unknown) {
       agendaId(owner); agendaId(resourceId); const v = parsePrepareFoxyPublication(input); await lockOwner(tx, owner);
       const hash = createHash('sha256').update(JSON.stringify({ resourceId: resourceId.toLowerCase(), resourceRevision: v.resourceRevision,
@@ -34,8 +49,14 @@ export function createFoxyPublicationRepository() {
         WHERE r.id=$1::uuid AND r.owner_id=$2::uuid AND c.deleted_at IS NULL
         AND (c.context_kind='GENERAL' OR EXISTS (SELECT 1 FROM classrooms a WHERE a.id=c.classroom_id AND a.teacher_id=c.owner_id)) FOR UPDATE OF r`, resourceId, owner);
       if (!resource) return fail('NOT_FOUND');
-      const [prior] = await tx.query<Row>('SELECT p.* FROM foxy_publications p JOIN classrooms c ON c.id=p.classroom_id AND c.teacher_id=p.owner_id WHERE p.owner_id=$1::uuid AND p.request_id=$2::uuid', owner, v.requestId);
-      if (prior) { if (prior.input_hash !== hash) return fail('CONFLICT'); return { created: false, publication: view(prior) }; }
+      const [existing] = await tx.query<{ id: string; classroom_id: string }>('SELECT id,classroom_id FROM foxy_publications WHERE owner_id=$1::uuid AND request_id=$2::uuid', owner, v.requestId);
+      if (existing) {
+        const [prior] = await tx.query<Row>(`SELECT p.* FROM foxy_publications p JOIN classrooms c ON c.id=p.classroom_id AND c.teacher_id=p.owner_id
+          WHERE p.id=$1::uuid AND p.owner_id=$2::uuid`, existing.id, owner);
+        if (!prior) return fail('NOT_FOUND');
+        if (prior.input_hash !== hash) return fail('CONFLICT');
+        return { created: false, publication: view(prior) };
+      }
       await destination(tx, owner, v);
       if (String(resource.revision) !== v.resourceRevision) return fail('CONFLICT');
       const [row] = await tx.query<Row>(`INSERT INTO foxy_publications(id,owner_id,request_id,input_hash,resource_id,resource_revision,

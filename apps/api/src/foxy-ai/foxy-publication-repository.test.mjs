@@ -78,3 +78,21 @@ test('migrated synthetic database has no Prisma schema drift', {timeout:120000},
     assert.equal(result.status,0,`Prisma diff exit ${result.status}; ${result.stdout}`);
   });
 });
+
+test('inspect revalidates ownership and deleted origin, returns archived classroom state without private fields', {timeout:120000},async()=>{
+ await withAgendaDatabase(async({transaction})=>transaction(async({query})=>{const x=await fixture(query),p=(await x.publications.prepare(x.tx,x.f.teacherActor,x.resource.id,intent(x))).publication;
+  const result=await x.publications.inspect(x.tx,x.f.teacherActor,p.id);assert.equal(result.publication.id,p.id);assert.equal(typeof result.classroomRevision,'string');assert.equal(result.classroomArchived,false);assert.equal(result.errorCode,null);
+  for(const secret of ['snapshot_markdown','digest','fileId','Contenido privado'])assert.equal(JSON.stringify(result).includes(secret),false);
+  await assert.rejects(x.publications.inspect(x.tx,x.f.other,p.id));await query('UPDATE classrooms SET archived_at=clock_timestamp() WHERE id=$1',p.classroomId);
+  assert.equal((await x.publications.inspect(x.tx,x.f.teacherActor,p.id)).classroomArchived,true);
+  await query('UPDATE foxy_conversations SET deleted_at=clock_timestamp() WHERE id=$1',(await query('SELECT conversation_id FROM foxy_resources WHERE id=$1',x.resource.id))[0].conversation_id);
+  await assert.rejects(x.publications.inspect(x.tx,x.f.teacherActor,p.id));
+ }));
+});
+
+test('prepare replay of a now-inaccessible stored destination denies opaquely before uniqueness error', {timeout:120000},async()=>{
+ await withAgendaDatabase(async({transaction})=>transaction(async({query})=>{const x=await fixture(query),input=intent(x),created=await x.publications.prepare(x.tx,x.f.teacherActor,x.resource.id,input);
+  await query('UPDATE foxy_publications SET classroom_id=$2::uuid WHERE id=$1::uuid',created.publication.id,x.f.rooms.foreign.id);
+  await assert.rejects(x.publications.prepare(x.tx,x.f.teacherActor,x.resource.id,input),isCode('NOT_FOUND','FORBIDDEN'));
+ }));
+});

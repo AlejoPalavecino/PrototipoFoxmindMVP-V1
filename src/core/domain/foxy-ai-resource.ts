@@ -11,3 +11,15 @@ export interface PrepareFoxyPublication {
 export interface ConfirmFoxyPublication {
   requestId: string; publicationRevision: string; classroomRevision: string; confirm: true;
 }
+export type FoxyPublicationState = 'PREPARING' | 'READY' | 'FAILED' | 'PUBLISHED';
+export interface FoxyPublicationSummary {
+  id: string; resourceId: string; resourceRevision: string; classroomId: string;
+  unitId: string | null; topicId: string | null; title: string; state: FoxyPublicationState; revision: string;
+}
+export interface FoxyPublicationInspection {
+  publication: FoxyPublicationSummary; classroomRevision: string; classroomArchived: boolean;
+  errorCode: 'AI_INPUT_LIMIT' | 'INVALID_INPUT' | 'FILE_NOT_READY' | null;
+}
+export interface FoxyPublicationConfirmation {
+  publicationId: string; materialId: string; publicationRevision: string; classroomRevision: string;
+}

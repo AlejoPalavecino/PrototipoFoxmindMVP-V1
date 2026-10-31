@@ -35,3 +35,4 @@ export { createFoxyPublicationCompletion } from './publication-completion.ts';
 export { createFoxyPdfRenderer } from './pdf-worker.ts';
 export { createFoxyPublicationWorker } from './publication-worker.ts';
 export { createFoxyPublicationConfirmationRepository } from './publication-confirmation-repository.ts';
+export { createFoxyPublicationService } from './publication-service.ts';
