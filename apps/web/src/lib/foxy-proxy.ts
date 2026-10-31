@@ -9,6 +9,11 @@ const turn = new RegExp(`^${root}/conversations/${uuid}/turns/${uuid}$`, 'i');
 const catalog = new RegExp(`^${root}/conversations/${uuid}/(curriculum|sources)$`, 'i');
 const citations = new RegExp(`^${root}/conversations/${uuid}/turns/${uuid}/citations$`, 'i');
 const citationFile = new RegExp(`^${root}/conversations/${uuid}/turns/${uuid}/citations/c[1-9][0-9]*/file$`, 'i');
+const turnResource = new RegExp(`^${root}/conversations/${uuid}/turns/${uuid}/resource$`, 'i');
+const resource = new RegExp(`^${root}/resources/${uuid}$`, 'i');
+const preparePublication = new RegExp(`^${root}/resources/${uuid}/publications$`, 'i');
+const publication = new RegExp(`^${root}/publications/${uuid}$`, 'i');
+const confirmPublication = new RegExp(`^${root}/publications/${uuid}/confirm$`, 'i');
 const requestLimit = 1048576, jsonLimit = 2 * 1024 * 1024, binaryLimit = 50000000;
 function fail(response: ServerResponse, status: number, code: string): void {
   if (response.destroyed || response.writableEnded) return;
@@ -25,8 +30,10 @@ function select(request: IncomingMessage): { url: URL; method: string; binary: b
   const raw = request.url ?? '', method = request.method ?? 'GET';
   if (!raw.startsWith(`${root}/`) || /[\\#]/u.test(raw) || /%|\.\./u.test(raw.split('?')[0]!)) throw new Error();
   const url = new URL(raw, 'http://web.invalid'), path = url.pathname, binary = citationFile.test(path);
-  const allowed = path === `${root}/capabilities` || catalog.test(path) || turn.test(path) || citations.test(path) || binary ? ['GET']
-    : path === `${root}/conversations` || turns.test(path) ? ['GET', 'POST'] : conversation.test(path) ? ['GET', 'PATCH', 'DELETE'] : [];
+  const allowed = path === `${root}/capabilities` || catalog.test(path) || turn.test(path) || citations.test(path) || binary || publication.test(path) ? ['GET']
+    : turnResource.test(path) || preparePublication.test(path) || confirmPublication.test(path) ? ['POST']
+      : resource.test(path) ? ['GET', 'PATCH']
+        : path === `${root}/conversations` || turns.test(path) ? ['GET', 'POST'] : conversation.test(path) ? ['GET', 'PATCH', 'DELETE'] : [];
   if (!allowed.length) throw Object.assign(new Error(), { status: 404 });
   if (!allowed.includes(method)) throw Object.assign(new Error(), { status: 405 });
   const keys = [...url.searchParams.keys()];

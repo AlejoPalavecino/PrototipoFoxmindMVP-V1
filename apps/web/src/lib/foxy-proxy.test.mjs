@@ -88,3 +88,20 @@ test('invalid session clear-cookie reaches browser without forwarding unrelated 
     assert.equal(response.headers.get('cache-control'),'no-store'); assert.equal(response.headers.get('x-content-type-options'),'nosniff');
   }, (_req,res)=>{res.writeHead(401,{'Content-Type':'application/json','Set-Cookie':[clear,'unrelated=secret; Path=/; HttpOnly']}); res.end(JSON.stringify({error:{code:'AUTH_REQUIRED'}}));});
 });
+
+test('proxy forwards exactly the resource and publication routes with security context',async()=>fixture(async({origin,calls})=>{
+ const resourceId=randomUUID(),publicationId=randomUUID(),cases=[
+  [`${root}/conversations/${conversationId}/turns/${turnId}/resource`,'POST'],[`${root}/resources/${resourceId}`,'GET'],[`${root}/resources/${resourceId}`,'PATCH'],
+  [`${root}/resources/${resourceId}/publications`,'POST'],[`${root}/publications/${publicationId}`,'GET'],[`${root}/publications/${publicationId}/confirm`,'POST']];
+ for(const [path,method] of cases){const response=await fetch(origin+path,{method,headers,...(method==='GET'?{}:{body:'{}'})});assert.equal(response.status,200,`${method} ${path}`);}
+ assert.deepEqual(calls.map(c=>[c.url,c.method]),cases);for(const call of calls)for(const key of ['cookie','origin','x-csrf-token'])assert.equal(call.headers[key],headers[key]);
+}));
+
+test('proxy rejects wrong publication paths, methods and queries before upstream',async()=>fixture(async({origin,calls})=>{
+ const r=randomUUID(),p=randomUUID();for(const [path,method] of [[`${root}/resources/${r}/publications`,'GET'],[`${root}/resources/${r}`,'DELETE'],
+  [`${root}/publications/${p}/confirm`,'GET'],[`${root}/publications/${p}`,'PATCH'],[`${root}/publications/${p}?x=1`,'GET'],
+  [`${root}/resources/${r}/publications?x=1`,'POST'],[`${root}/resources/not-uuid`,'GET'],[`${root}/publications/${p}/confirm/extra`,'POST'],
+  [`${root}/conversations/${conversationId}/turns/${turnId}/resource/extra`,'POST']]){
+  const response=await fetch(origin+path,{method,headers,...(['POST','PATCH'].includes(method)?{body:'{}'}:{})});assert.ok(response.status>=400&&response.status<500,`${method} ${path}`);
+ }assert.equal(calls.length,0);
+}));
