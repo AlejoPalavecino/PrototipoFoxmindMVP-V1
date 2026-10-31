@@ -25,3 +25,6 @@ Revisión independiente, integración con handler de citas y pruebas E2E de tran
 
 ## Corrección DOCX octet-stream
 El proxy admite `application/octet-stream` solo para respuesta binaria de cita exitosa y fuerza `Content-Disposition: attachment` si el upstream no suministra disposición attachment; preserva disposición attachment válida, CSP, no-store/nosniff y límites. `node --test --test-reporter=dot apps/web/src/lib/foxy-proxy.test.mjs`: exit 0, 5 PASS; `npx tsc --noEmit -p apps/web/tsconfig.json` y `npm run lint:boundaries -- --quiet`: exit 0. Sin cambios de pruebas ni proveedor real.
+
+## Corrección de cookie inválida
+El proxy reenvía exclusivamente la forma canónica de borrado `foxmind_session=; Path=/; HttpOnly; SameSite=Lax[; Secure]; Max-Age=0`, sin separar cabeceras por comas, ignorando cookies ajenas y sin reenviar duplicados ambiguos. `node --test --test-reporter=dot apps/web/src/lib/foxy-proxy.test.mjs`: exit 0, 7 PASS. `npx tsc --noEmit -p apps/web/tsconfig.json` y `npm run lint:boundaries -- --quiet`: exit 0. Sin cambios de pruebas ni proveedor real.

@@ -79,3 +79,12 @@ test('proxy forwards a bounded 2 MiB turn page without truncation', async () => 
     assert.equal(response.status,200); assert.deepEqual(await response.json(),page);
   }, (_req,res)=>{ res.writeHead(200,{'Content-Type':'application/json','Content-Length':String(Buffer.byteLength(raw))}); res.end(raw); });
 });
+
+test('invalid session clear-cookie reaches browser without forwarding unrelated cookies', async () => {
+  const clear='foxmind_session=; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=0';
+  await fixture(async ({origin}) => {
+    const response=await fetch(`${origin}${root}/capabilities`,{headers}); assert.equal(response.status,401);
+    const cookies=response.headers.getSetCookie(); assert.deepEqual(cookies,[clear]);
+    assert.equal(response.headers.get('cache-control'),'no-store'); assert.equal(response.headers.get('x-content-type-options'),'nosniff');
+  }, (_req,res)=>{res.writeHead(401,{'Content-Type':'application/json','Set-Cookie':[clear,'unrelated=secret; Path=/; HttpOnly']}); res.end(JSON.stringify({error:{code:'AUTH_REQUIRED'}}));});
+});

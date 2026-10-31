@@ -79,6 +79,9 @@ function counter(max: number, expected?: number): Transform {
 function responseHeaders(result: IncomingMessage): Record<string, string> {
   const headers: Record<string, string> = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' };
   for (const key of ['retry-after', 'x-request-id']) { const value = result.headers[key]; if (typeof value === 'string') headers[key] = value; }
+  const clearing = (result.headers['set-cookie'] ?? []).filter(value =>
+    /^foxmind_session=; Path=\/; HttpOnly; SameSite=Lax(?:; Secure)?; Max-Age=0$/u.test(value));
+  if (clearing.length === 1) headers['Set-Cookie'] = clearing[0]!;
   return headers;
 }
 async function receive(result: IncomingMessage, response: ServerResponse, binary: boolean): Promise<void> {

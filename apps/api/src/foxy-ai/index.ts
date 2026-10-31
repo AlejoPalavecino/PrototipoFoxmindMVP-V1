@@ -22,3 +22,4 @@ export { createFoxyTurnService } from './turn-service.ts';
 export { createFoxyHandler } from './http.ts';
 export { mapFoxyCitations } from './citation-mapping.ts';
 export { createFoxyCitationService } from './citation-service.ts';
+export { installFoxyTransport, createFoxyAuthentication } from './host.ts';
