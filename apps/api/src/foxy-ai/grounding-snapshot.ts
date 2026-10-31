@@ -2,20 +2,10 @@ import { isDeepStrictEqual } from 'node:util';
 import { parseSendFoxyMessage, type FoxyContext, type SqlTransaction } from '../../../../src/core/domain/index.ts';
 import type { FoxyGroundingSnapshot } from '../../../../src/core/domain/foxy-ai-grounding.ts';
 import type { ClassroomService } from '../classrooms/index.ts';
-import { snapshotError, snapshotSources } from './grounding-sources.ts';
+import { snapshotError } from './grounding-sources.ts';
+import { rebuildGrounding } from './grounding-rebuild.ts';
 
 type Conversations = { get(tx: SqlTransaction, owner: string, id: string): Promise<{ context: FoxyContext } | null> };
-type Unit = { id: string; name: string; position: number };
-type Topic = { id: string; unit_id: string; name: string; position: number; status: 'PENDING' | 'NEXT' | 'TAUGHT' };
-async function curriculum(tx: SqlTransaction, room: string, selectedTopicIds: string[]) {
-  const units = await tx.query<Unit>('SELECT id,name,position FROM units WHERE classroom_id=$1::uuid ORDER BY position,id LIMIT 101', room);
-  const topics = await tx.query<Topic>('SELECT id,unit_id,name,position,status FROM topics WHERE classroom_id=$1::uuid ORDER BY position,id LIMIT 501', room);
-  if (units.length > 100 || topics.length > 500) return snapshotError('AI_INPUT_LIMIT');
-  const available = new Set(topics.map(topic => topic.id.toLowerCase()));
-  if (selectedTopicIds.some(id => !available.has(id.toLowerCase()))) return snapshotError('CONFLICT');
-  return { units: units.map(unit => ({ ...unit, topics: topics.filter(topic => topic.unit_id === unit.id)
-    .map(({ id, name, position, status }) => ({ id, name, position, status })) })), selectedTopicIds };
-}
 export class FoxyGroundingSnapshotService {
   private readonly run: ClassroomService['run'];
   private readonly classroom: ClassroomService['classroom'];
@@ -31,12 +21,10 @@ export class FoxyGroundingSnapshotService {
         if (!conversation) return snapshotError('FORBIDDEN');
         const checked = parseSendFoxyMessage({ requestId: '00000000-0000-0000-0000-000000000000', revision: '0',
           purpose: 'CHAT', text: 'context', selection }, conversation.context).selection;
-        if (conversation.context.kind === 'GENERAL') return { value: { context: conversation.context, curriculum: null, sources: [] } };
+        if (conversation.context.kind === 'GENERAL') return { value: await rebuildGrounding(tx, conversation.context, checked) };
         const room = await this.classroom(tx, actor, conversation.context.classroomId, false, true);
         if (room.archived_at) return snapshotError('CONFLICT');
-        const plan = await curriculum(tx, room.id, checked.topicIds);
-        const sources = await snapshotSources(tx, room.id, checked.sourceIds);
-        return { value: { context: conversation.context, curriculum: plan, sources } };
+        return { value: await rebuildGrounding(tx, conversation.context, checked) };
       } catch (error) {
         const code = (error as { code?: unknown })?.code;
         if (typeof code === 'string' && ['INVALID_INPUT', 'FORBIDDEN', 'FILE_NOT_READY', 'AI_INPUT_LIMIT', 'CONFLICT', 'EMPTY_CONTENT'].includes(code)) return { error: code };

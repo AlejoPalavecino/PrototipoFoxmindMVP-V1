@@ -2,7 +2,7 @@ import { isDeepStrictEqual } from 'node:util';
 import type { SqlDatabase, SqlTransaction } from '../../../../src/core/domain/index.ts';
 import type { FoxyGroundingFile, FoxyGroundingSnapshot } from '../../../../src/core/domain/foxy-ai-grounding.ts';
 import type { FoxyTurnLease } from './turn-queue.ts';
-import { checkClaim, forbidden } from './claim-authority-check.ts';
+import { checkClaim, checkClaimStatus, forbidden } from './claim-authority-check.ts';
 
 function freezeDeep<T>(value: T): T {
   if (value && typeof value === 'object' && !Object.isFrozen(value)) {
@@ -41,6 +41,14 @@ export function createFoxyClaimAuthority(options: { database: SqlDatabase; maxJo
         grants.push({ descriptor, capability: docCapability });
       }
       const scope = { snapshot: structuredClone(snapshot), capability, documents: grants }; scopes.set(scope, state); return scope;
+    },
+    async revalidateGrounding(capability: object, signal: AbortSignal, tx?: SqlTransaction): Promise<boolean> {
+      const state = capability && claims.get(capability);
+      if (!state || state.closed || state.signal.aborted || signal.aborted || signal !== state.signal) return forbidden();
+      const run = (active: SqlTransaction) => checkClaimStatus(active, state.lease, options.maxJobAgeMs);
+      const result = tx ? await run(tx) : await transact(run);
+      if (state.closed || state.signal.aborted || signal.aborted) return forbidden();
+      return result.fresh && isDeepStrictEqual(result.snapshot, state.snapshot);
     },
     async authorizeClaim(capability: object, signal: AbortSignal, tx?: SqlTransaction) {
       const state = capability && claims.get(capability); if (!state) return forbidden();
