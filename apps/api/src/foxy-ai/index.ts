@@ -27,3 +27,4 @@ export { installFoxyTransport, createFoxyAuthentication } from './host.ts';
 export { createFoxyTurnRecovery } from './turn-recovery.ts';
 export { createFoxyResourceRepository } from './resource-repository.ts';
 export { createFoxyResourceService } from './resource-service.ts';
+export { createFoxyPublicationRepository } from './publication-repository.ts';

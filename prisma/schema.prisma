@@ -232,6 +232,7 @@ model ClassroomDraft {
 }
 
 model Classroom {
+  foxy_publications FoxyPublication[]
   foxy_conversations FoxyConversation[]
   grading_ai_jobs GradingAiJob[]
   ai_grading_enabled Boolean @default(false)
@@ -1139,6 +1140,7 @@ model FoxyResource {
   updated_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
   turn FoxyTurn @relation(fields: [source_turn_id, conversation_id, owner_id], references: [id, conversation_id, owner_id], onDelete: Restrict, onUpdate: NoAction, map: "foxy_resources_turn_fkey")
   requests FoxyResourceRequest[]
+  publications FoxyPublication[]
   @@unique([source_turn_id, conversation_id, owner_id])
   @@unique([id, owner_id])
   @@map("foxy_resources")
@@ -1154,4 +1156,26 @@ model FoxyResourceRequest {
   resource FoxyResource @relation(fields: [resource_id, owner_id], references: [id, owner_id], onDelete: Restrict, onUpdate: NoAction, map: "foxy_resource_requests_resource_fkey")
   @@id([owner_id, request_id])
   @@map("foxy_resource_requests")
+}
+
+model FoxyPublication {
+  id String @id @db.Uuid
+  owner_id String @db.Uuid
+  request_id String @db.Uuid
+  input_hash String
+  resource_id String @db.Uuid
+  resource_revision BigInt
+  snapshot_title String
+  snapshot_markdown String
+  classroom_id String @db.Uuid
+  unit_id String? @db.Uuid
+  topic_id String? @db.Uuid
+  title String
+  state String @default("PREPARING")
+  revision BigInt @default(0)
+  created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  classroom Classroom @relation(fields: [classroom_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  resource FoxyResource @relation(fields: [resource_id, owner_id], references: [id, owner_id], onDelete: Restrict, onUpdate: NoAction, map: "foxy_publications_resource_fkey")
+  @@unique([owner_id, request_id], map: "foxy_publications_request_key")
+  @@map("foxy_publications")
 }
