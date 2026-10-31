@@ -28,3 +28,5 @@ export { createFoxyTurnRecovery } from './turn-recovery.ts';
 export { createFoxyResourceRepository } from './resource-repository.ts';
 export { createFoxyResourceService } from './resource-service.ts';
 export { createFoxyPublicationRepository } from './publication-repository.ts';
+export { createFoxyPublicationQueue } from './publication-queue.ts';
+export { createFoxyPublicationFileAllocator } from './publication-file-allocator.ts';

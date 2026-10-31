@@ -9,7 +9,8 @@ async function references(tx: FileTransaction, id: string): Promise<number> {
   const [row] = await tx.query<{ linked: boolean }>(`SELECT EXISTS(
     SELECT 1 FROM study_plan_versions WHERE file_id=$1::uuid UNION ALL SELECT 1 FROM materials WHERE file_id=$1::uuid
     UNION ALL SELECT 1 FROM activity_instruction_files WHERE file_id=$1::uuid
-    UNION ALL SELECT 1 FROM attempt_attachments WHERE file_id=$1::uuid) AS linked`, id);
+    UNION ALL SELECT 1 FROM attempt_attachments WHERE file_id=$1::uuid
+    UNION ALL SELECT 1 FROM foxy_publications WHERE file_id=$1::uuid) AS linked`, id);
   return row.linked ? 1 : 0;
 }
 export async function cleanIncomplete(store: FileStore, storage: ObjectStorage, limit: number) {
@@ -17,6 +18,7 @@ export async function cleanIncomplete(store: FileStore, storage: ObjectStorage, 
   const candidates = await store.transaction(tx => tx.query<{ id: string }>(`SELECT f.id FROM files f
     JOIN uploads u ON u.file_id=f.id JOIN file_custodies c ON c.file_id=f.id
     WHERE u.completed_at IS NULL AND u.status<>'COMPLETED' AND u.reservation_released_at IS NULL
+      AND NOT EXISTS (SELECT 1 FROM foxy_publications p WHERE p.file_id=f.id)
       AND c.phase NOT IN ('ready','deleted') AND (c.lease_until IS NULL OR c.lease_until<=clock_timestamp())
       AND u.last_activity_at<=clock_timestamp()-interval '24 hours' ORDER BY u.last_activity_at LIMIT $1`, limit));
   let deleted = 0, failed = 0;

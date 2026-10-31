@@ -452,6 +452,7 @@ model FileObject {
   custody               FileCustody?
   activity_instructions ActivityInstructionFile[] @relation("Instruction_file")
   attempt_attachments   AttemptAttachment[]       @relation("Attachment_file")
+  foxy_publication FoxyPublication?
 
   @@unique([id, classroom_id])
   @@index([classroom_id])
@@ -1173,6 +1174,14 @@ model FoxyPublication {
   title String
   state String @default("PREPARING")
   revision BigInt @default(0)
+  lease_nonce String? @db.Uuid
+  lease_until DateTime? @db.Timestamptz(6)
+  file_id String? @unique @db.Uuid
+  artifact_digest String?
+  artifact_size_bytes Int?
+  artifact_page_count Int?
+  renderer_version String?
+  file FileObject? @relation(fields: [file_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "foxy_publications_file_fkey")
   created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
   classroom Classroom @relation(fields: [classroom_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
   resource FoxyResource @relation(fields: [resource_id, owner_id], references: [id, owner_id], onDelete: Restrict, onUpdate: NoAction, map: "foxy_publications_resource_fkey")
