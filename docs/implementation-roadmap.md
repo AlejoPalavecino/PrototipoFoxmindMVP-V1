@@ -13,7 +13,7 @@ Este resumen distingue lo integrado, lo verificado y los límites de las pruebas
 | Sistema visual | FoxMind3D aplicado e integrado; las exploraciones anteriores son antecedentes | [Sistema y familias](design/README.md), [guía técnica](engineering/frontend/foxmind-3d.md) |
 | Seis correcciones de auditoría | Implementadas y publicadas, con limitaciones y pruebas atribuidas | [Tarea](../odd/tasks/audit-remediation.md), [cierre](work-log/2026-10-30-root-audit-completion.md) |
 | Cinco comprobaciones históricas | Cerradas: FAST783/0/0 y P5/resumen14/0/0. No se repitió toda la selección de42archivos de navegador | [Cierre de los casos](work-log/2026-10-30-root-five-historical-checks.md) |
-| Reorganización documental | En ejecución: guías por dominio, rutas compatibles, historia preservada y control portable | [Plan único y evidencia](../odd/tasks/documentation-reorganization.md) |
+| Reorganización documental | Aplicada y publicada en main166cf77:43guías canónicas, compatibilidad e historia preservadas; control documental y FAST794/0/0aprobados | [Plan único y evidencia](../odd/tasks/documentation-reorganization.md) |
 
 ## Cómo retomar
 

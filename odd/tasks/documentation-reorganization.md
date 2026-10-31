@@ -13,7 +13,7 @@ Aplicar el [plan Astra](../../docs/audits/2026-10-30-astra-documentation-audit.m
 | Arquitectura, operación y verificación | Verificado | Camino de lectura corto y guías actuales separadas de evidencia histórica |
 | Historia y diseños | Verificado | Catálogo de550registros por16fechas;1448archivos históricos/procedencia preservados |
 | Depuración confirmada | Verificado | Cuerpos de guía concentrados en un destino; cuatro paresPNG conservados por rol/procedencia, sin borrados injustificados |
-| Controles y entrega | Controles aprobados; integración pendiente | CLI137/1657/0, FAST794/0/0, revisión y secretos; falta comprobar main/remoto y limpieza finales |
+| Controles y entrega | Completado | CLI en main137/1660/0, FAST794/0/0, revisión y secretos; integración y push166cf77confirmados |
 
 ## Límites de compatibilidad
 
@@ -23,4 +23,4 @@ Conservar IDs normativos, 82 flujos, atribuciones, fallos y límites de aceptaci
 
 ## Evidencia y siguiente paso
 
-[Mapa activo](../../docs/documentation-map.json), [recibos del corte](../../docs/audits/2026-10-31-documentation-reorganization/), [unidades locales](../../docs/work-log/2026-10-31-documentation-units.md) y [registro coordinador](../../docs/work-log/2026-10-30-root-documentation-reorganization.md). La reorganización y los controles están verificados; queda la integración/sincronización autorizada. No se declara una nueva aceptación funcional de toda la aplicación por esta reorganización.
+[Mapa activo](../../docs/documentation-map.json), [recibos del corte](../../docs/audits/2026-10-31-documentation-reorganization/), [unidades](../../docs/work-log/2026-10-31-documentation-units.md) y [registro coordinador](../../docs/work-log/2026-10-30-root-documentation-reorganization.md). Reorganización y controles verificados; main integrado y publicación166cf77confirmada por referencia remota exacta. Se sincroniza también este recibo final. No se declara una nueva aceptación funcional de toda la aplicación por esta reorganización.

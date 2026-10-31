@@ -19,3 +19,9 @@ Commit B observado `0db1d2e`:150archivos,7871inserciones y2191eliminaciones (100
 ## C — Activación del control en CI
 
 El workflow existente ejecuta `npm run docs:check` después de instalar el lock y antes de las verificaciones de producto. El script público ya acompaña al mapa en B. Workflow/OpenAPI conservan sus rutas y comprobaciones anteriores;35casos afectados y FAST completo794/0/0 pasaron. Rollback: retirar solo el paso nuevo de CI mantiene control local y documentación organizada. Activación y recibo pequeño, sin modificar dependencias ni comportamiento de la aplicación. Publicación directa no equivale a una ejecución remota de CI.
+
+Commit C observado166cf77:5archivos/28líneas cambiadas, con secretos/blancos exit0. Integración fast-forward, checker en main y push observados; ls-remote confirmó166cf775294b19f62f86bf8f770ef159829bf099.
+
+## D — Recibo de publicación
+
+Actualiza estados y registra los hechos posteriores al merge/push sin anticipar su propio hash. Solo documentación; rollback de D no retira guías ni controles. Validación proporcional: docs:check, blancos y secretos; sin repetir suites funcionales por estos cambios editoriales. El hash final y la limpieza se comprueban directamente en Git.
