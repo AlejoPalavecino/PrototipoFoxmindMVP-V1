@@ -181,10 +181,11 @@ export function ClassroomsApp({
         links={draft ? [{ href: '/mis-aulas', label: 'Mis aulas', current: true }]
           : [{ href: '/inicio', label: 'Inicio', current: !classroomId && presentation === 'home' },
             { href: '/mis-aulas', label: 'Mis aulas', current: presentation === 'classrooms' || Boolean(classroomId) },
-            { href: '/agenda', label: 'Agenda' }]}
+            { href: '/agenda', label: 'Agenda' },
+            ...(accountRole === 'teacher' ? [{ href: '/foxy-ai', label: 'Foxy AI' }] : [])]}
         onNavigate={href => {
           if (draft) return;
-          if (href === '/profile' || href === '/settings') { window.location.assign(href); return; }
+          if (href === '/profile' || href === '/settings' || (href === '/foxy-ai' && accountRole === 'teacher')) { window.location.assign(href); return; }
           if (href === '/agenda') { if (onNavigate) onNavigate('agenda'); else window.location.assign('/agenda'); return; }
           showPresentation(href === '/inicio' ? 'home' : 'classrooms');
         }}

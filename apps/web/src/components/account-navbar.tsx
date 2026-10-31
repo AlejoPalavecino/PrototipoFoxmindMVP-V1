@@ -32,7 +32,8 @@ export function AccountNavbar({ session, view, signInHref = '/sign-in', register
   </header>;
   return <AppNavbar logoHref={user ? (verified ? '/inicio' : verifyHref) : '/sign-in'}
     displayName={user ? `${user.firstName} ${user.lastName}` : undefined} currentPath={view ? `/${view}` : undefined}
-    links={verified ? [{ href: '/inicio', label: 'Inicio' }, { href: '/mis-aulas', label: 'Mis aulas' }, { href: '/agenda', label: 'Agenda', current: view === 'agenda' }]
+    links={verified ? [{ href: '/inicio', label: 'Inicio' }, { href: '/mis-aulas', label: 'Mis aulas' }, { href: '/agenda', label: 'Agenda', current: view === 'agenda' },
+      ...(user?.accountRole === 'teacher' ? [{ href: '/foxy-ai', label: 'Foxy AI', current: view === 'foxy-ai' }] : [])]
       : user ? [{ href: verifyHref, label: 'Verificar correo', current: view === 'verify-email' }]
         : [{ href: signInHref, label: 'Iniciar sesión', current: view === 'sign-in' }, { href: registerHref, label: 'Crear cuenta', current: view === 'register' }]}
     onNavigate={href => { void router.push(href); }}
