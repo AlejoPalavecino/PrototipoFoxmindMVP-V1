@@ -83,6 +83,7 @@ export function createFoxyWorkspaceRuntime(options: Options) {
     if (closed) return; closed = true; abort.abort(); classrooms = []; classroomsError = null;
     chat.dispose(); resourceBase.dispose(); preparation.dispose(); history.dispose(); confirmation.dispose();
   }
-  return { getState: snapshot, chat, resource, preparation, history, confirmation, loadClassroom, reloadClassrooms,
+  const publicationFileUrl = (id: string, mode: 'preview' | 'download') => closed ? '' : client.publicationFileUrl(id, mode);
+  return { getState: snapshot, chat, resource, preparation, history, confirmation, loadClassroom, reloadClassrooms, publicationFileUrl,
     init() { if (closed) return Promise.resolve(); if (!initialized) initialized = Promise.resolve().then(async () => { if (!closed) await Promise.all([chat.init(), reloadClassrooms()]); }); return initialized; }, dispose };
 }

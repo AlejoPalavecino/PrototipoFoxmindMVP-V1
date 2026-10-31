@@ -34,7 +34,7 @@ export function FoxyScreen() {
     {session?.authenticated ? <AccountNavbar session={session} view="foxy-ai" /> : null}
     <main id="foxy-main" className="p5-main">
       {error ? <><Notice error>{error}</Notice><button onClick={() => setRetry(value => value + 1)}>Volver a intentar</button> <Link href="/inicio">Ir a Inicio</Link></>
-        : session?.authenticated ? <FoxyWorkspaceSession onIdentityRequired={code => { setSession(undefined);
+        : session?.authenticated ? <FoxyWorkspaceSession key={session.user.id} subjectId={session.user.id} onNavigate={href => router.push(href).then(() => {})} onIdentityRequired={code => { setSession(undefined);
           void router.replace(classroomAuthHref(code === 'EMAIL_VERIFICATION_REQUIRED' ? 'verify-email' : 'sign-in', '/foxy-ai')); }} />
           : <Notice>Comprobando tu sesión…</Notice>}
     </main>

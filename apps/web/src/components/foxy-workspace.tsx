@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { FoxyPurpose } from '../../../../src/core/domain/index.ts';
 import type { createFoxyChatController } from '../lib/foxy-chat-controller';
+import type { createFoxyWorkspaceActions } from '../lib/foxy-workspace-actions';
 
 type Controller = ReturnType<typeof createFoxyChatController>;
 type State = ReturnType<Controller['getState']>;
@@ -10,7 +11,7 @@ const purposes: { value: FoxyPurpose; label: string }[] = [
   { value: 'REVIEW', label: 'Repaso' }, { value: 'SUMMARY', label: 'Resumen' },
   { value: 'ACTIVITY_IDEAS', label: 'Ideas para actividades' }, { value: 'LESSON_PLAN', label: 'Planificación' },
 ];
-export function FoxyWorkspace({ controller, state, classrooms }: { controller: Controller; state: State; classrooms: Classroom[] }) {
+export function FoxyWorkspace({ controller, state, classrooms, onOpenResource }: { controller: ReturnType<typeof createFoxyWorkspaceActions>['chat']; state: State; classrooms: Classroom[]; onOpenResource?: (conversationId: string, turnId: string) => void }) {
   const [title, setTitle] = useState(''), [context, setContext] = useState('GENERAL');
   const [purpose, setPurpose] = useState<FoxyPurpose>('CHAT'), [text, setText] = useState('');
   const validMessage = Boolean(text.trim()) && [...text].length <= 5000 && !/[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/u.test(text);
@@ -56,7 +57,8 @@ export function FoxyWorkspace({ controller, state, classrooms }: { controller: C
             <h3>Tu solicitud</h3><p style={{ whiteSpace: 'pre-wrap' }}>{turn.message}</p>
             {turn.answer ? <><h4>{turn.answer.title}</h4><p style={{ whiteSpace: 'pre-wrap' }}>{turn.answer.markdown}</p>
               {turn.answer.warnings?.map((warning, i) => <p key={i}>{warning}</p>)}
-              {turn.answer.missingInformation?.map((missing, i) => <p key={i}>{missing}</p>)}</>
+              {turn.answer.missingInformation?.map((missing, i) => <p key={i}>{missing}</p>)}
+              {turn.state === 'READY' && onOpenResource && <button type="button" onClick={() => onOpenResource(state.current!.id, turn.id)}>Editar recurso</button>}</>
               : <p>{turn.state === 'FAILED' || turn.state === 'STALE' ? 'No se pudo completar esta respuesta.' : 'Pendiente o procesando…'}</p>}
             {turn.state === 'READY' ? <><button type="button" onClick={() => void controller.loadCitations(turn.id)}>Ver citas</button>
               {(state.citations?.[turn.id] ?? []).map(citation => {
@@ -71,7 +73,7 @@ export function FoxyWorkspace({ controller, state, classrooms }: { controller: C
           {!enabled ? <p>La generación de texto no está disponible en este momento.</p> : null}
           <form onSubmit={event => { event.preventDefault(); if (!validMessage || disabled) return;
             const submitted = text;
-            void controller.send(purpose, submitted, state.selection ?? { topicIds: [], sourceIds: [] }).then(result => {
+            void Promise.resolve(controller.send(purpose, submitted, state.selection ?? { topicIds: [], sourceIds: [] })).then(result => {
               if (result === 'accepted' || result === 'uncertain') setText(current => current === submitted ? '' : current);
             }); }}>
             <label>Tipo de ayuda <select value={purpose} onChange={event => setPurpose(event.target.value as FoxyPurpose)}>
