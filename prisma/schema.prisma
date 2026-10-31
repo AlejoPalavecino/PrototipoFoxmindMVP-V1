@@ -417,6 +417,8 @@ model Material {
   unit           Unit?              @relation("Material_unit", fields: [unit_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
   topic          Topic?             @relation("Material_topic", fields: [topic_id, unit_id, classroom_id], references: [id, unit_id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
   activity_links ActivityMaterial[] @relation("Link_material")
+  foxy_publication FoxyPublication? @relation("FoxyPublicationMaterial")
+  foxy_confirmation_requests FoxyPublicationConfirmRequest[] @relation("FoxyConfirmationMaterial")
 
   @@unique([id, classroom_id])
   @@index([classroom_id, unit_id, topic_id])
@@ -1182,10 +1184,30 @@ model FoxyPublication {
   artifact_size_bytes Int?
   artifact_page_count Int?
   renderer_version String?
+  material_id String? @unique @db.Uuid
+  material Material? @relation("FoxyPublicationMaterial", fields: [material_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "foxy_publications_material_fkey")
+  confirmation FoxyPublicationConfirmRequest?
   file FileObject? @relation(fields: [file_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "foxy_publications_file_fkey")
   created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
   classroom Classroom @relation(fields: [classroom_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
   resource FoxyResource @relation(fields: [resource_id, owner_id], references: [id, owner_id], onDelete: Restrict, onUpdate: NoAction, map: "foxy_publications_resource_fkey")
+  @@unique([id, owner_id], map: "foxy_publications_id_owner_key")
   @@unique([owner_id, request_id], map: "foxy_publications_request_key")
   @@map("foxy_publications")
+}
+
+model FoxyPublicationConfirmRequest {
+  owner_id String @db.Uuid
+  request_id String @db.Uuid
+  publication_id String @db.Uuid
+  input_hash String
+  material_id String @db.Uuid
+  publication_revision BigInt
+  classroom_revision BigInt
+  created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  publication FoxyPublication @relation(fields: [publication_id, owner_id], references: [id, owner_id], onDelete: Restrict, onUpdate: NoAction, map: "foxy_confirm_publication_fkey")
+  material Material @relation("FoxyConfirmationMaterial", fields: [material_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "foxy_confirm_material_fkey")
+  @@id([owner_id, request_id])
+  @@unique([publication_id, owner_id], map: "foxy_confirm_publication_owner_key")
+  @@map("foxy_publication_confirm_requests")
 }
