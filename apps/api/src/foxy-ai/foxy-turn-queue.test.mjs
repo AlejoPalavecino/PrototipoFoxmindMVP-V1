@@ -39,7 +39,7 @@ async function otherRunning(kind, f, query, owner, room) {
 }
 
 test('F5C queue admission, identity and expiration with synthetic PostgreSQL', { timeout: 120000 }, async t => {
-  const api = await import('./index.ts'); assert.equal(typeof api.createFoxyTurnQueue, 'function');
+  const api = await import('../../../../.build/api/apps/api/src/foxy-ai/index.js'); assert.equal(typeof api.createFoxyTurnQueue, 'function');
   await withAgendaDatabase(async ({ pool, transaction }) => {
     assert.match((await pool.query('SELECT current_database() name')).rows[0].name, /_test$/);
     const check = (name, operation) => t.test(name, () => transaction(async ({ query }) => {
@@ -66,7 +66,8 @@ test('F5C queue admission, identity and expiration with synthetic PostgreSQL', {
     for (const dispatched of [false, true]) await check(`expired ${dispatched ? 'dispatched' : 'undispatched'} lease recovery`, async ({ f, query, database }) => {
       const created = await enqueue(api, query, f.teacherActor), q = api.createFoxyTurnQueue({ database, configuration });
       const lease = await q.claim(); assert.equal(lease.turnId, created.turn.id);
-      await query(`UPDATE foxy_turns SET lease_until=now()-interval '1 second',dispatch_started_at=CASE WHEN $2 THEN now() ELSE NULL END WHERE id=$1::uuid`, lease.turnId, dispatched);
+      if (dispatched) assert.equal(await api.createFoxyTextBudget({ configuration }).reserve({ query }, lease, 100), 'RESERVED');
+      await query("UPDATE foxy_turns SET lease_until=now()-interval '1 second' WHERE id=$1::uuid", lease.turnId);
       assert.equal(await q.current(lease), false); assert.equal(await q.recoverExpired(), 1);
       const [row] = await query('SELECT state,error_code,lease_nonce,lease_until FROM foxy_turns WHERE id=$1::uuid', lease.turnId);
       assert.equal(row.state, dispatched ? 'FAILED' : 'QUEUED');
@@ -90,7 +91,8 @@ test('F5C queue admission, identity and expiration with synthetic PostgreSQL', {
     for (const dispatched of [false, true]) await check(`claim recovers expired ${dispatched ? 'dispatched' : 'undispatched'} Foxy work before admission`, async ({ f, query, database }) => {
       const old = await enqueue(api, query, f.teacherActor), q = api.createFoxyTurnQueue({ database, configuration });
       const lease = await q.claim(); assert.equal(lease.turnId, old.turn.id);
-      await query(`UPDATE foxy_turns SET lease_until=clock_timestamp()-interval '1 second',dispatch_started_at=CASE WHEN $2 THEN now() ELSE NULL END WHERE id=$1::uuid`, lease.turnId, dispatched);
+      if (dispatched) assert.equal(await api.createFoxyTextBudget({ configuration }).reserve({ query }, lease, 100), 'RESERVED');
+      await query("UPDATE foxy_turns SET lease_until=clock_timestamp()-interval '1 second' WHERE id=$1::uuid", lease.turnId);
       const newer = await enqueue(api, query, f.other);
       const recovered = await q.claim(); assert.ok(recovered);
       const [row] = await query('SELECT state,error_code,lease_nonce FROM foxy_turns WHERE id=$1::uuid', lease.turnId);
@@ -134,7 +136,7 @@ test('F5C queue admission, identity and expiration with synthetic PostgreSQL', {
 });
 
 test('two concurrent claims return at most one lease', { timeout: 120000 }, async () => {
-  const api = await import('./index.ts'); assert.equal(typeof api.createFoxyTurnQueue, 'function');
+  const api = await import('../../../../.build/api/apps/api/src/foxy-ai/index.js'); assert.equal(typeof api.createFoxyTurnQueue, 'function');
   await withAgendaDatabase(async ({ pool }) => {
     assert.match((await pool.query('SELECT current_database() name')).rows[0].name, /_test$/);
     const database = transactionDatabase(pool), query = async (sql, ...args) => (await pool.query(sql, args)).rows;

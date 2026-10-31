@@ -41,7 +41,7 @@ async function state(query, turnId) {
 }
 
 test('durable completion fences results and settles reservations atomically', { timeout: 120000 }, async t => {
-  const api = await import('./index.ts'); assert.equal(typeof api.createFoxyTurnCompletion, 'function');
+  const api = await import('../../../../.build/api/apps/api/src/foxy-ai/index.js'); assert.equal(typeof api.createFoxyTurnCompletion, 'function');
   await withAgendaDatabase(async ({ pool, transaction }) => {
     assert.match((await pool.query('SELECT current_database() name')).rows[0].name, /_test$/);
     const check = (name, operation, classroom = false) => t.test(name, () => transaction(async ({ query }) => {
@@ -145,7 +145,7 @@ test('durable completion fences results and settles reservations atomically', { 
 
 
 test('completion waits for concurrent classroom mutation then stores STALE and settles', { timeout: 120000 }, async () => {
-  const api = await import('./index.ts'); assert.equal(typeof api.createFoxyTurnCompletion, 'function');
+  const api = await import('../../../../.build/api/apps/api/src/foxy-ai/index.js'); assert.equal(typeof api.createFoxyTurnCompletion, 'function');
   await withAgendaDatabase(async ({ pool }) => {
     assert.match((await pool.query('SELECT current_database() name')).rows[0].name, /_test$/);
     const query = async (sql, ...args) => (await pool.query(sql, args)).rows, f = await homeFixture(query);
@@ -169,7 +169,7 @@ test('completion waits for concurrent classroom mutation then stores STALE and s
 });
 
 test('grading reservation and Foxy completion avoid deadlock after lease rollover', { timeout: 120000 }, async () => {
-  const api = await import('./index.ts');
+  const api = await import('../../../../.build/api/apps/api/src/foxy-ai/index.js');
   const { createGradingAiSqlQueue } = await import('../classrooms/grading-ai/sql-queue.ts');
   await withAgendaDatabase(async ({ pool }) => {
     assert.match((await pool.query('SELECT current_database() name')).rows[0].name, /_test$/);
@@ -222,7 +222,7 @@ test('grading reservation and Foxy completion avoid deadlock after lease rollove
 });
 
 test('completion racing expiry recovery settles a dispatched reservation once', { timeout: 120000 }, async () => {
-  const api = await import('./index.ts');
+  const api = await import('../../../../.build/api/apps/api/src/foxy-ai/index.js');
   await withAgendaDatabase(async ({ pool }) => {
     assert.match((await pool.query('SELECT current_database() name')).rows[0].name, /_test$/);
     const query = async (sql, ...args) => (await pool.query(sql, args)).rows;

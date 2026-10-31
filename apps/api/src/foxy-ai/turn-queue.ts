@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { createFoxyTextBudget, type FoxyTextBudgetConfiguration } from './text-budget.ts';
+import type { FoxyTextBudgetConfiguration } from './text-budget.ts';
+import { recoverFoxyExpired } from './turn-recovery.ts';
 import type { SqlDatabase, SqlTransaction } from '../../../../src/core/domain/index.ts';
 
 type Configuration = { maxConcurrency: number; deadlineMs: number; maxJobAgeMs: number } & FoxyTextBudgetConfiguration;
@@ -14,22 +15,13 @@ const running = `SELECT owner_id FROM foxy_turns WHERE state='RUNNING'
   UNION ALL SELECT owner_id FROM student_ai_reports WHERE state='RUNNING' AND lease_until>clock_timestamp()
   UNION ALL SELECT owner_id FROM grading_ai_jobs WHERE state='RUNNING' AND lease_until>clock_timestamp()`;
 async function recover(tx: SqlTransaction, config: Configuration): Promise<number> {
-  await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)');
-  const budget = createFoxyTextBudget({ configuration: config });
-  const leases = await tx.query<{ id: string; dispatch_started_at: Date | null }>(`SELECT id,dispatch_started_at FROM foxy_turns
-    WHERE state='RUNNING' AND lease_until<=clock_timestamp() ORDER BY lease_until,id LIMIT 50 FOR UPDATE SKIP LOCKED`);
-  for (const row of leases) {
-    await budget.settleExpired(tx, row.id);
-    await tx.query(`UPDATE foxy_turns SET state=$2,error_code=$3,lease_nonce=NULL,lease_until=NULL,
-    updated_at=clock_timestamp() WHERE id=$1::uuid`, row.id, row.dispatch_started_at ? 'FAILED' : 'QUEUED',
-  row.dispatch_started_at ? 'PROVIDER_OUTCOME_UNKNOWN' : null);
-  }
+  const recovered = await recoverFoxyExpired(tx);
   const queued = await tx.query<{ id: string }>(`SELECT id FROM foxy_turns WHERE state='QUEUED'
     AND created_at+$1::bigint*interval '1 millisecond'<=clock_timestamp()
     ORDER BY created_at,id LIMIT 50 FOR UPDATE SKIP LOCKED`, config.maxJobAgeMs);
   for (const row of queued) await tx.query(`UPDATE foxy_turns SET state='FAILED',error_code='AI_TIMEOUT',
     updated_at=clock_timestamp() WHERE id=$1::uuid`, row.id);
-  return leases.length + queued.length;
+  return recovered + queued.length;
 }
 export function createFoxyTurnQueue(options: Options) {
   const transact = <T>(fn: (tx: SqlTransaction) => Promise<T>): Promise<T> => options.database.$transaction(
