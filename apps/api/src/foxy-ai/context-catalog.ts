@@ -1,0 +1,50 @@
+import type { ClassroomService } from '../classrooms/index.ts';
+import type { SqlTransaction } from '../../../../src/core/domain/index.ts';
+import type { FoxyContext } from '../../../../src/core/domain/index.ts';
+
+type Unit = { id: string; name: string; position: number };
+type Topic = { id: string; unit_id: string; name: string; position: number; status: 'PENDING' | 'NEXT' | 'TAUGHT' };
+type CurriculumUnit = Unit & { topics: Omit<Topic, 'unit_id'>[] };
+type Conversations = { get(tx: SqlTransaction, owner: string, id: string): Promise<{ context: FoxyContext } | null> };
+type Catalogue = { context: FoxyContext; units: CurriculumUnit[]; classroomRevision: string | null;
+  classroomTitle: string | null; archived: boolean; canGenerate: boolean };
+type Outcome = { kind: 'ok'; value: Catalogue } | { kind: 'forbidden' | 'limit' };
+
+async function loadUnits(tx: SqlTransaction, classroomId: string): Promise<CurriculumUnit[] | null> {
+  const units = await tx.query<Unit>('SELECT id,name,position FROM units WHERE classroom_id=$1::uuid ORDER BY position,id LIMIT 101', classroomId);
+  if (units.length > 100) return null;
+  const topics = await tx.query<Topic>('SELECT id,unit_id,name,position,status FROM topics WHERE classroom_id=$1::uuid ORDER BY position,id LIMIT 501', classroomId);
+  if (topics.length > 500) return null;
+  return units.map(unit => ({ id: unit.id, name: unit.name, position: unit.position,
+    topics: topics.filter(topic => topic.unit_id === unit.id).map(topic => ({
+      id: topic.id, name: topic.name, position: topic.position, status: topic.status,
+    })) }));
+}
+export class FoxyContextCatalogService {
+  private readonly run: ClassroomService['run'];
+  private readonly classroom: ClassroomService['classroom'];
+  private readonly conversations: Conversations;
+  constructor(context: Pick<ClassroomService, 'run' | 'classroom'>, conversations: Conversations) {
+    this.run = context.run.bind(context); this.classroom = context.classroom.bind(context); this.conversations = conversations;
+  }
+  async curriculum(request: unknown, conversationId: string): Promise<Catalogue> {
+    const outcome = await this.run<Outcome>(request, false, async (tx, actor) => {
+      if (actor.account_role !== 'teacher') return { kind: 'forbidden' };
+      const conversation = await this.conversations.get(tx, actor.id, conversationId);
+      if (!conversation) return { kind: 'forbidden' };
+      if (conversation.context.kind === 'GENERAL') return { kind: 'ok', value: { context: conversation.context,
+        units: [], classroomRevision: null, classroomTitle: null, archived: false, canGenerate: true } };
+      const room = await this.classroom(tx, actor, conversation.context.classroomId, false, true);
+      const units = await loadUnits(tx, room.id);
+      if (!units) return { kind: 'limit' };
+      const archived = Boolean(room.archived_at);
+      return { kind: 'ok', value: { context: conversation.context, units, classroomRevision: String(room.revision),
+        classroomTitle: room.name, archived, canGenerate: !archived } };
+    });
+    if (outcome.kind !== 'ok') {
+      const code = outcome.kind === 'limit' ? 'AI_INPUT_LIMIT' : 'FORBIDDEN';
+      throw Object.assign(new Error(code), { code });
+    }
+    return outcome.value;
+  }
+}
