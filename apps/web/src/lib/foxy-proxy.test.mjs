@@ -98,10 +98,40 @@ test('proxy forwards exactly the resource and publication routes with security c
 }));
 
 test('proxy rejects wrong publication paths, methods and queries before upstream',async()=>fixture(async({origin,calls})=>{
- const r=randomUUID(),p=randomUUID();for(const [path,method] of [[`${root}/resources/${r}/publications`,'GET'],[`${root}/resources/${r}`,'DELETE'],
+ const r=randomUUID(),p=randomUUID();for(const [path,method] of [[`${root}/resources/${r}`,'DELETE'],
   [`${root}/publications/${p}/confirm`,'GET'],[`${root}/publications/${p}`,'PATCH'],[`${root}/publications/${p}?x=1`,'GET'],
   [`${root}/resources/${r}/publications?x=1`,'POST'],[`${root}/resources/not-uuid`,'GET'],[`${root}/publications/${p}/confirm/extra`,'POST'],
   [`${root}/conversations/${conversationId}/turns/${turnId}/resource/extra`,'POST']]){
   const response=await fetch(origin+path,{method,headers,...(['POST','PATCH'].includes(method)?{body:'{}'}:{})});assert.ok(response.status>=400&&response.status<500,`${method} ${path}`);
  }assert.equal(calls.length,0);
+}));
+
+test('proxy forwards private publication PDF path as bounded binary with safe headers',async()=>{
+ const publicationId=randomUUID(),bytes=Buffer.from('%PDF-synthetic');
+ await fixture(async({origin,calls})=>{for(const mode of ['preview','download']){const path=`${root}/publications/${publicationId}/file?mode=${mode}`,response=await fetch(origin+path,{headers});
+  assert.equal(response.status,200);assert.deepEqual(Buffer.from(await response.arrayBuffer()),bytes);assert.equal(response.headers.get('content-type'),'application/pdf');
+  assert.equal(response.headers.get('cache-control'),'no-store');assert.equal(response.headers.get('x-content-type-options'),'nosniff');assert.equal(response.headers.get('location'),null);}
+  const implicit=await fetch(`${origin}${root}/publications/${publicationId}/file`,{headers});assert.equal(implicit.status,200);assert.deepEqual(Buffer.from(await implicit.arrayBuffer()),bytes);
+  assert.deepEqual(calls.map(c=>c.url),[...['preview','download'].map(m=>`${root}/publications/${publicationId}/file?mode=${m}`),`${root}/publications/${publicationId}/file`]);
+ },(_req,res)=>{res.writeHead(200,{'content-type':'application/pdf','content-length':String(bytes.length),'content-disposition':'attachment','cross-origin-resource-policy':'same-origin','content-security-policy':"sandbox; default-src 'none'"});res.end(bytes);});
+});
+
+test('proxy rejects invalid publication PDF mode, children, method and oversized response',async()=>{
+ const p=randomUUID();await fixture(async({origin,calls})=>{for(const [suffix,method] of [['?mode=invalid','GET'],['?mode=preview&mode=download','GET'],['?mode=preview&fileId=x','GET'],['/extra?mode=preview','GET'],['?mode=preview','POST']]){
+  const response=await fetch(`${origin}${root}/publications/${p}/file${suffix}`,{method,headers,...(method==='POST'?{body:'{}'}:{})});assert.ok(response.status>=400&&response.status<500);}
+  assert.equal(calls.length,0);
+ });
+ await fixture(async({origin})=>{const response=await fetch(`${origin}${root}/publications/${p}/file?mode=download`,{headers});assert.equal(response.status,503);},
+ (_req,res)=>{res.writeHead(200,{'content-type':'application/pdf','content-length':String(50*1024*1024+1)});res.end();});
+});
+
+
+test('proxy forwards bounded resource publication listing and cursor unchanged',async()=>fixture(async({origin,calls})=>{
+ const r=randomUUID(),cursor=randomUUID();for(const suffix of ['',`?limit=50&afterId=${cursor}`]){const path=`${root}/resources/${r}/publications${suffix}`,response=await fetch(origin+path,{headers});
+  assert.equal(response.status,200);assert.deepEqual(await response.json(),{ok:true});assert.equal(calls.at(-1).url,path);assert.equal(calls.at(-1).headers.cookie,headers.cookie);}
+}));
+
+test('proxy rejects invalid publication listing queries before upstream',async()=>fixture(async({origin,calls})=>{
+ const r=randomUUID();for(const suffix of ['?limit=0','?limit=51','?limit=1&limit=2','?afterId=invalid','?other=1']){const response=await fetch(`${origin}${root}/resources/${r}/publications${suffix}`,{headers});assert.ok(response.status>=400&&response.status<500);}
+ assert.equal(calls.length,0);
 }));

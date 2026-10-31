@@ -20,6 +20,7 @@ import { createFoxyResourceService } from './resource-service.ts';
 import { createFoxyPublicationRepository } from './publication-repository.ts';
 import { createFoxyPublicationConfirmationRepository } from './publication-confirmation-repository.ts';
 import { createFoxyPublicationService } from './publication-service.ts';
+import { createFoxyPublicationFileReader } from './publication-file-reader.ts';
 import { createLibraryMaterialPublisher } from '../classrooms/public/index.ts';
 import { createFoxyPublicationQueue } from './publication-queue.ts';
 import { createFoxyPublicationAuthority } from './publication-authority.ts';
@@ -93,6 +94,7 @@ export function createFoxyRuntime(options: Options) {
     catalog: new FoxyContextCatalogService(options.classrooms, conversations),
     citations: createFoxyCitationService({ uow, files: options.files }),
     resources: createFoxyResourceService({ uow, resources: createFoxyResourceRepository() }),
+    publicationFiles: createFoxyPublicationFileReader({ uow, files: options.files }),
     publications: createFoxyPublicationService({ uow, publications: createFoxyPublicationRepository(),
       confirmations: createFoxyPublicationConfirmationRepository({ library: createLibraryMaterialPublisher({ files: options.files.store }) }) }),
     capabilities: (request: unknown) => uow.run(request, false, async () => ({ textGeneration: { enabled },

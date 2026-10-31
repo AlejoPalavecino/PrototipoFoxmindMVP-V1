@@ -6,11 +6,12 @@ import type { FoxyContextCatalogService } from './context-catalog.ts';
 import type { createFoxyCitationService } from './citation-service.ts';
 import type { createFoxyResourceService } from './resource-service.ts';
 import type { createFoxyPublicationService } from './publication-service.ts';
+import type { createFoxyPublicationFileReader } from './publication-file-reader.ts';
 import { body, create, cursor, id, integer, message, query, remove, rename } from './http-input.ts';
 
 type Services = { conversations: ReturnType<typeof createFoxyConversationService>; turns: ReturnType<typeof createFoxyTurnService>;
   catalog: Pick<FoxyContextCatalogService, 'curriculum' | 'sources'>; citations: ReturnType<typeof createFoxyCitationService>;
-  resources: ReturnType<typeof createFoxyResourceService>; publications: ReturnType<typeof createFoxyPublicationService>; capabilities(request: IncomingMessage): Promise<unknown> };
+  resources: ReturnType<typeof createFoxyResourceService>; publications: ReturnType<typeof createFoxyPublicationService>; publicationFiles: ReturnType<typeof createFoxyPublicationFileReader>; capabilities(request: IncomingMessage): Promise<unknown> };
 type Result = { status: number; body?: unknown; binary?: Uint8Array; headers?: Record<string, string> };
 const missing = (): Result => ({ status: 404, body: { error: { code: 'NOT_FOUND' } } });
 async function collection(services: Services, request: IncomingMessage, url: URL): Promise<Result> {
@@ -57,6 +58,18 @@ export async function foxyRoute(services: Services, request: IncomingMessage, ur
   if (preparePublication && request.method === 'POST') {
     query(url, []); const result = await services.publications.prepare(request, id(preparePublication[1]!), parsePrepareFoxyPublication(await body(request)));
     return { status: result.created ? 202 : 200, body: result };
+  }
+  if (preparePublication && request.method === 'GET') {
+    const params = query(url, ['limit', 'afterId']);
+    return { status: 200, body: await services.publications.list(request, id(preparePublication[1]!),
+      { limit: integer(params.limit, 20, 1, 50), afterId: params.afterId === undefined ? null : id(params.afterId) }) };
+  }
+  const publicationFile = /^\/publications\/([^/]+)\/file$/u.exec(path);
+  if (publicationFile && request.method === 'GET') {
+    const params = query(url, ['mode']), mode = params.mode ?? 'download';
+    if (mode !== 'preview' && mode !== 'download') throw Object.assign(new Error('INVALID_INPUT'), { code: 'INVALID_INPUT' });
+    const result = await services.publicationFiles.readFile(request, id(publicationFile[1]!), mode);
+    return { status: 200, binary: result.bytes, headers: result.headers };
   }
   const publication = /^\/publications\/([^/]+)(?:\/(confirm))?$/u.exec(path);
   if (publication) {

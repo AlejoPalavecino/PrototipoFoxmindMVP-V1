@@ -13,6 +13,7 @@ const turnResource = new RegExp(`^${root}/conversations/${uuid}/turns/${uuid}/re
 const resource = new RegExp(`^${root}/resources/${uuid}$`, 'i');
 const preparePublication = new RegExp(`^${root}/resources/${uuid}/publications$`, 'i');
 const publication = new RegExp(`^${root}/publications/${uuid}$`, 'i');
+const publicationFile = new RegExp(`^${root}/publications/${uuid}/file$`, 'i');
 const confirmPublication = new RegExp(`^${root}/publications/${uuid}/confirm$`, 'i');
 const requestLimit = 1048576, jsonLimit = 2 * 1024 * 1024, binaryLimit = 50000000;
 function fail(response: ServerResponse, status: number, code: string): void {
@@ -29,9 +30,10 @@ function destination(value?: string): string {
 function select(request: IncomingMessage): { url: URL; method: string; binary: boolean } {
   const raw = request.url ?? '', method = request.method ?? 'GET';
   if (!raw.startsWith(`${root}/`) || /[\\#]/u.test(raw) || /%|\.\./u.test(raw.split('?')[0]!)) throw new Error();
-  const url = new URL(raw, 'http://web.invalid'), path = url.pathname, binary = citationFile.test(path);
+  const url = new URL(raw, 'http://web.invalid'), path = url.pathname, binary = citationFile.test(path) || publicationFile.test(path);
   const allowed = path === `${root}/capabilities` || catalog.test(path) || turn.test(path) || citations.test(path) || binary || publication.test(path) ? ['GET']
-    : turnResource.test(path) || preparePublication.test(path) || confirmPublication.test(path) ? ['POST']
+    : turnResource.test(path) || confirmPublication.test(path) ? ['POST']
+      : preparePublication.test(path) ? ['GET', 'POST']
       : resource.test(path) ? ['GET', 'PATCH']
         : path === `${root}/conversations` || turns.test(path) ? ['GET', 'POST'] : conversation.test(path) ? ['GET', 'PATCH', 'DELETE'] : [];
   if (!allowed.length) throw Object.assign(new Error(), { status: 404 });
@@ -39,12 +41,15 @@ function select(request: IncomingMessage): { url: URL; method: string; binary: b
   const keys = [...url.searchParams.keys()];
   if (new Set(keys).size !== keys.length) throw new Error();
   const query = path === `${root}/conversations` && method === 'GET' ? ['limit', 'after']
+    : preparePublication.test(path) && method === 'GET' ? ['limit', 'afterId']
     : turns.test(path) && method === 'GET' ? ['afterSequence', 'limit']
       : path.endsWith('/sources') ? ['kind', 'limit', 'after'] : binary ? ['mode'] : [];
   if (keys.some(key => !query.includes(key))) throw new Error();
   if (url.searchParams.has('mode') && !['preview', 'download'].includes(url.searchParams.get('mode')!)) throw new Error();
   if (url.searchParams.has('kind') && !['PLAN', 'MATERIAL', 'ACTIVITY'].includes(url.searchParams.get('kind')!)) throw new Error();
   for (const name of ['limit', 'afterSequence']) if (url.searchParams.has(name) && !/^(?:0|[1-9][0-9]{0,9})$/u.test(url.searchParams.get(name)!)) throw new Error();
+  if (preparePublication.test(path) && url.searchParams.has('limit') && (Number(url.searchParams.get('limit')) < 1 || Number(url.searchParams.get('limit')) > 50)) throw new Error();
+  if (url.searchParams.has('afterId') && !new RegExp(`^${uuid}$`, 'i').test(url.searchParams.get('afterId')!)) throw new Error();
   if (url.searchParams.has('after') && !/^[A-Za-z0-9_-]{1,4096}$/u.test(url.searchParams.get('after')!)) throw new Error();
   return { url, method, binary };
 }
