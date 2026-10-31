@@ -1073,6 +1073,7 @@ model FoxyConversation {
   owner User @relation(fields: [owner_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
   classroom Classroom? @relation(fields: [classroom_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
   requests FoxyConversationRequest[]
+  turns FoxyTurn[]
   @@unique([id, owner_id])
   @@index([owner_id, updated_at(sort: Desc), id(sort: Desc)], map: "foxy_conversations_owner_updated_idx")
   @@map("foxy_conversations")
@@ -1088,4 +1089,24 @@ model FoxyConversationRequest {
   conversation FoxyConversation @relation(fields: [conversation_id, owner_id], references: [id, owner_id], onDelete: Restrict, onUpdate: NoAction)
   @@id([owner_id, request_id])
   @@map("foxy_conversation_requests")
+}
+
+model FoxyTurn {
+  id String @id @db.Uuid
+  owner_id String @db.Uuid
+  conversation_id String @db.Uuid
+  request_id String @db.Uuid
+  input_hash String
+  sequence Int
+  state String @default("QUEUED")
+  purpose String
+  message_text String
+  snapshot Json
+  metadata Json
+  conversation_revision BigInt
+  created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  conversation FoxyConversation @relation(fields: [conversation_id, owner_id], references: [id, owner_id], onDelete: Restrict, onUpdate: NoAction)
+  @@unique([owner_id, request_id])
+  @@unique([conversation_id, sequence])
+  @@map("foxy_turns")
 }
