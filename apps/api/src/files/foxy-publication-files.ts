@@ -25,6 +25,9 @@ function privateAccess(states: WeakMap<object, RequestState>, authority: Authori
       return (await verify(tx, request)).grant.ownerId;
     },
     async authorize(tx, userId, target, action, request) {
+      const initial = request && typeof request === 'object' ? states.get(request) : undefined;
+      if (!initial || initial.signal.aborted) return forbidden();
+      if (initial.kind === 'file' && action === 'upload') await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123003)');
       const state = await verify(tx, request), grant = state.grant;
       if (userId !== grant.ownerId || target.scope.kind !== 'classroom' || target.scope.id !== grant.classroomId
         || target.purpose !== 'material' || target.targetId !== null || !['upload', 'read'].includes(action)) return forbidden();
@@ -40,6 +43,7 @@ export function createDurableFoxyPublicationFiles(options: { files: FileService;
     scanner: options.files.scanner, draftQuotaBytes: options.files.store.draftQuotaBytes });
   const uow = createFoxyUnitOfWork({ database: options.files.store.database, authenticate: async (tx, request) => access.authenticate(tx, request, 'upload') });
   const allocator = createFoxyPublicationFileAllocator({ uow, files });
+  let receiving = false;
   async function withRequest<T>(capability: object, signal: AbortSignal, kind: 'claim' | 'file', operation: (request: object, grant: Claim | Grant) => Promise<T>): Promise<T> {
     signal.throwIfAborted();
     const grant = kind === 'claim' ? await options.authority.authorize(capability, signal) : await options.authority.authorizeFile(capability, signal);
@@ -55,15 +59,24 @@ export function createDurableFoxyPublicationFiles(options: { files: FileService;
       const copy = { ...artifact };
       return withRequest(capability, signal, 'claim', (request, grant) => allocator.ensureFile(request, grant, copy, signal));
     },
-    receive: (capability: object, bytes: Uint8Array, signal: AbortSignal) => {
+    receive: async (capability: object, bytes: Uint8Array, signal: AbortSignal) => {
       signal.throwIfAborted();
       if (!(bytes instanceof Uint8Array) || bytes.byteLength < 1 || bytes.byteLength > 20000000) return forbidden();
+      if (receiving) throw new FileError('SERVICE_UNAVAILABLE');
+      receiving = true;
       const copy = Buffer.from(bytes);
-      return withRequest(capability, signal, 'file', async (request, value) => {
+      try { return await withRequest(capability, signal, 'file', async (request, value) => {
         const grant = value as Grant;
         if (copy.length !== grant.sizeBytes || createHash('sha256').update(copy).digest('hex') !== grant.digest) return forbidden();
-        return files.receive(request, grant.fileId, copy);
-      });
+        const guardedStorage = { ...options.files.storage, put: async (key: string, input: Buffer) => {
+          const fresh = await options.authority.authorizeFile(capability, signal);
+          if (!isDeepStrictEqual(fresh, grant) || signal.aborted) return forbidden();
+          return options.files.storage.put(key, input);
+        }, get: options.files.storage.get.bind(options.files.storage), remove: options.files.storage.remove.bind(options.files.storage) };
+        const receiver = new FileService({ database: options.files.store.database, access, storage: guardedStorage,
+          scanner: options.files.scanner, draftQuotaBytes: options.files.store.draftQuotaBytes });
+        return receiver.receive(request, grant.fileId, copy);
+      }); } finally { receiving = false; }
     },
     proof: (capability: object, signal: AbortSignal) => withRequest(capability, signal, 'file', async (request, value) => {
       const grant = value as Grant;
