@@ -3,11 +3,13 @@ import type { IncomingMessage } from 'node:http';
 import type { createFoxyConversationService } from './conversation-service.ts';
 import type { createFoxyTurnService } from './turn-service.ts';
 import type { FoxyContextCatalogService } from './context-catalog.ts';
+import type { createFoxyCitationService } from './citation-service.ts';
 import { body, create, cursor, id, integer, message, query, remove, rename } from './http-input.ts';
 
 type Services = { conversations: ReturnType<typeof createFoxyConversationService>; turns: ReturnType<typeof createFoxyTurnService>;
-  catalog: Pick<FoxyContextCatalogService, 'curriculum' | 'sources'>; capabilities(request: IncomingMessage): Promise<unknown> };
-type Result = { status: number; body?: unknown };
+  catalog: Pick<FoxyContextCatalogService, 'curriculum' | 'sources'>; citations: ReturnType<typeof createFoxyCitationService>;
+  capabilities(request: IncomingMessage): Promise<unknown> };
+type Result = { status: number; body?: unknown; binary?: Uint8Array; headers?: Record<string, string> };
 const missing = (): Result => ({ status: 404, body: { error: { code: 'NOT_FOUND' } } });
 async function collection(services: Services, request: IncomingMessage, url: URL): Promise<Result> {
   if (request.method === 'POST') {
@@ -44,6 +46,17 @@ export async function foxyRoute(services: Services, request: IncomingMessage, ur
   const path = url.pathname.slice('/api/v1/foxy-ai'.length);
   if (path === '/capabilities' && request.method === 'GET') { query(url, []); return { status: 200, body: await services.capabilities(request) }; }
   if (path === '/conversations') return collection(services, request, url);
+  const citation = /^\/conversations\/([^/]+)\/turns\/([^/]+)\/citations(?:\/([^/]+)\/file)?$/u.exec(path);
+  if (citation && request.method === 'GET') {
+    const conversationId = id(citation[1]!), turnId = id(citation[2]!);
+    if (!citation[3]) { query(url, []); return { status: 200, body: await services.citations.list(request, conversationId, turnId) }; }
+    if (!/^c[1-9][0-9]*$/u.test(citation[3])) throw Object.assign(new Error('INVALID_INPUT'), { code: 'INVALID_INPUT' });
+    const params = query(url, ['mode']), mode = params.mode ?? 'download';
+    if (mode !== 'preview' && mode !== 'download') throw Object.assign(new Error('INVALID_INPUT'), { code: 'INVALID_INPUT' });
+    const result = await services.citations.readFile(request, conversationId, turnId, citation[3], mode);
+    return { status: 200, binary: result.bytes, headers: result.headers };
+  }
+
   const match = /^\/conversations\/([^/]+)(?:\/(turns|curriculum|sources)(?:\/([^/]+))?)?$/u.exec(path);
   if (!match) return missing();
   const conversationId = id(match[1]!), section = match[2], turnId = match[3];

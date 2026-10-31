@@ -115,7 +115,7 @@ export function createFoxyTurnRepository() {
     },
     async list(tx: SqlTransaction, owner: string, conversationId: string, page: Page) {
       id(owner); id(conversationId);
-      if (!page || !Number.isSafeInteger(page.afterSequence) || page.afterSequence < 0 || !Number.isSafeInteger(page.limit) || page.limit < 1 || page.limit > 100) return fail('INVALID_INPUT');
+      if (!page || !Number.isSafeInteger(page.afterSequence) || page.afterSequence < 0 || !Number.isSafeInteger(page.limit) || page.limit < 1 || page.limit > 101) return fail('INVALID_INPUT');
       const rows = await tx.query<ReadRow>(`SELECT ${readColumns} FROM foxy_turns t JOIN foxy_conversations c ON c.id=t.conversation_id AND c.owner_id=t.owner_id
         WHERE t.owner_id=$1::uuid AND t.conversation_id=$2::uuid AND t.sequence>$3 AND c.deleted_at IS NULL
         AND EXISTS (SELECT 1 FROM users u WHERE u.id=c.owner_id AND u.account_role='teacher')

@@ -14,10 +14,11 @@ async function fixture(run) {
   const conversations = { create: record('create', () => { const result = { created, conversation }; created = false; return result; }),
     list: record('list', { items: [conversation], next: null }), get: record('get', conversation), rename: record('rename', conversation), remove: record('remove') };
   const turns = { send: record('send', () => { const result = { created: sent, turn: { id: turnId, sequence: 1, state: 'QUEUED' }, conversationRevision: '1' }; sent = false; return result; }),
-    get: record('getTurn', { id: turnId, sequence: 1, state: 'QUEUED' }), list: record('listTurns', []) };
+    get: record('getTurn', { id: turnId, sequence: 1, state: 'QUEUED' }), list: record('listTurns', { items:[], nextAfterSequence:null }) };
   const catalog = { curriculum: record('curriculum', { units: [] }), sources: record('sources', { items: [], next: null }) };
   const capabilities = record('capabilities', { text: true });
-  const handler = api.createFoxyHandler({ conversations, turns, catalog, capabilities }, { admit: async (req, write) => {
+  const citations = { list: record('citationList', [{ id:'c1', sourceTitle:'Actividad', sourceKind:'ACTIVITY', documentTitle:'guia.pdf', page:1, availability:'AVAILABLE', href:`${base}/conversations/${id}/turns/${turnId}/citations/c1/file` }]), readFile: record('citationFile', { bytes:Buffer.from('%PDF-synthetic'), headers:{ 'Content-Type':'application/pdf', 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff' } }) };
+  const handler = api.createFoxyHandler({ conversations, turns, catalog, capabilities, citations }, { admit: async (req, write) => {
     admissions.push(write); if (req.headers.cookie !== 'session=synthetic') throw Object.assign(Error('private'), { code: 'AUTH_REQUIRED' });
     if (write && req.headers.origin !== 'http://web.test') throw Object.assign(Error('private'), { code: 'ORIGIN_NOT_ALLOWED' });
     if (write && req.headers['x-csrf-token'] !== 'bound') throw Object.assign(Error('private'), { code: 'CSRF_INVALID' });
@@ -121,4 +122,35 @@ test('malformed absolute request target returns sanitized 400 without throwing',
   await new Promise(resolve => setImmediate(resolve));
   assert.equal(response.statusCode, 400); assert.equal(JSON.parse(response.body).error.code, 'INVALID_INPUT');
   assert.equal(String(response.body).includes('http://['), false);
+});
+
+test('citation list and binary file routes use opaque references and safe headers', async () => fixture(async ({ send, calls }) => {
+  const path = `/conversations/${id}/turns/${turnId}/citations`;
+  const list = await send(path); assert.equal(list.status, 200);
+  const [citation] = await list.json(); assert.equal(citation.id,'c1'); assert.equal(citation.availability,'AVAILABLE');
+  assert.equal(citation.href, `${base}${path}/c1/file`);
+  const file = await send(`${path}/c1/file?mode=preview`); assert.equal(file.status,200);
+  assert.equal(file.headers.get('content-type'),'application/pdf'); assert.equal(file.headers.get('cache-control'),'no-store');
+  assert.equal(file.headers.get('x-content-type-options'),'nosniff'); assert.equal(file.headers.get('location'),null);
+  assert.deepEqual(Buffer.from(await file.arrayBuffer()),Buffer.from('%PDF-synthetic'));
+  assert.deepEqual(calls.map(call => call[0]),['citationList','citationFile']);
+  assert.deepEqual(calls[0].slice(1),[id,turnId]); assert.deepEqual(calls[1].slice(1),[id,turnId,'c1','preview']);
+  assert.equal((await send(path,'GET',undefined,{ cookie:'' })).status,401);
+  const before = calls.length; assert.ok((await send(`${path}/${randomUUID()}/file`)).status >= 400); assert.equal(calls.length,before);
+}));
+
+test('turn page response preserves cursor envelope', async () => fixture(async ({ send }) => {
+  const response = await send(`/conversations/${id}/turns?afterSequence=0&limit=2`);
+  assert.equal(response.status,200); assert.deepEqual(await response.json(),{items:[],nextAfterSequence:null});
+}));
+
+test('RESPONSE_TOO_LARGE is an explicit sanitized 413 response', async () => {
+  const api = await import('./index.ts');
+  const handler = api.createFoxyHandler({ capabilities: async () => { throw Object.assign(Error('synthetic private detail'), { code:'RESPONSE_TOO_LARGE' }); } }, { admit:async () => {} });
+  const server=createServer((req,res)=>handler(req,res,()=>res.end())); await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+  try { const response=await fetch(`http://127.0.0.1:${server.address().port}${base}/capabilities`);
+    assert.equal(response.status,413); const data=await response.json(); assert.equal(data.error.code,'RESPONSE_TOO_LARGE');
+    assert.equal(JSON.stringify(data).includes('synthetic private detail'),false);
+    assert.equal(response.headers.get('cache-control'),'no-store'); assert.equal(response.headers.get('x-content-type-options'),'nosniff');
+  } finally { server.closeAllConnections(); await new Promise(resolve=>server.close(resolve)); }
 });
