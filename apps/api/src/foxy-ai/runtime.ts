@@ -17,6 +17,10 @@ import { createFoxyTextWorker } from './worker.ts';
 import { createFoxyTurnRecovery } from './turn-recovery.ts';
 import { createFoxyResourceRepository } from './resource-repository.ts';
 import { createFoxyResourceService } from './resource-service.ts';
+import { createFoxyPublicationRepository } from './publication-repository.ts';
+import { createFoxyPublicationConfirmationRepository } from './publication-confirmation-repository.ts';
+import { createFoxyPublicationService } from './publication-service.ts';
+import { createLibraryMaterialPublisher } from '../classrooms/public/index.ts';
 import { createFoxyPublicationQueue } from './publication-queue.ts';
 import { createFoxyPublicationAuthority } from './publication-authority.ts';
 import { createFoxyPublicationCompletion } from './publication-completion.ts';
@@ -89,6 +93,8 @@ export function createFoxyRuntime(options: Options) {
     catalog: new FoxyContextCatalogService(options.classrooms, conversations),
     citations: createFoxyCitationService({ uow, files: options.files }),
     resources: createFoxyResourceService({ uow, resources: createFoxyResourceRepository() }),
+    publications: createFoxyPublicationService({ uow, publications: createFoxyPublicationRepository(),
+      confirmations: createFoxyPublicationConfirmationRepository({ library: createLibraryMaterialPublisher({ files: options.files.store }) }) }),
     capabilities: (request: unknown) => uow.run(request, false, async () => ({ textGeneration: { enabled },
       imageGeneration: { enabled: false }, diagramGeneration: { enabled: false } })) };
   return { services, worker, publicationWorker, onModuleInit: () => { lifecycle.onModuleInit(); publicationWorker.onModuleInit(); },

@@ -1,15 +1,16 @@
-import { parseEditFoxyResource, parseFoxySourceQuery } from '../../../../src/core/domain/index.ts';
+import { parseEditFoxyResource, parseFoxySourceQuery, parsePrepareFoxyPublication, parseConfirmFoxyPublication } from '../../../../src/core/domain/index.ts';
 import type { IncomingMessage } from 'node:http';
 import type { createFoxyConversationService } from './conversation-service.ts';
 import type { createFoxyTurnService } from './turn-service.ts';
 import type { FoxyContextCatalogService } from './context-catalog.ts';
 import type { createFoxyCitationService } from './citation-service.ts';
 import type { createFoxyResourceService } from './resource-service.ts';
+import type { createFoxyPublicationService } from './publication-service.ts';
 import { body, create, cursor, id, integer, message, query, remove, rename } from './http-input.ts';
 
 type Services = { conversations: ReturnType<typeof createFoxyConversationService>; turns: ReturnType<typeof createFoxyTurnService>;
   catalog: Pick<FoxyContextCatalogService, 'curriculum' | 'sources'>; citations: ReturnType<typeof createFoxyCitationService>;
-  resources: ReturnType<typeof createFoxyResourceService>; capabilities(request: IncomingMessage): Promise<unknown> };
+  resources: ReturnType<typeof createFoxyResourceService>; publications: ReturnType<typeof createFoxyPublicationService>; capabilities(request: IncomingMessage): Promise<unknown> };
 type Result = { status: number; body?: unknown; binary?: Uint8Array; headers?: Record<string, string> };
 const missing = (): Result => ({ status: 404, body: { error: { code: 'NOT_FOUND' } } });
 async function collection(services: Services, request: IncomingMessage, url: URL): Promise<Result> {
@@ -51,6 +52,18 @@ export async function foxyRoute(services: Services, request: IncomingMessage, ur
   if (resourceTurn && request.method === 'POST') {
     query(url, []); const result = await services.resources.fromTurn(request, id(resourceTurn[1]!), id(resourceTurn[2]!));
     return { status: result.created ? 201 : 200, body: result };
+  }
+  const preparePublication = /^\/resources\/([^/]+)\/publications$/u.exec(path);
+  if (preparePublication && request.method === 'POST') {
+    query(url, []); const result = await services.publications.prepare(request, id(preparePublication[1]!), parsePrepareFoxyPublication(await body(request)));
+    return { status: result.created ? 202 : 200, body: result };
+  }
+  const publication = /^\/publications\/([^/]+)(?:\/(confirm))?$/u.exec(path);
+  if (publication) {
+    query(url, []); const publicationId = id(publication[1]!);
+    if (!publication[2] && request.method === 'GET') return { status: 200, body: await services.publications.inspect(request, publicationId) };
+    if (publication[2] && request.method === 'POST') return { status: 200, body: await services.publications.confirm(request, publicationId, parseConfirmFoxyPublication(await body(request))) };
+    return missing();
   }
   const resource = /^\/resources\/([^/]+)$/u.exec(path);
   if (resource && (request.method === 'GET' || request.method === 'PATCH')) {

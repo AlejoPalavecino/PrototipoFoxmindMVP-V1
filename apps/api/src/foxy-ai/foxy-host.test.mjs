@@ -47,3 +47,31 @@ test('host authenticates persisted synthetic sessions once and preserves complet
     } finally { server.closeAllConnections(); await new Promise(resolve=>server.close(resolve)); }
   });
 });
+
+test('publication routes enforce real session, teacher role, origin and CSRF at host', {timeout:120000},async()=>{
+ const api=await import('../../../../.build/api/apps/api/src/foxy-ai/index.js'),identity=await import('../../../../.build/api/apps/api/src/identity/index.js'),securityApi=await import('../../../../.build/api/apps/api/src/identity-security/index.js');
+ await withAgendaDatabase(async({pool})=>{const security=securityApi.readIdentityConfiguration(identityTestEnvironment(),'127.0.0.1'),actors=[];
+  for(const [role,verified] of [['teacher',true],['student',true],['teacher',false]]){const id=randomUUID(),token=securityApi.generateVerifier();
+   await pool.query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+    VALUES($1,now(),$2,$2,'Synthetic','Teacher','fixture',CASE WHEN $3 THEN now() ELSE NULL END,$4)`,[id,`${id}@example.test`,verified,role]);
+   await pool.query("INSERT INTO sessions(id,user_id,token_hash,expires_at,last_seen_at) VALUES($1,$2,$3,now()+interval '1 hour',now())",[randomUUID(),id,securityApi.sessionTokenDigest(token)]);
+   actors.push({id,cookie:`foxmind_session=${token}`,csrf:security.csrfToken(token)});
+  }
+  const tx={query:async(sql,...args)=>(await pool.query(sql,args)).rows},admissions=[],calls=[],resource=randomUUID(),publication=randomUUID(),classroom=randomUUID();
+  const runtime={configuration:{security},store:{authenticate:token=>identity.authenticateSession(tx,token)},generalAdmission:async(ip,context)=>admissions.push({ip,context})};
+  const services={publications:{prepare:async(_req,id,input)=>{calls.push(['prepare',id]);return {created:true,publication:{id:publication}};},inspect:async(_req,id)=>{calls.push(['inspect',id]);return {publication:{id},classroomRevision:'0',classroomArchived:false,errorCode:null};},confirm:async(_req,id)=>{calls.push(['confirm',id]);return {publicationId:id,materialId:randomUUID(),publicationRevision:'1',classroomRevision:'1'};}}};
+  let mount,middleware;const app={use:(path,fn)=>{if(typeof path==='function'){mount='';middleware=path;}else{mount=path;middleware=fn;}}};api.installFoxyTransport(app,runtime,services);
+  const server=createServer((req,res)=>{req.originalUrl=req.url;if(mount&&req.url.startsWith(mount))req.url=req.url.slice(mount.length)||'/';middleware(req,res,()=>{res.statusCode=404;res.end();});});
+  await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin=`http://127.0.0.1:${server.address().port}`;
+  const prepare={requestId:randomUUID(),resourceRevision:'0',classroomId:classroom,title:'Guía',unitId:null,topicId:null},confirm={requestId:randomUUID(),publicationRevision:'0',classroomRevision:'0',confirm:true};
+  const send=(path,actor,method='GET',body,headers={})=>fetch(origin+base+path,{method,headers:{...(actor?{cookie:actor.cookie}:{}),origin:webOrigin,'x-csrf-token':actor?.csrf??'','content-type':'application/json',...headers},...(body?{body:JSON.stringify(body)}:{})});
+  try{const teacher=actors[0];assert.equal((await send(`/resources/${resource}/publications`,teacher,'POST',prepare)).status,202);
+   assert.equal((await send(`/publications/${publication}`,teacher)).status,200);assert.equal((await send(`/publications/${publication}/confirm`,teacher,'POST',confirm)).status,200);
+   for(const actor of [actors[1],actors[2]])for(const [path,method,body] of [[`/resources/${resource}/publications`,'POST',prepare],[`/publications/${publication}`,'GET'],[`/publications/${publication}/confirm`,'POST',confirm]])assert.equal((await send(path,actor,method,body)).status,403);
+   assert.equal((await send(`/publications/${publication}`,null)).status,401);
+   assert.equal((await send(`/publications/${publication}/confirm`,teacher,'POST',confirm,{'x-csrf-token':'bad'})).status,403);
+   assert.equal((await send(`/resources/${resource}/publications`,teacher,'POST',prepare,{origin:'http://evil.test'})).status,403);
+   assert.deepEqual(calls.map(c=>c[0]),['prepare','inspect','confirm']);assert.ok(admissions.length>=3);
+  }finally{server.closeAllConnections();await new Promise(r=>server.close(r));}
+ });
+});
