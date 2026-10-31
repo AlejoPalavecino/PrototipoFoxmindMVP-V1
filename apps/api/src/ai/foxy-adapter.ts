@@ -1,6 +1,8 @@
+import { GoogleGenAI } from '@google/genai';
 import { createHash } from 'node:crypto';
 import type { FoxyTextInput } from '../../../../src/core/domain/index.ts';
 import type { GeminiClient } from './gemini-adapter.ts';
+import type { AiConfiguration } from './configuration.ts';
 import { AiError } from './errors.ts';
 import { foxyContents, foxyInstruction, foxyResponseSchema } from './foxy-prompt.ts';
 import { foxyResponse } from './foxy-response.ts';
@@ -27,6 +29,11 @@ function validate(input: FoxyTextInput): void {
   }
   if (size > 20000000) throw new AiError('AI_INPUT_LIMIT');
   if (input.sources.some(source => source.documentKeys.some(key => !documents.has(key)))) throw new AiError('AI_UNAVAILABLE');
+}
+export function createGeminiFoxyTextAdapter(configuration: AiConfiguration): GeminiFoxyTextAdapter {
+  const client = new GoogleGenAI({ apiKey: configuration.apiKey, vertexai: false,
+    httpOptions: { retryOptions: { attempts: 1 }, timeout: configuration.deadlineMs } });
+  return new GeminiFoxyTextAdapter({ client, configuration });
 }
 export class GeminiFoxyTextAdapter {
   private readonly options: { client: GeminiClient; configuration: Configuration };

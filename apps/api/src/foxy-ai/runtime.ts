@@ -16,6 +16,8 @@ import { createFoxyClaimedTurnReader } from './turn-claimed-reader.ts';
 import { createFoxyTextWorker } from './worker.ts';
 import { createFoxyTurnRecovery } from './turn-recovery.ts';
 
+export const FOXY_RUNTIME = Symbol('FOXY_RUNTIME');
+
 type Configuration = Parameters<typeof createFoxyTurnQueue>[0]['configuration'] & { model: string; maxInputTokens: number };
 type Provider = Parameters<typeof createFoxyTextWorker>[0]['provider'];
 type Options = { database: SqlDatabase; authenticate: Parameters<typeof createFoxyUnitOfWork>[0]['authenticate'];

@@ -5,4 +5,4 @@ export { GeminiExtractionAdapter, createGeminiExtractionAdapter, type GeminiClie
 export type { StructuredExtractionPort, PlanDocument, ApprovedPlanReader } from '../../../../src/core/domain/index.ts';
 export { reserveAiTextBudget, settleAiTextBudget, tokenCost } from './text-budget.ts';
 export type { BudgetTable } from './text-budget.ts';
-export { GeminiFoxyTextAdapter } from './foxy-adapter.ts';
+export { GeminiFoxyTextAdapter, createGeminiFoxyTextAdapter } from './foxy-adapter.ts';
