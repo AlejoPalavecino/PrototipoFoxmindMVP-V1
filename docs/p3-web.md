@@ -51,14 +51,13 @@ node --test tests/p3-web-client.test.mjs tests/p3-web-proxy.test.mjs
 node node_modules/typescript/bin/tsc --project apps/web/tsconfig.json --noEmit
 ```
 
-For the actual Next-navigation and rendered-head regressions, start the built web and supply its origin:
+The actual Next-navigation and rendered-head regressions are explicit subtests in the P5 integration journey. Its wrapper builds the real application and provides the origin:
 
 ```powershell
-$env:FOXMIND_WEB_TEST_ORIGIN = 'http://127.0.0.1:3000'
-node --test tests/p3-web-client.test.mjs tests/p3-web-proxy.test.mjs
+npm run test:p5:integration
 ```
 
-Those two opt-in checks use the real rendered Next app; the navigation case mocks account transport and is explicitly not real-backend acceptance. Without the origin they are skipped. The writer observed all 14 checks passing with the origin, strict TypeScript exit 0 and a production Next build exit 0; the coordinator owns final independent real-backend/browser acceptance.
+Those two checks use the real rendered Next app; the navigation case controls account transport and is explicitly separate from real-backend acceptance. They no longer silently skip in the fast client suite: that file contains only pure checks, while P5 always registers the browser subtests. The original writer's14-check result, strict TypeScript exit0 and production build remain historical evidence; see the [five-check closure record](work-log/2026-10-30-root-five-historical-checks.md) for the current execution.
 
 Focused tests verify method/path/query/body boundaries, trusted destination configuration, header/cookie forwarding, sanitized failures, synchronous one-time token capture, fresh CSRF sequencing, Unicode counts and generic rate-limit handling. These checks do not substitute for the coordinator's real browser → proxy → Nest → PostgreSQL → captured-email journey and session-revocation proof.
 

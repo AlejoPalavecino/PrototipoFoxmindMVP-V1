@@ -2,7 +2,6 @@ import { readdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { randomBytes } from 'node:crypto';
-import { spawn } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
 import { setTimeout as delay } from 'node:timers/promises';
 import { chromium } from '@playwright/test';
@@ -251,18 +250,143 @@ test('P5 actual Next, P3 identity and P4 private services integrated journeys', 
         await page.getByRole('button', { name: 'Abrir menú de navegación', exact: true }).click();
         await page.getByRole('dialog', { name: 'Menú de navegación', exact: true }).getByRole('navigation', { name: 'Navegación principal', exact: true })
           .getByRole('link', { name: 'Mis aulas', exact: true }).click(); await page.waitForURL('**/mis-aulas');
-        // Separate controlled-response UI regressions exercise the real production
-        // pages; they are not substituted for the real identity/service proof above.
-        await new Promise((resolve, reject) => {
-          const child = spawn(process.execPath, ['--test', '--test-concurrency=1', 'tests/p5-web-client.test.mjs', 'tests/p3-web-client.test.mjs'], {
-            env: { ...process.env, FOXMIND_WEB_TEST_ORIGIN: origin }, windowsHide: true, stdio: 'inherit', timeout: 90000,
-          });
-          child.once('error', reject);
-          child.once('exit', code => code === 0 ? resolve() : reject(new Error(`Live production web regressions exit${code}`)));
-        });
         assert.equal((await api(page, 'POST', '/auth/logout', {})).status, 204);
         assert.equal((await rejectSame(() => api(page, 'GET', `/classrooms/${room}`))).status, 401);
         assert.deepEqual(errors, []);
+      });
+
+      const browserCasesDeadline = Date.now() + 90000;
+      const browserCaseOptions = () => ({ timeout: Math.max(1, browserCasesDeadline - Date.now()) });
+      await t.test('actual account navigation releases registration cooldown before sign-in', browserCaseOptions(), async () => {
+        const page = await browser.newPage();
+        try {
+          let registerCalls = 0;
+          await page.route('**/api/v1/**', route => {
+            const path = new URL(route.request().url()).pathname;
+            if (path === '/api/v1/auth/register') { registerCalls++; return route.fulfill({ status: 202, json: { status: 'accepted' } }); }
+            if (path === '/api/v1/auth/session') return route.fulfill({ json: { authenticated: false } });
+            return route.fulfill({ status: 503, json: { error: { code: 'SERVICE_UNAVAILABLE' } } });
+          });
+          await page.goto(`${origin}/register`);
+          await page.getByLabel('Nombre', { exact: true }).fill('Alumno');
+          await page.getByLabel('Apellido', { exact: true }).fill('Prueba');
+          await page.getByLabel('Correo electrónico', { exact: true }).fill('"Alumno prueba"@mañana.test');
+          await page.getByLabel('Contraseña', { exact: true }).fill('Una contraseña de prueba');
+          await page.getByRole('button', { name: 'Crear cuenta', exact: true }).click();
+          await page.getByText(/Podrás volver a intentar en/).waitFor();
+          assert.equal(registerCalls, 1);
+          await page.locator('.after-form').getByRole('link', { name: 'Iniciar sesión', exact: true }).click();
+          await page.waitForURL('**/sign-in');
+          await page.getByLabel('Correo electrónico', { exact: true }).waitFor();
+          await page.waitForFunction(() => !document.querySelector('fieldset')?.disabled);
+          assert.equal(await page.getByRole('button', { name: 'Iniciar sesión', exact: true }).isEnabled(), true);
+          assert.equal(await page.getByText(/Podrás volver a intentar en/).count(), 0);
+        } finally { await page.close(); }
+      });
+
+      await t.test('actual token document clears fragment before every generated resource tag', browserCaseOptions(), async () => {
+        const response = await fetch(`${origin}/verify-email`);
+        assert.equal(response.headers.get('cache-control'), 'no-store');
+        assert.equal(response.headers.get('referrer-policy'), 'no-referrer');
+        const html = await response.text();
+        const head = html.slice(html.indexOf('<head>'), html.indexOf('</head>'));
+        assert.match(head, /<title[^>]*>Verifica tu correo · FoxMind<\/title>/);
+        const capture = head.indexOf('window.__foxmindTakeToken');
+        assert.ok(capture > 0);
+        const scriptStart = head.lastIndexOf('<script', capture);
+        const firstResource = head.search(/<(?:script|link)\b/);
+        assert.equal(scriptStart, firstResource);
+      });
+
+      await t.test('actual production route gates sessions and selects an invitation without automatic enrollment', browserCaseOptions(), async () => {
+        const id = 'a1111111-1111-4111-8111-111111111111';
+        const target = `/mis-aulas?invitacion=${id}`;
+        const page = await browser.newPage();
+        try {
+          let session = { authenticated: false };
+          let accepts = 0;
+          let tokens = 0;
+          await page.route('**/api/v1/**', async route => {
+            const path = new URL(route.request().url()).pathname;
+            if (path === '/api/v1/auth/session') return route.fulfill({ json: session });
+            if (path === '/api/v1/auth/csrf') { tokens++; return route.fulfill({ json: { csrfToken: 'actual-csrf' } }); }
+            if (path === `/api/v1/classrooms/invitations/${id}/accept`) {
+              assert.equal(route.request().headers()['x-csrf-token'], 'actual-csrf');
+              accepts++;
+              return route.fulfill({ json: { id } });
+            }
+            if (path === '/api/v1/classrooms/invitations') return route.fulfill({ json: accepts ? [] : [{ id, name: 'Aula invitada', teacher: 'Docente de prueba', expiresAt: '2026-12-31T00:00:00Z' }] });
+            if (path === '/api/v1/classrooms/drafts') return route.fulfill({ json: [] });
+            if (path === '/api/v1/classrooms') return route.fulfill({ json: { teach: [], study: [] } });
+            return route.fulfill({ status: 503, json: { error: { code: 'SERVICE_UNAVAILABLE' } } });
+          });
+          await page.goto(`${origin}${target}`);
+          await page.waitForURL(url => url.pathname === '/sign-in' && url.searchParams.get('next') === target);
+          assert.equal(accepts, 0);
+          session = { authenticated: true, user: { id: 'real-user', firstName: 'Persona', lastName: 'Actual', email: 'persona@example.test', emailVerified: false } };
+          await page.goto(`${origin}${target}`);
+          await page.waitForURL(url => url.pathname === '/verify-email' && url.searchParams.get('next') === target);
+          session.user.emailVerified = true;
+          await page.goto(`${origin}${target}`);
+          const selected = page.getByRole('article', { name: 'Invitación seleccionada del correo' });
+          await selected.getByRole('heading', { name: 'Aula invitada' }).waitFor();
+          await page.setViewportSize({ width: 320, height: 900 });
+          await page.getByRole('button', { name: 'Abrir menú de navegación', exact: true }).click();
+          const drawer = page.getByRole('dialog', { name: 'Menú de navegación', exact: true });
+          await drawer.getByRole('link', { name: 'Mi perfil', exact: true }).waitFor();
+          await drawer.getByRole('button', { name: 'Cerrar menú de navegación', exact: true }).click();
+          assert.equal(accepts, 0);
+          assert.equal(tokens, 0);
+          assert.equal(await page.getByText('Cambiar cuenta de prueba:').count(), 0);
+          await selected.getByRole('button', { name: 'Aceptar invitación', exact: true }).click();
+          await page.getByRole('status').filter({ hasText: 'Ya formás parte' }).waitFor();
+          assert.equal(accepts, 1);
+          assert.equal(tokens, 1);
+          for (const width of [320, 375, 1280]) {
+            await page.setViewportSize({ width, height: 900 });
+            assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `overflow at ${width}`);
+          }
+        } finally { await page.close(); }
+      });
+
+      await t.test('mobile classroom history reserves readable text width and places actions below it', browserCaseOptions(), async () => {
+        const id = 'a1111111-1111-4111-8111-111111111111';
+        const room = { id, name: 'Aula de lectura', subject: 'Materia', division: 'Grupo A', academicYear: 2026, timezone: 'America/Argentina/Buenos_Aires', coverKey: 'explore', archived: false, teacher: 'Docente de prueba', role: 'teacher', revision: '0' };
+        const page = await browser.newPage({ viewport: { width: 320, height: 1000 } });
+        try {
+          await page.route('**/api/v1/**', route => {
+            const path = new URL(route.request().url()).pathname;
+            if (path === '/api/v1/auth/session') return route.fulfill({ json: { authenticated: true, user: { id: 'teacher', firstName: 'Docente', lastName: 'Actual', email: 'teacher@example.test', emailVerified: true } } });
+            if (path === '/api/v1/classrooms') return route.fulfill({ json: { teach: [room], study: [] } });
+            if (path === `/api/v1/classrooms/${id}`) return route.fulfill({ json: { ...room, units: [], plans: [] } });
+            if (path === `/api/v1/classrooms/${id}/history`) return route.fulfill({ json: [{ studentId: 'student', enrollmentId: 'enrollment', firstName: 'Files', lastName: 'Fixture', periods: [{ joinedAt: '2026-10-17T12:00:00Z', endedAt: '2026-10-18T12:00:00Z', endReason: 'REMOVED' }] }] });
+            if ([`/api/v1/classrooms/${id}/members`, `/api/v1/classrooms/${id}/invitations`, '/api/v1/classrooms/drafts', '/api/v1/classrooms/invitations'].includes(path)) return route.fulfill({ json: [] });
+            return route.fulfill({ status: 503, json: { error: { code: 'SERVICE_UNAVAILABLE' } } });
+          });
+          await page.goto(`${origin}/mis-aulas`);
+          await page.getByRole('button', { name: 'Entrar al aula', exact: true }).click();
+          await page.getByRole('button', { name: 'Historial', exact: true }).click();
+          await page.getByRole('heading', { name: 'Historial de estudiantes', exact: true }).waitFor();
+          const row = page.locator('.p5-roster li').filter({ hasText: 'Files Fixture' });
+          for (const width of [320, 375, 1280]) {
+            await page.setViewportSize({ width, height: 1000 });
+            await row.getByRole('button', { name: 'Ver resumen', exact: true }).waitFor();
+            const metrics = await row.evaluate(element => {
+              const text = element.querySelector(':scope > div:not(.p5-actions)');
+              const name = text.querySelector('strong');
+              const actions = element.querySelector(':scope > .p5-actions');
+              const textBox = text.getBoundingClientRect();
+              const nameBox = name.getBoundingClientRect();
+              const actionBox = actions.getBoundingClientRect();
+              return { textWidth: textBox.width, textBottom: textBox.bottom, nameHeight: nameBox.height, lineHeight: parseFloat(getComputedStyle(name).lineHeight), actionTop: actionBox.top, actionLeft: actionBox.left, textRight: textBox.right, overflow: document.documentElement.scrollWidth > innerWidth };
+            });
+            assert.equal(metrics.overflow, false, `page overflow at ${width}px`);
+            assert.ok(metrics.textWidth >= 160, `history text is only ${metrics.textWidth}px at ${width}px`);
+            assert.ok(metrics.nameHeight <= metrics.lineHeight * 2, `student name wraps excessively at ${width}px`);
+            if (width <= 375) assert.ok(metrics.actionTop >= metrics.textBottom - 1, `history actions squeeze the text line at ${width}px`);
+            else assert.ok(metrics.actionLeft >= metrics.textRight - 1, 'desktop history actions should remain beside the text');
+          }
+        } finally { await page.close(); }
       });
     } finally { await browser.close(); }
   }, { classrooms: true });
