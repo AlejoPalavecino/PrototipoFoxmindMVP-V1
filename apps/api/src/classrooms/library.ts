@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { createLibraryMaterialPublisher } from './library-publication.ts';
 import type { PlanService } from './plan.ts';
 import type { ClassroomCore } from './core.ts';
 import { revision } from './drafts.ts';
@@ -9,12 +9,12 @@ import type { Transaction } from './contracts.ts';
 export class LibraryService {
   private readonly run: ClassroomCore['run'];
   private readonly classroom: ClassroomCore['classroom'];
-  private readonly readyClassroomFile: PlanService['readyClassroomFile'];
+  private readonly publisher: ReturnType<typeof createLibraryMaterialPublisher>;
   private readonly advanceRevision: PlanService['advanceRevision'];
   constructor(context: Pick<ClassroomCore, 'run' | 'classroom'>, dependencies: Pick<PlanService, 'readyClassroomFile' | 'advanceRevision'>) {
     this.run = context.run.bind(context);
     this.classroom = context.classroom.bind(context);
-    this.readyClassroomFile = dependencies.readyClassroomFile;
+    this.publisher = createLibraryMaterialPublisher(dependencies);
     this.advanceRevision = dependencies.advanceRevision;
   }
   listMaterials(request: unknown, classroomId: string) {
@@ -48,16 +48,12 @@ export class LibraryService {
       if (op.action === 'publish' || op.action === 'edit') {
         exact(op.action === 'publish' ? ['title', 'fileId', 'unitId', 'topicId'] : ['id', 'title', 'unitId', 'topicId']);
         const title = text(op.title, 200);
-        await this.materialAssociation(tx, classroomId, op.unitId, op.topicId);
         if (op.action === 'publish') {
-          const file = await this.readyClassroomFile(tx, request, classroomId, op.fileId, 'material');
-          if (file.blob_deleted_at) return fail('CONFLICT');
-          const [linked] = await tx.query('SELECT id FROM materials WHERE file_id=$1::uuid', file.id);
-          if (linked) return fail('CONFLICT');
-          await tx.query(`INSERT INTO materials(id,updated_at,classroom_id,title,file_id,unit_id,topic_id,created_by_id)
-            VALUES($1::uuid,clock_timestamp(),$2::uuid,$3,$4::uuid,$5::uuid,$6::uuid,$7::uuid) RETURNING id`,
-          randomUUID(), classroomId, title, file.id, op.unitId, op.topicId, actor.id);
+          const result = await this.publisher.publish(tx, request, actor.id, { classroomId, revision: expected, title,
+            fileId: op.fileId, unitId: op.unitId, topicId: op.topicId });
+          return { revision: result.classroomRevision };
         } else {
+          await this.materialAssociation(tx, classroomId, op.unitId, op.topicId);
           await this.material(tx, classroomId, op.id);
           await tx.query(`UPDATE materials SET title=$2,unit_id=$3::uuid,topic_id=$4::uuid,updated_at=clock_timestamp()
             WHERE id=$1::uuid RETURNING id`, op.id, title, op.unitId, op.topicId);
