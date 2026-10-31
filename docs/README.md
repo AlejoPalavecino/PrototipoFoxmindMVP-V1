@@ -4,7 +4,7 @@
 
 ## Empezar según lo que necesitás
 
-Entrega actual: [seis correcciones de auditoría verificadas localmente](../odd/tasks/audit-remediation.md), [evidencia y limitaciones](work-log/2026-10-30-root-audit-completion.md). Suite admitida completa:1548 comprobaciones aprobadas, cero fallos y cinco omisiones históricas; incluye los41recorridos completos de navegador. [Unidades locales](work-log/2026-10-30-local-remediation-units.md), sin publicación ni despliegue.
+Entrega actual: [seis correcciones de auditoría integradas en main](../odd/tasks/audit-remediation.md), [evidencia y limitaciones](work-log/2026-10-30-root-audit-completion.md). Suite admitida completa:1548 comprobaciones aprobadas, cero fallos y cinco omisiones históricas; incluye los41recorridos completos de navegador. [Unidades](work-log/2026-10-30-local-remediation-units.md) y [merge/sincronización autorizados](work-log/2026-10-30-root-audit-main-sync.md), con implementación9ec038a confirmada en remoto. Sin despliegue.
 
 | Necesidad | Dónde mirar |
 |---|---|

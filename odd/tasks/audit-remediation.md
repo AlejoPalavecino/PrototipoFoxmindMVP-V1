@@ -2,6 +2,8 @@
 
 La autorización del usuario del 2026-10-29 abarca los seis frentes del [informe F01–F08](../../docs/audits/2026-10-29-astra-project-audit.md). Se trabaja localmente en `codex/audit-remediation` desde `9fddbd8`, sin publicación ni despliegue. [Registro coordinador](../../docs/work-log/2026-10-29-root-audit-remediation.md).
 
+Actualización de entrega del2026-10-30: el usuario autorizó después merge en main, sincronización remota y limpieza. Se integró9ec038a por fast-forward y `git push origin main` pasó; `git ls-remote` confirmó ese SHA exacto. Los pendientes originales se preservaron en un respaldo externo antes de limpiar. Véase el [registro de integración](../../docs/work-log/2026-10-30-root-audit-main-sync.md). Esta autorización posterior sustituye únicamente el límite anterior de publicación de esta entrega; no autoriza despliegue.
+
 ## Unidades y aceptación
 
 | Unidad | Estado | Salida requerida |
