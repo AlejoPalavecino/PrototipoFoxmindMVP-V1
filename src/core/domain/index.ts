@@ -32,3 +32,5 @@ export type * from './foxy-ai-resource.ts';
 export { parseFoxyAnswer, parseEditFoxyResource, parsePrepareFoxyPublication, parseConfirmFoxyPublication } from './foxy-ai-resource-validation.ts';
 export type * from './foxy-ai-visual.ts';
 export { parseStartFoxyVisual, parseFoxyDiagram } from './foxy-ai-visual-validation.ts';
+export { parseFoxySourceQuery } from './foxy-ai-source-query.ts';
+export type { FoxySourceKind, FoxySourceCursor, FoxySourceQuery } from './foxy-ai-source-query.ts';
