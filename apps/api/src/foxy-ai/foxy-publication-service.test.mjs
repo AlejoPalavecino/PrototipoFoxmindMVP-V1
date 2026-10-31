@@ -27,3 +27,9 @@ test('invalid input or denied identity never reaches repository operations',asyn
  f.options.uow.run=async()=>{throw Object.assign(Error('FORBIDDEN'),{code:'FORBIDDEN'});};await assert.rejects(s.inspect(request,id),e=>e?.code==='FORBIDDEN');
  assert.ok(!f.calls.some(a=>['prepare','confirm','inspect'].includes(a[0])));
 });
+
+test('list resource publications uses read UoW and returns cursor without private fields',async()=>{
+ const f=fixture(),s=await create(f);f.options.publications.list=async(...args)=>{f.calls.push(['list',...args]);return {items:[publication],nextAfterId:id};};
+ const page=await s.list(request,resourceId,{limit:20,afterId:null});assert.deepEqual(f.calls[0],['uow',request,false]);
+ assert.deepEqual(f.calls[1],['list',tx,owner,resourceId,{limit:20,afterId:null}]);assert.deepEqual(page,{items:[publication],nextAfterId:id});
+});

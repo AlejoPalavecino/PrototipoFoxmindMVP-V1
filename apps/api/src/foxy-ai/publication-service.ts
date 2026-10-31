@@ -1,4 +1,4 @@
-import { agendaId, parsePrepareFoxyPublication, parseConfirmFoxyPublication, type FoxyPublicationSummary, type FoxyPublicationInspection, type FoxyPublicationConfirmation } from '../../../../src/core/domain/index.ts';
+import { agendaId, parsePrepareFoxyPublication, parseConfirmFoxyPublication, strictObject, type FoxyPublicationSummary, type FoxyPublicationInspection, type FoxyPublicationConfirmation } from '../../../../src/core/domain/index.ts';
 import type { createFoxyUnitOfWork } from './unit-of-work.ts';
 import type { createFoxyPublicationRepository } from './publication-repository.ts';
 import type { createFoxyPublicationConfirmationRepository } from './publication-confirmation-repository.ts';
@@ -23,6 +23,14 @@ export function createFoxyPublicationService(options: Options) {
       agendaId(resourceId); const value = parsePrepareFoxyPublication(input);
       const result = await options.uow.run(request, true, (tx, actor) => options.publications.prepare(tx, actor.id, resourceId, value));
       return { created: result.created, publication: publicPublication(result.publication) };
+    },
+    async list(request: unknown, resourceId: string, input: unknown) {
+      agendaId(resourceId); const value = strictObject(input, ['limit', 'afterId']);
+      if (typeof value.limit !== 'number' || !Number.isSafeInteger(value.limit) || value.limit < 1 || value.limit > 50) throw Object.assign(new Error('INVALID_INPUT'), { code: 'INVALID_INPUT' });
+      if (value.afterId !== null) agendaId(value.afterId);
+      const page = { limit: value.limit as number, afterId: value.afterId as string | null };
+      const result = await options.uow.run(request, false, (tx, actor) => options.publications.list(tx, actor.id, resourceId, page));
+      return { items: result.items.map(publicPublication), nextAfterId: result.nextAfterId };
     },
     async inspect(request: unknown, publicationId: string) {
       agendaId(publicationId);

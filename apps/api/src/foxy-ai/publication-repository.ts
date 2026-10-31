@@ -25,6 +25,35 @@ export function createFoxyPublicationRepository() {
       const [row] = await tx.query<Row>('SELECT * FROM foxy_publications WHERE id=$1::uuid AND owner_id=$2::uuid', publicationId, owner);
       return row ? view(row) : null;
     },
+    async list(tx: SqlTransaction, owner: string, resourceId: string, page: { limit: number; afterId: string | null }) {
+      agendaId(owner); agendaId(resourceId);
+      if (!page || !Number.isSafeInteger(page.limit) || page.limit < 1 || page.limit > 50) throw Object.assign(new Error('INVALID_INPUT'), { code: 'INVALID_INPUT' });
+      if (page.afterId !== null) agendaId(page.afterId);
+      page = { limit: page.limit, afterId: page.afterId };
+      const [scope] = await tx.query(`SELECT r.id FROM foxy_resources r JOIN users u ON u.id=r.owner_id
+        JOIN foxy_conversations c ON c.id=r.conversation_id AND c.owner_id=r.owner_id
+        WHERE r.id=$1::uuid AND r.owner_id=$2::uuid AND u.account_role='teacher' AND u.email_verified_at IS NOT NULL AND c.deleted_at IS NULL
+        AND (c.context_kind='GENERAL' OR EXISTS (SELECT 1 FROM classrooms origin WHERE origin.id=c.classroom_id AND origin.teacher_id=r.owner_id))`, resourceId, owner);
+      if (!scope) return fail('NOT_FOUND');
+      if (page.afterId !== null) {
+        const [cursor] = await tx.query(`SELECT p.id FROM foxy_publications p JOIN classrooms a ON a.id=p.classroom_id AND a.teacher_id=p.owner_id
+          JOIN foxy_resources r ON r.id=p.resource_id AND r.owner_id=p.owner_id JOIN foxy_conversations c ON c.id=r.conversation_id AND c.owner_id=r.owner_id
+          WHERE p.id=$1::uuid AND p.owner_id=$2::uuid AND p.resource_id=$3::uuid AND c.deleted_at IS NULL
+          AND (c.context_kind='GENERAL' OR EXISTS (SELECT 1 FROM classrooms origin WHERE origin.id=c.classroom_id AND origin.teacher_id=p.owner_id))`, page.afterId, owner, resourceId);
+        if (!cursor) return fail('NOT_FOUND');
+      }
+      const rows = await tx.query<Row>(`SELECT p.id,p.resource_id,p.resource_revision,p.classroom_id,p.unit_id,p.topic_id,p.title,p.state,p.revision
+        FROM foxy_publications p JOIN classrooms a ON a.id=p.classroom_id AND a.teacher_id=p.owner_id
+        JOIN foxy_resources r ON r.id=p.resource_id AND r.owner_id=p.owner_id JOIN foxy_conversations c ON c.id=r.conversation_id AND c.owner_id=r.owner_id
+        WHERE p.owner_id=$1::uuid AND p.resource_id=$2::uuid AND c.deleted_at IS NULL
+        AND (c.context_kind='GENERAL' OR EXISTS (SELECT 1 FROM classrooms origin WHERE origin.id=c.classroom_id AND origin.teacher_id=p.owner_id))
+        AND ($3::uuid IS NULL OR (p.created_at,p.id)<(
+          SELECT cursor.created_at,cursor.id FROM foxy_publications cursor JOIN classrooms dest ON dest.id=cursor.classroom_id AND dest.teacher_id=cursor.owner_id
+          WHERE cursor.id=$3::uuid AND cursor.owner_id=$1::uuid AND cursor.resource_id=$2::uuid))
+        ORDER BY p.created_at DESC,p.id DESC LIMIT $4`, owner, resourceId, page.afterId, page.limit + 1);
+      const items = rows.slice(0, page.limit).map(view);
+      return { items, nextAfterId: rows.length > page.limit ? items[items.length - 1]!.id : null };
+    },
     async inspect(tx: SqlTransaction, owner: string, publicationId: string) {
       agendaId(owner); agendaId(publicationId);
       const [row] = await tx.query<Row & { classroom_revision: bigint; classroom_archived: boolean; error_code: string | null }>(`SELECT

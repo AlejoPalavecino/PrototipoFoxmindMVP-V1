@@ -96,3 +96,28 @@ test('prepare replay of a now-inaccessible stored destination denies opaquely be
   await assert.rejects(x.publications.prepare(x.tx,x.f.teacherActor,x.resource.id,input),isCode('NOT_FOUND','FORBIDDEN'));
  }));
 });
+
+test('resource publication list paginates exact timestamps and ties without loss or private fields', {timeout:120000},async()=>{
+ await withAgendaDatabase(async({transaction})=>transaction(async({query})=>{const x=await fixture(query),created=[];
+  for(let i=0;i<5;i++)created.push((await x.publications.prepare(x.tx,x.f.teacherActor,x.resource.id,intent(x,{title:`Material ${i}`}))).publication);
+  for(let i=0;i<created.length;i++)await query("UPDATE foxy_publications SET created_at=$2::timestamptz WHERE id=$1",created[i].id, i<3?'2026-10-31 12:00:00.123456+00':'2026-10-31 12:00:00.123455+00');
+  const expected=[...created.slice(0,3).map(p=>p.id).sort().reverse(),...created.slice(3).map(p=>p.id).sort().reverse()],seen=[];let afterId=null;
+  do{const page=await x.publications.list(x.tx,x.f.teacherActor,x.resource.id,{limit:2,afterId});assert.ok(page.items.length<=2);seen.push(...page.items.map(p=>p.id));
+   for(const item of page.items){assert.deepEqual(Object.keys(item).sort(),['id','resourceId','resourceRevision','classroomId','unitId','topicId','title','state','revision'].sort());
+    for(const secret of ['snapshot','digest','fileId','Contenido privado'])assert.equal(JSON.stringify(item).includes(secret),false);}
+   afterId=page.nextAfterId;
+  }while(afterId);assert.deepEqual(seen,expected);assert.equal(new Set(seen).size,5);
+ }));
+});
+
+test('resource publication list enforces owner, cursor scope, limits, origin visibility and archive history', {timeout:120000},async()=>{
+ await withAgendaDatabase(async({transaction})=>transaction(async({query})=>{const x=await fixture(query),p=(await x.publications.prepare(x.tx,x.f.teacherActor,x.resource.id,intent(x))).publication;
+  await query('UPDATE classrooms SET archived_at=clock_timestamp() WHERE id=$1',p.classroomId);
+  assert.equal((await x.publications.list(x.tx,x.f.teacherActor,x.resource.id,{limit:20,afterId:null})).items[0].id,p.id);
+  await assert.rejects(x.publications.list(x.tx,x.f.other,x.resource.id,{limit:20,afterId:null}));
+  for(const limit of [0,51,1.5])await assert.rejects(x.publications.list(x.tx,x.f.teacherActor,x.resource.id,{limit,afterId:null}));
+  for(const afterId of ['invalid',randomUUID()])await assert.rejects(x.publications.list(x.tx,x.f.teacherActor,x.resource.id,{limit:20,afterId}));
+  const [resource]=await query('SELECT conversation_id FROM foxy_resources WHERE id=$1',x.resource.id);await query('UPDATE foxy_conversations SET deleted_at=clock_timestamp() WHERE id=$1',resource.conversation_id);
+  await assert.rejects(x.publications.list(x.tx,x.f.teacherActor,x.resource.id,{limit:20,afterId:null}));
+ }));
+});
