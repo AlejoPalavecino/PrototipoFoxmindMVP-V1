@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { isDeepStrictEqual } from 'node:util';
 import { FileService, requireReady } from './service.ts';
 import { FileError } from './errors.ts';
+import { targetOf } from './store.ts';
 import type { FileAccess, FileTransaction } from './contracts.ts';
 import { createFoxyUnitOfWork, createFoxyPublicationFileAllocator, type createFoxyPublicationAuthority } from '../foxy-ai/public/index.ts';
 
@@ -78,6 +79,28 @@ export function createDurableFoxyPublicationFiles(options: { files: FileService;
         return receiver.receive(request, grant.fileId, copy);
       }); } finally { receiving = false; }
     },
+    inspect: (capability: object, signal: AbortSignal) => withRequest(capability, signal, 'file', async (request, value) => {
+      const grant = value as Grant;
+      return files.store.transaction(async tx => {
+        const initial = await files.store.load(tx, grant.fileId);
+        if (initial.blob_deleted_at) {
+          await files.store.authorize(tx, request, targetOf(initial), 'read');
+          return 'UNAVAILABLE' as const;
+        }
+        const row = await files.store.loadAuthorized(tx, request, grant.fileId, 'read');
+        if (row.blob_deleted_at || Number(row.size_bytes) !== grant.sizeBytes || (row.digest !== null && row.digest !== grant.digest)) return 'UNAVAILABLE' as const;
+        if (row.phase === 'ready') {
+          try { requireReady(row); return row.digest === grant.digest ? 'READY' as const : 'UNAVAILABLE' as const; }
+          catch { return 'UNAVAILABLE' as const; }
+        }
+        if (['receiving', 'inspecting'].includes(row.phase)) {
+          const now = await files.store.now(tx);
+          if (row.lease_until && row.lease_until > now) return 'BUSY' as const;
+        }
+        return ['reserved', 'receiving', 'inspecting'].includes(row.phase) && !row.reservation_released_at
+          && !['COMPLETED', 'CANCELLED'].includes(row.upload_status) ? 'RECEIVABLE' as const : 'UNAVAILABLE' as const;
+      });
+    }),
     proof: (capability: object, signal: AbortSignal) => withRequest(capability, signal, 'file', async (request, value) => {
       const grant = value as Grant;
       const read = await files.read(request, grant.fileId, 'download');

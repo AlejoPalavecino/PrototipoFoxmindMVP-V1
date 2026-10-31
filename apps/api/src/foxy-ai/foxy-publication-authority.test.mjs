@@ -91,3 +91,13 @@ test('scope opened before allocation remains valid and child capability fences a
     x.authority.close(scope);
   });
 });
+
+test('existingFile returns null only for an authorized unassigned scope and an authorized child after assignment', {timeout:120000},async()=>{
+  await withAgendaDatabase(async({pool})=>{const x=await fixture(pool),signal=new AbortController().signal,scope=await x.authority.open(x.lease,signal);
+    assert.equal(await x.authority.existingFile(scope.capability,signal),null);
+    await assert.rejects(x.authority.existingFile({},signal));
+    const fileId=await x.associate(),child=await x.authority.existingFile(scope.capability,signal);
+    assert.equal((await x.authority.authorizeFile(child.capability,signal)).fileId,fileId);
+    x.authority.close(scope);await assert.rejects(x.authority.existingFile(scope.capability,signal));
+  });
+});

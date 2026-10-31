@@ -64,6 +64,17 @@ export function createFoxyPublicationAuthority(options: { database: SqlDatabase 
       const state = capability && claims.get(capability); if (!state) return forbidden();
       await verify(state, signal, tx); return { ...state.lease, snapshot: { ...state.snapshot } };
     },
+    async existingFile(capability: object, signal: AbortSignal, tx?: SqlTransaction) {
+      const state = capability && claims.get(capability); if (!state) return forbidden();
+      const inspect = async (active: SqlTransaction) => {
+        const row = await verify(state, signal, active);
+        if (row.file_id === null) return null;
+        const descriptor = await verifyFile(state, signal, active), fileCapability = Object.freeze({});
+        files.set(fileCapability, { state, file: { ...descriptor } });
+        return { capability: fileCapability, descriptor: { ...descriptor } };
+      };
+      return tx ? inspect(tx) : transact(inspect);
+    },
     async createFileCapability(capability: object, signal: AbortSignal, tx?: SqlTransaction) {
       const state = capability && claims.get(capability); if (!state) return forbidden();
       const descriptor = await verifyFile(state, signal, tx);

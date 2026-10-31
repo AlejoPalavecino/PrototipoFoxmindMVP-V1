@@ -30,7 +30,7 @@ async function fixture(pool,{onPut,onScan,scanError,wrapDatabase,claim=true}={})
   const files=new FileService({database,access:{authenticate:async()=>{throw Error('no fake request');},authorize:async()=>{throw Error('no fake request');}},storage,scanner,draftQuotaBytes:1000000n});
   const bridge=createDurableFoxyPublicationFiles({files,authority}),pdf=await PDFDocument.create();pdf.addPage();const bytes=Buffer.from(await pdf.save());
   const artifact={digest:createHash('sha256').update(bytes).digest('hex'),sizeBytes:bytes.length,pageCount:1,rendererVersion:'foxy-text-pdf-v1'};
-  return {query,f,publication,lease,authority,scope,controller,bridge,artifact,bytes,calls,blobs};
+  return {query,f,database,files,publication,lease,authority,scope,controller,bridge,artifact,bytes,calls,blobs};
 }
 
 test('opaque scope allocates, scans and proves only its associated PDF through real FileService', {timeout:120000},async()=>{
@@ -163,4 +163,41 @@ test('inspect reports BUSY while real FileService scan is in progress', {timeout
     try {assert.equal(await x.bridge.inspect(child.capability,signal),'BUSY');assert.equal(x.calls.length,0);} finally {finish.open();await receiving;}
     x.authority.close(x.scope);
   });
+});
+
+test('inspect observes blob deletion committed while waiting for classroom lock', {timeout:120000},async()=>{
+ await withAgendaDatabase(async({pool})=>{const x=await fixture(pool),signal=x.controller.signal;
+  const {fileId}=await x.bridge.ensureFile(x.scope.capability,x.artifact,signal),child=await x.authority.createFileCapability(x.scope.capability,signal);
+  await x.bridge.receive(child.capability,x.bytes,signal);
+  await x.query(`INSERT INTO materials(id,updated_at,classroom_id,title,file_id,created_by_id,deleted_at)
+    VALUES($1,now(),$2,'Synthetic tombstone',$3,$4,now())`,randomUUID(),x.f.rooms.teach.id,fileId,x.f.teacherActor);
+  x.calls.length=0;const locker=await pool.connect();let inspection;
+  try{await locker.query('BEGIN');await locker.query('SELECT id FROM classrooms WHERE id=$1 FOR UPDATE',[x.f.rooms.teach.id]);
+   const [{pid}]= (await locker.query('SELECT pg_backend_pid() AS pid')).rows;
+   inspection=x.bridge.inspect(child.capability,signal);
+   let blocked=false;for(let i=0;i<100;i++){const [row]=await x.query('SELECT EXISTS (SELECT 1 FROM pg_stat_activity WHERE $1 = ANY(pg_blocking_pids(pid))) AS blocked',pid);if(row.blocked){blocked=true;break;}await new Promise(r=>setTimeout(r,20));}
+   assert.equal(blocked,true,'inspect must reach the held classroom lock');
+   await locker.query('UPDATE files SET blob_deleted_at=clock_timestamp() WHERE id=$1',[fileId]);await locker.query('COMMIT');
+   assert.equal(await inspection,'UNAVAILABLE');assert.equal(x.calls.length,0);
+  }finally{await locker.query('ROLLBACK').catch(()=>{});locker.release();if(inspection)await inspection.catch(()=>{});x.authority.close(x.scope);}
+ });
+});
+
+
+test('runtime restarts with text AI disabled and durably completes an already uploaded publication', {timeout:120000},async()=>{
+ await withAgendaDatabase(async({pool})=>{const x=await fixture(pool),signal=x.controller.signal;
+  const allocated=await x.bridge.ensureFile(x.scope.capability,x.artifact,signal),child=await x.authority.createFileCapability(x.scope.capability,signal);
+  await x.bridge.receive(child.capability,x.bytes,signal);x.authority.close(x.scope);
+  const {createFoxyRuntime}=await import('../foxy-ai/runtime.ts');
+  const options={database:x.database,files:x.files,authenticate:async()=>x.f.teacherActor,classrooms:{run:async()=>{},classroom:async()=>{}},configuration:null,provider:null};
+  const first=createFoxyRuntime(options);assert.equal(first.worker,null);first.onModuleInit();await first.onModuleDestroy();
+  await x.query("UPDATE foxy_publications SET lease_until=clock_timestamp()-interval '1 second' WHERE id=$1::uuid",x.publication.id);
+  const before=x.calls.filter(c=>c==='put').length,runtime=createFoxyRuntime(options);runtime.onModuleInit();
+  try{let row;for(let i=0;i<100;i++){[row]=await x.query('SELECT state,file_id,error_code FROM foxy_publications WHERE id=$1::uuid',x.publication.id);if(row.state!=='PREPARING')break;await new Promise(r=>setTimeout(r,100));}
+   assert.equal(row.state,'READY','publication error: '+row.error_code);assert.equal(row.file_id,allocated.fileId);assert.equal(x.calls.filter(c=>c==='put').length,before);
+   const [file]=await x.query("SELECT u.status,c.phase,f.scan_status FROM files f JOIN uploads u ON u.file_id=f.id JOIN file_custodies c ON c.file_id=f.id WHERE f.id=$1::uuid",allocated.fileId);
+   assert.equal(file.status,'COMPLETED');assert.equal(file.phase,'ready');assert.equal(file.scan_status,'CLEAN');
+   const [materials]=await x.query('SELECT count(*)::int n FROM materials WHERE classroom_id=$1::uuid',x.f.rooms.teach.id);assert.equal(materials.n,0);
+  }finally{await runtime.onModuleDestroy();}
+ });
 });
