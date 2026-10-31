@@ -26,3 +26,7 @@ export * from './classroom-notifications.ts';
 export { contractFeedback } from './classroom-contract-values.ts';
 export type { SqlTransaction, SqlDatabase } from './sql.ts';
 export type * from './classroom-grading-types.ts';
+export type * from './foxy-ai.ts';
+export { parseCreateFoxyConversation, parseSendFoxyMessage } from './foxy-ai-validation.ts';
+export type * from './foxy-ai-resource.ts';
+export { parseFoxyAnswer, parseEditFoxyResource, parsePrepareFoxyPublication, parseConfirmFoxyPublication } from './foxy-ai-resource-validation.ts';
