@@ -5,3 +5,4 @@ export { assembleFoxyGrounding } from './assemble-grounding.ts';
 export { FoxyGroundingSnapshotService } from './grounding-snapshot.ts';
 export { FoxyGroundingLoader } from './grounding-loader.ts';
 export { createFoxyTurnRepository } from './turn-repository.ts';
+export { createFoxyTurnQueue } from './turn-queue.ts';

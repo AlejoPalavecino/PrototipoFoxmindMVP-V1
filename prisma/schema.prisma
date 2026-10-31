@@ -1103,6 +1103,11 @@ model FoxyTurn {
   message_text String
   snapshot Json
   metadata Json
+  lease_nonce String? @db.Uuid
+  lease_until DateTime? @db.Timestamptz(6)
+  dispatch_started_at DateTime? @db.Timestamptz(6)
+  error_code String?
+  updated_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
   conversation_revision BigInt
   created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
   conversation FoxyConversation @relation(fields: [conversation_id, owner_id], references: [id, owner_id], onDelete: Restrict, onUpdate: NoAction)

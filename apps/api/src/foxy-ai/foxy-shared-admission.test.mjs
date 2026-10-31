@@ -52,6 +52,7 @@ async function activeFoxy(api, f, query, owner) {
   const body = { requestId: randomUUID(), revision: '0', purpose: 'CHAT', text: 'Hola', selection: { topicIds: [], sourceIds: [] } };
   const { turn } = await turns.enqueue(tx, owner, conversation.id, body, { context: { kind: 'GENERAL' }, curriculum: null, sources: [] }, 'b'.repeat(64), metadata);
   await query("UPDATE foxy_turns SET state='RUNNING',lease_nonce=$2::uuid,lease_until=clock_timestamp()+interval '1 minute' WHERE id=$1::uuid", turn.id, randomUUID());
+  return turn;
 }
 
 test('existing AI claimers respect synthetic active Foxy work globally and per teacher', { timeout: 120000 }, async t => {
@@ -71,6 +72,33 @@ test('existing AI claimers respect synthetic active Foxy work globally and per t
         await pending.reset();
         await activeFoxy(api, f, query, scope === 'global' ? f.other : f.teacherActor);
         assert.ok((await pending.claim()) === null, `${kind} must count running Foxy work for ${scope}`);
+      }));
+    }
+  });
+});
+
+
+test('other AI claimers wait for explicit Foxy recovery then regain capacity', { timeout: 120000 }, async t => {
+  const api = await import('./index.ts');
+  await withAgendaDatabase(async ({ pool, transaction }) => {
+    assert.match((await pool.query('SELECT current_database() name')).rows[0].name, /_test$/);
+    for (const kind of ['extraction', 'activity', 'grading', 'student']) for (const scope of ['global', 'owner']) for (const dispatched of [false, true]) {
+      await t.test(`${kind}: ${scope}, ${dispatched ? 'dispatched' : 'undispatched'} recovery`, () => transaction(async ({ query }) => {
+        const f = await homeFixture(query), database = { $transaction: fn => fn({ $queryRawUnsafe: query }) };
+        const configuration = { ...cfg, maxJobAgeMs: 300000, maxConcurrency: scope === 'global' ? 1 : 2 };
+        const pending = await candidate(kind, f, query, database, configuration);
+        assert.ok(await pending.claim()); await pending.reset();
+        const turn = await activeFoxy(api, f, query, scope === 'global' ? f.other : f.teacherActor);
+        await query(`UPDATE foxy_turns SET lease_until=clock_timestamp()-interval '1 second',
+          dispatch_started_at=CASE WHEN $2 THEN now() ELSE NULL END WHERE id=$1::uuid`, turn.id, dispatched);
+        assert.equal(await pending.claim(), null, 'expired work must not bypass recovery');
+        const foxyQueue = api.createFoxyTurnQueue({ database, configuration });
+        assert.equal(await foxyQueue.recoverExpired(), 1);
+        const [row] = await query('SELECT state,error_code,lease_nonce,lease_until FROM foxy_turns WHERE id=$1::uuid', turn.id);
+        assert.equal(row.state, dispatched ? 'FAILED' : 'QUEUED');
+        assert.equal(row.error_code, dispatched ? 'PROVIDER_OUTCOME_UNKNOWN' : null);
+        assert.equal(row.lease_nonce, null); assert.equal(row.lease_until, null);
+        assert.ok(await pending.claim(), 'recovery must release global and owner capacity');
       }));
     }
   });
