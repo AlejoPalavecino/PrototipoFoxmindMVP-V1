@@ -1,3 +1,5 @@
+import { loadSources } from './context-sources.ts';
+import { parseFoxySourceQuery } from '../../../../src/core/domain/index.ts';
 import type { ClassroomService } from '../classrooms/index.ts';
 import type { SqlTransaction } from '../../../../src/core/domain/index.ts';
 import type { FoxyContext } from '../../../../src/core/domain/index.ts';
@@ -46,5 +48,18 @@ export class FoxyContextCatalogService {
       throw Object.assign(new Error(code), { code });
     }
     return outcome.value;
+  }
+  async sources(request: unknown, conversationId: string, input: unknown) {
+    const query = parseFoxySourceQuery(input);
+    const outcome = await this.run(request, false, async (tx, actor) => {
+      if (actor.account_role !== 'teacher') return null;
+      const conversation = await this.conversations.get(tx, actor.id, conversationId);
+      if (!conversation) return null;
+      if (conversation.context.kind === 'GENERAL') return { context: conversation.context, items: [], next: null };
+      const room = await this.classroom(tx, actor, conversation.context.classroomId, false, true);
+      return { context: conversation.context, ...await loadSources(tx, room.id, query) };
+    });
+    if (!outcome) throw Object.assign(new Error('FORBIDDEN'), { code: 'FORBIDDEN' });
+    return outcome;
   }
 }
