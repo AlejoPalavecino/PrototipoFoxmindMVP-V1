@@ -34,3 +34,5 @@ export type * from './foxy-ai-visual.ts';
 export { parseStartFoxyVisual, parseFoxyDiagram } from './foxy-ai-visual-validation.ts';
 export { parseFoxySourceQuery } from './foxy-ai-source-query.ts';
 export type { FoxySourceKind, FoxySourceCursor, FoxySourceQuery } from './foxy-ai-source-query.ts';
+export { parseGroundedFoxyAnswer } from './foxy-ai-answer-grounded.ts';
+export type { FoxyAnswerReferenceMap, GroundedFoxyReference, GroundedFoxyAnswer } from './foxy-ai-answer-grounded.ts';
