@@ -1,17 +1,21 @@
-import type { CreateFoxyConversation, FoxyPurpose, SendFoxyMessage } from '../../../../src/core/domain/index.ts';
-import type { WebFoxyClient, FoxyCapabilities, FoxyConversation, FoxyConversationCursor, FoxyTurn } from './foxy-client.ts';
+import type { CreateFoxyConversation, FoxyPurpose, SendFoxyMessage, FoxySourceKind, FoxySourceCursor } from '../../../../src/core/domain/index.ts';
+import type { WebFoxyClient, FoxyCapabilities, FoxyConversation, FoxyConversationCursor, FoxyTurn, FoxyCurriculum, FoxySource, FoxyCitation } from './foxy-client.ts';
 
-type State = { capabilities: FoxyCapabilities | null; conversations: FoxyConversation[]; nextConversationCursor: FoxyConversationCursor | null; current: FoxyConversation | null;
+type SourcePage = { items: FoxySource[]; next: FoxySourceCursor | null };
+type State = { curriculum: FoxyCurriculum | null; selection: SendFoxyMessage['selection']; sources: Record<FoxySourceKind, SourcePage>; citations: Record<string, FoxyCitation[]>; capabilities: FoxyCapabilities | null; conversations: FoxyConversation[]; nextConversationCursor: FoxyConversationCursor | null; current: FoxyConversation | null;
   turns: FoxyTurn[]; activeTurn: { id: string; sequence: number; state: FoxyTurn['state'] } | null; nextAfterSequence: number | null; pending: SendFoxyMessage | null; error: string | null; busy: boolean };
 type Options = { client: WebFoxyClient; onChange: (state: State) => void; uuid?: () => string;
   setTimeout?: typeof globalThis.setTimeout; clearTimeout?: typeof globalThis.clearTimeout };
 export function createFoxyChatController(options: Options) {
-  let state: State = { capabilities: null, conversations: [], nextConversationCursor: null, current: null, turns: [], activeTurn: null, nextAfterSequence: null, pending: null, error: null, busy: false };
+  const emptyContext = () => ({ curriculum: null, selection: { topicIds: [], sourceIds: [] },
+    sources: { PLAN: { items: [], next: null }, MATERIAL: { items: [], next: null }, ACTIVITY: { items: [], next: null } }, citations: {} });
+  let state: State = { ...emptyContext(), capabilities: null, conversations: [], nextConversationCursor: null, current: null, turns: [], activeTurn: null, nextAfterSequence: null, pending: null, error: null, busy: false };
+  const loadingSources = new Set<FoxySourceKind>();
   let epoch = 0, disposed = false, abort = new AbortController(), timer: ReturnType<typeof setTimeout> | undefined, polling = false;
   const schedule = options.setTimeout ?? globalThis.setTimeout, clear = options.clearTimeout ?? globalThis.clearTimeout;
   const update = (patch: Partial<State>) => { if (!disposed) { state = { ...state, ...patch }; options.onChange(state); } };
   const valid = (version: number) => !disposed && version === epoch && !abort.signal.aborted;
-  function reset(): number { epoch++; abort.abort(); abort = new AbortController(); if (timer !== undefined) clear(timer); timer = undefined; polling = false; return epoch; }
+  function reset(): number { loadingSources.clear(); epoch++; abort.abort(); abort = new AbortController(); if (timer !== undefined) clear(timer); timer = undefined; polling = false; return epoch; }
   function mergeTurns(older: FoxyTurn[], newer: FoxyTurn[]): FoxyTurn[] {
     const merged: FoxyTurn[] = [];
     for (const turn of [...newer, ...older]) {
@@ -39,12 +43,13 @@ export function createFoxyChatController(options: Options) {
   async function select(id: string) {
     if (disposed) return;
     const version = reset(), current = state.conversations.find(item => item.id === id);
-    update({ current: current ?? null, turns: [], activeTurn: null, nextAfterSequence: null, pending: null, error: null, busy: true });
+    update({ ...emptyContext(), current: current ?? null, turns: [], activeTurn: null, nextAfterSequence: null, pending: null, error: null, busy: true });
     if (!current) { update({ busy: false, error: 'No encontramos la conversación.' }); return; }
     try {
-      const page = await options.client.listTurns(id, { afterSequence: 0, limit: 50 }, abort.signal);
+      const curriculum = current.context.kind === 'CLASSROOM' ? options.client.curriculum(id, abort.signal) : Promise.resolve(null);
+      const [page, context] = await Promise.all([options.client.listTurns(id, { afterSequence: 0, limit: 50 }, abort.signal), curriculum]);
       if (!valid(version)) return;
-      update({ turns: page.items, nextAfterSequence: page.nextAfterSequence, busy: false });
+      update({ curriculum: context, turns: page.items, nextAfterSequence: page.nextAfterSequence, busy: false });
       const active = page.items.find(turn => turn.state === 'QUEUED' || turn.state === 'RUNNING');
       if (active) { update({ activeTurn: { id: active.id, sequence: active.sequence, state: active.state } }); poll(id, active.id, version); }
     } catch { if (valid(version)) update({ busy: false, error: 'No pudimos cargar la conversación.' }); }
@@ -75,7 +80,7 @@ export function createFoxyChatController(options: Options) {
     getState: () => state,
     async init() {
       if (disposed) return;
-      const version = reset(); update({ capabilities: null, conversations: [], nextConversationCursor: null, current: null, turns: [], activeTurn: null, nextAfterSequence: null, pending: null, busy: true, error: null });
+      const version = reset(); update({ ...emptyContext(), capabilities: null, conversations: [], nextConversationCursor: null, current: null, turns: [], activeTurn: null, nextAfterSequence: null, pending: null, busy: true, error: null });
       try {
         const [capabilities, page] = await Promise.all([options.client.capabilities(abort.signal), options.client.listConversations({ limit: 50, after: null }, abort.signal)]);
         if (valid(version)) update({ capabilities, conversations: page.items, nextConversationCursor: page.next, busy: false });
@@ -105,11 +110,49 @@ export function createFoxyChatController(options: Options) {
     },
     select,
     async send(purpose: FoxyPurpose, text: string, selection: SendFoxyMessage['selection']) {
-      if (disposed || !state.current || state.pending || state.busy || state.activeTurn) return;
+      if (disposed || !state.current || state.pending || state.busy || state.activeTurn
+        || (state.current.context.kind === 'CLASSROOM' && !state.curriculum?.canGenerate)) return;
       return dispatch({ requestId: (options.uuid ?? (() => crypto.randomUUID()))(), revision: state.current.revision,
-        purpose, text, selection: structuredClone(selection) });
+        purpose, text, selection: state.current.context.kind === 'GENERAL' ? { topicIds: [], sourceIds: [] } : structuredClone(selection) });
     },
     async retry() { if (!disposed && state.pending) await dispatch(state.pending); },
+    selectTopic(id: string) {
+      if (disposed || !state.curriculum || !state.curriculum.units.some(unit => unit.topics.some(topic => topic.id === id))) return;
+      const selected = state.selection.topicIds, exists = selected.includes(id);
+      if (!exists && selected.length >= 100) return;
+      update({ selection: { ...state.selection, topicIds: exists ? selected.filter(item => item !== id) : [...selected, id] } });
+    },
+    selectSource(id: string) {
+      if (disposed || !state.curriculum) return;
+      const all = Object.values(state.sources).flatMap(page => page.items), source = all.find(item => item.sourceId === id);
+      if (!source?.available) return;
+      const selected = state.selection.sourceIds, exists = selected.includes(id);
+      if (!exists && (selected.length >= 20 || all.filter(item => selected.includes(item.sourceId)).reduce((sum, item) => sum + item.documentCount, 0) + source.documentCount > 6)) return;
+      update({ selection: { ...state.selection, sourceIds: exists ? selected.filter(item => item !== id) : [...selected, id] } });
+    },
+    async loadSources(kind: FoxySourceKind) {
+      if (disposed || !state.current || state.current.context.kind !== 'CLASSROOM' || loadingSources.has(kind)) return;
+      const version = epoch, id = state.current.id, before = state.sources[kind];
+      if (before.items.length && before.next === null) return;
+      loadingSources.add(kind);
+      try {
+        const page = await options.client.sources(id, { kind, limit: 50, after: before.next }, abort.signal);
+        if (valid(version)) {
+          const known = new Set(before.items.map(item => item.sourceId));
+          update({ sources: { ...state.sources, [kind]: { items: [...before.items, ...page.items.filter(item => !known.has(item.sourceId))], next: page.next } } });
+        }
+      } catch { if (valid(version)) update({ error: 'No pudimos cargar las fuentes del aula.' }); }
+      finally { if (valid(version)) loadingSources.delete(kind); }
+    },
+    async loadCitations(turnId: string) {
+      if (disposed || !state.current) return;
+      const version = epoch, id = state.current.id;
+      try {
+        const citations = await options.client.citations(id, turnId, abort.signal);
+        if (valid(version)) update({ citations: { ...state.citations, [turnId]: citations.map(item => ({ ...item,
+          href: item.availability === 'AVAILABLE' ? options.client.citationUrl(id, turnId, item.id, 'preview') : null })) } });
+      } catch { if (valid(version)) update({ error: 'No pudimos cargar las citas.' }); }
+    },
     async loadMore() {
       if (disposed || !state.current || state.nextAfterSequence === null || state.busy) return;
       const version = epoch, id = state.current.id, afterSequence = state.nextAfterSequence; update({ busy: true, error: null });
