@@ -79,7 +79,8 @@ export class StudentAiWorker {
       SELECT owner_id FROM student_ai_reports WHERE state='RUNNING' AND lease_until>clock_timestamp()
       UNION ALL SELECT owner_id FROM activity_ai_generations WHERE state='RUNNING' AND lease_until>clock_timestamp()
       UNION ALL SELECT owner_id FROM classroom_curriculum_extractions WHERE state='RUNNING' AND lease_until>clock_timestamp()
-      UNION ALL SELECT owner_id FROM grading_ai_jobs WHERE state='RUNNING' AND lease_until>clock_timestamp()) jobs`, member.owner_id);
+      UNION ALL SELECT owner_id FROM grading_ai_jobs WHERE state='RUNNING' AND lease_until>clock_timestamp()
+      UNION ALL SELECT owner_id FROM foxy_turns WHERE state='RUNNING') jobs`, member.owner_id);
     if (active!.count >= this.options.configuration.maxConcurrency || active!.owner_busy) return null;
     const [locked] = await tx.query(`SELECT c.id FROM classrooms c JOIN users teacher ON teacher.id=c.teacher_id
       AND teacher.email_verified_at IS NOT NULL JOIN enrollments e ON e.classroom_id=c.id

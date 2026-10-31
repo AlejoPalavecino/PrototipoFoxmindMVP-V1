@@ -35,7 +35,8 @@ export function createGradingAiSqlQueue(options: Options) {
         SELECT owner_id FROM grading_ai_jobs WHERE state='RUNNING' AND lease_until>clock_timestamp()
         UNION ALL SELECT owner_id FROM student_ai_reports WHERE state='RUNNING' AND lease_until>clock_timestamp()
         UNION ALL SELECT owner_id FROM activity_ai_generations WHERE state='RUNNING' AND lease_until>clock_timestamp()
-        UNION ALL SELECT owner_id FROM classroom_curriculum_extractions WHERE state='RUNNING' AND lease_until>clock_timestamp()) jobs`);
+        UNION ALL SELECT owner_id FROM classroom_curriculum_extractions WHERE state='RUNNING' AND lease_until>clock_timestamp()
+        UNION ALL SELECT owner_id FROM foxy_turns WHERE state='RUNNING') jobs`);
       if (active!.count >= options.configuration.maxConcurrency) return null;
       const [next] = await tx.query<Row>(`SELECT j.* FROM grading_ai_jobs j JOIN classrooms c ON c.id=j.classroom_id
         JOIN users u ON u.id=j.owner_id JOIN attempts a ON a.id=j.attempt_id
@@ -46,6 +47,7 @@ export function createGradingAiSqlQueue(options: Options) {
         AND NOT EXISTS(SELECT 1 FROM student_ai_reports r WHERE r.owner_id=j.owner_id AND r.state='RUNNING' AND r.lease_until>clock_timestamp())
         AND NOT EXISTS(SELECT 1 FROM activity_ai_generations r WHERE r.owner_id=j.owner_id AND r.state='RUNNING' AND r.lease_until>clock_timestamp())
         AND NOT EXISTS(SELECT 1 FROM classroom_curriculum_extractions r WHERE r.owner_id=j.owner_id AND r.state='RUNNING' AND r.lease_until>clock_timestamp())
+        AND NOT EXISTS(SELECT 1 FROM foxy_turns r WHERE r.owner_id=j.owner_id AND r.state='RUNNING')
         ORDER BY j.created_at,j.id LIMIT 1`);
       if (!next) return null;
       const lease = randomUUID();
