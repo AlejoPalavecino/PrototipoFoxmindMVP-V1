@@ -14,6 +14,13 @@ function validate(input: FoxyTextInput): void {
     || !Array.isArray(input.sources) || input.sources.length > 20 || !Array.isArray(input.documents) || input.documents.length > 6
     || !Array.isArray(input.warnings) || (input.mode === 'GENERAL' && (input.curriculum !== null || input.sources.length || input.documents.length))
     || (input.mode === 'CLASSROOM' && !input.curriculum)) throw new AiError('AI_UNAVAILABLE');
+  const history = input.history ?? [];
+  if (!Array.isArray(history) || history.length > 10 || history.some(pair => !pair || !pair.assistant
+    || typeof pair.user !== 'string' || !pair.user.trim() || [...pair.user].length > 5000
+    || typeof pair.assistant.title !== 'string' || !pair.assistant.title.trim() || [...pair.assistant.title].length > 200
+    || typeof pair.assistant.markdown !== 'string' || !pair.assistant.markdown.trim() || [...pair.assistant.markdown].length > 50000)) throw new AiError('AI_UNAVAILABLE');
+  const safeHistory = history.map(pair => ({ user: pair.user, assistant: { title: pair.assistant.title, markdown: pair.assistant.markdown } }));
+  if (Buffer.byteLength(JSON.stringify(safeHistory), 'utf8') > 262144) throw new AiError('AI_INPUT_LIMIT');
   const sources = new Set<string>(), documents = new Set<string>(); let size = 0;
   for (const source of input.sources) {
     if (!/^s[1-9][0-9]*$/u.test(source.sourceKey) || sources.has(source.sourceKey) || !Array.isArray(source.documentKeys)) throw new AiError('AI_UNAVAILABLE');

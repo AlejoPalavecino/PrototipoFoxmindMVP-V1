@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
-const api = () => import('./index.ts');
+const api = () => import('./turn-preparation.ts');
 const configuration = { model: 'synthetic-model', maxInputTokens: 100000 };
 const lease = { turnId: randomUUID(), ownerId: randomUUID(), conversationId: randomUUID(), leaseNonce: randomUUID() };
 function data() {
@@ -16,7 +16,7 @@ function data() {
 }
 function fixture({ payload, count = 12, openError, loadError, groundingError, onCount } = {}) {
   const calls = [], scope = { capability: Object.freeze({}), snapshot: {}, documents: [] }, f = data();
-  const value = payload ?? { purpose: 'SUMMARY', message: 'Resumí', metadata: { model: 'synthetic-model', promptVersion: 'foxy-chat-v1', schemaVersion: 'foxy-answer-v1' } };
+  const value = payload ?? { purpose: 'SUMMARY', message: 'Resumí', metadata: { model: 'synthetic-model', promptVersion: 'foxy-chat-v2', schemaVersion: 'foxy-answer-v1' } };
   const turns = { loadClaimed: async actualLease => { calls.push(['turn', actualLease]); if (loadError) throw loadError; return value; } };
   const authority = { open: async (actualLease, signal) => { calls.push(['open', actualLease, signal]); if (openError) throw openError; return scope; },
     close: actualScope => { calls.push(['close', actualScope]); } };
@@ -44,7 +44,7 @@ test('prepares a claimed turn once with versioned metadata and private-free prov
 });
 
 test('incompatible model, prompt or stored answer schema fails before counting and closes scope', async () => {
-  const base = { purpose: 'CHAT', message: 'Hola', metadata: { model: 'synthetic-model', promptVersion: 'foxy-chat-v1', schemaVersion: 'foxy-answer-v1' } };
+  const base = { purpose: 'CHAT', message: 'Hola', metadata: { model: 'synthetic-model', promptVersion: 'foxy-chat-v2', schemaVersion: 'foxy-answer-v1' } };
   for (const metadata of [{ ...base.metadata, model: 'different-model' }, { ...base.metadata, promptVersion: 'other' },
     { ...base.metadata, schemaVersion: 'foxy-text-response-v1' }, { ...base.metadata, schemaVersion: 'other' }]) {
     const f = fixture({ payload: { ...base, metadata } }); await assert.rejects((await preparation(f)).prepare(lease, new AbortController().signal));

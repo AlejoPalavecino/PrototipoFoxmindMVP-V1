@@ -4,6 +4,7 @@ import type { FoxyGrounding } from '../../../../src/core/domain/foxy-ai-groundin
 type Topic = { id: string; name: string; status: 'PENDING' | 'NEXT' | 'TAUGHT' };
 type Unit = { name: string; topics: Topic[] };
 type Source = FoxyGrounding['sources'][number];
+type HistoryPair = { user: string; assistant: { title: string; markdown: string } };
 type Document = FoxyGrounding['documents'][number];
 function invalid(): never { throw Object.assign(new Error('INVALID_INPUT'), { code: 'INVALID_INPUT' }); }
 function key(value: unknown, prefix: 's' | 'd'): string {
@@ -42,7 +43,22 @@ function document(item: Document) {
   return { documentKey: key(item.documentKey, 'd'), sourceKeys: item.sourceKeys.map(id => key(id, 's')),
     document: content, pageCount: item.pageCount, warnings: strings(item.warnings) };
 }
-export function projectFoxyTextInput(input: { purpose: FoxyPurpose; message: string; grounding: FoxyGrounding; signal: AbortSignal }) {
+function history(values: HistoryPair[] | undefined): HistoryPair[] {
+  if (values === undefined) return [];
+  if (!Array.isArray(values) || values.length > 10) return invalid();
+  const clean = (value: unknown, limit: number) => {
+    const result = string(value);
+    if (!result.trim() || [...result].length > limit || /[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/u.test(result)) return invalid();
+    return result.replace(/[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}/giu, '[identificador]');
+  };
+  const pairs = values.map(pair => {
+    if (!pair || !pair.assistant) return invalid();
+    return { user: clean(pair.user, 5000), assistant: { title: clean(pair.assistant.title, 200), markdown: clean(pair.assistant.markdown, 50000) } };
+  });
+  if (Buffer.byteLength(JSON.stringify(pairs), 'utf8') > 262144) return invalid();
+  return pairs;
+}
+export function projectFoxyTextInput(input: { purpose: FoxyPurpose; message: string; grounding: FoxyGrounding; history?: HistoryPair[]; signal: AbortSignal }) {
   input.signal.throwIfAborted();
   const { grounding } = input;
   if (!grounding || !grounding.context || !['GENERAL', 'CLASSROOM'].includes(grounding.context.kind)
@@ -50,7 +66,7 @@ export function projectFoxyTextInput(input: { purpose: FoxyPurpose; message: str
     || !['CHAT', 'STUDY_MATERIAL', 'REVIEW', 'SUMMARY', 'ACTIVITY_IDEAS', 'LESSON_PLAN'].includes(input.purpose)) return invalid();
   const result = { mode: grounding.context.kind, purpose: input.purpose, message: string(input.message),
     curriculum: curriculum(grounding), sources: grounding.sources.map(source), documents: grounding.documents.map(document),
-    warnings: strings(grounding.warnings), signal: input.signal };
+    warnings: strings(grounding.warnings), history: history(input.history), signal: input.signal };
   input.signal.throwIfAborted();
   return result;
 }

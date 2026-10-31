@@ -56,7 +56,7 @@ export function createFoxyTurnService(options: Options) {
         if (conversation.context.kind === 'CLASSROOM') await activeRoom(tx, actor.id, conversation.context.classroomId);
         const snapshot = await rebuildGrounding(tx, conversation.context, message.selection);
         return options.turns.enqueue(tx, actor.id, conversationId, message, snapshot, hash,
-          { model: options.configuration.model, promptVersion: 'foxy-chat-v1', schemaVersion: 'foxy-answer-v1' });
+          { model: options.configuration.model, promptVersion: 'foxy-chat-v2', schemaVersion: 'foxy-answer-v1' });
       });
     },
     async get(request: unknown, conversationId: string, turnId: string) {

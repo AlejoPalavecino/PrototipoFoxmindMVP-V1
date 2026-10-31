@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
-const api = () => import('./index.ts');
+const api = () => import('./provider-input.ts');
 function fixture() {
   const classroomId = randomUUID(), unitId = randomUUID(), topicId = randomUUID(), futureId = randomUUID();
   const sourceId = `material:${randomUUID()}`, planId = `plan:${randomUUID()}`, ownerSecret = randomUUID(), digest = 'a'.repeat(64);
@@ -26,7 +26,7 @@ async function project() {
 test('projects selected curriculum and content without private IDs or reference mapping', async () => {
   const fn = await project(), f = fixture(), signal = new AbortController().signal, before = structuredClone(f.grounding);
   const result = fn({ purpose: 'SUMMARY', message: 'Resumí el tema', grounding: f.grounding, signal });
-  assert.deepEqual(Object.keys(result).sort(), ['curriculum', 'documents', 'message', 'mode', 'purpose', 'signal', 'sources', 'warnings']);
+  assert.deepEqual(Object.keys(result).sort(), ['curriculum', 'documents', 'history', 'message', 'mode', 'purpose', 'signal', 'sources', 'warnings']);
   assert.equal(result.mode, 'CLASSROOM'); assert.equal(result.purpose, 'SUMMARY'); assert.equal(result.message, 'Resumí el tema');
   assert.equal(result.signal, signal);
   assert.deepEqual(result.curriculum, { units: [{ name: 'Energía', topics: [

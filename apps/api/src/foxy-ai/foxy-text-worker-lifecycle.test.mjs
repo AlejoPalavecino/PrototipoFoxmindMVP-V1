@@ -8,7 +8,7 @@ function fixture(claim) {
     turns: {}, authority: {}, loader: {}, provider: {}, budget: {}, completion: {} };
   return { calls, options };
 }
-async function worker(f) { const { createFoxyTextWorker } = await import('./index.ts');
+async function worker(f) { const { createFoxyTextWorker } = await import('./worker.ts');
   assert.equal(typeof createFoxyTextWorker, 'function'); return createFoxyTextWorker(f.options); }
 function deferred() { let resolve, reject; const promise = new Promise((yes, no) => { resolve = yes; reject = no; }); return { promise, resolve, reject }; }
 
@@ -62,7 +62,7 @@ test('destroy aborts a dispatched provider, awaits terminal handling and ignores
   const generated = deferred(), entered = deferred(), calls = [], lease = { turnId: 'turn', ownerId: 'owner', conversationId: 'conversation', leaseNonce: 'nonce' };
   const f = fixture(async () => lease), scope = { capability: {}, snapshot: { context: { kind: 'GENERAL' } }, documents: [] };
   Object.assign(f.options, {
-    turns: { loadClaimed: async () => ({ purpose: 'CHAT', message: 'Hola', metadata: { model: 'synthetic', promptVersion: 'foxy-chat-v1', schemaVersion: 'foxy-answer-v1' } }) },
+    turns: { loadClaimed: async () => ({ purpose: 'CHAT', message: 'Hola', metadata: { model: 'synthetic', promptVersion: 'foxy-chat-v2', schemaVersion: 'foxy-answer-v1' } }) },
     authority: { open: async () => scope, close: () => calls.push('close'), revalidateGrounding: async () => true },
     loader: { load: async () => ({ context: { kind: 'GENERAL' }, curriculum: null, sources: [], documents: [], referenceMap: [], warnings: [] }) },
     budget: { reserve: async () => 'RESERVED' },

@@ -13,7 +13,7 @@ function fixture(settings = {}) {
   const database = { $transaction: async fn => { hit('transaction'); if (settings.dbError) throw Error('db'); return fn({ $queryRawUnsafe: async () => [] }); } };
   const queue = { claim: async () => { hit('claim'); return settings.idle ? null : lease; } };
   const turns = { loadClaimed: async () => { hit('turn'); return { purpose: 'SUMMARY', message: 'Resumí',
-    metadata: { model: 'synthetic', promptVersion: 'foxy-chat-v1', schemaVersion: 'foxy-answer-v1' } }; } };
+    metadata: { model: 'synthetic', promptVersion: 'foxy-chat-v2', schemaVersion: 'foxy-answer-v1' } }; } };
   const authority = { open: async () => { hit('open'); return scope; }, close: s => hit('close', s),
     authorizeClaim: async (...args) => { hit('authorize', ...args); return { ...lease, snapshot: scope.snapshot }; },
     revalidateGrounding: async (...args) => { hit('revalidate', ...args); return !settings.staleBefore; } };
@@ -26,7 +26,7 @@ function fixture(settings = {}) {
   const completion = { finish: async (...args) => { hit('finish', ...args); return !settings.lost; } };
   return { calls, scope, options: { database, queue, authority, loader, turns, budget, completion, provider, configuration } };
 }
-async function run(f) { const api = await import('./index.ts'); assert.equal(typeof api.createFoxyTextWorker, 'function');
+async function run(f) { const api = await import('./worker.ts'); assert.equal(typeof api.createFoxyTextWorker, 'function');
   return api.createFoxyTextWorker(f.options).runOnce(); }
 const names = f => f.calls.map(x => x.op);
 const result = f => f.calls.find(x => x.op === 'finish')?.args[1];
