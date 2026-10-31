@@ -1,3 +1,5 @@
+> **Contexto histórico:** esta guía describe la etapa glass. Para la dirección posterior y su evidencia consulte el [catálogo de diseños](design/INDEX.md) y el [roadmap](implementation-roadmap.md). El contenido siguiente conserva su contexto original.
+
 # Entry glass experience
 
 This local UI feature restyles account entry, companion account flows, Inicio and the shared navbar. It does not change authentication policies, API/database contracts or academic page bodies. The canonical specification is [the feature document](../odd/tasks/foxmind-entry-glass.md).

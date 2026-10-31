@@ -1,5 +1,33 @@
 # FoxMind implementation roadmap
 
+## Estado actual
+
+Este resumen distingue lo integrado, lo verificado y los límites de las pruebas. Los checkpoints anteriores se conservan debajo como historia; sus títulos «Current» o «Resume here» no son instrucciones actuales.
+
+| Unidad | Estado y alcance | Fuente para retomar |
+|---|---|---|
+| V1 local P0–P9 | Implementada, aceptada localmente e integrada; sin despliegue ni piloto real | [Cierre independiente P9](work-log/2026-10-20-p9-final-independent-verify.md), [producto](product/README.md) |
+| Extracción y generación con IA | Implementadas; fuentes, cuotas y confirmación docente tienen límites propios | [Guías de IA](engineering/ai/README.md), [verificación real](work-log/2026-10-25-gemini_real_verify.md) |
+| Análisis individual | Implementado con métricas anónimas y alcance docente, separado de calificación | [Guía](engineering/ai/student-analysis.md), [verificación](work-log/2026-10-28-root-student-ai-verification.md) |
+| Corrección asistida | Integrada en main; propuesta privada y publicación docente independiente. Pruebas reales limitadas a casos documentados | [Contrato issue #2](../odd/tasks/grading-ai-issue-2.md), [guía](engineering/ai/grading-assistance.md) |
+| Sistema visual | FoxMind3D aplicado e integrado; las exploraciones anteriores son antecedentes | [Sistema y familias](design/README.md), [guía técnica](engineering/frontend/foxmind-3d.md) |
+| Seis correcciones de auditoría | Implementadas y publicadas, con limitaciones y pruebas atribuidas | [Tarea](../odd/tasks/audit-remediation.md), [cierre](work-log/2026-10-30-root-audit-completion.md) |
+| Cinco comprobaciones históricas | Cerradas: FAST783/0/0 y P5/resumen14/0/0. No se repitió toda la selección de42archivos de navegador | [Cierre de los casos](work-log/2026-10-30-root-five-historical-checks.md) |
+| Reorganización documental | En ejecución: guías por dominio, rutas compatibles, historia preservada y control portable | [Plan único y evidencia](../odd/tasks/documentation-reorganization.md) |
+
+## Cómo retomar
+
+1. Elegir la unidad y leer su contrato/tarea, sin reconstruir todo el historial.
+2. Usar [arquitectura](engineering/architecture.md), [operación local](engineering/local-development/README.md) y [verificación](engineering/testing/README.md) para el procedimiento vigente.
+3. Consultar el [catálogo de registros](work-log/INDEX.md) solo para decisiones y resultados relevantes.
+
+La publicación del repositorio no es despliegue ni autorización para usar datos reales. Esta entrega documental no implementa funciones nuevas; el siguiente trabajo de producto parte del alcance que indique el usuario.
+
+## Historial de checkpoints conservados
+
+Los textos siguientes describen su fecha, candidato y autorización originales. La evidencia posterior se enlaza desde el resumen actual; no se reescriben resultados ni consentimientos antiguos.
+
+
 ## Auditoría y seis correcciones — integradas en main, 2026-10-30
 
 La [tarea de remediación](../odd/tasks/audit-remediation.md) y el [registro del coordinador](work-log/2026-10-30-root-audit-completion.md) reúnen alcance, cambios y evidencia. Las seis correcciones están implementadas, revisadas y verificadas localmente: Muro acotado, capacidades por composición, contratos críticos compartidos, secciones independientes, controles completos y mejoras de escala/diagnóstico. [Unidades de entrega](work-log/2026-10-30-local-remediation-units.md). Por autorización posterior explícita del usuario se integraron y publicaron en main: implementación9ec038a confirmada en remoto. El [registro de sincronización](work-log/2026-10-30-root-audit-main-sync.md) documenta respaldo de pendientes, limpieza y comprobación de fuentes. Sin despliegue.

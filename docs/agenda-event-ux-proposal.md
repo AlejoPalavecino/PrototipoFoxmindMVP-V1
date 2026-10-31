@@ -1,3 +1,5 @@
+> **Contexto histórico:** esta propuesta conserva el estado y la evidencia de su fecha. Consulte la [guía actual de Agenda](engineering/agenda/agenda.md) y el [catálogo de diseños](design/INDEX.md). El contenido siguiente permanece intacto.
+
 # Propuesta: crear un evento personal
 
 Fecha: 2026-10-24. Estado: implementada y verificada funcionalmente en el worktree; preview actualizado, sin integración a main. Captura automática no disponible; no se declara aceptación por píxeles. Objetivo: registrar un compromiso con título, fecha y horario, entender su repetición y encontrarlo al terminar. Mantiene el estilo Folder y los contratos actuales de [Agenda](agenda.md). [Contrato y pruebas de esta mejora](../odd/tasks/agenda-compact-event-form.md).

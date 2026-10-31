@@ -1,6 +1,6 @@
-# P4 file HTTP contract — opt-in, integration deferred
+# P4 file HTTP contract — integrated host
 
-`createFilesHandler(service)` can be installed in the host Nest application after supplying the accepted session/admission/record bridge. It is not installed in P3 by this work. No anonymous, public, presigned or direct-S3 route exists. The original request is forwarded to the required access adapter.
+`createFilesHandler(service)` is integrated in the Nest host when the accepted file configuration and session/admission/record bridge are supplied. See the [integrated host guide](../engineering/files/host.md). No anonymous, public, presigned or direct-S3 route exists. The original request is forwarded to the required access adapter.
 
 | Method/path | Input | Success |
 |---|---|---|
@@ -14,7 +14,7 @@ IDs are UUIDs. Purposes are plan/instructions/material/attachment; instruction/a
 
 Status contains id/name/sizeBytes/ready/upload/validation/scan/rejectionCode. It never includes keys, object URLs, credentials, tokens or signature details. Ready requires completed upload and matching approved/clean digest proof. Quarantined files cannot be downloaded or linked. Retry uses identical bytes; it cannot overwrite a file.
 
-All responses use no-store/nosniff. File responses include exact length, RFC 5987 disposition, same-origin resource policy and sandbox CSP. PDF/JPEG/PNG preview may be inline. Office/ZIP always remain attachments, even with mode=preview. Browser download fallback for an unavailable viewer belongs to deferred UI integration.
+All responses use no-store/nosniff. File responses include exact length, RFC 5987 disposition, same-origin resource policy and sandbox CSP. PDF/JPEG/PNG preview may be inline. Office/ZIP always remain attachments, even with mode=preview. Browser download fallback for an unavailable viewer is described in the [web integration guide](../engineering/files/web.md).
 
 Errors are JSON `{error:{code}}`; internal driver/parser/scanner text is never returned.
 

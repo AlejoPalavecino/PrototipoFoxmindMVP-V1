@@ -1,3 +1,5 @@
+> **Contexto histórico:** esta guía describe la etapa Carpetas. Para la dirección posterior y su evidencia consulte el [catálogo de diseños](design/INDEX.md) y el [roadmap](implementation-roadmap.md). El contenido siguiente conserva su contexto original.
+
 # FoxMind folder theme
 
 The selected 24 desktop mockups are implemented as presentation on the existing complete V1. API clients, server policies, session/token/password rules, classroom membership, private files, attempts, grading and publication remain owned by the existing application. No database migration or backend rewrite is part of this change.

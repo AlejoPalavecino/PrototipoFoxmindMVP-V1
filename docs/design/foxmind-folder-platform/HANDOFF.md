@@ -1,3 +1,5 @@
+> **Contexto histórico (2026-10-31):** el mensaje siguiente pertenece al plan Carpetas de 2026-10-22 y no es un encargo vigente. Consulte el [catálogo de diseños](../INDEX.md), la [guía FoxMind 3D](../../engineering/frontend/foxmind-3d.md) y el [roadmap](../../implementation-roadmap.md). El recibo `validation.json` conserva el hash del handoff original, anterior a este encabezado; no fue regenerado.
+
 # Handoff para otro agente
 
 ## Mensaje para iniciar la implementación cuando el usuario lo autorice

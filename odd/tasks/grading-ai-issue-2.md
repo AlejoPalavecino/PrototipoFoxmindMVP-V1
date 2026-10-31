@@ -8,4 +8,6 @@ La sugerencia incluye una nota y devolución; en preguntas objetivas el motor ex
 
 ## Estado y evidencia
 
-Implementación local verificada con los límites documentados en [el registro](../../docs/work-log/2026-10-29-root-issue2-correccion-ia.md). No se probó Gemini real ni un recorrido completo autenticado. La publicación remota y el despliegue no se realizaron.
+Implementación integrada en main mediante PR #16, con verificación posterior autenticada y Gemini real: [TP con PDF](../../docs/work-log/2026-10-29-root-gemini-grading.md) y [cuestionario/evaluación](../../docs/work-log/2026-10-29-root-gemini-questionnaire-evaluation.md). Se observaron propuesta privada, edición/aplicación docente, privacidad y publicación explícita. Q/E cubren desarrollo y opción única EXACT; no todos los formatos ni capacidad productiva. El [registro inicial](../../docs/work-log/2026-10-29-root-issue2-correccion-ia.md) conserva su candidato y límites originales; no se reetiquetan pruebas antiguas como proveedor real. Sin despliegue.
+
+La [guía vigente](../../docs/engineering/ai/grading-assistance.md) explica el recorrido docente; el [roadmap](../../docs/implementation-roadmap.md#estado-actual) mantiene el estado global. Se conserva esta ruta porque su existencia activa controles de integración en CI.

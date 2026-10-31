@@ -47,7 +47,7 @@ FoxMind reúne la experiencia de una clase en un mismo lugar. Los docentes puede
 
 Necesitás **Node.js 24** y las dependencias correspondientes al archivo de bloqueo. La aplicación completa también requiere PostgreSQL, almacenamiento privado compatible con S3, ClamAV, Mailpit y la configuración de identidad y aulas. La base de datos debe estar preparada por separado antes de iniciar los servicios.
 
-1. Consultá la [guía de operación local](docs/p9-local-operation.md) para preparar los servicios y la configuración.
+1. Consultá la [entrada de desarrollo local](docs/engineering/local-development/README.md) y la [guía de operación](docs/engineering/local-development/operation.md) para preparar los servicios y la configuración.
 2. Instalá las dependencias del proyecto con `npm ci`.
 3. Una vez preparado el entorno, compilá y ejecutá la API y la web según las instrucciones de la guía.
 
@@ -56,9 +56,10 @@ La guía detalla las variables, los orígenes y los límites de cada servicio. M
 ## Documentación
 
 - [Índice de documentación](docs/README.md) · Guías, contratos y evidencia.
-- [Roadmap](docs/implementation-roadmap.md) · Estado verificado y próximos pasos.
+- [Roadmap](docs/implementation-roadmap.md#estado-actual) · Estado verificado y próximos pasos.
+- [Arquitectura](docs/engineering/architecture.md) · Responsabilidades y flujo del sistema.
 - [Especificación funcional](docs/foxmind-v1-functional-spec.md) · Alcance y reglas del producto.
-- [Operación local](docs/p9-local-operation.md) · Preparación, ejecución y recuperación.
+- [Operación local](docs/engineering/local-development/README.md) · Preparación, ejecución y recuperación.
 - [Instrucciones para agentes y colaboradores](AGENTS.md) · Continuidad del trabajo y registros.
 
 ## Estado del proyecto

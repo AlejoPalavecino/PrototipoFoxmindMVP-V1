@@ -1,0 +1,1221 @@
+{
+  "schemaVersion": 1,
+  "state": "migrated",
+  "moves": [
+    {
+      "from": "docs/backend.md",
+      "to": "docs/engineering/local-development/backend.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "65c86274181d77fa2494acc63614fbb0c97c999c8ad3d7e767336bfbce16ee50",
+      "sha256LfText": "b365f52fdb72845f21b55c91f56db11ba184997b61feeca7dd0f4c84420f2536",
+      "anchorsBefore": [
+        "run-the-local-foxmind-backend",
+        "quick-path",
+        "configuration-and-startup",
+        "http-contract",
+        "lifecycle-and-structure",
+        "verification-and-limitations",
+        "historical-identity-fixture-launch-allowance-t3-f--s10",
+        "commands-and-retained-limits"
+      ],
+      "referencesBefore": [
+        "odd/tasks/backend-foundation.md",
+        "docs/audits/2026-10-30-astra-documentation-audit.md",
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/audits/2026-10-21-docs-audit/checks.json",
+        "docs/implementation-roadmap.md",
+        "docs/identity-http.md",
+        "docs/backend-verification.md",
+        "docs/README.md",
+        "docs/work-log/2026-10-15-mvad21p6-p33-registration-profile.md",
+        "docs/work-log/2026-10-15-mva7tp2v-p33-identity-http.md",
+        "docs/work-log/2026-10-16-c2-sequential-mvb4asm3.md",
+        "docs/work-log/2026-10-16-build-once-mvb5aiy5.md",
+        "docs/work-log/2026-10-16-fixture-launch-budget-mvbjmtkq.md",
+        "docs/work-log/2026-10-16-t2-closure-mvb6iyk6.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "313c760999fe3ad9134533b48de2aa543be95b8c8b253b1586400effcee242d7",
+      "sha256Alias": "8024f7e1383fc4bce1ba7db75cada3b0dd29b30e04865268b4623c3a910557f9",
+      "linesAlias": 27,
+      "linesCanonical": 91
+    },
+    {
+      "from": "docs/database.md",
+      "to": "docs/engineering/local-development/database.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "a0021dbd0f0557d1e71ff783ab649fa72c0c426e7008e08f5adfcba06217861d",
+      "sha256LfText": "6893988530cb4b64fed8972837940b05f9e886bd91d5162fbe698c092855b3c8",
+      "anchorsBefore": [
+        "run-and-verify-the-foxmind-database",
+        "quick-path",
+        "persistent-local-development",
+        "commands",
+        "schema-map",
+        "precision-without-silent-rounding",
+        "stable-history",
+        "rules-reserved-for-the-backend",
+        "responsibilities-enforced-above-the-database",
+        "change-and-rollback-boundaries"
+      ],
+      "referencesBefore": [
+        "odd/tasks/database-foundation.md",
+        "docs/audits/2026-10-30-astra-documentation-audit.md",
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/audits/2026-10-21-docs-audit/README.md",
+        "docs/audits/2026-10-21-docs-audit/checks.json",
+        "docs/database-verification.md",
+        "docs/backend.md",
+        "docs/implementation-roadmap.md",
+        "docs/p9-local-operation.md",
+        "docs/README.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "37c4ee7c123da53d5c5fcf15e20ea66072315c20dcea13edcc5d9ac19ef8cec9",
+      "sha256Alias": "045dab985a4a962e8547bf17c4417b7357945df1d92177f520cac8ffa392a78b",
+      "linesAlias": 33,
+      "linesCanonical": 127
+    },
+    {
+      "from": "docs/local-email.md",
+      "to": "docs/engineering/local-development/local-email.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "9a189d98208ce06a2abcae1380de1f193e682fcf28044fd983844b942f3d033e",
+      "sha256LfText": "2489d7a745ddcd20c39a31b6b1d2768311472580222e9550f4a168c10df616f7",
+      "anchorsBefore": [
+        "local-captured-email",
+        "start-inspect-and-stop",
+        "development-retention",
+        "isolated-verification"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-30-astra-documentation-audit.md",
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/audits/2026-10-21-docs-audit/checks.json",
+        "docs/api/accounts-sessions.md",
+        "docs/p9-local-operation.md",
+        "docs/README.md",
+        "docs/work-log/2026-10-15-mva1tryy-p32-capture.md",
+        "docs/work-log/2026-10-15-mva2tlkx-p32-capture-review.md",
+        "docs/work-log/2026-10-15-mva2a4up-p32-capture.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "2489d7a745ddcd20c39a31b6b1d2768311472580222e9550f4a168c10df616f7",
+      "sha256Alias": "2f5541ca9220d17d95045c73ae42a21d9160010b666bc3bd1eef5d41233fdce3",
+      "linesAlias": 15,
+      "linesCanonical": 73
+    },
+    {
+      "from": "docs/local-demo-account.md",
+      "to": "docs/engineering/local-development/demo-account.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "ec4476777d40f046d7d4cc533b453adfe86a8d9aa87d5f0cfea7f27ee8a13f4e",
+      "sha256LfText": "a186c2d938e60ed9670fd534889c4b5a46c545f58d9eeda32d40a3f3a2ac2d5a",
+      "anchorsBefore": [
+        "cuenta-local-permanente-de-demostración",
+        "acceso",
+        "escenarios-disponibles",
+        "reutilización-y-conservación"
+      ],
+      "referencesBefore": [
+        "docs/implementation-roadmap.md",
+        "docs/work-log/2026-10-26-root-permanent-demo.md",
+        "docs/work-log/2026-10-28-root-demo-rotation-student-scroll.md",
+        "docs/work-log/2026-10-28-demo-credential-rotation.md",
+        "docs/work-log/2026-10-28-root-student-journey.md",
+        "docs/work-log/2026-10-28-root-local-start.md",
+        "docs/work-log/2026-10-28-ui-student-ai-retained-verification.md",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "2989b6cf931e0202b9364277f0c73bf42bc1d73cfb8802baec25defd5fd73853",
+      "sha256Alias": "7cd01a2695f2e7c64de24a3b0d2e11c1b2096397c5c528037eda33b11c44646d",
+      "linesAlias": 15,
+      "linesCanonical": 38
+    },
+    {
+      "from": "docs/p9-local-operation.md",
+      "to": "docs/engineering/local-development/operation.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "d0e8cc4da67e9e6b547d4996c3009aab5cd0158bb551c2e186daa600b24005b4",
+      "sha256LfText": "ad55449d133b9261c5041d475f1a7c934f9d3700dc6ba03f5e0df2eb6b5fde71",
+      "anchorsBefore": [
+        "foxmind-local-operation-and-synthetic-pilot-preparation",
+        "choose-an-owned-local-environment-first",
+        "configuration-ownership",
+        "product-quick-path",
+        "truthful-failures-and-recovery",
+        "synthetic-pilot-checklist--preparation-only",
+        "evidence-and-next-action",
+        "accepted-local-checkpoint"
+      ],
+      "referencesBefore": [
+        "README.md",
+        "docs/audits/2026-10-30-astra-documentation-audit.md",
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/database.md",
+        "docs/p9-final-row-ledger.json",
+        "docs/README.md",
+        "docs/work-log/2026-10-20-p9-closure-preparation-worker.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "efd36dde392a624f862de4ea1bb39bf556b4f5dd8ecd9392942ffbbdcc6b0705",
+      "sha256Alias": "f0ca237e1518ed64defc671fda938edceb02ee6901cc7338d8858160ab1c1094",
+      "linesAlias": 27,
+      "linesCanonical": 74
+    },
+    {
+      "from": "docs/identity-http.md",
+      "to": "docs/engineering/identity/http.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "66270e586293d38fcbe11b226b54f4b84b64626880c5af69acb2b7edf5ff12c9",
+      "sha256LfText": "1fda77e64a1e72d27daed7da360f11046930b54ef152bf1b787befc4de52d261",
+      "anchorsBefore": [
+        "identity-http--p33-t2-seven-operation-verified-checkpoint",
+        "identity-http--accountsession-integration",
+        "startup-without-environment-files",
+        "security-and-transaction-boundary",
+        "stable-d2t3-integration-api",
+        "focused-verification-and-limits",
+        "historical-outage-evidence-earlier-failures-retained-d1-subsequently-closed"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/audits/2026-10-21-docs-audit/README.md",
+        "docs/audits/2026-10-21-docs-audit/checks.json",
+        "docs/api/accounts-sessions.md",
+        "docs/backend.md",
+        "docs/identity-security.md",
+        "docs/p9-local-operation.md",
+        "docs/README.md",
+        "docs/work-log/2026-10-15-mvad21p6-p33-registration-profile.md",
+        "docs/work-log/2026-10-15-mvabi7zz-p33-d1-test-isolation.md",
+        "docs/work-log/2026-10-15-mva7tp2v-p33-identity-http.md",
+        "docs/work-log/2026-10-16-t2-closure-mvb6iyk6.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "d92b98bb5249f5d7176d955d31a4c30c8842adfff32462b224598f96c916686c",
+      "sha256Alias": "c273e46d25cff007fd2095db32e181148bbdb697ddaa5796d61d7b7594bbb059",
+      "linesAlias": 24,
+      "linesCanonical": 101
+    },
+    {
+      "from": "docs/identity-security.md",
+      "to": "docs/engineering/identity/security.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "7c4750a28142d34ebb7f4ab707ebb37e953e6cb92d8db04861e17d324ad59d56",
+      "sha256LfText": "e4dabee59aadf86a88110d245cb05eb054e85decd97acfe08ee746246739749f",
+      "anchorsBefore": [
+        "identity-security-primitives-p33--t1-b",
+        "startup-configuration",
+        "public-primitives",
+        "password-work-and-errors",
+        "verification-and-integration-handoff"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/audits/2026-10-21-docs-audit/README.md",
+        "docs/audits/2026-10-21-docs-audit/checks.json",
+        "docs/identity-http.md",
+        "docs/README.md",
+        "docs/work-log/2026-10-15-mva3zljz-p33-security.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "aba687a8c45b67e893a2bd33def168231f6c69a0abce9fc34b59f61776de2539",
+      "sha256Alias": "c2e2ee80a5120f9fedb898150e74594ac9ab72c2a82cf07efac513507727bd6e",
+      "linesAlias": 18,
+      "linesCanonical": 141
+    },
+    {
+      "from": "docs/registration-profile.md",
+      "to": "docs/engineering/identity/registration-profile.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "eb990f17e886ade53e768765c054960911a9903bc3b6dc5bb61e33131b76b6f1",
+      "sha256LfText": "4a6cb5bcb563a1b7ea08ccdfabae8316278d4a70a4b28ed368592667e484c646",
+      "anchorsBefore": [
+        "registrationprofile--d2-independently-verified-t2-seven-operation-checkpoint",
+        "registrationprofile--integrated-account-behavior-and-historical-t2-proof",
+        "implemented-behavior-and-boundaries",
+        "live-worker-ownership-and-shutdown",
+        "reproduce-and-evidence-limits",
+        "accepted-proof-and-retained-limits"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/audits/2026-10-21-docs-audit/README.md",
+        "docs/audits/2026-10-21-docs-audit/checks.json",
+        "docs/api/accounts-sessions.md",
+        "docs/account-mail-outbox.md",
+        "docs/mail-sender.md",
+        "docs/identity-http.md",
+        "docs/README.md",
+        "docs/work-log/2026-10-15-mvad21p6-p33-registration-profile.md",
+        "docs/work-log/2026-10-16-c2-sequential-mvb4asm3.md",
+        "docs/work-log/2026-10-16-build-once-mvb5aiy5.md",
+        "docs/work-log/2026-10-16-t2-closure-mvb6iyk6.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "b811f59072f6c8215944afa94d31b5018d0775a23c8014eaa3c1e5f325397120",
+      "sha256Alias": "132cd96b6d78e78dda41000702e14072f57fc8c3d0ee81469e5a2972d9007107",
+      "linesAlias": 21,
+      "linesCanonical": 63
+    },
+    {
+      "from": "docs/account-verification.md",
+      "to": "docs/engineering/identity/email-verification.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "e3f5071ffff7f0a0f0ecfd303777f1c1e795c76c7c2b2a3a9541c1e7d6319a8c",
+      "sha256LfText": "95aee1cda89d97d63ce64e2616c1a9ad4722a0baf205fe4b90ffd573acd1eadb",
+      "anchorsBefore": [
+        "email-confirmation-and-resend--independently-verified-backend",
+        "run-the-focused-checks",
+        "fixture-launch-exception-not-functional-acceptance",
+        "existing-public-contracts",
+        "transaction-boundaries",
+        "evidence-and-limits"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/audits/2026-10-21-docs-audit/README.md",
+        "docs/audits/2026-10-21-docs-audit/checks.json",
+        "docs/api/accounts-sessions.md",
+        "docs/README.md",
+        "docs/work-log/2026-10-16-fixture-launch-budget-mvbjmtkq.md",
+        "docs/work-log/2026-10-16-t3-verification-mvb7th8c.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "0f4ec8ae43e28a9d08b297e932dddd5b5044b1c4e400fa2b254d658db9cc030a",
+      "sha256Alias": "7d9c2192666e9891586a74828d3199841cda599aa5e942e2487513c1e7708428",
+      "linesAlias": 21,
+      "linesCanonical": 48
+    },
+    {
+      "from": "docs/password-recovery.md",
+      "to": "docs/engineering/identity/password-recovery.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "c86ded20f770972e0d1797b91e6efcfb3c278091ce9f865d821ade2111bfafc0",
+      "sha256LfText": "531fe7357f9a82e16b0fecd3fb13e1fc8cc1c5390c4b1f10e391285883c6468d",
+      "anchorsBefore": [
+        "password-recovery",
+        "historical-initial-candidate-evidence",
+        "fixed-public-checks",
+        "chosen-design-and-retained-proof-limits"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/audits/2026-10-21-docs-audit/README.md",
+        "docs/audits/2026-10-21-docs-audit/checks.json",
+        "docs/api/accounts-sessions.md",
+        "docs/backend.md",
+        "docs/README.md",
+        "docs/work-log/2026-10-16-01a14539-p33-recovery.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "6c27f5f916e5870caa667058b3137a2c3af1b42a332424ff80e6b273f28aaf49",
+      "sha256Alias": "2ee00bba2ee2fe303b1a438caadc1f731772ad4626bfe1dbfe4f2d7c6ee50db7",
+      "linesAlias": 15,
+      "linesCanonical": 33
+    },
+    {
+      "from": "docs/password-change.md",
+      "to": "docs/engineering/identity/password-change.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "5c1f81680b25cc2583d787a785fcb664ae6e61bb7a7e52e9a12bbb83d0cf971b",
+      "sha256LfText": "f0d81d13c2c20ed16aaa208840e0d7743e2e7266d0b93d4fd72d4f3600b867a6",
+      "anchorsBefore": [
+        "authenticated-password-change"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/audits/2026-10-21-docs-audit/checks.json",
+        "docs/api/accounts-sessions.md",
+        "docs/backend.md",
+        "docs/README.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "7edca78609c7c20102382b59e663083ade0cf141b79a1e256f03e9254ad77661",
+      "sha256Alias": "53353d6690c12c9f33e4f4bef71b167a76be38a72e9a6e91f431003032fe1fe6",
+      "linesAlias": 6,
+      "linesCanonical": 28
+    },
+    {
+      "from": "docs/account-mail-outbox.md",
+      "to": "docs/engineering/identity/mail-outbox.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "969a5a885fa5abae57fc0907982449cec2b14aa2daa736a2ceb4dcbc0ba32663",
+      "sha256LfText": "3aaec874437395b34c0b34ac60ec7b707ef34dc41c7d196d070dfeed96de9b87",
+      "anchorsBefore": [
+        "encrypted-account-mail-outbox-p33-t1",
+        "public-boundary",
+        "key-configuration-and-envelope",
+        "future-httpdomain-integration",
+        "httpdomain-integration-responsibilities",
+        "lease-retries-and-race-boundary",
+        "focused-verification",
+        "limits-and-rollback"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/audits/2026-10-21-docs-audit/README.md",
+        "docs/audits/2026-10-21-docs-audit/checks.json",
+        "docs/README.md",
+        "docs/work-log/2026-10-15-mva3zlsv-p33-outbox.md",
+        "docs/work-log/2026-10-15-mva54f11-p33-outbox-review.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "31def7e083da59de674747bdf15235097670e2477162663238b21036bb9b0548",
+      "sha256Alias": "89f10c8f707bb11339d7d5077ab131383f6bc58758a9186a56bd45c8bd93144b",
+      "linesAlias": 27,
+      "linesCanonical": 69
+    },
+    {
+      "from": "docs/mail-sender.md",
+      "to": "docs/engineering/identity/mail-sender.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "f7f25c8e62baa6858bf34ed21524e90807e64d164e14bbf10b431745937b80c6",
+      "sha256LfText": "e5753e53f5272730e20523530a7dcf8ee95ed80fe5a02217dc8b5388e7ded579",
+      "anchorsBefore": [
+        "standalone-account-mail-sender",
+        "future-integration-seam",
+        "integration-seam",
+        "configuration-and-input-boundary",
+        "delivery-spelling-versus-wire-representation",
+        "focused-proof-and-limits",
+        "terminal-cancellation-and-lifecycle-deadline",
+        "review-and-rollback-boundary"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/audits/2026-10-21-docs-audit/README.md",
+        "docs/audits/2026-10-21-docs-audit/checks.json",
+        "docs/api/accounts-sessions.md",
+        "docs/README.md",
+        "docs/work-log/2026-10-15-mva2tlrh-p32-sender-review.md",
+        "docs/work-log/2026-10-15-mva1ts7d-p32-sender.md",
+        "docs/work-log/2026-10-15-mva3zlb4-p33-mail-compatibility.md",
+        "docs/work-log/2026-10-16-c1-sequential-mvb3yfqi.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "d579a1677f552143738c589400e498ba2d6b62e7bd3e5a230472c9cbd14f9f57",
+      "sha256Alias": "3a7b29e34ec828970511fa25924bf7bbc40c5e651999e23b0e0dd4fe75b2723c",
+      "linesAlias": 27,
+      "linesCanonical": 89
+    },
+    {
+      "from": "docs/p3-web.md",
+      "to": "docs/engineering/identity/web.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "5893096c190ba6b9271360dea0a8941a4dd2c3702b43fbe15a5d03197dab5ba1",
+      "sha256LfText": "95f3257bdf715b1e7820a10833929542d97f5299540e89e7cc262d446c7ec109",
+      "anchorsBefore": [
+        "local-account-web",
+        "run-locally",
+        "account-routes",
+        "transport-and-tokens",
+        "verification-and-limits",
+        "accepted-local-p3-checkpoint"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-30-astra-documentation-audit.md",
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/audits/2026-10-21-docs-audit/checks.json",
+        "docs/api/accounts-sessions.md",
+        "docs/backend.md",
+        "docs/implementation-roadmap.md",
+        "docs/p9-local-operation.md",
+        "docs/README.md",
+        "docs/design/foxmind-folder-platform/VERIFICATION.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "2c3539b9e2275b627e7458afe56f6ac5a48260ca7160f279ee98b04aabda9f1a",
+      "sha256Alias": "4adee9997bb23cb099b0dde89c97b5ca616d3b0e78a65310b8d3861691c657ac",
+      "linesAlias": 21,
+      "linesCanonical": 68
+    },
+    {
+      "from": "docs/dependency-security.md",
+      "to": "docs/engineering/testing/dependency-security.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "d69fce862fe58a63d3cb83754e4e4f621b7dc73d72a6a437695c20e8caea8a11",
+      "sha256LfText": "b6ad3d4f70c606d1468426cd336a50bc890ae44ce4424809ba3305ba4699877b",
+      "anchorsBefore": [
+        "dependency-security-remediation",
+        "versions-and-scope",
+        "repeatable-checks",
+        "observed-evidence",
+        "maintenance",
+        "primary-sources"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/audits/2026-10-21-docs-audit/checks.json",
+        "docs/backend.md",
+        "docs/implementation-roadmap.md",
+        "docs/backend-verification.md",
+        "docs/README.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "b6ad3d4f70c606d1468426cd336a50bc890ae44ce4424809ba3305ba4699877b",
+      "sha256Alias": "498a31879631bcd31437e38ff6b1249120d7440abc17d1ad2a2803292168ac57",
+      "linesAlias": 21,
+      "linesCanonical": 56
+    },
+    {
+      "from": "docs/p3-test-runtime.md",
+      "to": "docs/engineering/testing/account-runtime.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "069d468bcb8f7faadb678267285918a24ff06d459cceb0f501a064d0e4febc6d",
+      "sha256LfText": "1088aa6c3bc1802a806705a95617ef6902c14fa8e817815297cb8501e7b2d589",
+      "anchorsBefore": [
+        "p3-verification-runtime",
+        "separate-startup-from-assertions",
+        "focused-controls"
+      ],
+      "referencesBefore": [
+        "odd/tasks/p33-token-flows.md",
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/audits/2026-10-21-docs-audit/checks.json",
+        "docs/backend.md",
+        "docs/password-recovery.md",
+        "docs/README.md",
+        "docs/work-log/2026-10-17-id-unavailable-p3-completion.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "1088aa6c3bc1802a806705a95617ef6902c14fa8e817815297cb8501e7b2d589",
+      "sha256Alias": "6a7c64a0ae699af069eeb7e637183b8a554b7f450138d61aa0b6120498afa064",
+      "linesAlias": 12,
+      "linesCanonical": 30
+    },
+    {
+      "from": "docs/p9-runtime-controls.md",
+      "to": "docs/engineering/testing/owned-runtime-controls.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "fb3cba8766234f6b40a9c3ca22640e963c9f133c467404766a10c3daa88ff11a",
+      "sha256LfText": "a188d934c775fabe366525722c3f0fb80ec3ff1156da2a07d0015a4bf0e86635",
+      "anchorsBefore": [
+        "owned-integration-runtime-controls",
+        "quick-path",
+        "optional-classroom-quota",
+        "public-fixture-hooks",
+        "proof-boundaries"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-30-astra-documentation-audit.md",
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/p9-local-operation.md",
+        "docs/README.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "4fac154df88b3054daa1526e9380515f7072d2abe193210d54776a7d2214be3b",
+      "sha256Alias": "35cb2021bbdfacc5b74adc710d344cb1fb37a516f7b8723bdde698d916d81b8f",
+      "linesAlias": 18,
+      "linesCanonical": 53
+    },
+    {
+      "from": "docs/private-files.md",
+      "to": "docs/engineering/files/private-files.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "3d7cc1120f2b5eba47be93cc50e08589b20c7e7565d3153a3c92aeb21defe190",
+      "sha256LfText": "96c8e769910a5917a640a30ed21e666398e0d8e736fc7208b87973f3f175fd3a",
+      "anchorsBefore": [
+        "private-files--isolated-p4-implementation",
+        "implemented-policy-boundary",
+        "later-integration",
+        "dedicated-local-services",
+        "operational-bounds",
+        "lifecycle-and-recovery",
+        "required-integration-ports",
+        "verification",
+        "automatic-incomplete-upload-cleanup"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/api/files.md",
+        "docs/p4-integration-handoff.md",
+        "docs/README.md",
+        "docs/work-log/2026-10-17-root-p4-integration.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "1f2d97102fe149932fff3fef0d3c556542075ef8ba5a4af4fc8d7a5437569442",
+      "sha256Alias": "eac806d670766d55bbbd81d36c8aea82d23e6db59e1dd72d4a2f7e04466b3bf4",
+      "linesAlias": 30,
+      "linesCanonical": 96
+    },
+    {
+      "from": "docs/p4-host.md",
+      "to": "docs/engineering/files/host.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "2aa338376ddfbcefa0e0ab1546945540e485b8945373390a7280bff508190ae5",
+      "sha256LfText": "c2b2da68234a1ce29c5f51cef326615152af35238c0fb23a0a2b44dc6c73e0f0",
+      "anchorsBefore": [
+        "private-files-application-host",
+        "authentication-and-authorization",
+        "errors-and-lifecycle",
+        "checks"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/backend.md",
+        "docs/p4-integration.md",
+        "docs/p9-local-operation.md",
+        "docs/README.md",
+        "docs/work-log/2026-10-17-p4-backend-integration.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "c2b2da68234a1ce29c5f51cef326615152af35238c0fb23a0a2b44dc6c73e0f0",
+      "sha256Alias": "4b1a0662854b6e703a184b8e29b6f923a327219bef8529865d954cfef84e578a",
+      "linesAlias": 15,
+      "linesCanonical": 43
+    },
+    {
+      "from": "docs/p4-web.md",
+      "to": "docs/engineering/files/web.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "191e22a95bd73543826a6d286f295c6bebdb3c5af0e2569921347b175eb54687",
+      "sha256LfText": "37b7828d8338368a46feba89548bad6367968d71fe2a596a308fd1a2bbe8267d",
+      "anchorsBefore": [
+        "private-file-web-integration",
+        "browser-verification-contract",
+        "checks"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/p4-integration.md",
+        "docs/p3-web.md",
+        "docs/README.md",
+        "docs/work-log/2026-10-17-p4-web-integration.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "37b7828d8338368a46feba89548bad6367968d71fe2a596a308fd1a2bbe8267d",
+      "sha256Alias": "78600dba264d182f439d5df06da48a98c4f667ccf498ccace86ceac10385a16e",
+      "linesAlias": 12,
+      "linesCanonical": 17
+    },
+    {
+      "from": "docs/p4-integration.md",
+      "to": "docs/engineering/files/integration.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "04cb5ce5ed833e50c0ad4c923bfc60267a71e129b8105ce45f4c2fac9f7ee25f",
+      "sha256LfText": "4a73bf135cb629a6ed99fac9ce777199af1dd27c12491b912bdbff1e4f2da860",
+      "anchorsBefore": [
+        "p4-integration-over-accepted-p3",
+        "local-composition",
+        "verification"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-30-astra-documentation-audit.md",
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/p4-integration-handoff.md",
+        "docs/private-files.md",
+        "docs/README.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "c2ef202f9f3f89860c898aa64f9f93b1f32dc83c70ee8012e851629405fe1ec4",
+      "sha256Alias": "613a808ca5ec2dd80c56e7e19f1694fdcef39bed2bf2f37c69ce8c946edcc144",
+      "linesAlias": 12,
+      "linesCanonical": 32
+    },
+    {
+      "from": "docs/classrooms.md",
+      "to": "docs/engineering/classrooms/classrooms.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "8632981877e38e54fc2d5a0a9f3ce03999d56b507a8365bbb4e133ed4fe0ae8e",
+      "sha256LfText": "0f0b1f9434718274187dbcba899ab78e72b9a732f72ef62474a55347931b528a",
+      "anchorsBefore": [
+        "classrooms--isolated-p5-implementation",
+        "local-commands",
+        "application-integration-ports",
+        "http-surface",
+        "durable-lifecycle-and-technical-bounds",
+        "evidence-and-deferred-acceptance"
+      ],
+      "referencesBefore": [
+        "odd/tasks/p5-classrooms.md",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/p5-host.md",
+        "docs/README.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "d1c4e037f7ceaf50b2dc82aacf5d3c0f10e27a64e9712f5a38db6667be39eb75",
+      "sha256Alias": "a2b9d6d10ea0baf1bd3e6494def4fed69cde41108d2307745033ebd82dc6f451",
+      "linesAlias": 21,
+      "linesCanonical": 74
+    },
+    {
+      "from": "docs/p5-host.md",
+      "to": "docs/engineering/classrooms/host.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "c81e94a56bc180616cdbb79b3889db45096b1c9412cd5cef51bc156be20fa659",
+      "sha256LfText": "86af43b48cb07afe11f0935a8089bd35224c7fb56a0801446443783c7361d743",
+      "anchorsBefore": [
+        "integrated-p5-api-host",
+        "configuration",
+        "security-and-files",
+        "invitation-lifecycle",
+        "verification-boundary"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/backend.md",
+        "docs/p5-integration.md",
+        "docs/p9-local-operation.md",
+        "docs/README.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "799bf4e41bf66da5cdfc3748d7c649873cec8f97a1a37a545f5c4dc8e42d3262",
+      "sha256Alias": "a0ac02958c6ad5fc32ffd2052556b148aeaa4f53fcb1477b549c296055453f1b",
+      "linesAlias": 18,
+      "linesCanonical": 45
+    },
+    {
+      "from": "docs/p5-web.md",
+      "to": "docs/engineering/classrooms/web.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "0006bc8eb6110836b3f615e309704dd70f89fd5da875eeb99dcb9ba65e570ed1",
+      "sha256LfText": "d1eba982ebbd243148614ddb7f09cfb57b41706705b62cdee07f396ea884e1eb",
+      "anchorsBefore": [
+        "classrooms-in-the-production-web-application",
+        "entry-and-invitation-flow",
+        "transport-and-files",
+        "ui-composition-and-checking"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/p5-integration.md",
+        "docs/p3-web.md",
+        "docs/p9-local-operation.md",
+        "docs/README.md",
+        "docs/work-log/2026-10-18-p5-web-integration.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md",
+        "docs/work-log/2026-10-30-root-audit-completion.md"
+      ],
+      "sha256After": "07073c58fe2f80aa4d892d17cfab60fcf040d58a7283347860f84614de7bba85",
+      "sha256Alias": "287ffda75b3715ef6cd9343268045e7c467c66984d2138a52c02db7a5120c8b1",
+      "linesAlias": 15,
+      "linesCanonical": 40
+    },
+    {
+      "from": "docs/p5-integration.md",
+      "to": "docs/engineering/classrooms/integration.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "c229440310c136322a30fb90c51d1c0d703b2fa7ab289145827901444c195baa",
+      "sha256LfText": "bb49dd19c7996e3a97349d1a45777cdeaac734ee60918f8336799ba8934e3f46",
+      "anchorsBefore": [
+        "p5-integration-with-accepted-identity-and-private-files",
+        "local-verification",
+        "acceptance-boundaries",
+        "international-recipient-identity",
+        "observed-acceptance",
+        "delivery-and-retained-limitations"
+      ],
+      "referencesBefore": [
+        "odd/tasks/p5-classrooms.md",
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/classrooms.md",
+        "docs/p5-web.md",
+        "docs/p5-integration.md",
+        "docs/identity-http.md",
+        "docs/registration-profile.md",
+        "docs/README.md",
+        "docs/work-log/2026-10-18-p5-web-integration.md",
+        "docs/work-log/2026-10-18-p5-verify-final.md",
+        "docs/work-log/2026-10-18-p5-backend-integration.md",
+        "docs/work-log/2026-10-18-root-p5-integration.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "c1fd679045eaced1fb5c5109e737499f257933812008e9353480409df6a3f046",
+      "sha256Alias": "742fd11389bd7541a5967350edb231783ea367729d4cd25c0355b1123081c3af",
+      "linesAlias": 21,
+      "linesCanonical": 34
+    },
+    {
+      "from": "docs/p6-teaching.md",
+      "to": "docs/engineering/teaching/plan.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "ce53ff17b0ac3a593976cbf05312843dffc448c849052f5e8434ea0cf813b103",
+      "sha256LfText": "6d1e8ab5dc5263c68c0fce8112f41faf842a5f10be33f07b29332cceace61936",
+      "anchorsBefore": [
+        "p6-teaching-organization",
+        "plan-transport-and-invariants",
+        "observed-checks-and-remaining-acceptance",
+        "complete-p6-guides-and-local-proof"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/p6-teaching.md",
+        "docs/p6-muro.md",
+        "docs/README.md",
+        "docs/work-log/2026-10-18-p6-wall-implementation.md",
+        "docs/work-log/2026-10-18-p6-library-implementation.md",
+        "docs/work-log/2026-10-18-root-p6-teaching.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "35dee3808c95d033dd8a4a19fbeaae03b4ada426f2e483ce23a4b31827f5830a",
+      "sha256Alias": "9d4392fcdee4805e3773b624d3664ce91f045f89f9068564d069323151bfc4f7",
+      "linesAlias": 15,
+      "linesCanonical": 21
+    },
+    {
+      "from": "docs/p6-library.md",
+      "to": "docs/engineering/teaching/library.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "d5532c19020782ab4c583d4fc9ddecb26e241fa6a25e613928417ef5386b07a4",
+      "sha256LfText": "022ff931782b4f019b832264380851e62b1b25348d4e4112add343d05770b81a",
+      "anchorsBefore": [
+        "p6-library-private-materials-with-explicit-deletion",
+        "api",
+        "deletion-and-conservation",
+        "upgrade-and-evidence"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/p6-teaching.md",
+        "docs/README.md",
+        "docs/design/foxmind-3d/flows/classroom-workspace.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "3eb7a6fdb8e1dd4cc07286fdf6d61cd4ae579df126d94698b8f7af13cb771fd2",
+      "sha256Alias": "78bbbe813640ac96cf61c3fb4d2236ac75acf421957888a0094e20954f934e4b",
+      "linesAlias": 15,
+      "linesCanonical": 34
+    },
+    {
+      "from": "docs/p6-muro.md",
+      "to": "docs/engineering/teaching/wall.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "f733268fc925a29d13088712947f96af78e18c123e74f9faef86e86498b474f5",
+      "sha256LfText": "6d55109c5d9d94b4fbebf89dab2fb0050d800fc415b973720db48ff77c901dc9",
+      "anchorsBefore": [
+        "p6-muro-and-personal-notifications",
+        "user-path",
+        "http-contracts",
+        "data-and-concurrency-rules",
+        "p6-notification-scope",
+        "verification-and-remaining-acceptance"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/p6-teaching.md",
+        "docs/README.md",
+        "docs/work-log/2026-10-18-p6-wall-implementation.md",
+        "docs/design/foxmind-3d/flows/classroom-workspace.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "0d584c8daf8b2fbf0680cf4f494efb07bc85d56d5c1cb2cee88a0eb6e1359a70",
+      "sha256Alias": "6e28eaddf7cf599d243f6cfdaa7e997d59313565fa3121280e0454ab62e8af8c",
+      "linesAlias": 21,
+      "linesCanonical": 75
+    },
+    {
+      "from": "docs/p7-authoring.md",
+      "to": "docs/engineering/activities/authoring.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "12ef72be59e08efe84e0402560f7fda1dc021ea6363784cc5678f65b951a62f4",
+      "sha256LfText": "e2b03d4c6b330f25d94b14fd7b507ab32815c76747613fb890d1cd8b2b668b35",
+      "anchorsBefore": [
+        "authoring-activities-p7-t1",
+        "quick-path",
+        "public-interfaces",
+        "time-content-and-file-conservation",
+        "remaining-phase-work",
+        "verification"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/README.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "1fcb6e2b7f49d2e7f4ddf802ce54f061627d9785483452ff85dc9fbda2b97ba3",
+      "sha256Alias": "4370856736b334a3df3f5afbb5a252c898a0f71b2ca0f8137520b9527a377d44",
+      "linesAlias": 21,
+      "linesCanonical": 56
+    },
+    {
+      "from": "docs/p7-participation.md",
+      "to": "docs/engineering/activities/participation.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "02135f34284e03a07f60d8e3cdfc7581e884a6813f4148a121d0221b9d2a95f2",
+      "sha256LfText": "bae316b33c815789ccca0e6f5cd0ce070d5e6accc756a73809081fe7547957d1",
+      "anchorsBefore": [
+        "participation-and-editor-control-p7-t2",
+        "student-flow",
+        "event-time-obligations",
+        "interfaces",
+        "deadline-policy",
+        "evidence-and-next-unit"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/README.md",
+        "docs/work-log/2026-10-18-p7-consultation-correction.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "2e8d090470a1d6d66efb9d65f0a0e195140e06a48a6dc431acce9c21adafc8ff",
+      "sha256Alias": "80084870e31c2b26b4eaec40c002cfe25ab149b3fbc4e6a66d2d4415d670bc13",
+      "linesAlias": 21,
+      "linesCanonical": 52
+    },
+    {
+      "from": "docs/p7-practical-submissions.md",
+      "to": "docs/engineering/activities/practical-submissions.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "3ade7db5710d7c36fe3858e7cc018ba2c591f047ea6fc31fed815044b51fdad2",
+      "sha256LfText": "dcdcd16e8b12a550eaf5d90f3cd5a46b9e6d718d3253ad732ef53232400150e5",
+      "anchorsBefore": [
+        "practical-assignment-private-drafts-and-receipts",
+        "student-flow",
+        "boundaries-that-matter",
+        "api-additions",
+        "evidence-and-scope"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/README.md",
+        "docs/work-log/2026-10-18-p7-practical-worker.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "dcdcd16e8b12a550eaf5d90f3cd5a46b9e6d718d3253ad732ef53232400150e5",
+      "sha256Alias": "c52204e4a4dd33dfd2948d65f782eaa30c74370c9f10e1b30ce98aa0f4d01f49",
+      "linesAlias": 18,
+      "linesCanonical": 48
+    },
+    {
+      "from": "docs/p7-questionnaire-attempts.md",
+      "to": "docs/engineering/activities/questionnaire-attempts.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "db5b1d1654fcfc41f35c98c123386cd24e2a813f84a8b3321d02da0f8c2445b7",
+      "sha256LfText": "cef7f770f7187c5a32956f33cf2aa7470f15fe07b723ce69a6bce9f8b65562bf",
+      "anchorsBefore": [
+        "confirmed-questionnaire-and-evaluation-attempts",
+        "student-flow",
+        "public-api",
+        "concurrency-and-timeliness",
+        "proof-and-scope-boundary"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/README.md",
+        "docs/work-log/2026-10-18-p7-questionnaire-worker.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "54663f04a9f6cc3a3d7ce57dd14367bc11ea188d68db7d3ad157860f2787a67a",
+      "sha256Alias": "4073436cde84e03e86b8e88c048117e2f0fa2b6d90fe5dfc7cd6cf3218324adf",
+      "linesAlias": 18,
+      "linesCanonical": 37
+    },
+    {
+      "from": "docs/p7-history-notifications.md",
+      "to": "docs/engineering/activities/history-notifications.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "2693f7aada23b71598199a4b2267766b8f24224b2303110f581659fc253c9d46",
+      "sha256LfText": "874e84fe52dd786b901562e9c53dab8f3e8d4d5607f205ae4d8ece4920d754ca",
+      "anchorsBefore": [
+        "p7-attempt-history-and-academic-notifications",
+        "reopen-and-consult",
+        "data-boundaries",
+        "public-routes",
+        "notification-events",
+        "verification-and-scope"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/README.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "26810554d015bc76288a4659b65fa024c92ea585b1619e3b8cbc42dbfe573bf3",
+      "sha256Alias": "c714d77184284b22c9da1aea2e7cf7293c4af023c68e5cea2c642218b98e3560",
+      "linesAlias": 21,
+      "linesCanonical": 51
+    },
+    {
+      "from": "docs/p8-private-grading.md",
+      "to": "docs/engineering/grading/private-grading.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "7616921e081a8a08a93893336e8c2cdcd88012da0ee5e9c37ef34b332f677542",
+      "sha256LfText": "363eeddd5fcae103e939400500fb5ecc163327911dab9a899959dddb69ace358",
+      "anchorsBefore": [
+        "private-teacher-correction",
+        "teacher-workflow",
+        "contracts-and-precision",
+        "verification-and-handoff"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/README.md",
+        "docs/work-log/2026-10-18-p8-t1-private-grading-worker.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "4bc4fa9c548c0cf188a6a8b86919413049e4f17883ffb0343c247754c82efa26",
+      "sha256Alias": "6e442a7c12ed8bb38f47a5d31c7b111075bbcc5dcd3465a1113987f17fd683ed",
+      "linesAlias": 15,
+      "linesCanonical": 30
+    },
+    {
+      "from": "docs/p8-publication.md",
+      "to": "docs/engineering/grading/publication.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "2a1c4a646ac8c45b1d3b682976957f5e29ab583a566042d100dd70b498620d07",
+      "sha256LfText": "1ee3148bf5da3d13ca2c23b0dc222b86dd8e5db6cafee687662c49aa1e6e5f28",
+      "anchorsBefore": [
+        "explicit-grade-publication-and-safe-results",
+        "public-operations",
+        "atomic-source-transition",
+        "privacy-and-navigation",
+        "verification"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/README.md",
+        "docs/work-log/2026-10-18-p8-t2-publication-worker.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "3b1efa2ac1750174b333d2ff05bff2a16f1972f0ff84a7fa4350bd66a6bb5a02",
+      "sha256Alias": "a437f0b0e1b42a4e609a811b10c1dd8f06d607147edd6e89253c77e8a45432ca",
+      "linesAlias": 18,
+      "linesCanonical": 34
+    },
+    {
+      "from": "docs/p8-published-corrections.md",
+      "to": "docs/engineering/grading/published-corrections.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "361f2445225f465b40ca29371742e99332ce5f7420c1a6087df69b9840562aa6",
+      "sha256LfText": "c51d986342e8bda37c4910160858f7ab282c7f3123954f8b1b1d68e8375ba3a9",
+      "anchorsBefore": [
+        "correct-a-published-final-grade-without-rewriting-history",
+        "teacher-workflow",
+        "public-boundary",
+        "preserved-evidence",
+        "verification"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/README.md",
+        "docs/work-log/2026-10-18-p8-t3-corrections-worker.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "3581c497e23c290c7580b18e268b0aab90898d00f13a529d4d81627093ed0254",
+      "sha256Alias": "57b10d1063279f2782b7c5394016c35788967d411d5756810f17a71dcabd2d0b",
+      "linesAlias": 18,
+      "linesCanonical": 38
+    },
+    {
+      "from": "docs/p8-progress.md",
+      "to": "docs/engineering/grading/progress.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "df0af5d59eb3b1713da72af2406e97a6253e9740b01527b0af81119c16da8422",
+      "sha256LfText": "0900a1c3e5567a6c055ec4ebda8524b16f919a1081ea837abba9a33fdac7d53b",
+      "anchorsBefore": [
+        "p8-progress-three-independent-measures",
+        "read-only-api",
+        "calculation-rules",
+        "eligibility-and-history",
+        "existing-ui-behavior",
+        "verification"
+      ],
+      "referencesBefore": [
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/README.md",
+        "docs/work-log/2026-10-18-p8-t4-progress-worker.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "7d2bd38ed1a4f126b498f9d0d7d52eb779734096d8b3c0b3426a5263e92dd16f",
+      "sha256Alias": "d09367d83f7a51234971691a81eb2a698f2e25ffae727865a084935da040d5dd",
+      "linesAlias": 21,
+      "linesCanonical": 49
+    },
+    {
+      "from": "docs/agenda.md",
+      "to": "docs/engineering/agenda/agenda.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "9cb15a8efdd3c33105c256cbc7628ed799e10673e13b94d9ac4e559a67664eca",
+      "sha256LfText": "16242c490777ecce0a7383ad20b045f26bc70121d816a198292a9afb4de27ab6",
+      "anchorsBefore": [
+        "agenda-personal-y-entregas",
+        "organizar-la-semana",
+        "fechas-y-entregas",
+        "seguridad-y-recuperación",
+        "alcance-de-esta-entrega"
+      ],
+      "referencesBefore": [
+        "odd/tasks/agenda.md",
+        "odd/tasks/agenda-event-color.md",
+        "odd/tasks/agenda-compact-event-form.md",
+        "docs/audits/2026-10-30-astra-documentation-audit.md",
+        "docs/agenda.md",
+        "docs/agenda-event-ux-proposal.md",
+        "docs/implementation-roadmap.md",
+        "docs/foxmind-v1-functional-spec.md",
+        "docs/README.md",
+        "docs/design/foxmind-3d/coverage.md",
+        "docs/design/foxmind-3d/coverage.json",
+        "docs/design/foxmind-3d/README.md",
+        "docs/design/foxmind-3d/review/screen-index.json",
+        "docs/design/foxmind-3d/review/review-data.js",
+        "docs/design/foxmind-3d/flows/account-and-navigation.md",
+        "docs/design/foxmind-3d/flows/agenda.md",
+        "docs/work-log/2026-10-23-agenda-rejudgment.md",
+        "docs/work-log/2026-10-23-agenda_academic.md",
+        "docs/work-log/2026-10-23-agenda_green.md",
+        "docs/work-log/2026-10-23-agenda_red.md",
+        "docs/work-log/2026-10-23-agenda_ui.md",
+        "docs/work-log/2026-10-23-root-agenda.md",
+        "docs/work-log/2026-10-23-jd_judge_b.md",
+        "docs/work-log/2026-10-23-jd_judge_a.md",
+        "docs/work-log/2026-10-23-design_agenda.md",
+        "docs/work-log/2026-10-23-agenda_verify.md",
+        "docs/work-log/2026-10-24-agenda-final-verify.md",
+        "docs/work-log/2026-10-24-event-form-design.md",
+        "docs/work-log/2026-10-24-root-main-gemini-runtime.md",
+        "docs/work-log/2026-10-24-root-agenda-main-integration.md",
+        "docs/work-log/2026-10-24-root-agenda-github-publication.md",
+        "docs/work-log/2026-10-25-design-account-classrooms.md",
+        "docs/work-log/2026-10-25-agenda-polish-design.md",
+        "docs/work-log/2026-10-25-root-3d-six-screen-system.md",
+        "docs/work-log/2026-10-25-root-3d-single-role-homes.md",
+        "docs/work-log/2026-10-28-implement-miniagenda.md",
+        "docs/work-log/2026-10-29-agenda-reference-architect.md",
+        "docs/work-log/2026-10-30-docs-reorg-design.md"
+      ],
+      "sha256After": "54edcae4b8b414011bd86d617d432a346eda6e14ca9842c5d0d57e670cf741b0",
+      "sha256Alias": "8587bb0f743358aa42d6e92c8b7e8b28a96326112a26bc71cfa4a60ea7f74655",
+      "linesAlias": 18,
+      "linesCanonical": 47
+    },
+    {
+      "from": "docs/p9-home.md",
+      "to": "docs/engineering/home/home.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "14269e3711191900580b5356643b30b55571edc471dfc4673eb75c1841bbfc5c",
+      "sha256LfText": "69f3bf1b19a5658c973f05c1a2a89e98e44685a46d660379638a873a0e8fcf34",
+      "anchorsBefore": [
+        "inicio-real-classroom-summaries-and-safe-navigation",
+        "what-users-can-do",
+        "implementation-boundaries",
+        "selected-inicio-reference--local-redesign-2026-10-28",
+        "own-verification",
+        "own-home-proof--all-groups-observed-across-bounded-runs"
+      ],
+      "referencesBefore": [
+        "odd/tasks/p9-local-validation.md",
+        "docs/audits/2026-10-22-reorganization-map/compatibility.json",
+        "docs/audits/2026-10-22-reorganization-map/before.json",
+        "docs/p3-web.md",
+        "docs/p9-final-row-ledger.json",
+        "docs/p9-acceptance-matrix.md",
+        "docs/p9-local-operation.md",
+        "docs/README.md",
+        "docs/work-log/2026-10-19-p9-t2-home-worker.md",
+        "docs/work-log/2026-10-22-root-docs-stage1-evidence.json",
+        "docs/work-log/2026-10-25-login_fix.md",
+        "docs/work-log/2026-10-28-architect-inicio-reference.md",
+        "docs/work-log/2026-10-25-root-login-inicio.md",
+        "docs/work-log/2026-10-28-explorer-inicio-reference.md",
+        "docs/work-log/2026-10-28-root-inicio-reference-units.md",
+        "docs/work-log/2026-10-28-root-inicio-reference-astra.md",
+        "docs/work-log/2026-10-28-test_runner-inicio-reference.md",
+        "docs/work-log/2026-10-28-slice_worker-inicio-reference.md",
+        "docs/work-log/2026-10-30-docs-reorg-design.md",
+        "docs/work-log/2026-10-30-root-audit-completion.md"
+      ],
+      "sha256After": "d7ba986dbe4208dfb5d14c8cbe93ed2250a7f94849047d4c298875c18af30fc2",
+      "sha256Alias": "bcb21fcb4fba911aa883b9eb330c7ac8e6d1e817e53044a1c4051c6f560a6621",
+      "linesAlias": 21,
+      "linesCanonical": 63
+    },
+    {
+      "from": "docs/foxmind-3d.md",
+      "to": "docs/engineering/frontend/foxmind-3d.md",
+      "owner": "docs_ops_migration",
+      "sha256Before": "669bb346e035b8e2d55c3736f1833a3f72043b59fb8ac1fd3c816d041a08b25c",
+      "sha256LfText": "224d57bd9431a6d66057c8f2961f4692936556f6ecd5cd8d061376b2a492bdf0",
+      "anchorsBefore": [
+        "foxmind-3d--implementación-local",
+        "cómo-funciona-inicio",
+        "recursos-y-puntos-de-entrada",
+        "comprobaciones-y-continuidad"
+      ],
+      "referencesBefore": [
+        "odd/tasks/foxmind-3d-migration.md",
+        "docs/audits/2026-10-30-astra-documentation-audit.md",
+        "docs/implementation-roadmap.md",
+        "docs/README.md",
+        "docs/design/foxmind-3d/README.md",
+        "docs/work-log/2026-10-28-astra_visual_design.md",
+        "docs/work-log/2026-10-30-docs-reorg-design.md",
+        "docs/work-log/evidence/2026-10-25-foxmind-3d/delivery.json"
+      ],
+      "sha256After": "d03c257c687fbaa365f854acc0caa77fa58c04216642493898cdaabcd0cb5664",
+      "sha256Alias": "0f164eda58f01863a853e25ad2e961c26b31bcada4cf115b09b4150e56802c5c",
+      "linesAlias": 15,
+      "linesCanonical": 41
+    }
+  ]
+}

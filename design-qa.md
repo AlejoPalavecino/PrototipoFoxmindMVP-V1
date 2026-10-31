@@ -1,5 +1,18 @@
 # FoxMind visual QA
 
+## Cómo usar este historial visual
+
+Esta página conserva pasadas fechadas y sus límites. Un «Current», «passed» o «blocked» de abajo pertenece a su candidato; no reemplaza el [estado actual del producto](docs/implementation-roadmap.md#estado-actual). Las capturas sintéticas no prueban por sí solas una operación autenticada, accesibilidad universal ni despliegue.
+
+| Necesidad | Entrada |
+|---|---|
+| Consultar el sistema visual vigente | [Diseño y direcciones](docs/design/README.md) |
+| Encontrar familias o exploraciones | [Catálogo de diseño](docs/design/INDEX.md) |
+| Comprender qué acredita cada prueba | [Catálogo de verificación](docs/verification/README.md) |
+| Buscar coordinación, pruebas o entrega | [Registros por unidad y fecha](docs/work-log/INDEX.md) |
+
+Los encabezados y resultados siguientes se conservan sin reetiquetar una ejecución antigua por cambios posteriores.
+
 ## Agenda and new event reference — 2026-10-29
 
 final result: passed for bounded synthetic reference comparison and event flow. [Evidence and scope](docs/work-log/evidence/2026-10-29-agenda-reference/README.md), [coordinator](docs/work-log/2026-10-29-root-agenda-reference.md). QA inspected reference-sized desktop,1200/1366 and six mobile mode states; corrected top alignment, toolbar overlap and condensed notebook chips. The new event dialog inherits the warm visual language and keeps existing categories, timezone, recurrence and private-event semantics. Month day selection retains the grid. Synthetic create/edit, invalid focus, timezone and navigation passed; 48 focused tests, strict types and isolated build passed. Form has no separate user reference; real private details and October fixture differ from the November mock. No authenticated backend, physical-device/Safari or real event mutation is claimed.

@@ -1,5 +1,7 @@
 # FoxMind visual reference index
 
+See the [design catalog](design/INDEX.md) for the relationship between these references and later directions.
+
 These repository-local screenshots define the frontend's visual direction: a warm orange identity, the fox character, rounded white surfaces and clear educational workflows. They are references, not implemented screens or a source of new product rules. The [functional specification](foxmind-v1-functional-spec.md) takes precedence for permissions, data, states and behavior.
 
 ## Current source and availability

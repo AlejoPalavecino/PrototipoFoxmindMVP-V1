@@ -19,11 +19,11 @@ FoxMind is a web platform for independent courses and training. This document co
 - One account may teach in some classrooms and study in others.
 - V1 includes classrooms, invitations, plans, materials, activities, submissions, grading, classroom conversations and progress.
 - Questionnaires and evaluations are answered inside FoxMind, not only through file submissions.
-- AI was deferred in the initial V1; later approved extensions cover study-plan extraction (§5) and teacher-reviewed activity generation (§8). Their implementation status belongs to the roadmap.
+- AI was deferred in the initial V1. Later approved extensions cover study-plan extraction (§5), teacher-reviewed activity generation (§8), individual student analysis and teacher-reviewed grading assistance. The [extension index](engineering/ai/README.md) links each existing contract and privacy policy; implementation status belongs to the roadmap.
 
 ### Outside the confirmed V1 scope
 
-- AI assistants, generated study plans, AI grading and student tutors. Teacher-reviewed question/activity generation is now an approved extension under §8; it does not authorize these other capabilities.
+- General-purpose AI assistants, generated study plans and student tutors remain outside the approved scope. The four bounded extensions above do not authorize automatic publication of grades, generated development/practical solutions or broader processing of personal data. Grading assistance produces a private suggestion reviewed by the teacher; individual analysis uses its separate anonymized-metrics policy.
 - Google sign-in.
 - Configurable grade weights by activity type.
 - Configurable passing thresholds and automatic pass/fail classification.
