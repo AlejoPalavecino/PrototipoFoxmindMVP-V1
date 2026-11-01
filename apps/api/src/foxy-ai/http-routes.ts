@@ -1,4 +1,4 @@
-import { parseEditFoxyResource, parseFoxySourceQuery, parsePrepareFoxyPublication, parseConfirmFoxyPublication } from '../../../../src/core/domain/index.ts';
+import { parseEditFoxyResource, parseFoxySourceQuery, parsePrepareFoxyPublication, parseConfirmFoxyPublication, parseRetryFoxyPublication, parseDiscardFoxyPublication } from '../../../../src/core/domain/index.ts';
 import type { IncomingMessage } from 'node:http';
 import type { createFoxyConversationService } from './conversation-service.ts';
 import type { createFoxyTurnService } from './turn-service.ts';
@@ -7,11 +7,12 @@ import type { createFoxyCitationService } from './citation-service.ts';
 import type { createFoxyResourceService } from './resource-service.ts';
 import type { createFoxyPublicationService } from './publication-service.ts';
 import type { createFoxyPublicationFileReader } from './publication-file-reader.ts';
+import type { createFoxyPublicationManagementService } from './publication-management-service.ts';
 import { body, create, cursor, id, integer, message, query, remove, rename } from './http-input.ts';
 
 type Services = { conversations: ReturnType<typeof createFoxyConversationService>; turns: ReturnType<typeof createFoxyTurnService>;
   catalog: Pick<FoxyContextCatalogService, 'curriculum' | 'sources'>; citations: ReturnType<typeof createFoxyCitationService>;
-  resources: ReturnType<typeof createFoxyResourceService>; publications: ReturnType<typeof createFoxyPublicationService>; publicationFiles: ReturnType<typeof createFoxyPublicationFileReader>; capabilities(request: IncomingMessage): Promise<unknown> };
+  resources: ReturnType<typeof createFoxyResourceService>; publications: ReturnType<typeof createFoxyPublicationService>; publicationFiles: ReturnType<typeof createFoxyPublicationFileReader>; publicationManagement: ReturnType<typeof createFoxyPublicationManagementService>; capabilities(request: IncomingMessage): Promise<unknown> };
 type Result = { status: number; body?: unknown; binary?: Uint8Array; headers?: Record<string, string> };
 const missing = (): Result => ({ status: 404, body: { error: { code: 'NOT_FOUND' } } });
 async function collection(services: Services, request: IncomingMessage, url: URL): Promise<Result> {
@@ -63,6 +64,14 @@ export async function foxyRoute(services: Services, request: IncomingMessage, ur
     const params = query(url, ['limit', 'afterId']);
     return { status: 200, body: await services.publications.list(request, id(preparePublication[1]!),
       { limit: integer(params.limit, 20, 1, 50), afterId: params.afterId === undefined ? null : id(params.afterId) }) };
+  }
+  const management = /^\/publications\/([^/]+)\/(management|retry|discard)$/u.exec(path);
+  if (management) {
+    query(url, []); const publicationId = id(management[1]!);
+    if (management[2] === 'management' && request.method === 'GET') return { status: 200, body: await services.publicationManagement.inspect(request, publicationId) };
+    if (management[2] === 'retry' && request.method === 'POST') return { status: 200, body: await services.publicationManagement.retry(request, publicationId, parseRetryFoxyPublication(await body(request))) };
+    if (management[2] === 'discard' && request.method === 'POST') return { status: 200, body: await services.publicationManagement.discard(request, publicationId, parseDiscardFoxyPublication(await body(request))) };
+    return missing();
   }
   const publicationFile = /^\/publications\/([^/]+)\/file$/u.exec(path);
   if (publicationFile && request.method === 'GET') {
