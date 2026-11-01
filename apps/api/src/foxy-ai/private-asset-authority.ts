@@ -2,17 +2,22 @@ import { isDeepStrictEqual } from 'node:util';
 import { assetUuid, type SqlDatabase, type SqlTransaction } from '../../../../src/core/domain/index.ts';
 import { conflict, denied, grant, lockAsset, payload, transaction, type AssetRow, type Lease, type Metadata } from './private-asset-authority-db.ts';
 import { validatePayload } from './private-asset-authority-payload.ts';
+import { checkVisualClaim } from './visual-claim-check.ts';
 type State = { lease: Lease; signal: AbortSignal; closed: boolean; identity: string };
 type Proof = { digest: string; sizeBytes: number; mimeType: string; width: number; height: number; validatedDigest: string; scannedDigest: string };
 function identity(row: AssetRow): string { return JSON.stringify([row.id,row.owner_id,row.conversation_id,row.request_id,row.input_hash,String(row.conversation_revision),row.kind,row.aspect_ratio,row.storage_key,String(row.reserved_bytes)]); }
-export function createFoxyPrivateAssetAuthority(options: { database: SqlDatabase }) {
+export function createFoxyPrivateAssetAuthority(options: { database: SqlDatabase; maxJobAgeMs?: number }) {
   const capabilities = new WeakMap<object,State>(), scopes = new WeakMap<object,State>();
   const transact = <T>(fn: (tx: SqlTransaction) => Promise<T>) => transaction(options.database, fn);
   async function check(tx: SqlTransaction, lease: Lease): Promise<AssetRow> {
     const row = await lockAsset(tx, lease.ownerId, lease.assetId);
     if (row.conversation_id !== lease.conversationId || row.state !== 'PROCESSING' || row.lease_nonce !== lease.leaseNonce) return denied();
     const [live] = await tx.query('SELECT id FROM foxy_visual_assets WHERE id=$1::uuid AND lease_nonce=$2::uuid AND lease_until>clock_timestamp()',lease.assetId,lease.leaseNonce);
-    return live ? row : denied();
+    if (!live) return denied();
+    const [job] = await tx.query<{ id: string }>('SELECT id FROM foxy_visual_jobs WHERE asset_id=$1::uuid AND owner_id=$2::uuid',lease.assetId,lease.ownerId);
+    if (job && (!Number.isSafeInteger(options.maxJobAgeMs) || options.maxJobAgeMs! < 1
+      || !(await checkVisualClaim(tx,{ ...lease, jobId: job.id },options.maxJobAgeMs!)).fresh)) return denied();
+    return row;
   }
   function stateOf(capability: object, signal: AbortSignal): State {
     const state = capability && capabilities.get(capability);

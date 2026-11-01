@@ -17,6 +17,7 @@ export async function lockAsset(tx: SqlTransaction, owner: string, id: string): 
   if (!ref || !(await tx.query("SELECT id FROM users WHERE id=$1::uuid AND account_role='teacher' AND email_verified_at IS NOT NULL FOR UPDATE", owner)).length) return denied();
   if (ref.classroom_id && !(await tx.query('SELECT id FROM classrooms WHERE id=$1::uuid AND teacher_id=$2::uuid AND archived_at IS NULL FOR UPDATE', ref.classroom_id, owner)).length) return denied();
   if (!(await tx.query('SELECT id FROM foxy_conversations WHERE id=$1::uuid AND owner_id=$2::uuid AND deleted_at IS NULL FOR UPDATE', ref.conversation_id, owner)).length) return denied();
+  await tx.query('SELECT id FROM foxy_visual_jobs WHERE asset_id=$1::uuid AND owner_id=$2::uuid FOR UPDATE', id, owner);
   const [asset] = await tx.query<AssetRow>('SELECT * FROM foxy_visual_assets WHERE id=$1::uuid AND owner_id=$2::uuid AND conversation_id=$3::uuid FOR UPDATE', id, owner, ref.conversation_id);
   return asset ?? denied();
 }

@@ -4,7 +4,7 @@ type Transaction = SqlTransaction;
 type ClassroomAiConfiguration = { maxOutputTokens: number; inputUsdPerMillion: number; outputUsdPerMillion: number;
   dailyBudgetUsd: number; dailyActorRequests: number; dailyGlobalRequests: number };
 type BudgetJob = { id: string; owner_id: string };
-export type BudgetTable = 'classroom_curriculum_extractions' | 'activity_ai_generations' | 'student_ai_reports' | 'grading_ai_jobs' | 'foxy_turns';
+export type BudgetTable = 'classroom_curriculum_extractions' | 'activity_ai_generations' | 'student_ai_reports' | 'grading_ai_jobs' | 'foxy_turns' | 'foxy_visual_jobs';
 
 function decimal(value: number): [bigint, bigint] {
   const [mantissa, exponent = '0'] = String(value).split('e');
