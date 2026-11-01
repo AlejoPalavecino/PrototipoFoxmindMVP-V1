@@ -145,13 +145,27 @@ test('inspect classifies reserved, live receiving, expired receiving and READY w
   });
 });
 
-test('inspect marks a removed blob unavailable and never touches storage', {timeout:120000},async()=>{
+// Migration 012 prevents deleting blobs referenced by an active publication. Model
+// a historical inconsistent binding atomically, without disabling that protection.
+async function removeHistoricalBlob(client,x,fileId){
+  await client.query(`UPDATE foxy_publications SET file_id=NULL,artifact_digest=NULL,artifact_size_bytes=NULL,
+    artifact_page_count=NULL,renderer_version=NULL WHERE id=$1::uuid`,[x.publication.id]);
+  await client.query('UPDATE files SET blob_deleted_at=clock_timestamp() WHERE id=$1::uuid',[fileId]);
+  await client.query(`UPDATE foxy_publications SET file_id=$2::uuid,artifact_digest=$3,artifact_size_bytes=$4,
+    artifact_page_count=$5,renderer_version=$6 WHERE id=$1::uuid`,
+    [x.publication.id,fileId,x.artifact.digest,x.artifact.sizeBytes,x.artifact.pageCount,x.artifact.rendererVersion]);
+}
+
+test('inspect marks a historical removed blob unavailable and never touches storage', {timeout:120000},async()=>{
   await withAgendaDatabase(async({pool})=>{const x=await fixture(pool),signal=x.controller.signal;
     const {fileId}=await x.bridge.ensureFile(x.scope.capability,x.artifact,signal),child=await x.authority.createFileCapability(x.scope.capability,signal);
     await x.bridge.receive(child.capability,x.bytes,signal);
     await x.query(`INSERT INTO materials(id,updated_at,classroom_id,title,file_id,created_by_id,deleted_at)
       VALUES($1,now(),$2,'Synthetic tombstone',$3,$4,now())`,randomUUID(),x.f.rooms.teach.id,fileId,x.f.teacherActor);
-    await x.query('UPDATE files SET blob_deleted_at=clock_timestamp() WHERE id=$1::uuid',fileId);x.calls.length=0;
+    await assert.rejects(x.query('UPDATE files SET blob_deleted_at=clock_timestamp() WHERE id=$1::uuid',fileId),
+      /Referenced file cannot be removed/);
+    const client=await pool.connect();try{await client.query('BEGIN');await removeHistoricalBlob(client,x,fileId);await client.query('COMMIT');}
+    finally{await client.query('ROLLBACK').catch(()=>{});client.release();}x.calls.length=0;
     assert.equal(await x.bridge.inspect(child.capability,signal),'UNAVAILABLE');assert.equal(x.calls.length,0);x.authority.close(x.scope);
   });
 });
@@ -165,7 +179,7 @@ test('inspect reports BUSY while real FileService scan is in progress', {timeout
   });
 });
 
-test('inspect observes blob deletion committed while waiting for classroom lock', {timeout:120000},async()=>{
+test('inspect observes historical blob deletion committed while waiting for classroom lock', {timeout:120000},async()=>{
  await withAgendaDatabase(async({pool})=>{const x=await fixture(pool),signal=x.controller.signal;
   const {fileId}=await x.bridge.ensureFile(x.scope.capability,x.artifact,signal),child=await x.authority.createFileCapability(x.scope.capability,signal);
   await x.bridge.receive(child.capability,x.bytes,signal);
@@ -177,7 +191,7 @@ test('inspect observes blob deletion committed while waiting for classroom lock'
    inspection=x.bridge.inspect(child.capability,signal);
    let blocked=false;for(let i=0;i<100;i++){const [row]=await x.query('SELECT EXISTS (SELECT 1 FROM pg_stat_activity WHERE $1 = ANY(pg_blocking_pids(pid))) AS blocked',pid);if(row.blocked){blocked=true;break;}await new Promise(r=>setTimeout(r,20));}
    assert.equal(blocked,true,'inspect must reach the held classroom lock');
-   await locker.query('UPDATE files SET blob_deleted_at=clock_timestamp() WHERE id=$1',[fileId]);await locker.query('COMMIT');
+   await removeHistoricalBlob(locker,x,fileId);await locker.query('COMMIT');
    assert.equal(await inspection,'UNAVAILABLE');assert.equal(x.calls.length,0);
   }finally{await locker.query('ROLLBACK').catch(()=>{});locker.release();if(inspection)await inspection.catch(()=>{});x.authority.close(x.scope);}
  });
