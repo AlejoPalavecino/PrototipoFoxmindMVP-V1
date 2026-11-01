@@ -155,3 +155,15 @@ test('identity loss aborts pending management command and suppresses late receip
  f.foxyIdentity('AUTH_REQUIRED');assert.equal(commandSignal.aborted,true);const before=lists;gate.resolve({publicationId:pid,action:'RETRY',publicationRevision:'3'});await pending;await new Promise(r=>setImmediate(r));
  assert.equal(runtime.getState().closed,true);assert.equal(runtime.getState().management,null);assert.equal(lists,before);runtime.dispose();
 });
+
+test('accepting navigation drops uncertain visual publication from previous conversation',async()=>{
+ const f=fixture(),a=randomUUID(),b=randomUUID(),asset=randomUUID(),jobId=randomUUID();const conv=id=>({id,title:'Sintética',context:{kind:'GENERAL'},revision:'0'});
+ const job={id:jobId,conversationId:a,assetId:asset,state:'READY',kind:'IMAGE',aspectRatio:'1:1'};
+ Object.assign(f.foxy,{capabilities:async()=>({textGeneration:{enabled:true},imageGeneration:{enabled:true},diagramGeneration:{enabled:false}}),listConversations:async()=>({items:[conv(a),conv(b)],next:null}),listTurns:async()=>({items:[],nextAfterSequence:null}),listVisuals:async id=>({items:id===a?[job]:[],nextAfterId:null}),inspectAsset:async()=>({asset:{id:asset,state:'READY',revision:'2'},canPreview:true}),listVisualPublications:async()=>({items:[],nextAfterId:null}),prepareVisualPublication:async()=>{throw Object.assign(Error('synthetic'),{code:'SERVICE_UNAVAILABLE'});}});
+ const runtime=create(f),{createFoxyWorkspaceActions}=loadTsModule('apps/web/src/lib/foxy-workspace-actions.ts'),actions=createFoxyWorkspaceActions({runtime,onChange:()=>{}});
+ try{await runtime.init();await actions.chat.select(a);await new Promise(r=>setImmediate(r));assert.equal(runtime.getState().visualPublication.assetId,asset);
+  runtime.visualPublication.setClassroomId(f.room.id);runtime.visualPublication.setTitle('Sintético');await runtime.visualPublication.prepare();assert.ok(runtime.getState().visualPublication.pending);
+  await actions.chat.select(b);assert.ok(actions.getState().leave);assert.equal(await actions.discardAndContinue(),true);await new Promise(r=>setImmediate(r));
+  const state=runtime.getState();assert.equal(state.chat.current.id,b);assert.equal(state.visualPublication.assetId,'');assert.equal(state.visualPublication.pending,null);
+ }finally{actions.dispose();runtime.dispose();}
+});

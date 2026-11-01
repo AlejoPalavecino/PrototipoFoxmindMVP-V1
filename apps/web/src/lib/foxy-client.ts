@@ -2,7 +2,8 @@ import { agendaId, parseRetryFoxyPublication, parseDiscardFoxyPublication, type 
   type FoxySourceKind, type FoxySourceCursor, type SendFoxyMessage, type EditFoxyResource,
   type PrepareFoxyPublication, type ConfirmFoxyPublication, type FoxyPublicationSummary,
   type FoxyPublicationInspection, type FoxyPublicationConfirmation, type FoxyPublicationManagement,
-  type FoxyPublicationCommandReceipt, type RetryFoxyPublication, type DiscardFoxyPublication } from '../../../../src/core/domain/index.ts';
+  type FoxyPublicationCommandReceipt, type RetryFoxyPublication, type DiscardFoxyPublication, type StartFoxyVisual, type FoxyVisualKind, type FoxyAspectRatio,
+  type FoxyPrivateAssetInspection, type PrepareFoxyVisualPublication, type FoxyVisualPublicationSummary } from '../../../../src/core/domain/index.ts';
 
 export interface FoxyConversation { id: string; title: string; context: FoxyContext; revision: string }
 export interface FoxyConversationCursor { updatedAt: string; id: string }
@@ -18,6 +19,7 @@ export interface FoxySource { sourceId: string; kind: FoxySourceKind; title: str
   currentPlan: boolean | null; createdAt: string; publishedAt: string | null; documentCount: number }
 export interface FoxyCitation { id: string; sourceKind: FoxySourceKind | null; sourceTitle: string | null; documentTitle: string | null;
   page: number | null; availability: 'AVAILABLE' | 'TEXT_ONLY' | 'UNAVAILABLE'; href: string | null }
+export interface FoxyVisualJob { id: string; conversationId: string; kind: FoxyVisualKind; aspectRatio: FoxyAspectRatio; state: 'QUEUED' | 'RUNNING' | 'READY' | 'FAILED'; assetId: string; errorCode: string | null; createdAt: string }
 export interface FoxyResource { id: string; conversationId: string; sourceTurnId: string; title: string; markdown: string; revision: string }
 type Page<T, C> = { items: T[]; next: C | null };
 type TurnPage = { items: FoxyTurn[]; nextAfterSequence: number | null };
@@ -29,7 +31,7 @@ export class FoxyClientError extends Error {
 const root = '/api/v1/foxy-ai';
 const safeCodes = new Set(['AUTH_REQUIRED', 'EMAIL_VERIFICATION_REQUIRED', 'FORBIDDEN', 'CSRF_INVALID', 'ORIGIN_NOT_ALLOWED',
   'RATE_LIMITED', 'INVALID_INPUT', 'NOT_FOUND', 'CONFLICT', 'FILE_NOT_READY', 'EMPTY_CONTENT', 'AI_INPUT_LIMIT',
-  'AI_UNAVAILABLE', 'AI_BUDGET_EXCEEDED', 'RESPONSE_TOO_LARGE', 'REQUEST_TOO_LARGE', 'SERVICE_UNAVAILABLE']);
+  'AI_UNAVAILABLE', 'AI_BUDGET_EXCEEDED', 'QUOTA_EXCEEDED', 'RESPONSE_TOO_LARGE', 'REQUEST_TOO_LARGE', 'SERVICE_UNAVAILABLE']);
 function encodedCursor(value: unknown): string {
   const bytes = new TextEncoder().encode(JSON.stringify(value));
   if (bytes.length > 3000) throw new FoxyClientError('INVALID_INPUT', 400);
@@ -80,6 +82,20 @@ export function createWebFoxyClient(fetcher: typeof fetch = fetch, onIdentityReq
   const resourcePath = (id: string) => `/resources/${agendaId(id)}`;
   const publicationPath = (id: string) => `/publications/${agendaId(id)}`;
   return {
+    startVisual: (id: string, input: StartFoxyVisual, signal?: AbortSignal) =>
+      call<{ created: boolean; job: FoxyVisualJob; conversationRevision: string }>(`${conversationPath(id)}/visuals`, 'POST', input, signal),
+    listVisuals: (id: string, page: { limit: number; afterId: string | null }, signal?: AbortSignal) =>
+      call<{ items: FoxyVisualJob[]; nextAfterId: string | null }>(`${conversationPath(id)}/visuals${params(page)}`, 'GET', undefined, signal),
+    getVisual: (id: string, jobId: string, signal?: AbortSignal) => call<FoxyVisualJob>(`${conversationPath(id)}/visuals/${agendaId(jobId)}`, 'GET', undefined, signal),
+    inspectAsset: (id: string, signal?: AbortSignal) => call<FoxyPrivateAssetInspection>(`/assets/${agendaId(id)}`, 'GET', undefined, signal),
+    prepareVisualPublication: (id: string, input: PrepareFoxyVisualPublication, signal?: AbortSignal) =>
+      call<{ created: boolean; publication: FoxyVisualPublicationSummary }>(`/assets/${agendaId(id)}/publications`, 'POST', input, signal),
+    listVisualPublications: (id: string, page: { limit: number; afterId: string | null }, signal?: AbortSignal) =>
+      call<{ items: FoxyVisualPublicationSummary[]; nextAfterId: string | null }>(`/assets/${agendaId(id)}/publications${params(page)}`, 'GET', undefined, signal),
+    assetFileUrl: (id: string, mode: 'preview' | 'download' = 'download') => {
+      if (!['preview', 'download'].includes(mode)) throw new FoxyClientError('INVALID_INPUT', 400);
+      return `${root}/assets/${agendaId(id)}/file?mode=${mode}`;
+    },
     resourceFromTurn: (id: string, turnId: string, signal?: AbortSignal) =>
       call<{ created: boolean; resource: FoxyResource }>(`${turnPath(id, turnId)}/resource`, 'POST', {}, signal),
     getResource: (id: string, signal?: AbortSignal) => call<FoxyResource>(resourcePath(id), 'GET', undefined, signal),

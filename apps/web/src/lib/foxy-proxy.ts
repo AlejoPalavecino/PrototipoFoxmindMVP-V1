@@ -4,6 +4,11 @@ import { Transform } from 'node:stream';
 
 const root = '/api/v1/foxy-ai', uuid = '[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}';
 const conversation = new RegExp(`^${root}/conversations/${uuid}$`, 'i');
+const visuals = new RegExp(`^${root}/conversations/${uuid}/visuals$`, 'i');
+const visual = new RegExp(`^${root}/conversations/${uuid}/visuals/${uuid}$`, 'i');
+const asset = new RegExp(`^${root}/assets/${uuid}$`, 'i');
+const assetFile = new RegExp(`^${root}/assets/${uuid}/file$`, 'i');
+const assetPublications = new RegExp(`^${root}/assets/${uuid}/publications$`, 'i');
 const turns = new RegExp(`^${root}/conversations/${uuid}/turns$`, 'i');
 const turn = new RegExp(`^${root}/conversations/${uuid}/turns/${uuid}$`, 'i');
 const catalog = new RegExp(`^${root}/conversations/${uuid}/(curriculum|sources)$`, 'i');
@@ -32,10 +37,10 @@ function destination(value?: string): string {
 function select(request: IncomingMessage): { url: URL; method: string; binary: boolean } {
   const raw = request.url ?? '', method = request.method ?? 'GET';
   if (!raw.startsWith(`${root}/`) || /[\\#]/u.test(raw) || /%|\.\./u.test(raw.split('?')[0]!)) throw new Error();
-  const url = new URL(raw, 'http://web.invalid'), path = url.pathname, binary = citationFile.test(path) || publicationFile.test(path);
-  const allowed = path === `${root}/capabilities` || catalog.test(path) || turn.test(path) || citations.test(path) || binary || publication.test(path) || managementPublication.test(path) ? ['GET']
+  const url = new URL(raw, 'http://web.invalid'), path = url.pathname, binary = citationFile.test(path) || publicationFile.test(path) || assetFile.test(path);
+  const allowed = path === `${root}/capabilities` || catalog.test(path) || turn.test(path) || visual.test(path) || asset.test(path) || citations.test(path) || binary || publication.test(path) || managementPublication.test(path) ? ['GET']
     : turnResource.test(path) || confirmPublication.test(path) || commandPublication.test(path) ? ['POST']
-      : preparePublication.test(path) ? ['GET', 'POST']
+      : preparePublication.test(path) || assetPublications.test(path) || visuals.test(path) ? ['GET', 'POST']
       : resource.test(path) ? ['GET', 'PATCH']
         : path === `${root}/conversations` || turns.test(path) ? ['GET', 'POST'] : conversation.test(path) ? ['GET', 'PATCH', 'DELETE'] : [];
   if (!allowed.length) throw Object.assign(new Error(), { status: 404 });
@@ -43,14 +48,14 @@ function select(request: IncomingMessage): { url: URL; method: string; binary: b
   const keys = [...url.searchParams.keys()];
   if (new Set(keys).size !== keys.length) throw new Error();
   const query = path === `${root}/conversations` && method === 'GET' ? ['limit', 'after']
-    : preparePublication.test(path) && method === 'GET' ? ['limit', 'afterId']
+    : (preparePublication.test(path) || assetPublications.test(path) || visuals.test(path)) && method === 'GET' ? ['limit', 'afterId']
     : turns.test(path) && method === 'GET' ? ['afterSequence', 'limit']
       : path.endsWith('/sources') ? ['kind', 'limit', 'after'] : binary ? ['mode'] : [];
   if (keys.some(key => !query.includes(key))) throw new Error();
   if (url.searchParams.has('mode') && !['preview', 'download'].includes(url.searchParams.get('mode')!)) throw new Error();
   if (url.searchParams.has('kind') && !['PLAN', 'MATERIAL', 'ACTIVITY'].includes(url.searchParams.get('kind')!)) throw new Error();
   for (const name of ['limit', 'afterSequence']) if (url.searchParams.has(name) && !/^(?:0|[1-9][0-9]{0,9})$/u.test(url.searchParams.get(name)!)) throw new Error();
-  if (preparePublication.test(path) && url.searchParams.has('limit') && (Number(url.searchParams.get('limit')) < 1 || Number(url.searchParams.get('limit')) > 50)) throw new Error();
+  if ((preparePublication.test(path) || assetPublications.test(path) || visuals.test(path)) && url.searchParams.has('limit') && (Number(url.searchParams.get('limit')) < 1 || Number(url.searchParams.get('limit')) > 50)) throw new Error();
   if (url.searchParams.has('afterId') && !new RegExp(`^${uuid}$`, 'i').test(url.searchParams.get('afterId')!)) throw new Error();
   if (url.searchParams.has('after') && !/^[A-Za-z0-9_-]{1,4096}$/u.test(url.searchParams.get('after')!)) throw new Error();
   return { url, method, binary };
@@ -98,12 +103,12 @@ function responseHeaders(result: IncomingMessage): Record<string, string> {
   if (clearing.length === 1) headers['Set-Cookie'] = clearing[0]!;
   return headers;
 }
-async function receive(result: IncomingMessage, response: ServerResponse, binary: boolean): Promise<void> {
+async function receive(result: IncomingMessage, response: ServerResponse, binary: boolean, privateImage: boolean): Promise<void> {
   const status = result.statusCode ?? 503, contentType = result.headers['content-type'] ?? '', expected = length(result.headers['content-length']);
   if (status >= 300 && status < 400 || result.headers['content-encoding'] !== undefined) throw new Error();
   const headers = responseHeaders(result);
   if (status === 204) { response.writeHead(status, headers); response.end(); return; }
-  const isBinary = binary && status === 200, max = isBinary ? binaryLimit : jsonLimit;
+  const isBinary = binary && status === 200, max = isBinary ? (privateImage ? 10485760 : binaryLimit) : jsonLimit;
   if ((expected ?? 0) > max) throw new Error();
   if (!isBinary) {
     if (!/^application\/json(?:\s*;|$)/iu.test(contentType)) throw new Error();
@@ -114,7 +119,7 @@ async function receive(result: IncomingMessage, response: ServerResponse, binary
     return;
   }
   const octet = /^application\/octet-stream(?:\s*;|$)/iu.test(contentType);
-  if (!octet && !/^(application\/pdf|image\/png|image\/jpeg|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document)(?:\s*;|$)/iu.test(contentType)) throw new Error();
+  if (privateImage ? !/^(image\/png|image\/jpeg|application\/octet-stream)(?:\s*;|$)/iu.test(contentType) : !octet && !/^(application\/pdf|image\/png|image\/jpeg|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document)(?:\s*;|$)/iu.test(contentType)) throw new Error();
   headers['Content-Type'] = contentType;
   headers['Content-Security-Policy'] = "sandbox; default-src 'none'; frame-ancestors 'self'";
   headers['Cross-Origin-Resource-Policy'] = 'same-origin';
@@ -145,7 +150,7 @@ function forward(request: IncomingMessage, response: ServerResponse, origin: str
     const unavailable = () => { if (!settled) fail(response, 503, 'SERVICE_UNAVAILABLE'); finish(); };
     const timer = setTimeout(unavailable, selected.binary ? 60000 : 30000);
     request.once('aborted', finish); response.once('close', finish); upstream.once('error', unavailable);
-    upstream.once('response', result => { incoming = result; void receive(result, response, selected.binary).then(finish, unavailable); });
+    upstream.once('response', result => { incoming = result; void receive(result, response, selected.binary, assetFile.test(selected.url.pathname)).then(finish, unavailable); });
     upstream.end(content);
   });
 }

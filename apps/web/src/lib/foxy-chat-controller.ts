@@ -109,6 +109,10 @@ export function createFoxyChatController(options: Options) {
       } catch { if (valid(version)) update({ busy: false, error: 'No pudimos crear la conversación.' }); }
     },
     select,
+    adoptVisualRevision(id: string, expected: string, revision: string) {
+      if (disposed || !state.current || state.current.id !== id || state.current.revision !== expected || !/^(0|[1-9][0-9]*)$/u.test(revision)) return;
+      const revised = { ...state.current, revision }; update({ current: revised, conversations: state.conversations.map(item => item.id === id ? revised : item) });
+    },
     async send(purpose: FoxyPurpose, text: string, selection: SendFoxyMessage['selection']) {
       if (disposed || !state.current || state.pending || state.busy || state.activeTurn
         || (state.current.context.kind === 'CLASSROOM' && !state.curriculum?.canGenerate)) return;

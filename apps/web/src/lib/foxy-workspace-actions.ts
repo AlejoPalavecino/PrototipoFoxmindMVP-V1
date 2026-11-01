@@ -13,8 +13,8 @@ export function createFoxyWorkspaceActions(options: Options) {
   function emit(patch: Partial<State>) { if (active()) { state = { ...state, ...patch }; options.onChange(structuredClone(state)); } }
   function block() {
     const s = runtime.getState(), r = s.resource, p = s.preparation, c = s.confirmation, m = s.management;
-    if (r?.pending || p?.pending || c?.pending || m?.pending) return { reason: 'pending' as const, canSave: false };
-    if (r?.busy || p?.busy || c?.busy || m?.busy) return { reason: 'busy' as const, canSave: false };
+    if (r?.pending || p?.pending || c?.pending || m?.pending || s.visual?.pending || s.visualPublication?.pending) return { reason: 'pending' as const, canSave: false };
+    if (r?.busy || p?.busy || c?.busy || m?.busy || s.visual?.busy || s.visualPublication?.busy) return { reason: 'busy' as const, canSave: false };
     if (r?.dirty) {
       const draft = r.draft, valid = !!r.resource && r.status !== 'loading' && !!draft && [draft.title, draft.markdown].every((v, i) =>
         typeof v === 'string' && !!v.trim() && [...v].length <= (i ? 50000 : 200) && !/[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/u.test(v));
@@ -122,7 +122,7 @@ export function createFoxyWorkspaceActions(options: Options) {
     cancelLeave() { if (active()) { actionEpoch++; target = null; emit({ leave: null }); } },
     async discardAndContinue(): Promise<boolean> {
       if (!active() || !target) return false;
-      return continueTarget(() => runtime.resource.discardAndClose());
+      return continueTarget(() => { runtime.visualPublication?.syncAsset('', ''); runtime.resource.discardAndClose(); });
     },
     async saveAndContinue(): Promise<boolean> {
       if (!active() || !target || !block()?.canSave) return false;
