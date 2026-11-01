@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { agendaId, parsePrepareFoxyPublication, type SqlTransaction, type FoxyPublicationState } from '../../../../src/core/domain/index.ts';
+import { agendaId, parsePrepareFoxyPublication, type SqlTransaction, type FoxyPublicationState, type FoxyVisualPublicationSummary } from '../../../../src/core/domain/index.ts';
 
 type Row = { id: string; resource_id: string; resource_revision: bigint; classroom_id: string; unit_id: string | null;
   topic_id: string | null; title: string; state: FoxyPublicationState; revision: bigint; input_hash: string };
@@ -65,7 +65,18 @@ export function createFoxyPublicationRepository() {
         JOIN foxy_conversations c ON c.id=r.conversation_id AND c.owner_id=r.owner_id AND c.deleted_at IS NULL
         WHERE p.id=$1::uuid AND p.owner_id=$2::uuid
         AND (c.context_kind='GENERAL' OR EXISTS (SELECT 1 FROM classrooms origin WHERE origin.id=c.classroom_id AND origin.teacher_id=p.owner_id))`, publicationId, owner);
-      if (!row) return fail('NOT_FOUND');
+      if (!row) {
+        const [visual] = await tx.query<{ id: string; source_asset_id: string; source_asset_revision: bigint; classroom_id: string; unit_id: string|null; topic_id: string|null; title: string; state: FoxyPublicationState; revision: bigint; classroom_revision: bigint; classroom_archived: boolean; error_code: string|null }>(`SELECT p.*,a.revision AS classroom_revision,(a.archived_at IS NOT NULL) AS classroom_archived
+          FROM foxy_publications p JOIN users u ON u.id=p.owner_id AND u.account_role='teacher' AND u.email_verified_at IS NOT NULL
+          JOIN classrooms a ON a.id=p.classroom_id AND a.teacher_id=p.owner_id
+          JOIN foxy_visual_assets v ON v.id=p.source_asset_id AND v.owner_id=p.owner_id
+          JOIN foxy_conversations c ON c.id=v.conversation_id AND c.owner_id=v.owner_id AND c.deleted_at IS NULL
+          WHERE p.id=$1::uuid AND p.owner_id=$2::uuid AND p.source_kind='VISUAL'
+          AND (c.context_kind='GENERAL' OR EXISTS (SELECT 1 FROM classrooms origin WHERE origin.id=c.classroom_id AND origin.teacher_id=p.owner_id))`,publicationId,owner);
+        if (!visual) return fail('NOT_FOUND');
+        const publication: FoxyVisualPublicationSummary = { id:visual.id,sourceKind:'VISUAL',assetId:visual.source_asset_id,assetRevision:String(visual.source_asset_revision),classroomId:visual.classroom_id,unitId:visual.unit_id,topicId:visual.topic_id,title:visual.title,state:visual.state,revision:String(visual.revision) };
+        return { publication, classroomRevision:String(visual.classroom_revision),classroomArchived:visual.classroom_archived,errorCode:visual.error_code };
+      }
       return { publication: view(row), classroomRevision: String(row.classroom_revision), classroomArchived: row.classroom_archived,
         errorCode: row.error_code };
     },
