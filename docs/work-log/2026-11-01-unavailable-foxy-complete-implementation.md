@@ -65,3 +65,9 @@ Diseñar y probar integración de gestión M4D2; revisar proveedor y contratos p
 
 - /root/red_management RED; /root/green_diagram implementó cliente inyectado y /root/review_management detectó fuentes vacías aceptadas y TypeError por currículo mutado. Tras corregir, 14 pruebas y build/fronteras/Gitleaks PASS; el coordinador exportó la clase y repitió build PASS.
 - Sin credenciales, llamadas al proveedor ni datos reales. Aún no acredita compatibilidad del modelo, presupuesto persistente, custodia integrada ni capability habilitada.
+
+## Continuation — private reads and visual jobs in progress
+- Private visual read and HTTP transport were reviewed and committed as b506998 and 01c7806; read authorization and synthetic HTTP-to-PostgreSQL probe passed. Actual output backpressure was not reproduced.
+- Private metadata discard core was reviewed and committed as 68f403c; HTTP integration and physical cleanup remain pending, retained bytes remain charged.
+- Visual enqueue, queue, worker, budget and linked authority are under implementation and independent review. Synthetic and ephemeral PostgreSQL tests pass for selected paths; runtime composition, shared concurrency, interface, visual publication and end-to-end validation remain unfinished. No real provider calls or deployment.
+- Handoff: finish RED/GREEN and review of visual runtime and recoveries, wire actual permitted capabilities, then interface/publication and full validation before any main integration.

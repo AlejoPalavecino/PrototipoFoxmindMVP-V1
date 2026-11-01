@@ -1,0 +1,9 @@
+# Independent review and QA handoff: visual integration
+
+- Reviewer: /root/review_management; recorded by coordinator. Runtime session ID unavailable.
+- Scope: visual job and provider integration, raster publication, cleanup, and UI state; implementation reviewed at the working tree based on 68f403c.
+- Result: scoped approvals after fixes. PostgreSQL and synthetic HTTP-to-runtime probes covered image and diagram generation through private preview, preparation, explicit confirmation and student access; access before confirmation was denied. New library copy was scanned and independent. Corrupt bytes, infected scan and destination quota prevented publication.
+- Cleanup PNG and JPEG passed natural 90-second lease tests by implementer/tester and independent expired-lease probes; only the library copy was removed. UI reviewer verified title changes, stale responses and navigation during pending operations.
+- Provider/host review: 44 focused checks and a synthetic transport using installed SDK passed; no real credentials or provider call. Runtime profile changes fail before new dispatch. Fixed instruction in request content is not equivalent to a system instruction and does not prove prompt-injection immunity.
+- Final coordinator checks on current tree: API build, web TypeScript and architecture boundaries passed. Browser screenshot/interactive visual check and real provider, S3 and ClamAV interoperability have not been established. Visual capabilities are off by default and need explicit configuration. Do not mark the whole proposal complete until its exit conditions are verified.
+- QA tester /root/red_management created and closed a dedicated ego Space. No synthetic fixture was available for its initial attempt, so 16 component/controller/PG cases were used as supplemental evidence; no browser PASS claimed.
