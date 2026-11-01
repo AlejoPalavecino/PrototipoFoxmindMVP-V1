@@ -1,6 +1,7 @@
-import { parseEditFoxyResource, parseFoxySourceQuery, parsePrepareFoxyPublication, parseConfirmFoxyPublication, parseRetryFoxyPublication, parseDiscardFoxyPublication } from '../../../../src/core/domain/index.ts';
+import { parseEditFoxyResource, parseFoxySourceQuery, parsePrepareFoxyPublication, parsePrepareFoxyVisualPublication, parseConfirmFoxyPublication, parseRetryFoxyPublication, parseDiscardFoxyPublication } from '../../../../src/core/domain/index.ts';
 import type { IncomingMessage } from 'node:http';
 import type { createFoxyConversationService } from './conversation-service.ts';
+import type { createFoxyVisualService } from './visual-service.ts';
 import type { createFoxyTurnService } from './turn-service.ts';
 import type { FoxyContextCatalogService } from './context-catalog.ts';
 import type { createFoxyCitationService } from './citation-service.ts';
@@ -10,9 +11,9 @@ import type { createFoxyPublicationFileReader } from './publication-file-reader.
 import type { createFoxyPublicationManagementService } from './publication-management-service.ts';
 import type { createFoxyPrivateAssetReader } from './private-asset-reader.ts';
 import type { createFoxyPrivateAssetReadService } from './private-asset-read-service.ts';
-import { body, create, cursor, id, integer, message, query, remove, rename } from './http-input.ts';
+import { body, create, cursor, id, integer, message, query, remove, rename, visual } from './http-input.ts';
 
-type Services = { privateAssetReader?: ReturnType<typeof createFoxyPrivateAssetReader>; privateAssetReadService?: ReturnType<typeof createFoxyPrivateAssetReadService>; conversations: ReturnType<typeof createFoxyConversationService>; turns: ReturnType<typeof createFoxyTurnService>;
+type Services = { visuals?: ReturnType<typeof createFoxyVisualService>; privateAssetReader?: ReturnType<typeof createFoxyPrivateAssetReader>; privateAssetReadService?: ReturnType<typeof createFoxyPrivateAssetReadService>; conversations: ReturnType<typeof createFoxyConversationService>; turns: ReturnType<typeof createFoxyTurnService>;
   catalog: Pick<FoxyContextCatalogService, 'curriculum' | 'sources'>; citations: ReturnType<typeof createFoxyCitationService>;
   resources: ReturnType<typeof createFoxyResourceService>; publications: ReturnType<typeof createFoxyPublicationService>; publicationFiles: ReturnType<typeof createFoxyPublicationFileReader>; publicationManagement: ReturnType<typeof createFoxyPublicationManagementService>; capabilities(request: IncomingMessage): Promise<unknown> };
 type Result = { status: number; body?: unknown; binary?: Uint8Array; headers?: Record<string, string> };
@@ -67,6 +68,29 @@ export async function foxyRoute(services: Services, request: IncomingMessage, ur
   }
   if (path === '/capabilities' && request.method === 'GET') { query(url, []); return { status: 200, body: await services.capabilities(request) }; }
   if (path === '/conversations') return collection(services, request, url);
+  const visuals = /^\/conversations\/([^/]+)\/visuals(?:\/([^/]+))?$/u.exec(path);
+  if (visuals && (request.method === 'GET' || request.method === 'POST')) {
+    const conversationId = id(visuals[1]!);
+    if (request.method === 'POST' && !visuals[2]) {
+      query(url, []); const input = visual(await body(request));
+      if (signal.aborted) throw Object.assign(new Error('SERVICE_UNAVAILABLE'), { code: 'SERVICE_UNAVAILABLE' });
+      if (!services.visuals) return missing();
+      const result = await services.visuals.start(request,conversationId,input);
+      return { status: result.created ? 202 : 200, body: result };
+    }
+    if (request.method === 'GET') {
+      if (request.headers['transfer-encoding'] !== undefined || (request.headers['content-length'] !== undefined && request.headers['content-length'] !== '0'))
+        throw Object.assign(new Error('INVALID_INPUT'), { code: 'INVALID_INPUT' });
+      if (visuals[2]) {
+        query(url, []); const jobId = id(visuals[2]); if (!services.visuals) return missing();
+        return { status: 200, body: await services.visuals.get(request,conversationId,jobId) };
+      }
+      const params = query(url,['limit','afterId']), page = { limit: integer(params.limit,20,1,50), afterId: params.afterId === undefined ? null : id(params.afterId) };
+      if (!services.visuals) return missing();
+      return { status: 200, body: await services.visuals.list(request,conversationId,page) };
+    }
+    return missing();
+  }
   const resourceTurn = /^\/conversations\/([^/]+)\/turns\/([^/]+)\/resource$/u.exec(path);
   if (resourceTurn && request.method === 'POST') {
     query(url, []); const result = await services.resources.fromTurn(request, id(resourceTurn[1]!), id(resourceTurn[2]!));
@@ -81,6 +105,18 @@ export async function foxyRoute(services: Services, request: IncomingMessage, ur
     const params = query(url, ['limit', 'afterId']);
     return { status: 200, body: await services.publications.list(request, id(preparePublication[1]!),
       { limit: integer(params.limit, 20, 1, 50), afterId: params.afterId === undefined ? null : id(params.afterId) }) };
+  }
+  const prepareVisualPublication = /^\/assets\/([^/]+)\/publications$/u.exec(path);
+  if (prepareVisualPublication && request.method === 'POST') {
+    query(url, []); const result = await services.publications.prepareVisual(request, id(prepareVisualPublication[1]!), parsePrepareFoxyVisualPublication(await body(request)));
+    return { status: result.created ? 202 : 200, body: result };
+  }
+  if (prepareVisualPublication && request.method === 'GET') {
+    if (request.headers['transfer-encoding'] !== undefined || (request.headers['content-length'] !== undefined && request.headers['content-length'] !== '0'))
+      throw Object.assign(new Error('INVALID_INPUT'), { code: 'INVALID_INPUT' });
+    const params = query(url, ['limit','afterId']);
+    return { status: 200, body: await services.publications.listVisual(request,id(prepareVisualPublication[1]!),
+      { limit: integer(params.limit,20,1,50), afterId: params.afterId === undefined ? null : id(params.afterId) }) };
   }
   const management = /^\/publications\/([^/]+)\/(management|retry|discard)$/u.exec(path);
   if (management) {

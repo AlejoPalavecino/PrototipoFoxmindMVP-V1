@@ -2,6 +2,7 @@ import type { SqlDatabase } from '../../../../src/core/domain/index.ts';
 import type { FileService } from '../files/index.ts';
 import { createFoxyUnitOfWork } from './unit-of-work.ts';
 import { createFoxyPrivateAssetReadRepository } from './private-asset-read-repository.ts';
+import { createFoxyVisualPublicationRepository } from './visual-publication-repository.ts';
 import { createFoxyPrivateAssetReadService } from './private-asset-read-service.ts';
 import { createFoxyPrivateAssetReader } from './private-asset-reader.ts';
 import { createFoxyConversationRepository } from './conversation-repository.ts';
@@ -34,6 +35,7 @@ import { createFoxyPublicationWorker } from './publication-worker.ts';
 import { createFoxyPdfRenderer } from './pdf-worker.ts';
 import { createFoxyPublicationCleanup } from './publication-cleanup.ts';
 import type { createDurableFoxyPublicationFiles } from '../files/index.ts';
+import { createFoxyVisualRuntime, type VisualConfiguration, type VisualProviders, type VisualBudgetLimits } from './visual-runtime.ts';
 
 export const FOXY_RUNTIME = Symbol('FOXY_RUNTIME');
 
@@ -41,7 +43,8 @@ type Configuration = Parameters<typeof createFoxyTurnQueue>[0]['configuration'] 
 type Provider = Parameters<typeof createFoxyTextWorker>[0]['provider'];
 type Options = { database: SqlDatabase; authenticate: Parameters<typeof createFoxyUnitOfWork>[0]['authenticate'];
   classrooms: ConstructorParameters<typeof FoxyContextCatalogService>[0]; files: FileService;
-  configuration: Configuration | null; provider: Provider | null; storage: { remove(key: string): Promise<void> } };
+  configuration: Configuration | null; provider: Provider | null; storage: { remove(key: string): Promise<void> };
+  visualConfiguration?: VisualConfiguration | null; visualProviders?: VisualProviders | null; visualBudgetLimits?: VisualBudgetLimits | null };
 function valid(config: Configuration | null, provider: Provider | null): config is Configuration {
   if (!config || !provider || typeof provider.countTokens !== 'function' || typeof provider.generate !== 'function'
     || typeof config.model !== 'string' || (!config.model.trim() || config.model.length > 200 || /[\u0000-\u001f\u007f]/u.test(config.model))) return false;
@@ -68,7 +71,7 @@ function publicationWorkerFor(options: Options) {
   const authority = createFoxyPublicationAuthority({ database: options.database });
   type Bridge = ReturnType<typeof createDurableFoxyPublicationFiles>;
   let bridge: Promise<Bridge> | undefined;
-  const get = () => bridge ??= import('../files/index.ts').then(({ createDurableFoxyPublicationFiles }) =>
+  const get = () => bridge ??= import('../files/public/index.ts').then(({ createDurableFoxyPublicationFiles }) =>
     createDurableFoxyPublicationFiles({ files: options.files, authority }));
   const files: Bridge = {
     ensureFile: async (...args: Parameters<Bridge['ensureFile']>) => (await get()).ensureFile(...args),
@@ -77,7 +80,11 @@ function publicationWorkerFor(options: Options) {
     proof: async (...args: Parameters<Bridge['proof']>) => (await get()).proof(...args),
   };
   return createFoxyPublicationWorker({ queue: createFoxyPublicationQueue({ database: options.database }), authority, files,
-    renderer: createFoxyPdfRenderer(), completion: createFoxyPublicationCompletion({ database: options.database }) });
+    renderer: createFoxyPdfRenderer(), rasterSource: { read: async (capability,signal) => {
+      const filesApi = await import('../files/public/index.ts');
+      return filesApi.createDurableFoxyPublicationRasterSource({ files: options.files, authority, inspector: filesApi.createFoxyPrivateImageInspector() }).read(capability,signal);
+    } },
+    completion: createFoxyPublicationCompletion({ database: options.database }) });
 }
 function maintenance(database: SqlDatabase) {
   const recovery = createFoxyTurnRecovery({ database });
@@ -94,26 +101,29 @@ export function createFoxyRuntime(options: Options) {
   if (!options.storage || typeof options.storage.remove !== 'function') throw Object.assign(new Error('SERVICE_UNAVAILABLE'), { code: 'SERVICE_UNAVAILABLE' });
   const cleanup = createFoxyPublicationCleanup({ database: options.database, storage: options.storage, onError: () => console.warn('Foxy publication cleanup unavailable') });
   const uow = createFoxyUnitOfWork(options), conversations = createFoxyConversationRepository(), turns = createFoxyTurnRepository();
+  const visual = options.visualConfiguration && options.visualProviders && options.visualBudgetLimits
+    ? createFoxyVisualRuntime({ database: options.database, files: options.files, uow, conversations, configuration: options.visualConfiguration,
+      providers: options.visualProviders, limits: options.visualBudgetLimits }) : null;
   const enabled = valid(options.configuration, options.provider);
   const worker = enabled ? workerFor(options, options.configuration!, options.provider!) : null;
   const lifecycle = worker ?? maintenance(options.database), publicationWorker = publicationWorkerFor(options);
   const assets = createFoxyPrivateAssetReadRepository();
   const privateAssetReader = options.files.storage && typeof options.files.storage.get === 'function'
     ? createFoxyPrivateAssetReader({ uow, assets, storage: options.files.storage }) : undefined;
-  const services = { privateAssetReader, privateAssetReadService: createFoxyPrivateAssetReadService({ uow, assets }), conversations: createFoxyConversationService({ uow, conversations }),
+  const services = { visuals: visual?.service, privateAssetReader, privateAssetReadService: createFoxyPrivateAssetReadService({ uow, assets }), conversations: createFoxyConversationService({ uow, conversations }),
     turns: createFoxyTurnService({ uow, conversations, turns, configuration: { enabled, model: enabled ? options.configuration!.model : '' } }),
     catalog: new FoxyContextCatalogService(options.classrooms, conversations),
     citations: createFoxyCitationService({ uow, files: options.files }),
     resources: createFoxyResourceService({ uow, resources: createFoxyResourceRepository() }),
     publicationFiles: createFoxyPublicationFileReader({ uow, files: options.files }),
     publicationManagement: createFoxyPublicationManagementService({ uow, management: createFoxyPublicationManagementRepository() }),
-    publications: createFoxyPublicationService({ uow, publications: createFoxyPublicationRepository(),
+    publications: createFoxyPublicationService({ uow, publications: createFoxyPublicationRepository(), visualPublications: createFoxyVisualPublicationRepository({ assets }),
       confirmations: createFoxyPublicationConfirmationRepository({ library: createLibraryMaterialPublisher({ files: options.files.store }) }) }),
     capabilities: (request: unknown) => uow.run(request, false, async () => ({ textGeneration: { enabled },
-      imageGeneration: { enabled: false }, diagramGeneration: { enabled: false } })) };
-  return { services, worker, publicationWorker, onModuleInit: () => { lifecycle.onModuleInit(); publicationWorker.onModuleInit(); cleanup.onModuleInit(); },
+      imageGeneration: { enabled: visual?.gates.IMAGE ?? false }, diagramGeneration: { enabled: visual?.gates.DIAGRAM ?? false } })) };
+  return { services, worker, publicationWorker, visualWorker: visual?.worker ?? null, onModuleInit: () => { lifecycle.onModuleInit(); publicationWorker.onModuleInit(); cleanup.onModuleInit(); visual?.worker.onModuleInit(); },
     onModuleDestroy: async () => {
-      const results = await Promise.allSettled([lifecycle, publicationWorker, cleanup].map(item => Promise.resolve().then(() => item.onModuleDestroy())));
+      const results = await Promise.allSettled([...([lifecycle, publicationWorker, cleanup].map(item => Promise.resolve().then(() => item.onModuleDestroy()))), ...(visual ? [visual.close()] : [])]);
       const failure = results.find(result => result.status === 'rejected'); if (failure?.status === 'rejected') throw failure.reason;
     } };
 }

@@ -1,5 +1,5 @@
 import type { IncomingMessage } from 'node:http';
-import { agendaId, agendaRevision, parseCreateFoxyConversation, parseSendFoxyMessage, strictObject } from '../../../../src/core/domain/index.ts';
+import { agendaId, agendaRevision, parseCreateFoxyConversation, parseSendFoxyMessage, parseStartFoxyVisual, strictObject } from '../../../../src/core/domain/index.ts';
 function invalid(): never { throw Object.assign(new Error('INVALID_INPUT'), { code: 'INVALID_INPUT' }); }
 export function query(url: URL, allowed: string[]): Record<string, string> {
   const result: Record<string, string> = Object.create(null);
@@ -61,4 +61,8 @@ export function remove(value: unknown) {
 }
 export function message(value: unknown) {
   return parseSendFoxyMessage(value, { kind: 'CLASSROOM', classroomId: '00000000-0000-0000-0000-000000000000' });
+}
+
+export function visual(value: unknown) {
+  return parseStartFoxyVisual(value, { kind: 'CLASSROOM', classroomId: '00000000-0000-0000-0000-000000000000' });
 }

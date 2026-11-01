@@ -40,6 +40,9 @@ export { createFoxyPublicationFileReader } from './publication-file-reader.ts';
 export { createFoxyPublicationManagementRepository } from './publication-management-repository.ts';
 export { createFoxyPublicationCleanup } from './publication-cleanup.ts';
 export { createFoxyPublicationManagementService } from './publication-management-service.ts';
+export { readFoxyVisualConfiguration, type FoxyVisualHostConfiguration } from './visual-configuration.ts';
+export type { VisualProviders } from './visual-runtime.ts';
+export { selectFoxyVisualProviders } from './visual-host-providers.ts';
 
 export { createFoxyPrivateAssetReadRepository } from './private-asset-read-repository.ts';
 export { createFoxyPrivateAssetReader } from './private-asset-reader.ts';
