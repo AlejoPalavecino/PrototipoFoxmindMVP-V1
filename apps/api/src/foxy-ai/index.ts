@@ -40,3 +40,7 @@ export { createFoxyPublicationFileReader } from './publication-file-reader.ts';
 export { createFoxyPublicationManagementRepository } from './publication-management-repository.ts';
 export { createFoxyPublicationCleanup } from './publication-cleanup.ts';
 export { createFoxyPublicationManagementService } from './publication-management-service.ts';
+
+export { createFoxyPrivateAssetReadRepository } from './private-asset-read-repository.ts';
+export { createFoxyPrivateAssetReader } from './private-asset-reader.ts';
+export { createFoxyPrivateAssetReadService } from './private-asset-read-service.ts';

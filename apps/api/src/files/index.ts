@@ -24,3 +24,4 @@ export { createDurableFoxyPublicationFiles } from './foxy-publication-files.ts';
 export { createFoxyPrivateImageInspector } from './foxy-private-image-inspector.ts';
 
 export { createFoxyPrivateAssetFiles } from './foxy-private-asset-files.ts';
+export type { ObjectStorage } from './storage.ts';
