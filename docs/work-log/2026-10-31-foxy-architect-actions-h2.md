@@ -64,11 +64,11 @@ resource.open(conversationId,turnId) requires the current chat conversation with
 
 ## Mutation matrix
 
-Same-operation duplicate invocation may delegate to the child's single-flight promise. Cross-operation exclusion must not disable R1's supported typing during SAVE. All gates apply to direct handler calls, independently of disabled buttons.
+Final coordinator-question follow-up: resource.save while R1 SAVE is pending OR busy makes zero child calls. resource.retry delegates only an uncertain SAVE intent (pending SAVE and busy=false), and remains blocked by PREPARE/CONFIRM pending/busy. This deliberately narrows the initial design's permissive single-flight delegation; the existing zero-call RED expectation remains valid and must not be relaxed. Cross-operation exclusion must not disable R1's supported typing during SAVE. All gates apply to direct handler calls, independently of disabled buttons.
 
 | State | Allowed | Denied |
 | --- | --- | --- |
-| R1 SAVE pending/busy | typing; existing save/retry single-flight as supported; read history | PREPARE; CONFIRM; unguarded context/resource changes |
+| R1 SAVE pending/busy | typing; read history; original uncertain SAVE retry only when busy=false | duplicate save; retry while busy; PREPARE; CONFIRM; unguarded context/resource changes |
 | PREPARE pending/busy | preserve/continue local typing; that intent's retry; read history | resource.save AND resource.retry; new PREPARE; CONFIRM; changing preparation metadata/destination |
 | CONFIRM pending/busy | that intent's retry; read history | draft edits/save/conflict adoption; preparation changes; history.select; unrelated new mutation |
 | Acknowledged durable PREPARING publication only | normal close/navigation; recoverable inspection/history | no restriction merely from durable job state |
