@@ -15,3 +15,8 @@ test('READY offers private preview and requires explicit checked confirmation',a
   const checkbox=descendants(f.view.tree,n=>n.type==='input'&&n.props.type==='checkbox');assert.ok(checkbox.length);assert.equal(checkbox[0].props.checked,false);const confirm=descendants(f.view.tree,n=>n.type==='button'&&/publicar|confirmar/iu.test(String(n.props.children)));assert.ok(confirm.length);assert.ok(confirm.every(n=>n.props.disabled));assert.equal(f.calls.filter(c=>c[0]==='confirm').length,0);
  }finally{f.view.close();}});
 test('uncertain publication exposes retry and does not claim student visibility',async()=>{const f=fixture({pending:'PREPARE',error:'No pudimos confirmar la solicitud'});try{await f.view.flush();const html=renderToStaticMarkup(f.view.tree);assert.match(html,/reintentar/iu);assert.doesNotMatch(html,/publicado en la biblioteca/iu);assert.equal(f.calls.filter(c=>c[0]==='confirm').length,0);}finally{f.view.close();}});
+
+test('unit and topic selectors are labelled and expose the classroom hierarchy',async()=>{
+ const unit=randomUUID(),topic=randomUUID();const f=fixture({destination:{id:classroomId,name:'Biología',units:[{id:unit,name:'Unidad uno',topics:[{id:topic,name:'Tema uno'}]}]},unitId:unit,topicId:topic});
+ try{await f.view.flush();const html=renderToStaticMarkup(f.view.tree);assert.match(html,/<label[^>]*>\s*Unidad[\s\S]*?<select/iu);assert.match(html,/<label[^>]*>\s*Tema[\s\S]*?<select/iu);assert.match(html,/Unidad uno/);assert.match(html,/Tema uno/);}finally{f.view.close();}
+});

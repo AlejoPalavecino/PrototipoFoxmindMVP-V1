@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
+import {loadTsModule} from '../../../../tests/helpers/load-ts-module.mjs';
+const asset=randomUUID(),room=randomUUID(),other=randomUUID(),unit=randomUUID(),topic=randomUUID();
+const detail=id=>({id,name:'Aula',role:'teacher',archived:false,revision:'1',units:id===room?[{id:unit,name:'Unidad',position:0,topics:[{id:topic,name:'Tema',status:'PENDING'}]}]:[]});
+function fixture(){const calls=[];const client={listVisualPublications:async()=>({items:[],nextAfterId:null}),prepareVisualPublication:async(id,input)=>{calls.push(input);return {created:true,publication:{id:randomUUID(),sourceKind:'VISUAL',assetId:id,assetRevision:'1',...input,state:'PREPARING',revision:'1'}}},inspectPublication:async()=>{throw Error('not needed')},confirmPublication:async()=>{throw Error('not needed')}};const {createFoxyVisualPublicationController}=loadTsModule('apps/web/src/lib/foxy-visual-publication-controller.ts');const c=createFoxyVisualPublicationController({client,loadClassroom:async id=>detail(id),onChange:()=>{}});c.syncAsset(asset,'1');return {c,calls};}
+test('selected classroom unit and topic are submitted with visual publication',async()=>{const {c,calls}=fixture();try{await c.setClassroomId(room);c.setTitle('Resumen');c.selectUnit(unit);c.selectTopic(topic);await c.prepare();assert.equal(calls[0].unitId,unit);assert.equal(calls[0].topicId,topic);}finally{c.dispose();}});
+test('changing classroom or unit clears dependent selection',async()=>{const {c}=fixture();try{await c.setClassroomId(room);c.selectUnit(unit);c.selectTopic(topic);c.selectUnit(null);assert.equal(c.getState().topicId,null);c.selectUnit(unit);c.selectTopic(topic);await c.setClassroomId(other);assert.equal(c.getState().unitId,null);assert.equal(c.getState().topicId,null);}finally{c.dispose();}});
+test('foreign topic cannot be selected',async()=>{const {c}=fixture();try{await c.setClassroomId(room);c.selectUnit(unit);c.selectTopic(randomUUID());assert.equal(c.getState().topicId,null);}finally{c.dispose();}});
