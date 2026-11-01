@@ -53,3 +53,9 @@ Diseñar y probar integración de gestión M4D2; revisar proveedor y contratos p
 
 - /root/red_management RED y /root/green_diagram GREEN; /root/review_management detectó overflow de regex base64, preabort con dispatch y feedback malformado. Correcciones verificadas: 17 pruebas y 36 cotizaciones bigint independientes PASS; sin credenciales, llamadas al proveedor ni ledger persistente.
 - Pendiente el adaptador real y la integración de presupuesto; las tarifas/configuración requieren validación antes de habilitar generación.
+
+## S3 — ownership de escrituras inciertas
+
+- /root/review_management y /root/architect_next reprodujeron que un PUT puede terminar después del timeout local. /root/red_management RED, /root/green_management implementó registro y drenaje de operaciones.
+- La primera propuesta bloqueaba cargas P4 independientes; revisión y arquitectura la corrigieron a barreras por scope. Revalidación: 12 pruebas S3, 9 de host/P4, sonda con PostgreSQL y S3Storage real con SDK/scanner dobles PASS; build/fronteras/Gitleaks PASS.
+- El drenaje acredita settlement local, no cancelación remota. La limpieza/liberación ante PUT incierto y pruebas con servicios reales siguen pendientes antes de habilitar el flujo.

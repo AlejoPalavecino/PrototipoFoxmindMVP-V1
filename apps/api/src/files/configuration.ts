@@ -54,8 +54,7 @@ export function createFileInfrastructure(configuration: FileInfrastructureConfig
   try {
     const storage = new S3Storage(client, configuration.bucket);
     const scanner = new ClamdScanner(configuration.scannerHost, configuration.scannerPort);
-    let closed = false;
-    return { storage, scanner, close: () => { if (!closed) { closed = true; client.destroy(); } } };
+    return { storage, scanner, close: () => storage.close() };
   } catch { client.destroy(); throw new FileError('SERVICE_UNAVAILABLE'); }
 }
 export type FileInfrastructure = ReturnType<typeof createFileInfrastructure>;

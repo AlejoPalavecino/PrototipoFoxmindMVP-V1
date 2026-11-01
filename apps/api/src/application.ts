@@ -110,7 +110,7 @@ export async function createApplication(configuration: ApiConfiguration, options
     return app;
   } catch (error) {
     if (app) { try { await app.close(); } catch { /* Preserve the original sanitized startup failure. */ } }
-    infrastructure?.close();
+    try { await infrastructure?.close(); } catch { /* Preserve the original sanitized startup failure. */ }
     invitationSender?.close();
     throw error;
   }

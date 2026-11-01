@@ -73,14 +73,14 @@ export function installFilesTransport(app: Pick<INestApplication, 'use'>, runtim
 /** Root ownership closes cleanup/storage before imported Prisma teardown; repeated framework calls are harmless. */
 export class FileHostLifecycle {
   private closing: Promise<void> | undefined;
-  constructor(private readonly worker: Pick<FileCleanupWorker, 'onModuleDestroy'>, private readonly infrastructure: { close(): void }) {}
+  constructor(private readonly worker: Pick<FileCleanupWorker, 'onModuleDestroy'>, private readonly infrastructure: { close(): void | Promise<void> }) {}
   close(): Promise<void> {
-    this.closing ??= this.drain();
+    this.closing ??= this.drain().catch(error => { this.closing = undefined; throw error; });
     return this.closing;
   }
   private async drain(): Promise<void> {
     try { await this.worker.onModuleDestroy(); }
-    finally { this.infrastructure.close(); }
+    finally { await this.infrastructure.close(); }
   }
   onModuleDestroy(): Promise<void> { return this.close(); }
 }
