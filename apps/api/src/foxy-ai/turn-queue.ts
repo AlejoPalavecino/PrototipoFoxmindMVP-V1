@@ -13,7 +13,8 @@ const running = `SELECT owner_id FROM foxy_turns WHERE state='RUNNING'
   UNION ALL SELECT owner_id FROM classroom_curriculum_extractions WHERE state='RUNNING' AND lease_until>clock_timestamp()
   UNION ALL SELECT owner_id FROM activity_ai_generations WHERE state='RUNNING' AND lease_until>clock_timestamp()
   UNION ALL SELECT owner_id FROM student_ai_reports WHERE state='RUNNING' AND lease_until>clock_timestamp()
-  UNION ALL SELECT owner_id FROM grading_ai_jobs WHERE state='RUNNING' AND lease_until>clock_timestamp()`;
+  UNION ALL SELECT owner_id FROM grading_ai_jobs WHERE state='RUNNING' AND lease_until>clock_timestamp()
+  UNION ALL SELECT owner_id FROM foxy_visual_jobs WHERE state='RUNNING' AND lease_until>clock_timestamp()`;
 async function recover(tx: SqlTransaction, config: Configuration): Promise<number> {
   const recovered = await recoverFoxyExpired(tx);
   const queued = await tx.query<{ id: string }>(`SELECT id FROM foxy_turns WHERE state='QUEUED'

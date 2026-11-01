@@ -25,7 +25,8 @@ export function claim(options: ActivityAiOptions): Promise<JobRow | null> {
       UNION ALL SELECT id FROM classroom_curriculum_extractions WHERE state='RUNNING' AND lease_until>clock_timestamp()
       UNION ALL SELECT id FROM student_ai_reports WHERE state='RUNNING' AND lease_until>clock_timestamp()
       UNION ALL SELECT id FROM grading_ai_jobs WHERE state='RUNNING' AND lease_until>clock_timestamp()
-      UNION ALL SELECT id FROM foxy_turns WHERE state='RUNNING') running`);
+      UNION ALL SELECT id FROM foxy_turns WHERE state='RUNNING'
+      UNION ALL SELECT id FROM foxy_visual_jobs WHERE state='RUNNING' AND lease_until>clock_timestamp()) running`);
     if (active!.count >= options.configuration.maxConcurrency) return null;
     const [next] = await tx.query<JobRow>(`SELECT q.* FROM activity_ai_generations q
       WHERE q.state='QUEUED' AND q.next_attempt_at<=clock_timestamp()
@@ -33,12 +34,14 @@ export function claim(options: ActivityAiOptions): Promise<JobRow | null> {
       AND NOT EXISTS(SELECT 1 FROM student_ai_reports r WHERE r.owner_id=q.owner_id AND r.state='RUNNING' AND r.lease_until>clock_timestamp())
       AND NOT EXISTS(SELECT 1 FROM grading_ai_jobs r WHERE r.owner_id=q.owner_id AND r.state='RUNNING' AND r.lease_until>clock_timestamp())
       AND NOT EXISTS(SELECT 1 FROM foxy_turns r WHERE r.owner_id=q.owner_id AND r.state='RUNNING')
+        AND NOT EXISTS(SELECT 1 FROM foxy_visual_jobs r WHERE r.owner_id=q.owner_id AND r.state='RUNNING' AND r.lease_until>clock_timestamp())
       AND NOT EXISTS(SELECT 1 FROM classroom_curriculum_extractions r WHERE r.owner_id=q.owner_id AND r.state='RUNNING')
       AND NOT EXISTS(SELECT 1 FROM classroom_curriculum_extractions a WHERE a.state='QUEUED' AND a.next_attempt_at<=clock_timestamp()
         AND (a.created_at,a.id)<(q.created_at,q.id)
         AND NOT EXISTS(SELECT 1 FROM activity_ai_generations r WHERE r.owner_id=a.owner_id AND r.state='RUNNING')
         AND NOT EXISTS(SELECT 1 FROM classroom_curriculum_extractions r WHERE r.owner_id=a.owner_id AND r.state='RUNNING')
-        AND NOT EXISTS(SELECT 1 FROM foxy_turns r WHERE r.owner_id=a.owner_id AND r.state='RUNNING'))
+        AND NOT EXISTS(SELECT 1 FROM foxy_turns r WHERE r.owner_id=a.owner_id AND r.state='RUNNING')
+        AND NOT EXISTS(SELECT 1 FROM foxy_visual_jobs r WHERE r.owner_id=a.owner_id AND r.state='RUNNING' AND r.lease_until>clock_timestamp()))
       ORDER BY q.created_at,q.id LIMIT 1 FOR UPDATE SKIP LOCKED`);
     if (!next) return null;
     const [row] = await tx.query<JobRow>(`UPDATE activity_ai_generations SET state='RUNNING',
