@@ -4,8 +4,13 @@ export type FoxyPublicationLease = { publicationId: string; ownerId: string; cla
 const fileActive = `EXISTS (SELECT 1 FROM file_custodies f WHERE f.file_id=p.file_id
   AND f.phase IN ('receiving','inspecting') AND f.lease_until>clock_timestamp())`;
 const eligible = `EXISTS (SELECT 1 FROM users u JOIN classrooms c ON c.id=p.classroom_id AND c.teacher_id=p.owner_id
-  JOIN foxy_resources r ON r.id=p.resource_id AND r.owner_id=p.owner_id AND r.revision=p.resource_revision
-  JOIN foxy_conversations origin ON origin.id=r.conversation_id AND origin.owner_id=r.owner_id AND origin.deleted_at IS NULL
+  LEFT JOIN foxy_resources r ON p.source_kind='TEXT' AND r.id=p.resource_id AND r.owner_id=p.owner_id AND r.revision=p.resource_revision
+  LEFT JOIN foxy_visual_assets v ON p.source_kind='VISUAL' AND v.id=p.source_asset_id AND v.owner_id=p.owner_id AND v.revision=p.source_asset_revision
+    AND v.state='READY' AND v.discarded_at IS NULL AND v.blob_deleted_at IS NULL AND v.quota_released_at IS NULL
+    AND v.digest IS NOT NULL AND v.validated_digest=v.digest AND v.scanned_digest=v.digest AND v.validated_at IS NOT NULL AND v.scanned_at IS NOT NULL
+    AND p.snapshot_visual=jsonb_build_object('kind','VISUAL','assetId',v.id::text,'assetRevision',v.revision::text,'digest',v.digest,'sizeBytes',v.size_bytes,
+      'mimeType',v.mime_type,'width',v.width,'height',v.height,'producerVersion',v.producer_version)
+  JOIN foxy_conversations origin ON origin.id=COALESCE(r.conversation_id,v.conversation_id) AND origin.owner_id=p.owner_id AND origin.deleted_at IS NULL
   WHERE u.id=p.owner_id AND u.account_role='teacher' AND u.email_verified_at IS NOT NULL AND c.archived_at IS NULL
   AND (origin.context_kind='GENERAL' OR EXISTS (SELECT 1 FROM classrooms source WHERE source.id=origin.classroom_id AND source.teacher_id=p.owner_id)))`;
 export function createFoxyPublicationQueue(options: { database: SqlDatabase }) {

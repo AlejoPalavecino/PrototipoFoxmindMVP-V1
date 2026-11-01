@@ -1,5 +1,6 @@
 import type { SqlDatabase, SqlTransaction } from '../../../../src/core/domain/index.ts';
 import type { FoxyPublicationLease } from './publication-queue.ts';
+import { validRasterSource, publicationFileFormat } from './publication-raster-check.ts';
 
 type Result = { state: 'READY' } | { state: 'FAILED'; errorCode: string };
 function input(value: Result): Result {
@@ -12,8 +13,8 @@ async function scopes(tx: SqlTransaction, lease: FoxyPublicationLease): Promise<
   const [owner] = await tx.query(`SELECT id FROM users WHERE id=$1::uuid AND account_role='teacher'
     AND email_verified_at IS NOT NULL FOR UPDATE`, lease.ownerId);
   if (!owner) return false;
-  const [origin] = await tx.query<{ origin_room: string | null }>(`SELECT c.classroom_id AS origin_room FROM foxy_publications p
-    JOIN foxy_resources r ON r.id=p.resource_id AND r.owner_id=p.owner_id JOIN foxy_conversations c ON c.id=r.conversation_id AND c.owner_id=r.owner_id
+  const [origin] = await tx.query<{ origin_room: string | null; source_kind?: string; source_asset_id?: string; snapshot_visual?: unknown }>(`SELECT c.classroom_id AS origin_room,p.source_kind,p.source_asset_id,p.snapshot_visual FROM foxy_publications p
+    LEFT JOIN foxy_resources r ON r.id=p.resource_id AND r.owner_id=p.owner_id LEFT JOIN foxy_visual_assets v ON v.id=p.source_asset_id AND v.owner_id=p.owner_id JOIN foxy_conversations c ON c.id=COALESCE(r.conversation_id,v.conversation_id) AND c.owner_id=p.owner_id
     WHERE p.id=$1::uuid AND p.owner_id=$2::uuid`, lease.publicationId, lease.ownerId);
   if (!origin) return false;
   const rooms = await tx.query<{ id: string; teacher_id: string; archived_at: Date | null }>(`SELECT id,teacher_id,archived_at FROM classrooms
@@ -22,6 +23,7 @@ async function scopes(tx: SqlTransaction, lease: FoxyPublicationLease): Promise<
   const source = origin.origin_room ? rooms.find(r => r.id.toLowerCase() === origin.origin_room!.toLowerCase()) : null;
   if (!target || target.teacher_id.toLowerCase() !== lease.ownerId.toLowerCase() || target.archived_at
     || (origin.origin_room && (!source || source.teacher_id.toLowerCase() !== lease.ownerId.toLowerCase()))) return false;
+  if (origin.source_kind === 'VISUAL') return !!origin.source_asset_id && await validRasterSource(tx,lease.ownerId,origin.source_asset_id,origin.snapshot_visual);
   const [valid] = await tx.query(`SELECT r.id FROM foxy_publications p JOIN foxy_resources r ON r.id=p.resource_id AND r.owner_id=p.owner_id
     JOIN foxy_conversations c ON c.id=r.conversation_id AND c.owner_id=r.owner_id WHERE p.id=$1::uuid AND p.owner_id=$2::uuid
     AND r.revision=p.resource_revision AND c.deleted_at IS NULL AND c.classroom_id IS NOT DISTINCT FROM $3::uuid FOR SHARE OF r,c`,
@@ -33,7 +35,7 @@ async function proof(tx: SqlTransaction, lease: FoxyPublicationLease): Promise<b
     JOIN uploads u ON u.file_id=f.id JOIN file_custodies c ON c.file_id=f.id
     WHERE p.id=$1::uuid AND p.owner_id=$2::uuid AND p.classroom_id=$3::uuid AND p.lease_nonce=$4::uuid
     AND p.state='PREPARING' AND p.lease_until>clock_timestamp() AND f.classroom_id=p.classroom_id AND f.uploaded_by_id=p.owner_id
-    AND f.blob_deleted_at IS NULL AND f.extension='pdf' AND f.detected_mime_type='application/pdf' AND f.size_bytes=p.artifact_size_bytes
+    AND f.blob_deleted_at IS NULL AND ${publicationFileFormat} AND f.size_bytes=p.artifact_size_bytes
     AND f.validation_status='APPROVED' AND f.scan_status='CLEAN' AND f.validated_at IS NOT NULL AND f.scanned_at IS NOT NULL
     AND u.status='COMPLETED' AND u.completed_at IS NOT NULL AND c.purpose='material' AND c.target_id IS NULL AND c.phase='ready'
     AND c.digest=p.artifact_digest AND c.validated_digest=p.artifact_digest AND c.scanned_digest=p.artifact_digest FOR UPDATE OF p,f,u,c`,

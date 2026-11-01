@@ -1,6 +1,6 @@
 import type { FoxyPublicationLease } from './publication-queue.ts';
 import type { createFoxyPublicationAuthority } from './publication-authority.ts';
-import type { createDurableFoxyPublicationFiles } from '../files/index.ts';
+import type { createDurableFoxyPublicationFiles, createDurableFoxyPublicationRasterSource } from '../files/index.ts';
 import type { createFoxyPublicationCompletion } from './publication-completion.ts';
 import type { renderFoxyTextPdf } from './resource-pdf.ts';
 
@@ -10,6 +10,7 @@ type Options = { queue: { claim(): Promise<FoxyPublicationLease | null>; renew(l
   authority: Pick<Authority, 'open' | 'existingFile' | 'createFileCapability' | 'close'>;
   files: ReturnType<typeof createDurableFoxyPublicationFiles>;
   renderer: { render: typeof renderFoxyTextPdf };
+  rasterSource?: ReturnType<typeof createDurableFoxyPublicationRasterSource>;
   completion: Pick<ReturnType<typeof createFoxyPublicationCompletion>, 'finish'> };
 type Scope = Awaited<ReturnType<Authority['open']>>;
 function errorCode(error: unknown): string {
@@ -29,14 +30,23 @@ export function createFoxyPublicationWorker(options: Options) {
       if (status === 'BUSY') { await options.queue.release(lease); return; }
       if (status === 'UNAVAILABLE') throw Object.assign(new Error('FILE_NOT_READY'), { code: 'FILE_NOT_READY' });
       if (status !== 'READY') {
-        const artifact = await options.renderer.render(scope.snapshot, signal); signal.throwIfAborted();
+        const raster = 'kind' in scope.snapshot && scope.snapshot.kind === 'VISUAL';
+        let bytes: Uint8Array; let descriptor: Parameters<Options['files']['ensureFile']>[1];
+        if (raster) {
+          if (!options.rasterSource) throw Object.assign(new Error('FILE_NOT_READY'), { code:'FILE_NOT_READY' });
+          const image = await options.rasterSource.read(scope.capability,signal); bytes=image.bytes; descriptor=image.artifact;
+        } else {
+          const pdf = await options.renderer.render(scope.snapshot as {title:string;markdown:string},signal);
+          if (pdf.rendererVersion !== 'foxy-text-pdf-v1' && pdf.rendererVersion !== 'foxy-pdf-v1') throw Object.assign(new Error('FILE_NOT_READY'), {code:'FILE_NOT_READY'});
+          bytes=pdf.bytes; descriptor={digest:pdf.digest,sizeBytes:pdf.bytes.byteLength,pageCount:pdf.pageCount,rendererVersion:pdf.rendererVersion};
+        }
+        signal.throwIfAborted();
         if (!file) {
-          const allocated = await options.files.ensureFile(scope.capability, { digest: artifact.digest, sizeBytes: artifact.bytes.byteLength,
-            pageCount: artifact.pageCount, rendererVersion: artifact.rendererVersion }, signal);
+          const allocated = await options.files.ensureFile(scope.capability, descriptor, signal);
           if (!allocated) throw Object.assign(new Error('FILE_NOT_READY'), { code: 'FILE_NOT_READY' });
           signal.throwIfAborted(); file = await options.authority.createFileCapability(scope.capability, signal);
         }
-        signal.throwIfAborted(); await options.files.receive(file.capability, artifact.bytes, signal); signal.throwIfAborted();
+        signal.throwIfAborted(); await options.files.receive(file.capability, bytes, signal); signal.throwIfAborted();
       }
       if (!file) throw Object.assign(new Error('FILE_NOT_READY'), { code: 'FILE_NOT_READY' });
       await options.files.proof(file.capability, signal); signal.throwIfAborted();

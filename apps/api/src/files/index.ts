@@ -25,3 +25,5 @@ export { createFoxyPrivateImageInspector } from './foxy-private-image-inspector.
 
 export { createFoxyPrivateAssetFiles } from './foxy-private-asset-files.ts';
 export type { ObjectStorage } from './storage.ts';
+
+export { createDurableFoxyPublicationRasterSource } from './foxy-publication-raster-source.ts';

@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import type { FoxyPublicationArtifact } from '../../../../src/core/domain/index.ts';
 import { isDeepStrictEqual } from 'node:util';
 import { FileService, requireReady } from './service.ts';
 import { FileError } from './errors.ts';
@@ -56,7 +57,7 @@ export function createDurableFoxyPublicationFiles(options: { files: FileService;
     } finally { states.delete(request); }
   }
   return {
-    ensureFile: (capability: object, artifact: { digest: string; sizeBytes: number; pageCount: number; rendererVersion: string }, signal: AbortSignal) => {
+    ensureFile: (capability: object, artifact: FoxyPublicationArtifact, signal: AbortSignal) => {
       const copy = { ...artifact };
       return withRequest(capability, signal, 'claim', (request, grant) => allocator.ensureFile(request, grant, copy, signal));
     },
