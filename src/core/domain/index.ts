@@ -37,3 +37,6 @@ export type { FoxySourceKind, FoxySourceCursor, FoxySourceQuery } from './foxy-a
 export { parseGroundedFoxyAnswer } from './foxy-ai-answer-grounded.ts';
 export type { FoxyAnswerReferenceMap, GroundedFoxyReference, GroundedFoxyAnswer } from './foxy-ai-answer-grounded.ts';
 export type { FoxyTextInput, FoxyTextResponse } from './foxy-ai-text.ts';
+
+export type * from './foxy-ai-asset.ts';
+export { assetUuid, parseReserveFoxyPrivateAsset, parseFoxyPrivateAssetQuota } from './foxy-ai-asset-validation.ts';

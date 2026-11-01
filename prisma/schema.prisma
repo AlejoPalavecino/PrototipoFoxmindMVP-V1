@@ -98,6 +98,7 @@ enum JobStatus {
 }
 
 model User {
+  foxy_visual_assets FoxyVisualAsset[]
   foxy_conversations FoxyConversation[]
   foxy_conversation_requests FoxyConversationRequest[]
   grading_ai_jobs GradingAiJob[]
@@ -1065,6 +1066,7 @@ model GradingAiJob {
 }
 
 model FoxyConversation {
+  visual_assets FoxyVisualAsset[]
   id String @id @db.Uuid
   owner_id String @db.Uuid
   context_kind String
@@ -1226,4 +1228,50 @@ model FoxyPublicationCommandRequest {
   publication FoxyPublication @relation(fields: [publication_id, owner_id], references: [id, owner_id], onDelete: Restrict, onUpdate: NoAction, map: "foxy_command_publication_fkey")
   @@id([owner_id, request_id])
   @@map("foxy_publication_command_requests")
+}
+
+model FoxyVisualAsset {
+  id String @id @db.Uuid
+  owner_id String @db.Uuid
+  conversation_id String @db.Uuid
+  request_id String @db.Uuid
+  input_hash String
+  conversation_revision BigInt
+  kind String
+  aspect_ratio String
+  state String @default("RESERVED")
+  revision BigInt @default(0)
+  reserved_bytes BigInt
+  charge_bytes BigInt
+  storage_key String @unique
+  digest String?
+  size_bytes BigInt?
+  mime_type String?
+  width Int?
+  height Int?
+  producer_version String?
+  title String?
+  description String?
+  diagram Json?
+  validated_digest String?
+  scanned_digest String?
+  validated_at DateTime? @db.Timestamptz(6)
+  scanned_at DateTime? @db.Timestamptz(6)
+  lease_nonce String? @db.Uuid
+  lease_until DateTime? @db.Timestamptz(6)
+  created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  updated_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  last_activity_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  error_code String?
+  discarded_at DateTime? @db.Timestamptz(6)
+  blob_deleted_at DateTime? @db.Timestamptz(6)
+  quota_released_at DateTime? @db.Timestamptz(6)
+  owner User @relation(fields: [owner_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  conversation FoxyConversation @relation(fields: [conversation_id, owner_id], references: [id, owner_id], onDelete: Restrict, onUpdate: NoAction)
+  @@unique([owner_id, request_id])
+  @@unique([id, owner_id])
+  @@index([owner_id, created_at(sort: Desc), id(sort: Desc)], map: "foxy_visual_assets_owner_created_idx")
+  @@index([state, last_activity_at, id], map: "foxy_visual_assets_cleanup_idx")
+  @@index([discarded_at, lease_until, id], map: "foxy_visual_assets_deletion_idx")
+  @@map("foxy_visual_assets")
 }
