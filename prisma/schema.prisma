@@ -1175,6 +1175,8 @@ model FoxyPublication {
   topic_id String? @db.Uuid
   title String
   error_code String?
+  discarded_at DateTime? @db.Timestamptz(6)
+  cleanup_error_code String?
   state String @default("PREPARING")
   revision BigInt @default(0)
   lease_nonce String? @db.Uuid
@@ -1187,6 +1189,7 @@ model FoxyPublication {
   material_id String? @unique @db.Uuid
   material Material? @relation("FoxyPublicationMaterial", fields: [material_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "foxy_publications_material_fkey")
   confirmation FoxyPublicationConfirmRequest?
+  commands FoxyPublicationCommandRequest[]
   file FileObject? @relation(fields: [file_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "foxy_publications_file_fkey")
   created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
   classroom Classroom @relation(fields: [classroom_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
@@ -1210,4 +1213,17 @@ model FoxyPublicationConfirmRequest {
   @@id([owner_id, request_id])
   @@unique([publication_id, owner_id], map: "foxy_confirm_publication_owner_key")
   @@map("foxy_publication_confirm_requests")
+}
+
+model FoxyPublicationCommandRequest {
+  owner_id String @db.Uuid
+  request_id String @db.Uuid
+  publication_id String @db.Uuid
+  action String
+  input_hash String
+  publication_revision BigInt
+  created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  publication FoxyPublication @relation(fields: [publication_id, owner_id], references: [id, owner_id], onDelete: Restrict, onUpdate: NoAction, map: "foxy_command_publication_fkey")
+  @@id([owner_id, request_id])
+  @@map("foxy_publication_command_requests")
 }

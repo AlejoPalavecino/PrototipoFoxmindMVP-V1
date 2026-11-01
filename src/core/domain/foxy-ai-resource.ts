@@ -11,7 +11,7 @@ export interface PrepareFoxyPublication {
 export interface ConfirmFoxyPublication {
   requestId: string; publicationRevision: string; classroomRevision: string; confirm: true;
 }
-export type FoxyPublicationState = 'PREPARING' | 'READY' | 'FAILED' | 'PUBLISHED';
+export type FoxyPublicationState = 'PREPARING' | 'READY' | 'FAILED' | 'PUBLISHED' | 'DISCARDED';
 export interface FoxyPublicationSummary {
   id: string; resourceId: string; resourceRevision: string; classroomId: string;
   unitId: string | null; topicId: string | null; title: string; state: FoxyPublicationState; revision: string;
@@ -23,3 +23,10 @@ export interface FoxyPublicationInspection {
 export interface FoxyPublicationConfirmation {
   publicationId: string; materialId: string; publicationRevision: string; classroomRevision: string;
 }
+
+export interface RetryFoxyPublication { requestId: string; publicationRevision: string }
+export interface DiscardFoxyPublication extends RetryFoxyPublication { confirm: true }
+export interface FoxyPublicationCommandReceipt { publicationId: string; action: 'RETRY' | 'DISCARD'; publicationRevision: string }
+export type FoxyPublicationRetryReason = 'STATE' | 'SOURCE_CHANGED' | 'DESTINATION_UNAVAILABLE' | 'INVALID_RESOURCE' | 'REFERENCED' | 'BUSY' | 'CONTENT_REJECTED' | 'FILE_UNAVAILABLE';
+export type FoxyPublicationCleanupState = 'NOT_REQUESTED' | 'PENDING' | 'FAILED' | 'DONE';
+export interface FoxyPublicationManagement { publicationId: string; publicationRevision: string; canRetry: boolean; retryReason: FoxyPublicationRetryReason | null; canDiscard: boolean; cleanupState: FoxyPublicationCleanupState }

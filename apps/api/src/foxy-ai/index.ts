@@ -37,3 +37,4 @@ export { createFoxyPublicationWorker } from './publication-worker.ts';
 export { createFoxyPublicationConfirmationRepository } from './publication-confirmation-repository.ts';
 export { createFoxyPublicationService } from './publication-service.ts';
 export { createFoxyPublicationFileReader } from './publication-file-reader.ts';
+export { createFoxyPublicationManagementRepository } from './publication-management-repository.ts';

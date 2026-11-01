@@ -1,6 +1,6 @@
 import { invalidInput, strictObject } from './study-plan.ts';
 import { activityRevision, activityUuid } from './activity-generation-values.ts';
-import type { FoxyAnswer, FoxyReference, EditFoxyResource, PrepareFoxyPublication, ConfirmFoxyPublication } from './foxy-ai-resource.ts';
+import type { FoxyAnswer, FoxyReference, EditFoxyResource, PrepareFoxyPublication, ConfirmFoxyPublication, RetryFoxyPublication, DiscardFoxyPublication } from './foxy-ai-resource.ts';
 
 function text(value: unknown, max?: number): string {
   if (typeof value !== 'string' || !value.trim() || (max !== undefined && [...value].length > max)
@@ -43,4 +43,14 @@ export function parseConfirmFoxyPublication(value: unknown): ConfirmFoxyPublicat
   if (v.confirm !== true) return invalidInput();
   return { requestId: activityUuid(v.requestId), publicationRevision: activityRevision(v.publicationRevision),
     classroomRevision: activityRevision(v.classroomRevision), confirm: true };
+}
+
+export function parseRetryFoxyPublication(value: unknown): RetryFoxyPublication {
+  const v = strictObject(value, ['requestId', 'publicationRevision']);
+  return { requestId: activityUuid(v.requestId), publicationRevision: activityRevision(v.publicationRevision) };
+}
+export function parseDiscardFoxyPublication(value: unknown): DiscardFoxyPublication {
+  const v = strictObject(value, ['requestId', 'publicationRevision', 'confirm']);
+  if (v.confirm !== true) return invalidInput();
+  return { requestId: activityUuid(v.requestId), publicationRevision: activityRevision(v.publicationRevision), confirm: true };
 }
