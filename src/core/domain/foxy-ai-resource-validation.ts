@@ -1,6 +1,6 @@
 import { invalidInput, strictObject } from './study-plan.ts';
 import { activityRevision, activityUuid } from './activity-generation-values.ts';
-import type { FoxyAnswer, FoxyReference, EditFoxyResource, PrepareFoxyPublication, ConfirmFoxyPublication, RetryFoxyPublication, DiscardFoxyPublication } from './foxy-ai-resource.ts';
+import type { FoxyAnswer, FoxyReference, EditFoxyResource, PrepareFoxyPublication, PrepareFoxyVisualPublication, ConfirmFoxyPublication, RetryFoxyPublication, DiscardFoxyPublication } from './foxy-ai-resource.ts';
 
 function text(value: unknown, max?: number): string {
   if (typeof value !== 'string' || !value.trim() || (max !== undefined && [...value].length > max)
@@ -36,6 +36,13 @@ export function parsePrepareFoxyPublication(value: unknown): PrepareFoxyPublicat
   const unitId = nullableUuid(v.unitId), topicId = nullableUuid(v.topicId);
   if ((topicId !== null && unitId === null) || (typeof v.title === 'string' && /[\u0009\u000a]/u.test(v.title))) return invalidInput();
   return { requestId: activityUuid(v.requestId), resourceRevision: activityRevision(v.resourceRevision),
+    classroomId: activityUuid(v.classroomId), title: text(v.title, 200), unitId, topicId };
+}
+export function parsePrepareFoxyVisualPublication(value: unknown): PrepareFoxyVisualPublication {
+  const v = strictObject(value, ['requestId', 'assetRevision', 'classroomId', 'title', 'unitId', 'topicId']);
+  const unitId = nullableUuid(v.unitId), topicId = nullableUuid(v.topicId);
+  if ((topicId !== null && unitId === null) || (typeof v.title === 'string' && /[\u0009\u000a]/u.test(v.title))) return invalidInput();
+  return { requestId: activityUuid(v.requestId), assetRevision: activityRevision(v.assetRevision),
     classroomId: activityUuid(v.classroomId), title: text(v.title, 200), unitId, topicId };
 }
 export function parseConfirmFoxyPublication(value: unknown): ConfirmFoxyPublication {

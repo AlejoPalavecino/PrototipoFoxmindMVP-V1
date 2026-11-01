@@ -8,6 +8,9 @@ export interface PrepareFoxyPublication {
   requestId: string; resourceRevision: string; classroomId: string; title: string;
   unitId: string | null; topicId: string | null;
 }
+export interface PrepareFoxyVisualPublication {
+  requestId: string; assetRevision: string; classroomId: string; title: string; unitId: string | null; topicId: string | null;
+}
 export interface ConfirmFoxyPublication {
   requestId: string; publicationRevision: string; classroomRevision: string; confirm: true;
 }
@@ -16,8 +19,17 @@ export interface FoxyPublicationSummary {
   id: string; resourceId: string; resourceRevision: string; classroomId: string;
   unitId: string | null; topicId: string | null; title: string; state: FoxyPublicationState; revision: string;
 }
+export type FoxyVisualPublicationSummary = Omit<FoxyPublicationSummary, 'resourceId' | 'resourceRevision'> & {
+  sourceKind: 'VISUAL'; assetId: string; assetRevision: string;
+};
+export type FoxyAnyPublicationSummary = FoxyPublicationSummary | FoxyVisualPublicationSummary;
+export interface FoxyRasterPublicationArtifact {
+  kind: 'RASTER'; digest: string; sizeBytes: number; mimeType: 'image/png' | 'image/jpeg'; extension: 'png' | 'jpg';
+  width: number; height: number; producerVersion: 'foxy-diagram-png-v1' | 'foxy-image-original-v1';
+}
+export type FoxyPublicationArtifact = { digest: string; sizeBytes: number; pageCount: number; rendererVersion: 'foxy-text-pdf-v1' | 'foxy-pdf-v1' } | FoxyRasterPublicationArtifact;
 export interface FoxyPublicationInspection {
-  publication: FoxyPublicationSummary; classroomRevision: string; classroomArchived: boolean;
+  publication: FoxyAnyPublicationSummary; classroomRevision: string; classroomArchived: boolean;
   errorCode: 'AI_INPUT_LIMIT' | 'INVALID_INPUT' | 'FILE_NOT_READY' | null;
 }
 export interface FoxyPublicationConfirmation {

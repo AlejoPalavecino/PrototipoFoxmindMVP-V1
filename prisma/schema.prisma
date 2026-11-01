@@ -98,6 +98,7 @@ enum JobStatus {
 }
 
 model User {
+  foxy_visual_jobs FoxyVisualJob[]
   foxy_visual_assets FoxyVisualAsset[]
   foxy_private_asset_commands FoxyPrivateAssetCommand[]
   foxy_conversations FoxyConversation[]
@@ -1067,6 +1068,7 @@ model GradingAiJob {
 }
 
 model FoxyConversation {
+  visual_jobs FoxyVisualJob[]
   visual_assets FoxyVisualAsset[]
   id String @id @db.Uuid
   owner_id String @db.Uuid
@@ -1169,10 +1171,14 @@ model FoxyPublication {
   owner_id String @db.Uuid
   request_id String @db.Uuid
   input_hash String
-  resource_id String @db.Uuid
-  resource_revision BigInt
+  resource_id String? @db.Uuid
+  resource_revision BigInt?
+  source_kind String @default("TEXT")
+  source_asset_id String? @db.Uuid
+  source_asset_revision BigInt?
+  snapshot_visual Json?
   snapshot_title String
-  snapshot_markdown String
+  snapshot_markdown String?
   classroom_id String @db.Uuid
   unit_id String? @db.Uuid
   topic_id String? @db.Uuid
@@ -1188,6 +1194,9 @@ model FoxyPublication {
   artifact_digest String?
   artifact_size_bytes Int?
   artifact_page_count Int?
+  artifact_mime_type String?
+  artifact_width Int?
+  artifact_height Int?
   renderer_version String?
   material_id String? @unique @db.Uuid
   material Material? @relation("FoxyPublicationMaterial", fields: [material_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "foxy_publications_material_fkey")
@@ -1196,7 +1205,8 @@ model FoxyPublication {
   file FileObject? @relation(fields: [file_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "foxy_publications_file_fkey")
   created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
   classroom Classroom @relation(fields: [classroom_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
-  resource FoxyResource @relation(fields: [resource_id, owner_id], references: [id, owner_id], onDelete: Restrict, onUpdate: NoAction, map: "foxy_publications_resource_fkey")
+  resource FoxyResource? @relation(fields: [resource_id, owner_id], references: [id, owner_id], onDelete: Restrict, onUpdate: NoAction, map: "foxy_publications_resource_fkey")
+  source_asset FoxyVisualAsset? @relation(fields: [source_asset_id, owner_id], references: [id, owner_id], onDelete: Restrict, onUpdate: NoAction, map: "foxy_publications_asset_fkey")
   @@unique([id, owner_id], map: "foxy_publications_id_owner_key")
   @@unique([owner_id, request_id], map: "foxy_publications_request_key")
   @@map("foxy_publications")
@@ -1232,7 +1242,9 @@ model FoxyPublicationCommandRequest {
 }
 
 model FoxyVisualAsset {
+  visual_job FoxyVisualJob?
   commands FoxyPrivateAssetCommand[]
+  publications FoxyPublication[]
   id String @id @db.Uuid
   owner_id String @db.Uuid
   conversation_id String @db.Uuid
@@ -1272,6 +1284,7 @@ model FoxyVisualAsset {
   conversation FoxyConversation @relation(fields: [conversation_id, owner_id], references: [id, owner_id], onDelete: Restrict, onUpdate: NoAction)
   @@unique([owner_id, request_id])
   @@unique([id, owner_id])
+  @@unique([id, owner_id, conversation_id])
   @@index([owner_id, created_at(sort: Desc), id(sort: Desc)], map: "foxy_visual_assets_owner_created_idx")
   @@index([state, last_activity_at, id], map: "foxy_visual_assets_cleanup_idx")
   @@index([discarded_at, lease_until, id], map: "foxy_visual_assets_deletion_idx")
@@ -1290,4 +1303,42 @@ model FoxyPrivateAssetCommand {
   asset FoxyVisualAsset @relation(fields: [asset_id, owner_id], references: [id, owner_id], onDelete: Restrict, onUpdate: NoAction)
   @@id([owner_id, request_id])
   @@map("foxy_private_asset_commands")
+}
+
+model FoxyVisualJob {
+  id String @id @db.Uuid
+  owner_id String @db.Uuid
+  conversation_id String @db.Uuid
+  request_id String @db.Uuid
+  asset_id String @unique @db.Uuid
+  input_hash String
+  prompt String
+  kind String
+  aspect_ratio String
+  selection Json
+  snapshot Json
+  profile Json
+  conversation_revision BigInt
+  state String @default("QUEUED")
+  revision BigInt @default(0)
+  error_code String?
+  lease_nonce String? @db.Uuid
+  lease_until DateTime? @db.Timestamptz(6)
+  dispatch_count Int @default(0)
+  dispatch_started_at DateTime? @db.Timestamptz(6)
+  reserved_microusd BigInt @default(0)
+  usage_day DateTime? @db.Date
+  preflight_tokens BigInt?
+  input_tokens BigInt?
+  output_tokens BigInt?
+  created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  updated_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  owner User @relation(fields: [owner_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  conversation FoxyConversation @relation(fields: [conversation_id, owner_id], references: [id, owner_id], onDelete: Restrict, onUpdate: NoAction)
+  asset FoxyVisualAsset @relation(fields: [asset_id, owner_id, conversation_id], references: [id, owner_id, conversation_id], onDelete: Restrict, onUpdate: NoAction)
+  @@unique([owner_id, request_id])
+  @@unique([asset_id, owner_id, conversation_id])
+  @@index([conversation_id, created_at(sort: Desc), id(sort: Desc)], map: "foxy_visual_jobs_conversation_created_idx")
+  @@index([state, created_at, id], map: "foxy_visual_jobs_queue_idx")
+  @@map("foxy_visual_jobs")
 }
