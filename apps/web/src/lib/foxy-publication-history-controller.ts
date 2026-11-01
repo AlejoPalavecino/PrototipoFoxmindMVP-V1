@@ -13,6 +13,7 @@ type Options = { client: Pick<WebFoxyClient, 'listPublications' | 'inspectPublic
 const initial = (): State => ({ resourceId: null, items: [], nextAfterId: null, selectedId: null, inspection: null,
   staleResource: false, loading: false, inspectionLoading: false, error: null, inspectionError: null });
 const same = (a: string, b: string) => a.toLowerCase() === b.toLowerCase();
+const terminal = (p: FoxyPublicationSummary) => p.state === 'PUBLISHED' || p.state === 'DISCARDED';
 const newer = (a: FoxyPublicationSummary, b: FoxyPublicationSummary) => BigInt(a.revision) >= BigInt(b.revision) ? a : b;
 const accessLost = (e: unknown) => ['AUTH_REQUIRED', 'EMAIL_VERIFICATION_REQUIRED', 'FORBIDDEN', 'NOT_FOUND'].includes((e as { code?: string } | null)?.code ?? '');
 
@@ -51,10 +52,17 @@ export function createFoxyPublicationHistoryController(options: Options) {
       if (disposed || version !== generation) return;
       const safeItems = page.items.filter(p => same(p.resourceId, id)).map(p => {
         const key = p.id.toLowerCase(), known = publications.get(key);
-        if (known?.state === 'PUBLISHED' && p.state !== 'PUBLISHED') return { ...known };
+        if (known && terminal(known) && p.state !== known.state) return { ...known };
         const latest = known ? newer(known, p) : p;
         publications.set(key, { ...latest }); return { ...latest };
       });
+      const selected = state.inspection?.publication;
+      const updated = selected && safeItems.find(p => same(p.id, selected.id) && BigInt(p.revision) > BigInt(selected.revision));
+      if (updated) {
+        selection++; selectedAbort.abort(); selectedAbort = new AbortController(); stopTimer();
+        emit({ inspection: null, inspectionLoading: false, inspectionError: 'La preparación cambió; actualizá su estado.' });
+        if (disposed || version !== generation) return;
+      }
       const existing = refresh ? [] : state.items;
       let items = merge(existing, safeItems.filter(p => same(p.resourceId, id)));
       if (refresh) items = items.map(item => { const prior = state.items.find(p => same(p.id, item.id)); return prior ? newer(prior, item) : item; });
@@ -90,7 +98,7 @@ export function createFoxyPublicationHistoryController(options: Options) {
       const p = value.publication, classroomKey = p.classroomId.toLowerCase();
       const high = classroomRevisions.get(classroomKey), priorPublication = publications.get(p.id.toLowerCase());
       if ((high !== undefined && BigInt(value.classroomRevision) < high)
-        || (priorPublication?.state === 'PUBLISHED' && p.state !== 'PUBLISHED')) {
+        || (priorPublication && terminal(priorPublication) && p.state !== priorPublication.state)) {
         emit({ inspection: null, inspectionLoading: false, inspectionError: 'La preparación cambió; actualizá su estado.' }); return;
       }
       const known = priorPublication ?? state.items.find(item => same(item.id, id));

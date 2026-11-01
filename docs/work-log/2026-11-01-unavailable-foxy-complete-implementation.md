@@ -20,3 +20,8 @@ Diseñar y probar integración de gestión M4D2; revisar proveedor y contratos p
 - /root/green_management: runtime, fachada y guarda de sesión conectados; TypeScript y fronteras PASS.
 - /root/review_management: LGTM solo lectura; verificó cliente único, aborto/limpieza por identidad, matriz de guardas, borrador y 69 pruebas. Sin DB, proveedor ni navegador.
 - Pendiente: panel visible M4D3 y recorrido integrado de recuperación/descarte. Sin cambios en imágenes/esquemas aún.
+
+## M4D3 — panel de gestión
+
+- /root/red_management: RED panel y dos casos de terminalidad DISCARDED; /root/green_management implementó panel y /root/fix_discard_terminal corrigió historial.
+- /root/review_management: 40 pruebas de panel/workspace/historial PASS, sondas de texto, confirmación y estados de limpieza, TypeScript/fronteras/Gitleaks PASS. Se corrigió inspección READY obsoleta frente a DISCARDED más reciente. Sin DB ni navegador; QA vivo pendiente.

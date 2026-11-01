@@ -3,11 +3,13 @@ import { openDialog } from '../../../shared-ui/dialog-focus';
 import type { Classroom } from '../../../classrooms-ui/api';
 import type { createFoxyWorkspaceRuntime } from '../lib/foxy-workspace-runtime';
 import type { createFoxyWorkspaceActions } from '../lib/foxy-workspace-actions';
+import { FoxyPublicationManagementPanel } from './foxy-publication-management-panel';
 
 type RuntimeState = ReturnType<ReturnType<typeof createFoxyWorkspaceRuntime>['getState']>;
 type Actions = ReturnType<typeof createFoxyWorkspaceActions>;
 type Props = { resource: NonNullable<RuntimeState['resource']>; preparation: NonNullable<RuntimeState['preparation']>;
   history: NonNullable<RuntimeState['history']>; confirmation: NonNullable<RuntimeState['confirmation']>;
+  management?: RuntimeState['management'];
   classrooms: Classroom[]; ui: ReturnType<Actions['getState']>; actions: Actions;
   publicationFileUrl: (id: string, mode: 'preview' | 'download') => string };
 const button = 'p5-action';
@@ -19,7 +21,12 @@ export function FoxyResourceWorkspace(props: Props) {
   const draft = resource.draft, destination = preparation.destination;
   const currentUnit = destination?.units.find(unit => unit.id === preparation.metadata.unitId);
   const inspected = history.inspection, pub = inspected?.publication;
-  const available = !!pub && !history.staleResource && (pub.state === 'READY' || pub.state === 'PUBLISHED');
+  const samePublication = (id: string) => !!pub && id.toLowerCase() === pub.id.toLowerCase();
+  const discardedKnown = !!pub && (pub.state === 'DISCARDED'
+    || history.items.some(item => samePublication(item.id) && item.state === 'DISCARDED')
+    || (!!preparation.result && samePublication(preparation.result.id) && preparation.result.state === 'DISCARDED')
+    || (props.management?.receipt?.action === 'DISCARD' && samePublication(props.management.receipt.publicationId)));
+  const available = !!pub && !discardedKnown && !history.staleResource && (pub.state === 'READY' || pub.state === 'PUBLISHED');
   const link = (mode: 'preview' | 'download') => {
     if (!available || !pub || !/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/iu.test(pub.id)) return null;
     const url = props.publicationFileUrl(pub.id, mode), expected = `/api/v1/foxy-ai/publications/${pub.id}/file?mode=${mode}`;
@@ -27,6 +34,8 @@ export function FoxyResourceWorkspace(props: Props) {
   };
   const preview = link('preview'), download = link('download');
   const confirmLocked = confirmation.busy || !!confirmation.pending;
+  const managementLocked = !!props.management?.busy || !!props.management?.pending;
+  const mutationLocked = confirmLocked || managementLocked;
   const invalid = (value: string, max: number) => !value.trim() || [...value].length > max || /[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/u.test(value);
   const invalidTitle = !!draft && invalid(draft.title, 200), invalidText = !!draft && invalid(draft.markdown, 50000);
   const receiptId = confirmation.receipt?.publicationId;
@@ -41,7 +50,7 @@ export function FoxyResourceWorkspace(props: Props) {
       <h3 id="foxy-leave-title">Antes de salir</h3>
       <p>{ui.leave.reason === 'unsaved' ? 'Tenés cambios sin guardar.' : 'La solicitud puede haberse completado. Podés consultar el resultado al volver.'}</p>
       {ui.leave.canSave && <button type="button" className={button} onClick={() => void actions.saveAndContinue()}>Guardar y continuar</button>}
-      <button type="button" className={button} onClick={() => void actions.discardAndContinue()}>Descartar cambios y continuar</button>
+      <button type="button" className={button} onClick={() => void actions.discardAndContinue()}>{ui.leave.reason === 'unsaved' ? 'Descartar cambios y continuar' : 'Cerrar vista y continuar'}</button>
       <button type="button" className={button} onClick={() => actions.cancelLeave()}>Seguir editando</button>
     </section> : null}
     {ui.error && <p role="alert">{ui.error}</p>}
@@ -64,57 +73,60 @@ export function FoxyResourceWorkspace(props: Props) {
           <button type="button" className={button} onClick={() => actions.resource.resolveConflict('keep-local')}>Conservar mis cambios</button>
           <button type="button" className={button} onClick={() => actions.resource.resolveConflict('use-server')}>Usar versión guardada</button></section>}
         {resource.errorCode === 'CONFLICT' && !resource.conflict && <button type="button" className={button} onClick={() => void actions.resource.refreshConflict()}>Consultar versión guardada</button>}
-        {resource.pending ? <button type="button" className={button} onClick={() => void actions.resource.retry()}>Reintentar guardado</button>
-          : <button type="button" className="p5-primary" disabled={!resource.dirty || resource.busy || confirmLocked} onClick={() => void actions.resource.save()}>Guardar cambios</button>}
+        {resource.pending ? <button type="button" className={button} disabled={mutationLocked} onClick={() => void actions.resource.retry()}>Reintentar guardado</button>
+          : <button type="button" className="p5-primary" disabled={!resource.dirty || resource.busy || mutationLocked} onClick={() => void actions.resource.save()}>Guardar cambios</button>}
       </section>
       <section aria-labelledby="foxy-publish-title" style={{ flex: '1 1 20rem', minWidth: 0 }}>
         <h3 id="foxy-publish-title">Preparar para Biblioteca</h3>
         <p>La preparación es privada y todavía no es visible para estudiantes.</p>
         <label htmlFor="foxy-destination">Aula de destino</label>
-        <select id="foxy-destination" value={destination?.id ?? ''} disabled={confirmLocked || !!preparation.pending || preparation.busy}
+        <select id="foxy-destination" value={destination?.id ?? ''} disabled={mutationLocked || !!preparation.pending || preparation.busy}
           onChange={e => { if (e.currentTarget.value) void actions.preparation.selectDestination(e.currentTarget.value); }}>
           <option value="">Elegí un aula</option>{classrooms.filter(room => room.role === 'teacher' && !room.archived).map(room => <option key={room.id} value={room.id}>{room.name}</option>)}
         </select>
         {ui.loadingDestinationId && <p role="status">Cargando aula…</p>}
         <label htmlFor="foxy-publication-title">Título en Biblioteca</label>
-        <input id="foxy-publication-title" value={preparation.metadata.title} disabled={confirmLocked || !!preparation.pending || preparation.busy}
+        <input id="foxy-publication-title" value={preparation.metadata.title} disabled={mutationLocked || !!preparation.pending || preparation.busy}
           onChange={e => actions.preparation.setTitle(e.currentTarget.value)} />
         <label htmlFor="foxy-unit">Unidad</label>
-        <select id="foxy-unit" value={preparation.metadata.unitId ?? ''} disabled={!destination || confirmLocked || !!preparation.pending || preparation.busy}
+        <select id="foxy-unit" value={preparation.metadata.unitId ?? ''} disabled={!destination || mutationLocked || !!preparation.pending || preparation.busy}
           onChange={e => actions.preparation.selectUnit(e.currentTarget.value || null)}>
           <option value="">Material adicional</option>{destination?.units.filter(unit => unit.id).map(unit => <option key={unit.id} value={unit.id}>{unit.name}</option>)}
         </select>
         <label htmlFor="foxy-topic">Tema</label>
-        <select id="foxy-topic" value={preparation.metadata.topicId ?? ''} disabled={!currentUnit || confirmLocked || !!preparation.pending || preparation.busy}
+        <select id="foxy-topic" value={preparation.metadata.topicId ?? ''} disabled={!currentUnit || mutationLocked || !!preparation.pending || preparation.busy}
           onChange={e => actions.preparation.selectTopic(e.currentTarget.value || null)}>
           <option value="">Sin tema</option>{currentUnit?.topics.filter(topic => topic.id).map(topic => <option key={topic.id} value={topic.id}>{topic.name}</option>)}
         </select>
         {preparation.error && <p role="alert">{preparation.error}</p>}
-        {preparation.pending ? <button type="button" className={button} onClick={() => void actions.preparation.retry()}>Reintentar preparación</button>
-          : <button type="button" className="p5-primary" disabled={!preparation.canPrepare || confirmLocked} onClick={() => void actions.preparation.prepare()}>Preparar PDF</button>}
+        {preparation.pending ? <button type="button" className={button} disabled={mutationLocked} onClick={() => void actions.preparation.retry()}>Reintentar preparación</button>
+          : <button type="button" className="p5-primary" disabled={!preparation.canPrepare || mutationLocked} onClick={() => void actions.preparation.prepare()}>Preparar PDF</button>}
         <h3>Preparaciones</h3>
         {history.error && <p role="alert">{history.error} <button type="button" className={button} onClick={() => void actions.history.refreshList()}>Reintentar historial</button></p>}
         {!history.items.length && !history.loading && !history.error && <p>No hay preparaciones guardadas.</p>}
-        <ul>{history.items.map(item => <li key={item.id}><button type="button" className={button} disabled={confirmLocked}
+        <ul>{history.items.map(item => <li key={item.id}><button type="button" className={button} disabled={mutationLocked}
           onClick={() => void actions.history.select(item.id)}>{item.title} · {classrooms.find(room => room.id === item.classroomId)?.name ?? 'Aula'} · {item.state}</button></li>)}</ul>
         {history.nextAfterId && <button type="button" className={button} onClick={() => void actions.history.loadMore()}>Ver más preparaciones</button>}
         {history.inspectionError && <p role="alert">{history.inspectionError} <button type="button" className={button} onClick={() => void actions.history.refreshSelected()}>Actualizar</button></p>}
         {history.staleResource && <p>Esta preparación corresponde a una versión anterior del recurso.</p>}
-        {pub?.state === 'PREPARING' && <p role="status">Preparando archivo. Todavía no es visible para estudiantes.</p>}
-        {pub?.state === 'FAILED' && <p>La preparación falló. El recurso guardado se conserva.</p>}
-        {pub?.state === 'READY' && !history.staleResource && <p>PDF listo para revisar.</p>}
+        {pub?.state === 'PREPARING' && !discardedKnown && <p role="status">Preparando archivo. Todavía no es visible para estudiantes.</p>}
+        {pub?.state === 'FAILED' && !discardedKnown && <p>La preparación falló. El recurso guardado se conserva.</p>}
+        {pub?.state === 'READY' && !discardedKnown && !history.staleResource && <p>PDF listo para revisar.</p>}
+        {discardedKnown && pub?.state !== 'DISCARDED' && <p role="status">Actualizando el estado de la preparación descartada.</p>}
+        {pub && (!discardedKnown || pub.state === 'DISCARDED') && props.management && <FoxyPublicationManagementPanel publication={pub} management={props.management}
+          actions={actions.management} locked={confirmLocked || resource.busy || !!resource.pending || preparation.busy || !!preparation.pending} />}
         {preview && <a href={preview} target="_blank" rel="noopener noreferrer">Abrir vista previa PDF</a>}{' '}
         {download && <a href={download} target="_blank" rel="noopener noreferrer">Descargar PDF</a>}
-        {confirmation.error && <p role="alert">{confirmation.error}</p>}
+        {!discardedKnown && <>{confirmation.error && <p role="alert">{confirmation.error}</p>}
         {confirmation.receipt ? <div><p role="status">Publicado en la Biblioteca{receiptRoom ? ` de ${receiptRoom.name}` : confirmation.review?.classroomName ? ` de ${confirmation.review.classroomName}` : ''}.</p>
           {roomId && <a href={`/mis-aulas?aula=${roomId}`} onClick={event => { if (!event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && event.button === 0) { event.preventDefault(); void actions.requestNavigate(`/mis-aulas?aula=${roomId}`); } }}>Abrir aula</a>}</div> : <>
-          <button type="button" className={button} disabled={!confirmation.canReview || confirmation.reviewing} onClick={() => void actions.confirmation.review()}>Revisar publicación</button>
+          <button type="button" className={button} disabled={!confirmation.canReview || confirmation.reviewing || managementLocked} onClick={() => void actions.confirmation.review()}>Revisar publicación</button>
           {confirmation.review && <div><p>Título en Biblioteca: {confirmation.review.publication.title}</p><p>Destino: {confirmation.review.classroomName}{confirmation.review.unitName ? ` · ${confirmation.review.unitName}` : ''}{confirmation.review.topicName ? ` · ${confirmation.review.topicName}` : ''}</p>
             <label><input type="checkbox" checked={confirmation.reviewed} disabled={confirmLocked} onChange={e => actions.confirmation.setReviewed(e.currentTarget.checked)} /> Revisé el recurso y quiero compartirlo con los estudiantes</label>
-            {confirmation.pending ? <button type="button" className={button} onClick={() => void actions.confirmation.retry()}>Reintentar confirmación</button>
-              : <button type="button" className="p5-primary" disabled={!confirmation.canConfirm} onClick={() => void actions.confirmation.confirm()}>Publicar en Biblioteca</button>}
+            {confirmation.pending ? <button type="button" className={button} disabled={managementLocked} onClick={() => void actions.confirmation.retry()}>Reintentar confirmación</button>
+              : <button type="button" className="p5-primary" disabled={!confirmation.canConfirm || managementLocked} onClick={() => void actions.confirmation.confirm()}>Publicar en Biblioteca</button>}
           </div>}
-        </>}
+        </>}</>}
       </section>
     </div>}
   </dialog>;

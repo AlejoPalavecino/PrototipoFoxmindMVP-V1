@@ -93,3 +93,23 @@ test('list retains published high-water row despite later invalid READY with gre
  f.pages.push({items:[item(a,'READY','12')],nextAfterId:null});await c.refreshList();const row=c.getState().items.find(p=>p.id===a);
  assert.ok(row);assert.equal(row.state,'PUBLISHED');assert.equal(row.revision,'11');c.dispose();
 });
+
+test('discarded terminal publication never returns to READY or PREPARING in inspection',async()=>{
+ for(const prior of ['READY','PREPARING']){const f=fixture(),c=create(f);c.syncResource();f.inspections.push(inspection(item(a,'DISCARDED','5')));await c.select(a);
+  f.inspections.push(inspection(item(a,prior,'6')));await c.refreshSelected();assert.notEqual(c.getState().inspection?.publication.state,prior,prior);
+  assert.equal(f.timers.filter(t=>!t.cleared).length,0,prior);c.dispose();}
+});
+
+test('history page keeps known discarded row and cannot resurrect preview state',async()=>{
+ const f=fixture(),c=create(f);c.syncResource();f.inspections.push(inspection(item(a,'DISCARDED','11')));await c.select(a);
+ f.pages.push({items:[item(a,'READY','12')],nextAfterId:null});await c.refreshList();const row=c.getState().items.find(p=>p.id===a);
+ assert.ok(row);assert.equal(row.state,'DISCARDED');assert.equal(row.revision,'11');assert.notEqual(c.getState().inspection?.publication.state,'READY');c.dispose();
+});
+
+test('newer discarded list row invalidates an already-selected READY preview and confirmation',async()=>{
+ const f=fixture(),c=create(f);c.syncResource();f.inspections.push(inspection(item(a,'READY','2')));await c.select(a);
+ f.pages.push({items:[item(a,'DISCARDED','3')],nextAfterId:null});await c.refreshList();
+ assert.equal(c.getState().items.find(p=>p.id===a)?.state,'DISCARDED');
+ assert.notEqual(c.getState().inspection?.publication.state,'READY','a later discard must prevent presenting the old READY inspection');
+ assert.equal(f.timers.filter(t=>!t.cleared).length,0);c.dispose();
+});

@@ -70,3 +70,29 @@ test('receipt recovered without review links to the actual destination classroom
  try{await f.view.flush();const html=renderToStaticMarkup(f.view.tree);assert.match(html,/Biologia/iu);assert.match(html,/abrir aula/iu);const links=descendants(f.view.tree,n=>n.type==='a'&&String(n.props.href).startsWith('/mis-aulas?'));assert.ok(links.some(x=>new URL(x.props.href,'http://local').searchParams.get('aula')===room));
  }finally{f.view.close();}
 });
+
+test('resource dialog passes selected preparation and management actions to the management panel',async()=>{
+ const calls=[],captured=[],record=name=>(...args)=>calls.push([name,...args]);
+ const selected={...publication,state:'FAILED'},caps={publicationId:pid,publicationRevision:'2',canRetry:true,retryReason:null,canDiscard:true,cleanupState:'NOT_REQUESTED'};
+ const management={management:caps,loading:false,busy:false,pending:null,discardReview:null,discardReviewed:false,canRetry:true,canReviewDiscard:true,canDiscard:false,receipt:null,error:null,errorCode:null};
+ const actions={resource:{close:record('close')},preparation:{},history:{},confirmation:{},management:{retryPreparation:record('retryPreparation')}};
+ const props={resource,preparation:{destination:detail,metadata:{title:'Material',unitId:unit,topicId:topic},canPrepare:false,busy:false,pending:null,error:null},
+  history:{items:[selected],selectedId:pid,inspection:{publication:selected,classroomRevision:'3',classroomArchived:false,errorCode:'FILE_NOT_READY'},staleResource:false,loading:false,inspectionLoading:false,error:null,inspectionError:null,nextAfterId:null},
+  confirmation:{review:null,reviewed:false,reviewing:false,busy:false,pending:null,canReview:false,canConfirm:false,receipt:null,error:null},management,
+  classrooms:[detail],ui:{leave:null,openingResource:false,loadingDestinationId:null,error:null},actions,publicationFileUrl:()=>''};
+ const {FoxyResourceWorkspace}=componentWithPorts('apps/web/src/components/foxy-resource-workspace.tsx',{
+  './foxy-publication-management-panel':{FoxyPublicationManagementPanel:panelProps=>{captured.push(panelProps);return React.createElement('span',null,'MANAGEMENT_PANEL');}}
+ });
+ const view=hookView(FoxyResourceWorkspace,props);try{await view.flush();assert.match(renderToStaticMarkup(view.tree),/MANAGEMENT_PANEL/);assert.ok(captured.some(item=>item.publication?.id===pid&&item.management===management));
+  const panel=captured.at(-1);assert.equal(panel.actions,actions.management);assert.equal(calls.length,0);
+ }finally{view.close();}
+});
+
+test('newer discarded history row never exposes an older selected READY preview or publication',async()=>{
+ const discarded={...publication,state:'DISCARDED',revision:'3'};
+ const f=fixture({history:{items:[discarded],selectedId:pid,inspection:{publication,classroomRevision:'3',classroomArchived:false,errorCode:null},staleResource:false,loading:false,inspectionLoading:false,error:null,inspectionError:null,nextAfterId:null}});
+ try{await f.view.flush();const links=descendants(f.view.tree,n=>n.type==='a'&&String(n.props.href).includes(`/publications/${pid}/file`));assert.equal(links.length,0);
+  for(const button of descendants(f.view.tree,n=>n.type==='button'&&/revisar publicaci[oó]n|publicar en biblioteca/iu.test(String(n.props.children))))assert.equal(button.props.disabled,true);
+  assert.equal(f.calls.filter(x=>x[0]==='confirm').length,0);
+ }finally{f.view.close();}
+});

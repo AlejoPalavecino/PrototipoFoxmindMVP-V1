@@ -25,7 +25,7 @@ export function FoxyWorkspaceSession({ subjectId, onIdentityRequired, onNavigate
     <FoxyWorkspace controller={actions.chat} state={state.chat} classrooms={state.classrooms}
       onOpenResource={(conversationId, turnId) => { void actions.resource.open(conversationId, turnId); }} />
     {state.resource && (state.resource.status !== 'closed' || ui.openingResource) && state.preparation && state.history && state.confirmation && <FoxyResourceWorkspace
-      resource={state.resource} preparation={state.preparation} history={state.history} confirmation={state.confirmation}
+      resource={state.resource} preparation={state.preparation} history={state.history} confirmation={state.confirmation} management={state.management}
       classrooms={state.classrooms} ui={ui} actions={actions} publicationFileUrl={runtime.publicationFileUrl} />}
   </>;
 }
