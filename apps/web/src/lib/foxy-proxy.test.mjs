@@ -135,3 +135,16 @@ test('proxy rejects invalid publication listing queries before upstream',async()
  const r=randomUUID();for(const suffix of ['?limit=0','?limit=51','?limit=1&limit=2','?afterId=invalid','?other=1']){const response=await fetch(`${origin}${root}/resources/${r}/publications${suffix}`,{headers});assert.ok(response.status>=400&&response.status<500);}
  assert.equal(calls.length,0);
 }));
+
+
+test('proxy allows only exact management routes and methods with session and CSRF',async()=>fixture(async({origin,calls})=>{
+ const id=randomUUID(),cases=[['management','GET'],['retry','POST'],['discard','POST']];
+ for(const [suffix,method] of cases){const response=await fetch(`${origin}${root}/publications/${id}/${suffix}`,{method,headers,...(method==='POST'?{body:'{}'}:{})});assert.equal(response.status,200);}
+ assert.deepEqual(calls.map(c=>[c.url,c.method]),cases.map(([suffix,method])=>[`${root}/publications/${id}/${suffix}`,method]));
+ for(const c of calls)for(const key of ['cookie','origin','x-csrf-token'])assert.equal(c.headers[key],headers[key]);
+}));
+test('proxy rejects management wrong methods, extra path and queries without upstream',async()=>fixture(async({origin,calls})=>{
+ const id=randomUUID();for(const [suffix,method] of [['management?x=1','GET'],['retry?x=1','POST'],['discard/extra','POST'],['management','POST'],['retry','GET'],['discard','GET']]){
+  const response=await fetch(`${origin}${root}/publications/${id}/${suffix}`,{method,headers,...(method==='POST'?{body:'{}'}:{})});assert.ok(response.status>=400&&response.status<500);}
+ assert.equal(calls.length,0);
+}));

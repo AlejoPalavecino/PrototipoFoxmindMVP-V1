@@ -1,7 +1,8 @@
-import { agendaId, type CreateFoxyConversation, type FoxyContext, type FoxyPurpose,
+import { agendaId, parseRetryFoxyPublication, parseDiscardFoxyPublication, type CreateFoxyConversation, type FoxyContext, type FoxyPurpose,
   type FoxySourceKind, type FoxySourceCursor, type SendFoxyMessage, type EditFoxyResource,
   type PrepareFoxyPublication, type ConfirmFoxyPublication, type FoxyPublicationSummary,
-  type FoxyPublicationInspection, type FoxyPublicationConfirmation } from '../../../../src/core/domain/index.ts';
+  type FoxyPublicationInspection, type FoxyPublicationConfirmation, type FoxyPublicationManagement,
+  type FoxyPublicationCommandReceipt, type RetryFoxyPublication, type DiscardFoxyPublication } from '../../../../src/core/domain/index.ts';
 
 export interface FoxyConversation { id: string; title: string; context: FoxyContext; revision: string }
 export interface FoxyConversationCursor { updatedAt: string; id: string }
@@ -91,6 +92,12 @@ export function createWebFoxyClient(fetcher: typeof fetch = fetch, onIdentityReq
     inspectPublication: (id: string, signal?: AbortSignal) => call<FoxyPublicationInspection>(publicationPath(id), 'GET', undefined, signal),
     confirmPublication: (id: string, input: ConfirmFoxyPublication, signal?: AbortSignal) =>
       call<FoxyPublicationConfirmation>(`${publicationPath(id)}/confirm`, 'POST', input, signal),
+    inspectPublicationManagement: (id: string, signal?: AbortSignal) =>
+      call<FoxyPublicationManagement>(`${publicationPath(id)}/management`, 'GET', undefined, signal),
+    retryPublication: (id: string, input: RetryFoxyPublication, signal?: AbortSignal) =>
+      call<FoxyPublicationCommandReceipt>(`${publicationPath(id)}/retry`, 'POST', parseRetryFoxyPublication(input), signal),
+    discardPublication: (id: string, input: DiscardFoxyPublication, signal?: AbortSignal) =>
+      call<FoxyPublicationCommandReceipt>(`${publicationPath(id)}/discard`, 'POST', parseDiscardFoxyPublication(input), signal),
     publicationFileUrl: (id: string, mode: 'preview' | 'download' = 'download') => {
       if (!['preview', 'download'].includes(mode)) throw new FoxyClientError('INVALID_INPUT', 400);
       return `${root}${publicationPath(id)}/file?mode=${mode}`;

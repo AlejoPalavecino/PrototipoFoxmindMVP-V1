@@ -83,3 +83,23 @@ for(const kind of ['edit','prepare','confirm'])test(`resource writes snapshot ${
   await started;Object.assign(value,{requestId:randomUUID(),revision:'99',resourceRevision:'99',publicationRevision:'99',classroomRevision:'99',title:'Alterado',markdown:'Alterado'});release();await run;
   assert.deepEqual(calls[0].body,expected,kind);
 });
+
+
+test('publication management client uses fresh CSRF, exact bodies and abort propagation without retries',async()=>{
+ const id=randomUUID(),calls=[],controller=new AbortController(),retry={requestId:randomUUID(),publicationRevision:'9223372036854775806'},discard={requestId:randomUUID(),publicationRevision:'7',confirm:true};let csrf=0;
+ const client=create(async(path,init)=>{calls.push({path:String(path),init});if(String(path).includes('/auth/csrf'))return Response.json({csrfToken:`csrf-${++csrf}`});return Response.json({ok:true});});
+ await client.inspectPublicationManagement(id,controller.signal);await client.retryPublication(id,retry,controller.signal);await client.discardPublication(id,discard,controller.signal);
+ const business=calls.filter(c=>!c.path.includes('/auth/csrf'));assert.deepEqual(business.map(c=>[c.path,c.init.method]),[[`${root}/publications/${id}/management`,'GET'],[`${root}/publications/${id}/retry`,'POST'],[`${root}/publications/${id}/discard`,'POST']]);
+ assert.deepEqual(JSON.parse(business[1].init.body),retry);assert.deepEqual(JSON.parse(business[2].init.body),discard);assert.equal(csrf,2);
+ assert.equal(new Headers(business[1].init.headers).get('x-csrf-token'),'csrf-1');assert.equal(new Headers(business[2].init.headers).get('x-csrf-token'),'csrf-2');
+ for(const call of business){assert.equal(call.init.credentials,'same-origin');assert.equal(call.init.cache,'no-store');assert.ok(call.init.signal);}
+ controller.abort();for(const call of business)assert.equal(call.init.signal.aborted,true);
+});
+
+test('management client snapshots retry and discard before asynchronous CSRF and never auto-retries',async()=>{
+ for(const action of ['retryPublication','discardPublication']){const id=randomUUID(),calls=[];let started,release;const ready=new Promise(r=>started=r),gate=new Promise(r=>release=r);
+  const client=create(async(path,init)=>{if(String(path).includes('/auth/csrf')){started();await gate;return Response.json({csrfToken:'fresh'});}calls.push(JSON.parse(init.body));return Response.json({error:{code:'SERVICE_UNAVAILABLE'}},{status:503});});
+  const input={requestId:randomUUID(),publicationRevision:'1',...(action==='discardPublication'?{confirm:true}:{})},expected=structuredClone(input),running=client[action](id,input);
+  await ready;input.requestId=randomUUID();input.publicationRevision='2';if(action==='discardPublication')input.confirm=false;release();await assert.rejects(running);assert.deepEqual(calls,[expected]);
+ }
+});

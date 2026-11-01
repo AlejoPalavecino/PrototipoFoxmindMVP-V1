@@ -15,6 +15,8 @@ const preparePublication = new RegExp(`^${root}/resources/${uuid}/publications$`
 const publication = new RegExp(`^${root}/publications/${uuid}$`, 'i');
 const publicationFile = new RegExp(`^${root}/publications/${uuid}/file$`, 'i');
 const confirmPublication = new RegExp(`^${root}/publications/${uuid}/confirm$`, 'i');
+const managementPublication = new RegExp(`^${root}/publications/${uuid}/management$`, 'i');
+const commandPublication = new RegExp(`^${root}/publications/${uuid}/(retry|discard)$`, 'i');
 const requestLimit = 1048576, jsonLimit = 2 * 1024 * 1024, binaryLimit = 50000000;
 function fail(response: ServerResponse, status: number, code: string): void {
   if (response.destroyed || response.writableEnded) return;
@@ -31,8 +33,8 @@ function select(request: IncomingMessage): { url: URL; method: string; binary: b
   const raw = request.url ?? '', method = request.method ?? 'GET';
   if (!raw.startsWith(`${root}/`) || /[\\#]/u.test(raw) || /%|\.\./u.test(raw.split('?')[0]!)) throw new Error();
   const url = new URL(raw, 'http://web.invalid'), path = url.pathname, binary = citationFile.test(path) || publicationFile.test(path);
-  const allowed = path === `${root}/capabilities` || catalog.test(path) || turn.test(path) || citations.test(path) || binary || publication.test(path) ? ['GET']
-    : turnResource.test(path) || confirmPublication.test(path) ? ['POST']
+  const allowed = path === `${root}/capabilities` || catalog.test(path) || turn.test(path) || citations.test(path) || binary || publication.test(path) || managementPublication.test(path) ? ['GET']
+    : turnResource.test(path) || confirmPublication.test(path) || commandPublication.test(path) ? ['POST']
       : preparePublication.test(path) ? ['GET', 'POST']
       : resource.test(path) ? ['GET', 'PATCH']
         : path === `${root}/conversations` || turns.test(path) ? ['GET', 'POST'] : conversation.test(path) ? ['GET', 'PATCH', 'DELETE'] : [];
