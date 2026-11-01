@@ -48,3 +48,8 @@ Diseñar y probar integración de gestión M4D2; revisar proveedor y contratos p
 - Claims, autoridad y fachada desarrollados con PostgreSQL temporal y dobles. El cortacircuitos detectó retorno terminal indefinido; arquitectura diagnosticó el contrato y se corrigió, junto con el guard de lease en migración sucesora.
 - /root/review_management revalidó autorización, cuota, recuperación y validación de Unicode/timing bajo dobles; sin S3 ni ClamAV reales. Se detectó límite de S3: timeout de Promise.race puede dejar una escritura subyacente en curso. La habilitación real requiere resolver o verificar esa propiedad; no se afirma drenaje absoluto.
 - /root/red_management ejecutó suite de custodia y lease completa PASS tras correcciones.
+
+## V-I1a / V-B1a — respuesta y cotización de imagen
+
+- /root/red_management RED y /root/green_diagram GREEN; /root/review_management detectó overflow de regex base64, preabort con dispatch y feedback malformado. Correcciones verificadas: 17 pruebas y 36 cotizaciones bigint independientes PASS; sin credenciales, llamadas al proveedor ni ledger persistente.
+- Pendiente el adaptador real y la integración de presupuesto; las tarifas/configuración requieren validación antes de habilitar generación.
