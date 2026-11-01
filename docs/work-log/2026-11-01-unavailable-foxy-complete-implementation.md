@@ -59,3 +59,4 @@ Diseñar y probar integración de gestión M4D2; revisar proveedor y contratos p
 - /root/review_management y /root/architect_next reprodujeron que un PUT puede terminar después del timeout local. /root/red_management RED, /root/green_management implementó registro y drenaje de operaciones.
 - La primera propuesta bloqueaba cargas P4 independientes; revisión y arquitectura la corrigieron a barreras por scope. Revalidación: 12 pruebas S3, 9 de host/P4, sonda con PostgreSQL y S3Storage real con SDK/scanner dobles PASS; build/fronteras/Gitleaks PASS.
 - El drenaje acredita settlement local, no cancelación remota. La limpieza/liberación ante PUT incierto y pruebas con servicios reales siguen pendientes antes de habilitar el flujo.
+- Tras mitigación S3, /root/red_management reejecutó la suite completa de custodia y leases con PG temporal, storage/scanner sintéticos y drain de promesas: exit 0. No se probó S3/ClamAV reales ni proveedor.
