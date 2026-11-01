@@ -22,12 +22,17 @@ export function parseGeminiFoxyImageResponse(response: unknown): ImageResponse {
   if (!record(candidate)) return invalid('RESPONSE_SHAPE');
   if (candidate.finishReason !== 'STOP') return invalid('FINISH_REASON');
   if (!record(candidate.content) || !Array.isArray(candidate.content.parts) || candidate.content.parts.length > 64) return invalid('PART_SHAPE');
-  let result: ReturnType<typeof image> | null = null, textBytes = 0;
+  let result: ReturnType<typeof image> | null = null, textBytes = 0, signatureBytes = 0;
   for (const part of candidate.content.parts) {
     if (!record(part)) return invalid('PART_SHAPE');
     if (Object.keys(part).some(key => !['thought','thoughtSignature','text','inlineData'].includes(key))) return invalid('PART_FIELDS');
     if (part.thought !== undefined && typeof part.thought !== 'boolean') return invalid('PART_SHAPE');
-    if (part.thoughtSignature !== undefined && (typeof part.thoughtSignature !== 'string' || part.thoughtSignature.length > 65536)) return invalid('SIGNATURE_LIMIT');
+    if (part.thoughtSignature !== undefined) {
+      if (typeof part.thoughtSignature !== 'string') return invalid('PART_SHAPE');
+      if (part.thoughtSignature.length > 16777216 - signatureBytes) return invalid('SIGNATURE_LIMIT');
+      signatureBytes += Buffer.byteLength(part.thoughtSignature, 'utf8');
+      if (signatureBytes > 16777216) return invalid('SIGNATURE_LIMIT');
+    }
     if ((part.text === undefined) === (part.inlineData === undefined)) return invalid('DATA_VARIANT');
     if (part.text !== undefined) { if (typeof part.text !== 'string') return invalid('PART_SHAPE'); textBytes += Buffer.byteLength(part.text); if (textBytes > 65536) return invalid('TEXT_LIMIT'); }
     else { const parsed = image(part.inlineData); if (part.thought !== true) { if (result) return invalid('MULTIPLE_FINAL_IMAGES'); result = parsed; } }
