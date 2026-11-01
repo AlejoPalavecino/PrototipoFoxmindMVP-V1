@@ -44,3 +44,6 @@ export { createFoxyPublicationManagementService } from './publication-management
 export { createFoxyPrivateAssetReadRepository } from './private-asset-read-repository.ts';
 export { createFoxyPrivateAssetReader } from './private-asset-reader.ts';
 export { createFoxyPrivateAssetReadService } from './private-asset-read-service.ts';
+
+export { createFoxyPrivateAssetDiscardRepository } from './private-asset-discard-repository.ts';
+export { createFoxyPrivateAssetDiscardService } from './private-asset-discard-service.ts';

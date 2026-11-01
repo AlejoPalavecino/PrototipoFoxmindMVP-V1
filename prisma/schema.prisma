@@ -99,6 +99,7 @@ enum JobStatus {
 
 model User {
   foxy_visual_assets FoxyVisualAsset[]
+  foxy_private_asset_commands FoxyPrivateAssetCommand[]
   foxy_conversations FoxyConversation[]
   foxy_conversation_requests FoxyConversationRequest[]
   grading_ai_jobs GradingAiJob[]
@@ -1231,6 +1232,7 @@ model FoxyPublicationCommandRequest {
 }
 
 model FoxyVisualAsset {
+  commands FoxyPrivateAssetCommand[]
   id String @id @db.Uuid
   owner_id String @db.Uuid
   conversation_id String @db.Uuid
@@ -1274,4 +1276,18 @@ model FoxyVisualAsset {
   @@index([state, last_activity_at, id], map: "foxy_visual_assets_cleanup_idx")
   @@index([discarded_at, lease_until, id], map: "foxy_visual_assets_deletion_idx")
   @@map("foxy_visual_assets")
+}
+
+model FoxyPrivateAssetCommand {
+  owner_id String @db.Uuid
+  request_id String @db.Uuid
+  asset_id String @db.Uuid
+  action String
+  input_hash String
+  asset_revision BigInt
+  created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  owner User @relation(fields: [owner_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  asset FoxyVisualAsset @relation(fields: [asset_id, owner_id], references: [id, owner_id], onDelete: Restrict, onUpdate: NoAction)
+  @@id([owner_id, request_id])
+  @@map("foxy_private_asset_commands")
 }

@@ -39,4 +39,4 @@ export type { FoxyAnswerReferenceMap, GroundedFoxyReference, GroundedFoxyAnswer 
 export type { FoxyTextInput, FoxyTextResponse } from './foxy-ai-text.ts';
 
 export type * from './foxy-ai-asset.ts';
-export { assetUuid, parseReserveFoxyPrivateAsset, parseFoxyPrivateAssetQuota } from './foxy-ai-asset-validation.ts';
+export { assetUuid, parseReserveFoxyPrivateAsset, parseFoxyPrivateAssetQuota, parseDiscardFoxyPrivateAsset } from './foxy-ai-asset-validation.ts';

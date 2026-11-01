@@ -2,6 +2,8 @@ import type { FoxyAspectRatio, FoxyVisualKind, FoxyDiagram } from './foxy-ai-vis
 export type FoxyPrivateAssetState = 'RESERVED' | 'PROCESSING' | 'READY' | 'REJECTED' | 'DISCARDED';
 export interface ReserveFoxyPrivateAsset { requestId: string; conversationRevision: string; kind: FoxyVisualKind; aspectRatio: FoxyAspectRatio }
 export interface FoxyPrivateAssetView { id: string; conversationId: string; kind: FoxyVisualKind; aspectRatio: FoxyAspectRatio; state: FoxyPrivateAssetState; revision: string }
+export interface DiscardFoxyPrivateAsset { requestId: string; assetRevision: string; confirm: true }
+export interface FoxyPrivateAssetDiscardReceipt { assetId: string; action: 'DISCARD'; assetRevision: string }
 export type FoxyPrivateAssetMime = 'image/png' | 'image/jpeg';
 export type FoxyPrivateAssetProducer = 'foxy-diagram-png-v1' | 'foxy-image-original-v1';
 export interface FoxyPrivateAssetPayloadView {
