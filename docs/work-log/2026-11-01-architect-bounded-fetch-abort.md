@@ -56,4 +56,4 @@ A controlled inline Node ReadableStream reproduction uses an already-aborted sig
 
 ## Handoff
 
-Diagnosis and exact boundary guards were sent to coordinator and test_runner. Worker may make one coherent abort-handoff correction then run named regression/full focused suite; do not continue blind reorder attempts. Factory file paths remain `apps/api/src/ai/foxy-image-bounded-fetch.ts` and `foxy-image-budget.ts`, as confirmed to test_runner. No production changes or commit by architect. Structural validation follows after execution.
+Diagnosis and exact boundary guards were sent to coordinator and test_runner. Worker may make one coherent abort-handoff correction then run named regression/full focused suite; do not continue blind reorder attempts. Factory file paths remain `apps/api/src/ai/foxy-image-bounded-fetch.ts` and `foxy-image-budget.ts`, as confirmed to test_runner. No production changes or commit by architect. Node filesystem structural check passed exit0:1local Markdown target,0missing,0trailing-whitespace lines.
