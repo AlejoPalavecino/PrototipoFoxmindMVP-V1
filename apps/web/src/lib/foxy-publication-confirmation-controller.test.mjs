@@ -139,3 +139,9 @@ test('successful receipt disables public canReview and review performs no I/O',a
  const f=fixture(),c=create(f);c.syncContext();await c.review();c.setReviewed(true);await c.confirm();assert.ok(c.getState().receipt);
  assert.equal(c.getState().canReview,false);const before=f.calls.length;await c.review();assert.equal(f.calls.length,before);c.dispose();
 });
+
+test('text review rejects VISUAL inspection without confirming',async()=>{
+ const f=fixture(),visual={id:pid,sourceKind:'VISUAL',assetId:randomUUID(),assetRevision:'2',classroomId:room,title:'Imagen',unitId:unit,topicId:topic,state:'READY',revision:'5'};
+ f.setHistory({selectedId:pid,inspection:{...inspection,publication:visual},staleResource:false});f.options.client.inspectPublication=async()=>({...inspection,publication:visual});const c=create(f);c.syncContext();await c.review();c.setReviewed(true);await c.confirm();
+ assert.equal(c.getState().review,null);assert.equal(c.getState().canConfirm,false);assert.equal(f.calls.filter(x=>x[0]==='confirm').length,0);c.dispose();
+});

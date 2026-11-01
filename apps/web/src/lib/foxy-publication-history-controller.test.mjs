@@ -113,3 +113,8 @@ test('newer discarded list row invalidates an already-selected READY preview and
  assert.notEqual(c.getState().inspection?.publication.state,'READY','a later discard must prevent presenting the old READY inspection');
  assert.equal(f.timers.filter(t=>!t.cleared).length,0);c.dispose();
 });
+
+test('text history refuses a VISUAL inspection and keeps it out of text rows',async()=>{
+ const f=fixture(),c=create(f),visual={id:a,sourceKind:'VISUAL',assetId:randomUUID(),assetRevision:'2',classroomId:room,title:'Imagen',unitId:null,topicId:null,state:'READY',revision:'3'};
+ c.syncResource();f.inspections.push(inspection(visual));await c.select(a);assert.equal(c.getState().inspection,null);assert.ok(c.getState().inspectionError);assert.ok(!c.getState().items.some(p=>p.id===a));c.dispose();
+});

@@ -1,10 +1,14 @@
-import type { FoxyPublicationSummary, FoxyPublicationInspection } from '../../../../src/core/domain/index.ts';
+import type { FoxyAnyPublicationSummary, FoxyPublicationSummary, FoxyPublicationInspection } from '../../../../src/core/domain/index.ts';
 import type { WebFoxyClient } from './foxy-client.ts';
 import type { createFoxyResourceController } from './foxy-resource-controller.ts';
 import type { createFoxyPreparationController } from './foxy-preparation-controller.ts';
 
+type TextInspection = Omit<FoxyPublicationInspection, 'publication'> & { publication: FoxyPublicationSummary };
+export function isTextPublication(p: FoxyAnyPublicationSummary): p is FoxyPublicationSummary {
+  return !!p && !('sourceKind' in p && p.sourceKind === 'VISUAL') && 'resourceId' in p && typeof p.resourceId === 'string' && 'resourceRevision' in p && typeof p.resourceRevision === 'string';
+}
 type State = { resourceId: string | null; items: FoxyPublicationSummary[]; nextAfterId: string | null; selectedId: string | null;
-  inspection: FoxyPublicationInspection | null; staleResource: boolean; loading: boolean; inspectionLoading: boolean;
+  inspection: TextInspection | null; staleResource: boolean; loading: boolean; inspectionLoading: boolean;
   error: string | null; inspectionError: string | null };
 type Options = { client: Pick<WebFoxyClient, 'listPublications' | 'inspectPublication'>;
   resource: Pick<ReturnType<typeof createFoxyResourceController>, 'getState'>;
@@ -94,7 +98,7 @@ export function createFoxyPublicationHistoryController(options: Options) {
     try {
       const value = await options.client.inspectPublication(id, selectedAbort.signal);
       if (disposed || version !== generation || chosen !== selection) return;
-      if (!same(value.publication.id, id) || !same(value.publication.resourceId, resourceId)) throw new Error('Invalid publication identity');
+      if (!isTextPublication(value.publication) || !same(value.publication.id, id) || !same(value.publication.resourceId, resourceId)) throw new Error('Invalid publication identity');
       const p = value.publication, classroomKey = p.classroomId.toLowerCase();
       const high = classroomRevisions.get(classroomKey), priorPublication = publications.get(p.id.toLowerCase());
       if ((high !== undefined && BigInt(value.classroomRevision) < high)
@@ -108,7 +112,7 @@ export function createFoxyPublicationHistoryController(options: Options) {
       classroomRevisions.set(classroomKey, BigInt(value.classroomRevision));
       publications.set(p.id.toLowerCase(), { ...p });
       const previous = state.inspection;
-      const inspection = structuredClone(value);
+      const inspection: TextInspection = { ...structuredClone(value), publication: structuredClone(p) };
       if (previous && same(previous.publication.id, id)) {
         if (BigInt(previous.publication.revision) > BigInt(inspection.publication.revision)) {
           emit({ inspectionLoading: false, inspectionError: 'La preparación cambió; actualizá su estado.' }); return;

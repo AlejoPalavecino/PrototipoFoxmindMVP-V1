@@ -3,7 +3,7 @@ import type { ConfirmFoxyPublication, FoxyPublicationConfirmation, FoxyPublicati
 import type { WebFoxyClient } from './foxy-client.ts';
 import type { createFoxyResourceController } from './foxy-resource-controller.ts';
 import type { createFoxyPreparationController } from './foxy-preparation-controller.ts';
-import type { createFoxyPublicationHistoryController } from './foxy-publication-history-controller.ts';
+import { isTextPublication, type createFoxyPublicationHistoryController } from './foxy-publication-history-controller.ts';
 
 type Review = { publication: FoxyPublicationSummary; classroomRevision: string; classroomName: string; unitName: string | null; topicName: string | null };
 type State = { review: Review | null; reviewed: boolean; reviewing: boolean; busy: boolean; pending: 'CONFIRM' | null;
@@ -116,7 +116,7 @@ export function createFoxyPublicationConfirmationController(options: Options) {
         if (before !== context()) { syncContext(); if (current(version)) emit({ reviewing: false, review: null, reviewed: false }); return; }
         const pub = inspection.publication, unit = pub.unitId ? unique(classroom.units, pub.unitId) : null;
         const topic = pub.topicId && unit ? unique(unit.topics, pub.topicId) : null;
-        if (!same(resource.id, editor.id) || !same(resource.conversationId, editor.conversationId) || !same(resource.sourceTurnId, editor.sourceTurnId)
+        if (!isTextPublication(pub) || !same(resource.id, editor.id) || !same(resource.conversationId, editor.conversationId) || !same(resource.sourceTurnId, editor.sourceTurnId)
           || resource.revision !== editor.revision || !same(pub.id, p.id) || !same(pub.resourceId, resource.id) || pub.resourceRevision !== resource.revision
           || !same(pub.classroomId, p.classroomId) || pub.title !== p.title || pub.unitId !== p.unitId || pub.topicId !== p.topicId
           || !revision(pub.revision) || !revision(p.revision) || BigInt(pub.revision) < BigInt(p.revision) || BigInt(pub.revision) >= 9223372036854775807n

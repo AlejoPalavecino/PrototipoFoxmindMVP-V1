@@ -156,3 +156,9 @@ test('checkbox cannot acknowledge stale frozen discard review without sync',asyn
  const changed={...publication,title:'Título no revisado'};f.setHistory({selectedId:pid,inspection:{...inspection,publication:changed},items:[changed],staleResource:false});
  c.setDiscardReviewed(true);assert.equal(c.getState().discardReviewed,false);assert.equal(c.getState().canDiscard,false);assert.equal(f.calls.filter(x=>x[0]==='discard').length,0);c.dispose();
 });
+
+test('text management does not retry or discard a VISUAL inspection',async()=>{
+ const f=fixture(),visual={id:pid,sourceKind:'VISUAL',assetId:randomUUID(),assetRevision:'2',classroomId:room,title:'Imagen',unitId:null,topicId:null,state:'FAILED',revision:'5'};
+ f.setHistory({selectedId:pid,inspection:{...inspection,publication:visual},items:[visual],staleResource:false});const c=create(f);c.syncContext();await c.refresh();await c.retryPreparation();c.reviewDiscard();c.setDiscardReviewed(true);await c.discard();
+ assert.equal(c.getState().canRetry,false);assert.equal(f.calls.filter(x=>x[0]==='retry'||x[0]==='discard').length,0);c.dispose();
+});
