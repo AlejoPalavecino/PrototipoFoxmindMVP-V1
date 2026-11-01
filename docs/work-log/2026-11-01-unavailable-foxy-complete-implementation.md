@@ -42,3 +42,9 @@ Diseñar y probar integración de gestión M4D2; revisar proveedor y contratos p
 
 - /root/red_management RED y ampliación a 11 pruebas; /root/green_diagram implementó inspector en worker y el coordinador exportó la factory desde Files.
 - /root/review_management validó PNG/JPEG legítimos y casos malformados, límites, aborto, build final, fronteras y Gitleaks PASS. Sin proveedor, scanner ni almacenamiento; memoria nativa no está limitada exclusivamente por V8.
+
+## V-A1b.2 — custodia privada en revisión
+
+- Claims, autoridad y fachada desarrollados con PostgreSQL temporal y dobles. El cortacircuitos detectó retorno terminal indefinido; arquitectura diagnosticó el contrato y se corrigió, junto con el guard de lease en migración sucesora.
+- /root/review_management revalidó autorización, cuota, recuperación y validación de Unicode/timing bajo dobles; sin S3 ni ClamAV reales. Se detectó límite de S3: timeout de Promise.race puede dejar una escritura subyacente en curso. La habilitación real requiere resolver o verificar esa propiedad; no se afirma drenaje absoluto.
+- /root/red_management ejecutó suite de custodia y lease completa PASS tras correcciones.

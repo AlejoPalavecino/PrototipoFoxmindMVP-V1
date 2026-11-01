@@ -1,0 +1,22 @@
+CREATE OR REPLACE FUNCTION guard_foxy_visual_asset() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP='INSERT' THEN
+   IF NEW.state <> 'RESERVED' OR NEW.revision <> 0 OR NEW.reserved_bytes <> 10485760 OR NEW.charge_bytes <> NEW.reserved_bytes OR NEW.digest IS NOT NULL OR NEW.title IS NOT NULL OR NEW.description IS NOT NULL OR NEW.diagram IS NOT NULL OR NEW.validated_digest IS NOT NULL OR NEW.scanned_digest IS NOT NULL OR NEW.validated_at IS NOT NULL OR NEW.scanned_at IS NOT NULL OR NEW.lease_nonce IS NOT NULL OR NEW.discarded_at IS NOT NULL OR NEW.blob_deleted_at IS NOT NULL OR NEW.error_code IS NOT NULL THEN RAISE EXCEPTION 'invalid visual reservation'; END IF;
+   RETURN NEW;
+ END IF;
+ IF TG_OP='DELETE' THEN RAISE EXCEPTION 'visual asset deletion forbidden'; END IF;
+ IF (NEW.id,NEW.owner_id,NEW.conversation_id,NEW.request_id,NEW.input_hash,NEW.conversation_revision,NEW.kind,NEW.aspect_ratio,NEW.reserved_bytes,NEW.storage_key,NEW.created_at)
+ IS DISTINCT FROM (OLD.id,OLD.owner_id,OLD.conversation_id,OLD.request_id,OLD.input_hash,OLD.conversation_revision,OLD.kind,OLD.aspect_ratio,OLD.reserved_bytes,OLD.storage_key,OLD.created_at) THEN RAISE EXCEPTION 'immutable visual identity'; END IF;
+ IF NEW.revision < OLD.revision OR (OLD.digest IS NOT NULL AND (NEW.digest,NEW.size_bytes,NEW.mime_type,NEW.width,NEW.height,NEW.producer_version,NEW.title,NEW.description,NEW.diagram) IS DISTINCT FROM (OLD.digest,OLD.size_bytes,OLD.mime_type,OLD.width,OLD.height,OLD.producer_version,OLD.title,OLD.description,OLD.diagram)) THEN RAISE EXCEPTION 'immutable visual payload'; END IF;
+ IF (OLD.validated_digest IS NOT NULL AND NEW.validated_digest IS DISTINCT FROM OLD.validated_digest) OR (OLD.scanned_digest IS NOT NULL AND NEW.scanned_digest IS DISTINCT FROM OLD.scanned_digest) OR (OLD.validated_at IS NOT NULL AND NEW.validated_at IS DISTINCT FROM OLD.validated_at) OR (OLD.scanned_at IS NOT NULL AND NEW.scanned_at IS DISTINCT FROM OLD.scanned_at) OR (OLD.discarded_at IS NOT NULL AND NEW.discarded_at IS DISTINCT FROM OLD.discarded_at) OR (OLD.blob_deleted_at IS NOT NULL AND NEW.blob_deleted_at IS DISTINCT FROM OLD.blob_deleted_at) OR (OLD.quota_released_at IS NOT NULL AND NEW.quota_released_at IS DISTINCT FROM OLD.quota_released_at) THEN RAISE EXCEPTION 'immutable proof'; END IF;
+ IF NEW.charge_bytes <> OLD.charge_bytes AND NOT (OLD.state='PROCESSING' AND NEW.state='READY' AND NEW.charge_bytes=NEW.size_bytes) AND NOT (OLD.state='DISCARDED' AND NEW.state='DISCARDED' AND OLD.blob_deleted_at IS NULL AND NEW.blob_deleted_at IS NOT NULL AND NEW.charge_bytes=0) THEN RAISE EXCEPTION 'invalid visual charge'; END IF;
+ IF OLD.state='PROCESSING' AND NEW.state='PROCESSING' AND OLD.lease_nonce IS NOT NULL AND NEW.lease_nonce IS DISTINCT FROM OLD.lease_nonce AND OLD.lease_until > clock_timestamp() THEN RAISE EXCEPTION 'active visual lease'; END IF;
+ IF OLD.state='PROCESSING' AND NEW.state='PROCESSING' AND OLD.lease_nonce IS NOT NULL AND OLD.lease_until <= clock_timestamp() AND NEW.lease_nonce = OLD.lease_nonce AND NEW.lease_until > OLD.lease_until THEN RAISE EXCEPTION 'expired visual lease requires fresh nonce'; END IF;
+ IF OLD.state='PROCESSING' AND NEW.state='PROCESSING' AND OLD.lease_nonce IS NOT NULL AND NEW.lease_nonce IS NULL THEN RAISE EXCEPTION 'visual lease cannot be cleared'; END IF;
+ IF OLD.state='PROCESSING' AND NEW.state IN ('READY','REJECTED') AND (OLD.lease_nonce IS NULL OR OLD.lease_until <= clock_timestamp() OR NEW.lease_nonce IS NOT NULL OR NEW.lease_until IS NOT NULL OR NEW.revision <> OLD.revision+1) THEN RAISE EXCEPTION 'terminal transition requires live lease'; END IF;
+ IF OLD.lease_nonce IS NOT NULL AND OLD.lease_until > clock_timestamp() AND (NEW.lease_nonce IS DISTINCT FROM OLD.lease_nonce OR NEW.lease_until IS NULL OR NEW.lease_until < OLD.lease_until)
+   AND NOT (OLD.state='PROCESSING' AND NEW.state IN ('READY','REJECTED') AND NEW.lease_nonce IS NULL AND NEW.lease_until IS NULL AND NEW.revision=OLD.revision+1) THEN RAISE EXCEPTION 'active visual lease cannot be removed or shortened'; END IF;
+ IF OLD.state='DISCARDED' AND OLD.lease_until > clock_timestamp() AND OLD.blob_deleted_at IS NULL AND NEW.blob_deleted_at IS NOT NULL THEN RAISE EXCEPTION 'active visual lease prevents release'; END IF;
+ IF NEW.state<>OLD.state AND NOT ((OLD.state='RESERVED' AND NEW.state='PROCESSING') OR (OLD.state='PROCESSING' AND NEW.state IN ('READY','REJECTED')) OR (OLD.state<>'DISCARDED' AND NEW.state='DISCARDED')) THEN RAISE EXCEPTION 'invalid visual transition'; END IF;
+ RETURN NEW;
+END $$;
