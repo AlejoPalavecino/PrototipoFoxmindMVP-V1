@@ -9,13 +9,14 @@ const references = `EXISTS(SELECT 1 FROM materials WHERE file_id=$1::uuid)
   OR EXISTS(SELECT 1 FROM activity_instruction_files WHERE file_id=$1::uuid)
   OR EXISTS(SELECT 1 FROM attempt_attachments WHERE file_id=$1::uuid)
   OR EXISTS(SELECT 1 FROM foxy_publications WHERE file_id=$1::uuid AND id<>$2::uuid)`;
-export function createFoxyPublicationCleanup(options: { database: SqlDatabase; storage: { remove(key: string): Promise<void> } }) {
-  let active: Promise<boolean> | null = null;
+export function createFoxyPublicationCleanup(options: { database: SqlDatabase; storage: { remove(key: string): Promise<void> }; onError?: () => void }) {
+  let active: Promise<boolean> | null = null, stopped = false, started = false;
+  let timer: ReturnType<typeof setTimeout> | undefined;
   const transact = <T>(operation: (tx: SqlTransaction) => Promise<T>) => options.database.$transaction(
     raw => operation({ query: (sql, ...args) => raw.$queryRawUnsafe(sql, ...args) }), { maxWait: 2000, timeout: 6000 });
   async function lock(tx: SqlTransaction, candidate: Candidate): Promise<Locked | null> {
     if (!(await tx.query('SELECT id FROM classrooms WHERE id=$1::uuid FOR UPDATE', candidate.classroom_id)).length) return null;
-    await tx.query('SELECT pg_advisory_xact_lock(78123003)');
+    await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123003)');
     const [p] = await tx.query(`SELECT id FROM foxy_publications WHERE id=$1::uuid AND classroom_id=$2::uuid AND file_id=$3::uuid
       AND state='DISCARDED' AND material_id IS NULL FOR UPDATE`, candidate.id, candidate.classroom_id, candidate.file_id);
     if (!p) return null;
@@ -67,8 +68,21 @@ export function createFoxyPublicationCleanup(options: { database: SqlDatabase; s
       await finish(item, removed); return true;
     } catch { throw Object.assign(new Error('SERVICE_UNAVAILABLE'), { code: 'SERVICE_UNAVAILABLE' }); }
   }
-  return { sweep() {
+  function sweep(): Promise<boolean> {
+    if (stopped) return Promise.resolve(false);
     if (active) return active;
     const task = sweepOne(); active = task; void task.finally(() => { if (active === task) active = null; }).catch(() => {}); return task;
-  } };
+  }
+  function schedule() {
+    if (stopped) return;
+    timer = setTimeout(() => { timer = undefined; void sweep().catch(() => { try { options.onError?.(); } catch { /* Observer cannot stop cleanup scheduling. */ } }).finally(schedule); }, 5000);
+    timer.unref?.();
+  }
+  return { sweep,
+    onModuleInit() { if (!started && !stopped) { started = true; schedule(); } },
+    async onModuleDestroy() {
+      stopped = true; if (timer !== undefined) { clearTimeout(timer); timer = undefined; }
+      if (active) await active.catch(() => false);
+    },
+  };
 }

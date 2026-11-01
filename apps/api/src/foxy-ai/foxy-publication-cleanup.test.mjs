@@ -109,3 +109,13 @@ test('cleanup fails closed when file is not a PDF', {timeout:120000},async()=>{
   assert.equal(calls,0);assert.equal(row.blob_deleted_at,null);assert.equal(row.phase,'deleting');
  });
 });
+
+
+test('shutdown drains actual synthetic storage remove and its database acknowledgment', {timeout:120000},async()=>{
+ await withAgendaDatabase(async({pool})=>{const x=await fixture(pool);await seedHistoricalDiscard(x);let entered,release,calls=0;
+  const gate=new Promise(r=>release=r),started=new Promise(r=>entered=r),worker=await createCleanup(x,{remove:async()=>{calls++;entered();await gate;}});
+  const sweeping=worker.sweep();await started;let closed=false;const stopping=worker.onModuleDestroy().then(()=>{closed=true;});await Promise.resolve();assert.equal(closed,false);
+  const before=await fileState(x);assert.equal(before.phase,'deleting');assert.equal(before.blob_deleted_at,null);release();assert.equal(await sweeping,true);await stopping;
+  const after=await fileState(x);assert.equal(after.phase,'deleted');assert.ok(after.blob_deleted_at);assert.equal(await worker.sweep(),false);assert.equal(calls,1);
+ });
+});

@@ -27,6 +27,7 @@ import { createFoxyPublicationAuthority } from './publication-authority.ts';
 import { createFoxyPublicationCompletion } from './publication-completion.ts';
 import { createFoxyPublicationWorker } from './publication-worker.ts';
 import { createFoxyPdfRenderer } from './pdf-worker.ts';
+import { createFoxyPublicationCleanup } from './publication-cleanup.ts';
 import type { createDurableFoxyPublicationFiles } from '../files/index.ts';
 
 export const FOXY_RUNTIME = Symbol('FOXY_RUNTIME');
@@ -35,7 +36,7 @@ type Configuration = Parameters<typeof createFoxyTurnQueue>[0]['configuration'] 
 type Provider = Parameters<typeof createFoxyTextWorker>[0]['provider'];
 type Options = { database: SqlDatabase; authenticate: Parameters<typeof createFoxyUnitOfWork>[0]['authenticate'];
   classrooms: ConstructorParameters<typeof FoxyContextCatalogService>[0]; files: FileService;
-  configuration: Configuration | null; provider: Provider | null };
+  configuration: Configuration | null; provider: Provider | null; storage: { remove(key: string): Promise<void> } };
 function valid(config: Configuration | null, provider: Provider | null): config is Configuration {
   if (!config || !provider || typeof provider.countTokens !== 'function' || typeof provider.generate !== 'function'
     || typeof config.model !== 'string' || (!config.model.trim() || config.model.length > 200 || /[\u0000-\u001f\u007f]/u.test(config.model))) return false;
@@ -85,6 +86,8 @@ function maintenance(database: SqlDatabase) {
     async onModuleDestroy() { stopped = true; if (timer) clearTimeout(timer); await active; } };
 }
 export function createFoxyRuntime(options: Options) {
+  if (!options.storage || typeof options.storage.remove !== 'function') throw Object.assign(new Error('SERVICE_UNAVAILABLE'), { code: 'SERVICE_UNAVAILABLE' });
+  const cleanup = createFoxyPublicationCleanup({ database: options.database, storage: options.storage, onError: () => console.warn('Foxy publication cleanup unavailable') });
   const uow = createFoxyUnitOfWork(options), conversations = createFoxyConversationRepository(), turns = createFoxyTurnRepository();
   const enabled = valid(options.configuration, options.provider);
   const worker = enabled ? workerFor(options, options.configuration!, options.provider!) : null;
@@ -99,6 +102,9 @@ export function createFoxyRuntime(options: Options) {
       confirmations: createFoxyPublicationConfirmationRepository({ library: createLibraryMaterialPublisher({ files: options.files.store }) }) }),
     capabilities: (request: unknown) => uow.run(request, false, async () => ({ textGeneration: { enabled },
       imageGeneration: { enabled: false }, diagramGeneration: { enabled: false } })) };
-  return { services, worker, publicationWorker, onModuleInit: () => { lifecycle.onModuleInit(); publicationWorker.onModuleInit(); },
-    onModuleDestroy: async () => { await Promise.all([lifecycle.onModuleDestroy(), publicationWorker.onModuleDestroy()]); } };
+  return { services, worker, publicationWorker, onModuleInit: () => { lifecycle.onModuleInit(); publicationWorker.onModuleInit(); cleanup.onModuleInit(); },
+    onModuleDestroy: async () => {
+      const results = await Promise.allSettled([lifecycle, publicationWorker, cleanup].map(item => Promise.resolve().then(() => item.onModuleDestroy())));
+      const failure = results.find(result => result.status === 'rejected'); if (failure?.status === 'rejected') throw failure.reason;
+    } };
 }

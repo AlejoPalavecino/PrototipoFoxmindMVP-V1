@@ -76,7 +76,7 @@ class AppModule implements OnModuleDestroy {
       controllers: [HealthController],
       providers: [...(configuration.classrooms && files ? [{ provide: FOXY_RUNTIME, inject: [PrismaService, IdentityRuntime, FileService, InvitationService],
         useFactory: (database: PrismaService, identity: IdentityRuntime, files: FileService, classrooms: ClassroomService) =>
-          createFoxyRuntime({ database, files, classrooms, authenticate: createFoxyAuthentication(identity.configuration.security),
+          createFoxyRuntime({ database, files, classrooms, storage: { remove: key => infrastructure!.storage.remove(key) }, authenticate: createFoxyAuthentication(identity.configuration.security),
             configuration: foxyConfiguration(configuration.ai), provider: foxyProvider(configuration.ai, options) }) }] : []),
         { provide: 'HomeService', inject: [PrismaService, IdentityRuntime],
         useFactory: (database: PrismaService, runtime: IdentityRuntime) => createHomeService(

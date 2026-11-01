@@ -30,7 +30,7 @@ async function fixture(pool,{onPut,onScan,scanError,wrapDatabase,claim=true}={})
   const files=new FileService({database,access:{authenticate:async()=>{throw Error('no fake request');},authorize:async()=>{throw Error('no fake request');}},storage,scanner,draftQuotaBytes:1000000n});
   const bridge=createDurableFoxyPublicationFiles({files,authority}),pdf=await PDFDocument.create();pdf.addPage();const bytes=Buffer.from(await pdf.save());
   const artifact={digest:createHash('sha256').update(bytes).digest('hex'),sizeBytes:bytes.length,pageCount:1,rendererVersion:'foxy-text-pdf-v1'};
-  return {query,f,database,files,publication,lease,authority,scope,controller,bridge,artifact,bytes,calls,blobs};
+  return {query,f,database,files,storage,publication,lease,authority,scope,controller,bridge,artifact,bytes,calls,blobs};
 }
 
 test('opaque scope allocates, scans and proves only its associated PDF through real FileService', {timeout:120000},async()=>{
@@ -189,7 +189,7 @@ test('runtime restarts with text AI disabled and durably completes an already up
   const allocated=await x.bridge.ensureFile(x.scope.capability,x.artifact,signal),child=await x.authority.createFileCapability(x.scope.capability,signal);
   await x.bridge.receive(child.capability,x.bytes,signal);x.authority.close(x.scope);
   const {createFoxyRuntime}=await import(new URL('../../../../.build/api/apps/api/src/foxy-ai/runtime.js',import.meta.url));
-  const options={database:x.database,files:x.files,authenticate:async()=>x.f.teacherActor,classrooms:{run:async()=>{},classroom:async()=>{}},configuration:null,provider:null};
+  const options={database:x.database,files:x.files,storage:x.storage,authenticate:async()=>x.f.teacherActor,classrooms:{run:async()=>{},classroom:async()=>{}},configuration:null,provider:null};
   const first=createFoxyRuntime(options);assert.equal(first.worker,null);first.onModuleInit();await first.onModuleDestroy();
   await x.query("UPDATE foxy_publications SET lease_until=clock_timestamp()-interval '1 second' WHERE id=$1::uuid",x.publication.id);
   const before=x.calls.filter(c=>c==='put').length,runtime=createFoxyRuntime(options);runtime.onModuleInit();

@@ -13,5 +13,5 @@ export async function lockFoxyManagementScopes(tx: SqlTransaction, actor: string
   const [live] = await tx.query(`SELECT r.id FROM foxy_resources r JOIN foxy_conversations c ON c.id=r.conversation_id AND c.owner_id=r.owner_id
     WHERE r.id=$1::uuid AND r.owner_id=$2::uuid AND c.id=$3::uuid AND c.deleted_at IS NULL AND c.classroom_id IS NOT DISTINCT FROM $4::uuid FOR SHARE OF r,c`, scope.resource_id, actor, scope.conversation_id, scope.source_room);
   if (!live) return fail();
-  await tx.query('SELECT pg_advisory_xact_lock(78123003)'); return scope;
+  await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123003)'); return scope;
 }

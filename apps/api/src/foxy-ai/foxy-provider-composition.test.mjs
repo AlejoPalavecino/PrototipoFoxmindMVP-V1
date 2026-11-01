@@ -56,3 +56,19 @@ test('application passes only operational AI configuration into Foxy runtime', {
     });
   } finally {moduleMock.restore();}
 });
+
+
+test('application forwards the shared storage remove with its original receiver', {timeout:120000},async()=>{
+ const {mock}=await import('node:test');const filesUrl=new URL('../../../../.build/api/apps/api/src/files/index.js',import.meta.url),foxyUrl=new URL('../../../../.build/api/apps/api/src/foxy-ai/index.js',import.meta.url);
+ const files=await import(filesUrl.href),foxy=await import(foxyUrl.href),seen=[],captured=[];
+ const storage={marker:'synthetic-receiver',async put(){},async get(){},async remove(key){assert.equal(this,storage);seen.push(key);}};
+ const filesMock=mock.module(filesUrl.href,{namedExports:{...files,createFileInfrastructure:()=>({storage,scanner:{scan:async()=>{}},close(){}})}});
+ const foxyMock=mock.module(foxyUrl.href,{namedExports:{...foxy,createFoxyRuntime:options=>{captured.push(options);return foxy.createFoxyRuntime(options);}}});
+ try {const {createApplication}=await import('../../../../.build/api/apps/api/src/application.js?foxy-storage-receiver'),{readConfiguration}=await import('../../../../.build/api/apps/api/src/configuration.js');
+  await withAgendaDatabase(async({databaseUrl})=>{const env={...identityTestEnvironment(),DATABASE_URL:databaseUrl,API_PORT:'0',AI_ENABLED:'false',
+   FILES_ENABLED:'1',FILES_S3_ENDPOINT:'http://127.0.0.1:9',FILES_S3_REGION:'us-east-1',FILES_S3_BUCKET:'synthetic-private',FILES_S3_ACCESS_KEY_ID:'a'.repeat(32),FILES_S3_SECRET_ACCESS_KEY:'b'.repeat(64),FILES_SCANNER_HOST:'127.0.0.1',FILES_SCANNER_PORT:'9',FILES_DRAFT_QUOTA_BYTES:'1000000',
+   CLASSROOMS_ENABLED:'1',CLASSROOMS_QUOTA_BYTES:'100000000',CLASSROOMS_SIGNING_KEY:randomBytes(32).toString('base64url'),CLASSROOMS_DELIVERY_KEY:randomBytes(32).toString('base64url')};
+   const app=await createApplication(readConfiguration(env));try{await app.init();assert.equal(captured.length,1);await captured[0].storage.remove('synthetic/key');assert.deepEqual(seen,['synthetic/key']);}finally{await app.close();}
+  });
+ }finally{foxyMock.restore();filesMock.restore();}
+});
