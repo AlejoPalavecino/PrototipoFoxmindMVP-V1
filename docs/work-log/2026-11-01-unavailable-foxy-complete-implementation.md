@@ -37,3 +37,8 @@ Diseñar y probar integración de gestión M4D2; revisar proveedor y contratos p
 - /root/architect_next diseñó cuota y scope privado por docente; /root/red_management RED con PG temporal y /root/green_diagram implementó migración y repositorio.
 - /root/review_management detectó guardas SQL insuficientes para estructura de diagrama y leases; RED/correcciones y revalidación 14 pruebas, despliegue de migración dos veces, status y drift PASS. Cuota bigint sobre MAX_SAFE se probó con agregado simulado; no se afirma agregado real masivo.
 - Sin proveedor ni almacenamiento: inspector, custodia y publicación siguen pendientes.
+
+## V-A1b.1 — inspección de imágenes
+
+- /root/red_management RED y ampliación a 11 pruebas; /root/green_diagram implementó inspector en worker y el coordinador exportó la factory desde Files.
+- /root/review_management validó PNG/JPEG legítimos y casos malformados, límites, aborto, build final, fronteras y Gitleaks PASS. Sin proveedor, scanner ni almacenamiento; memoria nativa no está limitada exclusivamente por V8.

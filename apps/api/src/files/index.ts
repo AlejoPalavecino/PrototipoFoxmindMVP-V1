@@ -21,3 +21,4 @@ export { createDurableGradingAiInstructionReader, type GradingInstructionGrant }
 export { createFoxyDocumentReader, type FoxyDocumentDescriptor } from './foxy-document-reader.ts';
 export { createDurableFoxyDocumentReader } from './foxy-durable-document-reader.ts';
 export { createDurableFoxyPublicationFiles } from './foxy-publication-files.ts';
+export { createFoxyPrivateImageInspector } from './foxy-private-image-inspector.ts';
