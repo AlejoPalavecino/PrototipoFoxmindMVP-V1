@@ -8,7 +8,7 @@ import { createWebClassroomClient } from '../lib/classroom-client';
 import type { AccountSession } from '../lib/account-client';
 
 /** The page supplies its existing session and logout operation. */
-export function AccountNavbar({ session, view, signInHref = '/sign-in', registerHref = '/register', verifyHref = '/verify-email', accountActions, minimal = false }: {
+export function AccountNavbar({ session, view, signInHref = '/sign-in', registerHref = '/register', verifyHref = '/verify-email', accountActions, minimal = false, onNavigate }: {
   session?: AccountSession;
   view?: string;
   signInHref?: string;
@@ -16,11 +16,13 @@ export function AccountNavbar({ session, view, signInHref = '/sign-in', register
   verifyHref?: string;
   accountActions?: ReactNode;
   minimal?: boolean;
+  onNavigate?: (href: string) => void;
 }) {
   const router = useRouter();
   const api = useMemo(() => createWebClassroomClient(), []);
   const user = session?.authenticated ? session.user : undefined;
   const verified = Boolean(user?.emailVerified);
+  const navigate = (href: string) => { if (onNavigate) onNavigate(href); else void router.push(href); };
   if (minimal) return <header className="auth-brand-header">
     <div className="auth-reference-brand"><Link href={user ? (verified ? '/inicio' : verifyHref) : signInHref} aria-label="FoxMind"><FoxmindBrand decorative /></Link>
       <p>Un espacio para aprender y enseñar.</p></div>
@@ -36,7 +38,7 @@ export function AccountNavbar({ session, view, signInHref = '/sign-in', register
       ...(user?.accountRole === 'teacher' ? [{ href: '/foxy-ai', label: 'Foxy AI', current: view === 'foxy-ai' }] : [])]
       : user ? [{ href: verifyHref, label: 'Verificar correo', current: view === 'verify-email' }]
         : [{ href: signInHref, label: 'Iniciar sesión', current: view === 'sign-in' }, { href: registerHref, label: 'Crear cuenta', current: view === 'register' }]}
-    onNavigate={href => { void router.push(href); }}
-    notifications={verified ? <Notifications api={api} refresh={0} onSelect={id => { void router.push(`/mis-aulas?notificacion=${encodeURIComponent(id)}`); }} /> : undefined}
+    onNavigate={navigate}
+    notifications={verified ? <Notifications api={api} refresh={0} onSelect={id => navigate(`/mis-aulas?notificacion=${encodeURIComponent(id)}`)} /> : undefined}
     accountActions={accountActions} />;
 }

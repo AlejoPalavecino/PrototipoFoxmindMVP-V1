@@ -26,3 +26,11 @@ test('old subject initialization cannot finish the new subject loading state',as
  const gates=new Map(),h=harness(id=>new Promise(r=>gates.set(id,r)));await h.flush();const old=h.props.subjectId,next=randomUUID();h.setProps({subjectId:next});await h.flush();assert.equal(h.tree.initializing,true);
  gates.get(old)();await h.flush();assert.equal(h.tree.state.subjectId,next);assert.equal(h.tree.initializing,true);gates.get(next)();await h.flush();assert.equal(h.tree.initializing,false);h.close();
 });
+
+test('pagehide immediately disposes active runtime and prevents late state or identity callbacks',async()=>{
+ const previous=globalThis.window,listeners=new Map();globalThis.window={addEventListener:(name,fn)=>listeners.set(name,fn),removeEventListener:(name,fn)=>{if(listeners.get(name)===fn)listeners.delete(name);}};
+ try{const h=harness();await h.flush();const runtime=h.runtimes[0];assert.equal(typeof listeners.get('pagehide'),'function');listeners.get('pagehide')({persisted:true});await h.flush();
+  assert.equal(runtime.disposeCalls,1);assert.equal(h.tree.runtime,null);assert.equal(h.tree.state,null);runtime.options.onChange({...runtime.state,closed:false});runtime.options.onIdentityRequired('AUTH_REQUIRED');await h.flush();
+  assert.equal(h.tree.runtime,null);assert.deepEqual(h.notifications,[]);h.close();assert.equal(listeners.has('pagehide'),false);
+ }finally{globalThis.window=previous;}
+});

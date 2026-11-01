@@ -18,6 +18,8 @@ export function useFoxyWorkspace({ subjectId, onIdentityRequired }: { subjectId:
       onChange: state => { if (active && subject.current === currentSubject && !state.closed) setView({ runtime, state, initializing }); },
       onIdentityRequired: code => { if (active && subject.current === currentSubject) { active = false; setView(null); callback.current(code); } },
     });
+    const onPageHide = () => { if (active) { active = false; setView(null); runtime.dispose(); } };
+    if (typeof window !== 'undefined') window.addEventListener('pagehide', onPageHide);
     setView({ runtime, state: runtime.getState(), initializing });
     const settled = () => {
       if (active && subject.current === currentSubject) {
@@ -26,7 +28,7 @@ export function useFoxyWorkspace({ subjectId, onIdentityRequired }: { subjectId:
       }
     };
     try { void runtime.init().then(settled, settled); } catch { settled(); }
-    return () => { active = false; runtime.dispose(); };
+    return () => { if (typeof window !== 'undefined') window.removeEventListener('pagehide', onPageHide); if (active) { active = false; runtime.dispose(); } };
   }, [subjectId]);
   const current = view && view.state.subjectId === subjectId && !view.state.closed ? view : null;
   return { state: current?.state ?? null, runtime: current?.runtime ?? null, initializing: current?.initializing ?? true };

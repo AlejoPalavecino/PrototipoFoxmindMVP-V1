@@ -1,6 +1,7 @@
 import type { AppProps } from 'next/app';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { captureDocumentEntry } from '../src/lib/foxy-document-boundary';
 import '../../shared-ui/design-tokens.css';
 import '../styles/globals.css';
 import '../../classrooms-ui/styles.css';
@@ -23,6 +24,7 @@ import '../../classrooms-ui/interior-progress-reference.css';
 import '../../classrooms-ui/interior-activity-reference.css';
 import '../../agenda-ui/agenda-reference.css';
 import '../../agenda-ui/agenda-event-reference.css';
+if (typeof window !== 'undefined') captureDocumentEntry(window.document, window.location.pathname);
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   useEffect(() => {
