@@ -6,13 +6,15 @@ import { createFoxyResourceController } from './foxy-resource-controller.ts';
 import { createFoxyPreparationController } from './foxy-preparation-controller.ts';
 import { createFoxyPublicationHistoryController } from './foxy-publication-history-controller.ts';
 import { createFoxyPublicationConfirmationController } from './foxy-publication-confirmation-controller.ts';
+import { createFoxyPublicationManagementController } from './foxy-publication-management-controller.ts';
 
 type Snapshot = { subjectId: string; closed: boolean; classrooms: Classroom[]; classroomsError: string | null;
   chat: ReturnType<ReturnType<typeof createFoxyChatController>['getState']> | null;
   resource: ReturnType<ReturnType<typeof createFoxyResourceController>['getState']> | null;
   preparation: ReturnType<ReturnType<typeof createFoxyPreparationController>['getState']> | null;
   history: ReturnType<ReturnType<typeof createFoxyPublicationHistoryController>['getState']> | null;
-  confirmation: ReturnType<ReturnType<typeof createFoxyPublicationConfirmationController>['getState']> | null };
+  confirmation: ReturnType<ReturnType<typeof createFoxyPublicationConfirmationController>['getState']> | null;
+  management: ReturnType<ReturnType<typeof createFoxyPublicationManagementController>['getState']> | null };
 type Options = { subjectId: string; createFoxyClient: (identity: (code: string) => void) => WebFoxyClient;
   createClassroomClient: (identity: (code: string) => void) => ReturnType<typeof createWebClassroomClient>;
   onChange: (snapshot: Snapshot) => void; onIdentityRequired: (code: string) => void };
@@ -20,13 +22,13 @@ export function createFoxyWorkspaceRuntime(options: Options) {
   let closed = false, depth = 0, dirty = false, initialized: Promise<void> | null = null, classrooms: Classroom[] = [], classroomsError: string | null = null;
   const subjectId = options.subjectId;
   let receiptStamp = '', abort = new AbortController(), classroomEpoch = 0, contextEpoch = 0;
-  let resourceKey = '', selectedKey = '';
+  let resourceKey = '', selectedKey = '', managementStamp = '', reconcilePending = false, reconcileVersion = -1, reconcileQueued = false;
   const identity = (code: string) => { if (!closed && (code === 'AUTH_REQUIRED' || code === 'EMAIL_VERIFICATION_REQUIRED')) { dispose(); options.onIdentityRequired(code); } };
   const client = options.createFoxyClient(identity), classroomClient = options.createClassroomClient(identity);
   function snapshot(): Snapshot {
     return structuredClone({ subjectId, closed, classrooms: structuredClone(classrooms), classroomsError,
       chat: closed ? null : chat.getState(), resource: closed ? null : resource.getState(), preparation: closed ? null : preparation.getState(),
-      history: closed ? null : history.getState(), confirmation: closed ? null : confirmation.getState() });
+      history: closed ? null : history.getState(), confirmation: closed ? null : confirmation.getState(), management: closed ? null : management.getState() });
   }
   function batch(fn: () => void) {
     if (closed) return; depth++;
@@ -46,16 +48,17 @@ export function createFoxyWorkspaceRuntime(options: Options) {
   const chat = { ...chatBase, getState: () => structuredClone(closed ? emptyChat : chatBase.getState()) };
   const resourceBase = createFoxyResourceController({ client, onChange: value => batch(() => {
     const next = value.resource?.id.toLowerCase() ?? ''; if (next !== resourceKey) { resourceKey = next; contextEpoch++; }
-    preparation.syncResource(); history.syncResource(); confirmation.syncContext();
+    preparation.syncResource(); history.syncResource(); confirmation.syncContext(); management.syncContext();
   }) });
   const preparation = createFoxyPreparationController({ client, resource: resourceBase, loadClassroom: loadDetail, onChange: () => batch(() => {
-    void history.syncPreparation(); confirmation.syncContext();
+    void history.syncPreparation(); confirmation.syncContext(); management.syncContext();
   }) });
   const history = createFoxyPublicationHistoryController({ client, resource: resourceBase, preparation, onChange: value => batch(() => {
     const next = value.selectedId?.toLowerCase() ?? ''; if (next !== selectedKey) { selectedKey = next; contextEpoch++; }
-    confirmation.syncContext();
+    confirmation.syncContext(); management.syncContext(); scheduleManagement();
   }) });
   const confirmation = createFoxyPublicationConfirmationController({ client, resource: resourceBase, preparation, history, loadClassroom: loadDetail, onChange: () => batch(() => {
+    management.syncContext();
     const receipt = confirmation.getState().receipt, resourceId = resourceBase.getState().resource?.id, selected = history.getState().selectedId;
     if (receipt && resourceId && selected && receipt.publicationId.toLowerCase() === selected.toLowerCase()) {
       const stamp = `${resourceId}:${receipt.publicationId}:${receipt.publicationRevision}:${receipt.classroomRevision}`;
@@ -67,6 +70,30 @@ export function createFoxyWorkspaceRuntime(options: Options) {
       }
     }
   }) });
+  function scheduleManagement() {
+    const r = resourceBase.getState().resource, h = history.getState(), p = h.inspection?.publication;
+    if (!r || !h.selectedId || !p || p.id.toLowerCase() !== h.selectedId.toLowerCase() || p.resourceId.toLowerCase() !== r.id.toLowerCase()) {
+      managementStamp = ''; return;
+    }
+    const stamp = `${r.id.toLowerCase()}:${p.id.toLowerCase()}:${p.revision}:${p.state}`;
+    if (stamp === managementStamp) return;
+    managementStamp = stamp; const version = contextEpoch;
+    queueMicrotask(() => { if (!closed && version === contextEpoch && stamp === managementStamp) void management.refresh(); });
+  }
+  function reconcileManagement() {
+    if (closed) return;
+    if (reconcilePending) { if (reconcileVersion !== contextEpoch) reconcileQueued = true; return; }
+    reconcilePending = true; const version = contextEpoch; reconcileVersion = version;
+    queueMicrotask(() => { void (async () => {
+      try {
+        if (closed || version !== contextEpoch) return;
+        await Promise.all([history.refreshSelected(), history.refreshList()]);
+        if (!closed && version === contextEpoch) await management.refresh();
+      } finally { reconcilePending = false; if (reconcileQueued && !closed) { reconcileQueued = false; reconcileManagement(); } }
+    })().catch(() => {}); });
+  }
+  const management = createFoxyPublicationManagementController({ client, resource: resourceBase, preparation, history, confirmation,
+    onChange: () => batch(() => {}), onReconcile: reconcileManagement });
   const resource = { ...resourceBase, async open(conversationId: string, turnId: string) {
     const result = await resourceBase.open(conversationId, turnId);
     if (!closed && result === 'opened') await history.refreshList(); return result;
@@ -81,9 +108,9 @@ export function createFoxyWorkspaceRuntime(options: Options) {
   }
   function dispose() {
     if (closed) return; closed = true; abort.abort(); classrooms = []; classroomsError = null;
-    chat.dispose(); resourceBase.dispose(); preparation.dispose(); history.dispose(); confirmation.dispose();
+    chat.dispose(); resourceBase.dispose(); preparation.dispose(); history.dispose(); confirmation.dispose(); management.dispose();
   }
   const publicationFileUrl = (id: string, mode: 'preview' | 'download') => closed ? '' : client.publicationFileUrl(id, mode);
-  return { getState: snapshot, chat, resource, preparation, history, confirmation, loadClassroom, reloadClassrooms, publicationFileUrl,
+  return { getState: snapshot, chat, resource, preparation, history, confirmation, management, loadClassroom, reloadClassrooms, publicationFileUrl,
     init() { if (closed) return Promise.resolve(); if (!initialized) initialized = Promise.resolve().then(async () => { if (!closed) await Promise.all([chat.init(), reloadClassrooms()]); }); return initialized; }, dispose };
 }

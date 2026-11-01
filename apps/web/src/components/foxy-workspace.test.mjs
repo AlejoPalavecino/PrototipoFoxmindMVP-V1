@@ -150,3 +150,18 @@ test('session delegates both PDF URLs to the single runtime client without creat
   assert.deepEqual(calls,[['runtimeUrl',pid,'preview'],['runtimeUrl',pid,'download']]);
  }finally{view.close();}
 });
+
+test('session native navigation guard includes only active management operations',async()=>{
+ const subjectId=randomUUID(),rid=randomUUID();let binding,management={pending:null,busy:false,management:{cleanupState:'PENDING'}};
+ const snapshot={subjectId,closed:false,chat:base,resource:{status:'editing',resource:{id:rid},dirty:false,busy:false,pending:null},preparation:{busy:false,pending:null},history:{},confirmation:{busy:false,pending:null},management,classrooms:[],classroomsError:null};
+ const runtime={getState:()=>({...snapshot,management})},actions={chat:{},resource:{open:()=>{}},preparation:{},history:{},confirmation:{},management:{},requestNavigate:()=>{}};
+ const {FoxyWorkspaceSession}=componentWithPorts('apps/web/src/components/foxy-workspace-session.tsx',{
+  '../lib/use-foxy-workspace':{useFoxyWorkspace:()=>({state:snapshot,runtime,initializing:false})},
+  '../lib/use-foxy-workspace-actions':{useFoxyWorkspaceActions:()=>({actions,ui:{leave:null,openingResource:false}})},
+  './foxy-workspace':{FoxyWorkspace:()=>null},'./foxy-resource-workspace':{FoxyResourceWorkspace:()=>null}
+ });
+ const view=hookView(FoxyWorkspaceSession,{subjectId,onIdentityRequired:()=>{},onRegister:value=>{binding=value;}});
+ try{await view.flush();assert.ok(binding);assert.equal(binding.shouldBlock(),false,'durable cleanup alone must not block');
+  for(const active of [{pending:'RETRY',busy:false},{pending:'DISCARD',busy:false},{pending:null,busy:true}]){management={...management,...active};assert.equal(binding.shouldBlock(),true,JSON.stringify(active));}}
+ finally{view.close();}
+});

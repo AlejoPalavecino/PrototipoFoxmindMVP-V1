@@ -72,3 +72,86 @@ test('receipt refresh microtask is fenced when selection changes P to B and back
  const before=f.calls.filter(x=>x[0]==='publications').length;await runtime.confirmation.confirm();await new Promise(r=>setImmediate(r));
  assert.equal(switched,true);assert.equal(f.calls.filter(x=>x[0]==='publications').length,before);runtime.dispose();
 });
+
+
+test('runtime composes one management controller without I/O and clears it on identity loss',async()=>{
+ const f=fixture(),runtime=create(f);assert.ok(runtime.management);assert.ok(runtime.getState().management);assert.equal(f.calls.length,0);
+ await runtime.init();f.foxyIdentity('AUTH_REQUIRED');assert.equal(runtime.getState().management,null);assert.equal(runtime.getState().closed,true);runtime.dispose();
+});
+
+test('selected publication triggers one bounded management read, no refresh on draft edits',async()=>{
+ const f=fixture(),cid=randomUUID(),tid=randomUUID(),rid=randomUUID(),pid=randomUUID();let managementGets=0;
+ const resource={id:rid,conversationId:cid,sourceTurnId:tid,title:'Guía',markdown:'Texto',revision:'1'},pub={id:pid,resourceId:rid,resourceRevision:'1',classroomId:f.room.id,title:'Guía',unitId:null,topicId:null,state:'FAILED',revision:'2'};
+ Object.assign(f.foxy,{resourceFromTurn:async()=>({created:false,resource}),inspectPublication:async()=>({publication:pub,classroomRevision:'3',classroomArchived:false,errorCode:'FILE_NOT_READY'}),
+  inspectPublicationManagement:async()=>{managementGets++;return {publicationId:pid,publicationRevision:'2',canRetry:true,retryReason:null,canDiscard:true,cleanupState:'NOT_REQUESTED'};}});
+ const runtime=create(f);await runtime.resource.open(cid,tid);await runtime.history.select(pid);await new Promise(r=>setImmediate(r));assert.equal(managementGets,1);
+ runtime.resource.updateDraft({title:'Escrito',markdown:'Texto'});await new Promise(r=>setImmediate(r));assert.equal(managementGets,1);runtime.dispose();
+});
+
+test('management read from old selection cannot overwrite current selection, including A to B to A',async()=>{
+ const f=fixture(),cid=randomUUID(),tid=randomUUID(),rid=randomUUID(),a=randomUUID(),b=randomUUID(),room=f.room.id,first=deferred();let readCount=0,firstSignal;
+ const resource={id:rid,conversationId:cid,sourceTurnId:tid,title:'Guia',markdown:'Texto',revision:'1'};
+ const pub=id=>({id,resourceId:rid,resourceRevision:'1',classroomId:room,title:'Guia',unitId:null,topicId:null,state:'FAILED',revision:'2'});
+ const mg=id=>({publicationId:id,publicationRevision:'2',canRetry:true,retryReason:null,canDiscard:true,cleanupState:'NOT_REQUESTED'});
+ Object.assign(f.foxy,{resourceFromTurn:async()=>({created:false,resource}),listPublications:async()=>({items:[pub(a),pub(b)],nextAfterId:null}),
+  inspectPublication:async id=>({publication:pub(id),classroomRevision:'3',classroomArchived:false,errorCode:'FILE_NOT_READY'}),
+  inspectPublicationManagement:async(id,signal)=>{readCount++;if(readCount===1){firstSignal=signal;return first.promise;}return mg(id);}});
+ const runtime=create(f);await runtime.resource.open(cid,tid);await runtime.history.select(a);await new Promise(r=>setImmediate(r));
+ await runtime.history.select(b);await new Promise(r=>setImmediate(r));await runtime.history.select(a);await new Promise(r=>setImmediate(r));
+ assert.equal(firstSignal.aborted,true);assert.equal(runtime.getState().management.management.publicationId,a);const count=readCount;
+ first.resolve({...mg(b),publicationRevision:'99'});await new Promise(r=>setImmediate(r));assert.equal(runtime.getState().management.management.publicationId,a);assert.equal(readCount,count);runtime.dispose();
+});
+
+test('uncertain management retry preserves the same request and unsaved draft while reads remain available',async()=>{
+ const f=fixture(),cid=randomUUID(),tid=randomUUID(),rid=randomUUID(),pid=randomUUID(),room=f.room.id,calls=[];let attempts=0;
+ const resource={id:rid,conversationId:cid,sourceTurnId:tid,title:'Guia',markdown:'Texto',revision:'1'},pub={id:pid,resourceId:rid,resourceRevision:'1',classroomId:room,title:'Guia',unitId:null,topicId:null,state:'FAILED',revision:'2'};
+ Object.assign(f.foxy,{resourceFromTurn:async()=>({created:false,resource}),listPublications:async()=>({items:[pub],nextAfterId:null}),
+  inspectPublication:async()=>({publication:pub,classroomRevision:'3',classroomArchived:false,errorCode:'FILE_NOT_READY'}),
+  inspectPublicationManagement:async()=>({publicationId:pid,publicationRevision:'2',canRetry:true,retryReason:null,canDiscard:true,cleanupState:'NOT_REQUESTED'}),
+  retryPublication:async(id,input)=>{calls.push([id,structuredClone(input)]);if(++attempts===1)throw Object.assign(Error('synthetic'),{code:'SERVICE_UNAVAILABLE',status:503});return {publicationId:pid,action:'RETRY',publicationRevision:'3'};}});
+ const runtime=create(f);await runtime.resource.open(cid,tid);runtime.resource.updateDraft({title:'Borrador',markdown:'Sin guardar'});await runtime.history.select(pid);await new Promise(r=>setImmediate(r));
+ assert.equal(await runtime.management.retryPreparation(),'uncertain');assert.equal(runtime.getState().management.pending,'RETRY');
+ await runtime.history.refreshList();assert.equal(runtime.getState().resource.draft.markdown,'Sin guardar');assert.equal(await runtime.management.retryRequest(),'applied');
+ assert.deepEqual(calls[0],calls[1]);assert.equal(runtime.getState().resource.draft.markdown,'Sin guardar');runtime.dispose();
+});
+
+test('accepted management command coalesces reconciliation and never erases a dirty draft',async()=>{
+ const f=fixture(),cid=randomUUID(),tid=randomUUID(),rid=randomUUID(),pid=randomUUID(),room=f.room.id;let phase='FAILED',revision='2',listCalls=0,inspectCalls=0,managementCalls=0;
+ const resource={id:rid,conversationId:cid,sourceTurnId:tid,title:'Guia',markdown:'Texto',revision:'1'};
+ const pub=()=>({id:pid,resourceId:rid,resourceRevision:'1',classroomId:room,title:'Guia',unitId:null,topicId:null,state:phase,revision});
+ Object.assign(f.foxy,{resourceFromTurn:async()=>({created:false,resource}),listPublications:async()=>{listCalls++;return {items:[pub()],nextAfterId:null};},
+  inspectPublication:async()=>{inspectCalls++;return {publication:pub(),classroomRevision:'3',classroomArchived:false,errorCode:phase==='FAILED'?'FILE_NOT_READY':null};},
+  inspectPublicationManagement:async()=>{managementCalls++;return {publicationId:pid,publicationRevision:revision,canRetry:phase==='FAILED',retryReason:phase==='FAILED'?null:'STATE',canDiscard:true,cleanupState:'NOT_REQUESTED'};},
+  retryPublication:async()=>{phase='PREPARING';revision='3';return {publicationId:pid,action:'RETRY',publicationRevision:'3'};}});
+ const runtime=create(f);await runtime.resource.open(cid,tid);runtime.resource.updateDraft({title:'Borrador',markdown:'Contenido local'});await runtime.history.select(pid);await new Promise(r=>setImmediate(r));
+ const before={listCalls,inspectCalls,managementCalls};assert.equal(await runtime.management.retryPreparation(),'applied');await new Promise(r=>setImmediate(r));await new Promise(r=>setImmediate(r));
+ assert.equal(listCalls-before.listCalls,1);assert.equal(inspectCalls-before.inspectCalls,1);assert.equal(managementCalls-before.managementCalls,1,'management reconciliation must issue one current read');
+ assert.equal(runtime.getState().resource.draft.markdown,'Contenido local');runtime.dispose();
+});
+
+test('reconciliation for new selection is not lost while previous selection refresh is in flight',async()=>{
+ const f=fixture(),cid=randomUUID(),tid=randomUUID(),rid=randomUUID(),a=randomUUID(),b=randomUUID(),room=f.room.id,gate=deferred();let blockA=false,releaseA=false;const inspected=[],listed=[];
+ const resource={id:rid,conversationId:cid,sourceTurnId:tid,title:'Guia',markdown:'Texto',revision:'1'};
+ const pub=id=>({id,resourceId:rid,resourceRevision:'1',classroomId:room,title:'Guia',unitId:null,topicId:null,state:'FAILED',revision:'2'});
+ Object.assign(f.foxy,{resourceFromTurn:async()=>({created:false,resource}),listPublications:async()=>{listed.push('list');return {items:[pub(a),pub(b)],nextAfterId:null};},
+  inspectPublication:async id=>{inspected.push(id);if(id===a&&blockA&&!releaseA){await gate.promise;}return {publication:pub(id),classroomRevision:'3',classroomArchived:false,errorCode:'FILE_NOT_READY'};},
+  inspectPublicationManagement:async id=>({publicationId:id,publicationRevision:id===b?'3':'2',canRetry:true,retryReason:null,canDiscard:true,cleanupState:'NOT_REQUESTED'}),
+  retryPublication:async()=>({publicationId:a,action:'RETRY',publicationRevision:'3'})});
+ const runtime=create(f);await runtime.resource.open(cid,tid);await runtime.history.select(a);await new Promise(r=>setImmediate(r));
+ blockA=true;await runtime.management.retryPreparation();await new Promise(r=>setImmediate(r));assert.equal(inspected.filter(id=>id===a).length,2);
+ await runtime.history.select(b);await new Promise(r=>setImmediate(r));const beforeB=inspected.filter(id=>id===b).length;
+ releaseA=true;gate.resolve();await new Promise(r=>setImmediate(r));await new Promise(r=>setImmediate(r));
+ assert.equal(runtime.getState().history.selectedId,b);assert.ok(inspected.filter(id=>id===b).length>beforeB,'new selection mismatch must eventually reconcile');runtime.dispose();
+});
+
+test('identity loss aborts pending management command and suppresses late receipt and reconciliation',async()=>{
+ const f=fixture(),cid=randomUUID(),tid=randomUUID(),rid=randomUUID(),pid=randomUUID(),room=f.room.id,gate=deferred();let commandSignal,lists=0;
+ const resource={id:rid,conversationId:cid,sourceTurnId:tid,title:'Guia',markdown:'Texto',revision:'1'},pub={id:pid,resourceId:rid,resourceRevision:'1',classroomId:room,title:'Guia',unitId:null,topicId:null,state:'FAILED',revision:'2'};
+ Object.assign(f.foxy,{resourceFromTurn:async()=>({created:false,resource}),listPublications:async()=>{lists++;return {items:[pub],nextAfterId:null};},
+  inspectPublication:async()=>({publication:pub,classroomRevision:'3',classroomArchived:false,errorCode:'FILE_NOT_READY'}),
+  inspectPublicationManagement:async()=>({publicationId:pid,publicationRevision:'2',canRetry:true,retryReason:null,canDiscard:true,cleanupState:'NOT_REQUESTED'}),
+  retryPublication:async(_id,_input,signal)=>{commandSignal=signal;return gate.promise;}});
+ const runtime=create(f);await runtime.resource.open(cid,tid);await runtime.history.select(pid);await new Promise(r=>setImmediate(r));const pending=runtime.management.retryPreparation();await Promise.resolve();
+ f.foxyIdentity('AUTH_REQUIRED');assert.equal(commandSignal.aborted,true);const before=lists;gate.resolve({publicationId:pid,action:'RETRY',publicationRevision:'3'});await pending;await new Promise(r=>setImmediate(r));
+ assert.equal(runtime.getState().closed,true);assert.equal(runtime.getState().management,null);assert.equal(lists,before);runtime.dispose();
+});

@@ -14,7 +14,8 @@ export function FoxyWorkspaceSession({ subjectId, onIdentityRequired, onNavigate
     onRegister({ navigate: href => { void actions.requestNavigate(href); }, shouldBlock: () => {
       const current = runtime.getState();
       return !!(current.resource?.dirty || current.resource?.busy || current.resource?.pending || current.preparation?.busy
-        || current.preparation?.pending || current.confirmation?.busy || current.confirmation?.pending);
+        || current.preparation?.pending || current.confirmation?.busy || current.confirmation?.pending
+        || current.management?.busy || current.management?.pending);
     } });
     return () => onRegister(null);
   }, [runtime, actions, onRegister]);

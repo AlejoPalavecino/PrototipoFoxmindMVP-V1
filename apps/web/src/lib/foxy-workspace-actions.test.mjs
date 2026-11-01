@@ -68,3 +68,13 @@ test('SAVE pending or busy blocks save; only idle uncertain SAVE may retry',asyn
   if(phase!=='none')f.setResource({pending:'SAVE',busy:phase==='busy'});if(phase==='prepare')f.setPreparation({pending:'PREPARE'});if(phase==='confirm')f.setConfirmation({pending:'CONFIRM'});
   if(phase!=='none')await a.resource.save();await a.resource.retry();assert.deepEqual(f.calls.map(x=>x[0]),phase==='idle'?['retry']:[],phase);a.dispose();}
 });
+
+
+test('management pending blocks conflicting writes and navigation while preserving draft typing',async()=>{
+ for(const action of ['RETRY','DISCARD']){const f=fixture(),base=f.runtime.getState,management={pending:action,busy:false};
+  f.runtime.getState=()=>({...base(),management});f.runtime.management={getState:()=>management,refresh:async()=>{},retryPreparation:async()=>{},reviewDiscard:()=>{},setDiscardReviewed:()=>{},discard:async()=>{},retryRequest:async()=>{},cancelDiscardReview:()=>{}};
+  f.runtime.preparation.prepare=async()=>f.calls.push(['prepare']);f.runtime.confirmation.confirm=async()=>f.calls.push(['confirm']);f.runtime.resource.save=async()=>f.calls.push(['save']);
+  const a=create(f);await a.resource.save();await a.preparation.prepare();await a.confirmation.confirm();await a.history.select(randomUUID());
+  assert.equal(f.calls.some(x=>['save','prepare','confirm','history.select'].includes(x[0])),false);a.resource.updateDraft({title:'Nuevo',markdown:'Texto'});assert.equal(f.calls.filter(x=>x[0]==='draft').length,1);
+  await a.requestNavigate('/mis-aulas');assert.equal(a.getState().leave?.reason,'pending');a.dispose();}
+});
