@@ -91,11 +91,11 @@ export function createFoxyPublicationHistoryController(options: Options) {
       const high = classroomRevisions.get(classroomKey), priorPublication = publications.get(p.id.toLowerCase());
       if ((high !== undefined && BigInt(value.classroomRevision) < high)
         || (priorPublication?.state === 'PUBLISHED' && p.state !== 'PUBLISHED')) {
-        emit({ inspection: null, inspectionLoading: false, inspectionError: 'La preparación cambió; actualizá su estado.' }); return;
+        emit({ inspection: null, inspectionLoading: false, inspectionError: 'La preparaciÃ³n cambiÃ³; actualizÃ¡ su estado.' }); return;
       }
       const known = priorPublication ?? state.items.find(item => same(item.id, id));
       if (known && BigInt(known.revision) > BigInt(value.publication.revision)) {
-        emit({ inspection: null, inspectionLoading: false, inspectionError: 'La preparación cambió; actualizá su estado.' }); return;
+        emit({ inspection: null, inspectionLoading: false, inspectionError: 'La preparaciÃ³n cambiÃ³; actualizÃ¡ su estado.' }); return;
       }
       classroomRevisions.set(classroomKey, BigInt(value.classroomRevision));
       publications.set(p.id.toLowerCase(), { ...p });
@@ -103,7 +103,7 @@ export function createFoxyPublicationHistoryController(options: Options) {
       const inspection = structuredClone(value);
       if (previous && same(previous.publication.id, id)) {
         if (BigInt(previous.publication.revision) > BigInt(inspection.publication.revision)) {
-          emit({ inspectionLoading: false, inspectionError: 'La preparación cambió; actualizá su estado.' }); return;
+          emit({ inspectionLoading: false, inspectionError: 'La preparaciÃ³n cambiÃ³; actualizÃ¡ su estado.' }); return;
         }
       }
       const items = state.items.map(item => same(item.id, inspection.publication.id) ? newer(item, inspection.publication) : item);

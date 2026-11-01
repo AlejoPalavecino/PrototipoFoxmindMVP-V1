@@ -5,7 +5,7 @@ import {loadTsModule} from '../../../../tests/helpers/load-ts-module.mjs';
 const rid=randomUUID(),room=randomUUID(),unit=randomUUID(),topic=randomUUID(),requestId=randomUUID();
 function deferred(){let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return {promise,resolve,reject};}
 function fixture(){let resourceState={resource:{id:rid,revision:'7',title:'Guía',markdown:'Texto'},dirty:false,busy:false,pending:null,conflict:null};const calls=[],queue=[];
- const detail={id:room,name:'Biolog�a',subject:'Ciencias',division:'A',academicYear:2026,timezone:'UTC',coverKey:'explore',archived:false,teacher:'Docente',role:'teacher',aiGradingEnabled:false,aiGradingAvailable:false,revision:'3',units:[{id:unit,name:'Unidad',position:0,topics:[{id:topic,name:'Tema',status:'PENDING'}]}],plans:[]};
+ const detail={id:room,name:'Biología',subject:'Ciencias',division:'A',academicYear:2026,timezone:'UTC',coverKey:'explore',archived:false,teacher:'Docente',role:'teacher',aiGradingEnabled:false,aiGradingAvailable:false,revision:'3',units:[{id:unit,name:'Unidad',position:0,topics:[{id:topic,name:'Tema',status:'PENDING'}]}],plans:[]};
  const client={preparePublication:async(...args)=>{calls.push(['prepare',...args]);const value=queue.shift();if(value instanceof Error)throw value;return value??{created:true,publication:{id:randomUUID(),resourceId:rid,resourceRevision:'7',classroomId:room,title:'Guía',unitId:null,topicId:null,state:'PREPARING',revision:'0'}};}};
  const options={client,resource:{getState:()=>resourceState},loadClassroom:async(...args)=>{calls.push(['classroom',...args]);return detail;},onChange:()=>{},uuid:()=>requestId};
  return {options,calls,queue,detail,setResource:value=>resourceState=value,getResource:()=>resourceState};}

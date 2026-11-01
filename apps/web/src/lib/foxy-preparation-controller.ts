@@ -39,7 +39,7 @@ export function createFoxyPreparationController(options: Options) {
     resetEpoch(); intent = null; identityLost ||= auth;
     if (auth) resourceId = null;
     emit({ ...initial(), metadata: auth ? initial().metadata : { ...initial().metadata, title: state.metadata.title },
-      errorCode: code, error: 'El recurso o aula no est· disponible.' });
+      errorCode: code, error: 'El recurso o aula no est√° disponible.' });
   }
   async function dispatch(value: { id: string; input: PrepareFoxyPublication }) {
     const version = epoch; intent = { id: value.id, input: { ...value.input } };

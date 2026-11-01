@@ -27,7 +27,7 @@ export function createFoxyResourceController(options: Options) {
   const current = (version: number) => !disposed && version === epoch && !abort.signal.aborted;
   function reset() { pendingIntent = null; conflictPending = false; saving = null; epoch++; abort.abort(); abort = new AbortController(); return epoch; }
   function clear() { reset(); update(blank()); }
-  function revoke(error: unknown) { reset(); update({ ...blank(), status: 'unavailable', errorCode: (error as { code: string }).code, error: 'El recurso no est· disponible.' }); }
+  function revoke(error: unknown) { reset(); update({ ...blank(), status: 'unavailable', errorCode: (error as { code: string }).code, error: 'El recurso no est√° disponible.' }); }
   async function dispatch(intent: EditFoxyResource) {
     const resource = state.resource;
     if (disposed || !resource || state.busy) return;
