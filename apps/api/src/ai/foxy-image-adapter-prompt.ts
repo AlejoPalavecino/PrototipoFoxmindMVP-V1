@@ -42,8 +42,8 @@ function context(input: ImageInput) {
   if (Buffer.byteLength(JSON.stringify(history)) > 262144) return limited();
   return { prompt, curriculum, sources, history, warnings };
 }
-function prepare(input: ImageInput, configuration: { model: string; maxInputTokens: number; maxOutputTokens: number; profileVersion: string }) {
-  const data = context(input), parts: NonNullable<Content['parts']> = [{ text: JSON.stringify({ mode: input.mode, ...data }) }]; let size = 0;
+function prepare(input: ImageInput, configuration: { model: string; maxInputTokens: number; maxOutputTokens: number; profileVersion: string }, systemInstruction: string) {
+  const data = context(input), parts: NonNullable<Content['parts']> = [{ text: systemInstruction }, { text: JSON.stringify({ mode: input.mode, ...data }) }]; let size = 0;
   let readable = data.sources.some(source => !!source.text.trim());
   for (const item of input.documents) {
     if (!item || !item.document) return bad();
@@ -57,10 +57,10 @@ function prepare(input: ImageInput, configuration: { model: string; maxInputToke
   }
   if (input.mode === 'CLASSROOM' && !readable) return bad();
   const contents: Content[] = [{ role: 'user', parts }];
-  const digest = createHash('sha256').update(JSON.stringify({ ...configuration, aspectRatio: input.aspectRatio, instruction, contents })).digest('hex');
+  const digest = createHash('sha256').update(JSON.stringify({ ...configuration, aspectRatio: input.aspectRatio, instruction: systemInstruction, contents })).digest('hex');
   return { contents, digest };
 }
 
-export function prepareImage(input: ImageInput, configuration: { model: string; maxInputTokens: number; maxOutputTokens: number; profileVersion: string }) {
-  try { return prepare(input,configuration); } catch (error) { if (error instanceof AiError) throw error; return bad(); }
+export function prepareImage(input: ImageInput, configuration: { model: string; maxInputTokens: number; maxOutputTokens: number; profileVersion: string }, systemInstruction = instruction) {
+  try { return prepare(input,configuration,systemInstruction); } catch (error) { if (error instanceof AiError) throw error; return bad(); }
 }

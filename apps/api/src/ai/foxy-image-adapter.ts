@@ -1,6 +1,7 @@
 import { ThinkingLevel, type Content } from '@google/genai';
 import type { GeminiClient } from './gemini-adapter.ts';
 import { AiError } from './errors.ts';
+import { createFoxyGeminiClient } from './foxy-provider-client.ts';
 import { parseGeminiFoxyImageResponse } from './foxy-image-response.ts';
 import { instruction, prepareImage, type ImageInput } from './foxy-image-adapter-prompt.ts';
 type Configuration = { model: string; maxInputTokens: number; maxOutputTokens: number; deadlineMs: number; profileVersion: string };
@@ -22,7 +23,7 @@ export class GeminiFoxyImageAdapter {
     return this.deadline(input, () => false, async signal => {
       const prepared = prepareImage(input,this.config);
       const result = await this.client.models.countTokens({ model: this.config.model, contents: prepared.contents,
-        config: { systemInstruction: instruction, abortSignal: signal, httpOptions: { retryOptions: { attempts: 1 } } } });
+        config: { abortSignal: signal, httpOptions: { retryOptions: { attempts: 1 } } } });
       if (signal.aborted || this.epochs.get(input) !== epoch || prepared.digest !== prepareImage(input,this.config).digest) throw new AiError('AI_UNAVAILABLE');
       if (!Number.isSafeInteger(result.totalTokens) || result.totalTokens! < 1) throw new AiError('AI_UNAVAILABLE');
       if (result.totalTokens! > this.config.maxInputTokens) throw new AiError('AI_INPUT_LIMIT');
@@ -38,7 +39,7 @@ export class GeminiFoxyImageAdapter {
       if (signal.aborted) throw new AiError('AI_TIMEOUT');
       dispatched = true;
       const response = await this.client.models.generateContent({ model: this.config.model, contents: ticket.contents,
-        config: { systemInstruction: instruction, abortSignal: signal, maxOutputTokens: this.config.maxOutputTokens,
+        config: { abortSignal: signal, maxOutputTokens: this.config.maxOutputTokens,
           candidateCount: 1, automaticContinuation: false, responseModalities: ['TEXT','IMAGE'], imageConfig: { aspectRatio: input.aspectRatio, imageSize: '1K' },
           thinkingConfig: { thinkingLevel: ThinkingLevel.MINIMAL, includeThoughts: false }, httpOptions: { retryOptions: { attempts: 1 } } } });
       if (signal.aborted) throw new AiError('PROVIDER_OUTCOME_UNKNOWN');
@@ -59,4 +60,9 @@ export class GeminiFoxyImageAdapter {
       throw new AiError(status === 429 ? 'AI_RATE_LIMITED' : dispatched() && !Number.isInteger(status) ? 'PROVIDER_OUTCOME_UNKNOWN' : 'AI_UNAVAILABLE');
     } finally { clearTimeout(timer); input.signal.removeEventListener('abort',stop); if (abort) controller.signal.removeEventListener('abort',abort); }
   }
+}
+
+export function createGeminiFoxyImageAdapter(options: { apiKey: string; configuration: Configuration; fetch?: typeof globalThis.fetch }): GeminiFoxyImageAdapter {
+  const config = configuration(options.configuration);
+  return new GeminiFoxyImageAdapter({ client:createFoxyGeminiClient(options.apiKey,config.deadlineMs,options.fetch),configuration:config });
 }

@@ -5,5 +5,7 @@ export { GeminiExtractionAdapter, createGeminiExtractionAdapter, type GeminiClie
 export type { StructuredExtractionPort, PlanDocument, ApprovedPlanReader } from '../../../../src/core/domain/index.ts';
 export { reserveAiTextBudget, settleAiTextBudget, tokenCost } from './text-budget.ts';
 export type { BudgetTable } from './text-budget.ts';
+export { quoteFoxyImageBudget } from './foxy-image-budget.ts';
 export { GeminiFoxyTextAdapter, createGeminiFoxyTextAdapter } from './foxy-adapter.ts';
-export { GeminiFoxyImageAdapter } from './foxy-image-adapter.ts';
+export { GeminiFoxyImageAdapter, createGeminiFoxyImageAdapter } from './foxy-image-adapter.ts';
+export { GeminiFoxyDiagramAdapter, createGeminiFoxyDiagramAdapter } from './foxy-diagram-adapter.ts';
