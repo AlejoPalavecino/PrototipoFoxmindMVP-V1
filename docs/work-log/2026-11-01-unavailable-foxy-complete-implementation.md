@@ -25,3 +25,9 @@ Diseñar y probar integración de gestión M4D2; revisar proveedor y contratos p
 
 - /root/red_management: RED panel y dos casos de terminalidad DISCARDED; /root/green_management implementó panel y /root/fix_discard_terminal corrigió historial.
 - /root/review_management: 40 pruebas de panel/workspace/historial PASS, sondas de texto, confirmación y estados de limpieza, TypeScript/fronteras/Gitleaks PASS. Se corrigió inspección READY obsoleta frente a DISCARDED más reciente. Sin DB ni navegador; QA vivo pendiente.
+
+## V-R0 — representación de esquemas
+
+- /root/architect_next diseñó renderer aislado y verificó documentación oficial del SDK y modelo candidato; sin llamadas reales al proveedor.
+- /root/red_management RED, /root/green_diagram GREEN. /root/review_management detectó errores internos sin sanear y desborde de grafemas; corregidos y revalidados con 13 pruebas y PNG sintético, fronteras y Gitleaks PASS.
+- Este corte aún no genera contenido mediante IA ni guarda/publica assets. V-A1a de persistencia privada está en implementación.
