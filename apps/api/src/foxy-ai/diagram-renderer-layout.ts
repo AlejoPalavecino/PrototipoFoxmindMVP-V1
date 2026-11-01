@@ -46,9 +46,14 @@ function connections(diagram: FoxyDiagram, margin: number, top: number, columns:
   }).join('');
 }
 export function createDiagramSvg(diagram: FoxyDiagram, width: number, height: number): string {
-  const margin = 56, titleHeight = 70, top = margin + titleHeight + 20;
-  const edgeCols = 3, edgeRows = Math.ceil(diagram.edges.length / edgeCols);
-  const edgeHeight = edgeRows ? 44 + edgeRows * 22 : 0;
+  const margin = 56, edgeCols = 3, edgeRows = Math.ceil(diagram.edges.length / edgeCols);
+  const titleHeight = Math.max(70, Math.ceil(lines(diagram.title, width - margin * 2, 10000, 30).length * 39 + 8));
+  const top = margin + titleHeight + 20;
+  const ids = new Map(diagram.nodes.map((node, index) => [node.id, index + 1]));
+  const edgeW = (width - margin * 2) / edgeCols;
+  const labels = diagram.edges.map(edge => `${ids.get(edge.from)} → ${ids.get(edge.to)}${edge.label ? `  ${edge.label}` : ''}`);
+  const rowHeights = Array.from({ length: edgeRows }, (_, row) => Math.max(22, ...labels.filter((_, index) => index % edgeRows === row).map(label => Math.ceil(lines(label, edgeW - 20, 10000, 14).length * 18.2 + 1))));
+  const edgeHeight = edgeRows ? 44 + rowHeights.reduce((a, b) => a + b, 0) : 0;
   const columns = Math.min(6, Math.max(1, Math.ceil(Math.sqrt(diagram.nodes.length * (diagram.direction === 'LEFT_RIGHT' ? 1.5 : 0.7)))));
   const rows = Math.ceil(diagram.nodes.length / columns), gap = rows > 3 ? 10 : 28;
   const cellW = Math.min(340, (width - margin * 2) / columns);
@@ -61,11 +66,9 @@ export function createDiagramSvg(diagram: FoxyDiagram, width: number, height: nu
     const x = left + (index % columns) * cellW, y = top + Math.floor(index / columns) * cellH;
     return `<rect x="${x}" y="${y}" width="${cellW-gap}" height="${cellH-gap}" rx="8" fill="#f0f5f4" stroke="#a6b9b3"/>${text(`${index + 1}. ${node.label}`, x + 14, y + 10, cellW - gap - 28, cellH - gap - 20, nodeFont, 600)}`;
   }).join('');
-  const ids = new Map(diagram.nodes.map((node, index) => [node.id, index + 1]));
-  const edgeW = (width - margin * 2) / edgeCols, edgeRowHeight = 22;
   const edges = diagram.edges.map((edge, index) => {
-    const x = margin + Math.floor(index / edgeRows) * edgeW, y = top + nodeHeight + 36 + (index % edgeRows) * edgeRowHeight;
-    return text(`${ids.get(edge.from)} → ${ids.get(edge.to)}${edge.label ? `  ${edge.label}` : ''}`, x, y, edgeW - 20, edgeRowHeight - 1, 14);
+    const row = index % edgeRows, x = margin + Math.floor(index / edgeRows) * edgeW, y = top + nodeHeight + 36 + rowHeights.slice(0, row).reduce((a, b) => a + b, 0);
+    return text(labels[index], x, y, edgeW - 20, rowHeights[row] - 1, 14);
   }).join('');
   const edgeTitle = edgeRows ? text('Relaciones', margin, top + nodeHeight + 4, width - margin * 2, 28, 18, 600) : '';
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect width="100%" height="100%" fill="#ffffff"/>${text(diagram.title, margin, margin - 8, width - margin * 2, titleHeight - 8, 30, 700)}${connections(diagram, left, top, columns, cellW, cellH, gap)}${boxes}${edgeTitle}${edges}</svg>`;
