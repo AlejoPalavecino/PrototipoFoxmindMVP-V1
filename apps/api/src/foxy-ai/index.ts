@@ -39,3 +39,4 @@ export { createFoxyPublicationService } from './publication-service.ts';
 export { createFoxyPublicationFileReader } from './publication-file-reader.ts';
 export { createFoxyPublicationManagementRepository } from './publication-management-repository.ts';
 export { createFoxyPublicationCleanup } from './publication-cleanup.ts';
+export { createFoxyPublicationManagementService } from './publication-management-service.ts';

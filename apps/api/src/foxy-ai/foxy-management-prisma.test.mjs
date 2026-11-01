@@ -64,3 +64,39 @@ test('real Prisma cleanup claims expired synthetic restart and acknowledges stor
   }finally{await db.$disconnect();}
  });
 });
+
+
+test('real Prisma management inspection applies raw error, file and authorization policy', {timeout:120000},async()=>{
+ await withAgendaDatabase(async({pool,databaseUrl})=>{const x=await fixture(pool),db=await prisma(databaseUrl),{createFoxyPublicationManagementRepository}=await import('./publication-management-repository.ts'),repo=createFoxyPublicationManagementRepository();
+  const inspect=actor=>db.$transaction(raw=>repo.inspect(tx(raw),actor,x.publication.id));
+  try{assert.equal(await x.completion.finish(x.lease,{state:'FAILED',errorCode:'FILE_NOT_READY'}),true);
+   let result=await inspect(x.f.teacherActor);assert.equal(result.canRetry,true);assert.equal(result.canDiscard,true);assert.equal(result.retryReason,null);
+   assert.deepEqual(Object.keys(result).sort(),['publicationId','publicationRevision','canRetry','retryReason','canDiscard','cleanupState'].sort());
+   await x.query("UPDATE foxy_publications SET error_code='SYNTHETIC_UNKNOWN' WHERE id=$1",x.publication.id);result=await inspect(x.f.teacherActor);assert.equal(result.canRetry,false);assert.equal(result.retryReason,'INVALID_RESOURCE');
+   await assert.rejects(inspect(x.f.other));await x.query('UPDATE classrooms SET archived_at=clock_timestamp() WHERE id=$1',x.f.rooms.teach.id);
+   result=await inspect(x.f.teacherActor);assert.equal(result.retryReason,'DESTINATION_UNAVAILABLE');assert.equal(result.canDiscard,true);
+   await x.query('UPDATE foxy_conversations SET deleted_at=clock_timestamp() WHERE id=$1',x.conversation.id);await assert.rejects(inspect(x.f.teacherActor));
+  }finally{await db.$disconnect();}
+ });
+});
+
+
+test('real Prisma inspection reports pending cleanup after discard without exposing file identity', {timeout:120000},async()=>{
+ await withAgendaDatabase(async({pool,databaseUrl})=>{const x=await fixture(pool),db=await prisma(databaseUrl),{createFoxyPublicationManagementRepository}=await import('./publication-management-repository.ts'),repo=createFoxyPublicationManagementRepository();
+  try{const receipt=await db.$transaction(raw=>repo.discard(tx(raw),x.f.teacherActor,x.publication.id,{requestId:randomUUID(),publicationRevision:'0',confirm:true}));
+   const view=await db.$transaction(raw=>repo.inspect(tx(raw),x.f.teacherActor,x.publication.id));assert.equal(view.publicationRevision,receipt.publicationRevision);assert.equal(view.canDiscard,false);assert.equal(view.canRetry,false);assert.equal(view.cleanupState,'PENDING');
+   assert.equal(JSON.stringify(view).includes(x.fileId),false);
+  }finally{await db.$disconnect();}
+ });
+});
+
+
+for(const mode of ['size','missing-upload','missing-custody'])test(`real Prisma inspection fails closed for ${mode} binding`, {timeout:120000},async()=>{
+ await withAgendaDatabase(async({pool,databaseUrl})=>{const x=await fixture(pool),db=await prisma(databaseUrl),{createFoxyPublicationManagementRepository}=await import('./publication-management-repository.ts'),repo=createFoxyPublicationManagementRepository();
+  try{if(mode==='size')await x.query('UPDATE foxy_publications SET artifact_size_bytes=101 WHERE id=$1',x.publication.id);
+   else if(mode==='missing-upload')await x.query('DELETE FROM uploads WHERE file_id=$1',x.fileId);
+   else await x.query('DELETE FROM file_custodies WHERE file_id=$1',x.fileId);
+   await assert.rejects(db.$transaction(raw=>repo.inspect(tx(raw),x.f.teacherActor,x.publication.id)),e=>e?.code==='SERVICE_UNAVAILABLE');
+  }finally{await db.$disconnect();}
+ });
+});

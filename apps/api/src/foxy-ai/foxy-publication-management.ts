@@ -1,10 +1,11 @@
+import type { FoxyPublicationCleanupState, FoxyPublicationRetryReason } from '../../../../src/core/domain/index.ts';
 type PublicationState = 'PREPARING' | 'READY' | 'FAILED' | 'PUBLISHED' | 'DISCARDED';
 type FileFacts = { phase: 'reserved' | 'receiving' | 'inspecting' | 'ready' | 'rejected' | 'deleting' | 'deleted';
   uploadStatus: 'STARTED' | 'UPLOADING' | 'COMPLETED' | 'FAILED' | 'CANCELLED'; reservationReleased: boolean; blobDeleted: boolean;
   proofValid: boolean; leaseActive: boolean; rendererCompatible: boolean };
 type Facts = { state: PublicationState; errorCode: string | null; sourceCurrent: boolean;
   destinationUsable: boolean; associationsValid: boolean; file: FileFacts | null; referenced: boolean; cleanupError: string | null };
-type RetryReason = 'STATE' | 'SOURCE_CHANGED' | 'DESTINATION_UNAVAILABLE' | 'INVALID_RESOURCE' | 'REFERENCED' | 'BUSY' | 'CONTENT_REJECTED' | 'FILE_UNAVAILABLE';
+type RetryReason = FoxyPublicationRetryReason;
 function fileReason(file: FileFacts | null): RetryReason | null {
   if (!file) return null;
   if (file.leaseActive) return 'BUSY';
@@ -26,6 +27,6 @@ export function decideFoxyPublicationManagement(facts: Facts) {
   else if (facts.referenced) retryReason = 'REFERENCED';
   else retryReason = fileReason(facts.file);
   const canDiscard = !facts.referenced && (facts.state === 'PREPARING' || facts.state === 'READY' || facts.state === 'FAILED');
-  const cleanupState = facts.state !== 'DISCARDED' ? 'NOT_REQUESTED' : !facts.file || facts.file.blobDeleted ? 'DONE' : facts.cleanupError !== null ? 'FAILED' : 'PENDING';
+  const cleanupState: FoxyPublicationCleanupState = facts.state !== 'DISCARDED' ? 'NOT_REQUESTED' : !facts.file || facts.file.blobDeleted ? 'DONE' : facts.cleanupError !== null ? 'FAILED' : 'PENDING';
   return { canRetry: retryReason === null, canDiscard, retryReason, cleanupState };
 }

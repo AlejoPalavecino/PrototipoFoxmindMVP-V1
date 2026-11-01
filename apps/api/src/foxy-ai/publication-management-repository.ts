@@ -1,3 +1,4 @@
+import { inspectFoxyPublicationManagement } from './publication-management-inspect.ts';
 import { lockFoxyManagementScopes } from './publication-management-scopes.ts';
 import { createHash, randomUUID } from 'node:crypto';
 import { retryFoxyPublication } from './publication-management-retry.ts';
@@ -22,7 +23,7 @@ async function fenceFile(tx: SqlTransaction, actor: string, pub: Publication, ro
     lease_until=GREATEST(clock_timestamp()+interval '90 seconds',lease_until,(SELECT lease_until FROM foxy_publications WHERE id=$3::uuid)) WHERE file_id=$1::uuid`, pub.file_id, randomUUID(), pub.id);
 }
 export function createFoxyPublicationManagementRepository() {
-  return { retry: retryFoxyPublication, async discard(tx: SqlTransaction, actorId: string, publicationId: string, input: unknown) {
+  return { inspect: inspectFoxyPublicationManagement, retry: retryFoxyPublication, async discard(tx: SqlTransaction, actorId: string, publicationId: string, input: unknown) {
     const actor = agendaId(actorId).toLowerCase(), id = agendaId(publicationId).toLowerCase(), parsed = parseDiscardFoxyPublication(input);
     const requestId = parsed.requestId.toLowerCase(), value = { requestId, publicationRevision: parsed.publicationRevision, confirm: true };
     const hash = createHash('sha256').update(JSON.stringify({ action: 'DISCARD', publicationId: id, ...value })).digest('hex');
