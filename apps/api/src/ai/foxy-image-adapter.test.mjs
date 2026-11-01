@@ -1,0 +1,79 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+
+const config={model:'gemini-3.1-flash-lite-image',maxInputTokens:65536,maxOutputTokens:4096,deadlineMs:1000,profileVersion:'foxy-gemini-image-v1'};
+const png=Uint8Array.from([137,80,78,71,13,10,26,10,1]);
+const imageResponse=()=>({candidates:[{finishReason:'STOP',content:{parts:[{inlineData:{mimeType:'image/png',data:Buffer.from(png).toString('base64')}}]}}],usageMetadata:{promptTokenCount:12,candidatesTokenCount:20,thoughtsTokenCount:3,totalTokenCount:35}});
+const general=(changes={})=>({mode:'GENERAL',prompt:'Ilustrá el ciclo del agua',aspectRatio:'4:3',curriculum:null,sources:[],documents:[],warnings:[],history:[],signal:new AbortController().signal,...changes});
+const classroom=(changes={})=>general({mode:'CLASSROOM',curriculum:{units:[{name:'Agua',topics:[{name:'Ciclo',status:'NEXT',selected:true}]}]},sources:[{sourceKey:'s1',title:'Plan',kind:'PLAN',text:'Evaporación',documentKeys:['d1']}],documents:[{documentKey:'d1',sourceKeys:['s1'],document:{kind:'pdf',bytes:Uint8Array.of(37,80,68,70)},pageCount:1,warnings:[]}],...changes});
+async function fixture({count={totalTokens:12},result=imageResponse(),countError,generateError,deadlineMs=1000}={}){
+ const {GeminiFoxyImageAdapter}=await import('./foxy-image-adapter.ts'),calls=[];
+ const client={models:{countTokens:async params=>{calls.push(['count',params]);if(countError)throw countError;return typeof count==='function'?count(params):count;},generateContent:async params=>{calls.push(['generate',params]);if(generateError)throw generateError;return typeof result==='function'?result(params):result;}}};
+ return {adapter:new GeminiFoxyImageAdapter({client,configuration:{...config,deadlineMs}}),calls};
+}
+test('preflight and one generation share exact model, contents and instruction, with image-only profile',async()=>{
+ const {adapter,calls}=await fixture(),input=classroom();assert.equal(await adapter.countTokens(input),12);const result=await adapter.generate(input);
+ assert.deepEqual(calls.map(x=>x[0]),['count','generate']);const [count,generated]=calls.map(x=>x[1]);
+ assert.equal(count.model,config.model);assert.equal(generated.model,config.model);assert.deepEqual(count.contents,generated.contents);assert.deepEqual(count.config.systemInstruction,generated.config.systemInstruction);
+ assert.deepEqual(generated.config.imageConfig,{aspectRatio:'4:3',imageSize:'1K'});assert.deepEqual(generated.config.responseModalities,['TEXT','IMAGE']);
+ assert.equal(generated.config.maxOutputTokens,4096);assert.equal(generated.config.candidateCount,1);assert.equal(generated.config.automaticContinuation,false);
+ assert.equal(generated.config.thinkingConfig.thinkingLevel,'MINIMAL');assert.equal(generated.config.thinkingConfig.includeThoughts,false);
+ assert.equal(generated.config.httpOptions.retryOptions.attempts,1);assert.equal(generated.config.tools?.length??0,0);assert.equal(generated.config.responseMimeType,undefined);assert.equal(generated.config.responseJsonSchema,undefined);
+ const serialized=JSON.stringify(generated);for(const forbidden of ['classroomId','ownerId','fileId','fileUri','referenceMap'])assert.equal(serialized.includes(forbidden),false);
+ assert.equal(result.declaredMimeType,'image/png');assert.deepEqual(Array.from(result.bytes),Array.from(png));assert.deepEqual(result.usage,{inputTokens:12,outputTokens:23});
+});
+test('generate requires a matching successful preflight, consumed exactly once',async()=>{
+ const {adapter,calls}=await fixture(),input=general();await assert.rejects(adapter.generate(input),e=>e?.code==='AI_UNAVAILABLE');assert.equal(calls.length,0);
+ await adapter.countTokens(input);await adapter.generate(input);await assert.rejects(adapter.generate(input),e=>e?.code==='AI_UNAVAILABLE');assert.deepEqual(calls.map(x=>x[0]),['count','generate']);
+});
+for(const [name,change] of [['prompt',x=>{x.prompt='Otro'}],['ratio',x=>{x.aspectRatio='1:1'}],['nested source',x=>{x.sources[0].text='Mutado'}],['document bytes',x=>{x.documents[0].document.bytes[0]^=1}]])test(`${name} mutation after preflight prevents dispatch`,async()=>{
+ const {adapter,calls}=await fixture(),value=classroom();await adapter.countTokens(value);change(value);await assert.rejects(adapter.generate(value));assert.deepEqual(calls.map(x=>x[0]),['count']);
+});
+test('mutation while token counting is in flight invalidates the preflight',async()=>{
+ let release,entered;const gate=new Promise(r=>release=r),start=new Promise(r=>entered=r),value=classroom(),f=await fixture({count:async()=>{entered();await gate;return {totalTokens:12}}});
+ const pending=f.adapter.countTokens(value);await start;value.documents[0].document.bytes[0]^=1;release();await assert.rejects(()=>pending);assert.deepEqual(f.calls.map(x=>x[0]),['count']);
+});
+test('invalid inputs, insufficient classroom sources and invalid counts never dispatch',async()=>{
+ for(const value of [general({prompt:''}),general({prompt:'x'.repeat(5001)}),general({aspectRatio:'9:16'}),general({sources:[{sourceKey:'s1'}]}),classroom({sources:[],documents:[]})]){
+  const f=await fixture();await assert.rejects(f.adapter.countTokens(value));assert.equal(f.calls.some(x=>x[0]==='generate'),false);
+ }
+ for(const count of [{},{totalTokens:0},{totalTokens:65537},{totalTokens:1.5},{totalTokens:NaN}]){const f=await fixture({count}),value=general();await assert.rejects(f.adapter.countTokens(value));await assert.rejects(f.adapter.generate(value));assert.deepEqual(f.calls.map(x=>x[0]),['count']);}
+});
+test('classroom with only unreadable empty sources cannot dispatch paid generation',async()=>{
+ const value=classroom({sources:[{sourceKey:'s1',kind:'MATERIAL',title:'Selected',text:'',documentKeys:['d1']}],
+  documents:[{documentKey:'d1',sourceKeys:['s1'],document:{kind:'text',text:''},pageCount:null,warnings:['UNREADABLE']}],warnings:['UNREADABLE']});
+ const f=await fixture();let preflight=false;try{await f.adapter.countTokens(value);preflight=true;}catch(error){assert.ok(['AI_UNAVAILABLE','AI_INPUT_LIMIT'].includes(error?.code));}
+ if(preflight)await assert.rejects(f.adapter.generate(value),e=>['AI_UNAVAILABLE','AI_INPUT_LIMIT'].includes(e?.code));
+ assert.equal(f.calls.filter(x=>x[0]==='generate').length,0);
+});
+test('malformed curriculum mutation after preflight returns sanitized error without dispatch',async()=>{
+ const f=await fixture(),value=classroom({sources:[{sourceKey:'s1',kind:'MATERIAL',title:'Selected',text:'Evidence',documentKeys:[]}],documents:[]});
+ await f.adapter.countTokens(value);value.curriculum.units=null;
+ await assert.rejects(f.adapter.generate(value),e=>e?.code==='AI_UNAVAILABLE'&&!String(e).includes('TypeError'));
+ assert.deepEqual(f.calls.map(x=>x[0]),['count']);
+});
+test('abort before dispatch and transport failure after dispatch are distinct and do not retry',async()=>{
+ const aborted=new AbortController();aborted.abort();const first=await fixture();await assert.rejects(first.adapter.countTokens(general({signal:aborted.signal})),e=>e?.code==='AI_TIMEOUT');assert.equal(first.calls.length,0);
+ for(const [generateError,expected] of [[Object.assign(Error('private detail'),{status:429}),'AI_RATE_LIMITED'],[Object.assign(Error('private detail'),{status:400}),'AI_UNAVAILABLE'],[Error('private detail'),'PROVIDER_OUTCOME_UNKNOWN']]){
+  const f=await fixture({generateError}),value=general();await f.adapter.countTokens(value);await assert.rejects(f.adapter.generate(value),e=>e?.code===expected&&!String(e).includes('private detail'));assert.deepEqual(f.calls.map(x=>x[0]),['count','generate']);
+  await assert.rejects(f.adapter.generate(value));assert.equal(f.calls.filter(x=>x[0]==='generate').length,1);
+ }
+ const f=await fixture({deadlineMs:20,result:()=>new Promise(()=>{})}),value=general();await f.adapter.countTokens(value);await assert.rejects(f.adapter.generate(value),e=>e?.code==='PROVIDER_OUTCOME_UNKNOWN');assert.deepEqual(f.calls.map(x=>x[0]),['count','generate']);
+});
+test('caller abort after network dispatch is uncertain and consumes the preflight ticket',async()=>{
+ let enter;const entered=new Promise(r=>enter=r),controller=new AbortController(),f=await fixture({result:()=>{enter();return new Promise(()=>{})}}),value=general({signal:controller.signal});
+ await f.adapter.countTokens(value);const pending=f.adapter.generate(value);await entered;controller.abort();await assert.rejects(()=>pending,e=>e?.code==='PROVIDER_OUTCOME_UNKNOWN');
+ await assert.rejects(f.adapter.generate(value));assert.deepEqual(f.calls.map(x=>x[0]),['count','generate']);
+});
+test('provider response with no image or ambiguous images is rejected without another dispatch',async()=>{
+ for(const result of [{candidates:[{finishReason:'STOP',content:{parts:[{text:'refusal'}]}}]}, {candidates:[{finishReason:'STOP',content:{parts:[{inlineData:{mimeType:'image/png',data:Buffer.from(png).toString('base64')}},{inlineData:{mimeType:'image/png',data:Buffer.from(png).toString('base64')}}]}}]}]){
+  const f=await fixture({result}),value=general();await f.adapter.countTokens(value);await assert.rejects(f.adapter.generate(value),e=>e?.code==='INVALID_AI_OUTPUT');assert.deepEqual(f.calls.map(x=>x[0]),['count','generate']);
+ }
+});
+test('invalid trusted model and token/deadline profile cannot reach the SDK',async()=>{
+ const {GeminiFoxyImageAdapter}=await import('./foxy-image-adapter.ts');
+ for(const change of [{model:'unknown-model'},{maxInputTokens:65537},{maxOutputTokens:4097},{deadlineMs:30001},{profileVersion:'unknown'}]){
+  let calls=0;const client={models:{countTokens:async()=>{calls++;return {totalTokens:12}},generateContent:async()=>{calls++;return imageResponse()}}};
+  await assert.rejects(async()=>{const adapter=new GeminiFoxyImageAdapter({client,configuration:{...config,...change}});await adapter.countTokens(general());});assert.equal(calls,0);
+ }
+});

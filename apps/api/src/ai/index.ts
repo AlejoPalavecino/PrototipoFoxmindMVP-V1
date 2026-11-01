@@ -6,3 +6,4 @@ export type { StructuredExtractionPort, PlanDocument, ApprovedPlanReader } from 
 export { reserveAiTextBudget, settleAiTextBudget, tokenCost } from './text-budget.ts';
 export type { BudgetTable } from './text-budget.ts';
 export { GeminiFoxyTextAdapter, createGeminiFoxyTextAdapter } from './foxy-adapter.ts';
+export { GeminiFoxyImageAdapter } from './foxy-image-adapter.ts';

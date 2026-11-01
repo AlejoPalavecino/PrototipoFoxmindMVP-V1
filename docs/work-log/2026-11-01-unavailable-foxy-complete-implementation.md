@@ -60,3 +60,8 @@ Diseñar y probar integración de gestión M4D2; revisar proveedor y contratos p
 - La primera propuesta bloqueaba cargas P4 independientes; revisión y arquitectura la corrigieron a barreras por scope. Revalidación: 12 pruebas S3, 9 de host/P4, sonda con PostgreSQL y S3Storage real con SDK/scanner dobles PASS; build/fronteras/Gitleaks PASS.
 - El drenaje acredita settlement local, no cancelación remota. La limpieza/liberación ante PUT incierto y pruebas con servicios reales siguen pendientes antes de habilitar el flujo.
 - Tras mitigación S3, /root/red_management reejecutó la suite completa de custodia y leases con PG temporal, storage/scanner sintéticos y drain de promesas: exit 0. No se probó S3/ClamAV reales ni proveedor.
+
+## V-I1b — adaptador IMAGE aislado
+
+- /root/red_management RED; /root/green_diagram implementó cliente inyectado y /root/review_management detectó fuentes vacías aceptadas y TypeError por currículo mutado. Tras corregir, 14 pruebas y build/fronteras/Gitleaks PASS; el coordinador exportó la clase y repitió build PASS.
+- Sin credenciales, llamadas al proveedor ni datos reales. Aún no acredita compatibilidad del modelo, presupuesto persistente, custodia integrada ni capability habilitada.
