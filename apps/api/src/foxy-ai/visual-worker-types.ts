@@ -1,0 +1,16 @@
+import type { FoxyAspectRatio, FoxyDiagram, FoxyTextInput, SqlTransaction } from '../../../../src/core/domain/index.ts';
+import type { FoxyGrounding, FoxyGroundingFile, FoxyGroundingSnapshot } from '../../../../src/core/domain/foxy-ai-grounding.ts';
+export type FoxyVisualLease = { jobId: string; assetId: string; ownerId: string; conversationId: string; leaseNonce: string };
+export type VisualUsage = { inputTokens: number | null; outputTokens: number | null };
+export type VisualInput = Omit<FoxyTextInput,'purpose'|'message'> & { prompt: string; aspectRatio: FoxyAspectRatio };
+export type VisualScope = { capability: object; assetCapability: object; snapshot: FoxyGroundingSnapshot; documents: { descriptor: { classroomId: string; file: FoxyGroundingFile }; capability: object }[]; job: { id: string; assetId: string; kind: 'IMAGE'|'DIAGRAM'; prompt: string; aspectRatio: FoxyAspectRatio; profile: { maxInputTokens: number; maxOutputTokens: number }; dispatchCount: number } };
+export type VisualOptions = { database: { $transaction<T>(fn: (tx: { $queryRawUnsafe<T>(sql: string,...args: unknown[]): Promise<T> }) => Promise<T>, options?: { maxWait: number; timeout: number }): Promise<T> };
+  queue: { claim(): Promise<FoxyVisualLease|null>; renew(lease: FoxyVisualLease): Promise<boolean>; recoverExpired?(): Promise<number> };
+  authority: { open(lease: FoxyVisualLease, signal: AbortSignal): Promise<VisualScope>; revalidateGrounding(capability: object, signal: AbortSignal, tx?: SqlTransaction): Promise<boolean>; close(scope: VisualScope): void };
+  loader: { load(scope: VisualScope, signal: AbortSignal): Promise<FoxyGrounding> };
+  providers: { IMAGE: { countTokens(input: VisualInput): Promise<number>; generate(input: VisualInput): Promise<{ bytes: Uint8Array; usage: VisualUsage|null }> }; DIAGRAM: { countTokens(input: VisualInput): Promise<number>; generate(input: VisualInput): Promise<{ diagram: FoxyDiagram; usage: VisualUsage|null }> } };
+  renderer: { render(input: { diagram: FoxyDiagram; aspectRatio: FoxyAspectRatio; signal: AbortSignal }): Promise<{ bytes: Uint8Array }> };
+  custody: { receive(capability: object, payload: { bytes: Uint8Array; title: string; description: string; producerVersion: 'foxy-image-original-v1'|'foxy-diagram-png-v1'; diagram: FoxyDiagram|null }, signal: AbortSignal): Promise<unknown>; recover(capability: object, signal: AbortSignal): Promise<unknown> };
+  budget: { reserve(tx: SqlTransaction, lease: FoxyVisualLease, count: number): Promise<'RESERVED'|'ALREADY_DISPATCHED'|'NO_BUDGET'|'NOT_CURRENT'>; settle(tx: SqlTransaction, lease: FoxyVisualLease, usage?: VisualUsage|null): Promise<boolean> };
+  completion: { finish(lease: FoxyVisualLease, result: { state: 'READY' } | { state: 'FAILED'; errorCode: string; usage?: VisualUsage|null }): Promise<boolean> };
+  configuration: { enabled: { IMAGE: boolean; DIAGRAM: boolean }; profiles: { IMAGE: unknown; DIAGRAM: unknown }; deadlineMs: number } };
