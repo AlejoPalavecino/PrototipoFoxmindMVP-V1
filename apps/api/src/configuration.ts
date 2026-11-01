@@ -2,6 +2,7 @@ import { readIdentityRuntimeConfiguration, type IdentityRuntimeConfiguration } f
 import { readFilesConfiguration, type FileRuntimeConfiguration } from './files/configuration.ts';
 import { readClassroomsConfiguration, type ClassroomRuntimeConfiguration } from './classrooms/configuration.ts';
 import { readAiConfiguration, type AiConfiguration } from './ai/index.ts';
+import { readFoxyVisualConfiguration, type FoxyVisualHostConfiguration } from './foxy-ai/index.ts';
 import { ConfigurationError, readBaseConfiguration, type ApiBaseConfiguration } from './configuration-base.ts';
 export { ConfigurationError } from './configuration-base.ts';
 
@@ -10,6 +11,7 @@ export interface ApiConfiguration extends ApiBaseConfiguration {
   readonly files?: FileRuntimeConfiguration;
   readonly classrooms?: ClassroomRuntimeConfiguration;
   readonly ai?: AiConfiguration;
+  readonly foxyVisual?: FoxyVisualHostConfiguration;
 }
 
 export function readConfiguration(environment: NodeJS.ProcessEnv = process.env): ApiConfiguration {
@@ -22,5 +24,8 @@ export function readConfiguration(environment: NodeJS.ProcessEnv = process.env):
   try { ai = readAiConfiguration(environment); }
   catch { throw new ConfigurationError('Invalid configuration: AI extraction configuration is unavailable.'); }
   if (ai && !classrooms) throw new ConfigurationError('Invalid configuration: AI extraction requires classrooms.');
-  return { ...configuration, ...(files ? { files } : {}), ...(classrooms ? { classrooms } : {}), ...(ai ? { ai } : {}) };
+  let foxyVisual: FoxyVisualHostConfiguration | null;
+  try { foxyVisual = readFoxyVisualConfiguration(environment,ai); }
+  catch { throw new ConfigurationError('Invalid configuration: Foxy visual configuration is unavailable.'); }
+  return { ...configuration, ...(files ? { files } : {}), ...(classrooms ? { classrooms } : {}), ...(ai ? { ai } : {}), ...(foxyVisual ? { foxyVisual } : {}) };
 }

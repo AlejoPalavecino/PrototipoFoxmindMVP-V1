@@ -23,10 +23,10 @@ import { installHomeTransport } from './home/integration.ts';
 import { ActivityAiRuntime } from './classrooms/activity-ai/runtime.ts';
 import { StudentAiRuntime } from './classrooms/student-ai/runtime.ts';
 import { GradingAiRuntime } from './classrooms/grading-ai/runtime.ts';
-import { createFoxyRuntime, createFoxyAuthentication, installFoxyTransport, FOXY_RUNTIME } from './foxy-ai/index.ts';
+import { createFoxyRuntime, createFoxyAuthentication, installFoxyTransport, selectFoxyVisualProviders, FOXY_RUNTIME, type VisualProviders } from './foxy-ai/index.ts';
 import { createGeminiFoxyTextAdapter } from './ai/index.ts';
 
-export interface ApplicationOptions { readonly identity?: IdentityRuntimePorts; readonly ai?: AiRuntimeOverride; readonly foxy?: { textProvider?: Parameters<typeof createFoxyRuntime>[0]['provider'] } }
+export interface ApplicationOptions { readonly identity?: IdentityRuntimePorts; readonly ai?: AiRuntimeOverride; readonly foxy?: { textProvider?: Parameters<typeof createFoxyRuntime>[0]['provider']; visualProviders?: { IMAGE?: VisualProviders['IMAGE']; DIAGRAM?: VisualProviders['DIAGRAM'] } } }
 
 function foxyConfiguration(ai: ApiConfiguration['ai']) {
   if (!ai) return null;
@@ -40,6 +40,10 @@ function foxyProvider(ai: ApiConfiguration['ai'], options: ApplicationOptions) {
   if (options.foxy && Object.hasOwn(options.foxy, 'textProvider')) return options.foxy.textProvider ?? null;
   if (options.ai !== undefined) return null;
   return createGeminiFoxyTextAdapter(ai);
+}
+function visualProviders(configuration: ApiConfiguration, options: ApplicationOptions) {
+  const override = options.ai !== undefined || !!options.foxy && (Object.hasOwn(options.foxy,'textProvider') || Object.hasOwn(options.foxy,'visualProviders'));
+  return selectFoxyVisualProviders(configuration.ai,configuration.foxyVisual,{ enabled: override, providers: options.foxy?.visualProviders });
 }
 @Module({})
 class AppModule implements OnModuleDestroy {
@@ -77,7 +81,9 @@ class AppModule implements OnModuleDestroy {
       providers: [...(configuration.classrooms && files ? [{ provide: FOXY_RUNTIME, inject: [PrismaService, IdentityRuntime, FileService, InvitationService],
         useFactory: (database: PrismaService, identity: IdentityRuntime, files: FileService, classrooms: ClassroomService) =>
           createFoxyRuntime({ database, files, classrooms, storage: { remove: key => infrastructure!.storage.remove(key) }, authenticate: createFoxyAuthentication(identity.configuration.security),
-            configuration: foxyConfiguration(configuration.ai), provider: foxyProvider(configuration.ai, options) }) }] : []),
+            configuration: foxyConfiguration(configuration.ai), provider: foxyProvider(configuration.ai, options),
+            visualConfiguration: configuration.foxyVisual?.configuration, visualProviders: visualProviders(configuration,options),
+            visualBudgetLimits: configuration.ai ? { dailyBudgetUsd: configuration.ai.dailyBudgetUsd, dailyActorRequests: configuration.ai.dailyActorRequests, dailyGlobalRequests: configuration.ai.dailyGlobalRequests } : null }) }] : []),
         { provide: 'HomeService', inject: [PrismaService, IdentityRuntime],
         useFactory: (database: PrismaService, runtime: IdentityRuntime) => createHomeService(
           createHomeUnitOfWork(database, createAgendaAuthentication(runtime.configuration.security))) }, { provide: AgendaService, inject: [PrismaService, IdentityRuntime],
