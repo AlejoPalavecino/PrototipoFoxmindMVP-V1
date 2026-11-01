@@ -1,3 +1,4 @@
+import { FOXY_PDF_RENDERER_VERSION } from './pdf-renderer-version.ts';
 import { createHash } from 'node:crypto';
 import { PDFDocument, PDFName, StandardFonts, type PDFFont, type PDFPage } from 'pdf-lib';
 
@@ -77,5 +78,5 @@ export async function renderFoxyTextPdf(input: { title: string; markdown: string
   const bytes = await document.save();
   signal.throwIfAborted();
   if (bytes.length > MAX_PDF_BYTES) throw new Error('PDF resource exceeds size limit');
-  return { bytes, digest: createHash('sha256').update(bytes).digest('hex'), pageCount: document.getPageCount(), rendererVersion: 'foxy-pdf-v1' };
+  return { bytes, digest: createHash('sha256').update(bytes).digest('hex'), pageCount: document.getPageCount(), rendererVersion: FOXY_PDF_RENDERER_VERSION };
 }

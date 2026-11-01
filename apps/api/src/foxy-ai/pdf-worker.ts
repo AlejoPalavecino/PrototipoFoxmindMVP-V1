@@ -1,3 +1,4 @@
+import { FOXY_PDF_RENDERER_VERSION } from './pdf-renderer-version.ts';
 import { createHash } from 'node:crypto';
 import { Worker } from 'node:worker_threads';
 
@@ -17,7 +18,7 @@ function resultOf(value: unknown): Result {
   if (!(result.bytes instanceof Uint8Array) || result.bytes.byteLength < 1 || result.bytes.byteLength > 10 * 1024 * 1024
     || typeof result.digest !== 'string' || !/^[a-f0-9]{64}$/u.test(result.digest)
     || !Number.isSafeInteger(result.pageCount) || result.pageCount < 1 || result.pageCount > 100
-    || result.rendererVersion !== 'foxy-pdf-v1') throw failure();
+    || result.rendererVersion !== FOXY_PDF_RENDERER_VERSION) throw failure();
   const bytes = Uint8Array.from(result.bytes);
   if (createHash('sha256').update(bytes).digest('hex') !== result.digest) throw failure();
   return { bytes, digest: result.digest, pageCount: result.pageCount, rendererVersion: result.rendererVersion };

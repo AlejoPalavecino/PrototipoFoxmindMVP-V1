@@ -1,24 +1,11 @@
+import { lockFoxyManagementScopes } from './publication-management-scopes.ts';
 import { createHash, randomUUID } from 'node:crypto';
+import { retryFoxyPublication } from './publication-management-retry.ts';
 import { agendaId, parseDiscardFoxyPublication, type SqlTransaction } from '../../../../src/core/domain/index.ts';
 
-type Scope = { resource_id: string; conversation_id: string; source_room: string | null; classroom_id: string };
 type Publication = { id: string; file_id: string | null; state: string; revision: bigint; material_id: string | null };
 type Prior = { publication_id: string; action: string; input_hash: string; publication_revision: bigint };
 function fail(code: 'NOT_FOUND' | 'CONFLICT'): never { throw Object.assign(new Error(code), { code }); }
-async function scopes(tx: SqlTransaction, actor: string, id: string): Promise<Scope> {
-  if (!(await tx.query("SELECT id FROM users WHERE id=$1::uuid AND account_role='teacher' AND email_verified_at IS NOT NULL FOR UPDATE", actor)).length) return fail('NOT_FOUND');
-  const [scope] = await tx.query<Scope>(`SELECT r.id resource_id,c.id conversation_id,c.classroom_id source_room,p.classroom_id
-    FROM foxy_publications p JOIN foxy_resources r ON r.id=p.resource_id AND r.owner_id=p.owner_id
-    JOIN foxy_conversations c ON c.id=r.conversation_id AND c.owner_id=r.owner_id
-    WHERE p.id=$1::uuid AND p.owner_id=$2::uuid AND c.deleted_at IS NULL`, id, actor);
-  if (!scope) return fail('NOT_FOUND');
-  const rooms = await tx.query<{ id: string; teacher_id: string }>(`SELECT id,teacher_id FROM classrooms WHERE id IN ($1::uuid,$2::uuid) ORDER BY id FOR UPDATE`, scope.classroom_id, scope.source_room);
-  if (!rooms.some(r => r.id === scope.classroom_id && r.teacher_id === actor) || (scope.source_room && !rooms.some(r => r.id === scope.source_room && r.teacher_id === actor))) return fail('NOT_FOUND');
-  const [live] = await tx.query(`SELECT r.id FROM foxy_resources r JOIN foxy_conversations c ON c.id=r.conversation_id AND c.owner_id=r.owner_id
-    WHERE r.id=$1::uuid AND r.owner_id=$2::uuid AND c.id=$3::uuid AND c.deleted_at IS NULL AND c.classroom_id IS NOT DISTINCT FROM $4::uuid FOR SHARE OF r,c`, scope.resource_id, actor, scope.conversation_id, scope.source_room);
-  if (!live) return fail('NOT_FOUND');
-  await tx.query('SELECT pg_advisory_xact_lock(78123003)'); return scope;
-}
 async function fenceFile(tx: SqlTransaction, actor: string, pub: Publication, room: string): Promise<void> {
   if (!pub.file_id) return;
   const [file] = await tx.query(`SELECT f.id FROM files f JOIN uploads u ON u.file_id=f.id JOIN file_custodies c ON c.file_id=f.id
@@ -35,11 +22,11 @@ async function fenceFile(tx: SqlTransaction, actor: string, pub: Publication, ro
     lease_until=GREATEST(clock_timestamp()+interval '90 seconds',lease_until,(SELECT lease_until FROM foxy_publications WHERE id=$3::uuid)) WHERE file_id=$1::uuid`, pub.file_id, randomUUID(), pub.id);
 }
 export function createFoxyPublicationManagementRepository() {
-  return { async discard(tx: SqlTransaction, actorId: string, publicationId: string, input: unknown) {
+  return { retry: retryFoxyPublication, async discard(tx: SqlTransaction, actorId: string, publicationId: string, input: unknown) {
     const actor = agendaId(actorId).toLowerCase(), id = agendaId(publicationId).toLowerCase(), parsed = parseDiscardFoxyPublication(input);
     const requestId = parsed.requestId.toLowerCase(), value = { requestId, publicationRevision: parsed.publicationRevision, confirm: true };
     const hash = createHash('sha256').update(JSON.stringify({ action: 'DISCARD', publicationId: id, ...value })).digest('hex');
-    const scope = await scopes(tx, actor, id);
+    const scope = await lockFoxyManagementScopes(tx, actor, id);
     const [pub] = await tx.query<Publication>(`SELECT id,file_id,state,revision,material_id FROM foxy_publications
       WHERE id=$1::uuid AND owner_id=$2::uuid AND resource_id=$3::uuid AND classroom_id=$4::uuid FOR UPDATE`, id, actor, scope.resource_id, scope.classroom_id);
     if (!pub) return fail('NOT_FOUND');
