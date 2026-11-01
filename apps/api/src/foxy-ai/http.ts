@@ -30,20 +30,30 @@ export function createFoxyHandler(services: FoxyHttpServices, options: {
     response.setHeader('Cache-Control', 'no-store'); response.setHeader('X-Content-Type-Options', 'nosniff');
     if (active >= 16) { reject(response, { code: 'SERVICE_UNAVAILABLE' }); return; }
     active++;
+    const controller = new AbortController();
+    const close = () => { if (!response.writableFinished) controller.abort(); };
+    const timer = setTimeout(() => { controller.abort(); if (response.headersSent) response.destroy(); else reject(response, { code: 'SERVICE_UNAVAILABLE' }); }, 30000);
+    response.once('close',close); request.once('aborted',close);
     void (async () => { await options.admit(request, request.method !== 'GET', response);
-      const result = await foxyRoute(services, request, url);
+      if (controller.signal.aborted || response.destroyed || response.writableEnded) return;
+      const result = await foxyRoute(services, request, url, controller.signal);
+      if (controller.signal.aborted) return;
       if (result.binary) {
         if (response.writableEnded || response.destroyed) return;
         response.statusCode = result.status;
-        const contentType = result.headers?.['Content-Type'] === 'application/pdf' ? 'application/pdf' : 'application/octet-stream';
-        const disposition = result.headers?.['Content-Disposition'] === 'inline' && contentType === 'application/pdf' ? 'inline' : 'attachment';
+        const requestedType = result.headers?.['Content-Type'];
+        const contentType = requestedType && ['application/pdf','image/png','image/jpeg'].includes(requestedType) ? requestedType : 'application/octet-stream';
+        const disposition = contentType !== 'application/octet-stream' && /^inline(?:;|$)/iu.test(result.headers?.['Content-Disposition'] ?? '') ? 'inline' : 'attachment';
         response.setHeader('Content-Type', contentType); response.setHeader('Content-Length', String(result.binary.byteLength));
         response.setHeader('Content-Disposition', disposition); response.setHeader('Content-Security-Policy', "sandbox; default-src 'none'");
         response.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
         response.setHeader('Cache-Control', 'no-store'); response.setHeader('X-Content-Type-Options', 'nosniff');
-        response.end(result.binary); return;
+        await new Promise<void>(resolve => {
+          const finish = () => { response.off('finish',finish); response.off('close',finish); resolve(); };
+          response.once('finish',finish); response.once('close',finish); response.end(result.binary);
+        }); return;
       }
       json(response, result.status, result.body);
-    })().catch(error => reject(response, error)).finally(() => { active--; });
+    })().catch(error => reject(response, error)).finally(() => { clearTimeout(timer); response.off('close',close); request.off('aborted',close); active--; });
   };
 }

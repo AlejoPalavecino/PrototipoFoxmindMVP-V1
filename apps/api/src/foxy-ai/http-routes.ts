@@ -8,9 +8,11 @@ import type { createFoxyResourceService } from './resource-service.ts';
 import type { createFoxyPublicationService } from './publication-service.ts';
 import type { createFoxyPublicationFileReader } from './publication-file-reader.ts';
 import type { createFoxyPublicationManagementService } from './publication-management-service.ts';
+import type { createFoxyPrivateAssetReader } from './private-asset-reader.ts';
+import type { createFoxyPrivateAssetReadService } from './private-asset-read-service.ts';
 import { body, create, cursor, id, integer, message, query, remove, rename } from './http-input.ts';
 
-type Services = { conversations: ReturnType<typeof createFoxyConversationService>; turns: ReturnType<typeof createFoxyTurnService>;
+type Services = { privateAssetReader?: ReturnType<typeof createFoxyPrivateAssetReader>; privateAssetReadService?: ReturnType<typeof createFoxyPrivateAssetReadService>; conversations: ReturnType<typeof createFoxyConversationService>; turns: ReturnType<typeof createFoxyTurnService>;
   catalog: Pick<FoxyContextCatalogService, 'curriculum' | 'sources'>; citations: ReturnType<typeof createFoxyCitationService>;
   resources: ReturnType<typeof createFoxyResourceService>; publications: ReturnType<typeof createFoxyPublicationService>; publicationFiles: ReturnType<typeof createFoxyPublicationFileReader>; publicationManagement: ReturnType<typeof createFoxyPublicationManagementService>; capabilities(request: IncomingMessage): Promise<unknown> };
 type Result = { status: number; body?: unknown; binary?: Uint8Array; headers?: Record<string, string> };
@@ -46,8 +48,23 @@ async function turns(services: Services, request: IncomingMessage, url: URL, con
   }
   return missing();
 }
-export async function foxyRoute(services: Services, request: IncomingMessage, url: URL): Promise<Result> {
+export async function foxyRoute(services: Services, request: IncomingMessage, url: URL, signal: AbortSignal = new AbortController().signal): Promise<Result> {
   const path = url.pathname.slice('/api/v1/foxy-ai'.length);
+  const privateAsset = /^\/assets\/([^/]+)(?:\/(file))?$/u.exec(path);
+  if (privateAsset && request.method === 'GET') {
+    if (request.headers['transfer-encoding'] !== undefined || (request.headers['content-length'] !== undefined && request.headers['content-length'] !== '0'))
+      throw Object.assign(new Error('INVALID_INPUT'), { code: 'INVALID_INPUT' });
+    const assetId = id(privateAsset[1]!);
+    if (!privateAsset[2]) {
+      query(url, []); if (!services.privateAssetReadService) return missing();
+      return { status: 200, body: await services.privateAssetReadService.inspect(request,assetId) };
+    }
+    const params = query(url,['mode']), mode = params.mode ?? 'download';
+    if (mode !== 'preview' && mode !== 'download') throw Object.assign(new Error('INVALID_INPUT'), { code: 'INVALID_INPUT' });
+    if (!services.privateAssetReader) return missing();
+    const result = await services.privateAssetReader.readFile(request,assetId,mode,signal);
+    return { status: 200, binary: result.bytes, headers: result.headers };
+  }
   if (path === '/capabilities' && request.method === 'GET') { query(url, []); return { status: 200, body: await services.capabilities(request) }; }
   if (path === '/conversations') return collection(services, request, url);
   const resourceTurn = /^\/conversations\/([^/]+)\/turns\/([^/]+)\/resource$/u.exec(path);

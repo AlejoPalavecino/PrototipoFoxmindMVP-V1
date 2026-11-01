@@ -1,6 +1,9 @@
 import type { SqlDatabase } from '../../../../src/core/domain/index.ts';
 import type { FileService } from '../files/index.ts';
 import { createFoxyUnitOfWork } from './unit-of-work.ts';
+import { createFoxyPrivateAssetReadRepository } from './private-asset-read-repository.ts';
+import { createFoxyPrivateAssetReadService } from './private-asset-read-service.ts';
+import { createFoxyPrivateAssetReader } from './private-asset-reader.ts';
 import { createFoxyConversationRepository } from './conversation-repository.ts';
 import { createFoxyTurnRepository } from './turn-repository.ts';
 import { createFoxyConversationService } from './conversation-service.ts';
@@ -94,7 +97,10 @@ export function createFoxyRuntime(options: Options) {
   const enabled = valid(options.configuration, options.provider);
   const worker = enabled ? workerFor(options, options.configuration!, options.provider!) : null;
   const lifecycle = worker ?? maintenance(options.database), publicationWorker = publicationWorkerFor(options);
-  const services = { conversations: createFoxyConversationService({ uow, conversations }),
+  const assets = createFoxyPrivateAssetReadRepository();
+  const privateAssetReader = options.files.storage && typeof options.files.storage.get === 'function'
+    ? createFoxyPrivateAssetReader({ uow, assets, storage: options.files.storage }) : undefined;
+  const services = { privateAssetReader, privateAssetReadService: createFoxyPrivateAssetReadService({ uow, assets }), conversations: createFoxyConversationService({ uow, conversations }),
     turns: createFoxyTurnService({ uow, conversations, turns, configuration: { enabled, model: enabled ? options.configuration!.model : '' } }),
     catalog: new FoxyContextCatalogService(options.classrooms, conversations),
     citations: createFoxyCitationService({ uow, files: options.files }),
