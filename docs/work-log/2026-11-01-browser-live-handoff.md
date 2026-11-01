@@ -1,0 +1,11 @@
+# Browser live validation handoff — in progress
+
+- Coordinator /root; runtime session ID unavailable; branch codex/foxy-ai, starting commit f49cfc0.
+- Scope: browser-to-real-backend Foxy journey using isolated services and synthetic identities, followed by Gemini real if the synthetic run passes.
+- Architect /root/browser_design designed isolated Nest/Next, P4 and Mailpit setup. /root/browser_build built scripts and started synthetic fixture; reviewer /root/browser_review approved guards and isolation after corrections. Three guard tests passed. No Gemini calls were made.
+- /root/browser_qa opened ego Space 8 to sign-in and handed control to user per AGENTS.md authentication rule. Fixture remains running on loopback until owner stop; synthetic fixture data is in ignored test artifacts. No credentials are recorded here.
+- Next: after user completes login in Space 8, resume the synthetic journey, verify publication and student flow, stop only owned fixture, then separately run live provider journey under the requested scope. Cleanup and final review are pending.
+## Observed result and renderer fix
+- User explicitly authorized autonomous login with synthetic credentials. /root/browser_qa completed synthetic image and diagram publication via UI, with student image visibility.
+- Live isolated browser run: one IMAGE request reached READY, preview 1024x1024 and confirmed publication to unit/topic; synthetic student saw JPG in Library. One DIAGRAM request failed AI_INPUT_LIMIT after provider dispatch. Database-only safe metrics: 76 input/352 output tokens, below configured limits. No retry. Fixture stopped, owned services cleaned (zero failures), synthetic credentials removed; receipts retained.
+- /root/diagram_failure reproduced valid long title/edge labels failing renderer layout offline; actual generated graph was not retained. /root/layout_green corrected title/legend allocation; /root/layout_review approved after 14 tests, boundary/density probes, PNG inspection, build and Gitleaks. Real browser diagram retest pending additional authorized generation.
