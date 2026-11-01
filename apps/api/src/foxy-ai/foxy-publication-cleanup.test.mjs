@@ -5,7 +5,7 @@ import { withAgendaDatabase } from '../../../../tests/agenda-database-helpers.te
 import { transactionDatabase } from '../../../../tests/classroom-ai-database.test.mjs';
 import { homeFixture } from '../../../../tests/foxmind-3d-repository-fixture.test.mjs';
 const hash='a'.repeat(64),digest='b'.repeat(64);
-async function fixture(pool,{withFile=true,extension='pdf'}={}){
+async function fixture(pool,{withFile=true,extension='pdf',artifactSize=100}={}){
   const [{createFoxyPublicationCompletion},{createFoxyPublicationQueue},{createFoxyPublicationRepository},{createFoxyResourceRepository},
     {createFoxyConversationRepository},{createFoxyTurnRepository}]=await Promise.all([import('./publication-completion.ts'),import('./publication-queue.ts'),
       import('./publication-repository.ts'),import('./resource-repository.ts'),import('./conversation-repository.ts'),import('./turn-repository.ts')]);
@@ -25,7 +25,7 @@ async function fixture(pool,{withFile=true,extension='pdf'}={}){
     fileId,f.rooms.teach.id,f.teacherActor,`synthetic/${fileId}`,extension);
   await query("INSERT INTO uploads(id,updated_at,file_id,status,reserved_bytes,completed_at) VALUES($1,now(),$2,'COMPLETED',0,now())",randomUUID(),fileId);
   await query("INSERT INTO file_custodies(file_id,purpose,phase,digest,validated_digest,scanned_digest) VALUES($1,'material','ready',$2,$2,$2)",fileId,digest);
-  await query(`UPDATE foxy_publications SET file_id=$2,artifact_digest=$3,artifact_size_bytes=100,artifact_page_count=2,renderer_version='foxy-text-pdf-v1' WHERE id=$1`,publication.id,fileId,digest);}
+  await query(`UPDATE foxy_publications SET file_id=$2,artifact_digest=$3,artifact_size_bytes=$4,artifact_page_count=2,renderer_version='foxy-text-pdf-v1' WHERE id=$1`,publication.id,fileId,digest,artifactSize);}
   return {query,f,database,completion:createFoxyPublicationCompletion({database}),lease,publication,fileId,conversation,resource,resources};
 }
 
@@ -96,7 +96,7 @@ test('historical reference claims candidate and records conflict without removin
 });
 
 test('cleanup fails closed when artifact size disagrees with the file', {timeout:120000},async()=>{
- await withAgendaDatabase(async({pool})=>{const x=await fixture(pool);let calls=0;await x.query('UPDATE foxy_publications SET artifact_size_bytes=101 WHERE id=$1',x.publication.id);
+ await withAgendaDatabase(async({pool})=>{const x=await fixture(pool,{artifactSize:101});let calls=0;
   await seedHistoricalDiscard(x);const worker=await createCleanup(x,{remove:async()=>{calls++;}});await worker.sweep();const row=await fileState(x);
   assert.equal(calls,0);assert.equal(row.blob_deleted_at,null);assert.equal(row.phase,'deleting');
  });

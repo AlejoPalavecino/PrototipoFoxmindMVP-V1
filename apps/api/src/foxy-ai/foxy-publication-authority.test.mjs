@@ -85,8 +85,8 @@ test('scope opened before allocation remains valid and child capability fences a
     assert.equal(allocated.created,true);assert.equal((await x.authority.authorize(scope.capability,signal)).publicationId,x.publication.id);
     const child=await x.authority.createFileCapability(scope.capability,signal),file=await x.authority.authorizeFile(child.capability,signal);
     assert.equal(file.fileId,allocated.fileId);assert.equal(file.digest,meta.digest);
-    await x.query('UPDATE foxy_publications SET artifact_digest=$2 WHERE id=$1::uuid',x.publication.id,'c'.repeat(64));
-    await assert.rejects(x.authority.authorizeFile(child.capability,signal));
+    await assert.rejects(x.query('UPDATE foxy_publications SET artifact_digest=$2 WHERE id=$1::uuid',x.publication.id,'c'.repeat(64)),e=>e.code==='23514');
+    assert.equal((await x.authority.authorizeFile(child.capability,signal)).digest,meta.digest);
     controller.abort();await assert.rejects(x.authority.authorize(scope.capability,new AbortController().signal));
     x.authority.close(scope);
   });

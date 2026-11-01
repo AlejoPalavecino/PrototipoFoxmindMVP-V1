@@ -23,8 +23,16 @@ export function createFoxyPublicationCleanup(options: { database: SqlDatabase; s
     const [file] = await tx.query<Locked>(`SELECT f.storage_key,c.phase,c.operation_id,COALESCE(c.lease_until>clock_timestamp(),false) lease_active,
       (f.blob_deleted_at IS NOT NULL) blob_deleted FROM files f JOIN uploads u ON u.file_id=f.id JOIN file_custodies c ON c.file_id=f.id
       JOIN foxy_publications p ON p.id=$2::uuid WHERE f.id=$1::uuid AND f.classroom_id=p.classroom_id AND f.classroom_draft_id IS NULL
-      AND f.uploaded_by_id=p.owner_id AND f.extension='pdf' AND f.size_bytes=p.artifact_size_bytes
-      AND p.artifact_digest ~ '^[a-f0-9]{64}$' AND p.artifact_page_count>0 AND p.renderer_version IS NOT NULL
+      AND f.uploaded_by_id=p.owner_id AND f.size_bytes=p.artifact_size_bytes AND p.artifact_digest ~ '^[a-f0-9]{64}$'
+      AND ((p.source_kind='TEXT' AND f.extension='pdf' AND p.artifact_page_count>0 AND p.renderer_version IN ('foxy-text-pdf-v1','foxy-pdf-v1') AND p.artifact_mime_type='application/pdf')
+        OR (p.source_kind='VISUAL' AND p.artifact_page_count IS NULL AND p.artifact_mime_type IN ('image/png','image/jpeg')
+          AND f.extension=CASE WHEN p.artifact_mime_type='image/png' THEN 'png' ELSE 'jpg' END
+          AND p.artifact_size_bytes BETWEEN 1 AND 10485760 AND p.artifact_width BETWEEN 1 AND 4096 AND p.artifact_height BETWEEN 1 AND 4096
+          AND p.artifact_width::bigint*p.artifact_height<=4000000 AND p.renderer_version IN ('foxy-image-original-v1','foxy-diagram-png-v1')
+          AND (p.renderer_version<>'foxy-diagram-png-v1' OR p.artifact_mime_type='image/png')
+          AND p.snapshot_visual->>'digest'=p.artifact_digest AND p.snapshot_visual->>'sizeBytes'=p.artifact_size_bytes::text
+          AND p.snapshot_visual->>'mimeType'=p.artifact_mime_type AND p.snapshot_visual->>'width'=p.artifact_width::text
+          AND p.snapshot_visual->>'height'=p.artifact_height::text AND p.snapshot_visual->>'producerVersion'=p.renderer_version))
       AND (c.digest IS NULL OR c.digest=p.artifact_digest) AND (c.validated_digest IS NULL OR c.validated_digest=p.artifact_digest)
       AND (c.scanned_digest IS NULL OR c.scanned_digest=p.artifact_digest)
       AND c.purpose='material' AND c.target_id IS NULL FOR UPDATE OF f,u,c`, candidate.file_id, candidate.id);

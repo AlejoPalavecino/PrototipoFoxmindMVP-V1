@@ -5,7 +5,7 @@ import { withAgendaDatabase } from '../../../../tests/agenda-database-helpers.te
 import { transactionDatabase } from '../../../../tests/classroom-ai-database.test.mjs';
 import { homeFixture } from '../../../../tests/foxmind-3d-repository-fixture.test.mjs';
 const hash='a'.repeat(64),digest='b'.repeat(64);
-async function fixture(pool){
+async function fixture(pool,{artifactDigest=digest,removed=false}={}){
   const [{createFoxyPublicationCompletion},{createFoxyPublicationQueue},{createFoxyPublicationRepository},{createFoxyResourceRepository},
     {createFoxyConversationRepository},{createFoxyTurnRepository}]=await Promise.all([import('./publication-completion.ts'),import('./publication-queue.ts'),
       import('./publication-repository.ts'),import('./resource-repository.ts'),import('./conversation-repository.ts'),import('./turn-repository.ts')]);
@@ -25,7 +25,8 @@ async function fixture(pool){
     fileId,f.rooms.teach.id,f.teacherActor,`synthetic/${fileId}`);
   await query("INSERT INTO uploads(id,updated_at,file_id,status,reserved_bytes,completed_at) VALUES($1,now(),$2,'COMPLETED',0,now())",randomUUID(),fileId);
   await query("INSERT INTO file_custodies(file_id,purpose,phase,digest,validated_digest,scanned_digest) VALUES($1,'material','ready',$2,$2,$2)",fileId,digest);
-  await query(`UPDATE foxy_publications SET file_id=$2,artifact_digest=$3,artifact_size_bytes=100,artifact_page_count=2,renderer_version='foxy-text-pdf-v1' WHERE id=$1`,publication.id,fileId,digest);
+  if(removed){await query(`INSERT INTO materials(id,updated_at,classroom_id,title,file_id,created_by_id,deleted_at) VALUES($1,now(),$2,'Tombstone sintético',$3,$4,now())`,randomUUID(),f.rooms.teach.id,fileId,f.teacherActor);await query('UPDATE files SET blob_deleted_at=clock_timestamp() WHERE id=$1',fileId);}
+  await query(`UPDATE foxy_publications SET file_id=$2,artifact_digest=$3,artifact_size_bytes=100,artifact_page_count=2,renderer_version='foxy-text-pdf-v1' WHERE id=$1`,publication.id,fileId,artifactDigest);
   return {query,f,database,completion:createFoxyPublicationCompletion({database}),lease,publication,fileId,conversation,resource,resources};
 }
 
@@ -40,10 +41,9 @@ test('READY requires database-backed clean file proof and completes once without
 
 test('forged or expired lease and unready or changed proof cannot complete READY', {timeout:120000},async()=>{
   for(const cause of ['nonce','expiry','scan','digest','upload','source','user','classroom'])await withAgendaDatabase(async({pool})=>{
-    const x=await fixture(pool),lease=cause==='nonce'?{...x.lease,leaseNonce:randomUUID()}:x.lease;
+    const x=await fixture(pool,{artifactDigest:cause==='digest'?'c'.repeat(64):digest}),lease=cause==='nonce'?{...x.lease,leaseNonce:randomUUID()}:x.lease;
     if(cause==='expiry')await x.query("UPDATE foxy_publications SET lease_until=clock_timestamp()-interval '1 second' WHERE id=$1::uuid",x.publication.id);
     if(cause==='scan')await x.query("UPDATE files SET scan_status='ERROR' WHERE id=$1::uuid",x.fileId);
-    if(cause==='digest')await x.query('UPDATE foxy_publications SET artifact_digest=$2 WHERE id=$1::uuid',x.publication.id,'c'.repeat(64));
     if(cause==='upload')await x.query("UPDATE uploads SET status='FAILED',completed_at=NULL WHERE file_id=$1::uuid",x.fileId);
     if(cause==='source')await x.resources.edit({query:x.query},x.f.teacherActor,x.resource.id,{requestId:randomUUID(),revision:x.resource.revision,title:'Nuevo',markdown:'Cambió'});
     if(cause==='user')await x.query('UPDATE users SET email_verified_at=NULL WHERE id=$1::uuid',x.f.teacherActor);
@@ -70,10 +70,7 @@ test('READY cannot accept caller-supplied proof to bypass database custody', {ti
 });
 
 test('READY cannot complete when the associated blob was removed', {timeout:120000},async()=>{
-  await withAgendaDatabase(async({pool})=>{const x=await fixture(pool);
-    await x.query(`INSERT INTO materials(id,updated_at,classroom_id,title,file_id,created_by_id,deleted_at)
-      VALUES($1,now(),$2,'Tombstone sintético',$3,$4,now())`,randomUUID(),x.f.rooms.teach.id,x.fileId,x.f.teacherActor);
-    await x.query('UPDATE files SET blob_deleted_at=clock_timestamp() WHERE id=$1::uuid',x.fileId);
+  await withAgendaDatabase(async({pool})=>{const x=await fixture(pool,{removed:true});
     let result,error;try{result=await x.completion.finish(x.lease,{state:'READY'});}catch(e){error=e;}
     if(!error)assert.equal(result,false);const [row]=await x.query('SELECT state FROM foxy_publications WHERE id=$1::uuid',x.publication.id);
     assert.notEqual(row.state,'READY');

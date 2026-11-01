@@ -29,7 +29,7 @@ export function createFoxyPublicationManagementRepository() {
     const hash = createHash('sha256').update(JSON.stringify({ action: 'DISCARD', publicationId: id, ...value })).digest('hex');
     const scope = await lockFoxyManagementScopes(tx, actor, id);
     const [pub] = await tx.query<Publication>(`SELECT id,file_id,state,revision,material_id FROM foxy_publications
-      WHERE id=$1::uuid AND owner_id=$2::uuid AND resource_id=$3::uuid AND classroom_id=$4::uuid FOR UPDATE`, id, actor, scope.resource_id, scope.classroom_id);
+      WHERE id=$1::uuid AND owner_id=$2::uuid AND resource_id IS NOT DISTINCT FROM $3::uuid AND classroom_id=$4::uuid AND source_asset_id IS NOT DISTINCT FROM $5::uuid FOR UPDATE`, id, actor, scope.resource_id, scope.classroom_id, scope.source_asset_id ?? null);
     if (!pub) return fail('NOT_FOUND');
     const [prior] = await tx.query<Prior>('SELECT * FROM foxy_publication_command_requests WHERE owner_id=$1::uuid AND request_id=$2::uuid', actor, requestId);
     if (prior) {

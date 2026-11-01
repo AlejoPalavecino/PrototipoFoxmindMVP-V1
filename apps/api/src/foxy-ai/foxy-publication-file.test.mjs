@@ -68,7 +68,7 @@ test('unexpected storage failures are sanitized without exposing private details
  });
 });
 
-test('resource binding changed during storage read cannot return PDF bytes', {timeout:120000},async()=>{
+test('resource binding cannot be changed during storage read', {timeout:120000},async()=>{
  await withAgendaDatabase(async({pool})=>{const x=await fixture(pool);await x.completion.finish(x.lease,{state:'READY'});
   const [{createFoxyConversationRepository},{createFoxyTurnRepository},{createFoxyResourceRepository}]=await Promise.all([import('./conversation-repository.ts'),import('./turn-repository.ts'),import('./resource-repository.ts')]);
   const tx={query:x.query},context={kind:'GENERAL'},conversations=createFoxyConversationRepository(),turns=createFoxyTurnRepository(),resources=createFoxyResourceRepository();
@@ -77,8 +77,8 @@ test('resource binding changed during storage read cannot return PDF bytes', {ti
    {context,curriculum:null,sources:[]},hash,{model:'synthetic',promptVersion:'foxy-chat-v2',schemaVersion:'foxy-answer-v1'});
   await x.query("UPDATE foxy_turns SET state='READY',answer=$2::jsonb,reference_map='[]'::jsonb,source_report='[]'::jsonb WHERE id=$1",turn.id,JSON.stringify({schemaVersion:'foxy-answer-v1',title:'Otro',markdown:'Texto',references:[],warnings:[],missingInformation:[]}));
   const {resource}=await resources.fromTurn(tx,x.f.teacherActor,conversation.id,turn.id);
-  const {reader:r}=await reader(x,async()=>{await x.query('UPDATE foxy_publications SET resource_id=$2 WHERE id=$1',x.publication.id,resource.id);return bytes;});
-  await assert.rejects(r.readFile({id:x.f.teacherActor},x.publication.id,'preview'),e=>e?.code==='NOT_FOUND');
+  const {reader:r}=await reader(x,async()=>{await assert.rejects(x.query('UPDATE foxy_publications SET resource_id=$2 WHERE id=$1',x.publication.id,resource.id),e=>e.code==='23514');return bytes;});
+  const result=await r.readFile({id:x.f.teacherActor},x.publication.id,'preview');assert.deepEqual(Buffer.from(result.bytes),Buffer.from(bytes));
  });
 });
 

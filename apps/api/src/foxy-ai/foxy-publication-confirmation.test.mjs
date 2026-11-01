@@ -88,17 +88,24 @@ test('replay survives later resource edits and destination archive but denies de
 });
 
 test('changed or unclean file proof prevents a new confirmation without side effects', {timeout:120000},async()=>{
- for(const cause of ['scan','validation','upload','digest','size','mime'])await withAgendaDatabase(async({pool})=>{
+ for(const cause of ['scan','validation','upload','mime'])await withAgendaDatabase(async({pool})=>{
   const x=await fixture(pool);assert.equal(await x.completion.finish(x.lease,{state:'READY'}),true);const c=await confirmation(x);
   if(cause==='scan')await x.query("UPDATE files SET scan_status='ERROR' WHERE id=$1",x.fileId);
   if(cause==='validation')await x.query("UPDATE files SET validation_status='REJECTED' WHERE id=$1",x.fileId);
   if(cause==='upload')await x.query("UPDATE uploads SET status='FAILED',completed_at=NULL WHERE file_id=$1",x.fileId);
-  if(cause==='digest')await x.query("UPDATE foxy_publications SET artifact_digest=$2 WHERE id=$1",x.publication.id,'c'.repeat(64));
-  if(cause==='size')await x.query('UPDATE foxy_publications SET artifact_size_bytes=101 WHERE id=$1',x.publication.id);
   if(cause==='mime')await x.query("UPDATE files SET detected_mime_type='image/png' WHERE id=$1",x.fileId);
   await assert.rejects(c.run(),undefined,cause);
   const [p]=await x.query('SELECT state,revision FROM foxy_publications WHERE id=$1',x.publication.id),[n]=await x.query('SELECT count(*)::int n FROM materials WHERE file_id=$1',x.fileId);
   assert.equal(p.state,'READY',cause);assert.equal(String(p.revision),c.input.publicationRevision,cause);assert.equal(n.n,0,cause);
+ });
+});
+
+test('bound publication and custody digests are immutable before confirmation', {timeout:120000},async()=>{
+ await withAgendaDatabase(async({pool})=>{const x=await fixture(pool);assert.equal(await x.completion.finish(x.lease,{state:'READY'}),true);const c=await confirmation(x);
+  await assert.rejects(x.query('UPDATE foxy_publications SET artifact_digest=$2 WHERE id=$1',x.publication.id,'c'.repeat(64)),e=>e.code==='23514');
+  await assert.rejects(x.query('UPDATE file_custodies SET digest=$2,validated_digest=$2,scanned_digest=$2 WHERE file_id=$1',x.fileId,'c'.repeat(64)),e=>e.code==='23514');
+  await assert.rejects(x.query('UPDATE files SET size_bytes=101 WHERE id=$1',x.fileId),e=>e.code==='23514');
+  const receipt=await c.run();assert.ok(receipt.materialId);
  });
 });
 
