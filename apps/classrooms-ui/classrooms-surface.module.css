@@ -1478,3 +1478,149 @@
 :global(.fm3-classrooms.classroom-interior-reference .p5-main .p7-activity-list .folder-row-content h3):where(.scope, .scope *) { font-size: 16px; line-height: 1.25; }
 :global(.fm3-classrooms.classroom-interior-reference .p5-main .p7-activity-list .folder-row-content p):where(.scope, .scope *) { font-size: 13px; }
 :global(.fm3-classrooms.classroom-interior-reference .p5-main .p7-activity-list .interior-activity-icon > .entry-icon):where(.scope, .scope *) { mask-image: url('/foxmind-3d/icons/file.svg') !important; -webkit-mask-image: url('/foxmind-3d/icons/file.svg') !important; }
+
+/* Expresiva — collection covers, draft preview and classroom context */
+:global(.fm3d-theme .p5-app.entry-classrooms-reference .fm3-classroom-grid:not(.is-list)):where(.scope, .scope *) {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 275px), 1fr));
+  gap: 18px;
+}
+:global(.fm3d-theme .entry-classrooms-reference .fm3-classroom-grid .fm3-classroom-card):where(.scope, .scope *) {
+  border-color: #e7d8c7;
+  box-shadow: 0 4px 0 #e7d8c7, 0 10px 20px #6a432012;
+}
+:global(.fm3d-theme .entry-classrooms-reference .fm3-classroom-grid:not(.is-list) .fm3-classroom-card):where(.scope, .scope *) {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+}
+:global(.fm3d-theme .entry-classrooms-reference .fm3-classroom-grid:not(.is-list) .fm3-classroom-card > .fm3-cover):where(.scope, .scope *) {
+  height: auto;
+  min-height: 0;
+  max-height: 220px;
+  aspect-ratio: 2 / 1;
+  border-bottom: 1px solid #e7d8c7;
+}
+:global(.fm3d-theme .entry-classrooms-reference .fm3-classroom-grid:not(.is-list) .fm3-classroom-card-body):where(.scope, .scope *) {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto 1fr auto;
+}
+:global(.fm3d-theme .entry-classrooms-reference .p5-main .fm3-classroom-grid:not(.is-list) .fm3-classroom-card-body > button):where(.scope, .scope *) {
+  grid-column: 1;
+  grid-row: auto;
+  justify-self: stretch;
+  width: 100%;
+}
+:global(.fm3d-theme .entry-classrooms-reference .p5-main .fm3-classroom-card h3):where(.scope, .scope *) {
+  color: #301c49;
+  font-size: clamp(19px, 2vw, 24px);
+  overflow-wrap: anywhere;
+}
+:global(.fm3d-theme .entry-classrooms-reference .fm3-classroom-card-body .fm3-classroom-facts span):where(.scope, .scope *) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+:global(.fm3d-theme .entry-classrooms-reference .p5-main .fm3-classroom-card-body > button):where(.scope, .scope *) {
+  color: #92350e;
+  background: #ffedda;
+}
+:global(.fm3d-theme .entry-classrooms-reference .fm3-membership):where(.scope, .scope *) {
+  color: #3f356d;
+  background: #eee8ff;
+}
+:global(.fm3d-theme .entry-classrooms-reference .fm3-membership.is-teacher):where(.scope, .scope *) {
+  color: #87330e;
+  background: #ffe7d1;
+}
+:global(.wizard-cover-layout):where(.scope, .scope *) {
+  display: grid;
+  gap: 16px;
+  align-items: start;
+}
+:global(.fm3d-theme .entry-wizard-reference .p5-wizard .wizard-cover-layout > .p5-covers):where(.scope, .scope *) {
+  margin: 0;
+}
+:global(.wizard-cover-preview):where(.scope, .scope *) {
+  min-width: 0;
+  margin: 0 0 4px;
+  overflow: hidden;
+  border: 1px solid #e6d6c5;
+  border-radius: 16px;
+  background: #fff6e8;
+  color: #301c49;
+  box-shadow: 0 4px 0 #e6d6c5;
+}
+:global(.wizard-cover-preview > .fm3-cover):where(.scope, .scope *) {
+  width: 100%;
+  height: 124px;
+  aspect-ratio: auto;
+  border-radius: 0;
+}
+:global(.wizard-cover-preview .folder-cover-art):where(.scope, .scope *) {
+  display: block;
+  height: 100%;
+  aspect-ratio: auto;
+}
+:global(.wizard-cover-preview img):where(.scope, .scope *) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+:global(.wizard-cover-preview figcaption):where(.scope, .scope *) {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  overflow-wrap: anywhere;
+}
+:global(.wizard-cover-preview figcaption strong):where(.scope, .scope *) {
+  font-size: 1.2rem;
+  line-height: 1.2;
+}
+:global(.fm3-classrooms.p5-app.classroom-interior-reference .p5-main .p5-room-head.fm3-room-header):where(.scope, .scope *) {
+  --room-cover-base: #ffead8;
+  background: var(--room-cover-base);
+  box-shadow: 0 4px 0 #e7d8c7;
+}
+:global(.fm3-classrooms.p5-app.classroom-interior-reference .p5-main .p5-room-head[data-classroom-role='student']):where(.scope, .scope *) {
+  --room-cover-base: #eee8ff;
+  border-color: #dacbed;
+  box-shadow: 0 4px 0 #dacbed;
+}
+:global(.fm3-classrooms.classroom-interior-reference [data-classroom-role='student'] .fm3-membership):where(.scope, .scope *) {
+  color: #4b306f;
+  background: #ded1f7;
+}
+:global(.fm3-classrooms.classroom-interior-reference .p5-main .p5-tabs button[aria-current='page']):where(.scope, .scope *) {
+  box-shadow: inset 0 -3px 0 #0003;
+}
+:global(.fm3-classrooms.classroom-interior-reference .p5-main .p5-tabs.tone-mint button[aria-current='page']):where(.scope, .scope *) {
+  background: #583a7c;
+}
+:global(.classroom-interior-reference [data-classroom-tab='wall'] .interior-wall-guide):where(.scope, .scope *) {
+  background: #f0eaff;
+  border-color: #e1d5f5;
+}
+:global(.fm3-classrooms.classroom-interior-reference .p5-main [data-classroom-tab='library'] .p6-library-list > .folder-row):where(.scope, .scope *) {
+  border-top: 4px solid #e4c59d;
+}
+:global(.fm3-classrooms.classroom-interior-reference [data-classroom-tab='progress'] .p8-progress-metrics > section:last-child):where(.scope, .scope *) {
+  background: #f0eaff;
+  border-color: #e1d5f5;
+}
+@media (min-width: 900px) {
+  :global(.wizard-cover-layout):where(.scope, .scope *) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.45fr);
+  }
+  :global(.fm3d-theme .entry-wizard-reference .p5-wizard .wizard-cover-layout > .p5-covers):where(.scope, .scope *) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  :global(.fm3d-theme .entry-wizard-reference .p5-wizard .wizard-cover-layout > .p5-covers):where(.scope, .scope *) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  :global(.fm3-classrooms.p5-app.classroom-interior-reference .p5-main .fm3-room-header > .p5-room-cover):where(.scope, .scope *) {
+    display: block;
+    width: 38%;
+    opacity: .46;
+    mask-image: linear-gradient(to right, transparent, black);
+  }
+}

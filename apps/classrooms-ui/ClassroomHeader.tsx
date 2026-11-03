@@ -2,7 +2,7 @@ import type { Detail } from './api.ts';
 import { Cover } from './components.tsx';
 
 export function ClassroomHeader({ room }: { room: Detail }) {
-  return <header className="p5-room-head fm3-room-header">
+  return <header className="p5-room-head fm3-room-header" data-classroom-role={room.role}>
     <div className="p5-room-cover">{room.coverKey === 'literature'
       ? <img className="classroom-literature-hero" src="/foxmind-3d/classroom-interior/library-hero-1600.webp" alt="" />
       : <Cover kind={room.coverKey} priority />}</div>

@@ -33,11 +33,27 @@ export function WizardGeneral({ payload, zones, onUpdate }: {
       </label>
     </div>
     <h3>Elegí una portada</h3>
-    <div className="p5-covers">{coverOptions(payload.coverKey).map(cover => <label key={cover.key}
-      className={payload.coverKey === cover.key ? 'selected' : ''}>
-      <Cover kind={cover.key} priority />
-      <span><input type="radio" required name="cover" checked={payload.coverKey === cover.key}
-        onChange={() => onUpdate('coverKey', cover.key)} />{cover.label}</span>
-    </label>)}</div>
+    <div className="wizard-cover-layout">
+      <div className="p5-covers">{coverOptions(payload.coverKey).map(cover => <label key={cover.key}
+        className={payload.coverKey === cover.key ? 'selected' : ''}>
+        <Cover kind={cover.key} priority />
+        <span><input type="radio" required name="cover" checked={payload.coverKey === cover.key}
+          onChange={() => onUpdate('coverKey', cover.key)} />{cover.label}</span>
+      </label>)}</div>
+      <WizardCoverPreview payload={payload} />
+    </div>
   </>;
+}
+
+export function WizardCoverPreview({ payload, compact = false }: { payload: Payload; compact?: boolean }) {
+  const unitCount = payload.units?.length ?? 0;
+  return <figure className={`wizard-cover-preview${compact ? ' wizard-cover-preview--compact' : ''}`}>
+    <Cover kind={payload.coverKey ?? 'general'} />
+    <figcaption>
+      <small>Vista previa del aula</small>
+      <strong>{payload.name?.trim() || 'Aula sin nombre'}</strong>
+      {[payload.subject?.trim(), payload.division?.trim(), payload.academicYear].filter(Boolean).join(' · ')}
+      {compact ? <small>{unitCount} {unitCount === 1 ? 'unidad' : 'unidades'}</small> : null}
+    </figcaption>
+  </figure>;
 }

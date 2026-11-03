@@ -9,7 +9,7 @@ import {
 import type { ClassroomClient, Draft, Payload, FileState } from './api.ts';
 import { Notice } from './components.tsx';
 import { FoxmindIcon, type IconKey } from '../shared-ui/index.ts';
-import { WizardGeneral } from './WizardGeneral.tsx';
+import { WizardCoverPreview, WizardGeneral } from './WizardGeneral.tsx';
 import { WizardPlan } from './WizardPlan.tsx';
 import { WizardUnits } from './WizardUnits.tsx';
 import { WizardReview } from './WizardReview.tsx';
@@ -279,6 +279,7 @@ export function Wizard({
             {status}
           </span>
         </header>
+        {step > 0 ? <WizardCoverPreview payload={payload} compact /> : null}
         <fieldset disabled={uploading || publishing || extraction.busy}>
           <div hidden={step !== 2 && !(step === 1 && payload.planFileId && file?.ready)}>
             <WizardSuggestions extraction={extraction} hasUnits={Boolean(payload.units?.length)} review={step === 2} />
