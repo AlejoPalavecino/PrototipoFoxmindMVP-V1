@@ -16,15 +16,18 @@ function RowDetails({item,timeZone}:{item:HomeRowItem;timeZone:string}) {
     {'updatedAt' in item?<span>Actualizada {homeTime(item.updatedAt,timeZone)}</span>:null}
   </div>;
 }
-export function HomeRow({item,module,timeZone,onAction,busy}:{item:HomeRowItem;module:HomeModuleName;timeZone:string;onAction:HomeAction;busy?:boolean}) {
-  return <li className={`fm-home-row fm-home-row--${module}`}>
+export function HomeRow({item,module,timeZone,onAction,busy,featured=false}:{item:HomeRowItem;module:HomeModuleName;timeZone:string;onAction:HomeAction;busy?:boolean;featured?:boolean}) {
+  const action = 'reception' in item
+    ? item.reception==='closed'?'Consultar actividad':item.attemptId?'Continuar':'Empezar'
+    : homeLabels[module].action;
+  return <li className={`fm-home-row fm-home-row--${module}${featured?' fm-home-row--featured':''}`}>
     {'source' in item?<AgendaDate item={item} timeZone={timeZone}/>:item.classroom?<HomeCover coverKey={item.classroom.coverKey}/>:
       <span className="fm-home-event-icon"><FoxmindIcon name="calendar"/></span>}
     <div className="fm-home-row-copy"><h3>{item.title}</h3>
       {module==='classrooms' && item.classroom?<span className="fm-home-room-label">{item.classroom.division}{item.classroom.archived?' · Archivada · Solo lectura':''}</span>:<RowDetails item={item} timeZone={timeZone}/>}
       {module==='classrooms' && item.classroom?<span className={`fm-home-classroom-role fm-home-classroom-role--${item.classroom.role}`}>{item.classroom.role==='teacher'?'Enseño':'Estudio'}</span>:null}</div>
-    <button disabled={busy} className="fm-home-row-action" onClick={()=>onAction(item.target)} aria-label={`${'reception' in item && item.reception==='closed'?'Consultar actividad':homeLabels[module].action}: ${item.title}`}>
-      {'reception' in item && item.reception==='closed'?'Consultar actividad':homeLabels[module].action}<FoxmindIcon name="arrow-right"/>
+    <button disabled={busy} className="fm-home-row-action" onClick={()=>onAction(item.target)} aria-label={`${action}: ${item.title}`}>
+      {action}<FoxmindIcon name="arrow-right"/>
     </button>
   </li>;
 }
