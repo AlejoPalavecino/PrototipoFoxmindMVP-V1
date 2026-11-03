@@ -1,6 +1,6 @@
 'use client';
 import surface from './classrooms-surface.module.css';
-import { useState, useEffect, useCallback, lazy, Suspense, type ReactNode } from 'react';
+import { useState, useEffect, useCallback, useRef, lazy, Suspense, type ReactNode } from 'react';
 import type { ClassroomClient, Classroom, Draft, Invitation, NotificationTarget } from './api.ts';
 import type { HomeTarget } from '../../src/core/domain/index.ts';
 import type { HomeClient } from './home-api.ts';
@@ -19,6 +19,8 @@ const ClassroomView = lazy(() =>
     default: module.ClassroomView,
   })),
 );
+const collectionLabels = { rooms: 'tus aulas', drafts: 'tus borradores', invitations: 'tus invitaciones' } as const;
+type CollectionPart = keyof typeof collectionLabels;
 interface HomeData {
   teach: Classroom[];
   study: Classroom[];
@@ -55,7 +57,7 @@ export function ClassroomsApp({
   navigationNotice?: string;
 }) {
   const [presentation, setPresentation] = useState(initialPresentation);
-  const [data, setData] = useState<HomeData | null>(null),
+  const [data, setData] = useState<Partial<HomeData>>({}),
     [error, setError] = useState(''),
     [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false),
@@ -79,31 +81,33 @@ export function ClassroomsApp({
     } | null>(null);
   const [joinError, setJoinError] = useState(''),
     [sharedCode, setSharedCode] = useState<string | null>(null);
-  const load = useCallback(
-    async (signal?: AbortSignal) => {
-      const [mine, drafts, invitations] = await Promise.all([
-        api.call<{ teach: Classroom[]; study: Classroom[] }>(
-          '',
-          undefined,
-          undefined,
-          signal,
-        ),
-        api.call<Draft[]>('/drafts', undefined, undefined, signal),
-        api.call<Invitation[]>('/invitations', undefined, undefined, signal),
-      ]);
-      setData({ ...mine, drafts, invitations });
-      setError('');
-    },
-    [api],
-  );
+  const [collectionErrors, setCollectionErrors] = useState<Partial<Record<CollectionPart, boolean>>>({});
+  const requests = useRef<Partial<Record<CollectionPart, symbol>>>({});
+  const load = useCallback(async (signal?: AbortSignal, only?: CollectionPart) => {
+    async function read(part: CollectionPart, request: () => Promise<Partial<HomeData>>) {
+      const token = Symbol(part);
+      requests.current[part] = token;
+      setCollectionErrors(current => ({ ...current, [part]: false }));
+      const current = () => !signal?.aborted && requests.current[part] === token;
+      try {
+        const values = await request();
+        if (current()) setData(previous => ({ ...previous, ...values }));
+      } catch {
+        if (current()) setCollectionErrors(previous => ({ ...previous, [part]: true }));
+      }
+    }
+    await Promise.all([
+      !only || only === 'rooms' ? read('rooms', () => api.call<Pick<HomeData, 'teach' | 'study'>>('', undefined, undefined, signal)) : undefined,
+      !only || only === 'drafts' ? read('drafts', async () => ({ drafts: await api.call<Draft[]>('/drafts', undefined, undefined, signal) })) : undefined,
+      !only || only === 'invitations' ? read('invitations', async () => ({ invitations: await api.call<Invitation[]>('/invitations', undefined, undefined, signal) })) : undefined,
+    ]);
+  }, [api]);
   useEffect(() => {
     if (initialPresentation === 'home') return;
     const controller = new AbortController();
-    void load(controller.signal).catch((e) => {
-      if (!controller.signal.aborted) setError(e.message);
-    });
+    if (!requestedTarget) void load(controller.signal);
     return () => controller.abort();
-  }, [load, initialPresentation]);
+  }, [load, initialPresentation, requestedTarget]);
   async function action(task: () => Promise<void>) {
     setBusy(true);
     setError('');
@@ -223,7 +227,7 @@ export function ClassroomsApp({
               id={classroomId}
               onExit={leaveView}
               onMembershipEnded={confirmed => {
-                setData(current => current && { ...current, study: current.study.filter(room => room.id !== classroomId) });
+                setData(current => ({ ...current, study: current.study?.filter(room => room.id !== classroomId) }));
                 const message = confirmed ? 'Saliste del aula' : 'Ya no tenés acceso al aula';
                 setNotice(message);
                 showPresentation('classrooms', message);
@@ -257,18 +261,23 @@ export function ClassroomsApp({
                 </button>
               </Notice>
             ) : null}
-            {!data && !error ? <Notice>Cargando tus aulas…</Notice> : null}
-            {data && requestedInvitation && !data.invitations.some(item => item.id.toLowerCase() === requestedInvitation.toLowerCase()) ? (
+            {!data.teach && !collectionErrors.rooms ? <Notice>Cargando tus aulas…</Notice> : null}
+            {(['rooms', 'drafts', 'invitations'] as const).map(part => collectionErrors[part] ? (
+              <Notice key={part} error>No pudimos cargar {collectionLabels[part]}.
+                {' '}<button onClick={() => void load(undefined, part)}>Volver a intentar</button>
+              </Notice>
+            ) : null)}
+            {data.invitations && requestedInvitation && !data.invitations.some(item => item.id.toLowerCase() === requestedInvitation.toLowerCase()) ? (
               <Notice>Esta invitación no está pendiente para la cuenta actual. Puede haber vencido, haberse utilizado o corresponder a otro correo. Revisa tus invitaciones o cambia de cuenta desde tu perfil.</Notice>
             ) : null}
-            {data ? <ClassroomCollection accountRole={accountRole} teach={data.teach} study={data.study} search={search} onSearch={setSearch}
+            {data.teach && data.study ? <ClassroomCollection accountRole={accountRole} teach={data.teach} study={data.study} search={search} onSearch={setSearch}
               onEnter={id => {
                 if (onEnterClassroom) { void action(async () => { await onEnterClassroom(id); }); return; }
                 setSharedCode(null); setClassroomId(id);
               }} /> : null}
-            {data && (data.invitations.length > 0 || data.drafts.length > 0) ? <section className="folder-panel tone-yellow folder-pending" aria-label="Pendientes">
-              <h2 className="folder-tab"><EntryIcon name="bell" />Pendientes <span className="collection-pending-count">{data.invitations.length + data.drafts.length}</span></h2>
-            {data?.invitations.length ? (
+            {((data.invitations?.length ?? 0) > 0 || (data.drafts?.length ?? 0) > 0) ? <section className="folder-panel tone-yellow folder-pending" aria-label="Pendientes">
+              <h2 className="folder-tab"><EntryIcon name="bell" />Pendientes <span className="collection-pending-count">{(data.invitations?.length ?? 0) + (data.drafts?.length ?? 0)}</span></h2>
+            {data.invitations?.length ? (
               <section className="p5-invitations">
                 <h2>Tenés una invitación</h2>
                 {[...data.invitations].sort((a, b) => Number(b.id.toLowerCase() === requestedInvitation?.toLowerCase()) - Number(a.id.toLowerCase() === requestedInvitation?.toLowerCase())).map((invitation) => (
@@ -295,7 +304,7 @@ export function ClassroomsApp({
                 ))}
               </section>
             ) : null}
-            {data?.drafts.length ? (
+            {data.drafts?.length ? (
               <section className="p5-drafts">
                 <h3>Continuar un borrador</h3>
                 {data.drafts.map((item) => (
