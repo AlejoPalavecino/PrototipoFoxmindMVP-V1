@@ -5,8 +5,8 @@ export function AgendaHeader({ zone, onZone, onCreate }: {
   zone: string; onZone: (value: string) => void; onCreate: () => void;
 }) {
   const [expanded, setExpanded] = useState(false);
-  return <header className="p5-page-head agenda-header"><div><p className="agenda-eyebrow">TU TIEMPO, EN ORDEN</p><h1>Mi <span>Agenda</span></h1>
-    <p className="p5-lead">Organizá tu tiempo y no te pierdas nada importante.</p></div>
+  return <header className="p5-page-head agenda-header"><div><h1>Mi <span>Agenda</span></h1>
+    <p className="p5-lead">Tus entregas del aula y tus eventos privados, día por día.</p></div>
     <div className="agenda-tools"><div className="p5-actions"><button className="primary" onClick={onCreate}>+ Nuevo evento</button></div>
       <div className="agenda-zone-control"><p>{zoneLabel(zone)} <button type="button" aria-expanded={expanded}
         onClick={() => setExpanded(value => !value)}>Cambiar</button></p>

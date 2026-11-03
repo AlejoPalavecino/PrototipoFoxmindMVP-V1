@@ -40,7 +40,7 @@ export function AgendaMonth({ month, selected, zone, items, onSelect, onMonth, o
         data-calendar-day={day} tabIndex={day === tabDay ? 0 : -1} onFocus={() => setFocused({ month, day })}
         onKeyDown={event => moveFocus(event, index)} onClick={() => onSelect(day)}><span className="agenda-day-number">{Number(day.slice(-2))}</span>
         <span className="agenda-day-preview" aria-hidden="true">{entries.slice(0, 2).map(item => <span key={item.kind === 'PRIVATE_EVENT' ? item.occurrenceId : item.id}
-          className={`agenda-dot ${item.kind === 'PRIVATE_EVENT' ? eventColorClass(item.event) : 'deadline'}`}><FoxmindIcon name={item.kind === 'PRIVATE_EVENT' ? 'calendar' : 'file'} /><span><b>{item.kind === 'PRIVATE_EVENT' ? eventTimeLabel(item) : deadlineParts(item.deadlineAt, item.timeZone).time}</b><span>{item.kind === 'PRIVATE_EVENT' ? item.event.title : item.title}</span></span></span>)}
+          className={`agenda-dot ${item.kind === 'PRIVATE_EVENT' ? eventColorClass(item.event) : 'deadline'}`}><FoxmindIcon name={item.kind === 'PRIVATE_EVENT' ? 'lock' : 'file'} /><span><b>{item.kind === 'PRIVATE_EVENT' ? eventTimeLabel(item) : deadlineParts(item.deadlineAt, item.timeZone).time}</b><span>{item.kind === 'PRIVATE_EVENT' ? item.event.title : item.title}</span></span></span>)}
           {entries.length > 2 ? <small>+{entries.length - 2} más</small> : null}</span>
         {entries.length ? <span className="agenda-day-count" aria-hidden="true">{entries.length}</span> : null}
         <span className="agenda-day-indicators" aria-hidden="true">{entries.slice(0, 3).map(item => <span

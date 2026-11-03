@@ -16,8 +16,13 @@ import { useAgendaResult } from './useAgendaResult.ts';
 import { useAgendaEventTarget, type AgendaEventRequest } from './useAgendaEventTarget.ts';
 
 export function Agenda({ api, onOpen, requestedEvent }: { api: AgendaClient; onOpen: (target: AgendaTarget) => void; requestedEvent?: AgendaEventRequest | null }) {
-  const [mode, setMode] = useState<CalendarMode>('MONTH');
-  const view = useAgendaView(), data = useAgenda(api, calendarRange(mode, view.day, view.month, view.zone));
+  const [resolvedMode, setMode] = useState<CalendarMode>();
+  useEffect(() => {
+    const compact = window.matchMedia?.('(max-width: 600px)').matches;
+    setMode(current => current ?? (compact ? 'DAY' : 'MONTH'));
+  }, []);
+  const mode = resolvedMode ?? 'MONTH';
+  const view = useAgendaView(), data = useAgenda(api, calendarRange(mode, view.day, view.month, view.zone), resolvedMode !== undefined);
   const [editing, setEditing] = useState<{ event?: PrivateEvent } | null>(null);
   const [error, setError] = useState(''), [busy, setBusy] = useState(false);
   const result = useAgendaResult(view, data.calendar.reload, () => setEditing(null));
@@ -48,7 +53,6 @@ export function Agenda({ api, onOpen, requestedEvent }: { api: AgendaClient; onO
         : <AgendaPeriod mode={mode} day={view.day} zone={view.zone} items={data.calendar.items} onSelect={view.select} onToday={view.today} loading={data.calendar.loading} />}
       {!data.calendar.loading && !data.calendar.error ? <AgendaDay day={view.day} zone={view.zone} items={data.calendar.items} busy={busy} focusEventId={result.focusEventId ?? (view.day === requestedEvent?.date ? requested.focusEventId : undefined)} focusRequest={result.focusRequest} onEdit={event => setEditing({ event })} onOpen={target => void open(target)} onCreate={() => setEditing({})} /> : null}
     </div><Upcoming items={data.upcoming.items} loading={data.upcoming.loading} error={data.upcoming.error} onRetry={() => void data.upcoming.reload()} busy={busy} onOpen={target => void open(target)} />
-      <aside className="agenda-foxy-note"><div><strong>¡Vas muy bien!</strong><p>Organizá tu tiempo y acercate a tus metas.</p></div><img src="/foxmind-3d/agenda-reference/agenda-foxy-note-640.webp" alt="" /></aside>
     </div>
     {editing ? <EventForm api={api} event={editing.event} day={view.day} zone={view.zone} onClose={() => setEditing(null)} onSaved={result.saved} /> : null}
   </main>;
