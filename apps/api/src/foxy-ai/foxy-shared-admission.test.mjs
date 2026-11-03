@@ -182,3 +182,100 @@ test('ARQ-08 preserves the paired-generation owner and priority distinctions', {
     assert.equal(await available('generation-priority'), true);
   }));
 });
+
+test('generation recovery bounds admission lock work and settles every expired reservation across polls', { timeout: 120000 }, async t => {
+  await withAgendaDatabase(async ({ pool }) => {
+    const query = async (sql, ...args) => (await pool.query(sql, args)).rows;
+    const f = await homeFixture(query);
+    const { claim } = await import('../classrooms/ai/queue.ts');
+    const worker = await pool.connect(), peer = await pool.connect();
+    let waiting;
+    const database = { async $transaction(operation) {
+      await worker.query('BEGIN');
+      try {
+        const result = await operation({ async $queryRawUnsafe(sql, ...args) {
+          const result = await worker.query(sql, args);
+          if (sql.includes('pg_advisory_xact_lock(78123002)') && !waiting) {
+            const start = performance.now();
+            waiting = peer.query('SELECT 1 FROM pg_advisory_xact_lock(78123002)').then(() => performance.now() - start);
+          }
+          return result.rows;
+        } });
+        await worker.query('COMMIT');
+        return result;
+      } catch (error) {
+        await worker.query('ROLLBACK');
+        throw error;
+      }
+    } };
+    const counts = async () => (await query(`SELECT count(*) FILTER (WHERE state='RUNNING')::int AS pending,
+      count(*) FILTER (WHERE state='FAILED' AND error_code='PROVIDER_OUTCOME_UNKNOWN' AND lease_nonce IS NULL
+        AND lease_until IS NULL AND reserved_microusd=0)::int AS recovered FROM activity_ai_generations`))[0];
+    const samples = [];
+    try {
+      for (const size of [0, 50, 250, 1000]) for (let repeat = 0; repeat < 3; repeat++) {
+        await query('DELETE FROM activity_ai_generations');
+        await query('DELETE FROM ai_usage_daily');
+        await query(`INSERT INTO activity_ai_generations(id,owner_id,classroom_id,unit_id,type,base_revision,request_hash,
+          input_payload,curriculum_snapshot,source_snapshot,schema_version,prompt_version,model,state,lease_nonce,lease_until,
+          dispatch_started_at,dispatch_count,reserved_microusd,usage_day)
+          SELECT gen_random_uuid(),$1,$2,$3,'ASSIGNMENT',0,repeat('a',64),'{}','{}','[]','activity-proposal-v1','synthetic','synthetic',
+            'RUNNING',gen_random_uuid(),clock_timestamp()-interval '1 second',clock_timestamp()-interval '2 seconds',1,300,current_date
+          FROM generate_series(1,$4::int)`, f.teacherActor, f.rooms.teach.id, f.rooms.teach.unit, size);
+        await query(`INSERT INTO ai_usage_daily(day,scope,capability,request_count,reserved_microusd)
+          VALUES(current_date,'global','study-plan-v1',$2,$2*300),(current_date,$1,'study-plan-v1',$2,$2*300)`, f.teacherActor, size);
+        waiting = undefined;
+        const start = performance.now();
+        assert.equal(await claim({ database, configuration: cfg }), null);
+        const operationMs = performance.now() - start, peerWaitMs = await waiting;
+        assert.ok(Number.isFinite(peerWaitMs));
+        samples.push({ size, operationMs, peerWaitMs, ...await counts() });
+      }
+      t.diagnostic(JSON.stringify(samples));
+      for (const { size, pending, recovered } of samples) {
+        assert.equal(recovered, Math.min(size, 25), 'each transaction recovers at most 25 rows from each table');
+        assert.equal(pending, size - recovered);
+      }
+      for (let offset = 25; offset < 1000; offset += 25) await claim({ database, configuration: cfg });
+      assert.deepEqual(await counts(), { pending: 0, recovered: 1000 });
+      const spend = await query(`SELECT request_count AS requests,reserved_microusd::int AS reserved,
+        consumed_microusd::int AS consumed FROM ai_usage_daily ORDER BY scope`);
+      assert.deepEqual(spend, Array.from({ length: 2 }, () => ({ requests: 1000, reserved: 0, consumed: 300000 })));
+    } finally {
+      await waiting;
+      worker.release();
+      peer.release();
+    }
+  });
+});
+
+test('activity claim recovers both generation queues in bounded batches and requeues undispatched work', { timeout: 120000 }, async () => {
+  await withAgendaDatabase(async ({ transaction }) => transaction(async ({ query, database }) => {
+    const f = await homeFixture(query);
+    await candidate('extraction', f, query, database, cfg);
+    const activity = await candidate('activity', f, query, database, cfg);
+    await query(`INSERT INTO classroom_curriculum_extractions(id,owner_id,draft_id,file_id,source_digest,base_revision,
+      schema_version,prompt_version,model,generation,state,lease_nonce,lease_until)
+      SELECT gen_random_uuid(),owner_id,draft_id,file_id,source_digest,base_revision,schema_version,prompt_version,model,
+        n,'RUNNING',gen_random_uuid(),clock_timestamp()-interval '1 second'
+      FROM classroom_curriculum_extractions CROSS JOIN generate_series(1,26) AS g(n)
+      WHERE state='QUEUED'`);
+    await query(`INSERT INTO activity_ai_generations(id,owner_id,classroom_id,unit_id,type,base_revision,request_hash,input_payload,
+      curriculum_snapshot,source_snapshot,schema_version,prompt_version,model,state,lease_nonce,lease_until)
+      SELECT gen_random_uuid(),owner_id,classroom_id,unit_id,type,base_revision,request_hash,input_payload,curriculum_snapshot,
+        source_snapshot,schema_version,prompt_version,model,'RUNNING',gen_random_uuid(),clock_timestamp()-interval '1 second'
+      FROM activity_ai_generations CROSS JOIN generate_series(1,26) WHERE state='QUEUED'`);
+    for (const table of ['classroom_curriculum_extractions', 'activity_ai_generations']) {
+      await query(`UPDATE ${table} SET next_attempt_at=clock_timestamp()+interval '1 hour'`);
+    }
+    const states = async table => (await query(`SELECT state,count(*)::int AS n FROM ${table} GROUP BY state ORDER BY state`));
+    assert.equal(await activity.claim(), null);
+    for (const table of ['classroom_curriculum_extractions', 'activity_ai_generations']) {
+      assert.deepEqual(await states(table), [{ state: 'QUEUED', n: 26 }, { state: 'RUNNING', n: 1 }]);
+    }
+    assert.equal(await activity.claim(), null);
+    for (const table of ['classroom_curriculum_extractions', 'activity_ai_generations']) {
+      assert.deepEqual(await states(table), [{ state: 'QUEUED', n: 27 }]);
+    }
+  }));
+});
