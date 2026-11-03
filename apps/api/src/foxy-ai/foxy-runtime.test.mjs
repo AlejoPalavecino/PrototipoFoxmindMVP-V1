@@ -1,3 +1,4 @@
+import { createFoxyFileOperations } from '../foxy-file-integration.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
@@ -13,7 +14,7 @@ function fixture(config = null, provider = null) {
   const authenticate = async (_tx, req) => { calls.push('authenticate'); return req.id; };
   const classrooms = { run:async () => { calls.push('classrooms'); }, classroom:async () => { calls.push('classroom'); } };
   const files = { read:async () => { calls.push('read'); }, close:async () => calls.push('filesClose') };
-  return { calls, options:{database,authenticate,classrooms,files,storage:{remove:async()=>{calls.push('remove');}},configuration:config,provider} };
+  return { calls, options:{database,authenticate,classrooms,fileOperations:createFoxyFileOperations(files),storage:{remove:async()=>{calls.push('remove');}},configuration:config,provider} };
 }
 async function create(f) { const api=await import('./runtime.ts'); assert.equal(typeof api.createFoxyRuntime,'function'); return api.createFoxyRuntime(f.options); }
 
@@ -80,4 +81,12 @@ test('model longer than repository metadata limit cannot enable runtime', async 
   let runtime; try {runtime=await create(f);} catch(error) {assert.ok(['AI_UNAVAILABLE','INVALID_INPUT'].includes(error?.code));assert.equal(dispatched,0);return;}
   assert.equal(runtime.worker,null); assert.equal((await runtime.services.capabilities(request)).textGeneration.enabled,false);
   await runtime.onModuleDestroy(); assert.equal(dispatched,0);
+});
+
+test('runtime composes private reads using operations without a FileService', async () => {
+  const { options } = fixture();
+  const runtime = await create({ options: { ...options, fileOperations: {
+    read: options.fileOperations.read, publicationFiles: () => ({}), readPrivateAsset: async () => new Uint8Array(), publishMaterial: async () => { throw Error('unexpected'); },
+  } } });
+  assert.equal(typeof runtime.services.privateAssetReader?.readFile, 'function');
 });

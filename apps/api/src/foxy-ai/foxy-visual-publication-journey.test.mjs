@@ -1,3 +1,4 @@
+import { createFoxyFileOperations } from '../foxy-file-integration.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
@@ -18,7 +19,7 @@ for(const modality of ['PNG','JPEG','DIAGRAM']) test(`${modality} publication re
   const kind=modality==='DIAGRAM'?'DIAGRAM':'IMAGE',mime=modality==='JPEG'?'image/jpeg':'image/png',image=sharp({create:{width:40,height:30,channels:3,background:'#228866'}}),bytes=await (modality==='JPEG'?image.jpeg():image.png()).toBuffer();
   const provider={countTokens:async()=>12,generate:async()=>kind==='IMAGE'?{bytes,declaredMimeType:mime,usage:{inputTokens:12,outputTokens:20}}:{diagram,usage:{inputTokens:12,outputTokens:20}}};
   const visualConfiguration={...config,enabled:{IMAGE:true,DIAGRAM:true},profiles:{IMAGE:profile,DIAGRAM:diagramProfile}};
-  const runtime=createFoxyRuntime({database,authenticate:async(_tx,req)=>req.id,classrooms:{run:async()=>{},classroom:async()=>{}},files,storage,configuration:null,provider:null,visualConfiguration,visualProviders:{IMAGE:provider,DIAGRAM:provider},visualBudgetLimits:{dailyBudgetUsd:1,dailyActorRequests:5,dailyGlobalRequests:10}});
+  const runtime=createFoxyRuntime({database,authenticate:async(_tx,req)=>req.id,classrooms:{run:async()=>{},classroom:async()=>{}},fileOperations:createFoxyFileOperations(files),storage,configuration:null,provider:null,visualConfiguration,visualProviders:{IMAGE:provider,DIAGRAM:provider},visualBudgetLimits:{dailyBudgetUsd:1,dailyActorRequests:5,dailyGlobalRequests:10}});
   try{const {conversation}=await runtime.services.conversations.create(owner,{requestId:randomUUID(),title:'Publicación sintética',context:{kind:'GENERAL'}});
    const started=await runtime.services.visuals.start(owner,conversation.id,{requestId:randomUUID(),revision:'0',kind,prompt:'Imagen sintética',selection:{topicIds:[],sourceIds:[]},aspectRatio:'1:1'});assert.equal(await runtime.visualWorker.runOnce(),true);
    const [asset]=await query('SELECT revision,state FROM foxy_visual_assets WHERE id=$1',started.job.assetId);assert.equal(asset.state,'READY');

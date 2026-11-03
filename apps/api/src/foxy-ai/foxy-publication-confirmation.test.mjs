@@ -32,10 +32,11 @@ async function fixture(pool,{classroomContext=false}={}){
 
 
 async function confirmation(x){
- const [{createFoxyPublicationConfirmationRepository},{createLibraryMaterialPublisher},{FileStore}]=await Promise.all([
-  import('./publication-confirmation-repository.ts'),import('../classrooms/public/index.ts'),import('../files/store.ts')]);
+ const [{createFoxyPublicationConfirmationRepository},{createFoxyFileOperations},{FileStore}]=await Promise.all([
+  import('./publication-confirmation-repository.ts'),import('../foxy-file-integration.ts'),import('../files/store.ts')]);
  const files=new FileStore(x.database,{authenticate:async(_tx,req)=>req.id,authorize:async()=>{}},100000n);
- const confirmations=createFoxyPublicationConfirmationRepository({library:createLibraryMaterialPublisher({files})});
+ const {publishMaterial}=createFoxyFileOperations({store:files});
+ const confirmations=createFoxyPublicationConfirmationRepository({library:{publish:publishMaterial}});
  const [pub]=await x.query('SELECT revision FROM foxy_publications WHERE id=$1',x.publication.id);
  const [room]=await x.query('SELECT revision FROM classrooms WHERE id=$1',x.f.rooms.teach.id);
  const input={requestId:randomUUID(),publicationRevision:String(pub.revision),classroomRevision:String(room.revision),confirm:true},request={id:x.f.teacherActor};

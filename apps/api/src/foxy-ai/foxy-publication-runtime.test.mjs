@@ -1,3 +1,4 @@
+import { createFoxyFileOperations } from '../foxy-file-integration.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -5,7 +6,7 @@ async function fixture(){
  const {createFoxyRuntime}=await import('./runtime.ts');const {FileService}=await import('../files/service.ts');
  const sql=[],database={$transaction:async fn=>fn({$queryRawUnsafe:async statement=>{sql.push(statement);return [];}})};
  const files=new FileService({database,access:{authenticate:async()=>null,authorize:async()=>{throw Error('unexpected');}},storage:{put:async()=>{throw Error('unexpected');},get:async()=>{throw Error('unexpected');},remove:async()=>{throw Error('unexpected');}},scanner:{scan:async()=>{throw Error('unexpected');}},draftQuotaBytes:1000000n});
- const runtime=createFoxyRuntime({database,files,storage:{remove:async()=>{throw Error('unexpected');}},authenticate:async()=>null,classrooms:{run:async()=>{},classroom:async()=>{}},configuration:null,provider:null});return {runtime,sql};
+ const runtime=createFoxyRuntime({database,fileOperations:createFoxyFileOperations(files),storage:{remove:async()=>{throw Error('unexpected');}},authenticate:async()=>null,classrooms:{run:async()=>{},classroom:async()=>{}},configuration:null,provider:null});return {runtime,sql};
 }
 
 test('runtime schedules publication queue recovery with text generation disabled, including after restart',async()=>{

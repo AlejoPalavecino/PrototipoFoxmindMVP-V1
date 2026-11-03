@@ -1,11 +1,12 @@
 import { isDeepStrictEqual } from 'node:util';
-import type { FoxyPublicationArtifact } from '../../../../src/core/domain/index.ts';
+import type { FoxyPublicationArtifact, SqlTransaction } from '../../../../src/core/domain/index.ts';
 import { createFoxyPrivateAssetReadRepository } from './private-asset-read-repository.ts';
-import type { FileService } from '../files/index.ts';
 import type { createFoxyUnitOfWork } from './unit-of-work.ts';
 import type { FoxyPublicationLease } from './publication-queue.ts';
 
 type Artifact = FoxyPublicationArtifact;
+type MaterialFiles = { beginInTransaction(tx: SqlTransaction, request: unknown, scope: { kind: 'classroom'; id: string },
+  intent: { purpose: 'material'; name: string; bytes: number }): Promise<{ id: string }> };
 function invalid(code: 'INVALID_INPUT' | 'CONFLICT'): never { throw Object.assign(new Error(code), { code }); }
 function validate(value: Artifact): void {
   if (!value || !/^[a-f0-9]{64}$/u.test(value.digest) || !Number.isSafeInteger(value.sizeBytes) || value.sizeBytes<1) return invalid('INVALID_INPUT');
@@ -18,7 +19,7 @@ function validate(value: Artifact): void {
   } else if (value.sizeBytes>20000000 || !Number.isSafeInteger(value.pageCount) || value.pageCount<1 || value.pageCount>100
     || !['foxy-text-pdf-v1','foxy-pdf-v1'].includes(value.rendererVersion)) return invalid('INVALID_INPUT');
 }
-export function createFoxyPublicationFileAllocator(options: { uow: ReturnType<typeof createFoxyUnitOfWork>; files: Pick<FileService, 'beginInTransaction'> }) {
+export function createFoxyPublicationFileAllocator(options: { uow: ReturnType<typeof createFoxyUnitOfWork>; files: MaterialFiles }) {
   return { ensureFile: async (request: unknown, lease: FoxyPublicationLease, artifact: Artifact, signal: AbortSignal) => {
     if (!lease || !artifact) return invalid('INVALID_INPUT');
     lease = { publicationId: lease.publicationId, ownerId: lease.ownerId, classroomId: lease.classroomId, leaseNonce: lease.leaseNonce };

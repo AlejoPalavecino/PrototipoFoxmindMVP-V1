@@ -8,7 +8,7 @@ import { legacyEdges } from './boundary-legacy-edges.mjs';
 const roots = ['src/core/domain', 'apps/api/src', 'apps/classrooms-ui', 'apps/agenda-ui', 'apps/shared-ui', 'apps/p5-preview', 'apps/web'];
 const slash = path => path.split(sep).join('/');
 const publicBarrels = new Set(['files', 'mail', 'classrooms', 'foxy-ai'].map(name => 'apps/api/src/' + name + '/public/index.ts'));
-const hostFiles = new Set(['application.ts', 'main.ts', 'configuration.ts', 'attachment-integration.ts'].map(name => 'apps/api/src/' + name));
+const hostFiles = new Set(['application.ts', 'main.ts', 'configuration.ts', 'attachment-integration.ts', 'foxy-file-integration.ts'].map(name => 'apps/api/src/' + name));
 const apiSlice = path => /^apps\/api\/src\/([^/]+)\//.exec(path)?.[1];
 const isLiteral = node => node && ts.isStringLiteralLike(node);
 

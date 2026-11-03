@@ -1,11 +1,10 @@
 import { createHash } from 'node:crypto';
 import { isDeepStrictEqual } from 'node:util';
 import { assetUuid } from '../../../../src/core/domain/index.ts';
-import type { ObjectStorage } from '../files/index.ts';
 import type { createFoxyUnitOfWork } from './unit-of-work.ts';
 import type { createFoxyPrivateAssetReadRepository } from './private-asset-read-repository.ts';
 const fail = (code: string): never => { throw Object.assign(new Error(code), { code }); };
-export function createFoxyPrivateAssetReader(options: { uow: ReturnType<typeof createFoxyUnitOfWork>; assets: ReturnType<typeof createFoxyPrivateAssetReadRepository>; storage: Pick<ObjectStorage,'get'> }) {
+export function createFoxyPrivateAssetReader(options: { uow: ReturnType<typeof createFoxyUnitOfWork>; assets: ReturnType<typeof createFoxyPrivateAssetReadRepository>; storage: { get(key: string, maxBytes: number): Promise<Uint8Array> } }) {
   return { async readFile(request: unknown, assetId: string, mode: 'preview' | 'download', signal: AbortSignal) {
     const id = assetUuid(assetId); if (!['preview','download'].includes(mode) || !signal || typeof signal.throwIfAborted !== 'function') return fail('INVALID_INPUT');
     signal.throwIfAborted(); const describe = () => options.uow.run(request, false, (tx, actor) => options.assets.describe(tx, actor.id, id));

@@ -206,7 +206,8 @@ test('runtime restarts with text AI disabled and durably completes an already up
   const allocated=await x.bridge.ensureFile(x.scope.capability,x.artifact,signal),child=await x.authority.createFileCapability(x.scope.capability,signal);
   await x.bridge.receive(child.capability,x.bytes,signal);x.authority.close(x.scope);
   const {createFoxyRuntime}=await import(new URL('../../../../.build/api/apps/api/src/foxy-ai/runtime.js',import.meta.url));
-  const options={database:x.database,files:x.files,storage:x.storage,authenticate:async()=>x.f.teacherActor,classrooms:{run:async()=>{},classroom:async()=>{}},configuration:null,provider:null};
+  const {createFoxyFileOperations}=await import(new URL('../../../../.build/api/apps/api/src/foxy-file-integration.js',import.meta.url));
+  const options={database:x.database,fileOperations:createFoxyFileOperations(x.files),storage:x.storage,authenticate:async()=>x.f.teacherActor,classrooms:{run:async()=>{},classroom:async()=>{}},configuration:null,provider:null};
   const first=createFoxyRuntime(options);assert.equal(first.worker,null);first.onModuleInit();await first.onModuleDestroy();
   await x.query("UPDATE foxy_publications SET lease_until=clock_timestamp()-interval '1 second' WHERE id=$1::uuid",x.publication.id);
   const before=x.calls.filter(c=>c==='put').length,runtime=createFoxyRuntime(options);runtime.onModuleInit();

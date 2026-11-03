@@ -1,3 +1,4 @@
+import { createFoxyFileOperations } from '../foxy-file-integration.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash,randomUUID} from 'node:crypto';
@@ -20,7 +21,7 @@ test('job frozen profile survives restart without dispatch under changed configu
    remove:key=>own(async()=>{events.push('remove');blobs.delete(key)}),drain:async()=>{await Promise.allSettled([...pending]);events.push('drain');}};
   const scanner={scan:async bytes=>{events.push('scan');assert.ok(bytes.length>0);}},files=new FileService({database,access:{authenticate:async()=>{throw Error('unexpected');},authorize:async()=>{throw Error('unexpected');}},storage,scanner,draftQuotaBytes:0n});
   const png=await sharp({create:{width:40,height:30,channels:3,background:'#42886c'}}).png().toBuffer(),provider=type=>({countTokens:async()=>{events.push(`${type}:count`);return 12;},generate:async()=>{events.push(`${type}:generate`);return type==='IMAGE'?{bytes:png,declaredMimeType:'image/png',usage:{inputTokens:12,outputTokens:20}}:{diagram:graph,usage:{inputTokens:12,outputTokens:20}};}});
-  const options={database,authenticate:async(_tx,req)=>req.id,classrooms:{run:async()=>{},classroom:async()=>{}},files,storage,configuration:null,provider:null,
+  const options={database,authenticate:async(_tx,req)=>req.id,classrooms:{run:async()=>{},classroom:async()=>{}},fileOperations:createFoxyFileOperations(files),storage,configuration:null,provider:null,
    visualConfiguration:config,visualProviders:{IMAGE:provider('IMAGE'),DIAGRAM:provider('DIAGRAM')},visualBudgetLimits:{dailyBudgetUsd:1,dailyActorRequests:5,dailyGlobalRequests:10}};
   const runtime=createFoxyRuntime(options);
   try{

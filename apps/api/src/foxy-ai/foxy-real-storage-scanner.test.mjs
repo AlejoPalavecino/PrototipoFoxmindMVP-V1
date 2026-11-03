@@ -1,3 +1,4 @@
+import { createFoxyFileOperations } from '../foxy-file-integration.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
@@ -28,7 +29,7 @@ test('Foxy visual image reaches confirmed library with isolated real S3 and scan
    const bytes=await sharp({create:{width:40,height:30,channels:3,background:'#228866'}}).png().toBuffer();let generations=0;
    const provider={countTokens:async()=>12,generate:async()=>{generations++;return {bytes,declaredMimeType:'image/png',usage:{inputTokens:12,outputTokens:20}}}};
    const profile={kind:'IMAGE',model:'gemini-3.1-flash-lite-image',profileVersion:'foxy-gemini-image-v1',maxInputTokens:65536,maxOutputTokens:4096,inputUsdPerMillion:'0.25',outputUsdPerMillion:'30',textOutputUsdPerMillion:'1.5',imageOutputUsdPerMillion:'30'};
-   runtime=createFoxyRuntime({database,authenticate:async(_tx,req)=>req.id,classrooms:{run:async()=>{},classroom:async()=>{}},files,storage,configuration:null,provider:null,visualConfiguration:{enabled:{IMAGE:true,DIAGRAM:false},profiles:{IMAGE:profile,DIAGRAM:null},privateQuotaBytes:10485760n,maxConcurrency:1,maxJobAgeMs:300000,deadlineMs:30000},visualProviders:{IMAGE:provider,DIAGRAM:null},visualBudgetLimits:{dailyBudgetUsd:1,dailyActorRequests:5,dailyGlobalRequests:10}});
+   runtime=createFoxyRuntime({database,authenticate:async(_tx,req)=>req.id,classrooms:{run:async()=>{},classroom:async()=>{}},fileOperations:createFoxyFileOperations(files),storage,configuration:null,provider:null,visualConfiguration:{enabled:{IMAGE:true,DIAGRAM:false},profiles:{IMAGE:profile,DIAGRAM:null},privateQuotaBytes:10485760n,maxConcurrency:1,maxJobAgeMs:300000,deadlineMs:30000},visualProviders:{IMAGE:provider,DIAGRAM:null},visualBudgetLimits:{dailyBudgetUsd:1,dailyActorRequests:5,dailyGlobalRequests:10}});
    const {conversation}=await runtime.services.conversations.create(owner,{requestId:randomUUID(),title:'Prueba sintética',context:{kind:'GENERAL'}});
    const started=await runtime.services.visuals.start(owner,conversation.id,{requestId:randomUUID(),revision:'0',kind:'IMAGE',prompt:'Imagen sintética',selection:{topicIds:[],sourceIds:[]},aspectRatio:'1:1'});
    assert.equal(await runtime.visualWorker.runOnce(),true);const [asset]=await query('SELECT revision,state,storage_key FROM foxy_visual_assets WHERE id=$1',started.job.assetId);assert.equal(asset.state,'READY');assert.deepEqual(await storage.get(asset.storage_key,bytes.length),bytes);

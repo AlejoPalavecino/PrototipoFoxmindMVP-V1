@@ -1,3 +1,4 @@
+import { createFoxyFileOperations } from '../foxy-file-integration.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
@@ -15,7 +16,7 @@ test('runtime with AI disabled schedules cleanup using injected storage and drai
    if(sql.includes('UPDATE file_custodies SET operation_id=')){nonce=args[1];return [{file_id:candidate.file_id}];}return [];
   }})};
   const storage={remove:async key=>{assert.equal(key,'synthetic/key');calls++;entered();await gate;}};
-  const runtime=createFoxyRuntime({database,storage,files:{store:{}},authenticate:async()=>null,classrooms:{run:async()=>{},classroom:async()=>{}},configuration:null,provider:null});
+  const runtime=createFoxyRuntime({database,storage,fileOperations:createFoxyFileOperations({store:{}}),authenticate:async()=>null,classrooms:{run:async()=>{},classroom:async()=>{}},configuration:null,provider:null});
   assert.equal(queries,0);assert.equal(timers.length,0);assert.equal(runtime.worker,null);runtime.onModuleInit();runtime.onModuleInit();
   const ticks=timers.filter(t=>t.ms===5000);assert.equal(ticks.length,2);for(const timer of ticks)timer.fn();
   await Promise.race([started,new Promise((_,reject)=>realSet(()=>reject(Error('cleanup did not run')),1000))]);
@@ -28,6 +29,6 @@ test('runtime rejects absent or malformed storage before timers, database or pro
  const {createFoxyRuntime}=await import('./runtime.ts');const realSet=globalThis.setTimeout;let timers=0,io=0;
  globalThis.setTimeout=(...args)=>{timers++;return realSet(...args);};
  try{for(const storage of [undefined,null,{}, {remove:null},{remove:'remove'}]){
-  assert.throws(()=>createFoxyRuntime({database:{$transaction:async()=>{io++;}},storage,files:{store:{}},authenticate:async()=>{io++;},classrooms:{run:async()=>{},classroom:async()=>{}},configuration:null,provider:null}),e=>e?.code==='SERVICE_UNAVAILABLE');
+  assert.throws(()=>createFoxyRuntime({database:{$transaction:async()=>{io++;}},storage,fileOperations:createFoxyFileOperations({store:{}}),authenticate:async()=>{io++;},classrooms:{run:async()=>{},classroom:async()=>{}},configuration:null,provider:null}),e=>e?.code==='SERVICE_UNAVAILABLE');
  }assert.equal(timers,0);assert.equal(io,0);}finally{globalThis.setTimeout=realSet;}
 });

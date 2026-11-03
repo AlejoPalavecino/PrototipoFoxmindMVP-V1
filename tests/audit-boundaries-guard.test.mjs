@@ -116,17 +116,15 @@ test('escaped names and absolute module paths cannot bypass the boundary', async
   });
 });
 
-test('the Foxy runtime dynamic exception is limited to the existing reader binding', async () => {
+test('Foxy runtime cannot reopen the former Files exception or import the host adapter', async () => {
   const path = 'apps/api/src/foxy-ai/runtime.ts';
-  const original = "async function load() { const { createDurableFoxyDocumentReader } = await import('../files/index.ts'); }";
-  await fixture({ [path]: original }, root => assert.deepEqual(checkBoundaries(root), []));
-  await fixture({ [path]: original + "\nasync function other() { const { FileService } = await import('../files/index.ts'); }" }, root => {
+  await fixture({
+    [path]: "import type { FileService } from '../files/index.ts'; import { createFoxyFileOperations } from '../foxy-file-integration.ts'; async function load() { const { createDurableFoxyDocumentReader } = await import('../files/index.ts'); }",
+  }, root => {
     const violations = checkBoundaries(root).join('\n');
     assert.match(violations, /broad barrel dependency: .*FileService/);
-    assert.doesNotMatch(violations, /createDurableFoxyDocumentReader/);
-  });
-  await fixture({ [path]: original.replace('{ createDurable', '{ ...createDurable') }, root => {
-    assert.match(checkBoundaries(root).join('\n'), /broad barrel dependency: .*\.\.\.createDurableFoxyDocumentReader/);
+    assert.match(violations, /broad barrel dependency: .*createDurableFoxyDocumentReader/);
+    assert.match(violations, /host-only dependency: .*foxy-file-integration/);
   });
 });
 

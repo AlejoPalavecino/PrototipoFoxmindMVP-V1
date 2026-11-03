@@ -1,6 +1,5 @@
 import type { SqlDatabase } from '../../../../src/core/domain/index.ts';
-import type { FileService } from '../files/index.ts';
-import { createDurableFoxyDocumentReader, createFoxyPrivateAssetFiles, createFoxyPrivateImageInspector } from '../files/public/index.ts';
+import type { FoxyFileOperations } from './file-operations.ts';
 import { createFoxyUnitOfWork } from './unit-of-work.ts';
 import { createFoxyConversationRepository } from './conversation-repository.ts';
 import { createFoxyPrivateAssetRepository } from './private-asset-repository.ts';
@@ -18,7 +17,7 @@ import type { FoxyVisualLease, VisualOptions } from './visual-worker-types.ts';
 export type VisualConfiguration = { enabled: { IMAGE: boolean; DIAGRAM: boolean }; profiles: { IMAGE: VisualProfile | null; DIAGRAM: VisualProfile | null }; privateQuotaBytes: bigint; maxConcurrency: number; maxJobAgeMs: number; deadlineMs: number };
 export type VisualProviders = { IMAGE: VisualOptions['providers']['IMAGE'] | null; DIAGRAM: VisualOptions['providers']['DIAGRAM'] | null };
 export type VisualBudgetLimits = Parameters<typeof createFoxyVisualBudget>[0]['limits'];
-type Options = { database: SqlDatabase; files: FileService; uow: ReturnType<typeof createFoxyUnitOfWork>; conversations: ReturnType<typeof createFoxyConversationRepository>;
+type Options = { database: SqlDatabase; fileOperations: FoxyFileOperations; uow: ReturnType<typeof createFoxyUnitOfWork>; conversations: ReturnType<typeof createFoxyConversationRepository>;
   configuration: VisualConfiguration; providers: VisualProviders; limits: VisualBudgetLimits };
 const unavailable = () => Promise.reject(Object.assign(new Error('AI_UNAVAILABLE'), { code: 'AI_UNAVAILABLE' }));
 function enabled(config: VisualConfiguration, providers: VisualProviders) {
@@ -27,19 +26,19 @@ function enabled(config: VisualConfiguration, providers: VisualProviders) {
   return { IMAGE: works('IMAGE'), DIAGRAM: works('DIAGRAM') };
 }
 export function createFoxyVisualRuntime(options: Options) {
-  const { configuration: config, database, files, providers } = options, gates = enabled(config,providers);
+  const { configuration: config, database, fileOperations, providers } = options, gates = enabled(config,providers);
   const effective = { ...config, enabled: gates }, budget = createFoxyVisualBudget({ limits: options.limits });
   const queue = createFoxyVisualQueue({ database, configuration: effective, budget });
   const assetAuthority = createFoxyPrivateAssetAuthority({ database, maxJobAgeMs: config.maxJobAgeMs });
   const authority = createFoxyVisualClaimAuthority({ database, maxJobAgeMs: config.maxJobAgeMs, assets: assetAuthority });
-  const documents = createDurableFoxyDocumentReader({ files, authorizeDocument: authority.authorizeDocument });
+  const documents = fileOperations.documents(authority.authorizeDocument);
   const loader = createFoxyDurableLoader({ authority, documents });
   let activeLease: FoxyVisualLease | null = null;
   const ownedQueue = { ...queue, async claim() { const lease = await queue.claim(); activeLease = lease; return lease; } };
-  const custody = createFoxyPrivateAssetFiles({ files, authority: assetAuthority, inspector: createFoxyPrivateImageInspector(), renew: lease => {
+  const custody = fileOperations.visualCustody(assetAuthority, lease => {
     const current = activeLease; if (!current || current.assetId !== lease.assetId || current.ownerId !== lease.ownerId || current.conversationId !== lease.conversationId || current.leaseNonce !== lease.leaseNonce) return Promise.resolve(false);
     return queue.renew(current);
-  } });
+  });
   const worker = createFoxyVisualWorker({ database, queue: ownedQueue, authority, loader, custody, budget,
     providers: { IMAGE: providers.IMAGE ?? { countTokens: unavailable, generate: unavailable }, DIAGRAM: providers.DIAGRAM ?? { countTokens: unavailable, generate: unavailable } },
     renderer: createFoxyDiagramRenderer(), completion: createFoxyVisualCompletion({ database, budget, maxJobAgeMs: config.maxJobAgeMs }), configuration: effective });

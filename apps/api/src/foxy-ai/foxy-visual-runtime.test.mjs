@@ -1,3 +1,4 @@
+import { createFoxyFileOperations } from '../foxy-file-integration.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
@@ -11,7 +12,7 @@ function fixture(options={}){
  const calls=[],database={$transaction:async run=>run({$queryRawUnsafe:async(sql,...args)=>{calls.push(['sql',sql]);if(/FROM users/u.test(sql))return [{id:args[0],account_role:args[0]===student?'student':'teacher',email_verified_at:new Date()}];if(/count\(\*\)/iu.test(sql))return [{count:0}];return [];}})};
  const authenticate=async(_tx,req)=>req.id,files={store:{database,draftQuotaBytes:0n},storage:{get:async()=>{calls.push(['get']);throw Error('unexpected')},put:async()=>{calls.push(['put']);throw Error('unexpected')},remove:async()=>{calls.push(['remove']);},drain:async()=>{calls.push(['drain']);}},scanner:{scan:async()=>{calls.push(['scan']);}}};
  const provider=kind=>({countTokens:async()=>{calls.push([kind,'count']);throw Error('unexpected')},generate:async()=>{calls.push([kind,'generate']);throw Error('unexpected')}});
- return {calls,options:{database,authenticate,classrooms:{run:async()=>{},classroom:async()=>{}},files,storage:files.storage,configuration:null,provider:null,
+ return {calls,options:{database,authenticate,classrooms:{run:async()=>{},classroom:async()=>{}},fileOperations:createFoxyFileOperations(files),storage:files.storage,configuration:null,provider:null,
   visualConfiguration,visualProviders:{IMAGE:provider('image'),DIAGRAM:provider('diagram')},visualBudgetLimits,...options}};
 }
 const create=async f=>(await import('./runtime.ts')).createFoxyRuntime(f.options);
