@@ -1,6 +1,6 @@
 import type { AgendaItem } from './calendar.ts';
-import { useRef, useState, type KeyboardEvent } from 'react';
-import { dateAt, dayLabel, monthDays, onDay } from './calendar.ts';
+import { useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { dateAt, dayLabel, groupAgendaItemsByDay, monthDays } from './calendar.ts';
 import { eventColorClass } from './event-colors.ts';
 import { AgendaLegend } from './AgendaLegend.tsx';
 import { FoxmindIcon } from '../shared-ui/index.ts';
@@ -14,7 +14,8 @@ export function AgendaMonth({ month, selected, zone, items, onSelect, onMonth, o
 }) {
   const heading = new Date(`${month}-01T12:00:00Z`).toLocaleDateString('es-AR', { month: 'long', year: 'numeric', timeZone: 'UTC' });
   const today = dateAt(Date.now(), zone);
-  const days = monthDays(month);
+  const days = useMemo(() => monthDays(month), [month]);
+  const grouped = useMemo(() => groupAgendaItemsByDay(items, days, zone), [items, days, zone]);
   const grid = useRef<HTMLDivElement>(null);
   const [focused, setFocused] = useState<{ month: string; day: string }>();
   const tabDay = focused?.month === month ? focused.day : days.includes(selected) ? selected : `${month}-01`;
@@ -33,7 +34,7 @@ export function AgendaMonth({ month, selected, zone, items, onSelect, onMonth, o
     </header>
     <div className="agenda-week" aria-hidden="true">{['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map(day => <span key={day}>{day}</span>)}</div>
     <div className="agenda-grid" ref={grid}>{days.map((day, index) => {
-      const entries = items.filter(item => onDay(item, day, zone));
+      const entries = grouped.get(day)!;
       return <button key={day} className={`agenda-day${day.startsWith(month) ? '' : ' agenda-outside'}${day === today ? ' agenda-today' : ''}`}
         aria-current={day === today ? 'date' : undefined} aria-pressed={selected === day} aria-label={`${dayLabel(day)}${day === today ? ', hoy' : ''}${entries.length ? `, ${entries.length} eventos o entregas` : ''}`}
         data-calendar-day={day} tabIndex={day === tabDay ? 0 : -1} onFocus={() => setFocused({ month, day })}

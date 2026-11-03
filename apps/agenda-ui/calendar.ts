@@ -14,7 +14,10 @@ export function calendarRange(mode: CalendarMode, day: string, month: string, ti
 }
 export const categoryLabels = { CLASS: 'Clase', ACTIVITY: 'Actividad', EVALUATION: 'Evaluación' };
 export function dateAt(instant: string | number, timeZone: string): string {
-  const parts = new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date(instant));
+  return calendarDate(instant, new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' }));
+}
+function calendarDate(instant: string | number, formatter: Intl.DateTimeFormat): string {
+  const parts = formatter.formatToParts(new Date(instant));
   const part = (type: string) => parts.find(value => value.type === type)!.value;
   return `${part('year')}-${part('month')}-${part('day')}`;
 }
@@ -34,6 +37,21 @@ export function monthDays(month: string): string[] {
   const start = `${month}-01`, day = new Date(`${start}T12:00:00Z`).getUTCDay();
   const first = shiftDay(start, -((day + 6) % 7));
   return Array.from({ length: 42 }, (_, index) => shiftDay(first, index));
+}
+export function groupAgendaItemsByDay(items: AgendaItem[], days: string[], zone: string): Map<string, AgendaItem[]> {
+  const grouped = new Map<string, AgendaItem[]>(days.map(day => [day, []]));
+  const formatter = new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit' });
+  for (const item of items) {
+    if (item.kind === 'ACADEMIC_DEADLINE') {
+      grouped.get(calendarDate(item.deadlineAt, formatter))?.push(item);
+    } else {
+      const timed = item.startAt && item.endAt;
+      const first = timed ? calendarDate(item.startAt!, formatter) : item.startDate;
+      const last = timed ? calendarDate(Date.parse(item.endAt!) - 1, formatter) : shiftDay(item.endDateExclusive, -1);
+      for (const day of days) if (day >= first && day <= last) grouped.get(day)!.push(item);
+    }
+  }
+  return grouped;
 }
 export function onDay(item: AgendaItem, day: string, zone: string): boolean {
   if (item.kind === 'ACADEMIC_DEADLINE') return dateAt(item.deadlineAt, zone) === day;

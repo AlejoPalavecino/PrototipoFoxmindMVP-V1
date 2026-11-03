@@ -67,3 +67,18 @@ test('overlapping all-day events intersect the range using an exclusive end', ()
   assert.equal(expandAgendaEvent(input, range).length, 1);
   assert.equal(expandAgendaEvent(input, { ...range, startDate: '2026-03-02' }).length, 0);
 });
+
+test('monthly grouping preserves original order, zone boundaries and exclusive ends', () => {
+  const { groupAgendaItemsByDay, monthDays, onDay } = loadTsModule('apps/agenda-ui/calendar.ts');
+  const days = monthDays('2026-03'), zone = 'America/New_York';
+  const items = [
+    { kind: 'PRIVATE_EVENT', id: 'timed', startAt: '2026-03-08T04:30:00Z', endAt: '2026-03-09T04:00:00Z' },
+    { kind: 'ACADEMIC_DEADLINE', id: 'deadline', deadlineAt: '2026-03-08T04:30:00Z' },
+    { kind: 'PRIVATE_EVENT', id: 'all-day', startDate: '2026-03-08', endDateExclusive: '2026-03-10' },
+    { kind: 'ACADEMIC_DEADLINE', id: 'outside', deadlineAt: '2026-01-01T12:00:00Z' },
+  ];
+  const grouped = groupAgendaItemsByDay(items, days, zone);
+  for (const day of days) assert.deepEqual(grouped.get(day), items.filter(item => onDay(item, day, zone)), day);
+  assert.deepEqual(grouped.get('2026-03-07').map(item => item.id), ['timed', 'deadline']);
+  assert.deepEqual(grouped.get('2026-03-09').map(item => item.id), ['all-day']);
+});
