@@ -20,8 +20,8 @@ export function DeadlineCard({ item, onOpen, busy }: { item: AcademicDeadline; o
     </div>
   </article>;
 }
-export function Upcoming({ items, loading, error, busy, onOpen }: {
-  items: AcademicDeadline[]; loading: boolean; error: string; busy: boolean; onOpen: (target: AgendaTarget) => void;
+export function Upcoming({ items, loading, error, busy, onOpen, onRetry }: {
+  onRetry: () => void; items: AcademicDeadline[]; loading: boolean; error: string; busy: boolean; onOpen: (target: AgendaTarget) => void;
 }) {
   return <aside className="agenda-upcoming fm3d-agenda-card" aria-label="Próximas entregas">
     <h2>Próximas entregas</h2>

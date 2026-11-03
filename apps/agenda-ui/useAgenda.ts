@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { AcademicDeadline, AgendaRange } from '../../src/core/domain/index.ts';
+import type { AgendaRange } from '../../src/core/domain/index.ts';
 import type { AgendaClient } from './api.ts';
 import type { AgendaItem } from './calendar.ts';
 
@@ -15,26 +15,38 @@ async function allItems(api: AgendaClient, range: AgendaRange, signal: AbortSign
   } while (cursor);
   return items;
 }
-export function useAgenda(api: AgendaClient, range: AgendaRange) {
-  const [items, setItems] = useState<AgendaItem[]>([]);
-  const [upcoming, setUpcoming] = useState<AcademicDeadline[]>([]);
-  const [loading, setLoading] = useState(true), [error, setError] = useState('');
-  const controller = useRef<AbortController | null>(null), generation = useRef(0);
-  const { startDate, endDateExclusive, timeZone } = range;
+function useAgendaQuery<T>(read: (signal: AbortSignal) => Promise<T[]>) {
+  const [state, setState] = useState<{ read: typeof read; items: T[]; loading: boolean; error: string }>();
+  const controller = useRef<AbortController | null>(null);
   const reload = useCallback(async () => {
-    controller.current?.abort(); const active = new AbortController(); controller.current = active;
-    const version = ++generation.current;
-    setLoading(true); setError(''); setItems([]); setUpcoming([]);
+    controller.current?.abort();
+    const active = new AbortController();
+    controller.current = active;
+    setState({ read, items: [], loading: true, error: '' });
     try {
-      const [events, deadlines] = await Promise.all([allItems(api, { startDate, endDateExclusive, timeZone }, active.signal), api.upcoming(5, active.signal)]);
-      if (version !== generation.current || active.signal.aborted) return false;
-      setItems(events); setUpcoming(deadlines.items); return true;
+      const items = await read(active.signal);
+      if (active.signal.aborted) return false;
+      setState({ read, items, loading: false, error: '' });
+      return true;
     } catch (failure) {
-      if (version === generation.current && !active.signal.aborted) setError((failure as Error).message);
+      if (!active.signal.aborted) setState({ read, items: [], loading: false, error: (failure as Error).message });
       return false;
-    } finally { if (version === generation.current && !active.signal.aborted) setLoading(false); }
-  }, [api, startDate, endDateExclusive, timeZone]);
-  useEffect(() => { void reload(); return () => { controller.current?.abort(); generation.current++; }; }, [reload]);
+    }
+  }, [read]);
+  useEffect(() => { void reload(); return () => controller.current?.abort(); }, [reload]);
+  return { ...(state?.read === read ? state : { items: [] as T[], loading: true, error: '' }), reload };
+}
+
+export function useAgenda(api: AgendaClient, range: AgendaRange) {
+  const { startDate, endDateExclusive, timeZone } = range;
+  const calendar = useAgendaQuery(useCallback((signal: AbortSignal) =>
+    allItems(api, { startDate, endDateExclusive, timeZone }, signal), [api, startDate, endDateExclusive, timeZone]));
+  const upcoming = useAgendaQuery(useCallback(async (signal: AbortSignal) =>
+    (await api.upcoming(5, signal)).items, [api]));
+  const reload = useCallback(async () => {
+    const results = await Promise.all([calendar.reload(), upcoming.reload()]);
+    return results.every(Boolean);
+  }, [calendar.reload, upcoming.reload]);
   useEffect(() => { const refresh = () => { void reload(); }; window.addEventListener('focus', refresh); return () => window.removeEventListener('focus', refresh); }, [reload]);
-  return { items, upcoming, loading, error, reload };
+  return { calendar, upcoming, reload };
 }

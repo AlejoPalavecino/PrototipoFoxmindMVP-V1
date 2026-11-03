@@ -20,7 +20,7 @@ export function Agenda({ api, onOpen, requestedEvent }: { api: AgendaClient; onO
   const view = useAgendaView(), data = useAgenda(api, calendarRange(mode, view.day, view.month, view.zone));
   const [editing, setEditing] = useState<{ event?: PrivateEvent } | null>(null);
   const [error, setError] = useState(''), [busy, setBusy] = useState(false);
-  const result = useAgendaResult(view, data.reload, () => setEditing(null));
+  const result = useAgendaResult(view, data.calendar.reload, () => setEditing(null));
   const requested = useAgendaEventTarget(api, requestedEvent, view.select);
   const locked = useRef(false);
   const currentReload = useRef(data.reload);
@@ -41,13 +41,13 @@ export function Agenda({ api, onOpen, requestedEvent }: { api: AgendaClient; onO
     {result.notice ? <Notice>{result.notice} {result.event ? <button onClick={result.showEvent}>{result.event.repeat.kind !== 'NONE' ? 'Ver inicio de la serie' : 'Ver evento'}</button> : null}</Notice> : null}
     {error ? <Notice error>{error}</Notice> : null}
     {requested.error ? <Notice error>{requested.error}</Notice> : null}
-    {data.error ? <Notice error>{data.error} <button onClick={() => void data.reload()}>Volver a intentar</button></Notice> : null}
-    {data.loading ? <Notice>Consultando tu agenda…</Notice> : null}
+    {data.calendar.error ? <Notice error>{data.calendar.error} <button onClick={() => void data.calendar.reload()}>Volver a intentar</button></Notice> : null}
+    {data.calendar.loading ? <Notice>Consultando tu agenda…</Notice> : null}
     <div className="agenda-layout"><div className="agenda-primary">
-      {mode === 'MONTH' ? <AgendaMonth month={view.month} selected={view.day} zone={view.zone} items={data.items} onSelect={view.select} onMonth={view.move} onToday={view.today} loading={data.loading} />
-        : <AgendaPeriod mode={mode} day={view.day} zone={view.zone} items={data.items} onSelect={view.select} onToday={view.today} loading={data.loading} />}
-      {!data.loading && !data.error ? <AgendaDay day={view.day} zone={view.zone} items={data.items} busy={busy} focusEventId={result.focusEventId ?? (view.day === requestedEvent?.date ? requested.focusEventId : undefined)} focusRequest={result.focusRequest} onEdit={event => setEditing({ event })} onOpen={target => void open(target)} onCreate={() => setEditing({})} /> : null}
-    </div><Upcoming items={data.upcoming} loading={data.loading} error={data.error} busy={busy} onOpen={target => void open(target)} />
+      {mode === 'MONTH' ? <AgendaMonth month={view.month} selected={view.day} zone={view.zone} items={data.calendar.items} onSelect={view.select} onMonth={view.move} onToday={view.today} loading={data.calendar.loading} />
+        : <AgendaPeriod mode={mode} day={view.day} zone={view.zone} items={data.calendar.items} onSelect={view.select} onToday={view.today} loading={data.calendar.loading} />}
+      {!data.calendar.loading && !data.calendar.error ? <AgendaDay day={view.day} zone={view.zone} items={data.calendar.items} busy={busy} focusEventId={result.focusEventId ?? (view.day === requestedEvent?.date ? requested.focusEventId : undefined)} focusRequest={result.focusRequest} onEdit={event => setEditing({ event })} onOpen={target => void open(target)} onCreate={() => setEditing({})} /> : null}
+    </div><Upcoming items={data.upcoming.items} loading={data.upcoming.loading} error={data.upcoming.error} onRetry={() => void data.upcoming.reload()} busy={busy} onOpen={target => void open(target)} />
       <aside className="agenda-foxy-note"><div><strong>¡Vas muy bien!</strong><p>Organizá tu tiempo y acercate a tus metas.</p></div><img src="/foxmind-3d/agenda-reference/agenda-foxy-note-640.webp" alt="" /></aside>
     </div>
     {editing ? <EventForm api={api} event={editing.event} day={view.day} zone={view.zone} onClose={() => setEditing(null)} onSaved={result.saved} /> : null}

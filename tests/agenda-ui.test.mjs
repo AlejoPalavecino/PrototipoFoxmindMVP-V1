@@ -122,3 +122,35 @@ test('a delayed forbidden open after month navigation revalidates the current mo
     if (previousStorage === undefined) delete globalThis.sessionStorage; else globalThis.sessionStorage = previousStorage;
   }
 });
+
+for (const failing of ['calendar', 'upcoming']) test(`Agenda isolates a ${failing} failure and retries only that section`, async () => {
+  const { Agenda } = loadTsModule('apps/agenda-ui/Agenda.tsx');
+  const originalWindow = globalThis.window, originalStorage = globalThis.sessionStorage;
+  globalThis.window = new EventTarget();
+  globalThis.sessionStorage = { getItem: () => JSON.stringify({ zone: "UTC" }) };
+  const calls = { calendar: 0, upcoming: 0 };
+  const query = part => {
+    if (++calls[part] === 1 && part === failing) throw Error('Error sintético');
+    return { items: [{ id: part }], nextCursor: null };
+  };
+  const view = hookView(Agenda, { api: { list: async () => query('calendar'), upcoming: async () => query('upcoming') }, onOpen() {} });
+  const component = name => descendants(view.tree, node => node.type.name === name)[0];
+  try {
+    await view.flush();
+    if (failing === 'upcoming') {
+      assert.equal(component('AgendaDay')?.props.items[0]?.id, 'calendar');
+      component('Upcoming').props.onRetry();
+    } else {
+      assert.equal(component('Upcoming').props.items[0]?.id, 'upcoming');
+      descendants(view.tree, node => node.type === 'button' && node.props.children === 'Volver a intentar')[0].props.onClick();
+    }
+    await view.flush();
+    assert.deepEqual(calls, { calendar: failing === 'calendar' ? 2 : 1, upcoming: failing === 'upcoming' ? 2 : 1 });
+    assert.equal(component('AgendaDay').props.items[0].id, 'calendar');
+    assert.equal(component('Upcoming').props.items[0].id, 'upcoming');
+  } finally {
+    view.close();
+    globalThis.window = originalWindow;
+    globalThis.sessionStorage = originalStorage;
+  }
+});
