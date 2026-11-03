@@ -5,7 +5,7 @@ import { randomUUID, createHash } from 'node:crypto';
 import { withP5Database } from '../scripts/p5-database.mjs';
 import { FileService } from '../.build/api/apps/api/src/files/service.js';
 import { createFileAccess } from '../.build/api/apps/api/src/files/access.js';
-import { authorizeAttemptFileWrite, linkReadyAttemptAttachment } from '../.build/api/apps/api/src/files/attempt-bridge.js';
+import { attachmentIntegration } from '../.build/api/apps/api/src/attachment-integration.js';
 import { PDFDocument } from 'pdf-lib';
 import pg from 'pg';
 
@@ -27,9 +27,9 @@ test('SQL-backed controlled history/reopening preserve every original and transa
     await pool.query(`INSERT INTO units(id,updated_at,classroom_id,name,position) VALUES($1,now(),$2,'Unit',0)`, [unit, room]);
     await pool.query(`INSERT INTO topics(id,updated_at,classroom_id,unit_id,name,position) VALUES($1,now(),$2,$3,'Topic',0)`, [topic, room, unit]);
     const authenticate = async (_tx, req) => req.actor, objects = new Map();
-    const files = new FileService({ database, access: createFileAccess({ authenticate, authorizeAttemptWrite: authorizeAttemptFileWrite }),
+    const files = new FileService({ database, access: createFileAccess({ authenticate, authorizeAttemptWrite: attachmentIntegration.authorizeAttemptWrite }),
       storage: { put: async (key, value) => objects.set(key, value), get: async key => objects.get(key), remove: async key => objects.delete(key) },
-      scanner: { scan: async () => {} }, draftQuotaBytes: 100000000n, onReadyTransition: linkReadyAttemptAttachment });
+      scanner: { scan: async () => {} }, draftQuotaBytes: 100000000n, onReadyTransition: attachmentIntegration.onReadyTransition });
     const service = new ClassroomService({ database, files: files.store, authenticate, signingKey: Buffer.alloc(32, 1), deliveryKey: Buffer.alloc(32, 2), classroomQuotaBytes: 100000000n, webOrigin: 'http://127.0.0.1:3005' });
     const T = { actor: teacher, headers: {} }, S = { actor: student, headers: {} }, F = { actor: foreign, headers: {} };
     const { code } = await service.rotateCode(T, room);

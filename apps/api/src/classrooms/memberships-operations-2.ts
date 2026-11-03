@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { revision, type DraftService } from './drafts.ts';
+import { revision } from './revision.ts';
 import { ClassroomCore } from './core.ts';
 import { digest, fail, object, uuid } from './policy.ts';
 import type { Actor, Transaction } from './contracts.ts';

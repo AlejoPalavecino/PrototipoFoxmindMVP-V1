@@ -2,6 +2,22 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 const domain = () => import('../src/core/domain/index.ts');
+
+test('regeneration preserves its raw replay input and shares the start command schema', async () => {
+  const { parseStartActivityGeneration, parseRegenerateActivityGeneration } = await domain();
+  const command = start({ objective: '  Comparar casos  ' });
+  for (const acknowledgePossibleCharge of [false, true]) {
+    const wire = { ...command, acknowledgePossibleCharge };
+    const parsed = parseRegenerateActivityGeneration(wire);
+    assert.equal(parsed.raw, wire);
+    assert.deepEqual(parsed.body, parseStartActivityGeneration(command));
+    assert.equal(parsed.acknowledgePossibleCharge, acknowledgePossibleCharge);
+  }
+  for (const input of [command, { ...command, acknowledgePossibleCharge: 'false' },
+    { ...command, acknowledgePossibleCharge: false, ownerId: randomUUID() }]) {
+    assert.throws(() => parseRegenerateActivityGeneration(input), { code: 'INVALID_INPUT' });
+  }
+});
 export const sourceId = `plan:${randomUUID()}`;
 export const start = (extra = {}) => ({ revision: '3', requestId: randomUUID(), type: 'ASSIGNMENT', unitId: randomUUID(),
   topicIds: [randomUUID(), randomUUID()], sourceIds: [sourceId], objective: 'Relacionar luz y exposición', groupLevel: 'Segundo año',

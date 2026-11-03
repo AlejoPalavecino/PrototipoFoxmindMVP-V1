@@ -1,4 +1,4 @@
-import { revision } from './drafts.ts';
+import { revision } from './revision.ts';
 import { fail, uuid } from './policy.ts';
 import { editorCapability, matchesEditor, receptionPolicy, type EditorCapability } from './attempt-policy.ts';
 import type { Transaction } from './contracts.ts';

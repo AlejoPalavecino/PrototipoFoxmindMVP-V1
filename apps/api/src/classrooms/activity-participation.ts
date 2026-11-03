@@ -2,11 +2,11 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import type { ActivityRow } from './activity-authoring.ts';
 import type { ClassroomCore } from './core.ts';
 import type { ActivityAuthoringService } from './activity-authoring.ts';
-import type { PlanService } from './plan.ts';
+import type { ClassroomFileOperations } from './classroom-file.ts';
 import type { sessionView } from './activity-session.ts';
 import { exactActivityObject } from './activity-policy.ts';
 import { resolveDeadline } from './activity-time.ts';
-import { revision } from './drafts.ts';
+import { revision } from './revision.ts';
 import { digest, fail, uuid } from './policy.ts';
 import { receptionPolicy } from './attempt-policy.ts';
 import type { Transaction } from './contracts.ts';
@@ -21,10 +21,10 @@ export class ActivityParticipationService {
   private readonly run: ClassroomCore['run'];
   private readonly classroom: ClassroomCore['classroom'];
   private readonly activity: ActivityAuthoringService['activity'];
-  private readonly advanceRevision: PlanService['advanceRevision'];
+  private readonly advanceRevision: ClassroomFileOperations['advanceRevision'];
   private readonly sessionView: (...args: Parameters<typeof sessionView> extends [unknown, ...infer Rest] ? Rest : never) => ReturnType<typeof sessionView>;
   constructor(context: Pick<ClassroomCore, 'run' | 'classroom'>, dependencies: {
-    activity: ActivityAuthoringService['activity']; advanceRevision: PlanService['advanceRevision']; sessionView: ActivityParticipationService['sessionView'];
+    activity: ActivityAuthoringService['activity']; advanceRevision: ClassroomFileOperations['advanceRevision']; sessionView: ActivityParticipationService['sessionView'];
   }) {
     this.run = context.run.bind(context); this.classroom = context.classroom.bind(context);
     this.activity = dependencies.activity; this.advanceRevision = dependencies.advanceRevision; this.sessionView = dependencies.sessionView;

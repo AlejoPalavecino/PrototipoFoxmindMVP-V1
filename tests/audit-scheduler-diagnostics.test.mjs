@@ -4,6 +4,13 @@ import { SerialJobScheduler } from '../apps/api/src/classrooms/grading-ai/schedu
 import { createDiagnosticSink } from '../apps/api/src/diagnostics.ts';
 
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+test('AI admission observes the existing lock through the caller transaction', async () => {
+  const { lockAiAdmission } = await import('../apps/api/src/ai-admission.ts');
+  const calls = [];
+  await lockAiAdmission({ query: async (...args) => { calls.push(args); return []; } });
+  assert.deepEqual(calls, [['SELECT 1 FROM pg_advisory_xact_lock(78123002)']]);
+});
 test('scheduler drains 40 jobs serially, yields between cycles, then idles and stops', async () => {
   let calls = 0, active = 0, maxActive = 0;
   const scheduler = new SerialJobScheduler(async () => {
@@ -29,4 +36,16 @@ test('diagnostic adapter serializes allowlisted fields without private error fie
   assert.equal(lines.length, 1);
   assert.doesNotMatch(lines[0], /CANARY_PRIVATE_SQL_TOKEN_EMAIL_PROMPT|rawError/);
   assert.match(lines[0], /a1111111-1111-4111-8111-111111111111/);
+});
+
+test('diagnostic lines are deduplicated rather than a complete latency series', () => {
+  let now = 100;
+  const lines = [], sink = createDiagnosticSink(line => lines.push(JSON.parse(line)), { now: () => now, windowMs: 100 });
+  const event = { operation: 'classroom.lock', code: 'COMPLETED', outcome: 'success', durationMs: 1,
+    correlationId: 'a1111111-1111-4111-8111-111111111111' };
+  for (const durationMs of [1, 2, 3]) sink.record({ ...event, durationMs });
+  assert.equal(lines.length, 1);
+  now += 100;
+  sink.record({ ...event, durationMs: 4 });
+  assert.deepEqual(lines.map(line => [line.durationMs, line.suppressedCount ?? 0]), [[1, 0], [4, 2]]);
 });

@@ -1,3 +1,4 @@
+import { lockAiAdmission } from '../ai-admission.ts';
 import type { SqlDatabase, SqlTransaction } from '../../../../src/core/domain/index.ts';
 
 type Expired = { id: string; owner_id: string; dispatch_count: number; dispatch_started_at: Date | null;
@@ -36,7 +37,7 @@ export async function recoverFoxyExpired(tx: SqlTransaction): Promise<number> {
 export function createFoxyTurnRecovery(options: { database: SqlDatabase }) {
   return { recoverExpired: () => options.database.$transaction(async raw => {
     const tx: SqlTransaction = { query: (sql, ...args) => raw.$queryRawUnsafe(sql, ...args) };
-    await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123002)');
+    await lockAiAdmission(tx);
     return recoverFoxyExpired(tx);
   }, { maxWait: 2000, timeout: 6000 }) };
 }

@@ -4,7 +4,7 @@ import type { ClassroomCore } from '../core.ts';
 import type { GradingService } from '../grading.ts';
 import { isVerifiedRead } from '../context.ts';
 import { privateGradingInput } from '../grading-policy.ts';
-import { revision } from '../drafts.ts';
+import { revision } from '../revision.ts';
 import { fail, object, uuid } from '../policy.ts';
 import type { Transaction } from '../contracts.ts';
 import { gradingAiSnapshotFromSql } from './snapshot-sql.ts';

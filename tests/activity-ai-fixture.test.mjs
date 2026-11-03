@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { FileStore } from '../.build/api/apps/api/src/files/store.js';
+import { createActivityAiAccess } from '../.build/api/apps/api/src/classrooms/activity-ai/database.js';
 import { ClassroomService } from '../.build/api/apps/api/src/classrooms/service.js';
 export const configuration = { model: 'gemini-test-fixture', maxInputTokens: 100000, maxOutputTokens: 16384,
   deadlineMs: 1000, maxDispatches: 2, maxJobAgeMs: 300000, maxConcurrency: 2, dailyActorRequests: 5,
@@ -32,7 +33,7 @@ export async function fixture(local, overrides = {}) {
     instructions: 'Resolver según las fuentes.', assignmentPrompts: ['Comparar casos.', 'Explicar relación.'], questions: [], warnings: [],
     evidence: [0, 1].map(index => ({ item: 'assignment', index, references: [{ sourceId, page: 1 }] })) };
   const calls = [], state = { digest: 'a'.repeat(64), extension: 'pdf', available: true };
-  const options = { classrooms, configuration, reader: {
+  const options = { access: createActivityAiAccess(classrooms.ports, classrooms.classroom), configuration, reader: {
     snapshot: async (_tx, _request, classroomId, requested) => {
       if (!state.available || classroomId !== room || requested !== sourceId) throw Object.assign(new Error('FILE_NOT_READY'), { code: 'FILE_NOT_READY' });
       return { sourceId, fileId, digest: state.digest, extension: state.extension, sizeBytes: 14 };

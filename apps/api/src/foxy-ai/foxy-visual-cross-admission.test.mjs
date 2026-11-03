@@ -24,14 +24,14 @@ async function candidate(kind,f,query,database,options){
  }
  if(kind==='activity'){
   await query("INSERT INTO activity_ai_generations(id,owner_id,classroom_id,unit_id,type,base_revision,request_hash,input_payload,curriculum_snapshot,source_snapshot,schema_version,prompt_version,model) VALUES($1,$2,$3,$4,'ASSIGNMENT',0,$5,'{}','{}','[]','activity-proposal-v1','synthetic','synthetic')",id,f.teacherActor,f.rooms.teach.id,f.rooms.teach.unit,'a'.repeat(64));
-  const {claim}=await import('../../../../.build/api/apps/api/src/classrooms/activity-ai/queue.js');return {claim:()=>claim({classrooms:{ports:{database}},configuration:options}),reset:()=>query("UPDATE activity_ai_generations SET state='QUEUED',lease_nonce=NULL,lease_until=NULL WHERE id=$1",id)};
+  const {claim}=await import('../../../../.build/api/apps/api/src/classrooms/activity-ai/queue.js');return {claim:()=>claim({ access: { transaction: operation => database.$transaction(raw => operation({ query: (sql, ...args) => raw.$queryRawUnsafe(sql, ...args) })) }, configuration: options }),reset:()=>query("UPDATE activity_ai_generations SET state='QUEUED',lease_nonce=NULL,lease_until=NULL WHERE id=$1",id)};
  }
  if(kind==='grading'){
   const activity=await f.activity('teach'),attempt=await f.attempt(activity);await query('UPDATE classrooms SET ai_grading_enabled=true WHERE id=$1',f.rooms.teach.id);
   await query("INSERT INTO grading_ai_jobs(id,classroom_id,activity_id,attempt_id,owner_id,rubric_snapshot,epoch) VALUES($1,$2,$3,$4,$5,'Sintético',0)",id,f.rooms.teach.id,activity.id,attempt,f.teacherActor);
   const {createGradingAiSqlQueue}=await import('../classrooms/grading-ai/sql-queue.ts'),queue=createGradingAiSqlQueue({database,configuration:options});return {claim:()=>queue.claim(),reset:()=>query("UPDATE grading_ai_jobs SET state='QUEUED',lease_nonce=NULL,lease_until=NULL WHERE id=$1",id)};
  }
- const {StudentAiWorker}=await import('../classrooms/student-ai/worker.ts'),worker=new StudentAiWorker({classrooms:{ports:{database},progressView:async()=>progress},configuration:options,provider:{}}),member={enrollment_id:f.rooms.teach.enrollment,classroom_id:f.rooms.teach.id,student_id:f.pupil,owner_id:f.teacherActor};
+ const {StudentAiWorker}=await import('../classrooms/student-ai/worker.ts'),worker=new StudentAiWorker({database,progressView:async()=>progress,configuration:options,provider:{}}),member={enrollment_id:f.rooms.teach.enrollment,classroom_id:f.rooms.teach.id,student_id:f.pupil,owner_id:f.teacherActor};
  return {claim:()=>worker.claim({query},member),reset:()=>query('DELETE FROM student_ai_reports WHERE enrollment_id=$1',member.enrollment_id)};
 }
 async function activeVisual(query,database,owner,{expired=false}={}){

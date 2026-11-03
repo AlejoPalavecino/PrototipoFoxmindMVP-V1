@@ -1,7 +1,8 @@
+import { activeAiOwnersSql, lockAiAdmission } from '../../ai-admission.ts';
 import { randomUUID } from 'node:crypto';
 import { validateStudentAiReport, type StudentAiEvidence } from '../../../../../src/core/domain/index.ts';
-import type { ClassroomService } from '../service.ts';
-import type { Transaction } from '../contracts.ts';
+import type { ClassroomPorts, Transaction } from '../contracts.ts';
+import type { ProgressService } from '../progress.ts';
 import type { ClassroomAiConfiguration } from '../ai/index.ts';
 import { reserve, settle } from '../ai/budget.ts';
 import { bounded } from '../ai/execution.ts';
@@ -12,7 +13,8 @@ export interface StudentAiProvider {
   countStudentAiTokens(input: ProviderInput): Promise<number>;
   generateStudentAi(input: ProviderInput): Promise<{ json: unknown; inputTokens: number | null; outputTokens: number | null }>;
 }
-type Options = { classrooms: ClassroomService; configuration: ClassroomAiConfiguration; provider: StudentAiProvider };
+export type StudentAiAccess = { database: ClassroomPorts['database']; progressView: ProgressService['progressView'] };
+type Options = StudentAiAccess & { configuration: ClassroomAiConfiguration; provider: StudentAiProvider };
 type Member = { enrollment_id: string; classroom_id: string; student_id: string; owner_id: string };
 type Job = Member & { id: string; evidence_hash: string; lease_nonce: string; dispatch_count: number };
 
@@ -37,11 +39,11 @@ export class StudentAiWorker {
     return this.active;
   }
   private transaction<T>(fn: (tx: Transaction) => Promise<T>): Promise<T> {
-    return this.options.classrooms.ports.database.$transaction(raw => fn({ query: (sql, ...args) => raw.$queryRawUnsafe(sql, ...args) }),
+    return this.options.database.$transaction(raw => fn({ query: (sql, ...args) => raw.$queryRawUnsafe(sql, ...args) }),
       { maxWait: 2000, timeout: 6000 });
   }
   private async snapshot(tx: Transaction, member: Member): Promise<StudentSnapshot | null> {
-    const progress = await this.options.classrooms.progressView(tx, member.classroom_id, member.student_id);
+    const progress = await this.options.progressView(tx, member.classroom_id, member.student_id);
     return studentSnapshot(progress as StudentProgress);
   }
   private async recover(): Promise<void> {
@@ -73,15 +75,9 @@ export class StudentAiWorker {
     return false;
   }
   private async claim(tx: Transaction, member: Member): Promise<{job: Job; evidence: StudentAiEvidence} | null> {
-    await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123002)');
+    await lockAiAdmission(tx);
     const [active] = await tx.query<{ count: number; owner_busy: boolean }>(`SELECT count(*)::int AS count,
-      COALESCE(bool_or(owner_id=$1::uuid),false) AS owner_busy FROM (
-      SELECT owner_id FROM student_ai_reports WHERE state='RUNNING' AND lease_until>clock_timestamp()
-      UNION ALL SELECT owner_id FROM activity_ai_generations WHERE state='RUNNING' AND lease_until>clock_timestamp()
-      UNION ALL SELECT owner_id FROM classroom_curriculum_extractions WHERE state='RUNNING' AND lease_until>clock_timestamp()
-      UNION ALL SELECT owner_id FROM grading_ai_jobs WHERE state='RUNNING' AND lease_until>clock_timestamp()
-      UNION ALL SELECT owner_id FROM foxy_turns WHERE state='RUNNING'
-      UNION ALL SELECT owner_id FROM foxy_visual_jobs WHERE state='RUNNING' AND lease_until>clock_timestamp()) jobs`, member.owner_id);
+      COALESCE(bool_or(owner_id=$1::uuid),false) AS owner_busy FROM (${activeAiOwnersSql}) jobs`, member.owner_id);
     if (active!.count >= this.options.configuration.maxConcurrency || active!.owner_busy) return null;
     const [locked] = await tx.query(`SELECT c.id FROM classrooms c JOIN users teacher ON teacher.id=c.teacher_id
       AND teacher.email_verified_at IS NOT NULL JOIN enrollments e ON e.classroom_id=c.id

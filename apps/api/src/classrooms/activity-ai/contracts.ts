@@ -1,15 +1,20 @@
 import type { ActivityGenerationView, ActivitySourceGrant, ActivitySourceSnapshot, ApprovedActivitySourceReader,
   StartActivityGeneration, ActivityProposal, ActivitySourceReport, StructuredActivityGenerationPort } from '../../../../../src/core/domain/index.ts';
 import type { ClassroomAiConfiguration } from '../ai/index.ts';
-import type { ClassroomCore } from '../core.ts';
-import type { Transaction } from '../contracts.ts';
+import type { Actor, Transaction } from '../contracts.ts';
 
 export interface AiActivitySource extends ApprovedActivitySourceReader {
   snapshot(tx: Transaction, request: unknown, classroomId: string, sourceId: string): Promise<ActivitySourceSnapshot>;
   snapshotWorker?(tx: Transaction, grant: ActivitySourceGrant, signal: AbortSignal): Promise<ActivitySourceSnapshot>;
 }
+export type ActivityAiOperation<T> = (tx: Transaction,
+  room: { id: string; teacher_id: string; revision: bigint; archived_at: Date | null }, actor: Actor) => Promise<T>;
+export interface ActivityAiAccess {
+  transaction<T>(operation: (tx: Transaction) => Promise<T>): Promise<T>;
+  authorized<T>(request: unknown, classroomId: string, write: boolean, operation: ActivityAiOperation<T>, lockIntent?: 'read' | 'write'): Promise<T>;
+}
 export interface ActivityAiOptions {
-  classrooms: Pick<ClassroomCore, 'ports' | 'classroom'>; reader: AiActivitySource; provider: StructuredActivityGenerationPort;
+  access: ActivityAiAccess; reader: AiActivitySource; provider: StructuredActivityGenerationPort;
   configuration: ClassroomAiConfiguration;
 }
 export interface CurriculumSnapshot {

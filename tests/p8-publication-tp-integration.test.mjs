@@ -38,8 +38,8 @@ test('P8 distinct TP delivery -> explicit publication -> clean own result -> pri
       const teacher = await (await browser.newContext({ viewport: { width: 1280, height: 900 } })).newPage();
       const student = await (await browser.newContext({ viewport: { width: 375, height: 812 } })).newPage();
       const errors = []; for (const page of [teacher, student]) { page.setDefaultTimeout(12000); page.on('pageerror', e => errors.push(e.message)); }
-      const suffix = Date.now(); await account(teacher, runtime.origin, runtime.inbox, `p8-teacher-${suffix}@example.test`);
-      await account(student, runtime.origin, runtime.inbox, `p8-student-${suffix}@example.test`);
+      const suffix = Date.now(); await account(teacher, runtime.origin, runtime.inbox, `p8-teacher-${suffix}@example.test`, undefined, 'teacher');
+      await account(student, runtime.origin, runtime.inbox, `p8-student-${suffix}@example.test`, undefined, 'student');
       const name = 'P8 distinct TP publication classroom', room = await classroom(teacher, student, name), detail = await ok(teacher, 'GET', `/classrooms/${room.id}`);
       const change = async operation => ok(teacher, 'POST', `/classrooms/${room.id}/activities`, { revision: (await ok(teacher, 'GET', `/classrooms/${room.id}`)).revision, operation });
       const activities = [];

@@ -11,7 +11,7 @@ import { generationErrors, generationStates, generationWarnings, generationSourc
 import { useActivityGeneration } from './use-activity-generation.ts';
 
 export function ActivityGeneration({ api, room, onApplied, onClose }: {
-  api: ClassroomClient; room: Detail; onApplied: (id: string) => Promise<void>; onClose: () => void;
+  api: ClassroomClient; room: Detail; onApplied: (id: string, signal: AbortSignal) => Promise<void>; onClose: () => void;
 }) {
   const generation = useActivityGeneration(api, room, onApplied);
   const [form, setForm] = useState(defaultGenerationForm), [review, setReview] = useState<{ id: string; proposal: ActivityProposal } | null>(null);
@@ -46,7 +46,7 @@ export function ActivityGeneration({ api, room, onApplied, onClose }: {
       {view.sourceReport?.length ? <details><summary>Lectura de las fuentes</summary><ul>{view.sourceReport.map(source => <li key={source.sourceId}>
         {generationSourceTitle(source.sourceId, generation.sources)} · {source.status === 'READ' ? 'Lectura completada' : 'Revisar fuente'}
         {source.pageCount !== null ? ` · ${source.pageCount} ${source.pageCount === 1 ? 'página' : 'páginas'}` : ''}{source.warnings.map(warning => <p key={warning}>{generationWarnings[warning] ?? warning}</p>)}</li>)}</ul></details> : null}
-      {view.state === 'APPLIED' && view.appliedActivityId ? <button disabled={generation.busy} onClick={() => void onApplied(view.appliedActivityId!)}>Abrir borrador creado</button> : null}
+      {view.state === 'APPLIED' && view.appliedActivityId ? <button disabled={generation.busy} onClick={() => void generation.openApplied(view.appliedActivityId!)}>Abrir borrador creado</button> : null}
       {view.state === 'READY' && view.proposal && review?.id !== view.id ? <button disabled={generation.busy} onClick={() => accept(view)}>Revisar esta propuesta</button> : null}
       {['READY', 'FAILED', 'STALE'].includes(view.state) && editable ? <button disabled={generation.busy} onClick={() => setRegenerating(true)}>Preparar regeneración completa</button> : null}
       {regenerating ? <div className="p5-notice"><p>Se creará otra propuesta con los parámetros y fuentes del formulario. La anterior y tus ediciones siguen disponibles hasta que elijas reemplazarlas.</p>

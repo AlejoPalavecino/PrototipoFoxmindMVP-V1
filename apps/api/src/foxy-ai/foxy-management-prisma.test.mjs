@@ -5,7 +5,7 @@ import { withAgendaDatabase } from '../../../../tests/agenda-database-helpers.te
 import { transactionDatabase } from '../../../../tests/classroom-ai-database.test.mjs';
 import { homeFixture } from '../../../../tests/foxmind-3d-repository-fixture.test.mjs';
 const hash='a'.repeat(64),digest='b'.repeat(64);
-async function fixture(pool,{withFile=true,extension='pdf'}={}){
+async function fixture(pool,{withFile=true,extension='pdf',artifactSize=100}={}){
   const [{createFoxyPublicationCompletion},{createFoxyPublicationQueue},{createFoxyPublicationRepository},{createFoxyResourceRepository},
     {createFoxyConversationRepository},{createFoxyTurnRepository}]=await Promise.all([import('./publication-completion.ts'),import('./publication-queue.ts'),
       import('./publication-repository.ts'),import('./resource-repository.ts'),import('./conversation-repository.ts'),import('./turn-repository.ts')]);
@@ -25,7 +25,7 @@ async function fixture(pool,{withFile=true,extension='pdf'}={}){
     fileId,f.rooms.teach.id,f.teacherActor,`synthetic/${fileId}`,extension);
   await query("INSERT INTO uploads(id,updated_at,file_id,status,reserved_bytes,completed_at) VALUES($1,now(),$2,'COMPLETED',0,now())",randomUUID(),fileId);
   await query("INSERT INTO file_custodies(file_id,purpose,phase,digest,validated_digest,scanned_digest) VALUES($1,'material','ready',$2,$2,$2)",fileId,digest);
-  await query(`UPDATE foxy_publications SET file_id=$2,artifact_digest=$3,artifact_size_bytes=100,artifact_page_count=2,renderer_version='foxy-text-pdf-v1' WHERE id=$1`,publication.id,fileId,digest);}
+  await query(`UPDATE foxy_publications SET file_id=$2,artifact_digest=$3,artifact_size_bytes=$4,artifact_page_count=2,renderer_version='foxy-text-pdf-v1' WHERE id=$1`,publication.id,fileId,digest,artifactSize);}
   return {query,f,database,completion:createFoxyPublicationCompletion({database}),lease,publication,fileId,conversation,resource,resources};
 }
 
@@ -92,10 +92,9 @@ test('real Prisma inspection reports pending cleanup after discard without expos
 
 
 for(const mode of ['size','missing-upload','missing-custody'])test(`real Prisma inspection fails closed for ${mode} binding`, {timeout:120000},async()=>{
- await withAgendaDatabase(async({pool,databaseUrl})=>{const x=await fixture(pool),db=await prisma(databaseUrl),{createFoxyPublicationManagementRepository}=await import('./publication-management-repository.ts'),repo=createFoxyPublicationManagementRepository();
-  try{if(mode==='size')await x.query('UPDATE foxy_publications SET artifact_size_bytes=101 WHERE id=$1',x.publication.id);
-   else if(mode==='missing-upload')await x.query('DELETE FROM uploads WHERE file_id=$1',x.fileId);
-   else await x.query('DELETE FROM file_custodies WHERE file_id=$1',x.fileId);
+ await withAgendaDatabase(async({pool,databaseUrl})=>{const x=await fixture(pool,{artifactSize:mode==='size'?101:100}),db=await prisma(databaseUrl),{createFoxyPublicationManagementRepository}=await import('./publication-management-repository.ts'),repo=createFoxyPublicationManagementRepository();
+  try{if(mode==='missing-upload')await x.query('DELETE FROM uploads WHERE file_id=$1',x.fileId);
+   else if(mode==='missing-custody')await x.query('DELETE FROM file_custodies WHERE file_id=$1',x.fileId);
    await assert.rejects(db.$transaction(raw=>repo.inspect(tx(raw),x.f.teacherActor,x.publication.id)),e=>e?.code==='SERVICE_UNAVAILABLE');
   }finally{await db.$disconnect();}
  });

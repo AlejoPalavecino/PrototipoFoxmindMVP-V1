@@ -118,7 +118,7 @@ export function ClassroomsApp({
     setHomeTarget(null);
     setError('');
     setPresentation(next);
-    if (next !== initialPresentation && onNavigate) { onNavigate(next); return; }
+    if ((next !== initialPresentation || requestedTarget) && onNavigate) { onNavigate(next); return; }
     if (next === 'classrooms') void action(() => load());
   };
   const leaveView = () => showPresentation('classrooms');

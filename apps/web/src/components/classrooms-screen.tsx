@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ClassroomsApp } from '../../../classrooms-ui/Classrooms';
 import { Notice } from '../../../classrooms-ui/components';
 import { createAccountClient, type AccountUser } from '../lib/account-client';
@@ -17,33 +17,47 @@ export function ClassroomsScreen({ initialPresentation = 'classrooms' }: { initi
   const [user, setUser] = useState<AccountUser>();
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const sessionRequest = useRef<AbortController | null>(null);
+  const signingOut = useRef(false);
   const destination = classroomDestination(router.asPath) ?? (initialPresentation === 'home' ? '/inicio' : '/mis-aulas');
   const requireAccount = useCallback((code: string) => {
+    sessionRequest.current?.abort();
     setUser(undefined);
     void router.replace(classroomAuthHref(code === 'EMAIL_VERIFICATION_REQUIRED' ? 'verify-email' : 'sign-in', destination));
   }, [router, destination]);
   const api = useMemo(() => createWebClassroomClient(fetch, requireAccount), [requireAccount]);
   const agendaApi = useMemo(() => createWebAgendaClient(fetch, requireAccount), [requireAccount]);
   const homeClient = useMemo(() => createWebHomeClient(fetch, requireAccount), [requireAccount]);
-  const target = useAgendaTarget(agendaApi, destination, Boolean(user));
+  const target = useAgendaTarget(agendaApi, destination, user?.id);
   const load = useCallback(async () => {
+    if (signingOut.current) return;
+    sessionRequest.current?.abort();
+    const controller = new AbortController(), { signal } = controller;
+    sessionRequest.current = controller;
     setError('');
     try {
-      const current = await account.session();
+      const current = await account.session(signal);
+      if (signal.aborted) return;
       if (!current.authenticated) { requireAccount('AUTH_REQUIRED'); return; }
       if (!current.user.emailVerified) { requireAccount('EMAIL_VERIFICATION_REQUIRED'); return; }
       if (current.user.accountRole !== 'teacher' && current.user.accountRole !== 'student') { setError('No pudimos comprobar el rol de tu cuenta. Vuelve a iniciar sesion o intenta de nuevo.'); return; }
       setUser(current.user);
-    } catch (failure) { setError((failure as Error).message); }
+    } catch (failure) { if (!signal.aborted) setError((failure as Error).message); }
+    finally { if (sessionRequest.current === controller) sessionRequest.current = null; }
   }, [requireAccount]);
-  useEffect(() => { if (router.isReady) void load(); }, [load, router.isReady]);
+  useEffect(() => {
+    if (router.isReady) void load();
+    return () => sessionRequest.current?.abort();
+  }, [load, router.isReady]);
 
   async function logout() {
-    if (busy) return;
+    if (signingOut.current) return;
+    signingOut.current = true;
+    sessionRequest.current?.abort();
     setBusy(true); setError('');
     try { await account.mutate('/auth/logout'); requireAccount('AUTH_REQUIRED'); }
     catch (failure) { setError((failure as Error).message); }
-    finally { setBusy(false); }
+    finally { signingOut.current = false; setBusy(false); }
   }
   const invitation = destination.startsWith('/mis-aulas?invitacion=') ? destination.slice(destination.indexOf('=') + 1) : undefined;
   return <>
@@ -52,7 +66,7 @@ export function ClassroomsScreen({ initialPresentation = 'classrooms' }: { initi
       {error ? <div className="p5-app p5-gate"><Notice error>{error}</Notice></div> : null}
       {target.requested && !target.target ? <div className="p5-main"><Notice error={Boolean(target.error)}>{target.error ?? 'Comprobando acceso a la actividad…'}
         {target.error ? <button onClick={target.reload}>Volver a intentar</button> : null}</Notice><Link href="/agenda">Volver a Agenda</Link></div> :
-      <ClassroomsApp key={user.id} accountRole={user.accountRole} subjectId={user.id} homeClient={homeClient} api={api} displayName={`${user.firstName} ${user.lastName}`} requestedInvitation={invitation} requestedTarget={target.target}
+      <ClassroomsApp key={`${user.id}:${destination}`} accountRole={user.accountRole} subjectId={user.id} homeClient={homeClient} api={api} displayName={`${user.firstName} ${user.lastName}`} requestedInvitation={invitation} requestedTarget={target.target}
         requestedNotification={typeof router.query.notificacion === 'string' && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(router.query.notificacion) ? router.query.notificacion : undefined}
         initialPresentation={initialPresentation} onNavigate={presentation => { void router.push(presentation === 'home' ? '/inicio' : presentation === 'agenda' ? '/agenda' : '/mis-aulas'); }}
         accountActions={<div className="p5-actions p5-account-actions"><Link href="/profile">Mi perfil</Link><button disabled={busy} onClick={() => void logout()}>{busy ? 'Cerrando sesión…' : 'Cerrar sesión'}</button></div>} />}

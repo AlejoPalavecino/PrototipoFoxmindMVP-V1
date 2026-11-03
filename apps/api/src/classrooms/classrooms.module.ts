@@ -11,6 +11,7 @@ import { ClassroomHostLifecycle, createIdentityClassroomAuthentication } from '.
 import { LibraryCleanupWorker } from './library-cleanup.ts';
 import { ClassroomAiRuntime, type AiRuntimeOverride } from './ai/runtime.ts';
 import { ActivityAiRuntime } from './activity-ai/runtime.ts';
+import { createActivityAiAccess } from './activity-ai/database.ts';
 import { StudentAiRuntime } from './student-ai/runtime.ts';
 import { GradingAiRuntime, type GradingAiFileGrant } from './grading-ai/runtime.ts';
 import { GeminiGradingAiProvider } from './grading-ai/provider.ts';
@@ -47,19 +48,21 @@ export class ClassroomsModule {
           runtime = new GradingAiRuntime({ database, configuration: ai, provider, reader, instructionReader, diagnostics });
           return runtime;
         } }] : []),
-      ...(ai && (!override || override.studentProvider) ? [{ provide: StudentAiRuntime, inject: [InvitationService],
-        useFactory: (classrooms: ClassroomService) => new StudentAiRuntime(classrooms, ai, override?.studentProvider) }] : []),
-      ...(ai ? [{ provide: ActivityAiRuntime, inject: [InvitationService, FileService],
+      ...(ai && (!override || override.studentProvider) ? [{ provide: StudentAiRuntime, inject: [PrismaService, ClassroomService],
+        useFactory: (database: PrismaService, classrooms: ClassroomService) =>
+          new StudentAiRuntime({ database, progressView: classrooms.progressView }, ai, override?.studentProvider) }] : []),
+      ...(ai ? [{ provide: ActivityAiRuntime, inject: [ClassroomService, FileService],
         useFactory: (classrooms: ClassroomService, files: FileService) =>
-          new ActivityAiRuntime(classrooms, files, ai, override?.activityProvider) }, { provide: ClassroomAiRuntime, inject: [PrismaService, IdentityRuntime, FileService],
+          new ActivityAiRuntime(createActivityAiAccess(classrooms.ports, classrooms.classroom), files, ai, override?.activityProvider) }, { provide: ClassroomAiRuntime, inject: [PrismaService, IdentityRuntime, FileService],
         useFactory: (database: PrismaService, runtime: IdentityRuntime, files: FileService) =>
           new ClassroomAiRuntime(database, createIdentityClassroomAuthentication(runtime.configuration.security), files, ai, override) }] : []),
-      { provide: InvitationService, inject: [PrismaService, IdentityRuntime, FileService],
+      { provide: ClassroomService, inject: [PrismaService, IdentityRuntime, FileService],
         useFactory: (database: PrismaService, runtime: IdentityRuntime, fileService: FileService) => integratedClassrooms({
           ...configuration, database, files: fileService.store, diagnostics, studentAiEnabled: !!ai && (!override || !!override.studentProvider),
           gradingAiAvailable: !!ai && (!override || !!override.gradingProvider),
           authenticate: createIdentityClassroomAuthentication(runtime.configuration.security),
         }, fileService) },
+      { provide: InvitationService, useExisting: ClassroomService },
       { provide: InvitationDeliveryWorker, inject: [PrismaService],
         useFactory: (database: PrismaService) => new InvitationDeliveryWorker({
           database, key: configuration.deliveryKey, send: sender.send,
@@ -68,7 +71,7 @@ export class ClassroomsModule {
         useFactory: (database: PrismaService, files: FileService) => new LibraryCleanupWorker(database, files.storage) },
       { provide: ClassroomHostLifecycle, inject: [InvitationDeliveryWorker],
         useFactory: (worker: InvitationDeliveryWorker) => new ClassroomHostLifecycle(worker, sender) },
-    ], exports: [InvitationService, ClassroomHostLifecycle, LibraryCleanupWorker, ...(ai ? [ClassroomAiRuntime, ActivityAiRuntime] : []),
+    ], exports: [ClassroomService, InvitationService, ClassroomHostLifecycle, LibraryCleanupWorker, ...(ai ? [ClassroomAiRuntime, ActivityAiRuntime] : []),
       ...(ai && (!override || override.studentProvider) ? [StudentAiRuntime] : []),
       ...(ai && (!override || override.gradingProvider) ? [GradingAiRuntime] : [])] };
   }
@@ -79,7 +82,8 @@ export class ClassroomsModule {
     return {
       module: ClassroomsModule,
       providers: [
-        { provide: InvitationService, useValue: new ClassroomService(ports) },
+        { provide: ClassroomService, useValue: new ClassroomService(ports) },
+        { provide: InvitationService, useExisting: ClassroomService },
         {
           provide: InvitationDeliveryWorker,
           useValue: new InvitationDeliveryWorker({
@@ -89,7 +93,7 @@ export class ClassroomsModule {
           }),
         },
       ],
-      exports: [InvitationService],
+      exports: [ClassroomService, InvitationService],
     };
   }
 }

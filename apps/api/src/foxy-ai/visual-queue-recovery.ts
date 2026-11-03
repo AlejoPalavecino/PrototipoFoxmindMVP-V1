@@ -1,3 +1,4 @@
+import { lockAiAdmission } from '../ai-admission.ts';
 import { isDeepStrictEqual } from 'node:util';
 import type { FoxyContext, FoxySelection, SqlDatabase, SqlTransaction } from '../../../../src/core/domain/index.ts';
 import { rebuildGrounding } from './grounding-rebuild.ts';
@@ -25,7 +26,7 @@ export function createVisualRecovery(database: SqlDatabase, budget: Budget, maxJ
   async function one(): Promise<boolean> {
     return database.$transaction(async raw => {
       const tx: SqlTransaction = {query:(sql,...args)=>raw.$queryRawUnsafe(sql,...args)};
-      await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123002)'); await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)');
+      await lockAiAdmission(tx); await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)');
       const [stale] = await tx.query<{ id: string }>(`UPDATE foxy_visual_jobs SET state='FAILED',error_code='GENERATION_INTERRUPTED',revision=revision+1,updated_at=clock_timestamp()
         WHERE id=(SELECT id FROM foxy_visual_jobs WHERE state='QUEUED' AND created_at+$1::bigint*interval '1 millisecond'<=clock_timestamp() ORDER BY created_at,id LIMIT 1 FOR UPDATE)
         AND state='QUEUED' RETURNING id`,maxJobAgeMs);

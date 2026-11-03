@@ -37,23 +37,15 @@ test('complete suite inventory accepts explicit classification and catches missi
   item = setup(); item.exclusions.push({ path: 'tests/a.test.mjs', reason: 'ambiguous', kind: 'helper' }); invalid(item, 'entry/exclusion collision');
 });
 
-import { readdir, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
-async function discover(path = 'tests') {
-  const result = [];
-  for (const entry of await readdir(path, { withFileTypes: true })) {
-    const file = `${path}/${entry.name}`;
-    if (entry.isDirectory()) result.push(...await discover(file));
-    else if (entry.isFile() && entry.name.endsWith('.test.mjs')) result.push(file);
-  }
-  return result.sort();
-}
+import { discoverTests } from '../scripts/test-discovery.mjs';
 test('versioned complete inventory covers every present test exactly once and CLI reports validation', async () => {
   const inventory = JSON.parse(await readFile('scripts/complete-suite-inventory.json', 'utf8'));
-  const discovered = await discover();
+  const discovered = discoverTests();
   const manual = inventory.manual;
   assert.ok(Array.isArray(manual), 'independent unsafe/manual allowlist required');
-  assert.deepEqual([...manual].sort(), inventory.exclusions.filter(item => ['helper', 'manual', 'retired', 'opt-in'].includes(item.kind)).map(item => item.path).sort());
+  assert.deepEqual([...manual].sort(), inventory.exclusions.filter(item => ['helper', 'manual', 'retired', 'opt-in', 'typecheck'].includes(item.kind)).map(item => item.path).sort());
   assert.ok(discovered.length > 300, 'real inventory must include project test surfaces');
   assert.deepEqual(validateCompleteSuite({ discovered, entries: inventory.entries, exclusions: inventory.exclusions, manual }), []);
   const env = Object.fromEntries(['PATH','SystemRoot','TEMP','TMP'].filter(k => process.env[k]).map(k => [k, process.env[k]]));

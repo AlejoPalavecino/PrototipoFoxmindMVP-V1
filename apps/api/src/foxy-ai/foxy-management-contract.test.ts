@@ -1,4 +1,6 @@
 import type { FoxyPublicationManagement } from '../../../../src/core/domain/index.ts';
+// Keep domain compile-only assertions in the same strict build, without a runtime import.
+import type {} from '../../../../src/core/domain/foxy-publication-types.test.ts';
 import type { createFoxyPublicationManagementRepository } from './publication-management-repository.ts';
 import type { createFoxyPublicationManagementService } from './publication-management-service.ts';
 

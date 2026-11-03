@@ -7,7 +7,7 @@ import { assertAttemptWrite, type AttemptRow, type Obligation } from './attempt-
 import { editorCapability } from './attempt-policy.ts';
 import { exactActivityObject } from './activity-policy.ts';
 import { fail, uuid } from './policy.ts';
-import { revision } from './drafts.ts';
+import { revision } from './revision.ts';
 import { submissionReceipt } from './submission-receipt.ts';
 import type { Transaction } from './contracts.ts';
 import { requireReady } from '../files/service.ts';

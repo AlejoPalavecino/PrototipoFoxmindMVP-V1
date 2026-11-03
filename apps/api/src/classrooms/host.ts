@@ -7,7 +7,7 @@ import type { IdentityRuntime } from '../identity/runtime.ts';
 import { readSessionCookie } from '../identity/transport.ts';
 import { authenticateSession } from '../identity/session-query.ts';
 import type { ClassroomPorts } from './contracts.ts';
-import type { ClassroomService as InvitationService } from './service.ts';
+import type { ClassroomsHttpOperations } from './http.ts';
 import type { InvitationDeliveryWorker } from './delivery.ts';
 import { ClassroomIdentityError } from './errors.ts';
 import { createClassroomsHandler } from './http.ts';
@@ -42,7 +42,7 @@ export function createIdentityClassroomAuthentication(security: IdentityConfigur
 
 /** Installed before general body parsers. The handler calls this ingress admission exactly once. */
 export function installClassroomsTransport(app: Pick<INestApplication, 'use'>,
-  runtime: IdentityRuntime, service: InvitationService, options: { ai?: ClassroomAiService; activityAi?: ActivityAiService } = {}): void {
+  runtime: IdentityRuntime, service: ClassroomsHttpOperations, options: { ai?: ClassroomAiService; activityAi?: ActivityAiService } = {}): void {
   const classrooms = createClassroomsHandler(service, {
     ai: options.ai, activityAi: options.activityAi,
     async admit(request, write, response) {

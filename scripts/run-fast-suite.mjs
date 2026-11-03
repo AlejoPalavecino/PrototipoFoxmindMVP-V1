@@ -1,4 +1,5 @@
 import { spawn, spawnSync } from 'node:child_process';
+const testPreload = new URL('./register-api-test-build.mjs', import.meta.url).href;
 
 export async function runFastGroup(files, { runFile, concurrency = 4 }) {
   if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 4) throw new Error('Invalid concurrency');
@@ -7,7 +8,12 @@ export async function runFastGroup(files, { runFile, concurrency = 4 }) {
     const batch = files.slice(index, index + concurrency);
     const results = await Promise.all(batch.map(file => Promise.resolve().then(() => runFile(file))
       .catch(error => { console.error(`${file}: ${error.message}`); return { passed: 0, failed: 1, skipped: 0 }; })));
-    for (const result of results) for (const key of Object.keys(totals)) totals[key] += result[key];
+    for (const result of results) {
+      if (!result || Object.keys(totals).some(key => !Number.isSafeInteger(result[key]) || result[key] < 0)) {
+        console.error('Invalid test result counts'); totals.failed++; continue;
+      }
+      for (const key of Object.keys(totals)) totals[key] += result[key];
+    }
     if (totals.failed) {
       if (index + concurrency < files.length) console.log(`Not run after failure: ${files.slice(index + concurrency).join(', ')}`);
       break;
@@ -28,7 +34,7 @@ function terminateOwned(child, realSpawn) {
 }
 export function executeFastFile(file, { cwd, env, timeoutMs = 360000, spawnProcess = spawn }) {
   return new Promise(resolve => {
-    const child = spawnProcess(process.execPath, ['--experimental-transform-types', '--disable-warning=ExperimentalWarning', '--test', '--test-reporter=tap', '--test-concurrency=1', file], { cwd, env, windowsHide: true, detached: process.platform !== 'win32' && spawnProcess === spawn });
+    const child = spawnProcess(process.execPath, ['--import', testPreload, '--experimental-transform-types', '--experimental-test-module-mocks', '--disable-warning=ExperimentalWarning', '--test', '--test-reporter=tap', '--test-concurrency=1', file], { cwd, env, windowsHide: true, detached: process.platform !== 'win32' && spawnProcess === spawn });
     let output = '', errors = '', timedOut = false;
     child.stdout.on('data', chunk => { output += chunk; });
     child.stderr.on('data', chunk => { errors += chunk; });

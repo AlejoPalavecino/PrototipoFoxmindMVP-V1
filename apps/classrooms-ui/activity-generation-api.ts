@@ -1,15 +1,9 @@
-import type { ActivityGenerationView, ActivityProposal, StartActivityGeneration } from '../../src/core/domain/index.ts';
+import type { ActivityGenerationApplied, ActivityGenerationCatalog, ActivityGenerationResponse, ActivityProposal,
+  ActivitySourceCandidate, StartActivityGeneration } from '../../src/core/domain/index.ts';
 import type { ClassroomClient } from './api.ts';
 
-export type GenerationView = Omit<ActivityGenerationView, 'createdAt'> & {
-  type?: StartActivityGeneration['type']; unitId?: string; topicIds?: string[]; createdAt: string;
-  missingInformation?: string[]; sourceReport?: { sourceId: string; status: string; pageCount: number | null; warnings: string[] }[];
-};
-export interface GenerationSource {
-  sourceId: string; fileId: string; title: string; kind: 'plan' | 'material'; extension: string;
-  sizeBytes: number; unitId: string | null; topicId: string | null; available: boolean;
-  reason: 'UNSUPPORTED_FORMAT' | 'AI_INPUT_LIMIT' | 'FILE_NOT_READY' | null;
-}
+export type GenerationView = ActivityGenerationResponse;
+export type GenerationSource = ActivitySourceCandidate;
 export function generationSourceTitle(sourceId: string, sources: Pick<GenerationSource, 'sourceId' | 'title'>[]) {
   if (sourceId === 'teacher-context') return 'Contexto docente';
   return sources.find(source => source.sourceId === sourceId)?.title ?? 'Fuente de esta generación';
@@ -38,13 +32,13 @@ export const generationErrors: Record<string, string> = {
 export function generationClient(api: ClassroomClient, roomId: string) {
   const base = `/${roomId}/activity-generations`;
   return {
-    sources: (signal?: AbortSignal) => api.call<{ revision: string; sources: GenerationSource[] }>(`${base}/sources`, 'GET', undefined, signal),
+    sources: (signal?: AbortSignal) => api.call<ActivityGenerationCatalog>(`${base}/sources`, 'GET', undefined, signal),
     list: (signal?: AbortSignal) => api.call<{ jobs: GenerationView[] }>(base, 'GET', undefined, signal),
     get: (id: string, signal?: AbortSignal) => api.call<GenerationView>(`${base}/${id}`, 'GET', undefined, signal),
-    start: (input: StartActivityGeneration) => api.call<GenerationView>(base, 'POST', input),
-    regenerate: (id: string, input: StartActivityGeneration, acknowledgePossibleCharge: boolean) =>
-      api.call<GenerationView>(`${base}/${id}/regenerate`, 'POST', { ...input, acknowledgePossibleCharge }),
-    apply: (id: string, revision: string, requestId: string, proposal: ActivityProposal) =>
-      api.call<{ generationId: string; activityId: string; revision: string }>(`${base}/${id}/apply`, 'POST', { revision, requestId, proposal }),
+    start: (input: StartActivityGeneration, signal?: AbortSignal) => api.call<GenerationView>(base, 'POST', input, signal),
+    regenerate: (id: string, input: StartActivityGeneration, acknowledgePossibleCharge: boolean, signal?: AbortSignal) =>
+      api.call<GenerationView>(`${base}/${id}/regenerate`, 'POST', { ...input, acknowledgePossibleCharge }, signal),
+    apply: (id: string, revision: string, requestId: string, proposal: ActivityProposal, signal?: AbortSignal) =>
+      api.call<ActivityGenerationApplied>(`${base}/${id}/apply`, 'POST', { revision, requestId, proposal }, signal),
   };
 }

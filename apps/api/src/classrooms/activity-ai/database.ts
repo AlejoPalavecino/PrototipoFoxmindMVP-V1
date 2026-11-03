@@ -1,27 +1,38 @@
-import type { Actor, Transaction } from '../contracts.ts';
+import type { Actor, ClassroomPorts, Transaction } from '../contracts.ts';
+import type { ClassroomCore } from '../core.ts';
 import { fail, uuid } from '../policy.ts';
-import type { ActivityAiOptions, JobRow } from './contracts.ts';
+import type { ActivityAiAccess, ActivityAiOperation, ActivityAiOptions, JobRow } from './contracts.ts';
 import { registerTransactionMode } from '../context.ts';
 
+export function createActivityAiAccess(ports: Pick<ClassroomPorts, 'database' | 'authenticate'>, classroom: ClassroomCore['classroom']): ActivityAiAccess {
+  function transaction<T>(operation: (tx: Transaction) => Promise<T>): Promise<T> {
+    return ports.database.$transaction(raw => operation({ query: (sql, ...args) => raw.$queryRawUnsafe(sql, ...args) }),
+      { maxWait: 2000, timeout: 6000 });
+  }
+  function authorized<T>(request: unknown, classroomId: string, write: boolean,
+    operation: ActivityAiOperation<T>, lockIntent: 'read' | 'write' = write ? 'write' : 'read') {
+    return transaction(async tx => {
+      registerTransactionMode(tx, lockIntent === 'write' || write);
+      const id = await ports.authenticate(tx, request, write);
+      if (!uuid(id)) return fail('FORBIDDEN');
+      const [user] = await tx.query<Actor & { email_verified_at: Date | null }>(
+        `SELECT id,email,email_normalized,first_name,last_name,account_role,email_verified_at FROM users WHERE id=$1::uuid FOR ${write ? 'UPDATE' : 'SHARE'}`, id);
+      if (!user?.email_verified_at || await ports.authenticate(tx, request, write) !== id) return fail('FORBIDDEN');
+      const [time] = await tx.query<{ now: Date }>('SELECT clock_timestamp() AS now');
+      const actor = { ...user, now: time!.now };
+      const room = await classroom(tx, actor, classroomId, write, true);
+      return operation(tx, room, actor);
+    });
+  }
+  return { transaction, authorized };
+}
+
 export function transaction<T>(options: ActivityAiOptions, operation: (tx: Transaction) => Promise<T>): Promise<T> {
-  return options.classrooms.ports.database.$transaction(raw => operation({ query: (sql, ...args) => raw.$queryRawUnsafe(sql, ...args) }),
-    { maxWait: 2000, timeout: 6000 });
+  return options.access.transaction(operation);
 }
 export function authorized<T>(options: ActivityAiOptions, request: unknown, classroomId: string, write: boolean,
-  operation: (tx: Transaction, room: { id: string; teacher_id: string; revision: bigint; archived_at: Date | null }, actor: Actor) => Promise<T>,
-  lockIntent: 'read' | 'write' = write ? 'write' : 'read') {
-  return transaction(options, async tx => {
-    registerTransactionMode(tx, lockIntent === 'write' || write);
-    const id = await options.classrooms.ports.authenticate(tx, request, write);
-    if (!uuid(id)) return fail('FORBIDDEN');
-    const [user] = await tx.query<Actor & { email_verified_at: Date | null }>(
-      `SELECT id,email,email_normalized,first_name,last_name,account_role,email_verified_at FROM users WHERE id=$1::uuid FOR ${write ? 'UPDATE' : 'SHARE'}`, id);
-    if (!user?.email_verified_at || await options.classrooms.ports.authenticate(tx, request, write) !== id) return fail('FORBIDDEN');
-    const [time] = await tx.query<{ now: Date }>('SELECT clock_timestamp() AS now');
-    const actor = { ...user, now: time!.now };
-    const room = await options.classrooms.classroom(tx, actor, classroomId, write, true);
-    return operation(tx, room, actor);
-  });
+  operation: ActivityAiOperation<T>, lockIntent?: 'read' | 'write') {
+  return options.access.authorized(request, classroomId, write, operation, lockIntent);
 }
 export async function job(tx: Transaction, classroomId: string, id: string): Promise<JobRow> {
   if (!uuid(id)) return fail('FORBIDDEN');

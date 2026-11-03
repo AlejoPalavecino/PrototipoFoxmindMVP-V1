@@ -6,7 +6,7 @@ import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 test('D9 Home branch delegates loading to Home and never leaves a skipped legacy classroom-list spinner visible', async () => {
   const { ClassroomsApp } = loadTsModule('apps/classrooms-ui/Classrooms.tsx');
   const calls = [], view = hookView(ClassroomsApp, { initialPresentation: 'home', subjectId: '11111111-1111-4111-8111-111111111111',
-    displayName: 'Synthetic', api: { call: async (...args) => { calls.push(args); return []; } },
+    displayName: 'Synthetic', accountRole: 'teacher', api: { call: async (...args) => { calls.push(args); return []; } },
     homeClient: { read: async () => { throw new Error('Home owns its error'); } }, onAction() {}, onAccountRequired() {} });
   try {
     await view.flush();

@@ -231,7 +231,7 @@ export interface ClassroomClient {
   fileUrl(id: string, preview?: boolean): string;
 }
 export function createClassroomClient(options: {
-  csrfToken: () => Promise<string>;
+  csrfToken: (signal?: AbortSignal) => Promise<string>;
   fetch?: typeof fetch;
   prefix?: string;
 }): ClassroomClient {
@@ -246,9 +246,11 @@ export function createClassroomClient(options: {
     signal?: AbortSignal,
     editor?: AttemptEditor,
   ): Promise<T> {
+    signal?.throwIfAborted();
     const headers: Record<string, string> = {};
     if (method !== 'GET') {
-      headers['X-CSRF-Token'] = await options.csrfToken();
+      headers['X-CSRF-Token'] = await options.csrfToken(signal);
+      signal?.throwIfAborted();
       headers['Content-Type'] =
         data instanceof File ? 'application/octet-stream' : 'application/json';
     }
@@ -273,20 +275,23 @@ export function createClassroomClient(options: {
       if (signal?.aborted) throw error;
       throw new ApiError('SERVICE_UNAVAILABLE', 503);
     }
+    signal?.throwIfAborted();
     if (!res.ok) {
       const error = await res.json().catch(() => ({}));
+      signal?.throwIfAborted();
       const retry = Number(res.headers.get('retry-after'));
       throw new ApiError(error.error?.code ?? 'SERVICE_UNAVAILABLE', res.status,
         Number.isSafeInteger(retry) && retry > 0 ? retry : 0);
     }
     try {
       let value: unknown = await res.json();
+      signal?.throwIfAborted();
       if (/\/attempts\/[^/]+\/(?:grading|publish-grade)$/.test(path)) value = parseGradingView(value);
       else if (/\/attempts\/[^/]+\/grade-corrections$/.test(path)) value = parseGradeCorrectionsView(value);
       else if (/\/attempts\/[^/]+\/result$/.test(path)) value = parsePublishedGradeResult(value);
       else if (/\/notifications\/page(?:\?|$)/.test(path)) value = parseNotificationPage(value);
       return value as T;
-    } catch { throw new ApiError('SERVICE_UNAVAILABLE', 503); }
+    } catch { signal?.throwIfAborted(); throw new ApiError('SERVICE_UNAVAILABLE', 503); }
   }
   return {
     attempt: (path, data, editor, signal) => response('/classrooms' + path, 'POST', data, signal, editor),

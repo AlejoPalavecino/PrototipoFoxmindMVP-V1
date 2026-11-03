@@ -19,10 +19,7 @@ export function registerTransactionMode(tx: Transaction, write: boolean) {
 export function isVerifiedRead(tx: Transaction) {
   return transactionModes.get(tx) === 'read';
 }
-export async function advanceClassroomRevision(tx: Transaction, classroomId: string, current: bigint) {
-  await tx.query('UPDATE classrooms SET revision=revision+1,updated_at=clock_timestamp() WHERE id=$1::uuid RETURNING id', classroomId);
-  return { revision: (current + 1n).toString() };
-}
+import { advanceClassroomRevision } from './revision.ts';
 
 export class ClassroomCore {
   readonly ports: ClassroomPorts;
@@ -63,7 +60,7 @@ export class ClassroomCore {
 
   async classroom(
     tx: Transaction,
-    actor: Actor,
+    actor: Pick<Actor, 'id'>,
     id: string,
     write = false,
     teacher = false,

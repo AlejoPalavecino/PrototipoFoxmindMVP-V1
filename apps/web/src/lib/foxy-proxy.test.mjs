@@ -20,6 +20,7 @@ test('proxy forwards allowlisted Foxy routes and only needed security headers', 
   const path = `${root}/conversations`, body = { requestId:randomUUID(), title:'Chat', context:{kind:'GENERAL'} };
   const response = await fetch(origin+path,{ method:'POST', headers:{...headers,authorization:'private','x-forwarded-host':'evil.test'}, body:JSON.stringify(body) });
   assert.equal(response.status,200); assert.equal(response.headers.get('cache-control'),'no-store'); assert.equal(response.headers.get('x-content-type-options'),'nosniff');
+  assert.deepEqual(await response.json(),{ok:true});
   assert.equal(calls.length,1); assert.equal(calls[0].url,path); assert.deepEqual(JSON.parse(calls[0].body),body);
   for (const name of ['cookie','origin','x-csrf-token']) assert.equal(calls[0].headers[name],headers[name]);
   assert.equal(calls[0].headers.authorization,undefined); assert.equal(calls[0].headers['x-forwarded-host'],undefined);
@@ -32,6 +33,7 @@ test('proxy blocks arbitrary URLs, path traversal, unsupported methods, queries 
     [`${root}/conversations`,'POST','x'.repeat(1048577)]]) {
     const response = await fetch(origin+path,{method,headers,...(body === undefined ? {} : {body})});
     assert.ok(response.status>=400 && response.status<500,`${method} ${path}: ${response.status}`);
+    await response.arrayBuffer(); // Complete the client response lifecycle before the next request.
   }
   assert.equal(calls.length,0);
 }));

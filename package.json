@@ -43,7 +43,7 @@
     "test:p7:integration": "node scripts/test-p7-integration.mjs",
     "test:p8:integration": "node scripts/test-p8-integration.mjs",
     "lint:boundaries": "eslint src/core/domain apps/api/src apps/classrooms-ui apps/agenda-ui apps/shared-ui apps/p5-preview apps/web/src apps/web/pages && node scripts/check-boundaries.mjs",
-    "test:ci": "node scripts/run-ci-suite.mjs --suite pure && node scripts/run-ci-suite.mjs --suite transport",
+    "test:ci": "node scripts/build-api.mjs && node scripts/run-ci-suite.mjs --suite pure && node scripts/run-ci-suite.mjs --suite transport",
     "test:complete": "node scripts/run-complete-suite.mjs",
     "docs:check": "node scripts/check-documentation.mjs"
   },

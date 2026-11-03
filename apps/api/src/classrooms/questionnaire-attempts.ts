@@ -6,7 +6,7 @@ import { assertAttemptWrite, type AttemptRow, type Obligation } from './attempt-
 import { editorCapability } from './attempt-policy.ts';
 import { exactActivityObject } from './activity-policy.ts';
 import { draftAnswer, validateAnswer, type AnswerQuestion } from './questionnaire-policy.ts';
-import { revision } from './drafts.ts';
+import { revision } from './revision.ts';
 import { fail } from './policy.ts';
 import { submissionReceipt } from './submission-receipt.ts';
 import type { ActivityRow } from './activity-authoring.ts';

@@ -1,3 +1,4 @@
+import { activeAiOwnersSql, lockAiAdmission, noAiWorkForOwner } from '../../ai-admission.ts';
 import { randomUUID } from 'node:crypto';
 import { reserve, settle } from '../ai/budget.ts';
 import type { ClassroomAiConfiguration } from '../ai/contracts.ts';
@@ -30,26 +31,15 @@ export function createGradingAiSqlQueue(options: Options) {
   }
   async function claim(): Promise<GradingAiLease | null> {
     return transact(async tx => {
-      await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123002)');
-      const [active] = await tx.query<{ count: number }>(`SELECT count(*)::int AS count FROM (
-        SELECT owner_id FROM grading_ai_jobs WHERE state='RUNNING' AND lease_until>clock_timestamp()
-        UNION ALL SELECT owner_id FROM student_ai_reports WHERE state='RUNNING' AND lease_until>clock_timestamp()
-        UNION ALL SELECT owner_id FROM activity_ai_generations WHERE state='RUNNING' AND lease_until>clock_timestamp()
-        UNION ALL SELECT owner_id FROM classroom_curriculum_extractions WHERE state='RUNNING' AND lease_until>clock_timestamp()
-        UNION ALL SELECT owner_id FROM foxy_turns WHERE state='RUNNING'
-      UNION ALL SELECT owner_id FROM foxy_visual_jobs WHERE state='RUNNING' AND lease_until>clock_timestamp()) jobs`);
+      await lockAiAdmission(tx);
+      const [active] = await tx.query<{ count: number }>(`SELECT count(*)::int AS count FROM (${activeAiOwnersSql}) jobs`);
       if (active!.count >= options.configuration.maxConcurrency) return null;
       const [next] = await tx.query<Row>(`SELECT j.* FROM grading_ai_jobs j JOIN classrooms c ON c.id=j.classroom_id
         JOIN users u ON u.id=j.owner_id JOIN attempts a ON a.id=j.attempt_id
         WHERE j.state='QUEUED' AND c.teacher_id=j.owner_id AND c.ai_grading_enabled AND c.archived_at IS NULL
         AND c.ai_grading_epoch=j.epoch AND u.email_verified_at IS NOT NULL AND a.status='SUBMITTED'
         AND NOT EXISTS(SELECT 1 FROM attempt_grades g WHERE g.attempt_id=j.attempt_id AND g.is_published)
-        AND NOT EXISTS(SELECT 1 FROM grading_ai_jobs r WHERE r.owner_id=j.owner_id AND r.state='RUNNING' AND r.lease_until>clock_timestamp())
-        AND NOT EXISTS(SELECT 1 FROM student_ai_reports r WHERE r.owner_id=j.owner_id AND r.state='RUNNING' AND r.lease_until>clock_timestamp())
-        AND NOT EXISTS(SELECT 1 FROM activity_ai_generations r WHERE r.owner_id=j.owner_id AND r.state='RUNNING' AND r.lease_until>clock_timestamp())
-        AND NOT EXISTS(SELECT 1 FROM classroom_curriculum_extractions r WHERE r.owner_id=j.owner_id AND r.state='RUNNING' AND r.lease_until>clock_timestamp())
-        AND NOT EXISTS(SELECT 1 FROM foxy_turns r WHERE r.owner_id=j.owner_id AND r.state='RUNNING')
-        AND NOT EXISTS(SELECT 1 FROM foxy_visual_jobs r WHERE r.owner_id=j.owner_id AND r.state='RUNNING' AND r.lease_until>clock_timestamp())
+        AND ${noAiWorkForOwner('j')}
         ORDER BY j.created_at,j.id LIMIT 1`);
       if (!next) return null;
       const lease = randomUUID();

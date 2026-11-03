@@ -7,7 +7,7 @@ import { withP5Database } from '../scripts/p5-database.mjs';
 import { ClassroomService } from '../.build/api/apps/api/src/classrooms/service.js';
 import { FileService } from '../.build/api/apps/api/src/files/service.js';
 import { createFileAccess } from '../.build/api/apps/api/src/files/access.js';
-import { authorizeAttemptFileWrite } from '../.build/api/apps/api/src/files/attempt-bridge.js';
+import { attachmentIntegration } from '../.build/api/apps/api/src/attachment-integration.js';
 
 // Real SQL/public domain and file services; authentication, object storage and scanner are controlled ports.
 // Actual P3/HTTP/browser/ClamAV reproduction lives in p7-consultation-integration.test.mjs.
@@ -24,7 +24,7 @@ test('B1: consultation-only TP opening locks content without granting submission
     await pool.query(`INSERT INTO units(id,updated_at,classroom_id,name,position) VALUES($1,now(),$2,'Unit',0)`, [unit, room]);
     await pool.query(`INSERT INTO topics(id,updated_at,classroom_id,unit_id,name,position) VALUES($1,now(),$2,$3,'Topic',0)`, [topic, room, unit]);
     const authenticate = async (_tx, request) => request.actor, objects = new Map();
-    const files = new FileService({ database, access: createFileAccess({ authenticate, authorizeAttemptWrite: authorizeAttemptFileWrite }),
+    const files = new FileService({ database, access: createFileAccess({ authenticate, authorizeAttemptWrite: attachmentIntegration.authorizeAttemptWrite }),
       storage: { put: async (key, bytes) => { objects.set(key, bytes); }, get: async key => objects.get(key), remove: async key => { objects.delete(key); } },
       scanner: { scan: async () => {} }, draftQuotaBytes: 100000000n });
     const service = new ClassroomService({ database, files: files.store, authenticate, signingKey: Buffer.alloc(32, 1),

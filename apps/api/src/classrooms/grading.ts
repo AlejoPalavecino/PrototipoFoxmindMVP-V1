@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { ClassroomCore } from './core.ts';
 import type { ActivityAuthoringService } from './activity-authoring.ts';
-import type { PlanService } from './plan.ts';
+import type { ClassroomFileOperations } from './classroom-file.ts';
 import { isVerifiedRead } from './context.ts';
 import { privateGradingInput, type PrivateGradingInput } from './grading-policy.ts';
 import { fail, uuid } from './policy.ts';
@@ -23,8 +23,8 @@ export class GradingService {
   private readonly classroom: ClassroomCore['classroom'];
   private readonly activity: ActivityAuthoringService['activity'];
   private readonly activityView: ActivityAuthoringService['activityView'];
-  private readonly advanceRevision: PlanService['advanceRevision'];
-  constructor(context: Pick<ClassroomCore, 'run' | 'classroom'>, dependencies: Pick<ActivityAuthoringService, 'activity' | 'activityView'> & Pick<PlanService, 'advanceRevision'>) {
+  private readonly advanceRevision: ClassroomFileOperations['advanceRevision'];
+  constructor(context: Pick<ClassroomCore, 'run' | 'classroom'>, dependencies: Pick<ActivityAuthoringService, 'activity' | 'activityView'> & Pick<ClassroomFileOperations, 'advanceRevision'>) {
     this.run = context.run.bind(context); this.classroom = context.classroom.bind(context);
     this.activity = dependencies.activity; this.activityView = dependencies.activityView; this.advanceRevision = dependencies.advanceRevision;
   }

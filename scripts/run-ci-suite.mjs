@@ -1,8 +1,9 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { suites, validateCompleteSuite } from './ci-suites.mjs';
+import { discoverTests } from './test-discovery.mjs';
 
 export async function runSuite(files, { cwd = process.cwd(), timeoutMs = 360000, spawn = spawnSync, environment = process.env } = {}) {
   if (!Array.isArray(files) || !files.length || new Set(files).size !== files.length) throw new Error('Empty or duplicate suite files');
@@ -12,7 +13,7 @@ export async function runSuite(files, { cwd = process.cwd(), timeoutMs = 360000,
   delete env.NODE_TEST_CONTEXT;
   for (const [index, file] of files.entries()) {
     console.log(`Running ${file}`);
-    const result = await spawn(process.execPath, ['--experimental-transform-types', '--disable-warning=ExperimentalWarning', '--test', '--test-reporter=tap', '--test-concurrency=1', file],
+    const result = await spawn(process.execPath, ['--import', new URL('./register-api-test-build.mjs', import.meta.url).href, '--experimental-transform-types', '--experimental-test-module-mocks', '--disable-warning=ExperimentalWarning', '--test', '--test-reporter=tap', '--test-concurrency=1', file],
       { cwd, env, timeout: timeoutMs, encoding: 'utf8', windowsHide: true, maxBuffer: 16 * 1024 * 1024 });
     if (result.stdout) process.stdout.write(result.stdout);
     if (result.stderr) process.stderr.write(result.stderr);
@@ -32,12 +33,6 @@ export async function runSuite(files, { cwd = process.cwd(), timeoutMs = 360000,
   return totals;
 }
 
-function discoverTests(dir = 'tests') {
-  return readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
-    const path = `${dir}/${entry.name}`;
-    return entry.isDirectory() ? discoverTests(path) : entry.isFile() && path.endsWith('.test.mjs') ? [path] : [];
-  });
-}
 export function checkInventory() {
   const inventory = JSON.parse(readFileSync('scripts/complete-suite-inventory.json', 'utf8'));
   const manual = inventory.manual;

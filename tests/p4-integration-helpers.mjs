@@ -4,11 +4,12 @@ import { setTimeout as delay } from 'node:timers/promises';
 
 export const password = 'Integration private files password 😀';
 export const digest = bytes => createHash('sha256').update(bytes).digest('hex');
-export async function account(page, origin, inbox, email, beforeVerification) {
+export async function account(page, origin, inbox, email, beforeVerification, role) {
   await page.goto(`${origin}/register`);
   for (const [label, value] of Object.entries({ Nombre: 'Files', Apellido: 'Fixture', 'Correo electrónico': email, 'Contraseña': password })) {
     await page.getByLabel(label, { exact: true }).fill(value);
   }
+  if (role) await page.getByRole('radio', { name: role === 'teacher' ? 'Docente' : 'Estudiante' }).check();
   await page.getByRole('button', { name: 'Crear cuenta', exact: true }).click();
   await page.getByText('recibirás un correo de verificación', { exact: false }).waitFor();
   await page.goto(`${origin}/sign-in`);

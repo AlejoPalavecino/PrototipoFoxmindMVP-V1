@@ -28,7 +28,7 @@ function setup(f) {
     countStudentAiTokens: async input => { calls.push(['count', input]); return 20; },
     generateStudentAi: async input => { calls.push(['generate', input]); return { json: report, inputTokens: 20, outputTokens: 20 }; },
   };
-  return { calls, provider, options: { classrooms: f.classrooms, configuration, provider } };
+  return { calls, provider, options: { database: f.classrooms.ports.database, progressView: f.classrooms.progressView, configuration, provider } };
 }
 
 test('student report is teacher-only, GET never generates and unrelated students and classrooms are denied', { timeout: 120000 }, async () => {

@@ -1,4 +1,4 @@
-// Canonical complete ordered migration inventory for the committed 2026-10-30 baseline.
+// Canonical complete ordered migration inventory reconciled on 2026-11-02.
 // New migrations must update this list deliberately; filesystem discovery is never the expectation.
 export const migrationInventory = Object.freeze([
   '202610150001_initial', '202610150002_invariants', '202610150003_guard_regressions',
@@ -7,4 +7,10 @@ export const migrationInventory = Object.freeze([
   '202610230001_agenda_events', '202610230001_classroom_ai', '202610240001_agenda_event_color',
   '202610250001_activity_topics', '202610250002_activity_ai', '202610280001_agenda_recurrence',
   '202610280001_student_ai', '202610280002_student_ai_references', '202610290001_grading_ai', '202610290002_grading_ai_apply',
+  '202610310001_exclusive_account_role', '202610310002_foxy_conversations', '202610310003_foxy_turns',
+  '202610310004_foxy_turn_leases', '202610310005_foxy_turn_budget', '202610310006_foxy_turn_completion',
+  '202610310007_foxy_resources', '202610310008_foxy_publications', '202610310009_foxy_publication_allocation',
+  '202610310010_foxy_publication_completion', '202610310011_foxy_publication_confirmation', '202610310012_foxy_publication_management',
+  '202611010001_foxy_private_visual_assets', '202611010002_foxy_visual_terminal_lease', '202611010003_foxy_private_asset_discard',
+  '202611010004_foxy_visual_jobs', '202611010005_foxy_raster_publication',
 ]);

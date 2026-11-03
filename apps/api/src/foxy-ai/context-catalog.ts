@@ -1,6 +1,5 @@
 import { loadSources } from './context-sources.ts';
 import { parseFoxySourceQuery } from '../../../../src/core/domain/index.ts';
-import type { ClassroomService } from '../classrooms/index.ts';
 import type { SqlTransaction } from '../../../../src/core/domain/index.ts';
 import type { FoxyContext } from '../../../../src/core/domain/index.ts';
 
@@ -11,6 +10,13 @@ type Conversations = { get(tx: SqlTransaction, owner: string, id: string): Promi
 type Catalogue = { context: FoxyContext; units: CurriculumUnit[]; classroomRevision: string | null;
   classroomTitle: string | null; archived: boolean; canGenerate: boolean };
 type Outcome = { kind: 'ok'; value: Catalogue } | { kind: 'forbidden' | 'limit' };
+
+type ReadActor = { id: string; account_role: 'teacher' | 'student' };
+export interface FoxyClassroomReadContext {
+  run<T>(request: unknown, write: false, operation: (tx: SqlTransaction, actor: ReadActor) => Promise<T>): Promise<T>;
+  classroom(tx: SqlTransaction, actor: ReadActor, id: string, write: false, teacher: true):
+    Promise<{ id: string; name: string; revision: bigint; archived_at: Date | null }>;
+}
 
 async function loadUnits(tx: SqlTransaction, classroomId: string): Promise<CurriculumUnit[] | null> {
   const units = await tx.query<Unit>('SELECT id,name,position FROM units WHERE classroom_id=$1::uuid ORDER BY position,id LIMIT 101', classroomId);
@@ -23,10 +29,10 @@ async function loadUnits(tx: SqlTransaction, classroomId: string): Promise<Curri
     })) }));
 }
 export class FoxyContextCatalogService {
-  private readonly run: ClassroomService['run'];
-  private readonly classroom: ClassroomService['classroom'];
+  private readonly run: FoxyClassroomReadContext['run'];
+  private readonly classroom: FoxyClassroomReadContext['classroom'];
   private readonly conversations: Conversations;
-  constructor(context: Pick<ClassroomService, 'run' | 'classroom'>, conversations: Conversations) {
+  constructor(context: FoxyClassroomReadContext, conversations: Conversations) {
     this.run = context.run.bind(context); this.classroom = context.classroom.bind(context); this.conversations = conversations;
   }
   async curriculum(request: unknown, conversationId: string): Promise<Catalogue> {

@@ -1,3 +1,4 @@
+import { activeAiOwnersSql, lockAiAdmission, noAiWorkForOwner } from '../ai-admission.ts';
 import { randomUUID } from 'node:crypto';
 import type { FoxyTextBudgetConfiguration } from './text-budget.ts';
 import { recoverFoxyExpired } from './turn-recovery.ts';
@@ -9,12 +10,6 @@ export interface FoxyTurnLease { turnId: string; ownerId: string; conversationId
 type Row = { id: string; owner_id: string; conversation_id: string };
 const eligible = `c.owner_id=t.owner_id AND c.deleted_at IS NULL AND u.account_role='teacher' AND u.email_verified_at IS NOT NULL
   AND (c.context_kind='GENERAL' OR EXISTS (SELECT 1 FROM classrooms r WHERE r.id=c.classroom_id AND r.teacher_id=c.owner_id AND r.archived_at IS NULL))`;
-const running = `SELECT owner_id FROM foxy_turns WHERE state='RUNNING'
-  UNION ALL SELECT owner_id FROM classroom_curriculum_extractions WHERE state='RUNNING' AND lease_until>clock_timestamp()
-  UNION ALL SELECT owner_id FROM activity_ai_generations WHERE state='RUNNING' AND lease_until>clock_timestamp()
-  UNION ALL SELECT owner_id FROM student_ai_reports WHERE state='RUNNING' AND lease_until>clock_timestamp()
-  UNION ALL SELECT owner_id FROM grading_ai_jobs WHERE state='RUNNING' AND lease_until>clock_timestamp()
-  UNION ALL SELECT owner_id FROM foxy_visual_jobs WHERE state='RUNNING' AND lease_until>clock_timestamp()`;
 async function recover(tx: SqlTransaction, config: Configuration): Promise<number> {
   const recovered = await recoverFoxyExpired(tx);
   const queued = await tx.query<{ id: string }>(`SELECT id FROM foxy_turns WHERE state='QUEUED'
@@ -29,15 +24,15 @@ export function createFoxyTurnQueue(options: Options) {
     raw => fn({ query: (sql, ...args) => raw.$queryRawUnsafe(sql, ...args) }), { maxWait: 2000, timeout: 6000 });
   async function claim(): Promise<FoxyTurnLease | null> {
     return transact(async tx => {
-      await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123002)');
+      await lockAiAdmission(tx);
       await recover(tx, options.configuration);
-      const [active] = await tx.query<{ count: number }>(`SELECT count(*)::int AS count FROM (${running}) jobs`);
+      const [active] = await tx.query<{ count: number }>(`SELECT count(*)::int AS count FROM (${activeAiOwnersSql}) jobs`);
       if (!active || active.count >= options.configuration.maxConcurrency) return null;
       const [row] = await tx.query<Row>(`SELECT t.id,t.owner_id,t.conversation_id FROM foxy_turns t
         JOIN foxy_conversations c ON c.id=t.conversation_id AND c.owner_id=t.owner_id JOIN users u ON u.id=t.owner_id
         WHERE t.state='QUEUED' AND ${eligible}
         AND t.created_at+$1::bigint*interval '1 millisecond'>clock_timestamp()
-        AND NOT EXISTS (SELECT 1 FROM (${running}) jobs WHERE jobs.owner_id=t.owner_id)
+        AND ${noAiWorkForOwner('t')}
         ORDER BY t.created_at,t.id LIMIT 1 FOR UPDATE OF t SKIP LOCKED`, options.configuration.maxJobAgeMs);
       if (!row) return null;
       const nonce = randomUUID();
@@ -58,7 +53,7 @@ export function createFoxyTurnQueue(options: Options) {
   }
   async function recoverExpired(): Promise<number> {
     return transact(async tx => {
-      await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123002)');
+      await lockAiAdmission(tx);
       return recover(tx, options.configuration);
     });
   }

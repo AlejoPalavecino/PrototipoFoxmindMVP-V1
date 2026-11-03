@@ -1,7 +1,34 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
+import React from 'react';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
+import { hookView } from './agenda-ui-helpers.test.mjs';
+
+test('the same academic link is reauthorized after identity changes and ignores the earlier response', async () => {
+  const { useAgendaTarget } = loadTsModule('apps/classrooms-ui/useAgendaTarget.ts');
+  const classroomId = randomUUID(), activityId = randomUUID(), calls = [];
+  const destination = `/mis-aulas?aula=${classroomId}&actividad=${activityId}`;
+  const api = { open: (target, signal) => new Promise(resolve => calls.push({ target, signal, resolve })) };
+  const Host = () => {
+    const [subjectId, setSubject] = React.useState('teacher');
+    return React.createElement('output', { state: useAgendaTarget(api, destination, subjectId), setSubject });
+  };
+  const view = hookView(Host, {});
+  try {
+    await view.flush();
+    view.tree.props.setSubject('another-account');
+    await view.flush();
+    assert.equal(calls.length, 2);
+    assert.equal(calls[0].signal.aborted, true);
+    calls[0].resolve({ ...calls[0].target, label: 'old private target' });
+    await view.flush();
+    assert.equal(view.tree.props.state.target, undefined);
+    calls[1].resolve(calls[1].target);
+    await view.flush();
+    assert.deepEqual(view.tree.props.state.target, { classroomId, activityId });
+  } finally { view.close(); }
+});
 
 const range = { startDate: '2026-11-01', endDateExclusive: '2026-12-01', timeZone: 'America/Argentina/Buenos_Aires' };
 const payload = { title: 'Clase', description: '', category: 'CLASS',

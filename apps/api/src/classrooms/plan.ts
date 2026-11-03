@@ -1,20 +1,17 @@
 import { randomUUID } from 'node:crypto';
 import type { ClassroomCore } from './core.ts';
-import { advanceClassroomRevision } from './context.ts';
-import { revision } from './drafts.ts';
+import { advanceClassroomRevision, revision } from './revision.ts';
 import { fail, object, text, uuid } from './policy.ts';
-import { requireReady } from '../files/service.ts';
-import type { Transaction } from './contracts.ts';
+import type { ClassroomFileOperations } from './classroom-file.ts';
 
 /** P6 shares the user/classroom locks and optimistic revision of the existing host. */
 export class PlanService {
   private readonly run: ClassroomCore['run'];
   private readonly classroom: ClassroomCore['classroom'];
-  private readonly ports: ClassroomCore['ports'];
-  constructor(context: Pick<ClassroomCore, 'run' | 'classroom' | 'ports'>) {
+  constructor(context: Pick<ClassroomCore, 'run' | 'classroom'>,
+    private readonly readyClassroomFile: ClassroomFileOperations['readyClassroomFile']) {
     this.run = context.run.bind(context);
     this.classroom = context.classroom.bind(context);
-    this.ports = context.ports;
   }
   async changePlan(request: unknown, classroomId: string, input: unknown) {
     const body = object(input, ['revision', 'operation']);
@@ -106,21 +103,8 @@ export class PlanService {
         }
         default: return fail('INVALID_INPUT');
       }
-      return this.advanceRevision(tx, classroomId, classroom.revision);
+      return advanceClassroomRevision(tx, classroomId, classroom.revision);
     });
   }
 
-  async readyClassroomFile(tx: Transaction, request: unknown, classroomId: string, fileId: unknown, purpose: 'plan' | 'material') {
-    if (!uuid(fileId)) return fail('INVALID_INPUT');
-    const row = await this.ports.files.load(tx, fileId);
-    // Reject a foreign scope before attempting to lock/revalidate another classroom.
-    if (row.classroom_id !== classroomId || row.classroom_draft_id !== null || row.purpose !== purpose || row.target_id !== null) return fail('FORBIDDEN');
-    const current = await this.ports.files.loadAuthorized(tx, request, fileId, 'read');
-    requireReady(current);
-    return current;
-  }
-
-  async advanceRevision(tx: Transaction, classroomId: string, current: bigint) {
-    return advanceClassroomRevision(tx, classroomId, current);
-  }
 }

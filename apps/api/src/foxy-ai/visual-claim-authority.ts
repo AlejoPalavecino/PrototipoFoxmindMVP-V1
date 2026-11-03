@@ -1,3 +1,4 @@
+import { lockAiAdmission } from '../ai-admission.ts';
 import { isDeepStrictEqual } from 'node:util';
 import type { SqlDatabase, SqlTransaction } from '../../../../src/core/domain/index.ts';
 import type { FoxyGroundingFile, FoxyGroundingSnapshot } from '../../../../src/core/domain/foxy-ai-grounding.ts';
@@ -40,7 +41,7 @@ export function createFoxyVisualClaimAuthority(options: { database: SqlDatabase;
     async revalidateGrounding(capability: object, signal: AbortSignal, tx?: SqlTransaction) {
       const s = state(capability,signal);
       if (tx) {
-        await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123002)');
+        await lockAiAdmission(tx);
         await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)');
         await tx.query('SELECT id FROM users WHERE id=$1::uuid FOR SHARE',s.lease.ownerId);
         if (s.snapshot.context.kind === 'CLASSROOM') await tx.query('SELECT id FROM classrooms WHERE id=$1::uuid FOR SHARE',s.snapshot.context.classroomId);

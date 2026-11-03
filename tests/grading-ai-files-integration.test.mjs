@@ -11,7 +11,7 @@ import { FileService } from '../.build/api/apps/api/src/files/service.js';
 import { S3Storage } from '../.build/api/apps/api/src/files/storage.js';
 import { ClamdScanner } from '../.build/api/apps/api/src/files/scanner.js';
 import { createFileAccess } from '../.build/api/apps/api/src/files/access.js';
-import { authorizeAttemptFileWrite, linkReadyAttemptAttachment } from '../.build/api/apps/api/src/files/attempt-bridge.js';
+import { attachmentIntegration } from '../.build/api/apps/api/src/attachment-integration.js';
 import { createDurableGradingAiAttachmentReader } from '../.build/api/apps/api/src/files/durable-grading-ai-attachment-reader.js';
 import { createDurableGradingAiInstructionReader } from '../.build/api/apps/api/src/files/durable-grading-ai-instruction-reader.js';
 import { GradingAiRuntime } from '../.build/api/apps/api/src/classrooms/grading-ai/runtime.js';
@@ -35,9 +35,9 @@ test('TP con archivos reales: carga, sugerencia privada, aprobación y publicaci
     VALUES($1,now(),$2,'Aula','Materia','A',2026,'UTC','explore',10000000,true)`,[room,teacher]);
    await pool.query(`INSERT INTO units(id,updated_at,classroom_id,name,position) VALUES($1,now(),$2,'Unidad',0)`,[unit,room]);
    await pool.query(`INSERT INTO topics(id,updated_at,classroom_id,unit_id,name,position) VALUES($1,now(),$2,$3,'Tema',0)`,[topic,room,unit]);
-   const authenticate=async(_tx,req)=>req.actor, access=createFileAccess({authenticate,authorizeAttemptWrite:authorizeAttemptFileWrite});
+   const authenticate=async(_tx,req)=>req.actor, access=createFileAccess({authenticate,authorizeAttemptWrite:attachmentIntegration.authorizeAttemptWrite});
    const files=new FileService({database,access,storage:new S3Storage(infra.s3,infra.infrastructure.bucket),
-    scanner:new ClamdScanner(infra.scannerHost,infra.scannerPort),draftQuotaBytes:10000000n,onReadyTransition:linkReadyAttemptAttachment});
+    scanner:new ClamdScanner(infra.scannerHost,infra.scannerPort),draftQuotaBytes:10000000n,onReadyTransition:attachmentIntegration.onReadyTransition});
    const service=new ClassroomService({database,files:files.store,authenticate,gradingAiAvailable:true,signingKey:Buffer.alloc(32,1),deliveryKey:Buffer.alloc(32,2),classroomQuotaBytes:10000000n,webOrigin:'http://127.0.0.1:3005'});
    const T={actor:teacher,headers:{}},S={actor:student,headers:{}};
    const change=async operation=>service.changeActivities(T,room,{revision:(await service.detail(T,room)).revision,operation});

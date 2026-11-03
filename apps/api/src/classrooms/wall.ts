@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { ClassroomCore } from './core.ts';
-import type { PlanService } from './plan.ts';
-import { revision } from './drafts.ts';
+import type { ClassroomFileOperations } from './classroom-file.ts';
+import { revision } from './revision.ts';
 import { fail, object, uuid } from './policy.ts';
 import { parseWallMutation, type NotificationPageQuery } from '../../../../src/core/domain/index.ts';
 import { notificationPage } from './notification-page.ts';
@@ -38,8 +38,8 @@ export class WallService {
   private readonly run: ClassroomCore['run'];
   private readonly classroom: ClassroomCore['classroom'];
   private readonly ports: ClassroomCore['ports'];
-  private readonly advanceRevision: PlanService['advanceRevision'];
-  constructor(context: Pick<ClassroomCore, 'run' | 'classroom' | 'ports'>, dependencies: Pick<PlanService, 'advanceRevision'>) {
+  private readonly advanceRevision: ClassroomFileOperations['advanceRevision'];
+  constructor(context: Pick<ClassroomCore, 'run' | 'classroom' | 'ports'>, dependencies: Pick<ClassroomFileOperations, 'advanceRevision'>) {
     this.run = context.run.bind(context);
     this.classroom = context.classroom.bind(context);
     this.ports = context.ports;

@@ -1,7 +1,7 @@
 import { createLibraryMaterialPublisher } from './library-publication.ts';
-import type { PlanService } from './plan.ts';
+import type { ClassroomFileOperations } from './classroom-file.ts';
 import type { ClassroomCore } from './core.ts';
-import { revision } from './drafts.ts';
+import { revision } from './revision.ts';
 import { fail, object, text, uuid } from './policy.ts';
 import type { Transaction } from './contracts.ts';
 
@@ -10,8 +10,8 @@ export class LibraryService {
   private readonly run: ClassroomCore['run'];
   private readonly classroom: ClassroomCore['classroom'];
   private readonly publisher: ReturnType<typeof createLibraryMaterialPublisher>;
-  private readonly advanceRevision: PlanService['advanceRevision'];
-  constructor(context: Pick<ClassroomCore, 'run' | 'classroom'>, dependencies: Pick<PlanService, 'readyClassroomFile' | 'advanceRevision'>) {
+  private readonly advanceRevision: ClassroomFileOperations['advanceRevision'];
+  constructor(context: Pick<ClassroomCore, 'run' | 'classroom'>, dependencies: Pick<ClassroomFileOperations, 'readyClassroomFile' | 'advanceRevision'>) {
     this.run = context.run.bind(context);
     this.classroom = context.classroom.bind(context);
     this.publisher = createLibraryMaterialPublisher(dependencies);

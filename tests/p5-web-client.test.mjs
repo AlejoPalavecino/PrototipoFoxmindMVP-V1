@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createClassroomClient } from '../apps/classrooms-ui/api.ts';
 import { classroomDestination, classroomAuthHref, createWebClassroomClient } from '../apps/web/src/lib/classroom-client.ts';
+import { loadTsModule } from './helpers/load-ts-module.mjs';
+import { descendants, hookView } from './agenda-ui-helpers.test.mjs';
 
 test('production prefix applies independently to classroom requests, uploads and generated file links', async () => {
   const seen = [];
@@ -62,6 +64,54 @@ test('web mutations acquire real CSRF every time and use accepted private-file r
   assert.deepEqual(seen.map(x => x.path), ['/api/v1/classrooms/drafts', '/api/v1/auth/csrf', '/api/v1/classrooms/drafts', '/api/v1/auth/csrf', '/api/v1/classrooms/codes/preview']);
   assert.deepEqual(seen.filter(x => x.init.method === 'POST').map(x => x.init.headers['X-CSRF-Token']), ['real-1', 'real-2']);
   assert.equal(api.fileUrl('id', true), '/api/v1/files/id/content?mode=preview');
+});
+
+test('closing the caller during CSRF acquisition prevents stale mutation and auth redirect', async () => {
+  for (const status of [200, 401]) {
+    const paths = [], redirects = [];
+    let finish;
+    const api = createWebClassroomClient(async path => {
+      paths.push(path);
+      if (path.endsWith('/auth/csrf')) return new Promise(resolve => { finish = resolve; });
+      return Response.json({ ok: true });
+    }, code => redirects.push(code));
+    const lifetime = new AbortController();
+    const pending = api.call('/drafts', 'POST', {}, lifetime.signal);
+    lifetime.abort();
+    finish(Response.json(status === 200 ? { csrfToken: 'old' } : { error: { code: 'AUTH_REQUIRED' } }, { status }));
+    await assert.rejects(pending, { name: 'AbortError' });
+    assert.deepEqual(paths, ['/api/v1/auth/csrf']);
+    assert.deepEqual(redirects, []);
+  }
+});
+
+test('a late session response cannot restore a private classroom screen after account invalidation', async () => {
+  let finish, sessionSignal, requireAccount;
+  const redirects = [], ClassroomApp = () => null;
+  const router = { isReady: true, asPath: '/mis-aulas', query: {}, replace: value => redirects.push(value) };
+  const { ClassroomsScreen } = loadTsModule('apps/web/src/components/classrooms-screen.tsx', { stubs: {
+    'next/router': { useRouter: () => router }, 'next/head': () => null, 'next/link': () => null,
+    '../../../classrooms-ui/Classrooms': { ClassroomsApp: ClassroomApp },
+    '../../../classrooms-ui/useAgendaTarget': { useAgendaTarget: () => ({ requested: false }) },
+    '../lib/account-client': { createAccountClient: () => ({ session: signal => {
+      sessionSignal = signal;
+      return new Promise(resolve => { finish = resolve; });
+    } }) },
+    '../lib/classroom-client': { classroomDestination, classroomAuthHref, createWebClassroomClient: (_fetch, onFailure) => {
+      requireAccount = onFailure;
+      return {};
+    } },
+  } });
+  const view = hookView(ClassroomsScreen, {});
+  try {
+    await view.flush();
+    requireAccount('AUTH_REQUIRED');
+    finish({ authenticated: true, user: { id: 'former-user', accountRole: 'teacher', emailVerified: true } });
+    await view.flush();
+    assert.deepEqual(redirects, ['/sign-in?next=%2Fmis-aulas']);
+    assert.deepEqual(descendants(view.tree, element => element.type === ClassroomApp), []);
+    assert.equal(sessionSignal?.aborted, true);
+  } finally { view.close(); }
 });
 
 test('authentication continuation accepts only the classroom destination and one exact invitation', () => {

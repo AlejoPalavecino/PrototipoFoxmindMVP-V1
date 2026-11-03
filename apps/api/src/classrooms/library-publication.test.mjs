@@ -32,6 +32,22 @@ test('caller rollback removes material and restores classroom revision', {timeou
   const [count]=await x.query('SELECT count(*)::int n FROM materials WHERE file_id=$1',x.id);assert.equal(count.n,0);
  });
 });
+test('material publisher preserves the receiver of the injected ready-file operation', async () => {
+ const {createLibraryMaterialPublisher}=await import('./library-publication.ts');
+ const owner=randomUUID(), classroomId=randomUUID(), fileId=randomUUID();
+ const deps={ fileId,
+  async readyClassroomFile() { return {id:this.fileId,blob_deleted_at:null}; },
+  async advanceRevision() { throw Error('publication uses its shared revision operation'); },
+ };
+ let insertedFile;
+ const tx={query:async(sql,...args)=>{
+  if(sql.includes('SELECT revision FROM classrooms'))return [{revision:0n}];
+  if(sql.includes('INSERT INTO materials'))insertedFile=args[3];
+  return [];
+ }};
+ await createLibraryMaterialPublisher(deps).publish(tx,{},owner,{classroomId,fileId,revision:'0',title:'Material',unitId:null,topicId:null});
+ assert.equal(insertedFile,fileId);
+});
 test('rejects wrong owner, stale revision and any reused file including tombstones', {timeout:120000},async()=>{
  await withAgendaDatabase(async({pool})=>{const x=await setup(pool);
   await assert.rejects(x.run({id:x.f.other},x.f.other));await assert.rejects(x.run({id:x.f.teacherActor},x.f.teacherActor,{...x.input,revision:'999'}));

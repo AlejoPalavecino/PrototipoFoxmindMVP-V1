@@ -1,8 +1,8 @@
 import type { ClassroomCore } from './core.ts';
 import type { ActivityAuthoringService } from './activity-authoring.ts';
 import type { GradingService } from './grading.ts';
-import type { PlanService } from './plan.ts';
-import { revision } from './drafts.ts';
+import type { ClassroomFileOperations } from './classroom-file.ts';
+import { revision } from './revision.ts';
 import { fail, object, uuid } from './policy.ts';
 import { fixedHundredths, hundredths, scoreJson } from './scoring.ts';
 import type { Transaction } from './contracts.ts';
@@ -20,8 +20,8 @@ export class GradePublicationService {
   private readonly gradingContext: GradingService['gradingContext'];
   private readonly gradingView: GradingService['gradingView'];
   private readonly scoreCorrection: GradingService['scoreCorrection'];
-  private readonly advanceRevision: PlanService['advanceRevision'];
-  constructor(context: Pick<ClassroomCore, 'run' | 'classroom'>, dependencies: Pick<ActivityAuthoringService, 'activity' | 'activityView'> & Pick<GradingService, 'gradingContext' | 'gradingView' | 'scoreCorrection'> & Pick<PlanService, 'advanceRevision'>) {
+  private readonly advanceRevision: ClassroomFileOperations['advanceRevision'];
+  constructor(context: Pick<ClassroomCore, 'run' | 'classroom'>, dependencies: Pick<ActivityAuthoringService, 'activity' | 'activityView'> & Pick<GradingService, 'gradingContext' | 'gradingView' | 'scoreCorrection'> & Pick<ClassroomFileOperations, 'advanceRevision'>) {
     this.run = context.run.bind(context); this.classroom = context.classroom.bind(context);
     this.activity = dependencies.activity; this.activityView = dependencies.activityView; this.gradingContext = dependencies.gradingContext;
     this.gradingView = dependencies.gradingView; this.scoreCorrection = dependencies.scoreCorrection; this.advanceRevision = dependencies.advanceRevision;

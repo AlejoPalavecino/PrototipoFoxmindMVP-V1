@@ -50,36 +50,39 @@ test('focused topic progress uses the classroom revision and reloads after the a
   } finally { view.close(); }
 });
 
-test('Home keeps pending work visible and places recoverable resources behind an explicit disclosure', async () => {
+for (const accountRole of ['teacher', 'student']) test(`Home keeps ${accountRole} work visible and resources behind an explicit disclosure`, async () => {
   const previousWindow = globalThis.window;
   globalThis.window = { addEventListener() {}, removeEventListener() {} };
   const { Home } = loadTsModule('apps/classrooms-ui/Home.tsx');
-  const data = { subjectId: 'subject', version: 1, generatedAt: '2026-10-28T12:00:00Z', timeZone: 'UTC', participation: 'mixed',
-    memberships: { teach: 1, study: 1, archived: 0 }, setup: { drafts: 0, invitations: 0 },
+  const data = { subjectId: 'subject', version: 1, generatedAt: '2026-10-28T12:00:00Z', timeZone: 'UTC', participation: accountRole === 'teacher' ? 'teach' : 'study',
+    memberships: { teach: Number(accountRole === 'teacher'), study: Number(accountRole === 'student'), archived: 0 }, setup: { drafts: 0, invitations: 0 },
     modules: Object.fromEntries(['pending','review','feedback','agenda','queries','materials','classrooms'].map(name => [name,
       { status: 'ready', items: [], totalItems: 0, nextCursor: null }])) };
+  for (const name of accountRole === 'teacher' ? ['pending','feedback'] : ['review','queries']) data.modules[name] = { status:'not-applicable' };
   const actions = [];
-  const view = hookView(Home, { displayName: 'Alex', subjectId: 'subject', homeClient: { read: async () => data },
+  const view = hookView(Home, { accountRole, displayName: 'Alex', subjectId: 'subject', homeClient: { read: async () => data },
     onCreate: () => actions.push('create'), onJoin: () => actions.push('join'), onClassrooms: () => actions.push('classrooms'), onAction() {} });
   try {
     await view.flush();
     const resources = descendants(view.tree, n => n.type === 'details' && n.props.className === 'fm-home-resources')[0];
     assert.ok(resources); assert.ok(!resources.props.open);
     assert.equal(descendants(resources, n => n.type?.name === 'HomeModule' && ['pending','review'].includes(n.props.name)).length, 0);
-    assert.equal(descendants(view.tree, n => n.type?.name === 'HomeModule' && ['pending','review'].includes(n.props.name)).length, 2);
+    assert.equal(descendants(view.tree, n => n.type?.name === 'HomeModule' && ['pending','review'].includes(n.props.name)).length, 1);
     assert.equal(descendants(resources, n => n.type?.name === 'HomeModule' && n.props.name === 'materials').length, 1);
     const shortcuts = descendants(view.tree, n => n.type?.name === 'HomeShortcuts')[0];
     assert.ok(shortcuts);
     const toolbar = shortcuts.type(shortcuts.props);
-    for (const label of ['Crear aula', 'Unirme con código']) {
+    const ownAction = accountRole === 'teacher' ? 'create' : 'join';
+    for (const label of [accountRole === 'teacher' ? 'Crear aula' : 'Unirme con código']) {
       const button = descendants(toolbar, n => n.type === 'button' && text(n).trim().startsWith(label))[0];
       assert.ok(button, label); button.props.onClick();
     }
-    assert.deepEqual(actions, ['create','join']);
+    assert.equal(descendants(toolbar, n => n.type === 'button' && text(n).trim().startsWith(accountRole === 'teacher' ? 'Unirme con código' : 'Crear aula')).length, 0);
+    assert.deepEqual(actions, [ownAction]);
     const greeting = descendants(view.tree, n => n.type?.name === 'HomeGreeting')[0];
     const greetingTree = greeting.type(greeting.props);
     descendants(greetingTree, n => n.type === 'button' && text(n).trim() === 'Ir a mis aulas')[0].props.onClick();
-    assert.deepEqual(actions, ['create','join','classrooms'], 'The illustrated entry uses the existing classroom navigation');
+    assert.deepEqual(actions, [ownAction,'classrooms'], 'The illustrated entry uses the existing classroom navigation');
   } finally { view.close(); if (previousWindow === undefined) delete globalThis.window; else globalThis.window = previousWindow; }
 });
 

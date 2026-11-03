@@ -1,22 +1,10 @@
-import { publishDraftOperation, updateSettingsOperation } from './drafts-operations.ts';
-import { randomBytes, randomUUID } from 'node:crypto';
-import { ClassroomCore } from './core.ts';
-import { draftPayload, fail, object, digest, uuid } from './policy.ts';
-import { promoteDraftPlan } from '../files/promotion.ts';
+import { publishDraftOperation, updateSettingsOperation, type DraftRow } from './drafts-operations.ts';
+import { randomUUID } from 'node:crypto';
+import type { ClassroomCore } from './core.ts';
+import { draftPayload, fail, object, uuid } from './policy.ts';
 import type { Actor, Transaction } from './contracts.ts';
-
-export interface DraftRow {
-  id: string;
-  owner_id: string;
-  revision: bigint;
-  payload: unknown;
-  published_classroom_id: string | null;
-}
-export function revision(value: unknown): string {
-  if (typeof value !== 'string' || !/^(0|[1-9]\d{0,17})$/.test(value))
-    return fail('INVALID_INPUT');
-  return value;
-}
+import { revision } from './revision.ts';
+export { revision } from './revision.ts';
 export class DraftService {
   readonly run: ClassroomCore['run'];
   readonly classroom: ClassroomCore['classroom'];
@@ -95,21 +83,6 @@ export class DraftService {
       );
       return this.draftView(row);
     });
-  }
-  async newCode(tx: Transaction, classroomId: string) {
-    const code = randomBytes(18).toString('base64url');
-    await tx.query(
-      'UPDATE classroom_codes SET revoked_at=clock_timestamp(),updated_at=clock_timestamp() WHERE classroom_id=$1::uuid AND revoked_at IS NULL RETURNING id',
-      classroomId,
-    );
-    await tx.query(
-      `INSERT INTO classroom_codes(id,updated_at,classroom_id,code_digest)
-      VALUES($1::uuid,clock_timestamp(),$2::uuid,$3) RETURNING id`,
-      randomUUID(),
-      classroomId,
-      digest(code),
-    );
-    return code;
   }
   async publishDraft(request: unknown, id: string, input: unknown) { return publishDraftOperation(this, request, id, input); }
   async updateSettings(request: unknown, id: string, input: unknown) { return updateSettingsOperation(this, request, id, input); }

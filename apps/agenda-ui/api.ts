@@ -7,7 +7,7 @@ export interface AgendaClient {
   put(id: string, event: EventPayload): Promise<PrivateEvent>;
   replace(id: string, revision: string, event: EventPayload): Promise<PrivateEvent>;
   remove(id: string, revision: string): Promise<void>;
-  open(target: AgendaTarget): Promise<AgendaTarget>;
+  open(target: AgendaTarget, signal?: AbortSignal): Promise<AgendaTarget>;
 }
 
 const messages: Record<string, string> = {

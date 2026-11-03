@@ -11,6 +11,7 @@ import { IdentityHttpError } from '../.build/api/apps/api/src/identity/errors.js
 import { readConfiguration } from '../.build/api/apps/api/src/configuration.js';
 import { ClassroomsModule } from '../.build/api/apps/api/src/classrooms/classrooms.module.js';
 import { InvitationService } from '../.build/api/apps/api/src/classrooms/invitations.js';
+import { ClassroomService } from '../.build/api/apps/api/src/classrooms/service.js';
 import { identityTestEnvironment } from '../scripts/p33-identity-test-env.mjs';
 
 const express = createRequire(import.meta.url)('express');
@@ -54,7 +55,10 @@ test('integrated module owns one worker and uses the same P4 FileStore and real 
   const config = readClassroomsConfiguration(environment, origin), sender = { send: async () => {}, close() {} };
   const module = ClassroomsModule.integrated({}, {}, {}, config, sender);
   assert.equal(module.providers.filter(p => p.provide === InvitationDeliveryWorker).length, 1);
-  const provider = module.providers.find(p => p.provide === InvitationService);
+  const provider = module.providers.find(p => p.provide === ClassroomService);
+  assert.ok(provider?.useFactory);
+  assert.equal(module.providers.find(p => p.provide === InvitationService)?.useExisting, ClassroomService);
+  assert.ok(module.exports.includes(ClassroomService));
   const files = { store: {} }, database = {}, runtime = { configuration: { security: {} } };
   const service = provider.useFactory(database, runtime, files);
   assert.equal(service.ports.database, database); assert.equal(service.ports.files, files.store);

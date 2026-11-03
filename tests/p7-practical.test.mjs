@@ -10,12 +10,14 @@ import { randomUUID } from 'node:crypto';
 import { withP5Database } from '../scripts/p5-database.mjs';
 import { FileService } from '../.build/api/apps/api/src/files/service.js';
 import { createFileAccess } from '../.build/api/apps/api/src/files/access.js';
-import { authorizeAttemptFileWrite, linkReadyAttemptAttachment } from '../.build/api/apps/api/src/files/attempt-bridge.js';
+import { attachmentIntegration } from '../.build/api/apps/api/src/attachment-integration.js';
 import { FileError } from '../.build/api/apps/api/src/files/errors.js';
 import { PDFDocument } from 'pdf-lib';
 import { captureSubmissionReceipt } from '../.build/api/apps/api/src/classrooms/submission-receipt.js';
 import { waitForAttemptClock } from './helpers/attempt-clock.mjs';
 import pg from 'pg';
+
+const { authorizeAttemptWrite: authorizeAttemptFileWrite, onReadyTransition: linkReadyAttemptAttachment } = attachmentIntegration;
 
 // Controlled SQL authentication/scanner below are explicitly not actual P3 or production ClamAV proof.
 test('TP public service and file ports preserve drafts, receipts, quotas and concurrent security/deadline boundaries', {timeout:120000}, async t=>{
@@ -71,6 +73,9 @@ test('TP public service and file ports preserve drafts, receipts, quotas and con
    const reserved=await reserve();assert.equal(reserved.ready,false);assert.equal((await session()).attempt.attachments[0].selected,false);
    confirmed=await files.receive(request(),reserved.id,bytes);assert.equal(confirmed.ready,true);
    attempt=(await session()).attempt;assert.equal(attempt.revision,'2');assert.equal(attempt.attachments.length,1);assert.equal(attempt.attachments[0].selected,true);
+   await files.store.transaction(async tx=>linkReadyAttemptAttachment(tx,request(),await files.store.load(tx,confirmed.id)));
+   assert.equal((await session()).attempt.revision,attempt.revision);
+   assert.equal((await session()).attempt.attachments.length,1);
    files=fileService();assert.equal((await files.status(S,confirmed.id)).ready,true);assert.equal((await session()).attempt.attachments[0].id,confirmed.id);
    const used=(await files.usage(T,{kind:'classroom',id:room})).usedBytes;
    await remove(confirmed.id);assert.equal((await session()).attempt.attachments.length,0);
@@ -97,7 +102,16 @@ test('TP public service and file ports preserve drafts, receipts, quotas and con
   });
   await check('ready callback failure rolls back readiness/link/revision as one transaction',async()=>{
    const reserved=await reserve(),before=(await session()).attempt.revision;
-   const failing=fileService(async()=>{throw new FileError('UPLOAD_CONFLICT');});
+   const failing=fileService(async(tx,req,row)=>{
+    await linkReadyAttemptAttachment(tx,req,row);
+    const query=`SELECT c.phase,u.status::text AS status,u.reservation_released_at IS NULL AS reserved,
+      a.revision::text AS revision,EXISTS(SELECT 1 FROM attempt_attachments aa WHERE aa.attempt_id=a.id AND aa.file_id=c.file_id) AS linked
+      FROM file_custodies c JOIN uploads u ON u.file_id=c.file_id JOIN attempts a ON a.id=c.target_id WHERE c.file_id=$1::uuid`;
+    assert.deepEqual((await tx.query(query,row.id))[0],{phase:'ready',status:'COMPLETED',reserved:false,revision:String(BigInt(before)+1n),linked:true});
+    const outside=(await pool.query(query,[row.id])).rows[0];
+    assert.deepEqual(outside,{phase:'inspecting',status:'UPLOADING',reserved:true,revision:before,linked:false});
+    throw new FileError('UPLOAD_CONFLICT');
+   });
    await assert.rejects(()=>failing.receive(request(),reserved.id,bytes),{code:'UPLOAD_CONFLICT'});
    assert.equal((await files.status(S,reserved.id)).ready,false);assert.equal((await session()).attempt.revision,before);
    assert.equal((await pool.query('SELECT count(*)::int n FROM attempt_attachments WHERE file_id=$1',[reserved.id])).rows[0].n,0);

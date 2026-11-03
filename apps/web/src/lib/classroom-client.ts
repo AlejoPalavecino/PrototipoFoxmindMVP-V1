@@ -23,15 +23,15 @@ export function createWebClassroomClient(fetcher: typeof fetch = fetch, onAccoun
   };
   return createClassroomClient({
     prefix: '/api/v1',
-    csrfToken: async () => {
-      try { return (await account.read<{ csrfToken: string }>('/auth/csrf')).csrfToken; }
-      catch (error) { notify((error as { code?: string }).code ?? ''); throw error; }
+    csrfToken: async signal => {
+      try { return (await account.read<{ csrfToken: string }>('/auth/csrf', { signal })).csrfToken; }
+      catch (error) { if (!signal?.aborted) notify((error as { code?: string }).code ?? ''); throw error; }
     },
     fetch: async (path, init) => {
       const response = await fetcher(path, init);
       if (!response.ok) {
         const data = await response.clone().json().catch(() => ({}));
-        notify(data?.error?.code ?? '');
+        if (!init?.signal?.aborted) notify(data?.error?.code ?? '');
       }
       return response;
     },

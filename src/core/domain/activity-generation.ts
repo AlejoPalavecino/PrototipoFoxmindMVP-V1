@@ -41,6 +41,8 @@ export interface ActivityGenerationView {
   proposal: ActivityProposal | null; error: ExtractionError | 'SOURCE_UNAVAILABLE' | 'INSUFFICIENT_CONTENT' | null;
   retryable: boolean; appliedActivityId: string | null; missingInformation: string[]; sourceReport: ActivitySourceReport[];
 }
+export type ActivityGenerationResponse = Omit<ActivityGenerationView, 'createdAt'> & { createdAt: string };
+export interface ActivityGenerationApplied { generationId: string; activityId: string; revision: string }
 export interface ActivitySourceReport { sourceId: string; status: 'READ'; pageCount: number | null; warnings: ActivityGenerationWarning[] }
 export interface ActivitySourceGrant { ownerId: string; classroomId: string; sourceId: string; fileId: string; digest: string }
 export interface ActivitySourceSnapshot { sourceId: string; fileId: string; digest: string; extension: 'pdf' | 'docx'; sizeBytes: number }
@@ -49,3 +51,4 @@ export interface ActivitySourceCandidate {
   sourceId: string; fileId: string; title: string; kind: 'plan' | 'material'; extension: string; sizeBytes: number;
   unitId: string | null; topicId: string | null; available: boolean; reason: 'UNSUPPORTED_FORMAT' | 'AI_INPUT_LIMIT' | 'FILE_NOT_READY' | null;
 }
+export interface ActivityGenerationCatalog { revision: string; sources: ActivitySourceCandidate[] }

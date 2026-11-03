@@ -1,16 +1,16 @@
 import { isDeepStrictEqual } from 'node:util';
 import { parseSendFoxyMessage, type FoxyContext, type SqlTransaction } from '../../../../src/core/domain/index.ts';
 import type { FoxyGroundingSnapshot } from '../../../../src/core/domain/foxy-ai-grounding.ts';
-import type { ClassroomService } from '../classrooms/index.ts';
+import type { FoxyClassroomReadContext } from './context-catalog.ts';
 import { snapshotError } from './grounding-sources.ts';
 import { rebuildGrounding } from './grounding-rebuild.ts';
 
 type Conversations = { get(tx: SqlTransaction, owner: string, id: string): Promise<{ context: FoxyContext } | null> };
 export class FoxyGroundingSnapshotService {
-  private readonly run: ClassroomService['run'];
-  private readonly classroom: ClassroomService['classroom'];
+  private readonly run: FoxyClassroomReadContext['run'];
+  private readonly classroom: FoxyClassroomReadContext['classroom'];
   private readonly conversations: Conversations;
-  constructor(context: Pick<ClassroomService, 'run' | 'classroom'>, conversations: Conversations) {
+  constructor(context: FoxyClassroomReadContext, conversations: Conversations) {
     this.run = context.run.bind(context); this.classroom = context.classroom.bind(context); this.conversations = conversations;
   }
   async capture(request: unknown, conversationId: string, selection: unknown): Promise<FoxyGroundingSnapshot> {

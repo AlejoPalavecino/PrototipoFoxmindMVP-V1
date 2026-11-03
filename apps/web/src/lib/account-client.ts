@@ -23,13 +23,18 @@ export class AccountError extends Error {
 }
 export function createAccountClient(fetcher: typeof fetch = fetch) {
   async function read<T>(path: string, init: RequestInit = {}): Promise<T> {
+    const caller = init.signal;
+    caller?.throwIfAborted();
+    const timeout = AbortSignal.timeout(15_000);
     let response: Response;
     try {
-      response = await fetcher(`/api/v1${path}`, { ...init, credentials: 'same-origin', cache: 'no-store', signal: AbortSignal.timeout(15_000) });
-    } catch { throw new AccountError('SERVICE_UNAVAILABLE', 503); }
+      response = await fetcher(`/api/v1${path}`, { ...init, credentials: 'same-origin', cache: 'no-store',
+        signal: caller ? AbortSignal.any([caller, timeout]) : timeout });
+    } catch { caller?.throwIfAborted(); throw new AccountError('SERVICE_UNAVAILABLE', 503); }
     let data: unknown;
     try { data = response.status === 204 ? undefined : await response.json(); }
-    catch { throw new AccountError('SERVICE_UNAVAILABLE', 503); }
+    catch { caller?.throwIfAborted(); throw new AccountError('SERVICE_UNAVAILABLE', 503); }
+    caller?.throwIfAborted();
     if (!response.ok) {
       const code = (data as { error?: { code?: string } })?.error?.code ?? 'SERVICE_UNAVAILABLE';
       const retry = Number(response.headers.get('retry-after'));
@@ -37,7 +42,7 @@ export function createAccountClient(fetcher: typeof fetch = fetch) {
     }
     return data as T;
   }
-  async function session(): Promise<AccountSession> { return read<AccountSession>('/auth/session'); }
+  async function session(signal?: AbortSignal): Promise<AccountSession> { return read<AccountSession>('/auth/session', { signal }); }
   async function mutate<T>(path: string, data: Record<string, string> = {}, method = 'POST') {
     const current = await session();
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };

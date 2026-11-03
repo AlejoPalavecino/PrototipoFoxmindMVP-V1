@@ -1,10 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import { replaceActivityContent } from './activity-content.ts';
 import type { ClassroomCore } from './core.ts';
-import type { PlanService } from './plan.ts';
+import type { ClassroomFileOperations } from './classroom-file.ts';
 import type { studentActivityView } from './activity-session.ts';
 import { isVerifiedRead } from './context.ts';
-import { revision } from './drafts.ts';
+import { revision } from './revision.ts';
 import { fail, object, text, uuid } from './policy.ts';
 import { activityOperation, activityPayload, activityType, exactActivityObject, type ActivityPayload, type ActivityType } from './activity-policy.ts';
 import { deadlineChoices, resolveDeadline } from './activity-time.ts';
@@ -27,10 +27,10 @@ export class ActivityAuthoringService {
   private readonly run: ClassroomCore['run'];
   private readonly classroom: ClassroomCore['classroom'];
   private readonly ports: ClassroomCore['ports'];
-  private readonly readyClassroomFile: PlanService['readyClassroomFile'];
-  private readonly advanceRevision: PlanService['advanceRevision'];
+  private readonly readyClassroomFile: ClassroomFileOperations['readyClassroomFile'];
+  private readonly advanceRevision: ClassroomFileOperations['advanceRevision'];
   private readonly studentActivityView: (...args: Parameters<typeof studentActivityView> extends [unknown, ...infer Rest] ? Rest : never) => ReturnType<typeof studentActivityView>;
-  constructor(context: Pick<ClassroomCore, 'run' | 'classroom' | 'ports'>, dependencies: Pick<PlanService, 'readyClassroomFile' | 'advanceRevision'> & { studentActivityView: ActivityAuthoringService['studentActivityView'] }) {
+  constructor(context: Pick<ClassroomCore, 'run' | 'classroom' | 'ports'>, dependencies: Pick<ClassroomFileOperations, 'readyClassroomFile' | 'advanceRevision'> & { studentActivityView: ActivityAuthoringService['studentActivityView'] }) {
     this.run = context.run.bind(context); this.classroom = context.classroom.bind(context); this.ports = context.ports;
     this.readyClassroomFile = dependencies.readyClassroomFile; this.advanceRevision = dependencies.advanceRevision;
     this.studentActivityView = dependencies.studentActivityView;

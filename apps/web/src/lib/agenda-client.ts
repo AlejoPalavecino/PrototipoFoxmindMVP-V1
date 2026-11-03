@@ -9,9 +9,11 @@ function agendaCaller(fetcher: typeof fetch, onIdentityRequired?: (code: string)
   };
   async function call<T>(path: string, method = 'GET', data?: unknown, signal?: AbortSignal): Promise<T> {
     try {
+      signal?.throwIfAborted();
       const headers: Record<string, string> = {};
       if (method !== 'GET') {
-        headers['X-CSRF-Token'] = (await account.read<{ csrfToken: string }>('/auth/csrf')).csrfToken;
+        headers['X-CSRF-Token'] = (await account.read<{ csrfToken: string }>('/auth/csrf', { signal })).csrfToken;
+        signal?.throwIfAborted();
         headers['Content-Type'] = 'application/json';
       }
       const response = await fetcher(`/api/v1/agenda${path}`, {
@@ -19,8 +21,10 @@ function agendaCaller(fetcher: typeof fetch, onIdentityRequired?: (code: string)
         signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(30_000)]) : AbortSignal.timeout(30_000),
         body: method === 'GET' ? undefined : JSON.stringify(data),
       });
+      signal?.throwIfAborted();
       if (response.status === 204) return undefined as T;
       const result = await response.json();
+      signal?.throwIfAborted();
       if (!response.ok) throw new AgendaClientError(result?.error?.code ?? 'SERVICE_UNAVAILABLE', response.status, result?.error?.details);
       return result as T;
     } catch (error) {
@@ -45,6 +49,6 @@ export function createWebAgendaClient(fetcher: typeof fetch = fetch, onIdentityR
     put: (id, event) => call(`/events/${agendaId(id)}`, 'PUT', event),
     replace: (id, revision, event) => call(`/events/${agendaId(id)}`, 'PATCH', { revision, event }),
     remove: (id, revision) => call(`/events/${agendaId(id)}`, 'DELETE', { revision }),
-    open: target => call('/open', 'POST', target),
+    open: (target, signal) => call('/open', 'POST', target, signal),
   };
 }

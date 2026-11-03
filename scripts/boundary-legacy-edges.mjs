@@ -1,151 +1,181 @@
-// Historic module coupling: migrate each edge to the target public index.
-export const legacyEdges = new Map([
-  [
-    "apps/api/src/classrooms/activity-authoring.ts -> ../files/service.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/classrooms/activity-history.ts -> ../files/service.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/classrooms/classrooms.module.ts -> ../database/prisma.service.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/classrooms/classrooms.module.ts -> ../identity/runtime.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/classrooms/contracts.ts -> ../files/contracts.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/classrooms/contracts.ts -> ../files/store.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/classrooms/core.ts -> ../files/store.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/classrooms/delivery.ts -> ../files/contracts.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/classrooms/delivery.ts -> ../mail/mailbox.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/classrooms/drafts.ts -> ../files/promotion.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/classrooms/errors.ts -> ../identity/errors.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/classrooms/host.ts -> ../identity/errors.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/classrooms/host.ts -> ../identity/runtime.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/classrooms/host.ts -> ../identity/transport.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/classrooms/host.ts -> ../identity/session-query.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/classrooms/invitations.ts -> ../mail/mailbox.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/classrooms/library-cleanup.ts -> ../files/contracts.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/classrooms/library-cleanup.ts -> ../files/storage.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/classrooms/plan.ts -> ../files/service.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/classrooms/practical-submissions.ts -> ../files/service.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/classrooms/practical-submissions.ts -> ../files/store.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/classrooms/session-readers.ts -> ../files/service.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/classrooms/session-readers.ts -> ../files/store.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/files/attempt-bridge.ts -> ../classrooms/attempt-access.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/files/attempt-bridge.ts -> ../classrooms/attempt-policy.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/files/attempt-bridge.ts -> ../classrooms/policy.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/files/files.module.ts -> ../database/prisma.service.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/files/files.module.ts -> ../identity/runtime.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/files/host.ts -> ../identity/errors.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/files/host.ts -> ../identity/runtime.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/files/host.ts -> ../identity/transport.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/files/host.ts -> ../identity/session-query.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/files/store.ts -> ../identity/errors.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/health/health.controller.ts -> ../database/prisma.service.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/identity/errors.ts -> ../mail/mail-error.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/identity/identity.module.ts -> ../database/prisma.service.ts",
-    "Existing module wiring pending public API migration"
-  ],
-  [
-    "apps/api/src/identity/persistence.ts -> ../database/prisma.service.ts",
-    "Existing module wiring pending public API migration"
-  ]
-]);
+// ARQ-04: exact source, target, syntax, mode and bindings. Keep changes reviewable.
+// Cycle rows describe static paths, not demonstrated runtime initialization failures.
+const groups = [
+  {
+    reason: "Identidad, base de datos, admisión y correo de la composición existente.",
+    removeWhen: "ARQ-06/08: separar el cableado del contrato de consumo y comprobar identidad y ciclo de vida.",
+    edges: [
+      "broad barrel dependency: apps/api/src/agenda/host.ts | apps/api/src/identity-security/index.ts | import | eager | {clearSessionCookie, type IdentityConfiguration}",
+      "broad barrel dependency: apps/api/src/agenda/host.ts | apps/api/src/identity/index.ts | import | eager | {IdentityHttpError, authenticateSession, publicIdentityError, readSessionCookie, type IdentityRuntime}",
+      "broad barrel dependency: apps/api/src/classrooms/host.ts | apps/api/src/identity-security/index.ts | import | eager | {clearSessionCookie, type IdentityConfiguration}",
+      "broad barrel dependency: apps/api/src/files/host.ts | apps/api/src/identity-security/index.ts | import | eager | {clearSessionCookie, type IdentityConfiguration}",
+      "broad barrel dependency: apps/api/src/home/host.ts | apps/api/src/identity-security/index.ts | import | eager | {clearSessionCookie}",
+      "broad barrel dependency: apps/api/src/home/host.ts | apps/api/src/identity/index.ts | import | eager | {IdentityHttpError, readSessionCookie, type IdentityRuntime}",
+      "broad barrel dependency: apps/api/src/identity/configuration.ts | apps/api/src/account-mail-outbox/index.ts | import | eager | {loadOutboxKeyring, type OutboxKeyring}",
+      "broad barrel dependency: apps/api/src/identity/configuration.ts | apps/api/src/identity-security/index.ts | import | eager | {readIdentityConfiguration, type IdentityConfiguration}",
+      "broad barrel dependency: apps/api/src/identity/configuration.ts | apps/api/src/mail/index.ts | import | eager | {readMailConfiguration, type MailConfiguration}",
+      "broad barrel dependency: apps/api/src/identity/errors.ts | apps/api/src/identity-security/index.ts | import | eager | {IdentitySecurityError}",
+      "broad barrel dependency: apps/api/src/identity/identity.module.ts | apps/api/src/identity-security/index.ts | import | eager | {createPasswordService}",
+      "broad barrel dependency: apps/api/src/identity/mail-lifecycle.ts | apps/api/src/account-mail-outbox/index.ts | import | eager | {runOnce, type AccountMailSender}",
+      "broad barrel dependency: apps/api/src/identity/mail-lifecycle.ts | apps/api/src/mail/index.ts | import | eager | {AccountMailService}",
+      "broad barrel dependency: apps/api/src/identity/persistence.ts | apps/api/src/identity-security/index.ts | import | eager | {IDENTITY_POLICY, sessionTokenDigest, type Budget, type IdentityConfiguration, type RateAction}",
+      "broad barrel dependency: apps/api/src/identity/runtime.ts | apps/api/src/account-mail-outbox/index.ts | import | eager | {cancelAccountMailForToken, enqueueAccountMail}",
+      "broad barrel dependency: apps/api/src/identity/runtime.ts | apps/api/src/identity-security/index.ts | import | eager | {IDENTITY_POLICY, accountTokenDigest, generateVerifier, newSessionWindow, sessionTokenDigest, type PasswordService, validateBodyShape, validateName, validatePassword}",
+      "broad barrel dependency: apps/api/src/identity/runtime.ts | apps/api/src/mail/index.ts | import | eager | {validateMailbox}",
+      "broad barrel dependency: apps/api/src/identity/session-query.ts | apps/api/src/identity-security/index.ts | import | eager | {IDENTITY_POLICY, sessionIsActive, sessionTokenDigest}",
+      "broad barrel dependency: apps/api/src/identity/transport.ts | apps/api/src/identity-security/index.ts | import | eager | {IDENTITY_POLICY, clearSessionCookie, parseVerifier, sessionCookie, validateBodyShape}",
+      "cross-module private API: apps/api/src/classrooms/classrooms.module.ts | apps/api/src/database/prisma.service.ts | import | eager | {PrismaService}",
+      "cross-module private API: apps/api/src/classrooms/classrooms.module.ts | apps/api/src/identity/runtime.ts | import | eager | {IdentityRuntime}",
+      "cross-module private API: apps/api/src/classrooms/delivery.ts | apps/api/src/mail/mailbox.ts | import | eager | {validateMailbox}",
+      "cross-module private API: apps/api/src/classrooms/errors.ts | apps/api/src/identity/errors.ts | import | type | {IdentityHttpError}",
+      "cross-module private API: apps/api/src/classrooms/host.ts | apps/api/src/identity/errors.ts | import | eager | {IdentityHttpError, publicIdentityError}",
+      "cross-module private API: apps/api/src/classrooms/host.ts | apps/api/src/identity/runtime.ts | import | type | {IdentityRuntime}",
+      "cross-module private API: apps/api/src/classrooms/host.ts | apps/api/src/identity/session-query.ts | import | eager | {authenticateSession}",
+      "cross-module private API: apps/api/src/classrooms/host.ts | apps/api/src/identity/transport.ts | import | eager | {readSessionCookie}",
+      "cross-module private API: apps/api/src/classrooms/invitations.ts | apps/api/src/mail/mailbox.ts | import | eager | {validateMailbox}",
+      "cross-module private API: apps/api/src/files/files.module.ts | apps/api/src/database/prisma.service.ts | import | eager | {PrismaService}",
+      "cross-module private API: apps/api/src/files/files.module.ts | apps/api/src/identity/runtime.ts | import | eager | {IdentityRuntime}",
+      "cross-module private API: apps/api/src/files/host.ts | apps/api/src/identity/errors.ts | import | eager | {IdentityHttpError, publicIdentityError}",
+      "cross-module private API: apps/api/src/files/host.ts | apps/api/src/identity/runtime.ts | import | type | {IdentityRuntime}",
+      "cross-module private API: apps/api/src/files/host.ts | apps/api/src/identity/session-query.ts | import | eager | {authenticateSession}",
+      "cross-module private API: apps/api/src/files/host.ts | apps/api/src/identity/transport.ts | import | eager | {readSessionCookie}",
+      "cross-module private API: apps/api/src/files/store.ts | apps/api/src/identity/errors.ts | import | type | {IdentityErrorCode, IdentityHttpError}",
+      "cross-module private API: apps/api/src/health/health.controller.ts | apps/api/src/database/prisma.service.ts | import | eager | {PrismaService}",
+      "cross-module private API: apps/api/src/identity/errors.ts | apps/api/src/mail/mail-error.ts | import | eager | {MailError}",
+      "cross-module private API: apps/api/src/identity/identity.module.ts | apps/api/src/database/prisma.service.ts | import | eager | {PrismaService}",
+      "cross-module private API: apps/api/src/identity/persistence.ts | apps/api/src/database/prisma.service.ts | import | type | {PrismaService}",
+      "mixed cycle: apps/api/src/identity/persistence.ts | apps/api/src/identity/session-query.ts | import | eager | {authenticateSession}",
+      "mixed cycle: apps/api/src/identity/session-query.ts | apps/api/src/identity/persistence.ts | import | type | {AuthenticatedContext}",
+    ],
+  },
+  {
+    reason: "Fachada, proyecciones y operaciones académicas compartidas del monolito actual.",
+    removeWhen: "ARQ-05/06/07: migrar a contratos acotados y retirar cada arista al verificar paridad.",
+    edges: [
+      "broad barrel dependency: apps/api/src/agenda/unit-of-work.ts | apps/api/src/classrooms/index.ts | import | eager | {createAcademicAgenda}",
+      "broad barrel dependency: apps/api/src/classrooms/classrooms.module.ts | apps/api/src/files/index.ts | import | eager | {FileService, createDurableActivitySourceReader, createDurableGradingAiAttachmentReader, createDurableGradingAiInstructionReader}",
+      "broad barrel dependency: apps/api/src/classrooms/classrooms.module.ts | apps/api/src/files/index.ts | inline | type | FileTransaction",
+      "broad barrel dependency: apps/api/src/classrooms/classrooms.module.ts | apps/api/src/files/index.ts | inline | type | GradingAttachmentGrant",
+      "cross-module private API: apps/api/src/classrooms/activity-authoring.ts | apps/api/src/files/service.ts | import | eager | {requireReady}",
+      "cross-module private API: apps/api/src/classrooms/activity-history.ts | apps/api/src/files/service.ts | import | eager | {requireReady}",
+      "cross-module private API: apps/api/src/classrooms/delivery.ts | apps/api/src/files/contracts.ts | import | type | {FileDatabase, FileTransaction}",
+      "cross-module private API: apps/api/src/classrooms/library-cleanup.ts | apps/api/src/files/contracts.ts | import | type | {FileDatabase, FileTransaction}",
+      "cross-module private API: apps/api/src/classrooms/library-cleanup.ts | apps/api/src/files/storage.ts | import | type | {ObjectStorage}",
+      "cross-module private API: apps/api/src/classrooms/practical-submissions.ts | apps/api/src/files/service.ts | import | eager | {requireReady}",
+      "cross-module private API: apps/api/src/classrooms/practical-submissions.ts | apps/api/src/files/store.ts | import | type | {FileRow}",
+      "cross-module private API: apps/api/src/classrooms/session-readers.ts | apps/api/src/files/service.ts | import | eager | {requireReady}",
+      "cross-module private API: apps/api/src/classrooms/session-readers.ts | apps/api/src/files/store.ts | import | type | {FileRow}",
+      "eager cycle: apps/agenda-ui/event-draft.ts | apps/agenda-ui/event-validation.ts | reexport | eager | {eventFailure}",
+      "eager cycle: apps/agenda-ui/event-validation.ts | apps/agenda-ui/event-draft.ts | import | eager | {draftPayload}",
+      "eager cycle: apps/api/src/classrooms/context-run.ts | apps/api/src/classrooms/context.ts | import | eager | {registerTransactionMode}",
+      "eager cycle: apps/api/src/classrooms/context.ts | apps/api/src/classrooms/context-run.ts | import | eager | {ClassroomTransactionRunner}",
+      "eager cycle: apps/api/src/classrooms/invitations-operations.ts | apps/api/src/classrooms/invitations.ts | import | eager | {encryptDelivery}",
+      "eager cycle: apps/api/src/classrooms/invitations.ts | apps/api/src/classrooms/invitations-operations.ts | import | eager | {inviteOperation}",
+      "eager cycle: apps/api/src/files/promotion.ts | apps/api/src/files/service.ts | import | eager | {requireReady}",
+      "eager cycle: apps/api/src/files/service.ts | apps/api/src/files/promotion.ts | import | eager | {promoteDraftPlan}",
+      "mixed cycle: apps/agenda-ui/EventAdvancedFields.tsx | apps/agenda-ui/EventFields.tsx | import | type | {EventFieldProps}",
+      "mixed cycle: apps/agenda-ui/EventAdvancedFields.tsx | apps/agenda-ui/EventZoneFields.tsx | import | eager | {EventZoneFields}",
+      "mixed cycle: apps/agenda-ui/EventColorFields.tsx | apps/agenda-ui/EventFields.tsx | import | type | {EventFieldProps}",
+      "mixed cycle: apps/agenda-ui/EventFields.tsx | apps/agenda-ui/EventAdvancedFields.tsx | import | eager | {EventAdvancedFields}",
+      "mixed cycle: apps/agenda-ui/EventFields.tsx | apps/agenda-ui/EventColorFields.tsx | import | eager | {EventColorFields}",
+      "mixed cycle: apps/agenda-ui/EventFields.tsx | apps/agenda-ui/EventRepeatFields.tsx | import | eager | {EventRepeatFields}",
+      "mixed cycle: apps/agenda-ui/EventFields.tsx | apps/agenda-ui/EventWhenFields.tsx | import | eager | {EventWhenFields}",
+      "mixed cycle: apps/agenda-ui/EventRepeatFields.tsx | apps/agenda-ui/EventFields.tsx | import | type | {EventFieldProps}",
+      "mixed cycle: apps/agenda-ui/EventWhenFields.tsx | apps/agenda-ui/EventFields.tsx | import | type | {EventFieldProps}",
+      "mixed cycle: apps/agenda-ui/EventZoneFields.tsx | apps/agenda-ui/EventFields.tsx | import | type | {EventFieldProps}",
+      "mixed cycle: apps/api/src/classrooms/classroom-queries.ts | apps/api/src/classrooms/context.ts | import | type | {ClassroomCore}",
+      "mixed cycle: apps/api/src/classrooms/composition-bindings.ts | apps/api/src/classrooms/composition.ts | import | type | {ClassroomService}",
+      "mixed cycle: apps/api/src/classrooms/composition.ts | apps/api/src/classrooms/composition-bindings.ts | import | eager | {bindClassroomMethods}",
+      "mixed cycle: apps/api/src/classrooms/context.ts | apps/api/src/classrooms/classroom-queries.ts | import | eager | {detail as detailQuery, mine as mineQuery}",
+      "mixed cycle: apps/api/src/classrooms/invitations-operations.ts | apps/api/src/classrooms/invitations.ts | import | type | {InvitationService}",
+      "mixed cycle: apps/api/src/classrooms/memberships-operations-1.ts | apps/api/src/classrooms/memberships.ts | import | type | {MembershipService}",
+      "mixed cycle: apps/api/src/classrooms/memberships-operations-2.ts | apps/api/src/classrooms/memberships.ts | import | type | {MembershipService}",
+      "mixed cycle: apps/api/src/classrooms/memberships.ts | apps/api/src/classrooms/memberships-operations-1.ts | import | eager | {confirmCodeOperation, previewCodeOperation}",
+      "mixed cycle: apps/api/src/classrooms/memberships.ts | apps/api/src/classrooms/memberships-operations-2.ts | import | eager | {endMembershipOperation, membersOperation}",
+      "mixed cycle: apps/api/src/files/foxy-private-asset-files.ts | apps/api/src/files/foxy-private-asset-files-lifecycle.ts | import | eager | {createFoxyAssetCustodyLifecycle}",
+      "mixed cycle: apps/api/src/files/index.ts | apps/api/src/files/foxy-private-asset-files.ts | reexport | eager | {createFoxyPrivateAssetFiles}",
+      "mixed cycle: apps/api/src/files/index.ts | apps/api/src/files/foxy-publication-files.ts | reexport | eager | {createDurableFoxyPublicationFiles}",
+      "mixed cycle: apps/shared-ui/AppNavbar.tsx | apps/shared-ui/NavbarParts.tsx | import | eager | {NavbarDrawer, ShellAccount, ShellLinks}",
+      "mixed cycle: apps/shared-ui/NavbarParts.tsx | apps/shared-ui/AppNavbar.tsx | import | type | {NavbarLink}",
+      "mixed cycle: apps/web/src/components/account-flow-forms.tsx | apps/web/src/components/account-screen.tsx | import | type | {AccountView}",
+      "mixed cycle: apps/web/src/components/account-screen.tsx | apps/web/src/components/account-flow-forms.tsx | import | eager | {AccountFlowForms}",
+      "public surface dependency: apps/api/src/classrooms/contracts.ts | apps/api/src/files/public/index.ts | import | type | {FileStore}",
+      "type-only cycle: apps/api/src/classrooms/activity-authoring.ts | apps/api/src/classrooms/activity-session.ts | import | type | {studentActivityView}",
+      "type-only cycle: apps/api/src/classrooms/activity-session.ts | apps/api/src/classrooms/activity-authoring.ts | import | type | {ActivityAuthoringService, ActivityRow}",
+    ],
+  },
+  {
+    reason: "Adaptadores, lectores privados, publicación, colas y presupuesto técnico vigentes.",
+    removeWhen: "ARQ-06/08: migrar cada consumidor a un puerto acotado y verificar paridad.",
+    edges: [
+      "broad barrel dependency: apps/api/src/classrooms/activity-ai/http.ts | apps/api/src/ai/index.ts | import | eager | {AiError}",
+      "broad barrel dependency: apps/api/src/classrooms/activity-ai/runtime.ts | apps/api/src/ai/index.ts | import | eager | {createGeminiActivityGenerationAdapter, type AiConfiguration}",
+      "broad barrel dependency: apps/api/src/classrooms/activity-ai/runtime.ts | apps/api/src/files/index.ts | import | eager | {createDurableActivitySourceReader, type FileService}",
+      "broad barrel dependency: apps/api/src/classrooms/ai/budget.ts | apps/api/src/ai/index.ts | reexport | eager | {reserveAiTextBudget as reserve, settleAiTextBudget as settle, tokenCost}",
+      "broad barrel dependency: apps/api/src/classrooms/ai/budget.ts | apps/api/src/ai/index.ts | reexport | type | {BudgetTable}",
+      "broad barrel dependency: apps/api/src/classrooms/ai/contracts.ts | apps/api/src/ai/index.ts | import | type | {AiConfiguration}",
+      "broad barrel dependency: apps/api/src/classrooms/ai/http.ts | apps/api/src/ai/index.ts | import | eager | {AiError}",
+      "broad barrel dependency: apps/api/src/classrooms/ai/runtime.ts | apps/api/src/ai/index.ts | import | eager | {createGeminiExtractionAdapter, type AiConfiguration, type StructuredExtractionPort}",
+      "broad barrel dependency: apps/api/src/classrooms/ai/runtime.ts | apps/api/src/files/index.ts | import | eager | {createDurableApprovedPlanReader, type FileService}",
+      "broad barrel dependency: apps/api/src/classrooms/classrooms.module.ts | apps/api/src/ai/index.ts | import | type | {AiConfiguration}",
+      "broad barrel dependency: apps/api/src/classrooms/grading-ai/provider.ts | apps/api/src/ai/index.ts | import | type | {AiConfiguration, GeminiClient}",
+      "broad barrel dependency: apps/api/src/classrooms/grading-ai/runtime.ts | apps/api/src/ai/index.ts | import | type | {AiConfiguration}",
+      "broad barrel dependency: apps/api/src/classrooms/student-ai/provider.ts | apps/api/src/ai/index.ts | import | type | {AiConfiguration, GeminiClient}",
+      "broad barrel dependency: apps/api/src/classrooms/student-ai/runtime.ts | apps/api/src/ai/index.ts | import | type | {AiConfiguration}",
+      "broad barrel dependency: apps/api/src/foxy-ai/host.ts | apps/api/src/identity-security/index.ts | import | eager | {clearSessionCookie, type IdentityConfiguration}",
+      "broad barrel dependency: apps/api/src/foxy-ai/host.ts | apps/api/src/identity/index.ts | import | eager | {IdentityHttpError, authenticateSession, publicIdentityError, readSessionCookie, type IdentityRuntime}",
+      "broad barrel dependency: apps/api/src/foxy-ai/private-asset-reader.ts | apps/api/src/files/index.ts | import | type | {ObjectStorage}",
+      "broad barrel dependency: apps/api/src/foxy-ai/publication-file-allocator.ts | apps/api/src/files/index.ts | import | type | {FileService}",
+      "broad barrel dependency: apps/api/src/foxy-ai/publication-worker.ts | apps/api/src/files/index.ts | import | type | {createDurableFoxyPublicationFiles, createDurableFoxyPublicationRasterSource}",
+      "broad barrel dependency: apps/api/src/foxy-ai/runtime.ts | apps/api/src/files/index.ts | dynamic | deferred | {createDurableFoxyDocumentReader}",
+      "broad barrel dependency: apps/api/src/foxy-ai/runtime.ts | apps/api/src/files/index.ts | import | type | {FileService}",
+      "broad barrel dependency: apps/api/src/foxy-ai/runtime.ts | apps/api/src/files/index.ts | import | type | {createDurableFoxyPublicationFiles}",
+      "broad barrel dependency: apps/api/src/foxy-ai/text-budget.ts | apps/api/src/ai/index.ts | import | eager | {reserveAiTextBudget, settleAiTextBudget}",
+      "broad barrel dependency: apps/api/src/foxy-ai/visual-budget.ts | apps/api/src/ai/index.ts | import | eager | {quoteFoxyImageBudget, reserveAiTextBudget, settleAiTextBudget, tokenCost}",
+      "broad barrel dependency: apps/api/src/foxy-ai/visual-configuration.ts | apps/api/src/ai/index.ts | import | type | {AiConfiguration}",
+      "broad barrel dependency: apps/api/src/foxy-ai/visual-host-providers.ts | apps/api/src/ai/index.ts | import | eager | {createGeminiFoxyDiagramAdapter, createGeminiFoxyImageAdapter, type AiConfiguration}",
+      "broad barrel dependency: apps/api/src/foxy-ai/visual-runtime.ts | apps/api/src/files/index.ts | import | type | {FileService}",
+      "mixed cycle: apps/api/src/files/foxy-private-asset-files-lifecycle.ts | apps/api/src/foxy-ai/public/index.ts | import | type | {FoxyPrivateAssetLease}",
+      "mixed cycle: apps/api/src/files/foxy-private-asset-files.ts | apps/api/src/foxy-ai/public/index.ts | import | type | {FoxyPrivateAssetLease}",
+      "mixed cycle: apps/api/src/files/foxy-private-asset-files.ts | apps/api/src/foxy-ai/public/index.ts | import | type | {createFoxyPrivateAssetAuthority}",
+      "mixed cycle: apps/api/src/files/foxy-publication-files.ts | apps/api/src/foxy-ai/public/index.ts | import | eager | {createFoxyPublicationFileAllocator, createFoxyUnitOfWork, type createFoxyPublicationAuthority}",
+      "mixed cycle: apps/api/src/foxy-ai/public/index.ts | apps/api/src/foxy-ai/publication-file-allocator.ts | reexport | eager | {createFoxyPublicationFileAllocator}",
+      "mixed cycle: apps/api/src/foxy-ai/publication-file-allocator.ts | apps/api/src/files/index.ts | import | type | {FileService}",
+      "public surface dependency: apps/api/src/foxy-ai/runtime.ts | apps/api/src/files/public/index.ts | dynamic | deferred | binding filesApi: createDurableFoxyPublicationRasterSource, createFoxyPrivateImageInspector",
+      "public surface dependency: apps/api/src/foxy-ai/runtime.ts | apps/api/src/files/public/index.ts | dynamic | deferred | then {createDurableFoxyPublicationFiles}",
+      "type-only cycle: apps/api/src/foxy-ai/text-budget.ts | apps/api/src/foxy-ai/turn-queue.ts | import | type | {FoxyTurnLease}",
+      "type-only cycle: apps/api/src/foxy-ai/turn-queue.ts | apps/api/src/foxy-ai/text-budget.ts | import | type | {FoxyTextBudgetConfiguration}",
+    ],
+  },
+  {
+    reason: "Reexportaciones explícitas de contratos de consumo ya instalados.",
+    removeWhen: "Revisar la API de la capacidad y retirar la entrada al reemplazar el contrato.",
+    edges: [
+      "public surface dependency: apps/api/src/classrooms/public/index.ts | apps/api/src/classrooms/activity-draft.ts | reexport | eager | {createActivityDraftInTransaction}",
+      "public surface dependency: apps/api/src/classrooms/public/index.ts | apps/api/src/classrooms/library-publication.ts | reexport | eager | {createLibraryMaterialPublisher}",
+      "public surface dependency: apps/api/src/files/public/index.ts | apps/api/src/files/foxy-durable-document-reader.ts | reexport | eager | {createDurableFoxyDocumentReader}",
+      "public surface dependency: apps/api/src/files/public/index.ts | apps/api/src/files/foxy-private-asset-files.ts | reexport | eager | {createFoxyPrivateAssetFiles}",
+      "public surface dependency: apps/api/src/files/public/index.ts | apps/api/src/files/foxy-private-image-inspector.ts | reexport | eager | {createFoxyPrivateImageInspector}",
+      "public surface dependency: apps/api/src/files/public/index.ts | apps/api/src/files/foxy-publication-files.ts | reexport | eager | {createDurableFoxyPublicationFiles}",
+      "public surface dependency: apps/api/src/files/public/index.ts | apps/api/src/files/foxy-publication-raster-source.ts | reexport | eager | {createDurableFoxyPublicationRasterSource}",
+      "public surface dependency: apps/api/src/files/public/index.ts | apps/api/src/files/promotion.ts | reexport | eager | {promoteDraftPlan}",
+      "public surface dependency: apps/api/src/files/public/index.ts | apps/api/src/files/service.ts | reexport | eager | {requireReady}",
+      "public surface dependency: apps/api/src/files/public/index.ts | apps/api/src/files/store.ts | reexport | eager | {FileIdentityError}",
+      "public surface dependency: apps/api/src/files/public/index.ts | apps/api/src/files/store.ts | reexport | type | {FileStore}",
+      "public surface dependency: apps/api/src/foxy-ai/public/index.ts | apps/api/src/foxy-ai/private-asset-authority-db.ts | reexport | type | {Lease as FoxyPrivateAssetLease, Metadata as FoxyPrivateAssetMetadata}",
+      "public surface dependency: apps/api/src/foxy-ai/public/index.ts | apps/api/src/foxy-ai/private-asset-authority.ts | reexport | type | {createFoxyPrivateAssetAuthority}",
+      "public surface dependency: apps/api/src/foxy-ai/public/index.ts | apps/api/src/foxy-ai/publication-authority.ts | reexport | type | {createFoxyPublicationAuthority}",
+      "public surface dependency: apps/api/src/foxy-ai/public/index.ts | apps/api/src/foxy-ai/publication-file-allocator.ts | reexport | eager | {createFoxyPublicationFileAllocator}",
+      "public surface dependency: apps/api/src/foxy-ai/public/index.ts | apps/api/src/foxy-ai/unit-of-work.ts | reexport | eager | {createFoxyUnitOfWork}",
+      "public surface dependency: apps/api/src/mail/public/index.ts | apps/api/src/mail/mail-error.ts | reexport | eager | {MailError}",
+      "public surface dependency: apps/api/src/mail/public/index.ts | apps/api/src/mail/mailbox.ts | reexport | eager | {validateMailbox}",
+    ],
+  },
+];
+
+export const legacyEdges = new Map(groups.flatMap(({ reason, removeWhen, edges }) =>
+  edges.map(edge => {
+    const source = edge.slice(edge.indexOf(': ') + 2).split(' | ')[0];
+    const owner = source.startsWith('apps/api/src/') ? source.split('/')[3] : source.split('/')[1];
+    return [edge, { reason, owner, removeWhen, verification: 'npm run lint:boundaries' }];
+  })));

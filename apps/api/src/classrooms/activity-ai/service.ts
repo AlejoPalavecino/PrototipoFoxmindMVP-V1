@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { parseStartActivityGeneration, parseApplyActivityGeneration, strictObject } from '../../../../../src/core/domain/index.ts';
-import type { StartActivityGeneration } from '../../../../../src/core/domain/index.ts';
+import { parseStartActivityGeneration, parseRegenerateActivityGeneration, parseApplyActivityGeneration } from '../../../../../src/core/domain/index.ts';
+import type { ActivityGenerationCatalog, StartActivityGeneration } from '../../../../../src/core/domain/index.ts';
 import type { Transaction } from '../contracts.ts';
 import { fail } from '../policy.ts';
 import { authorized, job, view } from './database.ts';
@@ -15,7 +15,7 @@ import { requireUnknownAcknowledgement } from './unknown-start.ts';
 export class ActivityAiService {
   readonly options: ActivityAiOptions;
   constructor(options: ActivityAiOptions) { this.options = options; }
-  sources(request: unknown, classroomId: string) {
+  sources(request: unknown, classroomId: string): Promise<ActivityGenerationCatalog> {
     return authorized(this.options, request, classroomId, false, async (tx, room) =>
       ({ revision: String(room.revision), sources: await candidates(tx, classroomId) }));
   }
@@ -45,18 +45,15 @@ export class ActivityAiService {
       currentView(this.options, tx, request, await job(tx, classroomId, id)), 'write');
   }
   regenerate(request: unknown, classroomId: string, id: string, input: unknown) {
-    const keys = ['revision', 'requestId', 'type', 'unitId', 'topicIds', 'sourceIds', 'objective', 'groupLevel', 'difficulty', 'durationMinutes', 'context', 'counts', 'acknowledgedWarnings'];
-    const raw = strictObject(input, [...keys, 'acknowledgePossibleCharge']);
-    if (typeof raw.acknowledgePossibleCharge !== 'boolean') return fail('INVALID_INPUT');
-    const body = parseStartActivityGeneration(Object.fromEntries(keys.map(k => [k, raw[k]])));
+    const { body, raw, acknowledgePossibleCharge } = parseRegenerateActivityGeneration(input);
     const hash = inputHash('regenerate', classroomId, id, raw);
     return authorized(this.options, request, classroomId, true, async (tx, room, actor) => {
       const previous = await job(tx, classroomId, id), repeated = await replay(tx, actor.id, body.requestId, hash);
       if (repeated) return { created: false, view: await currentView(this.options, tx, request, await job(tx, classroomId, repeated)) };
       if (!['READY', 'FAILED', 'STALE'].includes(previous.state) || String(room.revision) !== body.revision
-        || (previous.error_code === 'PROVIDER_OUTCOME_UNKNOWN' && !raw.acknowledgePossibleCharge)) return fail('CONFLICT');
+        || (previous.error_code === 'PROVIDER_OUTCOME_UNKNOWN' && !acknowledgePossibleCharge)) return fail('CONFLICT');
       await requireUnknownAcknowledgement(tx, actor.id, classroomId, body,
-        { predecessorId: previous.id, possibleCharge: raw.acknowledgePossibleCharge === true });
+        { predecessorId: previous.id, possibleCharge: acknowledgePossibleCharge });
       const row = await this.insert(tx, request, classroomId, actor.id, body, hash, previous);
       await recordRequest(tx, actor.id, body.requestId, 'regenerate', hash, row.id);
       return { created: true, view: view(row) };

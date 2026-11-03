@@ -1,4 +1,4 @@
-import { parseActivityProposal, type ApplyActivityGeneration } from '../../../../../src/core/domain/index.ts';
+import { parseActivityProposal, type ActivityGenerationApplied, type ApplyActivityGeneration } from '../../../../../src/core/domain/index.ts';
 import { createActivityDraftInTransaction } from '../public/index.ts';
 import type { Actor, Transaction } from '../contracts.ts';
 import { fail } from '../policy.ts';
@@ -10,7 +10,7 @@ export function proposalConstraints(row: JobRow) {
   return { type: row.type, counts: row.input_payload.counts, sourceIds: row.input_payload.sourceIds,
     context: row.input_payload.context, pdfPageCounts: Object.fromEntries(row.source_report.filter(s => s.pageCount !== null).map(s => [s.sourceId, s.pageCount!])) };
 }
-export function applied(row: JobRow) {
+export function applied(row: JobRow): ActivityGenerationApplied {
   return { generationId: row.id, activityId: row.applied_activity_id!, revision: String(row.applied_revision) };
 }
 export async function applyProposal(options: ActivityAiOptions, tx: Transaction, request: unknown, row: JobRow,

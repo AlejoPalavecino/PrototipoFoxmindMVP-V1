@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { randomBytes, randomUUID } from 'node:crypto';
 import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -188,6 +189,57 @@ test('P7 T1 real P3 sessions, authoring UI, private ready instructions and safe 
         await rejectSame(runtime.db, () => change({ action: 'create', type: 'ASSIGNMENT' }), 409);
         assert.equal((await api(student, 'GET', `/files/${instructions}/content`)).status, 200);
       });
+    } finally { await browser.close(); }
+  }, { classrooms: true });
+});
+
+test('ARQ-07 restores an authorized activity link across reload and browser history', { timeout: 330000 }, async () => {
+  await withP4IntegrationRuntime(async runtime => {
+    const { sessionTokenDigest } = await import('../.build/api/apps/api/src/identity-security/index.js');
+    const teacher = randomUUID(), room = randomUUID(), unit = randomUUID(), topic = randomUUID(), token = randomBytes(32).toString('base64url');
+    await runtime.db.query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+      VALUES($1,now(),$2,$2,'Docente','Fixture','fixture-only',now(),'teacher')`, [teacher, `${teacher}@example.test`]);
+    await runtime.db.query(`INSERT INTO sessions(id,updated_at,user_id,token_hash,expires_at)
+      VALUES($1,now(),$2,$3,now()+interval '1 hour')`, [randomUUID(), teacher, sessionTokenDigest(token)]);
+    await runtime.db.query(`INSERT INTO classrooms(id,updated_at,teacher_id,name,subject,division,academic_year,timezone,cover_key,storage_quota_bytes)
+      VALUES($1,now(),$2,'Aula enlace','Ciencias','A',2026,'UTC','explore',100000000)`, [room, teacher]);
+    await runtime.db.query('INSERT INTO units(id,updated_at,classroom_id,name,position) VALUES($1,now(),$2,$3,0)', [unit, room, 'Unidad']);
+    await runtime.db.query('INSERT INTO topics(id,updated_at,classroom_id,unit_id,name,position) VALUES($1,now(),$2,$3,$4,0)', [topic, room, unit, 'Tema']);
+    const browser = await chromium.launch({ headless: true });
+    try {
+      const context = await browser.newContext({ viewport: { width: 320, height: 900 } });
+      await context.addCookies([{ name: 'foxmind_session', value: token, url: runtime.origin, httpOnly: true, sameSite: 'Lax' }]);
+      const page = await context.newPage();
+      const errors = []; page.on('pageerror', error => errors.push(error.message));
+      await page.goto(`${runtime.origin}/mis-aulas`);
+      const change = async operation => {
+        const detail = await api(page, 'GET', `/classrooms/${room}`); assert.equal(detail.status, 200);
+        const result = await api(page, 'POST', `/classrooms/${room}/activities`, { revision: detail.body.revision, operation });
+        assert.equal(result.status, 200, operation.action);
+        return result.body;
+      };
+      const { id } = await change({ action: 'create', type: 'ASSIGNMENT' });
+      await change({ action: 'save', id, payload: { title: 'Actividad enlazada', unitId: unit, topicId: topic,
+        instructions: 'Compará los ejemplos.', attachmentRequired: false, instructionFileIds: [], materialIds: [], questions: [], deadline: null, allowLate: false } });
+      await change({ action: 'publish', id });
+      const target = `${runtime.origin}/mis-aulas?aula=${room}&actividad=${id}`;
+      const preview = page.getByText('Vista previa docente: no inicia un intento ni activa el bloqueo de contenido.', { exact: true });
+      await page.goto(target);
+      await preview.waitFor();
+      await page.reload();
+      await preview.waitFor();
+      const tabs = page.getByRole('button', { name: 'Actividades', exact: true });
+      assert.equal(await tabs.getAttribute('aria-current'), 'page');
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+      await page.keyboard.press('Escape');
+      await preview.waitFor({ state: 'hidden' });
+      const exit = page.getByRole('button', { name: /Volver a mis aulas/i });
+      await exit.focus(); await exit.press('Enter');
+      await page.waitForURL(`${runtime.origin}/mis-aulas`);
+      await preview.waitFor({ state: 'hidden' });
+      await page.goBack(); await page.waitForURL(target); await preview.waitFor();
+      await page.goForward(); await page.waitForURL(`${runtime.origin}/mis-aulas`); await preview.waitFor({ state: 'hidden' });
+      assert.deepEqual(errors, []);
     } finally { await browser.close(); }
   }, { classrooms: true });
 });

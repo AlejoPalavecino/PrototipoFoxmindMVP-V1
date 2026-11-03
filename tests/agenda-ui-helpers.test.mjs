@@ -20,6 +20,11 @@ export function hookView(Component, props) {
       if (!same(slots[i]?.deps, deps)) slots[i] = { value, deps };
       return slots[i].value;
     },
+    useMemo(create, deps) {
+      const i = cursor++;
+      if (!same(slots[i]?.deps, deps)) slots[i] = { value: create(), deps };
+      return slots[i].value;
+    },
     useEffect(effect, deps) {
       const i = cursor++;
       if (!same(slots[i]?.deps, deps)) { slots[i] = { deps }; effects.push([i, effect]); }

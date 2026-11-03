@@ -4,6 +4,70 @@ import React from 'react';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView } from './agenda-ui-helpers.test.mjs';
 
+test('a delayed apply cannot reopen a draft after the generation context closes', async () => {
+  const { useActivityGeneration } = loadTsModule('apps/classrooms-ui/use-activity-generation.ts');
+  let finish, signal;
+  const api = { call: async (path, method, _data, requestSignal) => {
+    if (path.endsWith('/apply')) {
+      signal = requestSignal;
+      return new Promise(resolve => { finish = resolve; });
+    }
+    return path.endsWith('/sources') ? { revision: '2', sources: [] } : { jobs: [] };
+  } };
+  const opened = [];
+  const Host = () => React.createElement('output', { state: useActivityGeneration(api, { id: 'room', revision: '2' }, async id => { opened.push(id); }) });
+  const view = hookView(Host, {});
+  await view.flush();
+  const request = view.tree.props.state.apply('job', {});
+  view.close();
+  finish({ generationId: 'job', activityId: 'private-draft', revision: '3' });
+  await request;
+  assert.deepEqual(opened, []);
+  assert.equal(signal?.aborted, true);
+});
+
+test('the initial catalogue cannot overwrite a later explicit refresh', async () => {
+  const { useActivityGeneration } = loadTsModule('apps/classrooms-ui/use-activity-generation.ts');
+  let finish, reads = 0;
+  const api = { call: async path => {
+    if (!path.endsWith('/sources')) return { jobs: [] };
+    if (reads++ === 0) return new Promise(resolve => { finish = resolve; });
+    return { revision: '3', sources: [{ sourceId: 'fresh' }] };
+  } };
+  const Host = () => React.createElement('output', { state: useActivityGeneration(api, { id: 'room', revision: '2' }, async () => {}) });
+  const view = hookView(Host, {});
+  try {
+    await view.flush();
+    await view.tree.props.state.refresh();
+    finish({ revision: '2', sources: [{ sourceId: 'stale' }] });
+    await view.flush();
+    assert.deepEqual(view.tree.props.state.sources, [{ sourceId: 'fresh' }]);
+  } finally { view.close(); }
+});
+
+test('a failed generation during initial loading preserves history and recovery', async () => {
+  const { useActivityGeneration } = loadTsModule('apps/classrooms-ui/use-activity-generation.ts');
+  const previous = { id: '11111111-1111-4111-8111-111111111111', state: 'FAILED', error: 'PROVIDER_OUTCOME_UNKNOWN' };
+  let finish;
+  const api = { call: async (path, method) => {
+    if (method === 'POST') throw new Error('The previous generation requires acknowledgement');
+    if (path.endsWith('/sources')) return { revision: '2', sources: [] };
+    return new Promise(resolve => { finish = resolve; });
+  } };
+  const Host = () => React.createElement('output', { state: useActivityGeneration(api, { id: 'room', revision: '2' }, async () => {}) });
+  const view = hookView(Host, {});
+  try {
+    await view.flush();
+    await view.tree.props.state.generate({ type: 'ASSIGNMENT', counts: { development: 0, singleChoice: 0, multipleChoice: 0 } });
+    await view.flush();
+    assert.equal(view.tree.props.state.error, 'The previous generation requires acknowledgement');
+    finish({ jobs: [previous] });
+    await view.flush();
+    assert.equal(view.tree.props.state.jobs[0]?.id, previous.id);
+    assert.equal(view.tree.props.state.view?.error, previous.error);
+  } finally { view.close(); }
+});
+
 test('polling a completed generation synchronizes the open view and its existing recent-history row', async () => {
   const { useActivityGeneration } = loadTsModule('apps/classrooms-ui/use-activity-generation.ts');
   const job = { id: '11111111-1111-4111-8111-111111111111', classroomId: '22222222-2222-4222-8222-222222222222',

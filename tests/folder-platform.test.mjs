@@ -81,22 +81,28 @@ test('login client preserves raw credentials and fresh CSRF binding through sess
   assert.deepEqual(JSON.parse(seen[2].init.body), fields);
 });
 
-test('Home presents populated study and teaching groups together, with existing entry actions', () => {
+for (const accountRole of ['teacher', 'student']) test(`Home presents the ${accountRole} classroom and its permitted entry actions`, () => {
   const room = { subject: 'Science', division: 'B', academicYear: 2026, coverKey: 'explore', teacher: 'Actual teacher' };
-  const data = homeFixture([{ ...room, role:'student', archived:false, id:'study', name:'Study classroom' }, { ...room, role:'teacher', archived:false, id:'teach', name:'Teaching classroom' }]);
+  const data = homeFixture([{ ...room, role:accountRole, archived:false, id:'room', name:'Current classroom' }]);
+  data.participation = accountRole === 'teacher' ? 'teach' : 'study';
+  data.memberships = { study: Number(accountRole === 'student'), teach: Number(accountRole === 'teacher'), archived: 0 };
+  for (const module of accountRole === 'teacher' ? ['pending', 'feedback'] : ['review', 'queries']) data.modules[module] = { status: 'not-applicable' };
   const { Home } = loadTsModule('apps/classrooms-ui/Home.tsx', { stubs: { './use-home.ts': { useHome: () => ({ loading:false, data }) } } });
-  const html = render(Home, { displayName: 'Learner', busy: false, onAction() {},
+  const html = render(Home, { accountRole, displayName: 'Learner', busy: false, onAction() {},
     onCreate() {}, onJoin() {}, onClassrooms() {}, onEnter() {}, api: { call: async () => [] }, onOpenTarget() {},
   });
-  for (const name of ['Mi aprendizaje', 'Mi actividad docente']) {
+  for (const name of [accountRole === 'teacher' ? 'Mi actividad docente' : 'Mi aprendizaje']) {
     const group = [...html.matchAll(/<section\b([^>]*)>/g)].find(([, attributes]) => attributes.includes(`aria-label="${name}"`));
     assert.ok(group, `Missing ${name} group`);
     assert.doesNotMatch(group[1], /\bhidden(?:=""|="hidden"|\s|$)|aria-hidden="true"/, `${name} must remain visible`);
   }
-  assert.match(html, /Study classroom/);
-  assert.match(html, /Teaching classroom/);
-  for (const label of ['Crear aula', 'Unirme con código', 'Actualizar']) assert.ok(buttons(html).some(button => button.text.includes(label)), label);
-  assert.equal(buttons(html).filter(button => button.text.includes('Entrar al aula')).length, 2);
+  assert.match(html, /Current classroom/);
+  assert.doesNotMatch(html, accountRole === 'teacher' ? /aria-label="Mi aprendizaje"/ : /aria-label="Mi actividad docente"/);
+  const ownAction = accountRole === 'teacher' ? 'Crear aula' : 'Unirme con código';
+  const forbiddenAction = accountRole === 'teacher' ? 'Unirme con código' : 'Crear aula';
+  for (const label of [ownAction, 'Actualizar']) assert.ok(buttons(html).some(button => button.text.includes(label)), label);
+  assert.ok(buttons(html).every(button => !button.text.includes(forbiddenAction)), forbiddenAction);
+  assert.equal(buttons(html).filter(button => button.text.includes('Entrar al aula')).length, 1);
   assert.doesNotMatch(html, /Lo próximo/);
 });
 

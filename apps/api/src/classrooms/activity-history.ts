@@ -1,13 +1,13 @@
 import { randomUUID } from 'node:crypto';
 import type { ClassroomCore } from './core.ts';
 import type { ActivityAuthoringService } from './activity-authoring.ts';
-import type { PlanService } from './plan.ts';
+import type { ClassroomFileOperations } from './classroom-file.ts';
 import type { sessionView } from './activity-session.ts';
 import { exactActivityObject } from './activity-policy.ts';
 import { resolveDeadline } from './activity-time.ts';
 import { receptionPolicy } from './attempt-policy.ts';
 import { readActivityTopics } from './activity-topics.ts';
-import { revision } from './drafts.ts';
+import { revision } from './revision.ts';
 import { fail, uuid } from './policy.ts';
 import { requireReady } from '../files/service.ts';
 import { activityEvent } from './activity-events.ts';
@@ -26,11 +26,11 @@ export class ActivityHistoryService {
   private readonly ports: ClassroomCore['ports'];
   private readonly activity: ActivityAuthoringService['activity'];
   private readonly activitySummary: ActivityAuthoringService['activitySummary'];
-  private readonly advanceRevision: PlanService['advanceRevision'];
+  private readonly advanceRevision: ClassroomFileOperations['advanceRevision'];
   private readonly sessionView: (...args: Parameters<typeof sessionView> extends [unknown, ...infer Rest] ? Rest : never) => ReturnType<typeof sessionView>;
   constructor(context: Pick<ClassroomCore, 'run' | 'classroom' | 'ports'>, dependencies: {
     activity: ActivityAuthoringService['activity']; activitySummary: ActivityAuthoringService['activitySummary'];
-    advanceRevision: PlanService['advanceRevision']; sessionView: ActivityHistoryService['sessionView'];
+    advanceRevision: ClassroomFileOperations['advanceRevision']; sessionView: ActivityHistoryService['sessionView'];
   }) {
     this.run = context.run.bind(context); this.classroom = context.classroom.bind(context); this.ports = context.ports;
     this.activity = dependencies.activity; this.activitySummary = dependencies.activitySummary;

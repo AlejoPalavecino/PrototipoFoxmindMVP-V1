@@ -145,15 +145,18 @@ test('inspect classifies reserved, live receiving, expired receiving and READY w
   });
 });
 
-// Migration 012 prevents deleting blobs referenced by an active publication. Model
-// a historical inconsistent binding atomically, without disabling that protection.
+// Only on the disposable fixture: recreate an exact historical row atomically.
+// Current guards forbid both removing an active blob and unlinking its immutable
+// artifact. Keep those guards enabled; the synthetic row has no command receipts.
 async function removeHistoricalBlob(client,x,fileId){
-  await client.query(`UPDATE foxy_publications SET file_id=NULL,artifact_digest=NULL,artifact_size_bytes=NULL,
-    artifact_page_count=NULL,renderer_version=NULL WHERE id=$1::uuid`,[x.publication.id]);
+  const removed=await client.query(`DELETE FROM foxy_publications WHERE id=$1::uuid
+    RETURNING file_id,to_jsonb(foxy_publications)::text AS snapshot`,[x.publication.id]);
+  assert.equal(removed.rows.length,1);assert.equal(removed.rows[0].file_id,fileId);
+  const snapshot=removed.rows[0].snapshot;
   await client.query('UPDATE files SET blob_deleted_at=clock_timestamp() WHERE id=$1::uuid',[fileId]);
-  await client.query(`UPDATE foxy_publications SET file_id=$2::uuid,artifact_digest=$3,artifact_size_bytes=$4,
-    artifact_page_count=$5,renderer_version=$6 WHERE id=$1::uuid`,
-    [x.publication.id,fileId,x.artifact.digest,x.artifact.sizeBytes,x.artifact.pageCount,x.artifact.rendererVersion]);
+  await client.query(`INSERT INTO foxy_publications SELECT * FROM jsonb_populate_record(NULL::foxy_publications,$1::jsonb)`,[snapshot]);
+  const restored=await client.query('SELECT to_jsonb(p)::text AS snapshot FROM foxy_publications p WHERE id=$1::uuid',[x.publication.id]);
+  assert.equal(restored.rows[0].snapshot,snapshot,'historical fixture must preserve every publication field');
 }
 
 test('inspect marks a historical removed blob unavailable and never touches storage', {timeout:120000},async()=>{

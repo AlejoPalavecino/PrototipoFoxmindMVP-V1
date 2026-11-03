@@ -1,15 +1,10 @@
+import { activeAiOwnersSql, lockAiAdmission, noAiWorkForOwner } from '../ai-admission.ts';
 import { randomUUID } from 'node:crypto';
 import type { SqlDatabase, SqlTransaction } from '../../../../src/core/domain/index.ts';
 import type { FoxyVisualLease } from './visual-worker-types.ts';
 import { createVisualRecovery } from './visual-queue-recovery.ts';
 type Configuration = { maxConcurrency: number; maxJobAgeMs: number; enabled?: { IMAGE: boolean; DIAGRAM: boolean } };
 type Candidate = { id: string; owner_id: string; conversation_id: string; asset_id: string; classroom_id: string | null; kind: 'IMAGE'|'DIAGRAM'; dispatch_count: number };
-const busy = `SELECT owner_id FROM foxy_turns WHERE state='RUNNING'
- UNION ALL SELECT owner_id FROM classroom_curriculum_extractions WHERE state='RUNNING' AND lease_until>clock_timestamp()
- UNION ALL SELECT owner_id FROM activity_ai_generations WHERE state='RUNNING' AND lease_until>clock_timestamp()
- UNION ALL SELECT owner_id FROM student_ai_reports WHERE state='RUNNING' AND lease_until>clock_timestamp()
- UNION ALL SELECT owner_id FROM grading_ai_jobs WHERE state='RUNNING' AND lease_until>clock_timestamp()
- UNION ALL SELECT owner_id FROM foxy_visual_jobs WHERE state='RUNNING' AND lease_until>clock_timestamp()`;
 const failure = () => Object.assign(new Error('NOT_CURRENT'), { code: 'NOT_CURRENT' });
 async function lock(tx: SqlTransaction, item: Candidate): Promise<boolean> {
   if (!(await tx.query("SELECT id FROM users WHERE id=$1::uuid AND account_role='teacher' AND email_verified_at IS NOT NULL FOR UPDATE",item.owner_id)).length) return false;
@@ -24,9 +19,9 @@ export function createFoxyVisualQueue(options: { database: SqlDatabase; configur
   const transact = <T>(fn: (tx: SqlTransaction) => Promise<T>) => options.database.$transaction(raw => fn({query:(sql,...args)=>raw.$queryRawUnsafe(sql,...args)}),{maxWait:2000,timeout:6000});
   async function claim(): Promise<FoxyVisualLease|null> {
     return transact(async tx => {
-      await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123002)');
+      await lockAiAdmission(tx);
       await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)');
-      const [active] = await tx.query<{count: number}>(`SELECT count(*)::int AS count FROM (${busy}) active`);
+      const [active] = await tx.query<{count: number}>(`SELECT count(*)::int AS count FROM (${activeAiOwnersSql}) active`);
       if (!active || active.count>=config.maxConcurrency) return null;
       const [item] = await tx.query<Candidate>(`SELECT j.id,j.owner_id,j.conversation_id,j.asset_id,j.kind,j.dispatch_count,c.classroom_id FROM foxy_visual_jobs j
         JOIN foxy_conversations c ON c.id=j.conversation_id AND c.owner_id=j.owner_id JOIN foxy_visual_assets a ON a.id=j.asset_id AND a.owner_id=j.owner_id
@@ -34,7 +29,7 @@ export function createFoxyVisualQueue(options: { database: SqlDatabase; configur
         AND (c.context_kind='GENERAL' OR EXISTS (SELECT 1 FROM classrooms r WHERE r.id=c.classroom_id AND r.teacher_id=j.owner_id AND r.archived_at IS NULL))
         AND ((j.state='QUEUED' AND a.state='RESERVED') OR (j.state='RUNNING' AND (j.dispatch_count=0 OR (j.dispatch_count=1 AND a.digest IS NOT NULL)) AND j.lease_until<=clock_timestamp() AND a.state='PROCESSING' AND a.lease_until<=clock_timestamp() AND a.lease_nonce=j.lease_nonce))
         AND j.created_at+$1::bigint*interval '1 millisecond'>clock_timestamp() AND (j.dispatch_count=1 OR (j.kind='IMAGE' AND $2) OR (j.kind='DIAGRAM' AND $3))
-        AND NOT EXISTS (SELECT 1 FROM (${busy}) b WHERE b.owner_id=j.owner_id) ORDER BY j.created_at,j.id LIMIT 1`,config.maxJobAgeMs,config.enabled?.IMAGE ?? true,config.enabled?.DIAGRAM ?? true);
+        AND ${noAiWorkForOwner('j')} ORDER BY j.created_at,j.id LIMIT 1`,config.maxJobAgeMs,config.enabled?.IMAGE ?? true,config.enabled?.DIAGRAM ?? true);
       if (!item || !await lock(tx,item)) return null;
       if (item.dispatch_count === 1 && !await options.budget.settleExpired(tx,item.id)) throw failure();
       const nonce=randomUUID(), [clock] = await tx.query<{until: Date}>("SELECT clock_timestamp()+interval '90 seconds' AS until");

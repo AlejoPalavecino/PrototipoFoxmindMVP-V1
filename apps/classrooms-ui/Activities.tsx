@@ -24,6 +24,7 @@ export function Activities({ api, room, reload, target, onChanged, openAuthoring
   useEffect(() => { if (openAuthoring && writable) authoring.current?.focus(); }, [openAuthoring, writable]);
   const load = useCallback(async (signal?: AbortSignal) => {
     const result = await api.call<{ activities: ActivitySummary[] }>(`/${room.id}/activities`, 'GET', undefined, signal);
+    if (signal?.aborted) return;
     setActivities(result.activities); setLoaded(true);
   }, [api, room.id]);
   useEffect(() => { const controller = new AbortController(); void load(controller.signal).catch(e => {
@@ -44,9 +45,10 @@ export function Activities({ api, room, reload, target, onChanged, openAuthoring
     setBusy(true); setError(''); setNotice('');
     try { await operation(); } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
   }
-  async function refresh() { await Promise.all([reload(), load()]); onChanged?.(); }
-  async function edit(id: string) {
-    const [data, library] = await Promise.all([api.call<ActivityData>(`/${room.id}/activities/${id}/preview`), api.call<Material[]>(`/${room.id}/library`)]);
+  async function refresh(signal?: AbortSignal) { await Promise.all([reload(), load(signal)]); if (!signal?.aborted) onChanged?.(); }
+  async function edit(id: string, signal?: AbortSignal) {
+    const [data, library] = await Promise.all([api.call<ActivityData>(`/${room.id}/activities/${id}/preview`, 'GET', undefined, signal), api.call<Material[]>(`/${room.id}/library`, 'GET', undefined, signal)]);
+    if (signal?.aborted) return;
     setMaterials(library); setEditing(data);
   }
   return <section className={`p7-activities${editing || generating ? ' education-task-active' : ''}`} aria-label="Actividades del aula">
@@ -65,7 +67,7 @@ export function Activities({ api, room, reload, target, onChanged, openAuthoring
       })}>Crear manualmente</button>
       <button disabled={busy} onClick={() => setGenerating(true)}>Generar con IA</button></div> : null}
     {generating && writable ? <ActivityGeneration api={api} room={room} onClose={() => setGenerating(false)}
-      onApplied={async id => { await refresh(); await edit(id); setGenerating(false); }} /> : null}
+      onApplied={async (id, signal) => { await refresh(signal); if (signal.aborted) return; await edit(id, signal); if (!signal.aborted) setGenerating(false); }} /> : null}
     {editing ? <ActivityAuthoring key={editing.activity.id} api={api} room={room} data={editing} materials={materials}
       onSaved={async () => { await refresh(); setNotice('Cambios confirmados por el servidor. Guardar no publica un borrador.'); }}
       onClose={() => setEditing(null)} /> : null}

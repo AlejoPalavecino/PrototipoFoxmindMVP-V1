@@ -4,6 +4,9 @@ import { DraftService } from './drafts.ts';
 import { MembershipService } from './memberships.ts';
 import { InvitationService } from './invitations.ts';
 import { PlanService } from './plan.ts';
+import { createReadyClassroomFile } from './classroom-file.ts';
+import { advanceClassroomRevision } from './revision.ts';
+import { newClassroomCode } from './classroom-codes.ts';
 import { LibraryService } from './library.ts';
 import { WallService } from './wall.ts';
 import { ActivityAuthoringService } from './activity-authoring.ts';
@@ -46,36 +49,37 @@ export class ClassroomService {
     this.ports = this.context.ports;
     this.tokens = this.context.tokens;
     this.drafts = new DraftService(this.context);
-    this.membership = new MembershipService(this.context, { newCode: this.drafts.newCode.bind(this.drafts) });
+    this.membership = new MembershipService(this.context, { newCode: newClassroomCode });
     this.invitations = new InvitationService(this.context, { enroll: this.membership.enroll.bind(this.membership) });
-    this.plan = new PlanService(this.context);
-    this.library = new LibraryService(this.context, { readyClassroomFile: this.plan.readyClassroomFile.bind(this.plan), advanceRevision: this.plan.advanceRevision.bind(this.plan) });
-    this.wall = new WallService(this.context, { advanceRevision: this.plan.advanceRevision.bind(this.plan) });
+    const readyClassroomFile = createReadyClassroomFile(this.context.ports.files);
+    this.plan = new PlanService(this.context, readyClassroomFile);
+    this.library = new LibraryService(this.context, { readyClassroomFile, advanceRevision: advanceClassroomRevision });
+    this.wall = new WallService(this.context, { advanceRevision: advanceClassroomRevision });
     this.authoring = new ActivityAuthoringService(this.context, {
-    readyClassroomFile: this.plan.readyClassroomFile.bind(this.plan), advanceRevision: this.plan.advanceRevision.bind(this.plan),
-    studentActivityView: (...args): ReturnType<typeof studentActivityView> => studentActivityView(this.authoring.activityView.bind(this.authoring), ...args),
-  });
+      readyClassroomFile, advanceRevision: advanceClassroomRevision,
+      studentActivityView: (...args): ReturnType<typeof studentActivityView> => studentActivityView(this.authoring.activityView.bind(this.authoring), ...args),
+    });
     this.participation = new ActivityParticipationService(this.context, {
-    activity: this.authoring.activity.bind(this.authoring), advanceRevision: this.plan.advanceRevision.bind(this.plan),
+    activity: this.authoring.activity.bind(this.authoring), advanceRevision: advanceClassroomRevision,
     sessionView: (...args) => sessionView(this.authoring.activityView.bind(this.authoring), ...args),
   });
     this.practical = new PracticalSubmissionService(this.context, { activity: this.authoring.activity.bind(this.authoring) });
     this.questionnaire = new QuestionnaireAttemptService(this.context);
     this.history = new ActivityHistoryService(this.context, {
     activity: this.authoring.activity.bind(this.authoring), activitySummary: this.authoring.activitySummary.bind(this.authoring),
-    advanceRevision: this.plan.advanceRevision.bind(this.plan),
+    advanceRevision: advanceClassroomRevision,
     sessionView: (...args) => sessionView(this.authoring.activityView.bind(this.authoring), ...args),
   });
     this.grading = new GradingService(this.context, { activity: this.authoring.activity.bind(this.authoring),
-    activityView: this.authoring.activityView.bind(this.authoring), advanceRevision: this.plan.advanceRevision.bind(this.plan) });
+    activityView: this.authoring.activityView.bind(this.authoring), advanceRevision: advanceClassroomRevision });
     this.gradingAi = new GradingAiService(this.context, { gradingContext: this.grading.gradingContext.bind(this.grading),
     savePrivateGrading: this.grading.savePrivateGrading.bind(this.grading) });
     this.publication = new GradePublicationService(this.context, { activity: this.authoring.activity.bind(this.authoring),
     activityView: this.authoring.activityView.bind(this.authoring), gradingContext: this.grading.gradingContext.bind(this.grading),
     gradingView: this.grading.gradingView.bind(this.grading), scoreCorrection: this.grading.scoreCorrection.bind(this.grading),
-    advanceRevision: this.plan.advanceRevision.bind(this.plan) });
+    advanceRevision: advanceClassroomRevision });
     this.corrections = new GradeCorrectionService(this.context, { gradingContext: this.grading.gradingContext.bind(this.grading),
-    advanceRevision: this.plan.advanceRevision.bind(this.plan) });
+    advanceRevision: advanceClassroomRevision });
     this.progress = new ProgressService(this.context);
     bindClassroomMethods(this);
   }

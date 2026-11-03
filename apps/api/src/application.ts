@@ -7,8 +7,7 @@ import { HealthController } from "./health/health.controller.ts";
 import { IdentityModule, IdentityRuntime, installIdentityTransport, type IdentityRuntimePorts } from './identity/index.ts';
 import { FilesModule, FileService, createFileInfrastructure, installFilesTransport, FileHostLifecycle, type FileInfrastructure } from './files/index.ts';
 import { ClassroomsModule } from './classrooms/classrooms.module.ts';
-import { InvitationService } from './classrooms/invitations.ts';
-import type { ClassroomService } from './classrooms/service.ts';
+import { ClassroomService } from './classrooms/service.ts';
 import { localInvitationSender } from './classrooms/delivery.ts';
 import { ClassroomHostLifecycle, installClassroomsTransport } from './classrooms/host.ts';
 import { LibraryCleanupWorker } from './classrooms/library-cleanup.ts';
@@ -25,6 +24,7 @@ import { StudentAiRuntime } from './classrooms/student-ai/runtime.ts';
 import { GradingAiRuntime } from './classrooms/grading-ai/runtime.ts';
 import { createFoxyRuntime, createFoxyAuthentication, installFoxyTransport, selectFoxyVisualProviders, FOXY_RUNTIME, type VisualProviders } from './foxy-ai/index.ts';
 import { createGeminiFoxyTextAdapter } from './ai/index.ts';
+import { attachmentIntegration } from './attachment-integration.ts';
 
 export interface ApplicationOptions { readonly identity?: IdentityRuntimePorts; readonly ai?: AiRuntimeOverride; readonly foxy?: { textProvider?: Parameters<typeof createFoxyRuntime>[0]['provider']; visualProviders?: { IMAGE?: VisualProviders['IMAGE']; DIAGRAM?: VisualProviders['DIAGRAM'] } } }
 
@@ -70,7 +70,7 @@ class AppModule implements OnModuleDestroy {
     const database = DatabaseModule.register(configuration.databaseUrl);
     const identity = IdentityModule.register(database, configuration.identity, options.identity);
     const files = configuration.files && infrastructure
-      ? FilesModule.integrated(database, identity, configuration.files, infrastructure) : undefined;
+      ? FilesModule.integrated(database, identity, configuration.files, infrastructure, attachmentIntegration) : undefined;
     if (configuration.classrooms && (!files || !invitationSender)) throw new Error('Classroom infrastructure unavailable.');
     return {
       module: AppModule,
@@ -78,9 +78,9 @@ class AppModule implements OnModuleDestroy {
         ...(configuration.classrooms && files && invitationSender
           ? [ClassroomsModule.integrated(database, identity, files, configuration.classrooms, invitationSender, configuration.ai, options.ai)] : [])],
       controllers: [HealthController],
-      providers: [...(configuration.classrooms && files ? [{ provide: FOXY_RUNTIME, inject: [PrismaService, IdentityRuntime, FileService, InvitationService],
+      providers: [...(configuration.classrooms && files ? [{ provide: FOXY_RUNTIME, inject: [PrismaService, IdentityRuntime, FileService, ClassroomService],
         useFactory: (database: PrismaService, identity: IdentityRuntime, files: FileService, classrooms: ClassroomService) =>
-          createFoxyRuntime({ database, files, classrooms, storage: { remove: key => infrastructure!.storage.remove(key) }, authenticate: createFoxyAuthentication(identity.configuration.security),
+          createFoxyRuntime({ database, files, classrooms: { run: classrooms.run, classroom: classrooms.classroom }, storage: { remove: key => infrastructure!.storage.remove(key) }, authenticate: createFoxyAuthentication(identity.configuration.security),
             configuration: foxyConfiguration(configuration.ai), provider: foxyProvider(configuration.ai, options),
             visualConfiguration: configuration.foxyVisual?.configuration, visualProviders: visualProviders(configuration,options),
             visualBudgetLimits: configuration.ai ? { dailyBudgetUsd: configuration.ai.dailyBudgetUsd, dailyActorRequests: configuration.ai.dailyActorRequests, dailyGlobalRequests: configuration.ai.dailyGlobalRequests } : null }) }] : []),
@@ -106,7 +106,7 @@ export async function createApplication(configuration: ApiConfiguration, options
     installAgendaTransport(app, identity, app.get(AgendaService));
     installHomeTransport(app, identity, app.get<HomeService>('HomeService'));
     if (configuration.files) installFilesTransport(app, identity, app.get(FileService));
-    if (configuration.classrooms) installClassroomsTransport(app, identity, app.get<ClassroomService>(InvitationService),
+    if (configuration.classrooms) installClassroomsTransport(app, identity, app.get(ClassroomService),
       { ai: configuration.ai ? app.get(ClassroomAiRuntime).service : undefined,
         activityAi: configuration.ai ? app.get(ActivityAiRuntime).service : undefined });
     if (configuration.classrooms && configuration.files) installFoxyTransport(app, identity, app.get<ReturnType<typeof createFoxyRuntime>>(FOXY_RUNTIME).services);

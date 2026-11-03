@@ -1,6 +1,7 @@
 // Deliberate inventory: no helper discovery or opt-in/live-provider tests.
 export const suites = {
   pure: [
+    'tests/architecture-test-discovery.test.mjs',
     'tests/p31-contracts.test.mjs', 'tests/p4-file-policy.test.mjs',
     'tests/agenda-contracts.test.mjs', 'tests/agenda-recurrence.test.mjs', 'tests/agenda-time.test.mjs',
     'tests/home-reference-summary.test.mjs',
@@ -44,7 +45,7 @@ export function validateCompleteSuite({ discovered, entries, exclusions, manual 
   }
   for (const { path, reason, kind } of exclusions) {
     add(path, 'exclusion');
-    if (typeof reason !== 'string' || !reason.trim() || !['helper', 'manual', 'retired', 'opt-in'].includes(kind)) errors.push(`Unexplained exclusion: ${path}`);
+    if (typeof reason !== 'string' || !reason.trim() || !['helper', 'manual', 'retired', 'opt-in', 'typecheck'].includes(kind)) errors.push(`Unexplained exclusion: ${path}`);
   }
   for (const path of found) if (!seen.has(path)) errors.push(`Unclassified: ${path}`);
   for (const path of manualSet) if (!exclusions.some(item => item.path === path)) errors.push(`Manual not excluded: ${path}`);

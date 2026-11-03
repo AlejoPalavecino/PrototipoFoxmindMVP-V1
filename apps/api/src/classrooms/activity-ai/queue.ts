@@ -1,3 +1,4 @@
+import { activeAiOwnersSql, lockAiAdmission, noAiWorkForOwner } from '../../ai-admission.ts';
 import { randomUUID } from 'node:crypto';
 import { transaction } from './database.ts';
 import { settle } from '../ai/budget.ts';
@@ -18,30 +19,17 @@ async function recover(tx: Transaction, options: ActivityAiOptions): Promise<voi
 }
 export function claim(options: ActivityAiOptions): Promise<JobRow | null> {
   return transaction(options, async tx => {
-    await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123002)');
+    await lockAiAdmission(tx);
     await recover(tx, options);
     const [active] = await tx.query<{ count: number }>(`SELECT count(*)::int AS count
-      FROM (SELECT id FROM activity_ai_generations WHERE state='RUNNING' AND lease_until>clock_timestamp()
-      UNION ALL SELECT id FROM classroom_curriculum_extractions WHERE state='RUNNING' AND lease_until>clock_timestamp()
-      UNION ALL SELECT id FROM student_ai_reports WHERE state='RUNNING' AND lease_until>clock_timestamp()
-      UNION ALL SELECT id FROM grading_ai_jobs WHERE state='RUNNING' AND lease_until>clock_timestamp()
-      UNION ALL SELECT id FROM foxy_turns WHERE state='RUNNING'
-      UNION ALL SELECT id FROM foxy_visual_jobs WHERE state='RUNNING' AND lease_until>clock_timestamp()) running`);
+      FROM (${activeAiOwnersSql}) running`);
     if (active!.count >= options.configuration.maxConcurrency) return null;
     const [next] = await tx.query<JobRow>(`SELECT q.* FROM activity_ai_generations q
       WHERE q.state='QUEUED' AND q.next_attempt_at<=clock_timestamp()
-      AND NOT EXISTS(SELECT 1 FROM activity_ai_generations r WHERE r.owner_id=q.owner_id AND r.state='RUNNING')
-      AND NOT EXISTS(SELECT 1 FROM student_ai_reports r WHERE r.owner_id=q.owner_id AND r.state='RUNNING' AND r.lease_until>clock_timestamp())
-      AND NOT EXISTS(SELECT 1 FROM grading_ai_jobs r WHERE r.owner_id=q.owner_id AND r.state='RUNNING' AND r.lease_until>clock_timestamp())
-      AND NOT EXISTS(SELECT 1 FROM foxy_turns r WHERE r.owner_id=q.owner_id AND r.state='RUNNING')
-        AND NOT EXISTS(SELECT 1 FROM foxy_visual_jobs r WHERE r.owner_id=q.owner_id AND r.state='RUNNING' AND r.lease_until>clock_timestamp())
-      AND NOT EXISTS(SELECT 1 FROM classroom_curriculum_extractions r WHERE r.owner_id=q.owner_id AND r.state='RUNNING')
+      AND ${noAiWorkForOwner('q', 'generation')}
       AND NOT EXISTS(SELECT 1 FROM classroom_curriculum_extractions a WHERE a.state='QUEUED' AND a.next_attempt_at<=clock_timestamp()
         AND (a.created_at,a.id)<(q.created_at,q.id)
-        AND NOT EXISTS(SELECT 1 FROM activity_ai_generations r WHERE r.owner_id=a.owner_id AND r.state='RUNNING')
-        AND NOT EXISTS(SELECT 1 FROM classroom_curriculum_extractions r WHERE r.owner_id=a.owner_id AND r.state='RUNNING')
-        AND NOT EXISTS(SELECT 1 FROM foxy_turns r WHERE r.owner_id=a.owner_id AND r.state='RUNNING')
-        AND NOT EXISTS(SELECT 1 FROM foxy_visual_jobs r WHERE r.owner_id=a.owner_id AND r.state='RUNNING' AND r.lease_until>clock_timestamp()))
+        AND ${noAiWorkForOwner('a', 'generation-priority')})
       ORDER BY q.created_at,q.id LIMIT 1 FOR UPDATE SKIP LOCKED`);
     if (!next) return null;
     const [row] = await tx.query<JobRow>(`UPDATE activity_ai_generations SET state='RUNNING',

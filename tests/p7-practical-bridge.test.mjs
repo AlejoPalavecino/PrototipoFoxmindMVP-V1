@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createIdentityFileAccess } from '../.build/api/apps/api/src/files/host.js';
 import { readIdentityConfiguration } from '../.build/api/apps/api/src/identity-security/index.js';
-import { authorizeAttemptFileWrite } from '../.build/api/apps/api/src/files/attempt-bridge.js';
+import { attachmentIntegration } from '../.build/api/apps/api/src/attachment-integration.js';
+const { authorizeAttemptWrite: authorizeAttemptFileWrite } = attachmentIntegration;
 const id='a1111111-1111-4111-8111-111111111111';
 test('attempt bridge converts expected classroom denials and never silently allows absent/malformed editor',async()=>{
  const target={scope:{kind:'classroom',id},purpose:'attachment',targetId:id};

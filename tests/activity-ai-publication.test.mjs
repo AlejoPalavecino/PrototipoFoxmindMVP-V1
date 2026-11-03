@@ -6,6 +6,7 @@ import { fixture } from './activity-ai-fixture.test.mjs';
 
 test('A3 AI-disabled module composition still rejects publication of a generated draft with changed curriculum', { timeout: 120000 }, async () => {
   const { ActivityAiService, ActivityAiWorker } = await import('../apps/api/src/classrooms/activity-ai/index.ts');
+  const { ClassroomService } = await import('../.build/api/apps/api/src/classrooms/service.js');
   const { ClassroomsModule } = await import('../.build/api/apps/api/src/classrooms/classrooms.module.js');
   const { FileService } = await import('../.build/api/apps/api/src/files/index.js');
   await withAiDatabase(async local => {
@@ -19,7 +20,7 @@ test('A3 AI-disabled module composition still rejects publication of a generated
       storage: { get: async () => { throw new Error('Publication must not read document bytes'); } }, scanner: { scan: async () => {} } });
     const config = { signingKey: Buffer.alloc(32, 1), deliveryKey: Buffer.alloc(32, 2), classroomQuotaBytes: 100000000n, webOrigin: 'http://127.0.0.1:3005' };
     const module = ClassroomsModule.integrated({}, {}, {}, config, { send: async () => {}, close() {} }, undefined);
-    const serviceFactory = module.providers.find(provider => provider.provide?.name === 'InvitationService');
+    const serviceFactory = module.providers.find(provider => provider.provide === ClassroomService);
     assert.ok(serviceFactory?.useFactory);
     const restarted = serviceFactory.useFactory(local.database, { configuration: { security: {} } }, files);
     // Synthetic identity port isolates composition/provenance from unrelated password/session issuance.

@@ -1,7 +1,8 @@
 import { previewCodeOperation, confirmCodeOperation } from './memberships-operations-1.ts';
 import { endMembershipOperation, membersOperation } from './memberships-operations-2.ts';
 import { randomUUID } from 'node:crypto';
-import { revision, type DraftService } from './drafts.ts';
+import { newClassroomCode } from './classroom-codes.ts';
+import { revision } from './revision.ts';
 import { ClassroomCore } from './core.ts';
 import { digest, fail, object, uuid } from './policy.ts';
 import type { Actor, Transaction } from './contracts.ts';
@@ -11,8 +12,8 @@ export class MembershipService {
   readonly run: ClassroomCore['run'];
   readonly classroom: ClassroomCore['classroom'];
   readonly tokens: ClassroomCore['tokens'];
-  private readonly newCode: DraftService['newCode'];
-  constructor(context: Pick<ClassroomCore, 'run' | 'classroom' | 'tokens'>, dependencies: { newCode: DraftService['newCode'] }) {
+  private readonly newCode: typeof newClassroomCode;
+  constructor(context: Pick<ClassroomCore, 'run' | 'classroom' | 'tokens'>, dependencies: { newCode: typeof newClassroomCode }) {
     this.run = context.run.bind(context);
     this.classroom = context.classroom.bind(context);
     this.tokens = context.tokens;

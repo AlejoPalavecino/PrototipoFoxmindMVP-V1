@@ -1,6 +1,6 @@
 import { parseWallQuery, parseWallMutation, parseNotificationQuery } from '../../../../src/core/domain/index.ts';
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import type { ClassroomService as InvitationService } from './service.ts';
+import type { ClassroomService } from './service.ts';
 import { ClassroomError, fail, object } from './policy.ts';
 import { ClassroomIdentityError } from './errors.ts';
 import { activityOperation } from './activity-policy.ts';
@@ -21,6 +21,8 @@ interface Admission {
   ai?: ClassroomAiService;
   activityAi?: ActivityAiService;
 }
+
+export type ClassroomsHttpOperations = Omit<ClassroomService, 'ports' | 'tokens' | 'run' | 'classroom' | 'summary' | 'progressView'>;
 const statuses = {
   INVALID_INPUT: 400,
   FORBIDDEN: 403,
@@ -81,7 +83,7 @@ function readBody(req: IncomingMessage): Promise<unknown> {
 }
 /** Explicit installation only. The host owns real P3 admission; no permissive default exists. */
 export function createClassroomsHandler(
-  service: InvitationService,
+  service: ClassroomsHttpOperations,
   options: Admission,
 ) {
   if (typeof options?.admit !== 'function') return fail('SERVICE_UNAVAILABLE');

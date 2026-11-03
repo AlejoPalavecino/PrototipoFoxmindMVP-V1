@@ -1,13 +1,25 @@
-import { randomBytes, randomUUID } from 'node:crypto';
-import { ClassroomCore } from './core.ts';
-import { draftPayload, fail, object, digest, uuid } from './policy.ts';
+import { randomUUID } from 'node:crypto';
+import type { ClassroomCore } from './core.ts';
+import { draftPayload, fail, object, uuid } from './policy.ts';
 import { promoteDraftPlan } from '../files/public/index.ts';
 import type { Actor, Transaction } from './contracts.ts';
-import type { DraftService } from './drafts.ts';
-import type { DraftRow } from './drafts.ts';
-import { revision } from './drafts.ts';
+import { newClassroomCode } from './classroom-codes.ts';
+import { revision } from './revision.ts';
 
-export async function publishDraftOperation(capability: DraftService, request: unknown, id: string, input: unknown) {
+export interface DraftRow {
+  id: string;
+  owner_id: string;
+  revision: bigint;
+  payload: unknown;
+  published_classroom_id: string | null;
+}
+
+type DraftPublicationAccess = Pick<ClassroomCore, 'run' | 'classroom'> & {
+  ports: Pick<ClassroomCore['ports'], 'files' | 'classroomQuotaBytes' | 'gradingAiAvailable'>;
+  draft(tx: Transaction, actor: Actor, id: string): Promise<DraftRow>;
+};
+
+export async function publishDraftOperation(capability: DraftPublicationAccess, request: unknown, id: string, input: unknown) {
     const expected = revision(object(input, ['revision']).revision);
     return capability.run(request, true, async (tx, actor) => {
       if (!uuid(id)) return fail('FORBIDDEN');
@@ -35,11 +47,11 @@ export async function publishDraftOperation(capability: DraftService, request: u
         classroomId,
       );
       await populateClassroom(tx, capability, request, classroomId, actor, payload);
-      return { id: classroomId, code: await capability.newCode(tx, classroomId) };
+      return { id: classroomId, code: await newClassroomCode(tx, classroomId) };
     });
   }
 
-export async function updateSettingsOperation(capability: DraftService, request: unknown, id: string, input: unknown) {
+export async function updateSettingsOperation(capability: DraftPublicationAccess, request: unknown, id: string, input: unknown) {
     const { expected, payload, aiGradingEnabled } = settingsInput(input);
     return capability.run(request, true, async (tx, actor) => {
       const row = await capability.classroom(tx, actor, id, true, true);
@@ -63,7 +75,7 @@ export async function updateSettingsOperation(capability: DraftService, request:
   }
 
 
-async function createClassroom(tx: Transaction, capability: DraftService, classroomId: string, actor: Actor, payload: ReturnType<typeof draftPayload>) {
+async function createClassroom(tx: Transaction, capability: DraftPublicationAccess, classroomId: string, actor: Actor, payload: ReturnType<typeof draftPayload>) {
       // A new, invisible destination is created/locked before the source draft, matching P4 order.
       await tx.query(
         `INSERT INTO classrooms(id,updated_at,teacher_id,name,subject,division,academic_year,timezone,cover_key,storage_quota_bytes)
@@ -80,7 +92,7 @@ async function createClassroom(tx: Transaction, capability: DraftService, classr
       );
 
 }
-async function populateClassroom(tx: Transaction, capability: DraftService, request: unknown, classroomId: string, actor: Actor, payload: ReturnType<typeof draftPayload>) {
+async function populateClassroom(tx: Transaction, capability: DraftPublicationAccess, request: unknown, classroomId: string, actor: Actor, payload: ReturnType<typeof draftPayload>) {
       await promoteDraftPlan(
         capability.ports.files,
         tx,

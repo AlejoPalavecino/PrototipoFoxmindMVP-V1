@@ -1,3 +1,4 @@
+import { lockAiAdmission } from '../ai-admission.ts';
 import type { SqlDatabase, SqlTransaction } from '../../../../src/core/domain/index.ts';
 import type { FoxyVisualLease, VisualUsage } from './visual-worker-types.ts';
 import { checkVisualClaim } from './visual-claim-check.ts';
@@ -9,7 +10,7 @@ export function createFoxyVisualCompletion(options: { database: SqlDatabase; bud
     if (!result || (result.state !== 'READY' && (result.state !== 'FAILED' || !allowed.has(result.errorCode)))) throw Object.assign(new Error('INVALID_INPUT'),{ code: 'INVALID_INPUT' });
     return options.database.$transaction(async raw => {
       const tx: SqlTransaction = { query: (sql,...args) => raw.$queryRawUnsafe(sql,...args) };
-      await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123002)'); await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)');
+      await lockAiAdmission(tx); await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)');
       await tx.query('SELECT id FROM users WHERE id=$1::uuid FOR UPDATE',lease.ownerId);
       const [ref] = await tx.query<{ classroom_id: string|null }>('SELECT classroom_id FROM foxy_conversations WHERE id=$1::uuid AND owner_id=$2::uuid',lease.conversationId,lease.ownerId);
       if (ref?.classroom_id) await tx.query('SELECT id FROM classrooms WHERE id=$1::uuid FOR SHARE',ref.classroom_id);

@@ -1,11 +1,19 @@
 import { Module, type DynamicModule } from '@nestjs/common';
-import { authorizeAttemptFileWrite, linkReadyAttemptAttachment } from './attempt-bridge.ts';
+import type { AttemptWriteAuthorizer } from './access.ts';
 import { FileService, type FileServiceOptions } from './service.ts';
 import { FileCleanupWorker } from './cleanup-worker.ts';
 import { PrismaService } from '../database/prisma.service.ts';
 import { IdentityRuntime } from '../identity/runtime.ts';
 import { FileHostLifecycle, createIdentityFileAccess } from './host.ts';
 import type { FileInfrastructure, FileRuntimeConfiguration } from './configuration.ts';
+import type { FileTransaction } from './contracts.ts';
+import type { FileRow } from './store.ts';
+
+export interface AttachmentIntegration {
+  authorizeAttemptWrite: AttemptWriteAuthorizer;
+  onReadyTransition(tx: FileTransaction, request: unknown,
+    target: Pick<FileRow, 'purpose' | 'classroom_id' | 'target_id' | 'uploaded_by_id' | 'id'>): Promise<void>;
+}
 
 @Module({})
 export class FilesModule {
@@ -16,12 +24,14 @@ export class FilesModule {
     ], exports: [FileService] };
   }
   static integrated(database: DynamicModule, identity: DynamicModule, configuration: FileRuntimeConfiguration,
-    infrastructure: FileInfrastructure): DynamicModule {
+    infrastructure: FileInfrastructure, attachments: AttachmentIntegration): DynamicModule {
     return { module: FilesModule, imports: [database, identity], providers: [
       { provide: FileService, inject: [PrismaService, IdentityRuntime],
         useFactory: (database: PrismaService, runtime: IdentityRuntime) => new FileService({ database,
-          access: createIdentityFileAccess(runtime.configuration.security, authorizeAttemptFileWrite), storage: infrastructure.storage,
-          scanner: infrastructure.scanner, draftQuotaBytes: configuration.draftQuotaBytes, onReadyTransition: linkReadyAttemptAttachment }) },
+          access: createIdentityFileAccess(runtime.configuration.security, attachments.authorizeAttemptWrite), storage: infrastructure.storage,
+          scanner: infrastructure.scanner, draftQuotaBytes: configuration.draftQuotaBytes,
+          onReadyTransition: (tx, request, { purpose, classroom_id, target_id, uploaded_by_id, id }) =>
+            attachments.onReadyTransition(tx, request, { purpose, classroom_id, target_id, uploaded_by_id, id }) }) },
       { provide: FileCleanupWorker, inject: [FileService], useFactory: (service: FileService) => new FileCleanupWorker(service) },
       { provide: FileHostLifecycle, inject: [FileCleanupWorker],
         useFactory: (worker: FileCleanupWorker) => new FileHostLifecycle(worker, infrastructure) },

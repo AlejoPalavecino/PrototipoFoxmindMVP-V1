@@ -1,7 +1,7 @@
 import type { ClassroomCore } from './core.ts';
 import type { GradingService } from './grading.ts';
-import type { PlanService } from './plan.ts';
-import { revision } from './drafts.ts';
+import type { ClassroomFileOperations } from './classroom-file.ts';
+import { revision } from './revision.ts';
 import { fail, object } from './policy.ts';
 import { fixedHundredths, hundredths } from './scoring.ts';
 import type { Transaction } from './contracts.ts';
@@ -15,8 +15,8 @@ export function gradeCorrectionInput(input: unknown) {
 export class GradeCorrectionService {
   private readonly run: ClassroomCore['run'];
   private readonly gradingContext: GradingService['gradingContext'];
-  private readonly advanceRevision: PlanService['advanceRevision'];
-  constructor(context: Pick<ClassroomCore, 'run'>, dependencies: Pick<GradingService, 'gradingContext'> & Pick<PlanService, 'advanceRevision'>) {
+  private readonly advanceRevision: ClassroomFileOperations['advanceRevision'];
+  constructor(context: Pick<ClassroomCore, 'run'>, dependencies: Pick<GradingService, 'gradingContext'> & Pick<ClassroomFileOperations, 'advanceRevision'>) {
     this.run = context.run.bind(context); this.gradingContext = dependencies.gradingContext; this.advanceRevision = dependencies.advanceRevision;
   }
   private async correctionView(tx: Transaction, context: Awaited<ReturnType<GradeCorrectionService['gradingContext']>>) {
