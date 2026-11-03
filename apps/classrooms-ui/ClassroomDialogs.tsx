@@ -4,7 +4,7 @@ import { Dialog, Notice } from './components.tsx';
 import { Progress } from './Progress.tsx';
 import { StudentAiSummary } from './StudentAiSummary.tsx';
 import type { Summary } from './ClassroomRoster.tsx';
-type Confirmation = { title: string; text: string; run: () => Promise<void>; scope?: string } | null;
+type Confirmation = { title: string; text: string; run: () => Promise<void>; scope?: string; confirmLabel?: string } | null;
 type Props = {
   api: ClassroomClient; id: string; tab: string; inviting: boolean; setInviting: Dispatch<SetStateAction<boolean>>;
   email: string; setEmail: Dispatch<SetStateAction<string>>; invite: () => Promise<void>;
@@ -82,7 +82,7 @@ export function ClassroomDialogs({ api, id, tab, inviting, setInviting, email, s
                 }, confirm.scope)
               }
             >
-              {actionStates[confirm.scope ?? tab]?.busy ? 'Procesando…' : 'Confirmar'}
+              {actionStates[confirm.scope ?? tab]?.busy ? 'Procesando…' : confirm.confirmLabel ?? 'Confirmar'}
             </button>
           </footer>
         </Dialog>

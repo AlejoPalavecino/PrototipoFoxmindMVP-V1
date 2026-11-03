@@ -8,12 +8,14 @@ import type { MembershipService } from './memberships.ts';
 
 export function endMembershipOperation(capability: MembershipService, request: unknown, id: string, studentId: string | null) {
     return capability.run(request, true, async (tx, actor) => {
+      const removing = studentId !== null;
+      // The write transaction still locks the classroom. Only self-departure may bypass the archive write guard.
       const classroom = await capability.classroom(
         tx,
         actor,
         id,
-        true,
-        studentId !== null,
+        removing,
+        removing,
       );
       const target = studentId ?? actor.id;
       if (!uuid(target) || target === classroom.teacher_id)

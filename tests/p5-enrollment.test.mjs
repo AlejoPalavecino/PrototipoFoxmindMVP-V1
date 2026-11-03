@@ -139,7 +139,7 @@ test(
         },
       );
       await t.test(
-        'archive preserves read access but denies every membership and invitation mutation',
+        'archive preserves read access and blocks membership writes other than voluntary leave',
         async () => {
           const detail = await service.detail(T, room);
           await service.setArchive(T, room, {
@@ -147,7 +147,6 @@ test(
             revision: detail.revision,
           });
           assert.equal((await service.detail(S, room)).archived, true);
-          await denied(service.leave(S, room), 'CONFLICT');
           await denied(service.remove(T, room, student), 'CONFLICT');
           await denied(service.rotateCode(T, room), 'CONFLICT');
           await denied(
@@ -158,13 +157,25 @@ test(
             service.setArchive(S, room, { archived: false, revision: '1' }),
             'FORBIDDEN',
           );
-          await service.setArchive(T, room, { archived: false, revision: '1' });
         },
       );
       await t.test(
-        'leave revokes access without deleting enrollment; code cannot restore it',
+        'voluntary leave from archive closes a single period and revokes access without deleting enrollment',
         async () => {
-          await service.leave(S, room);
+          await denied(service.leave(O, room), 'FORBIDDEN');
+          await pool.query("ALTER TABLE background_jobs ADD CONSTRAINT fixture_reject_leave CHECK (type <> 'p5.membership' OR payload->>'event' <> 'left') NOT VALID");
+          try {
+            await denied(service.leave(S, room), 'SERVICE_UNAVAILABLE');
+            assert.equal((await service.detail(S, room)).archived, true);
+            assert.equal((await service.members(T, room)).length, 1);
+          } finally {
+            await pool.query('ALTER TABLE background_jobs DROP CONSTRAINT fixture_reject_leave');
+          }
+          const outcomes = await Promise.allSettled([service.leave(S, room), service.leave(S, room)]);
+          assert.equal(outcomes.filter(outcome => outcome.status === 'fulfilled').length, 1);
+          assert.equal(outcomes.find(outcome => outcome.status === 'rejected').reason.code, 'FORBIDDEN');
+          await denied(service.leave(T, room), 'FORBIDDEN');
+          assert.equal((await service.detail(T, room)).archived, true);
           await denied(service.detail(S, room), 'FORBIDDEN');
           await denied(service.previewCode(S, code), 'ENROLLMENT_UNAVAILABLE');
           assert.equal((await service.members(T, room)).length, 0);
@@ -174,6 +185,11 @@ test(
               .rows[0].n,
             1,
           );
+          assert.equal((await pool.query("SELECT count(*)::int AS n FROM membership_periods WHERE end_reason='LEFT'")).rows[0].n, 1);
+          assert.equal((await pool.query("SELECT count(*)::int AS n FROM background_jobs WHERE type='p5.membership' AND payload->>'event'='left'")).rows[0].n, 1);
+          const archived = await service.detail(T, room);
+          await service.setArchive(T, room, { archived: false, revision: archived.revision });
+          await denied(service.previewCode(S, code), 'ENROLLMENT_UNAVAILABLE');
         },
       );
       await t.test(

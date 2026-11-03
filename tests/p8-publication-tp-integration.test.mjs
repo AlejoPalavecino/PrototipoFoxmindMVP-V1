@@ -38,8 +38,9 @@ test('P8 distinct TP delivery -> explicit publication -> clean own result -> pri
       const teacher = await (await browser.newContext({ viewport: { width: 1280, height: 900 } })).newPage();
       const student = await (await browser.newContext({ viewport: { width: 375, height: 812 } })).newPage();
       const errors = []; for (const page of [teacher, student]) { page.setDefaultTimeout(12000); page.on('pageerror', e => errors.push(e.message)); }
-      const suffix = Date.now(); await account(teacher, runtime.origin, runtime.inbox, `p8-teacher-${suffix}@example.test`, undefined, 'teacher');
-      await account(student, runtime.origin, runtime.inbox, `p8-student-${suffix}@example.test`, undefined, 'student');
+      const suffix = Date.now(), studentEmail = `p8-student-${suffix}@example.test`;
+      await account(teacher, runtime.origin, runtime.inbox, `p8-teacher-${suffix}@example.test`, undefined, 'teacher');
+      await account(student, runtime.origin, runtime.inbox, studentEmail, undefined, 'student');
       const name = 'P8 distinct TP publication classroom', room = await classroom(teacher, student, name), detail = await ok(teacher, 'GET', `/classrooms/${room.id}`);
       const change = async operation => ok(teacher, 'POST', `/classrooms/${room.id}/activities`, { revision: (await ok(teacher, 'GET', `/classrooms/${room.id}`)).revision, operation });
       const activities = [];
@@ -179,11 +180,63 @@ test('P8 distinct TP delivery -> explicit publication -> clean own result -> pri
         assert.equal((await runtime.db.query('SELECT count(*)::int n FROM student_activities WHERE effective_grade_id IS NOT NULL')).rows[0].n, 1);
         assert.equal((await runtime.db.query("SELECT count(*)::int n FROM notifications WHERE event_type::text IN ('GRADE_PUBLISHED','GRADE_CORRECTED')")).rows[0].n, 1);
         assert.equal((await runtime.db.query('SELECT count(*)::int n FROM grade_corrections')).rows[0].n, 0);
+        const roomPath = `/classrooms/${room.id}`;
+        const resultPath = `${roomPath}/attempts/${activities[0].attempt}/result`;
+        const attachment = (await ok(student, 'GET', resultPath)).attachments[0];
+        const archive = async archived => ok(teacher, 'POST', `${roomPath}/archive`, {
+          archived, revision: (await ok(teacher, 'GET', roomPath)).revision,
+        });
+        await archive(true);
+        assert.equal((await request(student, 'POST', `${roomPath}/leave`, {}, { 'x-csrf-token': 'invalid' })).status, 403);
+        await openClassroom(student, runtime.origin, name);
+        const leave = student.getByRole('button', { name: 'Salir del aula', exact: true });
+        await leave.focus();
+        await student.keyboard.press('Enter');
+        const dialog = student.getByRole('dialog', { name: 'Salir del aula' });
+        await dialog.getByText(/Tus entregas confirmadas se conservarán/).waitFor();
+        await dialog.getByRole('button', { name: 'Cancelar', exact: true }).click();
+        await dialog.waitFor({ state: 'hidden' });
+        await student.waitForFunction(() => document.activeElement?.textContent?.trim() === 'Salir del aula');
+        assert.equal((await ok(student, 'GET', roomPath)).archived, true);
+        await leave.click();
+        const confirmLeave = dialog.getByRole('button', { name: 'Confirmar salida', exact: true });
+        let releaseLeave;
+        const release = new Promise(resolve => { releaseLeave = resolve; });
+        await student.route('**/leave', async route => {
+          await release;
+          await route.fulfill({ status: 503, json: { error: { code: 'SERVICE_UNAVAILABLE' } } });
+        }, { times: 1 });
+        try {
+          await confirmLeave.click();
+          await dialog.getByRole('button', { name: 'Procesando…' }).waitFor();
+          assert.equal(await dialog.getByRole('button', { name: 'Procesando…' }).isDisabled(), true);
+        } finally { releaseLeave(); }
+        await dialog.getByRole('alert').waitFor();
+        await confirmLeave.focus();
+        await student.keyboard.press('Enter');
+        await student.getByRole('status').filter({ hasText: 'Saliste del aula' }).waitFor();
+        await student.getByRole('heading', { name, exact: true }).waitFor({ state: 'hidden' });
+        for (const path of [roomPath, resultPath, `${roomPath}/attempts/${activities[0].attempt}/history`, `/files/${attachment.id}/content`]) {
+          assert.equal((await request(student, 'GET', path)).status, 403, path);
+        }
+        const event = (await runtime.db.query("SELECT id FROM notifications WHERE event_type='GRADE_PUBLISHED' ORDER BY created_at LIMIT 1")).rows[0];
+        assert.equal((await request(student, 'POST', `/classrooms/notifications/${event.id}/open`, {})).status, 403);
+        assert.equal((await ok(teacher, 'GET', roomPath)).archived, true);
+        assert.equal((await ok(teacher, 'GET', resultPath)).grade.finalGrade, activities[0].expected);
+        assert.equal(await protectedHash(), before);
+        assert.equal(await gradeHash(), grades);
+        await archive(false);
+        assert.equal((await request(student, 'POST', '/classrooms/codes/preview', { code: room.code })).status, 409);
+        const invitation = await ok(teacher, 'POST', `${roomPath}/invitations`, { email: studentEmail });
+        await ok(student, 'POST', `/classrooms/invitations/${invitation.id}/accept`, {});
+        assert.equal((await ok(student, 'GET', resultPath)).grade.finalGrade, activities[0].expected);
+        assert.equal((await request(student, 'GET', `/files/${attachment.id}/content`)).status, 200);
+        assert.equal(await protectedHash(), before);
+        assert.equal(await gradeHash(), grades);
         const session = await ok(student, 'GET', '/auth/session'), studentId = session.user.id;
         await ok(teacher, 'POST', `/classrooms/${room.id}/members/${studentId}/remove`, {});
         const state = digest(JSON.stringify((await runtime.db.query('SELECT to_jsonb(t) value FROM notifications t ORDER BY id')).rows));
         assert.equal((await request(student, 'GET', `/classrooms/${room.id}/attempts/${activities[0].attempt}/result`)).status, 403);
-        const event = (await runtime.db.query("SELECT id FROM notifications WHERE event_type='GRADE_PUBLISHED' ORDER BY created_at LIMIT 1")).rows[0];
         assert.equal((await request(student, 'POST', `/classrooms/notifications/${event.id}/open`, {})).status, 403);
         assert.equal(digest(JSON.stringify((await runtime.db.query('SELECT to_jsonb(t) value FROM notifications t ORDER BY id')).rows)), state);
         assert.equal((await ok(teacher, 'GET', `/classrooms/${room.id}/attempts/${activities[0].attempt}/result`)).status, 'published');

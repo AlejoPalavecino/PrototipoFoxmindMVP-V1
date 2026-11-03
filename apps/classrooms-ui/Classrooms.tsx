@@ -34,6 +34,7 @@ export function ClassroomsApp({
   requestedInvitation,
   requestedNotification,
   requestedTarget,
+  navigationNotice,
   initialPresentation = 'classrooms',
   onNavigate,
 }: {
@@ -46,8 +47,9 @@ export function ClassroomsApp({
   requestedInvitation?: string;
   requestedNotification?: string;
   initialPresentation?: 'home' | 'classrooms';
-  onNavigate?: (presentation: 'home' | 'classrooms' | 'agenda') => void;
+  onNavigate?: (presentation: 'home' | 'classrooms' | 'agenda', notice?: string) => void;
   requestedTarget?: { classroomId: string; activityId: string | null };
+  navigationNotice?: string;
 }) {
   const [presentation, setPresentation] = useState(initialPresentation);
   const [data, setData] = useState<HomeData | null>(null),
@@ -110,7 +112,7 @@ export function ClassroomsApp({
       setBusy(false);
     }
   }
-  const showPresentation = (next: 'home' | 'classrooms') => {
+  const showPresentation = (next: 'home' | 'classrooms', departureNotice?: string) => {
     setDraft(null);
     setClassroomId(null);
     setSharedCode(null);
@@ -118,7 +120,7 @@ export function ClassroomsApp({
     setHomeTarget(null);
     setError('');
     setPresentation(next);
-    if ((next !== initialPresentation || requestedTarget) && onNavigate) { onNavigate(next); return; }
+    if ((next !== initialPresentation || requestedTarget) && onNavigate) { onNavigate(next, departureNotice); return; }
     if (next === 'classrooms') void action(() => load());
   };
   const leaveView = () => showPresentation('classrooms');
@@ -217,6 +219,12 @@ export function ClassroomsApp({
               api={api}
               id={classroomId}
               onExit={leaveView}
+              onMembershipEnded={confirmed => {
+                setData(current => current && { ...current, study: current.study.filter(room => room.id !== classroomId) });
+                const message = confirmed ? 'Saliste del aula' : 'Ya no tenés acceso al aula';
+                setNotice(message);
+                showPresentation('classrooms', message);
+              }}
               initialCode={sharedCode}
               wallTarget={wallTarget?.classroomId === classroomId ? wallTarget : null}
               homeTarget={homeTarget && 'classroomId' in homeTarget && homeTarget.classroomId === classroomId ? homeTarget : null}
@@ -237,7 +245,7 @@ export function ClassroomsApp({
             <ClassroomCollectionHero accountRole={accountRole} busy={busy}
               onJoin={() => { setJoin(true); setJoinError(''); setPreview(null); }}
               onCreate={() => void action(async () => { setDraft(await api.call<Draft>('/drafts', 'POST', {})); })} />
-            {notice ? <Notice>{notice}</Notice> : null}
+            {notice || navigationNotice ? <Notice>{notice || navigationNotice}</Notice> : null}
             {error ? (
               <Notice error>
                 {error}{' '}

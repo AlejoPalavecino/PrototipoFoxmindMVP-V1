@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import type { AcademicTarget, ClassroomClient, Detail, Invitation, Member, NotificationTarget } from './api.ts';
+import { ApiError, type AcademicTarget, type ClassroomClient, type Detail, type Invitation, type Member, type NotificationTarget } from './api.ts';
 import { Notice } from './components.tsx';
 import { ClassroomHeader } from './ClassroomHeader.tsx';
 import type { HomeTarget } from '../../src/core/domain/index.ts';
@@ -25,6 +25,7 @@ export function ClassroomView({
   api,
   id,
   onExit,
+  onMembershipEnded,
   initialCode,
   wallTarget,
   homeTarget,
@@ -33,6 +34,7 @@ export function ClassroomView({
   api: ClassroomClient;
   id: string;
   onExit: () => void;
+  onMembershipEnded: (confirmed: boolean) => void;
   initialCode: string | null;
   wallTarget?: NotificationTarget | null;
   homeTarget?: HomeTarget | null;
@@ -59,8 +61,13 @@ export function ClassroomView({
   const identity = useRef({ id });
   if (identity.current.id !== id) identity.current = { id };
   const activeIdentity = identity.current;
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
   const settingsOperation = useRef(0);
-  const isCurrentRoom = () => identity.current === activeIdentity;
+  const isCurrentRoom = () => mounted.current && identity.current === activeIdentity;
   const { tabs, roster } = useClassroomNavigation(tab, room, activeWallTarget, rosterLoaded, members.length);
   const [planActivity, setPlanActivity] = useState<AcademicTarget | null>(null);
   const destination = activeWallTarget ?? (activeHomeTarget && 'classroomId' in activeHomeTarget && activeHomeTarget.classroomId === id ? homeNotificationTarget(activeHomeTarget) : null);
@@ -73,6 +80,7 @@ export function ClassroomView({
     text: string;
     run: () => Promise<void>;
     scope?: string;
+    confirmLabel?: string;
   } | null>(null);
   const { settings, setSettings, settingsRevision, setSettingsRevision,
     settingsConflict, setSettingsConflict } = useClassroomSettings(id, room);
@@ -177,14 +185,29 @@ export function ClassroomView({
             {!teacher ? (
               <footer className="p5-student-footer">
                 <button
-                  disabled={busy || room.archived}
+                  disabled={busy}
                   onClick={() =>
                     setConfirm({
                       title: 'Salir del aula',
-                      text: 'Perderás acceso al aula. Tu historial se conserva y para volver necesitarás una invitación nueva del docente.',
+                      text: room.archived
+                        ? 'Perderás acceso a esta aula y a sus archivos. Tus entregas confirmadas se conservarán. Para volver, el docente tendrá que reactivar el aula y enviarte una invitación nueva.'
+                        : 'Perderás acceso al aula. Tu historial se conserva y para volver necesitarás una invitación nueva del docente.',
+                      confirmLabel: room.archived ? 'Confirmar salida' : undefined,
                       run: async () => {
-                        await api.call(`/${id}/leave`, 'POST', {});
-                        if (isCurrentRoom()) onExit();
+                        try {
+                          await api.call(`/${id}/leave`, 'POST', {});
+                        } catch (error) {
+                          if (!isCurrentRoom()) throw error;
+                          // A failed response may follow a committed departure, or be a rejected request.
+                          try { await api.call(`/${id}`); }
+                          catch (accessError) {
+                            if (!(accessError instanceof ApiError) || accessError.code !== 'FORBIDDEN') throw error;
+                            if (isCurrentRoom()) onMembershipEnded(false);
+                            return;
+                          }
+                          throw error;
+                        }
+                        if (isCurrentRoom()) onMembershipEnded(true);
                       },
                     })
                   }

@@ -33,6 +33,28 @@ for (const role of ['teacher', 'student']) test(`D3 ordinary ${role} classroom e
   } finally { view.close(); }
 });
 
+test('a confirmed archived departure cannot navigate after the classroom view unmounts', async () => {
+  const { ClassroomView } = loadTsModule('apps/classrooms-ui/ClassroomView.tsx');
+  let finish;
+  const departures = [];
+  const api = { call: async path => {
+    if (path.endsWith('/leave')) return new Promise(resolve => { finish = resolve; });
+    return path === `/${id}` ? { ...room('student'), archived: true } : [];
+  } };
+  const view = hookView(ClassroomView, { api, id, initialCode: null, onExit() {},
+    onMembershipEnded: confirmed => departures.push(confirmed) });
+  await view.flush();
+  const [leave] = descendants(view.tree, node => node.type === 'button' && node.props.children === 'Salir del aula');
+  leave.props.onClick();
+  await view.flush();
+  const [dialogs] = descendants(view.tree, node => node.type?.name === 'ClassroomDialogs');
+  const departure = dialogs.props.confirm.run();
+  view.close();
+  finish({ ok: true });
+  await departure;
+  assert.deepEqual(departures, []);
+});
+
 for (const [name, destination, component] of [
   ['wall', { classroomId: id, postId: id }, 'Wall'],
   ['activity', { kind: 'ACTIVITY', classroomId: id, activityId: id }, 'Activities'],

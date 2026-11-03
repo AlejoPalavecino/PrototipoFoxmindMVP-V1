@@ -71,7 +71,7 @@ Removing teacher buttons from a student view is not sufficient: implementation m
 - In V1, a teacher may archive and reactivate their classroom. Permanent classroom deletion is not available.
 - An archived classroom is read-only for both teachers and students, subject to their existing access permissions.
 - Archiving preserves membership, materials, conversations, attempts/submissions and grades; it does not publish pending grades or expose private records.
-- While archived, the classroom accepts no new members, publications, submissions or modifications. Reactivation is the teacher-controlled exception to this read-only state.
+- While archived, the classroom accepts no new members, publications, submissions or academic modifications. The teacher can reactivate it, and a current student can voluntarily end their own membership.
 - Reactivation restores normal operation without automatically resetting or extending any deadline. Existing content locks, attempt history and effective-grade rules remain in effect.
 
 ### Confirmed student departure and removal policy
@@ -80,7 +80,7 @@ Removing teacher buttons from a student view is not sufficient: implementation m
 - Neither action deletes the student's prior submissions, grades or classroom conversations.
 - The former student loses access to the classroom; the teacher retains access to their academic history.
 - Rejoining requires a new teacher-issued invitation and explicit acceptance. The classroom code cannot bypass a previous departure or removal, and an invitation from before that departure is not a new invitation.
-- Membership changes must also respect the archived classroom's read-only state; this policy does not override the archive/reactivation restrictions.
+- A current student may confirm their own departure from an archived classroom. Teacher removal and readmission require an active classroom. After reactivation and acceptance of a new invitation, the student can consult their previous confirmed submissions and published feedback under the existing permissions.
 
 Current progress and the separate teacher-accessible student history follow the confirmed membership rules in section 11.
 
@@ -800,6 +800,7 @@ These are verification targets for future implementation, **not checks already e
 | Teacher reactivates a classroom | Restore normal operation without resetting deadlines, attempts, content locks or grades. |
 | User requests permanent classroom deletion in V1 | Do not provide or perform permanent deletion. |
 | Student leaves or teacher removes the student | Remove classroom access while preserving submissions, grades and conversations; the teacher retains academic-history access. |
+| Current student confirms voluntary departure from an archived classroom | End only their membership, revoke classroom and private file access, and preserve submitted work and the archived state. Readmission requires reactivation and a new teacher-issued invitation explicitly accepted by the student. |
 | Former student tries to rejoin using the classroom code or an old invitation | Reject re-entry without a new teacher-issued invitation and explicit acceptance. |
 | Former student accepts a new teacher-issued invitation | Permit re-entry subject to verification and classroom-state checks; reuse their preserved records without duplicating memberships, submissions or grades. |
 | Student leaves or is removed while current metrics are displayed | Exclude their records from current class averages and current totals, but preserve a separate teacher-accessible history. |

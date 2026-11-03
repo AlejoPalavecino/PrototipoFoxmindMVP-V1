@@ -46,7 +46,7 @@ All responses are private/no-store. Mutations require JSON; unknown/forged field
 | GET `/classrooms/:id/members` | Teacher roster; students receive first/last names only |
 | GET `/classrooms/:id/history` | Teacher-only former-student membership history |
 | GET `/classrooms/:id/members/:studentId` | Teacher-only existing submitted-attempt/grade summary, including former students |
-| POST `/classrooms/:id/leave` | Close own active period, revoke access, retain history |
+| POST `/classrooms/:id/leave` | Close own active period, including in archived classrooms, revoke access and retain history |
 | POST `/classrooms/:id/members/:studentId/remove` | Teacher closes active period with attributed reason |
 | GET/POST `/classrooms/:id/invitations` | Teacher lifecycle/delivery list / issue or renew invitation |
 | POST `/classrooms/:id/invitations/:invitationId/revoke` | Teacher revokes pending invitation |
@@ -61,7 +61,7 @@ Codes use144bits of random entropy and are stored only as digests. A teacher rec
 
 Invitations last seven days and remain one pending row per classroom/normalized mailbox. Renewing after at least60seconds increments the generation; original mailbox spelling is retained inside authenticated encryption, returned only to the classroom teacher and reused by UI resend. Departures revoke older pending invitations; reentry requires a newly issued invitation identity. Acceptance also rejects any invitation not newer than the last departure, and cannot race past archive/removal/code rotation under the classroom lock. No enrollment happens from email issuance, registration or verification alone.
 
-The P5 mutation budget is120successful admitted operations per verified user per minute (shared database controls under a P5 action namespace); P3's own security/admission configuration remains unchanged. Lists are permission scoped and do not silently truncate at500records. Classrooms and drafts are private. Every read rechecks current access; archive preserves reads but denies all writes except teacher reactivation. Teacher and timezone are additionally immutable in the P5 forward SQL guard.
+The P5 mutation budget is120successful admitted operations per verified user per minute (shared database controls under a P5 action namespace); P3's own security/admission configuration remains unchanged. Lists are permission scoped and do not silently truncate at500records. Classrooms and drafts are private. Every read rechecks current access. An archived classroom permits teacher reactivation and a current student's voluntary departure, with other writes blocked. Teacher and timezone are additionally immutable in the P5 forward SQL guard.
 
 `InvitationDeliveryWorker` uses AES-256-GCM envelopes in existing durable background jobs, with invitation/generation AAD and per-generation deduplication. It checks current invitation/generation/expiry/archive before claim, uses recoverable leases, capped retries and sanitized errors. No SMTP I/O occurs inside a database transaction. The supplied sender is restricted to an actual loopback captured inbox; production delivery remains a separately configured integrating adapter. Periodic dispatch and shutdown are opt-in Nest lifecycle providers. Retries are at-least-once: SMTP acceptance followed by a lost database acknowledgment may duplicate an email. A message already in flight cannot be recalled after revocation; its non-bearer invitation link still requires current verified recipient acceptance and never restores access by itself.
 
