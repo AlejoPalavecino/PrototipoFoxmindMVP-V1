@@ -57,3 +57,34 @@ test('expired visual lease does not consume healthy shared concurrency', {timeou
   assert.ok(await pending.claim(),'expired visual lease must not occupy active concurrency');
  }));});
 });
+
+test('empty visual claim and recovery leave admission available while budget is locked', { timeout: 120000 }, async () => {
+  await withAgendaDatabase(async ({ pool, transaction }) => {
+    const query = async (sql, ...args) => (await pool.query(sql, args)).rows;
+    const f = await homeFixture(query);
+    const database = { $transaction: run => transaction(async ({ database, query }) => {
+      await query("SET LOCAL lock_timeout = '750ms'");
+      return database.$transaction(run);
+    }) };
+    const { createFoxyVisualQueue } = await import('./visual-queue.ts');
+    const visual = createFoxyVisualQueue({ database, configuration: visualConfig, budget: {
+      settleExpired: async () => assert.fail('empty queue cannot settle'),
+    } });
+    const extraction = await candidate('extraction', f, query, database, cfg);
+    const budget = await pool.connect();
+    try {
+      await budget.query('BEGIN');
+      await budget.query('SELECT pg_advisory_xact_lock(78123001)');
+      const [claim, recovered, other] = await Promise.allSettled([visual.claim(), visual.recoverExpired(), extraction.claim()]);
+      assert.equal(claim.status, 'fulfilled', String(claim.reason));
+      assert.equal(claim.value, null);
+      assert.equal(recovered.status, 'fulfilled', String(recovered.reason));
+      assert.equal(recovered.value, 0);
+      assert.equal(other.status, 'fulfilled', String(other.reason));
+      assert.ok(other.value, 'extraction claims while budget remains locked');
+    } finally {
+      await budget.query('ROLLBACK');
+      budget.release();
+    }
+  });
+});

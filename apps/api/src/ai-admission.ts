@@ -4,6 +4,12 @@ export async function lockAiAdmission(tx: SqlTransaction): Promise<void> {
   await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123002)');
 }
 
+/** When admission is already held, defer budget work instead of blocking other queues. */
+export async function tryLockAiBudget(tx: SqlTransaction): Promise<boolean> {
+  const [result] = await tx.query<{ acquired: boolean }>('SELECT pg_try_advisory_xact_lock(78123001) AS acquired');
+  return result?.acquired === true;
+}
+
 const queues = [
   ['classroom_curriculum_extractions', 'generation'],
   ['activity_ai_generations', 'generation'],

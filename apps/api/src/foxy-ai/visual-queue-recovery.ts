@@ -1,4 +1,4 @@
-import { lockAiAdmission } from '../ai-admission.ts';
+import { lockAiAdmission, tryLockAiBudget } from '../ai-admission.ts';
 import { isDeepStrictEqual } from 'node:util';
 import type { FoxyContext, FoxySelection, SqlDatabase, SqlTransaction } from '../../../../src/core/domain/index.ts';
 import { rebuildGrounding } from './grounding-rebuild.ts';
@@ -26,7 +26,7 @@ export function createVisualRecovery(database: SqlDatabase, budget: Budget, maxJ
   async function one(): Promise<boolean> {
     return database.$transaction(async raw => {
       const tx: SqlTransaction = {query:(sql,...args)=>raw.$queryRawUnsafe(sql,...args)};
-      await lockAiAdmission(tx); await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)');
+      await lockAiAdmission(tx);
       const [stale] = await tx.query<{ id: string }>(`UPDATE foxy_visual_jobs SET state='FAILED',error_code='GENERATION_INTERRUPTED',revision=revision+1,updated_at=clock_timestamp()
         WHERE id=(SELECT id FROM foxy_visual_jobs WHERE state='QUEUED' AND created_at+$1::bigint*interval '1 millisecond'<=clock_timestamp() ORDER BY created_at,id LIMIT 1 FOR UPDATE)
         AND state='QUEUED' RETURNING id`,maxJobAgeMs);
@@ -39,7 +39,7 @@ export function createVisualRecovery(database: SqlDatabase, budget: Budget, maxJ
           AND j.created_at+$1::bigint*interval '1 millisecond'>clock_timestamp() AND c.deleted_at IS NULL AND u.account_role='teacher' AND u.email_verified_at IS NOT NULL
           AND (c.context_kind='GENERAL' OR EXISTS (SELECT 1 FROM classrooms r WHERE r.id=c.classroom_id AND r.teacher_id=c.owner_id AND r.archived_at IS NULL)))
         ORDER BY j.lease_until,j.id LIMIT 1`,maxJobAgeMs);
-      if (!ref) return false;
+      if (!ref || !await tryLockAiBudget(tx)) return false;
       const context=await authorized(tx,ref);
       const [job]=await tx.query<Job>("SELECT snapshot,selection,kind,aspect_ratio FROM foxy_visual_jobs WHERE id=$1::uuid AND state='RUNNING' AND dispatch_count=1 AND lease_until<=clock_timestamp() FOR UPDATE",ref.id);
       if (!job) return unavailable();

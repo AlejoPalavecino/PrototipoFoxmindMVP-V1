@@ -1,4 +1,4 @@
-import { activeAiOwnersSql, lockAiAdmission, noAiWorkForOwner } from '../ai-admission.ts';
+import { activeAiOwnersSql, lockAiAdmission, noAiWorkForOwner, tryLockAiBudget } from '../ai-admission.ts';
 import { randomUUID } from 'node:crypto';
 import type { SqlDatabase, SqlTransaction } from '../../../../src/core/domain/index.ts';
 import type { FoxyVisualLease } from './visual-worker-types.ts';
@@ -20,7 +20,6 @@ export function createFoxyVisualQueue(options: { database: SqlDatabase; configur
   async function claim(): Promise<FoxyVisualLease|null> {
     return transact(async tx => {
       await lockAiAdmission(tx);
-      await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)');
       const [active] = await tx.query<{count: number}>(`SELECT count(*)::int AS count FROM (${activeAiOwnersSql}) active`);
       if (!active || active.count>=config.maxConcurrency) return null;
       const [item] = await tx.query<Candidate>(`SELECT j.id,j.owner_id,j.conversation_id,j.asset_id,j.kind,j.dispatch_count,c.classroom_id FROM foxy_visual_jobs j
@@ -30,7 +29,9 @@ export function createFoxyVisualQueue(options: { database: SqlDatabase; configur
         AND ((j.state='QUEUED' AND a.state='RESERVED') OR (j.state='RUNNING' AND (j.dispatch_count=0 OR (j.dispatch_count=1 AND a.digest IS NOT NULL)) AND j.lease_until<=clock_timestamp() AND a.state='PROCESSING' AND a.lease_until<=clock_timestamp() AND a.lease_nonce=j.lease_nonce))
         AND j.created_at+$1::bigint*interval '1 millisecond'>clock_timestamp() AND (j.dispatch_count=1 OR (j.kind='IMAGE' AND $2) OR (j.kind='DIAGRAM' AND $3))
         AND ${noAiWorkForOwner('j')} ORDER BY j.created_at,j.id LIMIT 1`,config.maxJobAgeMs,config.enabled?.IMAGE ?? true,config.enabled?.DIAGRAM ?? true);
-      if (!item || !await lock(tx,item)) return null;
+      if (!item) return null;
+      if (item.dispatch_count === 1 && !await tryLockAiBudget(tx)) return null;
+      if (!await lock(tx,item)) return null;
       if (item.dispatch_count === 1 && !await options.budget.settleExpired(tx,item.id)) throw failure();
       const nonce=randomUUID(), [clock] = await tx.query<{until: Date}>("SELECT clock_timestamp()+interval '90 seconds' AS until");
       const [job] = await tx.query(`UPDATE foxy_visual_jobs SET state='RUNNING',lease_nonce=$2::uuid,lease_until=$3,revision=revision+1,updated_at=clock_timestamp()

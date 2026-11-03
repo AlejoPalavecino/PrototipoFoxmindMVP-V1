@@ -80,7 +80,18 @@ test('undispatched expired claim is reclaimed with fresh nonce shared by job and
 });
 test('expired dispatched job settles full budget and fails without re-dispatch', {timeout:120000},async()=>{
  const api=await modules();await withAiDatabase(async({pool})=>{const x=await fixture(pool,api,{shortLease:true});assert.equal(await x.tx(tx=>x.budget.reserve(tx,x.lease,12)),'RESERVED');await waitExpired(x);
-  assert.equal(await x.queue.recoverExpired(),1);const [job]=await x.query('SELECT state,error_code,dispatch_count,reserved_microusd FROM foxy_visual_jobs WHERE id=$1',x.lease.jobId);
+  const blocker = await pool.connect();
+  try {
+   await blocker.query('BEGIN');
+   await blocker.query('SELECT pg_advisory_xact_lock(78123001)');
+   assert.equal(await x.queue.recoverExpired(),0,'terminal recovery defers while budget is locked');
+   const [pending] = await x.query('SELECT state,reserved_microusd FROM foxy_visual_jobs WHERE id=$1',x.lease.jobId);
+   assert.equal(pending.state,'RUNNING');
+   assert.equal(BigInt(pending.reserved_microusd),139264n);
+  } finally { await blocker.query('ROLLBACK'); blocker.release(); }
+  const recovered = await Promise.all([x.queue.recoverExpired(),x.queue.recoverExpired()]);
+  assert.deepEqual(recovered.sort(),[0,1]);
+  const [job]=await x.query('SELECT state,error_code,dispatch_count,reserved_microusd FROM foxy_visual_jobs WHERE id=$1',x.lease.jobId);
   assert.equal(job.state,'FAILED');assert.equal(job.error_code,'GENERATION_INTERRUPTED');assert.equal(job.dispatch_count,1);assert.equal(BigInt(job.reserved_microusd),0n);assert.equal(await x.queue.claim(),null);
   const ledger=await x.query("SELECT reserved_microusd,consumed_microusd FROM ai_usage_daily WHERE capability='study-plan-v1' AND scope IN ('global',$1)",x.f.teacherActor);assert.equal(ledger.length,2);
   for(const row of ledger){assert.equal(BigInt(row.reserved_microusd),0n);assert.equal(BigInt(row.consumed_microusd),139264n);}
@@ -117,10 +128,30 @@ test('expired dispatched job with bound bytes is reclaimed for custody recovery 
  const api=await modules();await withAiDatabase(async({pool})=>{const x=await fixture(pool,api,{shortLease:true}),signal=new AbortController().signal,scope=await x.authority.open(x.lease,signal);
   assert.equal(await x.tx(tx=>x.budget.reserve(tx,x.lease,12)),'RESERVED');const data=metadata();const grant=await x.assetAuthority.bind(scope.assetCapability,data,signal);
   const storage=new Map([[grant.storageKey,Buffer.from('synthetic raster')]]);assert.equal(storage.get(grant.storageKey).length,data.sizeBytes);
-  x.authority.close(scope);await waitExpired(x);await x.queue.recoverExpired();const next=await x.queue.claim();
+  x.authority.close(scope);await waitExpired(x);
+  const blocker = await pool.connect();
+  try {
+   await blocker.query('BEGIN');
+   await blocker.query('SELECT pg_advisory_xact_lock(78123001)');
+   assert.equal(await x.queue.claim(), null, 'expired dispatched claim defers while budget is locked');
+   const [pending] = await x.query('SELECT lease_nonce,reserved_microusd FROM foxy_visual_jobs WHERE id=$1',x.lease.jobId);
+   assert.equal(pending.lease_nonce,x.lease.leaseNonce);
+   assert.equal(BigInt(pending.reserved_microusd),139264n);
+  } finally { await blocker.query('ROLLBACK'); blocker.release(); }
+  assert.equal(await x.queue.recoverExpired(),0);
+  const claims = (await Promise.all([x.queue.claim(), x.queue.claim()])).filter(Boolean);
+  assert.equal(claims.length,1,'only one worker claims the expired job');
+  const [next] = claims;
   assert.ok(next,'bound bytes need a new lease for custody recovery');assert.notEqual(next.leaseNonce,x.lease.leaseNonce);assert.equal(next.jobId,x.lease.jobId);
   const [row]=await x.query('SELECT j.state,j.dispatch_count,j.lease_nonce jnonce,a.lease_nonce anonce,a.digest FROM foxy_visual_jobs j JOIN foxy_visual_assets a ON a.id=j.asset_id WHERE j.id=$1',next.jobId);
   assert.equal(row.state,'RUNNING');assert.equal(row.dispatch_count,1);assert.equal(row.jnonce,next.leaseNonce);assert.equal(row.anonce,next.leaseNonce);assert.equal(row.digest,data.digest);
+  const ledger = await x.query("SELECT request_count,reserved_microusd,consumed_microusd FROM ai_usage_daily WHERE capability='study-plan-v1' AND scope IN ('global',$1)",x.f.teacherActor);
+  assert.equal(ledger.length,2);
+  for (const entry of ledger) {
+   assert.equal(entry.request_count,1);
+   assert.equal(BigInt(entry.reserved_microusd),0n);
+   assert.equal(BigInt(entry.consumed_microusd),139264n);
+  }
  });
 });
 
