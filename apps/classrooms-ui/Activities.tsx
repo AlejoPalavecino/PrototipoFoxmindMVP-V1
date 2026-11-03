@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { AcademicTarget, ActivityData, ActivitySummary, ActivityType, AttemptSessionData, ClassroomClient, Detail, Material } from './api.ts';
 import { Dialog, Notice } from './components.tsx';
 import { ActivityAuthoring, ActivityPreview, activityDate, activityTypeLabels } from './ActivityAuthoring.tsx';
@@ -29,7 +29,6 @@ export function Activities({ api, room, reload, target, onChanged, openAuthoring
   const [confirm, setConfirm] = useState<{ action: 'publish' | 'withdraw'; activity: ActivitySummary } | null>(null);
   const [history, setHistory] = useState<{ activityId: string; attemptId?: string | null; filter?: 'unpublished' } | null>(null);
   const [view, setView] = useState<(typeof teacherViews)[number]['key']>('all');
-  const activityListId = useId();
   const teacher = room.role === 'teacher', writable = teacher && !room.archived;
   const visibleActivities = !teacher || view === 'all' ? activities : activities.filter(activity => activity.status === view);
   useEffect(() => { if (openAuthoring && writable) authoring.current?.focus(); }, [openAuthoring, writable]);
@@ -83,9 +82,9 @@ export function Activities({ api, room, reload, target, onChanged, openAuthoring
       onSaved={async () => { await refresh(); setNotice('Cambios confirmados por el servidor. Guardar no publica un borrador.'); }}
       onClose={() => setEditing(null)} /> : null}
     {teacher && loaded && activities.length > 0 && !editing && !generating ? <div className="fm-desk-activity-filters" role="group" aria-label="Filtrar actividades por estado">
-      {teacherViews.map(({key,label}) => <button type="button" key={key} aria-pressed={view === key} aria-controls={activityListId} onClick={() => setView(key)}>{label}</button>)}
+      {teacherViews.map(({key,label}) => <button type="button" key={key} aria-pressed={view === key} onClick={() => setView(key)}>{label}</button>)}
     </div> : null}
-    <div className="p7-activity-list fm-desk-activity-list" id={activityListId} hidden={Boolean(editing || generating)}>
+    <div className="p7-activity-list fm-desk-activity-list" hidden={Boolean(editing || generating)}>
     {loaded && visibleActivities.length === 0 ? <p className="p5-empty" role="status">{activities.length ? 'No hay actividades en este estado.' : 'Todavía no hay actividades disponibles.'}</p> : null}
     {visibleActivities.map(activity => <article className={`folder-row interior-activity-${activity.status.toLowerCase()}`} key={activity.id} aria-label={activity.title ?? 'Borrador sin título'}>
       <span className="interior-activity-icon"><EntryIcon name="book" /></span><div className="folder-row-content"><small className="interior-activity-status">{activity.status === 'DRAFT' ? 'Borrador privado' : activity.status === 'WITHDRAWN' ? 'Retirada' : 'Publicada'}</small><small className="interior-activity-type">{activityTypeLabels[activity.type]}</small>
