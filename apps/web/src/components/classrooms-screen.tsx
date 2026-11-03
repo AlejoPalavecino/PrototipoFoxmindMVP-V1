@@ -77,6 +77,7 @@ export function ClassroomsScreen({ initialPresentation = 'classrooms' }: { initi
       {target.requested && !target.target ? <div className="p5-main"><Notice error={Boolean(target.error)}>{target.error ?? 'Comprobando acceso a la actividad…'}
         {target.error ? <button onClick={target.reload}>Volver a intentar</button> : null}</Notice><Link href="/agenda">Volver a Agenda</Link></div> :
       <ClassroomsApp key={`${user.id}:${destination}`} accountRole={user.accountRole} subjectId={user.id} homeClient={homeClient} api={api} displayName={`${user.firstName} ${user.lastName}`} requestedInvitation={invitation} requestedTarget={target.target}
+        onEnterClassroom={id => router.push(`/mis-aulas?aula=${encodeURIComponent(id)}`)}
         requestedNotification={typeof router.query.notificacion === 'string' && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(router.query.notificacion) ? router.query.notificacion : undefined}
         initialPresentation={initialPresentation} navigationNotice={navigationNotice} onNavigate={(presentation, message) => {
           const pending = message ? { userId: user.id, message } : undefined;

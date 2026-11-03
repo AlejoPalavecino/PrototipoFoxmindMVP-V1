@@ -38,6 +38,7 @@ export function ClassroomsApp({
   navigationNotice,
   initialPresentation = 'classrooms',
   onNavigate,
+  onEnterClassroom,
 }: {
   api: ClassroomClient;
   displayName: string;
@@ -49,6 +50,7 @@ export function ClassroomsApp({
   requestedNotification?: string;
   initialPresentation?: 'home' | 'classrooms';
   onNavigate?: (presentation: 'home' | 'classrooms' | 'agenda', notice?: string) => void;
+  onEnterClassroom?: (id: string) => Promise<unknown>;
   requestedTarget?: { classroomId: string; activityId: string | null };
   navigationNotice?: string;
 }) {
@@ -260,7 +262,10 @@ export function ClassroomsApp({
               <Notice>Esta invitación no está pendiente para la cuenta actual. Puede haber vencido, haberse utilizado o corresponder a otro correo. Revisa tus invitaciones o cambia de cuenta desde tu perfil.</Notice>
             ) : null}
             {data ? <ClassroomCollection accountRole={accountRole} teach={data.teach} study={data.study} search={search} onSearch={setSearch}
-              onEnter={id => { setSharedCode(null); setClassroomId(id); }} /> : null}
+              onEnter={id => {
+                if (onEnterClassroom) { void action(async () => { await onEnterClassroom(id); }); return; }
+                setSharedCode(null); setClassroomId(id);
+              }} /> : null}
             {data && (data.invitations.length > 0 || data.drafts.length > 0) ? <section className="folder-panel tone-yellow folder-pending" aria-label="Pendientes">
               <h2 className="folder-tab"><EntryIcon name="bell" />Pendientes <span className="collection-pending-count">{data.invitations.length + data.drafts.length}</span></h2>
             {data?.invitations.length ? (
