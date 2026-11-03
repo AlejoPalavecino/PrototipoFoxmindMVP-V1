@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ClassroomsApp } from '../../../classrooms-ui/Classrooms';
 import { Notice } from '../../../classrooms-ui/components';
 import { createAccountClient, type AccountUser } from '../lib/account-client';
-import { classroomAuthHref, classroomDestination, createWebClassroomClient } from '../lib/classroom-client';
+import { classroomAuthHref, classroomDestination, classroomHomeDestination, classroomHomeHref, createWebClassroomClient } from '../lib/classroom-client';
 import { createWebAgendaClient } from '../lib/agenda-client';
 import { createWebHomeClient } from '../lib/home-client';
 import { useAgendaTarget } from '../../../classrooms-ui/useAgendaTarget';
@@ -30,7 +30,8 @@ export function ClassroomsScreen({ initialPresentation = 'classrooms' }: { initi
   const api = useMemo(() => createWebClassroomClient(fetch, requireAccount), [requireAccount]);
   const agendaApi = useMemo(() => createWebAgendaClient(fetch, requireAccount), [requireAccount]);
   const homeClient = useMemo(() => createWebHomeClient(fetch, requireAccount), [requireAccount]);
-  const target = useAgendaTarget(agendaApi, destination, user?.id);
+  const homeTarget = useMemo(() => classroomHomeDestination(destination), [destination]);
+  const target = useAgendaTarget(agendaApi, homeTarget ? '/mis-aulas' : destination, user?.id);
   const load = useCallback(async () => {
     if (signingOut.current) return;
     sessionRequest.current?.abort();
@@ -78,7 +79,10 @@ export function ClassroomsScreen({ initialPresentation = 'classrooms' }: { initi
         {target.error ? <button onClick={target.reload}>Volver a intentar</button> : null}</Notice><Link href="/agenda">Volver a Agenda</Link></div> :
       <ClassroomsApp key={`${user.id}:${destination}`} accountRole={user.accountRole} subjectId={user.id} homeClient={homeClient} api={api} displayName={`${user.firstName} ${user.lastName}`} requestedInvitation={invitation} requestedTarget={target.target}
         onEnterClassroom={id => router.push(`/mis-aulas?aula=${encodeURIComponent(id)}`)}
-        requestedNotification={typeof router.query.notificacion === 'string' && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(router.query.notificacion) ? router.query.notificacion : undefined}
+        onOpenHomeTarget={value => router.push(classroomHomeHref(value))}
+        onSelectNotification={id => router.push(`/mis-aulas?notificacion=${encodeURIComponent(id)}`)}
+        requestedHomeTarget={homeTarget ?? undefined}
+        requestedNotification={destination.startsWith('/mis-aulas?notificacion=') ? destination.split('=')[1] : undefined}
         initialPresentation={initialPresentation} navigationNotice={navigationNotice} onNavigate={(presentation, message) => {
           const pending = message ? { userId: user.id, message } : undefined;
           departureNotice = pending;

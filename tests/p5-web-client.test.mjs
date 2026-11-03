@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createClassroomClient } from '../apps/classrooms-ui/api.ts';
-import { classroomDestination, classroomAuthHref, createWebClassroomClient } from '../apps/web/src/lib/classroom-client.ts';
+import { classroomDestination, classroomAuthHref, classroomHomeDestination, classroomHomeHref, createWebClassroomClient } from '../apps/web/src/lib/classroom-client.ts';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { descendants, hookView } from './agenda-ui-helpers.test.mjs';
 
@@ -97,7 +97,7 @@ test('a late session response cannot restore a private classroom screen after ac
       sessionSignal = signal;
       return new Promise(resolve => { finish = resolve; });
     } }) },
-    '../lib/classroom-client': { classroomDestination, classroomAuthHref, createWebClassroomClient: (_fetch, onFailure) => {
+    '../lib/classroom-client': { classroomDestination, classroomAuthHref, classroomHomeDestination, classroomHomeHref, createWebClassroomClient: (_fetch, onFailure) => {
       requireAccount = onFailure;
       return {};
     } },
@@ -140,4 +140,27 @@ test('caller cancellation is propagated rather than reported as a service outage
     throw init.signal.reason;
   } });
   await assert.rejects(api.call('', 'GET', undefined, controller.signal), error => error.name === 'AbortError');
+});
+
+test('classroom history destinations round-trip Home resources and notification ids through the account gate', () => {
+  const room = 'a1111111-1111-4111-8111-111111111111', resource = 'b1111111-1111-4111-8111-111111111111';
+  const targets = [
+    { kind: 'classroom', classroomId: room, section: 'plan' },
+    { kind: 'material', classroomId: room, materialId: resource },
+    { kind: 'wall', classroomId: room, postId: resource },
+    { kind: 'grade', classroomId: room, activityId: resource, attemptId: resource, gradeId: resource },
+    { kind: 'submissions', classroomId: room, activityId: resource, filter: 'unpublished' },
+    { kind: 'publish-notice', classroomId: room },
+  ];
+  for (const target of targets) {
+    const href = classroomHomeHref(target);
+    assert.deepEqual(classroomHomeDestination(href), target);
+    assert.equal(classroomDestination(href), href);
+    assert.equal(new URL(classroomAuthHref('sign-in', href), 'https://fixture.test').searchParams.get('next'), href);
+    assert.equal(classroomDestination(href + '&destino=wall'), null);
+    assert.equal(classroomDestination(href.replace(room, 'forged')), null);
+  }
+  const notification = '/mis-aulas?notificacion=' + resource;
+  assert.equal(classroomDestination(notification), notification);
+  assert.equal(classroomDestination(notification + '&next=https://evil.test'), null);
 });

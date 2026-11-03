@@ -41,6 +41,9 @@ export function ClassroomsApp({
   initialPresentation = 'classrooms',
   onNavigate,
   onEnterClassroom,
+  onOpenHomeTarget,
+  onSelectNotification,
+  requestedHomeTarget,
 }: {
   api: ClassroomClient;
   displayName: string;
@@ -53,6 +56,9 @@ export function ClassroomsApp({
   initialPresentation?: 'home' | 'classrooms';
   onNavigate?: (presentation: 'home' | 'classrooms' | 'agenda', notice?: string) => void;
   onEnterClassroom?: (id: string) => Promise<unknown>;
+  onOpenHomeTarget?: (target: Exclude<HomeTarget, { kind: 'private-event' }>) => Promise<unknown>;
+  onSelectNotification?: (id: string) => Promise<unknown>;
+  requestedHomeTarget?: Exclude<HomeTarget, { kind: 'private-event' }>;
   requestedTarget?: { classroomId: string; activityId: string | null };
   navigationNotice?: string;
 }) {
@@ -63,9 +69,9 @@ export function ClassroomsApp({
   const [busy, setBusy] = useState(false),
     [search, setSearch] = useState(''),
     [draft, setDraft] = useState<Draft | null>(null),
-    [classroomId, setClassroomId] = useState<string | null>(null);
+    [classroomId, setClassroomId] = useState<string | null>(requestedHomeTarget?.classroomId ?? null);
   const [wallTarget, setWallTarget] = useState<NotificationTarget | null>(null), [notificationRefresh, setNotificationRefresh] = useState(0);
-  const [homeTarget, setHomeTarget] = useState<HomeTarget | null>(null);
+  const [homeTarget, setHomeTarget] = useState<HomeTarget | null>(requestedHomeTarget ?? null);
   const refreshNotifications = useCallback(() => setNotificationRefresh(value => value + 1), []);
   const [join, setJoin] = useState(false),
     [code, setCode] = useState(''),
@@ -105,9 +111,9 @@ export function ClassroomsApp({
   useEffect(() => {
     if (initialPresentation === 'home') return;
     const controller = new AbortController();
-    if (!requestedTarget) void load(controller.signal);
+    if (!requestedTarget && !requestedHomeTarget) void load(controller.signal);
     return () => controller.abort();
-  }, [load, initialPresentation, requestedTarget]);
+  }, [load, initialPresentation, requestedTarget, requestedHomeTarget]);
   async function action(task: () => Promise<void>) {
     setBusy(true);
     setError('');
@@ -127,7 +133,7 @@ export function ClassroomsApp({
     setHomeTarget(null);
     setError('');
     setPresentation(next);
-    if ((next !== initialPresentation || requestedTarget) && onNavigate) { onNavigate(next, departureNotice); return; }
+    if ((next !== initialPresentation || requestedTarget || requestedHomeTarget || requestedNotification) && onNavigate) { onNavigate(next, departureNotice); return; }
     if (next === 'classrooms') void action(() => load());
   };
   const leaveView = () => showPresentation('classrooms');
@@ -136,6 +142,7 @@ export function ClassroomsApp({
   };
   const openHomeTarget = (target: HomeTarget) => {
     if (target.kind === 'private-event') { window.location.assign(`/agenda?event=${encodeURIComponent(target.eventId)}&date=${encodeURIComponent(target.date)}`); return; }
+    if (onOpenHomeTarget) { void action(async () => { await onOpenHomeTarget(target); }); return; }
     setDraft(null); setSharedCode(null); setWallTarget(null); setHomeTarget(target); setClassroomId(target.classroomId);
   };
   useEffect(() => {
@@ -145,11 +152,11 @@ export function ClassroomsApp({
   }, [requestedTarget]);
   useEffect(() => {
     if (!requestedNotification) return;
-    let active = true;
-    void api.call<NotificationTarget>(`/notifications/${requestedNotification}/open`, 'POST', {})
-      .then(target => { if (active) { openTarget(target); refreshNotifications(); } })
-      .catch(failure => { if (active) setError(failure.message); });
-    return () => { active = false; };
+    const controller = new AbortController();
+    void api.call<NotificationTarget>(`/notifications/${requestedNotification}/open`, 'POST', {}, controller.signal)
+      .then(target => { if (!controller.signal.aborted) { openTarget(target); refreshNotifications(); } })
+      .catch(failure => { if (!controller.signal.aborted) setError(failure.message); });
+    return () => controller.abort();
   }, [api, requestedNotification, refreshNotifications]);
   async function accept(invitation: Invitation) {
     await api.call(`/invitations/${invitation.id}/accept`, 'POST', {});
@@ -168,9 +175,13 @@ export function ClassroomsApp({
         );
         setJoin(false);
         setSharedCode(null);
-        setClassroomId(result.id);
         setPreview(null);
         setCode('');
+        if (onEnterClassroom) {
+          try { if (await onEnterClassroom(result.id)) return; }
+          catch { /* Enrollment succeeded; keep the classroom accessible if navigation fails. */ }
+        }
+        setClassroomId(result.id);
       } else
         setPreview(
           await api.call('/codes/preview', 'POST', { code: code.trim() }),
@@ -198,7 +209,9 @@ export function ClassroomsApp({
           if (href === '/agenda') { if (onNavigate) onNavigate('agenda'); else window.location.assign('/agenda'); return; }
           showPresentation(href === '/inicio' ? 'home' : 'classrooms');
         }}
-        notifications={!draft ? <Notifications api={api} refresh={notificationRefresh} onOpen={openTarget} /> : undefined}
+        notifications={!draft ? (onSelectNotification
+          ? <Notifications api={api} refresh={notificationRefresh} onSelect={id => void action(async () => { await onSelectNotification(id); })} />
+          : <Notifications api={api} refresh={notificationRefresh} onOpen={openTarget} />) : undefined}
         accountActions={!draft ? accountActions : undefined} />
       <main id="classroom-main" className="p5-main">
         {classroomId && sharedCode ? <section className="folder-created" role="status">
