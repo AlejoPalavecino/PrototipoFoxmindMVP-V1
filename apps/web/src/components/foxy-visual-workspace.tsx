@@ -1,5 +1,6 @@
 import type { FoxyAspectRatio, FoxySelection, FoxyVisualKind } from '../../../../src/core/domain/index.ts';
 import type { FoxyVisualJob } from '../lib/foxy-client';
+import styles from './foxy-workspace.module.css';
 type Props = { capabilities: Record<FoxyVisualKind, boolean>; conversationId: string; revision: string; selection: FoxySelection;
   kind: FoxyVisualKind; prompt: string; aspectRatio: FoxyAspectRatio; jobs: FoxyVisualJob[]; selectedId: string | null; busy: boolean; error: string | null; pending?: unknown;
   actions: { setKind(value: FoxyVisualKind): void; setPrompt(value: string): void; setAspectRatio(value: FoxyAspectRatio): void; start(): void; retry?(): void; refresh(): void; select(id: string): void };
@@ -9,7 +10,7 @@ export function FoxyVisualWorkspace(props: Props) {
     && !/[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/u.test(props.prompt);
   const preview = selected?.state === 'READY' ? props.assetFileUrl(selected.assetId,'preview') : '';
   const safePreview = selected && preview === `/api/v1/foxy-ai/assets/${selected.assetId}/file?mode=preview` ? preview : '';
-  return <section aria-label="Imágenes y esquemas">
+  return <section className={styles.tool} aria-label="Imágenes y esquemas">
     <h3>Imágenes y esquemas</h3><p>Creá un recurso visual usando el contexto y las fuentes seleccionadas. Revisalo antes de compartirlo.</p>
     <form onSubmit={event => { event.preventDefault(); if (!props.busy && !props.pending && props.capabilities[props.kind] && valid) props.actions.start(); }}>
       <label>Tipo de recurso <select value={props.kind} onChange={event => props.actions.setKind(event.target.value as FoxyVisualKind)}>
@@ -20,7 +21,7 @@ export function FoxyVisualWorkspace(props: Props) {
         <option value="1:1">1:1</option><option value="4:3">4:3</option><option value="3:4">3:4</option><option value="16:9">16:9</option>
       </select></label>
       <label>¿Qué querés crear? <textarea value={props.prompt} onChange={event => props.actions.setPrompt(event.target.value)} /></label>
-      <button type="submit" disabled={props.busy || !!props.pending || !props.capabilities[props.kind] || !valid}>Generar</button>
+      <button type="submit" className="p5-primary" disabled={props.busy || !!props.pending || !props.capabilities[props.kind] || !valid}>Generar</button>
     </form>
     {props.error ? <div role="alert"><p>{props.error}</p>{props.pending && props.actions.retry ? <button type="button" disabled={props.busy} onClick={() => props.actions.retry?.()}>Reintentar solicitud</button> : null}</div> : null}
     <div aria-live="polite"><h4>Recursos visuales</h4>

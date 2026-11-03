@@ -11,6 +11,7 @@ export function componentWithPorts(filename, ports) {
   } }).outputText;
   const require = specifier => {
     if (ports[specifier]) return ports[specifier];
+    if (specifier.endsWith('.module.css')) return { default: {} };
     if (specifier.startsWith('.')) {
       const base = resolve(dirname(path), specifier);
       const source = [`${base}.ts`, `${base}.tsx`, base].find(candidate => /\.tsx?$/.test(candidate) && existsSync(candidate));

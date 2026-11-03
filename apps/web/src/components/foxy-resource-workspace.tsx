@@ -4,6 +4,7 @@ import type { Classroom } from '../../../classrooms-ui/api';
 import type { createFoxyWorkspaceRuntime } from '../lib/foxy-workspace-runtime';
 import type { createFoxyWorkspaceActions } from '../lib/foxy-workspace-actions';
 import { FoxyPublicationManagementPanel } from './foxy-publication-management-panel';
+import styles from './foxy-workspace.module.css';
 
 type RuntimeState = ReturnType<ReturnType<typeof createFoxyWorkspaceRuntime>['getState']>;
 type Actions = ReturnType<typeof createFoxyWorkspaceActions>;
@@ -42,7 +43,7 @@ export function FoxyResourceWorkspace(props: Props) {
   const receiptPublication = receiptId ? (pub?.id.toLowerCase() === receiptId.toLowerCase() ? pub : history.items.find(item => item.id.toLowerCase() === receiptId.toLowerCase())) : undefined;
   const receiptRoom = receiptPublication && classrooms.find(room => room.id.toLowerCase() === receiptPublication.classroomId.toLowerCase());
   const roomId = receiptRoom?.id && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/iu.test(receiptRoom.id) ? receiptRoom.id : null;
-  return <dialog ref={ref} role="dialog" aria-modal="true" aria-labelledby="foxy-resource-title" className="p5-dialog"
+  return <dialog ref={ref} role="dialog" aria-modal="true" aria-labelledby="foxy-resource-title" className={`p5-dialog ${styles.editor ?? ''}`}
     onCancel={event => { event.preventDefault(); actions.resource.close(); }}>
     <header><h2 id="foxy-resource-title">Recurso de Foxy AI</h2>
       <button type="button" className="p5-close" aria-label="Cerrar diálogo" onClick={() => actions.resource.close()}>×</button></header>
@@ -121,7 +122,7 @@ export function FoxyResourceWorkspace(props: Props) {
         {confirmation.receipt ? <div><p role="status">Publicado en la Biblioteca{receiptRoom ? ` de ${receiptRoom.name}` : confirmation.review?.classroomName ? ` de ${confirmation.review.classroomName}` : ''}.</p>
           {roomId && <a href={`/mis-aulas?aula=${roomId}`} onClick={event => { if (!event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && event.button === 0) { event.preventDefault(); void actions.requestNavigate(`/mis-aulas?aula=${roomId}`); } }}>Abrir aula</a>}</div> : <>
           <button type="button" className={button} disabled={!confirmation.canReview || confirmation.reviewing || managementLocked} onClick={() => void actions.confirmation.review()}>Revisar publicación</button>
-          {confirmation.review && <div><p>Título en Biblioteca: {confirmation.review.publication.title}</p><p>Destino: {confirmation.review.classroomName}{confirmation.review.unitName ? ` · ${confirmation.review.unitName}` : ''}{confirmation.review.topicName ? ` · ${confirmation.review.topicName}` : ''}</p>
+          {confirmation.review && <div className={styles.confirmation}><h4>Confirmá la publicación</h4><p>Título en Biblioteca: {confirmation.review.publication.title}</p><p>Destino: {confirmation.review.classroomName}{confirmation.review.unitName ? ` · ${confirmation.review.unitName}` : ''}{confirmation.review.topicName ? ` · ${confirmation.review.topicName}` : ''}</p>
             <label><input type="checkbox" checked={confirmation.reviewed} disabled={confirmLocked} onChange={e => actions.confirmation.setReviewed(e.currentTarget.checked)} /> Revisé el recurso y quiero compartirlo con los estudiantes</label>
             {confirmation.pending ? <button type="button" className={button} disabled={managementLocked} onClick={() => void actions.confirmation.retry()}>Reintentar confirmación</button>
               : <button type="button" className="p5-primary" disabled={!confirmation.canConfirm || managementLocked} onClick={() => void actions.confirmation.confirm()}>Publicar en Biblioteca</button>}

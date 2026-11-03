@@ -1,0 +1,126 @@
+.workspace, .tool, .editor {
+  --foxy-border: #eadacf;
+  --foxy-paper: #fffdfb;
+  --foxy-peach: #fff1e5;
+  --foxy-ink: #3b241a;
+  --foxy-muted: #64544b;
+  --foxy-accent: #9c3415;
+  color: var(--foxy-ink);
+  overflow-wrap: anywhere;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px clamp(14px, 3vw, 30px);
+  margin-bottom: 18px;
+  border: 1px solid var(--foxy-border);
+  border-radius: 20px;
+  background: var(--foxy-peach);
+}
+
+.header h1 {
+  margin: 0;
+  color: var(--foxy-accent);
+  font-size: clamp(30px, 4vw, 42px);
+  line-height: 1.05;
+}
+
+.header p, .chatHeading p { margin: 6px 0 0; color: var(--foxy-muted); }
+.header img { object-fit: contain; width: clamp(56px, 12vw, 100px); height: auto; flex: none; }
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(210px, 1fr) minmax(0, 3fr);
+  align-items: start;
+  gap: 16px;
+}
+
+.history, .chat, .tool {
+  min-width: 0;
+  padding: clamp(14px, 2.4vw, 24px);
+  border: 1px solid var(--foxy-border);
+  border-radius: 16px;
+  background: var(--foxy-paper);
+}
+
+.history h2, .chat h2, .tool h3 { margin-top: 0; }
+.history h3 { margin-block: 18px 8px; }
+.history form, .composer, .tool form { display: grid; gap: 12px; }
+.workspace label, .tool label { display: grid; min-width: 0; gap: 4px; }
+.workspace :is(input:not([type='checkbox']), select, textarea),
+.tool :is(input:not([type='checkbox']), select, textarea) { min-width: 0; width: 100%; }
+.workspace :is(button, summary), .tool button { min-height: 44px; max-width: 100%; white-space: normal; }
+.workspace summary { display: list-item; align-content: center; cursor: pointer; }
+.workspace :focus-visible, .tool :focus-visible { outline: 2px solid var(--foxy-accent); outline-offset: 3px; }
+
+.history ul, .tool ul {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.history li { flex: 1 1 100%; min-width: 0; }
+.history li button { width: 100%; text-align: left; }
+.workspace button[aria-current='true'], .tool button[aria-current='true'] {
+  border-color: var(--foxy-accent);
+  background: var(--foxy-peach);
+  color: var(--foxy-accent);
+}
+
+.chat { display: grid; gap: 14px; }
+.chatHeading { padding-bottom: 12px; border-bottom: 1px solid var(--foxy-border); }
+.chatHeading h2 { margin-bottom: 0; }
+.chatHeading p { font-size: 0.9rem; }
+
+.context {
+  padding-inline: 12px;
+  border: 1px solid var(--foxy-border);
+  border-radius: 10px;
+  background: #f9f5f1;
+}
+
+.context summary { font-weight: 700; }
+.context > section { padding-bottom: 12px; }
+.context :is(h3, h4) { margin: 10px 0; }
+.context fieldset { min-width: 0; margin-bottom: 8px; border: 1px solid var(--foxy-border); }
+.context label, .confirmation label { display: block; padding-block: 6px; }
+
+.transcript, .turn { display: grid; gap: 12px; }
+.transcript > p, .empty p { color: var(--foxy-muted); }
+.turn > button { justify-self: start; }
+.request, .answer { padding: 12px 14px; border-radius: 12px; }
+.request { justify-self: end; width: min(100%, 38rem); background: var(--foxy-peach); }
+.answer { border: 1px solid var(--foxy-border); background: white; }
+.request h3, .answer h4 { margin: 0 0 6px; }
+.request p, .answer p { margin: 0 0 8px; white-space: pre-wrap; }
+.reviewNote { color: var(--foxy-accent); font-size: .85rem; font-weight: 700; }
+
+.composer { padding-top: 14px; border-top: 1px solid var(--foxy-border); }
+.composer button, .tool form button { justify-self: end; }
+.tool { display: grid; gap: 10px; margin-top: 16px; }
+.tool :is(h3, h4, p) { margin: 0; }
+.tool h4 { margin-block: 8px; }
+.tool > button, .confirmation button { justify-self: start; }
+.tool img { display: block; max-height: 28rem; object-fit: contain; }
+.confirmation {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px solid var(--foxy-border);
+  border-radius: 10px;
+  background: var(--foxy-peach);
+}
+.confirmation :is(h4, p) { margin: 0; }
+
+@media (max-width: 720px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .history li { flex: 0 1 auto; max-width: 100%; }
+  .history li button { width: auto; }
+}
