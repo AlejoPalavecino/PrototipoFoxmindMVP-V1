@@ -80,7 +80,10 @@ test('month previews, independent decorative mobile indicators and day articles 
   try {
     await view.flush();
     const component = name => descendants(view.tree, n => n.type.name === name)[0];
-    const month = component('AgendaMonth'), monthTree = month.type(month.props);
+    const month = component('AgendaMonth'), monthView = hookView(month.type, month.props);
+    await monthView.flush();
+    const monthTree = monthView.tree;
+    monthView.close();
     const html = renderToStaticMarkup(monthTree);
     assert.match(html, /agenda-color-blue/); assert.match(html, /agenda-color-pink/);
     const indicators = descendants(monthTree, n => n.props['aria-hidden']

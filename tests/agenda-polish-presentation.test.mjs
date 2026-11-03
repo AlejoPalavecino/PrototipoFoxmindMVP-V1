@@ -42,11 +42,14 @@ test('timed event clock uses saved schedule zone and includes both local dates f
   assert.equal(eventTimeLabel({ ...occurrence, startAt: '2026-12-31T23:00:00Z', endAt: '2027-01-01T04:00:00Z' }), '31 dic, 20:00 – 1 ene, 01:00');
 });
 
-test('monthly calendar preserves 42 accessible days, separate today/selection, navigation and Today callback', () => {
+test('monthly calendar preserves 42 accessible days, separate today/selection, navigation and Today callback', async () => {
   const { AgendaMonth } = loadTsModule('apps/agenda-ui/AgendaMonth.tsx');
   const calls = [];
-  const tree = AgendaMonth({ month: '2026-10', selected: '2026-10-28', zone: 'UTC', items: [], loading: false,
+  const view = hookView(AgendaMonth, { month: '2026-10', selected: '2026-10-28', zone: 'UTC', items: [], loading: false,
     onSelect: value => calls.push(value), onMonth: value => calls.push(value), onToday: () => calls.push('today') });
+  await view.flush();
+  const tree = view.tree;
+  view.close();
   const buttons = descendants(tree, node => node.type === 'button');
   const days = buttons.filter(node => node.props['aria-pressed'] !== undefined);
   assert.equal(days.length, 42);
