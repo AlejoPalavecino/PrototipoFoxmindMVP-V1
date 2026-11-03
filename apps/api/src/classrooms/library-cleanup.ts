@@ -20,12 +20,16 @@ export class LibraryCleanupWorker {
     const claim = await this.tx(async tx => {
       const [candidate] = await tx.query<{ id: string; classroom_id: string }>(`SELECT m.id,m.classroom_id FROM materials m
         JOIN files f ON f.id=m.file_id WHERE m.deleted_at IS NOT NULL AND f.blob_deleted_at IS NULL
-        AND (m.deletion_lease_until IS NULL OR m.deletion_lease_until<=clock_timestamp()) ORDER BY m.deleted_at,m.id LIMIT 1`);
+        AND (m.deletion_lease_until IS NULL OR m.deletion_lease_until<=clock_timestamp())
+        AND (m.deletion_retry_at IS NULL OR m.deletion_retry_at<=clock_timestamp())
+        ORDER BY m.deleted_at,m.id LIMIT 1`);
       if (!candidate) return;
       await tx.query('SELECT id FROM classrooms WHERE id=$1::uuid FOR UPDATE', candidate.classroom_id);
       const [row] = await tx.query<{ file_id: string; storage_key: string }>(`SELECT m.file_id,f.storage_key FROM materials m JOIN files f ON f.id=m.file_id
         WHERE m.id=$1::uuid AND m.deleted_at IS NOT NULL AND f.blob_deleted_at IS NULL
-        AND (m.deletion_lease_until IS NULL OR m.deletion_lease_until<=clock_timestamp()) FOR UPDATE OF m,f`, candidate.id);
+        AND (m.deletion_lease_until IS NULL OR m.deletion_lease_until<=clock_timestamp())
+        AND (m.deletion_retry_at IS NULL OR m.deletion_retry_at<=clock_timestamp())
+        FOR UPDATE OF m,f`, candidate.id);
       if (!row) return;
       const [linked] = await tx.query(`SELECT 1 FROM activity_materials WHERE material_id=$1::uuid
         UNION ALL SELECT 1 FROM materials WHERE file_id=$2::uuid AND id<>$1::uuid
@@ -47,8 +51,13 @@ export class LibraryCleanupWorker {
         AND deletion_claim_token=$2::uuid FOR UPDATE`, claim.id, token);
       if (!owned) return;
       if (removed) await tx.query('UPDATE files SET blob_deleted_at=clock_timestamp(),updated_at=clock_timestamp() WHERE id=$1::uuid RETURNING id', claim.file_id);
+      // Retry after 10, 20, 40, 80, 160, then at most 300 seconds. Persist independently of the claim lease.
       await tx.query(`UPDATE materials SET deletion_claim_token=NULL,deletion_lease_until=NULL,
-        deletion_error_code=$2,updated_at=clock_timestamp() WHERE id=$1::uuid RETURNING id`, claim.id, removed ? null : 'STORAGE_UNAVAILABLE');
+        deletion_error_code=$2,
+        deletion_retry_at=CASE WHEN $2::text IS NULL THEN NULL ELSE
+          clock_timestamp()+LEAST(300, 10 * (1 << deletion_retry_step))*interval '1 second' END,
+        deletion_retry_step=CASE WHEN $2::text IS NULL THEN 0 ELSE LEAST(5, deletion_retry_step+1) END,
+        updated_at=clock_timestamp() WHERE id=$1::uuid RETURNING id`, claim.id, removed ? null : 'STORAGE_UNAVAILABLE');
     });
   }
   onModuleInit(): void {

@@ -414,6 +414,8 @@ model Material {
   deletion_claim_token String?      @db.Uuid
   deletion_lease_until DateTime?    @db.Timestamptz(6)
   deletion_error_code String?
+  deletion_retry_at   DateTime?    @db.Timestamptz(6)
+  deletion_retry_step Int          @default(0)
   created_by     User               @relation("Material_created_by_id", fields: [created_by_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
   classroom      Classroom          @relation("Material_classroom", fields: [classroom_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
   file           FileObject         @relation("Material_file", fields: [file_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
