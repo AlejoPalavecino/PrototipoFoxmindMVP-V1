@@ -1,3 +1,4 @@
+import surface from '../apps/classrooms-ui/classrooms-surface.module.css';
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ClassroomView } from '../apps/classrooms-ui/ClassroomView.tsx';
@@ -6,24 +7,8 @@ import '../apps/shared-ui/design-tokens.css';
 import '../apps/web/styles/globals.css';
 import '../apps/classrooms-ui/styles.css';
 import '../apps/shared-ui/folders.css';
-import '../apps/agenda-ui/agenda.css';
 import '../apps/shared-ui/foxmind-3d.css';
-import '../apps/classrooms-ui/foxmind-classrooms.css';
-import '../apps/classrooms-ui/foxmind-home.css';
-import '../apps/agenda-ui/foxmind-agenda.css';
-import '../apps/shared-ui/auth-polish.css';
-import '../apps/shared-ui/auth-responsive.css';
 import '../apps/shared-ui/workspace.css';
-import '../apps/shared-ui/auth-reference.css';
-import '../apps/shared-ui/classrooms-reference.css';
-import '../apps/shared-ui/wizard-reference.css';
-import '../apps/classrooms-ui/interior-shell-reference.css';
-import '../apps/classrooms-ui/interior-plan-reference.css';
-import '../apps/classrooms-ui/interior-library-fidelity.css';
-import '../apps/classrooms-ui/interior-progress-reference.css';
-import '../apps/classrooms-ui/interior-activity-reference.css';
-import '../apps/agenda-ui/agenda-reference.css';
-import '../apps/agenda-ui/agenda-event-reference.css';
 const roomId = 'a1111111-1111-4111-8111-111111111111';
 const secondId = 'd1111111-1111-4111-8111-111111111111';
 const postId = 'b1111111-1111-4111-8111-111111111111';
@@ -68,7 +53,7 @@ function SummaryApp() {
       const release = releaseRemoval; releaseRemoval = undefined; release();
     },
   };
-  return <div className="fm3d-theme" data-qa-fixture="true"><div className="p5-app fm3-classrooms classroom-interior-reference">
+  return <div className="fm3d-theme" data-qa-fixture="true"><div className={`p5-app fm3-classrooms classroom-interior-reference ${surface.scope}`}>
     <AppNavbar logoHref="/mis-aulas" displayName="Docente Fixture" links={[{ href: '/inicio', label: 'Inicio' }, { href: '/mis-aulas', label: 'Mis aulas', current: true }, { href: '/agenda', label: 'Agenda' }]} />
     <main id="classroom-main" className="p5-main"><ClassroomView api={api} id={roomId} initialCode={null} onExit={() => {}} /></main>
   </div></div>;
@@ -76,6 +61,6 @@ function SummaryApp() {
 function App() {
   const [variant, setVariant] = useState(0), [target, setTarget] = useState(null), [currentRoom, setCurrentRoom] = useState(roomId);
   window.auditControl = { setRoom: id => setCurrentRoom(id), releasePending: () => state.pending.splice(0).forEach(fn => fn()), showTeacher: () => { state.role = 'teacher'; setTarget(null); setVariant(x => x + 1); }, showStudent: () => { state.role = 'student'; setTarget(null); setVariant(x => x + 1); }, showTarget: () => { setTarget({ classroomId: roomId, postId, replyId }); setVariant(x => x + 1); }, refresh: () => setVariant(x => x + 1) };
-  return <div className="fm3d-theme"><ClassroomView key={variant} api={api} id={currentRoom} initialCode={null} onExit={() => {}} wallTarget={target} /></div>;
+  return <div className={`fm3d-theme ${surface.scope}`}><ClassroomView key={variant} api={api} id={currentRoom} initialCode={null} onExit={() => {}} wallTarget={target} /></div>;
 }
 createRoot(document.getElementById('root')).render(summaryScenario ? <SummaryApp /> : <App />);

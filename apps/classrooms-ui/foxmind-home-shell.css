@@ -1,5 +1,0 @@
-/* The common private shell owns sidebar, toolbar and desktop content gutters. */
-.fm3d-theme .entry-home > .p5-main { width: 100%; max-width: none; margin: 0; }
-@media(max-width: 1023px) {
-  .fm3d-theme .p5-app.entry-home { padding: 12px 16px 32px; }
-}

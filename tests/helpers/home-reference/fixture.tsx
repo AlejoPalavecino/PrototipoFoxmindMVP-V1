@@ -1,3 +1,4 @@
+import surface from '../../classrooms-ui/classrooms-surface.module.css';
 import {useMemo,useState} from 'react';
 import {useRouter} from 'next/router';
 import {Home} from '../../classrooms-ui/Home';
@@ -36,7 +37,7 @@ export default function HomeReferenceFixture(){
     },
   }),[mode,accountRole]);
   const act=(value:unknown)=>setAction(typeof value==='string'?value:JSON.stringify(value));
-  return <div className="p5-app fm3-classrooms entry-home" data-qa-fixture="true">
+  return <div className={`p5-app fm3-classrooms entry-home ${surface.scope}`} data-qa-fixture="true">
     <a className="skip-link" href="#classroom-main">Saltar al contenido</a>
     <AppNavbar logoHref="/mis-aulas" displayName="Alex Prueba" links={[
       {href:'/inicio',label:'Inicio',current:true},{href:'/mis-aulas',label:'Mis aulas'},{href:'/agenda',label:'Agenda'}]} onNavigate={act}/>

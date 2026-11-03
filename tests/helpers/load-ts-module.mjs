@@ -26,6 +26,7 @@ export function loadTsModule(path, { stubs = {} } = {}) {
     }).outputText;
     const require = specifier => {
       if (Object.hasOwn(stubs, specifier)) return stubs[specifier];
+      if (specifier.endsWith('.module.css')) return { default: { scope: 'test-surface' } };
       if (specifier.startsWith('.')) {
         const base = resolve(dirname(filename), specifier);
         const source = [base, `${base}.tsx`, `${base}.ts`, resolve(base, 'index.tsx'), resolve(base, 'index.ts')]

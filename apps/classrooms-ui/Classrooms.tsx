@@ -1,4 +1,5 @@
 'use client';
+import surface from './classrooms-surface.module.css';
 import { useState, useEffect, useCallback, lazy, Suspense, type ReactNode } from 'react';
 import type { ClassroomClient, Classroom, Draft, Invitation, NotificationTarget } from './api.ts';
 import type { HomeTarget } from '../../src/core/domain/index.ts';
@@ -177,7 +178,7 @@ export function ClassroomsApp({
   }
   if (accountRole !== 'teacher' && accountRole !== 'student') return <Notice error>No pudimos comprobar el rol de tu cuenta.</Notice>;
   return (
-    <div className={`p5-app fm3-classrooms${draft ? ' entry-wizard-reference' : !classroomId ? presentation === 'home' ? ' entry-home' : ' entry-classrooms-reference' : ' classroom-interior-reference'}`}>
+    <div className={`p5-app fm3-classrooms ${surface.scope}${draft ? ' entry-wizard-reference' : !classroomId ? presentation === 'home' ? ' entry-home' : ' entry-classrooms-reference' : ' classroom-interior-reference'}`}>
       <a className="skip-link" href="#classroom-main">Saltar al contenido</a>
       <AppNavbar logoHref="/mis-aulas" displayName={displayName} restricted={Boolean(draft)}
         links={draft ? [{ href: '/mis-aulas', label: 'Mis aulas', current: true }]

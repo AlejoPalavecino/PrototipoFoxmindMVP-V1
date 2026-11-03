@@ -1,3 +1,4 @@
+import surface from './account-surface.module.css';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -162,7 +163,7 @@ export function AccountScreen({ view }: { view: AccountView }) {
   return <>
     <Head><title>{`${content[view].title} · FoxMind`}</title><meta name="description" content="Accede a tu cuenta FoxMind." /></Head>
     <a className="skip-link" href="#main">Saltar al contenido</a>
-    <div className={`entry-page${polished ? ` entry-auth-polish entry-auth-reference auth-${view}` : ''}${(view === 'profile' || view === 'settings') ? ' entry-profile' : ''}`}>
+    <div className={`entry-page ${surface.scope}${polished ? ` entry-auth-polish entry-auth-reference auth-${view}` : ''}${(view === 'profile' || view === 'settings') ? ' entry-profile' : ''}`}>
     <AccountNavbar minimal={polished} session={session} view={view} signInHref={nextAccountHref('sign-in')} registerHref={nextAccountHref('register')} verifyHref={nextAccountHref('verify-email')}
       accountActions={user ? <div className="fm-profile-actions"><Link href={verified ? '/profile' : nextAccountHref('verify-email')}>{verified ? 'Mi perfil' : 'Verificar correo'}</Link>{signOut}</div> : undefined} />
     <main id="main" className={(view === 'profile' || view === 'settings') ? 'main profile-main' : `main auth-main${view === 'verify-email' ? ' auth-verification' : ''}`}>

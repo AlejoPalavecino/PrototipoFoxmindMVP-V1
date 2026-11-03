@@ -1,0 +1,370 @@
+/* auth-polish.css */
+:global(.fm3d-theme .entry-auth-polish):where(.scope, .scope *) {
+  background: #fcfaf7;
+  color: #080b30;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 20px;
+}
+:global(.entry-auth-polish .auth-brand-header):where(.scope, .scope *) {
+  min-height: 112px;
+  padding: 24px 64px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+:global(.entry-auth-polish .auth-brand-header > a):where(.scope, .scope *) { display: inline-flex; flex-shrink: 0; }
+:global(.entry-auth-polish .auth-brand-header .fm3d-brand):where(.scope, .scope *) { width: 220px; }
+:global(.fm3d-theme .entry-auth-polish .auth-main):where(.scope, .scope *) {
+  display: grid;
+  grid-template-columns: minmax(0, 812fr) minmax(0, 632fr);
+  align-items: stretch;
+  gap: 20px;
+  width: calc(100% - 72px);
+  max-width: 1600px;
+  min-height: calc(100vh - 148px);
+  margin: 0 auto 36px;
+}
+:global(.fm3d-theme .entry-auth-polish .auth-story):where(.scope, .scope *) {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 22px;
+  min-height: 0;
+}
+:global(.fm3d-theme .entry-auth-polish .auth-story .fm3d-illustration):where(.scope, .scope *) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  border-radius: inherit;
+}
+:global(.fm3d-theme .entry-auth-polish .auth-story img):where(.scope, .scope *) {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  object-fit: cover;
+  object-position: center top !important;
+  margin: 0;
+}
+:global(.entry-auth-polish .auth-story-copy):where(.scope, .scope *) { position: relative; padding: 60px 64px; }
+:global(.fm3d-theme .entry-auth-polish h1):where(.scope, .scope *), :global(.fm3d-theme .entry-auth-polish .auth-story h2):where(.scope, .scope *) {
+  font-family: 'Fredoka Auth', var(--fm-font-sans), sans-serif;
+  font-weight: 700;
+  color: #080b30;
+  font-size: clamp(42px, 4.7vw, 72px);
+  line-height: 1.03;
+  letter-spacing: -.025em;
+  margin: 0 0 16px;
+  overflow-wrap: normal;
+}
+:global(.fm3d-theme .entry-auth-polish .auth-story p):where(.scope, .scope *), :global(.fm3d-theme .entry-auth-polish .page-heading p):where(.scope, .scope *) {
+  color: #585e99;
+  font-size: clamp(20px, 1.95vw, 30px);
+  line-height: 1.35;
+}
+:global(.fm3d-theme .entry-auth-polish .surface):where(.scope, .scope *) {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 64px 48px 32px;
+  background: #fff;
+  border: 1px solid #f4ece3;
+  border-radius: 22px;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+:global(.fm3d-theme .entry-auth-polish .surface.folder-panel):where(.scope, .scope *) { margin-top: 0; }
+:global(.entry-auth-polish .surface):where(.scope, .scope *)::before, :global(.entry-auth-polish .surface):where(.scope, .scope *)::after { content: none; display: none; }
+:global(.fm3d-theme .entry-auth-polish .auth-eyebrow):where(.scope, .scope *) {
+  color: #c64711;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  margin: 0 0 24px;
+}
+:global(.fm3d-theme .entry-auth-polish h1):where(.scope, .scope *) { font-size: clamp(40px, 4.45vw, 68px); white-space: normal; }
+:global(.fm3d-theme .entry-auth-polish.auth-sign-in .auth-story h2):where(.scope, .scope *) { font-size: clamp(42px, 4.17vw, 64px); }
+:global(.fm3d-theme .entry-auth-polish .page-heading):where(.scope, .scope *) { margin-bottom: 48px; }
+:global(.fm3d-theme .entry-auth-polish .field-label):where(.scope, .scope *) { font-size: 22px; color: #080b30; margin-bottom: 8px; }
+:global(.fm3d-theme .entry-auth-polish .field):where(.scope, .scope *) { margin-bottom: 26px; }
+:global(.fm3d-theme .entry-auth-polish .input):where(.scope, .scope *) {
+  height: 68px;
+  font-size: 22px;
+  border: 1px solid #c6c8e6;
+  border-radius: 12px;
+  padding: 14px 24px;
+  background: #fff;
+  color: #080b30;
+}
+:global(.entry-auth-polish .input):where(.scope, .scope *)::placeholder { color: #9398be; opacity: 1; }
+:global(.entry-auth-polish .password-control):where(.scope, .scope *) { position: relative; }
+:global(.fm3d-theme .entry-auth-polish .password-control .input):where(.scope, .scope *) { padding-right: 64px; }
+:global(.entry-auth-polish .password-toggle):where(.scope, .scope *) {
+  inset: 50% 8px auto auto;
+  transform: translateY(-50%);
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+  padding: 10px;
+  background: transparent;
+  color: #6268a4;
+}
+:global(.entry-auth-polish .password-toggle:hover):where(.scope, .scope *) { background: #f2f1fb; }
+:global(.entry-auth-polish .password-toggle svg):where(.scope, .scope *) { width: 28px; height: 28px; }
+:global(.fm3d-theme .entry-auth-polish a:not(.button)):where(.scope, .scope *) { color: #e54d13; }
+:global(.entry-auth-polish .form-link):where(.scope, .scope *) { font-size: 20px; margin: -14px 0 32px; }
+:global(.entry-auth-polish .form-link a):where(.scope, .scope *), :global(.entry-auth-polish .after-form a):where(.scope, .scope *) { text-decoration: underline; }
+:global(.fm3d-theme .entry-auth-polish .button-primary):where(.scope, .scope *) {
+  min-height: 74px;
+  background: #ff702b;
+  border: 1px solid #ff702b;
+  border-radius: 15px;
+  box-shadow: none;
+  color: #080b30;
+  font-size: 24px;
+  gap: 16px;
+}
+:global(.fm3d-theme .entry-auth-polish .button-primary:hover:enabled):where(.scope, .scope *) { background: #fa621c; }
+:global(.fm3d-theme .entry-auth-polish .after-form):where(.scope, .scope *) {
+  border-top: 1px solid #d9daec;
+  padding-top: 24px;
+  margin: 30px 0 0;
+  font-size: 20px;
+  color: #585e99;
+}
+:global(.entry-auth-polish .after-form a):where(.scope, .scope *) { display: inline-block; margin-left: 12px; font-weight: 400; }
+:global(.fm3d-theme .entry-auth-polish .page-footer):where(.scope, .scope *) { margin: auto 0 0; padding-top: 52px; font-size: 16px; color: #585e99; }
+:global(.fm3d-theme .entry-auth-polish .field-help):where(.scope, .scope *) { font-size: 16px; color: #6268a4; }
+:global(.entry-auth-polish .registration-next):where(.scope, .scope *) { display: flex; align-items: flex-start; justify-content: center; gap: 12px; margin-top: 16px; }
+:global(.entry-auth-polish .registration-next .entry-icon):where(.scope, .scope *) { flex-shrink: 0; width: 26px; height: 26px; }
+:global(.fm3d-theme .entry-auth-polish.auth-register .surface):where(.scope, .scope *) { padding-top: 44px; }
+:global(.fm3d-theme .entry-auth-polish.auth-register .auth-eyebrow):where(.scope, .scope *) { margin-bottom: 16px; }
+:global(.fm3d-theme .entry-auth-polish.auth-register h1):where(.scope, .scope *) { margin-bottom: 4px; }
+:global(.fm3d-theme .entry-auth-polish.auth-register .page-heading):where(.scope, .scope *) { margin-bottom: 26px; }
+:global(.fm3d-theme .entry-auth-polish.auth-register .field):where(.scope, .scope *) { margin-bottom: 18px; }
+:global(.fm3d-theme .entry-auth-polish.auth-register .field-label):where(.scope, .scope *) { font-size: 20px; margin-bottom: 4px; }
+:global(.fm3d-theme .entry-auth-polish.auth-register .input):where(.scope, .scope *) { height: 58px; font-size: 20px; }
+:global(.entry-auth-polish .field-grid):where(.scope, .scope *) { gap: 18px; }
+:global(.fm3d-theme .entry-auth-polish.auth-register .button-primary):where(.scope, .scope *) { min-height: 64px; margin-top: 12px; }
+:global(.fm3d-theme .entry-auth-polish.auth-register .after-form):where(.scope, .scope *) { margin-top: 22px; }
+:global(.fm3d-theme .entry-auth-polish.auth-register .page-footer):where(.scope, .scope *) { padding-top: 36px; }
+:global(.entry-auth-polish :is(.notice, .loading, .state, .cooldown)):where(.scope, .scope *) { flex-shrink: 0; }
+@media (min-width: 901px) and (max-width: 1250px) {
+  :global(.entry-auth-polish .auth-story-copy):where(.scope, .scope *) { padding: 48px 32px; }
+  :global(.fm3d-theme .entry-auth-polish .surface):where(.scope, .scope *) { padding: 48px 28px 28px; }
+  :global(.fm3d-theme .entry-auth-polish h1):where(.scope, .scope *) { font-size: clamp(36px, 4.1vw, 52px); }
+}
+@media (max-width: 900px) {
+  :global(.entry-auth-polish .auth-brand-header):where(.scope, .scope *) { min-height: 96px; padding: 20px 24px; flex-wrap: wrap; }
+  :global(.entry-auth-polish .auth-brand-header .fm3d-brand):where(.scope, .scope *) { width: 188px; }
+  :global(.fm3d-theme .entry-auth-polish .auth-main):where(.scope, .scope *) { display: block; width: calc(100% - 32px); min-height: 0; margin: 0 auto 24px; }
+  :global(.fm3d-theme .entry-auth-polish .auth-story):where(.scope, .scope *) { display: none; }
+  :global(.fm3d-theme .entry-auth-polish .surface):where(.scope, .scope *) { padding: 28px 24px; }
+  :global(.fm3d-theme .entry-auth-polish.auth-register .surface):where(.scope, .scope *) { padding-top: 28px; }
+  :global(.fm3d-theme .entry-auth-polish h1):where(.scope, .scope *) { font-size: clamp(32px, 7.8vw, 42px); white-space: normal; }
+  :global(.fm3d-theme .entry-auth-polish .page-heading p):where(.scope, .scope *) { font-size: 20px; }
+  :global(.fm3d-theme .entry-auth-polish .page-heading):where(.scope, .scope *) { margin-bottom: 30px; }
+  :global(.fm3d-theme .entry-auth-polish .field-label):where(.scope, .scope *) { font-size: 18px; }
+  :global(.fm3d-theme .entry-auth-polish .input):where(.scope, .scope *) { height: 56px; font-size: 18px; padding-left: 16px; }
+  :global(.fm3d-theme .entry-auth-polish .button-primary):where(.scope, .scope *) { min-height: 56px; font-size: 20px; }
+  :global(.entry-auth-polish .form-link):where(.scope, .scope *), :global(.fm3d-theme .entry-auth-polish .after-form):where(.scope, .scope *) { font-size: 16px; }
+  :global(.fm3d-theme .entry-auth-polish .page-footer):where(.scope, .scope *) { padding-top: 40px; font-size: 14px; }
+  :global(.entry-auth-polish .field-grid):where(.scope, .scope *) { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 360px) {
+  :global(.entry-auth-polish .field-grid):where(.scope, .scope *) { grid-template-columns: 1fr; gap: 0; }
+  :global(.fm3d-theme .entry-auth-polish .surface):where(.scope, .scope *) { padding-left: 20px; padding-right: 20px; }
+}
+/* auth-responsive.css */
+:global(.entry-auth-polish :is(.auth-main > *, .page-heading > *, form, fieldset)):where(.scope, .scope *) {
+  min-width: 0;
+}
+:global(.fm3d-theme .entry-auth-polish h1):where(.scope, .scope *) {
+  overflow-wrap: anywhere;
+}
+/* Compact the split layout when either useful dimension is limited. */
+@media (min-width: 901px) and (max-width: 1440px),
+       (min-width: 901px) and (max-height: 900px) {
+  :global(.fm3d-theme .entry-auth-polish):where(.scope, .scope *) {
+    font-size: 18px;
+  }
+  :global(.entry-auth-polish .auth-brand-header):where(.scope, .scope *) {
+    min-height: 80px;
+    padding: 16px 32px;
+  }
+  :global(.entry-auth-polish .auth-brand-header .fm3d-brand):where(.scope, .scope *) {
+    width: 184px;
+  }
+  :global(.fm3d-theme .entry-auth-polish .auth-main):where(.scope, .scope *) {
+    grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
+    width: calc(100% - 48px);
+    gap: 20px;
+    min-height: calc(100svh - 104px);
+    margin-bottom: 24px;
+  }
+  :global(.entry-auth-polish .auth-story-copy):where(.scope, .scope *) {
+    padding: clamp(24px, 4svh, 36px) clamp(24px, 3vw, 44px);
+  }
+  :global(.fm3d-theme .entry-auth-polish .auth-story h2):where(.scope, .scope *), :global(.fm3d-theme .entry-auth-polish.auth-sign-in .auth-story h2):where(.scope, .scope *) {
+    font-size: clamp(36px, min(3.8vw, 6.1svh), 52px);
+  }
+  :global(.fm3d-theme .entry-auth-polish .auth-story p):where(.scope, .scope *) {
+    font-size: clamp(18px, 1.5vw, 22px);
+  }
+  :global(.fm3d-theme .entry-auth-polish .surface):where(.scope, .scope *), :global(.fm3d-theme .entry-auth-polish.auth-register .surface):where(.scope, .scope *) {
+    padding: clamp(24px, 3.4svh, 32px) clamp(24px, 2.4vw, 36px) 24px;
+  }
+  :global(.fm3d-theme .entry-auth-polish h1):where(.scope, .scope *) {
+    font-size: clamp(36px, min(3.5vw, 5.8svh), 48px);
+    margin-bottom: 8px;
+  }
+  :global(.fm3d-theme .entry-auth-polish .auth-eyebrow):where(.scope, .scope *), :global(.fm3d-theme .entry-auth-polish.auth-register .auth-eyebrow):where(.scope, .scope *) {
+    margin-bottom: 12px;
+  }
+  :global(.fm3d-theme .entry-auth-polish .page-heading):where(.scope, .scope *), :global(.fm3d-theme .entry-auth-polish.auth-register .page-heading):where(.scope, .scope *) {
+    margin-bottom: 20px;
+  }
+  :global(.fm3d-theme .entry-auth-polish .page-heading p):where(.scope, .scope *) {
+    font-size: 18px;
+  }
+  :global(.fm3d-theme .entry-auth-polish .field):where(.scope, .scope *), :global(.fm3d-theme .entry-auth-polish.auth-register .field):where(.scope, .scope *) {
+    margin-bottom: 14px;
+  }
+  :global(.fm3d-theme .entry-auth-polish .field-label):where(.scope, .scope *), :global(.fm3d-theme .entry-auth-polish.auth-register .field-label):where(.scope, .scope *) {
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+  :global(.fm3d-theme .entry-auth-polish .input):where(.scope, .scope *), :global(.fm3d-theme .entry-auth-polish.auth-register .input):where(.scope, .scope *) {
+    height: 50px;
+    font-size: 18px;
+    padding-block: 10px;
+    padding-left: 16px;
+  }
+  :global(.entry-auth-polish .form-link):where(.scope, .scope *) {
+    font-size: 16px;
+    margin: 0 0 20px;
+  }
+  :global(.fm3d-theme .entry-auth-polish .button-primary):where(.scope, .scope *), :global(.fm3d-theme .entry-auth-polish.auth-register .button-primary):where(.scope, .scope *) {
+    min-height: 54px;
+    font-size: 20px;
+    margin-top: 4px;
+  }
+  :global(.fm3d-theme .entry-auth-polish .after-form):where(.scope, .scope *), :global(.fm3d-theme .entry-auth-polish.auth-register .after-form):where(.scope, .scope *) {
+    margin-top: 20px;
+    padding-top: 18px;
+    font-size: 16px;
+  }
+  :global(.fm3d-theme .entry-auth-polish .page-footer):where(.scope, .scope *), :global(.fm3d-theme .entry-auth-polish.auth-register .page-footer):where(.scope, .scope *) {
+    padding-top: 20px;
+    font-size: 14px;
+  }
+  :global(.entry-auth-polish .registration-next):where(.scope, .scope *) {
+    margin-top: 12px;
+  }
+  :global(.entry-auth-polish .field-grid):where(.scope, .scope *) {
+    gap: 16px;
+  }
+}
+/* auth-reference.css */
+/* Selected login/registration references; auxiliary account screens are unchanged. */
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference):where(.scope, .scope *) {
+  --fm-ink: #2c211c;
+  --fm-muted: #586578;
+  --fm-link: #bf4400;
+  --fm-font-heading: 'Fredoka Auth', 'Segoe UI', sans-serif;
+  min-height: 100svh;
+  background: #fffaf4;
+  color: var(--fm-ink);
+  font-size: 15px;
+}
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-brand-header):where(.scope, .scope *) { min-height: 112px; max-width: 1080px; padding: 20px 36px; gap: 24px; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-brand):where(.scope, .scope *) { flex: 0 1 auto; min-width: 0; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-brand > a):where(.scope, .scope *) { display: inline-flex; align-items: center; min-height: 44px; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-brand-header .fm3d-brand):where(.scope, .scope *) { width: 190px; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-brand p):where(.scope, .scope *) { margin: 0 0 0 48px; font-size: 11px; line-height: 1.4; color: #435069; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-switch):where(.scope, .scope *) { display: flex; align-items: center; gap: 16px; font-size: 12px; color: #694531; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-switch a):where(.scope, .scope *) { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 44px; padding: 8px 16px; border: 1px solid #ffbd94; border-radius: 24px; color: #da4a07; background: #fff5e9; font-size: 13px; text-decoration: none; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-switch a:hover):where(.scope, .scope *) { background: #ffead7; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-main):where(.scope, .scope *) { display: grid; grid-template-columns: minmax(0,53fr) minmax(0,47fr); width: calc(100% - 38px); max-width: clamp(780px,calc((100svh - 130px)*1.2),920px); min-height: min(754px,calc(100svh - 130px)); gap: 0; margin: 0 auto 18px; border: 1px solid #eae0d7; border-radius: 24px; background: #fff4df; overflow: hidden; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-story):where(.scope, .scope *) { display: block; position: relative; min-width: 0; background: #fff1d8; border-radius: 0; overflow: hidden; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-art):where(.scope, .scope *) { position: absolute; inset: 0; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-art img):where(.scope, .scope *) { display: block; width: 100%; height: 100%; max-height: none; object-fit: cover; object-position: center top !important; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-story-copy):where(.scope, .scope *) { position: relative; padding: 30px 42px; z-index: 1; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-story h2):where(.scope, .scope *) { font: 600 clamp(37px,4.8vw,46px)/1.07 var(--fm-font-heading); color: #2d231f; letter-spacing: -.025em; margin: 0 0 10px; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-story h2 span):where(.scope, .scope *) { color: #fa681b; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-story p):where(.scope, .scope *) { font-size: 15px; line-height: 1.4; color: #45576d; max-width: none; margin: 0 0 12px; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-benefits):where(.scope, .scope *) { display: grid; gap: 3px; list-style: none; margin: 0; padding: 4px 8px; width: fit-content; max-width: 100%; background: #fffbf1d9; border-radius: 12px; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-benefits li):where(.scope, .scope *) { display: flex; gap: 10px; align-items: center; color: #34281f; font-size: 12px; line-height: 1.3; font-weight: 600; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-benefits .fm3d-icon):where(.scope, .scope *) { width: 24px; height: 24px; padding: 4px; color: #ee670d; background: #ffe5c5; border-radius: 8px; flex-shrink: 0; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-benefits li:nth-child(2) .fm3d-icon):where(.scope, .scope *) { background: #d8f5e6; color: #00a272; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-benefits li:nth-child(3) .fm3d-icon):where(.scope, .scope *) { background: #f3e3ff; color: #943ce5; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-benefits li:nth-child(4) .fm3d-icon):where(.scope, .scope *) { background: #deefff; color: #0781df; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .surface):where(.scope, .scope *) { padding: 48px 32px 32px; border: 0; border-left: 1px solid #eee5dc; border-radius: 24px 0 0 24px; background: #fff; box-shadow: none; justify-content: flex-start; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference.auth-register .surface):where(.scope, .scope *) { padding-top: 30px; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference h1):where(.scope, .scope *) { font: 600 33px/1.13 var(--fm-font-heading); color: #211b18; letter-spacing: -.025em; margin: 0 0 8px; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .page-heading):where(.scope, .scope *) { margin: 0 0 28px; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .page-heading p):where(.scope, .scope *) { color: #586578; font-size: 15px; line-height: 1.4; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .field-grid):where(.scope, .scope *) { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .field):where(.scope, .scope *) { margin-bottom: 20px; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .field-label):where(.scope, .scope *) { display: block; font-size: 13px; font-weight: 650; color: #2b231d; margin-bottom: 7px; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-input):where(.scope, .scope *) { position: relative; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-input > .entry-icon):where(.scope, .scope *) { position: absolute; top: 50%; left: 13px; transform: translateY(-50%); width: 19px; height: 19px; color: #58616e; pointer-events: none; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .input):where(.scope, .scope *) { height: 48px; border-radius: 11px; border: 1px solid #d8d7d5; background: #fff; color: #29242b; padding: 10px 12px 10px 42px; font-size: 15px; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .password-control .input):where(.scope, .scope *) { padding-right: 48px; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .input):where(.scope, .scope *)::placeholder { color: #818894; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .password-toggle):where(.scope, .scope *) { width: 44px; min-width: 44px; height: 44px; padding: 11px; right: 2px; border-radius: 10px; color: #525866; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .password-toggle:hover):where(.scope, .scope *) { background: #fff3e5; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .field-help):where(.scope, .scope *) { color: #617080; font-size: 12px; line-height: 1.45; margin-top: 9px; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .form-link):where(.scope, .scope *) { margin: -8px 0 16px; font-size: 13px; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .form-link a):where(.scope, .scope *) { display: inline-flex; align-items: center; min-height: 44px; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .button-primary):where(.scope, .scope *) { min-height: 50px; padding: 11px 20px; margin: 4px 0 0; background: #c84b00; color: white; border: 1px solid #c84b00; border-radius: 28px; font-size: 15px; font-weight: 700; gap: 12px; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .button-primary:hover:enabled):where(.scope, .scope *) { background: #a93e00; border-color: #a93e00; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .after-form):where(.scope, .scope *) { border: 0; padding: 0; margin: 18px 0 0; font-size: 12px; color: #586578; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .after-form a):where(.scope, .scope *) { display: inline-flex; align-items: center; min-height: 44px; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-security):where(.scope, .scope *) { display: flex; align-items: flex-start; gap: 14px; padding: 18px; margin-top: auto; background: #fff7ed; border-radius: 14px; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-security > .fm3d-icon):where(.scope, .scope *) { width: 26px; height: 26px; flex-shrink: 0; color: #e65b0b; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-security p):where(.scope, .scope *) { font-size: 12px; line-height: 1.5; margin: 0; color: #93674c; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-security strong):where(.scope, .scope *) { display: block; color: #754120; font-size: 12px; margin-bottom: 3px; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .registration-next):where(.scope, .scope *) { padding: 16px; margin: 22px 0 0; border-radius: 14px; background: #fff7ed; color: #93674c; font-size: 12px; line-height: 1.5; justify-content: flex-start; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference .registration-next .entry-icon):where(.scope, .scope *) { width: 24px; height: 24px; color: #e65b0b; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference :is(.notice,.cooldown,.loading,.state)):where(.scope, .scope *) { font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+:global(.fm3d-theme .entry-auth-polish.entry-auth-reference :is(button,a,input):focus-visible):where(.scope, .scope *) { outline: 3px solid #b45119; outline-offset: 3px; }
+@media (min-width: 761px) and (max-height: 800px) {
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-brand-header):where(.scope, .scope *) { min-height: 88px; padding-block: 12px; }
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-main):where(.scope, .scope *) { max-width: clamp(780px,calc((100svh - 106px)*1.2),920px); min-height: max(620px,calc(100svh - 106px)); }
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-story-copy):where(.scope, .scope *) { padding: 28px 36px; }
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-story h2):where(.scope, .scope *) { font-size: 40px; margin-bottom: 14px; }
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-story p):where(.scope, .scope *) { font-size: 14px; margin-bottom: 14px; }
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-benefits):where(.scope, .scope *) { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; width: 100%; }
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .surface):where(.scope, .scope *) { padding: 30px 30px 24px; }
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .page-heading):where(.scope, .scope *) { margin-bottom: 22px; }
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .field):where(.scope, .scope *) { margin-bottom: 16px; }
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-security):where(.scope, .scope *) { margin-top: 24px; padding: 14px; }
+}
+@media (min-width: 761px) and (max-width: 950px) {
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-brand-header):where(.scope, .scope *) { padding-inline: 36px; }
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-story-copy):where(.scope, .scope *) { padding: 30px 40px; }
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-story h2):where(.scope, .scope *) { font-size: clamp(34px,4.75vw,42px); }
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .surface):where(.scope, .scope *) { padding-inline: 28px; }
+}
+@media (max-width: 760px) {
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-brand-header):where(.scope, .scope *) { min-height: 96px; padding: 16px 20px; gap: 14px; flex-wrap: wrap; max-width: 520px; }
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-brand-header .fm3d-brand):where(.scope, .scope *) { width: 158px; }
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-brand p):where(.scope, .scope *) { font-size: 10px; margin-left: 39px; }
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-switch):where(.scope, .scope *) { gap: 8px; font-size: 11px; }
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-switch a):where(.scope, .scope *) { font-size: 12px; padding-inline: 12px; gap: 8px; }
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-main):where(.scope, .scope *) { display: block; width: calc(100% - 32px); max-width: 480px; min-height: 0; margin-bottom: 24px; border-radius: 22px; }
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-story):where(.scope, .scope *) { display: none; }
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .surface):where(.scope, .scope *) { padding: 30px 24px; border: 0; border-radius: 0; }
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference h1):where(.scope, .scope *) { font-size: 31px; }
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .input):where(.scope, .scope *) { font-size: 16px; }
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-security):where(.scope, .scope *) { margin-top: 24px; }
+}
+@media (max-width: 480px) {
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .auth-reference-switch):where(.scope, .scope *) { width: 100%; justify-content: space-between; }
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .field-grid):where(.scope, .scope *) { grid-template-columns: minmax(0,1fr); gap: 0; }
+  :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .surface):where(.scope, .scope *) { padding-inline: 20px; }
+}

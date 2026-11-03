@@ -1,3 +1,4 @@
+import surface from './agenda-surface.module.css';
 import { useEffect, useRef, useState } from 'react';
 import type { AgendaTarget, PrivateEvent } from '../../src/core/domain/index.ts';
 import { Notice } from '../classrooms-ui/components.tsx';
@@ -33,7 +34,7 @@ export function Agenda({ api, onOpen, requestedEvent }: { api: AgendaClient; onO
     }
     finally { locked.current = false; setBusy(false); }
   };
-  return <main id="agenda-main" className="p5-main agenda-main">
+  return <main id="agenda-main" className={`p5-main agenda-main ${surface.scope}`}>
     <AgendaHeader onCreate={() => setEditing({})} zone={view.zone} onZone={view.changeZone} />
     <nav className="agenda-mode-controls" aria-label="Vista de agenda">{(['MONTH', 'WEEK', 'DAY'] as const).map(value =>
       <button key={value} aria-pressed={mode === value} onClick={() => setMode(value)}>{{ MONTH: 'Mes', WEEK: 'Semana', DAY: 'Día' }[value]}</button>)}</nav>
