@@ -368,3 +368,149 @@
   :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .field-grid):where(.scope, .scope *) { grid-template-columns: minmax(0,1fr); gap: 0; }
   :global(.fm3d-theme .entry-auth-polish.entry-auth-reference .surface):where(.scope, .scope *) { padding-inline: 20px; }
 }
+.expressive {
+  --account-ink: #38241b;
+  --account-muted: #695047;
+  --account-accent: #a63d0e;
+  --account-control-border: #a58c79;
+  --account-cream: #fff7eb;
+}
+
+:global(.fm3d-theme) .expressive:global(.entry-auth-polish.entry-auth-reference),
+:global(.fm3d-theme) .security:global(.entry-page) {
+  background: #fff3e1;
+  color: var(--account-ink);
+}
+
+:global(.fm3d-theme) .expressive :global(.auth-main .surface) {
+  background: #fffdf8;
+  color: var(--account-ink);
+}
+
+.expressive :global(.auth-main .surface .input) {
+  border-color: var(--account-control-border);
+}
+
+.expressive :global(.auth-main .surface a:not(.button)) {
+  color: var(--account-accent);
+}
+
+.kicker {
+  display: block;
+  margin-block-end: 8px;
+  color: var(--account-accent);
+  font-size: .875rem;
+  font-weight: 750;
+}
+
+.roleChoice {
+  min-inline-size: 0;
+  margin: 0 0 20px;
+  padding: 0;
+  border: 0;
+}
+
+.roleChoice legend {
+  padding: 0;
+  font-size: 1rem;
+  font-weight: 750;
+}
+
+.roleChoice p {
+  margin: 4px 0 10px;
+  color: var(--account-muted);
+  font-size: .875rem;
+  line-height: 1.45;
+}
+
+.roleOptions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 122px), 1fr));
+  gap: 8px;
+}
+
+.roleOptions label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 58px;
+  padding: 8px;
+  border: 1px solid var(--account-control-border);
+  border-radius: 12px;
+  background: var(--account-cream);
+  color: var(--account-ink);
+  cursor: pointer;
+}
+
+.roleOptions label:has(input:checked) {
+  border-color: var(--account-accent);
+  box-shadow: inset 0 0 0 1px var(--account-accent);
+  background: #ffe6cd;
+}
+
+.roleOptions label:has(input:disabled) {
+  cursor: default;
+}
+
+.roleOptions input {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--account-accent);
+}
+
+.roleOptions strong,
+.roleOptions small {
+  display: block;
+  font-size: .875rem;
+  line-height: 1.3;
+}
+
+.roleOptions small {
+  color: var(--account-muted);
+  font-size: .75rem;
+}
+
+:global(.fm3d-theme) .security :global(.auth-main .surface) {
+  padding: clamp(18px, 5vw, 36px);
+  border: 1px solid #dfc5a8;
+  border-radius: 22px;
+}
+
+.security :global(.auth-main .surface .button-primary) {
+  min-height: 44px;
+  background: var(--account-accent);
+  border-color: var(--account-accent);
+  color: #fff;
+}
+
+.security :global(.auth-main .auth-reference-input) {
+  position: relative;
+}
+
+.security :global(.auth-main .auth-reference-input > .entry-icon) {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+  color: var(--account-muted);
+  pointer-events: none;
+}
+
+.security :global(.auth-main .auth-reference-input .input) {
+  min-height: 48px;
+  padding-inline-start: 40px;
+}
+
+.security :global(.auth-main .password-toggle) {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.expressive :global(.auth-main :is(button, a, input):focus-visible) {
+  outline: 3px solid var(--account-accent);
+  outline-offset: 3px;
+}

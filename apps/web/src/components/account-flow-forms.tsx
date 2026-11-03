@@ -8,6 +8,7 @@ import { Button } from './ui/button';
 import { VerificationGuidance } from '../../../shared-ui/VerificationGuidance';
 import { FoxmindIcon } from '../../../shared-ui/index';
 import { EntryIcon } from '../../../shared-ui/EntryIcon';
+import surface from './account-surface.module.css';
 
 interface FlowProps {
   view: AccountView; session?: AccountSession; user?: AccountUser; verified: boolean; classroomNext: string | null;
@@ -40,15 +41,23 @@ function Register({view, session, user, verified, classroomNext, nextAccountHref
   return <>
 {session && view === 'register' ? <>
           <form noValidate onSubmit={submit('/auth/register', 'Si los datos son válidos para crear una cuenta, recibirás un correo de verificación. Revisa también la carpeta de correo no deseado. Si ya tienes cuenta, puedes iniciar sesión o recuperar el acceso.')}><fieldset disabled={locked}>
+            <fieldset className={surface.roleChoice} aria-describedby="account-role-help">
+              <legend>¿Cómo vas a usar FoxMind?</legend>
+              <p id="account-role-help">Elegí el rol de tu cuenta. Esta elección es permanente.</p>
+              <div className={surface.roleOptions}>
+                <label>
+                  <input type="radio" name="accountRole" value="teacher" aria-label="Docente" aria-describedby="account-role-teacher" required />
+                  <span><strong>Docente</strong><small id="account-role-teacher">Creá aulas</small></span>
+                </label>
+                <label>
+                  <input type="radio" name="accountRole" value="student" aria-label="Estudiante" aria-describedby="account-role-student" required />
+                  <span><strong>Estudiante</strong><small id="account-role-student">Unite a aulas</small></span>
+                </label>
+              </div>
+            </fieldset>
             <div className="field-grid"><Field appearance="polished" name="firstName" label="Nombre" autoComplete="given-name" /><Field appearance="polished" name="lastName" label="Apellido" autoComplete="family-name" /></div>
             <Field appearance="polished" name="email" label="Correo electrónico" autoComplete="email" />
             <Field appearance="polished" name="password" label="Contraseña" password autoComplete="new-password" />
-            <fieldset className="account-role-choice" aria-describedby="account-role-help">
-              <legend>¿Cómo vas a usar FoxMind?</legend>
-              <p id="account-role-help">Elegí un único rol para esta cuenta. Docente permite crear aulas; estudiante permite unirse a ellas. No podrás cambiarlo después.</p>
-              <label><input type="radio" name="accountRole" value="teacher" required /> Docente</label>
-              <label><input type="radio" name="accountRole" value="student" required /> Estudiante</label>
-            </fieldset>
             <Button type="submit" className="full-width">{busy ? 'Creando cuenta…' : 'Crear cuenta'}<FoxmindIcon name="arrow-right" /></Button>
           </fieldset></form>
           <p className="field-help registration-next"><EntryIcon name="envelope" />Después te enviaremos un correo para verificar tu cuenta.</p>
@@ -74,7 +83,7 @@ function Forgot({view, session, user, verified, classroomNext, nextAccountHref, 
   return <>
 {session && view === 'forgot-password' ? <>
           <form noValidate onSubmit={submit('/auth/password-recovery/request', 'Si existe una cuenta con ese correo, recibirás un enlace para recuperar el acceso. Revisa también la carpeta de correo no deseado.')}><fieldset disabled={locked}>
-            <Field name="email" label="Correo electrónico" autoComplete="email" />
+            <Field appearance="polished" name="email" label="Correo electrónico" autoComplete="email" />
             <Button type="submit" className="full-width">{busy ? 'Solicitando enlace…' : 'Enviar enlace de recuperación'}</Button>
           </fieldset></form><p className="after-form"><Link href="/sign-in">Volver a iniciar sesión</Link></p>
         </> : null}
@@ -85,7 +94,7 @@ function Recover({view, session, user, verified, classroomNext, nextAccountHref,
   return <>
 {session && view === 'recover-password' ? <>
           {hasToken ? <form noValidate onSubmit={submit('/auth/password-recovery/confirm', 'Contraseña actualizada. Las sesiones anteriores se cerraron. Inicia sesión con tu nueva contraseña.')}><fieldset disabled={locked}>
-            <Field name="newPassword" label="Nueva contraseña" password autoComplete="new-password" />
+            <Field appearance="polished" name="newPassword" label="Nueva contraseña" password autoComplete="new-password" />
             <Button type="submit" className="full-width">{busy ? 'Actualizando contraseña…' : 'Confirmar nueva contraseña'}</Button>
           </fieldset></form> : <p>Para establecer tu contraseña, abre el enlace original del correo. Si ya lo utilizaste, inicia sesión; si venció, solicita uno nuevo.</p>}
           <div className="actions"><Link href="/sign-in">Iniciar sesión</Link><Link href="/forgot-password">Solicitar otro enlace</Link></div>
