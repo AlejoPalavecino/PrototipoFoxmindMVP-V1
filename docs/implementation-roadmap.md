@@ -21,7 +21,7 @@ Este resumen distingue lo integrado, lo verificado y los límites de las pruebas
 
 ## Cómo retomar
 
-El rediseño de Inicio para docentes y alumnos quedó verificado localmente con PostgreSQL y navegador. La corrida P9 cerró con 13 pruebas aprobadas. [Alcance y tareas](../odd/tasks/home-by-role.md) · [Evidencia](work-log/2026-11-03-id-unavailable-home-postgres.md).
+Inicio incorpora Taller Cálido con liquid glass, aprobado y verificado localmente el 2026-11-04 para ambos roles. P9 completo cerró con 13 pruebas aprobadas, incluyendo navegación móvil y notificaciones anidadas. [Alcance y tareas](../odd/tasks/home-by-role.md) · [Evidencia actual](work-log/2026-11-04-id-unavailable-home-warm-glass.md). El cierre del 2026-11-03 conserva la evidencia del rediseño anterior.
 
 1. Elegir la unidad y leer su contrato/tarea, sin reconstruir todo el historial.
 2. Usar [arquitectura](engineering/architecture.md), [operación local](engineering/local-development/README.md) y [verificación](engineering/testing/README.md) para el procedimiento vigente.

@@ -1,0 +1,26 @@
+.fm3d-theme .entry-home { background: #fffaf1; --fm-ink:#3d2a20; --fm-muted:#66584b; }
+.fm3d-theme .entry-home .fm-home-navigation .fm3d-shell-brand { background: transparent; border-radius: 0; }
+.fm3d-theme .entry-home .fm-home-navigation .fm3d-shell-notifications .p6-notifications-toggle { display: flex; justify-content: flex-start; width: 100%; gap: 12px; padding: 12px 14px; background: transparent; color: #434034; border: 0; font-size: 14px; }
+.fm3d-theme .entry-home .fm-home-navigation .fm3d-shell-notifications .entry-sr-only { position: static; width: auto; height: auto; clip: auto; clip-path: none; overflow: visible; white-space: normal; margin: 0; padding: 0; }
+.fm3d-theme .entry-home .fm-home-navigation .fm3d-shell-notifications .entry-unread-count { position: static; margin-left: auto; }
+.fm3d-theme .entry-home .fm-home-navigation .fm3d-shell-notifications .entry-notifications { color: #3d2a20; }
+.fm3d-theme .entry-home .fm-home-navigation .fm3d-shell-account { border-color: #dfc8ad; }
+.fm3d-theme .entry-home .fm-home-navigation .fm3d-shell-account .fm3d-shell-name { color: #66584b; }
+@media (min-width: 1024px) {
+  .fm3d-theme:has(.entry-home) .p5-app.entry-home[class] { padding: 24px 26px 40px; }
+  .fm3d-theme .entry-home .fm-home-navigation { background: #fffdf8; }
+  .fm3d-theme .entry-home .fm-home-navigation .fm3d-shell-tools { display: none; }
+  .fm3d-theme .entry-home .fm-home-navigation .fm3d-shell-account :is(button,a) { color: #434034; }
+  .fm3d-theme .entry-home .fm-home-navigation .fm3d-shell-account button:hover { background: #fae9d4; }
+}
+@media (max-width: 1023px) {
+  .fm3d-theme:has(.entry-home) .p5-app.entry-home[class] { padding: 24px 20px; }
+  .fm3d-theme .p5-app.entry-home > .fm-home-navigation[data-private='true'] { margin: -24px -20px 20px; }
+  .fm3d-theme .entry-home .fm-home-navigation > .fm3d-shell-nav { display: none; }
+  .fm3d-theme .entry-home .fm-home-navigation { background: #fffdf8; }
+  .fm3d-theme .entry-home .fm-home-navigation .fm3d-shell-tools { background: transparent; }
+}
+@media (max-width: 600px) {
+  .fm3d-theme:has(.entry-home) .p5-app.entry-home[class] { padding: 20px 14px; }
+  .fm3d-theme .p5-app.entry-home > .fm-home-navigation[data-private='true'] { margin: -20px -14px 20px; }
+}

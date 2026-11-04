@@ -1,4 +1,4 @@
-import type { AgendaItem, HomeModuleName, HomeModules, HomeResponse, Participation } from '../../src/core/domain/index.ts';
+import type { AgendaItem, HomeModuleName, HomeModules, HomeResponse, HomeTarget, Participation } from '../../src/core/domain/index.ts';
 
 export function shouldShowHomeModule(participation: Participation, name: HomeModuleName, page: HomeModules[HomeModuleName]): boolean {
   if (page.status === 'not-applicable') return false;
@@ -8,6 +8,19 @@ export function shouldShowHomeModule(participation: Participation, name: HomeMod
 
 export function homeGreetingDate(generatedAt: string, timeZone: string): string {
   return new Intl.DateTimeFormat('es-AR', { timeZone, weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(generatedAt));
+}
+
+export function homeCalendarWeek(generatedAt: string, timeZone: string) {
+  const parts = new Intl.DateTimeFormat('en', { timeZone, year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(new Date(generatedAt));
+  const value = (type: string) => Number(parts.find(part => part.type === type)!.value);
+  const today = new Date(Date.UTC(value('year'), value('month') - 1, value('day')));
+  const monday = new Date(today);
+  monday.setUTCDate(today.getUTCDate() - (today.getUTCDay() + 6) % 7);
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(monday);
+    date.setUTCDate(monday.getUTCDate() + index);
+    return { date: date.toISOString().slice(0, 10), day: date.getUTCDate(), today: date.getTime() === today.getTime() };
+  });
 }
 
 export function homeAgendaDate(item: AgendaItem, timeZone: string): { weekday: string; day: string; month: string; dateTime: string } {
@@ -65,15 +78,15 @@ export function homeActivityStats(data: HomeResponse): HomeActivityStat[] {
   }
   return stats;
 }
-export function homeFoxySuggestion(role: 'teacher' | 'student', modules: HomeModules) {
+export function homeFoxySuggestion(role: 'teacher' | 'student', modules: HomeModules): { title: string; detail: string; target?: HomeTarget } {
   if (role === 'teacher') {
     const review = modules.review?.status === 'ready' && modules.review.items.find(item => item.needsReview > 0);
-    if (review) return { title: 'Revisá una tanda', detail: `Podés empezar por las entregas de «${review.title}».` };
+    if (review) return { title: 'Revisá una tanda', detail: `Podés empezar por las entregas de «${review.title}».`, target: review.target };
     const query = modules.queries?.status === 'ready' && modules.queries.items[0];
-    if (query) return { title: 'Pasá por el Muro', detail: `Hay una consulta por responder en ${query.classroom.name}.` };
+    if (query) return { title: 'Pasá por el Muro', detail: `Hay una consulta por responder en ${query.classroom.name}.`, target: query.target };
     return { title: 'Prepará el próximo paso', detail: 'Elegí un tema para trabajar en tu próxima clase.' };
   }
   const pending = modules.pending?.status === 'ready' && modules.pending.items.find(item => item.reception === 'open');
-  if (pending) return { title: 'Empezá por una entrega', detail: `Reservá unos minutos para avanzar con «${pending.title}».` };
+  if (pending) return { title: 'Empezá por una entrega', detail: `Reservá unos minutos para avanzar con «${pending.title}».`, target: pending.target };
   return { title: 'Cada paso cuenta.', detail: 'Los grandes aprendizajes empiezan con pequeños avances.' };
 }

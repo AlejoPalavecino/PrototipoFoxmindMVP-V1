@@ -91,16 +91,16 @@ for (const accountRole of ['teacher', 'student']) test(`Home presents the ${acco
   const html = render(Home, { accountRole, displayName: 'Learner', busy: false, onAction() {},
     onCreate() {}, onJoin() {}, onClassrooms() {}, onEnter() {}, api: { call: async () => [] }, onOpenTarget() {},
   });
-  for (const name of [accountRole === 'teacher' ? 'Mi actividad docente' : 'Mi aprendizaje']) {
+  for (const name of [accountRole === 'teacher' ? 'Para revisar' : 'Para entregar']) {
     const group = [...html.matchAll(/<section\b([^>]*)>/g)].find(([, attributes]) => attributes.includes(`aria-label="${name}"`));
     assert.ok(group, `Missing ${name} group`);
     assert.doesNotMatch(group[1], /\bhidden(?:=""|="hidden"|\s|$)|aria-hidden="true"/, `${name} must remain visible`);
   }
   assert.match(html, /Current classroom/);
   assert.doesNotMatch(html, accountRole === 'teacher' ? /aria-label="Mi aprendizaje"/ : /aria-label="Mi actividad docente"/);
-  const ownAction = accountRole === 'teacher' ? 'Crear aula' : 'Unirme con código';
   const forbiddenAction = accountRole === 'teacher' ? 'Unirme con código' : 'Crear aula';
-  for (const label of [ownAction, 'Actualizar']) assert.ok(buttons(html).some(button => button.text.includes(label)), label);
+  for (const href of ['/mis-aulas', '/agenda', '/settings', '/profile']) assert.ok(html.includes(`href="${href}"`), href);
+  assert.ok(buttons(html).every(button => !button.text.includes('Actualizar')));
   assert.ok(buttons(html).every(button => !button.text.includes(forbiddenAction)), forbiddenAction);
   assert.equal(buttons(html).filter(button => button.text.includes('Entrar al aula')).length, 1);
   assert.doesNotMatch(html, /Lo próximo/);
