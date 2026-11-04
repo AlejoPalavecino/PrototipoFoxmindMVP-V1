@@ -24,16 +24,16 @@ test('Agenda time converts timed events across zones and preserves all-day label
   }
 });
 
-test('Agenda row presents event, classroom, converted time and original zone with the exact action target', () => {
+test('Agenda preview presents event, converted time and type with the exact action target', () => {
   const { HomeAgendaRow } = loadTsModule('apps/classrooms-ui/HomeRow.tsx');
   const calls = [];
   const nodes = walk(HomeAgendaRow({ item: timed, timeZone: 'America/Argentina/Buenos_Aires', onAction: target => calls.push(target) }));
   const text = textOf(nodes);
   assert.match(text, /Clase especial/);
-  assert.match(text, /Matemática/);
-  assert.match(text, /3 A/);
+  assert.doesNotMatch(text, /Matemática|3 A/);
   assert.match(text, /22:30/);
-  assert.match(text, /UTC/);
+  assert.match(text, /Plazo académico/);
+  assert.doesNotMatch(text, /UTC|Zona original/);
   const button = nodes.find(node => node?.type === 'button' && node.props['aria-label'] === 'Abrir: Clase especial');
   assert.ok(button);
   assert.ok(!button.props.disabled);

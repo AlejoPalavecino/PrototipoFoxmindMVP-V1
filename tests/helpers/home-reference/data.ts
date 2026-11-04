@@ -22,7 +22,7 @@ export function fixture(mode:string):HomeResponse {
   const student=item(rooms[0]),teacher=item(rooms[2]);
   const modules:HomeResponse['modules']={pending:{status:'not-applicable'},review:{status:'not-applicable'},
     feedback:{status:'not-applicable'},queries:{status:'not-applicable'},agenda:empty(),materials:empty(),classrooms:empty()};
-  if(active||mode==='archived')modules.classrooms={...empty(),items:rooms.map(item),totalItems:mode==='many'?9:3,nextCursor:mode==='many'?'next-rooms':null};
+  if(active||mode==='archived')modules.classrooms={...empty(),items:rooms.map((room,index)=>({...item(room),...(room.role==='teacher' && !room.archived?{planProgress:{taught:index,total:4}}:{})})),totalItems:mode==='many'?9:3,nextCursor:mode==='many'?'next-rooms':null};
   if(active){
     modules.agenda={...empty(),items:[
       {...student,id:'event-1',title:'Entrega de Ciencias Naturales',source:'ACADEMIC_DEADLINE',allDay:false,

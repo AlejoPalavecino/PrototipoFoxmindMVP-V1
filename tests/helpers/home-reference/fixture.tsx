@@ -40,7 +40,8 @@ export default function HomeReferenceFixture(){
   return <div className={`p5-app fm3-classrooms entry-home ${surface.scope}`} data-qa-fixture="true">
     <a className="skip-link" href="#classroom-main">Saltar al contenido</a>
     <AppNavbar homeNavigation logoHref="/mis-aulas" displayName="Alex Prueba" links={[
-      {href:'/inicio',label:'Inicio',current:true},{href:'/mis-aulas',label:'Mis aulas'},{href:'/agenda',label:'Agenda'}]} onNavigate={act}/>
+      {href:'/inicio',label:'Inicio',current:true},{href:'/mis-aulas',label:'Mis aulas'},{href:'/agenda',label:'Agenda'}]} onNavigate={act}
+      accountActions={<button onClick={()=>act('logout')}>Cerrar sesión</button>}/>
     <main id="classroom-main" className="p5-main"><Home key={`${mode}:${accountRole}`} accountRole={accountRole} displayName={mode==='long'?'Alexandra Nombre de Prueba Extendido':'Alex Prueba'}
       subjectId={subjectId} homeClient={client} onCreate={()=>act('create')} onJoin={()=>act('join')}
       onClassrooms={()=>act('classrooms')} onAgenda={()=>act('agenda')} onAction={act}/></main>

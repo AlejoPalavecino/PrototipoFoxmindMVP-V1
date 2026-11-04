@@ -25,17 +25,23 @@ export function HomeRow({item,module,timeZone,onAction,busy,featured=false}:{ite
       <span className="fm-home-event-icon"><FoxmindIcon name="calendar"/></span>}
     <div className="fm-home-row-copy"><h3>{item.title}</h3>
       {module==='classrooms' && item.classroom?<span className="fm-home-room-label">{item.classroom.division}{item.classroom.archived?' · Archivada · Solo lectura':''}</span>:<RowDetails item={item} timeZone={timeZone}/>}
-      {'planProgress' in item && item.planProgress?<div className="fm-home-plan-progress">
-        {item.planProgress.total > 0 ? <>
-          <span>{item.planProgress.taught} de {item.planProgress.total} temas dados</span>
-          <progress aria-label={`Avance del plan de ${item.title}`} value={item.planProgress.taught} max={item.planProgress.total}/>
-        </> : <span>Plan sin temas todavía</span>}
-      </div>:null}
       {module==='classrooms' && item.classroom?<span className={`fm-home-classroom-role fm-home-classroom-role--${item.classroom.role}`}>{item.classroom.role==='teacher'?'Enseño':'Estudio'}</span>:null}</div>
+    {module==='classrooms' && item.classroom?.role==='teacher' && !item.classroom.archived?<HomePlanProgress title={item.title} progress={'planProgress' in item?item.planProgress:undefined}/>:null}
     <button disabled={busy} className="fm-home-row-action" onClick={()=>onAction(item.target)} aria-label={`${action}: ${item.title}`}>
       {action}<FoxmindIcon name="arrow-right"/>
     </button>
   </li>;
+}
+
+function HomePlanProgress({title,progress}:{title:string;progress?:{taught:number;total:number}}) {
+  if(!progress || progress.total===0)return <p className="fm-home-plan-empty">{progress?'Plan sin temas todavía':'Avance no disponible'}</p>;
+  const percent=Math.round(progress.taught/progress.total*100),label=`${progress.taught} de ${progress.total} temas dados`;
+  return <div className="fm-home-plan-progress">
+    <div className="fm-home-progress-ring" role="progressbar" aria-label={`Avance del plan de ${title}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} aria-valuetext={label}>
+      <svg viewBox="0 0 64 64" aria-hidden="true"><circle className="fm-home-ring-track" cx="32" cy="32" r="27"/>{percent>0?<circle className="fm-home-ring-value" cx="32" cy="32" r="27" pathLength="100" strokeDasharray={`${percent} 100`} transform="rotate(-90 32 32)"/>:null}</svg>
+      <strong aria-hidden="true">{percent}%</strong>
+    </div><span>{label}</span>
+  </div>;
 }
 
 function AgendaDate({item,timeZone}:{item:Extract<HomeRowItem,{source:string}>;timeZone:string}) {
@@ -47,10 +53,8 @@ export function HomeAgendaRow({item,timeZone,onAction,busy}:{item:Extract<HomeRo
   return <li className="fm-home-row fm-home-row--agenda">
     <AgendaDate item={item} timeZone={timeZone}/>
     <div className="fm-home-row-copy"><h3>{item.title}</h3>
-      {item.classroom?<span className="fm-home-room-label">{item.classroom.name} · {item.classroom.division}{item.classroom.archived?' · Archivada · Solo lectura':''}</span>:null}
       <div className="fm-home-agenda-time"><FoxmindIcon name="clock"/><span>{homeAgendaTime(item,timeZone)}</span></div>
-      <div className="fm-home-agenda-meta">{item.source==='PRIVATE_EVENT'?'Evento personal':'Plazo académico'}
-        {item.timeZone!==timeZone?` · Zona original: ${item.timeZone}`:null}</div>
+      <div className="fm-home-agenda-meta">{item.source==='PRIVATE_EVENT'?'Evento personal':'Plazo académico'}</div>
     </div>
     <button disabled={busy} className="fm-home-agenda-action" onClick={()=>onAction(item.target)} aria-label={`Abrir: ${item.title}`}><FoxmindIcon name="chevron-right"/></button>
   </li>;

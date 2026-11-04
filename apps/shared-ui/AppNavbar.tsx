@@ -39,10 +39,10 @@ export function AppNavbar(props: AppNavbarProps) {
       {privateShell ? <button type="button" className="fm3d-shell-toggle" aria-label="Abrir menú de navegación"
         aria-expanded={open} aria-controls="fm3d-navigation-drawer" onClick={() => setOpen(true)}><FoxmindIcon name="menu" /></button> : null}
     </div>
-    {!restricted ? <ShellAccount notifications={homeNavigation && !open ? props.notifications : undefined} privateShell={privateShell} currentPath={props.currentPath} displayName={props.displayName} accountActions={props.accountActions} follow={follow} /> : null}
+    {!restricted ? <ShellAccount homeNavigation={homeNavigation} notifications={homeNavigation && !open ? props.notifications : undefined} privateShell={privateShell} currentPath={props.currentPath} displayName={props.displayName} accountActions={props.accountActions} follow={follow} /> : null}
     {open ? <NavbarDrawer onClose={() => setOpen(false)}>
       <ShellLinks links={props.links} follow={follow} />
-      {!restricted ? <ShellAccount notifications={homeNavigation ? props.notifications : undefined} privateShell={privateShell} currentPath={props.currentPath} displayName={props.displayName} accountActions={props.accountActions} follow={follow} /> : null}
+      {!restricted ? <ShellAccount homeNavigation={homeNavigation} notifications={homeNavigation ? props.notifications : undefined} privateShell={privateShell} currentPath={props.currentPath} displayName={props.displayName} accountActions={props.accountActions} follow={follow} /> : null}
     </NavbarDrawer> : null}
   </header>;
 }

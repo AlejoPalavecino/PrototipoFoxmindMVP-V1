@@ -16,7 +16,17 @@ export async function profileAction(page) {
   if (await avatar.isVisible()) return avatar;
   const profile = page.locator('header.fm3d-shell > .fm3d-shell-account > a[href="/profile"]');
   if (await profile.isVisible()) return profile;
+  const account = page.locator('header.fm3d-shell > .fm3d-shell-account > .fm-home-account-menu');
+  if (await account.isVisible()) {
+    if (!await account.evaluate(element => element.open)) await account.locator('summary').click();
+    return account.getByRole('link', { name: 'Ver mi perfil', exact: true });
+  }
   const drawer = page.getByRole('dialog', { name: 'Menú de navegación', exact: true });
   if (!await drawer.isVisible()) await page.getByRole('button', { name: 'Abrir menú de navegación', exact: true }).click();
+  const mobileAccount = drawer.locator('.fm-home-account-menu');
+  if (await mobileAccount.isVisible()) {
+    if (!await mobileAccount.evaluate(element => element.open)) await mobileAccount.locator('summary').click();
+    return mobileAccount.getByRole('link', { name: 'Ver mi perfil', exact: true });
+  }
   return drawer.getByRole('link', { name: 'Mi perfil', exact: true });
 }

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { homeFoxySuggestion, homeCalendarWeek } from '../apps/classrooms-ui/home-presentation.ts';
 import { parseHomePage } from '../src/core/domain/home-rows-validation.ts';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
+import { renderToStaticMarkup } from 'react-dom/server';
 
 test('Foxy suggests the first actionable delivery and ignores closed reception', () => {
   const modules = { pending: { status: 'ready', items: [
@@ -60,4 +61,30 @@ test('Foxy opens the exact authorized target or the classroom fallback', () => {
   assert.equal(fallback.props.disabled, true);
   descendants(HomeFoxyNote({ ...props, role: 'student' })).find(node => node.type === 'button').props.onClick();
   assert.equal(calls[1], 'classrooms');
+});
+
+test('Agenda preview keeps local time and type without technical zone or room metadata', () => {
+  const { HomeAgendaRow } = loadTsModule('apps/classrooms-ui/HomeRow.tsx');
+  const item = { id: 'event', title: 'Revisar entregas', source: 'PRIVATE_EVENT', allDay: false,
+    startAt: '2026-11-16T19:00:00Z', date: '2026-11-16', timeZone: 'America/Argentina/Buenos_Aires',
+    classroom: { name: 'No duplicar contexto', division: 'A' }, target: { kind: 'private-event' } };
+  const html = renderToStaticMarkup(HomeAgendaRow({ item, timeZone: 'America/Buenos_Aires', onAction() {} }));
+  assert.match(html, /16:00/);
+  assert.match(html, /Evento personal/);
+  assert.doesNotMatch(html, /Zona|America\/|No duplicar contexto/);
+  const allDay = renderToStaticMarkup(HomeAgendaRow({ item: { ...item, allDay: true }, timeZone: 'UTC', onAction() {} }));
+  assert.match(allDay, /Todo el día/);
+});
+
+test('Circular classroom progress reports topics taught, preserves zero and avoids empty-plan percentages', () => {
+  const { HomeRow } = loadTsModule('apps/classrooms-ui/HomeRow.tsx');
+  const base = { id: 'room', title: 'Historia', classroom: { name: 'Historia', division: 'A', role: 'teacher', coverKey: 'general' }, target: { kind: 'classroom' } };
+  const render = planProgress => renderToStaticMarkup(HomeRow({ item: { ...base, planProgress }, module: 'classrooms', timeZone: 'UTC', onAction() {} }));
+  const partial = render({ taught: 1, total: 4 });
+  assert.match(partial, /role="progressbar"/);
+  assert.match(partial, /aria-valuenow="25"/);
+  assert.match(partial, /1 de 4 temas dados/);
+  assert.match(render({ taught: 0, total: 4 }), /aria-valuenow="0"/);
+  assert.match(render({ taught: 4, total: 4 }), /aria-valuenow="100"/);
+  for (const progress of [undefined, { taught: 0, total: 0 }]) assert.doesNotMatch(render(progress), /role="progressbar"|\d+%/);
 });

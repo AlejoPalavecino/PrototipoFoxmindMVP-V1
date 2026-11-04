@@ -16,3 +16,17 @@ test('Home navigation keeps notifications with account actions and omits the top
   assert.equal((html.match(/aria-label="Notificaciones"/g) ?? []).length, 1);
   assert.match(html, /href="\/profile"/);
 });
+
+test('Home account name opens a closed disclosure containing profile and logout', () => {
+  const { AppNavbar } = loadTsModule('apps/shared-ui/AppNavbar.tsx');
+  const html = renderToStaticMarkup(createElement(AppNavbar, {
+    homeNavigation: true, logoHref: '/inicio', displayName: 'Alex Prueba',
+    links: [{ href: '/mis-aulas', label: 'Mis aulas' }],
+    accountActions: createElement('button', null, 'Cerrar sesión'),
+  }));
+  assert.match(html, /<details[^>]*class="fm-home-account-menu"/);
+  assert.doesNotMatch(html, /<details[^>]*\sopen(?:=|>)/);
+  assert.match(html, /<summary[^>]*>[\s\S]*Alex Prueba[\s\S]*<\/summary>/);
+  assert.match(html, /<details[\s\S]*href="\/profile"[\s\S]*Cerrar sesión[\s\S]*<\/details>/);
+  assert.doesNotMatch(html, /fm3d-shell-name/);
+});

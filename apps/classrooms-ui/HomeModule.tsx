@@ -21,8 +21,12 @@ export function HomeModule({name,page,timeZone,onAction,onRetry,onExpand,onAgend
           aria-label={new Intl.DateTimeFormat('es-AR',{timeZone:'UTC',weekday:'long',day:'numeric',month:'long'}).format(new Date(day.date+'T12:00:00Z'))}>{day.day}</time>
       </div>)}
     </div>:null}
-    {name==='agenda'?<p className="fm-home-hint">Próximos 90 días <span className="fm-home-agenda-zone">· Zona {timeZone}</span></p>:null}
-    {name==='review' && page.status==='ready' && 'totals' in page && page.totals?<p className="fm-home-hint">{homeReviewSummary(page.totals)}</p>:null}
+    {name==='agenda'?<p className="fm-home-hint">Próximos eventos</p>:null}
+    {name==='review' && page.status==='ready' && 'totals' in page && page.totals?<dl className="fm-home-review-stats" aria-label={homeReviewSummary(page.totals)}>
+      <div><dt>Entregas</dt><dd>{page.totals.attempts}</dd></div>
+      <div><dt>Por revisar</dt><dd>{page.totals.needsReview}</dd></div>
+      <div><dt>Para publicar</dt><dd>{page.totals.readyToPublish}</dd></div>
+    </dl>:null}
     {page.status==='error'?<div className="fm-home-module-error" role="status"><p>No pudimos cargar {label.title.toLowerCase()}.</p><button onClick={onRetry} disabled={busy}>Reintentar {label.title.toLowerCase()}</button></div>:
       page.items.length?<ul>{page.items.map((item,index)=>'source' in item && name==='agenda'?<HomeAgendaRow key={item.id} item={item} timeZone={timeZone} onAction={onAction} busy={busy}/>:<HomeRow key={item.id} item={item} module={name} featured={name==='pending' && index===0} timeZone={timeZone} onAction={onAction} busy={busy}/>)}</ul>:<p className="fm-home-empty">{label.empty}</p>}
   </section>;

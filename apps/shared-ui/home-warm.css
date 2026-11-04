@@ -6,7 +6,8 @@
   --warm-edge: #dfc8ad;
   --warm-lift: 0 4px 0 #eddac1;
   display: grid;
-  gap: 22px;
+  gap: 20px;
+  font-family: var(--fm-font-body);
   color: var(--fm-ink);
 }
 .fm3d-theme .fm-home.fm-home--warm :is(h1,h2) { font-family: var(--fm-font-heading); font-weight: 500; color: #3d2a20; }
@@ -14,7 +15,8 @@
   display: block;
   position: relative;
   isolation: isolate;
-  aspect-ratio: 3;
+  height: clamp(230px,20vw,300px);
+  aspect-ratio: auto;
   min-height: 0;
   padding: 0;
   border: 1px solid #deb67f;
@@ -24,7 +26,8 @@
   overflow: hidden;
 }
 .fm3d-theme .fm-home--warm .fm-home-greeting::after { content: none; }
-.fm3d-theme .fm-home--warm .fm-home-panorama { position: absolute; inset: 0; display: block; width: 100%; height: 100%; max-width: none; object-fit: fill; }
+.fm3d-theme .fm-home--warm .fm-home-greeting::before { content: ''; position: absolute; inset: -12px; z-index: -1; background: url('/foxmind-3d/hero/welcome-warm-960.webp') center / cover; filter: blur(10px); }
+.fm3d-theme .fm-home--warm .fm-home-panorama { position: absolute; inset: 0 0 0 auto; display: block; width: auto; height: 100%; aspect-ratio: 3; max-width: none; object-fit: contain; mask-image: linear-gradient(to right,transparent,#000 18%); }
 .fm3d-theme .fm-home--warm .fm-home-greeting > .fm-home-glass {
   position: absolute;
   left: 4%;
@@ -35,7 +38,7 @@
   padding: 20px 23px;
   border: 1px solid #ffffff83;
   border-radius: 20px;
-  background: linear-gradient(140deg,#fffdf249,#fffdf21f 55%,#fffdf236);
+  background: linear-gradient(140deg,#fffdf2d9,#fff8e6ba 65%,#fffdf2cc);
   backdrop-filter: blur(7px) saturate(112%);
   -webkit-backdrop-filter: blur(7px) saturate(112%);
   box-shadow: inset 0 1px 0 #ffffffb0,inset 0 -1px 0 #ffffff34,0 5px 20px #65441b12;
@@ -46,6 +49,7 @@
 .fm3d-theme .fm-home--warm .fm-home-greeting time::first-letter { text-transform: uppercase; }
 .fm3d-theme .fm-home--warm .fm-home-greeting p { font-size: 14px; font-weight: 500; color: #422b1a; margin: 0; max-width: 28ch; text-shadow: 0 1px 2px #fff7dfcc; }
 .fm3d-theme .fm-home--warm .fm-home-access-row { display: grid; grid-template-columns: minmax(0,1.65fr) minmax(0,1fr); gap: 18px; align-items: stretch; }
+.fm3d-theme .fm-home--warm .fm-home-access-row > .fm-home-foxy-note { grid-column: auto; }
 .fm3d-theme .fm-home--warm .fm-home-quick-links { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; margin: 0; min-width: 0; }
 .fm3d-theme .fm-home--warm .fm-home-quick-links a {
   --tile-surface: #fae4c8; --tile-pattern: #eac29a; --tile-edge: #d4ac80; --tile-ink: #8c3c16;
@@ -55,7 +59,7 @@
   justify-content: center;
   gap: 12px;
   min-width: 0;
-  min-height: 154px;
+  min-height: 128px;
   aspect-ratio: auto;
   padding: 13px 4px;
   border: 1px solid var(--tile-edge);
@@ -72,7 +76,7 @@
 .fm3d-theme .fm-home--warm .fm-home-quick-links a:nth-child(4) { --tile-surface:#eee4e9; --tile-pattern:#dbc6d2; --tile-edge:#c4a8b9; --tile-ink:#70435e; }
 .fm3d-theme .fm-home--warm .fm-home-quick-links .fm3d-icon { width: 34px; height: 34px; }
 .fm3d-theme .fm-home--warm .fm-home-quick-links a:hover { border-color: var(--tile-ink); text-decoration: underline; }
-.fm3d-theme .fm-home--warm .fm-home-dashboard { display: grid; grid-template-columns: minmax(0,1.15fr) minmax(0,1fr); gap: 18px; align-items: stretch; }
+.fm3d-theme .fm-home--warm .fm-home-dashboard { display: grid; grid-template-columns: minmax(0,1.15fr) minmax(0,1fr); gap: 18px; align-items: start; }
 .fm3d-theme .fm-home--warm .fm-home-priorities:empty { display: none; }
 .fm3d-theme .fm-home--warm .fm-home-dashboard:has(.fm-home-priorities:empty) > .fm-home-module--agenda { grid-column: 1 / -1; }
 .fm3d-theme .fm-home--warm .fm-home-priorities { border: 1px solid var(--warm-edge); border-radius: 18px; background: #fffdf9; box-shadow: var(--warm-lift); padding: 20px; min-width: 0; }
@@ -94,13 +98,13 @@
   .fm3d-theme .fm-home--warm .fm-home-greeting--welcome { aspect-ratio: auto; height: clamp(185px,52vw,205px); }
   /* Same scene, without cropping Foxy. His silhouette starts after 50% of the banner. */
   .fm3d-theme .fm-home--warm .fm-home-panorama { width: auto; height: 100%; aspect-ratio: 3; left: auto; right: calc((100% - clamp(185px,52vw,205px) * 3) * .19); object-fit: fill; }
-  .fm3d-theme .fm-home--warm .fm-home-greeting > .fm-home-glass { left: 3%; max-width: 40%; padding: 8px; border-radius: 14px; background: linear-gradient(135deg,#fff9e773,#fff9e72e 70%,#fff9e749); backdrop-filter: blur(6px) saturate(110%); -webkit-backdrop-filter: blur(6px) saturate(110%); }
+  .fm3d-theme .fm-home--warm .fm-home-greeting > .fm-home-glass { left: 3%; max-width: 40%; padding: 8px; border-radius: 14px; backdrop-filter: blur(6px) saturate(110%); -webkit-backdrop-filter: blur(6px) saturate(110%); }
   .fm3d-theme .fm-home--warm .fm-home-greeting h1 { font-size: 20px; margin: 6px 0; }
   .fm3d-theme .fm-home--warm .fm-home-greeting h1 > span { display: block; font-size: 19px; }
   .fm3d-theme .fm-home--warm .fm-home-greeting time { font-size: 11px; line-height: 1.4; }
   .fm3d-theme .fm-home--warm .fm-home-greeting p { font-size: 12px; line-height: 1.4; font-weight: 600; }
   .fm3d-theme .fm-home--warm .fm-home-quick-links { grid-template-columns: repeat(2,minmax(0,1fr)); }
-  .fm3d-theme .fm-home--warm .fm-home-quick-links a { min-height: 138px; font-size: 17px; }
+  .fm3d-theme .fm-home--warm .fm-home-quick-links a { min-height: 108px; font-size: 16px; }
 }
 @supports not (backdrop-filter: blur(1px)) {
   .fm3d-theme .fm-home--warm .fm-home-greeting > .fm-home-glass { background: #fff6e5dc; }
