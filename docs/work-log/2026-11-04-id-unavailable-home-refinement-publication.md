@@ -6,7 +6,7 @@
 - Branch / worktree: main, checkout principal
 - Starting commit: d8441c1a5e63e2ae970458861581970defc4b055
 - Phase and detailed task/spec links: [Inicio](../../odd/tasks/home-by-role.md)
-- Status: in_progress
+- Status: completed
 
 ## Request and scope
 Integrar los ajustes de Inicio en main, hacer push y verificar sincronización y ausencia de cambios sueltos. No modificar otros worktrees ni desplegar.
@@ -20,7 +20,10 @@ Unidad funcional: presentación compacta de Inicio, cuenta e íconos con sus pru
 Evidencia vigente del mismo código en [implementación](2026-11-04-id-unavailable-home-refinement.md) y [revisión independiente](2026-11-04-home-refinement-independent-review.md):65 pruebas focales/contratos,13 integradas PostgreSQL, build/tipos/fronteras y QA320/390/768/1440 aprobados. Se leyeron los logs de cierre, incluyendo limpieza0fallos. No se repiten pruebas funcionales porque esta tarea solo guarda y publica el candidato idéntico. git diff --check aprobado; control documental se repite antes del commit.
 
 ## Commits and outcomes
-Pendiente de observar commits y lectura remota exacta. Sin despliegue.
+- Registro operativo conservado en fe22030.
+- Implementación, pruebas, licencias y evidencia integradas en 2257b80447fd808ebae6c68f2b548f41835dd702. Push origin main aprobado; git ls-remote confirmó exactamente ese hash remoto. Árbol limpio después del push.
+- npm run docs:check:138 archivos/1737 enlaces y cero problemas antes de este cierre. git diff --cached --check aprobado. Este cierre documental se guarda posteriormente y se publica bajo la misma autorización; su propio hash se comprueba después del commit.
+- Sin despliegue ni operación sobre otros worktrees.
 
 ## Handoff
-Crear commits, publicar main y verificar HEAD remoto, divergencia0/0 y árbol limpio. No modificar otros worktrees.
+Ajustes funcionales sincronizados y sin pendientes. El cierre operativo comprueba nuevamente el hash remoto, divergencia0/0 y árbol limpio después de publicar este registro. Los worktrees separados quedan intactos para la continuidad que decida el usuario.

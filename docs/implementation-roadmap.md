@@ -22,7 +22,7 @@ Este resumen distingue lo integrado, lo verificado y los límites de las pruebas
 
 ## Cómo retomar
 
-Pulido de Inicio del 2026-11-04 implementado y verificado localmente sobre d8441c1: banner bajo/vidrio legible, dos familias, agenda simplificada, contadores de revisión, tarjetas con avance circular y menú bajo el nombre. 65 pruebas focales/contratos, P9 real13/13 y revisión independiente sin hallazgos abiertos. [Registro actual](work-log/2026-11-04-id-unavailable-home-refinement.md). Este pulido permanece sin commit ni publicación nueva; el registro operativo local preexistente y los demás worktrees no se modificaron.
+Pulido de Inicio del 2026-11-04 integrado y publicado en main2257b80, confirmado por lectura remota: banner bajo/vidrio legible, dos familias, agenda simplificada, contadores de revisión, tarjetas con avance circular y menú bajo el nombre. 65 pruebas focales/contratos, P9 real13/13 y revisión independiente sin hallazgos abiertos. [Implementación](work-log/2026-11-04-id-unavailable-home-refinement.md) · [Sincronización](work-log/2026-11-04-id-unavailable-home-refinement-publication.md). El registro operativo local se conservó en un commit documental separado; los demás worktrees no se modificaron. Sin despliegue.
 
 Inicio Taller Cálido, Mis aulas y Agenda se publicaron en main el 2026-11-04 junto con la corrección del inventario de pruebas, en a410355 confirmado por lectura remota. Inventario: 446 entradas, 53 exclusiones y 23 rutas; selección dirigida mediante el runner real con build API fresco: 17 PASS/0 FAIL/0 SKIP. No es una nueva ejecución de la suite completa ni un despliegue. [Registro de sincronización y límites](work-log/2026-11-04-id-unavailable-inventory-main-sync.md).
 

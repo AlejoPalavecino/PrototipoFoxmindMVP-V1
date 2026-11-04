@@ -36,3 +36,5 @@ Entrega local en main autorizada posteriormente: [registro de integración](../.
 | Verificación | DONE | root | Ambas tareas | 65 pruebas focales/contratos, build y fronteras aprobados. Matriz 320/390/768/1440, nombre largo y acciones aprobados. P9 real13/13, limpieza0fallos y revisión independiente sin hallazgos abiertos. |
 
 [Registro de ajustes](../../docs/work-log/2026-11-04-id-unavailable-home-refinement.md). No modifica otros worktrees ni autoriza publicación.
+
+Publicación autorizada posteriormente y confirmada: implementación2257b80 en main remoto, sin despliegue ni cambios en otros worktrees. [Entrega](../../docs/work-log/2026-11-04-id-unavailable-home-refinement-publication.md).

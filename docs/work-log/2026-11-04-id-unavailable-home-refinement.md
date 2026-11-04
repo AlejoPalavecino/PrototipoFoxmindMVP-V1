@@ -31,3 +31,5 @@ Sin commits nuevos.
 
 ## Handoff
 Alcance solicitado implementado y verificado localmente. El diff queda disponible en main sin commit/push/deploy nuevos. El registro operativo local preexistente y los demás worktrees se conservaron intactos. No hay tarea funcional pendiente de este alcance.
+
+Entrega posterior autorizada: implementación2257b80 integrada y publicada en main, con lectura remota exacta. El snapshot local anterior queda como historia. [Registro de sincronización](2026-11-04-id-unavailable-home-refinement-publication.md). Sin despliegue.
