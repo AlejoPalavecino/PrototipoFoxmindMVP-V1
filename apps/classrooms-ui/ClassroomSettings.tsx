@@ -22,7 +22,7 @@ export function ClassroomSettings({ api, id, room, settings, setSettings, settin
                 <h2><EntryIcon name="grid" /> Configuración del aula</h2>
                 <p className="classroom-settings-intro">Administrá la información general de tu aula, su portada y las opciones de archivado.</p>
                 {settingsConflict ? <Notice error>La configuración cambió. Tu borrador se conserva. <button onClick={() => void reloadSettings()}>Recargar configuración</button></Notice> : null}
-                <form
+                <form className="classroom-settings-form"
                   onSubmit={(event) => {
                     event.preventDefault();
                     void action(async () => {
@@ -41,6 +41,7 @@ export function ClassroomSettings({ api, id, room, settings, setSettings, settin
                   }}
                 >
                   <fieldset disabled={busy || room.archived}>
+                    <section className="classroom-settings-data" aria-label="Datos del aula">
                     <h3><EntryIcon name="book" /> Datos del aula</h3>
                     <p>Editá la información básica de tu aula. Estos datos se mostrarán a los alumnos.</p>
                     <div className="p5-fields">
@@ -82,6 +83,9 @@ export function ClassroomSettings({ api, id, room, settings, setSettings, settin
                       </label>
                     </div>
                     <p>Zona horaria fija: {room.timezone}</p>
+                    </section>
+                    <section className="classroom-settings-options" aria-label="Opciones de corrección">
+                    <h3>Opciones de corrección</h3>
                     <label className="p7-check"><input type="checkbox" checked={settings.aiGradingEnabled}
                       disabled={room.aiGradingAvailable === false}
                       onChange={(event) => setSettings(previous => ({ ...previous, aiGradingEnabled: event.target.checked }))} />
@@ -89,12 +93,13 @@ export function ClassroomSettings({ api, id, room, settings, setSettings, settin
                     {room.aiGradingAvailable === false ? <><p>Corrección con IA no disponible en este momento. Las entregas no generarán sugerencias.</p>
                       {settings.aiGradingEnabled ? <button type="button" onClick={() => setSettings(previous => ({ ...previous, aiGradingEnabled: false }))}>Desactivar para esta aula</button> : null}</> : null}
                     <p>Al activar esta opción, se generarán sugerencias para las nuevas entregas. El docente revisa y publica cada calificación.</p>
-                    <button className="primary">Guardar cambios</button>
+                    </section>
+                    <footer className="classroom-settings-save"><p>Los cambios se aplican al guardar.</p><button className="primary" type="submit">Guardar cambios</button></footer>
                   </fieldset>
                 </form>
                 <section className="classroom-settings-cover"><div><h3><EntryIcon name="grid" /> Portada del aula</h3><p>Esta portada se muestra en la parte superior y ayuda a identificar el aula.</p></div><Cover kind={room.coverKey} /></section>
                 <section className="classroom-settings-archive">
-                <hr />
+                <small>Estado del aula</small>
                 <h3>{room.archived ? 'Reactivar aula' : 'Archivar aula'}</h3>
                 <p>
                   {room.archived

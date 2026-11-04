@@ -195,7 +195,7 @@ export function ClassroomsApp({
   }
   if (accountRole !== 'teacher' && accountRole !== 'student') return <Notice error>No pudimos comprobar el rol de tu cuenta.</Notice>;
   return (
-    <div className={`p5-app fm3-classrooms ${surface.scope}${draft ? ' entry-wizard-reference' : !classroomId ? presentation === 'home' ? ' entry-home' : ' entry-classrooms-reference' : ' classroom-interior-reference'}`}>
+    <div className={`p5-app fm3-classrooms ${surface.scope}${draft ? ' entry-wizard-reference' : !classroomId ? presentation === 'home' ? ' entry-home' : ' entry-classrooms-reference collection-workspace-page' : ' classroom-interior-reference'}`}>
       <a className="skip-link" href="#classroom-main">Saltar al contenido</a>
       <AppNavbar logoHref="/mis-aulas" displayName={displayName} restricted={Boolean(draft)}
         links={draft ? [{ href: '/mis-aulas', label: 'Mis aulas', current: true }]
@@ -284,11 +284,6 @@ export function ClassroomsApp({
             {data.invitations && requestedInvitation && !data.invitations.some(item => item.id.toLowerCase() === requestedInvitation.toLowerCase()) ? (
               <Notice>Esta invitación no está pendiente para la cuenta actual. Puede haber vencido, haberse utilizado o corresponder a otro correo. Revisa tus invitaciones o cambia de cuenta desde tu perfil.</Notice>
             ) : null}
-            {data.teach && data.study ? <ClassroomCollection accountRole={accountRole} teach={data.teach} study={data.study} search={search} onSearch={setSearch}
-              onEnter={id => {
-                if (onEnterClassroom) { void action(async () => { await onEnterClassroom(id); }); return; }
-                setSharedCode(null); setClassroomId(id);
-              }} /> : null}
             {((data.invitations?.length ?? 0) > 0 || (data.drafts?.length ?? 0) > 0) ? <section className="folder-panel tone-yellow folder-pending" aria-label="Pendientes">
               <h2 className="folder-tab"><EntryIcon name="bell" />Pendientes <span className="collection-pending-count">{(data.invitations?.length ?? 0) + (data.drafts?.length ?? 0)}</span></h2>
             {data.invitations?.length ? (
@@ -337,6 +332,11 @@ export function ClassroomsApp({
               </section>
             ) : null}
             </section> : null}
+            {data.teach && data.study ? <ClassroomCollection accountRole={accountRole} teach={data.teach} study={data.study} search={search} onSearch={setSearch}
+              onEnter={id => {
+                if (onEnterClassroom) { void action(async () => { await onEnterClassroom(id); }); return; }
+                setSharedCode(null); setClassroomId(id);
+              }} /> : null}
           </>
         )}
       </main>

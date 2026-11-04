@@ -1,0 +1,97 @@
+/* Curriculum, materials and conversations use the same quiet work surface. */
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-plan-workspace { display:grid; grid-template-columns:minmax(220px,.8fr) minmax(0,2fr); gap:24px; min-width:0; margin-top:20px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-plan-navigation { padding:16px; border:1px solid #e4d6c3; border-radius:16px; background:#f8f3e9; min-width:0; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-plan-navigation > h3 { margin:0 0 16px; font:600 14px/20px 'Segoe UI',sans-serif; color:#716050; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-plan-navigation > section { padding:0; border:0; background:none; margin:0 0 8px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-unit-select { display:flex; align-items:flex-start; gap:12px; width:100%; padding:12px; min-height:64px; color:#59432f; background:#fffdf8; border:1px solid #e8ddcc; border-radius:12px; text-align:left; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .is-selected > .fm3-unit-select { border-color:#bb7545; background:#ffecd6; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-unit-number { flex:0 0 28px; height:28px; display:grid; place-items:center; border-radius:8px; background:#eee1ce; color:#765135; font-size:14px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-unit-body { min-width:0; flex:1; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-unit-heading { display:grid; gap:4px; font:600 14px/20px 'Segoe UI',sans-serif; overflow-wrap:anywhere; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-unit-heading small { font-size:12px; font-weight:400; color:#716050; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-unit-progress { display:flex; align-items:center; gap:8px; margin-top:8px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-unit-progress progress { width:100%; height:6px; accent-color:#a34b22; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-unit-topics { margin:8px 0 0 16px; padding:0; border:0; background:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-unit-topics { position:static; inset:auto; width:auto; max-width:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-unit-topics summary { padding:8px; cursor:pointer; color:#7a492c; font-size:12px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace [data-classroom-tab='plan'] .fm3-unit-topics > summary { display:flex; align-items:center; position:static; min-height:44px; width:auto; max-width:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p5-surface[data-classroom-tab='plan'] .fm3-unit-topics { position:static; inset:auto; width:auto; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p5-surface[data-classroom-tab='plan'] .fm3-unit-topics > summary { display:flex; position:static; align-items:center; min-height:44px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace :is(.fm3-unit-topics,.fm3-only-topic) button { width:100%; margin:4px 0 0; padding:8px; background:none; border:1px solid transparent; color:#5e4937; font-size:14px; text-align:left; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace :is(.fm3-unit-topics,.fm3-only-topic) button[aria-current='true'] { background:#fffdf8; border-color:#d9b998; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-plan-context { min-width:0; padding:0; border:0; background:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-plan-context > h3 { margin:8px 0 12px; font:500 28px/36px 'Fredoka Auth','Segoe UI',sans-serif; color:#3d2a20; text-wrap:pretty; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-plan-context > small { color:#7b6a59; font-size:12px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-plan-context .p5-tag { display:inline-flex; align-items:center; min-height:28px; padding:4px 8px; border:1px solid #d9c7b1; border-radius:8px; background:#f4ecdf; color:#68523d; font-size:12px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-plan-context .p5-tag[data-status='NEXT'] { background:#ffead0; color:#8a3e18; border-color:#e5bc8e; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-plan-context .p5-tag[data-status='TAUGHT'] { background:#e9f0df; color:#3f5d32; border-color:#c9d9b8; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-topic-state { padding:0; border:0; background:none; margin:12px 0 20px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-topic-state > summary { padding:8px 0; min-height:44px; color:#89512b; font-size:14px; cursor:pointer; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-plan-step { display:flex; align-items:center; gap:8px; margin:24px 0 4px; font:600 18px/28px 'Segoe UI',sans-serif; color:#493528; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-plan-step > span { display:grid; place-items:center; width:28px; height:28px; border-radius:8px; background:#fae1c2; color:#8f411c; font-size:14px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-step-copy { font-size:14px; line-height:24px; color:#716050; margin:0 0 12px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-plan-resource { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; padding:16px; margin:8px 0; background:#fff; border:1px solid #e4d6c3; border-radius:12px; min-width:0; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-plan-resource > div { min-width:0; flex:1 1 180px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-plan-resource h4 { margin:0 0 4px; font:600 16px/24px 'Segoe UI',sans-serif; overflow-wrap:anywhere; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-plan-resource :is(small,p) { color:#716050; font-size:12px; line-height:20px; margin:0; overflow-wrap:anywhere; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-plan-resource > a { display:inline-flex; align-items:center; min-height:44px; padding:8px 12px; border:1px solid #d8b99b; border-radius:10px; color:#89451e; text-decoration:none; font-size:14px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-plan-resource > button.primary { color:#fffdf8; background:#a6421b; border:1px solid #8f3515; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-plan-resource > button.primary:hover:enabled { color:#fffdf8; background:#873514; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm-plan-management { margin-top:24px; padding:16px; border:1px solid #e4d6c3; border-radius:16px; background:#faf5ed; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm-plan-management > summary { font:600 14px/24px 'Segoe UI',sans-serif; cursor:pointer; color:#6d4930; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm-plan-management > summary > span { display:block; font-size:12px; font-weight:400; color:#716050; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .interior-library-summary { display:flex; align-items:center; gap:12px; padding:0; border:0; background:none; box-shadow:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-library { display:block; grid-template-columns:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .interior-library-summary-icon { display:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-library-upload { padding:16px; margin:0 0 20px; border:1px dashed #d6b28d; border-radius:12px; background:#fff8ed; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-library-upload { position:static; display:block; float:none; inset:auto; width:auto; min-height:0; margin:0 0 20px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-library-upload .folder-disclosure { padding:0; border:0; background:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-library-upload summary { color:#8b421c; font-weight:600; cursor:pointer; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-library .folder-disclosure > summary,
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-library .interior-material-menu > summary { display:flex; align-items:center; min-height:44px; width:fit-content; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p5-surface[data-classroom-tab='library'] .p6-library summary { min-height:44px; display:flex; align-items:center; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p5-surface[data-classroom-tab='library'] .p5-actions > a { display:inline-flex; align-items:center; min-height:44px; padding:8px 12px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .folder-plan-file > a { display:inline-flex; align-items:center; min-height:44px; padding:8px 0; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .interior-library-toolbar { display:flex; flex-wrap:wrap; gap:12px; margin:0 0 20px; padding:0; background:none; border:0; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .interior-library-search { flex:1 1 240px; min-width:0; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .interior-library-search input { min-height:44px; margin-top:4px; background:#fff; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .interior-library-filters { display:flex; flex-wrap:wrap; align-items:end; gap:8px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .interior-library-filters button { min-height:44px; padding:8px 12px; background:#fff; border:1px solid #e1d2be; border-radius:10px; color:#6b513a; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .interior-library-filters button[aria-pressed='true'] { background:#ffead0; border-color:#d8a879; color:#8a3c18; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-library-list > .folder-row { display:flex; flex-wrap:wrap; align-items:flex-start; gap:16px; padding:20px 0; border:0; border-bottom:1px solid #e7dac9; border-radius:0; background:none; box-shadow:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-library .p6-library-list { display:block; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-library .p6-library-list > .folder-row { flex-direction:row; min-height:0; height:auto; width:100%; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-library .p6-library-list > .folder-row::before,
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-library .p6-library-list > .folder-row::after { content:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-library-list .folder-row-content { display:flex; gap:12px; min-width:0; flex:1 1 300px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .interior-material-copy { min-width:0; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .interior-material-copy h3 { margin:4px 0; font:600 16px/24px 'Segoe UI',sans-serif; color:#493528; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .interior-material-copy :is(p,small) { font:400 12px/20px 'Segoe UI',sans-serif; color:#716050; overflow-wrap:anywhere; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-library-list .folder-row-actions { display:grid; gap:8px; min-width:0; width:auto; flex:0 1 220px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-library .p6-library-list .folder-row-actions { position:static; inset:auto; align-self:start; margin:0; grid-column:auto; grid-row:auto; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .interior-material-menu { padding:0; border:0; background:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .interior-material-menu summary { min-height:44px; padding:8px 0; color:#716050; cursor:pointer; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-wall { display:flex; flex-direction:column; gap:20px; max-width:920px; margin:0 auto; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-wall > header { margin:0; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-wall > form { margin:0; padding:20px; border:1px solid #e3ceb4; border-radius:16px; background:#fff8eb; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-wall > form { width:100%; max-width:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-wall > form fieldset { display:block; width:100%; min-width:0; padding:0; border:0; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-wall textarea { width:100%; min-height:112px; padding:12px; font:400 16px/24px 'Segoe UI',sans-serif; resize:vertical; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .interior-wall-guide { display:block; position:static; width:auto; padding:0 12px; border:0; background:none; box-shadow:none; color:#716050; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .interior-wall-guide summary { padding:8px 0; cursor:pointer; font-size:14px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .interior-wall-guide ol { margin:8px 0; padding-left:20px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-wall-threads { display:grid; gap:20px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-wall-threads > article { padding:20px; border:1px solid #e4d6c3; border-radius:16px; background:#fff; box-shadow:0 3px 0 #eee4d6; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-wall-replies { margin:16px 0 0 16px; padding:16px 0 0 16px; border-left:2px solid #ead8c2; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-wall-replies > article { padding:12px 0; margin:0; border:0; background:none; box-shadow:none; }
+@media(max-width:900px) {
+  .fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-plan-workspace { grid-template-columns:minmax(0,1fr); }
+  .fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-plan-navigation { display:none; }
+  .fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-plan-mobile-selection { display:block; }
+}
+@media(max-width:540px) {
+  .fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-plan-context > h3 { font-size:24px; line-height:32px; }
+  .fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .fm3-plan-resource > :is(a,button) { flex:1 1 100%; justify-content:center; text-align:center; }
+  .fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-wall > form,.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-wall-threads > article { padding:16px; }
+  .fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-wall-replies { margin-left:0; padding-left:12px; }
+}

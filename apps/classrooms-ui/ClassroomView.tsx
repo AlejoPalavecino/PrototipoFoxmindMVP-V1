@@ -3,9 +3,9 @@ import { useState, useEffect, useRef } from 'react';
 import { ApiError, type AcademicTarget, type ClassroomClient, type Detail, type Invitation, type Member, type NotificationTarget } from './api.ts';
 import { Notice } from './components.tsx';
 import { ClassroomHeader } from './ClassroomHeader.tsx';
+import { ClassroomNavigation } from './ClassroomNavigation.tsx';
 import type { HomeTarget } from '../../src/core/domain/index.ts';
 import { homeClassroomTab, homeNotificationTarget } from './classroom-home-target.ts';
-import { EntryIcon } from '../shared-ui/EntryIcon';
 import { Plan } from './Plan.tsx';
 import { Library } from './Library.tsx';
 import { Wall } from './Wall.tsx';
@@ -112,46 +112,25 @@ export function ClassroomView({
     await invitationResource.reload();
   }
   const tabLabels: Record<string, string> = { members: teacher ? 'Alumnos' : 'Compañeros', history: 'Historial', plan: 'Plan', library: 'Biblioteca', activities: 'Actividades', progress: teacher ? 'Progreso' : 'Mi progreso', wall: 'Muro', settings: 'Configuración' };
-  const tabIcons: Record<string, string> = { members: 'people-fill', history: 'list', plan: 'list', library: 'book', activities: 'book', progress: 'list', wall: 'people-fill', settings: 'person-fill' };
   return (
     <>
-      <button className="p5-link" onClick={onExit}>
-        Mis Aulas / Volver a mis aulas
+      <button className="p5-link classroom-back" onClick={onExit}>
+        Volver a mis aulas
       </button>
       {detail.error ? <Notice error>{detail.error} <button onClick={() => void load()}>Actualizar aula</button></Notice> : null}
       {!room && detail.status !== 'error' ? <Notice>Cargando aula…</Notice> : null}
       {room ? (
-        <>
+        <div className="classroom-workspace">
           <ClassroomHeader room={room} />
           {room.archived ? (
             <Notice>
-              Esta aula está archivada. Podés consultar su contenido; los
-              cambios están deshabilitados.
+              Aula archivada · Podés consultar el contenido. No se pueden publicar ni editar materiales o actividades.
             </Notice>
           ) : null}
           {notice ? <Notice>{notice}</Notice> : null}
-          <nav ref={tabs} className={`p5-tabs folder-room-tabs tone-${teacher ? 'coral' : 'mint'}`} aria-label="Secciones del aula">
-            {[
-              { key: 'plan', label: 'Plan' },
-              { key: 'wall', label: 'Muro' },
-              { key: 'library', label: 'Biblioteca' },
-              { key: 'activities', label: 'Actividades' },
-              { key: 'progress', label: teacher ? 'Progreso' : 'Mi progreso' },
-              { key: 'members', label: teacher ? 'Alumnos' : 'Compañeros' },
-              ...(teacher ? [{ key: 'history', label: 'Historial' }] : []),
-              ...(teacher ? [{ key: 'settings', label: 'Configuración' }] : []),
-            ].map((item) => (
-              <button
-                key={item.key}
-                aria-current={tab === item.key ? 'page' : undefined}
-                onClick={() => setTab(item.key)}
-              >
-                <EntryIcon name={tabIcons[item.key]} />{item.label}
-              </button>
-            ))}
-          </nav>
+          <ClassroomNavigation teacher={!!teacher} selected={tab} onSelect={setTab} tabsRef={tabs}/>
           <section data-classroom-tab={tab} className={`p5-surface ${tab === 'plan' ? 'fm3-plan-surface' : `folder-panel tone-${teacher ? 'coral' : 'mint'}`}`} aria-labelledby="classroom-section-title">
-            <h2 id="classroom-section-title" className="folder-tab"><EntryIcon name={tabIcons[tab]} />{tabLabels[tab]}</h2>
+            <h2 id="classroom-section-title" className="classroom-section-title">{tabLabels[tab]}</h2>
             {error ? <Notice error>{error}</Notice> : null}
             {tab === 'members' || tab === 'history' ? (
               <ResourceNotice resource={tab === 'history' ? historyResource : memberResource} />
@@ -217,7 +196,7 @@ export function ClassroomView({
               </footer>
             ) : null}
           </section>
-        </>
+        </div>
       ) : null}
       <ClassroomDialogs api={api} id={id} tab={tab} inviting={inviting} setInviting={setInviting}
         email={email} setEmail={setEmail} invite={invite} invitationAction={invitationAction} actionStates={actionStates}

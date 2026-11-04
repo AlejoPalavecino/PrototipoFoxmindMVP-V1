@@ -1,0 +1,55 @@
+/* AULA-001: overrides scoped to the collection; shared navigation stays inherited. */
+html:has(.collection-workspace-page) { scroll-padding-top:88px; }
+.collection-workspace-page :is(button,input,select,summary) { scroll-margin-block:88px; }
+.fm3d-theme .p5-app.entry-classrooms-reference.collection-workspace-page .collection-reference-hero { min-height: 192px; padding: 22px 28px; margin-bottom: 24px; }
+.fm3d-theme .p5-app.collection-workspace-page .collection-hero-copy h1 { font-size: clamp(28px, 3vw, 36px); line-height: 1.12; margin: 8px 0; }
+.fm3d-theme .p5-app.collection-workspace-page .collection-hero-copy p { font-size: 16px; line-height: 1.5; }
+.fm3d-theme .p5-app.collection-workspace-page .collection-hero-actions { bottom: 24px; }
+.fm3d-theme .p5-app.collection-workspace-page .collection-workspace { margin-top: 24px; gap: 16px; }
+.collection-workspace-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.collection-workspace-heading h2 { margin: 0; font-family: 'Fredoka', 'Segoe UI', sans-serif; color: #442a20; }
+.collection-workspace-states { display: flex; padding: 4px; gap: 4px; border: 1px solid #e4d4c2; background: #fff7ed; border-radius: 14px; }
+.fm3d-theme .p5-app.collection-workspace-page .collection-workspace-states button { min-height: 44px; padding: 8px 16px; border: 1px solid transparent; background: transparent; color: #655045; box-shadow: none; border-radius: 10px; font: 600 14px 'Segoe UI', sans-serif; }
+.fm3d-theme .p5-app.collection-workspace-page .collection-workspace-states button[aria-pressed='true'] { background: #fff; color: #a13b12; border-color: #e8c5a7; box-shadow: 0 2px 6px #6030110d; }
+.collection-workspace-chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.fm3d-theme .p5-app.collection-workspace-page .collection-workspace-chips button { min-height: 44px; max-width: 100%; overflow-wrap: anywhere; padding: 7px 12px; border-radius: 12px; background: #fff4e4; border: 1px solid #e7c6a4; color: #7a3c20; font-size: 13px; }
+.fm3d-theme .p5-app.collection-workspace-page .collection-advanced-filters { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.fm3d-theme .p5-app.entry-classrooms-reference.collection-workspace-page .p5-main .collection-workspace .fm3-classroom-grid:not(.is-list) { grid-template-columns: repeat(auto-fill,minmax(min(100%,280px),1fr)); gap: 18px; }
+.fm3d-theme .p5-app.entry-classrooms-reference.collection-workspace-page .p5-main .collection-workspace .fm3-classroom-card { min-width: 0; box-shadow: 0 3px 0 #e9dac8; border-radius: 18px; }
+.fm3d-theme .p5-app.entry-classrooms-reference.collection-workspace-page .p5-main .collection-workspace .fm3-classroom-grid:not(.is-list) .fm3-classroom-card > .fm3-cover { aspect-ratio: 2.65 / 1; min-height: 0; max-height: 150px; }
+.fm3d-theme .p5-app.entry-classrooms-reference.collection-workspace-page .p5-main .collection-workspace .fm3-classroom-card-body { gap: 8px; padding: 16px; }
+.fm3d-theme .p5-app.entry-classrooms-reference.collection-workspace-page .p5-main .collection-workspace .fm3-classroom-card h3 { font-size: 20px; line-height: 1.2; }
+.fm3d-theme .p5-app.entry-classrooms-reference.collection-workspace-page .p5-main .collection-workspace .fm3-classroom-facts > p { color: #655a53; font-size: 14px; }
+.fm3d-theme .p5-app.entry-classrooms-reference.collection-workspace-page .p5-main .collection-workspace .collection-card-badges .collection-workspace-active { background: #edf2df; color: #44622c; }
+.fm3d-theme .p5-app.entry-classrooms-reference.collection-workspace-page .p5-main .collection-workspace .is-list .fm3-classroom-card { grid-template-columns: 112px minmax(0,1fr); min-height: 160px; }
+.fm3d-theme .p5-app.entry-classrooms-reference.collection-workspace-page .p5-main .collection-workspace .is-list .fm3-classroom-card h3 { grid-column: 1; }
+.fm3d-theme .p5-app.entry-classrooms-reference.collection-workspace-page .p5-main .folder-pending { margin: 20px 0 24px; background: #fffbf2; }
+.fm3d-theme .p5-app.collection-workspace-page :is(button,input,select):focus-visible { outline: 3px solid #9e441f; outline-offset: 3px; }
+@media (max-width: 760px) {
+ .fm3d-theme .p5-app.entry-classrooms-reference.collection-workspace-page .collection-reference-hero { min-height: 180px; padding: 20px; }
+ .fm3d-theme .p5-app.collection-workspace-page .collection-hero-actions { position: static; grid-column: 1 / -1; justify-self: start; }
+ .fm3d-theme .p5-app.collection-workspace-page .collection-hero-copy { max-width: 62%; }
+ .fm3d-theme .p5-app.collection-workspace-page .collection-hero-copy h1 { font-size: 28px; }
+ .fm3d-theme .p5-app.entry-classrooms-reference.collection-workspace-page .p5-main .folder-pending { grid-template-columns: minmax(0,1fr); }
+ .fm3d-theme .p5-app.collection-workspace-page .fm3-collection-search { flex-basis: 100%; min-width: 0; }
+}
+@media (max-width: 520px) {
+ .fm3d-theme .p5-app.entry-classrooms-reference.collection-workspace-page .collection-reference-hero { min-height:0; padding:20px; }
+ .fm3d-theme .p5-app.entry-classrooms-reference.collection-workspace-page .collection-hero-badge { display:none; }
+ .fm3d-theme .p5-app.entry-classrooms-reference.collection-workspace-page .collection-hero-copy h1 { font-size:24px; line-height:28px; margin:0 0 8px; }
+ .fm3d-theme .p5-app.entry-classrooms-reference.collection-workspace-page .collection-hero-copy p { font-size:14px; line-height:20px; }
+ .fm3d-theme .p5-app.entry-classrooms-reference.collection-workspace-page .collection-hero-actions { margin-top:12px; }
+ .fm3d-theme .p5-app.entry-classrooms-reference.collection-workspace-page .collection-hero-actions button { min-height:44px; padding:8px 16px; }
+ .fm3d-theme .p5-app.entry-classrooms-reference.collection-workspace-page .p5-main .folder-pending { padding:16px; }
+ .fm3d-theme .p5-app.collection-workspace-page .collection-hero-copy { max-width: 100%; }
+ .collection-workspace-heading { align-items: stretch; }
+ .collection-workspace-states { width: 100%; }
+ .fm3d-theme .p5-app.collection-workspace-page .collection-workspace-states button { flex: 1; padding: 8px; }
+ .fm3d-theme .p5-app.collection-workspace-page .collection-advanced-filters { grid-template-columns: minmax(0,1fr); }
+ .fm3d-theme .p5-app.entry-classrooms-reference.collection-workspace-page .p5-main .collection-workspace .is-list .fm3-classroom-card { grid-template-columns: 72px minmax(0,1fr); }
+ .fm3d-theme .p5-app.entry-classrooms-reference.collection-workspace-page .p5-main .collection-workspace .is-list .fm3-classroom-card-body { grid-template-columns: minmax(0,1fr); padding: 12px; }
+ .fm3d-theme .p5-app.entry-classrooms-reference.collection-workspace-page .p5-main .collection-workspace .is-list .fm3-classroom-card-body > button { grid-column: 1; grid-row: auto; justify-self: stretch; }
+}
+@media (prefers-reduced-motion: reduce) {
+ .collection-workspace *, .collection-workspace-page .collection-hero-actions button { transition: none !important; animation: none !important; }
+}

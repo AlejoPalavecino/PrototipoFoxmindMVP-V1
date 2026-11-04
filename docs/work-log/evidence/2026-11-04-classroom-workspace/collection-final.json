@@ -1,0 +1,66 @@
+[
+  {
+    "role": "teacher",
+    "width": 320,
+    "controls": true,
+    "pendingBefore": true,
+    "archiveCards": 1,
+    "overflow": false
+  },
+  {
+    "role": "student",
+    "width": 320,
+    "controls": true,
+    "pendingBefore": true,
+    "archiveCards": 0,
+    "overflow": false
+  },
+  {
+    "role": "teacher",
+    "width": 390,
+    "controls": true,
+    "pendingBefore": true,
+    "archiveCards": 1,
+    "overflow": false
+  },
+  {
+    "role": "student",
+    "width": 390,
+    "controls": true,
+    "pendingBefore": true,
+    "archiveCards": 0,
+    "overflow": false
+  },
+  {
+    "role": "teacher",
+    "width": 768,
+    "controls": true,
+    "pendingBefore": true,
+    "archiveCards": 1,
+    "overflow": false
+  },
+  {
+    "role": "student",
+    "width": 768,
+    "controls": true,
+    "pendingBefore": true,
+    "archiveCards": 0,
+    "overflow": false
+  },
+  {
+    "role": "teacher",
+    "width": 1440,
+    "controls": true,
+    "pendingBefore": true,
+    "archiveCards": 1,
+    "overflow": false
+  },
+  {
+    "role": "student",
+    "width": 1440,
+    "controls": true,
+    "pendingBefore": true,
+    "archiveCards": 0,
+    "overflow": false
+  }
+]

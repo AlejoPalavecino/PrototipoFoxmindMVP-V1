@@ -9,7 +9,6 @@ import { AttemptHistory } from './AttemptHistory.tsx';
 import { AttemptSession, FirstSubmissionAuthorization } from './AttemptSession.tsx';
 import { openActivitySession } from './open-activity-session.ts';
 import { EntryIcon } from '../shared-ui/EntryIcon';
-import { HomeCover } from './HomeCover.tsx';
 
 const teacherViews = [
   { key: 'all', label: 'Todas' },
@@ -63,7 +62,7 @@ export function Activities({ api, room, reload, target, onChanged, openAuthoring
   }
   return <section className={`p7-activities${editing || generating ? ' education-task-active' : ''}`} aria-label="Actividades del aula">
     {editing || generating ? <p className="education-task-context">{room.name} · {generating ? 'Asistente de actividades' : 'Editor de actividad'}</p> : null}
-    <header className="p5-section-head fm-desk-activities-heading"><div className="interior-social-heading"><HomeCover coverKey={room.coverKey}/><div><small>{room.name} · {room.division}</small><h2>Actividades</h2><p>{teacher ? 'Creá actividades y revisá las entregas del aula.' : 'Consultá las actividades y tus intentos.'}</p></div></div>
+    <header className="p5-section-head fm-desk-activities-heading"><div className="interior-social-heading"><EntryIcon name="book"/><div><h2>Actividades</h2><p>{teacher ? 'Creá actividades y revisá las entregas del aula.' : 'Consultá las actividades y tus intentos.'}</p></div></div>
       <button disabled={busy} onClick={() => void run(refresh)}>Actualizar actividades</button></header>
     {error ? <Notice error>{error} Los cambios no confirmados no se consideran guardados.</Notice> : null}
     {notice ? <Notice>{notice}</Notice> : null}
@@ -88,21 +87,23 @@ export function Activities({ api, room, reload, target, onChanged, openAuthoring
     {loaded && visibleActivities.length === 0 ? <p className="p5-empty" role="status">{activities.length ? 'No hay actividades en este estado.' : 'Todavía no hay actividades disponibles.'}</p> : null}
     {visibleActivities.map(activity => <article className={`folder-row interior-activity-${activity.status.toLowerCase()}`} key={activity.id} aria-label={activity.title ?? 'Borrador sin título'}>
       <span className="interior-activity-icon"><EntryIcon name="book" /></span><div className="folder-row-content"><small className="interior-activity-status">{activity.status === 'DRAFT' ? 'Borrador privado' : activity.status === 'WITHDRAWN' ? 'Retirada' : 'Publicada'}</small><small className="interior-activity-type">{activityTypeLabels[activity.type]}</small>
-        <h3>{activity.title ?? 'Borrador sin título'}</h3><p>{activityDate(activity.deadlineAt, activity.zone)}</p>
+        <h3>{activity.title ?? 'Borrador sin título'}</h3><p className="classroom-activity-deadline">{activityDate(activity.deadlineAt, activity.zone)}</p>
         <ActivityCurriculum room={room} activity={activity} />
         {teacher && activity.locked ? <small>Contenido bloqueado por participación</small> : null}</div>
-      <div className="p5-actions folder-row-actions"><button disabled={busy} onClick={() => void run(async () => {
+      <div className="p5-actions folder-row-actions">
+        {teacher && activity.status === 'PUBLISHED' ? <button className="primary fm-desk-review-action" disabled={busy} onClick={() => setHistory({ activityId: activity.id, filter: 'unpublished' })}>Revisar pendientes</button> : null}
+        <div className="classroom-activity-secondary" role="group" aria-label="Consulta y opciones de la actividad">
+        <button className={!teacher ? 'primary' : undefined} disabled={busy} onClick={() => void run(async () => {
         if (teacher) { setPreview(await api.call<ActivityData>(`/${room.id}/activities/${activity.id}/preview`)); return; }
         const next = await openActivitySession(api, room.id, activity.id);
         if (activity.type === 'ASSIGNMENT') await refresh();
         setSession(next);
       })}>{teacher ? 'Vista previa docente' : activity.type === 'ASSIGNMENT' ? 'Abrir trabajo práctico' : 'Consultar actividad'}</button>
-        {teacher && activity.status === 'PUBLISHED' ? <button className="fm-desk-review-action" disabled={busy} onClick={() => setHistory({ activityId: activity.id, filter: 'unpublished' })}>Revisar pendientes</button> : null}
         <button disabled={busy} onClick={() => setHistory({ activityId: activity.id })}>{teacher ? 'Ver entregas recibidas' : 'Ver mis intentos'}</button>
         {writable ? <details className="education-activity-more"><summary>Más opciones</summary><div><button disabled={busy} onClick={() => void run(() => edit(activity.id))}>{activity.status === 'DRAFT' ? 'Continuar borrador' : 'Editar actividad'}</button>
           {activity.status === 'PUBLISHED' ? <button disabled={busy} onClick={() => setAuthorization(activity.id)}>Habilitar primera entrega</button> : null}
           {!activity.locked ? <button disabled={busy} onClick={() => setConfirm({ activity, action: activity.status === 'PUBLISHED' ? 'withdraw' : 'publish' })}>
-            {activity.status === 'PUBLISHED' ? 'Retirar actividad' : 'Publicar'}</button> : null}</div></details> : null}</div>
+            {activity.status === 'PUBLISHED' ? 'Retirar actividad' : 'Publicar'}</button> : null}</div></details> : null}</div></div>
     </article>)}</div>
     {history ? <AttemptHistory key={history.activityId + (history.attemptId ?? '') + (history.filter ?? '')} api={api} room={room} activityId={history.activityId} attemptId={history.attemptId} filter={teacher ? history.filter : undefined}
       onClose={() => setHistory(null)} onChanged={refresh} onResume={setSession} /> : null}

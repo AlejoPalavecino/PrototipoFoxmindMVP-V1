@@ -107,12 +107,12 @@ export function Wall({ api, room, reload, target, onChanged }: {
     {!data && !error ? <Notice>Cargando Muro…</Notice> : null}
     {!room.archived && data ? <TextForm key={composerKey} busy={busy} label={room.role === 'teacher' ? 'Publicar aviso' : 'Publicar consulta'}
       onSave={body => run(async () => { await change({ action: 'publish', body }); setComposerKey(value => value + 1); setNotice('Publicación guardada.'); })} /> : null}
-    <aside className="interior-wall-guide" aria-label="Cómo participar">
-      <h3>Cómo participar</h3>
+    <details className="interior-wall-guide">
+      <summary>Cómo participar en el Muro</summary>
       <ol><li><strong>Respetá a los demás</strong><p>Compartí tus ideas con un lenguaje amable y constructivo.</p></li>
         <li><strong>Sumá al aprendizaje</strong><p>Hacé preguntas, compartí recursos y ayudá a tus compañeros.</p></li>
         <li><strong>Mantené el foco</strong><p>Publicá contenido relacionado con los temas de la clase.</p></li></ol>
-    </aside>
+    </details>
     {data?.posts.length === 0 ? <p className="p5-empty">Todavía no hay publicaciones.</p> : null}
     {data && target && !data.posts.some(post => post.id === target.postId) ? <Notice>La publicación ya no está disponible para tu cuenta.</Notice> : null}
     <div className="p6-wall-threads">{data?.posts.map((post: WallPost) => <article key={post.id} data-wall-id={post.id} tabIndex={-1}

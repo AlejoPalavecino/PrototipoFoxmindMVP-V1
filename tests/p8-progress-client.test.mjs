@@ -25,7 +25,11 @@ test('progress extends existing shell, captures member identity separately and c
   for (const label of ['Cumplimiento de entregas', 'Rendimiento académico', 'Avance del plan de estudio', 'Actualizar progreso', 'Reintentar progreso']) assert.ok(source.includes(label));
   assert.match(source, /setLoading\(true\); setData\(null\); setError\(''\)/);
   assert.match(source, /controller.signal.aborted/); assert.match(source, /return \(\) => controller.abort\(\)/);
-  assert.match(shell, /key: 'progress', label: teacher \? 'Progreso' : 'Mi progreso'/);
+  const {loadTsModule}=await import('./helpers/load-ts-module.mjs');
+  const {classroomSections}=loadTsModule('apps/classrooms-ui/ClassroomNavigation.tsx');
+  assert.equal(classroomSections(true).find(item=>item.key==='progress').label,'Progreso');
+  assert.equal(classroomSections(false).find(item=>item.key==='progress').label,'Mi progreso');
+  assert.match(shell,/tab === 'progress'/);
   assert.match(roster, /studentId: member.studentId!/); assert.match(dialogs, /studentId=\{summary.studentId\}/);
   assert.ok(dialogs.includes('summary.attempts.map')); assert.match(source, /data.scope === 'classroom' \? <section aria-label="Estudiantes actuales"/);
 });

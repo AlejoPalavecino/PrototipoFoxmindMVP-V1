@@ -1,0 +1,210 @@
+[
+  {
+    "screen": "collection",
+    "role": "teacher",
+    "mode": "empty",
+    "overflow": false,
+    "text": "Mis aulasTus clases, bien organizadas.Organizá tus clases y seguí aprendiendo, en un solo lugar.Crear aulaTus aulasActivas · 0Archivadas · 0Buscar aulaMás filtrosAún no tenés aulas. Creá una para empezar.",
+    "tabs": []
+  },
+  {
+    "screen": "collection",
+    "role": "teacher",
+    "mode": "error",
+    "overflow": false,
+    "text": "Mis aulasTus clases, bien organizadas.Organizá tus clases y seguí aprendiendo, en un solo lugar.Crear aulaNo pudimos cargar tus aulas. Volver a intentarPendientes 1Continuar un borradorCiencias — Nuevo proyectoContinuar creación",
+    "tabs": []
+  },
+  {
+    "screen": "collection",
+    "role": "teacher",
+    "mode": "loading",
+    "overflow": false,
+    "text": "Mis aulasTus clases, bien organizadas.Organizá tus clases y seguí aprendiendo, en un solo lugar.Crear aulaCargando tus aulas…Pendientes 1Continuar un borradorCiencias — Nuevo proyectoContinuar creación",
+    "tabs": []
+  },
+  {
+    "screen": "collection",
+    "role": "teacher",
+    "mode": "long",
+    "overflow": false,
+    "text": "Mis aulasTus clases, bien organizadas.Organizá tus clases y seguí aprendiendo, en un solo lugar.Crear aulaPendientes 1Continuar un borradorCiencias — Nuevo proyectoContinuar creaciónTus aulasActivas · 2Archivadas · 1Buscar aulaMás filtrosActivaBiología — Exploración: investigación interdisciplinaria sobre nuestra comunidad y sus transformacionesBiología · División interdisciplinaria ACiclo lectivo: 2026Entrar al aula ActivaLiteratura — Ideas y relatos: investigación interdisciplinaria sobre nuestra comunidad y sus transformacionesLiteratura · División interdisciplinaria ACiclo lectivo: 2026Entrar al aula Mostrando 2 de 3 aulas",
+    "tabs": []
+  },
+  {
+    "screen": "collection",
+    "role": "teacher",
+    "mode": "archived",
+    "overflow": false,
+    "text": "Mis aulasTus clases, bien organizadas.Organizá tus clases y seguí aprendiendo, en un solo lugar.Crear aulaPendientes 1Continuar un borradorCiencias — Nuevo proyectoContinuar creaciónTus aulasActivas · 0Archivadas · 3Buscar aulaMás filtrosNo tenés aulas activas.Mostrando 0 de 3 aulas",
+    "tabs": []
+  },
+  {
+    "screen": "collection",
+    "role": "student",
+    "mode": "empty",
+    "overflow": false,
+    "text": "Mis aulasTus clases, bien organizadas.Organizá tus clases y seguí aprendiendo, en un solo lugar.Unirse con códigoTus aulasActivas · 0Archivadas · 0Buscar aulaMás filtrosAún no tenés aulas. Ingresá con un código para empezar.",
+    "tabs": []
+  },
+  {
+    "screen": "collection",
+    "role": "student",
+    "mode": "error",
+    "overflow": false,
+    "text": "Mis aulasTus clases, bien organizadas.Organizá tus clases y seguí aprendiendo, en un solo lugar.Unirse con códigoNo pudimos cargar tus aulas. Volver a intentarPendientes 1Tenés una invitaciónGeografía — Aula invitadaLuz Ejemplo te invita a su aula.Vence el 28/11/2026Aceptar invitación",
+    "tabs": []
+  },
+  {
+    "screen": "collection",
+    "role": "student",
+    "mode": "loading",
+    "overflow": false,
+    "text": "Mis aulasTus clases, bien organizadas.Organizá tus clases y seguí aprendiendo, en un solo lugar.Unirse con códigoCargando tus aulas…Pendientes 1Tenés una invitaciónGeografía — Aula invitadaLuz Ejemplo te invita a su aula.Vence el 28/11/2026Aceptar invitación",
+    "tabs": []
+  },
+  {
+    "screen": "collection",
+    "role": "student",
+    "mode": "long",
+    "overflow": false,
+    "text": "Mis aulasTus clases, bien organizadas.Organizá tus clases y seguí aprendiendo, en un solo lugar.Unirse con códigoPendientes 1Tenés una invitaciónGeografía — Aula invitadaLuz Ejemplo te invita a su aula.Vence el 28/11/2026Aceptar invitaciónTus aulasActivas · 1Archivadas · 0Buscar aulaMás filtrosActivaHistoria — Mundos conectados: investigación interdisciplinaria sobre nuestra comunidad y sus transformacionesHistoria · División interdisciplinaria ADocente: Docente de ejemplo con nombre deliberadamente extensoCiclo lectivo: 2026Entrar al aula Mostrando 1 de 1 aulas",
+    "tabs": []
+  },
+  {
+    "screen": "collection",
+    "role": "student",
+    "mode": "archived",
+    "overflow": false,
+    "text": "Mis aulasTus clases, bien organizadas.Organizá tus clases y seguí aprendiendo, en un solo lugar.Unirse con códigoPendientes 1Tenés una invitaciónGeografía — Aula invitadaLuz Ejemplo te invita a su aula.Vence el 28/11/2026Aceptar invitaciónTus aulasActivas · 0Archivadas · 1Buscar aulaMás filtrosNo tenés aulas activas.Mostrando 0 de 1 aulas",
+    "tabs": []
+  },
+  {
+    "screen": "interior",
+    "role": "teacher",
+    "mode": "empty",
+    "overflow": false,
+    "text": "Volver a mis aulasBiología · 3º A · Ciclo lectivo 2026Ciencias NaturalesTu aula como docenteInformación del aulaDocente: Alex PruebaZona horaria: America/Argentina/Buenos_AiresPlanMuroBibliotecaActividadesProgresoAlumnosHistorialConfiguraciónPlanPlan de estudioOrganizá los temas, explorá materiales y acompañá el aprendizaje.Actualizar PlanUnidadesNo hay temas en el plan de esta aula.Administrar plan Unidades, temas y versiones del archivoNueva versión del archivoArchivo del plan (PDF o DOCX)Agregar unidadNueva unidadAgregar unidad",
+    "tabs": [
+      "plan",
+      "wall",
+      "library",
+      "activities",
+      "progress",
+      "members",
+      "history",
+      "settings"
+    ]
+  },
+  {
+    "screen": "interior",
+    "role": "teacher",
+    "mode": "error",
+    "overflow": false,
+    "text": "Volver a mis aulasNo pudimos cargar esta aula. Actualizar aula",
+    "tabs": []
+  },
+  {
+    "screen": "interior",
+    "role": "teacher",
+    "mode": "loading",
+    "overflow": false,
+    "text": "Volver a mis aulasCargando aula…",
+    "tabs": []
+  },
+  {
+    "screen": "interior",
+    "role": "teacher",
+    "mode": "long",
+    "overflow": false,
+    "text": "Volver a mis aulasBiología · 3º A · Ciclo lectivo 2026Ciencias Naturales: exploración interdisciplinaria de ecosistemas y biodiversidadTu aula como docenteInformación del aulaDocente: Alex PruebaZona horaria: America/Argentina/Buenos_AiresPlanMuroBibliotecaActividadesProgresoAlumnosHistorialConfiguraciónPlanPlan de estudioOrganizá los temas, explorá materiales y acompañá el aprendizaje.Actualizar PlanTema del planLa célula y sus funciones · SiguienteOrganización de los seres vivos · PendienteRelaciones entre especies · DadoUnidades1Los seres vivos2 temas0%›Elegir temaLa célula y sus funcionesSiguienteOrganización de los seres vivosPendiente2Ecosistemas y biodiversidad1 tema100%›Los seres vivos › Tema 1 de 2La célula y sus funcionesSiguienteActualizar avance del temaAvance de este temaPendienteLo vemos a continuaciónYa lo trabajamosIndica lo trabajado en clase; no cambia las calificaciones.1 Explorá el materialLeé y explorá el material para comprender los conceptos principales.Guía de estudio: la célula y sus funcionesguia-celula.pdfAbrir material2 Poné en prácticaRealizá las actividades para aplicar lo aprendido.Trabajo práctico · PublicadaLa célula y sus funciones6 nov 2026, 18:00 · America/Argentina/Buenos_AiresAbrir actividadCuestionario · Borrador privadoAutoevaluación de la unidad6 nov 2026, 18:00 · America/Argentina/Buenos_AiresAbrir actividadAdministrar plan Unidades, temas y versiones del archivoNueva versión del archivoArchivo del plan (PDF o DOCX)Unidad 1 · Los seres vivosAdministrar unidad · Los seres vivosAdministrar Los seres vivosNombre de la unidadRenombrar unidadSubir unidadBajar unidadEliminar unidadLa célula y sus funcionesSiguienteEstado de La célula y sus funcionesPendienteSiguienteDadoAdministrar tema · La célula y sus funcionesAdministrar La célula y sus funcionesNombre del temaRenombrar temaSubir temaBajar temaEliminar temaOrganización de los seres vivosPendienteEstado de Organización de los seres vivosPendienteSiguienteDadoAdministrar tema · Organización de los seres vivosAdministrar Organización de los seres vivosNombre del temaRenombrar temaSubir temaBajar temaEliminar temaAgregar tema a Los seres vivosAgregar tema a Los seres vivosNuev",
+    "tabs": [
+      "plan",
+      "wall",
+      "library",
+      "activities",
+      "progress",
+      "members",
+      "history",
+      "settings"
+    ]
+  },
+  {
+    "screen": "interior",
+    "role": "teacher",
+    "mode": "archived",
+    "overflow": false,
+    "text": "Volver a mis aulasBiología · 3º A · Ciclo lectivo 2026Ciencias NaturalesTu aula como docenteInformación del aulaDocente: Alex PruebaZona horaria: America/Argentina/Buenos_AiresAula archivada · Podés consultar el contenido. No se pueden publicar ni editar materiales o actividades.PlanMuroBibliotecaActividadesProgresoAlumnosHistorialConfiguraciónPlanPlan de estudioOrganizá los temas, explorá materiales y acompañá el aprendizaje.Actualizar PlanTema del planLa célula y sus funciones · SiguienteOrganización de los seres vivos · PendienteRelaciones entre especies · DadoUnidades1Los seres vivos2 temas0%›Elegir temaLa célula y sus funcionesSiguienteOrganización de los seres vivosPendiente2Ecosistemas y biodiversidad1 tema100%›Los seres vivos › Tema 1 de 2La célula y sus funcionesSiguiente1 Explorá el materialLeé y explorá el material para comprender los conceptos principales.Guía de estudio: la célula y sus funcionesguia-celula.pdfAbrir material2 Poné en prácticaRealizá las actividades para aplicar lo aprendido.Trabajo práctico · PublicadaLa célula y sus funciones6 nov 2026, 18:00 · America/Argentina/Buenos_AiresAbrir actividadCuestionario · Borrador privadoAutoevaluación de la unidad6 nov 2026, 18:00 · America/Argentina/Buenos_AiresAbrir actividad",
+    "tabs": [
+      "plan",
+      "wall",
+      "library",
+      "activities",
+      "progress",
+      "members",
+      "history",
+      "settings"
+    ]
+  },
+  {
+    "screen": "interior",
+    "role": "student",
+    "mode": "empty",
+    "overflow": false,
+    "text": "Volver a mis aulasBiología · 3º A · Ciclo lectivo 2026Ciencias NaturalesDocente: Alex PruebaInformación del aulaDocente: Alex PruebaZona horaria: America/Argentina/Buenos_AiresPlanMuroBibliotecaActividadesMi progresoCompañerosPlanPlan de estudioOrganizá los temas, explorá materiales y acompañá el aprendizaje.Actualizar PlanUnidadesNo hay temas en el plan de esta aula.Salir del aula",
+    "tabs": [
+      "plan",
+      "wall",
+      "library",
+      "activities",
+      "progress",
+      "members"
+    ]
+  },
+  {
+    "screen": "interior",
+    "role": "student",
+    "mode": "error",
+    "overflow": false,
+    "text": "Volver a mis aulasNo pudimos cargar esta aula. Actualizar aula",
+    "tabs": []
+  },
+  {
+    "screen": "interior",
+    "role": "student",
+    "mode": "loading",
+    "overflow": false,
+    "text": "Volver a mis aulasCargando aula…",
+    "tabs": []
+  },
+  {
+    "screen": "interior",
+    "role": "student",
+    "mode": "long",
+    "overflow": false,
+    "text": "Volver a mis aulasBiología · 3º A · Ciclo lectivo 2026Ciencias Naturales: exploración interdisciplinaria de ecosistemas y biodiversidadDocente: Alex PruebaInformación del aulaDocente: Alex PruebaZona horaria: America/Argentina/Buenos_AiresPlanMuroBibliotecaActividadesMi progresoCompañerosPlanPlan de estudioOrganizá los temas, explorá materiales y acompañá el aprendizaje.Actualizar PlanTema del planLa célula y sus funciones · SiguienteOrganización de los seres vivos · PendienteRelaciones entre especies · DadoUnidades1Los seres vivos2 temas0%›Elegir temaLa célula y sus funcionesSiguienteOrganización de los seres vivosPendiente2Ecosistemas y biodiversidad1 tema100%›Los seres vivos › Tema 1 de 2La célula y sus funcionesSiguiente1 Explorá el materialLeé y explorá el material para comprender los conceptos principales.Guía de estudio: la célula y sus funcionesguia-celula.pdfAbrir material2 Poné en prácticaRealizá las actividades para aplicar lo aprendido.Trabajo práctico · PublicadaLa célula y sus funciones6 nov 2026, 18:00 · America/Argentina/Buenos_AiresAbrir actividadSalir del aula",
+    "tabs": [
+      "plan",
+      "wall",
+      "library",
+      "activities",
+      "progress",
+      "members"
+    ]
+  },
+  {
+    "screen": "interior",
+    "role": "student",
+    "mode": "archived",
+    "overflow": false,
+    "text": "Volver a mis aulasBiología · 3º A · Ciclo lectivo 2026Ciencias NaturalesDocente: Alex PruebaInformación del aulaDocente: Alex PruebaZona horaria: America/Argentina/Buenos_AiresAula archivada · Podés consultar el contenido. No se pueden publicar ni editar materiales o actividades.PlanMuroBibliotecaActividadesMi progresoCompañerosPlanPlan de estudioOrganizá los temas, explorá materiales y acompañá el aprendizaje.Actualizar PlanTema del planLa célula y sus funciones · SiguienteOrganización de los seres vivos · PendienteRelaciones entre especies · DadoUnidades1Los seres vivos2 temas0%›Elegir temaLa célula y sus funcionesSiguienteOrganización de los seres vivosPendiente2Ecosistemas y biodiversidad1 tema100%›Los seres vivos › Tema 1 de 2La célula y sus funcionesSiguiente1 Explorá el materialLeé y explorá el material para comprender los conceptos principales.Guía de estudio: la célula y sus funcionesguia-celula.pdfAbrir material2 Poné en prácticaRealizá las actividades para aplicar lo aprendido.Trabajo práctico · PublicadaLa célula y sus funciones6 nov 2026, 18:00 · America/Argentina/Buenos_AiresAbrir actividadCuestionario · Borrador privadoAutoevaluación de la unidad6 nov 2026, 18:00 · America/Argentina/Buenos_AiresAbrir actividadSalir del aula",
+    "tabs": [
+      "plan",
+      "wall",
+      "library",
+      "activities",
+      "progress",
+      "members"
+    ]
+  }
+]

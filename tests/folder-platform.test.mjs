@@ -117,11 +117,12 @@ test('ClassroomView SSR retains exit/loading state without inventing server clas
 });
 
 test('ClassroomView retains the complete navigation definition and teacher-only tab guards', () => {
-  const source = read('apps/classrooms-ui/ClassroomView.tsx');
-  const nav = source.slice(source.indexOf('aria-label="Secciones del aula"'), source.indexOf('</nav>', source.indexOf('aria-label="Secciones del aula"')));
-  for (const key of ['members', 'history', 'plan', 'library', 'activities', 'progress', 'wall', 'settings']) assert.match(nav, new RegExp(`key:\\s*['"]${key}['"]`));
-  for (const key of ['history', 'settings']) assert.match(nav, new RegExp(`teacher\\s*\\?\\s*\\[\\{\\s*key:\\s*['"]${key}['"]`));
-  assert.match(nav, /teacher\s*\?\s*'Alumnos'\s*:\s*'Compañeros'/);
-  assert.match(nav, /teacher\s*\?\s*'Progreso'\s*:\s*'Mi progreso'/);
-  assert.match(nav, /aria-current=\{tab === item.key \? 'page' : undefined\}/);
+  const {classroomSections}=loadTsModule('apps/classrooms-ui/ClassroomNavigation.tsx');
+  assert.deepEqual(classroomSections(true).map(item=>item.key),['plan','wall','library','activities','progress','members','history','settings']);
+  const student=classroomSections(false);
+  assert.equal(student.length,6);
+  assert.ok(!student.some(item=>item.key==='history'||item.key==='settings'));
+  assert.equal(student.find(item=>item.key==='members').label,'Compañeros');
+  assert.equal(student.find(item=>item.key==='progress').label,'Mi progreso');
+  assert.match(read('apps/classrooms-ui/ClassroomView.tsx'),/tab === 'settings' && teacher/);
 });

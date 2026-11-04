@@ -27,7 +27,7 @@ test('D4 contextual Plan selects NEXT, filters real multitema activities/materia
     assert.equal(selected.length, 1); assert.match(text(selected[0]), /Siguiente/);
     const initial = text(view.tree); assert.match(initial, /Documento visible/); assert.match(initial, /Actividad multitema/);
     assert.doesNotMatch(initial, /Archivo inseguro|Documento otro tema|Actividad otro tema/);
-    const activity = descendants(view.tree, node => node.type === 'button' && text(node).includes('Actividad multitema'))[0];
+    const activity = descendants(view.tree, node => node.type === 'button' && node.props['aria-label'] === 'Abrir actividad: Actividad multitema')[0];
     assert.ok(activity); activity.props.onClick(); assert.deepEqual(opened, ['multi']);
     assert.ok(descendants(view.tree, node => node.type === 'a' && node.props.href === '/protected/file?preview=true').length);
     const pending = descendants(nav, node => node.type === 'button' && text(node).includes('Pendiente'))[0];

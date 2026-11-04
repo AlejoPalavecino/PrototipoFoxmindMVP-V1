@@ -37,33 +37,32 @@ test('D3 search normalizes Unicode compatibility and case across name, subject a
 
 const text = value => typeof value === 'string' || typeof value === 'number' ? String(value)
   : Array.isArray(value) ? value.map(text).join('') : value?.props ? text(value.props.children) : '';
-test('D3 collection defaults to all cards and role controls filter the same scoped collection accessibly', async () => {
+test('D3 collection shows active rooms in stable order and replaces role controls with state controls', async () => {
   const { ClassroomCollection } = loadTsModule('apps/classrooms-ui/ClassroomCollection.tsx');
-  const view = hookView(ClassroomCollection, { teach: [room('teach', 'teacher')], study: [room('study', 'student')], search: '', onEnter() {} });
+  const archived = { ...room('old', 'teacher'), archived: true };
+  const view = hookView(ClassroomCollection, { teach: [room('teach', 'teacher'), archived], study: [room('study', 'student')], search: '', onEnter() {} });
   try {
     await view.flush();
     const buttons = () => descendants(view.tree, node => node.type === 'button');
-    const all = buttons().find(node => /Todas/.test(text(node)));
-    assert.ok(all, 'All roles have one default collection'); assert.equal(all.props['aria-pressed'], true);
-    assert.equal(text(all), 'Todas · 2');
+    const active = () => buttons().find(node => /^Activas/.test(text(node)));
+    const old = () => buttons().find(node => /^Archivadas/.test(text(node)));
+    assert.equal(active().props['aria-pressed'], true);
+    assert.equal(text(active()), 'Activas · 2');
+    assert.equal(text(old()), 'Archivadas · 1');
+    assert.equal(buttons().some(node => /Todas|Donde enseño|Donde estudio/.test(text(node))), false, 'obsolete role controls are absent from JSX');
     const cards = () => descendants(view.tree, node => node.type?.name === 'ClassroomCard').map(node => node.props.room.id);
     assert.deepEqual(cards(), ['study', 'teach']);
-    const study = buttons().find(node => /Donde estudio/.test(text(node))); assert.ok(study);
-    assert.equal(text(study), 'Donde estudio · 1');
-    study.props.onClick(); await view.flush(); assert.deepEqual(cards(), ['study']);
-    assert.equal(buttons().find(node => /Donde estudio/.test(text(node))).props['aria-pressed'], true);
-    const teach = buttons().find(node => /Donde enseño/.test(text(node))); assert.ok(teach);
-    assert.equal(text(teach), 'Donde enseño · 1');
-    teach.props.onClick(); await view.flush(); assert.deepEqual(cards(), ['teach']);
+    old().props.onClick(); await view.flush(); assert.deepEqual(cards(), ['old']);
+    assert.equal(old().props['aria-pressed'], true);
+    active().props.onClick(); await view.flush(); assert.deepEqual(cards(), ['study', 'teach']);
   } finally { view.close(); }
 });
-
 test('D3 a search with no matches never claims the account has no memberships', async () => {
   const { ClassroomCollection } = loadTsModule('apps/classrooms-ui/ClassroomCollection.tsx');
   const view = hookView(ClassroomCollection, { teach: [room('teach', 'teacher')], study: [], search: 'no-match-unique', onEnter() {} });
   try {
     await view.flush(); assert.match(text(view.tree), /No hay coincidencias/i);
     assert.doesNotMatch(text(view.tree), /Aún no tenés aulas/i);
-    assert.equal(text(descendants(view.tree, node => node.type === 'button').find(node => /Todas/.test(text(node)))), 'Todas · 1');
+    assert.equal(text(descendants(view.tree, node => node.type === 'button').find(node => /^Activas/.test(text(node)))), 'Activas · 1');
   } finally { view.close(); }
 });

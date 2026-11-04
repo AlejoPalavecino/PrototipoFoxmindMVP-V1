@@ -52,6 +52,7 @@ export function Progress({ api, classroomId, studentId }: { api: ClassroomClient
         </section>
         <section aria-label="Rendimiento académico">
           <h3><EntryIcon name="plus-circle-fill" /> Rendimiento académico</h3>
+          <p className="classroom-metric-caption">Calificaciones publicadas</p>
           <div className="p8-metric-body">
             {data.performance.average === null ? <p>Sin calificaciones publicadas</p> : <Ring value={data.performance.average} label="promedio" percent={false} />}
             <div className="p8-metric-details"><p>{data.scope === 'classroom' ? `${data.performance.gradedStudents} estudiantes con calificaciones publicadas` : `${data.performance.graded} ${data.performance.graded === 1 ? 'actividad' : 'actividades'} con calificación publicada`}</p></div>

@@ -6,14 +6,14 @@ import { activityDate, activityTypeLabels } from './ActivityAuthoring.tsx';
 function materialRow(api: ClassroomClient, material: Material) {
   return <article className="fm3-plan-resource" key={material.id}>
     <div><h4>{material.title}</h4><p>{material.fileName}</p></div>
-    <a href={api.fileUrl(material.fileId, canPreviewMaterial(material) && material.previewable)} target="_blank" rel="noreferrer">Abrir material →</a>
+    <a aria-label={`Abrir material: ${material.title}`} href={api.fileUrl(material.fileId, canPreviewMaterial(material) && material.previewable)} target="_blank" rel="noreferrer">Abrir material</a>
   </article>;
 }
 function activityRow(activity: ActivitySummary, onOpen: (id: string) => void) {
   return <article className="fm3-plan-resource is-activity" key={activity.id}>
     <div><small>{activityTypeLabels[activity.type]} · {activity.status === 'DRAFT' ? 'Borrador privado' : activity.status === 'WITHDRAWN' ? 'Retirada' : 'Publicada'}</small>
       <h4>{activity.title ?? 'Borrador sin título'}</h4>{activity.zone ? <p>{activityDate(activity.deadlineAt, activity.zone)}</p> : null}</div>
-    <button className="primary" onClick={() => onOpen(activity.id)}>Abrir actividad · {activity.title ?? 'Borrador sin título'} →</button>
+    <button className="primary" aria-label={`Abrir actividad: ${activity.title ?? 'Borrador sin título'}`} onClick={() => onOpen(activity.id)}>Abrir actividad</button>
   </article>;
 }
 export function PlanWorkspace({ api, room, onOpenActivity, onTopicState, busy = false }: {

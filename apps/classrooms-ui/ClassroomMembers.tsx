@@ -1,4 +1,4 @@
-import type { Dispatch, SetStateAction, MutableRefObject } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 import type { ClassroomClient, Detail, Invitation } from './api.ts';
 import { Notice } from './components.tsx';
 import { EntryIcon } from '../shared-ui/EntryIcon';
@@ -15,9 +15,8 @@ type Props = {
 export function ClassroomMembers({ api, id, room, busy, code, setCode, setNotice, setConfirm,
   isCurrentRoom, invitations, invitationAction, invitationResource, action }: Props) {
   return (
-                  <aside className="classroom-members-aside">
+                  <aside className="classroom-members-aside" aria-label="Acceso e invitaciones al aula">
                     <section className="classroom-members-code">
-                    <hr />
                     <h3><EntryIcon name="grid" /> Código del aula</h3>
                     <p>
                       Solo sirve para el primer ingreso. Para reingresar, hace
@@ -67,7 +66,7 @@ export function ClassroomMembers({ api, id, room, busy, code, setCode, setNotice
                     {invitationResource.status === 'ready' && invitations.length === 0 ? (
                       <p>No hay invitaciones enviadas.</p>
                     ) : (
-                      <ul className="p5-invite-list">
+                      <ul className="p5-invite-list" aria-label="Estado de invitaciones enviadas">
                         {invitations.map((invitation) => (
                           <li key={invitation.id}>
                             <span>

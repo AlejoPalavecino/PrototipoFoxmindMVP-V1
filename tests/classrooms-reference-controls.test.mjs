@@ -36,29 +36,29 @@ test('advanced controls derive global options and preserve criteria when closed'
     const options = label => descendants(select(view, label), n => n.type === 'option').map(n => String(n.props.value));
     assert.deepEqual(options('Ciclo lectivo'), ['', '2026', '2025']);
     assert.deepEqual(options('División'), ['', 'A', 'B', 'C']);
-    select(view, 'Estado').props.onChange({ target: { value: 'archived' } }); await view.flush();
+    button(view, 'Archivadas').props.onClick(); await view.flush();
     assert.deepEqual(cards(view).map(n => n.props.room.id), ['old']);
-    assert.equal(text(button(view, 'Todas')), 'Todas · 3');
+    assert.equal(text(button(view, 'Archivadas')), 'Archivadas · 1');
     assert.match(text(view.tree), /Mostrando 1 de 3 aulas/);
     assert.deepEqual(options('Ciclo lectivo'), ['', '2026', '2025']);
     button(view, 'Más filtros').props.onClick(); await view.flush();
     assert.equal(button(view, 'Más filtros').props['aria-expanded'], false);
     assert.deepEqual(cards(view).map(n => n.props.room.id), ['old']);
-    assert.match(text(button(view, 'Más filtros')), /1/, 'closed disclosure exposes active criteria');
+    assert.equal(button(view, 'Archivadas').props['aria-pressed'], true, 'state remains visible outside the disclosure');
   } finally { view.close(); }
 });
 
-test('clearing only advanced criteria preserves role and parent-owned search', async () => {
+test('clearing only advanced criteria preserves state and parent-owned search', async () => {
   const { view, searched } = await setup('Ada');
   try {
-    button(view, 'Donde enseño').props.onClick(); await view.flush();
+    button(view, 'Archivadas').props.onClick(); await view.flush();
     const more = button(view, 'Más filtros'); assert.ok(more); more.props.onClick(); await view.flush();
     select(view, 'Ciclo lectivo').props.onChange({ target: { value: '2025' } }); await view.flush();
     select(view, 'División').props.onChange({ target: { value: 'C' } }); await view.flush();
     assert.equal(cards(view).length, 0); assert.match(text(view.tree), /No hay coincidencias/i);
     const clear = button(view, 'Limpiar filtros'); assert.ok(clear); clear.props.onClick(); await view.flush();
-    assert.equal(button(view, 'Donde enseño').props['aria-pressed'], true);
-    assert.deepEqual(cards(view).map(n => n.props.room.id), ['teacher', 'old']);
+    assert.equal(button(view, 'Archivadas').props['aria-pressed'], true);
+    assert.deepEqual(cards(view).map(n => n.props.room.id), ['old']);
     assert.equal(descendants(view.tree, n => n.type === 'input' && n.props.type === 'search')[0].props.value, 'Ada');
     assert.deepEqual(searched, [], 'clearing advanced criteria does not clear the parent search');
   } finally { view.close(); }
@@ -70,7 +70,6 @@ test('grid/list switches preserve result ordering and exact entry callbacks', as
     const grid = button(view, 'Vista de tarjetas'), list = button(view, 'Vista de lista');
     assert.ok(grid); assert.ok(list); assert.equal(grid.props['aria-pressed'], true);
     assert.equal(list.props.type, 'button');
-    button(view, 'Donde estudio').props.onClick(); await view.flush();
     const before = cards(view).map(n => n.props.room.id);
     list.props.onClick(); await view.flush();
     assert.equal(button(view, 'Vista de lista').props['aria-pressed'], true);
@@ -79,7 +78,7 @@ test('grid/list switches preserve result ordering and exact entry callbacks', as
       const enter = descendants(card.type(card.props), n => n.type === 'button' && text(n).startsWith('Entrar al aula'))[0];
       assert.ok(enter); enter.props.onClick();
     }
-    assert.deepEqual(entered, ['student']);
+    assert.deepEqual(entered, ['student', 'teacher']);
     button(view, 'Vista de tarjetas').props.onClick(); await view.flush();
     assert.deepEqual(cards(view).map(n => n.props.room.id), before);
   } finally { view.close(); }

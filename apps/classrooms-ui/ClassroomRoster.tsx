@@ -1,4 +1,4 @@
-import type { Dispatch, SetStateAction, RefObject, MutableRefObject } from 'react';
+import type { Dispatch, SetStateAction, RefObject } from 'react';
 import type { ClassroomClient, Detail, Member } from './api.ts';
 import { initials } from './components.tsx';
 import { EntryIcon } from '../shared-ui/EntryIcon';
@@ -47,13 +47,13 @@ export function ClassroomRoster({ tab, teacher, room, busy, members, history, me
                   ) : null}
                 </header>
                 {(tab === 'history' ? historyResource : memberResource).status === 'ready' && (tab === 'history' ? history : members).length === 0 ? (
-                  <p className="p5-empty">
+                  <p className="p5-empty" role="status">
                     {tab === 'history'
                       ? 'Todavía no hay salidas registradas.'
                       : 'Todavía no hay estudiantes en el aula.'}
                   </p>
                 ) : null}
-                <ul className="p5-roster" ref={roster}>
+                <ul className="p5-roster" ref={roster} aria-label={tab === 'history' ? 'Inscripciones anteriores' : teacher ? 'Alumnos actuales' : 'Compañeros del aula'}>
                   {(tab === 'history' ? history : members).map(
                     (member, index) => (
                       <li key={member.enrollmentId ?? index}
@@ -66,14 +66,14 @@ export function ClassroomRoster({ tab, teacher, room, busy, members, history, me
                         <span className="p5-avatar" aria-hidden="true">
                           {initials(member.firstName, member.lastName)}
                         </span>
-                        <div>
+                        <div className="classroom-person-details">
                           <strong>
                             {member.firstName} {member.lastName}
                           </strong>
                           {teacher
                             ? member.periods?.map((period, i) => (
                                 <small key={i} className={tab === 'history' ? 'classroom-history-date' : undefined}>
-                                  {new Date(period.joinedAt).toLocaleDateString(
+                                  Ingreso: {new Date(period.joinedAt).toLocaleDateString(
                                     'es-AR',
                                   )}{' '}
                                   —{' '}
@@ -86,7 +86,7 @@ export function ClassroomRoster({ tab, teacher, room, busy, members, history, me
                         </div>
                         {teacher ? (
                           <div className="p5-actions">
-                            <button
+                            <button className="classroom-person-summary"
                               data-open-summary
                               disabled={busy}
                               onClick={() =>
