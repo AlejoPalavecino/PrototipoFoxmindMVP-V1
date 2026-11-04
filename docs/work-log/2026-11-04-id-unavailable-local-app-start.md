@@ -53,3 +53,9 @@ Sin commits ni cambios de producto. Registro operativo local; stash y worktrees 
 ## Handoff
 
 Arranque completado. El usuario puede probar en http://127.0.0.1:52171/sign-in; API, Next y los cuatro servicios retenidos permanecen activos. Sin tareas pendientes dentro de este alcance. Para detener, usar el supervisor observado y sus procesos propios, preservando volúmenes/backup; no cerrar recursos ajenos. Sin seed/reset ni proveedor real. Stash intacto y registro propio local sin commit. El respaldo tiene índice validado, sin ensayo de restauración completa. No se verificó login ni operación académica autenticada en este arranque.
+
+## Cierre posterior solicitado por el usuario
+
+El usuario pidió «Cerra la app». Se verificaron supervisor 19192, árbol descendiente y listeners 52170/52171. Stop-Process se limitó a los nodos propios observados 48084, 16088 y 12236 tras verificar sus comandos; el supervisor cerró después, retirando operation.lock. `docker stop` de los cuatro contenedores exactos main-gemini (mail, scanner, s3, db) terminó con exit 0. No se cerró Docker Desktop ni servicios ajenos.
+
+Comprobación final: cero procesos de esos IDs, cero listeners API/web y cero contenedores activos con la etiqueta de este entorno. Permanecen los tres volúmenes db-data/mail-data/s3-data y el backup before-library-retry-20261104-1793807785610.dump; no se eliminaron contenedores, datos ni archivos privados. Sin cambios de producto ni commits. Handoff vigente: aplicación detenida; el próximo arranque debe usar el lanzador retenido con guard de 37 migraciones y conservar este entorno.
