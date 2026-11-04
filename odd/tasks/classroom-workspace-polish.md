@@ -70,6 +70,8 @@ Mantener stack, APIs, modelos, permisos, destinos explícitos, carga independien
 
 Entrega posterior autorizada por el usuario: «Realiza los comitts and push y mergea todo a main si es necesario». La restricción de no publicar anterior describe la etapa de implementación; esta instrucción autoriza integrar y publicar el mismo candidato verificado, sin despliegue. Seguimiento en [registro de publicación](../../docs/work-log/2026-11-04-id-unavailable-classroom-workspace-publication.md).
 
+Publicación comprobada: AULA-001–006 incluidas en f5933bfeda76ec2caf1526e448245eaee8c23180, integrado por fast-forward a main y confirmado por lectura remota. Rama de trabajo integrada retirada. Commit documental de cierre posterior conserva esta evidencia; no modifica el candidato de producto.
+
 Solo root actualiza este registro. Workers escriben únicamente sus superficies y su registro propio; no hay escritores simultáneos del plan/roadmap. Implementación no equivale a DONE. Primer paso: RED de criterios de colección/nav y trabajo en superficies disjuntas; root conserva integración, QA y entrega.
 
 Actualización de coordinación: AULA-003 puede desarrollarse contra el contrato de componentes existente sin esperar el cierre visual de AULA-002; la dependencia común de integración se comprueba en AULA-005. Se ajusta la dependencia de planificación, sin ampliar alcance. Validator TTP exige Approval exactamente approved; el texto de autorización se conserva aparte. No había una aprobación humana faltante.

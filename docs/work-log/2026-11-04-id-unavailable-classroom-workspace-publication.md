@@ -6,7 +6,7 @@
 - Branch / worktree: codex/classroom-workspace-polish, checkout principal; destino main.
 - Starting commit: b0393247ba104f275fd6c4b2296fdee591ca7661.
 - Phase and detailed task/spec links: entrega R1 de [plan implementado](../../odd/tasks/classroom-workspace-polish.md).
-- Status: in_progress.
+- Status: completed.
 
 ## Request and scope
 
@@ -24,8 +24,10 @@ Candidato congelado:31/31 hashes iguales al aprobado; `git diff --check` exit0; 
 
 ## Commits and outcomes
 
-Pendiente crear commit, integrar main y verificar publicación por lectura remota. No se inventan hashes ni se da por hecho un push.
+Commit de producto f5933bfeda76ec2caf1526e448245eaee8c23180, `feat(classrooms): polish collection and classroom workspaces`. main integrado por fast-forward sin conflictos desde b039324. `git push origin main` exit0; `git ls-remote --heads origin main` confirmó exactamente f5933bfeda76ec2caf1526e448245eaee8c23180, igual a HEAD. `main...origin/main`:0/0. Rama integrada codex/classroom-workspace-polish retirada con git branch -d; no se publicó rama auxiliar remota. Solo main local y origin/main remoto. Árbol limpio antes de este cierre documental; app /sign-in HTTP200. Stash fcef243 conservado.
+
+El siguiente commit documental registra este resultado comprobado y se publica también a main. Su propio hash no se inventa en este archivo; la comprobación final de igualdad local/remota se informa tras el push. Ningún cambio de código posterior al candidato revisado.
 
 ## Handoff
 
-Crear commit de producto, integrar por fast-forward si las refs lo permiten, push main y comprobar igualdad exacta. Retirar rama integrada propia; no borrar worktrees históricos ni stash fcef243.
+Entrega de producto integrada/publicada. Finalizar únicamente el commit de este cierre documental y verificar refs/árbol limpio. No tareas funcionales pendientes; worktrees históricos y stash intactos. No despliegue.
