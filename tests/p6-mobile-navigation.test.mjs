@@ -13,8 +13,8 @@ test('mobile notification opening and responsive reflow reveal the active classr
       const teacher = await (await browser.newContext()).newPage();
       const student = await (await browser.newContext({ viewport: { width: 320, height: 900 } })).newPage();
       const suffix = Date.now();
-      await account(teacher, runtime.origin, runtime.inbox, `mobile-teacher-${suffix}@example.test`);
-      await account(student, runtime.origin, runtime.inbox, `mobile-student-${suffix}@example.test`);
+      await account(teacher, runtime.origin, runtime.inbox, `mobile-teacher-${suffix}@example.test`, undefined, 'teacher');
+      await account(student, runtime.origin, runtime.inbox, `mobile-student-${suffix}@example.test`, undefined, 'student');
       const room = await classroom(teacher, student, 'Mobile notification classroom');
       const detail = (await api(teacher, 'GET', `/classrooms/${room.id}`)).body;
       assert.equal((await api(teacher, 'POST', `/classrooms/${room.id}/wall`, {

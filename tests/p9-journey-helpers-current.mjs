@@ -1,13 +1,79 @@
 // Current UI adapter of questionnaireJourney from the frozen P9 historical helper.
-// Original SHA256 dc34cbcb6a786a3225ffc15301c56ddf3b486424b67601b3a9f23f11213d7093 remains unchanged.
+// The historical helper and its fixed SHA remain unchanged.
 // Adapts only current UI disclosures, confirmation, receipt, published grade and question-score presentation.
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
-import { openClassroom } from './p6-integration-helpers.mjs';
+import { mkdtemp, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { chromium } from '@playwright/test';
+import { withP4IntegrationRuntime } from '../scripts/p4-integration-runtime.mjs';
+import { account } from './p4-integration-helpers.mjs';
+import { classroom, openClassroom } from './p6-integration-helpers.mjs';
 import { startBrowserAttempt } from './helpers/browser-admission-step.mjs';
 import { rootOf, inviteExplicitly, createActivity, ok, openActivity, session, rejectUnchanged,
   request, editorHeaders, academicHash, assertPublishedQuestions } from './p9-journey-helpers.mjs';
 export * from './p9-journey-helpers.mjs';
+
+/** A new real account/captured email and owned disposable fixture for each coherent journey. */
+export async function withJourney(label, run, { peer = false, classroomQuotaBytes } = {}) {
+  const options = { classrooms: true, ...(classroomQuotaBytes === undefined ? {} : { classroomQuotaBytes }) };
+  return withP4IntegrationRuntime(async runtime => {
+    const scratch = await mkdtemp(join(tmpdir(), `foxmind-p9-${label}-`));
+    console.log(`P9 ${label} retained evidence: ${scratch}`);
+    const browser = await chromium.launch({ headless: true }), pages = [], errors = [], responses = [], pendingResponses = new Set();
+    const observe = page => {
+      const index = pages.length; pages.push(page);
+      page.setDefaultTimeout(12000); page.on('pageerror', error => errors.push(error.message));
+      page.on('requestfailed', request => {
+        const path = new URL(request.url()).pathname;
+        if (path.startsWith('/api/v1/')) responses.push({ page: index, path, method: request.method(), failed: true });
+      });
+      page.on('response', response => {
+        const path = new URL(response.url()).pathname;
+        if (!path.startsWith('/api/v1/')) return;
+        const row = { page: index, path, method: response.request().method(), status: response.status(), complete: false };
+        responses.push(row);
+        const task = response.finished().then(error => { row.complete = !error; }).catch(() => { row.failed = true; });
+        pendingResponses.add(task); void task.finally(() => pendingResponses.delete(task));
+      });
+    };
+    try {
+      const newActor = async (role, width) => {
+        const context = await browser.newContext({ viewport: { width, height: 900 } });
+        context.on('page', observe); const page = await context.newPage();
+        const email = `p9-${label}-${role}-${Date.now()}@example.test`;
+        const user = await account(page, runtime.origin, runtime.inbox, email, undefined, role === 'teacher' ? 'teacher' : 'student');
+        return { page, user, email };
+      };
+      const T = await newActor('teacher', 1280), S = await newActor('student', 375);
+      const P = peer ? await newActor('peer', 1280) : undefined;
+      const room = await classroom(T.page, S.page, `P9 ${label} classroom`);
+      await run({ label, runtime, browser, scratch, T, S, P, room, errors });
+      assert.deepEqual(errors, []);
+      for (const page of pages) {
+        const alerts = await page.getByRole('alert').evaluateAll(nodes => nodes.filter(node =>
+          !(node.tagName === 'P' && node.id === '__next-route-announcer__' && node.getAttribute('aria-live') === 'assertive'))
+          .map(node => ({ tag: node.tagName, id: node.id, text: node.textContent,
+            owner: node.closest('section')?.getAttribute('aria-label') })));
+        assert.deepEqual(alerts, [], 'Unknown application alerts must not be mistaken for route announcements');
+      }
+    } catch (error) {
+      for (const [index, page] of pages.entries()) {
+        const alerts = await page.getByRole('alert').evaluateAll(nodes => nodes.map(n => ({ tag: n.tagName, id: n.id,
+          live: n.getAttribute('aria-live'), text: n.textContent, owner: n.closest('section')?.getAttribute('aria-label') })));
+        console.error(`P9 ${label} page${index} alert diagnostics`, JSON.stringify(alerts));
+        await page.screenshot({ path: join(scratch, `failure-${index}.png`), fullPage: true }).catch(() => {});
+      }
+      throw error;
+    } finally {
+      try { await browser.close(); }
+      finally {
+        await Promise.all([...pendingResponses]);
+        await writeFile(join(scratch, 'safe-responses.json'), `${JSON.stringify(responses, null, 2)}\n`);
+      }
+    }
+  }, options);
+}
 
 export async function openOwnResult(world, activity, attemptId) {
   const { S, room, runtime } = world;
