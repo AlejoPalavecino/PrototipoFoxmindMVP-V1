@@ -22,7 +22,7 @@ Este resumen distingue lo integrado, lo verificado y los límites de las pruebas
 
 ## Cómo retomar
 
-El pulido visual de Agenda está implementado y comprobado localmente en `codex/agenda-polish`, sin integración a main: banner v4 aprobado, Foxy visible, CTA integrado, paneles próximos y formulario sin desplegable/resumen. [Tareas](../odd/tasks/agenda-visual-polish.md) · [Evidencia y límites](work-log/2026-11-04-id-unavailable-agenda-polish.md).
+El pulido visual de Agenda está integrado en main local el 2026-11-04, con Inicio y Mis aulas preservados: banner v4 aprobado, Foxy visible, CTA integrado, paneles próximos y formulario sin desplegable/resumen. [Tareas](../odd/tasks/agenda-visual-polish.md) · [Integración y evidencia](work-log/2026-11-04-id-unavailable-agenda-main-integration.md).
 
 Inicio incorpora Taller Cálido con liquid glass, aprobado y verificado localmente el 2026-11-04 para ambos roles. P9 completo cerró con 13 pruebas aprobadas, incluyendo navegación móvil y notificaciones anidadas. [Alcance y tareas](../odd/tasks/home-by-role.md) · [Evidencia actual](work-log/2026-11-04-id-unavailable-home-warm-glass.md). El cierre del 2026-11-03 conserva la evidencia del rediseño anterior.
 

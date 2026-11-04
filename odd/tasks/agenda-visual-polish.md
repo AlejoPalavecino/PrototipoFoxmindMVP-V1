@@ -34,3 +34,9 @@
 
 
 Seguimiento R1 solicitado por el usuario: TASK-001 y TASK-003 reabiertas y cerradas con evidencia en docs/work-log/evidence/2026-11-04-agenda-polish/responsive-followup. Banner sin extensión crema en320–1440px, tipografía Segoe, CTA como Mis aulas y miniilustración156x104. TASK-002 permanece cerrada con sus pruebas anteriores;15focales reejecutadas PASS.
+
+## Entrega local
+-789cbd2: presentación de Agenda con pruebas, arte y evidencia.
+-3423d1b: merge con main actual, conservando Inicio7b2b83d y Mis aulas9fb6422.
+-Integrados en main local el2026-11-04 por autorización explícita;86pruebas del candidato combinadoPASS y66blobs previos idénticos. Sin push ni deploy.
+-Registro vigente: docs/work-log/2026-11-04-id-unavailable-agenda-main-integration.md. Los límites históricos de publicación de esta tarea quedan sustituidos solo para commit e integración local.

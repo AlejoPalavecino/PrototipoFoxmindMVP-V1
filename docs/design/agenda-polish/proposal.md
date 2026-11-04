@@ -1,6 +1,6 @@
 # Agenda — propuesta visual 2026-11-04
 
-Estado: dirección aprobada por el usuario el 2026-11-04; implementada y comprobada localmente en el worktree aislado.
+Estado: dirección aprobada por el usuario el 2026-11-04; implementada y comprobada en worktree aislado e integrada en main local el 2026-11-04 por autorización posterior.
 Alcance solicitado: presentación de Agenda y formulario, en codex/agenda-polish desde a3afdc7.
 
 ## Composición

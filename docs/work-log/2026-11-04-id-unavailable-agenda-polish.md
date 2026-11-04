@@ -93,3 +93,6 @@ El usuario solicita corregir la tarjeta crema que aparece en pantallas pequeñas
 
 
 Cierre del seguimiento: docs:check138archivos/1730enlaces/0issues; diff-check finalPASS tras normalizar ubicación del import y EOF de AgendaHeader. TASK-001 y TASK-003 DONE otra vez con evidencia nueva; TASK-002 no reabierta. Preview actualizada en la misma URL, sin integración a main.
+
+## Integración local autorizada
+Por nueva instrucción explícita del usuario se crearon789cbd2 y3423d1b, y main avanzó de7d85328 al merge3423d1b el2026-11-04. Comprobados66blobs previos exactos,86pruebas de Agenda/Inicio/Mis aulas, tipos, lint, build aislado y QA sintética1440/320. Esta autorización posterior sustituye únicamente el límite previo de no commit/integración. Sin push ni deploy. Ver2026-11-04-id-unavailable-agenda-main-integration.md para cierre y evidencia atribuida.
