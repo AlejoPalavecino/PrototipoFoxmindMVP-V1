@@ -1,9 +1,9 @@
 import { changeDraftStart, changeDraftEnd, setDraftDuration, toggleAllDay } from './event-draft.ts';
-import { zoneLabel } from './event-zones.ts';
+import type { ReactNode } from 'react';
 import type { EventFieldProps } from './EventFields.tsx';
 import { FieldIssue, fieldAria } from './EventFieldIssue.tsx';
 
-export function EventWhenFields({ draft, onChange, issues }: EventFieldProps) {
+export function EventWhenFields({ draft, onChange, issues, children }: EventFieldProps & { children?: ReactNode }) {
   return <section className="agenda-form-group" aria-labelledby="agenda-when"><h3 id="agenda-when">Cuándo</h3>
     <label className="agenda-check"><input type="checkbox" checked={draft.allDay}
       onChange={event => onChange(toggleAllDay(draft, event.target.checked))} />Día completo</label>
@@ -13,7 +13,7 @@ export function EventWhenFields({ draft, onChange, issues }: EventFieldProps) {
       {!draft.allDay ? <label>Hora de inicio<input required name="startTime" type="time" value={draft.startTime}
         onChange={event => onChange(changeDraftStart(draft, { time: event.target.value }))} {...fieldAria(issues, 'startTime')} />
         <FieldIssue issues={issues} field="startTime" /></label> : null}</div>
-    {!draft.allDay ? <><small className="agenda-zone-note">{zoneLabel(draft.zone)}</small>
+    {!draft.allDay ? <>
       <div className="agenda-duration"><span>Duración</span><div className="agenda-chips" role="group" aria-label="Duración">
         {([30, 60, 90] as const).map(minutes => <button type="button" key={minutes}
           aria-pressed={draft.endMode === 'DURATION' && draft.durationMinutes === minutes}
@@ -25,6 +25,7 @@ export function EventWhenFields({ draft, onChange, issues }: EventFieldProps) {
         <FieldIssue issues={issues} field="endTime" /></label> : null}
       <TemporalChoices draft={draft} onChange={onChange} issues={issues} />
     </> : null}
+    {children}
   </section>;
 }
 function TemporalChoices({ draft, onChange, issues }: EventFieldProps) {

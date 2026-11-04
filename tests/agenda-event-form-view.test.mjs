@@ -37,7 +37,8 @@ test('compact fields expose dates and times separately, readable zones and secon
     { api: {}, day, zone, onClose() {}, onSaved() {} }));
   for (const field of ['startDate', 'startTime', 'title']) assert.ok(html.includes(`name="${field}"`));
   assert.match(html, /Hora de Buenos Aires/); assert.ok(!html.includes('type="number"'));
-  assert.ok(!html.includes('datetime-local')); assert.ok(html.includes('<details'));
+  assert.ok(!html.includes('datetime-local')); assert.ok(!html.includes('<details'));
+  assert.match(html, /Ocupa varios días/);
   assert.match(html, /30/); assert.match(html, /60/); assert.match(html, /90/);
   assert.match(html, /Clase/); assert.match(html, /Evaluación/); assert.match(html, /Actividad/);
 });

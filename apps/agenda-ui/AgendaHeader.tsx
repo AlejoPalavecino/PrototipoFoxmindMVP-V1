@@ -1,17 +1,13 @@
-import { useState } from 'react';
-import { zoneChoices, zoneLabel } from './event-zones.ts';
+import { FoxmindIcon } from '../shared-ui/index.ts';
 
-export function AgendaHeader({ zone, onZone, onCreate }: {
-  zone: string; onZone: (value: string) => void; onCreate: () => void;
-}) {
-  const [expanded, setExpanded] = useState(false);
-  return <header className="p5-page-head agenda-header"><div><h1>Mi <span>Agenda</span></h1>
-    <p className="p5-lead">Tus entregas del aula y tus eventos privados, día por día.</p></div>
-    <div className="agenda-tools"><div className="p5-actions"><button className="primary" onClick={onCreate}>+ Nuevo evento</button></div>
-      <div className="agenda-zone-control"><p>{zoneLabel(zone)} <button type="button" aria-expanded={expanded}
-        onClick={() => setExpanded(value => !value)}>Cambiar</button></p>
-        {expanded ? <label>Ciudad del calendario<select value={zone} onChange={event => onZone(event.target.value)}>
-          {zoneChoices(zone).map(choice => <option key={choice.value} value={choice.value}>{choice.label}</option>)}
-        </select></label> : null}</div>
-    </div></header>;
+export function AgendaHeader({ onCreate }: { onCreate: () => void }) {
+  return <header className="p5-page-head agenda-header agenda-banner">
+    <img className="agenda-banner-art" src="/foxmind-3d/agenda-reference/agenda-banner-1600.webp"
+      srcSet="/foxmind-3d/agenda-reference/agenda-banner-800.webp 800w, /foxmind-3d/agenda-reference/agenda-banner-1600.webp 1600w"
+      sizes="(max-width: 1100px) calc(100vw - 32px), calc(100vw - 280px)"
+      width={1600} height={533} alt="" aria-hidden="true" fetchPriority="high" />
+    <div className="agenda-banner-copy"><h1>Mi <span>agenda</span></h1>
+      <p className="p5-lead">Tus entregas y eventos, día por día.</p></div>
+    <div className="agenda-tools"><button type="button" className="primary" onClick={onCreate}><FoxmindIcon name="plus" />Nuevo evento</button></div>
+  </header>;
 }

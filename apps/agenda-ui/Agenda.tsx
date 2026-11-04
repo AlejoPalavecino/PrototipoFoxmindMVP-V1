@@ -40,7 +40,7 @@ export function Agenda({ api, onOpen, requestedEvent }: { api: AgendaClient; onO
     finally { locked.current = false; setBusy(false); }
   };
   return <main id="agenda-main" className={`p5-main agenda-main ${surface.scope}`}>
-    <AgendaHeader onCreate={() => setEditing({})} zone={view.zone} onZone={view.changeZone} />
+    <AgendaHeader onCreate={() => setEditing({})} />
     <nav className="agenda-mode-controls" aria-label="Vista de agenda">{(['MONTH', 'WEEK', 'DAY'] as const).map(value =>
       <button key={value} aria-pressed={mode === value} onClick={() => setMode(value)}>{{ MONTH: 'Mes', WEEK: 'Semana', DAY: 'Día' }[value]}</button>)}</nav>
     {result.notice ? <Notice>{result.notice} {result.event ? <button onClick={result.showEvent}>{result.event.repeat.kind !== 'NONE' ? 'Ver inicio de la serie' : 'Ver evento'}</button> : null}</Notice> : null}
@@ -51,8 +51,10 @@ export function Agenda({ api, onOpen, requestedEvent }: { api: AgendaClient; onO
     <div className="agenda-layout"><div className="agenda-primary">
       {mode === 'MONTH' ? <AgendaMonth month={view.month} selected={view.day} zone={view.zone} items={data.calendar.items} onSelect={view.select} onMonth={view.move} onToday={view.today} loading={data.calendar.loading} />
         : <AgendaPeriod mode={mode} day={view.day} zone={view.zone} items={data.calendar.items} onSelect={view.select} onToday={view.today} loading={data.calendar.loading} />}
+    </div><div className="agenda-sidebar">
       {!data.calendar.loading && !data.calendar.error ? <AgendaDay day={view.day} zone={view.zone} items={data.calendar.items} busy={busy} focusEventId={result.focusEventId ?? (view.day === requestedEvent?.date ? requested.focusEventId : undefined)} focusRequest={result.focusRequest} onEdit={event => setEditing({ event })} onOpen={target => void open(target)} onCreate={() => setEditing({})} /> : null}
-    </div><Upcoming items={data.upcoming.items} loading={data.upcoming.loading} error={data.upcoming.error} onRetry={() => void data.upcoming.reload()} busy={busy} onOpen={target => void open(target)} />
+      <Upcoming items={data.upcoming.items} loading={data.upcoming.loading} error={data.upcoming.error} onRetry={() => void data.upcoming.reload()} busy={busy} onOpen={target => void open(target)} />
+    </div>
     </div>
     {editing ? <EventForm api={api} event={editing.event} day={view.day} zone={view.zone} onClose={() => setEditing(null)} onSaved={result.saved} /> : null}
   </main>;

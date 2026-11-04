@@ -21,6 +21,8 @@ Este resumen distingue lo integrado, lo verificado y los límites de las pruebas
 
 ## Cómo retomar
 
+El pulido visual de Agenda está implementado y comprobado localmente en `codex/agenda-polish`, sin integración a main: banner v4 aprobado, Foxy visible, CTA integrado, paneles próximos y formulario sin desplegable/resumen. [Tareas](../odd/tasks/agenda-visual-polish.md) · [Evidencia y límites](work-log/2026-11-04-id-unavailable-agenda-polish.md).
+
 El rediseño de Inicio para docentes y alumnos quedó verificado localmente con PostgreSQL y navegador. La corrida P9 cerró con 13 pruebas aprobadas. [Alcance y tareas](../odd/tasks/home-by-role.md) · [Evidencia](work-log/2026-11-03-id-unavailable-home-postgres.md).
 
 1. Elegir la unidad y leer su contrato/tarea, sin reconstruir todo el historial.

@@ -9,6 +9,7 @@ import { createAccountClient, type AccountSession } from '../lib/account-client'
 import { createWebAgendaClient } from '../lib/agenda-client';
 import { classroomAuthHref } from '../lib/classroom-client';
 import { parseAgendaEventTarget } from '../lib/agenda-target';
+import surface from '../../../agenda-ui/agenda-surface.module.css';
 
 const account = createAccountClient();
 function useAgendaSession() {
@@ -40,7 +41,7 @@ export function AgendaScreen() {
   const router = useRouter(), identity = useAgendaSession();
   const api = useMemo(() => createWebAgendaClient(fetch, identity.requireAccount), [identity.requireAccount]);
   const requestedEvent = parseAgendaEventTarget(router.query);
-  return <div className="p5-app agenda-app">
+  return <div className={`p5-app agenda-app ${surface.screen}`}>
     <Head><title>Agenda · FoxMind</title><meta name="description" content="Tu calendario privado y los próximos plazos de tus aulas." /></Head>
     <a className="skip-link" href="#agenda-main">Saltar al contenido</a>
     {identity.session?.authenticated ? <>

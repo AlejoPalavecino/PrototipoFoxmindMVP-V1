@@ -1,5 +1,4 @@
 import type { DraftIssue, EventDraft } from './event-draft-types.ts';
-import { draftSummary } from './event-summary.ts';
 import { EventWhenFields } from './EventWhenFields.tsx';
 import { EventRepeatFields } from './EventRepeatFields.tsx';
 import { EventAdvancedFields } from './EventAdvancedFields.tsx';
@@ -24,13 +23,13 @@ export function EventFields({ draft, onChange, issues }: EventFieldProps) {
       <FieldIssue issues={issues} field="title" /><small>Solo visible para vos. No crea una actividad del aula.</small>
       <EventColorFields draft={draft} onChange={onChange} issues={issues} />
     </section>
-    <EventWhenFields draft={draft} onChange={onChange} issues={issues} />
+    <EventWhenFields draft={draft} onChange={onChange} issues={issues}>
+      <EventAdvancedFields draft={draft} onChange={onChange} issues={issues} />
+    </EventWhenFields>
     <EventRepeatFields draft={draft} onChange={onChange} issues={issues} />
     <section className="agenda-form-group"><label>Observaciones <small>(opcional)</small><textarea name="description" rows={3} maxLength={4000} value={draft.description}
       placeholder="Qué preparar, qué llevar o algún detalle que quieras recordar…"
       onChange={event => onChange({ ...draft, description: event.target.value })} {...fieldAria(issues, 'description')} /></label>
       <FieldIssue issues={issues} field="description" /></section>
-    <EventAdvancedFields draft={draft} onChange={onChange} issues={issues} />
-    <p className="agenda-form-summary" aria-live="polite">{draftSummary(draft)}</p>
   </>;
 }

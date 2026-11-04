@@ -1,0 +1,16 @@
+{
+  "focus": {
+    "font": "\"Segoe UI\", Arial, sans-serif",
+    "outline": "solid",
+    "width": "2.4px",
+    "element": "Nuevo evento"
+  },
+  "dialog": {
+    "font": "\"Segoe UI\", Arial, sans-serif",
+    "last": "description"
+  },
+  "motion": {
+    "transform": "none",
+    "transition": "0s"
+  }
+}

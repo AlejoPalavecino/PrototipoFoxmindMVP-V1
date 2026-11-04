@@ -79,16 +79,14 @@ test('deadline card keeps exact classroom zone date, state semantics and real ac
   assert.deepEqual(calls, [item.target]);
 });
 
-test('header create and expanded calendar timezone selector preserve callbacks', async () => {
+test('header preserves create callback without the removed calendar timezone controls', async () => {
   const { AgendaHeader } = loadTsModule('apps/agenda-ui/AgendaHeader.tsx');
   const calls = [], view = hookView(AgendaHeader, { zone: 'UTC', onCreate: () => calls.push('create'), onZone: value => calls.push(value) });
   try {
     await view.flush();
     const buttons = descendants(view.tree, node => node.type === 'button');
     buttons.find(node => node.props.className === 'primary').props.onClick();
-    buttons.find(node => node.props['aria-expanded'] !== undefined).props.onClick();
-    await view.flush();
-    descendants(view.tree, node => node.type === 'select')[0].props.onChange({ target: { value: 'Asia/Tokyo' } });
-    assert.deepEqual(calls, ['create', 'Asia/Tokyo']);
+    assert.equal(descendants(view.tree, node => node.type === 'select').length, 0);
+    assert.deepEqual(calls, ['create']);
   } finally { view.close(); }
 });
