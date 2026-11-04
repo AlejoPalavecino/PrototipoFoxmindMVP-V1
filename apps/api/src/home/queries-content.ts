@@ -6,7 +6,9 @@ export const queriesQuery = `SELECT p.id,
   FROM rooms c JOIN wall_posts p ON p.classroom_id=c.id AND p.type='QUERY' AND p.removed_at IS NULL
   LEFT JOIN LATERAL (SELECT max(GREATEST(created_at,edited_at)) AS changed_at FROM wall_replies
     WHERE post_id=p.id AND removed_at IS NULL) reply ON true
-  WHERE c.role='teacher' AND c.archived_at IS NULL`;
+  WHERE c.role='teacher' AND c.archived_at IS NULL
+    AND NOT EXISTS (SELECT 1 FROM wall_replies answer WHERE answer.post_id=p.id
+      AND answer.author_id=c.teacher_id AND answer.removed_at IS NULL)`;
 export const materialsQuery = `SELECT m.id, ${baseJson('m.id', 'm.title', targetJson('material', ",'materialId',m.id"))}
   || jsonb_build_object('publishedAt',${instant('m.created_at')},'extension',f.extension) AS item,
   ${instant('m.created_at')} || '|' || m.id::text AS sort_key
@@ -16,5 +18,8 @@ export const materialsQuery = `SELECT m.id, ${baseJson('m.id', 'm.title', target
   WHERE c.archived_at IS NULL AND f.blob_deleted_at IS NULL AND custody.phase='ready'
     AND f.validation_status='APPROVED' AND f.scan_status='CLEAN' AND u.status='COMPLETED'
     AND custody.digest IS NOT NULL AND custody.digest=custody.validated_digest AND custody.digest=custody.scanned_digest`;
-export const classroomsQuery = `SELECT c.id, ${baseJson('c.id', 'c.name', targetJson('classroom', ",'section','plan'"))} AS item,
+export const classroomsQuery = `SELECT c.id, ${baseJson('c.id', 'c.name', targetJson('classroom', ",'section','plan'"))}
+  || CASE WHEN c.role='teacher' AND c.archived_at IS NULL THEN jsonb_build_object('planProgress',
+      (SELECT jsonb_build_object('total',count(*)::int,'taught',count(*) FILTER (WHERE status='TAUGHT')::int)
+       FROM topics WHERE classroom_id=c.id)) ELSE '{}'::jsonb END AS item,
   CASE WHEN c.archived_at IS NULL THEN '0|' ELSE '1|' END || c.name || '|' || c.id::text AS sort_key FROM rooms c`;

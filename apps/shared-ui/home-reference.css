@@ -145,3 +145,60 @@
   .fm3d-theme .fm-home--reference .fm-home-row--agenda { grid-template-columns: 48px minmax(0,1fr) 44px; gap: 8px; }
   .fm3d-theme .fm-home--reference .fm-home-row--agenda .fm-home-agenda-date { width: 48px; }
 }
+/* Inicio by account role */
+.fm3d-theme .fm-home--reference .fm-home-greeting--welcome {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(92px, 23vw, 216px);
+  align-items: center;
+  min-height: 0;
+  padding: 8px clamp(16px, 4vw, 48px);
+  background: radial-gradient(ellipse at 80% 90%, #ffce9c, #fff1df 68%);
+}
+.fm3d-theme .fm-home--reference .fm-home-greeting--welcome::after { content: none; }
+.fm3d-theme .fm-home--reference .fm-home-greeting--welcome > div { width: auto; overflow-wrap: anywhere; }
+.fm3d-theme .fm-home.fm-home--reference > .fm-home-greeting--welcome time { display: block; color: #70442e; text-transform: none; }
+.fm3d-theme .fm-home--reference .fm-home-greeting--welcome time::first-letter { text-transform: uppercase; }
+.fm3d-theme .fm-home--reference .fm-home-greeting--welcome .fm3d-illustration { width: 100%; background: transparent; }
+.fm-home-quick-links {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 122px));
+  gap: 12px;
+  margin-block: 16px 20px;
+}
+.fm-home-quick-links a {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 8px;
+  aspect-ratio: 1;
+  padding: 6px;
+  border: 1px solid #ddc5b2;
+  border-radius: 18px;
+  color: #452717;
+  font-weight: 650;
+  text-align: center;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  background: repeating-linear-gradient(155deg, #fff0df 0 15px, #f9e1cc 15px 17px);
+}
+.fm-home-quick-links a:nth-child(2) {
+  background-color: #f1f6ed;
+  background-image: linear-gradient(#dfe9d9 1px, transparent 1px), linear-gradient(90deg, #dfe9d9 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+.fm-home-quick-links a:nth-child(3) {
+  background: radial-gradient(circle at 100% 0, #f0e5f8 0 25%, #faf3fc 26% 42%, #f0e5f8 43% 44%, #faf3fc 45%);
+}
+.fm-home-quick-links a:nth-child(4) {
+  background: radial-gradient(#dbeaf4 1px, #f1f8fb 1px);
+  background-size: 9px 9px;
+}
+.fm-home-quick-links a:hover { border-color: #a33716; text-decoration: underline; }
+.fm-home-quick-links a .fm3d-icon { width: 24px; height: 24px; }
+.fm-home-plan-progress { display: grid; gap: 4px; margin-block: 5px; font-size: .8rem; }
+.fm-home-plan-progress progress { width: min(100%, 12rem); accent-color: #a33716; }
+@media (max-width: 600px) {
+  .fm-home-quick-links { grid-template-columns: repeat(2, minmax(0, 122px)); }
+  .fm-home-quick-links a { font-size: .875rem; }
+  .fm3d-theme .fm-home--reference .fm-home-greeting--welcome h1 { font-size: clamp(22px, 6vw, 32px); }
+}

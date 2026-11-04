@@ -25,6 +25,12 @@ export function HomeRow({item,module,timeZone,onAction,busy,featured=false}:{ite
       <span className="fm-home-event-icon"><FoxmindIcon name="calendar"/></span>}
     <div className="fm-home-row-copy"><h3>{item.title}</h3>
       {module==='classrooms' && item.classroom?<span className="fm-home-room-label">{item.classroom.division}{item.classroom.archived?' · Archivada · Solo lectura':''}</span>:<RowDetails item={item} timeZone={timeZone}/>}
+      {'planProgress' in item && item.planProgress?<div className="fm-home-plan-progress">
+        {item.planProgress.total > 0 ? <>
+          <span>{item.planProgress.taught} de {item.planProgress.total} temas dados</span>
+          <progress aria-label={`Avance del plan de ${item.title}`} value={item.planProgress.taught} max={item.planProgress.total}/>
+        </> : <span>Plan sin temas todavía</span>}
+      </div>:null}
       {module==='classrooms' && item.classroom?<span className={`fm-home-classroom-role fm-home-classroom-role--${item.classroom.role}`}>{item.classroom.role==='teacher'?'Enseño':'Estudio'}</span>:null}</div>
     <button disabled={busy} className="fm-home-row-action" onClick={()=>onAction(item.target)} aria-label={`${action}: ${item.title}`}>
       {action}<FoxmindIcon name="arrow-right"/>

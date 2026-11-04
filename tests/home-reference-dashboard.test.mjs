@@ -61,48 +61,31 @@ test('Empty participation greeting suggests only the action available to the acc
   });
 });
 
-test('Role-specific quick links stay outside disclosures, dispatch once and honor busy state', async () => {
+test('Four quick links stay visible and point to existing destinations', () => {
   const { HomeShortcuts } = loadTsModule('apps/classrooms-ui/HomeShortcuts.tsx');
-  for (const accountRole of ['teacher', 'student']) for (const busy of [false, true]) {
-    const calls = [];
-    const view = hookView(HomeShortcuts, { accountRole, data: data(), busy, onAction() {}, onCreate: () => calls.push('create'),
-      onJoin: () => calls.push('join'), onClassrooms: () => calls.push('classrooms'), onAgenda: () => calls.push('agenda') });
-    try {
-      await view.flush();
-      const disclosures = descendants(view.tree, node => node.type === 'details');
-      const roleLink = accountRole === 'teacher' ? ['Crear aula', 'create'] : ['Unirme con código', 'join'];
-      const forbidden = accountRole === 'teacher' ? 'Unirme con código' : 'Crear aula';
-      assert.equal(descendants(view.tree, node => node.type === 'button' && text(node).trim().startsWith(forbidden)).length, 0);
-      for (const [label, action] of [['Mis aulas', 'classrooms'], roleLink, ['Mi Agenda', 'agenda']]) {
-        const buttons = descendants(view.tree, node => node.type === 'button' && text(node).trim().startsWith(label));
-        const button = buttons.find(node => !disclosures.some(disclosure => descendants(disclosure, child => child === node).length));
-        assert.ok(button, `${accountRole}: ${label} visible quick link`);
-        assert.equal(Boolean(button.props.disabled), busy && ['create', 'join'].includes(action));
-        if (!button.props.disabled) { button.props.onClick(); assert.equal(calls.at(-1), action); }
-      }
-      assert.equal(calls.length, busy ? 2 : 3);
-    } finally { view.close(); }
-  }
+  const navigation = HomeShortcuts();
+  assert.equal(navigation.props['aria-label'], 'Accesos rápidos');
+  const links = descendants(navigation, node => node.type === 'a');
+  assert.deepEqual(links.map(node => [text(node).trim(), node.props.href]), [
+    ['Mis aulas', '/mis-aulas'], ['Agenda', '/agenda'], ['Configuración', '/settings'], ['Mi perfil', '/profile'],
+  ]);
 });
 
-test('Home groups learning and teaching while keeping all seven recoverable modules reachable', async () => {
-  await withHome(data(Object.fromEntries(names.map(name => [name, error])), { participation: 'none' }), async ({ view, requests }) => {
-    const tree = expandGroups(view.tree);
-    for (const [label, expected] of [['Mi aprendizaje', ['pending', 'feedback']], ['Mi actividad docente', ['review', 'queries']]]) {
-      const group = descendants(tree, node => node.type === 'section' && node.props['aria-label'] === label)[0];
-      assert.ok(group, label);
-      assert.deepEqual(descendants(group, node => node.type?.name === 'HomeModule').map(node => node.props.name), expected);
-    }
-    const modules = descendants(tree, node => node.type?.name === 'HomeModule');
-    assert.deepEqual(modules.map(node => node.props.name).sort(), [...names].sort());
-    for (const module of modules) {
-      const rendered = module.type(module.props);
-      const retry = descendants(rendered, node => node.type === 'button' && text(node).startsWith('Reintentar'))[0];
-      assert.ok(retry, module.props.name); retry.props.onClick(); await view.flush();
-    }
-    assert.equal(requests.length, 8, 'Initial read and one real retry per module');
-    assert.deepEqual(requests.slice(1).map(request => request.module).sort(), [...names].sort());
-  });
+test('Home shows only the role-specific modules and keeps each retry reachable', async () => {
+  for (const [role, priority, secondary] of [['teacher', 'review', 'queries'], ['student', 'pending', 'feedback']]) {
+    await withHome(data(Object.fromEntries(names.map(name => [name, error]))), async ({ view, requests }) => {
+      const modules = descendants(view.tree, node => node.type?.name === 'HomeModule');
+      const expected = [priority, 'classrooms', secondary, 'materials', 'agenda'];
+      assert.deepEqual(modules.map(node => node.props.name), expected);
+      for (const module of modules) {
+        const rendered = module.type(module.props);
+        const retry = descendants(rendered, node => node.type === 'button' && text(node).startsWith('Reintentar'))[0];
+        assert.ok(retry, module.props.name); retry.props.onClick(); await view.flush();
+      }
+      assert.equal(requests.length, 6, 'Initial read and one real retry per visible module');
+      assert.deepEqual(requests.slice(1).map(request => request.module), expected);
+    }, role);
+  }
 });
 
 test('Teacher tools select only active teacher rooms and preserve contextual fallback for unloaded rooms', async () => {

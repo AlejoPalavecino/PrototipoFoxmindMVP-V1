@@ -37,10 +37,15 @@ function validateDetails(module: HomeModuleName, value: Record<string, unknown>)
   if (module === 'materials') { homeInstant(value.publishedAt); homeString(value.extension, 30); }
 }
 function row(module: HomeModuleName, input: unknown): unknown {
-  const value = homeObject(input, ['id', 'title', 'target', 'classroom', ...extras[module]]);
+  const hasProgress = module === 'classrooms' && !!input && typeof input === 'object' && 'planProgress' in input;
+  const value = homeObject(input, ['id', 'title', 'target', 'classroom', ...extras[module], ...(hasProgress ? ['planProgress'] : [])]);
   homeId(value.id); homeString(value.title); parseHomeTarget(value.target);
-  if (module !== 'agenda' || value.classroom !== null) room(value.classroom);
+  const classroom = module === 'agenda' && value.classroom === null ? null : room(value.classroom);
   validateDetails(module, value);
+  if (hasProgress) {
+    const progress = homeObject(value.planProgress, ['taught', 'total']);
+    if (classroom?.role !== 'teacher' || classroom.archived || homeCount(progress.taught) > homeCount(progress.total)) return homeInvalid();
+  }
   return { ...value };
 }
 export function parseHomePage<M extends HomeModuleName>(module: M, input: unknown): HomeModules[M] {

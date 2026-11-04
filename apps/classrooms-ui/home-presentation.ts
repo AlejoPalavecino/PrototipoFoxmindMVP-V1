@@ -65,3 +65,15 @@ export function homeActivityStats(data: HomeResponse): HomeActivityStat[] {
   }
   return stats;
 }
+export function homeFoxySuggestion(role: 'teacher' | 'student', modules: HomeModules) {
+  if (role === 'teacher') {
+    const review = modules.review?.status === 'ready' && modules.review.items.find(item => item.needsReview > 0);
+    if (review) return { title: 'Revisá una tanda', detail: `Podés empezar por las entregas de «${review.title}».` };
+    const query = modules.queries?.status === 'ready' && modules.queries.items[0];
+    if (query) return { title: 'Pasá por el Muro', detail: `Hay una consulta por responder en ${query.classroom.name}.` };
+    return { title: 'Prepará el próximo paso', detail: 'Elegí un tema para trabajar en tu próxima clase.' };
+  }
+  const pending = modules.pending?.status === 'ready' && modules.pending.items.find(item => item.reception === 'open');
+  if (pending) return { title: 'Empezá por una entrega', detail: `Reservá unos minutos para avanzar con «${pending.title}».` };
+  return { title: 'Cada paso cuenta.', detail: 'Los grandes aprendizajes empiezan con pequeños avances.' };
+}

@@ -4,12 +4,12 @@ import { HomeAgendaRow,HomeRow } from './HomeRow.tsx';
 import { homeReviewCount,homeReviewSummary } from './home-presentation.ts';
 import { FoxmindIcon } from '../shared-ui/index.ts';
 const moduleIcons={pending:'clock',review:'clipboard',feedback:'check',agenda:'calendar',queries:'chat',materials:'folder',classrooms:'book'} as const;
-export function HomeModule({name,page,timeZone,onAction,onRetry,onExpand,onAgenda,busy}:{
+export function HomeModule({name,page,timeZone,onAction,onRetry,onExpand,onAgenda,busy,title}:{
   name:HomeModuleName;page:HomeModules[HomeModuleName];timeZone:string;onAction:HomeAction;
-  onRetry:()=>void;onExpand?:()=>void;onAgenda?:()=>void;busy?:boolean;
+  onRetry:()=>void;onExpand?:()=>void;onAgenda?:()=>void;busy?:boolean;title?:string;
 }) {
   if(page.status==='not-applicable')return null;
-  const label=homeLabels[name];
+  const label={...homeLabels[name],title:title??homeLabels[name].title};
   return <section className={`fm-home-module fm-home-module--${name}`} aria-label={label.title}>
     <header><FoxmindIcon name={moduleIcons[name]}/><h2>{label.title}</h2>{name!=='agenda' && page.status==='ready' && page.totalItems!==null?<span className="fm-home-count">{name==='review'?homeReviewCount(page.totalItems):page.totalItems}</span>:null}
       {name==='agenda' && onAgenda?<button className="fm-home-agenda-link" onClick={onAgenda}>Abrir agenda<FoxmindIcon name="arrow-right"/></button>:null}

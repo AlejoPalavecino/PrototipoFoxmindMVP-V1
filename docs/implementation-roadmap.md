@@ -21,6 +21,8 @@ Este resumen distingue lo integrado, lo verificado y los límites de las pruebas
 
 ## Cómo retomar
 
+El rediseño de Inicio para docentes y alumnos quedó verificado localmente con PostgreSQL y navegador. La corrida P9 cerró con 13 pruebas aprobadas. [Alcance y tareas](../odd/tasks/home-by-role.md) · [Evidencia](work-log/2026-11-03-id-unavailable-home-postgres.md).
+
 1. Elegir la unidad y leer su contrato/tarea, sin reconstruir todo el historial.
 2. Usar [arquitectura](engineering/architecture.md), [operación local](engineering/local-development/README.md) y [verificación](engineering/testing/README.md) para el procedimiento vigente.
 3. Consultar el [catálogo de registros](work-log/INDEX.md) solo para decisiones y resultados relevantes.

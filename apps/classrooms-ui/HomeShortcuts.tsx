@@ -8,21 +8,18 @@ interface HomeShortcutProps {
   onJoin: () => void; onClassrooms: () => void; onAgenda: () => void; busy?: boolean;
 }
 
-export function HomeShortcuts({ accountRole, onCreate, onJoin, onClassrooms, onAgenda, busy }: HomeShortcutProps) {
+export function HomeShortcuts() {
   const links = [
-    { label: 'Mis aulas', detail: 'Tus aulas e historial', icon: 'book', action: onClassrooms },
-    ...(accountRole === 'teacher' ? [{ label: 'Crear aula', detail: 'Organiza una materia', icon: 'plus' as const, action: onCreate, disabled: busy }] : []),
-    { label: 'Mi Agenda', detail: 'Organiza tu semana', icon: 'calendar', action: onAgenda },
-    ...(accountRole === 'student' ? [{ label: 'Unirme con código', detail: 'Encuentra tu próxima aula', icon: 'users' as const, action: onJoin, disabled: busy }] : []),
+    ['/mis-aulas', 'Mis aulas', 'book'],
+    ['/agenda', 'Agenda', 'calendar'],
+    ['/settings', 'Configuración', 'settings'],
+    ['/profile', 'Mi perfil', 'profile'],
   ] as const;
-  return <section className="fm-home-module fm-home-shortcuts" aria-label="Accesos rápidos">
-    <header><FoxmindIcon name="spark" /><h2>Accesos rápidos</h2><p>Lo que necesitas, a un clic.</p></header>
-    <div className="fm-home-shortcut-grid">{links.map(link =>
-      <button key={link.label} onClick={link.action} disabled={'disabled' in link ? link.disabled : false}>
-        <FoxmindIcon name={link.icon} /><span>{link.label}<small>{link.detail}</small></span>
-        <span className="fm-home-shortcut-arrow"><FoxmindIcon name="arrow-right" /></span>
-      </button>)}</div>
-  </section>;
+  return <nav className="fm-home-quick-links" aria-label="Accesos rápidos">
+    {links.map(([href, label, icon]) => <a key={href} href={href}>
+      <FoxmindIcon name={icon} /><span>{label}</span>
+    </a>)}
+  </nav>;
 }
 
 export function HomeTeacherTools({ data, onAction, onClassrooms, busy }: Pick<HomeShortcutProps, 'data' | 'onAction' | 'onClassrooms' | 'busy'>) {

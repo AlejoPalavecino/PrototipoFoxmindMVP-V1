@@ -36,7 +36,10 @@ export interface AgendaItem extends HomeItem {
   source: 'PRIVATE_EVENT' | 'ACADEMIC_DEADLINE'; startAt: string | null;
   date: string; timeZone: string; allDay: boolean; classroom: HomeRoom | null;
 }
-export interface ClassroomItem extends HomeItem { classroom: HomeRoom }
+export interface ClassroomItem extends HomeItem {
+  classroom: HomeRoom;
+  planProgress?: { taught: number; total: number };
+}
 export type HomePage<T> =
   | { status: 'ready'; items: T[]; totalItems: number | null; nextCursor: string | null }
   | { status: 'error'; code: 'SERVICE_UNAVAILABLE'; retryable: true }
