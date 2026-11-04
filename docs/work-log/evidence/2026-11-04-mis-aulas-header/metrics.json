@@ -1,0 +1,247 @@
+{
+  "metrics": [
+    {
+      "width": 1914,
+      "scroll": 1914,
+      "hero": {
+        "x": 236,
+        "y": 64,
+        "width": 1654,
+        "height": 240,
+        "right": 1890,
+        "bottom": 304
+      },
+      "title": {
+        "x": 260,
+        "y": 132,
+        "width": 931.46875,
+        "height": 80,
+        "right": 1191.46875,
+        "bottom": 212
+      },
+      "copy": {
+        "x": 260,
+        "y": 224,
+        "width": 368.71875,
+        "height": 56,
+        "right": 628.71875,
+        "bottom": 280
+      },
+      "button": {
+        "x": 1704.21875,
+        "y": 220,
+        "width": 161.78125,
+        "height": 52,
+        "right": 1866,
+        "bottom": 272
+      },
+      "headingSize": "36px",
+      "bodySize": "18px",
+      "benefits": 0
+    },
+    {
+      "width": 1440,
+      "scroll": 1440,
+      "hero": {
+        "x": 236,
+        "y": 64,
+        "width": 1180,
+        "height": 240,
+        "right": 1416,
+        "bottom": 304
+      },
+      "title": {
+        "x": 260,
+        "y": 132,
+        "width": 611.265625,
+        "height": 80,
+        "right": 871.265625,
+        "bottom": 212
+      },
+      "copy": {
+        "x": 260,
+        "y": 224,
+        "width": 368.71875,
+        "height": 56,
+        "right": 628.71875,
+        "bottom": 280
+      },
+      "button": {
+        "x": 1252.21875,
+        "y": 230,
+        "width": 145.78125,
+        "height": 52,
+        "right": 1398,
+        "bottom": 282
+      },
+      "headingSize": "36px",
+      "bodySize": "18px",
+      "benefits": 0
+    },
+    {
+      "width": 1024,
+      "scroll": 1024,
+      "hero": {
+        "x": 236,
+        "y": 64,
+        "width": 764,
+        "height": 292,
+        "right": 1000,
+        "bottom": 356
+      },
+      "title": {
+        "x": 260,
+        "y": 132,
+        "width": 372.3125,
+        "height": 72,
+        "right": 632.3125,
+        "bottom": 204
+      },
+      "copy": {
+        "x": 260,
+        "y": 216,
+        "width": 327.75,
+        "height": 48,
+        "right": 587.75,
+        "bottom": 264
+      },
+      "button": {
+        "x": 260,
+        "y": 280,
+        "width": 145.78125,
+        "height": 52,
+        "right": 405.78125,
+        "bottom": 332
+      },
+      "headingSize": "30px",
+      "bodySize": "16px",
+      "benefits": 0
+    },
+    {
+      "width": 768,
+      "scroll": 768,
+      "hero": {
+        "x": 20,
+        "y": 85,
+        "width": 728,
+        "height": 292,
+        "right": 748,
+        "bottom": 377
+      },
+      "title": {
+        "x": 44,
+        "y": 153,
+        "width": 353.59375,
+        "height": 72,
+        "right": 397.59375,
+        "bottom": 225
+      },
+      "copy": {
+        "x": 44,
+        "y": 237,
+        "width": 327.75,
+        "height": 48,
+        "right": 371.75,
+        "bottom": 285
+      },
+      "button": {
+        "x": 44,
+        "y": 301,
+        "width": 145.78125,
+        "height": 52,
+        "right": 189.78125,
+        "bottom": 353
+      },
+      "headingSize": "30px",
+      "bodySize": "16px",
+      "benefits": 0
+    },
+    {
+      "width": 390,
+      "scroll": 390,
+      "hero": {
+        "x": 14,
+        "y": 85,
+        "width": 362,
+        "height": 279,
+        "right": 376,
+        "bottom": 364
+      },
+      "title": {
+        "x": 32,
+        "y": 146,
+        "width": 326,
+        "height": 72,
+        "right": 358,
+        "bottom": 218
+      },
+      "copy": {
+        "x": 32,
+        "y": 230,
+        "width": 326,
+        "height": 48,
+        "right": 358,
+        "bottom": 278
+      },
+      "button": {
+        "x": 32,
+        "y": 294,
+        "width": 326,
+        "height": 52,
+        "right": 358,
+        "bottom": 346
+      },
+      "headingSize": "30px",
+      "bodySize": "16px",
+      "benefits": 0
+    },
+    {
+      "width": 320,
+      "scroll": 320,
+      "hero": {
+        "x": 14,
+        "y": 85,
+        "width": 292,
+        "height": 279,
+        "right": 306,
+        "bottom": 364
+      },
+      "title": {
+        "x": 32,
+        "y": 146,
+        "width": 256,
+        "height": 72,
+        "right": 288,
+        "bottom": 218
+      },
+      "copy": {
+        "x": 32,
+        "y": 230,
+        "width": 256,
+        "height": 48,
+        "right": 288,
+        "bottom": 278
+      },
+      "button": {
+        "x": 32,
+        "y": 294,
+        "width": 256,
+        "height": 52,
+        "right": 288,
+        "bottom": 346
+      },
+      "headingSize": "30px",
+      "bodySize": "16px",
+      "benefits": 0
+    }
+  ],
+  "errors": [],
+  "checks": [
+    "6 widths: no overflow, content and CTA contained",
+    "teacher click and keyboard callbacks",
+    "visible focus",
+    "hover transform and reduced motion",
+    "busy disabled",
+    "student join callback; no create action"
+  ]
+}

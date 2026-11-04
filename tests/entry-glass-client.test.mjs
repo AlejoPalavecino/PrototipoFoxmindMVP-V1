@@ -61,13 +61,13 @@ test('password visibility is an explicit non-submit control, with policy only fo
   assert.match(registration, /autocomplete="new-password"/i);
 });
 
-test('home retains populated study context with both classroom perspectives visible', () => {
+test('home retains the student classroom and the applicable learning modules', () => {
   const room = { role:'student', archived:false, id: 'actual', name: 'Actual class', subject: 'Science', division: 'B', academicYear: 2026, coverKey: 'explore', teacher: 'Actual teacher' };
   const data = homeFixture([room]);
   const { Home } = loadTsModule('apps/classrooms-ui/Home.tsx', { stubs: { './use-home.ts': { useHome: () => ({ loading:false, data }) } } });
-  const html = render(Home, { displayName: 'Student', busy: false, onAction() {},
+  const html = render(Home, { accountRole: 'student', displayName: 'Student', busy: false, onAction() {},
     onCreate() {}, onJoin() {}, onClassrooms() {}, onEnter() {}, api: { call: async () => [] }, onOpenTarget() {} });
-  for (const label of ['Mi aprendizaje', 'Mi actividad docente']) {
+  for (const label of ['Para entregar', 'Devoluciones disponibles']) {
     const group = [...html.matchAll(/<section\b([^>]*)>/g)].find(([, attributes]) => attributes.includes(`aria-label="${label}"`));
     assert.ok(group, `Missing ${label} section`);
     assert.doesNotMatch(group[1], /\bhidden(?:=|\s|$)|aria-hidden="true"/);

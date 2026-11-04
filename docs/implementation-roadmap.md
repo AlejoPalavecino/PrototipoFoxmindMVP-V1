@@ -11,6 +11,7 @@ Este resumen distingue lo integrado, lo verificado y los límites de las pruebas
 | Análisis individual | Implementado con métricas anónimas y alcance docente, separado de calificación | [Guía](engineering/ai/student-analysis.md), [verificación](work-log/2026-10-28-root-student-ai-verification.md) |
 | Corrección asistida | Integrada en main; propuesta privada y publicación docente independiente. Pruebas reales limitadas a casos documentados | [Contrato issue #2](../odd/tasks/grading-ai-issue-2.md), [guía](engineering/ai/grading-assistance.md) |
 | Sistema visual | FoxMind3D aplicado e integrado; las exploraciones anteriores son antecedentes | [Sistema y familias](design/README.md), [guía técnica](engineering/frontend/foxmind-3d.md) |
+| Mis aulas: encabezado y personaje | Retoques visuales y nuevo banner aprobados por el usuario e integrados en main local el 2026-11-04; 11 pruebas focales, tipos y lint aprobados. Sin publicación remota | [Entrega local y evidencia](work-log/2026-11-04-id-unavailable-mis-aulas-local-integration.md) |
 | Seis correcciones de auditoría | Implementadas y publicadas, con limitaciones y pruebas atribuidas | [Tarea](../odd/tasks/audit-remediation.md), [cierre](work-log/2026-10-30-root-audit-completion.md) |
 | Cinco comprobaciones históricas | Cerradas: FAST783/0/0 y P5/resumen14/0/0. No se repitió toda la selección de42archivos de navegador | [Cierre de los casos](work-log/2026-10-30-root-five-historical-checks.md) |
 | Reorganización documental | Aplicada y publicada en main166cf77:43guías canónicas, compatibilidad e historia preservadas; control documental y FAST794/0/0aprobados | [Plan único y evidencia](../odd/tasks/documentation-reorganization.md) |
@@ -23,7 +24,7 @@ Este resumen distingue lo integrado, lo verificado y los límites de las pruebas
 
 El pulido visual de Agenda está implementado y comprobado localmente en `codex/agenda-polish`, sin integración a main: banner v4 aprobado, Foxy visible, CTA integrado, paneles próximos y formulario sin desplegable/resumen. [Tareas](../odd/tasks/agenda-visual-polish.md) · [Evidencia y límites](work-log/2026-11-04-id-unavailable-agenda-polish.md).
 
-El rediseño de Inicio para docentes y alumnos quedó verificado localmente con PostgreSQL y navegador. La corrida P9 cerró con 13 pruebas aprobadas. [Alcance y tareas](../odd/tasks/home-by-role.md) · [Evidencia](work-log/2026-11-03-id-unavailable-home-postgres.md).
+Inicio incorpora Taller Cálido con liquid glass, aprobado y verificado localmente el 2026-11-04 para ambos roles. P9 completo cerró con 13 pruebas aprobadas, incluyendo navegación móvil y notificaciones anidadas. [Alcance y tareas](../odd/tasks/home-by-role.md) · [Evidencia actual](work-log/2026-11-04-id-unavailable-home-warm-glass.md). El cierre del 2026-11-03 conserva la evidencia del rediseño anterior.
 
 1. Elegir la unidad y leer su contrato/tarea, sin reconstruir todo el historial.
 2. Usar [arquitectura](engineering/architecture.md), [operación local](engineering/local-development/README.md) y [verificación](engineering/testing/README.md) para el procedimiento vigente.

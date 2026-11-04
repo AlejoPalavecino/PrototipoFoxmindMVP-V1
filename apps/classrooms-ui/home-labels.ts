@@ -4,7 +4,7 @@ export const homeLabels:Record<HomeModuleName,{title:string;empty:string;action:
   pending:{title:'Para entregar',empty:'Estás al día. No hay actividades pendientes de entrega.',action:'Ver actividad'},
   review:{title:'Para revisar',empty:'No hay entregas pendientes de revisión o publicación.',action:'Revisar entregas'},
   feedback:{title:'Devoluciones disponibles',empty:'Aún no hay devoluciones publicadas disponibles.',action:'Ver devolución'},
-  agenda:{title:'Tu miniagenda',empty:'No hay próximos inicios en los próximos 90 días.',action:'Abrir'},
+  agenda:{title:'Tu agenda',empty:'No tenés próximos eventos ni vencimientos.',action:'Abrir'},
   queries:{title:'Consultas sin responder',empty:'No hay consultas por responder en tus aulas activas.',action:'Abrir consulta'},
   materials:{title:'Material reciente',empty:'No hay material disponible en tus aulas activas.',action:'Abrir material'},
   classrooms:{title:'Tus aulas',empty:'Aún no tienes aulas activas ni archivadas disponibles.',action:'Entrar al aula'},

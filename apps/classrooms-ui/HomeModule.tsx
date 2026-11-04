@@ -1,12 +1,12 @@
 import type { HomeModuleName,HomeModules } from '../../src/core/domain/index.ts';
 import { homeLabels,type HomeAction } from './home-labels.ts';
 import { HomeAgendaRow,HomeRow } from './HomeRow.tsx';
-import { homeReviewCount,homeReviewSummary } from './home-presentation.ts';
+import { homeReviewCount,homeReviewSummary,homeCalendarWeek } from './home-presentation.ts';
 import { FoxmindIcon } from '../shared-ui/index.ts';
 const moduleIcons={pending:'clock',review:'clipboard',feedback:'check',agenda:'calendar',queries:'chat',materials:'folder',classrooms:'book'} as const;
-export function HomeModule({name,page,timeZone,onAction,onRetry,onExpand,onAgenda,busy,title}:{
+export function HomeModule({name,page,timeZone,onAction,onRetry,onExpand,onAgenda,busy,title,generatedAt}:{
   name:HomeModuleName;page:HomeModules[HomeModuleName];timeZone:string;onAction:HomeAction;
-  onRetry:()=>void;onExpand?:()=>void;onAgenda?:()=>void;busy?:boolean;title?:string;
+  onRetry:()=>void;onExpand?:()=>void;onAgenda?:()=>void;busy?:boolean;title?:string;generatedAt?:string;
 }) {
   if(page.status==='not-applicable')return null;
   const label={...homeLabels[name],title:title??homeLabels[name].title};
@@ -14,6 +14,13 @@ export function HomeModule({name,page,timeZone,onAction,onRetry,onExpand,onAgend
     <header><FoxmindIcon name={moduleIcons[name]}/><h2>{label.title}</h2>{name!=='agenda' && page.status==='ready' && page.totalItems!==null?<span className="fm-home-count">{name==='review'?homeReviewCount(page.totalItems):page.totalItems}</span>:null}
       {name==='agenda' && onAgenda?<button className="fm-home-agenda-link" onClick={onAgenda}>Abrir agenda<FoxmindIcon name="arrow-right"/></button>:null}
       {page.status==='ready' && page.nextCursor && onExpand?<button data-home-expand={name} onClick={onExpand}>Ver todas<span className="sr-only">: {label.title}</span></button>:null}</header>
+    {name==='agenda' && generatedAt?<div className="fm-home-week" aria-label="Semana actual">
+      {homeCalendarWeek(generatedAt,timeZone).map((day,index)=><div key={day.date}>
+        <span aria-hidden="true">{['L','M','M','J','V','S','D'][index]}</span>
+        <time dateTime={day.date} aria-current={day.today?'date':undefined}
+          aria-label={new Intl.DateTimeFormat('es-AR',{timeZone:'UTC',weekday:'long',day:'numeric',month:'long'}).format(new Date(day.date+'T12:00:00Z'))}>{day.day}</time>
+      </div>)}
+    </div>:null}
     {name==='agenda'?<p className="fm-home-hint">Próximos 90 días <span className="fm-home-agenda-zone">· Zona {timeZone}</span></p>:null}
     {name==='review' && page.status==='ready' && 'totals' in page && page.totals?<p className="fm-home-hint">{homeReviewSummary(page.totals)}</p>:null}
     {page.status==='error'?<div className="fm-home-module-error" role="status"><p>No pudimos cargar {label.title.toLowerCase()}.</p><button onClick={onRetry} disabled={busy}>Reintentar {label.title.toLowerCase()}</button></div>:

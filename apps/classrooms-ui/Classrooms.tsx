@@ -209,6 +209,7 @@ export function ClassroomsApp({
           if (href === '/agenda') { if (onNavigate) onNavigate('agenda'); else window.location.assign('/agenda'); return; }
           showPresentation(href === '/inicio' ? 'home' : 'classrooms');
         }}
+        homeNavigation={presentation === 'home' && !classroomId && !draft}
         notifications={!draft ? (onSelectNotification
           ? <Notifications api={api} refresh={notificationRefresh} onSelect={id => void action(async () => { await onSelectNotification(id); })} />
           : <Notifications api={api} refresh={notificationRefresh} onOpen={openTarget} />) : undefined}

@@ -13,6 +13,13 @@ import { classroom, rejectSame } from './p6-integration-helpers.mjs';
 const listPaths = ['/api/v1/classrooms', '/api/v1/classrooms/drafts', '/api/v1/classrooms/invitations'];
 const waitLists = page => Promise.all(listPaths.map(path => page.waitForResponse(response => new URL(response.url()).pathname === path)));
 
+// Advance only the browser clock to exercise the existing 60-second focus refresh.
+async function refreshHomeByFocus(page) {
+  await page.clock.install();
+  await page.clock.fastForward(60_001);
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+}
+
 async function homeAlertOwners(page) {
   return page.locator('[role="alert"]').evaluateAll(elements => elements.map(element => {
     const routeAnnouncement = element.id === '__next-route-announcer__'
@@ -335,7 +342,7 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
       await check('real offline failure conceals old cards and visible manual retry restores fresh successful lists', async () => {
         await drainHomeReads();
         await peerContext.setOffline(true);
-        await peer.getByRole('button', { name: 'Actualizar Inicio', exact: true }).click();
+        await refreshHomeByFocus(peer);
         await peer.getByRole('button', { name: 'Reintentar Inicio', exact: true }).waitFor();
         assert.equal(await peer.getByRole('region', { name: 'Tus aulas', exact: true }).count(), 0, 'Failed refresh must not present stale classroom cards as current');
         await peer.getByRole('button', { name: /^Notificaciones/ }).click();
@@ -363,7 +370,17 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
         assert.ok((await reopenedResponse.json()).items.some(item => item.classroomId === roomB.id && item.eventType === 'WALL_NOTICE'));
         const notificationResponse = peer.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/classrooms/notifications/page' && response.request().method() === 'GET');
         await dialog.getByRole('button', { name: 'Actualizar notificaciones', exact: true }).click();
-        assert.equal((await notificationResponse).status(), 200);
+        let recovered = await notificationResponse;
+        if (recovered.status() === 429) {
+          const seconds = Number(recovered.headers()['retry-after']);
+          assert.ok(Number.isInteger(seconds) && seconds > 0 && seconds <= 60);
+          console.log(`P9 notification recovery respects actual Retry-After=${seconds}s`);
+          await delay(seconds * 1000);
+          const retry = peer.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/classrooms/notifications/page' && response.request().method() === 'GET');
+          await dialog.getByRole('button', { name: 'Actualizar notificaciones', exact: true }).click();
+          recovered = await retry;
+        }
+        assert.equal(recovered.status(), 200);
         await dialog.getByRole('alert').waitFor({ state: 'detached' });
         await dialog.getByRole('button', { name: 'Cerrar diálogo', exact: true }).click();
         await drainHomeReads();
@@ -372,16 +389,38 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
       });
 
       await check('320/375/1280 Home remains keyboard reachable, focused and overflow free with real data', async () => {
-        for (const width of [320, 375, 1280]) {
-          await page.setViewportSize({ width, height: 900 });
-          assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `Home overflow ${width}`);
-          const homeButton = (await navigationLink(page, 'Inicio'));
-          await page.keyboard.press('Tab');
+        for (const [role, current] of [['teacher', page], ['student', peer]]) for (const width of [320, 375, 1280]) {
+          await current.setViewportSize({ width, height: 900 });
+          await current.locator('.fm-home-panorama').evaluate(image => image.decode());
+          const geometry = await current.evaluate(() => {
+            const hero = document.querySelector('.fm-home-greeting').getBoundingClientRect();
+            const image = document.querySelector('.fm-home-panorama').getBoundingClientRect();
+            const glass = document.querySelector('.fm-home-glass').getBoundingClientRect();
+            return { overflow: document.documentElement.scrollWidth > innerWidth,
+              foxInside: image.left + image.width * .635 >= hero.left && image.left + image.width * .89 <= hero.right,
+              textClear: glass.right <= image.left + image.width * .635,
+              glassInside: glass.top >= hero.top && glass.bottom <= hero.bottom };
+          });
+          assert.deepEqual(geometry, { overflow: false, foxInside: true, textClear: true, glassInside: true }, `${role}/${width}`);
+          assert.equal(await current.getByRole('button', { name: 'Actualizar Inicio', exact: true }).count(), 0);
+          assert.equal(await current.locator('.fm-home-resources,.fm3d-shell-location,.fm3d-shell-avatar').count(), 0);
+          const homeButton = await navigationLink(current, 'Inicio');
           await homeButton.focus(); assert.equal(await homeButton.evaluate(element => document.activeElement === element), true);
-          const focus = await homeButton.evaluate(element => getComputedStyle(element).outlineStyle); assert.notEqual(focus, 'none');
-          await page.keyboard.press('Tab');
-          assert.equal(await (await navigationLink(page, 'Mis aulas')).evaluate(element => document.activeElement === element), true);
-          await page.screenshot({ path: join(artifacts, `inicio-${width}.png`), fullPage: true });
+          assert.notEqual(await homeButton.evaluate(element => getComputedStyle(element).outlineStyle), 'none');
+          await current.keyboard.press('Tab');
+          assert.equal(await (await navigationLink(current, 'Mis aulas')).evaluate(element => document.activeElement === element), true);
+          if (width === 320) {
+            const drawer = current.getByRole('dialog', { name: 'Menú de navegación', exact: true });
+            await drawer.getByRole('button', { name: /^Notificaciones/ }).click();
+            const notifications = current.getByRole('dialog', { name: 'Notificaciones', exact: true });
+            await notifications.waitFor();
+            await current.waitForFunction(() => !document.querySelector('.entry-notifications button:disabled'));
+            await current.keyboard.press('Escape');
+            await notifications.waitFor({ state: 'hidden' });
+            assert.equal(await drawer.isVisible(), true, 'Escape closes only the top notification dialog');
+            await drawer.getByRole('button', { name: 'Cerrar menú de navegación', exact: true }).click();
+          }
+          await current.screenshot({ path: join(artifacts, `inicio-${role}-${width}.png`), fullPage: true });
         }
         await page.emulateMedia({ reducedMotion: 'reduce' });
         assert.equal(await (await navigationLink(page, 'Inicio')).evaluate(element => getComputedStyle(element).transitionDuration), '0s');
@@ -389,10 +428,33 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
       });
 
       await check('private draft continuation keeps navigation hidden while the wizard owns saving', async () => {
-        const pending = waitLists(page);
-        await (await navigationLink(page, 'Mis aulas')).click();
-        await page.waitForURL('**/mis-aulas');
-        const responses = await pending;
+        const received = new Map();
+        const capture = response => {
+          const path = new URL(response.url()).pathname;
+          if (listPaths.includes(path)) received.set(path, response);
+        };
+        page.on('response', capture);
+        let responses;
+        try {
+          const pendingSession = page.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/auth/session');
+          await (await navigationLink(page, 'Mis aulas')).click();
+          await page.waitForURL('**/mis-aulas');
+          let session = await pendingSession;
+          if (session.status() === 429) {
+            const seconds = Number(session.headers()['retry-after']);
+            assert.ok(Number.isInteger(seconds) && seconds > 0 && seconds <= 60);
+            console.log(`P9 collection session respects actual Retry-After=${seconds}s`);
+            await delay(seconds * 1000);
+            const retry = page.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/auth/session');
+            await page.getByRole('button', { name: 'Volver a intentar', exact: true }).click();
+            session = await retry;
+          }
+          assert.equal(session.status(), 200);
+          const deadline = Date.now() + 30000;
+          while (received.size < listPaths.length && Date.now() < deadline) await delay(20);
+          assert.equal(received.size, listPaths.length, 'All collection reads require real completed responses');
+          responses = listPaths.map(path => received.get(path));
+        } finally { page.off('response', capture); }
         const limited = responses.filter(response => response.status() === 429);
         if (limited.length) {
           const waits = limited.map(response => Number(response.headers()['retry-after']));
@@ -431,7 +493,7 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
         await anonymous.getByRole('region', { name: 'Tus aulas', exact: true }).waitFor();
         assert.equal((await api(anonymous, 'POST', '/auth/logout')).status, 204, 'Logout clears the real session and returns the accepted no-content contract');
         const rejectedHome = anonymous.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/home' && response.request().method() === 'GET');
-        await anonymous.getByRole('button', { name: 'Actualizar Inicio', exact: true }).click();
+        await refreshHomeByFocus(anonymous);
         const rejectedResponse = await rejectedHome;
         assert.equal(rejectedResponse.status(), 401); assert.equal((await rejectedResponse.json()).error.code, 'AUTH_REQUIRED');
         await anonymous.waitForURL(url => url.pathname === '/sign-in' && url.searchParams.get('next') === '/inicio');

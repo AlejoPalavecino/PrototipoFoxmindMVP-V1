@@ -24,3 +24,8 @@ Pendientes; no se inventan hashes. Una unidad funcional de presentación conserv
 
 ## Handoff
 Primera acción pendiente: guardar referencias de preservación, verificar/crear commit de Agenda e integrar el main actual en su rama. main aún sin modificar.
+
+## Avance de integración
+- Commit de implementación observado:789cbd2, feat(agenda): polish calendar banner and event editor. Antes del commit:60pruebas Agenda PASS; cached diff-check corregido en dos EOF documentales y luegoPASS.
+- Referencia de preservación: main7d8532807933e176cfa1d74e6ebdd5d7a3ef4e9e;66blobs de archivos cambiados desde a3afdc7 guardados para comparación exacta, salvo roadmap que se reconcilia por contenido.
+- Merge de main dentro de Agenda: único conflicto en docs/implementation-roadmap.md, por los párrafos de continuidad de Inicio/Agenda. Resuelto conservando íntegro el roadmap de main (incluye estado de Inicio y Mis aulas) e insertando solo el párrafo de Agenda. No se eligió una versión completa que descartara la otra entrega. Sin conflictos de código.

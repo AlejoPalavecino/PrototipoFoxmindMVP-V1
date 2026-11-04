@@ -75,17 +75,28 @@ test('Home shows only the role-specific modules and keeps each retry reachable',
   for (const [role, priority, secondary] of [['teacher', 'review', 'queries'], ['student', 'pending', 'feedback']]) {
     await withHome(data(Object.fromEntries(names.map(name => [name, error]))), async ({ view, requests }) => {
       const modules = descendants(view.tree, node => node.type?.name === 'HomeModule');
-      const expected = [priority, 'classrooms', secondary, 'materials', 'agenda'];
+      const expected = [priority, secondary, 'agenda', 'classrooms'];
       assert.deepEqual(modules.map(node => node.props.name), expected);
       for (const module of modules) {
         const rendered = module.type(module.props);
         const retry = descendants(rendered, node => node.type === 'button' && text(node).startsWith('Reintentar'))[0];
         assert.ok(retry, module.props.name); retry.props.onClick(); await view.flush();
       }
-      assert.equal(requests.length, 6, 'Initial read and one real retry per visible module');
+      assert.equal(requests.length, 5, 'Initial read and one real retry per visible module');
       assert.deepEqual(requests.slice(1).map(request => request.module), expected);
     }, role);
   }
+});
+
+test('Warm Home removes the resources disclosure and refresh control from the normal view', async () => {
+  await withHome(data(), async ({ view }) => {
+    assert.equal(descendants(view.tree, node => node.props?.className === 'fm-home-resources').length, 0);
+    assert.equal(descendants(view.tree, node => node.props?.['aria-label'] === 'Actualizar Inicio').length, 0);
+    assert.equal(descendants(view.tree, node => node.props?.className === 'fm-home-access-row').length, 1);
+    const greeting = descendants(view.tree, node => node.type?.name === 'HomeGreeting')[0];
+    const art = descendants(greeting.type(greeting.props), node => node.props?.className === 'fm-home-panorama')[0];
+    assert.ok(art, 'The panoramic illustration belongs to the welcome banner');
+  });
 });
 
 test('Teacher tools select only active teacher rooms and preserve contextual fallback for unloaded rooms', async () => {

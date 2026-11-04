@@ -1,0 +1,16 @@
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import '../../../../apps/shared-ui/design-tokens.css';
+import '../../../../apps/web/styles/globals.css';
+import '../../../../apps/classrooms-ui/styles.css';
+import '../../../../apps/shared-ui/folders.css';
+import '../../../../apps/shared-ui/foxmind-3d.css';
+import '../../../../apps/shared-ui/workspace.css';
+import surface from '../../../../apps/classrooms-ui/classrooms-surface.module.css';
+import { ClassroomCollectionHero } from '../../../../apps/classrooms-ui/ClassroomCollectionHero.tsx';
+import { AppNavbar } from '../../../../apps/shared-ui/AppNavbar.tsx';
+import { ClassroomCollection } from '../../../../apps/classrooms-ui/ClassroomCollection.tsx';
+const room = {id:'synthetic',role:'teacher',name:'Ciencias Naturales',subject:'Ciencias',division:'A',academicYear:2026,timezone:'UTC',coverKey:'biology',teacher:'Vos',revision:'1',archived:false};
+const params = new URLSearchParams(location.search);
+window.headerCalls = [];
+createRoot(document.getElementById('root')!).render(<div className="fm3d-theme"><div className={`p5-app fm3-classrooms entry-classrooms-reference ${surface.scope}`}><AppNavbar logoHref="/mis-aulas" displayName="Docente de prueba" links={[{href:"/inicio",label:"Inicio"},{href:"/mis-aulas",label:"Mis aulas",current:true},{href:"/agenda",label:"Agenda"},{href:"/foxy-ai",label:"Foxy AI"}]} /><main className="p5-main"><ClassroomCollectionHero accountRole={params.has('student') ? 'student' : 'teacher'} busy={params.has('busy')} onJoin={() => window.headerCalls.push('join')} onCreate={() => window.headerCalls.push('create')} /><ClassroomCollection accountRole="teacher" teach={[room]} study={[]} search="" onEnter={()=>{}} /></main></div></div>);

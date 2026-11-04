@@ -10,6 +10,14 @@
 - Open real academic news. Each destination comes from the successful `POST /notifications/:id/open` response, which checks current membership and target permissions. List-item identifiers are not navigation authority.
 - Recover from failed refreshes with a visible manual retry. Inicio hides stale classroom cards after a failed list refresh rather than presenting them as fresh success.
 
+## Taller Cálido — diseño vigente, 2026-11-04
+
+Inicio usa el banner panorámico aprobado, con el saludo a la izquierda sobre vidrio translúcido y un fondo de respaldo para navegadores sin desenfoque. Los accesos Mis aulas, Agenda, Configuración y Mi perfil comparten un patrón con colores suaves. Foxy recomienda un próximo paso mediante reglas y abre el destino autorizado correspondiente.
+
+Las tareas y consultas o devoluciones se agrupan por rol, junto a la agenda y las aulas en filas compactas. Perfil y notificaciones se encuentran en la navegación de Inicio, dentro del menú en celular. La vista normal omite Recursos y herramientas y Actualizar. Conserva los reintentos de errores y la actualización al recuperar el foco después de 60 segundos. La semana visible sigue la zona horaria de la respuesta; los eventos mantienen su ventana de 90 días.
+
+El alcance y sus comprobaciones se conservan en [las tareas](../../../odd/tasks/home-by-role.md) y el [registro de implementación](../../work-log/2026-11-04-id-unavailable-home-warm-glass.md). Las selecciones visuales anteriores descritas debajo son antecedentes.
+
 ## Implementation boundaries
 
 No new API endpoint, schema, dependency, account role or academic email was added. `ClassroomsScreen` retains the accepted P3 session/verification gate. `ClassroomsApp` defaults to the existing Mis Aulas presentation; Inicio is optional. Its wizard navigation restrictions and reduced evaluation header are not replaced.
