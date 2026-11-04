@@ -59,3 +59,20 @@ Arranque completado. El usuario puede probar en http://127.0.0.1:52171/sign-in; 
 El usuario pidió «Cerra la app». Se verificaron supervisor 19192, árbol descendiente y listeners 52170/52171. Stop-Process se limitó a los nodos propios observados 48084, 16088 y 12236 tras verificar sus comandos; el supervisor cerró después, retirando operation.lock. `docker stop` de los cuatro contenedores exactos main-gemini (mail, scanner, s3, db) terminó con exit 0. No se cerró Docker Desktop ni servicios ajenos.
 
 Comprobación final: cero procesos de esos IDs, cero listeners API/web y cero contenedores activos con la etiqueta de este entorno. Permanecen los tres volúmenes db-data/mail-data/s3-data y el backup before-library-retry-20261104-1793807785610.dump; no se eliminaron contenedores, datos ni archivos privados. Sin cambios de producto ni commits. Handoff vigente: aplicación detenida; el próximo arranque debe usar el lanzador retenido con guard de 37 migraciones y conservar este entorno.
+
+## Nueva sincronización y reinicio solicitados
+
+El usuario pide revisar pendientes, confirmar sincronización con GitHub y volver a levantar la app. Estado inicial: main 4691e4a igual a origin/main y remoto vivo después de fetch; único pendiente propio, el cierre de seis líneas anterior. Todos los demás worktrees limpios; stash histórico fcef243 conservado. Se aplica work-unit-commits a la entrega documental; sin nuevas funciones, migraciones ni proveedores externos.
+
+Cierre anterior guardado en 1de8d1834ce5c93796e7909e4c6476ce21fbdea1, integrado por fast-forward y publicado con push normal. Lectura remota confirmó ese hash; checkout limpio antes del reinicio. docs:check pasó 138 archivos/1738 enlaces y diff-check exit 0. Desde el build API anterior no cambiaron apps/api, src, prisma ni dependencias; el pulido 2257b80 afecta la web y ya está publicado con su evidencia. Next dev leerá el código web actual. Infraestructura detenida y operation.lock ausente; guard de 37 migraciones vigente.
+
+Estado de esta reanudación: in_progress. Primera acción: lanzar preview-readme-no-ai, comprobar API/web, conservar datos y registrar la evidencia antes del cierre/sincronización documental final.
+
+### Resultado de la reanudación
+
+- Primer supervisor 33112 superó infraestructura/historial/drift, pero Next respondió 500 en /sign-in y el guard terminó en web-readiness exit 1. No se afirma causa de producto; no apareció un stack específico en logs. El supervisor y la web finalizaron y liberaron su lock.
+- Se comprobó que apps/web/.next/dev era exactamente el subdirectorio generado del checkout y que el supervisor estaba detenido. Se renombró como dev-before-restart-sync-20261104, conservándolo. No se borró ni movió código o datos retenidos. El arranque con caché regenerada pasó, sin cambios de producto: evidencia compatible con caché obsoleta, sin diagnóstico causal más profundo.
+- Supervisor definitivo 22556 con preview-readme-no-ai; código publicado 1de8d18, que incluye el pulido de Inicio 2257b80. Guard de 37 migraciones/checksums y drift aprobado; sin migraciones nuevas. API/Next y los cuatro servicios propios permanecen activos.
+- HTTP final: API live/ready 200, acceso web 200, correo readyz 200 y aulas anónimas 401 esperado. Timeout por lectura 10 s. No se inició sesión ni se ejecutaron flujos académicos o IA real. Proveedor externo desactivado como en el arranque anterior.
+- Next dev regeneró las dos rutas de next-env.d.ts; se restauró solo ese archivo generado al contenido Git previo tras inspeccionar su diff. Inventario/rutas: 446 entradas/53 exclusiones/23 rutas, exit 0. Se conserva stash fcef243 y demás worktrees sin modificar.
+- Estado final de operación: completed. URL http://127.0.0.1:52171/sign-in; correo http://127.0.0.1:52169. Este cierre documental se guarda y publica por autorización vigente; su propio hash se comprueba después, sin anticiparlo. No hay trabajo funcional pendiente de este pedido; próximo paso del usuario, probar la app.
