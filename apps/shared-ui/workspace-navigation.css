@@ -16,8 +16,8 @@
   .fm3d-theme .fm3d-shell[data-private='true'] :is(.fm3d-shell-nav,.fm3d-shell-account) > a { color: #d6e7de; font-weight: 500; }
   .fm3d-theme .fm3d-shell[data-private='true'] :is(.fm3d-shell-nav,.fm3d-shell-account) > a[aria-current='page'] { color: #253d32; background: #f4d7a8; font-weight: 650; }
   .fm3d-theme .fm3d-shell[data-private='true'] :is(.fm3d-shell-nav,.fm3d-shell-account) > a:hover { background: #2b5749; color: #fff; }
-  .fm3d-theme .fm3d-shell[data-private='true'] .fm3d-shell-account :is(.fm3d-shell-name,button) { color: #d6e7de; }
-  .fm3d-theme .fm3d-shell[data-private='true'] .fm3d-shell-account button:hover { background: #2b5749; }
+  .fm3d-theme .fm3d-shell[data-private='true'] .fm3d-shell-account > :is(.fm3d-shell-name,button) { color: #d6e7de; }
+  .fm3d-theme .fm3d-shell[data-private='true'] .fm3d-shell-account > button:hover { background: #2b5749; }
   .fm3d-theme .fm3d-shell[data-private='true'] .fm3d-shell-nav { gap: 6px; }
   .fm3d-theme .fm3d-shell[data-private='true'] .fm3d-shell-tools { left: var(--fm-sidebar); height: var(--fm-toolbar-height); padding: 10px 32px; border-bottom: 1px solid var(--fm-border); background: var(--fm-canvas); }
   .fm3d-theme .fm3d-shell[data-private='true'] > .fm3d-shell-account { border-top: 1px solid #48665a; padding-top: 14px; }

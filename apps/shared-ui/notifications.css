@@ -1,0 +1,69 @@
+/* Shared notification surface: independent of navbar, page and classroom styles. */
+.fm3d-theme dialog.p5-dialog.entry-notifications {
+  width: min(560px, calc(100vw - 32px));
+  max-width: none;
+  max-height: min(800px, calc(100dvh - 48px));
+  padding: 0;
+  border: 1px solid #dfc8ad;
+  border-radius: 24px;
+  background: #fffcf7;
+  color: #3d2a20;
+  font: 400 14px/20px 'Segoe UI', sans-serif;
+  box-shadow: 0 24px 80px #36201133;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+.fm3d-theme dialog.entry-notifications::backdrop { background: #30251f66; }
+.fm3d-theme dialog.entry-notifications > header {
+  position: sticky; top: 0; z-index: 1;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 20px 24px 16px; margin: 0; background: #fffcf7; border-bottom: 1px solid #eadfce;
+}
+.fm3d-theme dialog.entry-notifications > header h2 { margin: 0; font: 500 24px/32px 'Fredoka Auth', 'Segoe UI', sans-serif; color: #3d2a20; }
+.fm3d-theme dialog.entry-notifications button { font: 600 14px/20px 'Segoe UI', sans-serif; cursor: pointer; min-height: 44px; transition: background-color .15s, border-color .15s; }
+.fm3d-theme dialog.entry-notifications > header .p5-close { flex: 0 0 44px; width: 44px; height: 44px; padding: 0; border: 1px solid #e2d5c3; border-radius: 12px; background: #fff; color: #665040; font-size: 24px; }
+.fm3d-theme dialog.entry-notifications .notifications-summary { padding: 20px 24px 16px; }
+.fm3d-theme dialog.entry-notifications .notifications-total { display: block; color: #873b16; font-size: 16px; line-height: 24px; font-weight: 650; }
+.fm3d-theme dialog.entry-notifications .notifications-summary p { margin: 4px 0 0; color: #716153; font-size: 14px; line-height: 20px; }
+.fm3d-theme dialog.entry-notifications .notifications-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 0; padding: 0 24px 20px; }
+.fm3d-theme dialog.entry-notifications .notification-filters { display: inline-flex; flex-wrap: nowrap; padding: 4px; gap: 4px; background: #f2ebdf; border: 1px solid #e6d9c7; border-radius: 12px; }
+.fm3d-theme dialog.entry-notifications .notification-filters button { padding: 8px 12px; min-height: 44px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: #665344; white-space: nowrap; }
+.fm3d-theme dialog.entry-notifications .notification-filters button[aria-pressed='true'] { background: #fffdf8; border-color: #e0cbb0; color: #703217; box-shadow: 0 1px 2px #4a301313; }
+.fm3d-theme dialog.entry-notifications .notification-filters button span { display: inline-block; margin-left: 4px; min-width: 20px; padding-inline: 4px; border-radius: 4px; background: #f2dfc6; font-size: 12px; line-height: 20px; }
+.fm3d-theme dialog.entry-notifications .notifications-refresh { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 12px; border: 1px solid #d9c9b3; border-radius: 12px; background: #fff; color: #5f4937; }
+.fm3d-theme dialog.entry-notifications .notifications-refresh .fm3d-icon { width: 16px; height: 16px; }
+.fm3d-theme dialog.entry-notifications .p6-notifications { display: grid; gap: 12px; padding: 0 24px 24px; margin: 0; list-style: none; }
+.fm3d-theme dialog.entry-notifications .p6-notifications > li { padding: 16px; border: 1px solid #e4d8c7; border-radius: 16px; background: #fff; box-shadow: 0 2px 0 #eadfce66; overflow-wrap: anywhere; }
+.fm3d-theme dialog.entry-notifications .p6-notifications > li.unread { border: 1px solid #e5bf92; background: #fffaf2; }
+.fm3d-theme dialog.entry-notifications .notification-heading { display: flex; align-items: flex-start; gap: 8px; }
+.fm3d-theme dialog.entry-notifications .notification-heading > .fm3d-icon { width: 20px; height: 20px; flex: 0 0 20px; margin-top: 2px; color: #a94b20; }
+.fm3d-theme dialog.entry-notifications .notification-heading h3 { flex: 1; min-width: 0; margin: 0; font: 650 16px/24px 'Segoe UI', sans-serif; color: #3d2a20; text-wrap: pretty; }
+.fm3d-theme dialog.entry-notifications .notification-state { flex-shrink: 0; padding: 2px 8px; border: 1px solid #edcda8; border-radius: 8px; background: #ffecd3; color: #873b16; font-size: 12px; line-height: 20px; font-weight: 600; }
+.fm3d-theme dialog.entry-notifications .notification-state.is-read { color: #71665a; background: #f6f2ec; border-color: #e9e2d8; }
+.fm3d-theme dialog.entry-notifications .notification-classroom { margin: 8px 0 0; color: #665344; font-size: 14px; line-height: 20px; }
+.fm3d-theme dialog.entry-notifications .notification-activity { margin: 4px 0 0; color: #534033; font-size: 14px; line-height: 20px; font-weight: 600; }
+.fm3d-theme dialog.entry-notifications .notification-time { display: block; margin: 8px 0 0; color: #786b5e; font-size: 12px; line-height: 16px; }
+.fm3d-theme dialog.entry-notifications .notification-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; }
+.fm3d-theme dialog.entry-notifications .notification-actions > button { flex: 1 1 auto; justify-content: center; text-align: center; padding: 8px 12px; border-radius: 12px; }
+.fm3d-theme dialog.entry-notifications .notification-actions > .notification-open { background: #a6421b; border: 1px solid #923916; color: #fffdf8; box-shadow: 0 2px 0 #743016; }
+.fm3d-theme dialog.entry-notifications .notification-actions > .notification-open:hover:enabled { background: #8a3415; }
+.fm3d-theme dialog.entry-notifications .notification-actions > .notification-read { background: #fffdf8; border: 1px solid #d8c5ab; color: #624934; box-shadow: 0 2px 0 #e8dac6; }
+.fm3d-theme dialog.entry-notifications .notification-actions > .notification-read:hover:enabled { background: #f6ebdc; }
+.fm3d-theme dialog.entry-notifications > .p5-notice, .fm3d-theme dialog.entry-notifications > .p5-empty { margin: 0 24px 20px; padding: 16px; font-size: 14px; line-height: 24px; }
+.fm3d-theme dialog.entry-notifications > button { display: block; width: calc(100% - 48px); margin: 0 24px 24px; border: 1px solid #d8c5ab; background: #fff; color: #624934; }
+.fm3d-theme dialog.entry-notifications button:disabled { opacity: .55; cursor: wait; box-shadow: none; }
+.fm3d-theme dialog.entry-notifications :is(button,a):focus-visible { outline: 3px solid #8d431f; outline-offset: 3px; }
+@media (max-width: 540px) {
+  .fm3d-theme dialog.p5-dialog.entry-notifications { width: calc(100vw - 24px); max-height: calc(100dvh - 32px); border-radius: 20px; }
+  .fm3d-theme dialog.entry-notifications > header { padding: 12px 16px; }
+  .fm3d-theme dialog.entry-notifications .notifications-summary { padding: 16px; }
+  .fm3d-theme dialog.entry-notifications .notifications-toolbar { padding: 0 16px 16px; gap: 8px; }
+  .fm3d-theme dialog.entry-notifications .notifications-refresh { padding: 8px; }
+  .fm3d-theme dialog.entry-notifications .p6-notifications { padding: 0 16px 16px; }
+  .fm3d-theme dialog.entry-notifications .notification-heading { flex-wrap: wrap; }
+  .fm3d-theme dialog.entry-notifications .notification-heading h3 { flex-basis: calc(100% - 28px); }
+  .fm3d-theme dialog.entry-notifications .notification-state { margin-left: 28px; }
+  .fm3d-theme dialog.entry-notifications .notification-actions > button { flex-basis: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .fm3d-theme dialog.entry-notifications button { transition: none; } }

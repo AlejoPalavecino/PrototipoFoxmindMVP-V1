@@ -561,7 +561,7 @@
   :global(.fm3d-theme .p5-app.entry-classrooms-reference .fm3d-shell[data-private='true'] .fm3d-shell-tools):where(.scope, .scope *) { padding: 10px 24px; background: #fff8f0; }
   :global(.fm3d-theme .p5-app.entry-classrooms-reference .fm3d-shell[data-private='true'] .fm3d-shell-nav):where(.scope, .scope *) { gap: 2px; }
   :global(.fm3d-theme .p5-app.entry-classrooms-reference .fm3d-shell[data-private='true'] .fm3d-shell-account):where(.scope, .scope *) { border-top-color: #eee5da; }
-  :global(.fm3d-theme .p5-app.entry-classrooms-reference .fm3d-shell[data-private='true'] .fm3d-shell-account :is(.fm3d-shell-name,button)):where(.scope, .scope *) { color: #535963; }
+  :global(.fm3d-theme .p5-app.entry-classrooms-reference .fm3d-shell[data-private='true'] .fm3d-shell-account > :is(.fm3d-shell-name,button)):where(.scope, .scope *) { color: #535963; }
 }
 @media (max-width: 1500px) {
   :global(.fm3d-theme .p5-app.entry-classrooms-reference .collection-hero-copy):where(.scope, .scope *) { max-width: 54%; }

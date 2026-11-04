@@ -14,8 +14,10 @@ export interface AppNavbarProps {
 export function AppNavbar(props: AppNavbarProps) {
   const [open, setOpen] = useState(false);
   const restricted = props.restricted ?? false;
-  const homeNavigation = props.homeNavigation ?? false;
-  useEffect(() => { setOpen(false); }, [homeNavigation]);
+  // Private screens share one navigation policy, including future callers.
+  const privateShell = props.links.some(link => link.href === '/mis-aulas');
+  const homeNavigation = privateShell || props.homeNavigation === true;
+  useEffect(() => { setOpen(false); }, [homeNavigation, props.currentPath]);
   useEffect(() => {
     if (!open || !window.matchMedia) return;
     const desktop = window.matchMedia('(min-width: 1024px)');
@@ -23,7 +25,6 @@ export function AppNavbar(props: AppNavbarProps) {
     desktop.addEventListener('change', closeOnDesktop);
     return () => desktop.removeEventListener('change', closeOnDesktop);
   }, [open]);
-  const privateShell = props.links.some(link => link.href === '/mis-aulas');
   const initials = props.displayName?.trim().split(/\s+/).map(part => Array.from(part)[0]).slice(0, 2).join('').toUpperCase() || 'F';
   const follow = (event: MouseEvent<HTMLAnchorElement>, href: string) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;

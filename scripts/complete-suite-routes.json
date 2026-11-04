@@ -183,6 +183,7 @@
       "tests/home-reference-summary.test.mjs",
       "tests/home-refinement-copy.test.mjs",
       "tests/home-warm-navigation.test.mjs",
+      "tests/notifications-presentation.test.mjs",
       "tests/issue2-ci-workflow.test.mjs",
       "tests/p3-web-client.test.mjs",
       "tests/p3-web-proxy.test.mjs",

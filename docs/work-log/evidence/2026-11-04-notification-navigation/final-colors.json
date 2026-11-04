@@ -1,0 +1,58 @@
+[
+  {
+    "width": 390,
+    "screen": "inicio",
+    "color": "rgb(255, 253, 248)",
+    "background": "rgb(166, 66, 27)",
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "screen": "mis-aulas",
+    "color": "rgb(255, 253, 248)",
+    "background": "rgb(166, 66, 27)",
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "screen": "agenda",
+    "color": "rgb(255, 253, 248)",
+    "background": "rgb(166, 66, 27)",
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "screen": "profile",
+    "color": "rgb(255, 253, 248)",
+    "background": "rgb(166, 66, 27)",
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "screen": "inicio",
+    "color": "rgb(255, 253, 248)",
+    "background": "rgb(166, 66, 27)",
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "screen": "mis-aulas",
+    "color": "rgb(255, 253, 248)",
+    "background": "rgb(166, 66, 27)",
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "screen": "agenda",
+    "color": "rgb(255, 253, 248)",
+    "background": "rgb(166, 66, 27)",
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "screen": "profile",
+    "color": "rgb(255, 253, 248)",
+    "background": "rgb(166, 66, 27)",
+    "overflow": false
+  }
+]

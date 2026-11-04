@@ -1,0 +1,206 @@
+[
+  {
+    "kind": "home",
+    "width": 320,
+    "role": "fm-home fm-home--reference fm-home--warm fm-home--teach",
+    "overflow": false,
+    "artFilter": "none",
+    "artMask": "none",
+    "artDecoded": true,
+    "overlay": "none",
+    "glassFilter": "none",
+    "glassInside": true,
+    "avatar": 0
+  },
+  {
+    "kind": "home",
+    "width": 320,
+    "role": "fm-home fm-home--reference fm-home--warm fm-home--study",
+    "overflow": false,
+    "artFilter": "none",
+    "artMask": "none",
+    "artDecoded": true,
+    "overlay": "none",
+    "glassFilter": "none",
+    "glassInside": true,
+    "avatar": 0
+  },
+  {
+    "kind": "dialog",
+    "width": 320,
+    "dialog": {
+      "x": 4.400000095367432,
+      "y": 16.00252342224121,
+      "width": 296,
+      "height": 868,
+      "top": 16.00252342224121,
+      "right": 300.40000009536743,
+      "bottom": 884.0025234222412,
+      "left": 4.400000095367432
+    },
+    "horizontalOverflow": false,
+    "outside": [],
+    "openDialogs": 2,
+    "primaryColor": "rgb(255, 253, 248)",
+    "primaryBackground": "rgb(166, 66, 27)"
+  },
+  {
+    "kind": "interaction",
+    "width": 320,
+    "readCountUpdated": true,
+    "nestedEscapeAndFocus": true
+  },
+  {
+    "kind": "home",
+    "width": 390,
+    "role": "fm-home fm-home--reference fm-home--warm fm-home--teach",
+    "overflow": false,
+    "artFilter": "none",
+    "artMask": "none",
+    "artDecoded": true,
+    "overlay": "none",
+    "glassFilter": "none",
+    "glassInside": true,
+    "avatar": 0
+  },
+  {
+    "kind": "home",
+    "width": 390,
+    "role": "fm-home fm-home--reference fm-home--warm fm-home--study",
+    "overflow": false,
+    "artFilter": "none",
+    "artMask": "none",
+    "artDecoded": true,
+    "overlay": "none",
+    "glassFilter": "none",
+    "glassInside": true,
+    "avatar": 0
+  },
+  {
+    "kind": "dialog",
+    "width": 390,
+    "dialog": {
+      "x": 4.400000095367432,
+      "y": 16.43669891357422,
+      "width": 366.3999938964844,
+      "height": 868,
+      "top": 16.43669891357422,
+      "right": 370.7999939918518,
+      "bottom": 884.4366989135742,
+      "left": 4.400000095367432
+    },
+    "horizontalOverflow": false,
+    "outside": [],
+    "openDialogs": 2,
+    "primaryColor": "rgb(255, 253, 248)",
+    "primaryBackground": "rgb(166, 66, 27)"
+  },
+  {
+    "kind": "interaction",
+    "width": 390,
+    "readCountUpdated": true,
+    "nestedEscapeAndFocus": true
+  },
+  {
+    "kind": "home",
+    "width": 768,
+    "role": "fm-home fm-home--reference fm-home--warm fm-home--teach",
+    "overflow": false,
+    "artFilter": "none",
+    "artMask": "none",
+    "artDecoded": true,
+    "overlay": "none",
+    "glassFilter": "none",
+    "glassInside": true,
+    "avatar": 0
+  },
+  {
+    "kind": "home",
+    "width": 768,
+    "role": "fm-home fm-home--reference fm-home--warm fm-home--study",
+    "overflow": false,
+    "artFilter": "none",
+    "artMask": "none",
+    "artDecoded": true,
+    "overlay": "none",
+    "glassFilter": "none",
+    "glassInside": true,
+    "avatar": 0
+  },
+  {
+    "kind": "dialog",
+    "width": 768,
+    "dialog": {
+      "x": 96.4000015258789,
+      "y": 50.00277328491211,
+      "width": 560,
+      "height": 799.9999389648438,
+      "top": 50.00277328491211,
+      "right": 656.4000015258789,
+      "bottom": 850.0027122497559,
+      "left": 96.4000015258789
+    },
+    "horizontalOverflow": false,
+    "outside": [],
+    "openDialogs": 2,
+    "primaryColor": "rgb(255, 253, 248)",
+    "primaryBackground": "rgb(166, 66, 27)"
+  },
+  {
+    "kind": "interaction",
+    "width": 768,
+    "readCountUpdated": true,
+    "nestedEscapeAndFocus": true
+  },
+  {
+    "kind": "home",
+    "width": 1440,
+    "role": "fm-home fm-home--reference fm-home--warm fm-home--teach",
+    "overflow": false,
+    "artFilter": "none",
+    "artMask": "none",
+    "artDecoded": true,
+    "overlay": "none",
+    "glassFilter": "none",
+    "glassInside": true,
+    "avatar": 0
+  },
+  {
+    "kind": "home",
+    "width": 1440,
+    "role": "fm-home fm-home--reference fm-home--warm fm-home--study",
+    "overflow": false,
+    "artFilter": "none",
+    "artMask": "none",
+    "artDecoded": true,
+    "overlay": "none",
+    "glassFilter": "none",
+    "glassInside": true,
+    "avatar": 0
+  },
+  {
+    "kind": "dialog",
+    "width": 1440,
+    "dialog": {
+      "x": 432.3999938964844,
+      "y": 50.002620697021484,
+      "width": 560,
+      "height": 800,
+      "top": 50.002620697021484,
+      "right": 992.3999938964844,
+      "bottom": 850.0026206970215,
+      "left": 432.3999938964844
+    },
+    "horizontalOverflow": false,
+    "outside": [],
+    "openDialogs": 1,
+    "primaryColor": "rgb(255, 253, 248)",
+    "primaryBackground": "rgb(166, 66, 27)"
+  },
+  {
+    "kind": "interaction",
+    "width": 1440,
+    "readCountUpdated": true,
+    "nestedEscapeAndFocus": true
+  }
+]

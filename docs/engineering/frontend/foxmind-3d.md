@@ -4,6 +4,12 @@ La migración incorpora los recursos aprobados y el **Foxy original ZorroH** en 
 
 [Evidencia visual real](../../work-log/evidence/2026-10-25-foxmind-3d/README.md) · [82 recorridos y nivel de evidencia](../../foxmind-3d-verification.md) · [contrato de implementación](../../../odd/tasks/foxmind-3d-migration.md) · [registro coordinador](../../work-log/2026-10-25-root-visual-migration.md).
 
+## Navegación privada común
+
+Todas las pantallas privadas que usan `AppNavbar` comparten la navegación de Inicio por defecto: notificaciones en la barra lateral (o dentro del menú móvil), Configuración y un desplegable bajo el nombre con perfil/cierre de sesión. No se agregan campanas, ubicación ni avatar en una barra superior por pantalla. Las pantallas futuras reutilizan el mismo componente y los destinos compartidos; no necesitan activar un estilo de Inicio. El asistente de creación conserva su navegación restringida.
+
+El diálogo de notificaciones conserva filtros, paginación y destinos autorizados. Su presentación usa `apps/shared-ui/notifications.css`, separada de los controles de cuenta. Los estilos de navegación deben limitarse a sus controles directos para no cambiar el contraste de los botones del diálogo anidado. El banner de bienvenida mantiene el arte original sin filtros ni máscara; el contraste se obtiene aumentando la opacidad únicamente de la tarjeta del texto.
+
 ## Cómo funciona Inicio
 
 El servidor deriva `study`, `teach` o `none` de las relaciones activas por aula; cada cuenta tiene además un rol global exclusivo elegido al registrarse. Las aulas archivadas, invitaciones y borradores se muestran como contextos separados.

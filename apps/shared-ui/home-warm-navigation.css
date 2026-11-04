@@ -1,36 +1,38 @@
 .fm3d-theme .entry-home { background: #fffaf1; --fm-ink:#3d2a20; --fm-muted:#66584b; }
-.fm3d-theme .entry-home .fm-home-navigation .fm3d-shell-brand { background: transparent; border-radius: 0; }
-.fm3d-theme .entry-home .fm-home-navigation .fm3d-shell-notifications .p6-notifications-toggle { display: flex; justify-content: flex-start; width: 100%; gap: 12px; padding: 12px 14px; background: transparent; color: #434034; border: 0; font-size: 14px; }
-.fm3d-theme .entry-home .fm-home-navigation .fm3d-shell-notifications .entry-sr-only { position: static; width: auto; height: auto; clip: auto; clip-path: none; overflow: visible; white-space: normal; margin: 0; padding: 0; }
-.fm3d-theme .entry-home .fm-home-navigation .fm3d-shell-notifications .entry-unread-count { position: static; margin-left: auto; }
-.fm3d-theme .entry-home .fm-home-navigation .fm3d-shell-notifications .entry-notifications { color: #3d2a20; }
-.fm3d-theme .entry-home .fm-home-navigation .fm3d-shell-account { border-color: #dfc8ad; }
-.fm3d-theme .entry-home .fm-home-navigation .fm3d-shell-account .fm3d-shell-name { color: #66584b; }
+.fm3d-theme .fm-home-navigation .fm3d-shell-brand { background: transparent; border-radius: 0; }
+.fm3d-theme .fm-home-navigation .fm3d-shell-notifications .p6-notifications-toggle { display: flex; justify-content: flex-start; width: 100%; gap: 12px; padding: 12px 14px; background: transparent; color: #434034; border: 0; font-size: 14px; }
+.fm3d-theme .fm-home-navigation .fm3d-shell-notifications .entry-sr-only { position: static; width: auto; height: auto; clip: auto; clip-path: none; overflow: visible; white-space: normal; margin: 0; padding: 0; }
+.fm3d-theme .fm-home-navigation .fm3d-shell-notifications .entry-unread-count { position: static; margin-left: auto; }
+.fm3d-theme .fm-home-navigation .fm3d-shell-notifications .entry-notifications { color: #3d2a20; }
+.fm3d-theme .fm-home-navigation .fm3d-shell-account { border-color: #dfc8ad; }
+.fm3d-theme .fm-home-navigation .fm3d-shell-account .fm3d-shell-name { color: #66584b; }
 .fm3d-theme .entry-home { --fm-font-body: 'Segoe UI', sans-serif; --fm-font-heading: 'Fredoka Auth', sans-serif; font-family: var(--fm-font-body); }
 .fm3d-theme .entry-home :is(button,input,select,textarea) { font-family: var(--fm-font-body); }
-.fm3d-theme .entry-home .fm-home-account-menu { min-width: 0; padding: 0; border: 0; background: transparent; }
-.fm3d-theme .entry-home .fm-home-account-menu > summary { display: flex; align-items: center; gap: 12px; padding: 12px 14px; min-height: 48px; cursor: pointer; list-style: none; font: 600 14px/20px var(--fm-font-body); color: #434034; border-radius: 12px; }
-.fm3d-theme .entry-home .fm-home-account-menu summary::-webkit-details-marker { display: none; }
-.fm3d-theme .entry-home .fm-home-account-menu summary span { min-width: 0; overflow-wrap: anywhere; flex: 1; }
-.fm3d-theme .entry-home .fm-home-account-menu .fm3d-icon { flex: 0 0 20px; width: 20px; height: 20px; }
-.fm3d-theme .entry-home .fm-home-account-menu[open] > summary { background: #f6ead9; }
-.fm3d-theme .entry-home .fm-home-account-menu[open] > summary > .fm3d-icon:last-child { transform: rotate(180deg); }
-.fm3d-theme .entry-home .fm-home-account-options { display: grid; gap: 4px; padding: 8px; margin: 4px 0 8px; background: #fff4e5; border: 1px solid #dfc8ad; border-radius: 12px; }
-.fm3d-theme .entry-home .fm-home-account-options :is(a,button) { width: 100%; margin: 0; text-align: left; justify-content: flex-start; min-height: 44px; padding: 8px 12px; border: 0; background: transparent; font: 400 14px/20px var(--fm-font-body); }
-.fm3d-theme .entry-home .fm-home-account-menu summary:focus-visible { outline: 2px solid #a23e1b; outline-offset: 2px; }
+.fm3d-theme .fm-home-navigation .fm-home-account-menu { min-width: 0; padding: 0; border: 0; background: transparent; }
+.fm3d-theme .fm-home-navigation .fm-home-account-menu > summary { display: flex; align-items: center; gap: 12px; padding: 12px 14px; min-height: 48px; cursor: pointer; list-style: none; font: 600 14px/20px var(--fm-font-body); color: #434034; border-radius: 12px; }
+.fm3d-theme .fm-home-navigation .fm-home-account-menu summary::-webkit-details-marker { display: none; }
+.fm3d-theme .fm-home-navigation .fm-home-account-menu summary span { min-width: 0; overflow-wrap: anywhere; flex: 1; }
+.fm3d-theme .fm-home-navigation .fm-home-account-menu .fm3d-icon { flex: 0 0 20px; width: 20px; height: 20px; }
+.fm3d-theme .fm-home-navigation .fm-home-account-menu[open] > summary { background: #f6ead9; }
+.fm3d-theme .fm-home-navigation .fm-home-account-menu[open] > summary > .fm3d-icon:last-child { transform: rotate(180deg); }
+.fm3d-theme .fm-home-navigation .fm-home-account-options { display: grid; gap: 4px; padding: 8px; margin: 4px 0 8px; background: #fff4e5; border: 1px solid #dfc8ad; border-radius: 12px; }
+.fm3d-theme .fm-home-navigation .fm-home-account-options :is(a,button) { width: 100%; margin: 0; text-align: left; justify-content: flex-start; min-height: 44px; padding: 8px 12px; border: 0; background: transparent; font: 400 14px/20px var(--fm-font-body); }
+.fm3d-theme .fm-home-navigation .fm-home-account-menu summary:focus-visible { outline: 2px solid #a23e1b; outline-offset: 2px; }
 @media (min-width: 1024px) {
+  .fm3d-theme:has(.fm-home-navigation[data-private='true']) .p5-app[class] { padding-top: 24px; }
+  .fm3d-theme:has(.fm-home-navigation[data-private='true']) .profile-main { padding-top: 24px; }
   .fm3d-theme:has(.entry-home) .p5-app.entry-home[class] { padding: 24px 26px 40px; }
-  .fm3d-theme .entry-home .fm-home-navigation { background: #fffdf8; }
-  .fm3d-theme .entry-home .fm-home-navigation .fm3d-shell-tools { display: none; }
-  .fm3d-theme .entry-home .fm-home-navigation .fm3d-shell-account :is(button,a) { color: #434034; }
-  .fm3d-theme .entry-home .fm-home-navigation .fm3d-shell-account button:hover { background: #fae9d4; }
+  .fm3d-theme .fm-home-navigation { background: #fffdf8; }
+  .fm3d-theme .fm-home-navigation .fm3d-shell-tools { display: none; }
+  .fm3d-theme .fm-home-navigation .fm3d-shell-account > :is(button,a) { color: #434034; }
+  .fm3d-theme .fm-home-navigation .fm3d-shell-account > button:hover { background: #fae9d4; }
 }
 @media (max-width: 1023px) {
   .fm3d-theme:has(.entry-home) .p5-app.entry-home[class] { padding: 24px 20px; }
   .fm3d-theme .p5-app.entry-home > .fm-home-navigation[data-private='true'] { margin: -24px -20px 20px; }
-  .fm3d-theme .entry-home .fm-home-navigation > .fm3d-shell-nav { display: none; }
-  .fm3d-theme .entry-home .fm-home-navigation { background: #fffdf8; }
-  .fm3d-theme .entry-home .fm-home-navigation .fm3d-shell-tools { background: transparent; }
+  .fm3d-theme .fm-home-navigation[data-private='true'] > .fm3d-shell-nav { display: none; }
+  .fm3d-theme .fm-home-navigation { background: #fffdf8; }
+  .fm3d-theme .fm-home-navigation .fm3d-shell-tools { background: transparent; }
 }
 @media (max-width: 600px) {
   .fm3d-theme:has(.entry-home) .p5-app.entry-home[class] { padding: 20px 14px; }
