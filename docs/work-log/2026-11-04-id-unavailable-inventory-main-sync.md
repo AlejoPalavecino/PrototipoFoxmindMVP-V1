@@ -6,7 +6,7 @@
 - Branch / worktree: codex/test-inventory-sync, checkout principal.
 - Starting commit: 4d4e242730c8c35c3ae23b9ef9c9d3e9aeb7ad02.
 - Phase and detailed task/spec links: R1; [verificación](../engineering/testing/README.md), [estado del producto](../implementation-roadmap.md).
-- Status: in_progress.
+- Status: completed.
 
 ## Request and scope
 
@@ -29,8 +29,13 @@ Se inspeccionaron Git, hoja de ruta, protocolo de registros y scripts de inventa
 
 ## Commits and outcomes
 
-Corrección y comprobaciones locales completadas. Pendientes commit, integración fast-forward en main, push normal y lectura exacta de la referencia remota. Stash previo fcef243 preservado.
+- Corrección y evidencia: `a410355bfc709ea0e67b9011fe8bac0b56bf3923`, `fix(test): route new Home and Agenda checks in complete suite`.
+- main avanzó de 4d4e242 a a410355 mediante `git merge --ff-only codex/test-inventory-sync`, sin conflictos ni cambios adicionales. Inventario/rutas se volvieron a comprobar en main: exit 0.
+- `git push origin main`: exit 0, avance remoto a3afdc7..a410355. Publicados los siete commits previos más la corrección.
+- Lectura posterior: `git rev-parse HEAD`, `git rev-parse origin/main` y `git ls-remote origin refs/heads/main` coinciden exactamente en a410355bfc709ea0e67b9011fe8bac0b56bf3923. `git status --short --branch`: main...origin/main, sin archivos pendientes.
+- Stash previo `stash@{0}` fcef243 permanece con su etiqueta original. Los otros worktrees no se modificaron.
+- Este cierre documental actualiza la hoja de ruta con la publicación ya observada. Su propio hash y su publicación se comprueban después de crearlo; no se anticipan aquí.
 
 ## Handoff
 
-Primera acción: crear el commit de corrección/evidencia, integrar en main y publicar con push normal. Reversión de la corrección: las tres entradas de cada manifiesto como unidad, conservando evidencia histórica. No cambia contratos de runtime; QA funcional/visual adicional no corresponde a esta clasificación.
+Inventario corregido e implementación publicada en main. No quedan tareas funcionales de esta unidad. Guardar/publicar este cierre documental y comprobar igualdad final local/remoto; el siguiente trabajo de producto requiere su propio alcance. La suite completa y CI remoto no se declaran aprobados. Reversión de la corrección: las tres entradas de cada manifiesto como unidad, conservando evidencia histórica. Sin despliegue ni cambios de datos.

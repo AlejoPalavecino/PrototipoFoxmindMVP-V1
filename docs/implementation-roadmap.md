@@ -11,7 +11,7 @@ Este resumen distingue lo integrado, lo verificado y los límites de las pruebas
 | Análisis individual | Implementado con métricas anónimas y alcance docente, separado de calificación | [Guía](engineering/ai/student-analysis.md), [verificación](work-log/2026-10-28-root-student-ai-verification.md) |
 | Corrección asistida | Integrada en main; propuesta privada y publicación docente independiente. Pruebas reales limitadas a casos documentados | [Contrato issue #2](../odd/tasks/grading-ai-issue-2.md), [guía](engineering/ai/grading-assistance.md) |
 | Sistema visual | FoxMind3D aplicado e integrado; las exploraciones anteriores son antecedentes | [Sistema y familias](design/README.md), [guía técnica](engineering/frontend/foxmind-3d.md) |
-| Mis aulas: encabezado y personaje | Retoques visuales y nuevo banner aprobados por el usuario e integrados en main local el 2026-11-04; 11 pruebas focales, tipos y lint aprobados. Sin publicación remota | [Entrega local y evidencia](work-log/2026-11-04-id-unavailable-mis-aulas-local-integration.md) |
+| Mis aulas: encabezado y personaje | Retoques visuales y nuevo banner aprobados por el usuario e integrados en main el 2026-11-04; 11 pruebas focales, tipos y lint aprobados. Publicación remota confirmada dentro de a410355 | [Entrega local y evidencia](work-log/2026-11-04-id-unavailable-mis-aulas-local-integration.md), [publicación](work-log/2026-11-04-id-unavailable-inventory-main-sync.md) |
 | Seis correcciones de auditoría | Implementadas y publicadas, con limitaciones y pruebas atribuidas | [Tarea](../odd/tasks/audit-remediation.md), [cierre](work-log/2026-10-30-root-audit-completion.md) |
 | Cinco comprobaciones históricas | Cerradas: FAST783/0/0 y P5/resumen14/0/0. No se repitió toda la selección de42archivos de navegador | [Cierre de los casos](work-log/2026-10-30-root-five-historical-checks.md) |
 | Reorganización documental | Aplicada y publicada en main166cf77:43guías canónicas, compatibilidad e historia preservadas; control documental y FAST794/0/0aprobados | [Plan único y evidencia](../odd/tasks/documentation-reorganization.md) |
@@ -21,6 +21,8 @@ Este resumen distingue lo integrado, lo verificado y los límites de las pruebas
 | Salida voluntaria de aulas archivadas | Implementada y verificada localmente el 2026-11-02. Revocación y conservación comprobadas. Readmisión por reactivación e invitación nueva aceptada. | [Criterios](../odd/tasks/archived-classroom-voluntary-leave.md), [evidencia](work-log/2026-11-02-id-unavailable-archived-classroom-leave-implementation.md) |
 
 ## Cómo retomar
+
+Inicio Taller Cálido, Mis aulas y Agenda se publicaron en main el 2026-11-04 junto con la corrección del inventario de pruebas, en a410355 confirmado por lectura remota. Inventario: 446 entradas, 53 exclusiones y 23 rutas; selección dirigida mediante el runner real con build API fresco: 17 PASS/0 FAIL/0 SKIP. No es una nueva ejecución de la suite completa ni un despliegue. [Registro de sincronización y límites](work-log/2026-11-04-id-unavailable-inventory-main-sync.md).
 
 El pulido visual de Agenda está integrado en main local el 2026-11-04, con Inicio y Mis aulas preservados: banner v4 aprobado, Foxy visible, CTA integrado, paneles próximos y formulario sin desplegable/resumen. [Tareas](../odd/tasks/agenda-visual-polish.md) · [Integración y evidencia](work-log/2026-11-04-id-unavailable-agenda-main-integration.md).
 
