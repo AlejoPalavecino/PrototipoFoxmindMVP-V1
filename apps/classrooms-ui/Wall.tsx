@@ -3,21 +3,24 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { ClassroomClient, Detail, WallContent, WallData, WallPost, WallTarget, WallRepliesPage, WallThreadData } from './api.ts';
 import { parseWallData, parseWallThreadData, parseWallRepliesPage } from '../../src/core/domain/index.ts';
 import { Dialog, Notice } from './components.tsx';
-import { EntryIcon } from '../shared-ui/EntryIcon';
 
-function TextForm({ label, initial = '', busy, onSave, onCancel }: {
-  label: string; initial?: string; busy: boolean; onSave: (body: string) => Promise<void>; onCancel?: () => void;
+export function TextForm({ label, initial = '', initialTitle = '', withTitle = false, titleRequired = false, busy, onSave, onCancel }: {
+  label: string; initial?: string; initialTitle?: string; withTitle?: boolean; titleRequired?: boolean; busy: boolean; onSave: (body: string, title?: string) => Promise<void>; onCancel?: () => void;
 }) {
   const [body, setBody] = useState(initial);
+  const [title, setTitle] = useState(initialTitle);
   const length = [...body].length;
-  return <form onSubmit={event => { event.preventDefault(); void onSave(body); }}>
+  const titleLength = [...title].length;
+  const invalid = !body.trim() || length > 5000 || withTitle && (titleLength > 120 || titleRequired && !title.trim());
+  return <form className="br-wall-composer" onSubmit={event => { event.preventDefault(); if (!busy && !invalid) void onSave(body, withTitle ? title : undefined); }}>
     <fieldset disabled={busy}>
+      {withTitle ? <><label>Título<input name="title" required={titleRequired} value={title} placeholder="Ej. Salida de campo" aria-invalid={titleLength > 120 || undefined} onChange={event => setTitle(event.target.value)} /></label><small>{titleLength} / 120</small></> : null}
       <label>{label}<textarea required rows={3} placeholder="Compartí una idea, una consulta o una respuesta con tu aula…" value={body} aria-invalid={length > 5000 || undefined}
         onChange={event => setBody(event.target.value)} /></label>
       <small>{length.toLocaleString()} / 5.000 · Lo puede leer toda el aula.</small>
       <div className="p5-actions">
         {onCancel ? <button type="button" onClick={onCancel}>Cancelar</button> : null}
-        <button className="primary" disabled={!body.trim() || length > 5000}>{label}</button>
+        <button className="primary" disabled={invalid}>{label}</button>
       </div>
     </fieldset>
   </form>;
@@ -30,19 +33,21 @@ export function WallContentView({ content, children }: { content: WallContent; c
       <strong>{content.authorName}</strong><small><time dateTime={content.createdAt}>{new Date(content.createdAt).toLocaleString('es-AR')}</time>
         {content.editedAt ? ' · Editado' : ''}</small>
     </div></header>
-    {content.removedAt ? <p className="p6-wall-removed">Contenido eliminado</p> : <p className="p6-wall-text">{content.body}</p>}
+    {content.removedAt ? <p className="p6-wall-removed">Contenido eliminado</p> : <>{'title' in content && typeof content.title === 'string' && content.title ? <h3 className="br-wall-title">{content.title}</h3> : null}<p className="p6-wall-text">{content.body}</p></>}
     {children}
   </>;
 }
 
-export function Wall({ api, room, reload, target, onChanged }: {
-  api: ClassroomClient; room: Detail; reload: () => Promise<void>; target?: WallTarget | null; onChanged?: () => void;
+export function Wall({ api, room, reload, target, onChanged, openComposer = false }: {
+  api: ClassroomClient; room: Detail; reload: () => Promise<void>; target?: WallTarget | null; onChanged?: () => void; openComposer?: boolean;
 }) {
   const [data, setData] = useState<WallData | null>(null), [error, setError] = useState(''), [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false), [composerKey, setComposerKey] = useState(0);
   const [editing, setEditing] = useState<{ content: WallContent; reply: boolean } | null>(null);
   const [removing, setRemoving] = useState<{ content: WallContent; reply: boolean } | null>(null);
   const [replying, setReplying] = useState<string | null>(null);
+  const [composing, setComposing] = useState(openComposer);
+  const [postFilter, setPostFilter] = useState<'all' | 'NOTICE' | 'QUERY'>('all');
   const root = useRef<HTMLElement>(null);
   const load = useCallback(async (signal?: AbortSignal) => {
     const result = parseWallData(await api.call<WallData>(`/${room.id}/wall`, 'GET', undefined, signal));
@@ -99,24 +104,19 @@ export function Wall({ api, room, reload, target, onChanged }: {
     {content.canRemove ? <button disabled={busy} onClick={() => setRemoving({ content, reply })}>{reply ? 'Eliminar respuesta' : 'Eliminar publicación'}</button> : null}
   </div> : null;
   return <section ref={root} className="p6-wall" aria-label="Muro del aula">
-    <header className="p5-section-head"><div className="interior-social-heading"><EntryIcon name="book" /><div><h2>Muro del aula</h2><p>Avisos y consultas, con sus respuestas en contexto.</p></div></div>
-      <button disabled={busy} onClick={() => void run(async () => { await Promise.all([reload(), load()]); })}>Actualizar Muro</button>
+    <header className="p5-section-head cl-section"><div><h2>Muro</h2><p>Avisos y conversaciones que puede leer toda el aula.</p></div>
+      <div className="p5-actions">{!room.archived ? <button className="primary" disabled={busy || !data} onClick={() => setComposing(true)}>{room.role === 'teacher' ? 'Publicar aviso' : 'Hacer una consulta'}</button> : null}<button disabled={busy} onClick={() => void run(async () => { await Promise.all([reload(), load()]); })}>Actualizar Muro</button></div>
     </header>
     {error ? <Notice error>{error} Actualiza el Muro antes de volver a intentar. Tu texto no se ha descartado.</Notice> : null}
     {notice ? <Notice>{notice}</Notice> : null}
     {!data && !error ? <Notice>Cargando Muro…</Notice> : null}
+    <div className="cl-pills" role="group" aria-label="Filtrar publicaciones cargadas">{([['all','Todos'],['NOTICE','Avisos'],['QUERY','Consultas']] as const).map(([value,label]) => <button key={value} className={postFilter === value ? 'selected' : undefined} aria-pressed={postFilter === value} onClick={() => setPostFilter(value)}>{label}</button>)}</div>
     <div className="classroom-wall-layout"><div className="classroom-wall-conversation">
-    {!room.archived && data ? <div className="classroom-wall-composer"><TextForm key={composerKey} busy={busy} label={room.role === 'teacher' ? 'Publicar aviso' : 'Publicar consulta'}
-      onSave={body => run(async () => { await change({ action: 'publish', body }); setComposerKey(value => value + 1); setNotice('Publicación guardada.'); })} /></div> : null}
-    <details className="interior-wall-guide">
-      <summary>Cómo participar en el Muro</summary>
-      <ol><li><strong>Respetá a los demás</strong><p>Compartí tus ideas con un lenguaje amable y constructivo.</p></li>
-        <li><strong>Sumá al aprendizaje</strong><p>Hacé preguntas, compartí recursos y ayudá a tus compañeros.</p></li>
-        <li><strong>Mantené el foco</strong><p>Publicá contenido relacionado con los temas de la clase.</p></li></ol>
-    </details>
+    {!room.archived && data && composing ? <Dialog title={room.role === 'teacher' ? 'Publicar aviso' : 'Hacer una consulta'} onClose={() => { if (!busy) setComposing(false); }}><p>Visible para quienes forman parte de {room.name} · {room.division}.</p><TextForm key={composerKey} withTitle titleRequired busy={busy} label={room.role === 'teacher' ? 'Publicar aviso' : 'Publicar consulta'}
+      onSave={(body,title) => run(async () => { await change({ action: 'publish', title: title || null, body }); setComposerKey(value => value + 1); setComposing(false); setNotice('Publicación guardada.'); })} /></Dialog> : null}
     {data?.posts.length === 0 ? <p className="p5-empty">Todavía no hay publicaciones.</p> : null}
     {data && target && !data.posts.some(post => post.id === target.postId) ? <Notice>La publicación ya no está disponible para tu cuenta.</Notice> : null}
-    <div className="p6-wall-threads">{data?.posts.map((post: WallPost) => <article key={post.id} data-wall-id={post.id} tabIndex={-1}
+    <div className="p6-wall-threads">{data?.posts.filter(post => postFilter === 'all' || (postFilter === 'NOTICE' ? post.type === 'NOTICE' : post.type !== 'NOTICE')).map((post: WallPost) => <article key={post.id} data-wall-id={post.id} tabIndex={-1}
       aria-label={post.type === 'NOTICE' ? 'Aviso del aula' : 'Consulta del aula'} className={target?.postId === post.id ? 'p6-wall-selected' : undefined}>
       <span className="p5-tag">{post.type === 'NOTICE' ? 'Aviso' : 'Consulta'}</span>
       <WallContentView content={post}>{controls(post, false)}</WallContentView>
@@ -134,11 +134,11 @@ export function Wall({ api, room, reload, target, onChanged }: {
       </section>
     </article>)}</div>
     {data?.nextCursor ? <button disabled={busy} onClick={() => void run(morePosts)}>Más publicaciones</button> : null}
-    </div><aside className="classroom-wall-guidance"><EntryIcon name="book" /><h3>La conversación sigue acá</h3><p>El Muro reúne los avisos y las preguntas compartidas. Las consignas y las entregas están en Actividades.</p><small>Tu publicación la puede leer toda el aula.</small>{room.archived ? <p>El aula está archivada. Podés consultar las conversaciones conservadas.</p> : null}</aside></div>
+    </div></div>
     {editing ? <Dialog title={editing.reply ? 'Editar respuesta' : 'Editar publicación'} onClose={() => { if (!busy) setEditing(null); }}>
       {error ? <Notice error>{error}</Notice> : null}
-      <TextForm initial={editing.content.body ?? ''} label="Guardar texto" busy={busy} onCancel={() => setEditing(null)} onSave={body => run(async () => {
-        await change({ action: editing.reply ? 'editReply' : 'editPost', id: editing.content.id, body }); setEditing(null); setNotice('Texto actualizado.');
+      <TextForm initial={editing.content.body ?? ''} withTitle={!editing.reply} initialTitle={'title' in editing.content && typeof editing.content.title === 'string' ? editing.content.title : ''} label="Guardar texto" busy={busy} onCancel={() => setEditing(null)} onSave={(body,title) => run(async () => {
+        await change({ action: editing.reply ? 'editReply' : 'editPost', id: editing.content.id, body, ...(!editing.reply ? { title: title || null } : {}) }); setEditing(null); setNotice('Texto actualizado.');
       })} />
     </Dialog> : null}
     {removing ? <Dialog title={removing.reply ? 'Eliminar respuesta' : 'Eliminar publicación'} onClose={() => { if (!busy) setRemoving(null); }}>

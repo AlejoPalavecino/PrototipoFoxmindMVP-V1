@@ -10,14 +10,24 @@ const room = { id: '11111111-1111-4111-8111-111111111111', revision: '2', role: 
     { id: '33333333-3333-4333-8333-333333333333', name: 'Exposición' }, { id: '44444444-4444-4444-8444-444444444444', name: 'Contraste' }] }] };
 const render = (Component, props) => renderToStaticMarkup(React.createElement(Component, props));
 
-test('A5 teacher sees separate manual/AI creation and student/archived views cannot initiate either', () => {
+test('A5 teacher opens manual/AI choice and student/archived views cannot initiate either', async () => {
   const { Activities } = loadTsModule('apps/classrooms-ui/Activities.tsx');
   const props = { api: { call: async () => ({ activities: [] }) }, room, reload: async () => {} };
   const html = render(Activities, props);
-  assert.match(html, /Crear manualmente/i); assert.match(html, /Generar con IA/i);
+  assert.match(html, /Crear actividad/i); assert.doesNotMatch(html, /Crear manualmente|Crear con IA/i);
+  const view = hookView(Activities, props);
+  try {
+    await view.flush();
+    descendants(view.tree, node => node.type === 'button' && node.props.children === 'Crear actividad')[0].props.onClick();
+    await view.flush();
+    const choice = descendants(view.tree, node => node.type?.name === 'Dialog')[0];
+    assert.equal(choice.props.title, 'Crear actividad');
+    const labels = descendants(choice, node => node.type === 'button').map(textOf).join(' ');
+    assert.match(labels, /Crear manualmente/i); assert.match(labels, /Crear con IA/i);
+  } finally { view.close(); }
   for (const scope of [{ ...room, role: 'student' }, { ...room, archived: true }]) {
     const hidden = render(Activities, { ...props, room: scope });
-    assert.doesNotMatch(hidden, /Crear manualmente|Generar con IA/i);
+    assert.doesNotMatch(hidden, /Crear actividad|Crear manualmente|Crear con IA/i);
   }
 });
 

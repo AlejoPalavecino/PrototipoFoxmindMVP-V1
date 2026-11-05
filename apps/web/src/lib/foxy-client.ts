@@ -1,3 +1,4 @@
+import type { FoxyActivityDraftInput, FoxyActivityDraftReceipt } from '../../../../src/core/domain/foxy-activity-draft.ts';
 import { agendaId, parseRetryFoxyPublication, parseDiscardFoxyPublication, type CreateFoxyConversation, type FoxyContext, type FoxyPurpose,
   type FoxySourceKind, type FoxySourceCursor, type SendFoxyMessage, type EditFoxyResource,
   type PrepareFoxyPublication, type ConfirmFoxyPublication, type FoxyPublicationSummary,
@@ -96,6 +97,7 @@ export function createWebFoxyClient(fetcher: typeof fetch = fetch, onIdentityReq
       if (!['preview', 'download'].includes(mode)) throw new FoxyClientError('INVALID_INPUT', 400);
       return `${root}/assets/${agendaId(id)}/file?mode=${mode}`;
     },
+    prepareActivity: (id: string, input: FoxyActivityDraftInput, signal?: AbortSignal) => call<FoxyActivityDraftReceipt>(`${resourcePath(id)}/activity-draft`, 'POST', input, signal),
     resourceFromTurn: (id: string, turnId: string, signal?: AbortSignal) =>
       call<{ created: boolean; resource: FoxyResource }>(`${turnPath(id, turnId)}/resource`, 'POST', {}, signal),
     getResource: (id: string, signal?: AbortSignal) => call<FoxyResource>(resourcePath(id), 'GET', undefined, signal),

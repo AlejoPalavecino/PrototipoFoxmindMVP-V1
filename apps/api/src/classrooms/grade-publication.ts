@@ -6,6 +6,7 @@ import { revision } from './revision.ts';
 import { fail, object, uuid } from './policy.ts';
 import { fixedHundredths, hundredths, scoreJson } from './scoring.ts';
 import type { Transaction } from './contracts.ts';
+import type { GradeRow } from './grading.ts';
 import { gradePublicationInput } from '../../../../src/core/domain/index.ts';
 
 export function publicationInput(input: unknown) {
@@ -54,13 +55,16 @@ export class GradePublicationService {
           feedback: question.feedback };
       });
       const correction = this.scoreCorrection(view, { revision: body.revision,
-        overallGrade: activity.type === 'ASSIGNMENT' ? grade.final_grade : null,
+        overallGrade: activity.type === 'ASSIGNMENT' ? grade.calculated_grade == null && grade.final_grade_override == null
+          ? grade.final_grade : grade.calculated_grade ?? null : null,
         overallFeedback: grade.overall_feedback, questions });
-      if (correction.finalGrade === null || hundredths(correction.finalGrade) > 1000n) return fail('CONFLICT');
+      const final = grade.final_grade_override ?? correction.finalGrade;
+      if (final === null || hundredths(final) > 1000n) return fail('CONFLICT');
       // One source transaction owns grade, effective pointer, revision and event. Any failure rolls all of them back.
       const [published] = await tx.query<typeof grade>(`UPDATE attempt_grades SET final_grade=$2::numeric,is_published=true,
         published_at=clock_timestamp(),updated_at=clock_timestamp() WHERE id=$1::uuid AND NOT is_published
-        RETURNING id,final_grade::text,overall_feedback,is_published,published_at`, grade.id, correction.finalGrade);
+        RETURNING id,final_grade::text,overall_feedback,is_published,published_at,rubric_snapshot,rubric_marks,
+        suggested_grade::text,final_grade_override::text,calculated_grade::text`, grade.id, final);
       if (!published) return fail('CONFLICT');
       for (const row of correction.questions) await tx.query(`UPDATE question_grades SET earned_numerator=$3::numeric,
         earned_denominator=$4::numeric,updated_at=clock_timestamp() WHERE attempt_grade_id=$1::uuid AND question_id=$2::uuid RETURNING id`,
@@ -87,8 +91,8 @@ export class GradePublicationService {
       if (!attempt || (actor.id !== room.teacher_id && actor.id !== attempt.student_id)) return fail('FORBIDDEN');
       const activity = await this.activity(tx, classroomId, attempt.activity_id);
       if (activity.status !== 'PUBLISHED') return fail('FORBIDDEN');
-      const [grade] = await tx.query<{ id: string; final_grade: string; published_at: Date; overall_feedback: string | null }>(
-        `SELECT id,final_grade::text,published_at,overall_feedback FROM attempt_grades WHERE attempt_id=$1::uuid
+      const [grade] = await tx.query<GradeRow & { final_grade: string; published_at: Date }>(
+        `SELECT id,final_grade::text,published_at,overall_feedback,rubric_snapshot,rubric_marks,suggested_grade::text,final_grade_override::text,calculated_grade::text FROM attempt_grades WHERE attempt_id=$1::uuid
          AND student_activity_id=$2::uuid AND activity_id=$3::uuid AND is_published AND published_at IS NOT NULL`,
         attempt.id, attempt.student_activity_id, activity.id);
       if (!grade) return { status: 'pending' as const, attemptId: attempt.id };
@@ -104,6 +108,10 @@ export class GradePublicationService {
       return { status: 'published' as const, activity: { id: activity.id, title: activity.title, type: activity.type },
         attempt: { id: attempt.id, number: attempt.attempt_number, submittedAt: attempt.submitted_at },
         grade: { id: grade.id, finalGrade: fixedHundredths(hundredths(grade.final_grade)), publishedAt: grade.published_at,
+          rubricSnapshot: grade.rubric_snapshot ?? null, rubricMarks: grade.rubric_marks ?? [],
+          suggestedGrade: grade.suggested_grade == null ? null : fixedHundredths(hundredths(grade.suggested_grade)),
+          finalGradeOverride: grade.final_grade_override == null ? null : fixedHundredths(hundredths(grade.final_grade_override)),
+          calculatedGrade: grade.calculated_grade == null ? null : fixedHundredths(hundredths(grade.calculated_grade)),
           overallFeedback: grade.overall_feedback, isEffective: attempt.effective_grade_id === grade.id },
         questions: questions.map(q => ({ id: q.id, type: q.type, prompt: q.prompt, points: q.points,
           answer: { text: q.text, selectedOptions: q.selectedOptions },

@@ -11,7 +11,9 @@ const factory = () => loadTsModule('apps/web/src/lib/home-client.ts').createWebH
 
 test('D9 browser makes one aggregate GET with same-origin credentials and no-store, never classroom fan-out', async () => {
   const calls = [], client = factory()(async (...args) => { calls.push(args); return Response.json(response()); });
-  assert.deepEqual(await client.read({ timeZone: 'UTC' }), response());
+  const legacy = response();
+  assert.deepEqual(await client.read({ timeZone: 'UTC' }), { ...legacy, modules: { ...legacy.modules,
+    drafts: { status: 'not-applicable' }, submitted: { status: 'not-applicable' } } });
   assert.equal(calls.length, 1); assert.equal(calls[0][0], '/api/v1/home?timeZone=UTC');
   assert.equal(calls[0][1].method, 'GET'); assert.equal(calls[0][1].credentials, 'same-origin'); assert.equal(calls[0][1].cache, 'no-store');
   assert.ok(calls[0][1].signal instanceof AbortSignal);

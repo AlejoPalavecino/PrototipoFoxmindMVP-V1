@@ -7,6 +7,7 @@ export function bindClassroomMethods(service: ClassroomService): void {
   bindGroup4(service);
 }
 function bindGroup1(service: ClassroomService): void {
+  service.search = service.search.bind(service);
   service.createDraft = service.createDraft.bind(service);
   service.listDrafts = service.listDrafts.bind(service);
   service.getDraft = service.getDraft.bind(service);
@@ -38,6 +39,7 @@ function bindGroup2(service: ClassroomService): void {
   service.listNotifications = service.listNotifications.bind(service);
   service.listNotificationPage = service.listNotificationPage.bind(service);
   service.readNotification = service.readNotification.bind(service);
+  service.readAllNotifications = service.readAllNotifications.bind(service);
   service.openNotification = service.openNotification.bind(service);
   service.listActivities = service.listActivities.bind(service);
   service.activityDetail = service.activityDetail.bind(service);

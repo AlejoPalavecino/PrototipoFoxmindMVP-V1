@@ -8,7 +8,7 @@ export function AccountField({ name, label, password, value, autoComplete, onCha
   appearance?: 'polished';
 }) {
   const [shown, setShown] = useState(false);
-  const passwordHelp = password && autoComplete === 'new-password';
+  const passwordHelp = password && autoComplete === 'new-password' && name !== 'confirmPassword';
   return <div className="field">
     <Label htmlFor={name}>{label}</Label>
     <div className={`${password ? 'password-control' : ''}${appearance === 'polished' ? ' auth-reference-input' : ''}`}>
@@ -22,6 +22,6 @@ export function AccountField({ name, label, password, value, autoComplete, onCha
     {password ? <button type="button" aria-label={`${shown ? 'Ocultar' : 'Mostrar'} ${label.toLowerCase()}`} aria-controls={name}
       aria-pressed={shown} className="password-toggle" onClick={() => setShown(current => !current)}>{appearance === 'polished' ? <FoxmindIcon name={shown ? 'eye-off' : 'eye'} /> : shown ? 'Ocultar' : 'Mostrar'}</button> : null}
     </div>
-    {passwordHelp ? <p className="field-help" id={`${name}-help`}>{appearance === 'polished' ? 'Entre 16 y 128 caracteres. Podés usar espacios.' : 'Entre 16 y 128 caracteres. Puedes usar espacios y cualquier idioma.'}</p> : null}
+    {passwordHelp ? <p className="field-help" id={`${name}-help`}>Entre 16 y 128 caracteres. Podés usar espacios y cualquier idioma.</p> : null}
   </div>;
 }

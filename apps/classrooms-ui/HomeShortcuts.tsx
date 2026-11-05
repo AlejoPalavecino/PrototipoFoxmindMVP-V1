@@ -2,44 +2,25 @@
 import { useState } from 'react';
 import type { HomeResponse, HomeTarget } from '../../src/core/domain/index.ts';
 import { FoxmindIcon } from '../shared-ui/index.ts';
-
-interface HomeShortcutProps {
-  accountRole: 'teacher' | 'student'; data: HomeResponse; onAction: (target: HomeTarget) => void; onCreate: () => void;
-  onJoin: () => void; onClassrooms: () => void; onAgenda: () => void; busy?: boolean;
+import { Dialog, Cover } from './components.tsx';
+type Props = { data:HomeResponse; onAction:(target:HomeTarget)=>void; onClassrooms:()=>void; onRetry?:()=>void; onSelected?:(id:string)=>void; busy?:boolean };
+export function ClassroomActions({data,onAction,onClassrooms,onRetry,onSelected,busy,teacher}:{teacher:boolean}&Props) {
+  const rooms=data.modules.classrooms.status==='ready'?data.modules.classrooms.items.map(item=>item.classroom).filter(room=>!room.archived && room.role===(teacher?'teacher':'student')):[];
+  const [selected,setSelected]=useState(''),[choosing,setChoosing]=useState(false);
+  const room=rooms.find(item=>item.id===selected)??rooms[0];
+  if(data.modules.classrooms.status==='error')return <section className="fm-home-teacher-tools"><h2>{teacher?'Acciones del aula':'Accesos de mi aula'}</h2><p role="status">No pudimos cargar tus aulas.</p><button disabled={busy} onClick={onRetry}>Reintentar aulas</button></section>;
+  if(!room)return <section className="fm-home-teacher-tools"><h2>{teacher?'Acciones del aula':'Accesos de mi aula'}</h2><button onClick={onClassrooms}>Elegir un aula en Mis aulas</button></section>;
+  const actions=teacher?([
+    ['create-activity','Crear actividad','file'],['upload-material','Subir material','upload'],['publish-notice','Publicar aviso','chat'],['progress','Ver progreso','check'],
+  ] as const):([
+    ['library','Materiales','folder'],['progress','Mi progreso','check'],['plan','Plan de estudio','book'],['wall','Muro del aula','chat'],
+  ] as const);
+  return <section className="fm-home-teacher-tools" aria-label={teacher?'Acciones del aula':'Accesos de mi aula'}>
+    <header className="fm-brujula-shortcuts-heading"><div><h2>{teacher?'Acciones del aula':'Accesos de mi aula'}</h2><p>{room.name} · {room.division}</p></div>{rooms.length>1?<button className="fm-brujula-change-room" onClick={()=>setChoosing(true)} aria-expanded={choosing}>Cambiar aula<FoxmindIcon name="chevron-down"/></button>:null}</header>
+    {choosing?<Dialog title="Elegí un aula" onClose={()=>setChoosing(false)}><div className="fm-brujula-room-picker">{rooms.map(item=><button key={item.id} aria-pressed={item.id===room.id} onClick={()=>{setSelected(item.id);onSelected?.(item.id);setChoosing(false);}}><Cover kind={item.coverKey}/><span><strong>{item.name}</strong><small>{item.division}</small></span><FoxmindIcon name="chevron-right"/></button>)}</div></Dialog>:null}
+    <div className="fm-home-shortcut-grid">{actions.map(([kind,label,icon])=><button key={kind} disabled={busy} onClick={()=>onAction(kind==='create-activity'||kind==='upload-material'||kind==='publish-notice'?{kind,classroomId:room.id}:{kind:'classroom',classroomId:room.id,section:kind})}><span className="fm-brujula-shortcut-icon"><FoxmindIcon name={icon}/></span><strong>{label}</strong></button>)}</div>
+    {data.modules.classrooms.status==='ready' && data.modules.classrooms.nextCursor?<button className="fm-brujula-change-room" onClick={onClassrooms}>Ver todas mis aulas</button>:null}
+  </section>;
 }
-
-export function HomeShortcuts() {
-  const links = [
-    ['/mis-aulas', 'Mis aulas', 'book'],
-    ['/agenda', 'Agenda', 'calendar'],
-    ['/settings', 'Configuración', 'settings'],
-    ['/profile', 'Mi perfil', 'profile'],
-  ] as const;
-  return <nav className="fm-home-quick-links" aria-label="Accesos rápidos">
-    {links.map(([href, label, icon]) => <a key={href} href={href}>
-      <FoxmindIcon name={icon} /><span>{label}</span>
-    </a>)}
-  </nav>;
-}
-
-export function HomeTeacherTools({ data, onAction, onClassrooms, busy }: Pick<HomeShortcutProps, 'data' | 'onAction' | 'onClassrooms' | 'busy'>) {
-  const rooms = data.modules.classrooms.status === 'ready' ? data.modules.classrooms.items
-    .map(item => item.classroom).filter(room => room.role === 'teacher' && !room.archived) : [];
-  const [selected, setSelected] = useState('');
-  const room = rooms.find(item => item.id === selected) ?? rooms[0];
-  if (data.memberships.teach <= 0) return null;
-  return <details className="fm-home-teacher-tools">
-    <summary>Herramientas del aula</summary>
-    {room ? <div><label>Aula destino<select value={room.id} onChange={event => setSelected(event.target.value)}>
-      {rooms.map(item => <option key={item.id} value={item.id}>{item.name} · {item.division}</option>)}
-    </select></label>
-      <div className="fm-home-shortcut-grid">{([
-        ['create-activity', 'Crear actividad', 'file'], ['upload-material', 'Subir material', 'upload'],
-        ['publish-notice', 'Publicar aviso', 'chat'],
-      ] as const).map(([kind, label, icon]) => <button key={kind} disabled={busy} onClick={() => onAction({ kind, classroomId: room.id })}>
-        <FoxmindIcon name={icon} /><span>{label}<small>{room.name} · {room.division}</small></span>
-      </button>)}</div></div> : <p>Elige un aula docente desde <button onClick={onClassrooms}>Mis aulas</button> para usar sus herramientas.</p>}
-    {data.modules.classrooms.status === 'ready' && data.modules.classrooms.nextCursor ?
-      <button onClick={onClassrooms}>Buscar otras aulas docentes en Mis aulas</button> : null}
-  </details>;
-}
+export function HomeShortcuts(props:Props){return <ClassroomActions {...props} teacher={false}/>;}
+export function HomeTeacherTools(props:Props){return <ClassroomActions {...props} teacher/>;}

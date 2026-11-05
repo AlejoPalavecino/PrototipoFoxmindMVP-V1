@@ -15,6 +15,7 @@ const catalog = new RegExp(`^${root}/conversations/${uuid}/(curriculum|sources)$
 const citations = new RegExp(`^${root}/conversations/${uuid}/turns/${uuid}/citations$`, 'i');
 const citationFile = new RegExp(`^${root}/conversations/${uuid}/turns/${uuid}/citations/c[1-9][0-9]*/file$`, 'i');
 const turnResource = new RegExp(`^${root}/conversations/${uuid}/turns/${uuid}/resource$`, 'i');
+const activityDraft = new RegExp(`^${root}/resources/${uuid}/activity-draft$`, 'i');
 const resource = new RegExp(`^${root}/resources/${uuid}$`, 'i');
 const preparePublication = new RegExp(`^${root}/resources/${uuid}/publications$`, 'i');
 const publication = new RegExp(`^${root}/publications/${uuid}$`, 'i');
@@ -39,7 +40,7 @@ function select(request: IncomingMessage): { url: URL; method: string; binary: b
   if (!raw.startsWith(`${root}/`) || /[\\#]/u.test(raw) || /%|\.\./u.test(raw.split('?')[0]!)) throw new Error();
   const url = new URL(raw, 'http://web.invalid'), path = url.pathname, binary = citationFile.test(path) || publicationFile.test(path) || assetFile.test(path);
   const allowed = path === `${root}/capabilities` || catalog.test(path) || turn.test(path) || visual.test(path) || asset.test(path) || citations.test(path) || binary || publication.test(path) || managementPublication.test(path) ? ['GET']
-    : turnResource.test(path) || confirmPublication.test(path) || commandPublication.test(path) ? ['POST']
+    : activityDraft.test(path) || turnResource.test(path) || confirmPublication.test(path) || commandPublication.test(path) ? ['POST']
       : preparePublication.test(path) || assetPublications.test(path) || visuals.test(path) ? ['GET', 'POST']
       : resource.test(path) ? ['GET', 'PATCH']
         : path === `${root}/conversations` || turns.test(path) ? ['GET', 'POST'] : conversation.test(path) ? ['GET', 'PATCH', 'DELETE'] : [];

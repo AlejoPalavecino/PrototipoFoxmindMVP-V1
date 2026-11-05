@@ -21,7 +21,7 @@ test('Foxy prioritizes reviews and falls back to unanswered questions', () => {
   assert.equal(homeFoxySuggestion('student', { review, queries }).title, 'Cada paso cuenta.');
 });
 
-test('Classroom summaries accept optional progress only for active teacher rooms', () => {
+test('Classroom summaries accept optional progress for active teacher and student rooms', () => {
   const id = '11111111-1111-4111-8111-111111111111';
   const classroom = { id, name: 'Historia', division: 'A', subject: 'Historia', role: 'teacher',
     coverKey: 'general', archived: false, timeZone: 'UTC' };
@@ -30,7 +30,8 @@ test('Classroom summaries accept optional progress only for active teacher rooms
   assert.deepEqual(read(item).items[0], item);
   const planProgress = { taught: 1, total: 3 };
   assert.deepEqual(read({ ...item, planProgress }).items[0].planProgress, planProgress);
-  for (const patch of [{ role: 'student' }, { archived: true }]) {
+  assert.deepEqual(read({ ...item, classroom: { ...classroom, role: 'student' }, planProgress }).items[0].planProgress, planProgress);
+  for (const patch of [{ archived: true }]) {
     assert.throws(() => read({ ...item, classroom: { ...classroom, ...patch }, planProgress }), { code: 'INVALID_INPUT' });
   }
   assert.throws(() => read({ ...item, planProgress: { taught: 4, total: 3 } }), { code: 'INVALID_INPUT' });

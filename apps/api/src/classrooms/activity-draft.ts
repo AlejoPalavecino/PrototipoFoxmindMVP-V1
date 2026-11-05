@@ -16,9 +16,9 @@ export async function createActivityDraftInTransaction(tx: Transaction, input: {
   await validateActivityTopics(tx, input.classroomId, payload.unitId, payload.topicIds);
   const id = randomUUID();
   await tx.query(`INSERT INTO activities(id,updated_at,classroom_id,type,title,unit_id,topic_id,instructions_text,
-    attachments_required,allow_late_submissions) VALUES($1::uuid,$2,$3::uuid,$4::"ActivityType",$5,$6::uuid,$7::uuid,$8,$9,$10) RETURNING id`,
+    attachments_required,allow_late_submissions,evaluation_rubric,objective,teacher_comment) VALUES($1::uuid,$2,$3::uuid,$4::"ActivityType",$5,$6::uuid,$7::uuid,$8,$9,$10,$11::jsonb,$12,$13) RETURNING id`,
     id, input.now, input.classroomId, input.type, payload.title, payload.unitId, payload.topicId,
-    payload.instructions, payload.attachmentRequired, payload.allowLate);
+    payload.instructions, payload.attachmentRequired, payload.allowLate, JSON.stringify(payload.evaluationRubric ?? []), payload.objective ?? null, payload.teacherComment ?? null);
   await replaceActivityTopics(tx, id, input.classroomId, payload.unitId, payload.topicIds);
   await replaceActivityContent(tx, { id, classroom_id: input.classroomId }, payload);
   return id;

@@ -93,6 +93,7 @@ async function createClassroom(tx: Transaction, capability: DraftPublicationAcce
 
 }
 async function populateClassroom(tx: Transaction, capability: DraftPublicationAccess, request: unknown, classroomId: string, actor: Actor, payload: ReturnType<typeof draftPayload>) {
+    if (payload.planFileId) {
       await promoteDraftPlan(
         capability.ports.files,
         tx,
@@ -108,6 +109,7 @@ async function populateClassroom(tx: Transaction, capability: DraftPublicationAc
         payload.planFileId,
         actor.id,
       );
+    }
       await populateUnits(tx, classroomId, payload);
 
 }

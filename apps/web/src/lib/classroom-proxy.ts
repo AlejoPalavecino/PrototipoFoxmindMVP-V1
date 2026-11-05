@@ -1,6 +1,8 @@
 import { request as httpRequest, type IncomingMessage, type ServerResponse } from 'node:http';
 import { request as httpsRequest } from 'node:https';
 import { generationSchema } from './activity-generation-proxy.ts';
+import { parseBrujulaSearchQuery } from '../../../../src/core/domain/brujula-search.ts';
+import { parseEvaluationRubric } from '../../../../src/core/domain/evaluation-rubric.ts';
 import { parseStartExtraction, parseRetryExtraction, parseApplyExtraction, parseWallQuery, parseWallMutation, privateGradingInput, gradeCorrectionInput, gradePublicationInput, parseNotificationQuery } from '../../../../src/core/domain/index.ts';
 
 const requestLimit = 512 * 1024;
@@ -9,6 +11,7 @@ const uuid = '[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}';
 type Rule = { path: RegExp; methods: Record<string, string[] | null> };
 const rule = (path: string, methods: Rule['methods']): Rule => ({ path: new RegExp(`^/api/v1/classrooms${path}$`), methods });
 const routes: Rule[] = [
+  rule('/search', { GET: null }),
   rule('', { GET: null }), rule('/drafts', { GET: null, POST: [] }),
   rule(`/drafts/${uuid}`, { GET: null, PATCH: ['revision', 'payload'] }),
   rule(`/drafts/${uuid}/publish`, { POST: ['revision'] }),
@@ -39,7 +42,7 @@ const routes: Rule[] = [
   rule(`/${uuid}/activities/${uuid}/(?:history|history-submissions)`, { GET: null }),
   rule(`/${uuid}/activities/${uuid}/reopen`, { POST: ['revision', 'studentId', 'deadline', 'confirm'] }),
   rule(`/${uuid}/attempts/${uuid}/history`, { GET: null }),
-  rule(`/${uuid}/attempts/${uuid}/grading`, { GET: null, POST: ['revision', 'overallGrade', 'overallFeedback', 'questions'] }),
+  rule(`/${uuid}/attempts/${uuid}/grading`, { GET: null, POST: ['revision', 'overallGrade', 'overallFeedback', 'questions', 'rubricMarks', 'finalGradeOverride'] }),
   rule(`/${uuid}/attempts/${uuid}/grading-ai`, { GET: null }),
   rule(`/${uuid}/attempts/${uuid}/grading-ai/${uuid}/(?:apply|discard)`, { POST: [] }),
   rule(`/${uuid}/attempts/${uuid}/publish-grade`, { POST: ['revision', 'confirm'] }),
@@ -53,6 +56,7 @@ const routes: Rule[] = [
   rule(`/${uuid}/activities/${uuid}/submissions`, { GET: null }),
   rule(`/${uuid}/attempts/${uuid}/receipt`, { GET: null }),
   rule('/notifications', { GET: null }), rule('/notifications/page', { GET: null }),
+  rule('/notifications/read-all', { POST: [] }),
   rule(`/notifications/${uuid}/(?:read|open)`, { POST: [] }),
   rule(`/${uuid}/settings`, { PATCH: ['revision', 'name', 'subject', 'division', 'academicYear', 'aiGradingEnabled'] }),
   rule(`/${uuid}/archive`, { POST: ['archived', 'revision'] }), rule(`/${uuid}/code`, { POST: [] }),
@@ -171,11 +175,14 @@ function activitySchema(value: unknown): boolean {
   if (op.action === 'deadline') return typeof op.allowLate === 'boolean' && deadline(op.deadline);
   if (op.action !== 'save') return true;
   const p = op.payload;
-  if (!object(p, ['title', 'unitId', 'topicId', 'topicIds', 'instructions', 'attachmentRequired', 'instructionFileIds', 'materialIds', 'questions', 'deadline', 'allowLate', 'aiGradingRubric'], false)
+  if (!object(p, ['title', 'unitId', 'topicId', 'topicIds', 'instructions', 'attachmentRequired', 'instructionFileIds', 'materialIds', 'questions', 'deadline', 'allowLate', 'aiGradingRubric', 'evaluationRubric', 'objective', 'teacherComment'], false)
     || !['title', 'unitId', 'instructions', 'attachmentRequired', 'instructionFileIds', 'materialIds', 'questions', 'deadline', 'allowLate'].every(key => Object.hasOwn(p, key))
     || !association(p) || typeof p.instructions !== 'string' || typeof p.attachmentRequired !== 'boolean' || typeof p.allowLate !== 'boolean'
     || (Object.hasOwn(p, 'aiGradingRubric') && typeof p.aiGradingRubric !== 'string')
+    || (Object.hasOwn(p, 'objective') && p.objective !== null && (typeof p.objective !== 'string' || [...p.objective].length > 1400 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/u.test(p.objective)))
+    || (Object.hasOwn(p, 'teacherComment') && p.teacherComment !== null && (typeof p.teacherComment !== 'string' || [...p.teacherComment].length > 5000 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/u.test(p.teacherComment)))
     || !deadline(p.deadline) || !Array.isArray(p.questions)) return false;
+  try { if (Object.hasOwn(p, 'evaluationRubric')) parseEvaluationRubric(p.evaluationRubric); } catch { return false; }
   if (![p.instructionFileIds, p.materialIds].every(ids => Array.isArray(ids) && ids.every(id => typeof id === 'string' && new RegExp(`^${uuid}$`).test(id)))) return false;
   return p.questions.every(q => object(q, ['type', 'prompt', 'points', 'scoringRule', 'options'])
     && typeof q.type === 'string' && typeof q.prompt === 'string' && typeof q.points === 'string'
@@ -196,7 +203,9 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
   let url: URL;
   try {
     // Validate raw spelling before WHATWG normalization can erase traversal segments.
-    if (!request.url?.startsWith('/api/v1/classrooms') || /[%\\#]/.test(request.url) || request.url.split('?')[0].split('/').includes('..')) throw new Error();
+    const rawPath = request.url?.split('?')[0];
+    if (!request.url?.startsWith('/api/v1/classrooms') || !rawPath || /[%\\#]/.test(rawPath) || /[\\#]/.test(request.url)
+      || (rawPath !== '/api/v1/classrooms/search' && request.url.includes('%')) || rawPath.split('/').includes('..')) throw new Error();
     url = new URL(request.url, 'http://web.invalid');
   } catch { reject(400, 'INVALID_INPUT'); return; }
   const selected = routes.find(candidate => candidate.path.test(url.pathname));
@@ -205,7 +214,11 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
   if (!Object.hasOwn(selected.methods, method)) { reject(405, 'METHOD_NOT_ALLOWED'); return; }
   const wallPath = new RegExp(`^/api/v1/classrooms/${uuid}/wall(?:/${uuid}(?:/replies)?)?$`).test(url.pathname);
   const notificationPage = url.pathname === '/api/v1/classrooms/notifications/page';
-  if (url.search && (!(wallPath || notificationPage) || method !== 'GET')) { reject(400, 'INVALID_INPUT'); return; }
+  const searchPage = url.pathname === '/api/v1/classrooms/search';
+  if (url.search && (!(wallPath || notificationPage || searchPage) || method !== 'GET')) { reject(400, 'INVALID_INPUT'); return; }
+  if (searchPage && method === 'GET') {
+    try { parseBrujulaSearchQuery(url.searchParams); } catch { reject(400, 'INVALID_INPUT'); return; }
+  }
   if (wallPath && method === 'GET') {
     try { parseWallQuery(url.searchParams, url.pathname.endsWith('/replies') ? 'replies' : url.pathname.endsWith('/wall') ? 'feed' : 'thread'); }
     catch { reject(400, 'INVALID_INPUT'); return; }

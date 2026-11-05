@@ -37,13 +37,14 @@ export function Library({ api, room, reload, targetMaterialId, openUpload, uploa
   const [scope, setScope] = useState<'all' | 'plan' | 'extra'>('all');
   const [unitFilter, setUnitFilter] = useState(''), [topicFilter, setTopicFilter] = useState('');
   const [uploadInitial, setUploadInitial] = useState<Metadata | undefined>();
-  const [uploadExpanded, setUploadExpanded] = useState(false);
+  const [uploadExpanded, setUploadExpanded] = useState(Boolean(openUpload));
   const consumedContext = useRef<ClassroomCreationContext | null>(null);
   const [pendingUploadContext, setPendingUploadContext] = useState<ClassroomCreationContext | null>(null);
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState('');
   const [file, setFile] = useState<FileState | null>(null), [editing, setEditing] = useState<Material | null>(null);
   const [deleting, setDeleting] = useState<Material | null>(null);
-  useEffect(() => { if (!active) { setEditing(null); setDeleting(null); } }, [active]);
+  useEffect(() => { if (!active) { setEditing(null); setDeleting(null); setUploadExpanded(false); } }, [active]);
+  useEffect(() => { if (active && openUpload) setUploadExpanded(true); }, [active, openUpload]);
   const writable = room.role === 'teacher' && !room.archived;
   useEffect(() => {
     if (!uploadContext || uploadContext === consumedContext.current || !writable) return;
@@ -87,14 +88,14 @@ export function Library({ api, room, reload, targetMaterialId, openUpload, uploa
     await Promise.all([reload(), load()]);
   }
   return <section ref={root} aria-label="Biblioteca del aula" className="p6-library">
-    <header className="p5-section-head interior-library-heading"><div className="interior-library-title"><EntryIcon name="book" /><div><h2>Biblioteca del aula</h2><p>Accedé a todos los materiales y recursos de esta clase.</p></div></div>
-      <div className="interior-library-summary"><span className="interior-library-summary-icon"><EntryIcon name="book" /></span><div><strong>{loaded ? `${materials.length} ${materials.length === 1 ? 'material' : 'materiales'}` : 'Biblioteca'}</strong><small>en esta biblioteca</small></div><button disabled={busy} onClick={() => void run(async () => { await Promise.all([reload(), load()]); })}>Actualizar Biblioteca</button></div>
+    <header className="p5-section-head cl-section"><div><h2>Biblioteca</h2><p>Materiales y recursos para acompañar el recorrido del aula.</p></div>
+      <div className="p5-actions">{writable ? <button className="primary" disabled={busy} onClick={() => setUploadExpanded(true)}>Agregar material</button> : null}<button disabled={busy} onClick={() => void run(async () => { await Promise.all([reload(), load()]); })}>Actualizar Biblioteca</button></div>
     </header>
     {error ? <Notice error>{error} Actualiza la Biblioteca y vuelve a intentar.</Notice> : null}
     {notice ? <Notice>{notice}</Notice> : null}
     {!loaded && !error ? <Notice>Cargando materiales…</Notice> : null}
-    {writable ? <div className="p6-library-upload">
-      <details className="folder-disclosure" open={openUpload || uploadExpanded || undefined}><summary>Publicar material</summary>
+    {writable && active && uploadExpanded ? <Dialog title="Agregar material" onClose={() => { if (!busy) setUploadExpanded(false); }}><div className="p6-library-upload">
+      {error ? <Notice error>{error}</Notice> : null}
       <p>Agregá un recurso al aula y vinculalo con su unidad y tema. Solo se publica después de aprobar la revisión del archivo.</p>
       {uploadInitial ? <p className="classroom-context-note">Destino inicial: {room.units.find(unit => unit.id === uploadInitial.unitId)?.name}{uploadInitial.topicId ? ` · ${room.units.flatMap(unit => unit.topics).find(topic => topic.id === uploadInitial.topicId)?.name}` : ''}. Podés cambiarlo antes de publicar.</p> : null}
       <p>PDF, DOCX, PPTX, XLSX, JPG, JPEG, PNG o ZIP · hasta 50 MB por archivo.</p>
@@ -106,17 +107,16 @@ export function Library({ api, room, reload, targetMaterialId, openUpload, uploa
           setFile(await api.uploadClassroom(room.id, selected, 'material'));
         });
       }} /></label>
-      </details>
       {file ? <>
         <Notice>{file.ready ? `Archivo aprobado: ${file.name}. Completa los datos para publicarlo.` : file.rejectionCode || ['ERROR', 'REJECTED'].includes(file.scan)
           ? 'El archivo no está aprobado. No se publicará ni podrá descargarse; elige otro archivo o consulta nuevamente la revisión.'
           : 'Archivo pendiente de revisión. Todavía no está publicado ni disponible para descargar.'}</Notice>
         {!file.ready ? <button disabled={busy} onClick={() => void run(async () => setFile(await api.fileStatus(file.id)))}>Consultar revisión del material</button> : null}
         {file.ready ? <MaterialForm key={`${file.id}:${uploadInitial?.unitId}:${uploadInitial?.topicId}`} room={room} initial={uploadInitial} busy={busy} label="Publicar material" onSave={metadata => run(async () => {
-          await change({ action: 'publish', fileId: file.id, ...metadata }); setFile(null); setNotice('Material publicado.');
+          await change({ action: 'publish', fileId: file.id, ...metadata }); setFile(null); setUploadExpanded(false); setNotice('Material publicado.');
         })} /> : null}
       </> : null}
-    </div> : null}
+    </div></Dialog> : null}
     {loaded && materials.length === 0 ? <p className="p5-empty">Todavía no hay materiales disponibles.</p> : null}
     {loaded && targetMaterialId && !materials.some(item => item.id === targetMaterialId) ? <Notice>El material ya no está disponible para tu cuenta.</Notice> : null}
     {openUpload && !writable ? <Notice>No podés publicar material en esta aula con tus permisos actuales.</Notice> : null}

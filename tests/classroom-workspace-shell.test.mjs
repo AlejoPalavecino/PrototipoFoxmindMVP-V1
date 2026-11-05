@@ -6,12 +6,12 @@ import {loadTsModule} from './helpers/load-ts-module.mjs';
 import {descendants} from './agenda-ui-helpers.test.mjs';
 
 const room={id:'classroom',role:'teacher',name:'Ciencias Naturales',subject:'Biología',division:'A',academicYear:2026,teacher:'Docente Demo',timezone:'America/Argentina/Buenos_Aires',coverKey:'biology',archived:false};
-test('Classroom header uses a small identity cover and gives the course title priority',()=>{
+test('Classroom header uses the approved panoramic cover and gives the course title priority',()=>{
   const {ClassroomHeader}=loadTsModule('apps/classrooms-ui/ClassroomHeader.tsx');
   const html=renderToStaticMarkup(createElement(ClassroomHeader,{room}));
-  assert.match(html,/classroom-identity-cover/);
+  assert.match(html,/class-mast-art/);
   assert.match(html,/<h1>Ciencias Naturales<\/h1>/);
-  assert.match(html,/Biología.*A.*2026/);
+  assert.match(html,/Aula.*A.*2026/);
   assert.doesNotMatch(html,/classroom-literature-hero/);
 });
 for(const teacher of [true,false])test(`Classroom navigation preserves exact destinations and labels for ${teacher?'teacher':'student'}`,()=>{

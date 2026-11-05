@@ -98,7 +98,7 @@ export function draftPayload(input: unknown, publish: boolean): DraftPayload {
     if (!isClassroomCoverKey(source.coverKey)) fail('INVALID_INPUT');
     out.coverKey = source.coverKey;
   }
-  if (publish || source.planFileId !== undefined) {
+  if (source.planFileId !== undefined) {
     if (!uuid(source.planFileId)) fail('INVALID_INPUT');
     out.planFileId = source.planFileId;
   }

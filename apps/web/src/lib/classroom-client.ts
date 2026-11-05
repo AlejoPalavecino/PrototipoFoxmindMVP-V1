@@ -22,7 +22,7 @@ export function classroomHomeDestination(value: string): ClassroomHomeTarget | n
 /** Only these literal local product destinations can cross an account flow. */
 export function classroomDestination(value: string | string[] | undefined): string | null {
   if (typeof value !== 'string' || value.length > 350) return null;
-  if (value === '/mis-aulas' || value === '/inicio' || value === '/agenda' || value === '/settings' || value === '/foxy-ai') return value;
+  if (value === '/mis-aulas' || value === '/inicio' || value === '/agenda' || value === '/settings' || value === '/foxy-ai' || value === '/notificaciones') return value;
   const target = /^\/mis-aulas\?aula=([^&?#]+)(?:&actividad=([^&?#]+))?$/.exec(value);
   if (target && invitationId.test(target[1]) && (!target[2] || invitationId.test(target[2]))) return value;
   if (classroomHomeDestination(value)) return value;

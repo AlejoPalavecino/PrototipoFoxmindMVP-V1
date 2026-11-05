@@ -33,3 +33,21 @@ export async function notificationPage(tx: Transaction, key: Buffer, actor: stri
   return { items: page.map(row => row.item), unreadCount: Number(total.count), nextCursor: rows.length > limit && last
     ? sign(key, { v: 1, actor, unread, timestamp: last.stamp, id: last.id }) : null };
 }
+
+/** One write budget and transaction; identical visible-target predicates to list/read/open. */
+export async function readAllVisibleNotifications(tx: Transaction, actor: string, wallSelection: string) {
+  const visible = [wallSelection, academicNotificationSelection, gradeNotificationSelection].map(selection =>
+    `SELECT v.id,v."classroomId",v."readAt" FROM (${selection}) v`).join(' UNION ALL ');
+  const rooms = await tx.query<{ id: string }>(`WITH visible AS (${visible})
+    SELECT DISTINCT visible."classroomId" AS id FROM visible WHERE "readAt" IS NULL ORDER BY id`, actor);
+  if (!rooms.length) return { read: true, updatedCount: 0 };
+  const ids = rooms.map(room => room.id);
+  // Membership/target mutations use this same classroom row lock. Global id order avoids batch deadlocks.
+  await tx.query('SELECT id FROM classrooms WHERE id=ANY($1::uuid[]) ORDER BY id FOR UPDATE', ids);
+  // Reevaluate after acquiring every lock: membership or target access may have changed while waiting.
+  const updated = await tx.query<{ id: string }>(`WITH visible AS (${visible})
+    UPDATE notifications n SET read_at=clock_timestamp(),updated_at=clock_timestamp()
+    FROM visible v WHERE n.id=v.id AND n.recipient_id=$1::uuid AND n.read_at IS NULL
+      AND n.classroom_id=ANY($2::uuid[]) RETURNING n.id`, actor, ids);
+  return { read: true, updatedCount: updated.length };
+}

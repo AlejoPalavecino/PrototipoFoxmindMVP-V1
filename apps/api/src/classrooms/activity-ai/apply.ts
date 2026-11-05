@@ -22,12 +22,12 @@ export async function applyProposal(options: ActivityAiOptions, tx: Transaction,
   }
   if (row.state !== 'READY' || String(revision) !== body.revision || !await revalidate(options, tx, request, row)) return fail('CONFLICT');
   const proposal = parseActivityProposal(body.proposal, proposalConstraints(row));
-  const instructions = [`Objetivo: ${proposal.objective}`, proposal.instructions,
+  const instructions = [proposal.instructions,
     ...proposal.assignmentPrompts.map((p, i) => `${i + 1}. ${p}`)].filter(Boolean).join('\n\n');
   const activityId = await createActivityDraftInTransaction(tx, { classroomId: row.classroom_id, type: row.type, now: actor.now,
     payload: { title: proposal.title, unitId: row.unit_id, topicId: row.input_payload.topicIds[0]!, topicIds: row.input_payload.topicIds,
-      instructions, attachmentRequired: false, instructionFileIds: [], materialIds: row.input_payload.sourceIds.filter(s => s.startsWith('material:')).map(s => s.slice(9)),
-      questions: proposal.questions, deadline: null, allowLate: false } });
+      objective: proposal.objective, teacherComment: null, instructions, attachmentRequired: false, instructionFileIds: [], materialIds: row.input_payload.sourceIds.filter(s => s.startsWith('material:')).map(s => s.slice(9)),
+      questions: proposal.questions, deadline: null, allowLate: false, evaluationRubric: proposal.evaluationRubric ?? [] } });
   const [updated] = await tx.query<{ revision: bigint }>('UPDATE classrooms SET revision=revision+1,updated_at=clock_timestamp() WHERE id=$1::uuid RETURNING revision', row.classroom_id);
   const [result] = await tx.query<JobRow>(`UPDATE activity_ai_generations SET state='APPLIED',proposal=$2::jsonb,apply_request_id=$3::uuid,
     apply_input_hash=$4,applied_activity_id=$5::uuid,applied_revision=$6::bigint,updated_at=clock_timestamp() WHERE id=$1::uuid RETURNING *`,

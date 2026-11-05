@@ -14,22 +14,27 @@ function RowDetails({item,timeZone}:{item:HomeRowItem;timeZone:string}) {
       {item.timeZone!==timeZone?<small className="fm-home-original-zone">Zona original: {item.timeZone}</small>:null}</span>:null}
     {'extension' in item?<span>{item.extension.toUpperCase()} · Publicado {homeTime(item.publishedAt,timeZone)}</span>:null}
     {'updatedAt' in item?<span>Actualizada {homeTime(item.updatedAt,timeZone)}</span>:null}
+    {'submittedAt' in item?<span>Intento {item.attemptNumber} · Entregada {homeTime(item.submittedAt,timeZone)} · En revisión</span>:null}
   </div>;
 }
 export function HomeRow({item,module,timeZone,onAction,busy,featured=false}:{item:HomeRowItem;module:HomeModuleName;timeZone:string;onAction:HomeAction;busy?:boolean;featured?:boolean}) {
-  const action = 'reception' in item
-    ? item.reception==='closed'?'Consultar actividad':item.attemptId?'Continuar':'Empezar'
-    : homeLabels[module].action;
+  if(module==='feedback' && 'finalGrade' in item)return <li className="fm-brujula-feedback"><div><small>{item.classroom.name} · Intento {item.attemptNumber}</small><h3>{item.title}</h3></div><strong className="fm-brujula-grade">{item.finalGrade} / 10</strong><p>Publicada {homeTime(item.publishedAt,timeZone)}</p><button className="fm-home-row-action" disabled={busy} onClick={()=>onAction(item.target)} aria-label={`Leer devolución: ${item.title}`}>Leer devolución<FoxmindIcon name="arrow-right"/></button></li>;
+  const nextTopic=module==='classrooms' && 'nextTopic' in item?item.nextTopic:null;
+  const target=nextTopic && item.classroom?{kind:'classroom' as const,classroomId:item.classroom.id,section:'plan' as const,topicId:nextTopic.topicId}:item.target;
+  const action = nextTopic?'Abrir tema':'reception' in item
+    ? item.reception==='closed'?'Consultar actividad':item.attemptId?'Continuar borrador':'Empezar'
+    : 'studentName' in item ? 'Corregir' : module === 'feedback' ? 'Leer devolución' : homeLabels[module].action;
   return <li className={`fm-home-row fm-home-row--${module}${featured?' fm-home-row--featured':''}`}>
-    {'source' in item?<AgendaDate item={item} timeZone={timeZone}/>:item.classroom?<HomeCover coverKey={item.classroom.coverKey}/>:
-      <span className="fm-home-event-icon"><FoxmindIcon name="calendar"/></span>}
-    <div className="fm-home-row-copy"><h3>{item.title}</h3>
-      {module==='classrooms' && item.classroom?<span className="fm-home-room-label">{item.classroom.division}{item.classroom.archived?' · Archivada · Solo lectura':''}</span>:<RowDetails item={item} timeZone={timeZone}/>}
+    {'source' in item?<AgendaDate item={item} timeZone={timeZone}/>:module==='classrooms' && item.classroom?<HomeCover coverKey={item.classroom.coverKey}/>:<span className="fm-brujula-row-glyph">{'studentName' in item && item.studentName ? item.studentName.split(/\s+/).slice(0,2).map(word=>word[0]).join('') : <FoxmindIcon name={module==='queries'?'chat':module==='feedback'?'check':'file'}/>}</span>}
+    <div className="fm-home-row-copy"><h3>{'studentName' in item ? item.studentName : item.title}</h3>
+      {'studentName' in item ? <span>{item.title} · {item.classroom.name} · {item.classroom.division} · Intento {item.attemptNumber}</span> : null}
+      {module==='classrooms' && item.classroom?<span className="fm-home-room-label">{item.classroom.division}{item.classroom.archived?' · Archivada · Solo lectura':''}</span>:'studentName' in item?null:<RowDetails item={item} timeZone={timeZone}/>}
       {module==='classrooms' && item.classroom?<span className={`fm-home-classroom-role fm-home-classroom-role--${item.classroom.role}`}>{item.classroom.role==='teacher'?'Enseño':'Estudio'}</span>:null}</div>
     {module==='classrooms' && item.classroom?.role==='teacher' && !item.classroom.archived?<HomePlanProgress title={item.title} progress={'planProgress' in item?item.planProgress:undefined}/>:null}
-    <button disabled={busy} className="fm-home-row-action" onClick={()=>onAction(item.target)} aria-label={`${action}: ${item.title}`}>
+    {nextTopic?<div className="fm-brujula-next-topic"><small>Próximo tema · {nextTopic.unitName}</small><strong>{nextTopic.topicName}</strong></div>:null}
+    <div className="fm-brujula-row-end">{'oldestSubmittedAt' in item?<small>{homeTime(item.oldestSubmittedAt,timeZone)}</small>:null}<button disabled={busy} className="fm-home-row-action" onClick={()=>onAction(target)} aria-label={`${action}: ${item.title}`}>
       {action}<FoxmindIcon name="arrow-right"/>
-    </button>
+    </button></div>
   </li>;
 }
 
@@ -38,7 +43,7 @@ function HomePlanProgress({title,progress}:{title:string;progress?:{taught:numbe
   const percent=Math.round(progress.taught/progress.total*100),label=`${progress.taught} de ${progress.total} temas dados`;
   return <div className="fm-home-plan-progress">
     <div className="fm-home-progress-ring" role="progressbar" aria-label={`Avance del plan de ${title}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} aria-valuetext={label}>
-      <svg viewBox="0 0 64 64" aria-hidden="true"><circle className="fm-home-ring-track" cx="32" cy="32" r="27"/>{percent>0?<circle className="fm-home-ring-value" cx="32" cy="32" r="27" pathLength="100" strokeDasharray={`${percent} 100`} transform="rotate(-90 32 32)"/>:null}</svg>
+      <span className="fm-brujula-progress-track" aria-hidden="true"><i style={{width:`${percent}%`}}/></span>
       <strong aria-hidden="true">{percent}%</strong>
     </div><span>{label}</span>
   </div>;

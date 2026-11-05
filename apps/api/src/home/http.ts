@@ -17,7 +17,7 @@ export function createHomeHandler(service: HomeService, options: {
     const url = new URL(request.url ?? '/', 'http://home.invalid');
     if (url.pathname !== '/home' && !url.pathname.startsWith('/home/')) { next(); return; }
     response.setHeader('Cache-Control','no-store');
-    const match = /^\/home\/modules\/(pending|review|feedback|agenda|queries|materials|classrooms)$/.exec(url.pathname);
+    const match = /^\/home\/modules\/(pending|review|feedback|agenda|queries|materials|classrooms|drafts|submitted)$/.exec(url.pathname);
     if (url.pathname !== '/home' && !match) { send(response,404,{error:{code:'NOT_FOUND'}}); return; }
     if (request.method !== 'GET') { response.setHeader('Allow','GET'); send(response,405,{error:{code:'METHOD_NOT_ALLOWED'}}); return; }
     if (active >= 16) { send(response,503,{error:{code:'SERVICE_UNAVAILABLE'}}); return; }

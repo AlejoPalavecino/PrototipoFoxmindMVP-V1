@@ -8,6 +8,7 @@ import { Button } from './ui/button';
 import { VerificationGuidance } from '../../../shared-ui/VerificationGuidance';
 import { FoxmindIcon } from '../../../shared-ui/index';
 import { EntryIcon } from '../../../shared-ui/EntryIcon';
+import { BrujulaIcon } from '../../../shared-ui/BrujulaIcon';
 import surface from './account-surface.module.css';
 
 interface FlowProps {
@@ -32,7 +33,6 @@ function Login({view, session, user, verified, classroomNext, nextAccountHref, l
             <Button type="submit" className="full-width">{busy ? 'Iniciando sesión…' : 'Iniciar sesión'}<FoxmindIcon name="arrow-right" /></Button>
           </fieldset></form>
           <p className="after-form">¿Todavía no tenés cuenta? <Link href={nextAccountHref('register')}>Crear cuenta</Link></p>
-          <div className="auth-reference-security"><FoxmindIcon name="shield" /><p><strong>Tu cuenta, bajo tu control.</strong>Podés recuperar el acceso por correo si olvidás tu contraseña.</p></div>
         </> : null}
   </>;
 }
@@ -42,18 +42,20 @@ function Register({view, session, user, verified, classroomNext, nextAccountHref
 {session && view === 'register' ? <>
           <form noValidate onSubmit={submit('/auth/register', 'Si los datos son válidos para crear una cuenta, recibirás un correo de verificación. Revisa también la carpeta de correo no deseado. Si ya tienes cuenta, puedes iniciar sesión o recuperar el acceso.')}><fieldset disabled={locked}>
             <fieldset className={surface.roleChoice} aria-describedby="account-role-help">
-              <legend>¿Cómo vas a usar FoxMind?</legend>
-              <p id="account-role-help">Elegí el rol de tu cuenta. Esta elección es permanente.</p>
+              <legend>Rol de la cuenta</legend>
               <div className={surface.roleOptions}>
                 <label>
                   <input type="radio" name="accountRole" value="teacher" aria-label="Docente" aria-describedby="account-role-teacher" required />
+                  <BrujulaIcon name="school" />
                   <span><strong>Docente</strong><small id="account-role-teacher">Creá aulas</small></span>
                 </label>
                 <label>
                   <input type="radio" name="accountRole" value="student" aria-label="Estudiante" aria-describedby="account-role-student" required />
-                  <span><strong>Estudiante</strong><small id="account-role-student">Unite a aulas</small></span>
+                  <BrujulaIcon name="graduation-cap" />
+                  <span><strong>Alumno</strong><small id="account-role-student">Unite a aulas</small></span>
                 </label>
               </div>
+              <p id="account-role-help">Elegí el rol de tu cuenta. Esta elección es permanente.</p>
             </fieldset>
             <div className="field-grid"><Field appearance="polished" name="firstName" label="Nombre" autoComplete="given-name" /><Field appearance="polished" name="lastName" label="Apellido" autoComplete="family-name" /></div>
             <Field appearance="polished" name="email" label="Correo electrónico" autoComplete="email" />
@@ -95,6 +97,7 @@ function Recover({view, session, user, verified, classroomNext, nextAccountHref,
 {session && view === 'recover-password' ? <>
           {hasToken ? <form noValidate onSubmit={submit('/auth/password-recovery/confirm', 'Contraseña actualizada. Las sesiones anteriores se cerraron. Inicia sesión con tu nueva contraseña.')}><fieldset disabled={locked}>
             <Field appearance="polished" name="newPassword" label="Nueva contraseña" password autoComplete="new-password" />
+            <Field appearance="polished" name="confirmPassword" label="Repetir contraseña" password autoComplete="new-password" />
             <Button type="submit" className="full-width">{busy ? 'Actualizando contraseña…' : 'Confirmar nueva contraseña'}</Button>
           </fieldset></form> : <p>Para establecer tu contraseña, abre el enlace original del correo. Si ya lo utilizaste, inicia sesión; si venció, solicita uno nuevo.</p>}
           <div className="actions"><Link href="/sign-in">Iniciar sesión</Link><Link href="/forgot-password">Solicitar otro enlace</Link></div>

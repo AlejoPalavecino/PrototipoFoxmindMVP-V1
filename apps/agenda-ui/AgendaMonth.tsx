@@ -1,5 +1,5 @@
 import type { AgendaItem } from './calendar.ts';
-import { useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { useMemo, useRef, useState, type ReactNode, type KeyboardEvent } from 'react';
 import { dateAt, dayLabel, groupAgendaItemsByDay, monthDays } from './calendar.ts';
 import { eventColorClass } from './event-colors.ts';
 import { AgendaLegend } from './AgendaLegend.tsx';
@@ -8,8 +8,8 @@ import { deadlineParts, eventTimeLabel } from './agenda-presentation.ts';
 
 const dayOffsets: Readonly<Record<string, number>> = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 };
 
-export function AgendaMonth({ month, selected, zone, items, onSelect, onMonth, onToday, loading }: {
-  month: string; selected: string; zone: string; items: AgendaItem[]; loading: boolean;
+export function AgendaMonth({ month, selected, zone, items, onSelect, onMonth, onToday, loading, children }: {
+  children?: ReactNode; month: string; selected: string; zone: string; items: AgendaItem[]; loading: boolean;
   onSelect: (day: string) => void; onMonth: (direction: number) => void; onToday: () => void;
 }) {
   const heading = new Date(`${month}-01T12:00:00Z`).toLocaleDateString('es-AR', { month: 'long', year: 'numeric', timeZone: 'UTC' });
@@ -28,9 +28,9 @@ export function AgendaMonth({ month, selected, zone, items, onSelect, onMonth, o
   }
   return <section className="agenda-calendar fm3d-agenda-card" aria-label="Calendario mensual" aria-busy={loading}>
     <header className="agenda-month-head">
-      <button aria-label="Mes anterior" onClick={() => onMonth(-1)}>‹</button>
-      <button aria-label="Mes siguiente" onClick={() => onMonth(1)}>›</button>
-      <button className="agenda-today-control" onClick={onToday}>Hoy</button><h3 aria-live="polite">{heading}</h3>
+      <div className="agenda-period-title"><button aria-label="Mes anterior" onClick={() => onMonth(-1)}>‹</button>
+        <h3 aria-live="polite">{heading}</h3><button aria-label="Mes siguiente" onClick={() => onMonth(1)}>›</button></div>
+      <div className="agenda-calendar-controls"><button className="agenda-today-control" onClick={onToday}>Hoy</button>{children}</div>
     </header>
     <div className="agenda-week" aria-hidden="true">{['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map(day => <span key={day}>{day}</span>)}</div>
     <div className="agenda-grid" ref={grid}>{days.map((day, index) => {

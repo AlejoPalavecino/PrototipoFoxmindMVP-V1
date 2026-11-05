@@ -4,7 +4,7 @@ import type { ClassroomFileOperations } from './classroom-file.ts';
 import { revision } from './revision.ts';
 import { fail, object, uuid } from './policy.ts';
 import { parseWallMutation, type NotificationPageQuery } from '../../../../src/core/domain/index.ts';
-import { notificationPage } from './notification-page.ts';
+import { notificationPage, readAllVisibleNotifications } from './notification-page.ts';
 import { feed, repliesPage, thread } from './wall-read.ts';
 import type { WallPageQuery } from '../../../../src/core/domain/index.ts';
 import type { Actor, Transaction } from './contracts.ts';
@@ -77,8 +77,8 @@ export class WallService {
       if (classroom.revision.toString() !== expected) return fail('CONFLICT');
       if (op.action === 'publish') {
         const id = randomUUID(), teacher = classroom.teacher_id === actor.id;
-        await tx.query(`INSERT INTO wall_posts(id,updated_at,classroom_id,author_id,type,body)
-          VALUES($1::uuid,clock_timestamp(),$2::uuid,$3::uuid,$4::"PostType",$5) RETURNING id`, id, classroomId, actor.id, teacher ? 'NOTICE' : 'QUERY', op.body);
+        await tx.query(`INSERT INTO wall_posts(id,updated_at,classroom_id,author_id,type,body,title)
+          VALUES($1::uuid,clock_timestamp(),$2::uuid,$3::uuid,$4::"PostType",$5,$6) RETURNING id`, id, classroomId, actor.id, teacher ? 'NOTICE' : 'QUERY', op.body, op.title ?? null);
         await this.notify(tx, actor, classroomId, classroom.teacher_id, teacher ? 'WALL_NOTICE' : 'WALL_QUERY', id, null, teacher ? null : classroom.teacher_id);
       } else if (op.action === 'reply') {
         const post = await this.wallTarget(tx, classroomId, op.postId, false);
@@ -95,8 +95,9 @@ export class WallService {
         if (target.removed_at) return fail('CONFLICT');
         // Only these two static table names are interpolated; all supplied values are parameters.
         const table = reply ? 'wall_replies' : 'wall_posts';
+        if (op.action === 'editPost' && Object.hasOwn(op, 'title')) await tx.query('UPDATE wall_posts SET title=$2 WHERE id=$1::uuid RETURNING id', target.id, op.title ?? null);
         if (edit && 'body' in op) await tx.query(`UPDATE ${table} SET body=$2,edited_at=clock_timestamp(),updated_at=clock_timestamp() WHERE id=$1::uuid RETURNING id`, target.id, op.body);
-        else await tx.query(`UPDATE ${table} SET body=NULL,removed_at=clock_timestamp(),removed_by_id=$2::uuid,updated_at=clock_timestamp() WHERE id=$1::uuid RETURNING id`, target.id, actor.id);
+        else await tx.query(`UPDATE ${table} SET ${reply ? '' : 'title=NULL,'}body=NULL,removed_at=clock_timestamp(),removed_by_id=$2::uuid,updated_at=clock_timestamp() WHERE id=$1::uuid RETURNING id`, target.id, actor.id);
       }
       return this.advanceRevision(tx, classroomId, classroom.revision);
     });
@@ -132,6 +133,10 @@ export class WallService {
 
   readNotification(request: unknown, id: string) {
     return this.notificationAction(request, id, false);
+  }
+
+  readAllNotifications(request: unknown) {
+    return this.run(request, true, (tx, actor) => readAllVisibleNotifications(tx, actor.id, notificationSelection));
   }
 
   openNotification(request: unknown, id: string) {

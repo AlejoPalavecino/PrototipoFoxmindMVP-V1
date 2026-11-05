@@ -1,5 +1,7 @@
 # FoxMind 3D — implementación local
 
+**Dirección vigente:** [Brújula](../../design/brujula/README.md), aprobada el2026-11-05, reemplaza las decisiones visuales históricas de este documento. La navegación usa Mi cuenta modal; Home incorpora nueve módulos (incluidos borradores y entregadas), y la búsqueda global consulta contenidos autorizados. El [registro vigente](../../work-log/2026-11-05-id-unavailable-brujula-complete-base.md) distingue implementación de verificación. Lo que sigue conserva la descripción del checkpoint FoxMind3D anterior.
+
 La migración incorpora los recursos aprobados y el **Foxy original ZorroH** en la aplicación existente. Inicio, Mis aulas, aula/Plan, Agenda, Perfil y Configuración comparten el nuevo shell, superficies claras y controles accesibles. Los formularios de acceso, creación de aulas, biblioteca, Muro, autoría/IA, entrega y corrección conservan sus operaciones reales y reciben la misma presentación. No hay cambios de esquema ni migración de datos.
 
 [Evidencia visual real](../../work-log/evidence/2026-10-25-foxmind-3d/README.md) · [82 recorridos y nivel de evidencia](../../foxmind-3d-verification.md) · [contrato de implementación](../../../odd/tasks/foxmind-3d-migration.md) · [registro coordinador](../../work-log/2026-10-25-root-visual-migration.md).

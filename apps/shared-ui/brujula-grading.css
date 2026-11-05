@@ -1,0 +1,47 @@
+/* Grade review responds to its actual host (including the narrow history dialog). */
+.brujula-grading { container: brujula-review / inline-size; }
+.brujula-grading-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start; }
+.brujula-grading-layout > *, .brujula-grading-panel > * { min-width: 0; }
+@container brujula-review (min-width: 760px) {
+  .brujula-grading-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; }
+}
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading {
+  border: 0; margin: 0; padding: 0; background: transparent; color: #252646;
+  font-family: 'Brújula', sans-serif; font-size: 13px; line-height: 1.5;
+}
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading :is(p, label, input, textarea, button) { font-size: 13px; line-height: 1.5; }
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading > header { gap: 12px; margin-bottom: 16px; }
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading :is(h4,h5) { font-family: 'Brújula', sans-serif; font-size: 16px; line-height: 1.35; }
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading .brujula-grading-proof, :is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading .brujula-rubric-scoring, .brujula-published-rubric {
+  box-sizing: border-box; min-width: 0; margin: 0; padding: 16px; border: 1px solid #dce3eb; border-radius: 10px; background: white;
+}
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading .brujula-grading-proof > h5 { margin: 0 0 16px; }
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading .brujula-rubric-scoring legend { padding: 0 6px; font: 600 16px/1.35 'Brújula', sans-serif; color: #252646; }
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading .brujula-rubric-scoring > p, .brujula-published-rubric > p { margin: 0 0 12px; color: #626b7d; font-size: 13px; line-height: 1.5; }
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading .brujula-rubric-scoring .rr-score, .brujula-published-rubric .rr-score {
+  display: grid; grid-template-columns: minmax(0, 1fr) 62px; gap: 12px; padding: 11px 0; border-bottom: 1px solid #dce3eb; align-items: start;
+}
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading .rr-score label, .brujula-published-rubric .rr-score dt {
+  display: block; min-width: 0; margin: 0; font: 600 13px/1.5 'Brújula', sans-serif; overflow-wrap: break-word;
+}
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading .rr-score strong, .brujula-published-rubric .rr-score strong { font-size: 13px; }
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading .rr-score b, .brujula-published-rubric .rr-score b { display: inline-block; margin-left: 5px; padding: 2px 6px; border-radius: 5px; font-size: 10px; white-space: nowrap; color: #3f6958; background: #ecf3e9; }
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading .rr-score small, .brujula-published-rubric .rr-score small { display: block; margin-top: 4px; font-size: 12px; font-weight: 400; line-height: 1.5; color: #626b7d; }
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading .rr-score input {
+  box-sizing: border-box; width: 62px; max-width: 62px; min-width: 0; min-height: 39px; padding: 8px 4px; border: 1px solid #dce3eb; border-radius: 7px; text-align: center; font-size: 13px; font-weight: 600;
+}
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading .brujula-rubric-scoring .rr-total { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; margin-top: 10px; padding: 10px 13px; border-radius: 7px; background: #edf2e7; color: #354f40; font-size: 13px; }
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading .brujula-rubric-scoring > small { display: block; margin-top: 12px; font-size: 12px; line-height: 1.5; }
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading .rr-score .brujula-score-error { color: #a13832; }
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading .brujula-final-editor { margin: 16px 0; padding: 16px; border-radius: 10px; background: #edf2e7; }
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading .brujula-final-editor > label { max-width: 280px; }
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading .brujula-final-editor input { min-height: 39px; }
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading .brujula-final-editor p { line-height: 1.5; }
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading .brujula-grading-panel .p5-form-footer { flex-wrap: wrap; }
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading .brujula-grading-panel button { min-height: 37px; padding: 8px 13px; }
+.brujula-published-rubric { margin: 16px 0; }
+.brujula-published-rubric h5 { font-size: 16px; margin: 0 0 12px; }
+.brujula-published-rubric dl { margin: 0; }
+.brujula-published-rubric dd { margin: 0; font-size: 12px; text-align: right; font-weight: 600; line-height: 1.5; }
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading .rr-score b {width:max-content;max-width:100%;}
+:is(.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog, .fm3d-theme .p5-dialog) .p8-grading.brujula-grading .brujula-final-editor p {color:#60667d;}

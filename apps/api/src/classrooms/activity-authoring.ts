@@ -13,10 +13,11 @@ import type { Transaction } from './contracts.ts';
 import { recordActivityEligibility } from './activity-eligibility.ts';
 import { activityEvent, deadlineChanged } from './activity-events.ts';
 import { activityTopics, validateActivityTopics, replaceActivityTopics, readActivityTopics } from './activity-topics.ts';
+import type { EvaluationRubric } from '../../../../src/core/domain/evaluation-rubric.ts';
 
 export interface ActivityRow {
   id: string; classroom_id: string; type: ActivityType; title: string | null; unit_id: string | null; topic_id: string | null;
-  instructions_text: string | null; ai_grading_rubric?: string; attachments_required: boolean; status: 'DRAFT' | 'PUBLISHED' | 'WITHDRAWN';
+  objective?: string | null; teacher_comment?: string | null; instructions_text: string | null; ai_grading_rubric?: string; evaluation_rubric?: EvaluationRubric; attachments_required: boolean; status: 'DRAFT' | 'PUBLISHED' | 'WITHDRAWN';
   published_at: Date | null; deadline_at: Date | null; allow_late_submissions: boolean; first_started_at: Date | null;
 }
 interface QuestionRow { id: string; type: string; prompt: string; points: string; scoringRule: string | null }
@@ -113,9 +114,13 @@ export class ActivityAuthoringService {
           await replaceActivityTopics(tx, id, classroomId, payload.unitId, []);
           await tx.query(`UPDATE activities SET title=$2,unit_id=$3::uuid,topic_id=$4::uuid,instructions_text=$5,
             attachments_required=$6,deadline_at=$7,allow_late_submissions=$8,updated_at=$9,
-            ai_grading_rubric=COALESCE($10::text,ai_grading_rubric) WHERE id=$1::uuid RETURNING id`,
+            ai_grading_rubric=COALESCE($10::text,ai_grading_rubric),evaluation_rubric=COALESCE($11::jsonb,evaluation_rubric),
+            objective=CASE WHEN $12::boolean THEN $13::text ELSE objective END,
+            teacher_comment=CASE WHEN $14::boolean THEN $15::text ELSE teacher_comment END WHERE id=$1::uuid RETURNING id`,
             id, payload.title, payload.unitId, payload.topicId, payload.instructions, payload.attachmentRequired, deadline, payload.allowLate, actor.now,
-            Object.hasOwn(op.payload, 'aiGradingRubric') ? payload.aiGradingRubric : null);
+            Object.hasOwn(op.payload, 'aiGradingRubric') ? payload.aiGradingRubric : null,
+            Object.hasOwn(op.payload, 'evaluationRubric') ? JSON.stringify(payload.evaluationRubric) : null,
+            Object.hasOwn(op.payload, 'objective'), payload.objective ?? null, Object.hasOwn(op.payload, 'teacherComment'), payload.teacherComment ?? null);
           await replaceActivityTopics(tx, id, classroomId, payload.unitId, payload.topicIds);
           await replaceActivityContent(tx, row, payload);
           if (row.status === 'PUBLISHED' && deadlineChanged(row.deadline_at, deadline, row.allow_late_submissions, payload.allowLate))
@@ -128,7 +133,7 @@ export class ActivityAuthoringService {
             instructionFileIds: view.instructionFiles.map(f => f.id), materialIds: view.materials.map(m => m.id),
             questions: view.questions.map(q => ({ type: q.type, prompt: q.prompt, points: q.points, scoringRule: q.scoringRule,
               options: q.options.map(o => ({ text: o.text, correct: o.correct })) })),
-            deadline: null, allowLate: view.allowLate }, row.type, true);
+            deadline: null, allowLate: view.allowLate, evaluationRubric: view.evaluationRubric }, row.type, true);
           await validateActivityTopics(tx, classroomId, payload.unitId, payload.topicIds);
           await this.validateLinks(tx, request, row, payload);
           await this.ports.validateActivityGeneration?.(tx, request, id);
@@ -187,7 +192,7 @@ export class ActivityAuthoringService {
     const materials = await tx.query<{ id: string; title: string; fileId: string; extension: string }>(`SELECT m.id,m.title,m.file_id AS "fileId",f.extension
       FROM activity_materials a JOIN materials m ON m.id=a.material_id JOIN files f ON f.id=m.file_id WHERE a.activity_id=$1::uuid ORDER BY m.created_at,m.id`, row.id);
     // Explicit DTO construction: never spread SQL rows or expose answer keys/private grade/editor state to students.
-    return { ...this.activitySummary(row, zone), ...(teacher ? { aiGradingRubric: row.ai_grading_rubric ?? '' } : {}), topicIds: await readActivityTopics(tx, row.id, row.topic_id), instructions: row.instructions_text, attachmentRequired: row.attachments_required,
+    return { ...this.activitySummary(row, zone), evaluationRubric: row.evaluation_rubric ?? [], ...(teacher ? { aiGradingRubric: row.ai_grading_rubric ?? '' } : {}), topicIds: await readActivityTopics(tx, row.id, row.topic_id), objective: row.objective ?? null, teacherComment: row.teacher_comment ?? null, instructions: row.instructions_text, attachmentRequired: row.attachments_required,
       instructionFiles, materials, questions: questions.map(q => ({ id: q.id, type: q.type, prompt: q.prompt, points: q.points,
         ...(teacher ? { scoringRule: q.scoringRule } : {}), options: options.filter(o => o.question_id === q.id)
           .map(o => ({ id: o.id, text: o.text, ...(teacher ? { correct: o.correct } : {}) })) })) };

@@ -37,18 +37,18 @@ export function PlanWorkspace({ api, room, onOpenActivity, onTopicState, busy = 
   const selectTopic = (id?: string) => { if (id) { setLocalSelected(id); onSelectTopic?.(id); } };
   const creationContext = unit?.id && topic?.id ? { unitId: unit.id, topicIds: [topic.id] } : null;
   const mark = (id: string, checked: boolean) => { if (writable && !busy) void onTopicState?.(id, checked ? 'TAUGHT' : 'PENDING'); };
-  return <div className="fm3-plan-workspace">
+  return <div className="fm3-plan-workspace cl-plan">
     {topics.length ? <label className="fm3-plan-mobile-selection">Tema del plan
       <select aria-label="Tema del plan" value={topic?.id ?? ''} onChange={event => selectTopic(event.target.value)}>
         {room.units.map(item => <optgroup key={item.id} label={item.name}>{item.topics.map(candidate => <option key={candidate.id} value={candidate.id}>{candidate.name} · {candidate.status === 'TAUGHT' ? 'Dado' : 'Pendiente'}</option>)}</optgroup>)}
       </select>
     </label> : null}
-    <nav aria-label="Unidades del plan" className="fm3-plan-navigation"><h3>Recorrido del aula</h3>
-      {room.units.map((item, index) => <section key={item.id ?? index} className={item.id === unit?.id ? 'is-selected' : undefined}>
-        <button className="fm3-unit-select" disabled={!item.topics.length} aria-pressed={item.id === unit?.id} onClick={() => selectTopic(item.topics.find(candidate => candidate.status === 'NEXT')?.id ?? item.topics[0]?.id)}>
-          <span className="fm3-unit-number">{index + 1}</span><span className="fm3-unit-body"><strong>{item.name}</strong><small>{item.topics.filter(candidate => candidate.status === 'TAUGHT').length} de {item.topics.length} temas dados</small></span>
+    <nav aria-label="Unidades del plan" className="fm3-plan-navigation cl-tree">
+      {room.units.map((item, index) => <section key={item.id ?? index} className={`cl-unit${item.id === unit?.id ? ' is-selected' : ''}`}>
+        <button className="fm3-unit-select cl-unit-head" disabled={!item.topics.length} aria-expanded={item.id === unit?.id} aria-pressed={item.id === unit?.id} onClick={() => selectTopic(item.topics.find(candidate => candidate.status === 'NEXT')?.id ?? item.topics[0]?.id)}>
+          <span className="fm3-unit-number cl-unit-no">{String(index + 1).padStart(2,'0')}</span><span className="fm3-unit-body"><strong>{item.name}</strong><small>{item.topics.filter(candidate => candidate.status === 'TAUGHT').length} de {item.topics.length} temas dados</small></span>
         </button>
-        <div className="classroom-plan-topics">{item.topics.map(candidate => <div className={`classroom-plan-topic${candidate.status === 'TAUGHT' ? ' is-taught' : ''}`} key={candidate.id}>
+        <div className="classroom-plan-topics cl-topic-list" hidden={item.id !== unit?.id}>{item.topics.map(candidate => <div className={`classroom-plan-topic cl-topic${candidate.status === 'TAUGHT' ? ' is-taught' : ''}${candidate.id === topic?.id ? ' selected' : ''}`} key={candidate.id}>
           {writable && onTopicState && candidate.id ? <label className="classroom-topic-check"><input type="checkbox" aria-label={`Marcar como dado: ${candidate.name}`} checked={candidate.status === 'TAUGHT'} disabled={busy} onChange={event => mark(candidate.id!, event.target.checked)}/></label>
             : <span className="classroom-topic-indicator" aria-label={candidate.status === 'TAUGHT' ? 'Dado' : 'Pendiente'}>{candidate.status === 'TAUGHT' ? '✓' : '○'}</span>}
           <button aria-current={candidate.id === topic?.id ? 'true' : undefined} onClick={() => selectTopic(candidate.id)}><span>{candidate.name}</span><small>{candidate.status === 'TAUGHT' ? 'Dado' : 'Pendiente'}</small></button>
@@ -56,7 +56,7 @@ export function PlanWorkspace({ api, room, onOpenActivity, onTopicState, busy = 
       </section>)}
       <p className="classroom-plan-note">{writable ? 'Un tilde marca el tema como dado. Podés destildarlo cuando quieras. ' : ''}El avance del plan no cambia las calificaciones.</p>
     </nav>
-    <section className="fm3-plan-context" aria-label="Tema seleccionado">
+    <section className="fm3-plan-context cl-detail" aria-label="Tema seleccionado">
       {!topic ? <p>No hay temas en el plan de esta aula.</p> : <>
         <div className="classroom-plan-context-head"><div><small>{unit?.name} › Tema {unit ? unit.topics.indexOf(topic) + 1 : 1} de {unit?.topics.length ?? 1}</small><h3>{topic.name}</h3></div><span className="p5-tag" data-status={topic.status === 'TAUGHT' ? 'TAUGHT' : 'PENDING'}>{topic.status === 'TAUGHT' ? 'Dado' : 'Pendiente'}</span></div>
         {writable ? <div className="classroom-plan-actions">

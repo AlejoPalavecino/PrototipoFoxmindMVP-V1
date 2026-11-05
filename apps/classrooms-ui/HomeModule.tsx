@@ -1,19 +1,21 @@
 import type { HomeModuleName,HomeModules } from '../../src/core/domain/index.ts';
 import { homeLabels,type HomeAction } from './home-labels.ts';
 import { HomeAgendaRow,HomeRow } from './HomeRow.tsx';
-import { homeReviewCount,homeReviewSummary,homeCalendarWeek } from './home-presentation.ts';
+import { homeReviewSummary,homeCalendarWeek } from './home-presentation.ts';
 import { FoxmindIcon } from '../shared-ui/index.ts';
-const moduleIcons={pending:'clock',review:'clipboard',feedback:'check',agenda:'calendar',queries:'chat',materials:'folder',classrooms:'book'} as const;
-export function HomeModule({name,page,timeZone,onAction,onRetry,onExpand,onAgenda,busy,title,generatedAt}:{
+const moduleIcons={pending:'clock',review:'clipboard',feedback:'check',agenda:'calendar',queries:'chat',materials:'folder',classrooms:'book',drafts:'edit',submitted:'clock'} as const;
+export function HomeModule({name,page,timeZone,onAction,onRetry,onExpand,onAgenda,onList,busy,title,generatedAt,previewLimit}:{
   name:HomeModuleName;page:HomeModules[HomeModuleName];timeZone:string;onAction:HomeAction;
-  onRetry:()=>void;onExpand?:()=>void;onAgenda?:()=>void;busy?:boolean;title?:string;generatedAt?:string;
+  onRetry:()=>void;onExpand?:()=>void;onAgenda?:()=>void;onList?:()=>void;busy?:boolean;title?:string;generatedAt?:string;previewLimit?:number;
 }) {
   if(page.status==='not-applicable')return null;
   const label={...homeLabels[name],title:title??homeLabels[name].title};
   return <section className={`fm-home-module fm-home-module--${name}`} aria-label={label.title}>
-    <header><FoxmindIcon name={moduleIcons[name]}/><h2>{label.title}</h2>{name!=='agenda' && page.status==='ready' && page.totalItems!==null?<span className="fm-home-count">{name==='review'?homeReviewCount(page.totalItems):page.totalItems}</span>:null}
+    <header><FoxmindIcon name={moduleIcons[name]}/><div>{name==='pending'||name==='feedback'?<small className="fm-brujula-module-kicker">{name==='pending'?'Actividades':'Resultados publicados'}</small>:null}<h2>{label.title}</h2></div>{name!=='agenda' && page.status==='ready' && page.totalItems!==null?<span className="fm-home-count">{name==='review' ? `${page.totalItems} ${page.totalItems === 1 ? 'entrega' : 'entregas'}` : page.totalItems}</span>:null}
       {name==='agenda' && onAgenda?<button className="fm-home-agenda-link" onClick={onAgenda}>Abrir agenda<FoxmindIcon name="arrow-right"/></button>:null}
-      {page.status==='ready' && page.nextCursor && onExpand?<button data-home-expand={name} onClick={onExpand}>Ver todas<span className="sr-only">: {label.title}</span></button>:null}</header>
+      {onList?<button className="fm-brujula-work-list-link" onClick={onList}>Ver listado<FoxmindIcon name="arrow-right"/></button>:null}
+      {!onList && page.status==='ready' && (page.nextCursor || previewLimit!==undefined && page.items.length>previewLimit) && onExpand?<button data-home-expand={name} onClick={onExpand}>Ver todas<span className="sr-only">: {label.title}</span></button>:null}</header>
+    {name==='drafts'?<p className="fm-home-hint">Solo visibles para vos</p>:null}
     {name==='agenda' && generatedAt?<div className="fm-home-week" aria-label="Semana actual">
       {homeCalendarWeek(generatedAt,timeZone).map((day,index)=><div key={day.date}>
         <span aria-hidden="true">{['L','M','M','J','V','S','D'][index]}</span>
@@ -28,6 +30,6 @@ export function HomeModule({name,page,timeZone,onAction,onRetry,onExpand,onAgend
       <div><dt>Para publicar</dt><dd>{page.totals.readyToPublish}</dd></div>
     </dl>:null}
     {page.status==='error'?<div className="fm-home-module-error" role="status"><p>No pudimos cargar {label.title.toLowerCase()}.</p><button onClick={onRetry} disabled={busy}>Reintentar {label.title.toLowerCase()}</button></div>:
-      page.items.length?<ul>{page.items.map((item,index)=>'source' in item && name==='agenda'?<HomeAgendaRow key={item.id} item={item} timeZone={timeZone} onAction={onAction} busy={busy}/>:<HomeRow key={item.id} item={item} module={name} featured={name==='pending' && index===0} timeZone={timeZone} onAction={onAction} busy={busy}/>)}</ul>:<p className="fm-home-empty">{label.empty}</p>}
+      page.items.length?<ul>{page.items.slice(0,previewLimit).map((item,index)=>'source' in item && name==='agenda'?<HomeAgendaRow key={item.id} item={item} timeZone={timeZone} onAction={onAction} busy={busy}/>:<HomeRow key={item.id} item={item} module={name} featured={name==='pending' && index===0} timeZone={timeZone} onAction={onAction} busy={busy}/>)}</ul>:<p className="fm-home-empty">{label.empty}</p>}
   </section>;
 }

@@ -3,6 +3,10 @@ import type { FileState } from './api.ts';
 import { FoxmindIcon } from '../shared-ui/index.ts';
 
 interface Props {
+  planText: string;
+  onPlanText: (value: string) => void;
+  onExtractText: () => void;
+  onRemoveFile: () => void;
   file: FileState | null;
   uploading: boolean;
   disabled: boolean;
@@ -24,7 +28,12 @@ function handleDrop(event: DragEvent, props: Props) {
 
 export function WizardPlan(props: Props) {
   const { file, uploading, disabled, inputRef, fileUrl, onFile, onRefresh } = props;
-  return <div className="wizard-plan-layout">
+  return <div className="brujula-wizard-plan">
+    <label>Unidades y temas<textarea autoFocus aria-label="Unidades y temas" rows={7} value={props.planText} disabled={disabled} placeholder={'Unidad 1 · Ecosistemas\nFlujo de energía\nRedes tróficas'} onChange={event => props.onPlanText(event.target.value)} /></label>
+    <small>Escribí “Unidad: nombre” y agregá cada tema con “- tema”, uno por línea. El aula necesita al menos una unidad con un tema.</small>
+    <button className="brujula-wizard-extract" type="button" disabled={disabled} onClick={props.onExtractText}><FoxmindIcon name="spark" />Extraer unidades de un texto</button>
+    <details className="brujula-wizard-file"><summary>Analizar un archivo con IA</summary><p>Si preferís partir de un documento, subí un PDF o DOCX. Revisá la propuesta antes de aplicarla al plan escrito.</p>
+    <div className="wizard-plan-layout">
     <div className="wizard-plan-upload">
       <h3>Subí tu archivo</h3>
       <div className="p5-drop" onDrop={event => handleDrop(event, props)}
@@ -46,10 +55,8 @@ export function WizardPlan(props: Props) {
         <FoxmindIcon name="refresh" />Reemplazar archivo</button></div>
         : <p className="wizard-plan-security"><FoxmindIcon name="shield" />El plan estará disponible cuando supere la validación y el análisis de seguridad.</p>}
     </div>
-    <aside className="wizard-plan-tips"><h3><FoxmindIcon name="spark" />Consejos para un mejor resultado</h3>
-      <section><FoxmindIcon name="check" /><div><h4>Incluí objetivos, unidades o ejes temáticos</h4><p>Una estructura clara ayuda a interpretar tu plan.</p></div></section>
-      <section><FoxmindIcon name="file" /><div><h4>Usá una currícula oficial o una planificación propia</h4><p>Podés subir tu documento en PDF o DOCX.</p></div></section>
-      <section><FoxmindIcon name="edit" /><div><h4>Vos decidís qué sugerencias usar</h4><p>Revisá y editá las unidades y temas antes de aplicarlos al aula.</p></div></section>
-    </aside>
+    </div>
+    {file ? <button type="button" disabled={disabled} onClick={props.onRemoveFile}>Retirar archivo del borrador</button> : null}
+    </details>
   </div>;
 }

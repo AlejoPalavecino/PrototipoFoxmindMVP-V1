@@ -44,10 +44,11 @@ test('draft navbar hides account navigation while preserving classroom exit', ()
     notifications: React.createElement('button', { 'aria-label': 'Notificaciones' }, 'Notificaciones'),
     accountActions: React.createElement('button', null, 'Cerrar sesión') };
   const regular = render(AppNavbar, props);
-  assert.match(regular, /href="\/profile"/); assert.match(regular, /href="\/settings"/); assert.match(regular, /Cerrar sesión/); assert.match(regular, /Notificaciones/);
+  assert.match(regular, /aria-haspopup="dialog"[^>]*aria-expanded="false"[^>]*aria-label="Mi cuenta de Draft owner"/);
+  assert.match(regular, /Notificaciones/);
   const draft = render(AppNavbar, { ...props, restricted: true });
   assert.match(draft, /href="\/mis-aulas"/); assert.match(draft, /Mis aulas/);
-  assert.doesNotMatch(draft, /href="\/profile"|href="\/settings"|fm3d-shell-avatar|Cerrar sesión|Notificaciones/);
+  assert.doesNotMatch(draft, /href="\/profile"|href="\/settings"|fm3d-shell-avatar|Cerrar sesión|Notificaciones|Mi cuenta/);
 });
 
 test('password visibility is an explicit non-submit control, with policy only for new passwords', () => {
@@ -67,12 +68,13 @@ test('home retains the student classroom and the applicable learning modules', (
   const { Home } = loadTsModule('apps/classrooms-ui/Home.tsx', { stubs: { './use-home.ts': { useHome: () => ({ loading:false, data }) } } });
   const html = render(Home, { accountRole: 'student', displayName: 'Student', busy: false, onAction() {},
     onCreate() {}, onJoin() {}, onClassrooms() {}, onEnter() {}, api: { call: async () => [] }, onOpenTarget() {} });
-  for (const label of ['Para entregar', 'Devoluciones disponibles']) {
+  for (const label of ['Mis entregas', 'Mis devoluciones']) {
     const group = [...html.matchAll(/<section\b([^>]*)>/g)].find(([, attributes]) => attributes.includes(`aria-label="${label}"`));
     assert.ok(group, `Missing ${label} section`);
     assert.doesNotMatch(group[1], /\bhidden(?:=|\s|$)|aria-hidden="true"/);
   }
   assert.match(html, /Actual class/);
   assert.match(html, /Science|Actual class/);
-  assert.match(html, /Estudio/);
+  assert.match(html, /aria-label="Accesos de mi aula"/);
+  assert.doesNotMatch(html, /aria-label="Acciones del aula"|aria-label="Aula en foco"/);
 });

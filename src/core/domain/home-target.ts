@@ -10,11 +10,12 @@ const fields: Record<HomeTarget['kind'], string[]> = {
 export function parseHomeTarget(input: unknown): HomeTarget {
   if (!input || typeof input !== 'object' || Array.isArray(input) || !('kind' in input)) return homeInvalid();
   const kind = homeEnum(input.kind, Object.keys(fields) as HomeTarget['kind'][]);
-  const value = homeObject(input, ['kind', ...fields[kind]]);
-  for (const key of fields[kind]) {
+  const keys = [...fields[kind], ...(kind === 'classroom' && 'topicId' in input ? ['topicId'] : []), ...(kind === 'submissions' && 'attemptId' in input ? ['attemptId'] : [])];
+  const value = homeObject(input, ['kind', ...keys]);
+  for (const key of keys) {
     if (key.endsWith('Id')) homeId(value[key]);
     else if (key === 'date') homeDate(value[key]);
-    else if (key === 'section') homeEnum(value[key], ['plan']);
+    else if (key === 'section') homeEnum(value[key], ['plan', 'library', 'progress', 'wall']);
     else if (key === 'filter') homeEnum(value[key], ['unpublished']);
   }
   return { ...value } as HomeTarget;

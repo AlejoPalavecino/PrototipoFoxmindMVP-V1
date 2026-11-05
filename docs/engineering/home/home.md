@@ -10,7 +10,15 @@
 - Open real academic news. Each destination comes from the successful `POST /notifications/:id/open` response, which checks current membership and target permissions. List-item identifiers are not navigation authority.
 - Recover from failed refreshes with a visible manual retry. Inicio hides stale classroom cards after a failed list refresh rather than presenting them as fresh success.
 
-## Taller Cálido — diseño vigente, 2026-11-04
+## Brújula — dirección aprobada, 2026-11-05
+
+La integración [Brújula](../../../odd/tasks/foxmind-brujula.md) reemplaza la composición anterior: menú lateral, tipografía del HTML, banners por rol y personaje separado. Inicio docente presenta Por atender con pestañas de entregas y consultas, acciones con aula destino y organización personal. Inicio alumno conserva pendientes y devoluciones exclusivamente publicados. Los estados de carga/error y reintentos siguen siendo independientes por módulo.
+
+El módulo `review` proyecta un registro por intento entregado sin devolución publicada, ordenado por fecha e ID. Cada fila incluye `studentName`, `attemptNumber` y `target.attemptId`; los totales son de intentos. Se conservan los pendientes de exalumnos sin incluirlos como alumnos actuales en las métricas de progreso. La proyección reutiliza las relaciones existentes, sin duplicar entregas. Los clientes siguen aceptando destinos agrupados antiguos que omiten `attemptId`.
+
+El cambio de cardinalidad y los campos nuevos requieren publicar API y web coordinadamente en una entrega futura. La nueva lectura conserva payloads anteriores; un cliente Home antiguo con validación estricta puede mostrar recuperación de error hasta recargar su pestaña. Esta integración local no ejecuta ese despliegue.
+
+## Taller Cálido — diseño anterior, 2026-11-04
 
 Inicio usa el banner panorámico aprobado, con el saludo a la izquierda sobre vidrio translúcido y un fondo de respaldo para navegadores sin desenfoque. Los accesos Mis aulas, Agenda, Configuración y Mi perfil comparten un patrón con colores suaves. Foxy recomienda un próximo paso mediante reglas y abre el destino autorizado correspondiente.
 

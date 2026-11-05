@@ -63,7 +63,9 @@ export async function readMiniagenda(tx: HomeSql, actor: HomeActor, query: HomeP
   }).filter(row => row.start > now && row.start < end && row.sort_key > after)
     .sort((left, right) => left.sort_key < right.sort_key ? -1 : left.sort_key > right.sort_key ? 1 : 0);
   const visible = future.slice(0, 3);
+  const week=future.filter(row=>row.start<now+7*86400000).map(row=>row.item);
+  const preview=query.cursor===null?{preview:{personal:week.filter(item=>item.source==='PRIVATE_EVENT').slice(0,2),deadline:week.find(item=>item.source==='ACADEMIC_DEADLINE'&&item.classroom?.role==='teacher')??null}}:{};
   return parseHomeModuleResponse({ subjectId: actor.userId, generatedAt: actor.now, module: 'agenda',
-    page: { status: 'ready', items: visible.map(row => row.item), totalItems: null,
+    page: { status: 'ready', items: visible.map(row => row.item), totalItems: null,...preview,
       nextCursor: future.length > 3 ? nextCursor(actor, query, visible[2].sort_key) : null } }).page as HomeModules['agenda'];
 }

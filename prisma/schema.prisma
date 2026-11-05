@@ -504,6 +504,9 @@ model FileCustody {
 model Activity {
   grading_ai_jobs GradingAiJob[]
   ai_grading_rubric String @default("")
+  evaluation_rubric Json @default("[]")
+  objective String?
+  teacher_comment String?
   generated_by ActivityAiGeneration[] @relation("ActivityGeneration_applied")
   id                     String                    @id @default(uuid()) @db.Uuid
   created_at             DateTime                  @default(now()) @db.Timestamptz(6)
@@ -716,6 +719,11 @@ model AttemptGrade {
   activity_id         String            @db.Uuid
   final_grade         Decimal?          @db.Decimal
   overall_feedback    String?
+  rubric_snapshot Json?
+  rubric_marks Json @default("[]")
+  suggested_grade Decimal? @db.Decimal
+  final_grade_override Decimal? @db.Decimal
+  calculated_grade Decimal? @db.Decimal
   graded_by_id        String            @db.Uuid
   published_at        DateTime?         @db.Timestamptz(6)
   is_published        Boolean           @default(false)
@@ -768,6 +776,7 @@ model GradeCorrection {
 }
 
 model WallPost {
+  title String?
   id            String         @id @default(uuid()) @db.Uuid
   created_at    DateTime       @default(now()) @db.Timestamptz(6)
   updated_at    DateTime       @default(now()) @updatedAt @db.Timestamptz(6)

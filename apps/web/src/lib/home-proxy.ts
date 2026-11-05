@@ -10,7 +10,7 @@ function route(request:IncomingMessage):URL {
   const raw=request.url??'';
   if (/[\\#]/.test(raw) || /%|\.\./.test(raw.split('?')[0])) throw new Error();
   const url=new URL(raw,'http://web.invalid');
-  const match=/^\/api\/v1\/home\/modules\/(pending|review|feedback|agenda|queries|materials|classrooms)$/.exec(url.pathname);
+  const match=/^\/api\/v1\/home\/modules\/(pending|review|feedback|agenda|queries|materials|classrooms|drafts|submitted)$/.exec(url.pathname);
   if (url.pathname!=='/api/v1/home' && !match) throw Object.assign(new Error(),{status:404});
   if (request.method!=='GET') throw Object.assign(new Error(),{status:405});
   if (request.headers['transfer-encoding'] || Number(request.headers['content-length']??0) || request.headers['content-encoding']) throw new Error();

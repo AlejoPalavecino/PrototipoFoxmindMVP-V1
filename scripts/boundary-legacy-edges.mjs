@@ -92,8 +92,6 @@ const groups = [
       "mixed cycle: apps/api/src/classrooms/memberships-operations-2.ts | apps/api/src/classrooms/memberships.ts | import | type | {MembershipService}",
       "mixed cycle: apps/api/src/classrooms/memberships.ts | apps/api/src/classrooms/memberships-operations-1.ts | import | eager | {confirmCodeOperation, previewCodeOperation}",
       "mixed cycle: apps/api/src/classrooms/memberships.ts | apps/api/src/classrooms/memberships-operations-2.ts | import | eager | {endMembershipOperation, membersOperation}",
-      "mixed cycle: apps/shared-ui/AppNavbar.tsx | apps/shared-ui/NavbarParts.tsx | import | eager | {NavbarDrawer, ShellAccount, ShellLinks}",
-      "mixed cycle: apps/shared-ui/NavbarParts.tsx | apps/shared-ui/AppNavbar.tsx | import | type | {NavbarLink}",
       "mixed cycle: apps/web/src/components/account-flow-forms.tsx | apps/web/src/components/account-screen.tsx | import | type | {AccountView}",
       "mixed cycle: apps/web/src/components/account-screen.tsx | apps/web/src/components/account-flow-forms.tsx | import | eager | {AccountFlowForms}",
       "public surface dependency: apps/api/src/classrooms/contracts.ts | apps/api/src/files/public/index.ts | import | type | {FileStore}",

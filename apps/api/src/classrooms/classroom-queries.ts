@@ -3,8 +3,13 @@ import type { ClassroomRow } from './contracts.ts';
 
 export function mine(context: ClassroomCore, request: unknown) {
     return context.run(request, false, async (tx, actor) => {
-      const rows = await tx.query<ClassroomRow>(
-        `SELECT c.*,concat(u.first_name,' ',u.last_name) AS teacher_name FROM classrooms c
+      const rows = await tx.query<ClassroomRow & { plan_progress: { taught: number; total: number }; student_count: number }>(
+        `SELECT c.*,concat(u.first_name,' ',u.last_name) AS teacher_name,
+        (SELECT jsonb_build_object('total',count(*)::int,'taught',count(*) FILTER (WHERE t.status='TAUGHT')::int)
+          FROM topics t WHERE t.classroom_id=c.id) AS plan_progress,
+        (SELECT count(*)::int FROM enrollments e WHERE e.classroom_id=c.id
+          AND EXISTS (SELECT 1 FROM membership_periods mp WHERE mp.enrollment_id=e.id AND mp.ended_at IS NULL)) AS student_count
+        FROM classrooms c
         JOIN users u ON u.id=c.teacher_id WHERE c.teacher_id=$1::uuid OR EXISTS(SELECT 1 FROM enrollments e
         JOIN membership_periods m ON m.enrollment_id=e.id WHERE e.classroom_id=c.id AND e.student_id=$1::uuid AND m.ended_at IS NULL)
         ORDER BY c.created_at DESC,c.id`,
@@ -13,10 +18,12 @@ export function mine(context: ClassroomCore, request: unknown) {
       return {
         teach: rows
           .filter((c) => c.teacher_id === actor.id)
-          .map((c) => context.summary(c, actor.id)),
+          .map((c) => ({ ...context.summary(c, actor.id), planProgress: c.plan_progress,
+            ...(c.teacher_id === actor.id ? { studentCount: c.student_count } : {}) })),
         study: rows
           .filter((c) => c.teacher_id !== actor.id)
-          .map((c) => context.summary(c, actor.id)),
+          .map((c) => ({ ...context.summary(c, actor.id), planProgress: c.plan_progress,
+            ...(c.teacher_id === actor.id ? { studentCount: c.student_count } : {}) })),
       };
     });
   }

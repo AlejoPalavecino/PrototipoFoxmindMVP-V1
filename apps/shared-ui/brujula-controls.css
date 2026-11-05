@@ -1,0 +1,39 @@
+/* Canonical shared controls from the approved Brújula HTML. Component-specific
+   variants keep their own icon, tab, link and calendar geometry. */
+.fm3d-theme {
+  --brujula-ink:#252646; --brujula-muted:#60667d; --brujula-line:#dbe1f0;
+  --brujula-primary:#b8490c; --brujula-surface:#fff; --brujula-canvas:#f4f7fe;
+  --brujula-control-radius:11px; --brujula-card-radius:18px;
+}
+.fm3d-theme:has(.fm-navbar-private) :is(.p5-primary,.p5-action,.p5-actions>button,.p5-dialog fieldset>button,.p5-dialog form>button,.fm-brujula-button) {
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  min-height:37px;padding:8px 13px;border:1px solid var(--brujula-line);
+  border-radius:var(--brujula-control-radius);background:white;color:var(--brujula-ink);
+  font:500 12px/1.4 'Brújula',sans-serif;text-decoration:none;box-shadow:none;
+}
+.fm3d-theme:has(.fm-navbar-private) :is(.p5-primary,.p5-actions>button.p5-primary,.fm-brujula-button--primary) {background:var(--brujula-primary);border-color:var(--brujula-primary);color:white;}
+.fm3d-theme:has(.fm-navbar-private) :is(.p5-primary,.p5-action,.fm-brujula-button):disabled {opacity:.5;cursor:not-allowed;}
+.fm3d-theme:has(.fm-navbar-private) :is(.p5-primary,.p5-action,.fm-brujula-button):not(:disabled):hover {filter:brightness(.96);}
+.fm3d-theme:has(.fm-navbar-private) :is(.p5-dialog,.p5-app) :is(input:not([type=checkbox]):not([type=radio]):not([type=file]),select,textarea) {
+  border:1px solid #d7ddeb;border-radius:10px;background:#fff;color:var(--brujula-ink);font:400 12px/1.5 'Brújula',sans-serif;padding:10px 12px;box-shadow:none;
+}
+.fm-brujula-next-topic {grid-column:1/-1;display:grid;gap:4px;padding:0 17px 8px;}
+.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog>p {font-size:13px;line-height:1.55;color:#60667d;}
+.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog>header .p5-close {display:grid;place-items:center;width:32px;min-width:32px;height:32px;min-height:32px;padding:0;border:0;border-radius:8px;background:transparent;color:#5d607a;font-size:22px;line-height:1;}
+.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog .p5-actions>button {min-height:37px;padding:8px 13px;border:1px solid #dbe1f0;border-radius:12px;font-size:12px;font-weight:600;line-height:1.4;box-shadow:none;}
+.fm3d-theme .fm3-classrooms.p5-app .p5-main dialog.p5-dialog .p5-actions>button.primary {background:#b8490c;border-color:#b8490c;color:white;}
+.fm3d-theme dialog.p5-dialog>header .p5-close {display:grid;place-items:center;width:32px;min-width:32px;height:32px;min-height:32px;padding:0;border:0;border-radius:8px;background:transparent;color:#5d607a;font-size:22px;line-height:1;}
+.fm-brujula-next-topic small {font-size:10px;color:#60667d;}.fm-brujula-next-topic strong {font-size:13px;}
+.fm3d-theme .fm-home.fm-home--warm .fm-brujula-rail-label {font-size:10px;letter-spacing:.03em;color:#60667d;display:flex;align-items:center;gap:6px;margin:12px 0 4px;}
+.fm-brujula-rail-label::before {content:'';width:6px;height:6px;border-radius:50%;background:#9380bd;}
+.fm3d-theme .fm-home.fm-home--warm .fm-home-module>header .fm-brujula-work-list-link {display:inline-flex;align-items:center;gap:5px;margin-left:auto;min-height:32px;padding:4px 0;border:0;border-radius:0;background:none;box-shadow:none;color:#93400f;font:500 11px/1.4 'Brújula',sans-serif;white-space:nowrap;}
+.fm3d-theme .fm-home.fm-home--warm .fm-home-module>header .fm-brujula-work-list-link svg {width:14px;height:14px;}
+.fm-brujula-work-list {width:min(850px,calc(100vw - 32px));}.fm-brujula-work-group {padding:12px 0;border-bottom:1px solid #e5e8f1;}
+.fm-brujula-work-group ul {list-style:none;margin:0;padding:0;}.fm-brujula-work-group h3 {font-size:15px;margin:10px 0;}
+.fm3d-theme .fm-brujula-inbox {max-width:920px;border:1px solid #dfe4f0;border-radius:18px;background:white;padding:20px 24px;}
+.fm-brujula-notifications-page>header {margin-bottom:24px;}.fm-brujula-notifications-page>header>small {font-size:10px;color:#98501d;letter-spacing:1px;}.fm-brujula-notifications-page h1 {font-size:30px;margin:5px 0;}.fm-brujula-notifications-page>header>p {font-size:13px;color:#60667d;}
+.notification-types {display:flex;flex-wrap:wrap;gap:6px;margin:12px 0;}
+.notification-types button {min-height:27px;padding:3px 9px;border:1px solid #e5e7f2;border-radius:99px;background:white;color:#595f77;font-size:10.5px;}
+.notification-types button[aria-pressed=true] {background:#eeedf9;border-color:#d3cde9;color:#574774;}
+.fm3d-theme .entry-notifications .p6-notifications>li {border:0;border-bottom:1px solid #e9ebf3;border-radius:3px;padding:12px 2px;background:white;box-shadow:none;}
+@media(max-width:600px){.fm3d-theme .fm-brujula-inbox {padding:12px;}.fm-brujula-work-list {width:calc(100vw - 20px);}}

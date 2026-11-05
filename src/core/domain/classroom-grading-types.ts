@@ -11,14 +11,18 @@ export interface GradingQuestion {
 export interface GradingActivity {
   id: string; type: GradingActivityType; title: string | null; unitId: string | null; topicId: string | null; topicIds: string[];
   status: 'DRAFT' | 'PUBLISHED' | 'WITHDRAWN'; publishedAt: string | null; deadlineAt: string | null;
-  allowLate: boolean; locked: boolean; zone: string; aiGradingRubric?: string; instructions: string | null;
-  attachmentRequired: boolean; instructionFiles: (GradeAttachment & { extension: string })[];
+  allowLate: boolean; locked: boolean; zone: string; aiGradingRubric?: string; evaluationRubric?: import('./evaluation-rubric.ts').EvaluationRubric; instructions: string | null;
+  objective?: string | null; teacherComment?: string | null; attachmentRequired: boolean; instructionFiles: (GradeAttachment & { extension: string })[];
   materials: { id: string; title: string; fileId: string; extension: string }[]; questions: GradingQuestion[];
+}
+export interface RubricGradeFields {
+  rubricSnapshot?: import('./evaluation-rubric.ts').EvaluationRubric | null; rubricMarks?: import('./rubric-marks.ts').RubricMark[];
+  suggestedGrade?: string | null; finalGradeOverride?: string | null; calculatedGrade?: string | null;
 }
 export interface GradingData {
   revision: string; archived: boolean; canSave: boolean; activity: GradingActivity;
   attempt: { id: string; number: number; submittedAt: string; submittedLate: boolean; firstName: string; lastName: string; attachments: GradeAttachment[] };
-  grade: { id: string | null; isPublished: boolean; publishedAt: string | null; finalGrade: string | null; overallFeedback: string | null; pending: boolean };
+  grade: RubricGradeFields & { id: string | null; isPublished: boolean; publishedAt: string | null; finalGrade: string | null; overallFeedback: string | null; pending: boolean };
 }
 export interface GradeCorrectionsData {
   revision: string; archived: boolean; canCorrect: boolean; grade: { id: string; finalGrade: string; publishedAt: string };
@@ -27,7 +31,7 @@ export interface GradeCorrectionsData {
 export type PublishedResultData = { status: 'pending'; attemptId: string } | {
   status: 'published'; activity: { id: string; title: string; type: GradingActivityType };
   attempt: { id: string; number: number; submittedAt: string };
-  grade: { id: string; finalGrade: string; publishedAt: string; overallFeedback: string | null; isEffective: boolean };
+  grade: RubricGradeFields & { id: string; finalGrade: string; publishedAt: string; overallFeedback: string | null; isEffective: boolean };
   questions: { id: string; type: GradingQuestionType; prompt: string; points: string;
     answer: { text: string | null; selectedOptions: GradeOption[] }; earned: GradeRational; feedback: string | null }[];
   attachments: GradeAttachment[];

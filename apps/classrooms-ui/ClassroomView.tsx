@@ -98,7 +98,7 @@ export function ClassroomView({
   useEffect(() => { setConfirm(null); setInviting(false); setSummary(null); }, [tab]);
   useEffect(() => { setTab(activeWallTarget ? 'postId' in activeWallTarget ? 'wall' : 'activities' : homeClassroomTab(activeHomeTarget)); }, [id]);
   useEffect(() => { if (activeWallTarget) { setPlanActivity(null); setTab('postId' in activeWallTarget ? 'wall' : 'activities'); } }, [activeWallTarget]);
-  useEffect(() => { if (!activeWallTarget && activeHomeTarget) { setPlanActivity(null); setTab(homeClassroomTab(activeHomeTarget)); } }, [activeHomeTarget, activeWallTarget]);
+  useEffect(() => { if (!activeWallTarget && activeHomeTarget) { setPlanActivity(null); setTab(homeClassroomTab(activeHomeTarget)); if(activeHomeTarget.kind==='classroom' && activeHomeTarget.topicId)setSelectedTopic({roomId:id,id:activeHomeTarget.topicId}); } }, [activeHomeTarget, activeWallTarget,id]);
   async function action(task: () => Promise<void>, section = tab) {
     if (section === 'settings') settingsOperation.current++;
     setActionStates(previous => ({ ...previous, [section]: { busy: true, error: '' } }));
@@ -171,7 +171,7 @@ export function ClassroomView({
             {retained('library') ? <div hidden={tab !== 'library'} key={`${id}-library`}><Library api={api} room={room} reload={load} active={tab === 'library'}
               uploadContext={uploadContext} onUploadContextConsumed={() => setUploadContext(null)}
               targetMaterialId={activeHomeTarget?.kind === 'material' ? activeHomeTarget.materialId : undefined} openUpload={activeHomeTarget?.kind === 'upload-material'} /></div> : null}
-            {tab === 'wall' ? <Wall api={api} room={room} reload={load} target={destination && 'postId' in destination ? destination : null} onChanged={onWallChanged} /> : null}
+            {tab === 'wall' ? <Wall api={api} room={room} reload={load} target={destination && 'postId' in destination ? destination : null} onChanged={onWallChanged} openComposer={activeHomeTarget?.kind === 'publish-notice'} /> : null}
             {retained('activities') ? <div hidden={tab !== 'activities'} key={`${id}-activities`}><Activities api={api} room={room} reload={load} active={tab === 'activities'} target={planActivity ?? (destination && 'kind' in destination ? destination : null)}
               creationContext={creationContext} onCreationContextConsumed={() => setCreationContext(null)}
               openAuthoring={activeHomeTarget?.kind === 'create-activity'} submissionFilter={activeHomeTarget?.kind === 'submissions' ? 'unpublished' : undefined} onChanged={onWallChanged} /></div> : null}

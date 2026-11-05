@@ -7,8 +7,7 @@ import { AccountError, createAccountClient, validateAccountFields, type AccountS
 import { classroomAuthHref, classroomDestination } from '../lib/classroom-client';
 import { Button } from './ui/button';
 import { AccountNavbar } from './account-navbar';
-import { AccountFolderIcon, AccountStory } from '../../../shared-ui/AccountStory';
-import { FoxmindIllustration } from '../../../shared-ui/index';
+import { BrujulaIcon } from '../../../shared-ui/BrujulaIcon';
 declare global { interface Window { __foxmindTakeToken?: () => string | null } }
 import { accountContent as content, type AccountView } from './account-view';
 export type { AccountView } from './account-view';
@@ -18,7 +17,6 @@ export { AccountField } from './account-field';
 import { AccountFlowForms } from './account-flow-forms';
 import { AccountProfile } from './account-profile';
 import { AccountSettings } from './account-settings';
-import { AccountArtwork } from './account-artwork';
 
 export function AccountScreen({ view }: { view: AccountView }) {
   const router = useRouter();
@@ -145,6 +143,12 @@ export function AccountScreen({ view }: { view: AccountView }) {
       event.preventDefault();
       const form = event.currentTarget;
       const data = Object.fromEntries([...new FormData(form)].filter((entry): entry is [string, string] => typeof entry[1] === 'string'));
+      if (path === '/account/password' || path === '/auth/password-recovery/confirm') {
+        if (!data.confirmPassword || data.newPassword !== data.confirmPassword) {
+          setMessage({ error: true, text: 'Las contraseñas nuevas deben coincidir.' }); return;
+        }
+        delete data.confirmPassword;
+      }
       if (path === '/auth/register' && data.accountRole !== 'teacher' && data.accountRole !== 'student') {
         setMessage({ error: true, text: 'Selecciona docente o estudiante para tu cuenta.' }); return;
       }
@@ -159,23 +163,19 @@ export function AccountScreen({ view }: { view: AccountView }) {
     };
   }
   const signOut = <Button variant="outline" disabled={busy || loading} onClick={() => void action('/auth/logout', {}, 'Cerraste tu sesión.')}>Cerrar sesión</Button>;
-  const polished = view === 'sign-in' || view === 'register';
   const accountEntry = view !== 'profile' && view !== 'settings';
-  const security = accountEntry && !polished;
   return <>
     <Head><title>{`${content[view].title} · FoxMind`}</title><meta name="description" content="Accede a tu cuenta FoxMind." /></Head>
     <a className="skip-link" href="#main">Saltar al contenido</a>
-    <div className={`entry-page ${surface.scope} ${accountEntry ? surface.expressive : ''}${polished ? ` entry-auth-polish entry-auth-reference auth-${view}` : ''}${security ? ` ${surface.security}` : ''}${!accountEntry ? ' entry-profile' : ''}`}>
-    <AccountNavbar minimal={polished} session={session} view={view} signInHref={nextAccountHref('sign-in')} registerHref={nextAccountHref('register')} verifyHref={nextAccountHref('verify-email')}
-      accountActions={user ? <div className="fm-profile-actions"><Link href={verified ? '/profile' : nextAccountHref('verify-email')}>{verified ? 'Mi perfil' : 'Verificar correo'}</Link>{signOut}</div> : undefined} />
+    <div className={`entry-page ${surface.scope} ${accountEntry ? `brujula-auth auth-${view}` : 'entry-profile'}`}>
+    {!accountEntry ? <AccountNavbar session={session} view={view} signInHref={nextAccountHref('sign-in')} registerHref={nextAccountHref('register')} verifyHref={nextAccountHref('verify-email')}
+      accountActions={user ? <div className="fm-profile-actions"><Link href={verified ? '/profile' : nextAccountHref('verify-email')}>{verified ? 'Mi perfil' : 'Verificar correo'}</Link>{signOut}</div> : undefined} /> : null}
     <main id="main" className={(view === 'profile' || view === 'settings') ? 'main profile-main' : `main auth-main${view === 'verify-email' ? ' auth-verification' : ''}`}>
-      {view !== 'settings' && view !== 'profile' && view !== 'verify-email' ? <AccountStory polished={polished} register={view === 'register'} security={view === 'forgot-password' || view === 'recover-password'} /> : null}
+      {accountEntry ? <aside className="br-auth-visual" aria-label="Foxy te da la bienvenida al aula"><Link className="br-auth-brand" href="/sign-in"><img src="/brujula/foxy-logotipo-redondo.webp" alt="" width="40" height="43" />FoxMind</Link><div className="br-auth-land" aria-hidden="true" /><span className="br-auth-caption"><BrujulaIcon name="compass" />Brújula</span></aside> : null}
       <section className={(view === 'profile' || view === 'settings') ? 'surface profile-account' : 'surface folder-panel tone-yellow'} aria-label={content[view].title} aria-busy={loading || busy}>
-        {!polished && view !== 'profile' && view !== 'settings' ? <span className="folder-tab" aria-hidden="true"><AccountFolderIcon kind="mail" />{content[view].title}</span> : null}
         {(view === 'profile' || view === 'settings') ? <nav className="breadcrumbs" aria-label="Ubicación"><Link href="/inicio">Inicio</Link><span aria-hidden="true"> / </span><span aria-current="page">{content[view].title}</span></nav> : null}
-        {view === 'verify-email' ? <FoxmindIllustration className="verification-foxy" name="scenes/auth" sizes="140px" /> : null}
         <div className="page-heading"><div>
-          {accountEntry ? <span className={surface.kicker}>{view === 'register' ? 'Tu primera visita' : security ? 'Seguridad de la cuenta' : 'Tu cuenta FoxMind'}</span> : null}
+          {accountEntry ? <span className={surface.kicker}>Acceso a FoxMind</span> : <span className="br-account-eyebrow">Mi cuenta</span>}
           <h1>{content[view].title}</h1><p>{content[view].description}</p>
         </div></div>
         {loading ? <p role="status" className="loading">Cargando tu cuenta…</p> : null}
@@ -195,8 +195,7 @@ export function AccountScreen({ view }: { view: AccountView }) {
           <Link className="button button-primary" href={user ? nextAccountHref('verify-email') : classroomAuthHref('sign-in', '/settings')}>{user ? 'Verificar correo' : 'Iniciar sesión'}</Link></div>
           : <AccountSettings user={user!} locked={locked} busy={busy} submit={submit} signOut={signOut} /> : null}
       </section>
-      {(view === 'profile' || view === 'settings') && verified && !loading ? <AccountArtwork user={profile ?? user!} settings={view === 'settings'} /> : null}
-      {!polished ? <footer className="page-footer">FoxMind · Enseñar y aprender, en un mismo lugar.</footer> : null}
+      {!accountEntry ? <footer className="page-footer">FoxMind · Enseñar y aprender, en un mismo lugar.</footer> : null}
     </main>
     </div>
   </>;

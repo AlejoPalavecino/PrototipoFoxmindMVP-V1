@@ -18,6 +18,13 @@ const listAlert = page => page.locator('.p5-main > [role="alert"]');
 const newsRegion = page => page.getByRole('dialog', { name: 'Notificaciones', exact: true });
 const waitHome = page => page.waitForResponse(response => new URL(response.url()).pathname === homePath && response.request().method() === 'GET');
 
+// Advance only the browser clock to exercise the existing 60-second focus refresh.
+async function refreshHomeByFocus(page) {
+  await page.clock.install();
+  await page.clock.fastForward(60_001);
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+}
+
 async function homeAlertOwners(page) {
   return page.locator('[role="alert"]').evaluateAll(elements => elements.map(element => {
     const routeAnnouncement = element.id === '__next-route-announcer__'
@@ -169,9 +176,9 @@ test('P9 actual Home remaining recovery, responsive and account proof', { timeou
       await check('list and news recover through their own real offline errors and visible retries', async (page, observation) => {
         await openReadyHome(page, runtime.origin, observation);
         await actorContext.setOffline(true);
-        await page.getByRole('button', { name: 'Actualizar Inicio', exact: true }).click();
+        await refreshHomeByFocus(page);
         await page.getByRole('button', { name: 'Reintentar Inicio', exact: true }).waitFor();
-        assert.equal(await page.getByRole('region', { name: 'Tus aulas', exact: true }).count(), 0, 'Home conceals old cards after offline failure');
+        assert.equal(await page.getByRole('region', { name: /^(Aula en foco|Accesos de mi aula|Acciones del aula)$/ }).count(), 0, 'Home conceals old cards after offline failure');
         await page.getByRole('button', { name: /^Notificaciones/ }).click();
         const news = newsRegion(page);
         await news.getByRole('alert').waitFor();
@@ -190,7 +197,7 @@ test('P9 actual Home remaining recovery, responsive and account proof', { timeou
           await page.getByRole('button', { name: 'Reintentar Inicio', exact: true }).click();
           const home = await successfulJson(await pending, 'Home recovery');
           assert.ok(home.modules.classrooms.items.some(item => item.classroom.id === room.id && item.classroom.role === 'student'));
-          await page.getByRole('region', { name: 'Tus aulas', exact: true }).getByRole('heading', { name: roomName, exact: true }).waitFor();
+          await page.getByRole('region', { name: 'Accesos de mi aula', exact: true }).getByText(`${roomName} · A`, { exact: true }).waitFor();
           assert.equal(notificationRequests.length, 0, 'Home retry does not fetch the independently owned notifications');
         } finally { page.off('request', captureNotification); }
         const reopened = page.waitForResponse(response => new URL(response.url()).pathname === newsPath && response.request().method() === 'GET');
@@ -223,7 +230,7 @@ test('P9 actual Home remaining recovery, responsive and account proof', { timeou
       await check('private draft wizard retains restricted navigation and confirmed save exit', async (page, observation) => {
         await openReadyHome(page, runtime.origin, observation);
         const lists = waitLists(page);
-        await page.getByRole('region', { name: 'Accesos rápidos', exact: true }).getByRole('button', { name: /^Mis aulas/ }).click();
+        await (await navigationLink(page, 'Mis aulas')).click();
         await page.waitForURL('**/mis-aulas'); await completedLists(await lists);
         const loaded = page.waitForResponse(response => new URL(response.url()).pathname === `/api/v1/classrooms/drafts/${draft.body.id}` && response.request().method() === 'GET');
         await page.locator('.p5-drafts').getByRole('button').filter({ has: page.getByText(draftName, { exact: true }) }).click();
@@ -250,7 +257,7 @@ test('P9 actual Home remaining recovery, responsive and account proof', { timeou
         await page.getByRole('button', { name: 'Mis Aulas / Guardar y salir', exact: true }).click();
         const confirmed = await successfulJson(await saved, 'draft save exit');
         assert.equal(confirmed.id, draft.body.id); assert.equal(confirmed.payload.name, savedName);
-        await page.getByRole('heading', { name: 'Tus clases, bien organizadas.', exact: true }).waitFor();
+        await page.getByRole('heading', { name: 'Mis aulas', exact: true }).waitFor();
         await (await profileAction(page)).waitFor();
         await page.getByRole('button', { name: 'Abrir menú de navegación', exact: true }).click();
         const restored = page.getByRole('dialog', { name: 'Menú de navegación', exact: true });
@@ -275,18 +282,18 @@ test('P9 actual Home remaining recovery, responsive and account proof', { timeou
           await anonymous.getByRole('button', { name: 'Iniciar sesión', exact: true }).click(); await anonymous.waitForURL('**/inicio');
           const home = await successfulJson(await homeRead, 'explicit Inicio');
           assert.ok(home.modules.classrooms.items.some(item => item.classroom.id === room.id && item.classroom.role === 'student'));
-          await anonymous.getByRole('region', { name: 'Tus aulas', exact: true }).getByRole('heading', { name: roomName, exact: true }).waitFor();
+          await anonymous.getByRole('region', { name: 'Accesos de mi aula', exact: true }).getByText(`${roomName} · A`, { exact: true }).waitFor();
           await drainReads(observation);
           assert.equal((await api(anonymous, 'POST', '/auth/logout')).status, 204, 'Logout clears the real session and returns the accepted no-content contract');
           const denied = await rejectSame(runtime.db, () => api(anonymous, 'GET', '/classrooms'), 401);
           assert.equal(denied.body.error.code, 'AUTH_REQUIRED', 'Revoked session must retain the real identity error contract');
           const rejectedHome = waitHome(anonymous);
-          await anonymous.getByRole('button', { name: 'Actualizar Inicio', exact: true }).click();
+          await refreshHomeByFocus(anonymous);
           const rejectedResponse = await rejectedHome;
           assert.equal(rejectedResponse.status(), 401);
           assert.equal((await rejectedResponse.json()).error.code, 'AUTH_REQUIRED');
           await anonymous.waitForURL(url => url.pathname === '/sign-in' && url.searchParams.get('next') === '/inicio');
-          assert.equal(await anonymous.getByRole('region', { name: 'Tus aulas', exact: true }).count(), 0, 'Revoked account sees no Home classroom data');
+          assert.equal(await anonymous.getByRole('region', { name: /^(Aula en foco|Accesos de mi aula|Acciones del aula)$/ }).count(), 0, 'Revoked account sees no Home classroom data');
         } catch (error) { await captureAlerts(browser, observations, artifacts, 'login-continuation-revocation'); throw error; }
         finally { observation.detach(); await anonymousContext.close(); }
       });

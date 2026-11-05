@@ -1,5 +1,7 @@
 # Diseño de FoxMind
 
+Brújula es la nueva referencia aprobada para ambos roles el 2026-11-05. [Kit visual y criterios](brujula/README.md) · [Implementación y evidencia](../../odd/tasks/foxmind-brujula.md). Los sistemas anteriores conservan su evidencia histórica.
+
 La dirección FoxMind 3D fue implementada localmente: consulte la [guía operativa](../engineering/frontend/foxmind-3d.md), la [verificación](../foxmind-3d-verification.md) y la [evidencia visual](../work-log/evidence/2026-10-25-foxmind-3d/README.md). El [roadmap](../implementation-roadmap.md) es la fuente del estado de producto y publicación.
 
 El [catálogo de diseños](INDEX.md) distingue el sistema aplicado, selecciones históricas, exploraciones y antecedentes. El [paquete FoxMind 3D](foxmind-3d/README.md) conserva recursos y los 82 flujos; las imágenes no prueban funcionamiento por sí solas. La [especificación funcional](../foxmind-v1-functional-spec.md) prevalece sobre las imágenes.

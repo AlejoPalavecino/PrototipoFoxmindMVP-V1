@@ -30,7 +30,8 @@ test('folder navbar carries the raster identity and preserves destinations/curre
     links: [{ href: '/inicio', label: 'Inicio' }, { href: '/mis-aulas', label: 'Mis aulas', current: true }],
     notifications: React.createElement('button', { 'aria-label': 'Notificaciones: 7 sin leer' }, '7'),
   });
-  assert.match(html, /<img\b[^>]*src="\/foxmind-3d\/brand\/logo-horizontal\.svg"/);
+  assert.match(html, /<img\b[^>]*src="\/brujula\/foxy-logotipo-redondo\.webp"/);
+  assert.match(html, /BRÚJULA/);
   assert.match(html, /href="\/mis-aulas"[^>]*aria-current="page"/);
   assert.doesNotMatch(html, /href="\/inicio"[^>]*aria-current/);
   assert.match(html, /Notificaciones: 7 sin leer/);
@@ -38,15 +39,20 @@ test('folder navbar carries the raster identity and preserves destinations/curre
   assert.match(html, /Actual &lt;Learner&gt;/);
 });
 
-test('account SSR shows folder welcome illustration and real loading/entry navigation', () => {
+test('account SSR preserves loading, Brújula visual and entry navigation after session readiness', () => {
   const { AccountScreen } = component('apps/web/src/components/account-screen.tsx');
   const html = render(AccountScreen, { view: 'sign-in' });
-  assert.match(html, /<img\b[^>]*src="\/foxmind-3d\/auth-reference\/login-960\.webp"/);
+  assert.match(html, /<aside[^>]*class="br-auth-visual"[^>]*aria-label="Foxy te da la bienvenida al aula"/);
+  assert.match(html, /class="br-auth-land" aria-hidden="true"/);
   assert.match(html, /href="#main"/);
   assert.match(html, /id="main"/);
   assert.match(html, /Cargando tu cuenta/);
-  assert.match(html, /aria-label="FoxMind" href="\/sign-in"/);
-  assert.match(html, /href="\/register"/);
+  assert.match(html, /class="br-auth-brand" href="\/sign-in"/);
+  const { AccountFlowForms } = component('apps/web/src/components/account-flow-forms.tsx');
+  const ready = render(AccountFlowForms, { view: 'sign-in', session: { authenticated: false }, verified: false, classroomNext: null,
+    nextAccountHref: target => `/${target}`, locked: false, busy: false, hasToken: false, submit: () => () => {}, signOut: null, load: async () => {}, action: async () => {} });
+  assert.match(ready, /href="\/register"/); assert.match(ready, /href="\/forgot-password"/);
+  assert.match(ready, /Iniciar sesión/);
 });
 
 test('password controls remain labelled non-submit buttons with explicit field association', () => {
@@ -91,7 +97,7 @@ for (const accountRole of ['teacher', 'student']) test(`Home presents the ${acco
   const html = render(Home, { accountRole, displayName: 'Learner', busy: false, onAction() {},
     onCreate() {}, onJoin() {}, onClassrooms() {}, onEnter() {}, api: { call: async () => [] }, onOpenTarget() {},
   });
-  for (const name of [accountRole === 'teacher' ? 'Para revisar' : 'Para entregar']) {
+  for (const name of [accountRole === 'teacher' ? 'Para revisar' : 'Mis entregas']) {
     const group = [...html.matchAll(/<section\b([^>]*)>/g)].find(([, attributes]) => attributes.includes(`aria-label="${name}"`));
     assert.ok(group, `Missing ${name} group`);
     assert.doesNotMatch(group[1], /\bhidden(?:=""|="hidden"|\s|$)|aria-hidden="true"/, `${name} must remain visible`);
@@ -99,10 +105,19 @@ for (const accountRole of ['teacher', 'student']) test(`Home presents the ${acco
   assert.match(html, /Current classroom/);
   assert.doesNotMatch(html, accountRole === 'teacher' ? /aria-label="Mi aprendizaje"/ : /aria-label="Mi actividad docente"/);
   const forbiddenAction = accountRole === 'teacher' ? 'Unirme con código' : 'Crear aula';
-  for (const href of ['/mis-aulas', '/agenda', '/settings', '/profile']) assert.ok(html.includes(`href="${href}"`), href);
+  if (accountRole === 'student') {
+    for (const action of ['Materiales', 'Mi progreso', 'Plan de estudio', 'Muro del aula']) assert.match(html, new RegExp(action));
+    assert.match(html, /aria-label="Accesos de mi aula"/);
+    assert.doesNotMatch(html, /aria-label="Aula en foco"/);
+  }
+  else {
+    for (const action of ['Crear actividad', 'Subir material', 'Publicar aviso']) assert.match(html, new RegExp(action));
+    assert.match(html, /aria-label="Acciones del aula"/);
+    assert.match(html, /aria-label="Aula en foco"/);
+  }
   assert.ok(buttons(html).every(button => !button.text.includes('Actualizar')));
   assert.ok(buttons(html).every(button => !button.text.includes(forbiddenAction)), forbiddenAction);
-  assert.equal(buttons(html).filter(button => button.text.includes('Entrar al aula')).length, 1);
+  assert.equal(buttons(html).filter(button => button.text.includes('Entrar al aula')).length, Number(accountRole === 'teacher'));
   assert.doesNotMatch(html, /Lo próximo/);
 });
 

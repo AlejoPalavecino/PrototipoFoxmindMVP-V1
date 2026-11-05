@@ -23,7 +23,9 @@ export function WizardGeneral({ payload, zones, onUpdate }: {
         <input type="number" required min="1" max="9999" value={payload.academicYear ?? ''}
           onChange={event => onUpdate('academicYear', event.target.value ? Number(event.target.value) : undefined)} />
       </span></label>
-      <label className="p5-wide">Ciudad y horario del aula
+    </div>
+    <details className="brujula-wizard-settings"><summary>Ajustes del aula</summary>
+      <label>Ciudad y horario del aula
         <span className="wizard-field-control"><FoxmindIcon name="clock" />
           <select required value={payload.timezone ?? ''} onChange={event => onUpdate('timezone', event.target.value)}>
             {zones.map(zone => <option key={zone.value} value={zone.value}>{zone.label}</option>)}
@@ -31,7 +33,6 @@ export function WizardGeneral({ payload, zones, onUpdate }: {
         </span>
         <small>Usamos tu horario local para entregas y eventos. Revisalo antes de publicar: después queda fijo.</small>
       </label>
-    </div>
     <h3>Elegí una portada</h3>
     <div className="wizard-cover-layout">
       <div className="p5-covers">{coverOptions(payload.coverKey).map(cover => <label key={cover.key}
@@ -42,6 +43,7 @@ export function WizardGeneral({ payload, zones, onUpdate }: {
       </label>)}</div>
       <WizardCoverPreview payload={payload} />
     </div>
+    </details>
   </>;
 }
 

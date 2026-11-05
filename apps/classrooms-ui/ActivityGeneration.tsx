@@ -30,7 +30,7 @@ export function ActivityGeneration({ api, room, onApplied, onClose, creationCont
     if (next.proposal) { setReview({ id: next.id, proposal: structuredClone(next.proposal) }); setDirty(false); }
   }
   const editable = room.role === 'teacher' && !room.archived;
-  return <section className="p7-authoring p7-generation" aria-label="Generar actividad con IA">
+  return <section className="p7-authoring p7-generation br-authoring" aria-label="Generar actividad con IA">
     <header className="p5-section-head"><div><h3>Crear con Foxy AI</h3><p>Una propuesta privada para revisar. Crear un borrador no publica la actividad.</p></div>
       <button type="button" disabled={generation.busy} onClick={onClose}>Cerrar generación</button></header>
     {generation.error ? <Notice error>{generation.error}</Notice> : null}

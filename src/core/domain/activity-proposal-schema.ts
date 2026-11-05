@@ -5,6 +5,7 @@ export const activityProposalSchemaV1 = object({
   schemaVersion: { type: 'string', enum: ['activity-proposal-v1'] },
   type: { type: 'string', enum: ['ASSIGNMENT', 'QUESTIONNAIRE', 'EVALUATION'] }, title: string,
   objective: string, instructions: string, assignmentPrompts: array(string),
+  evaluationRubric: { type: 'array', minItems: 1, maxItems: 6, items: object({ name: { type: 'string', maxLength: 120 }, description: { type: 'string', maxLength: 1000 }, weight: { type: 'integer', minimum: 1, maximum: 100 } }) },
   questions: array(object({ type: { type: 'string', enum: ['DEVELOPMENT', 'SINGLE_CHOICE', 'MULTIPLE_CHOICE'] },
     prompt: string, points: string, scoringRule: { anyOf: [{ type: 'string', enum: ['EXACT', 'PARTIAL'] }, { type: 'null' }] },
     options: array(object({ text: string, correct: { type: 'boolean' } })) })),

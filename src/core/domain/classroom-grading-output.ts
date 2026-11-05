@@ -1,4 +1,6 @@
+import { parseRubricMarks } from './rubric-marks.ts';
 import { contractDecimal, contractObject, contractRevision } from './classroom-contract-values.ts';
+import { parseEvaluationRubric } from './evaluation-rubric.ts';
 import type { GradeAttachment, GradeOption, GradeRational, GradingActivity, GradingData, GradingQuestion, GradeCorrectionsData, PublishedResultData } from './classroom-grading-types.ts';
 function string(value: unknown): string { if (typeof value !== 'string') throw new Error('INVALID_INPUT'); return value; }
 function bool(value: unknown): boolean { if (typeof value !== 'boolean') throw new Error('INVALID_INPUT'); return value; }
@@ -40,7 +42,9 @@ function activity(value: unknown): GradingActivity {
     topicIds: array(a.topicIds).map(string), status: choice(a.status, ['DRAFT', 'PUBLISHED', 'WITHDRAWN'] as const),
     publishedAt: nullable(a.publishedAt), deadlineAt: nullable(a.deadlineAt), allowLate: bool(a.allowLate), locked: bool(a.locked),
     zone: string(a.zone), ...(a.aiGradingRubric === undefined ? {} : { aiGradingRubric: string(a.aiGradingRubric) }),
-    instructions: nullable(a.instructions), attachmentRequired: bool(a.attachmentRequired),
+    ...(a.evaluationRubric === undefined ? {} : { evaluationRubric: parseEvaluationRubric(a.evaluationRubric) }),
+    ...(a.objective === undefined ? {} : { objective: nullable(a.objective) }),
+    ...(a.teacherComment === undefined ? {} : { teacherComment: nullable(a.teacherComment) }), instructions: nullable(a.instructions), attachmentRequired: bool(a.attachmentRequired),
     instructionFiles: array(a.instructionFiles).map(value => ({ ...attachment(value), extension: string(contractObject(value).extension) })),
     materials: array(a.materials).map(value => { const item = contractObject(value); return { id: string(item.id), title: string(item.title), fileId: string(item.fileId), extension: string(item.extension) }; }),
     questions: array(a.questions).map(gradingQuestion) };
@@ -50,7 +54,7 @@ export function parseGradingView(value: unknown): GradingData {
   return { revision: contractRevision(data.revision), archived: bool(data.archived), canSave: bool(data.canSave), activity: activity(data.activity),
     attempt: { id: string(attempt.id), number: number(attempt.number), submittedAt: string(attempt.submittedAt), submittedLate: bool(attempt.submittedLate),
       firstName: string(attempt.firstName), lastName: string(attempt.lastName), attachments: array(attempt.attachments).map(attachment) },
-    grade: { id: nullable(g.id), isPublished: bool(g.isPublished), publishedAt: nullable(g.publishedAt),
+    grade: { ...rubricFields(g), id: nullable(g.id), isPublished: bool(g.isPublished), publishedAt: nullable(g.publishedAt),
       finalGrade: g.finalGrade === null ? null : grade(g.finalGrade), overallFeedback: nullable(g.overallFeedback), pending: bool(g.pending) } };
 }
 function resultQuestion(value: unknown) {
@@ -65,7 +69,7 @@ export function parsePublishedGradeResult(value: unknown): PublishedResultData {
   const a = contractObject(data.activity), attempt = contractObject(data.attempt), g = contractObject(data.grade);
   return { status: 'published', activity: { id: string(a.id), title: string(a.title), type: choice(a.type, activityTypes) },
     attempt: { id: string(attempt.id), number: number(attempt.number), submittedAt: string(attempt.submittedAt) },
-    grade: { id: string(g.id), finalGrade: grade(g.finalGrade), publishedAt: string(g.publishedAt), overallFeedback: nullable(g.overallFeedback), isEffective: bool(g.isEffective) },
+    grade: { ...rubricFields(g), id: string(g.id), finalGrade: grade(g.finalGrade), publishedAt: string(g.publishedAt), overallFeedback: nullable(g.overallFeedback), isEffective: bool(g.isEffective) },
     questions: array(data.questions).map(resultQuestion), attachments: array(data.attachments).map(attachment) };
 }
 export function parseGradeCorrectionsView(value: unknown): GradeCorrectionsData {
@@ -75,4 +79,12 @@ export function parseGradeCorrectionsView(value: unknown): GradeCorrectionsData 
     corrections: array(data.corrections).map(value => { const item = contractObject(value), actor = contractObject(item.actor);
       return { id: string(item.id), previousGrade: grade(item.previousGrade), newGrade: grade(item.newGrade), reason: string(item.reason),
         actor: { id: string(actor.id), firstName: string(actor.firstName), lastName: string(actor.lastName) }, correctedAt: string(item.correctedAt) }; }) };
+}
+
+function rubricFields(g: Record<string, unknown>) {
+  return { ...(g.rubricSnapshot === undefined ? {} : { rubricSnapshot: g.rubricSnapshot === null ? null : parseEvaluationRubric(g.rubricSnapshot) }),
+    ...(g.rubricMarks === undefined ? {} : { rubricMarks: parseRubricMarks(g.rubricMarks) }),
+    ...(g.suggestedGrade === undefined ? {} : { suggestedGrade: g.suggestedGrade === null ? null : grade(g.suggestedGrade) }),
+    ...(g.finalGradeOverride === undefined ? {} : { finalGradeOverride: g.finalGradeOverride === null ? null : grade(g.finalGradeOverride) }),
+    ...(g.calculatedGrade === undefined ? {} : { calculatedGrade: g.calculatedGrade === null ? null : grade(g.calculatedGrade) }) };
 }

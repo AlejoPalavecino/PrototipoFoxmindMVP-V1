@@ -1,6 +1,6 @@
 import type { AcademicDeadline, AgendaTarget } from '../../src/core/domain/index.ts';
 import { deadlineLabel } from './calendar.ts';
-import { FoxmindIllustration, FoxmindIcon } from '../shared-ui/index.ts';
+import { FoxmindIcon } from '../shared-ui/index.ts';
 import { deadlineParts } from './agenda-presentation.ts';
 
 function DeadlineDateTile({ item }: { item: AcademicDeadline }) {
@@ -31,6 +31,6 @@ export function Upcoming({ items, loading, error, busy, onOpen, onRetry }: {
         {items.length > 1 ? <details className="education-upcoming-more"><summary>Ver {items.length - 1} entregas más</summary>
           {items.slice(1).map(item => <DeadlineCard key={item.id} item={item} onOpen={onOpen} busy={busy} />)}</details> : null}</>
         : <div className="agenda-empty"><p>No tenés entregas próximas pendientes.</p></div>}
-    {!loading && !error && !items.length ? <FoxmindIllustration className="agenda-side-scene" name="scenes/agenda" sizes="(max-width: 900px) 100vw, 34vw" /> : null}
+
   </aside>;
 }

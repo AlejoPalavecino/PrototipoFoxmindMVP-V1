@@ -27,7 +27,7 @@ export function PublishedGradeCorrection({ api, roomId, attemptId, onChanged }: 
     {error ? <Notice error>{error} La rectificación no se ha confirmado. Recarga para consultar el estado actual.</Notice> : null}
     {!data ? <Notice>Cargando historial de rectificaciones…</Notice> : <>
       <p>Calificación publicada actual: <strong>{data.grade.finalGrade.replace('.', ',')}</strong></p>
-      <p>Solo se rectifica la calificación final. Las respuestas, los puntos por pregunta y las devoluciones se conservan.</p>
+      <p>Solo se rectifica la calificación final. Las respuestas, los puntos por pregunta, los criterios evaluados y las devoluciones se conservan.</p>
       {data.archived ? <Notice>Aula archivada · rectificaciones de solo consulta.</Notice> : null}
       <label>Nueva calificación · 0 a 10<input aria-label="Nueva calificación publicada" inputMode="decimal" disabled={!writable}
         value={grade.replace('.', ',')} onChange={e => { setGrade(e.target.value.replace(',', '.')); change(); }} /></label>

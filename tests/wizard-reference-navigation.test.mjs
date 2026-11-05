@@ -1,43 +1,49 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { wizard, advance, button, nodes, toggles, text } from './helpers/wizard-reference/component-harness.mjs';
+import { wizard, advance, button, nodes, text } from './helpers/wizard-reference/component-harness.mjs';
+const plan = view => nodes(view, node => node.type === 'textarea' && node.props['aria-label'] === 'Unidades y temas')[0];
 
-test('unit disclosure preserves content without save and removal cannot transfer collapsed state', async () => {
+test('text plan preserves edits and unit removal across back navigation with an explicit saved revision', async () => {
   const f = await wizard();
   try {
-    await advance(f.view); await advance(f.view); assert.equal(toggles(f.view).length, 2);
-    const original = nodes(f.view, n => n.type === 'input').map(n => n.props.value), callCount = f.calls.length;
-    toggles(f.view)[1].props.onClick(); await f.view.flush(); assert.equal(toggles(f.view)[1].props['aria-expanded'], false);
-    toggles(f.view)[1].props.onClick(); await f.view.flush();
-    assert.deepEqual(nodes(f.view, n => n.type === 'input').map(n => n.props.value), original); assert.equal(f.calls.length, callCount);
-    toggles(f.view)[1].props.onClick(); await f.view.flush();
-    button(f.view, 'Quitar unidad 1').props.onClick(); await f.view.flush();
-    assert.equal(toggles(f.view).length, 1); assert.equal(toggles(f.view)[0].props['aria-expanded'], true);
+    await advance(f.view); assert.ok(plan(f.view));
+    const next = 'Unidad 1 · Segunda\nEcosistema';
+    plan(f.view).props.onChange({ target: { value: next } }); await f.view.flush();
+    button(f.view, 'Atrás').props.onClick(); await f.view.flush();
+    assert.ok(nodes(f.view, node => node.type === 'input' && node.props.value === 'Ciencias').length);
+    assert.equal(f.calls.length, 0, 'Back navigation does not save or publish');
+    await advance(f.view);
+    assert.equal(plan(f.view).props.value, next);
+    assert.deepEqual(f.calls.at(-1)[2].payload.units, [{ name: 'Unidad 1 · Segunda', topics: [{ name: 'Ecosistema' }] }]);
+    assert.ok(f.calls.every(([, method]) => method === 'PATCH'));
+    assert.deepEqual(f.published, []); assert.deepEqual(f.exits, []);
   } finally { f.close(); }
 });
 
-test('an incomplete collapsed unit reopens for correction and cannot enter review', async () => {
+test('an incomplete written unit stays editable and cannot publish the classroom', async () => {
   const f = await wizard();
   try {
-    await advance(f.view); await advance(f.view); assert.equal(toggles(f.view).length, 2);
-    const input = nodes(f.view, n => n.type === 'input' && n.props.value === 'Célula')[0];
-    input.props.onChange({ target: { value: '' } }); await f.view.flush();
-    toggles(f.view)[0].props.onClick(); await f.view.flush(); assert.equal(toggles(f.view)[0].props['aria-expanded'], false);
-    await advance(f.view); assert.equal(toggles(f.view)[0].props['aria-expanded'], true);
-    assert.match(text(f.view.tree), /completá sus nombres/i); assert.equal(button(f.view, 'Crear aula'), undefined);
+    await advance(f.view);
+    plan(f.view).props.onChange({ target: { value: 'Unidad 1 · Incompleta' } }); await f.view.flush();
+    await advance(f.view);
+    assert.match(text(f.view.tree), /al menos una unidad con un tema.*completá sus nombres/i);
+    assert.equal(plan(f.view).props.value, 'Unidad 1 · Incompleta');
+    assert.equal(f.calls.some(([path]) => path.endsWith('/publish')), false);
+    assert.deepEqual(f.published, []);
   } finally { f.close(); }
 });
 
-test('review edit controls return to their steps without mutations, publication or data loss', async () => {
+test('the two real steps preserve existing data and allow return without writes or publication', async () => {
   const f = await wizard();
   try {
-    await advance(f.view); await advance(f.view); await advance(f.view);
-    const edit = button(f.view, 'Editar datos'); assert.ok(edit, 'review offers data editing'); assert.equal(edit.props.type, 'button');
-    const count = f.calls.length; edit.props.onClick(); await f.view.flush();
-    assert.ok(nodes(f.view, n => n.type === 'input' && n.props.value === 'Ciencias').length);
-    await advance(f.view); await advance(f.view); await advance(f.view);
-    const units = button(f.view, 'Editar unidades'); assert.ok(units); assert.equal(units.props.type, 'button');
-    units.props.onClick(); await f.view.flush(); assert.equal(toggles(f.view).length, 2);
+    await advance(f.view);
+    const original = plan(f.view).props.value, count = f.calls.length;
+    const back = button(f.view, 'Atrás'); assert.ok(back); assert.equal(back.props.type, 'button');
+    back.props.onClick(); await f.view.flush();
+    assert.ok(nodes(f.view, node => node.type === 'input' && node.props.value === 'Ciencias').length);
+    await advance(f.view);
+    assert.equal(plan(f.view).props.value, original);
+    assert.equal(nodes(f.view, node => node.type === 'ol')[0].props.children.length, 2);
     assert.equal(f.calls.length, count); assert.deepEqual(f.published, []); assert.deepEqual(f.exits, []);
   } finally { f.close(); }
 });

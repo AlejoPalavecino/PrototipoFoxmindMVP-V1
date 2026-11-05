@@ -12,8 +12,8 @@ export function createHomeReadPort(tx: HomeSql, actor: HomeActor): HomeReadPort 
     async page<M extends HomeModuleName>(module: M, query: HomePageQuery): Promise<HomeModules[M]> {
       if (!participation) throw new HomeError('SERVICE_UNAVAILABLE');
       readCursor(actor, query);
-      if ((['pending', 'feedback'].includes(module) && !participation.memberships.study)
-        || (['review', 'queries'].includes(module) && !participation.memberships.teach))
+      if ((['pending', 'feedback', 'submitted'].includes(module) && !participation.memberships.study)
+        || (['review', 'queries', 'drafts'].includes(module) && !participation.memberships.teach))
         return { status: 'not-applicable' } as HomeModules[M];
       await tx.query('SAVEPOINT home_module');
       try {

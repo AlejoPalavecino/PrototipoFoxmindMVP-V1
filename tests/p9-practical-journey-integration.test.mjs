@@ -5,14 +5,14 @@ import { openClassroom, planPdf } from './p6-integration-helpers.mjs';
 import { digest } from './p4-integration-helpers.mjs';
 import { openPublicationPractical } from './p8-publication-browser-helpers.mjs';
 import { withJourney, ok, request, createActivity, session, rootOf, rejectUnchanged, academicHash,
-  assertReadyFile, openOwnResult } from './p9-journey-helpers-current.mjs';
+  assertReadyFile, openOwnResult, selectClassroomSection } from './p9-journey-helpers-current.mjs';
 
 test('P9 joined practical: real private validated attachment, explicit receipt, private 0-10 correction and durable publication', { timeout: 330000 }, async () => {
   await withJourney('practical', async world => {
     const { runtime, T, S, room, scratch } = world, root = rootOf(room);
     const activity = await createActivity(world, 'ASSIGNMENT', { attachmentRequired: true });
     await openClassroom(S.page, runtime.origin, 'P9 practical classroom');
-    await S.page.getByRole('button', { name: 'Actividades', exact: true }).click();
+    await selectClassroomSection(S.page, 'activities', 'Actividades');
     await openPublicationPractical(S.page, room.id, activity.id, () => S.page.getByRole('article', { name: activity.title, exact: true })
       .getByRole('button', { name: 'Abrir trabajo práctico', exact: true }).click());
     const current = await session(world, activity), attemptId = current.attempt.id;

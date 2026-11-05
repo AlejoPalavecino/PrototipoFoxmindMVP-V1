@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import type { FormEvent } from 'react';
 import type { AccountUser } from '../lib/account-client';
 import { AccountField } from './account-field';
@@ -11,10 +10,11 @@ export function AccountProfile({ profile, firstName, lastName, locked, busy, onF
   profile: AccountUser; firstName: string; lastName: string; locked: boolean; busy: boolean;
   onFirstName: (value: string) => void; onLastName: (value: string) => void; onCancel: () => void; submit: AccountSubmit;
 }) {
+  const initials = `${Array.from(profile.firstName)[0] ?? ''}${Array.from(profile.lastName)[0] ?? ''}`.toUpperCase();
   return <>
     <section className="profile-details fm3d-account-card" aria-labelledby="profile-details-heading">
-      <h2 id="profile-details-heading">Datos personales</h2>
-      <p>Actualiza cómo aparece tu nombre en FoxMind.</p>
+      <div className="br-account-summary"><span className="br-account-avatar" aria-hidden="true">{initials}</span>
+        <div><h2 id="profile-details-heading">{profile.firstName} {profile.lastName}</h2><p>{profile.accountRole === 'teacher' ? 'Cuenta docente' : 'Cuenta de alumno'}</p></div></div>
       <form noValidate onSubmit={submit('/account', 'Guardaste los cambios de tu perfil.', 'PATCH')}><fieldset disabled={locked}>
         <div className="field-grid"><AccountField name="firstName" label="Nombre" autoComplete="given-name" value={firstName} onChange={onFirstName} />
           <AccountField name="lastName" label="Apellido" autoComplete="family-name" value={lastName} onChange={onLastName} /></div>
@@ -24,7 +24,5 @@ export function AccountProfile({ profile, firstName, lastName, locked, busy, onF
           <Button type="submit">{busy ? 'Guardando…' : 'Guardar cambios'}</Button></div>
       </fieldset></form>
     </section>
-    <section className="fm3d-account-card"><h2>Seguridad de tu cuenta</h2><p>Administra tu contraseña y tu sesión desde Configuración.</p>
-      <Link className="button button-outline" href="/settings">Ir a Configuración</Link></section>
   </>;
 }

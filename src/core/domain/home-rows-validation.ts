@@ -12,10 +12,10 @@ const extras: Record<HomeModuleName, string[]> = {
   review: ['activityType', 'needsReview', 'readyToPublish', 'oldestSubmittedAt'],
   feedback: ['activityType', 'attemptNumber', 'finalGrade', 'publishedAt', 'changedAt', 'availability'],
   agenda: ['source', 'startAt', 'date', 'timeZone', 'allDay'], queries: ['updatedAt'],
-  materials: ['publishedAt', 'extension'], classrooms: [],
+  materials: ['publishedAt', 'extension'], classrooms: [], drafts: ['activityType', 'updatedAt'], submitted: ['activityType', 'attemptNumber', 'submittedAt'],
 };
 function validateDetails(module: HomeModuleName, value: Record<string, unknown>): void {
-  if (['pending', 'review', 'feedback'].includes(module)) homeEnum(value.activityType, ['ASSIGNMENT', 'QUESTIONNAIRE', 'EVALUATION']);
+  if (['pending', 'review', 'feedback', 'drafts', 'submitted'].includes(module)) homeEnum(value.activityType, ['ASSIGNMENT', 'QUESTIONNAIRE', 'EVALUATION']);
   if (module === 'pending') {
     homeEnum(value.state, ['first-submission', 'resubmission']);
     if (value.attemptId !== null) homeId(value.attemptId);
@@ -33,19 +33,31 @@ function validateDetails(module: HomeModuleName, value: Record<string, unknown>)
     if (value.startAt !== null) homeInstant(value.startAt);
     homeZone(value.timeZone); homeBool(value.allDay);
   }
+  if (module === 'drafts') { homeInstant(value.updatedAt); }
+  if (module === 'submitted') { if (homeCount(value.attemptNumber) < 1) homeInvalid(); homeInstant(value.submittedAt); }
   if (module === 'queries') homeInstant(value.updatedAt);
   if (module === 'materials') { homeInstant(value.publishedAt); homeString(value.extension, 30); }
 }
 function row(module: HomeModuleName, input: unknown): unknown {
+  const hasNext = module === 'classrooms' && !!input && typeof input === 'object' && 'nextTopic' in input;
   const hasProgress = module === 'classrooms' && !!input && typeof input === 'object' && 'planProgress' in input;
-  const value = homeObject(input, ['id', 'title', 'target', 'classroom', ...extras[module], ...(hasProgress ? ['planProgress'] : [])]);
+  const hasAttempt = module === 'review' && !!input && typeof input === 'object' && 'studentName' in input;
+  const value = homeObject(input, ['id', 'title', 'target', 'classroom', ...extras[module], ...(hasNext ? ['nextTopic'] : []), ...(hasProgress ? ['planProgress'] : []), ...(hasAttempt ? ['studentName', 'attemptNumber'] : [])]);
   homeId(value.id); homeString(value.title); parseHomeTarget(value.target);
   const classroom = module === 'agenda' && value.classroom === null ? null : room(value.classroom);
   validateDetails(module, value);
+  if (hasAttempt) { homeString(value.studentName); if (homeCount(value.attemptNumber) < 1) return homeInvalid(); }
   if (hasProgress) {
     const progress = homeObject(value.planProgress, ['taught', 'total']);
-    if (classroom?.role !== 'teacher' || classroom.archived || homeCount(progress.taught) > homeCount(progress.total)) return homeInvalid();
+    if (!classroom || classroom.archived || homeCount(progress.taught) > homeCount(progress.total)) return homeInvalid();
   }
+  if (hasNext && value.nextTopic !== null) {
+    const next = homeObject(value.nextTopic, ['unitId', 'unitName', 'topicId', 'topicName']);
+    homeId(next.unitId); homeId(next.topicId); homeString(next.unitName); homeString(next.topicName);
+    if (classroom?.archived) return homeInvalid();
+  }
+  if (module === 'drafts' && (classroom?.role !== 'teacher' || classroom.archived)) return homeInvalid();
+  if (module === 'submitted' && (classroom?.role !== 'student' || classroom.archived)) return homeInvalid();
   return { ...value };
 }
 export function parseHomePage<M extends HomeModuleName>(module: M, input: unknown): HomeModules[M] {
@@ -58,13 +70,20 @@ export function parseHomePage<M extends HomeModuleName>(module: M, input: unknow
   }
   if (input.status !== 'ready') return homeInvalid();
   const hasTotals = module === 'review' && 'totals' in input;
-  const value = homeObject(input, ['status', 'items', 'totalItems', 'nextCursor', ...(hasTotals ? ['totals'] : [])]);
+  const hasPreview=module==='agenda' && 'preview' in input;
+  const value = homeObject(input, ['status', 'items', 'totalItems', 'nextCursor', ...(hasTotals ? ['totals'] : []),...(hasPreview?['preview']:[])]);
   if (!Array.isArray(value.items) || value.items.length > (module === 'agenda' ? 3 : 5)) return homeInvalid();
   const items = value.items.map(item => row(module, item)); homeCursor(value.nextCursor);
   if (value.totalItems !== null && homeCount(value.totalItems) < items.length) return homeInvalid();
   if (hasTotals) {
     const totals = homeObject(value.totals, ['attempts', 'needsReview', 'readyToPublish']);
     if (homeCount(totals.attempts) !== homeCount(totals.needsReview) + homeCount(totals.readyToPublish)) return homeInvalid();
+  }
+  if(hasPreview){
+    const preview=homeObject(value.preview,['personal','deadline']);
+    if(!Array.isArray(preview.personal)||preview.personal.length>2)return homeInvalid();
+    for(const item of preview.personal){row('agenda',item);if(item.source!=='PRIVATE_EVENT')return homeInvalid();}
+    if(preview.deadline!==null){row('agenda',preview.deadline);if((preview.deadline as {source:string}).source!=='ACADEMIC_DEADLINE')return homeInvalid();}
   }
   return { ...value, items } as unknown as HomeModules[M];
 }

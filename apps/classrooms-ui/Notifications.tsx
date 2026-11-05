@@ -11,10 +11,13 @@ const labels = { WALL_NOTICE: 'Nuevo aviso del docente', WALL_QUERY: 'Nueva cons
 type Operation = { generation: number; controller: AbortController };
 type Destination = { onOpen: (target: NotificationTarget) => void; onSelect?: never }
   | { onSelect: (notificationId: string) => void; onOpen?: never };
-export function Notifications({ api, refresh, onOpen, onSelect }: { api: ClassroomClient; refresh: number } & Destination) {
+const groups={all:'Todos los tipos',deliveries:'Entregas',talk:'Muro',work:'Actividades',grades:'Resultados',dates:'Fechas e intentos'};
+function notificationGroup(type:ClassroomNotification['eventType']):keyof typeof groups{return type.startsWith('WALL_')?'talk':type.startsWith('GRADE_')?'grades':type==='SUBMISSION_RECEIVED'?'deliveries':type==='ACTIVITY_PUBLISHED'?'work':'dates';}
+export function Notifications({ api, refresh, onOpen, onSelect,presentation='preview' }: { api: ClassroomClient; refresh: number;presentation?:'preview'|'center' } & Destination) {
   const [items, setItems] = useState<ClassroomNotification[] | null>(null), [open, setOpen] = useState(false);
   const [error, setError] = useState(''), [busy, setBusy] = useState(false);
   const [onlyUnread, setOnlyUnread] = useState(false), [nextCursor, setNextCursor] = useState<string | null>(null), [unread, setUnread] = useState(0);
+  const [group,setGroup]=useState<keyof typeof groups>('all');
   const state = useRef<{ generation: number; controller: AbortController | null; mounted: boolean }>({ generation: 0, controller: null, mounted: true });
   const start = useCallback((): Operation => {
     state.current.controller?.abort();
@@ -53,17 +56,19 @@ export function Notifications({ api, refresh, onOpen, onSelect }: { api: Classro
     setItems(previous => current(op) ? [...(previous ?? []), ...page.items.filter(item => !previous?.some(existing => existing.id === item.id))] : previous);
     setNextCursor(page.nextCursor); setUnread(page.unreadCount);
   }
-  const visible = items;
-  return <>
-    <button className="p6-notifications-toggle" aria-haspopup="dialog" aria-expanded={open} aria-label={`Notificaciones${unread ? `: ${unread} sin leer` : ''}`} onClick={() => {
-      setOpen(true); void run(load);
-    }}><EntryIcon name="bell" /><span className="entry-sr-only">Notificaciones</span>{unread ? <span className="entry-unread-count">{unread}</span> : null}</button>
-    {open ? <Dialog title="Notificaciones" className="entry-notifications" onClose={() => { if (!busy) setOpen(false); }}>
+  async function markAll(op:Operation){
+    await api.call('/notifications/read-all','POST',{},op.controller.signal);
+    if(current(op))await load(op);
+  }
+  const filtered=items?.filter(item=>group==='all'||notificationGroup(item.eventType)===group);
+  const visible = presentation==='preview'?filtered?.slice(0,3):filtered;
+  const content=<>
       <div className="notifications-summary"><span className="notifications-total">{error || !items ? 'Tus notificaciones' : unread ? `${unread} ${unread === 1 ? 'novedad sin leer' : 'novedades sin leer'}` : 'Estás al día'}</span><p>Avisos y actividad de tus aulas.</p></div>
       {error ? <Notice error>{error} El acceso puede haber cambiado; actualiza las notificaciones.</Notice> : null}
       <div className="notifications-toolbar"><div className="notification-filters" role="group" aria-label="Filtrar notificaciones"><button aria-pressed={!onlyUnread} onClick={() => filter(false)}>Todas</button>
         <button aria-pressed={onlyUnread} onClick={() => filter(true)}>Sin leer <span>{unread}</span></button></div>
         <button className="notifications-refresh" aria-label="Actualizar notificaciones" disabled={busy} onClick={() => void run(load)}><FoxmindIcon name="refresh" />Actualizar</button></div>
+      {presentation==='center'?<><div className="notification-types" role="group" aria-label="Tipo de notificación">{Object.entries(groups).map(([key,label])=><button key={key} aria-pressed={group===key} onClick={()=>setGroup(key as keyof typeof groups)}>{label}</button>)}</div>{unread>0?<button disabled={busy} onClick={()=>void run(markAll)}>Marcar todas como leídas</button>:null}</>:null}
       {!items && !error ? <Notice>Cargando notificaciones…</Notice> : null}
       {visible?.length === 0 ? <p className="p5-empty">{onlyUnread ? 'No tenés novedades pendientes de leer.' : 'Cuando haya novedades en tus aulas, aparecerán aquí.'}</p> : null}
       <ul className="p6-notifications" aria-label="Novedades de tus aulas" aria-busy={busy}>{visible?.map(item => <li key={item.id} className={item.readAt ? '' : 'unread'}>
@@ -81,7 +86,12 @@ export function Notifications({ api, refresh, onOpen, onSelect }: { api: Classro
           await api.call(`/notifications/${item.id}/read`, 'POST', {}, op.controller.signal); if (current(op)) await load(op);
         })}>Marcar como leída</button> : null}</div>
       </li>)}</ul>
-      {nextCursor ? <button disabled={busy} onClick={() => void run(loadMore)}>Cargar más notificaciones</button> : null}
-    </Dialog> : null}
-  </>;
+      {nextCursor && presentation==='center' ? <button disabled={busy} onClick={() => void run(loadMore)}>Cargar más notificaciones</button> : null}
+      {presentation==='preview'?<a className="p5-primary" href="/notificaciones">Ver todas las notificaciones <FoxmindIcon name="arrow-right"/></a>:null}
+    </>;
+  if(presentation==='center')return <section className="entry-notifications fm-brujula-inbox" aria-label="Centro de notificaciones">{content}</section>;
+  return <><button className="p6-notifications-toggle" aria-haspopup="dialog" aria-expanded={open} aria-label={`Notificaciones${unread ? `: ${unread} sin leer` : ''}`} onClick={() => {
+      setOpen(true); void run(load);
+    }}><EntryIcon name="bell" /><span className="entry-sr-only">Notificaciones</span>{unread ? <span className="entry-unread-count">{unread}</span> : null}</button>
+    {open?<Dialog title="Notificaciones" className="entry-notifications" onClose={()=>setOpen(false)}>{content}</Dialog>:null}</>;
 }

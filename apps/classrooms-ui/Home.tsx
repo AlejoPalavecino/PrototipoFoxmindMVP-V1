@@ -6,9 +6,11 @@ import type { HomeClient } from './home-api.ts';
 import { FoxmindIllustration,FoxmindIcon } from '../shared-ui/index.ts';
 import { useHome } from './use-home.ts';
 import { HomeModule } from './HomeModule.tsx';
+import { HomeFocus } from './HomeFocus.tsx';
 import { HomeModulePanel } from './HomeModulePanel.tsx';
-import { HomeShortcuts } from './HomeShortcuts.tsx';
-import { HomeFoxyNote } from './HomeFoxyNote.tsx';
+import { HomeWorkList } from './HomeWorkList.tsx';
+import { HomeMiniagenda } from './HomeMiniagenda.tsx';
+import { HomeShortcuts, HomeTeacherTools } from './HomeShortcuts.tsx';
 import { homeParticipation } from './home-labels.ts';
 import { homeGreetingDate } from './home-presentation.ts';
 export interface HomeProps {
@@ -20,42 +22,47 @@ export interface HomeProps {
 export function Home(props:HomeProps) {
   const {accountRole,displayName,subjectId,homeClient,busy,onAction,onCreate,onJoin,onClassrooms}=props;
   const home=useHome(homeClient,subjectId),[panel,setPanel]=useState<HomeModuleName|null>(null);
+  const [attentionTab,setAttentionTab]=useState<'review'|'queries'>('review');
+  const [focusRoom,setFocusRoom]=useState('');
+  const [workList,setWorkList]=useState(false);
   const data=home.data,onAgenda=props.onAgenda??(()=>{window.location.assign('/agenda');});
   const module=(name:HomeModuleName,title?:string)=>data?<HomeModule key={name} name={name} title={title} page={data.modules[name]} timeZone={data.timeZone} generatedAt={data.generatedAt}
-    onAction={onAction} onRetry={()=>void home.retry(name)} onExpand={()=>setPanel(name)} onAgenda={onAgenda} busy={busy}/>:null;
+    onAction={onAction} onRetry={()=>void home.retry(name)} onExpand={()=>setPanel(name)} onAgenda={onAgenda} onList={name==='pending'?()=>setWorkList(true):undefined} previewLimit={name==='feedback'?1:name==='pending'?3:undefined} busy={busy}/>:null;
   if(home.loading)return <section className="fm-home fm-home-loading" aria-label="Inicio" aria-busy="true"><h1>Hola, {displayName}</h1><p role="status">Cargando tus actividades y próximos pasos…</p><div className="fm-home-skeleton"/></section>;
   if(!data)return <section className="fm-home fm-home-global-error" aria-label="Inicio"><h1>Hola, {displayName}</h1><p role="alert">No pudimos comprobar tu Inicio. Actualiza para volver a consultar tus aulas y permisos.</p><button onClick={()=>void home.refresh()}>Reintentar Inicio</button></section>;
   if(panel && homeClient)return <section className="fm-home"><HomeModulePanel key={`${panel}:${data.generatedAt}`} name={panel} data={data} client={homeClient} onClose={()=>{const previous=panel;setPanel(null);requestAnimationFrame(()=>document.querySelector<HTMLButtonElement>(`[data-home-expand="${previous}"]`)?.focus());}} onAction={onAction} onUnauthorized={()=>void home.refresh()}/></section>;
   const teacher = accountRole === 'teacher';
+  const count = (name:HomeModuleName) => { const page=data.modules[name]; return page.status==='ready'?page.totalItems:null; };
   return <section className={`fm-home fm-home--reference fm-home--warm fm-home--${data.participation}`} aria-label="Inicio">
-    <HomeGreeting data={data} accountRole={accountRole} displayName={displayName}/>
-    <div className="fm-home-access-row"><HomeShortcuts/>
-      <HomeFoxyNote role={accountRole} modules={data.modules} onAction={onAction} onClassrooms={onClassrooms} busy={busy}/>
-    </div>
+    <div className="fm-brujula-home-layout">
+    <div className="fm-brujula-home-main"><HomeGreeting data={data} accountRole={accountRole} displayName={displayName}/>
     {data.participation==='none'?<HomeWelcome accountRole={accountRole} data={data} onCreate={onCreate} onJoin={onJoin} onClassrooms={onClassrooms} busy={busy}/>:null}
-    <div className="fm-home-dashboard">
-    <div className="fm-home-priorities">
-    {module(teacher ? 'review' : 'pending')}
-    {module(teacher ? 'queries' : 'feedback')}
-    </div>
-    {module('agenda')}
-    {module('classrooms', teacher && data.memberships.teach > 0 ? 'Avance del plan por aula' : undefined)}
-    </div>
+    {teacher ? <section className="fm-brujula-attention" aria-label="Por atender"><header><small>Seguimiento docente</small><h2>Por atender</h2></header>
+      <div className="fm-brujula-tabs" role="group" aria-label="Filtrar pendientes">
+        <button type="button" aria-pressed={attentionTab === 'review'} onClick={() => setAttentionTab('review')}><FoxmindIcon name="clipboard"/>Entregas<span>{count('review')}</span></button>
+        <button type="button" aria-pressed={attentionTab === 'queries'} onClick={() => setAttentionTab('queries')}><FoxmindIcon name="chat"/>Consultas<span>{count('queries')}</span></button>
+      </div><div hidden={attentionTab !== 'review'}>{module('review')}</div><div hidden={attentionTab !== 'queries'}>{module('queries')}</div><small className="fm-brujula-queue-order">{attentionTab==='review'?'Las más antiguas primero':'Las más recientes primero'}</small></section> : module('pending','Mis entregas')}
+    {teacher ? <HomeTeacherTools data={data} onAction={onAction} onClassrooms={onClassrooms} onRetry={()=>void home.retry('classrooms')} onSelected={setFocusRoom} busy={busy}/> : <HomeShortcuts data={data} onAction={onAction} onClassrooms={onClassrooms} onRetry={()=>void home.retry('classrooms')} busy={busy}/>}
+    </div><aside className="fm-brujula-home-rail" aria-label={teacher ? 'Organización docente' : 'Organización personal'}>
+    {!teacher ? module('feedback','Mis devoluciones') : null}<HomeMiniagenda data={data} teacher={teacher} client={homeClient} onAction={onAction} onAgenda={onAgenda} onRetry={()=>void home.retry('agenda')} onUnauthorized={()=>void home.refresh()} busy={busy}/>{teacher ? <HomeFocus data={data} selected={focusRoom} onAction={onAction} onClassrooms={onClassrooms} onRetry={()=>void home.retry('classrooms')} onDraftRetry={()=>void home.retry('drafts')} onDrafts={()=>setPanel('drafts')} busy={busy}/> : null}
+    </aside></div>{workList?<HomeWorkList key={`${data.subjectId}:${data.generatedAt}`} data={data} client={homeClient} onClose={()=>setWorkList(false)} onAction={onAction} onUnauthorized={()=>{setWorkList(false);void home.refresh();}}/>:null}
   </section>;
 }
 
 function HomeGreeting({data,accountRole,displayName}:{data:HomeResponse;accountRole:HomeProps['accountRole'];displayName:string}) {
-  return <header className="fm-home-greeting fm-home-greeting--welcome">
-    <img className="fm-home-panorama" src="/foxmind-3d/hero/welcome-warm-1600.webp"
-      srcSet="/foxmind-3d/hero/welcome-warm-960.webp 960w, /foxmind-3d/hero/welcome-warm-1600.webp 1600w, /foxmind-3d/hero/welcome-warm-2172.webp 2172w"
-      sizes="(min-width: 1024px) calc(100vw - 280px), 135vw" alt="" fetchPriority="high" decoding="async"/>
+  const number = (name:HomeModuleName) => { const page=data.modules[name]; return page.status==='ready' ? page.totalItems : null; };
+  const reviews=number('review'),queries=number('queries'),pending=number('pending');
+  return <header className={`fm-home-greeting fm-home-greeting--welcome fm-brujula-welcome--${accountRole}`}>
+    <img className="fm-home-panorama" src={`/brujula/banner-${accountRole === 'teacher' ? 'docente' : 'alumno'}.webp`} alt="" fetchPriority="high" decoding="async"/>
+    <img className="fm-brujula-foxy" src="/brujula/foxy-bienvenida.webp" alt="" decoding="async"/>
     <div className="fm-home-glass">
-    <time dateTime={data.generatedAt}>{homeGreetingDate(data.generatedAt,data.timeZone)}</time>
-    <h1>¡Hola, <span>{displayName}!</span></h1>
-    <p>{accountRole==='teacher'?'Un nuevo día para compartir lo que sabés.':'Tu próximo aprendizaje empieza acá.'}</p>
+    <time dateTime={data.generatedAt}><FoxmindIcon name="calendar"/>{homeGreetingDate(data.generatedAt,data.timeZone)}</time>
+    <h1>¡Buen día, <span>{displayName.trim().split(/\s+/)[0]}!</span></h1>
+    <p>{accountRole==='teacher' && reviews===0 && queries===0?'Las correcciones y las consultas de tus aulas están al día.':accountRole==='student' && pending===0?'Estás al día con las entregas abiertas de tus aulas.':accountRole==='teacher' && reviews!==null ? `Tenés ${reviews} ${reviews===1?'entrega pendiente':'entregas pendientes'}${queries!==null?` y ${queries} ${queries===1?'consulta sin responder':'consultas sin responder'}`:''}.` : accountRole==='student' && pending!==null ? `Tenés ${pending} ${pending===1?'actividad pendiente':'actividades pendientes'}.${data.modules.pending.status==='ready' && data.modules.pending.items.some(item=>item.attemptId)?' Tenés un borrador para retomar.':''}` : 'Tu espacio para aprender y enseñar.'}</p>
     <span className="sr-only">{homeParticipation(data,accountRole)}</span></div>
   </header>;
 }
+
 
 function HomeWelcome({accountRole,data,onCreate,onJoin,onClassrooms,busy}:{accountRole:'teacher'|'student';data:HomeResponse;onCreate:()=>void;onJoin:()=>void;onClassrooms:()=>void;busy?:boolean}) {
   return <section className="fm-home-welcome"><FoxmindIllustration name="states/empty" sizes="180px"/>

@@ -26,6 +26,8 @@ export interface Draft {
   publishedClassroomId: string | null;
 }
 export interface Classroom {
+  planProgress?: { taught: number; total: number };
+  studentCount?: number;
   id: string;
   name: string;
   subject: string;
@@ -107,6 +109,8 @@ export interface ActivitySummary {
   allowLate: boolean; locked: boolean; zone: string;
 }
 export interface ActivityDetail extends ActivitySummary {
+  objective?: string | null; teacherComment?: string | null;
+  evaluationRubric?: import('../../src/core/domain/evaluation-rubric.ts').EvaluationRubric;
   aiGradingRubric?: string;
   instructions: string | null; attachmentRequired: boolean; questions: ActivityQuestion[];
   instructionFiles: { id: string; name: string; extension: string; ready: boolean }[];

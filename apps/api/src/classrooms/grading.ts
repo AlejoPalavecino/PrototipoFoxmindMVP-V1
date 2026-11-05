@@ -1,4 +1,6 @@
 import { randomUUID } from 'node:crypto';
+import { rubricSuggestion, type RubricMark } from '../../../../src/core/domain/rubric-marks.ts';
+import type { EvaluationRubric } from '../../../../src/core/domain/evaluation-rubric.ts';
 import type { ClassroomCore } from './core.ts';
 import type { ActivityAuthoringService } from './activity-authoring.ts';
 import type { ClassroomFileOperations } from './classroom-file.ts';
@@ -10,6 +12,7 @@ import type { Actor, Transaction } from './contracts.ts';
 import type { AttemptRow } from './attempt-access.ts';
 
 export interface GradeRow {
+  rubric_snapshot?: EvaluationRubric | null; rubric_marks?: RubricMark[]; suggested_grade?: string | null; final_grade_override?: string | null; calculated_grade?: string | null;
   id: string; final_grade: string | null; overall_feedback: string | null;
   is_published: boolean; published_at: Date | null;
 }
@@ -39,7 +42,7 @@ export class GradingService {
     // A current teacher retains historical academic records after a student leaves.
     if (!attempt || attempt.status !== 'SUBMITTED') return fail('FORBIDDEN');
     const activity = await this.activity(tx, classroomId, attempt.activity_id);
-    const [grade] = await tx.query<GradeRow>(`SELECT id,final_grade::text,overall_feedback,is_published,published_at
+    const [grade] = await tx.query<GradeRow>(`SELECT id,final_grade::text,overall_feedback,is_published,published_at,rubric_snapshot,rubric_marks,suggested_grade::text,final_grade_override::text,calculated_grade::text
       FROM attempt_grades WHERE attempt_id=$1::uuid AND student_activity_id=$2::uuid AND activity_id=$3::uuid FOR ${isVerifiedRead(tx) && !write ? 'SHARE' : 'UPDATE'}`,
     attemptId, attempt.student_activity_id, activity.id);
     return { room, attempt, activity, grade };
@@ -62,10 +65,15 @@ export class GradingService {
       return { ...question, answer: answer ?? { questionId: question.id, text: null, optionIds: [] }, manual,
         manualPoints: points, earned: scoreJson(earned), feedback: row?.feedback ?? null };
     });
-    const final = grade?.is_published || activity.type === 'ASSIGNMENT'
-      ? grade?.final_grade === null || grade?.final_grade === undefined ? null : fixedHundredths(hundredths(grade.final_grade))
+    // Legacy rows had only final_grade; an explicit override must never become their base.
+    const storedCalculated = grade?.calculated_grade == null && grade?.final_grade_override == null
+      ? grade?.final_grade : grade?.calculated_grade;
+    const calculated = grade?.is_published || activity.type === 'ASSIGNMENT'
+      ? storedCalculated == null ? null : fixedHundredths(hundredths(storedCalculated))
       : finalGrade(questions.map(question => question.earned === null ? null
         : { numerator: BigInt(question.earned.numerator), denominator: BigInt(question.earned.denominator) }), questions.map(question => question.points));
+    const override = grade?.final_grade_override == null ? null : fixedHundredths(hundredths(grade.final_grade_override));
+    const final = grade?.is_published ? fixedHundredths(hundredths(grade.final_grade!)) : override ?? calculated;
     const attachments = await tx.query<{ id: string; name: string; ready: boolean }>(`SELECT f.id,f.original_name AS name,
       (f.blob_deleted_at IS NULL AND c.phase='ready' AND u.status='COMPLETED' AND f.validation_status='APPROVED'
        AND f.scan_status='CLEAN' AND c.digest IS NOT NULL AND c.digest=c.validated_digest AND c.digest=c.scanned_digest) AS ready
@@ -75,7 +83,10 @@ export class GradingService {
       activity: { ...view, questions }, attempt: { id: attempt.id, number: attempt.attempt_number, submittedAt: attempt.submitted_at,
         submittedLate: attempt.submitted_late, firstName: attempt.first_name, lastName: attempt.last_name, attachments },
       grade: { id: grade?.id ?? null, isPublished: grade?.is_published ?? false, publishedAt: grade?.published_at ?? null,
-        finalGrade: final, overallFeedback: grade?.overall_feedback ?? null, pending: final === null } };
+        rubricSnapshot: grade?.rubric_snapshot ?? null, rubricMarks: grade?.rubric_marks ?? [],
+        suggestedGrade: grade?.suggested_grade == null ? null : fixedHundredths(hundredths(grade.suggested_grade)), finalGradeOverride: override, calculatedGrade: calculated,
+        finalGrade: final, overallFeedback: grade?.overall_feedback ?? null,
+        pending: final === null || (activity.type !== 'ASSIGNMENT' && questions.some(question => question.earned === null)) } };
   }
 
   getAttemptGrading(request: unknown, classroomId: string, attemptId: string) {
@@ -96,12 +107,20 @@ export class GradingService {
       if (room.revision.toString() !== body.revision || context.grade?.is_published) return fail('CONFLICT');
       const view = await this.gradingView(tx, context);
       const scored = this.scoreCorrection(view, body);
+      const snapshot = context.grade?.rubric_snapshot ?? (body.rubricMarks === undefined ? null : activity.evaluation_rubric ?? []);
+      const marks = body.rubricMarks ?? context.grade?.rubric_marks ?? [];
+      let suggested: string | null;
+      try { suggested = snapshot === null ? null : rubricSuggestion(snapshot, marks); } catch { return fail('INVALID_INPUT'); }
+      const override = Object.hasOwn(body, 'finalGradeOverride') ? body.finalGradeOverride ?? null : context.grade?.final_grade_override ?? null;
+      const final = override ?? scored.finalGrade;
       const [grade] = await tx.query<GradeRow>(`INSERT INTO attempt_grades(id,updated_at,attempt_id,student_activity_id,activity_id,
-        final_grade,overall_feedback,graded_by_id) VALUES($1::uuid,clock_timestamp(),$2::uuid,$3::uuid,$4::uuid,$5::numeric,$6,$7::uuid)
+        final_grade,overall_feedback,graded_by_id,rubric_snapshot,rubric_marks,suggested_grade,final_grade_override,calculated_grade) VALUES($1::uuid,clock_timestamp(),$2::uuid,$3::uuid,$4::uuid,$5::numeric,$6,$7::uuid,$8::jsonb,$9::jsonb,$10::numeric,$11::numeric,$12::numeric)
         ON CONFLICT(attempt_id) DO UPDATE SET updated_at=clock_timestamp(),final_grade=EXCLUDED.final_grade,
-          overall_feedback=EXCLUDED.overall_feedback,graded_by_id=EXCLUDED.graded_by_id WHERE NOT attempt_grades.is_published
-        RETURNING id,final_grade::text,overall_feedback,is_published,published_at`, randomUUID(), attempt.id,
-      attempt.student_activity_id, activity.id, scored.finalGrade, body.overallFeedback, actor.id);
+          overall_feedback=EXCLUDED.overall_feedback,graded_by_id=EXCLUDED.graded_by_id,
+          rubric_snapshot=EXCLUDED.rubric_snapshot,rubric_marks=EXCLUDED.rubric_marks,suggested_grade=EXCLUDED.suggested_grade,
+          final_grade_override=EXCLUDED.final_grade_override,calculated_grade=EXCLUDED.calculated_grade WHERE NOT attempt_grades.is_published
+        RETURNING id,final_grade::text,overall_feedback,is_published,published_at,rubric_snapshot,rubric_marks,suggested_grade::text,final_grade_override::text,calculated_grade::text`, randomUUID(), attempt.id,
+      attempt.student_activity_id, activity.id, final, body.overallFeedback, actor.id, snapshot === null ? null : JSON.stringify(snapshot), JSON.stringify(marks), suggested, override, scored.finalGrade);
       if (!grade) return fail('CONFLICT');
       for (const row of scored.questions) await tx.query(`INSERT INTO question_grades(id,updated_at,attempt_grade_id,activity_id,
         question_id,earned_numerator,earned_denominator,feedback) VALUES($1::uuid,clock_timestamp(),$2::uuid,$3::uuid,$4::uuid,$5::numeric,$6::numeric,$7)

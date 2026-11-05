@@ -36,7 +36,7 @@ export function Plan({ api, room, reload, onOpenActivity, selectedTopicId, onSel
     await run(async () => { setUndo(null); await change({ action: 'setTopicState', id, status }); setUndo({ id, previous }); setNotice(status === 'TAUGHT' ? 'Tema marcado como dado.' : 'El tema volvió a pendientes.'); });
   }
   return <section className="folder-plan" aria-label="Plan de estudio">
-    <header className="p5-section-head"><div><h2>Plan de estudio</h2><p>Organizá los temas, explorá materiales y acompañá el aprendizaje.</p></div>
+    <header className="p5-section-head cl-section"><div><h2>Plan de estudio</h2><p>Explorá los temas y sus recursos.</p></div>
       <button disabled={busy} onClick={() => void run(reload)}>Actualizar Plan</button></header>
     {error && <Notice error>{error}</Notice>}
     {notice && <Notice>{notice}</Notice>}

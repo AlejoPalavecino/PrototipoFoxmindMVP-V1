@@ -6,11 +6,12 @@ Este resumen distingue lo integrado, lo verificado y los límites de las pruebas
 
 | Unidad | Estado y alcance | Fuente para retomar |
 |---|---|---|
+| Brújula docente/alumno | Paridad integral implementada y verificada localmente: acceso, campos/flujos, backend y base canónica. Plan obligatorio manual/IA; nota ponderada sugerida y final editable. Cobertura rápida acumulada1616PASS,16casos integrados aprobados, SQLHome15PASS, revisión independiente y geometría móvil/escritorio.96capturas más10deInicio,18muestras conservadas. Migraciones y arranque local posteriores autorizados y completados; ver Cómo retomar. Sin commit ni publicación remota | [Tareas e inventario vigente](../odd/tasks/foxmind-brujula.md), [registro vigente](work-log/2026-11-05-id-unavailable-brujula-complete-base.md), [capturas](work-log/evidence/2026-11-05-brujula-complete/README.md) |
 | V1 local P0–P9 | Implementada, aceptada localmente e integrada; sin despliegue ni piloto real | [Cierre independiente P9](work-log/2026-10-20-p9-final-independent-verify.md), [producto](product/README.md) |
 | Extracción y generación con IA | Implementadas; fuentes, cuotas y confirmación docente tienen límites propios | [Guías de IA](engineering/ai/README.md), [verificación real](work-log/2026-10-25-gemini_real_verify.md) |
 | Análisis individual | Implementado con métricas anónimas y alcance docente, separado de calificación | [Guía](engineering/ai/student-analysis.md), [verificación](work-log/2026-10-28-root-student-ai-verification.md) |
 | Corrección asistida | Integrada en main; propuesta privada y publicación docente independiente. Pruebas reales limitadas a casos documentados | [Contrato issue #2](../odd/tasks/grading-ai-issue-2.md), [guía](engineering/ai/grading-assistance.md) |
-| Sistema visual | FoxMind3D aplicado e integrado; las exploraciones anteriores son antecedentes | [Sistema y familias](design/README.md), [guía técnica](engineering/frontend/foxmind-3d.md) |
+| Sistema visual | Brújula es la base aprobada de nuevas interfaces, aplicada y verificada localmente; FoxMind3D conserva arquitectura/recursos compartidos y evidencia histórica | [Base Brújula](design/brujula/README.md), [guía técnica](engineering/frontend/README.md) |
 | Mis aulas: encabezado y personaje | Retoques visuales y nuevo banner aprobados por el usuario e integrados en main el 2026-11-04; 11 pruebas focales, tipos y lint aprobados. Publicación remota confirmada dentro de a410355 | [Entrega local y evidencia](work-log/2026-11-04-id-unavailable-mis-aulas-local-integration.md), [publicación](work-log/2026-11-04-id-unavailable-inventory-main-sync.md) |
 | Seis correcciones de auditoría | Implementadas y publicadas, con limitaciones y pruebas atribuidas | [Tarea](../odd/tasks/audit-remediation.md), [cierre](work-log/2026-10-30-root-audit-completion.md) |
 | Cinco comprobaciones históricas | Cerradas: FAST783/0/0 y P5/resumen14/0/0. No se repitió toda la selección de42archivos de navegador | [Cierre de los casos](work-log/2026-10-30-root-five-historical-checks.md) |
@@ -21,6 +22,8 @@ Este resumen distingue lo integrado, lo verificado y los límites de las pruebas
 | Salida voluntaria de aulas archivadas | Implementada y verificada localmente el 2026-11-02. Revocación y conservación comprobadas. Readmisión por reactivación e invitación nueva aceptada. | [Criterios](../odd/tasks/archived-classroom-voluntary-leave.md), [evidencia](work-log/2026-11-02-id-unavailable-archived-classroom-leave-implementation.md) |
 
 ## Cómo retomar
+
+El trabajo vigente deBrújula está terminado localmente en `codex/foxmind-brujula`, sobre HEAD5ea7f568d485512c88ed626511aef537bcad5704 más diff sin commit. Leer primero [tareas BRU-06–10](../odd/tasks/foxmind-brujula.md) y [cierre/evidencia](work-log/2026-11-05-id-unavailable-brujula-complete-base.md). No hay implementación pendiente de ese alcance. Por pedido posterior explícito, las dos migraciones se aplicaron a la base habitual con backup, conservación verificada de54tablas y drift0; plataforma activa en http://127.0.0.1:52171/sign-in para revisión manual. [Arranque y evidencia](work-log/2026-11-05-id-unavailable-brujula-local-start.md). Integrar/publicar o desplegar sigue sin autorización. Los párrafos siguientes conservan entregas anteriores y sus estados deGit a esa fecha; no describen la rama actual.
 
 Rediseño aprobado del interior de aulas terminado, verificado e integrado/publicado en main el 2026-11-04 en cfabab8, confirmado por lectura remota. Main es la única rama local/remota; worktrees históricos detached preservados. Banner, plan con check/deshacer, creación contextual manual/IA y ocho/seis secciones; navbar actual sin cambios. 100 pruebas focales, build/tipos/lint, 56 escenarios responsive y revisión independiente; SQL adicional indisponible por Docker, sin IA real ni datos retenidos. [Tarea única](../odd/tasks/classroom-interior-redesign.md) · [Cierre y límites](work-log/2026-11-04-id-unavailable-classroom-interior-implementation.md) · [Publicación confirmada](work-log/2026-11-04-id-unavailable-classroom-interior-publication.md).
 
@@ -41,7 +44,7 @@ Inicio incorpora Taller Cálido con liquid glass, aprobado y verificado localmen
 2. Usar [arquitectura](engineering/architecture.md), [operación local](engineering/local-development/README.md) y [verificación](engineering/testing/README.md) para el procedimiento vigente.
 3. Consultar el [catálogo de registros](work-log/INDEX.md) solo para decisiones y resultados relevantes.
 
-La publicación del repositorio no es despliegue ni autorización para usar datos reales. Esta entrega documental no implementa funciones nuevas; el siguiente trabajo de producto parte del alcance que indique el usuario.
+La publicación del repositorio no es despliegue ni autorización para usar datos reales. Cada entrega histórica conserva sus propios límites; el siguiente trabajo de producto parte del alcance que indique el usuario.
 
 ## Historial de checkpoints conservados
 

@@ -31,12 +31,15 @@ test('contexto de material sobrevive al escaneo y precarga el formulario sin pub
   const { Library } = componentWithPorts('apps/classrooms-ui/Library.tsx', ports);
   let consumed = 0; const writes = [];
   const context = { unitId: 'u1', topicIds: ['t2'] };
-  const props = { room: { id: 'r', role: 'teacher', archived: false, units }, api: { call: async (...args) => { writes.push(args); return []; }, uploadClassroom: async () => ({ id: 'f', name: 'guia.pdf', ready: true }) }, reload: async () => {}, uploadContext: context, onUploadContextConsumed: () => { consumed++; props.uploadContext = null; } };
+  const props = { room: { id: 'r', role: 'teacher', archived: false, units }, api: { call: async (...args) => { writes.push(args); return []; }, uploadClassroom: async () => ({ id: 'f', name: 'guia.pdf', ready: false, scan: 'PENDING' }), fileStatus: async id => { assert.equal(id, 'f'); return { id, name: 'guia.pdf', ready: true }; } }, reload: async () => {}, uploadContext: context, onUploadContextConsumed: () => { consumed++; props.uploadContext = null; } };
   const view = hookView(Library, props); await view.flush();
   try {
     const upload = nodes(view, n => n.type === 'input' && n.props.type === 'file')[0];
-    assert.equal(nodes(view, n => n.type === 'details' && text(n).includes('Publicar material'))[0].props.open, true);
+    assert.ok(nodes(view, n => n.type?.name === 'Dialog' && n.props.title === 'Agregar material')[0], 'Context opens the approved upload dialog');
     upload.props.onChange({ target: { files: [{ name: 'guia.pdf' }], value: 'guia.pdf' } }); await view.flush();
+    assert.equal(nodes(view, n => n.type?.name === 'MaterialForm').length, 0, 'Pending security scan never exposes publication');
+    assert.equal(writes.filter(([, method]) => method === 'POST').length, 0);
+    nodes(view, n => n.type === 'button' && text(n) === 'Consultar revisión del material')[0].props.onClick(); await view.flush();
     const form = nodes(view, n => typeof n.type === 'function' && n.type.name === 'MaterialForm')[0];
     assert.deepEqual(form.props.initial, { title: '', unitId: 'u1', topicId: 't2' });
     assert.equal(consumed, 1);

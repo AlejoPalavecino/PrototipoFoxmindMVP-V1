@@ -30,14 +30,16 @@ test('multiple-file and busy drops never submit duplicate uploads', async () => 
   } finally { release(ready('replacement')); f.close(); }
 });
 
-test('a rejected dropped replacement cannot bypass approved-plan advancement', async () => {
+test('a rejected dropped replacement cannot bypass selected-file security when creating a classroom', async () => {
   const f = await wizard({ upload: async () => ({ ...ready('bad'), ready: false, validation: 'REJECTED', scan: 'REJECTED' }) });
   try {
     await advance(f.view); assert.ok(drop(f.view));
     drop(f.view).props.onDrop(event([new File(['fixture'], 'bad.pdf')])); await f.view.flush();
     await advance(f.view);
-    assert.match(text(f.view.tree), /Subí un plan y esperá su aprobación/);
+    assert.match(text(f.view.tree), /archivo seleccionado debe superar la revisión/);
     assert.equal(nodes(f.view, n => n.type === 'input' && n.props.type === 'file').length, 1);
     assert.equal(f.calls.some(([, , body]) => body?.payload?.planFileId === 'bad'), false);
+    assert.equal(f.calls.some(([path]) => path.endsWith('/publish')), false);
+    assert.deepEqual(f.published, []);
   } finally { f.close(); }
 });

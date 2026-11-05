@@ -23,7 +23,7 @@ const page = () => ({ serverTime: '2026-10-27T12:00:00.000Z', items: [], nextCur
 
 test('created result converts first date to view zone and loads the new month without reloading old range', async () => {
   const queries = [];
-  const context = await agendaView({ async list(range) { queries.push(range.startDate); return page(); },
+  const context = await agendaView({ async list(range) { queries.push({ ...range }); return page(); },
     async upcoming() { return page(); } });
   try {
     openEditor(context.view); await context.view.flush(); const before = queries.length;
@@ -33,8 +33,10 @@ test('created result converts first date to view zone and loads the new month wi
     await context.view.flush();
     assert.equal(component(context.view, 'AgendaMonth').props.month, '2026-11');
     assert.equal(component(context.view, 'AgendaDay').props.day, '2026-11-30');
-    assert.ok(queries.slice(before).length > 0);
-    assert.ok(queries.slice(before).every(value => value === '2026-10-26'));
+    assert.deepEqual(queries.slice(before), [
+      { startDate: '2026-10-26', endDateExclusive: '2026-12-07', timeZone: zone },
+      { startDate: '2026-12-01', endDateExclusive: '2027-01-01', timeZone: zone },
+    ], 'Only the new visible month and the 31-day range after the newly selected day are queried');
     assert.equal(component(context.view, 'EventForm'), undefined);
     assert.match(renderToStaticMarkup(context.view.tree), /Ver evento/);
   } finally { context.close(); }

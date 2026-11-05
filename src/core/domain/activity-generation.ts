@@ -15,6 +15,7 @@ export interface ActivityQuestion {
 }
 export interface ActivityEvidence { item: 'assignment' | 'question'; index: number; references: { sourceId: string; page: number | null }[] }
 export interface ActivityProposal {
+  evaluationRubric?: import('./evaluation-rubric.ts').EvaluationRubric;
   schemaVersion: typeof activityGenerationSchemaVersion; type: ActivityGenerationType; title: string; objective: string;
   instructions: string; assignmentPrompts: string[]; questions: ActivityQuestion[]; evidence: ActivityEvidence[];
   warnings: ActivityGenerationWarning[];

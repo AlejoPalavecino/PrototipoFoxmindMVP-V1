@@ -74,7 +74,9 @@ test('S0 every typed destination survives parsing without an arbitrary URL', () 
 
 test('S0 aggregate and each module accept all seven real row variants, including grade zero', () => {
   const { parseHomeResponse, parseHomeModuleResponse } = domain();
-  assert.deepEqual(parseHomeResponse(response()), response());
+  const original = response();
+  assert.deepEqual(parseHomeResponse(original), { ...original, modules: { ...original.modules,
+    drafts: { status: 'not-applicable' }, submitted: { status: 'not-applicable' } } });
   for (const name of modules) assert.deepEqual(parseHomeModuleResponse(moduleResponse(name)), moduleResponse(name));
   const resubmission = moduleResponse('pending');
   Object.assign(resubmission.page.items[0], { state: 'resubmission', attemptId: id(3), deadlineAt: null, late: false, reception: 'open' });
@@ -92,7 +94,8 @@ test('S0 distinguishes ready empty, recoverable module failure and role inapplic
   value.modules.queries = { status: 'not-applicable' };
   value.modules.pending = { status: 'error', code: 'SERVICE_UNAVAILABLE', retryable: true };
   value.modules.feedback = { status: 'ready', items: [], totalItems: 0, nextCursor: null };
-  assert.deepEqual(parseHomeResponse(value), value);
+  assert.deepEqual(parseHomeResponse(value), { ...value, modules: { ...value.modules,
+    drafts: { status: 'not-applicable' }, submitted: { status: 'not-applicable' } } });
   for (const bad of [
     { status: 'error', code: 'FORBIDDEN', retryable: true },
     { status: 'error', code: 'SERVICE_UNAVAILABLE', retryable: false },

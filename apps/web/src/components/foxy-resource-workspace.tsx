@@ -3,6 +3,7 @@ import { openDialog } from '../../../shared-ui/dialog-focus';
 import type { Classroom } from '../../../classrooms-ui/api';
 import type { createFoxyWorkspaceRuntime } from '../lib/foxy-workspace-runtime';
 import type { createFoxyWorkspaceActions } from '../lib/foxy-workspace-actions';
+import { FoxyActivityHandoffPanel } from './foxy-activity-handoff-panel';
 import { FoxyPublicationManagementPanel } from './foxy-publication-management-panel';
 import styles from './foxy-workspace.module.css';
 
@@ -11,6 +12,7 @@ type Actions = ReturnType<typeof createFoxyWorkspaceActions>;
 type Props = { resource: NonNullable<RuntimeState['resource']>; preparation: NonNullable<RuntimeState['preparation']>;
   history: NonNullable<RuntimeState['history']>; confirmation: NonNullable<RuntimeState['confirmation']>;
   management?: RuntimeState['management'];
+  initialHandoffMode?: 'ACTIVITY' | 'RUBRIC'; handoffRuntime?: ReturnType<typeof createFoxyWorkspaceRuntime>; handoffState?: RuntimeState['activityHandoff'];
   classrooms: Classroom[]; ui: ReturnType<Actions['getState']>; actions: Actions;
   publicationFileUrl: (id: string, mode: 'preview' | 'download') => string };
 const button = 'p5-action';
@@ -34,7 +36,7 @@ export function FoxyResourceWorkspace(props: Props) {
     return url === expected ? url : null;
   };
   const preview = link('preview'), download = link('download');
-  const confirmLocked = confirmation.busy || !!confirmation.pending;
+  const confirmLocked = confirmation.busy || !!confirmation.pending || !!props.handoffState?.busy || !!props.handoffState?.pending;
   const managementLocked = !!props.management?.busy || !!props.management?.pending;
   const mutationLocked = confirmLocked || managementLocked;
   const invalid = (value: string, max: number) => !value.trim() || [...value].length > max || /[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/u.test(value);
@@ -78,6 +80,7 @@ export function FoxyResourceWorkspace(props: Props) {
           : <button type="button" className="p5-primary" disabled={!resource.dirty || resource.busy || mutationLocked} onClick={() => void actions.resource.save()}>Guardar cambios</button>}
       </section>
       <section aria-labelledby="foxy-publish-title" style={{ flex: '1 1 20rem', minWidth: 0 }}>
+        {props.handoffRuntime && props.handoffState && <FoxyActivityHandoffPanel key={`${resource.resource?.id}:${props.initialHandoffMode ?? ""}`} initialMode={props.initialHandoffMode} runtime={props.handoffRuntime} state={props.handoffState} resource={resource} classrooms={classrooms} onNavigate={href => { void actions.requestNavigate(href); }} locked={mutationLocked || preparation.busy || !!preparation.pending} />}
         <h3 id="foxy-publish-title">Preparar para Biblioteca</h3>
         <p>La preparación es privada y todavía no es visible para estudiantes.</p>
         <label htmlFor="foxy-destination">Aula de destino</label>

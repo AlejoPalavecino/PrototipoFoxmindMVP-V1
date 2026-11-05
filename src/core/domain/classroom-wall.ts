@@ -4,7 +4,7 @@ export interface WallContent {
   canEdit: boolean; canRemove: boolean;
 }
 export interface WallPost extends WallContent {
-  type: 'NOTICE' | 'QUERY'; replies: WallContent[]; replyCount: number;
+  title?: string | null; type: 'NOTICE' | 'QUERY'; replies: WallContent[]; replyCount: number;
   repliesNextCursor: string | null; repliesPreviousCursor: string | null;
 }
 export interface WallData { revision: string; posts: WallPost[]; nextCursor: string | null }
@@ -43,6 +43,7 @@ function post(value: unknown): WallPost {
   if (!['NOTICE', 'QUERY'].includes(String(item.type)) || !Array.isArray(item.replies) || item.replies.length > 20 ||
     !Number.isSafeInteger(item.replyCount) || Number(item.replyCount) < item.replies.length ||
     !nullableString(item.repliesNextCursor) || !nullableString(item.repliesPreviousCursor)) throw new Error('INVALID_INPUT');
+  if (item.title !== undefined && !nullableString(item.title)) throw new Error('INVALID_INPUT');
   item.replies.forEach(content); return item as unknown as WallPost;
 }
 export function parseWallData(value: unknown): WallData {
@@ -63,8 +64,8 @@ export function parseWallRepliesPage(value: unknown): WallRepliesPage {
 }
 import { contractObject, contractRevision, contractUuid } from './classroom-contract-values.ts';
 export type WallOperation =
-  | { action: 'publish'; body: string } | { action: 'reply'; postId: string; body: string }
-  | { action: 'editPost' | 'editReply'; id: string; body: string }
+  | { action: 'publish'; title?: string | null; body: string } | { action: 'reply'; postId: string; body: string }
+  | { action: 'editPost'; id: string; title?: string | null; body: string } | { action: 'editReply'; id: string; body: string }
   | { action: 'removePost' | 'removeReply'; id: string; confirm: true };
 export function parseWallMutation(value: unknown): { revision: string; operation: WallOperation } {
   const input = contractObject(value, ['revision', 'operation']);
@@ -73,7 +74,9 @@ export function parseWallMutation(value: unknown): { revision: string; operation
     publish: ['action', 'body'], reply: ['action', 'postId', 'body'], editPost: ['action', 'id', 'body'],
     editReply: ['action', 'id', 'body'], removePost: ['action', 'id', 'confirm'], removeReply: ['action', 'id', 'confirm'] };
   const keys = typeof op.action === 'string' && Object.hasOwn(shapes, op.action) ? shapes[op.action] : undefined;
-  if (!keys || Object.keys(op).length !== keys.length || keys.some(key => !Object.hasOwn(op, key)) ||
+  const optionalTitle = (op.action === 'publish' || op.action === 'editPost') && Object.hasOwn(op, 'title');
+  if (optionalTitle && op.title !== null && (typeof op.title !== 'string' || !op.title.trim() || [...op.title].length > 120 || /[\u0000-\u001f\u007f-\u009f]/u.test(op.title))) throw new Error('INVALID_INPUT');
+  if (!keys || Object.keys(op).length !== keys.length + (optionalTitle ? 1 : 0) || keys.some(key => !Object.hasOwn(op, key)) ||
     ('id' in op && !contractUuid(op.id)) || ('postId' in op && !contractUuid(op.postId)) || ('confirm' in op && op.confirm !== true)) throw new Error('INVALID_INPUT');
   if ('body' in op && (typeof op.body !== 'string' || !op.body.trim() || [...op.body].length > 5000 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f\ud800-\udfff]/u.test(op.body))) throw new Error('INVALID_INPUT');
   return { revision: contractRevision(input.revision), operation: op as WallOperation };

@@ -1,6 +1,7 @@
 import { invalidInput, strictObject } from './study-plan.ts';
 import { activityGenerationSchemaVersion, type ActivityProposal, type ActivityProposalConstraints, type ActivityQuestion } from './activity-generation.ts';
 import { activityInteger, activityText, activityType, activityWarnings } from './activity-generation-values.ts';
+import { parseEvaluationRubric } from './evaluation-rubric.ts';
 
 function question(value: unknown): ActivityQuestion {
   const q = strictObject(value, ['type', 'prompt', 'points', 'scoringRule', 'options']);
@@ -41,7 +42,10 @@ function evidence(value: unknown, constraints: ActivityProposalConstraints, coun
   });
 }
 export function parseActivityProposal(value: unknown, constraints: ActivityProposalConstraints): ActivityProposal {
-  const v = strictObject(value, ['schemaVersion', 'type', 'title', 'objective', 'instructions', 'assignmentPrompts', 'questions', 'evidence', 'warnings']);
+  const hasRubric = !!value && typeof value === 'object' && 'evaluationRubric' in value;
+  const v = strictObject(value, ['schemaVersion', 'type', 'title', 'objective', 'instructions', 'assignmentPrompts', 'questions', 'evidence', 'warnings', ...(hasRubric ? ['evaluationRubric'] : [])]);
+  let evaluationRubric;
+  try { evaluationRubric = hasRubric ? parseEvaluationRubric(v.evaluationRubric) : undefined; } catch { return invalidInput(); }
   if (v.schemaVersion !== activityGenerationSchemaVersion || activityType(v.type) !== constraints.type
     || !Array.isArray(v.assignmentPrompts) || !Array.isArray(v.questions)) return invalidInput();
   const assignmentPrompts = v.assignmentPrompts.map(p => activityText(p, 2000, true)), questions = v.questions.map(question);
@@ -54,5 +58,6 @@ export function parseActivityProposal(value: unknown, constraints: ActivityPropo
   if ([...[`Objetivo: ${objective}`, instructions, ...assignmentPrompts.map((p, i) => `${i + 1}. ${p}`)].join('\n\n')].length > 5000) return invalidInput();
   return { schemaVersion: activityGenerationSchemaVersion, type: constraints.type, title: activityText(v.title, 200, true),
     objective: activityText(v.objective, 1000, true), instructions: activityText(v.instructions, 5000), assignmentPrompts,
-    questions, evidence: evidence(v.evidence, constraints, assignmentPrompts.length + questions.length), warnings: activityWarnings(v.warnings) };
+    questions, evidence: evidence(v.evidence, constraints, assignmentPrompts.length + questions.length), warnings: activityWarnings(v.warnings),
+    ...(evaluationRubric === undefined ? {} : { evaluationRubric }) };
 }

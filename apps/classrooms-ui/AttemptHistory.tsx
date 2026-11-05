@@ -26,8 +26,10 @@ export function AttemptHistory({ api, room, activityId, attemptId, filter, onClo
   }, [api, path, teacher]);
   const inspect = useCallback(async (id: string) => setSelected(await api.call<AttemptSessionData>(`/${room.id}/attempts/${id}/history`)), [api, room.id]);
   useEffect(() => { const controller = new AbortController(); void load(controller.signal).then(async () => {
-    if (attemptId && !controller.signal.aborted) await inspect(attemptId);
-  }).catch(e => { if (!controller.signal.aborted) setError(e.message); }); return () => controller.abort(); }, [load, inspect, attemptId]);
+    if (attemptId && !controller.signal.aborted) {
+      if (teacher) setGrading(attemptId); else await inspect(attemptId);
+    }
+  }).catch(e => { if (!controller.signal.aborted) setError(e.message); }); return () => controller.abort(); }, [load, inspect, attemptId, teacher]);
   async function run(work: () => Promise<void>) { setBusy(true); setError(''); try { await work(); } catch (e) { setError((e as Error).message); } finally { setBusy(false); } }
   async function deadline() {
     if (!local) return null;

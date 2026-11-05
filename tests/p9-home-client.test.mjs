@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { loadTsModule as component } from './helpers/load-ts-module.mjs';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { classroomDestination, classroomAuthHref } from '../apps/web/src/lib/classroom-client.ts';
-import { hookView } from './agenda-ui-helpers.test.mjs';
+import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 
 test('Inicio continuation is additive, literal and does not widen the closed destination allowlist', () => {
   assert.equal(classroomDestination('/inicio'), '/inicio');
@@ -18,7 +18,7 @@ test('Inicio continuation is additive, literal and does not widen the closed des
   }
 });
 
-test('Home renders authorized aggregate identity and archived history without invented content or a global role switch', async () => {
+test('Home keeps verified identity and routes archived history to the collection without inventing active focus', async () => {
   const { Home } = component('apps/classrooms-ui/Home.tsx');
   const id = '11111111-1111-4111-8111-111111111111';
   const room = { id, name: 'Real classroom <script>', subject: 'Science', division: 'A', timeZone: 'UTC', coverKey: 'explore', archived: true, role: 'teacher' };
@@ -30,13 +30,24 @@ test('Home renders authorized aggregate identity and archived history without in
         items: [{ id, title: room.name, classroom: room, target: { kind: 'classroom', classroomId: id, section: 'plan' } }] },
     } };
   const previousWindow = globalThis.window; globalThis.window = new EventTarget();
-  const view = hookView(Home, { displayName: 'Actual Learner', subjectId: id, homeClient: { read: async () => aggregate },
-    onCreate() {}, onJoin() {}, onClassrooms() {}, onAction() {} });
+  let openedCollection = 0;
+  const view = hookView(Home, { accountRole: 'teacher', displayName: 'Actual Learner', subjectId: id, homeClient: { read: async () => aggregate },
+    onCreate() {}, onJoin() {}, onClassrooms: () => openedCollection++, onAction() {} });
   try {
     await view.flush(); const html = renderToStaticMarkup(view.tree);
-    assert.match(html.replace(/<[^>]*>/g, ''), /Hola, Actual Learner/);
-    assert.match(html, /Real classroom &lt;script&gt;/); assert.match(html, /Archivada · Solo lectura/);
-    assert.match(html, /Tus aulas/); assert.doesNotMatch(html, /Material reciente/);
+    assert.match(html.replace(/<[^>]*>/g, ''), /¡Buen día, Actual!/);
+    assert.match(html, /Tu historial sigue aquí/);
+    assert.doesNotMatch(html, /Real classroom|Material reciente/);
+    const focus = descendants(view.tree, node => node.type?.name === 'HomeFocus')[0];
+    const focusTree = focus.type(focus.props);
+    const module = descendants(focusTree, node => node.type?.name === 'HomeModule')[0];
+    assert.deepEqual(module.props.page.items, [], 'Archived classrooms never become active focus');
+    descendants(focusTree, node => node.type === 'button' && node.props.children === 'Ver todas mis aulas')[0].props.onClick();
+    assert.equal(openedCollection, 1, 'Archived history stays reachable through the full collection');
+    const { ClassroomCard } = component('apps/classrooms-ui/ClassroomCollectionCard.tsx');
+    const archivedCard = renderToStaticMarkup(ClassroomCard({ room, onEnter() {} }));
+    assert.match(archivedCard, /Real classroom &lt;script&gt;/); assert.match(archivedCard, /Archivada/);
+    assert.doesNotMatch(archivedCard, /<script>/);
     assert.doesNotMatch(html, /Cambiar rol|role="switch"|lucia@example|Nota promedio/);
     assert.doesNotMatch(html, /Para entregar|Para revisar/, 'Archived history alone must not invent active participation');
   } finally { view.close(); if (previousWindow === undefined) delete globalThis.window; else globalThis.window = previousWindow; }

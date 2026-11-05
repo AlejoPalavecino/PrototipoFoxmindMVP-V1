@@ -21,7 +21,7 @@ export function ClassroomNavigation({teacher,selected,onSelect,tabsRef}:{
     <select aria-label="Sección del aula" value={selected} onChange={event => onSelect(event.target.value)}>
       {classroomSections(teacher).map(item => <option key={item.key} value={item.key}>{item.label}</option>)}
     </select>
-  </label><nav ref={tabsRef} className="p5-tabs classroom-workspace-tabs" aria-label="Secciones del aula">
+  </label><nav ref={tabsRef} className="class-tabs brujula-class-tabs" aria-label="Secciones del aula">
     {classroomSections(teacher).map(item=><button key={item.key} type="button" data-section={item.key}
       data-group={item.group} aria-current={selected===item.key?'page':undefined} onClick={()=>onSelect(item.key)}>
       <FoxmindIcon name={item.icon}/>{item.label}

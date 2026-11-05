@@ -7,7 +7,9 @@ export const homeLabels:Record<HomeModuleName,{title:string;empty:string;action:
   agenda:{title:'Tu agenda',empty:'No tenés próximos eventos ni vencimientos.',action:'Abrir'},
   queries:{title:'Consultas sin responder',empty:'No hay consultas por responder en tus aulas activas.',action:'Abrir consulta'},
   materials:{title:'Material reciente',empty:'No hay material disponible en tus aulas activas.',action:'Abrir material'},
-  classrooms:{title:'Tus aulas',empty:'Aún no tienes aulas activas ni archivadas disponibles.',action:'Entrar al aula'},
+  classrooms:{title:'Tus aulas',empty:'No hay aulas disponibles en esta vista.',action:'Entrar al aula'},
+  drafts:{title:'Actividades en borrador',empty:'No tenés actividades en borrador en tus aulas activas.',action:'Continuar borrador'},
+  submitted:{title:'Entregadas, en revisión',empty:'No tenés entregas esperando revisión.',action:'Ver entrega'},
 };
 export function homeTime(value:string,zone:string):string {
   return new Date(value).toLocaleString('es-AR',{timeZone:zone,day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});

@@ -1,6 +1,6 @@
 'use client';
 import surface from './classrooms-surface.module.css';
-import { useState, useEffect, useCallback, useRef, lazy, Suspense, type ReactNode } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense, type ReactNode } from 'react';
 import type { ClassroomClient, Classroom, Draft, Invitation, NotificationTarget } from './api.ts';
 import type { HomeTarget } from '../../src/core/domain/index.ts';
 import type { HomeClient } from './home-api.ts';
@@ -11,6 +11,8 @@ import { Notifications } from './Notifications.tsx';
 import { Home } from './Home.tsx';
 import { EntryIcon } from '../shared-ui/EntryIcon';
 import { AppNavbar } from '../shared-ui/AppNavbar.tsx';
+import { createBrujulaSearchClient } from '../shared-ui/brujula-search-client.ts';
+import { brujulaSearchDestination } from '../../src/core/domain/brujula-search.ts';
 const Wizard = lazy(() =>
   import('./Wizard.tsx').then((module) => ({ default: module.Wizard })),
 );
@@ -30,6 +32,7 @@ interface HomeData {
 export function ClassroomsApp({
   api,
   displayName,
+  accountEmail,
   accountRole,
   subjectId,
   homeClient,
@@ -47,6 +50,7 @@ export function ClassroomsApp({
 }: {
   api: ClassroomClient;
   displayName: string;
+  accountEmail?: string;
   accountRole?: 'teacher' | 'student';
   subjectId?: string;
   homeClient?: HomeClient;
@@ -63,6 +67,7 @@ export function ClassroomsApp({
   navigationNotice?: string;
 }) {
   const [presentation, setPresentation] = useState(initialPresentation);
+  const searchContent = useMemo(() => createBrujulaSearchClient(api), [api, subjectId]);
   const [data, setData] = useState<Partial<HomeData>>({}),
     [error, setError] = useState(''),
     [notice, setNotice] = useState('');
@@ -109,9 +114,9 @@ export function ClassroomsApp({
     ]);
   }, [api]);
   useEffect(() => {
-    if (initialPresentation === 'home') return;
     const controller = new AbortController();
-    if (!requestedTarget && !requestedHomeTarget) void load(controller.signal);
+    const homeOnly = initialPresentation === 'home' && !requestedTarget && !requestedHomeTarget;
+    void load(controller.signal, homeOnly ? 'rooms' : undefined);
     return () => controller.abort();
   }, [load, initialPresentation, requestedTarget, requestedHomeTarget]);
   async function action(task: () => Promise<void>) {
@@ -197,7 +202,8 @@ export function ClassroomsApp({
   return (
     <div className={`p5-app fm3-classrooms ${surface.scope}${draft ? ' entry-wizard-reference' : !classroomId ? presentation === 'home' ? ' entry-home' : ' entry-classrooms-reference collection-workspace-page' : ' classroom-interior-reference'}`}>
       <a className="skip-link" href="#classroom-main">Saltar al contenido</a>
-      <AppNavbar logoHref="/mis-aulas" displayName={displayName} restricted={Boolean(draft)}
+      <AppNavbar logoHref="/inicio" displayName={displayName} accountEmail={accountEmail} restricted={Boolean(draft)} accountRole={accountRole} search={searchContent}
+        classroomLinks={[...(data.teach ?? []), ...(data.study ?? [])].filter(room => !room.archived).map(room => ({ href: `/mis-aulas?aula=${encodeURIComponent(room.id)}`, label: room.name, current: classroomId === room.id }))}
         links={draft ? [{ href: '/mis-aulas', label: 'Mis aulas', current: true }]
           : [{ href: '/inicio', label: 'Inicio', current: !classroomId && presentation === 'home' },
             { href: '/mis-aulas', label: 'Mis aulas', current: presentation === 'classrooms' || Boolean(classroomId) },
@@ -205,6 +211,13 @@ export function ClassroomsApp({
             ...(accountRole === 'teacher' ? [{ href: '/foxy-ai', label: 'Foxy AI' }] : [])]}
         onNavigate={href => {
           if (draft) return;
+          const searchTarget = brujulaSearchDestination(href);
+          if (searchTarget) { openHomeTarget(searchTarget); return; }
+          if (href.startsWith('/mis-aulas?aula=')) {
+            const targetId = new URL(href, window.location.origin).searchParams.get('aula');
+            if (targetId) { if (onEnterClassroom) void action(async () => { await onEnterClassroom(targetId); }); else { setSharedCode(null); setClassroomId(targetId); } }
+            return;
+          }
           if (href === '/profile' || href === '/settings' || (href === '/foxy-ai' && accountRole === 'teacher')) { window.location.assign(href); return; }
           if (href === '/agenda') { if (onNavigate) onNavigate('agenda'); else window.location.assign('/agenda'); return; }
           showPresentation(href === '/inicio' ? 'home' : 'classrooms');
@@ -255,7 +268,7 @@ export function ClassroomsApp({
         ) : presentation === 'home' ? (
           <>
             {error ? <Notice error>{error} <button disabled={busy} onClick={() => setError('')}>Cerrar aviso</button></Notice> : null}
-            <Home accountRole={accountRole} displayName={displayName} subjectId={subjectId} homeClient={homeClient} busy={busy}
+            <Home api={api} accountRole={accountRole} displayName={displayName} subjectId={subjectId} homeClient={homeClient} busy={busy}
               onAction={openHomeTarget} onAgenda={() => { if (onNavigate) onNavigate('agenda'); else window.location.assign('/agenda'); }}
               onCreate={() => void action(async () => { setDraft(await api.call<Draft>('/drafts', 'POST', {})); })}
               onJoin={() => { setJoin(true); setJoinError(''); setPreview(null); }}

@@ -19,7 +19,10 @@ export const materialsQuery = `SELECT m.id, ${baseJson('m.id', 'm.title', target
     AND f.validation_status='APPROVED' AND f.scan_status='CLEAN' AND u.status='COMPLETED'
     AND custody.digest IS NOT NULL AND custody.digest=custody.validated_digest AND custody.digest=custody.scanned_digest`;
 export const classroomsQuery = `SELECT c.id, ${baseJson('c.id', 'c.name', targetJson('classroom', ",'section','plan'"))}
-  || CASE WHEN c.role='teacher' AND c.archived_at IS NULL THEN jsonb_build_object('planProgress',
+  || CASE WHEN c.archived_at IS NULL THEN jsonb_build_object('planProgress',
       (SELECT jsonb_build_object('total',count(*)::int,'taught',count(*) FILTER (WHERE status='TAUGHT')::int)
-       FROM topics WHERE classroom_id=c.id)) ELSE '{}'::jsonb END AS item,
+       FROM topics WHERE classroom_id=c.id), 'nextTopic',
+      (SELECT jsonb_build_object('unitId',u.id,'unitName',u.name,'topicId',t.id,'topicName',t.name)
+       FROM topics t JOIN units u ON u.id=t.unit_id AND u.classroom_id=c.id
+       WHERE t.classroom_id=c.id AND t.status<>'TAUGHT' ORDER BY CASE WHEN t.status='NEXT' THEN 0 ELSE 1 END,u.position,u.id,t.position,t.id LIMIT 1)) ELSE '{}'::jsonb END AS item,
   CASE WHEN c.archived_at IS NULL THEN '0|' ELSE '1|' END || c.name || '|' || c.id::text AS sort_key FROM rooms c`;

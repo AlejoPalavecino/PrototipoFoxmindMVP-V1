@@ -118,7 +118,7 @@ export function createClassroomsHandler(
         return;
       }
       if (
-        (url.search && !(method === 'GET' && (url.pathname === '/classrooms/notifications/page' || /^\/classrooms\/[^/]+\/wall(?:\/[^/]+(?:\/replies)?)?$/.test(url.pathname)))) ||
+        (url.search && !(method === 'GET' && (url.pathname === '/classrooms/search' || url.pathname === '/classrooms/notifications/page' || /^\/classrooms\/[^/]+\/wall(?:\/[^/]+(?:\/replies)?)?$/.test(url.pathname)))) ||
         (!write &&
           (req.headers['transfer-encoding'] ||
             Number(req.headers['content-length'] ?? 0) > 0))
@@ -144,6 +144,7 @@ export function createClassroomsHandler(
       const extraction = await extractionRoute(options.ai, req, path, method, body);
       if (extraction) { json(res, extraction.status, extraction.value); return; }
       if (!path.length && method === 'GET') value = await service.mine(req);
+      else if (path.join('/') === 'search' && method === 'GET') value = await service.search(req, url.searchParams);
       else if (path.join('/') === 'drafts' && method === 'GET')
         value = await service.listDrafts(req);
       else if (path.join('/') === 'drafts' && method === 'POST') {
@@ -185,6 +186,10 @@ export function createClassroomsHandler(
         value = await service.listNotifications(req);
       else if (path.join('/') === 'notifications/page' && method === 'GET')
         value = await service.listNotificationPage(req, notificationQuery(url));
+      else if (path.join('/') === 'notifications/read-all' && method === 'POST') {
+        exact([]);
+        value = await service.readAllNotifications(req);
+      }
       else if (path.length === 3 && path[0] === 'notifications' && ['read', 'open'].includes(path[2]) && method === 'POST') {
         exact([]);
         value = path[2] === 'open' ? await service.openNotification(req, path[1]) : await service.readNotification(req, path[1]);

@@ -10,9 +10,23 @@ import { withP4IntegrationRuntime } from '../scripts/p4-integration-runtime.mjs'
 import { account } from './p4-integration-helpers.mjs';
 import { classroom, openClassroom } from './p6-integration-helpers.mjs';
 import { startBrowserAttempt } from './helpers/browser-admission-step.mjs';
-import { rootOf, inviteExplicitly, createActivity, ok, openActivity, session, rejectUnchanged,
+import { rootOf, inviteExplicitly, createActivity, ok, session, rejectUnchanged,
   request, editorHeaders, academicHash, assertPublishedQuestions } from './p9-journey-helpers.mjs';
 export * from './p9-journey-helpers.mjs';
+
+/** Current responsive classroom navigation uses a native select on small screens. */
+export async function selectClassroomSection(page, key, label) {
+  const mobile = page.getByRole('combobox', { name: 'Sección del aula', exact: true });
+  if (await mobile.isVisible()) await mobile.selectOption(key);
+  else await page.getByRole('button', { name: label, exact: true }).click();
+}
+export async function openActivity(page, origin, room, activity) {
+  await openClassroom(page, origin, room.name ?? `P9 ${activity.type.toLowerCase()} classroom`);
+  await selectClassroomSection(page, 'activities', 'Actividades');
+  await page.getByRole('article', { name: activity.title, exact: true }).getByRole('button',
+    { name: activity.type === 'ASSIGNMENT' ? 'Abrir trabajo práctico' : 'Consultar actividad', exact: true }).click();
+  await page.getByRole('region', { name: activity.type === 'EVALUATION' ? 'Evaluación · sesión reducida' : 'Sesión de actividad', exact: true }).waitFor();
+}
 
 /** A new real account/captured email and owned disposable fixture for each coherent journey. */
 export async function withJourney(label, run, { peer = false, classroomQuotaBytes } = {}) {
@@ -78,7 +92,7 @@ export async function withJourney(label, run, { peer = false, classroomQuotaByte
 export async function openOwnResult(world, activity, attemptId) {
   const { S, room, runtime } = world;
   await openClassroom(S.page, runtime.origin, `P9 ${world.label} classroom`);
-  await S.page.getByRole('button', { name: 'Actividades', exact: true }).click();
+  await selectClassroomSection(S.page, 'activities', 'Actividades');
   await S.page.getByRole('article', { name: activity.title, exact: true }).getByRole('button', { name: 'Ver mis intentos', exact: true }).click();
   const response = S.page.waitForResponse(r => r.url().endsWith(`/${attemptId}/result`) && r.request().method() === 'GET');
   await S.page.getByRole('button', { name: 'Consultar intento 1', exact: true }).click();

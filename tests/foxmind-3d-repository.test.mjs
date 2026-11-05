@@ -78,15 +78,16 @@ test('D9 real PostgreSQL Home projections preserve permission, exact counts, pri
       await assert.rejects(home.page('pending', first.page.nextCursor, f.actor, 'America/Argentina/Buenos_Aires'), denied);
       await assert.rejects(home.page('pending', `${first.page.nextCursor}x`), denied);
     });
-    await check('teacher review groups unpublished attempts, including former students and complete private zero', async (f, home) => {
+    await check('teacher review lists individual unpublished attempts, including former students and complete private zero', async (f, home) => {
       const a = await f.activity('teach'), old = await f.attempt(a), current = await f.attempt(a, { number: 2 });
       await f.grade(a, current, { value: '0' });
       const published = await f.activity('teach'), done = await f.attempt(published); await f.grade(published, done, { published: true });
       await f.query("UPDATE membership_periods SET ended_at=now(),end_reason='LEFT',ended_by_id=$2 WHERE id=$1", f.rooms.teach.period, f.pupil);
       const result = await home.read(f.teacherActor), review = rows(result, 'review');
-      assert.equal(review.length, 1); assert.equal(review[0].target.activityId, a.id);
-      assert.equal(review[0].target.filter, 'unpublished'); assert.equal(review[0].needsReview, 1); assert.equal(review[0].readyToPublish, 1);
-      assert.equal(result.modules.review.totalItems, 1);
+      assert.equal(review.length, 2); assert.ok(review.every(row => row.target.activityId === a.id && row.target.filter === 'unpublished'));
+      assert.deepEqual(new Set(review.map(row => row.target.attemptId)), new Set([old,current]));
+      assert.equal(review.reduce((sum,row)=>sum+row.needsReview,0), 1); assert.equal(review.reduce((sum,row)=>sum+row.readyToPublish,0), 1);
+      assert.equal(result.modules.review.totalItems, 2);
       assert.deepEqual(result.modules.review.totals, { attempts: 2, needsReview: 1, readyToPublish: 1 });
       assert.ok(old);
     });
@@ -141,7 +142,7 @@ test('D9 real PostgreSQL Home projections preserve permission, exact counts, pri
       const result = await home.read();
       assert.deepEqual(rows(await home.read(f.teacherActor), 'queries').map(x => x.target.postId), [query]);
       assert.deepEqual(rows(result, 'materials').map(x => x.target.materialId), [material]);
-      assert.equal((await home.read(f.teacherActor)).modules.queries.totalItems, null); assert.equal(result.modules.materials.totalItems, null);
+      assert.equal((await home.read(f.teacherActor)).modules.queries.totalItems, 1); assert.equal(result.modules.materials.totalItems, null);
       assert.doesNotMatch(JSON.stringify(result), /storageKey|synthetic-home\/|Descripción privada/);
     });
     await check('a real SQL error rolls back its widget savepoint and later modules remain readable', async (f, _home, local) => {

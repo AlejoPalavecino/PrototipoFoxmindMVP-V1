@@ -76,7 +76,7 @@ async function openHome(page, origin) {
   const data = await response.json();
   assert.ok(data.subjectId && data.memberships && data.modules);
   await page.getByRole('region', { name: 'Inicio', exact: true }).waitFor();
-  await page.getByRole('heading', { name: /Hola,.*Files Fixture/ }).waitFor();
+  await page.getByRole('heading', { name: '¡Buen día, Files!', exact: true }).waitFor();
   return data;
 }
 
@@ -111,6 +111,27 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
       const anonymous = await (await browser.newContext()).newPage();
       const suffix = Date.now(), teacherEmail = `p9-home-a-${suffix}@example.test`, peerEmail = `p9-home-b-${suffix}@example.test`, emptyEmail = `p9-home-empty-${suffix}@example.test`;
       const errors = []; page.on('pageerror', error => errors.push(error.message));
+      const admissionStarted = Date.now(), admissionCounts = new Map(), admissionLimited = [], admissionPending = new Set();
+      for (const [label, current] of [['main', page], ['peer', peer], ['other-teacher', otherTeacher], ['empty', empty], ['anonymous', anonymous]]) {
+        current.on('request', request => {
+          const path = new URL(request.url()).pathname;
+          if (!path.startsWith('/api/v1/')) return;
+          const key = `${label} ${request.method()} ${path}`;
+          admissionCounts.set(key, (admissionCounts.get(key) ?? 0) + 1);
+        });
+        current.on('response', response => {
+          const path = new URL(response.url()).pathname;
+          if (!path.startsWith('/api/v1/') || response.status() !== 429) return;
+          const limited = { label, method: response.request().method(), path, status: 429,
+            retryAfter: response.headers()['retry-after'] ?? null, elapsedMs: Date.now() - admissionStarted };
+          admissionLimited.push(limited);
+          const pending = response.json().then(body => { limited.code = body.error?.code ?? body.code ?? null; })
+            .catch(() => { limited.code = 'UNREADABLE_ERROR_BODY'; });
+          admissionPending.add(pending); void pending.finally(() => admissionPending.delete(pending));
+        });
+      }
+      const admissionSnapshot = () => ({ limited: admissionLimited,
+        counts: [...admissionCounts].sort(([left], [right]) => left.localeCompare(right)).map(([request, count]) => ({ request, count })) });
       const pendingHomeReads = new Set();
       let documentGeneration = 0;
       const readEvidence = new Map();
@@ -144,8 +165,10 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
             const alerts = await homeAlertOwners(current).catch(failure => [{ captureError: failure.message }]);
             diagnostics.push({ label, path: new URL(current.url()).pathname, alerts });
           }
-          console.error('P9 Home alert ownership', JSON.stringify({ name, diagnostics }));
-          await writeFile(join(artifacts, 'failure-alert-ownership.json'), JSON.stringify({ name, diagnostics }, null, 2))
+          await Promise.all([...admissionPending]);
+          const admission = admissionSnapshot();
+          console.error('P9 Home alert ownership', JSON.stringify({ name, diagnostics, admission }));
+          await writeFile(join(artifacts, 'failure-alert-ownership.json'), JSON.stringify({ name, diagnostics, admission }, null, 2))
             .catch(failure => console.error('P9 Home diagnostic artifact unavailable', failure.message));
           throw error;
         }
@@ -155,11 +178,11 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
       await check('signed-out and unverified Home gates keep the exact explicit destination', async () => {
         await anonymous.goto(`${runtime.origin}/inicio`);
         await anonymous.waitForURL(url => url.pathname === '/sign-in' && url.searchParams.get('next') === '/inicio');
-        assert.equal(await anonymous.getByRole('region', { name: 'Tus aulas', exact: true }).count(), 0);
+        assert.equal(await anonymous.getByRole('region', { name: /^(Aula en foco|Accesos de mi aula|Acciones del aula)$/ }).count(), 0);
         await account(page, runtime.origin, runtime.inbox, teacherEmail, async () => {
           await page.goto(`${runtime.origin}/inicio`);
           await page.waitForURL(url => url.pathname === '/verify-email' && url.searchParams.get('next') === '/inicio');
-          assert.equal(await page.getByRole('region', { name: 'Tus aulas', exact: true }).count(), 0);
+          assert.equal(await page.getByRole('region', { name: /^(Aula en foco|Accesos de mi aula|Acciones del aula)$/ }).count(), 0);
         }, 'teacher');
         await page.getByRole('link', { name: 'Ir a Inicio', exact: true }).click();
         await page.waitForURL('**/inicio');
@@ -178,7 +201,7 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
         try {
           await empty.goto(`${runtime.origin}/inicio`);
           await empty.getByText('Cargando tus actividades y próximos pasos…', { exact: true }).waitFor();
-          assert.equal(await empty.getByRole('region', { name: 'Tus aulas', exact: true }).count(), 0);
+          assert.equal(await empty.getByRole('region', { name: /^(Aula en foco|Accesos de mi aula|Acciones del aula)$/ }).count(), 0);
         } finally { release(); }
         const response = await pending; assert.equal(response.status(), 200);
         const data = await response.json(); assert.equal(data.memberships.study, 0); assert.equal(data.memberships.teach, 0);
@@ -213,7 +236,7 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
         assert.deepEqual((await api(empty, 'GET', '/classrooms')).body, { teach: [], study: [] });
       });
 
-      await check('Inicio has exact Enseño/Estudio cards, preserves scoped permissions and global navigation', async () => {
+      await check('Inicio preserves role-scoped classroom context, permitted entry and global navigation', async () => {
         const home = await openHome(page, runtime.origin);
         assert.equal(home.memberships.teach, 1); assert.equal(home.memberships.study, 0);
         const studentHome = await openHome(peer, runtime.origin);
@@ -224,22 +247,44 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
         const classrooms = home.modules.classrooms.items;
         assert.ok(classrooms.some(item => item.classroom.id === roomA.id && item.classroom.role === 'teacher'));
         assert.ok(studentHome.modules.classrooms.items.some(item => item.classroom.id === roomB.id && item.classroom.role === 'student'));
-        const region = page.getByRole('region', { name: 'Avance del plan por aula', exact: true });
+        const region = page.getByRole('region', { name: 'Aula en foco', exact: true });
         const teach = region.getByRole('listitem').filter({ has: page.getByRole('heading', { name: 'P9 Teaching A', exact: true }) });
-        const study = peer.getByRole('region', { name: 'Tus aulas', exact: true }).getByRole('listitem').filter({ has: peer.getByRole('heading', { name: 'P9 Studying B', exact: true }) });
-        await teach.getByText('Enseño', { exact: true }).waitFor(); await study.getByText('Estudio', { exact: true }).waitFor();
+        const study = peer.getByRole('region', { name: 'Accesos de mi aula', exact: true });
+        const changeClassroom = study.getByRole('button', { name: 'Cambiar aula', exact: true });
+        if (await changeClassroom.isVisible()) {
+          await changeClassroom.click();
+          await peer.getByRole('dialog', { name: 'Elegí un aula', exact: true }).getByRole('button')
+            .filter({ has: peer.getByText('P9 Studying B', { exact: true }) }).click();
+        }
+        assert.ok(classrooms.every(item => item.classroom.role === 'teacher'), 'Teacher aggregate never includes a foreign student scope');
+        assert.ok(studentHome.modules.classrooms.items.every(item => item.classroom.role === 'student'), 'Student aggregate never includes teacher scope');
+        const activeTeacher = classrooms.filter(item => !item.classroom.archived);
+        assert.deepEqual(activeTeacher.map(item => item.classroom.id), [roomA.id], 'Only the owned active classroom is eligible for teacher focus');
+        await teach.getByRole('heading', { name: 'P9 Teaching A', exact: true }).waitFor();
+        assert.equal(await region.getByRole('listitem').count(), 1, 'The approved teacher rail exposes one focused classroom');
+        assert.equal(await region.getByRole('heading', { name: 'P9 Studying B', exact: true }).count(), 0, 'Foreign classroom is absent from teacher focus');
+        assert.equal(await region.getByText(/Archivada/).count(), 0, 'Archived history is outside the active focus');
+        await study.getByText('P9 Studying B · A', { exact: true }).waitFor();
         assert.equal(await page.getByRole('switch').count(), 0);
         const detail = peer.waitForResponse(response => new URL(response.url()).pathname === `/api/v1/classrooms/${roomB.id}`);
-        await study.getByRole('button', { name: 'Entrar al aula: P9 Studying B', exact: true }).click(); assert.equal((await detail).status(), 200);
+        await study.getByRole('button', { name: 'Plan de estudio', exact: true }).click(); assert.equal((await detail).status(), 200);
         await peer.getByRole('button', { name: 'Compañeros', exact: true }).waitFor();
         assert.equal(await peer.getByRole('button', { name: 'Configuración', exact: true }).count(), 0);
-        await openHome(page, runtime.origin);
+        const freshTeaching = await openHome(page, runtime.origin);
+        const focused = freshTeaching.modules.classrooms.items.find(item => item.classroom.id === roomA.id);
+        assert.ok(focused?.nextTopic?.topicId, 'The active fixture classroom has an authorized next topic');
+        const nextTopic = focused.nextTopic;
         const teachingDetail = page.waitForResponse(response => new URL(response.url()).pathname === `/api/v1/classrooms/${roomA.id}`);
-        await region.getByRole('button', { name: 'Entrar al aula: P9 Teaching A', exact: true }).click();
-        assert.equal((await teachingDetail).status(), 200);
+        await region.getByRole('button', { name: 'Abrir tema: P9 Teaching A', exact: true }).click();
+        const teachingResponse = await teachingDetail; assert.equal(teachingResponse.status(), 200);
+        const teachingRoom = await teachingResponse.json();
+        assert.equal(teachingRoom.id, roomA.id);
+        assert.ok(teachingRoom.units.some(unit => unit.id === nextTopic.unitId && unit.topics.some(topic => topic.id === nextTopic.topicId)), 'Next topic belongs to the freshly authorized classroom detail');
+        await page.getByRole('region', { name: 'Tema seleccionado', exact: true }).getByRole('heading', { name: nextTopic.topicName, exact: true }).waitFor();
+        assert.equal(await page.locator('select[aria-label="Tema del plan"]').inputValue(), nextTopic.topicId, 'Navigation preserves the exact topic identifier');
         await page.getByRole('button', { name: 'Configuración', exact: true }).waitFor();
         await (await navigationLink(page, 'Mis aulas')).click(); await page.waitForURL('**/mis-aulas');
-        await page.getByRole('heading', { name: 'Tus clases, bien organizadas.', exact: true }).waitFor();
+        await page.getByRole('heading', { name: 'Mis aulas', exact: true }).waitFor();
         await (await profileAction(page)).click(); await page.waitForURL('**/profile');
         await (await navigationLink(page, 'Inicio')).click();
         await page.waitForURL('**/inicio');
@@ -266,7 +311,7 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
         assert.ok(flags.body.find(item => item.id === notification.id).readAt);
       });
 
-      await check('PostgreSQL scopes teaching progress and unanswered wall queries to the teacher', async () => {
+      await check('PostgreSQL exposes public curriculum progress while unanswered queries remain teacher-only', async () => {
         const path = `/classrooms/${roomA.id}`;
         const detail = await api(page, 'GET', path);
         assert.equal(detail.status, 200);
@@ -291,27 +336,53 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
         const teacherHome = await openHome(page, runtime.origin);
         assert.deepEqual(teacherHome.modules.classrooms.items.find(item => item.id === roomA.id).planProgress, { taught: 1, total: 2 });
         assert.ok(teacherHome.modules.queries.items.some(item => item.id === post.id));
+        assert.equal(teacherHome.modules.queries.totalItems, 1, 'Unanswered query counter is the actual authorized total');
+        assert.equal(teacherHome.modules.materials.totalItems, null, 'Recent materials keep their unknown total contract');
+        await page.setViewportSize({ width: 1280, height: 900 });
+        await page.evaluate(async () => {
+          await document.fonts.ready;
+          await Promise.all([...document.images].filter(image => image.getClientRects().length).map(image => image.decode()));
+        });
+        const populatedQueries = page.getByRole('group', { name: 'Filtrar pendientes', exact: true }).getByRole('button', { name: /^Consultas/ });
+        assert.match(await populatedQueries.innerText(), /Consultas\s*1$/, 'The populated screenshot must include the actual query counter');
+        await page.screenshot({ path: join(artifacts, 'inicio-teacher-populated-1280.png'), fullPage: true });
         await page.getByRole('progressbar', { name: 'Avance del plan de P9 Teaching A' }).waitFor();
         const queryWidget = page.getByRole('region', { name: 'Consultas sin responder' });
+        await page.getByRole('button', { name: /^Consultas(?:\s+\d+)?$/ }).click();
         await queryWidget.getByText(question, { exact: true }).waitFor();
         await queryWidget.getByRole('button', { name: `Abrir consulta: ${question}` }).click();
         await page.getByText(question, { exact: true }).waitFor();
         const learnerHome = await openHome(peer, runtime.origin);
-        assert.ok(learnerHome.modules.classrooms.items.every(item => !('planProgress' in item)));
+        const learnerRooms = learnerHome.modules.classrooms.items;
+        assert.deepEqual(learnerRooms.find(item => item.classroom.id === roomA.id).planProgress, { taught: 1, total: 2 }, 'Plan progress is public curriculum metadata for current students');
+        assert.deepEqual(learnerRooms.find(item => item.classroom.id === roomB.id).planProgress, { taught: 0, total: 2 });
+        for (const item of learnerRooms) for (const privateField of ['finalGrade', 'grade', 'overallFeedback', 'rubricMarks', 'aiGradingRubric']) {
+          assert.equal(Object.hasOwn(item, privateField), false, `Classroom metadata must not contain private grading field ${privateField}`);
+        }
         assert.equal(learnerHome.modules.queries.status, 'not-applicable');
         assert.equal(await peer.getByRole('progressbar').count(), 0);
         await change(page, { action: 'reply', postId: post.id, body: 'Repasemos con el plan.' });
         const answered = await openHome(page, runtime.origin);
         assert.equal(answered.modules.queries.status, 'ready');
         assert.ok(!answered.modules.queries.items.some(item => item.id === post.id));
+        assert.equal(answered.modules.queries.totalItems, 0);
+        await page.getByRole('button', { name: /^Consultas(?:\s+\d+)?$/ }).click();
         await queryWidget.getByText('No hay consultas por responder en tus aulas activas.').waitFor();
         const reply = (await wall(page)).posts.find(item => item.id === post.id).replies.find(item => item.body === 'Repasemos con el plan.');
         await change(page, { action: 'removeReply', id: reply.id, confirm: true });
         const reopened = await openHome(page, runtime.origin);
         assert.ok(reopened.modules.queries.items.some(item => item.id === post.id));
+        assert.equal(reopened.modules.queries.totalItems, 1);
       });
 
       await check('archive indicators and removal reflect current membership without restoring cached notification access', async () => {
+        // Four real accounts share one IP budget. Do not compress their prior block
+        // and the archive/re-admission block into the same real 60-second window.
+        await drainHomeReads();
+        const pacingStarted = Date.now();
+        console.log(`P9 fixture archive boundary: prior elapsed=${pacingStarted - admissionStarted}ms; waiting one real60_001ms admission window`);
+        await delay(60_001);
+        console.log(`P9 fixture archive boundary resumed after ${Date.now() - pacingStarted}ms; ${JSON.stringify(admissionSnapshot())}`);
         const detail = await api(page, 'GET', `/classrooms/${roomA.id}`); assert.equal(detail.status, 200);
         assert.equal((await api(page, 'POST', `/classrooms/${roomA.id}/archive`, { revision: detail.body.revision, archived: true })).status, 200);
         const archivedTeacher = await openHome(page, runtime.origin);
@@ -323,9 +394,28 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
         assert.equal(archivedHome.memberships.study, 0);
         assert.equal(archivedHome.modules.classrooms.status, 'ready');
         assert.ok(!archivedHome.modules.classrooms.items.some(item => item.classroom.id === roomB.id));
-        const archived = peer.getByRole('region', { name: 'Tus aulas', exact: true }).getByRole('listitem')
+        const collectionSession = peer.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/auth/session' && response.request().method() === 'GET');
+        await (await navigationLink(peer, 'Mis aulas')).click(); await peer.waitForURL('**/mis-aulas');
+        let admittedSession = await collectionSession;
+        if (admittedSession.status() === 429) {
+          assert.equal((await admittedSession.json()).error.code, 'RATE_LIMITED');
+          const retryAfter = admittedSession.headers()['retry-after'];
+          assert.match(retryAfter ?? '', /^\d+$/, 'Session admission requires the actual integer Retry-After');
+          const seconds = Number(retryAfter);
+          assert.ok(Number.isSafeInteger(seconds) && seconds >= 1 && seconds <= 60, 'Session admission cooldown must be bounded to1..60seconds');
+          console.log(`P9 archive navigation respects actual session Retry-After=${seconds}s; one visible retry`);
+          await delay(seconds * 1000);
+          const retriedSession = peer.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/auth/session' && response.request().method() === 'GET');
+          await peer.getByRole('alert').filter({ hasText: 'Se alcanzó el límite de intentos.' })
+            .getByRole('button', { name: 'Volver a intentar', exact: true }).click();
+          admittedSession = await retriedSession;
+        }
+        assert.equal(admittedSession.status(), 200, `Archive collection requires an admitted session before its controls can mount: ${JSON.stringify({ path: new URL(admittedSession.url()).pathname, retryAfter: admittedSession.headers()['retry-after'] ?? null, admission: admissionSnapshot() })}`);
+        await peer.getByRole('heading', { name: 'Mis aulas', exact: true }).waitFor();
+        await peer.getByRole('button', { name: /^Archivadas/ }).click();
+        const archived = peer.getByRole('article')
           .filter({ has: peer.getByRole('heading', { name: 'P9 Teaching A', exact: true }) });
-        await archived.getByText('Archivada · Solo lectura', { exact: false }).waitFor();
+        await archived.getByText(/Archivada/).waitFor();
         await rejectSame(runtime.db, () => api(peer, 'POST', `/classrooms/notifications/${notification.id}/open`, {}), 403);
         const invited = await api(otherTeacher, 'POST', `/classrooms/${roomB.id}/invitations`, { email: peerEmail }); assert.equal(invited.status, 200);
         const link = await capturedInvitation(runtime.inbox, peerEmail, invited.body.id);
@@ -336,7 +426,7 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
         const accepted = peer.waitForResponse(response => new URL(response.url()).pathname === `/api/v1/classrooms/invitations/${invited.body.id}/accept`);
         await selected.getByRole('button', { name: 'Aceptar invitación', exact: true }).click(); assert.equal((await accepted).status(), 200);
         await openHome(peer, runtime.origin);
-        await peer.getByRole('region', { name: 'Tus aulas', exact: true }).getByRole('heading', { name: 'P9 Studying B', exact: true }).waitFor();
+        await peer.getByRole('region', { name: 'Accesos de mi aula', exact: true }).getByText('P9 Studying B · A', { exact: true }).waitFor();
       });
 
       await check('real offline failure conceals old cards and visible manual retry restores fresh successful lists', async () => {
@@ -344,7 +434,7 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
         await peerContext.setOffline(true);
         await refreshHomeByFocus(peer);
         await peer.getByRole('button', { name: 'Reintentar Inicio', exact: true }).waitFor();
-        assert.equal(await peer.getByRole('region', { name: 'Tus aulas', exact: true }).count(), 0, 'Failed refresh must not present stale classroom cards as current');
+        assert.equal(await peer.getByRole('region', { name: /^(Aula en foco|Accesos de mi aula|Acciones del aula)$/ }).count(), 0, 'Failed refresh must not present stale classroom cards as current');
         await peer.getByRole('button', { name: /^Notificaciones/ }).click();
         const dialog = peer.getByRole('dialog', { name: 'Notificaciones', exact: true });
         await dialog.getByRole('alert').waitFor();
@@ -361,7 +451,7 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
           const homeResponse = peer.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/home' && response.request().method() === 'GET');
           await peer.getByRole('button', { name: 'Reintentar Inicio', exact: true }).click();
           assert.equal((await homeResponse).status(), 200);
-          await peer.getByRole('region', { name: 'Tus aulas', exact: true }).waitFor();
+          await peer.getByRole('region', { name: /^(Aula en foco|Accesos de mi aula|Acciones del aula)$/ }).waitFor();
           assert.equal(notificationRequests.length, 0, 'Home retry does not fetch independently owned notifications');
         } finally { peer.off('request', captureNotification); }
         const reopened = peer.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/classrooms/notifications/page' && response.request().method() === 'GET');
@@ -392,16 +482,46 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
         for (const [role, current] of [['teacher', page], ['student', peer]]) for (const width of [320, 375, 1280]) {
           await current.setViewportSize({ width, height: 900 });
           await current.locator('.fm-home-panorama').evaluate(image => image.decode());
-          const geometry = await current.evaluate(() => {
+          if (role === 'teacher') await current.locator('.fm-home-module--classrooms > .fm-home-empty').waitFor();
+          const geometry = await current.evaluate(async () => {
+            await document.fonts.ready;
             const hero = document.querySelector('.fm-home-greeting').getBoundingClientRect();
-            const image = document.querySelector('.fm-home-panorama').getBoundingClientRect();
-            const glass = document.querySelector('.fm-home-glass').getBoundingClientRect();
+            const image = document.querySelector('.fm-brujula-foxy').getBoundingClientRect();
+            const panel = document.querySelector('.fm-home-glass'), glass = panel.getBoundingClientRect();
+            const focused = document.querySelector('.fm-home-module--classrooms'), focusedHeader = focused?.querySelector(':scope > header'), focusedEmpty = focused?.querySelector(':scope > .fm-home-empty');
+            const headerBox = focusedHeader?.getBoundingClientRect(), emptyBox = focusedEmpty?.getBoundingClientRect();
+            const rect = value => ({ left: value.left, right: value.right, top: value.top, bottom: value.bottom, width: value.width, height: value.height });
+            const textRects = [];
+            for (const element of panel.querySelectorAll('time,h1,p')) {
+              const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+              let node;
+              while ((node = walker.nextNode())) {
+                const value = node.textContent ?? '', start = value.search(/\S/);
+                if (start < 0) continue;
+                const style = getComputedStyle(node.parentElement);
+                if (style.display === 'none' || style.visibility !== 'visible') continue;
+                const range = document.createRange();
+                range.setStart(node, start); range.setEnd(node, value.search(/\s*$/));
+                for (const box of range.getClientRects()) if (box.width > 0 && box.height > 0) {
+                  textRects.push({ element: element.tagName, ...rect(box) });
+                }
+              }
+            }
             return { overflow: document.documentElement.scrollWidth > innerWidth,
-              foxInside: image.left + image.width * .635 >= hero.left && image.left + image.width * .89 <= hero.right,
-              textClear: glass.right <= image.left + image.width * .635,
-              glassInside: glass.top >= hero.top && glass.bottom <= hero.bottom };
+              foxInside: image.left >= hero.left && image.right <= hero.right,
+              textClear: textRects.length > 0 && textRects.every(box => box.right <= image.left || box.left >= image.right || box.bottom <= image.top || box.top >= image.bottom),
+              glassInside: glass.top >= hero.top && glass.bottom <= hero.bottom,
+              emptyFocusClear: !emptyBox || !!headerBox && (headerBox.right <= emptyBox.left || headerBox.left >= emptyBox.right || headerBox.bottom <= emptyBox.top || headerBox.top >= emptyBox.bottom),
+              rects: { hero: rect(hero), image: rect(image), glass: rect(glass), text: textRects,
+                focusedHeader: headerBox ? rect(headerBox) : null, focusedEmpty: emptyBox ? rect(emptyBox) : null } };
           });
-          assert.deepEqual(geometry, { overflow: false, foxInside: true, textClear: true, glassInside: true }, `${role}/${width}`);
+          const { rects, ...geometryChecks } = geometry;
+          if (geometryChecks.overflow || !geometryChecks.foxInside || !geometryChecks.textClear || !geometryChecks.glassInside || !geometryChecks.emptyFocusClear) {
+            console.error('P9 Home geometry failure', JSON.stringify({ role, width, ...geometry }));
+            await current.screenshot({ path: join(artifacts, `inicio-geometry-failure-${role}-${width}.png`), fullPage: true })
+              .catch(error => console.error('P9 Home geometry screenshot unavailable', error.message));
+          }
+          assert.deepEqual(geometryChecks, { overflow: false, foxInside: true, textClear: true, glassInside: true, emptyFocusClear: true }, `${role}/${width}: ${JSON.stringify(rects)}`);
           assert.equal(await current.getByRole('button', { name: 'Actualizar Inicio', exact: true }).count(), 0);
           assert.equal(await current.locator('.fm-home-resources,.fm3d-shell-location,.fm3d-shell-avatar').count(), 0);
           const homeButton = await navigationLink(current, 'Inicio');
@@ -475,7 +595,9 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
           await completedListBodies(settled);
         } else await completedListBodies(responses);
         await page.getByRole('button', { name: /Only my private draft/ }).click();
-        await page.getByText('Datos generales', { exact: true }).first().waitFor();
+        const draftWizard = page.getByRole('dialog', { name: 'Crear aula', exact: true });
+        await draftWizard.getByRole('textbox', { name: 'Nombre del aula', exact: true }).waitFor();
+        assert.equal(await draftWizard.getByRole('textbox', { name: 'Nombre del aula', exact: true }).inputValue(), 'Only my private draft');
         assert.equal(await (await navigationLink(page, 'Inicio')).count(), 0);
         assert.equal(await page.getByRole('link', { name: 'Mi perfil', exact: true }).count(), 0);
       });
@@ -490,14 +612,14 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
         await anonymous.getByLabel('Correo electrónico', { exact: true }).fill(teacherEmail);
         await anonymous.getByLabel('Contraseña', { exact: true }).fill(password);
         await anonymous.getByRole('button', { name: 'Iniciar sesión', exact: true }).click(); await anonymous.waitForURL('**/inicio');
-        await anonymous.getByRole('region', { name: 'Tus aulas', exact: true }).waitFor();
+        await anonymous.getByRole('region', { name: 'Aula en foco', exact: true }).waitFor();
         assert.equal((await api(anonymous, 'POST', '/auth/logout')).status, 204, 'Logout clears the real session and returns the accepted no-content contract');
         const rejectedHome = anonymous.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/home' && response.request().method() === 'GET');
         await refreshHomeByFocus(anonymous);
         const rejectedResponse = await rejectedHome;
         assert.equal(rejectedResponse.status(), 401); assert.equal((await rejectedResponse.json()).error.code, 'AUTH_REQUIRED');
         await anonymous.waitForURL(url => url.pathname === '/sign-in' && url.searchParams.get('next') === '/inicio');
-        assert.equal(await anonymous.getByRole('region', { name: 'Tus aulas', exact: true }).count(), 0);
+        assert.equal(await anonymous.getByRole('region', { name: /^(Aula en foco|Accesos de mi aula|Acciones del aula)$/ }).count(), 0);
       });
 
       await check('verified account navigation stays reachable without overflow at320/375/1280', async () => {

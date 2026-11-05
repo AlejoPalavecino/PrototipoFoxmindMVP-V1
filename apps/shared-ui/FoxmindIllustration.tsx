@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { illustrationCatalog, type IllustrationKey } from './raster-catalog';
+import { brujulaCovers } from './brujula-assets';
 
 export interface FoxmindIllustrationProps {
   name: IllustrationKey;
@@ -16,9 +17,10 @@ export function FoxmindIllustration({ name, className = '', priority = false,
   const [width, height, src] = asset.variants[2];
   const [failedSource, setFailedSource] = useState<string>();
   const kind = name.split('/')[0];
+  const brujula = kind === 'covers' ? brujulaCovers[name.split('/')[1]] : undefined;
   return <span className={`fm3d-illustration fm3d-illustration--${kind} ${className}`}
     aria-hidden="true" style={{ aspectRatio: `${width} / ${height}` }}>
-    <img src={src} srcSet={asset.variants.map(([w, , url]) => `${url} ${w}w`).join(', ')}
+    <img src={brujula ?? src} srcSet={brujula ? undefined : asset.variants.map(([w, , url]) => `${url} ${w}w`).join(', ')}
       sizes={sizes} width={width} height={height} alt="" decoding={priority ? 'sync' : 'async'}
       loading={priority ? 'eager' : 'lazy'} fetchPriority={priority ? 'high' : 'low'}
       style={{ objectPosition: asset.position, visibility: failedSource === src ? 'hidden' : undefined }}

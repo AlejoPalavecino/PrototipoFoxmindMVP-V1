@@ -47,8 +47,8 @@ test('D3 collection shows active rooms in stable order and replaces role control
     const active = () => buttons().find(node => /^Activas/.test(text(node)));
     const old = () => buttons().find(node => /^Archivadas/.test(text(node)));
     assert.equal(active().props['aria-pressed'], true);
-    assert.equal(text(active()), 'Activas · 2');
-    assert.equal(text(old()), 'Archivadas · 1');
+    assert.equal(text(active()), 'Activas 2');
+    assert.equal(text(old()), 'Archivadas 1');
     assert.equal(buttons().some(node => /Todas|Donde enseño|Donde estudio/.test(text(node))), false, 'obsolete role controls are absent from JSX');
     const cards = () => descendants(view.tree, node => node.type?.name === 'ClassroomCard').map(node => node.props.room.id);
     assert.deepEqual(cards(), ['study', 'teach']);
@@ -63,6 +63,6 @@ test('D3 a search with no matches never claims the account has no memberships', 
   try {
     await view.flush(); assert.match(text(view.tree), /No hay coincidencias/i);
     assert.doesNotMatch(text(view.tree), /Aún no tenés aulas/i);
-    assert.equal(text(descendants(view.tree, node => node.type === 'button').find(node => /^Activas/.test(text(node)))), 'Activas · 1');
+    assert.equal(text(descendants(view.tree, node => node.type === 'button').find(node => /^Activas/.test(text(node)))), 'Activas 1');
   } finally { view.close(); }
 });

@@ -25,7 +25,7 @@ export function ActivityGenerationForm({ room, value, update, sources, disabled,
       {Object.entries(activityTypeLabels).map(([id, label]) => <option key={id} value={id}>{label}</option>)}</select></label>
       </div>
     <ActivityAssignment room={room} value={{ unitId: value.unitId, topicIds: value.topicIds }} update={patch} />
-    <label>Objetivo<textarea required maxLength={1000} rows={3} placeholder="Por ejemplo: comparar fracciones en situaciones cotidianas" value={value.objective} onChange={e => patch({ objective: e.target.value })} /></label>
+    <label>Objetivo de aprendizaje<textarea required maxLength={1000} rows={3} placeholder="¿Qué querés que puedan hacer al terminar?" value={value.objective} onChange={e => patch({ objective: e.target.value })} /></label>
     </fieldset>
     <fieldset data-generation-step={1} hidden={inactive(1)} disabled={disabled || inactive(1)}><legend>Material y nivel</legend>
     <div className="p5-fields"><label>Nivel del grupo<input maxLength={200} value={value.groupLevel} onChange={e => patch({ groupLevel: e.target.value })} /></label>

@@ -11,10 +11,12 @@ const valid = {
   planFileId: '11111111-1111-4111-8111-111111111111',
   units: [{ name: 'Luz', topics: [{ name: 'Exposición' }] }],
 };
-test('publication requires all fields, safe identifiers and nonempty curriculum', async () => {
+test('publication requires classroom fields and nonempty curriculum while a chosen file remains validated', async () => {
   const { draftPayload } = await policy();
   assert.deepEqual(draftPayload(valid, true), valid);
-  for (const key of Object.keys(valid))
+  const manual = { ...valid }; delete manual.planFileId;
+  assert.deepEqual(draftPayload(manual, true), manual, 'An explicit valid written plan does not require an invented file');
+  for (const key of Object.keys(valid).filter(key => key !== 'planFileId'))
     assert.throws(() => draftPayload({ ...valid, [key]: undefined }, true));
   for (const change of [
     { name: ' ' },

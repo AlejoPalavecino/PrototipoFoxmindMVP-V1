@@ -25,28 +25,30 @@ export function AdvancedFilters({ all, options, onOptions }: Pick<CollectionFilt
   </div>;
 }
 export function ClassroomCollectionFilters(props: CollectionFiltersProps) {
-  const { all, search, onSearch, options, onOptions, expanded, onToggle, view, onView, toggleRef, onClear } = props;
+  const { all, search, onSearch, options, onOptions, view, onView, onClear } = props;
   const active = activeCollectionFilters(options);
   return <>
-    <div className="collection-workspace-heading"><h2>Tus aulas</h2>
-      <nav className="collection-workspace-states" aria-label="Estado de las aulas">
+    <div className="collection-workspace-heading">
+      <nav className="cl-bucket" aria-label="Estado de las aulas">
         {(['active', 'archived'] as const).map(state => <button type="button" key={state} aria-pressed={options.state === state}
-          onClick={() => onOptions({ ...options, state })}>{state === 'active' ? 'Activas' : 'Archivadas'} · {all.filter(room => room.archived === (state === 'archived')).length}</button>)}
+          className={options.state === state ? 'selected' : undefined} onClick={() => onOptions({ ...options, state })}>{state === 'active' ? 'Activas' : 'Archivadas'} <span>{all.filter(room => room.archived === (state === 'archived')).length}</span></button>)}
       </nav>
     </div>
-    <div className="fm3-collection-toolbar">
-      <label className="fm3-collection-search"><span className="entry-sr-only">Buscar aula</span>
+    <div className="cl-filter-bar">
+      <label className="cl-search"><span className="entry-sr-only">Buscar aula</span>
         <FoxmindIcon name="search" /><input type="search" placeholder="Buscar por nombre, materia o docente…" value={search} onChange={event => onSearch?.(event.target.value)} />
       </label>
-      <button type="button" ref={toggleRef} className="collection-more-filters" aria-expanded={expanded} aria-controls="collection-advanced-filters" onClick={onToggle}>
-        <FoxmindIcon name="filter" />Más filtros{active ? ` · ${active}` : ''}<FoxmindIcon name="chevron-down" />
-      </button>
-      <div className="collection-view-switch" role="group" aria-label="Presentación de aulas">
-        <button type="button" aria-label="Vista de tarjetas" aria-pressed={view === 'grid'} onClick={() => onView('grid')}><EntryIcon name="grid" /></button>
-        <button type="button" aria-label="Vista de lista" aria-pressed={view === 'list'} onClick={() => onView('list')}><EntryIcon name="list" /></button>
+      <select aria-label="Ciclo lectivo" value={options.academicYear ?? ''} onChange={event => onOptions({ ...options, academicYear: event.target.value })}>
+        <option value="">Todos los ciclos</option>{[...new Set(all.map(room => room.academicYear))].sort((a,b) => b-a).map(year => <option key={year} value={year}>{year}</option>)}
+      </select>
+      <select aria-label="División" value={options.division ?? ''} onChange={event => onOptions({ ...options, division: event.target.value })}>
+        <option value="">Todas las divisiones</option>{[...new Set(all.map(room => room.division))].sort((a,b) => a.localeCompare(b,'es')).map(division => <option key={division} value={division}>{division}</option>)}
+      </select>
+      <div className="cl-view" role="group" aria-label="Presentación de aulas">
+        <button type="button" className={view === 'grid' ? 'selected' : undefined} aria-label="Vista de tarjetas" aria-pressed={view === 'grid'} onClick={() => onView('grid')}><EntryIcon name="grid" /></button>
+        <button type="button" className={view === 'list' ? 'selected' : undefined} aria-label="Vista de lista" aria-pressed={view === 'list'} onClick={() => onView('list')}><EntryIcon name="list" /></button>
       </div>
     </div>
-    {expanded ? <AdvancedFilters all={all} options={options} onOptions={onOptions} /> : null}
     {search.trim() || active ? <div className="collection-workspace-chips" aria-label="Criterios aplicados">
       {search.trim() && onSearch ? <button type="button" aria-label={`Quitar búsqueda ${search}`} onClick={() => onSearch('')}>Búsqueda: {search} ×</button> : null}
       {options.academicYear ? <button type="button" aria-label={`Quitar ciclo lectivo ${options.academicYear}`} onClick={() => onOptions({ ...options, academicYear: '' })}>Ciclo: {options.academicYear} ×</button> : null}

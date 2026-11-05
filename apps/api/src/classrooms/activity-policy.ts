@@ -1,5 +1,6 @@
 import { fail, object, text, uuid } from './policy.ts';
 import { activityTopics } from './activity-topics.ts';
+import { parseEvaluationRubric, type EvaluationRubric } from '../../../../src/core/domain/evaluation-rubric.ts';
 
 export type ActivityType = 'ASSIGNMENT' | 'QUESTIONNAIRE' | 'EVALUATION';
 export interface AuthoringQuestion {
@@ -8,9 +9,10 @@ export interface AuthoringQuestion {
   options: { text: string; correct: boolean }[];
 }
 export interface ActivityPayload {
+  objective?: string | null; teacherComment?: string | null;
   title: string | null; unitId: string | null; topicId: string | null; topicIds: string[]; instructions: string | null;
   attachmentRequired: boolean; instructionFileIds: string[]; materialIds: string[];
-  questions: AuthoringQuestion[]; deadline: unknown; allowLate: boolean; aiGradingRubric?: string;
+  questions: AuthoringQuestion[]; deadline: unknown; allowLate: boolean; aiGradingRubric?: string; evaluationRubric?: EvaluationRubric;
 }
 export function activityType(value: unknown): ActivityType {
   if (typeof value !== 'string' || !['ASSIGNMENT', 'QUESTIONNAIRE', 'EVALUATION'].includes(value)) return fail('INVALID_INPUT');
@@ -49,9 +51,11 @@ export function authoringQuestion(input: unknown): AuthoringQuestion {
 }
 export function activityPayload(input: unknown, type: ActivityType, published: boolean): ActivityPayload {
   const keys = ['title', 'unitId', 'instructions', 'attachmentRequired', 'instructionFileIds', 'materialIds', 'questions', 'deadline', 'allowLate'];
-  const p = object(input, [...keys, 'topicId', 'topicIds', 'aiGradingRubric']);
+  const p = object(input, [...keys, 'topicId', 'topicIds', 'aiGradingRubric', 'evaluationRubric', 'objective', 'teacherComment']);
   if (keys.some(key => !Object.hasOwn(p, key))) return fail('INVALID_INPUT');
   const aiGradingRubric = Object.hasOwn(p, 'aiGradingRubric') ? multiline(p.aiGradingRubric, 5000) : '';
+  let evaluationRubric: EvaluationRubric = [];
+  try { if (Object.hasOwn(p, 'evaluationRubric')) evaluationRubric = parseEvaluationRubric(p.evaluationRubric); } catch { return fail('INVALID_INPUT'); }
   const selection = activityTopics(p, published);
   if (typeof p.attachmentRequired !== 'boolean' || typeof p.allowLate !== 'boolean' || !Array.isArray(p.questions)) return fail('INVALID_INPUT');
   const title = text(p.title, 200, published) || null;
@@ -61,8 +65,10 @@ export function activityPayload(input: unknown, type: ActivityType, published: b
   if (type === 'ASSIGNMENT') {
     if (questions.length || (published && !instructions?.trim() && !instructionFileIds.length)) return fail('INVALID_INPUT');
   } else if (instructionFileIds.length || p.attachmentRequired || (published && !questions.length)) return fail('INVALID_INPUT');
-  return { title, ...selection, instructions, attachmentRequired: p.attachmentRequired,
-    instructionFileIds, materialIds, questions, deadline: p.deadline, allowLate: p.allowLate, aiGradingRubric };
+  return { title, ...selection, instructions,
+    ...(Object.hasOwn(p, 'objective') ? { objective: p.objective === null ? null : multiline(p.objective, 1400) || null } : {}),
+    ...(Object.hasOwn(p, 'teacherComment') ? { teacherComment: p.teacherComment === null ? null : multiline(p.teacherComment, 5000) || null } : {}), attachmentRequired: p.attachmentRequired,
+    instructionFileIds, materialIds, questions, deadline: p.deadline, allowLate: p.allowLate, aiGradingRubric, evaluationRubric };
 }
 
 export function activityOperation(input: unknown) {

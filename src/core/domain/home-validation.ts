@@ -16,8 +16,10 @@ export function parseHomeResponse(input: unknown): HomeResponse {
   for (const count of Object.values(memberships)) homeCount(count);
   const setup = homeObject(value.setup, ['drafts', 'invitations']);
   for (const count of Object.values(setup)) homeCount(count);
-  const source = homeObject(value.modules, [...HOME_MODULES]);
-  const modules = Object.fromEntries(HOME_MODULES.map(name => [name, parseHomePage(name, source[name])])) as unknown as HomeModules;
+  const raw = value.modules;
+  const additive = ['drafts', 'submitted'];
+  const source = homeObject(raw, HOME_MODULES.filter(name => !additive.includes(name) || !!raw && typeof raw === 'object' && name in raw));
+  const modules = Object.fromEntries(HOME_MODULES.map(name => [name, parseHomePage(name, source[name] ?? { status: 'not-applicable' })])) as unknown as HomeModules;
   return { version: 1, subjectId: homeId(value.subjectId), generatedAt: homeInstant(value.generatedAt),
     timeZone: homeZone(value.timeZone), participation: homeEnum(value.participation, ['study', 'teach', 'mixed', 'none']),
     memberships: memberships as unknown as HomeResponse['memberships'], setup: setup as unknown as HomeResponse['setup'], modules };

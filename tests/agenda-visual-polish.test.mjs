@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { descendants } from './agenda-ui-helpers.test.mjs';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 
 test('new event ends with observations while multi-day editing remains directly available', () => {
@@ -19,11 +20,15 @@ test('new event ends with observations while multi-day editing remains directly 
   assert.match(edited, /name="endDate"[^>]*value="2026-11-06"/);
 });
 
-test('banner keeps a real create action and no view-zone controls', () => {
+test('approved agenda heading keeps a real create action and no view-zone controls', () => {
   const { AgendaHeader } = loadTsModule('apps/agenda-ui/AgendaHeader.tsx');
-  const html = renderToStaticMarkup(createElement(AgendaHeader, { onCreate() {}, zone: 'UTC', onZone() {} }));
-  assert.match(html, /<h1>Mi/);
-  assert.match(html, /Nuevo evento/);
-  assert.match(html, /<img[^>]*agenda-banner/);
+  let created = 0;
+  const props = { onCreate: () => created++ };
+  const html = renderToStaticMarkup(createElement(AgendaHeader, props));
+  assert.match(html, /<h1>Agenda<\/h1>/);
+  assert.match(html, /Crear evento/);
+  assert.doesNotMatch(html, /agenda-banner/);
+  descendants(AgendaHeader(props), node => node.type === 'button')[0].props.onClick();
+  assert.equal(created, 1, 'The approved heading preserves real event creation');
   assert.doesNotMatch(html, /Cambiar|agenda-zone-control|<select/);
 });

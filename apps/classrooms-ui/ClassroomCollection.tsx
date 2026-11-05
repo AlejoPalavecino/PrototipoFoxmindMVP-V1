@@ -21,12 +21,12 @@ export function ClassroomCollection({ accountRole, teach, study, search, onEnter
   const all = filterClassroomCards(teach, study, 'all', '');
   const visible = filterClassroomCards(teach, study, 'all', search, options);
   const narrowed = Boolean(search.trim()) || activeCollectionFilters(options) > 0;
-  return <section className="fm3-classroom-collection collection-workspace" aria-label="Tus aulas">
+  return <section className="fm3-classroom-collection collection-workspace cl-catalog" aria-label="Tus aulas">
     <ClassroomCollectionFilters all={all} search={search} onSearch={onSearch}
       options={options} onOptions={setOptions} expanded={expanded} onToggle={() => setExpanded(value => !value)}
       view={view} onView={setView} toggleRef={toggleRef}
       onClear={() => { toggleRef.current?.focus(); setOptions({ state: options.state }); }} />
-    <div className={`fm3-classroom-grid${view === 'list' ? ' is-list' : ''}`}>
+    <div className={`cl-courses${view === 'list' ? ' as-list' : ''}`}>
       {visible.map(room => <ClassroomCard key={room.id} room={room} onEnter={onEnter} />)}
     </div>
     {!visible.length ? <p className="p5-empty">{!all.length ? accountRole === 'teacher' ? 'Aún no tenés aulas. Creá una para empezar.' : 'Aún no tenés aulas. Ingresá con un código para empezar.'

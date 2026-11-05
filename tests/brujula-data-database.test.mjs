@@ -1,0 +1,80 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { randomUUID } from 'node:crypto';
+import { withAgendaDatabase } from './agenda-database-helpers.test.mjs';
+import { homeFixture } from './foxmind-3d-repository-fixture.test.mjs';
+import { readSqlPage } from '../apps/api/src/home/sql-page.ts';
+import { createHomeService, createHomeUnitOfWork } from '../apps/api/src/home/index.ts';
+import { mine } from '../apps/api/src/classrooms/classroom-queries.ts';
+
+test('Brújula derived SQL scopes drafts, latest submitted state, ordered next topic and catalog aggregates', {timeout:120000}, async()=>{
+ await withAgendaDatabase(async({transaction})=>transaction(async local=>{
+  const f=await homeFixture(local.query), tx={query:local.query};
+  const service=createHomeService(createHomeUnitOfWork(local.database,async(_tx,req)=>req.userId));
+  const empty=await service.read({userId:f.outsider},{timeZone:'UTC'});
+  assert.equal(empty.modules.drafts.status,'not-applicable');assert.equal(empty.modules.submitted.status,'not-applicable');
+  const teacher=await service.read({userId:f.teacherActor},{timeZone:'UTC'});
+  assert.equal(teacher.modules.drafts.status,'ready');assert.equal(teacher.modules.submitted.status,'not-applicable');
+  const studentHome=await service.read({userId:f.actor},{timeZone:'UTC'});
+  assert.equal(studentHome.modules.drafts.status,'not-applicable');assert.equal(studentHome.modules.submitted.status,'ready');
+  const read=(module,userId=f.teacherActor,cursor=null)=>readSqlPage(tx,{userId,now:f.now},{module,timeZone:'UTC',cursor});
+  for(let n=0;n<7;n++) await f.activity('teach',{status:'DRAFT',title:`Draft ${n}`});
+  await f.activity('foreign',{status:'DRAFT'}); await f.activity('archived',{status:'DRAFT'});
+  const drafts=await read('drafts'); assert.equal(drafts.totalItems,7); assert.equal(drafts.items.length,5); assert.ok(drafts.nextCursor);
+  const tail=await read('drafts',f.teacherActor,drafts.nextCursor); assert.equal(tail.items.length,2);assert.equal(tail.nextCursor,null);
+  assert.equal(new Set([...drafts.items,...tail.items].map(x=>x.id)).size,7);
+  assert.equal((await read('drafts',f.actor)).totalItems,0);
+  const a=await f.activity(), attempt=await f.attempt(a); await f.grade(a,attempt,{value:'9'});
+  const submitted=await read('submitted',f.actor); assert.equal(submitted.totalItems,1);assert.equal(submitted.items[0].id,attempt);
+  assert.equal(JSON.stringify(submitted).includes('finalGrade'),false);
+  assert.equal((await read('submitted',f.outsider)).totalItems,0);
+  await f.attempt(a,{number:2,submitted:false}); assert.equal((await read('submitted',f.actor)).totalItems,0);
+  const b=await f.activity(), bt=await f.attempt(b); await f.grade(b,bt,{published:true});
+  assert.equal((await read('submitted',f.actor)).totalItems,0);
+  const c=await f.activity(); await f.attempt(c);const ct=await f.attempt(c,{number:2});
+  assert.deepEqual((await read('submitted',f.actor)).items.map(x=>x.id),[ct]);
+  const room=f.rooms.study;
+  const nextUnit=randomUUID(),nextTopic=randomUUID();
+  await local.query("UPDATE topics SET status='TAUGHT' WHERE id=$1",room.topic);
+  await local.query("INSERT INTO units(id,updated_at,classroom_id,name,position) VALUES($1,now(),$2,'Segunda',1)",nextUnit,room.id);
+  await local.query("INSERT INTO topics(id,updated_at,classroom_id,unit_id,name,position) VALUES($1,now(),$2,$3,'Siguiente',0)",nextTopic,room.id,nextUnit);
+  const homeRoom=(await read('classrooms',f.actor)).items[0];
+  assert.deepEqual(homeRoom.planProgress,{taught:1,total:2}); assert.deepEqual(homeRoom.nextTopic,{unitId:nextUnit,unitName:'Segunda',topicId:nextTopic,topicName:'Siguiente'});
+  await local.query("UPDATE topics SET status='PENDING' WHERE id=$1",room.topic);
+  await local.query("UPDATE topics SET status='NEXT' WHERE id=$1",nextTopic);
+  assert.equal((await read('classrooms',f.actor)).items[0].nextTopic.topicId,nextTopic,'Home preserves the explicitly selected NEXT topic over an earlier pending topic');
+  await local.query("UPDATE topics SET status='TAUGHT' WHERE id=$1",room.topic);
+  await local.query("UPDATE topics SET status='TAUGHT' WHERE id=$1",nextTopic);
+  assert.equal((await read('classrooms',f.actor)).items[0].nextTopic,null);
+  const catalog=actor=>mine({run:(_r,_w,fn)=>fn(tx,{id:actor}),summary:(r,id)=>({id:r.id,role:r.teacher_id===id?'teacher':'student'})},{});
+  assert.equal((await catalog(f.teacherActor)).teach.find(x=>x.id===f.rooms.teach.id).studentCount,1);
+  const student=(await catalog(f.actor)).study[0];assert.deepEqual(student.planProgress,{taught:2,total:2});assert.equal('studentCount' in student,false);
+  await local.query("UPDATE membership_periods SET ended_at=now(),end_reason='LEFT',ended_by_id=$2 WHERE id=$1",f.rooms.teach.period,f.pupil);
+  assert.equal((await catalog(f.teacherActor)).teach.find(x=>x.id===f.rooms.teach.id).studentCount,0);
+  await local.query("UPDATE classrooms SET archived_at=now() WHERE id=$1",room.id);
+  assert.equal((await read('submitted',f.actor)).totalItems,0);
+  await local.query("UPDATE membership_periods SET ended_at=now(),end_reason='LEFT',ended_by_id=$2 WHERE id=$1",room.period,f.actor);
+  assert.equal((await read('classrooms',f.actor)).totalItems,0);
+ }));
+});
+
+
+test('unanswered query total spans pages, preserves real zero and excludes replies/foreign/archived', {timeout:120000}, async()=>{
+ await withAgendaDatabase(async({transaction})=>transaction(async local=>{
+  const f=await homeFixture(local.query),tx={query:local.query};
+  const read=(userId=f.teacherActor,cursor=null,module='queries')=>readSqlPage(tx,{userId,now:f.now},{module,timeZone:'UTC',cursor});
+  assert.equal((await read()).totalItems,0);
+  const posts=[];for(let n=0;n<7;n++) posts.push(await f.post());
+  await f.post('foreign');await f.post('archived');await f.post('teach',{removed:true});await f.post('teach',{type:'NOTICE'});
+  const first=await read();assert.equal(first.totalItems,7);assert.equal(first.items.length,5);assert.ok(first.nextCursor);
+  const second=await read(f.teacherActor,first.nextCursor);assert.equal(second.totalItems,7);assert.equal(second.items.length,2);assert.equal(second.nextCursor,null);
+  assert.equal(new Set([...first.items,...second.items].map(x=>x.id)).size,7);
+  assert.equal((await read(f.outsider)).totalItems,0);
+  const reply=async(post,author)=>local.query("INSERT INTO wall_replies(id,updated_at,post_id,classroom_id,author_id,body) VALUES($1,now(),$2,$3,$4,'Respuesta sintética')",randomUUID(),post,f.rooms.teach.id,author);
+  await reply(posts[0],f.pupil);assert.equal((await read()).totalItems,7);
+  await reply(posts[0],f.teacherActor);assert.equal((await read()).totalItems,6);assert.equal((await read()).items.some(x=>x.id===posts[0]),false);
+  for(const post of posts.slice(1)) await reply(post,f.teacherActor);
+  const empty=await read();assert.equal(empty.totalItems,0);assert.equal(empty.items.length,0);assert.equal(empty.nextCursor,null);
+  assert.equal((await read(f.actor,null,'materials')).totalItems,null);
+ }));
+});

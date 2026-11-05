@@ -1,5 +1,5 @@
 export type Participation = 'study' | 'teach' | 'mixed' | 'none';
-export const HOME_MODULES = ['pending', 'review', 'feedback', 'agenda', 'queries', 'materials', 'classrooms'] as const;
+export const HOME_MODULES = ['pending', 'review', 'feedback', 'agenda', 'queries', 'materials', 'classrooms', 'drafts', 'submitted'] as const;
 export type HomeModuleName = typeof HOME_MODULES[number];
 export type HomeRole = 'teacher' | 'student';
 export type HomeActivityType = 'ASSIGNMENT' | 'QUESTIONNAIRE' | 'EVALUATION';
@@ -8,9 +8,9 @@ export interface HomeRoom {
   role: HomeRole; coverKey: string; archived: boolean; timeZone: string;
 }
 export type HomeTarget =
-  | { kind: 'classroom'; classroomId: string; section: 'plan' }
+  | { kind: 'classroom'; classroomId: string; section: 'plan' | 'library' | 'progress' | 'wall'; topicId?: string }
   | { kind: 'activity'; classroomId: string; activityId: string }
-  | { kind: 'submissions'; classroomId: string; activityId: string; filter: 'unpublished' }
+  | { kind: 'submissions'; classroomId: string; activityId: string; attemptId?: string; filter: 'unpublished' }
   | { kind: 'grade'; classroomId: string; activityId: string; attemptId: string; gradeId: string }
   | { kind: 'wall'; classroomId: string; postId: string }
   | { kind: 'material'; classroomId: string; materialId: string }
@@ -25,6 +25,7 @@ export interface PendingItem extends HomeItem {
 export interface ReviewItem extends HomeItem {
   classroom: HomeRoom; activityType: HomeActivityType;
   needsReview: number; readyToPublish: number; oldestSubmittedAt: string;
+  studentName?: string; attemptNumber?: number;
 }
 export interface FeedbackItem extends HomeItem {
   classroom: HomeRoom; activityType: HomeActivityType; attemptNumber: number;
@@ -36,9 +37,12 @@ export interface AgendaItem extends HomeItem {
   source: 'PRIVATE_EVENT' | 'ACADEMIC_DEADLINE'; startAt: string | null;
   date: string; timeZone: string; allDay: boolean; classroom: HomeRoom | null;
 }
+export interface DraftItem extends HomeItem { classroom: HomeRoom; activityType: HomeActivityType; updatedAt: string }
+export interface SubmittedItem extends HomeItem { classroom: HomeRoom; activityType: HomeActivityType; attemptNumber: number; submittedAt: string }
 export interface ClassroomItem extends HomeItem {
   classroom: HomeRoom;
   planProgress?: { taught: number; total: number };
+  nextTopic?: { unitId: string; unitName: string; topicId: string; topicName: string } | null;
 }
 export type HomePage<T> =
   | { status: 'ready'; items: T[]; totalItems: number | null; nextCursor: string | null }
@@ -46,8 +50,9 @@ export type HomePage<T> =
   | { status: 'not-applicable' };
 export interface HomeModules {
   pending: HomePage<PendingItem>;
+  drafts: HomePage<DraftItem>; submitted: HomePage<SubmittedItem>;
   review: HomePage<ReviewItem> & { totals?: { attempts: number; needsReview: number; readyToPublish: number } };
-  feedback: HomePage<FeedbackItem>; agenda: HomePage<AgendaItem>; queries: HomePage<QueryItem>;
+  feedback: HomePage<FeedbackItem>; agenda: HomePage<AgendaItem> & {preview?:{personal:AgendaItem[];deadline:AgendaItem|null}}; queries: HomePage<QueryItem>;
   materials: HomePage<MaterialItem>; classrooms: HomePage<ClassroomItem>;
 }
 export interface HomeResponse {

@@ -1,4 +1,5 @@
 import { bindClassroomMethods } from './composition-bindings.ts';
+import { searchClassrooms } from './brujula-search.ts';
 import { ClassroomCore } from './core.ts';
 import { DraftService } from './drafts.ts';
 import { MembershipService } from './memberships.ts';
@@ -25,6 +26,7 @@ import type { ClassroomPorts } from './contracts.ts';
 import type { Actor, Transaction } from './contracts.ts';
 
 export class ClassroomService {
+  search(request: unknown, query: unknown) { return searchClassrooms(this.context, request, query); }
   readonly ports: ClassroomCore['ports'];
   readonly tokens: ClassroomCore['tokens'];
   private readonly context: ClassroomCore;
@@ -112,6 +114,7 @@ export class ClassroomService {
   listNotifications(...args: Parameters<WallService['listNotifications']>): ReturnType<WallService['listNotifications']> { return this.wall.listNotifications(...args); }
   listNotificationPage(...args: Parameters<WallService['listNotificationPage']>): ReturnType<WallService['listNotificationPage']> { return this.wall.listNotificationPage(...args); }
   readNotification(...args: Parameters<WallService['readNotification']>): ReturnType<WallService['readNotification']> { return this.wall.readNotification(...args); }
+  readAllNotifications(...args: Parameters<WallService['readAllNotifications']>): ReturnType<WallService['readAllNotifications']> { return this.wall.readAllNotifications(...args); }
   openNotification(...args: Parameters<WallService['openNotification']>): ReturnType<WallService['openNotification']> { return this.wall.openNotification(...args); }
   listActivities(...args: Parameters<ActivityAuthoringService['listActivities']>): ReturnType<ActivityAuthoringService['listActivities']> { return this.authoring.listActivities(...args); }
   activityDetail(...args: Parameters<ActivityAuthoringService['activityDetail']>): ReturnType<ActivityAuthoringService['activityDetail']> { return this.authoring.activityDetail(...args); }

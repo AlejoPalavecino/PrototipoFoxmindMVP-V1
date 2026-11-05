@@ -1,0 +1,78 @@
+/* Brújula auth: exact approved HTML assets and geometry; real identity contracts. */
+@font-face { font-family: 'Brújula'; src: url('/brujula/lexend.woff') format('woff'); font-display: swap; font-weight: 400; font-style: normal; }
+.fm3d-theme .entry-page.brujula-auth {
+  --fm-font-body: 'Brújula',sans-serif; --fm-font-heading: 'Brújula',sans-serif;
+  --fm-ink: #252646; --fm-muted: #60667d; --fm-border: #dce1ef;
+  min-height: 100dvh; background: #f4f7fe; color: #252646; font: 400 14px/1.55 'Brújula',sans-serif; font-synthesis:weight;
+}
+.fm3d-theme .entry-page.brujula-auth :is(button,input,label,h1,h2,h3,p,a,legend,small,span) { font-family: 'Brújula',sans-serif; }
+.fm3d-theme .entry-page.brujula-auth .auth-main {
+  display: grid; grid-template-columns: 43% 57%; align-items: stretch; gap: 0;
+  width: 100%; max-width: none; min-height: 100dvh; margin: 0; padding: 0;
+  border: 0; border-radius: 0; background: #f4f7fe; overflow: visible; font-size:14px;
+}
+.fm3d-theme .entry-page.brujula-auth .br-auth-visual { position: relative; isolation: isolate; min-height: 100%; overflow: hidden; background: #ffdfc0; }
+.fm3d-theme .entry-page.brujula-auth .br-auth-land { position: absolute; z-index: -1; inset: 0; background: url('/brujula/banner-docente.webp') no-repeat 80% center/auto 100%; }
+.fm3d-theme .entry-page.brujula-auth .br-auth-land::after { content: ''; position: absolute; inset: 26% 12% 12%; background: url('/brujula/foxy-bienvenida.webp') center bottom/contain no-repeat; filter: drop-shadow(0 3px 2px #653e2e2a); }
+.fm3d-theme .entry-page.brujula-auth a.br-auth-brand { position: absolute; top: 30px; left: 36px; z-index: 1; display: flex; align-items: center; gap: 9px; padding: 10px 16px; background: #fffffff2; border-radius: 15px; color: #252646; text-decoration: none; font-size: 28px; font-weight: 700; letter-spacing: -1.95px; line-height: 1; box-shadow: 0 5px 20px #454b8008; }
+.fm3d-theme .entry-page.brujula-auth .br-auth-brand img { width: 40px; height: 43px; object-fit: contain; }
+.fm3d-theme .entry-page.brujula-auth .br-auth-caption { position: absolute; left: 36px; bottom: 28px; padding: 8px 14px; border-radius: 999px; background: #fffaf1ee; color: #833b15; font-size: 13px; letter-spacing: .02em; font-weight: 700; }
+.fm3d-theme .entry-page.brujula-auth .auth-main > .surface {
+  display: block; place-self: center; width: min(420px,calc(100% - 54px)); max-width: none;
+  margin: 0; padding: 40px 0; background: transparent; border: 0; border-radius: 0; box-shadow: none; backdrop-filter: none;
+}
+.fm3d-theme .entry-page.brujula-auth .auth-main > .surface::before,
+.fm3d-theme .entry-page.brujula-auth .auth-main > .surface::after { content: none; }
+.fm3d-theme .entry-page.brujula-auth .page-heading { display: block; margin: 0 0 22px; }
+.fm3d-theme .entry-page.brujula-auth .page-heading h1 { margin: 9px 0; color: #252646; font: 700 34px/1.22 'Brújula',sans-serif; letter-spacing: -.038em; }
+.fm3d-theme .entry-page.brujula-auth .page-heading p { margin: 0; color: #60667d; font-size: 14px; line-height: 1.55; }
+.fm3d-theme .entry-page.brujula-auth .page-heading span { display: block; margin: 0; color: #974310; font-size: 9px; font-weight: 700; letter-spacing: 1.75px; line-height: 1.5; text-transform: uppercase; }
+.fm3d-theme .entry-page.brujula-auth :is(form,fieldset) { min-width: 0; }
+.fm3d-theme .entry-page.brujula-auth form > fieldset { display: grid; gap: 15px; margin: 0; padding: 0; border: 0; }
+.fm3d-theme .entry-page.brujula-auth .field-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 14px; }
+.fm3d-theme .entry-page.brujula-auth .field { display: grid; gap: 6px; min-width: 0; margin: 0; }
+.fm3d-theme .entry-page.brujula-auth .field-label { margin: 0; color: #252646; font-size: 12px; font-weight: 600; line-height: 1.55; }
+.fm3d-theme .entry-page.brujula-auth .auth-reference-input > .entry-icon { display: none; }
+.fm3d-theme .entry-page.brujula-auth .auth-main .input { width: 100%; height: auto; min-height: 39px; margin: 0; padding: 9px 11px; border: 1px solid #d4d9e9; border-radius: 11px; background: #fff; box-shadow: none; color: #292d47; font:600 12px/1.55 'Brújula',sans-serif; }
+.fm3d-theme .entry-page.brujula-auth .input::placeholder { color: #697085; opacity: 1; }
+.fm3d-theme .entry-page.brujula-auth .password-control { position: relative; }
+.fm3d-theme .entry-page.brujula-auth .password-control .input { padding-right: 48px; }
+.fm3d-theme .entry-page.brujula-auth .password-toggle { position: absolute; inset: 50% 3px auto auto; transform: translateY(-50%); width: 34px; min-width: 34px; height: 34px; min-height: 34px; padding: 7px; border: 0; background: transparent; color: #626881; }
+.fm3d-theme .entry-page.brujula-auth .password-toggle svg { width: 20px; height: 20px; }
+.fm3d-theme .entry-page.brujula-auth .field-help { margin: 0; color: #60667d; font-size: 11px; font-weight: 400; line-height: 1.5; }
+.fm3d-theme .entry-page.brujula-auth .form-link { margin: 0; font-size: 12px; text-align:left; }
+.fm3d-theme .entry-page.brujula-auth a:not(.button):not(.br-auth-brand) { color: #95411b; font-size: 12px; font-weight: 700; text-decoration: none; }
+.fm3d-theme .entry-page.brujula-auth a:hover { text-decoration: underline; }
+.fm3d-theme .entry-page.brujula-auth .button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; width: auto; min-height: 37px; padding: 8px 13px; border: 1px solid #dce0ec; border-radius: 12px; background: #fff; color: #393c57; font: 600 12px/1.4 'Brújula',sans-serif; box-shadow: none; }
+.fm3d-theme .entry-page.brujula-auth .button-primary { background: #b8490c; border-color: #b8490c; color: #fff; }
+.fm3d-theme .entry-page.brujula-auth .button-primary:hover:enabled { background: #963c0b; }
+.fm3d-theme .entry-page.brujula-auth .button-primary .fm3d-icon { display: none; }
+.fm3d-theme .entry-page.brujula-auth .after-form { margin: 20px 0 0; padding: 0; border: 0; color: #252646; font-size: 13px; text-align: left; }
+.fm3d-theme .entry-page.brujula-auth .registration-next { display: flex; align-items: center; gap: 6px; margin-top: 15px; }
+.fm3d-theme .entry-page.brujula-auth .registration-next svg { width: 16px; height: 16px; }
+.fm3d-theme .entry-page.brujula-auth form > fieldset > fieldset { display: grid; gap: 6px; padding: 0; margin: 0; border: 0; }
+.fm3d-theme .entry-page.brujula-auth form > fieldset > fieldset legend { padding: 0; color: #252646; font-size: 12px; font-weight: 600; margin-bottom: 6px; }
+.fm3d-theme .entry-page.brujula-auth form > fieldset > fieldset p { margin: 0; font-size: 11px; color: #60667d; }
+.fm3d-theme .entry-page.brujula-auth form > fieldset > fieldset > div { display: flex; gap: 9px; }
+.fm3d-theme .entry-page.brujula-auth form > fieldset > fieldset label { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; padding: 12px; border: 1px solid #dce1ef; border-radius: 11px; background: #fff; font-size: 12px; }
+.fm3d-theme .entry-page.brujula-auth form > fieldset > fieldset label:has(:checked) { background: #fff0e2; border-color: #b97649; }
+.fm3d-theme .entry-page.brujula-auth form > fieldset > fieldset input { accent-color: #b8490c; }
+.fm3d-theme .entry-page.brujula-auth form > fieldset > fieldset small { display: none; }
+.fm3d-theme .entry-page.brujula-auth form > fieldset > fieldset label { min-height:44px; box-shadow:none; }
+.fm3d-theme .entry-page.brujula-auth form > fieldset > fieldset label strong { font-size:12px; font-weight:400; line-height:1.55; }
+.fm3d-theme .entry-page.brujula-auth form > fieldset > fieldset label input { width:13px; height:13px; margin:0; }
+.fm3d-theme .entry-page.brujula-auth form > fieldset > fieldset p { margin-top:9px; }
+.fm3d-theme .entry-page.brujula-auth .brujula-icon { flex:0 0 auto; }
+.fm3d-theme .entry-page.brujula-auth .br-auth-caption { display:flex; align-items:center; gap:12px; }
+.fm3d-theme .entry-page.brujula-auth .br-auth-caption .brujula-icon { width:17px; height:17px; }
+.fm3d-theme .entry-page.brujula-auth .verification-content h2 { margin: 16px 0 7px; font-size: 18px; color: #252646; }
+.fm3d-theme .entry-page.brujula-auth .verification-content p { font-size: 13px; color: #60667d; overflow-wrap: anywhere; }
+.fm3d-theme .entry-page.brujula-auth .verification-content .actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
+.fm3d-theme .entry-page.brujula-auth :is(.notice,.cooldown,.state,.loading) { margin: 12px 0; padding: 12px; font-size: 12px; line-height: 1.55; border-radius: 9px; overflow-wrap: anywhere; }
+.fm3d-theme .entry-page.brujula-auth :is(button,input,a):focus-visible { outline: 3px solid #a75aeb; outline-offset: 3px; }
+@media(max-width:590px) {
+  .fm3d-theme .entry-page.brujula-auth .auth-main { grid-template-columns: 1fr; }
+  .fm3d-theme .entry-page.brujula-auth .br-auth-visual { display: none; }
+  .fm3d-theme .entry-page.brujula-auth .auth-main > .surface { width: min(420px,calc(100% - 36px)); }
+  .fm3d-theme .entry-page.brujula-auth .field-grid { gap: 9px; }
+}

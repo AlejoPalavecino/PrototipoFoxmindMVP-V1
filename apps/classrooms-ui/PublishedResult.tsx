@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState, type ReactNode } from 'react';
 import type { ClassroomClient, PublishedResultData } from './api.ts';
+import { BrujulaPublishedRubric } from './brujula-grading-rubric.tsx';
 import { Notice } from './components.tsx';
 
 export function PublishedResult({ api, roomId, attemptId, zone, pendingContent }: {
@@ -20,6 +21,7 @@ export function PublishedResult({ api, roomId, attemptId, zone, pendingContent }
         <div className="student-grade-summary"><p className="p8-final-grade"><span>Calificación publicada</span><strong>{data.grade.finalGrade.replace('.', ',')} <small>/ 10</small></strong></p>
           <p>{data.grade.isEffective ? 'Calificación vigente de esta actividad.' : 'Resultado histórico: no es la calificación vigente.'}</p>
           <small>Publicada el <time dateTime={data.grade.publishedAt}>{new Date(data.grade.publishedAt).toLocaleString('es-AR', { timeZone: zone, hourCycle: 'h23', dateStyle: 'medium', timeStyle: 'short' })}</time></small></div>
+        <BrujulaPublishedRubric snapshot={data.grade.rubricSnapshot} marks={data.grade.rubricMarks}/>
         {data.grade.overallFeedback ? <div className="student-feedback"><h5>Devolución del docente</h5><p className="p7-multiline">{data.grade.overallFeedback}</p></div> : null}
         {data.questions.map((q, index) => <article className="student-result-question" key={q.id}><header><h5>Pregunta {index + 1}</h5>
           <span>{q.earned.denominator === '1' ? q.earned.numerator : `${q.earned.numerator}/${q.earned.denominator}`} / {q.points.replace('.', ',')} puntos</span></header><p className="p7-multiline">{q.prompt}</p>

@@ -1,10 +1,10 @@
 export type AccountView = 'sign-in' | 'register' | 'verify-email' | 'forgot-password' | 'recover-password' | 'profile' | 'settings';
 export const accountContent: Record<AccountView, { title: string; description: string }> = {
-  'sign-in': { title: '¡Hola de nuevo!', description: 'Ingresá a tu cuenta para continuar con tus aulas y actividades.' },
-  register: { title: 'Creá tu cuenta', description: 'Tu próximo paso empieza acá.' },
-  'verify-email': { title: 'Verifica tu correo', description: 'Confirma tu dirección para empezar a usar FoxMind.' },
-  'forgot-password': { title: 'Recupera tu acceso', description: 'Te enviaremos las instrucciones para crear una nueva contraseña.' },
-  'recover-password': { title: 'Crea una nueva contraseña', description: 'El enlace de recuperación es válido durante 15 minutos y se utiliza una sola vez.' },
-  profile: { title: 'Mi perfil', description: 'Tus datos, siempre a mano.' },
-  settings: { title: 'Configuración', description: 'Tu cuenta y seguridad, en un solo lugar.' },
+  'sign-in': { title: 'Volvé a tu espacio', description: 'Ingresá para continuar con tus aulas.' },
+  register: { title: 'Creá tu cuenta', description: 'Elegí el espacio que vas a usar en FoxMind.' },
+  'verify-email': { title: 'Verificá tu correo', description: 'La verificación habilita el acceso a tus aulas.' },
+  'forgot-password': { title: 'Recuperá tu acceso', description: 'Ingresá el correo con el que creaste tu cuenta.' },
+  'recover-password': { title: 'Nueva contraseña', description: 'Restablecé tu acceso con el enlace que recibiste por correo. Vence a los 15 minutos y se utiliza una sola vez.' },
+  profile: { title: 'Mi perfil', description: 'Revisá tus datos y elegí cómo aparece tu nombre en las aulas.' },
+  settings: { title: 'Configuración de la cuenta', description: 'Administrá tu contraseña y el acceso a tu cuenta.' },
 };

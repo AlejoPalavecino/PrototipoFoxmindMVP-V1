@@ -97,6 +97,10 @@ export async function foxyRoute(services: Services, request: IncomingMessage, ur
     return { status: result.created ? 201 : 200, body: result };
   }
   const preparePublication = /^\/resources\/([^/]+)\/publications$/u.exec(path);
+  const activityDraft = /^\/resources\/([^/]+)\/activity-draft$/u.exec(path);
+  if (activityDraft && request.method === 'POST') {
+    query(url, []); return { status: 200, body: await services.resources.prepareActivity(request, id(activityDraft[1]!), await body(request)) };
+  }
   if (preparePublication && request.method === 'POST') {
     query(url, []); const result = await services.publications.prepare(request, id(preparePublication[1]!), parsePrepareFoxyPublication(await body(request)));
     return { status: result.created ? 202 : 200, body: result };

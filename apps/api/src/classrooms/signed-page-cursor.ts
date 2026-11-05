@@ -1,7 +1,7 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { fail } from './policy.ts';
 
-type CursorNamespace = 'wall-cursor-v1:' | 'notification-cursor-v1:';
+type CursorNamespace = 'wall-cursor-v1:' | 'notification-cursor-v1:' | 'search-cursor-v1:';
 function mac(key: Buffer, namespace: CursorNamespace, body: string): Buffer {
   return createHmac('sha256', key).update(namespace).update(body).digest();
 }

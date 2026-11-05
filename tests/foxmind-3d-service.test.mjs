@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHomeService } from '../apps/api/src/home/index.ts';
 
-const names = ['pending', 'review', 'feedback', 'agenda', 'queries', 'materials', 'classrooms'];
+const names = ['pending', 'review', 'feedback', 'agenda', 'queries', 'materials', 'classrooms', 'drafts', 'submitted'];
 const actor = { userId: '11111111-1111-4111-8111-111111111111', now: '2026-10-25T12:00:00.000Z' };
 const query = { timeZone: 'UTC' };
 const empty = () => ({ status: 'ready', items: [], totalItems: 0, nextCursor: null });

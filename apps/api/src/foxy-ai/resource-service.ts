@@ -1,11 +1,15 @@
 import type { createFoxyResourceRepository } from './resource-repository.ts';
 import type { createFoxyUnitOfWork } from './unit-of-work.ts';
+import { prepareFoxyActivity } from './activity-handoff.ts';
 
 export function createFoxyResourceService(options: {
   uow: ReturnType<typeof createFoxyUnitOfWork>;
   resources: ReturnType<typeof createFoxyResourceRepository>;
 }) {
   return {
+    prepareActivity(request: unknown, resourceId: string, input: unknown) {
+      return options.uow.run(request, true, (tx, actor) => prepareFoxyActivity(tx, actor, resourceId, input, options.resources));
+    },
     fromTurn(request: unknown, conversationId: string, turnId: string) {
       return options.uow.run(request, true, (tx, actor) => options.resources.fromTurn(tx, actor.id, conversationId, turnId));
     },

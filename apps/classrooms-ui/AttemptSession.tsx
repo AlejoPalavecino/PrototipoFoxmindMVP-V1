@@ -5,6 +5,7 @@ import { PracticalAttempt } from './PracticalAttempt.tsx';
 import { QuestionnaireAttempt } from './QuestionnaireAttempt.tsx';
 import { Dialog, Notice } from './components.tsx';
 import { activityDate, activityTypeLabels } from './ActivityAuthoring.tsx';
+import { EvaluationRubric } from './EvaluationRubric.tsx';
 
 /** Capabilities live only in this mounted tab's memory, never URLs, cookies or shared storage. */
 export function AttemptSession({ api, room, initial, onClose, onChanged, onViewResult }: {
@@ -43,6 +44,9 @@ export function AttemptSession({ api, room, initial, onClose, onChanged, onViewR
   return <Dialog title={activity.title ?? 'Actividad'} onClose={onClose}>
     <section className="p7-attempt" aria-label={activity.type === 'EVALUATION' ? 'Evaluación · sesión reducida' : 'Sesión de actividad'}>
       <header><small>{activityTypeLabels[activity.type]}</small><p>{activityDate(data.reception.deadlineAt, activity.zone)}</p></header>
+      {activity.objective?<section className="brujula-activity-objective"><h3>Objetivo de aprendizaje</h3><p className="p7-multiline">{activity.objective}</p></section>:null}
+      {activity.teacherComment?<section className="brujula-activity-comment"><h3>Comentario del docente</h3><p className="p7-multiline">{activity.teacherComment}</p></section>:null}
+      <EvaluationRubric criteria={activity.evaluationRubric}/>
       {attempt?.status === 'SUBMITTED' && onViewResult ? <button className="primary" onClick={() => onViewResult(attempt.id)}>Ver devolución</button> : null}
       {error ? <Notice error>{error} No se confirmaron cambios. Vuelve a consultar el estado antes de continuar.</Notice> : null}
       {controlWarning && attempt?.status === 'DRAFT' ? <Notice>Recuperamos tus respuestas guardadas. Los cambios sin guardar de otra pestaña no se transfieren.</Notice> : null}
