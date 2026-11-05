@@ -63,3 +63,7 @@ Solo root actualiza este registro. Implementado no significa DONE. No cerrar con
 ## Cierre local — 2026-11-04
 
 AUR-001–005 terminadas localmente. Root retomó actividades y contenido tras interrupción de los workers, corrigió cuatro hallazgos y verificó el candidato. Sin commits, integración a main, push ni despliegue. No ejecutar pruebas SQL/IA real como consecuencia automática de este cierre.
+
+## Publicación autorizada posterior
+
+El usuario autorizó commit/push/integración y rama única. Funcionalidad integrada y publicada en main cfabab813ddbf8ba7c073be64d6038b09ee92559, verificado por lectura remota. Main es la única rama local/remota; los worktrees detached permanecen. [Registro de publicación](../../docs/work-log/2026-11-04-id-unavailable-classroom-interior-publication.md).

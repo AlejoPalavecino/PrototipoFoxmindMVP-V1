@@ -6,7 +6,7 @@
 - Branch / worktree: codex/classroom-interior-redesign; checkout principal.
 - Starting commit: 68f142405793bbe1d4348c9413a12e369bae6d1f.
 - Phase and detailed task/spec links: [tarea](../../odd/tasks/classroom-interior-redesign.md), [implementación](2026-11-04-id-unavailable-classroom-interior-implementation.md).
-- Status: in_progress.
+- Status: completed.
 
 ## Request and scope
 
@@ -20,7 +20,7 @@ Se prepara una unidad integrada con código/pruebas/evidencia; supera la referen
 
 ## Verification
 
-Ver evidencia previa de 100 pruebas, build/tipos/lint, responsive y revisión independiente; integración SQL adicional no verificada por Docker. Pendientes comprobaciones finales y lectura remota posterior al push.
+Ver evidencia previa de 100 pruebas, build/tipos/lint, responsive y revisión independiente; integración SQL adicional no verificada por Docker. Reejecución previa a publicar: 100 PASS, 0 FAIL, 0 SKIP; inventario 454/53 y rutas 23 PASS; documentación 138 archivos/1745 enlaces sin problemas; diff staged sin errores; navbar sin diff.
 
 ## Commits and outcomes
 
@@ -28,4 +28,4 @@ Pendiente.
 
 ## Handoff
 
-Comprobar pruebas focales y documentación, commit, fast-forward main, push sin force, verificar SHA remoto y eliminar rama integrada.
+Entrega completada. Main es la única rama local/remota; worktrees históricos detached preservados. No quedan cambios de producto pendientes. La indisponibilidad SQL previa queda registrada y no se atribuye a una validación realizada.
