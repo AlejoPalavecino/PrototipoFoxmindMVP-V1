@@ -16,6 +16,8 @@ Decisión humana posterior: el aula **siempre requiere un plan**, escrito manual
 
 Operación posterior autorizada: migraciones aplicadas a la base local habitual37→39, con backup y conservación de datos verificados; plataforma activa para revisión manual. [Registro de arranque](../../docs/work-log/2026-11-05-id-unavailable-brujula-local-start.md). No modifica los límites de las pruebas anteriores ni autoriza publicación remota.
 
+Cierre posterior aprobado por el usuario: diseño aceptado, aplicación/servicios detenidos y entrega integrada en mainlocal mediante fast-forward. BRU-01–10 están contenidos en `0a5287507d9f5381e8c0212141a869e5aedf956c`; rama de trabajo retirada, único checkout y única rama localmain. [Registro de integración](../../docs/work-log/2026-11-05-id-unavailable-brujula-main-integration.md). Sin push ni eliminación de datos/configuración.
+
 ### Inventario integral vigente
 
 La referencia completa se divide por módulos ejecutables. La evidencia de cierre se concentra en BRU-10 y el registro vigente. Guía de exploración, cuentas de ejemplo, reloj fijo y almacenamiento demo son herramientas de la maqueta, no funciones reales a portar.
