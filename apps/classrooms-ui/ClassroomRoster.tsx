@@ -1,4 +1,4 @@
-import type { Dispatch, SetStateAction, RefObject } from 'react';
+import { useEffect, useState, type Dispatch, type SetStateAction, type RefObject } from 'react';
 import type { ClassroomClient, Detail, Member } from './api.ts';
 import { initials } from './components.tsx';
 import { EntryIcon } from '../shared-ui/EntryIcon';
@@ -18,12 +18,17 @@ type Props = {
 };
 export function ClassroomRoster({ tab, teacher, room, busy, members, history, memberResource, historyResource,
   roster, api, id, isCurrentRoom, setInviting, setSummary, setConfirm, action }: Props) {
+  const [query, setQuery] = useState('');
+  useEffect(() => { setQuery(''); }, [tab, id]);
+  const people = tab === 'history' ? history : members;
+  const filtered = people.filter(member => `${member.firstName} ${member.lastName}`.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()));
+  const ready = (tab === 'history' ? historyResource : memberResource).status === 'ready';
   return <>
                 <header className="p5-section-head">
                   <div>
                     <h2><EntryIcon name={tab === 'history' ? 'list' : 'people-fill'} />
                       {tab === 'history'
-                        ? 'Historial de estudiantes'
+                        ? 'Historial de alumnos'
                         : teacher
                           ? 'Alumnos'
                           : 'Compañeros'}
@@ -46,6 +51,8 @@ export function ClassroomRoster({ tab, teacher, room, busy, members, history, me
                     </button>
                   ) : null}
                 </header>
+                {ready && people.length > 0 ? <div className="classroom-people-toolbar"><p>{people.length} {tab === 'history' ? 'alumnos anteriores' : teacher ? 'alumnos actuales' : 'compañeros'}</p><label>Buscar por nombre<input type="search" aria-label={tab === 'history' ? 'Buscar alumnos anteriores' : 'Buscar personas del aula'} placeholder="Buscar por nombre…" value={query} onChange={event => setQuery(event.target.value)} /></label></div> : null}
+                {ready && people.length > 0 && filtered.length === 0 ? <p className="p5-empty" role="status">No se encontraron personas para esta búsqueda.</p> : null}
                 {(tab === 'history' ? historyResource : memberResource).status === 'ready' && (tab === 'history' ? history : members).length === 0 ? (
                   <p className="p5-empty" role="status">
                     {tab === 'history'
@@ -54,7 +61,7 @@ export function ClassroomRoster({ tab, teacher, room, busy, members, history, me
                   </p>
                 ) : null}
                 <ul className="p5-roster" ref={roster} aria-label={tab === 'history' ? 'Inscripciones anteriores' : teacher ? 'Alumnos actuales' : 'Compañeros del aula'}>
-                  {(tab === 'history' ? history : members).map(
+                  {filtered.map(
                     (member, index) => (
                       <li key={member.enrollmentId ?? index}
                         style={teacher ? { cursor: 'pointer' } : undefined}

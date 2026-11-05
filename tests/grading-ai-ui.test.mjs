@@ -29,14 +29,18 @@ test('docente activa y guarda el interruptor de corrección IA a nivel aula', as
     setSettings: change => { settings = typeof change === 'function' ? change(settings) : change; }, settingsRevision: '2',
     setSettingsRevision() {}, settingsConflict: false, setSettingsConflict() {}, reloadSettings: async () => {},
     isCurrentRoom: () => true, busy: false, load: async () => {}, action: async work => work(), setNotice() {}, setConfirm() {} };
-  const toggle = field(ClassroomSettings(props), /correcci[oó]n.*IA/i, 'input'); assert.ok(toggle);
+  const view = hookView(ClassroomSettings, props); await view.flush();
+  const toggle = field(view.tree, /correcci[oó]n.*IA/i, 'input'); assert.ok(toggle);
   assert.equal(toggle.props.type, 'checkbox'); assert.equal(toggle.props.checked, false);
   toggle.props.onChange({ target: { checked: true } }); assert.equal(settings.aiGradingEnabled, true);
-  const tree = ClassroomSettings({ ...props, settings });
+  props.settings = settings; await view.flush(); view.close();
+  const updated = hookView(ClassroomSettings, props); await updated.flush();
+  const tree = updated.tree;
   const form = descendants(tree, n => n.type === 'form')[0]; assert.ok(form);
   form.props.onSubmit({ preventDefault() {} }); await new Promise(resolve => setImmediate(resolve));
   const write = calls.find(([path, method]) => path === `/${id}/settings` && method === 'PATCH');
   assert.ok(write); assert.equal(write[2].aiGradingEnabled, true); assert.equal(write[2].revision, '2');
+  updated.close();
 });
 
 test('alumno no puede acceder al interruptor docente', async () => {

@@ -1,4 +1,4 @@
-import type { Dispatch, SetStateAction } from 'react';
+import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
 import type { ClassroomClient, Detail } from './api.ts';
 import { Cover, Notice } from './components.tsx';
 import { EntryIcon } from '../shared-ui/EntryIcon';
@@ -17,6 +17,13 @@ type Props = {
 export function ClassroomSettings({ api, id, room, settings, setSettings, settingsRevision,
   setSettingsRevision, settingsConflict, setSettingsConflict, reloadSettings, isCurrentRoom,
   busy, load, action, setNotice, setConfirm }: Props) {
+  const persistedSettings = useMemo(() => ({ name: room.name, subject: room.subject, division: room.division,
+    academicYear: room.academicYear, aiGradingEnabled: room.aiGradingEnabled ?? false }),
+  [room.name, room.subject, room.division, room.academicYear, room.aiGradingEnabled]);
+  const [savedSettings, setSavedSettings] = useState(persistedSettings);
+  const [saved, setSaved] = useState(false);
+  useEffect(() => { setSavedSettings(persistedSettings); }, [id, persistedSettings]);
+  const dirty = (Object.keys(settings) as (keyof Settings)[]).some(key => settings[key] !== savedSettings[key]);
   return (
     <>
                 <h2><EntryIcon name="grid" /> Configuración del aula</h2>
@@ -35,6 +42,8 @@ export function ClassroomSettings({ api, id, room, settings, setSettings, settin
                       if (!isCurrentRoom()) return;
                       setNotice('Cambios guardados.');
                       setSettingsConflict(false);
+                      setSavedSettings(settings);
+                      setSaved(true);
                       setSettingsRevision(saved.revision);
                       await load();
                     });
@@ -94,12 +103,13 @@ export function ClassroomSettings({ api, id, room, settings, setSettings, settin
                       {settings.aiGradingEnabled ? <button type="button" onClick={() => setSettings(previous => ({ ...previous, aiGradingEnabled: false }))}>Desactivar para esta aula</button> : null}</> : null}
                     <p>Al activar esta opción, se generarán sugerencias para las nuevas entregas. El docente revisa y publica cada calificación.</p>
                     </section>
-                    <footer className="classroom-settings-save"><p>Los cambios se aplican al guardar.</p><button className="primary" type="submit">Guardar cambios</button></footer>
+                    <footer className="classroom-settings-save"><p role="status">{dirty ? 'Tenés cambios sin guardar.' : saved ? 'Cambios guardados.' : 'No hay cambios pendientes.'}</p><button className="primary" type="submit">{busy ? 'Guardando cambios…' : 'Guardar cambios'}</button></footer>
                   </fieldset>
                 </form>
                 <section className="classroom-settings-cover"><div><h3><EntryIcon name="grid" /> Portada del aula</h3><p>Esta portada se muestra en la parte superior y ayuda a identificar el aula.</p></div><Cover kind={room.coverKey} /></section>
                 <section className="classroom-settings-archive">
                 <small>Estado del aula</small>
+                <p className="classroom-lifecycle-state">{room.archived ? 'Archivada · solo consulta' : 'Activa'}</p>
                 <h3>{room.archived ? 'Reactivar aula' : 'Archivar aula'}</h3>
                 <p>
                   {room.archived

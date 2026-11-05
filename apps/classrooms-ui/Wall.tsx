@@ -99,14 +99,15 @@ export function Wall({ api, room, reload, target, onChanged }: {
     {content.canRemove ? <button disabled={busy} onClick={() => setRemoving({ content, reply })}>{reply ? 'Eliminar respuesta' : 'Eliminar publicación'}</button> : null}
   </div> : null;
   return <section ref={root} className="p6-wall" aria-label="Muro del aula">
-    <header className="p5-section-head"><div className="interior-social-heading"><EntryIcon name="book" /><div><h2>Muro del aula</h2><p>Un espacio para compartir avisos, hacer preguntas y aprender en comunidad.</p></div></div>
+    <header className="p5-section-head"><div className="interior-social-heading"><EntryIcon name="book" /><div><h2>Muro del aula</h2><p>Avisos y consultas, con sus respuestas en contexto.</p></div></div>
       <button disabled={busy} onClick={() => void run(async () => { await Promise.all([reload(), load()]); })}>Actualizar Muro</button>
     </header>
     {error ? <Notice error>{error} Actualiza el Muro antes de volver a intentar. Tu texto no se ha descartado.</Notice> : null}
     {notice ? <Notice>{notice}</Notice> : null}
     {!data && !error ? <Notice>Cargando Muro…</Notice> : null}
-    {!room.archived && data ? <TextForm key={composerKey} busy={busy} label={room.role === 'teacher' ? 'Publicar aviso' : 'Publicar consulta'}
-      onSave={body => run(async () => { await change({ action: 'publish', body }); setComposerKey(value => value + 1); setNotice('Publicación guardada.'); })} /> : null}
+    <div className="classroom-wall-layout"><div className="classroom-wall-conversation">
+    {!room.archived && data ? <div className="classroom-wall-composer"><TextForm key={composerKey} busy={busy} label={room.role === 'teacher' ? 'Publicar aviso' : 'Publicar consulta'}
+      onSave={body => run(async () => { await change({ action: 'publish', body }); setComposerKey(value => value + 1); setNotice('Publicación guardada.'); })} /></div> : null}
     <details className="interior-wall-guide">
       <summary>Cómo participar en el Muro</summary>
       <ol><li><strong>Respetá a los demás</strong><p>Compartí tus ideas con un lenguaje amable y constructivo.</p></li>
@@ -133,6 +134,7 @@ export function Wall({ api, room, reload, target, onChanged }: {
       </section>
     </article>)}</div>
     {data?.nextCursor ? <button disabled={busy} onClick={() => void run(morePosts)}>Más publicaciones</button> : null}
+    </div><aside className="classroom-wall-guidance"><EntryIcon name="book" /><h3>La conversación sigue acá</h3><p>El Muro reúne los avisos y las preguntas compartidas. Las consignas y las entregas están en Actividades.</p><small>Tu publicación la puede leer toda el aula.</small>{room.archived ? <p>El aula está archivada. Podés consultar las conversaciones conservadas.</p> : null}</aside></div>
     {editing ? <Dialog title={editing.reply ? 'Editar respuesta' : 'Editar publicación'} onClose={() => { if (!busy) setEditing(null); }}>
       {error ? <Notice error>{error}</Notice> : null}
       <TextForm initial={editing.content.body ?? ''} label="Guardar texto" busy={busy} onCancel={() => setEditing(null)} onSave={body => run(async () => {

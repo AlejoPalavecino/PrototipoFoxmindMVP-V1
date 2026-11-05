@@ -12,6 +12,8 @@ for (const rel of ['node_modules', 'src', 'apps/classrooms-ui', 'apps/shared-ui'
 fs.copyFileSync(path.join(root, 'tests/helpers/classroom-interior-reference/classroom.tsx'), path.join(pages, 'classroom.tsx'));
 fs.copyFileSync(path.join(root, 'tests/helpers/platform-polish/classroom-data.ts'), path.join(fixtures, 'classroom-data.ts'));
 fs.copyFileSync(path.join(root, 'tests/helpers/classroom-interior-reference/literature-data.ts'), path.join(fixtures, 'literature-data.ts'));
+fs.writeFileSync(path.join(fixtures, 'redesign-client.ts'), fs.readFileSync(path.join(root, 'tests/helpers/classroom-interior-reference/redesign-client.ts'),'utf8')
+  .replace('../platform-polish/classroom-data','./classroom-data').replace('../../../apps/classrooms-ui/api','../../classrooms-ui/api'));
 fs.copyFileSync(path.join(root, 'apps/web/pages/_app.tsx'), path.join(pages, '_app.tsx'));
 for (const file of ['tsconfig.json', 'postcss.config.mjs']) fs.copyFileSync(path.join(root, 'apps/web', file), path.join(web, file));
 fs.writeFileSync(path.join(web, 'package.json'), JSON.stringify({ private: true, type: 'module' }));

@@ -20,6 +20,7 @@ import { ResourceNotice } from './ResourceNotice.tsx';
 import { useClassroomNavigation } from './use-classroom-navigation.ts';
 import { useClassroomSettings } from './use-classroom-settings.ts';
 import { useSettingsReload } from './use-settings-reload.ts';
+import type { ClassroomCreationContext } from './classroom-creation-context.ts';
 
 export function ClassroomView({
   api,
@@ -47,6 +48,9 @@ export function ClassroomView({
   const { error = '', busy = false } = actionStates[tab] ?? {};
   const invitationAction = actionStates.invitations ?? { error: '', busy: false };
   const [notice, setNotice] = useState('');
+  const navigation = useRef({ id, tab });
+  if (navigation.current.id !== id || navigation.current.tab !== tab) navigation.current = { id, tab };
+  const currentNavigation = navigation.current;
   const detail = useClassroomResource<Detail>(api, `/${id}`, true);
   const room = detail.data;
   const teacher = room?.role === 'teacher';
@@ -70,6 +74,12 @@ export function ClassroomView({
   const isCurrentRoom = () => mounted.current && identity.current === activeIdentity;
   const { tabs, roster } = useClassroomNavigation(tab, room, activeWallTarget, rosterLoaded, members.length);
   const [planActivity, setPlanActivity] = useState<AcademicTarget | null>(null);
+  const [selectedTopic, setSelectedTopic] = useState<{ roomId: string; id: string } | null>(null);
+  const [creationContext, setCreationContext] = useState<ClassroomCreationContext | null>(null);
+  const [uploadContext, setUploadContext] = useState<ClassroomCreationContext | null>(null);
+  const [visited, setVisited] = useState({ roomId: id, tabs: [tab] });
+  useEffect(() => { setVisited(previous => ({ roomId: id, tabs: previous.roomId === id ? Array.from(new Set([...previous.tabs, tab])) : [tab] })); }, [id, tab]);
+  const retained = (section: string) => tab === section || (visited.roomId === id && visited.tabs.includes(section));
   const destination = activeWallTarget ?? (activeHomeTarget && 'classroomId' in activeHomeTarget && activeHomeTarget.classroomId === id ? homeNotificationTarget(activeHomeTarget) : null);
   const [code, setCode] = useState(initialCode),
     [email, setEmail] = useState(''),
@@ -84,8 +94,8 @@ export function ClassroomView({
   } | null>(null);
   const { settings, setSettings, settingsRevision, setSettingsRevision,
     settingsConflict, setSettingsConflict } = useClassroomSettings(id, room);
-  useEffect(() => { setConfirm(null); setInviting(false); setSummary(null); setNotice(''); setActionStates({}); setCode(initialCode); setEmail(''); setPlanActivity(null); }, [id, initialCode]);
-  useEffect(() => { setConfirm(null); setInviting(false); }, [tab]);
+  useEffect(() => { setConfirm(null); setInviting(false); setSummary(null); setNotice(''); setActionStates({}); setCode(initialCode); setEmail(''); setPlanActivity(null); setCreationContext(null); setUploadContext(null); }, [id, initialCode]);
+  useEffect(() => { setConfirm(null); setInviting(false); setSummary(null); }, [tab]);
   useEffect(() => { setTab(activeWallTarget ? 'postId' in activeWallTarget ? 'wall' : 'activities' : homeClassroomTab(activeHomeTarget)); }, [id]);
   useEffect(() => { if (activeWallTarget) { setPlanActivity(null); setTab('postId' in activeWallTarget ? 'wall' : 'activities'); } }, [activeWallTarget]);
   useEffect(() => { if (!activeWallTarget && activeHomeTarget) { setPlanActivity(null); setTab(homeClassroomTab(activeHomeTarget)); } }, [activeHomeTarget, activeWallTarget]);
@@ -120,7 +130,7 @@ export function ClassroomView({
       {detail.error ? <Notice error>{detail.error} <button onClick={() => void load()}>Actualizar aula</button></Notice> : null}
       {!room && detail.status !== 'error' ? <Notice>Cargando aula…</Notice> : null}
       {room ? (
-        <div className="classroom-workspace">
+        <div className="classroom-workspace classroom-redesign" data-active-section={tab}>
           <ClassroomHeader room={room} />
           {room.archived ? (
             <Notice>
@@ -139,7 +149,7 @@ export function ClassroomView({
               <>
                 <ClassroomRoster tab={tab} teacher={!!teacher} room={room} busy={busy} members={members} history={history}
                   memberResource={memberResource} historyResource={historyResource} roster={roster} api={api} id={id}
-                  isCurrentRoom={isCurrentRoom} setInviting={setInviting} setSummary={setSummary}
+                  isCurrentRoom={isCurrentRoom} setInviting={setInviting} setSummary={value => { if (navigation.current === currentNavigation) setSummary(value); }}
                   setConfirm={setConfirm} action={action} />
                 {teacher && tab === 'members' ? (
                   <ClassroomMembers api={api} id={id} room={room} busy={busy} code={code} setCode={setCode}
@@ -148,14 +158,23 @@ export function ClassroomView({
                 ) : null}
               </>
             ) : null}
-            {tab === 'plan' ? <Plan api={api} room={room} reload={load} onOpenActivity={activityId => {
+            {retained('plan') ? <div hidden={tab !== 'plan'} key={`${id}-plan`}><Plan api={api} room={room} reload={load}
+              selectedTopicId={selectedTopic?.roomId === id ? selectedTopic.id : undefined} onSelectTopic={topicId => setSelectedTopic({ roomId: id, id: topicId })}
+              onCreateActivity={room.role === 'teacher' && !room.archived ? context => { setPlanActivity(null); setCreationContext(context); setTab('activities'); } : undefined}
+              onAddMaterial={room.role === 'teacher' && !room.archived ? context => { setUploadContext(context); setTab('library'); } : undefined}
+              onOpenActivity={activityId => {
               setPlanActivity({ kind: 'activity', classroomId: id, activityId, attemptId: null }); setTab('activities');
-            }} /> : null}
-            {tab === 'progress' ? <Progress api={api} classroomId={id} /> : null}
-            {tab === 'library' ? <Library api={api} room={room} reload={load} targetMaterialId={activeHomeTarget?.kind === 'material' ? activeHomeTarget.materialId : undefined} openUpload={activeHomeTarget?.kind === 'upload-material'} /> : null}
+            }} /></div> : null}
+            {tab === 'progress' ? <Progress api={api} classroomId={id}
+              onOpenActivity={activityId => { setPlanActivity({ kind: 'activity', classroomId: id, activityId, attemptId: null }); setTab('activities'); }}
+              onOpenStudent={teacher ? studentId => void action(async () => { const result = await api.call<Summary>(`/${id}/members/${studentId}`); if (isCurrentRoom() && navigation.current === currentNavigation) setSummary({ ...result, studentId }); }) : undefined} /> : null}
+            {retained('library') ? <div hidden={tab !== 'library'} key={`${id}-library`}><Library api={api} room={room} reload={load} active={tab === 'library'}
+              uploadContext={uploadContext} onUploadContextConsumed={() => setUploadContext(null)}
+              targetMaterialId={activeHomeTarget?.kind === 'material' ? activeHomeTarget.materialId : undefined} openUpload={activeHomeTarget?.kind === 'upload-material'} /></div> : null}
             {tab === 'wall' ? <Wall api={api} room={room} reload={load} target={destination && 'postId' in destination ? destination : null} onChanged={onWallChanged} /> : null}
-            {tab === 'activities' ? <Activities api={api} room={room} reload={load} target={planActivity ?? (destination && 'kind' in destination ? destination : null)}
-              openAuthoring={activeHomeTarget?.kind === 'create-activity'} submissionFilter={activeHomeTarget?.kind === 'submissions' ? 'unpublished' : undefined} onChanged={onWallChanged} /> : null}
+            {retained('activities') ? <div hidden={tab !== 'activities'} key={`${id}-activities`}><Activities api={api} room={room} reload={load} active={tab === 'activities'} target={planActivity ?? (destination && 'kind' in destination ? destination : null)}
+              creationContext={creationContext} onCreationContextConsumed={() => setCreationContext(null)}
+              openAuthoring={activeHomeTarget?.kind === 'create-activity'} submissionFilter={activeHomeTarget?.kind === 'submissions' ? 'unpublished' : undefined} onChanged={onWallChanged} /></div> : null}
             {tab === 'settings' && teacher ? <ClassroomSettings api={api} id={id} room={room}
               settings={settings} setSettings={setSettings} settingsRevision={settingsRevision}
               setSettingsRevision={setSettingsRevision} settingsConflict={settingsConflict}

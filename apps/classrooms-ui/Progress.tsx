@@ -7,12 +7,12 @@ import { EntryIcon } from '../shared-ui/EntryIcon';
 const decimal = (value: string) => value.replace('.', ',');
 const bounded = (value: string | null) => Math.max(0, Math.min(100, Number(value) || 0));
 function Ring({ value, label, percent = true }: { value: string; label: string; percent?: boolean }) {
-  const amount = bounded(percent ? value : String(Number(value) * 10));
-  return <div className="p8-ring" style={{ background: `conic-gradient(#ff852e ${amount}%, #f3e5d8 ${amount}%)` }}>
-    <span><strong>{decimal(value)}{percent ? '%' : ''}</strong><small>{label}</small></span>
+  return <div className="classroom-progress-value">
+    <strong>{decimal(value)}{percent ? '%' : <small> / 10</small>}</strong><span>{label}</span>
+    {percent ? <progress max={100} value={bounded(value)} aria-label={label} /> : null}
   </div>;
 }
-export function Progress({ api, classroomId, studentId }: { api: ClassroomClient; classroomId: string; studentId?: string }) {
+export function Progress({ api, classroomId, studentId, onOpenActivity, onOpenStudent }: { api: ClassroomClient; classroomId: string; studentId?: string; onOpenActivity?: (id: string) => void; onOpenStudent?: (studentId: string) => void }) {
   const [data, setData] = useState<ProgressData | null>(null), [error, setError] = useState('');
   const [refresh, setRefresh] = useState(0), [loading, setLoading] = useState(true);
   useEffect(() => {
@@ -27,7 +27,7 @@ export function Progress({ api, classroomId, studentId }: { api: ClassroomClient
   }, [api, classroomId, studentId, refresh]);
   return <section className="p8-progress" aria-label="Seguimiento del aprendizaje" aria-busy={loading}>
     <header className="p5-section-head">
-      <div><h2><EntryIcon name="list" /> {studentId ? 'Progreso individual' : data?.scope === 'classroom' ? 'Progreso del aula' : 'Mi progreso'}</h2><p>Conocé el avance y detectá oportunidades de acompañamiento.</p></div>
+      <div><h2><EntryIcon name="list" /> {studentId ? 'Progreso individual' : data?.scope === 'classroom' ? 'Progreso del aula' : 'Mi progreso'}</h2><p>Tres miradas distintas para acompañar el aprendizaje.</p></div>
       <button disabled={loading} onClick={() => setRefresh(value => value + 1)}>Actualizar progreso</button>
     </header>
     {loading ? <Notice>Cargando progreso…</Notice> : null}
@@ -79,7 +79,7 @@ export function Progress({ api, classroomId, studentId }: { api: ClassroomClient
             <p>{student.performance.average === null ? 'Sin calificaciones publicadas' : `Promedio: ${decimal(student.performance.average)}`}</p>
             <p><span className={`p8-student-state ${student.completion.pending || student.completion.pendingResubmissions ? 'is-pending' : student.completion.expected === 0 ? 'is-empty' : 'is-current'}`}>
               {student.completion.pending || student.completion.pendingResubmissions ? 'Pendiente' : student.completion.expected === 0 ? 'Sin actividades' : 'Al día'}
-            </span></p>
+            </span>{onOpenStudent && student.studentId ? <button onClick={() => onOpenStudent(student.studentId)}>Ver seguimiento</button> : null}</p>
           </li>)}
         </ul></>}
         <p>Las salidas y sus registros se consultan por separado en Historial.</p>
@@ -93,6 +93,7 @@ export function Progress({ api, classroomId, studentId }: { api: ClassroomClient
             {activity.firstSubmission ? <p>Primera entrega: {new Date(activity.firstSubmission.submittedAt).toLocaleString('es-AR', { hourCycle: 'h23', dateStyle: 'short', timeStyle: 'short' })}</p> : null}
             {activity.pendingResubmission ? <p>Reentrega pendiente; la entrega anterior se conserva.</p> : null}
             <p>{activity.grade === null ? 'Sin calificación publicada' : `Calificación vigente: ${decimal(activity.grade)}`}</p>
+            {onOpenActivity && activity.id ? <button onClick={() => onOpenActivity(activity.id)}>Ver actividad</button> : null}
           </li>)}
         </ul>}
       </section>}

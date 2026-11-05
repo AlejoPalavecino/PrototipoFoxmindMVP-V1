@@ -1,0 +1,41 @@
+/* The activity creation surfaces belong only to the classroom interior. */
+.classroom-workspace .activity-create-entry { margin-block: 22px; padding: 24px; background: #fffaf2; border: 1px solid #e8dbc8; border-radius: 22px; }
+.classroom-workspace .activity-assignment { min-width: 0; margin: 0 0 20px; padding: 20px; border: 1px solid #e8dbc8; border-radius: 16px; background: #fffcf7; }
+.classroom-workspace .activity-assignment > legend { padding-inline: 8px; font-size: 17px; font-weight: 750; color: #583a25; }
+.classroom-workspace .activity-assignment > p { margin: 0 0 16px; color: #725d4e; }
+.classroom-workspace .activity-assignment-controls { display: grid; grid-template-columns: minmax(160px,.7fr) minmax(0,1.3fr); gap: 20px; align-items: start; }
+.classroom-workspace .activity-assignment-controls > fieldset { min-width: 0; border: 0; padding: 0; margin: 0; }
+.classroom-workspace .activity-assignment-controls > label { min-width: 0; }
+.classroom-workspace .activity-assignment-controls select { width: 100%; }
+.classroom-workspace .activity-topic-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-block: 8px; }
+.classroom-workspace .activity-topic-chips > label { display: flex; align-items: center; gap: 8px; max-width: 100%; padding: 10px 12px; background: white; border: 1px solid #e2d6c7; border-radius: 12px; cursor: pointer; overflow-wrap: anywhere; }
+.classroom-workspace .activity-topic-chips > label.is-selected { background: #fff0dc; border-color: #bf713c; color: #763d1d; }
+.classroom-workspace .activity-topic-chips input { accent-color: #ad511e; width: 16px; height: 16px; flex: 0 0 auto; }
+.classroom-workspace .activity-create-entry .p7-create { align-items: end; display: flex; flex-wrap: wrap; gap: 12px; padding: 0; border: 0; background: transparent; }
+.classroom-workspace .activity-create-entry .p7-create > label { flex: 1 1 220px; }
+.classroom-workspace .activity-create-entry .p7-create > button { min-height: 46px; flex: 1 1 180px; }
+.classroom-workspace .activity-ai-choice { background: #fff1dd; border: 1px solid #c98c5b; color: #733c1f; font-weight: 750; }
+.classroom-workspace .activity-create-note { margin: 16px 0 0; color: #725d4e; font-size: 14px; }
+.classroom-workspace .p7-authoring { min-width: 0; padding: 24px; border: 1px solid #e8dbc8; border-radius: 22px; background: #fffdf8; }
+.classroom-workspace .p7-authoring form > fieldset { min-width: 0; margin-block: 20px; padding: 20px; border: 1px solid #e8dbc8; border-radius: 16px; }
+.classroom-workspace .p7-authoring [hidden] { display: none !important; }
+.classroom-workspace .activity-editor-steps { list-style: none; display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 8px; padding: 0; margin: 24px 0; }
+.classroom-workspace .activity-editor-steps button { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 48px; border: 1px solid #e5d8c5; background: #f9f3e9; border-radius: 12px; color: #725d4e; font-weight: 650; }
+.classroom-workspace .activity-editor-steps span { font-size: 13px; }
+.classroom-workspace .activity-editor-steps [aria-current="step"] button { background: #fff0dd; border-color: #c27a42; color: #713d20; }
+.classroom-workspace .activity-review-summary, .classroom-workspace .education-generation-summary { padding: 20px; background: #fff3e1; border: 1px solid #ead4b4; border-radius: 16px; overflow-wrap: anywhere; }
+.classroom-workspace .p7-generation > .p5-section-head { padding-right: 100px; min-height: 100px; background: url('/foxmind-3d/hero/foxy-warm-160.webp') right top / 92px auto no-repeat; }
+.classroom-workspace .p7-authoring .p5-form-footer { display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-end; padding-top: 20px; margin-top: 20px; border-top: 1px solid #e8dbc8; }
+.classroom-workspace .p7-authoring button:focus-visible, .classroom-workspace .activity-assignment input:focus-visible { outline: 3px solid #a64b18; outline-offset: 3px; }
+@media (max-width: 700px) {
+ .classroom-workspace .activity-create-entry, .classroom-workspace .p7-authoring { padding: 16px; border-radius: 16px; }
+ .classroom-workspace .activity-assignment { padding: 14px; }
+ .classroom-workspace .activity-assignment-controls { grid-template-columns: 1fr; gap: 16px; }
+ .classroom-workspace .activity-editor-steps { grid-template-columns: repeat(2,minmax(0,1fr)); }
+ .classroom-workspace .activity-editor-steps button { justify-content: flex-start; font-size: 13px; padding-inline: 10px; }
+ .classroom-workspace .p7-authoring form > fieldset { padding: 12px; }
+ .classroom-workspace .p7-authoring .p5-form-footer > button { flex: 1 1 140px; }
+ .classroom-workspace .p7-generation > .p5-section-head { padding-right: 0; background: none; }
+}
+.classroom-workspace .activity-generation-context { padding: 16px 20px; border-left: 3px solid #b6612a; background: #fff6e8; margin-block: 20px; overflow-wrap: anywhere; }
+.classroom-workspace .activity-generation-context p { margin: 4px 0 10px; }

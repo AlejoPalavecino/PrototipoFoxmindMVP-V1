@@ -47,7 +47,11 @@ test('D1 manual editor exposes every selected topic and saves the ordered list i
   try {
     await view.flush();
     const tree = view.tree, multi = descendants(tree, n => n.type === 'select' && n.props.multiple);
-    const topicChecks = descendants(tree, n => n.type === 'input' && n.props.type === 'checkbox' && n.props.checked === true);
+    const assignment = descendants(tree, n => n.type?.name === 'ActivityAssignment')[0];
+    const assignmentView = assignment ? hookView(assignment.type, assignment.props) : null;
+    await assignmentView?.flush();
+    const topicChecks = descendants(assignmentView?.tree ?? tree, n => n.type === 'input' && n.props.type === 'checkbox' && n.props.checked === true);
+    assignmentView?.close();
     assert.ok(multi.length > 0 || topicChecks.length >= 2, 'Both topics are represented by a real multi-select control');
     const form = descendants(tree, n => n.type === 'form')[0]; assert.ok(form);
     form.props.onSubmit({ preventDefault() {} }); await view.flush();

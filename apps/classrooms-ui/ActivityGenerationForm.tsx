@@ -1,6 +1,7 @@
 'use client';
 import type { StartActivityGeneration } from '../../src/core/domain/index.ts';
 import type { Detail } from './api.ts';
+import { ActivityAssignment } from './activity-Assignment.tsx';
 import { activityTypeLabels } from './ActivityAuthoring.tsx';
 import { generationWarnings, type GenerationSource } from './activity-generation-api.ts';
 
@@ -14,7 +15,6 @@ export function ActivityGenerationForm({ room, value, update, sources, disabled,
   room: Detail; value: GenerationFormValue; update: (value: GenerationFormValue) => void; sources: GenerationSource[]; disabled: boolean; step?: number;
 }) {
   const patch = (change: Partial<GenerationFormValue>) => update({ ...value, ...change });
-  const topics = room.units.find(unit => unit.id === value.unitId)?.topics ?? [];
   const docx = sources.some(source => value.sourceIds.includes(source.sourceId) && source.extension === 'docx');
   const inactive = (index: number) => step !== undefined && step !== index;
   return <fieldset disabled={disabled} className="p7-generation-fields"><legend>Preparar la generación</legend>
@@ -23,12 +23,8 @@ export function ActivityGenerationForm({ room, value, update, sources, disabled,
       counts: e.target.value === 'ASSIGNMENT' ? { assignment: 3, development: 0, singleChoice: 0, multipleChoice: 0 }
         : { assignment: 0, development: 2, singleChoice: 2, multipleChoice: 0 } })}>
       {Object.entries(activityTypeLabels).map(([id, label]) => <option key={id} value={id}>{label}</option>)}</select></label>
-      <label>Unidad<select required value={value.unitId} onChange={e => patch({ unitId: e.target.value, topicIds: [] })}>
-        <option value="">Selecciona una unidad</option>{room.units.map(unit => <option key={unit.id} value={unit.id}>{unit.name}</option>)}</select></label></div>
-    <fieldset><legend>Temas de la misma unidad</legend>{topics.map(topic => <label className="p7-check" key={topic.id}>
-      <input type="checkbox" checked={value.topicIds.includes(topic.id!)} onChange={e => patch({ topicIds: e.target.checked
-        ? [...value.topicIds, topic.id!] : value.topicIds.filter(id => id !== topic.id) })} />{topic.name}</label>)}</fieldset>
-    {!value.unitId ? <p className="education-form-note">Elegí una unidad para ver sus temas.</p> : null}
+      </div>
+    <ActivityAssignment room={room} value={{ unitId: value.unitId, topicIds: value.topicIds }} update={patch} />
     <label>Objetivo<textarea required maxLength={1000} rows={3} placeholder="Por ejemplo: comparar fracciones en situaciones cotidianas" value={value.objective} onChange={e => patch({ objective: e.target.value })} /></label>
     </fieldset>
     <fieldset data-generation-step={1} hidden={inactive(1)} disabled={disabled || inactive(1)}><legend>Material y nivel</legend>

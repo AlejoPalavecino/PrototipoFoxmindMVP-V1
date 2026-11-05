@@ -1,0 +1,109 @@
+/* AUR-004. Only content sections of the approved classroom interior. */
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-library-curriculum-filters { display:flex; flex-wrap:wrap; gap:12px; flex:1 1 360px; min-width:0; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-library-curriculum-filters label { flex:1 1 150px; min-width:0; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-library-curriculum-filters select { width:100%; margin-top:4px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .interior-library-toolbar { gap:16px; align-items:end; padding:0 0 20px; margin-top:24px; border-bottom:1px solid #e7d5c4; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .interior-library-filters { flex-basis:100%; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-library .interior-library-heading { align-items:flex-start; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .interior-library-summary { background:none; border:0; padding:0; gap:12px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace :is(.interior-library-summary-icon,.interior-library-title > .fm3d-icon,.interior-social-heading > .fm3d-icon) { display:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .interior-library-summary small { display:block; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-library .p6-library-upload { padding:0; border:1px solid #e2c3a0; border-radius:12px; background:#fff8ec; box-shadow:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-library-upload .folder-disclosure { margin:0; padding:0 20px; background:none; border:0; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-library-upload .folder-disclosure > summary { cursor:pointer; padding:14px 0; font-weight:600; color:#8d3b13; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-library-upload > :is(form,.p5-notice,button) { margin:16px 20px; max-width:calc(100% - 40px); }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-context-note { color:#774625; padding:12px; border-left:3px solid #ba622d; background:#ffefd9; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-library .p6-library-list > .folder-row { padding:22px 6px; border-bottom:1px solid #e7d5c4; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .interior-material-icon { background:none; border:0; color:#a14b1e; padding:4px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .interior-material-copy h3 { font-size:17px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .interior-material-copy :is(p,small) { font-size:13px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-section-helper { margin:20px 0 0; font-size:13px; color:#765b46; line-height:1.6; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-wall { max-width:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-wall-layout { display:grid; grid-template-columns:minmax(0,1fr) 250px; align-items:start; gap:28px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-wall-conversation { min-width:0; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-wall-composer { padding:22px; border:1px solid #e2c39f; border-radius:14px; background:#fff5e5; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-wall-composer fieldset { display:block; padding:0; border:0; min-width:0; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-wall-composer label { font-weight:600; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-wall-composer textarea { margin-top:12px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-wall-composer small { display:block; font-size:12px; color:#765b46; margin:12px 0; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-wall-composer .p5-actions { justify-content:flex-end; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-wall-guidance { padding:22px; border-left:1px solid #e4ceb3; background:#fff8ed; border-radius:0 12px 12px 0; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-wall-guidance > .fm3d-icon { width:24px; height:24px; color:#a45124; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-wall-guidance h3 { margin:12px 0; font-size:21px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-wall-guidance :is(p,small) { line-height:1.7; color:#725039; font-size:14px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-wall .p6-wall-threads { gap:0; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-wall .p6-wall-threads > article { margin-top:22px; padding:22px; border:1px solid #e7d4ba; border-radius:14px; background:#fffcf6; box-shadow:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-wall .p6-wall-threads > article > .p5-tag { float:right; margin-left:12px; background:#ffead0; color:#7e3e17; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-wall-author { align-items:center; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-wall-text { margin:18px 0; font-size:15px; line-height:1.75; white-space:pre-wrap; overflow-wrap:anywhere; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-wall-replies h3 { font-size:16px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-wall .p6-wall-replies { padding-top:12px; border-left-color:#dfbb91; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-wall .p6-wall-replies > article { padding:14px 0; border-bottom:1px solid #efdfcb; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p8-progress .p8-progress-metrics { background:none; gap:20px; grid-template-columns:repeat(3,minmax(0,1fr)); }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p8-progress .p8-progress-metrics > section { padding:22px; border:1px solid #e5cfb3; border-radius:14px; background:#fff9ef; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p8-progress .p8-progress-metrics > section:nth-child(2) { background:#fff9ef; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p8-progress .p8-progress-metrics > section:last-child { background:#fff9ef; border-color:#e5cfb3; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p8-progress .p8-progress-metrics h3 { font:600 15px/1.5 'Segoe UI',sans-serif; margin:0 0 18px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p8-progress-metrics h3 .fm3d-icon { display:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p8-progress .p8-metric-body { display:block; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-progress-value { display:grid; gap:8px; margin-bottom:18px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-progress-value strong { font:500 38px/1.15 'Fredoka Auth','Segoe UI',sans-serif; color:#7d3614; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-progress-value strong small { font:400 17px/1.4 'Segoe UI',sans-serif; color:#765b46; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-progress-value > span { font-size:13px; color:#725039; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-progress-value progress { width:100%; height:8px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p8-progress .p8-metric-details p { font-size:13px; margin:8px 0; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p8-progress .p8-progress-metrics > section > small { padding-top:16px; margin-top:16px; border-top:1px solid #ecdcc6; font-size:12px; line-height:1.65; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p8-progress .p8-progress-lower { display:block; margin-top:32px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p8-progress .p8-progress-guidance { background:none; padding:16px 0; border:0; border-top:1px solid #e7d5c4; border-radius:0; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p8-progress .p8-progress-guidance h3 { font-size:18px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p8-progress .p8-progress-guidance p { font-size:13px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p8-progress :is(.p8-progress-students,.p8-progress-activities) { padding:0; list-style:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p8-progress :is(.p8-progress-students,.p8-progress-activities) > li { padding:20px 0; border:0; border-bottom:1px solid #e7d5c4; background:none; border-radius:0; box-shadow:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p8-progress .p8-progress-students > li { grid-template-columns:minmax(180px,1.2fr) minmax(160px,1fr) minmax(120px,.8fr) minmax(140px,1fr); }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p8-progress .p8-progress-students > li > p:last-child { display:flex; gap:12px; flex-direction:column; align-items:flex-start; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-people-toolbar { display:flex; gap:20px; align-items:center; justify-content:space-between; flex-wrap:wrap; padding:0 0 18px; border-bottom:1px solid #e7d5c4; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-people-toolbar p { font-size:14px; color:#765b46; margin:0; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-people-toolbar label { flex:0 1 300px; min-width:0; font-size:13px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-people-toolbar input { width:100%; margin-top:6px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p5-roster { margin:0; padding:0; list-style:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p5-roster > li { padding:22px 6px; border:0; border-bottom:1px solid #e7d5c4; border-radius:0; background:none; box-shadow:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p5-roster .classroom-person-details strong { font-size:16px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p5-roster .classroom-person-details small { font-size:12px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-members-aside { margin-top:28px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-members-aside :is(.classroom-members-code,.classroom-members-invitations) { background:#fff8ed; border-color:#e5cfb3; border-radius:12px; padding:22px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-history-explainer { margin-top:24px; padding:18px 0; border:0; border-top:1px solid #e7d5c4; border-radius:0; background:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-history-art { display:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-history-explainer h3 { font-size:19px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-history-explainer p { font-size:13px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-settings-form { border:1px solid #e4caaa; border-radius:14px; padding:24px; margin-top:24px; background:#fffaf2; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-settings-form .p5-fields { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-settings-form :is(.classroom-settings-data,.classroom-settings-options) { padding:0; background:none; border:0; box-shadow:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-settings-form .classroom-settings-options { padding-top:22px; border-top:1px solid #e7d5c4; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-settings-form h3 { font-size:22px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-settings-form p { font-size:14px; line-height:1.65; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-settings-save [role='status'] { color:#775036; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-settings-cover { padding:22px 0; background:none; border:0; border-bottom:1px solid #e7d5c4; border-radius:0; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-settings-archive { display:block; padding:22px; border:1px solid #dcb68a; border-left:3px solid #a64f1d; border-radius:12px; background:#fff4e1; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-settings-archive button { margin-top:12px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-lifecycle-state { display:inline-block; padding:5px 10px; margin:0 0 12px; background:#ffe3bc; color:#743d18; border-radius:6px; font-weight:600; font-size:13px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace :is(.classroom-library-curriculum-filters,.classroom-people-toolbar,.classroom-wall-composer) :is(input,select,textarea) { box-sizing:border-box; min-width:0; max-width:100%; }
+@media(max-width:1100px) {
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p8-progress .p8-progress-metrics { grid-template-columns:minmax(0,1fr); }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p8-progress .p8-progress-students > li { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p8-progress .p8-students-head { display:none; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-wall-layout { grid-template-columns:minmax(0,1fr); }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-wall-guidance { border-left:0; border-top:1px solid #e4ceb3; border-radius:0; }
+}
+@media(max-width:600px) {
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-library-curriculum-filters { flex-basis:100%; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-people-toolbar label { flex:1 1 100%; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-members-aside { grid-template-columns:minmax(0,1fr); }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-settings-form { padding:18px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-settings-form .p5-fields { grid-template-columns:minmax(0,1fr); }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p8-progress .p8-progress-students > li { grid-template-columns:minmax(0,1fr); }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-library .p6-library-list .folder-row-actions { flex-basis:100%; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p6-library-list .p5-actions > a { display:flex; align-items:center; min-height:44px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .classroom-wall-composer,.p6-wall .p6-wall-threads > article { padding:16px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p5-roster > li { flex-wrap:wrap; gap:12px; }
+.fm3d-theme .p5-app.classroom-interior-reference .classroom-workspace .p5-roster > li > .p5-actions { width:100%; padding-left:0; }
+}

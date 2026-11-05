@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import type { ActivityProposal } from '../../src/core/domain/index.ts';
 import type { ClassroomClient, Detail } from './api.ts';
+import type { ClassroomCreationContext } from './classroom-creation-context.ts';
 import { Notice } from './components.tsx';
 import { defaultGenerationForm } from './ActivityGenerationForm.tsx';
 import { GenerationSetup } from './GenerationSetup.tsx';
@@ -10,11 +11,11 @@ import { ActivityGenerationProposal } from './ActivityGenerationProposal.tsx';
 import { generationErrors, generationStates, generationWarnings, generationSourceTitle, type GenerationView } from './activity-generation-api.ts';
 import { useActivityGeneration } from './use-activity-generation.ts';
 
-export function ActivityGeneration({ api, room, onApplied, onClose }: {
-  api: ClassroomClient; room: Detail; onApplied: (id: string, signal: AbortSignal) => Promise<void>; onClose: () => void;
+export function ActivityGeneration({ api, room, onApplied, onClose, creationContext }: {
+  api: ClassroomClient; room: Detail; onApplied: (id: string, signal: AbortSignal) => Promise<void>; onClose: () => void; creationContext?: ClassroomCreationContext | null;
 }) {
   const generation = useActivityGeneration(api, room, onApplied);
-  const [form, setForm] = useState(defaultGenerationForm), [review, setReview] = useState<{ id: string; proposal: ActivityProposal } | null>(null);
+  const [form, setForm] = useState(() => ({ ...defaultGenerationForm(), ...(creationContext ?? {}) })), [review, setReview] = useState<{ id: string; proposal: ActivityProposal } | null>(null);
   const [dirty, setDirty] = useState(false), [replacement, setReplacement] = useState<GenerationView | null>(null);
   const [charge, setCharge] = useState(false), [regenerating, setRegenerating] = useState(false);
   const [sending, setSending] = useState(false);
@@ -30,7 +31,7 @@ export function ActivityGeneration({ api, room, onApplied, onClose }: {
   }
   const editable = room.role === 'teacher' && !room.archived;
   return <section className="p7-authoring p7-generation" aria-label="Generar actividad con IA">
-    <header className="p5-section-head"><div><h3>Generar con IA</h3><p>Una propuesta privada para revisar. Crear un borrador no publica la actividad.</p></div>
+    <header className="p5-section-head"><div><h3>Crear con Foxy AI</h3><p>Una propuesta privada para revisar. Crear un borrador no publica la actividad.</p></div>
       <button type="button" disabled={generation.busy} onClick={onClose}>Cerrar generación</button></header>
     {generation.error ? <Notice error>{generation.error}</Notice> : null}
     {sending || active ? <AiProgress state={active ? view.state as 'QUEUED' | 'RUNNING' : 'SENDING'} task="activity" /> : null}

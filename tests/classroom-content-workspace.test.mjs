@@ -44,9 +44,11 @@ test('draft and withdrawn activities never offer pending review; student access 
   }
 });
 
-test('settings exposes named information and options groups under the existing disabled boundary', () => {
+test('settings exposes named information and options groups under the existing disabled boundary', async () => {
   const { ClassroomSettings } = loadTsModule('apps/classrooms-ui/ClassroomSettings.tsx');
-  const tree = ClassroomSettings({ room: { ...room, archived: true }, settings: { name: 'Ciencias', subject: 'Ciencias', division: 'A', academicYear: 2026, aiGradingEnabled: false }, busy: false });
+  const view = hookView(ClassroomSettings, { room: { ...room, archived: true }, settings: { name: 'Ciencias', subject: 'Ciencias', division: 'A', academicYear: 2026, aiGradingEnabled: false }, busy: false });
+  await view.flush();
+  const tree = view.tree;
   const form = descendants(tree, n => n.type === 'form')[0];
   assert.equal(descendants(form, n => n.type === 'fieldset')[0].props.disabled, true);
   for (const label of ['Datos del aula', 'Opciones de corrección']) {
@@ -54,4 +56,5 @@ test('settings exposes named information and options groups under the existing d
   }
   assert.equal(descendants(form, n => n.type === 'button' && text(n) === 'Guardar cambios').length, 1);
   assert.doesNotMatch(text(form), /Reactivar aula/);
+  view.close();
 });

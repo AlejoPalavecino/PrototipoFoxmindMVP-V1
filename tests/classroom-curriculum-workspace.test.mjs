@@ -18,7 +18,7 @@ test('Plan selection never changes teaching state; only the explicit state contr
     assert.ok(resource);assert.equal(text(resource),'Abrir actividad');resource.props.onClick();assert.deepEqual(opened,['activity']);
     find(n=>n.type==='select'&&n.props['aria-label']==='Tema del plan')[0].props.onChange({target:{value:'two'}});await view.flush();
     assert.equal(writes.length,0);
-    find(n=>n.type==='select'&&n.props['aria-label']==='Avance de Ecosistemas')[0].props.onChange({target:{value:'TAUGHT'}});
+    find(n=>n.type==='input'&&n.props['aria-label']==='Marcar como dado: Ecosistemas')[0].props.onChange({target:{checked:true}});
     assert.deepEqual(writes,[['two','TAUGHT']]);
   }finally{view.close();}
 });

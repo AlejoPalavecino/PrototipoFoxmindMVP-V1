@@ -1,6 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ActivityData, ActivityDetail, ActivityQuestion, ClassroomClient, DeadlineResolution, Detail, FileState, Material } from './api.ts';
+import { ActivityAssignment } from './activity-Assignment.tsx';
+import type { ClassroomCreationContext } from './classroom-creation-context.ts';
 import { Notice } from './components.tsx';
 import { ActivityCurriculum } from './ActivityCurriculum.tsx';
 
@@ -41,11 +43,11 @@ export function QuestionEditor({ question, index, update, remove, fixedType = fa
   </fieldset>;
 }
 
-export function ActivityAuthoring({ api, room, data, materials, onSaved, onClose }: {
-  api: ClassroomClient; room: Detail; data: ActivityData; materials: Material[]; onSaved: () => Promise<void>; onClose: () => void;
+export function ActivityAuthoring({ api, room, data, materials, onSaved, onClose, creationContext }: {
+  api: ClassroomClient; room: Detail; data: ActivityData; materials: Material[]; onSaved: () => Promise<void>; onClose: () => void; creationContext?: ClassroomCreationContext | null;
 }) {
   const activity = data.activity;
-  const [title, setTitle] = useState(activity.title ?? ''), [unitId, setUnit] = useState(activity.unitId ?? ''), [topicIds, setTopics] = useState(activity.topicIds ?? (activity.topicId ? [activity.topicId] : []));
+  const [title, setTitle] = useState(activity.title ?? ''), [unitId, setUnit] = useState(creationContext?.unitId ?? activity.unitId ?? ''), [topicIds, setTopics] = useState(creationContext?.topicIds ?? activity.topicIds ?? (activity.topicId ? [activity.topicId] : []));
   const [instructions, setInstructions] = useState(activity.instructions ?? ''), [attachmentRequired, setRequired] = useState(activity.attachmentRequired);
   const [aiGradingRubric, setAiGradingRubric] = useState(activity.aiGradingRubric ?? '');
   const [questions, setQuestions] = useState(activity.questions), [files, setFiles] = useState(activity.instructionFiles);
@@ -53,10 +55,13 @@ export function ActivityAuthoring({ api, room, data, materials, onSaved, onClose
   const [local, setLocal] = useState(activityMinute(activity.deadlineAt, room.timezone)), [allowLate, setLate] = useState(activity.allowLate);
   const [offset, setOffset] = useState<number | null>(() => activity.deadlineAt ? (Date.parse(`${activityMinute(activity.deadlineAt, room.timezone)}:00Z`) - Date.parse(activity.deadlineAt)) / 60000 : null);
   const [resolution, setResolution] = useState<DeadlineResolution | null>(null), [upload, setUpload] = useState<FileState | null>(null);
-  const [error, setError] = useState(''), [busy, setBusy] = useState(false), [dirty, setDirty] = useState(false);
+  const [error, setError] = useState(''), [busy, setBusy] = useState(false), [dirty, setDirty] = useState(Boolean(creationContext));
   const [revision, setRevision] = useState(data.revision);
   const locked = activity.locked || room.archived;
-  const topics = room.units.find(u => u.id === unitId)?.topics ?? [];
+  const [step, setStep] = useState(0);
+  const stageHeading = useRef<HTMLHeadingElement>(null);
+  const stages = ['Preparación', 'Materiales', 'Condiciones', 'Revisión'];
+  useEffect(() => { stageHeading.current?.focus(); }, [step]);
   const mark = () => setDirty(true);
   async function run(operation: () => Promise<void>) {
     setBusy(true); setError('');
@@ -82,6 +87,8 @@ export function ActivityAuthoring({ api, room, data, materials, onSaved, onClose
     {activity.locked ? <Notice>Ya comenzó la participación. Solo se pueden corregir el título y la organización, extender una fecha existente o permitir entregas tardías. Las consignas y sus recursos permanecen bloqueados.</Notice> : null}
     {error ? <Notice error>{error} Los cambios no confirmados permanecen en este editor; no se garantiza su recuperación al cerrarlo.</Notice> : null}
     <p role="status">{busy ? 'Guardando o verificando…' : dirty ? 'Cambios sin guardar. Las preguntas incompletas o inválidas no se guardan.' : 'Último estado confirmado cargado.'}</p>
+    <ol className="activity-editor-steps" aria-label="Etapas de edición">{stages.map((label, index) => <li key={label} aria-current={step === index ? 'step' : undefined}><button type="button" disabled={busy} onClick={() => setStep(index)}><span>{index + 1}</span>{label}</button></li>)}</ol>
+    <h4 ref={stageHeading} tabIndex={-1}>Paso {step + 1} de 4 · {stages[step]}</h4>
     <form onSubmit={e => { e.preventDefault(); void run(async () => {
       if (activity.locked) await change({ action: 'metadata', id: activity.id, title, unitId: unitId || null, topicIds });
       else {
@@ -97,15 +104,9 @@ export function ActivityAuthoring({ api, room, data, materials, onSaved, onClose
       <fieldset disabled={busy || room.archived}>
         <legend>Organización de la actividad</legend>
         <label>Título de la actividad<input maxLength={200} value={title} onChange={e => setTitle(e.target.value)} /></label>
-        <div className="p5-fields"><label>Unidad de la actividad<select aria-label="Unidad de la actividad" value={unitId} onChange={e => { setUnit(e.target.value); setTopics([]); }}>
-          <option value="">Selecciona una unidad</option>{room.units.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}</select></label>
-          <fieldset disabled={!unitId}><legend>Temas de la actividad</legend>
-            {topics.map(t => <label className="p7-check" key={t.id}><input type="checkbox" checked={topicIds.includes(t.id!)}
-              onChange={e => setTopics(e.target.checked ? [...topicIds, t.id!] : topicIds.filter(id => id !== t.id))} />{t.name}</label>)}
-            {!topics.length ? <p>Selecciona una unidad para ver sus temas.</p> : null}
-            <small>Selecciona uno o más temas de esta unidad para publicar.</small></fieldset></div>
+        <ActivityAssignment room={room} value={{ unitId, topicIds }} update={value => { setUnit(value.unitId); setTopics(value.topicIds); mark(); }} />
       </fieldset>
-      <fieldset disabled={busy || locked}>
+      <fieldset hidden={step !== 1} disabled={busy || locked}>
         <legend>Consignas y recursos</legend>
         <label>Observaciones<textarea maxLength={5000} rows={5} value={instructions} onChange={e => setInstructions(e.target.value)} /></label>
         <label>Rúbrica opcional para la corrección con IA<textarea maxLength={5000} rows={4} value={aiGradingRubric} onChange={e => setAiGradingRubric(e.target.value)} /></label>
@@ -143,7 +144,8 @@ export function ActivityAuthoring({ api, room, data, materials, onSaved, onClose
         <label className="p7-check"><input type="checkbox" checked={allowLate} onChange={e => setLate(e.target.checked)} />Permitir entregas tardías</label>
         {activity.locked ? <button type="button" onClick={() => void run(async () => { await change({ action: 'deadline', id: activity.id, deadline: await deadline(), allowLate }); setDirty(false); })}>Guardar plazo y recepción</button> : null}
       </fieldset>
-      <footer className="p5-form-footer"><button className="primary" disabled={busy || room.archived}>{activity.locked ? 'Guardar organización' : 'Guardar actividad'}</button></footer>
+      {step === 3 ? <section className="activity-review-summary" aria-label="Revisión del borrador"><h4>Antes de guardar</h4><p><strong>{title || 'Borrador sin título'}</strong> · {activityTypeLabels[activity.type]}</p><p>{instructions || 'Sin observaciones escritas.'}</p><p>{files.length} archivos de instrucciones · {materialIds.length} materiales vinculados · {questions.length} preguntas</p><p>{local ? `${local.replace('T', ' · ')} · ${room.timezone}` : 'Sin fecha límite'} · {allowLate ? 'Permite entregas tardías' : 'No permite entregas tardías'}</p><p>Guardar confirma el borrador. La publicación se confirma por separado en Actividades.</p></section> : null}
+      <footer className="p5-form-footer">{step > 0 ? <button type="button" disabled={busy} onClick={() => setStep(step - 1)}>Anterior</button> : null}<button type="button" hidden={step === 3} disabled={busy} onClick={() => setStep(step + 1)}>Continuar</button><button className="primary" disabled={busy || room.archived}>{activity.locked ? 'Guardar organización' : 'Guardar actividad'}</button></footer>
     </form>
   </section>;
 }
