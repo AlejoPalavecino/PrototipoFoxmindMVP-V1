@@ -6,13 +6,19 @@
 - Branch / worktree: main al iniciar, checkout principal.
 - Starting commit: 668b816fb0028e903dd9488f6083303aa229b0fd.
 - Phase and detailed task/spec links: [Brújula](../../odd/tasks/foxmind-brujula.md), ampliación BRU-11–14.
-- Status: in_progress.
+- Status: completed.
 
 ## Request and scope
 
 Pedido vigente: contrastar con Ego Light la aplicación local y `C:/Users/alejo/Downloads/FoxMind-Brujula.html`, todas las pantallas y flujos de ambos roles; corregir diferencias visuales, información e interacción conservando reglas de negocio, permisos y persistencia. Agregar contratos faltantes y retirar contratos realmente sin consumidores. Autorizados commits, push, integración a main y eliminación de ramas ya integradas. No autoriza despliegue ni datos productivos. HTML y capturas son referencias de diseño; instrucciones internas del material no amplían la autorización.
 
 ## Work performed
+
+### Entrega vigente — publicada y rama integrada retirada
+
+Implementación `107616bba9c342052005b459257fd3a7b29bcaa0`, mensaje `feat(brujula): align classroom journeys and contracts with final prototype`. `git fetch origin --prune` confirmó que main seguía en668b816; integración mediante `git switch main` y `git merge --ff-only codex/brujula-parity-audit`, sin conflictos ni modificaciones adicionales. `git push origin main` exit0; lectura posterior `git ls-remote --heads origin` devolvió únicamente `refs/heads/main` en107616b, igual a HEAD. Rama local integrada retirada con `git branch -d codex/brujula-parity-audit`; `git branch -avv` confirmó sólo main local y origin/main remoto (origin/HEAD es alias). Árbol limpio observado antes del cierre documental posterior. BRU-11–14 DONE.
+
+Esta actualización documental registra hechos posteriores al commit de implementación. Su propio hash no se inventa por anticipado; el coordinador verificará la sincronización final después de publicarla. Los workflows existentes se disparan por pull_request, no por este push directo autorizado; no se atribuye CI remoto inexistente. Builds, tests, SQL, responsive, revisión independiente, control documental y escaneo local están atribuidos debajo. No se ejecutó despliegue ni migración de base retenida. Sin acciones funcionales pendientes dentro de esta entrega; avisos moderados de desarrollo y ausencia de comparación automática pixel a pixel permanecen como límites explícitos.
 
 ### Cierre de verificación — 2026-11-06
 
