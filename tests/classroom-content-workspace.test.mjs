@@ -11,19 +11,16 @@ const activity = { id: 'practice', type: 'ASSIGNMENT', status: 'PUBLISHED', titl
 test('published teacher activity prioritizes pending review without hiding preview or received submissions', async () => {
   const { Activities } = loadTsModule('apps/classrooms-ui/Activities.tsx');
   const calls = [];
-  const view = hookView(Activities, { room, api: { call: async (...args) => { calls.push(args); return { activities: [activity] }; } }, reload: async () => {} });
+  const view = hookView(Activities, { room, api: { call: async (...args) => { calls.push(args); return args[0].endsWith('/preview')?{activity}:{ activities: [activity] }; } }, reload: async () => {} });
   try {
     await view.flush();
     const card = descendants(view.tree, n => n.type === 'article')[0];
     const buttons = descendants(card, n => n.type === 'button');
-    assert.equal(text(buttons[0]), 'Revisar pendientes');
-    assert.match(buttons[0].props.className, /primary/);
-    const secondary = descendants(card, n => n.props.role === 'group' && n.props['aria-label'] === 'Consulta y opciones de la actividad')[0];
-    assert.ok(secondary); assert.match(text(secondary), /Vista previa docente/); assert.match(text(secondary), /Ver entregas recibidas/);
+    assert.equal(buttons.length,1);assert.equal(buttons[0].props['aria-label'],`Abrir ${activity.title}`);
     buttons[0].props.onClick(); await view.flush();
     const history = descendants(view.tree, n => n.type?.name === 'AttemptHistory')[0];
-    assert.equal(history.props.filter, 'unpublished'); assert.equal(history.props.activityId, activity.id);
-    assert.equal(calls.length, 1, 'opening review does not perform a write');
+    assert.equal(history.props.activityPreview,activity);assert.equal(history.props.activityId,activity.id);
+    assert.ok(calls.every(args=>args[1]==='GET'),'Detail access never writes');
   } finally { view.close(); }
 });
 
@@ -37,7 +34,7 @@ test('draft and withdrawn activities never offer pending review; student access 
       assert.doesNotMatch(text(card), /Revisar pendientes/);
       if (role === 'student') {
         const first = descendants(card, n => n.type === 'button')[0];
-        assert.equal(text(first), 'Abrir trabajo práctico'); assert.match(first.props.className, /primary/);
+        assert.equal(first.props['aria-label'],`Abrir ${activity.title}`);
         assert.doesNotMatch(text(card), /Editar actividad|Publicar|Habilitar primera entrega/);
       }
     } finally { view.close(); }

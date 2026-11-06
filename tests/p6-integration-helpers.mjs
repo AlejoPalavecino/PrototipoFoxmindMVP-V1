@@ -89,7 +89,7 @@ export async function openClassroom(page, origin, name = 'P6 classroom') {
       assert.equal((await detail.json()).error.code, 'RATE_LIMITED');
       const raw = detail.headers()['retry-after']; assert.match(raw ?? '', /^\d+$/);
       const seconds = Number(raw); assert.ok(Number.isSafeInteger(seconds) && seconds >= 1 && seconds <= 60);
-      await page.getByRole('alert').filter({ hasText: /límite de intentos/i }).waitFor();
+      await page.getByRole('alert').filter({ hasText: /límite de intentos/i }).first().waitFor();
       await delay(seconds * 1000);
       const path = new URL(detail.url()).pathname;
       const resumed = prepareResponse(value => value.request().method() === 'GET' && new URL(value.url()).pathname === path);

@@ -4,8 +4,9 @@ import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { openClassroom, planPdf, upload } from './p6-integration-helpers.mjs';
 import { digest } from './p4-integration-helpers.mjs';
+import {seedPlan} from './helpers/plan-fixture.mjs';
 import { withJourney, ok, request, detail, rootOf, createActivity, changeActivity,
-  rejectUnchanged, academicHash } from './p9-journey-helpers.mjs';
+  rejectUnchanged, academicHash } from './p9-journey-helpers-current.mjs';
 
 // Only an observed429 permits one bounded wait and another action on the existing visible control.
 async function confirmed(page, path, method, action) {
@@ -34,18 +35,16 @@ test('P9 remaining teaching only: TAUGHT, immutable Library, Muro moderation/sco
     const { runtime, T, S, room, scratch } = world, teacher = T.page, student = S.page, root = rootOf(room);
     // Preserve real two-version/current-NEXT context as setup, not accepted version/digest/NEXT assertion bodies.
     const nextPlan = await upload(teacher, { kind: 'classroom', id: room.id }, await planPdf('Remaining teaching setup plan'));
-    await ok(teacher, 'POST', `${root}/plan`, { revision: (await detail(teacher, room)).revision,
-      operation: { action: 'appendVersion', fileId: nextPlan.id } });
+    await seedPlan(runtime.db.query.bind(runtime.db),room.id,{action:'appendVersion',fileId:nextPlan.id});
     const initial = await detail(teacher, room), unit = initial.units[0], topic = unit.topics[0];
     await ok(teacher, 'POST', `${root}/plan`, { revision: initial.revision,
       operation: { action: 'setTopicState', id: topic.id, status: 'NEXT' } });
     await openClassroom(teacher, runtime.origin, 'P9 teaching-remainder classroom');
     await teacher.getByRole('button', { name: 'Plan', exact: true }).click();
     const plan = teacher.getByRole('region', { name: 'Plan de estudio', exact: true });
-    await plan.locator('summary').filter({ hasText: /^Administrar plan/ }).click();
-    const state = await unique(plan.getByLabel('Estado de First topic'));
-    await confirmed(teacher, `${root}/plan`, 'POST', () => state.selectOption('TAUGHT'));
-    await plan.getByText('Plan actualizado.', { exact: true }).waitFor();
+    const state = await unique(plan.getByRole('checkbox', { name: 'Marcar como dado: First topic', exact: true }));
+    await confirmed(teacher, `${root}/plan`, 'POST', () => state.click());
+    await plan.getByText('Tema marcado como dado.', { exact: true }).waitFor();
     const taught = await detail(teacher, room);
     assert.equal(taught.units[0].topics[0].id, topic.id); assert.equal(taught.units[0].topics[0].status, 'TAUGHT');
     assert.equal(taught.units.flatMap(row => row.topics).filter(row => row.status === 'NEXT').length, 0);
@@ -56,15 +55,16 @@ test('P9 remaining teaching only: TAUGHT, immutable Library, Muro moderation/sco
     await teacher.getByRole('button', { name: 'Biblioteca', exact: true }).click();
     const library = teacher.getByRole('region', { name: 'Biblioteca del aula', exact: true });
     const bytes = await planPdf('P9 remaining immutable material'), expectedDigest = digest(bytes);
-    await library.locator('summary').filter({ hasText: /^Publicar material$/ }).click();
-    await (await unique(library.getByLabel('Archivo del material', { exact: true }))).setInputFiles({
+    await library.getByRole('button', { name: 'Agregar material', exact: true }).click();
+    const materialForm = teacher.getByRole('dialog', { name: 'Agregar material', exact: true });
+    await (await unique(materialForm.getByLabel('Archivo del material', { exact: true }))).setInputFiles({
       name: 'remaining-material.pdf', mimeType: 'application/pdf', buffer: bytes });
-    await library.getByText('Archivo aprobado: remaining-material.pdf. Completa los datos para publicarlo.', { exact: true }).waitFor();
-    await (await unique(library.getByLabel('Nombre del material', { exact: true }))).fill('Remaining linked material');
+    await materialForm.getByText('Archivo aprobado: remaining-material.pdf. Completa los datos para publicarlo.', { exact: true }).waitFor();
+    await (await unique(materialForm.getByLabel('Nombre del material', { exact: true }))).fill('Remaining linked material');
     // These two controls have explicit aria-labels in MaterialForm; exact matching is valid despite wrapping options.
-    await (await unique(library.getByLabel('Unidad del material', { exact: true }))).selectOption(unit.id);
-    await (await unique(library.getByLabel('Tema del material', { exact: true }))).selectOption(topic.id);
-    await confirmed(teacher, `${root}/library`, 'POST', () => library.getByRole('button', { name: 'Publicar material', exact: true }).click());
+    await (await unique(materialForm.getByLabel('Unidad del material', { exact: true }))).selectOption(unit.id);
+    await (await unique(materialForm.getByLabel('Tema del material', { exact: true }))).selectOption(topic.id);
+    await confirmed(teacher, `${root}/library`, 'POST', () => materialForm.getByRole('button', { name: 'Publicar en Biblioteca', exact: true }).click());
     await library.getByText('Material publicado.', { exact: true }).waitFor();
     const [material] = await ok(student, 'GET', `${root}/library`);
     assert.equal(material.unitId, unit.id); assert.equal(material.topicId, topic.id); assert.equal(material.ready, true);
@@ -77,10 +77,11 @@ test('P9 remaining teaching only: TAUGHT, immutable Library, Muro moderation/sco
       { base64: bytes.toString('base64') }), 403);
     await rejectUnchanged(runtime.db, async () => request(student, 'POST', `${root}/library`, {
       revision: (await detail(teacher, room)).revision, operation: { action: 'delete', id: material.id, confirm: true } }), 403);
-    await confirmed(teacher, `${root}/library`, 'GET', () => library.getByRole('button', { name: 'Actualizar Biblioteca', exact: true }).click());
+    await openClassroom(teacher, runtime.origin, 'P9 teaching-remainder classroom');
+    await teacher.getByRole('button', { name: 'Biblioteca', exact: true }).click();
     const materialCard = library.getByRole('article', { name: material.title, exact: true });
-    await materialCard.getByLabel(`Más opciones para ${material.title}`, { exact: true }).click();
-    await materialCard.getByRole('button', { name: 'Editar datos', exact: true }).click();
+    await materialCard.getByRole('button', { name: `Abrir material: ${material.title}`, exact: true }).click();
+    await teacher.getByRole('button', { name: 'Editar datos', exact: true }).click();
     const editor = teacher.getByRole('dialog', { name: 'Editar material', exact: true });
     await editor.getByLabel('Nombre del material', { exact: true }).fill('Reorganized same private material');
     await editor.getByLabel('Unidad del material', { exact: true }).selectOption('');
@@ -93,7 +94,7 @@ test('P9 remaining teaching only: TAUGHT, immutable Library, Muro moderation/sco
     await student.getByRole('button', { name: 'Plan', exact: true }).click();
     await student.getByRole('region', { name: 'Plan de estudio', exact: true }).getByRole('heading', { name: 'Plan de estudio', exact: true }).waitFor();
     const studentPlan = student.getByRole('region', { name: 'Plan de estudio', exact: true });
-    assert.equal(await studentPlan.getByLabel('Tema del plan', { exact: true }).count(), 1);
+    await studentPlan.getByRole('region', { name: 'Tema seleccionado', exact: true }).waitFor();
     assert.equal(await studentPlan.getByLabel('Estado de First topic', { exact: true }).count(), 0);
     assert.equal(await studentPlan.getByLabel('Avance de First topic', { exact: true }).count(), 0);
     assert.equal(await studentPlan.getByText('Administrar plan', { exact: false }).count(), 0);
@@ -103,7 +104,7 @@ test('P9 remaining teaching only: TAUGHT, immutable Library, Muro moderation/sco
     const card = studentLibrary.getByRole('article', { name: reorganized.title, exact: true }); await card.waitFor();
     assert.equal(await studentLibrary.getByLabel('Archivo del material', { exact: true }).count(), 0);
     assert.equal(await card.getByRole('button', { name: 'Editar datos', exact: true }).count(), 0);
-    await card.getByRole('link', { name: 'Vista previa', exact: true }).waitFor();
+    await card.getByRole('button', { name: `Abrir material: ${reorganized.title}`, exact: true }).waitFor();
     const preview = await request(student, 'GET', `/files/${material.fileId}/content?mode=preview`);
     assert.equal(preview.status, 200); assert.equal(preview.digest, expectedDigest);
     assert.equal((await request(student, 'GET', `/files/${material.fileId}/content`)).digest, expectedDigest);
@@ -111,8 +112,11 @@ test('P9 remaining teaching only: TAUGHT, immutable Library, Muro moderation/sco
 
     await confirmed(teacher, `${root}/wall`, 'GET', () => teacher.getByRole('button', { name: 'Muro', exact: true }).click());
     const teacherWall = teacher.getByRole('region', { name: 'Muro del aula', exact: true });
-    await teacherWall.getByLabel('Publicar aviso', { exact: true }).fill('Remaining teacher notice');
-    await confirmed(teacher, `${root}/wall`, 'POST', () => teacherWall.getByRole('button', { name: 'Publicar aviso', exact: true }).click());
+    await teacherWall.getByRole('button', { name: 'Publicar aviso', exact: true }).click();
+    const noticeComposer = teacher.getByRole('dialog', { name: 'Publicar aviso', exact: true });
+    await noticeComposer.getByLabel('Título', { exact: true }).fill('Remaining teacher notice');
+    await noticeComposer.getByLabel('Publicar aviso', { exact: true }).fill('Remaining teacher notice');
+    await confirmed(teacher, `${root}/wall`, 'POST', () => noticeComposer.getByRole('button', { name: 'Publicar aviso', exact: true }).click());
     await teacherWall.getByText('Publicación guardada.', { exact: true }).waitFor();
     const notice = (await ok(student, 'GET', `${root}/wall`)).posts[0];
     assert.equal(notice.type, 'NOTICE'); assert.ok(notice.authorName && notice.initials); assert.equal(Object.hasOwn(notice, 'email'), false);
@@ -123,8 +127,11 @@ test('P9 remaining teaching only: TAUGHT, immutable Library, Muro moderation/sco
     await noticeThread.getByLabel('Enviar respuesta', { exact: true }).fill('Remaining student reply');
     await confirmed(student, `${root}/wall`, 'POST', () => noticeThread.getByRole('button', { name: 'Enviar respuesta', exact: true }).click());
     await studentWall.getByText('Respuesta guardada.', { exact: true }).waitFor();
-    await studentWall.getByLabel('Publicar consulta', { exact: true }).fill('Remaining student query');
-    await confirmed(student, `${root}/wall`, 'POST', () => studentWall.getByRole('button', { name: 'Publicar consulta', exact: true }).click());
+    await studentWall.getByRole('button', { name: 'Hacer una consulta', exact: true }).click();
+    const queryComposer = student.getByRole('dialog', { name: 'Hacer una consulta', exact: true });
+    await queryComposer.getByLabel('Título', { exact: true }).fill('Remaining student query');
+    await queryComposer.getByLabel('Publicar consulta', { exact: true }).fill('Remaining student query');
+    await confirmed(student, `${root}/wall`, 'POST', () => queryComposer.getByRole('button', { name: 'Publicar consulta', exact: true }).click());
     await studentWall.getByText('Publicación guardada.', { exact: true }).waitFor();
     const currentWall = await ok(teacher, 'GET', `${root}/wall`), query = currentWall.posts[0];
     assert.equal(query.type, 'QUERY'); assert.deepEqual(currentWall.posts.map(post => post.id), [query.id, notice.id]);
@@ -137,27 +144,28 @@ test('P9 remaining teaching only: TAUGHT, immutable Library, Muro moderation/sco
 
     const teacherEvents = await ok(teacher, 'GET', '/classrooms/notifications');
     const queryEvent = teacherEvents.find(event => event.eventType === 'WALL_QUERY' && event.postId === query.id);
+    assert.equal(queryEvent.actorName,'Files Fixture');assert.equal(queryEvent.message,'Remaining student query');assert.equal(queryEvent.classroomDivision,(await detail(teacher,room)).division);
     assert.ok(queryEvent); assert.ok(teacherEvents.some(event => event.eventType === 'WALL_REPLY' && event.postId === notice.id));
     await rejectUnchanged(runtime.db, () => request(student, 'POST', `/classrooms/notifications/${queryEvent.id}/read`, {}), 403);
-    await (await unique(teacher.getByRole('button', { name: /^Notificaciones/ }))).click();
-    const notificationDialog = teacher.getByRole('dialog', { name: 'Notificaciones', exact: true });
+    await teacher.goto(`${runtime.origin}/notificaciones`);
+    const notificationDialog = teacher.getByRole('region', { name: 'Centro de notificaciones', exact: true });
     const queryRow = notificationDialog.locator('li').filter({ hasText: 'Nueva consulta de estudiante' });
     await (await unique(queryRow)).waitFor();
     await confirmed(teacher, `/classrooms/notifications/${queryEvent.id}/read`, 'POST', () => queryRow.getByRole('button', { name: 'Marcar como leída', exact: true }).click());
     await queryRow.getByText(/Leída/).waitFor();
     assert.ok((await ok(teacher, 'GET', '/classrooms/notifications')).find(event => event.id === queryEvent.id).readAt);
-    await notificationDialog.getByRole('button', { name: 'Cerrar diálogo', exact: true }).click();
     const noticeEvent = (await ok(student, 'GET', '/classrooms/notifications')).find(event => event.eventType === 'WALL_NOTICE' && event.postId === notice.id);
     assert.ok(noticeEvent);
-    await (await unique(student.getByRole('button', { name: /^Notificaciones/ }))).click();
-    const studentNotifications = student.getByRole('dialog', { name: 'Notificaciones', exact: true });
+    await student.goto(`${runtime.origin}/notificaciones`);
+    const studentNotifications = student.getByRole('region', { name: 'Centro de notificaciones', exact: true });
     const noticeRow = studentNotifications.locator('li').filter({ hasText: 'Nuevo aviso del docente' }); await (await unique(noticeRow)).waitFor();
     const target = await confirmed(student, `/classrooms/notifications/${noticeEvent.id}/open`, 'POST', () => noticeRow.getByRole('button', { name: 'Abrir conversación', exact: true }).click());
     assert.equal(target.classroomId, room.id); assert.equal(target.postId, notice.id);
     await student.waitForFunction(id => document.activeElement?.dataset.wallId === id, notice.id);
     assert.ok((await ok(student, 'GET', '/classrooms/notifications')).find(event => event.id === noticeEvent.id).readAt);
 
-    await confirmed(teacher, `${root}/wall`, 'GET', () => teacherWall.getByRole('button', { name: 'Actualizar Muro', exact: true }).click());
+    await openClassroom(teacher, runtime.origin, 'P9 teaching-remainder classroom');
+    await teacher.getByRole('button', { name: 'Muro', exact: true }).click();
     const queryThread = teacherWall.locator(`[data-wall-id="${query.id}"]`); await queryThread.waitFor();
     assert.equal(await queryThread.getByRole('button', { name: 'Editar publicación', exact: true }).count(), 0);
     const cancelHash = await academicHash(runtime.db);
@@ -170,6 +178,7 @@ test('P9 remaining teaching only: TAUGHT, immutable Library, Muro moderation/sco
     await queryThread.getByText('Contenido eliminado', { exact: true }).waitFor();
     const removed = (await ok(student, 'GET', `${root}/wall`)).posts.find(post => post.id === query.id);
     assert.equal(removed.body, null); assert.ok(removed.removedAt);
+    assert.equal((await ok(teacher,'GET','/classrooms/notifications')).find(event=>event.id===queryEvent.id).message,null,'Notification previews cannot resurrect removed post text');
     assert.deepEqual(removed.replies.map(reply => reply.body), ['Preserved teacher reply to student query']);
     console.log('P9 remaining teaching checkpoint: notice/query/reply/recipient403/read/open/moderationcancel/tombstone-preserved-reply PASS');
 
@@ -178,8 +187,8 @@ test('P9 remaining teaching only: TAUGHT, immutable Library, Muro moderation/sco
     assert.equal(progress.completion.expected, 1); assert.equal(progress.completion.delivered, 0); assert.equal(progress.completion.percentage, '0.00');
     assert.equal(progress.performance.average, null);
     const progressRegion = student.getByRole('region', { name: 'Seguimiento del aprendizaje', exact: true });
-    await progressRegion.getByRole('region', { name: 'Avance del plan de estudio', exact: true }).getByText('1 de 2 temas dictados · 50,00%', { exact: true }).waitFor();
-    await progressRegion.getByRole('region', { name: 'Rendimiento académico', exact: true }).getByText('Sin calificaciones publicadas', { exact: true }).waitFor();
+    await progressRegion.getByRole('region', { name: 'Avance del plan', exact: true }).getByText('1 de 2 temas dados en el aula', { exact: true }).waitFor();
+    await progressRegion.getByRole('region', { name: 'Rendimiento académico', exact: true }).getByText('Aún no hay calificaciones publicadas', { exact: true }).waitFor();
     assert.equal(await progressRegion.getByRole('alert').count(), 0);
     const retained = { wall: await ok(teacher, 'GET', `${root}/wall`), material: await ok(student, 'GET', `${root}/library`),
       teacherEvents: await ok(teacher, 'GET', '/classrooms/notifications'), studentEvents: await ok(student, 'GET', '/classrooms/notifications') };
@@ -193,6 +202,10 @@ test('P9 remaining teaching only: TAUGHT, immutable Library, Muro moderation/sco
     const restoredBytes = await request(student, 'GET', `/files/${material.fileId}/content`);
     assert.equal(restoredBytes.status, 200); assert.equal(restoredBytes.digest, expectedDigest);
     assert.equal(digest(await runtime.privateFileBytes(material.fileId)), expectedDigest);
+    await teacher.reload();
+    await teacher.getByRole('heading', { name: 'P9 teaching-remainder classroom', exact: true }).waitFor();
+    await student.reload();
+    await student.getByRole('heading', { name: 'P9 teaching-remainder classroom', exact: true }).waitFor();
     console.log('P9 remaining teaching: progress/Plan-Library-Muro/notification-read/privateSHA256/API-data-restart PASS');
   });
 });

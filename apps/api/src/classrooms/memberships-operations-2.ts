@@ -54,9 +54,10 @@ export function membersOperation(capability: MembershipService, request: unknown
         student_id: string;
         first_name: string;
         last_name: string;
+        email: string;
         active: boolean;
       }>(
-        `SELECT e.id AS enrollment_id,e.student_id,u.first_name,u.last_name,EXISTS(SELECT 1 FROM membership_periods m
+        `SELECT e.id AS enrollment_id,e.student_id,u.first_name,u.last_name,u.email,EXISTS(SELECT 1 FROM membership_periods m
         WHERE m.enrollment_id=e.id AND m.ended_at IS NULL) AS active FROM enrollments e JOIN users u ON u.id=e.student_id
         WHERE e.classroom_id=$1::uuid ORDER BY u.last_name,u.first_name,e.id`,
         id,
@@ -72,6 +73,7 @@ export function membersOperation(capability: MembershipService, request: unknown
         studentId: r.student_id,
         firstName: r.first_name,
         lastName: r.last_name,
+        email: r.email,
         periods: periods
           .filter((p) => p.enrollment_id === r.enrollment_id)
           .map(({ enrollment_id: _, ...p }) => p),

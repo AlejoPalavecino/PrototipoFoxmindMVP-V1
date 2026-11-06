@@ -54,12 +54,12 @@ test('a successful questionnaire submit followed by refresh failure retains an u
   const view = hookView(QuestionnaireAttempt, { classroomId: 'room', data: { ...session, canTransfer: true, attempt: { ...attempt, status: 'DRAFT' } },
     editor: { epoch: '1', token: 'memory-only' }, api: { attempt: async () => { submissions++; return attempt; } }, refresh: async () => { throw Error('Sin conexión'); } });
   try {
-    await view.flush(); button(view, 'Enviar respuestas').props.onClick(); await view.flush();
-    button(view, 'Confirmar envío de respuestas').props.onClick(); await view.flush();
+    await view.flush(); button(view, 'Revisar entrega').props.onClick(); await view.flush();
+    button(view, 'Confirmar entrega').props.onClick(); await view.flush();
     assert.equal(submissions, 1);
     assert.match(text(view.tree), /entrega ya está confirmada/i);
     assert.doesNotMatch(text(view.tree), /no se confirmó su guardado/);
-    assert.equal(button(view, 'Enviar respuestas'), undefined);
+    assert.equal(button(view, 'Revisar entrega'), undefined);
   } finally { view.close(); }
 });
 
@@ -69,10 +69,10 @@ test('a successful practical submit followed by refresh failure cannot be submit
   const view = hookView(PracticalAttempt, { classroomId: 'room', data: { ...session, canTransfer: true, attempt: { ...attempt, status: 'DRAFT' } },
     editor: { epoch: '1', token: 'memory-only' }, api: { attempt: async () => { submissions++; return attempt; } }, refresh: async () => { throw Error('Sin conexión'); } });
   try {
-    await view.flush(); button(view, 'Enviar trabajo práctico').props.onClick(); await view.flush();
-    button(view, 'Confirmar envío del trabajo').props.onClick(); await view.flush();
+    await view.flush(); button(view, 'Revisar entrega').props.onClick(); await view.flush();
+    button(view, 'Confirmar entrega').props.onClick(); await view.flush();
     assert.equal(submissions, 1);
     assert.match(text(view.tree), /entrega ya está confirmada/i);
-    assert.equal(button(view, 'Enviar trabajo práctico'), undefined);
+    assert.equal(button(view, 'Revisar entrega'), undefined);
   } finally { view.close(); }
 });

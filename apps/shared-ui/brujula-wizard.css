@@ -1,10 +1,10 @@
 /* Approved Brújula classroom creation: compact two-step dialog. */
 .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog {
- width:min(560px,calc(100vw - 32px));max-height:calc(100dvh - 40px);padding:24px;margin:auto;border:1px solid #dce1ef;border-radius:22px;background:#fff;color:#252646;box-shadow:0 24px 85px #29274e38;overflow:auto;font:400 14px/1.55 'Brújula',sans-serif;
+ width:min(560px,calc(100vw - 26px));max-height:88dvh;padding:0;margin:auto;border:1px solid #dce1ef;border-radius:20px;background:#fff;color:#252646;box-shadow:0 24px 85px #29274e38;overflow:auto;font:400 14px/1.55 'Brújula',sans-serif;
 }
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog>header {display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 0 18px;margin:0 0 18px;border:0;border-bottom:1px solid #e0e4f0;border-radius:0;background:transparent;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog>header h2 {margin:0;font:700 24px/1.25 'Brújula',sans-serif;letter-spacing:-.04em;color:#252646;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog>header button {display:grid;place-items:center;min-width:34px;min-height:34px;padding:6px;border:0;border-radius:9px;background:transparent;color:#515971;box-shadow:none;}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog>header {display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px 14px;margin:0;border:0;border-bottom:1px solid #e0e4f0;border-radius:0;background:transparent;}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog>header h2 {margin:0;font:700 20px/1.25 'Brújula',sans-serif;letter-spacing:-.04em;color:#252646;}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog>header button {display:grid;place-items:center;min-width:28px;min-height:28px;padding:6px;border:0;border-radius:9px;background:transparent;color:#515971;box-shadow:none;}
 .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard {display:block;padding:0;border:0;background:none;box-shadow:none;}
 .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-steps {display:flex;align-items:center;gap:14px;padding:0;margin:0 0 22px;list-style:none;color:#515971;}
 .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-steps li {display:flex;align-items:center;gap:14px;font-size:12px;font-weight:500;line-height:1.5;}
@@ -39,7 +39,7 @@
 .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .p5-drop {padding:18px;border:1px dashed #cdd4e7;border-radius:13px;background:#f6f8ff;color:#515971;box-shadow:none;}
 .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard :is(.p5-file,.wizard-plan-security) {padding:12px;border:1px solid #dce1ef;border-radius:11px;background:#f6f8ff;color:#515971;font-size:12px;}
 @media(max-width:600px){
- .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog {padding:18px;width:calc(100vw - 24px);max-height:calc(100dvh - 24px);border-radius:18px;}
+ .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog {padding:0;width:calc(100vw - 24px);max-height:calc(100dvh - 24px);border-radius:18px;}
  .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-steps {gap:8px;}
  .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-steps li {gap:8px;font-size:11px;}
  .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-steps li+li:before {width:14px;}

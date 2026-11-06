@@ -7,6 +7,7 @@ export interface AgendaClient {
   put(id: string, event: EventPayload): Promise<PrivateEvent>;
   replace(id: string, revision: string, event: EventPayload): Promise<PrivateEvent>;
   remove(id: string, revision: string): Promise<void>;
+  changeOccurrence?(id: string, revision: string, date: string, event: EventPayload | null): Promise<PrivateEvent>;
   open(target: AgendaTarget, signal?: AbortSignal): Promise<AgendaTarget>;
 }
 

@@ -7,7 +7,7 @@ type Follow = (event: MouseEvent<HTMLAnchorElement>, href: string) => void;
 export function ShellLinks({ links, follow }: { links: NavbarLink[]; follow: Follow }) {
   return <nav className="fm3d-shell-nav" aria-label="Navegación principal">{links.map(link =>
     <a key={link.href} href={link.href} aria-current={link.current ? 'page' : undefined} onClick={event => follow(event, link.href)}>
-      <FoxmindIcon name={link.href.startsWith('/agenda') ? 'calendar' : link.href.startsWith('/mis-aulas') ? 'book' : link.href.startsWith('/foxy-ai') ? 'spark' : 'home'} />{link.label}</a>)}</nav>;
+      <FoxmindIcon name={link.href.startsWith('/agenda') ? 'calendar' : link.href.startsWith('/mis-aulas') ? 'layers' : link.href.startsWith('/foxy-ai') ? 'spark' : 'home'} />{link.label}</a>)}</nav>;
 }
 export function ShellAccount({ privateShell, currentPath, displayName, accountEmail, accountActions, notifications, follow, homeNavigation, accountRole }: {
   privateShell: boolean; currentPath?: string; displayName?: string; accountEmail?: string; accountActions?: ReactNode; notifications?: ReactNode; follow: Follow; homeNavigation?: boolean; accountRole?:'teacher'|'student';
@@ -31,7 +31,7 @@ function HomeAccountMenu({displayName,accountEmail,follow,accountActions,account
   };
   return <div className="fm-home-account-menu">
     <button type="button" className="fm-home-account-trigger" aria-haspopup="dialog" aria-expanded={open} aria-label={`Mi cuenta${displayName ? ` de ${displayName}` : ''}`} onClick={()=>setOpen(true)}>
-      <b className="fm-brujula-avatar" aria-hidden="true">{initials}</b><span>{displayName?.trim() || 'Mi cuenta'}{accountRole?<small>{accountRole==='teacher'?'Docente':'Alumno'}</small>:null}</span><FoxmindIcon name="chevron-down"/>
+      <b className="fm-brujula-avatar" aria-hidden="true">{initials}</b><span>{displayName?.trim() || 'Mi cuenta'}{accountRole?<small>{accountRole==='teacher'?'Docente':'Alumno'}</small>:null}</span><FoxmindIcon name="settings"/>
     </button>
     {open ? <dialog ref={dialog} className="fm-brujula-account-dialog" aria-modal="true" aria-label="Mi cuenta" onCancel={event=>{event.preventDefault();event.stopPropagation();setOpen(false);}} onClick={event=>{if(event.target===event.currentTarget)setOpen(false);}}>
       <header><h2>Mi cuenta</h2><button type="button" aria-label="Cerrar Mi cuenta" onClick={()=>setOpen(false)}><FoxmindIcon name="close"/></button></header>

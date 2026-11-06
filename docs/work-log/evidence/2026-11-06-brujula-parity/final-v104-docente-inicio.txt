@@ -1,0 +1,212 @@
+[p1 "Inicio · FoxMind" | space "FoxMind parity 2026-11-05"(1): 2 managed, 0 untracked — p1* "Inicio · FoxMind", p2 "Mis aulas · FoxMind Brújula"]
+root
+  container
+    anchor [ref=1021, loc=href:/inicio#classroom-main, url=http://127.0.0.1:64848/inicio#classroom-main]
+      text "Saltar al contenido"
+    container [ref=1022]
+      anchor "FoxMind" [ref=1023, loc=css:a[aria-label="FoxMind"], url=http://127.0.0.1:64848/inicio]
+        image
+        container
+          text "FoxMind"
+          text "BRÚJULA"
+      container
+        button "Buscar en FoxMind" [ref=1024, loc=css:button[aria-label="Buscar en FoxMind"]]
+          svg_root
+          text "Buscar"
+          text "Ctrl K"
+        text "MI ESPACIO"
+      container "Navegación principal"
+        anchor [ref=1025, url=http://127.0.0.1:64848/inicio]
+          svg_root
+          text "Inicio"
+        anchor [ref=1026, loc=href:/mis-aulas, url=http://127.0.0.1:64848/mis-aulas]
+          svg_root
+          text "Mis aulas"
+        anchor [ref=1027, loc=href:/agenda, url=http://127.0.0.1:64848/agenda]
+          svg_root
+          text "Agenda"
+        anchor [ref=1028, loc=href:/foxy-ai, url=http://127.0.0.1:64848/foxy-ai]
+          svg_root
+          text "Foxy AI"
+      button "Notificaciones: 3 sin leer" [ref=1029, loc=css:button[aria-label="Notificaciones: 3 sin leer"]]
+        svg_root
+        text "Notificaciones"
+        text "3"
+      container "Accesos a mis aulas"
+        text "MIS AULAS"
+        anchor [ref=1030, loc=href:/mis-aulas?aula=e4697b5c-5cb7-4c48-8b92-2e0eaf9167d1, url=http://127.0.0.1:64848/mis-aulas?aula=e4697b5c-5cb7-4c48-8b92-2e0eaf9167d1]
+          text "Lengua y Literatura"
+        anchor [ref=1031, loc=href:/mis-aulas?aula=1f9c7707-76dd-49c1-95a1-4709a26a6794, url=http://127.0.0.1:64848/mis-aulas?aula=1f9c7707-76dd-49c1-95a1-4709a26a6794]
+          text "Matemática"
+        anchor [ref=1032, loc=href:/mis-aulas?aula=83625281-eb0d-44dd-8243-a8b3150d78b1, url=http://127.0.0.1:64848/mis-aulas?aula=83625281-eb0d-44dd-8243-a8b3150d78b1]
+          text "Biología"
+      button "Mi cuenta de Lucía Domínguez" [ref=1033, loc=css:button[aria-label="Mi cuenta de Lucía Domínguez"]]
+        text "LD"
+        container
+          text "Lucía Domínguez"
+          text "Docente"
+        svg_root
+    container "Inicio"
+      container
+        container
+          image
+          image
+          container
+            container
+              svg_root
+              text "Viernes, 6 de noviembre"
+            heading
+              text "¡Buen día,"
+              container
+                text "Lucía"
+                text "!"
+            paragraph
+              text "Tenés 1 entrega por corregir y 1 consulta sin responder."
+            text "0 aulas en Estudio · 3 aulas en Enseño"
+        container "Por atender"
+          container
+            text "SEGUIMIENTO DOCENTE"
+            heading
+              text "Por atender"
+            text "Todas tus aulas activas"
+          group "Filtrar pendientes"
+            button [ref=1034]
+              svg_root
+              text "Entregas"
+              text "1"
+            button [ref=1035]
+              svg_root
+              text "Consultas"
+              text "1"
+          container "Para revisar"
+            unordered_list
+              list_item
+                text "SH"
+                container
+                  heading
+                    text "Sofía Herrera"
+                  container
+                    text "Cuaderno de campo"
+                    text "·"
+                    text "Biología"
+                    text "·"
+                    text "4.º A"
+                container
+                  text "6 nov, 11:01"
+                  button "Corregir: Cuaderno de campo" [ref=1036, loc=css:button[aria-label="Corregir: Cuaderno de campo"]]
+                    text "Corregir"
+                    svg_root
+          text "Las más antiguas primero"
+        container "Acciones del aula"
+          container
+            container
+              heading
+                text "Acciones del aula"
+              paragraph
+                text "Biología"
+                text "·"
+                text "4.º A"
+            button [ref=1037]
+              text "Cambiar aula"
+              svg_root
+          container
+            button [ref=1038]
+              svg_root
+              text "Crear actividad"
+            button [ref=1039]
+              svg_root
+              text "Agregar material"
+            button [ref=1040]
+              svg_root
+              text "Publicar aviso"
+            button [ref=1041]
+              svg_root
+              text "Ver progreso"
+      container "Organización docente"
+        container "Mi agenda"
+          container
+            heading
+              text "Mi agenda"
+            button "Abrir agenda" [ref=1042, loc=css:button[aria-label="Abrir agenda"]]
+              svg_root
+          heading
+            text "Eventos personales"
+          unordered_list
+            list_item
+              container
+                text "12"
+                text "NOV"
+              container
+                heading
+                  text "Clase de Biología"
+                container
+                  text "12 nov"
+                  text "·"
+                  text "11:00"
+              button "Abrir: Clase de Biología" [ref=1043, loc=css:button[aria-label="Abrir: Clase de Biología"]]
+                svg_root
+          heading
+            text "Próxima fecha de entrega"
+          unordered_list
+            list_item
+              container
+                text "12"
+                text "NOV"
+              container
+                heading
+                  text "Cuaderno de campo"
+                container
+                  text "12 nov"
+                  text "·"
+                  text "18:00"
+                container
+                  text "Biología"
+                  text "·"
+                  text "4.º A"
+              button "Abrir: Cuaderno de campo" [ref=1044, loc=css:button[aria-label="Abrir: Cuaderno de campo"]]
+                svg_root
+        container "Aula en foco"
+          heading
+            text "Aula en foco"
+          unordered_list
+            list_item
+              image
+              container
+                heading
+                  text "Biología"
+                text "4.º A"
+              container
+                text "Avance del plan"
+                progressindicator "Avance del plan de Biología"
+                  container
+                    text "67"
+                    text "%"
+                text "4 de 6 temas dados"
+              container
+                container
+                  text "Próximo tema ·"
+                  text "El trabajo de campo"
+                text "Registro de campo"
+              button "Abrir tema: Biología" [ref=1045, loc=css:button[aria-label="Abrir tema: Biología"]]
+                text "Abrir tema"
+                svg_root
+        container "Actividades en borrador"
+          container
+            heading
+              text "Actividades en borrador"
+            svg_root
+          paragraph
+            text "Solo visibles para vos"
+          unordered_list
+            list_item
+              svg_root
+              heading
+                text "Preparar la salida de campo"
+              text "Biología"
+              text "·"
+              text "4.º A"
+              button "Continuar borrador: Preparar la salida de campo" [ref=1046, loc=css:button[aria-label="Continuar borrador: Preparar la salida de campo"]]
+                text "Continuar"
+                svg_root
+  alert
+    text "Inicio · FoxMind"

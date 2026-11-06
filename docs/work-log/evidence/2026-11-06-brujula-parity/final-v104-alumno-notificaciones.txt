@@ -1,0 +1,161 @@
+[p1 "Notificaciones · FoxMind" | space "FoxMind parity 2026-11-05"(1): 2 managed, 0 untracked — p1* "Notificaciones · FoxMind", p2 "Mis aulas · FoxMind Brújula"]
+root
+  container
+    anchor [ref=1351, loc=href:/notificaciones#notifications-main, url=http://127.0.0.1:64848/notificaciones#notifications-main]
+      text "Saltar al contenido"
+    container
+      anchor "FoxMind" [ref=1352, loc=css:a[aria-label="FoxMind"], url=http://127.0.0.1:64848/inicio]
+        image
+        container
+          text "FoxMind"
+          text "BRÚJULA"
+      container
+        button "Buscar en FoxMind" [ref=1353, loc=css:button[aria-label="Buscar en FoxMind"]]
+          svg_root
+          text "Buscar"
+          text "Ctrl K"
+        text "MI ESPACIO"
+      container "Navegación principal"
+        anchor [ref=1354, url=http://127.0.0.1:64848/inicio]
+          svg_root
+          text "Inicio"
+        anchor [ref=1355, loc=href:/mis-aulas, url=http://127.0.0.1:64848/mis-aulas]
+          svg_root
+          text "Mis aulas"
+        anchor [ref=1356, loc=href:/agenda, url=http://127.0.0.1:64848/agenda]
+          svg_root
+          text "Agenda"
+      button "Notificaciones: 5 sin leer" [ref=1357, loc=css:button[aria-label="Notificaciones: 5 sin leer"]]
+        svg_root
+        text "Notificaciones"
+        text "5"
+      container "Accesos a mis aulas"
+        text "MIS AULAS"
+        anchor [ref=1358, loc=href:/mis-aulas?aula=e4697b5c-5cb7-4c48-8b92-2e0eaf9167d1, url=http://127.0.0.1:64848/mis-aulas?aula=e4697b5c-5cb7-4c48-8b92-2e0eaf9167d1]
+          text "Lengua y Literatura"
+        anchor [ref=1359, loc=href:/mis-aulas?aula=1f9c7707-76dd-49c1-95a1-4709a26a6794, url=http://127.0.0.1:64848/mis-aulas?aula=1f9c7707-76dd-49c1-95a1-4709a26a6794]
+          text "Matemática"
+        anchor [ref=1360, loc=href:/mis-aulas?aula=83625281-eb0d-44dd-8243-a8b3150d78b1, url=http://127.0.0.1:64848/mis-aulas?aula=83625281-eb0d-44dd-8243-a8b3150d78b1]
+          text "Biología"
+      button "Mi cuenta de Mateo Ríos" [ref=1361, loc=css:button[aria-label="Mi cuenta de Mateo Ríos"]]
+        text "MR"
+        container
+          text "Mateo Ríos"
+          text "Alumno"
+        svg_root
+    container
+      container "Ubicación"
+        anchor [ref=1362, url=http://127.0.0.1:64848/inicio]
+          text "Inicio"
+        svg_root
+        text "Notificaciones"
+      container
+        text "Mi espacio"
+        heading
+          text "Notificaciones"
+        paragraph
+          text "Actividades, cambios de fecha y devoluciones de tus docentes."
+      container "Centro de notificaciones"
+        container
+          text "5 novedades sin leer"
+          paragraph
+            text "Avisos y actividad de tus aulas."
+        group "Filtrar notificaciones"
+          button [ref=1363]
+            text "Todas"
+          button [ref=1364]
+            text "Sin leer"
+            text "5"
+        group "Tipo de notificación"
+          button [ref=1365]
+            text "Todos los tipos"
+          button [ref=1366]
+            text "Muro"
+          button [ref=1367]
+            text "Actividades"
+          button [ref=1368]
+            text "Resultados"
+        button [ref=1369]
+          text "Marcar todas como leídas"
+        unordered_list "Novedades de tus aulas"
+          list_item
+            svg_root
+            heading
+              text "Nuevo aviso del docente"
+            text "Sin leer"
+            paragraph
+              text "Biología"
+              text "· 4.º A"
+            paragraph
+              text "Traé tu cuaderno para registrar las observaciones."
+            text "6 de nov de 2026, 11:01"
+            button [ref=1370]
+              text "Abrir conversación"
+            button [ref=1371]
+              text "Marcar como leída"
+              svg_root
+          list_item
+            svg_root
+            heading
+              text "Calificación publicada"
+            text "Sin leer"
+            paragraph
+              text "Biología"
+              text "· 4.º A"
+            paragraph
+              text "Cuaderno de campo"
+            text "6 de nov de 2026, 11:01"
+            button [ref=1372]
+              text "Ver devolución"
+            button [ref=1373]
+              text "Marcar como leída"
+              svg_root
+          list_item
+            svg_root
+            heading
+              text "Nueva actividad publicada"
+            text "Sin leer"
+            paragraph
+              text "Biología"
+              text "· 4.º A"
+            paragraph
+              text "Redes tróficas"
+            text "6 de nov de 2026, 11:01"
+            button [ref=1374]
+              text "Ver actividad"
+            button [ref=1375]
+              text "Marcar como leída"
+              svg_root
+          list_item
+            svg_root
+            heading
+              text "Nueva actividad publicada"
+            text "Sin leer"
+            paragraph
+              text "Biología"
+              text "· 4.º A"
+            paragraph
+              text "Cuaderno de campo"
+            text "6 de nov de 2026, 11:01"
+            button [ref=1376]
+              text "Ver actividad"
+            button [ref=1377]
+              text "Marcar como leída"
+              svg_root
+          list_item
+            svg_root
+            heading
+              text "Nueva actividad publicada"
+            text "Sin leer"
+            paragraph
+              text "Biología"
+              text "· 4.º A"
+            paragraph
+              text "Lectura de un ecosistema"
+            text "6 de nov de 2026, 11:01"
+            button [ref=1378]
+              text "Ver actividad"
+            button [ref=1379]
+              text "Marcar como leída"
+              svg_root
+  alert

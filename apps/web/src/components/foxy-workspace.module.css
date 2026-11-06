@@ -8,6 +8,12 @@
   color: var(--foxy-ink);
   overflow-wrap: anywhere;
 }
+.mobileActions { display:none; gap:8px; }
+.resourceCard { margin:12px 0; padding:18px; border:1px solid #dce1ef; border-radius:16px; background:#fff; }
+.resourceCard h4 { margin:8px 0; font-size:17px; }
+.resourceCard > button { margin:8px 8px 0 0; }
+.reviewNote img { vertical-align:middle; object-fit:contain; margin-right:7px; }
+@media(max-width:800px) { .mobileActions { display:flex; } }
 
 .header {
   display: flex;
@@ -202,7 +208,7 @@
 .workspace .tools { background:linear-gradient(155deg,#f1efff 0%,#fbfaff 80%); border-color:#dcdaf1; }
 .workspace .tools h2,.workspace .history h2 { display:flex; align-items:center; gap:7px; font-size:15px; letter-spacing:-.025em; color:#59428a; margin:0 3px 13px; }
 .workspace .tools h2 svg { width:17px; height:17px; }
-.workspace .tools > div { display:grid; grid-template-columns:1fr; gap:6px; }
+.workspace .tools > div { display:grid; grid-template-columns:1fr; gap:3px; }
 .workspace .tools button { display:flex; align-items:center; gap:9px; width:100%; text-align:left; border:1px solid transparent; background:transparent; color:#252646; padding:8px 7px; border-radius:13px; box-shadow:none; }
 .workspace .tools button:hover,.workspace .tools button[aria-pressed=true] { background:white; border-color:#dbd6f0; }
 .toolIcon { width:33px; height:33px; flex:none; display:inline-grid; place-items:center; border-radius:12px; color:#146b58; background:#def6ed; }
@@ -248,3 +254,16 @@
 .workspace .location svg { width:12px; height:12px; }
 .workspace .location span { color:#484a68; font-weight:600; }
 @media(max-width:580px) { .workspace .location { margin:1px 0 9px; font-size:10px; } }
+
+/* Reference controls within the existing chat layout. */
+.workspace .chatHeading { min-height:62px; padding:12px 18px; }
+.workspace[class] .chatHeading[class] select { appearance:none; min-height:20px; height:20px; padding:0 18px 0 0; width:auto; min-width:0; border:0; border-radius:0; background:transparent; box-shadow:none; font-size:13px; }
+.workspace[class] .suggestion[class] { min-height:29px; margin-top:16px; padding:5px 12px; border:1px solid #ecc7a8; border-radius:999px; font-size:10px; font-weight:400; background:#fff4e8; }
+.workspace .tools > p { display:none; }
+.workspace .tools > div button strong { font-weight:600; }
+.workspace .tools > div button small { font-weight:400; }
+.workspace .header { margin-bottom:20px; }
+.workspace .layout { grid-template-columns:minmax(0,1fr) 262px; gap:18px; }
+.workspace .chat { min-height:calc(100dvh - 175px); }
+@media(min-width:801px) { .workspace { padding-top:5px; } .workspace .header h1 { margin-top:12px; } }
+@media(max-width:800px) { .workspace .layout { grid-template-columns:minmax(0,1fr); } .workspace .chat { min-height:calc(100dvh - 225px); } }

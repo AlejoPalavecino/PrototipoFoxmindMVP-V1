@@ -30,9 +30,8 @@ test('Agenda preview presents event, converted time and type with the exact acti
   const nodes = walk(HomeAgendaRow({ item: timed, timeZone: 'America/Argentina/Buenos_Aires', onAction: target => calls.push(target) }));
   const text = textOf(nodes);
   assert.match(text, /Clase especial/);
-  assert.doesNotMatch(text, /Matemática|3 A/);
+  assert.match(text, /Matemática/);assert.match(text,/3 A/);
   assert.match(text, /22:30/);
-  assert.match(text, /Plazo académico/);
   assert.doesNotMatch(text, /UTC|Zona original/);
   const button = nodes.find(node => node?.type === 'button' && node.props['aria-label'] === 'Abrir: Clase especial');
   assert.ok(button);

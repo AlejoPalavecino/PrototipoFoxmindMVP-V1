@@ -37,6 +37,9 @@ export async function agendaRoute(service: AgendaService, request: IncomingMessa
     return { status: 200, body: await service.upcoming(request, limit) };
   }
   agendaQuery(url, []);
+  const occurrence = /^\/agenda\/events\/([^/]+)\/occurrences\/(\d{4}-\d{2}-\d{2})$/.exec(url.pathname);
+  if (occurrence && ['PATCH','DELETE'].includes(request.method ?? '')) return { status: 200,
+    body: await service.changeOccurrence(request, occurrence[1], occurrence[2], await readAgendaBody(request), request.method === 'DELETE') };
   if (request.method === 'POST' && url.pathname === '/agenda/open') {
     const item = agendaObject(await readAgendaBody(request), ['classroomId', 'activityId']);
     const target = { classroomId: agendaId(item.classroomId), activityId: item.activityId === null ? null : agendaId(item.activityId) };

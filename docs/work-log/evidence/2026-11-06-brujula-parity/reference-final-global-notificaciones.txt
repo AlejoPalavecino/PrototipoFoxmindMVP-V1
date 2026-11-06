@@ -1,0 +1,181 @@
+[p2 "Notificaciones · FoxMind Brújula" | space "FoxMind parity 2026-11-05"(1): 2 managed, 0 untracked — p1 "Agenda · FoxMind", p2* "Notificaciones · FoxMind Brújula"]
+root
+  anchor [ref=1, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#main, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#main]
+    text "Saltar al contenido"
+  container
+    container "Menú de FoxMind"
+      anchor "FoxMind Brújula, inicio" [ref=598, loc=css:a[aria-label="FoxMind Brújula, inicio"], url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/inicio]
+        image
+        container
+          text "FoxMind"
+          text "BRÚJULA"
+      container
+        button "Buscar en FoxMind" [ref=599, loc=css:button[aria-label="Buscar en FoxMind"]]
+          svg_root
+          text "Buscar"
+          text "Ctrl K"
+        text "MI ESPACIO"
+        container "Navegación principal"
+          anchor [ref=600, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/inicio]
+            svg_root
+            text "Inicio"
+          anchor [ref=601, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aulas, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aulas]
+            svg_root
+            text "Mis aulas"
+          anchor [ref=602, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/agenda, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/agenda]
+            svg_root
+            text "Agenda"
+          anchor [ref=603, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/foxy, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/foxy]
+            svg_root
+            text "Foxy AI"
+          button "Notificaciones, 10 sin leer" [ref=604, loc=css:button[aria-label="Notificaciones, 10 sin leer"]]
+            svg_root
+            text "Notificaciones"
+            text "10"
+        text "MIS AULAS"
+        container "Accesos a mis aulas"
+          anchor [ref=605, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/plan, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/plan]
+            text "Biología"
+          anchor [ref=606, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/mat/plan, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/mat/plan]
+            text "Matemática"
+          anchor [ref=607, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/lit/plan, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/lit/plan]
+            text "Lengua y Literatura"
+          anchor [ref=608, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/aula-v1oprn14/plan, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/aula-v1oprn14/plan]
+            text "Química"
+      container
+        button [ref=609]
+          svg_root
+          text "Explorar maqueta"
+          text "Docente y alumno"
+          svg_root
+        button "Abrir cuenta de Lucía Domínguez" [ref=610, loc=css:button[aria-label="Abrir cuenta de Lucía Domínguez"]]
+          text "LD"
+          container
+            text "Lucía Domínguez"
+            text "Docente"
+          svg_root
+    container [ref=611]
+      container "Ubicación"
+        anchor [ref=612, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/inicio]
+          text "Inicio"
+        svg_root
+        text "Notificaciones"
+      container
+        container
+          text "Mi espacio"
+          heading
+            text "Notificaciones"
+          paragraph
+            text "Entregas, consultas y respuestas de tus aulas."
+        button [ref=613]
+          text "Marcar todas como leídas"
+      container
+        container
+          button [ref=614]
+            text "Todas"
+          button [ref=615]
+            text "Sin leer · 10"
+        container
+          button [ref=616]
+            text "Todos los tipos"
+          button [ref=617]
+            text "Entregas"
+          button [ref=618]
+            text "Muro"
+        container
+          button [ref=619]
+            svg_root
+            container
+              text "Biología · 4.º A"
+              text "Entrega de Valentina Luna"
+              text "Cuaderno de campo"
+              text "Hoy · 08:20"
+          button "Marcar como leída" [ref=620]
+            svg_root
+        container
+          button [ref=621]
+            svg_root
+            container
+              text "Biología · 4.º A"
+              text "Consulta de Mateo Ríos"
+              text "¿Podemos observar el patio de la escuela?"
+              text "Hoy"
+          button "Marcar como leída" [ref=622]
+            svg_root
+        container
+          button [ref=623]
+            svg_root
+            container
+              text "Lengua y Literatura · 5.º A"
+              text "Entrega de Sofía Herrera"
+              text "Voces del relato"
+              text "Ayer · 18:30"
+          button "Marcar como leída" [ref=624]
+            svg_root
+        container
+          button [ref=625]
+            svg_root
+            container
+              text "Biología · 4.º A"
+              text "Entrega de Tomás Castro"
+              text "Cuaderno de campo"
+              text "Ayer · 17:05"
+          button "Marcar como leída" [ref=626]
+            svg_root
+        container
+          button [ref=627]
+            svg_root
+            container
+              text "Biología · 4.º A"
+              text "Entrega de Sofía Herrera"
+              text "Cuaderno de campo"
+              text "Ayer · 15:20"
+          button "Marcar como leída" [ref=628]
+            svg_root
+        container
+          button [ref=629]
+            svg_root
+            container
+              text "Matemática · 4.º B"
+              text "Entrega de Tomás Castro"
+              text "Funciones en contexto"
+              text "Ayer · 13:25"
+          button "Marcar como leída" [ref=630]
+            svg_root
+        container
+          button [ref=631]
+            svg_root
+            container
+              text "Biología · 4.º A"
+              text "Entrega de Sofía Herrera"
+              text "Redes tróficas"
+              text "Ayer · 10:50"
+          button "Marcar como leída" [ref=632]
+            svg_root
+        container
+          button [ref=633]
+            svg_root
+            text "Biología · 4.º A"
+            text "Entrega de Tomás Castro"
+            text "Lectura de un ecosistema"
+            text "3 nov · 14:00"
+          button "Marcar como leída" [ref=634]
+            svg_root
+        container
+          button [ref=635]
+            svg_root
+            text "Biología · 4.º A"
+            text "Entrega de Mateo Ríos"
+            text "Lectura de un ecosistema"
+            text "3 nov · 12:25"
+          button "Marcar como leída" [ref=636]
+            svg_root
+        container
+          button [ref=637]
+            svg_root
+            text "Biología · 4.º A"
+            text "Entrega de Sofía Herrera"
+            text "Lectura de un ecosistema"
+            text "3 nov · 10:15"
+          button "Marcar como leída" [ref=638]
+            svg_root

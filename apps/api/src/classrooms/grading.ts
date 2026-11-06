@@ -81,7 +81,7 @@ export class GradingService {
       WHERE a.attempt_id=$1::uuid ORDER BY a.position,f.id`, attempt.id);
     return { revision: room.revision.toString(), archived: !!room.archived_at, canSave: !room.archived_at && !grade?.is_published,
       activity: { ...view, questions }, attempt: { id: attempt.id, number: attempt.attempt_number, submittedAt: attempt.submitted_at,
-        submittedLate: attempt.submitted_late, firstName: attempt.first_name, lastName: attempt.last_name, attachments },
+        submittedLate: attempt.submitted_late, firstName: attempt.first_name, lastName: attempt.last_name, attachments,...(activity.type==='ASSIGNMENT'?{practicalResponse:attempt.practical_response}:{}) },
       grade: { id: grade?.id ?? null, isPublished: grade?.is_published ?? false, publishedAt: grade?.published_at ?? null,
         rubricSnapshot: grade?.rubric_snapshot ?? null, rubricMarks: grade?.rubric_marks ?? [],
         suggestedGrade: grade?.suggested_grade == null ? null : fixedHundredths(hundredths(grade.suggested_grade)), finalGradeOverride: override, calculatedGrade: calculated,

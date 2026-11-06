@@ -1,6 +1,5 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { renderToStaticMarkup } from 'react-dom/server';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 
 const names = ['pending', 'review', 'feedback', 'agenda', 'queries', 'materials', 'classrooms'];
@@ -31,15 +30,4 @@ test('Unknown, failed and inapplicable totals never turn into zero; confirmed ze
   const result = stats(data({ pending: page(0), feedback: page(0),
     review: page(8, { totals: { attempts: 15, needsReview: 0, readyToPublish: 15 } }) }));
   assert.deepEqual(result.slice(2).map(item => [item.key, item.value]), [['pending', 0], ['feedback', 0], ['review', 0]]);
-});
-
-test('Summary renders honest counts or unavailable context without fabricated progress or achievements', () => {
-  const { HomeActivitySummary } = loadTsModule('apps/classrooms-ui/HomeActivitySummary.tsx');
-  const html = renderToStaticMarkup(HomeActivitySummary({ data: data({ pending: page(27), feedback: error }) }));
-  assert.match(html, /27/); assert.match(html, /Actividades por entregar/);
-  assert.doesNotMatch(html, /\d+\s*%|role="progressbar"|logros|actividades completadas|entregas realizadas/i);
-  const unknown = renderToStaticMarkup(HomeActivitySummary({ data: data({ pending: error, feedback: error, review: error },
-    { memberships: { study: 0, teach: 0, archived: 0 } }) }));
-  assert.match(unknown, /no disponible|no pudimos|aparecerá aquí|sin datos/i);
-  assert.doesNotMatch(unknown, />0<|\d+\s*%/);
 });

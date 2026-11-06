@@ -189,7 +189,7 @@ export function AccountScreen({ view }: { view: AccountView }) {
           {user && !verified ? <div className="state"><h2>Primero verifica tu correo</h2><p>La edición del perfil estará disponible después de verificar tu dirección.</p><Link className="button button-primary" href="/verify-email">Verificar correo</Link></div> : null}
           {verified && !profile && !loading ? <div className="state"><p>No pudimos cargar tus datos.</p><Button disabled={locked} onClick={() => void load()}>Volver a intentar</Button></div> : null}
           {verified && profile && !loading ? <AccountProfile profile={profile} firstName={firstName} lastName={lastName} locked={locked} busy={busy}
-            onFirstName={setFirstName} onLastName={setLastName} onCancel={() => { setFirstName(profile.firstName); setLastName(profile.lastName); setMessage(undefined); }} submit={submit} /> : null}
+            onFirstName={setFirstName} onLastName={setLastName} submit={submit} /> : null}
         </> : null}
         {session && !loading && view === 'settings' ? !verified ? <div className="state"><h2>{user ? 'Primero verifica tu correo' : 'Inicia sesión para ver Configuración'}</h2>
           <Link className="button button-primary" href={user ? nextAccountHref('verify-email') : classroomAuthHref('sign-in', '/settings')}>{user ? 'Verificar correo' : 'Iniciar sesión'}</Link></div>

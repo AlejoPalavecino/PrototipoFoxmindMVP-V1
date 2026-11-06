@@ -1,4 +1,4 @@
-import { AgendaError, agendaId, agendaObject, agendaRevision, expandAgendaEvent,
+import { AgendaError, agendaDate, agendaId, agendaObject, agendaRevision, expandAgendaEvent,
   parseAgendaEvent, parseAgendaRange, type AgendaTarget, type AgendaUnitOfWork,
   type PrivateEvent } from '../../../../src/core/domain/index.ts';
 import { pageItems } from './pagination.ts';
@@ -36,6 +36,16 @@ export class AgendaService {
     id = agendaId(id);
     const revision = agendaRevision(agendaObject(input, ['revision']).revision);
     return this.uow.run(request, true, unit => unit.events.remove(id, revision));
+  }
+  async changeOccurrence(request: unknown, id: string, date: string, input: unknown, remove = false) {
+    agendaId(id); agendaDate(date);
+    const source = agendaObject(input, remove ? ['revision'] : ['revision', 'event']);
+    const revision = agendaRevision(source.revision), replacement = remove ? null : parseAgendaEvent(source.event);
+    if (replacement && replacement.repeat.kind !== 'NONE') throw new AgendaError('INVALID_INPUT');
+    return this.uow.run(request, true, unit => {
+      if (!unit.events.changeOccurrence) throw new AgendaError('SERVICE_UNAVAILABLE');
+      return unit.events.changeOccurrence(id, revision, date, replacement);
+    });
   }
   async list(request: unknown, input: unknown, cursor: string | null = null) {
     const range = parseAgendaRange(input);

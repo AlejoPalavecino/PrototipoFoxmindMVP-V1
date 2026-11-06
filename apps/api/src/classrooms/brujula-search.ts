@@ -34,7 +34,7 @@ export function searchClassrooms(context: Pick<ClassroomCore, 'run' | 'ports'>, 
       UNION ALL
       SELECT m.id,2,'material',m.title,c.id,c.name,c.division,c.subject FROM materials m JOIN rooms c ON c.id=m.classroom_id
       JOIN files f ON f.id=m.file_id JOIN file_custodies fc ON fc.file_id=f.id JOIN uploads up ON up.file_id=f.id
-      WHERE m.deleted_at IS NULL AND f.blob_deleted_at IS NULL AND fc.phase='ready'
+      WHERE m.deleted_at IS NULL AND NOT EXISTS(SELECT 1 FROM material_revisions mr WHERE mr.previous_id=m.id) AND f.blob_deleted_at IS NULL AND fc.phase='ready'
         AND f.validation_status='APPROVED' AND f.scan_status='CLEAN' AND up.status='COMPLETED'
         AND fc.digest IS NOT NULL AND fc.digest=fc.validated_digest AND fc.digest=fc.scanned_digest
       UNION ALL

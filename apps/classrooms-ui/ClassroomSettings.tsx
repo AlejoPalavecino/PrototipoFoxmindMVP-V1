@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
 import type { ClassroomClient, Detail } from './api.ts';
 import { Cover, Notice } from './components.tsx';
-import { EntryIcon } from '../shared-ui/EntryIcon';
+import { FoxmindIcon } from '../shared-ui/FoxmindIcon';
 
-type Settings = { name: string; subject: string; division: string; academicYear: number; aiGradingEnabled: boolean };
+type Settings = { name: string; subject: string; division: string; academicYear: number; aiGradingEnabled: boolean; coverKey: string };
 type Confirmation = { title: string; text: string; run: () => Promise<void>; scope?: string } | null;
 type Props = {
   api: ClassroomClient; id: string; room: Detail; settings: Settings;
@@ -18,18 +18,18 @@ export function ClassroomSettings({ api, id, room, settings, setSettings, settin
   setSettingsRevision, settingsConflict, setSettingsConflict, reloadSettings, isCurrentRoom,
   busy, load, action, setNotice, setConfirm }: Props) {
   const persistedSettings = useMemo(() => ({ name: room.name, subject: room.subject, division: room.division,
-    academicYear: room.academicYear, aiGradingEnabled: room.aiGradingEnabled ?? false }),
-  [room.name, room.subject, room.division, room.academicYear, room.aiGradingEnabled]);
+    academicYear: room.academicYear, coverKey: room.coverKey, aiGradingEnabled: room.aiGradingEnabled ?? false }),
+  [room.name, room.subject, room.division, room.academicYear, room.aiGradingEnabled, room.coverKey]);
   const [savedSettings, setSavedSettings] = useState(persistedSettings);
   const [saved, setSaved] = useState(false);
   useEffect(() => { setSavedSettings(persistedSettings); }, [id, persistedSettings]);
   const dirty = (Object.keys(settings) as (keyof Settings)[]).some(key => settings[key] !== savedSettings[key]);
   return (
     <>
-                <h2><EntryIcon name="grid" /> Configuración del aula</h2>
-                <p className="classroom-settings-intro">Administrá la información general de tu aula, su portada y las opciones de archivado.</p>
+                <header className="p5-section-head"><div><h2>Configuración del aula</h2>
+                <p>Administrá la identidad, el uso de IA y el estado de esta aula.</p></div></header>
                 {settingsConflict ? <Notice error>La configuración cambió. Tu borrador se conserva. <button onClick={() => void reloadSettings()}>Recargar configuración</button></Notice> : null}
-                <form className="classroom-settings-form"
+                <div className="brujula-settings-layout"><form className="classroom-settings-form"
                   onSubmit={(event) => {
                     event.preventDefault();
                     void action(async () => {
@@ -51,8 +51,7 @@ export function ClassroomSettings({ api, id, room, settings, setSettings, settin
                 >
                   <fieldset disabled={busy || room.archived}>
                     <section className="classroom-settings-data" aria-label="Datos del aula">
-                    <h3><EntryIcon name="book" /> Datos del aula</h3>
-                    <p>Editá la información básica de tu aula. Estos datos se mostrarán a los alumnos.</p>
+                    <h3>Datos del aula</h3>
                     <div className="p5-fields">
                       {(['name', 'subject', 'division'] as const).map((key) => (
                         <label key={key}>
@@ -91,30 +90,26 @@ export function ClassroomSettings({ api, id, room, settings, setSettings, settin
                         />
                       </label>
                     </div>
-                    <p>Zona horaria fija: {room.timezone}</p>
                     </section>
+                    <section className="brujula-settings-covers" aria-label="Portada"><h3>Portada</h3><div>{[{key:'biology',label:'Naturaleza'},{key:'math',label:'Geometría'},{key:'literature',label:'Literatura'},{key:'society',label:'Geografía'}].map(cover => <label key={cover.key}><input type="radio" name="classroom-cover" value={cover.key} checked={settings.coverKey === cover.key} onChange={() => setSettings(previous => ({...previous,coverKey:cover.key}))}/><Cover kind={cover.key}/><span>{cover.label}</span></label>)}</div></section>
                     <section className="classroom-settings-options" aria-label="Opciones de corrección">
-                    <h3>Opciones de corrección</h3>
                     <label className="p7-check"><input type="checkbox" checked={settings.aiGradingEnabled}
                       disabled={room.aiGradingAvailable === false}
                       onChange={(event) => setSettings(previous => ({ ...previous, aiGradingEnabled: event.target.checked }))} />
-                      Corrección asistida por IA para esta aula</label>
+                      <span><strong>Corrección asistida por IA</strong><small>Permite preparar sugerencias que el docente revisa antes de publicar.</small></span></label>
                     {room.aiGradingAvailable === false ? <><p>Corrección con IA no disponible en este momento. Las entregas no generarán sugerencias.</p>
                       {settings.aiGradingEnabled ? <button type="button" onClick={() => setSettings(previous => ({ ...previous, aiGradingEnabled: false }))}>Desactivar para esta aula</button> : null}</> : null}
-                    <p>Al activar esta opción, se generarán sugerencias para las nuevas entregas. El docente revisa y publica cada calificación.</p>
                     </section>
-                    <footer className="classroom-settings-save"><p role="status">{dirty ? 'Tenés cambios sin guardar.' : saved ? 'Cambios guardados.' : 'No hay cambios pendientes.'}</p><button className="primary" type="submit">{busy ? 'Guardando cambios…' : 'Guardar cambios'}</button></footer>
+                    <footer className="classroom-settings-save"><p className={!dirty&&!saved?'sr-only':''} role="status">{dirty ? 'Tenés cambios sin guardar.' : saved ? 'Cambios guardados.' : 'No hay cambios pendientes.'}</p><button className="primary" type="submit">{busy ? 'Guardando cambios…' : 'Guardar cambios'}</button></footer>
                   </fieldset>
                 </form>
-                <section className="classroom-settings-cover"><div><h3><EntryIcon name="grid" /> Portada del aula</h3><p>Esta portada se muestra en la parte superior y ayuda a identificar el aula.</p></div><Cover kind={room.coverKey} /></section>
                 <section className="classroom-settings-archive">
-                <small>Estado del aula</small>
+                <h3>Estado del aula</h3>
                 <p className="classroom-lifecycle-state">{room.archived ? 'Archivada · solo consulta' : 'Activa'}</p>
-                <h3>{room.archived ? 'Reactivar aula' : 'Archivar aula'}</h3>
                 <p>
                   {room.archived
                     ? 'Se habilitarán las acciones habituales. Los plazos existentes se conservan.'
-                    : 'Se conserva todo el contenido y el aula pasa a ser de solo lectura.'}
+                    : 'Al archivar el aula, sus contenidos e historial quedan disponibles para consulta.'}
                 </p>
                 <button
                   disabled={busy}
@@ -134,9 +129,9 @@ export function ClassroomSettings({ api, id, room, settings, setSettings, settin
                     })
                   }
                 >
-                  {room.archived ? 'Reactivar aula' : 'Archivar aula'}
+                  <FoxmindIcon name="archive"/>{room.archived ? 'Reactivar aula' : 'Archivar aula'}
                 </button>
-                </section>
+                </section></div>
               </>
   );
 }

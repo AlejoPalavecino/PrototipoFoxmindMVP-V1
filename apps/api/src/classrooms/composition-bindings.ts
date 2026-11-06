@@ -54,6 +54,7 @@ function bindGroup2(service: ClassroomService): void {
 }
 function bindGroup3(service: ClassroomService): void {
   service.submitPracticalAttempt = service.submitPracticalAttempt.bind(service);
+  service.savePracticalResponse = service.savePracticalResponse.bind(service);
   service.assignmentSubmissions = service.assignmentSubmissions.bind(service);
   service.assignmentSubmission = service.assignmentSubmission.bind(service);
   service.saveAttemptAnswer = service.saveAttemptAnswer.bind(service);

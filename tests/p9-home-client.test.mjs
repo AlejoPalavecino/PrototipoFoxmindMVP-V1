@@ -2,10 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadTsModule as component } from './helpers/load-ts-module.mjs';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { classroomDestination, classroomAuthHref } from '../apps/web/src/lib/classroom-client.ts';
+import { classroomDestination, classroomAuthHref,classroomHomeHref,classroomHomeDestination } from '../apps/web/src/lib/classroom-client.ts';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 
 test('Inicio continuation is additive, literal and does not widen the closed destination allowlist', () => {
+  const responseTarget={kind:'activity',classroomId:'11111111-1111-4111-8111-111111111111',activityId:'22222222-2222-4222-8222-222222222222',mode:'respond'};
+  const responseHref=classroomHomeHref(responseTarget);assert.deepEqual(classroomHomeDestination(responseHref),responseTarget);assert.equal(classroomHomeDestination(responseHref.replace('respond','unsafe')),null);
   assert.equal(classroomDestination('/inicio'), '/inicio');
   for (const view of ['sign-in', 'register', 'verify-email']) assert.equal(classroomAuthHref(view, '/inicio'), `/${view}?next=%2Finicio`);
   const invitation = '/mis-aulas?invitacion=a1111111-1111-4111-8111-111111111111';
@@ -42,8 +44,9 @@ test('Home keeps verified identity and routes archived history to the collection
     const focusTree = focus.type(focus.props);
     const module = descendants(focusTree, node => node.type?.name === 'HomeModule')[0];
     assert.deepEqual(module.props.page.items, [], 'Archived classrooms never become active focus');
-    descendants(focusTree, node => node.type === 'button' && node.props.children === 'Ver todas mis aulas')[0].props.onClick();
-    assert.equal(openedCollection, 1, 'Archived history stays reachable through the full collection');
+    const welcome=descendants(view.tree,node=>node.type?.name==='HomeWelcome')[0];
+    descendants(welcome.type(welcome.props),node=>node.type==='button'&&node.props.onClick===welcome.props.onClassrooms)[0].props.onClick();
+    assert.equal(openedCollection,1,'Archived history stays reachable from the welcome state');
     const { ClassroomCard } = component('apps/classrooms-ui/ClassroomCollectionCard.tsx');
     const archivedCard = renderToStaticMarkup(ClassroomCard({ room, onEnter() {} }));
     assert.match(archivedCard, /Real classroom &lt;script&gt;/); assert.match(archivedCard, /Archivada/);

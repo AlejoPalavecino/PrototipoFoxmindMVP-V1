@@ -14,7 +14,7 @@ export function homeAcademicTarget(target?: HomeTarget | null): AcademicTarget |
   return { kind: target.kind === 'submissions' ? 'submission' : target.kind,
     classroomId: target.classroomId, activityId: target.activityId,
     attemptId: target.kind === 'grade' || target.kind === 'submissions' ? target.attemptId ?? null : null,
-    ...(target.kind === 'grade' ? { gradeId: target.gradeId } : {}) };
+    ...(target.kind === 'grade' ? { gradeId: target.gradeId } : {}),...(target.kind==='activity'&&target.mode?{mode:target.mode}:{}) };
 }
 export function homeNotificationTarget(target?: HomeTarget | null): NotificationTarget | null {
   if (target?.kind === 'wall') return { classroomId: target.classroomId, postId: target.postId, replyId: null };

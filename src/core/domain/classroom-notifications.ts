@@ -1,6 +1,6 @@
 import { contractObject } from './classroom-contract-values.ts';
 export interface NotificationPageQuery { cursor?: string; limit?: number; unread?: boolean }
-export interface NotificationBase { id: string; classroomId: string; classroomName: string; createdAt: string; readAt: string | null }
+export interface NotificationBase { id: string; classroomId: string; classroomName: string; classroomDivision?:string;actorName?:string|null;message?:string|null;createdAt: string; readAt: string | null }
 export type ClassroomNotification = NotificationBase & ({ eventType: 'WALL_NOTICE' | 'WALL_QUERY' | 'WALL_REPLY'; postId: string; replyId: string | null }
   | { eventType: 'ACTIVITY_PUBLISHED' | 'ACTIVITY_DEADLINE_CHANGED' | 'FIRST_SUBMISSION_ENABLED' | 'ATTEMPT_REOPENED' | 'SUBMISSION_RECEIVED'; activityId: string; activityTitle: string; attemptId: string | null }
   | { eventType: 'GRADE_PUBLISHED' | 'GRADE_CORRECTED'; activityId: string; activityTitle: string; attemptId: string; gradeId: string });
@@ -20,6 +20,7 @@ export function parseNotificationPage(value: unknown): NotificationPage {
     !Number.isSafeInteger(page.unreadCount) || Number(page.unreadCount) < 0) throw new Error('INVALID_INPUT');
   for (const raw of page.items) {
     const item = contractObject(raw);
+    for(const [key,max,nullable] of [['actorName',321,true],['classroomDivision',80,false],['message',280,true]] as const){const text=item[key];if(text!==undefined&&!(nullable&&text===null)&&(typeof text!=='string'||[...text].length>max))throw new Error('INVALID_INPUT');}
     if (['id', 'classroomId', 'classroomName', 'createdAt', 'eventType'].some(key => typeof item[key] !== 'string') ||
       !(item.readAt === null || typeof item.readAt === 'string')) throw new Error('INVALID_INPUT');
     if (['WALL_NOTICE','WALL_QUERY','WALL_REPLY'].includes(String(item.eventType))) {

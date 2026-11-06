@@ -27,7 +27,7 @@ test('authoring proxy admits only exact authoring shapes while old shared routes
       { action: 'save', id, payload: { ...payload, questions: [{ type: 'DEVELOPMENT', prompt: 'Q', points: '1', scoringRule: null, options: [], secret: true }] } }])
       assert.equal((await post(`/${id}/activities`, { revision: '0', operation })).status, 400);
     assert.equal(calls.length, count);
-    for (const [path, body] of [[`/${id}/plan`, { revision: '0', operation: { action: 'addUnit', name: 'Unit' } }],
+    for (const [path, body] of [[`/${id}/plan`, { revision: '0', operation: { action:'setTopicState',id:'11111111-1111-4111-8111-111111111111',status:'TAUGHT' } }],
       [`/${id}/library`, { revision: '0', operation: { action: 'publish', title: 'Guide', fileId: id, unitId: null, topicId: null } }],
       [`/${id}/wall`, { revision: '0', operation: { action: 'publish', body: 'Prior wall' } }]]) {
       const result = await post(path, body); assert.equal(result.status, 200); assert.equal((await result.json()).body, JSON.stringify(body));

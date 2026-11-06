@@ -63,7 +63,7 @@ export function projectFoxyTextInput(input: { purpose: FoxyPurpose; message: str
   const { grounding } = input;
   if (!grounding || !grounding.context || !['GENERAL', 'CLASSROOM'].includes(grounding.context.kind)
     || !Array.isArray(grounding.sources) || !Array.isArray(grounding.documents) || !Array.isArray(grounding.referenceMap)
-    || !['CHAT', 'STUDY_MATERIAL', 'REVIEW', 'SUMMARY', 'ACTIVITY_IDEAS', 'LESSON_PLAN'].includes(input.purpose)) return invalid();
+    || !['CHAT', 'STUDY_MATERIAL', 'REVIEW', 'SUMMARY', 'ACTIVITY_IDEAS', 'LESSON_PLAN', 'RUBRIC'].includes(input.purpose)) return invalid();
   const result = { mode: grounding.context.kind, purpose: input.purpose, message: string(input.message),
     curriculum: curriculum(grounding), sources: grounding.sources.map(source), documents: grounding.documents.map(document),
     warnings: strings(grounding.warnings), history: history(input.history), signal: input.signal };

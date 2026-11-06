@@ -31,15 +31,15 @@ test('invalid submit renders accessible field issues without sending a write', a
   } finally { view.close(); }
 });
 
-test('compact fields expose dates and times separately, readable zones and secondary options', () => {
+test('reference fields expose date, start/end times and repetition without extra duration or zone controls', () => {
   const { EventForm } = loadTsModule('apps/agenda-ui/index.ts');
   const html = renderToStaticMarkup(React.createElement(EventForm,
     { api: {}, day, zone, onClose() {}, onSaved() {} }));
   for (const field of ['startDate', 'startTime', 'title']) assert.ok(html.includes(`name="${field}"`));
-  assert.match(html, /Hora de Buenos Aires/); assert.ok(!html.includes('type="number"'));
+  assert.ok(!html.includes('type="number"'));
   assert.ok(!html.includes('datetime-local')); assert.ok(!html.includes('<details'));
-  assert.match(html, /Ocupa varios días/);
-  assert.match(html, /30/); assert.match(html, /60/); assert.match(html, /90/);
+  assert.ok(!html.includes('Ocupa varios días'));
+  assert.match(html, /name="endTime"/); assert.match(html, /Repetición/); assert.match(html, /Diariamente/); assert.match(html, /Mensualmente/);
   assert.match(html, /Clase/); assert.match(html, /Evaluación/); assert.match(html, /Actividad/);
 });
 

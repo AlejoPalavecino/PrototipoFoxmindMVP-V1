@@ -2,15 +2,17 @@
 import { useEffect, useState } from 'react';
 import type { ClassroomClient, ProgressData } from './api.ts';
 import { Notice } from './components.tsx';
-import { EntryIcon } from '../shared-ui/EntryIcon';
+import { FoxmindIcon, type IconKey } from '../shared-ui/index.ts';
 
-const decimal = (value: string) => value.replace('.', ',');
+const decimal = (value: string | null) => value === null ? '—' : Number(value).toLocaleString('es-AR',{maximumFractionDigits:2});
 const bounded = (value: string | null) => Math.max(0, Math.min(100, Number(value) || 0));
-function Ring({ value, label, percent = true }: { value: string; label: string; percent?: boolean }) {
-  return <div className="classroom-progress-value">
-    <strong>{decimal(value)}{percent ? '%' : <small> / 10</small>}</strong><span>{label}</span>
-    {percent ? <progress max={100} value={bounded(value)} aria-label={label} /> : null}
-  </div>;
+function Metric({ number, title, value, suffix, caption, percent, icon, tone }: {
+  number: string; title: string; value: string; suffix: string; caption: string; percent: number; icon: IconKey; tone: string;
+}) {
+  return <section className={`brujula-progress-metric ${tone}`} aria-label={title}>
+    <div><small>DIMENSIÓN {number}</small><FoxmindIcon name={icon}/></div><h3>{title}</h3>
+    <strong>{value}<small>{suffix}</small></strong><progress max={100} value={percent} aria-label={title}/><p>{caption}</p>
+  </section>;
 }
 export function Progress({ api, classroomId, studentId, onOpenActivity, onOpenStudent }: { api: ClassroomClient; classroomId: string; studentId?: string; onOpenActivity?: (id: string) => void; onOpenStudent?: (studentId: string) => void }) {
   const [data, setData] = useState<ProgressData | null>(null), [error, setError] = useState('');
@@ -25,77 +27,30 @@ export function Progress({ api, classroomId, studentId, onOpenActivity, onOpenSt
       .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
   }, [api, classroomId, studentId, refresh]);
-  return <section className="p8-progress" aria-label="Seguimiento del aprendizaje" aria-busy={loading}>
-    <header className="p5-section-head">
-      <div><h2><EntryIcon name="list" /> {studentId ? 'Progreso individual' : data?.scope === 'classroom' ? 'Progreso del aula' : 'Mi progreso'}</h2><p>Tres miradas distintas para acompañar el aprendizaje.</p></div>
-      <button disabled={loading} onClick={() => setRefresh(value => value + 1)}>Actualizar progreso</button>
-    </header>
+  return <section className="p8-progress brujula-progress" aria-label="Seguimiento del aprendizaje" aria-busy={loading}>
+    <header className="p5-section-head"><div><h2>{studentId && data && data.scope !== 'classroom' ? `${data.firstName} ${data.lastName}` : data?.scope === 'classroom' ? 'Progreso del aula' : 'Mi progreso'}</h2>
+      <p>{studentId ? 'Seguimiento académico individual.' : data?.scope === 'classroom' ? 'Indicadores de los estudiantes actuales del aula.' : 'Tus entregas y resultados publicados, junto al recorrido del aula.'}</p></div></header>
     {loading ? <Notice>Cargando progreso…</Notice> : null}
     {error ? <Notice error>{error} <button onClick={() => setRefresh(value => value + 1)}>Reintentar progreso</button></Notice> : null}
     {data ? <>
-      {data.scope === 'member' && !data.currentMember ? <Notice>Registro histórico: no se incluye en los indicadores actuales del aula.</Notice> : null}
-      <div className="p8-progress-metrics">
-        <section aria-label="Cumplimiento de entregas">
-          <h3><EntryIcon name="grid" /> Cumplimiento de entregas</h3>
-          <div className="p8-metric-body">
-            {data.completion.percentage === null ? <p>{data.completion.emptyLabel}</p> : <Ring value={data.completion.percentage} label="entregadas" />}
-            <div className="p8-metric-details">
-              <p>{data.completion.delivered} de {data.completion.expected} actividades esperadas entregadas</p>
-              <p><span className="p8-dot is-green" /> Entregadas <b>{data.completion.delivered}</b></p>
-              <p><span className="p8-dot is-yellow" /> Pendientes <b>{data.completion.pending}</b></p>
-              <p><span className="p8-dot is-orange" /> A tiempo <b>{data.completion.onTime}</b></p>
-              <p><span className="p8-dot is-red" /> Tarde <b>{data.completion.late}</b></p>
-              <p><span className="p8-dot" /> Reentregas pendientes <b>{data.completion.pendingResubmissions}</b></p>
-            </div>
-          </div>
-          <small>Se cuenta cada actividad una vez. La puntualidad corresponde a su primera entrega confirmada.</small>
-        </section>
-        <section aria-label="Rendimiento académico">
-          <h3><EntryIcon name="plus-circle-fill" /> Rendimiento académico</h3>
-          <p className="classroom-metric-caption">Calificaciones publicadas</p>
-          <div className="p8-metric-body">
-            {data.performance.average === null ? <p>Sin calificaciones publicadas</p> : <Ring value={data.performance.average} label="promedio" percent={false} />}
-            <div className="p8-metric-details"><p>{data.scope === 'classroom' ? `${data.performance.gradedStudents} estudiantes con calificaciones publicadas` : `${data.performance.graded} ${data.performance.graded === 1 ? 'actividad' : 'actividades'} con calificación publicada`}</p></div>
-          </div>
-          <small>Solo calificaciones publicadas vigentes. El trabajo pendiente no equivale a cero.</small>
-        </section>
-        <section aria-label="Avance del plan de estudio">
-          <h3><EntryIcon name="list" /> Avance del plan de estudio</h3>
-          <p>{data.plan.taught} de {data.plan.total} temas dictados{data.plan.percentage === null ? '' : ` · ${decimal(data.plan.percentage)}%`}</p>
-          {data.plan.percentage !== null ? <progress className="p8-plan-bar" max={100} value={bounded(data.plan.percentage)} aria-label="Temas dictados" /> : null}
-          <p>Temas dictados: {data.plan.taught}</p><p>Temas pendientes: {data.plan.total - data.plan.taught}</p>
-          <small>Los temas dictados son independientes de las entregas y las calificaciones.</small>
-        </section>
+      {data.scope === 'member' && !data.currentMember ? <Notice>Historial académico conservado.</Notice> : null}
+      <div className="brujula-progress-metrics">
+        <Metric number="01" title="Cumplimiento de entregas" value={String(data.completion.delivered ?? 0)} suffix={`/ ${data.completion.expected ?? 0}`} caption={`${data.completion.pending ?? 0} pendientes · ${data.completion.pendingResubmissions ?? 0} reentregas pendientes`} percent={bounded(data.completion.percentage)} icon="clipboard" tone="paper"/>
+        <Metric number="02" title="Rendimiento académico" value={decimal(data.performance.average)} suffix="/ 10" caption={data.performance.average === null ? 'Aún no hay calificaciones publicadas' : `${data.scope === 'classroom' ? data.performance.gradedStudents : data.performance.graded} resultados publicados`} percent={bounded(data.performance.average) * 10} icon="progress" tone="leaf"/>
+        <Metric number="03" title="Avance del plan" value={`${Math.round(bounded(data.plan.percentage))}%`} suffix="" caption={`${data.plan.taught} de ${data.plan.total} temas dados en el aula`} percent={bounded(data.plan.percentage)} icon="route" tone="sun"/>
       </div>
-      {data.scope === 'classroom' ? <section aria-label="Estudiantes actuales"><div className="p8-progress-lower"><div>
-        <h3>Estudiantes actuales ({data.studentCount})</h3>
-        {!data.students.length ? <p>No hay estudiantes actuales.</p> : <><div className="p8-students-head" aria-hidden="true"><span>Estudiante</span><span>Cumplimiento de entregas</span><span>Promedio</span><span>Estado de entregas</span></div><ul className="p8-progress-students">
-          {data.students.map(student => <li key={student.studentId}>
-            <strong><span className="p8-student-avatar">{student.firstName.charAt(0)}{student.lastName.charAt(0)}</span>{student.firstName} {student.lastName}</strong>
-            <div className="p8-student-completion">{student.completion.percentage === null ? student.completion.emptyLabel : <>
-              <progress max={100} value={bounded(student.completion.percentage)} aria-label={`Entregas de ${student.firstName} ${student.lastName}`} />
-              <span>{student.completion.delivered}/{student.completion.expected} · {decimal(student.completion.percentage)}%</span>
-            </>}</div>
-            <p>{student.performance.average === null ? 'Sin calificaciones publicadas' : `Promedio: ${decimal(student.performance.average)}`}</p>
-            <p><span className={`p8-student-state ${student.completion.pending || student.completion.pendingResubmissions ? 'is-pending' : student.completion.expected === 0 ? 'is-empty' : 'is-current'}`}>
-              {student.completion.pending || student.completion.pendingResubmissions ? 'Pendiente' : student.completion.expected === 0 ? 'Sin actividades' : 'Al día'}
-            </span>{onOpenStudent && student.studentId ? <button onClick={() => onOpenStudent(student.studentId)}>Ver seguimiento</button> : null}</p>
-          </li>)}
-        </ul></>}
-        <p>Las salidas y sus registros se consultan por separado en Historial.</p>
-      </div><aside className="p8-progress-guidance"><h3>Sugerencia para acompañar</h3><p>{data.plan.total === 0 ? 'Todavía no hay temas en el plan de estudio.' : data.plan.taught === 0 ? 'Aún no se dictaron temas del plan de estudio en esta aula.' : `Se dictaron ${data.plan.taught} de ${data.plan.total} temas del plan de estudio.`}</p><p>Consultá el plan para acompañar el avance de tus estudiantes.</p></aside></div></section> : <section aria-label="Actividades del seguimiento">
-        <h3>Actividades del seguimiento</h3>
-        {!data.activities.length ? <p>No hay actividades publicadas para este seguimiento.</p> : <ul className="p8-progress-activities">
-          {data.activities.map(activity => <li key={activity.id}>
-            <strong>{activity.title}</strong>
-            <p>{!activity.expected ? 'Solo consulta: no se cuenta como pendiente' : activity.firstSubmission
-              ? `Entregada · ${activity.firstSubmission.late ? 'Tarde' : 'A tiempo'}` : 'Pendiente de entrega'}</p>
-            {activity.firstSubmission ? <p>Primera entrega: {new Date(activity.firstSubmission.submittedAt).toLocaleString('es-AR', { hourCycle: 'h23', dateStyle: 'short', timeStyle: 'short' })}</p> : null}
-            {activity.pendingResubmission ? <p>Reentrega pendiente; la entrega anterior se conserva.</p> : null}
-            <p>{activity.grade === null ? 'Sin calificación publicada' : `Calificación vigente: ${decimal(activity.grade)}`}</p>
-            {onOpenActivity && activity.id ? <button onClick={() => onOpenActivity(activity.id)}>Ver actividad</button> : null}
-          </li>)}
-        </ul>}
+      <div className="brujula-progress-summary"><span><i/>{data.completion.onTime ?? 0} a tiempo</span><span><i/>{data.completion.late ?? 0} tarde</span><span><i/>{data.completion.pending ?? 0} pendientes</span></div>
+      {data.scope === 'classroom' ? <section aria-label="Estudiantes actuales" className="brujula-progress-register"><h3>Seguimiento individual</h3>
+        <div className="brujula-progress-table"><table><thead><tr><th>Estudiante</th><th>Entregas</th><th>Promedio</th><th><span className="sr-only">Detalle</span></th></tr></thead><tbody>{data.students.map(student => <tr key={student.studentId}>
+          <td><span className="brujula-progress-student"><span className="p5-avatar">{student.firstName.charAt(0)}{student.lastName.charAt(0)}</span><strong>{student.firstName} {student.lastName}</strong></span></td>
+          <td>{student.completion.delivered ?? 0} / {student.completion.expected ?? 0}</td><td>{student.performance.average === null ? '—' : `${decimal(student.performance.average)} / 10`}</td>
+          <td>{onOpenStudent && student.studentId ? <button className="p5-link" onClick={()=>onOpenStudent(student.studentId)}>Ver ficha <span aria-hidden="true">›</span></button> : null}</td>
+        </tr>)}</tbody></table></div>{!data.students.length ? <p className="classroom-inline-empty">Todavía no hay estudiantes. Los estudiantes que se sumen al aula aparecerán acá.</p> : null}
+      </section> : <section className="brujula-progress-register" aria-label="Actividades del seguimiento"><h3>Registro de actividades</h3>
+        {!data.activities.length ? <p className="classroom-inline-empty">Sin registros académicos. Los resultados publicados se reunirán acá.</p> : <ul className="brujula-progress-activities">{data.activities.map(activity => <li key={activity.id}>
+          <div><strong>{activity.title}</strong><small>{!activity.expected ? 'Solo consulta: no se cuenta como pendiente' : activity.firstSubmission ? `Entregada · ${activity.firstSubmission.late ? 'Tarde' : 'A tiempo'}` : 'Pendiente de entrega'}{activity.pendingResubmission ? ' · Reentrega pendiente' : ''}</small></div>
+          <span>{activity.grade === null ? 'Sin calificación publicada' : `${decimal(activity.grade)} / 10`}</span>{onOpenActivity && activity.id ? <button className="p5-link" onClick={()=>onOpenActivity(activity.id)}>Ver actividad <span aria-hidden="true">›</span></button> : null}
+        </li>)}</ul>}
       </section>}
     </> : null}
   </section>;

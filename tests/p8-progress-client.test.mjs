@@ -22,7 +22,7 @@ test('progress extends existing shell, captures member identity separately and c
   const shell = await readFile(new URL('../apps/classrooms-ui/ClassroomView.tsx', import.meta.url), 'utf8');
   const roster = await readFile(new URL('../apps/classrooms-ui/ClassroomRoster.tsx', import.meta.url), 'utf8');
   const dialogs = await readFile(new URL('../apps/classrooms-ui/ClassroomDialogs.tsx', import.meta.url), 'utf8');
-  for (const label of ['Cumplimiento de entregas', 'Rendimiento académico', 'Avance del plan de estudio', 'Actualizar progreso', 'Reintentar progreso']) assert.ok(source.includes(label));
+  for (const label of ['Cumplimiento de entregas', 'Rendimiento académico', 'Avance del plan', 'Reintentar progreso']) assert.ok(source.includes(label));
   assert.match(source, /setLoading\(true\); setData\(null\); setError\(''\)/);
   assert.match(source, /controller.signal.aborted/); assert.match(source, /return \(\) => controller.abort\(\)/);
   const {loadTsModule}=await import('./helpers/load-ts-module.mjs');
@@ -30,6 +30,6 @@ test('progress extends existing shell, captures member identity separately and c
   assert.equal(classroomSections(true).find(item=>item.key==='progress').label,'Progreso');
   assert.equal(classroomSections(false).find(item=>item.key==='progress').label,'Mi progreso');
   assert.match(shell,/tab === 'progress'/);
-  assert.match(roster, /studentId: member.studentId!/); assert.match(dialogs, /studentId=\{summary.studentId\}/);
-  assert.ok(dialogs.includes('summary.attempts.map')); assert.match(source, /data.scope === 'classroom' \? <section aria-label="Estudiantes actuales"/);
+  assert.match(roster, /studentId: member.studentId!/); assert.match(dialogs, /summary=\{summary\}/);
+  assert.match(source, /data.scope === 'classroom' \? <section aria-label="Estudiantes actuales"/);
 });

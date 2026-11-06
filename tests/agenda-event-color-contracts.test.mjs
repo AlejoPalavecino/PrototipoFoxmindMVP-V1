@@ -4,12 +4,12 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { privateEvent } from './agenda-event-form-helpers.test.mjs';
 import { randomUUID } from 'node:crypto';
 
-export const colors = ['BLUE', 'GREEN', 'YELLOW', 'ORANGE', 'PINK', 'PURPLE'];
+export const colors = ['BLUE', 'GREEN', 'YELLOW', 'ORANGE', 'PINK', 'PURPLE', 'GRAPHITE'];
 export function payload(color) {
   const { id, revision, ...event } = privateEvent();
   return { ...event, ...(color === undefined ? {} : { color }) };
 }
-test('six finite colors survive timed and all-day weekly parsing', () => {
+test('finite reference and retained colors survive timed and all-day weekly parsing', () => {
   const api = loadTsModule('src/core/domain/index.ts');
   assert.deepEqual(api.EVENT_COLORS, colors);
   for (const color of colors) for (const allDay of [false, true]) {

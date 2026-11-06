@@ -26,30 +26,17 @@ async function library(rows = materials, targetMaterialId) {
 }
 const search = view => nodes(view, n => n.type === 'input' && (n.props.type === 'search' || /buscar|búsqueda|busqueda/i.test(`${n.props.placeholder ?? ''} ${n.props['aria-label'] ?? ''}`)))[0];
 
-test('filtros de biblioteca combinan origen y búsqueda sin solicitudes nuevas', async () => {
-  const rows = [
-    { ...materials[0], unitId: 'u1', topicId: 't1' },
-    { ...materials[1], unitId: null, topicId: null },
-    { ...materials[0], id: 'c', title: 'Cuentos del plan', unitId: 'u1', topicId: null },
-  ];
-  const { view, calls } = await library(rows);
-  const filter = label => nodes(view, n => n.type === 'button' && content(n).trim() === label)[0];
-  try {
-    assert.ok(filter('Todos'), 'debe existir filtro Todos');
-    assert.ok(filter('Materiales del plan'), 'debe existir filtro de materiales del plan');
-    assert.ok(filter('Archivos del aula'), 'debe existir filtro de archivos del aula');
-    filter('Materiales del plan').props.onClick(); await view.flush();
-    assert.deepEqual(articles(view).map(n => n.props['data-material-id']), ['a', 'c']);
-    search(view).props.onChange({ target: { value: 'cuentos' } }); await view.flush();
-    assert.deepEqual(articles(view).map(n => n.props['data-material-id']), ['c']);
-    filter('Archivos del aula').props.onClick(); await view.flush();
-    assert.deepEqual(articles(view).map(n => n.props['data-material-id']), ['b']);
-    filter('Todos').props.onClick(); await view.flush();
-    assert.deepEqual(articles(view).map(n => n.props['data-material-id']), ['b', 'c']);
-    search(view).props.onChange({ target: { value: '' } }); await view.flush();
-    assert.deepEqual(articles(view).map(n => n.props['data-material-id']), ['a', 'b', 'c']);
-    assert.equal(calls.length, 1, 'los filtros no generan nuevas solicitudes');
-  } finally { view.close(); }
+test('abrir un material presenta una página de lectura y volver conserva la búsqueda',async()=>{
+ const {view}=await library();try{search(view).props.onChange({target:{value:'Guía'}});await view.flush();nodes(view,n=>n.type==='button'&&n.props['aria-label']==='Abrir material: Guía de Literatura')[0].props.onClick();await view.flush();const reader=nodes(view,n=>n.type?.name==='MaterialReader')[0];assert.ok(reader);assert.equal(reader.props.material.id,'a');assert.equal(reader.props.writable,false);reader.props.onClose();await view.flush();assert.equal(nodes(view,n=>n.type?.name==='MaterialReader').length,0);assert.equal(search(view).props.value,'Guía');}finally{view.close();}
+});
+
+test('biblioteca busca por tipo y nombres de unidad o tema sin filtros redundantes ni solicitudes nuevas',async()=>{
+ const rows=[{...materials[0],extension:'pdf',contentKind:'FILE'},{...materials[1],contentKind:'TEXT'}];
+ const {view,calls}=await library(rows);try{
+  search(view).props.onChange({target:{value:'PDF'}});await view.flush();assert.deepEqual(articles(view).map(n=>n.props['data-material-id']),['a']);
+  search(view).props.onChange({target:{value:'texto'}});await view.flush();assert.deepEqual(articles(view).map(n=>n.props['data-material-id']),['b']);
+  search(view).props.onChange({target:{value:''}});await view.flush();assert.equal(articles(view).length,2);assert.equal(calls.length,1);
+ }finally{view.close();}
 });
 
 test('biblioteca filtra títulos localmente y recupera sus acciones al limpiar', async () => {
@@ -59,7 +46,7 @@ test('biblioteca filtra títulos localmente y recupera sus acciones al limpiar',
     assert.ok(search(view), 'la búsqueda debe tener un nombre accesible');
     search(view).props.onChange({ target: { value: '  CUENTOS  ' } }); await view.flush();
     assert.deepEqual(articles(view).map(n => n.props['data-material-id']), ['b']);
-    assert.ok(nodes(view, n => n.type === 'a' && n.props.href === '/fixture/f2').length, 'la descarga sigue disponible');
+    assert.ok(nodes(view, n => n.type === 'button' && n.props['aria-label'] === 'Abrir material: Cuentos breves').length, 'el lector sigue disponible');
     search(view).props.onChange({ target: { value: 'inexistente' } }); await view.flush();
     assert.equal(articles(view).length, 0);
     assert.match(content(view.tree), /sin resultados|no (?:se )?encontr|ningún material|ningun material/i);
@@ -81,20 +68,7 @@ test('un enlace profundo posterior deja visible el material aunque la búsqueda 
   } finally { view.close(); }
 });
 
-test('enlace profundo posterior recupera un material oculto por filtro de origen', async () => {
-  const rows = [{ ...materials[0], unitId: 'u1' }, { ...materials[1], unitId: null }];
-  const { view, props, calls } = await library(rows);
-  try {
-    const filter = nodes(view, n => n.type === 'button' && content(n).trim() === 'Materiales del plan')[0];
-    assert.ok(filter, 'el filtro de plan debe existir');
-    filter.props.onClick(); await view.flush();
-    assert.deepEqual(articles(view).map(n => n.props['data-material-id']), ['a']);
-    props.targetMaterialId = 'b';
-    search(view).props.onChange({ target: { value: ' ' } }); await view.flush();
-    assert.equal(articles(view).find(n => n.props['data-material-id'] === 'b')?.props.tabIndex, -1);
-    assert.equal(calls.length, 1);
-  } finally { view.close(); }
-});
+test('referencia muestra una sola búsqueda para todos los materiales',async()=>{const {view}=await library();try{assert.equal(nodes(view,n=>n.type==='select').length,0);assert.ok(search(view));}finally{view.close();}});
 
 test('biblioteca vacía conserva su mensaje inicial y enlace profundo queda visible al entrar', async () => {
   const empty = await library([]);

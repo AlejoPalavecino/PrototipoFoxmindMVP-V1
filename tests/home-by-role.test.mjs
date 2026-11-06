@@ -4,6 +4,15 @@ import { homeFoxySuggestion, homeCalendarWeek } from '../apps/classrooms-ui/home
 import { parseHomePage } from '../src/core/domain/home-rows-validation.ts';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { renderToStaticMarkup } from 'react-dom/server';
+import {descendants} from './agenda-ui-helpers.test.mjs';
+
+test('featured delivery keeps preparation and read-only consultation as distinct destinations',()=>{
+ const {HomeRow}=loadTsModule('apps/classrooms-ui/HomeRow.tsx'),calls=[];
+ const item={id:'activity',title:'Campo',activityType:'ASSIGNMENT',classroom:{id:'room',name:'Biología',division:'A'},reception:'open',attemptId:null,deadlineAt:null,target:{kind:'activity',classroomId:'room',activityId:'activity'}};
+ const node=HomeRow({item,module:'pending',featured:true,timeZone:'UTC',onAction:value=>calls.push(value)}),tree=node.type(node.props);
+ const buttons=descendants(tree,n=>n.type==='button');assert.equal(calls.length,0);buttons[0].props.onClick();buttons[1].props.onClick();
+ assert.deepEqual(calls,[{...item.target,mode:'respond'},item.target]);
+});
 
 test('Foxy suggests the first actionable delivery and ignores closed reception', () => {
   const modules = { pending: { status: 'ready', items: [
@@ -47,22 +56,6 @@ test('The calendar week follows the display zone, crossing months and daylight s
   assert.equal(new Set(daylight.map(day => day.date)).size, 7);
 });
 
-test('Foxy opens the exact authorized target or the classroom fallback', () => {
-  const { HomeFoxyNote } = loadTsModule('apps/classrooms-ui/HomeFoxyNote.tsx');
-  const descendants = node => !node || typeof node !== 'object' ? [] :
-    [node, ...[node.props?.children].flat(Infinity).flatMap(descendants)];
-  const target = { kind: 'wall', classroomId: 'classroom', postId: 'post' };
-  const calls = [];
-  const modules = { queries: { status: 'ready', items: [{ title: 'Consulta', classroom: { name: 'Historia' }, target }] } };
-  const props = { role: 'teacher', modules, onAction: value => calls.push(value), onClassrooms: () => calls.push('classrooms') };
-  const action = descendants(HomeFoxyNote(props)).find(node => node.type === 'button');
-  action.props.onClick();
-  assert.strictEqual(calls[0], target);
-  const fallback = descendants(HomeFoxyNote({ ...props, role: 'student', busy: true })).find(node => node.type === 'button');
-  assert.equal(fallback.props.disabled, true);
-  descendants(HomeFoxyNote({ ...props, role: 'student' })).find(node => node.type === 'button').props.onClick();
-  assert.equal(calls[1], 'classrooms');
-});
 
 test('Agenda preview keeps local time and type without technical zone or room metadata', () => {
   const { HomeAgendaRow } = loadTsModule('apps/classrooms-ui/HomeRow.tsx');
@@ -71,7 +64,7 @@ test('Agenda preview keeps local time and type without technical zone or room me
     classroom: { name: 'No duplicar contexto', division: 'A' }, target: { kind: 'private-event' } };
   const html = renderToStaticMarkup(HomeAgendaRow({ item, timeZone: 'America/Buenos_Aires', onAction() {} }));
   assert.match(html, /16:00/);
-  assert.match(html, /Evento personal/);
+  assert.match(html, /16 nov/);
   assert.doesNotMatch(html, /Zona|America\/|No duplicar contexto/);
   const allDay = renderToStaticMarkup(HomeAgendaRow({ item: { ...item, allDay: true }, timeZone: 'UTC', onAction() {} }));
   assert.match(allDay, /Todo el día/);

@@ -8,20 +8,20 @@ import { homeAcademicTarget } from '../apps/classrooms-ui/classroom-home-target.
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 
 const id = '11111111-1111-4111-8111-111111111111';
-test('Assigning from review requires explicit confirmation before the server mutation', async () => {
+test('Assigning from review saves then publishes only after an explicit assignment action', async () => {
   const { ActivityAuthoring } = loadTsModule('apps/classrooms-ui/ActivityAuthoring.tsx');
   const calls = [], confirmations = [];
-  const activity = { id, title:'Actividad', type:'ASSIGNMENT', status:'DRAFT', questions:[], instructionFiles:[], materials:[], topicIds:[], allowLate:false, locked:false, attachmentRequired:false };
+  const activity = { id, title:'Actividad',objective:'Explicar',instructions:'Resolver',evaluationRubric:[{name:'Criterio',description:'Explica',weight:100}],type:'ASSIGNMENT', status:'DRAFT', questions:[], instructionFiles:[], materials:[],unitId:'u',topicIds:['t'], allowLate:false, locked:false, attachmentRequired:false };
   const view = hookView(ActivityAuthoring, { api:{call:async(...args)=>{calls.push(args);return {revision:'2'};}},
-    room:{id,name:'Aula de prueba',timezone:'UTC',units:[],archived:false}, data:{activity,revision:'1'}, materials:[], onSaved:async value=>{confirmations.push(value);}, onClose(){} });
+    room:{id,name:'Aula de prueba',timezone:'UTC',units:[{id:'u',name:'Unidad',topics:[{id:'t',name:'Tema'}]}],archived:false}, data:{activity,revision:'1'}, materials:[], onSaved:async value=>{confirmations.push(value);}, onClose(){} });
   try {
     await view.flush();
     const text = node => typeof node === 'string' ? node : Array.isArray(node) ? node.map(text).join(' ') : text(node?.props?.children ?? '');
-    descendants(view.tree,n=>n.type==='button'&&text(n).includes('Revisar y asignar'))[0].props.onClick(); await view.flush();
+    descendants(view.tree,n=>n.type==='button'&&text(n)==='Continuar a revisión')[0].props.onClick(); await view.flush();
     const assign = descendants(view.tree,n=>n.type==='button'&&text(n)==='Asignar al aula')[0];
-    assert.equal(assign.props.disabled,false); assign.props.onClick(); await view.flush(); assert.equal(calls.length,0);
-    descendants(view.tree,n=>n.type==='button'&&text(n)==='Confirmar asignación al aula')[0].props.onClick(); await view.flush();
-    assert.deepEqual(calls[0].slice(0,3),[`/${id}/activities`,'POST',{revision:'1',operation:{action:'publish',id}}]);
+    assert.equal(assign.props.disabled,false);assert.equal(calls.length,0);assign.props.onClick(); await view.flush();
+    assert.deepEqual(calls.map(call=>call[2].operation.action),['save','publish']);
+    assert.equal(calls.at(-1)[2].operation.id,id);
     assert.deepEqual(confirmations,[true]);
   } finally { view.close(); }
 });
@@ -44,6 +44,6 @@ test('Agenda preview reflects title, selected color and all-day time before any 
   const html = renderToStaticMarkup(EventColorFields({ draft: { category: 'CLASS', color: 'PURPLE', title: 'Preparar laboratorio', allDay: true, startDate: '2026-11-05' }, issues: [], onChange() { throw new Error('preview must not mutate'); } }));
   assert.match(html, /Vista previa del evento/);
   assert.match(html, /Preparar laboratorio/);
-  assert.match(html, /Todo el día/);
+  assert.match(html, /En tu agenda/);
   assert.match(html, /agenda-event-preview agenda-color-purple/);
 });

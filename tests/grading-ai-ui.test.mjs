@@ -49,16 +49,15 @@ test('alumno no puede acceder al interruptor docente', async () => {
   finally { view.close(); }
 });
 
-test('docente edita rúbrica opcional y la guarda con la actividad', async () => {
+test('autoría conserva la rúbrica privada histórica sin exponer un campo ausente de la maqueta', async () => {
   const { ActivityAuthoring } = loadTsModule('apps/classrooms-ui/ActivityAuthoring.tsx');
   const calls = [], activity = { id: '44444444-4444-4444-8444-444444444444', type: 'ASSIGNMENT', title: 'Trabajo', status: 'DRAFT',
-    unitId, topicId, topicIds: [topicId], instructions: 'Resolver', aiGradingRubric: '', attachmentRequired: false, questions: [],
+    unitId, topicId, topicIds: [topicId], instructions: 'Resolver', aiGradingRubric: 'Valorar la justificación', attachmentRequired: false, questions: [],
     instructionFiles: [], materials: [], deadlineAt: null, allowLate: false, locked: false };
   const view = hookView(ActivityAuthoring, { api: { call: async (...args) => { calls.push(args); return { revision: '3' }; } },
     room: room('teacher'), data: { revision: '2', activity }, materials: [], onSaved: async () => {}, onClose() {} });
   try {
-    await view.flush(); const rubric = field(view.tree, /r[uú]brica/i, 'textarea'); assert.ok(rubric, 'rúbrica etiquetada');
-    rubric.props.onChange({ target: { value: 'Valorar la justificación' } }); await view.flush();
+    await view.flush(); assert.equal(field(view.tree, /r[uú]brica/i, 'textarea'),undefined);
     const form = descendants(view.tree, n => n.type === 'form')[0]; form.props.onSubmit({ preventDefault() {} }); await view.flush();
     assert.equal(calls[0][2].operation.payload.aiGradingRubric, 'Valorar la justificación');
   } finally { view.close(); }

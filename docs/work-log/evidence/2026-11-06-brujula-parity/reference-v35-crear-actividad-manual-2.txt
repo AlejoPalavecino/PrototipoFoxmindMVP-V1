@@ -1,0 +1,197 @@
+[p5 "Mis aulas · FoxMind Brújula" | space "FoxMind parity 2026-11-05"(1): 2 managed, 0 untracked — p3 "Mis Aulas · FoxMind", p5* "Mis aulas · FoxMind Brújula"]
+root
+  anchor [ref=1, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#main, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#main]
+    text "Saltar al contenido"
+  container
+    container "Menú de FoxMind"
+      anchor "FoxMind Brújula, inicio" [ref=182, loc=css:a[aria-label="FoxMind Brújula, inicio"], url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/inicio]
+        image
+        container
+          text "FoxMind"
+          text "BRÚJULA"
+      container
+        button "Buscar en FoxMind" [ref=183, loc=css:button[aria-label="Buscar en FoxMind"]]
+          svg_root
+          text "Buscar"
+          text "Ctrl K"
+        text "MI ESPACIO"
+        container "Navegación principal"
+          anchor [ref=184, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/inicio]
+            svg_root
+            text "Inicio"
+          anchor [ref=185, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aulas]
+            svg_root
+            text "Mis aulas"
+          anchor [ref=186, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/agenda, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/agenda]
+            svg_root
+            text "Agenda"
+          anchor [ref=187, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/foxy, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/foxy]
+            svg_root
+            text "Foxy AI"
+          button "Notificaciones, 10 sin leer" [ref=188, loc=css:button[aria-label="Notificaciones, 10 sin leer"]]
+            svg_root
+            text "Notificaciones"
+            text "10"
+        text "MIS AULAS"
+        container "Accesos a mis aulas"
+          anchor [ref=189, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/plan, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/plan]
+            text "Biología"
+          anchor [ref=190, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/mat/plan, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/mat/plan]
+            text "Matemática"
+          anchor [ref=191, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/lit/plan, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/lit/plan]
+            text "Lengua y Literatura"
+          anchor [ref=192, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/aula-v1oprn14/plan]
+            text "Química"
+      container
+        button [ref=193]
+          svg_root
+          text "Explorar maqueta"
+          text "Docente y alumno"
+          svg_root
+        button "Abrir cuenta de Lucía Domínguez" [ref=194, loc=css:button[aria-label="Abrir cuenta de Lucía Domínguez"]]
+          text "LD"
+          container
+            text "Lucía Domínguez"
+            text "Docente"
+          svg_root
+    container [ref=195]
+      container "Ubicación"
+        anchor [ref=196, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/inicio]
+          text "Inicio"
+        svg_root
+        anchor [ref=197, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aulas]
+          text "Mis aulas"
+        svg_root
+        text "Química"
+      container
+        image
+        container
+          svg_root
+          text "Aula · 4.º C · 2026"
+          heading
+            text "Química"
+          paragraph
+            container
+              svg_root
+              text "Lucía Domínguez"
+            container
+              svg_root
+              text "0 estudiantes"
+      container "Secciones del aula"
+        anchor [ref=198, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/aula-v1oprn14/plan]
+          svg_root
+          text "Plan"
+        anchor [ref=199, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/aula-v1oprn14/muro, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/aula-v1oprn14/muro]
+          svg_root
+          text "Muro"
+        anchor [ref=200, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/aula-v1oprn14/biblioteca, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/aula-v1oprn14/biblioteca]
+          svg_root
+          text "Biblioteca"
+        anchor [ref=201, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/aula-v1oprn14/actividades]
+          svg_root
+          text "Actividades"
+        anchor [ref=202, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/aula-v1oprn14/progreso, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/aula-v1oprn14/progreso]
+          svg_root
+          text "Progreso"
+        anchor [ref=203, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/aula-v1oprn14/alumnos, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/aula-v1oprn14/alumnos]
+          svg_root
+          text "Alumnos"
+        anchor [ref=204, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/aula-v1oprn14/historial, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/aula-v1oprn14/historial]
+          svg_root
+          text "Historial"
+        anchor [ref=205, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/aula-v1oprn14/ajustes, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/aula-v1oprn14/ajustes]
+          svg_root
+          text "Configuración"
+      container
+        container
+          anchor [ref=206, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/aula-v1oprn14/actividades]
+            svg_root
+            text "Actividades"
+          container
+            container
+              heading
+                text "Revisar la actividad"
+              paragraph
+                text "Verificá qué recibirán tus estudiantes antes de asignarla."
+            container
+              svg_root
+              text "Borrador privado"
+          ordered_list "Pasos de creación"
+            list_item
+              svg_root
+              text "Preparar actividad"
+            list_item
+              text "2"
+              text "Revisar y asignar"
+        container
+          container
+            container
+              svg_root
+              text "Contenido de la actividad"
+            heading
+              text "Observación de la materia"
+            container
+              heading
+                text "Objetivo de aprendizaje"
+              paragraph
+                text "Identificar propiedades de los materiales."
+            container
+              heading
+                text "Consignas"
+              paragraph
+                text "Describí dos propiedades observables de un material cercano."
+            container
+              heading
+                text "Rúbrica de evaluación"
+              container
+                container
+                  text "Evidencia"
+                  text "Relaciona propiedades con observaciones."
+                text "100 %"
+          container
+            container
+              svg_root
+              text "Destino"
+            heading
+              text "Química · 4.º C"
+            container
+              heading
+                text "Tipo de actividad"
+              paragraph
+                text "Trabajo práctico"
+            container
+              heading
+                text "Unidad"
+              paragraph
+                text "Unidad: Estructura de la materia"
+            container
+              heading
+                text "Temas"
+              paragraph
+                text "Modelos atómicos"
+            container
+              heading
+                text "Materiales"
+              paragraph
+                text "Sin materiales vinculados"
+            container
+              heading
+                text "Fecha límite"
+              paragraph
+                text "Sin fecha límite"
+            container
+              heading
+                text "Entrega"
+              paragraph
+                text "Archivo obligatorio"
+        container
+          button [ref=207]
+            svg_root
+            text "Volver a editar"
+          container
+            button [ref=208]
+              text "Guardar borrador"
+            button [ref=209]
+              text "Asignar al aula"
+              svg_root
+  text "Aula creada"

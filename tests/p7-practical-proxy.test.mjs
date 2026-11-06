@@ -11,7 +11,7 @@ test('strict TP proxies forward editor only at exact mutation/file ingress and p
  const root=`http://127.0.0.1:${web.address().port}/api/v1`;
  const post=(path,body,h=editor)=>fetch(root+path,{method:'POST',headers:{'content-type':'application/json','x-csrf-token':'csrf',...h},body:JSON.stringify(body)});
  try{
-  for(const [leaf,body]of [['attachments-remove',{revision:'1',fileId:id}],['submit-practical',{revision:'1',confirm:true}]]){
+  for(const [leaf,body]of [['attachments-remove',{revision:'1',fileId:id}],['submit-practical',{revision:'1',confirm:true}],['practical-response',{revision:'1',text:'Respuesta\n😀'}]]){
    assert.equal((await post(`/classrooms/${id}/attempts/${id}/${leaf}`,body)).status,200);assert.equal(calls.at(-1).body,JSON.stringify(body));assert.equal(calls.at(-1).headers['x-attempt-editor'],editor['x-attempt-editor']);
   }
   const metadata={scope:{kind:'classroom',id},purpose:'attachment',targetId:id,name:'work.pdf',bytes:3};
@@ -27,6 +27,6 @@ test('strict TP proxies forward editor only at exact mutation/file ingress and p
   assert.equal((await fetch(root+`/classrooms/${id}/attempts/${id}/receipt`,{headers:editor})).status,400);
   assert.equal(calls.length,count);
   const prior={scope:{kind:'classroom',id},purpose:'material',name:'old.pdf',bytes:3};assert.equal((await post('/files',prior,{})).status,200);assert.equal(calls.at(-1).body,JSON.stringify(prior));assert.equal(calls.at(-1).headers['x-attempt-editor'],undefined);
-  assert.equal((await post(`/classrooms/${id}/plan`,{revision:'1',operation:{action:'addUnit',name:'Prior'}},editor)).status,200);assert.equal(calls.at(-1).headers['x-attempt-editor'],undefined);
+  assert.equal((await post(`/classrooms/${id}/plan`,{revision:'1',operation:{action:'setTopicState',id:'11111111-1111-4111-8111-111111111111',status:'TAUGHT'}},editor)).status,200);assert.equal(calls.at(-1).headers['x-attempt-editor'],undefined);
  }finally{web.closeAllConnections();upstream.closeAllConnections();await Promise.all([new Promise(r=>web.close(r)),new Promise(r=>upstream.close(r))]);}
 });

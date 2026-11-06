@@ -101,7 +101,7 @@ test('READY answer exposes edit resource even when AI generation is disabled',as
   turns:[{id:turnId,sequence:1,state:'READY',purpose:'SUMMARY',message:'Hola',answer:{title:'Resumen',markdown:'Contenido',warnings:[],missingInformation:[]},errorCode:null,createdAt:'2026-01-01T00:00:00.000Z'}]};
  const controller=Object.fromEntries(['init','create','select','send','retry','loadMore','loadMoreConversations','dispose'].map(name=>[name,()=>{}]));
  const {FoxyWorkspace}=componentWithPorts('apps/web/src/components/foxy-workspace.tsx',{}),view=hookView(FoxyWorkspace,{controller,state,classrooms:[classroom],onOpenResource:(...args)=>calls.push(args)});
- try{await view.flush();const buttons=descendants(view.tree,n=>n.type==='button'&&/editar recurso/iu.test(String(n.props.children)));assert.equal(buttons.length,1);buttons[0].props.onClick();assert.deepEqual(calls,[[cid,turnId]]);}finally{view.close();}
+ try{await view.flush();const buttons=descendants(view.tree,n=>n.type==='button'&&/abrir recurso/iu.test(String(n.props.children)));assert.equal(buttons.length,1);buttons[0].props.onClick();assert.deepEqual(calls,[[cid,turnId]]);}finally{view.close();}
 });
 
 test('non-READY or missing answer never offers resource editing',async()=>{

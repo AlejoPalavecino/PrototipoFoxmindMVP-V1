@@ -6,6 +6,7 @@ export interface PrivateEventRepository {
   create(id: string, payload: EventPayload): Promise<PrivateEvent>;
   replace(id: string, revision: string, payload: EventPayload): Promise<PrivateEvent>;
   remove(id: string, revision: string): Promise<void>;
+  changeOccurrence?(id: string, revision: string, date: string, replacement: EventPayload | null): Promise<PrivateEvent>;
 }
 export interface AcademicAgendaPort {
   list(range: AgendaRange): Promise<AcademicDeadline[]>;

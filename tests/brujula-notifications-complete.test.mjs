@@ -29,3 +29,10 @@ test('la vista rápida ofrece acceso al centro completo',async()=>{
     assert.ok(descendants(view.tree,n=>n.type==='a'&&n.props.href==='/notificaciones'&&/Ver todas/.test(text(n))).length);
   }finally{view.close();}
 });
+
+test('el centro muestra identidad y contexto autorizados sin controles de tipos inexistentes',async()=>{
+ const {Notifications}=loadTsModule('apps/classrooms-ui/Notifications.tsx');
+ const row={...notification('n','WALL_QUERY'),actorName:'Ana <literal>',classroomDivision:'4.º A',message:'¿Cómo observamos el entorno?'};delete row.activityTitle;
+ const view=hookView(Notifications,{api:{call:async()=>({items:[row],nextCursor:null,unreadCount:1})},refresh:0,presentation:'center',onSelect(){}});
+ try{await view.flush();assert.equal(descendants(view.tree,n=>n.type==='h3')[0].props.children,'Consulta de Ana <literal>');assert.match(text(view.tree),/Aula sintética\s+· 4.º A/);assert.match(text(view.tree),/¿Cómo observamos el entorno/);assert.equal(descendants(view.tree,n=>n.type==='button'&&text(n)==='Resultados').length,0);assert.equal(descendants(view.tree,n=>n.type==='button'&&n.props['aria-label']==='Actualizar notificaciones').length,0);}finally{view.close();}
+});

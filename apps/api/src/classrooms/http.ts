@@ -275,10 +275,10 @@ export function createClassroomsHandler(
           ? await service.saveAttemptAnswer(req, path[0], path[2], exact(['revision', 'questionId', 'text', 'optionIds']))
           : await service.submitQuestionnaireAttempt(req, path[0], path[2], exact(['revision', 'confirm', 'confirmIncomplete']));
       }
-      else if (path.length === 4 && path[1] === 'attempts' && ['attachments-remove', 'submit-practical'].includes(path[3]) && method === 'POST') {
+      else if (path.length === 4 && path[1] === 'attempts' && ['attachments-remove', 'submit-practical','practical-response'].includes(path[3]) && method === 'POST') {
         if (!uuid(path[0]) || !uuid(path[2])) return fail('INVALID_INPUT');
         editorCapability(req.headers['x-attempt-editor'], req.headers['x-attempt-epoch']);
-        value = path[3] === 'attachments-remove'
+        value = path[3] === 'practical-response' ? await service.savePracticalResponse(req,path[0],path[2],exact(['revision','text'])) : path[3] === 'attachments-remove'
           ? await service.removeAttemptAttachment(req, path[0], path[2], exact(['revision', 'fileId']))
           : await service.submitPracticalAttempt(req, path[0], path[2], exact(['revision', 'confirm']));
       } else if (path.length === 4 && path[1] === 'activities' && path[3] === 'submissions' && method === 'GET') {

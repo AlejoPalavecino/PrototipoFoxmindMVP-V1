@@ -86,7 +86,7 @@ test('A3 source/curriculum changes, revocation and invalid output cannot become 
         if (mutation === 'invalid-output') { assert.equal((await service.get(f.T, f.room, view.id)).state, 'FAILED'); return; }
         if (mutation === 'digest') f.state.digest = 'b'.repeat(64);
         if (mutation === 'deleted') f.state.available = false;
-        if (mutation === 'topic') await f.plan({ action: 'renameTopic', id: f.topicIds[0], name: 'Nuevo alcance' });
+        if (mutation === 'topic') await f.seedPlan({ action: 'renameTopic', id: f.topicIds[0], name: 'Nuevo alcance' });
         if (mutation === 'archive') await f.pool.query('UPDATE classrooms SET archived_at=now() WHERE id=$1', [f.room]);
         await assert.rejects(service.apply(f.T, f.room, view.id, { revision: await f.revision(), requestId: randomUUID(), proposal: f.proposal }));
         assert.equal((await f.classrooms.listActivities(f.T, f.room)).activities.length, 0);

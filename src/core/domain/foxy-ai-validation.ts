@@ -34,7 +34,7 @@ function selection(value: unknown, scope: FoxyContext): FoxySelection {
 }
 function purpose(value: unknown): FoxyPurpose {
   if (value !== 'CHAT' && value !== 'STUDY_MATERIAL' && value !== 'REVIEW' && value !== 'SUMMARY'
-    && value !== 'ACTIVITY_IDEAS' && value !== 'LESSON_PLAN') return invalidInput();
+    && value !== 'ACTIVITY_IDEAS' && value !== 'LESSON_PLAN' && value !== 'RUBRIC') return invalidInput();
   return value;
 }
 export function parseCreateFoxyConversation(value: unknown): CreateFoxyConversation {

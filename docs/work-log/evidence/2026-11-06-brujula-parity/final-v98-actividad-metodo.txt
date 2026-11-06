@@ -1,0 +1,182 @@
+[p1 "Mis Aulas · FoxMind" | space "FoxMind parity 2026-11-05"(1): 2 managed, 0 untracked — p1* "Mis Aulas · FoxMind", p2 "Notificaciones · FoxMind Brújula"]
+root
+  anchor [ref=546, loc=href:/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f#classroom-main, url=http://127.0.0.1:49603/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f#classroom-main]
+    text "Saltar al contenido"
+  container
+    anchor "FoxMind" [ref=547, loc=css:a[aria-label="FoxMind"], url=http://127.0.0.1:49603/inicio]
+      image
+      text "FoxMind"
+      text "BRÚJULA"
+    button "Buscar en FoxMind" [ref=548, loc=css:button[aria-label="Buscar en FoxMind"]]
+      svg_root
+      text "Buscar"
+      text "Ctrl K"
+    text "MI ESPACIO"
+    container "Navegación principal"
+      anchor [ref=549, url=http://127.0.0.1:49603/inicio]
+        svg_root
+        text "Inicio"
+      anchor [ref=550, loc=href:/mis-aulas, url=http://127.0.0.1:49603/mis-aulas]
+        svg_root
+        text "Mis aulas"
+      anchor [ref=551, loc=href:/agenda, url=http://127.0.0.1:49603/agenda]
+        svg_root
+        text "Agenda"
+      anchor [ref=552, loc=href:/foxy-ai, url=http://127.0.0.1:49603/foxy-ai]
+        svg_root
+        text "Foxy AI"
+    button "Notificaciones: 3 sin leer" [ref=553, loc=css:button[aria-label="Notificaciones: 3 sin leer"]]
+      svg_root
+      text "Notificaciones"
+      text "3"
+    container "Accesos a mis aulas"
+      text "MIS AULAS"
+      anchor [ref=554, loc=href:/mis-aulas?aula=9c79d9cd-20e9-4b18-92aa-f141f8339437, url=http://127.0.0.1:49603/mis-aulas?aula=9c79d9cd-20e9-4b18-92aa-f141f8339437]
+        text "Lengua y Literatura"
+      anchor [ref=555, loc=href:/mis-aulas?aula=0777b140-8939-4b45-b91a-7a520bc6aff2, url=http://127.0.0.1:49603/mis-aulas?aula=0777b140-8939-4b45-b91a-7a520bc6aff2]
+        text "Matemática"
+      anchor [ref=556, loc=href:/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f, url=http://127.0.0.1:49603/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f]
+        text "Biología"
+    button "Mi cuenta de Lucía Domínguez" [ref=557, loc=css:button[aria-label="Mi cuenta de Lucía Domínguez"]]
+      text "LD"
+      text "Lucía Domínguez"
+      text "Docente"
+      svg_root
+  container
+    container "Ubicación"
+      anchor [ref=558, url=http://127.0.0.1:49603/inicio]
+        text "Inicio"
+      text "›"
+      button [ref=559]
+        text "Mis aulas"
+      text "›"
+      text "Biología"
+    container
+      image
+      svg_root
+      text "Aula ·"
+      text "4.º A"
+      text "·"
+      text "2026"
+      heading
+        text "Biología"
+      paragraph
+        svg_root
+        text "Lucía Domínguez"
+        svg_root
+        text "2"
+        text "estudiantes"
+    container "Secciones del aula"
+      button [ref=560]
+        svg_root
+        text "Plan"
+      button [ref=561]
+        svg_root
+        text "Muro"
+      button [ref=562]
+        svg_root
+        text "Biblioteca"
+      button [ref=563]
+        svg_root
+        text "Actividades"
+      button [ref=564]
+        svg_root
+        text "Progreso"
+      button [ref=565]
+        svg_root
+        text "Alumnos"
+      button [ref=566]
+        svg_root
+        text "Historial"
+      button [ref=567]
+        svg_root
+        text "Configuración"
+    container "Actividades"
+      heading
+        text "Actividades"
+      container "Actividades del aula"
+        container
+          heading
+            text "Actividades"
+          paragraph
+            text "Prepará consignas, revisá entregas y publicá devoluciones."
+          button [ref=596]
+            text "Crear actividad"
+        button [ref=597]
+          text "Todas"
+        button [ref=598]
+          text "Publicadas"
+        button [ref=599]
+          text "Borradores"
+        container "Preparar la salida de campo"
+          svg_root
+          text "Trabajo práctico"
+          heading
+            text "Preparar la salida de campo"
+          paragraph
+            svg_root
+            text "12 nov"
+          button "Abrir Preparar la salida de campo" [ref=600, loc=css:button[aria-label="Abrir Preparar la salida de campo"]]
+            text "Borrador privado"
+            svg_root
+        container "Redes tróficas"
+          svg_root
+          text "Cuestionario"
+          heading
+            text "Redes tróficas"
+          paragraph
+            svg_root
+            text "12 nov"
+          button "Abrir Redes tróficas" [ref=601, loc=css:button[aria-label="Abrir Redes tróficas"]]
+            text "Publicada"
+            svg_root
+        container "Cuaderno de campo"
+          svg_root
+          text "Trabajo práctico"
+          heading
+            text "Cuaderno de campo"
+          paragraph
+            svg_root
+            text "12 nov"
+          button "Abrir Cuaderno de campo" [ref=602, loc=css:button[aria-label="Abrir Cuaderno de campo"]]
+            text "1 por revisar"
+            svg_root
+        container "Lectura de un ecosistema"
+          svg_root
+          text "Evaluación"
+          heading
+            text "Lectura de un ecosistema"
+          paragraph
+            svg_root
+            text "12 nov"
+          button "Abrir Lectura de un ecosistema" [ref=603, loc=css:button[aria-label="Abrir Lectura de un ecosistema"]]
+            text "Publicada"
+            svg_root
+  alert
+  dialog_modal "Crear actividad" [ref=624]
+    container
+      heading
+        text "Crear actividad"
+      button "Cerrar diálogo" [ref=625, loc=css:button[aria-label="Cerrar diálogo"]]
+        svg_root
+    container
+      paragraph
+        text "¿Cómo querés preparar la actividad para"
+        container
+          text "Biología"
+          text "·"
+          text "4.º A"
+        text "?"
+      container
+        button "Crear manualmente" [ref=626, loc=css:button[aria-label="Crear manualmente"]]
+          svg_root
+          container
+            text "Crear manualmente"
+            text "Escribí las consignas y definí los criterios de evaluación."
+          svg_root
+        button "Crear con IA" [ref=627, loc=css:button[aria-label="Crear con IA"]]
+          svg_root
+          container
+            text "Crear con IA"
+            text "Elegí el tema y el objetivo para generar una propuesta editable."
+          svg_root

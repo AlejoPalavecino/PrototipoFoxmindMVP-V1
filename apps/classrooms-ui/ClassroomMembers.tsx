@@ -1,10 +1,11 @@
 import type { Dispatch, SetStateAction } from 'react';
 import type { ClassroomClient, Detail, Invitation } from './api.ts';
 import { Notice } from './components.tsx';
-import { EntryIcon } from '../shared-ui/EntryIcon';
+import { FoxmindIcon } from '../shared-ui/FoxmindIcon';
 import { ResourceNotice } from './ResourceNotice.tsx';
 type Confirmation = { title: string; text: string; run: () => Promise<void>; scope?: string } | null;
 type Props = {
+  part?:'code'|'invitations';
   api: ClassroomClient; id: string; room: Detail; busy: boolean; code: string | null;
   setCode: Dispatch<SetStateAction<string | null>>; setNotice: Dispatch<SetStateAction<string>>;
   setConfirm: Dispatch<SetStateAction<Confirmation>>; isCurrentRoom: () => boolean;
@@ -12,16 +13,15 @@ type Props = {
   invitationResource: { status: string; error: string; reload: () => Promise<void> };
   action: (task: () => Promise<void>, section?: string) => Promise<void>;
 };
-export function ClassroomMembers({ api, id, room, busy, code, setCode, setNotice, setConfirm,
+export function ClassroomMembers({ api, id, room, busy, code, setCode, setNotice, setConfirm,part,
   isCurrentRoom, invitations, invitationAction, invitationResource, action }: Props) {
   return (
                   <aside className="classroom-members-aside" aria-label="Acceso e invitaciones al aula">
-                    <section className="classroom-members-code">
-                    <h3><EntryIcon name="grid" /> Código del aula</h3>
+                    {part!=='invitations' ? <section className="classroom-members-code">
+                    <FoxmindIcon name="key"/><div><h3>Código de acceso</h3>
                     <p>
-                      Solo sirve para el primer ingreso. Para reingresar, hace
-                      falta una invitación nueva.
-                    </p>
+                      Compartilo para que tus alumnos se sumen.
+                    </p></div>
                     {code ? (
                       <div className="p5-code">
                         <code>{code}</code>
@@ -33,7 +33,7 @@ export function ClassroomMembers({ api, id, room, busy, code, setCode, setNotice
                             })
                           }
                         >
-                          Copiar código
+                          <span className="sr-only">Copiar código</span><FoxmindIcon name="copy"/>
                         </button>
                       </div>
                     ) : (
@@ -56,11 +56,11 @@ export function ClassroomMembers({ api, id, room, busy, code, setCode, setNotice
                         })
                       }
                     >
-                      Generar código nuevo
+                      <span className="sr-only">Regenerar código</span><FoxmindIcon name="refresh"/>
                     </button>
-                    </section>
-                    <section className="classroom-members-invitations">
-                    <h3><EntryIcon name="envelope" /> Invitaciones enviadas</h3>
+                    </section> : null}
+                    {part!=='code' && (invitations.length>0 || invitationResource.status==='error') ? <section className="classroom-members-invitations">
+                    <h3>Invitaciones pendientes</h3>
                     <ResourceNotice resource={invitationResource} />
                     {invitationAction.error ? <Notice error>{invitationAction.error}</Notice> : null}
                     {invitationResource.status === 'ready' && invitations.length === 0 ? (
@@ -137,7 +137,7 @@ export function ClassroomMembers({ api, id, room, busy, code, setCode, setNotice
                         ))}
                       </ul>
                     )}
-                    </section>
+                    </section> : null}
                   </aside>
   );
 }

@@ -11,14 +11,14 @@ export function ClassroomActions({data,onAction,onClassrooms,onRetry,onSelected,
   if(data.modules.classrooms.status==='error')return <section className="fm-home-teacher-tools"><h2>{teacher?'Acciones del aula':'Accesos de mi aula'}</h2><p role="status">No pudimos cargar tus aulas.</p><button disabled={busy} onClick={onRetry}>Reintentar aulas</button></section>;
   if(!room)return <section className="fm-home-teacher-tools"><h2>{teacher?'Acciones del aula':'Accesos de mi aula'}</h2><button onClick={onClassrooms}>Elegir un aula en Mis aulas</button></section>;
   const actions=teacher?([
-    ['create-activity','Crear actividad','file'],['upload-material','Subir material','upload'],['publish-notice','Publicar aviso','chat'],['progress','Ver progreso','check'],
+    ['create-activity','Crear actividad','clipboard'],['upload-material','Agregar material','book'],['publish-notice','Publicar aviso','chat'],['progress','Ver progreso','progress'],
   ] as const):([
-    ['library','Materiales','folder'],['progress','Mi progreso','check'],['plan','Plan de estudio','book'],['wall','Muro del aula','chat'],
+    ['library','Materiales','book'],['progress','Mi progreso','progress'],['plan','Plan de estudio','route'],['wall','Muro del aula','chat'],
   ] as const);
   return <section className="fm-home-teacher-tools" aria-label={teacher?'Acciones del aula':'Accesos de mi aula'}>
     <header className="fm-brujula-shortcuts-heading"><div><h2>{teacher?'Acciones del aula':'Accesos de mi aula'}</h2><p>{room.name} · {room.division}</p></div>{rooms.length>1?<button className="fm-brujula-change-room" onClick={()=>setChoosing(true)} aria-expanded={choosing}>Cambiar aula<FoxmindIcon name="chevron-down"/></button>:null}</header>
     {choosing?<Dialog title="Elegí un aula" onClose={()=>setChoosing(false)}><div className="fm-brujula-room-picker">{rooms.map(item=><button key={item.id} aria-pressed={item.id===room.id} onClick={()=>{setSelected(item.id);onSelected?.(item.id);setChoosing(false);}}><Cover kind={item.coverKey}/><span><strong>{item.name}</strong><small>{item.division}</small></span><FoxmindIcon name="chevron-right"/></button>)}</div></Dialog>:null}
-    <div className="fm-home-shortcut-grid">{actions.map(([kind,label,icon])=><button key={kind} disabled={busy} onClick={()=>onAction(kind==='create-activity'||kind==='upload-material'||kind==='publish-notice'?{kind,classroomId:room.id}:{kind:'classroom',classroomId:room.id,section:kind})}><span className="fm-brujula-shortcut-icon"><FoxmindIcon name={icon}/></span><strong>{label}</strong></button>)}</div>
+    <div className={`fm-home-shortcut-grid${teacher?'':' fm-home-student-shortcuts'}`}>{actions.map(([kind,label,icon])=><button key={kind} disabled={busy} onClick={()=>onAction(kind==='create-activity'||kind==='upload-material'||kind==='publish-notice'?{kind,classroomId:room.id}:{kind:'classroom',classroomId:room.id,section:kind})}><span className="fm-brujula-shortcut-icon"><FoxmindIcon name={icon}/></span><strong>{label}</strong></button>)}</div>
     {data.modules.classrooms.status==='ready' && data.modules.classrooms.nextCursor?<button className="fm-brujula-change-room" onClick={onClassrooms}>Ver todas mis aulas</button>:null}
   </section>;
 }

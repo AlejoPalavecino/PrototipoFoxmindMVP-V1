@@ -51,10 +51,10 @@ export class ClassroomService {
     this.ports = this.context.ports;
     this.tokens = this.context.tokens;
     this.drafts = new DraftService(this.context);
-    this.membership = new MembershipService(this.context, { newCode: newClassroomCode });
+    this.membership = new MembershipService(this.context, { newCode: (tx,id)=>newClassroomCode(tx,id,this.ports.deliveryKey) });
     this.invitations = new InvitationService(this.context, { enroll: this.membership.enroll.bind(this.membership) });
     const readyClassroomFile = createReadyClassroomFile(this.context.ports.files);
-    this.plan = new PlanService(this.context, readyClassroomFile);
+    this.plan = new PlanService(this.context);
     this.library = new LibraryService(this.context, { readyClassroomFile, advanceRevision: advanceClassroomRevision });
     this.wall = new WallService(this.context, { advanceRevision: advanceClassroomRevision });
     this.authoring = new ActivityAuthoringService(this.context, {
@@ -127,6 +127,7 @@ export class ClassroomService {
   authorizeFirstSubmission(...args: Parameters<ActivityParticipationService['authorizeFirstSubmission']>): ReturnType<ActivityParticipationService['authorizeFirstSubmission']> { return this.participation.authorizeFirstSubmission(...args); }
   removeAttemptAttachment(...args: Parameters<PracticalSubmissionService['removeAttemptAttachment']>): ReturnType<PracticalSubmissionService['removeAttemptAttachment']> { return this.practical.removeAttemptAttachment(...args); }
   submitPracticalAttempt(...args: Parameters<PracticalSubmissionService['submitPracticalAttempt']>): ReturnType<PracticalSubmissionService['submitPracticalAttempt']> { return this.practical.submitPracticalAttempt(...args); }
+  savePracticalResponse(...args: Parameters<PracticalSubmissionService['savePracticalResponse']>): ReturnType<PracticalSubmissionService['savePracticalResponse']> { return this.practical.savePracticalResponse(...args); }
   assignmentSubmissions(...args: Parameters<PracticalSubmissionService['assignmentSubmissions']>): ReturnType<PracticalSubmissionService['assignmentSubmissions']> { return this.practical.assignmentSubmissions(...args); }
   assignmentSubmission(...args: Parameters<PracticalSubmissionService['assignmentSubmission']>): ReturnType<PracticalSubmissionService['assignmentSubmission']> { return this.practical.assignmentSubmission(...args); }
   saveAttemptAnswer(...args: Parameters<QuestionnaireAttemptService['saveAttemptAnswer']>): ReturnType<QuestionnaireAttemptService['saveAttemptAnswer']> { return this.questionnaire.saveAttemptAnswer(...args); }

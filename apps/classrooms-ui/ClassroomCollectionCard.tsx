@@ -13,7 +13,7 @@ export function ClassroomCard({ room, onEnter }: { room: Classroom; onEnter: (id
       <div className="cl-course-bottom"><div><span>Avance del plan</span><b>{percentage === null ? progress ? 'Sin temas' : 'No disponible' : `${percentage}%`}</b></div>
         {percentage !== null && <div className="cl-meter" role="progressbar" aria-label="Avance del plan" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percentage} aria-valuetext={`${progress!.taught} de ${progress!.total} temas dados`}><i style={{ width: `${percentage}%` }} /></div>}
       </div>
-      <button type="button" className="brujula-course-open" aria-label={`Entrar al aula ${room.name}`} onClick={() => onEnter(room.id)}><span className="entry-sr-only">Entrar al aula</span><FoxmindIcon name="arrow-right" /></button>
+      <button type="button" className="brujula-course-open" aria-label={`Entrar al aula ${room.name}`} onClick={() => onEnter(room.id)}><span className="entry-sr-only">Entrar al aula</span><FoxmindIcon name="arrow-up-right" /></button>
     </div>
   </article>;
 }

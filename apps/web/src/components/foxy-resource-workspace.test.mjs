@@ -45,7 +45,7 @@ test('successful receipt identifies publication in destination library without d
 test('history load error offers retry and does not claim empty history',async()=>{
  const f=fixture({history:{items:[],nextAfterId:null,loading:false,inspectionLoading:false,selectedId:null,inspection:null,staleResource:false,error:'No pudimos cargar las preparaciones.',inspectionError:null}});
  try{await f.view.flush();const html=renderToStaticMarkup(f.view.tree);assert.doesNotMatch(html,/todavía no hay preparaciones|sin preparaciones/iu);
-  const buttons=descendants(f.view.tree,n=>n.type==='button');for(const button of buttons)button.props.onClick?.();assert.ok(f.calls.some(x=>x[0]==='refreshList'));
+  const button=descendants(f.view.tree,n=>n.type==='button'&&n.props.children==='Reintentar historial')[0];assert.ok(button);button.props.onClick();assert.ok(f.calls.some(x=>x[0]==='refreshList'));
  }finally{f.view.close();}
 });
 

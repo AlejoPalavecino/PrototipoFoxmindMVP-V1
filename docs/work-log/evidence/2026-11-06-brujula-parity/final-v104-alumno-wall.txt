@@ -1,0 +1,162 @@
+[p1 "Mis Aulas · FoxMind" | space "FoxMind parity 2026-11-05"(1): 2 managed, 0 untracked — p1* "Mis Aulas · FoxMind", p2 "Mis aulas · FoxMind Brújula"]
+root
+  container
+    anchor [ref=1321, loc=href:/mis-aulas?aula=83625281-eb0d-44dd-8243-a8b3150d78b1#classroom-main, url=http://127.0.0.1:64848/mis-aulas?aula=83625281-eb0d-44dd-8243-a8b3150d78b1#classroom-main]
+      text "Saltar al contenido"
+    container
+      anchor "FoxMind" [ref=1322, loc=css:a[aria-label="FoxMind"], url=http://127.0.0.1:64848/inicio]
+        image
+        container
+          text "FoxMind"
+          text "BRÚJULA"
+      container
+        button "Buscar en FoxMind" [ref=1323, loc=css:button[aria-label="Buscar en FoxMind"]]
+          svg_root
+          text "Buscar"
+          text "Ctrl K"
+        text "MI ESPACIO"
+      container "Navegación principal"
+        anchor [ref=1324, url=http://127.0.0.1:64848/inicio]
+          svg_root
+          text "Inicio"
+        anchor [ref=1325, loc=href:/mis-aulas, url=http://127.0.0.1:64848/mis-aulas]
+          svg_root
+          text "Mis aulas"
+        anchor [ref=1326, loc=href:/agenda, url=http://127.0.0.1:64848/agenda]
+          svg_root
+          text "Agenda"
+      button "Notificaciones: 5 sin leer" [ref=1327, loc=css:button[aria-label="Notificaciones: 5 sin leer"]]
+        svg_root
+        text "Notificaciones"
+        text "5"
+      container "Accesos a mis aulas"
+        text "MIS AULAS"
+        anchor [ref=1328, loc=href:/mis-aulas?aula=e4697b5c-5cb7-4c48-8b92-2e0eaf9167d1, url=http://127.0.0.1:64848/mis-aulas?aula=e4697b5c-5cb7-4c48-8b92-2e0eaf9167d1]
+          text "Lengua y Literatura"
+        anchor [ref=1329, loc=href:/mis-aulas?aula=1f9c7707-76dd-49c1-95a1-4709a26a6794, url=http://127.0.0.1:64848/mis-aulas?aula=1f9c7707-76dd-49c1-95a1-4709a26a6794]
+          text "Matemática"
+        anchor [ref=1330, loc=href:/mis-aulas?aula=83625281-eb0d-44dd-8243-a8b3150d78b1, url=http://127.0.0.1:64848/mis-aulas?aula=83625281-eb0d-44dd-8243-a8b3150d78b1]
+          text "Biología"
+      button "Mi cuenta de Mateo Ríos" [ref=1331, loc=css:button[aria-label="Mi cuenta de Mateo Ríos"]]
+        text "MR"
+        container
+          text "Mateo Ríos"
+          text "Alumno"
+        svg_root
+    container
+      container "Ubicación"
+        anchor [ref=1332, url=http://127.0.0.1:64848/inicio]
+          text "Inicio"
+        text "›"
+        button [ref=1333]
+          text "Mis aulas"
+        text "›"
+        text "Biología"
+      container
+        container
+          image
+          container
+            container
+              svg_root
+              container
+                text "Aula ·"
+                text "4.º A"
+                text "·"
+                text "2026"
+            heading
+              text "Biología"
+            paragraph
+              container
+                svg_root
+                text "Lucía Domínguez"
+              container
+                svg_root
+                text "2"
+                text "estudiantes"
+        container "Secciones del aula"
+          button [ref=1334]
+            svg_root
+            text "Plan"
+          button [ref=1335]
+            svg_root
+            text "Muro"
+          button [ref=1336]
+            svg_root
+            text "Biblioteca"
+          button [ref=1337]
+            svg_root
+            text "Actividades"
+          button [ref=1338]
+            svg_root
+            text "Mi progreso"
+          button [ref=1339]
+            svg_root
+            text "Compañeros"
+        container "Muro"
+          heading
+            text "Muro"
+          container
+            container "Muro del aula"
+              container
+                container
+                  heading
+                    text "Muro"
+                  paragraph
+                    text "Avisos y conversaciones que puede leer toda el aula."
+                button [ref=1340]
+                  svg_root
+                  text "Hacer una consulta"
+              group "Filtrar publicaciones"
+                button [ref=1341]
+                  text "Todos"
+                button [ref=1342]
+                  text "Avisos"
+                button [ref=1343]
+                  text "Consultas"
+              container
+                container "Consulta del aula" [ref=1344]
+                  text "Consulta"
+                  container
+                    text "MR"
+                    container
+                      text "Mateo Ríos"
+                      text "6 nov"
+                  heading
+                    text "Una consulta sobre el registro"
+                  paragraph
+                    text "¿Podemos incluir especies que vimos en casa?"
+                  container
+                    button "Editar publicación" [ref=1345, loc=css:button[aria-label="Editar publicación"]]
+                      svg_root
+                    button "Eliminar publicación" [ref=1346, loc=css:button[aria-label="Eliminar publicación"]]
+                      svg_root
+                  container "Respuestas de la publicación"
+                    heading
+                      text "Respuestas ("
+                      text "0"
+                      text ")"
+                    button "Responder publicación" [ref=1347]
+                      svg_root
+                      text "Responder"
+                container "Aviso del aula" [ref=1348]
+                  text "Aviso"
+                  container
+                    text "LD"
+                    container
+                      text "Lucía Domínguez"
+                      text "6 nov"
+                  heading
+                    text "Nos preparamos para la salida"
+                  paragraph
+                    text "Traé tu cuaderno para registrar las observaciones."
+                  container "Respuestas de la publicación"
+                    heading
+                      text "Respuestas ("
+                      text "0"
+                      text ")"
+                    button "Responder publicación" [ref=1349]
+                      svg_root
+                      text "Responder"
+            button [ref=1350]
+              text "Salir del aula"
+  alert

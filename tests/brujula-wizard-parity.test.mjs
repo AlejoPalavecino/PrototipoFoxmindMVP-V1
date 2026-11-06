@@ -65,8 +65,9 @@ test('archivo seleccionado pendiente bloquea creación aunque haya un plan escri
   const f = await wizard({ upload: async () => ({ id: 'pending', ready: false }) });
   try {
     await advance(f.view);
+    button(f.view,'Extraer unidades de un texto').props.onClick();await f.view.flush();
     nodes(f.view, node => node.type === 'input' && node.props.type === 'file')[0].props.onChange({ target: { files: [new File(['fixture'], 'plan.pdf')], value: 'plan.pdf' } });
-    await f.view.flush(); await advance(f.view);
+    await f.view.flush();button(f.view,'Volver').props.onClick();await f.view.flush();await advance(f.view);
     assert.match(text(f.view.tree), /superar la revisión/i);
     assert.ok(f.calls.every(call => !call[0].endsWith('/publish')));
   } finally { f.close(); }

@@ -63,16 +63,22 @@ test('retained activities discard a late preview from an earlier visible section
   let resolve;const response=new Promise(done=>{resolve=done;});
   const activity={id:'a',title:'A',type:'ASSIGNMENT',status:'DRAFT',topicId:'cell',topicIds:['cell'],unitId:'unit',zone:'UTC'};
   const {Activities}=loadTsModule('apps/classrooms-ui/Activities.tsx');
-  const props={api:{call:async path=>path.endsWith('/preview')?response:{activities:[activity]}},room,active:true,reload:async()=>{}};
+  const props={api:{call:async path=>path.endsWith('/preview')?response:path.endsWith('/library')?[]:{activities:[activity]}},room,active:true,reload:async()=>{}};
   const view=controlledView(Activities,props);
-  try{await view.flush();descendants(view.tree,n=>n.type==='button'&&n.props.children==='Vista previa docente')[0].props.onClick();await view.flush();view.update({active:false});await view.flush();resolve({activity,revision:'4'});await view.flush();view.update({active:true});await view.flush();assert.equal(descendants(view.tree,n=>n.type?.name==='Dialog'&&n.props.title==='A').length,0);}finally{view.close();}
+  try{await view.flush();descendants(view.tree,n=>n.type==='button'&&n.props['aria-label']==='Abrir A')[0].props.onClick();await view.flush();view.update({active:false});await view.flush();resolve({activity,revision:'4'});await view.flush();view.update({active:true});await view.flush();assert.equal(descendants(view.tree,n=>n.type?.name==='ActivityAuthoring'||n.type?.name==='AttemptHistory').length,0);}finally{view.close();}
 });
 test('new contextual creation asks before replacing a retained editor',async()=>{
   const activity={id:'a',title:'A',type:'ASSIGNMENT',status:'DRAFT',topicId:'cell',topicIds:['cell'],unitId:'unit',zone:'UTC'};
   const {Activities}=loadTsModule('apps/classrooms-ui/Activities.tsx');
   const props={api:{call:async path=>path.endsWith('/preview')?{activity,revision:'4'}:path.endsWith('/library')?[]:{activities:[activity]}},room,active:true,reload:async()=>{}};
   const view=controlledView(Activities,props);
-  try{await view.flush();descendants(view.tree,n=>n.type==='button'&&n.props.children==='Continuar borrador')[0].props.onClick();await view.flush();view.update({creationContext:{unitId:'unit',topicIds:['food']}});await view.flush();assert.ok(descendants(view.tree,n=>n.type?.name==='Dialog'&&n.props.title==='Preparar otra actividad').length);const proceed=descendants(view.tree,n=>n.type==='button'&&n.props.children==='Descartar cambios locales y continuar')[0];proceed.props.onClick();await view.flush();assert.equal(descendants(view.tree,n=>n.type?.name==='ActivityAuthoring').length,0);assert.equal(descendants(view.tree,n=>n.type?.name==='ActivityAssignment').length,0);descendants(view.tree,n=>n.type==='button'&&n.props['aria-label']==='Crear con IA')[0].props.onClick();await view.flush();assert.deepEqual(descendants(view.tree,n=>n.type?.name==='ActivityGeneration')[0].props.creationContext,{unitId:'unit',topicIds:['food']});}finally{view.close();}
+  try{await view.flush();descendants(view.tree,n=>n.type==='button'&&n.props['aria-label']==='Abrir A')[0].props.onClick();await view.flush();descendants(view.tree,n=>n.type?.name==='AttemptHistory')[0].props.actions.props.children[0].props.onClick();await view.flush();view.update({creationContext:{unitId:'unit',topicIds:['food']}});await view.flush();assert.ok(descendants(view.tree,n=>n.type?.name==='Dialog'&&n.props.title==='Preparar otra actividad').length);const proceed=descendants(view.tree,n=>n.type==='button'&&n.props.children==='Descartar cambios locales y continuar')[0];proceed.props.onClick();await view.flush();assert.equal(descendants(view.tree,n=>n.type?.name==='ActivityAuthoring').length,0);assert.equal(descendants(view.tree,n=>n.type?.name==='ActivityAssignment').length,0);descendants(view.tree,n=>n.type==='button'&&n.props['aria-label']==='Crear con IA')[0].props.onClick();await view.flush();assert.deepEqual(descendants(view.tree,n=>n.type?.name==='ActivityGeneration')[0].props.creationContext,{unitId:'unit',topicIds:['food']});}finally{view.close();}
+});
+
+test('equivalent home destinations retain identity while unrelated classroom resources rerender',async()=>{
+ const {ClassroomView}=loadTsModule('apps/classrooms-ui/ClassroomView.tsx'),target={kind:'activity',classroomId:room.id,activityId:'activity',mode:'respond'};
+ const view=controlledView(ClassroomView,{api:{call:async path=>path===`/${room.id}`?room:[]},id:room.id,initialCode:null,onExit(){},homeTarget:target});
+ try{await view.flush();const current=()=>descendants(view.tree,n=>n.type?.name==='Activities')[0].props.target;const first=current();view.update({homeTarget:{...target}});await view.flush();assert.equal(current(),first);}finally{view.close();}
 });
 test('late student follow-up does not open over a different classroom section',async()=>{
   let resolve;const response=new Promise(done=>{resolve=done;});

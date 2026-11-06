@@ -1,0 +1,172 @@
+[p2 "Mis aulas · FoxMind Brújula" | space "FoxMind parity 2026-11-05"(1): 2 managed, 0 untracked — p1 "Mis Aulas · FoxMind", p2* "Mis aulas · FoxMind Brújula"]
+root
+  anchor [ref=1, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#main, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#main]
+    text "Saltar al contenido"
+  container
+    container "Menú de FoxMind"
+      anchor "FoxMind Brújula, inicio" [ref=62, loc=css:a[aria-label="FoxMind Brújula, inicio"], url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/inicio]
+        image
+        container
+          text "FoxMind"
+          text "BRÚJULA"
+      container
+        button "Buscar en FoxMind" [ref=63, loc=css:button[aria-label="Buscar en FoxMind"]]
+          svg_root
+          text "Buscar"
+          text "Ctrl K"
+        text "MI ESPACIO"
+        container "Navegación principal"
+          anchor [ref=64, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/inicio]
+            svg_root
+            text "Inicio"
+          anchor [ref=65, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aulas]
+            svg_root
+            text "Mis aulas"
+          anchor [ref=66, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/agenda, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/agenda]
+            svg_root
+            text "Agenda"
+          anchor [ref=67, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/foxy, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/foxy]
+            svg_root
+            text "Foxy AI"
+          button "Notificaciones, 10 sin leer" [ref=68, loc=css:button[aria-label="Notificaciones, 10 sin leer"]]
+            svg_root
+            text "Notificaciones"
+            text "10"
+        text "MIS AULAS"
+        container "Accesos a mis aulas"
+          anchor [ref=69, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/plan]
+            text "Biología"
+          anchor [ref=70, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/mat/plan, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/mat/plan]
+            text "Matemática"
+          anchor [ref=71, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/lit/plan, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/lit/plan]
+            text "Lengua y Literatura"
+          anchor [ref=72, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/aula-v1oprn14/plan, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/aula-v1oprn14/plan]
+            text "Química"
+      container
+        button [ref=73]
+          svg_root
+          text "Explorar maqueta"
+          text "Docente y alumno"
+          svg_root
+        button "Abrir cuenta de Lucía Domínguez" [ref=74, loc=css:button[aria-label="Abrir cuenta de Lucía Domínguez"]]
+          text "LD"
+          container
+            text "Lucía Domínguez"
+            text "Docente"
+          svg_root
+    container [ref=75]
+      container "Ubicación"
+        anchor [ref=76, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/inicio]
+          text "Inicio"
+        svg_root
+        anchor [ref=77, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aulas]
+          text "Mis aulas"
+        svg_root
+        text "Biología"
+      container
+        image
+        container
+          container
+            svg_root
+            text "Aula · 4.º A · 2026"
+          heading
+            text "Biología"
+          paragraph
+            container
+              svg_root
+              text "Lucía Domínguez"
+            container
+              svg_root
+              text "6 estudiantes"
+      container "Secciones del aula"
+        anchor [ref=78, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/plan]
+          svg_root
+          text "Plan"
+        anchor [ref=79, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/muro, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/muro]
+          svg_root
+          text "Muro"
+        anchor [ref=80, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/biblioteca, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/biblioteca]
+          svg_root
+          text "Biblioteca"
+        anchor [ref=81, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/actividades, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/actividades]
+          svg_root
+          text "Actividades"
+        anchor [ref=82, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/progreso, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/progreso]
+          svg_root
+          text "Progreso"
+        anchor [ref=83, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/alumnos, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/alumnos]
+          svg_root
+          text "Alumnos"
+        anchor [ref=84, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/historial, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/historial]
+          svg_root
+          text "Historial"
+        anchor [ref=85, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/ajustes, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/ajustes]
+          svg_root
+          text "Configuración"
+      container
+        container
+          heading
+            text "Plan de estudio"
+          paragraph
+            text "Explorá los temas y sus recursos."
+        container
+          container
+            button [ref=86]
+              text "01"
+              container
+                text "Ecosistemas y biodiversidad"
+                text "3 de 3 temas dados"
+              svg_root
+            container
+              button [ref=87]
+                text "02"
+                container
+                  text "El trabajo de campo"
+                  text "1 de 3 temas dados"
+                svg_root
+              container
+                button [ref=88]
+                  svg_root
+                  text "Observación de especies"
+                  text "Dado"
+                button [ref=89]
+                  text "Registro de campo"
+                  text "Pendiente"
+                button [ref=90]
+                  text "Interpretación de datos"
+                  text "Pendiente"
+          container
+            container
+              text "TEMA 02"
+              text "Pendiente"
+            heading
+              text "Registro de campo"
+            paragraph
+              text "El trabajo de campo"
+            button [ref=91]
+              svg_root
+              text "Marcar como dado"
+            container
+              heading
+                text "Materiales"
+              button [ref=92]
+                svg_root
+                text "Agregar material"
+            anchor [ref=93, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/biblioteca/bio-registro, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/biblioteca/bio-registro]
+              svg_root
+              container
+                text "Ficha de registro de campo"
+                text "Texto"
+              svg_root
+            container
+              heading
+                text "Actividades"
+              button [ref=94]
+                text "Crear actividad"
+                svg_root
+            anchor [ref=95, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/actividades/bio-cuaderno]
+              svg_root
+              container
+                text "Cuaderno de campo"
+                text "Trabajo práctico"
+              svg_root

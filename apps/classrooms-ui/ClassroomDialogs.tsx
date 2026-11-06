@@ -1,8 +1,7 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import type { ClassroomClient } from './api.ts';
 import { Dialog, Notice } from './components.tsx';
-import { Progress } from './Progress.tsx';
-import { StudentAiSummary } from './StudentAiSummary.tsx';
+import { StudentRecord } from './StudentRecord.tsx';
 import type { Summary } from './ClassroomRoster.tsx';
 type Confirmation = { title: string; text: string; run: () => Promise<void>; scope?: string; confirmLabel?: string } | null;
 type Props = {
@@ -12,9 +11,11 @@ type Props = {
   confirm: Confirmation; setConfirm: Dispatch<SetStateAction<Confirmation>>; isCurrentRoom: () => boolean;
   summary: (Summary & { studentId: string }) | null; setSummary: Dispatch<SetStateAction<(Summary & { studentId: string }) | null>>;
   action: (task: () => Promise<void>, section?: string) => Promise<void>;
+  onOpenActivity?: (activityId: string, attemptId?: string) => void;
+  onRemoveStudent?: () => void;
 };
 export function ClassroomDialogs({ api, id, tab, inviting, setInviting, email, setEmail, invite,
-  invitationAction, actionStates, confirm, setConfirm, isCurrentRoom, summary, setSummary, action }: Props) {
+  invitationAction, actionStates, confirm, setConfirm, isCurrentRoom, summary, setSummary, action, onOpenActivity, onRemoveStudent }: Props) {
   return <>
       {inviting ? (
         <Dialog
@@ -87,35 +88,7 @@ export function ClassroomDialogs({ api, id, tab, inviting, setInviting, email, s
           </footer>
         </Dialog>
       ) : null}
-      {summary ? (
-        <Dialog
-          title={`${summary.firstName} ${summary.lastName}`}
-          onClose={() => setSummary(null)}
-        >
-          <StudentAiSummary api={api} classroomId={id} studentId={summary.studentId} />
-          <Progress api={api} classroomId={id} studentId={summary.studentId} />
-          <h3>Entregas y calificaciones</h3>
-          {summary.attempts.length ? (
-            <ul>
-              {summary.attempts.map((attempt) => (
-                <li key={attempt.id}>
-                  <strong>{attempt.title}</strong>
-                  <p>
-                    Intento {attempt.number} ·{' '}
-                    {new Date(attempt.submittedAt).toLocaleDateString('es-AR')}
-                  </p>
-                  <p>
-                    {attempt.grade === null
-                      ? 'Sin calificación'
-                      : `${Number(attempt.grade).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} · ${attempt.published ? 'Publicada' : 'Sin publicar'}`}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>Todavía no hay entregas registradas.</p>
-          )}
-        </Dialog>
-      ) : null}
+      {summary ? <StudentRecord key={summary.studentId} api={api} classroomId={id} summary={summary}
+        onBack={()=>setSummary(null)} onOpenActivity={onOpenActivity} onRemove={onRemoveStudent}/> : null}
   </>;
 }

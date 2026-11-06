@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { openDialog } from '../shared-ui/dialog-focus';
-import { FoxmindIllustration } from '../shared-ui/index.ts';
+import { FoxmindIllustration, FoxmindIcon } from '../shared-ui/index.ts';
 import { classroomCoverAsset } from '../../src/core/domain/index.ts';
 export const coverCatalog = [
   { key: 'literature', label: 'Literatura' },
@@ -46,11 +46,13 @@ export function Dialog({
   children,
   onClose,
   className = '',
+  label,
 }: {
   title: string;
   children: ReactNode;
   onClose: () => void;
   className?: string;
+  label?: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null),
     titleId = 'p5-dialog-title';
@@ -62,6 +64,7 @@ export function Dialog({
       className={`p5-dialog ${className}`}
       ref={ref}
       aria-labelledby={titleId}
+      aria-label={label}
       onCancel={(event) => {
         event.preventDefault();
         onClose();
@@ -75,10 +78,10 @@ export function Dialog({
           className="p5-close"
           onClick={onClose}
         >
-          ×
+          <FoxmindIcon name="close" />
         </button>
       </header>
-      {children}
+      <div className="brujula-dialog-body">{children}</div>
     </dialog>
   );
 }

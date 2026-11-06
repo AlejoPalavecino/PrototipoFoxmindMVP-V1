@@ -20,3 +20,10 @@ test('notification page decoder rejects malformed collections and unread counts'
   }
   assert.deepEqual(parseNotificationPage({ items: [], nextCursor: null, unreadCount: 0 }), { items: [], nextCursor: null, unreadCount: 0 });
 });
+
+test('notification presentation metadata is bounded Unicode text without changing its recipient target',()=>{
+ const row={id:'n',classroomId:'r',classroomName:'Aula',eventType:'WALL_QUERY',postId:'p',replyId:null,createdAt:'2026-11-06T10:00:00Z',readAt:null};
+ const page=item=>({items:[item],nextCursor:null,unreadCount:1});
+ assert.equal(parseNotificationPage(page({...row,actorName:'Ana 🦊',classroomDivision:'4.º A',message:'Una consulta'})).items[0].actorName,'Ana 🦊');
+ for(const extra of [{actorName:42},{actorName:'x'.repeat(322)},{classroomDivision:null},{classroomDivision:'x'.repeat(81)},{message:'😀'.repeat(281)}])assert.throws(()=>parseNotificationPage(page({...row,...extra})),/INVALID_INPUT/);
+});

@@ -1,11 +1,10 @@
-import { useEffect, useState, type Dispatch, type SetStateAction, type RefObject } from 'react';
+import { useEffect, useState, type Dispatch, type SetStateAction, type RefObject, type ReactNode } from 'react';
 import type { ClassroomClient, Detail, Member } from './api.ts';
 import { initials } from './components.tsx';
-import { EntryIcon } from '../shared-ui/EntryIcon';
-import { ClassroomHistory } from './ClassroomHistory.tsx';
+import { FoxmindIcon } from '../shared-ui/FoxmindIcon';
 export interface Summary {
-  firstName: string; lastName: string;
-  attempts: { id: string; title: string; submittedAt: string; number: number; grade: string | null; published: boolean | null }[];
+  firstName: string; lastName: string; email?: string; division?: string; progress?: boolean;
+  attempts: { id: string; activityId?: string; title: string; submittedAt: string; number: number; grade: string | null; published: boolean | null }[];
 }
 type Confirmation = { title: string; text: string; run: () => Promise<void>; scope?: string } | null;
 type Resource = { status: string; reload: () => Promise<void> };
@@ -13,11 +12,12 @@ type Props = {
   tab: string; teacher: boolean; room: Detail; busy: boolean; members: Member[]; history: Member[];
   memberResource: Resource; historyResource: Resource; roster: RefObject<HTMLUListElement | null>;
   api: ClassroomClient; id: string; isCurrentRoom: () => boolean;
+  access?:ReactNode;
   setInviting: Dispatch<SetStateAction<boolean>>; setSummary: Dispatch<SetStateAction<(Summary & { studentId: string }) | null>>;
   setConfirm: Dispatch<SetStateAction<Confirmation>>; action: (task: () => Promise<void>, section?: string) => Promise<void>;
 };
 export function ClassroomRoster({ tab, teacher, room, busy, members, history, memberResource, historyResource,
-  roster, api, id, isCurrentRoom, setInviting, setSummary, setConfirm, action }: Props) {
+  roster, api, id, isCurrentRoom, setInviting, setSummary, setConfirm, action,access }: Props) {
   const [query, setQuery] = useState('');
   useEffect(() => { setQuery(''); }, [tab, id]);
   const people = tab === 'history' ? history : members;
@@ -26,19 +26,19 @@ export function ClassroomRoster({ tab, teacher, room, busy, members, history, me
   return <>
                 <header className="p5-section-head">
                   <div>
-                    <h2><EntryIcon name={tab === 'history' ? 'list' : 'people-fill'} />
+                    <h2>
                       {tab === 'history'
-                        ? 'Historial de alumnos'
+                        ? 'Historial'
                         : teacher
                           ? 'Alumnos'
                           : 'Compañeros'}
                     </h2>
                     <p>
                       {tab === 'history'
-                        ? 'Las personas que salieron conservan sus registros.'
+                        ? 'Estudiantes que dejaron el aula. Sus registros académicos se conservan.'
                         : teacher
-                          ? 'Acompañá a quienes forman parte del aula.'
-                          : 'Las personas con las que compartís el aprendizaje.'}
+                          ? 'Consultá quiénes integran el aula y acompañá su recorrido.'
+                          : 'Estas personas comparten el aula con vos.'}
                     </p>
                   </div>
                   {teacher && tab === 'members' ? (
@@ -47,11 +47,12 @@ export function ClassroomRoster({ tab, teacher, room, busy, members, history, me
                       disabled={busy || room.archived}
                       onClick={() => setInviting(true)}
                     >
-                      Invitar estudiantes
+                      <FoxmindIcon name="users"/>Invitar alumnos
                     </button>
                   ) : null}
                 </header>
-                {ready && people.length > 0 ? <div className="classroom-people-toolbar"><p>{people.length} {tab === 'history' ? 'alumnos anteriores' : teacher ? 'alumnos actuales' : 'compañeros'}</p><label>Buscar por nombre<input type="search" aria-label={tab === 'history' ? 'Buscar alumnos anteriores' : 'Buscar personas del aula'} placeholder="Buscar por nombre…" value={query} onChange={event => setQuery(event.target.value)} /></label></div> : null}
+                {access}
+                {ready && tab!=='history' ? <div className="classroom-people-toolbar"><h3>Integrantes <span>{people.length}</span></h3><label><span className="sr-only">Buscar por nombre</span><input type="search" aria-label="Buscar personas del aula" placeholder="Buscar por nombre" value={query} onChange={event => setQuery(event.target.value)} /></label></div> : null}
                 {ready && people.length > 0 && filtered.length === 0 ? <p className="p5-empty" role="status">No se encontraron personas para esta búsqueda.</p> : null}
                 {(tab === 'history' ? historyResource : memberResource).status === 'ready' && (tab === 'history' ? history : members).length === 0 ? (
                   <p className="p5-empty" role="status">
@@ -77,7 +78,8 @@ export function ClassroomRoster({ tab, teacher, room, busy, members, history, me
                           <strong>
                             {member.firstName} {member.lastName}
                           </strong>
-                          {teacher
+                          {teacher && member.email ? <small>{member.email}</small> : null}
+                          {teacher && tab==='history'
                             ? member.periods?.map((period, i) => (
                                 <small key={i} className={tab === 'history' ? 'classroom-history-date' : undefined}>
                                   Ingreso: {new Date(period.joinedAt).toLocaleDateString(
@@ -99,39 +101,17 @@ export function ClassroomRoster({ tab, teacher, room, busy, members, history, me
                               onClick={() =>
                                 void action(async () => {
                                   const result = await api.call<Summary>(`/${id}/members/${member.studentId}`);
-                                  if (isCurrentRoom()) setSummary({ ...result, studentId: member.studentId! });
+                                  if (isCurrentRoom()) setSummary({ ...result, email:member.email,division:room.division,progress:tab==='history',studentId: member.studentId! });
                                 })
                               }
                             >
-                              Ver resumen
+                              {tab==='history'?'Ver registros':'Ver ficha'} <FoxmindIcon name="arrow-right"/>
                             </button>
-                            {tab === 'members' ? (
-                              <button
-                                disabled={busy || room.archived}
-                                onClick={() =>
-                                  setConfirm({
-                                    title: 'Remover estudiante',
-                                    text: `${member.firstName} perderá acceso al aula. Sus entregas, calificaciones y conversaciones se conservan.`,
-                                    run: async () => {
-                                      await api.call(
-                                        `/${id}/members/${member.studentId}/remove`,
-                                        'POST',
-                                        {},
-                                      );
-                                      await memberResource.reload();
-                                    },
-                                  })
-                                }
-                              >
-                                Remover
-                              </button>
-                            ) : null}
                           </div>
                         ) : null}
                       </li>
                     ),
                   )}
                 </ul>
-                {tab === 'history' ? <ClassroomHistory /> : null}
   </>;
 }

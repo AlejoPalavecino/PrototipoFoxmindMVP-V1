@@ -11,7 +11,7 @@ export async function candidates(tx: Transaction, classroomId: string): Promise<
       NULL::uuid AS unit_id,NULL::uuid AS topic_id FROM study_plan_versions p WHERE p.classroom_id=$1::uuid
       AND p.version_number=(SELECT max(version_number) FROM study_plan_versions WHERE classroom_id=$1::uuid)
     UNION ALL SELECT 'material:'||m.id,m.file_id,m.title,'material',m.unit_id,m.topic_id FROM materials m
-      WHERE m.classroom_id=$1::uuid AND m.deleted_at IS NULL) s
+      WHERE m.classroom_id=$1::uuid AND m.deleted_at IS NULL AND NOT EXISTS(SELECT 1 FROM material_revisions mr WHERE mr.previous_id=m.id)) s
     JOIN files f ON f.id=s.file_id JOIN file_custodies c ON c.file_id=f.id JOIN uploads u ON u.file_id=f.id
     ORDER BY s.kind,s.title,s.source_id`, classroomId);
   return rows.map(row => {

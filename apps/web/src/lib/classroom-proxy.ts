@@ -51,6 +51,7 @@ const routes: Rule[] = [
   rule(`/${uuid}/attempts/${uuid}/transfer`, { POST: ['revision'] }),
   rule(`/${uuid}/attempts/${uuid}/attachments-remove`, { POST: ['revision', 'fileId'] }),
   rule(`/${uuid}/attempts/${uuid}/submit-practical`, { POST: ['revision', 'confirm'] }),
+  rule(`/${uuid}/attempts/${uuid}/practical-response`, { POST: ['revision', 'text'] }),
   rule(`/${uuid}/attempts/${uuid}/answer`, { POST: ['revision', 'questionId', 'text', 'optionIds'] }),
   rule(`/${uuid}/attempts/${uuid}/submit-answers`, { POST: ['revision', 'confirm', 'confirmIncomplete'] }),
   rule(`/${uuid}/activities/${uuid}/submissions`, { GET: null }),
@@ -236,7 +237,7 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
     }
   }
   const answerWrite = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/(?:answer|submit-answers)$`).test(url.pathname);
-  const practicalWrite = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/(?:attachments-remove|submit-practical)$`).test(url.pathname);
+  const practicalWrite = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/(?:attachments-remove|submit-practical|practical-response)$`).test(url.pathname);
   const historyRoute = new RegExp(`^/api/v1/classrooms/${uuid}/(?:activities/${uuid}/(?:history|history-submissions|reopen)|attempts/${uuid}/history)$`).test(url.pathname);
   const practicalRead = /\/(?:submissions|receipt)$/.test(url.pathname) || historyRoute;
   const gradingRoute = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/grading$`).test(url.pathname);
@@ -292,7 +293,7 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
             || typeof parsed.text !== 'string' || !Array.isArray(parsed.optionIds) || !parsed.optionIds.every(id => typeof id === 'string' && new RegExp(`^${uuid}$`).test(id))
             : parsed.confirm !== true || typeof parsed.confirmIncomplete !== 'boolean')))
         || (practicalWrite && (!object(parsed, selected.methods[method] ?? []) || typeof parsed.revision !== 'string'
-          || (url.pathname.endsWith('/attachments-remove') ? typeof parsed.fileId !== 'string' || !new RegExp(`^${uuid}$`).test(parsed.fileId) : parsed.confirm !== true)))) throw new Error('Invalid schema');
+          || (url.pathname.endsWith('/attachments-remove') ? typeof parsed.fileId !== 'string' || !new RegExp(`^${uuid}$`).test(parsed.fileId) : url.pathname.endsWith('/practical-response') ? typeof parsed.text!=='string'||[...parsed.text].length>5000||/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/u.test(parsed.text) : parsed.confirm !== true)))) throw new Error('Invalid schema');
     } catch (error) { reject(error instanceof RangeError ? 413 : 400, error instanceof RangeError ? 'REQUEST_TOO_LARGE' : 'INVALID_INPUT'); return; }
   }
   if (response.destroyed) return;

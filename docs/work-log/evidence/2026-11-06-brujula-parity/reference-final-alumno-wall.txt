@@ -1,0 +1,140 @@
+[p2 "Mis aulas · FoxMind Brújula" | space "FoxMind parity 2026-11-05"(1): 2 managed, 0 untracked — p1 "Notificaciones · FoxMind", p2* "Mis aulas · FoxMind Brújula"]
+root
+  anchor [ref=1, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#main, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#main]
+    text "Saltar al contenido"
+  container
+    container "Menú de FoxMind"
+      anchor "FoxMind Brújula, inicio" [ref=722, loc=css:a[aria-label="FoxMind Brújula, inicio"], url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/inicio]
+        image
+        container
+          text "FoxMind"
+          text "BRÚJULA"
+      container
+        button "Buscar en FoxMind" [ref=723, loc=css:button[aria-label="Buscar en FoxMind"]]
+          svg_root
+          text "Buscar"
+          text "Ctrl K"
+        text "MI ESPACIO"
+        container "Navegación principal"
+          anchor [ref=724, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/inicio]
+            svg_root
+            text "Inicio"
+          anchor [ref=725, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aulas]
+            svg_root
+            text "Mis aulas"
+          anchor [ref=726, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/agenda, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/agenda]
+            svg_root
+            text "Agenda"
+          button "Notificaciones, 7 sin leer" [ref=727, loc=css:button[aria-label="Notificaciones, 7 sin leer"]]
+            svg_root
+            text "Notificaciones"
+            text "7"
+        text "MIS AULAS"
+        container "Accesos a mis aulas"
+          anchor [ref=728, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/plan]
+            text "Biología"
+          anchor [ref=729, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/mat/plan, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/mat/plan]
+            text "Matemática"
+          anchor [ref=730, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/lit/plan, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/lit/plan]
+            text "Lengua y Literatura"
+      container
+        button [ref=731]
+          svg_root
+          text "Explorar maqueta"
+          text "Docente y alumno"
+          svg_root
+        button "Abrir cuenta de Mateo Ríos" [ref=732, loc=css:button[aria-label="Abrir cuenta de Mateo Ríos"]]
+          text "MR"
+          container
+            text "Mateo Ríos"
+            text "Alumno"
+          svg_root
+    container [ref=733]
+      container "Ubicación"
+        anchor [ref=734, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/inicio]
+          text "Inicio"
+        svg_root
+        anchor [ref=735, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aulas]
+          text "Mis aulas"
+        svg_root
+        text "Biología"
+      container
+        image
+        container
+          container
+            svg_root
+            text "Aula · 4.º A · 2026"
+          heading
+            text "Biología"
+          paragraph
+            container
+              svg_root
+              text "Lucía Domínguez"
+            container
+              svg_root
+              text "6 estudiantes"
+      container "Secciones del aula"
+        anchor [ref=736, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/plan]
+          svg_root
+          text "Plan"
+        anchor [ref=737, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/muro, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/muro]
+          svg_root
+          text "Muro"
+        anchor [ref=738, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/biblioteca, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/biblioteca]
+          svg_root
+          text "Biblioteca"
+        anchor [ref=739, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/actividades, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/actividades]
+          svg_root
+          text "Actividades"
+        anchor [ref=740, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/progreso, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/progreso]
+          svg_root
+          text "Mi progreso"
+        anchor [ref=741, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/alumnos, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/alumnos]
+          svg_root
+          text "Compañeros"
+      container
+        container
+          container
+            heading
+              text "Muro"
+            paragraph
+              text "Avisos y conversaciones que puede leer toda el aula."
+          button [ref=742]
+            svg_root
+            text "Hacer una consulta"
+        container
+          button [ref=743]
+            text "Todos"
+          button [ref=744]
+            text "Avisos"
+          button [ref=745]
+            text "Consultas"
+        container
+          container
+            container
+              text "MR"
+              container
+                text "Mateo Ríos"
+                text "5 nov"
+              text "Consulta"
+            heading
+              text "¿Podemos observar el patio de la escuela?"
+            paragraph
+              text "Para el cuaderno de campo, ¿podemos registrar las especies que observamos en el patio de la escuela?"
+            button [ref=746]
+              svg_root
+              text "Responder"
+          container
+            container
+              text "LD"
+              container
+                text "Lucía Domínguez"
+                text "4 nov"
+              text "Aviso"
+            heading
+              text "Salida de observación al patio"
+            paragraph
+              text "El jueves vamos a observar el ecosistema del patio. Traigan el cuaderno de campo y la guía de la Biblioteca."
+            button [ref=747]
+              svg_root
+              text "Responder"

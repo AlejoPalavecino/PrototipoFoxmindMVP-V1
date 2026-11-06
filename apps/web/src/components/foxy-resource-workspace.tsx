@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { downloadTextDocument } from '../../../shared-ui/text-document';
 import { openDialog } from '../../../shared-ui/dialog-focus';
 import type { Classroom } from '../../../classrooms-ui/api';
 import type { createFoxyWorkspaceRuntime } from '../lib/foxy-workspace-runtime';
@@ -121,6 +122,7 @@ export function FoxyResourceWorkspace(props: Props) {
           actions={actions.management} locked={confirmLocked || resource.busy || !!resource.pending || preparation.busy || !!preparation.pending} />}
         {preview && <a href={preview} target="_blank" rel="noopener noreferrer">Abrir vista previa PDF</a>}{' '}
         {download && <a href={download} target="_blank" rel="noopener noreferrer">Descargar PDF</a>}
+        {draft ? <button type="button" disabled={invalidTitle || invalidText || resource.busy} onClick={()=>downloadTextDocument(draft.title,draft.markdown)}>Descargar Word</button> : null}
         {!discardedKnown && <>{confirmation.error && <p role="alert">{confirmation.error}</p>}
         {confirmation.receipt ? <div><p role="status">Publicado en la Biblioteca{receiptRoom ? ` de ${receiptRoom.name}` : confirmation.review?.classroomName ? ` de ${confirmation.review.classroomName}` : ''}.</p>
           {roomId && <a href={`/mis-aulas?aula=${roomId}`} onClick={event => { if (!event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && event.button === 0) { event.preventDefault(); void actions.requestNavigate(`/mis-aulas?aula=${roomId}`); } }}>Abrir aula</a>}</div> : <>

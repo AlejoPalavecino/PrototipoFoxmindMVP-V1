@@ -3,14 +3,14 @@ import type { Transaction } from '../contracts.ts';
 import type { GradingAiLease } from './sql-queue.ts';
 import { createGradingAiSnapshot, type GradingAiSnapshotInput } from './snapshot.ts';
 
-type Activity = { id: string; type: GradingAiSnapshotInput['activity']['type']; title: string | null; instructions: string | null; epoch: string; rubric: string };
+type Activity = { id: string; type: GradingAiSnapshotInput['activity']['type']; title: string | null; instructions: string | null; epoch: string; rubric: string; practicalResponse:string };
 type Question = { id: string; type: 'DEVELOPMENT' | 'SINGLE_CHOICE' | 'MULTIPLE_CHOICE'; prompt: string; points: string; text: string | null };
 type Option = { id: string; question_id: string; text: string; correct: boolean };
 type Selection = { question_id: string; option_id: string };
 /** Read a stable academic snapshot under the classroom lock; file content is not read in this transaction. */
 export async function gradingAiSnapshotFromSql(tx: Transaction, job: GradingAiLease, texts: Record<string, string> = {}, listOnly = false, fenceOnly = false) {
   const [activity] = await tx.query<Activity>(`SELECT a.id,a.type,a.title,a.instructions_text AS instructions,
-    j.epoch::text AS epoch,j.rubric_snapshot AS rubric FROM grading_ai_jobs j JOIN activities a ON a.id=j.activity_id
+    j.epoch::text AS epoch,j.rubric_snapshot AS rubric,attempt.practical_response AS "practicalResponse" FROM grading_ai_jobs j JOIN activities a ON a.id=j.activity_id JOIN attempts attempt ON attempt.id=j.attempt_id
     WHERE j.id=$1::uuid AND j.attempt_id=$2::uuid`, job.id, job.attemptId);
   if (!activity) throw new Error('SOURCE_UNAVAILABLE');
   const readFiles = () => tx.query<{ id: string; digest: string | null; ready: boolean; kind: string }>(`SELECT f.id,c.digest,
@@ -57,6 +57,6 @@ export async function gradingAiSnapshotFromSql(tx: Transaction, job: GradingAiLe
       questions: questions.map(q => ({ ...q, manual: q.type === 'DEVELOPMENT' && !!q.text?.trim(),
         options: options.filter(o => o.question_id === q.id).map(o => ({ id: o.id, text: o.text, correct: o.correct })),
         answer: { text: q.text, optionIds: selections.filter(s => s.question_id === q.id).map(s => s.option_id) } })) },
-    attempt: { id: job.attemptId, attachments: files.filter(f => f.kind === 'attachment').map(f => ({ id: f.id, digest: f.digest ?? '', ready: f.ready, text: textFor(f.id) })) },
+    attempt: { id: job.attemptId,...(activity.type==='ASSIGNMENT'?{practicalResponse:activity.practicalResponse}:{}), attachments: files.filter(f => f.kind === 'attachment').map(f => ({ id: f.id, digest: f.digest ?? '', ready: f.ready, text: textFor(f.id) })) },
     instructionFiles: files.filter(f => f.kind === 'instruction').map(f => ({ id: f.id, digest: f.digest ?? '', ready: f.ready, text: textFor(f.id) })), grade: grades[0] ?? null }) };
 }

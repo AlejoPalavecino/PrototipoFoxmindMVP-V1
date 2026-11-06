@@ -33,7 +33,7 @@ export async function withGradingFixture(callback) {
     const { code } = await service.rotateCode(T, room);
     for (const actor of [student, peer]) { const request = { actor, headers: {} }; await service.confirmCode(request, (await service.previewCode(request, code)).confirmation); }
     const change = async operation => service.changeActivities(T, room, { revision: (await service.detail(T, room)).revision, operation });
-    const create = async (type = 'QUESTIONNAIRE', { blank = false, submitted = true } = {}) => {
+    const create = async (type = 'QUESTIONNAIRE', { blank = false, submitted = true, practicalResponse = '' } = {}) => {
       const { id } = await change({ action: 'create', type });
       await change({ action: 'save', id, payload: { title: type, unitId: unit, topicId: topic, instructions: 'Locked original instructions', attachmentRequired: false,
         instructionFileIds: [], materialIds: [], deadline: null, allowLate: false, questions: type === 'ASSIGNMENT' ? [] : [
@@ -44,6 +44,10 @@ export async function withGradingFixture(callback) {
       await change({ action: 'publish', id });
       let state = await service.startActivity(S, room, id, {});
       const request = { ...S, headers: { 'x-attempt-editor': state.editor.token, 'x-attempt-epoch': state.editor.epoch } };
+      if(type==='ASSIGNMENT'&&practicalResponse){
+        await service.savePracticalResponse(request,room,state.attempt.id,{revision:state.attempt.revision,text:practicalResponse});
+        state=await service.activitySession(S,room,id);
+      }
       if (type !== 'ASSIGNMENT' && !blank) for (const question of state.activity.questions) {
         await service.saveAttemptAnswer(request, room, state.attempt.id, { revision: state.attempt.revision, questionId: question.id,
           text: question.type === 'DEVELOPMENT' ? 'Preserved answer 😀' : '', optionIds: question.options.slice(0, 2).map(option => option.id) });

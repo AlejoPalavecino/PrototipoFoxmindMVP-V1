@@ -39,6 +39,9 @@ test('SDK request counts controls and sends selected PDF/DOCX as structured, bou
   assert.equal(generated.config.tools?.length ?? 0, 0); assert.equal(generated.config.automaticContinuation, false);
   assert.ok(generated.config.abortSignal instanceof AbortSignal);
 });
+test('explicit RUBRIC purpose reaches the real adapter transport through token counting and generation',async()=>{
+  const f=await fixture();await f.adapter.generate(input({purpose:'RUBRIC'}));assert.deepEqual(f.calls.map(([kind])=>kind),['count','generate']);
+});
 
 test('modes are explicit, sources untrusted and no private ids or mapping are sent', async () => {
   for (const mode of ['GENERAL', 'CLASSROOM']) {

@@ -37,7 +37,7 @@ export function Home(props:HomeProps) {
     <div className="fm-brujula-home-layout">
     <div className="fm-brujula-home-main"><HomeGreeting data={data} accountRole={accountRole} displayName={displayName}/>
     {data.participation==='none'?<HomeWelcome accountRole={accountRole} data={data} onCreate={onCreate} onJoin={onJoin} onClassrooms={onClassrooms} busy={busy}/>:null}
-    {teacher ? <section className="fm-brujula-attention" aria-label="Por atender"><header><small>Seguimiento docente</small><h2>Por atender</h2></header>
+    {teacher ? <section className="fm-brujula-attention" aria-label="Por atender"><header><small>Seguimiento docente</small><h2>Por atender</h2><span className="fm-brujula-attention-scope">Todas tus aulas activas</span></header>
       <div className="fm-brujula-tabs" role="group" aria-label="Filtrar pendientes">
         <button type="button" aria-pressed={attentionTab === 'review'} onClick={() => setAttentionTab('review')}><FoxmindIcon name="clipboard"/>Entregas<span>{count('review')}</span></button>
         <button type="button" aria-pressed={attentionTab === 'queries'} onClick={() => setAttentionTab('queries')}><FoxmindIcon name="chat"/>Consultas<span>{count('queries')}</span></button>
@@ -56,9 +56,9 @@ function HomeGreeting({data,accountRole,displayName}:{data:HomeResponse;accountR
     <img className="fm-home-panorama" src={`/brujula/banner-${accountRole === 'teacher' ? 'docente' : 'alumno'}.webp`} alt="" fetchPriority="high" decoding="async"/>
     <img className="fm-brujula-foxy" src="/brujula/foxy-bienvenida.webp" alt="" decoding="async"/>
     <div className="fm-home-glass">
-    <time dateTime={data.generatedAt}><FoxmindIcon name="calendar"/>{homeGreetingDate(data.generatedAt,data.timeZone)}</time>
+    <time dateTime={data.generatedAt}><FoxmindIcon name="sun"/>{homeGreetingDate(data.generatedAt,data.timeZone)}</time>
     <h1>¡Buen día, <span>{displayName.trim().split(/\s+/)[0]}!</span></h1>
-    <p>{accountRole==='teacher' && reviews===0 && queries===0?'Las correcciones y las consultas de tus aulas están al día.':accountRole==='student' && pending===0?'Estás al día con las entregas abiertas de tus aulas.':accountRole==='teacher' && reviews!==null ? `Tenés ${reviews} ${reviews===1?'entrega pendiente':'entregas pendientes'}${queries!==null?` y ${queries} ${queries===1?'consulta sin responder':'consultas sin responder'}`:''}.` : accountRole==='student' && pending!==null ? `Tenés ${pending} ${pending===1?'actividad pendiente':'actividades pendientes'}.${data.modules.pending.status==='ready' && data.modules.pending.items.some(item=>item.attemptId)?' Tenés un borrador para retomar.':''}` : 'Tu espacio para aprender y enseñar.'}</p>
+    <p>{accountRole==='teacher' && reviews===0 && queries===0?'Las correcciones y las consultas de tus aulas están al día.':accountRole==='student' && pending===0?'Estás al día con las entregas abiertas de tus aulas.':accountRole==='teacher' && reviews!==null ? `Tenés ${reviews} ${reviews===1?'entrega por corregir':'entregas por corregir'}${queries!==null?` y ${queries} ${queries===1?'consulta sin responder':'consultas sin responder'}`:''}.` : accountRole==='student' && pending!==null ? `Tenés ${pending} ${pending===1?'actividad pendiente':'actividades pendientes'}.${data.modules.pending.status==='ready' && data.modules.pending.items.some(item=>item.attemptId)?' Una tiene un borrador para retomar.':''}` : 'Tu espacio para aprender y enseñar.'}</p>
     <span className="sr-only">{homeParticipation(data,accountRole)}</span></div>
   </header>;
 }
@@ -69,6 +69,7 @@ function HomeWelcome({accountRole,data,onCreate,onJoin,onClassrooms,busy}:{accou
     <div><h2>{data.memberships.archived?'Tu historial sigue aquí':'Tu próximo paso empieza aquí'}</h2>
       <p>{data.memberships.archived?'Consulta tus aulas archivadas o comienza una nueva experiencia.':accountRole==='teacher'?'Crea tu primera aula para empezar a enseñar.':'Unite a un aula con el código de tu docente.'}</p>
       <div className="fm-home-entry-actions">
+        {data.memberships.archived>0?<button onClick={onClassrooms}>Ver aulas archivadas<FoxmindIcon name="arrow-right"/></button>:null}
         {accountRole==='teacher' && data.setup.drafts>0?<button onClick={onClassrooms}>Continuar un borrador<FoxmindIcon name="arrow-right"/></button>:
           accountRole==='teacher'?<button onClick={onCreate} disabled={busy}>Crear mi primera aula<FoxmindIcon name="plus"/></button>:
           data.setup.invitations>0?<button onClick={onClassrooms}>Ver invitaciones<FoxmindIcon name="arrow-right"/></button>:

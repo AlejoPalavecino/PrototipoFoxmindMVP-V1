@@ -1,0 +1,158 @@
+[p5 "Mis aulas · FoxMind Brújula" | space "FoxMind parity 2026-11-05"(1): 2 managed, 0 untracked — p3 "Mis Aulas · FoxMind", p5* "Mis aulas · FoxMind Brújula"]
+root
+  anchor [ref=1, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#main, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#main]
+    text "Saltar al contenido"
+  container "Menú de FoxMind"
+    anchor "FoxMind Brújula, inicio" [ref=270, loc=css:a[aria-label="FoxMind Brújula, inicio"], url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/inicio]
+      image
+      text "FoxMind"
+      text "BRÚJULA"
+    container
+      button "Buscar en FoxMind" [ref=271, loc=css:button[aria-label="Buscar en FoxMind"]]
+        svg_root
+        text "Buscar"
+        text "Ctrl K"
+      text "MI ESPACIO"
+      container "Navegación principal"
+        anchor [ref=272, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/inicio]
+          svg_root
+          text "Inicio"
+        anchor [ref=273, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aulas, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aulas]
+          svg_root
+          text "Mis aulas"
+        anchor [ref=274, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/agenda, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/agenda]
+          svg_root
+          text "Agenda"
+        anchor [ref=275, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/foxy, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/foxy]
+          svg_root
+          text "Foxy AI"
+        button "Notificaciones, 10 sin leer" [ref=276, loc=css:button[aria-label="Notificaciones, 10 sin leer"]]
+          svg_root
+          text "Notificaciones"
+          text "10"
+      text "MIS AULAS"
+      container "Accesos a mis aulas"
+        anchor [ref=277, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/plan]
+          text "Biología"
+        anchor [ref=278, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/mat/plan]
+          text "Matemática"
+        anchor [ref=279, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/lit/plan]
+          text "Lengua y Literatura"
+        anchor [ref=280, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/aula-v1oprn14/plan]
+          text "Química"
+    button [ref=281]
+      svg_root
+      text "Explorar maqueta"
+      text "Docente y alumno"
+      svg_root
+    button "Abrir cuenta de Lucía Domínguez" [ref=282, loc=css:button[aria-label="Abrir cuenta de Lucía Domínguez"]]
+      text "LD"
+      text "Lucía Domínguez"
+      text "Docente"
+      svg_root
+  container
+    container "Ubicación"
+      anchor [ref=284, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/inicio]
+        text "Inicio"
+      svg_root
+      text "Mis aulas"
+    container
+      text "Mi espacio"
+      heading
+        text "Mis aulas"
+      paragraph
+        text "Organizá los recorridos de enseñanza de tus grupos."
+      button [ref=285]
+        svg_root
+        text "Crear aula"
+    button [ref=286]
+      text "Activas"
+      text "4"
+    button [ref=287]
+      text "Archivadas"
+      text "1"
+    container
+      svg_root
+      textbox "Buscar por nombre, materia o docente" [ref=288, loc=css:input[placeholder="Buscar por nombre, materia o docente"]]
+        text "Buscar por nombre, materia o docente"
+    combobox "Ciclo lectivo" [ref=289, loc=css:select[aria-label="Ciclo lectivo"]]
+      text "Todos los ciclos"
+    combobox "División" [ref=290, loc=css:select[aria-label="División"]]
+      text "Todas las divisiones"
+    button "Vista de tarjetas" [ref=291, loc=css:button[aria-label="Vista de tarjetas"]]
+      svg_root
+    button "Vista de lista" [ref=292, loc=css:button[aria-label="Vista de lista"]]
+      svg_root
+    anchor [ref=293, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/plan]
+      image
+      text "4.º A"
+      text "2026"
+      heading
+        text "Biología"
+      paragraph
+        text "6 estudiantes"
+      text "Avance del plan"
+      text "67%"
+      svg_root
+    anchor [ref=294, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/mat/plan]
+      image
+      text "4.º B"
+      text "2026"
+      heading
+        text "Matemática"
+      paragraph
+        text "5 estudiantes"
+      text "Avance del plan"
+      text "50%"
+      svg_root
+    anchor [ref=295, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/lit/plan]
+      image
+      text "5.º A"
+      text "2026"
+      heading
+        text "Lengua y Literatura"
+      paragraph
+        text "4 estudiantes"
+      text "Avance del plan"
+      text "33%"
+      svg_root
+    anchor [ref=296, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/aula-v1oprn14/plan]
+      image
+      text "4.º C"
+      text "2026"
+      heading
+        text "Química"
+      paragraph
+        text "0 estudiantes"
+      text "Avance del plan"
+      text "0%"
+      svg_root
+  text "Borrador privado guardado."
+  dialog_modal "Preparar el plan de estudio" [ref=30]
+    container
+      heading
+        text "Preparar el plan de estudio"
+      button "Cerrar" [ref=304, loc=css:button[aria-label="Cerrar"]]
+        svg_root
+    container
+      container
+        text "1 · Datos del aula"
+        text "2 · Plan de estudio"
+      form
+        container
+          container
+            text "Unidades y temas"
+            textbox [ref=305, loc=css:textarea[name="plan"]]
+              text "Unidad 1 · Ecosistemas Flujo de energía Redes tróficas"
+            text "Empezá cada unidad con “Unidad”. Escribí un tema por línea. Podés completar el plan más adelante."
+          button [ref=306]
+            svg_root
+            text "Extraer unidades de un texto"
+        container
+          button [ref=307]
+            text "Guardar borrador"
+          container
+            button [ref=308]
+              text "Atrás"
+            button [ref=309]
+              text "Crear aula"

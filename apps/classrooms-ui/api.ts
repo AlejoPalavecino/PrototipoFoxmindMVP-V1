@@ -41,6 +41,7 @@ export interface Classroom {
   revision: string;
 }
 export interface Detail extends Classroom {
+  accessCode?:string|null;
   aiGradingEnabled?: boolean;
   aiGradingAvailable?: boolean;
   units: Unit[];
@@ -59,6 +60,7 @@ export interface Invitation {
   deliveryError?: string | null;
 }
 export interface Member {
+  email?: string;
   studentId?: string;
   enrollmentId?: string;
   firstName: string;
@@ -79,6 +81,10 @@ export interface FileState {
   rejectionCode: string | null;
 }
 export interface Material {
+  supersededBy?:string|null;
+  body?: string | null;
+  resourceUse?: 'STUDY' | 'RECOMMENDED' | 'COMPLEMENTARY';
+  contentKind?: 'TEXT' | 'FILE';
   id: string;
   title: string;
   fileId: string;
@@ -104,6 +110,8 @@ export interface ActivityQuestion {
   options: { id?: string; text: string; correct?: boolean }[];
 }
 export interface ActivitySummary {
+  studentState?:'PENDING'|'CLOSED'|'DRAFT'|'RESUBMISSION'|'SUBMITTED'|'REVIEWED'|'READ_ONLY';
+  pendingReviewCount?:number;
   id: string; type: ActivityType; title: string | null; unitId: string | null; topicId: string | null; topicIds: string[];
   status: 'DRAFT' | 'PUBLISHED' | 'WITHDRAWN'; publishedAt: string | null; deadlineAt: string | null;
   allowLate: boolean; locked: boolean; zone: string;
@@ -145,7 +153,7 @@ export interface AttemptSessionData {
   unansweredCount?: number;
   attempt: { id: string; number: number; status: 'DRAFT' | 'SUBMITTED'; openedAt: string; submittedAt: string | null;
     appliedDeadlineAt: string | null; submittedLate: boolean | null; epoch: string; revision: string;
-    attachments?: AttemptAttachment[];
+    attachments?: AttemptAttachment[]; practicalResponse?:string;
     answers: QuestionAnswer[] } | null;
   editor?: AttemptEditor;
 }
@@ -166,7 +174,7 @@ export interface DeadlineResolution {
 }
 export type { ClassroomNotification, NotificationPage } from '../../src/core/domain/index.ts';
 export interface WallTarget { classroomId: string; postId: string; replyId: string | null }
-export type AcademicTarget = { kind: 'activity' | 'attempt' | 'submission' | 'grade'; classroomId: string; activityId: string; attemptId: string | null; gradeId?: string };
+export type AcademicTarget = { kind: 'activity' | 'attempt' | 'submission' | 'grade'; classroomId: string; activityId: string; attemptId: string | null; gradeId?: string; mode?:'respond' };
 export type NotificationTarget = WallTarget | AcademicTarget;
 export interface AttemptHistoryRow {
   gradePublished?: boolean;
@@ -230,7 +238,6 @@ export interface ClassroomClient {
   upload(draftId: string, file: File): Promise<FileState>;
   uploadClassroom?(classroomId: string, file: File, purpose: 'plan' | 'material'): Promise<FileState>;
   uploadAttachment?(classroomId: string, attemptId: string, file: File, editor: AttemptEditor): Promise<FileState>;
-  uploadInstruction?(classroomId: string, activityId: string, file: File): Promise<FileState>;
   fileStatus(id: string, signal?: AbortSignal): Promise<FileState>;
   fileUrl(id: string, preview?: boolean): string;
 }
@@ -330,14 +337,6 @@ export function createClassroomClient(options: {
           throw new ApiError(`MATERIAL_${error.code}`, error.status, error.retryAfter);
         throw error;
       }
-    },
-    uploadInstruction: async (classroomId, activityId, file) => {
-      if (file.size > 20_000_000) throw new ApiError('FILE_TOO_LARGE');
-      if (!/\.(pdf|docx)$/i.test(file.name)) throw new ApiError('FILE_TYPE_NOT_ALLOWED');
-      const started = await response<{ id: string }>('/files', 'POST', {
-        scope: { kind: 'classroom', id: classroomId }, purpose: 'instructions', targetId: activityId, name: file.name, bytes: file.size,
-      });
-      return response<FileState>(`/files/${started.id}/content`, 'PUT', file);
     },
     uploadAttachment: async (classroomId, attemptId, file, editor) => {
       if (file.size > 50_000_000) throw new ApiError('MATERIAL_FILE_TOO_LARGE');

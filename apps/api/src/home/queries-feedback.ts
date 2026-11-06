@@ -1,6 +1,6 @@
 import { baseJson, targetJson, instant } from './query-values.ts';
 export const feedbackQuery = `SELECT g.id, ${baseJson('g.id', 'a.title', targetJson('grade', ",'activityId',a.id,'attemptId',t.id,'gradeId',g.id"))}
-  || jsonb_build_object('activityType',a.type,'attemptNumber',t.attempt_number,'finalGrade',g.final_grade::text,
+  || jsonb_build_object('activityType',a.type,'attemptNumber',t.attempt_number,'finalGrade',g.final_grade::text,'overallFeedback',g.overall_feedback,
     'publishedAt',${instant('g.published_at')},'changedAt',${instant('g.updated_at')},'availability','available') AS item,
     ${instant('g.updated_at')} || '|' || g.id::text AS sort_key
   FROM rooms c JOIN activities a ON a.classroom_id=c.id AND a.status='PUBLISHED'

@@ -1,9 +1,10 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import type { ActivityData, ActivityDetail, ActivityQuestion, ClassroomClient, DeadlineResolution, Detail, FileState, Material } from './api.ts';
+import type { ActivityData, ActivityDetail, ActivityQuestion, ClassroomClient, DeadlineResolution, Detail, Material } from './api.ts';
+import {FoxmindIcon} from '../shared-ui/index.ts';
 import { ActivityAssignment } from './activity-Assignment.tsx';
 import type { ClassroomCreationContext } from './classroom-creation-context.ts';
-import { Dialog, Notice } from './components.tsx';
+import { Notice } from './components.tsx';
 import { ActivityCurriculum } from './ActivityCurriculum.tsx';
 import { EvaluationRubric, EvaluationRubricEditor } from './EvaluationRubric.tsx';
 import { parseEvaluationRubric } from '../../src/core/domain/evaluation-rubric.ts';
@@ -45,34 +46,37 @@ export function QuestionEditor({ question, index, update, remove, fixedType = fa
   </fieldset>;
 }
 
-export function ActivityAuthoring({ api, room, data, materials, onSaved, onClose, creationContext }: {
-  api: ClassroomClient; room: Detail; data: ActivityData; materials: Material[]; onSaved: (assigned?: boolean) => Promise<void>; onClose: () => void; creationContext?: ClassroomCreationContext | null;
+export function ActivityAuthoring({ api, room, data, materials, onSaved, onClose, creationContext, initialReview = false }: {
+  api: ClassroomClient; room: Detail; data: ActivityData; materials: Material[]; onSaved: (assigned?: boolean, activityId?: string) => Promise<void>; onClose: () => void; creationContext?: ClassroomCreationContext | null; initialReview?: boolean;
 }) {
   const activity = data.activity;
   const [title, setTitle] = useState(activity.title ?? ''), [unitId, setUnit] = useState(creationContext?.unitId ?? activity.unitId ?? ''), [topicIds, setTopics] = useState(creationContext?.topicIds ?? activity.topicIds ?? (activity.topicId ? [activity.topicId] : []));
   const [instructions, setInstructions] = useState(activity.instructions ?? ''), [attachmentRequired, setRequired] = useState(activity.attachmentRequired);
   const [objective, setObjective] = useState(activity.objective ?? ''), [teacherComment, setTeacherComment] = useState(activity.teacherComment ?? '');
   const [draftType, setDraftType] = useState(activity.type);
-  const [aiGradingRubric, setAiGradingRubric] = useState(activity.aiGradingRubric ?? '');
+  const [typeChosen,setTypeChosen]=useState(Boolean(activity.id||activity.title||activity.instructions));
+  const [aiGradingRubric] = useState(activity.aiGradingRubric ?? '');
   const [evaluationRubric, setEvaluationRubric] = useState(activity.evaluationRubric ?? []);
-  const [questions, setQuestions] = useState(activity.questions), [files, setFiles] = useState(activity.instructionFiles);
+  const [questions, setQuestions] = useState(activity.questions), [files] = useState(activity.instructionFiles);
   const [materialIds, setMaterialIds] = useState(activity.materials.map(m => m.id));
   const [local, setLocal] = useState(activityMinute(activity.deadlineAt, room.timezone)), [allowLate, setLate] = useState(activity.allowLate);
   const [offset, setOffset] = useState<number | null>(() => activity.deadlineAt ? (Date.parse(`${activityMinute(activity.deadlineAt, room.timezone)}:00Z`) - Date.parse(activity.deadlineAt)) / 60000 : null);
-  const [resolution, setResolution] = useState<DeadlineResolution | null>(null), [upload, setUpload] = useState<FileState | null>(null);
+  const [resolution, setResolution] = useState<DeadlineResolution | null>(null);
   const [error, setError] = useState(''), [busy, setBusy] = useState(false), [dirty, setDirty] = useState(Boolean(creationContext));
   const persistence = useRef({ id: activity.id, revision: data.revision });
   const [persisted, setPersisted] = useState(Boolean(activity.id));
+  const [publicationConfirmed,setPublicationConfirmed]=useState(false);
   const locked = activity.locked || room.archived;
-  const [step, setStep] = useState(0);
-  const [assigning, setAssigning] = useState(false);
+  const [step, setStep] = useState(initialReview ? 1 : 0);
+  const operationLock=useRef(false);
   const stageHeading = useRef<HTMLHeadingElement>(null);
-  const stages = ['Selección y origen', 'Preparar actividad', 'Revisar y asignar'];
+  const stages = ['Preparar actividad', 'Revisar y asignar'];
   useEffect(() => { stageHeading.current?.focus(); }, [step]);
   const mark = () => setDirty(true);
   async function run(operation: () => Promise<void>) {
+    if(operationLock.current)return;operationLock.current=true;
     setBusy(true); setError('');
-    try { await operation(); } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
+    try { await operation(); } catch (e) { setError((e as Error).message); } finally { operationLock.current=false;setBusy(false); }
   }
   async function deadline() {
     if (!local) return null;
@@ -94,22 +98,28 @@ export function ActivityAuthoring({ api, room, data, materials, onSaved, onClose
     const current = await ensurePersisted();
     const result = await api.call<{ revision: string }>(`/${room.id}/activities`, 'POST', { revision: current.revision, operation: { ...operation, id: current.id } });
     persistence.current.revision = result.revision;
-    await onSaved(operation.action === 'publish');
   }
-  return <section className="p7-authoring br-authoring" aria-label="Editar actividad">
-    <header className="p5-section-head aw-title-row"><div><h2>{step === 2 ? 'Revisar la actividad' : activity.status === 'DRAFT' ? 'Crear actividad manualmente' : 'Editar actividad'}</h2><p>{step === 2 ? 'Verificá qué recibirán tus estudiantes antes de asignarla.' : 'Prepará las consignas y definí cómo vas a evaluar las entregas.'}</p></div>
-      <button type="button" disabled={busy} onClick={onClose}>Cerrar editor</button></header>
-    {activity.locked ? <Notice>Ya comenzó la participación. Solo se pueden corregir el título y la organización, extender una fecha existente o permitir entregas tardías. Las consignas y sus recursos permanecen bloqueados.</Notice> : null}
-    {error ? <Notice error>{error} Los cambios no confirmados permanecen en este editor; no se garantiza su recuperación al cerrarlo.</Notice> : null}
-    <p role="status">{busy ? 'Guardando o verificando…' : dirty ? 'Cambios sin guardar. Las preguntas incompletas o inválidas no se guardan.' : 'Último estado confirmado cargado.'}</p>
-    <ol className="activity-editor-steps aw-steps" aria-label="Etapas de edición">{stages.map((label, index) => <li key={label} className={step === index ? 'current' : index < step ? 'done' : undefined} aria-current={step === index ? 'step' : undefined}><button type="button" disabled={busy} onClick={() => setStep(index)}><b>{index + 1}</b>{label}</button></li>)}</ol>
-    <h4 ref={stageHeading} tabIndex={-1}>Paso {step + 1} de 3 · {stages[step]}</h4>
-    <form data-authoring-step={step} onSubmit={e => { e.preventDefault(); void run(async () => {
+  function review() {
+    setError('');
+    if(!typeChosen){setError('Elegí un tipo de actividad.');setStep(0);return false;}
+    const unit=room.units.find(item=>item.id===unitId);
+    if(!unit || !topicIds.length || topicIds.some(id=>!unit.topics.some(topic=>topic.id===id))){setError('Elegí una unidad y al menos un tema.');setStep(0);return false;}
+    if(!locked){
+      if(!objective.trim()){setError('Escribí el objetivo de aprendizaje.');setStep(0);return false;}
+      if(!title.trim()||!instructions.trim()){setError('Completá el título y las consignas de la actividad.');setStep(0);return false;}
+      if(draftType!=='ASSIGNMENT'&&!questions.length){setError('Agregá al menos una pregunta.');setStep(0);return false;}
+      if(!evaluationRubric.length||evaluationRubric.some(row=>!row.name.trim()||!row.description.trim())){setError('Completá cada criterio de la rúbrica, la evidencia esperada y su peso.');setStep(0);return false;}
+      try{parseEvaluationRubric(evaluationRubric);}catch{setError('Los pesos de la rúbrica deben sumar 100 %.');setStep(0);return false;}
+    }
+    setStep(1);
+    return true;
+  }
+  async function saveDraft() {
+      if(!typeChosen)throw new Error('Elegí un tipo de actividad.');
       if (activity.locked) await change({ action: 'metadata', id: activity.id, title, unitId: unitId || null, topicIds });
       else {
         try { parseEvaluationRubric(evaluationRubric); } catch { throw new Error('Revisá la rúbrica pública: criterios únicos y ponderaciones enteras que sumen 100%.'); }
         const value = await deadline();
-        if (upload && !upload.ready) throw new Error('El archivo pendiente todavía no está aprobado. Consulta su revisión o descártalo antes de guardar.');
         if ([...objective].length > 1400 || [...teacherComment].length > 5000) throw new Error('Revisá el objetivo (hasta 1.400 caracteres) y el comentario (hasta 5.000).');
         await change({ action: 'save', id: activity.id, payload: { title, objective: objective || null, teacherComment: teacherComment || null, unitId: unitId || null, topicIds, instructions, attachmentRequired, aiGradingRubric, evaluationRubric,
           instructionFileIds: files.map(f => f.id), materialIds, deadline: value, allowLate,
@@ -117,91 +127,77 @@ export function ActivityAuthoring({ api, room, data, materials, onSaved, onClose
             options: q.options.map(o => ({ text: o.text, correct: o.correct ?? false })) })) } });
       }
       setDirty(false);
-    }); }} onChange={mark}>
-      <fieldset hidden={step !== 0} disabled={busy || room.archived}>
-        <legend>Organización de la actividad</legend>
+
+  }
+  if(publicationConfirmed)return <section className="p7-authoring br-authoring" aria-label="Actividad asignada"><Notice>{`Actividad asignada a ${room.name}.`}</Notice>{error?<Notice error>No se pudo abrir la ficha. La asignación ya está confirmada.</Notice>:null}<button disabled={busy} onClick={()=>void run(()=>onSaved(true,persistence.current.id))}>Abrir actividad asignada</button><button disabled={busy} onClick={onClose}>Volver a actividades</button></section>;
+  return <section className="p7-authoring br-authoring" aria-label="Editar actividad">
+    <button className="brujula-authoring-back" aria-label="Cerrar editor" type="button" disabled={busy} onClick={onClose}><FoxmindIcon name="arrow-left"/>Actividades</button>
+    <header className="p5-section-head aw-title-row"><div><h2>{step === 1 ? 'Revisar la actividad' : activity.status === 'DRAFT' ? 'Crear actividad manualmente' : 'Editar actividad'}</h2><p>{step === 1 ? 'Verificá qué recibirán tus estudiantes antes de asignarla.' : 'Prepará las consignas y definí cómo vas a evaluar las entregas.'}</p></div>
+      <span className="brujula-private-badge"><FoxmindIcon name="lock"/>Borrador privado</span></header>
+    {activity.locked ? <Notice>Ya comenzó la participación. Solo se pueden corregir el título y la organización, extender una fecha existente o permitir entregas tardías. Las consignas y sus recursos permanecen bloqueados.</Notice> : null}
+    {error ? <Notice error>{error} Los cambios no confirmados permanecen en este editor; no se garantiza su recuperación al cerrarlo.</Notice> : null}
+    <p className="br-authoring-save-status" role="status">{busy ? 'Guardando o verificando…' : dirty ? 'Cambios sin guardar. Las preguntas incompletas o inválidas no se guardan.' : 'Último estado confirmado cargado.'}</p>
+    <ol className="activity-editor-steps aw-steps" aria-label="Etapas de edición">{stages.map((label, index) => <li key={label} className={step === index ? 'current' : index < step ? 'done' : undefined} aria-current={step === index ? 'step' : undefined}><button type="button" disabled={busy} onClick={() => index===1?review():setStep(0)}><b>{index + 1}</b>{label}</button></li>)}</ol>
+    <h4 className="sr-only" ref={stageHeading} tabIndex={-1}>Paso {step + 1} de 2 · {stages[step]}</h4>
+    <form data-authoring-step={step} onSubmit={e=>{e.preventDefault();void run(async()=>{await saveDraft();await onSaved(false,persistence.current.id);});}} onChange={mark}>
+      <fieldset hidden={step !== 0} disabled={busy || room.archived} aria-label="Organización de la actividad">
+        <h3 className="brujula-authoring-card-title"><b>01</b>Ubicación en el aula</h3>
         {activity.locked ? <label>Título de la actividad<input maxLength={200} value={title} onChange={e => setTitle(e.target.value)} /></label> : null}
-        <p>Origen: creación manual. Elegí el tipo y la ubicación antes de preparar las consignas.</p>
-        <label>Tipo de actividad<select disabled={persisted} value={draftType} onChange={e => { setDraftType(e.target.value as typeof draftType); mark(); }}>{Object.entries(activityTypeLabels).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></label>
-        {persisted ? <small>El tipo de una actividad guardada no se puede cambiar.</small> : null}
-        <ActivityAssignment room={room} value={{ unitId, topicIds }} update={value => { setUnit(value.unitId); setTopics(value.topicIds); mark(); }} />
+        <ActivityAssignment compact room={room} value={{ unitId, topicIds }} update={value => { setUnit(value.unitId); setTopics(value.topicIds); mark(); }} typeControl={<label>Tipo de actividad<select aria-label="Tipo de actividad" disabled={persisted} value={typeChosen?draftType:''} onChange={e => {setTypeChosen(true);setDraftType(e.target.value as typeof draftType);if(e.target.value==='ASSIGNMENT')setRequired(true);mark();}}><option value="" disabled>Elegí un tipo</option>{Object.entries(activityTypeLabels).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>}/>
       </fieldset>
-      <fieldset hidden={step !== 1} disabled={busy || locked}>
-        <legend>Propuesta para los estudiantes</legend>
-        <label>Título de la actividad<input maxLength={200} value={title} onChange={e => setTitle(e.target.value)} /></label>
+      <fieldset hidden={step !== 0} disabled={busy || locked} aria-label="Propuesta para los estudiantes">
+        <h3 className="brujula-authoring-card-title"><b>02</b>Propuesta para los estudiantes</h3>
+        <label>Título<input aria-label="Título de la actividad" placeholder="Ej. Cuaderno de campo" maxLength={200} value={title} onChange={e => setTitle(e.target.value)} /></label>
         <label>Objetivo de aprendizaje<textarea name="objective" maxLength={1400} rows={2} placeholder="¿Qué querés que puedan hacer al terminar?" value={objective} onChange={e => setObjective(e.target.value)} /></label>
         <label>Consignas<textarea maxLength={5000} rows={5} placeholder="Explicá qué tienen que hacer, en qué orden y qué se espera que entreguen." value={instructions} onChange={e => setInstructions(e.target.value)} /></label>
         <label>Comentario para el aula · Opcional<textarea name="teacherComment" maxLength={5000} rows={2} placeholder="Sumá una aclaración para tus estudiantes." value={teacherComment} onChange={e => setTeacherComment(e.target.value)} /></label>
-        <label>Rúbrica opcional para la corrección con IA<textarea maxLength={5000} rows={4} value={aiGradingRubric} onChange={e => setAiGradingRubric(e.target.value)} /></label>
-        <small>Solo el docente ve estos criterios. Si los dejás vacíos, se usarán la consigna y los puntajes de la actividad.</small>
-        {draftType === 'ASSIGNMENT' ? <>
-          <p>Escribe observaciones, adjunta instrucciones PDF/DOCX o utiliza ambas opciones. Al publicar se requiere al menos una.</p>
-          <label className="p7-check"><input type="checkbox" checked={attachmentRequired} onChange={e => setRequired(e.target.checked)} />Archivos de entrega obligatorios</label>
-          <label>Archivo de instrucciones (PDF o DOCX, hasta 20 MB)<input type="file" accept=".pdf,.docx" onChange={e => {
-            const file = e.target.files?.[0]; e.target.value = '';
-            if (file) void run(async () => { if (!api.uploadInstruction) throw new Error('Carga no disponible.');
-              const current = await ensurePersisted();
-              const result = await api.uploadInstruction(room.id, current.id, file); setUpload(result);
-              if (result.ready) { setFiles(prev => [...prev, { id: result.id, name: result.name, extension: file.name.split('.').at(-1)!.toLowerCase(), ready: true }]); setUpload(null); }
-              mark(); });
-          }} /></label>
-          {upload ? <div><Notice>{upload.ready ? 'Archivo aprobado.' : upload.rejectionCode ? 'Archivo rechazado. No se adjuntó a las instrucciones.' : 'Carga recibida, pendiente de revisión. Todavía no se adjuntó a las instrucciones.'}</Notice>
-            <button type="button" onClick={() => void run(async () => { const result = await api.fileStatus(upload.id); setUpload(result);
-              if (result.ready) { setFiles(prev => [...prev, { id: result.id, name: result.name, extension: result.name.split('.').at(-1)!.toLowerCase(), ready: true }]); setUpload(null); mark(); } })}>Consultar revisión de instrucciones</button>
-            <button type="button" onClick={() => setUpload(null)}>Descartar selección pendiente</button></div> : null}
-          <ul>{files.map(file => <li key={file.id}>{file.name} · {file.ready ? 'Aprobado' : 'No disponible'} <button type="button" onClick={() => { setFiles(files.filter(f => f.id !== file.id)); mark(); }}>Desvincular instrucciones</button></li>)}</ul>
-        </> : <><h4>Preguntas</h4><p>Una opción correcta para selección única; al menos dos para selección múltiple.</p>
+        {typeChosen&&draftType === 'ASSIGNMENT' ? <label className="p7-check"><input type="checkbox" aria-label="Archivos de entrega obligatorios" checked={attachmentRequired} onChange={e => setRequired(e.target.checked)} />Solicitar un archivo para la entrega</label> : typeChosen?<><h4>Preguntas</h4><p>Una opción correcta para selección única; al menos dos para selección múltiple.</p>
           {questions.map((q, i) => <QuestionEditor key={i} question={q} index={i} update={value => { setQuestions(questions.map((old, n) => n === i ? value : old)); mark(); }} remove={() => { setQuestions(questions.filter((_, n) => n !== i)); mark(); }} />)}
-          <button type="button" onClick={() => { setQuestions([...questions, { type: 'DEVELOPMENT', prompt: '', points: '1', scoringRule: null, options: [] }]); mark(); }}>Agregar pregunta</button></>}
-        <h4>Materiales de Biblioteca vinculados</h4>
-        {materials.filter(m => !m.deleted && m.ready).map(m => <label className="p7-check" key={m.id}><input type="checkbox" checked={materialIds.includes(m.id)}
+          <button type="button" onClick={() => { setQuestions([...questions, { type: 'DEVELOPMENT', prompt: '', points: '1', scoringRule: null, options: [] }]); mark(); }}>Agregar pregunta</button></>:null}
+        {materials.some(m=>!m.deleted&&m.ready)?<h4>Materiales de consulta</h4>:null}
+        {materials.filter(m => !m.deleted && m.ready && (!m.supersededBy || materialIds.includes(m.id))).map(m => <label className="p7-check" key={m.id}><input type="checkbox" checked={materialIds.includes(m.id)}
           onChange={e => setMaterialIds(e.target.checked ? [...materialIds, m.id] : materialIds.filter(id => id !== m.id))} />{m.title}</label>)}
-        {materials.filter(m => !m.deleted && m.ready).length === 0 ? <p>No hay materiales aprobados para vincular.</p> : null}
       </fieldset>
-      {step === 1 ? <EvaluationRubricEditor criteria={evaluationRubric} disabled={busy || locked} onChange={value => { setEvaluationRubric(value); mark(); }}/> : null}
-      <fieldset hidden={step !== 1} disabled={busy || room.archived}>
-        <legend>Fecha límite · {room.timezone}</legend>
-        <label>Fecha y hora del aula<input type="datetime-local" step={60} value={local} onChange={e => { setLocal(e.target.value); setResolution(null); setOffset(null); }} /></label>
-        <small>La hora se interpreta exclusivamente en {room.timezone}, no en la zona del dispositivo.</small>
-        <button type="button" onClick={() => void run(async () => { await deadline(); })} disabled={!local}>Verificar hora</button>
+      {step === 0 ? <EvaluationRubricEditor criteria={evaluationRubric} disabled={busy || locked} onChange={value => { setEvaluationRubric(value); mark(); }}/> : null}
+      <fieldset hidden={step !== 0} disabled={busy || room.archived} aria-label="Plazo de entrega">
+        <h3 className="brujula-authoring-card-title"><b>04</b>Plazo de entrega</h3>
+        <label title={`Horario del aula: ${room.timezone}`}>Fecha y hora límite <small>Opcional</small><input aria-label="Fecha y hora del aula" type="datetime-local" step={60} value={local} onChange={e => { setLocal(e.target.value); setResolution(null); setOffset(null); }} /></label>
         {resolution?.reason === 'AMBIGUOUS' ? <label>Ocurrencia de la hora repetida<select aria-label="Ocurrencia de la hora repetida" value={offset ?? ''} onChange={e => setOffset(e.target.value === '' ? null : Number(e.target.value))}>
           <option value="">Selecciona una ocurrencia</option>{resolution.choices.map((choice, i) => <option key={choice.instant} value={choice.offsetMinutes}>{i + 1} · {choice.offset} · {choice.instant}</option>)}</select></label> : null}
-        <label className="p7-check"><input type="checkbox" checked={allowLate} onChange={e => setLate(e.target.checked)} />Permitir entregas tardías</label>
+        <label className="p7-check"><input type="checkbox" aria-label="Permitir entregas tardías" checked={allowLate} onChange={e => setLate(e.target.checked)} />Aceptar entregas fuera de término</label>
         {activity.locked ? <button type="button" onClick={() => void run(async () => { await change({ action: 'deadline', id: activity.id, deadline: await deadline(), allowLate }); setDirty(false); })}>Guardar plazo y recepción</button> : null}
       </fieldset>
-      {step === 2 ? <section className="activity-review-summary" aria-label="Revisión del borrador"><h4>Contenido de la actividad</h4><h3>{title || 'Borrador sin título'}</h3><p>{activityTypeLabels[draftType]}</p>{objective ? <div><h4>Objetivo de aprendizaje</h4><p className="p7-multiline">{objective}</p></div> : null}<div><h4>Consignas</h4><p className="p7-multiline">{instructions || 'Sin consignas escritas.'}</p></div>{teacherComment ? <div><h4>Comentario para el aula</h4><p className="p7-multiline">{teacherComment}</p></div> : null}<p>{files.length} archivos de instrucciones · {materialIds.length} materiales vinculados · {questions.length} preguntas</p><p>{local ? `${local.replace('T', ' · ')} · ${room.timezone}` : 'Sin fecha límite'} · {allowLate ? 'Permite entregas tardías' : 'No permite entregas tardías'}</p><p>Guardar confirma el borrador. La publicación se confirma por separado en Actividades.</p></section> : null}
-      {step === 2 ? <aside className="br-authoring-destination"><h4>Destino</h4><h3>{room.name} · {room.division}</h3><h4>Tipo de actividad</h4><p>{activityTypeLabels[draftType]}</p><h4>Unidad y temas</h4><p>{room.units.find(unit => unit.id === unitId)?.name || 'Sin unidad'} · {room.units.find(unit => unit.id === unitId)?.topics.filter(topic => topicIds.includes(topic.id!)).map(topic => topic.name).join(' · ') || 'Sin temas'}</p><h4>Materiales</h4><p>{materials.filter(material => materialIds.includes(material.id)).map(material => material.title).join(' · ') || 'Sin materiales vinculados'}</p><h4>Fecha límite</h4><p>{local ? `${local.replace('T',' · ')} · ${room.timezone}` : 'Sin fecha límite'}</p>{draftType === 'ASSIGNMENT' ? <><h4>Entrega</h4><p>{attachmentRequired ? 'Archivo obligatorio' : 'Archivos opcionales'}</p></> : null}</aside> : null}
-      {step === 2 && draftType !== 'ASSIGNMENT' ? <section className="br-authoring-question-review"><h4>Preguntas y clave docente</h4><small>Las respuestas correctas solo están visibles para vos.</small><ol>{questions.map((question,index) => <li key={index}><strong>{question.prompt}</strong><p>{question.points} puntos</p><ul>{question.options.map((option,position) => <li key={position}>{option.text}{option.correct ? <b> · Correcta</b> : null}</li>)}</ul></li>)}</ol></section> : null}
-      {step === 2 ? <EvaluationRubric criteria={evaluationRubric}/> : null}
-      <footer className="p5-form-footer">{step > 0 ? <button type="button" disabled={busy} onClick={() => setStep(step - 1)}>Anterior</button> : null}<button type="button" hidden={step === 2} disabled={busy} onClick={() => setStep(step + 1)}>Continuar</button><button className="primary" disabled={busy || room.archived}>{activity.locked ? 'Guardar organización' : activity.status === 'DRAFT' ? 'Guardar borrador' : 'Guardar actividad'}</button>
-        {step === 2 && activity.status === 'DRAFT' ? <button type="button" disabled={busy || dirty || !persisted || locked} onClick={() => setAssigning(true)}>Asignar al aula</button> : null}</footer>
-      {step === 2 && (dirty || !persisted) ? <p>Guardá el borrador antes de asignarlo al aula.</p> : null}
+      {step === 1 ? <section className="activity-review-summary" aria-label="Revisión del borrador"><h4>Contenido de la actividad</h4><h3>{title || 'Borrador sin título'}</h3>{objective ? <div><h4>Objetivo de aprendizaje</h4><p className="p7-multiline">{objective}</p></div> : null}<div><h4>Consignas</h4><p className="p7-multiline">{instructions || 'Sin consignas escritas.'}</p></div>{teacherComment ? <div><h4>Comentario para el aula</h4><p className="p7-multiline">{teacherComment}</p></div> : null}<EvaluationRubric compact criteria={evaluationRubric}/></section> : null}
+      {step === 1 ? <aside className="br-authoring-destination"><h4>Destino</h4><h3>{room.name} · {room.division}</h3><h4>Tipo de actividad</h4><p>{activityTypeLabels[draftType]}</p><h4>Unidad</h4><p>{room.units.find(unit => unit.id === unitId)?.name || 'Sin unidad'}</p><h4>Temas</h4><p>{room.units.find(unit => unit.id === unitId)?.topics.filter(topic => topicIds.includes(topic.id!)).map(topic => topic.name).join(' · ') || 'Sin temas'}</p><h4>Materiales</h4><p>{materials.filter(material => materialIds.includes(material.id)).map(material => material.title).join(' · ') || 'Sin materiales vinculados'}</p><h4>Fecha límite</h4><p>{local ? `${local.replace('T',' · ')} · ${room.timezone}` : 'Sin fecha límite'}</p>{draftType === 'ASSIGNMENT' ? <><h4>Entrega</h4><p>{attachmentRequired ? 'Archivo obligatorio' : 'Archivos opcionales'}</p></> : null}</aside> : null}
+      {step === 1 && draftType !== 'ASSIGNMENT' ? <section className="br-authoring-question-review"><h4>Preguntas y clave docente</h4><small>Las respuestas correctas solo están visibles para vos.</small><ol>{questions.map((question,index) => <li key={index}><strong>{question.prompt}</strong><p>{question.points} puntos</p><ul>{question.options.map((option,position) => <li key={position}>{option.text}{option.correct ? <b> · Correcta</b> : null}</li>)}</ul></li>)}</ol></section> : null}
+      <footer className="p5-form-footer">{step > 0 ? <button type="button" disabled={busy} onClick={() => setStep(step - 1)}>Volver a editar</button> : null}<button disabled={busy || room.archived}>{activity.locked ? 'Guardar organización' : activity.status === 'DRAFT' ? 'Guardar borrador' : 'Guardar actividad'}</button><button type="button" className="primary" hidden={step === 1} disabled={busy} onClick={review}>Continuar a revisión</button>
+        {step === 1 && activity.status === 'DRAFT' ? <button type="button" className="primary" disabled={busy || locked} onClick={() => void run(async()=>{if(!review())return;await saveDraft();await change({action:'publish',id:activity.id});setPublicationConfirmed(true);await onSaved(true,persistence.current.id);})}>Asignar al aula</button> : null}</footer>
     </form>
-    {assigning ? <Dialog title="Asignar actividad al aula" onClose={() => !busy && setAssigning(false)}>
-      <p>Se publicará el último borrador guardado en {room.name}. Los estudiantes verán sus consignas, materiales y rúbrica pública.</p>
-      {error ? <Notice error>{error}</Notice> : null}
-      <button type="button" disabled={busy} onClick={() => setAssigning(false)}>Cancelar asignación</button>
-      <button type="button" className="primary" disabled={busy || dirty || locked} onClick={() => void run(async () => { await change({ action: 'publish', id: activity.id }); setAssigning(false); onClose(); })}>Confirmar asignación al aula</button>
-    </Dialog> : null}
+
   </section>;
 }
 
 /** Read-only preview/consultation is deliberately separate from a future attempt-taking route. */
-export function ActivityPreview({ api, activity, teacher, room }: { api: ClassroomClient; activity: ActivityDetail; teacher: boolean; room?: Detail }) {
-  return <section className="p7-preview" aria-label={teacher ? 'Vista previa docente' : 'Consulta de actividad'}>
-    <p>{activityTypeLabels[activity.type]} · {activityDate(activity.deadlineAt, activity.zone)}</p>
-    <ActivityCurriculum room={room} activity={activity} />
-    {activity.objective ? <section><h4>Objetivo de aprendizaje</h4><p className="p7-multiline">{activity.objective}</p></section> : null}
-    {activity.teacherComment ? <section><h4>Comentario para el aula</h4><p className="p7-multiline">{activity.teacherComment}</p></section> : null}
-    <EvaluationRubric criteria={activity.evaluationRubric}/>
-    {teacher ? <Notice>Vista previa docente: no inicia un intento ni activa el bloqueo de contenido.</Notice> : <Notice>Consultar la actividad no confirma una entrega.</Notice>}
-    {activity.instructions ? <p className="p7-multiline">{activity.instructions}</p> : null}
-    {activity.type === 'ASSIGNMENT' ? <p>{activity.attachmentRequired ? 'La entrega requiere al menos un archivo aprobado.' : 'La entrega permite no adjuntar archivos, con confirmación explícita.'}</p> : null}
-    <ul>{activity.instructionFiles.map(f => <li key={f.id}>{f.ready ? <><a href={api.fileUrl(f.id)} target="_blank" rel="noreferrer">Descargar {f.name}</a>
-      {f.extension === 'pdf' ? <> · <a href={api.fileUrl(f.id, true)} target="_blank" rel="noreferrer">Vista previa PDF</a></> : null}</> : `${f.name} · No disponible por revisión de seguridad`}</li>)}</ul>
-    <ul>{activity.materials.map(m => <li key={m.id}><a href={api.fileUrl(m.fileId)} target="_blank" rel="noreferrer">{m.title}</a></li>)}</ul>
-    {activity.questions.map((q, index) => <article key={q.id ?? index}><h4>Pregunta {index + 1} · {q.points} puntos</h4><p className="p7-multiline">{q.prompt}</p>
-      <ul>{q.options.map((o, n) => <li key={o.id ?? n}>{o.text}{teacher && o.correct ? ' · Correcta' : ''}</li>)}</ul>
-      {teacher && q.scoringRule ? <small>{q.scoringRule === 'PARTIAL' ? 'Puntaje parcial sin opciones incorrectas' : 'Coincidencia exacta'}</small> : null}</article>)}
+export function ActivityPreview({ api, activity, teacher, room, effectiveDeadlineAt }: { api: ClassroomClient; activity: ActivityDetail; teacher: boolean; room?: Detail;effectiveDeadlineAt?:string|null }) {
+  return <section className="p7-preview brujula-activity-preview" aria-label={teacher ? 'Vista previa docente' : 'Consulta de actividad'}>
+    <div className="brujula-activity-brief">
+      <small className="sr-only">{activityTypeLabels[activity.type]}</small>
+      {activity.objective ? <section><h3>Objetivo de aprendizaje</h3><p className="p7-multiline">{activity.objective}</p></section> : null}
+      <h3>Consigna</h3><p className="p7-multiline">{activity.instructions || (!teacher&&activity.type==='ASSIGNMENT'?'Abrí la consigna para consultar las instrucciones y sus recursos.':'La consigna está en preparación.')}</p>
+      {activity.teacherComment ? <section><h4>Comentario para el aula</h4><p className="p7-multiline">{activity.teacherComment}</p></section> : null}
+      <ul>{activity.instructionFiles.map(f => <li key={f.id}>{f.ready ? <a href={api.fileUrl(f.id)} target="_blank" rel="noreferrer">Descargar {f.name}</a> : `${f.name} · No disponible por revisión de seguridad`}</li>)}</ul>
+      {activity.questions.length ? <small>{activity.questions.length} {activity.questions.length===1?'pregunta':'preguntas'}</small>:null}
+      {teacher ? activity.questions.map((q, index) => <article key={q.id ?? index}><h4>Pregunta {index + 1} · {q.points} puntos</h4><p className="p7-multiline">{q.prompt}</p>
+        <ul>{q.options.map((o, n) => <li key={o.id ?? n}>{o.text}{o.correct ? ' · Correcta' : ''}</li>)}</ul>
+        {q.scoringRule ? <small>{q.scoringRule === 'PARTIAL' ? 'Puntaje parcial sin opciones incorrectas' : 'Coincidencia exacta'}</small> : null}</article>) : null}
+      <EvaluationRubric criteria={activity.evaluationRubric}/>
+    </div>
+    <ActivityContext api={api} activity={activity} room={room} effectiveDeadlineAt={effectiveDeadlineAt}/>
   </section>;
+}
+export function ActivityContext({api,activity,room,effectiveDeadlineAt}:{api:ClassroomClient;activity:ActivityDetail;room?:Detail;effectiveDeadlineAt?:string|null}){
+ const deadlineAt=effectiveDeadlineAt===undefined?activity.deadlineAt:effectiveDeadlineAt;
+ return <aside className="brujula-activity-context"><small>FICHA DE ACTIVIDAD</small><h4>Fecha límite</h4><p>{deadlineAt?new Intl.DateTimeFormat('es-AR',{timeZone:activity.zone,day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(deadlineAt)).replaceAll('.',''):'Sin fecha límite'}</p><ActivityCurriculum room={room} activity={activity} split/><h4>Entregas tardías</h4><p>{activity.allowLate?'Se aceptan':'Plazo estricto'}</p>
+      {activity.materials.length?<><h4>Material de consulta</h4><ul>{activity.materials.map(m => <li key={m.id}><a href={api.fileUrl(m.fileId)} target="_blank" rel="noreferrer">{m.title}</a></li>)}</ul></>:null}
+    </aside>;
 }

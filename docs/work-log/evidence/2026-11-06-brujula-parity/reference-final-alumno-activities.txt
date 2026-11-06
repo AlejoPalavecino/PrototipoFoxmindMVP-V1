@@ -1,0 +1,138 @@
+[p2 "Mis aulas · FoxMind Brújula" | space "FoxMind parity 2026-11-05"(1): 2 managed, 0 untracked — p1 "Notificaciones · FoxMind", p2* "Mis aulas · FoxMind Brújula"]
+root
+  anchor [ref=1, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#main, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#main]
+    text "Saltar al contenido"
+  container
+    container "Menú de FoxMind"
+      anchor "FoxMind Brújula, inicio" [ref=771, loc=css:a[aria-label="FoxMind Brújula, inicio"], url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/inicio]
+        image
+        container
+          text "FoxMind"
+          text "BRÚJULA"
+      container
+        button "Buscar en FoxMind" [ref=772, loc=css:button[aria-label="Buscar en FoxMind"]]
+          svg_root
+          text "Buscar"
+          text "Ctrl K"
+        text "MI ESPACIO"
+        container "Navegación principal"
+          anchor [ref=773, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/inicio]
+            svg_root
+            text "Inicio"
+          anchor [ref=774, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aulas]
+            svg_root
+            text "Mis aulas"
+          anchor [ref=775, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/agenda, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/agenda]
+            svg_root
+            text "Agenda"
+          button "Notificaciones, 7 sin leer" [ref=776, loc=css:button[aria-label="Notificaciones, 7 sin leer"]]
+            svg_root
+            text "Notificaciones"
+            text "7"
+        text "MIS AULAS"
+        container "Accesos a mis aulas"
+          anchor [ref=777, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/plan]
+            text "Biología"
+          anchor [ref=778, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/mat/plan, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/mat/plan]
+            text "Matemática"
+          anchor [ref=779, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/lit/plan, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/lit/plan]
+            text "Lengua y Literatura"
+      container
+        button [ref=780]
+          svg_root
+          text "Explorar maqueta"
+          text "Docente y alumno"
+          svg_root
+        button "Abrir cuenta de Mateo Ríos" [ref=781, loc=css:button[aria-label="Abrir cuenta de Mateo Ríos"]]
+          text "MR"
+          container
+            text "Mateo Ríos"
+            text "Alumno"
+          svg_root
+    container [ref=782]
+      container "Ubicación"
+        anchor [ref=783, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/inicio]
+          text "Inicio"
+        svg_root
+        anchor [ref=784, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aulas]
+          text "Mis aulas"
+        svg_root
+        text "Biología"
+      container
+        image
+        container
+          container
+            svg_root
+            text "Aula · 4.º A · 2026"
+          heading
+            text "Biología"
+          paragraph
+            container
+              svg_root
+              text "Lucía Domínguez"
+            container
+              svg_root
+              text "6 estudiantes"
+      container "Secciones del aula"
+        anchor [ref=785, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/plan]
+          svg_root
+          text "Plan"
+        anchor [ref=786, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/muro, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/muro]
+          svg_root
+          text "Muro"
+        anchor [ref=787, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/biblioteca, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/biblioteca]
+          svg_root
+          text "Biblioteca"
+        anchor [ref=788, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/actividades, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/actividades]
+          svg_root
+          text "Actividades"
+        anchor [ref=789, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/progreso, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/progreso]
+          svg_root
+          text "Mi progreso"
+        anchor [ref=790, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/alumnos, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/alumnos]
+          svg_root
+          text "Compañeros"
+      container
+        container
+          heading
+            text "Actividades"
+          paragraph
+            text "Consultá tus consignas, entregas y devoluciones."
+        container "Filtrar actividades"
+          button [ref=791]
+            text "Todas"
+          button [ref=792]
+            text "Pendientes"
+          button [ref=793]
+            text "Entregadas"
+        container
+          anchor [ref=794, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/actividades/bio-cuaderno]
+            svg_root
+            container
+              text "Trabajo práctico"
+              text "Cuaderno de campo"
+            container
+              svg_root
+              text "6 nov"
+            text "Pendiente"
+            text "›"
+          anchor [ref=795, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/actividades/bio-redes, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/actividades/bio-redes]
+            svg_root
+            container
+              text "Cuestionario"
+              text "Redes tróficas"
+            container
+              svg_root
+              text "9 nov"
+            text "En borrador"
+            text "›"
+          anchor [ref=796, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/actividades/bio-ecosistemas]
+            svg_root
+            container
+              text "Evaluación"
+              text "Lectura de un ecosistema"
+            container
+              svg_root
+              text "3 nov"
+            text "Con devolución"
+            text "›"

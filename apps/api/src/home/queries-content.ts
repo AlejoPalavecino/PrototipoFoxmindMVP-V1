@@ -15,7 +15,7 @@ export const materialsQuery = `SELECT m.id, ${baseJson('m.id', 'm.title', target
   FROM rooms c JOIN materials m ON m.classroom_id=c.id AND m.deleted_at IS NULL
   JOIN files f ON f.id=m.file_id AND f.classroom_id=c.id
   JOIN file_custodies custody ON custody.file_id=f.id JOIN uploads u ON u.file_id=f.id
-  WHERE c.archived_at IS NULL AND f.blob_deleted_at IS NULL AND custody.phase='ready'
+  WHERE NOT EXISTS(SELECT 1 FROM material_revisions mr WHERE mr.previous_id=m.id) AND c.archived_at IS NULL AND f.blob_deleted_at IS NULL AND custody.phase='ready'
     AND f.validation_status='APPROVED' AND f.scan_status='CLEAN' AND u.status='COMPLETED'
     AND custody.digest IS NOT NULL AND custody.digest=custody.validated_digest AND custody.digest=custody.scanned_digest`;
 export const classroomsQuery = `SELECT c.id, ${baseJson('c.id', 'c.name', targetJson('classroom', ",'section','plan'"))}

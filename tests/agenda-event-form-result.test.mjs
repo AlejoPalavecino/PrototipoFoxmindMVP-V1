@@ -5,6 +5,28 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 import { privateEvent, installWindow, zone } from './agenda-event-form-helpers.test.mjs';
 
+test('rerendering route callbacks never closes an unsaved new event',async()=>{
+ const {Agenda}=loadTsModule('apps/agenda-ui/Agenda.tsx'),{useState}=await import('react');
+ const restoreWindow=installWindow(),previous=globalThis.sessionStorage;globalThis.sessionStorage={getItem:()=>null,setItem(){}};
+ const api={list:async()=>page(),upcoming:async()=>page()};let rerender;
+ const view=hookView(()=>{const [tick,setTick]=useState(0);rerender=()=>setTick(tick+1);return Agenda({api,onOpen(){},onEventSelected(){}});},{});
+ try{await view.flush();component(view,'AgendaHeader').props.onCreate();await view.flush();assert.ok(component(view,'EventForm'));rerender();await view.flush();assert.ok(component(view,'EventForm'),'Local editor survives an unrelated parent refresh');}
+ finally{view.close();restoreWindow();if(previous===undefined)delete globalThis.sessionStorage;else globalThis.sessionStorage=previous;}
+});
+
+test('reference event detail shows the moved occurrence and asks scope before any edit or deletion',async()=>{
+ const {EventDetails}=loadTsModule('apps/agenda-ui/EventDetails.tsx'),calls=[],edits=[];
+ const base=privateEvent(),date=base.schedule.startLocal.slice(0,10);
+ const event={...base,repeat:{kind:'WEEKLY',untilDate:'2026-11-24'},exceptions:[{date,replacement:{...base,schedule:{...base.schedule,startLocal:'2026-11-05T10:00',endLocal:'2026-11-05T11:00'},repeat:{kind:'NONE'},title:'Clase trasladada'}}]};
+ const text=n=>typeof n==='string'?n:Array.isArray(n)?n.map(text).join(''):text(n?.props?.children??'');
+ const view=hookView(EventDetails,{api:{changeOccurrence:async(...args)=>calls.push(args),remove:async(...args)=>calls.push(args)},event,occurrenceDate:date,onBack(){},onEdit:scope=>edits.push(scope),onRemoved:()=>calls.push('removed')});
+ const button=label=>descendants(view.tree,n=>n.type==='button'&&text(n)===label)[0];
+ try{await view.flush();assert.match(text(view.tree),/Clase trasladada/);assert.match(text(view.tree),/10:00 – 11:00/);assert.equal(calls.length,0);
+ button('Editar evento').props.onClick();await view.flush();button('Solo este evento').props.onClick();assert.deepEqual(edits,['single']);assert.equal(calls.length,0);
+ button('Eliminar evento').props.onClick();await view.flush();button('Solo este evento').props.onClick();await view.flush();assert.deepEqual(calls,[[base.id,base.revision,date,null],'removed']);
+ }finally{view.close();}
+});
+
 async function agendaView(api) {
   const { Agenda } = loadTsModule('apps/agenda-ui/index.ts');
   const previous = globalThis.sessionStorage, restoreWindow = installWindow();

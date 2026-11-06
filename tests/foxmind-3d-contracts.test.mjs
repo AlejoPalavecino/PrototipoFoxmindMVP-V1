@@ -86,6 +86,11 @@ test('S0 aggregate and each module accept all seven real row variants, including
   assert.deepEqual(parseHomeModuleResponse(academic), academic);
 });
 
+test('published Home feedback accepts the same code-point limit and multiline text as grading',()=>{
+ const {parseHomeModuleResponse}=domain(),value=moduleResponse('feedback');value.page.items[0].overallFeedback='🦊'.repeat(3000)+'\nDevolución';
+ assert.equal(parseHomeModuleResponse(value).page.items[0].overallFeedback,value.page.items[0].overallFeedback);
+});
+
 test('S0 distinguishes ready empty, recoverable module failure and role inapplicability', () => {
   const { parseHomeResponse, parseHomeModuleResponse } = domain();
   const value = response();

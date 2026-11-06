@@ -49,6 +49,7 @@ export function createWebAgendaClient(fetcher: typeof fetch = fetch, onIdentityR
     put: (id, event) => call(`/events/${agendaId(id)}`, 'PUT', event),
     replace: (id, revision, event) => call(`/events/${agendaId(id)}`, 'PATCH', { revision, event }),
     remove: (id, revision) => call(`/events/${agendaId(id)}`, 'DELETE', { revision }),
+    changeOccurrence: (id, revision, date, event) => call(`/events/${agendaId(id)}/occurrences/${date}`, event ? 'PATCH' : 'DELETE', { revision, ...(event ? { event } : {}) }),
     open: (target, signal) => call('/open', 'POST', target, signal),
   };
 }

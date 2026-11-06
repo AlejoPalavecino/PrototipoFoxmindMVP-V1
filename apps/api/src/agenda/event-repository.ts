@@ -1,4 +1,4 @@
-import { AgendaError, type AgendaRange, type EventPayload, type PrivateEventRepository } from '../../../../src/core/domain/index.ts';
+import { AgendaError, agendaDate, seriesSchedules, type AgendaRange, type EventPayload, type PrivateEventRepository } from '../../../../src/core/domain/index.ts';
 import type { AgendaQuery } from './database-types.ts';
 import { eventColumns, eventValues, fromEventRow, type EventRow } from './event-row.ts';
 
@@ -17,7 +17,8 @@ class SqlPrivateEventRepository implements PrivateEventRepository {
   async list(range: AgendaRange) {
     // Local dates can differ by two days across UTC+14 and UTC-12. Exact overlap is resolved in the domain.
     const rows = await this.tx.query<EventRow>(`SELECT ${eventColumns} FROM agenda_events WHERE owner_id=$1::uuid
-      AND start_date < $3::date + 2 AND (COALESCE(repeat_until,start_date) + (end_date_exclusive-start_date)) > $2::date - 2
+      AND ((start_date < $3::date + 2 AND (COALESCE(repeat_until,start_date) + (end_date_exclusive-start_date)) > $2::date - 2)
+        OR jsonb_array_length(exceptions)>0)
       ORDER BY start_date,id`, this.owner, range.startDate, range.endDateExclusive);
     return rows.map(fromEventRow);
   }
@@ -32,18 +33,36 @@ class SqlPrivateEventRepository implements PrivateEventRepository {
   }
   async replace(id: string, revision: string, payload: EventPayload) {
     await this.verifyRevision(id, revision);
+    const current = await this.get(id);
+    if (!current) throw new AgendaError('FORBIDDEN');
+    const dates = new Set(seriesSchedules(payload).map(schedule => schedule.kind === 'ALL_DAY' ? schedule.startDate : schedule.startLocal.slice(0,10)));
+    const exceptions = (current.exceptions ?? []).filter(item => payload.repeat.kind !== 'NONE' && dates.has(item.date));
     const [row] = await this.tx.query<EventRow>(`UPDATE agenda_events SET title=$3,description=$4,category=$5,schedule_kind=$6,
       start_date=$7::date,end_date_exclusive=$8::date,start_local=$9,end_local=$10,time_zone=$11,
       start_offset_minutes=$12::int,end_offset_minutes=$13::int,start_at=$14::timestamptz,end_at=$15::timestamptz,
-      repeat_kind=$16,repeat_until=$17::date,color=$18,revision=revision+1,updated_at=clock_timestamp()
+      repeat_kind=$16,repeat_until=$17::date,color=$18,exceptions=$20::jsonb,revision=revision+1,updated_at=clock_timestamp()
       WHERE owner_id=$1::uuid AND id=$2::uuid AND revision=$19::bigint RETURNING ${eventColumns}`,
-    this.owner, id, ...eventValues(payload), revision);
+    this.owner, id, ...eventValues(payload), revision, JSON.stringify(exceptions));
     if (!row) throw new AgendaError('CONFLICT');
     return fromEventRow(row);
   }
   async remove(id: string, revision: string) {
     await this.verifyRevision(id, revision);
     await this.tx.query('DELETE FROM agenda_events WHERE owner_id=$1::uuid AND id=$2::uuid AND revision=$3::bigint RETURNING id', this.owner, id, revision);
+  }
+  async changeOccurrence(id: string, revision: string, date: string, replacement: EventPayload | null) {
+    agendaDate(date);
+    await this.verifyRevision(id, revision);
+    const current = await this.get(id);
+    if (!current) throw new AgendaError('FORBIDDEN');
+    if (current.repeat.kind === 'NONE' || !seriesSchedules(current).some(schedule =>
+      (schedule.kind === 'ALL_DAY' ? schedule.startDate : schedule.startLocal.slice(0,10)) === date)) throw new AgendaError('INVALID_INPUT');
+    const exceptions = [...(current.exceptions ?? []).filter(item => item.date !== date), { date, replacement }];
+    const [row] = await this.tx.query<EventRow>(`UPDATE agenda_events SET exceptions=$4::jsonb,revision=revision+1,updated_at=clock_timestamp()
+      WHERE owner_id=$1::uuid AND id=$2::uuid AND revision=$3::bigint RETURNING ${eventColumns}`,
+      this.owner, id, revision, JSON.stringify(exceptions));
+    if (!row) throw new AgendaError('CONFLICT');
+    return fromEventRow(row);
   }
 }
 export function createPrivateEventRepository(tx: AgendaQuery, owner: string): PrivateEventRepository {

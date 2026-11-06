@@ -33,7 +33,7 @@ export async function sessionView(activityView: ActivityAuthoringService['activi
   const attemptView = attempt ? { id: attempt.id, number: attempt.attempt_number, status: attempt.status, openedAt: attempt.opened_at,
     submittedAt: attempt.submitted_at, appliedDeadlineAt: attempt.applied_deadline_at, submittedLate: attempt.submitted_late,
     epoch: attempt.editor_epoch.toString(), revision: attempt.revision.toString(), answers,
-    ...(activity.type === 'ASSIGNMENT' ? { attachments: await practicalAttachments(tx, attempt.id, attempt.status === 'DRAFT') } : {}) } : null;
+    ...(activity.type === 'ASSIGNMENT' ? { practicalResponse:attempt.practical_response, attachments: await practicalAttachments(tx, attempt.id, attempt.status === 'DRAFT') } : {}) } : null;
   return { activity: view, expected: obligation?.is_expected ?? false, eligibilityReason: obligation?.eligibility_reason ?? null,
     archived, serverTime: now, reception: { deadlineAt: reception.deadline, open: reception.open, late: reception.late },
     canStart: needsStart && !archived && (reception.open || activity.type === 'ASSIGNMENT'), canTransfer: !!attempt && attempt.status === 'DRAFT'

@@ -27,7 +27,7 @@ test('answer proxy accepts bounded exact JSON, forwards current editor only at o
       ['submit-answers', { revision: '1', confirm: true, confirmIncomplete: true, receivedAt: '2000-01-01' }]])
       assert.equal((await post(`${path}/${leaf}`, body, h)).status, 400);
     assert.equal((await post(`${path}/answer?bad=1`, draft)).status, 400); assert.equal(calls.length, count);
-    assert.equal((await post('/plan', { revision: '1', operation: { action: 'addUnit', name: 'Old' } })).status, 200);
+    assert.equal((await post('/plan', { revision: '1', operation: { action:'setTopicState',id:'11111111-1111-4111-8111-111111111111',status:'TAUGHT' } })).status, 200);
     assert.equal(calls.at(-1).headers['x-attempt-editor'], undefined);
     assert.equal((await post(`${path}/submit-practical`, { revision: '1', confirm: true })).status, 200);
     assert.equal(calls.at(-1).body, '{"revision":"1","confirm":true}');

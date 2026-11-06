@@ -49,6 +49,7 @@ export function GradingEditor({ api, roomId, attemptId, onClose, onChanged }: {
     {!data ? <Notice>Cargando corrección…</Notice> : <>
       <h4>{data.activity.title} · {data.attempt.firstName} {data.attempt.lastName}</h4>
       <div className="brujula-grading-layout"><section className="brujula-grading-proof" aria-label="Trabajo entregado"><h5>Trabajo entregado</h5>
+      {data.attempt.practicalResponse?<div><h5>Respuesta escrita</h5><p className="p7-multiline">{data.attempt.practicalResponse}</p></div>:null}
       <ul>{data.attempt.attachments.map(file => <li key={file.id}>{file.ready
         ? <a href={api.fileUrl(file.id)} target="_blank" rel="noreferrer">Descargar {file.name}</a> : `${file.name} · No disponible`}</li>)}</ul>
       {data.activity.type === 'ASSIGNMENT' ? supportsFinal ? null : <label>Calificación general · 0 a 10<input aria-label="Calificación general" inputMode="decimal" placeholder="Pendiente" value={overall.replace('.', ',')}

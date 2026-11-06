@@ -21,7 +21,7 @@ function documentSql(kind: 'PLAN' | 'MATERIAL'): string {
     s.version_number AS plan_version,(s.version_number=(SELECT max(p.version_number) FROM study_plan_versions p WHERE p.classroom_id=s.classroom_id)) AS current_plan`
     : `s.title,s.unit_id,s.topic_id,NULL::int AS plan_version,NULL::boolean AS current_plan`;
   return `SELECT s.id,s.created_at,${fields},f.extension,f.size_bytes,COALESCE(${custody},false) AS ready FROM ${from}
-    LEFT JOIN uploads u ON u.file_id=f.id WHERE s.classroom_id=$1::uuid ${kind === 'MATERIAL' ? 'AND s.deleted_at IS NULL' : ''}
+    LEFT JOIN uploads u ON u.file_id=f.id WHERE s.classroom_id=$1::uuid ${kind === 'MATERIAL' ? 'AND s.deleted_at IS NULL AND NOT EXISTS(SELECT 1 FROM material_revisions mr WHERE mr.previous_id=s.id)' : ''}
     ${pageFilter('s')}`;
 }
 const activitySql = `SELECT a.id,a.title,a.created_at,a.unit_id,a.published_at,

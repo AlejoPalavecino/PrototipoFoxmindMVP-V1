@@ -236,13 +236,13 @@ The teacher can manually detail units and topics. The approved [classroom AI ext
 - Preserve unfinished creation as a private, recoverable draft. An incomplete creation draft is not a published classroom and cannot be used to enroll students.
 - Required text must contain more than whitespace. Apply the text limits below without silently truncating input. Classroom names need not be unique.
 
-### Confirmed classroom settings and plan maintenance
+### Confirmed classroom settings and teaching progress
 
-- The teacher may edit classroom name, subject, division and academic year after creation. The timezone remains fixed.
-- Updating the study-plan file creates a new version; preserve previous versions rather than overwriting them. Plan-file changes do not rewrite activity instructions, attempts or grades.
-- Teachers may add, rename and reorder units/topics.
-- A topic may be deleted only while `Pendiente` and without linked materials or activities. A unit may be deleted only when empty and without links. Do not cascade-delete linked records.
-- These changes respect the archived classroom's read-only restriction.
+- The teacher may edit classroom name, subject, division, academic year and predefined cover after creation. The timezone remains fixed.
+- The approved Brújula reference and current parity request retire post-publication add/rename/reorder/delete curriculum commands and appending plan-file versions. Initial curriculum remains part of classroom creation and reviewed extraction.
+- Preserve all existing units, topics, plan-file versions, links, downloads, quota accounting and academic history. Retiring those write contracts does not delete historical data or rewrite activity instructions, attempts or grades.
+- Teachers may mark a topic as taught or pending. The existing `NEXT` state remains readable and mutually exclusive when changed through the supported progress contract.
+- Teaching progress respects classroom ownership, optimistic revisions and the archived classroom's read-only restriction.
 
 ### Confirmed text validation limits
 
@@ -986,3 +986,22 @@ Suggested implementation order, not an execution authorization:
 5. Grading, publication, individual summaries and progress.
 
 **Historical specification-delivery boundary:** functional specification and visual reference inventory. This document itself authorized no scaffolding, dependency installation, backend, database provisioning, deployment or delivery; later separately authorized acceptance is recorded in the [roadmap](implementation-roadmap.md).
+
+#### Revisiones de materiales escritos — paridad Brújula, 2026-11-06
+
+Editar título o contenido de un material TEXT crea una revisión con DOCX nuevo aprobado por el pipeline habitual. La relación anterior→actual es única; el servidor comprueba la correspondencia del documento con texto/título por digest determinista. Docente, aula activa y CAS siguen obligatorios. Repetir una confirmación con el mismo archivo y metadatos devuelve su resultado original. La revisión vigente aparece en Biblioteca y nuevas selecciones; las actividades y citas ya existentes conservan sus IDs y archivos históricos. No se sobrescriben bytes ni se liberan cuotas de versiones retenidas por esta operación. Los metadatos de organización pueden editarse sin reemplazar contenido; FILE conserva su contrato de archivo inmutable.
+# Alineación Brújula vigente: respuestas escritas y formulario de resolución
+
+La autorización actual de paridad con `docs/design/brujula/FoxMind-Brujula.html` incluye el campo de texto del trabajo práctico: “Comentario (opcional)” cuando requiere archivo y “Tu respuesta” en el otro caso. Se conserva en el intento como `practicalResponse`, texto Unicode multilínea de hasta 5.000 caracteres, vacío por defecto para historia anterior. No se registra su contenido en logs.
+
+`POST /classrooms/:classroomId/attempts/:attemptId/practical-response` acepta exclusivamente `{revision,text}` y exige sesión, CSRF, pertenencia actual, intento propio editable, actividad publicada, recepción abierta y capacidad de edición vigente. Actualiza la revisión del intento mediante CAS; no entrega, publica ni califica. La entrega confirmada conserva el texto inmutable junto con los adjuntos. El docente sólo lo recibe en las vistas autorizadas de entrega/corrección; una reentrega copia el texto anterior a un nuevo borrador sin alterar el original. La evidencia de corrección asistida lo distingue de la consigna docente y participa de la huella del snapshot.
+
+La consulta de actividad sigue sin crear intentos. La acción explícita “Responder actividad” inicia el intento mediante el puerto existente cuando `canStart` lo permite. El formulario presenta todas las preguntas simultáneamente, conserva el guardado serializado por revisión/capacidad y requiere confirmación separada de entrega. Al cerrar o cambiar de destino se cancelan las preparaciones pendientes; si el servidor ya confirmó un inicio, cancelar la vista no revierte ese hecho. La ficha del alumno muestra el plazo individual efectivo cuando existe.
+
+### Brújula notification context and explicit instruction opening — 2026-11-06
+
+Notification projections may include `classroomDivision` (up to 80 Unicode code points), `actorName` (nullable, up to 321) and `message` (nullable, up to 280). These are derived from the same authorized target chain; they do not widen recipient or current-membership predicates. Submission identity is exposed only to the receiving teacher. Wall previews never restore text removed by moderation; a surviving reply to a removed parent remains visible under the existing thread policy. Public grade notifications still require the correct submitted attempt and published grade. No email address or editor capability is added to these projections.
+
+A response URL is a consultation destination, not authority to initiate an attempt. Only a local response action grants a short-lived, single-use in-memory intent. Equivalent classroom destination renders preserve that intent; closing or navigating elsewhere invalidates pending preparation. No intent is stored in a URL, cookie or browser storage.
+
+The existing practical-instruction editing lock remains normative: a preliminary GET does not expose instructions or files or create an attempt. Explicit “Ver consigna” starts the existing draft and freezes authored content without submitting it; its editor capability remains only in the mounted document's memory for “Continuar borrador”. Archived consultation and historical file permissions retain their existing rules. The preliminary UI describes unopened instructions rather than claiming that a published instruction is still being authored.

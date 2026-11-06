@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import {seedPlan} from './helpers/plan-fixture.mjs';
 import { FileStore } from '../.build/api/apps/api/src/files/store.js';
 import { createActivityAiAccess } from '../.build/api/apps/api/src/classrooms/activity-ai/database.js';
 import { ClassroomService } from '../.build/api/apps/api/src/classrooms/service.js';
@@ -22,9 +23,10 @@ export async function fixture(local, overrides = {}) {
   const T = { actor: teacher }, S = { actor: student }, O = { actor: stranger };
   const detail = () => classrooms.detail(T, room), revision = async () => (await detail()).revision;
   const plan = async operation => classrooms.changePlan(T, room, { revision: await revision(), operation });
-  await plan({ action: 'addUnit', name: 'Luz' });
+  const seed=operation=>seedPlan(local.pool.query.bind(local.pool),room,operation);
+  await seed({ action: 'addUnit', name: 'Luz' });
   const unitId = (await detail()).units[0].id;
-  await plan({ action: 'addTopic', unitId, name: 'Exposición' });
+  await seed({ action: 'addTopic', unitId, name: 'Exposición' });
   const topicIds = (await detail()).units[0].topics.map(x => x.id), sourceId = `plan:${randomUUID()}`;
   const start = { revision: await revision(), requestId: randomUUID(), type: 'ASSIGNMENT', unitId, topicIds, sourceIds: [sourceId],
     objective: 'Relacionar conceptos', groupLevel: 'Segundo año', difficulty: 'BASIC', durationMinutes: 40, context: '',
@@ -46,5 +48,5 @@ export async function fixture(local, overrides = {}) {
     generateActivity: async () => { calls.push('generate'); return { json: { status: 'READY', proposal }, inputTokens: 20, outputTokens: 30 }; },
   }, ...overrides };
   return { ...local, options, calls, state, classrooms, teacher, stranger, student, room, fileId, sourceId, unitId, topicIds,
-    T, S, O, revision, plan, start, proposal };
+    T, S, O, revision, plan,seedPlan:seed, start, proposal };
 }

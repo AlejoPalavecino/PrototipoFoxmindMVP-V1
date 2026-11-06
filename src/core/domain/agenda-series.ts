@@ -36,8 +36,16 @@ function occurrence(event: PrivateEvent, schedule: EventSchedule, range: AgendaR
     startAt, endAt };
 }
 export function expandAgendaEvent(event: PrivateEvent, range: AgendaRange): EventOccurrence[] {
-  return seriesSchedules(event).filter(schedule => canOverlap(schedule, range))
-    .map(schedule => occurrence(event, schedule, range))
+  return seriesSchedules(event).flatMap(schedule => {
+    const date = schedule.kind === 'ALL_DAY' ? schedule.startDate : schedule.startLocal.slice(0, 10);
+    const exception = event.exceptions?.find(item => item.date === date);
+    if (exception?.replacement === null) return [];
+    const effective = exception?.replacement;
+    const selected = effective?.schedule ?? schedule;
+    if (!canOverlap(selected, range)) return [];
+    const {exceptions: _exceptions,...displayEvent}=event;
+    return [{ ...occurrence(effective ? { ...displayEvent, ...effective, repeat: event.repeat } : displayEvent, selected, range), occurrenceId: `${event.id}:${date}`, occurrenceDate: date }];
+  })
     .filter(item => item.startDate < range.endDateExclusive && item.endDateExclusive > range.startDate);
 }
 function canOverlap(schedule: EventSchedule, range: AgendaRange): boolean {

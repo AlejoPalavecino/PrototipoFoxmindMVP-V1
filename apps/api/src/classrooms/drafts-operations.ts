@@ -15,7 +15,7 @@ export interface DraftRow {
 }
 
 type DraftPublicationAccess = Pick<ClassroomCore, 'run' | 'classroom'> & {
-  ports: Pick<ClassroomCore['ports'], 'files' | 'classroomQuotaBytes' | 'gradingAiAvailable'>;
+  ports: Pick<ClassroomCore['ports'], 'files' | 'classroomQuotaBytes' | 'gradingAiAvailable' | 'deliveryKey'>;
   draft(tx: Transaction, actor: Actor, id: string): Promise<DraftRow>;
 };
 
@@ -47,7 +47,7 @@ export async function publishDraftOperation(capability: DraftPublicationAccess, 
         classroomId,
       );
       await populateClassroom(tx, capability, request, classroomId, actor, payload);
-      return { id: classroomId, code: await newClassroomCode(tx, classroomId) };
+      return { id: classroomId, code: await newClassroomCode(tx, classroomId,capability.ports.deliveryKey) };
     });
   }
 
@@ -61,7 +61,7 @@ export async function updateSettingsOperation(capability: DraftPublicationAccess
       await tx.query(
         `UPDATE classrooms SET name=$2,subject=$3,division=$4,academic_year=$5,
         ai_grading_epoch=ai_grading_epoch+CASE WHEN ai_grading_enabled AND $6::boolean IS FALSE THEN 1 ELSE 0 END,
-        ai_grading_enabled=COALESCE($6::boolean,ai_grading_enabled),
+        ai_grading_enabled=COALESCE($6::boolean,ai_grading_enabled),cover_key=COALESCE($7,cover_key),
         revision=revision+1,updated_at=clock_timestamp() WHERE id=$1::uuid RETURNING id`,
         id,
         payload.name,
@@ -69,6 +69,7 @@ export async function updateSettingsOperation(capability: DraftPublicationAccess
         payload.division,
         payload.academicYear,
         aiGradingEnabled ?? null,
+        payload.coverKey ?? null,
       );
       return { revision: (row.revision + 1n).toString() };
     });
@@ -145,6 +146,7 @@ function settingsInput(input: unknown) {
       'division',
       'academicYear',
       'aiGradingEnabled',
+      'coverKey',
     ]);
     if (Object.hasOwn(body, 'aiGradingEnabled') && typeof body.aiGradingEnabled !== 'boolean') return fail('INVALID_INPUT');
     const expected = revision(body.revision),

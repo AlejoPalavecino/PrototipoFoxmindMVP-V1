@@ -444,6 +444,7 @@
     "files": [
       "tests/brujula-browser.test.mjs",
       "tests/brujula-complete-browser.test.mjs",
+      "tests/brujula-material-agenda-browser.test.mjs",
       "tests/brujula-responsive-browser.test.mjs",
       "tests/entry-glass-browser.test.mjs",
       "tests/login-inicio-integration.test.mjs",
@@ -479,12 +480,10 @@
       "tests/p9-mail-recovery-integration.test.mjs",
       "tests/p9-max-file-diagnostic-integration.test.mjs",
       "tests/p9-membership-journey-integration.test.mjs",
-      "tests/p9-plan-diagnostic-integration.test.mjs",
       "tests/p9-practical-journey-integration.test.mjs",
       "tests/p9-questionnaire-journey-integration.test.mjs",
       "tests/p9-runtime-controls-integration.test.mjs",
       "tests/p9-service-recovery-integration.test.mjs",
-      "tests/p9-teaching-journey-integration.test.mjs",
       "tests/p9-teaching-remainder-integration.test.mjs",
       "tests/student-summary-scroll.test.mjs"
     ]

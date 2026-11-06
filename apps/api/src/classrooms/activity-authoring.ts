@@ -14,6 +14,7 @@ import { recordActivityEligibility } from './activity-eligibility.ts';
 import { activityEvent, deadlineChanged } from './activity-events.ts';
 import { activityTopics, validateActivityTopics, replaceActivityTopics, readActivityTopics } from './activity-topics.ts';
 import type { EvaluationRubric } from '../../../../src/core/domain/evaluation-rubric.ts';
+import {studentActivityState,type StudentActivityListRow} from './activity-list-state.ts';
 
 export interface ActivityRow {
   id: string; classroom_id: string; type: ActivityType; title: string | null; unit_id: string | null; topic_id: string | null;
@@ -49,7 +50,21 @@ export class ActivityAuthoringService {
       const teacher = room.teacher_id === actor.id;
       const rows = await tx.query<ActivityRow>(`SELECT * FROM activities WHERE classroom_id=$1::uuid
         AND ($2::boolean OR status='PUBLISHED') ORDER BY created_at DESC,id`, classroomId, teacher);
+      const pending = teacher ? await tx.query<{activity_id:string;count:number}>(`SELECT t.activity_id,count(*)::int AS count
+        FROM attempts t JOIN activities a ON a.id=t.activity_id
+        LEFT JOIN attempt_grades g ON g.attempt_id=t.id
+        WHERE a.classroom_id=$1::uuid AND t.status='SUBMITTED' AND NOT COALESCE(g.is_published,false)
+        GROUP BY t.activity_id`,classroomId) : [];
+      const pendingByActivity = new Map(pending.map(item => [item.activity_id,item.count]));
+      const own = teacher ? [] : await tx.query<StudentActivityListRow>(`SELECT sa.activity_id,sa.is_expected AS expected,t.status::text AS status,t.attempt_number AS number,
+        COALESCE(g.is_published,false) AS published,t.individual_deadline_at AS individual_deadline,sa.first_submission_deadline_at AS first_deadline
+        FROM student_activities sa JOIN enrollments e ON e.id=sa.enrollment_id
+        LEFT JOIN LATERAL(SELECT a.* FROM attempts a WHERE a.student_activity_id=sa.id ORDER BY a.attempt_number DESC LIMIT 1)t ON true
+        LEFT JOIN attempt_grades g ON g.attempt_id=t.id WHERE sa.classroom_id=$1::uuid AND e.student_id=$2::uuid`,classroomId,actor.id);
+      const ownByActivity=new Map(own.map(item=>[item.activity_id,item]));
       return { revision: room.revision.toString(), activities: await Promise.all(rows.map(async row => ({ ...this.activitySummary(row, room.timezone),
+        ...(teacher ? {pendingReviewCount:pendingByActivity.get(row.id) ?? 0} : {}),
+        ...(!teacher ? {studentState:studentActivityState(row,ownByActivity.get(row.id),actor.now)} : {}),
         topicIds: await readActivityTopics(tx, row.id, row.topic_id) }))) };
     });
   }

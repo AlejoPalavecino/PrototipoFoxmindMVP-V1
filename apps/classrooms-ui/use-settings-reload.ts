@@ -2,7 +2,7 @@ import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import type { Detail } from './api.ts';
 
 type ActionState = { busy: boolean; error: string };
-type Settings = { name: string; subject: string; division: string; academicYear: number; aiGradingEnabled: boolean };
+type Settings = { name: string; subject: string; division: string; academicYear: number; aiGradingEnabled: boolean; coverKey: string };
 type Props = {
   actionStates: Record<string, ActionState>; settingsOperation: MutableRefObject<number>;
   reload: () => Promise<Detail | null>; isCurrentRoom: () => boolean;
@@ -17,7 +17,7 @@ export function useSettingsReload({ actionStates, settingsOperation, reload, isC
     const refreshed = await reload();
     if (!refreshed || !isCurrentRoom() || settingsOperation.current !== operation) return;
     setSettings({ name: refreshed.name, subject: refreshed.subject, division: refreshed.division,
-      academicYear: refreshed.academicYear, aiGradingEnabled: refreshed.aiGradingEnabled ?? false });
+      academicYear: refreshed.academicYear, coverKey: refreshed.coverKey, aiGradingEnabled: refreshed.aiGradingEnabled ?? false });
     setSettingsRevision(refreshed.revision);
     setSettingsConflict(false);
     setActionStates(previous => {

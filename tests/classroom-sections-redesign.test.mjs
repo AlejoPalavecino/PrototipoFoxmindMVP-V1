@@ -15,13 +15,11 @@ test('biblioteca combina búsqueda, unidad y tema localmente y recupera un desti
   const props = { room: { id: 'r', role: 'student', units }, api: { call: async () => { calls++; return [{ id: 'm1', title: 'Guía', unitId: 'u1', topicId: 't1', fileName: 'guia.pdf', ready: true }, { id: 'm2', title: 'Guía de diversidad', unitId: 'u1', topicId: 't2', fileName: 'diversidad.pdf', ready: true }]; }, fileUrl: id => id }, reload: async () => {} };
   const view = hookView(Library, props); await view.flush();
   try {
-    const select = label => nodes(view, n => n.type === 'select' && n.props['aria-label'] === label)[0];
-    assert.ok(select('Filtrar biblioteca por unidad'));
-    select('Filtrar biblioteca por unidad').props.onChange({ target: { value: 'u1' } }); await view.flush();
-    select('Filtrar biblioteca por tema').props.onChange({ target: { value: 't2' } }); await view.flush();
+    const search=()=>nodes(view,n=>n.type==='input'&&n.props.type==='search')[0];
+    search().props.onChange({target:{value:'Diversidad'}});await view.flush();
     assert.deepEqual(nodes(view, n => n.type === 'article').map(n => n.props['data-material-id']), ['m2']);
     props.targetMaterialId = 'm1';
-    select('Filtrar biblioteca por tema').props.onChange({ target: { value: 't2 ' } }); await view.flush();
+    search().props.onChange({target:{value:'Diversidad '}});await view.flush();
     assert.deepEqual(nodes(view, n => n.type === 'article').map(n => n.props['data-material-id']), ['m1', 'm2']);
     assert.equal(calls, 1);
   } finally { view.close(); }
@@ -37,7 +35,7 @@ test('contexto de material sobrevive al escaneo y precarga el formulario sin pub
     const upload = nodes(view, n => n.type === 'input' && n.props.type === 'file')[0];
     assert.ok(nodes(view, n => n.type?.name === 'Dialog' && n.props.title === 'Agregar material')[0], 'Context opens the approved upload dialog');
     upload.props.onChange({ target: { files: [{ name: 'guia.pdf' }], value: 'guia.pdf' } }); await view.flush();
-    assert.equal(nodes(view, n => n.type?.name === 'MaterialForm').length, 0, 'Pending security scan never exposes publication');
+    assert.equal(nodes(view, n => n.type?.name === 'MaterialForm')[0].props.busy,true,'Pending security scan disables publication and retains editable metadata');
     assert.equal(writes.filter(([, method]) => method === 'POST').length, 0);
     nodes(view, n => n.type === 'button' && text(n) === 'Consultar revisión del material')[0].props.onClick(); await view.flush();
     const form = nodes(view, n => typeof n.type === 'function' && n.type.name === 'MaterialForm')[0];
@@ -57,7 +55,7 @@ test('alumnos e historial filtran nombres sin consultar ni modificar datos', asy
     assert.ok(search()); search().props.onChange({ target: { value: '  LUCÍA  ' } }); await view.flush();
     assert.equal(nodes(view, n => n.type === 'li').length, 1); assert.match(text(view.tree), /Pérez/);
     props.tab = 'history'; search().props.onChange({ target: { value: '' } }); await view.flush();
-    assert.match(text(view.tree), /Historial de alumnos/); assert.equal(nodes(view, n => n.type === 'li').length, 1);
+    assert.match(text(view.tree), /Historial/); assert.equal(nodes(view, n => n.type === 'li').length, 1);
   } finally { view.close(); }
 });
 
@@ -71,8 +69,7 @@ test('seguimiento abre solo identificadores reales por callbacks explícitos', a
     const button = nodes(view, n => n.type === 'button' && /Ver actividad/.test(text(n)))[0];
     assert.ok(button); button.props.onClick(); assert.deepEqual(opened, ['a1']);
     data.scope = 'classroom'; data.studentCount = 1; data.students = [{ studentId: 's1', firstName: 'Lucía', lastName: 'Pérez', completion: { percentage: null }, performance: { average: null } }];
-    nodes(view, n => n.type === 'button' && text(n) === 'Actualizar progreso')[0].props.onClick(); await view.flush();
-    nodes(view, n => n.type === 'button' && text(n) === 'Ver seguimiento')[0].props.onClick(); assert.deepEqual(opened, ['a1', 's1']);
+    const classroom=hookView(Progress,{...props,classroomId:'r2'});try{await classroom.flush();nodes(classroom,n=>n.type==='button'&&text(n).startsWith('Ver ficha'))[0].props.onClick();assert.deepEqual(opened,['a1','s1']);}finally{classroom.close();}
   } finally { view.close(); }
 });
 

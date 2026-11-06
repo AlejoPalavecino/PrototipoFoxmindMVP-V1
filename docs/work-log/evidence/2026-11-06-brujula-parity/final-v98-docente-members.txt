@@ -1,0 +1,163 @@
+[p1 "Mis Aulas · FoxMind" | space "FoxMind parity 2026-11-05"(1): 2 managed, 0 untracked — p1* "Mis Aulas · FoxMind", p2 "Notificaciones · FoxMind Brújula"]
+root
+  container
+    anchor [ref=546, loc=href:/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f#classroom-main, url=http://127.0.0.1:49603/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f#classroom-main]
+      text "Saltar al contenido"
+    container
+      anchor "FoxMind" [ref=547, loc=css:a[aria-label="FoxMind"], url=http://127.0.0.1:49603/inicio]
+        image
+        container
+          text "FoxMind"
+          text "BRÚJULA"
+      container
+        button "Buscar en FoxMind" [ref=548, loc=css:button[aria-label="Buscar en FoxMind"]]
+          svg_root
+          text "Buscar"
+          text "Ctrl K"
+        text "MI ESPACIO"
+      container "Navegación principal"
+        anchor [ref=549, url=http://127.0.0.1:49603/inicio]
+          svg_root
+          text "Inicio"
+        anchor [ref=550, loc=href:/mis-aulas, url=http://127.0.0.1:49603/mis-aulas]
+          svg_root
+          text "Mis aulas"
+        anchor [ref=551, loc=href:/agenda, url=http://127.0.0.1:49603/agenda]
+          svg_root
+          text "Agenda"
+        anchor [ref=552, loc=href:/foxy-ai, url=http://127.0.0.1:49603/foxy-ai]
+          svg_root
+          text "Foxy AI"
+      button "Notificaciones: 3 sin leer" [ref=553, loc=css:button[aria-label="Notificaciones: 3 sin leer"]]
+        svg_root
+        text "Notificaciones"
+        text "3"
+      container "Accesos a mis aulas"
+        text "MIS AULAS"
+        anchor [ref=554, loc=href:/mis-aulas?aula=9c79d9cd-20e9-4b18-92aa-f141f8339437, url=http://127.0.0.1:49603/mis-aulas?aula=9c79d9cd-20e9-4b18-92aa-f141f8339437]
+          text "Lengua y Literatura"
+        anchor [ref=555, loc=href:/mis-aulas?aula=0777b140-8939-4b45-b91a-7a520bc6aff2, url=http://127.0.0.1:49603/mis-aulas?aula=0777b140-8939-4b45-b91a-7a520bc6aff2]
+          text "Matemática"
+        anchor [ref=556, loc=href:/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f, url=http://127.0.0.1:49603/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f]
+          text "Biología"
+      button "Mi cuenta de Lucía Domínguez" [ref=557, loc=css:button[aria-label="Mi cuenta de Lucía Domínguez"]]
+        text "LD"
+        container
+          text "Lucía Domínguez"
+          text "Docente"
+        svg_root
+    container
+      container "Ubicación"
+        anchor [ref=558, url=http://127.0.0.1:49603/inicio]
+          text "Inicio"
+        text "›"
+        button [ref=559]
+          text "Mis aulas"
+        text "›"
+        text "Biología"
+      container
+        container
+          image
+          container
+            container
+              svg_root
+              container
+                text "Aula ·"
+                text "4.º A"
+                text "·"
+                text "2026"
+            heading
+              text "Biología"
+            paragraph
+              container
+                svg_root
+                text "Lucía Domínguez"
+              container
+                svg_root
+                text "2"
+                text "estudiantes"
+        container "Secciones del aula"
+          button [ref=560]
+            svg_root
+            text "Plan"
+          button [ref=561]
+            svg_root
+            text "Muro"
+          button [ref=562]
+            svg_root
+            text "Biblioteca"
+          button [ref=563]
+            svg_root
+            text "Actividades"
+          button [ref=564]
+            svg_root
+            text "Progreso"
+          button [ref=565]
+            svg_root
+            text "Alumnos"
+          button [ref=566]
+            svg_root
+            text "Historial"
+          button [ref=567]
+            svg_root
+            text "Configuración"
+        container "Alumnos"
+          heading
+            text "Alumnos"
+          container
+            container
+              container
+                heading
+                  text "Alumnos"
+                paragraph
+                  text "Consultá quiénes integran el aula y acompañá su recorrido."
+              button [ref=606]
+                svg_root
+                text "Invitar alumnos"
+            container "Acceso e invitaciones al aula"
+              container
+                svg_root
+                container
+                  heading
+                    text "Código de acceso"
+                  paragraph
+                    text "Compartilo para que tus alumnos se sumen."
+                container
+                  text "cimeg0FCCRl9u1t875a4-YHD"
+                  button [ref=607]
+                    text "Copiar código"
+                    svg_root
+                button [ref=608]
+                  text "Regenerar código"
+                  svg_root
+            container
+              heading
+                text "Integrantes"
+                text "2"
+              container
+                text "Buscar por nombre"
+                searchbox "Buscar personas del aula" [ref=609, loc=css:input[placeholder="Buscar por nombre"]]
+                  text "Buscar por nombre"
+            unordered_list "Alumnos actuales"
+              list_item
+                text "SH"
+                container
+                  container
+                    text "Sofía"
+                    text "Herrera"
+                  text "parity-sofia@example.test"
+                button [ref=610]
+                  text "Ver ficha"
+                  svg_root
+              list_item
+                text "MR"
+                container
+                  container
+                    text "Mateo"
+                    text "Ríos"
+                  text "parity-alumno@example.test"
+                button [ref=611]
+                  text "Ver ficha"
+                  svg_root
+            container "Acceso e invitaciones al aula"
+  alert

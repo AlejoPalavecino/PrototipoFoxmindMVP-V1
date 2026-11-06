@@ -61,15 +61,18 @@ export async function feed(tx: Transaction, actor: Actor, room: Room, key: Buffe
   const limit = query.limit ?? 10;
   if (!Number.isInteger(limit) || limit < 1 || limit > 10) return fail('INVALID_INPUT');
   const cursor = query.cursor ? readWallCursor(key, query.cursor, 'feed', classroomId) : undefined;
+  if (query.type!==undefined && query.type!=='NOTICE' && query.type!=='QUERY')return fail('INVALID_INPUT');
+  if (cursor && cursor.filter!==query.type)return fail('INVALID_INPUT');
   const rows = await tx.query<Row>(`SELECT ${fields},x.type,x.title FROM wall_posts x JOIN users u ON u.id=x.author_id
     WHERE x.classroom_id=$1::uuid AND ($2::timestamptz IS NULL OR x.created_at < $2::timestamptz OR (x.created_at=$2::timestamptz AND x.id>$3::uuid))
     AND ($4::timestamptz IS NULL OR x.created_at < $4::timestamptz OR (x.created_at=$4::timestamptz AND x.id >= $5::uuid))
+    AND ($7::text IS NULL OR x.type::text=$7)
     ORDER BY x.created_at DESC,x.id ASC LIMIT $6`, classroomId, cursor?.position.timestamp ?? null, cursor?.position.id ?? null,
-    cursor?.high?.timestamp ?? null, cursor?.high?.id ?? null, limit + 1);
+    cursor?.high?.timestamp ?? null, cursor?.high?.id ?? null, limit + 1,query.type??null);
   const page = rows.slice(0, limit), high = cursor?.high ?? (page[0] ? position(page[0]) : undefined), last = page[page.length - 1];
   const posts = []; for (const row of page) posts.push(await postView(tx, actor, room, key, classroomId, row));
   return { revision: room.revision.toString(), posts, nextCursor: rows.length > limit && last && high
-    ? signWallCursor(key, { v: 1, kind: 'feed', room: classroomId, direction: 'after', position: position(last), high }) : null };
+    ? signWallCursor(key, { v: 1, kind: 'feed', room: classroomId, direction: 'after', position: position(last), high,filter:query.type }) : null };
 }
 export async function thread(tx: Transaction, actor: Actor, room: Room, key: Buffer, classroomId: string, postId: string, anchor?: string) {
   const [row] = await tx.query<Row>(`SELECT ${fields},x.type,x.title FROM wall_posts x JOIN users u ON u.id=x.author_id

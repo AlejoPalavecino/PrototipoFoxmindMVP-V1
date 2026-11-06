@@ -12,7 +12,7 @@ export const homeLabels:Record<HomeModuleName,{title:string;empty:string;action:
   submitted:{title:'Entregadas, en revisión',empty:'No tenés entregas esperando revisión.',action:'Ver entrega'},
 };
 export function homeTime(value:string,zone:string):string {
-  return new Date(value).toLocaleString('es-AR',{timeZone:zone,day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+  return new Date(value).toLocaleString('es-AR',{timeZone:zone,day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',hourCycle:'h23'});
 }
 export function homeParticipation(data:HomeResponse,accountRole:'teacher'|'student'):string {
   const {study,teach,archived}=data.memberships;

@@ -21,12 +21,14 @@ function validateDetails(module: HomeModuleName, value: Record<string, unknown>)
     if (value.attemptId !== null) homeId(value.attemptId);
     if (value.deadlineAt !== null) homeInstant(value.deadlineAt);
     homeEnum(value.reception, ['open', 'closed']); homeBool(value.late);
+    if(Object.hasOwn(value,'questionProgress')&&value.questionProgress!==null){const progress=homeObject(value.questionProgress,['answered','total']);if(homeCount(progress.answered)>homeCount(progress.total))homeInvalid();}
   }
   if (module === 'review') { homeCount(value.needsReview); homeCount(value.readyToPublish); homeInstant(value.oldestSubmittedAt); }
   if (module === 'feedback') {
     if (homeCount(value.attemptNumber) < 1) homeInvalid();
     if (!/^(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$/.test(homeString(value.finalGrade, 40))) homeInvalid();
     homeInstant(value.publishedAt); homeInstant(value.changedAt); homeEnum(value.availability, ['available']);
+    if(Object.hasOwn(value,'overallFeedback')&&value.overallFeedback!==null&&(typeof value.overallFeedback!=='string'||[...value.overallFeedback].length>5000||/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/u.test(value.overallFeedback)))homeInvalid();
   }
   if (module === 'agenda') {
     homeEnum(value.source, ['PRIVATE_EVENT', 'ACADEMIC_DEADLINE']); homeDate(value.date);
@@ -42,7 +44,9 @@ function row(module: HomeModuleName, input: unknown): unknown {
   const hasNext = module === 'classrooms' && !!input && typeof input === 'object' && 'nextTopic' in input;
   const hasProgress = module === 'classrooms' && !!input && typeof input === 'object' && 'planProgress' in input;
   const hasAttempt = module === 'review' && !!input && typeof input === 'object' && 'studentName' in input;
-  const value = homeObject(input, ['id', 'title', 'target', 'classroom', ...extras[module], ...(hasNext ? ['nextTopic'] : []), ...(hasProgress ? ['planProgress'] : []), ...(hasAttempt ? ['studentName', 'attemptNumber'] : [])]);
+  const optionalFields=module==='pending'?['questionProgress']:module==='feedback'?['overallFeedback']:[];
+  const optional=optionalFields.filter(key=>!!input&&typeof input==='object'&&Object.hasOwn(input,key));
+  const value = homeObject(input, ['id', 'title', 'target', 'classroom', ...extras[module],...optional, ...(hasNext ? ['nextTopic'] : []), ...(hasProgress ? ['planProgress'] : []), ...(hasAttempt ? ['studentName', 'attemptNumber'] : [])]);
   homeId(value.id); homeString(value.title); parseHomeTarget(value.target);
   const classroom = module === 'agenda' && value.classroom === null ? null : room(value.classroom);
   validateDetails(module, value);

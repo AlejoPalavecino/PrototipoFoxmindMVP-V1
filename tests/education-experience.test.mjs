@@ -68,13 +68,9 @@ test('Opening grading focuses the work area by hiding the history list and resto
   } finally { view.close(); }
 });
 
-test('Activity card keeps the two common actions visible and secondary teacher actions discoverable', async () => {
-  const { Activities } = loadTsModule('apps/classrooms-ui/Activities.tsx');
-  const api = { call: async () => ({ activities: [{ id: 'activity', type: 'ASSIGNMENT', status: 'PUBLISHED', title: 'Práctica', deadlineAt: null, zone: 'UTC', locked: false }] }) };
-  const view = hookView(Activities, { api, room: { ...room, id: 'room' }, reload: async () => {} });
-  try { await view.flush();
-    const more = descendants(view.tree, n => n.type === 'details' && n.props.className === 'education-activity-more')[0];
-    assert.ok(more); assert.match(text(more), /Editar actividad/); assert.match(text(more), /Retirar actividad/);
-    assert.doesNotMatch(text(more), /Ver entregas recibidas|Vista previa docente/);
-  } finally { view.close(); }
+test('Activity detail keeps permitted teacher options behind the single activity entry', async () => {
+ const {Activities}=loadTsModule('apps/classrooms-ui/Activities.tsx');
+ const activity={id:'activity',type:'ASSIGNMENT',status:'PUBLISHED',title:'Práctica',zone:'UTC',locked:false};
+ const view=hookView(Activities,{api:{call:async path=>path.endsWith('/preview')?{activity}:{activities:[activity]}},room:{...room,id:'room'},reload:async()=>{}});
+ try{await view.flush();descendants(view.tree,n=>n.type==='button'&&n.props['aria-label']==='Abrir Práctica')[0].props.onClick();await view.flush();const detail=descendants(view.tree,n=>n.type?.name==='AttemptHistory')[0];assert.match(text(detail.props.actions),/Editar actividad/);assert.match(text(detail.props.actions),/Retirar actividad/);assert.equal(detail.props.activityPreview,activity);}finally{view.close();}
 });

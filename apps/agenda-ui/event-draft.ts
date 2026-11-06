@@ -11,7 +11,7 @@ export function eventDraft(event: PrivateEvent | undefined, day: string, zone: s
   const startDate = schedule?.kind === 'ALL_DAY' ? schedule.startDate : timed?.startLocal.slice(0, 10) ?? day;
   return {
     title: event?.title ?? '', description: event?.description ?? '', category: event?.category ?? 'CLASS',
-    color: event?.color ?? 'AUTO',
+    color: event ? event.color ?? 'AUTO' : 'GREEN',
     allDay: schedule?.kind === 'ALL_DAY', startDate,
     endDate: schedule?.kind === 'ALL_DAY' ? shiftDay(schedule.endDateExclusive, -1) : timed?.endLocal.slice(0, 10) ?? day,
     startTime: timed?.startLocal.slice(11) ?? '09:00', endTime: timed?.endLocal.slice(11) ?? '10:00',

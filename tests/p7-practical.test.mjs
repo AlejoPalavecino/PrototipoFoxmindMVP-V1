@@ -61,6 +61,16 @@ test('TP public service and file ports preserve drafts, receipts, quotas and con
   const remove=async id=>{await service.removeAttemptAttachment(request(),room,attempt.id,{revision:attempt.revision,fileId:id});attempt=(await session()).attempt;};
   let failed=false;
   const check=(name,run)=>t.test(name,{skip:failed?'Earlier shared controlled TP prerequisite failed':false},async()=>{try{await run();}catch(e){failed=true;console.error('Controlled TP failure:',name,e.code??e.name,e.message);throw e;}});
+  await check('written practical response uses the same editor, CAS, ownership and durable session contract',async()=>{
+   const old=attempt.revision,text='Observación propia\n'+ '😀'.repeat(4981);
+   const saved=await service.savePracticalResponse(request(),room,attempt.id,{revision:old,text});
+   assert.equal(saved.text,text);attempt=(await session()).attempt;assert.equal(attempt.practicalResponse,text);assert.equal(attempt.revision,saved.revision);
+   await rejected(()=>service.savePracticalResponse(request(),room,attempt.id,{revision:old,text:'stale'}),'CONFLICT');
+   await rejected(()=>service.savePracticalResponse({...F,headers:request().headers},room,attempt.id,{revision:attempt.revision,text:'foreign'}),'FORBIDDEN');
+   await rejected(()=>service.savePracticalResponse({...T,headers:request().headers},room,attempt.id,{revision:attempt.revision,text:'teacher'}),'FORBIDDEN');
+   await rejected(()=>service.savePracticalResponse(request(),room,attempt.id,{revision:attempt.revision,text:'😀'.repeat(5001)}),'INVALID_INPUT');
+   await service.savePracticalResponse(request(),room,attempt.id,{revision:attempt.revision,text:'Respuesta propia de campo'});attempt=(await session()).attempt;
+  });
   await check('mandatory and explicit confirm guards preserve state; teacher cannot inspect private draft/file',async()=>{
    await rejected(()=>submit(),'CONFLICT');await rejected(()=>submit({confirm:false}),'INVALID_INPUT');
    await rejected(()=>service.assignmentSubmission(T,room,attempt.id),'FORBIDDEN');
@@ -70,9 +80,10 @@ test('TP public service and file ports preserve drafts, receipts, quotas and con
   });
   let confirmed;
   await check('only successful ready transition links atomically, confirmed files recover across service restart, remove/retry never relinks',async()=>{
+   const beforeRevision=BigInt(attempt.revision);
    const reserved=await reserve();assert.equal(reserved.ready,false);assert.equal((await session()).attempt.attachments[0].selected,false);
    confirmed=await files.receive(request(),reserved.id,bytes);assert.equal(confirmed.ready,true);
-   attempt=(await session()).attempt;assert.equal(attempt.revision,'2');assert.equal(attempt.attachments.length,1);assert.equal(attempt.attachments[0].selected,true);
+   attempt=(await session()).attempt;assert.equal(attempt.revision,(beforeRevision+1n).toString());assert.equal(attempt.attachments.length,1);assert.equal(attempt.attachments[0].selected,true);
    await files.store.transaction(async tx=>linkReadyAttemptAttachment(tx,request(),await files.store.load(tx,confirmed.id)));
    assert.equal((await session()).attempt.revision,attempt.revision);
    assert.equal((await session()).attempt.attachments.length,1);
@@ -161,9 +172,21 @@ test('TP public service and file ports preserve drafts, receipts, quotas and con
    assert.ok(new Date(receipt.submittedAt)<new Date(receipt.appliedDeadlineAt));
    assert.equal((await pool.query('SELECT count(*)::int n FROM attempt_grades')).rows[0].n,0);
    await rejected(()=>remove(confirmed.id),'CONFLICT');await rejected(()=>reserve(),'FORBIDDEN');
-   const teacherReceipt=await service.assignmentSubmission(T,room,attempt.id);assert.equal(teacherReceipt.attachments.length,2);
+   const teacherReceipt=await service.assignmentSubmission(T,room,attempt.id);assert.equal(teacherReceipt.attachments.length,2);assert.equal(teacherReceipt.practicalResponse,'Respuesta propia de campo');
    assert.equal((await service.assignmentSubmissions(T,room,firstActivity)).submissions.length,1);
    assert.deepEqual((await files.read(T,confirmed.id)).bytes,bytes);await rejected(()=>service.assignmentSubmission(F,room,attempt.id),'FORBIDDEN');
+  });
+  await check('submitted written response is immutable and a reopened draft copies without rewriting historical text',async()=>{
+   const original=attempt.id;
+   await rejected(()=>service.savePracticalResponse(request(),room,original,{revision:attempt.revision,text:'rewrite submitted'}),'CONFLICT');
+   const opened=await service.reopenActivity(T,room,firstActivity,{revision:(await service.detail(T,room)).revision,studentId:student,deadline:{local:new Date(Date.now()+120000).toISOString().slice(0,16)},confirm:true});
+   const resumed=await service.transferAttemptEditor(S,room,opened.id,{revision:'0'});
+   assert.equal(resumed.attempt.practicalResponse,'Respuesta propia de campo');
+   const req={...S,headers:{'x-attempt-editor':resumed.editor.token,'x-attempt-epoch':resumed.editor.epoch}};
+   await service.savePracticalResponse(req,room,opened.id,{revision:resumed.attempt.revision,text:'Nueva respuesta de reentrega'});
+   assert.equal((await session()).attempt.practicalResponse,'Nueva respuesta de reentrega');
+   assert.equal((await service.assignmentSubmission(T,room,original)).practicalResponse,'Respuesta propia de campo');
+   await rejected(()=>service.assignmentSubmission(T,room,opened.id),'FORBIDDEN');
   });
   await check('optional attachment-free explicit receipt is not a grade and has no invented lateness',async()=>{
    const activity=await create(false),started=await service.startActivity(S,room,activity,{});

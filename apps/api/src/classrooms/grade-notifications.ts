@@ -4,7 +4,7 @@ export interface GradeNotification {
 }
 
 /** Keep the complete recipient/grade/attempt/obligation chain identical for list, read and open. */
-export const gradeNotificationSelection = `SELECT n.id,n.classroom_id AS "classroomId",c.name AS "classroomName",
+export const gradeNotificationSelection = `SELECT n.id,n.classroom_id AS "classroomId",c.name AS "classroomName",c.division AS "classroomDivision",
   n.event_type AS "eventType",a.id AS "activityId",a.title AS "activityTitle",attempt.id AS "attemptId",
   g.id AS "gradeId",n.created_at AS "createdAt",n.read_at AS "readAt"
   FROM notifications n JOIN classrooms c ON c.id=n.classroom_id

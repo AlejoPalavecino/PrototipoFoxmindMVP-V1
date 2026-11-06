@@ -4,6 +4,7 @@ import { agendaId, agendaObject, agendaRevision, parseAgendaEvent, parseAgendaRa
 
 const maxRequest = 32 * 1024, maxResponse = 2 * 1024 * 1024;
 const eventPath = /^\/api\/v1\/agenda\/events\/([a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12})$/i;
+const occurrencePath = /^\/api\/v1\/agenda\/events\/([a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12})\/occurrences\/\d{4}-\d{2}-\d{2}$/i;
 function fail(response: ServerResponse, status: number, code: string) {
   if (response.destroyed || response.writableEnded) return;
   if (response.headersSent) { response.destroy(); return; }
@@ -35,7 +36,7 @@ function route(request: IncomingMessage): { url: URL; method: string } {
   if (/[\\#]/.test(raw) || /%|\.\./.test(raw.split('?')[0])) throw new Error();
   const url = new URL(raw, 'http://web.invalid'), method = request.method ?? 'GET';
   const methods = url.pathname === '/api/v1/agenda' || url.pathname === '/api/v1/agenda/upcoming' ? ['GET']
-    : url.pathname === '/api/v1/agenda/open' ? ['POST'] : eventPath.test(url.pathname) ? ['GET', 'PUT', 'PATCH', 'DELETE'] : [];
+    : url.pathname === '/api/v1/agenda/open' ? ['POST'] : occurrencePath.test(url.pathname) ? ['PATCH','DELETE'] : eventPath.test(url.pathname) ? ['GET', 'PUT', 'PATCH', 'DELETE'] : [];
   if (!methods.length) throw Object.assign(new Error(), { status: 404 });
   if (!methods.includes(method)) throw Object.assign(new Error(), { status: 405 });
   const query = Object.fromEntries(url.searchParams);

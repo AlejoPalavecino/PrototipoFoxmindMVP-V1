@@ -1,0 +1,184 @@
+[p1 "Inicio · FoxMind" | space "FoxMind parity 2026-11-05"(1): 2 managed, 0 untracked — p1* "Inicio · FoxMind", p2 "Notificaciones · FoxMind Brújula"]
+root
+  container
+    anchor [ref=713, loc=href:/inicio#classroom-main, url=http://127.0.0.1:49603/inicio#classroom-main]
+      text "Saltar al contenido"
+    container
+      anchor "FoxMind" [ref=714, loc=css:a[aria-label="FoxMind"], url=http://127.0.0.1:49603/inicio]
+        image
+        container
+          text "FoxMind"
+          text "BRÚJULA"
+      container
+        button "Buscar en FoxMind" [ref=715, loc=css:button[aria-label="Buscar en FoxMind"]]
+          svg_root
+          text "Buscar"
+          text "Ctrl K"
+        text "MI ESPACIO"
+      container "Navegación principal"
+        anchor [ref=716, url=http://127.0.0.1:49603/inicio]
+          svg_root
+          text "Inicio"
+        anchor [ref=717, loc=href:/mis-aulas, url=http://127.0.0.1:49603/mis-aulas]
+          svg_root
+          text "Mis aulas"
+        anchor [ref=718, loc=href:/agenda, url=http://127.0.0.1:49603/agenda]
+          svg_root
+          text "Agenda"
+      button "Notificaciones: 6 sin leer" [ref=719, loc=css:button[aria-label="Notificaciones: 6 sin leer"]]
+        svg_root
+        text "Notificaciones"
+        text "6"
+      container "Accesos a mis aulas"
+        text "MIS AULAS"
+        anchor [ref=720, loc=href:/mis-aulas?aula=9c79d9cd-20e9-4b18-92aa-f141f8339437, url=http://127.0.0.1:49603/mis-aulas?aula=9c79d9cd-20e9-4b18-92aa-f141f8339437]
+          text "Lengua y Literatura"
+        anchor [ref=721, loc=href:/mis-aulas?aula=0777b140-8939-4b45-b91a-7a520bc6aff2, url=http://127.0.0.1:49603/mis-aulas?aula=0777b140-8939-4b45-b91a-7a520bc6aff2]
+          text "Matemática"
+        anchor [ref=722, loc=href:/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f, url=http://127.0.0.1:49603/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f]
+          text "Biología"
+      button "Mi cuenta de Mateo Ríos" [ref=723, loc=css:button[aria-label="Mi cuenta de Mateo Ríos"]]
+        text "MR"
+        container
+          text "Mateo Ríos"
+          text "Alumno"
+        svg_root
+    container "Inicio"
+      container
+        container
+          image
+          image
+          container
+            container
+              svg_root
+              text "Viernes, 6 de noviembre"
+            heading
+              text "¡Buen día,"
+              container
+                text "Mateo"
+                text "!"
+            paragraph
+              text "Tenés 3 actividades pendientes."
+            text "3 aulas en Estudio · 0 aulas en Enseño"
+        container "Mis entregas"
+          container
+            container
+              text "ACTIVIDADES"
+              heading
+                text "Mis entregas"
+            button [ref=724]
+              text "Ver listado"
+              svg_root
+          unordered_list
+            list_item
+              svg_root
+              container
+                container
+                  text "Biología"
+                  text "·"
+                  text "4.º A"
+                heading
+                  text "Lectura de un ecosistema"
+              container
+                container
+                  svg_root
+                  text "12 nov, 18:00"
+                text "Evaluación"
+              container
+                button "Responder actividad: Lectura de un ecosistema" [ref=725, loc=css:button[aria-label="Responder actividad: Lectura de un ecosistema"]]
+                  text "Responder actividad"
+                  svg_root
+                button [ref=726]
+                  text "Ver consigna"
+          heading
+            text "Siguientes entregas"
+          unordered_list
+            list_item
+              svg_root
+              container
+                container
+                  text "Biología"
+                  text "·"
+                  text "4.º A"
+                heading
+                  text "Redes tróficas"
+              container
+                svg_root
+                text "12 nov, 18:00"
+              button "Responder actividad: Redes tróficas" [ref=727, loc=css:button[aria-label="Responder actividad: Redes tróficas"]]
+                text "Responder actividad"
+                svg_root
+            list_item
+              svg_root
+              container
+                container
+                  text "Biología"
+                  text "·"
+                  text "4.º A"
+                heading
+                  text "Observación de la materia"
+              container
+                svg_root
+                text "Sin fecha límite"
+              button "Preparar entrega: Observación de la materia" [ref=728, loc=css:button[aria-label="Preparar entrega: Observación de la materia"]]
+                text "Preparar entrega"
+                svg_root
+        container "Accesos de mi aula"
+          container
+            heading
+              text "Accesos de mi aula"
+            paragraph
+              text "Biología"
+              text "·"
+              text "4.º A"
+            button [ref=729]
+              text "Cambiar aula"
+              svg_root
+          button [ref=730]
+            svg_root
+            text "Materiales"
+          button [ref=731]
+            svg_root
+            text "Mi progreso"
+          button [ref=732]
+            svg_root
+            text "Plan de estudio"
+          button [ref=733]
+            svg_root
+            text "Muro del aula"
+      container "Organización personal"
+        container "Mis devoluciones"
+          container
+            container
+              text "RESULTADOS PUBLICADOS"
+              heading
+                text "Mis devoluciones"
+            svg_root
+          unordered_list
+            list_item
+              container
+                container
+                  text "Biología"
+                  text "· Intento"
+                  text "1"
+                heading
+                  text "Cuaderno de campo"
+              container
+                text "8,5"
+                text "/ 10"
+              paragraph
+                text "Buena observación y uso de ejemplos."
+              button "Leer devolución: Cuaderno de campo" [ref=734, loc=css:button[aria-label="Leer devolución: Cuaderno de campo"]]
+                text "Leer devolución"
+                svg_root
+        container "Mi agenda"
+          container
+            heading
+              text "Mi agenda"
+            button "Abrir agenda" [ref=735, loc=css:button[aria-label="Abrir agenda"]]
+              svg_root
+          heading
+            text "Eventos personales"
+          paragraph
+            text "Sin eventos personales para los próximos siete días."
+  alert

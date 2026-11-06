@@ -53,6 +53,7 @@ export function ClassroomView({
   const currentNavigation = navigation.current;
   const detail = useClassroomResource<Detail>(api, `/${id}`, true);
   const room = detail.data;
+  useEffect(()=>{if(room?.accessCode!==undefined)setCode(room.accessCode);},[room?.accessCode]);
   const teacher = room?.role === 'teacher';
   const memberResource = useClassroomResource<Member[]>(api, `/${id}/members`, tab === 'members' && !!room);
   const historyResource = useClassroomResource<Member[]>(api, `/${id}/history`, tab === 'history' && !!teacher);
@@ -74,13 +75,18 @@ export function ClassroomView({
   const isCurrentRoom = () => mounted.current && identity.current === activeIdentity;
   const { tabs, roster } = useClassroomNavigation(tab, room, activeWallTarget, rosterLoaded, members.length);
   const [planActivity, setPlanActivity] = useState<AcademicTarget | null>(null);
+  const [planMaterial,setPlanMaterial] = useState<{roomId:string;id:string}|null>(null);
+  useEffect(()=>{setPlanMaterial(null);},[activeHomeTarget]);
   const [selectedTopic, setSelectedTopic] = useState<{ roomId: string; id: string } | null>(null);
   const [creationContext, setCreationContext] = useState<ClassroomCreationContext | null>(null);
   const [uploadContext, setUploadContext] = useState<ClassroomCreationContext | null>(null);
   const [visited, setVisited] = useState({ roomId: id, tabs: [tab] });
   useEffect(() => { setVisited(previous => ({ roomId: id, tabs: previous.roomId === id ? Array.from(new Set([...previous.tabs, tab])) : [tab] })); }, [id, tab]);
   const retained = (section: string) => tab === section || (visited.roomId === id && visited.tabs.includes(section));
-  const destination = activeWallTarget ?? (activeHomeTarget && 'classroomId' in activeHomeTarget && activeHomeTarget.classroomId === id ? homeNotificationTarget(activeHomeTarget) : null);
+  const destinationValue = activeWallTarget ?? (activeHomeTarget && 'classroomId' in activeHomeTarget && activeHomeTarget.classroomId === id ? homeNotificationTarget(activeHomeTarget) : null);
+  const destinationKey=JSON.stringify(destinationValue),stableDestination=useRef({key:destinationKey,value:destinationValue});
+  if(stableDestination.current.key!==destinationKey)stableDestination.current={key:destinationKey,value:destinationValue};
+  const destination=stableDestination.current.value;
   const [code, setCode] = useState(initialCode),
     [email, setEmail] = useState(''),
     [inviting, setInviting] = useState(false),
@@ -124,9 +130,7 @@ export function ClassroomView({
   const tabLabels: Record<string, string> = { members: teacher ? 'Alumnos' : 'Compañeros', history: 'Historial', plan: 'Plan', library: 'Biblioteca', activities: 'Actividades', progress: teacher ? 'Progreso' : 'Mi progreso', wall: 'Muro', settings: 'Configuración' };
   return (
     <>
-      <button className="p5-link classroom-back" onClick={onExit}>
-        Volver a mis aulas
-      </button>
+      <nav className="brujula-breadcrumb" aria-label="Ubicación"><a href="/inicio">Inicio</a><span aria-hidden="true">›</span><button className="p5-link classroom-back" onClick={onExit}>Mis aulas</button>{room ? <><span aria-hidden="true">›</span><strong>{room.name}</strong></> : null}</nav>
       {detail.error ? <Notice error>{detail.error} <button onClick={() => void load()}>Actualizar aula</button></Notice> : null}
       {!room && detail.status !== 'error' ? <Notice>Cargando aula…</Notice> : null}
       {room ? (
@@ -141,6 +145,7 @@ export function ClassroomView({
           <ClassroomNavigation teacher={!!teacher} selected={tab} onSelect={setTab} tabsRef={tabs}/>
           <section data-classroom-tab={tab} className={`p5-surface ${tab === 'plan' ? 'fm3-plan-surface' : `folder-panel tone-${teacher ? 'coral' : 'mint'}`}`} aria-labelledby="classroom-section-title">
             <h2 id="classroom-section-title" className="classroom-section-title">{tabLabels[tab]}</h2>
+            <div hidden={!!summary}>
             {error ? <Notice error>{error}</Notice> : null}
             {tab === 'members' || tab === 'history' ? (
               <ResourceNotice resource={tab === 'history' ? historyResource : memberResource} />
@@ -149,10 +154,13 @@ export function ClassroomView({
               <>
                 <ClassroomRoster tab={tab} teacher={!!teacher} room={room} busy={busy} members={members} history={history}
                   memberResource={memberResource} historyResource={historyResource} roster={roster} api={api} id={id}
+                  access={teacher && tab==='members' ? <ClassroomMembers part="code" api={api} id={id} room={room} busy={busy} code={code} setCode={setCode}
+                    setNotice={setNotice} setConfirm={setConfirm} isCurrentRoom={isCurrentRoom}
+                    invitations={invitations} invitationAction={invitationAction} invitationResource={invitationResource} action={action}/> : undefined}
                   isCurrentRoom={isCurrentRoom} setInviting={setInviting} setSummary={value => { if (navigation.current === currentNavigation) setSummary(value); }}
                   setConfirm={setConfirm} action={action} />
                 {teacher && tab === 'members' ? (
-                  <ClassroomMembers api={api} id={id} room={room} busy={busy} code={code} setCode={setCode}
+                  <ClassroomMembers part="invitations" api={api} id={id} room={room} busy={busy} code={code} setCode={setCode}
                     setNotice={setNotice} setConfirm={setConfirm} isCurrentRoom={isCurrentRoom}
                     invitations={invitations} invitationAction={invitationAction} invitationResource={invitationResource} action={action} />
                 ) : null}
@@ -162,15 +170,16 @@ export function ClassroomView({
               selectedTopicId={selectedTopic?.roomId === id ? selectedTopic.id : undefined} onSelectTopic={topicId => setSelectedTopic({ roomId: id, id: topicId })}
               onCreateActivity={room.role === 'teacher' && !room.archived ? context => { setPlanActivity(null); setCreationContext(context); setTab('activities'); } : undefined}
               onAddMaterial={room.role === 'teacher' && !room.archived ? context => { setUploadContext(context); setTab('library'); } : undefined}
+              onOpenMaterial={materialId=>{setPlanMaterial({roomId:id,id:materialId});setTab('library');}}
               onOpenActivity={activityId => {
               setPlanActivity({ kind: 'activity', classroomId: id, activityId, attemptId: null }); setTab('activities');
             }} /></div> : null}
             {tab === 'progress' ? <Progress api={api} classroomId={id}
               onOpenActivity={activityId => { setPlanActivity({ kind: 'activity', classroomId: id, activityId, attemptId: null }); setTab('activities'); }}
-              onOpenStudent={teacher ? studentId => void action(async () => { const result = await api.call<Summary>(`/${id}/members/${studentId}`); if (isCurrentRoom() && navigation.current === currentNavigation) setSummary({ ...result, studentId }); }) : undefined} /> : null}
+              onOpenStudent={teacher ? studentId => void action(async () => { const result = await api.call<Summary>(`/${id}/members/${studentId}`); if (isCurrentRoom() && navigation.current === currentNavigation) setSummary({ ...result, progress:true,studentId }); }) : undefined} /> : null}
             {retained('library') ? <div hidden={tab !== 'library'} key={`${id}-library`}><Library api={api} room={room} reload={load} active={tab === 'library'}
               uploadContext={uploadContext} onUploadContextConsumed={() => setUploadContext(null)}
-              targetMaterialId={activeHomeTarget?.kind === 'material' ? activeHomeTarget.materialId : undefined} openUpload={activeHomeTarget?.kind === 'upload-material'} /></div> : null}
+              targetMaterialId={planMaterial?.roomId===id ? planMaterial.id : activeHomeTarget?.kind === 'material' ? activeHomeTarget.materialId : undefined} openUpload={activeHomeTarget?.kind === 'upload-material'} /></div> : null}
             {tab === 'wall' ? <Wall api={api} room={room} reload={load} target={destination && 'postId' in destination ? destination : null} onChanged={onWallChanged} openComposer={activeHomeTarget?.kind === 'publish-notice'} /> : null}
             {retained('activities') ? <div hidden={tab !== 'activities'} key={`${id}-activities`}><Activities api={api} room={room} reload={load} active={tab === 'activities'} target={planActivity ?? (destination && 'kind' in destination ? destination : null)}
               creationContext={creationContext} onCreationContextConsumed={() => setCreationContext(null)}
@@ -214,12 +223,15 @@ export function ClassroomView({
                 </button>
               </footer>
             ) : null}
+            </div>
+      <ClassroomDialogs api={api} id={id} tab={tab} inviting={inviting} setInviting={setInviting}
+        email={email} setEmail={setEmail} invite={invite} invitationAction={invitationAction} actionStates={actionStates}
+        confirm={confirm} setConfirm={setConfirm} isCurrentRoom={isCurrentRoom} summary={summary} setSummary={setSummary} action={action}
+        onOpenActivity={(activityId,attemptId)=>{setSummary(null);setPlanActivity({kind:attemptId?'submission':'activity',classroomId:id,activityId,attemptId:attemptId??null});setTab('activities');}}
+        onRemoveStudent={summary && !room.archived && members.some(member=>member.studentId===summary.studentId) ? ()=>setConfirm({title:'Dar de baja del aula',text:'Se conservarán sus entregas y resultados en Historial. Dejará de integrar los indicadores del grupo actual.',run:async()=>{await api.call(`/${id}/members/${summary.studentId}/remove`,'POST',{});await Promise.all([memberResource.reload(),historyResource.reload(),load()]);setSummary(null);}}) : undefined}/>
           </section>
         </div>
       ) : null}
-      <ClassroomDialogs api={api} id={id} tab={tab} inviting={inviting} setInviting={setInviting}
-        email={email} setEmail={setEmail} invite={invite} invitationAction={invitationAction} actionStates={actionStates}
-        confirm={confirm} setConfirm={setConfirm} isCurrentRoom={isCurrentRoom} summary={summary} setSummary={setSummary} action={action} />
     </>
   );
 }

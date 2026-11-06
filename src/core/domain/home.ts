@@ -9,7 +9,7 @@ export interface HomeRoom {
 }
 export type HomeTarget =
   | { kind: 'classroom'; classroomId: string; section: 'plan' | 'library' | 'progress' | 'wall'; topicId?: string }
-  | { kind: 'activity'; classroomId: string; activityId: string }
+  | { kind: 'activity'; classroomId: string; activityId: string; mode?:'respond' }
   | { kind: 'submissions'; classroomId: string; activityId: string; attemptId?: string; filter: 'unpublished' }
   | { kind: 'grade'; classroomId: string; activityId: string; attemptId: string; gradeId: string }
   | { kind: 'wall'; classroomId: string; postId: string }
@@ -21,6 +21,7 @@ export interface PendingItem extends HomeItem {
   classroom: HomeRoom; activityType: HomeActivityType;
   state: 'first-submission' | 'resubmission'; attemptId: string | null;
   deadlineAt: string | null; reception: 'open' | 'closed'; late: boolean;
+  questionProgress?:{answered:number;total:number}|null;
 }
 export interface ReviewItem extends HomeItem {
   classroom: HomeRoom; activityType: HomeActivityType;
@@ -30,6 +31,7 @@ export interface ReviewItem extends HomeItem {
 export interface FeedbackItem extends HomeItem {
   classroom: HomeRoom; activityType: HomeActivityType; attemptNumber: number;
   finalGrade: string; publishedAt: string; changedAt: string; availability: 'available';
+  overallFeedback?:string|null;
 }
 export interface QueryItem extends HomeItem { classroom: HomeRoom; updatedAt: string }
 export interface MaterialItem extends HomeItem { classroom: HomeRoom; publishedAt: string; extension: string }

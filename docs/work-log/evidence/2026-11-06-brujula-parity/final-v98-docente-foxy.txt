@@ -1,0 +1,141 @@
+[p1 "Foxy AI · FoxMind" | space "FoxMind parity 2026-11-05"(1): 2 managed, 0 untracked — p1* "Foxy AI · FoxMind", p2 "Notificaciones · FoxMind Brújula"]
+root
+  container
+    anchor [ref=523, loc=href:/foxy-ai#foxy-main, url=http://127.0.0.1:49603/foxy-ai#foxy-main]
+      text "Saltar al contenido"
+    container
+      anchor "FoxMind" [ref=524, loc=css:a[aria-label="FoxMind"], url=http://127.0.0.1:49603/inicio]
+        image
+        container
+          text "FoxMind"
+          text "BRÚJULA"
+      container
+        button "Buscar en FoxMind" [ref=525, loc=css:button[aria-label="Buscar en FoxMind"]]
+          svg_root
+          text "Buscar"
+          text "Ctrl K"
+        text "MI ESPACIO"
+      container "Navegación principal"
+        anchor [ref=526, url=http://127.0.0.1:49603/inicio]
+          svg_root
+          text "Inicio"
+        anchor [ref=527, loc=href:/mis-aulas, url=http://127.0.0.1:49603/mis-aulas]
+          svg_root
+          text "Mis aulas"
+        anchor [ref=528, loc=href:/agenda, url=http://127.0.0.1:49603/agenda]
+          svg_root
+          text "Agenda"
+        anchor [ref=529, loc=href:/foxy-ai, url=http://127.0.0.1:49603/foxy-ai]
+          svg_root
+          text "Foxy AI"
+      button "Notificaciones: 3 sin leer" [ref=530, loc=css:button[aria-label="Notificaciones: 3 sin leer"]]
+        svg_root
+        text "Notificaciones"
+        text "3"
+      container "Accesos a mis aulas"
+        text "MIS AULAS"
+        anchor [ref=531, loc=href:/mis-aulas?aula=9c79d9cd-20e9-4b18-92aa-f141f8339437, url=http://127.0.0.1:49603/mis-aulas?aula=9c79d9cd-20e9-4b18-92aa-f141f8339437]
+          text "Lengua y Literatura"
+        anchor [ref=532, loc=href:/mis-aulas?aula=0777b140-8939-4b45-b91a-7a520bc6aff2, url=http://127.0.0.1:49603/mis-aulas?aula=0777b140-8939-4b45-b91a-7a520bc6aff2]
+          text "Matemática"
+        anchor [ref=533, loc=href:/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f, url=http://127.0.0.1:49603/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f]
+          text "Biología"
+      button "Mi cuenta de Lucía Domínguez" [ref=534, loc=css:button[aria-label="Mi cuenta de Lucía Domínguez"]]
+        text "LD"
+        container
+          text "Lucía Domínguez"
+          text "Docente"
+        svg_root
+    container "Espacio Foxy AI"
+      container "Ubicación"
+        anchor [ref=535, url=http://127.0.0.1:49603/inicio]
+          text "Inicio"
+        svg_root
+        text "Foxy AI"
+      container
+        container
+          container
+            svg_root
+            text "ESTUDIO DOCENTE"
+          heading
+            text "Foxy AI"
+        button [ref=536]
+          svg_root
+          text "Nuevo chat"
+      container
+        container
+          paragraph
+            text "Contexto general"
+          container
+            container
+              svg_root
+              container
+                text "CONTEXTO"
+                combobox "Contexto del chat" [ref=537, loc=css:select[aria-label="Contexto del chat"]]
+                  text "General"
+            container
+              svg_root
+              text "Chat privado"
+          container
+            container
+              image
+              text "✧"
+            text "TU ASISTENTE DOCENTE"
+            heading
+              text "¿Qué preparamos hoy?"
+            paragraph
+              text "Hablá con Foxy sobre tu próxima clase o elegí una herramienta para crear un recurso."
+            button [ref=538]
+              svg_root
+              text "Pensar un cierre de clase"
+              svg_root
+          form
+            container
+              text "Tu mensaje"
+              textbox [ref=539, loc=css:textarea[placeholder="Escribile a Foxy…"]]
+                text "Escribile a Foxy…"
+            button [ref=540]
+              svg_root
+              text "Enviar"
+            text "Foxy puede equivocarse. Revisá el contenido antes de usarlo."
+        container
+          container "Herramientas de Foxy"
+            heading
+              svg_root
+              text "Herramientas"
+            group "Tipo de ayuda"
+              button [ref=541]
+                svg_root
+                container
+                  text "Crear apuntes"
+                  text "Explicaciones y ejemplos"
+                text "›"
+              button [ref=542]
+                svg_root
+                container
+                  text "Crear esquema"
+                  text "Ideas y relaciones"
+                text "›"
+              button [ref=543]
+                svg_root
+                container
+                  text "Crear actividad"
+                  text "Consignas para el aula"
+                text "›"
+              button [ref=544]
+                svg_root
+                container
+                  text "Crear planificación"
+                  text "Una secuencia de clase"
+                text "›"
+              button [ref=545]
+                svg_root
+                container
+                  text "Crear rúbrica"
+                  text "Criterios de evaluación"
+                text "›"
+          container "Conversaciones"
+            heading
+              text "Conversaciones"
+            unordered_list
+  alert

@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import type { AttemptEditor, AttemptSessionData, ClassroomClient } from './api.ts';
-import { Notice } from './components.tsx';
+import { Dialog, Notice } from './components.tsx';
 import { activityDate } from './ActivityAuthoring.tsx';
 
 export function PracticalAttempt({ api, classroomId, data, editor, refresh }: {
@@ -10,20 +10,30 @@ export function PracticalAttempt({ api, classroomId, data, editor, refresh }: {
   const [file, setFile] = useState<File | null>(null), [phase, setPhase] = useState<'selected' | 'uploading' | 'error'>('selected');
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [confirm, setConfirm] = useState(false);
   const [receipt, setReceipt] = useState<{ submittedAt: string; submittedLate: boolean; appliedDeadlineAt: string | null } | null>(null);
+  const [response,setResponse]=useState(data.attempt?.practicalResponse??''),[savedResponse,setSavedResponse]=useState(data.attempt?.practicalResponse??'');
   const attempt = data.attempt;
   if (!attempt) return null;
   const files = attempt.attachments ?? [], submitted = attempt.status === 'SUBMITTED' || receipt !== null;
   const delivery = receipt ?? attempt;
   const editable = !submitted && !!editor && data.canTransfer && editor.epoch === attempt.epoch;
   const ready = files.every(item => item.selected && item.ready);
-  const canSubmit = editable && !file && ready && (!data.activity.attachmentRequired || files.length > 0);
+  const invalidResponse=[...response].length>5000;
+  const canSubmit = editable && !invalidResponse && !file && ready && (!data.activity.attachmentRequired || files.length > 0);
+  async function saveResponse(){
+    if(response===savedResponse)return attempt!.revision;
+    if(!api.attempt)throw new Error('El guardado no está disponible.');
+    const saved=await api.attempt<{revision:string;text:string}>(`/${classroomId}/attempts/${attempt!.id}/practical-response`,{revision:attempt!.revision,text:response},editor!);
+    setSavedResponse(saved.text);return saved.revision;
+  }
   async function run(action: () => Promise<void>) {
     setBusy(true); setError('');
     try { await action(); } catch (e) { setError((e as Error).message); }
     finally { try { await refresh(); } catch (e) { setError((e as Error).message); } setBusy(false); }
   }
   return <section className="p7-practical" aria-label="Archivos y entrega del trabajo práctico">
-    <h4>{submitted ? 'Comprobante de entrega' : 'Archivos del borrador'}</h4>
+    {submitted?<h4>Comprobante de entrega</h4>:null}
+    <label>{data.activity.attachmentRequired?'Comentario (opcional)':'Tu respuesta'}<textarea rows={5} placeholder="Escribí acá…" aria-label={data.activity.attachmentRequired?'Comentario (opcional)':'Tu respuesta'} disabled={!editable||busy} value={response} aria-invalid={invalidResponse||undefined} onChange={event=>{setResponse(event.target.value);setConfirm(false);}}/></label>
+    {invalidResponse?<Notice error>La respuesta puede tener hasta 5.000 caracteres.</Notice>:null}
     {error ? <Notice error>{error} {submitted ? 'Tu entrega ya está confirmada. No pudimos actualizar la vista; podés volver a consultar el estado.'
       : 'El archivo no se considera confirmado. Consulta el estado recuperado antes de continuar.'}</Notice> : null}
     {submitted ? <Notice><strong>Entrega confirmada.</strong> Podés consultar la calificación desde «Ver devolución».
@@ -56,16 +66,17 @@ export function PracticalAttempt({ api, classroomId, data, editor, refresh }: {
           } catch (e) { setPhase('error'); throw e; }
         })}>Subir archivo privado</button></div> : null}
       <p>Para reemplazar un archivo, quítalo del borrador y agrega el nuevo. Esto no elimina los archivos conservados ni libera su espacio.</p>
-      <button className="primary" disabled={busy || !canSubmit} onClick={() => setConfirm(true)}>Enviar trabajo práctico</button>
+      <div className="p5-actions"><button disabled={busy||invalidResponse||response===savedResponse} onClick={()=>void run(async()=>{await saveResponse();})}>Guardar borrador</button><button className="primary" disabled={busy || !canSubmit} onClick={() => void run(async()=>{await saveResponse();setConfirm(true);})}>Revisar entrega</button></div>
     </> : null}
-    {confirm && editable ? <section className="p7-submit-confirm" aria-label="Confirmar entrega del trabajo práctico"><h4>Confirmar entrega</h4>
+    {confirm && editable ? <Dialog title="Confirmar entrega" onClose={()=>{if(!busy)setConfirm(false);}}><section className="p7-submit-confirm" aria-label="Confirmar entrega del trabajo práctico"><small>Intento {attempt.number}</small><h4>{data.activity.title}</h4>
       <p>Se enviarán {files.length} archivos aprobados. Después de confirmar, el intento no se puede modificar. La recepción completa del servidor determina el plazo, no el inicio de la carga.</p>
-      <button disabled={busy} onClick={() => setConfirm(false)}>Cancelar entrega</button>
+      <button aria-label="Cancelar entrega" disabled={busy} onClick={() => setConfirm(false)}>Volver a editar</button>
       <button className="primary" disabled={busy || !canSubmit} onClick={() => void run(async () => {
         if (!api.attempt) throw new Error('El envío no está disponible.');
+        const revision=await saveResponse();
         const result = await api.attempt<{ submittedAt: string; submittedLate: boolean; appliedDeadlineAt: string | null }>(
-          `/${classroomId}/attempts/${attempt.id}/submit-practical`, { revision: attempt.revision, confirm: true }, editor!);
+          `/${classroomId}/attempts/${attempt.id}/submit-practical`, { revision, confirm: true }, editor!);
         setReceipt(result); setConfirm(false);
-      })}>Confirmar envío del trabajo</button></section> : null}
+      })} aria-label="Confirmar envío del trabajo">Confirmar entrega</button></section></Dialog> : null}
   </section>;
 }

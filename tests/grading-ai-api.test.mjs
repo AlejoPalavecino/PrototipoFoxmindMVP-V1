@@ -27,12 +27,19 @@ test('propuestas IA: consulta, aplicación privada y descarte con permisos reale
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     });
     const ready = async type => {
-      const activity = await create(type), view = await service.getAttemptGrading(T, room, activity.attempt);
+      const practicalResponse=type==='ASSIGNMENT'?'Respuesta escrita sin adjuntos\nEvidencia sintética 😀':'';
+      const activity = await create(type,{practicalResponse}), view = await service.getAttemptGrading(T, room, activity.attempt);
       const row = (await pool.query('SELECT id,epoch,rubric_snapshot FROM grading_ai_jobs WHERE attempt_id=$1', [activity.attempt])).rows[0];
       assert.ok(row, 'submit enqueues the job before the test seeds READY');
       const loaded = await gradingAiSnapshotFromSql({ query: async (sql, ...args) => (await pool.query(sql, args)).rows },
         { id: row.id, attemptId: activity.attempt, activityId: activity.id, classroomId: room, ownerId: teacher });
       assert.ok(loaded.snapshot && loaded.fingerprint);
+      if(type==='ASSIGNMENT'){
+        assert.equal(view.attempt.practicalResponse,practicalResponse);
+        assert.equal(loaded.snapshot.evidence.practicalResponse,practicalResponse);
+        assert.equal(loaded.files.length,0);
+        assert.equal((await service.activityAttempt(f.S,room,activity.attempt)).attempt.practicalResponse,practicalResponse);
+      }
       const snapshot = { ...loaded.snapshot, hash: loaded.fingerprint };
       const proposal = { schemaVersion: 'grading-proposal-v1', overallGrade: type === 'ASSIGNMENT' ? '8.00' : null,
         overallFeedback: 'Privado', questions: snapshot.spec.questions.map(q => ({ ref: q.ref, points: q.manual ? '1.00' : null, feedback: 'Comentario' })), warnings: [] };

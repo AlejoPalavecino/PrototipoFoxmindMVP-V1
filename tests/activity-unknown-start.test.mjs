@@ -8,7 +8,7 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 const ai = () => import('../apps/api/src/classrooms/activity-ai/index.ts');
 async function setup(local) {
-  const f = await fixture(local); await f.plan({ action: 'addTopic', unitId: f.unitId, name: 'Second topic' });
+  const f = await fixture(local); await f.seedPlan({ action: 'addTopic', unitId: f.unitId, name: 'Second topic' });
   f.start.revision = await f.revision(); f.start.topicIds = (await f.classrooms.detail(f.T, f.room)).units[0].topics.map(t => t.id);
   f.start.sourceIds = [f.sourceId, `material:${randomUUID()}`];
   const files = new Map(f.start.sourceIds.map(sourceId => [sourceId, randomUUID()]));

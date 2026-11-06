@@ -27,12 +27,16 @@ function handleDrop(event: DragEvent, props: Props) {
 }
 
 export function WizardPlan(props: Props) {
-  const { file, uploading, disabled, inputRef, fileUrl, onFile, onRefresh } = props;
+  const { disabled } = props;
   return <div className="brujula-wizard-plan">
     <label>Unidades y temas<textarea autoFocus aria-label="Unidades y temas" rows={7} value={props.planText} disabled={disabled} placeholder={'Unidad 1 · Ecosistemas\nFlujo de energía\nRedes tróficas'} onChange={event => props.onPlanText(event.target.value)} /></label>
     <small>Escribí “Unidad: nombre” y agregá cada tema con “- tema”, uno por línea. El aula necesita al menos una unidad con un tema.</small>
     <button className="brujula-wizard-extract" type="button" disabled={disabled} onClick={props.onExtractText}><FoxmindIcon name="spark" />Extraer unidades de un texto</button>
-    <details className="brujula-wizard-file"><summary>Analizar un archivo con IA</summary><p>Si preferís partir de un documento, subí un PDF o DOCX. Revisá la propuesta antes de aplicarla al plan escrito.</p>
+  </div>;
+}
+export function WizardPlanSource(props:Props){
+ const { file, uploading, disabled, inputRef, fileUrl, onFile, onRefresh } = props;
+ return <details className="brujula-wizard-file"><summary>Analizar un archivo con IA</summary><p>Si preferís partir de un documento, subí un PDF o DOCX. Revisá la propuesta antes de aplicarla al plan escrito.</p>
     <div className="wizard-plan-layout">
     <div className="wizard-plan-upload">
       <h3>Subí tu archivo</h3>
@@ -57,6 +61,5 @@ export function WizardPlan(props: Props) {
     </div>
     </div>
     {file ? <button type="button" disabled={disabled} onClick={props.onRemoveFile}>Retirar archivo del borrador</button> : null}
-    </details>
-  </div>;
+    </details>;
 }

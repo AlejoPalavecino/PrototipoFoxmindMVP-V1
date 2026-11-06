@@ -6,6 +6,7 @@ type Config = Pick<AiConfiguration, 'model' | 'maxInputTokens' | 'maxOutputToken
 export interface GradingAiEvidence {
   type: 'ASSIGNMENT' | 'QUESTIONNAIRE' | 'EVALUATION';
   instructions: string; rubric: string;
+  practicalResponse?:string;
   questions: { ref: string; type: 'DEVELOPMENT' | 'SINGLE_CHOICE' | 'MULTIPLE_CHOICE'; manual: boolean; prompt: string; points: string; options: { ref: string; text: string; correct: boolean }[] }[];
   answers: { ref: string; text: string; selectedOptionRefs: string[] }[];
   files: ({ ref: string; kind: 'text'; text: string } | { ref: string; kind: 'pdf'; data: string; purpose: 'attachment' | 'instruction' })[];
@@ -43,7 +44,10 @@ function boundedText(value: unknown, max: number): value is string {
   return typeof value === 'string' && value.length <= max;
 }
 function validateEvidence(input: unknown): GradingAiEvidence {
-  const row = exact(input, ['type', 'instructions', 'rubric', 'questions', 'answers', 'files']);
+  const keys=['type', 'instructions', 'rubric', 'questions', 'answers', 'files'];
+  const hasResponse=!!input&&typeof input==='object'&&Object.hasOwn(input,'practicalResponse');
+  const row = exact(input,hasResponse?[...keys,'practicalResponse']:keys);
+  if(hasResponse&&(row.type!=='ASSIGNMENT'||typeof row.practicalResponse!=='string'||[...row.practicalResponse].length>5000))return fail();
   if (!['ASSIGNMENT', 'QUESTIONNAIRE', 'EVALUATION'].includes(String(row.type)) || !boundedText(row.instructions, 20000)
     || !boundedText(row.rubric, 5000) || !Array.isArray(row.questions) || row.questions.length > 500
     || !Array.isArray(row.answers) || row.answers.length > 500 || !Array.isArray(row.files) || row.files.length > 20) return fail();

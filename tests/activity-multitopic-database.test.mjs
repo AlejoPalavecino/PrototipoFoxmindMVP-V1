@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
+import {seedPlan} from './helpers/plan-fixture.mjs';
 import { withAiDatabase, rollbackCase } from './classroom-ai-database.test.mjs';
 import { FileStore } from '../.build/api/apps/api/src/files/store.js';
 import { ClassroomService } from '../.build/api/apps/api/src/classrooms/service.js';
@@ -25,19 +26,20 @@ async function fixture(local) {
   const detail = () => service.detail(T, room);
   const revision = async () => (await detail()).revision;
   const plan = async operation => service.changePlan(T, room, { revision: await revision(), operation });
+  const seed=operation=>seedPlan(local.pool.query.bind(local.pool),room,operation);
   const change = async operation => service.changeActivities(T, room, { revision: await revision(), operation });
-  await plan({ action: 'addUnit', name: 'Unit A' });
+  await seed({ action: 'addUnit', name: 'Unit A' });
   const unitId = (await detail()).units[0].id;
-  for (const name of ['Topic A', 'Topic B']) await plan({ action: 'addTopic', unitId, name });
+  for (const name of ['Topic A', 'Topic B']) await seed({ action: 'addTopic', unitId, name });
   const topicIds = (await detail()).units[0].topics.map(x => x.id);
-  await plan({ action: 'addUnit', name: 'Unit B' });
+  await seed({ action: 'addUnit', name: 'Unit B' });
   const otherUnit = (await detail()).units[1].id;
-  await plan({ action: 'addTopic', unitId: otherUnit, name: 'Foreign unit topic' });
+  await seed({ action: 'addTopic', unitId: otherUnit, name: 'Foreign unit topic' });
   const otherTopic = (await detail()).units[1].topics[0].id;
   const { id } = await change({ action: 'create', type: 'ASSIGNMENT' });
   const payload = { title: 'Integrative assignment', unitId, topicIds, instructions: 'Connect both topics.',
     attachmentRequired: false, instructionFileIds: [], materialIds: [], questions: [], deadline: null, allowLate: false };
-  return { ...local, service, T, S, O, room, id, unitId, otherUnit, topicIds, otherTopic, revision, plan, change, payload };
+  return { ...local, service, T, S, O, room, id, unitId, otherUnit, topicIds, otherTopic, revision, plan,seedPlan:seed, change, payload };
 }
 
 test('D1 PostgreSQL ordered multi-topic authoring, atomic boundaries and privacy', { timeout: 120000 }, async t => {
@@ -59,11 +61,11 @@ test('D1 PostgreSQL ordered multi-topic authoring, atomic boundaries and privacy
     });
     await scenario('later associated topic cannot be deleted and reorder/replacement removes obsolete links', async f => {
       await f.change({ action: 'save', id: f.id, payload: f.payload });
-      await assert.rejects(f.plan({ action: 'deleteTopic', id: f.topicIds[1], confirm: true }), { code: 'CONFLICT' });
+      await assert.rejects(f.plan({ action: 'deleteTopic', id: f.topicIds[1], confirm: true }), { code: 'INVALID_INPUT' });
       await f.change({ action: 'metadata', id: f.id, title: f.payload.title, unitId: f.unitId, topicIds: [...f.topicIds].reverse() });
       assert.deepEqual((await f.service.activityDetail(f.T, f.room, f.id, true)).activity.topicIds, [...f.topicIds].reverse());
       await f.change({ action: 'save', id: f.id, payload: { ...f.payload, topicIds: [f.topicIds[0]] } });
-      await f.plan({ action: 'deleteTopic', id: f.topicIds[1], confirm: true });
+      await f.seedPlan({ action: 'deleteTopic', id: f.topicIds[1], confirm: true });
       assert.equal((await f.pool.query('SELECT count(*)::int n FROM activity_topics WHERE activity_id=$1', [f.id])).rows[0].n, 1);
     });
     await scenario('a non-primary topic from another unit fails atomically, as do stale and foreign writes', async f => {

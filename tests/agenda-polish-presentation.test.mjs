@@ -61,8 +61,7 @@ test('monthly calendar preserves 42 accessible days, separate today/selection, n
   days.find(node => node.props['aria-pressed']).props.onClick();
   assert.deepEqual(calls, [-1, 1, 'today', '2026-10-28']);
   const html = renderToStaticMarkup(tree);
-  assert.match(html, /Evento personal/);
-  assert.match(html, /Entrega del aula/);
+  assert.match(html, /Tus eventos personales solo son visibles para vos/);
 });
 
 test('deadline card keeps exact classroom zone date, state semantics and real activity target when busy changes', () => {

@@ -14,7 +14,7 @@ test('A3 AI-disabled module composition still rejects publication of a generated
     await new ActivityAiWorker(f.options).runOnce();
     assert.equal((await service.get(f.T, f.room, view.id)).state, 'READY');
     const applied = await service.apply(f.T, f.room, view.id, { revision: await f.revision(), requestId: randomUUID(), proposal: f.proposal });
-    await f.plan({ action: 'renameTopic', id: f.topicIds[0], name: 'Curriculum changed after applying' });
+    await f.seedPlan({ action: 'renameTopic', id: f.topicIds[0], name: 'Curriculum changed after applying' });
     const files = new FileService({ database: local.database, draftQuotaBytes: 100000000n,
       access: { authenticate: async (_tx, req) => req.actor, authorize: async () => {} },
       storage: { get: async () => { throw new Error('Publication must not read document bytes'); } }, scanner: { scan: async () => {} } });

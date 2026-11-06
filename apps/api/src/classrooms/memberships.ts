@@ -1,7 +1,6 @@
 import { previewCodeOperation, confirmCodeOperation } from './memberships-operations-1.ts';
 import { endMembershipOperation, membersOperation } from './memberships-operations-2.ts';
 import { randomUUID } from 'node:crypto';
-import { newClassroomCode } from './classroom-codes.ts';
 import { revision } from './revision.ts';
 import { ClassroomCore } from './core.ts';
 import { digest, fail, object, uuid } from './policy.ts';
@@ -12,8 +11,8 @@ export class MembershipService {
   readonly run: ClassroomCore['run'];
   readonly classroom: ClassroomCore['classroom'];
   readonly tokens: ClassroomCore['tokens'];
-  private readonly newCode: typeof newClassroomCode;
-  constructor(context: Pick<ClassroomCore, 'run' | 'classroom' | 'tokens'>, dependencies: { newCode: typeof newClassroomCode }) {
+  private readonly newCode: (tx:Transaction,classroomId:string)=>Promise<string>;
+  constructor(context: Pick<ClassroomCore, 'run' | 'classroom' | 'tokens'>, dependencies: { newCode: (tx:Transaction,classroomId:string)=>Promise<string> }) {
     this.run = context.run.bind(context);
     this.classroom = context.classroom.bind(context);
     this.tokens = context.tokens;
@@ -123,7 +122,7 @@ export class MembershipService {
       );
       if (!student) return fail('FORBIDDEN');
       const attempts = await tx.query(
-        `SELECT a.id,activity.title,a.submitted_at AS "submittedAt",a.attempt_number AS number,
+        `SELECT a.id,a.activity_id AS "activityId",activity.title,a.submitted_at AS "submittedAt",a.attempt_number AS number,
         g.final_grade::text AS grade,g.is_published AS published FROM attempts a
         JOIN student_activities sa ON sa.id=a.student_activity_id JOIN activities activity ON activity.id=a.activity_id
         LEFT JOIN attempt_grades g ON g.attempt_id=a.id WHERE sa.enrollment_id=$1::uuid AND sa.classroom_id=$2::uuid

@@ -12,6 +12,7 @@ export interface AttemptRow {
   status: 'DRAFT' | 'SUBMITTED'; opened_at: Date; submitted_at: Date | null;
   individual_deadline_at: Date | null; applied_deadline_at: Date | null; submitted_late: boolean | null;
   editor_token_hash: string | null; editor_epoch: bigint; revision: bigint;
+  practical_response: string;
 }
 
 /** Transaction-only resolver for future answer/file writers. No admission or standalone session validation here. */

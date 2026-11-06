@@ -1,0 +1,88 @@
+[p1 "Mi perfil · FoxMind" | space "FoxMind parity 2026-11-05"(1): 2 managed, 0 untracked — p1* "Mi perfil · FoxMind", p2 "Notificaciones · FoxMind Brújula"]
+root
+  container
+    anchor [ref=406, loc=href:/profile#main, url=http://127.0.0.1:60236/profile#main]
+      text "Saltar al contenido"
+    container
+      container
+        anchor "FoxMind" [ref=407, loc=css:a[aria-label="FoxMind"], url=http://127.0.0.1:60236/inicio]
+          image
+          container
+            text "FoxMind"
+            text "BRÚJULA"
+        container
+          button "Buscar en FoxMind" [ref=408, loc=css:button[aria-label="Buscar en FoxMind"]]
+            svg_root
+            text "Buscar"
+            text "Ctrl K"
+          text "MI ESPACIO"
+        container "Navegación principal"
+          anchor [ref=409, url=http://127.0.0.1:60236/inicio]
+            svg_root
+            text "Inicio"
+          anchor [ref=410, loc=href:/mis-aulas, url=http://127.0.0.1:60236/mis-aulas]
+            svg_root
+            text "Mis aulas"
+          anchor [ref=411, loc=href:/agenda, url=http://127.0.0.1:60236/agenda]
+            svg_root
+            text "Agenda"
+          anchor [ref=412, loc=href:/foxy-ai, url=http://127.0.0.1:60236/foxy-ai]
+            svg_root
+            text "Foxy AI"
+        button "Notificaciones: 3 sin leer" [ref=413, loc=css:button[aria-label="Notificaciones: 3 sin leer"]]
+          svg_root
+          text "Notificaciones"
+          text "3"
+        container "Accesos a mis aulas"
+          text "MIS AULAS"
+          anchor [ref=414, loc=href:/mis-aulas?aula=ecabf3cf-307c-42ac-a903-64212e61a8d6, url=http://127.0.0.1:60236/mis-aulas?aula=ecabf3cf-307c-42ac-a903-64212e61a8d6]
+            text "Lengua y Literatura"
+          anchor [ref=415, loc=href:/mis-aulas?aula=3eb8888d-7fdb-4699-8707-4c6c99746b25, url=http://127.0.0.1:60236/mis-aulas?aula=3eb8888d-7fdb-4699-8707-4c6c99746b25]
+            text "Matemática"
+          anchor [ref=416, loc=href:/mis-aulas?aula=2a1730f1-abe7-4100-94ed-867a15b02d39, url=http://127.0.0.1:60236/mis-aulas?aula=2a1730f1-abe7-4100-94ed-867a15b02d39]
+            text "Biología"
+        button "Mi cuenta de Lucía Domínguez" [ref=417, loc=css:button[aria-label="Mi cuenta de Lucía Domínguez"]]
+          text "LD"
+          container
+            text "Lucía Domínguez"
+            text "Docente"
+          svg_root
+      container "Mi perfil"
+        container "Ubicación"
+          anchor [ref=418, url=http://127.0.0.1:60236/inicio]
+            text "Inicio"
+          text "/"
+          text "Mi perfil"
+        container
+          text "MI CUENTA"
+          heading
+            text "Mi perfil"
+          paragraph
+            text "Revisá tus datos y elegí cómo aparece tu nombre en las aulas."
+        container "Lucía Domínguez"
+          container
+            text "LD"
+            container
+              heading
+                text "Lucía"
+                text "Domínguez"
+              paragraph
+                text "Cuenta docente"
+          form
+            group [ref=419]
+              container
+                container
+                  text "Nombre"
+                  textbox [ref=420, loc=css:input[name="firstName"]]
+                    text "Lucía"
+                container
+                  text "Apellido"
+                  textbox [ref=421, loc=css:input[name="lastName"]]
+                    text "Domínguez"
+              container
+                text "Correo de la cuenta"
+                textbox [ref=422]
+                  text "parity-docente@example.test"
+              button [ref=423]
+                text "Guardar cambios"
+  alert

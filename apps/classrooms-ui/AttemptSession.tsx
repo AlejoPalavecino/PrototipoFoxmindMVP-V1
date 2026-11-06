@@ -4,8 +4,8 @@ import type { ActivityEligibilityData, AttemptEditor, AttemptSessionData, Classr
 import { PracticalAttempt } from './PracticalAttempt.tsx';
 import { QuestionnaireAttempt } from './QuestionnaireAttempt.tsx';
 import { Dialog, Notice } from './components.tsx';
-import { activityDate, activityTypeLabels } from './ActivityAuthoring.tsx';
-import { EvaluationRubric } from './EvaluationRubric.tsx';
+import { ActivityContext, activityTypeLabels } from './ActivityAuthoring.tsx';
+import {ActivityScreen} from './ActivityScreen.tsx';
 
 /** Capabilities live only in this mounted tab's memory, never URLs, cookies or shared storage. */
 export function AttemptSession({ api, room, initial, onClose, onChanged, onViewResult }: {
@@ -41,12 +41,10 @@ export function AttemptSession({ api, room, initial, onClose, onChanged, onViewR
   }
   const ownsEditor = !!editor && data.attempt?.epoch === editor.epoch && data.canTransfer;
   const { activity, attempt } = data;
-  return <Dialog title={activity.title ?? 'Actividad'} onClose={onClose}>
+  return <ActivityScreen title={activity.type==='ASSIGNMENT'?'Preparar entrega':'Responder actividad'} label={activity.title??'Actividad'} onClose={onClose}>
+    <p className="brujula-solver-subtitle">{activity.title}</p><div className="brujula-solver-layout">
     <section className="p7-attempt" aria-label={activity.type === 'EVALUATION' ? 'Evaluación · sesión reducida' : 'Sesión de actividad'}>
-      <header><small>{activityTypeLabels[activity.type]}</small><p>{activityDate(data.reception.deadlineAt, activity.zone)}</p></header>
-      {activity.objective?<section className="brujula-activity-objective"><h3>Objetivo de aprendizaje</h3><p className="p7-multiline">{activity.objective}</p></section>:null}
-      {activity.teacherComment?<section className="brujula-activity-comment"><h3>Comentario del docente</h3><p className="p7-multiline">{activity.teacherComment}</p></section>:null}
-      <EvaluationRubric criteria={activity.evaluationRubric}/>
+      <header className="brujula-solver-instructions"><small>{activityTypeLabels[activity.type]}</small><h3>Consigna</h3><p className="p7-multiline">{activity.instructions||'Sin consigna adicional.'}</p></header>
       {attempt?.status === 'SUBMITTED' && onViewResult ? <button className="primary" onClick={() => onViewResult(attempt.id)}>Ver devolución</button> : null}
       {error ? <Notice error>{error} No se confirmaron cambios. Vuelve a consultar el estado antes de continuar.</Notice> : null}
       {controlWarning && attempt?.status === 'DRAFT' ? <Notice>Recuperamos tus respuestas guardadas. Los cambios sin guardar de otra pestaña no se transfieren.</Notice> : null}
@@ -69,10 +67,8 @@ export function AttemptSession({ api, room, initial, onClose, onChanged, onViewR
         if (!api.attempt) throw new Error('El flujo de intentos no está disponible.');
         accept(await api.attempt<AttemptSessionData>(`${path}/start`, {})); await onChanged();
       })}>{activity.type === 'ASSIGNMENT' ? 'Abrir instrucciones e iniciar intento' : 'Comenzar'}</button> : null}
-      {activity.instructions ? <p className="p7-multiline">{activity.instructions}</p> : null}
       <ul>{activity.instructionFiles.map(file => <li key={file.id}>{file.ready ? <><a href={api.fileUrl(file.id)} target="_blank" rel="noreferrer">Descargar {file.name}</a>
         {file.extension === 'pdf' ? <> · <a href={api.fileUrl(file.id, true)} target="_blank" rel="noreferrer">Vista previa PDF</a></> : null}</> : `${file.name} · No disponible por revisión de seguridad`}</li>)}</ul>
-      <ul>{activity.materials.map(material => <li key={material.id}><a href={api.fileUrl(material.fileId)} target="_blank" rel="noreferrer">{material.title}</a></li>)}</ul>
       {!attempt ? activity.questions.map((question, index) => <article key={question.id ?? index}>
         <h4>Pregunta {index + 1} · {question.points} puntos</h4><p className="p7-multiline">{question.prompt}</p>
         <ul>{question.options.map(option => <li key={option.id ?? option.text}>{option.text}</li>)}</ul>
@@ -81,8 +77,8 @@ export function AttemptSession({ api, room, initial, onClose, onChanged, onViewR
         : attempt ? <QuestionnaireAttempt key={`${attempt.id}:${attempt.epoch}:${ownsEditor ? 'edit' : 'view'}`} api={api} classroomId={room.id}
           data={data} editor={ownsEditor ? editor : null} refresh={refresh} /> : null}
       <footer className="p5-form-footer"><button disabled={busy} onClick={() => void run(refresh)}>Actualizar estado confirmado</button></footer>
-    </section>
-  </Dialog>;
+    </section><ActivityContext api={api} activity={activity} room={room} effectiveDeadlineAt={data.reception.deadlineAt}/></div>
+  </ActivityScreen>;
 }
 
 export function FirstSubmissionAuthorization({ api, room, activityId, onClose, onChanged }: {

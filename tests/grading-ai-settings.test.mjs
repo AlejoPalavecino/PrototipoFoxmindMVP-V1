@@ -40,6 +40,11 @@ test('configuración admite un interruptor booleano y exige vía docente de escr
 test('configuración anterior sin interruptor se mantiene compatible', async () => {
   const f = classroomFixture(); await assert.doesNotReject(f.update(settings({})));
 });
+test('la portada se cambia con revisión docente y rechaza identidades desconocidas',async()=>{
+  const f=classroomFixture();await f.update(settings({coverKey:'biology'}));
+  assert.ok(f.seen.queries.some(q=>q.sql.includes('cover_key=COALESCE')&&q.args.at(-1)==='biology'));
+  const bad=classroomFixture();await assert.rejects(bad.update(settings({coverKey:'unknown'})),{code:'INVALID_INPUT'});assert.equal(bad.seen.queries.length,0);
+});
 
 test('configuración rechaza interruptor que no sea booleano antes de escribir', async () => {
   for (const value of [null, 1, 'true', {}, []]) {

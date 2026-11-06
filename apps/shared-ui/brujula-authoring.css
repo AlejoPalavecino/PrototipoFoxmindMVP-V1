@@ -39,15 +39,15 @@
   .fm3d-theme .br-authoring .aw-steps li { font-size: 10px; }
   .fm3d-theme .br-authoring .activity-review-summary { padding: 17px 15px; }
 }
-.fm3d-theme .fm3-classrooms.p5-app.classroom-interior-reference .p5-main .classroom-workspace.classroom-redesign .p7-authoring.br-authoring > form[data-authoring-step='2'] { max-width: none; grid-template-columns: minmax(0,1fr) 270px; align-items: start; }
+.fm3d-theme .fm3-classrooms.p5-app.classroom-interior-reference .p5-main .classroom-workspace.classroom-redesign .p7-authoring.br-authoring > form[data-authoring-step='1'] { max-width: none; grid-template-columns: minmax(0,1fr) 270px; align-items: start; }
 .fm3d-theme .br-authoring .br-authoring-destination { grid-column: 2; grid-row: 1 / span 3; display: grid; gap: 8px; padding: 21px 24px; border: 1px solid #dce1ef; border-radius: 18px; background: #f6f8ff; }
 .fm3d-theme .br-authoring .br-authoring-destination h3 { font-size: 18px; margin: 0 0 5px; }
 .fm3d-theme .br-authoring .br-authoring-destination h4 { font-size: 12px; margin: 8px 0 0; color: #59428a; }
 .fm3d-theme .br-authoring .br-authoring-destination p { font-size: 12px; margin: 0; }
-.fm3d-theme .br-authoring form[data-authoring-step='2'] > :is(.activity-review-summary,.br-authoring-question-review,.evaluation-rubric) { grid-column: 1; }
-.fm3d-theme .br-authoring form[data-authoring-step='2'] > :is(.p5-form-footer,p) { grid-column: 1 / -1; }
+.fm3d-theme .br-authoring form[data-authoring-step='1'] > :is(.activity-review-summary,.br-authoring-question-review,.evaluation-rubric) { grid-column: 1; }
+.fm3d-theme .br-authoring form[data-authoring-step='1'] > :is(.p5-form-footer,p) { grid-column: 1 / -1; }
 .fm3d-theme .br-authoring .br-authoring-question-review { padding: 21px 24px; background: #fff; border: 1px solid #dce1ef; border-radius: 18px; }
 @media(max-width:700px) {
-  .fm3d-theme .fm3-classrooms.p5-app.classroom-interior-reference .p5-main .classroom-workspace.classroom-redesign .p7-authoring.br-authoring > form[data-authoring-step='2'] { grid-template-columns: minmax(0,1fr); }
+  .fm3d-theme .fm3-classrooms.p5-app.classroom-interior-reference .p5-main .classroom-workspace.classroom-redesign .p7-authoring.br-authoring > form[data-authoring-step='1'] { grid-template-columns: minmax(0,1fr); }
   .fm3d-theme .br-authoring .br-authoring-destination { grid-column: 1; grid-row: auto; }
 }

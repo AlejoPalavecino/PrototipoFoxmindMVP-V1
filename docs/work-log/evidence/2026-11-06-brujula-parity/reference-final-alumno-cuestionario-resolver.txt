@@ -1,0 +1,171 @@
+[p2 "Mis aulas · FoxMind Brújula" | space "FoxMind parity 2026-11-05"(1): 2 managed, 0 untracked — p1 "Mis Aulas · FoxMind", p2* "Mis aulas · FoxMind Brújula"]
+root
+  anchor [ref=1, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#main, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#main]
+    text "Saltar al contenido"
+  container
+    container "Menú de FoxMind"
+      anchor "FoxMind Brújula, inicio" [ref=842, loc=css:a[aria-label="FoxMind Brújula, inicio"], url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/inicio]
+        image
+        container
+          text "FoxMind"
+          text "BRÚJULA"
+      container
+        button "Buscar en FoxMind" [ref=843, loc=css:button[aria-label="Buscar en FoxMind"]]
+          svg_root
+          text "Buscar"
+          text "Ctrl K"
+        text "MI ESPACIO"
+        container "Navegación principal"
+          anchor [ref=844, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/inicio]
+            svg_root
+            text "Inicio"
+          anchor [ref=845, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aulas]
+            svg_root
+            text "Mis aulas"
+          anchor [ref=846, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/agenda, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/agenda]
+            svg_root
+            text "Agenda"
+          button "Notificaciones, 7 sin leer" [ref=847, loc=css:button[aria-label="Notificaciones, 7 sin leer"]]
+            svg_root
+            text "Notificaciones"
+            text "7"
+        text "MIS AULAS"
+        container "Accesos a mis aulas"
+          anchor [ref=848, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/plan]
+            text "Biología"
+          anchor [ref=849, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/mat/plan, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/mat/plan]
+            text "Matemática"
+          anchor [ref=850, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/lit/plan, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/lit/plan]
+            text "Lengua y Literatura"
+      container
+        button [ref=851]
+          svg_root
+          text "Explorar maqueta"
+          text "Docente y alumno"
+          svg_root
+        button "Abrir cuenta de Mateo Ríos" [ref=852, loc=css:button[aria-label="Abrir cuenta de Mateo Ríos"]]
+          text "MR"
+          container
+            text "Mateo Ríos"
+            text "Alumno"
+          svg_root
+    container [ref=853]
+      container "Ubicación"
+        anchor [ref=854, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/inicio]
+          text "Inicio"
+        svg_root
+        anchor [ref=855, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aulas]
+          text "Mis aulas"
+        svg_root
+        text "Biología"
+      container
+        image
+        container
+          container
+            svg_root
+            text "Aula · 4.º A · 2026"
+          heading
+            text "Biología"
+          paragraph
+            container
+              svg_root
+              text "Lucía Domínguez"
+            container
+              svg_root
+              text "6 estudiantes"
+      container "Secciones del aula"
+        anchor [ref=856, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/plan]
+          svg_root
+          text "Plan"
+        anchor [ref=857, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/muro, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/muro]
+          svg_root
+          text "Muro"
+        anchor [ref=858, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/biblioteca, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/biblioteca]
+          svg_root
+          text "Biblioteca"
+        anchor [ref=859, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/actividades]
+          svg_root
+          text "Actividades"
+        anchor [ref=860, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/progreso, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/progreso]
+          svg_root
+          text "Mi progreso"
+        anchor [ref=861, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/alumnos, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/alumnos]
+          svg_root
+          text "Compañeros"
+      container
+        container "Recorrido de la sección"
+          anchor [ref=862, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/actividades]
+            text "Actividades"
+          text "/"
+          text "Redes tróficas"
+          text "/"
+          text "Resolver"
+        container
+          heading
+            text "Responder actividad"
+          paragraph
+            text "Redes tróficas"
+        container
+          form
+            container
+              text "Cuestionario"
+              heading
+                text "Consigna"
+              paragraph
+                text "Revisá cómo circula la energía en un ecosistema y resolvé las tres preguntas."
+            group [ref=863]
+              container
+                text "01"
+                text "¿Qué organismo transforma energía solar en alimento?"
+              text "Selección simple"
+              container
+                radio [ref=864]
+                text "Un hongo"
+              container
+                radio [ref=865]
+                text "Una planta"
+              container
+                radio [ref=866]
+                text "Un herbívoro"
+            group [ref=867]
+              text "02"
+              text "Seleccioná los organismos que pueden ser consumidores."
+              text "Selección múltiple"
+              container
+                checkbox [ref=868]
+                text "Zorro"
+              container
+                checkbox [ref=869]
+                text "Algarrobo"
+              container
+                checkbox [ref=870]
+                text "Liebre"
+            group [ref=871]
+              text "03"
+              text "¿Qué cambios esperarías si disminuyera la población de herbívoros?"
+              text "Desarrollo"
+              container
+                text "Tu respuesta"
+                textbox [ref=872, loc=css:textarea[name="s-08838632-043d-4f98-9e15-70d3a1c42169"]]
+                  text "Un cambio en los consumidores modifica la disponibilidad de alimento."
+            button [ref=873]
+              text "Guardar borrador"
+            button [ref=874]
+              text "Revisar entrega"
+          container
+            text "FICHA DE ACTIVIDAD"
+            container
+              text "Fecha límite"
+              text "9 nov, 19:00"
+            container
+              text "Unidad"
+              text "Ecosistemas y biodiversidad"
+            container
+              text "Temas"
+              text "Redes tróficas"
+            container
+              text "Entregas tardías"
+              text "Se aceptan"
+            text "Material de consulta"
+            anchor [ref=875, loc=href:/C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/biblioteca/bio-guia, url=file:///C:/Users/alejo/Downloads/FoxMind-Brujula.html#/aula/bio/biblioteca/bio-guia]
+              text "Guía de observación del ecosistema"

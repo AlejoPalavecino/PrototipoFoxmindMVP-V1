@@ -111,7 +111,7 @@ for (const accountRole of ['teacher', 'student']) test(`Home presents the ${acco
     assert.doesNotMatch(html, /aria-label="Aula en foco"/);
   }
   else {
-    for (const action of ['Crear actividad', 'Subir material', 'Publicar aviso']) assert.match(html, new RegExp(action));
+    for (const action of ['Crear actividad', 'Agregar material', 'Publicar aviso']) assert.match(html, new RegExp(action));
     assert.match(html, /aria-label="Acciones del aula"/);
     assert.match(html, /aria-label="Aula en foco"/);
   }
@@ -127,7 +127,7 @@ test('ClassroomView SSR retains exit/loading state without inventing server clas
   const html = render(ClassroomView, { id: 'not-loaded', initialCode: null, onExit() {}, api: { call: async () => { calls++; throw new Error('SSR must not fetch'); } } });
   assert.equal(calls, 0);
   assert.match(html, /Cargando aula/);
-  assert.ok(buttons(html).some(button => /Volver a mis aulas/.test(button.text)));
+  assert.ok(buttons(html).some(button => /Mis aulas/.test(button.text)));
   assert.doesNotMatch(html, /Invitar estudiante|Configuración|Historial/);
 });
 

@@ -12,19 +12,20 @@ export interface WallRepliesPage {
   revision: string; postId: string; replies: WallContent[]; nextCursor: string | null; previousCursor: string | null;
 }
 export interface WallThreadData { revision: string; post: WallPost }
-export interface WallPageQuery { cursor?: string; limit?: number }
+export interface WallPageQuery { cursor?: string; limit?: number; type?: 'NOTICE' | 'QUERY' }
 
 /** Parse URL parameters identically at both HTTP boundaries. */
 export function parseWallQuery(params: URLSearchParams, kind: 'feed' | 'replies' | 'thread'): WallPageQuery & { replyId?: string } {
-  const allowed = kind === 'thread' ? ['replyId'] : ['cursor', 'limit'];
+  const allowed = kind === 'thread' ? ['replyId'] : kind === 'feed' ? ['cursor', 'limit', 'type'] : ['cursor', 'limit'];
   for (const key of params.keys()) if (!allowed.includes(key) || params.getAll(key).length !== 1) throw new Error('INVALID_INPUT');
   const cursor = params.get('cursor'), rawLimit = params.get('limit'), replyId = params.get('replyId');
+  const type=params.get('type');if(type!==null && type!=='NOTICE' && type!=='QUERY')throw new Error('INVALID_INPUT');
   if (cursor !== null && (!cursor || cursor.length > 2048)) throw new Error('INVALID_INPUT');
   const maximum = kind === 'feed' ? 10 : 20;
   if (rawLimit !== null && (!/^[1-9][0-9]*$/.test(rawLimit) || Number(rawLimit) > maximum)) throw new Error('INVALID_INPUT');
   if (replyId !== null && !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(replyId)) throw new Error('INVALID_INPUT');
   return { ...(cursor !== null ? { cursor } : {}), ...(rawLimit !== null ? { limit: Number(rawLimit) } : {}),
-    ...(replyId !== null ? { replyId } : {}) };
+    ...(replyId !== null ? { replyId } : {}),...(type!==null ? {type:type as 'NOTICE'|'QUERY'} : {}) };
 }
 function record(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('INVALID_INPUT');

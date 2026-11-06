@@ -1,0 +1,144 @@
+[p1 "Mis Aulas · FoxMind" | space "FoxMind parity 2026-11-05"(1): 2 managed, 0 untracked — p1* "Mis Aulas · FoxMind", p2 "Notificaciones · FoxMind Brújula"]
+root
+  container
+    anchor [ref=736, loc=href:/mis-aulas#classroom-main, url=http://127.0.0.1:49603/mis-aulas#classroom-main]
+      text "Saltar al contenido"
+    container
+      anchor "FoxMind" [ref=737, loc=css:a[aria-label="FoxMind"], url=http://127.0.0.1:49603/inicio]
+        image
+        container
+          text "FoxMind"
+          text "BRÚJULA"
+      container
+        button "Buscar en FoxMind" [ref=738, loc=css:button[aria-label="Buscar en FoxMind"]]
+          svg_root
+          text "Buscar"
+          text "Ctrl K"
+        text "MI ESPACIO"
+      container "Navegación principal"
+        anchor [ref=739, url=http://127.0.0.1:49603/inicio]
+          svg_root
+          text "Inicio"
+        anchor [ref=740, loc=href:/mis-aulas, url=http://127.0.0.1:49603/mis-aulas]
+          svg_root
+          text "Mis aulas"
+        anchor [ref=741, loc=href:/agenda, url=http://127.0.0.1:49603/agenda]
+          svg_root
+          text "Agenda"
+      button "Notificaciones: 6 sin leer" [ref=742, loc=css:button[aria-label="Notificaciones: 6 sin leer"]]
+        svg_root
+        text "Notificaciones"
+        text "6"
+      container "Accesos a mis aulas"
+        text "MIS AULAS"
+        anchor [ref=743, loc=href:/mis-aulas?aula=9c79d9cd-20e9-4b18-92aa-f141f8339437, url=http://127.0.0.1:49603/mis-aulas?aula=9c79d9cd-20e9-4b18-92aa-f141f8339437]
+          text "Lengua y Literatura"
+        anchor [ref=744, loc=href:/mis-aulas?aula=0777b140-8939-4b45-b91a-7a520bc6aff2, url=http://127.0.0.1:49603/mis-aulas?aula=0777b140-8939-4b45-b91a-7a520bc6aff2]
+          text "Matemática"
+        anchor [ref=745, loc=href:/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f, url=http://127.0.0.1:49603/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f]
+          text "Biología"
+      button "Mi cuenta de Mateo Ríos" [ref=746, loc=css:button[aria-label="Mi cuenta de Mateo Ríos"]]
+        text "MR"
+        container
+          text "Mateo Ríos"
+          text "Alumno"
+        svg_root
+    container
+      container "Ruta de navegación"
+        anchor [ref=747, url=http://127.0.0.1:49603/inicio]
+          text "Inicio"
+        svg_root
+        text "Mis aulas"
+      container
+        container
+          text "Mi espacio"
+          heading
+            text "Mis aulas"
+          paragraph
+            text "Elegí un aula para continuar con tus actividades."
+        button [ref=748]
+          svg_root
+          text "Unirme con código"
+      container "Tus aulas"
+        container "Estado de las aulas"
+          button [ref=749]
+            text "Activas"
+            text "3"
+          button [ref=750]
+            text "Archivadas"
+            text "0"
+        container
+          container
+            text "Buscar aula"
+            svg_root
+            searchbox [ref=751, loc=css:input[placeholder="Buscar por nombre, materia o docente…"]]
+              text "Buscar por nombre, materia o docente…"
+          combobox "Ciclo lectivo" [ref=752, loc=css:select[aria-label="Ciclo lectivo"]]
+            text "Todos los ciclos"
+          combobox "División" [ref=753, loc=css:select[aria-label="División"]]
+            text "Todas las divisiones"
+          group "Presentación de aulas"
+            button "Vista de tarjetas" [ref=754, loc=css:button[aria-label="Vista de tarjetas"]]
+            button "Vista de lista" [ref=755, loc=css:button[aria-label="Vista de lista"]]
+        container
+          container
+            image
+            container
+              container
+                text "5.º A"
+                text "2026"
+              heading
+                text "Lengua y Literatura"
+              paragraph
+                text "Lucía Domínguez"
+              container
+                container
+                  text "Avance del plan"
+                  text "0%"
+                progressindicator "Avance del plan"
+              button "Entrar al aula Lengua y Literatura" [ref=756, loc=css:button[aria-label="Entrar al aula Lengua y Literatura"]]
+                text "Entrar al aula"
+                svg_root
+          container
+            image
+            container
+              container
+                text "4.º B"
+                text "2026"
+              heading
+                text "Matemática"
+              paragraph
+                text "Lucía Domínguez"
+              container
+                container
+                  text "Avance del plan"
+                  text "0%"
+                progressindicator "Avance del plan"
+              button "Entrar al aula Matemática" [ref=757, loc=css:button[aria-label="Entrar al aula Matemática"]]
+                text "Entrar al aula"
+                svg_root
+          container
+            image
+            container
+              container
+                text "4.º A"
+                text "2026"
+              heading
+                text "Biología"
+              paragraph
+                text "Lucía Domínguez"
+              container
+                container
+                  text "Avance del plan"
+                  text "67%"
+                progressindicator "Avance del plan"
+              button "Entrar al aula Biología" [ref=758, loc=css:button[aria-label="Entrar al aula Biología"]]
+                text "Entrar al aula"
+                svg_root
+        status
+          text "Mostrando"
+          text "3"
+          text "de"
+          text "3"
+          text "aulas"
+  alert

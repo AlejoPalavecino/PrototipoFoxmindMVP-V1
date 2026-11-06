@@ -29,6 +29,6 @@ test('authoring HTTP routes preserve ingress admission and strict mutation discr
     assert.equal(calls.length, count);
     assert.ok(admitted.includes(true)); assert.ok(admitted.includes(false));
     // Existing route remains usable through the shared handler.
-    assert.equal((await post('/classrooms/room/plan', { revision: '1', operation: { action: 'addUnit', name: 'Prior behavior' } })).status, 200);
+    assert.equal((await post('/classrooms/room/plan', { revision: '1', operation: { action:'setTopicState',id:'11111111-1111-4111-8111-111111111111',status:'TAUGHT' } })).status, 200);
   } finally { server.closeAllConnections(); await new Promise(r => server.close(r)); }
 });

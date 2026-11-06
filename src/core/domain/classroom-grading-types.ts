@@ -21,7 +21,7 @@ export interface RubricGradeFields {
 }
 export interface GradingData {
   revision: string; archived: boolean; canSave: boolean; activity: GradingActivity;
-  attempt: { id: string; number: number; submittedAt: string; submittedLate: boolean; firstName: string; lastName: string; attachments: GradeAttachment[] };
+  attempt: { id: string; number: number; submittedAt: string; submittedLate: boolean; firstName: string; lastName: string; attachments: GradeAttachment[]; practicalResponse?:string };
   grade: RubricGradeFields & { id: string | null; isPublished: boolean; publishedAt: string | null; finalGrade: string | null; overallFeedback: string | null; pending: boolean };
 }
 export interface GradeCorrectionsData {

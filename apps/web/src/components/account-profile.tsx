@@ -6,9 +6,9 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 
 export type AccountSubmit = (path: string, success: string, method?: string) => (event: FormEvent<HTMLFormElement>) => void;
-export function AccountProfile({ profile, firstName, lastName, locked, busy, onFirstName, onLastName, onCancel, submit }: {
+export function AccountProfile({ profile, firstName, lastName, locked, busy, onFirstName, onLastName, submit }: {
   profile: AccountUser; firstName: string; lastName: string; locked: boolean; busy: boolean;
-  onFirstName: (value: string) => void; onLastName: (value: string) => void; onCancel: () => void; submit: AccountSubmit;
+  onFirstName: (value: string) => void; onLastName: (value: string) => void; submit: AccountSubmit;
 }) {
   const initials = `${Array.from(profile.firstName)[0] ?? ''}${Array.from(profile.lastName)[0] ?? ''}`.toUpperCase();
   return <>
@@ -18,9 +18,8 @@ export function AccountProfile({ profile, firstName, lastName, locked, busy, onF
       <form noValidate onSubmit={submit('/account', 'Guardaste los cambios de tu perfil.', 'PATCH')}><fieldset disabled={locked}>
         <div className="field-grid"><AccountField name="firstName" label="Nombre" autoComplete="given-name" value={firstName} onChange={onFirstName} />
           <AccountField name="lastName" label="Apellido" autoComplete="family-name" value={lastName} onChange={onLastName} /></div>
-        <div className="field"><Label htmlFor="profile-email">Correo electrónico</Label><Input id="profile-email" value={profile.email} readOnly autoComplete="email" aria-describedby="email-help" />
-          <p id="email-help" className="field-help">El correo no se puede modificar desde el perfil.</p></div>
-        <div className="form-actions"><Button variant="outline" onClick={onCancel}>Cancelar</Button>
+        <div className="field"><Label htmlFor="profile-email">Correo de la cuenta</Label><Input id="profile-email" value={profile.email} readOnly autoComplete="email" /></div>
+        <div className="form-actions">
           <Button type="submit">{busy ? 'Guardando…' : 'Guardar cambios'}</Button></div>
       </fieldset></form>
     </section>

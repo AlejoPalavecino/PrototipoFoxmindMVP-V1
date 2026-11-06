@@ -1,0 +1,85 @@
+[p1 "Mi perfil · FoxMind" | space "FoxMind parity 2026-11-05"(1): 2 managed, 0 untracked — p1* "Mi perfil · FoxMind", p2 "Notificaciones · FoxMind Brújula"]
+root
+  container
+    anchor [ref=875, loc=href:/profile#main, url=http://127.0.0.1:49603/profile#main]
+      text "Saltar al contenido"
+    container
+      container
+        anchor "FoxMind" [ref=876, loc=css:a[aria-label="FoxMind"], url=http://127.0.0.1:49603/inicio]
+          image
+          container
+            text "FoxMind"
+            text "BRÚJULA"
+        container
+          button "Buscar en FoxMind" [ref=877, loc=css:button[aria-label="Buscar en FoxMind"]]
+            svg_root
+            text "Buscar"
+            text "Ctrl K"
+          text "MI ESPACIO"
+        container "Navegación principal"
+          anchor [ref=878, url=http://127.0.0.1:49603/inicio]
+            svg_root
+            text "Inicio"
+          anchor [ref=879, loc=href:/mis-aulas, url=http://127.0.0.1:49603/mis-aulas]
+            svg_root
+            text "Mis aulas"
+          anchor [ref=880, loc=href:/agenda, url=http://127.0.0.1:49603/agenda]
+            svg_root
+            text "Agenda"
+        button "Notificaciones: 6 sin leer" [ref=881, loc=css:button[aria-label="Notificaciones: 6 sin leer"]]
+          svg_root
+          text "Notificaciones"
+          text "6"
+        container "Accesos a mis aulas"
+          text "MIS AULAS"
+          anchor [ref=882, loc=href:/mis-aulas?aula=9c79d9cd-20e9-4b18-92aa-f141f8339437, url=http://127.0.0.1:49603/mis-aulas?aula=9c79d9cd-20e9-4b18-92aa-f141f8339437]
+            text "Lengua y Literatura"
+          anchor [ref=883, loc=href:/mis-aulas?aula=0777b140-8939-4b45-b91a-7a520bc6aff2, url=http://127.0.0.1:49603/mis-aulas?aula=0777b140-8939-4b45-b91a-7a520bc6aff2]
+            text "Matemática"
+          anchor [ref=884, loc=href:/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f, url=http://127.0.0.1:49603/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f]
+            text "Biología"
+        button "Mi cuenta de Mateo Ríos" [ref=885, loc=css:button[aria-label="Mi cuenta de Mateo Ríos"]]
+          text "MR"
+          container
+            text "Mateo Ríos"
+            text "Alumno"
+          svg_root
+      container "Mi perfil"
+        container "Ubicación"
+          anchor [ref=886, url=http://127.0.0.1:49603/inicio]
+            text "Inicio"
+          text "/"
+          text "Mi perfil"
+        container
+          text "MI CUENTA"
+          heading
+            text "Mi perfil"
+          paragraph
+            text "Revisá tus datos y elegí cómo aparece tu nombre en las aulas."
+        container "Mateo Ríos"
+          container
+            text "MR"
+            container
+              heading
+                text "Mateo"
+                text "Ríos"
+              paragraph
+                text "Cuenta de alumno"
+          form
+            group [ref=887]
+              container
+                container
+                  text "Nombre"
+                  textbox [ref=888, loc=css:input[name="firstName"]]
+                    text "Mateo"
+                container
+                  text "Apellido"
+                  textbox [ref=889, loc=css:input[name="lastName"]]
+                    text "Ríos"
+              container
+                text "Correo de la cuenta"
+                textbox [ref=890]
+                  text "parity-alumno@example.test"
+              button [ref=891]
+                text "Guardar cambios"
+  alert

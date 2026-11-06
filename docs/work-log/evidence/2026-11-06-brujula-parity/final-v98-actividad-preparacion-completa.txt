@@ -1,0 +1,245 @@
+[p1 "Mis Aulas · FoxMind" | space "FoxMind parity 2026-11-05"(1): 2 managed, 0 untracked — p1* "Mis Aulas · FoxMind", p2 "Notificaciones · FoxMind Brújula"]
+root
+  container
+    anchor [ref=546, loc=href:/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f#classroom-main, url=http://127.0.0.1:49603/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f#classroom-main]
+      text "Saltar al contenido"
+    container
+      anchor "FoxMind" [ref=547, loc=css:a[aria-label="FoxMind"], url=http://127.0.0.1:49603/inicio]
+        image
+        container
+          text "FoxMind"
+          text "BRÚJULA"
+      container
+        button "Buscar en FoxMind" [ref=548, loc=css:button[aria-label="Buscar en FoxMind"]]
+          svg_root
+          text "Buscar"
+          text "Ctrl K"
+        text "MI ESPACIO"
+      container "Navegación principal"
+        anchor [ref=549, url=http://127.0.0.1:49603/inicio]
+          svg_root
+          text "Inicio"
+        anchor [ref=550, loc=href:/mis-aulas, url=http://127.0.0.1:49603/mis-aulas]
+          svg_root
+          text "Mis aulas"
+        anchor [ref=551, loc=href:/agenda, url=http://127.0.0.1:49603/agenda]
+          svg_root
+          text "Agenda"
+        anchor [ref=552, loc=href:/foxy-ai, url=http://127.0.0.1:49603/foxy-ai]
+          svg_root
+          text "Foxy AI"
+      button "Notificaciones: 3 sin leer" [ref=553, loc=css:button[aria-label="Notificaciones: 3 sin leer"]]
+        svg_root
+        text "Notificaciones"
+        text "3"
+      container "Accesos a mis aulas"
+        text "MIS AULAS"
+        anchor [ref=554, loc=href:/mis-aulas?aula=9c79d9cd-20e9-4b18-92aa-f141f8339437, url=http://127.0.0.1:49603/mis-aulas?aula=9c79d9cd-20e9-4b18-92aa-f141f8339437]
+          text "Lengua y Literatura"
+        anchor [ref=555, loc=href:/mis-aulas?aula=0777b140-8939-4b45-b91a-7a520bc6aff2, url=http://127.0.0.1:49603/mis-aulas?aula=0777b140-8939-4b45-b91a-7a520bc6aff2]
+          text "Matemática"
+        anchor [ref=556, loc=href:/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f, url=http://127.0.0.1:49603/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f]
+          text "Biología"
+      button "Mi cuenta de Lucía Domínguez" [ref=557, loc=css:button[aria-label="Mi cuenta de Lucía Domínguez"]]
+        text "LD"
+        container
+          text "Lucía Domínguez"
+          text "Docente"
+        svg_root
+    container
+      container "Ubicación"
+        anchor [ref=558, url=http://127.0.0.1:49603/inicio]
+          text "Inicio"
+        text "›"
+        button [ref=559]
+          text "Mis aulas"
+        text "›"
+        text "Biología"
+      container
+        container
+          image
+          svg_root
+          text "Aula ·"
+          text "4.º A"
+          text "·"
+          text "2026"
+          heading
+            text "Biología"
+          paragraph
+            svg_root
+            text "Lucía Domínguez"
+            svg_root
+            text "2"
+            text "estudiantes"
+        container "Secciones del aula"
+          button [ref=560]
+            svg_root
+            text "Plan"
+          button [ref=561]
+            svg_root
+            text "Muro"
+          button [ref=562]
+            svg_root
+            text "Biblioteca"
+          button [ref=563]
+            svg_root
+            text "Actividades"
+          button [ref=564]
+            svg_root
+            text "Progreso"
+          button [ref=565]
+            svg_root
+            text "Alumnos"
+          button [ref=566]
+            svg_root
+            text "Historial"
+          button [ref=567]
+            svg_root
+            text "Configuración"
+        container "Actividades"
+          heading
+            text "Actividades"
+          container "Actividades del aula"
+            container "Editar actividad"
+              button "Cerrar editor" [ref=628, loc=css:button[aria-label="Cerrar editor"]]
+                svg_root
+                text "Actividades"
+              container
+                heading
+                  text "Crear actividad manualmente"
+                paragraph
+                  text "Prepará las consignas y definí cómo vas a evaluar las entregas."
+                svg_root
+                text "Borrador privado"
+              text "Los pesos de la rúbrica deben sumar 100 %."
+              text "Los cambios no confirmados permanecen en este editor; no se garantiza su recuperación al cerrarlo."
+              status
+                text "Cambios sin guardar. Las preguntas incompletas o inválidas no se guardan."
+              ordered_list "Etapas de edición"
+                list_item
+                  button [ref=629]
+                    text "1"
+                    text "Preparar actividad"
+                list_item
+                  button [ref=630]
+                    text "2"
+                    text "Revisar y asignar"
+              heading [ref=631]
+                text "Paso"
+                text "1"
+                text "de 2 ·"
+                text "Preparar actividad"
+              form
+                group "Organización de la actividad" [ref=632]
+                  heading
+                    text "01"
+                    text "Ubicación en el aula"
+                  container
+                    text "Unidad"
+                    combobox "Unidad de la actividad" [ref=633, loc=css:select[aria-label="Unidad de la actividad"]]
+                      text "Ecosistemas y biodiversidad"
+                      text "▾"
+                  container
+                    text "Tipo de actividad"
+                    combobox "Tipo de actividad" [ref=634, loc=css:select[aria-label="Tipo de actividad"]]
+                      text "Trabajo práctico"
+                      text "▾"
+                  group [ref=635]
+                    text "Temas del plan"
+                    container
+                      checkbox [ref=636]
+                      text "Flujo de energía"
+                    container
+                      checkbox [ref=637]
+                      text "Redes tróficas"
+                    container
+                      checkbox [ref=638]
+                      text "Equilibrio del ecosistema"
+                group "Propuesta para los estudiantes" [ref=639]
+                  heading
+                    text "02"
+                    text "Propuesta para los estudiantes"
+                  container
+                    text "Título"
+                    textbox "Título de la actividad" [ref=640, loc=css:input[placeholder="Ej. Cuaderno de campo"]]
+                      text "Observación de la materia"
+                  container
+                    text "Objetivo de aprendizaje"
+                    textbox [ref=641, loc=css:textarea[name="objective"]]
+                      text "Identificar propiedades de los materiales."
+                  container
+                    text "Consignas"
+                    textbox [ref=642, loc=css:textarea[placeholder="Explicá qué tienen que hacer, en qué orden y qué se espera que entreguen."]]
+                      text "Describí dos propiedades observables de un material cercano."
+                  container
+                    text "Comentario para el aula · Opcional"
+                    textbox [ref=643, loc=css:textarea[name="teacherComment"]]
+                      text "Sumá una aclaración para tus estudiantes."
+                  container
+                    checkbox "Archivos de entrega obligatorios" [ref=644, loc=css:input[aria-label="Archivos de entrega obligatorios"]]
+                    text "Solicitar un archivo para la entrega"
+                  heading
+                    text "Materiales de consulta"
+                  container
+                    checkbox [ref=645]
+                    text "Ficha de registro de campo"
+                group "Rúbrica de evaluación" [ref=646]
+                  heading
+                    text "03"
+                    text "Rúbrica de evaluación"
+                  paragraph
+                    text "Indicá qué vas a observar y cuánto pesa cada criterio en la calificación."
+                  status
+                    text "Total"
+                    text "100"
+                    text "%"
+                  container
+                    container
+                      text "Criterio"
+                      text "1"
+                    container
+                      text "Nombre del criterio"
+                      textbox "Criterio 1" [ref=647, loc=css:input[placeholder="Ej. Uso de evidencias"]]
+                        text "Evidencia"
+                    container
+                      text "Peso (%)"
+                      spinbutton "Ponderación del criterio 1 (%)" [ref=648, loc=css:input[aria-label="Ponderación del criterio 1 (%)"]]
+                        text "100"
+                    container
+                      text "Evidencia esperada"
+                      textbox "Descripción del criterio 1" [ref=649, loc=css:textarea[placeholder="¿Qué debería mostrar una buena respuesta?"]]
+                        text "Relaciona propiedades con observaciones."
+                  button [ref=650]
+                    text "Agregar criterio"
+                group "Plazo de entrega" [ref=651]
+                  heading
+                    text "04"
+                    text "Plazo de entrega"
+                  container
+                    text "Fecha y hora límite"
+                    text "Opcional"
+                    textbox "Fecha y hora del aula" [ref=652, loc=css:input[aria-label="Fecha y hora del aula"]]
+                      spinbutton "Month" [ref=653]
+                        text "mm"
+                      text "/"
+                      spinbutton "Day" [ref=654]
+                        text "dd"
+                      text "/"
+                      spinbutton "Year" [ref=655]
+                        text "yyyy"
+                      spinbutton "Hours" [ref=656]
+                        text "--"
+                      text ":"
+                      spinbutton "Minutes" [ref=657]
+                        text "--"
+                      spinbutton "AM/PM" [ref=658]
+                        text "--"
+                  container
+                    checkbox "Permitir entregas tardías" [ref=659, loc=css:input[aria-label="Permitir entregas tardías"]]
+                    text "Aceptar entregas fuera de término"
+                container
+                  button [ref=660]
+                    text "Guardar borrador"
+                  button [ref=661]
+                    text "Continuar a revisión"
+  alert

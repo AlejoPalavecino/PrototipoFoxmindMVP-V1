@@ -2,6 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 const snapshot = async input => (await import('../apps/api/src/classrooms/grading-ai/snapshot.ts')).createGradingAiSnapshot(input);
+test('written practical evidence is retained separately from instructions and participates in the snapshot hash',async()=>{
+ const input=data();input.activity.type='ASSIGNMENT';input.activity.questions=[];input.attempt.practicalResponse='Explicación propia\n😀';
+ const result=await snapshot(input);assert.equal(result.evidence.practicalResponse,input.attempt.practicalResponse);assert.equal(result.evidence.instructions.includes(input.attempt.practicalResponse),false);
+ input.attempt.practicalResponse='Revisión diferente';assert.notEqual((await snapshot(input)).hash,result.hash);
+});
 const data = () => ({ epoch: '3', rubricSnapshot: 'Justificar respuesta',
   activity: { id: 'ID_ACTIVIDAD_PRIVADO', type: 'EVALUATION', title: 'TITULO_PRIVADO', instructions: 'Elegí una opción y explicá',
     questions: [{ id: 'ID_Q_PRIVADO', type: 'SINGLE_CHOICE', prompt: 'Elegí', points: '2.00', manual: false,

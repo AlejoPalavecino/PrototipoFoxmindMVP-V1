@@ -126,6 +126,7 @@ export class ActivityHistoryService {
       const id = randomUUID(), number = attempts[0].attempt_number + 1;
       await tx.query(`INSERT INTO attempts(id,updated_at,student_activity_id,activity_id,attempt_number,opened_at,enabled_by_id,individual_deadline_at)
         VALUES($1::uuid,$2,$3::uuid,$4::uuid,$5,$2,$6::uuid,$7) RETURNING id`, id, now, obligation.id, activityId, number, actor.id, deadline);
+      await tx.query('UPDATE attempts SET practical_response=(SELECT practical_response FROM attempts WHERE id=$2::uuid) WHERE id=$1::uuid RETURNING id',id,previous.id);
       await tx.query(`INSERT INTO answers(id,updated_at,attempt_id,activity_id,question_id,development_text,saved_at)
         SELECT gen_random_uuid(),$3,$1::uuid,activity_id,question_id,development_text,$3 FROM answers WHERE attempt_id=$2::uuid RETURNING id`, id, previous.id, now);
       await tx.query(`INSERT INTO answer_selections(answer_id,question_id,option_id)

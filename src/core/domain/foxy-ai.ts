@@ -1,5 +1,5 @@
 export type FoxyContext = { kind: 'GENERAL' } | { kind: 'CLASSROOM'; classroomId: string };
-export type FoxyPurpose = 'CHAT' | 'STUDY_MATERIAL' | 'REVIEW' | 'SUMMARY' | 'ACTIVITY_IDEAS' | 'LESSON_PLAN';
+export type FoxyPurpose = 'CHAT' | 'STUDY_MATERIAL' | 'REVIEW' | 'SUMMARY' | 'ACTIVITY_IDEAS' | 'LESSON_PLAN' | 'RUBRIC';
 export interface FoxySelection { topicIds: string[]; sourceIds: string[] }
 export interface CreateFoxyConversation { requestId: string; title: string; context: FoxyContext }
 export interface SendFoxyMessage {

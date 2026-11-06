@@ -2,14 +2,14 @@ import type { RefObject } from 'react';
 import { FoxmindIcon, type IconKey } from '../shared-ui/index.ts';
 
 export const classroomSections = (teacher: boolean): {key:string;label:string;icon:IconKey;group:'learning'|'management'}[] => [
-  {key:'plan',label:'Plan',icon:'book',group:'learning'},
+  {key:'plan',label:'Plan',icon:'route',group:'learning'},
   {key:'wall',label:'Muro',icon:'chat',group:'learning'},
-  {key:'library',label:'Biblioteca',icon:'folder',group:'learning'},
+  {key:'library',label:'Biblioteca',icon:'book',group:'learning'},
   {key:'activities',label:'Actividades',icon:'clipboard',group:'learning'},
   {key:'progress',label:teacher?'Progreso':'Mi progreso',icon:'progress',group:'learning'},
   {key:'members',label:teacher?'Alumnos':'Compañeros',icon:'users',group:teacher?'management':'learning'},
   ...(teacher ? [
-    {key:'history',label:'Historial',icon:'clock' as const,group:'management' as const},
+    {key:'history',label:'Historial',icon:'history' as const,group:'management' as const},
     {key:'settings',label:'Configuración',icon:'settings' as const,group:'management' as const},
   ] : []),
 ];

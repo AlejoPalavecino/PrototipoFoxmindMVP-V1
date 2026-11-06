@@ -1,30 +1,20 @@
-import { changeDraftStart, changeDraftEnd, setDraftDuration, toggleAllDay } from './event-draft.ts';
+import { changeDraftStart, changeDraftEnd, toggleAllDay } from './event-draft.ts';
 import type { ReactNode } from 'react';
 import type { EventFieldProps } from './EventFields.tsx';
 import { FieldIssue, fieldAria } from './EventFieldIssue.tsx';
 
-export function EventWhenFields({ draft, onChange, issues, children }: EventFieldProps & { children?: ReactNode }) {
-  return <section className="agenda-form-group" aria-labelledby="agenda-when"><h3 id="agenda-when">Cuándo</h3>
+export function EventWhenFields({ draft, onChange, issues, children, category }: EventFieldProps & { children?: ReactNode; category?: ReactNode }) {
+  return <section className="agenda-form-group">
+    <div className="agenda-form-dates">{category}<label>Fecha<input required name="startDate" type="date" value={draft.startDate}
+      onChange={event => onChange(changeDraftStart(draft, { date: event.target.value }))} {...fieldAria(issues, 'startDate')} /><FieldIssue issues={issues} field="startDate" /></label></div>
     <label className="agenda-check"><input type="checkbox" checked={draft.allDay}
-      onChange={event => onChange(toggleAllDay(draft, event.target.checked))} />Día completo</label>
-    <div className="agenda-form-dates"><label>Fecha<input required name="startDate" type="date" value={draft.startDate}
-      onChange={event => onChange(changeDraftStart(draft, { date: event.target.value }))} {...fieldAria(issues, 'startDate')} />
-      <FieldIssue issues={issues} field="startDate" /></label>
-      {!draft.allDay ? <label>Hora de inicio<input required name="startTime" type="time" value={draft.startTime}
-        onChange={event => onChange(changeDraftStart(draft, { time: event.target.value }))} {...fieldAria(issues, 'startTime')} />
-        <FieldIssue issues={issues} field="startTime" /></label> : null}</div>
-    {!draft.allDay ? <>
-      <div className="agenda-duration"><span>Duración</span><div className="agenda-chips" role="group" aria-label="Duración">
-        {([30, 60, 90] as const).map(minutes => <button type="button" key={minutes}
-          aria-pressed={draft.endMode === 'DURATION' && draft.durationMinutes === minutes}
-          onClick={() => onChange(setDraftDuration(draft, minutes))}>{minutes} min</button>)}
-        <button type="button" aria-pressed={draft.endMode === 'MANUAL'} onClick={() => onChange({ ...draft, endMode: 'MANUAL' })}>Ajustar fin</button>
-      </div></div>
-      {draft.endMode === 'MANUAL' || issues.some(issue => issue.field === 'endTime') ? <label>Hora de fin<input required name="endTime" type="time" value={draft.endTime}
-        onChange={event => onChange(changeDraftEnd(draft, { time: event.target.value }))} {...fieldAria(issues, 'endTime')} />
-        <FieldIssue issues={issues} field="endTime" /></label> : null}
-      <TemporalChoices draft={draft} onChange={onChange} issues={issues} />
-    </> : null}
+      onChange={event => onChange(toggleAllDay(draft, event.target.checked))} />Todo el día</label>
+    {!draft.allDay ? <><div className="agenda-form-dates"><label>Hora de inicio<input required name="startTime" type="time" value={draft.startTime}
+      onChange={event => onChange(changeDraftStart(draft, { time: event.target.value }))} {...fieldAria(issues, 'startTime')} /><FieldIssue issues={issues} field="startTime" /></label>
+      <label>Hora de fin<input required name="endTime" type="time" value={draft.endTime}
+      onChange={event => onChange(changeDraftEnd(draft, { time: event.target.value }))} {...fieldAria(issues, 'endTime')} /><FieldIssue issues={issues} field="endTime" /></label></div>
+      <TemporalChoices draft={draft} onChange={onChange} issues={issues} /></> : null}
+    {draft.endDate!==draft.startDate || issues.some(issue=>issue.field==='endDate') ? <label>Fecha de fin<input required type="date" name="endDate" value={draft.endDate} onChange={event=>onChange(changeDraftEnd(draft,{date:event.target.value}))} {...fieldAria(issues,'endDate')}/><FieldIssue issues={issues} field="endDate"/></label> : null}
     {children}
   </section>;
 }

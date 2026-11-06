@@ -16,15 +16,15 @@ test('P6 Library actual publication, immutable private material and durable expl
       const student = await (await browser.newContext()).newPage();
       const other = await (await browser.newContext()).newPage();
       const suffix = Date.now();
-      await account(page, runtime.origin, runtime.inbox, `p6-library-teacher-${suffix}@example.test`);
-      await account(student, runtime.origin, runtime.inbox, `p6-library-student-${suffix}@example.test`);
+      await account(page, runtime.origin, runtime.inbox, `p6-library-teacher-${suffix}@example.test`,undefined,'teacher');
+      await account(student, runtime.origin, runtime.inbox, `p6-library-student-${suffix}@example.test`,undefined,'student');
       const room = await classroom(page, student);
       const detail = async () => (await api(page, 'GET', `/classrooms/${room.id}`)).body;
       const list = async actor => (await api(actor, 'GET', `/classrooms/${room.id}/library`)).body;
       const change = async operation => api(page, 'POST', `/classrooms/${room.id}/library`, { revision: (await detail()).revision, operation });
       await account(other, runtime.origin, runtime.inbox, `p6-library-other-${suffix}@example.test`, async () => {
         await rejectSame(runtime.db, () => api(other, 'GET', `/classrooms/${room.id}/library`), 403);
-      });
+      },'student');
       const bytes = await planPdf('Library original immutable bytes');
       let extra, linked;
       let failed = false;
@@ -34,11 +34,12 @@ test('P6 Library actual publication, immutable private material and durable expl
       await check('actual teacher upload and explicit publish expose private extra material to current student', async () => {
         await openClassroom(page, runtime.origin);
         await page.getByRole('button', { name: 'Biblioteca', exact: true }).click();
+        await page.getByRole('button',{name:'Agregar material',exact:true}).click();
         await page.getByLabel('Archivo del material', { exact: true }).setInputFiles({ name: 'extra.pdf', mimeType: 'application/pdf', buffer: bytes });
         await page.getByText('Archivo aprobado: extra.pdf. Completa los datos para publicarlo.', { exact: true }).waitFor();
         assert.deepEqual(await list(student), []);
         await page.getByLabel('Nombre del material', { exact: true }).fill('Extra through browser');
-        await page.getByRole('button', { name: 'Publicar material', exact: true }).click();
+        await page.getByRole('button', { name: 'Publicar en Biblioteca', exact: true }).click();
         await page.getByRole('article', { name: 'Extra through browser', exact: true }).waitFor();
         extra = (await list(page))[0];
         assert.equal(extra.unitId, null); assert.equal(extra.topicId, null); assert.equal(extra.ready, true);
@@ -48,7 +49,8 @@ test('P6 Library actual publication, immutable private material and durable expl
         await card.waitFor();
         assert.equal(await student.getByLabel('Archivo del material').count(), 0);
         assert.equal(await student.getByRole('button', { name: 'Editar datos', exact: true }).count(), 0);
-        assert.match(await card.getByRole('link', { name: 'Vista previa', exact: true }).getAttribute('href'), /mode=preview$/);
+        await card.getByRole('button',{name:'Abrir material: Extra through browser',exact:true}).click();
+        assert.match(await student.getByRole('link',{name:'Abrir archivo',exact:true}).getAttribute('href'), /mode=preview$/);
         const preview = await api(student, 'GET', `/files/${extra.fileId}/content?mode=preview`);
         assert.equal(preview.status, 200); assert.equal(preview.digest, digest(bytes));
         assert.match(preview.headers['content-type'], /application\/pdf/);
@@ -68,22 +70,22 @@ test('P6 Library actual publication, immutable private material and durable expl
           VALUES($1,now(),$2,'ASSIGNMENT','Existing linked activity',$3,$4)`, [activity, room.id, unit.id, topic.id]);
         await runtime.db.query('INSERT INTO activity_materials(activity_id,classroom_id,material_id) VALUES($1,$2,$3)', [activity, room.id, linked.id]);
         await runtime.db.query("UPDATE activities SET status='PUBLISHED',published_at=clock_timestamp(),first_started_at=clock_timestamp() WHERE id=$1", [activity]);
-        await page.getByRole('button', { name: 'Actualizar Biblioteca', exact: true }).click();
+        await openClassroom(page,runtime.origin);await page.getByRole('button',{name:'Biblioteca',exact:true}).click();
         const card = page.getByRole('article', { name: 'Topic material', exact: true });
-        await card.getByLabel('Más opciones para Topic material', { exact: true }).click();
-        await card.getByRole('button', { name: 'Editar datos', exact: true }).click();
+        await card.getByRole('button',{name:'Abrir material: Topic material',exact:true}).click();
+        await page.getByRole('button',{name:'Editar datos',exact:true}).click();
         const dialog = page.getByRole('dialog', { name: 'Editar material', exact: true });
         await dialog.getByLabel('Nombre del material', { exact: true }).fill('Reorganized linked material');
         await dialog.getByLabel('Unidad del material', { exact: true }).selectOption('');
         await dialog.getByRole('button', { name: 'Guardar datos del material', exact: true }).click();
-        await page.getByRole('article', { name: 'Reorganized linked material', exact: true }).waitFor();
+        await page.getByRole('region',{name:'Lectura de Reorganized linked material',exact:true}).waitFor();await page.getByRole('button',{name:'Volver a Biblioteca',exact:true}).click();
         const edited = (await list(student)).find(row => row.id === linked.id);
         assert.equal(edited.fileId, linked.fileId); assert.equal(edited.unitId, null); assert.equal(edited.topicId, null);
         assert.equal((await api(student, 'GET', `/files/${edited.fileId}/content`)).digest, digest(bytes));
         await rejectSame(runtime.db, () => change({ action: 'delete', id: linked.id, confirm: true }), 409);
         await rejectSame(runtime.db, async () => api(page, 'POST', `/classrooms/${room.id}/plan`, {
           revision: (await detail()).revision, operation: { action: 'deleteTopic', id: topic.id, confirm: true },
-        }), 409);
+        }), 400);
         assert.equal((await runtime.db.query('SELECT material_id FROM activity_materials WHERE activity_id=$1', [activity])).rows[0].material_id, linked.id);
       });
       await check('student/foreign writes, bad associations, pending files and byte replacement are rejected unchanged', async () => {
@@ -108,8 +110,8 @@ test('P6 Library actual publication, immutable private material and durable expl
         const usage = async () => BigInt((await api(page, 'GET', `/files/usage?kind=classroom&id=${room.id}`)).body.usedBytes);
         const before = await usage();
         const card = page.getByRole('article', { name: 'Extra through browser', exact: true });
-        await card.getByLabel('Más opciones para Extra through browser', { exact: true }).click();
-        await card.getByRole('button', { name: 'Eliminar material', exact: true }).click();
+        await card.getByRole('button',{name:'Abrir material: Extra through browser',exact:true}).click();
+        await page.getByRole('button',{name:'Eliminar material',exact:true}).click();
         await page.getByRole('button', { name: 'Confirmar eliminación del material', exact: true }).click();
         await card.getByText(/Material eliminado\. El borrado del archivo está pendiente/).waitFor();
         assert.equal((await list(student)).some(row => row.id === extra.id), false);

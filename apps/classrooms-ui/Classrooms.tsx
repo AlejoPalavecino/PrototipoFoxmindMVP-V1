@@ -13,6 +13,7 @@ import { EntryIcon } from '../shared-ui/EntryIcon';
 import { AppNavbar } from '../shared-ui/AppNavbar.tsx';
 import { createBrujulaSearchClient } from '../shared-ui/brujula-search-client.ts';
 import { brujulaSearchDestination } from '../../src/core/domain/brujula-search.ts';
+import {grantActivityResponse} from './activity-response-intent.ts';
 const Wizard = lazy(() =>
   import('./Wizard.tsx').then((module) => ({ default: module.Wizard })),
 );
@@ -147,6 +148,7 @@ export function ClassroomsApp({
   };
   const openHomeTarget = (target: HomeTarget) => {
     if (target.kind === 'private-event') { window.location.assign(`/agenda?event=${encodeURIComponent(target.eventId)}&date=${encodeURIComponent(target.date)}`); return; }
+    if(target.kind==='activity'&&target.mode==='respond')grantActivityResponse(target.classroomId,target.activityId);
     if (onOpenHomeTarget) { void action(async () => { await onOpenHomeTarget(target); }); return; }
     setDraft(null); setSharedCode(null); setWallTarget(null); setHomeTarget(target); setClassroomId(target.classroomId);
   };
@@ -200,12 +202,11 @@ export function ClassroomsApp({
   }
   if (accountRole !== 'teacher' && accountRole !== 'student') return <Notice error>No pudimos comprobar el rol de tu cuenta.</Notice>;
   return (
-    <div className={`p5-app fm3-classrooms ${surface.scope}${draft ? ' entry-wizard-reference' : !classroomId ? presentation === 'home' ? ' entry-home' : ' entry-classrooms-reference collection-workspace-page' : ' classroom-interior-reference'}`}>
+    <div className={`p5-app fm3-classrooms ${surface.scope}${draft ? ' entry-wizard-reference entry-classrooms-reference collection-workspace-page' : !classroomId ? presentation === 'home' ? ' entry-home' : ' entry-classrooms-reference collection-workspace-page' : ' classroom-interior-reference'}`}>
       <a className="skip-link" href="#classroom-main">Saltar al contenido</a>
-      <AppNavbar logoHref="/inicio" displayName={displayName} accountEmail={accountEmail} restricted={Boolean(draft)} accountRole={accountRole} search={searchContent}
-        classroomLinks={[...(data.teach ?? []), ...(data.study ?? [])].filter(room => !room.archived).map(room => ({ href: `/mis-aulas?aula=${encodeURIComponent(room.id)}`, label: room.name, current: classroomId === room.id }))}
-        links={draft ? [{ href: '/mis-aulas', label: 'Mis aulas', current: true }]
-          : [{ href: '/inicio', label: 'Inicio', current: !classroomId && presentation === 'home' },
+      <AppNavbar logoHref="/inicio" displayName={displayName} accountEmail={accountEmail} accountRole={accountRole} search={searchContent}
+        classroomLinks={[...(data.teach ?? []), ...(data.study ?? [])].filter(room => !room.archived).map(room => ({ href: `/mis-aulas?aula=${encodeURIComponent(room.id)}`, label: room.name,coverKey:room.coverKey, current: classroomId === room.id }))}
+        links={[{ href: '/inicio', label: 'Inicio', current: !classroomId && presentation === 'home' },
             { href: '/mis-aulas', label: 'Mis aulas', current: presentation === 'classrooms' || Boolean(classroomId) },
             { href: '/agenda', label: 'Agenda' },
             ...(accountRole === 'teacher' ? [{ href: '/foxy-ai', label: 'Foxy AI' }] : [])]}
@@ -223,15 +224,11 @@ export function ClassroomsApp({
           showPresentation(href === '/inicio' ? 'home' : 'classrooms');
         }}
         homeNavigation={presentation === 'home' && !classroomId && !draft}
-        notifications={!draft ? (onSelectNotification
+        notifications={(onSelectNotification
           ? <Notifications api={api} refresh={notificationRefresh} onSelect={id => void action(async () => { await onSelectNotification(id); })} />
-          : <Notifications api={api} refresh={notificationRefresh} onOpen={openTarget} />) : undefined}
-        accountActions={!draft ? accountActions : undefined} />
+          : <Notifications api={api} refresh={notificationRefresh} onOpen={openTarget} />)}
+        accountActions={accountActions} />
       <main id="classroom-main" className="p5-main">
-        {classroomId && sharedCode ? <section className="folder-created" role="status">
-          <div><h2>Aula creada</h2><p>Tu espacio ya está listo. Compartí el código o invitá estudiantes desde Alumnos.</p></div>
-          <img src="/foxmind-3d/states/success-320.webp" alt="" width="120" height="120" />
-        </section> : null}
         {draft ? (
           <Suspense fallback={<Notice>Cargando asistente…</Notice>}>
             <Wizard
@@ -243,10 +240,12 @@ export function ClassroomsApp({
                 setClassroomId(id);
                 setSharedCode(newCode);
                 setNotice('Aula creada. Ya podés invitar a tus estudiantes.');
+                void load();
               }}
             />
           </Suspense>
-        ) : classroomId ? (
+        ) : null}
+        {classroomId ? (
           <Suspense fallback={<Notice>Cargando aula…</Notice>}>
             <ClassroomView
               key={classroomId}

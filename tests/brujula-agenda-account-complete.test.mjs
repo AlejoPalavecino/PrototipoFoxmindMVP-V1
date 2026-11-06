@@ -16,7 +16,7 @@ test('Mi cuenta uses an explicit dialog trigger instead of disclosure; opening n
 
 test('after-day merges only queried future personal occurrences and deadlines, in date order with authorized destinations',()=>{
  const {AgendaAfterDay,afterDayEntries}=loadTsModule('apps/agenda-ui/AgendaAfterDay.tsx');const opened=[],edited=[];
- const event=(id,date)=>({kind:'PRIVATE_EVENT',occurrenceId:id,event:{id,title:id,category:'CLASS',color:'PURPLE'},startDate:date,endDateExclusive:date==='2026-11-05'?'2026-11-06':'2026-11-08',startAt:null,endAt:null});
+ const event=(id,date)=>({kind:'PRIVATE_EVENT',occurrenceId:id,event:{id,title:id,category:'CLASS',color:'PURPLE',schedule:{kind:'ALL_DAY',startDate:date,endDateExclusive:date==='2026-11-05'?'2026-11-06':'2026-11-08'}},startDate:date,endDateExclusive:date==='2026-11-05'?'2026-11-06':'2026-11-08',startAt:null,endAt:null});
  const deadline={kind:'ACADEMIC_DEADLINE',id:'deadline',title:'Plazo',classroomName:'Aula',deadlineAt:'2026-11-06T15:00:00Z',target:{classroomId:'room',activityId:'activity'}};
  const items=[event('old','2026-11-05'),event('later','2026-11-07'),deadline,event('outside','2026-12-08'),deadline];
  assert.deepEqual(afterDayEntries(items,'2026-11-05','UTC').map(e=>e.item.kind==='PRIVATE_EVENT'?e.item.event.id:e.item.id),['deadline','later']);

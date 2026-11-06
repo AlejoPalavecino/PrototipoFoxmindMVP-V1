@@ -8,7 +8,7 @@ type SourceQuestion = { id: string; type: 'DEVELOPMENT' | 'SINGLE_CHOICE' | 'MUL
 export interface GradingAiSnapshotInput {
   epoch: string; rubricSnapshot: string;
   activity: { id: string; type: GradingAiEvidence['type']; title: string | null; instructions: string | null; questions: SourceQuestion[] };
-  attempt: { id: string; attachments: SourceFile[] }; instructionFiles: SourceFile[];
+  attempt: { id: string; attachments: SourceFile[]; practicalResponse?:string }; instructionFiles: SourceFile[];
   grade: unknown;
 }
 export interface GradingAiSnapshot {
@@ -38,7 +38,9 @@ export function createGradingAiSnapshot(input: GradingAiSnapshotInput): GradingA
   if (!instructions.trim() && input.activity.questions.length === 0) throw new Error('SOURCE_UNAVAILABLE');
   const items = input.activity.questions.map(questionSnapshot);
   const references: GradingAiSnapshot['references'] = { questions: {}, files: {}, options: {} };
+  if(input.attempt.practicalResponse!==undefined&&(input.activity.type!=='ASSIGNMENT'||typeof input.attempt.practicalResponse!=='string'||[...input.attempt.practicalResponse].length>5000))throw new Error('SOURCE_UNAVAILABLE');
   const evidence: GradingAiEvidence = { type: input.activity.type, instructions, rubric: input.rubricSnapshot,
+    ...(input.attempt.practicalResponse!==undefined?{practicalResponse:input.attempt.practicalResponse}:{}),
     questions: items.map(item => item.evidence),
     answers: items.map((item, i) => ({ ref: item.ref, text: input.activity.questions[i]!.answer.text ?? '', selectedOptionRefs: item.selectedOptionRefs })),
     files: input.attempt.attachments.map((file, i) => ({ ref: `F${i + 1}`, kind: 'text', text: readFile(file) })) };

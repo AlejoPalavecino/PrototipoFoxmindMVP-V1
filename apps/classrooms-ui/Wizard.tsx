@@ -9,7 +9,7 @@ import {
 import type { ClassroomClient, Draft, Payload, FileState } from './api.ts';
 import { Dialog, Notice } from './components.tsx';
 import { WizardGeneral } from './WizardGeneral.tsx';
-import { WizardPlan } from './WizardPlan.tsx';
+import { WizardPlan, WizardPlanSource } from './WizardPlan.tsx';
 import { WizardSuggestions } from './WizardSuggestions.tsx';
 import { usePlanExtraction } from './use-plan-extraction.ts';
 import { classroomZones } from './classroom-zones.ts';
@@ -104,6 +104,7 @@ export function Wizard({
       setPayload(result.draft.payload);
       setPlanText(formatClassroomPlan(result.draft.payload.units));
       setStatus('Borrador guardado');
+      setExtractingText(false);
     },
   });
   const blocked = uploading || publishing || extraction.busy;
@@ -165,7 +166,14 @@ export function Wizard({
       setError('Completá el nombre, la materia y la división del aula.');
       return;
     }
-    try { await save(); setStep(1); } catch (e) { setError((e as Error).message); }
+    try {
+      if (payload.coverKey === 'general') {
+        const subject = payload.subject.normalize('NFD').replace(/\p{M}/gu,'').toLowerCase();
+        const coverKey = /biolog|naturaleza/.test(subject) ? 'biology' : /matemat|geometr/.test(subject) ? 'math' : /lengua|literatura/.test(subject) ? 'literature' : /geograf/.test(subject) ? 'society' : 'general';
+        latest.current = { ...latest.current, coverKey }; setPayload(latest.current);
+      }
+      await save(); setStep(1);
+    } catch (e) { setError((e as Error).message); }
   }
   async function publish() {
     if (!payload.units?.length || payload.units.some(unit => !unit.name.trim() || !unit.topics.length || unit.topics.some(topic => !topic.name.trim()))) {
@@ -200,12 +208,18 @@ export function Wizard({
     if (blocked) return;
     void save().then(onExit).catch(e => setError(e.message));
   };
+  const planOptions={file,uploading,disabled:blocked,inputRef:fileInputRef,planText,
+    onPlanText:(value:string)=>{setPlanText(value);update('units',parseClassroomPlan(value));},onExtractText:()=>setExtractingText(true),
+    onRemoveFile:()=>{setFile(null);update('planFileId',undefined);},fileUrl:(id:string)=>api.fileUrl(id),onFile:upload,onError:setError,
+    onRefresh:()=>{if(blocked||!file)return;void api.fileStatus(file.id).then(state=>{setFile(state);if(state.ready)update('planFileId',state.id);}).catch(failure=>setError(failure.message));}};
   if (extractingText) return <Dialog title="Extraer unidades y temas" className="brujula-wizard-dialog" onClose={() => setExtractingText(false)}>
     <div className="brujula-wizard"><p>Pegá el contenido de un plan para preparar un esquema editable.</p>
+      {payload.planFileId && file?.ready ? <WizardSuggestions extraction={extraction} hasUnits={Boolean(payload.units?.length)} review /> : null}
       <form onSubmit={event => { event.preventDefault(); const prepared = prepareClassroomPlan(pastedText); setPlanText(prepared); update('units',parseClassroomPlan(prepared)); setExtractingText(false); }}>
         <label>Texto del plan<textarea autoFocus required rows={7} value={pastedText} onChange={event => setPastedText(event.target.value)} /></label>
         <footer className="brujula-wizard-foot"><button type="button" onClick={() => setExtractingText(false)}>Volver</button><button className="primary" type="submit">Preparar esquema</button></footer>
       </form>
+      <WizardPlanSource {...planOptions}/>
     </div>
   </Dialog>;
   return <Dialog title={step === 0 ? 'Crear aula' : 'Preparar el plan de estudio'} className="brujula-wizard-dialog" onClose={saveAndExit}>
@@ -215,18 +229,10 @@ export function Wizard({
       <form data-wizard-step={step} onSubmit={event => { event.preventDefault(); if (!blocked) void (step === 1 ? publish() : next()); }}>
         <fieldset disabled={blocked}>
           {step === 0 ? <WizardGeneral payload={payload} zones={zones} onUpdate={update} /> : <>
-            <WizardPlan file={file} uploading={uploading} disabled={blocked} inputRef={fileInputRef}
-              planText={planText} onPlanText={value => { setPlanText(value); update('units', parseClassroomPlan(value)); }} onExtractText={() => setExtractingText(true)}
-              onRemoveFile={() => { setFile(null); update('planFileId', undefined); }}
-              fileUrl={id => api.fileUrl(id)} onFile={upload} onError={setError}
-              onRefresh={() => {
-                if (blocked || !file) return;
-                void api.fileStatus(file.id).then(state => { setFile(state); if (state.ready) update('planFileId', state.id); }).catch(failure => setError(failure.message));
-              }} />
-            {payload.planFileId && file?.ready ? <WizardSuggestions extraction={extraction} hasUnits={Boolean(payload.units?.length)} review /> : null}
+            <WizardPlan {...planOptions}/>
           </>}
         </fieldset>
-        <p className="brujula-wizard-save" role="status">{status}</p>
+        <p className={`brujula-wizard-save${status === 'No se pudo guardar' ? '' : ' sr-only'}`} role="status">{status}</p>
         <footer className="brujula-wizard-foot"><button type="button" className="brujula-wizard-keep" disabled={blocked} onClick={saveAndExit}>Guardar borrador</button><div>
           {step === 1 ? <button type="button" disabled={blocked} onClick={() => setStep(0)}>Atrás</button> : null}
           <button type="submit" className="primary" disabled={blocked}>{publishing ? 'Creando aula…' : step === 1 ? 'Crear aula' : 'Continuar'}</button>

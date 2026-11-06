@@ -16,4 +16,11 @@ export const migrationInventory = Object.freeze([
   '202611030001_library_cleanup_retry',
   '202611050001_public_evaluation_rubric',
   '202611050002_brujula_activity_grading_wall',
+  '202611050003_agenda_occurrence_exceptions',
+  '202611050004_library_written_content',
+  '202611050005_foxy_rubric_purpose',
+  '202611050006_agenda_graphite_color',
+  '202611050007_classroom_access_code_envelope',
+  '202611060001_material_revisions',
+  '202611060002_practical_written_response',
 ]);

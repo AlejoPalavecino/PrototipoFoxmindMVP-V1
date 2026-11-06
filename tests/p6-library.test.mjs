@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { randomUUID } from 'node:crypto';
+import { randomUUID,createHash } from 'node:crypto';
+import {loadTsModule} from './helpers/load-ts-module.mjs';
+const {createTextDocument}=loadTsModule('apps/shared-ui/text-document.ts');
 import { createServer } from 'node:http';
 import { withP5Database } from '../scripts/p5-database.mjs';
 import { FileStore } from '../.build/api/apps/api/src/files/store.js';
@@ -41,10 +43,10 @@ test('P6 Library scoped publication, metadata, private files and durable explici
       await assert.rejects(service.changeLibrary(actor, room, { revision: rev ?? await current(), operation }), e => e.code === code);
       assert.equal(await snapshot(), before);
     };
-    const makeFile = async (purpose = 'material', ready = true, scope = room) => {
-      const id = randomUUID(), digest = 'a'.repeat(64);
+    const makeFile = async (purpose = 'material', ready = true, scope = room, textDocument) => {
+      const id = randomUUID(), digest = textDocument ? createHash('sha256').update(createTextDocument(...textDocument)).digest('hex') : 'a'.repeat(64);
       await pool.query(`INSERT INTO files(id,updated_at,classroom_id,uploaded_by_id,storage_key,original_name,extension,size_bytes,validation_status,scan_status,validated_at,scanned_at,detected_mime_type)
-        VALUES($1,now(),$2,$3,$4,'Guide.pdf','pdf',100,'APPROVED',$5,now(),now(),'application/pdf')`, [id, scope, teacher, `p4/${id}/blob`, ready ? 'CLEAN' : 'ERROR']);
+        VALUES($1,now(),$2,$3,$4,'Guide.pdf',$6,100,'APPROVED',$5,now(),now(),'application/pdf')`, [id, scope, teacher, `p4/${id}/blob`, ready ? 'CLEAN' : 'ERROR',textDocument?'docx':'pdf']);
       await pool.query(`INSERT INTO uploads(id,updated_at,file_id,status,reserved_bytes,completed_at) VALUES($1,now(),$2,'COMPLETED',100,now())`, [randomUUID(), id]);
       await pool.query(`INSERT INTO file_custodies(file_id,purpose,phase,digest,validated_digest,scanned_digest)
         VALUES($1,$2,$3,$4,$4,$4)`, [id, purpose, ready ? 'ready' : 'rejected', digest]);
@@ -77,6 +79,7 @@ test('P6 Library scoped publication, metadata, private files and durable explici
       await deny(T, { action: 'edit', id: material, title: 'Replace', unitId: null, topicId: null, fileId: randomUUID() }, 'INVALID_INPUT');
     });
     await t.test('invalid associations, unsafe/wrong files, stale and unauthorized mutations leave persisted data unchanged', async () => {
+      await deny(T,{action:'edit',id:material,title:'Converted',unitId:null,topicId:null,body:'Unrelated text',contentKind:'TEXT'},'CONFLICT');
       await deny(T, { action: 'edit', id: material, title: 'Mismatch', unitId: secondUnit, topicId: topic }, 'FORBIDDEN');
       await deny(T, { action: 'edit', id: material, title: 'No unit', unitId: null, topicId: topic }, 'INVALID_INPUT');
       await deny(T, { action: 'edit', id: material, title: 'Foreign', unitId: randomUUID(), topicId: null }, 'FORBIDDEN');
@@ -165,6 +168,37 @@ test('P6 Library scoped publication, metadata, private files and durable explici
       await worker.sweep(); worker.onModuleInit(); assert.equal(removes, 1);
       // Create another currently usable material so former-member checks exercise a real file.
       await change({ action: 'publish', title: 'Final material', fileId: await makeFile(), unitId: null, topicId: null });
+    });
+    await t.test('written revisions preserve immutable files, links, permissions and retry identity',async()=>{
+      const scanned=async(title,body)=>makeFile('material',true,room,[title,body]);
+      const title='Texto de clase',body='Una célula\nTexto propio 🦊',id=await scanned(title,body);
+      await change({action:'publish',title,fileId:id,unitId:unit,topicId:topic,body,resourceUse:'COMPLEMENTARY',contentKind:'TEXT'});
+      const entry=(await service.listMaterials(S,room)).find(item=>item.fileId===id);assert.equal(entry.body,body);
+      await change({action:'edit',id:entry.id,title,unitId:unit,topicId:topic,resourceUse:'RECOMMENDED'});
+      await deny(T,{action:'edit',id:entry.id,title,unitId:unit,topicId:topic,body:'Otro contenido',contentKind:'TEXT'},'CONFLICT');
+      const newBody='Nueva explicación\nCon acentos y 🦊',newTitle='Texto revisado',nextFile=await scanned(newTitle,newBody);
+      const operation={action:'revise',id:entry.id,title:newTitle,fileId:nextFile,unitId:unit,topicId:topic,body:newBody,resourceUse:'STUDY',contentKind:'TEXT'};
+      await deny(S,operation,'FORBIDDEN');await deny(O,operation,'FORBIDDEN');
+      await deny(T,{...operation,body:'Texto que no corresponde al archivo'},'CONFLICT');
+      const activity=randomUUID();await pool.query("INSERT INTO activities(id,updated_at,classroom_id,type,title) VALUES($1,now(),$2,'ASSIGNMENT','Historical text reference')",[activity,room]);await pool.query('INSERT INTO activity_materials(activity_id,classroom_id,material_id) VALUES($1,$2,$3)',[activity,room,entry.id]);
+      const rev=await current(),before=(await service.listMaterials(S,room)).length;
+      const result=await service.changeLibrary(T,room,{revision:rev,operation});
+      assert.ok(result.materialId);assert.notEqual(result.materialId,entry.id);
+      const list=await service.listMaterials(S,room);assert.equal(list.length,before+1);
+      assert.equal(list.find(m=>m.id===entry.id).supersededBy,result.materialId);
+      assert.equal(list.find(m=>m.id===result.materialId).body,newBody);
+      const {loadSources}=await import('../.build/api/apps/api/src/foxy-ai/context-sources.js');
+      const sources=await loadSources({query:async(sql,...args)=>(await pool.query(sql,args)).rows},room,{kind:'MATERIAL',limit:100});
+      assert.equal(sources.items.some(m=>m.sourceId===`material:${entry.id}`),false);
+      assert.ok(sources.items.some(m=>m.sourceId===`material:${result.materialId}`));
+      assert.equal((await pool.query('SELECT m.file_id FROM activity_materials a JOIN materials m ON m.id=a.material_id WHERE a.activity_id=$1',[activity])).rows[0].file_id,id);
+      assert.equal((await files.transaction(tx=>files.loadAuthorized(tx,S,id,'read'))).id,id);
+      const retry=await service.changeLibrary(T,room,{revision:rev,operation});assert.deepEqual(retry,result);
+      await change({action:'edit',id:result.materialId,title:newTitle,unitId:null,topicId:null,resourceUse:'COMPLEMENTARY'});
+      assert.deepEqual(await service.changeLibrary(T,room,{revision:rev,operation}),result,'Receipt survives later metadata changes');
+      await deny(T,{...operation,fileId:await scanned('Concurrent','Other text'),title:'Concurrent',body:'Other text'},'CONFLICT');
+      await deny(T,{action:'delete',id:entry.id,confirm:true},'CONFLICT');
+      assert.equal((await service.listMaterials(S,room)).length,before+1);
     });
     await t.test('former and unverified members cannot access Library or the underlying file', async () => {
       const remaining = (await service.listMaterials(S, room))[0];

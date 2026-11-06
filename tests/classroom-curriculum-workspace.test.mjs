@@ -15,7 +15,7 @@ test('Plan selection never changes teaching state; only the explicit state contr
     await view.flush();
     const find=predicate=>descendants(view.tree,predicate);
     const resource=find(n=>n.type==='button'&&n.props['aria-label']==='Abrir actividad: Actividad del tema')[0];
-    assert.ok(resource);assert.equal(text(resource),'Abrir actividad');resource.props.onClick();assert.deepEqual(opened,['activity']);
+    assert.ok(resource);assert.equal(resource.props['aria-label'],'Abrir actividad: Actividad del tema');resource.props.onClick();assert.deepEqual(opened,['activity']);
     find(n=>n.type==='select'&&n.props['aria-label']==='Tema del plan')[0].props.onChange({target:{value:'two'}});await view.flush();
     assert.equal(writes.length,0);
     find(n=>n.type==='input'&&n.props['aria-label']==='Marcar como dado: Ecosistemas')[0].props.onChange({target:{checked:true}});

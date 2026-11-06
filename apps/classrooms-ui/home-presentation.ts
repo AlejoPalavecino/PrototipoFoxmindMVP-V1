@@ -7,7 +7,8 @@ export function shouldShowHomeModule(participation: Participation, name: HomeMod
 }
 
 export function homeGreetingDate(generatedAt: string, timeZone: string): string {
-  return new Intl.DateTimeFormat('es-AR', { timeZone, weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(generatedAt));
+  const value=new Intl.DateTimeFormat('es-AR', { timeZone, weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(generatedAt));
+  return value.charAt(0).toUpperCase()+value.slice(1);
 }
 
 export function homeCalendarWeek(generatedAt: string, timeZone: string) {

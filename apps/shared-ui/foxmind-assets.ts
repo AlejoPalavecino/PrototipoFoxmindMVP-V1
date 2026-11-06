@@ -9,9 +9,12 @@ export const foxmindAssets = {
 } as const;
 
 export const iconNames = [
+  'key','layers', 'route', 'history', 'globe', 'sun', 'school', 'wand-sparkles', 'list-checks', 'lightbulb', 'shapes','notebook-pen',
   'archive',
   'arrow-left',
   'arrow-right',
+  'arrow-up-right',
+  'file-text',
   'attach',
   'bell',
   'book',

@@ -51,9 +51,10 @@ function activity(value: unknown): GradingActivity {
 }
 export function parseGradingView(value: unknown): GradingData {
   const data = contractObject(value), attempt = contractObject(data.attempt), g = contractObject(data.grade);
+  if(Object.hasOwn(attempt,'practicalResponse')&&(typeof attempt.practicalResponse!=='string'||[...attempt.practicalResponse].length>5000))throw new Error('INVALID_INPUT');
   return { revision: contractRevision(data.revision), archived: bool(data.archived), canSave: bool(data.canSave), activity: activity(data.activity),
     attempt: { id: string(attempt.id), number: number(attempt.number), submittedAt: string(attempt.submittedAt), submittedLate: bool(attempt.submittedLate),
-      firstName: string(attempt.firstName), lastName: string(attempt.lastName), attachments: array(attempt.attachments).map(attachment) },
+      firstName: string(attempt.firstName), lastName: string(attempt.lastName), attachments: array(attempt.attachments).map(attachment),...(Object.hasOwn(attempt,'practicalResponse')?{practicalResponse:string(attempt.practicalResponse)}:{}) },
     grade: { ...rubricFields(g), id: nullable(g.id), isPublished: bool(g.isPublished), publishedAt: nullable(g.publishedAt),
       finalGrade: g.finalGrade === null ? null : grade(g.finalGrade), overallFeedback: nullable(g.overallFeedback), pending: bool(g.pending) } };
 }

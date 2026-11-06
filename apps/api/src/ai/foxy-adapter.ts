@@ -9,7 +9,7 @@ import { foxyResponse } from './foxy-response.ts';
 
 type Configuration = { model: string; maxInputTokens: number; maxOutputTokens: number; deadlineMs: number };
 function validate(input: FoxyTextInput): void {
-  if (!input || !['GENERAL', 'CLASSROOM'].includes(input.mode) || !['CHAT', 'STUDY_MATERIAL', 'REVIEW', 'SUMMARY', 'ACTIVITY_IDEAS', 'LESSON_PLAN'].includes(input.purpose)
+  if (!input || !['GENERAL', 'CLASSROOM'].includes(input.mode) || !['CHAT', 'STUDY_MATERIAL', 'REVIEW', 'SUMMARY', 'ACTIVITY_IDEAS', 'LESSON_PLAN', 'RUBRIC'].includes(input.purpose)
     || typeof input.message !== 'string' || !input.message.trim() || [...input.message].length > 5000
     || !Array.isArray(input.sources) || input.sources.length > 20 || !Array.isArray(input.documents) || input.documents.length > 6
     || !Array.isArray(input.warnings) || (input.mode === 'GENERAL' && (input.curriculum !== null || input.sources.length || input.documents.length))

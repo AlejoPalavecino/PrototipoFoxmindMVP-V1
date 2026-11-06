@@ -51,7 +51,7 @@ test('approved tool rail maps rubric to explicit editable text and has no redund
     assert.match(renderToStaticMarkup(view.tree), /texto editable/iu);
     descendants(view.tree, n => n.type === 'textarea')[0].props.onChange({ target: { value: 'Evaluar una exposición' } }); await view.flush();
     descendants(view.tree, n => n.type === 'form')[0].props.onSubmit({ preventDefault() {} }); await view.flush();
-    assert.equal(calls[0][0], 'CHAT'); assert.match(calls[0][1], /rúbrica/iu); assert.match(calls[0][1], /Evaluar una exposición/u);
+    assert.equal(calls[0][0], 'RUBRIC'); assert.match(calls[0][1], /rúbrica/iu); assert.match(calls[0][1], /Evaluar una exposición/u);
   } finally { view.close(); }
 });
 

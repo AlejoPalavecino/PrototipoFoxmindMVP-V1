@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { ClassroomClient, Detail, WallContent, WallData, WallPost, WallTarget, WallRepliesPage, WallThreadData } from './api.ts';
 import { parseWallData, parseWallThreadData, parseWallRepliesPage } from '../../src/core/domain/index.ts';
 import { Dialog, Notice } from './components.tsx';
+import {FoxmindIcon} from '../shared-ui/FoxmindIcon';
 
 export function TextForm({ label, initial = '', initialTitle = '', withTitle = false, titleRequired = false, busy, onSave, onCancel }: {
   label: string; initial?: string; initialTitle?: string; withTitle?: boolean; titleRequired?: boolean; busy: boolean; onSave: (body: string, title?: string) => Promise<void>; onCancel?: () => void;
@@ -30,7 +31,7 @@ export function TextForm({ label, initial = '', initialTitle = '', withTitle = f
 export function WallContentView({ content, children }: { content: WallContent; children?: ReactNode }) {
   return <>
     <header className="p6-wall-author"><span className="p5-avatar" aria-hidden="true">{content.initials}</span><div>
-      <strong>{content.authorName}</strong><small><time dateTime={content.createdAt}>{new Date(content.createdAt).toLocaleString('es-AR')}</time>
+      <strong>{content.authorName}</strong><small><time dateTime={content.createdAt} title={new Date(content.createdAt).toLocaleString('es-AR')}>{new Intl.DateTimeFormat('es-AR',{day:'numeric',month:'short'}).format(new Date(content.createdAt)).replaceAll('.','')}</time>
         {content.editedAt ? ' · Editado' : ''}</small>
     </div></header>
     {content.removedAt ? <p className="p6-wall-removed">Contenido eliminado</p> : <>{'title' in content && typeof content.title === 'string' && content.title ? <h3 className="br-wall-title">{content.title}</h3> : null}<p className="p6-wall-text">{content.body}</p></>}
@@ -50,7 +51,7 @@ export function Wall({ api, room, reload, target, onChanged, openComposer = fals
   const [postFilter, setPostFilter] = useState<'all' | 'NOTICE' | 'QUERY'>('all');
   const root = useRef<HTMLElement>(null);
   const load = useCallback(async (signal?: AbortSignal) => {
-    const result = parseWallData(await api.call<WallData>(`/${room.id}/wall`, 'GET', undefined, signal));
+    const result = parseWallData(await api.call<WallData>(`/${room.id}/wall${postFilter==='all'?'':`?type=${postFilter}`}`, 'GET', undefined, signal));
     if (target?.postId) {
       const suffix = target.replyId ? `?replyId=${encodeURIComponent(target.replyId)}` : '';
       try {
@@ -60,7 +61,7 @@ export function Wall({ api, room, reload, target, onChanged, openComposer = fals
       } catch (error) { if (signal?.aborted) throw error; setError((error as Error).message); }
     }
     setData(result);
-  }, [api, room.id, target?.postId, target?.replyId]);
+  }, [api, room.id, target?.postId, target?.replyId,postFilter]);
   useEffect(() => {
     const controller = new AbortController();
     setData(null); setEditing(null); setRemoving(null); setReplying(null);
@@ -86,7 +87,7 @@ export function Wall({ api, room, reload, target, onChanged, openComposer = fals
   }
   async function morePosts() {
     if (!data?.nextCursor) return;
-    const page = parseWallData(await api.call<WallData>(`/${room.id}/wall?cursor=${encodeURIComponent(data.nextCursor)}`));
+    const page = parseWallData(await api.call<WallData>(`/${room.id}/wall?cursor=${encodeURIComponent(data.nextCursor)}${postFilter==='all'?'':`&type=${postFilter}`}`));
     setData(current => current ? { ...page, posts: [...current.posts, ...page.posts.filter(post => !current.posts.some(item => item.id === post.id))] } : page);
   }
   async function moreReplies(post: WallPost, direction: 'next' | 'previous') {
@@ -99,29 +100,29 @@ export function Wall({ api, room, reload, target, onChanged, openComposer = fals
       repliesPreviousCursor: direction === 'previous' ? page.previousCursor : item.repliesPreviousCursor,
     }) } : current);
   }
-  const controls = (content: WallContent, reply: boolean) => !room.archived && !content.removedAt ? <div className="p5-actions">
-    {content.canEdit ? <button disabled={busy} onClick={() => setEditing({ content, reply })}>{reply ? 'Editar respuesta' : 'Editar publicación'}</button> : null}
-    {content.canRemove ? <button disabled={busy} onClick={() => setRemoving({ content, reply })}>{reply ? 'Eliminar respuesta' : 'Eliminar publicación'}</button> : null}
+  const controls = (content: WallContent, reply: boolean) => !room.archived && !content.removedAt ? <div className={`p5-actions br-wall-controls${reply?' is-reply':''}`}>
+    {content.canEdit ? <button aria-label={reply?'Editar respuesta':'Editar publicación'} title={reply?'Editar respuesta':'Editar publicación'} disabled={busy} onClick={() => setEditing({ content, reply })}><FoxmindIcon name="edit"/></button> : null}
+    {content.canRemove ? <button aria-label={reply?'Eliminar respuesta':'Eliminar publicación'} title={reply?'Eliminar respuesta':'Eliminar publicación'} disabled={busy} onClick={() => setRemoving({ content, reply })}><FoxmindIcon name="trash"/></button> : null}
   </div> : null;
   return <section ref={root} className="p6-wall" aria-label="Muro del aula">
     <header className="p5-section-head cl-section"><div><h2>Muro</h2><p>Avisos y conversaciones que puede leer toda el aula.</p></div>
-      <div className="p5-actions">{!room.archived ? <button className="primary" disabled={busy || !data} onClick={() => setComposing(true)}>{room.role === 'teacher' ? 'Publicar aviso' : 'Hacer una consulta'}</button> : null}<button disabled={busy} onClick={() => void run(async () => { await Promise.all([reload(), load()]); })}>Actualizar Muro</button></div>
+      <div className="p5-actions">{!room.archived ? <button className="primary" disabled={busy || !data} onClick={() => setComposing(true)}><FoxmindIcon name="plus"/>{room.role === 'teacher' ? 'Publicar aviso' : 'Hacer una consulta'}</button> : null}</div>
     </header>
-    {error ? <Notice error>{error} Actualiza el Muro antes de volver a intentar. Tu texto no se ha descartado.</Notice> : null}
+    {error ? <Notice error>{error} Actualiza el Muro antes de volver a intentar. Tu texto no se ha descartado.<button disabled={busy} onClick={() => void run(async()=>{await Promise.all([reload(),load()]);})}>Actualizar Muro</button></Notice> : null}
     {notice ? <Notice>{notice}</Notice> : null}
     {!data && !error ? <Notice>Cargando Muro…</Notice> : null}
-    <div className="cl-pills" role="group" aria-label="Filtrar publicaciones cargadas">{([['all','Todos'],['NOTICE','Avisos'],['QUERY','Consultas']] as const).map(([value,label]) => <button key={value} className={postFilter === value ? 'selected' : undefined} aria-pressed={postFilter === value} onClick={() => setPostFilter(value)}>{label}</button>)}</div>
+    <div className="cl-pills" role="group" aria-label="Filtrar publicaciones">{([['all','Todos'],['NOTICE','Avisos'],['QUERY','Consultas']] as const).map(([value,label]) => <button key={value} className={postFilter === value ? 'selected' : undefined} disabled={busy} aria-pressed={postFilter === value} onClick={() => setPostFilter(value)}>{label}</button>)}</div>
     <div className="classroom-wall-layout"><div className="classroom-wall-conversation">
     {!room.archived && data && composing ? <Dialog title={room.role === 'teacher' ? 'Publicar aviso' : 'Hacer una consulta'} onClose={() => { if (!busy) setComposing(false); }}><p>Visible para quienes forman parte de {room.name} · {room.division}.</p><TextForm key={composerKey} withTitle titleRequired busy={busy} label={room.role === 'teacher' ? 'Publicar aviso' : 'Publicar consulta'}
       onSave={(body,title) => run(async () => { await change({ action: 'publish', title: title || null, body }); setComposerKey(value => value + 1); setComposing(false); setNotice('Publicación guardada.'); })} /></Dialog> : null}
     {data?.posts.length === 0 ? <p className="p5-empty">Todavía no hay publicaciones.</p> : null}
     {data && target && !data.posts.some(post => post.id === target.postId) ? <Notice>La publicación ya no está disponible para tu cuenta.</Notice> : null}
     <div className="p6-wall-threads">{data?.posts.filter(post => postFilter === 'all' || (postFilter === 'NOTICE' ? post.type === 'NOTICE' : post.type !== 'NOTICE')).map((post: WallPost) => <article key={post.id} data-wall-id={post.id} tabIndex={-1}
-      aria-label={post.type === 'NOTICE' ? 'Aviso del aula' : 'Consulta del aula'} className={target?.postId === post.id ? 'p6-wall-selected' : undefined}>
+      aria-label={post.type === 'NOTICE' ? 'Aviso del aula' : 'Consulta del aula'} data-editable={post.canEdit} data-post-type={post.type} className={target?.postId === post.id ? 'p6-wall-selected' : undefined}>
       <span className="p5-tag">{post.type === 'NOTICE' ? 'Aviso' : 'Consulta'}</span>
       <WallContentView content={post}>{controls(post, false)}</WallContentView>
       <section className="p6-wall-replies" aria-label="Respuestas de la publicación">
-        <h3>Respuestas ({post.replyCount})</h3>
+        <h3 className={!post.replyCount?'sr-only':undefined}>Respuestas ({post.replyCount})</h3>
         {post.repliesPreviousCursor ? <button disabled={busy} onClick={() => void run(() => moreReplies(post, 'previous'))}>Respuestas anteriores</button> : null}
         {post.replies.map(reply => <article key={reply.id} data-wall-id={reply.id} tabIndex={-1}
           className={target?.replyId === reply.id ? 'p6-wall-selected' : undefined}>
@@ -130,7 +131,7 @@ export function Wall({ api, room, reload, target, onChanged, openComposer = fals
         {post.repliesNextCursor ? <button disabled={busy} onClick={() => void run(() => moreReplies(post, 'next'))}>Más respuestas</button> : null}
         {!room.archived && !post.removedAt ? replying === post.id ? <TextForm label="Enviar respuesta" busy={busy} onCancel={() => setReplying(null)}
           onSave={body => run(async () => { await change({ action: 'reply', postId: post.id, body }); setReplying(null); setNotice('Respuesta guardada.'); })} />
-          : <button disabled={busy} onClick={() => setReplying(post.id)}>Responder publicación</button> : null}
+          : <button className="br-wall-reply" aria-label="Responder publicación" disabled={busy} onClick={() => setReplying(post.id)}><FoxmindIcon name="chat"/>Responder</button> : null}
       </section>
     </article>)}</div>
     {data?.nextCursor ? <button disabled={busy} onClick={() => void run(morePosts)}>Más publicaciones</button> : null}

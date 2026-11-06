@@ -9,8 +9,7 @@ import { chromium } from '@playwright/test';
 import { withP4IntegrationRuntime } from '../scripts/p4-integration-runtime.mjs';
 import { account } from './p4-integration-helpers.mjs';
 import { classroom, openClassroom } from './p6-integration-helpers.mjs';
-import { startBrowserAttempt } from './helpers/browser-admission-step.mjs';
-import { rootOf, inviteExplicitly, createActivity, ok, session, rejectUnchanged,
+import { rootOf, inviteExplicitly, createActivity, changeActivity, ok, session, rejectUnchanged,
   request, editorHeaders, academicHash, assertPublishedQuestions } from './p9-journey-helpers.mjs';
 export * from './p9-journey-helpers.mjs';
 
@@ -20,11 +19,13 @@ export async function selectClassroomSection(page, key, label) {
   if (await mobile.isVisible()) await mobile.selectOption(key);
   else await page.getByRole('button', { name: label, exact: true }).click();
 }
-export async function openActivity(page, origin, room, activity) {
+export async function openActivity(page, origin, room, activity, beforePrepare=async()=>{}) {
   await openClassroom(page, origin, room.name ?? `P9 ${activity.type.toLowerCase()} classroom`);
   await selectClassroomSection(page, 'activities', 'Actividades');
   await page.getByRole('article', { name: activity.title, exact: true }).getByRole('button',
-    { name: activity.type === 'ASSIGNMENT' ? 'Abrir trabajo práctico' : 'Consultar actividad', exact: true }).click();
+    { name: `Abrir ${activity.title}`, exact: true }).click();
+  const start = page.getByRole('button', { name: /^(Preparar entrega|Responder actividad|Continuar borrador)$/ });
+  await start.first().waitFor();await beforePrepare(); await start.first().click();
   await page.getByRole('region', { name: activity.type === 'EVALUATION' ? 'Evaluación · sesión reducida' : 'Sesión de actividad', exact: true }).waitFor();
 }
 
@@ -93,7 +94,7 @@ export async function openOwnResult(world, activity, attemptId) {
   const { S, room, runtime } = world;
   await openClassroom(S.page, runtime.origin, `P9 ${world.label} classroom`);
   await selectClassroomSection(S.page, 'activities', 'Actividades');
-  await S.page.getByRole('article', { name: activity.title, exact: true }).getByRole('button', { name: 'Ver mis intentos', exact: true }).click();
+  await S.page.getByRole('article', { name: activity.title, exact: true }).getByRole('button', { name: `Abrir ${activity.title}`, exact: true }).click();
   const response = S.page.waitForResponse(r => r.url().endsWith(`/${attemptId}/result`) && r.request().method() === 'GET');
   await S.page.getByRole('button', { name: 'Consultar intento 1', exact: true }).click();
   const opened = await response; assert.equal(opened.status(), 200);
@@ -114,29 +115,23 @@ export async function questionnaireJourney(world, type) {
   const preview = await ok(T.page, 'GET', `${root}/activities/${activity.id}/preview`);
   assert.equal(preview.activity.locked, false);
   assert.equal((await runtime.db.query('SELECT count(*)::int n FROM attempts')).rows[0].n, 0);
-  await openClassroom(T.page, runtime.origin, `P9 ${world.label} classroom`);
-  await T.page.getByRole('button', { name: 'Actividades', exact: true }).click();
-  const article = T.page.getByRole('article', { name: activity.title, exact: true });
-  await article.getByText('Más opciones', { exact: true }).click();
-  await article.getByRole('button', { name: 'Publicar', exact: true }).click();
-  const publication = T.page.waitForResponse(r => r.url().endsWith(`${room.id}/activities`) && r.request().method() === 'POST');
-  await T.page.getByRole('button', { name: 'Confirmar publicación', exact: true }).click();
-  assert.equal((await publication).status(), 200); await (await publication).json();
-  await T.page.getByText('Estado de publicación confirmado.', { exact: true }).waitFor();
-  await openActivity(page, runtime.origin, { ...room, name: `P9 ${world.label} classroom` }, activity);
-  const response = await startBrowserAttempt(page, room.id, activity.id, 12000); assert.equal(response.status(), 200);
+  await changeActivity(T.page,room,{action:'publish',id:activity.id});
+  await openClassroom(page,runtime.origin,`P9 ${world.label} classroom`);await selectClassroomSection(page,'activities','Actividades');
+  await page.getByRole('button',{name:`Abrir ${activity.title}`,exact:true}).click();
+  const starting=page.waitForResponse(r=>r.request().method()==='POST'&&new URL(r.url()).pathname===`/api/v1${root}/activities/${activity.id}/start`);
+  await page.getByRole('button',{name:'Responder actividad',exact:true}).click();
+  const response=await starting;assert.equal(response.status(),200);
   const started = await response.json(), attemptId = started.attempt.id, editor = started.editor;
   assert.equal(started.attempt.status, 'DRAFT'); assert.ok(editor);
   assert.ok(!/"(?:correct|scoringRule|manualPoints)"/.test(JSON.stringify(started)));
-  const navigation = number => page.getByRole('navigation', { name: 'Navegación de preguntas', exact: true })
-    .getByRole('button', { name: `Pregunta ${number}`, exact: true }).click();
+  const navigation = number => page.getByRole('article',{name:`Pregunta ${number}`,exact:true}).scrollIntoViewIfNeeded();
   const answerResponse = () => page.waitForResponse(r => r.url().endsWith('/answer') && r.request().method() === 'POST');
   const originalAnswer = `${type} real multiline answer\nPreserved second line 😀`;
   let pending = answerResponse(), began = Date.now();
   await page.getByRole('textbox', { name: 'Respuesta a la pregunta 1', exact: true }).fill(originalAnswer);
   let saved = await pending; assert.equal(saved.status(), 200); await saved.json();
   assert.ok(Date.now() - began >= 1900, 'Two-second idle autosave boundary');
-  await page.getByRole('status').filter({ hasText: 'Guardado confirmado' }).waitFor();
+  await page.getByRole('article',{name:'Pregunta 1',exact:true}).getByRole('status').filter({ hasText: 'Guardado confirmado' }).waitFor();
   await navigation(2);
   if (type === 'QUESTIONNAIRE') {
     await page.getByRole('radio', { name: 'Selected single answer', exact: true }).check();
@@ -152,7 +147,7 @@ export async function questionnaireJourney(world, type) {
   await rejectUnchanged(runtime.db, () => request(T.page, 'POST', `${root}/activities`, {
     revision: locked.revision, operation: { action: 'save', id: activity.id, payload: { ...activity.payload, instructions: 'Forbidden content change' } } }), 409);
   const cancelHash = await academicHash(runtime.db);
-  await page.getByRole('button', { name: 'Enviar respuestas', exact: true }).click();
+  await page.getByRole('button', { name: 'Revisar entrega', exact: true }).click();
   const confirmation = page.getByRole('region', { name: 'Confirmar entrega de respuestas', exact: true });
   await confirmation.getByText(type === 'EVALUATION'
     ? 'Quedan 1 preguntas sin responder y obtendrán cero puntos. Confirmá si querés entregar así.'
@@ -163,7 +158,7 @@ export async function questionnaireJourney(world, type) {
   assert.equal(await page.getByRole('textbox', { name: 'Respuesta a la pregunta 1', exact: true }).isEnabled(), true);
   if (type === 'EVALUATION') await rejectUnchanged(runtime.db, () => request(page, 'POST', `${root}/attempts/${attemptId}/submit-answers`,
     { revision: state.attempt.revision, confirm: true, confirmIncomplete: false }, editorHeaders(editor)), 409);
-  await page.getByRole('button', { name: 'Enviar respuestas', exact: true }).click();
+  await page.getByRole('button', { name: 'Revisar entrega', exact: true }).click();
   pending = page.waitForResponse(r => r.url().endsWith('/submit-answers'));
   await page.getByRole('button', { name: type === 'EVALUATION' ? 'Confirmar entrega incompleta' : 'Confirmar envío de respuestas', exact: true }).click();
   const submitted = await pending; assert.equal(submitted.status(), 200); await submitted.json();
@@ -172,7 +167,7 @@ export async function questionnaireJourney(world, type) {
   assert.equal((await runtime.db.query('SELECT count(*)::int n FROM attempt_grades')).rows[0].n, 0);
   await openClassroom(T.page, runtime.origin, `P9 ${world.label} classroom`);
   await T.page.getByRole('button', { name: 'Actividades', exact: true }).click();
-  await T.page.getByRole('article', { name: activity.title, exact: true }).getByRole('button', { name: 'Ver entregas recibidas', exact: true }).click();
+  await T.page.getByRole('article', { name: activity.title, exact: true }).getByRole('button', { name: `Abrir ${activity.title}`, exact: true }).click();
   await T.page.getByRole('button', { name: 'Corregir intento 1', exact: true }).click();
   const region = T.page.getByRole('region', { name: 'Corrección privada del intento', exact: true });
   await region.getByLabel('Puntos de la pregunta 1', { exact: true }).fill('1,50');

@@ -6,7 +6,8 @@ export interface AcademicNotification {
 }
 
 /** The identical current-recipient/target predicate protects list, read and open. */
-export const academicNotificationSelection = `SELECT n.id,n.classroom_id AS "classroomId",c.name AS "classroomName",
+export const academicNotificationSelection = `SELECT n.id,n.classroom_id AS "classroomId",c.name AS "classroomName",c.division AS "classroomDivision",
+  CASE WHEN n.event_type='SUBMISSION_RECEIVED' THEN concat(student.first_name,' ',student.last_name) ELSE NULL END AS "actorName",
   n.event_type AS "eventType",a.id AS "activityId",a.title AS "activityTitle",n.attempt_id AS "attemptId",
   n.created_at AS "createdAt",n.read_at AS "readAt"
   FROM notifications n JOIN classrooms c ON c.id=n.classroom_id
@@ -14,6 +15,7 @@ export const academicNotificationSelection = `SELECT n.id,n.classroom_id AS "cla
   LEFT JOIN attempts attempt ON attempt.id=n.attempt_id AND attempt.activity_id=a.id
   LEFT JOIN student_activities sa ON sa.id=attempt.student_activity_id AND sa.classroom_id=c.id
   LEFT JOIN enrollments owner ON owner.id=sa.enrollment_id AND owner.classroom_id=c.id
+  LEFT JOIN users student ON student.id=owner.student_id
   WHERE n.recipient_id=$1::uuid AND n.post_id IS NULL AND n.reply_id IS NULL AND n.attempt_grade_id IS NULL
     AND ((n.event_type IN ('ACTIVITY_PUBLISHED','ACTIVITY_DEADLINE_CHANGED','FIRST_SUBMISSION_ENABLED') AND n.attempt_id IS NULL)
       OR (n.event_type='ATTEMPT_REOPENED' AND attempt.id IS NOT NULL AND owner.student_id=$1::uuid)

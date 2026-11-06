@@ -1,0 +1,206 @@
+[p1 "Mis Aulas · FoxMind" | space "FoxMind parity 2026-11-05"(1): 2 managed, 0 untracked — p1* "Mis Aulas · FoxMind", p2 "Mis aulas · FoxMind Brújula"]
+root
+  container
+    anchor [ref=944, loc=href:/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f#classroom-main, url=http://127.0.0.1:49603/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f#classroom-main]
+      text "Saltar al contenido"
+    container
+      anchor "FoxMind" [ref=945, loc=css:a[aria-label="FoxMind"], url=http://127.0.0.1:49603/inicio]
+        image
+        container
+          text "FoxMind"
+          text "BRÚJULA"
+      container
+        button "Buscar en FoxMind" [ref=946, loc=css:button[aria-label="Buscar en FoxMind"]]
+          svg_root
+          text "Buscar"
+          text "Ctrl K"
+        text "MI ESPACIO"
+      container "Navegación principal"
+        anchor [ref=947, url=http://127.0.0.1:49603/inicio]
+          svg_root
+          text "Inicio"
+        anchor [ref=948, loc=href:/mis-aulas, url=http://127.0.0.1:49603/mis-aulas]
+          svg_root
+          text "Mis aulas"
+        anchor [ref=949, loc=href:/agenda, url=http://127.0.0.1:49603/agenda]
+          svg_root
+          text "Agenda"
+      button "Notificaciones: 6 sin leer" [ref=950, loc=css:button[aria-label="Notificaciones: 6 sin leer"]]
+        svg_root
+        text "Notificaciones"
+        text "6"
+      container "Accesos a mis aulas"
+        text "MIS AULAS"
+        anchor [ref=951, loc=href:/mis-aulas?aula=9c79d9cd-20e9-4b18-92aa-f141f8339437, url=http://127.0.0.1:49603/mis-aulas?aula=9c79d9cd-20e9-4b18-92aa-f141f8339437]
+          text "Lengua y Literatura"
+        anchor [ref=952, loc=href:/mis-aulas?aula=0777b140-8939-4b45-b91a-7a520bc6aff2, url=http://127.0.0.1:49603/mis-aulas?aula=0777b140-8939-4b45-b91a-7a520bc6aff2]
+          text "Matemática"
+        anchor [ref=953, loc=href:/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f, url=http://127.0.0.1:49603/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f]
+          text "Biología"
+      button "Mi cuenta de Mateo Ríos" [ref=954, loc=css:button[aria-label="Mi cuenta de Mateo Ríos"]]
+        text "MR"
+        container
+          text "Mateo Ríos"
+          text "Alumno"
+        svg_root
+    container
+      container "Ubicación"
+        anchor [ref=955, url=http://127.0.0.1:49603/inicio]
+          text "Inicio"
+        text "›"
+        button [ref=956]
+          text "Mis aulas"
+        text "›"
+        text "Biología"
+      container
+        container
+          image
+          container
+            container
+              svg_root
+              container
+                text "Aula ·"
+                text "4.º A"
+                text "·"
+                text "2026"
+            heading
+              text "Biología"
+            paragraph
+              container
+                svg_root
+                text "Lucía Domínguez"
+              container
+                svg_root
+                text "2"
+                text "estudiantes"
+        container "Secciones del aula"
+          button [ref=957]
+            svg_root
+            text "Plan"
+          button [ref=958]
+            svg_root
+            text "Muro"
+          button [ref=959]
+            svg_root
+            text "Biblioteca"
+          button [ref=960]
+            svg_root
+            text "Actividades"
+          button [ref=961]
+            svg_root
+            text "Mi progreso"
+          button [ref=962]
+            svg_root
+            text "Compañeros"
+        container "Actividades"
+          container "Actividades del aula"
+            container "Redes tróficas"
+              button [ref=974]
+                svg_root
+                text "Volver a actividades"
+              heading
+                text "Responder actividad"
+              paragraph
+                text "Redes tróficas"
+              container
+                container "Sesión de actividad"
+                  container
+                    text "Cuestionario"
+                    heading
+                      text "Consigna"
+                    paragraph
+                      text "Observá el entorno y explicá una relación entre las especies que encontraste."
+                  paragraph
+                    text "Intento"
+                    text "1"
+                    text "·"
+                    text "Borrador · todavía sin entregar"
+                  unordered_list
+                  container "Respuestas y entrega"
+                    paragraph
+                      text "Tus respuestas se guardan automáticamente."
+                      text "Guardar no entrega."
+                      text "Antes de salir, esperá la confirmación de guardado."
+                    container "Pregunta 1"
+                      heading
+                        text "01"
+                        text "¿Qué organismo transforma energía solar en alimento?"
+                      text "Selección simple"
+                      group [ref=975]
+                        container
+                          text "Respuesta a la pregunta"
+                          text "1"
+                        container
+                          radio [ref=976]
+                          text "Una planta"
+                        container
+                          radio [ref=977]
+                          text "Un hongo"
+                        button [ref=978]
+                          text "Limpiar selección"
+                      status
+                        text "Guardado confirmado"
+                    container "Pregunta 2"
+                      heading
+                        text "02"
+                        text "Seleccioná los consumidores."
+                      text "Selección múltiple"
+                      group [ref=979]
+                        container
+                          text "Respuesta a la pregunta"
+                          text "2"
+                        container
+                          checkbox [ref=980]
+                          text "Zorro"
+                        container
+                          checkbox [ref=981]
+                          text "Algarrobo"
+                        container
+                          checkbox [ref=982]
+                          text "Liebre"
+                        button [ref=983]
+                          text "Limpiar selección"
+                      status
+                        text "Guardado confirmado"
+                    container "Pregunta 3"
+                      heading
+                        text "03"
+                        text "Explicá qué cambia si disminuyen los herbívoros."
+                      text "Desarrollo"
+                      group [ref=984]
+                        container
+                          text "Respuesta a la pregunta"
+                          text "3"
+                        container
+                          text "Tu respuesta"
+                          textbox "Respuesta a la pregunta 3" [ref=985, loc=css:textarea[aria-label="Respuesta a la pregunta 3"]]
+                      status
+                        text "Guardado confirmado"
+                    container
+                      button [ref=986]
+                        text "Guardar borrador"
+                      button [ref=987]
+                        text "Revisar entrega"
+                  button [ref=988]
+                    text "Actualizar estado confirmado"
+                container
+                  text "FICHA DE ACTIVIDAD"
+                  heading
+                    text "Fecha límite"
+                  paragraph
+                    text "12 nov, 18:00"
+                  heading
+                    text "Unidad"
+                  paragraph
+                    text "Ecosistemas y biodiversidad"
+                  heading
+                    text "Temas"
+                  paragraph
+                    text "Redes tróficas"
+                  heading
+                    text "Entregas tardías"
+                  paragraph
+                    text "Se aceptan"
+          button [ref=970]
+            text "Salir del aula"
+  alert

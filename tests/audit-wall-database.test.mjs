@@ -43,6 +43,10 @@ test('large wall traverses bounded pages without losing ties or microseconds and
     } while (cursor);
     assert.deepEqual(found, expected);
     assert.ok(firstCursor);
+    const oldQuery=randomUUID();await pool.query(`INSERT INTO wall_posts(id,updated_at,classroom_id,author_id,type,body,created_at) VALUES($1,now(),$2,$3,'QUERY','Consulta antigua','2025-12-31T00:00:00Z')`,[oldQuery,room,student]);
+    const queries=await service.listWall(user,room,{type:'QUERY'});assert.deepEqual(queries.posts.map(post=>post.id),[oldQuery]);assert.equal(queries.nextCursor,null);
+    const notices=await service.listWall(user,room,{type:'NOTICE'});assert.equal(notices.posts.length,10);assert.ok(notices.nextCursor);
+    await assert.rejects(service.listWall(user,room,{type:'QUERY',cursor:notices.nextCursor}),{code:'INVALID_INPUT'});
     const altered = `${firstCursor.slice(0, -1)}${firstCursor.endsWith('A') ? 'B' : 'A'}`;
     await assert.rejects(() => service.listWall(user, room, { cursor: altered }), e => e.code === 'INVALID_INPUT');
     await assert.rejects(() => service.listWall({ actor: teacher }, other, { cursor: firstCursor }), e => e.code === 'INVALID_INPUT');

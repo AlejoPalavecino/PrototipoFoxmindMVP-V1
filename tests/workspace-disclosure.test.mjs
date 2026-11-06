@@ -8,19 +8,14 @@ const room = { id: 'room', revision: '1', role: 'teacher', archived: false, plan
   { id: 'unit', name: 'Los seres vivos', topics: [{ id: 'topic', name: 'La célula', status: 'NEXT' }] },
 ] };
 
-test('Plan keeps teaching tools in a collapsed disclosure without hiding learning or triggering writes', async () => {
+test('Plan exposes the reference learning workspace without retired administration or implicit writes', async () => {
   const { Plan } = loadTsModule('apps/classrooms-ui/Plan.tsx');
   const calls = [], view = hookView(Plan, { room, api: { call: async (...args) => calls.push(args) }, reload: async () => {} });
   try {
     await view.flush();
     const management = descendants(view.tree, n => n.type === 'details' && n.props.className === 'fm-plan-management')[0];
-    assert.ok(management, 'Teacher administration must be separate from the learning workspace');
-    assert.ok(!management.props.open, 'Administration starts collapsed');
-    assert.equal(descendants(management, n => n.type?.name === 'PlanWorkspace').length, 0);
+    assert.equal(management,undefined,'The supplied reference retires curriculum maintenance from this screen');
     assert.equal(descendants(view.tree, n => n.type?.name === 'PlanWorkspace').length, 1);
-    assert.match(text(management), /Nueva versión del archivo/);
-    assert.match(text(management).replace(/\s+/g, ' '), /Estado de La célula/);
-    assert.match(text(management), /Agregar unidad/);
     assert.equal(calls.length, 0);
   } finally { view.close(); }
 });

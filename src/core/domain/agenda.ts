@@ -1,5 +1,5 @@
 export type EventKind = 'CLASS' | 'ACTIVITY' | 'EVALUATION';
-export const EVENT_COLORS = ['BLUE', 'GREEN', 'YELLOW', 'ORANGE', 'PINK', 'PURPLE'] as const;
+export const EVENT_COLORS = ['BLUE', 'GREEN', 'YELLOW', 'ORANGE', 'PINK', 'PURPLE', 'GRAPHITE'] as const;
 export type EventColor = (typeof EVENT_COLORS)[number];
 export type AgendaTarget = { classroomId: string; activityId: string | null };
 export type EventSchedule =
@@ -20,10 +20,12 @@ export interface PrivateEvent extends EventPayload {
   revision: string;
   createdAt: string;
   updatedAt: string;
+  exceptions?: { date: string; replacement: EventPayload | null }[];
 }
 export interface EventOccurrence {
   kind: 'PRIVATE_EVENT';
   occurrenceId: string;
+  occurrenceDate?: string;
   event: PrivateEvent;
   startDate: string;
   endDateExclusive: string;

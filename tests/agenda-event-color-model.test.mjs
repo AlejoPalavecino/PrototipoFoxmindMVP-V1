@@ -6,7 +6,7 @@ import { deferred } from './agenda-ui-helpers.test.mjs';
 
 test('AUTO is historical, explicit colors round trip and dirty compares choices for both schedule kinds', () => {
   const api = loadTsModule('apps/agenda-ui/index.ts');
-  assert.equal(api.eventDraft(undefined, day, zone).color, 'AUTO');
+  assert.equal(api.eventDraft(undefined, day, zone).color, 'GREEN');
   for (const allDay of [false, true]) {
     let event = privateEvent();
     if (allDay) event.schedule = { kind: 'ALL_DAY', startDate: day, endDateExclusive: '2026-10-28' };

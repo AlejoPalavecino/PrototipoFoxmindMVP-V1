@@ -31,6 +31,6 @@ export function ClassroomCollection({ accountRole, teach, study, search, onEnter
     </div>
     {!visible.length ? <p className="p5-empty">{!all.length ? accountRole === 'teacher' ? 'Aún no tenés aulas. Creá una para empezar.' : 'Aún no tenés aulas. Ingresá con un código para empezar.'
       : narrowed ? 'No hay coincidencias entre tus aulas cargadas.' : options.state === 'archived' ? 'No tenés aulas archivadas.' : 'No tenés aulas activas.'}</p> : null}
-    {all.length ? <p className="fm3-collection-count" role="status">Mostrando {visible.length} de {all.length} aulas</p> : null}
+    {all.length ? <p className="fm3-collection-count sr-only" role="status">Mostrando {visible.length} de {all.length} aulas</p> : null}
   </section>;
 }

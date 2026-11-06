@@ -32,6 +32,17 @@ export class PracticalSubmissionService {
   private async attachmentViews(tx: Transaction, attemptId: string, draft: boolean) {
     return practicalAttachments(tx, attemptId, draft);
   }
+  savePracticalResponse(request:unknown,classroomId:string,attemptId:string,input:unknown){
+    const body=exactActivityObject(input,['revision','text']),expected=revision(body.revision),editor=capability(request);
+    if(typeof body.text!=='string'||[...body.text].length>5000||/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/u.test(body.text))return fail('INVALID_INPUT');
+    return this.run(request,true,async(tx,actor)=>{
+      await this.classroom(tx,actor,classroomId,true);
+      const {attempt}=await assertAttemptWrite(tx,actor.id,classroomId,attemptId,editor,expected);
+      if(attempt.activity_type!=='ASSIGNMENT')return fail('FORBIDDEN');
+      await tx.query('UPDATE attempts SET practical_response=$2,revision=revision+1,updated_at=clock_timestamp() WHERE id=$1::uuid RETURNING id',attemptId,body.text);
+      return {revision:(attempt.revision+1n).toString(),text:body.text};
+    });
+  }
 
   removeAttemptAttachment(request: unknown, classroomId: string, attemptId: string, input: unknown) {
     const body = exactActivityObject(input, ['revision','fileId']), expected = revision(body.revision), editor = capability(request);
@@ -126,7 +137,7 @@ export class PracticalSubmissionService {
       if (!uuid(attemptId)) return fail('FORBIDDEN');
       const [row] = await tx.query<{ id: string; number: number; submittedAt: Date; appliedDeadlineAt: Date | null; submittedLate: boolean; firstName: string; lastName: string }>(
         `SELECT a.id,a.attempt_number AS number,a.submitted_at AS "submittedAt",a.applied_deadline_at AS "appliedDeadlineAt",
-        a.submitted_late AS "submittedLate",u.first_name AS "firstName",u.last_name AS "lastName"
+        a.submitted_late AS "submittedLate",a.practical_response AS "practicalResponse",u.first_name AS "firstName",u.last_name AS "lastName"
         FROM attempts a JOIN activities activity ON activity.id=a.activity_id JOIN student_activities sa ON sa.id=a.student_activity_id
         JOIN enrollments e ON e.id=sa.enrollment_id JOIN users u ON u.id=e.student_id
         WHERE a.id=$1::uuid AND sa.classroom_id=$2::uuid AND a.status='SUBMITTED' AND activity.type='ASSIGNMENT' FOR SHARE OF a`, attemptId, classroomId);

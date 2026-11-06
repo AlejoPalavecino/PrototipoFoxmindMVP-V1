@@ -1,0 +1,134 @@
+[p1 "Mis Aulas · FoxMind" | space "FoxMind parity 2026-11-05"(1): 2 managed, 0 untracked — p1* "Mis Aulas · FoxMind", p2 "Mis aulas · FoxMind Brújula"]
+root
+  container
+    anchor [ref=944, loc=href:/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f#classroom-main, url=http://127.0.0.1:49603/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f#classroom-main]
+      text "Saltar al contenido"
+    container
+      anchor "FoxMind" [ref=945, loc=css:a[aria-label="FoxMind"], url=http://127.0.0.1:49603/inicio]
+        image
+        container
+          text "FoxMind"
+          text "BRÚJULA"
+      container
+        button "Buscar en FoxMind" [ref=946, loc=css:button[aria-label="Buscar en FoxMind"]]
+          svg_root
+          text "Buscar"
+          text "Ctrl K"
+        text "MI ESPACIO"
+      container "Navegación principal"
+        anchor [ref=947, url=http://127.0.0.1:49603/inicio]
+          svg_root
+          text "Inicio"
+        anchor [ref=948, loc=href:/mis-aulas, url=http://127.0.0.1:49603/mis-aulas]
+          svg_root
+          text "Mis aulas"
+        anchor [ref=949, loc=href:/agenda, url=http://127.0.0.1:49603/agenda]
+          svg_root
+          text "Agenda"
+      button "Notificaciones: 6 sin leer" [ref=950, loc=css:button[aria-label="Notificaciones: 6 sin leer"]]
+        svg_root
+        text "Notificaciones"
+        text "6"
+      container "Accesos a mis aulas"
+        text "MIS AULAS"
+        anchor [ref=951, loc=href:/mis-aulas?aula=9c79d9cd-20e9-4b18-92aa-f141f8339437, url=http://127.0.0.1:49603/mis-aulas?aula=9c79d9cd-20e9-4b18-92aa-f141f8339437]
+          text "Lengua y Literatura"
+        anchor [ref=952, loc=href:/mis-aulas?aula=0777b140-8939-4b45-b91a-7a520bc6aff2, url=http://127.0.0.1:49603/mis-aulas?aula=0777b140-8939-4b45-b91a-7a520bc6aff2]
+          text "Matemática"
+        anchor [ref=953, loc=href:/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f, url=http://127.0.0.1:49603/mis-aulas?aula=4cf5a41a-6888-47ed-8b60-93aea075034f]
+          text "Biología"
+      button "Mi cuenta de Mateo Ríos" [ref=954, loc=css:button[aria-label="Mi cuenta de Mateo Ríos"]]
+        text "MR"
+        container
+          text "Mateo Ríos"
+          text "Alumno"
+        svg_root
+    container
+      container "Ubicación"
+        anchor [ref=955, url=http://127.0.0.1:49603/inicio]
+          text "Inicio"
+        text "›"
+        button [ref=956]
+          text "Mis aulas"
+        text "›"
+        text "Biología"
+      container
+        container
+          image
+          container
+            container
+              svg_root
+              container
+                text "Aula ·"
+                text "4.º A"
+                text "·"
+                text "2026"
+            heading
+              text "Biología"
+            paragraph
+              container
+                svg_root
+                text "Lucía Domínguez"
+              container
+                svg_root
+                text "2"
+                text "estudiantes"
+        container "Secciones del aula"
+          button [ref=957]
+            svg_root
+            text "Plan"
+          button [ref=958]
+            svg_root
+            text "Muro"
+          button [ref=959]
+            svg_root
+            text "Biblioteca"
+          button [ref=960]
+            svg_root
+            text "Actividades"
+          button [ref=961]
+            svg_root
+            text "Mi progreso"
+          button [ref=962]
+            svg_root
+            text "Compañeros"
+        container "Actividades"
+          container "Actividades del aula"
+            container "Mi historial de intentos"
+              button [ref=1005]
+                svg_root
+                text "Volver a actividades"
+              container
+                text "TRABAJO PRÁCTICO"
+                heading
+                  text "Cuaderno de campo"
+              container "Intento histórico confirmado"
+                button [ref=1008]
+                  text "Volver a mis intentos"
+                heading [ref=1009]
+                  text "Cuaderno de campo"
+                paragraph
+                  text "Intento"
+                  text "1"
+                  text "·"
+                  text "Entregado"
+                container "Resultado publicado del intento"
+                  heading
+                    text "Tu calificación y devolución"
+                  paragraph
+                    text "Calificación publicada"
+                    text "8,50"
+                    text "/ 10"
+                  paragraph
+                    text "Calificación vigente de esta actividad."
+                  text "Publicada el"
+                  text "6 de nov de 2026, 10:35"
+                  heading
+                    text "Devolución del docente"
+                  paragraph
+                    text "Buena observación y uso de ejemplos."
+                  button [ref=1010]
+                    text "Actualizar resultado"
+          button [ref=970]
+            text "Salir del aula"
+  alert

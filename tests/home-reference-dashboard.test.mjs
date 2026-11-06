@@ -113,7 +113,7 @@ for (const teacher of [true, false]) test(`Contextual ${teacher ? 'teacher' : 's
   const calls = [], selected = []; let navigated = 0;
   const view = hookView(ClassroomActions, { teacher, data: data({ classrooms: page(null, { items: rooms, nextCursor: 'next' }) }),
     onAction: target => calls.push(target), onSelected: id => selected.push(id), onClassrooms: () => navigated++ });
-  const labels = teacher ? ['Crear actividad', 'Subir material', 'Publicar aviso', 'Ver progreso'] : ['Materiales', 'Mi progreso', 'Plan de estudio', 'Muro del aula'];
+  const labels = teacher ? ['Crear actividad', 'Agregar material', 'Publicar aviso', 'Ver progreso'] : ['Materiales', 'Mi progreso', 'Plan de estudio', 'Muro del aula'];
   try {
     await view.flush();
     assert.equal(descendants(view.tree, node => node.type === 'select').length, 0);
@@ -206,8 +206,7 @@ test('Teacher focus keeps one active authorized room, selected context and acces
     assert.deepEqual(focusedModule().props.page.items.map(item => item.id), ['second']);
     const row = descendants(focusedModule().type(focusedModule().props), node => node.type?.name === 'HomeRow')[0];
     row.props.onAction(row.props.item.target); assert.strictEqual(calls[0], items[3].target);
-    descendants(focus().type(focus().props), node => node.type === 'button' && text(node) === 'Ver todas mis aulas')[0].props.onClick();
-    assert.equal(calls[1], 'classrooms');
+    assert.equal(descendants(focus().type(focus().props),node=>node.type==='button'&&text(node)==='Ver todas mis aulas').length,0,'The focus card follows the reference; collection navigation belongs to the sidebar');
     for (const stale of ['student', 'archive', 'removed']) {
       tools.props.onSelected(stale); await view.flush();
       assert.deepEqual(focusedModule().props.page.items.map(item => item.id), ['first'], `Unsafe stale selection ${stale}`);

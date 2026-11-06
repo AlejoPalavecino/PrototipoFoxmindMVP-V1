@@ -8,10 +8,11 @@ export interface EventRow {
   repeat_kind: EventPayload['repeat']['kind']; repeat_until: string | null;
   revision: bigint; created_at: Date; updated_at: Date;
   color: EventPayload['color'] | null;
+  exceptions?: PrivateEvent['exceptions'];
 }
 export const eventColumns = `id,title,description,category,schedule_kind,start_date::text,end_date_exclusive::text,
   start_local,end_local,time_zone,start_offset_minutes,end_offset_minutes,repeat_kind,repeat_until::text,
-  revision,created_at,updated_at,color`;
+  revision,created_at,updated_at,color,exceptions`;
 export function fromEventRow(row: EventRow): PrivateEvent {
   const schedule: EventPayload['schedule'] = row.schedule_kind === 'ALL_DAY'
     ? { kind: 'ALL_DAY', startDate: row.start_date, endDateExclusive: row.end_date_exclusive }
@@ -21,7 +22,8 @@ export function fromEventRow(row: EventRow): PrivateEvent {
   return { id: row.id, title: row.title, description: row.description, category: row.category, schedule,
     repeat: row.repeat_kind === 'NONE' ? { kind: 'NONE' } : { kind: row.repeat_kind, untilDate: row.repeat_until! },
     revision: String(row.revision), createdAt: row.created_at.toISOString(), updatedAt: row.updated_at.toISOString(),
-    ...(row.color === null ? {} : { color: row.color }) };
+    ...(row.color === null ? {} : { color: row.color }),
+    ...(row.exceptions?.length ? { exceptions: row.exceptions } : {}) };
 }
 export function eventValues(payload: EventPayload): unknown[] {
   const schedule = payload.schedule;

@@ -7,7 +7,7 @@ export function useClassroomSettings(id: string, room: Detail | null) {
     subject: '',
     division: '',
     academicYear: 2026,
-    aiGradingEnabled: false,
+    aiGradingEnabled: false, coverKey: 'general',
   });
   const settingsRoom = useRef<string | null>(null);
   const [settingsRevision, setSettingsRevision] = useState('');
@@ -16,7 +16,7 @@ export function useClassroomSettings(id: string, room: Detail | null) {
     if (!room || settingsRoom.current === id) return;
     settingsRoom.current = id;
     setSettings({ name: room.name, subject: room.subject, division: room.division,
-      academicYear: room.academicYear, aiGradingEnabled: room.aiGradingEnabled ?? false });
+      academicYear: room.academicYear, coverKey: room.coverKey, aiGradingEnabled: room.aiGradingEnabled ?? false });
     setSettingsRevision(room.revision);
     setSettingsConflict(false);
   }, [id, room]);

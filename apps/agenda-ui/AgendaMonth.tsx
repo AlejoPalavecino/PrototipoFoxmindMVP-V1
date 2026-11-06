@@ -48,7 +48,6 @@ export function AgendaMonth({ month, selected, zone, items, onSelect, onMonth, o
           className={`agenda-color-indicator ${item.kind === 'PRIVATE_EVENT' ? eventColorClass(item.event) : 'deadline'}`} />)}</span>
       </button>;
     })}</div>
-    <p className="agenda-calendar-note">Elegí un día para ver sus eventos y entregas.</p>
     <AgendaLegend />
   </section>;
 }

@@ -18,7 +18,7 @@ test('Brújula real screens: both roles, classroom sections, agenda, account, Fo
       }
     };
     for (const [role, page] of [['teacher',T.page],['student',S.page]]) {
-      for (const route of ['mis-aulas','agenda','profile','settings', ...(role === 'teacher' ? ['foxy-ai'] : [])]) {
+      for (const route of ['mis-aulas','agenda','profile','settings','notificaciones', ...(role === 'teacher' ? ['foxy-ai'] : [])]) {
         await page.goto(`${runtime.origin}/${route}`);
         await page.locator('h1').waitFor();
         await capture(page, `${role}-${route}`, [390,768,1280,1440]);

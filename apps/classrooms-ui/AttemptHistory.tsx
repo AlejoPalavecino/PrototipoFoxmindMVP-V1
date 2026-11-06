@@ -1,18 +1,22 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { AttemptHistoryData, AttemptHistoryRow, AttemptSessionData, ClassroomClient, DeadlineResolution, Detail } from './api.ts';
+import type {ActivityDetail, AttemptHistoryData, AttemptHistoryRow, AttemptSessionData, ClassroomClient, DeadlineResolution, Detail } from './api.ts';
 import { Dialog, Notice } from './components.tsx';
 import { activityDate } from './ActivityAuthoring.tsx';
 import { GradingEditor } from './GradingEditor.tsx';
 import { PublishedResult } from './PublishedResult.tsx';
 import { AttemptAnswers } from './AttemptAnswers.tsx';
+import {ActivityScreen} from './ActivityScreen.tsx';
+import {ActivityPreview} from './ActivityAuthoring.tsx';
 
-export function AttemptHistory({ api, room, activityId, attemptId, filter, onClose, onChanged, onResume }: {
+export function AttemptHistory({ api, room, activityId, attemptId, filter, onClose, onChanged, onResume,activityPreview,actions,onReview,effectiveDeadlineAt }: {
   api: ClassroomClient; room: Detail; activityId: string; attemptId?: string | null; onClose: () => void;
   filter?: 'unpublished';
   onChanged: () => Promise<void>; onResume: (data: AttemptSessionData) => void;
+  activityPreview?:ActivityDetail;actions?:import('react').ReactNode;onReview?:()=>void;effectiveDeadlineAt?:string|null;
 }) {
   const teacher = room.role === 'teacher', path = `/${room.id}/activities/${activityId}`;
+  const privateDraft=teacher&&activityPreview?.status==='DRAFT';
   const [data, setData] = useState<AttemptHistoryData | null>(null), [selected, setSelected] = useState<AttemptSessionData | null>(null);
   const [reopening, setReopening] = useState<AttemptHistoryRow | null>(null), [local, setLocal] = useState('');
   const [resolution, setResolution] = useState<DeadlineResolution | null>(null), [offset, setOffset] = useState<number | null>(null);
@@ -38,14 +42,15 @@ export function AttemptHistory({ api, room, activityId, attemptId, filter, onClo
     if (next.reason === 'AMBIGUOUS' && offset === null) throw new Error('Selecciona explícitamente una ocurrencia de la hora repetida.');
     return offset === null ? { local } : { local, offsetMinutes: offset };
   }
-  return <Dialog title={teacher ? 'Entregas e historial de intentos' : 'Mi historial de intentos'} onClose={onClose}>
+  return <ActivityScreen title={data?.activity.title ?? activityPreview?.title ?? (teacher ? 'Entregas e historial de intentos' : 'Mis intentos')} label={teacher ? 'Entregas e historial de intentos' : 'Mi historial de intentos'} onClose={onClose} actions={!grading&&!selected?actions:undefined} kicker={activityPreview?{ASSIGNMENT:'Trabajo práctico',QUESTIONNAIRE:'Cuestionario',EVALUATION:'Evaluación'}[activityPreview.type]:undefined}>
     {error ? <Notice error>{error} Actualiza el historial antes de volver a intentar.</Notice> : null}
     {!data ? <Notice>Cargando historial…</Notice> : <div className="education-attempt-history" hidden={Boolean(grading || selected)}>
-      <h3>{data.activity.title}</h3><p>{activityDate(data.activity.deadlineAt, data.activity.zone)}</p>
+      {activityPreview?<ActivityPreview api={api} activity={activityPreview} teacher={teacher} room={room} effectiveDeadlineAt={effectiveDeadlineAt}/>:<p>{activityDate(data.activity.deadlineAt, data.activity.zone)}</p>}
+      {privateDraft?<div className="brujula-attempt-empty"><strong>Solo vos podés ver este borrador.</strong><p>Revisá la consigna antes de compartirla con el aula.</p>{onReview?<button type="button" onClick={onReview}>Revisar para asignar</button>:null}</div>:<><h3>{teacher?'Entregas e intentos':'Mis intentos'}</h3>
       {!teacher && data.delivered ? <Notice>Actividad entregada. Abrí un intento para ver tus respuestas y la devolución del docente.</Notice> : null}
       {data.pendingResubmission ? <Notice>Reentrega pendiente: todavía no es una nueva entrega recibida.</Notice> : null}
       {filter === 'unpublished' ? <p>Entregas con corrección todavía no publicada.</p> : null}
-      {!visibleAttempts.length ? <p>{filter === 'unpublished' ? 'No hay entregas pendientes de publicación.' : 'No hay intentos registrados.'}</p> : null}
+      {!visibleAttempts.length ? <div className="brujula-attempt-empty"><strong>{teacher?filter === 'unpublished' ? 'No hay entregas pendientes de publicación.' : 'No hay intentos registrados.':'Todavía no hiciste una entrega'}</strong>{!teacher?<p>Cuando confirmes una entrega, vas a encontrar su comprobante y devolución acá.</p>:null}</div> : null}
       <ul className="p7-history-list">{visibleAttempts.map(attempt => <li key={attempt.id}>
         <strong>{teacher ? `${attempt.lastName}, ${attempt.firstName} · ` : ''}Intento {attempt.number}</strong>
         <p>{attempt.status === 'SUBMITTED' ? 'Entregado' : attempt.number > 1 ? 'Reentrega pendiente' : 'Borrador · no entregado'}
@@ -59,8 +64,7 @@ export function AttemptHistory({ api, room, activityId, attemptId, filter, onClo
             && !data.attempts.some(a => a.studentId === attempt.studentId && (a.status === 'DRAFT' || a.number > attempt.number))
             ? <button disabled={busy} onClick={() => { setReopening(attempt); setLocal(''); setOffset(null); setResolution(null); }}>Habilitar otro intento</button> : null}
           {teacher && attempt.status === 'SUBMITTED' ? <button disabled={busy} onClick={() => { setGrading(attempt.id); setSelected(null); setReopening(null); }}>Corregir intento {attempt.number}</button> : null}</div>
-      </li>)}</ul>
-      <button disabled={busy} onClick={() => void run(() => load())}>Actualizar historial</button>
+      </li>)}</ul></>}
     </div>}
     {grading ? <GradingEditor api={api} roomId={room.id} attemptId={grading} onClose={() => setGrading(null)} onChanged={async () => { await Promise.all([load(), onChanged()]); }} /> : null}
     {selected?.attempt ? <section className="p7-history-detail" aria-label="Intento histórico confirmado">
@@ -69,7 +73,7 @@ export function AttemptHistory({ api, room, activityId, attemptId, filter, onClo
       {selected.attempt.status === 'SUBMITTED' ? <PublishedResult key={selected.attempt.id} api={api} roomId={room.id} attemptId={selected.attempt.id} zone={room.timezone}
         pendingContent={<AttemptAnswers api={api} data={selected} />} /> : <AttemptAnswers api={api} data={selected} />}
     </section> : null}
-    {reopening ? <section aria-label="Confirmar nuevo intento"><h4>Habilitar otro intento para {reopening.firstName} {reopening.lastName}</h4>
+    {reopening ? <Dialog title="Confirmar nuevo intento" onClose={()=>{if(!busy)setReopening(null);}}><h4>Habilitar otro intento para {reopening.firstName} {reopening.lastName}</h4>
       <p>Se creará un nuevo borrador con las respuestas o archivos de la última entrega para revisar. El original y su calificación se conservan. El estudiante debe transferir explícitamente la edición y confirmar una nueva entrega.</p>
       <label>Plazo individual opcional · {room.timezone}<input aria-label="Plazo individual de reentrega" type="datetime-local" step={60} value={local}
         onChange={e => { setLocal(e.target.value); setResolution(null); setOffset(null); }} /></label>
@@ -83,6 +87,6 @@ export function AttemptHistory({ api, room, activityId, attemptId, filter, onClo
           await api.call(`${path}/reopen`, 'POST', { revision: data!.revision, studentId: reopening.studentId, deadline: await deadline(), confirm: true });
           setReopening(null); await Promise.all([load(), onChanged()]);
         })}>Confirmar nuevo intento</button></footer>
-    </section> : null}
-  </Dialog>;
+    </Dialog> : null}
+  </ActivityScreen>;
 }

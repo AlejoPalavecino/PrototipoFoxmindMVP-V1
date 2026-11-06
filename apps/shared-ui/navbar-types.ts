@@ -1,1 +1,1 @@
-export interface NavbarLink { href: string; label: string; current?: boolean }
+export interface NavbarLink { href: string; label: string; current?: boolean; coverKey?:string }

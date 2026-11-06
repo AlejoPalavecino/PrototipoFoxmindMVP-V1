@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
+import {seedPlan} from './helpers/plan-fixture.mjs';
 import { withP5Database } from '../scripts/p5-database.mjs';
 import { FileStore } from '../.build/api/apps/api/src/files/store.js';
 import { ClassroomService } from '../.build/api/apps/api/src/classrooms/service.js';
@@ -36,9 +37,9 @@ test('P7 teacher authoring preserves privacy, validation, identity and lock boun
     const T = { actor: teacher }, S = { actor: student }, O = { actor: other };
     const detail = () => service.detail(T, room);
     const change = async operation => service.changeActivities(T, room, { revision: (await detail()).revision, operation });
-    await service.changePlan(T, room, { revision: '0', operation: { action: 'addUnit', name: 'Unit' } });
+    await seedPlan(pool.query.bind(pool),room,{action:'addUnit',name:'Unit'});
     const unit = (await detail()).units[0].id;
-    await service.changePlan(T, room, { revision: (await detail()).revision, operation: { action: 'addTopic', unitId: unit, name: 'Topic' } });
+    await seedPlan(pool.query.bind(pool),room,{action:'addTopic',unitId:unit,name:'Topic'});
     const topic = (await detail()).units[0].topics[0].id;
     const snapshot = async () => JSON.stringify((await pool.query(`SELECT
       (SELECT jsonb_agg(to_jsonb(a) ORDER BY id) FROM activities a) a,

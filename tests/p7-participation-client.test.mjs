@@ -13,6 +13,6 @@ test('editor transport is dedicated, memory-owned and does not change old call h
   assert.deepEqual(JSON.parse(calls[1].body),{revision:'3'});
   await api.call('/room/activities');
   assert.deepEqual(calls[2].headers,{});
-  await api.call('/room/plan','POST',{revision:'1',operation:{action:'addUnit',name:'Prior'}});
+  await api.call('/room/plan','POST',{revision:'1',operation:{action:'setTopicState',id:'11111111-1111-4111-8111-111111111111',status:'TAUGHT'}});
   assert.deepEqual(calls[3].headers,{'X-CSRF-Token':'csrf','Content-Type':'application/json'});
 });
