@@ -61,3 +61,7 @@ CRE-01–03 DONE; roadmap actualizado para esta unidad local, sin declarar fases
 Memoria auxiliar: lectura Engram disponible, pero intento de guardar decisión bloqueado por hook PreToolUse: sesión del host no registrada. No se reintentó ni se inventó identidad; no se afirma persistencia en Engram. Toda continuidad esencial está en especificación, tareas, roadmap y registros del repositorio.
 
 Control final de cierre: documentación138archivos/1767enlaces,0issues; inventario491/53/23; enlaces nuevos de tarea/evidencia resueltos y git diff --check exit0. Sin pruebas omitidas bloqueantes dentro del alcance declarado.
+
+## Entrega posterior autorizada
+
+Usuario solicitó commits, push e integración de todos los pendientes a main. Completado: registro operativo4dbc23e e implementación9ca6f3b, merge fast-forward y publicación remota confirmada por igualdad exacta de HEAD/origin/main/ls-remote. [Registro de publicación](2026-11-07-root-classroom-creation-publication.md). Los párrafos de cierre local anteriores conservan su fecha y límites iniciales; publicación de repositorio no es despliegue.

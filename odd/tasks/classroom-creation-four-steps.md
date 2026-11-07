@@ -46,3 +46,7 @@ Manual sin archivo sigue siendo contrato histórico válido en backend; este asi
 ## Cierre local
 
 CRE-01–03 DONE el2026-11-07. Rama codex/classroom-creation-four-steps; base bd0ee53, sin commits/push/deploy. Registro de arranque local preexistente preservado. Servidor aislado propio detenido; bases efímeras y TaskSpace cerrados. No decisiones de producto pendientes para este alcance. Siguiente acción opcional del usuario: revisar el cambio local; publicación requiere pedido nuevo explícito.
+
+## Integración y publicación posteriores autorizadas
+
+Usuario pidió commits, push y merge de todo a main el2026-11-07. Implementación/pruebas/evidencia en9ca6f3bf981b3cb036ad0443e86c89211863afc4; registro operativo previo separado en4dbc23e. Integración fast-forward y push main completados; HEAD/origin/main/ref remota exacta coincidieron en9ca6f3b. Sin cambios nuevos de comportamiento:25pruebas focales adicionales de entrega, tipos/documentación/inventario/diff aprobados. [Registro de entrega](../../docs/work-log/2026-11-07-root-classroom-creation-publication.md). El límite local anterior queda como historia; no hay autorización de despliegue.
