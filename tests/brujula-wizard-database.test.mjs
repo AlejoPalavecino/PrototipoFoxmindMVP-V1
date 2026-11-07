@@ -45,5 +45,19 @@ test('aula con plan manual persiste sin archivo, plan vacío y archivo pendiente
       const file = (await f.pool.query('SELECT classroom_draft_id,classroom_id FROM files WHERE id=$1', [f.fileId])).rows[0];
       assert.equal(file.classroom_id, result.id); assert.equal(file.classroom_draft_id, null);
     });
+    await run('revisión editada conserva nombres Unicode y orden exacto en colección y Plan al reabrir', async f => {
+      const units = [
+        { name: 'Medidas: revisión final', topics: [{ name: 'Unidad de longitud' }, { name: 'Razón · proporción' }] },
+        { name: 'Ambiente y célula', topics: [{ name: 'Cuidado del agua' }] },
+      ];
+      const payload = { ...f.payload, name: 'Aula revisada', coverKey: 'creative', units };
+      const saved = await f.service.saveDraft(f.request, f.draftId, { revision: '1', payload });
+      const result = await f.service.publishDraft(f.request, f.draftId, { revision: saved.revision });
+      for (let reload = 0; reload < 2; reload++) {
+        const room = await f.service.detail(f.request, result.id);
+        assert.equal(room.name, payload.name); assert.equal(room.coverKey, payload.coverKey);
+        assert.deepEqual(room.units.map(unit => ({ name: unit.name, topics: unit.topics.map(topic => ({ name: topic.name })) })), units);
+      }
+    });
   });
 });

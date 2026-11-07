@@ -168,6 +168,7 @@
       "tests/classroom-ai-ui.test.mjs",
       "tests/classroom-collection-workspace.test.mjs",
       "tests/classroom-content-workspace.test.mjs",
+      "tests/classroom-creation-four-steps.test.mjs",
       "tests/classroom-curriculum-workspace.test.mjs",
       "tests/classroom-interior-redesign.test.mjs",
       "tests/classroom-library-search.test.mjs",

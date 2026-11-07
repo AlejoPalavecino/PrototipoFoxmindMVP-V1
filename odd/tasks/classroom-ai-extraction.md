@@ -2,6 +2,8 @@
 
 ESTADO_DISENO: LISTO_PARA_TDD_RED
 
+**Cambio de flujo aprobado 2026-11-07:** el asistente de creación ahora separa datos/archivo/portada, elección IA/manual, unidades/temas y revisión. Subir/aprobar el archivo no inicia el análisis; continuar por la opción IA lo inicia. La cola, aplicación revisada y publicación explícita mantienen sus contratos. [Tareas vigentes de este cambio](classroom-creation-four-steps.md). El diseño automático al aprobar archivo que sigue es antecedente histórico de su entrega.
+
 Diseño L3 aprobado para el aula existente: cuando el PDF/DOCX privado queda aprobado y guardado en el borrador, iniciar su análisis automáticamente. Mostrar unidades y temas extraídos, permitir editarlos y exigir confirmación docente para incorporarlos al borrador. La creación final conserva su revisión explícita. El usuario aceptó D1:A y pidió implementar, según instrucción actual del coordinador (2026-10-23); el gate previo a RED está cumplido. El diseño inicial precedió la implementación; la evidencia de cierre local se registra al final de este documento.
 
 ## Alcance y base observada

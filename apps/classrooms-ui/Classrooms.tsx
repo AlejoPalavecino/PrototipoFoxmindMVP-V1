@@ -235,11 +235,15 @@ export function ClassroomsApp({
               api={api}
               draft={draft}
               onExit={leaveView}
-              onPublished={(id, newCode) => {
+              onPublished={() => {
                 setDraft(null);
-                setClassroomId(id);
-                setSharedCode(newCode);
+                setClassroomId(null);
+                setSharedCode(null);
                 setNotice('Aula creada. Ya podés invitar a tus estudiantes.');
+                if (presentation !== 'classrooms') {
+                  setPresentation('classrooms');
+                  onNavigate?.('classrooms', 'Aula creada. Ya podés invitar a tus estudiantes.');
+                }
                 void load();
               }}
             />

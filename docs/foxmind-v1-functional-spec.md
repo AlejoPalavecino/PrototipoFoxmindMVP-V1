@@ -221,16 +221,19 @@ Use `Ciclo lectivo` instead of the ambiguous `Año` in the final interface. Keep
 
 The agreed design flow is:
 
-1. `Datos generales`.
-2. `Plan de estudio`.
+1. `Datos del aula`: general data, approved study-plan file and predefined cover.
+2. `Cómo cargar el plan`: explicitly choose AI extraction or manual entry.
 3. `Unidades y temas`.
-4. `Revisión`, then `Crear aula`.
+4. `Revisión`: complete summary with links back to edit data/cover and units/topics, then `Confirmar y crear aula`.
+
+This flow was approved on 2026-11-07. Upload alone does not trigger AI: continuing with the AI option starts the existing extraction. Manual entry and switching from a pending/failed analysis to manual entry preserve teacher edits. Creating the classroom returns to Mis Aulas with success feedback. The reviewed canonical units/topics are the same content displayed by the classroom Plan tab after reload. Loading, extraction and creation expose accessible progress and error/success feedback, respecting reduced motion and the current Brújula visual system. See [implementation tasks](../odd/tasks/classroom-creation-four-steps.md).
 
 The teacher can manually detail units and topics. The approved [classroom AI extension](../odd/tasks/classroom-ai-extraction.md) adds optional extraction of units/topics from an approved PDF or DOCX study plan using Gemini API (Google AI Studio), processed by durable PostgreSQL background jobs. The teacher reviews and edits the proposal before explicitly applying it to the draft; existing manual units require replacement confirmation in the interface. Applying a proposal does not publish the classroom. Manual creation remains available when AI is disabled or extraction fails. This extraction capability remains separate from the later activity-generation extension in §8; neither authorizes AI grading. Invitations occur after classroom creation.
 
 ### Confirmed creation requirements and drafts
 
 - All classroom data fields above are required to complete creation, including `División`, the plan file and at least one unit containing at least one topic. The plan uses the approved PDF/DOCX formats and file-security rules.
+- The four-step assistant requires the approved document for either entry method. The existing API continues accepting complete manual curricula without a file for compatibility with the earlier Brújula contract; that historical backend behavior is not a document bypass in this assistant.
 - `Materia` and `División` are free-text fields, not catalog selectors.
 - The teacher chooses a cover from predefined illustrations. V1 does not allow uploading a classroom cover image.
 - Preserve unfinished creation as a private, recoverable draft. An incomplete creation draft is not a published classroom and cannot be used to enroll students.

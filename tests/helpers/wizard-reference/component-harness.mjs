@@ -7,7 +7,7 @@ export const text = node => typeof node === 'string' || typeof node === 'number'
 const expand = node => {
   if (Array.isArray(node)) return node.map(expand);
   if (!React.isValidElement(node)) return node;
-  if (['WizardGeneral', 'WizardPlan', 'WizardPlanSource'].includes(node.type?.name)) return expand(node.type(node.props));
+  if (['WizardGeneral', 'WizardPlan', 'WizardPlanSource', 'WizardCover', 'WizardReview', 'WizardCurriculum', 'WizardSuggestions', 'PlanExtraction'].includes(node.type?.name)) return expand(node.type(node.props));
   return React.cloneElement(node, undefined, expand(node.props.children));
 };
 function mount(Component, props) {
@@ -37,23 +37,25 @@ export const initialDraft = () => ({ id: 'draft', revision: '1', publishedClassr
   units: [{ name: 'Primera', topics: [{ name: 'Célula' }] }, { name: 'Segunda', topics: [{ name: 'Ecosistema' }] }],
 } });
 export const ready = id => ({ id, name: 'plan.pdf', ready: true, upload: 'COMPLETE', validation: 'APPROVED', scan: 'CLEAN', rejectionCode: null });
-export async function wizard({ draft = initialDraft(), upload, call, extractionBusy = false } = {}) {
+export async function wizard({ draft = initialDraft(), upload, call, extractionBusy = false, extractionView = null } = {}) {
   const oldWindow = globalThis.window; globalThis.window = { addEventListener() {}, removeEventListener() {} };
-  const calls = [], uploads = [], exits = [], published = [], noop = () => null;
+  const calls = [], uploads = [], exits = [], published = [], extractionInputs = [], noop = () => null;
   const { Wizard } = componentWithPorts('apps/classrooms-ui/Wizard.tsx', {
     './components.tsx': { Cover: noop, Notice: ({ children }) => React.createElement('div', {}, children), coverOptions: () => [{ key: 'biology', label: 'Biología' }] },
-    './PlanExtraction.tsx': { PlanExtraction: noop },
-    './use-plan-extraction.ts': { usePlanExtraction: () => ({ busy: extractionBusy, view: null }) },
+    './PlanExtraction.tsx': { PlanExtraction: ({ extraction }) => React.createElement('button', { type: 'button', onClick: extraction.cancel }, 'Continuar manualmente') },
+    './use-plan-extraction.ts': { usePlanExtraction: options => { extractionInputs.push(options); return { busy: extractionBusy, view: extractionView, cancel: () => {} }; } },
     './classroom-zones.ts': { classroomZones: () => [{ value: 'UTC', label: 'UTC' }] },
-    '../shared-ui/index.ts': { EntryIcon: noop, FoxmindIcon: noop, FoxmindIllustration: noop },
+    '../shared-ui/index.ts': { EntryIcon: noop, FoxmindIcon: noop, FoxmindIllustration: noop, AiProgress: noop },
   });
   const api = { call: async (...args) => { calls.push(args); return call ? call(...args) : { ...draft, revision: '2', payload: args[2]?.payload ?? draft.payload }; },
     upload: async (...args) => { uploads.push(args); return upload ? upload(...args) : ready('replacement'); }, fileStatus: async id => ready(id), fileUrl: () => '/fixture.pdf' };
   const view = mount(Wizard, { api, draft, onExit: () => exits.push(true), onPublished: (...args) => published.push(args) });
   await view.flush();
-  return { view, calls, uploads, exits, published, close() { view.close(); globalThis.window = oldWindow; } };
+  return { view, calls, uploads, exits, published, extractionInputs, close() { view.close(); globalThis.window = oldWindow; } };
 }
 export const nodes = (view, predicate) => descendants(view.tree, predicate);
 export const button = (view, label) => nodes(view, n => n.type === 'button').find(n => text(n).trim() === label || n.props['aria-label'] === label);
 export async function advance(view) { nodes(view, n => n.type === 'form')[0].props.onSubmit({ preventDefault() {} }); await view.flush(); }
 export const toggles = view => nodes(view, n => n.type === 'button' && typeof n.props['aria-expanded'] === 'boolean' && /unidad/i.test(`${n.props['aria-label'] ?? ''} ${text(n)}`));
+
+export async function manualPlan(f) { await advance(f.view); nodes(f.view, n => n.type === "input" && n.props.name === "plan-method" && n.props.value === "manual")[0].props.onChange(); await f.view.flush(); await advance(f.view); }

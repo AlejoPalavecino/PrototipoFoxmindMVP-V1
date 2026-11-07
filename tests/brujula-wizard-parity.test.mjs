@@ -1,29 +1,28 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { wizard, advance, nodes, button, text, initialDraft } from './helpers/wizard-reference/component-harness.mjs';
+import { wizard, advance, nodes, button, text, initialDraft, manualPlan } from './helpers/wizard-reference/component-harness.mjs';
 import { draftPayload } from '../apps/api/src/classrooms/policy.ts';
 import { parseClassroomPlan, formatClassroomPlan, prepareClassroomPlan } from '../apps/classrooms-ui/WizardPlanText.ts';
 
-test('Crear aula presenta los dos pasos del HTML aprobado', async () => {
+test('Crear aula presenta los cuatro pasos aprobados', async () => {
   const f = await wizard();
   try {
     const steps = nodes(f.view, node => node.type === 'ol')[0];
-    assert.equal(steps.props.children.length, 2);
+    assert.equal(steps.props.children.length, 4);
     assert.match(text(steps), /Datos del aula/);
-    assert.match(text(steps), /Plan de estudio/);
+    assert.match(text(steps), /Unidades y temas/);
     assert.equal(f.calls.length, 0, 'abrir el wizard no publica ni guarda datos sin cambios');
   } finally { f.close(); }
 });
 
-test('el segundo paso exige un plan escrito y permite prepararlo sin archivo', async () => {
+test('el tercer paso exige unidades y temas aunque el documento esté aprobado', async () => {
   const draft = initialDraft();
-  delete draft.payload.planFileId;
   draft.payload.units = [];
   const f = await wizard({ draft });
   try {
-    await advance(f.view);
+    await manualPlan(f);
     assert.ok(nodes(f.view, node => node.type === 'textarea' && node.props['aria-label'] === 'Unidades y temas').length);
-    assert.ok(button(f.view, 'Crear aula'));
+    assert.ok(button(f.view, 'Continuar'));
     await advance(f.view);
     assert.match(text(f.view.tree), /al menos una unidad con un tema/i);
     assert.equal(f.uploads.length, 0);
@@ -42,16 +41,17 @@ test('publicación admite plan manual completo sin archivo y rechaza plan vacío
 });
 
 test('plan escrito permanece editable al volver y publica la revisión confirmada sin upload', async () => {
-  const draft = initialDraft(); delete draft.payload.planFileId; draft.payload.units = [];
+  const draft = initialDraft(); draft.payload.units = [];
   const f = await wizard({ draft, call: async (path, _method, input) => path.endsWith('/publish') ? { id: 'classroom', code: 'CODE' } : { ...draft, revision: '2', payload: input.payload } });
   try {
-    await advance(f.view);
+    await manualPlan(f);
     nodes(f.view, node => node.type === 'textarea' && node.props['aria-label'] === 'Unidades y temas')[0].props.onChange({ target: { value: 'Unidad 1 · Vida\nCélulas\nEcosistemas' } });
     await f.view.flush();
     button(f.view, 'Atrás').props.onClick(); await f.view.flush();
     assert.equal(f.published.length, 0);
     await advance(f.view);
     assert.equal(nodes(f.view, node => node.type === 'textarea' && node.props['aria-label'] === 'Unidades y temas')[0].props.value, 'Unidad 1 · Vida\nCélulas\nEcosistemas');
+    await advance(f.view);
     await advance(f.view);
     const patch = f.calls.find(call => call[1] === 'PATCH');
     assert.deepEqual(patch[2].payload.units, [{ name: 'Unidad 1 · Vida', topics: [{ name: 'Células' }, { name: 'Ecosistemas' }] }]);
@@ -64,10 +64,8 @@ test('plan escrito permanece editable al volver y publica la revisión confirmad
 test('archivo seleccionado pendiente bloquea creación aunque haya un plan escrito', async () => {
   const f = await wizard({ upload: async () => ({ id: 'pending', ready: false }) });
   try {
-    await advance(f.view);
-    button(f.view,'Extraer unidades de un texto').props.onClick();await f.view.flush();
     nodes(f.view, node => node.type === 'input' && node.props.type === 'file')[0].props.onChange({ target: { files: [new File(['fixture'], 'plan.pdf')], value: 'plan.pdf' } });
-    await f.view.flush();button(f.view,'Volver').props.onClick();await f.view.flush();await advance(f.view);
+    await f.view.flush();await advance(f.view);
     assert.match(text(f.view.tree), /superar la revisión/i);
     assert.ok(f.calls.every(call => !call[0].endsWith('/publish')));
   } finally { f.close(); }

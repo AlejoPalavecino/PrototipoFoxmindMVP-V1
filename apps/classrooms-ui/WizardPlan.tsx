@@ -1,8 +1,12 @@
 import type { RefObject, DragEvent } from 'react';
 import type { FileState } from './api.ts';
 import { FoxmindIcon } from '../shared-ui/index.ts';
+import type { CurriculumUnit } from '../../src/core/domain/index.ts';
 
 interface Props {
+  units?: CurriculumUnit[];
+  onUnits?: (units: CurriculumUnit[]) => void;
+  sourceOnly?: boolean;
   planText: string;
   onPlanText: (value: string) => void;
   onExtractText: () => void;
@@ -29,14 +33,34 @@ function handleDrop(event: DragEvent, props: Props) {
 export function WizardPlan(props: Props) {
   const { disabled } = props;
   return <div className="brujula-wizard-plan">
-    <label>Unidades y temas<textarea autoFocus aria-label="Unidades y temas" rows={7} value={props.planText} disabled={disabled} placeholder={'Unidad 1 · Ecosistemas\nFlujo de energía\nRedes tróficas'} onChange={event => props.onPlanText(event.target.value)} /></label>
+    {props.onUnits ? <WizardCurriculum units={props.units ?? []} onUnits={props.onUnits} /> : null}
+    <details><summary>Editar el plan como texto</summary>
+    <label>Unidades y temas<textarea aria-label="Unidades y temas" rows={7} value={props.planText} disabled={disabled} placeholder={'Unidad 1 · Ecosistemas\nFlujo de energía\nRedes tróficas'} onChange={event => props.onPlanText(event.target.value)} /></label>
     <small>Escribí “Unidad: nombre” y agregá cada tema con “- tema”, uno por línea. El aula necesita al menos una unidad con un tema.</small>
     <button className="brujula-wizard-extract" type="button" disabled={disabled} onClick={props.onExtractText}><FoxmindIcon name="spark" />Extraer unidades de un texto</button>
+    </details>
+  </div>;
+}
+export function WizardCurriculum({ units, onUnits }: { units: CurriculumUnit[]; onUnits: (units: CurriculumUnit[]) => void }) {
+  const change = (index: number, unit: CurriculumUnit) => onUnits(units.map((item, i) => i === index ? unit : item));
+  return <div className="wizard-curriculum" onKeyDown={event => { if (event.key === 'Enter' && event.target instanceof HTMLInputElement) event.preventDefault(); }}>
+    <p>Agregá las unidades y sus temas en el orden en que los vas a enseñar.</p>
+    {!units.length ? <p>Todavía no agregaste unidades. Empezá por la primera.</p> : null}
+    {units.map((unit, index) => <section key={index} className="p5-unit">
+      <div className="p5-section-head"><h4>Unidad {index + 1}</h4><button type="button" aria-label={`Quitar unidad ${index + 1}`} onClick={() => onUnits(units.filter((_, i) => i !== index))}>Quitar unidad</button></div>
+      <label>Nombre de la unidad {index + 1}<input maxLength={120} value={unit.name} onChange={event => change(index, { ...unit, name: event.target.value })} /></label>
+      {unit.topics.map((topic, topicIndex) => <div className="p5-topic" key={topicIndex}>
+        <label>Tema {topicIndex + 1} de unidad {index + 1}<input maxLength={120} value={topic.name} onChange={event => change(index, { ...unit, topics: unit.topics.map((item, i) => i === topicIndex ? { name: event.target.value } : item) })} /></label>
+        <button type="button" aria-label={`Quitar tema ${topicIndex + 1} de unidad ${index + 1}`} onClick={() => change(index, { ...unit, topics: unit.topics.filter((_, i) => i !== topicIndex) })}>Quitar</button>
+      </div>)}
+      <button type="button" disabled={unit.topics.length >= 100 || units.reduce((sum, item) => sum + item.topics.length, 0) >= 500} onClick={() => change(index, { ...unit, topics: [...unit.topics, { name: '' }] })}>Agregar tema a unidad {index + 1}</button>
+    </section>)}
+    <button type="button" disabled={units.length >= 100 || units.reduce((sum, item) => sum + item.topics.length, 0) >= 500} onClick={() => onUnits([...units, { name: '', topics: [{ name: '' }] }])}>Agregar unidad</button>
   </div>;
 }
 export function WizardPlanSource(props:Props){
  const { file, uploading, disabled, inputRef, fileUrl, onFile, onRefresh } = props;
- return <details className="brujula-wizard-file"><summary>Analizar un archivo con IA</summary><p>Si preferís partir de un documento, subí un PDF o DOCX. Revisá la propuesta antes de aplicarla al plan escrito.</p>
+ return <details className="brujula-wizard-file" open={props.sourceOnly || undefined}><summary>{props.sourceOnly ? 'Archivo del plan de estudio' : 'Analizar un archivo con IA'}</summary><p>{props.sourceOnly ? 'Subí el plan en PDF o DOCX. En el siguiente paso elegís si querés analizarlo con IA o cargar las unidades manualmente.' : 'Subí un PDF o DOCX y revisá la propuesta antes de aplicarla al plan escrito.'}</p>
     <div className="wizard-plan-layout">
     <div className="wizard-plan-upload">
       <h3>Subí tu archivo</h3>

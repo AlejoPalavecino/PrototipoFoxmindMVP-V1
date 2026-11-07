@@ -1,0 +1,26 @@
+[
+  {
+    "width": 320,
+    "pageOverflow": false,
+    "dialogOverflow": false,
+    "step": "3"
+  },
+  {
+    "width": 390,
+    "pageOverflow": false,
+    "dialogOverflow": false,
+    "step": "3"
+  },
+  {
+    "width": 768,
+    "pageOverflow": false,
+    "dialogOverflow": false,
+    "step": "3"
+  },
+  {
+    "width": 1440,
+    "pageOverflow": false,
+    "dialogOverflow": false,
+    "step": "3"
+  }
+]

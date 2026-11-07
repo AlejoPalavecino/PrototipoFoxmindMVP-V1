@@ -1,7 +1,8 @@
-/* Approved Brújula classroom creation: compact two-step dialog. */
+/* Approved Brújula classroom creation: four steps with an explicit final review. */
 .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog {
  width:min(560px,calc(100vw - 26px));max-height:88dvh;padding:0;margin:auto;border:1px solid #dce1ef;border-radius:20px;background:#fff;color:#252646;box-shadow:0 24px 85px #29274e38;overflow:auto;font:400 14px/1.55 'Brújula',sans-serif;
 }
+
 .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog>header {display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px 14px;margin:0;border:0;border-bottom:1px solid #e0e4f0;border-radius:0;background:transparent;}
 .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog>header h2 {margin:0;font:700 20px/1.25 'Brújula',sans-serif;letter-spacing:-.04em;color:#252646;}
 .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog>header button {display:grid;place-items:center;min-width:28px;min-height:28px;padding:6px;border:0;border-radius:9px;background:transparent;color:#515971;box-shadow:none;}
@@ -44,3 +45,40 @@
  .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-steps li {gap:8px;font-size:11px;}
  .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-steps li+li:before {width:14px;}
 }
+
+
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog {width:min(720px,calc(100vw - 26px));}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-steps {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:start;}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-steps li {display:block;overflow-wrap:anywhere;}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-steps li+li:before {display:none;}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard h3 {font-size:18px;line-height:1.5;margin:0 0 16px;}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard :is(.wizard-method,.wizard-cover-picker) {margin-top:24px;}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard legend {font-size:14px;font-weight:600;margin-bottom:12px;}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-method>label {display:flex;align-items:flex-start;gap:12px;padding:16px;margin-bottom:12px;border:1px solid #dce1ef;border-radius:11px;cursor:pointer;}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard input[type=radio] {width:18px;height:18px;flex:0 0 18px;accent-color:#b8490c;}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .p5-covers label {min-width:0;overflow:hidden;}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .p5-covers label>span {display:flex;align-items:center;gap:8px;min-height:44px;}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .p5-covers .folder-cover {height:76px;min-height:0;aspect-ratio:auto;}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-review>.folder-cover {height:140px;min-height:0;aspect-ratio:auto;border-radius:11px;overflow:hidden;}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard :is(.wizard-review,.wizard-curriculum) {overflow-wrap:anywhere;}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-review dl {display:grid;grid-template-columns:minmax(100px,1fr) minmax(0,2fr);gap:8px 16px;margin:16px 0 24px;}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-review dd {margin:0;}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-review-units>li {margin:16px 0;}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-curriculum .p5-unit {padding:16px;margin:16px 0;border:1px solid #dce1ef;border-radius:11px;background:#fff;}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-curriculum .p5-topic {display:flex;align-items:end;gap:8px;margin:12px 0;}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-curriculum .p5-topic label {flex:1;min-width:0;}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-curriculum .p5-topic button {flex:0 0 auto;min-width:64px;white-space:nowrap;}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard :is(.p5-section-head,.brujula-wizard-foot>div) {flex-wrap:wrap;}
+.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-spinner {display:inline-block;width:16px;height:16px;margin-right:8px;border:2px solid #dce1ef;border-top-color:#b8490c;border-radius:50%;animation:wizard-spin 1s cubic-bezier(.22,1,.36,1) infinite;}
+@keyframes wizard-spin {to {transform:rotate(360deg);}}
+@media(max-width:600px){
+ .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-steps {grid-template-columns:repeat(2,minmax(0,1fr));}
+ .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .p5-covers {grid-template-columns:repeat(2,minmax(0,1fr));}
+ .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .p5-fields {grid-template-columns:minmax(0,1fr);}
+ .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-review dl {grid-template-columns:minmax(0,1fr);gap:4px;}
+ .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-review dt {font-weight:600;}
+ .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-review dd {margin-bottom:12px;}
+ .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog button {min-height:44px;}
+ .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-foot>div {width:100%;justify-content:flex-end;}
+}
+@media(prefers-reduced-motion:reduce){.wizard-spinner {animation:none!important;}}

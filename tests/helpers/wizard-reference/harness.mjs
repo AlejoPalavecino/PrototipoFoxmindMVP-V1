@@ -4,7 +4,7 @@ import path from 'node:path';
 const root = process.cwd(), dest = path.join(root, '.test-artifacts/wizard-reference');
 const pages = path.join(dest, 'apps/web/pages'), fixtures = path.join(dest, 'apps/web/fixtures'), publicDir = path.join(dest, 'apps/web/public');
 for (const dir of [pages, fixtures, publicDir]) fs.mkdirSync(dir, { recursive: true });
-for (const rel of ['node_modules', 'src', 'apps/classrooms-ui', 'apps/shared-ui', 'apps/agenda-ui', 'apps/web/styles']) {
+for (const rel of ['node_modules', 'src', 'apps/classrooms-ui', 'apps/shared-ui', 'apps/agenda-ui', 'apps/web/styles', 'apps/web/src']) {
   const target = path.join(dest, rel); fs.mkdirSync(path.dirname(target), { recursive: true });
   if (!fs.existsSync(target)) fs.symlinkSync(path.join(root, rel), target, 'junction');
 }

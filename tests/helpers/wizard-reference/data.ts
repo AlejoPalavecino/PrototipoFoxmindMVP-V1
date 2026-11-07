@@ -31,7 +31,9 @@ export function wizardFixture(mode: string, record: (entry: Receipt) => void) {
     const command = body as { revision?: string; payload?: Payload; units?: CurriculumUnit[] } | undefined;
     record({ path, method, revision: command?.revision, synthetic: true });
     let result: unknown;
-    if (path === `/drafts/${draftId}/curriculum-extractions`) {
+    if (path === `/${publishedId}/library`) result = [];
+    else if (path === `/${publishedId}/activities`) result = { activities: [] };
+    else if (path === `/drafts/${draftId}/curriculum-extractions`) {
       result = extraction(mode === 'proposal' ? 'READY' : mode === 'running' ? 'QUEUED' : mode === 'stale' ? 'STALE' : 'FAILED');
     } else if (path === `/drafts/${draftId}/curriculum-extractions/${jobId}/apply`) {
       if (command?.revision !== draft.revision) throw Object.assign(new Error('Conflicto sintético al aplicar.'), { code: 'CONFLICT' });

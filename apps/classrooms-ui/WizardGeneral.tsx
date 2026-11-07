@@ -7,7 +7,7 @@ const fields: { key: 'name' | 'subject' | 'division'; label: string; placeholder
   { key: 'division', label: 'División', placeholder: 'Ej. 4.º A', icon: 'users' },
 ];
 
-export function WizardGeneral({ payload, onUpdate }: {
+export function WizardGeneral({ payload, zones, onUpdate }: {
   payload: Payload; zones: { value: string; label: string }[]; onUpdate: (key: keyof Payload, value: unknown) => void;
 }) {
   return <>
@@ -22,6 +22,9 @@ export function WizardGeneral({ payload, onUpdate }: {
         <input type="number" required min="1" max="9999" value={payload.academicYear ?? ''}
           onChange={event => onUpdate('academicYear', event.target.value ? Number(event.target.value) : undefined)} />
       </span></label>
+      <label>Zona horaria<select value={payload.timezone ?? 'UTC'} onChange={event => onUpdate('timezone', event.target.value)}>
+        {zones.map(zone => <option key={zone.value} value={zone.value}>{zone.label}</option>)}
+      </select></label>
     </div>
   </>;
 }
