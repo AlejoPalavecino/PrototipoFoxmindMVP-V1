@@ -11,7 +11,7 @@ import { createFoxyPublicationHistoryController } from './foxy-publication-histo
 import { createFoxyPublicationConfirmationController } from './foxy-publication-confirmation-controller.ts';
 import { createFoxyPublicationManagementController } from './foxy-publication-management-controller.ts';
 
-type Snapshot = { activityHandoff: ReturnType<ReturnType<typeof createFoxyActivityHandoff>['getState']> | null; subjectId: string; closed: boolean; classrooms: Classroom[]; classroomsError: string | null;
+type Snapshot = { activityHandoff: ReturnType<ReturnType<typeof createFoxyActivityHandoff>['getState']> | null; subjectId: string; closed: boolean; classrooms: Classroom[]; contextClassrooms: Classroom[]; classroomsError: string | null;
   chat: ReturnType<ReturnType<typeof createFoxyChatController>['getState']> | null;
   resource: ReturnType<ReturnType<typeof createFoxyResourceController>['getState']> | null;
   preparation: ReturnType<ReturnType<typeof createFoxyPreparationController>['getState']> | null;
@@ -26,13 +26,14 @@ type Options = { subjectId: string; createFoxyClient: (identity: (code: string) 
 export function createFoxyWorkspaceRuntime(options: Options) {
   let closed = false, depth = 0, dirty = false, initialized: Promise<void> | null = null, classrooms: Classroom[] = [], classroomsError: string | null = null;
   const subjectId = options.subjectId;
+  let contextClassrooms: Classroom[] = [];
   let receiptStamp = '', abort = new AbortController(), classroomEpoch = 0, contextEpoch = 0;
   let resourceKey = '', selectedKey = '', managementStamp = '', reconcilePending = false, reconcileVersion = -1, reconcileQueued = false;
   const identity = (code: string) => { if (!closed && (code === 'AUTH_REQUIRED' || code === 'EMAIL_VERIFICATION_REQUIRED')) { dispose(); options.onIdentityRequired(code); } };
   const client = options.createFoxyClient(identity), classroomClient = options.createClassroomClient(identity);
   let visual: ReturnType<typeof createFoxyVisualController> | undefined, visualAssetKey = '', visualAssetEpoch = 0;
   function snapshot(): Snapshot {
-    return structuredClone({ activityHandoff: closed ? null : activityHandoff.getState(), subjectId, closed, classrooms: structuredClone(classrooms), classroomsError,
+    return structuredClone({ activityHandoff: closed ? null : activityHandoff.getState(), subjectId, closed, classrooms: structuredClone(classrooms), contextClassrooms: structuredClone(contextClassrooms), classroomsError,
       chat: closed ? null : chat.getState(), resource: closed ? null : resource.getState(), preparation: closed ? null : preparation.getState(),
       history: closed ? null : history.getState(), confirmation: closed ? null : confirmation.getState(), management: closed ? null : management.getState(), visual: closed ? null : visual?.getState() ?? null,
       visualPublication: closed ? null : visualPublication.getState() });
@@ -128,11 +129,11 @@ export function createFoxyWorkspaceRuntime(options: Options) {
     const version = ++classroomEpoch;
     try {
       const data = await classroomClient.call<{ teach: Classroom[] }>('', 'GET', undefined, abort.signal);
-      if (!closed && version === classroomEpoch) batch(() => { classrooms = data.teach.filter(room => room.role === 'teacher' && !room.archived); classroomsError = null; });
-    } catch { if (!closed && version === classroomEpoch) batch(() => { classrooms = []; classroomsError = 'No pudimos cargar tus aulas.'; }); }
+      if (!closed && version === classroomEpoch) batch(() => { contextClassrooms = data.teach.filter(room => room.role === 'teacher'); classrooms = contextClassrooms.filter(room => !room.archived); classroomsError = null; });
+    } catch { if (!closed && version === classroomEpoch) batch(() => { classrooms = []; contextClassrooms = []; classroomsError = 'No pudimos cargar tus aulas.'; }); }
   }
   function dispose() {
-    if (closed) return; closed = true; abort.abort(); classrooms = []; classroomsError = null;
+    if (closed) return; closed = true; abort.abort(); classrooms = []; contextClassrooms = []; classroomsError = null;
     activityHandoff.dispose(); chat.dispose(); visual?.dispose(); visualPublication.dispose(); resourceBase.dispose(); preparation.dispose(); history.dispose(); confirmation.dispose(); management.dispose();
   }
   const publicationFileUrl = (id: string, mode: 'preview' | 'download') => closed ? '' : client.publicationFileUrl(id, mode);

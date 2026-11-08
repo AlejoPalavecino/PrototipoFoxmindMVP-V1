@@ -16,6 +16,16 @@ async function fixture(run, responder) {
 }
 const headers = { cookie:'foxmind_session=synthetic', origin:'http://web.test', 'x-csrf-token':'bound', 'content-type':'application/json' };
 
+test('catalog routes preserve server filters and reject invalid catalogue queries', async () => fixture(async ({origin,calls}) => {
+  const query = new URLSearchParams({ limit: '20', q: 'Exposición', context: 'GENERAL', type: 'NOTE', status: 'PRIVATE' });
+  assert.equal((await fetch(`${origin}${root}/creations?${query}`, { headers })).status, 200);
+  assert.equal(new URL(calls[0].url, origin).searchParams.get('q'), 'Exposición');
+  assert.equal((await fetch(`${origin}${root}/conversations?limit=20&q=luz&context=GENERAL`, { headers })).status, 200);
+  for (const suffix of ['?limit=0', '?limit=51', '?type=SECRET', '?status=UNKNOWN', '?context=other', '?q=a&q=b']) {
+    const before = calls.length; assert.equal((await fetch(`${origin}${root}/creations${suffix}`, { headers })).status, 400); assert.equal(calls.length, before);
+  }
+}));
+
 test('proxy forwards allowlisted Foxy routes and only needed security headers', async () => fixture(async ({origin,calls}) => {
   const path = `${root}/conversations`, body = { requestId:randomUUID(), title:'Chat', context:{kind:'GENERAL'} };
   const response = await fetch(origin+path,{ method:'POST', headers:{...headers,authorization:'private','x-forwarded-host':'evil.test'}, body:JSON.stringify(body) });

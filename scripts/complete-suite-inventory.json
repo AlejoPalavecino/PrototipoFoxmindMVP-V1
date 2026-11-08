@@ -119,6 +119,7 @@
     "apps/web/src/components/foxy-workspace.test.mjs",
     "apps/web/src/lib/foxy-chat-controller.test.mjs",
     "apps/web/src/lib/foxy-client.test.mjs",
+    "apps/web/src/lib/foxy-discovery-controller.test.mjs",
     "apps/web/src/lib/foxy-context-controller.test.mjs",
     "apps/web/src/lib/foxy-navigation-bridge.test.mjs",
     "apps/web/src/lib/foxy-preparation-controller.test.mjs",

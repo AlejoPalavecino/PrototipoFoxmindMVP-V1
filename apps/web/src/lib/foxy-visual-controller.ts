@@ -16,10 +16,20 @@ export function createFoxyVisualController(options: Options) {
     timer=setTimeout(() => { timer=undefined; void refresh(); },2000);
   }
   async function refresh() {
-    const id=conversationId, version=epoch, list=++listVersion; if (!id || !valid(version)) return;
+    const id=conversationId, version=epoch; if (!id || !valid(version) || state.busy || state.pending) return;
+    const list=++listVersion;
     try {
       const result=await options.client.listVisuals(id,{limit:50,afterId:null},abort.signal); if (!valid(version) || list!==listVersion) return;
-      const jobs=result.items.filter(job=>job.conversationId===id); update({jobs,selectedId:jobs.some(j=>j.id===state.selectedId) ? state.selectedId : jobs[0]?.id ?? null}); poll(version);
+      let jobs=result.items.filter(job=>job.conversationId===id);
+      const selected = state.selectedId;
+      if (selected && !jobs.some(job => job.id === selected)) {
+        try {
+          const focused = await options.client.getVisual(id, selected, abort.signal);
+          if (focused.id === selected && focused.conversationId === id && focused.state === 'READY') jobs = [focused, ...jobs];
+        } catch (error) { if (!['NOT_FOUND', 'FORBIDDEN'].includes((error as { code?: string }).code ?? '')) throw error; }
+      }
+      if (!valid(version) || list!==listVersion) return;
+      update({jobs,selectedId:jobs.some(j=>j.id===state.selectedId) ? state.selectedId : jobs[0]?.id ?? null}); poll(version);
     } catch { if (valid(version) && list===listVersion) update({error:'No pudimos actualizar los recursos visuales.'}); }
   }
   async function dispatch(input: StartFoxyVisual) {
@@ -45,6 +55,17 @@ export function createFoxyVisualController(options: Options) {
     setPrompt(prompt: string) { if (!state.busy) update({prompt}); },
     setAspectRatio(aspectRatio: FoxyAspectRatio) { if (!state.busy && ['1:1','4:3','3:4','16:9'].includes(aspectRatio)) update({aspectRatio}); },
     select(id: string) { if (state.jobs.some(job=>job.id===id)) update({selectedId:id}); }, refresh,
+    async openJob(jobId: string) {
+      const id = conversationId, version = epoch;
+      if (!id || !valid(version) || state.pending || state.busy) return false;
+      const list = ++listVersion; update({ busy: true, error: null });
+      try {
+        const job = await options.client.getVisual(id, jobId, abort.signal);
+        if (!valid(version) || list !== listVersion) return false;
+        if (job.id !== jobId || job.conversationId !== id || job.state !== 'READY') throw new Error('Visual unavailable');
+        update({ jobs: [job, ...state.jobs.filter(item => item.id !== job.id)], selectedId: job.id, kind: job.kind, busy: false }); poll(version); return true;
+      } catch { if (valid(version) && list === listVersion) { update({ busy: false, error: 'No pudimos abrir el recurso visual. Actualizá Creaciones y volvé a intentar.' }); poll(version); } return false; }
+    },
     start() { const current=options.current(); if (!current.conversation || current.busy || !current.canGenerate || !current.enabled[state.kind] || state.pending || state.busy || !state.prompt.trim() || [...state.prompt].length>5000) return;
       const input: StartFoxyVisual={requestId:crypto.randomUUID(),revision:current.conversation.revision,kind:state.kind,prompt:state.prompt,
         selection:current.conversation.context.kind==='GENERAL'?{topicIds:[],sourceIds:[]}:structuredClone(current.selection),aspectRatio:state.aspectRatio}; return dispatch(input); },

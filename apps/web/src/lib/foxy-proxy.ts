@@ -39,7 +39,7 @@ function select(request: IncomingMessage): { url: URL; method: string; binary: b
   const raw = request.url ?? '', method = request.method ?? 'GET';
   if (!raw.startsWith(`${root}/`) || /[\\#]/u.test(raw) || /%|\.\./u.test(raw.split('?')[0]!)) throw new Error();
   const url = new URL(raw, 'http://web.invalid'), path = url.pathname, binary = citationFile.test(path) || publicationFile.test(path) || assetFile.test(path);
-  const allowed = path === `${root}/capabilities` || catalog.test(path) || turn.test(path) || visual.test(path) || asset.test(path) || citations.test(path) || binary || publication.test(path) || managementPublication.test(path) ? ['GET']
+  const allowed = path === `${root}/capabilities` || path === `${root}/creations` || catalog.test(path) || turn.test(path) || visual.test(path) || asset.test(path) || citations.test(path) || binary || publication.test(path) || managementPublication.test(path) ? ['GET']
     : activityDraft.test(path) || turnResource.test(path) || confirmPublication.test(path) || commandPublication.test(path) ? ['POST']
       : preparePublication.test(path) || assetPublications.test(path) || visuals.test(path) ? ['GET', 'POST']
       : resource.test(path) ? ['GET', 'PATCH']
@@ -48,11 +48,17 @@ function select(request: IncomingMessage): { url: URL; method: string; binary: b
   if (!allowed.includes(method)) throw Object.assign(new Error(), { status: 405 });
   const keys = [...url.searchParams.keys()];
   if (new Set(keys).size !== keys.length) throw new Error();
-  const query = path === `${root}/conversations` && method === 'GET' ? ['limit', 'after']
+  const query = path === `${root}/creations` ? ['limit', 'after', 'q', 'context', 'type', 'status']
+    : path === `${root}/conversations` && method === 'GET' ? ['limit', 'after', 'q', 'context']
     : (preparePublication.test(path) || assetPublications.test(path) || visuals.test(path)) && method === 'GET' ? ['limit', 'afterId']
     : turns.test(path) && method === 'GET' ? ['afterSequence', 'limit']
       : path.endsWith('/sources') ? ['kind', 'limit', 'after'] : binary ? ['mode'] : [];
   if (keys.some(key => !query.includes(key))) throw new Error();
+  if (url.searchParams.has('q') && ([...url.searchParams.get('q')!].length > 120 || /[\u0000-\u001f\u007f-\u009f]/u.test(url.searchParams.get('q')!))) throw new Error();
+  if (url.searchParams.has('context') && !['ALL', 'GENERAL'].includes(url.searchParams.get('context')!) && !new RegExp(`^${uuid}$`, 'i').test(url.searchParams.get('context')!)) throw new Error();
+  if (url.searchParams.has('type') && !['ALL', 'NOTE', 'PLAN', 'ACTIVITY', 'RUBRIC', 'DIAGRAM', 'IMAGE'].includes(url.searchParams.get('type')!)) throw new Error();
+  if (url.searchParams.has('status') && !['ALL', 'PRIVATE', 'PREPARING', 'DRAFT', 'PUBLISHED'].includes(url.searchParams.get('status')!)) throw new Error();
+  if (path === `${root}/creations` && url.searchParams.has('limit') && (Number(url.searchParams.get('limit')) < 1 || Number(url.searchParams.get('limit')) > 50)) throw new Error();
   if (url.searchParams.has('mode') && !['preview', 'download'].includes(url.searchParams.get('mode')!)) throw new Error();
   if (url.searchParams.has('kind') && !['PLAN', 'MATERIAL', 'ACTIVITY'].includes(url.searchParams.get('kind')!)) throw new Error();
   for (const name of ['limit', 'afterSequence']) if (url.searchParams.has(name) && !/^(?:0|[1-9][0-9]{0,9})$/u.test(url.searchParams.get(name)!)) throw new Error();

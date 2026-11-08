@@ -22,6 +22,14 @@ export interface FoxyCitation { id: string; sourceKind: FoxySourceKind | null; s
   page: number | null; availability: 'AVAILABLE' | 'TEXT_ONLY' | 'UNAVAILABLE'; href: string | null }
 export interface FoxyVisualJob { id: string; conversationId: string; kind: FoxyVisualKind; aspectRatio: FoxyAspectRatio; state: 'QUEUED' | 'RUNNING' | 'READY' | 'FAILED'; assetId: string; errorCode: string | null; createdAt: string }
 export interface FoxyResource { id: string; conversationId: string; sourceTurnId: string; title: string; markdown: string; revision: string }
+export type FoxyCreationKind = 'NOTE' | 'PLAN' | 'ACTIVITY' | 'RUBRIC' | 'DIAGRAM' | 'IMAGE';
+export type FoxyCreationStatus = 'PRIVATE' | 'PREPARING' | 'DRAFT' | 'PUBLISHED';
+export interface FoxyCreationCursor { createdAt: string; id: string }
+export interface FoxyCreation {
+  id: string; kind: FoxyCreationKind; title: string; context: FoxyContext; conversationId: string;
+  turnId: string | null; visualJobId: string | null; assetId: string | null; createdAt: string; status: FoxyCreationStatus;
+  destinations: { kind: 'MATERIAL' | 'ACTIVITY'; classroomId: string; classroomName: string; id: string | null; state: 'PREPARING' | 'DRAFT' | 'PUBLISHED' }[];
+}
 type Page<T, C> = { items: T[]; next: C | null };
 type TurnPage = { items: FoxyTurn[]; nextAfterSequence: number | null };
 type TurnReceipt = { id: string; sequence: number; state: FoxyTurn['state'] };
@@ -121,7 +129,9 @@ export function createWebFoxyClient(fetcher: typeof fetch = fetch, onIdentityReq
       return `${root}${publicationPath(id)}/file?mode=${mode}`;
     },
     capabilities: (signal?: AbortSignal) => call<FoxyCapabilities>('/capabilities', 'GET', undefined, signal),
-    listConversations: (page: { limit: number; after: FoxyConversationCursor | null }, signal?: AbortSignal) =>
+    listCreations: (page: { limit: number; after: FoxyCreationCursor | null; q?: string; context?: string; type?: string; status?: string }, signal?: AbortSignal) =>
+      call<Page<FoxyCreation, FoxyCreationCursor>>(`/creations${params(page)}`, 'GET', undefined, signal),
+    listConversations: (page: { limit: number; after: FoxyConversationCursor | null; q?: string; context?: string }, signal?: AbortSignal) =>
       call<Page<FoxyConversation, FoxyConversationCursor>>(`/conversations${params(page)}`, 'GET', undefined, signal),
     createConversation: (input: CreateFoxyConversation, signal?: AbortSignal) =>
       call<{ created: boolean; conversation: FoxyConversation }>('/conversations', 'POST', input, signal),

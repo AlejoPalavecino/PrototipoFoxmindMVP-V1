@@ -11,6 +11,7 @@ export function createFoxyChatController(options: Options) {
     sources: { PLAN: { items: [], next: null }, MATERIAL: { items: [], next: null }, ACTIVITY: { items: [], next: null } }, citations: {} });
   let state: State = { ...emptyContext(), capabilities: null, conversations: [], nextConversationCursor: null, current: null, turns: [], activeTurn: null, nextAfterSequence: null, pending: null, error: null, busy: false };
   const loadingSources = new Set<FoxySourceKind>();
+  let pendingContext: CreateFoxyConversation | null = null;
   let epoch = 0, disposed = false, abort = new AbortController(), timer: ReturnType<typeof setTimeout> | undefined, polling = false;
   const schedule = options.setTimeout ?? globalThis.setTimeout, clear = options.clearTimeout ?? globalThis.clearTimeout;
   const update = (patch: Partial<State>) => { if (!disposed) { state = { ...state, ...patch }; options.onChange(state); } };
@@ -42,16 +43,22 @@ export function createFoxyChatController(options: Options) {
   }
   async function select(id: string) {
     if (disposed) return;
-    const version = reset(), current = state.conversations.find(item => item.id === id);
+    const version = reset(); let current = state.conversations.find(item => item.id === id);
     update({ ...emptyContext(), current: current ?? null, turns: [], activeTurn: null, nextAfterSequence: null, pending: null, error: null, busy: true });
-    if (!current) { update({ busy: false, error: 'No encontramos la conversación.' }); return; }
     try {
+      if (!current) {
+        current = await options.client.getConversation(id, abort.signal);
+        if (!valid(version)) return;
+        if (current.id !== id) throw new Error('Conversation mismatch');
+        update({ current, conversations: [current, ...state.conversations] });
+      }
       const curriculum = current.context.kind === 'CLASSROOM' ? options.client.curriculum(id, abort.signal) : Promise.resolve(null);
       const [page, context] = await Promise.all([options.client.listTurns(id, { afterSequence: 0, limit: 50 }, abort.signal), curriculum]);
       if (!valid(version)) return;
       update({ curriculum: context, turns: page.items, nextAfterSequence: page.nextAfterSequence, busy: false });
       const active = page.items.find(turn => turn.state === 'QUEUED' || turn.state === 'RUNNING');
       if (active) { update({ activeTurn: { id: active.id, sequence: active.sequence, state: active.state } }); poll(id, active.id, version); }
+      return true;
     } catch { if (valid(version)) update({ busy: false, error: 'No pudimos cargar la conversación.' }); }
   }
   async function dispatch(intent: SendFoxyMessage) {
@@ -109,6 +116,46 @@ export function createFoxyChatController(options: Options) {
       } catch { if (valid(version)) update({ busy: false, error: 'No pudimos crear la conversación.' }); }
     },
     select,
+    async prepareContext(classroomId: string) {
+      if (disposed || state.busy || state.pending || state.activeTurn) return false;
+      const version = epoch; update({ busy: true, error: null });
+      try {
+        if (pendingContext?.context.kind !== 'CLASSROOM' || pendingContext.context.classroomId !== classroomId) pendingContext = { requestId: (options.uuid ?? (() => crypto.randomUUID()))(), title: 'Nueva conversación', context: { kind: 'CLASSROOM', classroomId } };
+        const result = await options.client.createConversation(pendingContext, abort.signal);
+        if (!valid(version)) return false;
+        pendingContext = null;
+        update({ conversations: [result.conversation, ...state.conversations.filter(item => item.id !== result.conversation.id)], busy: false });
+        return await select(result.conversation.id) === true;
+      } catch (error) {
+        if (valid(version)) {
+          if (['INVALID_INPUT', 'FORBIDDEN', 'NOT_FOUND', 'CONFLICT'].includes((error as { code?: string }).code ?? '')) pendingContext = null;
+          update({ busy: false, error: 'No pudimos preparar el contexto. Volvé a elegir el aula.' });
+        }
+        return false;
+      }
+    },
+    async rename(title: string) {
+      const current = state.current;
+      if (disposed || !current || state.busy || state.pending || state.activeTurn) return false;
+      if (!title.trim() || [...title].length > 120 || /[\u0000-\u001f\u007f-\u009f]/u.test(title)) { update({ error: 'Escribí un título de entre 1 y 120 caracteres.' }); return false; }
+      const version = epoch; update({ busy: true, error: null });
+      try {
+        const revised = await options.client.renameConversation(current.id, { revision: current.revision, title }, abort.signal);
+        if (!valid(version)) return false;
+        if (revised.id !== current.id) throw new Error('Conversation mismatch');
+        update({ current: revised, conversations: state.conversations.map(item => item.id === revised.id ? revised : item), busy: false }); return true;
+      } catch (error) {
+        if (!valid(version)) return false;
+        if ((error as { code?: string }).code === 'CONFLICT') {
+          try {
+            const revised = await options.client.getConversation(current.id, abort.signal);
+            if (valid(version) && revised.id === current.id) update({ current: revised, conversations: state.conversations.map(item => item.id === revised.id ? revised : item) });
+          } catch { /* Keep the last known revision; another explicit retry remains safe. */ }
+          if (valid(version)) update({ busy: false, error: 'La conversación cambió en otra sesión. Conservamos tu título para que puedas revisarlo y volver a guardar.' });
+        } else update({ busy: false, error: 'No pudimos guardar el título. Conservamos lo que escribiste; volvé a intentar.' });
+        return false;
+      }
+    },
     adoptVisualRevision(id: string, expected: string, revision: string) {
       if (disposed || !state.current || state.current.id !== id || state.current.revision !== expected || !/^(0|[1-9][0-9]*)$/u.test(revision)) return;
       const revised = { ...state.current, revision }; update({ current: revised, conversations: state.conversations.map(item => item.id === id ? revised : item) });

@@ -49,9 +49,15 @@ export function createFoxyWorkspaceActions(options: Options) {
   function prepLocked() { const p = runtime.getState().preparation; return locked() || managementLocked() || !!p?.pending || !!p?.busy; }
   function mutationLocked() { const s = runtime.getState(); return locked() || managementLocked() || !!s.resource?.pending || !!s.resource?.busy || !!s.preparation?.pending || !!s.preparation?.busy; }
   return {
+    openVisualCreation: (conversationId: string, jobId: string) => guarded(async () => {
+      if (!await runtime.chat.select(conversationId)) return false;
+      return runtime.visual.openJob(jobId);
+    }),
     getState: () => structuredClone(active() ? state : empty()),
     sync() { if (active() && state.leave) { const next = block() ?? state.leave; if (next.reason !== state.leave.reason || next.canSave !== state.leave.canSave) emit({ leave: next }); } },
     chat: {
+      rename: (title: string) => guarded(() => runtime.chat.rename(title)),
+      prepareContext: (id: string) => guarded(() => runtime.chat.prepareContext(id)),
       select: (id: string) => guarded(() => runtime.chat.select(id)),
       create: (...args: Parameters<Runtime['chat']['create']>) => { const copied = structuredClone(args); return guarded(() => runtime.chat.create(...copied)); },
       send: (...args: Parameters<Runtime['chat']['send']>) => { if (active()) return runtime.chat.send(...args); },
@@ -64,6 +70,11 @@ export function createFoxyWorkspaceActions(options: Options) {
       loadCitations: (id: string) => { if (active()) return runtime.chat.loadCitations(id); },
     },
     resource: {
+      openCreation: (conversationId: string, turnId: string) => guarded(async () => {
+        const version = ++openingEpoch; emit({ openingResource: true, error: null });
+        try { return await runtime.resource.open(conversationId, turnId); }
+        finally { if (version === openingEpoch) emit({ openingResource: false }); }
+      }),
       open: (conversationId: string, turnId: string) => !active() || !ready(conversationId, turnId) ? undefined : guarded(async () => {
         if (!ready(conversationId, turnId)) return false;
         const version = ++openingEpoch; emit({ openingResource: true, error: null });
