@@ -1,0 +1,13 @@
+{
+  "url": "/mis-aulas",
+  "width": 1440,
+  "height": 1000,
+  "scrollWidth": 1440,
+  "headings": [
+    "Mis aulas",
+    "Unirse a un aula"
+  ],
+  "alerts": [
+    "No pudimos completar el ingreso. Revisá el código, la invitación y la cuenta utilizada."
+  ]
+}

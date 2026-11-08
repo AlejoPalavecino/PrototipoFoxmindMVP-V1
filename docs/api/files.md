@@ -1,24 +1,24 @@
-# P4 file HTTP contract — integrated host
+# Contrato HTTP de archivos privados
 
-`createFilesHandler(service)` is integrated in the Nest host when the accepted file configuration and session/admission/record bridge are supplied. See the [integrated host guide](../engineering/files/host.md). No anonymous, public, presigned or direct-S3 route exists. The original request is forwarded to the required access adapter.
+createFilesHandler(service) se integra al host Nest con configuración de archivos, sesión/admisión y puente de autorización por registro. [Dominio de archivos](../engineering/files/README.md). No hay ruta anónima, pública, presignada ni acceso S3 directo; el adaptador de acceso recibe la solicitud original.
 
-| Method/path | Input | Success |
+| Método/ruta | Entrada | Éxito |
 |---|---|---|
-| POST `/files` | JSON `{scope:{kind,id},purpose,name,bytes,targetId?}` | 201 file status; quota reserved |
-| PUT `/files/:id/content` | `application/octet-stream`; exact admitted Content-Length | 200 status after durable validation/clean scan |
-| GET `/files/:id` | No body/query | 200 current status |
-| GET `/files/:id/content?mode=download` | Optional mode: download or preview | 200 authorized bytes with safe headers |
-| GET `/files/usage?kind=classroom&id=…` | Exactly one kind/id; kind also permits draft | 200 usage/quota/available decimal strings |
+| POST /files | JSON {scope:{kind,id},purpose,name,bytes,targetId?} | 201, estado y reserva de cuota |
+| PUT /files/:id/content | application/octet-stream; Content-Length admitido exacto | 200 tras validación durable y escaneo limpio |
+| GET /files/:id | Sin cuerpo/query | 200, estado actual |
+| GET /files/:id/content?mode=download | mode opcional download o preview | 200, bytes autorizados y headers seguros |
+| GET /files/usage?kind=classroom&id=… | Un único kind/id; también admite draft | 200, uso/cuota/disponible como cadenas decimales |
 
-IDs are UUIDs. Purposes are plan/instructions/material/attachment; instruction/attachment target IDs are mandatory and must resolve to the actual authorized activity/attempt. Draft scope admits only a plan. Unknown fields, duplicate query parameters, compressed bodies, invalid metadata and GET bodies are rejected. Metadata is bounded to 16 KiB; transfers to the admitted count with a 10-second absolute receive deadline and one retained transfer per handler. No unbounded upload queue is accepted.
+IDs UUID. Propósitos: plan/instructions/material/attachment. Instructions/attachment requieren targetId de actividad/intento realmente autorizado; draft sólo admite plan. Campos desconocidos, parámetros duplicados, cuerpos comprimidos, metadata inválida y cuerpos GET se rechazan. Metadata limitada a 16 KiB; transferencia limitada a los bytes admitidos, plazo absoluto de recepción de 10 segundos y un único slot de transferencia por handler. No hay cola de cargas ilimitada.
 
-Status contains id/name/sizeBytes/ready/upload/validation/scan/rejectionCode. It never includes keys, object URLs, credentials, tokens or signature details. Ready requires completed upload and matching approved/clean digest proof. Quarantined files cannot be downloaded or linked. Retry uses identical bytes; it cannot overwrite a file.
+El estado contiene id/name/sizeBytes/ready/upload/validation/scan/rejectionCode. No incluye keys, URLs de objeto, credenciales, tokens ni firmas. Ready exige carga completa y prueba de digest aprobado/limpio coincidente. Un archivo en cuarentena no se descarga ni vincula. Reintentar exige bytes idénticos; no sobrescribe el archivo.
 
-All responses use no-store/nosniff. File responses include exact length, RFC 5987 disposition, same-origin resource policy and sandbox CSP. PDF/JPEG/PNG preview may be inline. Office/ZIP always remain attachments, even with mode=preview. Browser download fallback for an unavailable viewer is described in the [web integration guide](../engineering/files/web.md).
+Respuestas no-store/nosniff. Contenido con longitud exacta, disposición RFC5987, política same-origin y CSP sandbox. PDF/JPEG/PNG pueden mostrarse inline; Office/ZIP son adjuntos incluso con preview. La UI ofrece descarga si no hay visor disponible, según el cliente vigente.
 
-Errors are JSON `{error:{code}}`; internal driver/parser/scanner text is never returned.
+Errores JSON {error:{code}}, sin texto interno de drivers, parsers o escáner.
 
-| HTTP | Codes |
+| HTTP | Códigos |
 |---|---|
 | 400 | INVALID_UPLOAD |
 | 403 | FORBIDDEN |
@@ -27,11 +27,12 @@ Errors are JSON `{error:{code}}`; internal driver/parser/scanner text is never r
 | 413 | FILE_TOO_LARGE |
 | 415 | FILE_TYPE_NOT_ALLOWED |
 | 422 | FILE_REJECTED |
-| 503 | SERVICE_UNAVAILABLE with positive Retry-After |
+| 503 | SERVICE_UNAVAILABLE, con Retry-After positivo |
 
-Quota exhaustion preserves authorized reads. Scanner/storage failure never returns confirmation success or speculatively releases quota. Cleanup is an internal bounded service operation; there is no HTTP cleanup/delete route. Confirmed drafts and history are preserved. Actual P3 cookie/session/CSRF and P5/P7 record controls remain required for integration. See [operations](../private-files.md).
-## Bounded response delivery
+Agotar cuota conserva lecturas autorizadas. Fallar almacenamiento/escáner no confirma éxito ni libera cuota especulativamente. Limpieza interna acotada; no hay ruta HTTP de limpieza/delete. Borradores confirmados e historia se conservan. Cookie, sesión, CSRF y autorización por registro siguen siendo obligatorios.
 
-An installed file handler shares one transfer slot across PUT uploads and GET content responses. Content retrieval holds it until response finish/close/error, including time spent under backpressure. A second transfer receives503 with Retry-After3. A stalled response is destroyed after an absolute30-second output deadline and the slot becomes available again. Install one handler per file service ingress; direct FileService consumers own the lifetime of buffers they retain.
+## Entrega de respuesta acotada
 
-If the client disconnects while the bounded storage read is pending, the handler releases admission when that read settles, without starting another30-second output wait or attempting to send into the destroyed response.
+Un handler comparte un slot entre cargas PUT y respuestas GET de contenido. La lectura conserva el slot hasta finish/close/error, incluido backpressure. Una segunda transferencia recibe 503 y Retry-After 3. Una respuesta detenida se destruye tras 30 segundos absolutos de salida y libera admisión. Instalar un handler por ingreso del servicio; consumidores directos de FileService son responsables de los buffers retenidos.
+
+Si el cliente se desconecta durante una lectura de almacenamiento pendiente, se libera admisión cuando termina esa lectura, sin iniciar otra espera de salida de 30 segundos ni escribir a la respuesta destruida.

@@ -1,24 +1,11 @@
-# Revisar y publicar una corrección asistida
+# Revisar una sugerencia privada de corrección
 
-La sugerencia de IA es privada. El docente decide si la usa, la edita o la descarta; **usar una sugerencia no publica la calificación**.
+El docente activa la capacidad por aula cuando está disponible. Las nuevas entregas confirmadas elegibles producen trabajos para TP, cuestionarios y evaluaciones; la consigna/puntajes y rúbrica opcional delimitan la propuesta.
 
-## Recorrido docente
+En la corrección privada puede consultar estado, revisar, usar o descartar una sugerencia. Usar requiere confirmación y guarda corrección privada; reemplazar cambios locales sin guardar debe ser explícito. Descartar no cambia la corrección existente. Publicar la nota requiere la operación docente independiente.
 
-1. En la configuración del aula, activar **Corrección asistida por IA para esta aula** cuando la capacidad esté disponible.
-2. Las nuevas entregas confirmadas elegibles generan propuestas para trabajos prácticos, cuestionarios y evaluaciones. La consigna y los puntajes existentes se conservan; la rúbrica es opcional.
-3. Abrir la corrección privada de una entrega y revisar la sección **Sugerencia de corrección con IA**. Consultar el estado no vuelve a solicitar una generación.
-4. **Usar sugerencia** requiere confirmación y guarda una corrección privada. Si hay cambios docentes sin guardar, el reemplazo es explícito. **Descartar sugerencia** no modifica la corrección existente.
-5. Revisar o editar el resultado y publicar por la operación docente habitual. El estudiante solo consulta el resultado publicado y autorizado.
+La puntuación objetiva conserva el motor determinista. Fallos/archivos no procesables permiten corregir manualmente. Las respuestas y archivos autorizados pueden contener texto identificatorio: minimizar datos no equivale a anonimizar todo el contenido ni a usar la política de análisis individual.
 
-## Límites que se conservan
+El [contrato vigente](../../../odd/tasks/grading-ai-issue-2.md) conserva la ruta exigida por CI. Fuentes: [runtime](../../../apps/api/src/classrooms/grading-ai/runtime.ts), [UI de revisión](../../../apps/classrooms-ui/GradingAiReview.tsx), [calificación](../grading/README.md).
 
-- La corrección objetiva mantiene el cálculo determinista del motor; una propuesta no redefine sus reglas.
-- Fallos o archivos no procesables permiten continuar con corrección manual. Una respuesta incierta del proveedor no se reenvía automáticamente.
-- Se minimizan datos personales, pero las respuestas y archivos autorizados pueden contener texto identificatorio; esta función no tiene la misma política de entrada que el análisis individual anónimo.
-- Autorización, matrícula, revisión de la entrega, cuotas, leases y presupuesto se comprueban en el servidor. No hay publicación automática ni permiso permanente para usar proveedores o datos reales.
-
-El [contrato de issue #2](../../../odd/tasks/grading-ai-issue-2.md) conserva alcance y criterios. Véanse [corrección privada](../grading/private-grading.md), [publicación](../grading/publication.md) y [configuración del proveedor](plan-extraction.md).
-
-## Evidencia y alcance
-
-La verificación posterior observó un TP con PDF y cuestionario/evaluación con desarrollo y opción única EXACT, más propuesta, aplicación privada y publicación docente. No acredita todos los formatos ni capacidad productiva. Los resultados y limitaciones se consultan en el [catálogo de evidencia](../../verification/README.md#ia-y-extensiones) y en el [roadmap](../../implementation-roadmap.md#estado-actual), sin repetir o ampliar sus sumas aquí.
+Prueba actual: se inspeccionó la sección sin sugerencia y se completó corrección/publicación manual. No se generó, aplicó o descartó una propuesta IA nueva; esa rama queda limitada en la [matriz](../../verification/flows.md), sin reutilizar resultados históricos como prueba actual.

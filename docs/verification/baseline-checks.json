@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-07",
+  "status": "passed_with_explicit_coverage_limits",
+  "checks": [
+    {
+      "command": "npm run docs:check (first current-baseline pass)",
+      "exitCode": 1,
+      "result": "48 files, 624 links, 7 missing targets/anchors; corrected before final checks"
+    },
+    {
+      "command": "node scripts/documentation-preview.mjs",
+      "exitCode": 0,
+      "result": "Ready with synthetic roles/providers; own loopback HTTP200; stopFile shutdown; P4 owned cleanup failures:0"
+    },
+    {
+      "command": "node scripts/build-api.mjs",
+      "exitCode": 0,
+      "result": "Fresh Prisma generation and TypeScript API build, bounded30s; observed before browser runtime"
+    },
+    {
+      "command": "npm run web:build (own subprocess supervisor)",
+      "exitCode": 0,
+      "result": "Fresh Next production build, bounded180s; parent lockfile warning, no build failure"
+    },
+    {
+      "command": "npm run docs:check (corrected candidate)",
+      "exitCode": 0,
+      "result": "48 files / 629 links / 0 issues"
+    },
+    {
+      "command": "node --test tests/documentation-links.test.mjs tests/p31-contracts.test.mjs tests/issue2-ci-workflow.test.mjs",
+      "exitCode": 0,
+      "result": "35 tests pass, 0 fail, 0 skipped"
+    },
+    {
+      "command": "node --check scripts/documentation-preview.mjs",
+      "exitCode": 0,
+      "result": "Syntax valid"
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0,
+      "result": "No whitespace errors"
+    },
+    {
+      "command": "Current-structure deterministic inspection (Python/hashlib, exact JSON comparison, Prisma inventory)",
+      "exitCode": 0,
+      "result": "OpenAPI identical to HEAD except info title/description and server description; 55/55 models documented; 165 PNG+metadata hashes match; 0 horizontal overflow in captured geometry; all2324 retired paths absent; all44 docs/task Markdown files covered in48-file manifest"
+    },
+    {
+      "command": "docker ps --format + owned fixture path existence",
+      "exitCode": 0,
+      "result": "No running containers; preview fixture credentials absent after cleanup"
+    },
+    {
+      "command": "npm run docs:check; git diff --check (after closing tasks, roadmap and review record)",
+      "exitCode": 0,
+      "result": "48 files / 632 links / 0 issues; diff check clean"
+    }
+  ],
+  "baseCommit": "d41ff6d0b8c9321403b1d3000a06e06d84366cfe",
+  "candidate": "Local working tree; no commit/publication",
+  "scope": "Documentation and isolated preview helper; no product behavior changes",
+  "omitted": [
+    "No full functional regression suite: no product behavior changed; contracts/CI/link checks plus helper smoke are proportional.",
+    "Browser scope and non-ensayed branches explicitly listed in flows.json; no real AI providers or production data.",
+    "No complete WCAG/security/performance certification."
+  ],
+  "independentReview": {
+    "agent": "/root/documentation_consumers",
+    "profile": "Sol/xhigh requested",
+    "role": "read-only",
+    "openFindings": 0,
+    "corrections": [
+      "EXACT/PARTIAL scoring fully defined",
+      "Agenda ambiguous/nonexistent occurrence policy explicit",
+      "Published-grade rectification invariants explicit",
+      "Published rubric calculation fields distinguished from private AI proposals"
+    ],
+    "observed": "docs48/629/0; 165 capture hashes and metadata/dimensions, 46 coverage entries with37/2/3/4 statuses, 2324 retirements absent, OpenAPI contract unchanged except descriptive metadata; 55 models/46 migrations; helper syntax/static inspection",
+    "notRepeated": "Coordinator tests35 and runtime smoke; browser/services/functional suite not rerun by reviewer"
+  },
+  "sourceFingerprints": {
+    "prisma/schema.prisma": "94359331bbefc39cce25f67358b021a36c04988f3a592f1b2bcb75d1dcb19eee",
+    "package.json": "5632003cf1e3c76c2993526c0a07ccb0bf731c9ff0a98171fa53f742ec8d33b0",
+    "docs/design/current/catalog.json": "32cf2d017facd58724bb3a8a6e33cdc38bdd24a374df975d9c2218e9887a15c6"
+  }
+}

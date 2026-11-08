@@ -1,5 +1,0 @@
-# Main runtime recover-source — completed
-
-Date2026-10-24; main worktree integrate-classroom-gemini, starting f1e5964. Persisted by /root coordinator. Feature [classroom AI](../../odd/tasks/classroom-ai-extraction.md), operational start with Agenda. No host identity registered for memory writes.
-
-Agent/role/task: /root/recover_original_gemini_preview / slice_worker. Prepared only ignored recover-source-data/recovered-source-preview helpers,134/150lines. Syntax2PASS, no execution/private reads/services/Git/docs by worker. Original-data restore is logicalDB classroom_source_recovered_dev and bucket foxmind-source-recovered, separate from main queues/blobs but sharing new persistent physical infrastructure/scanner. Strict37table/hash/history10 and4object verification before admission, own stable keys, original Google key internal load, original25d20c6 API/Next at60061, original Mailpit identity validation/restart. Fixed dynamic port lookup after reviewer finding; no other scope. Root performed and verified recovery. Status: completed implementation, execution attribution separate.

@@ -1,0 +1,16 @@
+{
+  "url": "/inicio",
+  "width": 1440,
+  "height": 1000,
+  "scrollWidth": 1440,
+  "headings": [
+    "¡Buen día, Pablo!",
+    "Tu próximo paso empieza aquí",
+    "Por atender",
+    "Acciones del aula",
+    "Mi agenda",
+    "Eventos personales",
+    "Aula en foco"
+  ],
+  "alerts": []
+}

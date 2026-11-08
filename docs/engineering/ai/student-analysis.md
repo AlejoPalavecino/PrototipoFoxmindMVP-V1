@@ -1,9 +1,7 @@
-# Análisis individual con IA
+# Análisis individual orientativo
 
-El docente abre la ficha desde la tarjeta del estudiante en el aula. FoxMind genera automáticamente un análisis cuando hay evidencia académica suficiente y lo actualiza cuando cambia. Presenta fortalezas, necesidades de apoyo, recomendaciones y límites como orientación para el criterio docente, no como diagnóstico.
+El docente abre la ficha de un alumno y Análisis con IA. La capacidad utiliza su evidencia métrica anónima según el contrato, sin convertirla en corrección de respuestas o publicación de notas. Debe revisarse con los registros y criterio docente.
 
-El proveedor recibe únicamente métricas y referencias anónimas: no recibe nombres, correos, identificadores reales, títulos, fechas exactas, respuestas, adjuntos ni texto libre. La relación con el estudiante y la asociación de cada referencia con su actividad permanecen en el servidor. El docente ve el título de la actividad cuando el informe sigue vigente. Los pendientes no equivalen a cero; se utilizan calificaciones publicadas y vigentes.
+El servicio revalida propietario, alumno/pertenencia, estado y referencias del snapshot. Un cambio de datos puede volver obsoleto un resultado; no usarlo como predicción o diagnóstico personal. Una falla deja disponible consultar progreso y registros.
 
-Solo el docente del aula consulta el informe de un estudiante actualmente matriculado. El procesamiento vuelve a comprobar matrícula, cuenta docente y evidencia; comparte concurrencia y presupuesto con las otras funciones de IA. Una respuesta incierta del proveedor no se vuelve a enviar automáticamente. La migración `202610280001_student_ai` debe aplicarse mediante el procedimiento normal de cada entorno antes de ejecutar esta versión.
-
-Verificación y límites: [registro de verificación](../../work-log/2026-10-28-root-student-ai-verification.md). El recorrido autenticado con un estudiante sintético y Gemini real se verificó en infraestructura aislada.
+Fuentes: [servicio y worker](../../../apps/api/src/classrooms/student-ai/), [progreso](../grading/progress.md). En el [recorrido actual](../../verification/flows.md) se abrió la ficha y se observó el error/reintento de un proveedor sintético deliberadamente no disponible. No se acreditó generación exitosa del informe ni proveedor real en esta entrega.

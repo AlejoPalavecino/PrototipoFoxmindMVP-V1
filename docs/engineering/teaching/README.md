@@ -1,7 +1,9 @@
-# Enseñanza
+# Plan, Biblioteca y Muro
 
-Organización del plan de estudio, materiales y muro del aula. Consulta el [estado actual](../../implementation-roadmap.md#estado-actual).
+Estas capacidades comparten el aula y sus permisos, pero mantienen reglas distintas.
 
-- [Plan de estudio](plan.md)
-- [Biblioteca](library.md)
-- [Muro](wall.md)
+- [Plan](plan.md): consultar unidades/temas y marcar avance docente.
+- [Biblioteca](library.md): publicar, revisar, organizar y leer recursos.
+- [Muro](wall.md): avisos, consultas y respuestas.
+
+Crear o publicar en una sección no completa actividades ni modifica calificaciones. El estado de archivo y la membresía se revalidan en el servidor.

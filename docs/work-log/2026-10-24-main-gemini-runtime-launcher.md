@@ -1,5 +1,0 @@
-# Main runtime launcher — completed
-
-Date2026-10-24; main worktree integrate-classroom-gemini, starting f1e5964. Persisted by /root coordinator. Feature [classroom AI](../../odd/tasks/classroom-ai-extraction.md), operational start with Agenda. No host identity registered for memory writes.
-
-Agent/role/task: /root/main_gemini_clone_launcher / slice_worker. Wrote only ignored runtime/infrastructure/database/storage/clone/preview helpers, each below200lines. Static node --check6PASS; no provision/private reads/services by worker. WX config/locks, persistent labeled volumes and loopback bindings, strict history/hashes, restore only empty clone, stable restart without source/restore, first-admission safety barrier and original key internal load. Corrected coupling of restart gate to source after root/reviewer inspection. Subsequent operational fixes: copied Clam configs normalizeCRLF→LF; new scanner healthcheck targets127.0.0.1 rather than localhost. Both syntax checks passed. Root operated resources and observed all actual outcomes. Status: completed preparation/fixes; no product/test/Git/doc/memory changes.

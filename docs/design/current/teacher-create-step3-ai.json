@@ -1,0 +1,15 @@
+{
+  "url": "/mis-aulas",
+  "width": 1440,
+  "height": 1000,
+  "scrollWidth": 1440,
+  "headings": [
+    "Crear aula",
+    "Unidades y temas",
+    "Del plan a tus unidades",
+    "En espera para comenzar",
+    "Mis aulas",
+    "Fotografía y luz"
+  ],
+  "alerts": []
+}

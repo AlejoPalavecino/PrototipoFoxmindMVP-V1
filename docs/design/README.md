@@ -1,11 +1,60 @@
-# Diseño de FoxMind
+# UX/UI vigente de FoxMind
 
-Brújula es la nueva referencia aprobada para ambos roles el 2026-11-05. [Kit visual y criterios](brujula/README.md) · [Implementación y evidencia](../../odd/tasks/foxmind-brujula.md). Los sistemas anteriores conservan su evidencia histórica.
+Referencia actual: aplicación Brújula recorrida con Ego Lite sobre código real, API/SQL/archivos/escáner/correo propios y cuentas sintéticas. Las capturas y checks se consultan en la [galería](current/README.md) y [matriz por flujo/rol](../verification/flows.md). No se usa una maqueta histórica como autoridad.
 
-La dirección FoxMind 3D fue implementada localmente: consulte la [guía operativa](../engineering/frontend/foxmind-3d.md), la [verificación](../foxmind-3d-verification.md) y la [evidencia visual](../work-log/evidence/2026-10-25-foxmind-3d/README.md). El [roadmap](../implementation-roadmap.md) es la fuente del estado de producto y publicación.
+## Información y navegación
 
-El [catálogo de diseños](INDEX.md) distingue el sistema aplicado, selecciones históricas, exploraciones y antecedentes. El [paquete FoxMind 3D](foxmind-3d/README.md) conserva recursos y los 82 flujos; las imágenes no prueban funcionamiento por sí solas. La [especificación funcional](../foxmind-v1-functional-spec.md) prevalece sobre las imágenes.
+Sidebar desde 1024 px; en tamaños menores, menú compacto con drawer y retorno de foco. Global: Inicio, Mis aulas, Agenda, búsqueda, notificaciones y Mi cuenta; Foxy sólo docente. Perfil y Configuración de cuenta están dentro de Mi cuenta.
 
-El [índice de referencias visuales](../visual-reference-index.md) conserva 29 capturas de referencia. El trabajo glass previo consta en el [registro de plataforma](../work-log/2026-10-21-root-platform-glass.md), su [verificación](../work-log/2026-10-21-platform-verify.md) y la [entrega posterior](../work-log/2026-10-22-root-main-ui-publication.md). La [auditoría de 2026-10-21](../audits/2026-10-21-docs-audit/README.md) describe un corte histórico.
+| Contexto | Secciones |
+|---|---|
+| Aula docente | Plan, Muro, Biblioteca, Actividades, Progreso, Alumnos, Historial, Configuración |
+| Aula estudiante | Plan, Muro, Biblioteca, Actividades, Mi progreso, Compañeros |
 
-Algunas fuentes de marca provinieron del directorio personal histórico `FoxMind/archive/marca-original`; esa procedencia se conserva como texto, no como dependencia de otro equipo.
+Inicio docente prioriza Por atender, acciones y aula en foco; estudiante, Mis entregas y devoluciones publicadas. Las cifras Enseño/Estudio de la proyección no son un selector de rol dual. El banner, las tarjetas y los accesos conservan jerarquía por rol, sin métricas inventadas.
+
+## Recorridos de referencia
+
+| Flujo | Secuencia actual |
+|---|---|
+| Cuenta | Elegir rol permanente → registrar → login → verificación con confirmación → Ir a Inicio |
+| Recuperar acceso | Solicitar correo genérico → enlace de un uso → nueva contraseña → login |
+| Crear aula | Datos/documento/portada → elección IA/manual → unidades/temas → revisión editable → confirmar |
+| Ingresar | Código → vista previa → confirmar inscripción; invitación → aceptación expresa |
+| Manual de actividad | Preparar → Revisar y asignar; guardar borrador y asignar separados |
+| IA de actividad | Tema/objetivo → material/nivel → revisar/generar → propuesta editable → borrador privado → editor normal |
+| TP | Ver consigna → preparar/continuar → seleccionar/subir archivo → revisar → confirmar → comprobante |
+| Cuestionario/evaluación | Responder → autoguardar → revisar completas/incompletas → confirmar |
+| Corregir | Intento → nota/rúbrica privada → guardar → revisar publicación → confirmar |
+| Foxy | Conversación/contexto → recurso privado → preparar destino/archivo → revisar → confirmación y publicación |
+| Biblioteca TEXT | Escribir/publicar → leer → revisar como nueva identidad → conservación/eliminación según vínculos |
+| Aula | Salida/remoción → revocación e historia → nueva invitación para readmitir; archivo/reactivación no borran historial |
+| Agenda | Crear → detalle → editar/alcance de serie → eliminar ocurrencia/serie |
+
+Las [funciones por rol](../product/features-by-role.md) y [especificación](../foxmind-v1-functional-spec.md) explican permisos y reglas. Los nombres de botones de esta tabla reflejan el recorrido vigente; compatibilidad del API no agrega botones al producto.
+
+## Sistema visual implementado
+
+Familia Lexend cargada como Brújula. Texto #252646, secundario #60667D, fondo #F4F7FE, acción #B8490C, borde #DBE1F0; superficies blancas. Radios base de controles 11 px y tarjetas 18 px, con variantes por pantalla. Fuentes: [CSS principal](../../apps/shared-ui/brujula.css), [controles](../../apps/shared-ui/brujula-controls.css) y recursos en [public](../../apps/web/public/).
+
+Reutilizar componentes/navegación existentes antes de agregar variantes. Nombres fm3d/p5 y recursos anteriores todavía cargados son parte de la implementación; no confundirlos con documentación vieja descartable. Validar estilos calculados y contexto real; los tokens no garantizan contraste de toda combinación.
+
+## Estados e interacción
+
+Carga y guardado deben indicar operación y bloquear duplicados. Una respuesta tardía no reemplaza cambios. Vacío debe explicar qué falta y ofrecer acción autorizada. Error debe conservar datos cuando corresponda, distinguir validación/permiso/conflicto/cuota/servicio y ofrecer recuperación sin reenviar una mutación confirmada.
+
+Confirmaciones son distintas: asignar actividad, enviar intento, publicar nota/recurso, salir/remover/archivar/eliminar. Un archivo listo no es entrega; corrección privada no es publicación. Mostrar el recibo y estado persistido.
+
+Formularios largos tienen scroll y jerarquía por secciones. En el recorrido de Ego hubo limitaciones de autoscroll/selectores; se registran como herramienta, sin atribuirlas automáticamente a FoxMind ni ocultar el uso de clicks DOM de respaldo.
+
+## Responsive y accesibilidad
+
+Referencias actuales incluyen escritorio de 1440 px, tablet de 768 px, móvil de 390 px y formularios móviles; otras capturas tienen el viewport registrado en JSON. No hay overflow horizontal en los controles geométricos conservados del catálogo actual.
+
+Se comprobó navegación móvil/Escape y retorno de foco, etiquetas y estados mediante snapshots; no es auditoría WCAG completa. Para cada cambio revisar teclado, tabulación, foco visible/diálogos, contraste, objetivos táctiles y reduced-motion, además de estados carga/vacío/error.
+
+Las capturas de resultado móvil incluyen scroll al bloque de devolución para que la referencia muestre el dato relevante. Una captura no prueba bytes o autorización: esos checks tienen recibos adicionales y alcance propio en la matriz.
+
+## Cambios futuros
+
+Actualizar esta guía y el flujo afectado cuando cambie UX. Guardar referencias actuales con identidad del candidato, rol, viewport, acción, resultado y límites. Propuestas nuevas deben aprobarse antes de implementarse; no usar una captura antigua o un HTML de demo para alterar permisos. [Política documental](../documentation-policy.md).

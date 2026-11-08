@@ -1,13 +1,20 @@
-# Corrección asistida por IA — issue #2
+# Contrato vigente de corrección asistida por IA
 
-## Alcance acordado
+Esta ruta es un contrato actual consumido como marcador de cobertura por CI, no un registro histórico de issue. Su presencia conserva la exigencia de las pruebas finales de integración del workflow; no retirarla ni renombrarla sin adaptar y verificar ese contrato explícitamente.
 
-El docente activa o desactiva la capacidad por aula. Las entregas confirmadas después de activarla generan automáticamente una propuesta privada para trabajos prácticos, cuestionarios y evaluaciones. La IA considera la consigna y los puntajes existentes, además de una rúbrica opcional configurada en la actividad. El usuario autorizó procesar respuestas y archivos, minimizando datos personales; el texto libre puede contener datos identificatorios.
+## Capacidad y autorización
 
-La sugerencia incluye una nota y devolución; en preguntas objetivas el motor existente conserva el cálculo determinista. El docente revisa, edita, acepta o descarta la propuesta. Aceptar guarda una corrección privada; publicar sigue siendo una operación explícita e independiente. Fallos del proveedor o archivos no procesables dejan disponible la corrección manual.
+El docente activa/desactiva la capacidad por aula. Nuevas entregas confirmadas elegibles generan propuestas privadas para TP, cuestionarios y evaluaciones. Consigna, puntajes y rúbrica opcional delimitan el análisis. Se minimizan datos personales, pero texto/archivos autorizados pueden contener identificadores: no afirmar anonimización completa.
 
-## Estado y evidencia
+La sugerencia propone nota y devolución. Preguntas objetivas conservan cálculo determinista. El docente puede revisar, editar, usar o descartar. Usar requiere confirmación y guarda corrección privada; publicar sigue siendo explícito e independiente. Descartar no modifica la corrección actual.
 
-Implementación integrada en main mediante PR #16, con verificación posterior autenticada y Gemini real: [TP con PDF](../../docs/work-log/2026-10-29-root-gemini-grading.md) y [cuestionario/evaluación](../../docs/work-log/2026-10-29-root-gemini-questionnaire-evaluation.md). Se observaron propuesta privada, edición/aplicación docente, privacidad y publicación explícita. Q/E cubren desarrollo y opción única EXACT; no todos los formatos ni capacidad productiva. El [registro inicial](../../docs/work-log/2026-10-29-root-issue2-correccion-ia.md) conserva su candidato y límites originales; no se reetiquetan pruebas antiguas como proveedor real. Sin despliegue.
+## Invariantes verificables
 
-La [guía vigente](../../docs/engineering/ai/grading-assistance.md) explica el recorrido docente; el [roadmap](../../docs/implementation-roadmap.md#estado-actual) mantiene el estado global. Se conserva esta ruta porque su existencia activa controles de integración en CI.
+- Alumno no accede a sugerencia ni corrección privada.
+- Permisos, pertenencia, versión, cuotas y propiedad de job se revalidan en servidor.
+- Trabajo repetido no duplica propuesta/publicación; resultado incierto no habilita reenviar silenciosamente.
+- Una falla de proveedor/archivo mantiene corrección manual.
+- Aplicar no publica ni notifica resultado al estudiante.
+- Publicar usa la corrección guardada por el docente y la operación académica habitual.
+
+[Guía actual](../../docs/engineering/ai/grading-assistance.md), [motor de calificación](../../docs/engineering/grading/README.md), [matriz vigente](../../docs/verification/flows.md). En el ensayo actual no se generó una nueva propuesta IA; no se hereda aceptación real de documentos retirados.

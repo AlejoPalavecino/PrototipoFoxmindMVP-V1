@@ -1,7 +1,0 @@
-# Live journey runner — in progress
-
-- Agent /root/live_journey_worker; branch codex/foxy-ai; runtime ID unavailable.
-- Added scripts/foxy-provider-journey.mjs: explicit flag and attempt UUID, exclusive durable receipt before configuration, one count/dispatch per kind, two synthetic scopes, temporary P4 services and publication flow. No real calls or secret reads.
-- Guard test passed; API build and architecture boundaries passed. First guard test failed because sanitized error omitted required authorization wording; corrected and reran PASS.
-- Critical handoff: no offline complete fake-provider run or independent review yet. Validate FileService authorization, receipt exclusivity and failure cleanup before any live execution. No claim of end-to-end readiness.- Added explicit mutually exclusive --synthetic mode without reading env or contacting provider. Final synthetic execution passed IMAGE and DIAGRAM with isolated PG/Seaweed/ClamAV, owner preview, byte equality, exact FORBIDDEN before publication and outsider, unit/topic, prepare/confirm replay, dispatch/settlement, and owned cleanup zero failures.
-- Safe allowlisted job error reporting added. No live run; independent review remains necessary.

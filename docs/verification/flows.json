@@ -1,0 +1,633 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-07",
+  "baseCommit": "d41ff6d0b8c9321403b1d3000a06e06d84366cfe",
+  "environment": "Fresh disposable local services; synthetic providers; no retained data",
+  "browser": "Ego Lite, TaskSpace 2, closed",
+  "statusMeaning": {
+    "PASS": "Acciones y resultado indicados observados; no implica todas las ramas del dominio",
+    "REFERENCIA": "Pantalla observada; mutación no ensayada",
+    "LIMITADO": "Resultado parcial o rama de error, límite explícito",
+    "NO_ENSAYADO": "Referencia de implementación; sin nuevo recorrido de esa rama"
+  },
+  "flows": [
+    {
+      "id": "AUTH-01",
+      "role": "ambos",
+      "flow": "Registro y verificación",
+      "status": "PASS",
+      "result": "Registro docente y estudiante desde UI; respuesta genérica, correo propio y confirmación. La pantalla verificada ofrece Ir a Inicio.",
+      "captures": [
+        "auth-register",
+        "auth-register-mobile",
+        "auth-registration-result",
+        "auth-student-registered",
+        "auth-verification-pending",
+        "auth-verified"
+      ],
+      "limits": ""
+    },
+    {
+      "id": "AUTH-02",
+      "role": "ambos",
+      "flow": "Acceso y espacios por rol",
+      "status": "PASS",
+      "result": "Ingreso con cuentas verificadas y acceso a Inicio de cada rol; estados vacíos con cuentas nuevas.",
+      "captures": [
+        "auth-login",
+        "teacher-empty-home",
+        "student-empty-home",
+        "teacher-home",
+        "student-home"
+      ],
+      "limits": ""
+    },
+    {
+      "id": "AUTH-03",
+      "role": "docente",
+      "flow": "Recuperación de contraseña",
+      "status": "PASS",
+      "result": "Solicitud, correo local, nueva contraseña y posterior ingreso exitoso; sin inicio de sesión automático.",
+      "captures": [
+        "auth-recovery",
+        "auth-recovery-requested",
+        "auth-recovery-confirm",
+        "auth-recovered"
+      ],
+      "limits": ""
+    },
+    {
+      "id": "AUTH-04",
+      "role": "docente",
+      "flow": "Perfil y contraseña",
+      "status": "PASS",
+      "result": "Apellido modificado y persistido después de recargar; contraseña cambiada y utilizada en nuevo ingreso.",
+      "captures": [
+        "teacher-profile",
+        "teacher-profile-updated",
+        "teacher-account-settings",
+        "teacher-password-changed"
+      ],
+      "limits": "Edición del perfil del estudiante no repetida; sus pantallas se observaron."
+    },
+    {
+      "id": "AUTH-05",
+      "role": "estudiante",
+      "flow": "Perfil y configuración",
+      "status": "REFERENCIA",
+      "result": "Pantallas de perfil/cuenta accesibles y documentadas.",
+      "captures": [
+        "student-profile",
+        "student-account-settings"
+      ],
+      "limits": "Sin repetir modificación de datos ni recuperación con esta cuenta."
+    },
+    {
+      "id": "NAV-01",
+      "role": "ambos",
+      "flow": "Navegación y responsive",
+      "status": "PASS",
+      "result": "Inicio en desktop, tablet y móvil; menú móvil de ambos roles y secciones propias. Escape cierra el menú docente y devuelve foco al disparador.",
+      "captures": [
+        "teacher-home",
+        "teacher-home-tablet",
+        "teacher-home-mobile",
+        "teacher-mobile-menu",
+        "student-home-tablet",
+        "student-home-mobile",
+        "student-mobile-menu"
+      ],
+      "limits": "No constituye auditoría WCAG completa, contraste ni recorrido exhaustivo de foco."
+    },
+    {
+      "id": "HOME-01",
+      "role": "docente",
+      "flow": "Buscar y abrir notificación",
+      "status": "PASS",
+      "result": "Búsqueda Fotografía presenta resultados; lista de notificaciones y apertura de conversación autorizada.",
+      "captures": [
+        "teacher-search-results",
+        "teacher-notification-list",
+        "teacher-notification-opened"
+      ],
+      "limits": ""
+    },
+    {
+      "id": "HOME-02",
+      "role": "ambos",
+      "flow": "Inicio y acciones pendientes",
+      "status": "PASS",
+      "result": "Docente ve revisión pendiente; estudiante ve devolución publicada y accede al resultado.",
+      "captures": [
+        "teacher-home-review-pending",
+        "student-home-published-feedback",
+        "student-published-result"
+      ],
+      "limits": ""
+    },
+    {
+      "id": "ROOM-01",
+      "role": "docente",
+      "flow": "Crear aula con extracción de plan",
+      "status": "PASS",
+      "result": "Cuatro pasos: datos, PDF aprobado, propuesta sintética revisada, confirmación; aula aparece en colección y Plan conserva unidades.",
+      "captures": [
+        "teacher-create-step1",
+        "teacher-create-step2",
+        "teacher-create-step3-ai",
+        "teacher-create-ai-result",
+        "teacher-create-step4",
+        "teacher-create-success",
+        "teacher-created-plan"
+      ],
+      "limits": "Proveedor sintético; no acredita calidad de extracción externa."
+    },
+    {
+      "id": "ROOM-02",
+      "role": "docente",
+      "flow": "Plan manual y borrador de aula",
+      "status": "PASS",
+      "result": "DOCX cargado, ayuda de extracción/texto manual, revisión y guardado como borrador privado.",
+      "captures": [
+        "teacher-create-manual-plan",
+        "teacher-manual-text-extraction",
+        "teacher-create-manual-review",
+        "teacher-classroom-draft-saved"
+      ],
+      "limits": "La captura manual-plan muestra la ayuda, no un plan final aplicado."
+    },
+    {
+      "id": "ROOM-03",
+      "role": "estudiante",
+      "flow": "Ingresar por código",
+      "status": "PASS",
+      "result": "Código inválido muestra error; código válido ofrece vista previa y confirmación abre el aula.",
+      "captures": [
+        "student-code-error",
+        "student-code-preview",
+        "student-code-joined"
+      ],
+      "limits": ""
+    },
+    {
+      "id": "ROOM-04",
+      "role": "ambos",
+      "flow": "Invitar y aceptar",
+      "status": "PASS",
+      "result": "Invitación docente enviada; estudiante confirma ingreso y aula queda accesible.",
+      "captures": [
+        "teacher-invitation-sent",
+        "student-invitation-confirm"
+      ],
+      "limits": ""
+    },
+    {
+      "id": "ROOM-05",
+      "role": "docente",
+      "flow": "Miembros e historial",
+      "status": "PASS",
+      "result": "Miembros, acciones, ficha individual e historial de participación accesibles.",
+      "captures": [
+        "teacher-members",
+        "teacher-member-actions",
+        "teacher-student-record",
+        "teacher-history"
+      ],
+      "limits": ""
+    },
+    {
+      "id": "ROOM-06",
+      "role": "docente",
+      "flow": "Archivar y reactivar",
+      "status": "PASS",
+      "result": "Revisión y confirmación de archivo; estudiante observa solo lectura; posterior reactivación docente.",
+      "captures": [
+        "teacher-archive-review",
+        "teacher-archived-classroom",
+        "student-archived-readonly",
+        "teacher-reactivated-classroom"
+      ],
+      "limits": ""
+    },
+    {
+      "id": "ROOM-07",
+      "role": "estudiante",
+      "flow": "Salir de aula activa o archivada",
+      "status": "PASS",
+      "result": "Revisión y confirmación de salida en ambos estados; colección actualizada.",
+      "captures": [
+        "student-leave-review",
+        "student-left-classroom",
+        "student-left-archived"
+      ],
+      "limits": ""
+    },
+    {
+      "id": "ROOM-08",
+      "role": "ambos",
+      "flow": "Retirar, denegar y readmitir",
+      "status": "PASS",
+      "result": "Docente retira estudiante; acceso directo denegado, historial de exalumno retenido. El código no permite readmisión; nueva invitación sí. Nota 8,50 permanece tras reingreso.",
+      "captures": [
+        "teacher-remove-student-review",
+        "teacher-former-student-history",
+        "student-removed-access-denied",
+        "student-code-readmission-denied",
+        "teacher-removed-student-new-invitation",
+        "student-readmission-invitations",
+        "student-readmitted",
+        "student-result-preserved-after-reentry"
+      ],
+      "limits": ""
+    },
+    {
+      "id": "ROOM-09",
+      "role": "docente",
+      "flow": "Configuración de aula",
+      "status": "REFERENCIA",
+      "result": "Pantalla y controles actuales documentados.",
+      "captures": [
+        "teacher-settings"
+      ],
+      "limits": "Sin ensayo exhaustivo de cada campo o condición de concurrencia."
+    },
+    {
+      "id": "PLAN-01",
+      "role": "ambos",
+      "flow": "Plan y progreso de enseñanza",
+      "status": "PASS",
+      "result": "Docente marca tema como dictado; estudiante consulta plan/progreso de solo lectura.",
+      "captures": [
+        "teacher-plan",
+        "teacher-plan-taught",
+        "student-plan",
+        "student-progress"
+      ],
+      "limits": ""
+    },
+    {
+      "id": "WALL-01",
+      "role": "ambos",
+      "flow": "Aviso y respuesta",
+      "status": "PASS",
+      "result": "Docente publica aviso, estudiante responde y conversación queda visible.",
+      "captures": [
+        "teacher-wall-empty",
+        "teacher-wall-published",
+        "student-wall",
+        "student-wall-reply"
+      ],
+      "limits": ""
+    },
+    {
+      "id": "WALL-02",
+      "role": "ambos",
+      "flow": "Consulta y respuesta docente",
+      "status": "PASS",
+      "result": "Estudiante crea consulta, docente la abre y responde.",
+      "captures": [
+        "student-wall-question",
+        "teacher-wall-answer"
+      ],
+      "limits": ""
+    },
+    {
+      "id": "LIB-01",
+      "role": "ambos",
+      "flow": "Publicar y leer material TEXT",
+      "status": "PASS",
+      "result": "Docente crea texto con DOCX generado y escaneado; estudiante accede al lector, también móvil.",
+      "captures": [
+        "teacher-library-empty",
+        "teacher-library-add",
+        "teacher-library-published",
+        "student-material-reader",
+        "student-material-mobile"
+      ],
+      "limits": ""
+    },
+    {
+      "id": "LIB-02",
+      "role": "docente",
+      "flow": "Revisar y eliminar material",
+      "status": "PASS",
+      "result": "Cambio de cuerpo crea identidad de archivo diferente; revisión visible. Eliminación confirmada retira material de la lista.",
+      "captures": [
+        "teacher-library-edit",
+        "teacher-library-revised",
+        "teacher-library-delete-review",
+        "teacher-library-deleted"
+      ],
+      "limits": "No se eliminan archivos históricos de custodia por este botón."
+    },
+    {
+      "id": "ACT-01",
+      "role": "docente",
+      "flow": "Práctico manual",
+      "status": "PASS",
+      "result": "Dos etapas, validación de tema requerido, revisión con rúbrica y asignación.",
+      "captures": [
+        "teacher-activity-choice",
+        "teacher-activity-step1",
+        "teacher-activity-review",
+        "teacher-activity-review-ready",
+        "teacher-activity-assigned"
+      ],
+      "limits": "activity-review captura un error de validación; review-ready es la revisión válida."
+    },
+    {
+      "id": "ACT-02",
+      "role": "docente",
+      "flow": "Cuestionario por generación",
+      "status": "PASS",
+      "result": "Tres pasos de configuración, propuesta con desarrollo/simple/múltiple, rúbrica, borrador privado y posterior asignación.",
+      "captures": [
+        "teacher-activity-ai-setup",
+        "teacher-activity-ai-step2",
+        "teacher-activity-ai-step3",
+        "teacher-activity-ai-proposal",
+        "teacher-activity-ai-draft",
+        "teacher-questionnaire-assigned"
+      ],
+      "limits": "Respuesta de proveedor sintético; sin evaluación de calidad pedagógica externa."
+    },
+    {
+      "id": "ACT-03",
+      "role": "docente",
+      "flow": "Evaluación por generación",
+      "status": "PASS",
+      "result": "Propuesta sintética, revisión y asignación de evaluación.",
+      "captures": [
+        "teacher-evaluation-proposal",
+        "teacher-evaluation-assigned"
+      ],
+      "limits": ""
+    },
+    {
+      "id": "ACT-04",
+      "role": "docente",
+      "flow": "Editar/transferir/rectificar actividad",
+      "status": "NO_ENSAYADO",
+      "result": "Contrato y superficies se describen desde código vigente.",
+      "captures": [],
+      "limits": "Sin recorrido exhaustivo de edición posterior, transferencia desde Foxy ni rectificación/reintentos en esta sesión."
+    },
+    {
+      "id": "SUB-01",
+      "role": "estudiante",
+      "flow": "Entregar práctico con archivo",
+      "status": "PASS",
+      "result": "Consigna en línea, carga PDF aprobada, borrador, revisión y confirmación; recibo visible en desktop y móvil.",
+      "captures": [
+        "student-activities",
+        "student-assignment",
+        "student-instructions",
+        "student-attempt-editor",
+        "student-file-approved",
+        "student-submit-review",
+        "student-submission-receipt",
+        "student-submission-mobile"
+      ],
+      "limits": ""
+    },
+    {
+      "id": "SUB-02",
+      "role": "estudiante",
+      "flow": "Descargar archivo confirmado",
+      "status": "LIMITADO",
+      "result": "Fetch autenticado del navegador obtuvo HTTP200 y bytes idénticos al PDF propio.",
+      "captures": [
+        "student-submission-receipt"
+      ],
+      "limits": "El evento nativo de descarga de Ego agotó espera después del clic. No se afirma recibo nativo; ver download-check.json."
+    },
+    {
+      "id": "SUB-03",
+      "role": "estudiante",
+      "flow": "Responder cuestionario",
+      "status": "PASS",
+      "result": "Desarrollo, selección simple/múltiple, autoguardado, revisión y entrega confirmada.",
+      "captures": [
+        "student-questionnaire",
+        "student-questionnaire-editor",
+        "student-questionnaire-autosaved",
+        "student-questionnaire-review",
+        "student-questionnaire-submitted"
+      ],
+      "limits": ""
+    },
+    {
+      "id": "SUB-04",
+      "role": "estudiante",
+      "flow": "Iniciar y entregar evaluación",
+      "status": "PASS",
+      "result": "Inicio explícito, respuesta y confirmación de envío.",
+      "captures": [
+        "student-evaluation-before-start",
+        "student-evaluation-start",
+        "student-evaluation-submitted"
+      ],
+      "limits": ""
+    },
+    {
+      "id": "SUB-05",
+      "role": "estudiante",
+      "flow": "Entrega incompleta",
+      "status": "PASS",
+      "result": "Revisión advierte faltantes; se cancela, se vuelve a editar y se responde antes de entregar.",
+      "captures": [
+        "student-incomplete-review"
+      ],
+      "limits": "No se confirmó una entrega incompleta; se verificó la rama de aviso y retorno."
+    },
+    {
+      "id": "SUB-06",
+      "role": "estudiante",
+      "flow": "Plazos, intentos y fallas",
+      "status": "NO_ENSAYADO",
+      "result": "Reglas del contrato vigente documentadas y fuentes de prueba indicadas.",
+      "captures": [],
+      "limits": "Sin repetir vencimientos/reintentos, archivos grandes, caída de almacenamiento, sesión expirada o concurrencia."
+    },
+    {
+      "id": "GRADE-01",
+      "role": "docente",
+      "flow": "Guardar corrección privada",
+      "status": "PASS",
+      "result": "Rúbrica presenta cálculo 8; docente establece 8,50 y guarda en privado.",
+      "captures": [
+        "teacher-grading-private",
+        "teacher-grading-saved-private"
+      ],
+      "limits": "Sin generar una nueva sugerencia IA de corrección."
+    },
+    {
+      "id": "GRADE-02",
+      "role": "ambos",
+      "flow": "Publicar devolución y consultar",
+      "status": "PASS",
+      "result": "Estudiante no ve nota privada en resumen; docente revisa/acepta publicación y estudiante accede a nota y devolución.",
+      "captures": [
+        "student-before-grade-publication",
+        "student-private-grade-hidden",
+        "teacher-grade-publication-review",
+        "teacher-grade-published",
+        "student-published-result"
+      ],
+      "limits": "No se consultó endpoint de nota privada antes de publicar; evidencia UI, no prueba nueva del contrato HTTP."
+    },
+    {
+      "id": "GRADE-03",
+      "role": "ambos",
+      "flow": "Progreso y conservación",
+      "status": "PASS",
+      "result": "Vistas de progreso diferenciadas; resultado publicado 8,50 sigue visible tras retiro y nueva admisión.",
+      "captures": [
+        "teacher-progress",
+        "student-progress",
+        "student-result-preserved-after-reentry",
+        "student-result-preserved-mobile"
+      ],
+      "limits": "No constituye nueva prueba de todos los casos de promedio/redondeo."
+    },
+    {
+      "id": "AI-01",
+      "role": "docente",
+      "flow": "Foxy texto y publicación",
+      "status": "PASS",
+      "result": "Chat genera respuesta sintética; notas/recurso, preparación PDF, revisión y confirmación publican en Biblioteca; chat persiste tras ingreso posterior.",
+      "captures": [
+        "teacher-foxy",
+        "teacher-foxy-request-state",
+        "teacher-foxy-notes",
+        "teacher-foxy-resource",
+        "teacher-foxy-prepare",
+        "teacher-foxy-review-publication",
+        "teacher-foxy-published"
+      ],
+      "limits": ""
+    },
+    {
+      "id": "AI-02",
+      "role": "docente",
+      "flow": "Foxy imagen",
+      "status": "PASS",
+      "result": "Imagen sintética preparada y publicada en Biblioteca; estudiante consulta colección.",
+      "captures": [
+        "teacher-foxy-image-state",
+        "teacher-foxy-image-prepare",
+        "teacher-foxy-image-published",
+        "student-library"
+      ],
+      "limits": "El bloque rojo es imagen sintética deliberada, no calidad visual de un modelo real."
+    },
+    {
+      "id": "AI-03",
+      "role": "docente",
+      "flow": "Foxy esquema y cuota",
+      "status": "PASS",
+      "result": "Primer fixture muestra cuota agotada; cuenta docente nueva genera esquema sintético en estado Listo.",
+      "captures": [
+        "teacher-foxy-diagram-state",
+        "teacher-foxy-diagram-ready"
+      ],
+      "limits": "No se preparó/publicó el esquema. diagram-state es el error de cuota, no el resultado listo."
+    },
+    {
+      "id": "AI-04",
+      "role": "estudiante",
+      "flow": "Permiso de Foxy",
+      "status": "PASS",
+      "result": "Acceso directo muestra denegación exclusiva de docente.",
+      "captures": [
+        "student-foxy-denied"
+      ],
+      "limits": ""
+    },
+    {
+      "id": "AI-05",
+      "role": "docente",
+      "flow": "Análisis individual",
+      "status": "LIMITADO",
+      "result": "Ficha y solicitud muestran estado de indisponibilidad con proveedor rechazado deliberadamente.",
+      "captures": [
+        "teacher-student-ai"
+      ],
+      "limits": "No acredita análisis exitoso; revisar guía y pruebas del dominio para cambiar esta capacidad."
+    },
+    {
+      "id": "AI-06",
+      "role": "docente",
+      "flow": "Sugerencia IA de corrección",
+      "status": "NO_ENSAYADO",
+      "result": "Arquitectura y contrato documentados desde implementación.",
+      "captures": [
+        "teacher-grading-private"
+      ],
+      "limits": "Proveedor de corrección deshabilitado deliberadamente; no hay sugerencia nueva ni aceptación de proveedor real."
+    },
+    {
+      "id": "AI-07",
+      "role": "docente",
+      "flow": "Proveedor externo y handoff",
+      "status": "NO_ENSAYADO",
+      "result": "Se documentan las fronteras y preparación de un TP privado desde Foxy.",
+      "captures": [],
+      "limits": "Sin llamadas reales, evaluación de costos/calidad externa, handoff a TP ni publicación del esquema."
+    },
+    {
+      "id": "AGENDA-01",
+      "role": "docente",
+      "flow": "Vistas y evento personal",
+      "status": "PASS",
+      "result": "Mes/semana/día; crear evento, consultar detalle y editarlo como serie semanal.",
+      "captures": [
+        "teacher-agenda-month",
+        "teacher-agenda-week",
+        "teacher-agenda-day",
+        "teacher-agenda-create",
+        "teacher-agenda-saved",
+        "teacher-agenda-detail",
+        "teacher-agenda-edited-series",
+        "teacher-agenda-series-action"
+      ],
+      "limits": "La fecha intentada no quedó como se esperaba en automatización: no se acredita modificación de fecha. series-detail muestra calendario, no el detalle final."
+    },
+    {
+      "id": "AGENDA-02",
+      "role": "docente",
+      "flow": "Eliminar serie",
+      "status": "PASS",
+      "result": "Diálogo ofrece Solo este evento/Toda la serie; confirmación de Toda la serie retira ocurrencias.",
+      "captures": [
+        "teacher-agenda-delete-scope",
+        "teacher-agenda-deleted"
+      ],
+      "limits": "No se ejecutó la rama Solo este evento ni recurrencia mensual/DST."
+    },
+    {
+      "id": "AGENDA-03",
+      "role": "estudiante",
+      "flow": "Privacidad de agenda",
+      "status": "PASS",
+      "result": "Agenda propia del estudiante no contiene el evento personal del docente.",
+      "captures": [
+        "student-agenda-private"
+      ],
+      "limits": ""
+    },
+    {
+      "id": "A11Y-01",
+      "role": "ambos",
+      "flow": "Accesibilidad y cobertura restante",
+      "status": "LIMITADO",
+      "result": "Se observaron controles, mensajes y responsive; Escape/foco de menú docente comprobados.",
+      "captures": [
+        "teacher-create-step4-mobile",
+        "teacher-profile-mobile",
+        "student-result-preserved-mobile"
+      ],
+      "limits": "Sin auditoría WCAG integral, contraste, lector de pantalla, zoom extremo, todas las rutas de teclado o rendimiento."
+    }
+  ]
+}

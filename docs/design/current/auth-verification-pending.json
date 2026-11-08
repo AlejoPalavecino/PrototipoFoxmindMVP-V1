@@ -1,0 +1,11 @@
+{
+  "url": "/verify-email",
+  "width": 1440,
+  "height": 1000,
+  "scrollWidth": 1440,
+  "headings": [
+    "Verificá tu correo",
+    "Revisa tu correo"
+  ],
+  "alerts": []
+}

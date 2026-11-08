@@ -1,52 +1,21 @@
-# Participation and editor control (P7 T2)
+# Resolver, guardar y confirmar una entrega
 
-Current students can start their initial attempt, resume the same draft, consult confirmed state, and explicitly transfer editing to another tab or device. Teachers can authorize a first submission for historical consultation-only work. This unit does not implement attachment writes, answer autosave, submission, additional attempts or P8 grading.
+El estudiante accede sólo a sus actividades e intentos autorizados. TP admite comentario/archivos según consigna; cuestionario y evaluación usan respuestas de desarrollo, selección simple o múltiple.
 
-## Student flow
+## Recorrido actual
 
-- **Trabajo práctico:** **Abrir trabajo práctico** performs an explicit authenticated mutation before exposing instructions to a current student, including consultation-only enrollment. Ordinary detail/session and raw file reads cannot bypass that first-start boundary and never create an attempt.
-- Closed reception does not prevent instruction consultation: an explicit first TP opening records the real DRAFT/content lock but returns no editor and no submission. Archived classrooms remain strictly write-free and permit instruction consultation without creating an attempt, because their content is already immutable.
-- Consultation-only enrollment stays `expected=false` even when late reception is open. Its initial DRAFT grants no editor, upload, submission or grade. A later teacher first-submission authorization preserves that same initial attempt and confirmed data, installs the future individual deadline, and allows a subsequent explicit editor transfer; it does not reopen an attempt or grant an editor merely by reading instructions. Submitted history and additional attempts cannot use this first-authorization path.
-- **Cuestionario / Evaluación:** consultation is read-only until **Comenzar**. Teacher preview never starts an attempt.
-- An existing attempt is resumed, never incremented or replaced. Submitted attempts are consultation-only.
-- The first acquisition returns a random capability only to that requesting tab. Other reads/tabs/devices initially receive consultation without a secret.
-- **Transferir edición a esta pestaña** requires explicit confirmation and warns that unconfirmed changes are not transferred. It restores confirmed data, rotates the hash and epoch, increments the attempt revision, and keeps the same attempt identity.
-- Capabilities live only in mounted tab memory. Reloading/closing does not promise recovery of editing ownership or unconfirmed changes. The UI offers no fake save/upload/submit controls while those units remain pending.
+Abrir actividad permite consultar su ficha. En TP, Ver consigna abre las instrucciones explícitamente en el mismo espacio; puede establecer el intento/contexto de participación. Preparar entrega o Continuar borrador abre edición. Cuestionario/evaluación se abren con Responder actividad.
 
-## Event-time obligations
+Las respuestas muestran autoguardado y confirmación. En TP, seleccionar archivo es local; Subir archivo privado valida/escanea y confirma el adjunto del borrador. Hasta cinco archivos de 50 MB, sujetos al cupo del aula; no existe otro tope agregado que sustituya esas reglas. Un archivo confirmado no es una entrega.
 
-Publication and successful actual enrollment call the same transaction-only helper while holding the existing classroom lock. Membership jobs remain intact; no polling job or lazy read reclassifies eligibility from today's deadline.
+Revisar entrega muestra qué se enviará. Las preguntas vacías se advierten con su cantidad y cero puntos; el estudiante puede volver a editar o confirmar incompleta. Sólo la confirmación crea recepción inmutable y bloquea el intento.
 
-| Event | Rule |
-|---|---|
-| Publication to current members | Record assigned work once. |
-| First enrollment | Existing undated/future activities are expected; already expired activities remain consultation-only even when late reception is allowed. |
-| Actual re-entry after departure/removal | Preserve old rows/history; record missing absence activities as expected only when undated/still open. |
-| Republication/general extension | Do not overwrite previous eligibility decisions. |
-| Teacher first authorization | Current roster, published consultation-only activity, future individual deadline, explicit actor/reason/time; creates no attempt or submission. If the TP was already consulted, preserve its sole initial unsubmitted DRAFT and apply the individual deadline to it. |
+## Recepción e historial
 
-Actual membership periods distinguish first entry from re-entry. No last-activated field is invented and no historical retained-data backfill is performed.
+La recepción completa del servidor determina puntualidad, no el inicio de la carga ni el reloj del navegador. La primera entrega confirmada define a tiempo/tarde; reentregas conservan historia y requieren habilitación docente. El comprobante muestra fecha/zona y estado. Guardar no publica calificaciones.
 
-## Interfaces
+Los intentos usan un único editor con capacidad/revisión; transferir edición requiere confirmación y no transporta cambios no guardados. Confirmados, adjuntos y respuestas se recuperan según sus permisos. No prometer recuperación de cambios locales o de la capacidad tras cerrar/recargar.
 
-Paths are under `/api/v1/classrooms/:classroomId` and preserve repeated P3 authentication, verified-account/current-membership/archive authorization, mutation budget, bounded same-origin CSRF transport and private no-store responses.
+La consulta histórica y las notas publicadas están separadas de correcciones privadas. Salida/remoción revoca acceso del alumno sin destruir historia docente; una invitación nueva permite readmisión conforme al aula.
 
-| Method / path | Exact JSON body |
-|---|---|
-| `GET /activities/:activityId/session` | None; safe consultation/session state. |
-| `POST /activities/:activityId/start` | `{}` |
-| `GET /activities/:activityId/eligibility` | None; teacher current roster. |
-| `POST /activities/:activityId/authorize-first` | `{revision,studentId,deadline}` |
-| `POST /attempts/:attemptId/transfer` | `{revision}` |
-
-`deadline` uses T1's `{local, offsetMinutes?}` classroom-zone minute resolver, including DST gap rejection and explicit repeated-time occurrence selection. It must be future as observed after transaction locks. Existing methods and request headers retain their previous shapes; the new optional client `attempt` method supports `X-Attempt-Editor` / `X-Attempt-Epoch` for attempt writes without leaking them onto ordinary requests. Transfer itself is authorized by current ownership plus explicit confirmation, not possession of the old tab's token.
-
-The exported transaction-only `resolveAttemptContext` and `assertAttemptWrite` are the future attachment/answer write seam. They do not perform ingress admission or invent session validation. They recheck classroom/owner/current membership/publication/expected/DRAFT/reception under locks; token hash and epoch authorize, while an optional decimal revision separately enforces compare-and-swap. Future file operations must rerun this check after external I/O without sending a stale answer revision.
-
-## Deadline policy
-
-The pure reception helper uses server time freshly observed after the relevant locks. At equality, receipt is late or closed; no deadline is on-time. Starting, opening or uploading never reserves on-time receipt. The later applicable general/individual deadline wins, so extending the general deadline cannot shorten an authorized individual window. Consultation remains separate from reception. No arbitrary duration timer or previous submitted-snapshot rewrite is introduced.
-
-## Evidence and next unit
-
-See the [worker record](../../work-log/2026-10-18-p7-participation-worker.md) for exact RED/GREEN, builds, real-browser and affected-contract results, including any failures. These are own checks, not independent whole-P7 acceptance. Next: T3 private TP attachment drafts and explicitly confirmed submission, reusing the transaction-only write seam. Production attempt uploads remain denied until that integration exists.
+Fuentes: [sesión de intento](../../../apps/classrooms-ui/AttemptSession.tsx), [historial](../../../apps/classrooms-ui/AttemptHistory.tsx), [servicios](../../../apps/api/src/classrooms/). [Evidencia actual](../../verification/flows.md).

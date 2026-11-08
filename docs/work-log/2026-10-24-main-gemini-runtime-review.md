@@ -1,5 +1,0 @@
-# Main runtime review — completed
-
-Date2026-10-24; main worktree integrate-classroom-gemini, starting f1e5964. Persisted by /root coordinator. Feature [classroom AI](../../odd/tasks/classroom-ai-extraction.md), operational start with Agenda. No host identity registered for memory writes.
-
-Agent/role/task: /root/main_gemini_runtime_review / reviewer. Read-only operational review6scripts and independent syntax6/6PASS. Initial restart/source coupling was corrected before operation. LGTM_SIN_HALLAZGOS for source-only reads, isolated clone, histories/checksums, hashes, first admission and stable owner restart, no frontend secret inheritance. Scoped ClamEOL/IPv4 health deltas passed review. Reviewed two recovered-source helpers and found dynamic Mailpit HostConfig ports unsuitable after restart; correction reinspects NetworkSettings after validated original-container start and waits readyz. Rejudgment clean, syntax2PASS. No DB/services/browser/private reads or writes by reviewer. Actual runtime proof belongs to root/test_runner, no native approval.

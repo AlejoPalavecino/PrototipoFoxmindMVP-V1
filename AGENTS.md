@@ -1,50 +1,40 @@
-# FoxMind agent continuity
+# Continuidad de ingeniería en FoxMind
 
-Start with [the implementation roadmap](docs/implementation-roadmap.md). It identifies completed phases, the verified implementation checkpoint and the next unfinished product work. Do not infer progress from the existence of database tables or screenshots.
+## Base vigente
 
-## Before work
+Empezar por docs/README.md, docs/implementation-roadmap.md y docs/foxmind-v1-functional-spec.md. Esta base se reconstruyó el 2026-11-07 por pedido explícito del usuario, contrastando código y aplicación real con Ego Lite. La documentación histórica fue retirada del árbol; no restaurarla como fuente de verdad ni inferir permisos desde antiguos commits/chats.
 
-1. Read the roadmap, the [work-record protocol](docs/work-log/README.md), the relevant functional-spec sections and any applicable `odd/tasks/` feature document.
-2. Inspect the actual branch/commit/working-tree state. Reconcile it with the latest work records before editing; preserve existing work.
-3. Confirm the current user's scope. Roadmap items, past authorizations and work logs are context, not permission to implement every phase or publish changes. Follow higher-priority runtime/user instructions.
-4. Create or update your own work record before implementation, with an actual session/task identifier when available, current scope and status. Follow the protocol's read-only exception if your role cannot write.
+Precedencia: decisión humana vigente > especificación/decisión aprobada de esta base > comportamiento comprobado > memoria > hipótesis. Una divergencia debe señalarse, no resolverse cambiando silenciosamente reglas o aceptando un bug como contrato.
 
-## Every agent reports its work
+## Antes de editar
 
-- Record what you changed or inspected, which phase/task it belongs to, the affected paths, observed check commands/results and the exact handoff.
-- Writers maintain a separate record per agent/task/session in `docs/work-log/`; never overwrite another agent's record.
-- Read-only agents must not violate their role to write a file. Return the same record fields to the coordinator, who persists an attributed record before closing the work. Do not imply the reviewer edited source or authored the coordinator's changes.
-- On interruption, failure or handoff, record the partial state and first unfinished task. Failed/unavailable checks remain explicit; `completed` requires observed applicable proof.
-- Status/authorization must never be inferred from a display name, session label, old memory note or another agent's completion claim alone.
+1. Inspeccionar rama, commit y árbol; preservar trabajo ajeno.
+2. Leer arquitectura, guía de dominio, política documental y tarea activa cuando corresponda.
+3. Confirmar alcance desde el pedido vigente. Un roadmap, captura o tarea anterior no autoriza producto, proveedor, datos, commits, publicación o despliegue.
+4. Abrir registro propio antes de implementar según docs/work-log/README.md.
 
-## Shared roadmap ownership
+## Trabajo y documentación
 
-Only the coordinating agent for the active work updates the shared phase/checkpoint summary after reconciling worker results and evidence. Children report phase/task coverage and their record path; they do not mark a whole phase complete themselves.
+- Aplicar controles proporcionales. Una pantalla exige roles/estados/responsive y evidencia real cuando corresponda; capturas no prueban por sí solas permisos o persistencia.
+- Actualizar fuentes canónicas con el comportamiento, conforme a docs/documentation-policy.md. Mantener un único registro TTP por funcionalidad R2 en odd/tasks; coordinador único escritor.
+- Cada agente usa registro propio. Agentes de sólo lectura devuelven evidencia atribuida al coordinador; no escriben fuera de su rol.
+- Delegación con objetivo, contexto, superficies, prohibiciones, entregables y evidencia; no solapar escritores. El coordinador reconcilia resultados antes de marcar DONE.
+- Conservar fallos, límites y resultados del candidato actual sin fabricar pruebas o atribución. Historial Git no sustituye el estado recuperable actual.
 
-Parallel agents use disjoint edit surfaces or isolated worktrees, and separate work-record files. The coordinator merges the returned facts into the roadmap. Do not have multiple agents append to one central log simultaneously. If overlapping ownership is unclear, stop the conflicting write and ask the coordinator.
+## Límites técnicos
 
-Keep detailed tracked implementation tasks in their existing feature documents; link them from the roadmap instead of maintaining contradictory task copies. Reopen only the affected task when a requirement or verified result changes, retain history, and refresh the next-session handoff.
+No leer secretos ni acceder/modificar datos retenidos o servicios sensibles sin autorización específica. Usar cuentas sintéticas y recursos propios para QA. No ejecutar helpers de proveedor real por descubrimiento ni reutilizar configuraciones privadas históricas. No reiniciar/eliminar recursos ajenos, volúmenes retenidos o la antigua copia P3.
 
-## Closing checklist
+No hacer commits, push, PR, merge o despliegue sin autorización explícita. La entrega actual sólo autoriza revisión de UI/UX, reconstrucción documental y retiro de documentación anterior; no cambios de producto o proveedores pagos.
 
-- Update your record with outcomes, evidence, failures/skips/blockers, commit identity when one exists, and the next exact action.
-- Have the coordinator update phase/checkpoint links only when the phase's full exit condition is satisfied. Finishing one endpoint or backend slice does not complete a phase that still needs UI/integration.
-- If an entry must be completed before its own commit hash exists, record that evidence in a later attributed update; never invent a commit identity.
-- Use memory, if available, as a recovery aid, not the only copy. The repository roadmap, feature records and work logs must remain readable without the previous conversation.
-- Leave no secret values, access tokens, connection URLs with passwords, raw private prompts or personal student data in logs.
+Las rutas docs/api/accounts-sessions.openapi.json y odd/tasks/grading-ai-issue-2.md son contratos vigentes consumidos por pruebas/CI. No eliminarlas para suprimir cobertura. El mapa documental describe únicamente la base actual; su parser y pruebas siguen activos.
 
-For a documentation-only task, run proportionate structural/link checks and state why functional tests were not needed. For behavior changes, follow the applicable test-first, independent-verification and native-review policies from the active runtime; this file neither weakens them nor creates review consent.
+## Cierre
 
-## Current boundary
+Registrar cambios, comandos/resultados, fallos/omisiones, límites y primer paso pendiente. Actualizar roadmap/tarea sólo tras reconciliar evidencia. Distinguir implementado, verificado localmente, integrado, publicado y desplegado. No inventar hash de commit propio ni permisos de aislamiento.
 
-**Reorganización documental autorizada (2026-10-31):** el usuario autorizó aplicar el plan Astra, corregir contradicciones, organizar guías por dominio, retirar solo material confirmado innecesario, conservar historia útil e integrar/sincronizar main. El [plan único](odd/tasks/documentation-reorganization.md), el mapa activo `docs/documentation-map.json` y el [registro coordinador](docs/work-log/2026-10-30-root-documentation-reorganization.md) delimitan esta entrega. Las rutas anteriores conservan aliases/anclas; los contratos consumidos por CI/OpenAPI y las evidencias históricas permanecen fijos. Esta entrega documental no autoriza funciones, despliegue, proveedores reales, datos retenidos ni lectura de secretos. Los checkpoints anteriores siguientes son historia de sus propios alcances.
+Usar memoria como apoyo si está disponible; toda continuidad esencial debe quedar en repositorio. No guardar tokens, contraseñas, URLs con credenciales, prompts privados o datos personales reales en registros/capturas.
 
-**Later integration/publication request (2026-10-22):** the user explicitly authorized including safe pending documents/proposals and glass UI/fixes in main, preserving both roadmap contributions and all ongoing-record statuses, verifying and pushing main. Follow the [current delivery record](docs/work-log/2026-10-22-root-main-ui-publication.md). This supersedes only the earlier documentation stage's no-publication boundary; it does not authorize deployment, retained-data changes, secret reads or execution of the proposed documentation migration. The earlier stage and P8/P9 boundaries below remain historical evidence, not reusable consent.
+## Publicación autorizada actual
 
-**Documentation reconciliation (2026-10-22):** main contains accepted local P0–P9 and the recorded P9 publication; see the [roadmap](docs/implementation-roadmap.md) and [documentation index](docs/README.md). The current request is indexing and contradictory-status corrections only, preserving designs/history with no file moves/deletions. No product implementation, runtime, new publication or deployment is authorized by this request. The P8/P9 execution authorizations retained below are historical, not reusable consent.
-
-### Historical P8/P9 execution boundary
-
-P3-P7 remain accepted on main. P8 is fully implemented and independently verified on frozen8cb4ee313e338b25f5654f7e2cd86f53930ea500; published to main via merge d2a7909aa5d65d13d655d2b8932d6a478b19f9eb on2026-10-19, exact remote ref confirmed. A passive publication record may follow that merge. Start with [roadmap](docs/implementation-roadmap.md), [P8 tasks](odd/tasks/p8-grading.md), [independent proof](docs/work-log/2026-10-18-p8-independent-verify.md) and [coordinator](docs/work-log/2026-10-18-root-p8-grading.md). Fresh actual30/focused75/nativeP3399/affected121/strict/audit0/exact468-case baseline and precision/real-clock metrics proof passed. Human-authorized targeted feedback1 closed the final student published per-question visibility gap;573 raw source and459 artifact entries unchanged. First confirmed submission defines timeliness; later attempts remain historical. Completion, performance and teaching-plan progress remain separate.
-
-Preserve historical failed/unavailable experiments. Baseline outbox unavailable and retained P4-local helper unavailable are advisories, not PASS. Do not run the fixed retained P4-local project/read its private configuration. Native off/global, disabled/unmanaged; no native approval. Shared API30s/Next180s/actual330s-child360s policies unchanged; old P7-only90s permission is not a future waiver. Latest2026-10-19 human request authorizes full P9 local implementation and verified main merge/push; see [P9 tasks](odd/tasks/p9-local-validation.md), [matrix](docs/p9-acceptance-matrix.md) and [coordinator](docs/work-log/2026-10-19-root-p9-local-validation.md). No deployment, real pilot participants/data, retained-data mutation or secret reads authorized. Original dirty P3 checkout preserved: do not switch/reset/stash it. Preserve broad quoted/international mailboxes, uppercase-domain rejection, fixed session/token/password/private-file/admission/freshness policies and development Mailpit volume. Future Verify uses gpt-6.1-sol/xhigh. Reconcile actual Git/remote refs before future work; phase authorization is never inferred.
+El 2026-11-08 el usuario autorizó commits, push, integración de todo el trabajo pendiente a main y dejar main como única rama. Seguir docs/work-log/2026-11-08-root-main-publication.md para el resultado comprobado. Esta autorización amplía el límite Git anterior de esta entrega; no concede despliegue, cambios de producto, proveedores reales ni acceso a datos retenidos.

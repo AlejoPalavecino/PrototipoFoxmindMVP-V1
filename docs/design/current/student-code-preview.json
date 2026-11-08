@@ -1,0 +1,12 @@
+{
+  "url": "/mis-aulas",
+  "width": 1440,
+  "height": 1000,
+  "scrollWidth": 1440,
+  "headings": [
+    "Mis aulas",
+    "Confirmá tu inscripción",
+    "Aula de referencia vigente"
+  ],
+  "alerts": []
+}

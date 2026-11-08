@@ -6,3 +6,6 @@ tests/p9-journey-helpers.mjs text eol=lf
 tests/p9-max-file-diagnostic-integration.test.mjs text eol=lf
 tests/p9-positive-max-files.mjs text eol=lf
 tests/p9-positive-max-files.test.mjs text eol=lf
+
+# Current screenshot metadata is hashed as exact bytes in catalog.json.
+docs/design/current/*.json text eol=lf

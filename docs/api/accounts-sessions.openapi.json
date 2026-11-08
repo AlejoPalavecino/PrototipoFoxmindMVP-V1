@@ -2,14 +2,14 @@
   "openapi": "3.1.0",
   "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
   "info": {
-    "title": "FoxMind P3.1 account/session contract",
+    "title": "FoxMind current account/session contract",
     "version": "0.1.0",
-    "description": "All twelve P3 account/session operations are implemented and independently verified. Full P3 local browser/API/PostgreSQL/captured-email journeys passed after one bounded web correction. Independent backend99, controls39, browser10 and live web16 checks passed; rejected-state9 and baseline CLI7 probes passed, with actual owned cleanup. See ../work-log/2026-10-17-p3-verify-final.md. Native review is off/global, disabled/unmanaged; no native approval or production deployment is claimed. P4/P5 remain outside this integrated checkpoint."
+    "description": "Current account/session contract for FoxMind: twelve implemented operations, exclusive account role, verification, recovery, profile and session policies. Current UI evidence and limitations: ../verification/flows.md. No deployment or external-provider verification is implied."
   },
   "servers": [
     {
       "url": "/api/v1",
-      "description": "Same-origin Next.js transport to the NestJS authorization owner; local P3 verified, no public deployment selected."
+      "description": "Same-origin Next.js transport to the NestJS authorization owner. Local environment; no public deployment selected."
     }
   ],
   "tags": [

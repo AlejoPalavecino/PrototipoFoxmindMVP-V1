@@ -1,0 +1,19 @@
+{
+  "url": "/inicio",
+  "width": 1440,
+  "height": 1000,
+  "scrollWidth": 1440,
+  "headings": [
+    "¡Buen día, Lucía!",
+    "Por atender",
+    "Para revisar",
+    "Consultas sin responder",
+    "Acciones del aula",
+    "Mi agenda",
+    "Eventos personales",
+    "Aula en foco",
+    "Fotografía y luz",
+    "Actividades en borrador"
+  ],
+  "alerts": []
+}

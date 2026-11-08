@@ -1,9 +1,0 @@
-# Revisión de CI y cadena issue #2 — 2026-10-29
-
-- Agente: coordinador /root; sesión real no disponible. Rama local feat/ia-correccion-replay; HEAD de producto remoto feat/ia-correccion-12 b11dd1787dfad29df4798ebc582047790f20ddea.
-- Solicitud: revisar checks y PRs #3–#15 en orden; informar si corresponde avanzar. Sin autorización de merge ni cambios remotos.
-- GitHub: trece PRs abiertas en draft, bases en secuencia y mergeStateStatus CLEAN; issue #2 abierta con status:approved, PR #3 contiene Closes #2. Todos statusCheckRollup vacíos; checks/statuses vacíos verificados por /root/explorer. GitHub Actions habilitado, API workflows total_count 0; protección main 404 Branch not protected y rulesets []. Sin checks no hay resultado CI PASS.
-- Auditoría atribuida /root/reviewer, solo lectura: diff agregado 7aee418..b11dd17 sin hallazgos nuevos concretos; apps/src/prisma/tests coinciden con codex/correccion-ia-issue-2; diff --check pasó. No ejecutó pruebas ni gitleaks. Coordinador registra su resultado sin atribuirle cambios.
-- Inspección atribuida /root/explorer, solo lectura: #3 base main, #4–#15 secuenciales, todas draft, sin checks ni estados; no modificó PRs ni ejecutó pruebas. Todos los tramos inferiores a 400 líneas según GitHub.
-- Verificación previa: pruebas locales sintéticas documentadas en 2026-10-29-root-issue2-correccion-ia.md; Gemini real y recorrido integral autenticado no comprobados. Fallo P7 concurrente anterior no reproducido, causa desconocida.
-- Estado: revisión estructural realizada, no se afirma CI verde ni aprobación humana. Tracker #3 solo contiene registro inicial y no incluye aún los tramos; integración de cadena pendiente. Siguiente acción: definir y ejecutar validaciones CI/revisión independiente aplicables y revisar autorización para integrar PRs en orden; no merge a main realizado.

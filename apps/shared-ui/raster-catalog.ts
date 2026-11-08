@@ -1,4 +1,4 @@
-/** Production WebP variants; manifests live in docs/design/foxmind-3d. No masters are served. */
+/** Production WebP variants served from apps/web/public/foxmind-3d. No masters are served. */
 export const illustrationCatalog = {
   'hero/foxy-warm': {
     position: 'center',

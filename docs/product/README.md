@@ -1,23 +1,7 @@
-# Entender el producto y sus reglas
+# Producto actual
 
-FoxMind reúne aulas, contenidos, actividades, entregas y devoluciones. Cada cuenta elige al registrarse un rol exclusivo de docente o estudiante. La [especificación funcional](../foxmind-v1-functional-spec.md) conserva las reglas y sus identificadores; el [roadmap](../implementation-roadmap.md#estado-actual) conserva el estado aceptado.
+FoxMind organiza aulas, planes, materiales, actividades, entregas y devoluciones para docentes y estudiantes. Cada cuenta elige un rol exclusivo durante el registro; propiedad y membresía definen el acceso a cada aula.
 
-## Leer por necesidad
+La [especificación](../foxmind-v1-functional-spec.md) mantiene reglas e invariantes; la [matriz por rol y sección](features-by-role.md) permite ubicar una capacidad. La [arquitectura](../engineering/architecture.md) explica su implementación y el [diseño](../design/README.md) describe la experiencia actual.
 
-| Tema | Reglas y funcionamiento |
-|---|---|
-| Cuenta y acceso | [Contrato HTTP](../api/accounts-sessions.md), [seguridad y sesiones](../engineering/identity/README.md) |
-| Aulas y archivos | [Aulas](../engineering/classrooms/README.md), [archivos privados](../engineering/files/README.md) |
-| Enseñar y organizar contenidos | [Plan, Biblioteca y Muro](../engineering/teaching/README.md) |
-| Actividades y entregas | [Actividades](../engineering/activities/README.md) |
-| Calificar y seguir avances | [Calificaciones](../engineering/grading/README.md); completar, rendir y avanzar en el plan son medidas diferentes |
-| Organización personal | [Inicio](../engineering/home/README.md), [Agenda](../engineering/agenda/README.md) |
-| Asistencia con IA | [Cuatro extensiones delimitadas](../engineering/ai/README.md) |
-
-Las extensiones aprobadas de IA son extracción de plan, generación revisada de actividades, análisis individual y corrección asistida. No aprueban tutores generales, soluciones automáticas, planes generados ni publicación de calificaciones sin docente. Sus contratos y políticas se enlazan en cada guía.
-
-## Diseño, decisiones y pruebas
-
-El [sistema visual y sus antecedentes](../design/README.md) distingue lo implementado de las exploraciones. Las imágenes no agregan requisitos por sí solas. Las [tareas](../../odd/tasks/) detallan cambios concretos; la [evidencia](../verification/README.md) explica qué se comprobó y con qué límites.
-
-[Índice documental](../README.md) · [Arquitectura](../engineering/architecture.md).
+La [matriz de flujos comprobados](../verification/flows.md) y sus capturas permiten distinguir funcionalidad implementada, recorrido observado y límites. Esta base no agrega funciones por aparecer en una imagen o por compartir un proveedor IA.

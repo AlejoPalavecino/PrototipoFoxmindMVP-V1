@@ -1,13 +1,24 @@
-# Desarrollo local
+# Ejecutar FoxMind en local
 
-Prepara un entorno propio y usa la [operación local](operation.md) como guía principal. El [estado actual](../../implementation-roadmap.md#estado-actual) distingue lo verificado de la preparación de un piloto.
+Requisitos del repositorio: Node 24, npm/lockfile y Docker Desktop con motor Linux. La aplicación usa Next, API Nest, PostgreSQL, almacenamiento privado compatible con S3, ClamAV y Mailpit. No basta iniciar una web sin API/servicios para afirmar un recorrido integrado.
 
-## Recorrido de arranque
+## Entorno descartable de revisión
 
-1. Identifica los recursos que vas a usar y su propietario: base, correo capturado y, si habilitas aulas, almacenamiento privado y escáner. Los recursos retenidos, el checkout P3 original y los volúmenes de desarrollo no son fixtures desechables. Sigue los límites de [operación](operation.md#choose-an-owned-local-environment-first).
-2. Con Node 24 y las dependencias del lockfile ya disponibles, configura en el entorno de proceso la base y la [identidad](../identity/http.md#startup-without-environment-files); para aulas habilita además los componentes documentados en [archivos](../files/host.md) y [aulas](../classrooms/host.md). La [base de datos](database.md) explica el aprovisionamiento y las migraciones separadas: arrancar la API no las ejecuta.
-3. Configura el correo local y el origen web exacto. Los secretos permanecen en el entorno aprobado; no los escribas en ejemplos, archivos o registros. [Correo local](local-email.md) y [configuración](operation.md#configuration-ownership) detallan cada responsabilidad.
-4. Compila la API y la web y arráncalas en terminales separadas según la secuencia de [operación local](operation.md#configuration-ownership): `npm run api:start` para la API y `npm run web:start` para Next. Configura `FOXMIND_API_ORIGIN` solo en el servidor web. Para HTTP loopback, la API valida `AUTH_LOCAL_HTTP` y su propio `NODE_ENV`; el entorno del proceso Next es independiente.
-5. Abre el origen configurado. La cuenta verificada llega ordinariamente a `/inicio`; invitaciones y destinos explícitos permitidos conservan sus flujos. Salud y disponibilidad de base no demuestran que el recorrido académico esté completo.
+1. Instalar dependencias según lockfile si el equipo aún no las tiene, mediante npm ci.
+2. Compilar API con node scripts/build-api.mjs; el supervisor propio conserva 30 s totales.
+3. Compilar la web con npm run web:build; para aceptación supervisar el límite 180 s.
+4. Ejecutar node scripts/documentation-preview.mjs. Usa recursos nuevos y puertos loopback, aplica migraciones a su base vacía y crea dos identidades sintéticas y un aula.
+5. Abrir el origen que imprime el helper con Ego Lite. Las credenciales sintéticas están sólo en el fixture privado ignorado cuya ruta imprime; no copiarlas a documentación/capturas.
+6. Presionar Enter o crear el stopFile propio impreso para detener. Comprobar salida y limpieza; nunca usar prune o eliminar volúmenes ajenos.
 
-La [guía backend](backend.md) describe las opciones y comprobaciones; la [cuenta de demostración](demo-account.md) documenta un entorno persistente distinto, que no se trata como fixture desechable.
+La IA del helper es sintética e inyectada; no lee archivos de claves ni llama a proveedores externos. Análisis individual y corrección IA tienen proveedores no disponibles para impedir una llamada accidental. Las pruebas que necesiten esas ramas deben preparar un override explícito y declararlo.
+
+## Desarrollo con datos a conservar
+
+Identificar y autorizar por separado base, bucket, escáner, correo y claves. Configurar nombres de variables de identidad, archivos, aulas y web según sus módulos; no buscar credenciales retenidas ni ejecutar helpers históricos para recuperarlas.
+
+API recibe DATABASE_URL y orígenes/flags en su entorno. Web recibe FOXMIND_API_ORIGIN sólo en servidor. APP_ORIGIN debe ser el origen exacto de la web; localhost y127.0.0.1 son distintos. No exponer claves en NEXT_PUBLIC ni pegar valores en registros.
+
+Arrancar la API no migra la base. Usar [migraciones](database.md) sólo sobre el destino autorizado. Mailpit local captura; no envía correo a destinatarios reales.
+
+Fuentes: [configuración](../../../apps/api/src/configuration.ts), [composición](../../../apps/api/src/application.ts), [scripts](../../../package.json). [Comprobaciones actuales](../../verification/README.md).
