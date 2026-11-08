@@ -8,4 +8,4 @@ Crear antes de implementar y cerrar con evidencia. DONE no equivale a código es
 
 No almacenar secretos, credenciales, datos personales reales ni transcripciones. Capturas/fixtures son sintéticos y tienen límites explícitos. Los resultados de proveedores reales no se infieren de mocks.
 
-[Registro actual](2026-11-07-root-current-baseline.md) · [Tarea](../../odd/tasks/project-documentation-renewal.md) · [Política](../documentation-policy.md).
+[Registro base](2026-11-07-root-current-baseline.md) · [Publicación](2026-11-08-root-main-publication.md) · [Tarea](../../odd/tasks/project-documentation-renewal.md) · [Política](../documentation-policy.md).

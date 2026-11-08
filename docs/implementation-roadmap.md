@@ -24,3 +24,7 @@ No hay despliegue ni piloto real autorizados en esta entrega. Hosting, presupues
 2. Cotejar Git y la tarea activa; no inferir progreso por la presencia de una tabla o captura.
 3. Actualizar la documentación conforme a la política. Un comportamiento que contradiga una regla aprobada se señala antes de cambiar la regla.
 4. Implementar sólo el alcance autorizado; la documentación no concede permiso de commits, push o despliegue.
+
+## Publicación Git de esta base
+
+Entrega documental 620331241f0ba5a0524389078d9eef33529cc342 integrada y publicada en main el 2026-11-08. Única rama local/remota observada: main. El [recibo de publicación](work-log/2026-11-08-root-main-publication.md) registra comandos y alcance; su commit posterior es evidencia documental, sin cambios de producto. No implica despliegue.

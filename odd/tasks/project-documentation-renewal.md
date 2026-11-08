@@ -41,3 +41,7 @@
 ## Próxima acción
 
 Entrega local cerrada: DOC-01–04 DONE con evidencia observada. Próxima funcionalidad: usar la base canónica, actualizar guía/contratos/roles/datos/UX afectados y abrir un único registro TTP si corresponde R2. No hay trabajo de producto autorizado por este cierre. Sin commits/push/despliegue.
+
+## Publicación posterior autorizada
+
+El usuario autorizó commits/push/integración y rama única el 2026-11-08. DOC-01–04 se publicaron en main mediante 620331241f0ba5a0524389078d9eef33529cc342; [recibo](../../docs/work-log/2026-11-08-root-main-publication.md). Sustituye el límite Git del cierre local anterior, conservado como evidencia de aquel momento. Sin despliegue.

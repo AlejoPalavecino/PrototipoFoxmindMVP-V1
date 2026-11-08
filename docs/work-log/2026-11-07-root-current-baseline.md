@@ -50,3 +50,7 @@ Sin commits/push/deploy; base local. Revisión independiente cerrada y hallazgos
 ## Cierre final
 
 Base local final: 37 recorridos/ramas PASS acotados, 2 referencias, 3 limitados y 4 no ensayados. No quedan decisiones documentales abiertas; los límites de proveedores reales/accesibilidad integral y demás ramas siguen declarados, sin inferir permiso de ensayarlos. Browser-state efímero propio retirado después de cerrar Ego; los fixtures privados ya habían sido eliminados por cleanup. Comprobación final de enlaces/diff realizada después de cerrar los registros, resultado 48 archivos / 632 enlaces / 0 problemas y diff limpio; reflejado en baseline-checks.
+
+## Publicación posterior
+
+El límite anterior sin commits/push correspondía al cierre local del 2026-11-07. Pedido humano del 2026-11-08 autorizó publicar e integrar; resultado comprobado en el [registro de publicación](2026-11-08-root-main-publication.md), con commit de entrega 620331241f0ba5a0524389078d9eef33529cc342 ya en main remoto. Sin despliegue.
