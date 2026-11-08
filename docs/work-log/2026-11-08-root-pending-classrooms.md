@@ -5,7 +5,7 @@
 - Autorización: usuario aprobó flujo e implementación de Pendientes, banner automático, continuación y eliminación con confirmación. Sin publicación ni despliegue en este pedido.
 - Alcance: borradores privados del docente en el catálogo; permisos y revisión concurrente al eliminar. Baja lógica interna para conservar integridad de archivos/extracciones; sin restauración en UI.
 - Registro: [tareas](../../odd/tasks/pending-classrooms.md).
-- Estado: implementado y verificado localmente, sin commit/push/despliegue. Migración aplicada únicamente a bases descartables propias.
+- Estado: implementado, verificado localmente e integrado/publicado en main por autorización posterior. Sin despliegue. Migración aplicada únicamente a bases descartables propias.
 
 ## Cambios
 
@@ -50,3 +50,7 @@ Primer paso operativo pendiente: aplicar la migración aditiva al destino expres
 El 2026-11-08 el usuario pidió commits, push de todo a main y main como única rama. Fetch origin --prune y ls-remote confirman main local/remota en 3d82b82, sin otras ramas ni trabajo remoto para integrar; único worktree principal. Esta autorización es Git, sin despliegue ni aplicación de migraciones a datos retenidos.
 
 Unidad de publicación: funcionalidad completa de Pendientes con controles de eliminación, migración, pruebas, documentación y referencias visuales. Supera la guía orientativa de 400 líneas al incluir evidencia y pruebas; se conserva como unidad coherente porque eliminar o entregar el flujo requiere conjuntamente contrato, permisos y UI. Reversión: revertir la unidad completa de código/UI/pruebas/documentación; no revertir automáticamente la columna aditiva sobre una base ya utilizada. Rama temporal codex para preparar e integrar por fast-forward; no se publica esa rama. Resultado Git y hash real se registran después de observar el push.
+
+Resultado observado: commit `2de9e28e6dfa150ecc2c31979f1b3c39709abeb4`, `feat(classrooms): manage pending classroom creation and confirmed deletion`, integrado con fast-forward y push origin main exitoso. ls-remote confirmó ese SHA exacto en refs/heads/main. Rama temporal eliminada con branch -d; ramas locales/remotas observadas: únicamente main, árbol limpio antes de este recibo.
+
+Controles del índice antes del commit: diff --cached --check sin errores, docs:check 51 archivos/657 enlaces/0 problemas, inventario 493 entradas/53 exclusiones y 336 hashes PNG/metadatos coincidentes con el catálogo. No se repitieron las 36 pruebas por cambios posteriores exclusivos de prosa; su candidato de código se conserva en el commit publicado. Este recibo y las referencias de entrega se incorporan en un segundo commit documental; su SHA y push se comprueban después de crearlo, sin inventar identidad propia en este archivo.

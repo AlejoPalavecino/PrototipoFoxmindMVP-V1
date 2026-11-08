@@ -5,6 +5,7 @@
 - **Approval:** usuario aprobó flujo y autorizó implementación el 2026-11-08 en este chat.
 - **Owner:** /root, único escritor.
 - **Record:** [registro](../../docs/work-log/2026-11-08-root-pending-classrooms.md).
+- **Delivery:** commit 2de9e28e6dfa150ecc2c31979f1b3c39709abeb4 integrado/publicado en main el 2026-11-08; SHA remoto comprobado y rama temporal eliminada. Sin despliegue ni migración sobre datos retenidos. Recibo posterior en registro.
 
 ## PEN-01 — Pendientes seguros y persistentes
 - **State:** DONE

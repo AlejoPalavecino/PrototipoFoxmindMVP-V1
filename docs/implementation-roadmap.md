@@ -5,7 +5,7 @@ Base del producto inspeccionada: main, d41ff6d0b8c9321403b1d3000a06e06d84366cfe.
 | Capacidad | Estado actual | Evidencia o fuente |
 |---|---|---|
 | Cuenta y rol exclusivo | Registro docente/estudiante, verificación, acceso, perfil, contraseña y recuperación implementados; recorridos actuales observados | [Identidad](engineering/identity/README.md), [flujos](verification/flows.md) |
-| Aulas | Creación de cuatro pasos, borrador privado, catálogo con Pendientes y eliminación confirmada, ingreso por código/invitación, archivo/reactivación y pertenencia implementados; pendientes comprobados localmente, sin publicar | [Aulas](engineering/classrooms/README.md), [evidencia](work-log/2026-11-08-root-pending-classrooms.md) |
+| Aulas | Creación de cuatro pasos, borrador privado, catálogo con Pendientes y eliminación confirmada, ingreso por código/invitación, archivo/reactivación y pertenencia implementados; Pendientes comprobado localmente e integrado/publicado en main (2de9e28), sin despliegue | [Aulas](engineering/classrooms/README.md), [evidencia](work-log/2026-11-08-root-pending-classrooms.md) |
 | Plan, Biblioteca y Muro | Plan consultable con avance docente; materiales FILE/TEXT y revisiones; avisos, consultas y respuestas | [Enseñanza](engineering/teaching/README.md) |
 | Actividades | Manual de dos etapas y generación de tres pasos; TP, cuestionario y evaluación; asignación explícita | [Autoría](engineering/activities/authoring.md) |
 | Participación y devolución | Adjuntos, respuestas/autoguardado, confirmación, historial, corrección privada/publicada y progreso | [Participación](engineering/activities/participation.md), [calificación](engineering/grading/README.md) |
