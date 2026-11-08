@@ -33,3 +33,10 @@ El usuario solicita posteriormente commits, push e integración de todo a main, 
 Preflight de entrega: fetch origin --prune salida 0; divergencia main/origin 0/0; única rama remota observada main. `node --test tests/local-app-environment.test.mjs`: 2/2; `docs:check`: 61 archivos/688 enlaces/0 problemas; `run-complete-suite.mjs --check`: 497 pruebas/23 rutas; `git diff --check`: salida 0. Escaneo exacto en los 15 archivos publicables: sin los secretos configurados, `.env` ignorado. Estado del supervisor local READY; no se reinicia ni se consumen nuevas generaciones para publicar código ya comprobado.
 
 Unidad de implementación: arranque local persistente, carga de `.env`, pruebas de preservación/propiedad, comandos, instrucciones futuras y evidencia de Gemini. Incluye corrección de rutas de CI omitidas para tres pruebas Foxy de la entrega previa, conservando cobertura. Rollback: retirar los comandos/módulos de arranque y sus pruebas/documentación; no tocar `.env` ni eliminar datos o servicios persistentes. Una unidad documental posterior registrará SHA e integración/push observados. Aplicación de work-unit-commits; no PR ni despliegue.
+
+## Publicación comprobada
+
+- Implementación: `c48422bc2d0f2856617568fedbac6f249d12580c`, 15 archivos, 312 inserciones/2 eliminaciones; pruebas/documentación/evidencia junto al comportamiento.
+- Rama propia `codex/local-gemini-publication` integrada con `git merge --ff-only` a main, desde a4377e7. `git push origin main`: salida 0; `git ls-remote --heads origin` confirmó exactamente c48422bc2d0f2856617568fedbac6f249d12580c en main, única rama remota observada.
+- Rama temporal eliminada con `git branch -d` tras integración/publicación. Árbol limpio en main...origin/main antes de este recibo documental, que se publica como unidad posterior sin cambios de producto.
+- La clave/configuración completa y los datos locales permanecen ignorados en este equipo; no se incluyeron en los commits. El supervisor seguía READY en esta comprobación. No se reinició la app ni hubo llamadas nuevas a Gemini por publicar Git. Sin despliegue ni tareas pendientes de integración.
