@@ -10,6 +10,8 @@ Las capturas son referencias visuales; la [matriz de recorridos](../../verificat
 
 ## Índice completo
 
+Foxy actualizado el 2026-11-08: [escritorio](teacher-foxy-discovery-desktop.png), [tablet](teacher-foxy-discovery-tablet.png) y [móvil](teacher-foxy-discovery-mobile.png). Estas referencias sustituyen la presentación principal anterior de Foxy: conversaciones con búsqueda/renombrado y widget Herramientas/Creaciones. Usan aplicación/API/PostgreSQL/archivos reales en recursos propios y proveedor IA sintético. Los flujos de publicación anteriores conservan sus reglas; sus capturas no representan la nueva organización del workspace. [Recibo de navegación/foco](../../verification/foxy-discovery.json), [evidencia y límites](../../work-log/2026-11-08-root-foxy-implementation.md).
+
 Actualización de Mis aulas del 2026-11-08: [Pendientes escritorio](teacher-pending-desktop.png), [móvil](teacher-pending-mobile.png) y [tablet](teacher-pending-tablet.png). Estas tres referencias usan componentes reales con cliente sintético en memoria; sustituyen la presentación anterior de borradores en el catálogo. Las capturas de la base del 2026-11-07 no acreditan este flujo nuevo. Permisos y persistencia se comprobaron por separado sobre PostgreSQL descartable, según el [registro](../../work-log/2026-11-08-root-pending-classrooms.md).
 
 | Captura | Ruta | Viewport | Desborde horizontal registrado |

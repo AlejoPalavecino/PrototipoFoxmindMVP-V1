@@ -267,3 +267,54 @@
 .workspace .chat { min-height:calc(100dvh - 175px); }
 @media(min-width:801px) { .workspace { padding-top:5px; } .workspace .header h1 { margin-top:12px; } }
 @media(max-width:800px) { .workspace .layout { grid-template-columns:minmax(0,1fr); } .workspace .chat { min-height:calc(100dvh - 225px); } }
+
+/* Foxy collections reuse Brújula controls and keep filters one action away. */
+.workspace .tools > .segmented { display:flex; gap:4px; padding:4px; margin-bottom:12px; background:#eae7f5; border-radius:11px; }
+.workspace .tools .segmented button { justify-content:center; min-height:40px; width:auto; flex:1; border-radius:8px; font-size:12px; }
+.workspace .tools .segmented button[aria-pressed=true] { background:#fff; border-color:#dcd6ed; color:#252646; }
+.workspace .tools .segmented button { white-space:nowrap; padding:8px 4px; min-width:0; }
+.workspace .tools .filterChips { display:flex; gap:6px; }
+.workspace .tools .filterChips button { display:block; flex:0 0 auto; width:auto; min-height:38px; white-space:nowrap; padding:7px 10px; border:1px solid #dbe1f0; border-radius:11px; background:white; font-size:12px; }
+.workspace .tools .filterChips button[aria-pressed=true] { background:#eeeaff; color:#463364; border-color:#aa9ac4; }
+.workspace .tools .collectionList > li > button { display:block; padding:9px 8px; }
+.workspace .tools .collectionList small { margin-top:4px; font-size:12px; color:#60667d; }
+.workspace .tools .collectionList strong { font-size:13px; }
+.collection { display:grid; gap:10px; min-width:0; }
+.search { display:grid; gap:5px; font-size:12px; color:var(--foxy-muted); }
+.search input,.renameForm input { box-sizing:border-box; width:100%; min-width:0; min-height:44px; padding:8px 10px; border:1px solid #cdd4e7; border-radius:11px; background:white; color:#252646; font:inherit; }
+.filterChips { display:flex; gap:6px; overflow-x:auto; max-width:100%; padding-bottom:4px; overscroll-behavior-inline:contain; }
+.filterChips button { flex:none; width:auto; min-height:38px; padding:7px 10px; border:1px solid #dbe1f0; border-radius:11px; background:white; color:#515971; font-size:12px; font-weight:400; white-space:nowrap; box-shadow:none; }
+.filterChips button[aria-pressed=true] { background:#eeeaff; color:#463364; border-color:#aa9ac4; }
+.collectionList { display:grid; gap:8px; padding:0; margin:0; list-style:none; }
+.collectionList > li { min-width:0; }
+.collectionList > li > button { width:100%; text-align:left; display:block; padding:9px 8px; font-size:13px; min-height:44px; }
+.collectionList small { display:block; margin-top:4px; color:#60667d; font-size:12px; font-weight:400; }
+.collection .creationItem { border-top:1px solid #dbe1f0; padding:8px 0; }
+.creationItem > p,.creationItem > ul { font-size:12px; line-height:1.5; color:#60667d; margin:6px 8px; }
+.creationItem > ul { padding-left:15px; }
+.collectionEmpty { margin:0; padding:12px 8px; font-size:13px; line-height:1.6; color:#60667d; }
+.collection [role=alert] { font-size:13px; }
+.workspace .conversationTitle { display:flex; flex:none; gap:12px; align-items:center; justify-content:space-between; padding:12px 18px 0; }
+.workspace .conversationTitle h2 { min-width:0; margin:0; font-size:15px; line-height:1.5; }
+.workspace .conversationTitle button { flex:none; min-height:44px; padding:6px 8px; font-size:12px; background:transparent; color:#70579f; border:0; }
+.workspace .contextHelp { flex:none; margin:8px 18px 0; color:#60667d; font-size:12px; line-height:1.5; }
+.workspace .history .collectionList { max-height:340px; overflow-y:auto; overscroll-behavior:contain; }
+.workspace .tools .collectionList { max-height:180px; overflow-y:auto; overscroll-behavior:contain; }
+.renameForm { display:grid; gap:12px; }
+.renameForm label { display:grid; gap:8px; }
+.renameForm p { margin:0; font-size:13px; color:#60667d; }
+.renameForm > div { display:flex; justify-content:flex-end; gap:12px; }
+.markdown { font-size:13px; line-height:1.6; }
+.markdown :is(h3,h4) { font-size:16px; margin:14px 0 7px; }
+.markdown :is(ul,ol) { padding-left:22px; margin:8px 0; }
+.markdown p { white-space:pre-wrap; margin:8px 0; }
+.markdown code { background:#f4f6fd; padding:1px 4px; border-radius:4px; }
+.workspace :is(button,input,select,summary):focus-visible { outline:3px solid #a7714e; outline-offset:3px; }
+@media(max-width:800px) {
+  .workspace .rail { display:none; }
+  .workspace .mobileActions { display:flex; flex-wrap:wrap; margin-bottom:10px; }
+  .workspace .mobileTools { display:flex; align-items:center; gap:6px; min-height:44px; margin:0; padding:8px 10px; font-size:12px; }
+  .filterChips button { min-height:44px; }
+  .collectionList > li > button { font-size:14px; }
+  .workspace .conversationTitle { padding:10px 13px 0; }
+}

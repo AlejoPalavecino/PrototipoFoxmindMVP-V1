@@ -116,6 +116,7 @@
     "apps/web/src/components/foxy-visual-publication-panel.test.mjs",
     "apps/web/src/components/foxy-visual-workspace.test.mjs",
     "apps/web/src/components/foxy-workspace-start.test.mjs",
+    "apps/web/src/components/foxy-collections.test.mjs",
     "apps/web/src/components/foxy-workspace.test.mjs",
     "apps/web/src/lib/foxy-chat-controller.test.mjs",
     "apps/web/src/lib/foxy-client.test.mjs",

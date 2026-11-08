@@ -10,7 +10,7 @@ Cada cuenta tiene un rol exclusivo: docente o estudiante. Además del rol, el ba
 | Inicio | Aulas propias, entregas/consultas por atender, avisos y agenda personal | Aulas, pendientes y devoluciones publicadas propias | [Inicio](../engineering/home/README.md) |
 | Mis aulas | Crear aula, consultar Activas/Archivadas/Pendientes; continuar o eliminar pendientes propios con confirmación; administrar aulas propias | Confirmar ingreso por código/invitación y consultar aulas autorizadas; sin Pendientes de creación | [Aulas](../engineering/classrooms/README.md) |
 | Agenda | Eventos personales y contexto académico autorizado | Eventos personales y plazos propios | [Agenda](../engineering/agenda/README.md) |
-| Foxy AI | Conversaciones privadas y preparación de recursos; revisión y destino antes de publicar | Sin acceso al espacio/conversaciones docentes; puede consultar material publicado autorizado | [Foxy](../engineering/ai/foxy.md) |
+| Foxy AI | Conversaciones privadas renombrables con búsqueda/filtro; contexto previo; Herramientas/Creaciones con búsqueda, estados y destinos; revisión antes de publicar o crear TP privado | Sin acceso al espacio/conversaciones/creaciones docentes; puede consultar material publicado autorizado | [Foxy](../engineering/ai/foxy.md) |
 | Notificaciones | Abrir destinos autorizados de su actividad docente | Abrir destinos propios autorizados | [Historial y avisos](../engineering/home/README.md) |
 
 ## Dentro de un aula

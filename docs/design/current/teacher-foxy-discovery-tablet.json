@@ -1,0 +1,22 @@
+{
+  "url": "/foxy-ai",
+  "width": 768,
+  "height": 1024,
+  "scrollWidth": 768,
+  "buildId": "qFSRJI3L3P4afd9ZzLhpp",
+  "headings": [
+    "Foxy AI",
+    "Preparar la clase de exposición y contraste.",
+    "Vos",
+    "La luz",
+    "Creaciones",
+    "Imágenes y esquemas"
+  ],
+  "alerts": [
+    ""
+  ],
+  "date": "2026-11-08",
+  "source": "real Next/API/PostgreSQL/storage/scanner/Mailpit; synthetic AI and accounts",
+  "candidate": "cee57f4 + Foxy workspace working diff",
+  "role": "teacher"
+}

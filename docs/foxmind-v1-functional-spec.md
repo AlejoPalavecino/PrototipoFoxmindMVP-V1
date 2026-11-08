@@ -112,6 +112,8 @@ Análisis individual: métricas anónimas, orientación docente; no corrección 
 
 Foxy es privado del docente verificado, con contexto/fuentes explícitos. Conversación/recursos preparados no son material público. Texto/imagen/esquema necesitan destino, preparación, revisión y confirmación para Biblioteca. Traspaso actual a Actividades crea un TP privado. Fallo/cuota/obsolescencia no debe duplicar publicación ni sustituir cambios docentes.
 
+Conversaciones admite título editable y búsqueda/filtro por contexto general o aula propia sobre el conjunto autorizado. Elegir aula prepara contexto sin IA antes del primer envío y cambiarlo inicia otra conversación. El widget alterna Herramientas/Creaciones; su catálogo privado reúne resultados listos de todas las conversaciones (excluye avisos de información insuficiente), buscables por título, tipo, contexto y estado, con apertura directa. Distingue contexto de origen y destinos efectivos: privado, preparación, borrador de actividad o publicado/asignado. Encontrar y abrir elementos comunes requiere hasta tres acciones de navegación; publicar conserva revisiones explícitas. Planificaciones y rúbricas son textos revisables, sin modificación automática del Plan o conversión automática a criterios estructurados.
+
 Configuración, presupuesto, límites y claves permanecen en backend. [Guías](engineering/ai/README.md) y [contrato de corrección](../odd/tasks/grading-ai-issue-2.md). El ensayo de esta base usa proveedores sintéticos; no hereda prueba externa de historia retirada.
 
 ## 10. Agenda

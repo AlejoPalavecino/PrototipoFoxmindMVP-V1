@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-08",
+  "candidate": "cee57f4 + Foxy working diff including prompt and catalog corrections",
+  "provider": "Gemini real",
+  "model": "gemini-3.8-flash",
+  "credential": "User-authorized root .env; ignored, unchanged, never recorded",
+  "environment": "Owned disposable API/PostgreSQL/S3/scanner/Mailpit; synthetic accounts and PDF",
+  "externalGenerations": 21,
+  "automaticRetries": 0,
+  "checks": {
+    "generalChat": true,
+    "historyContinuity": true,
+    "selectedClassroomSources": true,
+    "insufficientEvidenceHandled": true,
+    "completeText": [
+      {
+        "purpose": "STUDY_MATERIAL",
+        "status": "READY",
+        "characters": 298,
+        "missingInformation": 0,
+        "outputSha256": "881acb5edf5bca94c4f45861fd4622d87c39f8c37243e288c4af5d42241b44f4",
+        "kind": "STUDY_MATERIAL",
+        "durationMs": 5606,
+        "inputTokens": 856,
+        "outputTokens": 450
+      },
+      {
+        "purpose": "LESSON_PLAN",
+        "status": "READY",
+        "characters": 534,
+        "missingInformation": 0,
+        "outputSha256": "18fb66b2351d274db2b4e42c18ecd489220516b7969dd6823de9e144da364027",
+        "kind": "LESSON_PLAN",
+        "durationMs": 8902,
+        "inputTokens": 991,
+        "outputTokens": 772
+      },
+      {
+        "purpose": "ACTIVITY_IDEAS",
+        "status": "READY",
+        "characters": 683,
+        "missingInformation": 0,
+        "outputSha256": "6312f592869207a925f999d1c7698c4a6504a1bd9e48d1ac5574c2472af2ff82",
+        "kind": "ACTIVITY_IDEAS",
+        "durationMs": 5751,
+        "inputTokens": 1188,
+        "outputTokens": 662
+      },
+      {
+        "purpose": "RUBRIC",
+        "status": "READY",
+        "characters": 928,
+        "missingInformation": 0,
+        "outputSha256": "bb55a2e8546f1c13b2280a82252176d784f8173a6e090f8d1542bbae4234a682",
+        "kind": "RUBRIC",
+        "durationMs": 8222,
+        "inputTokens": 1427,
+        "outputTokens": 840
+      }
+    ],
+    "diagram": {
+      "status": "READY",
+      "kind": "DIAGRAM",
+      "durationMs": 14635,
+      "inputTokens": 683,
+      "outputTokens": 1635
+    },
+    "directRealNotePublication": true,
+    "capturedCompleteTextReplay": {
+      "newExternalCalls": 0,
+      "checks": [
+        {
+          "name": "catalog and private isolation",
+          "creations": 4
+        },
+        {
+          "name": "real note to reviewed PDF and library",
+          "published": true
+        },
+        {
+          "name": "activity handoff",
+          "status": "DRAFT",
+          "rubric": "manual reviewed criterion; no automatic structured conversion"
+        },
+        {
+          "name": "student denied private Foxy",
+          "denied": true
+        }
+      ]
+    }
+  },
+  "failures": [
+    {
+      "code": "AI_UNAVAILABLE",
+      "phase": "countTokens",
+      "model": "gemini-2.5-flash",
+      "generations": 0,
+      "cause": "Listed but provider reports unavailable for new users"
+    },
+    {
+      "code": "INVALID_AI_OUTPUT",
+      "occurrences": 2,
+      "cause": "INSUFFICIENT_CONTENT with nonempty markdown/references; explicit prompt fields corrected; parser unchanged"
+    },
+    {
+      "code": "PROVIDER_OUTCOME_UNKNOWN",
+      "occurrences": 2,
+      "phases": [
+        "LESSON_PLAN at 30s text deadline",
+        "DIAGRAM at 30s diagram deadline"
+      ],
+      "automaticallyRetried": false
+    }
+  ],
+  "verification": {
+    "adapterAndBudgetTests": "21/21",
+    "catalogSqlHttpVisualTests": "3/3",
+    "cleanupFailures": 0
+  },
+  "limits": [
+    "Coverage combines multiple runs; no single uninterrupted all-tools real-provider pass",
+    "Full text generation used 90s test deadline; diagram deadline remains 30s",
+    "Complete text outputs were replayed through current adapter validation and API to verify reviewed PDF publication and activity draft handoff without new external generation",
+    "Activity rubric criterion reviewed manually; no automatic structured rubric conversion",
+    "No image generation, pedagogical quality certification, real student data or deployment",
+    "Root .env remains AI_ENABLED=false, with model and operational limits not configured for normal runtime"
+  ]
+}

@@ -20,7 +20,19 @@ const button = 'p5-action';
 export function FoxyResourceWorkspace(props: Props) {
   const { resource, preparation, history, confirmation, classrooms, ui, actions } = props;
   const ref = useRef<HTMLDialogElement>(null);
-  useEffect(() => { if (ref.current) return openDialog(ref.current); }, []);
+  useEffect(() => {
+    const dialog = ref.current; if (!dialog) return;
+    const doc = dialog.ownerDocument, parent = doc.activeElement?.closest('dialog') as HTMLDialogElement | null;
+    const close = openDialog(dialog);
+    return () => {
+      close();
+      queueMicrotask(() => {
+        if (parent?.isConnected && parent.open && (doc.activeElement === doc.body || dialog.contains(doc.activeElement))) {
+          parent.querySelector<HTMLElement>('input[type="search"],button')?.focus({ preventScroll: true });
+        }
+      });
+    };
+  }, []);
   if (resource.status === 'closed' && !ui.openingResource) return null;
   const draft = resource.draft, destination = preparation.destination;
   const currentUnit = destination?.units.find(unit => unit.id === preparation.metadata.unitId);

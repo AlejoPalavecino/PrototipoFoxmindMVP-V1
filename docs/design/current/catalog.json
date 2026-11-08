@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "date": "2026-11-07",
-  "count": 168,
+  "date": "2026-11-08",
+  "count": 171,
   "captures": [
     {
       "id": "auth-login",
@@ -3654,6 +3654,90 @@
       "date": "2026-11-08",
       "source": "real components with synthetic in-memory client; no persistence claim",
       "candidate": "3d82b82 + pending-classrooms working diff",
+      "role": "teacher"
+    },
+    {
+      "id": "teacher-foxy-discovery-desktop",
+      "path": "teacher-foxy-discovery-desktop.png",
+      "sha256": "997ff2e44240f6233e7f98f0bcc73376d5f0f37ccc22b495b90ddc50160ccd19",
+      "bytes": 311460,
+      "metadata": "teacher-foxy-discovery-desktop.json",
+      "metadataSha256": "e54005e64e38e4926f325fe53408acd537ee2d8c1392f6560c08d9abf0894188",
+      "url": "/foxy-ai",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1425,
+      "buildId": "qFSRJI3L3P4afd9ZzLhpp",
+      "headings": [
+        "Foxy AI",
+        "Preparar la clase de exposición y contraste.",
+        "Vos",
+        "La luz",
+        "Conversaciones",
+        "Imágenes y esquemas"
+      ],
+      "alerts": [
+        ""
+      ],
+      "date": "2026-11-08",
+      "source": "real Next/API/PostgreSQL/storage/scanner/Mailpit; synthetic AI and accounts",
+      "candidate": "cee57f4 + Foxy workspace working diff",
+      "role": "teacher"
+    },
+    {
+      "id": "teacher-foxy-discovery-mobile",
+      "path": "teacher-foxy-discovery-mobile.png",
+      "sha256": "80b8f1663f20be146ae6c99ac2e34a64b0545b192e38d8a7b58594a966fdf35d",
+      "bytes": 81584,
+      "metadata": "teacher-foxy-discovery-mobile.json",
+      "metadataSha256": "7830083ba2b517b9ed5c99c0b0a1a46349bcef3e82d4cdac7da1efffb31e8f0a",
+      "url": "/foxy-ai",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "buildId": "qFSRJI3L3P4afd9ZzLhpp",
+      "headings": [
+        "Foxy AI",
+        "Preparar la clase de exposición y contraste.",
+        "Vos",
+        "La luz",
+        "Creaciones",
+        "Imágenes y esquemas"
+      ],
+      "alerts": [
+        ""
+      ],
+      "date": "2026-11-08",
+      "source": "real Next/API/PostgreSQL/storage/scanner/Mailpit; synthetic AI and accounts",
+      "candidate": "cee57f4 + Foxy workspace working diff",
+      "role": "teacher"
+    },
+    {
+      "id": "teacher-foxy-discovery-tablet",
+      "path": "teacher-foxy-discovery-tablet.png",
+      "sha256": "c7de3e15874fde42916de9133b4211d661a6d7396d72a4352b2f6c39e14b146a",
+      "bytes": 130062,
+      "metadata": "teacher-foxy-discovery-tablet.json",
+      "metadataSha256": "aceef4952fde5acaf1390013035eb0085c33b2a1b0d82900f3aea3508a6fb445",
+      "url": "/foxy-ai",
+      "width": 768,
+      "height": 1024,
+      "scrollWidth": 768,
+      "buildId": "qFSRJI3L3P4afd9ZzLhpp",
+      "headings": [
+        "Foxy AI",
+        "Preparar la clase de exposición y contraste.",
+        "Vos",
+        "La luz",
+        "Creaciones",
+        "Imágenes y esquemas"
+      ],
+      "alerts": [
+        ""
+      ],
+      "date": "2026-11-08",
+      "source": "real Next/API/PostgreSQL/storage/scanner/Mailpit; synthetic AI and accounts",
+      "candidate": "cee57f4 + Foxy workspace working diff",
       "role": "teacher"
     }
   ]

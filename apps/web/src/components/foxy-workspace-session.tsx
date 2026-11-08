@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { openDialog } from '../../../shared-ui/dialog-focus';
 import { useFoxyWorkspace } from '../lib/use-foxy-workspace';
 import { useFoxyWorkspaceActions } from '../lib/use-foxy-workspace-actions';
+import { useFoxyCatalog } from '../lib/use-foxy-catalog';
+import type { FoxyCreation } from '../lib/foxy-client';
 import { FoxyWorkspace } from './foxy-workspace';
 import { FoxyResourceWorkspace } from './foxy-resource-workspace';
 import { FoxyVisualWorkspace } from './foxy-visual-workspace';
@@ -26,6 +28,13 @@ export function FoxyWorkspaceSession({ subjectId, onIdentityRequired, onNavigate
   const [handoffStart, setHandoffStart] = useState<{ turnId: string; mode: 'ACTIVITY' | 'RUBRIC' } | null>(null);
   const { state, runtime, initializing } = useFoxyWorkspace({ subjectId, onIdentityRequired });
   const { actions, ui } = useFoxyWorkspaceActions({ runtime, state, onNavigate: onNavigate ?? (() => {}) });
+  const catalogStamp = JSON.stringify([state?.chat?.current?.id, state?.chat?.current?.title, state?.chat?.current?.revision,
+    state?.chat?.turns?.map(turn => [turn.id, turn.state]), state?.resource?.resource?.id, state?.resource?.resource?.revision,
+    state?.confirmation?.receipt, state?.activityHandoff?.receipt, state?.visualPublication?.receipt,
+    state?.preparation?.result, state?.history?.items?.map(item => [item.id, item.state, item.revision]), state?.management?.receipt,
+    state?.visualPublication?.publication?.state, state?.visualPublication?.publication?.revision,
+    state?.visual?.jobs?.map(job => [job.id, job.state])]);
+  const catalog = useFoxyCatalog({ subjectId, onIdentityRequired, stamp: catalogStamp });
   useEffect(() => {
     if (!runtime || !actions || !onRegister) return;
     onRegister({ navigate: href => { void actions.requestNavigate(href); }, shouldBlock: () => {
@@ -41,7 +50,18 @@ export function FoxyWorkspaceSession({ subjectId, onIdentityRequired, onNavigate
     {initializing && <p role="status">Actualizando Foxy AI…</p>}
     {ui.leave && (!state.resource || (state.resource.status === 'closed' && !ui.openingResource)) &&
       <PendingLeaveDialog cancel={() => actions.cancelLeave()} proceed={() => { void actions.discardAndContinue(); }} />}
-    <FoxyWorkspace onNavigate={href => { void actions.requestNavigate(href); }} creationBlocked={!!ui.leave} onCreateDiagram={async prompt => {
+    <FoxyWorkspace catalog={catalog?.state} contextClassrooms={state.contextClassrooms}
+      onConversationQuery={query => { void catalog?.controller.setConversationQuery(query); }}
+      onCreationQuery={query => { void catalog?.controller.setCreationQuery(query); }}
+      onMoreConversations={() => { void catalog?.controller.moreConversations(); }} onMoreCreations={() => { void catalog?.controller.moreCreations(); }}
+      onRefreshCatalog={() => { void catalog?.controller.refresh(); }}
+      onOpenCreation={(item: FoxyCreation) => {
+        if (item.turnId) void actions.resource.openCreation(item.conversationId, item.turnId);
+        else if (item.visualJobId) void Promise.resolve(actions.openVisualCreation(item.conversationId, item.visualJobId)).then(opened => {
+          if (opened) visualPanel.current?.scrollIntoView({ behavior: 'instant', block: 'start' });
+        });
+      }}
+      onNavigate={href => { void actions.requestNavigate(href); }} creationBlocked={!!ui.leave} onCreateDiagram={async prompt => {
       const snapshot = runtime.getState(), chat = snapshot.chat;
       if (snapshot.closed || !chat?.current || !snapshot.visual || snapshot.visual.busy || snapshot.visual.pending
         || snapshot.visualPublication?.busy || snapshot.visualPublication?.pending || chat.busy || chat.activeTurn || chat.pending

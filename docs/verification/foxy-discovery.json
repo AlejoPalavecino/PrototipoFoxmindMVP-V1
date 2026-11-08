@@ -1,0 +1,44 @@
+{
+  "date": "2026-11-08",
+  "candidate": "cee57f4 + Foxy workspace working diff",
+  "provider": "synthetic",
+  "creationRoute": [
+    "Creaciones",
+    "Apuntes",
+    "Abrir recurso"
+  ],
+  "creationClicks": 3,
+  "refreshProof": {
+    "waitedMs": 1435,
+    "triggerConnected": true
+  },
+  "editorBack": {
+    "dialog": "Creaciones",
+    "focus": "Abrir Guía de exposición"
+  },
+  "closedFocus": "Creaciones",
+  "keyboardInside": true,
+  "conversationRoute": [
+    "Conversaciones",
+    "Fotografía y luz",
+    "Abrir conversación"
+  ],
+  "conversationClicks": 3,
+  "geometry": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1425
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "scrollWidth": 768
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390
+    }
+  ]
+}
