@@ -34,6 +34,7 @@ export function ClassroomsApp({
   api,
   displayName,
   accountEmail,
+  avatarKey,
   accountRole,
   subjectId,
   homeClient,
@@ -52,6 +53,7 @@ export function ClassroomsApp({
   api: ClassroomClient;
   displayName: string;
   accountEmail?: string;
+  avatarKey?: string;
   accountRole?: 'teacher' | 'student';
   subjectId?: string;
   homeClient?: HomeClient;
@@ -206,7 +208,7 @@ export function ClassroomsApp({
   return (
     <div className={`p5-app fm3-classrooms ${surface.scope}${draft ? ' entry-wizard-reference entry-classrooms-reference collection-workspace-page' : !classroomId ? presentation === 'home' ? ' entry-home' : ' entry-classrooms-reference collection-workspace-page' : ' classroom-interior-reference'}`}>
       <a className="skip-link" href="#classroom-main">Saltar al contenido</a>
-      <AppNavbar logoHref="/inicio" displayName={displayName} accountEmail={accountEmail} accountRole={accountRole} search={searchContent}
+      <AppNavbar avatarKey={avatarKey} logoHref="/inicio" displayName={displayName} accountEmail={accountEmail} accountRole={accountRole} search={searchContent}
         classroomLinks={[...(data.teach ?? []), ...(data.study ?? [])].filter(room => !room.archived).map(room => ({ href: `/mis-aulas?aula=${encodeURIComponent(room.id)}`, label: room.name,coverKey:room.coverKey, current: classroomId === room.id }))}
         links={[{ href: '/inicio', label: 'Inicio', current: !classroomId && presentation === 'home' },
             { href: '/mis-aulas', label: 'Mis aulas', current: presentation === 'classrooms' || Boolean(classroomId) },

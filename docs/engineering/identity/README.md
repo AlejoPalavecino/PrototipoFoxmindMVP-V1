@@ -1,12 +1,16 @@
 # Identidad y cuenta
 
-La identidad tiene un rol global exclusivo: teacher o student. El registro recibe accountRole y el perfil sólo permite cambiar nombres; no hay cambio de rol, correo o avatar desde esos formularios.
+La identidad tiene un rol global exclusivo: teacher o student. El registro recibe accountRole y el perfil permite cambiar nombres y elegir un avatar predefinido de Foxy. No hay cambio de rol/correo ni subida de fotos.
 
 ## Recorridos actuales
 
 Registro → respuesta genérica → iniciar sesión → verificar correo capturado → confirmar verificación → enlace Ir a Inicio. La verificación no debe aceptarse por visitar una URL: requiere confirmación. Login verificado ordinario lleva a Inicio; las continuaciones permitidas de invitaciones conservan su validación.
 
-Mi perfil muestra nombre, apellido y correo de sólo lectura. Configuración permite cambiar contraseña y cerrar sesión. El cambio de contraseña renueva la sesión actual sin extender su límite absoluto y revoca las otras. Recuperación usa correo, enlace de un uso y nueva contraseña; cierra las sesiones anteriores y exige iniciar sesión.
+Mi perfil muestra nombre, apellido y correo de sólo lectura. Docentes y estudiantes pueden elegir Mis iniciales, Foxy clásico, lector, explorador o creativo. Seleccionar sólo prepara una vista previa: Guardar cambios confirma nombres y avatar juntos. Ante error conserva la selección para reintentar. La elección persiste en la cuenta y aparece en perfil, navegación y Mi cuenta. Cuentas existentes conservan iniciales; Mis iniciales permite restaurarlas. Configuración permite cambiar contraseña y cerrar sesión. El cambio de contraseña renueva la sesión actual sin extender su límite absoluto y revoca las otras. Recuperación usa correo, enlace de un uso y nueva contraseña; cierra las sesiones anteriores y exige iniciar sesión.
+
+## Avatar predefinido
+
+`PATCH /account` admite `avatarKey` opcional: `initials`, `foxy-classic`, `foxy-reader`, `foxy-explorer`, `foxy-creative`. Omitirlo conserva el valor. No admite null, URL, ruta libre ni upload. Perfil e identidad de sesión devuelven la elección. La migración aditiva `202611080001_account_foxy_avatar` agrega `User.avatar_key` con default `initials` y CHECK del catálogo. Mantiene autorización de cuenta propia/verificada bajo lock, sesión vigente, Origin, CSRF y límites de frecuencia. Los recursos transparentes son locales; usar el selector no llama al proveedor IA.
 
 ## Políticas que se conservan
 

@@ -25,6 +25,24 @@
 .fm3d-theme:has(.fm-navbar-private) .entry-profile .br-account-summary h2 { margin-bottom: 3px; font-size: 18px; overflow-wrap: anywhere; }
 .fm3d-theme:has(.fm-navbar-private) .entry-profile .br-account-summary p { font-size: 12px; }
 .br-account-avatar { display: inline-grid; place-items: center; flex: none; width: 55px; height: 55px; border: 1px solid #d9d1f1; border-radius: 50%; color: #614780; background: #eae4fd; font-size: 18px; font-weight: 700; letter-spacing: .03em; }
+.fm-account-avatar { display: inline-grid; place-items: center; flex: none; overflow: hidden; }
+.fm-account-avatar img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.fm3d-theme:has(.fm-navbar-private) .entry-profile fieldset.br-avatar-picker { gap: 12px; margin-bottom: 8px; }
+.br-avatar-picker legend { padding: 0; margin-bottom: 8px; font-size: 15px; font-weight: 600; color: #252646; }
+.br-avatar-options { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 10px; }
+.br-avatar-option { position: relative; display: grid; justify-items: center; align-content: start; gap: 9px; padding: 26px 6px 12px; border: 1px solid #d4d9e9; border-radius: 11px; background: #fff; cursor: pointer; text-align: center; color: #393c57; font-size: 12px; line-height: 1.4; }
+.br-avatar-option input { position: absolute; top: 9px; right: 9px; width: 16px; height: 16px; margin: 0; accent-color: #b8490c; }
+.br-avatar-option .fm-account-avatar { width: 68px; height: 68px; border-radius: 50%; background: #fff3e5; color: #614780; font-size: 20px; font-weight: 700; }
+.br-avatar-option:has(input:checked) { border-color: #b8490c; background: #fff8f1; box-shadow: inset 0 0 0 1px #b8490c; }
+.br-avatar-option:has(input:focus-visible) { outline: 3px solid #b8490c; outline-offset: 3px; }
+.br-avatar-option:has(input:disabled) { cursor: default; opacity: .65; }
+.fm3d-theme:has(.fm-navbar-private) .entry-profile .br-avatar-preview { font-size: 12px; }
+@media(max-width:600px) {
+  .br-avatar-options { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .br-avatar-option:first-child { grid-column: 1 / -1; grid-template-columns: 44px 1fr; align-items: center; text-align: left; justify-items: start; padding: 10px 36px 10px 12px; }
+  .br-avatar-option:first-child .fm-account-avatar { width: 36px; height: 36px; font-size: 14px; }
+  .br-avatar-option:first-child input { top: calc(50% - 8px); }
+}
 .fm3d-theme:has(.fm-navbar-private) .entry-profile .fm3d-account-card form { margin-top: 19px; }
 .fm3d-theme:has(.fm-navbar-private) .entry-profile .fm3d-account-card fieldset { display: grid; gap: 15px; padding: 0; margin: 0; min-width: 0; border: 0; }
 .fm3d-theme:has(.fm-navbar-private) .entry-page.entry-profile .profile-main .profile-account .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -33,7 +51,13 @@
 .fm3d-theme:has(.fm-navbar-private) .entry-page.entry-profile .profile-main .profile-account .input { width: 100%; height: auto; min-height: 39px; padding: 9px 11px; border: 1px solid #d4d9e9; border-radius: 11px; background: #fff; color: #252646; font-size: 12px; box-shadow: none; }
 .fm3d-theme:has(.fm-navbar-private) .entry-page.entry-profile .profile-main .profile-account .input[readonly] { background: #f4f5fb; color: #626881; }
 .fm3d-theme:has(.fm-navbar-private) .entry-page.entry-profile .profile-main .profile-account .field-help { font-size: 11px; font-weight: 400; line-height: 1.5; }
-.fm3d-theme:has(.fm-navbar-private) .entry-profile .password-control .input { padding-right: 75px; }
+.fm3d-theme:has(.fm-navbar-private) .entry-page.entry-profile .profile-main .profile-account .password-control .input { min-height: 48px; padding-right: 100px; }
+.fm3d-theme:has(.fm-navbar-private) .entry-profile .password-control .password-toggle {
+  inset: 50% 2px auto auto; transform: translateY(-50%); box-sizing: border-box;
+  width: 88px; min-width: 88px; height: 44px; min-height: 44px; padding: 8px;
+  display: grid; place-items: center; font-size: 12px; line-height: 1.4;
+}
+.fm3d-theme:has(.fm-navbar-private) .entry-profile .password-toggle:focus-visible { outline: 2px solid #b8490c; outline-offset: -3px; }
 .fm3d-theme:has(.fm-navbar-private) .entry-page.entry-profile .profile-main .profile-account .form-actions { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 8px; margin: 0; padding: 0; border: 0; }
 .fm3d-theme:has(.fm-navbar-private) .entry-page.entry-profile .profile-main .profile-account .button { width: auto; min-height: 37px; padding: 8px 13px; border: 1px solid #dce0ec; border-radius: 12px; background: #fff; color: #393c57; font: 600 12px/1.4 'Brújula',sans-serif; box-shadow: none; justify-self: start; }
 .fm3d-theme:has(.fm-navbar-private) .entry-page.entry-profile .profile-main .profile-account .button-primary { color: #fff; background: #b8490c; border-color: #b8490c; }

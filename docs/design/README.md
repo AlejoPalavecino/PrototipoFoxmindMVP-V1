@@ -13,6 +13,12 @@ Sidebar desde 1024 px; en tamaños menores, menú compacto con drawer y retorno 
 
 Inicio docente prioriza Por atender, acciones y aula en foco; estudiante, Mis entregas y devoluciones publicadas. Las cifras Enseño/Estudio de la proyección no son un selector de rol dual. El banner, las tarjetas y los accesos conservan jerarquía por rol, sin métricas inventadas.
 
+## Perfil y Configuración
+
+Mi perfil ofrece Mis iniciales y cuatro avatares Foxy generados a partir de la mascota vigente. Selección única con radios nativos, vista previa y aviso Sin guardar; Guardar cambios aplica nombres/avatar juntos. En móvil, iniciales ocupa una fila y los cuatro Foxy se distribuyen en dos columnas; escritorio presenta cinco opciones. La imagen elegida aparece en el resumen, navegación y diálogo Mi cuenta. Foco visible, bloqueo durante guardado y error con reintento conservan los controles de cuenta.
+
+En Configuración los botones Mostrar/Ocultar quedan centrados dentro de campos de 48 px, con objetivo de 44 px y espacio reservado para evitar superposición del texto. La corrección está limitada a la pantalla privada. [Evidencia actual](../work-log/2026-11-08-root-profile-avatars.md).
+
 ## Recorridos de referencia
 
 | Flujo | Secuencia actual |

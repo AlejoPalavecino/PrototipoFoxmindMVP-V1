@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { isAccountAvatarKey, type AccountAvatarKey } from '../../../../src/core/domain/account-avatar.ts';
 import { enqueueAccountMail, cancelAccountMailForToken } from '../account-mail-outbox/index.ts';
 import { IdentityMailLifecycle } from './mail-lifecycle.ts';
 import type { User } from '../../../../.generated/prisma/client.ts';
@@ -21,7 +22,7 @@ export interface IdentityRuntimePorts {
   readonly beforePasswordChangeCommit?: () => Promise<void>;
 }
 export function publicUser(user: User) {
-  return { id: user.id, email: user.email, firstName: user.first_name, lastName: user.last_name, emailVerified: user.email_verified_at !== null, accountRole: user.account_role as 'teacher' | 'student' };
+  return { id: user.id, email: user.email, firstName: user.first_name, lastName: user.last_name, avatarKey: user.avatar_key, emailVerified: user.email_verified_at !== null, accountRole: user.account_role as 'teacher' | 'student' };
 }
 export class IdentityRuntime {
   private readonly mail: IdentityMailLifecycle;
@@ -294,10 +295,15 @@ export class IdentityRuntime {
     if (!context) throw new IdentityHttpError('AUTH_REQUIRED');
     if (!context.user.email_verified_at) throw new IdentityHttpError('EMAIL_VERIFICATION_REQUIRED');
     let firstName: string | undefined, lastName: string | undefined;
+    let avatarKey: AccountAvatarKey | undefined;
     if (body !== undefined) {
-      const input = validateBodyShape(body, ['firstName', 'lastName'], [], true);
+      const input = validateBodyShape(body, ['firstName', 'lastName', 'avatarKey'], [], true);
       if (Object.hasOwn(input, 'firstName')) firstName = validateName(input.firstName);
       if (Object.hasOwn(input, 'lastName')) lastName = validateName(input.lastName);
+      if (Object.hasOwn(input, 'avatarKey')) {
+        if (!isAccountAvatarKey(input.avatarKey)) throw new IdentityHttpError('VALIDATION_ERROR');
+        avatarKey = input.avatarKey;
+      }
       const rule = this.configuration.security.rateLimits['profile-update'];
       const buckets: AdmissionBucket[] = [{ action: 'profile-update', namespace: 'ip', subject: ip, budget: rule.ip }];
       if (rule.identifier) buckets.push({ action: 'profile-update', namespace: 'identifier', subject: context.user.id, budget: rule.identifier });
@@ -312,6 +318,7 @@ export class IdentityRuntime {
       if (!user.email_verified_at) throw new IdentityHttpError('EMAIL_VERIFICATION_REQUIRED');
       if (body !== undefined) user = await tx.user.update({ where: { id: user.id }, data: {
         ...(firstName === undefined ? {} : { first_name: firstName }), ...(lastName === undefined ? {} : { last_name: lastName }),
+        ...(avatarKey === undefined ? {} : { avatar_key: avatarKey }),
       } });
       // Genuine authorized account activity only; absolute expires_at is deliberately untouched.
       await tx.session.update({ where: { id: context.sessionId }, data: { last_seen_at: await this.store.now(tx) } });

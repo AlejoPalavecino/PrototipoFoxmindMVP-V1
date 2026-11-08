@@ -90,7 +90,7 @@ test('D1 verified and unverified login uses fresh opaque cookie and preserved br
     const state = await response.json();
     assert.equal(state.authenticated, true); assert.ok(state.user.email === email, 'delivery spelling preserved');
     assert.equal(state.user.emailVerified, email === fixtureEmail);
-    assert.deepEqual(Object.keys(state.user).sort(), ['accountRole', 'email', 'emailVerified', 'firstName', 'id', 'lastName']);
+    assert.deepEqual(Object.keys(state.user).sort(), ['accountRole', 'avatarKey', 'email', 'emailVerified', 'firstName', 'id', 'lastName']);
     const cookie = cookieOf(response);
     const read = await send('/auth/session', { cookie });
     assert.equal((await read.json()).user.id, state.user.id);

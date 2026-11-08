@@ -47,6 +47,8 @@ Es un subconjunto conceptual de cardinalidades físicas, no un esquema de migrac
 
 ## Invariantes que importan al modificarlo
 
+- `User.avatar_key` conserva una elección del catálogo fijo Foxy o `initials` (default de cuentas nuevas/existentes), protegida por CHECK SQL. Es personalización de cuenta propia; no guarda URLs ni imágenes subidas.
+
 - `User.account_role` identifica docente o estudiante; propiedad del aula y membresía siguen siendo condiciones adicionales. Una relación histórica no habilita acceso actual.
 - ClassroomDraft conserva trabajo incompleto; publicar requiere construir un agregado válido. La existencia de un borrador no prueba un aula creada.
 - Enrollment sobrevive a la salida; MembershipPeriod conserva períodos. StudentActivity separa obligación de intentos. El primer envío confirmado define puntualidad; reentregas no borran ese historial.

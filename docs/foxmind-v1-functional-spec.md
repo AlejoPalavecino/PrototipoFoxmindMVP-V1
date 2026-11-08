@@ -14,7 +14,7 @@ Contraseñas 16–128 puntos de código Unicode; nombres 1–80 cada uno. Sesió
 
 Dominios de correo deben venir en minúsculas; conservar local part válido, incluidos entrecomillados/internacionales, sin normalización silenciosa o reglas de alias de proveedores. [OpenAPI y políticas](api/accounts-sessions.openapi.json).
 
-Mi perfil permite editar nombres; correo es sólo lectura. Configuración permite contraseña y cierre de sesión. No se infieren avatar subido, cambio de email, eliminación de cuenta, preferencias nuevas o cambio de rol.
+Mi perfil permite editar nombres y seleccionar Foxy clásico, lector, explorador o creativo, o conservar/restaurar iniciales. Seleccionar muestra vista previa; Guardar cambios persiste nombres y avatar para la cuenta, visible en perfil y Mi cuenta. Disponible para docentes y estudiantes verificados. Correo es sólo lectura. Configuración permite contraseña y cierre de sesión. No se infieren avatar subido, cambio de email, eliminación de cuenta, preferencias nuevas o cambio de rol.
 
 ## 2. Navegación y experiencia por rol
 
@@ -140,7 +140,7 @@ Carga, vacío, permisos, conflictos y errores tienen feedback y recuperación ad
 
 ## 12. Frontera vigente
 
-Sin administración institucional, pagos, ranking, certificados, Google login, tutores estudiantiles generales, cambio de rol/email o nueva personalización no aprobada. Rúbrica por criterios no autoriza ponderaciones globales por tipo de actividad o umbrales de aprobación.
+Sin administración institucional, pagos, ranking, certificados, Google login, tutores estudiantiles generales, cambio de rol/email o personalización fuera del catálogo de avatares aprobado. Rúbrica por criterios no autoriza ponderaciones globales por tipo de actividad o umbrales de aprobación.
 
 Hosting, proveedores cloud, presupuesto, cuota productiva y piloto real requieren decisión humana. Una guía o estado implementado no autoriza su ejecución sobre datos retenidos, credenciales o servicios pagos.
 

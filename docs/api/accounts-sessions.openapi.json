@@ -81,7 +81,8 @@
                         "firstName": "Example",
                         "lastName": "Learner",
                         "emailVerified": false,
-                        "accountRole": "student"
+                        "accountRole": "student",
+                        "avatarKey": "initials"
                       }
                     }
                   }
@@ -423,7 +424,8 @@
                         "firstName": "Example",
                         "lastName": "Learner",
                         "emailVerified": false,
-                        "accountRole": "student"
+                        "accountRole": "student",
+                        "avatarKey": "initials"
                       }
                     }
                   },
@@ -436,7 +438,8 @@
                         "firstName": "Example",
                         "lastName": "Learner",
                         "emailVerified": true,
-                        "accountRole": "student"
+                        "accountRole": "student",
+                        "avatarKey": "initials"
                       }
                     }
                   }
@@ -1660,6 +1663,9 @@
           },
           "lastName": {
             "$ref": "#/components/schemas/Name"
+          },
+          "avatarKey": {
+            "$ref": "#/components/schemas/AccountAvatarKey"
           }
         },
         "required": [],
@@ -1668,7 +1674,10 @@
       },
       "AccountRole": {
         "type": "string",
-        "enum": ["teacher", "student"]
+        "enum": [
+          "teacher",
+          "student"
+        ]
       },
       "UserIdentity": {
         "type": "object",
@@ -1695,6 +1704,9 @@
           "accountRole": {
             "$ref": "#/components/schemas/AccountRole",
             "readOnly": true
+          },
+          "avatarKey": {
+            "$ref": "#/components/schemas/AccountAvatarKey"
           }
         },
         "required": [
@@ -1703,7 +1715,8 @@
           "firstName",
           "lastName",
           "emailVerified",
-          "accountRole"
+          "accountRole",
+          "avatarKey"
         ],
         "additionalProperties": false
       },
@@ -1881,6 +1894,18 @@
           "error"
         ],
         "additionalProperties": false
+      },
+      "AccountAvatarKey": {
+        "type": "string",
+        "enum": [
+          "initials",
+          "foxy-classic",
+          "foxy-reader",
+          "foxy-explorer",
+          "foxy-creative"
+        ],
+        "default": "initials",
+        "description": "Avatar predefinido privado de la cuenta. initials restaura las iniciales; no admite URLs ni uploads."
       }
     },
     "responses": {

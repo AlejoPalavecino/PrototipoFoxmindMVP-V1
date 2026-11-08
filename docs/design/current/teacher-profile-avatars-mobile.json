@@ -1,0 +1,11 @@
+{
+  "url": "/profile",
+  "width": 390,
+  "height": 1000,
+  "scrollWidth": 375,
+  "headings": [
+    "Mi perfil",
+    "Lucía Demo"
+  ],
+  "alerts": []
+}

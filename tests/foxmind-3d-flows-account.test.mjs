@@ -26,11 +26,12 @@ const fields = tree => descendants(tree, node => typeof node.props.name === 'str
 for (const viewName of ['profile', 'settings']) test(`D2 ${viewName} keeps personal fields and account security in their own screen`, async () => {
   const oldWindow = globalThis.window, oldStorage = globalThis.sessionStorage;
   globalThis.window = new EventTarget(); globalThis.sessionStorage = { getItem: () => null };
-  let view;
+  let view, childView;
   try {
     const f = fixture(); view = hookView(f.AccountScreen, { view: viewName }); await view.flush();
     const child = descendants(view.tree, node => ['AccountProfile', 'AccountSettings'].includes(node.type?.name))[0];
-    const content = child ? child.type(child.props) : view.tree;
+    if (child) { childView = hookView(child.type, child.props); await childView.flush(); }
+    const content = childView ? childView.tree : view.tree;
     const names = fields(content);
     if (viewName === 'profile') {
       assert.ok(names.includes('firstName') && names.includes('lastName'));
@@ -42,7 +43,7 @@ for (const viewName of ['profile', 'settings']) test(`D2 ${viewName} keeps perso
     }
     assert.equal(f.calls.filter(([type]) => type === 'mutate').length, 0, 'Opening either screen performs no mutation');
   } finally {
-    view?.close(); if (oldWindow === undefined) delete globalThis.window; else globalThis.window = oldWindow;
+    childView?.close(); view?.close(); if (oldWindow === undefined) delete globalThis.window; else globalThis.window = oldWindow;
     if (oldStorage === undefined) delete globalThis.sessionStorage; else globalThis.sessionStorage = oldStorage;
   }
 });

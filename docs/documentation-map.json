@@ -3,6 +3,9 @@
   "baseCommit": "d41ff6d0b8c9321403b1d3000a06e06d84366cfe",
   "hashPolicy": "Current baseline: catalog hashes are exact bytes; no retained historical aliases",
   "activeFiles": [
+    "odd/tasks/profile-foxy-avatars.md",
+    "docs/verification/profile-avatars.json",
+    "docs/work-log/2026-11-08-root-profile-avatars.md",
     "docs/verification/local-gemini-runtime.json",
     "docs/work-log/2026-11-08-root-local-gemini-runtime.md",
     "docs/verification/foxy-gemini-real.json",

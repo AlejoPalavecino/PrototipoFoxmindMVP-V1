@@ -33,10 +33,10 @@ before(async () => {
   ({ base } = await start());
 });
 after(async () => { for (const app of apps) await app.close(); if (db) await db.end(); });
-async function seed(email, isVerified) {
+async function seed(email, isVerified, role = 'student') {
   const id = randomUUID();
   await db.query(`INSERT INTO users(id,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
-    VALUES($1,$2,lower($2),'Original','Learner',$3,CASE WHEN $4 THEN now() ELSE NULL END,'student')`, [id, email, hash, isVerified]);
+    VALUES($1,$2,lower($2),'Original','Learner',$3,CASE WHEN $4 THEN now() ELSE NULL END,$5)`, [id, email, hash, isVerified, role]);
   return id;
 }
 async function session(user = verified, { idle = 0, absolute = 43200 } = {}) {
@@ -72,6 +72,32 @@ async function accepted(response) {
   assert.deepEqual(await response.json(), { status: 'accepted' });
 }
 async function csrf(cookie, target = base) { return (await (await send('/auth/csrf', { cookie, target })).json()).csrfToken; }
+
+test('D2 profile avatar catalogue persists per account for both roles and rejects arbitrary sources', async () => {
+  for (const role of ['student', 'teacher']) {
+    const id = await seed(`Avatar-${role}@example.test`, true, role);
+    const cookie = await session(id), token = await csrf(cookie);
+    assert.equal((await (await send('/account', { cookie })).json()).avatarKey, 'initials');
+    for (const avatarKey of ['foxy-classic', 'foxy-reader', 'foxy-explorer', 'foxy-creative', 'initials']) {
+      const response = await send('/account', { method: 'PATCH', cookie, csrf: token, body: { avatarKey } });
+      assert.equal(response.status, 200);
+      const profile = await response.json();
+      assert.equal(profile.avatarKey, avatarKey); assert.equal(profile.firstName, 'Original');
+      const fresh = await session(id);
+      assert.equal((await (await send('/auth/session', { cookie: fresh })).json()).user.avatarKey, avatarKey);
+    }
+    for (const avatarKey of ['https://example.test/a.png', '../foxy-reader', 'unknown', '', null, 42]) {
+      await error(await send('/account', { method: 'PATCH', cookie, csrf: token, body: { avatarKey } }), 422, 'VALIDATION_ERROR');
+    }
+    await error(await send('/account', { method: 'PATCH', cookie, body: { avatarKey: 'foxy-reader' } }), 403, 'CSRF_INVALID');
+    await error(await send('/account', { method: 'PATCH', cookie, csrf: token, body: { avatarKey: 'foxy-reader' }, headers: { Origin: 'https://example.test' } }), 403, 'ORIGIN_NOT_ALLOWED');
+    assert.equal((await (await send('/account', { cookie })).json()).avatarKey, 'initials');
+  }
+  const cookie = await session(verified);
+  assert.equal((await (await send('/account', { cookie })).json()).avatarKey, 'initials');
+  const pending = await session(unverified);
+  await error(await send('/account', { method: 'PATCH', cookie: pending, csrf: await csrf(pending), body: { avatarKey: 'foxy-reader' } }), 403, 'EMAIL_VERIFICATION_REQUIRED');
+});
 async function inbox() {
   const response = await fetch(`${process.env.P33_OWNED_INBOX}/api/v1/messages`, { signal: AbortSignal.timeout(1000) });
   assert.equal(response.status, 200); return (await response.json()).messages;
@@ -107,7 +133,7 @@ test('D2 registration accepts durably, sends actual Spanish verification asynchr
   }
   const response = await login(email); assert.equal(response.status, 200);
   const state = await response.json(); assert.ok(state.user.email === email, 'original delivery spelling'); assert.equal(state.user.emailVerified, false);
-  assert.deepEqual(Object.keys(state.user).sort(), ['accountRole', 'email', 'emailVerified', 'firstName', 'id', 'lastName']);
+  assert.deepEqual(Object.keys(state.user).sort(), ['accountRole', 'avatarKey', 'email', 'emailVerified', 'firstName', 'id', 'lastName']);
   const cookie = response.headers.get('set-cookie').split(';')[0];
   await error(await send('/account', { cookie }), 403, 'EMAIL_VERIFICATION_REQUIRED');
   await status(await send('/classrooms', { cookie }), 404);
@@ -199,7 +225,7 @@ test('D2 profile GET/PATCH require verified persisted session and whitelist own 
   const changed = await send('/account', { method: 'PATCH', cookie, csrf: token, body: { firstName: '😀'.repeat(80) } });
   assert.equal(changed.status, 200); security(changed);
   const user = await changed.json(); assert.equal(user.lastName, original.lastName); assert.ok(user.email === original.email, 'email remains read-only');
-  assert.deepEqual(Object.keys(user).sort(), ['accountRole', 'email', 'emailVerified', 'firstName', 'id', 'lastName']);
+  assert.deepEqual(Object.keys(user).sort(), ['accountRole', 'avatarKey', 'email', 'emailVerified', 'firstName', 'id', 'lastName']);
   assert.ok(user.firstName === '😀'.repeat(80));
   const second = await send('/account', { method: 'PATCH', cookie, csrf: token, body: { firstName: original.firstName, lastName: 'Family' } });
   assert.equal(second.status, 200); assert.equal((await second.json()).lastName, 'Family');

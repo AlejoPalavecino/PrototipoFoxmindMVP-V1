@@ -289,6 +289,7 @@
     "tests/foxmind-3d-client-lifecycle.test.mjs",
     "tests/foxmind-3d-client.test.mjs",
     "tests/foxmind-3d-contracts.test.mjs",
+    "tests/account-avatar-selection.test.mjs",
     "tests/foxmind-3d-flows-account.test.mjs",
     "tests/foxmind-3d-flows-agenda.test.mjs",
     "tests/foxmind-3d-flows-attempt.test.mjs",

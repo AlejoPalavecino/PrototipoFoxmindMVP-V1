@@ -1,0 +1,25 @@
+{
+  "date": "2026-11-08",
+  "candidate": "main@0271815 plus uncommitted profile-avatar diff",
+  "environment": "Owned local API/Next/PostgreSQL, synthetic teacher/student accounts; no product AI generation requested",
+  "assets": {"generator":"built-in image_gen", "reference":"apps/web/public/brujula/foxy-bienvenida.webp", "variants":["classic","reader","explorer","creative"], "path":"apps/web/public/brujula/avatars", "dimensions":[512,512], "alpha":true},
+  "checks": {
+    "accountIntegration":{"command":"node scripts/test-p33-registration-profile.mjs --group=account","exit":0,"passed":6},
+    "identityHttp":{"command":"node scripts/test-p33-identity-http.mjs","exit":0,"passed":21,"warning":"MaxListenersExceededWarning on SIGINT/SIGTERM in test process; no test failure"},
+    "componentsAndContract":{"command":"node --test tests/account-avatar-selection.test.mjs tests/foxmind-3d-flows-account.test.mjs tests/brujula-agenda-account-complete.test.mjs tests/p31-contracts.test.mjs","exit":0,"passed":18},
+    "boundaries":{"command":"npm run lint:boundaries","exit":0},
+    "documentation":{"command":"npm run docs:check","exit":0,"files":64,"links":713,"issues":0},
+    "inventory":{"command":"node scripts/run-complete-suite.mjs --check","exit":0,"entries":498,"exclusions":53,"routes":23},
+    "build":{"command":"npm run local:restart","result":"READY, migrated owned local database and built API/web"},
+    "independentReview":{"agent":"/root/review_profile_avatars","result":"VERIFIED focal after fixes; contract 9/9, inventory exit 0, web typecheck exit 0"}
+  },
+  "browser": {
+    "engine":"Ego Lite",
+    "teacher":{"previewDoesNotSave":true,"persistsAfterReload":true,"navigationAndAccountMenu":true,"networkErrorRetainsSelection":true,"retrySaves":true,"profileWidths":[1440,834,390]},
+    "student":{"nativeArrowKeyPreview":true,"restoreInitialsPersists":true,"selectedAvatarPersists":true,"homeNavigationUsesAvatar":true,"profileWidths":[1440,390]},
+    "passwordControls":{"roles":["teacher","student"],"widths":[1440,390],"allThreeToggleBothWays":true,"allThreeContained":true,"inputHeight":48,"buttonHeight":44,"inputPaddingRight":100},
+    "horizontalOverflow":false,
+    "taskSpaceFinished":true
+  },
+  "limits":["Full suite and CI not executed", "No complete WCAG/screen-reader audit or performance testing", "No deployment or Git publication", "No password change submitted during UI geometry checks", "Independent review did not repeat integration/browser testing"]
+}

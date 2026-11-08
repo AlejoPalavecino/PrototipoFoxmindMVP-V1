@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-08",
-  "count": 171,
+  "count": 178,
   "captures": [
     {
       "id": "auth-login",
@@ -184,10 +184,10 @@
     {
       "id": "student-account-settings",
       "path": "student-account-settings.png",
-      "sha256": "017451208969acfdc53401e57c7ba0c45f50cb44b681a1d4aff94e5c53098afb",
-      "bytes": 91733,
+      "sha256": "32eef4bc74c03fef6b24004276092789a61c443aff533f45054f86ff0a829689",
+      "bytes": 89282,
       "metadata": "student-account-settings.json",
-      "metadataSha256": "098f02f27922bf3e1c42ece9462a632f299d706638130f85ca029886a273e58b",
+      "metadataSha256": "8613f2ff01672e6e5de889da6f6f5742375379acbf511c98cb75c3e0bee82f90",
       "url": "/settings",
       "width": 1440,
       "height": 1000,
@@ -197,7 +197,21 @@
         "Contraseña",
         "Sesión actual"
       ],
-      "alerts": []
+      "alerts": [],
+      "controls": [
+        {
+          "contained": true,
+          "paddingRight": "100px"
+        },
+        {
+          "contained": true,
+          "paddingRight": "100px"
+        },
+        {
+          "contained": true,
+          "paddingRight": "100px"
+        }
+      ]
     },
     {
       "id": "student-activities",
@@ -1417,10 +1431,10 @@
     {
       "id": "teacher-account-settings",
       "path": "teacher-account-settings.png",
-      "sha256": "afff8d01123e9b7207d5f5314ed3cbeec9ee274ce5dd5e0ec27784bf4312aab5",
-      "bytes": 92169,
+      "sha256": "c36e31ae3d7b0d5fe6a08535098af7799101235e9cd74371cfabf78e61565e19",
+      "bytes": 91006,
       "metadata": "teacher-account-settings.json",
-      "metadataSha256": "098f02f27922bf3e1c42ece9462a632f299d706638130f85ca029886a273e58b",
+      "metadataSha256": "8613f2ff01672e6e5de889da6f6f5742375379acbf511c98cb75c3e0bee82f90",
       "url": "/settings",
       "width": 1440,
       "height": 1000,
@@ -1430,7 +1444,21 @@
         "Contraseña",
         "Sesión actual"
       ],
-      "alerts": []
+      "alerts": [],
+      "controls": [
+        {
+          "contained": true,
+          "paddingRight": "100px"
+        },
+        {
+          "contained": true,
+          "paddingRight": "100px"
+        },
+        {
+          "contained": true,
+          "paddingRight": "100px"
+        }
+      ]
     },
     {
       "id": "teacher-activities-empty",
@@ -3739,6 +3767,155 @@
       "source": "real Next/API/PostgreSQL/storage/scanner/Mailpit; synthetic AI and accounts",
       "candidate": "cee57f4 + Foxy workspace working diff",
       "role": "teacher"
+    },
+    {
+      "id": "teacher-profile-avatars",
+      "path": "teacher-profile-avatars.png",
+      "sha256": "96db4644b5b9260c765adc95e938be498699d409337bd5d2685540c725b39b98",
+      "bytes": 125035,
+      "metadata": "teacher-profile-avatars.json",
+      "metadataSha256": "28659cbbfd9b676da279f860f6e647ff22cbf9b87605dc41653b0e7c9ec0fb9e",
+      "url": "/profile",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "headings": [
+        "Mi perfil",
+        "Lucía Demo"
+      ],
+      "alerts": []
+    },
+    {
+      "id": "teacher-profile-avatars-tablet",
+      "path": "teacher-profile-avatars-tablet.png",
+      "sha256": "f2cfb2e3804ee3b0c9ac70ec35edda0cde1c98d8382fbaabfef60188687d4dcd",
+      "bytes": 110213,
+      "metadata": "teacher-profile-avatars-tablet.json",
+      "metadataSha256": "67dfe6e236738590fc9a2bca5e12c82799c0a4d5308a9ee2f965ad69d7a089ee",
+      "url": "/profile",
+      "width": 834,
+      "height": 1112,
+      "scrollWidth": 819,
+      "headings": [
+        "Mi perfil",
+        "Lucía Demo"
+      ],
+      "alerts": []
+    },
+    {
+      "id": "teacher-profile-avatars-mobile",
+      "path": "teacher-profile-avatars-mobile.png",
+      "sha256": "318fa5d35726ce17e069c80fc21798abab2a89ac86a79a2dfe54ad0b679e43c8",
+      "bytes": 85428,
+      "metadata": "teacher-profile-avatars-mobile.json",
+      "metadataSha256": "72aee1b55e52b50c455bb00088f47dbc4b7951df7d67d118cb17daf21d0ae3de",
+      "url": "/profile",
+      "width": 390,
+      "height": 1000,
+      "scrollWidth": 375,
+      "headings": [
+        "Mi perfil",
+        "Lucía Demo"
+      ],
+      "alerts": []
+    },
+    {
+      "id": "student-profile-avatars",
+      "path": "student-profile-avatars.png",
+      "sha256": "a0d8358a67678edbd5538eb988ea202c488c75451dfb906caa75d3e3fdd228d6",
+      "bytes": 115904,
+      "metadata": "student-profile-avatars.json",
+      "metadataSha256": "40494b5d20ebf328076e728af691a0ff1bf243d75c00824808e187e1b2b79d2f",
+      "url": "/profile",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "headings": [
+        "Mi perfil",
+        "Marina Demo"
+      ],
+      "alerts": []
+    },
+    {
+      "id": "student-profile-avatars-mobile",
+      "path": "student-profile-avatars-mobile.png",
+      "sha256": "c6284a909694aedf8e63523e2cf18bc894b116061242191f32f4993053df6630",
+      "bytes": 85175,
+      "metadata": "student-profile-avatars-mobile.json",
+      "metadataSha256": "c679079859717d294a455a866432b0a04733d178d3909c4608f3ae0f92a20784",
+      "url": "/profile",
+      "width": 390,
+      "height": 1000,
+      "scrollWidth": 375,
+      "headings": [
+        "Mi perfil",
+        "Marina Demo"
+      ],
+      "alerts": []
+    },
+    {
+      "id": "teacher-account-settings-mobile",
+      "path": "teacher-account-settings-mobile.png",
+      "sha256": "967d914665013aa801baef4169b6be042517be78b286cb11de1bc0eb7c04f045",
+      "bytes": 57489,
+      "metadata": "teacher-account-settings-mobile.json",
+      "metadataSha256": "c1af926d59dbac97ced95f5e8b9ea492cceaf18f0e7825103fa7f2438f9c7bf3",
+      "url": "/settings",
+      "width": 390,
+      "height": 1000,
+      "scrollWidth": 375,
+      "headings": [
+        "Configuración de la cuenta",
+        "Contraseña",
+        "Sesión actual"
+      ],
+      "alerts": [],
+      "controls": [
+        {
+          "contained": true,
+          "paddingRight": "100px"
+        },
+        {
+          "contained": true,
+          "paddingRight": "100px"
+        },
+        {
+          "contained": true,
+          "paddingRight": "100px"
+        }
+      ]
+    },
+    {
+      "id": "student-account-settings-mobile",
+      "path": "student-account-settings-mobile.png",
+      "sha256": "48827dd7f393fb42897b39d8861595f6b756d6ddc86006b8fdfeeb1410118c0d",
+      "bytes": 57503,
+      "metadata": "student-account-settings-mobile.json",
+      "metadataSha256": "c1af926d59dbac97ced95f5e8b9ea492cceaf18f0e7825103fa7f2438f9c7bf3",
+      "url": "/settings",
+      "width": 390,
+      "height": 1000,
+      "scrollWidth": 375,
+      "headings": [
+        "Configuración de la cuenta",
+        "Contraseña",
+        "Sesión actual"
+      ],
+      "alerts": [],
+      "controls": [
+        {
+          "contained": true,
+          "paddingRight": "100px"
+        },
+        {
+          "contained": true,
+          "paddingRight": "100px"
+        },
+        {
+          "contained": true,
+          "paddingRight": "100px"
+        }
+      ]
     }
   ]
 }

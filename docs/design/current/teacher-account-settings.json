@@ -8,5 +8,19 @@
     "Contraseña",
     "Sesión actual"
   ],
-  "alerts": []
+  "alerts": [],
+  "controls": [
+    {
+      "contained": true,
+      "paddingRight": "100px"
+    },
+    {
+      "contained": true,
+      "paddingRight": "100px"
+    },
+    {
+      "contained": true,
+      "paddingRight": "100px"
+    }
+  ]
 }

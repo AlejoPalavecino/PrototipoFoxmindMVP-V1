@@ -1,0 +1,26 @@
+{
+  "url": "/settings",
+  "width": 390,
+  "height": 1000,
+  "scrollWidth": 375,
+  "headings": [
+    "Configuración de la cuenta",
+    "Contraseña",
+    "Sesión actual"
+  ],
+  "alerts": [],
+  "controls": [
+    {
+      "contained": true,
+      "paddingRight": "100px"
+    },
+    {
+      "contained": true,
+      "paddingRight": "100px"
+    },
+    {
+      "contained": true,
+      "paddingRight": "100px"
+    }
+  ]
+}

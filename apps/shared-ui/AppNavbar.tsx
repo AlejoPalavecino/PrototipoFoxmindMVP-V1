@@ -13,6 +13,7 @@ export interface AppNavbarProps {
   currentPath?: string; restricted?: boolean; homeNavigation?: boolean;
   classroomLinks?: NavbarLink[]; accountRole?: 'teacher'|'student';
   search?: BrujulaSearchClient;
+  avatarKey?: string;
 }
 
 /** Routing, session and mutations stay with each caller. */
@@ -48,12 +49,12 @@ export function AppNavbar(props: AppNavbarProps) {
       {privateShell ? <button type="button" className="fm3d-shell-toggle" aria-label="Abrir menú de navegación"
         aria-expanded={open} aria-controls="fm3d-navigation-drawer" onClick={() => setOpen(true)}><FoxmindIcon name="menu" /><span>Menú</span></button> : null}
     </div>
-    {!restricted ? <ShellAccount homeNavigation={homeNavigation} accountRole={props.accountRole} accountEmail={props.accountEmail} privateShell={privateShell} currentPath={props.currentPath} displayName={props.displayName} accountActions={props.accountActions} follow={follow} /> : null}
+    {!restricted ? <ShellAccount avatarKey={props.avatarKey} homeNavigation={homeNavigation} accountRole={props.accountRole} accountEmail={props.accountEmail} privateShell={privateShell} currentPath={props.currentPath} displayName={props.displayName} accountActions={props.accountActions} follow={follow} /> : null}
     {open ? <NavbarDrawer onClose={() => setOpen(false)}>
       {!restricted ? <NavigationSearch links={props.links} follow={follow} search={props.search}/> : null}
       <ShellLinks links={props.links} follow={follow} />
       {props.classroomLinks?.length ? <nav className="fm-brujula-drawer-classrooms" aria-label="Accesos a mis aulas">{props.classroomLinks.map(link=><a key={link.href} href={link.href} onClick={event=>follow(event,link.href)}>{link.label}</a>)}</nav>:null}
-      {!restricted ? <ShellAccount homeNavigation={homeNavigation} accountRole={props.accountRole} accountEmail={props.accountEmail} notifications={homeNavigation ? props.notifications : undefined} privateShell={privateShell} currentPath={props.currentPath} displayName={props.displayName} accountActions={props.accountActions} follow={follow} /> : null}
+      {!restricted ? <ShellAccount avatarKey={props.avatarKey} homeNavigation={homeNavigation} accountRole={props.accountRole} accountEmail={props.accountEmail} notifications={homeNavigation ? props.notifications : undefined} privateShell={privateShell} currentPath={props.currentPath} displayName={props.displayName} accountActions={props.accountActions} follow={follow} /> : null}
     </NavbarDrawer> : null}
   </header>;
 }

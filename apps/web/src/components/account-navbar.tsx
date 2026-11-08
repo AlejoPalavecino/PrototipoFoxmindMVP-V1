@@ -45,7 +45,7 @@ export function AccountNavbar({ session, view, signInHref = '/sign-in', register
   </header>;
   return <AppNavbar logoHref={user ? (verified ? '/inicio' : verifyHref) : '/sign-in'}
     search={verified ? search : undefined}
-    accountRole={user?.accountRole} classroomLinks={rooms?.subject===user?.id ? rooms?.items.filter(room=>!room.archived).map(room=>({href:`/mis-aulas?aula=${encodeURIComponent(room.id)}`,label:room.name,coverKey:room.coverKey})):undefined}
+    avatarKey={user?.avatarKey} accountRole={user?.accountRole} classroomLinks={rooms?.subject===user?.id ? rooms?.items.filter(room=>!room.archived).map(room=>({href:`/mis-aulas?aula=${encodeURIComponent(room.id)}`,label:room.name,coverKey:room.coverKey})):undefined}
     displayName={user ? `${user.firstName} ${user.lastName}` : undefined} accountEmail={user?.email} currentPath={view ? `/${view}` : undefined}
     links={verified ? [{ href: '/inicio', label: 'Inicio' }, { href: '/mis-aulas', label: 'Mis aulas' }, { href: '/agenda', label: 'Agenda', current: view === 'agenda' },
       ...(user?.accountRole === 'teacher' ? [{ href: '/foxy-ai', label: 'Foxy AI', current: view === 'foxy-ai' }] : [])]

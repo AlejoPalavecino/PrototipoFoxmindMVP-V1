@@ -12,6 +12,8 @@ El navegador usa /api/v1; Nest conserva autenticación, Origin, CSRF, rate limit
 | Recuperación | Solicitar enlace y confirmar contraseña nueva |
 | Cuenta | Consultar/editar perfil y cambiar contraseña |
 
-Las solicitudes aceptadas de correo no acreditan entrega ni existencia de cuenta. Registro y recuperación responden genéricamente. El rol exclusivo se selecciona al registrar; perfil sólo modifica nombres.
+Las solicitudes aceptadas de correo no acreditan entrega ni existencia de cuenta. Registro y recuperación responden genéricamente. El rol exclusivo se selecciona al registrar; perfil modifica nombres y avatar predefinido.
+
+`PATCH /account` acepta `avatarKey` opcional: `initials`, `foxy-classic`, `foxy-reader`, `foxy-explorer`, `foxy-creative`. Omitirlo conserva la selección; otro valor, null o URL devuelve `422 VALIDATION_ERROR`. Perfil e identidad de sesión incluyen `avatarKey`; cuentas anteriores parten de `initials`. Se mantienen sesión/correo verificado, Origin/CSRF, límites y autorización sólo sobre la propia cuenta. No se admiten imágenes subidas ni cambios de rol/correo.
 
 [Guía de identidad](../engineering/identity/README.md), [especificación](../foxmind-v1-functional-spec.md) y [checks actuales](../verification/flows.md). Los límites temporales/formatos exhaustivos se verifican con pruebas de contrato y seguridad, no por capturas.

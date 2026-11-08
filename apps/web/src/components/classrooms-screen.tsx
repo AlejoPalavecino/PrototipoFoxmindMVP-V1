@@ -77,7 +77,7 @@ export function ClassroomsScreen({ initialPresentation = 'classrooms' }: { initi
       {error ? <div className="p5-app p5-gate"><Notice error>{error}</Notice></div> : null}
       {target.requested && !target.target ? <div className="p5-main"><Notice error={Boolean(target.error)}>{target.error ?? 'Comprobando acceso a la actividad…'}
         {target.error ? <button onClick={target.reload}>Volver a intentar</button> : null}</Notice><Link href="/agenda">Volver a Agenda</Link></div> :
-      <ClassroomsApp key={`${user.id}:${destination}`} accountRole={user.accountRole} accountEmail={user.email} subjectId={user.id} homeClient={homeClient} api={api} displayName={`${user.firstName} ${user.lastName}`} requestedInvitation={invitation} requestedTarget={target.target}
+      <ClassroomsApp avatarKey={user.avatarKey} key={`${user.id}:${destination}`} accountRole={user.accountRole} accountEmail={user.email} subjectId={user.id} homeClient={homeClient} api={api} displayName={`${user.firstName} ${user.lastName}`} requestedInvitation={invitation} requestedTarget={target.target}
         onEnterClassroom={id => router.push(`/mis-aulas?aula=${encodeURIComponent(id)}`)}
         onOpenHomeTarget={value => router.push(classroomHomeHref(value))}
         onSelectNotification={id => router.push(`/mis-aulas?notificacion=${encodeURIComponent(id)}`)}
