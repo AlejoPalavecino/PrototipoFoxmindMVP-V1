@@ -43,6 +43,14 @@ test('explicit RUBRIC purpose reaches the real adapter transport through token c
   const f=await fixture();await f.adapter.generate(input({purpose:'RUBRIC'}));assert.deepEqual(f.calls.map(([kind])=>kind),['count','generate']);
 });
 
+test('provider instructions explain the mutually exclusive response status fields', async () => {
+  const f = await fixture(); await f.adapter.generate(input());
+  const instruction = f.calls.at(-1)[1].config.systemInstruction;
+  assert.match(instruction, /READY[^.]*missingInformation[^.]*empty/);
+  assert.match(instruction, /INSUFFICIENT_CONTENT[^.]*markdown[^.]*empty[^.]*references[^.]*empty/);
+  assert.match(instruction, /missingInformation[^.]*at least one/);
+});
+
 test('modes are explicit, sources untrusted and no private ids or mapping are sent', async () => {
   for (const mode of ['GENERAL', 'CLASSROOM']) {
     const f = await fixture({ response: success(answer({ references: [] })) });
