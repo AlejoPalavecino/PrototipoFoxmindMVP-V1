@@ -3,6 +3,7 @@
 - **Spec:** docs/engineering/identity/README.md; criterios de este registro.
 - **Design:** docs/design/README.md; propuesta aprobada en este chat el 2026-11-08.
 - **Approval:** approved. El usuario aprobó expresamente diseño e implementación: cuatro variantes, ambos roles, vista previa, Guardar cambios, persistencia en cuenta, perfil/Mi cuenta y retorno a iniciales.
+- **Delivery:** tareas TASK-001–004 integradas y publicadas en main mediante 842a6e892679442d2768d3314bf97f4c6f3ed517 el 2026-11-08, con autorización posterior explícita del usuario. Sin despliegue. Recibo en docs/work-log/2026-11-08-root-profile-avatars.md.
 
 ## Contrato aprobado
 

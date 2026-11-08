@@ -1,6 +1,7 @@
 {
   "date": "2026-11-08",
   "candidate": "main@0271815 plus uncommitted profile-avatar diff",
+  "publication": {"branch":"main","commit":"842a6e892679442d2768d3314bf97f4c6f3ed517","remoteMainVerified":true,"date":"2026-11-08","deployment":false},
   "environment": "Owned local API/Next/PostgreSQL, synthetic teacher/student accounts; no product AI generation requested",
   "assets": {"generator":"built-in image_gen", "reference":"apps/web/public/brujula/foxy-bienvenida.webp", "variants":["classic","reader","explorer","creative"], "path":"apps/web/public/brujula/avatars", "dimensions":[512,512], "alpha":true},
   "checks": {
@@ -21,5 +22,5 @@
     "horizontalOverflow":false,
     "taskSpaceFinished":true
   },
-  "limits":["Full suite and CI not executed", "No complete WCAG/screen-reader audit or performance testing", "No deployment or Git publication", "No password change submitted during UI geometry checks", "Independent review did not repeat integration/browser testing"]
+  "limits":["Full suite and CI not executed", "No complete WCAG/screen-reader audit or performance testing", "No deployment", "No password change submitted during UI geometry checks", "Independent review did not repeat integration/browser testing"]
 }
