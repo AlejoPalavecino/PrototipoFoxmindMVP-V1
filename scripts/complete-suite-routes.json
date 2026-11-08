@@ -3,6 +3,7 @@
     "id": "fast",
     "kind": "fast",
     "files": [
+      "tests/local-app-environment.test.mjs",
       "tests/pending-classrooms.test.mjs",
       "apps/api/src/ai/foxy-diagram-adapter.test.mjs",
       "apps/api/src/ai/foxy-factory.test.mjs",
@@ -59,6 +60,7 @@
       "apps/web/src/components/foxy-navigation.test.mjs",
       "apps/web/src/components/foxy-publication-management-panel.test.mjs",
       "apps/web/src/components/foxy-resource-workspace.test.mjs",
+      "apps/web/src/components/foxy-collections.test.mjs",
       "apps/web/src/components/foxy-session-transition.test.mjs",
       "apps/web/src/components/foxy-visual-navigation.test.mjs",
       "apps/web/src/components/foxy-visual-publication-panel.test.mjs",
@@ -80,6 +82,7 @@
       "apps/web/src/lib/foxy-visual-topic.test.mjs",
       "apps/web/src/lib/foxy-workspace-actions.test.mjs",
       "apps/web/src/lib/foxy-workspace-runtime.test.mjs",
+      "apps/web/src/lib/foxy-discovery-controller.test.mjs",
       "apps/web/src/lib/use-foxy-workspace-actions.test.mjs",
       "apps/web/src/lib/use-foxy-workspace.test.mjs",
       "src/core/domain/foxy-ai-answer-grounded.test.mjs",
@@ -312,6 +315,7 @@
     "id": "owned-db",
     "kind": "owned",
     "files": [
+      "apps/api/src/foxy-ai/foxy-creation-catalog.test.mjs",
       "tests/pending-classrooms-database.test.mjs",
       "apps/api/src/classrooms/library-publication.test.mjs",
       "apps/api/src/files/foxy-begin-transaction.test.mjs",

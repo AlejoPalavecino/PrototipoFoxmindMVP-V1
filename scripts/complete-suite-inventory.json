@@ -1,5 +1,6 @@
 {
   "entries": [
+    "tests/local-app-environment.test.mjs",
     "tests/pending-classrooms.test.mjs",
     "tests/pending-classrooms-database.test.mjs",
     "apps/api/src/ai/foxy-diagram-adapter.test.mjs",

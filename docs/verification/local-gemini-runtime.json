@@ -1,0 +1,76 @@
+{
+  "date": "2026-11-08",
+  "candidate": "a4377e7 + local runtime working diff",
+  "environment": "Own persistent loopback PostgreSQL/SeaweedFS/ClamAV/Mailpit and synthetic teacher/student/classroom",
+  "provider": "Gemini real through production API composition; no injected adapters",
+  "model": "gemini-3.8-flash",
+  "source": "Existing root .env key; ignored and preserved",
+  "browser": "Ego Lite; actual login, messages, source selection, resource editing and reviewed publication controls",
+  "checks": {
+    "chat": true,
+    "historyContinuity": true,
+    "classroomTopicsSelected": 2,
+    "classroomSourcesSelected": 1,
+    "noteReady": true,
+    "reviewedPdfPublished": true,
+    "creationDestinationVisible": true,
+    "restart": {
+      "ready": true,
+      "apiRestarted": true,
+      "webRestarted": true,
+      "keyPreserved": true,
+      "databasePreserved": true,
+      "authenticationKeysPreserved": true,
+      "accountsPreserved": true,
+      "origin": "http://127.0.0.1:3000"
+    }
+  },
+  "turns": [
+    {
+      "purpose": "CHAT",
+      "state": "READY",
+      "model": "gemini-3.8-flash",
+      "dispatch_count": 1,
+      "input_tokens": 400,
+      "output_tokens": 351,
+      "missing": 0,
+      "citations": 0,
+      "context_kind": "GENERAL"
+    },
+    {
+      "purpose": "CHAT",
+      "state": "READY",
+      "model": "gemini-3.8-flash",
+      "dispatch_count": 1,
+      "input_tokens": 489,
+      "output_tokens": 208,
+      "missing": 0,
+      "citations": 0,
+      "context_kind": "GENERAL"
+    },
+    {
+      "purpose": "STUDY_MATERIAL",
+      "state": "READY",
+      "model": "gemini-3.8-flash",
+      "dispatch_count": 1,
+      "input_tokens": 1079,
+      "output_tokens": 683,
+      "missing": 0,
+      "citations": 1,
+      "context_kind": "CLASSROOM"
+    }
+  ],
+  "publications": [
+    {
+      "state": "PUBLISHED",
+      "count": 1
+    }
+  ],
+  "limits": [
+    "Three real text generations in this platform run; no replay or automatic retries",
+    "Other tools were checked in earlier separate provider runs; not repeated in this runtime QA",
+    "Image generation remains disabled",
+    "New owned local dataset; old P3/P4 retained resources untouched",
+    "Local setup only; no deployment or Git publication in this task"
+  ]
+}

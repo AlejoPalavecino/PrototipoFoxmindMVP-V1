@@ -1,6 +1,7 @@
 // Deliberate inventory: no helper discovery or opt-in/live-provider tests.
 export const suites = {
   pure: [
+    'tests/local-app-environment.test.mjs',
     'tests/architecture-test-discovery.test.mjs',
     'tests/p31-contracts.test.mjs', 'tests/p4-file-policy.test.mjs',
     'tests/agenda-contracts.test.mjs', 'tests/agenda-recurrence.test.mjs', 'tests/agenda-time.test.mjs',

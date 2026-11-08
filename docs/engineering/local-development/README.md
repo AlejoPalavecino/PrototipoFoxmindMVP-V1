@@ -13,6 +13,20 @@ Requisitos del repositorio: Node 24, npm/lockfile y Docker Desktop con motor Lin
 
 La IA del helper es sintética e inyectada; no lee archivos de claves ni llama a proveedores externos. Análisis individual y corrección IA tienen proveedores no disponibles para impedir una llamada accidental. Las pruebas que necesiten esas ramas deben preparar un override explícito y declararlo.
 
+## Arranque habitual para pruebas con Gemini real
+
+Por pedido del usuario, cuando solicite levantar la app para probar se usa la clave ya configurada en `.env` de raíz, con Gemini real. No regenerar ni copiar esa clave a código, documentación o variables NEXT_PUBLIC. Si falta, solicitar restaurarla. Las suites automatizadas y el helper documental anterior siguen siendo sintéticos; no consumen API por defecto.
+
+- `npm run local:up`: configura infraestructura local propia, aplica migraciones a esa base, compila API/web y arranca ambas en segundo plano. Web: `http://127.0.0.1:3000`; API: `http://127.0.0.1:3001`.
+- `npm run local:restart`: detiene únicamente los procesos API/web del supervisor propio y vuelve a compilar/arrancar con `.env` vigente. No borra base, archivos, cuentas ni clave.
+- `npm run local:status`: consulta el estado del supervisor. `npm run local:stop`: detiene API/web y conserva los servicios y datos locales para el próximo arranque.
+
+El propietario y puertos persistentes se registran en `.test-artifacts/local-app/owner.json`; la configuración completa queda en `.env`. Docker usa un proyecto propio `foxmind-local-<id>` con PostgreSQL, SeaweedFS, ClamAV y Mailpit, publicado sólo en loopback. No reutiliza la antigua copia P3/P4 ni opera sobre sus volúmenes. El arranque rechaza otra DATABASE_URL y puertos web/API ocupados, en lugar de detener procesos desconocidos. Los archivos de ClamAV se normalizan a LF en el directorio privado para funcionar desde Windows.
+
+El primer arranque crea cuentas/aula sintéticas y guarda el acceso en `.test-artifacts/local-app/accounts.json`, ignorado. No recrea cuentas ni cambia secretos en reinicios. No publicar el contenido de ese archivo. No eliminar `.env` ni el directorio local para reiniciar: contienen secretos e identidad de los recursos persistentes. `npm run api:start` también carga `.env` si existe; requiere servicios configurados y API compilada.
+
+Las llamadas de Foxy usan los adaptadores reales, sin overrides. La habilitación compartida AI_ENABLED también queda disponible para las otras familias de IA al solicitarlas desde la app. Un arranque no realiza generaciones de prueba por sí solo. El presupuesto es un control estimado interno; no es un tope de facturación del proveedor. [Registro de activación y QA](../../work-log/2026-11-08-root-local-gemini-runtime.md).
+
 ## Desarrollo con datos a conservar
 
 Identificar y autorizar por separado base, bucket, escáner, correo y claves. Configurar nombres de variables de identidad, archivos, aulas y web según sus módulos; no buscar credenciales retenidas ni ejecutar helpers históricos para recuperarlas.
