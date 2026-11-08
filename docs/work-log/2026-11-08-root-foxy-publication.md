@@ -59,3 +59,12 @@ Rama temporal `codex/foxy-discovery-verified`, desde main sincronizado con origi
 - Unidad final UI/documentación/evidencia: incluye componentes, estilos, prueba e inventario junto a guías, capturas y recibos que explican el comportamiento. Supera la guía de 400 líneas al conservar evidencia y documentación de la funcionalidad conjunta; se registra el exceso, sin comprimir código ni suprimir pruebas. Rollback: presentación/colecciones y sus referencias actuales; el backend y contratos anteriores continúan disponibles. Recheck `foxy-collections.test.mjs`: 8/8; navegador 390/768/1440 y build web documentados.
 
 Recheck final `docs:check`: 59 archivos, 680 enlaces, 0 problemas; `lint:boundaries` y `git diff --check` salida 0. No se repitió la suite completa del repositorio; sí la suite Foxy focal y controles proporcionales detallados. La integración/push siguen pendientes al escribir esta sección.
+
+## Entrega comprobada
+
+- Cuarta unidad: `425005b6158a7970cd4abf9fe63b85458c31de99` (UI/documentación/evidencia, 986 inserciones/40 eliminaciones y tres PNG).
+- `git switch main` y `git merge --ff-only codex/foxy-discovery-verified`: salida 0, cee57f4 → 425005b. Cuatro commits, 53 archivos, sin merge artificial.
+- `git push origin main`: salida 0. `git ls-remote --heads origin` confirmó exactamente 425005b6158a7970cd4abf9fe63b85458c31de99 en refs/heads/main, única rama remota observada.
+- Rama temporal propia eliminada con `git branch -d` después de integrar/publicar. `git status --short --branch`: sólo main...origin/main, sin cambios. El recibo documental posterior registra este resultado y actualiza tarea/roadmap; no cambia producto.
+- Estado: implementación verificada localmente por escenarios, integrada y publicada en Git. Sin despliegue. Clave ignorada y `.env` sin modificar; no se guardaron secretos o transcripciones en el repositorio. Sin generación real de imágenes ni evaluación pedagógica/costos. Los dos timeouts y la ausencia de una única ejecución externa íntegra continúan como límites conocidos.
+- Primer paso operativo fuera de esta entrega: definir modelo, habilitación, límites y presupuesto del entorno habitual si el usuario solicita activarlo. No inferir que la prueba temporal habilitó ese entorno.

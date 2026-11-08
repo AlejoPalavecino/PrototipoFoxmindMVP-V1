@@ -39,12 +39,13 @@
 - **Blocker:** none
 
 ## FOX-05 — Gemini real y entrega Git
-- **State:** VERIFYING
+- **State:** DONE
 - **Depends on:** FOX-04
 - **Owner:** /root
 - **Acceptance:** usuario amplía autorización a comprobar Gemini con la clave de raíz antes de commits/push; comprobar chat, continuidad, herramientas, fuente insuficiente y vinculación en fixtures propios; luego integrar y publicar main, sin despliegue.
 - **Evidence:** clave validada sin exposición; chat/continuidad, fuentes, insuficiencia y cinco herramientas reales comprobadas en ensayos separados. Dos timeouts sin reintento; reproducción sin llamadas nuevas de cuatro resultados completos acredita PDF revisado, catálogo y TP privado. Correcciones de instrucciones y avisos excluidos del catálogo con RED/GREEN; adaptadores/presupuesto 21/21, catálogo SQL/HTTP/visual 3/3. [Registro de entrega](../../docs/work-log/2026-11-08-root-foxy-publication.md), [recibo real y límites](../../docs/verification/foxy-gemini-real.json).
-- **Blocker:** ninguno externo; publicación Git pendiente. Configuración habitual y despliegue fuera de esta comprobación aislada.
+- **Delivery:** commits 0137d17, 3a0ba84, 33ed689 y 425005b integrados por fast-forward y publicados en main. `ls-remote` confirmó 425005b6158a7970cd4abf9fe63b85458c31de99; árbol limpio y sólo main local/remota después de retirar rama temporal. El recibo documental posterior no modifica producto.
+- **Blocker:** none. Configuración habitual y despliegue fuera de esta comprobación aislada; se conservan los límites de proveedor descritos.
 
 ## Contrato de integración acordado
 
