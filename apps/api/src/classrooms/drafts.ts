@@ -21,7 +21,7 @@ export class DraftService {
   ): Promise<DraftRow> {
     if (actor.account_role !== 'teacher' || !uuid(id)) return fail('FORBIDDEN');
     const [row] = await tx.query<DraftRow>(
-      'SELECT * FROM classroom_drafts WHERE id=$1::uuid AND owner_id=$2::uuid FOR UPDATE',
+      'SELECT * FROM classroom_drafts WHERE id=$1::uuid AND owner_id=$2::uuid AND deleted_at IS NULL FOR UPDATE',
       id,
       actor.id,
     );
@@ -53,7 +53,7 @@ export class DraftService {
       actor.account_role !== 'teacher' ? [] : (
         await tx.query<DraftRow>(
           `SELECT * FROM classroom_drafts
-      WHERE owner_id=$1::uuid AND published_classroom_id IS NULL ORDER BY updated_at DESC,id`,
+      WHERE owner_id=$1::uuid AND published_classroom_id IS NULL AND deleted_at IS NULL ORDER BY updated_at DESC,id`,
           actor.id,
         )
       ).map((row) => this.draftView(row)),
@@ -82,6 +82,17 @@ export class DraftService {
         JSON.stringify(payload),
       );
       return this.draftView(row);
+    });
+  }
+  async deleteDraft(request: unknown, id: string, input: unknown) {
+    const body = object(input, ['revision', 'confirm']), expected = revision(body.revision);
+    if (body.confirm !== true) return fail('INVALID_INPUT');
+    return this.run(request, true, async (tx, actor) => {
+      const current = await this.draft(tx, actor, id);
+      if (current.published_classroom_id || current.revision.toString() !== expected) return fail('CONFLICT');
+      await tx.query(`UPDATE classroom_drafts SET deleted_at=clock_timestamp(),
+        revision=revision+1,updated_at=clock_timestamp() WHERE id=$1::uuid RETURNING id`, id);
+      return { deleted: true };
     });
   }
   async publishDraft(request: unknown, id: string, input: unknown) { return publishDraftOperation(this, request, id, input); }

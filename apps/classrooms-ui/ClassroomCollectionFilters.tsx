@@ -8,6 +8,8 @@ export interface CollectionFiltersProps {
   options: ClassroomFilterOptions; onOptions: (value: ClassroomFilterOptions) => void;
   expanded: boolean; onToggle: () => void; view: 'grid' | 'list'; onView: (value: 'grid' | 'list') => void;
   toggleRef: RefObject<HTMLButtonElement | null>; onClear: () => void;
+  pendingCount?: number;
+  filterValues?: { academicYear?: number; division?: string }[];
 }
 export function activeCollectionFilters(options: ClassroomFilterOptions): number {
   return Number(Boolean(options.academicYear)) + Number(Boolean(options.division));
@@ -25,13 +27,18 @@ export function AdvancedFilters({ all, options, onOptions }: Pick<CollectionFilt
   </div>;
 }
 export function ClassroomCollectionFilters(props: CollectionFiltersProps) {
-  const { all, search, onSearch, options, onOptions, view, onView, onClear } = props;
+  const { all, search, onSearch, options, onOptions, view, onView, onClear, pendingCount } = props;
   const active = activeCollectionFilters(options);
+  const values = props.filterValues ?? all;
+  const years = [...new Set(values.flatMap(room => room.academicYear ? [room.academicYear] : []))].sort((a,b) => b-a);
+  const divisions = [...new Set(values.flatMap(room => room.division ? [room.division] : []))].sort((a,b) => a.localeCompare(b,'es'));
   return <>
     <div className="collection-workspace-heading">
       <nav className="cl-bucket" aria-label="Estado de las aulas">
-        {(['active', 'archived'] as const).map(state => <button type="button" key={state} aria-pressed={options.state === state}
+        {(['active', 'archived'] as const).map(state => <button type="button" key={state} aria-pressed={options.state === state} ref={options.state === state ? props.toggleRef : undefined}
           className={options.state === state ? 'selected' : undefined} onClick={() => onOptions({ ...options, state })}>{state === 'active' ? 'Activas' : 'Archivadas'} <span>{all.filter(room => room.archived === (state === 'archived')).length}</span></button>)}
+        {pendingCount !== undefined ? <button type="button" aria-pressed={options.state === 'pending'} ref={options.state === 'pending' ? props.toggleRef : undefined} className={options.state === 'pending' ? 'selected' : undefined}
+          onClick={() => onOptions({ ...options, state: 'pending' })}>Pendientes <span>{pendingCount}</span></button> : null}
       </nav>
     </div>
     <div className="cl-filter-bar">
@@ -39,10 +46,10 @@ export function ClassroomCollectionFilters(props: CollectionFiltersProps) {
         <FoxmindIcon name="search" /><input type="search" placeholder="Buscar por nombre, materia o docente…" value={search} onChange={event => onSearch?.(event.target.value)} />
       </label>
       <select aria-label="Ciclo lectivo" value={options.academicYear ?? ''} onChange={event => onOptions({ ...options, academicYear: event.target.value })}>
-        <option value="">Todos los ciclos</option>{[...new Set(all.map(room => room.academicYear))].sort((a,b) => b-a).map(year => <option key={year} value={year}>{year}</option>)}
+        <option value="">Todos los ciclos</option>{years.map(year => <option key={year} value={year}>{year}</option>)}
       </select>
       <select aria-label="División" value={options.division ?? ''} onChange={event => onOptions({ ...options, division: event.target.value })}>
-        <option value="">Todas las divisiones</option>{[...new Set(all.map(room => room.division))].sort((a,b) => a.localeCompare(b,'es')).map(division => <option key={division} value={division}>{division}</option>)}
+        <option value="">Todas las divisiones</option>{divisions.map(division => <option key={division} value={division}>{division}</option>)}
       </select>
       <div className="cl-view" role="group" aria-label="Presentación de aulas">
         <button type="button" className={view === 'grid' ? 'selected' : undefined} aria-label="Vista de tarjetas" aria-pressed={view === 'grid'} onClick={() => onView('grid')}><EntryIcon name="grid" /></button>

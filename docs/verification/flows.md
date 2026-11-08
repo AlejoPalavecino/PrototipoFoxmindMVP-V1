@@ -1,5 +1,7 @@
 # Recorridos actuales por flujo y rol
 
+Actualización 2026-11-08: Pendientes de creación docente comprobado en Ego Lite con componentes reales y cliente sintético (selector/banner, continuar, cancelar/Escape/foco, eliminar/vacío, error, exclusión estudiante; 1440/768/390 px sin overflow). Persistencia/permisos/carrera publicación comprobados separadamente en PostgreSQL descartable y transporte HTTP/proxy. [Evidencia, capturas y límites](../work-log/2026-11-08-root-pending-classrooms.md). El inventario del 2026-11-07 debajo no incluye esta ampliación.
+
 Fecha: 2026-11-07. Candidato local sobre d41ff6d, con cambios documentales de esta entrega. App/API construidas desde este checkout, 46 migraciones sobre PostgreSQL vacío y recursos descartables S3/ClamAV/Mailpit. Cuentas, archivos y aulas sintéticos. Navegación real con Ego Lite en una única TaskSpace cerrada al terminar.
 
 PASS acredita las acciones y resultados escritos en cada fila, con sus límites; REFERENCIA acredita observación de pantalla; LIMITADO conserva una comprobación parcial/error; NO_ENSAYADO identifica ramas sin recorrido nuevo. No es una certificación global del producto ni una ejecución de toda la suite. La [especificación](../foxmind-v1-functional-spec.md) define reglas; esta matriz registra observaciones. [Inventario estructurado](flows.json), [catálogo de capturas](../design/current/README.md) y [registro de trabajo](../work-log/2026-11-07-root-current-baseline.md).

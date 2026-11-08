@@ -13,7 +13,7 @@ const rule = (path: string, methods: Rule['methods']): Rule => ({ path: new RegE
 const routes: Rule[] = [
   rule('/search', { GET: null }),
   rule('', { GET: null }), rule('/drafts', { GET: null, POST: [] }),
-  rule(`/drafts/${uuid}`, { GET: null, PATCH: ['revision', 'payload'] }),
+  rule(`/drafts/${uuid}`, { GET: null, PATCH: ['revision', 'payload'], DELETE: ['revision', 'confirm'] }),
   rule(`/drafts/${uuid}/publish`, { POST: ['revision'] }),
   rule(`/drafts/${uuid}/curriculum-extractions`, { POST: ['revision', 'planFileId'] }),
   rule(`/drafts/${uuid}/curriculum-extractions/${uuid}`, { GET: null }),
@@ -111,7 +111,7 @@ function schema(value: unknown, keys: string[]): boolean {
   for (const key of keys) {
     if (key === 'aiGradingEnabled' && !Object.hasOwn(value, key)) continue;
     if (key === 'operation') { if (!value[key] || typeof value[key] !== 'object' || Array.isArray(value[key])) return false; }
-    else if (key === 'archived' || key === 'aiGradingEnabled') { if (typeof value[key] !== 'boolean') return false; }
+    else if (key === 'archived' || key === 'aiGradingEnabled' || key === 'confirm') { if (typeof value[key] !== 'boolean') return false; }
     else if (key === 'academicYear') { if (!Number.isInteger(value[key])) return false; }
     else if (key === 'deadline') {
       const item = value[key];

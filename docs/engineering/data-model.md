@@ -4,6 +4,8 @@ El modelo físico vive en [schema.prisma](../../prisma/schema.prisma) y las rest
 
 ## Entidades por dominio
 
+Actualización 2026-11-08: migración `202611080001_pending_classroom_deletion` agrega `ClassroomDraft.deleted_at` para baja lógica irreversible desde UI. La restricción impide combinar borrador eliminado y aula publicada. Mantiene relaciones con archivos/extracciones y revisión concurrente; no elimina bytes ni registros dependientes. [Reglas](classrooms/README.md).
+
 | Dominio | Modelos Prisma | Propiedad y relación principal |
 |---|---|---|
 | Identidad | User, Session, AccountToken, AccountActionControl | Usuario con rol exclusivo; sesiones/tokens asociados y controles de acciones |

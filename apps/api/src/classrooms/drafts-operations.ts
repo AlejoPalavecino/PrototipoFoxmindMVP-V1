@@ -24,7 +24,7 @@ export async function publishDraftOperation(capability: DraftPublicationAccess, 
     return capability.run(request, true, async (tx, actor) => {
       if (!uuid(id)) return fail('FORBIDDEN');
       const [snapshot] = await tx.query<DraftRow>(
-        'SELECT * FROM classroom_drafts WHERE id=$1::uuid AND owner_id=$2::uuid',
+        'SELECT * FROM classroom_drafts WHERE id=$1::uuid AND owner_id=$2::uuid AND deleted_at IS NULL',
         id,
         actor.id,
       );

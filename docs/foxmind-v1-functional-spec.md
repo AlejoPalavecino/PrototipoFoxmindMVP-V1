@@ -34,6 +34,8 @@ Crear aula tiene cuatro pasos:
 
 Al confirmar se publica y vuelve a Mis aulas. Guardar borrador conserva una creación privada recuperable, sin crear aula visible a alumnos. El auxiliar manual de texto prepara estructura editable; no es una llamada al proveedor.
 
+Mis aulas docente separa Activas, Archivadas y Pendientes con contador. Cada borrador sin publicar aparece en Pendientes con banner automático «Pendiente de creación», incluso sin nombre. Permite continuar o eliminar con confirmación de pérdida de datos. Sólo el dueño puede eliminar; una revisión desactualizada o un borrador ya publicado impide la operación. La baja lógica retira el acceso y conserva referencias internas, sin restauración disponible. Las invitaciones permanecen separadas. Al confirmar creación, pasa a Activas.
+
 El asistente exige documento PDF/DOCX aprobado en ambos métodos y al menos una unidad con un tema. La API admite currículos manuales completos sin archivo por compatibilidad; no convierte esa compatibilidad en un bypass de UI. Materia/división son texto libre; ciclo lectivo es año académico. Portada es predefinida, sin subida de imagen. La zona del aula queda fija tras crear.
 
 Código: Ver aula presenta el destino y Confirmar inscripción incorpora/abre. Un error conserva formulario con respuesta genérica. Invitación: correo/cuenta correspondiente y aceptación explícita; vigencia7días. Entregar correo o abrir un enlace no confirma membresía. Regenerar código invalida el anterior conforme al servicio.

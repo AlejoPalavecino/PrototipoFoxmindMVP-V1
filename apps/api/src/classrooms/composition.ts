@@ -87,6 +87,7 @@ export class ClassroomService {
   }
   createDraft(...args: Parameters<DraftService['createDraft']>): ReturnType<DraftService['createDraft']> { return this.drafts.createDraft(...args); }
   listDrafts(...args: Parameters<DraftService['listDrafts']>): ReturnType<DraftService['listDrafts']> { return this.drafts.listDrafts(...args); }
+  deleteDraft(...args: Parameters<DraftService['deleteDraft']>): ReturnType<DraftService['deleteDraft']> { return this.drafts.deleteDraft(...args); }
   getDraft(...args: Parameters<DraftService['getDraft']>): ReturnType<DraftService['getDraft']> { return this.drafts.getDraft(...args); }
   saveDraft(...args: Parameters<DraftService['saveDraft']>): ReturnType<DraftService['saveDraft']> { return this.drafts.saveDraft(...args); }
   publishDraft(...args: Parameters<DraftService['publishDraft']>): ReturnType<DraftService['publishDraft']> { return this.drafts.publishDraft(...args); }

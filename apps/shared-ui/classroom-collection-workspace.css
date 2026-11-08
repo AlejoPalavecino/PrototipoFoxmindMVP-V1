@@ -1,4 +1,11 @@
 /* AULA-001: overrides scoped to the collection; shared navigation stays inherited. */
+.cl-pending-banner { background: #fff4e4; color: #7a3c20; padding: 8px 12px; border-radius: 8px; font-weight: 600; }
+.cl-pending-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
+.cl-pending-actions button { min-height: 44px; }
+.cl-pending-course .cl-course-content { min-width: 0; }
+.cl-pending-course h3, .cl-pending-course p { overflow-wrap: anywhere; }
+.cl-bucket { flex-wrap: wrap; }
+.fm3d-theme .fm3-classrooms.p5-app .p5-main .cl-bucket button { min-height: 44px; }
 html:has(.collection-workspace-page) { scroll-padding-top:88px; }
 .collection-workspace-page :is(button,input,select,summary) { scroll-margin-block:88px; }
 .fm3d-theme .p5-app.entry-classrooms-reference.collection-workspace-page .collection-reference-hero { min-height: 192px; padding: 22px 28px; margin-bottom: 24px; }

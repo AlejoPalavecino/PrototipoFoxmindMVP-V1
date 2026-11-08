@@ -46,7 +46,7 @@ export class FileStore {
   async now(tx: FileTransaction): Promise<Date> {
     const [row] = await tx.query<{ now: Date }>('SELECT clock_timestamp() AS now'); return row.now;
   }
-  async lockScope(tx: FileTransaction, scope: FileScope): Promise<{ quota: bigint; owner: string; archived: boolean }> {
+  async lockScope(tx: FileTransaction, scope: FileScope, includeDeleted = false): Promise<{ quota: bigint; owner: string; archived: boolean }> {
     if (!scope || !uuid(scope.id) || !['classroom', 'draft'].includes(scope.kind)) throw new FileError('INVALID_UPLOAD');
     if (scope.kind === 'classroom') {
       const [row] = await tx.query<{ storage_quota_bytes: bigint; teacher_id: string; archived_at: Date | null }>(
@@ -55,7 +55,7 @@ export class FileStore {
       return { quota: row.storage_quota_bytes, owner: row.teacher_id, archived: row.archived_at !== null };
     }
     const [row] = await tx.query<{ owner_id: string; published_classroom_id: string | null }>(
-      'SELECT owner_id,published_classroom_id FROM classroom_drafts WHERE id=$1::uuid FOR UPDATE', scope.id);
+      `SELECT owner_id,published_classroom_id FROM classroom_drafts WHERE id=$1::uuid${includeDeleted ? '' : ' AND deleted_at IS NULL'} FOR UPDATE`, scope.id);
     if (!row) throw new FileError('FORBIDDEN');
     return { quota: this.draftQuotaBytes, owner: row.owner_id, archived: row.published_classroom_id !== null };
   }

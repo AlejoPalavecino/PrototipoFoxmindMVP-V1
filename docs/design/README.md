@@ -41,6 +41,8 @@ Reutilizar componentes/navegación existentes antes de agregar variantes. Nombre
 
 ## Estados e interacción
 
+Mis aulas docente incorpora Pendientes junto a Activas/Archivadas, con contador, banner «Pendiente de creación» en cada tarjeta y acciones Continuar creación/Eliminar pendiente. Invitaciones se mantienen aparte. Eliminar abre diálogo con nombre, advertencia de pérdida, Cancelar y Eliminar pendiente; carga bloquea duplicados y error conserva contexto. [Reglas y contrato](../engineering/classrooms/README.md). La referencia de pendientes del 2026-11-08 utiliza componentes reales con cliente sintético; no atribuye persistencia a esas capturas. Ver [evidencia de pendientes](../work-log/2026-11-08-root-pending-classrooms.md).
+
 Carga y guardado deben indicar operación y bloquear duplicados. Una respuesta tardía no reemplaza cambios. Vacío debe explicar qué falta y ofrecer acción autorizada. Error debe conservar datos cuando corresponda, distinguir validación/permiso/conflicto/cuota/servicio y ofrecer recuperación sin reenviar una mutación confirmada.
 
 Confirmaciones son distintas: asignar actividad, enviar intento, publicar nota/recurso, salir/remover/archivar/eliminar. Un archivo listo no es entrega; corrección privada no es publicación. Mostrar el recibo y estado persistido.

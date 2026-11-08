@@ -113,7 +113,7 @@ export function createClassroomsHandler(
     void (async () => {
       const method = req.method ?? '',
         write = method !== 'GET';
-      if (!['GET', 'POST', 'PATCH'].includes(method)) {
+      if (!['GET', 'POST', 'PATCH'].includes(method) && !(method === 'DELETE' && /^\/classrooms\/drafts\/[^/]+$/.test(url.pathname))) {
         json(res, 405, { error: { code: 'INVALID_INPUT' } });
         return;
       }
@@ -158,6 +158,8 @@ export function createClassroomsHandler(
           path[1],
           exact(['revision', 'payload']),
         );
+      else if (path[0] === 'drafts' && path.length === 2 && method === 'DELETE')
+        value = await service.deleteDraft(req, path[1], exact(['revision', 'confirm']));
       else if (
         path[0] === 'drafts' &&
         path[2] === 'publish' &&

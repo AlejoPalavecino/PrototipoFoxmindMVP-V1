@@ -1,0 +1,17 @@
+{
+  "url": "/mis-aulas",
+  "width": 768,
+  "height": 1024,
+  "scrollWidth": 768,
+  "headings": [
+    "Mis aulas",
+    "Ciencias — Nuevo proyecto"
+  ],
+  "alerts": [
+    ""
+  ],
+  "date": "2026-11-08",
+  "source": "real components with synthetic in-memory client; no persistence claim",
+  "candidate": "3d82b82 + pending-classrooms working diff",
+  "role": "teacher"
+}

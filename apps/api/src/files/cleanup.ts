@@ -27,7 +27,7 @@ export async function cleanIncomplete(store: FileStore, storage: ObjectStorage, 
     if (performance.now() >= deadline) break;
     const operation = randomUUID();
     const claim: FileRow | null = await store.transaction(async tx => {
-      const initial = await store.load(tx, candidate.id); await store.lockScope(tx, targetOf(initial).scope);
+      const initial = await store.load(tx, candidate.id); await store.lockScope(tx, targetOf(initial).scope, true);
       const row = await store.load(tx, candidate.id), now = await store.now(tx);
       if (row.phase === 'ready' || row.phase === 'deleted' || (row.lease_until && row.lease_until > now)
         || row.reservation_released_at || !mayClaimAbandonedUpload({ upload: row.upload_status,
@@ -42,7 +42,7 @@ export async function cleanIncomplete(store: FileStore, storage: ObjectStorage, 
     try {
       await storage.remove(claim.storage_key);
       await store.transaction(async tx => {
-        await store.lockScope(tx, targetOf(claim).scope); const current = await store.load(tx, claim.id);
+        await store.lockScope(tx, targetOf(claim).scope, true); const current = await store.load(tx, claim.id);
         if (current.phase !== 'deleting' || current.operation_id !== operation || current.completed_at
           || await references(tx, claim.id)) throw new FileError('UPLOAD_CONFLICT');
         await tx.query(`UPDATE uploads SET reserved_bytes=0,reservation_released_at=clock_timestamp(),updated_at=clock_timestamp()

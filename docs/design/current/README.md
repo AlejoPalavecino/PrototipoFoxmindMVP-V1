@@ -10,6 +10,8 @@ Las capturas son referencias visuales; la [matriz de recorridos](../../verificat
 
 ## Índice completo
 
+Actualización de Mis aulas del 2026-11-08: [Pendientes escritorio](teacher-pending-desktop.png), [móvil](teacher-pending-mobile.png) y [tablet](teacher-pending-tablet.png). Estas tres referencias usan componentes reales con cliente sintético en memoria; sustituyen la presentación anterior de borradores en el catálogo. Las capturas de la base del 2026-11-07 no acreditan este flujo nuevo. Permisos y persistencia se comprobaron por separado sobre PostgreSQL descartable, según el [registro](../../work-log/2026-11-08-root-pending-classrooms.md).
+
 | Captura | Ruta | Viewport | Desborde horizontal registrado |
 |---|---|---|---|
 | [auth-login](auth-login.png) | `/sign-in` | 1440 × 1000 | No |

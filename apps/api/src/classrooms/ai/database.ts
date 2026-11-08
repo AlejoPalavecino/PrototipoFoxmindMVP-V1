@@ -14,7 +14,7 @@ export async function owner(tx: Transaction, id: string): Promise<void> {
 }
 export async function draft(tx: Transaction, ownerId: string, draftId: string): Promise<DraftRow> {
   if (!uuid(draftId)) return fail('FORBIDDEN');
-  const [row] = await tx.query<DraftRow>('SELECT * FROM classroom_drafts WHERE id=$1::uuid AND owner_id=$2::uuid FOR UPDATE', draftId, ownerId);
+  const [row] = await tx.query<DraftRow>('SELECT * FROM classroom_drafts WHERE id=$1::uuid AND owner_id=$2::uuid AND deleted_at IS NULL FOR UPDATE', draftId, ownerId);
   if (!row) return fail('FORBIDDEN');
   return row;
 }

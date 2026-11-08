@@ -227,6 +227,7 @@ model ClassroomDraft {
   payload                Json         @default("{}")
   revision               BigInt       @default(0)
   published_classroom_id String?      @db.Uuid
+  deleted_at             DateTime?    @db.Timestamptz(6)
   owner                  User         @relation("ClassroomDraft_owner_id", fields: [owner_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
   published_classroom    Classroom?   @relation("Draft_publication", fields: [published_classroom_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
   files                  FileObject[] @relation("File_draft")

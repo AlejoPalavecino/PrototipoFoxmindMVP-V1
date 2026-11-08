@@ -14,12 +14,14 @@ export const suites = {
     'tests/audit-scheduler-diagnostics.test.mjs', 'tests/audit-resource-lazy.test.mjs',
   ],
   transport: [
+    'tests/pending-classrooms.test.mjs',
     'tests/p3-web-client.test.mjs', 'tests/p3-web-proxy.test.mjs', 'tests/p4-web-proxy.test.mjs',
     'tests/agenda-proxy.test.mjs', 'tests/p9-home-client.test.mjs', 'tests/p6-wall-client.test.mjs',
     'tests/p7-authoring-proxy.test.mjs', 'tests/p8-grading-proxy.test.mjs',
     'tests/activity-ai-proxy.test.mjs', 'tests/audit-wall-proxy.test.mjs',
   ],
   'integration-owned': [
+    'tests/pending-classrooms-database.test.mjs',
     'tests/p6-wall.test.mjs',
     'tests/p4-integration.test.mjs', 'tests/agenda-database.test.mjs',
     'tests/p6-wall-integration.test.mjs', 'tests/p7-authoring-integration.test.mjs',

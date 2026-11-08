@@ -76,6 +76,8 @@ export function ClassroomsApp({
     [search, setSearch] = useState(''),
     [draft, setDraft] = useState<Draft | null>(null),
     [classroomId, setClassroomId] = useState<string | null>(requestedHomeTarget?.classroomId ?? null);
+  const [deletingDraft, setDeletingDraft] = useState<Draft | null>(null), [deleteError, setDeleteError] = useState('');
+  const deleting = useRef(false);
   const [wallTarget, setWallTarget] = useState<NotificationTarget | null>(null), [notificationRefresh, setNotificationRefresh] = useState(0);
   const [homeTarget, setHomeTarget] = useState<HomeTarget | null>(requestedHomeTarget ?? null);
   const refreshNotifications = useCallback(() => setNotificationRefresh(value => value + 1), []);
@@ -300,8 +302,8 @@ export function ClassroomsApp({
             {data.invitations && requestedInvitation && !data.invitations.some(item => item.id.toLowerCase() === requestedInvitation.toLowerCase()) ? (
               <Notice>Esta invitación no está pendiente para la cuenta actual. Puede haber vencido, haberse utilizado o corresponder a otro correo. Revisa tus invitaciones o cambia de cuenta desde tu perfil.</Notice>
             ) : null}
-            {((data.invitations?.length ?? 0) > 0 || (data.drafts?.length ?? 0) > 0) ? <section className="folder-panel tone-yellow folder-pending" aria-label="Pendientes">
-              <h2 className="folder-tab"><EntryIcon name="bell" />Pendientes <span className="collection-pending-count">{(data.invitations?.length ?? 0) + (data.drafts?.length ?? 0)}</span></h2>
+            {(data.invitations?.length ?? 0) > 0 ? <section className="folder-panel tone-yellow folder-pending" aria-label="Invitaciones pendientes">
+              <h2 className="folder-tab"><EntryIcon name="bell" />Invitaciones <span className="collection-pending-count">{data.invitations?.length ?? 0}</span></h2>
             {data.invitations?.length ? (
               <section className="p5-invitations">
                 <h2>Tenés una invitación</h2>
@@ -329,26 +331,10 @@ export function ClassroomsApp({
                 ))}
               </section>
             ) : null}
-            {data.drafts?.length ? (
-              <section className="p5-drafts">
-                <h3>Continuar un borrador</h3>
-                {data.drafts.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() =>
-                      void action(async () =>
-                        setDraft(await api.call<Draft>(`/drafts/${item.id}`)),
-                      )
-                    }
-                  >
-                    <strong>{item.payload.name || 'Aula sin nombre'}</strong>
-                    <span>Continuar creación</span>
-                  </button>
-                ))}
-              </section>
-            ) : null}
             </section> : null}
             {data.teach && data.study ? <ClassroomCollection accountRole={accountRole} teach={data.teach} study={data.study} search={search} onSearch={setSearch}
+              drafts={data.drafts} busy={busy} onContinue={id => void action(async () => setDraft(await api.call<Draft>(`/drafts/${id}`)))}
+              onDelete={item => { setDeleteError(''); setDeletingDraft(item); }}
               onEnter={id => {
                 if (onEnterClassroom) { void action(async () => { await onEnterClassroom(id); }); return; }
                 setSharedCode(null); setClassroomId(id);
@@ -356,6 +342,25 @@ export function ClassroomsApp({
           </>
         )}
       </main>
+      {deletingDraft ? <Dialog title="Eliminar pendiente" onClose={() => { if (!deleting.current) setDeletingDraft(null); }}>
+        <p>Vas a eliminar «{deletingDraft.payload.name || 'Aula sin nombre'}». Se perderán los datos guardados de esta creación. Esta acción no se puede deshacer.</p>
+        {deleteError ? <Notice error>{deleteError}</Notice> : null}
+        <footer className="p5-form-footer">
+          <button type="button" disabled={busy} onClick={() => setDeletingDraft(null)}>Cancelar</button>
+          <button type="button" className="danger" disabled={busy} onClick={() => {
+            if (deleting.current) return;
+            deleting.current = true; setBusy(true); setDeleteError('');
+            const item = deletingDraft;
+            void api.call(`/drafts/${item.id}`, 'DELETE', { revision: item.revision, confirm: true }).then(async () => {
+              requests.current.drafts = Symbol('deleted');
+              setData(current => ({ ...current, drafts: current.drafts?.filter(d => d.id !== item.id) }));
+              setDeletingDraft(null); setNotice('Pendiente eliminado.');
+              await load(undefined, 'drafts');
+            }).catch(() => setDeleteError('No pudimos eliminar el pendiente. Puede haber cambiado o ya estar creado. Cerrá este diálogo y actualizá la lista antes de volver a intentar.'))
+              .finally(() => { deleting.current = false; setBusy(false); });
+          }}>{busy ? 'Eliminando…' : 'Eliminar pendiente'}</button>
+        </footer>
+      </Dialog> : null}
       {join ? (
         <Dialog
           title={preview ? 'Confirmá tu inscripción' : 'Unirse a un aula'}

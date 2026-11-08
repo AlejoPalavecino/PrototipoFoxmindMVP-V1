@@ -10,7 +10,7 @@ export async function readParticipation(tx: HomeSql, userId: string): Promise<Pi
     (SELECT count(*)::int FROM rooms WHERE role='student' AND archived_at IS NULL) AS study,
     (SELECT count(*)::int FROM rooms WHERE role='teacher' AND archived_at IS NULL) AS teach,
     (SELECT count(*)::int FROM rooms WHERE archived_at IS NOT NULL) AS archived,
-    (SELECT count(*)::int FROM classroom_drafts WHERE owner_id=$1::uuid AND published_classroom_id IS NULL) AS drafts,
+    (SELECT count(*)::int FROM classroom_drafts WHERE owner_id=$1::uuid AND published_classroom_id IS NULL AND deleted_at IS NULL) AS drafts,
     (SELECT count(*)::int FROM invitations i JOIN users u ON u.email_normalized=i.recipient_email_normalized
      JOIN classrooms c ON c.id=i.classroom_id WHERE u.id=$1::uuid AND i.accepted_at IS NULL
      AND i.revoked_at IS NULL AND i.expires_at>clock_timestamp() AND c.archived_at IS NULL) AS invitations`, userId);

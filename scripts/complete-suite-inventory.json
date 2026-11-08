@@ -1,5 +1,7 @@
 {
   "entries": [
+    "tests/pending-classrooms.test.mjs",
+    "tests/pending-classrooms-database.test.mjs",
     "apps/api/src/ai/foxy-diagram-adapter.test.mjs",
     "apps/api/src/ai/foxy-factory.test.mjs",
     "apps/api/src/ai/foxy-image-adapter.test.mjs",

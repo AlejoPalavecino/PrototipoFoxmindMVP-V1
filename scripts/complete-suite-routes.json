@@ -3,6 +3,7 @@
     "id": "fast",
     "kind": "fast",
     "files": [
+      "tests/pending-classrooms.test.mjs",
       "apps/api/src/ai/foxy-diagram-adapter.test.mjs",
       "apps/api/src/ai/foxy-factory.test.mjs",
       "apps/api/src/ai/foxy-image-adapter.test.mjs",
@@ -311,6 +312,7 @@
     "id": "owned-db",
     "kind": "owned",
     "files": [
+      "tests/pending-classrooms-database.test.mjs",
       "apps/api/src/classrooms/library-publication.test.mjs",
       "apps/api/src/files/foxy-begin-transaction.test.mjs",
       "apps/api/src/files/foxy-private-asset-files.test.mjs",

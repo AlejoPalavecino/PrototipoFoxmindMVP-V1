@@ -49,6 +49,11 @@ export function collectionFixture(mode: string, record: (receipt: Receipt) => vo
       const current = drafts.find(item => path === `/drafts/${item.id}`);
       if (!current || path.endsWith('/publish')) throw new Error('Fixture: publicación no habilitada.');
       if (method === 'PATCH') { current.payload = (body as { payload: Draft['payload'] }).payload; current.revision = String(Number(current.revision) + 1); }
+      if (method === 'DELETE') {
+        const input = body as { revision: string; confirm: boolean };
+        if (mode === 'delete-error' || input.confirm !== true || input.revision !== current.revision) throw new Error('Eliminación sintética rechazada.');
+        drafts = drafts.filter(item => item.id !== current.id); result = { deleted: true };
+      } else
       result = current;
     } else {
       const selected = rooms.find(item => path === `/${item.id}` || path.startsWith(`/${item.id}/`));

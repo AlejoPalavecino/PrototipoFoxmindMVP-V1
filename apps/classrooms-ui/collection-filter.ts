@@ -2,7 +2,7 @@ import type { Classroom } from './api.ts';
 
 export type ClassroomFilter = 'all' | 'study' | 'teach';
 export interface ClassroomFilterOptions {
-  state?: 'all' | 'active' | 'archived';
+  state?: 'all' | 'active' | 'archived' | 'pending';
   academicYear?: string;
   division?: string;
 }
@@ -21,6 +21,7 @@ export function filterClassroomCards(teach: Classroom[], study: Classroom[], fil
   return [...rooms.values()].filter(room =>
     (filter === 'all' || room.role === (filter === 'teach' ? 'teacher' : 'student')) &&
     normalized(`${room.name} ${room.subject} ${room.division} ${room.teacher}`).includes(query) &&
+    options.state !== 'pending' &&
     (!options.state || options.state === 'all' || room.archived === (options.state === 'archived')) &&
     (!options.academicYear || String(room.academicYear) === options.academicYear) &&
     (!options.division || room.division === options.division));
