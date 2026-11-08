@@ -50,3 +50,7 @@ export { createFoxyPrivateAssetReadService } from './private-asset-read-service.
 
 export { createFoxyPrivateAssetDiscardRepository } from './private-asset-discard-repository.ts';
 export { createFoxyPrivateAssetDiscardService } from './private-asset-discard-service.ts';
+
+export { createFoxyCreationRepository } from './creation-repository.ts';
+export type { FoxyCreation, FoxyCreationDestination } from './creation-repository.ts';
+export { createFoxyCreationService } from './creation-service.ts';

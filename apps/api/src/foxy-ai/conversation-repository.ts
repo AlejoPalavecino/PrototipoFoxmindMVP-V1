@@ -1,3 +1,4 @@
+import { catalogFilters } from './catalog-input.ts';
 import { randomUUID } from 'node:crypto';
 import { parseCreateFoxyConversation, type CreateFoxyConversation, type FoxyContext, type SqlTransaction } from '../../../../src/core/domain/index.ts';
 
@@ -75,13 +76,16 @@ export function createFoxyConversationRepository() {
         ORDER BY c.updated_at DESC,c.id DESC LIMIT $2`, owner, options.limit);
       return rows.map(fromRow);
     },
-    async listPage(tx: SqlTransaction, owner: string, options: { limit: number; after: { updatedAt: string; id: string } | null }) {
+    async listPage(tx: SqlTransaction, owner: string, options: { limit: number; after: { updatedAt: string; id: string } | null; q?: string; context?: string }) {
       activityUuid(owner);
       if (!Number.isSafeInteger(options?.limit) || options.limit < 1 || options.limit > 100) throw new RepositoryError('INVALID_INPUT');
+      const filters = catalogFilters(options);
       const rows = await tx.query<Row & { updated_at: Date }>(`SELECT ${columns},c.updated_at FROM foxy_conversations c WHERE ${visible}
         AND ($2::timestamptz IS NULL OR (date_trunc('milliseconds',c.updated_at),c.id)<($2::timestamptz,$3::uuid))
+        AND strpos(lower(c.title),lower($5))>0
+        AND ($6='ALL' OR ($6='GENERAL' AND c.context_kind='GENERAL') OR c.classroom_id::text=$6)
         ORDER BY date_trunc('milliseconds',c.updated_at) DESC,c.id DESC LIMIT $4`, owner,
-      options.after?.updatedAt ?? null, options.after?.id ?? null, options.limit + 1);
+      options.after?.updatedAt ?? null, options.after?.id ?? null, options.limit + 1, filters.q, filters.context);
       const last = rows[options.limit - 1];
       return { items: rows.slice(0, options.limit).map(fromRow),
         next: rows.length > options.limit && last ? { updatedAt: last.updated_at.toISOString(), id: last.id } : null };

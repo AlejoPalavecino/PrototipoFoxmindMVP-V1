@@ -30,6 +30,7 @@
     "apps/api/src/foxy-ai/foxy-claim-authority.test.mjs",
     "apps/api/src/foxy-ai/foxy-cleanup-runtime.test.mjs",
     "apps/api/src/foxy-ai/foxy-context-catalog.test.mjs",
+    "apps/api/src/foxy-ai/foxy-creation-catalog.test.mjs",
     "apps/api/src/foxy-ai/foxy-context-sources.test.mjs",
     "apps/api/src/foxy-ai/foxy-conversation-repository.test.mjs",
     "apps/api/src/foxy-ai/foxy-conversation-service.test.mjs",

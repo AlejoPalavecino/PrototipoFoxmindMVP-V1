@@ -1,3 +1,4 @@
+import { catalogFilters } from './catalog-input.ts';
 import { createHash } from 'node:crypto';
 import { parseCreateFoxyConversation, strictObject } from '../../../../src/core/domain/index.ts';
 import type { FoxyConversation } from './conversation-repository.ts';
@@ -44,11 +45,13 @@ export function createFoxyConversationService(options: { uow: UnitOfWork; conver
     },
     async list(request: unknown, input: unknown) {
       if (!input || typeof input !== 'object' || Array.isArray(input)) return fail('INVALID_INPUT');
-      const params = strictObject(input, Object.hasOwn(input, 'after') ? ['limit', 'after'] : ['limit']);
+      const allowed = ['limit','after','q','context'];
+      if (Object.keys(input).some(key => !allowed.includes(key))) return fail('INVALID_INPUT');
+      const params = input as Record<string, unknown>, filters = catalogFilters(params);
       if (!Number.isSafeInteger(params.limit) || (params.limit as number) < 1 || (params.limit as number) > 100) return fail('INVALID_INPUT');
       const after = Object.hasOwn(params, 'after') ? cursor(params.after) : null;
       return options.uow.run(request, false, async (tx, actor) => {
-        const page = await options.conversations.listPage(tx, actor.id, { limit: params.limit as number, after });
+        const page = await options.conversations.listPage(tx, actor.id, { limit: params.limit as number, after, ...filters });
         return { items: page.items.map(view), next: page.next };
       });
     },

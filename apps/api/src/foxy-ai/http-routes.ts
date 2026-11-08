@@ -1,3 +1,4 @@
+import type { createFoxyCreationService } from './creation-service.ts';
 import { parseEditFoxyResource, parseFoxySourceQuery, parsePrepareFoxyPublication, parsePrepareFoxyVisualPublication, parseConfirmFoxyPublication, parseRetryFoxyPublication, parseDiscardFoxyPublication } from '../../../../src/core/domain/index.ts';
 import type { IncomingMessage } from 'node:http';
 import type { createFoxyConversationService } from './conversation-service.ts';
@@ -13,7 +14,7 @@ import type { createFoxyPrivateAssetReader } from './private-asset-reader.ts';
 import type { createFoxyPrivateAssetReadService } from './private-asset-read-service.ts';
 import { body, create, cursor, id, integer, message, query, remove, rename, visual } from './http-input.ts';
 
-type Services = { visuals?: ReturnType<typeof createFoxyVisualService>; privateAssetReader?: ReturnType<typeof createFoxyPrivateAssetReader>; privateAssetReadService?: ReturnType<typeof createFoxyPrivateAssetReadService>; conversations: ReturnType<typeof createFoxyConversationService>; turns: ReturnType<typeof createFoxyTurnService>;
+type Services = { creations?: ReturnType<typeof createFoxyCreationService>; visuals?: ReturnType<typeof createFoxyVisualService>; privateAssetReader?: ReturnType<typeof createFoxyPrivateAssetReader>; privateAssetReadService?: ReturnType<typeof createFoxyPrivateAssetReadService>; conversations: ReturnType<typeof createFoxyConversationService>; turns: ReturnType<typeof createFoxyTurnService>;
   catalog: Pick<FoxyContextCatalogService, 'curriculum' | 'sources'>; citations: ReturnType<typeof createFoxyCitationService>;
   resources: ReturnType<typeof createFoxyResourceService>; publications: ReturnType<typeof createFoxyPublicationService>; publicationFiles: ReturnType<typeof createFoxyPublicationFileReader>; publicationManagement: ReturnType<typeof createFoxyPublicationManagementService>; capabilities(request: IncomingMessage): Promise<unknown> };
 type Result = { status: number; body?: unknown; binary?: Uint8Array; headers?: Record<string, string> };
@@ -24,8 +25,8 @@ async function collection(services: Services, request: IncomingMessage, url: URL
     return { status: result.created ? 201 : 200, body: result };
   }
   if (request.method === 'GET') {
-    const params = query(url, ['limit', 'after']);
-    return { status: 200, body: await services.conversations.list(request, { limit: integer(params.limit, 20, 1, 100), after: cursor(params.after) }) };
+    const params = query(url, ['limit', 'after', 'q', 'context']);
+    return { status: 200, body: await services.conversations.list(request, { limit: integer(params.limit, 20, 1, 100), after: cursor(params.after), q: params.q, context: params.context }) };
   }
   return missing();
 }
@@ -67,6 +68,12 @@ export async function foxyRoute(services: Services, request: IncomingMessage, ur
     return { status: 200, binary: result.bytes, headers: result.headers };
   }
   if (path === '/capabilities' && request.method === 'GET') { query(url, []); return { status: 200, body: await services.capabilities(request) }; }
+  if (path === '/creations' && request.method === 'GET') {
+    const params = query(url, ['limit','after','q','context','type','status']);
+    if (!services.creations) return missing();
+    return { status: 200, body: await services.creations.list(request, { limit: integer(params.limit,20,1,50), after: cursor(params.after),
+      q: params.q, context: params.context, type: params.type, status: params.status }) };
+  }
   if (path === '/conversations') return collection(services, request, url);
   const visuals = /^\/conversations\/([^/]+)\/visuals(?:\/([^/]+))?$/u.exec(path);
   if (visuals && (request.method === 'GET' || request.method === 'POST')) {

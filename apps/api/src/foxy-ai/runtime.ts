@@ -1,3 +1,5 @@
+import { createFoxyCreationRepository } from './creation-repository.ts';
+import { createFoxyCreationService } from './creation-service.ts';
 import type { SqlDatabase } from '../../../../src/core/domain/index.ts';
 import type { FoxyFileOperations } from './file-operations.ts';
 import { createFoxyUnitOfWork } from './unit-of-work.ts';
@@ -95,7 +97,7 @@ export function createFoxyRuntime(options: Options) {
   const assets = createFoxyPrivateAssetReadRepository();
   const privateAssetReader = options.fileOperations.readPrivateAsset
     ? createFoxyPrivateAssetReader({ uow, assets, storage: { get: options.fileOperations.readPrivateAsset } }) : undefined;
-  const services = { visuals: visual?.service, privateAssetReader, privateAssetReadService: createFoxyPrivateAssetReadService({ uow, assets }), conversations: createFoxyConversationService({ uow, conversations }),
+  const services = { creations: createFoxyCreationService({ uow, creations: createFoxyCreationRepository() }), visuals: visual?.service, privateAssetReader, privateAssetReadService: createFoxyPrivateAssetReadService({ uow, assets }), conversations: createFoxyConversationService({ uow, conversations }),
     turns: createFoxyTurnService({ uow, conversations, turns, configuration: { enabled, model: enabled ? options.configuration!.model : '' } }),
     catalog: new FoxyContextCatalogService(options.classrooms, conversations),
     citations: createFoxyCitationService({ uow, files: { read: options.fileOperations.read } }),
