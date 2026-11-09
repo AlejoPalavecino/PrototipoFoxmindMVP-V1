@@ -1,8 +1,8 @@
 {
   "date": "2026-11-08",
-  "candidate": "1f46028 + study folders working diff",
+  "candidate": "3c30de328b5e4e518bd5faf4282c9773ca45afa1",
   "status": "VERIFIED_LOCAL",
-  "publication": "Not committed, pushed or deployed",
+  "publication": "Committed, integrated by fast-forward and pushed to origin/main as 3c30de328b5e4e518bd5faf4282c9773ca45afa1; remote SHA verified. Not deployed.",
   "automatedProvider": "synthetic",
   "localProvider": "Gemini real via authorized local runtime",
   "checks": {

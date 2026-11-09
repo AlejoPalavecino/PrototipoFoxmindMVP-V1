@@ -62,3 +62,7 @@ Implementado y verificado localmente con alcance/omisiones del recibo, sin bloqu
 Comprobación final de entrega: docs:check72 archivos/776 enlaces/0 problemas; git diff --check exit0 (avisos informativos LF/CRLF conservados); lint:boundaries e inventario PASS; local:status READY. Catálogo188 capturas/376 hashes exactos. Sin tareas, revisiones o procesos descartables pendientes; el supervisor habitual propio queda encendido.
 
 Memoria opcional: búsqueda Engram disponible; intento de guardar el resumen durable rechazado por PreToolUse porque la sesión host no está registrada. No se inventó identidad ni se afirmó persistencia. Toda la continuidad esencial queda en este repositorio.
+
+## Publicación posterior autorizada
+
+El usuario autorizó commits, push e integración a main. Entrega funcional 3c30de328b5e4e518bd5faf4282c9773ca45afa1 integrada por fast-forward y publicada; SHA remoto comprobado. El registro de publicación conserva la evidencia de esta etapa. Las menciones anteriores de ausencia de publicación describen el cierre previo a esta autorización. Sin despliegue.

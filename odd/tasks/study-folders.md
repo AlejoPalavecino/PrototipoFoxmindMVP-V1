@@ -52,4 +52,4 @@
 
 La aprobación autoriza implementar la propuesta completa. Delegación por superficies disjuntas; cada agente mantiene registro propio, sin aislamiento fuerte afirmado. No se accede a P3/P4, datos retenidos ni secretos históricos. Proveedor local autorizado por configuración habitual; pruebas automatizadas sintéticas. Ninguna tarea DONE sin evidencia reconciliada.
 
-Entrega implementada y verificada localmente con límites del recibo. No queda código pendiente del alcance aprobado. Primera comprobación opcional al renovarse el cupo: repetir quiz E2E Gemini con temas seleccionados. Sin commits, push, publicación ni despliegue.
+Entrega implementada y verificada localmente con límites del recibo. No queda código pendiente del alcance aprobado. Primera comprobación opcional al renovarse el cupo: repetir quiz E2E Gemini con temas seleccionados. Integrado y publicado en main como 3c30de328b5e4e518bd5faf4282c9773ca45afa1 por autorización posterior explícita. Sin despliegue. Evidencia de comandos en docs/work-log/2026-11-08-root-study-folders-publication.md.
