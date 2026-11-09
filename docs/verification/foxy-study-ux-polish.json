@@ -1,7 +1,7 @@
 {
   "date": "2026-11-09",
   "baseCommit": "04b69a76fe60bcf5cc047ef436cb89e16e26a801",
-  "state": "verified locally; uncommitted; not published or deployed",
+  "state": "verified locally; integrated and published on main; not deployed",
   "authorization": "User approved five-point UX proposal and implementation with Ego Lite validation.",
   "candidateFiles": [
     {
@@ -265,6 +265,36 @@
       "Synthetic harness states demonstrate real React component presentation, not persistence or a new provider result.",
       "Some screenshots intentionally show the scrolled dialog/transcript; metadata preserves the scope and scroll.",
       "No screenshot failure cause inferred; native capture succeeded in this follow-up without changing Ego settings."
+    ]
+  },
+  "publication": {
+    "date": "2026-11-09",
+    "branch": "main",
+    "preflightCommit": "73b503f36eb5e6a4346d9622df1f4a8bbf014313",
+    "uxCommit": "edcdbe075e878e9a05a95ec1ea851c7043db1211",
+    "remoteMainObserved": "edcdbe075e878e9a05a95ec1ea851c7043db1211",
+    "authorization": "User explicitly requested commits and push.",
+    "captureCandidatePolicy": "candidateFiles and capture metadata preserve the working-tree snapshot at QA time; publication maps that evidence to the UX commit.",
+    "checksAtPublication": {
+      "focusedTests": {
+        "passed": 74,
+        "failed": 0,
+        "skipped": 0
+      },
+      "documentation": {
+        "files": 80,
+        "links": 867,
+        "issues": 0
+      },
+      "catalogIndexPairs": 216,
+      "currentUxCaptures": 28,
+      "inventoryTests": 514,
+      "routes": 23,
+      "ttpTasks": 4
+    },
+    "limits": [
+      "No deployment.",
+      "No new full complete-suite run or remote CI result claimed."
     ]
   }
 }

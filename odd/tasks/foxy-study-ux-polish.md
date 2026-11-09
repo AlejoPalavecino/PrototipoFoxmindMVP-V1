@@ -43,3 +43,7 @@ Conservar Brújula y Foxy docente como referencia. Animaciones discretas con red
 - **Acceptance:** Pruebas focalizadas y build/lint proporcionales; Ego Lite desktop/móvil, estados y recuperación con datos sintéticos; fuentes canónicas y límites actualizados.
 - **Evidence:** 72/72 tests focales; tipos/build/lint e inventario/rutas verdes; docs:check final 76 archivos/788 enlaces/0 problemas. TTP y diff limpios. Ego Lite final: edición no colapsa unidad; sólo se eliminó el borrador vacío creado por QA, Pendientes docente volvió a 0. TaskSpace cerrado y fixture detenido; app local propia encendida. Recibo y fuentes canónicas actualizados, con límites de capturas explícitos.
 - **Blocker:** none
+
+## Publicación Git
+
+Autorizada explícitamente el 2026-11-09. Corrección de preflight 73b503f36eb5e6a4346d9622df1f4a8bbf014313 y pulido UX/UI edcdbe075e878e9a05a95ec1ea851c7043db1211 integrados por fast-forward y publicados en main. ls-remote confirmó el SHA de UX. Revalidación previa: 74/74 tests focales, docs:check 80 archivos/867 enlaces/0 problemas, 216 pares PNG/metadatos verificados desde índice, inventario 514 tests/23 rutas, TTP 4 tareas válidas. El recibo posterior actualiza el estado documental; sin despliegue ni afirmación de CI remota. [Registro](../../docs/work-log/2026-11-09-root-ux-publication.md).
