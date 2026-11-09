@@ -6,6 +6,7 @@ import {createStudyAgendaIntegration} from '../../../../.build/api/apps/api/src/
 import {createStudyReminderRuntime} from './reminders/runtime.ts';
 import pg from 'pg';
 import {createGeminiStudyProvider} from '../../../../.build/api/apps/api/src/ai/study-adapter.js';
+import {GoogleGenAI} from '@google/genai';
 pg.types.setTypeParser(20,value=>BigInt(value));
 
 test('PostgreSQL: uploads privados, custodia y recordatorios idempotentes de Agenda',{timeout:90000},async()=>{
@@ -61,10 +62,22 @@ test('admisión IA compartida: revalida tras preflight y deduplica gasto sin pro
   const owner=randomUUID();await pool.query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role) VALUES($1,now(),$2,$2,'Synthetic','Study','no-login',now(),'student')`,[owner,`${owner}@example.invalid`]);
   const database={$transaction:async operation=>{const c=await pool.connect();await c.query('BEGIN');try{const result=await operation({$queryRawUnsafe:async(sql,...v)=>(await c.query(sql,v)).rows});await c.query('COMMIT');return result;}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}}};
   const config={backend:'gemini-developer',model:'synthetic',apiKey:'not-a-key',dailyActorRequests:20,dailyGlobalRequests:30,maxInputTokens:1000,maxOutputTokens:100,dailyBudgetUsd:1,inputUsdPerMillion:1,outputUsdPerMillion:1,deadlineMs:5000,maxConcurrency:2,maxDispatches:1,maxJobAgeMs:60000};
-  const calls=[];const client={countTokens:async input=>{assert.ok(input.config.systemInstruction);calls.push('count');return {totalTokens:10};},generateContent:async input=>{const schema=input.config.responseJsonSchema;assert.ok(schema);assert.deepEqual(schema.properties.practice.properties.questions.items.properties.type.enum,['SINGLE','MULTIPLE','DEVELOPMENT']);assert.deepEqual(schema.properties.practice.properties.questions.items.properties.topicId.enum,['topic-a']);assert.equal(schema.properties.practice.properties.questions.minItems,3);assert.equal(schema.properties.sourceRefs.items.anyOf[0].properties.id.enum[0],'source-a');assert.match(input.contents[0].parts[1].text,/source-a/u);calls.push('generate');return {text:'{"synthetic":true}',usageMetadata:{promptTokenCount:10,candidatesTokenCount:8}};}};
+  // Exercise the installed SDK serializer; a hand-written countTokens double
+  // previously accepted options rejected by the Developer API client.
+  let countBody;
+  const sdk=new GoogleGenAI({apiKey:'synthetic-only',vertexai:false,httpOptions:{retryOptions:{attempts:1},fetch:async(url,init)=>{
+    assert.match(String(url),/:countTokens/);
+    countBody=JSON.parse(init.body);
+    return new Response(JSON.stringify({totalTokens:10}),{headers:{'content-type':'application/json'}});
+  }}});
+  const calls=[];const client={countTokens:async input=>{calls.push('count');return sdk.models.countTokens(input);},generateContent:async input=>{const schema=input.config.responseJsonSchema;assert.ok(schema);assert.deepEqual(schema.properties.practice.properties.questions.items.properties.type.enum,['SINGLE','MULTIPLE','DEVELOPMENT']);assert.deepEqual(schema.properties.practice.properties.questions.items.properties.topicId.enum,['topic-a']);assert.equal(schema.properties.practice.properties.questions.minItems,3);assert.equal(schema.properties.sourceRefs.items.anyOf[0].properties.id.enum[0],'source-a');assert.match(input.contents[0].parts[1].text,/source-a/u);calls.push('generate');return {text:'{"synthetic":true}',usageMetadata:{promptTokenCount:10,candidatesTokenCount:8}};}};
   const request=randomUUID();const provider=createGeminiStudyProvider(config,database,owner,request,async()=>{calls.push('authorize');},client);
   assert.deepEqual(await provider.generate({system:'Synthetic',prompt:JSON.stringify({topics:[{id:'topic-a'}],sources:[{id:'source-a',version:'v1'}],questionCount:3}),documents:[{sourceRef:{id:'source-a',version:'v1'},document:{kind:'text',text:'Synthetic'}}]}),{synthetic:true});
   assert.deepEqual(calls,['authorize','count','authorize','generate']);
+  assert.match(countBody.contents[0].parts[0].text,/Synthetic.*En SINGLE/su);
+  assert.match(countBody.contents[1].parts[0].text,/topic-a/u);
+  assert.match(countBody.contents[1].parts[1].text,/source-a/u);
+  assert.equal(countBody.contents[1].parts[2].text,'Synthetic');
   await assert.rejects(createGeminiStudyProvider(config,database,owner,request,undefined,client).generate({system:'Synthetic',prompt:'Repeat'}),{code:'CONFLICT'});
   calls.length=0;
   await assert.rejects(createGeminiStudyProvider(config,database,owner,randomUUID(),async()=>{calls.push('revoked');throw {code:'SOURCE_UNAVAILABLE'};},client).generate({system:'Synthetic',prompt:'Synthetic'}));

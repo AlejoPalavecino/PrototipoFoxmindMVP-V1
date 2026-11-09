@@ -31,7 +31,9 @@ export function createGeminiStudyProvider(configuration:AiConfiguration,database
   try{
    await authorize?.();
    signal.throwIfAborted();
-   const count=await models.countTokens({model:configuration.model,contents,config:{systemInstruction:instruction,abortSignal:signal,httpOptions:{retryOptions:{attempts:1}}}});
+   // Developer API countTokens rejects config.systemInstruction. Include the
+   // instruction as count-only content so preflight still accounts for it.
+   const count=await models.countTokens({model:configuration.model,contents:[{role:'user',parts:[{text:instruction}]},...contents],config:{abortSignal:signal,httpOptions:{retryOptions:{attempts:1}}}});
    if(!Number.isSafeInteger(count.totalTokens)||count.totalTokens!<1)fail('AI_UNAVAILABLE');
    if(count.totalTokens!>configuration.maxInputTokens)fail('AI_INPUT_LIMIT');
    await database.$transaction(async raw=>{
