@@ -2,6 +2,24 @@
 
 Referencia actual: aplicación Brújula recorrida con Ego Lite sobre código real, API/SQL/archivos/escáner/correo propios y cuentas sintéticas. Las capturas y checks se consultan en la [galería](current/README.md) y [matriz por flujo/rol](../verification/flows.md). No se usa una maqueta histórica como autoridad.
 
+## Dirección vigente de Foxy y estudio
+
+El pulido aprobado el 2026-11-09 conserva la identidad Brújula y usa Foxy docente como referencia para el espacio estudiantil. Las diferencias de contenido responden al rol y al objeto creado; los controles comunes mantienen la misma presentación e interacción.
+
+| Área | Regla de UX/UI vigente | Referencia |
+|---|---|---|
+| Herramientas | Tarjetas con icono, nombre y descripción secundaria; selección visible. Herramientas, Creaciones y Conversaciones accesibles directamente en móvil | [Foxy](current/ux-foxy-tools-mobile.png), [estudio](current/ux-study-tools-mobile.png) |
+| Chat | Mensaje saliente inmediato y espera de Foxy; la bienvenida desaparece al enviar. El campo y Enviar permanecen visibles en el viewport móvil comprobado | [Docente](current/ux-foxy-mobile.png), [estudiante](current/ux-study-chat-mobile.png) |
+| Lectura e historial | Acompañar mensajes y cambios de tamaño sólo cuando se está al final. Al leer mensajes anteriores, conservar posición y ofrecer «Ver mensajes nuevos» | [Guía Foxy](../engineering/ai/foxy.md#feedback-y-lectura-del-chat) |
+| Carga y error | Nombrar la operación real: abrir, subir/validar, enviar, esperar o analizar. Animación discreta con movimiento reducido; conservar entrada o solicitud recuperable | [Espera](current/ux-study-pending-mobile.png), [error](current/ux-study-error-mobile.png) |
+| Colecciones | Un selector compartido para Activas, Archivadas y Pendientes, con contador y estado seleccionado. Mostrar sólo los estados autorizados para ese rol/espacio y mantener los filtros propios de cada dominio | [Aulas](current/ux-classrooms-mobile.png), [carpetas](current/ux-study-collection-mobile.png) |
+| Creación | Diálogo, pasos y portadas compartidos. Encabezado opaco al desplazar; nombres e ilustraciones sin recortes. Guardar borrador y confirmar creación siguen siendo acciones diferentes | [Aula](current/ux-classroom-create-mobile.png), [carpeta](current/ux-study-create-mobile.png), [portadas](current/ux-study-covers-mobile.png) |
+| Plan de estudio | Durante el análisis, priorizar la espera sin repetir opciones deshabilitadas. Después, resumen de unidades/temas y edición desplegable; abrir inicialmente las incompletas y conservar su apertura al escribir | [Carga](current/ux-plan-loading-mobile.png), [revisión](current/ux-plan-review-mobile.png), [edición](current/ux-plan-editor-mobile.png) |
+
+Las fuentes del chat estudiantil se consultan en un desplegable de jerarquía secundaria; los UUIDs de versión quedan fuera de la lectura principal. No simular tokens, progreso porcentual o resultados mientras se espera. Un error estudiantil conserva el texto; un envío docente sin confirmación conserva su solicitud para reintentar con la misma identidad. Consultar los límites de cada ensayo en el [recibo](../verification/foxy-study-ux-polish.json).
+
+La referencia visual de este pulido comprende 28 capturas inspeccionadas a 1440×1000 y 390×844. Las capturas anteriores de estas superficies documentan sus recorridos previos; no son la dirección visual a copiar. Prácticas, examen, perfil y otras superficies sin rediseño conservan sus referencias específicas.
+
 ## Información y navegación
 
 Carpetas de estudio agrega navegación exclusiva del estudiante, colección de tarjetas/banner como aulas, asistente de cuatro pasos y un interior con chat/herramientas/creaciones/conversaciones como Foxy. Materiales/Plan, práctica y examen se abren en diálogos con foco gestionado. La dirección aprobada y estados se conservan en [propuesta](../product/study-folders-proposal.md); la [evidencia](../verification/study-folders.json) indica viewports y límites de QA.
@@ -28,6 +46,7 @@ En Configuración los botones Mostrar/Ocultar quedan centrados dentro de campos 
 | Cuenta | Elegir rol permanente → registrar → login → verificación con confirmación → Ir a Inicio |
 | Recuperar acceso | Solicitar correo genérico → enlace de un uso → nueva contraseña → login |
 | Crear aula | Datos/documento/portada → elección IA/manual → unidades/temas → revisión editable → confirmar |
+| Crear carpeta de estudio | Datos/documento/portada y vínculo opcional → IA/manual → unidades/temas → revisión → confirmar activación |
 | Ingresar | Código → vista previa → confirmar inscripción; invitación → aceptación expresa |
 | Manual de actividad | Preparar → Revisar y asignar; guardar borrador y asignar separados |
 | IA de actividad | Tema/objetivo → material/nivel → revisar/generar → propuesta editable → borrador privado → editor normal |
@@ -47,7 +66,17 @@ Familia Lexend cargada como Brújula. Texto #252646, secundario #60667D, fondo #
 
 Reutilizar componentes/navegación existentes antes de agregar variantes. Nombres fm3d/p5 y recursos anteriores todavía cargados son parte de la implementación; no confundirlos con documentación vieja descartable. Validar estilos calculados y contexto real; los tokens no garantizan contraste de toda combinación.
 
+| Elemento compartido | Fuente de implementación |
+|---|---|
+| Selector de estados | [CollectionStateFilter](../../apps/shared-ui/CollectionStateFilter.tsx) |
+| Tarjetas de herramientas | [FoxyToolPicker](../../apps/shared-ui/FoxyToolPicker.tsx) |
+| Feedback de carga de Foxy/estudio | [AsyncFeedback](../../apps/shared-ui/AsyncFeedback.tsx); Aulas conserva [AiProgress](../../apps/shared-ui/AiProgress.tsx) para su extracción |
+| Seguimiento del chat | [useChatFollow](../../apps/shared-ui/use-chat-follow.ts) |
+| Pasos y portadas de creación | [CreationSteps](../../apps/shared-ui/CreationSteps.tsx), [WizardCover](../../apps/classrooms-ui/WizardReview.tsx), [estilos compartidos](../../apps/shared-ui/brujula-wizard.css) |
+
 ## Estados e interacción
+
+La [dirección vigente](#dirección-vigente-de-foxy-y-estudio) reúne las reglas del pulido de chat, herramientas, creación y plan. Su [recibo de validación](../verification/foxy-study-ux-polish.json) distingue app integrada y estados controlados con respuestas sintéticas; las capturas no sustituyen la evidencia de permisos o persistencia.
 
 Foxy conserva Brújula y agrega título de conversación con Renombrar, formato seguro de títulos/listas y acceso a temas/fuentes antes del primer envío de aula. Conversaciones usa búsqueda por título y chips de contexto. El widget lateral alterna Herramientas/Creaciones; Creaciones ofrece búsqueda, filtros por tipo/contexto/estado y apertura directa con origen y destinos separados. Aulas archivadas siguen disponibles como filtro de consulta; sólo activas se ofrecen para generar/publicar. Móvil expone Herramientas, Creaciones y Conversaciones directamente, con diálogos y retorno de foco. Colección → filtro → resultado son tres acciones; resultados recientes abren con una o dos. Publicación conserva preparación, revisión y confirmación. [Reglas](../engineering/ai/foxy.md), [seguimiento](../../odd/tasks/foxy-workspace-discovery.md).
 

@@ -1,0 +1,21 @@
+{
+  "date": "2026-11-09",
+  "scope": "Integrated local app; QA-created empty private draft, never published",
+  "role": "teacher",
+  "url": "/mis-aulas",
+  "width": 390,
+  "height": 844,
+  "scrollWidth": 390,
+  "scrollY": 0,
+  "headings": [
+    "Crear aula",
+    "Datos del aula",
+    "Subí tu archivo",
+    "Mis aulas",
+    "Fotografía y luz"
+  ],
+  "alerts": [],
+  "baseCommit": "04b69a76fe60bcf5cc047ef436cb89e16e26a801",
+  "candidate": "uncommitted working tree; file digests in docs/verification/foxy-study-ux-polish.json",
+  "visuallyInspected": true
+}

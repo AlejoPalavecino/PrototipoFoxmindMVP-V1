@@ -7,7 +7,7 @@ export const text = node => typeof node === 'string' || typeof node === 'number'
 const expand = node => {
   if (Array.isArray(node)) return node.map(expand);
   if (!React.isValidElement(node)) return node;
-  if (['WizardGeneral', 'WizardPlan', 'WizardPlanSource', 'WizardCover', 'WizardReview', 'WizardCurriculum', 'WizardSuggestions', 'PlanExtraction'].includes(node.type?.name)) return expand(node.type(node.props));
+  if (['WizardGeneral', 'WizardPlan', 'WizardPlanSource', 'WizardCover', 'WizardReview', 'WizardCurriculum', 'WizardSuggestions', 'PlanExtraction','CreationSteps'].includes(node.type?.name)) return expand(node.type(node.props));
   return React.cloneElement(node, undefined, expand(node.props.children));
 };
 function mount(Component, props) {

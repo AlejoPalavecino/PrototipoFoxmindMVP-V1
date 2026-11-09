@@ -1,5 +1,8 @@
 {
   "entries": [
+    "apps/shared-ui/chat-follow.test.mjs",
+    "apps/shared-ui/plan-disclosure.test.mjs",
+    "tests/ux-chat-polish.test.mjs",
     "tests/local-app-environment.test.mjs",
     "tests/pending-classrooms.test.mjs",
     "tests/pending-classrooms-database.test.mjs",

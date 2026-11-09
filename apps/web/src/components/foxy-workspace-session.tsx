@@ -1,3 +1,4 @@
+import { AsyncFeedback } from '../../../shared-ui/AsyncFeedback';
 import { useEffect, useRef, useState } from 'react';
 import { openDialog } from '../../../shared-ui/dialog-focus';
 import { useFoxyWorkspace } from '../lib/use-foxy-workspace';
@@ -45,7 +46,7 @@ export function FoxyWorkspaceSession({ subjectId, onIdentityRequired, onNavigate
     } });
     return () => onRegister(null);
   }, [runtime, actions, onRegister]);
-  if (!state || !runtime || !actions || !ui || !state.chat) return <p>Cargando Foxy AI…</p>;
+  if (!state || !runtime || !actions || !ui || !state.chat) return <AsyncFeedback title="Cargando Foxy AI…"/>;
   return <>{state.classroomsError && <p role="alert">{state.classroomsError}</p>}
     {initializing && <p role="status">Actualizando Foxy AI…</p>}
     {ui.leave && (!state.resource || (state.resource.status === 'closed' && !ui.openingResource)) &&

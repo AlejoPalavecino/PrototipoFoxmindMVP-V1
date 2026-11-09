@@ -12,6 +12,16 @@ La adaptación usa evidencia de preguntas practicadas/errores por tema de esta c
 
 Preferencias por carpeta: dificultad, cantidad de preguntas, temas aún existentes y última herramienta se conservan tras una generación completa y se restauran al retomar. Finalizar una práctica conserva esas preferencias al actualizar la evidencia. Pedir una práctica sin temas se bloquea en UI, comando y motor antes de reservar o gastar IA.
 
+## Experiencia de chat, herramientas y plan
+
+La presentación comparte con Foxy docente las tarjetas de herramientas y el seguimiento de mensajes. El envío pendiente se muestra de inmediato, bloquea duplicados y conserva el texto ante fallo. El chat acompaña el final sólo mientras se está leyendo allí; el indicador de mensajes nuevos permite volver explícitamente. La colección usa el mismo selector de estados que Aulas. El asistente comparte diálogo, pasos y portadas; distingue subida, análisis y guardado, bloquea navegación durante upload y resume el plan por unidades desplegables. No cambia comandos, persistencia, proveedores ni reglas de activación. [Evidencia del pulido UX](../../verification/foxy-study-ux-polish.json).
+
+La bienvenida cede lugar al primer envío. Enter envía; Shift + Enter agrega una línea y la composición IME se conserva. Cambiar el alto del chat acompaña el final sólo si se lo estaba siguiendo. Las fuentes se abren desde un desplegable secundario, sin UUIDs de versión en el texto principal.
+
+En móvil, herramientas/creaciones/conversaciones se mantienen en una fila y el campo con Enviar queda visible en el viewport de 390×844 comprobado. Crear carpeta conserva la colección detrás del diálogo para devolver foco al disparador. Durante el análisis se prioriza la espera; la revisión muestra un resumen y unidades desplegables que no se cierran al completar campos.
+
+[Chat escritorio](../../design/current/ux-study-chat-desktop.png) · [móvil](../../design/current/ux-study-chat-mobile.png) · [herramientas](../../design/current/ux-study-tools-mobile.png) · [plan en espera](../../design/current/ux-plan-loading-mobile.png) · [revisión](../../design/current/ux-plan-review-mobile.png). Las dos últimas referencias usan respuestas sintéticas en componentes reales; no acreditan una nueva generación Gemini ni persistencia.
+
 ## Materiales y autoridad
 
 Planes PDF/DOCX hasta 20.000.000 bytes; materiales propios PDF/DOCX/PPTX/XLSX/JPG/JPEG/PNG/ZIP hasta 50.000.000 bytes. Transferencia, validación y escaneo deben corresponder al mismo digest. Descargar revalida dueño/estado y comprueba tamaño/hash. La extracción IA actual lee PDF/DOCX y cuerpos escritos de Biblioteca; otros formatos se conservan descargables y se identifican como no extraíbles.

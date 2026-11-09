@@ -1,0 +1,270 @@
+{
+  "date": "2026-11-09",
+  "baseCommit": "04b69a76fe60bcf5cc047ef436cb89e16e26a801",
+  "state": "verified locally; uncommitted; not published or deployed",
+  "authorization": "User approved five-point UX proposal and implementation with Ego Lite validation.",
+  "candidateFiles": [
+    {
+      "path": "apps/classrooms-ui/ClassroomCollectionFilters.tsx",
+      "sha256": "4c5f2304a7bcd0e4c86c6ac8351b72b55a0e650db075d8420e940c6f24dd4de0"
+    },
+    {
+      "path": "apps/classrooms-ui/ExtractionEditor.tsx",
+      "sha256": "d05fb95073d71cb6be47754baf8144e35eb3160845446518799ef2bef50a10e8"
+    },
+    {
+      "path": "apps/classrooms-ui/PlanExtraction.tsx",
+      "sha256": "69306227ba4e95b08aefea15d15f3e7f1a7d3a2a7d4e3a31831ce3577cf747d3"
+    },
+    {
+      "path": "apps/classrooms-ui/Wizard.tsx",
+      "sha256": "87e932248b6961554b9992774bab2405f06bc692aaf0d97cfe28535c88b9b813"
+    },
+    {
+      "path": "apps/classrooms-ui/WizardPlan.tsx",
+      "sha256": "c12f4b3d8c67cbec82b4ee2490ae9c3e5b9984a14f321e09d397587c26ce395b"
+    },
+    {
+      "path": "apps/classrooms-ui/WizardReview.tsx",
+      "sha256": "df722dac3313068dde308f91dac672e599d456219d31f6e767908979e27a7e74"
+    },
+    {
+      "path": "apps/shared-ui/AsyncFeedback.tsx",
+      "sha256": "9a848f4c2601212fc2a492a4532e37d9b3b3163cdf4d031606446dbf67daa446"
+    },
+    {
+      "path": "apps/shared-ui/CollectionStateFilter.tsx",
+      "sha256": "6b5e9881b8b134769a95891eef6642463a1fbfe0af478d855c66c03142629433"
+    },
+    {
+      "path": "apps/shared-ui/CreationSteps.tsx",
+      "sha256": "124d4c955912d7527b62640f5ce1bb3be68a416a61f9ed7b1584628cc40ae344"
+    },
+    {
+      "path": "apps/shared-ui/FoxyToolPicker.tsx",
+      "sha256": "b099c2f2d1359107075bed1142c930b3432a9405af19ca4fbfbc96a11f8c3e62"
+    },
+    {
+      "path": "apps/shared-ui/brujula-wizard.css",
+      "sha256": "9422010fa0fd39b306299732fb69ecc7fbbf5cf98751af35241a19d62218200d"
+    },
+    {
+      "path": "apps/shared-ui/chat-follow.test.mjs",
+      "sha256": "94d76f5dd9ea785bf846077d1186ada03b5c0dccfcc64c896c44b3cefdabc031"
+    },
+    {
+      "path": "apps/shared-ui/chat-follow.ts",
+      "sha256": "48741f139654165a17e5a3c921302effc62dcca72affb8b47bb32c5abc839f0c"
+    },
+    {
+      "path": "apps/shared-ui/interaction-feedback.module.css",
+      "sha256": "8d379c7f83e2da36169689ad499f472e227da41bdc3b4926f112202aa86def73"
+    },
+    {
+      "path": "apps/shared-ui/plan-disclosure.test.mjs",
+      "sha256": "56be94fb094d548afdafbca9ede39a792cebe62a3bc6b491d1e2b7ac410b64bc"
+    },
+    {
+      "path": "apps/shared-ui/plan-disclosure.ts",
+      "sha256": "1878c756501b1cd20863074593c32743c8ac3b5a394472f613a71a7b891d11c7"
+    },
+    {
+      "path": "apps/shared-ui/use-chat-follow.ts",
+      "sha256": "85c13ba4346caefb93023a23894f0ed6677092cec4c0e268eefc96fac8b6a9a4"
+    },
+    {
+      "path": "apps/web/public/brujula/select-chevron.svg",
+      "sha256": "6bf2bf8ca0245474659f9417847f80b1f6cee0dbe6de2871579ce0fc6eae6789"
+    },
+    {
+      "path": "apps/web/src/components/foxy-workspace-session.tsx",
+      "sha256": "d9020d756e8b8cdb810c7ee1c10f52316585f1bff7c92913f3df8696c9cacc8e"
+    },
+    {
+      "path": "apps/web/src/components/foxy-workspace.module.css",
+      "sha256": "2d7c4ab39d2df9e1056eb3ba5ff333fb1f2b652afdf6d2861a8dcddbed98d13f"
+    },
+    {
+      "path": "apps/web/src/components/foxy-workspace.test.mjs",
+      "sha256": "ed346fa66eda2f63ddbc6ba1ef460d8da808ba2c438fd1bd83dad08b77937937"
+    },
+    {
+      "path": "apps/web/src/components/foxy-workspace.tsx",
+      "sha256": "c0f1957d8a687fcb067da074a30ff706d99c781a7390fca84919b360697deba0"
+    },
+    {
+      "path": "apps/web/src/components/study-screen.tsx",
+      "sha256": "d5fe20878a764e9795bc79b20148307456836315051d75cb647e383966248396"
+    },
+    {
+      "path": "apps/web/src/components/study-upload.tsx",
+      "sha256": "ed9cde3379041462c42e687d0d3a8381c4fb5e4ed2d6bfc8f4f3ea5f869654bc"
+    },
+    {
+      "path": "apps/web/src/components/study-wizard.tsx",
+      "sha256": "a8a9b713b9c287c9832fc0c392e76f3eab350de62df1b6b22eb8bbe4e46eed7c"
+    },
+    {
+      "path": "apps/web/src/components/study-workspace.tsx",
+      "sha256": "5b0982b4ba84a9ab8a11465b1709f466401d9c75895a24ee235e4f5aae420e1d"
+    },
+    {
+      "path": "apps/web/src/components/study.module.css",
+      "sha256": "0ddecda42a2df2ee450a71535cb207f494875e43d264413cbcd7182094d72b4c"
+    },
+    {
+      "path": "scripts/ci-suites.mjs",
+      "sha256": "71839a3b39f80db6595652d9ed0c40f526f4fe4915901556e3a6c384c3c53a20"
+    },
+    {
+      "path": "scripts/complete-suite-inventory.json",
+      "sha256": "16cd0485615d1bf8b3b3befab7adeed1db794975bd418c4cd9d4659aa3271ad9"
+    },
+    {
+      "path": "scripts/complete-suite-routes.json",
+      "sha256": "80a4b185e7766b6509379ecc5224b74e123b742258cda1dbe727700b2bd4aa91"
+    },
+    {
+      "path": "tests/agenda-ui-helpers.test.mjs",
+      "sha256": "01cc82090a73ccaf5a0a978ca0f85d77c3e0670611c1c195054d2e4a56a73721"
+    },
+    {
+      "path": "tests/helpers/wizard-reference/component-harness.mjs",
+      "sha256": "47fe5ec4a4408cd2373a1a57f731946309e54d3c2fc2a9b1802450d51b998690"
+    },
+    {
+      "path": "tests/ux-chat-polish.test.mjs",
+      "sha256": "828a3a0d973420bd691a945bfd182ac526647e5646428aa0468bd44b6d1640d3"
+    }
+  ],
+  "checks": {
+    "focusedTests": {
+      "passed": 74,
+      "failed": 0,
+      "skipped": 0,
+      "command": "node --test (14 focused files listed in work log)"
+    },
+    "webTypes": "npx tsc -p apps/web/tsconfig.json --noEmit: passed",
+    "build": "npm run local:restart: ready=true; builds API/web from this checkout",
+    "boundaries": "npm run lint:boundaries: passed, 123 frozen exceptions",
+    "inventory": "node scripts/run-complete-suite.mjs --check: 514 tests, 23 routes",
+    "taskboard": "python ~/.codex/harness/bin/taskboard.py check odd/tasks/foxy-study-ux-polish.md",
+    "documentation": "npm run docs:check"
+  },
+  "browser": {
+    "tool": "Ego Lite 2.2.0 CLI, one task space",
+    "integrated": "Own local app, real API/storage/SQL, synthetic accounts. Collection filters, study/classroom creation shells and Foxy workspace checked. No publication of a classroom or resource.",
+    "controlled": "Real React components in isolated Vite harness with synthetic clients for delayed success/failure. No provider calls in this harness. It does not prove persistence.",
+    "viewports": [
+      390,
+      1440
+    ],
+    "geometry": "No horizontal document overflow in checked study collection, tools, creation dialogs and Foxy; 44px collection buttons at 390px.",
+    "studyChat": {
+      "pendingVisible": true,
+      "duplicateSendBlocked": true,
+      "inputPreservedOnError": true,
+      "inputClearedOnSuccess": true,
+      "readingPositionPreserved": true,
+      "jumpToLatest": true
+    },
+    "teacherChat": {
+      "pendingVisible": true,
+      "uncertainMessageRetained": true,
+      "manualRetry": true,
+      "singleReconciledOutgoingMessage": true,
+      "mobileTools": 5,
+      "escapeRestoresToolFocus": true
+    },
+    "plan": {
+      "pendingTitle": "Organizando tu plan de estudio",
+      "busyButton": "Analizando plan…",
+      "summary": "1 unidad, 2 temas in synthetic example",
+      "unitKeyboardToggle": true,
+      "sharedSteps": 4,
+      "sharedCoverOptions": 7,
+      "studyCreateCloseRestoresFocus": true
+    },
+    "motion": "Animated pending mascot observed; computed animation-name becomes none under prefers-reduced-motion: reduce.",
+    "fallbacks": "Ego auto-scroll and viewport reset during pointer actions required explicit scrollIntoView and some DOM clicks/CDP keyboard input; recorded checks do not claim native touch testing.",
+    "captures": "Initial attempt failed. Authorized follow-up recovered native Ego Lite screenshots: 28 inspected PNGs with viewport/scope metadata and exact catalog hashes. No image synthesis or screenshots of mock HTML substituted for the real components."
+  },
+  "limits": [
+    "Full complete-suite execution and backend DB/security suites not repeated for this UI change.",
+    "No complete WCAG/contrast or screen-reader audit; visual QA covers the documented viewports/states only.",
+    "Two local study CHAT attempts occurred before controlled harness; no new successful Gemini answer is claimed. One pending attempt overlapped a local restart and returned an error; requests were not retried automatically.",
+    "Existing backend study preflight changes were preserved.",
+    "No Git commit, push, PR, merge or deployment."
+  ],
+  "visualValidation": {
+    "date": "2026-11-09",
+    "tool": "Ego Lite native page.screenshot",
+    "viewports": [
+      {
+        "width": 1440,
+        "height": 1000
+      },
+      {
+        "width": 390,
+        "height": 844
+      }
+    ],
+    "state": "passed within documented scope",
+    "captureIds": [
+      "ux-classroom-covers-mobile",
+      "ux-classroom-create-desktop",
+      "ux-classroom-create-mobile",
+      "ux-classrooms-desktop",
+      "ux-classrooms-mobile",
+      "ux-foxy-desktop",
+      "ux-foxy-mobile",
+      "ux-foxy-pending-desktop",
+      "ux-foxy-pending-mobile",
+      "ux-foxy-tools-mobile",
+      "ux-plan-editor-mobile",
+      "ux-plan-loading-desktop",
+      "ux-plan-loading-mobile",
+      "ux-plan-review-desktop",
+      "ux-plan-review-mobile",
+      "ux-study-chat-desktop",
+      "ux-study-chat-mobile",
+      "ux-study-collection-desktop",
+      "ux-study-collection-mobile",
+      "ux-study-covers-desktop",
+      "ux-study-covers-mobile",
+      "ux-study-create-desktop",
+      "ux-study-create-mobile",
+      "ux-study-error-desktop",
+      "ux-study-error-mobile",
+      "ux-study-pending-desktop",
+      "ux-study-pending-mobile",
+      "ux-study-tools-mobile"
+    ],
+    "catalog": "docs/design/current/catalog.json",
+    "inspected": 28,
+    "corrections": [
+      "Mobile composers fit the documented viewport and tool labels stay on one line.",
+      "Transcript resize follows new bottom only when already following, preserving history reading.",
+      "Pending first message replaces teacher welcome immediately.",
+      "Study cover picker uses full width, cover images fill tiles, and labels remain readable.",
+      "Scrolled creation dialog header has opaque background.",
+      "Tool hints and source disclosures have secondary visual hierarchy.",
+      "Plan generation hides redundant disabled setup and duplicate review heading; unit/topic count wording is corrected.",
+      "Native select disclosure arrows use a same-origin shared SVG and survive global control resets."
+    ],
+    "regressionsTested": [
+      "Resize-follow regression: expected RED assertion, then GREEN.",
+      "Pending welcome regression: expected RED assertion, then GREEN."
+    ],
+    "mobileStudyComposer": {
+      "viewportHeight": 844,
+      "inputBottom": 760.55,
+      "sendButtonBottom": 816.55
+    },
+    "limits": [
+      "Synthetic harness states demonstrate real React component presentation, not persistence or a new provider result.",
+      "Some screenshots intentionally show the scrolled dialog/transcript; metadata preserves the scope and scroll.",
+      "No screenshot failure cause inferred; native capture succeeded in this follow-up without changing Ego settings."
+    ]
+  }
+}

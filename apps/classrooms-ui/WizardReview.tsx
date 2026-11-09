@@ -1,8 +1,8 @@
 import type { FileState, Payload } from './api.ts';
 import { Cover, coverOptions } from './components.tsx';
 
-export function WizardCover({ payload, onUpdate }: { payload: Payload; onUpdate: (key: keyof Payload, value: unknown) => void }) {
-  return <fieldset className="wizard-cover-picker"><legend>Portada del aula</legend>
+export function WizardCover({ payload, onUpdate, label = 'Portada del aula' }: { payload: Payload; onUpdate: (key: keyof Payload, value: unknown) => void; label?:string }) {
+  return <fieldset className="wizard-cover-picker"><legend>{label}</legend>
     <div className="p5-covers">{coverOptions(payload.coverKey).map(cover => <label key={cover.key} className={payload.coverKey === cover.key ? 'selected' : ''}>
       <Cover kind={cover.key} /><span><input type="radio" name="coverKey" value={cover.key} checked={payload.coverKey === cover.key}
         onChange={() => onUpdate('coverKey', cover.key)} />{cover.label}</span>
@@ -21,8 +21,9 @@ export function WizardReview({ payload, file, edit }: { payload: Payload; file: 
       <dt>Archivo del plan</dt><dd>{file?.name}</dd></dl>
     <div className="p5-section-head"><h4>Unidades y temas</h4><button type="button" onClick={() => edit(2)}>Editar unidades y temas</button></div>
     <p>Este mismo contenido se mostrará en el tab Plan del aula.</p>
-    <ol className="wizard-review-units">{payload.units?.map((unit, index) => <li key={index}><strong>{unit.name}</strong>
-      <ul>{unit.topics.map((topic, topicIndex) => <li key={topicIndex}>{topic.name}</li>)}</ul>
+    <p>{payload.units?.length??0} {payload.units?.length===1?'unidad':'unidades'} · {payload.units?.reduce((n,u)=>n+u.topics.length,0)??0} temas</p>
+    <ol className="wizard-review-units">{payload.units?.map((unit, index) => <li key={index}><details><summary>{unit.name} · {unit.topics.length} {unit.topics.length===1?'tema':'temas'}</summary>
+      <ul>{unit.topics.map((topic, topicIndex) => <li key={topicIndex}>{topic.name}</li>)}</ul></details>
     </li>)}</ol>
   </section>;
 }

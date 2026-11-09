@@ -5,3 +5,39 @@
 @media(prefers-reduced-motion:reduce){.root *,.dialogBody *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 
 .dialogBody .preview>div{width:100%;height:100%;border-radius:0}.dialogBody .preview img{width:100%;height:100%;object-fit:cover}
+
+/* Shared Brújula creation shell; study-specific fields keep their own contracts. */
+.wizard{max-width:none;padding:0;border:0;border-radius:0}.wizard .heading{margin:0 0 20px}.wizard .heading h3{margin:6px 0;font-size:22px}.wizard .heading h3:focus{outline:none}.wizard .actions{border-top:1px solid #dbe1f0;padding-top:20px}.wizard input:not([type=radio]):not([type=checkbox]),.wizard select{width:100%;min-height:44px;box-sizing:border-box;border:1px solid #dbe1f0;border-radius:11px;background:#fff;padding:12px;font:inherit}.wizard label{display:flex;flex-direction:column;gap:8px}.wizard fieldset{min-width:0}.wizard .formFields label:has(input[type=radio]),.wizard .banners label{flex-direction:row;align-items:center;min-height:44px}.wizard .banners label{padding:8px;border:1px solid #dbe1f0;border-radius:11px}.wizard .banners label:has(input:checked){background:#fff0e6;border-color:#b8490c}.wizard :is(button,input,select,summary):focus-visible,.dialogBody summary:focus-visible{outline:3px solid #a7714e;outline-offset:3px}.wizard .primary{background:#b8490c;color:white;border-color:#b8490c}
+.planSummary{font-size:14px;line-height:1.7;color:#60667d;margin:0}.plan .unit{display:block;padding:0;overflow:hidden}.unit summary{padding:18px 20px;cursor:pointer;font-size:15px;line-height:1.7;font-weight:600;overflow-wrap:anywhere}.unit summary small{display:block;margin:4px 0 0 18px;color:#60667d;font-size:12px;font-weight:400}.unitFields{display:grid;gap:16px;padding:0 20px 20px}.unitFields .inline{align-items:end}.reviewUnit{border-top:1px solid #dbe1f0;padding:14px 0}.reviewUnit summary{cursor:pointer;font-weight:600;min-height:44px;line-height:1.7}
+.chat{height:clamp(580px,calc(100dvh - 190px),900px);min-height:0}.messages{min-height:0;max-height:none;overscroll-behavior:contain;overflow-anchor:none}.userMessage{background:#eeeaff;border:1px solid #e2daf9;border-radius:15px 15px 3px 15px;overflow-wrap:anywhere}.userMessage small{display:block;margin-top:6px;color:#60667d;font-size:11px}.widget:first-child{background:linear-gradient(155deg,#f1efff,#fbfaff);border-color:#dcdaf1}.widgetBody>div[role=group]{display:grid}.widgetBody>label{margin-top:4px}.widget .tabs{background:#eae7f5;margin:12px;padding:4px;border:0;border-radius:11px;display:flex;flex-wrap:nowrap}.widget .tabs button{flex:1;padding:8px;min-width:0;background:transparent;border:1px solid transparent}.widget .tabs button[aria-pressed=true]{background:#fff;color:#252646;border-color:#dcd6ed}.widget .widgetBody{padding-top:8px}.widgetBody .primary{width:100%;margin-top:6px}
+@media(max-width:600px){.toolbar>nav{grid-column:1/-1}.wizard{padding:0}.chat{height:calc(100dvh - 160px);min-height:500px}.composer textarea{resize:none}.unitFields{padding:0 14px 16px}.unit summary{padding:14px}.wizard .columns{gap:20px}}
+
+/* Full-width cover options avoid clipped names inside the shared dialog. */
+.wizard .columns{grid-template-columns:minmax(0,1fr);gap:24px}
+.citations{margin-top:10px;color:#60667d;font-size:12px;line-height:1.6}
+.citations summary{font-size:12px;font-weight:500;line-height:1.6;min-height:44px;cursor:pointer}
+.citations ul{font-size:12px;line-height:1.6;margin:4px 0;padding-left:20px}
+.citations summary:focus-visible{outline:3px solid #a7714e;outline-offset:3px}
+:global(.fm3d-theme) .root[class][class] select,
+:global(.fm3d-theme) .wizard[class][class] select{
+ appearance:none;padding-right:36px!important;
+ background-image:url('/brujula/select-chevron.svg')!important;
+ background-repeat:no-repeat!important;background-position:right 12px center!important;background-size:12px!important;
+}
+@media(max-width:600px){
+ .back{margin-bottom:10px}
+ .heading{margin-top:0;margin-bottom:16px;gap:12px}
+ .heading h1{font-size:24px;margin:4px 0 6px;overflow-wrap:anywhere}
+ .heading .actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+ .heading .actions button{min-width:0;font-size:12px;padding:8px}
+ .mobileNav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:12px}
+ .root[class] .mobileNav button{min-width:0;font-size:11px;padding:8px 2px;white-space:nowrap}
+ .chat{height:calc(100dvh - 330px);min-height:380px}
+ .chatHeader{padding:12px 16px;gap:10px}
+ .chatHeader h2{margin-bottom:4px}
+ .chatHeader button{font-size:12px;padding:8px 12px}
+ .composer{padding:12px 16px}
+ .composer textarea{height:60px;min-height:60px}
+ .composer .inline{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+ .composer small{font-size:10px;line-height:1.5}
+}

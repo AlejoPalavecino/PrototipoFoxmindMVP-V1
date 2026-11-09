@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "date": "2026-11-08",
-  "count": 188,
+  "date": "2026-11-09",
+  "count": 216,
   "captures": [
     {
       "id": "auth-login",
@@ -4137,6 +4137,544 @@
       "alerts": [
         "Carpetas de estudio · FoxMind"
       ]
+    },
+    {
+      "id": "ux-classroom-covers-mobile",
+      "path": "ux-classroom-covers-mobile.png",
+      "sha256": "511873288f25c085173f097a1c804a4949997e48d3d34b49038b35d280d98a89",
+      "bytes": 169153,
+      "metadata": "ux-classroom-covers-mobile.json",
+      "metadataSha256": "b3b9c2877e9be3b76767fa863cdc76063cb4f30528d863ad2bf3408eae1b8e3a",
+      "url": "/mis-aulas",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "headings": [
+        "Crear aula",
+        "Datos del aula",
+        "Subí tu archivo",
+        "Mis aulas",
+        "Fotografía y luz"
+      ],
+      "alerts": [],
+      "scope": "Integrated local app; shared covers/footer, scrolled"
+    },
+    {
+      "id": "ux-classroom-create-desktop",
+      "path": "ux-classroom-create-desktop.png",
+      "sha256": "117a80b9eaca8db6df20099150d202126f80678aa599bbf22a5af70fa351246c",
+      "bytes": 201095,
+      "metadata": "ux-classroom-create-desktop.json",
+      "metadataSha256": "4b0cfe08d3fbb37af34d088fc33433f512359d7267cda0f735a293099f438995",
+      "url": "/mis-aulas",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "headings": [
+        "Crear aula",
+        "Datos del aula",
+        "Subí tu archivo",
+        "Mis aulas",
+        "Fotografía y luz"
+      ],
+      "alerts": [],
+      "scope": "Integrated local app; QA-created empty private draft, never published"
+    },
+    {
+      "id": "ux-classroom-create-mobile",
+      "path": "ux-classroom-create-mobile.png",
+      "sha256": "a53c5fdb93dc807c56c72f873b7698e763e8e34178aeaff5ec913b48cdb226df",
+      "bytes": 52746,
+      "metadata": "ux-classroom-create-mobile.json",
+      "metadataSha256": "09b7ee2154b447c89fc5f47b445dddd8fef3d27d5ee1f3ae9f6a49215212f31f",
+      "url": "/mis-aulas",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "headings": [
+        "Crear aula",
+        "Datos del aula",
+        "Subí tu archivo",
+        "Mis aulas",
+        "Fotografía y luz"
+      ],
+      "alerts": [],
+      "scope": "Integrated local app; QA-created empty private draft, never published"
+    },
+    {
+      "id": "ux-classrooms-desktop",
+      "path": "ux-classrooms-desktop.png",
+      "sha256": "221cd87bd829789cf8bb57f7ba0255cb0b02f062bb0f6c3aa043d85f7d91f731",
+      "bytes": 452648,
+      "metadata": "ux-classrooms-desktop.json",
+      "metadataSha256": "f6f2af45e1cfaf7ccd1d46d3126a1094702284d0022fef672d010a968d44da6c",
+      "url": "/mis-aulas",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "headings": [
+        "Mis aulas",
+        "Fotografía y luz"
+      ],
+      "alerts": [],
+      "scope": "Integrated local app; classroom collection, synthetic teacher/room"
+    },
+    {
+      "id": "ux-classrooms-mobile",
+      "path": "ux-classrooms-mobile.png",
+      "sha256": "54c5932a19cf9185df586e0e9fd18eaf1e8e8364cd2280bfb51bd495909fac07",
+      "bytes": 102339,
+      "metadata": "ux-classrooms-mobile.json",
+      "metadataSha256": "12ce83f148b05a8fdd7263deeeb5577f9d41653c19a3fbba659ae835e966f8c3",
+      "url": "/mis-aulas",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "headings": [
+        "Mis aulas",
+        "Fotografía y luz"
+      ],
+      "alerts": [],
+      "scope": "Integrated local app; classroom collection, synthetic teacher/room"
+    },
+    {
+      "id": "ux-foxy-desktop",
+      "path": "ux-foxy-desktop.png",
+      "sha256": "240b1c05e9e04028116d741fb8a0a1be851bdb5747aeba8610500beae1f4bc6b",
+      "bytes": 388863,
+      "metadata": "ux-foxy-desktop.json",
+      "metadataSha256": "301fafabeb68b71ddb63aceda17ccb3bcac895e45b644809b03a2a549d413412",
+      "url": "/foxy-ai",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1425,
+      "headings": [
+        "Foxy AI",
+        "¿Qué preparamos hoy?",
+        "Conversaciones"
+      ],
+      "alerts": [],
+      "scope": "Integrated local app; teacher workspace, no new generation"
+    },
+    {
+      "id": "ux-foxy-mobile",
+      "path": "ux-foxy-mobile.png",
+      "sha256": "ea612d3db4907ff7e4d808b4a86f03f18224b28831f52aa67f207fe0204be112",
+      "bytes": 89678,
+      "metadata": "ux-foxy-mobile.json",
+      "metadataSha256": "859c5f51956882ad5c81c7b4e4adbeac5004f789dbdaa906ccd7de2b0f8b07b3",
+      "url": "/foxy-ai",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "headings": [
+        "Foxy AI",
+        "¿Qué preparamos hoy?"
+      ],
+      "alerts": [],
+      "scope": "Integrated local app; teacher workspace, no new generation"
+    },
+    {
+      "id": "ux-foxy-pending-desktop",
+      "path": "ux-foxy-pending-desktop.png",
+      "sha256": "68582a797cfebc1acd7f22257fc908ff6c669e9c11dbbcc651f65f9978a8a99d",
+      "bytes": 118127,
+      "metadata": "ux-foxy-pending-desktop.json",
+      "metadataSha256": "c22eb13480b7fe90a47a7359861e028c1bf4c9a7aaf5ca6c4b992286c1c4a200",
+      "url": "/",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1425,
+      "headings": [
+        "Foxy AI",
+        "Conversación docente",
+        "Vos",
+        "Conversaciones"
+      ],
+      "alerts": [],
+      "scope": "Real FoxyWorkspace/product styles; synthetic delayed CHAT"
+    },
+    {
+      "id": "ux-foxy-pending-mobile",
+      "path": "ux-foxy-pending-mobile.png",
+      "sha256": "457482288e07ed234c355880df62e71b0c3e3743fb637cf6b8d13b35a7de74d2",
+      "bytes": 58651,
+      "metadata": "ux-foxy-pending-mobile.json",
+      "metadataSha256": "3ba918ea2a4bb1cffa279321f3cda72e5153ee3485d2e7c8a70bffcdcaa75afe",
+      "url": "/",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "headings": [
+        "Foxy AI",
+        "Conversación docente",
+        "Vos"
+      ],
+      "alerts": [],
+      "scope": "Real FoxyWorkspace/product styles; synthetic delayed CHAT"
+    },
+    {
+      "id": "ux-foxy-tools-mobile",
+      "path": "ux-foxy-tools-mobile.png",
+      "sha256": "cbabb7c7b250d1e6ef68fa1c78f3dde7d1860be98f711fbd96638a416da01221",
+      "bytes": 90325,
+      "metadata": "ux-foxy-tools-mobile.json",
+      "metadataSha256": "f97764cf38879c91b7a7645f68cb36138f1c660ef005c5ca8b18eb9810e8419b",
+      "url": "/foxy-ai",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "headings": [
+        "Foxy AI",
+        "¿Qué preparamos hoy?",
+        "Herramientas"
+      ],
+      "alerts": [],
+      "scope": "Integrated local app; teacher tools dialog"
+    },
+    {
+      "id": "ux-plan-editor-mobile",
+      "path": "ux-plan-editor-mobile.png",
+      "sha256": "37f17c8524817b47db8802517d68a05b874ba389418b84ae0afce5596a70c042",
+      "bytes": 50554,
+      "metadata": "ux-plan-editor-mobile.json",
+      "metadataSha256": "94ecd3d63b84ba21c5c2ba196556faf4aa8c141e97a000ae71ed32c1daf1fae3",
+      "url": "/",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "headings": [
+        "Crear carpeta",
+        "Revisá tus unidades y temas"
+      ],
+      "alerts": [],
+      "scope": "Real StudyWizard/product styles; synthetic editable plan, unit opened"
+    },
+    {
+      "id": "ux-plan-loading-desktop",
+      "path": "ux-plan-loading-desktop.png",
+      "sha256": "c6f6d520e9c44a6d675dda39cc3de57335ac710360e5df4f9e686c8e67471517",
+      "bytes": 91714,
+      "metadata": "ux-plan-loading-desktop.json",
+      "metadataSha256": "9e247054d6072d63c091bed5c65516af3d21b38d458eb8b921a034f12725954f",
+      "url": "/",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "headings": [
+        "Crear carpeta",
+        "Organizar el plan"
+      ],
+      "alerts": [],
+      "scope": "Real StudyWizard/product styles; synthetic delayed PLAN"
+    },
+    {
+      "id": "ux-plan-loading-mobile",
+      "path": "ux-plan-loading-mobile.png",
+      "sha256": "a718a7f527d5abdd9326fdef974081dba60007b101098f0968231b88479e941a",
+      "bytes": 72281,
+      "metadata": "ux-plan-loading-mobile.json",
+      "metadataSha256": "97cc5f118a45bd4d8376da97646ed1e06766ce731e7b397997163e20f9b44fa9",
+      "url": "/",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "headings": [
+        "Crear carpeta",
+        "Organizar el plan"
+      ],
+      "alerts": [],
+      "scope": "Real StudyWizard/product styles; synthetic delayed PLAN"
+    },
+    {
+      "id": "ux-plan-review-desktop",
+      "path": "ux-plan-review-desktop.png",
+      "sha256": "98c399dedd4cad73fc69624a01410ef3108a9341d6dbda91c168426557c095a2",
+      "bytes": 92764,
+      "metadata": "ux-plan-review-desktop.json",
+      "metadataSha256": "2bba330b30f49ce142a49ed6fb19e0641ea39b490b19750a82c4fff23b19e0f2",
+      "url": "/",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "headings": [
+        "Crear carpeta",
+        "Revisá tus unidades y temas"
+      ],
+      "alerts": [],
+      "scope": "Real StudyWizard/product styles; synthetic reviewed plan"
+    },
+    {
+      "id": "ux-plan-review-mobile",
+      "path": "ux-plan-review-mobile.png",
+      "sha256": "b19117f53cc29f8072f09df41ebd5f95299b20a70e9a93095ccefff9dfc9f458",
+      "bytes": 67426,
+      "metadata": "ux-plan-review-mobile.json",
+      "metadataSha256": "8d0b4f3b0bbc51346cd01013427cf185b3aa3fa8395754bc4adbd7329dea3d1c",
+      "url": "/",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "headings": [
+        "Crear carpeta",
+        "Revisá tus unidades y temas"
+      ],
+      "alerts": [],
+      "scope": "Real StudyWizard/product styles; synthetic reviewed plan"
+    },
+    {
+      "id": "ux-study-chat-desktop",
+      "path": "ux-study-chat-desktop.png",
+      "sha256": "725068d967cb388395512677bad681cdc901ac411c2d0c2253c14e7f81234a0e",
+      "bytes": 339086,
+      "metadata": "ux-study-chat-desktop.json",
+      "metadataSha256": "4bae4b28cb68652eb2faf9d828e375976a54acf2745d20ac8b51f76b60b680f4",
+      "url": "/carpetas-de-estudio/4a34b7e0-cf36-4586-9348-e231912b7c57",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1425,
+      "headings": [
+        "Fotografía · estudio privado",
+        "Nueva conversación",
+        "¿Qué querés crear?",
+        "Conversaciones"
+      ],
+      "alerts": [],
+      "scope": "Integrated local app, existing synthetic conversation, no new generation"
+    },
+    {
+      "id": "ux-study-chat-mobile",
+      "path": "ux-study-chat-mobile.png",
+      "sha256": "465b52aafe2f0f088ee6821345aae9d9a2281d054c7f078eeddf31738e07d909",
+      "bytes": 65165,
+      "metadata": "ux-study-chat-mobile.json",
+      "metadataSha256": "d9ca48f0badb088d05d54bc895960c0ed56ed7e9099c12e8f7385f198dcd75e3",
+      "url": "/carpetas-de-estudio/4a34b7e0-cf36-4586-9348-e231912b7c57",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "headings": [
+        "Fotografía · estudio privado",
+        "Nueva conversación"
+      ],
+      "alerts": [],
+      "scope": "Integrated local app, existing synthetic conversation, no new generation"
+    },
+    {
+      "id": "ux-study-collection-desktop",
+      "path": "ux-study-collection-desktop.png",
+      "sha256": "423e2dff05b8fa11b065d8748d9ca123fe52e79d40baaed8c949ec6d89c7f90b",
+      "bytes": 471395,
+      "metadata": "ux-study-collection-desktop.json",
+      "metadataSha256": "7732df4b01c1ba86bb35332f9d44aec48f088d9207cb47440ba84d2359384096",
+      "url": "/carpetas-de-estudio",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "headings": [
+        "Carpetas de estudio",
+        "Fotografía · estudio privado"
+      ],
+      "alerts": [],
+      "scope": "Integrated local app with synthetic student/folder"
+    },
+    {
+      "id": "ux-study-collection-mobile",
+      "path": "ux-study-collection-mobile.png",
+      "sha256": "1fb1e358d309c7c69a97e09de72e592c9c3da9cec6a8f2b39177ec99de53300d",
+      "bytes": 131716,
+      "metadata": "ux-study-collection-mobile.json",
+      "metadataSha256": "c45dfe0d6203f515b6b0e6649037742b3eb76cc161a8efbcf9296c123b643d3c",
+      "url": "/carpetas-de-estudio",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "headings": [
+        "Carpetas de estudio",
+        "Fotografía · estudio privado"
+      ],
+      "alerts": [],
+      "scope": "Integrated local app with synthetic student/folder"
+    },
+    {
+      "id": "ux-study-covers-desktop",
+      "path": "ux-study-covers-desktop.png",
+      "sha256": "e43b9c292a028bdcb6df498a1e98c1bdbb6045fa3577c3d82db9eaf5278c3e68",
+      "bytes": 355389,
+      "metadata": "ux-study-covers-desktop.json",
+      "metadataSha256": "bce73fc8132c4f471a58e545f804de27020b6df7e23911aa27ae7701823c73b3",
+      "url": "/carpetas-de-estudio",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "headings": [
+        "Crear carpeta",
+        "Tu carpeta",
+        "Carpetas de estudio",
+        "Fotografía · estudio privado"
+      ],
+      "alerts": [],
+      "scope": "Integrated local app; shared cover picker and footer, scrolled"
+    },
+    {
+      "id": "ux-study-covers-mobile",
+      "path": "ux-study-covers-mobile.png",
+      "sha256": "6faff73475cc63e43e1b16fb18dea094e19bcb776dda08b08fdda8ad9b114922",
+      "bytes": 199582,
+      "metadata": "ux-study-covers-mobile.json",
+      "metadataSha256": "dca7b123a65883a2019c25aa314186a3f406d92a48d0ff81ec73e629f8cc2c81",
+      "url": "/carpetas-de-estudio",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "headings": [
+        "Crear carpeta",
+        "Tu carpeta",
+        "Carpetas de estudio",
+        "Fotografía · estudio privado"
+      ],
+      "alerts": [],
+      "scope": "Integrated local app; shared covers and footer, modal scrolled to bottom"
+    },
+    {
+      "id": "ux-study-create-desktop",
+      "path": "ux-study-create-desktop.png",
+      "sha256": "542f7dc6181f35df75b3f673d5c660f5b4dd70e28e690f4547773c528b86380e",
+      "bytes": 198054,
+      "metadata": "ux-study-create-desktop.json",
+      "metadataSha256": "afe6386216da04591a1c47b614aa7df2ab99bccdef80bb01e1ed735a6fb8d7e9",
+      "url": "/carpetas-de-estudio",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "headings": [
+        "Crear carpeta",
+        "Tu carpeta",
+        "Carpetas de estudio",
+        "Fotografía · estudio privado"
+      ],
+      "alerts": [],
+      "scope": "Integrated local app; new unsaved study folder, first step"
+    },
+    {
+      "id": "ux-study-create-mobile",
+      "path": "ux-study-create-mobile.png",
+      "sha256": "28c30fc824072049d7070ecf16589498f6cf41267ec62d56215d71c0be4d769b",
+      "bytes": 64537,
+      "metadata": "ux-study-create-mobile.json",
+      "metadataSha256": "5eac168a2acc725e677ea12899de125e54bf6a6fedae99ef7aeffc8279820a0c",
+      "url": "/carpetas-de-estudio",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "headings": [
+        "Crear carpeta",
+        "Tu carpeta",
+        "Carpetas de estudio",
+        "Fotografía · estudio privado"
+      ],
+      "alerts": [],
+      "scope": "Integrated local app; new unsaved study folder, first step"
+    },
+    {
+      "id": "ux-study-error-desktop",
+      "path": "ux-study-error-desktop.png",
+      "sha256": "5a3d8a5f3c9850ee509017acce6e061edc2a42b816040e0e00dda0fd8d251975",
+      "bytes": 186152,
+      "metadata": "ux-study-error-desktop.json",
+      "metadataSha256": "168eb68dde82ab559c2ea6093caefb148cdfd0a6313b0b41466b4ec31aa93bc9",
+      "url": "/",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1425,
+      "headings": [
+        "Fotografía · QA sintético",
+        "Conversación sintética",
+        "¿Qué querés crear?",
+        "Conversaciones"
+      ],
+      "alerts": [
+        "No pudimos completar la solicitud. Conservamos lo que escribiste."
+      ],
+      "scope": "Real components/product styles; synthetic failure banner; submitted text retained in composer"
+    },
+    {
+      "id": "ux-study-error-mobile",
+      "path": "ux-study-error-mobile.png",
+      "sha256": "b4df57f2471a935b9c40d8de3c0cc162d49f78519ab8300e026780e3afa0079f",
+      "bytes": 64401,
+      "metadata": "ux-study-error-mobile.json",
+      "metadataSha256": "db5a8c98a3917c87685fe6d0dcec93d0e3fbcfa021db019eba048a1e6829187a",
+      "url": "/",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "headings": [
+        "Fotografía · QA sintético",
+        "Conversación sintética"
+      ],
+      "alerts": [
+        "No pudimos completar la solicitud. Conservamos lo que escribiste."
+      ],
+      "scope": "Real components/product styles; synthetic failure, input preserved"
+    },
+    {
+      "id": "ux-study-pending-desktop",
+      "path": "ux-study-pending-desktop.png",
+      "sha256": "419e00fab7765a60e4695514ac953a7179ccb75a25c45fc6a6658e08b287d149",
+      "bytes": 183211,
+      "metadata": "ux-study-pending-desktop.json",
+      "metadataSha256": "7f3b8d15fae79e5257b566f867a63724e0e023d5a96c63effd8a950877163b90",
+      "url": "/",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1425,
+      "headings": [
+        "Fotografía · QA sintético",
+        "Conversación sintética",
+        "¿Qué querés crear?",
+        "Conversaciones"
+      ],
+      "alerts": [],
+      "scope": "Real components/product styles; synthetic delayed CHAT"
+    },
+    {
+      "id": "ux-study-pending-mobile",
+      "path": "ux-study-pending-mobile.png",
+      "sha256": "6fe6ed14419fe04dd519669a75de6c0aeeb3c0cf107f86123b2a9d42eb9ec4c5",
+      "bytes": 63246,
+      "metadata": "ux-study-pending-mobile.json",
+      "metadataSha256": "da5ddcd5d25fcd12baa550f0b8587d7647b5f4265f2ed483fe9076eabc7f80ab",
+      "url": "/",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "headings": [
+        "Fotografía · QA sintético",
+        "Conversación sintética"
+      ],
+      "alerts": [],
+      "scope": "Real components/product styles; synthetic delayed CHAT"
+    },
+    {
+      "id": "ux-study-tools-mobile",
+      "path": "ux-study-tools-mobile.png",
+      "sha256": "130764cde50f1f393c658e3d53cc466080298761792118c540ddf7dd86f559cf",
+      "bytes": 65348,
+      "metadata": "ux-study-tools-mobile.json",
+      "metadataSha256": "2a5c1106eccaf1d12a28f9fbc357f185f2b6be9dbe6b84d53164139fe70de60b",
+      "url": "/carpetas-de-estudio/4a34b7e0-cf36-4586-9348-e231912b7c57",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "headings": [
+        "Fotografía · estudio privado",
+        "Nueva conversación",
+        "Herramientas",
+        "¿Qué querés crear?"
+      ],
+      "alerts": [],
+      "scope": "Integrated local app; study tools dialog"
     }
   ]
 }

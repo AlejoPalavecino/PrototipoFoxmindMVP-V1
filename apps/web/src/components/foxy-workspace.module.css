@@ -318,3 +318,13 @@
   .collectionList > li > button { font-size:14px; }
   .workspace .conversationTitle { padding:10px 13px 0; }
 }
+
+/* Keep the composer visible after the mobile navigation and page heading. */
+@media(max-width:800px) {
+  .workspace .mobileActions { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px; }
+  .workspace[class] .mobileActions .mobileTools { justify-content:center;min-width:0;padding:8px 5px;font-size:11px;white-space:nowrap; }
+  .workspace .chat { height:calc(100dvh - 250px);min-height:380px; }
+}
+@media(max-width:440px) {
+  .workspace .mobileTools svg { display:none; }
+}

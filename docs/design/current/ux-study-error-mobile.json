@@ -1,0 +1,21 @@
+{
+  "date": "2026-11-09",
+  "scope": "Real components/product styles; synthetic failure, input preserved",
+  "role": "student",
+  "url": "/",
+  "width": 390,
+  "height": 844,
+  "scrollWidth": 390,
+  "scrollY": 177.60000610351562,
+  "headings": [
+    "Fotografía · QA sintético",
+    "Conversación sintética"
+  ],
+  "alerts": [
+    "No pudimos completar la solicitud. Conservamos lo que escribiste."
+  ],
+  "baseCommit": "04b69a76fe60bcf5cc047ef436cb89e16e26a801",
+  "candidate": "uncommitted working tree; file digests in docs/verification/foxy-study-ux-polish.json",
+  "visuallyInspected": true,
+  "fixtureScenario": "study"
+}

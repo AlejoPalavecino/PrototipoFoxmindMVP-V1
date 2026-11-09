@@ -1,10 +1,11 @@
 'use client';
+import { initializePlanDisclosure } from '../shared-ui/plan-disclosure';
 import { useState } from 'react';
 import { parseExtractedCurriculum, type CurriculumUnit, type ExtractedCurriculum } from '../../src/core/domain/index.ts';
 
 type UnitEditorProps = { unit: CurriculumUnit; index: number; change: (unit: CurriculumUnit) => void; remove: () => void };
 function UnitEditor({ unit, index, change, remove }: UnitEditorProps) {
-  return <section className="p5-unit p5-extraction-unit">
+  return <details className="p5-unit p5-extraction-unit wizard-unit-disclosure" ref={node=>initializePlanDisclosure(node,!unit.name.trim()||!unit.topics.length||unit.topics.some(t=>!t.name.trim()))}><summary>Unidad {index+1} · {unit.name||"Sin nombre"}<small>{unit.topics.length} {unit.topics.length===1?'tema':'temas'}</small></summary><div>
     <div className="p5-section-head"><h4>Unidad propuesta {index + 1}</h4>
       <button type="button" onClick={remove} aria-label={`Quitar unidad propuesta ${index + 1}`}>Quitar unidad</button></div>
     <label>Nombre de la unidad propuesta {index + 1}<input maxLength={120} value={unit.name}
@@ -17,7 +18,7 @@ function UnitEditor({ unit, index, change, remove }: UnitEditorProps) {
     </div>)}
     <button type="button" disabled={unit.topics.length >= 100}
       onClick={() => change({ ...unit, topics: [...unit.topics, { name: '' }] })}>Agregar tema a la propuesta</button>
-  </section>;
+  </div></details>;
 }
 function validUnits(units: CurriculumUnit[]) {
   try { parseExtractedCurriculum({ units, warnings: [] }); return true; } catch { return false; }
@@ -30,7 +31,7 @@ export function ExtractionEditor({ proposal, hasUnits, busy, apply }: EditorProp
   return <div className="p5-extraction-editor" onKeyDown={event => {
     if (event.key === 'Enter' && event.target instanceof HTMLInputElement) event.preventDefault();
   }}>
-    <p>Revisá los nombres y completá o quitá lo que haga falta antes de incorporarlos al aula.</p>
+    <p>{units.length} {units.length===1?'unidad':'unidades'} · {units.reduce((n,u)=>n+u.topics.length,0)} temas. Revisá cada unidad antes de usar la propuesta.</p>
     {proposal.warnings.includes('PARTIAL_STRUCTURE') && <p role="status">Encontramos una estructura parcial. Compará la propuesta con tu plan.</p>}
     {proposal.warnings.includes('DOCX_IMAGES_OMITTED') && <p role="status">No se leen las imágenes dentro de documentos Word. Revisá si falta contenido.</p>}
     <fieldset disabled={busy}>

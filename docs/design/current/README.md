@@ -1,8 +1,37 @@
 # Capturas del FoxMind actual
 
-Ego Lite, 2026-11-07; cuentas y datos sintéticos en servicios locales descartables. Estas imágenes documentan el diseño implementado, sin proponer un rediseño. Cada PNG tiene metadatos de ruta, viewport, ancho de documento, títulos y alertas; [catálogo con hashes](catalog.json). Las credenciales y enlaces privados de confirmación no se guardan en las imágenes ni sus metadatos.
+Pulido de Foxy, Carpetas y creación, 2026-11-09: capturas nativas Ego Lite recuperadas e inspeccionadas en escritorio 1440×1000 y móvil 390×844. Sustituyen la presentación anterior de esas superficies. App local integrada con cuentas y contenido sintéticos para colecciones/chats/creación; esperas, errores y propuesta de plan usan los componentes reales en un harness con respuestas explícitamente sintéticas. Cada metadato identifica su alcance; no atribuir persistencia o proveedor real al harness. Ver [diseño vigente](../README.md), [recibo](../../verification/foxy-study-ux-polish.json) y [registro visual](../../work-log/2026-11-09-root-ux-visual.md).
 
-Las capturas son referencias visuales; la [matriz de recorridos](../../verification/flows.md) explica acciones, resultados y límites. No todas muestran un éxito: review es validación faltante, diagram-state es cuota, student-ai es indisponibilidad; los nombres heredados del paso de captura no sustituyen esa descripción. No se inspeccionó visualmente cada imagen ni se auditó WCAG completa.
+## Referencias vigentes del pulido — 2026-11-09
+
+Escritorio: 1440×1000. Móvil: 390×844. Las 28 imágenes de esta tabla fueron inspeccionadas individualmente. Los [metadatos y hashes](catalog.json) identifican rol, ruta, desplazamiento y procedencia; no se infiere una llamada real a IA desde una espera sintética.
+
+| Flujo o estado | Escritorio | Móvil | Alcance de la captura |
+|---|---|---|---|
+| Foxy AI | [Ver escritorio](ux-foxy-desktop.png) | [Ver móvil](ux-foxy-mobile.png) | App integrada |
+| Herramientas docentes | — | [Ver móvil](ux-foxy-tools-mobile.png) | App integrada |
+| Chat docente en espera | [Ver escritorio](ux-foxy-pending-desktop.png) | [Ver móvil](ux-foxy-pending-mobile.png) | Componentes reales; respuesta sintética |
+| Carpetas de estudio | [Ver escritorio](ux-study-collection-desktop.png) | [Ver móvil](ux-study-collection-mobile.png) | App integrada |
+| Chat estudiantil | [Ver escritorio](ux-study-chat-desktop.png) | [Ver móvil](ux-study-chat-mobile.png) | App integrada; conversación de prueba existente |
+| Herramientas estudiantiles | — | [Ver móvil](ux-study-tools-mobile.png) | App integrada |
+| Chat estudiantil en espera | [Ver escritorio](ux-study-pending-desktop.png) | [Ver móvil](ux-study-pending-mobile.png) | Componentes reales; respuesta sintética |
+| Error y entrada conservada | [Ver escritorio](ux-study-error-desktop.png) | [Ver móvil](ux-study-error-mobile.png) | Componentes reales; fallo sintético |
+| Mis aulas | [Ver escritorio](ux-classrooms-desktop.png) | [Ver móvil](ux-classrooms-mobile.png) | App integrada |
+| Crear aula | [Ver escritorio](ux-classroom-create-desktop.png) | [Ver móvil](ux-classroom-create-mobile.png) | App integrada; borrador propio de QA sin publicar |
+| Crear carpeta | [Ver escritorio](ux-study-create-desktop.png) | [Ver móvil](ux-study-create-mobile.png) | App integrada; creación sin guardar |
+| Portadas de carpeta | [Ver escritorio](ux-study-covers-desktop.png) | [Ver móvil](ux-study-covers-mobile.png) | App integrada; diálogo desplazado |
+| Portadas de aula | — | [Ver móvil](ux-classroom-covers-mobile.png) | App integrada; diálogo desplazado |
+| Plan en análisis | [Ver escritorio](ux-plan-loading-desktop.png) | [Ver móvil](ux-plan-loading-mobile.png) | Componentes reales; generación sintética |
+| Revisión del plan | [Ver escritorio](ux-plan-review-desktop.png) | [Ver móvil](ux-plan-review-mobile.png) | Componentes reales; propuesta sintética |
+| Edición de unidad | — | [Ver móvil](ux-plan-editor-mobile.png) | Componentes reales; unidad abierta |
+
+## Referencias conservadas de otras superficies y recorridos previos
+
+Las referencias siguientes conservan evidencia de su fecha. Para Foxy, colecciones de Aulas/Carpetas y creación/plan, usar la tabla vigente anterior. Prácticas, examen, perfil y otras pantallas sin rediseño mantienen sus referencias específicas.
+
+Ego Lite, 2026-11-07; cuentas y datos sintéticos en servicios locales descartables. Este lote documenta la base inspeccionada entonces. Cada PNG tiene metadatos de ruta, viewport, ancho de documento, títulos y alertas; [catálogo con hashes](catalog.json). Las credenciales y enlaces privados de confirmación no se guardan en las imágenes ni sus metadatos.
+
+Las capturas son referencias visuales; la [matriz de recorridos](../../verification/flows.md) explica acciones, resultados y límites. No todas muestran un éxito: review es validación faltante, diagram-state es cuota, student-ai es indisponibilidad; los nombres heredados del paso de captura no sustituyen esa descripción. El lote base no tuvo inspección visual individual de todas sus imágenes ni auditoría WCAG completa; esto no describe las 28 referencias nuevas, que sí se inspeccionaron.
 
 ![Inicio docente actual](teacher-home.png)
 
@@ -10,13 +39,13 @@ Las capturas son referencias visuales; la [matriz de recorridos](../../verificat
 
 Actualización de Perfil y Configuración del 2026-11-08: avatares Foxy para ambos roles con vista previa/guardado explícito. Referencias vigentes: [perfil docente](teacher-profile-avatars.png), [tablet](teacher-profile-avatars-tablet.png), [móvil](teacher-profile-avatars-mobile.png), [perfil estudiante](student-profile-avatars.png), [móvil estudiante](student-profile-avatars-mobile.png), [configuración docente](teacher-account-settings.png) y [móvil](teacher-account-settings-mobile.png), [configuración estudiante](student-account-settings.png) y [móvil](student-account-settings-mobile.png). Sustituyen la presentación anterior de esas pantallas; las referencias anteriores sólo conservan evidencia de los recorridos documentados entonces. API/PostgreSQL reales propios y cuentas sintéticas, sin generación IA de producto. [Recibo](../../verification/profile-avatars.json) y [límites](../../work-log/2026-11-08-root-profile-avatars.md).
 
-## Índice completo
+### Recorridos y capturas conservados
 
-Carpetas de estudio (2026-11-08): [colección](student-study-folders.png), [colección móvil](student-study-folders-mobile.png), [workspace](student-study-workspace.png), [tablet](student-study-workspace-tablet.png), [móvil](student-study-workspace-mobile.png), [práctica](student-study-practice.png), [práctica tablet](student-study-practice-tablet.png), [práctica móvil](student-study-practice-mobile.png), [examen](student-study-exam.png) y [aviso privado](student-study-reminder.png). Colección/chat/examen/aviso: app habitual propia, cuenta/materiales sintéticos y chat Gemini; cronograma determinista. Prácticas: app/servicios aislados reales con proveedor explícitamente sintético. Metadatos por captura y hashes exactos en catálogo; sin overflow a390/834/1440. [Recibo y límites](../../verification/study-folders.json).
+Carpetas de estudio, evidencia del 2026-11-08 (colección/workspace sustituidos visualmente por las referencias del 2026-11-09): [colección](student-study-folders.png), [colección móvil](student-study-folders-mobile.png), [workspace](student-study-workspace.png), [tablet](student-study-workspace-tablet.png), [móvil](student-study-workspace-mobile.png), [práctica](student-study-practice.png), [práctica tablet](student-study-practice-tablet.png), [práctica móvil](student-study-practice-mobile.png), [examen](student-study-exam.png) y [aviso privado](student-study-reminder.png). Colección/chat/examen/aviso: app habitual propia, cuenta/materiales sintéticos y chat Gemini; cronograma determinista. Prácticas: app/servicios aislados reales con proveedor explícitamente sintético. Metadatos por captura y hashes exactos en catálogo; sin overflow a390/834/1440. [Recibo y límites](../../verification/study-folders.json).
 
-Foxy actualizado el 2026-11-08: [escritorio](teacher-foxy-discovery-desktop.png), [tablet](teacher-foxy-discovery-tablet.png) y [móvil](teacher-foxy-discovery-mobile.png). Estas referencias sustituyen la presentación principal anterior de Foxy: conversaciones con búsqueda/renombrado y widget Herramientas/Creaciones. Usan aplicación/API/PostgreSQL/archivos reales en recursos propios y proveedor IA sintético. Los flujos de publicación anteriores conservan sus reglas; sus capturas no representan la nueva organización del workspace. [Recibo de navegación/foco](../../verification/foxy-discovery.json), [evidencia y límites](../../work-log/2026-11-08-root-foxy-implementation.md).
+Foxy, referencia del 2026-11-08 sustituida por el pulido del 2026-11-09: [escritorio](teacher-foxy-discovery-desktop.png), [tablet](teacher-foxy-discovery-tablet.png) y [móvil](teacher-foxy-discovery-mobile.png). Documentan la incorporación de conversaciones con búsqueda/renombrado y widget Herramientas/Creaciones en esa fecha; la presentación vigente está en la tabla anterior. Usan aplicación/API/PostgreSQL/archivos reales en recursos propios y proveedor IA sintético. Los flujos de publicación anteriores conservan sus reglas; sus capturas no representan la nueva organización del workspace. [Recibo de navegación/foco](../../verification/foxy-discovery.json), [evidencia y límites](../../work-log/2026-11-08-root-foxy-implementation.md).
 
-Actualización de Mis aulas del 2026-11-08: [Pendientes escritorio](teacher-pending-desktop.png), [móvil](teacher-pending-mobile.png) y [tablet](teacher-pending-tablet.png). Estas tres referencias usan componentes reales con cliente sintético en memoria; sustituyen la presentación anterior de borradores en el catálogo. Las capturas de la base del 2026-11-07 no acreditan este flujo nuevo. Permisos y persistencia se comprobaron por separado sobre PostgreSQL descartable, según el [registro](../../work-log/2026-11-08-root-pending-classrooms.md).
+Mis aulas, evidencia de Pendientes del 2026-11-08 (presentación de colección sustituida el 2026-11-09): [Pendientes escritorio](teacher-pending-desktop.png), [móvil](teacher-pending-mobile.png) y [tablet](teacher-pending-tablet.png). Estas tres referencias usan componentes reales con cliente sintético en memoria; documentan los borradores del catálogo en esa fecha. Las capturas de la base del 2026-11-07 no acreditan este flujo nuevo. Permisos y persistencia se comprobaron por separado sobre PostgreSQL descartable, según el [registro](../../work-log/2026-11-08-root-pending-classrooms.md).
 
 | Captura | Ruta | Viewport | Desborde horizontal registrado |
 |---|---|---|---|

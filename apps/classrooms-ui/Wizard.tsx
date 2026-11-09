@@ -1,4 +1,5 @@
 'use client';
+import { CreationSteps } from '../shared-ui/CreationSteps';
 import {
   useEffect,
   useRef,
@@ -251,7 +252,7 @@ export function Wizard({
   const continueManually = () => { extraction.cancel(); setMethod('manual'); setAnalyze(false); setError(''); };
   return <Dialog title="Crear aula" className="brujula-wizard-dialog" onClose={saveAndExit}>
     <div className="brujula-wizard">
-      <ol className="brujula-wizard-steps" aria-label="Pasos de creación del aula">{steps.map((label,index) => <li key={label} aria-current={index === step ? 'step' : undefined} className={index === step ? 'current' : ''}>{index+1} · {label}</li>)}</ol>
+      <CreationSteps steps={steps} step={step} label="Pasos de creación del aula"/>
       {error ? <Notice error>{error}</Notice> : null}
       <h3 ref={heading} tabIndex={-1}>{steps[step]}</h3>
       <form data-wizard-step={step} aria-busy={blocked} onSubmit={event => { event.preventDefault(); if (!blocked) void (step === 3 ? publish() : next()); }}>
@@ -262,14 +263,14 @@ export function Wizard({
             <WizardCover payload={payload} onUpdate={update} />
           </> : step === 1 ? <fieldset className="wizard-method"><legend>Elegí cómo cargar las unidades y temas</legend>
             <label><input type="radio" name="plan-method" value="ai" checked={method === 'ai'} onChange={() => { setMethod('ai'); setAnalyze(false); }} />
-              <span><strong>Analizar con IA</strong><small>Gemini extrae la estructura del documento. Podés corregirla antes de aplicarla.</small></span></label>
+              <span><strong>Analizar con IA</strong><small>Foxy extrae la estructura del documento. Podés corregirla antes de aplicarla.</small></span></label>
             <label><input type="radio" name="plan-method" value="manual" checked={method === 'manual'} onChange={() => { setMethod('manual'); setAnalyze(false); }} />
               <span><strong>Cargar manualmente</strong><small>Agregá tus unidades y temas sin analizar el archivo con IA.</small></span></label>
           </fieldset> : step === 2 ? <>
             {method === 'ai' && analyze && !extraction.view && !extraction.message ? <AiProgress state="SENDING" task="plan" /> : null}
             {method === 'ai' ? <><WizardSuggestions extraction={{ ...extraction, cancel: continueManually }} hasUnits={Boolean(payload.units?.length)} review />
               {!extraction.view ? <button type="button" disabled={blocked} onClick={continueManually}>Continuar manualmente</button> : null}</> : null}
-            <WizardPlan {...planOptions}/>
+            {method!=='ai'||extraction.view?.state==='APPLIED'?<WizardPlan {...planOptions}/>:null}
           </> : <WizardReview payload={payload} file={file} edit={goTo} />}
         </fieldset>
       <p className="brujula-wizard-save" role="status" aria-live="polite">{publishing ? <><span className="wizard-spinner" aria-hidden="true" />Creando tu aula…</> : uploading ? <><span className="wizard-spinner" aria-hidden="true" />Subiendo y validando el plan…</> : status}</p>

@@ -1,0 +1,19 @@
+{
+  "date": "2026-11-09",
+  "scope": "Integrated local app; teacher tools dialog",
+  "role": "teacher",
+  "url": "/foxy-ai",
+  "width": 390,
+  "height": 844,
+  "scrollWidth": 390,
+  "scrollY": 0,
+  "headings": [
+    "Foxy AI",
+    "¿Qué preparamos hoy?",
+    "Herramientas"
+  ],
+  "alerts": [],
+  "baseCommit": "04b69a76fe60bcf5cc047ef436cb89e16e26a801",
+  "candidate": "uncommitted working tree; file digests in docs/verification/foxy-study-ux-polish.json",
+  "visuallyInspected": true
+}

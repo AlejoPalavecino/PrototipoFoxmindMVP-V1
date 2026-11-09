@@ -16,6 +16,8 @@ export const suites = {
     'apps/api/src/study-folders/integrations.test.mjs',
   ],
   pure: [
+    'apps/shared-ui/chat-follow.test.mjs',
+    'apps/shared-ui/plan-disclosure.test.mjs',
     'apps/api/src/study-engine/engine.test.ts',
     'apps/api/src/study-folders/policy.test.ts',
     'apps/api/src/study-folders/service.test.ts',
@@ -35,6 +37,7 @@ export const suites = {
     'tests/audit-scheduler-diagnostics.test.mjs', 'tests/audit-resource-lazy.test.mjs',
   ],
   transport: [
+    'tests/ux-chat-polish.test.mjs',
     'apps/web/src/lib/study-discovery.test.mjs',
     'apps/web/src/lib/study-file-policy.test.mjs',
     'apps/web/src/lib/study-client.test.mjs',

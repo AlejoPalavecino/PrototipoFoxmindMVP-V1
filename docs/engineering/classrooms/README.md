@@ -11,6 +11,14 @@ Un aula publicada tiene un único docente dueño. Un borrador incompleto es priv
 
 El asistente exige PDF/DOCX aprobado y al menos una unidad/tema. El API conserva compatibilidad con currículos manuales completos sin archivo; eso no habilita omitirlo en este recorrido UI. Zona horaria fija tras crear; las portadas no son una carga libre de imágenes.
 
+## Presentación compartida con Carpetas de estudio
+
+El selector Activas/Archivadas/Pendientes, los pasos, las portadas y los estilos del asistente se reutilizan en ambos espacios. Cada uno conserva sus campos, validaciones y servicios. El encabezado del diálogo mantiene un fondo opaco al desplazar y las opciones de portada muestran imagen y nombre completos.
+
+La revisión del plan resume unidades/temas y permite abrir cada unidad. Las incompletas se abren inicialmente; completar un campo no colapsa la edición. Durante la extracción IA se muestra la espera y, al terminar, un único editor de propuesta; el editor del plan guardado se presenta al aplicarla o elegir el método manual.
+
+[Crear aula en escritorio](../../design/current/ux-classroom-create-desktop.png) · [móvil](../../design/current/ux-classroom-create-mobile.png) · [portadas](../../design/current/ux-classroom-covers-mobile.png). El [recibo UX](../../verification/foxy-study-ux-polish.json) acredita presentación e interacción local; las reglas de propiedad/persistencia conservan su evidencia de dominio.
+
 ## Pendientes de creación
 
 Mis aulas ofrece Activas, Archivadas y, sólo al docente, Pendientes con contador. Pendientes reúne sus borradores no publicados; cada tarjeta muestra automáticamente «Pendiente de creación», nombre (o «Aula sin nombre»), datos disponibles, Continuar creación y Eliminar pendiente. Conserva búsqueda por nombre/materia/división, filtros de ciclo/división y presentación tarjetas/lista. Las invitaciones se muestran aparte.

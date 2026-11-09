@@ -11,7 +11,7 @@ export function PlanExtraction({ extraction, hasUnits, review }: {
   const pending = view && ['QUEUED', 'RUNNING'].includes(view.state);
   return <section className="p5-extraction" aria-label="Unidades sugeridas a partir del plan" aria-busy={busy}>
     <h3>Del plan a tus unidades</h3>
-    <p>Gemini analiza tu plan para sugerir unidades y temas. Vos los revisás y decidís cuáles usar antes de crear el aula.</p>
+    <p>Foxy analiza tu plan para sugerir unidades y temas. Vos los revisás y decidís cuáles usar antes de crear el aula.</p>
     {pending ? <AiProgress state={view.state as 'QUEUED' | 'RUNNING'} task="plan" /> : null}
     <div role="status" aria-live="polite">
       {message ? <p>{message}</p> : pending ? null

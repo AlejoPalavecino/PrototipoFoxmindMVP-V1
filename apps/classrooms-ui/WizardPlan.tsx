@@ -1,3 +1,4 @@
+import { initializePlanDisclosure } from '../shared-ui/plan-disclosure';
 import type { RefObject, DragEvent } from 'react';
 import type { FileState } from './api.ts';
 import { FoxmindIcon } from '../shared-ui/index.ts';
@@ -44,9 +45,9 @@ export function WizardPlan(props: Props) {
 export function WizardCurriculum({ units, onUnits }: { units: CurriculumUnit[]; onUnits: (units: CurriculumUnit[]) => void }) {
   const change = (index: number, unit: CurriculumUnit) => onUnits(units.map((item, i) => i === index ? unit : item));
   return <div className="wizard-curriculum" onKeyDown={event => { if (event.key === 'Enter' && event.target instanceof HTMLInputElement) event.preventDefault(); }}>
-    <p>Agregá las unidades y sus temas en el orden en que los vas a enseñar.</p>
+    <p>{units.length} {units.length===1?'unidad':'unidades'} · {units.reduce((n,u)=>n+u.topics.length,0)} temas. Abrí una unidad para revisar o editar.</p>
     {!units.length ? <p>Todavía no agregaste unidades. Empezá por la primera.</p> : null}
-    {units.map((unit, index) => <section key={index} className="p5-unit">
+    {units.map((unit, index) => <details key={index} className="p5-unit wizard-unit-disclosure" ref={node=>initializePlanDisclosure(node,!unit.name.trim()||!unit.topics.length||unit.topics.some(t=>!t.name.trim()))}><summary>Unidad {index+1} · {unit.name||"Sin nombre"}<small>{unit.topics.length} {unit.topics.length===1?'tema':'temas'}</small></summary><div>
       <div className="p5-section-head"><h4>Unidad {index + 1}</h4><button type="button" aria-label={`Quitar unidad ${index + 1}`} onClick={() => onUnits(units.filter((_, i) => i !== index))}>Quitar unidad</button></div>
       <label>Nombre de la unidad {index + 1}<input maxLength={120} value={unit.name} onChange={event => change(index, { ...unit, name: event.target.value })} /></label>
       {unit.topics.map((topic, topicIndex) => <div className="p5-topic" key={topicIndex}>
@@ -54,7 +55,7 @@ export function WizardCurriculum({ units, onUnits }: { units: CurriculumUnit[]; 
         <button type="button" aria-label={`Quitar tema ${topicIndex + 1} de unidad ${index + 1}`} onClick={() => change(index, { ...unit, topics: unit.topics.filter((_, i) => i !== topicIndex) })}>Quitar</button>
       </div>)}
       <button type="button" disabled={unit.topics.length >= 100 || units.reduce((sum, item) => sum + item.topics.length, 0) >= 500} onClick={() => change(index, { ...unit, topics: [...unit.topics, { name: '' }] })}>Agregar tema a unidad {index + 1}</button>
-    </section>)}
+    </div></details>)}
     <button type="button" disabled={units.length >= 100 || units.reduce((sum, item) => sum + item.topics.length, 0) >= 500} onClick={() => onUnits([...units, { name: '', topics: [{ name: '' }] }])}>Agregar unidad</button>
   </div>;
 }

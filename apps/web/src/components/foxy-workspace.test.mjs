@@ -16,6 +16,12 @@ function fixture(state=base){
   assert.equal(typeof FoxyWorkspace,'function');return {controller,calls,view:hookView(FoxyWorkspace,{controller,state,classrooms:[classroom]})};
 }
 
+test('outgoing request replaces the welcome before the server receipt arrives',async()=>{
+  const f=fixture({...base,busy:true,pending:{requestId:randomUUID(),revision:'0',purpose:'CHAT',text:'Explicame la exposición',selection:{topicIds:[],sourceIds:[]}}});
+  try{await f.view.flush();const html=renderToStaticMarkup(f.view.tree);assert.match(html,/Explicame la exposición/);assert.doesNotMatch(html,/¿Qué preparamos hoy\?/);}
+  finally{f.view.close();}
+});
+
 test('teacher workspace offers conversations, explicit general or classroom creation and message composer',async()=>{
   const f=fixture();try {await f.view.flush();const html=renderToStaticMarkup(f.view.tree);
     assert.match(html,/Repaso/iu);assert.match(html,/General/iu);assert.match(html,/Biología/iu);assert.match(html,/propósito|tipo de ayuda/iu);

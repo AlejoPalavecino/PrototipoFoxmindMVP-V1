@@ -1,3 +1,4 @@
+import { CollectionStateFilter } from '../shared-ui/CollectionStateFilter';
 import type { Classroom } from './api.ts';
 import type { RefObject } from 'react';
 import { EntryIcon, FoxmindIcon } from '../shared-ui/index.ts';
@@ -34,12 +35,12 @@ export function ClassroomCollectionFilters(props: CollectionFiltersProps) {
   const divisions = [...new Set(values.flatMap(room => room.division ? [room.division] : []))].sort((a,b) => a.localeCompare(b,'es'));
   return <>
     <div className="collection-workspace-heading">
-      <nav className="cl-bucket" aria-label="Estado de las aulas">
-        {(['active', 'archived'] as const).map(state => <button type="button" key={state} aria-pressed={options.state === state} ref={options.state === state ? props.toggleRef : undefined}
-          className={options.state === state ? 'selected' : undefined} onClick={() => onOptions({ ...options, state })}>{state === 'active' ? 'Activas' : 'Archivadas'} <span>{all.filter(room => room.archived === (state === 'archived')).length}</span></button>)}
-        {pendingCount !== undefined ? <button type="button" aria-pressed={options.state === 'pending'} ref={options.state === 'pending' ? props.toggleRef : undefined} className={options.state === 'pending' ? 'selected' : undefined}
-          onClick={() => onOptions({ ...options, state: 'pending' })}>Pendientes <span>{pendingCount}</span></button> : null}
-      </nav>
+      <CollectionStateFilter<'active'|'archived'|'pending'|'all'> label="Estado de las aulas" value={options.state??'active'} selectedRef={props.toggleRef}
+        onChange={state=>onOptions({...options,state})} items={[
+          {value:'active',label:'Activas',count:all.filter(room=>!room.archived).length},
+          {value:'archived',label:'Archivadas',count:all.filter(room=>room.archived).length},
+          ...(pendingCount===undefined?[]:[{value:'pending' as const,label:'Pendientes',count:pendingCount}])
+        ]}/>
     </div>
     <div className="cl-filter-bar">
       <label className="cl-search"><span className="entry-sr-only">Buscar aula</span>

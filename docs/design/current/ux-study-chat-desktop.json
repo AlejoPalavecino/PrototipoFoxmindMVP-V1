@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-09",
+  "scope": "Integrated local app, existing synthetic conversation, no new generation",
+  "role": "student",
+  "url": "/carpetas-de-estudio/4a34b7e0-cf36-4586-9348-e231912b7c57",
+  "width": 1440,
+  "height": 1000,
+  "scrollWidth": 1425,
+  "scrollY": 0,
+  "headings": [
+    "Fotografía · estudio privado",
+    "Nueva conversación",
+    "¿Qué querés crear?",
+    "Conversaciones"
+  ],
+  "alerts": [],
+  "baseCommit": "04b69a76fe60bcf5cc047ef436cb89e16e26a801",
+  "candidate": "uncommitted working tree; file digests in docs/verification/foxy-study-ux-polish.json",
+  "visuallyInspected": true
+}

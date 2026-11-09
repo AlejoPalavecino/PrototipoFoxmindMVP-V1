@@ -1,84 +1,97 @@
 /* Approved Brújula classroom creation: four steps with an explicit final review. */
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog {
+.fm3d-theme .p5-app .p5-main dialog.p5-dialog.brujula-wizard-dialog {
  width:min(560px,calc(100vw - 26px));max-height:88dvh;padding:0;margin:auto;border:1px solid #dce1ef;border-radius:20px;background:#fff;color:#252646;box-shadow:0 24px 85px #29274e38;overflow:auto;font:400 14px/1.55 'Brújula',sans-serif;
 }
 
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog>header {display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px 14px;margin:0;border:0;border-bottom:1px solid #e0e4f0;border-radius:0;background:transparent;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog>header h2 {margin:0;font:700 20px/1.25 'Brújula',sans-serif;letter-spacing:-.04em;color:#252646;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog>header button {display:grid;place-items:center;min-width:28px;min-height:28px;padding:6px;border:0;border-radius:9px;background:transparent;color:#515971;box-shadow:none;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard {display:block;padding:0;border:0;background:none;box-shadow:none;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-steps {display:flex;align-items:center;gap:14px;padding:0;margin:0 0 22px;list-style:none;color:#515971;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-steps li {display:flex;align-items:center;gap:14px;font-size:12px;font-weight:500;line-height:1.5;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-steps li+li:before {content:'';width:28px;height:1px;background:#dce1ef;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-steps li.current {color:#b8490c;font-weight:650;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard form {display:block;margin:0;padding:0;border:0;background:none;box-shadow:none;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard fieldset {display:block;min-width:0;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .p5-fields {display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .p5-fields>label:nth-child(-n+2) {grid-column:1/-1;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog label {display:grid;gap:6px;margin:0;color:#252646;font:600 13px/1.5 'Brújula',sans-serif;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-field-control {display:block;min-width:0;padding:0;margin:0;border:0;background:transparent;box-shadow:none;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-field-control>svg {display:none;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog :is(input:not([type=radio]),textarea,select) {display:block;width:100%;min-width:0;min-height:41px;margin:0;padding:9px 12px;border:1px solid #cdd4e7;border-radius:11px;background-color:#fff;box-shadow:none;color:#252646;font:400 14px/1.55 'Brújula',sans-serif;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog textarea {resize:vertical;min-height:160px;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard :is(small,.brujula-wizard-save) {display:block;color:#60667d;font-size:12px;font-weight:400;line-height:1.5;margin:7px 0 0;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-save {min-height:18px;margin-top:16px;font-size:11px;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-foot {display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin:18px 0 0;padding:14px 0 0;border:0;border-top:1px solid #e0e4f0;background:none;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-foot>div {display:flex;gap:9px;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog button {display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:39px;padding:9px 13px;border:1px solid #dce1ef;border-radius:11px;background:#fff;color:#252646;font:600 12px/1.4 'Brújula',sans-serif;box-shadow:none;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog button.primary {background:#b8490c;color:#fff;border-color:#b8490c;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard button:is(.brujula-wizard-keep,.brujula-wizard-extract) {justify-content:flex-start;border:0;background:none;color:#b8490c;padding:7px 0;min-height:32px;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-extract {margin:12px 0 0;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-extract svg {width:16px;height:16px;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard :is(.brujula-wizard-settings,.brujula-wizard-file) {margin:18px 0 0;padding:14px 0 0;border:0;border-top:1px solid #e0e4f0;border-radius:0;background:none;color:#515971;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard :is(.brujula-wizard-settings,.brujula-wizard-file)>summary {cursor:pointer;color:#59428a;font-size:12px;font-weight:600;background:none;padding:0;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard :is(.brujula-wizard-settings,.brujula-wizard-file)>:not(summary) {margin-top:14px;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard :is(.wizard-plan-layout,.wizard-cover-layout) {display:block;margin:14px 0 0;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-cover-preview {display:none;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .p5-covers {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .p5-covers label {padding:5px;border:1px solid #dce1ef;border-radius:9px;background:#fff;font-size:11px;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .p5-covers label.selected {background:#efebff;border-color:#c9bee7;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .p5-drop {padding:18px;border:1px dashed #cdd4e7;border-radius:13px;background:#f6f8ff;color:#515971;box-shadow:none;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard :is(.p5-file,.wizard-plan-security) {padding:12px;border:1px solid #dce1ef;border-radius:11px;background:#f6f8ff;color:#515971;font-size:12px;}
+.fm3d-theme .p5-app .p5-main dialog.p5-dialog.brujula-wizard-dialog>header {display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px 14px;margin:0;border:0;border-bottom:1px solid #e0e4f0;border-radius:0;background:transparent;}
+.fm3d-theme .p5-app .p5-main dialog.p5-dialog.brujula-wizard-dialog>header h2 {margin:0;font:700 20px/1.25 'Brújula',sans-serif;letter-spacing:-.04em;color:#252646;}
+.fm3d-theme .p5-app .p5-main dialog.p5-dialog.brujula-wizard-dialog>header button {display:grid;place-items:center;min-width:28px;min-height:28px;padding:6px;border:0;border-radius:9px;background:transparent;color:#515971;box-shadow:none;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard {display:block;padding:0;border:0;background:none;box-shadow:none;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard-steps {display:flex;align-items:center;gap:14px;padding:0;margin:0 0 22px;list-style:none;color:#515971;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard-steps li {display:flex;align-items:center;gap:14px;font-size:12px;font-weight:500;line-height:1.5;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard-steps li+li:before {content:'';width:28px;height:1px;background:#dce1ef;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard-steps li.current {color:#b8490c;font-weight:650;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard form {display:block;margin:0;padding:0;border:0;background:none;box-shadow:none;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard fieldset {display:block;min-width:0;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .p5-fields {display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .p5-fields>label:nth-child(-n+2) {grid-column:1/-1;}
+.fm3d-theme .p5-app .p5-main dialog.p5-dialog.brujula-wizard-dialog label {display:grid;gap:6px;margin:0;color:#252646;font:600 13px/1.5 'Brújula',sans-serif;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .wizard-field-control {display:block;min-width:0;padding:0;margin:0;border:0;background:transparent;box-shadow:none;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .wizard-field-control>svg {display:none;}
+.fm3d-theme .p5-app .p5-main dialog.p5-dialog.brujula-wizard-dialog :is(input:not([type=radio]):not([type=checkbox]),textarea,select) {display:block;width:100%;min-width:0;min-height:41px;margin:0;padding:9px 12px;border:1px solid #cdd4e7;border-radius:11px;background-color:#fff;box-shadow:none;color:#252646;font:400 14px/1.55 'Brújula',sans-serif;}
+.fm3d-theme .p5-app .p5-main dialog.p5-dialog.brujula-wizard-dialog textarea {resize:vertical;min-height:160px;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard :is(small,.brujula-wizard-save) {display:block;color:#60667d;font-size:12px;font-weight:400;line-height:1.5;margin:7px 0 0;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard-save {min-height:18px;margin-top:16px;font-size:11px;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard-foot {display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin:18px 0 0;padding:14px 0 0;border:0;border-top:1px solid #e0e4f0;background:none;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard-foot>div {display:flex;gap:9px;}
+.fm3d-theme .p5-app .p5-main dialog.p5-dialog.brujula-wizard-dialog button {display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:39px;padding:9px 13px;border:1px solid #dce1ef;border-radius:11px;background:#fff;color:#252646;font:600 12px/1.4 'Brújula',sans-serif;box-shadow:none;}
+.fm3d-theme .p5-app .p5-main dialog.p5-dialog.brujula-wizard-dialog button.primary {background:#b8490c;color:#fff;border-color:#b8490c;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard button:is(.brujula-wizard-keep,.brujula-wizard-extract) {justify-content:flex-start;border:0;background:none;color:#b8490c;padding:7px 0;min-height:32px;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard-extract {margin:12px 0 0;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard-extract svg {width:16px;height:16px;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard :is(.brujula-wizard-settings,.brujula-wizard-file) {margin:18px 0 0;padding:14px 0 0;border:0;border-top:1px solid #e0e4f0;border-radius:0;background:none;color:#515971;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard :is(.brujula-wizard-settings,.brujula-wizard-file)>summary {cursor:pointer;color:#59428a;font-size:12px;font-weight:600;background:none;padding:0;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard :is(.brujula-wizard-settings,.brujula-wizard-file)>:not(summary) {margin-top:14px;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard :is(.wizard-plan-layout,.wizard-cover-layout) {display:block;margin:14px 0 0;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .wizard-cover-preview {display:none;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .p5-covers {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .p5-covers label {padding:5px;border:1px solid #dce1ef;border-radius:9px;background:#fff;font-size:11px;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .p5-covers label.selected {background:#efebff;border-color:#c9bee7;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .p5-drop {padding:18px;border:1px dashed #cdd4e7;border-radius:13px;background:#f6f8ff;color:#515971;box-shadow:none;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard :is(.p5-file,.wizard-plan-security) {padding:12px;border:1px solid #dce1ef;border-radius:11px;background:#f6f8ff;color:#515971;font-size:12px;}
 @media(max-width:600px){
- .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog {padding:0;width:calc(100vw - 24px);max-height:calc(100dvh - 24px);border-radius:18px;}
- .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-steps {gap:8px;}
- .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-steps li {gap:8px;font-size:11px;}
- .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-steps li+li:before {width:14px;}
+ .fm3d-theme .p5-app .p5-main dialog.p5-dialog.brujula-wizard-dialog {padding:0;width:calc(100vw - 24px);max-height:calc(100dvh - 24px);border-radius:18px;}
+ .fm3d-theme .p5-app .p5-main .brujula-wizard-steps {gap:8px;}
+ .fm3d-theme .p5-app .p5-main .brujula-wizard-steps li {gap:8px;font-size:11px;}
+ .fm3d-theme .p5-app .p5-main .brujula-wizard-steps li+li:before {width:14px;}
 }
 
 
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog {width:min(720px,calc(100vw - 26px));}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-steps {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:start;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-steps li {display:block;overflow-wrap:anywhere;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-steps li+li:before {display:none;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard h3 {font-size:18px;line-height:1.5;margin:0 0 16px;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard :is(.wizard-method,.wizard-cover-picker) {margin-top:24px;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard legend {font-size:14px;font-weight:600;margin-bottom:12px;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-method>label {display:flex;align-items:flex-start;gap:12px;padding:16px;margin-bottom:12px;border:1px solid #dce1ef;border-radius:11px;cursor:pointer;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard input[type=radio] {width:18px;height:18px;flex:0 0 18px;accent-color:#b8490c;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .p5-covers label {min-width:0;overflow:hidden;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .p5-covers label>span {display:flex;align-items:center;gap:8px;min-height:44px;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .p5-covers .folder-cover {height:76px;min-height:0;aspect-ratio:auto;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-review>.folder-cover {height:140px;min-height:0;aspect-ratio:auto;border-radius:11px;overflow:hidden;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard :is(.wizard-review,.wizard-curriculum) {overflow-wrap:anywhere;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-review dl {display:grid;grid-template-columns:minmax(100px,1fr) minmax(0,2fr);gap:8px 16px;margin:16px 0 24px;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-review dd {margin:0;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-review-units>li {margin:16px 0;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-curriculum .p5-unit {padding:16px;margin:16px 0;border:1px solid #dce1ef;border-radius:11px;background:#fff;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-curriculum .p5-topic {display:flex;align-items:end;gap:8px;margin:12px 0;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-curriculum .p5-topic label {flex:1;min-width:0;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-curriculum .p5-topic button {flex:0 0 auto;min-width:64px;white-space:nowrap;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard :is(.p5-section-head,.brujula-wizard-foot>div) {flex-wrap:wrap;}
-.fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-spinner {display:inline-block;width:16px;height:16px;margin-right:8px;border:2px solid #dce1ef;border-top-color:#b8490c;border-radius:50%;animation:wizard-spin 1s cubic-bezier(.22,1,.36,1) infinite;}
+.fm3d-theme .p5-app .p5-main dialog.p5-dialog.brujula-wizard-dialog {width:min(720px,calc(100vw - 26px));}
+.fm3d-theme .p5-app .p5-main .brujula-wizard-steps {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:start;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard-steps li {display:block;overflow-wrap:anywhere;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard-steps li+li:before {display:none;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard h3 {font-size:18px;line-height:1.5;margin:0 0 16px;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard :is(.wizard-method,.wizard-cover-picker) {margin-top:24px;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard legend {font-size:14px;font-weight:600;margin-bottom:12px;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .wizard-method>label {display:flex;align-items:flex-start;gap:12px;padding:16px;margin-bottom:12px;border:1px solid #dce1ef;border-radius:11px;cursor:pointer;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard input[type=radio] {width:18px;height:18px;flex:0 0 18px;accent-color:#b8490c;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .p5-covers label {min-width:0;overflow:hidden;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .p5-covers label>span {display:flex;align-items:center;gap:8px;min-height:44px;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .p5-covers .folder-cover {height:76px;min-height:0;aspect-ratio:auto;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .wizard-review>.folder-cover {height:140px;min-height:0;aspect-ratio:auto;border-radius:11px;overflow:hidden;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard :is(.wizard-review,.wizard-curriculum) {overflow-wrap:anywhere;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .wizard-review dl {display:grid;grid-template-columns:minmax(100px,1fr) minmax(0,2fr);gap:8px 16px;margin:16px 0 24px;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .wizard-review dd {margin:0;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .wizard-review-units>li {margin:16px 0;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .wizard-curriculum .p5-unit {padding:16px;margin:16px 0;border:1px solid #dce1ef;border-radius:11px;background:#fff;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .wizard-curriculum .p5-topic {display:flex;align-items:end;gap:8px;margin:12px 0;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .wizard-curriculum .p5-topic label {flex:1;min-width:0;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .wizard-curriculum .p5-topic button {flex:0 0 auto;min-width:64px;white-space:nowrap;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard :is(.p5-section-head,.brujula-wizard-foot>div) {flex-wrap:wrap;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .wizard-spinner {display:inline-block;width:16px;height:16px;margin-right:8px;border:2px solid #dce1ef;border-top-color:#b8490c;border-radius:50%;animation:wizard-spin 1s cubic-bezier(.22,1,.36,1) infinite;}
 @keyframes wizard-spin {to {transform:rotate(360deg);}}
 @media(max-width:600px){
- .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-steps {grid-template-columns:repeat(2,minmax(0,1fr));}
- .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .p5-covers {grid-template-columns:repeat(2,minmax(0,1fr));}
- .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .p5-fields {grid-template-columns:minmax(0,1fr);}
- .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-review dl {grid-template-columns:minmax(0,1fr);gap:4px;}
- .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-review dt {font-weight:600;}
- .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard .wizard-review dd {margin-bottom:12px;}
- .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main dialog.p5-dialog.brujula-wizard-dialog button {min-height:44px;}
- .fm3d-theme .fm3-classrooms.p5-app.entry-wizard-reference .p5-main .brujula-wizard-foot>div {width:100%;justify-content:flex-end;}
+ .fm3d-theme .p5-app .p5-main .brujula-wizard-steps {grid-template-columns:repeat(2,minmax(0,1fr));}
+ .fm3d-theme .p5-app .p5-main .brujula-wizard .p5-covers {grid-template-columns:repeat(2,minmax(0,1fr));}
+ .fm3d-theme .p5-app .p5-main .brujula-wizard .p5-fields {grid-template-columns:minmax(0,1fr);}
+ .fm3d-theme .p5-app .p5-main .brujula-wizard .wizard-review dl {grid-template-columns:minmax(0,1fr);gap:4px;}
+ .fm3d-theme .p5-app .p5-main .brujula-wizard .wizard-review dt {font-weight:600;}
+ .fm3d-theme .p5-app .p5-main .brujula-wizard .wizard-review dd {margin-bottom:12px;}
+ .fm3d-theme .p5-app .p5-main dialog.p5-dialog.brujula-wizard-dialog button {min-height:44px;}
+ .fm3d-theme .p5-app .p5-main .brujula-wizard-foot>div {width:100%;justify-content:flex-end;}
 }
 @media(prefers-reduced-motion:reduce){.wizard-spinner {animation:none!important;}}
+/* Unit disclosures are shared by manual editing and reviewed AI proposals. */
+.brujula-wizard .wizard-unit-disclosure{display:block;padding:0;overflow:hidden}
+.brujula-wizard .wizard-unit-disclosure>summary{padding:16px 18px;cursor:pointer;font-size:15px;line-height:1.7;font-weight:600;overflow-wrap:anywhere}
+.brujula-wizard .wizard-unit-disclosure>summary small{display:block;margin:4px 0 0 18px;font-size:12px;font-weight:400;color:#60667d}
+.brujula-wizard .wizard-unit-disclosure>div{display:grid;gap:14px;padding:0 18px 18px}
+.brujula-wizard summary:focus-visible{outline:3px solid #a7714e;outline-offset:-3px}
+.fm3d-theme .p5-app .p5-main dialog.p5-dialog.brujula-wizard-dialog>header{background:#fff;z-index:3}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .p5-covers .folder-cover{width:100%;height:90px}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .p5-covers .folder-cover img{width:100%;height:100%;object-fit:cover}
+.fm3d-theme .p5-app .p5-main dialog.p5-dialog.brujula-wizard-dialog select{
+ appearance:none;padding-right:36px!important;background-image:url('/brujula/select-chevron.svg')!important;
+ background-repeat:no-repeat!important;background-position:right 12px center!important;background-size:12px!important;
+}
