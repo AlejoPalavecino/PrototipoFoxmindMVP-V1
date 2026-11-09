@@ -1,4 +1,5 @@
 export { AiError } from './errors.ts';
+export { createGeminiStudyProvider } from './study-adapter.ts';
 export { GeminiActivityGenerationAdapter, createGeminiActivityGenerationAdapter } from './activity-adapter.ts';
 export { readAiConfiguration, type AiConfiguration } from './configuration.ts';
 export { GeminiExtractionAdapter, createGeminiExtractionAdapter, type GeminiClient } from './gemini-adapter.ts';

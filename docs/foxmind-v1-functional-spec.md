@@ -20,6 +20,8 @@ Mi perfil permite editar nombres y seleccionar Foxy clásico, lector, explorador
 
 Brújula usa sidebar desde 1024 px y menú compacto en tamaños menores. Global: Inicio, Mis aulas, Agenda, avisos/búsqueda/Mi cuenta; Foxy pertenece al docente. Contadores Enseño/Estudio pueden aparecer como compatibilidad de proyección, sin selector de rol dual.
 
+El estudiante dispone además de Carpetas de estudio: espacios privados propios con plan, materiales, Foxy estudiantil, prácticas y repasos. No concede acceso al espacio Foxy del docente.
+
 Docente dentro del aula: Plan, Muro, Biblioteca, Actividades, Progreso, Alumnos, Historial, Configuración. Estudiante: Plan, Muro, Biblioteca, Actividades, Mi progreso, Compañeros.
 
 Inicio docente prioriza entregas/consultas y acciones del aula; Inicio estudiante muestra pendientes y resultados publicados propios. Abrir avisos usa un destino reautorizado en servidor; identificadores de UI no conceden acceso. La búsqueda sólo muestra el espacio autorizado. [UX/UI vigente](design/README.md).
@@ -118,6 +120,8 @@ Configuración, presupuesto, límites y claves permanecen en backend. [Guías](e
 
 ## 10. Agenda
 
+Carpetas de estudio puede proponer y, tras revisión explícita, crear sesiones personales de repaso con avisos privados configurables. Un evento modificado independientemente no se sobrescribe; archivo/eliminación de carpeta cancela avisos y conserva eventos confirmados. [Reglas de estudio](engineering/study/README.md).
+
 Eventos personales privados, consultables en mes/semana/día, con tipo, fecha, horario o día completo, color, notas y repetición. No asignan actividades ni cambian plazos/notas de aula.
 
 Series diarias/semanales/mensuales con final y máximo 53 ocurrencias. La mensual conserva día original y omite meses sin ese día. Editar serie explicita alcance, incluidas fechas pasadas. Eliminar permite ocurrencia o serie; el modelo conserva excepciones. La evidencia actual ensayó repetición semanal y borrado de serie, no todas las variantes de calendario.
@@ -140,7 +144,9 @@ Carga, vacío, permisos, conflictos y errores tienen feedback y recuperación ad
 
 ## 12. Frontera vigente
 
-Sin administración institucional, pagos, ranking, certificados, Google login, tutores estudiantiles generales, cambio de rol/email o personalización fuera del catálogo de avatares aprobado. Rúbrica por criterios no autoriza ponderaciones globales por tipo de actividad o umbrales de aprobación.
+Sin administración institucional, pagos, ranking, certificados, Google login, tutores estudiantiles generales fuera del contexto privado de Carpetas de estudio, cambio de rol/email o personalización fuera del catálogo de avatares aprobado. Rúbrica por criterios no autoriza ponderaciones globales por tipo de actividad o umbrales de aprobación.
+
+Carpetas de estudio agrega creación con documento aprobado y estructura revisada, materiales propios y vínculo opcional a una sola Biblioteca autorizada, conversaciones/creaciones privadas, quizzes/ejercicios/simulacros respondibles, devolución orientativa y adaptación por evidencia de la propia carpeta. Revocar una fuente impide usarla en nuevas respuestas, incluso mediante historia derivada; conserva creaciones previas con aviso. No publica resultados académicos. [Contrato funcional aprobado](product/study-folders-proposal.md), [guía](engineering/study/README.md) y [evidencia con límites](verification/study-folders.json).
 
 Hosting, proveedores cloud, presupuesto, cuota productiva y piloto real requieren decisión humana. Una guía o estado implementado no autoriza su ejecución sobre datos retenidos, credenciales o servicios pagos.
 

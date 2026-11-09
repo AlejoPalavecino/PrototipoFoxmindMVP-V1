@@ -1,6 +1,26 @@
 // Deliberate inventory: no helper discovery or opt-in/live-provider tests.
 export const suites = {
+  study: [
+    'apps/web/src/lib/study-discovery.test.mjs',
+    'apps/web/src/lib/study-file-policy.test.mjs',
+    'apps/api/src/study-engine/engine.test.ts',
+    'apps/api/src/study-folders/policy.test.ts',
+    'apps/api/src/study-folders/service.test.ts',
+    'apps/api/src/study-folders/uploads/upload-policy.test.mjs',
+    'apps/api/src/study-folders/reminders/session-event.test.mjs',
+    'apps/web/src/lib/study-client.test.mjs',
+    'apps/web/src/lib/study-payload.test.mjs',
+    'apps/web/src/lib/study-sequence.test.mjs',
+    'apps/api/src/study-folders/database.test.mjs',
+    'apps/api/src/study-folders/http.test.mjs',
+    'apps/api/src/study-folders/integrations.test.mjs',
+  ],
   pure: [
+    'apps/api/src/study-engine/engine.test.ts',
+    'apps/api/src/study-folders/policy.test.ts',
+    'apps/api/src/study-folders/service.test.ts',
+    'apps/api/src/study-folders/uploads/upload-policy.test.mjs',
+    'apps/api/src/study-folders/reminders/session-event.test.mjs',
     'tests/local-app-environment.test.mjs',
     'tests/architecture-test-discovery.test.mjs',
     'tests/p31-contracts.test.mjs', 'tests/p4-file-policy.test.mjs',
@@ -15,6 +35,11 @@ export const suites = {
     'tests/audit-scheduler-diagnostics.test.mjs', 'tests/audit-resource-lazy.test.mjs',
   ],
   transport: [
+    'apps/web/src/lib/study-discovery.test.mjs',
+    'apps/web/src/lib/study-file-policy.test.mjs',
+    'apps/web/src/lib/study-client.test.mjs',
+    'apps/web/src/lib/study-payload.test.mjs',
+    'apps/web/src/lib/study-sequence.test.mjs',
     'tests/pending-classrooms.test.mjs',
     'tests/p3-web-client.test.mjs', 'tests/p3-web-proxy.test.mjs', 'tests/p4-web-proxy.test.mjs',
     'tests/agenda-proxy.test.mjs', 'tests/p9-home-client.test.mjs', 'tests/p6-wall-client.test.mjs',
@@ -22,6 +47,9 @@ export const suites = {
     'tests/activity-ai-proxy.test.mjs', 'tests/audit-wall-proxy.test.mjs',
   ],
   'integration-owned': [
+    'apps/api/src/study-folders/database.test.mjs',
+    'apps/api/src/study-folders/http.test.mjs',
+    'apps/api/src/study-folders/integrations.test.mjs',
     'tests/pending-classrooms-database.test.mjs',
     'tests/p6-wall.test.mjs',
     'tests/p4-integration.test.mjs', 'tests/agenda-database.test.mjs',

@@ -497,7 +497,20 @@
     "tests/wizard-reference-drop.test.mjs",
     "tests/wizard-reference-navigation.test.mjs",
     "tests/wizard-reference-suggestions.test.mjs",
-    "tests/workspace-disclosure.test.mjs"
+    "tests/workspace-disclosure.test.mjs",
+    "apps/api/src/study-engine/engine.test.ts",
+    "apps/api/src/study-folders/policy.test.ts",
+    "apps/api/src/study-folders/service.test.ts",
+    "apps/api/src/study-folders/uploads/upload-policy.test.mjs",
+    "apps/api/src/study-folders/reminders/session-event.test.mjs",
+    "apps/web/src/lib/study-client.test.mjs",
+    "apps/web/src/lib/study-payload.test.mjs",
+    "apps/web/src/lib/study-sequence.test.mjs",
+    "apps/api/src/study-folders/database.test.mjs",
+    "apps/api/src/study-folders/http.test.mjs",
+    "apps/api/src/study-folders/integrations.test.mjs",
+    "apps/web/src/lib/study-file-policy.test.mjs",
+    "apps/web/src/lib/study-discovery.test.mjs"
   ],
   "exclusions": [
     {

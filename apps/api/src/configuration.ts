@@ -12,9 +12,12 @@ export interface ApiConfiguration extends ApiBaseConfiguration {
   readonly classrooms?: ClassroomRuntimeConfiguration;
   readonly ai?: AiConfiguration;
   readonly foxyVisual?: FoxyVisualHostConfiguration;
+  readonly studyQuotaBytes?: bigint;
 }
 
 export function readConfiguration(environment: NodeJS.ProcessEnv = process.env): ApiConfiguration {
+  const studyQuota=environment.STUDY_STORAGE_QUOTA_BYTES;
+  if(studyQuota!==undefined&&(!/^\d{1,15}$/u.test(studyQuota)||BigInt(studyQuota)>BigInt(Number.MAX_SAFE_INTEGER)))throw new ConfigurationError('Invalid configuration: private study storage quota.');
   const base = readBaseConfiguration(environment);
   const files = readFilesConfiguration(environment);
   const configuration = { ...base, identity: readIdentityRuntimeConfiguration(environment) };
@@ -27,5 +30,5 @@ export function readConfiguration(environment: NodeJS.ProcessEnv = process.env):
   let foxyVisual: FoxyVisualHostConfiguration | null;
   try { foxyVisual = readFoxyVisualConfiguration(environment,ai); }
   catch { throw new ConfigurationError('Invalid configuration: Foxy visual configuration is unavailable.'); }
-  return { ...configuration, ...(files ? { files } : {}), ...(classrooms ? { classrooms } : {}), ...(ai ? { ai } : {}), ...(foxyVisual ? { foxyVisual } : {}) };
+  return { ...configuration, ...(files ? { files } : {}), ...(classrooms ? { classrooms } : {}), ...(ai ? { ai } : {}), ...(foxyVisual ? { foxyVisual } : {}),...(studyQuota===undefined?{}:{studyQuotaBytes:BigInt(studyQuota)}) };
 }

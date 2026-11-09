@@ -17,6 +17,7 @@ const queues = [
   ['grading_ai_jobs', 'standard'],
   ['foxy_turns', 'foxy-text'],
   ['foxy_visual_jobs', 'foxy-visual'],
+  ['study_ai_dispatches', 'standard'],
 ] as const;
 
 type OwnerPolicy = 'active' | 'generation' | 'generation-priority';

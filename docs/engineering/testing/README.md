@@ -4,6 +4,7 @@ Elegir pruebas por contrato/permiso/datos/capas afectados. No atribuir una suite
 
 | Nivel | Entrada |
 |---|---|
+| Carpetas de estudio | npm run test:study (build fresco, motor/cliente/proxy, permisos HTTP, PostgreSQL aislado, uploads/Agenda/avisos y presupuesto IA sintético) |
 | Documentación | npm run docs:check |
 | Parser/compatibilidad documental | node --test tests/documentation-links.test.mjs |
 | Contrato de identidad | node --test tests/p31-contracts.test.mjs |

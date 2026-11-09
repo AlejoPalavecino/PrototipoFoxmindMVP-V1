@@ -1,0 +1,6 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {validateStudyUpload,studyUploadPolicy,requireStudyPlan} from './study-file-policy.ts';
+test('plans require PDF/DOCX with exact decimal 20 MB ceiling',()=>{for(const name of ['plan.pdf','PLAN.DOCX'])assert.equal(validateStudyUpload('plan',{name,size:20000000}),null);assert.match(validateStudyUpload('plan',{name:'plan.pdf',size:20000001}),/20 MB/);assert.match(validateStudyUpload('plan',{name:'plan.pptx',size:1}),/PDF o DOCX/);assert.match(validateStudyUpload('plan',{name:'plan.pdf',size:0}),/vacío/);});
+test('materials allow approved broad extensions to decimal 50 MB and declare AI limits',()=>{for(const ext of ['pdf','docx','pptx','xlsx','jpg','jpeg','png','zip'])assert.equal(validateStudyUpload('material',{name:'material.'+ext,size:50000000}),null);assert.match(validateStudyUpload('material',{name:'material.zip',size:50000001}),/50 MB/);assert.match(validateStudyUpload('material',{name:'material.exe',size:1}),/formato/);assert.ok(studyUploadPolicy('material').accept.includes('.zip'));});
+test('active folder requires a ready plan identity while drafts can stay incomplete',()=>{assert.match(requireStudyPlan(null),/cargá/);assert.equal(requireStudyPlan('ready-plan-id'),null);});

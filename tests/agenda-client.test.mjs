@@ -76,11 +76,11 @@ test('client preserves server error codes, signals identity requirements and nev
 test('account return navigation accepts agenda and exact safe academic destinations', () => {
   const { classroomDestination, classroomAuthHref } = loadTsModule('apps/web/src/lib/classroom-client.ts');
   const room = randomUUID(), activity = randomUUID();
-  for (const destination of ['/agenda', `/mis-aulas?aula=${room}`, `/mis-aulas?aula=${room}&actividad=${activity}`]) {
+  for (const destination of ['/agenda', '/carpetas-de-estudio', `/carpetas-de-estudio/${room}`, `/mis-aulas?aula=${room}`, `/mis-aulas?aula=${room}&actividad=${activity}`]) {
     assert.equal(classroomDestination(destination), destination);
     assert.equal(new URL(classroomAuthHref('sign-in', destination), 'http://test.local').searchParams.get('next'), destination);
   }
   for (const destination of [`/mis-aulas?actividad=${activity}`, `/mis-aulas?aula=${room}&actividad=${activity}&owner=x`,
     `/mis-aulas?aula=${room}#fragment`, '/agenda?owner=x', '//evil.test/agenda', '/agenda/../sign-in',
-    `/mis-aulas?aula=forged&actividad=${activity}`, ['/agenda']]) assert.equal(classroomDestination(destination), null);
+    `/mis-aulas?aula=forged&actividad=${activity}`, `/carpetas-de-estudio/${room}?owner=x`, '/carpetas-de-estudio/forged', '/carpetas-de-estudio/../agenda', `//evil.test/carpetas-de-estudio/${room}`, ['/agenda']]) assert.equal(classroomDestination(destination), null);
 });

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-08",
-  "count": 178,
+  "count": 188,
   "captures": [
     {
       "id": "auth-login",
@@ -3915,6 +3915,227 @@
           "contained": true,
           "paddingRight": "100px"
         }
+      ]
+    },
+    {
+      "id": "student-study-exam",
+      "path": "student-study-exam.png",
+      "sha256": "9b3a46435c68ada6d0c94eb7202155da533ce5f7cb60ce6980ccee440f14e8da",
+      "bytes": 294820,
+      "metadata": "student-study-exam.json",
+      "metadataSha256": "24ae0e19f83eaa6ef797f4ed6d91974caf75fcfee196340b16794a6935dd64a1",
+      "url": "/carpetas-de-estudio/4a34b7e0-cf36-4586-9348-e231912b7c57",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "headings": [
+        "Fotografía · estudio privado",
+        "Explicame qué es la exposición según el material, con un ejemplo sencillo.",
+        "¿Qué querés crear?",
+        "Conversaciones",
+        "Preparar un examen",
+        "Tu disponibilidad",
+        "Revisá las sesiones"
+      ],
+      "alerts": [
+        "Carpetas de estudio · FoxMind"
+      ]
+    },
+    {
+      "id": "student-study-folders-mobile",
+      "path": "student-study-folders-mobile.png",
+      "sha256": "e75a178c829c8be1ad9c3574129be3c631c44bd1acdc4a79e52550adf712b501",
+      "bytes": 129125,
+      "metadata": "student-study-folders-mobile.json",
+      "metadataSha256": "2ff202fd986b1335a7917179b7eeb3077a67e4804e1d855139e3b132bdabbc50",
+      "url": "/carpetas-de-estudio",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 375,
+      "headings": [
+        "Carpetas de estudio",
+        "Fotografía · estudio privado"
+      ],
+      "alerts": [
+        ""
+      ]
+    },
+    {
+      "id": "student-study-folders",
+      "path": "student-study-folders.png",
+      "sha256": "5ae0fb2cf6425494d9482b2b7fd73cf144afc88878dadb35788adbf97e4a9959",
+      "bytes": 472646,
+      "metadata": "student-study-folders.json",
+      "metadataSha256": "fc87ff5f5f31635603230331b206dc2ea417a7e1ebb7332c66370cb98318fa92",
+      "url": "/carpetas-de-estudio",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "headings": [
+        "Carpetas de estudio",
+        "Fotografía · estudio privado"
+      ],
+      "alerts": [
+        ""
+      ]
+    },
+    {
+      "id": "student-study-practice-mobile",
+      "path": "student-study-practice-mobile.png",
+      "sha256": "8542bab3d8f3aa24cfb73156655df236fb40ec3175ea75e9a497871e3a5a630e",
+      "bytes": 78377,
+      "metadata": "student-study-practice-mobile.json",
+      "metadataSha256": "210d06a2d50413807bb8ae1cb8bb7d0137caeb488a4773328525b493e08d73fb",
+      "url": "/carpetas-de-estudio/9bce88a3-def8-4be0-8753-a57f533f4528",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 375,
+      "headings": [
+        "Fotografía · QA sintética",
+        "Estudiá con Foxy",
+        "Hagamos lugar a tus preguntas",
+        "Mis creaciones",
+        "Conversaciones",
+        "Práctica personal",
+        "Práctica sintética de luz y exposición",
+        "Tu devolución"
+      ],
+      "alerts": [
+        "Carpetas de estudio · FoxMind"
+      ]
+    },
+    {
+      "id": "student-study-practice-tablet",
+      "path": "student-study-practice-tablet.png",
+      "sha256": "0d6cb21dd2ef4b31ec7a1e121fd6bf61f694d336e900b484b1e63e6121c8e390",
+      "bytes": 166246,
+      "metadata": "student-study-practice-tablet.json",
+      "metadataSha256": "f3e25f91f75b6b4dd8a6465920f687a9f69ca3d26bcc3aee54f320c4d864bd63",
+      "url": "/carpetas-de-estudio/9bce88a3-def8-4be0-8753-a57f533f4528",
+      "width": 834,
+      "height": 1100,
+      "scrollWidth": 819,
+      "headings": [
+        "Fotografía · QA sintética",
+        "Estudiá con Foxy",
+        "Hagamos lugar a tus preguntas",
+        "Mis creaciones",
+        "Conversaciones",
+        "Práctica personal",
+        "Práctica sintética de luz y exposición",
+        "Tu devolución"
+      ],
+      "alerts": [
+        "Carpetas de estudio · FoxMind"
+      ]
+    },
+    {
+      "id": "student-study-practice",
+      "path": "student-study-practice.png",
+      "sha256": "d301689827a095eb54fa939e195f64a2f581b4a74a52e21cbd984e57de7a9cba",
+      "bytes": 253497,
+      "metadata": "student-study-practice.json",
+      "metadataSha256": "3529e621db632d6665dbec4ecff88ccbf876143313155928ed667be735dcb7ca",
+      "url": "/carpetas-de-estudio/9bce88a3-def8-4be0-8753-a57f533f4528",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1425,
+      "headings": [
+        "Fotografía · QA sintética",
+        "Estudiá con Foxy",
+        "Hagamos lugar a tus preguntas",
+        "Mis creaciones",
+        "Conversaciones",
+        "Práctica personal",
+        "Práctica sintética de luz y exposición",
+        "Tu devolución"
+      ],
+      "alerts": [
+        "Carpetas de estudio · FoxMind"
+      ]
+    },
+    {
+      "id": "student-study-reminder",
+      "path": "student-study-reminder.png",
+      "sha256": "3e379c527505878245ced3a264f85d4a42775870b39c8bf4a7ed162fdff4d5cf",
+      "bytes": 221046,
+      "metadata": "student-study-reminder.json",
+      "metadataSha256": "43f79373a7e715b5edf6d7abd7ad93e1b7421c3337f20ba96839c55ff60b3261",
+      "url": "/carpetas-de-estudio",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "headings": [
+        "Notificaciones",
+        "Mis repasos · Solo para vos",
+        "Carpetas de estudio",
+        "Fotografía · estudio privado"
+      ],
+      "alerts": [
+        ""
+      ]
+    },
+    {
+      "id": "student-study-workspace-mobile",
+      "path": "student-study-workspace-mobile.png",
+      "sha256": "321aa9371e91563730670e801a3146c494bd4627d599be4fb111006d04bea13a",
+      "bytes": 59111,
+      "metadata": "student-study-workspace-mobile.json",
+      "metadataSha256": "34d27da98f5f438da06756830d3608a229b093fce4c15dd54c4bdffff578e99a",
+      "url": "/carpetas-de-estudio/4a34b7e0-cf36-4586-9348-e231912b7c57",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 375,
+      "headings": [
+        "Fotografía · estudio privado",
+        "Explicame qué es la exposición según el material, con un ejemplo sencillo.",
+        "¿Qué querés crear?",
+        "Conversaciones"
+      ],
+      "alerts": [
+        "Carpetas de estudio · FoxMind"
+      ]
+    },
+    {
+      "id": "student-study-workspace-tablet",
+      "path": "student-study-workspace-tablet.png",
+      "sha256": "b6622931cde11834737e5151b7ea42688f4a018fbc953ff6693ce7b043f9fc46",
+      "bytes": 205586,
+      "metadata": "student-study-workspace-tablet.json",
+      "metadataSha256": "6253c0bb95c51cb49289f85e49710b120f265a182f6ae700b228a43899c15a1f",
+      "url": "/carpetas-de-estudio/4a34b7e0-cf36-4586-9348-e231912b7c57",
+      "width": 834,
+      "height": 1100,
+      "scrollWidth": 819,
+      "headings": [
+        "Fotografía · estudio privado",
+        "Explicame qué es la exposición según el material, con un ejemplo sencillo.",
+        "¿Qué querés crear?",
+        "Conversaciones"
+      ],
+      "alerts": [
+        "Carpetas de estudio · FoxMind"
+      ]
+    },
+    {
+      "id": "student-study-workspace",
+      "path": "student-study-workspace.png",
+      "sha256": "424662794b53adba7557008b3ad640d831589acea157102240c798ad92723843",
+      "bytes": 291958,
+      "metadata": "student-study-workspace.json",
+      "metadataSha256": "56f416555437950c65a74d0050506adba4827d45cbcff773553cc94fc2c38af7",
+      "url": "/carpetas-de-estudio/4a34b7e0-cf36-4586-9348-e231912b7c57",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "headings": [
+        "Fotografía · estudio privado",
+        "Explicame qué es la exposición según el material, con un ejemplo sencillo.",
+        "¿Qué querés crear?",
+        "Conversaciones"
+      ],
+      "alerts": [
+        "Carpetas de estudio · FoxMind"
       ]
     }
   ]

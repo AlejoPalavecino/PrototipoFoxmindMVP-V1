@@ -8,7 +8,7 @@ type Follow = (event: MouseEvent<HTMLAnchorElement>, href: string) => void;
 export function ShellLinks({ links, follow }: { links: NavbarLink[]; follow: Follow }) {
   return <nav className="fm3d-shell-nav" aria-label="Navegación principal">{links.map(link =>
     <a key={link.href} href={link.href} aria-current={link.current ? 'page' : undefined} onClick={event => follow(event, link.href)}>
-      <FoxmindIcon name={link.href.startsWith('/agenda') ? 'calendar' : link.href.startsWith('/mis-aulas') ? 'layers' : link.href.startsWith('/foxy-ai') ? 'spark' : 'home'} />{link.label}</a>)}</nav>;
+      <FoxmindIcon name={link.href.startsWith('/carpetas-de-estudio')?'folder':link.href.startsWith('/agenda') ? 'calendar' : link.href.startsWith('/mis-aulas') ? 'layers' : link.href.startsWith('/foxy-ai') ? 'spark' : 'home'} />{link.label}</a>)}</nav>;
 }
 export function ShellAccount({ avatarKey, privateShell, currentPath, displayName, accountEmail, accountActions, notifications, follow, homeNavigation, accountRole }: {
   avatarKey?: string; privateShell: boolean; currentPath?: string; displayName?: string; accountEmail?: string; accountActions?: ReactNode; notifications?: ReactNode; follow: Follow; homeNavigation?: boolean; accountRole?:'teacher'|'student';

@@ -4,6 +4,7 @@ Base del producto inspeccionada: main, d41ff6d0b8c9321403b1d3000a06e06d84366cfe.
 
 | Capacidad | Estado actual | Evidencia o fuente |
 |---|---|---|
+| Carpetas de estudio | Implementado y verificado localmente en working tree:65 pruebas, permisos/DB/HTTP, revisión independiente y QA responsive. Gemini real plan/chat/quiz directo; prácticas E2E sintéticas. Cupo demo agotado sin elevar límites. Sin commit/publicación/despliegue | [Guía](engineering/study/README.md), [tarea](../odd/tasks/study-folders.md), [recibo](verification/study-folders.json) |
 | Cuenta y rol exclusivo | Registro docente/estudiante, verificación, acceso, perfil, contraseña y recuperación implementados; recorridos actuales observados | [Identidad](engineering/identity/README.md), [flujos](verification/flows.md) |
 | Aulas | Creación de cuatro pasos, borrador privado, catálogo con Pendientes y eliminación confirmada, ingreso por código/invitación, archivo/reactivación y pertenencia implementados; Pendientes comprobado localmente e integrado/publicado en main (2de9e28), sin despliegue | [Aulas](engineering/classrooms/README.md), [evidencia](work-log/2026-11-08-root-pending-classrooms.md) |
 | Plan, Biblioteca y Muro | Plan consultable con avance docente; materiales FILE/TEXT y revisiones; avisos, consultas y respuestas | [Enseñanza](engineering/teaching/README.md) |

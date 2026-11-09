@@ -1,0 +1,20 @@
+{
+  "url": "/carpetas-de-estudio",
+  "width": 1440,
+  "height": 1000,
+  "scrollWidth": 1440,
+  "buildId": "NyS300_Mx5ghFcDlazAAm",
+  "headings": [
+    "Notificaciones",
+    "Mis repasos · Solo para vos",
+    "Carpetas de estudio",
+    "Fotografía · estudio privado"
+  ],
+  "alerts": [
+    ""
+  ],
+  "date": "2026-11-08",
+  "role": "student",
+  "candidate": "1f46028 + study folders working diff",
+  "source": "real Next/API/PostgreSQL/storage/scanner/Mailpit and Gemini; synthetic account/materials"
+}

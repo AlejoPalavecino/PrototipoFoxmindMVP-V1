@@ -74,6 +74,8 @@ El [modelo de datos](data-model.md), las [guías de archivos](files/README.md) y
 
 ## Dónde empezar un cambio
 
+Carpetas de estudio incorpora una capacidad privada en `apps/api/src/study-folders`, con cargas/avisos internos al mismo módulo. El motor neutral está en `src/core/domain/study-engine.ts`; los puentes de composición `study-file-integration.ts` y `study-agenda-integration.ts` reutilizan validación/escaneo/almacenamiento y Agenda sin conceder permisos docentes. El adaptador Gemini de estudio comparte admisión/presupuesto con las otras familias. El transporte de identidad es un host explícito en el guard AST; el resto del módulo mantiene sus fronteras. [Guía](study/README.md).
+
 1. Ubicá la regla en la [especificación vigente](../foxmind-v1-functional-spec.md) y su [matriz por rol](../product/features-by-role.md).
 2. Seguí proxy → transporte → capacidad dueña → transacción/persistencia, consultando la guía de dominio y el código. Classrooms conserva servicios especializados y operaciones compartidas; no inventar un paquete por cada función ni borrar excepciones sin criterio.
 3. Elegí pruebas de permisos, contratos y datos según el cambio. Revisá [verificación](testing/README.md) y ejecutá lint:boundaries si cambia una dependencia entre módulos.

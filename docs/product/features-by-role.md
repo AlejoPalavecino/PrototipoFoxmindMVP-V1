@@ -6,6 +6,7 @@ Cada cuenta tiene un rol exclusivo: docente o estudiante. Además del rol, el ba
 
 | Sección | Docente | Estudiante | Fuente |
 |---|---|---|---|
+| Carpetas de estudio | Sin acceso | Crear carpetas privadas, vincular una Biblioteca autorizada, estudiar con Foxy, practicar con devolución y confirmar repasos en Agenda | [Estudio privado](../engineering/study/README.md) |
 | Cuenta y perfil | Registro como docente; acceso/verificación, nombres y avatar Foxy/iniciales con guardado explícito, contraseña, recuperación y cierre de sesión | Mismos flujos con rol estudiante | [Identidad](../engineering/identity/README.md) |
 | Inicio | Aulas propias, entregas/consultas por atender, avisos y agenda personal | Aulas, pendientes y devoluciones publicadas propias | [Inicio](../engineering/home/README.md) |
 | Mis aulas | Crear aula, consultar Activas/Archivadas/Pendientes; continuar o eliminar pendientes propios con confirmación; administrar aulas propias | Confirmar ingreso por código/invitación y consultar aulas autorizadas; sin Pendientes de creación | [Aulas](../engineering/classrooms/README.md) |

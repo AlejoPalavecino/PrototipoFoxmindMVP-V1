@@ -2,6 +2,7 @@
 
 | Necesidad | Guía vigente |
 |---|---|
+| Acompañar estudio privado, practicar y preparar exámenes | [Carpetas de estudio](../study/README.md) |
 | Extraer unidades/temas de un documento | [Plan](plan-extraction.md) |
 | Preparar un borrador de actividad | [Generación](activity-generation.md) |
 | Orientar seguimiento individual | [Análisis](student-analysis.md) |

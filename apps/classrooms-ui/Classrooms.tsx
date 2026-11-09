@@ -212,6 +212,7 @@ export function ClassroomsApp({
         classroomLinks={[...(data.teach ?? []), ...(data.study ?? [])].filter(room => !room.archived).map(room => ({ href: `/mis-aulas?aula=${encodeURIComponent(room.id)}`, label: room.name,coverKey:room.coverKey, current: classroomId === room.id }))}
         links={[{ href: '/inicio', label: 'Inicio', current: !classroomId && presentation === 'home' },
             { href: '/mis-aulas', label: 'Mis aulas', current: presentation === 'classrooms' || Boolean(classroomId) },
+            ...(accountRole==='student'?[{href:'/carpetas-de-estudio',label:'Carpetas de estudio'}]:[]),
             { href: '/agenda', label: 'Agenda' },
             ...(accountRole === 'teacher' ? [{ href: '/foxy-ai', label: 'Foxy AI' }] : [])]}
         onNavigate={href => {
@@ -223,14 +224,14 @@ export function ClassroomsApp({
             if (targetId) { if (onEnterClassroom) void action(async () => { await onEnterClassroom(targetId); }); else { setSharedCode(null); setClassroomId(targetId); } }
             return;
           }
-          if (href === '/profile' || href === '/settings' || (href === '/foxy-ai' && accountRole === 'teacher')) { window.location.assign(href); return; }
+          if (href === '/profile' || href === '/settings' || (href === '/foxy-ai' && accountRole === 'teacher') || (href==='/carpetas-de-estudio'&&accountRole==='student')) { window.location.assign(href); return; }
           if (href === '/agenda') { if (onNavigate) onNavigate('agenda'); else window.location.assign('/agenda'); return; }
           showPresentation(href === '/inicio' ? 'home' : 'classrooms');
         }}
         homeNavigation={presentation === 'home' && !classroomId && !draft}
         notifications={(onSelectNotification
-          ? <Notifications api={api} refresh={notificationRefresh} onSelect={id => void action(async () => { await onSelectNotification(id); })} />
-          : <Notifications api={api} refresh={notificationRefresh} onOpen={openTarget} />)}
+          ? <Notifications api={api} refresh={notificationRefresh} includeStudyReminders={accountRole==='student'} onSelect={id => void action(async () => { await onSelectNotification(id); })} />
+          : <Notifications api={api} refresh={notificationRefresh} includeStudyReminders={accountRole==='student'} onOpen={openTarget} />)}
         accountActions={accountActions} />
       <main id="classroom-main" className="p5-main">
         {draft ? (

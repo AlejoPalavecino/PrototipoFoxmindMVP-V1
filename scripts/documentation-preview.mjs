@@ -9,7 +9,9 @@ import {identityTestEnvironment} from './p33-identity-test-env.mjs';
 import {seedFoxyBrowser} from './foxy-browser-seed.mjs';
 import {freePort,startWeb,webReady,closeWeb,waitForStop} from './activity-ai-real-runtime.mjs';
 import {activityProvider,aiEnvironment} from './activity-ai-live-provider.mjs';
-const directory=resolve('.test-artifacts','documentation-preview-'+randomBytes(8).toString('hex')); await mkdir(directory,{recursive:true});
+import {studyPreviewProvider} from './study-preview-provider.mjs';
+const studySynthetic=process.env.FOXMIND_STUDY_PREVIEW==='synthetic';
+const directory=resolve('.test-artifacts',(studySynthetic?'study-preview-':'documentation-preview-')+randomBytes(8).toString('hex')); await mkdir(directory,{recursive:true});
 const refuse=new Proxy({}, {get:()=>async()=>{throw Object.assign(new Error('Synthetic provider unavailable for this branch'),{code:'AI_UNAVAILABLE'});}});
 await withP4Services(runtime=>withMailpit(async mail=>{
  let app,web;
@@ -25,10 +27,10 @@ await withP4Services(runtime=>withMailpit(async mail=>{
   const visualProviders={IMAGE:{countTokens:async()=>12,generate:async()=>({bytes:png,declaredMimeType:'image/png',usage:{inputTokens:12,outputTokens:20}})},DIAGRAM:{countTokens:async()=>12,generate:async()=>({diagram:graph,usage:{inputTokens:12,outputTokens:20}})}};
   const textProvider={countTokens:async()=>100,generate:async()=>({json:{schemaVersion:'foxy-text-response-v1',status:'READY',title:'Guía de exposición',markdown:'## La luz\nLa exposición depende de la apertura y del tiempo. Compará dos situaciones y justificá tu respuesta.',references:[],warnings:['Contenido de proveedor sintético para verificación de interfaz.'],missingInformation:[]},inputTokens:100,outputTokens:100})};
   const provider={countStudyPlanTokens:async()=>100,extractStudyPlan:async()=>({json:{units:[{name:'La luz',topics:[{name:'Exposición'},{name:'Contraste'}]}],warnings:[]},inputTokens:100,outputTokens:80})};
-  app=await createApplication(readConfiguration(env),{ai:{provider,activityProvider,studentProvider:refuse,gradingProvider:refuse},foxy:{textProvider,visualProviders}});await app.listen(0,'127.0.0.1');
+  app=await createApplication(readConfiguration(env),{ai:{provider,activityProvider,studentProvider:refuse,gradingProvider:refuse},foxy:{textProvider,visualProviders},...(studySynthetic?{study:{provider:studyPreviewProvider}}:{})});await app.listen(0,'127.0.0.1');
   web=startWeb(port,`http://127.0.0.1:${app.getHttpServer().address().port}`);await webReady(web,origin);
   const account=await seedFoxyBrowser({origin,inbox:mail.httpOrigin,directory,suffix:'estado-actual'});
-  await writeFile(resolve(directory,'fixture.json'),JSON.stringify({origin,inbox:mail.httpOrigin,...account,stopFile:resolve(directory,'stop')}),{mode:0o600});
+  await writeFile(resolve(directory,'fixture.json'),JSON.stringify({origin,inbox:mail.httpOrigin,...account,studyProvider:studySynthetic?'synthetic':'default',stopFile:resolve(directory,'stop')}),{mode:0o600});
   console.log(JSON.stringify({ready:true,origin,provider:'synthetic',roles:2,fixturePath:resolve(directory,'fixture.json'),stopFile:resolve(directory,'stop')}));
   await waitForStop(resolve(directory,'stop'));
  }finally{await unlink(resolve(directory,'fixture.json')).catch(e=>{if(e.code!=='ENOENT')throw e;});await closeWeb(web);await app?.close();}

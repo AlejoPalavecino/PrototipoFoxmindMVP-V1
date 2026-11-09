@@ -4,6 +4,7 @@ Empezá por [arquitectura](architecture.md) y [modelo de datos](data-model.md). 
 
 | Dominio | Responsabilidad |
 |---|---|
+| [Estudio privado](study/README.md) | Carpetas estudiantiles, fuentes privadas, prácticas, adaptación y repasos en Agenda |
 | [Identidad](identity/README.md) | Registro, sesión, correo, perfil y contraseñas |
 | [Archivos](files/README.md) | Carga, validación, escaneo, custodia y acceso privado |
 | [Aulas](classrooms/README.md) | Borradores, publicación, propiedad, ingreso y pertenencia |

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ClassroomClient, ClassroomNotification, NotificationTarget, NotificationPage } from './api.ts';
 import { Dialog, Notice } from './components.tsx';
 import { FoxmindIcon } from '../shared-ui/FoxmindIcon';
+import {useStudyReminders,StudyReminderList} from './study-reminders';
 
 const labels = { WALL_NOTICE: 'Nuevo aviso del docente', WALL_QUERY: 'Nueva consulta de estudiante', WALL_REPLY: 'Respuesta a tu publicación',
   ACTIVITY_PUBLISHED: 'Nueva actividad publicada', ACTIVITY_DEADLINE_CHANGED: 'Cambio de plazo o recepción',
@@ -13,7 +14,8 @@ type Destination = { onOpen: (target: NotificationTarget) => void; onSelect?: ne
 const groups={all:'Todos los tipos',deliveries:'Entregas',talk:'Muro',work:'Actividades',grades:'Resultados',dates:'Fechas e intentos'};
 function notificationGroup(type:ClassroomNotification['eventType']):keyof typeof groups{return type.startsWith('WALL_')?'talk':type.startsWith('GRADE_')?'grades':type==='SUBMISSION_RECEIVED'?'deliveries':type==='ACTIVITY_PUBLISHED'?'work':'dates';}
 function notificationTitle(item:ClassroomNotification){return item.actorName&&item.eventType==='SUBMISSION_RECEIVED'?`Entrega de ${item.actorName}`:item.actorName&&item.eventType==='WALL_QUERY'?`Consulta de ${item.actorName}`:item.actorName&&item.eventType==='WALL_REPLY'?`Respuesta de ${item.actorName}`:labels[item.eventType];}
-export function Notifications({ api, refresh, onOpen, onSelect,presentation='preview' }: { api: ClassroomClient; refresh: number;presentation?:'preview'|'center' } & Destination) {
+export function Notifications({ api, refresh, onOpen, onSelect,presentation='preview',includeStudyReminders=false }: { api: ClassroomClient; refresh: number;presentation?:'preview'|'center';includeStudyReminders?:boolean } & Destination) {
+  const reminders=useStudyReminders(includeStudyReminders);
   const [items, setItems] = useState<ClassroomNotification[] | null>(null), [open, setOpen] = useState(false);
   const [error, setError] = useState(''), [busy, setBusy] = useState(false);
   const [onlyUnread, setOnlyUnread] = useState(false), [nextCursor, setNextCursor] = useState<string | null>(null), [unread, setUnread] = useState(0);
@@ -62,11 +64,13 @@ export function Notifications({ api, refresh, onOpen, onSelect,presentation='pre
   }
   const filtered=items?.filter(item=>group==='all'||notificationGroup(item.eventType)===group);
   const visible = presentation==='preview'?filtered?.slice(0,3):filtered;
+  const totalUnread=unread+reminders.data.unreadCount;
   const content=<>
-      <div className={`notifications-summary${presentation==='center'?' sr-only':''}`}><span className="notifications-total">{error || !items ? 'Tus notificaciones' : unread ? `${unread} ${unread === 1 ? 'novedad sin leer' : 'novedades sin leer'}` : 'Estás al día'}</span><p>Avisos y actividad de tus aulas.</p></div>
+      {includeStudyReminders?<StudyReminderList reminders={reminders} onlyUnread={onlyUnread}/>:null}
+      <div className={`notifications-summary${presentation==='center'?' sr-only':''}`}><span className="notifications-total">{error || !items ? 'Tus notificaciones' : totalUnread ? `${totalUnread} ${totalUnread === 1 ? 'novedad sin leer' : 'novedades sin leer'}` : 'Estás al día'}</span><p>{includeStudyReminders?'Avisos de tus aulas y repasos privados.':'Avisos y actividad de tus aulas.'}</p></div>
       {error ? <Notice error>{error} El acceso puede haber cambiado; actualiza las notificaciones.</Notice> : null}
       <div className="notifications-toolbar"><div className="notification-filters" role="group" aria-label="Filtrar notificaciones"><button aria-pressed={!onlyUnread} onClick={() => filter(false)}>Todas</button>
-        <button aria-pressed={onlyUnread} onClick={() => filter(true)}>Sin leer <span>{unread}</span></button></div>
+        <button aria-pressed={onlyUnread} onClick={() => filter(true)}>Sin leer <span>{totalUnread}</span></button></div>
         {presentation==='preview'||error?<button className="notifications-refresh" aria-label="Actualizar notificaciones" disabled={busy} onClick={() => void run(load)}><FoxmindIcon name="refresh" />Actualizar</button>:null}</div>
       {presentation==='center'?<><div className="notification-types" role="group" aria-label="Tipo de notificación">{Object.entries(groups).filter(([key])=>key==='all'||items?.some(item=>notificationGroup(item.eventType)===key)).map(([key,label])=><button key={key} aria-pressed={group===key} onClick={()=>setGroup(key as keyof typeof groups)}>{label}</button>)}</div>{unread>0?<button className="notification-mark-all" disabled={busy} onClick={()=>void run(markAll)}>Marcar todas como leídas</button>:null}</>:null}
       {!items && !error ? <Notice>Cargando notificaciones…</Notice> : null}
@@ -90,8 +94,8 @@ export function Notifications({ api, refresh, onOpen, onSelect,presentation='pre
       {presentation==='preview'?<a className="p5-primary" href="/notificaciones">Ver todas las notificaciones <FoxmindIcon name="arrow-right"/></a>:null}
     </>;
   if(presentation==='center')return <section className="entry-notifications fm-brujula-inbox" aria-label="Centro de notificaciones">{content}</section>;
-  return <><button className="p6-notifications-toggle" aria-haspopup="dialog" aria-expanded={open} aria-label={`Notificaciones${unread ? `: ${unread} sin leer` : ''}`} onClick={() => {
-      setOpen(true); void run(load);
-    }}><FoxmindIcon name="bell" /><span className="entry-sr-only">Notificaciones</span>{unread ? <span className="entry-unread-count">{unread}</span> : null}</button>
+  return <><button className="p6-notifications-toggle" aria-haspopup="dialog" aria-expanded={open} aria-label={`Notificaciones${totalUnread ? `: ${totalUnread} sin leer` : ''}`} onClick={() => {
+      setOpen(true); void run(load); if(includeStudyReminders)void reminders.load();
+    }}><FoxmindIcon name="bell" /><span className="entry-sr-only">Notificaciones</span>{totalUnread ? <span className="entry-unread-count">{totalUnread}</span> : null}</button>
     {open?<Dialog title="Notificaciones" className="entry-notifications" onClose={()=>setOpen(false)}>{content}</Dialog>:null}</>;
 }

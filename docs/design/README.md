@@ -4,6 +4,8 @@ Referencia actual: aplicación Brújula recorrida con Ego Lite sobre código rea
 
 ## Información y navegación
 
+Carpetas de estudio agrega navegación exclusiva del estudiante, colección de tarjetas/banner como aulas, asistente de cuatro pasos y un interior con chat/herramientas/creaciones/conversaciones como Foxy. Materiales/Plan, práctica y examen se abren en diálogos con foco gestionado. La dirección aprobada y estados se conservan en [propuesta](../product/study-folders-proposal.md); la [evidencia](../verification/study-folders.json) indica viewports y límites de QA.
+
 Sidebar desde 1024 px; en tamaños menores, menú compacto con drawer y retorno de foco. Global: Inicio, Mis aulas, Agenda, búsqueda, notificaciones y Mi cuenta; Foxy sólo docente. Perfil y Configuración de cuenta están dentro de Mi cuenta.
 
 | Contexto | Secciones |

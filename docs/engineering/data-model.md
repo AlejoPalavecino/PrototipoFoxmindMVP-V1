@@ -4,6 +4,8 @@ El modelo físico vive en [schema.prisma](../../prisma/schema.prisma) y las rest
 
 ## Entidades por dominio
 
+Actualización Carpetas de estudio (2026-11-08): cuatro migraciones aditivas `202611080003`–`202611080006`. `StudyFolder` conserva dueño estudiante, estado, revisión y documento JSON versionado (plan, materiales, chats, prácticas, exámenes y recibos). `StudyFolderUpload` custodia cargas privadas con digests y estados; `StudyReviewSession` une sesión privada con evento/revisión de Agenda y aviso durable; `StudyAiDispatch` conserva admisión, deduplicación y presupuesto compartido. CHECKs e índices parciales permanecen en SQL. No se reescriben migraciones anteriores ni se convierten carpetas en aulas. [Reglas y conservación](study/README.md).
+
 Actualización 2026-11-08: migración `202611080001_pending_classroom_deletion` agrega `ClassroomDraft.deleted_at` para baja lógica irreversible desde UI. La restricción impide combinar borrador eliminado y aula publicada. Mantiene relaciones con archivos/extracciones y revisión concurrente; no elimina bytes ni registros dependientes. [Reglas](classrooms/README.md).
 
 | Dominio | Modelos Prisma | Propiedad y relación principal |

@@ -1,0 +1,84 @@
+{
+  "date": "2026-11-08",
+  "candidate": "1f46028 + study folders working diff",
+  "status": "VERIFIED_LOCAL",
+  "publication": "Not committed, pushed or deployed",
+  "automatedProvider": "synthetic",
+  "localProvider": "Gemini real via authorized local runtime",
+  "checks": {
+    "studySuite": {
+      "command": "npm run test:study",
+      "passed": 65,
+      "failed": 0,
+      "skipped": 0
+    },
+    "webTypes": "npx tsc -p apps/web/tsconfig.json --noEmit: PASS",
+    "apiAndWebBuild": "PASS via final local:restart",
+    "boundaries": "npm run lint:boundaries: PASS 123 frozen exceptions",
+    "boundaryGuardTests": {
+      "passed": 13,
+      "failed": 0
+    },
+    "sharedAiAdmissionRegression": {
+      "passed": 30,
+      "failed": 0
+    },
+    "agendaRegression": "14 tests passed; safe account continuation additionally revalidated (4 tests)",
+    "inventory": "511 entries, 53 explicit exclusions, 23 routes; no new exclusions",
+    "privateDatabaseAndHttp": "Owned isolated PostgreSQL, additive migrations, persisted sessions, CSRF/Origin, teacher/student/owner isolation, library revisions and predispatch/completion revocation: PASS",
+    "uploadsAgendaRemindersBudgetIntegration": "2 tests PASS; real isolated PostgreSQL and synthetic storage/scanner/provider",
+    "independentReview": "VERIFIED focal; 52 tests then 42 tests on final preference/empty-topic controls; no P1/P2 open in reviewed scope"
+  },
+  "browser": {
+    "tool": "Ego Lite, one TaskSpace 3",
+    "realRuntime": {
+      "docxUploadAndScan": "PASS",
+      "planExtractionGemini": "PASS",
+      "chatWithSourceGemini": "PASS",
+      "quizGeminiEngineProbe": "PASS 3 questions in a direct engine probe on owned synthetic material; not an E2E browser quiz",
+      "examAgendaAndPrivateNotice": "PASS 3 sessions, one immediate private reminder; persisted across restart",
+      "loginContinuation": "PASS logout -> next exact folder -> login restores folder",
+      "emptyTopicGuard": "PASS disabled with explanation, no generation triggered"
+    },
+    "isolatedRuntime": {
+      "provider": "Explicit deterministic synthetic provider; real application/API/PostgreSQL/storage/scanner/Mailpit",
+      "tools": [
+        "NOTE",
+        "OUTLINE",
+        "QUIZ",
+        "EXERCISE",
+        "MOCK_EXAM"
+      ],
+      "practice": "SINGLE/MULTIPLE/development answered, saved and reloaded; solutions hidden before finalization; objective feedback and orientative development feedback visible; new empty attempt preserves old",
+      "keyboard": "12 Tab presses stayed within dialog; Escape restored gallery trigger",
+      "cleanup": "Child process exit 0; P4 owned cleanup failures: 0; fixture removed"
+    },
+    "viewportWidths": [
+      390,
+      834,
+      1440
+    ],
+    "horizontalOverflow": false,
+    "captures": [
+      "student-study-exam",
+      "student-study-folders-mobile",
+      "student-study-folders",
+      "student-study-practice-mobile",
+      "student-study-practice-tablet",
+      "student-study-practice",
+      "student-study-reminder",
+      "student-study-workspace-mobile",
+      "student-study-workspace-tablet",
+      "student-study-workspace"
+    ]
+  },
+  "limits": [
+    "No full repository suite, full WCAG audit, load test or deployment claimed",
+    "Two initial browser quizzes failed after all preselected topics were deselected; UI/command/engine now block an empty practice before reservation or provider dispatch",
+    "The real demo actor reached its existing daily AI cap of five. It was not raised. No new real E2E quiz after the final guard; full practice journey verified with explicit synthetic provider",
+    "Gemini adapter adds strict contextual schema and source labels; unknown outcomes are conservatively charged without silent redispatch",
+    "Only PDF/DOCX and written Library bodies are currently AI-readable; other admitted formats remain downloadable",
+    "Study outlines are editable text resources; in-app reminders are not external push/email/SMS",
+    "Productive quota, infrastructure and deployment remain undecided"
+  ]
+}
