@@ -366,7 +366,7 @@
 #classroom-main .fm-home .fm-home-module--drafts h3 { font-size:13px; }
 #classroom-main .fm-home .fm-home-module--drafts .fm-home-row-detail { font-size:10px; }
 #classroom-main .fm-home .fm-home-module--drafts > header > svg:last-child { display:block; width:16px; height:16px; margin-left:auto; }
-#classroom-main .fm-home .fm-home-agenda-action { position:absolute; inset:0; opacity:0; width:100%; border:0; border-radius:0; background:none; }
+#classroom-main .fm-home .fm-home-agenda-action { position:absolute; inset:0; grid-column:1/-1; grid-row:1/-1; opacity:0; width:auto; border:0; border-radius:0; background:none; }
 #classroom-main .fm-home .fm-home-row--agenda { position:relative; }
 #classroom-main .fm-home .fm-home-agenda-action:focus-visible { opacity:1; outline:2px solid #7c6ca5; background:transparent; }
 #classroom-main .fm-home .fm-home-agenda-action:focus-visible svg { visibility:hidden; }
