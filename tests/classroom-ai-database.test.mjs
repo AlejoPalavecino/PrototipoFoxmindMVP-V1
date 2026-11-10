@@ -58,11 +58,13 @@ export function transactionDatabase(pool, active = { count: 0 }) {
 }
 
 export async function aiFixture(pool, { verified = true, ownerId = randomUUID(), bytes = Buffer.from('synthetic-plan'),
-  units = [{ name: 'Manual', topics: [{ name: 'Docente' }] }] } = {}) {
+  units = [{ name: 'Manual', topics: [{ name: 'Docente' }] }], accountRoleColumn = true } = {}) {
   const strangerId = randomUUID(), draftId = randomUUID(), fileId = randomUUID();
+  // Historical upgrade fixtures may precede the exclusive-role migration.
+  const roleColumn = accountRoleColumn ? ',account_role' : '', roleValue = accountRoleColumn ? ",'teacher'" : '';
   for (const id of [ownerId, strangerId]) await pool.query(`INSERT INTO users
-    (id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
-    VALUES($1,now(),$2,$2,'Synthetic','Teacher','fixture-only',CASE WHEN $3 THEN now() ELSE NULL END,'teacher')
+    (id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at${roleColumn})
+    VALUES($1,now(),$2,$2,'Synthetic','Teacher','fixture-only',CASE WHEN $3 THEN now() ELSE NULL END${roleValue})
     ON CONFLICT(id) DO NOTHING`, [id, `${id}@example.test`, verified]);
   const payload = { name: 'Fotografía', subject: 'Arte', division: 'A', academicYear: 2026,
     timezone: 'UTC', coverKey: 'explore', planFileId: fileId, units };

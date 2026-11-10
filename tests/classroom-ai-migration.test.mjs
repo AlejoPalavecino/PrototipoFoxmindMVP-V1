@@ -19,7 +19,7 @@ test('C3 additive AI migration preserves populated P0-P9 drafts, approved plans 
       // Upgrade the complete populated main schema, including retained agenda colors.
       for (const name of names.slice(0, colorIndex + 1).filter(name => name !== aiMigration))
         await db.query(await readFile(`prisma/migrations/${name}/migration.sql`, 'utf8'));
-      const fixture = await aiFixture(db);
+      const fixture = await aiFixture(db, { accountRoleColumn: false });
       await db.query(`INSERT INTO agenda_events(id,owner_id,title,description,category,schedule_kind,
         start_date,end_date_exclusive,repeat_kind,color)
         VALUES($1,$2,'Retained agenda','','CLASS','ALL_DAY','2026-10-27','2026-10-28','NONE','PURPLE')`,
