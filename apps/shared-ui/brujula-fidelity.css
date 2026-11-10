@@ -126,7 +126,7 @@
  .fm3d-theme .fm-home-navigation .fm-brujula-search-slot { display:block; }
  .fm3d-theme .fm-home-navigation .fm-brujula-search { min-height:39px; font-size:12px; padding:7px 11px; }
  .fm3d-theme .fm-home-navigation .fm-brujula-nav-label { padding:24px 14px 10px; }
- .fm3d-theme .fm-home-navigation[data-private=true] > .fm3d-shell-nav { display:flex; flex-direction:column; gap:6px; }
+ .fm3d-theme .fm-home-navigation[data-private=true] > .fm3d-shell-nav { display:flex; position:static; inset:auto; flex-direction:column; gap:6px; }
  .fm3d-theme .fm-home-navigation[data-private=true] .fm3d-shell-nav > a { min-height:44px; padding:10px 14px; border-radius:13px; font-size:13px; font-weight:400; box-shadow:none; }
  .fm3d-theme .fm-home-navigation[data-private=true] a[aria-current=page] { font-weight:700; background:#ffeadb; color:#9b3b0a; }
  .fm3d-theme .fm-home-navigation .fm3d-shell-tools { display:none; }
