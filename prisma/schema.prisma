@@ -1388,10 +1388,10 @@ model StudyFolder {
   status String @default("DRAFT")
   revision BigInt @default(1)
   state Json
-  created_at DateTime @default(now()) @db.Timestamptz(6)
-  updated_at DateTime @default(now()) @db.Timestamptz(6)
+  created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  updated_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
   owner User @relation(fields:[owner_id],references:[id],onDelete:Restrict,onUpdate:NoAction)
-  @@index([owner_id,status,updated_at])
+  @@index([owner_id,status,updated_at], map: "study_folders_owner_status_updated")
   @@map("study_folders")
 }
 
