@@ -191,27 +191,27 @@ Ese mismo día autorizó la integración DB sobre recursos propios y los commits
 - **Blocker:** none
 
 ### TASK-023 — Aceptación integral de la migración
-- **State:** IN_PROGRESS
+- **State:** DONE
 - **Depends on:** TASK-022, TASK-028
 - **Owner:** root
 - **Acceptance:** Builds/tipos/lint/docs/inventario, suites completas aplicables con recursos propios, revisión independiente de rutas críticas y QA real de flujos integrados; fallos/omisiones identificados.
-- **Evidence:** Fast: corrida completa de 335 archivos y 1881 PASS, seguida de ampliación focal P7 27 PASS que reemplaza sus cuatro casos anteriores; cobertura actual reconciliada de 335/335 archivos y 1904 PASS, sin fallos/cancelaciones/omisiones, en fast-current-reconciled.json. No se afirma otra corrida completa de 335 tras ese append test-only. PostgreSQL: 131/131 archivos y 847 PASS; servicios propios: 9/9 y 52 PASS; wrappers reconciliados: 19/19 rutas y 153 PASS, sin fallos/cancelaciones/omisiones. Builds API/web, tipos, lint con cero excepciones, inventario de 529 entradas y documentación pasan. Navegador integral pendiente de reconciliación final; los intentos fallidos y ajustes de fixtures se conservan en el registro. El fallo intermitente HTTP previo al refactor tiene equivalencia comprobada y consulta de ampliación opcional pendiente; no se modificó producción para ocultarlo.
+- **Evidence:** Fast completo posterior al cierre HTTP: 336/336 archivos y 1918 PASS. PostgreSQL reconciliado: 131/131 archivos y 847 PASS; servicios: 9/9 y 52 PASS; navegador: 44/44 y 174 PASS; wrappers: 19/19 rutas y 153 PASS. Cero fallos/omisiones en las últimas ejecuciones completas seleccionadas; cohortes mixtas y fallos previos explícitos en docs/verification/architecture-migration.json. Tipos API/web/preview, builds, lint/AST cero excepciones, inventario 530/53 exclusiones/23 rutas, docs 101 archivos/916 enlaces y 19 pruebas documentales/discovery PASS. Revisiones independientes y QA real registradas; TASK-028 DONE.
 - **Blocker:** none
 
 ### TASK-028 — Entregar el rechazo HTTP sin cierre prematuro en la frontera JSON
-- **State:** IN_PROGRESS
+- **State:** DONE
 - **Depends on:** TASK-022
 - **Owner:** root
 - **Acceptance:** Corrección adicional autorizada explícitamente por el usuario. Ambos proxies conservan tamaños JSON aceptados, validación, permisos, headers y cero llamadas upstream ante rechazo. Respuesta 413 completa en los tamaños de frontera que reproducen ECONNRESET; descarte sin buffering con presupuesto adicional acotado y ventana metadata absoluta de 10 s, sin renovarla después del parseo. Exceso de descarte, plazo o cancelación cierra transporte y libera listeners/timers; no se garantiza respuesta completa para cuerpos arbitrariamente grandes. RED/GREEN de aceptación con escritor separado, contratos existentes y revisión independiente, tipos/build/lint.
-- **Evidence:** Diagnóstico previo verificado: AST runtime idéntico a la base, 3/24 ECONNRESET en cada frontera. Usuario autorizó corregir cierre y verificar regresión. Revisor escribe aceptación; implementador tiene sólo los dos proxies y helper de ciclo de vida. Copia experimental previa no equivale a fix productivo. Implementación y verificación pendientes.
+- **Evidence:** RED protegido 14 FAIL antes de producción. Candidato congelado: 14 nuevas +22 originales PASS de implementador y revisor, 48/48 fronteras reales independientes con 413 completo/upstream cero, cap adicional/deadline absoluto/cancelación/cleanup y equivalencia AST de rutas/esquemas/headers. Tipos API/web/preview, build web y lint con cero excepciones PASS por root. Nueva prueba registrada en fast/transport; inventario 530/53 exclusiones/23 rutas. Suite rápida completa posterior: 336 archivos y 1918 PASS, sin fallos ni omisiones, en complete-fast-after-rejection-fix.log.
 - **Blocker:** none
 
 ### TASK-024 — Entrega local completa y commits de cierre
-- **State:** PLANNED
+- **State:** VERIFYING
 - **Depends on:** TASK-023, TASK-026, TASK-027
 - **Owner:** root
 - **Acceptance:** Commits por unidad y recibos reales, tablero/roadmap reconciliados, árbol limpio y límites local/publicado/desplegado explícitos.
-- **Evidence:** none
+- **Evidence:** Commits de código d09fc24701296a61542ab8e877dfda082e7f808b y 2b6ff79a3e52de16d3c767facb22a8d833eb6794, además de los cortes anteriores. Recibo, roadmap y registro final reconciliados y verificados; queda comprobar commit documental y árbol limpio antes de DONE.
 - **Blocker:** none
 
 ### TASK-025 — Cliente y pantalla de archivos frontend

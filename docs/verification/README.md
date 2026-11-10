@@ -5,6 +5,7 @@ El pulido UX/UI del 2026-11-09 tiene 28 capturas nativas Ego Lite inspeccionadas
 | Necesitás comprobar | Fuente |
 |---|---|
 | Dirección visual y reglas de interacción | [UX/UI vigente](../design/README.md) |
+| Migración por dominios y ciclo de rechazo HTTP | [Recibo de arquitectura](architecture-migration.json), [registro de cierre](../work-log/2026-11-10-root-architecture-completion.md) |
 | Chat, herramientas, colecciones y creación/plan | [Recibo del pulido](foxy-study-ux-polish.json), [registro visual](../work-log/2026-11-09-root-ux-visual.md) |
 | Imágenes, viewport, desplazamiento y procedencia | [Galería](../design/current/README.md), [catálogo con hashes](../design/current/catalog.json) |
 | Recorridos funcionales por rol y cobertura pendiente | [Matriz](flows.md), [datos de la base](flows.json) |

@@ -7,7 +7,7 @@
 - Autorización humana vigente: terminar las cinco tareas pendientes con pruebas y commits locales. El usuario también autorizó ajustes mínimos de accesibilidad y la corrección del cierre prematuro HTTP 413 encontrada durante aceptación. Sin push, PR, merge, despliegue, proveedores reales ni acceso a datos retenidos.
 - Runtime de memoria sin registro autoritativo: no se invocó escritura Engram ni se inventó una identidad de sesión.
 - Fuentes: [diseño aprobado](../engineering/architecture-migration.md), [tablero único](../../odd/tasks/architecture-migration.md) y especificación vigente. El coordinador es el único escritor del tablero.
-- Estado actual: migración, retiro y aceptación integrada original verificados, incluidos 44 archivos de navegador. Ampliación HTTP y entrega Git en curso; TASK-023/024 no están DONE todavía.
+- Estado actual: migración, retiro y ampliaciones autorizadas verificados localmente. Incluye 44 archivos de navegador y suite rápida completa posterior al arreglo HTTP. Commits de código cerrados; este registro y el tablero forman el recibo documental de entrega.
 
 ## Resultado estructural
 
@@ -19,7 +19,7 @@ Los mapas y comparaciones mecánicas están en `.test-artifacts/architecture-fin
 - Backend: el writer de retiro eliminó 368 puentes y movió 105 tests; el coordinador terminó las entradas de configuración/composición adicionales. Main/application/configuration son entradas permanentes del host.
 - Core: 53 puentes retirados, reglas agrupadas y seis tests movidos. SQL y diagnósticos salen del dominio de negocio. Se conserva la identidad de errores y funciones.
 - Guard AST: cero excepciones congeladas, sin whitelist nueva. Se retiró agenda-compatibility. Contratos web api.ts no importan UI, Node, React o Next; los tests no pueden convertirse en dependencias de producción.
-- Inventario actual: 529 entradas, 53 exclusiones explícitas, 23 rutas. El nuevo test puro P8 está registrado en fast/pure; no se elimina cobertura histórica.
+- Inventario actual: 530 entradas, 53 exclusiones explícitas, 23 rutas. Los guards nuevos conservan su registro y el ciclo HTTP está en fast/transport; no se elimina cobertura histórica.
 
 ## Evidencia reconciliada
 
@@ -29,12 +29,13 @@ Los mapas y comparaciones mecánicas están en `.test-artifacts/architecture-fin
 | Fast ampliado intermedio | 335/335 archivos, 1864 PASS, 0 FAIL, 0 SKIP | complete-fast-final.log, antes de ampliar los cinco casos P8 y tres casos del observer |
 | Fast de entrega actual | 335/335 archivos, 1881 PASS, 0 FAIL/CANCEL/SKIP | complete-fast-final-frozen-candidate.log y fast-delivery-reconciled.json, una corrida completa con conjunto y contadores cotejados |
 | Fast tras ampliar aceptación P7 | 335/335 archivos, 1904 PASS, 0 FAIL/CANCEL/SKIP reconciliados | Se reemplazan los cuatro casos previos del control P7 por sus 27 actuales, ejecutados también por root. Los otros 334 no cambiaron. fast-current-reconciled.json; no se afirma otra corrida completa de 335 archivos |
+| Fast completo después del cierre HTTP | 336/336 archivos, 1918 PASS, 0 FAIL/CANCEL/SKIP | complete-fast-after-rejection-fix.log y fast-after-rejection-reconciled.json; conjunto exacto y contadores comprobados por root |
 | PostgreSQL propio | 131/131 archivos, 847 PASS, 0 FAIL, 0 SKIP | owned-db-reconciled.json: última ejecución completa por archivo, sin duplicar intentos parciales |
 | Servicios propios | 9/9 archivos, 52 PASS, 0 FAIL, 0 SKIP | owned-services-reconciled.json: almacenamiento, escáner y correo capturado |
 | Wrappers | 19/19 rutas, 153 PASS, 0 FAIL/CANCEL/SKIP | wrappers-final/final-report.json, IDs y comandos cotejados con el manifiesto |
-| Builds/tipos | API y web de producción PASS; tipos API/web/preview PASS | Compilación web raíz final con CSS actual: web-build-final-current-css.log |
-| Lint/fronteras | PASS, cero excepciones | lint-final-after-css.log y check-boundaries |
-| Documentación/TTP | 99 archivos y 911 enlaces sin problemas; 26 tareas válidas | Se volverán a comprobar al cerrar recibos y roadmap |
+| Builds/tipos | API y web de producción PASS; tipos API/web/preview PASS | Web posterior al cierre HTTP: web-build-after-rejection-fix.log; tipos de entrega de los tres proyectos PASS |
+| Lint/fronteras | PASS, cero excepciones | lint-after-rejection-fix.log y check-boundaries |
+| Documentación/TTP | 101 archivos y 916 enlaces sin problemas; 28 tareas válidas | docs-delivery-final.log; 19 pruebas documentales/discovery adicionales PASS, sin fallos ni omisiones |
 | Navegador integrado | 44/44 archivos, 174 PASS, 0 FAIL/CANCEL/SKIP reconciliados | browser-final-reconciled.json; root cotejó conjunto exacto, fuentes actuales, TAP y cohortes atribuidas. initial-coverage.json permanece sólo diagnóstico |
 
 La ruta DB se retomó desde los fallos exactos. Se conservan los logs de 520 PASS/1 FAIL, 55 PASS/2 FAIL y 280 PASS/0 FAIL. La reconciliación comprueba el conjunto completo de 131 archivos y toma su última ejecución exitosa. Entre checkpoints no cambió el comportamiento backend; se completaron fakes de puertos sin alterar aserciones.
@@ -96,6 +97,12 @@ La consulta de una tarea cerrada encontró GET session 429 antes de cualquier PO
 
 ## Recursos, desviaciones y límites
 
+La corrección HTTP fue aprobada explícitamente después del diagnóstico y quedó en un corte propio. Aceptación escrita por revisor separado: 14 FAIL causales antes de producción; 14 nuevas y 22 originales PASS de implementador y revisor; 48/48 fronteras reales repetidas con respuesta 413 completa y upstream cero. Se conservan tamaños aceptados, rutas, validaciones, permisos y headers. El descarte no retiene chunks y usa presupuesto adicional JSONlimit+1 con deadline monotónico absoluto de 10 s desde entrada, sin renovar el plazo tras parsear; los defaults upstream siguen iguales. Cap, deadline o cancelación abortan ambos extremos y limpian recursos. No garantiza JSON completo para cuerpos arbitrarios. Los tests protegidos conservan SHA317a8ab62088fa7350beccf9fca52af0e022c5d431781f5dc12a6a191b8cd0a1. Build web, tipos API/web/preview y lint/AST pasaron; la suite rápida completa posterior pasó sus 336 archivos y 1918 casos.
+
+Las cohortes DB/servicios/browser/wrappers anteriores no se presentan como nuevas ejecuciones después del arreglo HTTP. API y esquema no cambiaron; las rutas, esquemas y headers de los proxies conservan equivalencia AST independiente y los caminos modificados tienen sus regresiones específicas. El build raíz posterior incorpora las tres fuentes nuevas/afectadas. La discrepancia documental de breakpoints 801/1024 queda señalada en la guía frontend: esta migración conserva el comportamiento responsive y no decide una política UX nueva.
+
+El validador TTP rechazó transitoriamente TASK-023 al agregar su nueva dependencia TASK-028 todavía en verificación. Tras comprobar la suite completa y cerrar TASK-028, el tablero volvió a validar; no se omitió esa dependencia para ocultar trabajo pendiente.
+
 En los últimos recorridos P8, la recuperación tras CSRF limitado necesitó esperar que React habilitara el mismo botón y acotar el alert a la región de entrega. Se mantienen la condición, el deadline y la prohibición de mutaciones antes del retry. P9 storage/scanner se separan en fixtures secuenciales con actores nuevos: cada fase conserva su baseline no vacío y todos los controles; no se reintenta una subida después de asignar fileId. Esto evita que la admisión acumulada de un escenario tape la indisponibilidad del servicio que se está probando.
 
 El preview sintético de resumen presentó módulos pendientes con Vite dev aun después de acotar la entrada y esperar requests idle. Se autorizó compilar únicamente esa fixture a Temp propio y servirla estática, con los mismos componentes/CSS, deadline y aserciones. El bundle alcanzó el control real y reprodujo una oclusión a 894 px: el nav heredaba position fixed e inset de la navegación inferior dentro de la sidebar Brújula. Dentro de la autorización de accesibilidad mínima, se restablecen sólo position static e inset auto del nav interior; sin cambiar breakpoints ni destinos. TASK-027 quedó verificada: GREEN final 1/1, geometría/clic/teclado y actualización sin recentrado a 894; navegación/foco sin oclusión a 800/801/1023/1024 y cuatro capturas. CSSOM y geometría permanecen idénticos al quitar/restaurar esas propiedades a 768/1280. Las fixtures se pausaron entre archivos y el build web raíz actual pasó. Recibos summary-static-final-results/extra-receipt y summary-boundaries-and-cssom; fuentes y helpers iguales antes/después.
@@ -113,5 +120,7 @@ Se normalizaron únicamente terminadores de línea de un helper outbox y whitesp
 - Identidad/global: 29fda64, cierre previo.
 - CSS autorizado: f7c8a4ce42082eb00cc12a5148c3c74461908fff, dos reglas y validación independiente, build raíz actual PASS.
 - Navegación sin oclusión: fb6035ba3c68cc211f2b9f229197263d60e65dea, dos propiedades de CSS, regresión real y comprobación de breakpoints PASS.
-- Reorganización y cierre de aceptación: todavía pendientes de commit final. La reorganización es grande por movimientos y retiro atómico de compatibilidad; las unidades tuvieron pruebas y revisiones separadas. Dividir consumidores de sus contratos dejaría commits incoherentes.
-- Próximo paso: completar reruns de navegador con helpers congelados y CSS compilado; reconciliar 44 rutas con hashes de fuentes, actualizar recibo/roadmap/TTP y ejecutar los checks finales antes de los commits. Sin publicación ni despliegue.
+- Migración por dominios: d09fc24701296a61542ab8e877dfda082e7f808b, 1389 archivos con 12636 altas y 7936 bajas incluyendo movimientos y pruebas. El retiro y sus consumidores forman un corte atómico; dividirlos dejaría imports/contratos ausentes. Se comprobó que los dos proxies incluidos en el índice eran idénticos a sus snapshots previos al arreglo HTTP, preservando el trabajo concurrente del implementador fuera de ese commit.
+- Cierre HTTP: 2b6ff79a3e52de16d3c767facb22a8d833eb6794, nueve archivos, 322 altas y 37 bajas, con código, aceptación protegida, registro CI y documentación juntos.
+- [Recibo versionado](../verification/architecture-migration.json): grupos completos, cohortes, hashes y límites. Los logs completos permanecen en artefactos locales ignorados. La comprobación Git del commit documental se registra en .test-artifacts/architecture-finish/delivery-git-check.log; no se inventa un hash autorreferente.
+- No queda implementación pendiente dentro del alcance autorizado. Integración a main, publicación y despliegue requieren autorización aparte. La entrega conserva únicamente commits locales.

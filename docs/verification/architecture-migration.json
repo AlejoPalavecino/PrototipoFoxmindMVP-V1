@@ -1,0 +1,375 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-10",
+  "state": "verified locally",
+  "branch": "codex/architecture-foundation",
+  "commits": {
+    "identity": "29fda643efdd19e24bf2a05cd26eff0994bea51a",
+    "authContrastAndHomeOverflow": "f7c8a4ce42082eb00cc12a5148c3c74461908fff",
+    "navigationOcclusion": "fb6035ba3c68cc211f2b9f229197263d60e65dea",
+    "domainMigration": "d09fc24701296a61542ab8e877dfda082e7f808b",
+    "proxyRejectionFix": "2b6ff79a3e52de16d3c767facb22a8d833eb6794"
+  },
+  "delivery": {
+    "localCommits": true,
+    "mergedToMain": false,
+    "pushed": false,
+    "deployed": false
+  },
+  "architecture": {
+    "frontend": [
+      "features",
+      "screens",
+      "application",
+      "shared-ui"
+    ],
+    "backend": [
+      "modules",
+      "bootstrap",
+      "platform"
+    ],
+    "core": [
+      "domain by owner",
+      "contracts"
+    ],
+    "temporaryBridgesRemoved": {
+      "backend": 368,
+      "frontend": 232,
+      "core": 53
+    },
+    "frozenBoundaryExceptions": 0,
+    "schemaOrPrismaMigrationsChanged": false,
+    "dependenciesChanged": false
+  },
+  "inventory": {
+    "entries": 530,
+    "explicitExclusions": 53,
+    "routes": 23
+  },
+  "acceptance": {
+    "fast": {
+      "files": 336,
+      "pass": 1918,
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "mode": "One complete prepared canonical run after the HTTP lifecycle fix",
+      "command": "node .test-artifacts/architecture-finish/run-prepared-group.mjs fast",
+      "artifact": ".test-artifacts/architecture-finish/complete-fast-after-rejection-fix.log"
+    },
+    "ownedDatabase": {
+      "files": 131,
+      "pass": 847,
+      "fail": 0,
+      "skipped": 0,
+      "mode": "Latest complete successful execution per file, exact 131-file set; previous failed attempts retained",
+      "artifact": ".test-artifacts/architecture-finish/owned-db-reconciled.json"
+    },
+    "ownedServices": {
+      "files": 9,
+      "pass": 52,
+      "fail": 0,
+      "skipped": 0,
+      "mode": "Exact nine-file set reconciled",
+      "artifact": ".test-artifacts/architecture-finish/owned-services-reconciled.json"
+    },
+    "browser": {
+      "files": 44,
+      "pass": 174,
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "mode": "Latest complete attributed execution per file; mixed dependency/build cohorts with reviewed deltas, not one new whole-group invocation.",
+      "artifact": ".test-artifacts/architecture-finish/browser-final-reconciled.json",
+      "supplementalFix": "Browser executions precede the supplemental HTTP lifecycle fix. Normal routes/schemas/headers remain equivalent; changed rejection paths have separate protected, original, repeated-boundary and build verification."
+    },
+    "wrappers": {
+      "routes": 19,
+      "greenRoutes": 19,
+      "tests": 153,
+      "pass": 153,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "mode": "19 canonical routes reconciled; initial full-group failure retained. Copy-based execution before supplemental HTTP fix, not a new whole-group invocation.",
+      "artifact": ".test-artifacts/architecture-finish/wrappers-final/final-report.json"
+    }
+  },
+  "proxyRejection": {
+    "red": "14 protected failures before production change",
+    "green": "14 protected plus 22 unchanged original cases passed independently; 48/48 repeated real boundary requests returned complete 413 with upstream zero",
+    "requestBudget": "Accepted JSON limits unchanged; discard budget is JSON limit + 1 additional bytes after rejection, without retaining chunks",
+    "deadline": "Original metadata window: absolute 10 seconds from proxy entry; not renewed after parsing; upstream defaults unchanged",
+    "fallback": "Abort transport on discard budget, deadline or cancellation; no complete-JSON guarantee for arbitrary oversized bodies",
+    "workspaceSha256": {
+      "apps/web/src/application/server/classroom-proxy.ts": "576964e1d5374de2c900df3f761bdc191ca50edf70e5fed184980a5be693ee98",
+      "apps/web/src/application/server/foxy-proxy.ts": "a464f32bb4e4ee0c86aacb3aa5d83d33dc0c0becc7ffff7bc633509b0054fb9e",
+      "apps/web/src/application/server/rejected-request-body.ts": "8258b9f99291cc7375e135c166e7c57fce6b45e58483003c65ab87db21380edd",
+      "tests/proxy-rejection-lifecycle.test.mjs": "317a8ab62088fa7350beccf9fca52af0e022c5d431781f5dc12a6a191b8cd0a1"
+    }
+  },
+  "staticChecks": {
+    "apiTypes": "PASS",
+    "webTypes": "PASS",
+    "previewTypes": "PASS",
+    "productionApiBuild": "PASS before frontend-only supplemental fix",
+    "productionWebBuild": "PASS after supplemental fix",
+    "lintAndAstBoundaries": "PASS, zero exceptions",
+    "inventory": "PASS"
+  },
+  "visualQa": {
+    "authInputBorderContrast": "3.097:1",
+    "primaryButtonsContrast": "5.255:1",
+    "homeNoOverflowWidths": [
+      320,
+      390,
+      768,
+      1440
+    ],
+    "minimalNavigationFixWidths": [
+      800,
+      801,
+      894,
+      1023,
+      1024
+    ],
+    "unchangedCssomWidths": [
+      768,
+      1280
+    ],
+    "scope": "Observed independent CSS QA plus real browser geometry, focus, destinations and synthetic role flows; not a complete WCAG audit"
+  },
+  "browserFiles": [
+    {
+      "path": "tests/brujula-browser.test.mjs",
+      "pass": 1,
+      "workspaceSha256": "906e2e91c237a10c9c98729736e191409f5de05d0a4c022ecde45570814239c2"
+    },
+    {
+      "path": "tests/brujula-complete-browser.test.mjs",
+      "pass": 1,
+      "workspaceSha256": "8346142ecabb0b2dfc234d44080a6ae4a1ff15e081952e4c16a73aaa14ad7eaf"
+    },
+    {
+      "path": "tests/brujula-material-agenda-browser.test.mjs",
+      "pass": 1,
+      "workspaceSha256": "f8c982e84053c9e7bf50ab28a30a6f3c343d113ef8264a2a61e6a9df6a8c3d97"
+    },
+    {
+      "path": "tests/brujula-responsive-browser.test.mjs",
+      "pass": 1,
+      "workspaceSha256": "4149c0279b1b00fa0c42ee11bf2f48036c9d2d86e9217b2d653ee5c1227d202b"
+    },
+    {
+      "path": "tests/entry-glass-browser.test.mjs",
+      "pass": 7,
+      "workspaceSha256": "b7e4441a6419bdf8345f1913994e47a0232c4a44b84e44c4f093315322d8d6eb"
+    },
+    {
+      "path": "tests/login-inicio-integration.test.mjs",
+      "pass": 6,
+      "workspaceSha256": "966a967c9e6586857b8945ca8f6d86ed8ffa79ba491e33ec1ad42f50c867046c"
+    },
+    {
+      "path": "tests/p4-integration.test.mjs",
+      "pass": 9,
+      "workspaceSha256": "cf9de7dc1df837ee5e8e85aabf9a43c5f993f73a992df55095e8a6a21a6c2989"
+    },
+    {
+      "path": "tests/p5-integration.test.mjs",
+      "pass": 13,
+      "workspaceSha256": "e27e0f416bf1e2bf517effd4293c0c77472e6b07177389239d5cc73074262773"
+    },
+    {
+      "path": "tests/p5-international-invitations.test.mjs",
+      "pass": 4,
+      "workspaceSha256": "2d825ec98480abf8010cd069db54db311de64145176ef53cba434bf5432b05db"
+    },
+    {
+      "path": "tests/p6-library-integration.test.mjs",
+      "pass": 5,
+      "workspaceSha256": "17438fe185d2f8ec1d007f295e0e3b871d8d133ae097492f5a35e5dab1c77230"
+    },
+    {
+      "path": "tests/p6-mobile-navigation.test.mjs",
+      "pass": 1,
+      "workspaceSha256": "898f455cfcc4db80b67edaa3f79143e8519ee145774e433464b4325270b59660"
+    },
+    {
+      "path": "tests/p6-plan-integration.test.mjs",
+      "pass": 1,
+      "workspaceSha256": "8c25dfdf751fe65a95588a462952d7b30a33a389e0e6d1c8ff3704d5339efd0b"
+    },
+    {
+      "path": "tests/p6-wall-integration.test.mjs",
+      "pass": 7,
+      "workspaceSha256": "c6ef76819c928c313469cfc9fe225bc17e755994806f4f1f98fd8e6ce713495b"
+    },
+    {
+      "path": "tests/p7-authoring-integration.test.mjs",
+      "pass": 6,
+      "workspaceSha256": "af8774add69aed597b27b791f0b0d46738cc5c31aea2b6556f92498dd9a81289"
+    },
+    {
+      "path": "tests/p7-consultation-integration.test.mjs",
+      "pass": 1,
+      "workspaceSha256": "cdb3c227785206f61991d81538f2a00d617044bb49f4b0791d0868d0ebef2e5d"
+    },
+    {
+      "path": "tests/p7-history-integration.test.mjs",
+      "pass": 5,
+      "workspaceSha256": "f1b19b522ef305d721775a6a7b349414d028ab7914887f9a10e75bfb2b8e3991"
+    },
+    {
+      "path": "tests/p7-notifications-integration.test.mjs",
+      "pass": 5,
+      "workspaceSha256": "5c891a368d708ef640537b5775da5d0c957ec9fdfbd8f054d064bb37ce5f83b7"
+    },
+    {
+      "path": "tests/p7-participation-integration.test.mjs",
+      "pass": 5,
+      "workspaceSha256": "5f72f336bdb5bdb8612d49a830a9a1bd14261c52cf8caf9c671bd173d3c1610d"
+    },
+    {
+      "path": "tests/p7-practical-integration.test.mjs",
+      "pass": 5,
+      "workspaceSha256": "968e46820e992eee960b8fe9f42647d4a9d8dfa4337c0c1180e2424d989f4bcf"
+    },
+    {
+      "path": "tests/p7-practical-timing-integration.test.mjs",
+      "pass": 5,
+      "workspaceSha256": "faa05db2d7d9606394996410c7a936ee4367b233c85821fbc9f9e1b5334728fc"
+    },
+    {
+      "path": "tests/p7-questionnaire-integration.test.mjs",
+      "pass": 8,
+      "workspaceSha256": "b7055e5b90176e9aea5423d2db1bb39df611b4935828915ab79d4387f50f4b8c"
+    },
+    {
+      "path": "tests/p7-questionnaire-overview-integration.test.mjs",
+      "pass": 3,
+      "workspaceSha256": "771ae93476965d29eb14af4f9ce7202e2a0bcba33b6e7d996e8dbb07f9bfe887"
+    },
+    {
+      "path": "tests/p7-questionnaire-recovery-integration.test.mjs",
+      "pass": 3,
+      "workspaceSha256": "d56a80c775477612e74fcd8140893cfce59f5cb78720e90a56cc612a91938e07"
+    },
+    {
+      "path": "tests/p9-evaluation-journey-integration.test.mjs",
+      "pass": 1,
+      "workspaceSha256": "b1a000b6690ae275825427c22bd54b2165f157247b055aec2d15408612623bdd"
+    },
+    {
+      "path": "tests/p9-home-integration.test.mjs",
+      "pass": 13,
+      "workspaceSha256": "37e7bc657373f79d5519400fb9a56c0da49d6f78608947462b8aaac41139d739"
+    },
+    {
+      "path": "tests/p9-home-recovery-integration.test.mjs",
+      "pass": 6,
+      "workspaceSha256": "9ae6bb8b4afb1c2881ec9d4c315c79bfb254911cb6e4683f1bc91bab0537009a"
+    },
+    {
+      "path": "tests/p9-large-files-integration.test.mjs",
+      "pass": 1,
+      "workspaceSha256": "6dded7c94fbfe8a897a2c757ff1cb047ea2bdc37b06f1e4816d2db09edad4f9f"
+    },
+    {
+      "path": "tests/p9-mail-recovery-integration.test.mjs",
+      "pass": 1,
+      "workspaceSha256": "e870bf55711c2a2b4d5df52c23b28bab469118cee468434f9bcb709530f1718b"
+    },
+    {
+      "path": "tests/p9-max-file-diagnostic-integration.test.mjs",
+      "pass": 1,
+      "workspaceSha256": "5d322aaf24a06b2e46bd46ec45e4efcdb0e477c66a1f1d73b3936213fc1e74ed"
+    },
+    {
+      "path": "tests/p9-membership-journey-integration.test.mjs",
+      "pass": 1,
+      "workspaceSha256": "c91168c0bad42c9deb610f7faa391ffe3b5a8177e2af6005745591fc6b77bc58"
+    },
+    {
+      "path": "tests/p9-practical-journey-integration.test.mjs",
+      "pass": 1,
+      "workspaceSha256": "c6dce645b11db5096831213a4bcc9380ec7179a64ac36bb76ec7d1cd356ef5a1"
+    },
+    {
+      "path": "tests/p9-questionnaire-journey-integration.test.mjs",
+      "pass": 1,
+      "workspaceSha256": "6bcd779d8bf0309ca19425a4ced7bb68689565ccd78061f1659e2e88a29df4c8"
+    },
+    {
+      "path": "tests/p9-runtime-controls-integration.test.mjs",
+      "pass": 7,
+      "workspaceSha256": "f7dc862568cfe531e74bdebba60519d22b7fc605930b9273180083a975292498"
+    },
+    {
+      "path": "tests/p9-service-recovery-integration.test.mjs",
+      "pass": 2,
+      "workspaceSha256": "8447b1b20840364803720bddd2e4131317d730bbd788ad269015a69877e66918"
+    },
+    {
+      "path": "tests/p9-teaching-remainder-integration.test.mjs",
+      "pass": 1,
+      "workspaceSha256": "88b9fe69aea49dcf64afa7da2e082461ff0d40ff19ffaeade9244e67bf87705c"
+    },
+    {
+      "path": "tests/student-summary-scroll.test.mjs",
+      "pass": 1,
+      "workspaceSha256": "ab02e3a53495e9d5022223c62507128983f304d27439c33e5e0131a5ab2bf35e"
+    },
+    {
+      "path": "tests/p8-corrections-e-final-integration.test.mjs",
+      "pass": 4,
+      "workspaceSha256": "c56857a10f5031748f0ffdb16c7129c012e8ce5b98b8c954b755977940e59663"
+    },
+    {
+      "path": "tests/p8-corrections-integration.test.mjs",
+      "pass": 5,
+      "workspaceSha256": "514bfcb6704a8998dec820d8f9297e1943f86580b63e1cbd126750d321087cfe"
+    },
+    {
+      "path": "tests/p8-corrections-remaining-integration.test.mjs",
+      "pass": 4,
+      "workspaceSha256": "9bdadb788808e84c5b37a95d7c22145af72c27cba001e59489325fa3622cb2d7"
+    },
+    {
+      "path": "tests/p8-grading-integration.test.mjs",
+      "pass": 5,
+      "workspaceSha256": "6c00ff4471d54c0b0205b8ab21f1191ca39ec0ea6cd3f06e43eae0169ba7fa1a"
+    },
+    {
+      "path": "tests/p8-grading-reload-integration.test.mjs",
+      "pass": 1,
+      "workspaceSha256": "427b96cba137bc53aad85298152d0c48ddeae9975c7593e34c99d0f1a4088719"
+    },
+    {
+      "path": "tests/p8-progress-integration.test.mjs",
+      "pass": 7,
+      "workspaceSha256": "25d2fb07fa508ed43bcdada38ecc90f16a69fd76002f21a50d4856a1a7fe76f4"
+    },
+    {
+      "path": "tests/p8-publication-integration.test.mjs",
+      "pass": 5,
+      "workspaceSha256": "7d94783fca1e0c263a1b603ea2d25e6d6425312bb628f8778e0edbc6b3d3033b"
+    },
+    {
+      "path": "tests/p8-publication-tp-integration.test.mjs",
+      "pass": 3,
+      "workspaceSha256": "d05f38d9f8d0ef383f40627e4eb8d5e884f952334affdb378988c27ce184f6b5"
+    }
+  ],
+  "limits": [
+    "Synthetic accounts and owned local infrastructure; no real provider or retained production data used",
+    "Mixed browser/wrapper/database cohorts are explicit; raw logs remain in ignored local artifacts and durable findings in the work log",
+    "Current accepted fixtures report zero cleanup failures. Prior timed-out owned containers and disposable volumes were attributed before cleanup; unowned Mailpit or process resources were not touched",
+    "The existing 801/1024 responsive threshold discrepancy is documented; the migration preserves breakpoints rather than deciding a new UX policy"
+  ],
+  "continuity": {
+    "tasks": "odd/tasks/architecture-migration.md",
+    "workLog": "docs/work-log/2026-11-10-root-architecture-completion.md",
+    "design": "docs/engineering/architecture-migration.md"
+  }
+}
