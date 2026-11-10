@@ -207,11 +207,11 @@ Ese mismo día autorizó la integración DB sobre recursos propios y los commits
 - **Blocker:** none
 
 ### TASK-024 — Entrega local completa y commits de cierre
-- **State:** VERIFYING
+- **State:** DONE
 - **Depends on:** TASK-023, TASK-026, TASK-027
 - **Owner:** root
 - **Acceptance:** Commits por unidad y recibos reales, tablero/roadmap reconciliados, árbol limpio y límites local/publicado/desplegado explícitos.
-- **Evidence:** Commits de código d09fc24701296a61542ab8e877dfda082e7f808b y 2b6ff79a3e52de16d3c767facb22a8d833eb6794, además de los cortes anteriores. Recibo, roadmap y registro final reconciliados y verificados; queda comprobar commit documental y árbol limpio antes de DONE.
+- **Evidence:** Commits de código d09fc24701296a61542ab8e877dfda082e7f808b y 2b6ff79a3e52de16d3c767facb22a8d833eb6794, además de los cortes anteriores. Recibo, roadmap y registro final versionados en b26c026cf5d07b603c383d1f3ecbe0794690b424; git status --porcelain vacío comprobado después de ese commit. Este cierre del tablero se entrega en commit propio y se vuelve a comprobar el árbol. 28 tareas validadas; sólo entrega local, sin push/merge/despliegue.
 - **Blocker:** none
 
 ### TASK-025 — Cliente y pantalla de archivos frontend
