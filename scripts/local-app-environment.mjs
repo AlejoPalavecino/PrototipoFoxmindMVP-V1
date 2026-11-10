@@ -23,3 +23,19 @@ export function requireLocalOwner(value) {
   for(const name of ['database','storage','scanner','smtp','inbox'])if(!Number.isInteger(value.ports?.[name])||value.ports[name]<1024||value.ports[name]>65535)throw Error('Invalid local port');
   return value;
 }
+
+/** Stop only verified containers; Docker keeps their volumes and configuration. */
+export async function stopLocalContainers(owner, command) {
+  if (!owner) return;
+  requireLocalOwner(owner);
+  const ids = (await command('docker', [
+    'ps', '-q', '--filter', 'label=com.docker.compose.project=' + owner.project
+  ])).split(/\s+/).filter(Boolean);
+  for (const id of ids) {
+    const found = await command('docker', [
+      'inspect', '--format', '{{index .Config.Labels "foxmind.local.owner"}}', id
+    ]);
+    if (found !== owner.project) throw Error('Foreign Docker resource');
+  }
+  if (ids.length) await command('docker', ['stop', ...ids]);
+}

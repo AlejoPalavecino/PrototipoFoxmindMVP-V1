@@ -8,7 +8,7 @@ import {createServer} from 'node:net';
 import {setTimeout as delay} from 'node:timers/promises';
 import {P4_IMAGES,P4_SCANNER_START} from './p4-services.mjs';
 import {MAILPIT_IMAGE} from './mailpit-test-runtime.mjs';
-import {updateEnvironment,requireLocalOwner} from './local-app-environment.mjs';
+import {updateEnvironment,requireLocalOwner,stopLocalContainers} from './local-app-environment.mjs';
 
 const root=resolve(import.meta.dirname,'..'),folder=resolve(root,'.test-artifacts/local-app'),execute=promisify(execFile);
 process.chdir(root);await mkdir(folder,{recursive:true});
@@ -81,7 +81,12 @@ async function up(){
 try{
   const action=process.argv[2]??'up';
   if(action==='up'||action==='restart')await up();
-  else if(action==='stop'){await stop();console.log('Owned API/web stopped; data services retained');}
+  else if(action==='stop'){
+    await stop();
+    const owner=await json('owner.json').catch(error=>{if(error.code!=='ENOENT')throw error;return null;});
+    await stopLocalContainers(owner,command);
+    console.log('Owned API/web and Docker containers stopped; volumes and data retained');
+  }
   else if(action==='status'){const state=await json('status.json');console.log(JSON.stringify({state:state.state,origin:'http://127.0.0.1:3000',apiOrigin:'http://127.0.0.1:3001'}));}
   else throw Error('Usage: local-app.mjs up|restart|stop|status');
 }catch(error){console.error(error.message);process.exitCode=1;}

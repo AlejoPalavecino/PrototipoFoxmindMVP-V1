@@ -19,7 +19,7 @@ Por pedido del usuario, cuando solicite levantar la app para probar se usa la cl
 
 - `npm run local:up`: configura infraestructura local propia, aplica migraciones a esa base, compila API/web y arranca ambas en segundo plano. Web: `http://127.0.0.1:3000`; API: `http://127.0.0.1:3001`.
 - `npm run local:restart`: detiene únicamente los procesos API/web del supervisor propio y vuelve a compilar/arrancar con `.env` vigente. No borra base, archivos, cuentas ni clave.
-- `npm run local:status`: consulta el estado del supervisor. `npm run local:stop`: detiene API/web y conserva los servicios y datos locales para el próximo arranque.
+- `npm run local:status`: consulta el estado del supervisor de API/web. `npm run local:stop`: detiene API/web y los contenedores Docker propios, conservando contenedores, volúmenes, datos y configuración para el próximo arranque. También apaga los servicios si API/web ya estaban detenidas. Valida el propietario antes de detener contenedores y no modifica otros proyectos Docker. Si Docker no está disponible, informa el fallo en lugar de confirmar un cierre completo.
 
 El propietario y puertos persistentes se registran en `.test-artifacts/local-app/owner.json`; la configuración completa queda en `.env`. Docker usa un proyecto propio `foxmind-local-<id>` con PostgreSQL, SeaweedFS, ClamAV y Mailpit, publicado sólo en loopback. No reutiliza la antigua copia P3/P4 ni opera sobre sus volúmenes. El arranque rechaza otra DATABASE_URL y puertos web/API ocupados, en lugar de detener procesos desconocidos. Los archivos de ClamAV se normalizan a LF en el directorio privado para funcionar desde Windows.
 
