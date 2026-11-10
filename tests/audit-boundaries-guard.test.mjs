@@ -263,3 +263,21 @@ test('Agenda compatibility bridges accept only exact named reexports', async () 
     'apps/agenda-ui/EventForm.tsx': "export { EventFields } from '../web/src/features/agenda/ui/EventFields.tsx';",
   }, root => assert.ok(checkBoundaries(root).length));
 });
+
+test('identity transport facade stays public, named and free of UI or Node dependencies', async () => {
+  await fixture({
+    'apps/web/src/lib/consumer.ts': "import { createAccountClient } from '../features/identity/api.ts';",
+    'apps/web/src/features/identity/api.ts': "export { createAccountClient } from './api/account-client.ts';",
+  }, root => assert.deepEqual(checkBoundaries(root), []));
+  for (const [file, code] of [
+    ['apps/web/src/lib/consumer.ts', "import { createAccountClient } from '../features/identity/api/account-client.ts';"],
+    ['apps/web/src/lib/consumer.ts', "export * from '../features/identity/api.ts';"],
+    ['apps/web/src/features/identity/api.ts', "export { AccountField } from './ui/account-field.tsx';"],
+    ['apps/web/src/features/identity/api/account-client.ts', "import fs from 'node:fs';"],
+    ['apps/web/src/features/identity/api/account-client.ts', "import fs from 'fs';"],
+    ['apps/web/src/features/identity/api/account-client.ts', "import fs from 'fs/promises';"],
+    ['apps/web/src/features/identity/api/account-client.ts', "import React from 'react';"],
+    ['apps/web/src/features/identity/api/account-client.ts', "import { useRouter } from 'next/router';"],
+    ['apps/web/src/features/identity/api/account-client.ts', "import { view } from '../model/account-view.ts';"],
+  ]) await fixture({ [file]: code }, root => assert.ok(checkBoundaries(root).length, code));
+});

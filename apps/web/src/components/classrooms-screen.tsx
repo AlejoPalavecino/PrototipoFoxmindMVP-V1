@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ClassroomsApp } from '../../../classrooms-ui/Classrooms';
 import { Notice } from '../../../shared-ui/feedback';
-import { createAccountClient, type AccountUser } from '../lib/account-client';
+import { createAccountClient, type AccountUser } from '../features/identity/index.ts';
 import { createWebClassroomClient } from '../lib/classroom-client';
 import { authHref, safeDestination, classroomHomeDestination, classroomHomeHref } from '../application/navigation/destinations';
 import { createWebAgendaClient } from '../application/agenda-client';

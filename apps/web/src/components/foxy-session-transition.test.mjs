@@ -27,11 +27,11 @@ function setup(session) {
     'next/link':{default:({children,...props})=>React.createElement('a',props,children)},
     'next/router':{useRouter:()=>currentRouter},
     '../../../classrooms-ui/components':{Notice:({children})=>React.createElement('div',null,children)},
-    '../lib/account-client':{createAccountClient:()=>({session:()=>{requests.push('session');const d=deferred();pending.push(d);return d.promise;}})},
+    '../features/identity/index.ts':{createAccountClient:()=>({session:()=>{requests.push('session');const d=deferred();pending.push(d);return d.promise;}})},
     '../lib/classroom-client':{classroomAuthHref:()=>'/sign-in?next=%2Ffoxy-ai'},
     '../lib/foxy-document-boundary':{getDocumentEntryPath:()=>'/foxy-ai',isFoxyDocument:()=>true},
     '../lib/foxy-navigation-bridge':{createFoxyNavigationBridge:()=>({install(){},dispose(){},navigate(){},replace(){}})},
-    './account-navbar':{AccountNavbar:props=>React.createElement('nav',{'data-role':props.session.user.accountRole},'Docente')},
+    '../application/navigation/account-navbar.tsx':{AccountNavbar:props=>React.createElement('nav',{'data-role':props.session.user.accountRole},'Docente')},
     '../lib/foxy-client':{createWebFoxyClient:()=>{requests.push('foxy');return {};}}
   });
   const view=hookView(FoxyScreen,{});

@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Readable } from 'node:stream';
-import { proxyAccountRequest } from '../../../src/lib/account-proxy';
+import { proxyAccountRequest } from '../../../src/application/server/identity-proxy';
 
 export const config = { api: { bodyParser: false, responseLimit: '16kb' } };
 

@@ -1,6 +1,6 @@
 import { Html, Head, Main, NextScript } from 'next/document';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { tokenCaptureScript } from '../src/lib/token-capture';
+import { tokenCaptureScript } from '../src/application/server/token-capture';
 
 /** React hoists resource hints even above ordinary head children. Emit this head atomically. */
 class TokenSafeHead extends Head {

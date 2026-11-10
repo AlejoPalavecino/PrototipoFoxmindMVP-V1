@@ -40,7 +40,7 @@ test('folder navbar carries the raster identity and preserves destinations/curre
 });
 
 test('account SSR preserves loading, Brújula visual and entry navigation after session readiness', () => {
-  const { AccountScreen } = component('apps/web/src/components/account-screen.tsx');
+  const { AccountScreen } = component('apps/web/src/screens/identity-screen.tsx');
   const html = render(AccountScreen, { view: 'sign-in' });
   assert.match(html, /<aside[^>]*class="br-auth-visual"[^>]*aria-label="Foxy te da la bienvenida al aula"/);
   assert.match(html, /class="br-auth-land" aria-hidden="true"/);
@@ -48,7 +48,7 @@ test('account SSR preserves loading, Brújula visual and entry navigation after 
   assert.match(html, /id="main"/);
   assert.match(html, /Cargando tu cuenta/);
   assert.match(html, /class="br-auth-brand" href="\/sign-in"/);
-  const { AccountFlowForms } = component('apps/web/src/components/account-flow-forms.tsx');
+  const { AccountFlowForms } = component('apps/web/src/features/identity/ui/account-flow-forms.tsx');
   const ready = render(AccountFlowForms, { view: 'sign-in', session: { authenticated: false }, verified: false, classroomNext: null,
     nextAccountHref: target => `/${target}`, locked: false, busy: false, hasToken: false, submit: () => () => {}, signOut: null, load: async () => {}, action: async () => {} });
   assert.match(ready, /href="\/register"/); assert.match(ready, /href="\/forgot-password"/);
@@ -56,7 +56,7 @@ test('account SSR preserves loading, Brújula visual and entry navigation after 
 });
 
 test('password controls remain labelled non-submit buttons with explicit field association', () => {
-  const { AccountField } = component('apps/web/src/components/account-screen.tsx');
+  const { AccountField } = component('apps/web/src/features/identity/ui/account-field.tsx');
   const html = render(AccountField, { name: 'password', label: 'Contraseña', password: true, autoComplete: 'current-password' });
   assert.match(html, /<label\b[^>]*for="password"/);
   assert.match(html, /<input\b[^>]*type="password"/);

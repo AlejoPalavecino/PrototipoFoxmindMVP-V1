@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { proxyAccountRequest } from '../apps/web/src/lib/account-proxy.ts';
+import { proxyAccountRequest } from '../apps/web/src/application/server/identity-proxy.ts';
 
 test('proxy-owned failures preserve the public request identifier contract', async () => {
   const response = await proxyAccountRequest(new Request('http://127.0.0.1:3000/api/v1/auth/session'), undefined);
@@ -11,7 +11,7 @@ test('proxy-owned failures preserve the public request identifier contract', asy
   assert.equal(response.headers.get('x-request-id'), body.error.requestId);
   assert.deepEqual(Object.keys(body.error).sort(), ['code', 'requestId']);
 });
-import { tokenCaptureScript } from '../apps/web/src/lib/token-capture.ts';
+import { tokenCaptureScript } from '../apps/web/src/application/server/token-capture.ts';
 import vm from 'node:vm';
 
 const origin = 'http://127.0.0.1:3001';
@@ -126,7 +126,7 @@ test('same-document proof navigation clears fragments and exposes each new proof
 });
 
 test('aborted, oversized and timed-out bodies handle rejected cancellation without unhandled errors', () => {
-  const moduleUrl = new URL('../apps/web/src/lib/account-proxy.ts', import.meta.url).href;
+  const moduleUrl = new URL('../apps/web/src/application/server/identity-proxy.ts', import.meta.url).href;
   const source = `
     import assert from 'node:assert/strict';
     import { setImmediate as tick } from 'node:timers/promises';

@@ -52,7 +52,7 @@ test('draft navbar hides account navigation while preserving classroom exit', ()
 });
 
 test('password visibility is an explicit non-submit control, with policy only for new passwords', () => {
-  const { AccountField } = component('apps/web/src/components/account-screen.tsx');
+  const { AccountField } = component('apps/web/src/features/identity/ui/account-field.tsx');
   const login = render(AccountField, { name: 'password', label: 'Contraseña', password: true, autoComplete: 'current-password' });
   assert.match(login, /data-password-field="true"/);
   assert.match(login, /type="button"[^>]*aria-label="Mostrar contraseña"/);

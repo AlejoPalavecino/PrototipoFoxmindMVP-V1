@@ -15,3 +15,7 @@ El [diseño UX/UI](../../design/README.md) es la referencia vigente, con [captur
 Al cambiar una pantalla, revisar roles, carga/vacío/error, confirmación, foco/teclado, mobile/tablet/desktop, contraste y movimiento reducido. La evidencia tiene alcance concreto: una captura no demuestra transacción o persistencia.
 
 Fuentes: [páginas](../../../apps/web/pages/), [controles](../../../apps/shared-ui/brujula-controls.css), [navegación](../../../apps/classrooms-ui/ClassroomNavigation.tsx). [Política documental](../../documentation-policy.md).
+
+Identidad está agrupada en `features/identity/{api,model,ui}`: `index.ts` expone componentes y contratos; `api.ts` es la entrada pura para adaptadores cliente que no deben cargar UI. `screens/identity-screen.tsx` coordina sesión, efectos y navegación de los flujos existentes. `application/navigation/account-navbar.tsx` compone cuenta, búsqueda, aulas y notificaciones; su ubicación no convierte esas capacidades en reglas de identidad.
+
+`application/application-shell.tsx` conserva tema/foco/cleanup, sin providers nuevos. `_app` mantiene CSS y captura inicial de documento Foxy; `_document` conserva orden del script estático de prueba mediante `application/server/token-capture.ts`. Proxy y SSR privado pertenecen a `application/server/identity-proxy.ts` y `account-page.ts`. Button/Input/Label y `class-names.ts` son genéricos en shared. Puentes legacy conservan consumidores aún no migrados. [Evidencia](../../work-log/2026-11-10-root-identity-frontend.md).

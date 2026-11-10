@@ -1,7 +1,9 @@
+import { builtinModules } from 'node:module';
 import { agendaCompatibility } from './agenda-compatibility.mjs';
 // Rules for migrated surfaces; legacy modules retain their exact frozen edges.
 const moduleOf = path => /^apps\/api\/src\/modules\/([^/]+)\/(.+)$/.exec(path);
 const featureOf = path => /^apps\/web\/src\/features\/([^/]+)\//.exec(path)?.[1];
+const featurePublic = path => /^apps\/web\/src\/features\/[^/]+\/index\.tsx?$/.test(path) || path === 'apps/web/src/features/identity/api.ts';
 const shared = path => path.startsWith('apps/shared-ui/') || path.startsWith('apps/web/src/shared/');
 const legacyUi = path => /^(?:apps\/(?:classrooms-ui|agenda-ui|p5-preview)\/|apps\/web\/src\/(?:lib|components)\/)/.test(path);
 const namedContract = ({ form, binding }) => ['import', 'inline', 'reexport'].includes(form) && binding &&
@@ -11,12 +13,14 @@ export function migrationBoundary(edge) {
   const { file, target } = edge;
   if (agendaCompatibility(edge)) return null;
   if (file === 'apps/api/src/classrooms/public/index.ts' && target === 'apps/api/src/classrooms/agenda.ts' && edge.form === 'reexport' && edge.binding === '{createAcademicAgenda}') return null;
+  if ((file === 'apps/web/src/features/identity/api.ts' || file.startsWith('apps/web/src/features/identity/api/')) &&
+    ((target.startsWith('apps/') && !target.startsWith('apps/web/src/features/identity/api/')) || target.startsWith('node:') || builtinModules.includes(target) || /^(?:react(?:-dom)?|next)(?:\/|$)/.test(target))) return 'identity API dependency';
   if (shared(file) && target.startsWith('apps/') && !shared(target)) return 'shared UI dependency';
   const feature = featureOf(file), targetFeature = featureOf(target);
   if (feature && ((targetFeature && targetFeature !== feature) || legacyUi(target) ||
     /^apps\/web\/src\/(?:app|application|screens)\//.test(target))) return 'feature dependency';
   if (targetFeature && targetFeature !== feature &&
-    (!/^apps\/web\/src\/features\/[^/]+\/index\.tsx?$/.test(target) || !namedContract(edge)))
+    (!featurePublic(target) || !namedContract(edge)))
     return 'feature private API';
 
   const from = moduleOf(file), to = moduleOf(target);

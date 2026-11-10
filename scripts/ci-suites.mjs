@@ -16,6 +16,7 @@ export const suites = {
     'apps/api/src/study-folders/integrations.test.mjs',
   ],
   pure: [
+    'tests/identity-feature.test.mjs', 'tests/identity-composition.test.mjs',
     'tests/agenda-module.test.mjs', 'tests/agenda-feature.test.mjs',
     'apps/shared-ui/chat-follow.test.mjs',
     'apps/shared-ui/plan-disclosure.test.mjs',

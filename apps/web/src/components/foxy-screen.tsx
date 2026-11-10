@@ -2,11 +2,11 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Notice } from '../../../shared-ui/feedback';
-import { createAccountClient, type AccountSession } from '../lib/account-client';
+import { createAccountClient, type AccountSession } from '../features/identity/index.ts';
 import { authHref } from '../application/navigation/destinations';
 import { getDocumentEntryPath, isFoxyDocument } from '../lib/foxy-document-boundary';
 import { createFoxyNavigationBridge } from '../lib/foxy-navigation-bridge';
-import { AccountNavbar } from './account-navbar';
+import { AccountNavbar } from '../application/navigation/account-navbar.tsx';
 import { FoxyWorkspaceSession } from './foxy-workspace-session';
 
 const account = createAccountClient();

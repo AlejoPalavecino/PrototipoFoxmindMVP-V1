@@ -1,3 +1,2 @@
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-export function cn(...inputs: ClassValue[]) { return twMerge(clsx(inputs)); }
+// Compatibility bridge; the implementation has a single owner.
+export { cn } from '../../../shared-ui/class-names.ts';

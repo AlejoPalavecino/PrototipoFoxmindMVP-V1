@@ -515,7 +515,9 @@
     "apps/web/src/lib/study-file-policy.test.mjs",
     "apps/web/src/lib/study-discovery.test.mjs",
     "tests/agenda-module.test.mjs",
-    "tests/agenda-feature.test.mjs"
+    "tests/agenda-feature.test.mjs",
+    "tests/identity-feature.test.mjs",
+    "tests/identity-composition.test.mjs"
   ],
   "exclusions": [
     {

@@ -6,6 +6,8 @@
 
 El 2026-11-10 el usuario aprobó el plan y autorizó comenzar por etapas con pruebas y verificaciones. Publicación/despliegue y cambios funcionales/de datos fuera del alcance.
 
+El pedido vigente amplía la autorización a commits locales de cierre Agenda y ejecución del corte de identidad/composición global frontend. Sin push/PR/merge/deploy.
+
 Ese mismo día autorizó la integración DB sobre recursos propios y los commits locales del primer corte. No autorizó push ni despliegue. La entrega se realiza en `codex/architecture-foundation`.
 
 ## Tasks
@@ -75,11 +77,11 @@ Ese mismo día autorizó la integración DB sobre recursos propios y los commits
 - **Blocker:** none
 
 ### TASK-005 — Features restantes del frontend
-- **State:** PLANNED
+- **State:** IN_PROGRESS
 - **Depends on:** TASK-004
 - **Owner:** root
 - **Acceptance:** Cortes por identidad/global, Foxy/Estudio, Aulas/enseñanza, actividades/entregas/corrección e Inicio/avisos; cada corte conserva roles, estados, responsive, navegación y pruebas. Desglosar antes de ejecutar cada corte.
-- **Evidence:** none
+- **Evidence:** Primer corte TASK-013 a TASK-015 DONE; registro docs/work-log/2026-11-10-root-identity-frontend.md. Resto de features pendiente.
 - **Blocker:** none
 
 ### TASK-006 — Dominios restantes del backend
@@ -104,4 +106,28 @@ Ese mismo día autorizó la integración DB sobre recursos propios y los commits
 - **Owner:** root
 - **Acceptance:** Integración PostgreSQL propia y controles de deriva/verificación del corte observados; fallos previos resueltos o delimitados, sin cambiar SQL histórico ni debilitar aceptación. Commits locales por unidad, registro actualizado y árbol limpio para iniciar TASK-004.
 - **Evidence:** PostgreSQL propio: grupo owned-db reconciliado 131/131 archivos, 847 PASS/0 FAIL/0 SKIP; fast 320/320 archivos, 1777 PASS/0 FAIL/0 SKIP. Base DB 38 PASS + smoke, deriva exit0, selección Agenda/Estudio/concurrencia 17 PASS, pure 179 PASS. Build/tipos/lint/docs/TTP/inventario pasan; cero contenedores descartables restantes. Correcciones de expectativas revisadas y permisos/privacidad preservados. Commits 1edf09c, 906b4e8, 5a22424, 59855ee y d70a658; recibo final en docs/work-log/2026-11-10-root-architecture-migration.md y commit de cierre. Sin push/merge/deploy.
+- **Blocker:** none
+
+### TASK-013 — Identidad pública y pantalla coordinadora
+- **State:** DONE
+- **Depends on:** TASK-004
+- **Owner:** root
+- **Acceptance:** Cliente/errores/validación y UI por responsabilidad, entrada pública explícita, screen conserva flujos y elimina ciclo de tipos. Login/registro/confirmación/perfil/contraseña conservan campos, efectos, errores, avatar y permisos.
+- **Evidence:** RED entrada ausente 0/2 -> GREEN29 PASS; implementación/JSX/CSS equivalentes8/8 y páginas8/8 sólo imports. API pública pura preserva identidad de errores/funciones. Integración final324/324 archivos1790 PASS; tipos/build y revisión independiente sin hallazgos pendientes. Registro root-identity-frontend.
+- **Blocker:** none
+
+### TASK-014 — Composición global y adaptadores de documento/servidor
+- **State:** DONE
+- **Depends on:** TASK-004
+- **Owner:** root
+- **Acceptance:** Navbar global y shell en application, proxies/SSR/captura de prueba separados del bundle navegador; shared genérico independiente. Consumidores usan contratos públicos, markup/CSS/orden de tokens y foco conservados.
+- **Evidence:** RED shell/puentes2 FAIL -> GREEN2 PASS; proxy/documento18 PASS; composición/feature/navegación/guard35 PASS. `_app` conserva captura/CSS, shell focus/cleanup; bare Node/React/Next rechazados (revisor23 PASS). Build web y tipos PASS; Ego sintético verifica flujos/rol/avatar/foco client-route y viewport390x844, límites en registro. Preview helper adapta marcador sin tocar producción.
+- **Blocker:** none
+
+### TASK-015 — Verificación y cierre del corte identidad/global
+- **State:** DONE
+- **Depends on:** TASK-013, TASK-014
+- **Owner:** root
+- **Acceptance:** Contratos cliente/proxy/UI/navegación/seguridad de documento, tipos/builds/lint/CI y navegador real sintético pasan; revisión independiente y documentación reconciliadas.
+- **Evidence:** Fast reconciliado324/324 archivos:1790 PASS/0 FAIL/0 SKIP. Revisor72 PASS y revalidación23 PASS, P2 guard corregido, sin hallazgos pendientes. Build API (preparación fast)/web, tipos web/classrooms, lint110, inventario518, docs/TTP y diff-check pasan. QA real sintético y artefactos propios en registro root-identity-frontend. Sin DB/proveedor/correo real ni despliegue; evidencia de persistencia limitada a memoria de fixture.
 - **Blocker:** none

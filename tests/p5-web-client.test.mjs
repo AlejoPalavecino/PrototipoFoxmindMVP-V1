@@ -102,7 +102,7 @@ test('a late session response cannot restore a private classroom screen after ac
     'next/router': { useRouter: () => router }, 'next/head': () => null, 'next/link': () => null,
     '../../../classrooms-ui/Classrooms': { ClassroomsApp: ClassroomApp },
     '../../../classrooms-ui/useAgendaTarget': { useAgendaTarget: () => ({ requested: false }) },
-    '../lib/account-client': { createAccountClient: () => ({ session: signal => {
+    '../features/identity/index.ts': { createAccountClient: () => ({ session: signal => {
       sessionSignal = signal;
       return new Promise(resolve => { finish = resolve; });
     } }) },

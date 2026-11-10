@@ -7,19 +7,19 @@ import { loadTsModule } from '../../../../tests/helpers/load-ts-module.mjs';
 
 const noop=()=>null;
 function navPorts(capture) { return {
-  '../../../shared-ui/AppNavbar':{AppNavbar:props=>{capture.push(props);return null;}},
+  '../../../../shared-ui/AppNavbar.tsx':{AppNavbar:props=>{capture.push(props);return null;}},
   '../shared-ui/AppNavbar.tsx':{AppNavbar:props=>{capture.push(props);return null;}},
-  '../../../shared-ui/index':{FoxmindBrand:noop,FoxmindIcon:noop},
-  '../../../classrooms-ui/Notifications':{Notifications:noop}, './Notifications.tsx':{Notifications:noop},
+  '../../../../shared-ui/index.ts':{FoxmindBrand:noop,FoxmindIcon:noop},
+  '../../../../classrooms-ui/Notifications.tsx':{Notifications:noop}, './Notifications.tsx':{Notifications:noop},
   './components.tsx':{Dialog:noop,Notice:noop}, './ClassroomCollection.tsx':{ClassroomCollection:noop},
   './ClassroomCollectionHero.tsx':{ClassroomCollectionHero:noop}, './Home.tsx':{Home:noop}, '../shared-ui/EntryIcon':{EntryIcon:noop},
-  'next/router':{useRouter:()=>({push(){}})}, 'next/link':{default:noop}, '../lib/classroom-client':{createWebClassroomClient:()=>({})},
+  'next/router':{useRouter:()=>({push(){}})}, 'next/link':{default:noop}, '../../lib/classroom-client.ts':{createWebClassroomClient:()=>({})},
 }; }
 const session=accountRole=>({authenticated:true,user:{id:'synthetic',firstName:'Docente',lastName:'Prueba',emailVerified:true,accountRole}});
 
 test('account navigation exposes Foxy AI only for verified teachers and navigates to the exact route',()=>{
   const capture=[], pushes=[], ports=navPorts(capture); ports['next/router']={useRouter:()=>({push:href=>pushes.push(href)})};
-  const {AccountNavbar}=componentWithPorts('apps/web/src/components/account-navbar.tsx',ports);
+  const {AccountNavbar}=componentWithPorts('apps/web/src/application/navigation/account-navbar.tsx',ports);
   for(const role of ['teacher','student']) {
     renderToStaticMarkup(React.createElement(AccountNavbar,{session:session(role)})); const nav=capture.pop(), link=nav.links.find(x=>x.href==='/foxy-ai');
     if(role==='teacher'){assert.equal(link?.label,'Foxy AI');nav.onNavigate('/foxy-ai');assert.deepEqual(pushes,['/foxy-ai']);}

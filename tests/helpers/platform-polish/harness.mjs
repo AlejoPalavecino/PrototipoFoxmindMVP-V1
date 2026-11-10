@@ -22,7 +22,13 @@ for (const filename of fs.readdirSync(helpers).filter(name => /\.tsx?$/.test(nam
   if (target === fixtureDir && fs.existsSync(path.join(pages, filename))) fs.unlinkSync(path.join(pages, filename));
 }
 const app = fs.readFileSync(path.join(source, 'apps/web/pages/_app.tsx'), 'utf8');
-fs.writeFileSync(path.join(pages, '_app.tsx'), app.replace('<div className="fm3d-theme">', '<div className="fm3d-theme" data-qa-fixture="true">'));
+if (app.includes('../src/application/application-shell.tsx')) {
+  const shell = fs.readFileSync(path.join(source, 'apps/web/src/application/application-shell.tsx'), 'utf8');
+  fs.writeFileSync(path.join(fixtureDir, 'application-shell.tsx'), shell.replace('<div className="fm3d-theme">', '<div className="fm3d-theme" data-qa-fixture="true">'));
+  fs.writeFileSync(path.join(pages, '_app.tsx'), app.replace('../src/application/application-shell.tsx', '../fixtures/application-shell'));
+} else {
+  fs.writeFileSync(path.join(pages, '_app.tsx'), app.replace('<div className="fm3d-theme">', '<div className="fm3d-theme" data-qa-fixture="true">'));
+}
 const homeHarness = fs.readFileSync(path.join(root, 'tests/helpers/home-polish/harness.mjs'), 'utf8');
 const home = homeHarness.split("'apps/web/pages/index.tsx'), `")[1].split('\n`);')[0];
 fs.writeFileSync(path.join(pages, 'inicio.tsx'), home.replace("read:async()=>fixture(mode)", "read:async()=>{if(mode==='loading')await new Promise(()=>{});return fixture(mode)}"));

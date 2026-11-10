@@ -17,8 +17,8 @@ for(const initial of ['/inicio',null])test(`screen gates editor for non-Foxy doc
  try{const teacher={authenticated:true,user:{id:randomUUID(),firstName:'D',lastName:'T',emailVerified:true,accountRole:'teacher'}},router={isReady:true,replace:async()=>{}};
   const {FoxyScreen}=componentWithPorts('apps/web/src/components/foxy-screen.tsx',{
    'next/head':{default:({children})=>React.createElement(React.Fragment,null,children)},'next/link':{default:({children,...props})=>React.createElement('a',props,children)},'next/router':{useRouter:()=>router},
-   '../../../classrooms-ui/components':{Notice:({children})=>React.createElement('div',null,children)},'../lib/account-client':{createAccountClient:()=>({session:async()=>{sessionCalls++;return teacher;}})},
-   '../lib/classroom-client':{classroomAuthHref:()=>'/sign-in'},'./account-navbar':{AccountNavbar:()=>null},'./foxy-workspace-session':{FoxyWorkspaceSession:()=>{workspaces++;return React.createElement('div',null,'PRIVATE EDITOR');}},
+   '../../../classrooms-ui/components':{Notice:({children})=>React.createElement('div',null,children)},'../features/identity/index.ts':{createAccountClient:()=>({session:async()=>{sessionCalls++;return teacher;}})},
+   '../lib/classroom-client':{classroomAuthHref:()=>'/sign-in'},'../application/navigation/account-navbar.tsx':{AccountNavbar:()=>null},'./foxy-workspace-session':{FoxyWorkspaceSession:()=>{workspaces++;return React.createElement('div',null,'PRIVATE EDITOR');}},
    '../lib/foxy-document-boundary':{getDocumentEntryPath:()=>initial,isFoxyDocument:()=>false},'../lib/foxy-navigation-bridge':{createFoxyNavigationBridge:()=>({install(){},replace:href=>replaces.push(href),navigate(){},dispose(){}})}
   });const view=hookView(FoxyScreen,{});try{await view.flush();const html=renderToStaticMarkup(view.tree);assert.doesNotMatch(html,/PRIVATE EDITOR/);assert.equal(workspaces,0);assert.equal(sessionCalls,0);
    assert.deepEqual(replaces,initial?['/foxy-ai']:[]);
@@ -31,8 +31,8 @@ function screenFixture({session,entry='/foxy-ai',bridgeFactory}={}){
  const router={isReady:true,replace:async()=>calls.push('router.replace')};
  const {FoxyScreen}=componentWithPorts('apps/web/src/components/foxy-screen.tsx',{
   'next/head':{default:({children})=>React.createElement(React.Fragment,null,children)},'next/link':{default:({children,...props})=>{calls.push(['NextLink',props.href]);return React.createElement('a',props,children);}},'next/router':{useRouter:()=>router},
-  '../../../classrooms-ui/components':{Notice:({children})=>React.createElement('div',null,children)},'../lib/account-client':{createAccountClient:()=>({session})},
-  '../lib/classroom-client':{classroomAuthHref:()=>'/sign-in'},'./account-navbar':{AccountNavbar:()=>null},'./foxy-workspace-session':{FoxyWorkspaceSession:()=>React.createElement('div',null,'PRIVATE EDITOR')},
+  '../../../classrooms-ui/components':{Notice:({children})=>React.createElement('div',null,children)},'../features/identity/index.ts':{createAccountClient:()=>({session})},
+  '../lib/classroom-client':{classroomAuthHref:()=>'/sign-in'},'../application/navigation/account-navbar.tsx':{AccountNavbar:()=>null},'./foxy-workspace-session':{FoxyWorkspaceSession:()=>React.createElement('div',null,'PRIVATE EDITOR')},
   '../lib/foxy-document-boundary':{getDocumentEntryPath:()=>entry,isFoxyDocument:()=>entry==='/foxy-ai'},
   '../lib/foxy-navigation-bridge':{createFoxyNavigationBridge:bridgeFactory??(options=>({install(){globalThis.window.addEventListener('pagehide',options.hidePresentation);},replace(){},navigate(){},dispose(){}}))}
  });const view=hookView(FoxyScreen,{});return {view,calls,listeners,close(){view.close();globalThis.window=previous;}};

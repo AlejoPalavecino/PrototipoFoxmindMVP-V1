@@ -6,7 +6,7 @@ import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 
 function fixture(session) {
   const routes = [], calls = [], user = { id: '11111111-1111-4111-8111-111111111111', firstName: 'Synthetic', lastName: 'User', email: 'synthetic@example.test', emailVerified: true };
-  const account = loadTsModule('apps/web/src/lib/account-client.ts');
+  const account = loadTsModule('apps/web/src/features/identity/index.ts');
   const navigation = loadTsModule('apps/web/src/lib/classroom-client.ts');
   const noop = () => null, placeholder = new Proxy({ default: noop }, { get: (target, key) => key === '__esModule' ? true : target[key] ?? noop });
   const client = { session: async () => session ?? { authenticated: true, user },
@@ -14,12 +14,12 @@ function fixture(session) {
     mutate: async (path, fields, method) => { calls.push(['mutate', path, fields, method]); return { result: user, session: { authenticated: false } }; } };
   const ports = { 'next/head': placeholder, 'next/link': placeholder,
     'next/router': { useRouter: () => ({ isReady: true, query: {}, push: async path => routes.push(path) }) },
-    '../lib/account-client': { ...account, createAccountClient: () => client }, '../lib/classroom-client': navigation,
+    '../features/identity/index': { ...account, createAccountClient: () => client }, '../lib/classroom-client': navigation,
   };
-  for (const name of ['./ui/button', './ui/input', './ui/label', './account-navbar',
+  for (const name of ['./ui/button', './ui/input', './ui/label', '../application/navigation/account-navbar',
     '../../../shared-ui/VerificationGuidance', '../../../shared-ui/AccountStory', '../../../shared-ui', '../../../shared-ui/index',
     '../../../shared-ui/FoxmindIllustration']) ports[name] = placeholder;
-  return { AccountScreen: componentWithPorts('apps/web/src/components/account-screen.tsx', ports).AccountScreen, calls, routes };
+  return { AccountScreen: componentWithPorts('apps/web/src/screens/identity-screen.tsx', ports).AccountScreen, calls, routes };
 }
 const fields = tree => descendants(tree, node => typeof node.props.name === 'string').map(node => node.props.name);
 

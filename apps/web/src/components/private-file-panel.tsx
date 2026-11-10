@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
-import { createAccountClient, type AccountSession } from '../lib/account-client';
+import { createAccountClient, type AccountSession } from '../features/identity/index.ts';
 import { createFileClient, FileClientError, fileState, type FileContext, type FileUsage, type PrivateFileStatus } from '../lib/file-client';
 import { Button } from './ui/button';
 import { Input } from './ui/input';

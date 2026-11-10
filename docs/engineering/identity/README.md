@@ -22,3 +22,9 @@ Mi perfil muestra nombre, apellido y correo de sólo lectura. Docentes y estudia
 - Sesión, Origin y CSRF se comprueban en el servidor. Cookies y tokens no son datos de documentación/capturas; los fragmentos de enlaces de correo no se registran.
 
 Contrato exacto: [HTTP](../../api/accounts-sessions.md) y [OpenAPI](../../api/accounts-sessions.openapi.json). Fuentes: [runtime](../../../apps/api/src/identity/runtime.ts), [transportes y configuración](../../../apps/api/src/identity/). La evidencia actual de UI está en [flujos](../../verification/flows.md); no revalida todos los formatos de correo o límites temporales.
+
+## Responsabilidades del frontend
+
+`apps/web/src/features/identity` reúne cliente/errores/validación, tipos de vista/formulario y UI de acceso/perfil/configuración. `index.ts` es la entrada de UI/model; `api.ts` expone el transporte puro sin cargar componentes. `screens/identity-screen.tsx` coordina los flujos y las continuaciones existentes. Navbar global y shell pertenecen a `application`; proxy, SSR no-store/no-referrer y script estático de captura de enlace quedan en `application/server`. Las rutas y el orden de captura se conservan; los archivos anteriores son puentes temporales de una sola implementación.
+
+La migración conserva comportamiento, campos, mensajes, avatar, estilos y garantías de seguridad. La evidencia del corte y límites de QA sintético están en el [registro](../../work-log/2026-11-10-root-identity-frontend.md); no representan pruebas con datos reales, correo enviado o nueva validación DB.

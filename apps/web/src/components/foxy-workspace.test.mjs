@@ -48,8 +48,8 @@ test('student is denied before workspace or Foxy client is constructed',async()=
     'next/head':{default:({children})=>React.createElement(React.Fragment,null,children)},'next/link':{default:({children,...props})=>React.createElement('a',props,children)},
     'next/router':{useRouter:()=>({isReady:true,replace:async()=>{}})},'../../../classrooms-ui/components':{Notice:({children})=>React.createElement('div',null,children)},
     '../lib/foxy-document-boundary':{getDocumentEntryPath:()=>'/foxy-ai',isFoxyDocument:()=>true},'../lib/foxy-navigation-bridge':{createFoxyNavigationBridge:()=>({install(){},dispose(){},navigate(){},replace(){}})},
-    '../lib/account-client':{createAccountClient:()=>({session:async()=>student})},'../lib/classroom-client':{classroomAuthHref:()=>'/sign-in'},
-    './account-navbar':{AccountNavbar:()=>null},'./foxy-workspace':{FoxyWorkspace:()=>{workspaces++;return null;}},
+    '../features/identity/index.ts':{createAccountClient:()=>({session:async()=>student})},'../lib/classroom-client':{classroomAuthHref:()=>'/sign-in'},
+    '../application/navigation/account-navbar.tsx':{AccountNavbar:()=>null},'./foxy-workspace':{FoxyWorkspace:()=>{workspaces++;return null;}},
     '../lib/foxy-client':{createWebFoxyClient:()=>{clientCalls++;return {};}}
   });
   const view=hookView(FoxyScreen,{});try {await view.flush();assert.match(renderToStaticMarkup(view.tree),/disponible para docentes/iu);
@@ -138,7 +138,7 @@ test('verified teacher screen passes subject identity and isolates session by us
   'next/head':{default:({children})=>React.createElement(React.Fragment,null,children)},'next/link':{default:({children,...props})=>React.createElement('a',props,children)},
   'next/router':{useRouter:()=>({isReady:true,replace:async()=>{}})},'../../../classrooms-ui/components':{Notice:({children})=>React.createElement('div',null,children)},
   '../lib/foxy-document-boundary':{getDocumentEntryPath:()=>'/foxy-ai',isFoxyDocument:()=>true},'../lib/foxy-navigation-bridge':{createFoxyNavigationBridge:()=>({install(){},dispose(){},navigate(){},replace(){}})},
-  '../lib/account-client':{createAccountClient:()=>({session:async()=>teacher})},'../lib/classroom-client':{classroomAuthHref:()=>'/sign-in'},'./account-navbar':{AccountNavbar:()=>null},
+  '../features/identity/index.ts':{createAccountClient:()=>({session:async()=>teacher})},'../lib/classroom-client':{classroomAuthHref:()=>'/sign-in'},'../application/navigation/account-navbar.tsx':{AccountNavbar:()=>null},
   './foxy-workspace-session':{FoxyWorkspaceSession:props=>{seen.push(props.subjectId);return React.createElement('section',null,'Foxy');}}
  });const view=hookView(FoxyScreen,{});try{await view.flush();renderToStaticMarkup(view.tree);assert.ok(seen.includes(id));const nodes=descendants(view.tree,n=>n.props?.subjectId===id);assert.ok(nodes.some(n=>n.key===id));}finally{view.close();}
 });

@@ -1,5 +1,5 @@
 import { AgendaClientError, createAgendaClient, type AgendaClient } from '../features/agenda/index.ts';
-import { createAccountClient } from '../lib/account-client.ts';
+import { createAccountClient } from '../features/identity/api.ts';
 
 function agendaCaller(fetcher: typeof fetch, onIdentityRequired?: (code: string) => void) {
   const account = createAccountClient(fetcher);

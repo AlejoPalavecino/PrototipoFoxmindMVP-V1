@@ -4,11 +4,11 @@ import { useRouter } from 'next/router';
 import { PrivateFilePanel } from '../src/components/private-file-panel';
 import { parseFileContext } from '../src/lib/file-client';
 import { useEffect, useState } from 'react';
-import { AccountNavbar } from '../src/components/account-navbar';
-import { createAccountClient, type AccountSession } from '../src/lib/account-client';
+import { AccountNavbar } from '../src/application/navigation/account-navbar.tsx';
+import { createAccountClient, type AccountSession } from '../src/features/identity/index.ts';
 const account = createAccountClient();
 
-export { accountPageProps as getServerSideProps } from '../src/lib/page-server';
+export { accountPageProps as getServerSideProps } from '../src/application/server/account-page';
 export default function Files() {
   const router = useRouter();
   const context = parseFileContext(router.query);

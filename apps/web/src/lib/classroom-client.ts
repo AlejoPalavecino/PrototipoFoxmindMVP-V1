@@ -1,5 +1,5 @@
 import { createClassroomClient } from '../../../classrooms-ui/api.ts';
-import { createAccountClient } from './account-client.ts';
+import { createAccountClient } from '../features/identity/api.ts';
 
 // Compatibility until classroom navigation consumers migrate to application/navigation.
 export { safeDestination as classroomDestination, authHref as classroomAuthHref, classroomHomeHref, classroomHomeDestination } from '../application/navigation/destinations.ts';
