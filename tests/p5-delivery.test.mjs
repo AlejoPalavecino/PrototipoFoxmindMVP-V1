@@ -17,8 +17,8 @@ test(
         key = Buffer.alloc(32, 5),
         sent = [];
       await pool.query(
-        `INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at)
-      VALUES($1,now(),'teacher@example.test','teacher@example.test','Teacher','Fixture','fixture',now())`,
+        `INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+      VALUES($1,now(),'teacher@example.test','teacher@example.test','Teacher','Fixture','fixture',now(),'teacher')`,
         [owner],
       );
       await pool.query(

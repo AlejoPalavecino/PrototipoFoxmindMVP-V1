@@ -121,13 +121,16 @@ test('SQL-backed controlled history/reopening preserve every original and transa
       await change({ action: 'deadline', id: quiz.id, deadline: { local: local(new Date(+date + 86400000)) }, allowLate: false });
       assert.ok(+(await service.activitySession(S, room, quiz.id)).reception.deadlineAt > +individual);
     });
-    await check('current target ownership/membership/archive apply to all history and notification list/read/open paths; WALL output is unchanged', async () => {
+    await check('current target ownership/membership/archive apply to history and notification paths with authorized WALL context', async () => {
       const notices = await service.listNotifications(S), reopened = notices.find(n => n.eventType === 'ATTEMPT_REOPENED'); assert.ok(reopened);
       const target = await service.openNotification(S, reopened.id); assert.equal(target.kind, 'attempt'); assert.equal(target.classroomId, room);
       await reject(() => service.openNotification(F, reopened.id), 'FORBIDDEN'); await reject(() => service.activityHistory(F, room, quiz.id), 'FORBIDDEN');
       await service.changeWall(T, room, { revision: (await service.detail(T, room)).revision, operation: { action: 'publish', body: 'Old wall notice' } });
       const wall = (await service.listNotifications(S)).find(n => n.eventType === 'WALL_NOTICE');
-      assert.deepEqual(Object.keys(wall).sort(), ['id', 'classroomId', 'classroomName', 'eventType', 'postId', 'replyId', 'createdAt', 'readAt'].sort());
+      assert.deepEqual(Object.keys(wall).sort(), ['id', 'classroomId', 'classroomName', 'classroomDivision', 'actorName', 'message', 'eventType', 'postId', 'replyId', 'createdAt', 'readAt'].sort());
+      assert.equal(wall.actorName, 'History Fixture');
+      assert.equal(wall.classroomDivision, 'A');
+      assert.equal(wall.message, 'Old wall notice');
       assert.deepEqual(await service.openNotification(S, wall.id), { classroomId: room, postId: wall.postId, replyId: null });
       await pool.query('UPDATE classrooms SET archived_at=now() WHERE id=$1', [room]);
       assert.ok((await service.listNotifications(S)).some(n => n.id === reopened.id)); await service.openNotification(S, reopened.id);

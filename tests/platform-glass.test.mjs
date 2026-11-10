@@ -111,7 +111,7 @@ test('dialogs remain native, centered, scrollable and keyboard-visible', () => {
   rule('.p5-dialog', 'max-height', 'calc(100dvh - 32px)');
   rule(':focus-visible', 'outline', '3px solid var(--fm-focus)');
   assert.doesNotMatch(platform.toString(), /display:\s*(?:block|flex|grid)[^}]*\}[\s\S]*?\.p5-dialog\[open\]/);
-  assert.match(read('apps/classrooms-ui/components.tsx'), /<dialog/);
+  assert.match(read('apps/shared-ui/feedback.tsx'), /<dialog/);
 });
 
 test('academic framing covers dense surfaces without repainting Home or navbar', () => {

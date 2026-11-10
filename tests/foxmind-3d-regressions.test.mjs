@@ -76,12 +76,12 @@ test('JD02-JD05 PostgreSQL regressions use real persisted rows and rollback', { 
       id, f.actor, date, next, local, local.slice(0, 11) + `${String(Number(local.slice(11, 13)) + 1).padStart(2, '0')}:${local.slice(14, 16)}`, startAt, endAt);
       return id;
     };
-    await check('JD03 private-event target date follows viewing timezone, not event local date', async (f, page) => {
+    await check('JD03 private-event target retains occurrence identity while its visible date follows viewing timezone', async (f, page) => {
       const id = await event(f, '2026-10-27T00:30', '2026-10-26T10:30:00Z', '2026-10-26T11:30:00Z');
       const result = await page('agenda', '2026-10-25T00:00:00.000Z', 'Etc/GMT+12');
       assert.equal(result.status, 'ready');
       const item = result.items.find(x => x.target.eventId === id); assert.ok(item);
-      assert.equal(item.target.date, '2026-10-25'); assert.equal(item.date, '2026-10-25');
+      assert.equal(item.target.date, '2026-10-27'); assert.equal(item.date, '2026-10-25');
     });
     await check('JD04 candidate prefilter preserves an instant inside the ninety-day horizon across zones', async (f, page) => {
       const id = await event(f, '2026-04-01T03:00', '2026-03-31T13:00:00Z', '2026-03-31T14:00:00Z');
@@ -109,7 +109,7 @@ test('JD02-JD05 PostgreSQL regressions use real persisted rows and rollback', { 
       assert.ok(allDay); assert.ok(timed);
       assert.equal(allDay.date, '2026-10-27'); assert.equal(allDay.target.date, '2026-10-27'); assert.equal(allDay.startAt, null);
       assert.equal(timed.startAt, '2026-10-26T10:30:00.000Z');
-      assert.equal(timed.date, '2026-10-25'); assert.equal(timed.target.date, '2026-10-25');
+      assert.equal(timed.date, '2026-10-25'); assert.equal(timed.target.date, '2026-10-27');
     });
     await check('bounded academic pages keep all six cursor results and exclude equality at now and ninety days', async (f, page) => {
       const expected = [];

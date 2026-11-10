@@ -35,7 +35,7 @@ Ese mismo día autorizó la integración DB sobre recursos propios y los commits
 - **Blocker:** none
 
 ### TASK-004 — Piloto Agenda completo y validado
-- **State:** PLANNED
+- **State:** READY
 - **Depends on:** TASK-003, TASK-008
 - **Owner:** root
 - **Acceptance:** Feature y módulo por responsabilidades, proyección académica pública acotada, operaciones/recurrencia/zonas/permisos/conflictos/repasos conservados; integración aislada y navegador real.
@@ -67,9 +67,9 @@ Ese mismo día autorizó la integración DB sobre recursos propios y los commits
 - **Blocker:** none
 
 ### TASK-008 — Cierre del primer corte con integración DB y commits
-- **State:** VERIFYING
+- **State:** DONE
 - **Depends on:** TASK-003
 - **Owner:** root
 - **Acceptance:** Integración PostgreSQL propia y controles de deriva/verificación del corte observados; fallos previos resueltos o delimitados, sin cambiar SQL histórico ni debilitar aceptación. Commits locales por unidad, registro actualizado y árbol limpio para iniciar TASK-004.
-- **Evidence:** Docker 29.9.2; DB foundation 38 PASS + smoke; selección Agenda/Estudio/concurrencia 17 PASS; pure 179 PASS; deriva Prisma RED exit2/GREEN exit0; Pendientes/discovery 13 PASS y revisión independiente sin hallazgos. Fixtures de inventario/selección revisadas y corregidas, con GREEN focal. Commits 1edf09c, 906b4e8 y 5a22424; suites owned-db/fast ampliadas y cierre final Git pendientes.
+- **Evidence:** PostgreSQL propio: grupo owned-db reconciliado 131/131 archivos, 847 PASS/0 FAIL/0 SKIP; fast 320/320 archivos, 1777 PASS/0 FAIL/0 SKIP. Base DB 38 PASS + smoke, deriva exit0, selección Agenda/Estudio/concurrencia 17 PASS, pure 179 PASS. Build/tipos/lint/docs/TTP/inventario pasan; cero contenedores descartables restantes. Correcciones de expectativas revisadas y permisos/privacidad preservados. Commits 1edf09c, 906b4e8, 5a22424, 59855ee y d70a658; recibo final en docs/work-log/2026-11-10-root-architecture-migration.md y commit de cierre. Sin push/merge/deploy.
 - **Blocker:** none

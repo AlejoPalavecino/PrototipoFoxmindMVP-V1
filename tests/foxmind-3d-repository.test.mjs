@@ -125,14 +125,17 @@ test('D9 real PostgreSQL Home projections preserve permission, exact counts, pri
     });
     await check('student sees only effective published feedback; reentry draft never hides it or leaks private grading', async (f, home) => {
       const a = await f.activity(), first = await f.attempt(a), effective = await f.grade(a, first, { published: true, effective: true });
-      const second = await f.attempt(a, { number: 2 }); await f.grade(a, second, { published: true, value: '9' });
+      const second = await f.attempt(a, { number: 2 }), superseded = await f.grade(a, second, { published: true, value: '9' });
       await f.attempt(a, { number: 3, submitted: false, individualDeadline: f.at(4) });
-      const privateActivity = await f.activity(); await f.grade(privateActivity, await f.attempt(privateActivity), { value: '10' });
+      const privateActivity = await f.activity(), privateGrade = await f.grade(privateActivity, await f.attempt(privateActivity), { value: '10' });
+      for (const [id, text] of [[effective, 'PUBLICADO_EFECTIVO'], [superseded, 'PUBLICADO_NO_EFECTIVO'], [privateGrade, 'PRIVADO_SIN_PUBLICAR']])
+        await f.query('UPDATE attempt_grades SET overall_feedback=$2 WHERE id=$1', id, text);
       const result = await home.read(), feedback = rows(result, 'feedback');
       assert.equal(feedback.length, 1); assert.equal(feedback[0].target.gradeId, effective);
       assert.equal(feedback[0].attemptNumber, 1); assert.equal(Number(feedback[0].finalGrade), 0);
       assert.equal(feedback[0].availability, 'available');
-      assert.doesNotMatch(JSON.stringify(result), /overallFeedback|correctAnswers|editorToken|studentId|password_hash/);
+      assert.equal(feedback[0].overallFeedback, 'PUBLICADO_EFECTIVO');
+      assert.doesNotMatch(JSON.stringify(result), /PUBLICADO_NO_EFECTIVO|PRIVADO_SIN_PUBLICAR|correctAnswers|editorToken|studentId|password_hash/);
       assert.ok(ids(rows(result, 'pending')).includes(a.id));
     });
     await check('queries exclude notices/removed/foreign; materials require authorized clean intact files', async (f, home) => {
