@@ -1,5 +1,7 @@
 import { request as httpRequest, type IncomingMessage, type ServerResponse } from 'node:http';
 import { request as httpsRequest } from 'node:https';
+import { performance } from 'node:perf_hooks';
+import { discardRejectedBody } from './rejected-request-body.ts';
 import { Transform } from 'node:stream';
 
 const root = '/api/v1/foxy-ai', uuid = '[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}';
@@ -67,7 +69,7 @@ function select(request: IncomingMessage): { url: URL; method: string; binary: b
   if (url.searchParams.has('after') && !/^[A-Za-z0-9_-]{1,4096}$/u.test(url.searchParams.get('after')!)) throw new Error();
   return { url, method, binary };
 }
-function read(stream: IncomingMessage, limit: number): Promise<Buffer> {
+function read(stream: IncomingMessage, limit: number, deadline?: number): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = []; let size = 0, settled = false;
     const done = (error?: Error) => {
@@ -77,7 +79,7 @@ function read(stream: IncomingMessage, limit: number): Promise<Buffer> {
     };
     const data = (chunk: Buffer) => { size += chunk.length; if (size > limit) done(new RangeError()); else chunks.push(chunk); };
     const end = () => done(), abort = () => done(new Error());
-    const timer = setTimeout(abort, 10000);
+    const timer = setTimeout(abort, deadline === undefined ? 10000 : Math.max(0, deadline - performance.now()));
     stream.on('data', data); stream.once('end', end); stream.once('error', abort); stream.once('aborted', abort);
   });
 }
@@ -86,13 +88,13 @@ function length(value: string | string[] | undefined): number | undefined {
   if (typeof value !== 'string' || !/^[0-9]+$/u.test(value) || !Number.isSafeInteger(Number(value))) throw new Error();
   return Number(value);
 }
-async function metadata(request: IncomingMessage, method: string): Promise<Buffer | undefined> {
+async function metadata(request: IncomingMessage, method: string, deadline: number): Promise<Buffer | undefined> {
   const expected = length(request.headers['content-length']);
   if (request.headers['content-encoding'] !== undefined) throw new Error();
   if ((expected ?? 0) > requestLimit) throw new RangeError();
   if (method === 'GET') { if ((expected ?? 0) || request.headers['transfer-encoding']) throw new Error(); return undefined; }
   if (!/^application\/json(?:\s*;\s*charset=utf-8)?\s*$/iu.test(request.headers['content-type'] ?? '')) throw new Error();
-  const content = await read(request, requestLimit);
+  const content = await read(request, requestLimit, deadline);
   if (expected !== undefined && content.length !== expected) throw new Error();
   JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(content)); return content;
 }
@@ -162,11 +164,15 @@ function forward(request: IncomingMessage, response: ServerResponse, origin: str
   });
 }
 export async function proxyFoxyRequest(request: IncomingMessage, response: ServerResponse, configuredOrigin?: string): Promise<void> {
+  const metadataDeadline = performance.now() + 10_000;
   let selected: ReturnType<typeof select>, content: Buffer | undefined, origin: string;
-  try { selected = select(request); content = await metadata(request, selected.method); }
+  try { selected = select(request); content = await metadata(request, selected.method, metadataDeadline); }
   catch (error) {
     const status = error instanceof RangeError ? 413 : (error as { status?: number }).status ?? 400;
-    if (!request.complete) { response.setHeader('Connection', 'close'); request.resume(); }
+    if (!request.readableEnded) {
+      response.setHeader('Connection', 'close');
+      if (!await discardRejectedBody(request, response, requestLimit + 1, metadataDeadline)) return;
+    }
     fail(response, status, status === 413 ? 'REQUEST_TOO_LARGE' : status === 405 ? 'METHOD_NOT_ALLOWED' : status === 404 ? 'NOT_FOUND' : 'INVALID_INPUT'); return;
   }
   try { origin = destination(configuredOrigin); } catch { fail(response, 503, 'SERVICE_UNAVAILABLE'); return; }

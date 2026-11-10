@@ -337,7 +337,8 @@
       "apps/api/src/modules/curriculum/application/plan.test.ts",
       "apps/api/src/modules/files/application/file-use-cases.test.mjs",
       "apps/api/src/modules/identity/application/runtime.test.mjs",
-      "tests/p8-ui-contract-helpers.test.mjs"
+      "tests/p8-ui-contract-helpers.test.mjs",
+      "tests/proxy-rejection-lifecycle.test.mjs"
     ]
   },
   {

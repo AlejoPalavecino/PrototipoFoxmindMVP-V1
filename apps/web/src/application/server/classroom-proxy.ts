@@ -1,5 +1,7 @@
 import { request as httpRequest, type IncomingMessage, type ServerResponse } from 'node:http';
 import { request as httpsRequest } from 'node:https';
+import { performance } from 'node:perf_hooks';
+import { discardRejectedBody } from './rejected-request-body.ts';
 import { generationSchema } from './activity-generation-proxy.ts';
 import { parseBrujulaSearchQuery } from '../../../../../src/core/domain/classrooms/brujula-search.ts';
 import { parseEvaluationRubric } from '../../../../../src/core/domain/grading/evaluation-rubric.ts';
@@ -87,7 +89,7 @@ function length(value: string | string[] | undefined): number | undefined {
   if (typeof value !== 'string' || !/^\d+$/.test(value) || !Number.isSafeInteger(Number(value))) throw new Error('Invalid length');
   return Number(value);
 }
-function body(stream: IncomingMessage, limit: number, expected?: number): Promise<Buffer> {
+function body(stream: IncomingMessage, limit: number, expected?: number, deadline?: number): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = []; let received = 0, settled = false;
     const done = (error?: Error) => {
@@ -98,7 +100,7 @@ function body(stream: IncomingMessage, limit: number, expected?: number): Promis
     const data = (chunk: Buffer) => { received += chunk.length; if (received > limit) done(new RangeError('Body too large')); else if (expected !== undefined && received > expected) done(new Error('Length mismatch')); else chunks.push(chunk); };
     const end = () => done(expected !== undefined && expected !== received ? new Error('Length mismatch') : undefined);
     const abort = () => done(new Error('Body unavailable'));
-    const timer = setTimeout(abort, 10_000);
+    const timer = setTimeout(abort, deadline === undefined ? 10_000 : Math.max(0, deadline - performance.now()));
     stream.on('data', data); stream.once('end', end); stream.once('error', abort); stream.once('aborted', abort);
   });
 }
@@ -193,11 +195,11 @@ function activitySchema(value: unknown): boolean {
 
 /** Dedicated bounded P5 transport; Nest alone owns identity, authorization and domain validation. */
 export async function proxyClassroomRequest(request: IncomingMessage, response: ServerResponse, configuredOrigin: string | undefined): Promise<void> {
-  const reject = (status: number, code: string) => {
-    if (!request.complete && !response.headersSent) {
-      // Discard without buffering or forwarding. Destroying on `finish` can reset
-      // a still-uploading client before its rejection response reaches the wire.
-      response.setHeader('Connection', 'close'); request.resume();
+  const metadataDeadline = performance.now() + 10_000;
+  const reject = async (status: number, code: string) => {
+    if (!request.readableEnded && !response.headersSent) {
+      response.setHeader('Connection', 'close');
+      if (!await discardRejectedBody(request, response, requestLimit + 1, metadataDeadline)) return;
     }
     fail(response, status, code);
   };
@@ -208,24 +210,24 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
     if (!request.url?.startsWith('/api/v1/classrooms') || !rawPath || /[%\\#]/.test(rawPath) || /[\\#]/.test(request.url)
       || (rawPath !== '/api/v1/classrooms/search' && request.url.includes('%')) || rawPath.split('/').includes('..')) throw new Error();
     url = new URL(request.url, 'http://web.invalid');
-  } catch { reject(400, 'INVALID_INPUT'); return; }
+  } catch { await reject(400, 'INVALID_INPUT'); return; }
   const selected = routes.find(candidate => candidate.path.test(url.pathname));
-  if (!selected) { reject(404, 'NOT_FOUND'); return; }
+  if (!selected) { await reject(404, 'NOT_FOUND'); return; }
   const method = request.method ?? 'GET';
-  if (!Object.hasOwn(selected.methods, method)) { reject(405, 'METHOD_NOT_ALLOWED'); return; }
+  if (!Object.hasOwn(selected.methods, method)) { await reject(405, 'METHOD_NOT_ALLOWED'); return; }
   const wallPath = new RegExp(`^/api/v1/classrooms/${uuid}/wall(?:/${uuid}(?:/replies)?)?$`).test(url.pathname);
   const notificationPage = url.pathname === '/api/v1/classrooms/notifications/page';
   const searchPage = url.pathname === '/api/v1/classrooms/search';
-  if (url.search && (!(wallPath || notificationPage || searchPage) || method !== 'GET')) { reject(400, 'INVALID_INPUT'); return; }
+  if (url.search && (!(wallPath || notificationPage || searchPage) || method !== 'GET')) { await reject(400, 'INVALID_INPUT'); return; }
   if (searchPage && method === 'GET') {
-    try { parseBrujulaSearchQuery(url.searchParams); } catch { reject(400, 'INVALID_INPUT'); return; }
+    try { parseBrujulaSearchQuery(url.searchParams); } catch { await reject(400, 'INVALID_INPUT'); return; }
   }
   if (wallPath && method === 'GET') {
     try { parseWallQuery(url.searchParams, url.pathname.endsWith('/replies') ? 'replies' : url.pathname.endsWith('/wall') ? 'feed' : 'thread'); }
-    catch { reject(400, 'INVALID_INPUT'); return; }
+    catch { await reject(400, 'INVALID_INPUT'); return; }
   }
   if (notificationPage && method === 'GET') {
-    try { parseNotificationQuery(url.searchParams); } catch { reject(400, 'INVALID_INPUT'); return; }
+    try { parseNotificationQuery(url.searchParams); } catch { await reject(400, 'INVALID_INPUT'); return; }
   }
   const participation = /\/(?:session|eligibility|start|authorize-first|transfer)$/.test(url.pathname);
   const transfer = /\/attempts\/[^/]+\/transfer$/.test(url.pathname);
@@ -233,7 +235,7 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
     if (!transfer || typeof request.headers['x-attempt-editor'] !== 'string'
       || !/^[A-Za-z0-9_-]{43}$/.test(request.headers['x-attempt-editor'])
       || typeof request.headers['x-attempt-epoch'] !== 'string' || !/^(0|[1-9][0-9]{0,18})$/.test(request.headers['x-attempt-epoch'])) {
-      reject(400, 'INVALID_INPUT'); return;
+      await reject(400, 'INVALID_INPUT'); return;
     }
   }
   const answerWrite = new RegExp(`^/api/v1/classrooms/${uuid}/attempts/${uuid}/(?:answer|submit-answers)$`).test(url.pathname);
@@ -250,22 +252,22 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
   if ((practicalWrite || answerWrite) && (typeof request.headers['x-attempt-editor'] !== 'string'
     || !/^[A-Za-z0-9_-]{43}$/.test(request.headers['x-attempt-editor'])
     || typeof request.headers['x-attempt-epoch'] !== 'string' || !/^(0|[1-9][0-9]{0,18})$/.test(request.headers['x-attempt-epoch']))) {
-    reject(400, 'INVALID_INPUT'); return;
+    await reject(400, 'INVALID_INPUT'); return;
   }
   if ((practicalRead || gradingRoute || gradingAiRoute || publicationRoute || correctionRoute || progressRoute) && (request.headers['x-attempt-editor'] !== undefined || request.headers['x-attempt-epoch'] !== undefined)) {
-    reject(400, 'INVALID_INPUT'); return;
+    await reject(400, 'INVALID_INPUT'); return;
   }
   let origin: string, expected: number | undefined;
-  try { origin = destination(configuredOrigin); } catch { reject(503, 'SERVICE_UNAVAILABLE'); return; }
-  try { expected = length(request.headers['content-length']); } catch { reject(400, 'INVALID_INPUT'); return; }
-  if (request.headers['content-encoding'] && request.headers['content-encoding'] !== 'identity') { reject(400, 'INVALID_INPUT'); return; }
-  if ((expected ?? 0) > requestLimit) { reject(413, 'REQUEST_TOO_LARGE'); return; }
-  if (method === 'GET' && ((expected ?? 0) !== 0 || request.headers['transfer-encoding'])) { reject(400, 'INVALID_INPUT'); return; }
+  try { origin = destination(configuredOrigin); } catch { await reject(503, 'SERVICE_UNAVAILABLE'); return; }
+  try { expected = length(request.headers['content-length']); } catch { await reject(400, 'INVALID_INPUT'); return; }
+  if (request.headers['content-encoding'] && request.headers['content-encoding'] !== 'identity') { await reject(400, 'INVALID_INPUT'); return; }
+  if ((expected ?? 0) > requestLimit) { await reject(413, 'REQUEST_TOO_LARGE'); return; }
+  if (method === 'GET' && ((expected ?? 0) !== 0 || request.headers['transfer-encoding'])) { await reject(400, 'INVALID_INPUT'); return; }
   let metadata: Buffer | undefined;
   if (method !== 'GET') {
-    if (!/^application\/json(?:;|$)/i.test(request.headers['content-type'] ?? '')) { reject(400, 'INVALID_INPUT'); return; }
+    if (!/^application\/json(?:;|$)/i.test(request.headers['content-type'] ?? '')) { await reject(400, 'INVALID_INPUT'); return; }
     try {
-      metadata = await body(request, requestLimit, expected);
+      metadata = await body(request, requestLimit, expected, metadataDeadline);
       const parsed = JSON.parse(metadata.toString('utf8'));
       const reopening = url.pathname.endsWith('/reopen');
       const validReopening = !reopening || object(parsed, ['revision', 'studentId', 'deadline', 'confirm'])
@@ -294,7 +296,7 @@ export async function proxyClassroomRequest(request: IncomingMessage, response: 
             : parsed.confirm !== true || typeof parsed.confirmIncomplete !== 'boolean')))
         || (practicalWrite && (!object(parsed, selected.methods[method] ?? []) || typeof parsed.revision !== 'string'
           || (url.pathname.endsWith('/attachments-remove') ? typeof parsed.fileId !== 'string' || !new RegExp(`^${uuid}$`).test(parsed.fileId) : url.pathname.endsWith('/practical-response') ? typeof parsed.text!=='string'||[...parsed.text].length>5000||/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/u.test(parsed.text) : parsed.confirm !== true)))) throw new Error('Invalid schema');
-    } catch (error) { reject(error instanceof RangeError ? 413 : 400, error instanceof RangeError ? 'REQUEST_TOO_LARGE' : 'INVALID_INPUT'); return; }
+    } catch (error) { await reject(error instanceof RangeError ? 413 : 400, error instanceof RangeError ? 'REQUEST_TOO_LARGE' : 'INVALID_INPUT'); return; }
   }
   if (response.destroyed) return;
   await new Promise<void>(resolve => {

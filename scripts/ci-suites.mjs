@@ -43,6 +43,7 @@ export const suites = {
     'tests/audit-scheduler-diagnostics.test.mjs', 'tests/audit-resource-lazy.test.mjs',
   ],
   transport: [
+    'tests/proxy-rejection-lifecycle.test.mjs',
     'tests/ux-chat-polish.test.mjs',
     'apps/web/src/features/study/model/study-discovery.test.mjs',
     'apps/web/src/features/study/model/study-file-policy.test.mjs',

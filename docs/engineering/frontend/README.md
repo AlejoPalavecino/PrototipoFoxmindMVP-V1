@@ -23,7 +23,9 @@ Las features son identity, agenda, classrooms, curriculum, materials, communicat
 
 Agenda reúne UI/model/API en su feature; `screens/agenda-screen.tsx` compone sesión/navegación y `application/agenda-client.ts` adapta el caller autenticado. Foxy y Estudio exponen sus capacidades por feature y coordinan documentos, recursos y navegación desde screens/application. El transporte Node queda fuera de las entradas de navegador. Los proxies limitan destino, método y payload; ocultar controles no sustituye permisos.
 
-Notice/Dialog viven en `apps/shared-ui/feedback.tsx`; Button/Input/Label, clases y portadas son genéricos. La navegación específica de aula pertenece a classrooms. Brújula conserva Lexend, sidebar escritorio y menú compacto por debajo de 1024 px. Recursos de producción: `apps/web/public`; estilos compartidos: `apps/shared-ui`. Los nombres fm3d/p5 aún utilizados no autorizan borrar sus recursos.
+Los rechazos de Aulas/Foxy descartan el cuerpo pendiente sin retener chunks, dentro de un presupuesto adicional finito y de la ventana metadata absoluta de 10 s desde la entrada. Se conserva el tamaño JSON aceptado. Una vez drenado, entregan el error completo; si se exceden descarte/plazo o se cancela, abortan el transporte y liberan listeners y timer. No se garantiza JSON de error para un cuerpo arbitrariamente grande. Implementación compartida: [ciclo del cuerpo rechazado](../../../apps/web/src/application/server/rejected-request-body.ts).
+
+Notice/Dialog viven en `apps/shared-ui/feedback.tsx`; Button/Input/Label, clases y portadas son genéricos. La navegación específica de aula pertenece a classrooms. Brújula conserva Lexend. La guía base describe menú compacto por debajo de 1024 px, mientras las reglas específicas Brújula activan sidebar desde 801 px: esta migración conserva esos quiebres y corrige únicamente la oclusión que producían al superponerse. Unificar el umbral requiere una decisión UX aparte. Recursos de producción: `apps/web/public`; estilos compartidos: `apps/shared-ui`. Los nombres fm3d/p5 aún utilizados no autorizan borrar sus recursos.
 
 ## Comprobar una pantalla
 
