@@ -33,7 +33,8 @@ Se conserva el monolito modular: una aplicación backend compone capacidades esp
 | Superficie | Responsabilidad |
 |---|---|
 | apps/web | Páginas Next, controles de cuenta, integración de pantallas y proxies /api/v1 |
-| apps/classrooms-ui, apps/agenda-ui | Recorridos académicos y agenda; clientes y componentes reutilizados por la web |
+| apps/classrooms-ui | Recorridos académicos existentes; migración por cortes pendiente |
+| apps/web/src/features/agenda, apps/agenda-ui | Feature Agenda y puentes temporales para consumidores anteriores |
 | apps/shared-ui | Navegación y presentación compartidas, componentes y estilos Brújula |
 | apps/api/src | Composición Nest, identidad, archivos, aulas, Inicio, Agenda, IA y adaptadores |
 | src/core/domain | Tipos, validación y reglas compartidas; sin dependencias de framework |
@@ -76,7 +77,9 @@ El [modelo de datos](data-model.md), las [guías de archivos](files/README.md) y
 
 La [migración por dominios](architecture-migration.md) fue aprobada el 2026-11-10. El primer corte incorpora `apps/shared-ui/feedback.tsx` como dueño de Notice/Dialog y `apps/web/src/application/navigation/destinations.ts` como dueño de continuaciones y destinos globales; las rutas anteriores conservan puentes de una única implementación. Se usa `application`, porque `src/app` es un directorio reservado de Next incompatible con la ubicación actual de `pages`.
 
-`scripts/migration-boundaries.mjs` complementa el guard AST: protege capas de nuevos módulos bajo `modules/<dominio>`, contratos públicos nombrados, entradas de features y dependencia descendente de shared. El código legado conserva sus 123 excepciones exactas; esto no significa que los módulos actuales ya estén migrados. Estado y aceptación por corte en el [tablero único](../../odd/tasks/architecture-migration.md).
+`scripts/migration-boundaries.mjs` complementa el guard AST: protege capas de nuevos módulos bajo `modules/<dominio>`, contratos públicos nombrados, entradas de features y dependencia descendente de shared. Después del piloto Agenda, el código legado conserva 112 excepciones exactas (123 en la base); las demás capacidades continúan pendientes de migración. Estado y aceptación por corte en el [tablero único](../../odd/tasks/architecture-migration.md).
+
+Agenda reúne backend en `modules/agenda/{application,infrastructure,presentation}`, reglas en `src/core/domain/agenda` y web en `features/agenda/{ui,model,api}`. La composición en `bootstrap` conecta identidad y proyección académica usando el mismo tx/actor; el contrato público no exporta infraestructura. La pantalla y adaptadores HTTP web pertenecen a `screens` y `application`. Ver [guía de Agenda](agenda/README.md) y [diseño de migración](architecture-migration.md).
 
 Carpetas de estudio incorpora una capacidad privada en `apps/api/src/study-folders`, con cargas/avisos internos al mismo módulo. El motor neutral está en `src/core/domain/study-engine.ts`; los puentes de composición `study-file-integration.ts` y `study-agenda-integration.ts` reutilizan validación/escaneo/almacenamiento y Agenda sin conceder permisos docentes. El adaptador Gemini de estudio comparte admisión/presupuesto con las otras familias. El transporte de identidad es un host explícito en el guard AST; el resto del módulo mantiene sus fronteras. [Guía](study/README.md).
 

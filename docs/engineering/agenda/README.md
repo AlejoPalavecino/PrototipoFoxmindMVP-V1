@@ -8,4 +8,10 @@ Editar una serie advierte su alcance, incluidas fechas pasadas. Eliminar una ocu
 
 La repetición mensual conserva el día original y omite meses sin ese día. No afirmar esa variante como ensayada en el recorrido actual: la [matriz](../../verification/flows.md) distingue implementación y prueba.
 
-Fuentes: [Agenda](../../../apps/agenda-ui/Agenda.tsx), [formulario](../../../apps/agenda-ui/EventForm.tsx), [servicio](../../../apps/api/src/agenda/), [modelo](../data-model.md). Se comprobó crear, consultar, editar a serie semanal y eliminar la serie, con aislamiento entre cuentas.
+Fuentes: [Agenda](../../../apps/web/src/features/agenda/ui/Agenda.tsx), [formulario](../../../apps/web/src/features/agenda/ui/EventForm.tsx), [servicio](../../../apps/api/src/modules/agenda/), [modelo](../data-model.md). Se comprobó crear, consultar, editar a serie semanal y eliminar la serie, con aislamiento entre cuentas.
+
+## Organización por responsabilidades
+
+Reglas y contratos neutrales: `src/core/domain/agenda`. Backend: `apps/api/src/modules/agenda/{application,infrastructure,presentation}`, entrada pública `public.ts`; composición de identidad/proyección académica y montaje HTTP en `bootstrap/agenda-composition.ts` y `bootstrap/agenda-transport.ts`. La fábrica académica recibe el mismo tx/actor y no abre una segunda transacción.
+
+Frontend: `apps/web/src/features/agenda/{ui,model,api}`, entrada pública `index.ts`, pantalla en `screens` y adaptadores de sesión/proxy en `application`. Los archivos anteriores permanecen como compatibilidad explícita sin duplicar reglas. Estado y evidencia actual del piloto en el [registro](../../work-log/2026-11-10-root-agenda-pilot.md).

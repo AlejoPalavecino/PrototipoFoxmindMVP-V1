@@ -35,11 +35,43 @@ Ese mismo día autorizó la integración DB sobre recursos propios y los commits
 - **Blocker:** none
 
 ### TASK-004 — Piloto Agenda completo y validado
-- **State:** READY
+- **State:** DONE
 - **Depends on:** TASK-003, TASK-008
 - **Owner:** root
 - **Acceptance:** Feature y módulo por responsabilidades, proyección académica pública acotada, operaciones/recurrencia/zonas/permisos/conflictos/repasos conservados; integración aislada y navegador real.
-- **Evidence:** none
+- **Evidence:** Piloto implementado, verificado y cerrado con commits locales e6d8349, febe948 y 1089678 más recibo documental. Fast reconciliado 322/322 archivos: 1785 PASS/0 FAIL/0 SKIP; integración 85 PASS, DB final 19 PASS, builds/tipos/lint/inventario/docs/TTP PASS. Revisión independiente sin hallazgos pendientes. Ego Lite CRUD/error/conflicto/foco y responsive iframe 390x844; límites y fallos resueltos en docs/work-log/2026-11-10-root-agenda-pilot.md. TASK-009 a TASK-012 DONE.
+- **Blocker:** none
+
+### TASK-009 — Dominio neutral de Agenda agrupado con compatibilidad
+- **State:** DONE
+- **Depends on:** TASK-003, TASK-008
+- **Owner:** root
+- **Acceptance:** Tipos/reglas/puertos agrupados por dominio; entradas anteriores conservan identidad de errores/funciones y comportamiento. Sin frameworks/Node en dominio ni ciclos nuevos.
+- **Evidence:** RED de nueva entrada scoped registrado; 13 pruebas de dominio/barrel/zonas PASS tras agrupar siete archivos. Guard AST PASS, mismas 123 excepciones. Compatibilidad conserva identidad y rechazo DST ambiguo.
+- **Blocker:** none
+
+### TASK-010 — Backend Agenda desacoplado con unidad transaccional preservada
+- **State:** DONE
+- **Depends on:** TASK-009
+- **Owner:** root
+- **Acceptance:** Aplicación/persistencia/HTTP diferenciados; proyección académica por puerto público inyectado con el mismo tx/actor. Autenticación, locks, revisión, errores y Estudio/Agenda conservados; compatibilidad de consumidores.
+- **Evidence:** Backend: RED 4 FAIL por ruta ausente -> 4 PASS; equivalencia mecánica 7/7 con SQL intacto. Bootstrap inyecta proyección pública con mismo tx/actor. Build API PASS; integración inicial 85 PASS y repetición DB final 19 PASS. Revisión independiente sin hallazgos funcionales; registro root-agenda-pilot.
+- **Blocker:** none
+
+### TASK-011 — Feature Agenda y composición frontend independientes
+- **State:** DONE
+- **Depends on:** TASK-009
+- **Owner:** root
+- **Acceptance:** UI/model/api agrupados, index público, pantalla y adaptadores de identidad/proxy en composición. Sin dependencias hacia internos de Aulas ni ciclos; contratos/UI/estados y compatibilidad conservados.
+- **Evidence:** Feature: RED por index ausente -> suite focal 84 PASS; compatibilidad 2 PASS, tipos focales 0 diagnósticos, build web PASS. JSX/CSS equivalentes y ciclos eliminados. Ego Lite: CRUD/conflicto/error/foco y responsive iframe 390x844; límites en registro root-agenda-pilot. Revisión independiente sin hallazgos.
+- **Blocker:** none
+
+### TASK-012 — Aceptación integrada e independiente del piloto
+- **State:** DONE
+- **Depends on:** TASK-010, TASK-011
+- **Owner:** root
+- **Acceptance:** Suite focal/DB/HTTP/Estudio, build/tipos/lint/CI, QA real y revisión independiente del candidato; documentación/recibos reconciliados y TASK-004 DONE sólo con evidencia completa.
+- **Evidence:** Fast final 1785 PASS, 322/322 archivos reconciliados; DB final 19 PASS y selección integrada inicial 85 PASS; build API/web, tipos classrooms/web, lint112, guard18, inventario516, docs/TTP y diff-check PASS. Revisión independiente71 + identidad preload2 PASS, sin hallazgos pendientes. Ego real sintético con CRUD/error/conflicto/foco y frame390x844; retry click no verificado en navegador, sí automatizado. Registro root-agenda-pilot conserva fallos/omisiones y cierre.
 - **Blocker:** none
 
 ### TASK-005 — Features restantes del frontend

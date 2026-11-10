@@ -76,4 +76,22 @@ Backend: 361 archivos; classrooms 114, foxy-ai 92, files 43. Frontend: web/src 7
 
 Preparar guard para estructura futura; extraer Notice/Dialog a `apps/shared-ui` (consumidor standalone y web) y navegación global a `apps/web/src/application/navigation`. Mantener un puente de compatibilidad en las rutas anteriores para consumidores que se migren después. No migrar estilos ni crear directorios vacíos.
 
-Al terminar: etapa 3 sigue siendo el siguiente piloto, no una capacidad ya migrada. Evidencia y estado actual: [registro](../work-log/2026-11-10-root-architecture-migration.md).
+El corte inicial está cerrado. El piloto de etapa 3 se documenta debajo; la aceptación actual se conserva en el [tablero](../../odd/tasks/architecture-migration.md) y el [registro del piloto](../work-log/2026-11-10-root-agenda-pilot.md).
+
+## Piloto Agenda: cortes técnicos autorizados
+
+- Reglas neutrales y tipos compartidos en `src/core/domain/agenda/`, con una entrada explícita. Los archivos planos anteriores serán reexports temporales de la misma implementación para conservar identidad de errores y consumidores de Estudio/Inicio.
+- Módulo backend en `apps/api/src/modules/agenda`: casos de uso/paginación y puertos de aplicación, persistencia/unidad de trabajo en infraestructura, HTTP en presentación. Reglas puras compartidas permanecen en el dominio neutral; no agregar una capa vacía para duplicarlas.
+- Entrada `public.ts` acotada a aplicación/contratos. `bootstrap/agenda-composition.ts` conecta identidad, infraestructura y la proyección académica pública de Aulas. La infraestructura de Agenda recibe esa proyección mediante fábrica que usa el mismo tx/actor, sin importar privados de Aulas ni abrir otra transacción. La integración de Estudio conserva su transacción recibida.
+- Frontend en `apps/web/src/features/agenda/{ui,model,api}`, con `index.ts` público; pantalla en `screens`, cliente con identidad y proxy servidor en composición `application`. No mezclar el transporte Node con la API del navegador. Preservar los adaptadores públicos anteriores para consumidores aún no migrados, sin duplicar funciones.
+- Extraer tipos de props y dirección de helpers cuando sea necesario para eliminar los ciclos reales de Agenda, en lugar de trasladar sus excepciones a rutas nuevas. El guard debe proteger las ubicaciones nuevas y registrar sólo excepciones legadas que sigan existiendo.
+- Aceptación: reglas puras, contratos cliente/proxy/HTTP, propiedad/reautenticación/CSRF/revisión, cola académica, recurrencia/zonas/excepciones y transacción de repasos conservadas. QA real de crear/editar/eliminar y errores, foco y responsive con fixture sintética; no atribuir persistencia a capturas.
+- Cortes recuperables: contratos/dominio y backend (TASK-009/010), feature y composición UI (TASK-011), verificación integrada/cierre (TASK-012). Sólo el coordinador actualiza el tablero. [Registro del piloto](../work-log/2026-11-10-root-agenda-pilot.md).
+
+### Ubicaciones implementadas del piloto
+
+`src/core/domain/agenda/index.ts` reúne las reglas neutrales. El backend expone `modules/agenda/public.ts`; su infraestructura recibe una fábrica académica obligatoria, conectada por `bootstrap/agenda-composition.ts` mediante `classrooms/public/index.ts`. `bootstrap/agenda-transport.ts` conserva autenticación, CSRF, admisión y montaje HTTP. Estudio sigue usando la misma implementación de repositorio y la transacción recibida mediante compatibilidad.
+
+La feature web expone `features/agenda/index.ts`, incluido su estilo público; `screens/agenda-screen.tsx` compone sesión y navegación. Los adaptadores autenticado/servidor quedan en `application/agenda-client.ts` y `application/server/agenda-proxy.ts`. `apps/agenda-ui` y las ubicaciones anteriores contienen puentes explícitos, no implementaciones paralelas. El catálogo neutral de zonas está en `apps/shared-ui/time-zones.ts`.
+
+El guard elimina once excepciones que desaparecieron: tres dependencias backend y ocho aristas de ciclos UI. Restan 112 excepciones legadas de otros cortes. `scripts/agenda-compatibility.mjs` congela origen, destino, sintaxis, modo y nombres de los puentes; no autoriza exports adicionales. El build API incluye explícitamente todos los archivos de dominio compartido para emitir también contratos históricos que ya no tengan consumidores runtime en API.
