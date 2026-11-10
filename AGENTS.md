@@ -39,6 +39,8 @@ Usar memoria como apoyo si está disponible; toda continuidad esencial debe qued
 
 El 2026-11-08 el usuario autorizó commits, push, integración de todo el trabajo pendiente a main y dejar main como única rama. Seguir docs/work-log/2026-11-08-root-main-publication.md para el resultado comprobado. Esta autorización amplía el límite Git anterior de esta entrega; no concede despliegue, cambios de producto, proveedores reales ni acceso a datos retenidos.
 
+El 2026-11-10 autorizó integrar la migración por dominios y sus correcciones verificadas a main, hacer push y conservar main como única rama. El registro vigente de esta publicación es docs/work-log/2026-11-10-root-architecture-publication.md; distingue verificación local, integración y publicación comprobada. No concede despliegue ni nuevos cambios funcionales.
+
 ## Pruebas locales con Gemini (preferencia vigente del usuario)
 
 El 2026-11-08 el usuario pidió conservar y reutilizar la API key que cargó en `.env` de raíz para nuevas funcionalidades y cuando solicite levantar la app para probar. Usar `npm run local:up` (o `local:restart`): lee ese archivo, prepara sólo el entorno propio registrado en `.test-artifacts/local-app/owner.json` y ejecuta API/web con Gemini real. No reemplazar la clave ni cambiar a mocks sin avisar; si falta, detener la configuración del proveedor y solicitar restaurarla, sin buscar secretos históricos. No escribir la clave en memoria, documentación, código o Git. Las pruebas automatizadas aisladas conservan sus proveedores sintéticos por defecto y no deben gastar API por esta preferencia.

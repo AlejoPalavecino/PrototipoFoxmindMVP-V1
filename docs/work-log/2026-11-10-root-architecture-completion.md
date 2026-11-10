@@ -124,3 +124,5 @@ Se normalizaron únicamente terminadores de línea de un helper outbox y whitesp
 - Cierre HTTP: 2b6ff79a3e52de16d3c767facb22a8d833eb6794, nueve archivos, 322 altas y 37 bajas, con código, aceptación protegida, registro CI y documentación juntos.
 - [Recibo versionado](../verification/architecture-migration.json): grupos completos, cohortes, hashes y límites. Los logs completos permanecen en artefactos locales ignorados. La comprobación Git del commit documental se registra en .test-artifacts/architecture-finish/delivery-git-check.log; no se inventa un hash autorreferente.
 - No queda implementación pendiente dentro del alcance autorizado. Integración a main, publicación y despliegue requieren autorización aparte. La entrega conserva únicamente commits locales.
+
+Autorización posterior: el usuario pidió integrar a main, publicar y retirar las demás ramas. Su ejecución y comprobaciones posteriores a este cierre local se conservan en el [registro de publicación](2026-11-10-root-architecture-publication.md). No implica despliegue.

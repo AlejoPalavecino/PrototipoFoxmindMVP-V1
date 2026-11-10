@@ -8,6 +8,8 @@ El 2026-11-10 el usuario aprobó el plan y autorizó comenzar por etapas con pru
 
 El usuario autorizó posteriormente terminar las cinco tareas restantes y sus commits locales, conservando contratos y verificaciones. No push/PR/merge/deploy ni acceso a datos retenidos/proveedores reales.
 
+Autorización posterior al cierre local: integrar a main, hacer push y conservar main como única rama. Main avanzó por fast-forward al candidato verificado; publicación y limpieza se registran en docs/work-log/2026-11-10-root-architecture-publication.md. No incluye despliegue ni cambios funcionales nuevos.
+
 El pedido vigente amplía la autorización a commits locales de cierre Agenda y ejecución del corte de identidad/composición global frontend. Sin push/PR/merge/deploy.
 
 Ese mismo día autorizó la integración DB sobre recursos propios y los commits locales del primer corte. No autorizó push ni despliegue. La entrega se realiza en `codex/architecture-foundation`.

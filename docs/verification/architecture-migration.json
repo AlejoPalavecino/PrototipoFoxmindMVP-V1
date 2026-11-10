@@ -1,20 +1,22 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-10",
-  "state": "verified locally",
-  "branch": "codex/architecture-foundation",
+  "state": "verified locally; integrated on main; publication pending",
+  "branch": "main",
   "commits": {
     "identity": "29fda643efdd19e24bf2a05cd26eff0994bea51a",
     "authContrastAndHomeOverflow": "f7c8a4ce42082eb00cc12a5148c3c74461908fff",
     "navigationOcclusion": "fb6035ba3c68cc211f2b9f229197263d60e65dea",
     "domainMigration": "d09fc24701296a61542ab8e877dfda082e7f808b",
-    "proxyRejectionFix": "2b6ff79a3e52de16d3c767facb22a8d833eb6794"
+    "proxyRejectionFix": "2b6ff79a3e52de16d3c767facb22a8d833eb6794",
+    "integratedCandidate": "53d6fc5ede1eb1a37bd2c40b0d7921fc97e86c72"
   },
   "delivery": {
     "localCommits": true,
-    "mergedToMain": false,
+    "mergedToMain": true,
     "pushed": false,
-    "deployed": false
+    "deployed": false,
+    "publicationRecord": "docs/work-log/2026-11-10-root-architecture-publication.md"
   },
   "architecture": {
     "frontend": [
