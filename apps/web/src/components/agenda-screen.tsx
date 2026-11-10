@@ -3,11 +3,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Agenda } from '../../../agenda-ui/index';
-import { Notice } from '../../../classrooms-ui/components';
+import { Notice } from '../../../shared-ui/feedback';
 import { AccountNavbar } from './account-navbar';
 import { createAccountClient, type AccountSession } from '../lib/account-client';
 import { createWebAgendaClient } from '../lib/agenda-client';
-import { classroomAuthHref } from '../lib/classroom-client';
+import { authHref } from '../application/navigation/destinations';
 import { parseAgendaEventTarget } from '../lib/agenda-target';
 import surface from '../../../agenda-ui/agenda-surface.module.css';
 
@@ -17,7 +17,7 @@ function useAgendaSession() {
   const [session, setSession] = useState<AccountSession>(), [error, setError] = useState(''), [busy, setBusy] = useState(false);
   const requireAccount = useCallback((code: string) => {
     setSession(undefined);
-    void router.replace(classroomAuthHref(code === 'EMAIL_VERIFICATION_REQUIRED' ? 'verify-email' : 'sign-in', '/agenda'));
+    void router.replace(authHref(code === 'EMAIL_VERIFICATION_REQUIRED' ? 'verify-email' : 'sign-in', '/agenda'));
   }, [router]);
   const load = useCallback(async () => {
     setError('');
@@ -51,6 +51,6 @@ export function AgendaScreen() {
       {router.isReady && Object.keys(router.query).length > 0 && !requestedEvent ? <Notice error>El enlace del evento no es válido. Puedes consultar tu agenda.</Notice> : null}
       <Agenda key={identity.session.user.id} api={api} requestedEvent={requestedEvent} onEventSelected={target=>{if(target)void router.push({pathname:'/agenda',query:{event:target.eventId,date:target.date}},undefined,{shallow:true});else if(router.query.event)void router.push('/agenda',undefined,{shallow:true});}} onOpen={target => { void router.push(`/mis-aulas?aula=${target.classroomId}${target.activityId ? `&actividad=${target.activityId}` : ''}`); }} />
     </> : <main id="agenda-main" className="p5-main">{identity.error ? <Notice error>{identity.error} <button onClick={() => void identity.load()}>Volver a intentar</button></Notice>
-      : <Notice>Comprobando tu sesión…</Notice>}<Link href={classroomAuthHref('sign-in', '/agenda')}>Iniciar sesión</Link></main>}
+      : <Notice>Comprobando tu sesión…</Notice>}<Link href={authHref('sign-in', '/agenda')}>Iniciar sesión</Link></main>}
   </div>;
 }

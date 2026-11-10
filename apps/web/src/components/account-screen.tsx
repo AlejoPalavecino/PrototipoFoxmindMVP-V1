@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { AccountError, createAccountClient, validateAccountFields, type AccountSession, type AccountUser } from '../lib/account-client';
-import { classroomAuthHref, classroomDestination } from '../lib/classroom-client';
+import { authHref, safeDestination } from '../application/navigation/destinations';
 import { Button } from './ui/button';
 import { AccountNavbar } from './account-navbar';
 import { BrujulaIcon } from '../../../shared-ui/BrujulaIcon';
@@ -40,7 +40,7 @@ export function AccountScreen({ view }: { view: AccountView }) {
   const [classroomNext, setClassroomNext] = useState<string | null>(null);
   useEffect(() => {
     if (!router.isReady) return;
-    const requested = classroomDestination(router.query.next);
+    const requested = safeDestination(router.query.next);
     // The remembered value is only a bounded local classroom path, never proof
     // or identity. It survives reopening a verification email in this tab.
     try {
@@ -49,11 +49,11 @@ export function AccountScreen({ view }: { view: AccountView }) {
         setClassroomNext(requested);
       } else if (view === 'verify-email') {
         const saved = JSON.parse(sessionStorage.getItem('foxmind-classroom-next') ?? 'null');
-        setClassroomNext(saved && saved.expires > Date.now() ? classroomDestination(saved.path) : null);
+        setClassroomNext(saved && saved.expires > Date.now() ? safeDestination(saved.path) : null);
       } else setClassroomNext(null);
     } catch { setClassroomNext(requested); }
   }, [router.isReady, router.query.next, view]);
-  const nextAccountHref = (target: 'sign-in' | 'verify-email' | 'register') => classroomAuthHref(target, classroomNext ?? (view === 'settings' ? '/settings' : null));
+  const nextAccountHref = (target: 'sign-in' | 'verify-email' | 'register') => authHref(target, classroomNext ?? (view === 'settings' ? '/settings' : null));
   const report = useCallback((error: unknown) => {
     const safe = error instanceof AccountError ? error : new AccountError('SERVICE_UNAVAILABLE', 503);
     setMessage({ error: true, text: safe.message });
@@ -192,7 +192,7 @@ export function AccountScreen({ view }: { view: AccountView }) {
             onFirstName={setFirstName} onLastName={setLastName} submit={submit} /> : null}
         </> : null}
         {session && !loading && view === 'settings' ? !verified ? <div className="state"><h2>{user ? 'Primero verifica tu correo' : 'Inicia sesión para ver Configuración'}</h2>
-          <Link className="button button-primary" href={user ? nextAccountHref('verify-email') : classroomAuthHref('sign-in', '/settings')}>{user ? 'Verificar correo' : 'Iniciar sesión'}</Link></div>
+          <Link className="button button-primary" href={user ? nextAccountHref('verify-email') : authHref('sign-in', '/settings')}>{user ? 'Verificar correo' : 'Iniciar sesión'}</Link></div>
           : <AccountSettings user={user!} locked={locked} busy={busy} submit={submit} signOut={signOut} /> : null}
       </section>
       {!accountEntry ? <footer className="page-footer">FoxMind · Enseñar y aprender, en un mismo lugar.</footer> : null}

@@ -3,7 +3,7 @@ import { FoxyToolPicker } from '../../../shared-ui/FoxyToolPicker';
 import { useChatFollow } from '../../../shared-ui/use-chat-follow';
 import {useEffect,useRef,useState} from 'react';
 import Link from 'next/link';
-import {Dialog,Notice} from '../../../classrooms-ui/components';
+import {Dialog,Notice} from '../../../shared-ui/feedback';
 import {createStudyClient,validateStudyPlan,studyGenerationData,studyGenerationIssue,type StudyDetail,type StudyCollection,type StudyCreation} from '../lib/study-client';
 import {StudyPlanEditor} from './study-wizard';
 import {StudyUpload} from './study-upload';

@@ -1,5 +1,5 @@
 import {useEffect,useRef,useState} from 'react';
-import {Notice} from '../../../classrooms-ui/components';
+import {Notice} from '../../../shared-ui/feedback';
 import type {StudyPractice,StudyDetail} from '../lib/study-client';
 import s from './study.module.css';
 import {FoxyMarkdown} from './foxy-markdown';

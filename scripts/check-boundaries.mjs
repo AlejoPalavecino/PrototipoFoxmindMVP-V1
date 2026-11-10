@@ -4,6 +4,7 @@ import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
 import { cycleEdges } from './boundary-cycles.mjs';
 import { legacyEdges } from './boundary-legacy-edges.mjs';
+import { migrationBoundary } from './migration-boundaries.mjs';
 
 const roots = ['src/core/domain', 'apps/api/src', 'apps/classrooms-ui', 'apps/agenda-ui', 'apps/shared-ui', 'apps/p5-preview', 'apps/web'];
 const slash = path => path.split(sep).join('/');
@@ -173,6 +174,9 @@ function boundary({ file, target, form, binding }) {
   if (/^(?:[\\/]|[a-z]:|file:)/i.test(target)) return 'absolute module path';
   if (file.startsWith('src/core/domain/') && !target.startsWith('src/core/domain/')) return 'domain dependency';
   if (roots.slice(2).some(root => file.startsWith(root + '/')) && target.startsWith('apps/api/')) return 'UI to backend';
+  if (hostFiles.has(file)) return null;
+  const migrated = migrationBoundary({ file, target, form, binding });
+  if (migrated !== undefined) return migrated;
   const from = apiSlice(file), to = apiSlice(target);
   if (publicBarrels.has(file) && target.startsWith('apps/api/src/')) return 'public surface dependency';
   if (from && hostFiles.has(target)) return 'host-only dependency';

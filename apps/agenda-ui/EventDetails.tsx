@@ -1,6 +1,6 @@
 import {useRef,useState} from 'react';
 import {seriesSchedules,type PrivateEvent} from '../../src/core/domain/index.ts';
-import {Dialog,Notice} from '../classrooms-ui/components.tsx';
+import {Dialog,Notice} from '../shared-ui/feedback.tsx';
 import {FoxmindIcon} from '../shared-ui/index.ts';
 import type {AgendaClient} from './api.ts';
 import {categoryLabels} from './calendar.ts';

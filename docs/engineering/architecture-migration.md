@@ -1,0 +1,79 @@
+# Migrar FoxMind por dominios y responsabilidades
+
+El usuario aprobó el 2026-11-10 la migración incremental a monolito modular con casos de uso, puertos/adaptadores y frontend por features, y autorizó su implementación por etapas. Este documento conserva diseño y aceptación; el [tablero](../../odd/tasks/architecture-migration.md) registra ejecución y evidencia. La [arquitectura vigente](architecture.md) describe lo efectivamente implementado.
+
+## Alcance y compatibilidad
+
+Conservar stack, rutas y contratos HTTP, permisos, reglas, datos, apariencia y comportamiento. No modificar esquema Prisma ni migraciones para reorganizar código. Mantener las rutas técnicas de OpenAPI y del contrato de corrección IA. Publicación y despliegue requieren autorización propia.
+
+Separar movimientos mecánicos de extracciones de reglas. Mantener adaptadores temporales de una sola implementación con consumidor y condición de retiro identificados. No dejar dos implementaciones de la misma regla.
+
+## Diseño aprobado
+
+- Backend: `apps/api/src/modules/<dominio>/{domain,application,infrastructure,presentation}` y entrada pública explícita. Crear solamente las partes necesarias; sin capas vacías.
+- Composición del backend: `bootstrap` conecta infraestructura, módulos y ciclos de vida. `platform` contiene soporte técnico, sin reglas académicas.
+- Frontend: `apps/web/src/application` compone sesión/navegación/layouts; `screens` compone features; `features/<capacidad>` reúne UI, estado, API, validación y pruebas; `shared` contiene infraestructura cliente y presentación genérica.
+- Ajuste técnico comprobado durante el primer corte: el plan llamaba `app` a la composición frontend. Next reserva `src/app` y rechaza su coexistencia con `pages` en otra raíz. Se usa `application` para conservar Pages Router, rutas y responsabilidades; no es una migración a App Router.
+- Reglas neutrales compartidas: agrupadas por dominio, separadas de DTOs seguros para cliente y de contratos SQL. La ubicación definitiva se introduce por dominio durante su piloto, sin crear paquetes o workspaces adicionales.
+- `presentation -> application -> domain`; infraestructura implementa puertos y bootstrap la conecta. Dominio no importa frameworks, HTTP ni adaptadores. Features no importan internos de otras features; shared no importa features.
+- Interfaces entre módulos pequeñas y explícitas. Proyecciones autorizadas pueden coordinar dominios por contratos de lectura; no forzar llamadas repetidas ni desarmar transacciones.
+
+## Mapa de responsabilidades y destino
+
+Inventario de partida: commit `aebc603`. Conteos excluyen tests y archivos generados; incluyen TS/TSX y CSS. Son una referencia de organización, no una medida de calidad.
+
+| Dueño | Origen principal | Destino y contrato |
+|---|---|---|
+| Identidad | `apps/api/src/identity`, `identity-security`, `account-mail-outbox`, `mail`; web `account-*` | Módulo identity: cuenta/sesión/abuso/correo; frontend identity. Hash, correo y DB son adaptadores; autorización de cada recurso sigue en su dueño. |
+| Aulas y pertenencia | `classrooms/{drafts*,memberships*,invitations*,classroom-codes,policy,revision}` | classrooms: creación, propiedad, pertenencia, archivo y revisión; frontend creation/membership. |
+| Plan | `classrooms/plan*`, `classrooms/ai` | curriculum: unidades, temas, progreso temático y extracción; frontend curriculum. |
+| Biblioteca | `classrooms/library*` | materials: publicación, versiones y conservación; contrato transaccional con files. |
+| Muro | `classrooms/wall*` | communication: consultas, avisos, respuestas y moderación. |
+| Autoría | `classrooms/activity-*`, `classrooms/activity-ai` | activities: contenido, borrador y asignación; frontend activity-authoring. Clasificar auxiliares de participación por sus consumidores antes de mover. |
+| Participación | `classrooms/{attempt-*,activity-participation,activity-session,practical-submissions,questionnaire-*,submission-receipt,activity-history}` | participation: obligación/intento/editor/recepción; frontend activity-submission. |
+| Calificación | `classrooms/{grading*,grade-*,scoring,progress*}` | grading: cálculo exacto, corrección, publicación, auditoría y progreso académico; frontend grade-review. Separar avance de temas al dueño curriculum. |
+| Agenda | `apps/api/src/agenda`, `apps/agenda-ui`, web `agenda-*` | agenda: eventos privados, recurrencia y proyección académica. Piloto de extremo a extremo. |
+| Inicio y avisos | `apps/api/src/home`, `classrooms/*notification*`, web `home-*`, `notifications-screen` | home/notificaciones: proyecciones y destinos reautorizados. Los productores académicos conservan sus transacciones. |
+| Foxy | `apps/api/src/foxy-ai`, web `foxy-*` | foxy: conversaciones/recursos privados y preparación/publicación confirmada. Puertos hacia materiales/actividades/files. |
+| Estudio | `study-folders`, `study-engine`, web `study-*` | study: carpetas/fuentes/prácticas/repasos privados, sin permisos docentes. |
+| Archivos | `apps/api/src/files` | files: bytes, custodia, escaneo, cuotas y acceso; ninguna feature obtiene autoridad por un ID de UI. |
+| Proveedores y host | API `ai`, archivos raíz `*-integration`, `application`, `configuration`, `database` | Adaptadores por contrato y composición explícita. Presupuesto/admisión compartidos no unifican políticas de privacidad. |
+| UI y navegación | `apps/shared-ui`, `classrooms-ui/components`, web `classroom-client` | Presentación genérica independiente de Aulas; navegación global fuera de su cliente HTTP. |
+| Contratos compartidos | `src/core/domain` (54 archivos planos) | Agrupar por dominio y distinguir reglas, DTOs y persistencia. Conservar identidad de errores en compatibilidad. |
+
+Backend: 361 archivos; classrooms 114, foxy-ai 92, files 43. Frontend: web/src 72; classrooms-ui 90 planos; agenda-ui 34 planos; shared-ui 85 planos. La base AST tiene 123 excepciones: 44 broad barrel, 29 cross-module private API, 19 public surface, 8 eager-cycle edges, 19 mixed-cycle edges y 4 type-only-cycle edges. Son aristas, no cantidad de ciclos independientes. Fuente reproducible: `inspectBoundaries` y `legacyEdges` en los scripts de límites.
+
+## Transacciones y garantías a conservar
+
+| Operación | Frontera actual | Garantía de migración |
+|---|---|---|
+| Mutación académica | `classrooms/context-run.ts`, `context.ts` y servicios | Misma transacción, autenticación repetida, cuenta verificada, locks de aula/pertenencia, revisión y rate limit. Extracción de módulo no habilita segunda transacción autónoma. |
+| Entrega y editor | Participación, cuestionarios, adjuntos y recepción | Capacidad de edición, revisión y recepción atómica; no duplicar intento ni cambiar puntualidad. |
+| Corrección/publicación | grading, grade-publication y grade-corrections | Privado/publicado separados; precisión exacta, versión guardada, motivo/auditoría y nota efectiva. |
+| Agenda privada/académica | `agenda/unit-of-work.ts` | Lock de dueño, reautenticación después de esperar y al terminar; repositorio privado y proyección autorizada en la unidad vigente. |
+| Estudio/Agenda | `study-agenda-integration.ts` | Confirmar sesiones/eventos/recibos dentro de la transacción recibida; conflicto ante modificación independiente. |
+| Archivos/Biblioteca | `attachment-integration`, `library-publication`, `files` | Mismos bytes aprobados/escaneados; identidad, custodia y conservación no se sustituyen por mover DTOs. |
+| IA y cierre | Runtimes, colas y `application.ts` | Idempotencia, presupuesto, propiedad del trabajo y drenaje antes de cerrar DB/storage; pruebas sintéticas no gastan API. |
+
+## Etapas y aceptación
+
+1. **Base:** mapa de propiedad/transacciones/consumidores y resultados de pruebas. Clasificar fallos previos sin esconderlos.
+2. **Fronteras:** guard para nuevos módulos/features; UI genérica y navegación independientes de Aulas; compilación/inventario conservan cobertura. Dividir en cortes verificables.
+3. **Piloto Agenda:** UI/API/reglas/contratos reorganizados; crear/editar/eliminar conserva recurrencia, zonas, permisos/conflictos y repasos de Estudio. Verificar interacción real.
+4. **Frontend:** identidad/global -> Foxy/Estudio -> Aulas/Plan/Biblioteca/Muro -> autoría/entrega/corrección -> Inicio/avisos. Cada corte verifica roles y estados afectados.
+5. **Backend:** contratos identidad/files -> creación/pertenencia -> Plan/Biblioteca/Muro -> autoría/participación/calificación -> Foxy/Estudio/Inicio/host. Mover y extraer en cortes distintos.
+6. **Cierre:** retirar puentes sin consumidores, justificar excepciones restantes, controles y documentación coherentes, suite completa aplicable y revisión independiente de rutas críticas.
+
+## Verificación y recuperación
+
+- Base rápida: `node scripts/run-complete-suite.mjs --check`, `--group fast`, `npm run lint:boundaries`, builds API/web y tipos. Integración y navegador aislados se seleccionan según superficie; la suite rápida no los sustituye.
+- Nuevas restricciones: prueba negativa RED por la dependencia prohibida, luego GREEN y regresiones. Preservar aserciones funcionales al actualizar rutas/mocks de importación.
+- Antes de mover: actualizar `scripts/ci-suites.mjs`, inventario/rutas completas, loader API, tsconfigs y workflows afectados. Revisar previews y consumidores fuera de producción.
+- Por corte: evidencia, diff y fallos/omisiones en registro. Sin DONE con aceptación pendiente. Revertir solamente el corte propio si falla; no tocar datos ni trabajo ajeno.
+- Adapter/Facade/Strategy/State se incorporan al resolver una variación concreta; no generar jerarquías por cumplir patrones.
+
+## Corte inicial
+
+Preparar guard para estructura futura; extraer Notice/Dialog a `apps/shared-ui` (consumidor standalone y web) y navegación global a `apps/web/src/application/navigation`. Mantener un puente de compatibilidad en las rutas anteriores para consumidores que se migren después. No migrar estilos ni crear directorios vacíos.
+
+Al terminar: etapa 3 sigue siendo el siguiente piloto, no una capacidad ya migrada. Evidencia y estado actual: [registro](../work-log/2026-11-10-root-architecture-migration.md).

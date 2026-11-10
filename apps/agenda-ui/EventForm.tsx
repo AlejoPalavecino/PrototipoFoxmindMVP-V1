@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import type { PrivateEvent } from '../../src/core/domain/index.ts';
-import { Dialog, Notice } from '../classrooms-ui/components.tsx';
+import { Dialog, Notice } from '../shared-ui/feedback.tsx';
 import type { AgendaClient } from './api.ts';
 import { EventFields } from './EventFields.tsx';
 import { useEventEditor } from './useEventEditor.ts';

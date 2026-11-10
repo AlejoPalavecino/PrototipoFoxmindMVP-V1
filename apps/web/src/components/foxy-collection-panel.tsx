@@ -1,6 +1,6 @@
 import type { FoxyConversation, FoxyCreation } from '../lib/foxy-client';
 import { useEffect, useRef, type ReactNode } from 'react';
-import { classroomHomeHref } from '../lib/classroom-client';
+import { classroomHomeHref } from '../application/navigation/destinations';
 import styles from './foxy-workspace.module.css';
 
 import type { FoxyConversationQuery, FoxyCreationQuery } from '../lib/foxy-catalog-controller';

@@ -174,3 +174,71 @@ test('strict baseline mode detects an exception whose source dependency disappea
       violation.startsWith('stale architecture exception: cross-module private API: apps/api/src/classrooms/practical-submissions.ts |')));
   });
 });
+
+test('new backend modules expose a named public contract and keep private layers closed', async () => {
+  for (const [target, allowed] of [['../../files/public.ts', true], ['../../files/application/read.ts', false], ['../../files/infrastructure/store.ts', false]]) {
+    await fixture({
+      'apps/api/src/modules/files/public.ts': 'export interface FileReader {}',
+      'apps/api/src/modules/grading/application/read.ts': `import type { FileReader } from '${target}';`,
+    }, root => assert.equal(checkBoundaries(root).length === 0, allowed, target));
+  }
+});
+
+test('backend layer direction rejects infrastructure leaks and framework-bound domain rules', async () => {
+  for (const [source, target] of [
+    ['domain/rule.ts', '../application/use-case.ts'],
+    ['domain/rule.ts', '../infrastructure/store.ts'],
+    ['domain/rule.ts', '@nestjs/common'],
+    ['application/use-case.ts', '../infrastructure/store.ts'],
+    ['presentation/http.ts', '../infrastructure/store.ts'],
+    ['application/use-case.ts', '../../../bootstrap/main.ts'],
+  ]) {
+    await fixture({ [`apps/api/src/modules/grading/${source}`]: `import { value } from '${target}';` }, root => {
+      assert.ok(checkBoundaries(root).length, `${source} -> ${target}`);
+    });
+  }
+  await fixture({
+    'apps/api/src/modules/grading/application/run.ts': "import { rule } from '../domain/rule.ts';",
+    'apps/api/src/modules/grading/infrastructure/store.ts': "import type { Repository } from '../application/ports/repository.ts';",
+    'apps/api/src/modules/grading/presentation/http.ts': "import { run } from '../application/run.ts';",
+    'apps/api/src/bootstrap/main.ts': "import { Store } from '../modules/grading/infrastructure/store.ts';",
+  }, root => assert.deepEqual(checkBoundaries(root), []));
+});
+
+test('public contracts and platform cannot reopen backend implementation boundaries', async () => {
+  for (const [path, code] of [
+    ['modules/files/public.ts', "export { Store } from './infrastructure/store.ts';"],
+    ['modules/files/public.ts', "export * from './application/run.ts';"],
+    ['platform/database.ts', "import { rule } from '../modules/grading/domain/rule.ts';"],
+  ]) {
+    await fixture({ [`apps/api/src/${path}`]: code }, root => assert.ok(checkBoundaries(root).length, path));
+  }
+  await fixture({
+    'apps/api/src/modules/files/public.ts': "export type { Reader } from './application/ports/reader.ts';",
+  }, root => assert.deepEqual(checkBoundaries(root), []));
+  await fixture({
+    'apps/api/src/modules/grading/application/read.ts': "export type WholeModule = typeof import('../../files/public.ts');",
+  }, root => assert.ok(checkBoundaries(root).length, 'a whole public namespace is not a named contract'));
+});
+
+test('frontend features and shared code cannot depend on higher layers or legacy feature internals', async () => {
+  for (const [path, target] of [
+    ['apps/web/src/features/agenda/model/view.ts', '../../foxy/model/chat.ts'],
+    ['apps/web/src/features/agenda/model/view.ts', '../../../application/navigation/destinations.ts'],
+    ['apps/web/src/features/agenda/model/view.ts', '../../../screens/agenda.tsx'],
+    ['apps/web/src/features/agenda/model/view.ts', '../../../lib/classroom-client.ts'],
+    ['apps/web/src/shared/ui/notice.tsx', '../../features/agenda/index.ts'],
+    ['apps/web/src/screens/agenda.tsx', '../features/agenda/model/state.ts'],
+    ['apps/shared-ui/Notice.tsx', '../classrooms-ui/components.tsx'],
+  ]) {
+    await fixture({ [path]: `export type Value = import('${target}').Value;` }, root => {
+      assert.ok(checkBoundaries(root).length, `${path} -> ${target}`);
+    });
+  }
+  await fixture({
+    'apps/web/src/screens/agenda.tsx': "import { Agenda } from '../features/agenda/index.ts';",
+    'apps/web/src/features/agenda/ui/Agenda.tsx': "import { Notice } from '../../../shared/ui/notice.tsx';",
+    'apps/web/src/features/agenda/model/view.ts': "import { parseAgendaEvent } from '../../../../../../src/core/domain/agenda-validation.ts';",
+    'apps/web/src/shared/ui/notice.tsx': "import React from 'react';",
+  }, root => assert.deepEqual(checkBoundaries(root), []));
+});

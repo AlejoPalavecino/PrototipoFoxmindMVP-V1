@@ -6,6 +6,31 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 import { day, zone, privateEvent, installWindow } from './agenda-event-form-helpers.test.mjs';
 
+test('shared notices preserve accessible status and error semantics', () => {
+  const { Notice } = loadTsModule('apps/shared-ui/feedback.tsx');
+  const status = renderToStaticMarkup(React.createElement(Notice, null, 'Guardado'));
+  const error = renderToStaticMarkup(React.createElement(Notice, { error: true }, 'No se pudo guardar'));
+  assert.match(status, /role="status"/); assert.match(status, /class="p5-notice"/);
+  assert.match(error, /role="alert"/); assert.match(error, /class="p5-notice error"/);
+});
+
+test('shared dialog preserves heading, close action and Escape cancellation', async () => {
+  const { Dialog } = loadTsModule('apps/shared-ui/feedback.tsx', { stubs: {
+    './dialog-focus': { openDialog: () => () => {} },
+  } });
+  let closed = 0, prevented = 0;
+  const view = hookView(Dialog, { title: 'Revisar', className: 'agenda-dialog', onClose: () => closed++, children: 'Contenido' });
+  try {
+    await view.flush();
+    assert.equal(view.tree.props['aria-labelledby'], 'p5-dialog-title');
+    assert.equal(view.tree.props.className, 'p5-dialog agenda-dialog');
+    assert.equal(descendants(view.tree, node => node.type === 'h2')[0].props.children, 'Revisar');
+    descendants(view.tree, node => node.type === 'button')[0].props.onClick();
+    view.tree.props.onCancel({ preventDefault: () => prevented++ });
+    assert.equal(closed, 2); assert.equal(prevented, 1);
+  } finally { view.close(); }
+});
+
 test('new and edited events expose the appropriate primary action and explicit whole-series scope', () => {
   const { EventForm } = loadTsModule('apps/agenda-ui/index.ts');
   const props = { api: {}, day, zone, onClose() {}, onSaved() {} };

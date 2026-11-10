@@ -1,7 +1,7 @@
 import surface from './agenda-surface.module.css';
 import { useEffect, useRef, useState } from 'react';
 import {expandAgendaEvent,seriesSchedules,type AgendaTarget,type PrivateEvent} from '../../src/core/domain/index.ts';
-import { Notice } from '../classrooms-ui/components.tsx';
+import { Notice } from '../shared-ui/feedback.tsx';
 import type { AgendaClient } from './api.ts';
 import { AgendaMonth } from './AgendaMonth.tsx';
 import { AgendaDay } from './AgendaDay.tsx';

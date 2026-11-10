@@ -3,7 +3,7 @@ import type { Classroom, Detail } from '../../../classrooms-ui/api';
 import { EvaluationRubricEditor } from '../../../classrooms-ui/EvaluationRubric';
 import type { FoxyActivityPayload } from '../../../../src/core/domain/foxy-activity-draft';
 import type { createFoxyWorkspaceRuntime } from '../lib/foxy-workspace-runtime';
-import { classroomHomeHref } from '../lib/classroom-client';
+import { classroomHomeHref } from '../application/navigation/destinations';
 type Runtime = ReturnType<typeof createFoxyWorkspaceRuntime>;
 type Props = { initialMode?: 'ACTIVITY' | 'RUBRIC'; runtime: Runtime; state: ReturnType<Runtime['activityHandoff']['getState']>;
   resource: NonNullable<ReturnType<Runtime['getState']>['resource']>; classrooms: Classroom[]; onNavigate: (href: string) => void; locked: boolean };

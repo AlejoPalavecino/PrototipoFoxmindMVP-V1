@@ -1,7 +1,7 @@
 import { AsyncFeedback } from '../../../shared-ui/AsyncFeedback';
 import {useEffect,useState} from 'react';
 import type {StudyFolder} from '../lib/study-client';
-import {Notice} from '../../../classrooms-ui/components';
+import {Notice} from '../../../shared-ui/feedback';
 import s from './study.module.css';
 import {studyUploadPolicy,validateStudyUpload} from '../lib/study-file-policy';
 type Status={id:string;name:string;ready:boolean;validation:string;scan:string;rejectionCode:string|null};

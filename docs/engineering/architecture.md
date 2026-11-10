@@ -74,6 +74,10 @@ El [modelo de datos](data-model.md), las [guías de archivos](files/README.md) y
 
 ## Dónde empezar un cambio
 
+La [migración por dominios](architecture-migration.md) fue aprobada el 2026-11-10. El primer corte incorpora `apps/shared-ui/feedback.tsx` como dueño de Notice/Dialog y `apps/web/src/application/navigation/destinations.ts` como dueño de continuaciones y destinos globales; las rutas anteriores conservan puentes de una única implementación. Se usa `application`, porque `src/app` es un directorio reservado de Next incompatible con la ubicación actual de `pages`.
+
+`scripts/migration-boundaries.mjs` complementa el guard AST: protege capas de nuevos módulos bajo `modules/<dominio>`, contratos públicos nombrados, entradas de features y dependencia descendente de shared. El código legado conserva sus 123 excepciones exactas; esto no significa que los módulos actuales ya estén migrados. Estado y aceptación por corte en el [tablero único](../../odd/tasks/architecture-migration.md).
+
 Carpetas de estudio incorpora una capacidad privada en `apps/api/src/study-folders`, con cargas/avisos internos al mismo módulo. El motor neutral está en `src/core/domain/study-engine.ts`; los puentes de composición `study-file-integration.ts` y `study-agenda-integration.ts` reutilizan validación/escaneo/almacenamiento y Agenda sin conceder permisos docentes. El adaptador Gemini de estudio comparte admisión/presupuesto con las otras familias. El transporte de identidad es un host explícito en el guard AST; el resto del módulo mantiene sus fronteras. [Guía](study/README.md).
 
 1. Ubicá la regla en la [especificación vigente](../foxmind-v1-functional-spec.md) y su [matriz por rol](../product/features-by-role.md).

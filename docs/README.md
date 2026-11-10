@@ -7,6 +7,7 @@ La dirección UX/UI vigente de Foxy, Carpetas de estudio y creación de Aulas in
 | Necesitás | Fuente |
 |---|---|
 | Entender el sistema y el stack | [Arquitectura](engineering/architecture.md) |
+| Retomar la migración por dominios aprobada | [Diseño](engineering/architecture-migration.md) y [tablero](../odd/tasks/architecture-migration.md) |
 | Consultar reglas del producto | [Especificación vigente](foxmind-v1-functional-spec.md) |
 | Ver capacidades y permisos | [Funciones por rol y sección](product/features-by-role.md) |
 | Entender entidades y relaciones | [Modelo de datos](engineering/data-model.md) |

@@ -1,9 +1,9 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Notice } from '../../../classrooms-ui/components';
+import { Notice } from '../../../shared-ui/feedback';
 import { createAccountClient, type AccountSession } from '../lib/account-client';
-import { classroomAuthHref } from '../lib/classroom-client';
+import { authHref } from '../application/navigation/destinations';
 import { getDocumentEntryPath, isFoxyDocument } from '../lib/foxy-document-boundary';
 import { createFoxyNavigationBridge } from '../lib/foxy-navigation-bridge';
 import { AccountNavbar } from './account-navbar';
@@ -38,8 +38,8 @@ export function FoxyScreen() {
       try {
         const current = await account.session();
         if (!active || departed.current) return;
-        if (!current.authenticated) { bridge.current?.replace(classroomAuthHref('sign-in', '/foxy-ai')); return; }
-        if (!current.user.emailVerified) { bridge.current?.replace(classroomAuthHref('verify-email', '/foxy-ai')); return; }
+        if (!current.authenticated) { bridge.current?.replace(authHref('sign-in', '/foxy-ai')); return; }
+        if (!current.user.emailVerified) { bridge.current?.replace(authHref('verify-email', '/foxy-ai')); return; }
         if (current.user.accountRole !== 'teacher') { setError('Foxy AI está disponible para docentes.'); return; }
         setSession(current);
       } catch { if (active && !departed.current) setError('No pudimos comprobar tu sesión. Intentá nuevamente.'); }
@@ -58,7 +58,7 @@ export function FoxyScreen() {
           : error ? <><Notice error>{error}</Notice><button onClick={() => setRetry(value => value + 1)}>Volver a intentar</button> <a href="/inicio">Ir a Inicio</a></>
             : session?.authenticated ? <FoxyWorkspaceSession key={session.user.id} subjectId={session.user.id} onRegister={register}
               onNavigate={href => bridge.current?.navigate(href)} onIdentityRequired={code => { binding.current = null; setSession(undefined);
-                bridge.current?.replace(classroomAuthHref(code === 'EMAIL_VERIFICATION_REQUIRED' ? 'verify-email' : 'sign-in', '/foxy-ai')); }} />
+                bridge.current?.replace(authHref(code === 'EMAIL_VERIFICATION_REQUIRED' ? 'verify-email' : 'sign-in', '/foxy-ai')); }} />
               : <Notice>Comprobando tu sesión…</Notice>}
     </main>
   </div>;

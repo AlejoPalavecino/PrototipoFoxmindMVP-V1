@@ -5,6 +5,15 @@ import { classroomDestination, classroomAuthHref, classroomHomeDestination, clas
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { descendants, hookView } from './agenda-ui-helpers.test.mjs';
 
+test('global navigation owns safe continuations while the classroom bridge preserves function identity', async () => {
+  const { safeDestination, authHref } = await import('../apps/web/src/application/navigation/destinations.ts');
+  assert.equal(classroomDestination, safeDestination);
+  assert.equal(classroomAuthHref, authHref);
+  assert.equal(safeDestination('/agenda'), '/agenda');
+  assert.equal(authHref('sign-in', '//outside.test'), '/sign-in');
+  assert.equal(safeDestination('/carpetas-de-estudio/11111111-1111-4111-8111-111111111111'), '/carpetas-de-estudio/11111111-1111-4111-8111-111111111111');
+});
+
 test('production prefix applies independently to classroom requests, uploads and generated file links', async () => {
   const seen = [];
   let tokens = 0;

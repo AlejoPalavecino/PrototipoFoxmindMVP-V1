@@ -3,9 +3,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ClassroomsApp } from '../../../classrooms-ui/Classrooms';
-import { Notice } from '../../../classrooms-ui/components';
+import { Notice } from '../../../shared-ui/feedback';
 import { createAccountClient, type AccountUser } from '../lib/account-client';
-import { classroomAuthHref, classroomDestination, classroomHomeDestination, classroomHomeHref, createWebClassroomClient } from '../lib/classroom-client';
+import { createWebClassroomClient } from '../lib/classroom-client';
+import { authHref, safeDestination, classroomHomeDestination, classroomHomeHref } from '../application/navigation/destinations';
 import { createWebAgendaClient } from '../lib/agenda-client';
 import { createWebHomeClient } from '../lib/home-client';
 import { useAgendaTarget } from '../../../classrooms-ui/useAgendaTarget';
@@ -21,11 +22,11 @@ export function ClassroomsScreen({ initialPresentation = 'classrooms' }: { initi
   const [navigationNotice, setNavigationNotice] = useState('');
   const sessionRequest = useRef<AbortController | null>(null);
   const signingOut = useRef(false);
-  const destination = classroomDestination(router.asPath) ?? (initialPresentation === 'home' ? '/inicio' : '/mis-aulas');
+  const destination = safeDestination(router.asPath) ?? (initialPresentation === 'home' ? '/inicio' : '/mis-aulas');
   const requireAccount = useCallback((code: string) => {
     sessionRequest.current?.abort();
     setUser(undefined);
-    void router.replace(classroomAuthHref(code === 'EMAIL_VERIFICATION_REQUIRED' ? 'verify-email' : 'sign-in', destination));
+    void router.replace(authHref(code === 'EMAIL_VERIFICATION_REQUIRED' ? 'verify-email' : 'sign-in', destination));
   }, [router, destination]);
   const api = useMemo(() => createWebClassroomClient(fetch, requireAccount), [requireAccount]);
   const agendaApi = useMemo(() => createWebAgendaClient(fetch, requireAccount), [requireAccount]);
@@ -93,7 +94,7 @@ export function ClassroomsScreen({ initialPresentation = 'classrooms' }: { initi
         accountActions={<div className="p5-actions p5-account-actions"><Link href="/profile">Mi perfil</Link><button disabled={busy} onClick={() => void logout()}>{busy ? 'Cerrando sesión…' : 'Cerrar sesión'}</button></div>} />}
     </> : <div className="p5-app"><main className="p5-main">
       {error ? <Notice error>{error} <button onClick={() => void load()}>Volver a intentar</button></Notice> : <Notice>Comprobando tu sesión…</Notice>}
-      <Link href={classroomAuthHref('sign-in', destination)}>Iniciar sesión</Link>
+      <Link href={authHref('sign-in', destination)}>Iniciar sesión</Link>
     </main></div>}
   </>;
 }

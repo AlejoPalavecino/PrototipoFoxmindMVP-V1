@@ -18,6 +18,8 @@ Base del producto inspeccionada: main, d41ff6d0b8c9321403b1d3000a06e06d84366cfe.
 
 ## Límites y decisiones pendientes
 
+La migración de arquitectura por dominios fue aprobada y su ejecución por etapas autorizada el 2026-11-10. Primer corte verificado localmente: base caracterizada, guard de nuevas fronteras, feedback compartido y navegación global en `src/application` (nombre compatible con Next). Revisión independiente sin hallazgos pendientes. El usuario habilitó Docker y autorizó commits locales: contratos DB 38 PASS + smoke Prisma, selección Agenda/Estudio/concurrencia 17 PASS y pure 179 PASS. Se corrigieron deriva declarativa Prisma y fixtures previas sin cambiar SQL ni debilitar aceptación; la validación ampliada y el cierre Git están en curso en `codex/architecture-foundation`. Etapas 3–6, incluido el piloto Agenda, siguen pendientes; no se declara completada la separación de dominios. [Diseño y aceptación](engineering/architecture-migration.md), [tablero](../odd/tasks/architecture-migration.md) y [evidencia del corte](work-log/2026-11-10-root-architecture-migration.md). Sin push o despliegue; no se acredita suite integral hasta reconciliar los resultados ampliados.
+
 No hay despliegue ni piloto real autorizados en esta entrega. Hosting, presupuesto, proveedores cloud y cuota productiva numérica requieren definición humana. No se migraron datos retenidos ni se leyeron credenciales privadas. Los límites de las comprobaciones actuales están en la [matriz](verification/flows.md).
 
 ## Cómo retomar

@@ -11,7 +11,7 @@ import { FoxyCollectionPanel, FoxyConversationPanel, type FoxyCatalogState, type
 import { FoxyMarkdown } from './foxy-markdown';
 
 import { FoxmindIcon,type IconKey } from '../../../shared-ui/index.ts';
-import { Dialog } from '../../../classrooms-ui/components';
+import { Dialog } from '../../../shared-ui/feedback';
 
 type Controller = ReturnType<typeof createFoxyChatController>;
 type State = ReturnType<Controller['getState']>;
