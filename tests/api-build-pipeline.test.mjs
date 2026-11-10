@@ -91,7 +91,8 @@ test('direct build preserves project strict flags and runs generation then compi
       rewriteRelativeImportExtensions: true, skipLibCheck: true, noEmitOnError: true,
       types: ['node'],
     },
-    include: ['src/**/*.ts', '../../.generated/prisma/**/*.ts'],
+    // Compatibility entries remain emitted even after leaving the API import closure.
+    include: ['src/**/*.ts', '../../.generated/prisma/**/*.ts', '../../src/core/domain/**/*.ts'],
   });
 });
 
