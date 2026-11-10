@@ -34,7 +34,7 @@ const range = { startDate: '2026-11-01', endDateExclusive: '2026-12-01', timeZon
 const payload = { title: 'Clase', description: '', category: 'CLASS',
   schedule: { kind: 'ALL_DAY', startDate: '2026-11-02', endDateExclusive: '2026-11-03' }, repeat: { kind: 'NONE' } };
 test('web agenda client sends exact methods, bodies, fresh CSRF and private fetch policy', async () => {
-  const { createWebAgendaClient } = loadTsModule('apps/web/src/lib/agenda-client.ts');
+  const { createWebAgendaClient } = loadTsModule('apps/web/src/application/agenda-client.ts');
   const calls = [], id = randomUUID(), target = { classroomId: randomUUID(), activityId: randomUUID() };
   const api = createWebAgendaClient(async (path, init) => {
     calls.push({ path, ...init });
@@ -59,7 +59,7 @@ test('web agenda client sends exact methods, bodies, fresh CSRF and private fetc
 });
 
 test('client preserves server error codes, signals identity requirements and never retries uncertain writes', async () => {
-  const { createWebAgendaClient } = loadTsModule('apps/web/src/lib/agenda-client.ts');
+  const { createWebAgendaClient } = loadTsModule('apps/web/src/application/agenda-client.ts');
   const notices = [], calls = [];
   const api = createWebAgendaClient(async (path, init) => {
     calls.push([path, init?.method]);

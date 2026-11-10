@@ -6,8 +6,8 @@ import { descendants } from './agenda-ui-helpers.test.mjs';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 
 test('new event ends with observations while multi-day editing remains directly available', () => {
-  const { EventFields } = loadTsModule('apps/agenda-ui/EventFields.tsx');
-  const { eventDraft } = loadTsModule('apps/agenda-ui/event-draft.ts');
+  const { EventFields } = loadTsModule('apps/web/src/features/agenda/ui/EventFields.tsx');
+  const { eventDraft } = loadTsModule('apps/web/src/features/agenda/model/event-draft.ts');
   const draft = eventDraft(undefined, '2026-11-04', 'America/Argentina/Buenos_Aires');
   const html = renderToStaticMarkup(createElement(EventFields, { draft, onChange() {}, issues: [] }));
   assert.doesNotMatch(html, /Más opciones|agenda-form-summary|Sin título/);
@@ -21,7 +21,7 @@ test('new event ends with observations while multi-day editing remains directly 
 });
 
 test('approved agenda heading keeps a real create action and no view-zone controls', () => {
-  const { AgendaHeader } = loadTsModule('apps/agenda-ui/AgendaHeader.tsx');
+  const { AgendaHeader } = loadTsModule('apps/web/src/features/agenda/ui/AgendaHeader.tsx');
   let created = 0;
   const props = { onCreate: () => created++ };
   const html = renderToStaticMarkup(createElement(AgendaHeader, props));

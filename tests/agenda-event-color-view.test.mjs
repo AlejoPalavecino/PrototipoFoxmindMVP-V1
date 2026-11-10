@@ -8,7 +8,7 @@ import { day, zone, privateEvent, installWindow } from './agenda-event-form-help
 
 const tokens = ['AUTO', 'BLUE', 'GREEN', 'YELLOW', 'ORANGE', 'PINK', 'PURPLE', 'GRAPHITE'];
 test('AUTO sample follows only category independently of the currently explicit selection', () => {
-  const api = loadTsModule('apps/agenda-ui/index.ts');
+  const api = loadTsModule('apps/web/src/features/agenda/index.ts');
   for (const category of ['CLASS', 'ACTIVITY', 'EVALUATION']) for (const color of ['BLUE', 'PURPLE']) {
     const draft = { ...api.eventDraft(undefined, day, zone), category, color:'AUTO' };
     const tree = api.EventColorFields({ draft, issues: [], onChange() {} });
@@ -23,7 +23,7 @@ test('AUTO sample follows only category independently of the currently explicit 
   }
 });
 test('invalid draft color renders its associated field issue without crashing the selector', () => {
-  const api = loadTsModule('apps/agenda-ui/index.ts');
+  const api = loadTsModule('apps/web/src/features/agenda/index.ts');
   const draft = { ...api.eventDraft(undefined, day, zone), title: 'Plan válido', color: '#bad' };
   const result = api.validateDraft(draft);
   assert.equal(result.ok, false);
@@ -40,7 +40,7 @@ test('invalid draft color renders its associated field issue without crashing th
   assert.equal(draft.color, '#bad');
 });
 test('public finite palette preserves category classes for legacy and readable labels', () => {
-  const api = loadTsModule('apps/agenda-ui/index.ts');
+  const api = loadTsModule('apps/web/src/features/agenda/index.ts');
   assert.deepEqual(api.eventColorOptions.map(x => x.value), tokens);
   assert.deepEqual(api.eventColorOptions.map(x => x.label), ['Automático', 'Azul', 'Verde', 'Dorado', 'Naranja', 'Rosa', 'Violeta', 'Grafito']);
   assert.equal(api.eventColorLabel(undefined), 'Automático');
@@ -54,7 +54,7 @@ test('public finite palette preserves category classes for legacy and readable l
   for (const category of ['CLASS', 'ACTIVITY', 'EVALUATION']) assert.equal(api.eventColorClass({ category }), category.toLowerCase());
 });
 test('native radio group exposes reference colors plus the selected retained color without altering saved values', () => {
-  const api = loadTsModule('apps/agenda-ui/index.ts'), draft = { ...api.eventDraft(undefined, day, zone), color: 'BLUE' };
+  const api = loadTsModule('apps/web/src/features/agenda/index.ts'), draft = { ...api.eventDraft(undefined, day, zone), color: 'BLUE' };
   const changes = [];
   assert.equal(typeof api.EventColorFields, 'function');
   const tree = api.EventColorFields({ draft, onChange: value => changes.push(value), issues: [{ field: 'color', message: 'Elige un color válido' }] });
@@ -69,7 +69,7 @@ test('native radio group exposes reference colors plus the selected retained col
   assert.equal(changes.length, 1); assert.equal(changes[0].color, 'GRAPHITE'); assert.equal(draft.color, 'BLUE');
 });
 test('month previews, independent decorative mobile indicators and day articles use explicit color', async () => {
-  const { Agenda } = loadTsModule('apps/agenda-ui/index.ts');
+  const { Agenda } = loadTsModule('apps/web/src/features/agenda/index.ts');
   const { expandAgendaEvent } = loadTsModule('src/core/domain/index.ts');
   const items = ['BLUE', 'GREEN', 'PINK', 'PURPLE'].flatMap(color => expandAgendaEvent(privateEvent({ color }),
     { startDate: '2026-10-01', endDateExclusive: '2026-11-01', timeZone: zone }));

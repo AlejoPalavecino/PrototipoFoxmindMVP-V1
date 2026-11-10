@@ -4,7 +4,7 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { descendants, hookView } from './agenda-ui-helpers.test.mjs';
 
-const presentation = () => loadTsModule('apps/agenda-ui/agenda-presentation.ts');
+const presentation = () => loadTsModule('apps/web/src/features/agenda/model/agenda-presentation.ts');
 
 test('date-only headings retain their calendar date across browser zones and year boundaries', () => {
   const { selectedDayHeading } = presentation();
@@ -43,7 +43,7 @@ test('timed event clock uses saved schedule zone and includes both local dates f
 });
 
 test('monthly calendar preserves 42 accessible days, separate today/selection, navigation and Today callback', async () => {
-  const { AgendaMonth } = loadTsModule('apps/agenda-ui/AgendaMonth.tsx');
+  const { AgendaMonth } = loadTsModule('apps/web/src/features/agenda/ui/AgendaMonth.tsx');
   const calls = [];
   const view = hookView(AgendaMonth, { month: '2026-10', selected: '2026-10-28', zone: 'UTC', items: [], loading: false,
     onSelect: value => calls.push(value), onMonth: value => calls.push(value), onToday: () => calls.push('today') });
@@ -65,7 +65,7 @@ test('monthly calendar preserves 42 accessible days, separate today/selection, n
 });
 
 test('deadline card keeps exact classroom zone date, state semantics and real activity target when busy changes', () => {
-  const { DeadlineCard } = loadTsModule('apps/agenda-ui/Upcoming.tsx');
+  const { DeadlineCard } = loadTsModule('apps/web/src/features/agenda/ui/Upcoming.tsx');
   const calls = [], item = { id: 'deadline', kind: 'ACADEMIC_DEADLINE', title: 'Trabajo sintético', classroomName: 'Aula sintética', deadlineAt: '2027-01-01T01:05:00Z', timeZone: 'America/Argentina/Buenos_Aires', role: 'student', pending: false, resubmission: true, target: { classroomId: 'room', activityId: 'activity' } };
   for (const busy of [false, true]) {
     const tree = DeadlineCard({ item, busy, onOpen: target => calls.push(target) });
@@ -79,7 +79,7 @@ test('deadline card keeps exact classroom zone date, state semantics and real ac
 });
 
 test('header preserves create callback without the removed calendar timezone controls', async () => {
-  const { AgendaHeader } = loadTsModule('apps/agenda-ui/AgendaHeader.tsx');
+  const { AgendaHeader } = loadTsModule('apps/web/src/features/agenda/ui/AgendaHeader.tsx');
   const calls = [], view = hookView(AgendaHeader, { zone: 'UTC', onCreate: () => calls.push('create'), onZone: value => calls.push(value) });
   try {
     await view.flush();

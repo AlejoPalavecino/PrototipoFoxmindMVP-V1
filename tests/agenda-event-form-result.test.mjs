@@ -6,7 +6,7 @@ import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 import { privateEvent, installWindow, zone } from './agenda-event-form-helpers.test.mjs';
 
 test('rerendering route callbacks never closes an unsaved new event',async()=>{
- const {Agenda}=loadTsModule('apps/agenda-ui/Agenda.tsx'),{useState}=await import('react');
+ const {Agenda}=loadTsModule('apps/web/src/features/agenda/ui/Agenda.tsx'),{useState}=await import('react');
  const restoreWindow=installWindow(),previous=globalThis.sessionStorage;globalThis.sessionStorage={getItem:()=>null,setItem(){}};
  const api={list:async()=>page(),upcoming:async()=>page()};let rerender;
  const view=hookView(()=>{const [tick,setTick]=useState(0);rerender=()=>setTick(tick+1);return Agenda({api,onOpen(){},onEventSelected(){}});},{});
@@ -15,7 +15,7 @@ test('rerendering route callbacks never closes an unsaved new event',async()=>{
 });
 
 test('reference event detail shows the moved occurrence and asks scope before any edit or deletion',async()=>{
- const {EventDetails}=loadTsModule('apps/agenda-ui/EventDetails.tsx'),calls=[],edits=[];
+ const {EventDetails}=loadTsModule('apps/web/src/features/agenda/ui/EventDetails.tsx'),calls=[],edits=[];
  const base=privateEvent(),date=base.schedule.startLocal.slice(0,10);
  const event={...base,repeat:{kind:'WEEKLY',untilDate:'2026-11-24'},exceptions:[{date,replacement:{...base,schedule:{...base.schedule,startLocal:'2026-11-05T10:00',endLocal:'2026-11-05T11:00'},repeat:{kind:'NONE'},title:'Clase trasladada'}}]};
  const text=n=>typeof n==='string'?n:Array.isArray(n)?n.map(text).join(''):text(n?.props?.children??'');
@@ -28,7 +28,7 @@ test('reference event detail shows the moved occurrence and asks scope before an
 });
 
 async function agendaView(api) {
-  const { Agenda } = loadTsModule('apps/agenda-ui/index.ts');
+  const { Agenda } = loadTsModule('apps/web/src/features/agenda/index.ts');
   const previous = globalThis.sessionStorage, restoreWindow = installWindow();
   globalThis.sessionStorage = { getItem: () => JSON.stringify({ month: '2026-10', day: '2026-10-27', zone }), setItem() {} };
   const view = hookView(Agenda, { api, onOpen() {} }); await view.flush();

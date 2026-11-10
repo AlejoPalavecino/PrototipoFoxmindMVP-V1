@@ -5,7 +5,7 @@ import { privateEvent, editorView, day, zone, installWindow } from './agenda-eve
 import { deferred } from './agenda-ui-helpers.test.mjs';
 
 test('AUTO is historical, explicit colors round trip and dirty compares choices for both schedule kinds', () => {
-  const api = loadTsModule('apps/agenda-ui/index.ts');
+  const api = loadTsModule('apps/web/src/features/agenda/index.ts');
   assert.equal(api.eventDraft(undefined, day, zone).color, 'GREEN');
   for (const allDay of [false, true]) {
     let event = privateEvent();

@@ -10,7 +10,7 @@ async function serve(handler) {
     async close() { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); } };
 }
 async function fixture(run) {
-  const { proxyAgendaRequest } = loadTsModule('apps/web/src/lib/agenda-proxy.ts');
+  const { proxyAgendaRequest } = loadTsModule('apps/web/src/application/server/agenda-proxy.ts');
   const calls = [];
   const upstream = await serve(async (req, res) => {
     const chunks = []; for await (const chunk of req) chunks.push(chunk);

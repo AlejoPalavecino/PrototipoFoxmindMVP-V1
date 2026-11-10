@@ -3,6 +3,7 @@
   "baseCommit": "d41ff6d0b8c9321403b1d3000a06e06d84366cfe",
   "hashPolicy": "Current baseline: catalog hashes are exact bytes; no retained historical aliases",
   "activeFiles": [
+    "docs/work-log/2026-11-10-agenda-frontend.md",
     "docs/work-log/2026-11-10-agenda-backend.md",
     "docs/engineering/architecture-migration.md",
     "docs/work-log/2026-11-10-root-architecture-migration.md",

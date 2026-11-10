@@ -4,7 +4,7 @@ const text=n=>typeof n==='string'?n:Array.isArray(n)?n.map(text).join(' '):text(
 test('after-day query reads its entire selected future range with pagination, independently from visible calendar',async()=>{
  const previous=globalThis.window;globalThis.window=new EventTarget();const calls=[];
  const api={list:async(range,cursor)=>{calls.push({range,cursor});return {items:[],nextCursor:!cursor&&range.startDate==='2026-11-06'?'next':null};},upcoming:async()=>({items:[]})};
- const {useAgenda}=loadTsModule('apps/agenda-ui/useAgenda.ts');function Harness(){return React.createElement('output',{state:useAgenda(api,{startDate:'2026-11-05',endDateExclusive:'2026-11-06',timeZone:'UTC'},true,'2026-11-05')});}
+ const {useAgenda}=loadTsModule('apps/web/src/features/agenda/model/useAgenda.ts');function Harness(){return React.createElement('output',{state:useAgenda(api,{startDate:'2026-11-05',endDateExclusive:'2026-11-06',timeZone:'UTC'},true,'2026-11-05')});}
  const view=hookView(Harness,{});try{await view.flush();assert.ok(view.tree.props.state.afterDay);assert.deepEqual(calls.filter(c=>c.range.startDate==='2026-11-06').map(c=>({range:c.range,cursor:c.cursor})),[{range:{startDate:'2026-11-06',endDateExclusive:'2026-12-07',timeZone:'UTC'},cursor:null},{range:{startDate:'2026-11-06',endDateExclusive:'2026-12-07',timeZone:'UTC'},cursor:'next'}]);}finally{view.close();globalThis.window=previous;}
 });
 test('Mi cuenta uses an explicit dialog trigger instead of disclosure; opening never navigates',async()=>{
@@ -15,7 +15,7 @@ test('Mi cuenta uses an explicit dialog trigger instead of disclosure; opening n
 });
 
 test('after-day merges only queried future personal occurrences and deadlines, in date order with authorized destinations',()=>{
- const {AgendaAfterDay,afterDayEntries}=loadTsModule('apps/agenda-ui/AgendaAfterDay.tsx');const opened=[],edited=[];
+ const {AgendaAfterDay,afterDayEntries}=loadTsModule('apps/web/src/features/agenda/ui/AgendaAfterDay.tsx');const opened=[],edited=[];
  const event=(id,date)=>({kind:'PRIVATE_EVENT',occurrenceId:id,event:{id,title:id,category:'CLASS',color:'PURPLE',schedule:{kind:'ALL_DAY',startDate:date,endDateExclusive:date==='2026-11-05'?'2026-11-06':'2026-11-08'}},startDate:date,endDateExclusive:date==='2026-11-05'?'2026-11-06':'2026-11-08',startAt:null,endAt:null});
  const deadline={kind:'ACADEMIC_DEADLINE',id:'deadline',title:'Plazo',classroomName:'Aula',deadlineAt:'2026-11-06T15:00:00Z',target:{classroomId:'room',activityId:'activity'}};
  const items=[event('old','2026-11-05'),event('later','2026-11-07'),deadline,event('outside','2026-12-08'),deadline];
@@ -33,6 +33,6 @@ test('Mi cuenta route follows real callback and closes dialog after primary navi
 test('changing selected day aborts prior future query and never reveals its delayed private items',async()=>{
  const previous=globalThis.window;globalThis.window=new EventTarget();const pending=deferred();let oldSignal;
  const api={list:async(range,cursor,signal)=>{if(range.startDate==='2026-11-06'){oldSignal=signal;return pending.promise;}return {items:range.startDate==='2026-11-08'?[{id:'new'}]:[],nextCursor:null};},upcoming:async()=>({items:[]})};
- const {useAgenda}=loadTsModule('apps/agenda-ui/useAgenda.ts');function Harness(){const [day,setDay]=React.useState('2026-11-05');return React.createElement('output',{setDay,state:useAgenda(api,{startDate:day,endDateExclusive:'2026-11-10',timeZone:'UTC'},true,day)});}
+ const {useAgenda}=loadTsModule('apps/web/src/features/agenda/model/useAgenda.ts');function Harness(){const [day,setDay]=React.useState('2026-11-05');return React.createElement('output',{setDay,state:useAgenda(api,{startDate:day,endDateExclusive:'2026-11-10',timeZone:'UTC'},true,day)});}
  const view=hookView(Harness,{});try{await view.flush();view.tree.props.setDay('2026-11-07');await view.flush();assert.ok(oldSignal.aborted);pending.resolve({items:[{id:'old-private'}],nextCursor:null});await view.flush();assert.deepEqual(view.tree.props.state.afterDay.items,[{id:'new'}]);}finally{pending.resolve({items:[],nextCursor:null});view.close();globalThis.window=previous;}
 });

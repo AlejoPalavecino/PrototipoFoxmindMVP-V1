@@ -10,7 +10,7 @@ export function privateEvent(overrides = {}) {
     repeat: { kind: 'NONE' }, ...overrides };
 }
 export async function editorView(api, event, onSaved = () => {}) {
-  const { useEventEditor } = loadTsModule('apps/agenda-ui/index.ts');
+  const { useEventEditor } = loadTsModule('apps/web/src/features/agenda/index.ts');
   const view = hookView(() => useEventEditor(api, event, day, zone, onSaved), {});
   await view.flush();
   return view;

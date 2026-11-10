@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { privateEvent, day, zone } from './agenda-event-form-helpers.test.mjs';
 
-const model = () => loadTsModule('apps/agenda-ui/index.ts');
+const model = () => loadTsModule('apps/web/src/features/agenda/index.ts');
 const fresh = api => api.eventDraft(undefined, day, zone);
 test('new/edit drafts preserve calendar defaults and exact payload without local metadata', () => {
   const api = model(), draft = fresh(api);

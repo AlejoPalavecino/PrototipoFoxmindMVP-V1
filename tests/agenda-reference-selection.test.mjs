@@ -4,7 +4,7 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { descendants, hookView } from './agenda-ui-helpers.test.mjs';
 
 test('selecting a calendar day keeps the monthly grid and updates the selected day panel', async () => {
-  const { Agenda } = loadTsModule('apps/agenda-ui/Agenda.tsx');
+  const { Agenda } = loadTsModule('apps/web/src/features/agenda/ui/Agenda.tsx');
   const previousWindow = globalThis.window, previousStorage = globalThis.sessionStorage;
   globalThis.window = new EventTarget();
   globalThis.sessionStorage = { getItem: () => JSON.stringify({ month: '2026-11', day: '2026-11-02', zone: 'UTC' }), setItem() {} };
@@ -35,7 +35,7 @@ test('selecting a calendar day keeps the monthly grid and updates the selected d
 });
 
 test('compact Agenda starts on the selected day and keeps an explicit switch to month', async () => {
-  const { Agenda } = loadTsModule('apps/agenda-ui/Agenda.tsx');
+  const { Agenda } = loadTsModule('apps/web/src/features/agenda/ui/Agenda.tsx');
   const previousWindow = globalThis.window, previousStorage = globalThis.sessionStorage;
   globalThis.window = Object.assign(new EventTarget(), { matchMedia: () => ({ matches: true }) });
   globalThis.sessionStorage = { getItem: () => JSON.stringify({ month: '2026-11', day: '2026-11-02', zone: 'UTC' }), setItem() {} };

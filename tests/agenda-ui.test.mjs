@@ -6,8 +6,8 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView, descendants, deferred } from './agenda-ui-helpers.test.mjs';
 
 for (const entryPoint of ['AgendaAfterDay', 'AgendaDay']) test(`opening a revoked deadline from ${entryPoint} removes stale data even when refresh fails`, async () => {
-  const { Agenda } = loadTsModule('apps/agenda-ui/Agenda.tsx');
-  const { AgendaClientError } = loadTsModule('apps/agenda-ui/api.ts');
+  const { Agenda } = loadTsModule('apps/web/src/features/agenda/ui/Agenda.tsx');
+  const { AgendaClientError } = loadTsModule('apps/web/src/features/agenda/api/api.ts');
   const target = { classroomId: randomUUID(), activityId: randomUUID() };
   const deadline = { kind: 'ACADEMIC_DEADLINE', id: randomUUID(), target, classroomName: 'Aula acceso perdido',
     title: 'Entrega anteriormente visible', activityType: 'ASSIGNMENT', role: 'student',
@@ -64,8 +64,8 @@ for (const entryPoint of ['AgendaAfterDay', 'AgendaDay']) test(`opening a revoke
 });
 
 test('a delayed forbidden open after month navigation revalidates the current month without restoring the old range', async () => {
-  const { Agenda } = loadTsModule('apps/agenda-ui/Agenda.tsx');
-  const { AgendaClientError } = loadTsModule('apps/agenda-ui/api.ts');
+  const { Agenda } = loadTsModule('apps/web/src/features/agenda/ui/Agenda.tsx');
+  const { AgendaClientError } = loadTsModule('apps/web/src/features/agenda/api/api.ts');
   const target = { classroomId: randomUUID(), activityId: randomUUID() };
   const old = { kind: 'ACADEMIC_DEADLINE', id: randomUUID(), target, classroomName: 'Aula revocada noviembre',
     title: 'Entrega revocada noviembre', activityType: 'ASSIGNMENT', role: 'student',
@@ -125,7 +125,7 @@ test('a delayed forbidden open after month navigation revalidates the current mo
 });
 
 for (const failing of ['calendar', 'afterDay']) test(`Agenda isolates a ${failing} failure and retries only that section`, async () => {
-  const { Agenda } = loadTsModule('apps/agenda-ui/Agenda.tsx');
+  const { Agenda } = loadTsModule('apps/web/src/features/agenda/ui/Agenda.tsx');
   const originalWindow = globalThis.window, originalStorage = globalThis.sessionStorage;
   globalThis.window = new EventTarget();
   globalThis.sessionStorage = { getItem: () => JSON.stringify({ month: '2026-11', day: '2026-11-01', zone: 'UTC' }) };

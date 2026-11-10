@@ -32,7 +32,7 @@ test('shared dialog preserves heading, close action and Escape cancellation', as
 });
 
 test('new and edited events expose the appropriate primary action and explicit whole-series scope', () => {
-  const { EventForm } = loadTsModule('apps/agenda-ui/index.ts');
+  const { EventForm } = loadTsModule('apps/web/src/features/agenda/index.ts');
   const props = { api: {}, day, zone, onClose() {}, onSaved() {} };
   const created = renderToStaticMarkup(React.createElement(EventForm, props));
   assert.ok(created.includes('Crear evento'));
@@ -42,7 +42,7 @@ test('new and edited events expose the appropriate primary action and explicit w
 });
 
 test('invalid submit renders accessible field issues without sending a write', async () => {
-  const { EventForm } = loadTsModule('apps/agenda-ui/index.ts');
+  const { EventForm } = loadTsModule('apps/web/src/features/agenda/index.ts');
   let writes = 0;
   const view = hookView(EventForm, { api: { async put() { writes++; } }, day, zone, onClose() {}, onSaved() {} });
   try {
@@ -57,7 +57,7 @@ test('invalid submit renders accessible field issues without sending a write', a
 });
 
 test('reference fields expose date, start/end times and repetition without extra duration or zone controls', () => {
-  const { EventForm } = loadTsModule('apps/agenda-ui/index.ts');
+  const { EventForm } = loadTsModule('apps/web/src/features/agenda/index.ts');
   const html = renderToStaticMarkup(React.createElement(EventForm,
     { api: {}, day, zone, onClose() {}, onSaved() {} }));
   for (const field of ['startDate', 'startTime', 'title']) assert.ok(html.includes(`name="${field}"`));
@@ -69,7 +69,7 @@ test('reference fields expose date, start/end times and repetition without extra
 });
 
 test('cancel closes a pristine form but protects changed fields when discard is declined', async () => {
-  const { EventForm } = loadTsModule('apps/agenda-ui/index.ts');
+  const { EventForm } = loadTsModule('apps/web/src/features/agenda/index.ts');
   let closes = 0, confirmations = 0;
   const restore = installWindow(() => { confirmations++; return false; });
   const view = hookView(EventForm, { api: {}, day, zone, onClose() { closes++; }, onSaved() {} });
@@ -86,7 +86,7 @@ test('cancel closes a pristine form but protects changed fields when discard is 
 });
 
 for (const field of ['title', 'description']) test(`invalid ${field} focuses after busy unlock and opens its secondary details`, async () => {
-  const { EventForm } = loadTsModule('apps/agenda-ui/index.ts');
+  const { EventForm } = loadTsModule('apps/web/src/features/agenda/index.ts');
   const priorDetails = globalThis.HTMLDetailsElement;
   class Details { open = false; }
   globalThis.HTMLDetailsElement = Details;

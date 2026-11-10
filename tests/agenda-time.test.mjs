@@ -69,7 +69,7 @@ test('overlapping all-day events intersect the range using an exclusive end', ()
 });
 
 test('monthly grouping preserves original order, zone boundaries and exclusive ends', () => {
-  const { groupAgendaItemsByDay, monthDays, onDay } = loadTsModule('apps/agenda-ui/calendar.ts');
+  const { groupAgendaItemsByDay, monthDays, onDay } = loadTsModule('apps/web/src/features/agenda/model/calendar.ts');
   const days = monthDays('2026-03'), zone = 'America/New_York';
   const items = [
     { kind: 'PRIVATE_EVENT', id: 'timed', startAt: '2026-03-08T04:30:00Z', endAt: '2026-03-09T04:00:00Z' },

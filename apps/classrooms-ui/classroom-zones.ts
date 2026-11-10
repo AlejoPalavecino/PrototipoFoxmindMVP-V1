@@ -1,4 +1,4 @@
-import { zoneChoices } from '../agenda-ui/index.ts';
+import { zoneChoices } from '../shared-ui/time-zones.ts';
 
 /** Keep the complete city catalog and any inherited zone, with common cities first. */
 export function classroomZones(current: string) {

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { AgendaTarget } from '../../src/core/domain/index.ts';
-import type { AgendaClient } from '../agenda-ui/api.ts';
+import type { AgendaClient } from '../web/src/features/agenda/index.ts';
 
 export function useAgendaTarget(api: AgendaClient, destination: string, subjectId: string | undefined) {
   const [state, setState] = useState<{ subjectId: string; destination: string; target?: AgendaTarget; error?: string }>();

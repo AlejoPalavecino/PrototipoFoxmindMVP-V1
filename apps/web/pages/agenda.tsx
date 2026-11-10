@@ -1,1 +1,1 @@
-export { AgendaScreen as default } from '../src/components/agenda-screen';
+export { AgendaScreen as default } from '../src/screens/agenda-screen';

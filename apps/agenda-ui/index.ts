@@ -1,17 +1,2 @@
-export { Agenda } from './Agenda.tsx';
-export type { AgendaEventRequest } from './useAgendaEventTarget.ts';
-export { AgendaClientError } from './api.ts';
-export type { AgendaClient } from './api.ts';
-export { EventForm } from './EventForm.tsx';
-export { useEventEditor } from './useEventEditor.ts';
-export type * from './event-draft-types.ts';
-export { eventDraft, draftPayload, isDraftDirty } from './event-draft.ts';
-export { changeDraftStart, changeDraftEnd, setDraftDuration, toggleAllDay,
-  changeDraftZone, changeDraftUntil } from './event-draft-time.ts';
-export { validateDraft, eventFailure } from './event-validation.ts';
-export { repeatPreview, draftSummary } from './event-summary.ts';
-export { zoneChoices, zoneLabel } from './event-zones.ts';
-export { eventFocusDay } from './event-result.ts';
-export { EventColorFields } from './EventColorFields.tsx';
-export { eventColorOptions, eventColorClass, eventColorLabel } from './event-colors.ts';
-export type { EventColorChoice, EventColorOption } from './event-colors.ts';
+export { Agenda, AgendaClientError, EventForm, useEventEditor, eventDraft, draftPayload, isDraftDirty, changeDraftStart, changeDraftEnd, setDraftDuration, toggleAllDay, changeDraftZone, changeDraftUntil, validateDraft, eventFailure, repeatPreview, draftSummary, zoneChoices, zoneLabel, eventFocusDay, EventColorFields, eventColorOptions, eventColorClass, eventColorLabel } from '../web/src/features/agenda/index.ts';
+export type { AgendaEventRequest, AgendaClient, EventColorChoice, EventColorOption, EventDraft, DraftField, TemporalChoice, DraftIssue, DraftValidation, RepeatPreview, ZoneChoice, EventEditorOutcome, EventEditor } from '../web/src/features/agenda/index.ts';

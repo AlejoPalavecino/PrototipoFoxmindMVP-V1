@@ -7,7 +7,7 @@ import { Notice } from '../../../shared-ui/feedback';
 import { createAccountClient, type AccountUser } from '../lib/account-client';
 import { createWebClassroomClient } from '../lib/classroom-client';
 import { authHref, safeDestination, classroomHomeDestination, classroomHomeHref } from '../application/navigation/destinations';
-import { createWebAgendaClient } from '../lib/agenda-client';
+import { createWebAgendaClient } from '../application/agenda-client';
 import { createWebHomeClient } from '../lib/home-client';
 import { useAgendaTarget } from '../../../classrooms-ui/useAgendaTarget';
 
