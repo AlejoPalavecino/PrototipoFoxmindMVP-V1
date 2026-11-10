@@ -513,7 +513,8 @@
     "apps/api/src/study-folders/http.test.mjs",
     "apps/api/src/study-folders/integrations.test.mjs",
     "apps/web/src/lib/study-file-policy.test.mjs",
-    "apps/web/src/lib/study-discovery.test.mjs"
+    "apps/web/src/lib/study-discovery.test.mjs",
+    "tests/agenda-module.test.mjs"
   ],
   "exclusions": [
     {

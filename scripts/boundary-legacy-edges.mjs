@@ -5,8 +5,6 @@ const groups = [
     reason: "Identidad, base de datos, admisión y correo de la composición existente.",
     removeWhen: "ARQ-06/08: separar el cableado del contrato de consumo y comprobar identidad y ciclo de vida.",
     edges: [
-      "broad barrel dependency: apps/api/src/agenda/host.ts | apps/api/src/identity-security/index.ts | import | eager | {clearSessionCookie, type IdentityConfiguration}",
-      "broad barrel dependency: apps/api/src/agenda/host.ts | apps/api/src/identity/index.ts | import | eager | {IdentityHttpError, authenticateSession, publicIdentityError, readSessionCookie, type IdentityRuntime}",
       "broad barrel dependency: apps/api/src/classrooms/host.ts | apps/api/src/identity-security/index.ts | import | eager | {clearSessionCookie, type IdentityConfiguration}",
       "broad barrel dependency: apps/api/src/files/host.ts | apps/api/src/identity-security/index.ts | import | eager | {clearSessionCookie, type IdentityConfiguration}",
       "broad barrel dependency: apps/api/src/home/host.ts | apps/api/src/identity-security/index.ts | import | eager | {clearSessionCookie}",
@@ -52,7 +50,6 @@ const groups = [
     reason: "Fachada, proyecciones y operaciones académicas compartidas del monolito actual.",
     removeWhen: "ARQ-05/06/07: migrar a contratos acotados y retirar cada arista al verificar paridad.",
     edges: [
-      "broad barrel dependency: apps/api/src/agenda/unit-of-work.ts | apps/api/src/classrooms/index.ts | import | eager | {createAcademicAgenda}",
       "broad barrel dependency: apps/api/src/classrooms/classrooms.module.ts | apps/api/src/files/index.ts | import | eager | {FileService, createDurableActivitySourceReader, createDurableGradingAiAttachmentReader, createDurableGradingAiInstructionReader}",
       "broad barrel dependency: apps/api/src/classrooms/classrooms.module.ts | apps/api/src/files/index.ts | inline | type | FileTransaction",
       "broad barrel dependency: apps/api/src/classrooms/classrooms.module.ts | apps/api/src/files/index.ts | inline | type | GradingAttachmentGrant",

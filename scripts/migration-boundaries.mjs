@@ -1,3 +1,4 @@
+import { agendaCompatibility } from './agenda-compatibility.mjs';
 // Rules for migrated surfaces; legacy modules retain their exact frozen edges.
 const moduleOf = path => /^apps\/api\/src\/modules\/([^/]+)\/(.+)$/.exec(path);
 const featureOf = path => /^apps\/web\/src\/features\/([^/]+)\//.exec(path)?.[1];
@@ -8,6 +9,8 @@ const namedContract = ({ form, binding }) => ['import', 'inline', 'reexport'].in
 
 export function migrationBoundary(edge) {
   const { file, target } = edge;
+  if (agendaCompatibility(edge)) return null;
+  if (file === 'apps/api/src/classrooms/public/index.ts' && target === 'apps/api/src/classrooms/agenda.ts' && edge.form === 'reexport' && edge.binding === '{createAcademicAgenda}') return null;
   if (shared(file) && target.startsWith('apps/') && !shared(target)) return 'shared UI dependency';
   const feature = featureOf(file), targetFeature = featureOf(target);
   if (feature && ((targetFeature && targetFeature !== feature) || legacyUi(target) ||

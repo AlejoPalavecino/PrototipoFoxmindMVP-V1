@@ -242,3 +242,24 @@ test('frontend features and shared code cannot depend on higher layers or legacy
     'apps/web/src/shared/ui/notice.tsx': "import React from 'react';",
   }, root => assert.deepEqual(checkBoundaries(root), []));
 });
+
+test('Agenda compatibility bridges accept only exact named reexports', async () => {
+  for (const [code, allowed] of [
+    ["export { AgendaService, createAgendaService } from '../modules/agenda/application/agenda-service.ts';", true],
+    ["export { futureInternalHelper } from '../modules/agenda/application/agenda-service.ts';", false],
+    ["export { futureInternalHelper as AgendaService } from '../modules/agenda/application/agenda-service.ts';", false],
+    ["export type { AgendaService, createAgendaService } from '../modules/agenda/application/agenda-service.ts';", false],
+    ["import { AgendaService } from '../modules/agenda/application/agenda-service.ts';", false],
+    ["export * from '../modules/agenda/application/agenda-service.ts';", false],
+    ["export { store } from '../modules/agenda/infrastructure/event-repository.ts';", false],
+  ]) {
+    await fixture({ 'apps/api/src/agenda/agenda-service.ts': code }, root =>
+      assert.equal(checkBoundaries(root).length === 0, allowed, code));
+  }
+  await fixture({
+    'apps/agenda-ui/EventForm.tsx': "export { EventForm } from '../web/src/features/agenda/ui/EventForm.tsx';",
+  }, root => assert.deepEqual(checkBoundaries(root), []));
+  await fixture({
+    'apps/agenda-ui/EventForm.tsx': "export { EventFields } from '../web/src/features/agenda/ui/EventFields.tsx';",
+  }, root => assert.ok(checkBoundaries(root).length));
+});

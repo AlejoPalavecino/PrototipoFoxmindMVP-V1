@@ -1,2 +1,2 @@
-// Public composition facade. Importing the application API does not load identity/Prisma infrastructure.
-export { createAgendaAuthentication, installAgendaTransport } from './host.ts';
+// Compatibility bridge; composition belongs to bootstrap.
+export { createAgendaAuthentication, installAgendaTransport } from '../bootstrap/agenda-transport.ts';

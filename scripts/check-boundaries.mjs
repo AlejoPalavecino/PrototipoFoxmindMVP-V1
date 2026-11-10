@@ -169,13 +169,13 @@ function dependency(node, source, isRequire) {
   }
 }
 
-function boundary({ file, target, form, binding }) {
+function boundary({ file, target, form, mode, binding }) {
   if (!target) return 'nonliteral module load';
   if (/^(?:[\\/]|[a-z]:|file:)/i.test(target)) return 'absolute module path';
   if (file.startsWith('src/core/domain/') && !target.startsWith('src/core/domain/')) return 'domain dependency';
   if (roots.slice(2).some(root => file.startsWith(root + '/')) && target.startsWith('apps/api/')) return 'UI to backend';
   if (hostFiles.has(file)) return null;
-  const migrated = migrationBoundary({ file, target, form, binding });
+  const migrated = migrationBoundary({ file, target, form, mode, binding });
   if (migrated !== undefined) return migrated;
   const from = apiSlice(file), to = apiSlice(target);
   if (publicBarrels.has(file) && target.startsWith('apps/api/src/')) return 'public surface dependency';

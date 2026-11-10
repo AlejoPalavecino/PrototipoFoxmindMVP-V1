@@ -11,8 +11,9 @@ import { ClassroomService } from './classrooms/service.ts';
 import { localInvitationSender } from './classrooms/delivery.ts';
 import { ClassroomHostLifecycle, installClassroomsTransport } from './classrooms/host.ts';
 import { LibraryCleanupWorker } from './classrooms/library-cleanup.ts';
-import { AgendaService, createAgendaUnitOfWork } from './agenda/index.ts';
-import { createAgendaAuthentication, installAgendaTransport } from './agenda/integration.ts';
+import { AgendaService } from './modules/agenda/public.ts';
+import { createAgendaUnitOfWork } from './bootstrap/agenda-composition.ts';
+import { createAgendaAuthentication, installAgendaTransport } from './bootstrap/agenda-transport.ts';
 import { PrismaService } from './database/prisma.service.ts';
 import { ClassroomAiRuntime, type AiRuntimeOverride } from './classrooms/ai/runtime.ts';
 
