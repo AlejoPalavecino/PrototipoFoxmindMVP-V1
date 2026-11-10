@@ -13,6 +13,7 @@ export function loadTsModule(path, { stubs = {} } = {}) {
     const module = { exports: {} }, nativeRequire = createRequire(filename);
     cache.set(filename, module);
     const code = ts.transpileModule(readFileSync(filename, 'utf8'), {
+      fileName: filename,
       compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2023 },
       transformers: { before: [context => source => {
         const visit = node => {

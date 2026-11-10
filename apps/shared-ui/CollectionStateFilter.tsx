@@ -6,5 +6,5 @@ export function CollectionStateFilter<T extends string>({ label, items, value, o
 }) {
   return <nav className={s.buckets} aria-label={label}>{items.map(item => <button type="button" key={item.value}
     aria-pressed={value===item.value} ref={value===item.value?selectedRef:undefined} onClick={()=>onChange(item.value)}>
-    {item.label}<span>{item.count}</span></button>)}</nav>;
+    {item.label}{' '}<span>{item.count}</span></button>)}</nav>;
 }

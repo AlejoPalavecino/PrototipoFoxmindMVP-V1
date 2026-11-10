@@ -1,4 +1,4 @@
-// Canonical complete ordered migration inventory reconciled on 2026-11-02.
+// Canonical complete ordered migration inventory reconciled on 2026-11-10.
 // New migrations must update this list deliberately; filesystem discovery is never the expectation.
 export const migrationInventory = Object.freeze([
   '202610150001_initial', '202610150002_invariants', '202610150003_guard_regressions',
@@ -23,4 +23,10 @@ export const migrationInventory = Object.freeze([
   '202611050007_classroom_access_code_envelope',
   '202611060001_material_revisions',
   '202611060002_practical_written_response',
+  '202611080001_account_foxy_avatar',
+  '202611080001_pending_classroom_deletion',
+  '202611080003_study_folders',
+  '202611080004_study_folder_uploads',
+  '202611080005_study_review_sessions',
+  '202611080006_study_ai_admission',
 ]);

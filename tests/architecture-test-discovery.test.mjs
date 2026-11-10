@@ -5,6 +5,18 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
+test('source helper parses generic TypeScript functions without interpreting them as JSX', async () => {
+  const { loadTsModule } = await import('./helpers/load-ts-module.mjs');
+  const directory = await mkdtemp(join(tmpdir(), 'foxmind-ts-source-'));
+  try {
+    const file = join(directory, 'generic.ts');
+    await writeFile(file, 'export const identity = <T>(value: T): T => value;');
+    const { identity } = loadTsModule(file);
+    const value = { id: 'synthetic' };
+    assert.equal(identity(value), value);
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});
+
 test('test discovery covers tests and colocated runtime/type contracts without entering generated dependencies', async () => {
   const { discoverTests } = await import('../scripts/test-discovery.mjs');
   const cwd = await mkdtemp(join(tmpdir(), 'foxmind-discovery-'));

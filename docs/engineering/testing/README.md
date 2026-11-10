@@ -17,6 +17,8 @@ Elegir pruebas por contrato/permiso/datos/capas afectados. No atribuir una suite
 
 Los runners pueden crear PostgreSQL/S3/escáner/correo propios; otros requieren activación explícita de entorno/proveedor. Revisar el inventario y los guards antes de ejecutar. No descubrir secretos ni usar una base persistente como fixture.
 
+El helper de fuentes `tests/helpers/load-ts-module.mjs` pasa el nombre real del archivo a TypeScript para distinguir genéricos `.ts` de JSX `.tsx`. Las pruebas de inventario mantienen una lista explícita de las 52 migraciones y hashes históricos; agregar una migración exige actualizar la fixture deliberadamente, sin sustituirla por descubrimiento dinámico ni reescribir SQL.
+
 ## Navegador
 
 Usar una sola TaskSpace de Ego Lite por objetivo, cuentas sintéticas de ambos roles y recursos autorizados. Registrar estado inicial, acción, resultado y evidencia; una captura demuestra apariencia, no una transacción por sí sola.
