@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer, request } from 'node:http';
-import { proxyFileRequest } from '../apps/web/src/lib/file-proxy.ts';
+import { proxyFileRequest } from '../apps/web/src/application/server/file-proxy.ts';
 
 const id = '11111111-1111-4111-8111-111111111111';
 async function server(handler) {

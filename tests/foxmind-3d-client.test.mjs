@@ -7,7 +7,7 @@ const empty = () => ({ status: 'ready', items: [], totalItems: 0, nextCursor: nu
 const response = () => ({ version: 1, subjectId: subject, generatedAt: '2026-10-25T12:00:00.000Z', timeZone: 'UTC',
   participation: 'mixed', memberships: { study: 1, teach: 1, archived: 0 }, setup: { drafts: 0, invitations: 0 },
   modules: Object.fromEntries(['pending', 'review', 'feedback', 'agenda', 'queries', 'materials', 'classrooms'].map(name => [name, empty()])) });
-const factory = () => loadTsModule('apps/web/src/lib/home-client.ts').createWebHomeClient;
+const factory = () => loadTsModule("apps/web/src/application/academic-home-client.ts").createWebHomeClient;
 
 test('D9 browser makes one aggregate GET with same-origin credentials and no-store, never classroom fan-out', async () => {
   const calls = [], client = factory()(async (...args) => { calls.push(args); return Response.json(response()); });

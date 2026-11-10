@@ -7,7 +7,7 @@ const page = (totalItems = null, extra = {}) => ({ status: 'ready', items: [], t
 const data = (modules = {}, extra = {}) => ({ version: 1, subjectId: 'subject', generatedAt: '2026-10-28T12:00:00Z',
   timeZone: 'UTC', participation: 'mixed', memberships: { study: 7, teach: 4, archived: 2 },
   setup: { drafts: 0, invitations: 0 }, modules: { ...Object.fromEntries(names.map(name => [name, page()])), ...modules }, ...extra });
-const stats = value => loadTsModule('apps/classrooms-ui/home-presentation.ts').homeActivityStats(value);
+const stats = value => loadTsModule('apps/web/src/features/home/model/home-presentation.ts').homeActivityStats(value);
 const error = { status: 'error', code: 'SERVICE_UNAVAILABLE', retryable: true };
 
 test('Activity summary uses aggregate counts, separating review deliveries from activity rows', () => {

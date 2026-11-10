@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 
 test('authoring HTTP routes preserve ingress admission and strict mutation discriminator', async () => {
-  const { createClassroomsHandler } = await import('../.build/api/apps/api/src/classrooms/http.js');
+  const { createClassroomsHandler } = await import("../.build/api/apps/api/src/bootstrap/academic-http.js");
   const calls = [], admitted = [];
   const service = Object.fromEntries(['listActivities', 'activityDetail', 'activityDeadlineChoices', 'changeActivities', 'listMaterials', 'changePlan'].map(name => [name, async (...args) => {
     calls.push([name, ...args.slice(1)]); return { ok: true };

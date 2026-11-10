@@ -32,12 +32,16 @@ Se conserva el monolito modular: una aplicación backend compone capacidades esp
 
 | Superficie | Responsabilidad |
 |---|---|
-| apps/web | Páginas Next, controles de cuenta, integración de pantallas y proxies /api/v1 |
-| apps/classrooms-ui | Recorridos académicos existentes; migración por cortes pendiente |
-| apps/web/src/features/agenda, apps/agenda-ui | Feature Agenda y puentes temporales para consumidores anteriores |
-| apps/shared-ui | Navegación y presentación compartidas, componentes y estilos Brújula |
-| apps/api/src | Composición Nest, identidad, archivos, aulas, Inicio, Agenda, IA y adaptadores |
-| src/core/domain | Tipos, validación y reglas compartidas; sin dependencias de framework |
+| apps/web/pages | Adaptadores Next de páginas y proxies /api/v1 |
+| apps/web/src/application | Sesión, navegación, shell, integración entre features y transporte servidor |
+| apps/web/src/screens | Composición de pantallas a partir de las entradas públicas de features |
+| apps/web/src/features | UI, estado, API y validación de cada capacidad |
+| apps/shared-ui | Presentación genérica, controles y estilos Brújula; sin dependencia de features |
+| apps/api/src/modules | Casos de uso y puertos por dominio; adaptadores de persistencia/proveedor y presentación HTTP |
+| apps/api/src/bootstrap | Conexión de módulos, configuración del host y ciclos de vida |
+| apps/api/src/platform | Base de datos, diagnóstico, paginación y soporte técnico IA compartido |
+| src/core/domain | Reglas neutrales agrupadas por dominio; sin dependencias de framework |
+| src/core/contracts | DTOs académicos, contratos de cliente y contrato SQL separados de las reglas |
 | prisma | Modelo físico y migraciones; incluye integridad no expresable sólo con el esquema Prisma |
 | tests, scripts, ci | Contratos, runners, fixtures, controles y operación; no son código descartable por no estar en producción |
 | docs, odd/tasks | Guías actuales, contratos, decisiones, tareas y evidencia atribuida |
@@ -75,18 +79,34 @@ El [modelo de datos](data-model.md), las [guías de archivos](files/README.md) y
 
 ## Dónde empezar un cambio
 
-La [migración por dominios](architecture-migration.md) fue aprobada el 2026-11-10. El primer corte incorpora `apps/shared-ui/feedback.tsx` como dueño de Notice/Dialog y `apps/web/src/application/navigation/destinations.ts` como dueño de continuaciones y destinos globales; las rutas anteriores conservan puentes de una única implementación. Se usa `application`, porque `src/app` es un directorio reservado de Next incompatible con la ubicación actual de `pages`.
+La [migración aprobada](architecture-migration.md) organiza el candidato actual por dominios. Los directorios frontend anteriores `apps/classrooms-ui`, `apps/agenda-ui`, `apps/web/src/components` y `apps/web/src/lib`, y las carpetas API legadas, fueron retirados. No agregar nuevos imports hacia esas rutas. Se usa `application` porque `src/app` está reservado por Next; se conserva Pages Router.
 
-`scripts/migration-boundaries.mjs` complementa el guard AST: protege capas de nuevos módulos bajo `modules/<dominio>`, contratos públicos nombrados, entradas de features y dependencia descendente de shared. Después del piloto Agenda, el código legado conserva 110 excepciones exactas (123 en la base, 112 tras Agenda); las demás capacidades continúan pendientes de migración. Estado y aceptación por corte en el [tablero único](../../odd/tasks/architecture-migration.md).
+Los módulos backend son identity, files, classrooms, curriculum, materials, communication, activities, participation, grading, agenda, home, foxy y study. Cada módulo expone `public.ts` con nombres explícitos; `presentation` llama a aplicación, infraestructura implementa sus puertos y `bootstrap` conecta dependencias. Crear sólo las capas necesarias. Las coordinaciones académicas y de archivos conservan el tx/actor recibido, locks, reautenticación y atomicidad; la extracción no habilita transacciones independientes.
 
-Agenda reúne backend en `modules/agenda/{application,infrastructure,presentation}`, reglas en `src/core/domain/agenda` y web en `features/agenda/{ui,model,api}`. La composición en `bootstrap` conecta identidad y proyección académica usando el mismo tx/actor; el contrato público no exporta infraestructura. La pantalla y adaptadores HTTP web pertenecen a `screens` y `application`. Ver [guía de Agenda](agenda/README.md) y [diseño de migración](architecture-migration.md).
+| Módulo dueño | Responsabilidad |
+|---|---|
+| identity / files | Cuenta, sesión, seguridad y correo / custodia, escaneo y acceso a bytes |
+| classrooms | Creación, propiedad, pertenencia, archivo y revisión de aulas |
+| curriculum / materials / communication | Plan y avance temático / Biblioteca / Muro |
+| activities / participation | Autoría y asignación / intentos, editor, recepción e historial |
+| grading | Cálculo exacto, corrección, publicación, auditoría y progreso académico |
+| agenda / home | Eventos privados y proyección académica / lecturas y avisos autorizados |
+| foxy / study | Conversaciones y recursos privados / carpetas, prácticas y repasos privados |
 
-Identidad frontend vive en `features/identity`, con pantalla en `screens` y composición global en `application` (Navbar, shell y adaptadores servidor). La entrada pública `api.ts` conserva un contrato puro para clientes HTTP, separado de componentes/CSS. Las demás features conservan su ubicación hasta su propio corte. Ver [frontend](frontend/README.md).
+`scripts/migration-boundaries.mjs` y el guard AST protegen módulos, contratos públicos, entradas de features y dirección de dependencias. El objetivo de cierre es cero excepciones; el resultado del candidato y la aceptación final se registran en el [tablero único](../../odd/tasks/architecture-migration.md), no se deducen de esta reorganización documental.
 
-Carpetas de estudio incorpora una capacidad privada en `apps/api/src/study-folders`, con cargas/avisos internos al mismo módulo. El motor neutral está en `src/core/domain/study-engine.ts`; los puentes de composición `study-file-integration.ts` y `study-agenda-integration.ts` reutilizan validación/escaneo/almacenamiento y Agenda sin conceder permisos docentes. El adaptador Gemini de estudio comparte admisión/presupuesto con las otras familias. El transporte de identidad es un host explícito en el guard AST; el resto del módulo mantiene sus fronteras. [Guía](study/README.md).
+El núcleo agrupa reglas en `src/core/domain/<dominio>`; los consumidores usan su dueño concreto. `src/core/contracts` separa DTOs compartidos y `sql.ts` define persistencia: un tipo SQL no es una regla de dominio ni un contrato para exponer al navegador. No hay un barrel global que mezcle todos los dominios.
+
+Estudio conserva motor neutral en `src/core/domain/study/engine.ts`, casos de uso en `modules/study/application` y cargas/avisos en su infraestructura/presentación. `bootstrap/study-file-integration.ts` y `bootstrap/study-agenda-integration.ts` conectan las capacidades sin conceder permisos docentes. Ver [Estudio](study/README.md) y [frontend](frontend/README.md).
+
+## Patrones en dependencias reales
+
+- **Adapter:** `S3Storage`, `ClamdScanner` y los adaptadores Gemini implementan los contratos de almacenamiento, escaneo o generación que consumen los casos de uso. Traducen un proveedor externo sin introducir sus SDKs en las reglas neutrales.
+- **Strategy:** los puertos de proveedor permiten seleccionar una implementación real o una sintética en pruebas. `selectFoxyVisualProviders` elige IMAGE/DIAGRAM según configuración y overrides; el caso de uso conserva presupuesto, autorización y publicación.
+- **Factory:** `createFileInfrastructure` construye almacenamiento/escáner y su cierre; las fábricas de `bootstrap` conectan transacciones, identidad y módulos. Encapsulan dependencias y recursos concretos, sin jerarquías adicionales para representar el patrón.
 
 1. Ubicá la regla en la [especificación vigente](../foxmind-v1-functional-spec.md) y su [matriz por rol](../product/features-by-role.md).
-2. Seguí proxy → transporte → capacidad dueña → transacción/persistencia, consultando la guía de dominio y el código. Classrooms conserva servicios especializados y operaciones compartidas; no inventar un paquete por cada función ni borrar excepciones sin criterio.
+2. Seguí proxy → transporte → capacidad dueña → transacción/persistencia, consultando la guía de dominio y el código. La composición académica vive en bootstrap; las reglas de autoría, participación y calificación tienen sus propios módulos.
 3. Elegí pruebas de permisos, contratos y datos según el cambio. Revisá [verificación](testing/README.md) y ejecutá lint:boundaries si cambia una dependencia entre módulos.
 
-Fuentes: [host](../../apps/api/src/main.ts), [composición](../../apps/api/src/application.ts), [dominio](../../src/core/domain/index.ts), [scripts](../../package.json). [Estado actual](../implementation-roadmap.md).
+Fuentes: [host](../../apps/api/src/main.ts), [composición](../../apps/api/src/bootstrap/application.ts), [núcleo](../../src/core/domain/), [contratos](../../src/core/contracts/), [factory Files](../../apps/api/src/modules/files/infrastructure/configuration.ts), [selección visual](../../apps/api/src/bootstrap/foxy-visual-host-providers.ts), [scripts](../../package.json). [Estado actual](../implementation-roadmap.md).

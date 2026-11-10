@@ -2,7 +2,7 @@ import { gradingView } from './helpers/audit-grade-dto.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createClassroomClient } from '../apps/classrooms-ui/api.ts';
+import { createClassroomClient } from '../apps/web/src/application/academic-client.ts';
 const id = 'a1111111-1111-4111-8111-111111111111';
 test('private correction client sends canonical decimal text with fresh CSRF, never an attempt capability', async () => {
   const calls = []; let csrf = 0;
@@ -16,8 +16,8 @@ test('private correction client sends canonical decimal text with fresh CSRF, ne
   await assert.rejects(() => malformed.call(`/${id}/attempts/${id}/grading`), { code: 'SERVICE_UNAVAILABLE' });
 });
 test('actual all-type history keeps private saving separate from explicit saved-state publication', async () => {
-  const history = await readFile(new URL('../apps/classrooms-ui/AttemptHistory.tsx', import.meta.url), 'utf8');
-  const editor = await readFile(new URL('../apps/classrooms-ui/GradingEditor.tsx', import.meta.url), 'utf8');
+  const history = await readFile(new URL('../apps/web/src/application/academic-AttemptHistory.tsx', import.meta.url), 'utf8');
+  const editor = await readFile(new URL('../apps/web/src/features/grading/ui/GradingEditor.tsx', import.meta.url), 'utf8');
   assert.match(history, /teacher && attempt.status === 'SUBMITTED'.*Corregir intento/);
   assert.match(history, /<GradingEditor/); assert.match(editor, /Guardar corrección privada/);
   assert.match(editor, /overallGrade: data.activity.type === 'ASSIGNMENT'/); assert.match(editor, /manualPoints/);

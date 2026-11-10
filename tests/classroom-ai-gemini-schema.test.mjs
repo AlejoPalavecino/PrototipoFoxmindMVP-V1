@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { GeminiExtractionAdapter } from '../apps/api/src/ai/index.ts';
+import { GeminiExtractionAdapter } from '../apps/api/src/modules/curriculum/infrastructure/providers/gemini-adapter.ts';
 
 const configuration = { model: 'gemini-schema-fixture', maxInputTokens: 100000,
   maxOutputTokens: 16384, deadlineMs: 1000 };

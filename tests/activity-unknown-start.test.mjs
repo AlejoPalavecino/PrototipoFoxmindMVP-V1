@@ -6,7 +6,7 @@ import { withAiDatabase, rollbackCase } from './classroom-ai-database.test.mjs';
 import { fixture } from './activity-ai-fixture.test.mjs';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
-const ai = () => import('../apps/api/src/classrooms/activity-ai/index.ts');
+const ai = () => Promise.all([import("../apps/api/src/modules/activities/infrastructure/activity-ai/service.ts"),import("../apps/api/src/modules/activities/infrastructure/activity-ai/worker.ts"),import("../apps/api/src/modules/activities/infrastructure/activity-ai/provenance.ts")]).then(([m0,m1,m2]) => Object.freeze({ActivityAiService: m0.ActivityAiService,ActivityAiWorker: m1.ActivityAiWorker,validateActivityGeneration: m2.validateActivityGeneration}));
 async function setup(local) {
   const f = await fixture(local); await f.seedPlan({ action: 'addTopic', unitId: f.unitId, name: 'Second topic' });
   f.start.revision = await f.revision(); f.start.topicIds = (await f.classrooms.detail(f.T, f.room)).units[0].topics.map(t => t.id);
@@ -52,7 +52,7 @@ test('A01 acknowledged regeneration dispatches once and another unknown successo
 });
 
 test('A01 reopening generation recovers the latest uncertain result before permitting another initial start', async () => {
-  const { useActivityGeneration } = loadTsModule('apps/classrooms-ui/use-activity-generation.ts');
+  const { useActivityGeneration } = loadTsModule('apps/web/src/features/activity-authoring/model/use-activity-generation.ts');
   const failed = { id: randomUUID(), classroomId: randomUUID(), state: 'FAILED', error: 'PROVIDER_OUTCOME_UNKNOWN', proposal: null,
     retryable: false, missingInformation: [], sourceReport: [], appliedActivityId: null, createdAt: '2026-10-25T12:00:00Z' };
   const calls = [], api = { call: async (...args) => { calls.push(args); return args[0].endsWith('/sources') ? { revision: '2', sources: [] }
@@ -111,8 +111,8 @@ test('A01 an older READY sibling cannot bypass an unresolved unknown successor e
 });
 
 test('A01 reopening after a newer READY successor preserves historical uncertainty without blocking new creation', async () => {
-  const { useActivityGeneration } = loadTsModule('apps/classrooms-ui/use-activity-generation.ts');
-  const { ActivityGeneration } = loadTsModule('apps/classrooms-ui/ActivityGeneration.tsx');
+  const { useActivityGeneration } = loadTsModule('apps/web/src/features/activity-authoring/model/use-activity-generation.ts');
+  const { ActivityGeneration } = loadTsModule('apps/web/src/features/activity-authoring/ui/ActivityGeneration.tsx');
   const room = { id: randomUUID(), revision: '2', role: 'teacher', archived: false, units: [], plans: [] };
   const ancestor = { id: randomUUID(), classroomId: room.id, state: 'FAILED', error: 'PROVIDER_OUTCOME_UNKNOWN', proposal: null,
     retryable: false, missingInformation: [], sourceReport: [], appliedActivityId: null, createdAt: '2026-10-25T12:00:00Z' };

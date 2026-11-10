@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 
 test('application shell preserves theme and owns route-heading focus with cleanup', () => {
@@ -20,15 +21,17 @@ test('application shell preserves theme and owns route-heading focus with cleanu
   } finally {Object.assign(globalThis,previous);}
 });
 
-test('legacy global adapters forward named implementations without duplication', () => {
-  for(const [file,target,name] of [
-    ['apps/web/src/components/account-navbar.tsx','../application/navigation/account-navbar.tsx','AccountNavbar'],
-    ['apps/web/src/lib/account-proxy.ts','../application/server/identity-proxy.ts','proxyAccountRequest'],
-    ['apps/web/src/lib/page-server.ts','../application/server/account-page.ts','accountPageProps'],
-    ['apps/web/src/lib/token-capture.ts','../application/server/token-capture.ts','tokenCaptureScript'],
-    ['apps/web/src/lib/utils.ts','../../../shared-ui/class-names.ts','cn'],
+
+test('application adapters expose their owning contracts and retired paths stay absent', () => {
+  for(const [file,legacy,name,type] of [
+    ['apps/web/src/application/navigation/account-navbar.tsx','components/account-navbar.tsx','AccountNavbar','function'],
+    ['apps/web/src/application/server/identity-proxy.ts','lib/account-proxy.ts','proxyAccountRequest','function'],
+    ['apps/web/src/application/server/account-page.ts','lib/page-server.ts','accountPageProps','function'],
+    ['apps/web/src/application/server/token-capture.ts','lib/token-capture.ts','tokenCaptureScript','string'],
+    ['apps/shared-ui/class-names.ts','lib/utils.ts','cn','function'],
   ]) {
-    const implementation=()=>{};const result=loadTsModule(file,{stubs:{[target]:{[name]:implementation}}});
-    assert.equal(result[name],implementation);assert.deepEqual(Object.keys(result),[name]);
+    const result=loadTsModule(file);
+    assert.equal(typeof result[name],type);assert.deepEqual(Object.keys(result),[name]);
+    assert.equal(existsSync(`apps/web/src/${legacy}`),false,legacy);
   }
 });

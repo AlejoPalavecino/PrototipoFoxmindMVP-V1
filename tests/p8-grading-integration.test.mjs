@@ -1,11 +1,12 @@
-import { startBrowserAttempt } from './helpers/browser-admission-step.mjs';
+import { startBrowserAttempt, openActivityOverview, openTeacherActivity, selectClassroomSection, observeAttachmentUpload, recordSafeUiResponses, watchActionResponse } from './p8-current-ui-helpers.mjs';
+import { runAdmittedAction } from './helpers/browser-admission-step.mjs';
 import { readdirSync } from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp } from 'node:fs/promises';
+import { mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { chromium } from '@playwright/test';
+import { chromium, expect } from '@playwright/test';
 import { setTimeout as delay } from 'node:timers/promises';
 import { withP4IntegrationRuntime } from '../scripts/p4-integration-runtime.mjs';
 import { account, api, digest } from './p4-integration-helpers.mjs';
@@ -21,6 +22,33 @@ async function request(page, method, path, body, headers) {
 }
 async function ok(...args) { const result = await request(...args); assert.equal(result.status, 200, `${args[1]} ${args[2]}`); return result.body; }
 
+async function confirmPracticalSubmission(page, classroomId, attemptId) {
+  const mutationPath = `/api/v1/classrooms/${classroomId}/attempts/${attemptId}/submit-practical`;
+  let submits = 0;
+  const capture = request => {
+    if (request.method() === 'POST' && new URL(request.url()).pathname === mutationPath) submits++;
+  };
+  page.on('request', capture);
+  try {
+    const button = page.getByRole('button', { name: 'Confirmar envío del trabajo', exact: true });
+    return await runAdmittedAction({ mutationPath,
+      observe: () => watchActionResponse(page, response => {
+        const path = new URL(response.url()).pathname, method = response.request().method();
+        return (path === '/api/v1/auth/csrf' && method === 'GET' && response.status() !== 200)
+          || (path === mutationPath && method === 'POST');
+      }),
+      action: () => button.click(), wait: milliseconds => page.waitForTimeout(milliseconds),
+      onLimited: async (_response, phase) => {
+        assert.equal(phase, 'csrf', 'A rejected submit mutation must not be repeated');
+        assert.equal(submits, 0, 'CSRF recovery must precede every submit request');
+        await page.getByRole('region', { name: 'Archivos y entrega del trabajo práctico', exact: true })
+          .getByRole('alert').filter({ hasText: /límite de intentos/i }).waitFor();
+        await button.waitFor(); await expect(button).toBeEnabled({ timeout: 12000 });
+      },
+    });
+  } finally { page.off('request', capture); }
+}
+
 test('P8 actual all-type student delivery -> teacher private correction -> reload/restart preserves safe student DTO and original records', { timeout: 330000 }, async t => {
   await withP4IntegrationRuntime(async runtime => {
     assert.deepEqual(runtime.migrations, readdirSync('prisma/migrations').filter(name => /^\d+_/.test(name)).sort());
@@ -32,13 +60,14 @@ test('P8 actual all-type student delivery -> teacher private correction -> reloa
       '202610250002_activity_ai',
     ]);
     const scratch = await mkdtemp(join(tmpdir(), 'foxmind-p8-private-grading-')); console.log(`P8 retained browser evidence: ${scratch}`);
-    const browser = await chromium.launch({ headless: true });
+    const browser = await chromium.launch({ headless: true }), recorders = [];
     try {
       const teacher = await (await browser.newContext({ viewport: { width: 1280, height: 900 } })).newPage();
       const student = await (await browser.newContext({ viewport: { width: 375, height: 812 } })).newPage();
+      recorders.push(recordSafeUiResponses(teacher), recordSafeUiResponses(student));
       const errors = []; for (const page of [teacher, student]) { page.setDefaultTimeout(12000); page.on('pageerror', e => errors.push(e.message)); }
-      const suffix = Date.now(); await account(teacher, runtime.origin, runtime.inbox, `p8-teacher-${suffix}@example.test`);
-      await account(student, runtime.origin, runtime.inbox, `p8-student-${suffix}@example.test`);
+      const suffix = Date.now(); await account(teacher, runtime.origin, runtime.inbox, `p8-teacher-${suffix}@example.test`, undefined, "teacher");
+      await account(student, runtime.origin, runtime.inbox, `p8-student-${suffix}@example.test`, undefined, "student");
       const name = 'P8 private correction classroom', room = await classroom(teacher, student, name), detail = await ok(teacher, 'GET', `/classrooms/${room.id}`);
       const change = async operation => ok(teacher, 'POST', `/classrooms/${room.id}/activities`, { revision: (await ok(teacher, 'GET', `/classrooms/${room.id}`)).revision, operation });
       const activities = [];
@@ -59,30 +88,36 @@ test('P8 actual all-type student delivery -> teacher private correction -> reloa
       let failed = false;
       const check = (label, fn) => t.test(label, { skip: failed ? 'Earlier actual private-grading prerequisite failed' : false }, async () => { try { await fn(); } catch (e) { failed = true; throw e; } });
       for (const activity of activities) await check(`${activity.type} real browser submission and teacher correction remain private across reload`, async () => {
-        await openClassroom(student, runtime.origin, name); await student.getByRole('button', { name: 'Actividades', exact: true }).click();
-        await student.getByRole('article', { name: activity.title, exact: true }).getByRole('button', { name: activity.type === 'ASSIGNMENT' ? 'Abrir trabajo práctico' : 'Consultar actividad', exact: true }).click();
+        await openClassroom(student, runtime.origin, name); await selectClassroomSection(student, 'activities', 'Actividades');
+        await openActivityOverview(student, activity.title);
+        if (activity.type === 'ASSIGNMENT') {
+          const started = await startBrowserAttempt(student, room.id, activity.id, 12000, 'Preparar entrega');
+          activity.attempt = (await started.json()).attempt.id;
+        }
         if (activity.type === 'ASSIGNMENT') {
           const bytes = await planPdf('P8 immutable submitted file');
           await student.getByLabel('Seleccionar archivo del trabajo', { exact: true }).setInputFiles({ name: 'p8-original.pdf', mimeType: 'application/pdf', buffer: bytes });
-          const upload = student.waitForResponse(r => r.url().endsWith('/content') && r.request().method() === 'PUT');
-          await student.getByRole('button', { name: 'Subir archivo privado', exact: true }).click(); assert.equal((await upload).status(), 200);
-          await student.getByRole('button', { name: 'Enviar trabajo práctico', exact: true }).click();
-          const submitted = student.waitForResponse(r => r.url().endsWith('/submit-practical'));
-          await student.getByRole('button', { name: 'Confirmar envío del trabajo', exact: true }).click(); assert.equal((await submitted).status(), 200);
-          await student.getByRole('heading', { name: 'Comprobante de entrega', exact: true }).waitFor();
+          const upload = await observeAttachmentUpload(student, () => student.getByRole('button', { name: 'Subir archivo privado', exact: true }).click());
+          assert.equal(upload.status(), 200);
+          await student.getByRole('button', { name: 'Revisar entrega', exact: true }).click();
+          const submitted = await confirmPracticalSubmission(student, room.id, activity.attempt);
+          assert.equal(submitted.status(), 200);
+          await student.getByText('Entrega confirmada.', { exact: true }).waitFor();
         } else {
           await startBrowserAttempt(student, room.id, activity.id, 12000);
           await student.getByRole('textbox', { name: 'Respuesta a la pregunta 1', exact: true }).fill('Actual preserved answer 😀');
-          await student.getByRole('button', { name: 'Enviar respuestas', exact: true }).click();
+          await student.getByRole('button', { name: 'Revisar entrega', exact: true }).click();
           const submitted = student.waitForResponse(r => r.url().endsWith('/submit-answers'));
           await student.getByRole('button', { name: 'Confirmar envío de respuestas', exact: true }).click(); assert.equal((await submitted).status(), 200);
           await student.getByText('Entrega confirmada.', { exact: true }).waitFor();
         }
-        activity.attempt = (await ok(student, 'GET', `/classrooms/${room.id}/activities/${activity.id}/session`)).attempt.id;
+        const submittedAttempt = (await ok(student, 'GET', `/classrooms/${room.id}/activities/${activity.id}/session`)).attempt.id;
+        if (activity.attempt) assert.equal(submittedAttempt, activity.attempt, 'Submission preserves the explicitly started attempt');
+        activity.attempt = submittedAttempt;
         const path = `/classrooms/${room.id}/attempts/${activity.attempt}/grading`, before = await protectedHash();
         const previewHash = await gradeHash(); await ok(teacher, 'GET', path); assert.equal(await gradeHash(), previewHash);
-        await openClassroom(teacher, runtime.origin, name); await teacher.getByRole('button', { name: 'Actividades', exact: true }).click();
-        await teacher.getByRole('article', { name: activity.title, exact: true }).getByRole('button', { name: 'Ver entregas recibidas', exact: true }).click();
+        await openClassroom(teacher, runtime.origin, name); await selectClassroomSection(teacher, 'activities', 'Actividades');
+        await openTeacherActivity(teacher, activity.title);
         await teacher.getByRole('button', { name: 'Corregir intento 1', exact: true }).click();
         const region = teacher.getByRole('region', { name: 'Corrección privada del intento', exact: true });
         await region.getByText('Corrección privada: el estudiante no ve esta calificación.', { exact: false }).waitFor();
@@ -95,12 +130,12 @@ test('P8 actual all-type student delivery -> teacher private correction -> reloa
           assert.equal(await region.getByLabel('Devolución de la pregunta 1', { exact: true }).inputValue(), 'Private feedback with pending points');
         }
         const entered = activity.type === 'ASSIGNMENT' ? '8,50' : activity.type === 'QUESTIONNAIRE' ? '8,35' : '0';
-        await region.getByLabel(activity.type === 'ASSIGNMENT' ? 'Calificación general' : 'Puntos de la pregunta 1', { exact: true }).fill(entered);
+        await region.getByLabel(activity.type === 'ASSIGNMENT' ? 'Nota final' : 'Puntos de la pregunta 1', { exact: true }).fill(entered);
         await region.getByLabel('Devolución general opcional', { exact: true }).fill('Private general feedback');
         const saved = teacher.waitForResponse(r => r.url().endsWith('/grading') && r.request().method() === 'POST');
         await region.getByRole('button', { name: 'Guardar corrección privada', exact: true }).click(); assert.equal((await saved).status(), 200);
         const expected = activity.type === 'ASSIGNMENT' ? '8.50' : activity.type === 'QUESTIONNAIRE' ? '8.35' : '0.00'; activity.expected = expected;
-        await region.getByText(`Calificación calculada: ${expected.replace('.', ',')}`, { exact: true }).waitFor();
+        await region.getByText(`Nota guardada: ${expected.replace('.', ',')}`, { exact: true }).waitFor();
         assert.equal(await protectedHash(), before);
         const persisted = await ok(teacher, 'GET', path); assert.equal(persisted.grade.finalGrade, expected); assert.equal(persisted.grade.isPublished, false);
         assert.equal(persisted.grade.publishedAt, null); assert.equal((await runtime.db.query('SELECT count(*)::int n FROM attempt_grades WHERE attempt_id=$1', [activity.attempt])).rows[0].n, 1);
@@ -108,7 +143,7 @@ test('P8 actual all-type student delivery -> teacher private correction -> reloa
         const own = await ok(student, 'GET', `/classrooms/${room.id}/attempts/${activity.attempt}/history`);
         assert.ok(!/"(?:finalGrade|overallFeedback|manualPoints|earned|correct|scoringRule)"/.test(JSON.stringify(own)));
         await region.getByRole('button', { name: 'Recargar corrección', exact: true }).click();
-        await region.getByText(`Calificación calculada: ${expected.replace('.', ',')}`, { exact: true }).waitFor();
+        await region.getByText(`Nota guardada: ${expected.replace('.', ',')}`, { exact: true }).waitFor();
         if (activity.type === 'ASSIGNMENT') {
           const file = persisted.attempt.attachments[0], download = await request(teacher, 'GET', `/files/${file.id}/content`); assert.equal(download.status, 200);
           assert.equal(download.length > 0, true);
@@ -130,6 +165,9 @@ test('P8 actual all-type student delivery -> teacher private correction -> reloa
         assert.equal((await runtime.db.query('SELECT count(*)::int n FROM grade_corrections')).rows[0].n, 0);
         assert.deepEqual(errors, []);
       });
-    } finally { await browser.close(); }
+    } finally {
+      await writeFile(join(scratch, 'safe-responses.json'), JSON.stringify(await Promise.all(recorders.map(recorder => recorder.close())), null, 2));
+      await browser.close();
+    }
   }, { classrooms: true });
 });

@@ -2,14 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
-import { parseHomeTarget } from '../src/core/domain/home-target.ts';
-import { parseHomePage } from '../src/core/domain/home-rows-validation.ts';
-import { homeAcademicTarget } from '../apps/classrooms-ui/classroom-home-target.ts';
+import { parseHomeTarget } from '../src/core/domain/home/target.ts';
+import { parseHomePage } from '../src/core/domain/home/rows-validation.ts';
+import { homeAcademicTarget } from '../apps/web/src/application/academic-classroom-home-target.ts';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 
 const id = '11111111-1111-4111-8111-111111111111';
 test('Assigning from review saves then publishes only after an explicit assignment action', async () => {
-  const { ActivityAuthoring } = loadTsModule('apps/classrooms-ui/ActivityAuthoring.tsx');
+  const { ActivityAuthoring } = loadTsModule('apps/web/src/features/activity-authoring/ui/ActivityAuthoring.tsx');
   const calls = [], confirmations = [];
   const activity = { id, title:'Actividad',objective:'Explicar',instructions:'Resolver',evaluationRubric:[{name:'Criterio',description:'Explica',weight:100}],type:'ASSIGNMENT', status:'DRAFT', questions:[], instructionFiles:[], materials:[],unitId:'u',topicIds:['t'], allowLate:false, locked:false, attachmentRequired:false };
   const view = hookView(ActivityAuthoring, { api:{call:async(...args)=>{calls.push(args);return {revision:'2'};}},
@@ -40,7 +40,7 @@ test('Review rows accept validated student identity and reject malformed attempt
   assert.throws(() => read({ ...item, attemptNumber: 0 }));
 });
 test('Agenda preview reflects title, selected color and all-day time before any mutation', () => {
-  const { EventColorFields } = loadTsModule('apps/agenda-ui/EventColorFields.tsx');
+  const { EventColorFields } = loadTsModule("apps/web/src/features/agenda/ui/EventColorFields.tsx");
   const html = renderToStaticMarkup(EventColorFields({ draft: { category: 'CLASS', color: 'PURPLE', title: 'Preparar laboratorio', allDay: true, startDate: '2026-11-05' }, issues: [], onChange() { throw new Error('preview must not mutate'); } }));
   assert.match(html, /Vista previa del evento/);
   assert.match(html, /Preparar laboratorio/);

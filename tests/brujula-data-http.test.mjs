@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { createHomeHandler } from '../apps/api/src/home/http.ts';
+import { createHomeHandler } from '../apps/api/src/modules/home/presentation/http.ts';
 test('new Home module routes preserve read-only admission and opaque pagination',async()=>{
  const seen=[];
  const handler=createHomeHandler({page:async(_r,q)=>{seen.push(q);return {module:q.module,page:{status:'ready',items:[],totalItems:0,nextCursor:null}};}},{admit:async(_r,w)=>assert.equal(w,false)});

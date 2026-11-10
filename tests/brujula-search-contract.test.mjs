@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseBrujulaSearchQuery, parseBrujulaSearchPage, brujulaSearchHref } from '../src/core/domain/brujula-search.ts';
+import { parseBrujulaSearchQuery, parseBrujulaSearchPage, brujulaSearchHref } from '../src/core/domain/classrooms/brujula-search.ts';
 
 const id = '11111111-1111-4111-8111-111111111111';
 test('la consulta global acota texto y rechaza autoridad, duplicados y cursores arbitrarios', () => {

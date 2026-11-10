@@ -6,7 +6,7 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView } from './agenda-ui-helpers.test.mjs';
 
 test('the same academic link is reauthorized after identity changes and ignores the earlier response', async () => {
-  const { useAgendaTarget } = loadTsModule('apps/classrooms-ui/useAgendaTarget.ts');
+  const { useAgendaTarget } = loadTsModule("apps/web/src/application/academic-useAgendaTarget.ts");
   const classroomId = randomUUID(), activityId = randomUUID(), calls = [];
   const destination = `/mis-aulas?aula=${classroomId}&actividad=${activityId}`;
   const api = { open: (target, signal) => new Promise(resolve => calls.push({ target, signal, resolve })) };
@@ -74,7 +74,7 @@ test('client preserves server error codes, signals identity requirements and nev
 });
 
 test('account return navigation accepts agenda and exact safe academic destinations', () => {
-  const { classroomDestination, classroomAuthHref } = loadTsModule('apps/web/src/lib/classroom-client.ts');
+  const { classroomDestination, classroomAuthHref } = ({...loadTsModule("apps/web/src/application/academic-classroom-client.ts"),classroomDestination:loadTsModule('apps/web/src/application/navigation/destinations.ts').safeDestination,classroomAuthHref:loadTsModule('apps/web/src/application/navigation/destinations.ts').authHref,classroomHomeHref:loadTsModule('apps/web/src/application/navigation/destinations.ts').classroomHomeHref,classroomHomeDestination:loadTsModule('apps/web/src/application/navigation/destinations.ts').classroomHomeDestination});
   const room = randomUUID(), activity = randomUUID();
   for (const destination of ['/agenda', '/carpetas-de-estudio', `/carpetas-de-estudio/${room}`, `/mis-aulas?aula=${room}`, `/mis-aulas?aula=${room}&actividad=${activity}`]) {
     assert.equal(classroomDestination(destination), destination);

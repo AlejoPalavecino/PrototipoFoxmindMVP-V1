@@ -1,21 +1,32 @@
 # Frontend y composición visual
 
-Next Pages Router compone pantallas de cuenta y los módulos de aulas, Agenda y Foxy. Los proxies /api/v1 limitan destino/método/payload y mantienen comunicación same-origin con Nest. El backend conserva autorización y publicación.
+Next Pages Router conserva las rutas y proxies `/api/v1`; el backend mantiene autorización y publicación. El frontend se organiza por capacidad, con composición global separada. El [diseño UX/UI](../../design/README.md) y las [capturas actuales](../../design/current/README.md) conservan las reglas de experiencia.
 
-Durante la [migración aprobada](../architecture-migration.md), los destinos y continuaciones globales viven en `apps/web/src/application/navigation/destinations.ts`. No usar `src/app`: Next lo interpreta como App Router y el build rechaza su combinación con `pages` en la raíz actual. `classroom-client.ts` conserva reexports de compatibilidad hasta retirar sus consumidores anteriores.
+## Dónde ubicar un cambio
 
-Notice/Dialog pertenecen a `apps/shared-ui/feedback.tsx`, reutilizado por Agenda, Foxy, Estudio y las pantallas web. `classrooms-ui/components.tsx` mantiene un puente para Aulas y sus elementos específicos de portada. El marcado, manejo de foco y estilos existentes se conservan; shared no debe importar una feature. Las features nuevas exponen `index.ts` y no se importan sus archivos internos desde otras superficies.
+| Superficie | Responsabilidad |
+|---|---|
+| `apps/web/pages` | Adaptadores Next de páginas y rutas HTTP |
+| `apps/web/src/screens` | Pantallas que coordinan sesión y features públicas |
+| `apps/web/src/application` | Shell, navegación, clientes autenticados y coordinación entre capacidades |
+| `apps/web/src/application/server` | Proxies Node, SSR privado y captura estática de enlaces de prueba |
+| `apps/web/src/features/<capacidad>` | UI, estado, API y validación de la capacidad |
+| `apps/shared-ui` | Controles, feedback, Markdown, fechas, portadas y estilos genéricos |
 
-El piloto Agenda concentra UI, estado y API pura en `apps/web/src/features/agenda/{ui,model,api}`, con exports explícitos en `index.ts`. `screens/agenda-screen.tsx` compone cuenta y navegación; `application/agenda-client.ts` adapta el caller autenticado y `application/server/agenda-proxy.ts` conserva el transporte Node fuera del navegador. Las ubicaciones anteriores son reexports temporales de una sola implementación. El catálogo de zonas compartido está en `apps/shared-ui/time-zones.ts`.
+Las features son identity, agenda, classrooms, curriculum, materials, communication, activity-authoring, participation, grading, home, notifications, foxy, study y files. Exponen entradas explícitas `index.ts`; cuando se necesita transporte puro, `api.ts` evita cargar TSX/CSS. Otra feature no importa sus archivos internos. Shared no importa features ni composición. Los directorios anteriores `apps/classrooms-ui`, `apps/agenda-ui`, `apps/web/src/components` y `apps/web/src/lib` están retirados.
 
-Brújula es la interfaz actual: Lexend, sidebar escritorio y menú compacto por debajo de 1024 px. Los recursos de producción viven en apps/web/public; los componentes/estilos compartidos en apps/shared-ui. Nombres de clases fm3d/p5 y recursos de familias anteriores aún usados no son documentación obsoleta ni autorización de borrarlos.
+`application` se usa porque `src/app` está reservado para App Router y es incompatible con la ubicación actual de `pages`. Los componentes `academic-*` de application coordinan varias capacidades: no trasladar esa coordinación a una feature ni reintroducir un cliente académico global como dueño de todas las reglas.
 
-El [diseño UX/UI](../../design/README.md) es la referencia vigente, con [capturas de la aplicación](../../design/current/README.md). No se usa un HTML de demostración antiguo como fuente funcional o visual que prevalezca sobre esta base.
+## Composición y contratos
 
-Al cambiar una pantalla, revisar roles, carga/vacío/error, confirmación, foco/teclado, mobile/tablet/desktop, contraste y movimiento reducido. La evidencia tiene alcance concreto: una captura no demuestra transacción o persistencia.
+`application/navigation/destinations.ts` define continuaciones y destinos globales; `account-navbar.tsx` compone cuenta, búsqueda, aulas y notificaciones. `application-shell.tsx` conserva tema, foco y cleanup. `_app` conserva CSS y captura inicial de documento Foxy; `_document` mantiene el orden del script de prueba mediante `application/server/token-capture.ts`.
 
-Fuentes: [páginas](../../../apps/web/pages/), [controles](../../../apps/shared-ui/brujula-controls.css), [navegación](../../../apps/classrooms-ui/ClassroomNavigation.tsx). [Política documental](../../documentation-policy.md).
+Agenda reúne UI/model/API en su feature; `screens/agenda-screen.tsx` compone sesión/navegación y `application/agenda-client.ts` adapta el caller autenticado. Foxy y Estudio exponen sus capacidades por feature y coordinan documentos, recursos y navegación desde screens/application. El transporte Node queda fuera de las entradas de navegador. Los proxies limitan destino, método y payload; ocultar controles no sustituye permisos.
 
-Identidad está agrupada en `features/identity/{api,model,ui}`: `index.ts` expone componentes y contratos; `api.ts` es la entrada pura para adaptadores cliente que no deben cargar UI. `screens/identity-screen.tsx` coordina sesión, efectos y navegación de los flujos existentes. `application/navigation/account-navbar.tsx` compone cuenta, búsqueda, aulas y notificaciones; su ubicación no convierte esas capacidades en reglas de identidad.
+Notice/Dialog viven en `apps/shared-ui/feedback.tsx`; Button/Input/Label, clases y portadas son genéricos. La navegación específica de aula pertenece a classrooms. Brújula conserva Lexend, sidebar escritorio y menú compacto por debajo de 1024 px. Recursos de producción: `apps/web/public`; estilos compartidos: `apps/shared-ui`. Los nombres fm3d/p5 aún utilizados no autorizan borrar sus recursos.
 
-`application/application-shell.tsx` conserva tema/foco/cleanup, sin providers nuevos. `_app` mantiene CSS y captura inicial de documento Foxy; `_document` conserva orden del script estático de prueba mediante `application/server/token-capture.ts`. Proxy y SSR privado pertenecen a `application/server/identity-proxy.ts` y `account-page.ts`. Button/Input/Label y `class-names.ts` son genéricos en shared. Puentes legacy conservan consumidores aún no migrados. [Evidencia](../../work-log/2026-11-10-root-identity-frontend.md).
+## Comprobar una pantalla
+
+Revisar roles, carga/vacío/error, confirmación, foco/teclado, mobile/tablet/desktop, contraste y movimiento reducido. Una captura acredita lo visible; no demuestra transacción o persistencia. La aceptación de la reorganización se conserva en el [tablero](../../../odd/tasks/architecture-migration.md).
+
+Fuentes: [páginas](../../../apps/web/pages/), [pantallas](../../../apps/web/src/screens/), [features](../../../apps/web/src/features/), [composición](../../../apps/web/src/application/), [controles](../../../apps/shared-ui/brujula-controls.css), [navegación de aula](../../../apps/web/src/features/classrooms/ui/ClassroomNavigation.tsx). [Política documental](../../documentation-policy.md).

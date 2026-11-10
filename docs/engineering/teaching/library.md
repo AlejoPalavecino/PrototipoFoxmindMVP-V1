@@ -14,4 +14,4 @@ Eliminar requiere confirmación y que el material no esté vinculado a actividad
 
 Ambos roles autorizados pueden buscar y abrir un recurso. El lector muestra título, asociación, contenido cuando es escrito y descarga; PDF/imágenes ofrecen abrir archivo cuando corresponde. Sólo el docente con permisos dispone de editar/eliminar.
 
-Fuentes: [UI](../../../apps/classrooms-ui/Library.tsx), [lector](../../../apps/classrooms-ui/MaterialReader.tsx), [servicio](../../../apps/api/src/classrooms/library.ts). En el [ensayo actual](../../verification/flows.md) se verificaron TEXT, revisión con otra identidad de archivo, eliminación y lectura estudiantil; los formatos no ensayados no se dan por verificados.
+Fuentes: [UI](../../../apps/web/src/features/materials/ui/Library.tsx), [lector](../../../apps/web/src/features/materials/ui/MaterialReader.tsx), [servicio](../../../apps/api/src/bootstrap/academic-materials-composition.ts). En el [ensayo actual](../../verification/flows.md) se verificaron TEXT, revisión con otra identidad de archivo, eliminación y lectura estudiantil; los formatos no ensayados no se dan por verificados.

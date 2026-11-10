@@ -39,4 +39,4 @@ Salir o ser removido revoca el acceso actual y conserva entregas, notas y conver
 
 El docente edita datos/portada y opciones disponibles, invita, regenera código, retira miembros y archiva/reactiva con confirmación. Aula archivada es de consulta: sin nuevas inscripciones ni mutaciones académicas. El estudiante aún puede confirmar su salida; para volver se requiere reactivación y nueva invitación. Reactivar no extiende plazos ni borra historia. No hay eliminación permanente del aula desde esta UI.
 
-Fuentes: [Wizard](../../../apps/classrooms-ui/Wizard.tsx), [secciones](../../../apps/classrooms-ui/ClassroomNavigation.tsx), [servicios](../../../apps/api/src/classrooms/). [Flujos comprobados](../../verification/flows.md) y [permisos por rol](../../product/features-by-role.md).
+Fuentes: [Wizard](../../../apps/web/src/application/academic-Wizard.tsx), [secciones](../../../apps/web/src/features/classrooms/ui/ClassroomNavigation.tsx), [servicios](../../../apps/api/src/modules/classrooms/). [Flujos comprobados](../../verification/flows.md) y [permisos por rol](../../product/features-by-role.md).

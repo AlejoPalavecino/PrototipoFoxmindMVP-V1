@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { proxyClassroomRequest } from '../apps/web/src/lib/classroom-proxy.ts';
-import { proxyFileRequest } from '../apps/web/src/lib/file-proxy.ts';
+import { proxyClassroomRequest } from '../apps/web/src/application/server/classroom-proxy.ts';
+import { proxyFileRequest } from '../apps/web/src/application/server/file-proxy.ts';
 const id='a1111111-1111-4111-8111-111111111111',editor={'x-attempt-editor':'a'.repeat(43),'x-attempt-epoch':'2'};
 test('strict TP proxies forward editor only at exact mutation/file ingress and preserve previous payloads',async()=>{
  const calls=[];const upstream=createServer(async(req,res)=>{const chunks=[];for await(const c of req)chunks.push(c);calls.push({url:req.url,headers:req.headers,body:Buffer.concat(chunks).toString()});res.setHeader('content-type','application/json');res.end('{}');});await new Promise(r=>upstream.listen(0,'127.0.0.1',r));

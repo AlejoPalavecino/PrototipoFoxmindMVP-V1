@@ -2,7 +2,7 @@
 
 Esta es la base del proyecto a partir del 2026-11-07. Describe el producto y su implementación actuales, contrastados con código y recorridos de la aplicación. La evidencia distingue lo observado de lo no ensayado; no se heredan permisos de ejecución o publicación de documentos anteriores.
 
-La dirección UX/UI vigente de Foxy, Carpetas de estudio y creación de Aulas incorpora el pulido aprobado del 2026-11-09: [reglas de experiencia](design/README.md#dirección-vigente-de-foxy-y-estudio), [28 capturas por flujo](design/current/README.md#referencias-vigentes-del-pulido--2026-11-09) y [evidencia de validación](verification/foxy-study-ux-polish.json). Está implementado y verificado localmente; su integración/publicación Git sigue pendiente.
+La dirección UX/UI vigente de Foxy, Carpetas de estudio y creación de Aulas incorpora el pulido aprobado del 2026-11-09: [reglas de experiencia](design/README.md#dirección-vigente-de-foxy-y-estudio), [28 capturas por flujo](design/current/README.md#referencias-vigentes-del-pulido--2026-11-09) y [evidencia de validación](verification/foxy-study-ux-polish.json). Está implementado y verificado localmente; el [roadmap](implementation-roadmap.md) distingue su integración/publicación Git del despliegue.
 
 | Necesitás | Fuente |
 |---|---|

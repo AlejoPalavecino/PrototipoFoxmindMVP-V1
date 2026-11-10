@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { homeFoxySuggestion, homeCalendarWeek } from '../apps/classrooms-ui/home-presentation.ts';
-import { parseHomePage } from '../src/core/domain/home-rows-validation.ts';
+import { homeFoxySuggestion, homeCalendarWeek } from '../apps/web/src/features/home/model/home-presentation.ts';
+import { parseHomePage } from '../src/core/domain/home/rows-validation.ts';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { renderToStaticMarkup } from 'react-dom/server';
 import {descendants} from './agenda-ui-helpers.test.mjs';
 
 test('featured delivery keeps preparation and read-only consultation as distinct destinations',()=>{
- const {HomeRow}=loadTsModule('apps/classrooms-ui/HomeRow.tsx'),calls=[];
+ const {HomeRow}=loadTsModule('apps/web/src/features/home/ui/HomeRow.tsx'),calls=[];
  const item={id:'activity',title:'Campo',activityType:'ASSIGNMENT',classroom:{id:'room',name:'Biología',division:'A'},reception:'open',attemptId:null,deadlineAt:null,target:{kind:'activity',classroomId:'room',activityId:'activity'}};
  const node=HomeRow({item,module:'pending',featured:true,timeZone:'UTC',onAction:value=>calls.push(value)}),tree=node.type(node.props);
  const buttons=descendants(tree,n=>n.type==='button');assert.equal(calls.length,0);buttons[0].props.onClick();buttons[1].props.onClick();
@@ -58,7 +58,7 @@ test('The calendar week follows the display zone, crossing months and daylight s
 
 
 test('Agenda preview keeps local time and type without technical zone or room metadata', () => {
-  const { HomeAgendaRow } = loadTsModule('apps/classrooms-ui/HomeRow.tsx');
+  const { HomeAgendaRow } = loadTsModule('apps/web/src/features/home/ui/HomeRow.tsx');
   const item = { id: 'event', title: 'Revisar entregas', source: 'PRIVATE_EVENT', allDay: false,
     startAt: '2026-11-16T19:00:00Z', date: '2026-11-16', timeZone: 'America/Argentina/Buenos_Aires',
     classroom: { name: 'No duplicar contexto', division: 'A' }, target: { kind: 'private-event' } };
@@ -71,7 +71,7 @@ test('Agenda preview keeps local time and type without technical zone or room me
 });
 
 test('Circular classroom progress reports topics taught, preserves zero and avoids empty-plan percentages', () => {
-  const { HomeRow } = loadTsModule('apps/classrooms-ui/HomeRow.tsx');
+  const { HomeRow } = loadTsModule('apps/web/src/features/home/ui/HomeRow.tsx');
   const base = { id: 'room', title: 'Historia', classroom: { name: 'Historia', division: 'A', role: 'teacher', coverKey: 'general' }, target: { kind: 'classroom' } };
   const render = planProgress => renderToStaticMarkup(HomeRow({ item: { ...base, planProgress }, module: 'classrooms', timeZone: 'UTC', onAction() {} }));
   const partial = render({ taught: 1, total: 4 });

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseHomeTarget } from '../src/core/domain/home-target.ts';
-import { homeClassroomTab } from '../apps/classrooms-ui/classroom-home-target.ts';
+import { parseHomeTarget } from '../src/core/domain/home/target.ts';
+import { homeClassroomTab } from '../apps/web/src/application/academic-classroom-home-target.ts';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 
@@ -17,7 +17,7 @@ test('los accesos del alumno abren exactamente la sección autorizada del aula',
 });
 
 test('autoría manual agrupa la preparación y requiere revisión antes de asignar', async () => {
-  const { ActivityAuthoring } = loadTsModule('apps/classrooms-ui/ActivityAuthoring.tsx');
+  const { ActivityAuthoring } = loadTsModule('apps/web/src/features/activity-authoring/ui/ActivityAuthoring.tsx');
   const calls = [];
   const activity = { id: 'a', title: 'Trabajo', type: 'ASSIGNMENT', status: 'DRAFT', questions: [], instructionFiles: [], materials: [], topicIds: ['t'], unitId:'u',objective:'Explicar conceptos',instructions:'Resolver',evaluationRubric:[{name:'Evidencia',description:'Explica',weight:100}], allowLate: false, locked: false, attachmentRequired: false };
   const view = hookView(ActivityAuthoring, { api: { call: async (...args) => { calls.push(args); return { revision: '2' }; } }, room: { id: 'r', name: 'Aula', timezone: 'UTC', units: [{id:'u',name:'Unidad',topics:[{id:'t',name:'Tema'}]}], archived: false }, data: { activity, revision: '1' }, materials: [], onSaved: async () => {}, onClose() {} });
@@ -44,7 +44,7 @@ test('autoría manual agrupa la preparación y requiere revisión antes de asign
 });
 
 test('Continuar borrador abre el editor y los contenidos publicados o archivados siguen en consulta', async () => {
-  const { Activities } = loadTsModule('apps/classrooms-ui/Activities.tsx');
+  const { Activities } = loadTsModule('apps/web/src/application/academic-Activities.tsx');
   for (const [status, archived] of [['DRAFT', false], ['PUBLISHED', false], ['DRAFT', true]]) {
     const calls = [];
     const data = { activity: { id: 'a', status }, revision: 'r' };
@@ -64,7 +64,7 @@ test('Continuar borrador abre el editor y los contenidos publicados o archivados
 });
 
 test('el selector limpio conserva unidad y temas del Plan para ambos métodos', async () => {
-  const { Activities } = loadTsModule('apps/classrooms-ui/Activities.tsx');
+  const { Activities } = loadTsModule('apps/web/src/application/academic-Activities.tsx');
   const context = { unitId: 'u', topicIds: ['t'] };
   for (const method of ['Crear manualmente', 'Crear con IA']) {
     const calls = [];
@@ -84,7 +84,7 @@ test('el selector limpio conserva unidad y temas del Plan para ambos métodos', 
 });
 
 test('Inicio carga solo el catálogo real para la sidebar de ambos roles y cancela al salir', async () => {
-  const { ClassroomsApp } = loadTsModule('apps/classrooms-ui/Classrooms.tsx');
+  const { ClassroomsApp } = loadTsModule('apps/web/src/application/academic-Classrooms.tsx');
   for (const role of ['teacher', 'student']) {
     const calls = [];
     const room = { id: 'room', name: 'Aula real', coverKey:'biology', archived: false };

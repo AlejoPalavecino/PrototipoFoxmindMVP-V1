@@ -43,7 +43,7 @@ test('compile-only contracts are classified but can never enter a runtime route'
 test('colocated API imports use the strict build so decorated host exports remain loadable', () => {
   const env = Object.fromEntries(['PATH', 'SystemRoot', 'TEMP', 'TMP'].filter(k => process.env[k]).map(k => [k, process.env[k]]));
   const result = spawnSync(process.execPath, ['--import', './scripts/register-api-test-build.mjs', '--input-type=module', '-e',
-    "const api=await import('./apps/api/src/foxy-ai/index.ts'); if(typeof api.createFoxyRuntime!=='function')process.exitCode=1;"],
+    "const api=await import('./apps/api/src/bootstrap/foxy-runtime.ts'); if(typeof api.createFoxyRuntime!=='function')process.exitCode=1;"],
   { env, encoding: 'utf8', windowsHide: true, timeout: 10000 });
   assert.equal(result.status, 0, result.stderr);
 });
@@ -88,4 +88,18 @@ test('owned database cleanup also runs when Docker creates a container but its C
       outcome === 'foreign' ? /ownership mismatch/ : /Docker run unavailable/);
     assert.deepEqual(removed, outcome === 'owned' ? [name] : [], outcome);
   }
+});
+
+test('component test loader preserves a shared module identity but isolates invocations', async () => {
+  const { componentWithPorts } = await import('./foxmind-3d-flows-loader.test.mjs');
+  const directory = await mkdtemp(join(tmpdir(), 'foxmind-component-cache-'));
+  try {
+    await writeFile(join(directory,'shared.ts'),'export class Marker {}');
+    await writeFile(join(directory,'one.ts'),"export { Marker as one } from './shared.ts';");
+    await writeFile(join(directory,'two.ts'),"export { Marker as two } from './shared.ts';");
+    await writeFile(join(directory,'root.ts'),"export { one } from './one.ts'; export { two } from './two.ts';");
+    const first=componentWithPorts(join(directory,'root.ts'),{});
+    assert.equal(first.one,first.two);
+    assert.notEqual(first.one,componentWithPorts(join(directory,'root.ts'),{}).one);
+  } finally { await rm(directory,{recursive:true,force:true}); }
 });

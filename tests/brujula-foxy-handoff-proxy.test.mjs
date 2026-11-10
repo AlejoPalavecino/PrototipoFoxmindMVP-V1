@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { proxyFoxyRequest } from '../apps/web/src/lib/foxy-proxy.ts';
-import { createFoxyHandler } from '../.build/api/apps/api/src/foxy-ai/http.js';
+import { proxyFoxyRequest } from '../apps/web/src/application/server/foxy-proxy.ts';
+import { createFoxyHandler } from '../.build/api/apps/api/src/modules/foxy/presentation/http.js';
 
 test('Foxy activity handoff uses exact POST route, admission and JSON response through proxy', async () => {
   const id = 'a1111111-1111-4111-8111-111111111111', calls = [];

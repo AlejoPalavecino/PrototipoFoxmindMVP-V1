@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createAccountClient, AccountError, validateAccountFields } from '../apps/web/src/lib/account-client.ts';
+import { createAccountClient, AccountError, validateAccountFields } from '../apps/web/src/features/identity/api/account-client.ts';
 
 test('every mutation obtains fresh session/CSRF and refreshes after rotation', async () => {
   const seen = [];

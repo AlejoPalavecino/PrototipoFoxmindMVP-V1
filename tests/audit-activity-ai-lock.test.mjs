@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { withAiDatabase } from './classroom-ai-database.test.mjs';
 import { fixture } from './activity-ai-fixture.test.mjs';
-import { ActivityAiService, ActivityAiWorker } from '../.build/api/apps/api/src/classrooms/activity-ai/index.js';
+import { ActivityAiService } from '../.build/api/apps/api/src/modules/activities/infrastructure/activity-ai/service.js';
+import { ActivityAiWorker } from '../.build/api/apps/api/src/modules/activities/infrastructure/activity-ai/worker.js';
 
 test('two authenticated READY generation list reads complete concurrently without lock upgrade deadlock', { timeout: 120000 }, async () => {
   await withAiDatabase(async local => {

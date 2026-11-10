@@ -1,12 +1,12 @@
 import type { INestApplication } from "@nestjs/common";
-import { ConfigurationError, readBaseConfiguration } from "./configuration-base.ts";
+import { ConfigurationError, readBaseConfiguration } from './platform/configuration.ts';
 
 let app: INestApplication | undefined;
 try {
   readBaseConfiguration();
-  const { readConfiguration } = await import("./configuration.ts");
+  const { readConfiguration } = await import("./bootstrap/configuration.ts");
   const configuration = readConfiguration();
-  const { createApplication } = await import("./application.ts");
+  const { createApplication } = await import("./bootstrap/application.ts");
   app = await createApplication(configuration);
   await app.listen(configuration.port, "127.0.0.1");
   const address = app.getHttpServer().address();

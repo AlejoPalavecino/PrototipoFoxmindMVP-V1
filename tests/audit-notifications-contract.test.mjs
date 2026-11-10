@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseNotificationQuery, parseNotificationPage } from '../src/core/domain/classroom-notifications.ts';
+import { parseNotificationQuery, parseNotificationPage } from '../src/core/domain/home/notifications.ts';
 
 const params = value => new URLSearchParams(value);
 test('notification pagination parses bounded queries and rejects ambiguous or foreign parameters', () => {

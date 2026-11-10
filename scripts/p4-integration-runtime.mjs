@@ -80,18 +80,18 @@ export async function withP4IntegrationRuntime(callback, options = {}) {
           inspectMailBindings: mail.inspectBindings,
           async stopLibraryDeletion() {
             if (!classrooms) throw new Error('Classroom host not enabled');
-            const { LibraryCleanupWorker } = await import('../.build/api/apps/api/src/classrooms/library-cleanup.js');
+            const { LibraryCleanupWorker } = await import("../.build/api/apps/api/src/modules/materials/infrastructure/library-cleanup.js");
             await api.get(LibraryCleanupWorker).onModuleDestroy();
           },
           async privateFileBytes(fileId) {
-            const { FileService } = await import('../.build/api/apps/api/src/files/service.js');
+            const { FileService } = await import("../.build/api/apps/api/src/modules/files/infrastructure/service.js");
             const [file] = (await db.query('SELECT storage_key,size_bytes FROM files WHERE id=$1::uuid', [fileId])).rows;
             if (!file) throw new Error('Owned fixture file missing');
             return api.get(FileService).storage.get(file.storage_key, Number(file.size_bytes));
           },
           async stopInvitationDelivery() {
             if (!classrooms) throw new Error('Classroom host not enabled');
-            const { InvitationDeliveryWorker } = await import('../.build/api/apps/api/src/classrooms/delivery.js');
+            const { InvitationDeliveryWorker } = await import("../.build/api/apps/api/src/bootstrap/academic-delivery-composition.js");
             await api.get(InvitationDeliveryWorker).onModuleDestroy();
           },
           async restartApi() { await api.close(); api = undefined; api = await createApplication(configuration); await api.listen(apiPort, '127.0.0.1'); },

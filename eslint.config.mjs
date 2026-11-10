@@ -7,11 +7,12 @@ const parser = require('@typescript-eslint/parser');
 
 // Complementary precise edge and inheritance rules live in check-boundaries.mjs.
 export default [{
-  files: ['src/core/domain/**/*.ts', 'apps/api/src/**/*.ts', 'apps/classrooms-ui/**/*.{ts,tsx}', 'apps/agenda-ui/**/*.{ts,tsx}', 'apps/shared-ui/**/*.{ts,tsx}', 'apps/p5-preview/**/*.{ts,tsx}', 'apps/web/{src,pages}/**/*.{ts,tsx}'],
+  files: ['src/core/contracts/**/*.ts', 'src/core/domain/**/*.ts', 'apps/api/src/**/*.ts', 'apps/classrooms-ui/**/*.{ts,tsx}', 'apps/agenda-ui/**/*.{ts,tsx}', 'apps/shared-ui/**/*.{ts,tsx}', 'apps/p5-preview/**/*.{ts,tsx}', 'apps/web/{src,pages}/**/*.{ts,tsx}'],
   languageOptions: { parser, parserOptions: { sourceType: 'module', ecmaVersion: 'latest', ecmaFeatures: { jsx: true } } },
   plugins: { boundaries },
   settings: { 'boundaries/elements': [
     { type: 'domain', pattern: 'src/core/domain', mode: 'folder' },
+    { type: 'domain', pattern: 'src/core/contracts', mode: 'folder' },
     { type: 'backend', pattern: 'apps/api/src', mode: 'folder' },
     { type: 'ui', pattern: 'apps/classrooms-ui', mode: 'folder' },
     { type: 'ui', pattern: 'apps/agenda-ui', mode: 'folder' },

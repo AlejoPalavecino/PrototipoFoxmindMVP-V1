@@ -14,7 +14,7 @@ for (const [kind, extra, component, expected] of [
   ['publish-notice', {}, 'Wall', {}],
   ['submissions', { activityId: id, filter: 'unpublished' }, 'Activities', { submissionFilter: 'unpublished' }],
 ]) test(`D9 Home ${kind} opens the real contextual ${component} without automatic mutation`, async () => {
-  const { ClassroomView } = loadTsModule('apps/classrooms-ui/ClassroomView.tsx');
+  const { ClassroomView } = loadTsModule("apps/web/src/application/academic-ClassroomView.tsx");
   const calls = [], view = hookView(ClassroomView, { id, initialCode: null, onExit() {},
     homeTarget: { kind, classroomId: id, ...extra },
     api: { call: async (...args) => { calls.push(args); return args[0] === `/${id}` ? room : []; } } });
@@ -27,7 +27,7 @@ for (const [kind, extra, component, expected] of [
 });
 
 test('D9 unpublished history uses explicit publication state and excludes drafts/published/unknown states', async () => {
-  const { AttemptHistory } = loadTsModule('apps/classrooms-ui/AttemptHistory.tsx');
+  const { AttemptHistory } = loadTsModule("apps/web/src/application/academic-AttemptHistory.tsx");
   const attempts = [
     { id: 'private', number: 1, status: 'SUBMITTED', gradePublished: false },
     { id: 'published', number: 2, status: 'SUBMITTED', gradePublished: true },

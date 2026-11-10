@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
-import * as legacyApi from '../apps/web/src/lib/account-client.ts';
-import * as canonicalApi from '../apps/web/src/features/identity/api.ts';
+import * as publicApi from '../apps/web/src/features/identity/api.ts';
+import * as canonicalApi from '../apps/web/src/features/identity/api/account-client.ts';
 
 test('identity public entry exposes account UI, model and browser client without server transport', async () => {
   const feature = loadTsModule('apps/web/src/features/identity/index.ts');
@@ -23,27 +23,13 @@ test('identity public entry exposes account UI, model and browser client without
   inspect('apps/web/src/features/identity');
 });
 
-test('identity legacy bridges preserve exact named API and error identity', () => {
-  assert.deepEqual(Object.keys(legacyApi).sort(), ['AccountError', 'createAccountClient', 'validateAccountFields']);
-  for (const name of Object.keys(legacyApi)) assert.equal(legacyApi[name], canonicalApi[name]);
-  assert.ok(new legacyApi.AccountError('AUTH_REQUIRED', 401) instanceof canonicalApi.AccountError);
-  const feature = loadTsModule('apps/web/src/features/identity/index.ts');
-  for (const [legacy, target, names] of [
-    ['lib/account-client.ts', '../features/identity/api.ts', ['AccountError', 'createAccountClient', 'validateAccountFields']],
-    ['components/account-field.tsx', '../features/identity/index', ['AccountField']],
-    ['components/account-flow-forms.tsx', '../features/identity/index', ['AccountFlowForms']],
-    ['components/account-profile.tsx', '../features/identity/index', ['AccountProfile']],
-    ['components/account-settings.tsx', '../features/identity/index', ['AccountSettings']],
-    ['components/account-view.ts', '../features/identity/index', ['accountContent']],
-  ]) {
-    const bridge = loadTsModule(`apps/web/src/${legacy}`, { stubs: { [target]: feature } });
-    assert.deepEqual(Object.keys(bridge).sort(), names.toSorted());
-    for (const name of names) assert.equal(bridge[name], feature[name]);
-    if (bridge.AccountError) assert.ok(new bridge.AccountError('AUTH_REQUIRED', 401) instanceof feature.AccountError);
+
+test('identity public transport preserves exact API identity after retiring legacy bridges', () => {
+  assert.deepEqual(Object.keys(publicApi).sort(), ['AccountError', 'createAccountClient', 'validateAccountFields']);
+  for (const name of Object.keys(publicApi)) assert.equal(publicApi[name], canonicalApi[name]);
+  assert.ok(new publicApi.AccountError('AUTH_REQUIRED', 401) instanceof canonicalApi.AccountError);
+  for (const legacy of ['lib/account-client.ts','components/account-screen.tsx','components/account-field.tsx',
+    'components/account-flow-forms.tsx','components/account-profile.tsx','components/account-settings.tsx','components/account-view.ts']) {
+    assert.equal(existsSync(`apps/web/src/${legacy}`),false,legacy);
   }
-  const AccountScreen = () => null;
-  const bridge = loadTsModule('apps/web/src/components/account-screen.tsx', { stubs: { '../screens/identity-screen': { AccountScreen }, '../features/identity/index': feature } });
-  assert.deepEqual(Object.keys(bridge).sort(), ['AccountField', 'AccountScreen']);
-  assert.equal(bridge.AccountScreen, AccountScreen);
-  assert.equal(bridge.AccountField, feature.AccountField);
 });

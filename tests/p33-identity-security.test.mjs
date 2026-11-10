@@ -3,7 +3,14 @@ import assert from 'node:assert/strict';
 import { randomBytes, createHash } from 'node:crypto';
 import { performance } from 'node:perf_hooks';
 
-import * as api from '../.build/p33-security/apps/api/src/identity-security/index.js';
+import * as apiPart0 from "../.build/p33-security/apps/api/src/modules/identity/domain/security/errors.js";
+import * as apiPart1 from "../.build/p33-security/apps/api/src/modules/identity/domain/security/inputs.js";
+import * as apiPart2 from "../.build/p33-security/apps/api/src/modules/identity/infrastructure/security/verifiers.js";
+import * as apiPart3 from "../.build/p33-security/apps/api/src/modules/identity/infrastructure/security/configuration.js";
+import * as apiPart4 from "../.build/p33-security/apps/api/src/modules/identity/infrastructure/security/passwords.js";
+import * as apiPart5 from "../.build/p33-security/apps/api/src/modules/identity/infrastructure/security/sessions.js";
+import * as apiPart6 from "../.build/p33-security/apps/api/src/modules/identity/presentation/session-cookies.js";
+const api = Object.freeze({IdentitySecurityError: apiPart0.IdentitySecurityError,validatePassword: apiPart1.validatePassword,validateName: apiPart1.validateName,validateBodyShape: apiPart1.validateBodyShape,assertBodySize: apiPart1.assertBodySize,generateVerifier: apiPart2.generateVerifier,parseVerifier: apiPart2.parseVerifier,accountTokenDigest: apiPart2.accountTokenDigest,sessionTokenDigest: apiPart2.sessionTokenDigest,readIdentityConfiguration: apiPart3.readIdentityConfiguration,createPasswordService: apiPart4.createPasswordService,IDENTITY_POLICY: apiPart5.IDENTITY_POLICY,newSessionWindow: apiPart5.newSessionWindow,sessionIsActive: apiPart5.sessionIsActive,refreshSessionWindow: apiPart5.refreshSessionWindow,sessionCookie: apiPart6.sessionCookie,clearSessionCookie: apiPart6.clearSessionCookie});
 const key = () => randomBytes(32).toString('base64url');
 const env = () => ({ APP_ORIGIN: 'https://foxmind.example.test', AUTH_CSRF_HMAC_KEY: key(), AUTH_ABUSE_HMAC_KEY: key() });
 const configuration = (values = env(), host = '127.0.0.1') => api.readIdentityConfiguration(values, host);

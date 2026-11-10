@@ -1,0 +1,23 @@
+export { FileService, type FileServiceOptions } from '../modules/files/infrastructure/service.ts';
+export { FileCleanupWorker } from '../modules/files/infrastructure/cleanup-worker.ts';
+export { FilesModule, type AttachmentIntegration } from './files-files.module.ts';
+export { FileHostLifecycle, createIdentityFileAccess, installFilesTransport } from './files-host.ts';
+export { createFileAccess, type AttemptWriteAuthorizer } from '../modules/files/infrastructure/access.ts';
+export { createFilesHandler } from '../modules/files/presentation/http.ts';
+export { createFileInfrastructure, readFilesConfiguration, type FileInfrastructureConfiguration,
+  type FileInfrastructure, type FileRuntimeConfiguration } from '../modules/files/infrastructure/configuration.ts';
+export { createDurableActivitySourceReader } from '../modules/files/infrastructure/activity-source-reader.ts';
+export { createApprovedPlanReader } from '../modules/files/infrastructure/approved-plan-reader.ts';
+export { createDurableApprovedPlanReader } from '../modules/files/infrastructure/durable-plan-reader.ts';
+export { createGradingAiAttachmentReader } from '../modules/files/infrastructure/grading-ai-attachment-reader.ts';
+export { createDurableGradingAiAttachmentReader } from '../modules/files/infrastructure/durable-grading-ai-attachment-reader.ts';
+export { createDurableGradingAiInstructionReader, type GradingInstructionGrant } from '../modules/files/infrastructure/durable-grading-ai-instruction-reader.ts';
+export { createFoxyDocumentReader, type FoxyDocumentDescriptor } from '../modules/files/infrastructure/foxy-document-reader.ts';
+export { createDurableFoxyDocumentReader } from '../modules/files/infrastructure/foxy-durable-document-reader.ts';
+export { createDurableFoxyPublicationFiles } from './files-foxy-publication-composition.ts';
+export { createFoxyPrivateImageInspector } from '../modules/files/infrastructure/foxy-private-image-inspector.ts';
+export { createFoxyPrivateAssetFiles } from '../modules/files/infrastructure/foxy-private-asset-files.ts';
+export { createDurableFoxyPublicationRasterSource } from '../modules/files/infrastructure/foxy-publication-raster-source.ts';
+export { S3Storage, type ObjectStorage } from '../modules/files/infrastructure/storage.ts';
+export { ClamdScanner } from '../modules/files/infrastructure/scanner.ts';
+export { extractDocxPlanDocument } from '../modules/files/infrastructure/docx-text.ts';

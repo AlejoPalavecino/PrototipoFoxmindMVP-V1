@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 
 test('classroom city picker keeps worldwide options and inherited zones without duplicate canonical choices', () => {
-  const { classroomZones } = loadTsModule('apps/classrooms-ui/classroom-zones.ts');
+  const { classroomZones } = loadTsModule('apps/web/src/features/curriculum/model/classroom-zones.ts');
   const choices = classroomZones('Etc/GMT+2');
   const canonical = value => new Intl.DateTimeFormat('es', { timeZone: value }).resolvedOptions().timeZone;
   const values = choices.map(x => canonical(x.value));

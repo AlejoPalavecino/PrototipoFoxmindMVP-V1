@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createClassroomClient } from '../apps/classrooms-ui/api.ts';
+import { createClassroomClient } from '../apps/web/src/application/academic-client.ts';
 
 test('Library client uploads every approved material format with material scope and fresh CSRF', async () => {
   const calls = []; let tokens = 0;
@@ -25,7 +25,7 @@ test('Library client uploads every approved material format with material scope 
 });
 
 test('Library preview only permits ready PDF/images and never implies a custom Office/ZIP viewer', async () => {
-  const { canPreviewMaterial } = await import('../apps/classrooms-ui/api.ts');
+  const { canPreviewMaterial } = await import('../apps/web/src/features/materials/api.ts');
   for (const extension of ['pdf', 'jpg', 'jpeg', 'png']) assert.equal(canPreviewMaterial({ extension, ready: true, deleted: false }), true);
   for (const extension of ['docx', 'pptx', 'xlsx', 'zip']) assert.equal(canPreviewMaterial({ extension, ready: true, deleted: false }), false);
   assert.equal(canPreviewMaterial({ extension: 'pdf', ready: false, deleted: false }), false);

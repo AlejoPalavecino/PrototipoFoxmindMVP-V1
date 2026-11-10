@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { withP5Database } from '../scripts/p5-database.mjs';
-import { enqueueSubmittedAttemptGradingAi } from '../apps/api/src/classrooms/grading-ai/enqueue.ts';
-import { GradingAiRuntime } from '../apps/api/src/classrooms/grading-ai/runtime.ts';
+import { enqueueSubmittedAttemptGradingAi } from '../apps/api/src/modules/grading/infrastructure/grading-ai/enqueue.ts';
+import { GradingAiRuntime } from '../apps/api/src/modules/grading/infrastructure/grading-ai/runtime.ts';
 
 const configuration = { maxConcurrency: 2, deadlineMs: 30000, dailyActorRequests: 20, dailyGlobalRequests: 20,
   maxInputTokens: 10000, maxOutputTokens: 200, inputUsdPerMillion: 1, outputUsdPerMillion: 1, dailyBudgetUsd: 5 };

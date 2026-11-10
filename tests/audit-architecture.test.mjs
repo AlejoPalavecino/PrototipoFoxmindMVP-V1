@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import ts from 'typescript';
 import { spawnSync } from 'node:child_process';
-import { ClassroomCore } from '../.build/api/apps/api/src/classrooms/core.js';
+import { ClassroomCore } from '../.build/api/apps/api/src/modules/classrooms/infrastructure/core.js';
 
 const files = ['drafts','memberships','invitations','plan','library','wall','activity-authoring','activity-participation','practical-submissions','questionnaire-attempts','activity-history','grading','grading-ai/service','grade-publication','grade-corrections','progress'];
 test('startup rejects invalid base configuration before resolving heavy runtime modules', () => {
@@ -29,7 +29,7 @@ registerHooks({ resolve(specifier, context, nextResolve) {
 });
 
 test('base configuration shares the error class and preserves URL and port rules', async () => {
-  const base = await import('../.build/api/apps/api/src/configuration-base.js');
+  const base = await import('../.build/api/apps/api/src/platform/configuration.js');
   const full = await import('../.build/api/apps/api/src/configuration.js');
   assert.equal(base.ConfigurationError, full.ConfigurationError);
   const valid = 'postgresql://127.0.0.1/dummy';
@@ -48,7 +48,7 @@ test('base configuration shares the error class and preserves URL and port rules
 test('classroom capabilities use composition rather than inheritance between services', async () => {
   const inheritance = [];
   for (const name of files) {
-    const path = `apps/api/src/classrooms/${name}.ts`;
+    const path = {"drafts": "apps/api/src/modules/classrooms/application/drafts.ts", "memberships": "apps/api/src/modules/classrooms/application/memberships.ts", "invitations": "apps/api/src/modules/classrooms/application/invitations.ts", "plan": "apps/api/src/modules/curriculum/application/plan.ts", "library": "apps/api/src/modules/materials/application/library.ts", "wall": "apps/api/src/modules/communication/application/wall.ts", "activity-authoring": "apps/api/src/modules/activities/application/activity-authoring.ts", "activity-participation": "apps/api/src/modules/participation/application/activity-participation.ts", "practical-submissions": "apps/api/src/modules/participation/application/practical-submissions.ts", "questionnaire-attempts": "apps/api/src/modules/participation/application/questionnaire-attempts.ts", "activity-history": "apps/api/src/modules/participation/application/activity-history.ts", "grading": "apps/api/src/modules/grading/application/grading.ts", "grading-ai/service": "apps/api/src/modules/grading/application/grading-ai/service.ts", "grade-publication": "apps/api/src/modules/grading/application/grade-publication.ts", "grade-corrections": "apps/api/src/modules/grading/application/grade-corrections.ts", "progress": "apps/api/src/modules/grading/application/progress.ts"}[name];
     const source = ts.createSourceFile(path, await readFile(path, 'utf8'), ts.ScriptTarget.Latest, true);
     const visit = node => {
       if (ts.isClassDeclaration(node) && node.heritageClauses?.some(c => c.token === ts.SyntaxKind.ExtendsKeyword)) inheritance.push(`${path}:${node.name?.text}`);

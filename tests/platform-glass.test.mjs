@@ -12,7 +12,7 @@ function cascade(path) {
   return read(path).replace(/@import\s+['"]([^'"]+)['"];?/g, (_, imported) => cascade(resolve(dirname(path), imported)));
 }
 const folders = () => cascade('apps/shared-ui/folders.css');
-const academic = read('apps/classrooms-ui/styles.css');
+const academic = read("apps/web/src/application/styles/academic.css");
 const declarations = new Map();
 tokens.walkDecls(declaration => declarations.set(declaration.prop, declaration.value));
 function color(name) {
@@ -58,7 +58,7 @@ test('one shared palette retains the selected folder colors and legible semantic
 
 test('tokens load before their consumers and selected folder composition wins last', () => {
   const app = read('apps/web/pages/_app.tsx');
-  const paths = ['shared-ui/design-tokens.css', 'styles/globals.css', 'classrooms-ui/styles.css', 'shared-ui/folders.css'];
+  const paths = ['shared-ui/design-tokens.css', 'styles/globals.css', 'src/application/styles/academic.css', 'shared-ui/folders.css'];
   const indexes = paths.map(path => app.indexOf(path));
   assert.ok(indexes.every(index => index >= 0), 'Every stylesheet must be loaded');
   assert.deepEqual(indexes, [...indexes].sort((a, b) => a - b));
@@ -72,8 +72,8 @@ test('tokens load before their consumers and selected folder composition wins la
 });
 
 test('standalone renderer uses the same palette and stylesheet cascade', () => {
-  const standalone = read('apps/classrooms-ui/ClassroomsApp.tsx');
-  const indexes = ['shared-ui/design-tokens.css', './styles.css', 'shared-ui/folders.css'].map(path => standalone.indexOf(path));
+  const standalone = read('apps/p5-preview/main.tsx');
+  const indexes = ['shared-ui/design-tokens.css', 'src/application/styles/academic.css', 'shared-ui/folders.css'].map(path => standalone.indexOf(path));
   assert.ok(indexes.every(index => index >= 0), 'Standalone styles must not diverge from Next');
   assert.deepEqual(indexes, [...indexes].sort((a, b) => a - b));
   assert.doesNotMatch(standalone, /import\s+['"][^'"]*glass\.css/);
@@ -154,6 +154,6 @@ test('long content, mobile layouts and user accessibility preferences are retain
 });
 
 test('files route opts into shared presentation without a new behavioral wrapper', () => {
-  assert.match(read('apps/web/pages/files.tsx'), /className="main profile-main platform-files"/);
+  assert.match(read('apps/web/src/screens/files-screen.tsx'), /className="main profile-main platform-files"/);
   rule('.platform-files', 'min-width', '0');
 });

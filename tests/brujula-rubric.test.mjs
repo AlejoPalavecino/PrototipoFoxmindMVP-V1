@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseEvaluationRubric } from '../src/core/domain/evaluation-rubric.ts';
-import { activityPayload } from '../apps/api/src/classrooms/activity-policy.ts';
-import { parseActivityProposal } from '../src/core/domain/activity-proposal.ts';
+import { parseEvaluationRubric } from '../src/core/domain/grading/evaluation-rubric.ts';
+import { activityPayload } from '../apps/api/src/modules/activities/domain/activity-policy.ts';
+import { parseActivityProposal } from '../src/core/domain/activities/activity-proposal.ts';
 
 test('AI proposal preserves editable public criteria and rejects invalid weights', () => {
   const criteria = [{ name: 'Evidencias', description: 'Usa las fuentes.', weight: 100 }];

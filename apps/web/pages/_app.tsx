@@ -1,9 +1,9 @@
 import type { AppProps } from 'next/app';
 import { ApplicationShell } from '../src/application/application-shell.tsx';
-import { captureDocumentEntry } from '../src/lib/foxy-document-boundary';
+import { captureDocumentEntry } from '../src/application/foxy-document-boundary';
 import '../../shared-ui/design-tokens.css';
 import '../styles/globals.css';
-import '../../classrooms-ui/styles.css';
+import "../src/application/styles/academic.css";
 import '../../shared-ui/folders.css';
 import '../../shared-ui/foxmind-3d.css';
 import '../../shared-ui/workspace.css';

@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createClassroomClient } from '../apps/classrooms-ui/api.ts';
-import { classroomDestination, classroomAuthHref, classroomHomeDestination, classroomHomeHref, createWebClassroomClient } from '../apps/web/src/lib/classroom-client.ts';
+import { createClassroomClient } from '../apps/web/src/application/academic-client.ts';
+import { safeDestination as classroomDestination, authHref as classroomAuthHref, classroomHomeDestination, classroomHomeHref } from '../apps/web/src/application/navigation/destinations.ts';
+import { createWebClassroomClient } from '../apps/web/src/application/academic-classroom-client.ts';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { descendants, hookView } from './agenda-ui-helpers.test.mjs';
 
@@ -98,19 +99,20 @@ test('a late session response cannot restore a private classroom screen after ac
   let finish, sessionSignal, requireAccount;
   const redirects = [], ClassroomApp = () => null;
   const router = { isReady: true, asPath: '/mis-aulas', query: {}, replace: value => redirects.push(value) };
-  const { ClassroomsScreen } = loadTsModule('apps/web/src/components/classrooms-screen.tsx', { stubs: {
-    'next/router': { useRouter: () => router }, 'next/head': () => null, 'next/link': () => null,
-    '../../../classrooms-ui/Classrooms': { ClassroomsApp: ClassroomApp },
-    '../../../classrooms-ui/useAgendaTarget': { useAgendaTarget: () => ({ requested: false }) },
-    '../features/identity/index.ts': { createAccountClient: () => ({ session: signal => {
+  const { ClassroomsScreen } = loadTsModule('apps/web/src/screens/classrooms-screen.tsx', { stubs: {'next/router': { useRouter: () => router },
+'next/head': () => null,
+'next/link': () => null,
+"../application/academic-Classrooms.tsx":{ClassroomsApp: ClassroomApp},
+"../application/academic-useAgendaTarget.ts":{useAgendaTarget: () => ({ requested: false })},
+"../features/identity/index.ts":{createAccountClient: () => ({ session: signal => {
       sessionSignal = signal;
       return new Promise(resolve => { finish = resolve; });
-    } }) },
-    '../lib/classroom-client': { classroomDestination, classroomAuthHref, classroomHomeDestination, classroomHomeHref, createWebClassroomClient: (_fetch, onFailure) => {
+    } })},
+"../application/navigation/destinations":{safeDestination:classroomDestination,authHref:classroomAuthHref,classroomHomeDestination,classroomHomeHref},
+"../application/academic-classroom-client.ts":{createWebClassroomClient: (_fetch, onFailure) => {
       requireAccount = onFailure;
       return {};
-    } },
-  } });
+    }}} });
   const view = hookView(ClassroomsScreen, {});
   try {
     await view.flush();

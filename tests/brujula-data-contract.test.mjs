@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseHomePage } from '../src/core/domain/home-rows-validation.ts';
-import { parseHomeResponse, parseHomeTarget } from '../src/core/domain/home-validation.ts';
+import { parseHomePage } from '../src/core/domain/home/rows-validation.ts';
+import { parseHomeResponse, parseHomeTarget } from '../src/core/domain/home/validation.ts';
 const id='a1111111-1111-4111-8111-111111111111', at='2026-11-05T12:00:00.000Z';
 const classroom={id,name:'Aula',division:'1',subject:'Materia',role:'student',coverKey:'math',archived:false,timeZone:'UTC'};
 const target={kind:'activity',classroomId:id,activityId:id};

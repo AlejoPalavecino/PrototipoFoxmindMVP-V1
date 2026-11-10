@@ -3,8 +3,8 @@ import {withGradingFixture} from './p8-grading-helpers.mjs';import {saveComplete
 import {loadTsModule} from './helpers/load-ts-module.mjs';import {deferred} from './agenda-ui-helpers.test.mjs';
 
 test('read-all is atomic for121+, idempotent and excludes other actors/revoked/invalid targets after ordered room locks', {timeout:120000},async()=>{
- const {WallService}=loadTsModule('apps/api/src/classrooms/wall.ts');assert.equal(typeof WallService.prototype.readAllNotifications,'function');
- const {ClassroomCore}=loadTsModule('apps/api/src/classrooms/context.ts');
+ const {WallService}=loadTsModule("apps/api/src/bootstrap/academic-communication-composition.ts");assert.equal(typeof WallService.prototype.readAllNotifications,'function');
+ const {ClassroomCore}=loadTsModule("apps/api/src/modules/classrooms/infrastructure/context.ts");
  await withGradingFixture(async f=>{
   const makeService=(database=f.database)=>new WallService(new ClassroomCore({...f.ports,database}),{advanceRevision(){throw new Error('read-all must not advance classroom revision');}});
   const service=makeService(),activity=await f.create('ASSIGNMENT');await publish(f,activity.attempt,await saveComplete(f,activity.attempt));

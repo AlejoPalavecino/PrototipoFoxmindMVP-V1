@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Agenda, AgendaClientError, type AgendaClient } from '../../agenda-ui/index';
+import { Agenda } from '../src/features/agenda/index.ts';
+import { AgendaClientError, type AgendaClient } from "../src/features/agenda/index.ts";
 import { AppNavbar } from '../../shared-ui/AppNavbar';
 import { expandAgendaEvent, type AcademicDeadline, type PrivateEvent } from '../../../src/core/domain/index';
 

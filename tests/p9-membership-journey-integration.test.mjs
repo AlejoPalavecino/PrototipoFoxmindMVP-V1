@@ -2,17 +2,23 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { classroom, openClassroom } from './p6-integration-helpers.mjs';
 import { waitForAttemptClock } from './helpers/attempt-clock.mjs';
+import { account } from './p4-integration-helpers.mjs';
 import { withJourney, ok, request, rootOf, detail, createActivity, startPublic, session, editorHeaders,
-  inviteExplicitly, rejectUnchanged, academicHash } from './p9-journey-helpers.mjs';
+  inviteExplicitly, rejectUnchanged, academicHash } from './p9-journey-helpers-current.mjs';
 
 test('P9 joined membership: peer/foreign roles, stale editor/session, removal/reentry, historical grades and current metrics', { timeout: 330000 }, async () => {
   await withJourney('membership', async world => {
     const { runtime, T, S, P, room } = world, root = rootOf(room);
     await inviteExplicitly(world, P);
-    const foreign = await classroom(P.page, T.page, 'P9 foreign classroom'), foreignRoot = rootOf(foreign);
-    assert.equal((await ok(T.page, 'GET', foreignRoot)).role, 'student');
+    const foreignTeacher = await (await world.browser.newContext()).newPage();
+    foreignTeacher.on('pageerror', error => world.errors.push(error.message));
+    await account(foreignTeacher, runtime.origin, runtime.inbox, `p9-foreign-teacher-${Date.now()}@example.test`, undefined, 'teacher');
+    const foreign = await classroom(foreignTeacher, S.page, 'P9 foreign classroom'), foreignRoot = rootOf(foreign);
+    assert.equal((await ok(S.page, 'GET', foreignRoot)).role, 'student');
     await rejectUnchanged(runtime.db, async () => request(T.page, 'POST', `${foreignRoot}/activities`,
-      { revision: (await ok(P.page, 'GET', foreignRoot)).revision, operation: { action: 'create', type: 'ASSIGNMENT' } }), 403);
+      { revision: (await ok(foreignTeacher, 'GET', foreignRoot)).revision, operation: { action: 'create', type: 'ASSIGNMENT' } }), 403);
+    await rejectUnchanged(runtime.db, async () => request(S.page, 'POST', `${foreignRoot}/activities`,
+      { revision: (await ok(foreignTeacher, 'GET', foreignRoot)).revision, operation: { action: 'create', type: 'ASSIGNMENT' } }), 403);
     const activity = await createActivity(world, 'ASSIGNMENT');
     const attempts = [];
     for (const [actor, grade] of [[S, '8'], [P, '6']]) {
@@ -73,8 +79,8 @@ test('P9 joined membership: peer/foreign roles, stale editor/session, removal/re
     await openClassroom(T.page, runtime.origin, 'P9 membership classroom');
     await T.page.getByRole('button', { name: 'Progreso', exact: true }).click();
     const aggregate = T.page.getByRole('region', { name: 'Rendimiento académico', exact: true });
-    await aggregate.getByText('promedio', { exact: true }).waitFor();
-    await aggregate.getByText('7,00', { exact: true }).waitFor();
+    await aggregate.getByRole('heading', { name: 'Rendimiento académico', exact: true }).waitFor();
+    assert.match(await aggregate.locator('strong').innerText(), /^7\s*\/\s*10$/, 'Current classroom average remains exactly seven of ten');
     const cookie = (await device.context().cookies()).map(c => `${c.name}=${c.value}`).join('; ');
     assert.equal((await request(device, 'POST', '/auth/logout', {})).status, 204);
     const beforeRevoked = await academicHash(runtime.db);

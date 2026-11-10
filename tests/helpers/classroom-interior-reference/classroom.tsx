@@ -1,7 +1,7 @@
-import surface from '../../classrooms-ui/classrooms-surface.module.css';
+import surface from '../src/application/academic-classrooms-surface.module.css';
 import { useMemo } from 'react';
 import { useRouter } from 'next/router';
-import { ClassroomView } from '../../classrooms-ui/ClassroomView';
+import { ClassroomView } from '../src/application/academic-ClassroomView.tsx';
 import { AppNavbar } from '../../shared-ui/index';
 import { classroomClient, id } from '../fixtures/classroom-data';
 import { literatureClient } from '../fixtures/literature-data';

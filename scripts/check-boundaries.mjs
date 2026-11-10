@@ -6,10 +6,10 @@ import { cycleEdges } from './boundary-cycles.mjs';
 import { legacyEdges } from './boundary-legacy-edges.mjs';
 import { migrationBoundary } from './migration-boundaries.mjs';
 
-const roots = ['src/core/domain', 'apps/api/src', 'apps/classrooms-ui', 'apps/agenda-ui', 'apps/shared-ui', 'apps/p5-preview', 'apps/web'];
+const roots = ['src/core/contracts', 'src/core/domain', 'apps/api/src', 'apps/classrooms-ui', 'apps/agenda-ui', 'apps/shared-ui', 'apps/p5-preview', 'apps/web'];
 const slash = path => path.split(sep).join('/');
 const publicBarrels = new Set(['files', 'mail', 'classrooms', 'foxy-ai'].map(name => 'apps/api/src/' + name + '/public/index.ts'));
-const hostFiles = new Set(['application.ts', 'main.ts', 'configuration.ts', 'attachment-integration.ts', 'foxy-file-integration.ts', 'study-file-integration.ts', 'study-agenda-integration.ts', 'study-folders/http.ts'].map(name => 'apps/api/src/' + name));
+const hostFiles = new Set(['application.ts', 'main.ts', 'configuration.ts'].map(name => 'apps/api/src/' + name));
 const apiSlice = path => /^apps\/api\/src\/([^/]+)\//.exec(path)?.[1];
 const isLiteral = node => node && ts.isStringLiteralLike(node);
 
@@ -170,10 +170,13 @@ function dependency(node, source, isRequire) {
 }
 
 function boundary({ file, target, form, mode, binding }) {
+  if (/\.test\.[cm]?tsx?$/.test(file)) return null;
+  if (target && /\.test\.[cm]?tsx?$/.test(target)) return 'production test dependency';
   if (!target) return 'nonliteral module load';
   if (/^(?:[\\/]|[a-z]:|file:)/i.test(target)) return 'absolute module path';
+  if (file.startsWith('src/core/contracts/') && !target.startsWith('src/core/contracts/') && !target.startsWith('src/core/domain/')) return 'neutral contract dependency';
   if (file.startsWith('src/core/domain/') && !target.startsWith('src/core/domain/')) return 'domain dependency';
-  if (roots.slice(2).some(root => file.startsWith(root + '/')) && target.startsWith('apps/api/')) return 'UI to backend';
+  if (roots.filter(root => root.startsWith('apps/') && root !== 'apps/api/src').some(root => file.startsWith(root + '/')) && target.startsWith('apps/api/')) return 'UI to backend';
   if (hostFiles.has(file)) return null;
   const migrated = migrationBoundary({ file, target, form, mode, binding });
   if (migrated !== undefined) return migrated;

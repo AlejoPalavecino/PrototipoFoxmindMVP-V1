@@ -34,7 +34,7 @@ Texto, imágenes y esquemas usan colas, límites y configuración propios. La UI
 
 Gestión/descartes respetan custodia e historia; no autorizan eliminar archivos compartidos del aula. Configuración, claves, consumo y presupuesto se mantienen en backend.
 
-Fuentes: [unidad transaccional](../../../apps/api/src/foxy-ai/unit-of-work.ts), [publicación](../../../apps/api/src/foxy-ai/publication-service.ts), [UI](../../../apps/web/src/components/foxy-workspace.tsx), [modelo](../data-model.md).
+Fuentes: [unidad transaccional](../../../apps/api/src/modules/foxy/infrastructure/unit-of-work.ts), [publicación](../../../apps/api/src/modules/foxy/application/publication-service.ts), [UI](../../../apps/web/src/features/foxy/ui/foxy-workspace.tsx), [modelo](../data-model.md).
 
 [Prueba actual](../../verification/flows.md): la base del 2026-11-07 comprobó texto/imagen y consulta estudiantil, con límites en esquema/traspaso. La [revisión del 2026-11-08](../../work-log/2026-11-08-root-foxy-review.md) agregó publicación de esquema y creación de TP privado con criterio transcripto. La [mejora de organización](../../work-log/2026-11-08-root-foxy-implementation.md) comprueba catálogo privado, renombrado/recarga, fuentes previas, destinos y recorridos de tres clics; el [recibo](../../verification/foxy-discovery.json) registra navegación y foco. Todos usan proveedores sintéticos; no se atribuye calidad pedagógica o generación real, ni publicación de un TP al alumnado en esta entrega.
 

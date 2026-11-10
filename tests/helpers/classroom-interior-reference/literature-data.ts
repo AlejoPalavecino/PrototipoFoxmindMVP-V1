@@ -1,5 +1,10 @@
 // Synthetic, read-only data for matching the populated classroom references.
-import type { ClassroomClient, Detail, Material, Member, ProgressData, WallData, ActivitySummary } from '../../classrooms-ui/api';
+import type { ClassroomClient } from '../../../src/core/contracts/academic-client.ts';
+import type { Detail, Member } from '../../../src/core/contracts/classrooms.ts';
+import type { Material } from '../../../src/core/contracts/materials.ts';
+import type { ProgressData } from '../../../src/core/contracts/grading.ts';
+import type { WallData } from '../../../src/core/domain/index.ts';
+import type { ActivitySummary } from '../../../src/core/contracts/activities.ts';
 import { classroomClient, id, roomFor, stamp } from './classroom-data';
 
 const room: Detail = { ...roomFor('teacher'), name: 'Literatura - Demo', subject: 'Literatura', division: 'Demo', coverKey: 'literature', teacher: 'FoxMind Demo',

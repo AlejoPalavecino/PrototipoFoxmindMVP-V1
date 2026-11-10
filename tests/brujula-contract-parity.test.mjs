@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { activityPayload } from '../apps/api/src/classrooms/activity-policy.ts';
-import { privateGradingInput, parsePublishedGradeResult } from '../src/core/domain/classroom-grading.ts';
-import { parseWallMutation } from '../src/core/domain/classroom-wall.ts';
-import { rubricSuggestion } from '../src/core/domain/rubric-marks.ts';
+import { activityPayload } from '../apps/api/src/modules/activities/domain/activity-policy.ts';
+import { privateGradingInput, parsePublishedGradeResult } from '../src/core/domain/grading/grading.ts';
+import { parseWallMutation } from '../src/core/domain/communication/wall.ts';
+import { rubricSuggestion } from '../src/core/domain/grading/rubric-marks.ts';
 
 const activity = { title: 'Actividad', unitId: null, topicIds: [], instructions: 'Explicá con ejemplos.',
   attachmentRequired: false, instructionFileIds: [], materialIds: [], questions: [], deadline: null, allowLate: false };

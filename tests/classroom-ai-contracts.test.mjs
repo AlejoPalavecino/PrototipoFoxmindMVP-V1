@@ -65,7 +65,7 @@ test('C1 provider schema permits no structure while successful business proposal
 });
 
 test('C1 manual incomplete drafts retain their pre-AI semantics', async () => {
-  const { draftPayload } = await import('../apps/api/src/classrooms/policy.ts');
+  const { draftPayload } = await import("../apps/api/src/modules/classrooms/infrastructure/policy.ts");
   assert.deepEqual(draftPayload({}, false), {});
   assert.deepEqual(draftPayload({ units: [] }, false), { units: [] });
   assert.deepEqual(draftPayload({ units: [{ name: '', topics: [] }] }, false), { units: [{ name: '', topics: [] }] });

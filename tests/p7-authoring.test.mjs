@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import {seedPlan} from './helpers/plan-fixture.mjs';
 import { withP5Database } from '../scripts/p5-database.mjs';
-import { FileStore } from '../.build/api/apps/api/src/files/store.js';
-import { ClassroomService } from '../.build/api/apps/api/src/classrooms/service.js';
+import { FileStore } from '../.build/api/apps/api/src/modules/files/infrastructure/store.js';
+import { ClassroomService } from '../.build/api/apps/api/src/bootstrap/academic-composition.js';
 
 test('P7 authoring public service is available on the existing classroom chain', () => {
   for (const name of ['changeActivities', 'listActivities', 'activityDetail', 'activityDeadlineChoices', 'changePlan', 'changeLibrary', 'changeWall', 'invite'])
@@ -12,7 +12,7 @@ test('P7 authoring public service is available on the existing classroom chain',
 });
 
 test('authoring type validation never coerces arrays into activity types', async () => {
-  const { activityType } = await import('../apps/api/src/classrooms/activity-policy.ts');
+  const { activityType } = await import("../apps/api/src/modules/activities/domain/activity-policy.ts");
   assert.throws(() => activityType(['ASSIGNMENT']), { code: 'INVALID_INPUT' });
   assert.equal(activityType('ASSIGNMENT'), 'ASSIGNMENT');
 });

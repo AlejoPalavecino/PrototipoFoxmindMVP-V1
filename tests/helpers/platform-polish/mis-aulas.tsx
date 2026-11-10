@@ -1,6 +1,6 @@
 import {useMemo} from 'react';
 import {useRouter} from 'next/router';
-import {ClassroomsApp} from '../../classrooms-ui/Classrooms';
+import { ClassroomsApp } from '../src/application/academic-Classrooms.tsx';
 import {classroomClient} from './classroom-data';
 export default function Fixture() {
   const router=useRouter(),mode=String(router.query.mode??'populated');

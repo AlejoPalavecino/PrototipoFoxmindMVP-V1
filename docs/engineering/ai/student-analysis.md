@@ -4,4 +4,4 @@ El docente abre la ficha de un alumno y Análisis con IA. La capacidad utiliza s
 
 El servicio revalida propietario, alumno/pertenencia, estado y referencias del snapshot. Un cambio de datos puede volver obsoleto un resultado; no usarlo como predicción o diagnóstico personal. Una falla deja disponible consultar progreso y registros.
 
-Fuentes: [servicio y worker](../../../apps/api/src/classrooms/student-ai/), [progreso](../grading/progress.md). En el [recorrido actual](../../verification/flows.md) se abrió la ficha y se observó el error/reintento de un proveedor sintético deliberadamente no disponible. No se acreditó generación exitosa del informe ni proveedor real en esta entrega.
+Fuentes: [servicio y worker](../../../apps/api/src/modules/grading/infrastructure/student-ai/), [progreso](../grading/progress.md). En el [recorrido actual](../../verification/flows.md) se abrió la ficha y se observó el error/reintento de un proveedor sintético deliberadamente no disponible. No se acreditó generación exitosa del informe ni proveedor real en esta entrega.

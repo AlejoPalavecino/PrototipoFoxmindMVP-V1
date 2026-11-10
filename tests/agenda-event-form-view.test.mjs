@@ -15,9 +15,7 @@ test('shared notices preserve accessible status and error semantics', () => {
 });
 
 test('shared dialog preserves heading, close action and Escape cancellation', async () => {
-  const { Dialog } = loadTsModule('apps/shared-ui/feedback.tsx', { stubs: {
-    './dialog-focus': { openDialog: () => () => {} },
-  } });
+  const { Dialog } = loadTsModule('apps/shared-ui/feedback.tsx', { stubs: {"./dialog-focus":{openDialog: () => () => {}}} });
   let closed = 0, prevented = 0;
   const view = hookView(Dialog, { title: 'Revisar', className: 'agenda-dialog', onClose: () => closed++, children: 'Contenido' });
   try {

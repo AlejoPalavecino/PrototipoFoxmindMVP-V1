@@ -18,6 +18,7 @@
   "include": [
     "src/**/*.ts",
     "../../.generated/prisma/**/*.ts",
-    "../../src/core/domain/**/*.ts"
+    "../../src/core/domain/**/*.ts",
+    "../../src/core/contracts/**/*.ts"
   ]
 }

@@ -1,4 +1,6 @@
-import type { ClassroomClient, Draft, FileState, Payload } from '../../classrooms-ui/api';
+import type { ClassroomClient } from '../../../src/core/contracts/academic-client.ts';
+import type { Draft, Payload } from '../../../src/core/contracts/classrooms.ts';
+import type { FileState } from '../../../src/core/contracts/materials.ts';
 import type { ExtractionView, CurriculumUnit } from '../../../src/core/domain/index';
 
 export const draftId = '11111111-1111-4111-8111-111111111111';

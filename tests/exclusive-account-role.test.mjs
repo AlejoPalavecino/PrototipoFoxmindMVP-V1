@@ -1,14 +1,15 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { IdentityRuntime, publicUser } from '../.build/api/apps/api/src/identity/runtime.js';
-import { DraftService } from '../.build/api/apps/api/src/classrooms/drafts.js';
-import { MembershipService } from '../.build/api/apps/api/src/classrooms/memberships.js';
+import { IdentityStore } from '../.build/api/apps/api/src/modules/identity/infrastructure/persistence.js';
+import { IdentityRuntime, publicUser } from '../.build/api/apps/api/src/bootstrap/identity-runtime.js';
+import { DraftService } from '../.build/api/apps/api/src/bootstrap/academic-management-composition.js';
+import { MembershipService } from '../.build/api/apps/api/src/bootstrap/academic-management-composition.js';
 
 const input = { firstName: 'Example', lastName: 'Learner', email: 'example@example.test', password: 'Synthetic password for testing' };
 const config = { mail: { smtpPort: 1025 }, security: { rateLimits: { registration: { ip: {} } } } };
 const duplicateStore = () => {
   let transactions = 0;
-  return { canonicalEmail: async value => value.toLowerCase(), admit: async () => {},
+  return { canonicalEmail: async value => value.toLowerCase(), admit: async () => {}, insertRegistration: IdentityStore.prototype.insertRegistration,
     transaction: async operation => { transactions++; return operation({ $queryRaw: async () => [] }); },
     get transactions() { return transactions; } };
 };
@@ -64,7 +65,7 @@ test('teacher cannot enroll in a classroom', async () => {
 test('persisted roles govern classroom creation and enrollment and survive duplicate registration', { timeout: 120000 }, async () => {
   const { randomUUID } = await import('node:crypto');
   const { withAiDatabase, rollbackCase } = await import('./classroom-ai-database.test.mjs');
-  const { ClassroomService } = await import('../.build/api/apps/api/src/classrooms/service.js');
+  const { ClassroomService } = await import("../.build/api/apps/api/src/bootstrap/academic-composition.js");
   await withAiDatabase(async ({ pool }) => rollbackCase(pool, async local => {
     const teacher = randomUUID(), student = randomUUID(), room = randomUUID();
     for (const [id, role] of [[teacher, 'teacher'], [student, 'student']]) {
@@ -73,7 +74,7 @@ test('persisted roles govern classroom creation and enrollment and survive dupli
     }
     await local.pool.query(`INSERT INTO classrooms(id,updated_at,teacher_id,name,subject,division,academic_year,timezone,cover_key,storage_quota_bytes)
       VALUES($1,now(),$2,'Class','Subject','A',2026,'UTC','explore',100000000)`, [room, teacher]);
-    const store = { canonicalEmail: async value => value.toLowerCase(), admit: async () => {},
+    const store = { canonicalEmail: async value => value.toLowerCase(), admit: async () => {}, insertRegistration: IdentityStore.prototype.insertRegistration,
       transaction: async operation => operation({ $queryRaw: async (parts, ...values) => {
         const sql = parts.reduce((text, part, i) => text + part + (i < values.length ? `$${i + 1}` : ''), '');
         return (await local.pool.query(sql, values)).rows;
@@ -84,7 +85,7 @@ test('persisted roles govern classroom creation and enrollment and survive dupli
     const roles = await local.pool.query('SELECT id,account_role FROM users WHERE id=ANY($1::uuid[])', [[teacher, student]]);
     assert.deepEqual(Object.fromEntries(roles.rows.map(row => [row.id, row.account_role])), { [teacher]: 'teacher', [student]: 'student' });
     const authenticate = async (_tx, request) => request.actor;
-    const service = new ClassroomService({ database: local.database, authenticate, files: {},
+    const service = new ClassroomService({ database: local.database, authenticate, files: {load(){assert.fail('Unexpected file read');},loadAuthorized(){assert.fail('Unexpected authorized file read');},promoteDraftPlanInTransaction(){assert.fail('Unexpected file promotion');}},
       classroomQuotaBytes: 100000000n, signingKey: Buffer.alloc(32, 1), deliveryKey: Buffer.alloc(32, 2), webOrigin: 'http://127.0.0.1:3005' });
     const T = { actor: teacher }, S = { actor: student };
     assert.ok((await service.createDraft(T)).id);

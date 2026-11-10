@@ -18,4 +18,4 @@ Los intentos usan un único editor con capacidad/revisión; transferir edición 
 
 La consulta histórica y las notas publicadas están separadas de correcciones privadas. Salida/remoción revoca acceso del alumno sin destruir historia docente; una invitación nueva permite readmisión conforme al aula.
 
-Fuentes: [sesión de intento](../../../apps/classrooms-ui/AttemptSession.tsx), [historial](../../../apps/classrooms-ui/AttemptHistory.tsx), [servicios](../../../apps/api/src/classrooms/). [Evidencia actual](../../verification/flows.md).
+Fuentes: [sesión de intento](../../../apps/web/src/application/academic-AttemptSession.tsx), [historial](../../../apps/web/src/application/academic-AttemptHistory.tsx), [servicios](../../../apps/api/src/modules/participation/). [Evidencia actual](../../verification/flows.md).

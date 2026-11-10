@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { createServer } from 'node:http';
 import { once } from 'node:events';
-import { readFilesConfiguration } from '../.build/api/apps/api/src/files/configuration.js';
-import { installFilesTransport, FileHostLifecycle } from '../.build/api/apps/api/src/files/host.js';
-import { IdentityHttpError } from '../.build/api/apps/api/src/identity/errors.js';
-import { FileStore, FileIdentityError } from '../.build/api/apps/api/src/files/store.js';
+import { readFilesConfiguration } from '../.build/api/apps/api/src/modules/files/infrastructure/configuration.js';
+import { installFilesTransport, FileHostLifecycle } from '../.build/api/apps/api/src/bootstrap/files-host.js';
+import { IdentityHttpError } from '../.build/api/apps/api/src/modules/identity/domain/errors.js';
+import { FileStore, FileIdentityError } from '../.build/api/apps/api/src/modules/files/infrastructure/store.js';
 
 const require = createRequire(import.meta.url);
 const express = require('express');

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { createClassroomsHandler } from '../.build/api/apps/api/src/classrooms/http.js';
+import { createClassroomsHandler } from '../.build/api/apps/api/src/bootstrap/academic-http.js';
 const id = 'a1111111-1111-4111-8111-111111111111';
 test('grading ingress admits exact teacher operations without student capabilities or forged scores', async () => {
   const calls = [], service = Object.fromEntries(['getAttemptGrading', 'saveAttemptGrading', 'activityAttempt'].map(name => [name, async (...args) => { calls.push([name, ...args.slice(1)]); return {}; }]));

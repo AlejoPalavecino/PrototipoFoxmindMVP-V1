@@ -35,4 +35,4 @@ API recibe DATABASE_URL y orígenes/flags en su entorno. Web recibe FOXMIND_API_
 
 Arrancar la API no migra la base. Usar [migraciones](database.md) sólo sobre el destino autorizado. Mailpit local captura; no envía correo a destinatarios reales.
 
-Fuentes: [configuración](../../../apps/api/src/configuration.ts), [composición](../../../apps/api/src/application.ts), [scripts](../../../package.json). [Comprobaciones actuales](../../verification/README.md).
+Fuentes: [configuración](../../../apps/api/src/bootstrap/configuration.ts), [composición](../../../apps/api/src/bootstrap/application.ts), [scripts](../../../package.json). [Comprobaciones actuales](../../verification/README.md).

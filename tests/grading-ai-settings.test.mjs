@@ -1,8 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { activityPayload } from '../apps/api/src/classrooms/activity-policy.ts';
-import { DraftService } from '../apps/api/src/classrooms/drafts.ts';
+import { activityPayload } from '../apps/api/src/modules/activities/domain/activity-policy.ts';
+import { DraftService } from '../apps/api/src/bootstrap/academic-management-composition.ts';
+import { createAuthoringRepository } from '../apps/api/src/modules/activities/infrastructure/authoring-repository.ts';
+import { readActivityTopics } from '../apps/api/src/modules/activities/infrastructure/activity-topics.ts';
 
 const activity = extra => ({ title: 'Trabajo', unitId: randomUUID(), topicIds: [randomUUID()], instructions: 'Resolver',
   attachmentRequired: false, instructionFileIds: [], materialIds: [], questions: [], deadline: null, allowLate: false, ...extra });
@@ -10,8 +12,8 @@ const settings = extra => ({ revision: '1', name: 'Aula', subject: 'Materia', di
 function classroomFixture() {
   const seen = { calls: [], queries: [] };
   const tx = { query: async (sql, ...args) => { seen.queries.push({ sql, args }); return [{ id: 'room' }]; } };
-  const service = { ports: { gradingAiAvailable: true }, run: async (_request, write, callback) => { seen.write = write; return callback(tx, { id: 'teacher' }); },
-    classroom: async (...args) => { seen.calls.push(args); return { revision: 1n, ai_grading_enabled: false, ai_grading_epoch: 0n }; } };
+  const service = new DraftService({ ports: { gradingAiAvailable: true }, run: async (_request, write, callback) => { seen.write = write; return callback(tx, { id: 'teacher' }); },
+    classroom: async (...args) => { seen.calls.push(args); return { revision: 1n, ai_grading_enabled: false, ai_grading_epoch: 0n }; } });
   return { seen, update: body => DraftService.prototype.updateSettings.call(service, {}, 'room', body) };
 }
 
@@ -54,8 +56,9 @@ test('configuración rechaza interruptor que no sea booleano antes de escribir',
 });
 
 test('rúbrica solo se proyecta en vista docente, nunca en vista del alumno', async () => {
-  const { ActivityAuthoringService } = await import('../apps/api/src/classrooms/activity-authoring.ts');
-  const tx = { query: async () => [] }, service = { activitySummary: () => ({ id: 'activity' }) };
+  const { ActivityAuthoringService } = await import("../apps/api/src/bootstrap/academic-authoring-composition.ts");
+  const tx = { query: async () => [] }, service = { activitySummary: () => ({ id: 'activity' }),
+    repository: createAuthoringRepository(), operations: { readActivityTopics } };
   const row = { id: 'activity', topic_id: null, instructions_text: 'Consigna', attachments_required: false, ai_grading_rubric: 'Criterio privado' };
   const teacher = await ActivityAuthoringService.prototype.activityView.call(service, tx, row, 'UTC', true);
   const student = await ActivityAuthoringService.prototype.activityView.call(service, tx, row, 'UTC', false);

@@ -7,8 +7,9 @@ import { domainToUnicode } from 'node:url';
 import pg from 'pg';
 import { createApplication } from '../.build/api/apps/api/src/application.js';
 import { readConfiguration } from '../.build/api/apps/api/src/configuration.js';
-import { createPasswordService, generateVerifier, sessionTokenDigest } from '../.build/api/apps/api/src/identity-security/index.js';
-import { IdentityRuntime } from '../.build/api/apps/api/src/identity/index.js';
+import { createPasswordService } from '../.build/api/apps/api/src/modules/identity/infrastructure/security/passwords.js';
+import { generateVerifier, sessionTokenDigest } from '../.build/api/apps/api/src/modules/identity/infrastructure/security/verifiers.js';
+import { IdentityRuntime } from '../.build/api/apps/api/src/bootstrap/identity-runtime.js';
 import { createSmtpFixture } from '../scripts/mail-smtp-fixture.mjs';
 
 if (process.send) { process.send({ type: 'foxmind-test-ready' }); process.disconnect(); }

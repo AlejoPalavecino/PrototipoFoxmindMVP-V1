@@ -3,12 +3,13 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { withAgendaDatabase } from './agenda-database-helpers.test.mjs';
 import { homeFixture } from './foxmind-3d-repository-fixture.test.mjs';
-import { readSqlPage } from '../apps/api/src/home/sql-page.ts';
-import { createHomeService, createHomeUnitOfWork } from '../apps/api/src/home/index.ts';
-import { mine } from '../apps/api/src/classrooms/classroom-queries.ts';
-import {detail as classroomDetail} from '../apps/api/src/classrooms/classroom-queries.ts';
-import {newClassroomCode} from '../apps/api/src/classrooms/classroom-codes.ts';
-import {encryptDelivery,decryptDelivery} from '../apps/api/src/classrooms/delivery-envelope.ts';
+import { readSqlPage } from '../apps/api/src/modules/home/infrastructure/sql-page.ts';
+import { createHomeService } from '../apps/api/src/modules/home/application/service.ts';
+import { createHomeUnitOfWork } from '../apps/api/src/modules/home/infrastructure/unit-of-work.ts';
+import { mine } from '../apps/api/src/modules/classrooms/infrastructure/classroom-queries.ts';
+import { detail as classroomDetail } from '../apps/api/src/modules/classrooms/infrastructure/classroom-queries.ts';
+import { newClassroomCode } from '../apps/api/src/modules/classrooms/infrastructure/classroom-codes.ts';
+import { encryptDelivery, decryptDelivery } from '../apps/api/src/modules/classrooms/infrastructure/delivery-envelope.ts';
 
 test('Home returns only published own feedback and saved own question progress',{timeout:120000},async()=>{
  await withAgendaDatabase(async({transaction})=>transaction(async local=>{
@@ -27,8 +28,8 @@ test('Home returns only published own feedback and saved own question progress',
     assert.deepEqual((await service.read({userId:f.actor},{timeZone:'UTC'})).modules.pending.items.find(item=>item.id===b.id).questionProgress,{answered:0,total:1});
   }
   const readOnly=await f.activity('study',{expected:false,allowLate:true});
-  const {ClassroomService}=await import('../.build/api/apps/api/src/classrooms/service.js');
-  const classrooms=new ClassroomService({database:local.database,files:{},authenticate:async(_tx,req)=>req.userId,signingKey:Buffer.alloc(32,4),deliveryKey:Buffer.alloc(32,5),classroomQuotaBytes:1000000n,webOrigin:'http://127.0.0.1:3005'});
+  const {ClassroomService}=await import("../.build/api/apps/api/src/bootstrap/academic-composition.js");
+  const classrooms=new ClassroomService({database:local.database,files:{load(){assert.fail('Unexpected file read');},loadAuthorized(){assert.fail('Unexpected authorized file read');},promoteDraftPlanInTransaction(){assert.fail('Unexpected file promotion');}},authenticate:async(_tx,req)=>req.userId,signingKey:Buffer.alloc(32,4),deliveryKey:Buffer.alloc(32,5),classroomQuotaBytes:1000000n,webOrigin:'http://127.0.0.1:3005'});
   assert.equal((await classrooms.listActivities({userId:f.actor},f.rooms.study.id)).activities.find(item=>item.id===readOnly.id).studentState,'READ_ONLY');
   assert.equal((await service.read({userId:f.outsider},{timeZone:'UTC'})).modules.feedback.items?.length??0,0);
  }));

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { completion, performance, gradeMean, meanScore, taughtProgress } from '../apps/api/src/classrooms/progress-calculation.ts';
-import { roundHalfUp } from '../apps/api/src/classrooms/scoring.ts';
+import { completion, performance, gradeMean, meanScore, taughtProgress } from '../apps/api/src/modules/grading/domain/progress-calculation.ts';
+import { roundHalfUp } from '../apps/api/src/modules/grading/domain/scoring.ts';
 
 test('completion counts student/activity pairs, distinguishes empty from complete and keeps reopening additional', () => {
   assert.deepEqual(completion(2, 1, 1, 0, 1), { expected: 2, delivered: 1, pending: 1, onTime: 1, late: 0,

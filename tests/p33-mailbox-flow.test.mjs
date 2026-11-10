@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { NestFactory } from '@nestjs/core';
 import { domainToASCII, domainToUnicode } from 'node:url';
-import { MailModule, AccountMailService } from '../.build/p33-mail/apps/api/src/mail/index.js';
+import { MailModule } from '../.build/p33-mail/apps/api/src/bootstrap/identity-mail.module.js';
+import { AccountMailService } from '../.build/p33-mail/apps/api/src/modules/identity/infrastructure/mail/account-mail.service.js';
 import { withMailpit } from '../scripts/mailpit-test-runtime.mjs';
 
 // Public SMTP -> owned fresh Mailpit -> public inbox API. Never print recipients/links.

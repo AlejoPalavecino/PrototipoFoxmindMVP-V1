@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { openClassroom, planPdf } from './p6-integration-helpers.mjs';
 import { digest } from './p4-integration-helpers.mjs';
-import { openPublicationPractical } from './p8-publication-browser-helpers.mjs';
+import { openPracticalActivity, openTeacherActivity } from './p8-current-ui-helpers.mjs';
 import { withJourney, ok, request, createActivity, session, rootOf, rejectUnchanged, academicHash,
   assertReadyFile, openOwnResult, selectClassroomSection } from './p9-journey-helpers-current.mjs';
 
@@ -13,8 +13,7 @@ test('P9 joined practical: real private validated attachment, explicit receipt, 
     const activity = await createActivity(world, 'ASSIGNMENT', { attachmentRequired: true });
     await openClassroom(S.page, runtime.origin, 'P9 practical classroom');
     await selectClassroomSection(S.page, 'activities', 'Actividades');
-    await openPublicationPractical(S.page, room.id, activity.id, () => S.page.getByRole('article', { name: activity.title, exact: true })
-      .getByRole('button', { name: 'Abrir trabajo práctico', exact: true }).click());
+    await openPracticalActivity(S.page, room.id, activity.id, activity.title);
     const current = await session(world, activity), attemptId = current.attempt.id;
     assert.equal(current.activity.locked, true); assert.equal(current.attempt.status, 'DRAFT');
     const bytes = await planPdf('P9 immutable practical bytes'), expected = digest(bytes);
@@ -30,10 +29,10 @@ test('P9 joined practical: real private validated attachment, explicit receipt, 
     await rejectUnchanged(runtime.db, () => request(T.page, 'GET', `/files/${file.id}/content`), 403);
     await rejectUnchanged(runtime.db, () => request(T.page, 'GET', `${root}/attempts/${attemptId}/receipt`), 403);
     const beforeCancel = await academicHash(runtime.db);
-    await S.page.getByRole('button', { name: 'Enviar trabajo práctico', exact: true }).click();
+    await S.page.getByRole('button', { name: 'Revisar entrega', exact: true }).click();
     await S.page.getByRole('button', { name: 'Cancelar entrega', exact: true }).click();
     assert.equal(await academicHash(runtime.db), beforeCancel);
-    await S.page.getByRole('button', { name: 'Enviar trabajo práctico', exact: true }).click();
+    await S.page.getByRole('button', { name: 'Revisar entrega', exact: true }).click();
     response = S.page.waitForResponse(r => r.url().endsWith('/submit-practical'));
     await S.page.getByRole('button', { name: 'Confirmar envío del trabajo', exact: true }).click();
     const submitted = await response; assert.equal(submitted.status(), 200); await submitted.json();
@@ -43,15 +42,15 @@ test('P9 joined practical: real private validated attachment, explicit receipt, 
     assert.equal((await ok(T.page, 'GET', `/files/${file.id}/content`)).digest, expected);
     await openClassroom(T.page, runtime.origin, 'P9 practical classroom');
     await T.page.getByRole('button', { name: 'Actividades', exact: true }).click();
-    await T.page.getByRole('article', { name: activity.title, exact: true }).getByRole('button', { name: 'Ver entregas recibidas', exact: true }).click();
+    await openTeacherActivity(T.page, activity.title);
     await T.page.getByRole('button', { name: 'Corregir intento 1', exact: true }).click();
     const grading = T.page.getByRole('region', { name: 'Corrección privada del intento', exact: true });
-    await grading.getByLabel('Calificación general', { exact: true }).fill('8,50');
+    await grading.getByLabel('Nota final', { exact: true }).fill('8,50');
     await grading.getByLabel('Devolución general opcional', { exact: true }).fill('Specific practical overall feedback');
     response = T.page.waitForResponse(r => r.url().endsWith('/grading') && r.request().method() === 'POST');
     await grading.getByRole('button', { name: 'Guardar corrección privada', exact: true }).click();
     const saved = await response; assert.equal(saved.status(), 200); assert.equal((await saved.json()).grade.finalGrade, '8.50');
-    await grading.getByText('Calificación calculada: 8,50', { exact: true }).waitFor();
+    await grading.getByText('Nota guardada: 8,50', { exact: true }).waitFor();
     assert.deepEqual(await ok(S.page, 'GET', `${root}/attempts/${attemptId}/result`), { status: 'pending', attemptId });
     await grading.getByRole('button', { name: 'Publicar calificación', exact: true }).click();
     response = T.page.waitForResponse(r => r.url().endsWith('/publish-grade'));

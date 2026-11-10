@@ -1,9 +1,9 @@
 // Run only after the user supplies a Gemini test key and authorizes live calls.
 import { loadEnvFile } from 'node:process';
-import { createGeminiFoxyImageAdapter } from '../apps/api/src/ai/foxy-image-adapter.ts';
-import { createGeminiFoxyDiagramAdapter } from '../apps/api/src/ai/foxy-diagram-adapter.ts';
-import { readAiConfiguration } from '../apps/api/src/ai/configuration.ts';
-import { readFoxyVisualConfiguration } from '../apps/api/src/foxy-ai/visual-configuration.ts';
+import { createGeminiFoxyImageAdapter } from '../apps/api/src/modules/foxy/infrastructure/providers/foxy-image-adapter.ts';
+import { createGeminiFoxyDiagramAdapter } from '../apps/api/src/modules/foxy/infrastructure/providers/foxy-diagram-adapter.ts';
+import { readAiConfiguration } from '../apps/api/src/platform/ai/configuration.ts';
+import { readFoxyVisualConfiguration } from '../apps/api/src/modules/foxy/infrastructure/visual-configuration.ts';
 if (!process.argv.includes('--live-authorized')) throw new Error('Pass --live-authorized only after explicit authorization.');
 if (Object.keys(process.env).some(key => key.startsWith('AI_') || key === 'FOXY_PRIVATE_ASSET_QUOTA_BYTES')) throw new Error('Remove inherited AI configuration before running this test.');
 loadEnvFile('.env.foxy-test');

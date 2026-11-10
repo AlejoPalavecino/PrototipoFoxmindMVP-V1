@@ -298,7 +298,7 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
         await openHome(peer, runtime.origin);
         await peer.getByRole('button', { name: /^Notificaciones/ }).click();
         const dialog = peer.getByRole('dialog', { name: 'Notificaciones', exact: true });
-        const notice = dialog.getByRole('listitem').filter({ has: peer.getByText('P9 Studying B', { exact: true }) })
+        const notice = dialog.getByRole('listitem').filter({ has: peer.getByText('P9 Studying B · A', { exact: true }) })
           .filter({ has: peer.getByText('Nuevo aviso del docente', { exact: true }) });
         const opened = peer.waitForResponse(response => new URL(response.url()).pathname === `/api/v1/classrooms/notifications/${notification.id}/open`);
         await notice.getByRole('button', { name: 'Abrir conversación', exact: true }).click();
@@ -437,8 +437,8 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
         assert.equal(await peer.getByRole('region', { name: /^(Aula en foco|Accesos de mi aula|Acciones del aula)$/ }).count(), 0, 'Failed refresh must not present stale classroom cards as current');
         await peer.getByRole('button', { name: /^Notificaciones/ }).click();
         const dialog = peer.getByRole('dialog', { name: 'Notificaciones', exact: true });
-        await dialog.getByRole('alert').waitFor();
-        const notificationFailure = await dialog.getByRole('alert').innerText();
+        await dialog.locator('p[role="alert"]').waitFor();
+        const notificationFailure = await dialog.locator('p[role="alert"]').innerText();
         assert.ok(notificationFailure.length > 0, 'Observe independently owned notification error');
         await dialog.getByRole('button', { name: 'Cerrar diálogo', exact: true }).click();
         await peerContext.setOffline(false);
@@ -471,7 +471,7 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
           recovered = await retry;
         }
         assert.equal(recovered.status(), 200);
-        await dialog.getByRole('alert').waitFor({ state: 'detached' });
+        await peer.waitForFunction(() => !document.querySelector('dialog[open][aria-labelledby="p5-dialog-title"] [role="alert"]'));
         await dialog.getByRole('button', { name: 'Cerrar diálogo', exact: true }).click();
         await drainHomeReads();
         await assertHomeRecoveryOwners(peer);
@@ -594,12 +594,17 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
           }
           await completedListBodies(settled);
         } else await completedListBodies(responses);
-        await page.getByRole('button', { name: /Only my private draft/ }).click();
+        await page.getByRole('button', { name: /^Pendientes/ }).click();
+        await page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Only my private draft', exact: true }) }).getByRole('button', { name: 'Continuar creación', exact: true }).click();
         const draftWizard = page.getByRole('dialog', { name: 'Crear aula', exact: true });
         await draftWizard.getByRole('textbox', { name: 'Nombre del aula', exact: true }).waitFor();
         assert.equal(await draftWizard.getByRole('textbox', { name: 'Nombre del aula', exact: true }).inputValue(), 'Only my private draft');
-        assert.equal(await (await navigationLink(page, 'Inicio')).count(), 0);
-        assert.equal(await page.getByRole('link', { name: 'Mi perfil', exact: true }).count(), 0);
+        for (const name of ['Inicio', 'Mi perfil']) {
+          for (const link of await page.getByRole('link', { name, exact: true }).all()) {
+            await link.evaluate(element => element.focus());
+            assert.equal(await draftWizard.evaluate(element => element.contains(document.activeElement)), true);
+          }
+        }
       });
 
       await check('ordinary login lands on Inicio; explicit Inicio and revoked-session continuations remain safe', async () => {

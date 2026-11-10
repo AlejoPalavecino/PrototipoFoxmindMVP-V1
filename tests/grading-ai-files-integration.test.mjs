@@ -6,15 +6,15 @@ import pg from 'pg';
 import { PDFDocument } from 'pdf-lib';
 import { withP4Services } from '../scripts/p4-services.mjs';
 import { waitForAttemptClock } from './helpers/attempt-clock.mjs';
-import { ClassroomService } from '../.build/api/apps/api/src/classrooms/service.js';
-import { FileService } from '../.build/api/apps/api/src/files/service.js';
-import { S3Storage } from '../.build/api/apps/api/src/files/storage.js';
-import { ClamdScanner } from '../.build/api/apps/api/src/files/scanner.js';
-import { createFileAccess } from '../.build/api/apps/api/src/files/access.js';
-import { attachmentIntegration } from '../.build/api/apps/api/src/attachment-integration.js';
-import { createDurableGradingAiAttachmentReader } from '../.build/api/apps/api/src/files/durable-grading-ai-attachment-reader.js';
-import { createDurableGradingAiInstructionReader } from '../.build/api/apps/api/src/files/durable-grading-ai-instruction-reader.js';
-import { GradingAiRuntime } from '../.build/api/apps/api/src/classrooms/grading-ai/runtime.js';
+import { ClassroomService } from '../.build/api/apps/api/src/bootstrap/academic-composition.js';
+import { FileService } from '../.build/api/apps/api/src/modules/files/infrastructure/service.js';
+import { S3Storage } from '../.build/api/apps/api/src/modules/files/infrastructure/storage.js';
+import { ClamdScanner } from '../.build/api/apps/api/src/modules/files/infrastructure/scanner.js';
+import { createFileAccess } from '../.build/api/apps/api/src/modules/files/infrastructure/access.js';
+import { attachmentIntegration } from '../.build/api/apps/api/src/bootstrap/attachment-integration.js';
+import { createDurableGradingAiAttachmentReader } from '../.build/api/apps/api/src/modules/files/infrastructure/durable-grading-ai-attachment-reader.js';
+import { createDurableGradingAiInstructionReader } from '../.build/api/apps/api/src/modules/files/infrastructure/durable-grading-ai-instruction-reader.js';
+import { GradingAiRuntime } from '../.build/api/apps/api/src/modules/grading/infrastructure/grading-ai/runtime.js';
 
 const configuration={maxConcurrency:2,deadlineMs:30000,dailyActorRequests:20,dailyGlobalRequests:20,maxInputTokens:10000,maxOutputTokens:200,inputUsdPerMillion:1,outputUsdPerMillion:1,dailyBudgetUsd:5};
 async function pdf(text) {const doc=await PDFDocument.create();doc.addPage([300,300]).drawText(text);return Buffer.from(await doc.save());}

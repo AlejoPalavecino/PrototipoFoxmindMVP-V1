@@ -1,9 +1,15 @@
 /** Exercise whichever real responsive navigation is currently visible. */
 export async function visibleNavigation(page) {
   const drawer = page.getByRole('dialog', { name: 'Menú de navegación', exact: true });
-  if (await drawer.isVisible()) return drawer.getByRole('navigation', { name: 'Navegación principal', exact: true });
   const desktop = page.locator('header.fm3d-shell > nav.fm3d-shell-nav');
-  if (await desktop.isVisible()) return desktop;
+  if (await desktop.isVisible()) {
+    if (await drawer.isVisible()) {
+      await drawer.getByRole('button', { name: 'Cerrar menú de navegación', exact: true }).click();
+      await drawer.waitFor({ state: 'hidden' });
+    }
+    return desktop;
+  }
+  if (await drawer.isVisible()) return drawer.getByRole('navigation', { name: 'Navegación principal', exact: true });
   if (!await drawer.isVisible()) await page.getByRole('button', { name: 'Abrir menú de navegación', exact: true }).press('Enter');
   await drawer.waitFor();
   return drawer.getByRole('navigation', { name: 'Navegación principal', exact: true });

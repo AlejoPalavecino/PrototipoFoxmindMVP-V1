@@ -2,12 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 
-const helper = () => loadTsModule('apps/classrooms-ui/home-presentation.ts');
+const helper = () => loadTsModule('apps/web/src/features/home/model/home-presentation.ts');
 const names = ['pending', 'review', 'feedback', 'agenda', 'queries', 'materials', 'classrooms'];
 const empty = { status: 'ready', items: [], totalItems: null, nextCursor: null };
 
 test('Each recoverable module retains a working retry action', () => {
-  const { HomeModule } = loadTsModule('apps/classrooms-ui/HomeModule.tsx');
+  const { HomeModule } = loadTsModule('apps/web/src/features/home/ui/HomeModule.tsx');
   const walk = value => !value || typeof value !== 'object' ? [] :
     [value, ...[value.props?.children].flat(Infinity).flatMap(walk)];
   for (const name of names) {

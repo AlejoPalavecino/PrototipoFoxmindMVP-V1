@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
-import { ClassroomsApp } from '../../classrooms-ui/Classrooms';
+import { ClassroomsApp } from '../src/application/academic-Classrooms.tsx';
 import { collectionFixture, type Receipt } from '../fixtures/collection-data';
 
 export default function Fixture() {

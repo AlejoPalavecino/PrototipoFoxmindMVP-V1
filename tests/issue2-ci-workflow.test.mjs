@@ -71,12 +71,12 @@ import { spawnSync } from 'node:child_process';
 // Inventory mirrors the tracked feature files at the established slice 06. It is
 // self-contained so the check works on a clean GitHub checkout without local refs.
 const slice06 = [
-  'src/core/domain/grading-ai.ts',
-  ...['enqueue','provider','runtime','snapshot','snapshot-sql','sql-queue'].map(x => `apps/api/src/classrooms/grading-ai/${x}.ts`),
-  ...['grading-ai-attachment-reader','durable-grading-ai-attachment-reader','durable-grading-ai-instruction-reader'].map(x => `apps/api/src/files/${x}.ts`),
+  'src/core/domain/grading/grading-ai.ts',
+  ...['enqueue','provider','runtime','snapshot','snapshot-sql','sql-queue'].map(x => `apps/api/src/modules/grading/infrastructure/grading-ai/${x}.ts`),
+  ...['grading-ai-attachment-reader','durable-grading-ai-attachment-reader','durable-grading-ai-instruction-reader'].map(x => `apps/api/src/modules/files/infrastructure/${x}.ts`),
   ...['attachment-reader','before-count','contract','durable-reader','enqueue','instruction-reader','provider','runtime','snapshot','sql'].map(x => `tests/grading-ai-${x}.test.mjs`),
 ];
-const finalSlice = [...slice06, 'apps/api/src/classrooms/grading-ai/service.ts', 'tests/grading-ai-api.test.mjs',
+const finalSlice = [...slice06, 'apps/api/src/modules/grading/application/grading-ai/service.ts', 'tests/grading-ai-api.test.mjs',
   'tests/grading-ai-preflight.test.mjs', 'tests/grading-ai-lifecycle.test.mjs',
   'tests/grading-ai-integration.test.mjs', 'tests/grading-ai-files-integration.test.mjs', 'odd/tasks/grading-ai-issue-2.md'];
 async function runSuiteBlock(files, simulateTimeout = false) {
@@ -86,7 +86,7 @@ async function runSuiteBlock(files, simulateTimeout = false) {
   const script = match[1].replace(/^ {10}/gm, '');
   const root = await mkdtemp(join(tmpdir(), 'issue2-ci-test-'));
   try {
-    for (const relative of files) { const path = join(root, relative); await mkdir(dirname(path), { recursive: true }); await writeFile(path, relative === 'apps/api/src/classrooms/classrooms.module.ts' ? 'GradingAiRuntime' : 'fixture'); }
+    for (const relative of files) { const path = join(root, relative); await mkdir(dirname(path), { recursive: true }); await writeFile(path, relative === 'apps/api/src/bootstrap/academic-classrooms.module.ts' ? 'GradingAiRuntime' : 'fixture'); }
     const bash = process.platform === 'win32' ? 'C:/Program Files/Git/bin/bash.exe' : 'bash';
     // Replace node only, preserving Bash's glob, conditions, exit handling and arguments.
     const result = spawnSync(bash, ['-c', `node() { printf 'NODE_ARG:%s\\n' "$@"; }\ntimeout() { printf 'TIMEOUT_ARG:%s\\n' "$1"; ${simulateTimeout ? 'return 124;' : 'shift; "$@";'} }\n${script}`],
@@ -159,7 +159,7 @@ test('Next build is supervised by 180s and propagates timeout', async () => {
 });
 
 test('instruction reader slice fails closed if its required sensitive-file test is absent', async () => {
-  const reader = 'apps/api/src/files/durable-grading-ai-instruction-reader.ts';
+  const reader = 'apps/api/src/modules/files/infrastructure/durable-grading-ai-instruction-reader.ts';
   const proof = 'tests/grading-ai-instruction-reader.test.mjs';
   const partial = await runSuiteBlock(slice06.filter(x => x !== proof));
   assert.notEqual(partial.code, 0, `${reader} cannot run without ${proof}`);
@@ -168,9 +168,9 @@ test('instruction reader slice fails closed if its required sensitive-file test 
 });
 
 for (const [source, missing] of [
-  ['apps/classrooms-ui/GradingAiReview.tsx', 'tests/grading-ai-review-ui.test.mjs'],
-  ['apps/api/src/classrooms/classrooms.module.ts', 'tests/grading-ai-host.test.mjs'],
-  ['apps/api/src/classrooms/classrooms.module.ts', 'tests/grading-ai-authorization.test.mjs'],
+  ['apps/web/src/features/grading/ui/GradingAiReview.tsx', 'tests/grading-ai-review-ui.test.mjs'],
+  ['apps/api/src/bootstrap/academic-classrooms.module.ts', 'tests/grading-ai-host.test.mjs'],
+  ['apps/api/src/bootstrap/academic-classrooms.module.ts', 'tests/grading-ai-authorization.test.mjs'],
 ]) test(`${source} requires ${missing} only when introduced`, async () => {
   const files = [...slice06, source,
     ...['tests/grading-ai-review-ui.test.mjs', 'tests/grading-ai-host.test.mjs', 'tests/grading-ai-authorization.test.mjs'].filter(x => x !== missing)];

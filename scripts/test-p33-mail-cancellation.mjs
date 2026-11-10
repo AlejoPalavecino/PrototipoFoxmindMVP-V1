@@ -41,13 +41,24 @@ export async function runMailCancellation(mode = '--cancellation', { prepare } =
   }
   // Private mail compilation remains an explicit prerequisite for component modes.
   if (mode === '--regressions') {
-    // Exercise the UNCHANGED P3.2 test against private current output.
-    const oldEntry = pathToFileURL(resolve('.build/api/apps/api/src/mail/index.js')).href;
-    const privateEntry = pathToFileURL(resolve('.build/p33-mail/apps/api/src/mail/index.js')).href;
+    // Run the original assertions against the private canonical mail closure.
+    const mailEntries = [
+      "apps/api/src/modules/identity/infrastructure/mail/account-mail.service.js",
+      "apps/api/src/modules/identity/infrastructure/mail/configuration.js",
+      "apps/api/src/bootstrap/identity-mail.module.js",
+      "apps/api/src/modules/identity/infrastructure/mail/mailbox.js",
+      "apps/api/src/modules/identity/infrastructure/mail/mail-error.js",
+      "apps/api/src/modules/identity/infrastructure/mail/templates.js"
+    ];
+    const redirects = Object.fromEntries(mailEntries.map(entry => [
+      pathToFileURL(resolve('.build/api', entry)).href,
+      pathToFileURL(resolve('.build/p33-mail', entry)).href,
+    ]));
     const source = `import { registerHooks } from 'node:module';
+      const redirects = ${JSON.stringify(redirects)};
       registerHooks({ resolve(specifier, context, nextResolve) {
         const url = context.parentURL && new URL(specifier, context.parentURL).href;
-        return nextResolve(url === ${JSON.stringify(oldEntry)} ? ${JSON.stringify(privateEntry)} : specifier, context);
+        return nextResolve(redirects[url] ?? specifier, context);
       } });`;
     const hook = `data:text/javascript,${encodeURIComponent(source)}`;
     return runTests(mode, ['tests/p32-mailer.test.mjs', 'tests/p33-mailbox.test.mjs'], Date.now() + 26000, {}, ['--import', hook]);

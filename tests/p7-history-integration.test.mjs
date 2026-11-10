@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp } from 'node:fs/promises';
+import { mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -28,15 +28,15 @@ test('P7 actual teacher reopen/student prefill-transfer-revise-submit preserve o
     assert.equal(owner.status, 0); console.log(`History actual disposable owner: ${owner.stdout.trim()}`);
     const scratch = await mkdtemp(join(tmpdir(), 'foxmind-p7-history-')); console.log(`History retained browser evidence: ${scratch}`);
     const browser = await chromium.launch({ headless: true });
-    let journey;
+    let journey, originalFailure;
     try {
       const teacher = await (await browser.newContext({ viewport: { width: 1280, height: 900 } })).newPage();
       const student = await (await browser.newContext({ viewport: { width: 375, height: 812 } })).newPage();
       journey = createJourneyObserver({ teacher, student });
       journey.setStage('teacher', 'setup', 'bootstrap'); journey.setStage('student', 'setup', 'bootstrap');
       const errors = []; for (const page of [teacher, student]) page.on('pageerror', e => errors.push(e.message));
-      const suffix = Date.now(); await account(teacher, runtime.origin, runtime.inbox, `history-teacher-${suffix}@example.test`);
-      await account(student, runtime.origin, runtime.inbox, `history-student-${suffix}@example.test`);
+      const suffix = Date.now(); await account(teacher, runtime.origin, runtime.inbox, `history-teacher-${suffix}@example.test`, undefined, "teacher");
+      await account(student, runtime.origin, runtime.inbox, `history-student-${suffix}@example.test`, undefined, "student");
       const room = await classroom(teacher, student, 'P7 history classroom'), detail = await ok(teacher, 'GET', `/classrooms/${room.id}`);
       const change = async operation => ok(teacher, 'POST', `/classrooms/${room.id}/activities`, { revision: (await ok(teacher, 'GET', `/classrooms/${room.id}`)).revision, operation });
       const activities = [];
@@ -79,20 +79,20 @@ test('P7 actual teacher reopen/student prefill-transfer-revise-submit preserve o
         runtime.db.query('SELECT to_jsonb(a) value FROM attempt_attachments a WHERE attempt_id=$1 ORDER BY file_id', [activity.original]),
         runtime.db.query('SELECT to_jsonb(c) value FROM file_custodies c WHERE file_id IN (SELECT file_id FROM attempt_attachments WHERE attempt_id=$1) ORDER BY file_id', [activity.original]),
       ]).then(results => results.map(r => r.rows))));
-      let failed = false; const check = (name, fn) => t.test(name, { skip: failed ? 'Earlier actual history prerequisite failed' : false }, async () => { try { await fn(); } catch (e) { failed = true; console.error('Journey observer diagnostic', JSON.stringify(await journey.snapshot().catch(() => ({ unavailable: true })))); throw e; } });
+      let failed = false; const check = (name, fn) => t.test(name, { skip: failed ? 'Earlier actual history prerequisite failed' : false }, async () => { try { await fn(); } catch (e) { failed = true; console.error('Journey observer partial diagnostic', JSON.stringify(await journey.snapshot({ waitForPending: false }).catch(() => ({ unavailable: true, partial: true })))); throw e; } });
       const actualActivities = process.env.P7_HISTORY_TARGETED === '1' ? activities.filter(a => a.type !== 'QUESTIONNAIRE') : activities;
       for (const activity of actualActivities) await check(`${activity.type} real teacher reopen confirmation → student history/prefill transfer → revised explicit delivery`, async () => {
         journey.setStage('teacher', activity.type, 'reopen'); journey.setStage('student', activity.type, 'reopen');
         const before = await originalHash(activity);
         await openClassroom(teacher, runtime.origin, 'P7 history classroom'); await teacher.getByRole('button', { name: 'Actividades', exact: true }).click();
-        await teacher.getByRole('article', { name: activity.title, exact: true }).getByRole('button', { name: 'Ver entregas recibidas', exact: true }).click();
+        await teacher.getByRole('article', { name: activity.title, exact: true }).getByRole('button', { name: `Abrir ${activity.title}`, exact: true }).click();
         await teacher.getByRole('button', { name: 'Habilitar otro intento', exact: true }).click();
         await teacher.getByRole('button', { name: 'Confirmar nuevo intento', exact: true }).click();
         await teacher.getByText('Reentrega pendiente', { exact: false }).waitFor();
         assert.equal(await originalHash(activity), before);
         await openClassroom(student, runtime.origin, 'P7 history classroom');
         await student.getByRole('button', { name: 'Actividades', exact: true }).click();
-        await student.getByRole('article', { name: activity.title, exact: true }).getByRole('button', { name: 'Ver mis intentos', exact: true }).click();
+        await student.getByRole('article', { name: activity.title, exact: true }).getByRole('button', { name: `Abrir ${activity.title}`, exact: true }).click();
         await student.getByText('Reentrega pendiente: todavía no es una nueva entrega recibida.', { exact: true }).waitFor();
         await student.getByRole('button', { name: 'Consultar intento 1', exact: true }).click();
         if (activity.type !== 'ASSIGNMENT') await student.getByRole('region', { name: 'Intento histórico confirmado' }).getByText('Original answer', { exact: false }).waitFor();
@@ -101,7 +101,7 @@ test('P7 actual teacher reopen/student prefill-transfer-revise-submit preserve o
         try {
         const sessionWatch = watchResponse(student, response => response.request().method() === 'GET' && new URL(response.url()).pathname === `/api/v1/classrooms/${room.id}/activities/${activity.id}/session`, 30000);
         let continued;
-        try { await student.getByRole('button', { name: 'Continuar borrador', exact: true }).click();
+        try { await student.locator('.p7-history-list').getByRole('button', { name: 'Continuar borrador', exact: true }).click();
           const response = await sessionWatch.value(); assert.equal(response.status(), 200); continued = await response.json();
         } finally { sessionWatch.dispose(); }
         assert.equal(continued.attempt.status, 'DRAFT'); assert.equal(continued.canTransfer, true);
@@ -150,7 +150,7 @@ test('P7 actual teacher reopen/student prefill-transfer-revise-submit preserve o
             assert.equal(new URL(content.url()).pathname, `/api/v1/files/${file.id}/content`);
           } finally { allocate.dispose(); uploaded.dispose(); }
           await student.getByRole('button', { name: 'Quitar revised-work.pdf', exact: true }).waitFor();
-          await student.getByRole('button', { name: 'Enviar trabajo práctico', exact: true }).click();
+          await student.getByRole('button', { name: 'Revisar entrega', exact: true }).click();
           await student.getByRole('button', { name: 'Confirmar envío del trabajo', exact: true }).click();
         } else {
           const input = student.getByRole('textbox', { name: 'Respuesta a la pregunta 1', exact: true });
@@ -185,7 +185,7 @@ test('P7 actual teacher reopen/student prefill-transfer-revise-submit preserve o
             }, 30000); watches.push(watch); return watch; };
             let observed = outcome();
             assert.equal(await input.inputValue(), 'Original answer\n😀'); await input.fill('Revised answer with preserved original');
-            await student.getByRole('button', { name: 'Enviar respuestas', exact: true }).click();
+            await student.getByRole('button', { name: 'Revisar entrega', exact: true }).click();
             let result = await observed.value();
             if (result.status() === 429) {
               assert.equal((await result.json()).error.code, 'RATE_LIMITED');
@@ -198,7 +198,7 @@ test('P7 actual teacher reopen/student prefill-transfer-revise-submit preserve o
               assert.equal(await student.getByRole('region', { name: 'Confirmar entrega de respuestas', exact: true }).count(), 0);
               await delay(seconds * 1000);
               observed = outcome();
-              await student.getByRole('button', { name: 'Enviar respuestas', exact: true }).click();
+              await student.getByRole('button', { name: 'Revisar entrega', exact: true }).click();
               result = await observed.value();
             }
             assert.equal(result.status(), 200); assert.equal(result.request().method(), 'POST');
@@ -235,7 +235,7 @@ test('P7 actual teacher reopen/student prefill-transfer-revise-submit preserve o
         } catch (error) {
           const field = student.getByRole('textbox', { name: 'Respuesta a la pregunta 1', exact: true });
           const disabled = await field.count() === 1 ? await field.isDisabled().catch(() => null) : null;
-          const diagnostic = await journey.snapshot().catch(() => ({ unavailable: true }));
+          const diagnostic = await journey.snapshot({ waitForPending: false }).catch(() => ({ unavailable: true, partial: true }));
           console.error('P7 prior stages diagnostic', JSON.stringify({ fieldDisabled: disabled, ...diagnostic }));
           throw error;
         }
@@ -246,8 +246,22 @@ test('P7 actual teacher reopen/student prefill-transfer-revise-submit preserve o
         assert.deepEqual(errors, []);
       });
     } catch (error) {
-      if (journey) console.error('Journey observer diagnostic', JSON.stringify(await journey.snapshot().catch(() => ({ unavailable: true }))));
+      originalFailure = error;
+      if (journey) console.error('Journey observer partial diagnostic', JSON.stringify(await journey.snapshot({ waitForPending: false }).catch(() => ({ unavailable: true, partial: true }))));
       throw error;
-    } finally { await journey?.close(); await browser.close(); }
+    } finally {
+      // Detach first, then let browser shutdown settle interrupted HTTP bodies before draining the recorder.
+      const observerClosing = journey?.close().then(() => null, error => error);
+      let browserFailure;
+      try { await browser.close(); } catch (error) { browserFailure = error; }
+      const observerFailure = await observerClosing;
+      const cleanupFailures = [browserFailure, observerFailure].filter(Boolean);
+      if (journey && !observerFailure) {
+        try { await writeFile(join(scratch, 'safe-observer-final.json'), JSON.stringify(await journey.snapshot(), null, 2)); }
+        catch (error) { cleanupFailures.push(error); }
+      }
+      console.log(`P7 browser/observer cleanup failures: ${cleanupFailures.length}`);
+      if (cleanupFailures.length && !originalFailure) throw new AggregateError(cleanupFailures, 'Browser and recorder cleanup failed');
+    }
   }, { classrooms: true });
 });

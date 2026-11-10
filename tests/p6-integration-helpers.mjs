@@ -40,7 +40,7 @@ export async function classroom(page, student, name = 'P6 classroom') {
   return { id: published.body.id, fileId: file.id, bytes, code: published.body.code };
 }
 
-export async function openClassroom(page, origin, name = 'P6 classroom') {
+export async function openClassroom(page, origin, name = 'P6 classroom', collectionState = 'active') {
   const evidence = [];
   const pendingResponses = [];
   const prepareResponse = predicate => {
@@ -66,20 +66,33 @@ export async function openClassroom(page, origin, name = 'P6 classroom') {
   page.on('response', response); page.on('requestfailed', failed);
   try {
     const paths = ['/api/v1/classrooms', '/api/v1/classrooms/drafts', '/api/v1/classrooms/invitations'];
-    const homeResponses = () => paths.map(path => prepareResponse(value => new URL(value.url()).pathname === path));
+    const labels = ['tus aulas', 'tus borradores', 'tus invitaciones'];
+    const homeResponses = () => paths.map(path => prepareResponse(value => value.request().method() === 'GET'
+      && new URL(value.url()).pathname === path));
     const initial = homeResponses();
     await page.goto(`${origin}/mis-aulas`);
     const results = await Promise.all(initial.map(consumeResponse));
-    const limited = results.filter(result => result.status() === 429);
+    const limited = [];
+    for (const [index, result] of results.entries()) {
+      if (result.status() !== 429) { assert.equal(result.status(), 200, 'Initial collection read must succeed or report actual admission'); continue; }
+      assert.equal((await result.json()).error?.code, 'RATE_LIMITED');
+      const raw = result.headers()['retry-after']; assert.match(raw ?? '', /^\d+$/);
+      const seconds = Number(raw);
+      assert.ok(Number.isSafeInteger(seconds) && seconds >= 1 && seconds <= 60, 'Actual bounded Retry-After required');
+      limited.push({ path: paths[index], label: labels[index], seconds });
+    }
     if (limited.length) {
-      const seconds = Math.max(...limited.map(result => Number(result.headers()['retry-after'])));
-      assert.ok(Number.isInteger(seconds) && seconds > 0 && seconds <= 60, 'Actual bounded Retry-After required');
+      const seconds = Math.max(...limited.map(result => result.seconds));
       console.log(`P6 fixture respects actual admission Retry-After=${seconds}s; one visible retry`);
       await delay(seconds * 1000);
-      const resumed = homeResponses();
-      await page.getByRole('button', { name: 'Volver a intentar', exact: true }).click();
-      for (const result of await Promise.all(resumed.map(consumeResponse))) assert.equal(result.status(), 200, 'Single admission recovery must succeed');
+      for (const part of limited) {
+        const resumed = prepareResponse(value => value.request().method() === 'GET' && new URL(value.url()).pathname === part.path);
+        await page.getByRole('alert').filter({ hasText: `No pudimos cargar ${part.label}.` })
+          .getByRole('button', { name: 'Volver a intentar', exact: true }).click();
+        assert.equal((await consumeResponse(resumed)).status(), 200, 'Single resource admission recovery must succeed');
+      }
     }
+    if (collectionState === 'archived') await page.getByRole('button', { name: /^Archivadas/ }).click();
     const entered = prepareResponse(value => value.request().method() === 'GET'
       && /^\/api\/v1\/classrooms\/[a-f0-9-]{36}$/.test(new URL(value.url()).pathname));
     await page.getByRole('article').filter({ has: page.getByRole('heading', { name, exact: true }) })

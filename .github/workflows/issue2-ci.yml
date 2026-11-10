@@ -53,30 +53,30 @@ jobs:
           set -euo pipefail
           shopt -s nullglob
           files=(tests/grading-ai-*.test.mjs)
-          if [[ -f src/core/domain/grading-ai.ts && ! -f tests/grading-ai-contract.test.mjs ]]; then
+          if [[ -f src/core/domain/grading/grading-ai.ts && ! -f tests/grading-ai-contract.test.mjs ]]; then
             echo 'Falta el test requerido del contrato de corrección IA.' >&2; exit 1
           fi
-          if [[ -f apps/api/src/classrooms/grading-ai/enqueue.ts && ! -f tests/grading-ai-enqueue.test.mjs ]]; then
+          if [[ -f apps/api/src/modules/grading/infrastructure/grading-ai/enqueue.ts && ! -f tests/grading-ai-enqueue.test.mjs ]]; then
             echo 'Falta el test requerido de encolado de corrección IA.' >&2; exit 1
           fi
           # Each implemented slice requires its own focused proof; later revisions accumulate checks.
           for pair in \
-            'apps/api/src/classrooms/grading-ai/provider.ts:tests/grading-ai-provider.test.mjs' \
-            'apps/api/src/classrooms/grading-ai/snapshot.ts:tests/grading-ai-snapshot.test.mjs' \
-            'apps/api/src/classrooms/grading-ai/sql-queue.ts:tests/grading-ai-sql.test.mjs' \
-            'apps/api/src/classrooms/grading-ai/runtime.ts:tests/grading-ai-runtime.test.mjs' \
-            'apps/api/src/classrooms/grading-ai/runtime.ts:tests/grading-ai-before-count.test.mjs' \
-            'apps/api/src/classrooms/grading-ai/service.ts:tests/grading-ai-api.test.mjs' \
-            'apps/api/src/files/grading-ai-attachment-reader.ts:tests/grading-ai-attachment-reader.test.mjs' \
-            'apps/api/src/files/durable-grading-ai-attachment-reader.ts:tests/grading-ai-durable-reader.test.mjs' \
-            'apps/api/src/files/durable-grading-ai-instruction-reader.ts:tests/grading-ai-instruction-reader.test.mjs' \
-            'apps/classrooms-ui/GradingAiReview.tsx:tests/grading-ai-review-ui.test.mjs'; do
+            'apps/api/src/modules/grading/infrastructure/grading-ai/provider.ts:tests/grading-ai-provider.test.mjs' \
+            'apps/api/src/modules/grading/infrastructure/grading-ai/snapshot.ts:tests/grading-ai-snapshot.test.mjs' \
+            'apps/api/src/modules/grading/infrastructure/grading-ai/sql-queue.ts:tests/grading-ai-sql.test.mjs' \
+            'apps/api/src/modules/grading/infrastructure/grading-ai/runtime.ts:tests/grading-ai-runtime.test.mjs' \
+            'apps/api/src/modules/grading/infrastructure/grading-ai/runtime.ts:tests/grading-ai-before-count.test.mjs' \
+            'apps/api/src/modules/grading/application/grading-ai/service.ts:tests/grading-ai-api.test.mjs' \
+            'apps/api/src/modules/files/infrastructure/grading-ai-attachment-reader.ts:tests/grading-ai-attachment-reader.test.mjs' \
+            'apps/api/src/modules/files/infrastructure/durable-grading-ai-attachment-reader.ts:tests/grading-ai-durable-reader.test.mjs' \
+            'apps/api/src/modules/files/infrastructure/durable-grading-ai-instruction-reader.ts:tests/grading-ai-instruction-reader.test.mjs' \
+            'apps/web/src/features/grading/ui/GradingAiReview.tsx:tests/grading-ai-review-ui.test.mjs'; do
             source=${pair%%:*}; required=${pair#*:}
             if [[ -f "$source" && ! -f "$required" ]]; then
               echo "Falta test requerido para $source: $required" >&2; exit 1
             fi
           done
-          if [[ -f apps/api/src/classrooms/classrooms.module.ts ]] && grep -q GradingAiRuntime apps/api/src/classrooms/classrooms.module.ts; then
+          if [[ -f apps/api/src/bootstrap/academic-classrooms.module.ts ]] && grep -q GradingAiRuntime apps/api/src/bootstrap/academic-classrooms.module.ts; then
             for required in tests/grading-ai-host.test.mjs tests/grading-ai-authorization.test.mjs; do
               if [[ ! -f "$required" ]]; then
                 echo "Falta test requerido del host: $required" >&2; exit 1

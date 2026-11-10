@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { proxyClassroomRequest } from '../apps/web/src/lib/classroom-proxy.ts';
-import { createClassroomsHandler } from '../.build/api/apps/api/src/classrooms/http.js';
-import { parseBrujulaSearchQuery } from '../src/core/domain/brujula-search.ts';
+import { proxyClassroomRequest } from '../apps/web/src/application/server/classroom-proxy.ts';
+import { createClassroomsHandler } from '../.build/api/apps/api/src/bootstrap/academic-http.js';
+import { parseBrujulaSearchQuery } from '../src/core/domain/classrooms/brujula-search.ts';
 
 async function server(handler) {
   const s=createServer(handler);await new Promise(resolve=>s.listen(0,'127.0.0.1',resolve));

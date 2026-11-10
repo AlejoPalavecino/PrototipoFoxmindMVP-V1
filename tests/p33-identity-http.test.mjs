@@ -8,7 +8,8 @@ import { setTimeout } from 'node:timers/promises';
 import pg from 'pg';
 import { createApplication } from '../.build/api/apps/api/src/application.js';
 import { readConfiguration } from '../.build/api/apps/api/src/configuration.js';
-import { createPasswordService, generateVerifier, sessionTokenDigest } from '../.build/api/apps/api/src/identity-security/index.js';
+import { createPasswordService } from '../.build/api/apps/api/src/modules/identity/infrastructure/security/passwords.js';
+import { generateVerifier, sessionTokenDigest } from '../.build/api/apps/api/src/modules/identity/infrastructure/security/verifiers.js';
 import { identityTestEnvironment } from '../scripts/p33-identity-test-env.mjs';
 
 if (process.send) { process.send({ type: 'foxmind-test-ready' }); process.disconnect(); }

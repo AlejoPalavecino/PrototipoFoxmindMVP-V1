@@ -4,13 +4,16 @@ import assert from 'node:assert/strict';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { withJourney, createActivity, openActivity, session, ok, request, rootOf,
-  academicTables, academicHash, assertReadyFile } from './p9-journey-helpers.mjs';
+  academicTables, academicHash, assertReadyFile, selectClassroomSection } from './p9-journey-helpers-current.mjs';
 import { tableHash } from './p8-grading-helpers.mjs';
-import { planPdf } from './p6-integration-helpers.mjs';
+import { planPdf, openClassroom } from './p6-integration-helpers.mjs';
 import { digest } from './p4-integration-helpers.mjs';
 
-test('P9 first actual DB unsaved-answer and storage/scanner manual recovery', { timeout: 330000 }, async () => {
-  await withJourney('service-recovery', async world => {
+// Service fault cases use separate owned fixtures so earlier upload traffic cannot
+// consume the next actor's admission budget before the intended fault is reached.
+for (const isolatedService of ['storage', 'scanner']) {
+test(`P9 first actual DB unsaved-answer and ${isolatedService} manual recovery`, { timeout: 330000 }, async () => {
+  await withJourney(`service-recovery-${isolatedService}`, async world => {
     const { runtime, S, room, scratch } = world, page = S.page;
     const evidence = { events: [], uploads: [], snapshots: {} };
     const flush = () => writeFile(join(scratch, 'safe-service-recovery.json'), `${JSON.stringify(evidence, null, 2)}\n`);
@@ -32,8 +35,10 @@ test('P9 first actual DB unsaved-answer and storage/scanner manual recovery', { 
     try {
       evidence.ownedBefore = runtime.inspectServices(); evidence.bindingsBefore = runtime.inspectServiceBindings(); await flush();
       const questionnaire = await createActivity(world, 'QUESTIONNAIRE', { title: 'P9 database recovery answer' });
-      await openActivity(page, runtime.origin, { ...room, name: `P9 ${world.label} classroom` }, questionnaire);
-      const start = await startBrowserAttempt(page, room.id, questionnaire.id, 12000);
+      await openClassroom(page, runtime.origin, `P9 ${world.label} classroom`);
+      await selectClassroomSection(page, 'activities', 'Actividades');
+      await page.getByRole('article', { name: questionnaire.title, exact: true }).getByRole('button', { name: `Abrir ${questionnaire.title}`, exact: true }).click();
+      const start = await startBrowserAttempt(page, room.id, questionnaire.id, 12000, 'Responder actividad');
       let pending; assert.equal(start.status(), 200);
       const started = await start.json(); assert.ok(started.editor);
       const answerPath = `/api/v1${rootOf(room)}/attempts/${started.attempt.id}/answer`;
@@ -50,7 +55,7 @@ test('P9 first actual DB unsaved-answer and storage/scanner manual recovery', { 
         await field.fill(text);
         const failed = await pending; evidence.csrfFailure = { status: failed.status(), code: (await failed.json()).error?.code };
         assert.equal(failed.status(), 503);
-        const status = page.getByRole('region', { name: 'Respuestas y entrega', exact: true }).getByRole('status');
+        const status = page.getByRole('article', { name: 'Pregunta 1', exact: true }).getByRole('status');
         await status.filter({ hasText: 'Error de guardado · cambios sin confirmar' }).waitFor({ timeout: 20000 });
         assert.equal(await field.inputValue(), text);
         await page.getByText('Las respuestas siguen en pantalla; no se confirmó su guardado.', { exact: false }).waitFor();
@@ -66,7 +71,7 @@ test('P9 first actual DB unsaved-answer and storage/scanner manual recovery', { 
       pending = page.waitForResponse(r => new URL(r.url()).pathname === answerPath && r.request().method() === 'POST', { timeout: 20000 });
       const retryAt = Date.now(); await page.getByRole('button', { name: 'Reintentar guardado', exact: true }).click();
       const saved = await pending; assert.equal(saved.status(), 200); const confirmation = await saved.json();
-      await page.getByRole('status').filter({ hasText: 'Guardado confirmado' }).waitFor();
+      await page.getByRole('article', { name: 'Pregunta 1', exact: true }).getByRole('status').filter({ hasText: 'Guardado confirmado' }).waitFor();
       const persisted = await session(world, questionnaire);
       assert.equal(persisted.attempt.answers.find(a => a.questionId === started.activity.questions[0].id)?.text, text);
       assert.equal(persisted.attempt.revision, confirmation.revision);
@@ -74,10 +79,10 @@ test('P9 first actual DB unsaved-answer and storage/scanner manual recovery', { 
       assert.equal(answerRequests.length, 1); assert.ok(answerRequests[0].at >= retryAt);
       evidence.database = { unchangedHash: before, manualPostCount: answerRequests.length, revision: confirmation.revision, persisted: true };
       page.off('request', answerObserver);
-      await page.getByRole('button', { name: 'Cerrar diálogo', exact: true }).click();
+      await page.getByRole('button', { name: 'Volver a actividades', exact: true }).click();
 
       const protectedAcademic = academicTables.filter(table => !['files', 'uploads', 'file_custodies'].includes(table));
-      for (const service of ['storage', 'scanner']) {
+      for (const service of [isolatedService]) {
         const title = service[0].toUpperCase() + service.slice(1);
         const activity = await createActivity(world, 'ASSIGNMENT', { title: `P9 ${service} upload recovery`, attachmentRequired: true });
         pending = page.waitForResponse(r => r.url().endsWith(`/${activity.id}/start`) && r.request().method() === 'POST');
@@ -93,12 +98,12 @@ test('P9 first actual DB unsaved-answer and storage/scanner manual recovery', { 
           pending = page.waitForResponse(r => /\/files\/[^/]+\/content$/.test(new URL(r.url()).pathname) && r.request().method() === 'PUT', { timeout: 45000 });
           const began = Date.now(); await region.getByRole('button', { name: 'Subir archivo privado', exact: true }).click();
           const failed = await pending, body = await failed.json(); failedId = /\/files\/([^/]+)\/content$/.exec(new URL(failed.url()).pathname)[1];
-          evidence.uploads.push({ service, id: failedId, status: failed.status(), code: body.error?.code, elapsedMs: Date.now() - began });
+          evidence.uploads.push({ service, id: failedId, status: failed.status(), code: body.error?.code, retryAfter:failed.headers()['retry-after']??null, elapsedMs: Date.now() - began });
           await flush(); assert.equal(failed.status(), 503); assert.equal(body.error?.code, 'SERVICE_UNAVAILABLE');
           await region.getByText('Error · carga no confirmada', { exact: false }).waitFor({ timeout: 20000 });
           await region.getByRole('button', { name: `Quitar ${name}`, exact: true }).waitFor();
           assert.equal(await region.getByRole('link', { name: `Descargar ${name}`, exact: true }).count(), 0);
-          assert.equal(await region.getByRole('button', { name: 'Enviar trabajo práctico', exact: true }).isDisabled(), true);
+          assert.equal(await region.getByRole('button', { name: 'Revisar entrega', exact: true }).isDisabled(), true);
           const row = await custody(failedId); evidence.snapshots[`${service}Failure`] = row; await flush();
           assert.equal(row.upload_status, 'UPLOADING'); assert.equal(row.scan_status, 'ERROR');
           assert.equal(row.validation_status, service === 'storage' ? 'PENDING' : 'APPROVED');
@@ -129,11 +134,11 @@ test('P9 first actual DB unsaved-answer and storage/scanner manual recovery', { 
         assert.equal(download.status, 200); assert.equal(download.length, bytes.length); assert.equal(download.digest, digest(bytes));
         const current = await session(world, activity);
         assert.deepEqual(current.attempt.attachments.map(a => ({ id: a.id, ready: a.ready, selected: a.selected })), [{ id: ready.id, ready: true, selected: true }]);
-        assert.equal(await region.getByRole('button', { name: 'Enviar trabajo práctico', exact: true }).isEnabled(), true);
+        assert.equal(await region.getByRole('button', { name: 'Revisar entrega', exact: true }).isEnabled(), true);
         assert.equal(await region.getByRole('alert').count(), 0);
         evidence.snapshots[`${service}Recovered`] = await custody(ready.id);
         assert.deepEqual(await baseline(), originalBaseline); await flush();
-        await page.getByRole('button', { name: 'Cerrar diálogo', exact: true }).click();
+        await page.getByRole('button', { name: 'Volver a actividades', exact: true }).click();
       }
       evidence.ownedAfter = runtime.inspectServices(); evidence.bindingsAfter = runtime.inspectServiceBindings();
       assert.deepEqual(evidence.ownedAfter, evidence.ownedBefore);
@@ -147,3 +152,4 @@ test('P9 first actual DB unsaved-answer and storage/scanner manual recovery', { 
     }
   });
 });
+}

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseClassroomPlan, formatClassroomPlan, prepareClassroomPlan } from '../apps/classrooms-ui/WizardPlanText.ts';
+import { parseClassroomPlan, formatClassroomPlan, prepareClassroomPlan } from '../apps/web/src/features/curriculum/model/WizardPlanText.ts';
 
 test('formatear y editar el plan preserva nombres arbitrarios y temas que empiezan con Unidad', () => {
   const units = [

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { proxyClassroomRequest } from '../apps/web/src/lib/classroom-proxy.ts';
+import { proxyClassroomRequest } from '../apps/web/src/application/server/classroom-proxy.ts';
 const id = 'a1111111-1111-4111-8111-111111111111';
 
 test('publication proxy preserves session CSRF confirmation and rejects grade injection, false consent and capabilities', async () => {

@@ -129,7 +129,7 @@ test('Brújula real: public rubric, exact review, private publication, responsiv
     }
     await T.page.goto(`${runtime.origin}/agenda`);
     await T.page.getByRole('button', { name: 'Crear evento', exact: true }).click();
-    const event = T.page.getByRole('dialog', { name: 'Crear evento', exact: true });
+    const event = T.page.getByRole('dialog', { name: 'Crear evento personal', exact: true });
     await event.getByLabel('Título', { exact: true }).fill('Preparar Brújula');
     await event.getByText('Grafito', { exact: true }).click();
     assert.equal(await event.getByRole('radio', { name: 'Grafito', exact: true }).isChecked(), true);

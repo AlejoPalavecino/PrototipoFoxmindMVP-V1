@@ -33,7 +33,7 @@ async function withHome(aggregate, body, accountRole = 'teacher') {
         module: options.module, page: aggregate.modules[options.module] };
     },
   };
-  const { Home } = loadTsModule('apps/classrooms-ui/Home.tsx');
+  const { Home } = loadTsModule('apps/web/src/features/home/ui/Home.tsx');
   const view = hookView(Home, { accountRole, displayName: 'Alex', subjectId: 'subject', homeClient: client,
     onCreate() {}, onJoin() {}, onClassrooms: () => calls.push('classrooms'), onAgenda() {}, onAction: target => calls.push(target) });
   try { await view.flush(); await body({ view, focus, requests, calls, client }); }
@@ -106,7 +106,7 @@ test('Warm Home removes the resources disclosure and refresh control from the no
 });
 
 for (const teacher of [true, false]) test(`Contextual ${teacher ? 'teacher' : 'student'} actions select only authorized active rooms through the approved dialog`, async () => {
-  const { ClassroomActions } = loadTsModule('apps/classrooms-ui/HomeShortcuts.tsx');
+  const { ClassroomActions } = loadTsModule('apps/web/src/features/home/ui/HomeShortcuts.tsx');
   const role = teacher ? 'teacher' : 'student', otherRole = teacher ? 'student' : 'teacher';
   const rooms = [['forbidden', otherRole, false], ['archive', role, true], ['first', role, false], ['second', role, false]]
     .map(([id, role, archived]) => ({ id, classroom: { id, name: id, role, archived, division: 'A' } }));

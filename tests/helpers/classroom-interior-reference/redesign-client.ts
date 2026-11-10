@@ -1,6 +1,7 @@
 /** Browser-only in-memory adapter. No provider, database, files or production transport. */
 import { classroomClient, roomFor, activity, id, material } from '../platform-polish/classroom-data';
-import type { ActivityDetail, ClassroomClient } from '../../../apps/classrooms-ui/api';
+import type { ActivityDetail } from '../../../src/core/contracts/activities.ts';
+import type { ClassroomClient } from '../../../src/core/contracts/academic-client.ts';
 
 export function redesignClient(): ClassroomClient {
   const base = classroomClient('teacher'), room = structuredClone(roomFor('teacher'));

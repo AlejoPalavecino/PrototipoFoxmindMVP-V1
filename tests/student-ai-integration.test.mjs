@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { withAiDatabase, rollbackCase } from './classroom-ai-database.test.mjs';
 import { fixture, configuration } from './activity-ai-fixture.test.mjs';
 
-const worker = () => import('../apps/api/src/classrooms/student-ai/worker.ts');
+const worker = () => import("../apps/api/src/modules/grading/infrastructure/student-ai/worker.ts");
 const report = { overview: 'Progreso', strengths: [{ text: 'Entrega realizada', evidenceRefs: ['A1'] }],
   supportNeeds: [], recommendations: [], limitations: [] };
 async function submitted(f) {
@@ -109,8 +109,8 @@ test('expired worker cannot settle or complete a replacement lease', { timeout: 
 
 test('shared AI quota denial preserves retry and later permits generation', { timeout: 120000 }, async () => {
   const { StudentAiWorker } = await worker();
-  const { ActivityAiService } = await import('../.build/api/apps/api/src/classrooms/activity-ai/index.js');
-  const { reserve } = await import('../apps/api/src/classrooms/ai/budget.ts');
+  const { ActivityAiService } = await Promise.all([import("../.build/api/apps/api/src/modules/activities/infrastructure/activity-ai/service.js"),import("../.build/api/apps/api/src/modules/activities/infrastructure/activity-ai/worker.js"),import("../.build/api/apps/api/src/modules/activities/infrastructure/activity-ai/provenance.js")]).then(([m0,m1,m2]) => Object.freeze({ActivityAiService: m0.ActivityAiService,ActivityAiWorker: m1.ActivityAiWorker,validateActivityGeneration: m2.validateActivityGeneration}));
+  const { reserve } = await import("../apps/api/src/modules/curriculum/infrastructure/ai/budget.ts");
   await withAiDatabase(async ({ pool }) => rollbackCase(pool, async local => {
     const f = await fixture(local), { calls, options } = setup(f);
     options.configuration = { ...configuration, dailyGlobalRequests: 1 };

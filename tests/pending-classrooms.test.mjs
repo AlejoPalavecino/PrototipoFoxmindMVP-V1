@@ -8,7 +8,7 @@ const text = n => typeof n === 'string' || typeof n === 'number' ? String(n) : A
 const pending = { id: '11111111-1111-4111-8111-111111111111', revision: '2', publishedClassroomId: null, payload: { name: 'Biología', division: 'A', academicYear: 2026 } };
 const buttons = view => descendants(view.tree, n => n.type === 'button');
 test('teacher pending state has its own count and cards, students cannot select it', async () => {
-  const { ClassroomCollection } = loadTsModule('apps/classrooms-ui/ClassroomCollection.tsx');
+  const { ClassroomCollection } = loadTsModule("apps/web/src/features/classrooms/ui/ClassroomCollection.tsx");
   for (const role of ['teacher', 'student']) {
     const view = collectionView(ClassroomCollection, { accountRole: role, teach: [], study: [], drafts: [pending], search: '', onEnter() {}, onContinue() {}, onDelete() {} });
     try {
@@ -25,7 +25,7 @@ test('teacher pending state has its own count and cards, students cannot select 
   }
 });
 test('pending cards automatically identify unnamed drafts and offer separate continue/delete actions', () => {
-  const { PendingClassroomCard } = loadTsModule('apps/classrooms-ui/PendingClassroomCard.tsx');
+  const { PendingClassroomCard } = loadTsModule("apps/web/src/features/classrooms/ui/PendingClassroomCard.tsx");
   const continued = [], deleted = [];
   const card = PendingClassroomCard({ draft: { ...pending, payload: {} }, onContinue: id => continued.push(id), onDelete: item => deleted.push(item), busy: false });
   assert.match(text(card), /Pendiente de creación/); assert.match(text(card), /Aula sin nombre/);
@@ -35,7 +35,7 @@ test('pending cards automatically identify unnamed drafts and offer separate con
   assert.deepEqual(continued, [pending.id]); assert.equal(deleted.length, 1);
 });
 test('deletion requires confirmation and current revision and refuses published drafts', async () => {
-  const { DraftService } = loadTsModule('apps/api/src/classrooms/drafts.ts');
+  const { DraftService } = loadTsModule("apps/api/src/bootstrap/academic-management-composition.ts");
   let row = { id: pending.id, revision: 2n, published_classroom_id: null }, writes = 0;
   const service = new DraftService({ ports: {}, classroom() {}, run: async (_request, _write, fn) => fn({ query: async sql => {
     if (sql.startsWith('SELECT')) return [row];
@@ -49,8 +49,8 @@ test('deletion requires confirmation and current revision and refuses published 
   await service.deleteDraft({}, pending.id, { revision: '2', confirm: true }); assert.equal(writes, 1);
 });
 test('DELETE crosses the Next proxy and HTTP admission with strict reviewed input', async () => {
-  const { proxyClassroomRequest } = loadTsModule('apps/web/src/lib/classroom-proxy.ts');
-  const { createClassroomsHandler } = loadTsModule('apps/api/src/classrooms/http.ts');
+  const { proxyClassroomRequest } = loadTsModule("apps/web/src/application/server/classroom-proxy.ts");
+  const { createClassroomsHandler } = loadTsModule("apps/api/src/bootstrap/academic-http.ts");
   const calls = [];
   const handler = createClassroomsHandler({ deleteDraft: async (_req, id, input) => { calls.push({ id, input }); return { deleted: true }; } }, {
     admit: async (req, write) => { assert.equal(write, true); if (!req.headers['x-csrf-token']) throw new Error('deny'); },
@@ -74,8 +74,8 @@ test('DELETE crosses the Next proxy and HTTP admission with strict reviewed inpu
   }
 });
 test('deleting a draft does not block cleanup of incomplete uploads', async () => {
-  const { cleanIncomplete } = loadTsModule('apps/api/src/files/cleanup.ts');
-  const { FileStore } = loadTsModule('apps/api/src/files/store.ts');
+  const { cleanIncomplete } = loadTsModule("apps/api/src/modules/files/infrastructure/cleanup.ts");
+  const { FileStore } = loadTsModule("apps/api/src/modules/files/infrastructure/store.ts");
   const ids = ['22222222-2222-4222-8222-222222222222', '33333333-3333-4333-8333-333333333333'], removes = [];
   const rows = new Map(ids.map(id => [id, { id, storage_key: id, classroom_id: null, classroom_draft_id: pending.id,
     upload_status: 'STARTED', phase: 'reserved', last_activity_at: new Date('2026-01-01'),
@@ -95,7 +95,7 @@ test('deleting a draft does not block cleanup of incomplete uploads', async () =
   assert.deepEqual(removes, ids);
 });
 test('pending search and year/division filters intersect without inventing missing values', async () => {
-  const { ClassroomCollection } = loadTsModule('apps/classrooms-ui/ClassroomCollection.tsx');
+  const { ClassroomCollection } = loadTsModule("apps/web/src/features/classrooms/ui/ClassroomCollection.tsx");
   const view = collectionView(ClassroomCollection, { accountRole: 'teacher', teach: [], study: [], drafts: [pending, { ...pending, id: 'unnamed', payload: {} }], search: 'BIOLOGÍA', onEnter() {} });
   try {
     await view.flush(); buttons(view).find(n => text(n).startsWith('Pendientes')).props.onClick(); await view.flush();

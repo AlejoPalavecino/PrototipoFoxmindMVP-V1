@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { withGradingFixture } from './p8-grading-helpers.mjs';
-import { createClassroomsHandler } from '../.build/api/apps/api/src/classrooms/http.js';
+import { createClassroomsHandler } from '../.build/api/apps/api/src/bootstrap/academic-http.js';
 
 test('PATCH settings transporta opción de corrección IA y conserva permisos', { timeout: 150000 }, async t => {
   await withGradingFixture(async f => {

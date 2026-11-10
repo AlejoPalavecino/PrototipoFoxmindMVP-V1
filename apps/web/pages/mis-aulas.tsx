@@ -1,2 +1,2 @@
-import { ClassroomsScreen } from '../src/components/classrooms-screen';
+import { ClassroomsScreen } from '../src/screens/classrooms-screen';
 export default function MyClassroomsPage() { return <ClassroomsScreen />; }

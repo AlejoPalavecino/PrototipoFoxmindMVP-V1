@@ -4,7 +4,7 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 
 test('D9 Home delegates aggregate errors and loads only sidebar rooms without a legacy list spinner', async () => {
-  const { ClassroomsApp } = loadTsModule('apps/classrooms-ui/Classrooms.tsx');
+  const { ClassroomsApp } = loadTsModule("apps/web/src/application/academic-Classrooms.tsx");
   const calls = [], view = hookView(ClassroomsApp, { initialPresentation: 'home', subjectId: '11111111-1111-4111-8111-111111111111',
     displayName: 'Synthetic', accountRole: 'teacher', api: { call: async (...args) => { calls.push(args); return { teach: [], study: [] }; } },
     homeClient: { read: async () => { throw new Error('Home owns its error'); } }, onAction() {}, onAccountRequired() {} });

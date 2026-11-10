@@ -2,7 +2,9 @@ import 'reflect-metadata';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { NestFactory } from '@nestjs/core';
-import { MailModule, AccountMailService, readMailConfiguration } from '../.build/api/apps/api/src/mail/index.js';
+import { MailModule } from '../.build/api/apps/api/src/bootstrap/identity-mail.module.js';
+import { AccountMailService } from '../.build/api/apps/api/src/modules/identity/infrastructure/mail/account-mail.service.js';
+import { readMailConfiguration } from '../.build/api/apps/api/src/modules/identity/infrastructure/mail/configuration.js';
 import { withMailpit } from '../scripts/mailpit-test-runtime.mjs';
 
 // Real SMTP and public inbox API; fixtures are not issued account tokens.

@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { once } from 'node:events';
 import { GoogleGenAI } from '@google/genai';
-import { GeminiActivityGenerationAdapter } from '../apps/api/src/ai/index.ts';
+import { GeminiActivityGenerationAdapter } from '../apps/api/src/modules/activities/infrastructure/providers/activity-adapter.ts';
 import { activityGenerationResponseSchemaV1 } from '../src/core/domain/index.ts';
-import { activityContents, activitySystemInstruction } from '../apps/api/src/ai/activity-prompt.ts';
+import { activityContents, activitySystemInstruction } from '../apps/api/src/modules/activities/infrastructure/providers/activity-prompt.ts';
 
 const request = () => ({ schemaVersion: 'activity-proposal-v1', type: 'ASSIGNMENT',
   unit: { id: 'unit-synthetic', name: 'Luz' }, topics: [{ id: 'topic-synthetic', name: 'Exposición' }],

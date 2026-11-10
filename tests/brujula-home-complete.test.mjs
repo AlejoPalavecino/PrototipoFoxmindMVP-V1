@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
-import { parseHomePage } from '../src/core/domain/home-rows-validation.ts';
+import { parseHomePage } from '../src/core/domain/home/rows-validation.ts';
 
 const id = n => `00000000-0000-4000-8000-${n.toString(16).padStart(12, '0')}`;
 const text = node => typeof node === 'string' || typeof node === 'number' ? String(node)
@@ -23,7 +23,7 @@ const aggregate = (role, modules = {}) => ({ version: 1, subjectId: id(99), gene
 async function homeView(data, accountRole) {
   const actions = [], retries = [], views = [];
   const client = { read: async () => data, page: async () => { throw new Error('No pagination request expected before explicit action'); } };
-  const { Home } = loadTsModule('apps/classrooms-ui/Home.tsx', { stubs: { './use-home.ts': { useHome: () => ({ data, loading: false, retry: name => retries.push(name), refresh() {} }) } } });
+  const { Home } = loadTsModule('apps/web/src/features/home/ui/Home.tsx', { stubs: {"../model/use-home.ts":{useHome: () => ({ data, loading: false, retry: name => retries.push(name), refresh() {} })}} });
   const root = hookView(Home, { accountRole, displayName: 'Prueba Sintética', subjectId: data.subjectId, homeClient: client,
     onCreate() {}, onJoin() {}, onClassrooms() {}, onAgenda() {}, onAction: target => actions.push(target) });
   views.push(root); await root.flush();

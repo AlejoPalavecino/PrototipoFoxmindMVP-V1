@@ -1,8 +1,9 @@
-import { startBrowserAttempt } from './helpers/browser-admission-step.mjs';
+import { visibleNavigation } from './entry-glass-browser-helpers.mjs';
+import { startBrowserAttempt, openActivityOverview, openPracticalActivity, openTeacherActivity, selectClassroomSection } from './p8-current-ui-helpers.mjs';
 import { readdirSync } from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp } from 'node:fs/promises';
+import { mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { chromium, expect } from '@playwright/test';
@@ -38,15 +39,15 @@ test('P8 actual all-type delivery -> saved private correction -> cancel -> expli
     ]);
     const scratch = await mkdtemp(join(tmpdir(), 'foxmind-p8-publication-')); console.log(`P8 retained browser evidence: ${scratch}`);
     const browser = await chromium.launch({ headless: true });
-    let journey;
+    let journey, originalFailure;
     try {
       const teacher = await (await browser.newContext({ viewport: { width: 1280, height: 900 } })).newPage();
       const student = await (await browser.newContext({ viewport: { width: 375, height: 812 } })).newPage();
       journey = createJourneyObserver({ teacher, student });
       journey.setStage('teacher', 'setup', 'bootstrap'); journey.setStage('student', 'setup', 'bootstrap');
       const errors = []; for (const page of [teacher, student]) { page.setDefaultTimeout(12000); page.on('pageerror', e => errors.push(e.message)); }
-      const suffix = Date.now(); await account(teacher, runtime.origin, runtime.inbox, `p8-teacher-${suffix}@example.test`);
-      await account(student, runtime.origin, runtime.inbox, `p8-student-${suffix}@example.test`);
+      const suffix = Date.now(); await account(teacher, runtime.origin, runtime.inbox, `p8-teacher-${suffix}@example.test`, undefined, "teacher");
+      await account(student, runtime.origin, runtime.inbox, `p8-student-${suffix}@example.test`, undefined, "student");
       const name = 'P8 publication classroom', room = await classroom(teacher, student, name), detail = await ok(teacher, 'GET', `/classrooms/${room.id}`);
       const change = async operation => ok(teacher, 'POST', `/classrooms/${room.id}/activities`, { revision: (await ok(teacher, 'GET', `/classrooms/${room.id}`)).revision, operation });
       const activities = [];
@@ -66,11 +67,12 @@ test('P8 actual all-type delivery -> saved private correction -> cancel -> expli
       };
       const gradeHash = async () => digest(JSON.stringify((await runtime.db.query('SELECT to_jsonb(t) value FROM attempt_grades t ORDER BY id')).rows));
       let failed = false;
-      const check = (label, fn) => t.test(label, { skip: failed ? 'Earlier actual publication prerequisite failed' : false }, async () => { try { await fn(); } catch (e) { failed = true; console.error('Journey observer diagnostic', JSON.stringify(await journey.snapshot().catch(() => ({ unavailable: true })))); throw e; } });
+      const check = (label, fn) => t.test(label, { skip: failed ? 'Earlier actual publication prerequisite failed' : false }, async () => { try { await fn(); } catch (e) { failed = true; console.error('Journey observer partial diagnostic', JSON.stringify(await journey.snapshot({ waitForPending: false }).catch(() => ({ unavailable: true, partial: true })))); throw e; } });
       for (const activity of activities) await check(`${activity.type} real browser saved correction is explicitly published to its own result and notification`, async () => {
         journey.setStage('teacher', activity.type, 'fixture'); journey.setStage('student', activity.type, 'start');
-        await openClassroom(student, runtime.origin, name); await student.getByRole('button', { name: 'Actividades', exact: true }).click();
-        const open = () => student.getByRole('article', { name: activity.title, exact: true }).getByRole('button', { name: activity.type === 'ASSIGNMENT' ? 'Abrir trabajo práctico' : 'Consultar actividad', exact: true }).click();
+        await openClassroom(student, runtime.origin, name); await selectClassroomSection(student, 'activities', 'Actividades');
+        const open = () => activity.type === 'ASSIGNMENT'
+          ? openPracticalActivity(student, room.id, activity.id, activity.title) : openActivityOverview(student, activity.title);
         let openingStates = [], actualAttemptId;
         if (activity.type === 'ASSIGNMENT') {
           const sessionPath = `/api/v1/classrooms/${room.id}/activities/${activity.id}/session`;
@@ -157,14 +159,14 @@ test('P8 actual all-type delivery -> saved private correction -> cancel -> expli
               await student.getByRole('button', { name: 'Actualizar estado confirmado', exact: true }).click();
               refreshed = await inspectRefresh(refresh); assert.equal(refreshed.retryAfter, null, 'second refresh must succeed');
             }
-            await expect(student.getByRole('button', { name: 'Enviar trabajo práctico', exact: true })).toBeEnabled({ timeout: 12000 });
+            await expect(student.getByRole('button', { name: 'Revisar entrega', exact: true })).toBeEnabled({ timeout: 12000 });
           } catch (error) {
             console.error('P8 publication upload diagnostic', JSON.stringify({ alerts: await student.getByRole('alert').count(),
               uploadButtonVisible: await student.getByRole('button', { name: 'Subir archivo privado', exact: true }).isVisible(), events: await Promise.all(uploadEvents) }));
             throw error;
           } finally { allocate.dispose(); upload.dispose(); refresh.dispose(); student.off('response', captureUpload); }
           journey.setStage('student', activity.type, 'submit');
-          await student.getByRole('button', { name: 'Enviar trabajo práctico', exact: true }).click();
+          await student.getByRole('button', { name: 'Revisar entrega', exact: true }).click();
           const submitEvents = [];
           const captureSubmit = response => {
             const path = new URL(response.url()).pathname, method = response.request().method();
@@ -218,11 +220,11 @@ test('P8 actual all-type delivery -> saved private correction -> cancel -> expli
             console.error('P8 practical submit diagnostic', JSON.stringify({ flags, events: await Promise.all(submitEvents) }));
             throw error;
           } finally { student.off('response', captureSubmit); student.off('request', captureSubmitRequest); }
-          await student.getByRole('heading', { name: 'Comprobante de entrega', exact: true }).waitFor();
+          await student.getByText('Entrega confirmada.', { exact: true }).waitFor();
           } catch (error) {
-            const button = student.getByRole('button', { name: 'Enviar trabajo práctico', exact: true });
+            const button = student.getByRole('button', { name: 'Revisar entrega', exact: true });
             const disabled = await button.count() === 1 ? await button.isDisabled().catch(() => null) : null;
-            const diagnostic = await journey.snapshot().catch(() => ({ unavailable: true }));
+            const diagnostic = await journey.snapshot({ waitForPending: false }).catch(() => ({ unavailable: true, partial: true }));
             console.error('P8 prior stages diagnostic', JSON.stringify({ submitDisabled: disabled, ...diagnostic }));
             throw error;
           }
@@ -230,7 +232,7 @@ test('P8 actual all-type delivery -> saved private correction -> cancel -> expli
           const response = await startBrowserAttempt(student, room.id, activity.id, 12000); assert.equal(response.status(), 200);
           const state = await response.json(); assert.equal(state.attempt.status, 'DRAFT'); actualAttemptId = state.attempt.id;
           await student.getByRole('textbox', { name: 'Respuesta a la pregunta 1', exact: true }).fill('Actual preserved answer 😀');
-          await student.getByRole('button', { name: 'Enviar respuestas', exact: true }).click();
+          await student.getByRole('button', { name: 'Revisar entrega', exact: true }).click();
           const submitted = student.waitForResponse(r => r.url().endsWith('/submit-answers'));
           await student.getByRole('button', { name: 'Confirmar envío de respuestas', exact: true }).click(); assert.equal((await submitted).status(), 200);
           await student.getByText('Entrega confirmada.', { exact: true }).waitFor();
@@ -239,18 +241,18 @@ test('P8 actual all-type delivery -> saved private correction -> cancel -> expli
         journey.setStage('teacher', activity.type, 'grading');
         const path = `/classrooms/${room.id}/attempts/${activity.attempt}/grading`, before = await protectedHash();
         const previewHash = await gradeHash(); await ok(teacher, 'GET', path); assert.equal(await gradeHash(), previewHash);
-        await openClassroom(teacher, runtime.origin, name); await teacher.getByRole('button', { name: 'Actividades', exact: true }).click();
-        await teacher.getByRole('article', { name: activity.title, exact: true }).getByRole('button', { name: 'Ver entregas recibidas', exact: true }).click();
+        await openClassroom(teacher, runtime.origin, name); await selectClassroomSection(teacher, 'activities', 'Actividades');
+        await openTeacherActivity(teacher, activity.title);
         await teacher.getByRole('button', { name: 'Corregir intento 1', exact: true }).click();
         const region = teacher.getByRole('region', { name: 'Corrección privada del intento', exact: true });
         await region.getByText('Corrección privada: el estudiante no ve esta calificación.', { exact: false }).waitFor();
         const entered = activity.type === 'ASSIGNMENT' ? '8,50' : activity.type === 'QUESTIONNAIRE' ? '8,35' : '0';
-        await region.getByLabel(activity.type === 'ASSIGNMENT' ? 'Calificación general' : 'Puntos de la pregunta 1', { exact: true }).fill(entered);
+        await region.getByLabel(activity.type === 'ASSIGNMENT' ? 'Nota final' : 'Puntos de la pregunta 1', { exact: true }).fill(entered);
         await region.getByLabel('Devolución general opcional', { exact: true }).fill('Private general feedback');
         const saved = teacher.waitForResponse(r => r.url().endsWith('/grading') && r.request().method() === 'POST');
         await region.getByRole('button', { name: 'Guardar corrección privada', exact: true }).click(); assert.equal((await saved).status(), 200);
         const expected = activity.type === 'ASSIGNMENT' ? '8.50' : activity.type === 'QUESTIONNAIRE' ? '8.35' : '0.00'; activity.expected = expected;
-        await region.getByText(`Calificación calculada: ${expected.replace('.', ',')}`, { exact: true }).waitFor();
+        await region.getByText(`Nota guardada: ${expected.replace('.', ',')}`, { exact: true }).waitFor();
         assert.equal(await protectedHash(), before);
         const persisted = await ok(teacher, 'GET', path); assert.equal(persisted.grade.finalGrade, expected); assert.equal(persisted.grade.isPublished, false);
         assert.equal(persisted.grade.publishedAt, null); assert.equal((await runtime.db.query('SELECT count(*)::int n FROM attempt_grades WHERE attempt_id=$1', [activity.attempt])).rows[0].n, 1);
@@ -309,6 +311,7 @@ test('P8 actual all-type delivery -> saved private correction -> cancel -> expli
           assert.equal(download.digest, digest(await runtime.privateFileBytes(result.attachments[0].id)));
         }
         await openClassroom(student, runtime.origin, name);
+        await visibleNavigation(student);
         await student.getByRole('button', { name: /^Notificaciones/ }).click();
         const notification = student.locator('.p6-notifications li').filter({ hasText: 'Calificación publicada' }).first();
         const resultResponse = student.waitForResponse(r => r.url().endsWith(`/${activity.attempt}/result`) && r.request().method() === 'GET');
@@ -350,8 +353,21 @@ test('P8 actual all-type delivery -> saved private correction -> cancel -> expli
         assert.deepEqual(errors, []);
       });
     } catch (error) {
-      if (journey) console.error('Journey observer diagnostic', JSON.stringify(await journey.snapshot().catch(() => ({ unavailable: true }))));
+      originalFailure = error;
+      if (journey) console.error('Journey observer partial diagnostic', JSON.stringify(await journey.snapshot({ waitForPending: false }).catch(() => ({ unavailable: true, partial: true }))));
       throw error;
-    } finally { await journey?.close(); await browser.close(); }
+    } finally {
+      const observerClosing = journey?.close().then(() => null, error => error);
+      let browserFailure;
+      try { await browser.close(); } catch (error) { browserFailure = error; }
+      const observerFailure = await observerClosing;
+      const cleanupFailures = [browserFailure, observerFailure].filter(Boolean);
+      if (journey && !observerFailure) {
+        try { await writeFile(join(scratch, 'safe-observer-final.json'), JSON.stringify(await journey.snapshot(), null, 2)); }
+        catch (error) { cleanupFailures.push(error); }
+      }
+      console.log(`P8 browser/observer cleanup failures: ${cleanupFailures.length}`);
+      if (cleanupFailures.length && !originalFailure) throw new AggregateError(cleanupFailures, 'Browser and recorder cleanup failed');
+    }
   }, { classrooms: true });
 });

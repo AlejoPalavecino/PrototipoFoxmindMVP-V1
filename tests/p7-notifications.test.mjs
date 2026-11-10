@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { activityEvent, deadlineChanged } from '../.build/api/apps/api/src/classrooms/activity-events.js';
-import { academicTarget, academicNotificationSelection } from '../.build/api/apps/api/src/classrooms/academic-notifications.js';
+import { activityEvent, deadlineChanged } from '../.build/api/apps/api/src/modules/participation/infrastructure/activity-events.js';
+import { academicTarget, academicNotificationSelection } from '../.build/api/apps/api/src/modules/home/infrastructure/academic-notifications.js';
 import { randomUUID } from 'node:crypto';
 import { withP5Database } from '../scripts/p5-database.mjs';
-import { ClassroomService } from '../.build/api/apps/api/src/classrooms/service.js';
-import { FileStore } from '../.build/api/apps/api/src/files/store.js';
+import { ClassroomService } from '../.build/api/apps/api/src/bootstrap/academic-composition.js';
+import { FileStore } from '../.build/api/apps/api/src/modules/files/infrastructure/store.js';
 import pg from 'pg';
 
 test('deadline notifications distinguish real instants/reception changes from repeated identical saves', () => {

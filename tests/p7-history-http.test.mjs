@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { createClassroomsHandler } from '../.build/api/apps/api/src/classrooms/http.js';
+import { createClassroomsHandler } from '../.build/api/apps/api/src/bootstrap/academic-http.js';
 const id = 'a1111111-1111-4111-8111-111111111111';
 
 test('history/reopening public ingress uses existing admission and exact bodies, preserving legacy TP routes', async () => {

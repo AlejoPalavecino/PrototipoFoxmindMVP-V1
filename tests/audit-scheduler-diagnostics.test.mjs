@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { SerialJobScheduler } from '../apps/api/src/classrooms/grading-ai/scheduler.ts';
-import { createDiagnosticSink } from '../apps/api/src/diagnostics.ts';
+import { SerialJobScheduler } from '../apps/api/src/modules/grading/infrastructure/grading-ai/scheduler.ts';
+import { createDiagnosticSink } from '../apps/api/src/platform/diagnostics.ts';
 
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 test('AI admission observes the existing lock through the caller transaction', async () => {
-  const { lockAiAdmission } = await import('../apps/api/src/ai-admission.ts');
+  const { lockAiAdmission } = await import("../apps/api/src/platform/ai/admission.ts");
   const calls = [];
   await lockAiAdmission({ query: async (...args) => { calls.push(args); return []; } });
   assert.deepEqual(calls, [['SELECT 1 FROM pg_advisory_xact_lock(78123002)']]);

@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 const root = process.cwd(), dest = path.join(root, '.test-artifacts/home-polish');
 fs.mkdirSync(path.join(dest, 'apps/web/pages'), { recursive: true });
-for (const rel of ['node_modules', 'src', 'apps/classrooms-ui', 'apps/shared-ui', 'apps/agenda-ui', 'apps/web/public', 'apps/web/styles']) {
+for (const rel of ['node_modules', 'src', 'apps/shared-ui', 'apps/web/public', 'apps/web/styles', 'apps/web/src']) {
   const target = path.join(dest, rel);
   fs.mkdirSync(path.dirname(target), { recursive: true });
   if (!fs.existsSync(target)) fs.symlinkSync(path.join(root, rel), target, 'junction');
@@ -15,10 +15,10 @@ fs.writeFileSync(path.join(dest, 'apps/web/tsconfig.json'), JSON.stringify({comp
 fs.writeFileSync(path.join(dest, 'apps/web/pages/index.tsx'), `
 import {useMemo,useState} from 'react';
 import {useRouter} from 'next/router';
-import {Home} from '../../classrooms-ui/Home';
+import { Home } from '../src/features/home/index.ts';
 import {AppNavbar} from '../../shared-ui/AppNavbar';
 import type {HomeResponse,HomeRoom,HomeItem} from '../../../src/core/domain/index';
-import type {HomeClient} from '../../classrooms-ui/home-api';
+import type { HomeClient } from '../src/features/home/index.ts';
 const id='11111111-1111-4111-8111-111111111111';
 const empty=()=>({status:'ready' as const,items:[],totalItems:null,nextCursor:null});
 function fixture(mode:string):HomeResponse {

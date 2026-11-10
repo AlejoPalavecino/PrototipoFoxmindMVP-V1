@@ -1,3 +1,3 @@
-import { ClassroomsScreen } from '../src/components/classrooms-screen';
+import { HomeScreen } from '../src/screens/home-screen';
 
-export default function HomePage() { return <ClassroomsScreen initialPresentation="home" />; }
+export default function HomePage() { return <HomeScreen />; }

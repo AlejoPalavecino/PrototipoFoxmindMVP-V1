@@ -1,4 +1,4 @@
-import { parseBrujulaSearchPage, type BrujulaSearchClient } from '../../src/core/domain/brujula-search.ts';
+import { parseBrujulaSearchPage, type BrujulaSearchClient } from '../../src/core/domain/classrooms/brujula-search.ts';
 
 export function createBrujulaSearchClient(api: { call<T>(path: string, method?: string, data?: unknown, signal?: AbortSignal): Promise<T> }): BrujulaSearchClient {
   return async (query, cursor, signal) => {

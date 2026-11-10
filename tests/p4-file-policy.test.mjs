@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validateUploadIntent, assertFileUsable, mayClaimAbandonedUpload } from '../apps/api/src/files/policy.ts';
+import { validateUploadIntent, assertFileUsable, mayClaimAbandonedUpload } from '../apps/api/src/modules/files/domain/policy.ts';
 
 const digest = 'a'.repeat(64);
 const clean = { upload: 'COMPLETED', validation: 'APPROVED', scan: 'CLEAN',

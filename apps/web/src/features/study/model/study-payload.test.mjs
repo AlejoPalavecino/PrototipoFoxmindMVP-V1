@@ -1,0 +1,6 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {studyGenerationData,studyAnswerValue} from "../api/study-client.ts";
+test('tool generation omits empty prompt and retains entered instructions',()=>{assert.equal(Object.hasOwn(studyGenerationData('NOTE','   ',['topic'],5,'MEDIUM'),'message'),false);assert.equal(studyGenerationData('QUIZ','Explicá el núcleo',['topic'],5,'MEDIUM').message,'Explicá el núcleo');});
+test('objective answers always use arrays, development keeps text',()=>{assert.deepEqual(studyAnswerValue('SINGLE',undefined,'a',true),['a']);assert.deepEqual(studyAnswerValue('MULTIPLE',['a'],'b',true),['a','b']);assert.deepEqual(studyAnswerValue('MULTIPLE',['a','b'],'a',false),['b']);assert.equal(studyAnswerValue('DEVELOPMENT',undefined,'Mi explicación',true),'Mi explicación');});
+test('practice tools require topics before a command can be built',()=>{for(const kind of ['QUIZ','EXERCISE','MOCK_EXAM'])assert.throws(()=>studyGenerationData(kind,'',[],5,'MEDIUM'),{code:'TOPICS_REQUIRED'});assert.doesNotThrow(()=>studyGenerationData('NOTE','',[],5,'MEDIUM'));assert.doesNotThrow(()=>studyGenerationData('OUTLINE','',[],5,'MEDIUM'));assert.doesNotThrow(()=>studyGenerationData('QUIZ','',['topic'],5,'MEDIUM'));});

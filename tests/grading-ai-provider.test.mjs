@@ -14,7 +14,7 @@ test('written practical response is counted and sent as untrusted evidence with 
  }assert.equal(f.calls.length,before);
 });
 async function fixture({ count = 30, error = null, response } = {}) {
-  const { GeminiGradingAiProvider } = await import('../apps/api/src/classrooms/grading-ai/provider.ts');
+  const { GeminiGradingAiProvider } = await import("../apps/api/src/modules/grading/infrastructure/grading-ai/provider.ts");
   const calls = [], client = { models: {
     countTokens: async params => { calls.push(['count', params]); return { totalTokens: count }; },
     generateContent: async params => { calls.push(['generate', params]); if (error) throw error; return response ?? {
@@ -112,7 +112,7 @@ test('contrato de Gemini distingue nota de TP y abstención cuando falta evidenc
   assert.match(rules, /(?:insuficiente|imposible|falta\s+(?:de\s+)?evidencia)/i);
   assert.match(rules, /(?:absten|abstenci|no\s+(?:invent|calific)|null)/i);
   assert.ok(JSON.stringify(counted.contents).includes(rules));
-  const { validateGradingAiProposal } = await import('../src/core/domain/grading-ai.ts');
+  const { validateGradingAiProposal } = await import('../src/core/domain/grading/grading-ai.ts');
   assert.throws(() => validateGradingAiProposal({ ...proposal, overallGrade: null }, { type: 'ASSIGNMENT', questions: [] }));
 });
 

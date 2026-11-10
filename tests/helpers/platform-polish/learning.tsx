@@ -1,9 +1,9 @@
 import {useMemo} from 'react';
 import {useRouter} from 'next/router';
-import {AttemptSession} from '../../classrooms-ui/AttemptSession';
-import {ActivityAuthoring} from '../../classrooms-ui/ActivityAuthoring';
-import {ActivityGeneration} from '../../classrooms-ui/ActivityGeneration';
-import {PublishedResult} from '../../classrooms-ui/PublishedResult';
+import { AttemptSession } from '../src/application/academic-AttemptSession.tsx';
+import { ActivityAuthoring } from '../src/features/activity-authoring/index.ts';
+import { ActivityGeneration } from '../src/features/activity-authoring/index.ts';
+import { PublishedResult } from '../src/features/grading/index.ts';
 import {AppNavbar} from '../../shared-ui/index';
 import {classroomClient,sessionFor,roomFor,activity,material,id} from './classroom-data';
 export default function Fixture() {

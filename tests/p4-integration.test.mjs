@@ -39,8 +39,8 @@ test('P4 integrated browser, persisted P3 sessions and actual private services',
         assert.equal((await api(guest, 'GET', '/files/usage?kind=draft&id=' + draft)).status, 401);
         owner = await account(page, origin, inbox, `p4-owner-${Date.now()}@example.test`, async () => {
           const rejected = await rejectUnchanged(() => begin()); assert.equal(rejected.status, 403);
-        });
-        student = await account(peer, origin, inbox, `p4-student-${Date.now()}@example.test`);
+        }, "teacher");
+        student = await account(peer, origin, inbox, `p4-student-${Date.now()}@example.test`, undefined, "student");
         await db.query('INSERT INTO classroom_drafts(id,updated_at,owner_id) VALUES($1,now(),$2)', [draft, owner.id]);
         await db.query(`INSERT INTO classrooms(id,updated_at,teacher_id,name,subject,division,academic_year,timezone,cover_key,storage_quota_bytes)
           VALUES($1,now(),$2,'P4 owned fixture','Testing','A',2026,'America/Argentina/Buenos_Aires','fixture',100000000)`, [classroom, owner.id]);

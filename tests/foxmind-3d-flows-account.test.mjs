@@ -7,7 +7,7 @@ import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 function fixture(session) {
   const routes = [], calls = [], user = { id: '11111111-1111-4111-8111-111111111111', firstName: 'Synthetic', lastName: 'User', email: 'synthetic@example.test', emailVerified: true };
   const account = loadTsModule('apps/web/src/features/identity/index.ts');
-  const navigation = loadTsModule('apps/web/src/lib/classroom-client.ts');
+  const navigation = ({...loadTsModule("apps/web/src/application/academic-classroom-client.ts"),classroomDestination:loadTsModule('apps/web/src/application/navigation/destinations.ts').safeDestination,classroomAuthHref:loadTsModule('apps/web/src/application/navigation/destinations.ts').authHref,classroomHomeHref:loadTsModule('apps/web/src/application/navigation/destinations.ts').classroomHomeHref,classroomHomeDestination:loadTsModule('apps/web/src/application/navigation/destinations.ts').classroomHomeDestination});
   const noop = () => null, placeholder = new Proxy({ default: noop }, { get: (target, key) => key === '__esModule' ? true : target[key] ?? noop });
   const client = { session: async () => session ?? { authenticated: true, user },
     read: async path => { calls.push(['read', path]); return user; },

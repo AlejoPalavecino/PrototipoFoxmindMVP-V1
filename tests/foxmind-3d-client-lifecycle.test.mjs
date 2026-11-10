@@ -13,7 +13,7 @@ async function windowCase(operation) {
   try { await operation(); } finally { Date.now = clock; if (prior === undefined) delete globalThis.window; else globalThis.window = prior; }
 }
 function hook(props) {
-  const { useHome } = loadTsModule('apps/classrooms-ui/use-home.ts');
+  const { useHome } = loadTsModule("apps/web/src/features/home/model/use-home.ts");
   return hookView(() => useHome(props.client, props.subjectId), {});
 }
 
@@ -60,14 +60,14 @@ test('D9 foreign subject payload and identity failure in a widget clear the enti
   const foreign = hook({ subjectId: A, client: { read: async () => data(B) } });
   try { await foreign.flush(); assert.equal(foreign.tree.data, null); assert.ok(foreign.tree.error); }
   finally { foreign.close(); }
-  const { HomeClientError } = loadTsModule('apps/classrooms-ui/home-api.ts');
+  const { HomeClientError } = loadTsModule("apps/web/src/features/home/api/home-api.ts");
   const view = hook({ subjectId: A, client: { read: async () => data(), page: async () => { throw new HomeClientError('AUTH_REQUIRED', 401); } } });
   try { await view.flush(); await view.tree.retry('review'); await view.flush(); assert.equal(view.tree.data, null); assert.ok(view.tree.error); }
   finally { view.close(); }
 }));
 
 test('D9 Home never fabricates old classroom cards or a false up-to-date state when its aggregate API fails', () => windowCase(async () => {
-  const { Home } = loadTsModule('apps/classrooms-ui/Home.tsx');
+  const { Home } = loadTsModule("apps/web/src/features/home/ui/Home.tsx");
   const view = hookView(Home, { displayName: 'Synthetic', subjectId: A,
     homeClient: { read: async () => { throw new Error('Unavailable'); } },
     data: { teach: [{ id: 'old', name: 'Old authorized classroom' }], study: [], drafts: [], invitations: [] },

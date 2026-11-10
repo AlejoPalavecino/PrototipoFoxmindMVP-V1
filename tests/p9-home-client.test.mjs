@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadTsModule as component } from './helpers/load-ts-module.mjs';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { classroomDestination, classroomAuthHref,classroomHomeHref,classroomHomeDestination } from '../apps/web/src/lib/classroom-client.ts';
+import { safeDestination as classroomDestination, authHref as classroomAuthHref, classroomHomeHref, classroomHomeDestination } from '../apps/web/src/application/navigation/destinations.ts';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 
 test('Inicio continuation is additive, literal and does not widen the closed destination allowlist', () => {
@@ -21,7 +21,7 @@ test('Inicio continuation is additive, literal and does not widen the closed des
 });
 
 test('Home keeps verified identity and routes archived history to the collection without inventing active focus', async () => {
-  const { Home } = component('apps/classrooms-ui/Home.tsx');
+  const { Home } = component('apps/web/src/features/home/ui/Home.tsx');
   const id = '11111111-1111-4111-8111-111111111111';
   const room = { id, name: 'Real classroom <script>', subject: 'Science', division: 'A', timeZone: 'UTC', coverKey: 'explore', archived: true, role: 'teacher' };
   const empty = () => ({ status: 'ready', items: [], totalItems: null, nextCursor: null });
@@ -47,7 +47,7 @@ test('Home keeps verified identity and routes archived history to the collection
     const welcome=descendants(view.tree,node=>node.type?.name==='HomeWelcome')[0];
     descendants(welcome.type(welcome.props),node=>node.type==='button'&&node.props.onClick===welcome.props.onClassrooms)[0].props.onClick();
     assert.equal(openedCollection,1,'Archived history stays reachable from the welcome state');
-    const { ClassroomCard } = component('apps/classrooms-ui/ClassroomCollectionCard.tsx');
+    const { ClassroomCard } = component('apps/web/src/features/classrooms/ui/ClassroomCollectionCard.tsx');
     const archivedCard = renderToStaticMarkup(ClassroomCard({ room, onEnter() {} }));
     assert.match(archivedCard, /Real classroom &lt;script&gt;/); assert.match(archivedCard, /Archivada/);
     assert.doesNotMatch(archivedCard, /<script>/);

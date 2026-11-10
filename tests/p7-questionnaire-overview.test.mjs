@@ -5,7 +5,7 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
 // Resolve extensionless shared UI imports with the repository's real-source loader.
-const { AttemptSession } = loadTsModule('apps/classrooms-ui/AttemptSession.tsx');
+const { AttemptSession } = loadTsModule('apps/web/src/application/academic-AttemptSession.tsx');
 const room = { id: 'a1111111-1111-4111-8111-111111111111', units: [] };
 const questions = [
   { id: 'development', type: 'DEVELOPMENT', prompt: 'First <script>literal</script>\nquestion', points: '2', options: [] },
@@ -32,7 +32,7 @@ test('response sheet shows the effective individual deadline instead of the gene
 });
 
 test('consultation preserves individual deadlines, explicit no deadline and general fallback in the classroom zone',()=>{
- const {ActivityPreview}=loadTsModule('apps/classrooms-ui/ActivityAuthoring.tsx');
+ const {ActivityPreview}=loadTsModule('apps/web/src/application/academic-activity-preview.tsx');
  const activity={...initial('ASSIGNMENT').activity,deadlineAt:'2026-06-01T18:00:00Z',zone:'America/Argentina/Buenos_Aires'};
  const preview=effectiveDeadlineAt=>renderToStaticMarkup(React.createElement(ActivityPreview,{api:{fileUrl:()=>''},room,activity,teacher:false,effectiveDeadlineAt}));
  assert.match(preview('2026-11-12T19:00:00Z'),/12 nov, 16:00/);assert.doesNotMatch(preview('2026-11-12T19:00:00Z'),/1 jun/);

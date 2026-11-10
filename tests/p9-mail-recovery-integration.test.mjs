@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
-import { withJourney, rootOf, academicHash, capturedInvitation } from './p9-journey-helpers.mjs';
+import { withJourney, rootOf, academicHash, capturedInvitation } from './p9-journey-helpers-current.mjs';
 import { openClassroom } from './p6-integration-helpers.mjs';
 import { assertMailpitContinuity } from '../scripts/p9-runtime-controls.mjs';
 
@@ -65,7 +65,7 @@ test('P9 first actual invitation SMTP failure and natural retry recovery', { tim
       const invitationRead = page.waitForResponse(response => new URL(response.url()).pathname === `/api/v1${rootOf(room)}/invitations` && response.request().method() === 'GET');
       await page.getByRole('button', { name: 'Alumnos', exact: true }).click();
       assert.equal((await memberRead).status(), 200); assert.equal((await invitationRead).status(), 200);
-      await page.getByRole('button', { name: 'Invitar estudiantes', exact: true }).click();
+      await page.getByRole('button', { name: 'Invitar alumnos', exact: true }).click();
       await page.getByLabel('Correo electrónico', { exact: true }).fill(recipient);
       try {
         evidence.pausedAt = new Date().toISOString(); evidence.mailPaused = await runtime.pauseMail(); await flush();

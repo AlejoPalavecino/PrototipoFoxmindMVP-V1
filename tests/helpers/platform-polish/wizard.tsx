@@ -1,7 +1,7 @@
-import surface from '../../classrooms-ui/classrooms-surface.module.css';
+import surface from "../src/application/academic-classrooms-surface.module.css";
 import {useMemo} from 'react';
 import {useRouter} from 'next/router';
-import {Wizard} from '../../classrooms-ui/Wizard';
+import { Wizard } from '../src/application/academic-Wizard.tsx';
 import {AppNavbar} from '../../shared-ui/index';
 import {classroomClient,draft,id} from './classroom-data';
 export default function Fixture() {

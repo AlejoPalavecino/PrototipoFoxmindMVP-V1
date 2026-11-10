@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { activityPayload, activityOperation } from '../apps/api/src/classrooms/activity-policy.ts';
+import { activityPayload, activityOperation } from '../apps/api/src/modules/activities/domain/activity-policy.ts';
 
 const unitId = randomUUID(), a = randomUUID(), b = randomUUID();
 const payload = (selection = {}) => ({ title: 'Actividad integradora', unitId, topicIds: [a, b],

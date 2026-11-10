@@ -15,7 +15,7 @@ async function setup(handler) {
     calls.push({ path, method });
     return handler?.(path, method, body, signal) ?? { items: [row], unreadCount: 1, nextCursor: null };
   } };
-  const { Notifications } = loadTsModule('apps/classrooms-ui/Notifications.tsx');
+  const { Notifications } = loadTsModule('apps/web/src/features/notifications/ui/Notifications.tsx');
   const view = hookView(Notifications, { api, refresh: 0, onOpen: target => targets.push(target) });
   await view.flush();
   find(view, n => n.type === 'button' && n.props['aria-haspopup'] === 'dialog')[0].props.onClick();

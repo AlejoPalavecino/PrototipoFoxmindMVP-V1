@@ -179,3 +179,77 @@ for (const phase of ['action', 'value']) test(`admission cleans up after ${phase
   await assert.rejects(runAdmittedAction(f.options), error);
   assert.equal(f.state().disposed, 1); assert.equal(f.state().actions, 1); assert.deepEqual(f.state().waits, []);
 });
+
+
+function deferredObserverProjection() {
+  const teacher = new EventEmitter(), student = new EventEmitter();
+  let release;
+  const body = new Promise(resolve => { release = () => resolve({ error: { code: 'RATE_LIMITED', private: 'CANARY_SECRET' } }); });
+  const request = fakeRequest('/api/v1/auth/csrf');
+  const response = { ...fakeResponse(request, 429), json: () => body };
+  return { teacher, student, release, emit() { teacher.emit('request', request); teacher.emit('response', response); } };
+}
+const observerEventLoopTurn = () => new Promise(resolve => setImmediate(resolve));
+
+test('journey nonblocking snapshot reports pending response projection without waiting or losing its later row', async () => {
+  const { createJourneyObserver } = await import('./helpers/browser-action-observer.mjs');
+  const fixture = deferredObserverProjection();
+  const observer = createJourneyObserver(fixture, { now: () => 5000 });
+  fixture.emit();
+  let settled = false;
+  const pending = observer.snapshot({ waitForPending: false }).then(value => { settled = true; return value; });
+  try {
+    await observerEventLoopTurn();
+    assert.equal(settled, true, 'Failure diagnostics must return within one event-loop turn while response JSON is unresolved');
+    const snapshot = await pending;
+    assert.deepEqual(plain(snapshot), { rows: [], counts: { total: 1, byActor: { teacher: 1, student: 0 },
+      last60s: { total: 1, byActor: { teacher: 1, student: 0 } } }, pendingResponses: 1, partial: true });
+    fixture.release(); await observer.drain();
+    const completed = await observer.snapshot({ waitForPending: false });
+    assert.equal(completed.pendingResponses, 0); assert.equal(completed.partial, false);
+    assert.equal(completed.rows.length, 1); assert.equal(completed.rows[0].code, 'RATE_LIMITED');
+    assert.deepEqual(plain(completed.counts), plain(snapshot.counts), 'Finishing projection must not count the request twice');
+    assert.doesNotMatch(JSON.stringify(completed), /CANARY_SECRET|127\.0\.0\.1|\?token/);
+  } finally { fixture.release(); await pending; await observer.close(); }
+});
+
+test('journey default snapshot still waits for pending JSON and preserves the exact original result shape', async () => {
+  const { createJourneyObserver } = await import('./helpers/browser-action-observer.mjs');
+  const fixture = deferredObserverProjection();
+  const observer = createJourneyObserver(fixture, { now: () => 5000 });
+  fixture.emit();
+  let settled = false;
+  const pending = observer.snapshot().then(value => { settled = true; return value; });
+  try {
+    await observerEventLoopTurn();
+    assert.equal(settled, false, 'Default snapshots must retain their response-draining contract');
+    fixture.release();
+    const snapshot = await pending;
+    assert.deepEqual(Object.keys(snapshot).sort(), ['counts', 'rows']);
+    assert.equal(snapshot.rows.length, 1); assert.equal(snapshot.rows[0].code, 'RATE_LIMITED');
+    assert.equal(snapshot.counts.total, 1);
+    assert.doesNotMatch(JSON.stringify(snapshot), /CANARY_SECRET|127\.0\.0\.1|\?token/);
+  } finally { fixture.release(); await pending; await observer.close(); }
+});
+
+test('journey shutdown detaches observers before fake browser closure settles a deferred error body', async () => {
+  const { createJourneyObserver } = await import('./helpers/browser-action-observer.mjs');
+  const fixture = deferredObserverProjection();
+  const observer = createJourneyObserver(fixture, { now: () => 5000 });
+  fixture.emit();
+  let settled = false, browserClosed = false;
+  const closing = observer.close().then(() => { settled = true; });
+  const browser = { async close() { browserClosed = true; fixture.release(); } };
+  try {
+    for (const page of [fixture.teacher, fixture.student]) {
+      assert.equal(page.listenerCount('request'), 0); assert.equal(page.listenerCount('response'), 0);
+    }
+    await observerEventLoopTurn();
+    assert.equal(settled, false, 'Do not await the pending observer drain before closing its browser');
+    await browser.close(); await closing;
+    assert.equal(browserClosed, true); assert.equal(settled, true);
+    const snapshot = await observer.snapshot();
+    assert.equal(snapshot.rows.length, 1); assert.equal(snapshot.rows[0].code, 'RATE_LIMITED');
+    assert.doesNotMatch(JSON.stringify(snapshot), /CANARY_SECRET|127\.0\.0\.1|\?token/);
+  } finally { fixture.release(); await closing; }
+});

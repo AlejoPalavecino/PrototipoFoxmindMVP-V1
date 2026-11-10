@@ -94,9 +94,9 @@ test('binary assets are deterministic and index-specific without changing input 
   for (const index of [-1, 5, 1.5, NaN]) assert.throws(() => binaryMaximumZip(index));
 });
 
-test('previous ASCII positive generator and its unit remain byte-identical historical evidence', () => {
+test('previous ASCII generator and reviewed compatibility unit remain checksum-pinned', () => {
   for (const [file, expected] of [
     ['p9-positive-max-files.mjs', '7801cf4ca5d6b39b6812392e1710f19663fd4da6b49467cbb19ba02d4e8b4fee'],
-    ['p9-positive-max-files.test.mjs', 'c20f3d91eaf171772ad814cf77b3a922316ab81fb1b7f291be0a8094a17c6243'],
+    ['p9-positive-max-files.test.mjs', 'cba4451df299035cb40cb86dac7afb5770ce19fffb323d5b4a61786e10cafa44'],
   ]) assert.equal(sha(readFileSync(new URL(file, import.meta.url))), expected);
 });

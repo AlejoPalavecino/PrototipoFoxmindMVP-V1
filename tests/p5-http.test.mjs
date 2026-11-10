@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 test('P5 opt-in HTTP validates admission, request shape and private response headers', async (t) => {
   const { createClassroomsHandler } =
-    await import('../.build/api/apps/api/src/classrooms/http.js');
+    await import("../.build/api/apps/api/src/bootstrap/academic-http.js");
   assert.throws(() => createClassroomsHandler({}, {}));
   const calls = [];
   const service = {

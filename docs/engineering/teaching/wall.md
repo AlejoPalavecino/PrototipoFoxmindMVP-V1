@@ -6,4 +6,4 @@ Las acciones de autoría/moderación permiten editar o eliminar sólo cuando la 
 
 Las consultas y respuestas alimentan avisos y el seguimiento docente de Inicio. Abrir una notificación revalida el destino; el identificador recibido en UI no es autoridad de acceso.
 
-Fuentes: [Wall](../../../apps/classrooms-ui/Wall.tsx), [servicios académicos](../../../apps/api/src/classrooms/). [Flujos actuales](../../verification/flows.md): aviso docente, respuesta estudiantil, consulta y respuesta docente.
+Fuentes: [Wall](../../../apps/web/src/features/communication/ui/Wall.tsx), [servicios académicos](../../../apps/api/src/modules/communication/). [Flujos actuales](../../verification/flows.md): aviso docente, respuesta estudiantil, consulta y respuesta docente.

@@ -21,8 +21,8 @@ test('both actual pre-start overviews remain safe read-only views until explicit
       const teacher = await (await browser.newContext()).newPage(), student = await (await browser.newContext({ viewport: { width: 1280, height: 900 } })).newPage();
       const suffix = Date.now(), errors = [];
       student.on('pageerror', error => errors.push(error.message));
-      await account(teacher, runtime.origin, runtime.inbox, `p7-overview-teacher-${suffix}@example.test`);
-      await account(student, runtime.origin, runtime.inbox, `p7-overview-student-${suffix}@example.test`);
+      await account(teacher, runtime.origin, runtime.inbox, `p7-overview-teacher-${suffix}@example.test`, undefined, "teacher");
+      await account(student, runtime.origin, runtime.inbox, `p7-overview-student-${suffix}@example.test`, undefined, "student");
       const room = await classroom(teacher, student, 'Overview preservation classroom');
       const ok = async (...args) => { const result = await api(...args); assert.equal(result.status, 200, `${args[1]} ${args[2]} prerequisite`); return result.body; };
       const detail = await ok(teacher, 'GET', `/classrooms/${room.id}`);
@@ -58,16 +58,16 @@ test('both actual pre-start overviews remain safe read-only views until explicit
           student.on('request', observe);
           try {
             const consulted = student.waitForResponse(r => r.url().endsWith(`/activities/${activity.id}/session`));
-            await student.getByRole('article', { name: activity.title, exact: true }).getByRole('button', { name: 'Consultar actividad', exact: true }).click();
+            await student.getByRole('article', { name: activity.title, exact: true }).getByRole('button', { name: `Abrir ${activity.title}`, exact: true }).click();
             assert.equal((await consulted).status(), 200);
-            const dialog = student.getByRole('dialog');
+            const dialog = student.getByRole('region', { name: 'Consulta de actividad', exact: true });
             for (const question of activity.questions) {
-              await dialog.getByText(question.prompt, { exact: true }).waitFor();
-              for (const option of question.options) await dialog.getByText(option.text, { exact: true }).waitFor();
+              assert.equal(await dialog.getByText(question.prompt, { exact: true }).count(), 0);
+              for (const option of question.options) assert.equal(await dialog.getByText(option.text, { exact: true }).count(), 0);
             }
-            assert.equal(await dialog.getByRole('heading', { name: /^Pregunta [1-3] ·/ }).count(), 3);
+            await dialog.getByText('3 preguntas', { exact: true }).waitFor();
             assert.equal(await dialog.getByRole('textbox').count(), 0); assert.equal(await dialog.getByRole('radio').count(), 0); assert.equal(await dialog.getByRole('checkbox').count(), 0);
-            assert.equal(await dialog.getByRole('button', { name: 'Enviar respuestas', exact: true }).count(), 0);
+            assert.equal(await dialog.getByRole('button', { name: 'Revisar entrega', exact: true }).count(), 0);
             assert.equal(await dialog.locator('script').count(), 0); assert.equal(await student.evaluate(() => window.overviewExecuted === true), false);
             assert.deepEqual(starts, []); assert.equal(await snapshot(), before, 'Read-only browser consultation must preserve the full domain hash');
             const afterSession = await ok(student, 'GET', sessionPath); assert.equal(afterSession.attempt, null); assert.equal(afterSession.activity.locked, false);
@@ -75,21 +75,21 @@ test('both actual pre-start overviews remain safe read-only views until explicit
             assert.equal((await runtime.db.query('SELECT count(*)::int n FROM attempts')).rows[0].n, expectedAttempts);
             await student.screenshot({ path: join(scratch, `${activity.type.toLowerCase()}-read-only-overview.png`), fullPage: true });
           } finally { student.off('request', observe); }
-          const dialog = student.getByRole('dialog');
-          const response = await startBrowserAttempt(student, room.id, activity.id, 30000); assert.equal(response.status(), 200);
+          const dialog = student.getByRole('region', { name: activity.type === 'EVALUATION' ? 'Evaluación · sesión reducida' : 'Sesión de actividad', exact: true });
+          const response = await startBrowserAttempt(student, room.id, activity.id, 30000, 'Responder actividad'); assert.equal(response.status(), 200);
           const state = await response.json(); assert.equal(state.attempt.status, 'DRAFT'); assert.equal(state.activity.locked, true); assert.deepEqual(state.attempt.answers, []);
           await dialog.getByRole('textbox', { name: 'Respuesta a la pregunta 1', exact: true }).waitFor();
-          assert.equal(await dialog.getByRole('textbox').count(), 1); assert.equal(await dialog.getByRole('heading', { name: /^Pregunta [1-3] ·/ }).count(), 1);
-          assert.equal(await dialog.getByText(activity.questions[0].prompt, { exact: true }).count(), 1);
-          assert.equal(await dialog.getByText(activity.questions[1].prompt, { exact: true }).count(), 0);
-          const navigation = dialog.getByRole('navigation', { name: 'Navegación de preguntas' });
-          assert.equal(await navigation.getByRole('button').count(), 3);
-          await navigation.getByRole('button', { name: 'Pregunta 2', exact: true }).click();
-          assert.equal(await dialog.getByRole('radio').count(), 2); assert.equal(await dialog.getByText(activity.questions[1].prompt, { exact: true }).count(), 1);
-          assert.equal(await dialog.getByText(activity.questions[0].prompt, { exact: true }).count(), 0);
-          await navigation.getByRole('button', { name: 'Pregunta 3', exact: true }).click();
-          assert.equal(await dialog.getByRole('checkbox').count(), 3); assert.equal(await dialog.getByText(activity.questions[2].prompt, { exact: true }).count(), 1);
-          assert.equal(await dialog.getByRole('heading', { name: /^Pregunta [1-3] ·/ }).count(), 1);
+          assert.equal(await dialog.getByRole('article', { name: /^Pregunta [1-3]$/ }).count(), 3);
+          for (const [index, expected] of activity.questions.entries()) {
+            const question = dialog.getByRole('article', { name: `Pregunta ${index + 1}`, exact: true });
+            await question.scrollIntoViewIfNeeded();
+            assert.equal(await question.getByRole('heading').textContent(), `${String(index + 1).padStart(2, '0')}${expected.prompt}`);
+            const type = index === 0 ? 'textbox' : index === 1 ? 'radio' : 'checkbox';
+            assert.equal(await question.getByRole(type).count(), index === 0 ? 1 : expected.options.length);
+            await question.getByRole(type).first().focus();
+            assert.equal(await question.evaluate(element => element.contains(document.activeElement)), true);
+          }
+          assert.equal(await dialog.locator('script').count(), 0); assert.equal(await student.evaluate(() => window.overviewExecuted === true), false);
           expectedAttempts++; assert.equal((await runtime.db.query('SELECT count(*)::int n FROM attempts')).rows[0].n, expectedAttempts);
           assert.equal((await runtime.db.query("SELECT count(*)::int n FROM attempts WHERE status='SUBMITTED'")).rows[0].n, 0);
           for (const table of ['answers', 'answer_selections', 'attempt_grades', 'question_grades']) assert.equal((await runtime.db.query(`SELECT count(*)::int n FROM ${table}`)).rows[0].n, 0);

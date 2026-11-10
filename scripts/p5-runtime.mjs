@@ -7,19 +7,16 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { withP5Services } from './p5-services.mjs';
 import { withP5Mail } from './p5-mail.mjs';
 import { PrismaClient } from '../.build/api/.generated/prisma/client.js';
-import { FileService } from '../.build/api/apps/api/src/files/service.js';
-import { S3Storage } from '../.build/api/apps/api/src/files/storage.js';
-import { ClamdScanner } from '../.build/api/apps/api/src/files/scanner.js';
-import { FileError } from '../.build/api/apps/api/src/files/errors.js';
-import { createFileAccess } from '../.build/api/apps/api/src/files/access.js';
-import { createFilesHandler } from '../.build/api/apps/api/src/files/http.js';
-import { ClassroomService } from '../.build/api/apps/api/src/classrooms/service.js';
-import { ClassroomError } from '../.build/api/apps/api/src/classrooms/policy.js';
-import { createClassroomsHandler } from '../.build/api/apps/api/src/classrooms/http.js';
-import {
-  InvitationDeliveryWorker,
-  localInvitationSender,
-} from '../.build/api/apps/api/src/classrooms/delivery.js';
+import { FileService } from '../.build/api/apps/api/src/modules/files/infrastructure/service.js';
+import { S3Storage } from '../.build/api/apps/api/src/modules/files/infrastructure/storage.js';
+import { ClamdScanner } from '../.build/api/apps/api/src/modules/files/infrastructure/scanner.js';
+import { FileError } from '../.build/api/apps/api/src/modules/files/domain/errors.js';
+import { createFileAccess } from '../.build/api/apps/api/src/modules/files/infrastructure/access.js';
+import { createFilesHandler } from '../.build/api/apps/api/src/modules/files/presentation/http.js';
+import { ClassroomService } from '../.build/api/apps/api/src/bootstrap/academic-composition.js';
+import { ClassroomError } from '../.build/api/apps/api/src/modules/classrooms/infrastructure/policy.js';
+import { createClassroomsHandler } from '../.build/api/apps/api/src/bootstrap/academic-http.js';
+import { InvitationDeliveryWorker, localInvitationSender } from '../.build/api/apps/api/src/bootstrap/academic-delivery-composition.js';
 
 /** A local test host using captured SMTP and actual P4 services. Never import into the P3 application. */
 export async function withP5Runtime(run, { port = 0, preview = false } = {}) {

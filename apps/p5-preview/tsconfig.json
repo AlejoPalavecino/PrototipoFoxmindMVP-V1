@@ -1,1 +1,23 @@
-{"extends":"../classrooms-ui/tsconfig.json","include":["./*.tsx","../classrooms-ui/*.tsx","../classrooms-ui/*.ts"]}
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": [
+      "ES2023",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "./*.tsx",
+    "./*.d.ts",
+    "../web/src/**/*.ts",
+    "../web/src/**/*.tsx"
+  ]
+}

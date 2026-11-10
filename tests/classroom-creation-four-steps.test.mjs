@@ -110,7 +110,7 @@ test('edición estructurada se normaliza antes de revisión y publicar resiste d
 });
 
 for (const origin of ['home', 'classrooms']) test(`publicar desde ${origin} regresa a Mis Aulas y recarga la colección`, async () => {
-  const { ClassroomsApp } = loadTsModule('apps/classrooms-ui/Classrooms.tsx');
+  const { ClassroomsApp } = loadTsModule('apps/web/src/application/academic-Classrooms.tsx');
   const calls = [], navigations = [], draft = initialDraft();
   const view = hookView(ClassroomsApp, { initialPresentation: origin, displayName: 'Docente sintético', accountRole: 'teacher',
     api: { call: async (path, method) => { calls.push([path, method]); return path === '' ? { teach: [], study: [] } : path === '/drafts' && method === 'POST' ? draft : []; } },

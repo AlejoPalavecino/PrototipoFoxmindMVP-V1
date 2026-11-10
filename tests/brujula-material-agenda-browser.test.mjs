@@ -33,7 +33,7 @@ test('Written material revisions and recurring event scope traverse the actual U
   const downloaded=await S.page.request.get(`${runtime.origin}/api/v1/files/${current.fileId}/content`);assert.equal(downloaded.status(),200);assert.ok((await downloaded.body()).includes(Buffer.from('Segunda explicación')));
 
   await T.page.goto(runtime.origin+'/agenda');await T.page.getByRole('button',{name:'Crear evento',exact:true}).click();
-  dialog=T.page.getByRole('dialog',{name:'Crear evento',exact:true});
+  dialog=T.page.getByRole('dialog',{name:'Crear evento personal',exact:true});
   const date=new Date().toISOString().slice(0,10),until=new Date(Date.parse(date+'T12:00Z')+14*86400000).toISOString().slice(0,10);
   await dialog.getByLabel('Título',{exact:true}).fill('Clase semanal privada');await dialog.getByLabel('Fecha',{exact:true}).fill(date);await dialog.getByRole('checkbox',{name:'Todo el día',exact:true}).check();await dialog.getByLabel('Repetición',{exact:true}).selectOption('WEEKLY');await dialog.getByLabel('Repetir hasta (incluido)',{exact:true}).fill(until);
   const created=T.page.waitForResponse(r=>/\/agenda\/events\/[^/]+$/.test(r.url())&&r.request().method()==='PUT');await dialog.getByRole('button',{name:'Crear evento',exact:true}).click();const response=await created;assert.equal(response.status(),201);const event=await response.json();

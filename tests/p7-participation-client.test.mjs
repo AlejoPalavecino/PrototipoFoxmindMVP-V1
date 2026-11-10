@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createClassroomClient } from '../apps/classrooms-ui/api.ts';
+import { createClassroomClient } from '../apps/web/src/application/academic-client.ts';
 test('editor transport is dedicated, memory-owned and does not change old call headers', async () => {
   const calls=[];
   const api=createClassroomClient({csrfToken:async()=> 'csrf',fetch:async(path,options)=> {calls.push({path,...options});return Response.json({});}});

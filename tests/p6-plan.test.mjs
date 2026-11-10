@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
 import {withP5Database} from '../scripts/p5-database.mjs';
-import {FileStore} from '../.build/api/apps/api/src/files/store.js';
-import {ClassroomService} from '../.build/api/apps/api/src/classrooms/service.js';
+import { FileStore } from '../.build/api/apps/api/src/modules/files/infrastructure/store.js';
+import { ClassroomService } from '../.build/api/apps/api/src/bootstrap/academic-composition.js';
 import {seedPlan} from './helpers/plan-fixture.mjs';
 
 test('Plan progress preserves scoped curriculum and rejects retired maintenance contracts',{timeout:120000},async t=>{

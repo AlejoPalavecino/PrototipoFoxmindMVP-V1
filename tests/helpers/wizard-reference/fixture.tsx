@@ -1,10 +1,10 @@
-import surface from '../../classrooms-ui/classrooms-surface.module.css';
+import surface from '../src/application/academic-classrooms-surface.module.css';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Wizard } from '../../classrooms-ui/Wizard';
-import { Plan } from '../../classrooms-ui/Plan';
-import { ClassroomCollection } from '../../classrooms-ui/ClassroomCollection';
-import type { Detail } from '../../classrooms-ui/api';
+import { Wizard } from '../src/application/academic-Wizard.tsx';
+import { Plan } from '../src/application/academic-plan.tsx';
+import { ClassroomCollection } from "../src/features/classrooms/index.ts";
+import type { Detail } from "../../../src/core/contracts/classrooms.ts";
 import { AppNavbar } from '../../shared-ui/index';
 import { wizardFixture, type Receipt } from '../fixtures/wizard-data';
 

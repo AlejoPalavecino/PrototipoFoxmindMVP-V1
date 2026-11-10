@@ -1,13 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 
-test('agenda feature public entry preserves legacy identity and routes through an injected caller', async () => {
+test('agenda public entry exposes canonical capabilities and routes through an injected caller', async () => {
   const feature = loadTsModule('apps/web/src/features/agenda/index.ts');
-  const legacy = loadTsModule('apps/agenda-ui/index.ts', { stubs: { '../web/src/features/agenda/index.ts': feature } });
-  for (const name of ['Agenda', 'AgendaClientError', 'EventForm', 'eventDraft', 'validateDraft', 'zoneChoices']) {
-    assert.equal(legacy[name], feature[name]);
-  }
+  for (const name of ['Agenda', 'AgendaClientError', 'EventForm', 'eventDraft', 'validateDraft', 'zoneChoices']) assert.equal(typeof feature[name], 'function');
   const calls = [];
   const api = feature.createAgendaClient(async (...args) => { calls.push(args); return { items: [] }; });
   const signal = new AbortController().signal;
@@ -21,16 +19,10 @@ test('agenda feature public entry preserves legacy identity and routes through a
   ]);
 });
 
-test('legacy composition entries reexport the same injected implementations', () => {
-  for (const [legacy, target, name] of [
-    ['apps/web/src/lib/agenda-client.ts', '../application/agenda-client.ts', 'createWebAgendaClient'],
-    ['apps/web/src/lib/agenda-proxy.ts', '../application/server/agenda-proxy.ts', 'proxyAgendaRequest'],
-    ['apps/web/src/lib/agenda-target.ts', '../application/navigation/agenda-target.ts', 'parseAgendaEventTarget'],
-    ['apps/web/src/components/agenda-screen.tsx', '../screens/agenda-screen.tsx', 'AgendaScreen'],
-  ]) {
-    const implementation = () => {};
-    const bridge = loadTsModule(legacy, { stubs: { [target]: { [name]: implementation } } });
-    assert.equal(bridge[name], implementation);
-    assert.deepEqual(Object.keys(bridge), [name]);
-  }
+test('agenda canonical composition and client remain available after compatibility retirement', () => {
+ const canonical=loadTsModule('apps/web/src/features/agenda/api/client.ts');
+ const feature=loadTsModule('apps/web/src/features/agenda/index.ts',{stubs:{"./api/client.ts":canonical}});
+ assert.equal(feature.createAgendaClient,canonical.createAgendaClient);
+ for(const [file,name] of [['apps/web/src/application/agenda-client.ts','createWebAgendaClient'],['apps/web/src/application/server/agenda-proxy.ts','proxyAgendaRequest'],['apps/web/src/application/navigation/agenda-target.ts','parseAgendaEventTarget'],['apps/web/src/screens/agenda-screen.tsx','AgendaScreen']])assert.equal(typeof loadTsModule(file)[name],'function');
+ for(const removed of ['apps/agenda-ui','apps/web/src/lib/agenda-client.ts','apps/web/src/lib/agenda-proxy.ts','apps/web/src/lib/agenda-target.ts','apps/web/src/components/agenda-screen.tsx'])assert.equal(existsSync(removed),false);
 });

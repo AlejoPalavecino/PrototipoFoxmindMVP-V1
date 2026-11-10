@@ -4,7 +4,7 @@ import path from 'node:path';
 const root=process.cwd(),dest=path.join(root,'.test-artifacts/home-reference');
 const pages=path.join(dest,'apps/web/pages'),fixtures=path.join(dest,'apps/web/fixtures');
 fs.mkdirSync(pages,{recursive:true});fs.mkdirSync(fixtures,{recursive:true});
-for(const rel of ['node_modules','src','apps/classrooms-ui','apps/shared-ui','apps/agenda-ui','apps/web/public','apps/web/styles']){
+for(const rel of ['node_modules', 'src', 'apps/shared-ui', 'apps/web/src', 'apps/web/public', 'apps/web/styles']){
   const target=path.join(dest,rel);fs.mkdirSync(path.dirname(target),{recursive:true});
   if(!fs.existsSync(target))fs.symlinkSync(path.join(root,rel),target,'junction');
 }

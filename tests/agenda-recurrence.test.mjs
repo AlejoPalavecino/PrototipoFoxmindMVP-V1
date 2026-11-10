@@ -24,7 +24,7 @@ test('new recurrences retain future DST ambiguity rejection', () => {
     kind: 'TIMED', timeZone: 'America/New_York', startLocal: '2026-10-31T01:30', endLocal: '2026-10-31T02:30' } }), { code: 'INVALID_INPUT' });
 });
 test('new recurrence kinds persist, reload, expand and remain owner-isolated', { timeout: 60000 }, async () => {
-  const { createAgendaService, createAgendaUnitOfWork } = loadTsModule('apps/api/src/agenda/index.ts');
+  const { createAgendaService, createAgendaUnitOfWork } = Object.freeze({createAgendaService: loadTsModule("apps/api/src/modules/agenda/application/agenda-service.ts").createAgendaService,createAgendaUnitOfWork: loadTsModule("apps/api/src/bootstrap/agenda-composition.ts").createAgendaUnitOfWork});
   await withAgendaDatabase(async ({ transaction }) => transaction(async ({ database, query }) => {
     const owner = randomUUID();
     await query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)

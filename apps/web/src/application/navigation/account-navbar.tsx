@@ -3,10 +3,10 @@ import { useRouter } from 'next/router';
 import { AppNavbar } from '../../../../shared-ui/AppNavbar.tsx';
 import Link from 'next/link';
 import { FoxmindBrand, FoxmindIcon } from '../../../../shared-ui/index.ts';
-import { Notifications } from '../../../../classrooms-ui/Notifications.tsx';
-import { createWebClassroomClient } from '../../lib/classroom-client.ts';
+import { Notifications } from '../../features/notifications/index.ts';
+import { createWebClassroomClient } from '../academic-classroom-client.ts';
 import type { AccountSession } from '../../features/identity/index.ts';
-import type { Classroom } from '../../../../classrooms-ui/api.ts';
+import type { Classroom } from '../../../../../src/core/contracts/classrooms.ts';
 import { createBrujulaSearchClient } from '../../../../shared-ui/brujula-search-client.ts';
 
 /** The page supplies its existing session and logout operation. */

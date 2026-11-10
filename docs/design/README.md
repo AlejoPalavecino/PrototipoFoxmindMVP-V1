@@ -72,7 +72,7 @@ Reutilizar componentes/navegación existentes antes de agregar variantes. Nombre
 | Tarjetas de herramientas | [FoxyToolPicker](../../apps/shared-ui/FoxyToolPicker.tsx) |
 | Feedback de carga de Foxy/estudio | [AsyncFeedback](../../apps/shared-ui/AsyncFeedback.tsx); Aulas conserva [AiProgress](../../apps/shared-ui/AiProgress.tsx) para su extracción |
 | Seguimiento del chat | [useChatFollow](../../apps/shared-ui/use-chat-follow.ts) |
-| Pasos y portadas de creación | [CreationSteps](../../apps/shared-ui/CreationSteps.tsx), [WizardCover](../../apps/classrooms-ui/WizardReview.tsx), [estilos compartidos](../../apps/shared-ui/brujula-wizard.css) |
+| Pasos y portadas de creación | [CreationSteps](../../apps/shared-ui/CreationSteps.tsx), [WizardCover](../../apps/web/src/features/classrooms/ui/WizardReview.tsx), [estilos compartidos](../../apps/shared-ui/brujula-wizard.css) |
 
 ## Estados e interacción
 

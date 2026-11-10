@@ -8,4 +8,4 @@ Los estados PENDING, NEXT y TAUGHT pertenecen al modelo; el frontend actual prio
 
 El avance de temas dados/total es una medida distinta del cumplimiento y del rendimiento. La consulta no crea obligaciones ni calificaciones.
 
-Fuentes: [PlanWorkspace](../../../apps/classrooms-ui/PlanWorkspace.tsx), [Plan](../../../apps/classrooms-ui/Plan.tsx), [modelo](../data-model.md). [Evidencia actual](../../verification/flows.md).
+Fuentes: [PlanWorkspace](../../../apps/web/src/application/academic-plan-workspace.tsx), [Plan](../../../apps/web/src/application/academic-plan.tsx), [modelo](../data-model.md). [Evidencia actual](../../verification/flows.md).

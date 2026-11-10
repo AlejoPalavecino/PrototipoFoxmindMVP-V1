@@ -3,11 +3,11 @@ import assert from 'node:assert/strict';
 import { randomUUID, createHash } from 'node:crypto';
 import { PDFDocument } from 'pdf-lib';
 import { withP5Database } from '../scripts/p5-database.mjs';
-import { enqueueSubmittedAttemptGradingAi } from '../apps/api/src/classrooms/grading-ai/enqueue.ts';
-import { GradingAiRuntime } from '../apps/api/src/classrooms/grading-ai/runtime.ts';
-import { GeminiGradingAiProvider } from '../apps/api/src/classrooms/grading-ai/provider.ts';
-import { createGradingAiAttachmentReader } from '../apps/api/src/files/grading-ai-attachment-reader.ts';
-import { parseActivityDocument } from '../.build/api/apps/api/src/files/activity-document.js';
+import { enqueueSubmittedAttemptGradingAi } from '../apps/api/src/modules/grading/infrastructure/grading-ai/enqueue.ts';
+import { GradingAiRuntime } from '../apps/api/src/modules/grading/infrastructure/grading-ai/runtime.ts';
+import { GeminiGradingAiProvider } from '../apps/api/src/modules/grading/infrastructure/grading-ai/provider.ts';
+import { createGradingAiAttachmentReader } from '../apps/api/src/modules/files/infrastructure/grading-ai-attachment-reader.ts';
+import { parseActivityDocument } from '../.build/api/apps/api/src/modules/files/infrastructure/activity-document.js';
 
 const config = { model:'synthetic', maxConcurrency:2, deadlineMs:30000, dailyActorRequests:20, dailyGlobalRequests:20,
   maxInputTokens:10000, maxOutputTokens:200, inputUsdPerMillion:1, outputUsdPerMillion:1, dailyBudgetUsd:5 };

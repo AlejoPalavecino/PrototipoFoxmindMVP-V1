@@ -16,7 +16,7 @@ function walk(value) {
 const textOf = nodes => nodes.filter(node => typeof node === 'string' || typeof node === 'number').join(' ');
 
 test('Agenda time converts timed events across zones and preserves all-day labels', () => {
-  const { homeAgendaTime } = loadTsModule('apps/classrooms-ui/home-presentation.ts');
+  const { homeAgendaTime } = loadTsModule('apps/web/src/features/home/model/home-presentation.ts');
   assert.equal(homeAgendaTime(timed, 'America/Argentina/Buenos_Aires'), '22:30');
   assert.equal(homeAgendaTime(timed, 'UTC'), '01:30');
   for (const zone of ['America/Argentina/Buenos_Aires', 'Pacific/Kiritimati']) {
@@ -25,7 +25,7 @@ test('Agenda time converts timed events across zones and preserves all-day label
 });
 
 test('Agenda preview presents event, converted time and type with the exact action target', () => {
-  const { HomeAgendaRow } = loadTsModule('apps/classrooms-ui/HomeRow.tsx');
+  const { HomeAgendaRow } = loadTsModule('apps/web/src/features/home/ui/HomeRow.tsx');
   const calls = [];
   const nodes = walk(HomeAgendaRow({ item: timed, timeZone: 'America/Argentina/Buenos_Aires', onAction: target => calls.push(target) }));
   const text = textOf(nodes);
@@ -42,7 +42,7 @@ test('Agenda preview presents event, converted time and type with the exact acti
 });
 
 test('All-day agenda row exposes its label and respects disabled action state', () => {
-  const { HomeAgendaRow } = loadTsModule('apps/classrooms-ui/HomeRow.tsx');
+  const { HomeAgendaRow } = loadTsModule('apps/web/src/features/home/ui/HomeRow.tsx');
   const nodes = walk(HomeAgendaRow({ item: allDay, timeZone: 'UTC', onAction() {}, busy: true }));
   const text = textOf(nodes);
   assert.match(text, /Jornada completa/);

@@ -14,4 +14,4 @@ Sin denominador aplicable se informa ausencia, no un porcentaje inventado. Un pu
 
 El docente ve clase/alumnos actuales e historia preservada separada; el estudiante sólo su progreso. Reingreso no multiplica obligaciones por cada período de membresía. Lecturas no crean intentos, obligaciones o notas.
 
-Fuentes: [servicio](../../../apps/api/src/classrooms/progress.ts), [esquema](../../../prisma/schema.prisma). [Flujos actuales](../../verification/flows.md).
+Fuentes: [servicio](../../../apps/api/src/bootstrap/academic-grading-composition.ts), [esquema](../../../prisma/schema.prisma). [Flujos actuales](../../verification/flows.md).

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { randomUUID } from 'node:crypto';
-import { proxyClassroomRequest } from '../apps/web/src/lib/classroom-proxy.ts';
+import { proxyClassroomRequest } from '../apps/web/src/application/server/classroom-proxy.ts';
 
 const room = randomUUID(), job = randomUUID(), base = `/api/v1/classrooms/${room}/activity-generations`;
 const start = () => ({ revision: '1', requestId: randomUUID(), type: 'ASSIGNMENT', unitId: randomUUID(), topicIds: [randomUUID()], sourceIds: [],

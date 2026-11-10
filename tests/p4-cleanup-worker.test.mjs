@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FileCleanupWorker } from '../apps/api/src/files/cleanup-worker.ts';
+import { FileCleanupWorker } from '../apps/api/src/modules/files/infrastructure/cleanup-worker.ts';
 
 const settle = async () => { for (let n = 0; n < 8; n++) await Promise.resolve(); };
 test('the real opt-in Nest module installs and closes its cleanup lifecycle', async () => {
   const { NestFactory } = await import('@nestjs/core');
-  const { FilesModule } = await import('../.build/api/apps/api/src/files/files.module.js');
+  const { FilesModule } = await import("../.build/api/apps/api/src/bootstrap/files-files.module.js");
   const module = FilesModule.register({ database: {}, access: { authenticate() {}, authorize() {} },
     storage: {}, scanner: {}, draftQuotaBytes: 100n });
   let calls = 0;

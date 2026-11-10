@@ -6,7 +6,7 @@ import { digest } from './p4-integration-helpers.mjs';
 import { representativeMaximumZip } from './p9-positive-max-files.mjs';
 import { binaryMaximumZip } from './p9-binary-max-files.mjs';
 import { withJourney, ok, request, rootOf, createActivity, startPublic, session, editorHeaders,
-  rawUpload, assertReadyFile, rejectUnchanged, academicHash } from './p9-journey-helpers.mjs';
+  rawUpload, assertReadyFile, rejectUnchanged, academicHash } from './p9-journey-helpers-current.mjs';
 
 test('P9 actual five distinct exact50000000-byte attachments: valid ZIP/parser/Clam/private hashes/quota/receipt; sixth denied', { timeout: 330000 }, async () => {
   await withJourney('large-files', async world => {

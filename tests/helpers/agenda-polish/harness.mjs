@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 const root = process.cwd(), dest = path.join(root, '.test-artifacts/agenda-polish');
 fs.mkdirSync(path.join(dest, 'apps/web/pages'), { recursive: true });
-for (const rel of ['node_modules', 'src', 'apps/classrooms-ui', 'apps/shared-ui', 'apps/agenda-ui', 'apps/web/public', 'apps/web/styles']) {
+for (const rel of ['node_modules', 'src', 'apps/shared-ui', 'apps/web/public', 'apps/web/styles', 'apps/web/src']) {
   const target = path.join(dest, rel);
   fs.mkdirSync(path.dirname(target), { recursive: true });
   if (!fs.existsSync(target)) fs.symlinkSync(path.join(root, rel), target, 'junction');

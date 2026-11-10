@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { rational, questionScore, scoreJson, finalGrade, hundredths, roundHalfUp, addScores } from '../apps/api/src/classrooms/scoring.ts';
-import { privateGradingInput } from '../apps/api/src/classrooms/grading-policy.ts';
+import { rational, questionScore, scoreJson, finalGrade, hundredths, roundHalfUp, addScores } from '../apps/api/src/modules/grading/domain/scoring.ts';
+import { privateGradingInput } from '../apps/api/src/modules/grading/domain/grading-policy.ts';
 
 const question = (rule = 'PARTIAL', points = '6') => ({ id: 'q', type: 'MULTIPLE_CHOICE', points, scoringRule: rule,
   options: ['a', 'b', 'c', 'wrong'].map(id => ({ id, correct: id !== 'wrong' })) });

@@ -4,10 +4,10 @@ import { createHash, randomUUID } from 'node:crypto';
 import pg from 'pg';
 import { PDFDocument } from 'pdf-lib';
 import { withP5Database } from '../scripts/p5-database.mjs';
-import { ClassroomService } from '../.build/api/apps/api/src/classrooms/service.js';
-import { FileService } from '../.build/api/apps/api/src/files/service.js';
-import { createFileAccess } from '../.build/api/apps/api/src/files/access.js';
-import { attachmentIntegration } from '../.build/api/apps/api/src/attachment-integration.js';
+import { ClassroomService } from '../.build/api/apps/api/src/bootstrap/academic-composition.js';
+import { FileService } from '../.build/api/apps/api/src/modules/files/infrastructure/service.js';
+import { createFileAccess } from '../.build/api/apps/api/src/modules/files/infrastructure/access.js';
+import { attachmentIntegration } from '../.build/api/apps/api/src/bootstrap/attachment-integration.js';
 
 // Real SQL/public domain and file services; authentication, object storage and scanner are controlled ports.
 // Actual P3/HTTP/browser/ClamAV reproduction lives in p7-consultation-integration.test.mjs.

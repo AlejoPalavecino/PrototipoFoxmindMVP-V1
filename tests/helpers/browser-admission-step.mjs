@@ -50,10 +50,10 @@ export async function runAdmittedAction({ action, observe, wait, onLimited, muta
   }
   throw new Error('Admission rejected');
 }
-export async function startBrowserAttempt(page, classroomId, activityId, timeoutMs) {
+export async function startBrowserAttempt(page, classroomId, activityId, timeoutMs, buttonName = 'Comenzar') {
   if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) throw new Error('Admission timeout required');
   const mutationPath = `/api/v1/classrooms/${classroomId}/activities/${activityId}/start`;
-  const button = page.getByRole('button', { name: 'Comenzar', exact: true });
+  const button = page.getByRole('button', { name: buttonName, exact: true });
   let requests = 0, beforeGesture = 0;
   const capture = request => {
     if (request.method() === 'POST' && new URL(request.url()).pathname === mutationPath) requests++;

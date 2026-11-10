@@ -5,7 +5,7 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 const room = (id, role, extra = {}) => ({ id, role, name: id, subject: 'Ciencias', division: 'A',
   academicYear: 2026, timezone: 'UTC', coverKey: 'biology', teacher: 'Ada Sintética',
   revision: '1', archived: false, ...extra });
-const filter = () => loadTsModule('apps/classrooms-ui/collection-filter.ts').filterClassroomCards;
+const filter = () => loadTsModule('apps/web/src/features/classrooms/model/collection-filter.ts').filterClassroomCards;
 const ids = rows => rows.map(row => row.id);
 
 test('teacher search uses normalized DTO names and preserves role boundaries without mutation', () => {

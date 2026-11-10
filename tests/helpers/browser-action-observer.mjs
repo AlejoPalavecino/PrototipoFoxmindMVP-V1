@@ -112,13 +112,14 @@ class JourneyObserver {
     this.stages[actor] = { type: TYPES.has(type) ? type : null, stage: STAGES.has(stage) ? stage : null };
   }
   async drain() { await Promise.all([...this.pending]); }
-  async snapshot() {
-    await this.drain();
+  async snapshot({ waitForPending = true } = {}) {
+    if (waitForPending) await this.drain();
     const last60s = emptyCounts(), cutoff = this.now() - 60000;
     while (this.recent.length && this.recent[0].time <= cutoff) this.recent.shift();
     for (const entry of this.recent) increment(last60s, entry.actor);
-    return { rows: this.rows.map(row => ({ ...row })),
+    const snapshot = { rows: this.rows.map(row => ({ ...row })),
       counts: { total: this.counts.total, byActor: { ...this.counts.byActor }, last60s } };
+    return waitForPending ? snapshot : { ...snapshot, pendingResponses: this.pending.size, partial: this.pending.size > 0 };
   }
   async close() {
     for (const { page, request, response } of this.listeners) {

@@ -11,7 +11,7 @@ const summary = { state: 'READY', generatedAt: null, evidenceHash: 'a'.repeat(64
     supportNeeds: [], recommendations: [], limitations: [] } };
 
 test('teacher sees the named activity alongside its evidence reference', async () => {
-  const { StudentAiSummary } = loadTsModule('apps/classrooms-ui/StudentAiSummary.tsx');
+  const { StudentAiSummary } = loadTsModule("apps/web/src/features/grading/ui/StudentAiSummary.tsx");
   const view = hookView(StudentAiSummary, { api: { call: async () => summary }, classroomId: 'room', studentId: 'student' });
   try {
     await view.flush();

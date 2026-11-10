@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer, request as httpRequest } from 'node:http';
-import { submissionReceipt } from '../.build/api/apps/api/src/classrooms/submission-receipt.js';
-import { createClassroomsHandler } from '../.build/api/apps/api/src/classrooms/http.js';
+import { submissionReceipt } from '../.build/api/apps/api/src/modules/participation/infrastructure/submission-receipt.js';
+import { createClassroomsHandler } from '../.build/api/apps/api/src/bootstrap/academic-http.js';
 const id='a1111111-1111-4111-8111-111111111111';
 test('TP HTTP waits for exact complete JSON/admission and restricts routes/editor pairs/receipts',async()=>{
  const calls=[];const service=Object.fromEntries(['removeAttemptAttachment','submitPracticalAttempt','assignmentSubmissions','assignmentSubmission'].map(name=>[name,async(...args)=>{calls.push([name,...args.slice(1)]);return {ok:true};}]));

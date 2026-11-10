@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { withGradingFixture } from './p8-grading-helpers.mjs';
-import { ClassroomCore } from '../.build/api/apps/api/src/classrooms/context.js';
+import { ClassroomCore } from '../.build/api/apps/api/src/modules/classrooms/infrastructure/context.js';
 
 const timeout = (promise, ms, message) => Promise.race([promise, new Promise((_, reject) => setTimeout(() => reject(new Error(message)), ms))]);
 test('two reads share classroom lock; a writer waits, then membership revocation is enforced', { timeout: 120000 }, async () => {

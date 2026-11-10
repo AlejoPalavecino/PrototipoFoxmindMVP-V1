@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { FileService } from '../.build/api/apps/api/src/files/service.js';
-import { FileError } from '../.build/api/apps/api/src/files/errors.js';
-import { createFileAccess } from '../.build/api/apps/api/src/files/access.js';
+import { FileService } from '../.build/api/apps/api/src/modules/files/infrastructure/service.js';
+import { FileError } from '../.build/api/apps/api/src/modules/files/domain/errors.js';
+import { createFileAccess } from '../.build/api/apps/api/src/modules/files/infrastructure/access.js';
 
 export async function verifyRecordAccess(t, { sql, options, users, sessions, classroom, bytes }) {
   const enrollment = randomUUID(), period = randomUUID(), activity = randomUUID(), studentActivity = randomUUID(), attempt = randomUUID();

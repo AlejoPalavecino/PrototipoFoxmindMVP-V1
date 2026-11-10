@@ -20,7 +20,7 @@ test('P5 invitations share actual P3 international and ASCII mailbox identity', 
     const browser = await chromium.launch({ headless: true });
     try {
       const teacherPage = await (await browser.newContext()).newPage();
-      const teacher = await account(teacherPage, runtime.origin, runtime.inbox, `mailbox-teacher-${Date.now()}@example.test`);
+      const teacher = await account(teacherPage, runtime.origin, runtime.inbox, `mailbox-teacher-${Date.now()}@example.test`, undefined, "teacher");
       const room = randomUUID();
       // Only classroom setup is SQL: every actor/session and invitation operation is public HTTP.
       await runtime.db.query(`INSERT INTO classrooms
@@ -34,7 +34,7 @@ test('P5 invitations share actual P3 international and ASCII mailbox identity', 
       ]) {
         await t.test(name, async () => {
           const page = await (await browser.newContext()).newPage();
-          const recipient = await account(page, runtime.origin, runtime.inbox, email);
+          const recipient = await account(page, runtime.origin, runtime.inbox, email, undefined, "student");
           const user = (await runtime.db.query('SELECT email,email_normalized FROM users WHERE id=$1', [recipient.id])).rows[0];
           assert.equal(user.email, email);
           assert.equal(user.email_normalized, equivalent);

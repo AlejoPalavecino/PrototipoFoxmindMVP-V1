@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-const ui = () => import('../apps/classrooms-ui/extraction-client.ts');
+const ui = () => import('../apps/web/src/features/curriculum/model/extraction-client.ts');
 const fileId = '11111111-1111-4111-8111-111111111111';
 const jobId = '22222222-2222-4222-8222-222222222222';
 const requestId = '33333333-3333-4333-8333-333333333333';

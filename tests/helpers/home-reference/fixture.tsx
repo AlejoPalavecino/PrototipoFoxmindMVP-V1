@@ -1,9 +1,9 @@
-import surface from '../../classrooms-ui/classrooms-surface.module.css';
+import surface from '../src/application/academic-classrooms-surface.module.css';
 import {useMemo,useState} from 'react';
 import {useRouter} from 'next/router';
-import {Home} from '../../classrooms-ui/Home';
+import {Home} from "../src/features/home/index.ts";
 import {AppNavbar} from '../../shared-ui/AppNavbar';
-import type {HomeClient} from '../../classrooms-ui/home-api';
+import type {HomeClient} from "../src/features/home/index.ts";
 import type {HomeResponse} from '../../../src/core/domain/index';
 import {fixture,subjectId} from '../fixtures/home-reference-data';
 

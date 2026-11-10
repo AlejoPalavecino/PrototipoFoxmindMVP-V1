@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { GradingService } from '../apps/api/src/classrooms/grading.ts';
+import { GradingService } from '../apps/api/src/bootstrap/academic-grading-composition.ts';
 
 async function view(type, grade, points = null) {
   const question = { id: 'question', type: 'DEVELOPMENT', prompt: 'Explicá', points: '10', options: [] };

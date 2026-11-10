@@ -6,7 +6,7 @@ const source = path.resolve(process.argv[2] ?? root);
 const dest = path.join(root, '.test-artifacts', process.argv[3] ?? 'platform-polish');
 const pages = path.join(dest, 'apps/web/pages');
 fs.mkdirSync(path.join(pages, 'api/v1'), { recursive: true });
-for (const rel of ['node_modules', 'src', 'apps/classrooms-ui', 'apps/shared-ui', 'apps/agenda-ui', 'apps/web/src', 'apps/web/public', 'apps/web/styles']) {
+for (const rel of ['node_modules', 'src', 'apps/shared-ui', 'apps/web/src', 'apps/web/public', 'apps/web/styles']) {
   const target = path.join(dest, rel);
   fs.mkdirSync(path.dirname(target), { recursive: true });
   if (!fs.existsSync(target)) fs.symlinkSync(path.join(source, rel), target, 'junction');
@@ -35,7 +35,7 @@ fs.writeFileSync(path.join(pages, 'inicio.tsx'), home.replace("read:async()=>fix
 fs.copyFileSync(path.join(root, 'tests/helpers/agenda-polish/fixture.tsx'), path.join(pages, 'agenda.tsx'));
 fs.copyFileSync(path.join(helpers, 'api-fixture.ts'), path.join(pages, 'api/v1/[...path].ts'));
 for (const view of ['sign-in','register','verify-email','forgot-password','recover-password','profile','settings']) {
-  fs.writeFileSync(path.join(pages, `${view}.tsx`), `import {useEffect,useState} from 'react'; import {AccountScreen} from '../src/components/account-screen';
+  fs.writeFileSync(path.join(pages, `${view}.tsx`), `import {useEffect,useState} from 'react'; import { AccountScreen } from '../src/screens/identity-screen.tsx';
     export default function Fixture(){const [ready,setReady]=useState(false);useEffect(()=>{if(location.search.includes('mode=token'))window.__foxmindTakeToken=()=> 'synthetic-fixture-proof';setReady(true)},[]);return ready?<AccountScreen view="${view}"/>:null}`);
 }
 const files = fs.readFileSync(path.join(source, 'apps/web/pages/files.tsx'), 'utf8');

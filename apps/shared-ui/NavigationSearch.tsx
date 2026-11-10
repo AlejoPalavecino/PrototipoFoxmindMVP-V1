@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import type { NavbarLink } from './navbar-types';
 import { FoxmindIcon } from './FoxmindIcon';
 import { openDialog } from './dialog-focus';
-import { brujulaSearchHref, type BrujulaSearchClient, type BrujulaSearchPage } from '../../src/core/domain/brujula-search.ts';
+import { brujulaSearchHref, type BrujulaSearchClient, type BrujulaSearchPage } from '../../src/core/domain/classrooms/brujula-search.ts';
 
 export function NavigationSearch({ links, follow, shortcut = true, search }: { links: NavbarLink[]; follow: (event: MouseEvent<HTMLAnchorElement>, href: string) => void; shortcut?: boolean; search?: BrujulaSearchClient }) {
   const [open, setOpen] = useState(false);

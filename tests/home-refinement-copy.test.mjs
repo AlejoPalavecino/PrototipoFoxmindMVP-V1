@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 
-const helpers = () => loadTsModule('apps/classrooms-ui/home-presentation.ts');
+const helpers = () => loadTsModule('apps/web/src/features/home/model/home-presentation.ts');
 
 test('setup summary includes only positive counts with correct singular and plural', () => {
   const { homeSetupSummary } = helpers();

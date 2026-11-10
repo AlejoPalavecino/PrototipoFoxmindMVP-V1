@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ProgressService } from '../.build/api/apps/api/src/classrooms/progress.js';
+import { repository } from '../.build/api/apps/api/src/modules/grading/infrastructure/progress-repository.js';
+import { ProgressService } from '../.build/api/apps/api/src/bootstrap/academic-grading-composition.js';
 
 test('progress groups 200 students and 100 activities in linear passes with exact results', async () => {
   let accesses = 0;
@@ -11,7 +12,7 @@ test('progress groups 200 students and 100 activities in linear passes with exac
     pendingResubmission: false, grade: n < 50 ? '8' : null, confirmedAttempts: n < 50 ? 1 : 0,
   })));
   const tx = { query: async sql => sql.includes('FROM enrollments e JOIN users') ? students : [{ total: 0, taught: 0 }] };
-  const context = { progressRows: async () => rows, studentProgress: ProgressService.prototype.studentProgress };
+  const context = { repository, progressRows: async () => rows, studentProgress: ProgressService.prototype.studentProgress };
   const result = await ProgressService.prototype.progressView.call(context, tx, 'synthetic-room', null);
   assert.equal(result.studentCount, 200);
   assert.equal(result.completion.expected, 20000);

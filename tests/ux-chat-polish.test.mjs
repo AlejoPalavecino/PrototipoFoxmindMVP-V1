@@ -5,9 +5,7 @@ import {renderToStaticMarkup} from 'react-dom/server';
 import {componentWithPorts} from './foxmind-3d-flows-loader.test.mjs';
 import {hookView,descendants,deferred} from './agenda-ui-helpers.test.mjs';
 
-const {StudyWorkspace}=componentWithPorts('apps/web/src/components/study-workspace.tsx',{
-  'next/link':{default:({children,...props})=>React.createElement('a',props,children)},
-});
+const {StudyWorkspace}=componentWithPorts('apps/web/src/features/study/ui/study-workspace.tsx',{'next/link':{default:({children,...props})=>React.createElement('a',props,children)}});
 function fixture(run){const props={detail:{folder:{id:'folder',name:'Biología',academicYear:2026,status:'ACTIVE',units:[]},conversations:[{id:'chat',title:'Consulta',messages:[]}],creations:[],practices:[],sources:[],memory:null},catalog:{classrooms:[]},busy:false,run,onReload:async()=>{}};return hookView(StudyWorkspace,props);}
 const area=view=>descendants(view.tree,n=>n.type==='textarea'&&n.props.id==='study-message')[0];
 const form=view=>descendants(view.tree,n=>n.type==='form')[0];

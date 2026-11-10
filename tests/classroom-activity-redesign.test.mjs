@@ -8,14 +8,14 @@ const context = {unitId:'unit',topicIds:['t1','t2']};
 const prepareAction=detail=>descendants(detail.props.actions,n=>n.type==='button'&&n.props.className==='primary')[0].props.onClick();
 
 test('explicit practical instruction opening preserves the confirmed editor for later preparation without submitting',async()=>{
- const {Activities}=loadTsModule('apps/classrooms-ui/Activities.tsx');let starts=0;
+ const {Activities}=loadTsModule('apps/web/src/application/academic-Activities.tsx');let starts=0;
  const activity={id:'a',title:'Campo',type:'ASSIGNMENT',status:'PUBLISHED',instructions:null,topicIds:[],zone:'UTC'},session={activity,canStart:true,attempt:null};
  const opened={...session,activity:{...activity,instructions:'Consigna confirmada'},canStart:false,canTransfer:true,attempt:{id:'attempt',status:'DRAFT'},editor:{epoch:'1',token:'memory-only'}};
  const view=hookView(Activities,{room:{...room,role:'student'},reload:async()=>{},api:{call:async path=>path.endsWith('/session')?session:{activities:[activity]},attempt:async()=>{starts++;return opened;}}});
  try{await view.flush();descendants(view.tree,n=>n.type==='button'&&n.props['aria-label']==='Abrir Campo')[0].props.onClick();await view.flush();const detail=()=>descendants(view.tree,n=>n.type?.name==='AttemptHistory')[0];descendants(detail().props.actions,n=>n.type==='button'&&text(n)==='Ver consigna')[0].props.onClick();await view.flush();assert.equal(starts,1);assert.equal(detail().props.activityPreview.instructions,'Consigna confirmada');assert.equal(descendants(view.tree,n=>n.type?.name==='AttemptSession').length,0);prepareAction(detail());await view.flush();assert.equal(starts,1);assert.equal(descendants(view.tree,n=>n.type?.name==='AttemptSession')[0].props.initial.editor,opened.editor);}finally{view.close();}
 });
 test('Plan context survives the clean method chooser and remains editable in AI stage one without writes', async () => {
- const { Activities } = loadTsModule('apps/classrooms-ui/Activities.tsx');
+ const { Activities } = loadTsModule('apps/web/src/application/academic-Activities.tsx');
  const calls = [], api = { call: async (...args) => { calls.push(args); return args[0].endsWith('/sources') ? { revision: 'r1', sources: [] } : args[0].endsWith('/activity-generations') ? { jobs: [] } : { activities: [] }; } };
  const view = hookView(Activities, { api, room, reload: async () => {}, creationContext: context });
  let generationView;
@@ -40,20 +40,20 @@ test('Plan context survives the clean method chooser and remains editable in AI 
 });
 
 test('Manual editor precarga context locally and keeps the two approved stages without publishing',async()=>{
- const {ActivityAuthoring}=loadTsModule('apps/classrooms-ui/ActivityAuthoring.tsx');const calls=[];
+ const {ActivityAuthoring}=loadTsModule('apps/web/src/features/activity-authoring/ui/ActivityAuthoring.tsx');const calls=[];
  const activity={id:'a',type:'ASSIGNMENT',status:'DRAFT',title:null,unitId:null,topicIds:[],instructions:'',attachmentRequired:false,questions:[],instructionFiles:[],materials:[],deadlineAt:null,allowLate:false,locked:false};
  const view=hookView(ActivityAuthoring,{api:{call:async(...a)=>calls.push(a)},room:{...room,timezone:'UTC'},data:{activity,revision:'r1'},materials:[],creationContext:context,onSaved:async()=>{},onClose(){}});
  try{await view.flush();const assignment=descendants(view.tree,n=>n.type?.name==='ActivityAssignment')[0];assert.deepEqual(assignment.props.value,context);assignment.props.update({unitId:'unit',topicIds:['t2']});await view.flush();assert.deepEqual(descendants(view.tree,n=>n.type?.name==='ActivityAssignment')[0].props.value,{unitId:'unit',topicIds:['t2']});const stages=descendants(view.tree,n=>n.type==='ol'&&n.props['aria-label']==='Etapas de edición')[0];assert.equal(descendants(stages,n=>n.type==='li').length,2);assert.match(text(stages),/Preparar actividad/);assert.match(text(stages),/Revisar y asignar/);assert.equal(calls.length,0);}finally{view.close();}
 });
 test('Assignment keeps real multi-topic checkboxes editable, clearing topics on a unit change',()=>{
- const {ActivityAssignment}=loadTsModule('apps/classrooms-ui/activity-Assignment.tsx');const changes=[];
+ const {ActivityAssignment}=loadTsModule('apps/web/src/features/activity-authoring/ui/activity-Assignment.tsx');const changes=[];
  const tree=ActivityAssignment({room,value:context,update:value=>changes.push(value)});
  const checks=descendants(tree,n=>n.type==='input'&&n.props.type==='checkbox');assert.equal(checks.length,2);assert.ok(checks.every(n=>n.props.checked));
  checks[0].props.onChange({target:{checked:false}});assert.deepEqual(changes[0],{unitId:'unit',topicIds:['t2']});
  descendants(tree,n=>n.type==='select')[0].props.onChange({target:{value:''}});assert.deepEqual(changes[1],{unitId:'',topicIds:[]});
 });
 test('Saving manual contextual activity sends all selected topics without publication and stage navigation never writes',async()=>{
- const {ActivityAuthoring}=loadTsModule('apps/classrooms-ui/ActivityAuthoring.tsx');const calls=[];
+ const {ActivityAuthoring}=loadTsModule('apps/web/src/features/activity-authoring/ui/ActivityAuthoring.tsx');const calls=[];
  const activity={id:'a',type:'ASSIGNMENT',status:'DRAFT',title:'Ejercicios',unitId:null,topicIds:[],instructions:'Resolver',attachmentRequired:true,questions:[],instructionFiles:[],materials:[],deadlineAt:null,allowLate:false,locked:false};
  const view=hookView(ActivityAuthoring,{api:{call:async(...a)=>{calls.push(a);return {revision:'r2'};}},room:{...room,timezone:'UTC'},data:{activity,revision:'r1'},materials:[],creationContext:context,onSaved:async()=>{},onClose(){}});
  try{await view.flush();descendants(view.tree,n=>n.type==='button'&&text(n)==='Continuar a revisión')[0].props.onClick();await view.flush();assert.equal(calls.length,0);
@@ -61,13 +61,13 @@ test('Saving manual contextual activity sends all selected topics without public
  }finally{view.close();}
 });
 test('AI setup cannot pass materials without an explicit source or class explanation',async()=>{
- const {GenerationSetup}=loadTsModule('apps/classrooms-ui/GenerationSetup.tsx');const {defaultGenerationForm}=loadTsModule('apps/classrooms-ui/ActivityGenerationForm.tsx');const calls=[];
+ const {GenerationSetup}=loadTsModule('apps/web/src/features/activity-authoring/ui/GenerationSetup.tsx');const {defaultGenerationForm}=loadTsModule('apps/web/src/features/activity-authoring/ui/ActivityGenerationForm.tsx');const calls=[];
  const view=hookView(GenerationSetup,{room,value:{...defaultGenerationForm(),...context,objective:'Relacionar conceptos'},update(){},sources:[],disabled:false,generate:v=>calls.push(v)});
  try{await view.flush();for(let i=0;i<2;i++){descendants(view.tree,n=>n.type==='form')[0].props.onSubmit({preventDefault(){}});await view.flush();}assert.equal(calls.length,0);assert.match(text(view.tree),/Elegí al menos una fuente/);assert.match(text(view.tree),/Cambiar unidad o temas/);}finally{view.close();}
 });
 
 for (const state of [{ archived: false, status: 'DRAFT', editing: true }, { archived: true, status: 'DRAFT', editing: false }, { archived: false, status: 'PUBLISHED', editing: false }]) test(`Contextual activity target opens the draft editor only when writable ${JSON.stringify(state)}`, async () => {
- const { Activities } = loadTsModule('apps/classrooms-ui/Activities.tsx');
+ const { Activities } = loadTsModule('apps/web/src/application/academic-Activities.tsx');
  const calls = [], activity = { id: 'draft', type: 'ASSIGNMENT', status: state.status, title: 'Saved draft', locked: false };
  const api = { call: async (...args) => { calls.push(args); return args[0].endsWith('/preview') ? { activity, revision: 'r1' } : args[0].endsWith('/library') ? [] : { activities: [] }; } };
  const view = hookView(Activities, { api, room: { ...room, archived: state.archived }, target: { kind: 'activity', activityId: 'draft' }, reload: async () => {} });
@@ -82,7 +82,7 @@ for (const state of [{ archived: false, status: 'DRAFT', editing: true }, { arch
 });
 
 test('Opening a student activity is read-only; preparation explicitly starts the existing attempt flow',async()=>{
- const {Activities}=loadTsModule('apps/classrooms-ui/Activities.tsx'),calls=[];
+ const {Activities}=loadTsModule('apps/web/src/application/academic-Activities.tsx'),calls=[];
  const activity={id:'a',title:'Campo',type:'ASSIGNMENT',status:'PUBLISHED',topicIds:[],zone:'UTC'};
  const session={activity,canStart:true,canTransfer:false,attempt:null};
  const api={call:async(...args)=>{calls.push(args);return args[0].endsWith('/session')?session:{activities:[activity]};},attempt:async(...args)=>{calls.push(args);return {...session,canStart:false,attempt:{id:'attempt',status:'DRAFT'}};}};
@@ -94,14 +94,14 @@ test('Opening a student activity is read-only; preparation explicitly starts the
 });
 
 test('leaving the section cancels preparation and cannot mount a stale session after returning',async()=>{
- const {Activities}=loadTsModule('apps/classrooms-ui/Activities.tsx'),{useState}=await import('react');let change,release,reads=0,writes=0;
+ const {Activities}=loadTsModule('apps/web/src/application/academic-Activities.tsx'),{useState}=await import('react');let change,release,reads=0,writes=0;
  const activity={id:'a',title:'Campo',type:'ASSIGNMENT',status:'PUBLISHED',topicIds:[],zone:'UTC'},session={activity,canStart:true,attempt:null};
  const delayed=new Promise(resolve=>release=resolve),props={active:true,room:{...room,role:'student'},reload:async()=>{},api:{call:async path=>path.endsWith('/session')?(++reads===1?session:delayed):{activities:[activity]},attempt:async()=>{writes++;return session;}}};
  const view=hookView(()=>{const[tick,setTick]=useState(0);change=active=>{props.active=active;setTick(tick+1);};return Activities(props);},{});
  try{await view.flush();descendants(view.tree,n=>n.type==='button'&&n.props['aria-label']==='Abrir Campo')[0].props.onClick();await view.flush();prepareAction(descendants(view.tree,n=>n.type?.name==='AttemptHistory')[0]);await view.flush();change(false);await view.flush();release(session);await view.flush();change(true);await view.flush();assert.equal(writes,0);assert.equal(descendants(view.tree,n=>n.type?.name==='AttemptSession').length,0);}finally{view.close();}
 });
 for(const stage of ['GET','CSRF','POST'])for(const departure of ['close','target'])test(`${departure} during preparation ${stage} prevents stale navigation and unsent starts`,async()=>{
- const {Activities}=loadTsModule('apps/classrooms-ui/Activities.tsx'),{useState}=await import('react');let change,release,reads=0,writes=0;
+ const {Activities}=loadTsModule('apps/web/src/application/academic-Activities.tsx'),{useState}=await import('react');let change,release,reads=0,writes=0;
  const activity={id:'a',title:'Campo',type:'ASSIGNMENT',status:'PUBLISHED',topicIds:[],zone:'UTC'},session={activity,canStart:true,attempt:null};
  const delayed=new Promise(resolve=>release=resolve),props={active:true,room:{...room,role:'student'},reload:async()=>{},api:{
   call:async path=>path.endsWith('/session')?(path.includes('/b/')?{...session,activity:{...activity,id:'b',title:'Otra'}}:++reads===2&&stage==='GET'?delayed:session):{activities:[activity]},

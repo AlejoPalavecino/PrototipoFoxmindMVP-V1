@@ -1,1 +1,1 @@
-export { FoxyScreen as default } from '../src/components/foxy-screen';
+export { FoxyScreen as default } from '../src/screens/foxy-screen';

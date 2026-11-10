@@ -5,8 +5,8 @@ import { setTimeout as delay } from 'node:timers/promises';
 import test from 'node:test';
 import { createApplication } from '../.build/api/apps/api/src/application.js';
 import { readConfiguration } from '../.build/api/apps/api/src/configuration.js';
-import { IdentityRuntime } from '../.build/api/apps/api/src/identity/index.js';
-import { AccountMailService } from '../.build/api/apps/api/src/mail/index.js';
+import { IdentityRuntime } from '../.build/api/apps/api/src/bootstrap/identity-runtime.js';
+import { AccountMailService } from '../.build/api/apps/api/src/modules/identity/infrastructure/mail/account-mail.service.js';
 import { createSmtpFixture } from '../scripts/mail-smtp-fixture.mjs';
 
 // Deferred integration proof: successful parent combined build + fresh owned DB only.

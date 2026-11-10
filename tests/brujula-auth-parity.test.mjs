@@ -11,10 +11,10 @@ for (const viewName of ['settings','recover-password']) {
     globalThis.sessionStorage = { getItem: () => null };
     globalThis.FormData = class { constructor(form) { return Object.entries(form.fields); } };
     const calls=[], user={id:'user',firstName:'Synthetic',lastName:'User',email:'synthetic@example.test',emailVerified:true,accountRole:'teacher'};
-    const account=loadTsModule('apps/web/src/features/identity/index.ts'), navigation=loadTsModule('apps/web/src/lib/classroom-client.ts');
+    const account=loadTsModule('apps/web/src/features/identity/index.ts'), navigation=({...loadTsModule('apps/web/src/application/academic-classroom-client.ts'),classroomDestination:loadTsModule('apps/web/src/application/navigation/destinations.ts').safeDestination,classroomAuthHref:loadTsModule('apps/web/src/application/navigation/destinations.ts').authHref,classroomHomeHref:loadTsModule('apps/web/src/application/navigation/destinations.ts').classroomHomeHref,classroomHomeDestination:loadTsModule('apps/web/src/application/navigation/destinations.ts').classroomHomeDestination});
     const noop=()=>null, placeholder=new Proxy({default:noop},{get:(target,key)=>key==='__esModule'?true:target[key]??noop});
     const ports={'next/head':placeholder,'next/link':placeholder,'next/router':{useRouter:()=>({isReady:true,query:{},push:async()=>{}})},
-      '../features/identity/index':{...account,createAccountClient:()=>({session:async()=>({authenticated:true,user}),mutate:async(path,fields)=>{calls.push({path,fields});return {result:user};}})},'../lib/classroom-client':navigation};
+      '../features/identity/index':{...account,createAccountClient:()=>({session:async()=>({authenticated:true,user}),mutate:async(path,fields)=>{calls.push({path,fields});return {result:user};}})},'../application/academic-classroom-client.ts':navigation};
     for(const name of ['./ui/button','./ui/input','./ui/label','../application/navigation/account-navbar','../../../shared-ui/AccountStory','../../../shared-ui','../../../shared-ui/index','../../../shared-ui/FoxmindIllustration'])ports[name]=placeholder;
     const {AccountScreen}=componentWithPorts('apps/web/src/screens/identity-screen.tsx',ports);
     const view=hookView(AccountScreen,{view:viewName});

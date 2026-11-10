@@ -92,7 +92,7 @@ test('direct build preserves project strict flags and runs generation then compi
       types: ['node'],
     },
     // Compatibility entries remain emitted even after leaving the API import closure.
-    include: ['src/**/*.ts', '../../.generated/prisma/**/*.ts', '../../src/core/domain/**/*.ts'],
+    include: ['src/**/*.ts', '../../.generated/prisma/**/*.ts', '../../src/core/domain/**/*.ts', '../../src/core/contracts/**/*.ts'],
   });
 });
 

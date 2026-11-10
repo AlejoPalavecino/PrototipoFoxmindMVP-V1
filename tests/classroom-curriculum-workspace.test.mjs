@@ -9,7 +9,7 @@ test('Plan selection never changes teaching state; only the explicit state contr
   const writes=[],opened=[];
   const material={id:'material',title:'Guía',fileId:'file',topicId:'one',ready:true,deleted:false,extension:'pdf',previewable:true,fileName:'guia.pdf'};
   const activity={id:'activity',title:'Actividad del tema',topicId:'one',type:'ASSIGNMENT',status:'PUBLISHED',zone:'UTC',deadlineAt:null};
-  const {PlanWorkspace}=loadTsModule('apps/classrooms-ui/PlanWorkspace.tsx',{stubs:{'./use-plan-workspace.ts':{usePlanWorkspace:()=>({data:{materials:[material],activities:[activity]}})}}});
+  const {PlanWorkspace}=loadTsModule('apps/web/src/application/academic-plan-workspace.tsx',{stubs:{"../model/use-plan-workspace.ts":{usePlanWorkspace:()=>({data:{materials:[material],activities:[activity]}})}}});
   const view=hookView(PlanWorkspace,{api:{fileUrl:id=>'/files/'+id},room,onOpenActivity:id=>opened.push(id),onTopicState:(...args)=>writes.push(args)});
   try{
     await view.flush();

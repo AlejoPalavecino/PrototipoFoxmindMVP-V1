@@ -10,4 +10,4 @@ Notificaciones ofrece filtros, apertura y marcado de lectura, con lista breve y 
 
 Los módulos tienen carga, vacío y error/reintento propios. Datos desconocidos o paginados no se presentan como cero o porcentaje global inventado.
 
-Fuentes: [Home](../../../apps/classrooms-ui/Home.tsx), [proyecciones](../../../apps/api/src/home/), [notificaciones](../../../apps/classrooms-ui/Notifications.tsx). [Recorridos y capturas](../../verification/flows.md).
+Fuentes: [Home](../../../apps/web/src/features/home/ui/Home.tsx), [proyecciones](../../../apps/api/src/modules/home/application/service.ts), [notificaciones](../../../apps/web/src/features/notifications/ui/Notifications.tsx). [Recorridos y capturas](../../verification/flows.md).

@@ -114,7 +114,7 @@ async function refreshNews(page) {
   await news.getByRole('button', { name: 'Actualizar notificaciones', exact: true }).click();
   const body = await successfulJson(await pending, 'notifications');
   assert.ok(Array.isArray(body.items), 'Notification page contains actual items');
-  await news.getByRole('alert').waitFor({ state: 'detached' });
+  await page.waitForFunction(() => !document.querySelector('dialog[open][aria-labelledby="p5-dialog-title"] [role="alert"]'));
   return body;
 }
 
@@ -154,23 +154,23 @@ test('P9 actual Home remaining recovery, responsive and account proof', { timeou
       const suffix = Date.now(), email = `p9-remaining-${suffix}@example.test`;
       const roomName = 'P9 remaining classroom', draftName = 'P9 remaining private draft';
       // Real prerequisites only; the six completed acceptance groups are not asserted again.
-      await account(teacher, runtime.origin, runtime.inbox, `p9-remaining-teacher-${suffix}@example.test`);
-      await account(seed, runtime.origin, runtime.inbox, email);
+      await account(teacher, runtime.origin, runtime.inbox, `p9-remaining-teacher-${suffix}@example.test`, undefined, "teacher");
+      await account(seed, runtime.origin, runtime.inbox, email, undefined, "student");
       const room = await classroom(teacher, seed, roomName);
-      const draft = await api(seed, 'POST', '/classrooms/drafts', {}); assert.equal(draft.status, 200, 'Owned draft prerequisite');
-      assert.equal((await api(seed, 'PATCH', `/classrooms/drafts/${draft.body.id}`, { revision: draft.body.revision, payload: { name: draftName } })).status, 200, 'Owned named draft prerequisite');
+      const draft = await api(teacher, 'POST', '/classrooms/drafts', {}); assert.equal(draft.status, 200, 'Owned draft prerequisite');
+      assert.equal((await api(teacher, 'PATCH', `/classrooms/drafts/${draft.body.id}`, { revision: draft.body.revision, payload: { name: draftName } })).status, 200, 'Owned named draft prerequisite');
       const wall = await api(teacher, 'GET', `/classrooms/${room.id}/wall`); assert.equal(wall.status, 200, 'Actual notice prerequisite');
       assert.equal((await api(teacher, 'POST', `/classrooms/${room.id}/wall`, { revision: wall.body.revision, operation: { action: 'publish', body: 'P9 remaining recovery notice' } })).status, 200, 'Real notification prerequisite');
-      await seed.close(); await teacherContext.close();
+      await seed.close(); await teacher.close();
 
       // These groups have independent pages after common real setup. A failure never authorizes another run.
-      const check = (name, operation) => t.test(name, async () => {
-        const page = await actorContext.newPage(), observation = observeReads(page);
+      const check = (name, operation, context = actorContext) => t.test(name, async () => {
+        const page = await context.newPage(), observation = observeReads(page);
         observations.set(page, observation);
         const errors = []; page.on('pageerror', error => errors.push(error.message));
         try { await operation(page, observation, errors); }
         catch (error) { await captureAlerts(browser, observations, artifacts, name); throw error; }
-        finally { observation.detach(); await actorContext.setOffline(false); await page.close(); }
+        finally { observation.detach(); await context.setOffline(false); await page.close(); }
       });
 
       await check('list and news recover through their own real offline errors and visible retries', async (page, observation) => {
@@ -181,9 +181,9 @@ test('P9 actual Home remaining recovery, responsive and account proof', { timeou
         assert.equal(await page.getByRole('region', { name: /^(Aula en foco|Accesos de mi aula|Acciones del aula)$/ }).count(), 0, 'Home conceals old cards after offline failure');
         await page.getByRole('button', { name: /^Notificaciones/ }).click();
         const news = newsRegion(page);
-        await news.getByRole('alert').waitFor();
+        await news.locator('p[role="alert"]').waitFor();
         await drainReads(observation);
-        const newsFailure = await news.getByRole('alert').innerText();
+        const newsFailure = await news.locator('p[role="alert"]').innerText();
         assert.ok(newsFailure.length > 0, 'Notification error text must be observed');
         await news.getByRole('button', { name: 'Cerrar diálogo', exact: true }).click();
         await actorContext.setOffline(false);
@@ -233,37 +233,60 @@ test('P9 actual Home remaining recovery, responsive and account proof', { timeou
         await (await navigationLink(page, 'Mis aulas')).click();
         await page.waitForURL('**/mis-aulas'); await completedLists(await lists);
         const loaded = page.waitForResponse(response => new URL(response.url()).pathname === `/api/v1/classrooms/drafts/${draft.body.id}` && response.request().method() === 'GET');
-        await page.locator('.p5-drafts').getByRole('button').filter({ has: page.getByText(draftName, { exact: true }) }).click();
+        await page.getByRole('button', { name: /^Pendientes/ }).click();
+        await page.getByRole('article').filter({ has: page.getByRole('heading', { name: draftName, exact: true }) }).getByRole('button', { name: 'Continuar creación', exact: true }).click();
         assert.equal((await successfulJson(await loaded, 'draft read')).id, draft.body.id);
-        await page.getByRole('heading', { name: 'Datos generales', exact: true }).waitFor();
-        assert.equal(await (await navigationLink(page, 'Inicio')).count(), 0, 'Wizard hides global Inicio');
-        assert.equal(await page.getByRole('link', { name: 'Mi perfil', exact: true }).count(), 0, 'Wizard hides account navigation while saving is owned');
-        await page.setViewportSize({ width: 375, height: 812 });
-        await page.getByRole('button', { name: 'Abrir menú de navegación', exact: true }).click();
-        const drawer = page.getByRole('dialog', { name: 'Menú de navegación', exact: true });
-        await drawer.getByRole('link', { name: 'Mis aulas', exact: true }).waitFor();
-        for (const name of ['Inicio', 'Agenda', 'Mi perfil', 'Configuración']) assert.equal(await drawer.getByRole('link', { name, exact: true }).count(), 0);
-        assert.equal(await drawer.getByRole('button', { name: 'Cerrar sesión', exact: true }).count(), 0);
-        assert.equal(await page.getByRole('button', { name: /^Notificaciones/ }).count(), 0);
-        await drawer.getByRole('link', { name: 'Mis aulas', exact: true }).click();
-        await page.getByRole('heading', { name: 'Datos generales', exact: true }).waitFor();
-        await page.getByRole('link', { name: 'FoxMind', exact: true }).click();
-        await page.getByRole('heading', { name: 'Datos generales', exact: true }).waitFor();
+        const wizard = page.getByRole('dialog', { name: 'Crear aula', exact: true });
+        await wizard.getByRole('heading', { name: 'Datos del aula', exact: true }).waitFor();
+        for (const width of [1280, 375]) {
+          await page.setViewportSize({ width, height: 812 });
+          for (const name of ['Inicio', 'Mis aulas', 'Agenda', 'Mi perfil', 'Configuración', 'FoxMind']) {
+            for (const control of await page.getByRole('link', { name, exact: true }).all()) {
+              await control.evaluate(element => element.focus());
+              assert.equal(await wizard.evaluate(element => element.contains(document.activeElement)), true, `Modal blocks focus on ${name} at ${width}`);
+            }
+          }
+          for (const name of ['Cerrar sesión', /^Notificaciones/, 'Abrir menú de navegación']) {
+            for (const control of await page.getByRole('button', { name, exact: typeof name === 'string' }).all()) {
+              await control.evaluate(element => element.focus());
+              assert.equal(await wizard.evaluate(element => element.contains(document.activeElement)), true, `Modal blocks background button focus at ${width}`);
+            }
+          }
+          const controls = wizard.locator('button, input, select, textarea').filter({ visible: true });
+          const count = await controls.count();
+          await controls.first().focus();
+          for (let index = 0; index <= count; index++) {
+            await page.keyboard.press('Tab');
+            const readFocus = () => wizard.evaluate(element => ({ inside: element.contains(document.activeElement), modal: element.matches(':modal'), tag: document.activeElement?.tagName, id: document.activeElement?.id, hasFocus: document.hasFocus(), activeFocused: document.activeElement?.matches(':focus') }));
+            let focus = await readFocus();
+            // Native showModal may hand Tab to browser chrome at the boundary.
+            // Only an unfocused document with BODY is eligible; the next Tab must reenter.
+            if (!focus.inside && focus.tag === 'BODY' && !focus.hasFocus && !focus.activeFocused && focus.modal) {
+              assert.equal(new URL(page.url()).pathname, '/mis-aulas');
+              await page.keyboard.press('Tab'); focus = await readFocus();
+            }
+            assert.equal(focus.modal, true);
+            assert.equal(focus.inside, true, `Keyboard focus stays in the creation modal: ${JSON.stringify(focus)}`);
+            assert.equal(new URL(page.url()).pathname, '/mis-aulas');
+          }
+          assert.equal(new URL(page.url()).pathname, '/mis-aulas');
+        }
         // Saving an unchanged draft may correctly be a no-op; make this owned edit explicit.
         const savedName = `${draftName} saved`;
         const saved = page.waitForResponse(response => new URL(response.url()).pathname === `/api/v1/classrooms/drafts/${draft.body.id}`
           && response.request().method() === 'PATCH' && response.request().postDataJSON()?.payload?.name === savedName);
         await page.getByLabel('Nombre del aula', { exact: true }).fill(savedName);
-        await page.getByRole('button', { name: 'Mis Aulas / Guardar y salir', exact: true }).click();
+        await wizard.getByRole('button', { name: 'Guardar borrador', exact: true }).click();
         const confirmed = await successfulJson(await saved, 'draft save exit');
         assert.equal(confirmed.id, draft.body.id); assert.equal(confirmed.payload.name, savedName);
         await page.getByRole('heading', { name: 'Mis aulas', exact: true }).waitFor();
+        await wizard.waitFor({ state: 'hidden' });
         await (await profileAction(page)).waitFor();
-        await page.getByRole('button', { name: 'Abrir menú de navegación', exact: true }).click();
+        await page.getByRole('dialog', { name: 'Mi cuenta', exact: true }).getByRole('button', { name: 'Cerrar Mi cuenta', exact: true }).click();
         const restored = page.getByRole('dialog', { name: 'Menú de navegación', exact: true });
-        await restored.getByRole('button', { name: 'Cerrar sesión', exact: true }).waitFor();
+        for (const name of ['Inicio', 'Mis aulas', 'Agenda']) await restored.getByRole('link', { name, exact: true }).waitFor();
         await restored.getByRole('button', { name: 'Cerrar menú de navegación', exact: true }).click();
-      });
+      }, teacherContext);
 
       await check('ordinary login lands on Inicio while explicit Inicio and revocation preserve the exact gate', async () => {
         const anonymousContext = await browser.newContext(), anonymous = await anonymousContext.newPage();

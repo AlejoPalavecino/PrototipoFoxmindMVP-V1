@@ -31,8 +31,8 @@ async function main() {
       const port=await freePort(),origin=`http://127.0.0.1:${port}`,infra=runtime.infrastructure;
       const env={...identityTestEnvironment(),...ai,DATABASE_URL:runtime.databaseUrl,APP_ORIGIN:origin,MAIL_SMTP_PORT:String(mail.smtpPort),FILES_ENABLED:'1',FILES_S3_ENDPOINT:infra.endpoint,FILES_S3_REGION:infra.region,FILES_S3_BUCKET:infra.bucket,FILES_S3_ACCESS_KEY_ID:infra.accessKeyId,FILES_S3_SECRET_ACCESS_KEY:infra.secretAccessKey,FILES_SCANNER_HOST:infra.scannerHost,FILES_SCANNER_PORT:String(infra.scannerPort),FILES_DRAFT_QUOTA_BYTES:'20000000',CLASSROOMS_ENABLED:'1',CLASSROOMS_QUOTA_BYTES:'100000000',CLASSROOMS_SIGNING_KEY:randomBytes(32).toString('base64url'),CLASSROOMS_DELIVERY_KEY:randomBytes(32).toString('base64url')};
       const config=readConfiguration(env);
-      const {createGeminiFoxyImageAdapter}=await import('../.build/api/apps/api/src/ai/foxy-image-adapter.js');
-      const {createGeminiFoxyDiagramAdapter}=await import('../.build/api/apps/api/src/ai/foxy-diagram-adapter.js');
+      const {createGeminiFoxyImageAdapter}=await import("../.build/api/apps/api/src/modules/foxy/infrastructure/providers/foxy-image-adapter.js");
+      const {createGeminiFoxyDiagramAdapter}=await import("../.build/api/apps/api/src/modules/foxy/infrastructure/providers/foxy-diagram-adapter.js");
       const providers={};
       for (const kind of ['IMAGE','DIAGRAM']) {
         const profile=config.foxyVisual?.configuration.profiles[kind]; if (!profile || !config.ai) throw new Error('Missing visual configuration');

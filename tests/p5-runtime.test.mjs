@@ -307,13 +307,17 @@ test(
         },
       );
       await t.test(
-        'archiving denies mutations but retains file reads; revoked sessions lose access',
+        'archiving retains authorized file reads and self-departure; revoked sessions lose access',
         async () => {
           const row = await service.detail(request('Docente'), classroom);
           await service.setArchive(request('Docente'), classroom, {
             archived: true,
             revision: row.revision,
           });
+          assert.equal(
+            (await http('Estudiante', `/files/${file.id}/content`)).status,
+            200,
+          );
           assert.equal(
             (
               await http(
@@ -323,12 +327,10 @@ test(
                 {},
               )
             ).status,
-            409,
-          );
-          assert.equal(
-            (await http('Estudiante', `/files/${file.id}/content`)).status,
             200,
           );
+          assert.equal((await http('Estudiante', `/files/${file.id}/content`)).status, 403,
+            'Voluntary departure revokes file access even when the classroom is archived');
           await pool.query('UPDATE sessions SET revoked_at=now() WHERE id=$1', [
             accounts.Estudiante.sessionId,
           ]);

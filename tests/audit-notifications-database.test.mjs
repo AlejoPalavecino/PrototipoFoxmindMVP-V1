@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { withGradingFixture } from './p8-grading-helpers.mjs';
 import { saveComplete, publish } from './p8-publication-helpers.mjs';
-import { parseGradingView, parsePublishedGradeResult, parseGradeCorrectionsView } from '../src/core/domain/classroom-grading.ts';
+import { parseGradingView, parsePublishedGradeResult, parseGradeCorrectionsView } from '../src/core/domain/grading/grading.ts';
 
 test('notification pages retain all three families, total unread and actor/filter access across revocation', { timeout: 120000 }, async () => {
   await withGradingFixture(async f => {

@@ -6,6 +6,8 @@
 
 El 2026-11-10 el usuario aprobó el plan y autorizó comenzar por etapas con pruebas y verificaciones. Publicación/despliegue y cambios funcionales/de datos fuera del alcance.
 
+El usuario autorizó posteriormente terminar las cinco tareas restantes y sus commits locales, conservando contratos y verificaciones. No push/PR/merge/deploy ni acceso a datos retenidos/proveedores reales.
+
 El pedido vigente amplía la autorización a commits locales de cierre Agenda y ejecución del corte de identidad/composición global frontend. Sin push/PR/merge/deploy.
 
 Ese mismo día autorizó la integración DB sobre recursos propios y los commits locales del primer corte. No autorizó push ni despliegue. La entrega se realiza en `codex/architecture-foundation`.
@@ -77,27 +79,27 @@ Ese mismo día autorizó la integración DB sobre recursos propios y los commits
 - **Blocker:** none
 
 ### TASK-005 — Features restantes del frontend
-- **State:** IN_PROGRESS
+- **State:** DONE
 - **Depends on:** TASK-004
 - **Owner:** root
 - **Acceptance:** Cortes por identidad/global, Foxy/Estudio, Aulas/enseñanza, actividades/entregas/corrección e Inicio/avisos; cada corte conserva roles, estados, responsive, navegación y pruebas. Desglosar antes de ejecutar cada corte.
-- **Evidence:** Primer corte TASK-013 a TASK-015 DONE; registro docs/work-log/2026-11-10-root-identity-frontend.md. Resto de features pendiente.
+- **Evidence:** Features completas, composición en screens/application y transporte puro;843PASS revisadas y fast334/334=1859PASS, tipos/buildPASS. QA independiente31recibos/9capturas ambosroles/estados/foco y TASK026corrige2CSS con5capturasactuales. Aceptaciónbrowserintegrada completa se cierra enTASK023.
 - **Blocker:** none
 
 ### TASK-006 — Dominios restantes del backend
-- **State:** PLANNED
+- **State:** DONE
 - **Depends on:** TASK-004
 - **Owner:** root
 - **Acceptance:** Cortes por contratos identidad/files, aulas/pertenencia, enseñanza, actividades/participación/calificación y Foxy/Estudio/Inicio/host; APIs públicas y garantías transaccionales preservadas. Desglosar antes de ejecutar.
-- **Evidence:** none
+- **Evidence:** Módulos y puertos completos, revisión independiente SQL/tx/actor/locks/DI. OwnedDB131/131archivos847PASS/0FAIL/0SKIP reconciliados porúltima ejecución canónica exitosa; servicios9/9archivos52PASS. Fuente backend estable entre checkpoints; sólo fixtures de nuevos puertos se completaron sin cambiar asserts.
 - **Blocker:** none
 
 ### TASK-007 — Retiro de compatibilidad y aceptación integral
-- **State:** PLANNED
+- **State:** DONE
 - **Depends on:** TASK-005, TASK-006
 - **Owner:** root
 - **Acceptance:** Sin puentes temporales sin consumidores, excepciones restantes justificadas, documentación/CI actualizadas, suite completa aplicable y revisión independiente de rutas críticas. Distinguir local, integrado, publicado y desplegado.
-- **Evidence:** none
+- **Evidence:** Migración y retiro originales verificados: AST con cero excepciones; fast actual reconciliado 1904 PASS/335 archivos, DB 847 PASS/131 archivos, servicios 52 PASS/9 archivos, wrappers 153 PASS/19 rutas y navegador 174 PASS/44 archivos, sin fallos/omisiones en últimas ejecuciones completas seleccionadas. Revisiones independientes y QA real documentadas. TASK-028 es la corrección HTTP adicional autorizada después; TASK-023/024 conservan su verificación y entrega pendientes.
 - **Blocker:** none
 
 ### TASK-008 — Cierre del primer corte con integración DB y commits
@@ -130,4 +132,108 @@ Ese mismo día autorizó la integración DB sobre recursos propios y los commits
 - **Owner:** root
 - **Acceptance:** Contratos cliente/proxy/UI/navegación/seguridad de documento, tipos/builds/lint/CI y navegador real sintético pasan; revisión independiente y documentación reconciliadas.
 - **Evidence:** Fast reconciliado324/324 archivos:1790 PASS/0 FAIL/0 SKIP. Revisor72 PASS y revalidación23 PASS, P2 guard corregido, sin hallazgos pendientes. Build API (preparación fast)/web, tipos web/classrooms, lint110, inventario518, docs/TTP y diff-check pasan. QA real sintético y artefactos propios en registro root-identity-frontend. Sin DB/proveedor/correo real ni despliegue; evidencia de persistencia limitada a memoria de fixture.
+- **Blocker:** none
+
+### TASK-016 — Foxy y Estudio frontend por features
+- **State:** DONE
+- **Depends on:** TASK-015
+- **Owner:** root
+- **Acceptance:** UI/model/API propias con entradas públicas, screens y adaptadores de composición separados; roles/navegación/estados/abortos/recursos preservados, pruebas existentes sin debilitar.
+- **Evidence:** Features Foxy/Estudio congeladas; revisión independiente frontend843PASS/148archivos, tipos webPASS, declaraciones388 y3220aserciones conservadas salvo rutas/compat temporal explícitas. Evidencia frontend-review; aceptación globalTASK023 pendiente.
+- **Blocker:** none
+
+### TASK-017 — Frontend académico, Inicio y avisos por responsabilidades
+- **State:** DONE
+- **Depends on:** TASK-015
+- **Owner:** root
+- **Acceptance:** Aulas/pertenencia, curriculum, materiales, comunicación, autoría/participación/calificación e Inicio/avisos con propietarios y contratos públicos; composición global fuera de features, JSX/CSS/roles y pruebas conservados.
+- **Evidence:** Frontend académico128fuentes;62archivos243PASS y revisión independiente frontend843PASS, JSX/CSS/roles y1283aserciones del corte conservados; composiciones en application/screens. Evidencia academic-features/frontend-review.
+- **Blocker:** none
+
+### TASK-018 — Backend técnico identidad/files y composición de infraestructura
+- **State:** DONE
+- **Depends on:** TASK-004
+- **Owner:** root
+- **Acceptance:** Identidad/seguridad/correo/files por responsabilidad, contratos públicos y adaptadores/bootstrap; sesiones/tokens/custodia/cierre y SQL preservados.
+- **Evidence:** Módulos técnicos extraídos con68SQL y288aserciones exactas; revisión independiente44PASS. Regresión NestDI RED/GREEN conserva tokenhost; ruta crítica revisada, integración globalTASK023 pendiente.
+- **Blocker:** none
+
+### TASK-019 — Backend académico por capacidades y puertos transaccionales
+- **State:** DONE
+- **Depends on:** TASK-004
+- **Owner:** root
+- **Acceptance:** Aulas/curriculum/materials/communication/activities/participation/grading separados por responsabilidad con contratos pequeños; tx/locks/autorización/recepción/publicación precisas preservados.
+- **Evidence:** Puertos/aplicación académicos con154consultas delegadas exactas (SQL/args/orden) en20unidades; revisión independiente85PASS y focales35nuevas+20regresiones+14contratos. Tx/actor/locks/correcciones conservados; academic-review.
+- **Blocker:** none
+
+### TASK-020 — Backend Foxy/Estudio/Inicio y proveedores
+- **State:** DONE
+- **Depends on:** TASK-004
+- **Owner:** root
+- **Acceptance:** Módulos y capas propias, puertos explícitos a dominios académicos/files, proveedores en infraestructura/composición; colas/presupuestos/reautorización y privacidad preservadas.
+- **Evidence:** Foxy/Estudio/Inicio y proveedores por dueño; revisión independiente85PASS y equivalencia167fuentes. Hallazgo workerentry corregido,21testsPDF/diagramaPASS; sin proveedor real.
+- **Blocker:** none
+
+### TASK-021 — Reglas y contratos neutrales agrupados por dominio
+- **State:** DONE
+- **Depends on:** TASK-015
+- **Owner:** root
+- **Acceptance:** Core puro por dominio, identidad de errores conservada y consumidores actualizados, sin dependencias de frameworks o SQL accidental.
+- **Evidence:** 53puentes retirados;44reglas agrupadas+7Agenda, contratosSQL/diagnóstico fuera dominio;6tests movidos. REDausencia/GREEN31PASS, tiposAPI/webPASS; mapa core-retirement-result. Dominio sin excepciones.
+- **Blocker:** none
+
+### TASK-022 — Retirar compatibilidad y cerrar fronteras
+- **State:** DONE
+- **Depends on:** TASK-016, TASK-017, TASK-018, TASK-019, TASK-020, TASK-021, TASK-025
+- **Owner:** root
+- **Acceptance:** Puentes sin consumidores retirados y consumidores/tests/CI/docs a sus dueños; todas las excepciones auditadas y resueltas o justificadas concretamente, sin whitelist de nuevas violaciones.
+- **Evidence:** Retirados368puentesbackend/232frontend/53core; tests/CI/inventario528remapeados. ASTglobal0excepciones, guard24PASS, lintPASS y documentación99archivos/910enlaces0issues; entradas raíz permanentes delimitadas. Ajustes de fixtures en aceptaciónTASK023.
+- **Blocker:** none
+
+### TASK-023 — Aceptación integral de la migración
+- **State:** IN_PROGRESS
+- **Depends on:** TASK-022, TASK-028
+- **Owner:** root
+- **Acceptance:** Builds/tipos/lint/docs/inventario, suites completas aplicables con recursos propios, revisión independiente de rutas críticas y QA real de flujos integrados; fallos/omisiones identificados.
+- **Evidence:** Fast: corrida completa de 335 archivos y 1881 PASS, seguida de ampliación focal P7 27 PASS que reemplaza sus cuatro casos anteriores; cobertura actual reconciliada de 335/335 archivos y 1904 PASS, sin fallos/cancelaciones/omisiones, en fast-current-reconciled.json. No se afirma otra corrida completa de 335 tras ese append test-only. PostgreSQL: 131/131 archivos y 847 PASS; servicios propios: 9/9 y 52 PASS; wrappers reconciliados: 19/19 rutas y 153 PASS, sin fallos/cancelaciones/omisiones. Builds API/web, tipos, lint con cero excepciones, inventario de 529 entradas y documentación pasan. Navegador integral pendiente de reconciliación final; los intentos fallidos y ajustes de fixtures se conservan en el registro. El fallo intermitente HTTP previo al refactor tiene equivalencia comprobada y consulta de ampliación opcional pendiente; no se modificó producción para ocultarlo.
+- **Blocker:** none
+
+### TASK-028 — Entregar el rechazo HTTP sin cierre prematuro en la frontera JSON
+- **State:** IN_PROGRESS
+- **Depends on:** TASK-022
+- **Owner:** root
+- **Acceptance:** Corrección adicional autorizada explícitamente por el usuario. Ambos proxies conservan tamaños JSON aceptados, validación, permisos, headers y cero llamadas upstream ante rechazo. Respuesta 413 completa en los tamaños de frontera que reproducen ECONNRESET; descarte sin buffering con presupuesto adicional acotado y ventana metadata absoluta de 10 s, sin renovarla después del parseo. Exceso de descarte, plazo o cancelación cierra transporte y libera listeners/timers; no se garantiza respuesta completa para cuerpos arbitrariamente grandes. RED/GREEN de aceptación con escritor separado, contratos existentes y revisión independiente, tipos/build/lint.
+- **Evidence:** Diagnóstico previo verificado: AST runtime idéntico a la base, 3/24 ECONNRESET en cada frontera. Usuario autorizó corregir cierre y verificar regresión. Revisor escribe aceptación; implementador tiene sólo los dos proxies y helper de ciclo de vida. Copia experimental previa no equivale a fix productivo. Implementación y verificación pendientes.
+- **Blocker:** none
+
+### TASK-024 — Entrega local completa y commits de cierre
+- **State:** PLANNED
+- **Depends on:** TASK-023, TASK-026, TASK-027
+- **Owner:** root
+- **Acceptance:** Commits por unidad y recibos reales, tablero/roadmap reconciliados, árbol limpio y límites local/publicado/desplegado explícitos.
+- **Evidence:** none
+- **Blocker:** none
+
+### TASK-025 — Cliente y pantalla de archivos frontend
+- **State:** DONE
+- **Depends on:** TASK-015
+- **Owner:** root
+- **Acceptance:** Transporte puro de archivos en feature propia, UI que coordina sesión en screens y proxy servidor en application; contratos/custodia/contextos y markup conservados, pruebas/types/build.
+- **Evidence:** Cliente files puro, pantalla coordina identidad y proxy en application;11contratosPASS, revisión frontend843PASS y tiposPASS, markup conservado.
+- **Blocker:** none
+
+### TASK-026 — Ajustes mínimos de accesibilidad autorizados durante aceptación
+- **State:** DONE
+- **Depends on:** TASK-022
+- **Owner:** root
+- **Acceptance:** Bordes de controles auth afectados con contraste al menos 3:1 sobre su fondo; Inicio sin desborde horizontal a 320/390 px. Conservar diseño, acciones, textos y áreas de interacción; pruebas reales tras compilación web fresca.
+- **Evidence:** Dos reglas CSS acotadas.12focalesPASS; QAindependiente5capturas: inputs3,097:1/botones5,255:1, sinoverflow320/390/768/1440,8clics/8destinos, tecladofocovisible. Comparación mismaDOM390antes405→candidata390; altura32px conservada y anchoacciónampliado. CSS actual también usadoenbuildprivadoP3GREEN10; buildraíz final correspondeTASK023.
+- **Blocker:** none
+
+### TASK-027 — Evitar que navegación tape controles en ancho intermedio
+- **State:** DONE
+- **Depends on:** TASK-022
+- **Owner:** root
+- **Acceptance:** A 894 px el resumen de alumno permanece visible, recibe clic y foco por teclado y no se recentra al actualizar alumnos. La navegación conserva sus destinos y disposición actual; comprobar también anchos a ambos lados del intervalo 801–1023 px. Dentro de la autorización vigente de ajustes mínimos de accesibilidad y desbordes.
+- **Evidence:** RED real conservado; GREEN final 1/1 con SHA antes/después iguales: summary-static-final-results/extra-receipt. A 894 px elementFromPoint devuelve BUTTON, teclado alcanza ficha y actualización no recentra. Navegación Plan→Alumnos y foco sin oclusión a 800/801/1023/1024; cuatro capturas. CSSOM y geometría idénticos al quitar/restaurar las dos propiedades a 768/1280. Build web raíz actual PASS en web-build-final-navigation.log. CSS SHA a81c0cc426fc0618ea353bb476e2c3fe0bf3b850ab4c01ebfab7cbba39c0c2b6.
 - **Blocker:** none

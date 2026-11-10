@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ACCOUNT_AVATARS, accountAvatar, type AccountAvatarKey } from '../../../../../../src/core/domain/account-avatar';
+import { ACCOUNT_AVATARS, accountAvatar, type AccountAvatarKey } from '../../../../../../src/core/domain/identity/account-avatar.ts';
 import { AccountAvatar } from '../../../../../shared-ui/AccountAvatar';
 import type { AccountUser } from '../api/account-client';
 import { AccountField } from './account-field';

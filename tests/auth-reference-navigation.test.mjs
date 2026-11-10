@@ -5,14 +5,14 @@ import {renderToStaticMarkup} from 'react-dom/server';
 import {componentWithPorts} from './foxmind-3d-flows-loader.test.mjs';
 
 const noop=()=>null;
-const {AccountNavbar}=componentWithPorts('apps/web/src/application/navigation/account-navbar.tsx',{
-  'next/router':{useRouter:()=>({push(){assert.fail('Rendering navigation must not navigate');}})},
-  'next/link':{default:({children,...props})=>React.createElement('a',props,children)},
-  '../../lib/classroom-client':{createWebClassroomClient:()=>({})},
-  '../../../../shared-ui/AppNavbar':{AppNavbar:noop},
-  '../../../../shared-ui/index':{FoxmindBrand:noop,FoxmindIcon:noop},
-  '../../../../classrooms-ui/Notifications':{Notifications:noop},
-});
+const {AccountNavbar}=componentWithPorts('apps/web/src/application/navigation/account-navbar.tsx',{'next/router':{useRouter:()=>({push(){assert.fail('Rendering navigation must not navigate');}})},
+'next/link':{default:({children,...props})=>React.createElement('a',props,children)},
+"../academic-classroom-client.ts":{createWebClassroomClient:()=>({})},
+"../../../../shared-ui/AppNavbar.tsx":{AppNavbar:noop},
+"./AppNavbar":{AppNavbar:noop},
+"../../../../shared-ui/index.ts":{FoxmindBrand:noop,FoxmindIcon:noop},
+"../../../../../shared-ui/index":{FoxmindBrand:noop,FoxmindIcon:noop},
+"../../features/notifications/index.ts":{Notifications:noop}});
 const render=props=>renderToStaticMarkup(React.createElement(AccountNavbar,{minimal:true,...props}));
 const links=html=>[...html.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)].map(([,attributes,body])=>({
   href:attributes.match(/href="([^"]*)"/)?.[1].replaceAll('&amp;','&'),

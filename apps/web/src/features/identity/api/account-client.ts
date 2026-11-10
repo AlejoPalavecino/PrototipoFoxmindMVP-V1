@@ -1,4 +1,4 @@
-import type { AccountAvatarKey } from '../../../../../../src/core/domain/account-avatar';
+import type { AccountAvatarKey } from '../../../../../../src/core/domain/identity/account-avatar.ts';
 export interface AccountUser { id: string; firstName: string; lastName: string; email: string; emailVerified: boolean; accountRole: 'teacher' | 'student'; avatarKey?: AccountAvatarKey }
 export type AccountSession = { authenticated: false } | { authenticated: true; user: AccountUser };
 const messages: Record<string, string> = {

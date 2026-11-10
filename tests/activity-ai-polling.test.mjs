@@ -5,7 +5,7 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView } from './agenda-ui-helpers.test.mjs';
 
 test('a delayed apply cannot reopen a draft after the generation context closes', async () => {
-  const { useActivityGeneration } = loadTsModule('apps/classrooms-ui/use-activity-generation.ts');
+  const { useActivityGeneration } = loadTsModule('apps/web/src/features/activity-authoring/model/use-activity-generation.ts');
   let finish, signal;
   const api = { call: async (path, method, _data, requestSignal) => {
     if (path.endsWith('/apply')) {
@@ -27,7 +27,7 @@ test('a delayed apply cannot reopen a draft after the generation context closes'
 });
 
 test('the initial catalogue cannot overwrite a later explicit refresh', async () => {
-  const { useActivityGeneration } = loadTsModule('apps/classrooms-ui/use-activity-generation.ts');
+  const { useActivityGeneration } = loadTsModule('apps/web/src/features/activity-authoring/model/use-activity-generation.ts');
   let finish, reads = 0;
   const api = { call: async path => {
     if (!path.endsWith('/sources')) return { jobs: [] };
@@ -46,7 +46,7 @@ test('the initial catalogue cannot overwrite a later explicit refresh', async ()
 });
 
 test('a failed generation during initial loading preserves history and recovery', async () => {
-  const { useActivityGeneration } = loadTsModule('apps/classrooms-ui/use-activity-generation.ts');
+  const { useActivityGeneration } = loadTsModule('apps/web/src/features/activity-authoring/model/use-activity-generation.ts');
   const previous = { id: '11111111-1111-4111-8111-111111111111', state: 'FAILED', error: 'PROVIDER_OUTCOME_UNKNOWN' };
   let finish;
   const api = { call: async (path, method) => {
@@ -69,7 +69,7 @@ test('a failed generation during initial loading preserves history and recovery'
 });
 
 test('polling a completed generation synchronizes the open view and its existing recent-history row', async () => {
-  const { useActivityGeneration } = loadTsModule('apps/classrooms-ui/use-activity-generation.ts');
+  const { useActivityGeneration } = loadTsModule('apps/web/src/features/activity-authoring/model/use-activity-generation.ts');
   const job = { id: '11111111-1111-4111-8111-111111111111', classroomId: '22222222-2222-4222-8222-222222222222',
     baseRevision: '2', state: 'QUEUED', type: 'ASSIGNMENT', proposal: null, error: null, retryable: false,
     missingInformation: [], sourceReport: [], appliedActivityId: null, createdAt: '2026-10-25T12:00:00Z' };

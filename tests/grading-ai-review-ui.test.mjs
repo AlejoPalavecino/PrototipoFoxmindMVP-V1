@@ -12,7 +12,7 @@ const button = (view, re) => descendants(view.tree, n => n.type === 'button' && 
 const field = (view, re, type) => descendants(view.tree, n => n.type === 'label' && re.test(text(n)))
   .flatMap(n => descendants(n, child => child.type === type))[0];
 async function fixture({ state = 'READY', dirty = false, failure = false } = {}) {
-  const { GradingAiReview } = loadTsModule('apps/classrooms-ui/GradingAiReview.tsx');
+  const { GradingAiReview } = loadTsModule('apps/web/src/features/grading/ui/GradingAiReview.tsx');
   const calls = [], applied = [], job = { id: 'job', state, snapshotHash: 'snapshot', proposal: state === 'READY' ? structuredClone(proposal) : null };
   const api = { call: async (...args) => { calls.push(args); if (args[1] === 'GET') { if (failure) throw new Error('Carga fallida'); return job; }
     return { revision: '3' }; } };
@@ -70,7 +70,7 @@ test('pendiente, error y obsoleto no permiten aplicar propuesta', async () => {
 });
 
 test('editor de corrección integra el panel para el intento y informa si hay cambios locales', async () => {
-  const { GradingEditor } = loadTsModule('apps/classrooms-ui/GradingEditor.tsx');
+  const { GradingEditor } = loadTsModule('apps/web/src/features/grading/ui/GradingEditor.tsx');
   const data = { revision: '2', canSave: true, archived: false, activity: { title: 'Trabajo', type: 'ASSIGNMENT', questions: [] },
     attempt: { number: 1, firstName: 'Alumno', lastName: 'Sintético', attachments: [] }, grade: { id: null, isPublished: false, pending: true, finalGrade: null, overallFeedback: null } };
   const view = hookView(GradingEditor, { api: { call: async () => data, fileUrl: () => '' }, roomId, attemptId, onClose() {}, onChanged: async () => {} });
@@ -84,7 +84,7 @@ test('editor de corrección integra el panel para el intento y informa si hay ca
 });
 
 test('preguntas invertidas se identifican por referencia y la edición se aplica a la pregunta correcta', async () => {
-  const { GradingAiReview } = loadTsModule('apps/classrooms-ui/GradingAiReview.tsx');
+  const { GradingAiReview } = loadTsModule('apps/web/src/features/grading/ui/GradingAiReview.tsx');
   const calls = [], reversed = { schemaVersion: 'grading-proposal-v1', overallGrade: null, overallFeedback: '', warnings: [], questions: [
     { ref: 'Q2', points: '2.00', feedback: 'Devolución segunda' }, { ref: 'Q1', points: '1.00', feedback: 'Devolución primera' } ] };
   const api = { call: async (...args) => { calls.push(args); return args[1] === 'GET'

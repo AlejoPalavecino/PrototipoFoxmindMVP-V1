@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createClassroomClient } from '../apps/classrooms-ui/api.ts';
+import { createClassroomClient } from '../apps/web/src/application/academic-client.ts';
 const id = 'a1111111-1111-4111-8111-111111111111';
 
 test('reopening client uses fresh CSRF without teacher-issued editor capability; original wall payload remains exact', async () => {
@@ -17,7 +17,7 @@ test('reopening client uses fresh CSRF without teacher-issued editor capability;
 });
 
 test('actual UI wires all-type history/reopening and target navigation without filtering teacher submissions to practical work', async () => {
-  const [activities, history, view] = await Promise.all(['Activities.tsx', 'AttemptHistory.tsx', 'ClassroomView.tsx'].map(name => readFile(new URL(`../apps/classrooms-ui/${name}`, import.meta.url), 'utf8')));
+  const [activities, history, view] = await Promise.all(['Activities.tsx', 'AttemptHistory.tsx', 'ClassroomView.tsx'].map(name => readFile(new URL(`../apps/web/src/application/academic-${name}`, import.meta.url), 'utf8')));
   assert.match(activities, /<AttemptHistory/); assert.ok(!activities.includes("teacher && activity.type === 'ASSIGNMENT'"));
   assert.match(history, /Confirmar nuevo intento/); assert.match(history, /offsetMinutes/); assert.match(history, /currentMember/);
   assert.match(view, /wallTarget\?\.classroomId === id \? wallTarget : null/);

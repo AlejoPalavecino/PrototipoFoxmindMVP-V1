@@ -1,6 +1,11 @@
+// Standalone fixture preserves the former preview entry stylesheet order.
+import '../shared-ui/design-tokens.css';
+import '../web/src/application/styles/academic.css';
+import '../shared-ui/folders.css';
+import '../shared-ui/workspace.css';
 import { createRoot } from 'react-dom/client';
-import { ClassroomsApp } from '../classrooms-ui/ClassroomsApp.tsx';
-import { createClassroomClient } from '../classrooms-ui/api.ts';
+import { ClassroomsApp } from '../web/src/application/academic-Classrooms.tsx';
+import { createClassroomClient } from '../web/src/application/academic-client.ts';
 
 // This host is an isolated fixture, never part of the production application.
 const context = await fetch('/__fixture/context').then((res) => res.json());

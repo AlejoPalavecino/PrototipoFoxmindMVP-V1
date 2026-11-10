@@ -5,7 +5,7 @@ import { NavbarDrawer, ShellLinks, ShellAccount } from './NavbarParts';
 import { NavigationSearch } from './NavigationSearch';
 
 import type { NavbarLink } from './navbar-types';
-import type { BrujulaSearchClient } from '../../src/core/domain/brujula-search.ts';
+import type { BrujulaSearchClient } from '../../src/core/domain/classrooms/brujula-search.ts';
 export type { NavbarLink } from './navbar-types';
 export interface AppNavbarProps {
   logoHref: string; links: NavbarLink[]; displayName?: string; accountEmail?: string;

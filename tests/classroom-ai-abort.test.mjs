@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { bounded, prepare } from '../apps/api/src/classrooms/ai/execution.ts';
+import { bounded, prepare } from '../apps/api/src/modules/curriculum/infrastructure/ai/execution.ts';
 
 test('C3 bounded operation starts lazily and propagates its resolved value', async () => {
   assert.equal(await bounded(() => Promise.resolve('done'), new AbortController().signal), 'done');
@@ -15,7 +15,7 @@ test('C3 already aborted preparation never starts file reading or token prefligh
 });
 
 test('C3 already aborted rejecting input cannot create an unhandled rejection', () => {
-  const source = `import {prepare} from './apps/api/src/classrooms/ai/execution.ts';
+  const source = `import {prepare} from './apps/api/src/modules/curriculum/infrastructure/ai/execution.ts';
     const controller=new AbortController();controller.abort();
     await prepare({reader:{read:async()=>{throw Error('synthetic canceled read');}},provider:{}},{},controller.signal).catch(()=>{});
     await new Promise(resolve=>setImmediate(resolve));`;

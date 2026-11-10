@@ -1,4 +1,5 @@
-import type { Classroom, ClassroomClient, Draft, Invitation } from '../../classrooms-ui/api';
+import type { Classroom, Draft, Invitation } from '../../../src/core/contracts/classrooms.ts';
+import type { ClassroomClient } from '../../../src/core/contracts/academic-client.ts';
 
 const identifier = (n: number) => `11111111-1111-4111-8111-${String(n).padStart(12, '0')}`;
 const room = (n: number, name: string, subject: string, coverKey: string, role: Classroom['role'], extra: Partial<Classroom> = {}): Classroom => ({

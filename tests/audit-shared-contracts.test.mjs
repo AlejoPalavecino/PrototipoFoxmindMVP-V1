@@ -1,8 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { privateGradingInput, gradeCorrectionInput, gradePublicationInput,
-  parseGradingView, parsePublishedGradeResult, parseGradeCorrectionsView } from '../src/core/domain/classroom-grading.ts';
-import { parseWallMutation } from '../src/core/domain/classroom-wall.ts';
+import { privateGradingInput, gradeCorrectionInput, gradePublicationInput, parseGradingView, parsePublishedGradeResult, parseGradeCorrectionsView } from '../src/core/domain/grading/grading.ts';
+import { parseWallMutation } from '../src/core/domain/communication/wall.ts';
 
 const q = 'a1111111-1111-4111-8111-111111111111';
 const reject = (parse, values) => { for (const value of values) assert.throws(() => parse(value), /INVALID_INPUT/, JSON.stringify(value)); };
@@ -41,7 +40,7 @@ test('wall mutation contract preserves confirmation and rejects extra keys', () 
     { ...valid, operation: { ...valid.operation, authorId: q } }, { ...valid, extra: true }]);
 });
 import { createServer } from 'node:http';
-import { proxyClassroomRequest } from '../apps/web/src/lib/classroom-proxy.ts';
+import { proxyClassroomRequest } from '../apps/web/src/application/server/classroom-proxy.ts';
 const id = 'a1111111-1111-4111-8111-111111111111';
 async function server(handler) { const s = createServer(handler); await new Promise(resolve => s.listen(0, '127.0.0.1', resolve)); return { url: `http://127.0.0.1:${s.address().port}`, close: () => new Promise(resolve => { s.closeAllConnections(); s.close(resolve); }) }; }
 test('shared grading corpus has identical parser and proxy acceptance', async () => {

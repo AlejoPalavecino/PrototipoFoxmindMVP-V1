@@ -3,5 +3,8 @@
   "compilerOptions": {
     "outDir": "../../.build/p33-mail"
   },
-  "include": ["src/mail/**/*.ts"]
+  "include": [
+    "src/modules/identity/infrastructure/mail/**/*.ts",
+    "src/bootstrap/identity-mail.module.ts"
+  ]
 }

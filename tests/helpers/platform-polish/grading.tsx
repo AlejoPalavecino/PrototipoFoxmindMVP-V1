@@ -1,6 +1,6 @@
 import {useMemo} from 'react';
 import {useRouter} from 'next/router';
-import {GradingEditor} from '../../classrooms-ui/GradingEditor';
+import {GradingEditor} from "../src/features/grading/index.ts";
 import {AppNavbar} from '../../shared-ui/index';
 import {classroomClient,id} from './classroom-data';
 export default function Fixture() {

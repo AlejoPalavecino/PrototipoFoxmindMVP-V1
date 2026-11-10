@@ -4,7 +4,8 @@ import { randomUUID } from 'node:crypto';
 import pg from 'pg';
 import { createApplication } from '../.build/api/apps/api/src/application.js';
 import { readConfiguration } from '../.build/api/apps/api/src/configuration.js';
-import { createPasswordService, generateVerifier, sessionTokenDigest, accountTokenDigest } from '../.build/api/apps/api/src/identity-security/index.js';
+import { createPasswordService } from '../.build/api/apps/api/src/modules/identity/infrastructure/security/passwords.js';
+import { generateVerifier, sessionTokenDigest, accountTokenDigest } from '../.build/api/apps/api/src/modules/identity/infrastructure/security/verifiers.js';
 
 if (process.send) { process.send({ type: 'foxmind-test-ready' }); process.disconnect(); }
 if (!/^foxmind-identity-[a-f0-9]+$/.test(process.env.P33_IDENTITY_ISOLATED ?? '')) throw new Error('Owned runner required');

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { proxyClassroomRequest } from '../apps/web/src/lib/classroom-proxy.ts';
+import { proxyClassroomRequest } from '../apps/web/src/application/server/classroom-proxy.ts';
 
 test('Brújula proxy forwards independent persisted fields and rejects invalid values before upstream', async () => {
   const calls = [];

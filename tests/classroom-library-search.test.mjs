@@ -14,10 +14,8 @@ const nodes = (view, predicate) => descendants(view.tree, predicate);
 const articles = view => nodes(view, node => node.type === 'article' && node.props['data-material-id']);
 async function library(rows = materials, targetMaterialId) {
   const calls = [];
-  const { Library } = componentWithPorts('apps/classrooms-ui/Library.tsx', {
-    './api.ts': { canPreviewMaterial: () => true },
-    './components.tsx': { Notice: ({ children }) => React.createElement('p', {}, children), Dialog: () => null },
-  });
+  const { Library } = componentWithPorts('apps/web/src/features/materials/ui/Library.tsx', {"../model/material-preview.ts":{canPreviewMaterial: () => true},
+"../../../../../shared-ui/feedback.tsx":{Notice: ({ children }) => React.createElement('p', {}, children),Dialog: () => null}});
   const api = { call: async (...args) => { calls.push(args); return structuredClone(rows); }, fileUrl: id => `/fixture/${id}` };
   const props = { api, room: { id: 'room', role: 'student', archived: false, units: [], revision: '1' }, reload: async () => {}, targetMaterialId };
   const view = hookView(Library, props);

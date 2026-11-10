@@ -8,7 +8,7 @@ const config = { signingKey: Buffer.alloc(32, 1), deliveryKey: Buffer.alloc(32, 
 const sender = { send: async () => {}, close() {} };
 const gradingProvider = { countGradingAiTokens: async () => { throw new Error('unexpected count'); }, generateGradingAi: async () => { throw new Error('unexpected generate'); } };
 const override = { provider: { countStudyPlanTokens: async () => 1, extractStudyPlan: async () => ({}) }, gradingProvider };
-const modules = async () => import('../.build/api/apps/api/src/classrooms/classrooms.module.js');
+const modules = async () => import("../.build/api/apps/api/src/bootstrap/academic-classrooms.module.js");
 const providerNamed = (module, name) => module.providers.find(p => p?.provide?.name === name);
 
 async function captureAppModule() {

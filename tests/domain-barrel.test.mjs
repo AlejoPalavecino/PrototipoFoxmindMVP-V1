@@ -1,16 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-test('Agenda scoped domain and compatibility entries share rules and error identity', async () => {
+test('Agenda canonical entries share rules and error identity', async () => {
   const agenda = await import('../src/core/domain/agenda/index.ts');
-  const legacy = await import('../src/core/domain/agenda.ts');
   const root = await import('../src/core/domain/index.ts');
-  const time = await import('../src/core/domain/agenda-time.ts');
-  assert.equal(agenda.AgendaError, legacy.AgendaError);
+  const time = await import('../src/core/domain/agenda/time.ts');
   assert.equal(agenda.AgendaError, root.AgendaError);
   assert.equal(agenda.parseAgendaEvent, root.parseAgendaEvent);
   assert.equal(agenda.resolveAgendaMinute, time.resolveAgendaMinute);
-  assert.throws(() => agenda.resolveAgendaMinute('2026-11-01T01:30', 'America/New_York'), error => error instanceof legacy.AgendaError && error.code === 'INVALID_INPUT');
+  assert.throws(() => agenda.resolveAgendaMinute('2026-11-01T01:30', 'America/New_York'), error => error instanceof root.AgendaError && error.code === 'INVALID_INPUT');
 });
 
 test('Node directly imports the shared agenda/AI domain barrel and preserves error identity', async () => {
@@ -30,4 +28,25 @@ test('Node directly imports the shared agenda/AI domain barrel and preserves err
     assert.equal(error.details, details);
   }
   assert.equal(new domain.AgendaError('INVALID_INPUT').details, undefined);
+});
+
+test('scoped neutral domains preserve canonical rule and error identities', async () => {
+  const root = await import('../src/core/domain/index.ts');
+  const plan = await import('../src/core/domain/curriculum/plan.ts');
+  assert.equal(plan.InvalidExtractionInput, root.InvalidExtractionInput);
+  assert.equal(plan.parseCurriculumUnits, root.parseCurriculumUnits);
+});
+
+test('temporary flat entries are retired and SQL stays outside the domain barrel', async () => {
+  const { readdir, readFile } = await import('node:fs/promises');
+  const entries = await readdir(new URL('../src/core/domain/', import.meta.url));
+  assert.deepEqual(entries.filter(name => name.endsWith('.ts')), ['index.ts']);
+  const barrel = await readFile(new URL('../src/core/domain/index.ts', import.meta.url), 'utf8');
+  assert.doesNotMatch(barrel, /SqlTransaction|SqlDatabase/);
+});
+
+test('neutral technical errors retain identity through strict API test imports', async () => {
+  const contract = await import('../src/core/contracts/ai-error.ts');
+  const adapter = await import('../apps/api/src/platform/ai/errors.ts');
+  assert.equal(contract.AiError, adapter.AiError);
 });

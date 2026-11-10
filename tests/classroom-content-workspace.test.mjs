@@ -9,7 +9,7 @@ const room = { id: 'synthetic-room', role: 'teacher', name: 'Ciencias', division
 const activity = { id: 'practice', type: 'ASSIGNMENT', status: 'PUBLISHED', title: 'Práctica', deadlineAt: null, zone: 'UTC', locked: false };
 
 test('published teacher activity prioritizes pending review without hiding preview or received submissions', async () => {
-  const { Activities } = loadTsModule('apps/classrooms-ui/Activities.tsx');
+  const { Activities } = loadTsModule('apps/web/src/application/academic-Activities.tsx');
   const calls = [];
   const view = hookView(Activities, { room, api: { call: async (...args) => { calls.push(args); return args[0].endsWith('/preview')?{activity}:{ activities: [activity] }; } }, reload: async () => {} });
   try {
@@ -25,7 +25,7 @@ test('published teacher activity prioritizes pending review without hiding previ
 });
 
 test('draft and withdrawn activities never offer pending review; student access stays primary', async () => {
-  const { Activities } = loadTsModule('apps/classrooms-ui/Activities.tsx');
+  const { Activities } = loadTsModule('apps/web/src/application/academic-Activities.tsx');
   for (const [role, status] of [['teacher', 'DRAFT'], ['teacher', 'WITHDRAWN'], ['student', 'PUBLISHED']]) {
     const view = hookView(Activities, { room: { ...room, role }, api: { call: async () => ({ activities: [{ ...activity, status }] }) }, reload: async () => {} });
     try {
@@ -42,7 +42,7 @@ test('draft and withdrawn activities never offer pending review; student access 
 });
 
 test('settings exposes named information and options groups under the existing disabled boundary', async () => {
-  const { ClassroomSettings } = loadTsModule('apps/classrooms-ui/ClassroomSettings.tsx');
+  const { ClassroomSettings } = loadTsModule('apps/web/src/features/classrooms/ui/ClassroomSettings.tsx');
   const view = hookView(ClassroomSettings, { room: { ...room, archived: true }, settings: { name: 'Ciencias', subject: 'Ciencias', division: 'A', academicYear: 2026, aiGradingEnabled: false }, busy: false });
   await view.flush();
   const tree = view.tree;

@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { withP5Database } from '../scripts/p5-database.mjs';
-import { ClassroomService } from '../.build/api/apps/api/src/classrooms/service.js';
-import { FileStore } from '../.build/api/apps/api/src/files/store.js';
-import { businessSource } from '../.build/api/apps/api/src/classrooms/ai/worker-source.js';
+import { ClassroomService } from '../.build/api/apps/api/src/bootstrap/academic-composition.js';
+import { FileStore } from '../.build/api/apps/api/src/modules/files/infrastructure/store.js';
+import { businessSource } from '../.build/api/apps/api/src/modules/curriculum/infrastructure/ai/worker-source.js';
 const rejects = (promise, code) => assert.rejects(promise, e => e.code === code);
 
 test('pending deletion persists, enforces ownership/revision and serializes publication', { timeout: 120000 }, async () => {

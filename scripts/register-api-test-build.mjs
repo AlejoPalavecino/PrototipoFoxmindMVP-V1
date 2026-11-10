@@ -11,7 +11,7 @@ registerHooks({
     const result = nextResolve(specifier, context);
     if (!result.url.startsWith('file:') || !result.url.endsWith('.ts')) return result;
     const path = relative(root, fileURLToPath(result.url)).replaceAll('\\', '/');
-    if (!path.startsWith('apps/api/src/') && !path.startsWith('src/core/domain/')) return result;
+    if (!path.startsWith('apps/api/src/') && !path.startsWith('src/core/domain/') && !path.startsWith('src/core/contracts/')) return result;
     const compiled = resolve(root, '.build/api', path.replace(/\.ts$/, '.js'));
     if (!existsSync(compiled)) throw new Error(`Missing strict API test build: ${path}`);
     return { ...result, url: pathToFileURL(compiled).href };

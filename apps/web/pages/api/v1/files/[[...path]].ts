@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { proxyFileRequest } from '../../../../src/lib/file-proxy';
+import { proxyFileRequest } from '../../../../src/application/server/file-proxy';
 
 export const config = { api: { bodyParser: false, responseLimit: false } };
 export default function handler(request: NextApiRequest, response: NextApiResponse) {

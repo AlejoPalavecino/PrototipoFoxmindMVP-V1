@@ -6,10 +6,8 @@ import { text } from './helpers/wizard-reference/component-harness.mjs';
 
 const render = state => {
   let applied = 0;
-  const { WizardSuggestions } = componentWithPorts('apps/classrooms-ui/WizardSuggestions.tsx', {
-    './PlanExtraction.tsx': { PlanExtraction: () => null },
-    '../shared-ui/index.ts': { EntryIcon: () => null, FoxmindIcon: () => null },
-  });
+  const { WizardSuggestions } = componentWithPorts("apps/web/src/features/curriculum/ui/WizardSuggestions.tsx", {"./PlanExtraction.tsx":{PlanExtraction: () => null},
+"../../../../../shared-ui/index.ts":{EntryIcon: () => null,FoxmindIcon: () => null}});
   const extraction = { busy: false, view: { state, proposal: state === 'READY' ? { units: [
     { name: 'Primera', topics: [{ name: 'Tema' }] }, { name: 'Segunda', topics: [{ name: 'Otro' }] }], warnings: [] } : null },
     apply: () => { applied++; } };

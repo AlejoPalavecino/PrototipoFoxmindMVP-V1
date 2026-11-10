@@ -11,7 +11,7 @@ const room = { id: '11111111-1111-4111-8111-111111111111', revision: '2', role: 
 const render = (Component, props) => renderToStaticMarkup(React.createElement(Component, props));
 
 test('A5 teacher opens manual/AI choice and student/archived views cannot initiate either', async () => {
-  const { Activities } = loadTsModule('apps/classrooms-ui/Activities.tsx');
+  const { Activities } = loadTsModule('apps/web/src/application/academic-Activities.tsx');
   const props = { api: { call: async () => ({ activities: [] }) }, room, reload: async () => {} };
   const html = render(Activities, props);
   assert.match(html, /Crear actividad/i); assert.doesNotMatch(html, /Crear manualmente|Crear con IA/i);
@@ -32,7 +32,7 @@ test('A5 teacher opens manual/AI choice and student/archived views cannot initia
 });
 
 test('A5 generation form opens with explicit pedagogical controls and performs no consumption on render', async () => {
-  const { ActivityGeneration } = loadTsModule('apps/classrooms-ui/ActivityGeneration.tsx');
+  const { ActivityGeneration } = loadTsModule('apps/web/src/features/activity-authoring/ui/ActivityGeneration.tsx');
   const calls = [], props = { room, api: { call: async (...args) => {
     calls.push(args); return args[0].endsWith('/sources') ? { revision: room.revision, sources: [] } : { jobs: [] };
   } }, onApplied: async () => {}, onClose() {} };
@@ -48,7 +48,7 @@ test('A5 generation form opens with explicit pedagogical controls and performs n
 });
 
 test('D1 manual editor exposes every selected topic and saves the ordered list instead of dropping secondary topics', async () => {
-  const { ActivityAuthoring } = loadTsModule('apps/classrooms-ui/ActivityAuthoring.tsx');
+  const { ActivityAuthoring } = loadTsModule('apps/web/src/features/activity-authoring/ui/ActivityAuthoring.tsx');
   const calls = [], topicIds = room.units[0].topics.map(x => x.id), activity = { id: '55555555-5555-4555-8555-555555555555', type: 'ASSIGNMENT',
     title: 'Integrative', status: 'DRAFT', unitId: room.units[0].id, topicId: topicIds[0], topicIds, instructions: 'Compare.',
     attachmentRequired: false, questions: [], instructionFiles: [], materials: [], deadlineAt: null, allowLate: false, locked: false };
@@ -83,7 +83,7 @@ const button = (view, label) => {
   const found = descendants(view.tree, n => n.type === 'button' && textOf(n).includes(label))[0]; assert.ok(found, label); return found;
 };
 async function recoveredGeneration() {
-  const { ActivityGeneration } = loadTsModule('apps/classrooms-ui/ActivityGeneration.tsx');
+  const { ActivityGeneration } = loadTsModule('apps/web/src/features/activity-authoring/ui/ActivityGeneration.tsx');
   const jobs = [readyJob('55555555-5555-4555-8555-555555555555', 'Original'), readyJob('66666666-6666-4666-8666-666666666666', 'Nueva propuesta')], calls = [], applied = [];
   const api = { call: async (...args) => { calls.push(args); const [path, method] = args;
     if (path.endsWith('/sources')) return { revision: room.revision, sources: [] };
@@ -127,7 +127,7 @@ test('A5 loading another result preserves dirty local edits until explicit repla
 });
 
 test('A5 student preview renders prompts/options/points without any answer-key controls or rule', async () => {
-  const { ActivityGenerationProposal } = loadTsModule('apps/classrooms-ui/ActivityGenerationProposal.tsx');
+  const { ActivityGenerationProposal } = loadTsModule('apps/web/src/features/activity-authoring/ui/ActivityGenerationProposal.tsx');
   const view = hookView(ActivityGenerationProposal, { proposal: readyProposal('Vista privada'), update() {}, disabled: false });
   try {
     await view.flush(); button(view, 'Previsualizar como estudiante').props.onClick(); await view.flush();

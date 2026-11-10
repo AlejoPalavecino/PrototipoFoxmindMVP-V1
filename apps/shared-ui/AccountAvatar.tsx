@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { accountAvatar } from '../../src/core/domain/account-avatar';
+import { accountAvatar } from '../../src/core/domain/identity/account-avatar.ts';
 
 /** Decorative identity image; the enclosing account control supplies its name. */
 export function AccountAvatar({ avatarKey, initials, className = '' }: { avatarKey?: string; initials: string; className?: string }) {

@@ -17,7 +17,7 @@ const rgb = value => value.match(/[\d.]+/g).slice(0, 3).map(Number);
 function contrast(first, second) { const a = luminance(rgb(first)), b = luminance(rgb(second)); return (Math.max(a, b) + .05) / (Math.min(a, b) + .05); }
 async function fit(page, width) {
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `Page overflow at${width}`);
-  const boxes = await page.locator('header.auth-brand-header, header.fm3d-shell').evaluate(element => {
+  const boxes = await page.locator('.brujula-auth main, header.fm3d-shell').evaluate(element => {
     const header = element.getBoundingClientRect();
     return { width: header.width, left: header.left, right: header.right, height: header.height };
   });
@@ -42,16 +42,18 @@ test('glass actual account, shared navigation, authorized news and responsive vi
             await page.setViewportSize({ width, height: width === 1448 ? 1086 : 900 });
             await fit(page, width);
             await page.screenshot({ path: resolve(artifacts, `${route}-${width}.png`), fullPage: true });
-            const header = page.locator('header.auth-brand-header');
+            const surface = page.locator('.brujula-auth .surface');
             const target = route === 'register' ? 'Iniciar sesión' : 'Crear cuenta';
-            const link = header.getByRole('link', { name: target, exact: true });
+            const link = surface.locator('.after-form').getByRole('link', { name: target, exact: true });
             assert.equal(await link.getAttribute('href'), route === 'register' ? '/sign-in' : '/register');
             assert.equal(await page.getByRole('button', { name: /Abrir menú de (cuenta|navegación)/ }).count(), 0);
-            assert.equal(await header.getByRole('link', { name: /Mi perfil|Configuración/ }).count(), 0);
-            if (width < 768) {
-              await header.getByRole('link', { name: 'FoxMind', exact: true }).focus();
-              await page.keyboard.press('Tab');
-              assert.equal(await link.evaluate(node => node === document.activeElement), true);
+            assert.equal(await surface.getByRole('link', { name: /Mi perfil|Configuración/ }).count(), 0);
+            await link.focus();
+            await page.keyboard.press('Shift+Tab');
+            await page.keyboard.press('Tab');
+            assert.equal(await link.evaluate(node => node === document.activeElement), true);
+            if (width >= 1024) {
+              await page.locator('.br-auth-visual').getByRole('link', { name: 'FoxMind', exact: true }).waitFor();
             }
           }
         }
@@ -81,8 +83,8 @@ test('glass actual account, shared navigation, authorized news and responsive vi
         assert.equal(await page.getByText('Entre 16 y 128 caracteres.', { exact: false }).count(), 0);
       });
       const suffix = Date.now();
-      await account(page, runtime.origin, runtime.inbox, `glass-teacher-${suffix}@example.test`);
-      await account(peer, runtime.origin, runtime.inbox, `glass-student-${suffix}@example.test`);
+      await account(page, runtime.origin, runtime.inbox, `glass-teacher-${suffix}@example.test`, undefined, "teacher");
+      await account(peer, runtime.origin, runtime.inbox, `glass-student-${suffix}@example.test`, undefined, "student");
       const room = await classroom(page, peer, 'Glass actual classroom');
       const detail = (await api(page, 'GET', `/classrooms/${room.id}`)).body;
       assert.equal((await api(page, 'POST', `/classrooms/${room.id}/wall`, { revision: detail.revision, operation: { action: 'publish', body: 'Glass actual notification destination' } })).status, 200);
@@ -94,7 +96,7 @@ test('glass actual account, shared navigation, authorized news and responsive vi
         assert.equal(notificationResponse.status(), 200);
         assert.ok((await notificationResponse.json()).items.some(item => item.classroomId === room.id && item.eventType === 'WALL_NOTICE'));
         const dialog = peer.getByRole('dialog', { name: 'Notificaciones', exact: true });
-        await dialog.getByRole('listitem').filter({ has: peer.getByText('Glass actual classroom', { exact: true }) }).getByRole('button', { name: 'Abrir conversación', exact: true }).click();
+        await dialog.getByRole('listitem').filter({ has: peer.getByText('Glass actual classroom · A', { exact: true }) }).getByRole('button', { name: 'Abrir conversación', exact: true }).click();
         await peer.waitForURL(/\/mis-aulas\?notificacion=/);
         await peer.getByRole('region', { name: 'Muro del aula', exact: true }).waitFor();
         await peer.getByText('Glass actual notification destination', { exact: true }).waitFor();
@@ -103,17 +105,45 @@ test('glass actual account, shared navigation, authorized news and responsive vi
         const inspect = request => { if (/\/notifications\/.*\/open$/.test(new URL(request.url()).pathname)) invalidOpens.push(request.url()); };
         peer.on('request', inspect);
         await peer.goto(`${runtime.origin}/mis-aulas?notificacion=not-a-notification`);
-        await peer.getByRole('heading', { name: 'Tus clases, bien organizadas.', exact: true }).waitFor();
+        await peer.getByRole('heading', { name: 'Mis aulas', exact: true }).waitFor();
         peer.off('request', inspect);
         assert.deepEqual(invalidOpens, [], 'Invalid page input never becomes an arbitrary notification operation');
       });
       await t.test('teacher and student Home use real cards, menus, focus, zoom and reduced motion', async () => {
         for (const [actor, kind] of [[page, 'teach'], [peer, 'study']]) {
           await actor.goto(`${runtime.origin}/inicio`);
-          await actor.getByRole('heading', { name: 'Glass actual classroom', exact: true }).waitFor();
-          const classroomCard = actor.getByRole('region', { name: 'Tus aulas', exact: true }).getByRole('listitem').filter({ has: actor.getByRole('heading', { name: 'Glass actual classroom', exact: true }) });
-          await classroomCard.getByText(kind === 'teach' ? 'Enseño' : 'Estudio', { exact: true }).waitFor();
-          await classroomCard.getByRole('button', { name: 'Entrar al aula: Glass actual classroom', exact: true }).waitFor();
+          const session = await api(actor, 'GET', '/auth/session');
+          assert.equal(session.status, 200); assert.equal(session.body.authenticated, true);
+          assert.equal(session.body.user.accountRole, kind === 'teach' ? 'teacher' : 'student');
+          if (kind === 'teach') {
+            const classroomCard = actor.getByRole('region', { name: 'Aula en foco', exact: true });
+            await classroomCard.getByRole('heading', { name: 'Glass actual classroom', exact: true }).waitFor();
+            const roleLabel = classroomCard.getByText('Enseño', { exact: true });
+            assert.equal(await roleLabel.count(), 1); assert.equal(await roleLabel.textContent(), 'Enseño');
+            await actor.getByRole('region', { name: 'Acciones del aula', exact: true }).getByRole('button', { name: 'Crear actividad', exact: true }).waitFor();
+            const authorizedRead = actor.waitForResponse(response => response.request().method() === 'GET' && new URL(response.url()).pathname === `/api/v1/classrooms/${room.id}`);
+            await classroomCard.getByRole('button', { name: 'Abrir tema: Glass actual classroom', exact: true }).click();
+            const opened = await authorizedRead; assert.equal(opened.status(), 200);
+            const authorizedRoom = await opened.json(); assert.equal(authorizedRoom.id, room.id); assert.equal(authorizedRoom.role, 'teacher');
+            const topic = detail.units[0].topics[0];
+            assert.ok(authorizedRoom.units.some(unit => unit.topics.some(item => item.id === topic.id)));
+            await actor.locator('[data-classroom-tab="plan"]').waitFor();
+            await actor.getByRole('region', { name: 'Tema seleccionado', exact: true }).getByRole('heading', { name: topic.name, exact: true }).waitFor();
+            const mobileTopic = actor.getByRole('combobox', { name: 'Tema del plan', exact: true });
+            if (await mobileTopic.isVisible()) assert.equal(await mobileTopic.inputValue(), topic.id);
+            else {
+              const selectedTopic = actor.getByRole('navigation', { name: 'Unidades del plan', exact: true }).getByRole('button').filter({ has: actor.getByText(topic.name, { exact: true }) });
+              assert.equal(await selectedTopic.count(), 1); await selectedTopic.waitFor();
+              assert.equal(await selectedTopic.getAttribute('aria-current'), 'true');
+            }
+            await actor.goto(`${runtime.origin}/inicio`);
+            await classroomCard.getByRole('heading', { name: 'Glass actual classroom', exact: true }).waitFor();
+          } else {
+            const shortcuts = actor.getByRole('region', { name: 'Accesos de mi aula', exact: true });
+            await shortcuts.getByText('Glass actual classroom · A', { exact: true }).waitFor();
+            for (const name of ['Plan de estudio', 'Muro del aula', 'Mi progreso']) await shortcuts.getByRole('button', { name, exact: true }).waitFor();
+            for (const name of ['Crear actividad', 'Agregar material', 'Publicar aviso', 'Ver progreso']) assert.equal(await actor.getByRole('button', { name, exact: true }).count(), 0);
+          }
           for (const width of [320, 390, 768, 1024, 1440, 1448]) {
             await actor.setViewportSize({ width, height: width === 1448 ? 1086 : 900 });
             await fit(actor, width);
@@ -145,7 +175,8 @@ test('glass actual account, shared navigation, authorized news and responsive vi
         }
         await page.goto(`${runtime.origin}/files`);
         await page.getByRole('button', { name: 'Abrir menú de navegación', exact: true }).click();
-        await page.getByRole('dialog', { name: 'Menú de navegación', exact: true }).getByRole('button', { name: 'Cerrar sesión', exact: true }).click();
+        await page.getByRole('dialog', { name: 'Menú de navegación', exact: true }).getByRole('button', { name: /^Mi cuenta/ }).click();
+        await page.getByRole('dialog', { name: 'Mi cuenta', exact: true }).getByRole('button', { name: 'Cerrar sesión', exact: true }).click();
         await page.waitForURL('**/sign-in');
         assert.deepEqual((await api(page, 'GET', '/auth/session')).body, { authenticated: false });
       });

@@ -6,8 +6,9 @@ import { setTimeout as delay } from 'node:timers/promises';
 import pg from 'pg';
 import { createApplication } from '../.build/api/apps/api/src/application.js';
 import { readConfiguration } from '../.build/api/apps/api/src/configuration.js';
-import { createPasswordService, generateVerifier, accountTokenDigest, sessionTokenDigest } from '../.build/api/apps/api/src/identity-security/index.js';
-import { IdentityRuntime } from '../.build/api/apps/api/src/identity/index.js';
+import { createPasswordService } from '../.build/api/apps/api/src/modules/identity/infrastructure/security/passwords.js';
+import { generateVerifier, accountTokenDigest, sessionTokenDigest } from '../.build/api/apps/api/src/modules/identity/infrastructure/security/verifiers.js';
+import { IdentityRuntime } from '../.build/api/apps/api/src/bootstrap/identity-runtime.js';
 
 if (process.send) { process.send({ type: 'foxmind-test-ready' }); process.disconnect(); }
 if (!/^foxmind-identity-[a-f0-9]+$/.test(process.env.P33_IDENTITY_ISOLATED ?? '')
@@ -114,7 +115,7 @@ async function session(id, { absolute = 43200, idle = 0 } = {}) {
 async function unchanged(subject, mailCount = 0) {
   const current = await state(subject.cookie);
   assert.deepEqual(current, { authenticated: true, user: { id: subject.id, email: subject.email,
-    firstName: 'Original', lastName: 'Learner', emailVerified: subject.verified, accountRole: 'student' } });
+    firstName: 'Original', lastName: 'Learner', emailVerified: subject.verified, accountRole: 'student', avatarKey: 'initials' } });
   assert.ok(await csrf(subject.cookie) === subject.csrf, 'binding unchanged');
   assert.equal((await messages(subject.email)).length, mailCount, 'rejection issued no mail');
 }

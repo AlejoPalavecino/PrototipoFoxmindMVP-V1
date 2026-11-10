@@ -1,11 +1,11 @@
-import surface from '../apps/classrooms-ui/classrooms-surface.module.css';
+import surface from '../apps/web/src/application/academic-classrooms-surface.module.css';
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ClassroomView } from '../apps/classrooms-ui/ClassroomView.tsx';
+import { ClassroomView } from '../apps/web/src/application/academic-ClassroomView.tsx';
 import { AppNavbar } from '../apps/shared-ui/AppNavbar.tsx';
 import '../apps/shared-ui/design-tokens.css';
 import '../apps/web/styles/globals.css';
-import '../apps/classrooms-ui/styles.css';
+import "../apps/web/src/application/styles/academic.css";
 import '../apps/shared-ui/folders.css';
 import '../apps/shared-ui/foxmind-3d.css';
 import '../apps/shared-ui/workspace.css';
@@ -23,6 +23,7 @@ const api = { fileUrl: () => '#', call: async (path, method, body, signal) => {
   state.calls.push({ path, method: method ?? 'GET', body });
   if (signal?.aborted) throw new DOMException('aborted', 'AbortError');
   if (path === `/${roomId}` || path === `/${secondId}`) { if (state.detailFail) throw new Error('Detalle temporalmente no disponible'); const snapshot = detail(path.slice(1)); if (state.holdRoom) return await new Promise(resolve => state.pending.push(() => resolve(snapshot))); return snapshot; }
+  if (summaryScenario && path === `/${roomId}/members/student-1` && (method === undefined || method === 'GET')) return { firstName: 'Ada', lastName: 'Prueba', attempts: [] };
   if (summaryScenario && path.endsWith('/remove') && method === 'POST') {
     if (state.deferRemoval) {
       state.removalPending = true;

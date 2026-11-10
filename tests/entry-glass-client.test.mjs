@@ -65,7 +65,7 @@ test('password visibility is an explicit non-submit control, with policy only fo
 test('home retains the student classroom and the applicable learning modules', () => {
   const room = { role:'student', archived:false, id: 'actual', name: 'Actual class', subject: 'Science', division: 'B', academicYear: 2026, coverKey: 'explore', teacher: 'Actual teacher' };
   const data = homeFixture([room]);
-  const { Home } = loadTsModule('apps/classrooms-ui/Home.tsx', { stubs: { './use-home.ts': { useHome: () => ({ loading:false, data }) } } });
+  const { Home } = loadTsModule("apps/web/src/features/home/ui/Home.tsx", { stubs: {"../model/use-home.ts":{useHome: () => ({ loading:false, data })}} });
   const html = render(Home, { accountRole: 'student', displayName: 'Student', busy: false, onAction() {},
     onCreate() {}, onJoin() {}, onClassrooms() {}, onEnter() {}, api: { call: async () => [] }, onOpenTarget() {} });
   for (const label of ['Mis entregas', 'Mis devoluciones']) {

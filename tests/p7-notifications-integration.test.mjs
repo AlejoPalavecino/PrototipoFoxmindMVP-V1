@@ -9,6 +9,7 @@ import { chromium } from '@playwright/test';
 import { withP4IntegrationRuntime } from '../scripts/p4-integration-runtime.mjs';
 import { account, api } from './p4-integration-helpers.mjs';
 import { classroom } from './p6-integration-helpers.mjs';
+import { visibleNavigation } from './entry-glass-browser-helpers.mjs';
 
 async function request(page, method, path, body, headers = {}) {
   let result = await api(page, method, path, body, headers);
@@ -30,9 +31,9 @@ test('P7 actual academic notification events navigate mobile activities/history 
       const lateStudent = await (await browser.newContext()).newPage(), errors = [];
       for (const page of [teacher, student, lateStudent]) page.on('pageerror', e => errors.push(e.message));
       const suffix = Date.now();
-      await account(teacher, runtime.origin, runtime.inbox, `notify-teacher-${suffix}@example.test`);
-      await account(student, runtime.origin, runtime.inbox, `notify-student-${suffix}@example.test`);
-      await account(lateStudent, runtime.origin, runtime.inbox, `notify-late-${suffix}@example.test`);
+      await account(teacher, runtime.origin, runtime.inbox, `notify-teacher-${suffix}@example.test`, undefined, "teacher");
+      await account(student, runtime.origin, runtime.inbox, `notify-student-${suffix}@example.test`, undefined, "student");
+      await account(lateStudent, runtime.origin, runtime.inbox, `notify-late-${suffix}@example.test`, undefined, "student");
       const room = await classroom(teacher, student, 'P7 notification classroom'), detail = await ok(teacher, 'GET', `/classrooms/${room.id}`);
       const mailCount = async () => Number((await (await fetch(`${runtime.inbox}/api/v1/messages`)).json()).total);
       const initialMail = await mailCount();
@@ -43,6 +44,8 @@ test('P7 actual academic notification events navigate mobile activities/history 
         questions: [{ type: 'DEVELOPMENT', prompt: 'Notification question', points: '2', scoringRule: null, options: [] }] };
       const notifications = page => ok(page, 'GET', '/classrooms/notifications');
       const openNotice = async (page, label) => {
+        await page.getByRole('heading', { name: 'Mis aulas', exact: true }).waitFor();
+        await visibleNavigation(page);
         await page.getByRole('button', { name: /^Notificaciones/ }).click();
         const row = page.getByRole('listitem').filter({ has: page.getByText(label, { exact: true }) });
         const action = label === 'Nuevo aviso del docente' ? 'Abrir conversación' : 'Ver actividad';
@@ -53,13 +56,17 @@ test('P7 actual academic notification events navigate mobile activities/history 
         await change({ action: 'save', id, payload }); assert.equal((await notifications(student)).length, 0);
         await change({ action: 'publish', id });
         await student.goto(`${runtime.origin}/mis-aulas`); await openNotice(student, 'Nueva actividad publicada');
-        await student.getByRole('button', { name: 'Comenzar', exact: true }).waitFor();
-        const nav = await student.getByRole('button', { name: 'Actividades', exact: true }).evaluate(button => {
-          const rect = button.getBoundingClientRect(), parent = button.closest('nav').getBoundingClientRect(); return { current: button.getAttribute('aria-current'), left: rect.left, right: rect.right, parentLeft: parent.left, parentRight: parent.right }; });
-        assert.equal(nav.current, 'page'); assert.ok(nav.left >= nav.parentLeft - 1 && nav.right <= nav.parentRight + 1);
+        await student.getByRole('region', { name: 'Consulta de actividad', exact: true }).waitFor();
+        await student.getByRole('button', { name: 'Responder actividad', exact: true }).waitFor();
         assert.equal((await ok(student, 'GET', path + '/session')).attempt, null);
         assert.ok(!/"(?:correct|scoringRule|editor_token_hash)"/.test(JSON.stringify(await ok(student, 'GET', path + '/session'))));
         await student.screenshot({ path: join(scratch, 'publication-mobile-320.png'), fullPage: true });
+        await student.getByRole('button', { name: 'Volver a actividades', exact: true }).click();
+        const nav = await student.getByRole('navigation', { name: 'Secciones del aula', exact: true }).getByRole('button', { name: 'Actividades', exact: true }).evaluate(button => {
+          const rect = button.getBoundingClientRect(), parent = button.closest('nav').getBoundingClientRect();
+          return { current: button.getAttribute('aria-current'), left: rect.left, right: rect.right, parentLeft: parent.left, parentRight: parent.right, viewport: innerWidth }; });
+        assert.equal(nav.current, 'page'); assert.ok(nav.left >= nav.parentLeft - 1 && nav.right <= nav.parentRight + 1);
+        assert.ok(nav.left >= 0 && nav.right <= nav.viewport);
       });
       await check('actual changes including content-save path notify per transition, noop/save/start/autosave/transfer do not notify', async () => {
         const revised = { ...payload, deadline: { local: '2030-01-01T18:00' } };
@@ -72,15 +79,22 @@ test('P7 actual academic notification events navigate mobile activities/history 
         state = await ok(student, 'GET', path + '/session');
         await ok(student, 'POST', `/classrooms/${room.id}/attempts/${state.attempt.id}/submit-answers`, { revision: state.attempt.revision, confirm: true, confirmIncomplete: false }, h);
         const received = (await notifications(teacher)).find(n => n.eventType === 'SUBMISSION_RECEIVED'); assert.ok(received);
-        await teacher.goto(`${runtime.origin}/mis-aulas`); await openNotice(teacher, 'Nueva entrega recibida');
-        await teacher.getByRole('region', { name: 'Intento histórico confirmado' }).getByText('Ver mis respuestas y archivos', { exact: true }).click();
-        await teacher.getByRole('region', { name: 'Intento histórico confirmado' }).getByText('Answer', { exact: true }).waitFor();
-        await teacher.getByRole('region', { name: 'Intento histórico confirmado' }).getByRole('button', { name: 'Volver al historial', exact: true }).click();
+        const gradePosts = [];
+        const recordGradePost = request => { if (request.method() === 'POST' && /\/(?:grading|publish-grade)$/.test(new URL(request.url()).pathname)) gradePosts.push(new URL(request.url()).pathname); };
+        teacher.on('request', recordGradePost);
+        try {
+          await teacher.goto(`${runtime.origin}/mis-aulas`); await openNotice(teacher, 'Nueva entrega recibida');
+          const correction = teacher.getByRole('region', { name: 'Corrección privada del intento', exact: true });
+          await correction.getByText('Answer', { exact: true }).waitFor();
+          await correction.getByRole('button', { name: 'Volver al historial', exact: true }).click();
+          await correction.waitFor({ state: 'hidden' });
+          assert.deepEqual(gradePosts, [], 'Consulting a received submission never saves or publishes a grade');
+        } finally { teacher.off('request', recordGradePost); }
         await teacher.getByRole('button', { name: 'Habilitar otro intento', exact: true }).click(); await teacher.getByRole('button', { name: 'Confirmar nuevo intento', exact: true }).click();
         await student.goto(`${runtime.origin}/mis-aulas`); await openNotice(student, 'Nuevo intento habilitado');
         await student.getByRole('region', { name: 'Intento histórico confirmado' }).getByRole('button', { name: 'Volver a mis intentos', exact: true }).click();
         await student.getByText('Reentrega pendiente: todavía no es una nueva entrega recibida.', { exact: true }).waitFor();
-        await student.getByRole('button', { name: 'Continuar borrador', exact: true }).click(); await student.getByRole('button', { name: 'Continuar en esta pestaña', exact: true }).click();
+        await student.locator('.p7-history-list').getByRole('button', { name: 'Continuar borrador', exact: true }).click(); await student.getByRole('button', { name: 'Continuar en esta pestaña', exact: true }).click();
         await student.getByRole('button', { name: 'Confirmar transferencia', exact: true }).click();
         assert.equal((await notifications(teacher)).filter(n => n.eventType === 'SUBMISSION_RECEIVED').length, 1);
       });
@@ -104,7 +118,8 @@ test('P7 actual academic notification events navigate mobile activities/history 
         await student.getByText('Preserved wall target', { exact: true }).waitFor();
         assert.equal(await student.getByRole('button', { name: 'Muro', exact: true }).getAttribute('aria-current'), 'page');
         const wall = (await notifications(student)).find(n => n.eventType === 'WALL_NOTICE'); assert.ok(wall.readAt);
-        assert.deepEqual(Object.keys(wall).sort(), ['id', 'classroomId', 'classroomName', 'eventType', 'postId', 'replyId', 'createdAt', 'readAt'].sort());
+        assert.deepEqual(Object.keys(wall).sort(), ['id', 'classroomId', 'classroomName', 'classroomDivision', 'actorName', 'message', 'eventType', 'postId', 'replyId', 'createdAt', 'readAt'].sort());
+        assert.equal(wall.actorName, 'Files Fixture'); assert.equal(wall.classroomDivision, 'A'); assert.equal(wall.message, 'Preserved wall target');
         assert.equal(await mailCount(), initialMail); assert.deepEqual(errors, []);
         await student.screenshot({ path: join(scratch, 'wall-preserved-mobile-320.png'), fullPage: true });
       });

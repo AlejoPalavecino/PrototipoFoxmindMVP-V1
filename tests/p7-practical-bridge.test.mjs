@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createIdentityFileAccess } from '../.build/api/apps/api/src/files/host.js';
-import { readIdentityConfiguration } from '../.build/api/apps/api/src/identity-security/index.js';
-import { attachmentIntegration } from '../.build/api/apps/api/src/attachment-integration.js';
+import { createIdentityFileAccess } from '../.build/api/apps/api/src/bootstrap/files-host.js';
+import { readIdentityConfiguration } from '../.build/api/apps/api/src/modules/identity/infrastructure/security/configuration.js';
+import { attachmentIntegration } from '../.build/api/apps/api/src/bootstrap/attachment-integration.js';
 const { authorizeAttemptWrite: authorizeAttemptFileWrite } = attachmentIntegration;
 const id='a1111111-1111-4111-8111-111111111111';
 test('attempt bridge converts expected classroom denials and never silently allows absent/malformed editor',async()=>{

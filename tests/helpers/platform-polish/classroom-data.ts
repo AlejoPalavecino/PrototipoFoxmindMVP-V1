@@ -1,4 +1,10 @@
-import type { Detail, Material, ActivityDetail, ClassroomClient, GradingData, ProgressData, AttemptSessionData } from '../../classrooms-ui/api';
+import type { Detail } from '../../../src/core/contracts/classrooms.ts';
+import type { Material } from '../../../src/core/contracts/materials.ts';
+import type { ActivityDetail } from '../../../src/core/contracts/activities.ts';
+import type { ClassroomClient } from '../../../src/core/contracts/academic-client.ts';
+import type { GradingData } from '../../../src/core/domain/index.ts';
+import type { ProgressData } from '../../../src/core/contracts/grading.ts';
+import type { AttemptSessionData } from '../../../src/core/contracts/participation.ts';
 export const id = '11111111-1111-4111-8111-111111111111';
 export const stamp = '2026-10-28T12:00:00Z';
 export function roomFor(mode: string): Detail {

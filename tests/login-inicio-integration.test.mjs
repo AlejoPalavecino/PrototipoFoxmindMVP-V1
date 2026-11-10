@@ -15,7 +15,7 @@ async function assertVerifiedHome(page, pending) {
   assert.equal(session.user.emailVerified, true); assert.equal(home.subjectId, session.user.id);
   assert.equal(home.memberships.study, 0); assert.equal(home.memberships.teach, 0);
   await page.getByRole('region', { name: 'Inicio', exact: true }).waitFor();
-  await page.getByRole('heading', { name: /Hola,/ }).waitFor();
+  await page.getByRole('heading', { name: '¡Buen día, Files!', exact: true }).waitFor();
 }
 const homeResponse = page => page.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/home' && response.request().method() === 'GET');
 
@@ -39,7 +39,7 @@ test('login defaults to Inicio and preserves bounded account continuations', { t
           await page.waitForURL('**/verify-email');
           assert.equal((await api(page, 'GET', '/auth/session')).body.user.emailVerified, false);
         });
-      });
+      }, "teacher");
       await t.test('confirmed verification offers Inicio by default', async () => {
         const next = page.getByRole('link', { name: 'Ir a Inicio', exact: true });
         assert.equal(await next.getAttribute('href'), '/inicio');

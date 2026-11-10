@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 test('activity deadlines resolve classroom minute precision and explicit DST occurrences', async () => {
-  const { deadlineChoices, resolveDeadline } = await import('../apps/api/src/classrooms/activity-time.ts');
+  const { deadlineChoices, resolveDeadline } = await import("../apps/api/src/modules/activities/domain/activity-time.ts");
   assert.equal(resolveDeadline('America/Argentina/Buenos_Aires', { local: '2026-10-18T18:00' }).toISOString(), '2026-10-18T21:00:00.000Z');
   assert.equal(resolveDeadline('UTC', null), null);
   const gap = deadlineChoices('America/New_York', '2026-03-08T02:30');

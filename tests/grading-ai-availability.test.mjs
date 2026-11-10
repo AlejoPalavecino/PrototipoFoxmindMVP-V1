@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
-import { enqueueSubmittedAttemptGradingAi } from '../apps/api/src/classrooms/grading-ai/enqueue.ts';
-import { ClassroomCore } from '../apps/api/src/classrooms/core.ts';
-import { DraftService } from '../apps/api/src/classrooms/drafts.ts';
+import { enqueueSubmittedAttemptGradingAi } from '../apps/api/src/modules/grading/infrastructure/grading-ai/enqueue.ts';
+import { ClassroomCore } from '../apps/api/src/modules/classrooms/infrastructure/core.ts';
+import { DraftService } from '../apps/api/src/bootstrap/academic-management-composition.ts';
 
 const id = '11111111-1111-4111-8111-111111111111', teacher = '22222222-2222-4222-8222-222222222222';
 const row = { id, teacher_id: teacher, name: 'Aula', subject: 'Materia', division: 'A', academic_year: 2026, timezone: 'UTC',
@@ -31,7 +31,7 @@ test('sin IA global no se encola job incluso si el aula estaba activada', async 
 
 test('sin IA global rechaza activar y permite desactivar o guardar ajustes anteriores', async () => {
   let writes = 0; const tx = { query: async () => { writes++; return [{ id }]; } };
-  const service = { ports: { gradingAiAvailable: false }, run: async (_req, _write, cb) => cb(tx, { id: teacher }), classroom: async () => ({ ...row, ai_grading_enabled: false }) };
+  const service = new DraftService({ ports: { gradingAiAvailable: false }, run: async (_req, _write, cb) => cb(tx, { id: teacher }), classroom: async () => ({ ...row, ai_grading_enabled: false }) });
   await assert.rejects(DraftService.prototype.updateSettings.call(service, {}, id, settings({ aiGradingEnabled: true })));
   assert.equal(writes, 0);
   await assert.doesNotReject(DraftService.prototype.updateSettings.call(service, {}, id, settings({ aiGradingEnabled: false })));
@@ -39,7 +39,7 @@ test('sin IA global rechaza activar y permite desactivar o guardar ajustes anter
 });
 
 test('interfaz docente muestra indisponibilidad y bloquea activación sin borrar selección guardada', async () => {
-  const { ClassroomSettings } = loadTsModule('apps/classrooms-ui/ClassroomSettings.tsx');
+  const { ClassroomSettings } = loadTsModule('apps/web/src/features/classrooms/ui/ClassroomSettings.tsx');
   const detail = { id, revision: '2', role: 'teacher', archived: false, name: 'Aula', subject: 'Materia', division: 'A', academicYear: 2026,
     teacher: 'Docente', timezone: 'UTC', coverKey: 'explore', plans: [], units: [], aiGradingEnabled: true, aiGradingAvailable: false };
   const view = hookView(ClassroomSettings, { api: {}, id, room: detail, settings: { name:'Aula', subject:'Materia', division:'A', academicYear:2026, aiGradingEnabled:true },
@@ -55,7 +55,7 @@ test('interfaz docente muestra indisponibilidad y bloquea activación sin borrar
 
 test('aula ya activa con IA global apagada puede guardar otros datos sin perder preferencia', async () => {
   const writes = []; const tx = { query: async (sql, ...args) => { writes.push({sql,args}); return [{ id }]; } };
-  const service = { ports: { gradingAiAvailable: false }, run: async (_req, _write, cb) => cb(tx, { id: teacher }), classroom: async () => row };
+  const service = new DraftService({ ports: { gradingAiAvailable: false }, run: async (_req, _write, cb) => cb(tx, { id: teacher }), classroom: async () => row });
   await assert.doesNotReject(DraftService.prototype.updateSettings.call(service, {}, id, { ...settings({ aiGradingEnabled: true }), name: 'Aula actualizada' }));
   assert.equal(writes.length, 1); assert.ok(writes[0].args.includes('Aula actualizada'));
   assert.ok(writes[0].args.includes(true));

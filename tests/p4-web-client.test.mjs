@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createFileClient, FileClientError, parseFileContext, fileState } from '../apps/web/src/lib/file-client.ts';
+import { createFileClient, FileClientError, parseFileContext, fileState } from '../apps/web/src/features/files/api/client.ts';
 
 const id = '11111111-1111-4111-8111-111111111111';
 test('processing unavailability remains retryable pending while genuine rejection blocks use', () => {

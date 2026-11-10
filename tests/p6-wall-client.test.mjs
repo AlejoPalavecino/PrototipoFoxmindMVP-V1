@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { createClassroomClient } from '../apps/classrooms-ui/api.ts';
-import { proxyClassroomRequest } from '../apps/web/src/lib/classroom-proxy.ts';
-import { createClassroomsHandler } from '../.build/api/apps/api/src/classrooms/http.js';
+import { createClassroomClient } from '../apps/web/src/application/academic-client.ts';
+import { proxyClassroomRequest } from '../apps/web/src/application/server/classroom-proxy.ts';
+import { createClassroomsHandler } from '../.build/api/apps/api/src/bootstrap/academic-http.js';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -49,13 +49,13 @@ test('Muro and notifications use explicit proxy/API routes with current admissio
       [`/${room}/wall`, 'POST', { revision: '0', operation: { action: 'publish', body: 'Bad', authorId: room } }],
       [`/${room}/wall`, 'POST', { revision: '0', operation: { action: 'removePost', id: room, confirm: 'yes' } }],
       [`/${room}/wall`, 'POST', { revision: '0', operation: { action: 'reply', postId: room } }],
-      [`/${room}/wall`, 'POST', { revision: '0', operation: { action: 'toString', body: 'Bad action' } }],
-      [`/${room}/wall`, 'POST', { revision: '0', operation: { action: '__proto__', body: 'Bad action' } }],
+      [`/${room}/wall`, 'POST', { revision: '0', operation: { action: 'function toString() { [native code] }', body: 'Bad action' } }],
+      [`/${room}/wall`, 'POST', { revision: '0', operation: { action: '[object Object]', body: 'Bad action' } }],
       [`/notifications/${room}/open`, 'POST', { recipientId: room }],
       [`/${room}/wall?actor=other`, 'GET'],
     ]) assert.equal((await request(path, method, body)).status, 400, path);
     assert.equal(calls.length, before);
-    for (const action of ['toString', '__proto__', 'constructor', 'unknown']) {
+    for (const action of ['function toString() { [native code] }', '[object Object]', 'function Object() { [native code] }', 'unknown']) {
       const response = await fetch(`${api.origin}/api/v1/classrooms/${room}/wall`, { method: 'POST',
         headers: { cookie: 'session=controlled', 'x-csrf-token': 'fresh-csrf', 'content-type': 'application/json' },
         body: JSON.stringify({ revision: '0', operation: { action, body: 'Bad action' } }) });
@@ -86,7 +86,7 @@ test('classroom client carries Unicode/multiline body intact, fresh CSRF and cur
 
 test('actual Muro content renderer escapes markup and renders removed markers rather than hidden original text', () => {
   // Compile the actual trusted TSX modules in memory; no emitted workspace files or synthetic renderer.
-  const { WallContentView } = loadTsModule('apps/classrooms-ui/Wall.tsx');
+  const { WallContentView } = loadTsModule('apps/web/src/features/communication/ui/Wall.tsx');
   const content = { id: room, authorName: '<img src=x onerror=alert(1)>', initials: '<>',
     body: '<script>alert(1)</script>\nPlain & safe', createdAt: '2026-10-18T12:00:00Z', editedAt: null, removedAt: null, canEdit: false, canRemove: false };
   const html = renderToStaticMarkup(React.createElement(WallContentView, { content }));

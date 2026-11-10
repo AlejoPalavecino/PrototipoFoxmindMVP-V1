@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:net';
-import { S3Storage } from '../apps/api/src/files/storage.ts';
-import { ClamdScanner } from '../apps/api/src/files/scanner.ts';
+import { S3Storage } from '../apps/api/src/modules/files/infrastructure/storage.ts';
+import { ClamdScanner } from '../apps/api/src/modules/files/infrastructure/scanner.ts';
 
 const key = 'p4/00000000-0000-4000-8000-000000000001/blob';
 const code = value => ({ code: value });

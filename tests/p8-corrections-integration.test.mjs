@@ -1,4 +1,5 @@
-import { startBrowserAttempt } from './helpers/browser-admission-step.mjs';
+import { visibleNavigation } from './entry-glass-browser-helpers.mjs';
+import { startBrowserAttempt, openActivityOverview, openPracticalActivity, openTeacherActivity, selectClassroomSection } from './p8-current-ui-helpers.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, writeFile } from 'node:fs/promises';
@@ -25,6 +26,7 @@ async function ok(...args) { const response = await request(...args); assert.equ
 /** A rejected result is not success; only a real bounded Retry-After permits one visible reopen. */
 async function openCorrectedNotificationResult(page, attemptId) {
   async function openFromCenter() {
+    await visibleNavigation(page);
     await page.getByRole('button', { name: /^Notificaciones/ }).click();
     const notification = page.locator('.p6-notifications li').filter({ hasText: 'Calificación corregida' }).first();
     const opening = page.waitForResponse(response => /\/notifications\/[^/]+\/open$/.test(new URL(response.url()).pathname)
@@ -45,8 +47,8 @@ async function openCorrectedNotificationResult(page, attemptId) {
     assert.equal(await ownRegion.locator('.p8-final-grade').count(), 0);
     console.log('P8 notification result actual GET ' + new URL(ownResponse.url()).pathname + ' status429 Retry-After=' + seconds + 's; one visible notification reopen');
     await delay(seconds * 1000);
-    await page.getByRole('dialog', { name: 'Mi historial de intentos', exact: true })
-      .getByRole('button', { name: 'Cerrar diálogo', exact: true }).click();
+    await page.getByRole('region', { name: 'Mi historial de intentos', exact: true })
+      .getByRole('button', { name: 'Volver a actividades', exact: true }).click();
     ownResponse = await openFromCenter();
   }
   assert.equal(ownResponse.status(), 200);
@@ -80,8 +82,8 @@ test('P8 actual all-type published final correction, teacher-only audit, student
         }
         assert.fail(`Missing actual ${method} ${path}`);
       }
-      const suffix = Date.now(); await account(teacher, runtime.origin, runtime.inbox, `p8-correction-teacher-${suffix}@example.test`);
-      const studentUser = await account(student, runtime.origin, runtime.inbox, `p8-correction-student-${suffix}@example.test`);
+      const suffix = Date.now(); await account(teacher, runtime.origin, runtime.inbox, `p8-correction-teacher-${suffix}@example.test`, undefined, "teacher");
+      const studentUser = await account(student, runtime.origin, runtime.inbox, `p8-correction-student-${suffix}@example.test`, undefined, "student");
       const name = 'P8 correction classroom', room = await classroom(teacher, student, name), detail = await ok(teacher, 'GET', `/classrooms/${room.id}`);
       const change = async operation => ok(teacher, 'POST', `/classrooms/${room.id}/activities`, { revision: (await ok(teacher, 'GET', `/classrooms/${room.id}`)).revision, operation });
       const activities = [];
@@ -101,33 +103,34 @@ test('P8 actual all-type published final correction, teacher-only audit, student
         try { await work(); } catch (e) { failed = true; throw e; }
       });
       for (const activity of activities) await check(`${activity.type} actual submission/private grading/publication -> reason/cancel/confirmed correction -> clean safe own result`, async () => {
-        await openClassroom(student, runtime.origin, name); await student.getByRole('button', { name: 'Actividades', exact: true }).click();
-        const open = () => student.getByRole('article', { name: activity.title, exact: true }).getByRole('button', { name: activity.type === 'ASSIGNMENT' ? 'Abrir trabajo práctico' : 'Consultar actividad', exact: true }).click();
+        await openClassroom(student, runtime.origin, name); await selectClassroomSection(student, 'activities', 'Actividades');
+        const open = () => activity.type === 'ASSIGNMENT'
+          ? openPracticalActivity(student, room.id, activity.id, activity.title) : openActivityOverview(student, activity.title);
         if (activity.type === 'ASSIGNMENT') {
           await openPublicationPractical(student, room.id, activity.id, open);
           const bytes = await planPdf('P8 correction immutable submitted PDF');
           await student.getByLabel('Seleccionar archivo del trabajo', { exact: true }).setInputFiles({ name: 'p8-correction-original.pdf', mimeType: 'application/pdf', buffer: bytes });
           const uploaded = student.waitForResponse(r => r.url().endsWith('/content') && r.request().method() === 'PUT');
           await student.getByRole('button', { name: 'Subir archivo privado', exact: true }).click(); assert.equal((await uploaded).status(), 200);
-          await student.getByRole('button', { name: 'Enviar trabajo práctico', exact: true }).click();
+          await student.getByRole('button', { name: 'Revisar entrega', exact: true }).click();
           const submitted = student.waitForResponse(r => r.url().endsWith('/submit-practical'));
           await student.getByRole('button', { name: 'Confirmar envío del trabajo', exact: true }).click(); assert.equal((await submitted).status(), 200);
-          await student.getByRole('heading', { name: 'Comprobante de entrega', exact: true }).waitFor();
+          await student.getByText('Entrega confirmada.', { exact: true }).waitFor();
         } else {
           await open(); await startBrowserAttempt(student, room.id, activity.id, 12000);
           await student.getByRole('textbox', { name: 'Respuesta a la pregunta 1', exact: true }).fill('Original answer remains unchanged 😀');
-          await student.getByRole('button', { name: 'Enviar respuestas', exact: true }).click();
+          await student.getByRole('button', { name: 'Revisar entrega', exact: true }).click();
           const submitted = student.waitForResponse(r => r.url().endsWith('/submit-answers'));
           await student.getByRole('button', { name: 'Confirmar envío de respuestas', exact: true }).click(); assert.equal((await submitted).status(), 200);
           await student.getByText('Entrega confirmada.', { exact: true }).waitFor();
         }
         activity.attempt = (await ok(student, 'GET', `/classrooms/${room.id}/activities/${activity.id}/session`)).attempt.id;
         const base = `/classrooms/${room.id}/attempts/${activity.attempt}`, path = `${base}/grade-corrections`;
-        await openClassroom(teacher, runtime.origin, name); await teacher.getByRole('button', { name: 'Actividades', exact: true }).click();
-        await teacher.getByRole('article', { name: activity.title, exact: true }).getByRole('button', { name: 'Ver entregas recibidas', exact: true }).click();
+        await openClassroom(teacher, runtime.origin, name); await selectClassroomSection(teacher, 'activities', 'Actividades');
+        await openTeacherActivity(teacher, activity.title);
         await teacher.getByRole('button', { name: 'Corregir intento 1', exact: true }).click();
         const grading = teacher.getByRole('region', { name: 'Corrección privada del intento', exact: true });
-        await grading.getByLabel(activity.type === 'ASSIGNMENT' ? 'Calificación general' : 'Puntos de la pregunta 1', { exact: true }).fill('6');
+        await grading.getByLabel(activity.type === 'ASSIGNMENT' ? 'Nota final' : 'Puntos de la pregunta 1', { exact: true }).fill('6');
         await grading.getByLabel('Devolución general opcional', { exact: true }).fill('Preserved overall feedback');
         let observed = teacher.waitForResponse(r => r.url().endsWith('/grading') && r.request().method() === 'POST');
         await grading.getByRole('button', { name: 'Guardar corrección privada', exact: true }).click(); assert.equal((await observed).status(), 200);

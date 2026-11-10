@@ -4,12 +4,12 @@ import { withAgendaDatabase } from './agenda-database-helpers.test.mjs';
 import { homeFixture } from './foxmind-3d-repository-fixture.test.mjs';
 
 test('D9 teacher submissions publish explicit gradePublished false/true without private grade payloads', { timeout: 60000 }, async () => {
-  const { ClassroomService } = await import('../apps/api/src/classrooms/index.ts');
+  const { ClassroomService } = await Promise.all([import("../apps/api/src/modules/classrooms/infrastructure/agenda.ts"),import("../apps/api/src/modules/activities/infrastructure/activity-draft.ts"),import("../apps/api/src/bootstrap/academic-composition.ts"),import("../apps/api/src/modules/participation/infrastructure/attempt-access.ts"),import("../apps/api/src/modules/participation/infrastructure/attempt-policy.ts"),import("../apps/api/src/modules/classrooms/infrastructure/policy.ts")]).then(([m0,m1,m2,m3,m4,m5]) => Object.freeze({createAcademicAgenda: m0.createAcademicAgenda,createActivityDraftInTransaction: m1.createActivityDraftInTransaction,ClassroomService: m2.ClassroomService,assertAttemptWrite: m3.assertAttemptWrite,editorCapability: m4.editorCapability,ClassroomError: m5.ClassroomError}));
   await withAgendaDatabase(async ({ transaction }) => transaction(async ({ database, query }) => {
     const f = await homeFixture(query), a = await f.activity('teach');
     const ungraded = await f.attempt(a), privateAttempt = await f.attempt(a, { number: 2 }), published = await f.attempt(a, { number: 3 });
     await f.grade(a, privateAttempt, { value: '0' }); await f.grade(a, published, { value: '8', published: true });
-    const service = new ClassroomService({ database, files: {}, authenticate: async (_tx, request) => request.actor,
+    const service = new ClassroomService({ database, files: {load(){assert.fail('Unexpected file read');},loadAuthorized(){assert.fail('Unexpected authorized file read');},promoteDraftPlanInTransaction(){assert.fail('Unexpected file promotion');}}, authenticate: async (_tx, request) => request.actor,
       signingKey: Buffer.alloc(32, 1), deliveryKey: Buffer.alloc(32, 2), classroomQuotaBytes: 1000000n, webOrigin: 'http://127.0.0.1:3005' });
     const result = await service.activitySubmissions({ actor: f.teacherActor, headers: {} }, f.rooms.teach.id, a.id);
     const states = Object.fromEntries(result.attempts.map(row => [row.id, row.gradePublished]));

@@ -70,7 +70,7 @@ test('password controls remain labelled non-submit buttons with explicit field a
 });
 
 test('login client preserves raw credentials and fresh CSRF binding through session rotation', async () => {
-  const { createAccountClient } = component('apps/web/src/lib/account-client.ts');
+  const { createAccountClient } = component("apps/web/src/features/identity/api.ts");
   const seen = [];
   const client = createAccountClient(async (url, init) => {
     seen.push({ url, init });
@@ -93,7 +93,7 @@ for (const accountRole of ['teacher', 'student']) test(`Home presents the ${acco
   data.participation = accountRole === 'teacher' ? 'teach' : 'study';
   data.memberships = { study: Number(accountRole === 'student'), teach: Number(accountRole === 'teacher'), archived: 0 };
   for (const module of accountRole === 'teacher' ? ['pending', 'feedback'] : ['review', 'queries']) data.modules[module] = { status: 'not-applicable' };
-  const { Home } = loadTsModule('apps/classrooms-ui/Home.tsx', { stubs: { './use-home.ts': { useHome: () => ({ loading:false, data }) } } });
+  const { Home } = loadTsModule("apps/web/src/features/home/ui/Home.tsx", { stubs: {"../model/use-home.ts":{useHome: () => ({ loading:false, data })}} });
   const html = render(Home, { accountRole, displayName: 'Learner', busy: false, onAction() {},
     onCreate() {}, onJoin() {}, onClassrooms() {}, onEnter() {}, api: { call: async () => [] }, onOpenTarget() {},
   });
@@ -122,7 +122,7 @@ for (const accountRole of ['teacher', 'student']) test(`Home presents the ${acco
 });
 
 test('ClassroomView SSR retains exit/loading state without inventing server classroom data', () => {
-  const { ClassroomView } = component('apps/classrooms-ui/ClassroomView.tsx');
+  const { ClassroomView } = component("apps/web/src/application/academic-ClassroomView.tsx");
   let calls = 0;
   const html = render(ClassroomView, { id: 'not-loaded', initialCode: null, onExit() {}, api: { call: async () => { calls++; throw new Error('SSR must not fetch'); } } });
   assert.equal(calls, 0);
@@ -132,12 +132,12 @@ test('ClassroomView SSR retains exit/loading state without inventing server clas
 });
 
 test('ClassroomView retains the complete navigation definition and teacher-only tab guards', () => {
-  const {classroomSections}=loadTsModule('apps/classrooms-ui/ClassroomNavigation.tsx');
+  const {classroomSections}=loadTsModule("apps/web/src/features/classrooms/ui/ClassroomNavigation.tsx");
   assert.deepEqual(classroomSections(true).map(item=>item.key),['plan','wall','library','activities','progress','members','history','settings']);
   const student=classroomSections(false);
   assert.equal(student.length,6);
   assert.ok(!student.some(item=>item.key==='history'||item.key==='settings'));
   assert.equal(student.find(item=>item.key==='members').label,'Compañeros');
   assert.equal(student.find(item=>item.key==='progress').label,'Mi progreso');
-  assert.match(read('apps/classrooms-ui/ClassroomView.tsx'),/tab === 'settings' && teacher/);
+  assert.match(read("apps/web/src/application/academic-ClassroomView.tsx"),/tab === 'settings' && teacher/);
 });

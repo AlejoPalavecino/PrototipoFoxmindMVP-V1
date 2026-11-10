@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ClassroomService } from '../.build/api/apps/api/src/classrooms/service.js';
+import { ClassroomService } from '../.build/api/apps/api/src/bootstrap/academic-composition.js';
 import { randomUUID, createHash } from 'node:crypto';
 import { withP5Database } from '../scripts/p5-database.mjs';
-import { FileService } from '../.build/api/apps/api/src/files/service.js';
-import { createFileAccess } from '../.build/api/apps/api/src/files/access.js';
-import { attachmentIntegration } from '../.build/api/apps/api/src/attachment-integration.js';
+import { FileService } from '../.build/api/apps/api/src/modules/files/infrastructure/service.js';
+import { createFileAccess } from '../.build/api/apps/api/src/modules/files/infrastructure/access.js';
+import { attachmentIntegration } from '../.build/api/apps/api/src/bootstrap/attachment-integration.js';
 import { PDFDocument } from 'pdf-lib';
 import pg from 'pg';
 

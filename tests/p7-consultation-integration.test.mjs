@@ -13,8 +13,8 @@ test('B1 actual TP consultation locks content for late enrollment and preserves 
     try {
       const teacher = await (await browser.newContext()).newPage(), student = await (await browser.newContext()).newPage();
       const suffix = Date.now(), name = 'Consultation-only content lock';
-      await account(teacher, runtime.origin, runtime.inbox, `p7-consultation-teacher-${suffix}@example.test`);
-      await account(student, runtime.origin, runtime.inbox, `p7-consultation-student-${suffix}@example.test`);
+      await account(teacher, runtime.origin, runtime.inbox, `p7-consultation-teacher-${suffix}@example.test`, undefined, "teacher");
+      await account(student, runtime.origin, runtime.inbox, `p7-consultation-student-${suffix}@example.test`, undefined, "student");
       const room = await classroom(teacher, null, name), base = `/classrooms/${room.id}`;
       const detail = async () => { const result = await api(teacher, 'GET', base); assert.equal(result.status, 200); return result.body; };
       const current = await detail(), unit = current.units[0].id, topic = current.units[0].topics[0].id;
@@ -38,8 +38,9 @@ test('B1 actual TP consultation locks content for late enrollment and preserves 
       assert.equal(overview.activity.instructions, null); assert.equal(await domainSnapshot(runtime.db), beforeRead);
       await openClassroom(student, runtime.origin, name);
       await student.getByRole('button', { name: 'Actividades', exact: true }).click();
+      await student.getByRole('article', { name: activity.payload.title, exact: true }).getByRole('button', { name: `Abrir ${activity.payload.title}`, exact: true }).click();
       const start = student.waitForResponse(response => response.request().method() === 'POST' && response.url().endsWith(`/activities/${activity.id}/start`));
-      await student.getByRole('article', { name: activity.payload.title, exact: true }).getByRole('button', { name: 'Abrir trabajo práctico', exact: true }).click();
+      await student.getByRole('button', { name: 'Ver consigna', exact: true }).click();
       const started = await start; assert.equal(started.status(), 200); assert.equal((await started.json()).editor, undefined);
       await student.getByText(activity.payload.instructions, { exact: true }).waitFor();
       const state = await session(), first = state.attempt;

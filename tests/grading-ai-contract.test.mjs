@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-const domain = () => import('../src/core/domain/grading-ai.ts');
+const domain = () => import("../src/core/domain/grading/grading-ai.ts");
 const assignment = { type: 'ASSIGNMENT', questions: [] };
 const mixed = { type: 'QUESTIONNAIRE', questions: [
   { ref: 'Q1', maxPoints: '2.50', manual: true },

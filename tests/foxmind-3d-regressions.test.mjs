@@ -7,7 +7,7 @@ import { withAgendaDatabase } from './agenda-database-helpers.test.mjs';
 import { homeFixture } from './foxmind-3d-repository-fixture.test.mjs';
 
 for (const presentation of ['home', 'classrooms']) test(`JD01 ${presentation}: account destinations retain exact routing`, async () => {
-  const { ClassroomsApp } = loadTsModule('apps/classrooms-ui/Classrooms.tsx');
+  const { ClassroomsApp } = loadTsModule("apps/web/src/application/academic-Classrooms.tsx");
   const previous = globalThis.window, assigned = [], routed = [];
   globalThis.window = { location: { assign: href => assigned.push(href) } };
   const view = hookView(ClassroomsApp, { initialPresentation: presentation, displayName: 'Synthetic', accountRole: 'teacher',
@@ -43,7 +43,7 @@ test('JD01 AppNavbar preserves modified native clicks and intercepts plain accou
 });
 
 test('JD02-JD05 PostgreSQL regressions use real persisted rows and rollback', { timeout: 120000 }, async t => {
-  const api = await import('../apps/api/src/home/index.ts');
+  const api = await Promise.all([import("../apps/api/src/modules/home/application/service.ts"),import("../apps/api/src/modules/home/infrastructure/unit-of-work.ts"),import("../apps/api/src/modules/home/presentation/http.ts")]).then(([m0,m1,m2]) => Object.freeze({createHomeService: m0.createHomeService,createHomeUnitOfWork: m1.createHomeUnitOfWork,createHomeHandler: m2.createHomeHandler}));
   await withAgendaDatabase(async ({ transaction }) => {
     const check = (name, operation) => t.test(name, () => transaction(async local => {
       const f = await homeFixture(local.query);

@@ -4,7 +4,7 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { descendants } from './agenda-ui-helpers.test.mjs';
 
 test('Agenda keeps the next deadline visible and every later deadline accessible without duplicating actions', () => {
-  const { Upcoming } = loadTsModule('apps/agenda-ui/Upcoming.tsx');
+  const { Upcoming } = loadTsModule("apps/web/src/features/agenda/ui/Upcoming.tsx");
   const items = ['first', 'second', 'third'].map(id => ({ id })), onOpen = () => {};
   const tree = Upcoming({ items, loading: false, error: '', busy: true, onOpen });
   const details = descendants(tree, n => n.type === 'details')[0];

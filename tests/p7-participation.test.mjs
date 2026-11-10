@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ClassroomService } from '../.build/api/apps/api/src/classrooms/service.js';
+import { ClassroomService } from '../.build/api/apps/api/src/bootstrap/academic-composition.js';
 
 test('participation public service extends all accepted classroom behavior', () => {
   for (const name of ['activitySession', 'startActivity', 'transferAttemptEditor', 'authorizeFirstSubmission', 'changeActivities', 'invite', 'changeWall'])
     assert.equal(typeof ClassroomService.prototype[name], 'function', name);
 });
 test('server receipt boundary, optional deadlines and later general extension are pure', async () => {
-  const { receptionPolicy } = await import('../apps/api/src/classrooms/attempt-policy.ts');
+  const { receptionPolicy } = await import("../apps/api/src/modules/participation/infrastructure/attempt-policy.ts");
   const deadline = new Date('2026-11-01T06:30:00Z');
   assert.deepEqual(receptionPolicy(null, null, false, deadline), { deadline: null, open: true, late: false });
   assert.deepEqual(receptionPolicy(deadline, null, false, new Date(+deadline - 1)), { deadline, open: true, late: false });
@@ -20,8 +20,8 @@ test('server receipt boundary, optional deadlines and later general extension ar
 
 import { randomUUID } from 'node:crypto';
 import { withP5Database } from '../scripts/p5-database.mjs';
-import { FileStore } from '../.build/api/apps/api/src/files/store.js';
-import { assertAttemptWrite } from '../.build/api/apps/api/src/classrooms/activity-participation.js';
+import { FileStore } from '../.build/api/apps/api/src/modules/files/infrastructure/store.js';
+import { assertAttemptWrite } from '../.build/api/apps/api/src/modules/participation/infrastructure/attempt-access.js';
 
 test('transactional enrollment/publication, initial attempts and editor authorization on controlled SQL', {timeout:120000}, async t => {
   await withP5Database(async ({pool,database}) => {

@@ -1,0 +1,88 @@
+import { fail, object, text, uuid } from '../../../../../../src/core/domain/classrooms/policy.ts';
+import { activityTopics } from './topic-selection.ts';
+import { parseEvaluationRubric, type EvaluationRubric } from '../../../../../../src/core/domain/grading/evaluation-rubric.ts';
+
+export type ActivityType = 'ASSIGNMENT' | 'QUESTIONNAIRE' | 'EVALUATION';
+export interface AuthoringQuestion {
+  type: 'DEVELOPMENT' | 'SINGLE_CHOICE' | 'MULTIPLE_CHOICE';
+  prompt: string; points: string; scoringRule: 'EXACT' | 'PARTIAL' | null;
+  options: { text: string; correct: boolean }[];
+}
+export interface ActivityPayload {
+  objective?: string | null; teacherComment?: string | null;
+  title: string | null; unitId: string | null; topicId: string | null; topicIds: string[]; instructions: string | null;
+  attachmentRequired: boolean; instructionFileIds: string[]; materialIds: string[];
+  questions: AuthoringQuestion[]; deadline: unknown; allowLate: boolean; aiGradingRubric?: string; evaluationRubric?: EvaluationRubric;
+}
+export function activityType(value: unknown): ActivityType {
+  if (typeof value !== 'string' || !['ASSIGNMENT', 'QUESTIONNAIRE', 'EVALUATION'].includes(value)) return fail('INVALID_INPUT');
+  return value as ActivityType;
+}
+import { exactActivityObject } from '../../../../../../src/core/domain/classrooms/exact-object.ts';
+export { exactActivityObject } from '../../../../../../src/core/domain/classrooms/exact-object.ts';
+
+function multiline(value: unknown, max: number, required = false): string {
+  if (typeof value !== 'string' || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/u.test(value)
+    || [...value].length > max || (required && !value.trim())) return fail('INVALID_INPUT');
+  return value;
+}
+function ids(value: unknown): string[] {
+  if (!Array.isArray(value) || !value.every(uuid) || new Set(value).size !== value.length) return fail('INVALID_INPUT');
+  return value;
+}
+export function authoringQuestion(input: unknown): AuthoringQuestion {
+  const q = exactActivityObject(input, ['type', 'prompt', 'points', 'scoringRule', 'options']);
+  if (!['DEVELOPMENT', 'SINGLE_CHOICE', 'MULTIPLE_CHOICE'].includes(q.type)) return fail('INVALID_INPUT');
+  // Numeric input is canonical decimal text: no exponent, infinities or silently rounded precision.
+  if (typeof q.points !== 'string' || !/^(?:0|[1-9]\d*)(?:\.\d{1,2})?$/.test(q.points) || !/[1-9]/.test(q.points)) return fail('INVALID_INPUT');
+  if (!Array.isArray(q.options)) return fail('INVALID_INPUT');
+  const options = q.options.map((item: unknown) => {
+    const option = exactActivityObject(item, ['text', 'correct']);
+    if (typeof option.correct !== 'boolean') return fail('INVALID_INPUT');
+    return { text: multiline(option.text, 20000, true), correct: option.correct };
+  });
+  const correct = options.filter((o: { correct: boolean }) => o.correct).length;
+  if (q.type === 'DEVELOPMENT' ? (q.scoringRule !== null || options.length !== 0)
+    : q.type === 'SINGLE_CHOICE' ? (q.scoringRule !== 'EXACT' || options.length < 2 || correct !== 1)
+    : (!['EXACT', 'PARTIAL'].includes(q.scoringRule) || options.length < 2 || correct < 2)) return fail('INVALID_INPUT');
+  return { type: q.type, prompt: multiline(q.prompt, 20000, true), points: q.points, scoringRule: q.scoringRule, options };
+}
+export function activityPayload(input: unknown, type: ActivityType, published: boolean): ActivityPayload {
+  const keys = ['title', 'unitId', 'instructions', 'attachmentRequired', 'instructionFileIds', 'materialIds', 'questions', 'deadline', 'allowLate'];
+  const p = object(input, [...keys, 'topicId', 'topicIds', 'aiGradingRubric', 'evaluationRubric', 'objective', 'teacherComment']);
+  if (keys.some(key => !Object.hasOwn(p, key))) return fail('INVALID_INPUT');
+  const aiGradingRubric = Object.hasOwn(p, 'aiGradingRubric') ? multiline(p.aiGradingRubric, 5000) : '';
+  let evaluationRubric: EvaluationRubric = [];
+  try { if (Object.hasOwn(p, 'evaluationRubric')) evaluationRubric = parseEvaluationRubric(p.evaluationRubric); } catch { return fail('INVALID_INPUT'); }
+  const selection = activityTopics(p, published);
+  if (typeof p.attachmentRequired !== 'boolean' || typeof p.allowLate !== 'boolean' || !Array.isArray(p.questions)) return fail('INVALID_INPUT');
+  const title = text(p.title, 200, published) || null;
+  const instructions = multiline(p.instructions, 5000) || null;
+  const instructionFileIds = ids(p.instructionFileIds), materialIds = ids(p.materialIds);
+  const questions = p.questions.map(authoringQuestion);
+  if (type === 'ASSIGNMENT') {
+    if (questions.length || (published && !instructions?.trim() && !instructionFileIds.length)) return fail('INVALID_INPUT');
+  } else if (instructionFileIds.length || p.attachmentRequired || (published && !questions.length)) return fail('INVALID_INPUT');
+  return { title, ...selection, instructions,
+    ...(Object.hasOwn(p, 'objective') ? { objective: p.objective === null ? null : multiline(p.objective, 1400) || null } : {}),
+    ...(Object.hasOwn(p, 'teacherComment') ? { teacherComment: p.teacherComment === null ? null : multiline(p.teacherComment, 5000) || null } : {}), attachmentRequired: p.attachmentRequired,
+    instructionFileIds, materialIds, questions, deadline: p.deadline, allowLate: p.allowLate, aiGradingRubric, evaluationRubric };
+}
+
+export function activityOperation(input: unknown) {
+  const op = object(input, ['action', 'id', 'type', 'payload', 'title', 'unitId', 'topicId', 'topicIds', 'deadline', 'allowLate']);
+  const shapes: Record<string, string[]> = {
+    create: ['action', 'type'], save: ['action', 'id', 'payload'], publish: ['action', 'id'], withdraw: ['action', 'id'],
+    metadata: ['action', 'id', 'title', 'unitId'], deadline: ['action', 'id', 'deadline', 'allowLate'],
+  };
+  const shape = typeof op.action === 'string' && Object.hasOwn(shapes, op.action) ? shapes[op.action] : undefined;
+  if (!shape) return fail('INVALID_INPUT');
+  if (op.action === 'metadata') {
+    object(op, [...shape, 'topicId', 'topicIds']);
+    if (shape.some(key => !Object.hasOwn(op, key))) return fail('INVALID_INPUT');
+    activityTopics(op, false);
+  } else exactActivityObject(op, shape);
+  if (op.action === 'create') activityType(op.type);
+  else if (!uuid(op.id)) return fail('INVALID_INPUT');
+  return op;
+}

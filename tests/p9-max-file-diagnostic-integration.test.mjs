@@ -98,7 +98,7 @@ async function scanOnce(endpoint, bytes) {
 /** Exact existing product worker and resource options from files/content.ts, not a rewritten parser. */
 async function parseOnce(bytes) {
   const start = Date.now(), output = { stdout: '', stderr: '' };
-  const worker = new Worker(new URL('../.build/api/apps/api/src/files/content-worker.js', import.meta.url), {
+  const worker = new Worker(new URL("../.build/api/apps/api/src/modules/files/infrastructure/content-worker.js", import.meta.url), {
     workerData: { bytes, extension: 'zip' }, execArgv: [],
     resourceLimits: { maxOldGenerationSizeMb: 128, maxYoungGenerationSizeMb: 16, stackSizeMb: 4 }, stdout: true, stderr: true,
   });
@@ -109,7 +109,7 @@ async function parseOnce(bytes) {
     return await new Promise(resolve => {
       const finish = async result => {
         clearTimeout(timer); const exitCode = await worker.terminate();
-        resolve({ worker: '.build/api/apps/api/src/files/content-worker.js', execArgv: [], timeoutMs: 15000,
+        resolve({ worker: ".build/api/apps/api/src/modules/files/infrastructure/content-worker.js", execArgv: [], timeoutMs: 15000,
           resourceLimits: { maxOldGenerationSizeMb: 128, maxYoungGenerationSizeMb: 16, stackSizeMb: 4 },
           elapsedMs: Date.now() - start, exitCode, stdout: safeOutput(output.stdout), stderr: safeOutput(output.stderr), ...result });
       };
@@ -177,7 +177,7 @@ test('P9 isolated same50000000-byte diagnostic retains public rejection, scoped 
           const pending = response.finished().then(error => { row.complete = !error; });
           pendingResponses.add(pending); void pending.finally(() => pendingResponses.delete(pending));
         });
-        await account(page, runtime.origin, runtime.inbox, `p9-max-diagnostic-${role}-${Date.now()}@example.test`);
+        await account(page, runtime.origin, runtime.inbox, `p9-max-diagnostic-${role}-${Date.now()}@example.test`, undefined, role);
         return page;
       };
       const public200 = async (page, method, path, body) => {

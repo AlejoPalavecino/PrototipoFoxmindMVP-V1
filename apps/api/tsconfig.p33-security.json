@@ -1,5 +1,11 @@
 {
   "extends": "./tsconfig.json",
-  "compilerOptions": { "outDir": "../../.build/p33-security" },
-  "include": ["src/identity-security/**/*.ts", "src/identity-protocol.ts"]
+  "compilerOptions": {
+    "outDir": "../../.build/p33-security"
+  },
+  "include": [
+    "src/modules/identity/infrastructure/security/**/*.ts",
+    "src/modules/identity/domain/digest-domains.ts",
+    "src/modules/identity/presentation/session-cookies.ts"
+  ]
 }

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ClassroomService } from '../.build/api/apps/api/src/classrooms/service.js';
+import { ClassroomService } from '../.build/api/apps/api/src/bootstrap/academic-composition.js';
 import { randomUUID } from 'node:crypto';
 import { withGradingFixture, tableHash, gradingTables, protectedTables } from './p8-grading-helpers.mjs';
 

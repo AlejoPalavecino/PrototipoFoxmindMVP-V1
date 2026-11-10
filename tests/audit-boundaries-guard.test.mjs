@@ -4,6 +4,7 @@ import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { checkBoundaries } from '../scripts/check-boundaries.mjs';
+import { legacyEdges } from '../scripts/boundary-legacy-edges.mjs';
 
 async function fixture(files, inspect) {
   const root = await mkdtemp(join(tmpdir(), 'foxmind-arq04-'));
@@ -119,7 +120,7 @@ test('escaped names and absolute module paths cannot bypass the boundary', async
 test('Foxy runtime cannot reopen the former Files exception or import the host adapter', async () => {
   const path = 'apps/api/src/foxy-ai/runtime.ts';
   await fixture({
-    [path]: "import type { FileService } from '../files/index.ts'; import { createFoxyFileOperations } from '../foxy-file-integration.ts'; async function load() { const { createDurableFoxyDocumentReader } = await import('../files/index.ts'); }",
+    [path]: "import type { FileService } from '../files/index.ts'; import { createFoxyFileOperations } from '../bootstrap/foxy-file-integration.ts'; async function load() { const { createDurableFoxyDocumentReader } = await import('../files/index.ts'); }",
   }, root => {
     const violations = checkBoundaries(root).join('\n');
     assert.match(violations, /broad barrel dependency: .*FileService/);
@@ -156,22 +157,22 @@ test('classifies new eager, deferred, type-only and mixed file cycles', async ()
   }
 });
 
-test('a new symbol or import form cannot reuse a historical exception', async () => {
+test('historical private imports and new symbols are both rejected', async () => {
   await fixture({
     'apps/api/src/classrooms/practical-submissions.ts': "import type { FileRow } from '../files/store.ts';",
     'apps/api/src/classrooms/session-readers.ts': "import type { Unexpected } from '../files/store.ts';",
   }, root => {
     const violations = checkBoundaries(root).join('\n');
     assert.match(violations, /cross-module private API: .*session-readers\.ts/);
-    assert.doesNotMatch(violations, /practical-submissions\.ts/);
+    assert.match(violations, /cross-module private API: .*practical-submissions\.ts/);
   });
 });
 
-test('strict baseline mode detects an exception whose source dependency disappeared', async () => {
+test('architecture baseline is empty and strict mode needs no historical exceptions', async () => {
+  assert.equal(legacyEdges.size, 0);
   await fixture({ 'apps/api/src/classrooms/practical-submissions.ts': 'export {};' }, root => {
     assert.deepEqual(checkBoundaries(root), []);
-    assert.ok(checkBoundaries(root, { checkStale: true }).some(violation =>
-      violation.startsWith('stale architecture exception: cross-module private API: apps/api/src/classrooms/practical-submissions.ts |')));
+    assert.deepEqual(checkBoundaries(root, { checkStale: true }), []);
   });
 });
 
@@ -243,9 +244,9 @@ test('frontend features and shared code cannot depend on higher layers or legacy
   }, root => assert.deepEqual(checkBoundaries(root), []));
 });
 
-test('Agenda compatibility bridges accept only exact named reexports', async () => {
+test('former Agenda compatibility bridges cannot reopen private implementation access', async () => {
   for (const [code, allowed] of [
-    ["export { AgendaService, createAgendaService } from '../modules/agenda/application/agenda-service.ts';", true],
+    ["export { AgendaService, createAgendaService } from '../modules/agenda/application/agenda-service.ts';", false],
     ["export { futureInternalHelper } from '../modules/agenda/application/agenda-service.ts';", false],
     ["export { futureInternalHelper as AgendaService } from '../modules/agenda/application/agenda-service.ts';", false],
     ["export type { AgendaService, createAgendaService } from '../modules/agenda/application/agenda-service.ts';", false],
@@ -258,10 +259,33 @@ test('Agenda compatibility bridges accept only exact named reexports', async () 
   }
   await fixture({
     'apps/agenda-ui/EventForm.tsx': "export { EventForm } from '../web/src/features/agenda/ui/EventForm.tsx';",
-  }, root => assert.deepEqual(checkBoundaries(root), []));
+  }, root => assert.ok(checkBoundaries(root).length));
   await fixture({
     'apps/agenda-ui/EventForm.tsx': "export { EventFields } from '../web/src/features/agenda/ui/EventFields.tsx';",
   }, root => assert.ok(checkBoundaries(root).length));
+});
+
+test('legacy sources cannot import bootstrap wiring or reopen the former classroom Agenda facade', async () => {
+  for (const [file, code, kind] of [
+    ['apps/api/src/agenda/host.ts', "export { installAgendaTransport } from '../bootstrap/agenda-transport.ts';", 'host-only dependency'],
+    ['apps/api/src/agenda/unit-of-work.ts', "export { createAgendaUnitOfWork } from '../bootstrap/agenda-composition.ts';", 'host-only dependency'],
+    ['apps/api/src/classrooms/public/index.ts', "export { createAcademicAgenda } from '../agenda.ts';", 'public surface dependency'],
+  ]) await fixture({ [file]: code }, root => assert.ok(checkBoundaries(root).some(value => value.startsWith(kind)), code));
+});
+
+test('retired integration paths no longer grant host composition privileges', async () => {
+  for (const file of ['attachment-integration.ts', 'foxy-file-integration.ts', 'study-file-integration.ts', 'study-agenda-integration.ts', 'study-folders/http.ts']) {
+    const target = file.includes('/') ? '../modules/files/infrastructure/store.ts' : './modules/files/infrastructure/store.ts';
+    await fixture({ [`apps/api/src/${file}`]: `import { Store } from '${target}';` }, root => {
+      assert.ok(checkBoundaries(root).some(value => value.startsWith('cross-module private API')), file);
+    });
+  }
+  for (const file of ['application.ts', 'main.ts', 'configuration.ts', 'bootstrap/composition.ts']) {
+    const target = file.includes('/') ? '../modules/files/infrastructure/store.ts' : './modules/files/infrastructure/store.ts';
+    await fixture({ [`apps/api/src/${file}`]: `import { Store } from '${target}';` }, root => {
+      assert.deepEqual(checkBoundaries(root), [], file);
+    });
+  }
 });
 
 test('identity transport facade stays public, named and free of UI or Node dependencies', async () => {
@@ -280,4 +304,29 @@ test('identity transport facade stays public, named and free of UI or Node depen
     ['apps/web/src/features/identity/api/account-client.ts', "import { useRouter } from 'next/router';"],
     ['apps/web/src/features/identity/api/account-client.ts', "import { view } from '../model/account-view.ts';"],
   ]) await fixture({ [file]: code }, root => assert.ok(checkBoundaries(root).length, code));
+});
+
+test('every feature pure API facade has the same named public and browser-only constraints', async () => {
+  await fixture({
+    'apps/web/src/application/client.ts': "import { Client } from '../features/foxy/api.ts';",
+    'apps/web/src/features/foxy/api.ts': "export type { Client } from './api/client.ts';",
+    'apps/web/src/features/foxy/api/client.ts': "import type { Data } from '../model/types.ts';",
+  }, root => assert.deepEqual(checkBoundaries(root), []));
+  for (const code of ["import fs from 'fs';", "import { View } from '../ui/View.tsx';", "import { useState } from 'react';"]) {
+    await fixture({'apps/web/src/features/study/api/client.ts':code},root=>assert.ok(checkBoundaries(root).length));
+  }
+});
+
+test('neutral contracts are scanned and cannot hide framework or backend imports', async () => {
+  for (const target of ['node:fs','next/router','../../../apps/api/src/private.ts']) {
+    await fixture({'src/core/contracts/learning.ts':`import { value } from '${target}';`},root=>assert.ok(checkBoundaries(root).length,target));
+  }
+});
+
+test('test-only Node dependencies stay executable without becoming production imports', async () => {
+  await fixture({'apps/api/src/modules/files/application/run.test.ts':"import test from 'node:test'; import assert from 'node:assert/strict';"},root=>assert.deepEqual(checkBoundaries(root),[]));
+  await fixture({
+    'apps/api/src/modules/files/application/run.ts':"import { fixture } from './run.test.ts';",
+    'apps/api/src/modules/files/application/run.test.ts':"import fs from 'node:fs';",
+  },root=>assert.ok(checkBoundaries(root).some(x=>x.startsWith('production test dependency'))));
 });

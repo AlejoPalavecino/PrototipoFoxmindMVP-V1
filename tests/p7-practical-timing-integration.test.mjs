@@ -13,8 +13,8 @@ test('TP complete-body receipt boundary is independent of later processing waits
   const browser=await chromium.launch({headless:true});
   try{
    const teacher=await(await browser.newContext()).newPage(),student=await(await browser.newContext()).newPage(),suffix=Date.now();
-   await account(teacher,runtime.origin,runtime.inbox,`p7-tp-time-teacher-${suffix}@example.test`);
-   await account(student,runtime.origin,runtime.inbox,`p7-tp-time-student-${suffix}@example.test`);
+   await account(teacher,runtime.origin,runtime.inbox,`p7-tp-time-teacher-${suffix}@example.test`, undefined, "teacher");
+   await account(student,runtime.origin,runtime.inbox,`p7-tp-time-student-${suffix}@example.test`, undefined, "student");
    const room=await classroom(teacher,student,'TP receipt timing'),detail=await api(teacher,'GET',`/classrooms/${room.id}`);assert.equal(detail.status,200);
    const unit=detail.body.units[0].id,topic=detail.body.units[0].topics[0].id;
    const ok=async(page,method,path,body,headers)=>{const r=await api(page,method,path,body,headers);assert.equal(r.status,200,`${method} ${path} prerequisite`);return r.body;};

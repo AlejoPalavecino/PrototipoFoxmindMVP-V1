@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:net';
 import { readFileSync } from 'node:fs';
-import { ClamdScanner } from '../apps/api/src/files/scanner.ts';
+import { ClamdScanner } from '../apps/api/src/modules/files/infrastructure/scanner.ts';
 
 // A tiny protocol peer, never ClamAV or an application upload.
 async function withPeer(reply, timeoutMs, run) {

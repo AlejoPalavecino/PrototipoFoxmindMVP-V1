@@ -5,6 +5,7 @@ import { chromium } from '@playwright/test';
 import { withP4IntegrationRuntime } from '../scripts/p4-integration-runtime.mjs';
 import { account, api } from './p4-integration-helpers.mjs';
 import { classroom } from './p6-integration-helpers.mjs';
+import { visibleNavigation } from './entry-glass-browser-helpers.mjs';
 
 test('mobile notification opening and responsive reflow reveal the active classroom tab', { timeout: 120000 }, async () => {
   await withP4IntegrationRuntime(async runtime => {
@@ -21,6 +22,7 @@ test('mobile notification opening and responsive reflow reveal the active classr
         revision: detail.revision, operation: { action: 'publish', body: 'A notice opened from a mobile notification' },
       })).status, 200);
       await student.goto(`${runtime.origin}/mis-aulas`);
+      await visibleNavigation(student);
       await student.getByRole('button', { name: /^Notificaciones/ }).click();
       await student.getByRole('dialog', { name: 'Notificaciones', exact: true })
         .getByRole('button', { name: 'Abrir conversación', exact: true }).click();
@@ -30,11 +32,18 @@ test('mobile notification opening and responsive reflow reveal the active classr
       for (const width of [320, 375, 1280, 320]) {
         await student.setViewportSize({ width, height: 900 });
         await student.waitForFunction(() => {
-          const nav = document.querySelector('.p5-tabs');
+          const mobile = document.querySelector('select[aria-label="Sección del aula"]');
+          if (mobile?.getClientRects().length) {
+            const bounds = mobile.getBoundingClientRect();
+            return mobile.value === 'wall' && mobile.selectedOptions[0]?.textContent === 'Muro'
+              && bounds.left >= 0 && bounds.right <= innerWidth;
+          }
+          const nav = document.querySelector('nav[aria-label="Secciones del aula"]');
           const active = nav?.querySelector('[aria-current="page"]');
           if (!nav || !active) return false;
           const n = nav.getBoundingClientRect(), a = active.getBoundingClientRect();
-          return active.textContent === 'Muro' && a.left >= n.left && a.right <= n.right;
+          return active.textContent === 'Muro' && a.left >= n.left && a.right <= n.right
+            && a.left >= 0 && a.right <= innerWidth;
         });
         assert.equal(await student.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
       }

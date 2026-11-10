@@ -15,8 +15,8 @@ test('questionnaire recovery from ambiguous acknowledgement and stale focus epoc
     const browser = await chromium.launch({ headless: true });
     try {
       const teacher = await (await browser.newContext()).newPage(), student = await (await browser.newContext()).newPage(), suffix = Date.now();
-      await account(teacher, runtime.origin, runtime.inbox, `p7-answer-recovery-teacher-${suffix}@example.test`);
-      await account(student, runtime.origin, runtime.inbox, `p7-answer-recovery-student-${suffix}@example.test`);
+      await account(teacher, runtime.origin, runtime.inbox, `p7-answer-recovery-teacher-${suffix}@example.test`, undefined, "teacher");
+      await account(student, runtime.origin, runtime.inbox, `p7-answer-recovery-student-${suffix}@example.test`, undefined, "student");
       const room = await classroom(teacher, student, 'Answer recovery classroom');
       const ok = async (...args) => { const r = await api(...args); assert.equal(r.status, 200, `${args[1]} ${args[2]} prerequisite`); return r.body; };
       const detail = await ok(teacher, 'GET', `/classrooms/${room.id}`);
@@ -27,8 +27,8 @@ test('questionnaire recovery from ambiguous acknowledgement and stale focus epoc
         questions: [{ type: 'DEVELOPMENT', prompt: 'Explain', points: '1', scoringRule: null, options: [] }] } });
       await change({ action: 'publish', id });
       await openClassroom(student, runtime.origin, 'Answer recovery classroom'); await student.getByRole('button', { name: 'Actividades', exact: true }).click();
-      await student.getByRole('article', { name: 'Recovery questionnaire', exact: true }).getByRole('button', { name: 'Consultar actividad', exact: true }).click();
-      const start = await startBrowserAttempt(student, room.id, id, 30000); assert.equal(start.status(), 200);
+      await student.getByRole('article', { name: 'Recovery questionnaire', exact: true }).getByRole('button', { name: 'Abrir Recovery questionnaire', exact: true }).click();
+      const start = await startBrowserAttempt(student, room.id, id, 30000, 'Responder actividad'); assert.equal(start.status(), 200);
       const input = student.getByRole('textbox', { name: 'Respuesta a la pregunta 1', exact: true });
       const session = () => ok(student, 'GET', `/classrooms/${room.id}/activities/${id}/session`);
       let failed = false;
@@ -48,7 +48,7 @@ test('questionnaire recovery from ambiguous acknowledgement and stale focus epoc
           assert.equal((await session()).attempt.revision, committedRevision);
           await input.fill('Newer retained local intent');
           const retried = student.waitForResponse(r => r.url().endsWith('/answer') && r.request().postDataJSON().text === 'Newer retained local intent');
-          await student.getByRole('button', { name: 'Guardar respuestas', exact: true }).click();
+          await student.getByRole('button', { name: 'Guardar borrador', exact: true }).click();
           const result = await retried; assert.equal(result.request().postDataJSON().revision, committedRevision); assert.equal(result.status(), 200);
           await student.getByText('Guardado confirmado', { exact: true }).waitFor();
           assert.equal((await session()).attempt.answers[0].text, 'Newer retained local intent');
@@ -56,9 +56,10 @@ test('questionnaire recovery from ambiguous acknowledgement and stale focus epoc
       });
       await check('network-controlled stale focus snapshot cannot roll back a newer successful explicit transfer', async () => {
         // Create a read-only mount, then hold its older read while the same tab explicitly takes control.
-        await student.reload(); await student.getByRole('button', { name: 'Entrar al aula', exact: true }).click();
+        await openClassroom(student, runtime.origin, 'Answer recovery classroom');
         await student.getByRole('button', { name: 'Actividades', exact: true }).click();
-        await student.getByRole('article', { name: 'Recovery questionnaire', exact: true }).getByRole('button', { name: 'Consultar actividad', exact: true }).click();
+        await student.getByRole('article', { name: 'Recovery questionnaire', exact: true }).getByRole('button', { name: 'Abrir Recovery questionnaire', exact: true }).click();
+        await student.locator('.brujula-activity-options').getByRole('button', { name: 'Continuar borrador', exact: true }).click();
         assert.equal(await input.isDisabled(), true);
         let entered, release; const waiting = new Promise(r => entered = r), gate = new Promise(r => release = r); let intercepted = false;
         await student.route(`**/activities/${id}/session`, async route => {
@@ -73,7 +74,7 @@ test('questionnaire recovery from ambiguous acknowledgement and stale focus epoc
           const oldRead = student.waitForResponse(r => r.url().endsWith(`/activities/${id}/session`)); release(); assert.equal((await oldRead).status(), 200);
           assert.equal(await input.isEnabled(), true); assert.equal(await student.getByRole('button', { name: 'Continuar en esta pestaña', exact: true }).count(), 0);
           const saved = student.waitForResponse(r => r.url().endsWith('/answer')); await input.fill('Still owns the newer epoch');
-          await student.getByRole('button', { name: 'Guardar respuestas', exact: true }).click(); assert.equal((await saved).status(), 200);
+          await student.getByRole('button', { name: 'Guardar borrador', exact: true }).click(); assert.equal((await saved).status(), 200);
           assert.equal((await session()).attempt.answers[0].text, 'Still owns the newer epoch');
           for (const table of ['attempt_grades','question_grades','grade_corrections']) assert.equal((await runtime.db.query(`SELECT count(*)::int n FROM ${table}`)).rows[0].n, 0);
         } finally { release?.(); await student.unroute(`**/activities/${id}/session`); }

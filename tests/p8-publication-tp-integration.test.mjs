@@ -1,4 +1,5 @@
-import { startBrowserAttempt } from './helpers/browser-admission-step.mjs';
+import { visibleNavigation } from './entry-glass-browser-helpers.mjs';
+import { startBrowserAttempt, openActivityOverview, openPracticalActivity, openTeacherActivity, selectClassroomSection } from './p8-current-ui-helpers.mjs';
 import { readdirSync } from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -61,8 +62,9 @@ test('P8 distinct TP delivery -> explicit publication -> clean own result -> pri
       let failed = false;
       const check = (label, fn) => t.test(label, { skip: failed ? 'Earlier actual publication prerequisite failed' : false }, async () => { try { await fn(); } catch (e) { failed = true; throw e; } });
       for (const activity of activities) await check(`${activity.type} real browser saved correction is explicitly published to its own result and notification`, async () => {
-        await openClassroom(student, runtime.origin, name); await student.getByRole('button', { name: 'Actividades', exact: true }).click();
-        const open = () => student.getByRole('article', { name: activity.title, exact: true }).getByRole('button', { name: activity.type === 'ASSIGNMENT' ? 'Abrir trabajo práctico' : 'Consultar actividad', exact: true }).click();
+        await openClassroom(student, runtime.origin, name); await selectClassroomSection(student, 'activities', 'Actividades');
+        const open = () => activity.type === 'ASSIGNMENT'
+          ? openPracticalActivity(student, room.id, activity.id, activity.title) : openActivityOverview(student, activity.title);
         if (activity.type === 'ASSIGNMENT') await openPublicationPractical(student, room.id, activity.id, open);
         else await open();
         if (activity.type === 'ASSIGNMENT') {
@@ -70,14 +72,14 @@ test('P8 distinct TP delivery -> explicit publication -> clean own result -> pri
           await student.getByLabel('Seleccionar archivo del trabajo', { exact: true }).setInputFiles({ name: 'p8-original.pdf', mimeType: 'application/pdf', buffer: bytes });
           const upload = student.waitForResponse(r => r.url().endsWith('/content') && r.request().method() === 'PUT');
           await student.getByRole('button', { name: 'Subir archivo privado', exact: true }).click(); assert.equal((await upload).status(), 200);
-          await student.getByRole('button', { name: 'Enviar trabajo práctico', exact: true }).click();
+          await student.getByRole('button', { name: 'Revisar entrega', exact: true }).click();
           const submitted = student.waitForResponse(r => r.url().endsWith('/submit-practical'));
           await student.getByRole('button', { name: 'Confirmar envío del trabajo', exact: true }).click(); assert.equal((await submitted).status(), 200);
-          await student.getByRole('heading', { name: 'Comprobante de entrega', exact: true }).waitFor();
+          await student.getByText('Entrega confirmada.', { exact: true }).waitFor();
         } else {
           await startBrowserAttempt(student, room.id, activity.id, 12000);
           await student.getByRole('textbox', { name: 'Respuesta a la pregunta 1', exact: true }).fill('Actual preserved answer 😀');
-          await student.getByRole('button', { name: 'Enviar respuestas', exact: true }).click();
+          await student.getByRole('button', { name: 'Revisar entrega', exact: true }).click();
           const submitted = student.waitForResponse(r => r.url().endsWith('/submit-answers'));
           await student.getByRole('button', { name: 'Confirmar envío de respuestas', exact: true }).click(); assert.equal((await submitted).status(), 200);
           await student.getByText('Entrega confirmada.', { exact: true }).waitFor();
@@ -85,18 +87,18 @@ test('P8 distinct TP delivery -> explicit publication -> clean own result -> pri
         activity.attempt = (await ok(student, 'GET', `/classrooms/${room.id}/activities/${activity.id}/session`)).attempt.id;
         const path = `/classrooms/${room.id}/attempts/${activity.attempt}/grading`, before = await protectedHash();
         const previewHash = await gradeHash(); await ok(teacher, 'GET', path); assert.equal(await gradeHash(), previewHash);
-        await openClassroom(teacher, runtime.origin, name); await teacher.getByRole('button', { name: 'Actividades', exact: true }).click();
-        await teacher.getByRole('article', { name: activity.title, exact: true }).getByRole('button', { name: 'Ver entregas recibidas', exact: true }).click();
+        await openClassroom(teacher, runtime.origin, name); await selectClassroomSection(teacher, 'activities', 'Actividades');
+        await openTeacherActivity(teacher, activity.title);
         await teacher.getByRole('button', { name: 'Corregir intento 1', exact: true }).click();
         const region = teacher.getByRole('region', { name: 'Corrección privada del intento', exact: true });
         await region.getByText('Corrección privada: el estudiante no ve esta calificación.', { exact: false }).waitFor();
         const entered = activity.type === 'ASSIGNMENT' ? '8,50' : activity.type === 'QUESTIONNAIRE' ? '8,35' : '0';
-        await region.getByLabel(activity.type === 'ASSIGNMENT' ? 'Calificación general' : 'Puntos de la pregunta 1', { exact: true }).fill(entered);
+        await region.getByLabel(activity.type === 'ASSIGNMENT' ? 'Nota final' : 'Puntos de la pregunta 1', { exact: true }).fill(entered);
         await region.getByLabel('Devolución general opcional', { exact: true }).fill('Private general feedback');
         const saved = teacher.waitForResponse(r => r.url().endsWith('/grading') && r.request().method() === 'POST');
         await region.getByRole('button', { name: 'Guardar corrección privada', exact: true }).click(); assert.equal((await saved).status(), 200);
         const expected = activity.type === 'ASSIGNMENT' ? '8.50' : activity.type === 'QUESTIONNAIRE' ? '8.35' : '0.00'; activity.expected = expected;
-        await region.getByText(`Calificación calculada: ${expected.replace('.', ',')}`, { exact: true }).waitFor();
+        await region.getByText(`Nota guardada: ${expected.replace('.', ',')}`, { exact: true }).waitFor();
         assert.equal(await protectedHash(), before);
         const persisted = await ok(teacher, 'GET', path); assert.equal(persisted.grade.finalGrade, expected); assert.equal(persisted.grade.isPublished, false);
         assert.equal(persisted.grade.publishedAt, null); assert.equal((await runtime.db.query('SELECT count(*)::int n FROM attempt_grades WHERE attempt_id=$1', [activity.attempt])).rows[0].n, 1);
@@ -150,6 +152,7 @@ test('P8 distinct TP delivery -> explicit publication -> clean own result -> pri
           assert.equal(download.digest, digest(await runtime.privateFileBytes(result.attachments[0].id)));
         }
         await openClassroom(student, runtime.origin, name);
+        await visibleNavigation(student);
         await student.getByRole('button', { name: /^Notificaciones/ }).click();
         const notification = student.locator('.p6-notifications li').filter({ hasText: 'Calificación publicada' }).first();
         const resultResponse = student.waitForResponse(r => r.url().endsWith(`/${activity.attempt}/result`) && r.request().method() === 'GET');
@@ -188,7 +191,7 @@ test('P8 distinct TP delivery -> explicit publication -> clean own result -> pri
         });
         await archive(true);
         assert.equal((await request(student, 'POST', `${roomPath}/leave`, {}, { 'x-csrf-token': 'invalid' })).status, 403);
-        await openClassroom(student, runtime.origin, name);
+        await openClassroom(student, runtime.origin, name, 'archived');
         const leave = student.getByRole('button', { name: 'Salir del aula', exact: true });
         await leave.focus();
         await student.keyboard.press('Enter');

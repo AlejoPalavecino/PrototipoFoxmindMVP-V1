@@ -1,5 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { PDFDocument } from 'pdf-lib';
+import { createHash } from 'node:crypto';
+import { openClassroom } from './p6-integration-helpers.mjs';
 import { withJourney, ok, request, rootOf, openActivity, selectClassroomSection, openOwnResult } from './p9-journey-helpers-current.mjs';
 
 const operationResponse = (page, roomId, action) => page.waitForResponse(response =>
@@ -25,32 +28,46 @@ test('Brújula completa real: aula manual obligatoria, autoría privada, criteri
     await wizard.getByLabel('Materia', { exact: true }).fill('Ciencias');
     await wizard.getByLabel('División', { exact: true }).fill('A');
     await wizard.getByLabel('Ciclo lectivo', { exact: true }).fill('2026');
+    const pdf = await PDFDocument.create(); pdf.addPage();
+    const planBytes = Buffer.from(await pdf.save());
+    const reserved = T.page.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/files' && response.request().method() === 'POST');
+    await wizard.locator('input[type=file]').setInputFiles({ name: 'manual-plan.pdf', mimeType: 'application/pdf', buffer: planBytes });
+    const uploaded = await reserved; assert.equal(uploaded.status(), 201);
+    const planFileId = (await uploaded.json()).id;
+    await wizard.getByText('Aprobado para usar', { exact: true }).waitFor({ timeout: 30000 });
     await wizard.getByRole('button', { name: 'Continuar', exact: true }).click();
-    wizard = T.page.getByRole('dialog', { name: 'Preparar el plan de estudio', exact: true });
+    await wizard.getByRole('radio', { name: /Cargar manualmente/ }).check();
+    await wizard.getByRole('button', { name: 'Continuar', exact: true }).click();
     let publishAttempts = 0;
     const observePublish = value => { if (value.method() === 'POST' && new URL(value.url()).pathname === `/api/v1/classrooms/drafts/${draft.id}/publish`) publishAttempts++; };
     T.page.on('request', observePublish);
     try {
-      await wizard.getByRole('button', { name: 'Crear aula', exact: true }).click();
+      await wizard.getByRole('button', { name: 'Continuar', exact: true }).click();
       await wizard.getByText(/Agregá al menos una unidad con un tema/).waitFor();
       assert.equal(publishAttempts, 0, 'Empty plan cannot reach publication');
+      await wizard.getByText('Editar el plan como texto', { exact: true }).click();
       await wizard.getByRole('textbox', { name: 'Unidades y temas', exact: true }).fill('Unidad 1 · Inicio\nTema inicial\nTema siguiente');
+      await wizard.getByRole('button', { name: 'Continuar', exact: true }).click();
       const publishing = T.page.waitForResponse(response => new URL(response.url()).pathname === `/api/v1/classrooms/drafts/${draft.id}/publish` && response.request().method() === 'POST');
-      await wizard.getByRole('button', { name: 'Crear aula', exact: true }).click();
+      await wizard.getByRole('button', { name: 'Confirmar y crear aula', exact: true }).click();
       const published = await publishing; assert.equal(published.status(), 200);
       const room = { ...(await published.json()), name: classroomName };
       await T.page.getByRole('heading', { name: classroomName, exact: true }).waitFor();
       assert.equal(publishAttempts, 1);
-      assert.deepEqual(uploads, [], 'Manual plan must not upload an invented file');
+      assert.deepEqual(uploads, [true], 'Manual creation uploads exactly the provided plan');
+      const downloadedPlan = await T.page.request.get(`${runtime.origin}/api/v1/files/${planFileId}/content`);
+      assert.equal(downloadedPlan.status(), 200);
+      assert.equal(createHash('sha256').update(await downloadedPlan.body()).digest('hex'), createHash('sha256').update(planBytes).digest('hex'));
       const state = await ok(T.page, 'GET', rootOf(room));
       assert.equal(state.accessCode,room.code,'teacher can recover the current code after reload');
       assert.equal(state.units.length, 1); assert.equal(state.units[0].topics.length, 2);
-      assert.equal((await runtime.db.query('SELECT count(*)::int n FROM study_plan_versions WHERE classroom_id=$1', [room.id])).rows[0].n, 0);
+      assert.equal((await runtime.db.query('SELECT count(*)::int n FROM study_plan_versions WHERE classroom_id=$1', [room.id])).rows[0].n, 1);
       const preview = await ok(S.page, 'POST', '/classrooms/codes/preview', { code: room.code });
       await ok(S.page, 'POST', '/classrooms/codes/confirm', { confirmation: preview.confirmation });
       assert.equal(Object.hasOwn(await ok(S.page,'GET',rootOf(room)),'accessCode'),false,'code recovery stays teacher-only');
       const world = { ...original, label: 'brujula-complete manual', room }, root = rootOf(room);
 
+      await openClassroom(T.page, runtime.origin, classroomName);
       await selectClassroomSection(T.page, 'activities', 'Actividades');
       await T.page.getByRole('button', { name: 'Crear actividad', exact: true }).click();
       await T.page.getByRole('dialog', { name: 'Crear actividad', exact: true }).getByRole('button', { name: 'Crear manualmente', exact: true }).click();

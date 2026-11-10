@@ -59,9 +59,26 @@ test('sixth small ZIP uses the same valid stored-entry construction without chan
   assert.throws(() => representativeMaximumZip(0, 113)); assert.throws(() => representativeMaximumZip(0, 114.5));
 });
 
-test('original repeated-line stress generator and fixed-SHA diagnostic remain byte-identical', () => {
+test('original stress generator and fixed-SHA diagnostic preserve bytes except canonical worker addresses and explicit actor role', () => {
   for (const [path, expected] of [
     ['p9-journey-helpers.mjs', 'dc34cbcb6a786a3225ffc15301c56ddf3b486424b67601b3a9f23f11213d7093'],
     ['p9-max-file-diagnostic-integration.test.mjs', 'e8d4aae3a9916b9b8294af09186672b3b78f85d2838d582ff733fb56f3a0539e'],
-  ]) assert.equal(sha(readFileSync(new URL(path, import.meta.url))), expected, path);
+  ]) {
+    let bytes = readFileSync(new URL(path, import.meta.url));
+    if (path === 'p9-max-file-diagnostic-integration.test.mjs') {
+      // Normalize only the relocated worker addresses and explicit actor role; every other byte
+      // remains protected by the original SHA, including payloads and resource limits.
+      let source = bytes.toString('utf8');
+      for (const prefix of ['../', '']) {
+        const canonical = `"${prefix}.build/api/apps/api/src/modules/files/infrastructure/content-worker.js"`;
+        assert.equal(source.split(canonical).length - 1, 1, 'exactly one worker address per literal');
+        source = source.replace(canonical, `'${prefix}.build/api/apps/api/src/files/content-worker.js'`);
+      }
+      const account = 'await account(page, runtime.origin, runtime.inbox, `p9-max-diagnostic-${role}-${Date.now()}@example.test`, undefined, role);';
+      assert.equal(source.split(account).length - 1, 1, 'exactly one explicit role adaptation');
+      source = source.replace(account, account.replace(', undefined, role', ''));
+      bytes = Buffer.from(source);
+    }
+    assert.equal(sha(bytes), expected, path);
+  }
 });
