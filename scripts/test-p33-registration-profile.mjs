@@ -1,12 +1,12 @@
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-// Fixed before execution: case 4 depends on case 1, so registration remains indivisible.
+// Duplicate-registration coverage depends on the registration case, so keep this group indivisible.
 const groups = {
-  registration: { range: '1–7 (7)', pattern: '^D2 (?:registration|raw Unicode|validates|duplicate|concurrent|default shared|registration IP)' },
-  account: { range: '8–12 (5)', pattern: '^D2 (?:rollback|profile|patch|mutations|media)' },
-  sessions: { range: '13–14 (2)', pattern: '^D2 (?:authorized|persisted)' },
-  lifecycle: { range: '15–17 (3)', pattern: '^D2 (?:SMTP|shutdown|real counter)' },
+  registration: { range: '2–8 (7)', pattern: '^D2 (?:registration|raw Unicode|validates|duplicate|concurrent|default shared|registration IP)' },
+  account: { range: '1, 9–13 (6)', pattern: '^D2 (?:rollback|profile|patch|mutations|media)' },
+  sessions: { range: '14–15 (2)', pattern: '^D2 (?:authorized|persisted)' },
+  lifecycle: { range: '16–18 (3)', pattern: '^D2 (?:SMTP|shutdown|real counter)' },
 };
 const usage = 'Usage: node scripts/test-p33-registration-profile.mjs --group=<registration|account|sessions|lifecycle>';
 

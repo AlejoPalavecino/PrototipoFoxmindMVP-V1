@@ -13,7 +13,8 @@ function fixture() {
   // Resource imports must be lazy: neither helper exists in this project.
   return root;
 }
-const groups = { registration: [1, 2, 3, 4, 5, 6, 7], account: [8, 9, 10, 11, 12], sessions: [13, 14], lifecycle: [15, 16, 17] };
+const groups = { registration: [2, 3, 4, 5, 6, 7, 8], account: [1, 9, 10, 11, 12, 13], sessions: [14, 15], lifecycle: [16, 17, 18] };
+const ranges = { registration: '2–8 (7)', account: '1, 9–13 (6)', sessions: '14–15 (2)', lifecycle: '16–18 (3)' };
 const names = () => [...readFileSync('tests/p33-registration-profile.test.mjs', 'utf8').matchAll(/test\('(D2 [^']+)'/g)].map(match => match[1]);
 test('public help and invalid closed-group options exit before resource imports', () => {
   const cwd = fixture();
@@ -21,14 +22,14 @@ test('public help and invalid closed-group options exit before resource imports'
     const run = spawnSync(process.execPath, ['scripts/test-p33-registration-profile.mjs', ...args], { cwd, encoding: 'utf8', timeout: 1500 });
     assert.equal(run.status, status); assert.doesNotMatch(run.stdout + run.stderr, /ERR_MODULE_NOT_FOUND|database cleanup|Mailpit|postgresql:\/\//);
     assert.match(status === 0 ? run.stdout : run.stderr, /--group=<registration\|account\|sessions\|lifecycle>/);
-    if (status === 0) { assert.equal(run.stderr, ''); for (const [name, cases] of Object.entries(groups)) assert.ok(run.stdout.includes(`${name}: cases ${cases[0]}–${cases.at(-1)} (${cases.length})`)); }
+    if (status === 0) { assert.equal(run.stderr, ''); for (const [name, range] of Object.entries(ranges)) assert.ok(run.stdout.includes(`${name}: cases ${range}`)); }
     else assert.equal(run.stdout, '');
   }
 });
 test('closed selection covers every original behavior exactly once and preserves registration dependency', () => {
   const cases = names();
-  assert.equal(cases.length, 17); assert.equal(new Set(cases).size, 17);
-  assert.deepEqual(Object.values(groups).flat(), Array.from({ length: 17 }, (_, i) => i + 1));
+  assert.equal(cases.length, 18); assert.equal(new Set(cases).size, 18);
+  assert.deepEqual(Object.values(groups).flat().sort((a, b) => a - b), Array.from({ length: 18 }, (_, i) => i + 1));
   const runner = readFileSync('scripts/test-p33-registration-profile.mjs', 'utf8');
   assert.match(runner, /--test-name-pattern/); assert.doesNotMatch(runner, /for\s*\([^)]*(?:groups|GROUPS)/);
 });
