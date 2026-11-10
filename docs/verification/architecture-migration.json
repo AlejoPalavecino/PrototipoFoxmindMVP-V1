@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "date": "2026-11-10",
-  "state": "verified locally; integrated on main; publication pending",
+  "state": "verified locally; integrated and published on main; not deployed",
   "branch": "main",
   "commits": {
     "identity": "29fda643efdd19e24bf2a05cd26eff0994bea51a",
@@ -9,14 +9,17 @@
     "navigationOcclusion": "fb6035ba3c68cc211f2b9f229197263d60e65dea",
     "domainMigration": "d09fc24701296a61542ab8e877dfda082e7f808b",
     "proxyRejectionFix": "2b6ff79a3e52de16d3c767facb22a8d833eb6794",
-    "integratedCandidate": "53d6fc5ede1eb1a37bd2c40b0d7921fc97e86c72"
+    "integratedCandidate": "53d6fc5ede1eb1a37bd2c40b0d7921fc97e86c72",
+    "publicationCheckpoint": "bf8998f3f671b03b45fe62a14fd83d13dbe4af0d"
   },
   "delivery": {
     "localCommits": true,
     "mergedToMain": true,
-    "pushed": false,
+    "pushed": true,
     "deployed": false,
-    "publicationRecord": "docs/work-log/2026-11-10-root-architecture-publication.md"
+    "publicationRecord": "docs/work-log/2026-11-10-root-architecture-publication.md",
+    "onlyMainLocal": true,
+    "onlyMainRemote": true
   },
   "architecture": {
     "frontend": [
