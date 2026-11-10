@@ -26,6 +26,52 @@ test('práctica exige preguntas válidas y cantidad; feedback fallido no modific
   assert.equal(answers.q2,'La membrana rodea la célula.');
   await assert.rejects(()=>generateDevelopmentFeedback(p,answers,[],{generate:async()=>{throw Error('No llamar');}}),/SOURCE_UNAVAILABLE/);
 });
+const developmentPractice=(count:number)=>({title:'Desarrollo',questions:Array.from({length:count},(_,i)=>({
+  id:`d${i}`,topicId:'t1',type:'DEVELOPMENT' as const,prompt:`Explicá la célula ${i}`,options:[],correctOptionIds:[],explanation:'Esperado',sourceRefs:refs,
+}))});
+for(const lengths of [[5000],[6000],[20000],[3000,3000]]){
+  test(`devolución conserva respuestas completas de ${lengths.join('+')} caracteres sin usar el mensaje CHAT`,async()=>{
+    const p=developmentPractice(lengths.length);
+    const answers=Object.fromEntries(lengths.map((length,i)=>[`d${i}`,`${'á'.repeat(length-4)} FIN`]));
+    const before=structuredClone(answers);
+    assert.ok(finalizePractice(p,answers).questions.every(q=>q.feedbackStatus==='PENDING'));
+    let calls=0;
+    const result=await generateDevelopmentFeedback(p,answers,sources,{generate:async input=>{
+      calls++;
+      const payload=JSON.parse(input.prompt);
+      assert.deepEqual(payload.developmentFeedback,p.questions.map(q=>({question:q.prompt,topicId:q.topicId,answer:answers[q.id]})));
+      assert.deepEqual(payload.sources,sources);
+      assert.ok(payload.message.length<=5000);
+      assert.ok(input.prompt.length<=350000);
+      return {status:'COMPLETE',title:'Devolución',markdown:'Revisá la función de la membrana.',sourceRefs:refs,missingInformation:[]};
+    }});
+    assert.equal(calls,1);assert.equal(result.status,'COMPLETE');assert.equal(result.orientative,true);
+    assert.deepEqual(result.sourceRefs,refs);assert.deepEqual(answers,before);
+  });
+}
+test('devolución extensa respeta fuentes vigentes, límite agregado y límite público CHAT antes del proveedor',async()=>{
+  let calls=0;const provider={generate:async()=>{calls++;return {};}};
+  const p=developmentPractice(6),answers=Object.fromEntries(p.questions.map(q=>[q.id,'x'.repeat(20000)]));
+  const before=structuredClone(answers);
+  assert.ok(finalizePractice(p,answers).questions.every(q=>q.feedbackStatus==='PENDING'));
+  const largeSources=Array.from({length:3},(_,i)=>({...sources[0],id:`s${i+1}`,text:'x'.repeat(83000)}));
+  await assert.rejects(()=>generateDevelopmentFeedback(p,answers,largeSources,provider),/STUDY_INPUT_LIMIT/);
+  await assert.rejects(()=>generateDevelopmentFeedback(p,answers,[],provider),/STUDY_SOURCE_UNAVAILABLE/);
+  await assert.rejects(()=>generateDevelopmentFeedback(p,answers,[{...sources[0],available:false}],provider),/STUDY_SOURCE_UNAVAILABLE/);
+  await assert.rejects(()=>executeStudy({action:'CHAT',message:'x'.repeat(5001),topics,sources},provider),/INVALID_STUDY_INPUT/);
+  assert.equal(calls,0);assert.deepEqual(answers,before);
+});
+test('devolución extensa conserva respuestas ante fallo del proveedor y valida su salida',async()=>{
+  const p=developmentPractice(1),answers={d0:'x'.repeat(20000)},before=structuredClone(answers);
+  let calls=0;
+  await assert.rejects(()=>generateDevelopmentFeedback(p,answers,sources,{generate:async()=>{calls++;throw Error('TIMEOUT');}}),/TIMEOUT/);
+  for(const patch of [{markdown:'<script>x</script>'},{sourceRefs:[{id:'revoked',version:'v1'}]}]){
+    await assert.rejects(()=>generateDevelopmentFeedback(p,answers,sources,{generate:async()=>{
+      calls++;return {status:'COMPLETE',title:'Devolución',markdown:'Texto',sourceRefs:refs,missingInformation:[],...patch};
+    }}),/INVALID_STUDY_(OUTPUT|SOURCE)/);
+  }
+  assert.equal(calls,3);assert.deepEqual(answers,before);
+});
 test('EXACT, selecciones desconocidas, examen pasado y superposición',()=>{
   assert.equal(finalizePractice({...practice,questions:practice.questions.map(q=>({...q,scoringRule:'EXACT'}))},{q1:['a']}).questions[0].score,0);
   assert.throws(()=>finalizePractice(practice,{q1:['bad']}));

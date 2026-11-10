@@ -1,0 +1,23 @@
+# JD-001 — corrección acotada, ronda 1
+
+- Agente/rol: `/root/jd_fix_agent`, actor correctivo Judgment Day; identificador de sesión no expuesto.
+- Fecha: 2026-11-09. Rama: `codex/local-stop-docker`. Worktree: `C:/Users/alejo/Documents/ProyectosAlejo/FoxMind/ProtipoFoxMind`.
+- Commit inicial: `3ab3f3933ff603ce839d6b32a03f4f55ebcf81e3`.
+- Autorización: coordinador transmite aprobación del usuario para corregir JD-001, regresiones y rejuicio. Sólo motor, prueba focalizada y este registro. Sin commits ni servicios/proveedores reales.
+- Alcance: separar las respuestas de desarrollo del mensaje público CHAT sin truncar; mantener validaciones, fuentes autorizadas y presupuesto final 350000.
+- Estado inicial: IN_PROGRESS. Cambios ajenos de apagado local y registro raíz presentes; se preservan.
+- Plan: RED con respuestas admitidas extensas, GREEN mínimo, comprobación pura y devolución al coordinador para rejuicio.
+- FASE_RED: `node --test apps/api/src/study-engine/engine.test.ts`, exit 1: 21 tests, 15 PASS, 6 FAIL. Las cuatro entradas válidas (5000, 6000, 20000 y 3000+3000 caracteres) fallan por `INVALID_STUDY_INPUT` en `executeStudy` antes del proveedor. Las dos negativas nuevas también fallan por ese rechazo previo en lugar de presupuesto/proveedor. Producción todavía sin editar al obtener RED.
+- Evidencia runtime real: no corresponde al alcance puro; proveedor sintético del port sin servicios.
+- Incidentes de inspección: `apps/api/src/study-engine/application.ts` no existe; el índice reexporta el dominio. Un glob de `rg` no fue admitido en Windows. Ninguno cambió archivos ni alteró las pruebas.
+- FASE_GREEN: `node --test apps/api/src/study-engine/engine.test.ts`, exit 0: 21 tests, 21 PASS, 0 FAIL. Las regresiones se conservaron sin editar después del RED.
+- Mecanismo: `executeStudy` delega a `runStudy` privado sin opciones públicas nuevas. Sólo `generateDevelopmentFeedback` incorpora `developmentFeedback` separado de `message` y de las fuentes académicas; valida respuestas hasta 20000 y lo serializa dentro del mismo contexto sujeto al presupuesto 350000. Conserva autorización de fuentes, salida validada y proveedor original. No hay truncamiento de respuestas ni persistencia/UX nuevas.
+- Comprobación de consumidores: `application.ts` usa el mismo proveedor en generación y feedback. `ai/study-adapter.ts` transmite `input.prompt` completo al conteo y generación y conserva admisión, autorización, presupuesto de tokens y límite propio de 300000 bytes UTF-8. No se cambiaron esos controles: entrar en el presupuesto del dominio no garantiza admisión del adaptador.
+- Verificación ampliada pura: `node --test apps/api/src/study-engine/engine.test.ts apps/api/src/study-folders/service.test.ts apps/api/src/study-folders/policy.test.ts`, exit 0: 42 tests, 42 PASS, 0 FAIL. Sin DB real, servicios ni proveedores externos.
+- Tipos: `node node_modules/typescript/bin/tsc -p apps/api/tsconfig.json --noEmit`, exit 0, sin diagnósticos.
+- Higiene: `git diff --check`, exit 0, sin errores.
+- Lint focalizado: `node node_modules/eslint/bin/eslint.js src/core/domain/study-engine.ts apps/api/src/study-engine/engine.test.ts`, exit 0, sin diagnósticos.
+- Evidencia runtime sintética: regresiones capturan el JSON efectivamente enviado al port y comparan consignas/respuestas íntegras de 5000/6000/20000 y varias de 3000; validan fuentes intactas, feedback COMPLETE orientativo y respuestas sin mutación. Negativas: fuentes revocadas/indisponibles, CHAT 5001, contexto agregado excesivo, TIMEOUT, HTML y citas desconocidas.
+- Límites/omisiones: sin navegador, DB, build con emisión, Gemini real, E2E ni despliegue. No se afirma aislamiento efectivo. Ningún secreto leído. No se agregaron commits.
+- Rollback: revertir sólo los hunks de `src/core/domain/study-engine.ts` y `apps/api/src/study-engine/engine.test.ts` de esta unidad; este registro documenta la evidencia. No tocar modificaciones ajenas del apagado local, mapa o registro coordinador.
+- Estado: JD-001 fixed por el actor; pendiente rejuicio y verificación independiente del coordinador. Primer paso pendiente: congelar el delta y ejecutar rejuicio acotado. El actor no emite aprobación final.

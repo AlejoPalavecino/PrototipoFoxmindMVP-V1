@@ -1,0 +1,132 @@
+{
+  "target_identity": "32b7fee4509c455ce4a0537915e2e188f6d5059b590aaf6536cb9547e0a0d84a",
+  "fix_delta_identity": "27e48e36e5e53984bbd08f74928e476fe22a338d8a77022e83493199fca00a48",
+  "base_commit": "3ab3f3933ff603ce839d6b32a03f4f55ebcf81e3",
+  "branch": "codex/local-stop-docker",
+  "date": "2026-11-09",
+  "round": 1,
+  "fix_rounds_used": 1,
+  "scoped_rejudgments_used": 1,
+  "confirmed": [
+    {
+      "id": "JD-001",
+      "severity": "ERROR",
+      "status": "fixed",
+      "location": "src/core/domain/study-engine.ts:183",
+      "claim": "Respuestas válidas de desarrollo excedían el límite CHAT de 5000 al serializar consignas y respuestas.",
+      "confirmed_by": [
+        "jd-judge-a",
+        "jd-judge-b"
+      ]
+    }
+  ],
+  "suspect": [],
+  "contradictions": [],
+  "info": [],
+  "counts": {
+    "confirmed_total": 1,
+    "confirmed_remaining": 0,
+    "suspect": 0,
+    "contradictions": 0,
+    "info": 0
+  },
+  "fix_work_units": [
+    {
+      "id": "JD-001",
+      "actor": "/root/jd_fix_agent",
+      "implementation": "Contexto privado developmentFeedback separado del mensaje público, incluido en presupuesto final; sin truncar respuestas ni ampliar límites.",
+      "red": {
+        "command": "node --test apps/api/src/study-engine/engine.test.ts",
+        "exit_code": 1,
+        "pass": 15,
+        "fail": 6,
+        "evidence_source": "fix actor"
+      },
+      "green": {
+        "command": "node --test apps/api/src/study-engine/engine.test.ts",
+        "exit_code": 0,
+        "pass": 21,
+        "fail": 0
+      },
+      "rollback": "Sólo hunks de JD-001 en motor y pruebas; conservar cambios previos ajenos."
+    }
+  ],
+  "verification": {
+    "coordinator": [
+      {
+        "command": "node --test apps/api/src/study-engine/engine.test.ts apps/api/src/study-folders/service.test.ts apps/api/src/study-folders/policy.test.ts",
+        "exit_code": 0,
+        "pass": 42,
+        "fail": 0
+      },
+      {
+        "command": "node node_modules/typescript/bin/tsc -p apps/api/tsconfig.json --noEmit",
+        "exit_code": 0
+      },
+      {
+        "command": "node node_modules/eslint/bin/eslint.js src/core/domain/study-engine.ts apps/api/src/study-engine/engine.test.ts",
+        "exit_code": 0
+      },
+      {
+        "command": "npm run docs:check",
+        "exit_code": 0,
+        "checked_files": 83,
+        "checked_links": 868,
+        "issues": 0,
+        "stage": "antes del cierre documental"
+      },
+      {
+        "command": "git diff --check",
+        "exit_code": 0
+      }
+    ],
+    "judge_a": {
+      "findings": [],
+      "evidence": [
+        "Rejuicio limitado a JD-001 del frozen-ledger.json y al delta before/after de round1, identidad declarada 27e48e36e5e53984bbd08f74928e476fe22a338d8a77022e83493199fca00a48. Verificados independientemente los SHA256 de las 14 entradas del manifest; coinciden.",
+        "Inspeccionados fix.diff, motor completo del candidato y regresiones. El helper runStudy permanece privado; developmentFeedback se incorpora al JSON contextual antes del límite de 350000 caracteres. executeStudy conserva el límite público de 5000 puntos de código, y la validación de fuentes y salida continúa en el camino compartido.",
+        "Ejecutado en round1/after: node --test apps/api/src/study-engine/engine.test.ts. Resultado independiente: 21 PASS, 0 FAIL. Incluye respuestas íntegras de 5000, 6000 y 20000 caracteres, agregado 3000+3000, exceso contextual, fuentes revocadas/indisponibles, CHAT excesivo, fallo del proveedor y salida inválida.",
+        "Reproducción adicional independiente antes/después: respuestas válidas de 5000 y 20000 caracteres fallan en before con INVALID_STUDY_INPUT y cero llamadas; en after producen COMPLETE con una llamada sintética y conservación exacta del contenido enviado.",
+        "Comprobación adicional de ausencia de bypass público: un campo developmentFeedback y un tercer argumento agregados a executeStudy no permiten CHAT de 5001 caracteres ni introducen ese contenido en el prompt de un chat válido.",
+        "La documentación modificada conserva el rechazo explícito antes del proveedor cuando el contexto completo excede el presupuesto, sin truncar respuestas. No se detectaron defectos demostrables introducidos por el delta.",
+        "Sólo lectura y pruebas puras con proveedor sintético. Sin escrituras, servicios, secretos, instalaciones, navegador ni proyecto original; no se afirma aislamiento efectivo. No se verificaron Gemini real, adaptador externo, UI o integración fuera del delta. Node emitió únicamente una advertencia MODULE_TYPELESS_PACKAGE_JSON del entorno temporal; ambas ejecuciones finalizaron con exit 0."
+      ]
+    },
+    "judge_b": {
+      "findings": [],
+      "evidence": [
+        "Rejuicio acotado de JD-001 sobre frozen-ledger.json, fix.diff y before/after del delta 27e48e36e5e53984bbd08f74928e476fe22a338d8a77022e83493199fca00a48. No reabrí la barrida general.",
+        "Inspeccioné el cambio del motor: executeStudy conserva el límite público de 5000 puntos de código; runStudy es privado y sólo generateDevelopmentFeedback incorpora consignas/respuestas separadas. Ese contenido participa de JSON.stringify(context) y del rechazo por presupuesto mayor a 350000.",
+        "Ejecuté independientemente node --test apps/api/src/study-engine/engine.test.ts desde round1/after: 21 pruebas aprobadas, cero fallidas. Cubren 5000/6000/20000 y 3000+3000 caracteres íntegros, fuentes revocadas/indisponibles, presupuesto agregado, CHAT excesivo, fallo del proveedor y salida inválida.",
+        "Reproducción adicional en memoria: dos respuestas de 20000 caracteres llegaron íntegras al proveedor sintético, con fuentes conservadas y sin modificar las respuestas; resultado COMPLETE orientativo.",
+        "Comprobaciones adicionales en memoria: una respuesta de 20001 caracteres se rechaza antes del despacho; 18 respuestas de 20000 exceden el presupuesto serializado y se rechazan; un campo developmentFeedback agregado al input público de executeStudy no se transmite al proveedor.",
+        "La guía modificada conserva explícitamente el rechazo previo al proveedor cuando el conjunto supera el presupuesto y distingue el máximo por respuesta del límite del chat.",
+        "JD-001 queda corroborado como resuelto dentro del alcance revisado; no encontré defectos introducidos por el delta. No ejecuté servicios, proveedor real, navegador, Docker, migraciones, build ni pruebas de integración. No escribí archivos ni afirmo aislamiento efectivo. Node emitió una advertencia de tipo de módulo por el empaquetado parcial del snapshot; las ejecuciones finalizaron con exit 0."
+      ]
+    }
+  },
+  "scoped_rejudgment": "approved",
+  "terminal_state": "approved",
+  "skill_resolution": "paths-injected",
+  "skills": [
+    "C:/Users/alejo/.codex/skills/judgment-day/SKILL.md",
+    "C:/Users/alejo/.codex/skills/judgment-day/references/prompts-and-formats.md",
+    "C:/Users/alejo/.codex/skills/harness-tdd-qa/SKILL.md"
+  ],
+  "limits": [
+    "Pruebas sintéticas; sin Gemini real, navegador ni suites con infraestructura.",
+    "Rejuicio acotado al ledger y al delta; no certificación exhaustiva del proyecto.",
+    "No se afirma aislamiento efectivo de los agentes.",
+    "Sin commits, push, PR, merge o despliegue."
+  ],
+  "scope_note": "El delta congelado incluye motor, regresiones, guía y registros previos al rejuicio. Este cierre documental y su entrada en mapa se agregan posteriormente; no cambian código ni pruebas.",
+  "final_integrity": {
+    "frozen_entries_verified": 14,
+    "snapshot_mismatches": [],
+    "current_source_test_guide_mismatches": [],
+    "documentation_checked_files": 84,
+    "documentation_checked_links": 869,
+    "documentation_issues": 0,
+    "diff_check_exit_code": 0
+  }
+}

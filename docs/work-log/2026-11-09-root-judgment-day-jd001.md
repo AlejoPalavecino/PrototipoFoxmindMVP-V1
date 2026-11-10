@@ -1,0 +1,24 @@
+# JD-001 — Corrección y rejuicio
+
+- Coordinador: `/root`; identificador de sesión no expuesto. Fecha: 2026-11-09.
+- Rama inicial: `codex/local-stop-docker`; commit: `3ab3f3933ff603ce839d6b32a03f4f55ebcf81e3`.
+- Worktree: directorio de este repositorio. Se conservan los cambios previos de apagado local.
+- Ruta: R1, regresión acotada. Autorización inicial: corregir JD-001, agregar regresiones y ejecutar ambos rejuicios. Posteriormente el usuario autorizó commit y push de esta corrección, sus pruebas y documentación; sin integración a main ni despliegue.
+- Hallazgo confirmado por dos jueces: respuestas de desarrollo válidas se serializan como mensaje CHAT y exceden sus 5000 caracteres; la devolución falla antes del proveedor.
+- Objetivo: devolver feedback de entradas extensas dentro del presupuesto de contexto, sin truncar respuestas, ampliar el chat ni omitir controles de fuentes/resultados.
+- Target original: `32b7fee4509c455ce4a0537915e2e188f6d5059b590aaf6536cb9547e0a0d84a`.
+- Ledger congelado de la revisión inicial: artefacto externo `foxmind-judgment-vk3ulnnc/ledger.json`; resultado y evidencia finales se consolidarán aquí para continuidad.
+- Estado: DONE, primera ronda correctiva y primer rejuicio aprobados por ambos jueces; verificación local, sin publicación.
+- Delegación autorizada por judgment-day: `jd_fix_agent`, responsable sólo de motor, sus pruebas y su registro; coordinador responsable de guías, mapa y cierre. Jueces sólo lectura, sin aislamiento efectivo afirmado.
+- Límites: pruebas sintéticas locales; sin claves, servicios reales, Gemini, Docker ni datos retenidos.
+- Evidencia del actor `/root/jd_fix_agent`: RED del motor, exit 1 con 15 PASS/6 FAIL por rechazo previo de entradas válidas; GREEN del mismo archivo, 21 PASS. El actor declara no haber cambiado las regresiones entre ambas fases.
+- Verificación independiente del coordinador: motor + servicio + política, 42 PASS/0 FAIL; `node node_modules/typescript/bin/tsc -p apps/api/tsconfig.json --noEmit`, exit 0; ESLint de motor/prueba, exit 0; `npm run docs:check`, 83 archivos/868 enlaces/0 problemas; `git diff --check`, exit 0.
+- Cambio: helper privado mantiene la entrada pública del chat y envía `developmentFeedback` como datos separados, incluidos en el presupuesto agregado. Pruebas de 5000/6000/20000 y 3000+3000 caracteres, fuentes revocadas, límite contextual, chat excesivo, fallo del proveedor y salida inválida.
+- Delta congelado: `27e48e36e5e53984bbd08f74928e476fe22a338d8a77022e83493199fca00a48`. Jueces `/root/jd_judge_a` y `/root/jd_judge_b`: JSON completos sin hallazgos; cada uno ejecutó 21 pruebas verdes sobre la copia congelada. A comparó antes/después y verificó los hashes; B comprobó respuestas agregadas de 40000, rechazo por respuesta de 20001 y por contexto excesivo. Ambos comprobaron ausencia de bypass del límite público.
+- Ledger final: 1 ERROR confirmado y resuelto; 0 pendientes, sospechas, contradicciones e INFO. Una unidad correctiva y un rejuicio usados de un máximo de dos. `JUDGMENT: APPROVED` para el alcance acotado.
+- [Evidencia canónica y resultados completos de ambos jueces](../verification/judgment-day-jd001.json); skills judgment-day y harness-tdd-qa resueltas por las mismas rutas para los tres actores.
+- Cierre documental posterior al rejuicio: este registro, recibo y mapa; no altera motor ni pruebas revisados. Advertencia del empaquetado temporal: Node MODULE_TYPELESS_PACKAGE_JSON, con exit 0 en las ejecuciones de los jueces.
+- Omitido: build con generación Prisma, integración HTTP/DB, navegador y Gemini real; no corresponden a este cambio puro sin interfaz, persistencia ni proveedor nuevo. No se certifica seguridad o rendimiento exhaustivos del proyecto.
+- Primer paso pendiente: ninguno para JD-001. Publicación Git y despliegue no ejecutados.
+- Verificación final independiente: 14 entradas congeladas con SHA256 coincidente; motor, pruebas y guía actuales idénticos al candidato revisado. `npm run docs:check`: 84 archivos/869 enlaces/0 problemas. `git diff --check`: exit 0. Los cambios previos de apagado local permanecen fuera de la unidad correctiva.
+- Preparación Git autorizada: unidad JD-001 únicamente. El mapa staged incluye sólo sus tres entradas nuevas; la entrada y los cambios de apagado local quedan fuera del commit. Hash y resultado del push se informarán tras observarlos; este registro no presupone su éxito.
