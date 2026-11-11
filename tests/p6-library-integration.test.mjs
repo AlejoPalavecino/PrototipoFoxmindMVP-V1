@@ -36,7 +36,7 @@ test('P6 Library actual publication, immutable private material and durable expl
         await page.getByRole('button', { name: 'Biblioteca', exact: true }).click();
         await page.getByRole('button',{name:'Agregar material',exact:true}).click();
         await page.getByLabel('Archivo del material', { exact: true }).setInputFiles({ name: 'extra.pdf', mimeType: 'application/pdf', buffer: bytes });
-        await page.getByText('Archivo aprobado: extra.pdf. Completa los datos para publicarlo.', { exact: true }).waitFor();
+        await page.getByRole('status').filter({ hasText: 'extra.pdf' }).getByText('Archivo aprobado. Ya podés publicarlo.', { exact: true }).waitFor();
         assert.deepEqual(await list(student), []);
         await page.getByLabel('Nombre del material', { exact: true }).fill('Extra through browser');
         await page.getByRole('button', { name: 'Publicar en Biblioteca', exact: true }).click();

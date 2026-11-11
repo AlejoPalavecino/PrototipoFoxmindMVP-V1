@@ -1,0 +1,31 @@
+.wall { display: grid; gap: 14px; min-width: 0; }
+.filters { display: inline-flex; justify-self: start; flex-wrap: wrap; gap: 4px; padding: 4px; border: 1px solid #e1e5f0; border-radius: 15px; background: #ebeef6; }
+.wall .filters button { min-height: 44px; border: 1px solid transparent !important; background: transparent !important; box-shadow: none !important; color: #555d77; }
+.wall .filters button[aria-pressed=true] { background: #fff !important; border-color: #e9c4aa !important; color: #923810; box-shadow: 0 2px 6px #34274018 !important; font-weight: 700; }
+.threads { display: grid; gap: 14px; }
+.threads > article { min-width: 0; border: 1px solid #dce2f0; border-radius: 19px; background: #fff; padding: clamp(14px, 2vw, 20px); box-shadow: 0 6px 20px #25264606; }
+.byline, .author, .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.byline { justify-content: space-between; gap: 8px 14px; }
+.author { min-width: 0; }
+.author strong { overflow-wrap: anywhere; }
+.author small { display: block; color: #555d77; }
+.tag { background: #eee9fc; color: #4e3b78; border-radius: 99px; padding: 3px 9px; font-size: .78rem; }
+.controls button { min-width: 44px; min-height: 44px; padding: 6px; }
+.title { margin: 12px 0 4px; overflow-wrap: anywhere; }
+.body { margin: 8px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.replies { display: grid; gap: 8px; padding-top: 10px; }
+.replies > article { border-radius: 13px; padding: 10px 12px; margin-inline-start: min(18px, 3vw); background: #f5f6fb; min-width: 0; }
+.replies > button { justify-self: start; }
+.threads article:focus, .wall :is(button, textarea):focus-visible { outline: 3px solid #9a3e00; outline-offset: 2px; }
+.threads :global(.p6-wall-selected) { box-shadow: inset 0 0 0 2px #bc7856; }
+.composer fieldset { display: grid; gap: 8px; min-width: 0; border: 0; padding: 0; }
+.composer label { display: grid; gap: 4px; }
+.composer textarea { resize: vertical; }
+.composer small { color: #555d77; }
+.composer :global(.p5-actions) { justify-content: flex-end; flex-wrap: wrap; }
+.empty { border: 1px dashed #cbd3e5; border-radius: 16px; padding: 18px; background: #ffffff80; }
+.loading { padding: 14px; border: 1px solid #dce2f0; border-radius: 16px; background: #fff; color: #555d77; }
+.loading div { display: grid; gap: 8px; margin-top: 9px; }
+.loading span { display: block; width: 60%; height: 12px; border-radius: 8px; background: #ebeef6; }
+.loading span:first-child { width: 28%; }
+.loading span:last-child { width: 50%; }

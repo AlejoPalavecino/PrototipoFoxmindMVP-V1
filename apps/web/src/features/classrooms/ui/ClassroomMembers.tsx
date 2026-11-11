@@ -21,11 +21,11 @@ export function ClassroomMembers({ api, id, room, busy, code, setCode, setNotice
                     {part!=='invitations' ? <section className="classroom-members-code">
                     <FoxmindIcon name="key"/><div><h3>Código de acceso</h3>
                     <p>
-                      Compartilo para que tus alumnos se sumen.
+                      Compartilo para que tus alumnos se sumen. Sigue vigente hasta que lo regeneres.
                     </p></div>
                     {code ? (
                       <div className="p5-code">
-                        <code>{code}</code>
+                        <code aria-label={`Código de acceso: ${code}`}>{/^\d{6}$/.test(code) ? `${code.slice(0,3)} ${code.slice(3)}` : code}</code>
                         <button
                           onClick={() =>
                             void action(async () => {
@@ -57,11 +57,11 @@ export function ClassroomMembers({ api, id, room, busy, code, setCode, setNotice
                         })
                       }
                     >
-                      <span className="sr-only">Regenerar código</span><FoxmindIcon name="refresh"/>
+                      <FoxmindIcon name="refresh"/><span>Regenerar código</span>
                     </button>
                     </section> : null}
                     {part!=='code' && (invitations.length>0 || invitationResource.status==='error') ? <section className="classroom-members-invitations">
-                    <h3>Invitaciones pendientes</h3>
+                    <h3>Invitaciones enviadas</h3>
                     <ResourceNotice resource={invitationResource} />
                     {invitationAction.error ? <Notice error>{invitationAction.error}</Notice> : null}
                     {invitationResource.status === 'ready' && invitations.length === 0 ? (

@@ -1,65 +1,23 @@
-import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 import type { ClassroomClient } from '../../../../src/core/contracts/academic-client.ts';
 import { Dialog, Notice } from '../../../shared-ui/feedback.tsx';
 import { StudentRecord } from '../features/grading/index.ts';
+import { InvitationBatchDialog } from '../features/classrooms/index.ts';
 import type { Summary } from '../../../../src/core/contracts/grading.ts';
 type Confirmation = { title: string; text: string; run: () => Promise<void>; scope?: string; confirmLabel?: string } | null;
 type Props = {
   api: ClassroomClient; id: string; tab: string; inviting: boolean; setInviting: Dispatch<SetStateAction<boolean>>;
-  email: string; setEmail: Dispatch<SetStateAction<string>>; invite: () => Promise<void>;
-  invitationAction: { busy: boolean; error: string }; actionStates: Record<string, { busy: boolean; error: string }>;
+  onInvitationsChanged: () => Promise<void>; actionStates: Record<string, { busy: boolean; error: string }>;
   confirm: Confirmation; setConfirm: Dispatch<SetStateAction<Confirmation>>; isCurrentRoom: () => boolean;
   summary: (Summary & { studentId: string }) | null; setSummary: Dispatch<SetStateAction<(Summary & { studentId: string }) | null>>;
   action: (task: () => Promise<void>, section?: string) => Promise<void>;
   onOpenActivity?: (activityId: string, attemptId?: string) => void;
   onRemoveStudent?: () => void;
 };
-export function ClassroomDialogs({ api, id, tab, inviting, setInviting, email, setEmail, invite,
-  invitationAction, actionStates, confirm, setConfirm, isCurrentRoom, summary, setSummary, action, onOpenActivity, onRemoveStudent }: Props) {
+export function ClassroomDialogs({ api, id, tab, inviting, setInviting, onInvitationsChanged,
+  actionStates, confirm, setConfirm, isCurrentRoom, summary, setSummary, action, onOpenActivity, onRemoveStudent }: Props) {
   return <>
-      {inviting ? (
-        <Dialog
-          title="Invitar estudiantes"
-          onClose={() => {
-            if (!invitationAction.busy) setInviting(false);
-          }}
-        >
-          <p>
-            Enviaremos una invitación que deberán aceptar con ese mismo correo.
-          </p>
-          {invitationAction.error ? <Notice error>{invitationAction.error}</Notice> : null}
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              void action(invite, 'invitations');
-            }}
-          >
-            <label>
-              Correo electrónico
-              <input
-                required
-                type="text"
-                inputMode="email"
-                autoFocus
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </label>
-            <footer className="p5-form-footer">
-              <button
-                type="button"
-                disabled={invitationAction.busy}
-                onClick={() => setInviting(false)}
-              >
-                Cancelar
-              </button>
-              <button className="primary" disabled={invitationAction.busy}>
-                {invitationAction.busy ? 'Guardando…' : 'Enviar invitación'}
-              </button>
-            </footer>
-          </form>
-        </Dialog>
-      ) : null}
+      {inviting ? <InvitationBatchDialog key={id} api={api} classroomId={id} onClose={() => setInviting(false)} onChanged={onInvitationsChanged} /> : null}
       {confirm ? (
         <Dialog
           title={confirm.title}

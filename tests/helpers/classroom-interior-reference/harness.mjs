@@ -10,6 +10,15 @@ for (const rel of ['node_modules', 'src', 'apps/shared-ui', 'apps/web/src', 'app
   if (!fs.existsSync(target)) fs.symlinkSync(path.join(root, rel), target, 'junction');
 }
 fs.copyFileSync(path.join(root, 'tests/helpers/classroom-interior-reference/classroom.tsx'), path.join(pages, 'classroom.tsx'));
+for (const [source, target] of [
+  ['classrooms-reference/fixture.tsx', 'mis-aulas.tsx'],
+  ['wizard-reference/fixture.tsx', 'wizard.tsx'],
+]) fs.copyFileSync(path.join(root, 'tests/helpers', source), path.join(pages, target));
+for (const [source, target] of [
+  ['classrooms-reference/data.ts', 'collection-data.ts'],
+  ['wizard-reference/data.ts', 'wizard-data.ts'],
+]) fs.copyFileSync(path.join(root, 'tests/helpers', source), path.join(fixtures, target));
+fs.writeFileSync(path.join(pages, 'grading.tsx'), fs.readFileSync(path.join(root, 'tests/helpers/platform-polish/grading.tsx'), 'utf8').replace("from './classroom-data'", "from '../fixtures/classroom-data'"));
 fs.copyFileSync(path.join(root, 'tests/helpers/platform-polish/classroom-data.ts'), path.join(fixtures, 'classroom-data.ts'));
 fs.copyFileSync(path.join(root, 'tests/helpers/classroom-interior-reference/literature-data.ts'), path.join(fixtures, 'literature-data.ts'));
 fs.writeFileSync(path.join(fixtures, 'redesign-client.ts'), fs.readFileSync(path.join(root, 'tests/helpers/classroom-interior-reference/redesign-client.ts'),'utf8')

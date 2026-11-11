@@ -9,10 +9,11 @@ test('Written material revisions and recurring event scope traverse the actual U
   await openClassroom(T.page,runtime.origin,room.name??'P9 material-agenda classroom');await selectClassroomSection(T.page,'library','Biblioteca');
   await T.page.getByRole('button',{name:'Agregar material',exact:true}).click();
   let dialog=T.page.getByRole('dialog',{name:'Agregar material',exact:true});
-  await dialog.getByLabel('Nombre del material',{exact:true}).fill(` ${title} `);await dialog.getByLabel('Contenido o descripción',{exact:true}).fill(body);
+  await dialog.getByRole('button',{name:'Escribir material',exact:true}).click();
+  await dialog.getByLabel('Nombre del material',{exact:true}).fill(` ${title} `);await dialog.getByLabel('Contenido',{exact:true}).fill(body);
   async function publishText(button){
    await button.click();
-   await T.page.waitForFunction(()=>!document.querySelector('[role=dialog]')||[...document.querySelectorAll('[role=dialog] button')].some(b=>b.textContent==='Consultar revisión del material'));
+   await T.page.waitForFunction(()=>!document.querySelector('dialog[open]')||[...document.querySelectorAll('dialog[open] button')].some(b=>b.textContent==='Consultar revisión del material'));
    const review=T.page.getByRole('button',{name:'Consultar revisión del material',exact:true});
    if(await review.count()){await review.click();await button.click();}
    await T.page.getByRole('dialog').waitFor({state:'hidden'});
@@ -25,7 +26,7 @@ test('Written material revisions and recurring event scope traverse the actual U
   assert.equal(await T.page.getByRole('dialog',{name:title,exact:true}).count(),0);
   await T.page.getByRole('button',{name:'Editar datos',exact:true}).click();
   dialog=T.page.getByRole('dialog',{name:'Editar material',exact:true});const nextBody='Segunda explicación\nArchivo y lectura coinciden 🦊';
-  await dialog.getByLabel('Contenido o descripción',{exact:true}).fill(nextBody);
+  await dialog.getByLabel('Contenido',{exact:true}).fill(nextBody);
   await publishText(dialog.getByRole('button',{name:'Guardar datos del material',exact:true}));
   const materials=await ok(S.page,'GET',`${root}/library`),previous=materials.find(m=>m.id===original.id),current=materials.find(m=>m.id===previous.supersededBy);
   await T.page.getByRole('region',{name:`Lectura de ${title}`,exact:true}).getByText(nextBody,{exact:true}).waitFor();

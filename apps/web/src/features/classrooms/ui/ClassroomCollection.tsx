@@ -4,6 +4,7 @@ import { PendingClassroomCard } from './PendingClassroomCard.tsx';
 import { ClassroomCard } from './ClassroomCollectionCard.tsx';
 import { ClassroomCollectionFilters, activeCollectionFilters } from './ClassroomCollectionFilters.tsx';
 import { filterClassroomCards, type ClassroomFilterOptions } from '../model/collection-filter.ts';
+import experience from './classroom-experience.module.css';
 
 interface Props {
   accountRole: 'teacher' | 'student';
@@ -38,7 +39,7 @@ export function ClassroomCollection({ accountRole, teach, study, search, onEnter
     `${p.name || 'Aula sin nombre'} ${p.subject ?? ''} ${p.division ?? ''}`.normalize('NFKC').toLowerCase().includes(query) &&
     (!options.academicYear || String(p.academicYear) === options.academicYear) && (!options.division || p.division === options.division));
   const filterValues = isPending ? pending.map(item => item.payload) : all;
-  return <section className="fm3-classroom-collection collection-workspace cl-catalog" aria-label="Tus aulas">
+  return <section className={`fm3-classroom-collection collection-workspace cl-catalog ${experience.catalog}`} aria-label="Tus aulas">
     <ClassroomCollectionFilters all={all} filterValues={filterValues} search={search} onSearch={onSearch} pendingCount={accountRole === 'teacher' ? pending.length : undefined}
       options={options} onOptions={setOptions} expanded={expanded} onToggle={() => setExpanded(value => !value)}
       view={view} onView={setView} toggleRef={toggleRef}

@@ -237,7 +237,7 @@ test('P9 actual Home remaining recovery, responsive and account proof', { timeou
         await page.getByRole('article').filter({ has: page.getByRole('heading', { name: draftName, exact: true }) }).getByRole('button', { name: 'Continuar creación', exact: true }).click();
         assert.equal((await successfulJson(await loaded, 'draft read')).id, draft.body.id);
         const wizard = page.getByRole('dialog', { name: 'Crear aula', exact: true });
-        await wizard.getByRole('heading', { name: 'Datos del aula', exact: true }).waitFor();
+        await wizard.getByRole('heading', { name: 'Dale un lugar a tu próxima clase', exact: true }).waitFor();
         for (const width of [1280, 375]) {
           await page.setViewportSize({ width, height: 812 });
           for (const name of ['Inicio', 'Mis aulas', 'Agenda', 'Mi perfil', 'Configuración', 'FoxMind']) {

@@ -6,4 +6,6 @@ Las acciones de autoría/moderación permiten editar o eliminar sólo cuando la 
 
 Las consultas y respuestas alimentan avisos y el seguimiento docente de Inicio. Abrir una notificación revalida el destino; el identificador recibido en UI no es autoridad de acceso.
 
+El Muro comparte tarjetas, autoría/fecha, respuestas anidadas y filtros Todas/Avisos/Consultas entre docente y estudiante. Componer exige título y cuerpo; responder enfoca el campo correspondiente. Los estados de carga/vacío/error y las confirmaciones de publicación se muestran junto al contexto. Si el POST confirma y el refresco falla, el formulario no invita a repetir la publicación ya guardada; se recupera la lectura.
+
 Fuentes: [Wall](../../../apps/web/src/features/communication/ui/Wall.tsx), [servicios académicos](../../../apps/api/src/modules/communication/). [Flujos actuales](../../verification/flows.md): aviso docente, respuesta estudiantil, consulta y respuesta docente.

@@ -59,9 +59,10 @@ test('P9 remaining teaching only: TAUGHT, immutable Library, Muro moderation/sco
     const materialForm = teacher.getByRole('dialog', { name: 'Agregar material', exact: true });
     await (await unique(materialForm.getByLabel('Archivo del material', { exact: true }))).setInputFiles({
       name: 'remaining-material.pdf', mimeType: 'application/pdf', buffer: bytes });
-    await materialForm.getByText('Archivo aprobado: remaining-material.pdf. Completa los datos para publicarlo.', { exact: true }).waitFor();
+    await materialForm.getByRole('status').filter({ hasText: 'remaining-material.pdf' }).getByText('Archivo aprobado. Ya podés publicarlo.', { exact: true }).waitFor();
     await (await unique(materialForm.getByLabel('Nombre del material', { exact: true }))).fill('Remaining linked material');
     // These two controls have explicit aria-labels in MaterialForm; exact matching is valid despite wrapping options.
+    await materialForm.getByText('Organizar en el plan', { exact: false }).click();
     await (await unique(materialForm.getByLabel('Unidad del material', { exact: true }))).selectOption(unit.id);
     await (await unique(materialForm.getByLabel('Tema del material', { exact: true }))).selectOption(topic.id);
     await confirmed(teacher, `${root}/library`, 'POST', () => materialForm.getByRole('button', { name: 'Publicar en Biblioteca', exact: true }).click());
@@ -115,24 +116,24 @@ test('P9 remaining teaching only: TAUGHT, immutable Library, Muro moderation/sco
     await teacherWall.getByRole('button', { name: 'Publicar aviso', exact: true }).click();
     const noticeComposer = teacher.getByRole('dialog', { name: 'Publicar aviso', exact: true });
     await noticeComposer.getByLabel('Título', { exact: true }).fill('Remaining teacher notice');
-    await noticeComposer.getByLabel('Publicar aviso', { exact: true }).fill('Remaining teacher notice');
+    await noticeComposer.getByLabel('Mensaje', { exact: true }).fill('Remaining teacher notice');
     await confirmed(teacher, `${root}/wall`, 'POST', () => noticeComposer.getByRole('button', { name: 'Publicar aviso', exact: true }).click());
-    await teacherWall.getByText('Publicación guardada.', { exact: true }).waitFor();
+    await teacherWall.getByText('Aviso publicado en el aula.', { exact: true }).waitFor();
     const notice = (await ok(student, 'GET', `${root}/wall`)).posts[0];
     assert.equal(notice.type, 'NOTICE'); assert.ok(notice.authorName && notice.initials); assert.equal(Object.hasOwn(notice, 'email'), false);
     await confirmed(student, `${root}/wall`, 'GET', () => student.getByRole('button', { name: 'Muro', exact: true }).click());
     const studentWall = student.getByRole('region', { name: 'Muro del aula', exact: true });
     const noticeThread = studentWall.locator(`[data-wall-id="${notice.id}"]`);
     await noticeThread.getByRole('button', { name: 'Responder publicación', exact: true }).click();
-    await noticeThread.getByLabel('Enviar respuesta', { exact: true }).fill('Remaining student reply');
+    await noticeThread.getByLabel('Tu respuesta', { exact: true }).fill('Remaining student reply');
     await confirmed(student, `${root}/wall`, 'POST', () => noticeThread.getByRole('button', { name: 'Enviar respuesta', exact: true }).click());
-    await studentWall.getByText('Respuesta guardada.', { exact: true }).waitFor();
+    await studentWall.getByText('Respuesta publicada.', { exact: true }).waitFor();
     await studentWall.getByRole('button', { name: 'Hacer una consulta', exact: true }).click();
     const queryComposer = student.getByRole('dialog', { name: 'Hacer una consulta', exact: true });
     await queryComposer.getByLabel('Título', { exact: true }).fill('Remaining student query');
-    await queryComposer.getByLabel('Publicar consulta', { exact: true }).fill('Remaining student query');
+    await queryComposer.getByLabel('Mensaje', { exact: true }).fill('Remaining student query');
     await confirmed(student, `${root}/wall`, 'POST', () => queryComposer.getByRole('button', { name: 'Publicar consulta', exact: true }).click());
-    await studentWall.getByText('Publicación guardada.', { exact: true }).waitFor();
+    await studentWall.getByText('Consulta publicada en el aula.', { exact: true }).waitFor();
     const currentWall = await ok(teacher, 'GET', `${root}/wall`), query = currentWall.posts[0];
     assert.equal(query.type, 'QUERY'); assert.deepEqual(currentWall.posts.map(post => post.id), [query.id, notice.id]);
     assert.equal(currentWall.posts[1].replies[0].body, 'Remaining student reply');

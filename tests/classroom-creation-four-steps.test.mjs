@@ -10,15 +10,16 @@ export async function choose(f, method = 'manual') {
 }
 const published = f => f.calls.filter(([path]) => path.endsWith('/publish'));
 
-test('cuatro pasos, documento y portada visibles antes de elegir IA; abrir y cargar no inicia extracción', async () => {
+test('cuatro pasos con portada en Datos y documento en Cargar plan; abrir y cargar no inicia extracción', async () => {
   const f = await wizard();
   try {
     assert.equal(nodes(f.view, n => n.type === 'ol')[0].props.children.length, 4);
-    assert.ok(nodes(f.view, n => n.type === 'input' && n.props.type === 'file').length);
+    assert.equal(nodes(f.view, n => n.type === 'input' && n.props.type === 'file').length, 0);
     assert.ok(nodes(f.view, n => n.type === 'input' && n.props.name === 'coverKey').length);
     assert.equal(f.extractionInputs.at(-1).readyFileId, undefined);
     await advance(f.view);
     assert.match(text(f.view.tree), /Elegí cómo cargar/);
+    assert.equal(nodes(f.view, n => n.type === 'input' && n.props.type === 'file').length, 1);
     await advance(f.view);
     assert.match(text(f.view.tree), /Elegí.*IA.*manual/i);
     assert.equal(published(f).length, 0);
@@ -50,11 +51,12 @@ test('el documento es requerido y el archivo pendiente no permite avanzar', asyn
   const draft = initialDraft(); delete draft.payload.planFileId;
   const f = await wizard({ draft, upload: async () => ({ id: 'pending', name: 'plan.pdf', ready: false }) });
   try {
+    await advance(f.view);
     await advance(f.view); assert.match(text(f.view.tree), /Subí.*plan/i);
     const input = nodes(f.view, n => n.type === 'input' && n.props.type === 'file')[0];
     input.props.onChange({ target: { files: [new File(['test'], 'plan.pdf')], value: 'plan.pdf' } }); await f.view.flush();
     await advance(f.view); assert.match(text(f.view.tree), /aprobado|revisión/i);
-    assert.equal(nodes(f.view, n => n.type === 'form')[0].props['data-wizard-step'], 0);
+    assert.equal(nodes(f.view, n => n.type === 'form')[0].props['data-wizard-step'], 1);
     assert.equal(published(f).length, 0);
   } finally { f.close(); }
 });
@@ -93,10 +95,10 @@ test('edición estructurada se normaliza antes de revisión y publicar resiste d
   const f = await wizard({ draft, call: async (path, method, input) => path.endsWith('/publish') ? pending : { ...draft, revision: '4', payload: input.payload } });
   try {
     await advance(f.view); await choose(f);
-    const field = nodes(f.view, n => n.type === 'input' && n.props.value === 'Primera')[0];
+    const field = nodes(f.view, n => n.type === 'textarea' && n.props.value === 'Primera')[0];
     field.props.onChange({ target: { value: '  Unidad editada  ' } }); await f.view.flush();
-    button(f.view, 'Agregar tema a unidad 1').props.onClick(); await f.view.flush();
-    const empty = nodes(f.view, n => n.type === 'input' && n.props.value === '')[0];
+    button(f.view, 'Agregar tema a unidad 1').props.onClick({}); await f.view.flush();
+    const empty = nodes(f.view, n => n.type === 'textarea' && n.props.value === '')[0];
     empty.props.onChange({ target: { value: '  Tema nuevo  ' } }); await f.view.flush();
     await advance(f.view);
     assert.match(text(f.view.tree), /Unidad editada/);

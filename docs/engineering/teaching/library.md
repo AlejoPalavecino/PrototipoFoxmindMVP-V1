@@ -4,6 +4,8 @@ El docente agrega un archivo aprobado o escribe un material. Título, contenido/
 
 Publicar contenido escrito genera DOCX y lo procesa por el pipeline privado de validación/escaneo antes de crear el material. FILE y TEXT comparten organización académica y lectura, pero no la misma operación de revisión.
 
+«Subir archivo» y «Escribir material» son modos explícitos con entradas independientes conservadas al alternar. Seleccionar un archivo no lo publica; la UI distingue carga, validación/escaneo y publicación, con errores recuperables. Cerrar un formulario con cambios pide confirmar descarte. Filtros y contexto del tema se conservan al abrir/cerrar el lector. Ambos roles comparten la lectura; sólo el docente ve acciones de autoría.
+
 ## Cambiar o eliminar
 
 FILE conserva bytes inmutables; sus metadatos admitidos pueden editarse. Para TEXT, cambiar título o cuerpo crea una revisión con material/archivo nuevos. Cambiar organización/uso no exige reemplazar contenido. La versión reemplazada se oculta de la colección corriente; vínculos ya guardados conservan identidad. Revisar no libera cuotas ni sobrescribe bytes históricos.

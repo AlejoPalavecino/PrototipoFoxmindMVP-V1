@@ -8,6 +8,7 @@ import type { HomeTarget } from '../../../../src/core/domain/index.ts';
 import type { HomeClient } from '../features/home/index.ts';
 import { Dialog, Notice } from '../../../shared-ui/feedback.tsx';
 import { ClassroomCollection } from '../features/classrooms/index.ts';
+import { classroomExperienceStyles as experience } from '../features/classrooms/index.ts';
 import { ClassroomCollectionHero } from '../features/classrooms/index.ts';
 import { Notifications } from '../features/notifications/index.ts';
 import { Home } from '../features/home/index.ts';
@@ -197,7 +198,7 @@ export function ClassroomsApp({
         setClassroomId(result.id);
       } else
         setPreview(
-          await api.call('/codes/preview', 'POST', { code: code.trim() }),
+          await api.call('/codes/preview', 'POST', { code: /^\d{6}$/.test(code.replace(/\s/g, '')) ? code.replace(/\s/g, '') : code.trim() }),
         );
     } catch (e) {
       setJoinError((e as Error).message);
@@ -208,7 +209,7 @@ export function ClassroomsApp({
   }
   if (accountRole !== 'teacher' && accountRole !== 'student') return <Notice error>No pudimos comprobar el rol de tu cuenta.</Notice>;
   return (
-    <div className={`p5-app fm3-classrooms ${surface.scope}${draft ? ' entry-wizard-reference entry-classrooms-reference collection-workspace-page' : !classroomId ? presentation === 'home' ? ' entry-home' : ' entry-classrooms-reference collection-workspace-page' : ' classroom-interior-reference'}`}>
+    <div className={`p5-app fm3-classrooms ${surface.scope} ${experience.application}${draft ? ' entry-wizard-reference entry-classrooms-reference collection-workspace-page' : !classroomId ? presentation === 'home' ? ' entry-home' : ' entry-classrooms-reference collection-workspace-page' : ' classroom-interior-reference'}`}>
       <a className="skip-link" href="#classroom-main">Saltar al contenido</a>
       <AppNavbar avatarKey={avatarKey} logoHref="/inicio" displayName={displayName} accountEmail={accountEmail} accountRole={accountRole} search={searchContent}
         classroomLinks={[...(data.teach ?? []), ...(data.study ?? [])].filter(room => !room.archived).map(room => ({ href: `/mis-aulas?aula=${encodeURIComponent(room.id)}`, label: room.name,coverKey:room.coverKey, current: classroomId === room.id }))}
@@ -391,16 +392,21 @@ export function ClassroomsApp({
                 <p>Al confirmar, vas a incorporarte como estudiante.</p>
               </>
             ) : (
+              <>
               <label>
                 Código del aula
                 <input
                   required
                   autoFocus
+                  placeholder="123 456"
+                  aria-describedby="classroom-code-help"
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   autoComplete="off"
                 />
               </label>
+              <small id="classroom-code-help">Ingresá el código que te compartió tu docente. Los códigos anteriores también siguen siendo válidos hasta que se regeneran.</small>
+              </>
             )}
             <footer className="p5-form-footer">
               <button

@@ -5,6 +5,7 @@ import { type AcademicTarget, type NotificationTarget } from '../../../../src/co
 import { type Detail, type Invitation, type Member } from '../../../../src/core/contracts/classrooms.ts';
 import { Notice } from '../../../shared-ui/feedback.tsx';
 import { ClassroomHeader } from '../features/classrooms/index.ts';
+import { classroomExperienceStyles as experience } from '../features/classrooms/index.ts';
 import { ClassroomNavigation } from '../features/classrooms/index.ts';
 import type { HomeTarget } from '../../../../src/core/domain/index.ts';
 import { homeClassroomTab, homeNotificationTarget } from './academic-classroom-home-target.ts';
@@ -91,7 +92,6 @@ export function ClassroomView({
   if(stableDestination.current.key!==destinationKey)stableDestination.current={key:destinationKey,value:destinationValue};
   const destination=stableDestination.current.value;
   const [code, setCode] = useState(initialCode),
-    [email, setEmail] = useState(''),
     [inviting, setInviting] = useState(false),
     [summary, setSummary] = useState<(Summary & { studentId: string }) | null>(null);
   const [confirm, setConfirm] = useState<{
@@ -103,7 +103,7 @@ export function ClassroomView({
   } | null>(null);
   const { settings, setSettings, settingsRevision, setSettingsRevision,
     settingsConflict, setSettingsConflict } = useClassroomSettings(id, room);
-  useEffect(() => { setConfirm(null); setInviting(false); setSummary(null); setNotice(''); setActionStates({}); setCode(initialCode); setEmail(''); setPlanActivity(null); setCreationContext(null); setUploadContext(null); }, [id, initialCode]);
+  useEffect(() => { setConfirm(null); setInviting(false); setSummary(null); setNotice(''); setActionStates({}); setCode(initialCode); setPlanActivity(null); setCreationContext(null); setUploadContext(null); }, [id, initialCode]);
   useEffect(() => { setConfirm(null); setInviting(false); setSummary(null); }, [tab]);
   useEffect(() => { setTab(activeWallTarget ? 'postId' in activeWallTarget ? 'wall' : 'activities' : homeClassroomTab(activeHomeTarget)); }, [id]);
   useEffect(() => { if (activeWallTarget) { setPlanActivity(null); setTab('postId' in activeWallTarget ? 'wall' : 'activities'); } }, [activeWallTarget]);
@@ -122,14 +122,6 @@ export function ClassroomView({
   }
   const reloadSettings = useSettingsReload({ actionStates, settingsOperation, reload: detail.reloadWithResult,
     isCurrentRoom, setSettings, setSettingsRevision, setSettingsConflict, setActionStates });
-  async function invite() {
-    await api.call(`/${id}/invitations`, 'POST', { email });
-    if (!isCurrentRoom()) return;
-    setEmail('');
-    setInviting(false);
-    setNotice('Invitación guardada para enviar. La inscripción requiere que la persona la acepte.');
-    await invitationResource.reload();
-  }
   const tabLabels: Record<string, string> = { members: teacher ? 'Alumnos' : 'Compañeros', history: 'Historial', plan: 'Plan', library: 'Biblioteca', activities: 'Actividades', progress: teacher ? 'Progreso' : 'Mi progreso', wall: 'Muro', settings: 'Configuración' };
   return (
     <>
@@ -137,7 +129,7 @@ export function ClassroomView({
       {detail.error ? <Notice error>{detail.error} <button onClick={() => void load()}>Actualizar aula</button></Notice> : null}
       {!room && detail.status !== 'error' ? <Notice>Cargando aula…</Notice> : null}
       {room ? (
-        <div className="classroom-workspace classroom-redesign" data-active-section={tab}>
+        <div className={`classroom-workspace classroom-redesign ${experience.scope}`} data-active-section={tab}>
           <ClassroomHeader room={room} />
           {room.archived ? (
             <Notice>
@@ -146,7 +138,7 @@ export function ClassroomView({
           ) : null}
           {notice ? <Notice>{notice}</Notice> : null}
           <ClassroomNavigation teacher={!!teacher} selected={tab} onSelect={setTab} tabsRef={tabs}/>
-          <section data-classroom-tab={tab} className={`p5-surface ${tab === 'plan' ? 'fm3-plan-surface' : `folder-panel tone-${teacher ? 'coral' : 'mint'}`}`} aria-labelledby="classroom-section-title">
+          <section data-classroom-tab={tab} className={`p5-surface ${tab === 'plan' ? 'fm3-plan-surface' : 'folder-panel tone-coral'}`} aria-labelledby="classroom-section-title">
             <h2 id="classroom-section-title" className="classroom-section-title">{tabLabels[tab]}</h2>
             <div hidden={!!summary}>
             {error ? <Notice error>{error}</Notice> : null}
@@ -192,7 +184,7 @@ export function ClassroomView({
               setSettingsRevision={setSettingsRevision} settingsConflict={settingsConflict}
               setSettingsConflict={setSettingsConflict} reloadSettings={reloadSettings} isCurrentRoom={isCurrentRoom}
               busy={busy} load={load} action={action} setNotice={setNotice} setConfirm={setConfirm} /> : null}
-            {!teacher ? (
+            {!teacher && tab === 'members' ? (
               <footer className="p5-student-footer">
                 <button
                   disabled={busy}
@@ -228,7 +220,7 @@ export function ClassroomView({
             ) : null}
             </div>
       <ClassroomDialogs api={api} id={id} tab={tab} inviting={inviting} setInviting={setInviting}
-        email={email} setEmail={setEmail} invite={invite} invitationAction={invitationAction} actionStates={actionStates}
+        onInvitationsChanged={invitationResource.reload} actionStates={actionStates}
         confirm={confirm} setConfirm={setConfirm} isCurrentRoom={isCurrentRoom} summary={summary} setSummary={setSummary} action={action}
         onOpenActivity={(activityId,attemptId)=>{setSummary(null);setPlanActivity({kind:attemptId?'submission':'activity',classroomId:id,activityId,attemptId:attemptId??null});setTab('activities');}}
         onRemoveStudent={summary && !room.archived && members.some(member=>member.studentId===summary.studentId) ? ()=>setConfirm({title:'Dar de baja del aula',text:'Se conservarán sus entregas y resultados en Historial. Dejará de integrar los indicadores del grupo actual.',run:async()=>{await api.call(`/${id}/members/${summary.studentId}/remove`,'POST',{});await Promise.all([memberResource.reload(),historyResource.reload(),load()]);setSummary(null);}}) : undefined}/>

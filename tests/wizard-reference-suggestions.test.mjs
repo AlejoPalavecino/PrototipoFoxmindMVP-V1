@@ -14,13 +14,12 @@ const render = state => {
   return { tree: WizardSuggestions({ extraction, hasUnits: true, review: true }), applied: () => applied };
 };
 
-test('ready suggestions disclose the real proposal count without applying it', () => {
-  const view = render('READY'), details = descendants(view.tree, n => n.type === 'details')[0];
-  assert.ok(details); assert.notEqual(details.props.open, true);
-  const summary = descendants(details, n => n.type === 'summary')[0];
-  assert.match(text(summary), /Revisar sugerencias/i); assert.match(text(details), /2/);
+test('ready suggestions present the editable proposal directly with its real count', () => {
+  const view = render('READY'), proposal = descendants(view.tree, n => n.props['aria-label'] === 'Propuesta de Foxy')[0];
+  assert.ok(proposal); assert.equal(proposal.type, 'section');
+  assert.match(text(proposal), /2 unidades sugeridas/);
   assert.equal(view.applied(), 0);
-  assert.equal(descendants(details, n => n.type?.name === 'PlanExtraction')[0].props.hasUnits, true);
+  assert.equal(descendants(proposal, n => n.type?.name === 'PlanExtraction')[0].props.hasUnits, true);
 });
 
 for (const state of ['FAILED', 'STALE']) test(`${state} extraction never advertises a ready proposal`, () => {

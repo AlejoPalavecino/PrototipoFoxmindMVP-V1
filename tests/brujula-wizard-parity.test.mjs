@@ -22,7 +22,7 @@ test('el tercer paso exige unidades y temas aunque el documento esté aprobado',
   try {
     await manualPlan(f);
     assert.ok(nodes(f.view, node => node.type === 'textarea' && node.props['aria-label'] === 'Unidades y temas').length);
-    assert.ok(button(f.view, 'Continuar'));
+    assert.ok(button(f.view, 'Guardar plan y continuar'));
     await advance(f.view);
     assert.match(text(f.view.tree), /al menos una unidad con un tema/i);
     assert.equal(f.uploads.length, 0);
@@ -64,6 +64,7 @@ test('plan escrito permanece editable al volver y publica la revisión confirmad
 test('archivo seleccionado pendiente bloquea creación aunque haya un plan escrito', async () => {
   const f = await wizard({ upload: async () => ({ id: 'pending', ready: false }) });
   try {
+    await advance(f.view);
     nodes(f.view, node => node.type === 'input' && node.props.type === 'file')[0].props.onChange({ target: { files: [new File(['fixture'], 'plan.pdf')], value: 'plan.pdf' } });
     await f.view.flush();await advance(f.view);
     assert.match(text(f.view.tree), /superar la revisión/i);

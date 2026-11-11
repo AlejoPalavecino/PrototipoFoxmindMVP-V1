@@ -10,6 +10,8 @@ export { ClassroomNavigation, classroomSections } from './ui/ClassroomNavigation
 export { ClassroomSettings } from './ui/ClassroomSettings.tsx';
 export { ClassroomRoster } from './ui/ClassroomRoster.tsx';
 export { ClassroomMembers } from './ui/ClassroomMembers.tsx';
+export { InvitationBatchDialog } from './ui/InvitationBatchDialog.tsx';
+export { default as classroomExperienceStyles } from './ui/classroom-experience.module.css';
 export { useClassroomSettings } from './model/use-classroom-settings.ts';
 export { useSettingsReload } from './model/use-settings-reload.ts';
 export { WizardGeneral } from './ui/WizardGeneral.tsx';

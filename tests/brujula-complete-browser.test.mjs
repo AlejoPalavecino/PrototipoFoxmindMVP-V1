@@ -30,24 +30,24 @@ test('Brújula completa real: aula manual obligatoria, autoría privada, criteri
     await wizard.getByLabel('Ciclo lectivo', { exact: true }).fill('2026');
     const pdf = await PDFDocument.create(); pdf.addPage();
     const planBytes = Buffer.from(await pdf.save());
+    await wizard.getByRole('button', { name: 'Continuar al plan', exact: true }).click();
     const reserved = T.page.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/files' && response.request().method() === 'POST');
     await wizard.locator('input[type=file]').setInputFiles({ name: 'manual-plan.pdf', mimeType: 'application/pdf', buffer: planBytes });
     const uploaded = await reserved; assert.equal(uploaded.status(), 201);
     const planFileId = (await uploaded.json()).id;
     await wizard.getByText('Aprobado para usar', { exact: true }).waitFor({ timeout: 30000 });
-    await wizard.getByRole('button', { name: 'Continuar', exact: true }).click();
     await wizard.getByRole('radio', { name: /Cargar manualmente/ }).check();
-    await wizard.getByRole('button', { name: 'Continuar', exact: true }).click();
+    await wizard.getByRole('button', { name: 'Continuar a unidades', exact: true }).click();
     let publishAttempts = 0;
     const observePublish = value => { if (value.method() === 'POST' && new URL(value.url()).pathname === `/api/v1/classrooms/drafts/${draft.id}/publish`) publishAttempts++; };
     T.page.on('request', observePublish);
     try {
-      await wizard.getByRole('button', { name: 'Continuar', exact: true }).click();
+      await wizard.getByRole('button', { name: 'Guardar plan y continuar', exact: true }).click();
       await wizard.getByText(/Agregá al menos una unidad con un tema/).waitFor();
       assert.equal(publishAttempts, 0, 'Empty plan cannot reach publication');
       await wizard.getByText('Editar el plan como texto', { exact: true }).click();
       await wizard.getByRole('textbox', { name: 'Unidades y temas', exact: true }).fill('Unidad 1 · Inicio\nTema inicial\nTema siguiente');
-      await wizard.getByRole('button', { name: 'Continuar', exact: true }).click();
+      await wizard.getByRole('button', { name: 'Guardar plan y continuar', exact: true }).click();
       const publishing = T.page.waitForResponse(response => new URL(response.url()).pathname === `/api/v1/classrooms/drafts/${draft.id}/publish` && response.request().method() === 'POST');
       await wizard.getByRole('button', { name: 'Confirmar y crear aula', exact: true }).click();
       const published = await publishing; assert.equal(published.status(), 200);

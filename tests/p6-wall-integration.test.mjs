@@ -36,9 +36,9 @@ test('P6 actual Muro, scoped notifications, moderation and retained history', { 
         await page.getByRole('button', { name: 'Muro', exact: true }).click();
         await page.getByRole('button', { name: 'Publicar aviso', exact: true }).click();
         await page.getByRole('dialog', { name: 'Publicar aviso', exact: true }).getByLabel('Título', { exact: true }).fill('Aviso de prueba');
-        await page.getByRole('dialog', { name: 'Publicar aviso', exact: true }).getByRole('textbox', { name: 'Publicar aviso', exact: true }).fill(noticeBody);
+        await page.getByRole('dialog', { name: 'Publicar aviso', exact: true }).getByRole('textbox', { name: 'Mensaje', exact: true }).fill(noticeBody);
         await page.getByRole('dialog', { name: 'Publicar aviso', exact: true }).getByRole('button', { name: 'Publicar aviso', exact: true }).click();
-        await page.getByText('Publicación guardada.', { exact: true }).waitFor();
+        await page.getByText('Aviso publicado en el aula.', { exact: true }).waitFor();
         notice = (await wall(page)).posts.find(post => post.body === noticeBody);
         assert.ok(notice); assert.equal(notice.type, 'NOTICE');
         assert.equal(await page.getByRole('region', { name: 'Muro del aula' }).locator('img[onerror]').count(), 0);
@@ -47,9 +47,9 @@ test('P6 actual Muro, scoped notifications, moderation and retained history', { 
         await student.getByRole('button', { name: 'Muro', exact: true }).click();
         await student.getByRole('button', { name: 'Hacer una consulta', exact: true }).click();
         await student.getByRole('dialog', { name: 'Hacer una consulta', exact: true }).getByLabel('Título', { exact: true }).fill('Consulta de prueba');
-        await student.getByRole('dialog', { name: 'Hacer una consulta', exact: true }).getByRole('textbox', { name: 'Publicar consulta', exact: true }).fill(queryBody);
+        await student.getByRole('dialog', { name: 'Hacer una consulta', exact: true }).getByRole('textbox', { name: 'Mensaje', exact: true }).fill(queryBody);
         await student.getByRole('dialog', { name: 'Hacer una consulta', exact: true }).getByRole('button', { name: 'Publicar consulta', exact: true }).click();
-        await student.getByText('Publicación guardada.', { exact: true }).waitFor();
+        await student.getByText('Consulta publicada en el aula.', { exact: true }).waitFor();
         const result = await wall(student);
         query = result.posts.find(post => post.body === queryBody);
         assert.equal(query.type, 'QUERY');
@@ -62,9 +62,9 @@ test('P6 actual Muro, scoped notifications, moderation and retained history', { 
       await check('grouped UI replies notify the publication author only and preserve ordering', async () => {
         const thread = student.locator(`[data-wall-id="${notice.id}"]`);
         await thread.getByRole('button', { name: 'Responder publicación', exact: true }).click();
-        await thread.getByLabel('Enviar respuesta', { exact: true }).fill('Student reply to notice');
+        await thread.getByLabel('Tu respuesta', { exact: true }).fill('Student reply to notice');
         await thread.getByRole('button', { name: 'Enviar respuesta', exact: true }).click();
-        await student.getByText('Respuesta guardada.', { exact: true }).waitFor();
+        await student.getByText('Respuesta publicada.', { exact: true }).waitFor();
         assert.equal((await change(page, { action: 'reply', postId: notice.id, body: 'Teacher self reply' })).status, 200);
         assert.equal((await change(page, { action: 'reply', postId: query.id, body: 'Teacher reply to query' })).status, 200);
         assert.equal((await change(student, { action: 'reply', postId: query.id, body: 'Student self reply' })).status, 200);

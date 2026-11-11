@@ -38,7 +38,7 @@ export const initialDraft = () => ({ id: 'draft', revision: '1', publishedClassr
   units: [{ name: 'Primera', topics: [{ name: 'Célula' }] }, { name: 'Segunda', topics: [{ name: 'Ecosistema' }] }],
 } });
 export const ready = id => ({ id, name: 'plan.pdf', ready: true, upload: 'COMPLETE', validation: 'APPROVED', scan: 'CLEAN', rejectionCode: null });
-export async function wizard({ draft = initialDraft(), upload, call, extractionBusy = false, extractionView = null } = {}) {
+export async function wizard({ draft = initialDraft(), upload, call, fileStatus, extractionBusy = false, extractionView = null } = {}) {
   const oldWindow = globalThis.window; globalThis.window = { addEventListener() {}, removeEventListener() {} };
   const calls = [], uploads = [], exits = [], published = [], extractionInputs = [], noop = () => null;
   const { Wizard } = componentWithPorts('apps/web/src/application/academic-Wizard.tsx', {"../../../../../shared-ui/academic-cover.tsx":{...loadTsModule('apps/shared-ui/academic-cover.tsx'),Cover: noop,Notice: ({ children }) => React.createElement('div', {}, children),coverOptions: () => [{ key: 'biology', label: 'Biología' }]},
@@ -50,7 +50,7 @@ export async function wizard({ draft = initialDraft(), upload, call, extractionB
 "../../../../../shared-ui/index.ts":{EntryIcon: noop,FoxmindIcon: noop,FoxmindIllustration: noop,AiProgress: noop},
 "../../../shared-ui/index.ts":{EntryIcon: noop,FoxmindIcon: noop,FoxmindIllustration: noop,AiProgress: noop}});
   const api = { call: async (...args) => { calls.push(args); return call ? call(...args) : { ...draft, revision: '2', payload: args[2]?.payload ?? draft.payload }; },
-    upload: async (...args) => { uploads.push(args); return upload ? upload(...args) : ready('replacement'); }, fileStatus: async id => ready(id), fileUrl: () => '/fixture.pdf' };
+    upload: async (...args) => { uploads.push(args); return upload ? upload(...args) : ready('replacement'); }, fileStatus: fileStatus ?? (async id => ready(id)), fileUrl: () => '/fixture.pdf' };
   const view = mount(Wizard, { api, draft, onExit: () => exits.push(true), onPublished: (...args) => published.push(args) });
   await view.flush();
   return { view, calls, uploads, exits, published, extractionInputs, close() { view.close(); globalThis.window = oldWindow; } };

@@ -1,0 +1,49 @@
+.dialog { width: min(960px, calc(100% - 22px)); }
+.dialog > header, .dialog :global(.brujula-wizard-foot) { background: #fff; }
+.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); list-style: none; padding: 0; margin: 0 0 18px; gap: 7px; }
+.steps li { display: flex; align-items: center; gap: 7px; border: 1px solid #e5e8f1; border-radius: 999px; background: #f6f7fb; color: #555d77; font-size: .82rem; padding: 7px; min-width: 0; }
+.steps li b { display: grid; flex: 0 0 26px; height: 26px; place-items: center; border-radius: 50%; background: #eaedf6; }
+.steps li[data-completed=true] { background: #eef8f2; color: #245a43; }
+.steps li[data-completed=true] b { background: #d6eddf; }
+.steps li[aria-current=step] { background: #fff0e1; color: #803208; border-color: #e9c4aa; font-weight: 700; }
+.steps li[aria-current=step] b { background: #f7d9c3; }
+.mobileStep { display: none; }
+.intro { padding: 13px 0 16px; }
+.intro h3, .intro p { margin: 0; }
+.intro p { margin-top: 4px; color: #555d77; }
+.method { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 0; margin: 16px 0 0; border: 0; }
+.method legend { padding: 0; margin-bottom: 8px; font-weight: 700; }
+.dialog .method label { display: grid; grid-template-columns: auto auto minmax(0, 1fr); align-items: start; gap: 10px; border: 1px solid #dce2f0; padding: 13px; border-radius: 16px; background: #f6f3fd; cursor: pointer; }
+.dialog .method label:has(input:checked) { background: #fff0e1; border-color: #c9784e; box-shadow: inset 0 -2px #eec2a6; }
+.dialog .method label:focus-within { outline: 3px solid #9a3e00; outline-offset: 2px; }
+.dialog .method input[type=radio] { margin: 2px 0 0; min-height: 0; width: 18px; height: 18px; accent-color: #a44513; }
+.method svg { width: 22px; height: 22px; color: #784c9a; }
+.method small { display: block; color: #555d77; margin-top: 4px; }
+@media (max-width: 650px) {
+  .steps { gap: 5px; margin-bottom: 8px; }
+  .steps li { justify-content: center; padding: 4px; }
+  .steps li span:not(:global(.sr-only)) { display: none; }
+  .mobileStep { display: block; margin: 0; font-size: .82rem; color: #555d77; }
+  .method { grid-template-columns: minmax(0, 1fr); }
+}
+dialog.dialog[open]:global(.brujula-wizard-dialog) {
+  display: flex !important;
+  flex-direction: column;
+  width: min(960px, calc(100% - 22px)) !important;
+  max-width: none !important;
+  max-height: min(90dvh, calc(100dvh - 18px)) !important;
+  overflow: hidden !important;
+}
+.dialog > header { flex: 0 0 auto; padding: 14px 22px !important; }
+.dialog > :global(.brujula-dialog-body) { display: flex; flex-direction: column; min-height: 0; overflow: hidden !important; }
+.dialog :global(.brujula-wizard), .dialog form[data-wizard-step] { display: flex !important; flex-direction: column; min-height: 0; }
+.dialog .stepBody { flex: 1 1 auto; overflow: auto; overscroll-behavior: contain; padding: 4px 3px; min-height: 0; }
+.dialog .stepBody > fieldset { margin: 0; }
+.dialog :global(.brujula-wizard-foot), .dialog :global(.brujula-wizard-save) { flex: 0 0 auto; }
+.dialog :global(.brujula-wizard-foot) { position: static !important; background: #fff !important; }
+.dialog :global(.brujula-wizard) { margin-block: 0 !important; }
+.dialog .method { display: grid !important; margin-top: 16px !important; gap: 10px !important; }
+@media (max-width: 650px) {
+  .dialog > header { padding: 10px 16px !important; }
+  .dialog .intro { padding-block: 7px; }
+}

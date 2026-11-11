@@ -15,6 +15,6 @@ export default function ClassroomFixture() {
       { href: '/inicio', label: 'Inicio' }, { href: '/mis-aulas', label: 'Mis aulas', current: true },
       { href: '/agenda', label: 'Agenda' },
     ]} onNavigate={() => {}} />
-    <main className="p5-main"><ClassroomView key={mode} id={id} api={api} initialCode={mode === 'literature' ? 'LIT-DM26' : null} onExit={() => {}} /></main>
+    <main className="p5-main"><ClassroomView key={mode} id={id} api={api} initialCode={mode === 'literature' ? 'LIT-DM26' : '012345'} onExit={() => void router.push('/mis-aulas')} onMembershipEnded={() => void router.push('/mis-aulas')} /></main>
   </div>;
 }

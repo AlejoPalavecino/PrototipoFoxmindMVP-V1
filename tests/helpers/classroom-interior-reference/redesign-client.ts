@@ -1,17 +1,70 @@
 /** Browser-only in-memory adapter. No provider, database, files or production transport. */
-import { classroomClient, roomFor, activity, id, material } from '../platform-polish/classroom-data';
+import { classroomClient, roomFor, activity, id, material, grading } from '../platform-polish/classroom-data';
 import type { ActivityDetail } from '../../../src/core/contracts/activities.ts';
 import type { ClassroomClient } from '../../../src/core/contracts/academic-client.ts';
+import type { InvitationBatchReceipt } from '../../../src/core/contracts/classrooms.ts';
+import type { WallPost } from '../../../src/core/contracts/communication.ts';
 
 export function redesignClient(): ClassroomClient {
   const base = classroomClient('teacher'), room = structuredClone(roomFor('teacher'));
   const drafts = new Map<string, ActivityDetail>();
+  const batches = new Map<string, InvitationBatchReceipt>();
+  const correction = grading();
+  const posts: WallPost[] = [{id:'11111111-1111-4111-8111-111111111112',authorName:'Alex Sintético',initials:'AS',title:'Una semana para observar',body:'Traigan sus preguntas sobre la célula. Vamos a trabajar juntos con ejemplos cotidianos.',createdAt:'2026-11-11T12:00:00Z',editedAt:null,removedAt:null,canEdit:true,canRemove:true,type:'NOTICE',replies:[],replyCount:0,repliesNextCursor:null,repliesPreviousCursor:null}];
+  correction.attempt.practicalResponse = 'La membrana regula el intercambio de sustancias. El núcleo contiene la información genética y las mitocondrias transforman nutrientes en energía.';
   const writes: { path: string; action: string }[] = [];
   let sequence = 0;
   const revision = () => { room.revision = String(Number(room.revision) + 1); return room.revision; };
   const call: ClassroomClient['call'] = async (path, method, body, signal) => {
     if (signal?.aborted) throw new Error('Aborted');
     const operation = (body as { operation?: Record<string, unknown> } | undefined)?.operation;
+    if (path.split('?')[0] === `/${id}/wall`) {
+      if (method === 'POST' && operation) {
+        const content = {id:crypto.randomUUID(),authorName:'Alex Sintético',initials:'AS',body:String(operation.body??''),createdAt:new Date().toISOString(),editedAt:null,removedAt:null,canEdit:true,canRemove:true};
+        if(operation.action==='publish') posts.unshift({...content,title:String(operation.title??''),type:'NOTICE',replies:[],replyCount:0,repliesNextCursor:null,repliesPreviousCursor:null});
+        else if(operation.action==='reply') { const post=posts.find(item=>item.id===operation.postId)!;post.replies.push(content);post.replyCount++; }
+        else if(operation.action==='editPost') Object.assign(posts.find(item=>item.id===operation.id)!,{body:operation.body,title:operation.title,editedAt:new Date().toISOString()});
+        else if(operation.action==='removePost') Object.assign(posts.find(item=>item.id===operation.id)!,{body:null,removedAt:new Date().toISOString()});
+        else throw new Error('Operación sintética de muro no implementada');
+        return {revision:revision()} as never;
+      }
+      const filter=new URLSearchParams(path.split('?')[1]).get('type');
+      return {revision:room.revision,posts:structuredClone(posts.filter(post=>!filter||post.type===filter)),nextCursor:null} as never;
+    }
+    if (path.endsWith('/history-submissions')) return base.call(path.replace(/\/history-submissions$/, '/attempts'));
+    if (path.endsWith('/grading-ai') && (!method || method === 'GET')) return null as never;
+    if (path.endsWith('/publish-grade') && method === 'POST') {
+      correction.grade.isPublished = true; correction.grade.publishedAt = new Date().toISOString(); correction.canSave = false;
+      correction.revision = String(Number(correction.revision) + 1);
+      return structuredClone(correction) as never;
+    }
+    if (path.endsWith('/grading')) {
+      if (method === 'POST') {
+        const payload = body as { overallGrade: string | null; overallFeedback: string | null };
+        correction.grade.finalGrade = payload.overallGrade; correction.grade.overallFeedback = payload.overallFeedback;
+        correction.revision = String(Number(correction.revision) + 1);
+      }
+      return structuredClone(correction) as never;
+    }
+    const batchPath = `/${id}/invitations/batch`;
+    if (path === batchPath && method === 'POST') {
+      const payload = body as {requestId:string;emails:string[]};
+      if (!batches.has(payload.requestId)) batches.set(payload.requestId,{requestId:payload.requestId,recipients:payload.emails.map(email=>({email,status:'pending'}))});
+      return structuredClone(batches.get(payload.requestId)) as never;
+    }
+    if (path.startsWith(batchPath + '/')) {
+      const [requestId,index] = path.slice(batchPath.length+1).split('/');
+      const receipt = batches.get(requestId);
+      if (!receipt) throw Object.assign(new Error('Lote sintético no disponible'),{status:404});
+      if (index !== undefined && method === 'POST') {
+        await new Promise(resolve=>setTimeout(resolve,250));
+        const item = receipt.recipients[Number(index)];
+        if (item.status === 'pending') receipt.recipients[Number(index)] = item.email.startsWith('fail')
+          ? {...item,status:'failed',code:'CONFLICT'} : {...item,status:'created',invitationId:`synthetic-${index}`};
+        return structuredClone(receipt.recipients[Number(index)]) as never;
+      }
+      return structuredClone(receipt) as never;
+    }
     if (path === `/${id}`) return structuredClone(room) as never;
     if (path === `/${id}/plan` && method === 'POST' && operation?.action === 'setTopicState') {
       if ((body as { revision: string }).revision !== room.revision) throw new Error('Conflicto de revisión sintético');
