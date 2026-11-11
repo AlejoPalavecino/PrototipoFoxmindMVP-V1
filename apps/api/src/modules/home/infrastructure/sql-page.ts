@@ -8,13 +8,13 @@ import { reviewQuery } from './queries-review.ts';
 import { feedbackQuery } from './queries-feedback.ts';
 import { queriesQuery, materialsQuery, classroomsQuery } from './queries-content.ts';
 import { draftsQuery, submittedQuery } from './queries-desk.ts';
-import { readCursor, nextCursor } from './cursor.ts';
+import { readCursor, nextCursor, pageOrder } from './cursor.ts';
 const sources = { drafts: draftsQuery, submitted: submittedQuery, pending: pendingQuery, review: reviewQuery, feedback: feedbackQuery,
   queries: queriesQuery, materials: materialsQuery, classrooms: classroomsQuery };
 type SqlModule = Exclude<HomeModuleName, 'agenda'>;
 interface PageRow { item: unknown | null; policy: PendingPolicyRow | null; sort_key: string | null; total: number; needs_review: number; ready_to_publish: number }
 export async function readSqlPage<M extends SqlModule>(tx: HomeSql, actor: HomeActor, query: HomePageQuery & { module: M }): Promise<HomeModules[M]> {
-  const after = readCursor(actor, query), descending = ['feedback', 'queries', 'materials'].includes(query.module);
+  const after = readCursor(actor, query), descending = pageOrder(query) === 'desc';
   const comparison = descending ? '<' : '>', order = descending ? 'DESC' : 'ASC';
   const totals = query.module === 'review' ? 'COALESCE(sum(needs_review),0)::int AS needs_review, COALESCE(sum(ready_to_publish),0)::int AS ready_to_publish'
     : '0::int AS needs_review,0::int AS ready_to_publish';

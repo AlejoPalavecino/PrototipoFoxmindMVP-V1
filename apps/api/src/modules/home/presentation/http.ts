@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { HomeError } from '../../../../../../src/core/domain/index.ts';
+import { HomeError, parseHomePageQuery, parseHomeQuery } from '../../../../../../src/core/domain/index.ts';
 import type { HomeService } from '../application/service.ts';
 const statuses: Record<string, number> = { INVALID_INPUT:400, FORBIDDEN:403, SERVICE_UNAVAILABLE:503,
   AUTH_REQUIRED:401, EMAIL_VERIFICATION_REQUIRED:403, CSRF_INVALID:403, ORIGIN_NOT_ALLOWED:403, RATE_LIMITED:429 };
@@ -26,9 +26,10 @@ export function createHomeHandler(service: HomeService, options: {
       await options.admit(request,false,response);
       if (request.headers['transfer-encoding'] || Number(request.headers['content-length'] ?? 0) || request.headers['content-encoding']) throw new HomeError('INVALID_INPUT');
       const query = Object.fromEntries(url.searchParams);
-      if ([...url.searchParams.keys()].length !== Object.keys(query).length
-        || Object.keys(query).some(key => !['timeZone', ...(match ? ['cursor'] : [])].includes(key))) throw new HomeError('INVALID_INPUT');
-      const result = match ? await service.page(request,{...query,module:match[1],cursor:query.cursor ?? null}) : await service.read(request,query);
+      if ([...url.searchParams.keys()].length !== Object.keys(query).length || Object.hasOwn(query, 'module')) throw new HomeError('INVALID_INPUT');
+      const result = match
+        ? await service.page(request, parseHomePageQuery({ ...query, module: match[1], cursor: query.cursor ?? null }))
+        : await service.read(request, parseHomeQuery(query));
       send(response,200,result);
     })().catch(error => {
       const raw = error && typeof error === 'object' && 'code' in error ? String(error.code) : '';

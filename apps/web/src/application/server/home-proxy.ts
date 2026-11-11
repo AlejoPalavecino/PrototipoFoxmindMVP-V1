@@ -17,7 +17,7 @@ function route(request:IncomingMessage):URL {
   const query=Object.fromEntries(url.searchParams);
   if ([...url.searchParams.keys()].length!==Object.keys(query).length) throw new Error();
   if (match) {
-    if (Object.keys(query).some(key=>!['timeZone','cursor'].includes(key))) throw new Error();
+    if (Object.hasOwn(query,'module')) throw new Error();
     parseHomePageQuery({...query,module:match[1],cursor:query.cursor??null});
   } else parseHomeQuery(query);
   return url;
