@@ -1,5 +1,19 @@
 # Capturas del FoxMind actual
 
+## Inicio docente — 2026-11-11
+
+Estas referencias sustituyen la presentación anterior de los cuatro widgets del inicio docente. Capturas Ego Lite sobre componentes/CSS reales con cliente sintético, sin proveedor ni cuentas reales. Inspeccionadas individualmente; hashes y límites en el [recibo](../../verification/teacher-home-polish.json).
+
+| Vista | Referencia |
+|---|---|
+| Escritorio 1440×1000, página completa | [Inicio docente](../../verification/teacher-home-polish/desktop-final.png) |
+| Diálogo de acción, escritorio | [Elegir aula](../../verification/teacher-home-polish/action-dialog.png) |
+| Móvil 390×844, página completa | [Inicio móvil](../../verification/teacher-home-polish/mobile-final.png) |
+| Diálogo de acción, móvil | [Elegir aula móvil](../../verification/teacher-home-polish/mobile-dialog.png) |
+| Tablet 768×1024, página completa | [Inicio tablet](../../verification/teacher-home-polish/tablet-final.png) |
+
+El harness verifica destinos emitidos y estados de interfaz; no atribuir a esas capturas una escritura académica o un login integrado. Inicio estudiante y demás superficies conservan sus referencias.
+
 Pulido de Foxy, Carpetas y creación, 2026-11-09: capturas nativas Ego Lite recuperadas e inspeccionadas en escritorio 1440×1000 y móvil 390×844. Sustituyen la presentación anterior de esas superficies. App local integrada con cuentas y contenido sintéticos para colecciones/chats/creación; esperas, errores y propuesta de plan usan los componentes reales en un harness con respuestas explícitamente sintéticas. Cada metadato identifica su alcance; no atribuir persistencia o proveedor real al harness. Ver [diseño vigente](../README.md), [recibo](../../verification/foxy-study-ux-polish.json) y [registro visual](../../work-log/2026-11-09-root-ux-visual.md).
 
 ## Referencias vigentes del pulido — 2026-11-09

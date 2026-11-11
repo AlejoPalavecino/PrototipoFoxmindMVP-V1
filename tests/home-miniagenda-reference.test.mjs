@@ -15,6 +15,16 @@ function walk(value) {
 }
 const textOf = nodes => nodes.filter(node => typeof node === 'string' || typeof node === 'number').join(' ');
 
+test('Teacher agenda uses the date tile once and keeps only local time or all-day below the title', () => {
+  const { HomeAgendaRow } = loadTsModule('apps/web/src/features/home/ui/HomeRow.tsx');
+  for(const [item,expected] of [[timed,'22:30'],[allDay,'Todo el día']]){
+    const nodes=walk(HomeAgendaRow({item,timeZone:'America/Argentina/Buenos_Aires',onAction(){},dateInTileOnly:true,generatedAt:'2026-10-20T12:00:00Z'}));
+    const timing=nodes.find(node=>node?.props?.className==='fm-home-agenda-time');
+    assert.equal(textOf(walk(timing)),expected);
+    assert.equal(nodes.filter(node=>node?.type==='time').length,1);
+  }
+});
+
 test('Agenda time converts timed events across zones and preserves all-day labels', () => {
   const { homeAgendaTime } = loadTsModule('apps/web/src/features/home/model/home-presentation.ts');
   assert.equal(homeAgendaTime(timed, 'America/Argentina/Buenos_Aires'), '22:30');

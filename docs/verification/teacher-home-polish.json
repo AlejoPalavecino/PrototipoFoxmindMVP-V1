@@ -1,0 +1,392 @@
+{
+  "date": "2026-11-11",
+  "baseCommit": "3895f4ded6884641872c5950c39c54215406d6d6",
+  "branch": "codex/teacher-home-polish",
+  "candidate": "uncommitted worktree",
+  "scope": "Inicio docente: orden, aula en foco, mini agenda y acciones con destino",
+  "status": "PASS local",
+  "delivery": {
+    "integrated": false,
+    "committed": false,
+    "pushed": false,
+    "deployed": false
+  },
+  "automated": {
+    "focused": {
+      "passed": 83,
+      "failed": 0,
+      "skipped": 0,
+      "files": [
+        "tests/home-order.test.mjs",
+        "tests/p9-home-client.test.mjs",
+        "tests/brujula-data-http.test.mjs",
+        "tests/foxmind-3d-http.test.mjs",
+        "tests/foxmind-3d-service.test.mjs",
+        "tests/home-reference-dashboard.test.mjs",
+        "tests/home-polish-presentation.test.mjs",
+        "tests/home-miniagenda-reference.test.mjs",
+        "tests/home-by-role.test.mjs",
+        "tests/home-refinement-copy.test.mjs",
+        "tests/home-reference-summary.test.mjs",
+        "tests/home-warm-navigation.test.mjs",
+        "tests/brujula-home-complete.test.mjs",
+        "tests/teacher-home-polish.test.mjs",
+        "tests/workspace-disclosure.test.mjs"
+      ]
+    },
+    "sql": {
+      "passed": 6,
+      "engine": "PostgreSQL 16 native, owned ephemeral cluster, migrations applied",
+      "attribution": "/root/home_order",
+      "record": "docs/work-log/2026-11-11-worker-home-order.md",
+      "isolatedInfrastructureMock": "Only Docker provisioning replaced with the owned native pool; actual SQL and rollback fixtures",
+      "stopped": true
+    },
+    "builds": [
+      "api:build",
+      "web:build"
+    ],
+    "types": "tsc --noEmit -p apps/web/tsconfig.json",
+    "architecture": "lint:boundaries, 0 frozen exceptions",
+    "inventory": 533
+  },
+  "browser": {
+    "tool": "Ego Lite 0.6.2.8 / ego-browser guide 2.2.0",
+    "taskSpace": 9,
+    "closed": true,
+    "entry": "scripts/teacher-home-preview.mjs",
+    "fixture": "tests/fixtures/teacher-home-preview.tsx",
+    "provider": "none",
+    "viewports": [
+      {
+        "width": 1440,
+        "height": 1000,
+        "scrollWidth": 1425
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "scrollWidth": 768
+      },
+      {
+        "width": 390,
+        "height": 844,
+        "scrollWidth": 390
+      }
+    ],
+    "checks": [
+      "ASC/DESC independently per tab; seven review rows across two pages",
+      "StrictMode load-more receives a live AbortSignal",
+      "Six eligible classrooms across three pages; selected third-page classroom retains topic/progress",
+      "Automatic focus refresh revalidates selected third-page classroom",
+      "All four actions emit the exact selected classroom destination",
+      "Action destination does not alter classroom focus",
+      "Native radio ArrowDown selects next classroom",
+      "Escape closes dialog and returns focus to trigger",
+      "Empty classroom list disables Continue",
+      "Failed classroom load retries successfully",
+      "Only active classroom is preselected",
+      "Student surface excludes teacher-only styles",
+      "No horizontal overflow in measured viewports"
+    ],
+    "contrast": "docs/verification/teacher-home-polish/contrast.json",
+    "contrastScope": "Seven computed text foreground/background pairs; minimum 6.4:1, not a full accessibility audit"
+  },
+  "review": {
+    "agent": "/root/home_review",
+    "scope": "read-only contracts, UI state, regression probes",
+    "result": "Reported defects fixed and rechecked; final P2 focus recovery verified",
+    "limitations": "Reviewer did not run PostgreSQL or browser; coordinator and worker evidence attributed separately"
+  },
+  "screenshots": [
+    {
+      "path": "docs/verification/teacher-home-polish/desktop.png",
+      "sha256": "d126d434f808c5917fd47d6a5562ee381c924b55d56f15d4d6718b778ff3906c",
+      "width": 1425,
+      "height": 1178,
+      "inspected": true,
+      "source": "Ego Lite, real Home components and CSS, synthetic HomeClient"
+    },
+    {
+      "path": "docs/verification/teacher-home-polish/action-dialog.png",
+      "sha256": "3e558487e42e785297c4364251c3477163370c32e2cc7535b2da2f0635c46700",
+      "width": 1440,
+      "height": 1000,
+      "inspected": true,
+      "source": "Ego Lite, real Home components and CSS, synthetic HomeClient"
+    },
+    {
+      "path": "docs/verification/teacher-home-polish/mobile.png",
+      "sha256": "7ca3722a0b61133b7d40c26f3ed2882c244df5caaab6861c2677154a1bdf1cc5",
+      "width": 390,
+      "height": 2390,
+      "inspected": true,
+      "source": "Ego Lite, real Home components and CSS, synthetic HomeClient"
+    },
+    {
+      "path": "docs/verification/teacher-home-polish/mobile-dialog.png",
+      "sha256": "f3513b0922b65244646aa970238fae5d4afae3bdee4d3194e12199db4b23767d",
+      "width": 390,
+      "height": 844,
+      "inspected": true,
+      "source": "Ego Lite, real Home components and CSS, synthetic HomeClient"
+    },
+    {
+      "path": "docs/verification/teacher-home-polish/tablet.png",
+      "sha256": "01d6a3ef53005de075baf3756c6180710f34855f98f8b2d66627285d892b19dc",
+      "width": 768,
+      "height": 1770,
+      "inspected": true,
+      "source": "Ego Lite, real Home components and CSS, synthetic HomeClient"
+    }
+  ],
+  "limits": [
+    "Full integrated login/application E2E not run for this change; browser harness validates emitted navigation targets, not academic writes",
+    "PostgreSQL 17.10 Docker not run: Docker Linux engine unavailable; native PostgreSQL 16 substitute stated explicitly",
+    "No provider calls, retained user data or credentials accessed",
+    "Not a full CI/security/performance/screen-reader audit"
+  ],
+  "failuresResolved": [
+    "Initial UI and backend RED failures before implementation",
+    "Type errors corrected before final build",
+    "Old test stubs and assertions updated to approved UI contract",
+    "Inherited agenda opacity and dialog label layout corrected and recaptured",
+    "Review findings: stale responses, single classroom after pagination, partial refresh recovery, StrictMode controller, focus retention/retry and invalid cursor recovery",
+    "Ego snapshot subtree selector misuse and minimized-window screenshot failures recovered within the same TaskSpace"
+  ],
+  "refinement": {
+    "scope": "Simetría de controles y agenda sin fecha duplicada",
+    "tests": {
+      "passed": 26,
+      "failed": 0,
+      "types": "PASS"
+    },
+    "browser": {
+      "taskSpace": 12,
+      "closed": true,
+      "geometry": [
+        {
+          "width": 1440,
+          "height": 1000,
+          "scrollWidth": 1425,
+          "controls": [
+            {
+              "text": "Más nuevas primeroMás antiguas primero",
+              "rect": {
+                "x": 806.7875366210938,
+                "y": 317.4125061035156,
+                "width": 200,
+                "height": 44,
+                "top": 317.4125061035156,
+                "right": 1006.7875366210938,
+                "bottom": 361.4125061035156,
+                "left": 806.7875366210938
+              }
+            },
+            {
+              "text": "Entregas7",
+              "rect": {
+                "x": 301.3500061035156,
+                "y": 377.4125061035156,
+                "width": 119.6500015258789,
+                "height": 44,
+                "top": 377.4125061035156,
+                "right": 421.00000762939453,
+                "bottom": 421.4125061035156,
+                "left": 301.3500061035156
+              }
+            },
+            {
+              "text": "Consultas7",
+              "rect": {
+                "x": 429,
+                "y": 377.4125061035156,
+                "width": 124.20000457763672,
+                "height": 44,
+                "top": 377.4125061035156,
+                "right": 553.2000045776367,
+                "bottom": 421.4125061035156,
+                "left": 429
+              }
+            },
+            {
+              "text": "Ver todas: entregas",
+              "rect": {
+                "x": 920.8125,
+                "y": 377.4125061035156,
+                "width": 85.9749984741211,
+                "height": 44,
+                "top": 377.4125061035156,
+                "right": 1006.7874984741211,
+                "bottom": 421.4125061035156,
+                "left": 920.8125
+              }
+            }
+          ],
+          "agenda": [
+            "15:00",
+            "15:00",
+            "18:00"
+          ]
+        },
+        {
+          "width": 768,
+          "height": 1024,
+          "scrollWidth": 753,
+          "controls": [
+            {
+              "text": "Más nuevas primeroMás antiguas primero",
+              "rect": {
+                "x": 484,
+                "y": 333.3000183105469,
+                "width": 200,
+                "height": 44,
+                "top": 333.3000183105469,
+                "right": 684,
+                "bottom": 377.3000183105469,
+                "left": 484
+              }
+            },
+            {
+              "text": "Entregas7",
+              "rect": {
+                "x": 68.80000305175781,
+                "y": 393.3000183105469,
+                "width": 119.6500015258789,
+                "height": 44,
+                "top": 393.3000183105469,
+                "right": 188.45000457763672,
+                "bottom": 437.3000183105469,
+                "left": 68.80000305175781
+              }
+            },
+            {
+              "text": "Consultas7",
+              "rect": {
+                "x": 196.4499969482422,
+                "y": 393.3000183105469,
+                "width": 124.20000457763672,
+                "height": 44,
+                "top": 393.3000183105469,
+                "right": 320.6500015258789,
+                "bottom": 437.3000183105469,
+                "left": 196.4499969482422
+              }
+            },
+            {
+              "text": "Ver todas: entregas",
+              "rect": {
+                "x": 598.0250244140625,
+                "y": 393.3000183105469,
+                "width": 85.9749984741211,
+                "height": 44,
+                "top": 393.3000183105469,
+                "right": 684.0000228881836,
+                "bottom": 437.3000183105469,
+                "left": 598.0250244140625
+              }
+            }
+          ],
+          "agenda": [
+            "15:00",
+            "15:00",
+            "18:00"
+          ]
+        },
+        {
+          "width": 390,
+          "height": 844,
+          "scrollWidth": 375,
+          "controls": [
+            {
+              "text": "Más nuevas primeroMás antiguas primero",
+              "rect": {
+                "x": 57.79999923706055,
+                "y": 343.0500183105469,
+                "width": 259.6000061035156,
+                "height": 44,
+                "top": 343.0500183105469,
+                "right": 317.4000053405762,
+                "bottom": 387.0500183105469,
+                "left": 57.79999923706055
+              }
+            },
+            {
+              "text": "Entregas7",
+              "rect": {
+                "x": 57.79999923706055,
+                "y": 403.0500183105469,
+                "width": 85.51250457763672,
+                "height": 44,
+                "top": 403.0500183105469,
+                "right": 143.31250381469727,
+                "bottom": 447.0500183105469,
+                "left": 57.79999923706055
+              }
+            },
+            {
+              "text": "Consultas7",
+              "rect": {
+                "x": 149.3125,
+                "y": 403.0500183105469,
+                "width": 89.86250305175781,
+                "height": 44,
+                "top": 403.0500183105469,
+                "right": 239.1750030517578,
+                "bottom": 447.0500183105469,
+                "left": 149.3125
+              }
+            },
+            {
+              "text": "Ver todas: entregas",
+              "rect": {
+                "x": 266.0874938964844,
+                "y": 403.0500183105469,
+                "width": 51.3125,
+                "height": 44,
+                "top": 403.0500183105469,
+                "right": 317.3999938964844,
+                "bottom": 447.0500183105469,
+                "left": 266.0874938964844
+              }
+            }
+          ],
+          "agenda": [
+            "15:00",
+            "15:00",
+            "18:00"
+          ]
+        }
+      ],
+      "checks": [
+        "Orden y Ver todas en ambas pestañas",
+        "Retorno de foco al botón queries",
+        "Sin overflow horizontal; controles de toolbar alineados a 44px",
+        "Fecha única y horario local en agenda"
+      ]
+    },
+    "screenshots": [
+      {
+        "path": "docs/verification/teacher-home-polish/desktop-final.png",
+        "sha256": "0be8303e63dcc6f73fcc7a4a8841218a7a4c4744357c0f54dfc0d784810c2ec7",
+        "width": 1425,
+        "height": 1213,
+        "inspected": true
+      },
+      {
+        "path": "docs/verification/teacher-home-polish/tablet-final.png",
+        "sha256": "af0a1b98e24c987075b7d0bb6933453094cf318a5521d60701299cf64ee0b6b3",
+        "width": 753,
+        "height": 1886,
+        "inspected": true
+      },
+      {
+        "path": "docs/verification/teacher-home-polish/mobile-final.png",
+        "sha256": "42ad241bb3ae5c5b8651b697fee8f92857fd49a2c251f175077f09cedf2589e5",
+        "width": 375,
+        "height": 2588,
+        "inspected": true
+      }
+    ]
+  }
+}

@@ -26,6 +26,8 @@ Docente dentro del aula: Plan, Muro, Biblioteca, Actividades, Progreso, Alumnos,
 
 Inicio docente prioriza entregas/consultas y acciones del aula; Inicio estudiante muestra pendientes y resultados publicados propios. Abrir avisos usa un destino reautorizado en servidor; identificadores de UI no conceden acceso. La búsqueda sólo muestra el espacio autorizado. [UX/UI vigente](design/README.md).
 
+Seguimiento docente permite ordenar Entregas por recepción y Consultas por última actividad, en ambas direcciones y con elección independiente para todo el listado paginado. Aula en foco permite elegir un aula activa propia y revalida esa elección al actualizar. Cada acción del aula solicita su destino antes de continuar; ese destino no altera el foco. Las elecciones pertenecen a la vista, sin nueva preferencia persistente. [Reglas y recuperación](engineering/home/README.md#inicio-docente-orden-y-selección-de-aulas).
+
 ## 3. Aulas, borradores e ingreso
 
 Crear aula tiene cuatro pasos:

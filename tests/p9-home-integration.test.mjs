@@ -275,7 +275,7 @@ test('P9 actual Inicio, exclusive account roles, safe news and additive account 
         assert.ok(focused?.nextTopic?.topicId, 'The active fixture classroom has an authorized next topic');
         const nextTopic = focused.nextTopic;
         const teachingDetail = page.waitForResponse(response => new URL(response.url()).pathname === `/api/v1/classrooms/${roomA.id}`);
-        await region.getByRole('button', { name: 'Abrir tema: P9 Teaching A', exact: true }).click();
+        await region.getByRole('button', { name: `Abrir tema: ${nextTopic.topicName}`, exact: true }).click();
         const teachingResponse = await teachingDetail; assert.equal(teachingResponse.status(), 200);
         const teachingRoom = await teachingResponse.json();
         assert.equal(teachingRoom.id, roomA.id);

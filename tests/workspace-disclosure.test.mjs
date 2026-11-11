@@ -72,7 +72,8 @@ for (const accountRole of ['teacher', 'student']) test(`Brújula keeps ${account
     assert.equal(contextual.props.data, data);
     contextual.props.onClassrooms();
     assert.deepEqual(actions, ['classrooms']);
-    assert.equal(typeof contextual.props.onRetry, 'function');
+    assert.equal(typeof contextual.props[accountRole==='teacher'?'onUnauthorized':'onRetry'], 'function');
+    if(accountRole==='teacher')assert.equal(contextual.props.onSelected,undefined,'Action destinations do not mutate classroom focus');
     assert.deepEqual(descendants(view.tree, n => n.type?.name === 'HomeModule').map(n => n.props.name),
       accountRole === 'teacher' ? ['review', 'queries'] : ['pending', 'feedback']);
     const agenda = descendants(view.tree, n => n.type?.name === 'HomeMiniagenda')[0];

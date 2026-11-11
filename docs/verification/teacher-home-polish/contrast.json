@@ -1,0 +1,44 @@
+[
+  {
+    "selector": ".fm-home-order select",
+    "foreground": "rgb(37, 38, 70)",
+    "background": "rgb(255, 255, 255)",
+    "ratio": 14.54
+  },
+  {
+    "selector": ".fm-brujula-next-topic small",
+    "foreground": "rgb(123, 76, 50)",
+    "background": "rgb(255, 240, 228)",
+    "ratio": 6.45
+  },
+  {
+    "selector": ".fm-brujula-next-topic strong",
+    "foreground": "rgb(55, 45, 49)",
+    "background": "rgb(255, 240, 228)",
+    "ratio": 11.91
+  },
+  {
+    "selector": ".fm-home-topic-action",
+    "foreground": "rgb(146, 61, 13)",
+    "background": "rgb(255, 240, 228)",
+    "ratio": 6.51
+  },
+  {
+    "selector": ".fm-home-agenda-time",
+    "foreground": "rgb(78, 90, 102)",
+    "background": "rgb(234, 247, 241)",
+    "ratio": 6.4
+  },
+  {
+    "selector": ".fm-home-agenda-meta",
+    "foreground": "rgb(96, 82, 105)",
+    "background": "rgb(255, 241, 229)",
+    "ratio": 6.52
+  },
+  {
+    "selector": ".fm-home-module--agenda h3",
+    "foreground": "rgb(57, 44, 35)",
+    "background": "rgb(255, 255, 255)",
+    "ratio": 13.47
+  }
+]

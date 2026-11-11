@@ -32,10 +32,10 @@ export function HomeRow({item,module,timeZone,onAction,busy,featured=false}:{ite
       {module==='classrooms' && item.classroom?<span className="fm-home-room-label">{item.classroom.division}{item.classroom.archived?' · Archivada · Solo lectura':''}</span>:module==='drafts'&&item.classroom?<span>{item.classroom.name} · {item.classroom.division}</span>:'studentName' in item?null:<RowDetails item={item} timeZone={timeZone}/>}
       {module==='classrooms' && item.classroom?<span className={`fm-home-classroom-role fm-home-classroom-role--${item.classroom.role}`}>{item.classroom.role==='teacher'?'Enseño':'Estudio'}</span>:null}</div>
     {module==='classrooms' && item.classroom?.role==='teacher' && !item.classroom.archived?<HomePlanProgress title={item.title} progress={'planProgress' in item?item.planProgress:undefined}/>:null}
-    {nextTopic?<div className="fm-brujula-next-topic"><small>Próximo tema · {nextTopic.unitName}</small><strong>{nextTopic.topicName}</strong></div>:null}
-    <div className="fm-brujula-row-end">{'oldestSubmittedAt' in item?<small>{homeTime(item.oldestSubmittedAt,timeZone)}</small>:null}<button disabled={busy} className="fm-home-row-action" onClick={()=>onAction(target)} aria-label={`${action}: ${item.title}`}>
+    {nextTopic?<div className="fm-brujula-next-topic"><small>Próximo tema · {nextTopic.unitName}</small><strong>{nextTopic.topicName}</strong><button disabled={busy} className="fm-home-topic-action" onClick={()=>onAction(target)} aria-label={`Abrir tema: ${nextTopic.topicName}`}>Abrir tema<span><FoxmindIcon name="arrow-right"/></span></button></div>:null}
+    {!nextTopic?<div className="fm-brujula-row-end">{'oldestSubmittedAt' in item?<small>{homeTime(item.oldestSubmittedAt,timeZone)}</small>:null}<button disabled={busy} className="fm-home-row-action" onClick={()=>onAction(target)} aria-label={`${action}: ${item.title}`}>
       {module==='drafts'?'Continuar':action}<FoxmindIcon name="arrow-right"/>
-    </button></div>
+    </button></div>:null}
   </li>;
 }
 
@@ -56,15 +56,15 @@ function AgendaDate({item,timeZone}:{item:Extract<HomeRowItem,{source:string}>;t
   return <time className="fm-home-agenda-date" dateTime={date.dateTime}><span>{date.weekday}</span><strong>{date.day}</strong><small>{date.month}</small></time>;
 }
 
-export function HomeAgendaRow({item,timeZone,onAction,busy,generatedAt=new Date().toISOString()}:{item:Extract<HomeRowItem,{source:string}>;timeZone:string;onAction:HomeAction;busy?:boolean;generatedAt?:string}) {
+export function HomeAgendaRow({item,timeZone,onAction,busy,generatedAt=new Date().toISOString(),dateInTileOnly=false}:{item:Extract<HomeRowItem,{source:string}>;timeZone:string;onAction:HomeAction;busy?:boolean;generatedAt?:string;dateInTileOnly?:boolean}) {
   const date = (value:string)=>new Intl.DateTimeFormat('en-CA',{timeZone,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(value));
   const today=date(generatedAt),tomorrow=date(new Date(Date.parse(generatedAt)+86400000).toISOString());
   const day=item.allDay?item.date:date(item.startAt!);
   const relative=day===today?'Hoy':day===tomorrow?'Mañana':new Intl.DateTimeFormat('es-AR',{timeZone:item.allDay?'UTC':timeZone,day:'numeric',month:'short'}).format(new Date(item.allDay?item.date+'T12:00Z':item.startAt!));
-  return <li className="fm-home-row fm-home-row--agenda">
+  return <li className="fm-home-row fm-home-row--agenda" data-source={item.source}>
     <AgendaDate item={item} timeZone={timeZone}/>
     <div className="fm-home-row-copy"><h3>{item.title}</h3>
-      <div className="fm-home-agenda-time"><span>{relative} · {homeAgendaTime(item,timeZone)}</span></div>
+      <div className="fm-home-agenda-time"><span>{dateInTileOnly?homeAgendaTime(item,timeZone):<>{relative} · {homeAgendaTime(item,timeZone)}</>}</span></div>
       {item.source==='ACADEMIC_DEADLINE'&&item.classroom?<div className="fm-home-agenda-meta">{item.classroom.name} · {item.classroom.division}</div>:null}
     </div>
     <button disabled={busy} className="fm-home-agenda-action" onClick={()=>onAction(item.target)} aria-label={`Abrir: ${item.title}`}><FoxmindIcon name="chevron-right"/></button>
