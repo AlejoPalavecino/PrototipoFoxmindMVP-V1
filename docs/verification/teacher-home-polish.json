@@ -2,13 +2,13 @@
   "date": "2026-11-11",
   "baseCommit": "3895f4ded6884641872c5950c39c54215406d6d6",
   "branch": "codex/teacher-home-polish",
-  "candidate": "uncommitted worktree",
+  "candidate": "89ac88d62f4db09bc4c78b35606fe160786f4663",
   "scope": "Inicio docente: orden, aula en foco, mini agenda y acciones con destino",
   "status": "PASS local",
   "delivery": {
-    "integrated": false,
-    "committed": false,
-    "pushed": false,
+    "integrated": true,
+    "committed": true,
+    "pushed": true,
     "deployed": false
   },
   "automated": {
