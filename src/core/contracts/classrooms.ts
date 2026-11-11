@@ -67,3 +67,13 @@ export interface Member {
     endReason: string | null;
   }[];
 }
+
+export type InvitationBatchRecipient =
+  | { email: string; status: 'pending' | 'already_member' }
+  | { email: string; status: 'created' | 'already_invited'; invitationId: string }
+  | { email: string; status: 'failed'; code: 'CONFLICT' | 'ENROLLMENT_UNAVAILABLE' };
+
+export interface InvitationBatchReceipt {
+  requestId: string;
+  recipients: InvitationBatchRecipient[];
+}

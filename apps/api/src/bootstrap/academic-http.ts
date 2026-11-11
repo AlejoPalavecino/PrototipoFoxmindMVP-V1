@@ -26,6 +26,7 @@ export type ClassroomsHttpOperations = Omit<ClassroomService, 'ports' | 'tokens'
 const statuses = {
   INVALID_INPUT: 400,
   FORBIDDEN: 403,
+  INVITATION_BATCH_NOT_FOUND: 404,
   CONFLICT: 409,
   ENROLLMENT_UNAVAILABLE: 409,
   SERVICE_UNAVAILABLE: 503,
@@ -354,6 +355,16 @@ export function createClassroomsHandler(
         method === 'POST'
       )
         value = await service.invite(req, path[0], exact(['email']).email);
+      else if (path[1] === 'invitations' && path[2] === 'batch') {
+        if (path.length === 3 && method === 'POST')
+          value = await service.reserveInvitationBatch(req, path[0], exact(['requestId', 'emails']));
+        else if (path.length === 4 && method === 'GET')
+          value = await service.readInvitationBatch(req, path[0], path[3]);
+        else if (path.length === 5 && method === 'POST' && /^(?:[0-9]|[1-4][0-9])$/.test(path[4])) {
+          exact([]);
+          value = await service.emitInvitationBatchRecipient(req, path[0], path[3], Number(path[4]));
+        } else return fail('INVALID_INPUT');
+      }
       else if (
         path.length === 4 &&
         path[1] === 'invitations' &&

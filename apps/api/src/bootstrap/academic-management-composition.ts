@@ -8,6 +8,7 @@ import { createInvitationsRepository } from '../modules/classrooms/infrastructur
 import { publishDraftOperation, updateSettingsOperation } from '../modules/classrooms/infrastructure/drafts-operations.ts';
 import { previewCodeOperation, confirmCodeOperation } from '../modules/classrooms/infrastructure/memberships-operations-1.ts';
 import { endMembershipOperation, membersOperation } from '../modules/classrooms/infrastructure/memberships-operations-2.ts';
+import { InvitationBatchOperations } from '../modules/classrooms/infrastructure/invitation-batches.ts';
 import { inviteOperation } from '../modules/classrooms/infrastructure/invitations-operations.ts';
 import { decryptDelivery } from '../modules/classrooms/infrastructure/delivery-envelope.ts';
 import { digest } from '../modules/classrooms/infrastructure/policy.ts';
@@ -28,6 +29,7 @@ export class MembershipService extends MembershipApplication {
 export class InvitationService extends InvitationApplication {
  constructor(context: Pick<ClassroomRuntimeAccess,'run'|'classroom'|'ports'>, dependencies: ConstructorParameters<typeof InvitationApplication>[1]) {
   super(context, dependencies, createInvitationsRepository(), { invite: (request,id,input)=>inviteOperation(context,request,id,input),
+   batch: new InvitationBatchOperations(context),
    recipient: (envelope,aad)=>context.ports.validateMailbox(decryptDelivery(context.ports.deliveryKey,envelope,aad).to) });
  }
 }

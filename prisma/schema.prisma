@@ -267,6 +267,7 @@ model Classroom {
   codes               ClassroomCode[]    @relation("ClassroomCode_classroom")
   enrollments         Enrollment[]       @relation("Enrollment_classroom")
   invitations         Invitation[]       @relation("Invitation_classroom")
+  invitation_batches  ClassroomInvitationBatch[]
   units               Unit[]             @relation("Unit_classroom")
   plan_versions       StudyPlanVersion[] @relation("StudyPlanVersion_classroom")
   materials           Material[]         @relation("Material_classroom")
@@ -278,6 +279,17 @@ model Classroom {
 
   @@index([teacher_id])
   @@map("classrooms")
+}
+
+model ClassroomInvitationBatch {
+  classroom_id     String    @db.Uuid
+  request_id       String    @db.Uuid
+  created_at       DateTime  @default(now()) @db.Timestamptz(6)
+  receipt_envelope String
+  classroom        Classroom @relation(fields: [classroom_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@id([classroom_id, request_id])
+  @@map("classroom_invitation_batches")
 }
 
 model ClassroomCode {

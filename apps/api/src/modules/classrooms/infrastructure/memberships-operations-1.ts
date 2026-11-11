@@ -1,12 +1,12 @@
-import { randomUUID } from 'node:crypto';
+import { normalizeClassroomCode } from './classroom-codes.ts';
 import { revision } from './revision.ts';
-import type { ClassroomRuntimeAccess } from './access.ts';
-import { digest, fail, object, uuid } from './policy.ts';
+import { digest, fail, uuid } from './policy.ts';
 import type { Actor, Transaction } from './contracts.ts';
 import type { MembershipAccess } from '../application/management-operations.ts';
 
 export async function previewCodeOperation(capability: MembershipAccess, request: unknown, input: unknown) {
-    if (typeof input !== 'string' || !/^[\w-]{24}$/.test(input))
+    const normalized = normalizeClassroomCode(input);
+    if (!normalized)
       return fail('ENROLLMENT_UNAVAILABLE');
     return capability.run(request, true, async (tx, actor) => {
       if (actor.account_role !== 'student') return fail('ENROLLMENT_UNAVAILABLE');
@@ -16,7 +16,7 @@ export async function previewCodeOperation(capability: MembershipAccess, request
         code_digest: string;
       }>(
         'SELECT id,classroom_id,code_digest FROM classroom_codes WHERE code_digest=$1 AND revoked_at IS NULL',
-        digest(input),
+        digest(normalized),
       );
       if (!code) return fail('ENROLLMENT_UNAVAILABLE');
       const { classroom, exists, live } = await previewState(tx, code.classroom_id, actor.id, code.id);

@@ -1,3 +1,4 @@
+import type { InvitationBatchReceipt, InvitationBatchRecipient } from '../../../../../../src/core/contracts/classrooms.ts';
 import type { Actor, Transaction } from './contracts.ts';
 import type { ClassroomAccess, PreviewTokenPort, EnrollmentPort } from './ports.ts';
 export interface DraftRow { id: string; owner_id: string; revision: bigint; payload: unknown; published_classroom_id: string | null }
@@ -22,6 +23,11 @@ export interface MembershipOperations {
  membersOperation(capability: MembershipAccess, request: unknown, id: string, history?: boolean): Promise<{ firstName: string; lastName: string }[]>;
 }
 export interface InvitationOperations {
+ batch: {
+  reserve(request: unknown, classroomId: string, input: unknown): Promise<InvitationBatchReceipt>;
+  read(request: unknown, classroomId: string, requestId: unknown): Promise<InvitationBatchReceipt>;
+  emit(request: unknown, classroomId: string, requestId: unknown, index: number): Promise<InvitationBatchRecipient>;
+ };
  invite(request: unknown, classroomId: string, input: unknown): Promise<{delivery: string; id: string;generation: string}>;
  recipient(envelope: string, aad: string): string;
 }

@@ -3,6 +3,7 @@ export type ClassroomErrorCode =
   | 'INVALID_INPUT'
   | 'FORBIDDEN'
   | 'CONFLICT'
+  | 'INVITATION_BATCH_NOT_FOUND'
   | 'ENROLLMENT_UNAVAILABLE'
   | 'SERVICE_UNAVAILABLE';
 export class ClassroomError extends Error {

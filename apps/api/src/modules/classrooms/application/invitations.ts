@@ -14,6 +14,15 @@ export class InvitationService {
     this.enroll = dependencies.enroll;
   }
   async invite(request: unknown, classroomId: string, input: unknown) { return this.operations.invite(request, classroomId, input); }
+  reserveInvitationBatch(request: unknown, classroomId: string, input: unknown) {
+    return this.operations.batch.reserve(request, classroomId, input);
+  }
+  readInvitationBatch(request: unknown, classroomId: string, requestId: unknown) {
+    return this.operations.batch.read(request, classroomId, requestId);
+  }
+  emitInvitationBatchRecipient(request: unknown, classroomId: string, requestId: unknown, index: number) {
+    return this.operations.batch.emit(request, classroomId, requestId, index);
+  }
   revokeInvitation(request: unknown, classroomId: string, id: string) {
     return this.run(request, true, async (tx, actor) => {
       await this.classroom(tx, actor, classroomId, true, true);

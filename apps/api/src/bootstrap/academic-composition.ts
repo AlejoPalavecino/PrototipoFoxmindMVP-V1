@@ -104,6 +104,9 @@ export class ClassroomService {
   members(...args: Parameters<MembershipService['members']>): ReturnType<MembershipService['members']> { return this.membership.members(...args); }
   studentSummary(...args: Parameters<MembershipService['studentSummary']>): ReturnType<MembershipService['studentSummary']> { return this.membership.studentSummary(...args); }
   invite(...args: Parameters<InvitationService['invite']>): ReturnType<InvitationService['invite']> { return this.invitations.invite(...args); }
+  reserveInvitationBatch(...args: Parameters<InvitationService['reserveInvitationBatch']>): ReturnType<InvitationService['reserveInvitationBatch']> { return this.invitations.reserveInvitationBatch(...args); }
+  readInvitationBatch(...args: Parameters<InvitationService['readInvitationBatch']>): ReturnType<InvitationService['readInvitationBatch']> { return this.invitations.readInvitationBatch(...args); }
+  emitInvitationBatchRecipient(...args: Parameters<InvitationService['emitInvitationBatchRecipient']>): ReturnType<InvitationService['emitInvitationBatchRecipient']> { return this.invitations.emitInvitationBatchRecipient(...args); }
   revokeInvitation(...args: Parameters<InvitationService['revokeInvitation']>): ReturnType<InvitationService['revokeInvitation']> { return this.invitations.revokeInvitation(...args); }
   pendingInvitations(...args: Parameters<InvitationService['pendingInvitations']>): ReturnType<InvitationService['pendingInvitations']> { return this.invitations.pendingInvitations(...args); }
   listInvitations(...args: Parameters<InvitationService['listInvitations']>): ReturnType<InvitationService['listInvitations']> { return this.invitations.listInvitations(...args); }
@@ -186,6 +189,9 @@ function bindGroup1(service: ClassroomService): void {
   service.members = service.members.bind(service);
   service.studentSummary = service.studentSummary.bind(service);
   service.invite = service.invite.bind(service);
+  service.reserveInvitationBatch = service.reserveInvitationBatch.bind(service);
+  service.readInvitationBatch = service.readInvitationBatch.bind(service);
+  service.emitInvitationBatchRecipient = service.emitInvitationBatchRecipient.bind(service);
   service.revokeInvitation = service.revokeInvitation.bind(service);
   service.pendingInvitations = service.pendingInvitations.bind(service);
   service.listInvitations = service.listInvitations.bind(service);

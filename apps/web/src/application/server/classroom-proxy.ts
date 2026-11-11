@@ -65,6 +65,9 @@ const routes: Rule[] = [
   rule(`/${uuid}/archive`, { POST: ['archived', 'revision'] }), rule(`/${uuid}/code`, { POST: [] }),
   rule(`/${uuid}/(?:members|history)`, { GET: null }), rule(`/${uuid}/members/${uuid}`, { GET: null }),
   rule(`/${uuid}/invitations`, { GET: null, POST: ['email'] }),
+  rule(`/${uuid}/invitations/batch`, { POST: ['requestId', 'emails'] }),
+  rule(`/${uuid}/invitations/batch/${uuid}`, { GET: null }),
+  rule(`/${uuid}/invitations/batch/${uuid}/(?:[0-9]|[1-4][0-9])`, { POST: [] }),
   rule(`/${uuid}/invitations/${uuid}/revoke`, { POST: [] }), rule(`/${uuid}/leave`, { POST: [] }),
   rule(`/${uuid}/members/${uuid}/remove`, { POST: [] }),
 ];
@@ -109,6 +112,11 @@ function object(value: unknown, keys: string[], required = true): value is Recor
     Object.keys(value).every(key => keys.includes(key)) && (!required || keys.every(key => Object.hasOwn(value, key))));
 }
 function schema(value: unknown, keys: string[]): boolean {
+  if (keys.includes('emails')) {
+    return object(value, keys) && typeof value.requestId === 'string' && new RegExp(`^${uuid}$`).test(value.requestId)
+      && Array.isArray(value.emails) && value.emails.length > 0
+      && value.emails.every(email => typeof email === 'string' && email.length > 0);
+  }
   if (!object(value, keys, false) || !keys.filter(key => key !== 'aiGradingEnabled').every(key => Object.hasOwn(value, key))) return false;
   for (const key of keys) {
     if (key === 'aiGradingEnabled' && !Object.hasOwn(value, key)) continue;

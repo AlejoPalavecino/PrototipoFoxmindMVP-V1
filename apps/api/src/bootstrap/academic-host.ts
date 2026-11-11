@@ -54,10 +54,40 @@ export function installClassroomsTransport(app: Pick<INestApplication, 'use'>,
         if (cookie.present && !context) response.setHeader('Set-Cookie', clearSessionCookie(security));
         const ip = request.socket.remoteAddress;
         if (!ip) throw new IdentityHttpError('SERVICE_UNAVAILABLE');
+        const pathname = new URL(request.url ?? '/', 'http://classrooms.invalid').pathname;
+        const [, , , collection, resource] = pathname.split('/');
+        if (collection === 'invitations' && resource === 'batch' &&
+          context?.user.account_role === 'teacher' && context.user.email_verified_at) {
+          try { writeGuard(security, request, context.verifier, write); }
+          catch (error) {
+            await runtime.generalAdmission(ip, context);
+            throw error;
+          }
+          // A classroom-sized batch behind Next shares its socket peer with unrelated app traffic.
+          await runtime.store.admit(security, [
+            { action: 'general-identity', namespace: 'identifier', subject: `classroom-invitation-batch:account:${context.user.id}`,
+              budget: { limit: 120, windowSeconds: 60 } },
+            { action: 'general-identity', namespace: 'identifier', subject: `classroom-invitation-batch:peer:${ip}`,
+              budget: { limit: 2000, windowSeconds: 60 } },
+          ]);
+          return;
+        }
         await runtime.generalAdmission(ip, context);
         if (!context) throw new IdentityHttpError('AUTH_REQUIRED');
         if (!context.user.email_verified_at) throw new IdentityHttpError('EMAIL_VERIFICATION_REQUIRED');
         writeGuard(security, request, context.verifier, write);
+        if (request.method === 'POST' && pathname === '/classrooms/codes/preview' && context.user.account_role === 'student') {
+          // Reuse committed identity admission so unsuccessful guesses still count across processes.
+          // The socket peer may be a shared web proxy. Client-supplied forwarding headers carry no authority.
+          await runtime.store.admit(security, [
+            { action: 'general-identity', namespace: 'identifier', subject: `classroom-code:account-minute:${context.user.id}`,
+              budget: { limit: 10, windowSeconds: 60 } },
+            { action: 'general-identity', namespace: 'identifier', subject: `classroom-code:account-hour:${context.user.id}`,
+              budget: { limit: 30, windowSeconds: 3600 } },
+            { action: 'general-identity', namespace: 'identifier', subject: `classroom-code:peer:${ip}`,
+              budget: { limit: 2000, windowSeconds: 60 } },
+          ]);
+        }
       } catch (error) { throw new ClassroomIdentityError(publicIdentityError(error)); }
     },
   });
