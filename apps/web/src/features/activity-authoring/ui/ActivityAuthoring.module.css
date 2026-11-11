@@ -1,0 +1,102 @@
+.editor details.optional {
+  border-top: 1px solid #dce2f0;
+  padding-top: .5rem;
+}
+.optional[open] > :not(summary) { margin-block-start: .8rem; }
+.editor .rubric {
+  padding: 1rem clamp(.9rem, 3vw, 1.5rem);
+  background: #fff;
+  border: 1px solid #dce2f0;
+  border-radius: 18px;
+}
+.editor .rubric > fieldset { padding: .75rem 0 0; border: 0; margin: 0; }
+.editor summary {
+  min-height: 44px;
+  align-content: center;
+  cursor: pointer;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+.editor :is(input, select, textarea, button, summary):focus-visible {
+  outline: 2px solid #9a3e00;
+  outline-offset: 3px;
+}
+.generation :is(.optional, .rubric) { min-width: 0; }
+.generation :is(section, details) { overflow-wrap: anywhere; }
+.generation section[aria-label='Revisar propuesta privada'] {
+  padding: 1rem clamp(.9rem, 3vw, 1.5rem);
+  border: 1px solid #ead6c4;
+  border-radius: 18px;
+  background: #fffaf4;
+}
+.editor .instructions {
+  padding: 1rem;
+  background: #fff6eb;
+  border: 1px solid #eedac7;
+  border-radius: 14px;
+}
+.editor .instructions h4 { margin-top: 0; }
+.editor .instructions p { margin-bottom: 0; }
+
+:global(:is(#classroom-main, .classroom-workspace)) .editor :global(.brujula-location-fields) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.editor :global(.brujula-assignment-compact) { display: grid; gap: .9rem; }
+:global(:is(#classroom-main, .classroom-workspace)) .editor :global(.brujula-location-topics) {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+:global(:is(#classroom-main, .classroom-workspace)) .editor :global(.brujula-location-topics) legend {
+  padding: 0;
+  font-size: .875rem;
+  margin-bottom: .35rem;
+}
+:global(:is(#classroom-main, .classroom-workspace)) .editor :global(.brujula-private-badge) {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .4rem .7rem;
+  border: 1px solid #eedac7;
+  border-radius: 999px;
+  background: #fff6eb;
+  color: #78340e;
+  font-size: .78rem;
+}
+.editor :global(.brujula-private-badge) svg { width: 1rem; height: 1rem; }
+:global(:is(#classroom-main, .classroom-workspace)) .editor :global(.aw-title-row) {
+  gap: .75rem;
+  flex-wrap: wrap;
+}
+:global(:is(#classroom-main, .classroom-workspace)) .editor :global(.aw-steps) button {
+  min-height: 44px;
+  padding: .35rem .7rem;
+  font-size: .82rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+}
+:global(:is(#classroom-main, .classroom-workspace)) .editor :global(.aw-steps) [aria-current='step'] button {
+  background: #fff0e1;
+  color: #87370c;
+  border-color: #eac9ac;
+}
+:global(:is(#classroom-main, .classroom-workspace)) .editor :is(select, textarea, input:not([type='checkbox'], [type='radio'])) {
+  min-height: 44px;
+  border-color: #929eb5;
+  font-size: .9rem;
+}
+:global(:is(#classroom-main, .classroom-workspace)) .editor label { font-size: .875rem; }
+:global(:is(#classroom-main, .classroom-workspace)) .editor :global(.p5-form-footer) button { min-height: 44px; font-size: .875rem; }
+:global(:is(#classroom-main, .classroom-workspace)) .editor :global(.activity-review-summary) p { font-size: .95rem; }
+
+@media (max-width: 620px) {
+  :global(:is(#classroom-main, .classroom-workspace)) .editor :global(.brujula-location-fields) { grid-template-columns: minmax(0, 1fr); }
+  :global(:is(#classroom-main, .classroom-workspace)) .editor :is(select, textarea, input:not([type='checkbox'], [type='radio'])) { font-size: 1rem; }
+}
+
+:global(:is(#classroom-main, .classroom-workspace)) .generation :global(.education-generation-setup .p5-form-footer) {
+  position: static;
+}

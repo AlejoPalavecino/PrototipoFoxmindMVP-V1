@@ -3,6 +3,12 @@
   "baseCommit": "d41ff6d0b8c9321403b1d3000a06e06d84366cfe",
   "hashPolicy": "Current baseline: catalog hashes are exact bytes; no retained historical aliases",
   "activeFiles": [
+    "odd/tasks/classrooms-ux-unification.md",
+    "docs/work-log/2026-11-11-root-classrooms-frontend.md",
+    "docs/design/classroom-teacher-redesign.md",
+    "docs/design/classroom-teacher-preview.html",
+    "docs/work-log/2026-11-11-root-teacher-classroom-design.md",
+    "docs/work-log/2026-11-11-teacher-design-preview.md",
     "docs/work-log/2026-11-10-root-architecture-publication.md",
     "docs/verification/architecture-migration.json",
     "docs/work-log/2026-11-10-proxy-rejection-lifecycle.md",
@@ -104,7 +110,12 @@
     "docs/work-log/2026-11-08-root-main-publication.md",
     "docs/work-log/README.md",
     "odd/tasks/grading-ai-issue-2.md",
-    "odd/tasks/project-documentation-renewal.md"
+    "odd/tasks/project-documentation-renewal.md",
+    "docs/work-log/2026-11-11-activities-ui.md",
+    "docs/work-log/2026-11-11-codes-batch.md",
+    "docs/work-log/2026-11-11-content-ui.md",
+    "docs/work-log/2026-11-11-grading-ui.md",
+    "docs/verification/classrooms-ux-unification.json"
   ],
   "moves": [],
   "fixedPaths": [

@@ -12,6 +12,7 @@ La dirección UX/UI vigente de Foxy, Carpetas de estudio y creación de Aulas in
 | Ver capacidades y permisos | [Funciones por rol y sección](product/features-by-role.md) |
 | Entender entidades y relaciones | [Modelo de datos](engineering/data-model.md) |
 | Diseñar o ampliar una pantalla | [UX/UI actual](design/README.md) |
+| Revisar Mis aulas docente/estudiante en el candidato separado | [Diseño detallado](design/classroom-teacher-redesign.md), [maqueta](design/classroom-teacher-preview.html) y [tareas/evidencia](../odd/tasks/classrooms-ux-unification.md); implementación local, sin merge |
 | Recorrer capturas y checks | [Referencia visual actual](design/current/README.md) y [matriz de flujos](verification/flows.md) |
 | Ejecutar y verificar en local | [Entorno](engineering/local-development/README.md) y [pruebas](engineering/testing/README.md) |
 | Consultar contratos HTTP | [Cuenta](api/accounts-sessions.md), [OpenAPI](api/accounts-sessions.openapi.json), [archivos](api/files.md) |

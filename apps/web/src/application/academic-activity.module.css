@@ -1,0 +1,92 @@
+.brief {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+:global(:is(#classroom-main, .classroom-workspace)) .brief :is(h3, h4) { margin: 0 0 .35rem; }
+.brief p { margin: 0; }
+.instruction {
+  padding: clamp(.8rem, 2.5vw, 1.2rem);
+  background: #fff6eb;
+  border: 1px solid #eedac7;
+  border-radius: 14px;
+}
+:global(:is(#classroom-main, .classroom-workspace)) .brief .instruction p { font-size: clamp(.9rem, 1.4vw, 1rem); line-height: 1.75; }
+.brief ul:empty { display: none; }
+.privateKey {
+  padding: .7rem 1rem;
+  border: 1px solid #dce2f0;
+  border-radius: 14px;
+  background: #f7f8fd;
+}
+.privateKey > summary { min-height: 44px; align-content: center; cursor: pointer; }
+.historyHeading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.state {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  padding: .28rem .65rem;
+  background: #fff0e1;
+  border-radius: 999px;
+  color: #89370d;
+  font-size: .75rem;
+  font-weight: 650;
+  line-height: 1.35;
+}
+.state[data-tone='confirmed'] { background: #edf8f1; color: #235d38; }
+.state[data-tone='neutral'] { background: #f1f2f8; color: #45486b; }
+
+.rowTags { display: flex; align-items: center; flex-wrap: wrap; gap: .4rem; }
+
+:global(#classroom-main) .activityList:global(.act-list) > :global(.act-line) {
+  height: auto;
+  min-height: 104px;
+  isolation: isolate;
+}
+:global(#classroom-main) .activityList :global(.act-line .folder-row-actions) {
+  margin: 0;
+  align-self: center;
+}
+:global(#classroom-main) .activityList :global(.act-line .act-open) {
+  min-height: 44px;
+}
+
+:global(:is(#classroom-main, .classroom-workspace)) :is(.reader, .solver) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(14rem, 17rem);
+  gap: 1rem;
+  align-items: start;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.screen :global(.p5-section-head) { gap: .75rem; flex-wrap: wrap; }
+.screen :global(.brujula-activity-options) { display: flex; flex-wrap: wrap; gap: .5rem; }
+.screen :global(.brujula-activity-kicker) {
+  color: #555d77;
+  font-size: .82rem;
+  font-weight: 650;
+}
+.context, .brief {
+  min-width: 0;
+  padding: clamp(1rem, 2.5vw, 1.45rem);
+  border: 1px solid #dce2f0;
+  border-radius: 18px;
+  background: white;
+}
+.context { background: #f7f8fd; overflow-wrap: anywhere; }
+.context > small { color: #555d77; font-size: .76rem; font-weight: 650; }
+.context h4 { margin: .8rem 0 .2rem; font-size: .82rem; }
+.context p { margin: 0; font-size: .85rem; }
+.solver > :global(.p7-attempt) { min-width: 0; }
+@media (max-width: 800px) {
+  :global(:is(#classroom-main, .classroom-workspace)) :is(.reader, .solver) { grid-template-columns: minmax(0, 1fr); }
+  .screen :global(.brujula-activity-options) button { min-height: 44px; }
+}

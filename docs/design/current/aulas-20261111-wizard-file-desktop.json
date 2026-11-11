@@ -1,0 +1,13 @@
+{
+  "date": "2026-11-11",
+  "scope": "Real frontend components with synthetic adapter; not an end-to-end deployed app",
+  "role": "teacher",
+  "url": "/wizard?mode=prepared",
+  "width": 1280,
+  "height": 700,
+  "baseCommit": "3895f4ded6884641872c5950c39c54215406d6d6",
+  "candidate": "codex/classrooms-ux-unification uncommitted worktree",
+  "visuallyInspected": true,
+  "inspectedBy": "classroom_content_ui",
+  "limitations": "Image proves visible UI only; persistence and authorization have separate SQL/HTTP evidence."
+}

@@ -29,8 +29,8 @@ Inicio docente prioriza entregas/consultas y acciones del aula; Inicio estudiant
 ## 3. Aulas, borradores e ingreso
 
 Crear aula tiene cuatro pasos:
-1. Datos del aula: nombre, materia, división, ciclo lectivo, zona, documento aprobado y portada predefinida.
-2. Elegir IA o manual para cargar el plan; subir archivo no inicia IA.
+1. Datos del aula: nombre, materia, división, ciclo lectivo, zona y portada predefinida.
+2. Subir el documento del plan, esperar aprobación y elegir IA o manual; subir archivo no inicia IA.
 3. Revisar/editar unidades y temas.
 4. Revisión editable y Confirmar y crear aula.
 
@@ -42,7 +42,7 @@ Mis aulas docente separa Activas, Archivadas y Pendientes con contador. Cada bor
 
 El asistente exige documento PDF/DOCX aprobado en ambos métodos y al menos una unidad con un tema. La API admite currículos manuales completos sin archivo por compatibilidad; no convierte esa compatibilidad en un bypass de UI. Materia/división son texto libre; ciclo lectivo es año académico. Portada es predefinida, sin subida de imagen. La zona del aula queda fija tras crear.
 
-Código: Ver aula presenta el destino y Confirmar inscripción incorpora/abre. Un error conserva formulario con respuesta genérica. Invitación: correo/cuenta correspondiente y aceptación explícita; vigencia7días. Entregar correo o abrir un enlace no confirma membresía. Regenerar código invalida el anterior conforme al servicio.
+Código: Ver aula presenta el destino y Confirmar inscripción incorpora/abre. Los nuevos códigos tienen seis dígitos, incluidos ceros iniciales, y siguen vigentes hasta regeneración. Se aceptan códigos anteriores hasta que el docente los regenere; una reserva fallida conserva el vigente. La revocación no permite reutilización histórica. Un error conserva formulario con respuesta genérica. Invitación: correo/cuenta correspondiente y aceptación explícita; vigencia7días. El docente puede invitar hasta 50 destinatarios únicos por lote recuperable, con resultados individuales y reintento sin duplicar emisiones confirmadas. Entregar correo o abrir un enlace no confirma membresía. [Contrato, protección y límites](engineering/classrooms/README.md).
 
 Salida voluntaria o remoción revoca acceso actual, conserva registros y requiere invitación nueva para reingresar. Código no readmite a quien salió/fue removido. El docente ve historia de exalumnos separada de alumnos actuales; reingreso no duplica obligaciones por períodos anteriores.
 

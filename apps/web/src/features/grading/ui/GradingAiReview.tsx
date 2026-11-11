@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ClassroomClient } from '../../../../../../src/core/contracts/academic-client.ts';
 import type { GradingAiProposal } from '../../../../../../src/core/domain/index.ts';
 import { Notice } from '../../../../../shared-ui/feedback.tsx';
+import styles from './grading.module.css';
 
 interface Job { id: string; state: string; snapshotHash: string | null; proposal: GradingAiProposal | null }
 export function GradingAiReview({ api, roomId, attemptId, revision, dirty, onApplied, onBusyChange, disabled = false }: {
@@ -41,14 +42,16 @@ export function GradingAiReview({ api, roomId, attemptId, revision, dirty, onApp
     } catch (e) { setError((e as Error).message); }
     finally { setBusy(false); onBusyChange?.(false); }
   }
-  return <section aria-label="Sugerencia de corrección con IA" className="p8-ai-review" aria-busy={loading || busy}>
-    <h4>Sugerencia de corrección con IA</h4>
+  return <section aria-label="Sugerencia de corrección con IA" className={`p8-ai-review ${styles.assistant}`} aria-busy={loading || busy}>
+    <h4>Foxy · Sugerencia de corrección con IA</h4>
     <p>La sugerencia es privada. Revisala antes de usarla; aplicar no publica la calificación.</p>
     {error ? <Notice error>{error} La corrección manual sigue disponible.</Notice> : null}
     {loading ? <p role="status">Consultando sugerencia…</p> : null}
     {!loading && !error && !job ? <p>No hay una sugerencia para esta entrega.</p> : null}
-    {job && job.state !== 'READY' ? <p role="status">Estado: {job.state === 'QUEUED' ? 'Pendiente' : job.state === 'RUNNING' ? 'En preparación' : job.state === 'FAILED' ? 'No disponible' : job.state === 'STALE' ? 'Desactualizada' : job.state === 'APPLIED' ? 'Aplicada de forma privada' : 'Descartada'}</p> : null}
+    {job && job.state !== 'READY' ? <p role="status">Estado: {job.state === 'QUEUED' ? 'Pendiente' : job.state === 'RUNNING' ? 'En preparación' : job.state === 'FAILED' ? 'No disponible. Podés seguir corrigiendo manualmente.' : job.state === 'STALE' ? 'Desactualizada' : job.state === 'APPLIED' ? 'Aplicada de forma privada' : 'Descartada'}</p> : null}
     {proposal && job?.state === 'READY' ? <>
+      <details className={styles.aiProposal}>
+        <summary>Revisar sugerencia</summary>
       {proposal.overallGrade !== null ? <label>Nota sugerida · 0 a 10<input inputMode="decimal" value={proposal.overallGrade}
         disabled={busy} onChange={e => { const value = e.target.value.replace(',', '.'); edit(previous => ({ ...previous, overallGrade: value })); }} /></label> : null}
       <label>Devolución general sugerida<textarea maxLength={5000} value={proposal.overallFeedback} disabled={busy}
@@ -60,13 +63,14 @@ export function GradingAiReview({ api, roomId, attemptId, revision, dirty, onApp
           questions: previous.questions.map(q => q.ref === question.ref ? { ...q, feedback: value } : q) })); }} /></label>
       </fieldset>)}
       {proposal.warnings.length ? <ul>{proposal.warnings.map((warning, i) => <li key={i}>{warning}</li>)}</ul> : null}
-      <div className="p5-actions"><button disabled={busy || disabled} onClick={() => setConfirm('apply')}>Usar sugerencia</button>
+        <div className="p5-actions"><button disabled={busy || disabled} onClick={() => setConfirm('apply')}>Usar sugerencia</button>
         <button disabled={busy || disabled} onClick={() => setConfirm('discard')}>Descartar sugerencia</button></div>
       {confirm ? <section aria-label={confirm === 'apply' ? 'Confirmar aplicación' : 'Confirmar descarte'}>
         <p>{confirm === 'apply' ? dirty ? 'Los cambios sin guardar se reemplazarán por la sugerencia. La corrección seguirá privada.' : 'La corrección se guardará de forma privada; no se publicará.' : 'La sugerencia se descartará sin cambiar la corrección.'}</p>
         <button disabled={busy} onClick={() => setConfirm(null)}>Cancelar</button>
         <button disabled={busy || disabled} onClick={() => void run(confirm)}>{confirm === 'apply' ? 'Confirmar aplicación' : 'Confirmar descarte'}</button>
       </section> : null}
+      </details>
     </> : null}
     {!loading ? <button disabled={busy} onClick={() => { setLoading(true); void load().catch(e => { setError(e.message); setLoading(false); }); }}>Actualizar sugerencia</button> : null}
   </section>;

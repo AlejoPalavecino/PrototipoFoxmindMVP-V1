@@ -1,0 +1,601 @@
+{
+  "date": "2026-11-11",
+  "baseCommit": "3895f4ded6884641872c5950c39c54215406d6d6",
+  "branch": "codex/classrooms-ux-unification",
+  "state": "Docker integration verified locally; full worktree app running; human review and main reconciliation pending; no commit/push/merge/deploy",
+  "candidateFiles": [
+    {
+      "path": "apps/api/src/bootstrap/academic-composition.ts",
+      "sha256": "bda9566b2b917c709d13de44c8257f2dd7d00382b664afe9a36014e9f1ca869f"
+    },
+    {
+      "path": "apps/api/src/bootstrap/academic-host.ts",
+      "sha256": "45bd861343980554a6d52a64ff63d042bdbdcf4ed025d64a34b6a2b828f0b161"
+    },
+    {
+      "path": "apps/api/src/bootstrap/academic-http.ts",
+      "sha256": "b0f16aa5f2adace7706b258d5d4523a120b853731e97fb3e3d3c1b073b39f270"
+    },
+    {
+      "path": "apps/api/src/bootstrap/academic-management-composition.ts",
+      "sha256": "0ccf49cee2abebde9b08ae1ebb4c953a9f9f8bf77c2a482bdaa5456fbc02cc6b"
+    },
+    {
+      "path": "apps/api/src/modules/classrooms/application/invitations.ts",
+      "sha256": "02656bfb1064ebf341dfccd8c7ee5193d4cd5bd220687979e5eb16e3816c922f"
+    },
+    {
+      "path": "apps/api/src/modules/classrooms/application/management-operations.ts",
+      "sha256": "06ac405edec7d1878764fc1a05091c3a3f1be6886813466bd5ae94b33396a9ab"
+    },
+    {
+      "path": "apps/api/src/modules/classrooms/infrastructure/classroom-codes.ts",
+      "sha256": "779d254dae3687b2da107dc1f284a81fb9ee03e986a444ee92a5c565262848c0"
+    },
+    {
+      "path": "apps/api/src/modules/classrooms/infrastructure/invitation-batches.ts",
+      "sha256": "65a772b47e49f773038861843a5161a3a0a8606b489d5bc83b05f7203db01475"
+    },
+    {
+      "path": "apps/api/src/modules/classrooms/infrastructure/invitations-operations.ts",
+      "sha256": "1fcf6c6b7f93ccda46fd34e0234e60359faaccd800f0c4eca42562e3f0fe1692"
+    },
+    {
+      "path": "apps/api/src/modules/classrooms/infrastructure/memberships-operations-1.ts",
+      "sha256": "b1b87eaead0bd05c645cdffd904f711d220e112ac861fd2c1f6cbcebc34f994f"
+    },
+    {
+      "path": "apps/web/src/application/academic-Activities.tsx",
+      "sha256": "84bd0f81388d6bb2a8e26e1c765dd785fc508d19a6be4cdcc5ea16260bb151bd"
+    },
+    {
+      "path": "apps/web/src/application/academic-ActivityScreen.tsx",
+      "sha256": "7b8aa14b55c4d67be78a625f65118bd74192c4ce05f07f9b816f724752a29880"
+    },
+    {
+      "path": "apps/web/src/application/academic-AttemptHistory.tsx",
+      "sha256": "7b0c5bc2603de2e2d3e20f1d61fa547e730709a715fe2d25c1d08d50c67c9b33"
+    },
+    {
+      "path": "apps/web/src/application/academic-AttemptSession.tsx",
+      "sha256": "a3ed32fbb937e7cfd8d0859455177132abdd2287cb36194fb9a385793f60a3f9"
+    },
+    {
+      "path": "apps/web/src/application/academic-ClassroomDialogs.tsx",
+      "sha256": "5ae60e0c0f7203a9e278dfee37c64ebd11468d02cc96daa884dfe4776a4e78c4"
+    },
+    {
+      "path": "apps/web/src/application/academic-ClassroomView.tsx",
+      "sha256": "b24e16d2cfb479e06d7d57116c756508420643f01c9983963d1f4a373f2b8697"
+    },
+    {
+      "path": "apps/web/src/application/academic-Classrooms.tsx",
+      "sha256": "f7fcbeb2f213bcb229f24e0f33ffa3bea8c7da360dd927d7ce8cb13e1d90c76f"
+    },
+    {
+      "path": "apps/web/src/application/academic-Wizard.tsx",
+      "sha256": "a43e28a9356148c376581b5f8ea257575fafe1df58d84cb778075493033b4122"
+    },
+    {
+      "path": "apps/web/src/application/academic-activity-preview.tsx",
+      "sha256": "bc72e9a91c5d4ffc4e1f3606b1002cbda7359174ab1455fcc7beaed669608eba"
+    },
+    {
+      "path": "apps/web/src/application/academic-activity.module.css",
+      "sha256": "632f2d66f57d9e8408f08fc69c9456e1ab66caf93c3ba389dbd053c863d90dd8"
+    },
+    {
+      "path": "apps/web/src/application/academic-wizard.module.css",
+      "sha256": "93b7bc6f3d7e8fec78ebc34cbde203351c1e2d256380400f6d053bbd46a6987f"
+    },
+    {
+      "path": "apps/web/src/application/server/classroom-proxy.ts",
+      "sha256": "3baeba17cbf2214eac6d1507db37b2a0c471c542fd308b03d058111318d7908c"
+    },
+    {
+      "path": "apps/web/src/features/activity-authoring/ui/ActivityAuthoring.module.css",
+      "sha256": "96be3726e67aada560d4b8eb0af0e2f45a0c9f440e5a6d1ba521fbfc7df41568"
+    },
+    {
+      "path": "apps/web/src/features/activity-authoring/ui/ActivityAuthoring.tsx",
+      "sha256": "cfed343ff372514ee9081129bd32a4a8a957eaf420ad1b40365e82d337694155"
+    },
+    {
+      "path": "apps/web/src/features/activity-authoring/ui/ActivityGeneration.tsx",
+      "sha256": "5ba87b346a7b994ec2682c8b3215969b1508825230f8497396ebfe4737b4eb62"
+    },
+    {
+      "path": "apps/web/src/features/activity-authoring/ui/EvaluationRubric.tsx",
+      "sha256": "ed6f461e93e396c6b0af6f3254dce08a66c6312b90928a3aa1a4358ddffd92e6"
+    },
+    {
+      "path": "apps/web/src/features/classrooms/index.ts",
+      "sha256": "53798850651686520f6a71a3880817084c55ffaac5a92822ff8060f94d1ff762"
+    },
+    {
+      "path": "apps/web/src/features/classrooms/model/invitation-batch.ts",
+      "sha256": "20baabb66588806e0e55585d5d323393306a8aa0c0458f3b829e15a24bf86a26"
+    },
+    {
+      "path": "apps/web/src/features/classrooms/ui/ClassroomCollection.tsx",
+      "sha256": "9a8b1ac23f3cae8cb2b26b110aa4f1960f17f5983e3416e132c75125ebe3af6f"
+    },
+    {
+      "path": "apps/web/src/features/classrooms/ui/ClassroomMembers.tsx",
+      "sha256": "7281073205f333588fc72d35d19a8af71120500949d6f2c1b7d5be4096e69e9d"
+    },
+    {
+      "path": "apps/web/src/features/classrooms/ui/InvitationBatchDialog.tsx",
+      "sha256": "17088a956ccf97ba389111676c02f0c249cd70c84144964fe9647bfb9edb94b6"
+    },
+    {
+      "path": "apps/web/src/features/classrooms/ui/WizardReview.tsx",
+      "sha256": "862dc7582ab79ccfa3269df3ee0ad18384f58f715dd77620d0f361605ecdadba"
+    },
+    {
+      "path": "apps/web/src/features/classrooms/ui/classroom-experience.module.css",
+      "sha256": "f1b01cb4ce412457469353080dd8d42d6b570c52c914554ce6b73cd544d8b899"
+    },
+    {
+      "path": "apps/web/src/features/classrooms/ui/wizard-review.module.css",
+      "sha256": "346878e2f814de250ba832e738462f8db672000326e83cf8da9b570301ca1760"
+    },
+    {
+      "path": "apps/web/src/features/communication/ui/Wall.tsx",
+      "sha256": "f985b3be42aba6e29dc0d6e26efa3ffd6a221852af1b7f8aadc70f057ff80b2d"
+    },
+    {
+      "path": "apps/web/src/features/communication/ui/wall.module.css",
+      "sha256": "cd94fcd3322806ac190db6faf61e8406bfb28e381c9a8760aeec54040c0b5294"
+    },
+    {
+      "path": "apps/web/src/features/curriculum/ui/ExtractionEditor.tsx",
+      "sha256": "f863898013fe723b013199944ad6c3b2cf3d9c77beee585f4fc711813c81bc4c"
+    },
+    {
+      "path": "apps/web/src/features/curriculum/ui/Plan.tsx",
+      "sha256": "c6aeb7a65f4160df67395e125eb516c85c9a551d6ccfb1f8b411ea07b6a7a104"
+    },
+    {
+      "path": "apps/web/src/features/curriculum/ui/PlanWorkspace.tsx",
+      "sha256": "fd9d5e0d2b26d823df48b76bd212ad5ea6679556785da9159d1c77b6b808b8d5"
+    },
+    {
+      "path": "apps/web/src/features/curriculum/ui/WizardPlan.tsx",
+      "sha256": "bb0c17ab3b3d52eb230c35851c3c4824aa8c127221045da977116d480277de10"
+    },
+    {
+      "path": "apps/web/src/features/curriculum/ui/WizardSuggestions.tsx",
+      "sha256": "36ae6a3e6498df43e028e3decfc71bfc4d8d61966996535af35d6b798e1b57d5"
+    },
+    {
+      "path": "apps/web/src/features/curriculum/ui/plan.module.css",
+      "sha256": "e194f1704adc4070564f89d94c395f4fcfd20feb80aa81ef9a027ad33c347de5"
+    },
+    {
+      "path": "apps/web/src/features/curriculum/ui/wizard-plan.module.css",
+      "sha256": "840a464dff2ddf1520c134a3f4b109e7b2f5e70cbb2fc808cb1fdf72230c7dc1"
+    },
+    {
+      "path": "apps/web/src/features/grading/ui/FeedbackDisplay.tsx",
+      "sha256": "4db949a7102e8af6906805d1453b18337b843c503f05480383cf265854ae73dc"
+    },
+    {
+      "path": "apps/web/src/features/grading/ui/GradingAiReview.tsx",
+      "sha256": "d451a397ae8a3978adffaf47a431a6dd9b2f7b38ea14e36a20e56c35b4503edc"
+    },
+    {
+      "path": "apps/web/src/features/grading/ui/GradingEditor.tsx",
+      "sha256": "5a3c28a88c4cba7a2a71fd569cbbe9ff52508f94c66351900fe63c18a1123fcf"
+    },
+    {
+      "path": "apps/web/src/features/grading/ui/Progress.tsx",
+      "sha256": "71088ab6a24ff13ef8254eac7544a06f584e9e3424d530259b4e6dfd6883bf8e"
+    },
+    {
+      "path": "apps/web/src/features/grading/ui/PublishedResult.tsx",
+      "sha256": "7f409700421457395fbed6843c38e6a0e5791fa62a171242bda3c223d13f82d2"
+    },
+    {
+      "path": "apps/web/src/features/grading/ui/brujula-grading-rubric.tsx",
+      "sha256": "b55bc70516eb7fec3ac8933a8f53e656c8fa24cad92c03aa58025f3e9bc55ad9"
+    },
+    {
+      "path": "apps/web/src/features/grading/ui/grading.module.css",
+      "sha256": "5f8b6d42a0440829e78fdc31a748650f24e657ae1c2b8f64635e1554a83f1639"
+    },
+    {
+      "path": "apps/web/src/features/grading/ui/overall-feedback.test.mjs",
+      "sha256": "a2deb2aa41b53fce088c40b470dc5d9004f4efca2bd8ab71a5728b16e6af760a"
+    },
+    {
+      "path": "apps/web/src/features/grading/ui/overall-feedback.ts",
+      "sha256": "25c99b3174d712144acbc3646163a12b8436035896f19857253d6999d8e136a2"
+    },
+    {
+      "path": "apps/web/src/features/grading/ui/structured-feedback-flow.test.mjs",
+      "sha256": "565b2864ac0935f85d4c5aa066179d1f9053aff5f2011c557eb34d92a3da8b62"
+    },
+    {
+      "path": "apps/web/src/features/materials/ui/Library.tsx",
+      "sha256": "0e0cd3dff7f3c92ae38fccee08f93352fa7fde6a9f7d4a3a2adaf9d1ae2306a1"
+    },
+    {
+      "path": "apps/web/src/features/materials/ui/MaterialReader.tsx",
+      "sha256": "665a6896484504406321926049cffebb25af033e0cda271939e2e9727e108f57"
+    },
+    {
+      "path": "apps/web/src/features/materials/ui/library.module.css",
+      "sha256": "915321c19bb337e17c28f0870b153c36303bdf5f5a61b79b3e002babf38385a7"
+    },
+    {
+      "path": "apps/web/src/features/participation/index.ts",
+      "sha256": "3cc66ba3d855738eb12117907392c592ab26aa03a9a14ef0529b0fdbb7db55a4"
+    },
+    {
+      "path": "apps/web/src/features/participation/ui/AttemptExitRef.ts",
+      "sha256": "a2c2399ad9864765e79d51ec6780625045e7159419798bd0dc53966eac05afce"
+    },
+    {
+      "path": "apps/web/src/features/participation/ui/Participation.module.css",
+      "sha256": "582327bcddb7de40ff96c9c6546a5c80c932ed46614a3ac82c709d1eec3fe8e6"
+    },
+    {
+      "path": "apps/web/src/features/participation/ui/PracticalAttempt.tsx",
+      "sha256": "c73c022196b34b3f16bf4287aa33ae28cf4afc7e10e493528ea8f5ff3dfb6701"
+    },
+    {
+      "path": "apps/web/src/features/participation/ui/QuestionnaireAttempt.tsx",
+      "sha256": "be8c5d50b9849643d6018526f3b67019cc3c8e1d4f013e88d08fb5015d1f05a7"
+    },
+    {
+      "path": "prisma/migrations/202611110001_classroom_invitation_batches/migration.sql",
+      "sha256": "a2719298e1b00b777f142c33d27f77447f48bdcbf91ddbe2bbac95a2e5e2a8b8"
+    },
+    {
+      "path": "prisma/schema.prisma",
+      "sha256": "63fb8988fcb5e717c9e0b6a82914106e165511dd57879682080dde14f7bc7235"
+    },
+    {
+      "path": "scripts/complete-suite-inventory.json",
+      "sha256": "db0f85d16d085170fd6f8d080eefd05b2fdbb4797045a524198f6e7bdc3fbdca"
+    },
+    {
+      "path": "scripts/complete-suite-routes.json",
+      "sha256": "9efc5f2e44ce15d9161661e3610f95df1d1c456b34bb79c5e2ab955acd2e5cf5"
+    },
+    {
+      "path": "src/core/contracts/classrooms.ts",
+      "sha256": "f9e23613a407d6c34f6c4b5339ce79f9084fa1810ff3d02610f127da9f0c452e"
+    },
+    {
+      "path": "src/core/domain/classrooms/policy.ts",
+      "sha256": "0e0c22c0b01c93fad36edfdfd3ac96c6993dc263109c32749613d62623900711"
+    },
+    {
+      "path": "tests/brujula-complete-browser.test.mjs",
+      "sha256": "d02834903dd28ebb34265e6c46ae6c0f20af439262dd2433ed2a41d84389f61f"
+    },
+    {
+      "path": "tests/brujula-material-agenda-browser.test.mjs",
+      "sha256": "7b1bd2f4eefb1dd0ccff3e32028cfad37961a4e76cc663b68e3902b12f7dc171"
+    },
+    {
+      "path": "tests/brujula-wizard-parity.test.mjs",
+      "sha256": "8d8f5f40319abbe081eac36c6ee8f8535210af734566abc2a27325d544d58217"
+    },
+    {
+      "path": "tests/classroom-activity-workflow.test.mjs",
+      "sha256": "63fd5f0b77e4a1dfb9710d7d22c91d7cd41a8c4272412248cefd11f10c43ba4f"
+    },
+    {
+      "path": "tests/classroom-creation-four-steps.test.mjs",
+      "sha256": "87006550531110ca7feaf7419ec013847262f29d7928e1fde479ce6dff2ee8d1"
+    },
+    {
+      "path": "tests/classroom-invitation-batch-ui.test.mjs",
+      "sha256": "1fa654734c559d13fa89a46f77f737f5e2816a8f2bdb5f550c66cd3fabfe6fc8"
+    },
+    {
+      "path": "tests/classroom-library-modes.test.mjs",
+      "sha256": "2e320f9b3b6008f4fee63ce140aee1c554cd5405ad47ef7411d2d59f45c8929e"
+    },
+    {
+      "path": "tests/classroom-plan-filters.test.mjs",
+      "sha256": "993dda878ea93e32c8cb64003f371d0b3a2f6e0653d18aaf20f2060a3dd72057"
+    },
+    {
+      "path": "tests/classroom-wizard-file-step.test.mjs",
+      "sha256": "0909438d1ca1bc24788bcd0fce145ed434791a23ccbc1cc641141b2f8484b620"
+    },
+    {
+      "path": "tests/helpers/classroom-interior-reference/classroom.tsx",
+      "sha256": "06df58da48dc72ae2a61d766520fa315d30455fd47dd2f05a84debf3b8746079"
+    },
+    {
+      "path": "tests/helpers/classroom-interior-reference/harness.mjs",
+      "sha256": "7c89a4c1abdd20f43fe923c71e9df0a0157b0050db31feb1b54a7f1abd56c481"
+    },
+    {
+      "path": "tests/helpers/classroom-interior-reference/redesign-client.ts",
+      "sha256": "ed43ab66001f382f7a33b2f79998c48f5818ff077b3c76c5e2c9c44b7bfa894a"
+    },
+    {
+      "path": "tests/helpers/migration-inventory.mjs",
+      "sha256": "fbbb5e077114a7e29c08d0913d97142fa84d33d649c6a79cd72839f5d887ab8c"
+    },
+    {
+      "path": "tests/helpers/wizard-reference/component-harness.mjs",
+      "sha256": "945737c79ef6e87714f2f311c9e61effbd822f21d77630ce2a4357f467cefc28"
+    },
+    {
+      "path": "tests/p5-codes-invitation-batches.test.mjs",
+      "sha256": "439b688cbca6f5369b59196f1173a25c11284979836bcd73498aeef4988b0930"
+    },
+    {
+      "path": "tests/p5-integration.test.mjs",
+      "sha256": "31f363b0b240d6432caf2a018717abd56a4fec079e5b7de5f2e2240bdab0f3a4"
+    },
+    {
+      "path": "tests/p6-library-integration.test.mjs",
+      "sha256": "5edd2a53b2f6d86d78724002604dc3ef2cda89157d8f8d6d73aefa66c6b454f6"
+    },
+    {
+      "path": "tests/p6-wall-integration.test.mjs",
+      "sha256": "a2b9e77b7a8579c82cedb4a77efe6216d998b9b723164a0cd2391f5b4b77cbf6"
+    },
+    {
+      "path": "tests/p7-authoring-integration.test.mjs",
+      "sha256": "39f8048e062ce2fe46e83043562eae7a3c9ca90cb55abe0db2c0903b1cef5fc8"
+    },
+    {
+      "path": "tests/p8-publication-tp-integration.test.mjs",
+      "sha256": "1810f42fc45c4207f2e23a3a1663a5c361d801df02c4e1429096636c4f2fc83d"
+    },
+    {
+      "path": "tests/p9-home-recovery-integration.test.mjs",
+      "sha256": "089e3ce975184b96e9cce9e43ce6364c498a1a66efa6faba5c909285e5cbb612"
+    },
+    {
+      "path": "tests/p9-teaching-remainder-integration.test.mjs",
+      "sha256": "74c59ef761864a25f37d02cdff8c57a17218618a1d523b85313add266d1f2657"
+    },
+    {
+      "path": "tests/wizard-reference-drop.test.mjs",
+      "sha256": "8d656108d33812b218f33dc57f9335265b18112e34774b02c568dc5ee976b122"
+    },
+    {
+      "path": "tests/wizard-reference-suggestions.test.mjs",
+      "sha256": "3699210260060fb28ceebf46fdc31cdcb4aef44ced81b55fd669b0072ea0f019"
+    }
+  ],
+  "captures": [
+    "aulas-20261111-catalog-desktop.png",
+    "aulas-20261111-catalog-mobile.png",
+    "aulas-20261111-wizard-file-desktop.png",
+    "aulas-20261111-wizard-units-mobile.png",
+    "aulas-20261111-plan-desktop.png",
+    "aulas-20261111-plan-mobile.png",
+    "aulas-20261111-library-mobile.png",
+    "aulas-20261111-wall-mobile.png",
+    "aulas-20261111-activity-editor-desktop.png",
+    "aulas-20261111-activity-review-desktop.png",
+    "aulas-20261111-activity-ai-mobile.png",
+    "aulas-20261111-submission-confirm-mobile.png",
+    "aulas-20261111-submission-receipt-mobile.png",
+    "aulas-20261111-questionnaire-review-desktop.png",
+    "aulas-20261111-invitations-desktop.png",
+    "aulas-20261111-grade-preview.png",
+    "aulas-20261111-student-progress-mobile.png",
+    "aulas-20261111-integrated-members-desktop.png",
+    "aulas-20261111-integrated-student-mobile.png"
+  ],
+  "evidence": {
+    "frontend": "157/157 initial integrated frontend regression; final delta covered by finalFrontend and Docker authoring run",
+    "transport": "79/79 suite",
+    "pure": "278/278, full suite with Docker available",
+    "backend": "39/39 P5 and 45/45 P7/P8 PostgreSQL 17 SQL/HTTP focal tests; 6/6 migration inventory",
+    "independentReview": "6/6 P5 database tests; proxy and authenticated HTTP exercise with real synthetic sessions/CSRF, 32 accounts/shared peer; prior proxy/404 recovery blockers fixed",
+    "builds": "API build, Next production build/typecheck, lint/boundaries PASS",
+    "browser": "Ego TaskSpace10 components plus TaskSpace11 full app: both roles, persisted teaching progress, membership-aware invitation batch, mobile 390px",
+    "dockerIntegration": {
+      "tests": 106,
+      "failed": 0,
+      "skipped": 0,
+      "runs": [
+        {
+          "log": ".test-artifacts/classrooms-ux/docker-p5-integration.test.mjs.log",
+          "tests": 13,
+          "pass": 13,
+          "fail": 0,
+          "skipped": 0,
+          "sha256": "7aa3a2d108fecdb62edd64cc17340de9892db01770fee950a5690a2493ed2852"
+        },
+        {
+          "log": ".test-artifacts/classrooms-ux/docker-p5-international-invitations.test.mjs.log",
+          "tests": 4,
+          "pass": 4,
+          "fail": 0,
+          "skipped": 0,
+          "sha256": "b95e41c480ba7773673df77216ff54213d826d9560d4fd6f201e7e32ef4f3aa1"
+        },
+        {
+          "log": ".test-artifacts/classrooms-ux/docker-p6-plan-integration.test.mjs.log",
+          "tests": 1,
+          "pass": 1,
+          "fail": 0,
+          "skipped": 0,
+          "sha256": "cf0a389902bdbead564854d67e9db80d13f7a976714c92fde61eb648af6155ca"
+        },
+        {
+          "log": ".test-artifacts/classrooms-ux/docker-p6-library-integration.test.mjs.log",
+          "tests": 5,
+          "pass": 5,
+          "fail": 0,
+          "skipped": 0,
+          "sha256": "b8fff48237ee92ab973a19537a5906479e7d223bc7f0fe96bfc4cea354a8bb9b"
+        },
+        {
+          "log": ".test-artifacts/classrooms-ux/docker-p6-wall-mobile-final.log",
+          "tests": 8,
+          "pass": 8,
+          "fail": 0,
+          "skipped": 0,
+          "sha256": "617cfbe905700ae83a5182d91384e66821d0b110ce00e77093477dadd79d1f39"
+        },
+        {
+          "log": ".test-artifacts/classrooms-ux/docker-p7p8/p7-authoring.final.log",
+          "tests": 6,
+          "pass": 6,
+          "fail": 0,
+          "skipped": 0,
+          "sha256": "4acaf45d1c6bfb4ccaa6c6b5bd9990f4a4fe4ae51f59c65ea6c50df9e45ca482"
+        },
+        {
+          "log": ".test-artifacts/classrooms-ux/docker-p7-final/participation.log",
+          "tests": 5,
+          "pass": 5,
+          "fail": 0,
+          "skipped": 0,
+          "sha256": "d22b9c34b6f58167ffb65f92577d89b490c954341809019b7398fcab1b16af5e"
+        },
+        {
+          "log": ".test-artifacts/classrooms-ux/docker-p7-final/practical.log",
+          "tests": 5,
+          "pass": 5,
+          "fail": 0,
+          "skipped": 0,
+          "sha256": "000f631a88ecd6af7199dbf5d4c8d87743e0ee2580156f498f7a0b192b181a10"
+        },
+        {
+          "log": ".test-artifacts/classrooms-ux/docker-p7p8/p7-practical-timing.log",
+          "tests": 5,
+          "pass": 5,
+          "fail": 0,
+          "skipped": 0,
+          "sha256": "6201fadfcbefa8b44206d4d34fedcf23e60f758d845cbc0247ad7b7bbf8033e6"
+        },
+        {
+          "log": ".test-artifacts/classrooms-ux/docker-p7-final/questionnaire.log",
+          "tests": 8,
+          "pass": 8,
+          "fail": 0,
+          "skipped": 0,
+          "sha256": "59c3eeb36282226f262e4830421779e4c7f24bfe3bb9286e79943129f90c83d8"
+        },
+        {
+          "log": ".test-artifacts/classrooms-ux/docker-p7-final/questionnaire-overview.log",
+          "tests": 3,
+          "pass": 3,
+          "fail": 0,
+          "skipped": 0,
+          "sha256": "257e6aca9242231f08c197c39b5dc33d21154eaffc553e93f6da23bae47fc9b4"
+        },
+        {
+          "log": ".test-artifacts/classrooms-ux/docker-p7-final/questionnaire-recovery.log",
+          "tests": 3,
+          "pass": 3,
+          "fail": 0,
+          "skipped": 0,
+          "sha256": "b91c702382443689c4fc1518356867b4e4d870203d273a8c1f1a62a287b2e9e4"
+        },
+        {
+          "log": ".test-artifacts/classrooms-ux/docker-p7p8/p7-history.log",
+          "tests": 5,
+          "pass": 5,
+          "fail": 0,
+          "skipped": 0,
+          "sha256": "2c91690c712b3e9503bcf5044f5b2e1479348f819be718476668462c08849860"
+        },
+        {
+          "log": ".test-artifacts/classrooms-ux/docker-p7p8/p7-notifications.log",
+          "tests": 5,
+          "pass": 5,
+          "fail": 0,
+          "skipped": 0,
+          "sha256": "149acf02018f77096f01e8891d0b72f166e43f2a07862bdff7a916fcd6e4cec8"
+        },
+        {
+          "log": ".test-artifacts/classrooms-ux/docker-p7p8/p8-grading.log",
+          "tests": 5,
+          "pass": 5,
+          "fail": 0,
+          "skipped": 0,
+          "sha256": "a5ef8ad3d2c41456875bd359e33bd3f388213e90e3214183c4afe7e59ee1da90"
+        },
+        {
+          "log": ".test-artifacts/classrooms-ux/docker-p7p8/p8-grading-reload.log",
+          "tests": 1,
+          "pass": 1,
+          "fail": 0,
+          "skipped": 0,
+          "sha256": "12ddd80a6ca394059a7bf1f414038c8266fb711ff090b655aa883bcef7dedf23"
+        },
+        {
+          "log": ".test-artifacts/classrooms-ux/docker-p7p8/p8-publication.log",
+          "tests": 5,
+          "pass": 5,
+          "fail": 0,
+          "skipped": 0,
+          "sha256": "a79c0580ced8cc86f5aac6ab245bbd6c9ca94cb390785dd522e0487bcec28334"
+        },
+        {
+          "log": ".test-artifacts/classrooms-ux/docker-p7p8/p8-publication-tp.retry1.log",
+          "tests": 3,
+          "pass": 3,
+          "fail": 0,
+          "skipped": 0,
+          "sha256": "e631e2c628d39aa4fb82f66e0f4f530319d8d580014229e882bdc067d7bab767"
+        },
+        {
+          "log": ".test-artifacts/classrooms-ux/docker-p7p8/p8-corrections.log",
+          "tests": 5,
+          "pass": 5,
+          "fail": 0,
+          "skipped": 0,
+          "sha256": "f01634b0d20927047dc89e7669f4631c0a03ff6263cd34e321c7f4120336879f"
+        },
+        {
+          "log": ".test-artifacts/classrooms-ux/docker-p7p8/p8-corrections-e-final.log",
+          "tests": 4,
+          "pass": 4,
+          "fail": 0,
+          "skipped": 0,
+          "sha256": "ecd4dd5f2d1c80700e0c48d7750bbbef8e7fab6fdf045ca7b890d5bf875d54b7"
+        },
+        {
+          "log": ".test-artifacts/classrooms-ux/docker-p7p8/p8-progress.log",
+          "tests": 7,
+          "pass": 7,
+          "fail": 0,
+          "skipped": 0,
+          "sha256": "7de072b29fd257a7a8b54babf39d7f4e8cb95ab62af326c806129b5775b4fe78"
+        }
+      ],
+      "scope": "Real Next/API/PostgreSQL/S3/ClamAV/Mailpit, synthetic accounts/providers; owned fixtures cleaned"
+    },
+    "additionalDocker": "11/11 recurrence, AI migration and activity review regressions; 6/6 codes and batch contracts",
+    "finalFrontend": "25/25 focused authoring/result tests; viewer copy RED→GREEN; production builds/typecheck and lint/boundaries PASS"
+  },
+  "limits": [
+    "Human UI validation and reconciliation with newer main pending before integration",
+    "Distributed enumeration monitoring and production load not validated",
+    "No real Gemini generation or external mail delivery in automated checks; SMTP captured by local Mailpit"
+  ],
+  "tracking": "odd/tasks/classrooms-ux-unification.md",
+  "log": "docs/work-log/2026-11-11-root-classrooms-frontend.md",
+  "builds": {
+    "integration": "dQwQUOz8X44ST7litETCl",
+    "final": "3lPKN7ICF5X1reosoaMrq",
+    "finalDelta": "Viewer-aware result wording and suppression of duplicate publication notice; final authoring E2E and focal tests cover delta"
+  },
+  "runtime": {
+    "origin": "http://127.0.0.1:3000",
+    "apiOrigin": "http://127.0.0.1:3001",
+    "project": "foxmind-local-73f294d0e80e5a05",
+    "state": "READY",
+    "accountsFile": ".test-artifacts/local-app/accounts.json",
+    "provider": "Existing authorized Gemini configuration; no generation calls during checks"
+  },
+  "mainObserved": "e35e1a31ad9a20b89c8882a86301f9a6b89068e2"
+}

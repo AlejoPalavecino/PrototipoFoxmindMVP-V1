@@ -8,6 +8,8 @@ Preparar actividad → Revisar y asignar. El editor pide tipo, unidad y uno o m�
 
 El recorrido IA configura tema/objetivo → material/nivel → revisión/generación. La propuesta editable conserva claves/puntos privados; Usar propuesta revisada como borrador conduce al editor normal para revisar y asignar.
 
+Ambos caminos comparten jerarquía, editor de consignas y revisión final. Materiales/comentario y rúbrica se despliegan cuando se necesitan; los errores conducen al campo correspondiente. La ficha de actividad separa «Qué tenés que hacer», contexto, materiales y plazo, y muestra las entregas por intento. El modo IA agrega selección de fuentes y progreso real del trabajo; no publica automáticamente ni usa una demora simulada en producto.
+
 ## Contrato y compatibilidad
 
 El transporte del aula usa POST /classrooms/:id/activities con revisión y operación create/save/publish/withdraw/metadata/deadline. La UI actual envía topicIds, objective, teacherComment y evaluationRubric además del contenido, archivos, materiales, preguntas y plazo. El servicio valida forma/revisión/permisos; el proxy no los sustituye.

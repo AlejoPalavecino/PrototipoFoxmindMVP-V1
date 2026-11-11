@@ -1,0 +1,13 @@
+{
+  "date": "2026-11-11",
+  "scope": "Full local application with PostgreSQL, S3, ClamAV and Mailpit; synthetic accounts; no AI generation calls",
+  "role": "teacher",
+  "url": "http://127.0.0.1:3000/mis-aulas",
+  "width": 1400,
+  "height": 900,
+  "baseCommit": "3895f4ded6884641872c5950c39c54215406d6d6",
+  "candidate": "codex/classrooms-ux-unification uncommitted worktree",
+  "visuallyInspected": true,
+  "inspectedBy": "root",
+  "limitations": "Image proves visible UI only; persistence and authorization have separate SQL/HTTP evidence."
+}

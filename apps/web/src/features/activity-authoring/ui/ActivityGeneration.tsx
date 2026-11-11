@@ -4,12 +4,13 @@ import type { ActivityProposal } from '../../../../../../src/core/domain/index.t
 import type { ClassroomClient } from '../../../../../../src/core/contracts/academic-client.ts';
 import type { Detail } from '../../../../../../src/core/contracts/classrooms.ts';
 import type { ClassroomCreationContext } from '../../../../../../src/core/contracts/academic-context.ts';
-import { Notice } from '../../../../../shared-ui/feedback.tsx';
+import { Dialog, Notice } from '../../../../../shared-ui/feedback.tsx';
 import { defaultGenerationForm } from './ActivityGenerationForm.tsx';
 import { GenerationSetup } from './GenerationSetup.tsx';
-import { AiProgress } from '../../../../../shared-ui/index.ts';
+import { AiProgress, FoxmindIcon } from '../../../../../shared-ui/index.ts';
 import { ActivityGenerationProposal } from './ActivityGenerationProposal.tsx';
 import { generationErrors, generationStates, generationWarnings, generationSourceTitle, type GenerationView } from '../model/activity-generation-api.ts';
+import styles from './ActivityAuthoring.module.css';
 import { useActivityGeneration } from '../model/use-activity-generation.ts';
 
 export function ActivityGeneration({ api, room, onApplied, onClose, creationContext }: {
@@ -20,6 +21,7 @@ export function ActivityGeneration({ api, room, onApplied, onClose, creationCont
   const [dirty, setDirty] = useState(false), [replacement, setReplacement] = useState<GenerationView | null>(null);
   const [charge, setCharge] = useState(false), [regenerating, setRegenerating] = useState(false);
   const [sending, setSending] = useState(false);
+  const [leaving, setLeaving] = useState(false);
   const view = generation.view, active = view && ['QUEUED', 'RUNNING'].includes(view.state);
   const uncertain = view?.error === 'PROVIDER_OUTCOME_UNKNOWN';
   useEffect(() => { setCharge(false); }, [view?.id]);
@@ -31,9 +33,12 @@ export function ActivityGeneration({ api, room, onApplied, onClose, creationCont
     if (next.proposal) { setReview({ id: next.id, proposal: structuredClone(next.proposal) }); setDirty(false); }
   }
   const editable = room.role === 'teacher' && !room.archived;
-  return <section className="p7-authoring p7-generation br-authoring" aria-label="Generar actividad con IA">
-    <header className="p5-section-head"><div><h3>Crear con Foxy AI</h3><p>Una propuesta privada para revisar. Crear un borrador no publica la actividad.</p></div>
-      <button type="button" disabled={generation.busy} onClick={onClose}>Cerrar generación</button></header>
+  return <section className={`p7-authoring p7-generation br-authoring ${styles.editor} ${styles.generation}`} aria-label="Generar actividad con IA">
+    <button className="brujula-authoring-back" type="button" disabled={generation.busy} onClick={() => dirty ? setLeaving(true) : onClose()}>
+      <FoxmindIcon name="arrow-left"/>Actividades
+    </button>
+    <header className="p5-section-head aw-title-row"><div><h2>Crear actividad con Foxy</h2><p>Partí de una propuesta y prepará la versión que verá el aula.</p></div>
+      <span className="brujula-private-badge"><FoxmindIcon name="lock"/>Propuesta privada</span></header>
     {generation.error ? <Notice error>{generation.error}</Notice> : null}
     {sending || active ? <AiProgress state={active ? view.state as 'QUEUED' | 'RUNNING' : 'SENDING'} task="activity" /> : null}
     <details className="education-generation-settings" open={!active && !review && !sending}><summary>Configurar propuesta</summary>
@@ -60,15 +65,24 @@ export function ActivityGeneration({ api, room, onApplied, onClose, creationCont
     {replacement ? <div className="p5-notice" role="alert"><p>Hay ediciones locales. ¿Reemplazarlas por esta propuesta guardada? La versión del servidor anterior permanece en Generaciones recientes.</p>
       <button onClick={() => { if (replacement.proposal) setReview({ id: replacement.id, proposal: structuredClone(replacement.proposal) }); setDirty(false); setReplacement(null); }}>Reemplazar ediciones</button>
       <button onClick={() => setReplacement(null)}>Conservar ediciones</button></div> : null}
-    {review ? <><p role="status">{dirty ? 'Propuesta editada sin aplicar.' : 'Propuesta guardada cargada para revisión.'}</p>
-      <ActivityGenerationProposal proposal={review.proposal} sources={generation.sources} disabled={generation.busy || !editable} update={proposal => { setReview({ ...review, proposal }); setDirty(true); }} />
+    {review ? <><p role="status">{dirty ? 'Propuesta editada sin aplicar.' : `Propuesta lista · ${review.proposal.title}`}</p>
+      <details className={styles.optional}><summary>Consultar la propuesta y sus fuentes</summary>
+        <ActivityGenerationProposal proposal={review.proposal} sources={generation.sources} disabled={generation.busy || !editable} update={proposal => { setReview({ ...review, proposal }); setDirty(true); }} />
+      </details>
       <footer className="p5-form-footer"><button className="primary" disabled={generation.busy || !editable || (view?.id === review.id && view.state !== 'READY')}
         onClick={() => void generation.apply(review.id, review.proposal)}>Usar propuesta revisada como borrador</button></footer>
-      <p>Luego podrás ajustar entrega, fecha, materiales y publicación en el editor habitual.</p></> : null}
+      <p>El borrador se abre en el mismo editor que usás para crear una actividad manual.</p></> : null}
     <details className="education-generation-history"><summary>Generaciones recientes · {generation.jobs.length}</summary><section aria-label="Generaciones recientes"><h4>Generaciones recientes</h4>
       {!generation.jobs.length ? <p>No hay generaciones recientes.</p> : <ul>{generation.jobs.map(job => <li key={job.id}>
         {generationStates[job.state] ?? job.state}{job.createdAt ? ` · ${new Date(job.createdAt).toLocaleString('es')}` : ''}
         <button disabled={generation.busy} onClick={() => void generation.open(job.id)}>Recuperar generación</button></li>)}</ul>}
     </section></details>
+    {leaving ? <Dialog title="Salir de la propuesta" onClose={() => setLeaving(false)}>
+      <p>Podés recuperar la propuesta original en Generaciones recientes. Si salís, se descartan los cambios que todavía no aplicaste al borrador.</p>
+      <footer className="p5-form-footer">
+        <button type="button" className="primary" onClick={() => setLeaving(false)}>Seguir editando</button>
+        <button type="button" onClick={onClose}>Descartar cambios</button>
+      </footer>
+    </Dialog> : null}
   </section>;
 }

@@ -10,6 +10,8 @@ Las respuestas muestran autoguardado y confirmación. En TP, seleccionar archivo
 
 Revisar entrega muestra qué se enviará. Las preguntas vacías se advierten con su cantidad y cero puntos; el estudiante puede volver a editar o confirmar incompleta. Sólo la confirmación crea recepción inmutable y bloquea el intento.
 
+El borrador permanece montado al alternar pestañas del aula para consultar materiales o el Muro. Salir del editor pide decisión si quedan cambios locales o archivos seleccionados sin subir. La revisión resume respuesta/adjuntos o preguntas según el tipo, con regreso a edición y una única confirmación final. Escape cierra la revisión y devuelve foco sin enviar. La ficha inicial sigue siendo consulta: no crea intentos por abrir una fila.
+
 ## Recepción e historial
 
 La recepción completa del servidor determina puntualidad, no el inicio de la carga ni el reloj del navegador. La primera entrega confirmada define a tiempo/tarde; reentregas conservan historia y requieren habilitación docente. El comprobante muestra fecha/zona y estado. Guardar no publica calificaciones.

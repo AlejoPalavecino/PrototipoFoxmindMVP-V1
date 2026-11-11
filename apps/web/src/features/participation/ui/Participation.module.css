@@ -1,0 +1,18 @@
+.filePicker, .selectedFile {
+  display: grid;
+  gap: .65rem;
+  padding: 1rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  border: 1px dashed #828ea8;
+  border-radius: 14px;
+  background: #f6f8fd;
+}
+.selectedFile { border-style: solid; border-color: #e6ceb6; background: #fff8ed; }
+.selectedFile p { margin: 0; }
+.practical :is(textarea, input) { max-width: 100%; }
+.reviewDialog { overflow-wrap: anywhere; }
+.reviewDialog section { border-color: #e6ceb6; background: #fffaf4; }
+.reviewDialog :is(button, summary) { min-height: 44px; }
+.questionnaire label { overflow-wrap: anywhere; }
+.questionnaire .answerStatus { font-size: .86rem; color: #555d77; }

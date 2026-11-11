@@ -1,5 +1,20 @@
 # Capturas del FoxMind actual
 
+## Candidato Mis aulas — 2026-11-11
+
+Referencia local del worktree `codex/classrooms-ux-unification`, todavía sin merge ni despliegue. Incluye 17 capturas de componentes reales con clientes sintéticos y dos de la aplicación completa con PostgreSQL, S3, ClamAV y Mailpit. Todas fueron inspeccionadas. Las pruebas de integración se acreditan por separado en el [recibo](../../verification/classrooms-ux-unification.json); las imágenes por sí solas no prueban correo, IA real, permisos ni persistencia.
+
+| Recorrido | Referencias |
+|---|---|
+| Catálogo y filtros | [Escritorio](aulas-20261111-catalog-desktop.png), [móvil/lista](aulas-20261111-catalog-mobile.png) |
+| Creación | [Archivo del plan](aulas-20261111-wizard-file-desktop.png), [unidades y temas](aulas-20261111-wizard-units-mobile.png) |
+| Plan | [Avance docente](aulas-20261111-plan-desktop.png), [móvil](aulas-20261111-plan-mobile.png) |
+| Contenidos | [Biblioteca](aulas-20261111-library-mobile.png), [Muro](aulas-20261111-wall-mobile.png) |
+| Autoría | [Editor común](aulas-20261111-activity-editor-desktop.png), [revisión](aulas-20261111-activity-review-desktop.png), [borrador desde IA](aulas-20261111-activity-ai-mobile.png) |
+| Entregas | [Confirmar TP](aulas-20261111-submission-confirm-mobile.png), [recepción](aulas-20261111-submission-receipt-mobile.png), [revisar cuestionario](aulas-20261111-questionnaire-review-desktop.png) |
+| Invitaciones y devolución | [Lote](aulas-20261111-invitations-desktop.png), [vista previa de devolución](aulas-20261111-grade-preview.png), [progreso estudiante](aulas-20261111-student-progress-mobile.png) |
+| Aplicación completa con servicios propios | [Integrantes e invitación persistente](aulas-20261111-integrated-members-desktop.png), [avance compartido del estudiante en móvil](aulas-20261111-integrated-student-mobile.png) |
+
 Pulido de Foxy, Carpetas y creación, 2026-11-09: capturas nativas Ego Lite recuperadas e inspeccionadas en escritorio 1440×1000 y móvil 390×844. Sustituyen la presentación anterior de esas superficies. App local integrada con cuentas y contenido sintéticos para colecciones/chats/creación; esperas, errores y propuesta de plan usan los componentes reales en un harness con respuestas explícitamente sintéticas. Cada metadato identifica su alcance; no atribuir persistencia o proveedor real al harness. Ver [diseño vigente](../README.md), [recibo](../../verification/foxy-study-ux-polish.json) y [registro visual](../../work-log/2026-11-09-root-ux-visual.md).
 
 ## Referencias vigentes del pulido — 2026-11-09

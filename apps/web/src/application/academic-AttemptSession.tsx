@@ -7,19 +7,23 @@ import type { Detail } from '../../../../src/core/contracts/classrooms.ts';
 import { PracticalAttempt } from '../features/participation/index.ts';
 import { QuestionnaireAttempt } from '../features/participation/index.ts';
 import { Dialog, Notice } from '../../../shared-ui/feedback.tsx';
+import type { AttemptExitRef } from '../features/participation/index.ts';
+import styles from './academic-activity.module.css';
 import { ActivityContext } from './academic-activity-preview.tsx';
-import { activityTypeLabels } from '../features/activity-authoring/index.ts';
+import { activityTypeLabels, EvaluationRubric } from '../features/activity-authoring/index.ts';
 import { ActivityScreen } from './academic-ActivityScreen.tsx';
 
 /** Capabilities live only in this mounted tab's memory, never URLs, cookies or shared storage. */
-export function AttemptSession({ api, room, initial, onClose, onChanged, onViewResult }: {
+export function AttemptSession({ api, room, initial, onClose, onChanged, onViewResult, active = true }: {
   api: ClassroomClient; room: Detail; initial: AttemptSessionData; onClose: () => void; onChanged: () => Promise<void>;
-  onViewResult?: (attemptId: string) => void;
+  onViewResult?: (attemptId: string) => void; active?: boolean;
 }) {
   const [data, setData] = useState(initial), [editor, setEditor] = useState<AttemptEditor | null>(initial.editor ?? null);
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [confirm, setConfirm] = useState(false);
   const [controlWarning, setControlWarning] = useState(false), previousEpoch = useRef(initial.attempt?.epoch);
   const previousAttempt = useRef(initial.attempt?.id);
+  const exitRef: AttemptExitRef = useRef(null);
+  const [leaving, setLeaving] = useState(false);
   const path = `/${room.id}/activities/${initial.activity.id}`;
   const accept = useCallback((next: AttemptSessionData) => {
     // A focus read started before takeover must not replace the newer editor capability/session.
@@ -35,20 +39,31 @@ export function AttemptSession({ api, room, initial, onClose, onChanged, onViewR
     accept(await api.call<AttemptSessionData>(`${path}/session`)); await onChanged();
   }, [api, path, accept, onChanged]);
   useEffect(() => {
+    if (!active) return;
     const focus = () => { void refresh().catch(e => setError(e.message)); };
     window.addEventListener('focus', focus);
     return () => window.removeEventListener('focus', focus);
-  }, [refresh]);
+  }, [active, refresh]);
   async function run(action: () => Promise<void>) {
     setBusy(true); setError('');
     try { await action(); } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
   }
   const ownsEditor = !!editor && data.attempt?.epoch === editor.epoch && data.canTransfer;
   const { activity, attempt } = data;
-  return <ActivityScreen title={activity.type==='ASSIGNMENT'?'Preparar entrega':'Responder actividad'} label={activity.title??'Actividad'} onClose={onClose}>
-    <p className="brujula-solver-subtitle">{activity.title}</p><div className="brujula-solver-layout">
+  function requestClose() {
+    if (exitRef.current?.busy) return;
+    if (exitRef.current?.dirty) { setError(''); setLeaving(true); }
+    else onClose();
+  }
+  return <ActivityScreen title={activity.title ?? 'Actividad'} label={activity.title ?? 'Actividad'} kicker={activityTypeLabels[activity.type]} onClose={requestClose}>
+    <div className={`brujula-solver-layout ${styles.solver}`}>
     <section className="p7-attempt" aria-label={activity.type === 'EVALUATION' ? 'Evaluación · sesión reducida' : 'Sesión de actividad'}>
-      <header className="brujula-solver-instructions"><small>{activityTypeLabels[activity.type]}</small><h3>Consigna</h3><p className="p7-multiline">{activity.instructions||'Sin consigna adicional.'}</p></header>
+      <header className={`brujula-solver-instructions ${styles.brief}`}>
+        {activity.objective ? <section><h3>Objetivo de aprendizaje</h3><p className="p7-multiline">{activity.objective}</p></section> : null}
+        <section className={styles.instruction}><h3>Qué tenés que hacer</h3><p className="p7-multiline">{activity.instructions || 'Sin consigna adicional.'}</p></section>
+        {activity.teacherComment ? <section><h3>Comentario docente</h3><p className="p7-multiline">{activity.teacherComment}</p></section> : null}
+        <EvaluationRubric criteria={activity.evaluationRubric} />
+      </header>
       {attempt?.status === 'SUBMITTED' && onViewResult ? <button className="primary" onClick={() => onViewResult(attempt.id)}>Ver devolución</button> : null}
       {error ? <Notice error>{error} No se confirmaron cambios. Vuelve a consultar el estado antes de continuar.</Notice> : null}
       {controlWarning && attempt?.status === 'DRAFT' ? <Notice>Recuperamos tus respuestas guardadas. Los cambios sin guardar de otra pestaña no se transfieren.</Notice> : null}
@@ -71,17 +86,28 @@ export function AttemptSession({ api, room, initial, onClose, onChanged, onViewR
         if (!api.attempt) throw new Error('El flujo de intentos no está disponible.');
         accept(await api.attempt<AttemptSessionData>(`${path}/start`, {})); await onChanged();
       })}>{activity.type === 'ASSIGNMENT' ? 'Abrir instrucciones e iniciar intento' : 'Comenzar'}</button> : null}
-      <ul>{activity.instructionFiles.map(file => <li key={file.id}>{file.ready ? <><a href={api.fileUrl(file.id)} target="_blank" rel="noreferrer">Descargar {file.name}</a>
-        {file.extension === 'pdf' ? <> · <a href={api.fileUrl(file.id, true)} target="_blank" rel="noreferrer">Vista previa PDF</a></> : null}</> : `${file.name} · No disponible por revisión de seguridad`}</li>)}</ul>
+      {activity.instructionFiles.length ? <ul>{activity.instructionFiles.map(file => <li key={file.id}>{file.ready ? <><a href={api.fileUrl(file.id)} target="_blank" rel="noreferrer">Descargar {file.name}</a>
+        {file.extension === 'pdf' ? <> · <a href={api.fileUrl(file.id, true)} target="_blank" rel="noreferrer">Vista previa PDF</a></> : null}</> : `${file.name} · No disponible por revisión de seguridad`}</li>)}</ul> : null}
       {!attempt ? activity.questions.map((question, index) => <article key={question.id ?? index}>
         <h4>Pregunta {index + 1} · {question.points} puntos</h4><p className="p7-multiline">{question.prompt}</p>
         <ul>{question.options.map(option => <li key={option.id ?? option.text}>{option.text}</li>)}</ul>
       </article>) : null}
-      {activity.type === 'ASSIGNMENT' ? <PracticalAttempt key={`${attempt?.id}:${attempt?.epoch}`} api={api} classroomId={room.id} data={data} editor={ownsEditor ? editor : null} refresh={refresh} />
+      {activity.type === 'ASSIGNMENT' ? <PracticalAttempt key={`${attempt?.id}:${attempt?.epoch}`} api={api} classroomId={room.id} data={data} editor={ownsEditor ? editor : null} refresh={refresh} exitRef={exitRef} />
         : attempt ? <QuestionnaireAttempt key={`${attempt.id}:${attempt.epoch}:${ownsEditor ? 'edit' : 'view'}`} api={api} classroomId={room.id}
-          data={data} editor={ownsEditor ? editor : null} refresh={refresh} /> : null}
+          data={data} editor={ownsEditor ? editor : null} refresh={refresh} exitRef={exitRef} /> : null}
       <footer className="p5-form-footer"><button disabled={busy} onClick={() => void run(refresh)}>Actualizar estado confirmado</button></footer>
     </section><ActivityContext api={api} activity={activity} room={room} effectiveDeadlineAt={data.reception.deadlineAt}/></div>
+    {leaving ? <Dialog title="Volver a actividades" onClose={() => { if (!busy) setLeaving(false); }}>
+      <p>Hay cambios sin guardar. Podés seguir trabajando o salir con el último borrador guardado.</p>
+      {error ? <Notice error>{error}</Notice> : null}
+      <footer className="p5-form-footer">
+        <button type="button" disabled={busy} onClick={() => setLeaving(false)}>Seguir trabajando</button>
+        <button type="button" disabled={busy} onClick={onClose}>Descartar cambios</button>
+        {exitRef.current?.save ? <button type="button" className="primary" disabled={busy} onClick={() => void run(async () => {
+          await exitRef.current?.save?.(); onClose();
+        })}>Guardar borrador y salir</button> : null}
+      </footer>
+    </Dialog> : null}
   </ActivityScreen>;
 }
 

@@ -382,6 +382,7 @@
     "tests/p4-session-bridge.test.mjs",
     "tests/p4-web-client.test.mjs",
     "tests/p4-web-proxy.test.mjs",
+    "tests/p5-codes-invitation-batches.test.mjs",
     "tests/p5-delivery.test.mjs",
     "tests/p5-drafts.test.mjs",
     "tests/p5-enrollment.test.mjs",
@@ -529,7 +530,14 @@
     "apps/api/src/modules/files/application/file-use-cases.test.mjs",
     "apps/api/src/modules/identity/application/runtime.test.mjs",
     "tests/p8-ui-contract-helpers.test.mjs",
-    "tests/proxy-rejection-lifecycle.test.mjs"
+    "tests/proxy-rejection-lifecycle.test.mjs",
+    "apps/web/src/features/grading/ui/overall-feedback.test.mjs",
+    "apps/web/src/features/grading/ui/structured-feedback-flow.test.mjs",
+    "tests/classroom-activity-workflow.test.mjs",
+    "tests/classroom-invitation-batch-ui.test.mjs",
+    "tests/classroom-library-modes.test.mjs",
+    "tests/classroom-plan-filters.test.mjs",
+    "tests/classroom-wizard-file-step.test.mjs"
   ],
   "exclusions": [
     {

@@ -192,6 +192,7 @@ test('P8 distinct TP delivery -> explicit publication -> clean own result -> pri
         await archive(true);
         assert.equal((await request(student, 'POST', `${roomPath}/leave`, {}, { 'x-csrf-token': 'invalid' })).status, 403);
         await openClassroom(student, runtime.origin, name, 'archived');
+        await selectClassroomSection(student, 'members', 'Compañeros');
         const leave = student.getByRole('button', { name: 'Salir del aula', exact: true });
         await leave.focus();
         await student.keyboard.press('Enter');

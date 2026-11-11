@@ -10,6 +10,8 @@ Publicar calificación abre revisión/confirmación. Confirmar publica la versi�
 
 La asistencia IA es privada y opcional, con [contrato propio](../../../odd/tasks/grading-ai-issue-2.md). Una falla conserva la corrección manual. Aplicar una sugerencia no publica.
 
+La mesa presenta el trabajo a la izquierda y la revisión a la derecha en escritorio; en móvil conserva el orden de lectura. Ofrece navegación entre entregas, puntajes por pregunta y rúbrica junto a la nota final. La devolución separa «Lo que hiciste bien», «Para mejorar» y «Próximo paso», más un comentario general opcional. Vista previa y resultado estudiantil comparten componentes. Estos bloques se serializan con títulos en el campo existente `overallFeedback`, sin migrar el contrato ni perder comentarios anteriores; el límite agregado sigue siendo 5000 caracteres. Un comentario legado se conserva como general. Publicar queda deshabilitado mientras haya cambios sin guardar. Salir/cambiar de intento con cambios exige decidir si se descartan; Recargar restaura explícitamente la versión guardada.
+
 ## Cálculo e integridad
 
 Puntos disponibles positivos; cero ganado o nota final cero son válidos. Las entradas manuales admiten como máximo dos decimales; no se redondean silenciosamente para validarlas. El motor conserva fracciones exactas y redondea half-up al límite final de presentación. En selección múltiple, marcar cualquier opción incorrecta da cero a toda la pregunta; selección vacía también da cero. EXACT otorga todos los puntos sólo si el conjunto marcado coincide exactamente con el correcto. PARTIAL, sin opciones incorrectas, calcula puntos disponibles × correctas marcadas / correctas totales, conservando la fracción sin redondeo intermedio.

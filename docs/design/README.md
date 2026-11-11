@@ -2,6 +2,12 @@
 
 Referencia actual: aplicación Brújula recorrida con Ego Lite sobre código real, API/SQL/archivos/escáner/correo propios y cuentas sintéticas. Las capturas y checks se consultan en la [galería](current/README.md) y [matriz por flujo/rol](../verification/flows.md). No se usa una maqueta histórica como autoridad.
 
+## Rediseño docente en diseño detallado
+
+El 2026-11-11 el usuario aprobó los recorridos de Mis aulas docente, incluidas invitaciones múltiples y código de seis dígitos vigente hasta regeneración docente. Luego pidió recuperar la identidad visual de FoxMind y recorrer los flujos de principio a fin. El [diseño detallado](classroom-teacher-redesign.md) documenta los recorridos y criterios. El [prototipo local](classroom-teacher-preview.html) permite probarlos con datos ficticios. Las secciones siguientes describen el producto implementado.
+
+La ampliación de la maqueta incorpora autoría manual/IA compartida, lectura de consignas, revisión de entregas por tipo y aula estudiantil con la misma UI. El selector de personaje es exclusivo del prototipo; las cuentas reales conservan rol exclusivo. Entregas, archivos, generación y devoluciones se recorren con datos locales de ejemplo.
+
 ## Dirección vigente de Foxy y estudio
 
 El pulido aprobado el 2026-11-09 conserva la identidad Brújula y usa Foxy docente como referencia para el espacio estudiantil. Las diferencias de contenido responden al rol y al objeto creado; los controles comunes mantienen la misma presentación e interacción.
@@ -97,5 +103,7 @@ Se comprobó navegación móvil/Escape y retorno de foco, etiquetas y estados me
 Las capturas de resultado móvil incluyen scroll al bloque de devolución para que la referencia muestre el dato relevante. Una captura no prueba bytes o autorización: esos checks tienen recibos adicionales y alcance propio en la matriz.
 
 ## Cambios futuros
+
+Mis aulas docente/estudiante del 2026-11-11: la [dirección detallada](classroom-teacher-redesign.md) y [maqueta navegable](classroom-teacher-preview.html) se trasladan al frontend en `codex/classrooms-ux-unification`. Catálogo con píldora, navegación compartida, creación amplia, unidades/temas legibles, contenidos, autoría manual/IA, revisión de entregas y devolución usan recursos/colores actuales de FoxMind. Los cambios de permiso se limitan a la ampliación autorizada de códigos/invitaciones; [tablero y límites verificables](../../odd/tasks/classrooms-ux-unification.md). No está integrado ni desplegado.
 
 Actualizar esta guía y el flujo afectado cuando cambie UX. Guardar referencias actuales con identidad del candidato, rol, viewport, acción, resultado y límites. Propuestas nuevas deben aprobarse antes de implementarse; no usar una captura antigua o un HTML de demo para alterar permisos. [Política documental](../documentation-policy.md).

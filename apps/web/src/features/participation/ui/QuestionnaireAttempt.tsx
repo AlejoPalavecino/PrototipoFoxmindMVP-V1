@@ -4,10 +4,12 @@ import type { AnswerConfirmation, AttemptEditor, AttemptSessionData } from '../.
 import type { ClassroomClient } from '../../../../../../src/core/contracts/academic-client.ts';
 import { QuestionnaireDraft } from '../model/questionnaire-draft.ts';
 import { Dialog, Notice } from '../../../../../shared-ui/feedback.tsx';
+import type { AttemptExitRef } from './AttemptExitRef.ts';
+import styles from './Participation.module.css';
 import { activityDate } from '../../../../../shared-ui/academic-date.ts';
 
-export function QuestionnaireAttempt({ api, classroomId, data, editor, refresh }: {
-  api: ClassroomClient; classroomId: string; data: AttemptSessionData; editor: AttemptEditor | null; refresh: () => Promise<void>;
+export function QuestionnaireAttempt({ api, classroomId, data, editor, refresh, exitRef }: {
+  api: ClassroomClient; classroomId: string; data: AttemptSessionData; editor: AttemptEditor | null; refresh: () => Promise<void>; exitRef?: AttemptExitRef;
 }) {
   const [, render] = useState(0), [busy, setBusy] = useState(false);
   const [confirm, setConfirm] = useState<number | null>(null), [error, setError] = useState('');
@@ -26,6 +28,11 @@ export function QuestionnaireAttempt({ api, classroomId, data, editor, refresh }
     } }));
   useEffect(() => { draft.receive(attempt.revision, attempt.answers); }, [draft, attempt.revision, attempt.answers]);
   useEffect(() => { if (editable) draft.activate(); else draft.invalidate(); return () => draft.invalidate(); }, [draft, editable]);
+  useEffect(() => {
+    if (!exitRef) return;
+    exitRef.current = { dirty: editable && draft.dirty, busy, save: editable ? () => draft.flush() : undefined };
+    return () => { exitRef.current = null; };
+  });
   async function run(action: () => Promise<void>) {
     setBusy(true); setError('');
     try { await action(); } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
@@ -35,7 +42,7 @@ export function QuestionnaireAttempt({ api, classroomId, data, editor, refresh }
     const answer = draft.get(q.id!).value;
     return q.type === 'DEVELOPMENT' ? !answer.text.trim() : !answer.optionIds.length;
   }).length;
-  return <section className="p7-questionnaire" aria-label="Respuestas y entrega">
+  return <section className={`p7-questionnaire ${styles.questionnaire}`} aria-label="Respuestas y entrega">
     {attempt.status === 'SUBMITTED' || receipt ? <Notice><strong>Entrega confirmada.</strong> Podés consultar la calificación desde «Ver devolución».
       <br />Recepción: {(receipt ?? attempt).submittedAt ? new Date((receipt ?? attempt).submittedAt!).toLocaleString('es', { timeZone: data.activity.zone }) : 'No disponible'} · {data.activity.zone}.
       {(receipt ?? attempt).submittedLate ? ' Entrega fuera de plazo.' : ' Entrega a tiempo.'} {activityDate((receipt ?? attempt).appliedDeadlineAt, data.activity.zone)}</Notice>
@@ -57,14 +64,14 @@ export function QuestionnaireAttempt({ api, classroomId, data, editor, refresh }
             }} />{option.text}</label>)}
             <button onClick={() => { draft.edit({ ...entry.value, optionIds: [] }); setConfirm(null); }}>Limpiar selección</button></>}
       </fieldset>
-      <p role="status" aria-live="polite">{editable ? states[entry.state] : 'Respuesta confirmada · solo consulta'}</p>
+      <p className={styles.answerStatus} role="status" aria-live="polite">{editable ? states[entry.state] : 'Respuesta confirmada · solo consulta'}</p>
     </article>;})}
     {editable ? <footer className="p5-form-footer">
       <button disabled={busy || (!draft.dirty && !draft.error)} onClick={() => void run(() => draft.flush())}>{draft.error ? 'Reintentar guardado' : 'Guardar borrador'}</button>
       <button className="primary" disabled={busy} onClick={() => void run(async () => { await draft.flush(); setConfirm(unanswered()); })}>Revisar entrega</button>
     </footer> : null}
-    {confirm !== null && editable ? <Dialog title="Confirmar entrega" onClose={()=>{if(!busy)setConfirm(null);}}><section className="p7-submit-confirm" aria-label="Confirmar entrega de respuestas"><small>Intento {attempt.number}</small><h4>{data.activity.title}</h4>
-      <p>{confirm > 0 ? `Quedan ${confirm} preguntas sin responder y obtendrán cero puntos. Confirmá si querés entregar así.` : 'Todas las preguntas tienen una respuesta guardada.'}
+    {confirm !== null && editable ? <Dialog title="Confirmar entrega" className={styles.reviewDialog} onClose={()=>{if(!busy)setConfirm(null);}}><section className="p7-submit-confirm" aria-label="Confirmar entrega de respuestas"><small>Intento {attempt.number}</small><h4>{data.activity.title}</h4>
+      <p>{confirm > 0 ? `Quedan ${confirm} preguntas sin responder y obtendrán cero puntos. Confirmá si querés entregar así.` : 'Todas las preguntas tienen una respuesta guardada.'}{' '}
         Después de confirmar, las respuestas quedarán bloqueadas. El docente debe revisar y publicar el resultado.</p>
       <button aria-label="Cancelar entrega" disabled={busy} onClick={() => setConfirm(null)}>Volver a editar</button>
       <button className="primary" disabled={busy || draft.dirty || draft.saving} onClick={() => void run(async () => {

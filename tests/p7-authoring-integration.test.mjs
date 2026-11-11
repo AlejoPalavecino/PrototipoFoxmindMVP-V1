@@ -22,6 +22,7 @@ async function prepareManualActivity(page, type, title) {
   await editor.getByRole('group', { name: 'Temas del plan', exact: true })
     .getByRole('checkbox', { name: 'First topic', exact: true }).check();
   await editor.getByLabel('Objetivo de aprendizaje', { exact: true }).fill('Justificar las respuestas con evidencia.');
+  await editor.locator('summary').filter({ hasText: /^Rúbrica de evaluación$/ }).click();
   await editor.getByLabel('Criterio 1', { exact: true }).fill('Evidencia y claridad');
   await editor.getByLabel('Descripción del criterio 1', { exact: true }).fill('Explicaciones fundamentadas y comprensibles.');
   await editor.getByLabel('Ponderación del criterio 1 (%)', { exact: true }).fill('100');
@@ -36,6 +37,8 @@ test('P7 T1 real P3 sessions, authoring UI, private ready instructions and safe 
     try {
       const page = await (await browser.newContext({ viewport: { width: 1280, height: 900 } })).newPage();
       const student = await (await browser.newContext()).newPage();
+      const assignedNotice = page.getByRole('region', { name: 'Actividades del aula', exact: true })
+        .locator(':scope > [role="status"]').filter({ hasText: /^Actividad asignada a P7 authoring classroom\.$/ });
       const errors = []; page.on('pageerror', error => errors.push(error.message));
       const suffix = Date.now();
       await account(page, runtime.origin, runtime.inbox, `p7-author-${suffix}@example.test`, undefined, "teacher");
@@ -145,7 +148,7 @@ test('P7 T1 real P3 sessions, authoring UI, private ready instructions and safe 
         await page.getByRole('button', { name: 'Revisar para asignar', exact: true }).click();
         assert.equal((await api(student, 'GET', `/classrooms/${roomId}/activities`)).body.activities.length, 0);
         await page.getByRole('button', { name: 'Asignar al aula', exact: true }).click();
-        await page.getByText('Actividad asignada a P7 authoring classroom.', { exact: true }).waitFor();
+        await assignedNotice.waitFor();
         assert.equal((await api(student, 'GET', `/files/${instructions}/content`)).status, 403,
           'Eligible assignment instructions require the explicit first-opening start boundary');
         await openClassroom(student, runtime.origin, 'P7 authoring classroom');
@@ -183,7 +186,9 @@ test('P7 T1 real P3 sessions, authoring UI, private ready instructions and safe 
             && response.request().method() === 'POST' && response.request().postDataJSON()?.operation?.action === 'create');
           await page.getByRole('button', { name: 'Guardar borrador', exact: true }).click();
           assert.equal((await created).status(), 200, 'Current teacher revision must create the requested draft');
-          await page.getByText('Los cambios no confirmados permanecen en este editor', { exact: false }).waitFor();
+          const editor = page.getByRole('region', { name: 'Editar actividad', exact: true });
+          await editor.getByRole('alert').waitFor();
+          await editor.getByRole('status').filter({ hasText: /^Cambios sin guardar\. Las preguntas incompletas o inválidas no se guardan\.$/ }).waitFor();
           const before = (await api(page, 'GET', `/classrooms/${roomId}/activities`)).body.activities.find(a => a.type === type);
           assert.equal((await api(page, 'GET', `/classrooms/${roomId}/activities/${before.id}/preview`)).body.activity.questions.length, 0);
           assert.equal(await page.getByRole('group', { name: 'Pregunta 1', exact: true }).getByLabel('Puntos disponibles', { exact: true }).inputValue(), '0');
@@ -211,7 +216,7 @@ test('P7 T1 real P3 sessions, authoring UI, private ready instructions and safe 
             response = await publication;
           }
           assert.equal(response.status(), 200, 'Publication mutation must be confirmed before expecting its notice');
-          await page.getByText('Actividad asignada a P7 authoring classroom.', { exact: true }).waitFor();
+          await assignedNotice.waitFor();
           const safe = await api(student, 'GET', `/classrooms/${roomId}/activities/${before.id}`);
           assert.equal(safe.status, 200); assert.equal(safe.body.activity.questions.length, 3);
           for (const q of safe.body.activity.questions) {

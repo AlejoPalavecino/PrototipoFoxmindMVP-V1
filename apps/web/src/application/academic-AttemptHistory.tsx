@@ -10,13 +10,14 @@ import { GradingEditor } from '../features/grading/index.ts';
 import { PublishedResult } from '../features/grading/index.ts';
 import { AttemptAnswers } from '../features/participation/index.ts';
 import { ActivityScreen } from './academic-ActivityScreen.tsx';
+import styles from './academic-activity.module.css';
 import { ActivityPreview } from './academic-activity-preview.tsx';
 
-export function AttemptHistory({ api, room, activityId, attemptId, filter, onClose, onChanged, onResume,activityPreview,actions,onReview,effectiveDeadlineAt }: {
+export function AttemptHistory({ api, room, activityId, attemptId, filter, onClose, onChanged, onResume,activityPreview,actions,onReview,effectiveDeadlineAt,instructionsLocked }: {
   api: ClassroomClient; room: Detail; activityId: string; attemptId?: string | null; onClose: () => void;
   filter?: 'unpublished';
   onChanged: () => Promise<void>; onResume: (data: AttemptSessionData) => void;
-  activityPreview?:ActivityDetail;actions?:import('react').ReactNode;onReview?:()=>void;effectiveDeadlineAt?:string|null;
+  activityPreview?:ActivityDetail;actions?:import('react').ReactNode;onReview?:()=>void;effectiveDeadlineAt?:string|null;instructionsLocked?:boolean;
 }) {
   const teacher = room.role === 'teacher', path = `/${room.id}/activities/${activityId}`;
   const privateDraft=teacher&&activityPreview?.status==='DRAFT';
@@ -28,6 +29,10 @@ export function AttemptHistory({ api, room, activityId, attemptId, filter, onClo
   const detailHeading = useRef<HTMLHeadingElement>(null);
   useEffect(() => { detailHeading.current?.focus(); }, [selected]);
   const visibleAttempts = data?.attempts.filter(attempt => filter !== 'unpublished' || (attempt.status === 'SUBMITTED' && attempt.gradePublished === false)) ?? [];
+  const gradable = visibleAttempts.filter(attempt => attempt.status === 'SUBMITTED');
+  const gradeIndex = gradable.findIndex(attempt => attempt.id === grading);
+  const previousGrade = gradeIndex > 0 ? gradable[gradeIndex - 1] : undefined;
+  const nextGrade = gradeIndex >= 0 ? gradable[gradeIndex + 1] : undefined;
   const load = useCallback(async (signal?: AbortSignal) => {
     setData(await api.call<AttemptHistoryData>(`${path}/${teacher ? 'history-submissions' : 'history'}`, 'GET', undefined, signal));
   }, [api, path, teacher]);
@@ -47,16 +52,21 @@ export function AttemptHistory({ api, room, activityId, attemptId, filter, onClo
   }
   return <ActivityScreen title={data?.activity.title ?? activityPreview?.title ?? (teacher ? 'Entregas e historial de intentos' : 'Mis intentos')} label={teacher ? 'Entregas e historial de intentos' : 'Mi historial de intentos'} onClose={onClose} actions={!grading&&!selected?actions:undefined} kicker={activityPreview?{ASSIGNMENT:'Trabajo práctico',QUESTIONNAIRE:'Cuestionario',EVALUATION:'Evaluación'}[activityPreview.type]:undefined}>
     {error ? <Notice error>{error} Actualiza el historial antes de volver a intentar.</Notice> : null}
-    {!data ? <Notice>Cargando historial…</Notice> : <div className="education-attempt-history" hidden={Boolean(grading || selected)}>
-      {activityPreview?<ActivityPreview api={api} activity={activityPreview} teacher={teacher} room={room} effectiveDeadlineAt={effectiveDeadlineAt}/>:<p>{activityDate(data.activity.deadlineAt, data.activity.zone)}</p>}
-      {privateDraft?<div className="brujula-attempt-empty"><strong>Solo vos podés ver este borrador.</strong><p>Revisá la consigna antes de compartirla con el aula.</p>{onReview?<button type="button" onClick={onReview}>Revisar para asignar</button>:null}</div>:<><h3>{teacher?'Entregas e intentos':'Mis intentos'}</h3>
+    <div className="education-attempt-history" hidden={Boolean(grading || selected)}>
+      {activityPreview ? <ActivityPreview api={api} activity={activityPreview} teacher={teacher} room={room}
+        effectiveDeadlineAt={effectiveDeadlineAt} instructionsLocked={instructionsLocked} /> : data
+        ? <p>{activityDate(data.activity.deadlineAt, data.activity.zone)}</p> : null}
+      {privateDraft?<div className="brujula-attempt-empty"><strong>Solo vos podés ver este borrador.</strong><p>Revisá la consigna antes de compartirla con el aula.</p>{onReview?<button type="button" onClick={onReview}>Revisar para asignar</button>:null}</div>:!data ? error ? null : <Notice>Cargando historial…</Notice> : <><div className={styles.historyHeading}><h3>{teacher?'Entregas e intentos':'Mis intentos'}</h3>
+      {visibleAttempts.length ? <span>{visibleAttempts.length} {visibleAttempts.length === 1 ? 'intento' : 'intentos'}</span> : null}</div>
       {!teacher && data.delivered ? <Notice>Actividad entregada. Abrí un intento para ver tus respuestas y la devolución del docente.</Notice> : null}
       {data.pendingResubmission ? <Notice>Reentrega pendiente: todavía no es una nueva entrega recibida.</Notice> : null}
       {filter === 'unpublished' ? <p>Entregas con corrección todavía no publicada.</p> : null}
       {!visibleAttempts.length ? <div className="brujula-attempt-empty"><strong>{teacher?filter === 'unpublished' ? 'No hay entregas pendientes de publicación.' : 'No hay intentos registrados.':'Todavía no hiciste una entrega'}</strong>{!teacher?<p>Cuando confirmes una entrega, vas a encontrar su comprobante y devolución acá.</p>:null}</div> : null}
       <ul className="p7-history-list">{visibleAttempts.map(attempt => <li key={attempt.id}>
         <strong>{teacher ? `${attempt.lastName}, ${attempt.firstName} · ` : ''}Intento {attempt.number}</strong>
-        <p>{attempt.status === 'SUBMITTED' ? 'Entregado' : attempt.number > 1 ? 'Reentrega pendiente' : 'Borrador · no entregado'}
+        <span className={styles.state} data-tone={attempt.status === 'SUBMITTED' ? 'confirmed' : undefined}>{attempt.status === 'SUBMITTED'
+          ? attempt.gradePublished ? 'Con devolución' : 'Entregado' : attempt.number > 1 ? 'Reentrega pendiente' : 'Borrador'}</span>
+        <p>{attempt.status === 'DRAFT' ? 'Todavía sin entregar' : 'Recepción confirmada'}
           {attempt.submittedAt ? ` · ${new Date(attempt.submittedAt).toLocaleString('es', { timeZone: room.timezone })} · ${room.timezone}` : ''}
           {attempt.submittedLate ? ' · Entrega tardía' : ''}{teacher && !attempt.currentMember ? ' · Estudiante anterior' : ''}</p>
         <div className="p5-actions">{!teacher || attempt.status === 'SUBMITTED' ? <button disabled={busy} onClick={() => void run(() => inspect(attempt.id))}>Consultar intento {attempt.number}</button> : null}
@@ -68,12 +78,13 @@ export function AttemptHistory({ api, room, activityId, attemptId, filter, onClo
             ? <button disabled={busy} onClick={() => { setReopening(attempt); setLocal(''); setOffset(null); setResolution(null); }}>Habilitar otro intento</button> : null}
           {teacher && attempt.status === 'SUBMITTED' ? <button disabled={busy} onClick={() => { setGrading(attempt.id); setSelected(null); setReopening(null); }}>Corregir intento {attempt.number}</button> : null}</div>
       </li>)}</ul></>}
-    </div>}
-    {grading ? <GradingEditor api={api} roomId={room.id} attemptId={grading} onClose={() => setGrading(null)} onChanged={async () => { await Promise.all([load(), onChanged()]); }} /> : null}
+    </div>
+    {grading ? <GradingEditor key={grading} api={api} roomId={room.id} attemptId={grading} onClose={() => setGrading(null)}
+      onPrevious={previousGrade ? () => setGrading(previousGrade.id) : undefined} onNext={nextGrade ? () => setGrading(nextGrade.id) : undefined} onChanged={async () => { await Promise.all([load(), onChanged()]); }} /> : null}
     {selected?.attempt ? <section className="p7-history-detail" aria-label="Intento histórico confirmado">
       <button onClick={() => setSelected(null)}>{teacher ? 'Volver al historial' : 'Volver a mis intentos'}</button>
       <h3 ref={detailHeading} tabIndex={-1}>{selected.activity.title}</h3><p>Intento {selected.attempt.number} · {selected.attempt.status === 'SUBMITTED' ? 'Entregado' : 'Borrador sin entregar'}</p>
-      {selected.attempt.status === 'SUBMITTED' ? <PublishedResult key={selected.attempt.id} api={api} roomId={room.id} attemptId={selected.attempt.id} zone={room.timezone}
+      {selected.attempt.status === 'SUBMITTED' ? <PublishedResult key={selected.attempt.id} api={api} roomId={room.id} attemptId={selected.attempt.id} zone={room.timezone} audience={teacher ? 'teacher' : 'student'}
         pendingContent={<AttemptAnswers api={api} data={selected} />} /> : <AttemptAnswers api={api} data={selected} />}
     </section> : null}
     {reopening ? <Dialog title="Confirmar nuevo intento" onClose={()=>{if(!busy)setReopening(null);}}><h4>Habilitar otro intento para {reopening.firstName} {reopening.lastName}</h4>

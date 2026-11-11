@@ -4,3 +4,4 @@ export { openActivitySession } from './model/open-activity-session.ts';
 export { AttemptAnswers } from './ui/AttemptAnswers.tsx';
 export { PracticalAttempt } from './ui/PracticalAttempt.tsx';
 export { QuestionnaireAttempt } from './ui/QuestionnaireAttempt.tsx';
+export type { AttemptExitRef } from './ui/AttemptExitRef.ts';

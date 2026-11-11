@@ -338,7 +338,14 @@
       "apps/api/src/modules/files/application/file-use-cases.test.mjs",
       "apps/api/src/modules/identity/application/runtime.test.mjs",
       "tests/p8-ui-contract-helpers.test.mjs",
-      "tests/proxy-rejection-lifecycle.test.mjs"
+      "tests/proxy-rejection-lifecycle.test.mjs",
+      "apps/web/src/features/grading/ui/overall-feedback.test.mjs",
+      "apps/web/src/features/grading/ui/structured-feedback-flow.test.mjs",
+      "tests/classroom-activity-workflow.test.mjs",
+      "tests/classroom-invitation-batch-ui.test.mjs",
+      "tests/classroom-library-modes.test.mjs",
+      "tests/classroom-plan-filters.test.mjs",
+      "tests/classroom-wizard-file-step.test.mjs"
     ]
   },
   {
@@ -475,7 +482,8 @@
       "tests/student-ai-integration.test.mjs",
       "apps/api/src/modules/study/infrastructure/tests/database.test.mjs",
       "apps/api/src/modules/study/infrastructure/tests/http.test.mjs",
-      "apps/api/src/modules/study/infrastructure/tests/integrations.test.mjs"
+      "apps/api/src/modules/study/infrastructure/tests/integrations.test.mjs",
+      "tests/p5-codes-invitation-batches.test.mjs"
     ]
   },
   {
