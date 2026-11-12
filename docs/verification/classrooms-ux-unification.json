@@ -1,8 +1,8 @@
 {
   "date": "2026-11-11",
   "baseCommit": "3895f4ded6884641872c5950c39c54215406d6d6",
-  "branch": "codex/classrooms-ux-unification",
-  "state": "Combined candidate verified; user authorized main integration/publication; no deployment",
+  "branch": "main",
+  "state": "Integrated and published on main; main is the only local and remote branch; no deployment",
   "candidateFiles": [
     {
       "path": "apps/api/src/bootstrap/academic-composition.ts",
@@ -605,7 +605,7 @@
       "a6d1d94",
       "f16538e"
     ],
-    "state": "VERIFIED",
+    "state": "PUBLISHED",
     "pure": {
       "passed": 292,
       "failed": 0,
@@ -658,6 +658,17 @@
         "path": ".test-artifacts/classrooms-ux/integration-main-home-authoring.log",
         "sha256": "192451bf36fc9008ef050321c4728e2a4a92ea7b65afd1e9c6f2dfbadaca26eb"
       }
-    ]
+    ],
+    "commit": "122daaa586aff558196a974e46071d40d0574c84",
+    "branches": {
+      "local": [
+        "main"
+      ],
+      "remote": [
+        "main"
+      ],
+      "worktrees": "Preserved detached; no files or runtime data deleted",
+      "prototypeStash": "Preserved"
+    }
   }
 }

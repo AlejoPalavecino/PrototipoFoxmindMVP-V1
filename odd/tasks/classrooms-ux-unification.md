@@ -61,9 +61,9 @@ Reapertura 2026-11-11: el usuario solicita levantar la aplicación completa desd
 - **Blocker:** none
 
 ### TASK-007 — Integración autorizada y main como única rama
-- **State:** VERIFYING
+- **State:** DONE
 - **Depends on:** TASK-005
 - **Owner:** root
 - **Acceptance:** Preservar los cambios posteriores de Inicio; publicar el candidato verificado en main; comprobar main como única rama local y remota sin eliminar archivos, datos ni entornos de worktrees.
-- **Evidence:** Autorización explícita 2026-11-11. Commits f5377e2, a6d1d94 y f16538e; merge de e35e1a3 con tres conflictos documentales resueltos conservando ambos contenidos. Trabajo inicial de main preservado en stash. Build/API/web y aplicación READY; pure 292/292, PostgreSQL Docker Inicio 1/1, lint/boundaries PASS. Inventario corregido: 541 pruebas y 23 rutas. Recorridos integrados de navegador en curso.
+- **Evidence:** Autorización explícita 2026-11-11. Commits f5377e2, a6d1d94 y f16538e; merge de e35e1a3 con tres conflictos documentales resueltos conservando ambos contenidos. Trabajo inicial de main preservado en stash. Build/API/web y aplicación READY; pure 292/292, PostgreSQL Docker Inicio 1/1, lint/boundaries PASS. Inventario corregido: 541 pruebas y 23 rutas. E2E integrado 19/19 y focal UI/CI 27/27, sin fallos/skips. Merge 122daaa, fast-forward a main y push exitoso. HEAD/origin/main/ls-remote coinciden en 122daaa; branch --list y ls-remote --heads muestran sólo main. Worktrees conservados detached, stash inicial preservado. Sin despliegue.
 - **Blocker:** none

@@ -1,8 +1,8 @@
 # Capturas del FoxMind actual
 
-## Candidato Mis aulas — 2026-11-11
+## Mis aulas — 2026-11-11
 
-Referencia local del worktree `codex/classrooms-ux-unification`, todavía sin merge ni despliegue. Incluye 17 capturas de componentes reales con clientes sintéticos y dos de la aplicación completa con PostgreSQL, S3, ClamAV y Mailpit. Todas fueron inspeccionadas. Las pruebas de integración se acreditan por separado en el [recibo](../../verification/classrooms-ux-unification.json); las imágenes por sí solas no prueban correo, IA real, permisos ni persistencia.
+Referencia implementada e integrada/publicada en main (122daaa), sin despliegue. El worktree de prueba se conserva detached. Incluye 17 capturas de componentes reales con clientes sintéticos y dos de la aplicación completa con PostgreSQL, S3, ClamAV y Mailpit. Todas fueron inspeccionadas. Las pruebas de integración se acreditan por separado en el [recibo](../../verification/classrooms-ux-unification.json); las imágenes por sí solas no prueban correo, IA real, permisos ni persistencia.
 
 | Recorrido | Referencias |
 |---|---|

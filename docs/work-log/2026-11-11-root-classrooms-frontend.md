@@ -95,3 +95,11 @@ Reconstrucción conjunta con `npm run local:restart`: READY, build jl-zWmKYFGo9E
 Verificación focal adicional: 27/27 pruebas de miniagenda, dashboard, disclosures y ejecutor CI. `git diff main --` sobre el módulo Home y teacher-home.css queda vacío: la integración conserva exactamente esa implementación. Rama antigua redise_o_aula_docente retirada con `git branch -d` tras comprobar árbol limpio y ausencia de commits exclusivos; su worktree quedó detached en 3895f4d, sin eliminar archivos.
 
 Candidato combinado verificado: E2E P7 autoría/navegación 6/6 + P9 Inicio 13/13 = 19/19, cero fallos/skips; cleanup de procesos y servicios propios sin fallos. Incluye roles exclusivos, alta/ingreso/plan, Muro, permisos, archivo, recuperación offline, borrador, login/sesión revocada y responsive 320/375/1280. Logs finales y hashes registrados en el recibo. Se procede a integrar y publicar según autorización vigente.
+
+## Integración y publicación comprobadas
+
+Merge de reconciliación: `122daaa586aff558196a974e46071d40d0574c84`. Main actualizada mediante `git merge --ff-only codex/classrooms-ux-unification` y publicada con `git push origin main`. La implementación previa de Inicio conserva sus commits y código. Ambas ramas auxiliares se retiraron con `git branch -d`, sin forzar ni perder commits.
+
+Comprobación posterior: `git rev-parse HEAD origin/main` y `git ls-remote --heads origin` coinciden en 122daaa. `git branch --list` y heads remotos contienen exclusivamente main. Original main limpio; tres worktrees auxiliares conservados detached, incluido el entorno ejecutable de Mis aulas. Stash de la maqueta inicial preservado. No se eliminaron directorios, datos, volúmenes, configuración privada ni credenciales.
+
+Este cierre documental actualiza el estado recuperable después de la publicación comprobada. No modifica producto; se verifican docs, TTP y hashes antes de publicarlo. La app continúa READY en http://127.0.0.1:3000 desde el worktree conservado. Sin despliegue ni generaciones reales durante las pruebas. Las limitaciones de carga/monitoreo productivo permanecen explícitas en el recibo.

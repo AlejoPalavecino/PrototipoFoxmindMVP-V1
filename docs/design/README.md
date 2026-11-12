@@ -12,7 +12,9 @@ Cada acción del aula abre un diálogo con su tono visual, portada/nombre/divisi
 
 Referencia actual: aplicación Brújula recorrida con Ego Lite sobre código real, API/SQL/archivos/escáner/correo propios y cuentas sintéticas. Las capturas y checks se consultan en la [galería](current/README.md) y [matriz por flujo/rol](../verification/flows.md). No se usa una maqueta histórica como autoridad.
 
-## Rediseño docente en diseño detallado
+## Rediseño de Mis aulas implementado
+
+Integrado y publicado en main (122daaa), con frontend docente/estudiante y backend de códigos/invitaciones. Evidencia en el [registro de integración](../work-log/2026-11-11-root-classrooms-frontend.md).
 
 El 2026-11-11 el usuario aprobó los recorridos de Mis aulas docente, incluidas invitaciones múltiples y código de seis dígitos vigente hasta regeneración docente. Luego pidió recuperar la identidad visual de FoxMind y recorrer los flujos de principio a fin. El [diseño detallado](classroom-teacher-redesign.md) documenta los recorridos y criterios. El [prototipo local](classroom-teacher-preview.html) permite probarlos con datos ficticios. Las secciones siguientes describen el producto implementado.
 
