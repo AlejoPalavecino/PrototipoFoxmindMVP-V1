@@ -20,7 +20,13 @@ export function useAgendaView() {
     try { sessionStorage.setItem('foxmind-agenda-view', JSON.stringify({ month: nextMonth, day: nextDay, zone: nextZone })); } catch { /* Storage is optional. */ }
   };
   return { month, day, zone, select: (value: string) => persist(value.slice(0, 7), value, zone),
-    move: (direction: number) => { const next = monthStep(month, direction); persist(next, `${next}-01`, zone); },
+    move: (direction: number) => {
+      const next = monthStep(month, direction);
+      const lastDay = new Date(`${monthStep(next, 1)}-01T12:00:00Z`);
+      lastDay.setUTCDate(0);
+      const number = Math.min(Number(day.slice(-2)), lastDay.getUTCDate());
+      persist(next, `${next}-${String(number).padStart(2, '0')}`, zone);
+    },
     today: () => { const today = dateAt(Date.now(), zone); persist(today.slice(0, 7), today, zone); },
     changeZone: (value: string) => persist(month, day, value) };
 }

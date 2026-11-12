@@ -1,5 +1,11 @@
 # Agenda personal y contexto académico
 
+## Selección y navegación — 2026-11-12
+
+Seleccionar un día conserva el calendario y muestra todos sus eventos en el panel lateral; hasta 920 px abre un panel inferior con Escape y retorno de foco al día. Desde el panel se abre el detalle o se crea un evento para esa fecha, incluso cuando está vacío. El detalle agrupa cada evento en una tarjeta de color tenue con título, horario y etiqueta; «Agregar evento» conserva la fecha seleccionada. Semana muestra horarios y colores. Mes/Semana/Día conservan la fecha y comparten controles estables; avanzar mes conserva el número de día limitado al último del destino (31 de enero → 28/29 de febrero). El calendario conserva seis filas. La transición breve respeta movimiento reducido. Carga/error no exponen eventos de otro período.
+
+Formulario único con columnas equilibradas, una columna hasta 600 px y acciones visibles mientras se desplazan los campos. Sin cambios de permisos, persistencia ni repetición. [Evidencia local y límites](../../verification/agenda-ux.json), [tareas](../../../odd/tasks/agenda-ux.md).
+
 Agenda es global y privada por cuenta. Muestra mes, semana o día, el día seleccionado y los eventos siguientes dentro de su ventana consultada. Puede incluir plazos académicos autorizados; un evento personal no publica una actividad ni modifica una nota.
 
 Crear evento reúne título, tipo, fecha, todo el día u horas de inicio/fin, repetición, color y notas. El detalle identifica SOLO PARA VOS y permite editar/eliminar. Las series admiten repetición diaria/semanal/mensual, límite temporal y como máximo 53 ocurrencias.

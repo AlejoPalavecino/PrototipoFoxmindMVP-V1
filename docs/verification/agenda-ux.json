@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-12",
+  "base": "1f61923407fa839df0abb97e673c0274cf12bb1b",
+  "branch": "codex/agenda-ux",
+  "status": "verified locally; uncommitted, not integrated or deployed",
+  "environment": "Actual Agenda components and app styles, Vite 127.0.0.1:4327, synthetic in-memory AgendaClient, Ego Lite",
+  "checks": {
+    "focusedTests": "59 PASS, 0 FAIL, 0 SKIP",
+    "types": "npx tsc -p apps/web/tsconfig.json --noEmit: PASS",
+    "lint": "npx eslint apps/web/src/features/agenda: PASS",
+    "build": "npm run web:build: PASS",
+    "desktop": "1440x1000: selection, month preserves 12, view switching focus, event details, validation and create payload checked",
+    "mobile": "390x844: daily sheet, empty day, Escape restores calendar focus, create selected date, single column, footer visible, no horizontal overflow",
+    "recurrence": "ALL_DAY weekly create for 2026-11-13, inclusive until 2026-12-11: synthetic client payload observed",
+    "loading": "aria-busy true, loading status, zero stale events",
+    "error": "error rendered in browser; retries and late responses covered by focused tests",
+    "reducedMotion": "matchMedia true, zero calendar animations",
+    "navigationTargets": "6 buttons measured at 44 CSS px"
+  },
+  "limitations": [
+    "No real SQL/API persistence or authenticated role E2E rerun; backend unchanged",
+    "No live Gemini usage",
+    "No screen-reader or exhaustive accessibility audit",
+    "No CI run, commit, push, merge or deployment"
+  ],
+  "screenshots": [
+    {
+      "path": "docs/design/current/agenda-20261112-month.png",
+      "sha256": "708b53a703e09368053e83ab46f62537df061f5af462603c0001ad24df13b1ec",
+      "inspected": true
+    },
+    {
+      "path": "docs/design/current/agenda-20261112-week.png",
+      "sha256": "aa090a36bb92be3d3156d463ebca8930d497683584214e46f1eed9590804614a",
+      "inspected": true
+    },
+    {
+      "path": "docs/design/current/agenda-20261112-form.png",
+      "sha256": "8fd5b5503be556571bbe32344ae72f0903000a0492a5b7e798b1a60d8bf120a6",
+      "inspected": true
+    },
+    {
+      "path": "docs/design/current/agenda-20261112-mobile-day.png",
+      "sha256": "0a6db2541359754dfac3b7a224aaaba195710d42b061c5aa2345bce50b3fc6af",
+      "inspected": true
+    },
+    {
+      "path": "docs/design/current/agenda-20261112-mobile-form.png",
+      "sha256": "d9d7220d26e3417c49cc22ff1f7c3404267d6f40d20ebba90ed0360948d07025",
+      "inspected": true
+    }
+  ],
+  "dailyCardsIteration": {
+    "approved": "Usuario: Si me gusta",
+    "result": "Compact heading and tinted full-click cards with title, time, type badge; discreet add action. Same component on mobile.",
+    "tests": "16/16 focused PASS; TypeScript and focal ESLint PASS; git diff --check PASS",
+    "browser": "Ego Lite 1440x1000 and 390x844; event detail opened, add action kept 2026-11-12, 3 mobile cards, no horizontal overflow; screenshots inspected",
+    "limits": "Synthetic client. No backend changes. Production build from prior iteration not repeated for this markup/CSS adjustment."
+  }
+}

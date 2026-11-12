@@ -8,7 +8,8 @@ import { deadlineParts, eventTimeLabel } from '../model/agenda-presentation.ts';
 
 const dayOffsets: Readonly<Record<string, number>> = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 };
 
-export function AgendaMonth({ month, selected, zone, items, onSelect, onMonth, onToday, loading, children }: {
+export function AgendaMonth({ month, selected, zone, items, onSelect, onMonth, onToday, loading, children, hideHeader = false }: {
+  hideHeader?: boolean;
   children?: ReactNode; month: string; selected: string; zone: string; items: AgendaItem[]; loading: boolean;
   onSelect: (day: string) => void; onMonth: (direction: number) => void; onToday: () => void;
 }) {
@@ -27,11 +28,11 @@ export function AgendaMonth({ month, selected, zone, items, onSelect, onMonth, o
     if (days[next]) grid.current?.querySelector<HTMLButtonElement>(`[data-calendar-day="${days[next]}"]`)?.focus();
   }
   return <section className="agenda-calendar fm3d-agenda-card" aria-label="Calendario mensual" aria-busy={loading}>
-    <header className="agenda-month-head">
+    {!hideHeader && <header className="agenda-month-head">
       <div className="agenda-period-title"><button aria-label="Mes anterior" onClick={() => onMonth(-1)}>‹</button>
         <h3 aria-live="polite">{heading}</h3><button aria-label="Mes siguiente" onClick={() => onMonth(1)}>›</button></div>
       <div className="agenda-calendar-controls"><button className="agenda-today-control" onClick={onToday}>Hoy</button>{children}</div>
-    </header>
+    </header>}
     <div className="agenda-week" aria-hidden="true">{['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map(day => <span key={day}>{day}</span>)}</div>
     <div className="agenda-grid" ref={grid}>{days.map((day, index) => {
       const entries = grouped.get(day)!;

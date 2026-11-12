@@ -1,5 +1,17 @@
 # Capturas del FoxMind actual
 
+## Agenda — 2026-11-12
+
+Componentes reales y cliente sintético, inspeccionados con Ego Lite. Referencias visuales vigentes para la presentación de Agenda; las capturas anteriores conservan sólo evidencia de sus flujos, no la geometría actual. [Recibo con hashes y límites](../../verification/agenda-ux.json).
+
+| Vista | Captura |
+|---|---|
+| Mes, 1440×1000 | [Calendario y panel](agenda-20261112-month.png) |
+| Semana, 1440×1000 | [Eventos con horarios](agenda-20261112-week.png) |
+| Crear, 1440×1000 | [Formulario](agenda-20261112-form.png) |
+| Día seleccionado, 390×844 | [Panel inferior](agenda-20261112-mobile-day.png) |
+| Crear, 390×844 | [Una columna](agenda-20261112-mobile-form.png) |
+
 ## Mis aulas — 2026-11-11
 
 Referencia implementada e integrada/publicada en main (122daaa), sin despliegue. El worktree de prueba se conserva detached. Incluye 17 capturas de componentes reales con clientes sintéticos y dos de la aplicación completa con PostgreSQL, S3, ClamAV y Mailpit. Todas fueron inspeccionadas. Las pruebas de integración se acreditan por separado en el [recibo](../../verification/classrooms-ux-unification.json); las imágenes por sí solas no prueban correo, IA real, permisos ni persistencia.

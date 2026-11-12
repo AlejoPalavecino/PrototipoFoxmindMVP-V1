@@ -48,7 +48,7 @@ export function descendants(node, predicate) {
   if (Array.isArray(node)) return node.flatMap(value => descendants(value, predicate));
   if (!React.isValidElement(node)) return [];
   // Expand shared, stateless presentation just as the DOM renderer does.
-  if (['FoxyToolPicker','CollectionStateFilter','CreationSteps'].includes(node.type?.name)) return descendants(node.type(node.props), predicate);
+  if (['FoxyToolPicker','CollectionStateFilter','CreationSteps','AgendaToolbar'].includes(node.type?.name)) return descendants(node.type(node.props), predicate);
   return [...(predicate(node) ? [node] : []), ...descendants(node.props.children, predicate)];
 }
 export function deferred() {

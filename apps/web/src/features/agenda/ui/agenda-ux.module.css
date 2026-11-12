@@ -1,0 +1,85 @@
+/* Local final geometry; shared Brújula tokens and event colors remain authoritative. */
+.scope.scope:global(#agenda-main) :global(.agenda-primary) {
+  background: white; border: 1px solid #dce1ef; border-radius: 18px; overflow: hidden;
+}
+.scope :global(.agenda-toolbar) { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 16px; border-bottom: 1px solid #dce1ef; }
+.scope :global(.agenda-toolbar-period) { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; align-items: center; gap: 8px; flex: 1 1 320px; }
+.scope :global(.agenda-toolbar-period h2) { margin: 0; text-align: center; font-size: 17px; line-height: 1.4; text-transform: capitalize; color: #252646; min-height: 48px; display: grid; place-content: center; }
+.scope :global(.agenda-toolbar-actions) { display: flex; gap: 12px; align-items: center; justify-content: space-between; }
+.scope.scope:global(#agenda-main) :global(.agenda-toolbar button) { min-height: 44px; border-radius: 10px; }
+.scope :global(.agenda-toolbar-period > button) { width: 44px; padding: 0; font-size: 24px; }
+.scope :global(.agenda-calendar-body) { min-height: 640px; position: relative; }
+.scope :global(.agenda-loading-line) { height: 24px; padding: 2px 16px; font-size: 12px; color: #60667d; }
+.scope.scope:global(#agenda-main) :global(.agenda-calendar),
+.scope.scope:global(#agenda-main) :global(.agenda-period) { border: 0; border-radius: 0; box-shadow: none; }
+.scope.scope:global(#agenda-main) :global(.agenda-grid .agenda-day) { height: 92px; min-height: 92px; padding: 6px; overflow: hidden; }
+.scope.scope:global(#agenda-main) :global(.agenda-grid .agenda-day[aria-pressed='true']) { padding: 6px; background: #fff1e7; box-shadow: inset 0 0 0 2px #b8490c; }
+.scope.scope:global(#agenda-main) :global(.agenda-day-preview) { gap: 3px; }
+.scope.scope:global(#agenda-main) :global(.agenda-dot) { min-width: 0; padding: 3px 5px; border-radius: 5px; }
+.scope.scope:global(#agenda-main) :global(.agenda-dot > span) { display: flex; gap: 4px; min-width: 0; }
+.scope.scope:global(#agenda-main) :global(.agenda-dot b) { font-size: 10px; flex: 0 0 auto; }
+.scope.scope:global(#agenda-main) :global(.agenda-dot > span > span) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px; }
+.scope :global(.agenda-desktop-day) { min-height: 240px; }
+.scope.scope:global(#agenda-main) :global(.agenda-selected) { padding: 18px; border: 1px solid #e1e5ef; border-radius: 16px; background: white; }
+.scope.scope:global(#agenda-main) :global(.agenda-day-heading) { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 16px; }
+.scope.scope:global(#agenda-main) :global(.agenda-selected h2) { margin: 5px 0 4px; font-size: 21px; line-height: 1.2; }
+.scope.scope:global(#agenda-main) :global(.agenda-selected-subtitle) { margin: 0; font-size: 11px; color: #60667d; }
+.scope.scope:global(#agenda-main) :global(.agenda-day-total) { padding: 5px 8px; margin-top: 4px; border-radius: 20px; background: #f4f5fa; font-size: 10px; color: #60667d; white-space: nowrap; }
+.scope.scope:global(#agenda-main) :global(.agenda-day-list) { display: grid; gap: 10px; margin: 0; padding: 0; border: 0; }
+.scope.scope:global(#agenda-main) :global(.agenda-selected .agenda-event) { padding: 0; margin: 0; border: 1px solid color-mix(in srgb, var(--agenda-color-accent) 18%, white); border-radius: 12px; background: color-mix(in srgb, var(--agenda-color-bg) 45%, white); }
+.scope.scope:global(#agenda-main) :global(.agenda-selected .agenda-event::before) { content: none; }
+.scope.scope:global(#agenda-main) :global(.agenda-event-open) { padding: 13px; min-height: 0; gap: 10px; border-radius: 11px; }
+.scope.scope:global(#agenda-main) :global(.agenda-event-open:hover:enabled) { background: color-mix(in srgb, var(--agenda-color-bg) 70%, white); }
+.scope.scope:global(#agenda-main) :global(.agenda-event-open strong) { font-size: 14px; line-height: 1.4; overflow-wrap: anywhere; }
+.scope.scope:global(#agenda-main) :global(.agenda-event-open .agenda-event-copy) { display: grid; gap: 5px; min-width: 0; }
+.scope.scope:global(#agenda-main) :global(.agenda-event-open .agenda-event-time) { font-size: 12px; color: #535b70; }
+.scope.scope:global(#agenda-main) :global(.agenda-event-open .agenda-event-kind) { display: inline-flex; justify-self: start; margin-top: 3px; padding: 3px 7px; border-radius: 6px; background: #ffffffb3; color: var(--agenda-color-accent); font-size: 10px; line-height: 1.4; }
+.scope.scope:global(#agenda-main) :global(.agenda-event-open > svg) { flex: 0 0 15px; color: #60667d; }
+.scope.scope:global(#agenda-main) :global(.agenda-create-day) { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; min-height: 44px; margin-top: 12px; border: 0; background: transparent; color: #974310; border-radius: 10px; font-size: 13px; font-weight: 500; }
+.scope.scope:global(#agenda-main) :global(.agenda-create-day > span) { font-size: 21px; line-height: 1; }
+.scope.scope:global(#agenda-main) :global(.agenda-create-day:hover:enabled) { background: #fff4eb; }
+.scope.scope:global(#agenda-main) :global(.agenda-week-entry::before) { background: var(--agenda-color-accent, #b8490c); }
+.scope.scope:global(#agenda-main) :global(.agenda-week-row) { min-height: 80px; }
+.scope.scope:global(#agenda-main) :global(.agenda-day-sheet) { width: min(620px, 100%); max-height: 85dvh; margin: auto auto 0; border-radius: 22px 22px 0 0; padding: 20px; }
+.scope :global(.agenda-day-sheet > header) { display: flex; align-items: center; justify-content: space-between; }
+.scope.scope:global(#agenda-main) :global(.agenda-day-sheet .agenda-selected) { border: 0; background: transparent; padding: 8px 0; }
+
+/* A single scrolling body, fixed actions and balanced field tracks. */
+.scope.scope:global(#agenda-main) :global(.agenda-dialog) { width: min(680px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); padding: 24px; overflow: hidden; font-family: inherit; color: #252646; }
+.scope.scope:global(#agenda-main) :global(.agenda-dialog[open]) { display: flex; flex-direction: column; }
+.scope.scope:global(#agenda-main) :global(.agenda-dialog > header) { flex: 0 0 auto; margin: 0 0 12px; padding: 0 0 16px; }
+.scope.scope:global(#agenda-main) :global(.agenda-dialog > .brujula-dialog-body) { display: flex; flex-direction: column; min-height: 0; overflow: auto; }
+.scope.scope:global(#agenda-main) :global(.agenda-dialog form) { display: flex; flex-direction: column; min-height: 0; }
+.scope.scope:global(#agenda-main) :global(.agenda-form-body) { overflow: auto; padding: 4px 4px 12px; scrollbar-gutter: stable; }
+.scope.scope:global(#agenda-main) :global(.agenda-fields) { display: grid; gap: 16px; margin: 0; padding: 0; min-width: 0; border: 0; }
+.scope.scope:global(#agenda-main) :global(.agenda-form-group) { display: grid; gap: 12px; padding: 0; border: 0; border-radius: 0; background: transparent; min-width: 0; }
+.scope.scope:global(#agenda-main) :global(.agenda-form-group + .agenda-form-group) { padding-top: 16px; border: 0; border-top: 1px solid #e7e9f0; }
+.scope.scope:global(#agenda-main) :global(.agenda-form-dates) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+.scope.scope:global(#agenda-main) :global(.agenda-fields label) { min-width: 0; font-size: 14px; color: #252646; }
+.scope.scope:global(#agenda-main) :global(.agenda-fields :is(input:not([type='radio']):not([type='checkbox']), select, textarea)) { box-sizing: border-box; width: 100%; min-width: 0; font-family: inherit; font-size: 15px; border-radius: 10px; border: 1px solid #cbd1df; background: white; }
+.scope.scope:global(#agenda-main) :global(.agenda-fields :is(input:not([type='radio']):not([type='checkbox']), select)) { height: 46px; min-height: 46px; padding: 10px 12px; }
+.scope.scope:global(#agenda-main) :global(.agenda-color-choices) { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.scope.scope:global(#agenda-main) :global(.agenda-color-choices label) { min-height: 44px; }
+.scope.scope:global(#agenda-main) :global(.agenda-dialog .p5-form-footer) { flex: 0 0 auto; position: sticky; bottom: 0; display: flex; justify-content: flex-end; gap: 12px; padding: 16px 0 0; margin: 0; background: white; border-top: 1px solid #e7e9f0; }
+.scope.scope:global(#agenda-main) :global(.agenda-dialog .p5-form-footer button) { min-height: 46px; min-width: 120px; margin: 0; }
+.scope :global(button:focus-visible) { outline: 3px solid #b8490c; outline-offset: 2px; }
+@media (max-width: 920px) {
+  .scope :global(.agenda-desktop-day) { display: none; }
+  .scope.scope:global(#agenda-main) :global(.agenda-sidebar) { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .scope :global(.agenda-toolbar) { padding: 12px; gap: 8px; }
+  .scope :global(.agenda-toolbar-period) { flex-basis: 100%; }
+  .scope :global(.agenda-toolbar-actions) { width: 100%; }
+  .scope :global(.agenda-toolbar-period h2) { font-size: 15px; }
+  .scope :global(.agenda-calendar-body) { min-height: 490px; }
+  .scope.scope:global(#agenda-main) :global(.agenda-grid .agenda-day),
+  .scope.scope:global(#agenda-main) :global(.agenda-grid .agenda-day[aria-pressed='true']) { height: 68px; min-height: 68px; padding: 4px; }
+  .scope.scope:global(#agenda-main) :global(.agenda-day-preview) { display: none; }
+  .scope.scope:global(#agenda-main) :global(.agenda-dialog) { width: calc(100vw - 16px); max-height: calc(100dvh - 16px); padding: 16px; }
+  .scope.scope:global(#agenda-main) :global(.agenda-dialog > header) { top: 0; }
+  .scope.scope:global(#agenda-main) :global(.agenda-form-dates) { grid-template-columns: 1fr; gap: 12px; }
+  .scope.scope:global(#agenda-main) :global(.agenda-color-choices) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .scope.scope:global(#agenda-main) :global(.agenda-dialog .p5-form-footer) { flex-wrap: wrap; }
+  .scope.scope:global(#agenda-main) :global(.agenda-dialog .p5-form-footer button) { flex: 1; min-width: 100px; }
+}

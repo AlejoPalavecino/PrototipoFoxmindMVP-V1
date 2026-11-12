@@ -1,5 +1,11 @@
 # UX/UI vigente de FoxMind
 
+## Agenda — pulido aprobado del 2026-11-12
+
+Iteración de detalle diario aprobada: encabezado compacto con contador independiente, tarjetas de fondo tenue por color y borde suave, título destacado, horario debajo y etiqueta de tipo. Toda la tarjeta abre el detalle. Acción discreta «+ Agregar evento»; misma presentación en panel móvil.
+
+Conserva Brújula: selección de día destacada, lista lateral con horario completo/título/color y acceso a crear; panel inferior hasta 920 px, cierre accesible y retorno de foco. Barra común Mes/Semana/Día con controles de 44 px y fecha conservada; transición 160 ms desactivada con movimiento reducido. Formulario único con campos de 46 px, columnas iguales en escritorio y una columna hasta 600 px; acciones visibles y errores asociados a campos. [Capturas actuales](current/README.md#agenda--2026-11-12), [evidencia](../verification/agenda-ux.json). Comprobaciones locales con límites; auditoría posterior detectó seis ajustes visuales pendientes. [Publicación autorizada y hallazgos](../work-log/2026-11-12-root-agenda-publication.md).
+
 ## Dirección vigente de Inicio docente — 2026-11-11
 
 Seguimiento elimina los textos de alcance/orden estáticos y coloca un selector accesible arriba a la derecha, adaptable a una segunda fila en móvil. Título y selector comparten eje vertical; pestañas y Ver todas comparten fila y altura de 44 px. Mi agenda presenta la fecha sólo en el bloque lateral y el horario (o Todo el día) debajo del título, con separación uniforme entre eventos. Entregas y Consultas mantienen su elección independiente y todas las páginas respetan el orden.
