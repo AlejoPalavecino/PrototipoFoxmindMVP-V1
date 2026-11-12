@@ -1,10 +1,8 @@
 import { useEffect, useRef } from 'react';
 import type { AgendaTarget, PrivateEvent } from '../../../../../../src/core/domain/agenda/index.ts';
-import { categoryLabels,dateAt, onDay, type AgendaItem } from '../model/calendar.ts';
-import { DeadlineCard } from './Upcoming.tsx';
+import { categoryLabels, dateAt, deadlineLabel, onDay, type AgendaItem } from '../model/calendar.ts';
 import { eventColorClass } from '../model/event-colors.ts';
-import { FoxmindIcon } from '../../../../../shared-ui/index.ts';
-import { eventTimeLabel, selectedDayHeading } from '../model/agenda-presentation.ts';
+import { deadlineParts, eventTimeLabel, selectedDayHeading } from '../model/agenda-presentation.ts';
 
 export function AgendaDay({ day, zone, items, busy, focusEventId, focusRequest, onEdit, onOpen, onCreate }: {
   day: string; zone: string; items: AgendaItem[]; busy: boolean;
@@ -21,14 +19,33 @@ export function AgendaDay({ day, zone, items, busy, focusEventId, focusRequest, 
       .find(element => element.dataset.eventId === focusEventId);
     card?.focus();
   }, [focusEventId, focusRequest, day, items]);
-  return <section ref={container} className="agenda-selected fm3d-agenda-card" aria-label="Eventos del día seleccionado">
-    <header className="agenda-day-heading"><div><small className="agenda-eyebrow">{day===dateAt(Date.now(),zone)?'Hoy':'Día seleccionado'}</small><h2>{heading.title}</h2><p className="agenda-selected-subtitle">{heading.subtitle}</p></div><span className="agenda-day-total" aria-live="polite">{entries.length} {entries.length === 1 ? 'evento' : 'eventos'}</span></header>
+  return <section ref={container} className="agenda-selected agenda-day-widget fm3d-agenda-card" aria-label="Eventos del día seleccionado">
+    <header>
+      <small className="agenda-widget-eyebrow">{day === dateAt(Date.now(), zone) ? 'Hoy' : 'Día seleccionado'}</small>
+      <div className="agenda-widget-date">
+        <strong className="agenda-widget-date-number" aria-hidden="true">{Number(day.slice(8))}</strong>
+        <div><h2>{heading.title}</h2><p className="agenda-widget-subtitle">{heading.subtitle}</p></div>
+      </div>
+      <p className="agenda-widget-count" aria-live="polite">{entries.length} {entries.length === 1 ? 'evento' : 'eventos'}</p>
+    </header>
     {!entries.length ? <p className="agenda-empty">Un día libre en tu agenda. Agregá lo que quieras recordar.</p> : null}
-    <div className="agenda-day-list">{entries.map(item => item.kind === 'ACADEMIC_DEADLINE'
-      ? <DeadlineCard key={item.id} item={item} busy={busy} onOpen={onOpen} />
-      : <article key={item.occurrenceId} id={`agenda-event-${item.occurrenceId}`} data-event-id={item.event.id} tabIndex={-1} className={`agenda-event ${eventColorClass(item.event)}`}>
-        <button className="agenda-event-open" aria-label={`Ver evento: ${item.event.title}`} disabled={busy} onClick={() => onEdit(item.event, item.occurrenceDate ?? item.occurrenceId.slice(item.event.id.length + 1))}><span className="agenda-event-copy"><strong>{item.event.title}</strong><small className="agenda-event-time">{eventTimeLabel(item)}</small><span className="agenda-event-kind">{categoryLabels[item.event.category]} personal</span></span><FoxmindIcon name="chevron-right"/></button>
-      </article>)}</div>
-    <button className="agenda-create-day" aria-label="Crear evento para este día" disabled={busy} onClick={onCreate}><span aria-hidden="true">+</span> Agregar evento</button>
+    <div className="agenda-widget-list">{entries.map(item => {
+      if (item.kind === 'ACADEMIC_DEADLINE') return <article key={item.id} className="agenda-widget-row agenda-widget-deadline">
+        <button className="agenda-widget-open" aria-label={`Abrir actividad: ${item.title}`} disabled={busy} onClick={() => onOpen(item.target)}>
+          <span className="agenda-widget-time">{deadlineParts(item.deadlineAt, item.timeZone).time}</span>
+          <span className="agenda-widget-copy"><strong>{item.title}</strong>
+            <span>{item.classroomName} · {item.role === 'teacher' ? 'Enseño' : 'Estudio'}{item.resubmission ? ' · Reentrega' : ''}</span>
+            <span>Entrega · {deadlineLabel(item.deadlineAt, item.timeZone)}</span>{!item.pending ? <span>Sin entrega pendiente</span> : null}
+          </span>
+        </button>
+      </article>;
+      return <article key={item.occurrenceId} id={`agenda-event-${item.occurrenceId}`} data-event-id={item.event.id} tabIndex={-1} className={`agenda-event agenda-widget-row ${eventColorClass(item.event)}`}>
+        <button className="agenda-widget-open" aria-label={`Ver evento: ${item.event.title}`} disabled={busy} onClick={() => onEdit(item.event, item.occurrenceDate ?? item.occurrenceId.slice(item.event.id.length + 1))}>
+          <span className="agenda-widget-time">{eventTimeLabel(item).split(' – ').map((label, index) => <span key={index}>{label}</span>)}</span>
+          <span className="agenda-widget-copy"><strong>{item.event.title}</strong><span>{categoryLabels[item.event.category]} personal</span></span>
+        </button>
+      </article>;
+    })}</div>
+    <button className="agenda-create-day agenda-widget-create" aria-label="Crear evento para este día" disabled={busy} onClick={onCreate}><span aria-hidden="true">+</span> Agregar para este día</button>
   </section>;
 }

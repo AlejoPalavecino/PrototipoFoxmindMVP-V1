@@ -46,6 +46,38 @@
 .scope :global(.agenda-day-sheet > header) { display: flex; align-items: center; justify-content: space-between; }
 .scope.scope:global(#agenda-main) :global(.agenda-day-sheet .agenda-selected) { border: 0; background: transparent; padding: 8px 0; }
 
+/* Approved05: only the shared selected-day widget, never calendar day cells. */
+.scope.scope:global(#agenda-main) :global(.agenda-day-widget) { min-width: 0; font-family: inherit; color: var(--brujula-ink, #252646); box-shadow: var(--fm-shadow); }
+.scope.scope:global(#agenda-main) :global(.agenda-widget-eyebrow) { color: var(--brujula-muted, #60667d); font-size: 12px; }
+.scope.scope:global(#agenda-main) :global(.agenda-widget-date) { display: flex; align-items: center; gap: 12px; margin: 8px 0; }
+.scope.scope:global(#agenda-main) :global(.agenda-widget-date-number) { flex: 0 0 auto; color: var(--brujula-primary, #b8490c); font-size: 44px; line-height: 1; letter-spacing: -.035em; font-weight: 400; }
+.scope.scope:global(#agenda-main) :global(.agenda-widget-date h2) { margin: 0; font-family: inherit; font-size: 20px; line-height: 1.3; font-weight: 500; }
+.scope.scope:global(#agenda-main) :global(.agenda-widget-subtitle) { margin: 0; font-size: 13px; color: var(--brujula-muted, #60667d); }
+.scope.scope:global(#agenda-main) :global(.agenda-widget-count) { margin: 0 0 12px; font-size: 13px; color: var(--brujula-muted, #60667d); }
+.scope.scope:global(#agenda-main) :global(.agenda-widget-list) { display: grid; gap: 8px; }
+.scope.scope:global(#agenda-main) :global(.agenda-day-widget .agenda-widget-row) { display: block; padding: 0; margin: 0; border: 0; border-radius: 0; background: transparent; min-width: 0; }
+/* AUTO uses the existing category swatch/indicator tokens; explicit palette classes never match. */
+.scope.scope:global(#agenda-main) :global(.agenda-day-widget .agenda-widget-row.class) { --agenda-color-bg: var(--fm-mint); --agenda-color-accent: var(--fm-outline); }
+.scope.scope:global(#agenda-main) :global(.agenda-day-widget .agenda-widget-row.activity) { --agenda-color-bg: var(--fm-yellow); --agenda-color-accent: var(--fm-outline); }
+.scope.scope:global(#agenda-main) :global(.agenda-day-widget .agenda-widget-row.evaluation) { --agenda-color-bg: var(--fm-coral); --agenda-color-accent: var(--fm-outline); }
+.scope.scope:global(#agenda-main) :global(.agenda-widget-deadline) { --agenda-color-accent: var(--brujula-primary, #b8490c); --agenda-color-bg: #ffedd5; }
+.scope.scope:global(#agenda-main) :global(.agenda-widget-row::before) { content: none; }
+.scope.scope:global(#agenda-main) :global(.agenda-widget-open) { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 12px; align-items: start; width: 100%; max-width: none; min-height: 44px; margin: 0; padding: 8px 0; border: 0; border-radius: 8px; background: transparent; color: inherit; font: inherit; text-align: left; transition: background-color var(--fm-motion, 180ms) ease; }
+.scope.scope:global(#agenda-main) :global(.agenda-widget-time) { display: grid; gap: 2px; color: var(--brujula-muted, #60667d); font-size: 12px; line-height: 1.5; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.scope.scope:global(#agenda-main) :global(.agenda-widget-copy) { display: grid; position: relative; min-width: 0; gap: 4px; padding-left: 14px; overflow-wrap: anywhere; }
+.scope.scope:global(#agenda-main) :global(.agenda-widget-copy::before) { content: ''; position: absolute; left: 0; top: 7px; width: 6px; height: 6px; border-radius: 50%; background: var(--agenda-color-accent); box-shadow: 0 0 0 3px var(--agenda-color-bg); }
+.scope.scope:global(#agenda-main) :global(.agenda-widget-copy strong) { font-size: 14px; line-height: 1.5; font-weight: 500; }
+.scope.scope:global(#agenda-main) :global(.agenda-widget-copy > span) { color: var(--brujula-muted, #60667d); font-size: 12px; line-height: 1.5; }
+.scope.scope:global(#agenda-main) :global(.agenda-widget-open:hover:enabled) { background: var(--brujula-canvas, #f4f7fe); }
+.scope.scope:global(#agenda-main) :global(.agenda-widget-open:active:enabled) { background: var(--agenda-color-bg); }
+.scope.scope:global(#agenda-main) :global(.agenda-widget-create) { justify-content: flex-start; margin-top: 16px; padding: 8px 0; border-top: 1px solid var(--brujula-line, #dbe1f0); border-radius: 0; font-family: inherit; }
+.scope.scope:global(#agenda-main) :global(.agenda-day-widget button:disabled) { opacity: .65; cursor: wait; }
+.scope.scope:global(#agenda-main) :global(.agenda-day-widget button:focus-visible) { outline: 3px solid #4453b8; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .scope.scope:global(#agenda-main) :global(.agenda-widget-open) { transition: none; }
+}
+/* End approved05 */
+
 /* A single scrolling body, fixed actions and balanced field tracks. */
 .scope.scope:global(#agenda-main) :global(.agenda-dialog) { width: min(680px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); padding: 24px; overflow: hidden; font-family: inherit; color: #252646; }
 .scope.scope:global(#agenda-main) :global(.agenda-dialog[open]) { display: flex; flex-direction: column; }
