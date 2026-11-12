@@ -20,11 +20,17 @@ test('shared dialog preserves heading, close action and Escape cancellation', as
   const view = hookView(Dialog, { title: 'Revisar', className: 'agenda-dialog', onClose: () => closed++, children: 'Contenido' });
   try {
     await view.flush();
-    assert.equal(view.tree.props['aria-labelledby'], 'p5-dialog-title');
     assert.equal(view.tree.props.className, 'p5-dialog agenda-dialog');
-    assert.equal(descendants(view.tree, node => node.type === 'h2')[0].props.children, 'Revisar');
+    const heading = descendants(view.tree, node => node.type === 'h2')[0];
+    assert.equal(heading.props.children, 'Revisar');
+    assert.ok(heading.props.id);
+    assert.equal(view.tree.props['aria-labelledby'], heading.props.id);
     descendants(view.tree, node => node.type === 'button')[0].props.onClick();
-    view.tree.props.onCancel({ preventDefault: () => prevented++ });
+    const dialog = {};
+    const cancel = target => view.tree.props.onCancel({ target, currentTarget: dialog, preventDefault: () => prevented++ });
+    cancel({});
+    assert.equal(closed, 1); assert.equal(prevented, 0);
+    cancel(dialog);
     assert.equal(closed, 2); assert.equal(prevented, 1);
   } finally { view.close(); }
 });

@@ -1,7 +1,10 @@
 import React from 'react';
 
+let nextViewId = 0;
+
 // Minimal hook runner for the real component: state/effect lifecycles only, no mocked Agenda logic.
 export function hookView(Component, props) {
+  const viewId = nextViewId++;
   const slots = [], cleanups = new Map();
   let cursor = 0, dirty = true, tree, effects = [];
   const same = (a, b) => a && b && a.length === b.length && a.every((value, i) => Object.is(value, b[i]));
@@ -15,6 +18,7 @@ export function hookView(Component, props) {
       }];
     },
     useRef(value) { const i = cursor++; return slots[i] ??= { current: value }; },
+    useId() { return `test-view-${viewId}-${cursor++}`; },
     useCallback(value, deps) {
       const i = cursor++;
       if (!same(slots[i]?.deps, deps)) slots[i] = { value, deps };
