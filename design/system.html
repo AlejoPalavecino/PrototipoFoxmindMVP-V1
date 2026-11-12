@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brújula · Valores existentes para Agenda</title>
+<style>
+/* Fuentes y capas: design/system.md. No se carga la fuente local Lexend. */
+:root {
+  --brujula-ink: #252646;
+  --brujula-muted: #60667d;
+  --brujula-line: #dbe1f0;
+  --brujula-primary: #b8490c;
+  --brujula-surface: #fff;
+  --brujula-canvas: #f4f7fe;
+  --fm-focus: #4453b8;
+  --fm-control-line: #303631;
+  --fm-error: #8c281c;
+  --fm-font-body: 'Segoe UI', Arial, sans-serif;
+  --fm-shadow: 0 4px 18px #080b3008;
+  --fm-motion: 180ms;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--brujula-canvas); color: var(--brujula-ink); font: 16px/1.5 var(--fm-font-body); }
+main { max-width: 1440px; padding: 32px; margin: auto; }
+h1 { font-size: clamp(28px, 4vw, 40px); margin: 0; }
+h2 { font-size: 22px; margin: 0 0 16px; }
+p { color: var(--brujula-muted); }
+section { margin-top: 24px; padding: 24px; background: var(--brujula-surface); border: 1px solid var(--brujula-line); border-radius: 18px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 16px; }
+figure { margin: 0; min-width: 0; }
+.swatch { min-height: 64px; border: 1px solid var(--fm-control-line); border-radius: 12px; }
+figcaption { padding-top: 8px; overflow-wrap: anywhere; }
+small, code { font-size: 13px; }
+button, input { font: inherit; min-height: 44px; padding: 8px 16px; border: 1px solid var(--fm-control-line); border-radius: 11px; color: var(--brujula-ink); background: var(--brujula-surface); }
+button { cursor: pointer; transition: background-color var(--fm-motion); }
+button:hover { background: var(--brujula-canvas); }
+.primary { background: var(--brujula-primary); color: var(--brujula-surface); border-color: var(--brujula-primary); }
+.primary:hover { background: var(--brujula-primary); }
+:focus-visible { outline: 3px solid var(--fm-focus); outline-offset: 3px; }
+.examples { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+label { display: grid; gap: 8px; min-width: 0; }
+input { width: 100%; }
+.sample { padding: 16px; border: 1px solid var(--brujula-line); border-radius: 16px; box-shadow: var(--fm-shadow); }
+.space { height: 16px; background: var(--brujula-primary); margin: 8px 0; }
+@media (max-width: 600px) { main { padding: 16px; } section { padding: 16px; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<main>
+<header><small>FOXMIND · REFERENCIA PARCIAL · 1440 PX</small><h1>Brújula, sin inventar un sistema</h1><p>Valores de código existentes. Muestras estáticas, no controles conectados a la aplicación.</p></header>
+<section aria-labelledby="palette"><h2 id="palette">Acción cálida, tinta legible</h2><div class="grid" id="swatches"></div></section>
+<section aria-labelledby="events"><h2 id="events">Colores personales de Agenda</h2><p>El tipo se escribe; el color elegido no implica una categoría.</p><div class="grid" id="event-colors"></div></section>
+<section><h2>Tipografía y controles</h2><p>Segoe UI → Arial → sans-serif. Producción usa Lexend local bajo el nombre Brújula; no se carga aquí.</p><div class="examples"><button type="button" class="primary">Crear evento</button><button type="button">Cancelar</button><label>Título<input value="Repaso de fracciones" readonly></label></div><p style="font-size:13px">Ayuda 13 px · etiqueta 15 px · cuerpo 16 px · sección 22 px · título 28–40 px.</p></section>
+<section><h2>Espacio y forma</h2><div class="grid"><div id="spacing"></div><div class="sample"><strong>Tarjeta de referencia</strong><p>Radios: control 11, campo 12, panel diario 16, tarjeta 18 y diálogo 24 px.</p><p>Sombra 0 4px 18px #080b3008. Duración 180 ms; sin movimiento si se solicita.</p></div></div></section>
+<footer><p>Fuentes: apps/shared-ui/design-tokens.css; apps/shared-ui/foxmind-3d-tokens.css; apps/web/styles/globals.css; apps/shared-ui/brujula.css; apps/shared-ui/brujula-controls.css; apps/web/src/features/agenda/ui/agenda-surface.module.css; apps/web/src/features/agenda/ui/agenda-ux.module.css. Procedencia y reglas completas en design/system.md.</p></footer>
+</main>
+<script>
+const colors = [['Tinta','#252646'],['Secundario','#60667d'],['Línea decorativa','#dbe1f0'],['Acción','#b8490c'],['Superficie','#fff'],['Fondo','#f4f7fe'],['Foco','#4453b8'],['Contorno','#303631'],['Error','#8c281c'],['Selección','#fff1e7']];
+const events = [['Azul','#dbeafe','#1d4ed8'],['Verde','#dcfce7','#166534'],['Dorado','#fef3c7','#854d0e'],['Naranja','#ffedd5','#9a3412'],['Rosa','#fce7f3','#9d174d'],['Violeta','#f3e8ff','#6b21a8']];
+for (const [label, value] of colors) {
+  const figure = document.createElement('figure');
+  figure.innerHTML = `<div class="swatch" style="background:${value}"></div><figcaption>${label} · <code>${value}</code></figcaption>`;
+  document.querySelector('#swatches').append(figure);
+}
+for (const [label, bg, accent] of events) {
+  const sample = document.createElement('div');
+  sample.className = 'sample';
+  sample.style.cssText = `background:${bg};border-left:4px solid ${accent}`;
+  sample.innerHTML = `<strong>${label}</strong><br><small>${bg} / ${accent}</small>`;
+  document.querySelector('#event-colors').append(sample);
+}
+for (const width of [4, 8, 12, 16, 24, 32, 48]) {
+  const row = document.createElement('div');
+  row.innerHTML = `<span>${width} px</span><div class="space" style="width:${width}px"></div>`;
+  document.querySelector('#spacing').append(row);
+}
+</script>
+</body>
+</html>
