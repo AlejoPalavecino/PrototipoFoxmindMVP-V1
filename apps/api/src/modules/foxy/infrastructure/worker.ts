@@ -16,7 +16,8 @@ type Options = { database: SqlDatabase; queue: { claim(): Promise<FoxyTurnLease 
   provider: { countTokens(input: FoxyTextInput): Promise<number>; generate(input: FoxyTextInput): Promise<{ json: FoxyTextResponse } & Usage> };
   budget: { reserve(tx: SqlTransaction, lease: FoxyTurnLease, count: number): Promise<'RESERVED' | 'ALREADY_DISPATCHED' | 'NO_BUDGET' | 'NOT_CURRENT'> };
   completion: { finish(lease: FoxyTurnLease, result: any): Promise<boolean> };
-  configuration: { model: string; maxInputTokens: number; deadlineMs: number; maxJobAgeMs: number } };
+  configuration: { model: string; maxInputTokens: number; deadlineMs: number; maxJobAgeMs: number; maxConcurrency: number } };
+const RETRY_INTERVAL_MS = 1000;
 async function withAbort<T>(work: Promise<T>, signal: AbortSignal): Promise<T> {
   signal.throwIfAborted();
   let onAbort: (() => void) | undefined;
@@ -48,13 +49,15 @@ async function reserve(options: Options, lease: FoxyTurnLease, prepared: Prepare
 }
 export function createFoxyTextWorker(options: Options) {
   const preparation = createFoxyTurnPreparation(options);
+  const active = new Set<Promise<boolean>>();
+  const controllers = new Set<AbortController>();
   let stopped = false, initialized = false, shutdownComplete = false;
-  let active: Promise<boolean> | undefined, controller: AbortController | undefined;
+  let filling = false, wakeRequested = false;
   let timer: ReturnType<typeof setTimeout> | undefined, stopping: Promise<void> | undefined;
-  async function run(): Promise<boolean> {
-      const lease = await options.queue.claim(); if (!lease || stopped) return false;
-      controller = new AbortController();
-      const deadline = setTimeout(() => controller?.abort(), options.configuration.deadlineMs);
+  async function run(lease: FoxyTurnLease): Promise<boolean> {
+      const controller = new AbortController();
+      controllers.add(controller);
+      const deadline = setTimeout(() => controller.abort(), options.configuration.deadlineMs);
       let prepared: Prepared | undefined, reserved = false, dispatched = false, outcome: any, shouldFinish = true;
       try {
         prepared = await withAbort(preparation.prepare(lease, controller.signal), controller.signal);
@@ -86,31 +89,61 @@ export function createFoxyTextWorker(options: Options) {
           ...(reserved && !dispatched ? { usage: { inputTokens: 0, outputTokens: 0 } } : {}) };
       }
       try { if (!shutdownComplete && shouldFinish && outcome) await options.completion.finish(lease, outcome); }
-      finally { clearTimeout(deadline); controller = undefined; if (prepared) options.authority.close(prepared.scope); }
+      finally { clearTimeout(deadline); controllers.delete(controller); if (prepared) options.authority.close(prepared.scope); }
       return true;
+  }
+  function launch() {
+    const claimed = options.queue.claim();
+    const done = claimed.then(lease => lease && !stopped ? run(lease) : false)
+      .finally(() => active.delete(done));
+    active.add(done);
+    void done.then(processed => { if (processed) wake(); }, () => schedule(RETRY_INTERVAL_MS));
+    return { claimed, done };
   }
   function runOnce(): Promise<boolean> {
     if (stopped) return Promise.resolve(false);
-    if (active) return active;
-    active = run().finally(() => { active = undefined; });
-    return active;
+    return active.values().next().value ?? launch().done;
   }
-  function poll(): void {
-    if (stopped) return;
-    timer = setTimeout(() => { timer = undefined; void runOnce().catch(() => false).finally(poll); }, 30000);
+  function schedule(delay: number): void {
+    if (!initialized || stopped || filling || timer || active.size >= options.configuration.maxConcurrency) return;
+    timer = setTimeout(() => { timer = undefined; wake(); }, delay);
     timer.unref?.();
+  }
+  async function fill(): Promise<void> {
+    // Claim serially and process each lease independently up to the configured limit.
+    while (!stopped && active.size < options.configuration.maxConcurrency) {
+      if (!await launch().claimed) break;
+    }
+  }
+  function wake(): void {
+    if (!initialized || stopped) return;
+    wakeRequested = true;
+    if (filling || active.size >= options.configuration.maxConcurrency) return;
+    clearTimeout(timer);
+    timer = undefined;
+    wakeRequested = false;
+    filling = true;
+    void fill().catch(() => {}).finally(() => {
+      filling = false;
+      // An enqueue can commit while an empty claim is in flight.
+      if (wakeRequested && active.size < options.configuration.maxConcurrency) wake();
+      else schedule(RETRY_INTERVAL_MS);
+    });
   }
   function onModuleInit(): void {
     if (initialized || stopped) return;
-    initialized = true; poll();
+    initialized = true;
+    schedule(0);
   }
   function onModuleDestroy(): Promise<void> {
     if (stopping) return stopping;
-    stopped = true; if (timer) clearTimeout(timer); controller?.abort();
+    stopped = true;
+    clearTimeout(timer);
+    for (const controller of controllers) controller.abort();
     stopping = (async () => {
-      if (active) {
+      if (active.size) {
         let timeout: ReturnType<typeof setTimeout> | undefined;
-        try { await Promise.race([active.catch(() => false), new Promise<void>(resolve => {
+        try { await Promise.race([Promise.allSettled(active), new Promise<void>(resolve => {
           timeout = setTimeout(resolve, options.configuration.deadlineMs + 7000); timeout.unref?.();
         })]); } finally { if (timeout) clearTimeout(timeout); }
       }
@@ -118,5 +151,5 @@ export function createFoxyTextWorker(options: Options) {
     })();
     return stopping;
   }
-  return { runOnce, onModuleInit, onModuleDestroy };
+  return { runOnce, wake, onModuleInit, onModuleDestroy };
 }

@@ -25,6 +25,11 @@ export function createFoxyTurnQueue(options: Options) {
     raw => fn({ query: (sql, ...args) => raw.$queryRawUnsafe(sql, ...args) }), { maxWait: 2000, timeout: 6000 });
   async function claim(): Promise<FoxyTurnLease | null> {
     return transact(async tx => {
+      // Idle checks can skip the admission lock shared by all AI workers.
+      const [work] = await tx.query<{ pending: boolean }>(`SELECT
+        EXISTS (SELECT 1 FROM foxy_turns WHERE state='QUEUED')
+        OR EXISTS (SELECT 1 FROM foxy_turns WHERE state='RUNNING' AND lease_until<=clock_timestamp()) AS pending`);
+      if (!work?.pending) return null;
       await lockAiAdmission(tx);
       await recover(tx, options.configuration);
       const [active] = await tx.query<{ count: number }>(`SELECT count(*)::int AS count FROM (${activeAiOwnersSql}) jobs`);

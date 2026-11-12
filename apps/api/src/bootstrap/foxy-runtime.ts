@@ -98,7 +98,7 @@ export function createFoxyRuntime(options: Options) {
   const privateAssetReader = options.fileOperations.readPrivateAsset
     ? createFoxyPrivateAssetReader({ uow, assets, storage: { get: options.fileOperations.readPrivateAsset } }) : undefined;
   const services = { creations: createFoxyCreationService({ uow, creations: createFoxyCreationRepository() }), visuals: visual?.service, privateAssetReader, privateAssetReadService: createFoxyPrivateAssetReadService({ uow, assets }), conversations: createFoxyConversationService({ uow, conversations }),
-    turns: createFoxyTurnService({ uow, conversations, turns, attachments: options.fileOperations.attachments?.list,
+    turns: createFoxyTurnService({ uow, conversations, turns, attachments: options.fileOperations.attachments?.list, wakeWorker: worker?.wake,
       configuration: { enabled, model: enabled ? options.configuration!.model : '' } }),
     catalog: new FoxyContextCatalogService(options.classrooms, conversations),
     citations: createFoxyCitationService({ uow, files: { read: options.fileOperations.read } }),

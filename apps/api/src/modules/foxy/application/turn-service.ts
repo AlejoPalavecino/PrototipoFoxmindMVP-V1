@@ -5,6 +5,7 @@ import type { ChatAttachmentSource } from '../../../../../../src/core/domain/fox
 
 type Options = { uow: FoxyUnitOfWork; conversations: FoxyConversationRepositoryPort;
   turns: FoxyTurnRepositoryPort; configuration: { enabled: boolean; model: string };
+  wakeWorker?(): void;
   digest(text: string): string;
   attachments?(tx: SqlTransaction, ownerId: string, conversationId: string): Promise<ChatAttachmentSource[]>;
   authority: { ownedRoom(tx: SqlTransaction, owner: string, id: string): Promise<void>; activeRoom(tx: SqlTransaction, owner: string, id: string): Promise<void> };
@@ -40,7 +41,7 @@ function boundedPage(turns: ReturnType<typeof publicTurn>[], limit: number) {
 export function createFoxyTurnService(options: Options) {
   return {
     async send(request: unknown, conversationId: string, input: unknown) {
-      return options.uow.run(request, true, async (tx, actor) => {
+      const receipt = await options.uow.run(request, true, async (tx, actor) => {
         const conversation = await options.conversations.get(tx, actor.id, conversationId);
         if (!conversation) return fail('NOT_FOUND');
         if (conversation.context.kind === 'CLASSROOM') {
@@ -57,6 +58,8 @@ export function createFoxyTurnService(options: Options) {
         return options.turns.enqueue(tx, actor.id, conversationId, message, snapshot, hash,
           { model: options.configuration.model, promptVersion: 'foxy-chat-v2', schemaVersion: 'foxy-answer-v1' });
       });
+      if (receipt.created) options.wakeWorker?.();
+      return receipt;
     },
     async get(request: unknown, conversationId: string, turnId: string) {
       return options.uow.run(request, false, async (tx, actor) => {

@@ -24,6 +24,38 @@ async function fixture(pool) {
   return { service, owner, other, student, make, f, query };
 }
 
+test('worker wakes only after a new turn commits', async () => {
+  const { createFoxyTurnService } = await import('../../application/turn-service.ts');
+  const calls = [];
+  let replay = false, rejectCommit = false;
+  const service = createFoxyTurnService({
+    uow: { async run(_request, _write, work) {
+      const result = await work({}, { id: 'teacher' });
+      if (rejectCommit) throw new Error('synthetic rollback');
+      calls.push('commit');
+      return result;
+    } },
+    conversations: { get: async () => ({ context: { kind: 'GENERAL' } }) },
+    turns: {
+      replay: async () => replay ? { created: false } : null,
+      enqueue: async () => { calls.push('enqueue'); return { created: true }; },
+    },
+    configuration: { enabled: true, model: 'synthetic' },
+    digest: () => '',
+    rebuildGrounding: async () => ({}),
+    wakeWorker: () => calls.push('wake'),
+  });
+  await service.send({}, randomUUID(), message());
+  assert.deepEqual(calls, ['enqueue', 'commit', 'wake']);
+  replay = true;
+  await service.send({}, randomUUID(), message());
+  assert.deepEqual(calls.splice(0), ['enqueue', 'commit', 'wake', 'commit']);
+  replay = false;
+  rejectCommit = true;
+  await assert.rejects(service.send({}, randomUUID(), message()), /synthetic rollback/);
+  assert.deepEqual(calls, ['enqueue']);
+});
+
 test('send is idempotent before availability and replay never rebuilds context', { timeout: 120000 }, async () => {
   await withAgendaDatabase(async ({ pool }) => {
     assert.match((await pool.query('SELECT current_database() name')).rows[0].name, /_test$/);

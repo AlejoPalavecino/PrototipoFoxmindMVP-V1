@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 function fixture(claim) {
-  const calls = [], configuration = { model: 'synthetic', maxInputTokens: 1000, deadlineMs: 1000, maxJobAgeMs: 300000 };
+  const calls = [], configuration = { model: 'synthetic', maxInputTokens: 1000, deadlineMs: 1000, maxJobAgeMs: 300000, maxConcurrency: 1 };
   const options = { configuration, queue: { claim: async () => { calls.push('claim'); return claim(); } },
     database: { $transaction: async fn => fn({ $queryRawUnsafe: async () => [] }) },
     turns: {}, authority: {}, loader: {}, provider: {}, budget: {}, completion: {} };
@@ -56,6 +56,57 @@ test('scheduled claim rejection is observed and shutdown leaves no unhandled rej
     w.onModuleInit(); timers[0].fn(); await new Promise(resolve => originalSet(resolve, 0));
     await w.onModuleDestroy(); await new Promise(resolve => originalSet(resolve, 0)); assert.deepEqual(errors, []);
   } finally { process.off('unhandledRejection', onUnhandled); globalThis.setTimeout = originalSet; globalThis.clearTimeout = originalClear; }
+});
+
+test('wake fills available slots and completion takes the next turn without waiting for a poll', async () => {
+  const leases = Array.from({ length: 3 }, (_, index) => ({
+    turnId: String(index), ownerId: String(index), conversationId: String(index), leaseNonce: String(index),
+  }));
+  const entered = leases.map(() => deferred()), generated = leases.map(() => deferred());
+  const f = fixture(() => leases.shift() ?? null);
+  f.options.configuration.maxConcurrency = 2;
+  const scope = { capability: {}, snapshot: { context: { kind: 'GENERAL' } }, documents: [] };
+  Object.assign(f.options, {
+    turns: { loadClaimed: async lease => ({ purpose: 'CHAT', message: lease.turnId, metadata: { model: 'synthetic', promptVersion: 'foxy-chat-v2', schemaVersion: 'foxy-answer-v1' } }) },
+    authority: { open: async () => scope, close() {}, revalidateGrounding: async () => true },
+    loader: { load: async () => ({ context: { kind: 'GENERAL' }, curriculum: null, sources: [], documents: [], referenceMap: [], warnings: [] }) },
+    budget: { reserve: async () => 'RESERVED' },
+    provider: { countTokens: async () => 10, generate: input => {
+      const index = Number(input.message);
+      entered[index].resolve(input.signal);
+      return generated[index].promise;
+    } },
+    completion: { finish: async lease => { f.calls.push('finished:' + lease.turnId); return true; } },
+  });
+  const w = await worker(f);
+  try {
+    w.onModuleInit();
+    w.wake();
+    await new Promise(setImmediate);
+    assert.equal(f.calls.filter(call => call === 'claim').length, 2);
+    assert.equal((await Promise.all(entered.slice(0, 2).map(item => item.promise))).length, 2);
+    w.wake();
+    assert.equal(f.calls.filter(call => call === 'claim').length, 2);
+    generated[0].resolve({ json: {}, inputTokens: 10, outputTokens: 20 });
+    await new Promise(setImmediate);
+    assert.equal(f.calls.filter(call => call === 'claim').length, 3);
+    assert.equal(f.calls.includes('finished:1'), false);
+    assert.equal((await entered[2].promise).aborted, false);
+  } finally { await w.onModuleDestroy(); }
+  assert.deepEqual(f.calls.filter(call => call.startsWith('finished:')).sort(), ['finished:0', 'finished:1', 'finished:2']);
+});
+
+test('a wake received during an empty claim gets another chance without waiting for the timer', async () => {
+  const gate = deferred(), f = fixture(() => f.calls.length === 1 ? gate.promise : null), w = await worker(f);
+  try {
+    w.onModuleInit();
+    w.wake();
+    assert.deepEqual(f.calls, ['claim']);
+    w.wake();
+    gate.resolve(null);
+    await new Promise(setImmediate);
+    assert.deepEqual(f.calls, ['claim', 'claim']);
+  } finally { await w.onModuleDestroy(); }
 });
 
 test('destroy aborts a dispatched provider, awaits terminal handling and ignores a late response', async () => {

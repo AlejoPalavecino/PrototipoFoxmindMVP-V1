@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomBytes, randomUUID, createHash } from 'node:crypto';
+import { setTimeout as delay } from 'node:timers/promises';
 import { PDFDocument } from 'pdf-lib';
 import { withAgendaDatabase } from "../../../../../../../tests/agenda-database-helpers.test.mjs";
 import { homeFixture } from "../../../../../../../tests/foxmind-3d-repository-fixture.test.mjs";
@@ -45,6 +46,7 @@ test('application executes synthetic Foxy turns and reads READY after reload', {
         references:input.mode==='CLASSROOM'?[{sourceKey:'s2',documentKey:'d2',page:1}]:[],warnings:[],missingInformation:[]},inputTokens:100,outputTokens:20}; } };
     const app=await createApplication(config,{foxy:{textProvider:provider}});
     try {
+      assert.ok(app.get(FOXY_RUNTIME).worker);
       const fileService=app.get(FileService);fileService.storage.get=async key=>{assert.ok(blobs.has(key));return blobs.get(key);};
       await app.listen(0,'127.0.0.1'); const origin=`http://127.0.0.1:${app.getHttpServer().address().port}`, actors=[];
       for(const id of [f.teacherActor,f.other,f.pupil]) {const token=generateVerifier();await pool.query("INSERT INTO sessions(id,user_id,token_hash,expires_at,last_seen_at) VALUES($1,$2,$3,now()+interval '1 hour',now())",[randomUUID(),id,sessionTokenDigest(token)]);actors.push({cookie:`foxmind_session=${token}`,csrf:config.identity.security.csrfToken(token)});}
@@ -54,9 +56,16 @@ test('application executes synthetic Foxy turns and reads READY after reload', {
         const {conversation}=await create.json(), input={requestId:randomUUID(),revision:'0',purpose:'SUMMARY',text:'Resumir',selection:{topicIds:[],sourceIds:context.kind==='GENERAL'?[]:[`plan:${plan}`,`material:${material}`]}};
         const first=await send(`/conversations/${conversation.id}/turns`,actors[0],'POST',input);assert.equal(first.status,202);const sent=await first.json();
         const replay=await send(`/conversations/${conversation.id}/turns`,actors[0],'POST',input);assert.equal(replay.status,200);assert.equal((await replay.json()).turn.id,sent.turn.id);
-        assert.equal(await app.get(FOXY_RUNTIME).worker.runOnce(),true);
-        const readyResponse=await send(`/conversations/${conversation.id}/turns/${sent.turn.id}`,actors[0]);assert.equal(readyResponse.status,200);
-        const ready=await readyResponse.json();assert.equal(ready.state,'READY');assert.equal(ready.answer.markdown,'Resumen sintético');
+        const deadline=Date.now()+5000;
+        let ready;
+        do {
+          const response=await send(`/conversations/${conversation.id}/turns/${sent.turn.id}`,actors[0]);
+          assert.equal(response.status,200);
+          ready=await response.json();
+          if (ready.state==='READY'||ready.state==='FAILED') break;
+          await delay(100);
+        } while (Date.now()<deadline);
+        assert.equal(ready.state,'READY');assert.equal(ready.answer.markdown,'Resumen sintético');
         const reloaded=await send(`/conversations/${conversation.id}/turns?afterSequence=0&limit=10`,actors[0]);assert.equal(reloaded.status,200);
         const history=await reloaded.json();assert.ok(history.items.some(item=>item.id===sent.turn.id && item.state==='READY' && item.answer.markdown==='Resumen sintético'));
         assert.equal(JSON.stringify(ready).includes(digest),false);assert.equal(JSON.stringify(ready).includes(materialRow.file_id),false);
