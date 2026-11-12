@@ -18,7 +18,7 @@ El docente es la referencia visual para las superficies comunes, por decisión d
 
 Plan alinea el check con el centro de cada tema y separa nombre y estado en dos líneas; sus filtros tienen igual ancho. Los recursos mantienen icono, contenido y apertura en tres columnas también en móvil. La barra de avance conserva el porcentaje junto al indicador. Biblioteca reserva espacio para la lupa de búsqueda. Progreso docente presenta encabezados y celdas alineados en una tabla de ancho completo; las portadas de Configuración se organizan en dos columnas en móvil.
 
-Integrado localmente en main (8f80098), sin push ni despliegue. [Registro y límites](../work-log/2026-11-12-root-classrooms-visual-audit.md) y [tarea](../../odd/tasks/classrooms-visual-audit.md).
+Publicado en `origin/main` el 2026-11-12 (f73c923). [Registro y límites](../work-log/2026-11-12-root-classrooms-visual-audit.md) y [tarea](../../odd/tasks/classrooms-visual-audit.md).
 
 ## Dirección vigente de Inicio docente — 2026-11-11
 

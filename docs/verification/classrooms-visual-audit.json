@@ -1,6 +1,7 @@
 {
   "date": "2026-11-12",
-  "status": "integrated locally in main; no push or deployment",
+  "status": "published to origin/main",
+  "publication": { "date": "2026-11-12", "verifiedCommit": "f73c92357a14d3b8af66b2a5a5fb773ddca5ade8", "localBranches": ["main"], "remoteBranches": ["main"], "pendingFilesPreservedBySha256": 9 },
   "branch": "codex/classrooms-visual-audit",
   "baseCommit": "1f61923407fa839df0abb97e673c0274cf12bb1b",
   "reference": "Teacher UI; shared student components retain role-specific permissions",

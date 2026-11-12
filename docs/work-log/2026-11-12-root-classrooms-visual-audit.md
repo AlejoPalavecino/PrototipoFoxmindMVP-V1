@@ -48,3 +48,9 @@ La última prueba de devolución recorría sólo children del árbol superficial
 ### Integración completada
 
 Main avanzó por fast-forward de 99834b0 a 8f80098. Código visual en 89d8b93; ajustes mínimos de fixtures/inventario y evidencia en 8f80098. Se preservaron por SHA-256 los ocho archivos concurrentes no versionados de Foxy/estudio; el manifiesto conserva todas sus entradas originales más las tres de aulas. El stash temporal, limitado al manifiesto, se retiró tras comprobar la restauración. No se incluyeron archivos de Foxy en curso en los commits; su código de producción, Agenda e Inicio son idénticos al main inicial. Estado: integrado localmente, sin push ni despliegue. Los resultados fast se reconciliaron por archivo y las dos últimas pruebas se repitieron focalmente; no se ocultan las corridas interrumpidas anteriores. No queda implementación pendiente de esta integración.
+
+## Publicación autorizada — 2026-11-12
+
+El usuario autorizó publicar y dejar main como única rama. El push avanzó origin/main de 99834b0 a f73c923 y se verificó el hash remoto. Las ramas locales codex/classrooms-visual-audit y codex/home-visual-audit tenían todos sus commits en main. Se retiraron con git branch -d y se conservaron ambos worktrees en sus commits originales. La consulta al remoto confirmó que sólo existía main.
+
+Se comprobó por SHA-256 que los ocho archivos sin seguimiento de Foxy y estudio y el manifiesto local conservaron exactamente su contenido. El cierre documental se publica en la misma rama. El alcance de esta entrega es la publicación Git.
