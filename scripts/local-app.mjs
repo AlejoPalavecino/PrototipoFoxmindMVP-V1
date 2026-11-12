@@ -9,6 +9,7 @@ import {setTimeout as delay} from 'node:timers/promises';
 import {P4_IMAGES,P4_SCANNER_START} from './p4-services.mjs';
 import {MAILPIT_IMAGE} from './mailpit-test-runtime.mjs';
 import {updateEnvironment,requireLocalOwner,stopLocalContainers} from './local-app-environment.mjs';
+import {runLocalApiBuild} from './local-api-build.mjs';
 
 const root=resolve(import.meta.dirname,'..'),folder=resolve(root,'.test-artifacts/local-app'),execute=promisify(execFile);
 process.chdir(root);await mkdir(folder,{recursive:true});
@@ -66,7 +67,7 @@ async function up(){
   console.log('Migrating owned local database');
   await command(process.execPath,['node_modules/prisma/build/index.js','migrate','deploy'],{...process.env,...environment},60000);
   console.log('Building API and web from this checkout');
-  await command(process.execPath,['scripts/build-api.mjs'],process.env,60000);
+  await runLocalApiBuild(command);
   await command(process.execPath,['node_modules/next/dist/bin/next','build','apps/web'],{...process.env,NEXT_TELEMETRY_DISABLED:'1'},180000);
   await unlink(file('stop')).catch(e=>{if(e.code!=='ENOENT')throw e;});
   await save('status.json',{state:'STARTING',project:owner.project});

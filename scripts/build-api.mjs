@@ -4,17 +4,35 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 // Always generate and compile in this invocation. No persistent reuse mechanism.
-export function buildApi({ root = process.cwd(), run = spawnSync } = {}) {
+export function buildApi({ root = process.cwd(), run = spawnSync, budgetMs = 30000, now = Date.now } = {}) {
+  if (!Number.isSafeInteger(budgetMs) || budgetMs <= 0) {
+    throw new TypeError('API build budget must be a positive safe integer');
+  }
+  if (typeof now !== 'function') {
+    throw new TypeError('API build clock must be callable');
+  }
+  const readClock = () => {
+    const value = now();
+    if (typeof value !== 'number' || !Number.isFinite(value)) {
+      throw new TypeError('API build clock must return a finite number');
+    }
+    return value;
+  };
   const require = createRequire(resolve(root, 'package.json'));
-  const deadline = Date.now() + 30000;
+  const deadline = readClock() + budgetMs;
   const stages = [
     ['Prisma generation', () => [require.resolve('prisma/build/index.js'), 'generate']],
     ['API TypeScript compilation', () => [require.resolve('typescript/bin/tsc'), '-p', 'apps/api/tsconfig.json']],
   ];
   for (const [label, args] of stages) {
+    const remaining = deadline - readClock();
+    if (remaining <= 0) {
+      console.log(`${label}: exit unavailable`);
+      return 1;
+    }
     const result = run(process.execPath, args(), {
       cwd: root, env: process.env, encoding: 'utf8', windowsHide: true,
-      timeout: Math.max(1, deadline - Date.now()),
+      timeout: remaining,
     });
     if (result.stdout) process.stdout.write(result.stdout);
     if (result.stderr) process.stderr.write(result.stderr);

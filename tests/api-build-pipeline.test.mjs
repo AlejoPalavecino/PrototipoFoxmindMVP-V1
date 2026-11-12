@@ -1,16 +1,19 @@
 import assert from 'node:assert/strict';
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { buildApi } from '../scripts/build-api.mjs';
 import { runP33T2 } from '../scripts/test-p33-t2.mjs';
 
 // Synthetic stages prove orchestration only. No real compiler, database or network.
-const files = ['build-api', 'test-p33-t2', 'test-p33-registration-profile', 'test-p33-verification', 'test-p33-recovery', 'test-p33-password-change', 'test-p33-identity-http', 'test-backend', 'test-p33-mail-cancellation'];
+const files = ['build-api', 'local-api-build', 'test-p33-t2', 'test-p33-registration-profile', 'test-p33-verification', 'test-p33-recovery', 'test-p33-password-change', 'test-p33-identity-http', 'test-backend', 'test-p33-mail-cancellation'];
+const scratch = [];
+after(() => { for (const root of scratch) rmSync(root, { recursive: true, force: true }); });
 function fixture() {
-  mkdirSync('.test-artifacts/p33-d2-plan-c2-mvb4asm3', { recursive: true });
-  const root = mkdtempSync(resolve('.test-artifacts/p33-d2-plan-c2-mvb4asm3/build-once-'));
+  const root = mkdtempSync(join(tmpdir(), 'foxmind-build-once-'));
+  scratch.push(root);
   const put = (path, content) => {
     mkdirSync(join(root, path, '..'), { recursive: true });
     writeFileSync(join(root, path), path.startsWith('tests/') ? `if(process.send){process.send({type:'foxmind-test-ready'});process.disconnect();}\n${content}` : content);
@@ -106,9 +109,9 @@ test('direct build stops on failed, signaled or timed-out stages without fabrica
 });
 
 test('public direct build preserves exact stage streams/exits and never continues after failure', () => {
-  for (const [generation, compilation, code] of [[0, 0, 0], [9, 0, 9], [0, 7, 7]]) {
+  for (const file of ['build-api', 'local-api-build']) for (const [generation, compilation, code] of [[0, 0, 0], [9, 0, 9], [0, 7, 7]]) {
     const f = fixture(); tools(f, generation, compilation);
-    const run = cli(f, 'build-api');
+    const run = cli(f, file);
     assert.equal(run.status, code, run.stderr);
     assert.equal(run.stdout, `SYNTHETIC_GENERATION\nPrisma generation: exit ${generation}\n` +
       (generation ? '' : `SYNTHETIC_COMPILATION\nAPI TypeScript compilation: exit ${compilation}\n`));
