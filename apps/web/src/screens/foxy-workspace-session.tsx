@@ -1,5 +1,7 @@
+import type { ChatIdentity } from '../../../shared-ui/FoxyChatLayout';
 import { classroomHomeHref } from '../application/navigation/destinations';
 import { AsyncFeedback } from '../../../shared-ui/AsyncFeedback';
+import { Dialog } from '../../../shared-ui/feedback';
 import { useEffect, useRef, useState } from 'react';
 import { openDialog } from '../../../shared-ui/dialog-focus';
 import { useFoxyWorkspace } from '../application/foxy-workspace';
@@ -23,10 +25,10 @@ function PendingLeaveDialog({ cancel, proceed }: { cancel: () => void; proceed: 
   </dialog>;
 }
 
-export function FoxyWorkspaceSession({ subjectId, onIdentityRequired, onNavigate, onRegister }: { subjectId: string;
+export function FoxyWorkspaceSession({ identity, subjectId, onIdentityRequired, onNavigate, onRegister }: { identity?: ChatIdentity; subjectId: string;
   onIdentityRequired: (code: string) => void; onNavigate?: (href: string) => void | Promise<void>;
   onRegister?: (binding: { navigate: (href: string) => void; shouldBlock: () => boolean } | null) => void }) {
-  const visualPanel = useRef<HTMLDivElement>(null);
+  const [visualConversation, setVisualConversation] = useState<string | null>(null);
   const [handoffStart, setHandoffStart] = useState<{ turnId: string; mode: 'ACTIVITY' | 'RUBRIC' } | null>(null);
   const { state, runtime, initializing } = useFoxyWorkspace({ subjectId, onIdentityRequired });
   const { actions, ui } = useFoxyWorkspaceActions({ runtime, state, onNavigate: onNavigate ?? (() => {}) });
@@ -48,20 +50,21 @@ export function FoxyWorkspaceSession({ subjectId, onIdentityRequired, onNavigate
     return () => onRegister(null);
   }, [runtime, actions, onRegister]);
   if (!state || !runtime || !actions || !ui || !state.chat) return <AsyncFeedback title="Cargando Foxy AI…"/>;
+  const visualChat = state.chat.current;
   return <>{state.classroomsError && <p role="alert">{state.classroomsError}</p>}
     {initializing && <p role="status">Actualizando Foxy AI…</p>}
     {ui.leave && (!state.resource || (state.resource.status === 'closed' && !ui.openingResource)) &&
       <PendingLeaveDialog cancel={() => actions.cancelLeave()} proceed={() => { void actions.discardAndContinue(); }} />}
-    <FoxyWorkspace destinationHref={classroomHomeHref} catalog={catalog?.state} contextClassrooms={state.contextClassrooms}
+    <FoxyWorkspace identity={identity} destinationHref={classroomHomeHref} catalog={catalog?.state} contextClassrooms={state.contextClassrooms}
       onConversationQuery={query => { void catalog?.controller.setConversationQuery(query); }}
       onCreationQuery={query => { void catalog?.controller.setCreationQuery(query); }}
       onMoreConversations={() => { void catalog?.controller.moreConversations(); }} onMoreCreations={() => { void catalog?.controller.moreCreations(); }}
       onRefreshCatalog={() => { void catalog?.controller.refresh(); }}
+      onOpenVisual={visualChat && state.visual ? () => setVisualConversation(visualChat.id) : undefined}
       onOpenCreation={(item: FoxyCreation) => {
         if (item.turnId) void actions.resource.openCreation(item.conversationId, item.turnId);
-        else if (item.visualJobId) void Promise.resolve(actions.openVisualCreation(item.conversationId, item.visualJobId)).then(opened => {
-          if (opened) visualPanel.current?.scrollIntoView({ behavior: 'instant', block: 'start' });
-        });
+        else if (item.visualJobId) void actions.openVisualCreation(item.conversationId, item.visualJobId,
+          () => setVisualConversation(item.conversationId));
       }}
       onNavigate={href => { void actions.requestNavigate(href); }} creationBlocked={!!ui.leave} onCreateDiagram={async prompt => {
       const snapshot = runtime.getState(), chat = snapshot.chat;
@@ -71,18 +74,20 @@ export function FoxyWorkspaceSession({ subjectId, onIdentityRequired, onNavigate
       runtime.visual.setKind('DIAGRAM'); runtime.visual.setPrompt(prompt);
       const before = runtime.visual.getState().jobs.map(job => job.id);
       const request = runtime.visual.start(); if (!request) return false;
-      visualPanel.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setVisualConversation(chat.current.id);
       await request;
       const result = runtime.visual.getState();
       return !!result.pending || result.jobs.some(job => !before.includes(job.id));
     }} onActivityHandoff={(conversationId, turnId, mode) => { void Promise.resolve(actions.resource.open(conversationId, turnId)).then(result => { if (result === 'opened') setHandoffStart({ turnId, mode }); }); }} controller={actions.chat} state={state.chat} classrooms={state.classrooms}
       onOpenResource={(conversationId, turnId) => { void actions.resource.open(conversationId, turnId); }} />
-    <div ref={visualPanel}>{state.chat.current && state.visual && <FoxyVisualWorkspace {...state.visual} conversationId={state.chat.current.id} revision={state.chat.current.revision}
-      selection={state.chat.selection} capabilities={{ IMAGE: !!state.chat.capabilities?.imageGeneration.enabled, DIAGRAM: !!state.chat.capabilities?.diagramGeneration.enabled }}
-      busy={state.visual.busy || state.chat.busy || !!state.chat.activeTurn || !!state.chat.pending || !!state.visualPublication?.busy || !!state.visualPublication?.pending || (state.chat.current.context.kind === 'CLASSROOM' && !state.chat.curriculum?.canGenerate)}
-      actions={runtime.visual} assetFileUrl={runtime.assetFileUrl} />}</div>
-    {state.visualPublication?.assetId && <FoxyVisualPublicationPanel state={state.visualPublication} actions={runtime.visualPublication}
-      classrooms={state.classrooms} publicationFileUrl={runtime.publicationFileUrl} />}
+    {visualChat && visualConversation === visualChat.id && state.visual && <Dialog title="Imágenes y esquemas" labeledClose onClose={() => setVisualConversation(null)}>
+      <FoxyVisualWorkspace {...state.visual} conversationId={visualChat.id} revision={visualChat.revision}
+        selection={state.chat.selection} capabilities={{ IMAGE: !!state.chat.capabilities?.imageGeneration.enabled, DIAGRAM: !!state.chat.capabilities?.diagramGeneration.enabled }}
+        busy={state.visual.busy || state.chat.busy || !!state.chat.activeTurn || !!state.chat.pending || !!state.visualPublication?.busy || !!state.visualPublication?.pending || (visualChat.context.kind === 'CLASSROOM' && !state.chat.curriculum?.canGenerate)}
+        actions={runtime.visual} assetFileUrl={runtime.assetFileUrl} />
+      {state.visualPublication?.assetId && <FoxyVisualPublicationPanel state={state.visualPublication} actions={runtime.visualPublication}
+        classrooms={state.classrooms} publicationFileUrl={runtime.publicationFileUrl} />}
+    </Dialog>}
     {state.resource && (state.resource.status !== 'closed' || ui.openingResource) && state.preparation && state.history && state.confirmation && <FoxyResourceWorkspace
       resource={state.resource} preparation={state.preparation} history={state.history} confirmation={state.confirmation} management={state.management}
       classrooms={state.classrooms} ui={ui} actions={actions} handoffRuntime={runtime} handoffState={state.activityHandoff} initialHandoffMode={handoffStart?.turnId === state.resource.resource?.sourceTurnId ? handoffStart?.mode : undefined} publicationFileUrl={runtime.publicationFileUrl} />}

@@ -15,7 +15,7 @@ export interface FoxyCurriculum { context: FoxyContext; classroomRevision: strin
 export interface FoxySource { sourceId: string; kind: FoxySourceKind; title: string; available: boolean; reason: string | null;
   extension: string | null; sizeBytes: string | null; unitId: string | null; topicIds: string[]; planVersion: number | null;
   currentPlan: boolean | null; createdAt: string; publishedAt: string | null; documentCount: number }
-export interface FoxyCitation { id: string; sourceKind: FoxySourceKind | null; sourceTitle: string | null; documentTitle: string | null;
+export interface FoxyCitation { id: string; sourceKind: FoxySourceKind | 'ATTACHMENT' | null; sourceTitle: string | null; documentTitle: string | null;
   page: number | null; availability: 'AVAILABLE' | 'TEXT_ONLY' | 'UNAVAILABLE'; href: string | null }
 export interface FoxyVisualJob { id: string; conversationId: string; kind: FoxyVisualKind; aspectRatio: FoxyAspectRatio; state: 'QUEUED' | 'RUNNING' | 'READY' | 'FAILED'; assetId: string; errorCode: string | null; createdAt: string }
 export interface FoxyResource { id: string; conversationId: string; sourceTurnId: string; title: string; markdown: string; revision: string }

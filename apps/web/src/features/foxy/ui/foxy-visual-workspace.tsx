@@ -10,8 +10,8 @@ export function FoxyVisualWorkspace(props: Props) {
     && !/[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/u.test(props.prompt);
   const preview = selected?.state === 'READY' ? props.assetFileUrl(selected.assetId,'preview') : '';
   const safePreview = selected && preview === `/api/v1/foxy-ai/assets/${selected.assetId}/file?mode=preview` ? preview : '';
-  return <section className={styles.tool} aria-label="Imágenes y esquemas">
-    <h3>Imágenes y esquemas</h3><p>Creá un recurso visual usando el contexto y las fuentes seleccionadas. Revisalo antes de compartirlo.</p>
+  return <section className={`${styles.tool} ${styles.visualForm}`} aria-label="Generar recurso visual">
+    <p>Creá un recurso visual usando el contexto y las fuentes seleccionadas. Revisalo antes de compartirlo.</p>
     <form onSubmit={event => { event.preventDefault(); if (!props.busy && !props.pending && props.capabilities[props.kind] && valid) props.actions.start(); }}>
       <label>Tipo de recurso <select value={props.kind} onChange={event => props.actions.setKind(event.target.value as FoxyVisualKind)}>
         <option value="IMAGE">Imagen{props.capabilities.IMAGE ? '' : ' · No disponible'}</option>

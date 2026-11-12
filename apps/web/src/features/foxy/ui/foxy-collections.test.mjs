@@ -18,9 +18,10 @@ const chatState={current:conversation,conversations:[conversation],nextConversat
 test('opening a text creation keeps its collection mounted for native focus restoration',async()=>{
  const {FoxyWorkspace}=componentWithPorts("apps/web/src/features/foxy/ui/foxy-workspace.tsx",{}),opened=[];
  const view=hookView(FoxyWorkspace,{state:chatState,classrooms:[],controller:{},onOpenCreation:item=>opened.push(item)});
- try{await view.flush();descendants(view.tree,n=>n.type==='button'&&n.props.children==='Creaciones')[0].props.onClick();await view.flush();
- const item={id:'turn',turnId:'turn'};descendants(view.tree,n=>typeof n.type==='function'&&n.type.name==='FoxyCollectionPanel')[0].props.onOpen(item);await view.flush();
- assert.equal(opened[0],item);assert.ok(descendants(view.tree,n=>n.props?.title==='Creaciones').length,'Keep collection trigger connected until the resource editor closes');
+ const layout=()=>descendants(view.tree,n=>n.type?.name==='FoxyChatLayout')[0];
+ try{await view.flush();layout().props.onView('creations');await view.flush();
+ const item={id:'turn',turnId:'turn'};layout().props.creations.props.onOpen(item);await view.flush();
+ assert.equal(opened[0],item);assert.equal(layout().props.view,'creations','Keep collection trigger connected until the resource editor closes');
  }finally{view.close();}
 });
 
@@ -46,7 +47,11 @@ test('rename conflict keeps the exact draft open for correction and does not sen
 test('choosing classroom prepares context without sending and blocks composer while loading',async()=>{
  const {FoxyWorkspace}=componentWithPorts("apps/web/src/features/foxy/ui/foxy-workspace.tsx",{}),pending=deferred(),calls=[];
  const view=hookView(FoxyWorkspace,{state:{...chatState,error:null},classrooms:[{id:'room',name:'Biología'}],controller:{prepareContext:id=>{calls.push(id);return pending.promise;}}});
- try{await view.flush();descendants(view.tree,n=>n.type==='textarea')[0].props.onChange({target:{value:'Mi primer pedido'}});await view.flush();descendants(view.tree,n=>n.type==='select'&&n.props['aria-label']==='Contexto del chat')[0].props.onChange({target:{value:'room'}});await view.flush();
+ try{await view.flush();descendants(view.tree,n=>n.type==='textarea')[0].props.onChange({target:{value:'Mi primer pedido'}});await view.flush();
+ descendants(view.tree,n=>n.props['aria-label']==='Cambiar contexto del chat')[0].props.onClick();await view.flush();
+ const picker=descendants(view.tree,n=>n.type?.name==='FoxyContextPicker')[0];
+ assert.deepEqual(calls,[]);assert.match(renderToStaticMarkup(view.tree),/Biología/);
+ picker.props.onApply('room');await view.flush();
  assert.deepEqual(calls,['room']);assert.match(renderToStaticMarkup(view.tree),/Preparando contexto/);
  assert.equal(descendants(view.tree,n=>n.type==='button'&&n.props.type==='submit')[0].props.disabled,true);pending.resolve(true);await view.flush();
  }finally{view.close();}

@@ -39,9 +39,17 @@ export function FoxyConversationPanel({ page, query, classrooms, currentId, disa
 }) {
   return <CollectionFrame items={page.items}>
     {onQuery ? <><label className={styles.search}>Buscar conversaciones<input type="search" maxLength={120} value={query.q} onChange={event => onQuery({ ...query, q: event.target.value })} /></label>
-      <ContextFilters classrooms={classrooms} value={query.context} onChange={context => onQuery({ ...query, context })} /></> : null}
+      <label className={styles.search}>Contexto<select value={query.context} onChange={event => onQuery({ ...query, context: event.target.value })}>
+        <option value="ALL">Todos los contextos</option><option value="GENERAL">General</option>
+        {classrooms.map(room => <option key={room.id} value={room.id}>{room.name}</option>)}
+      </select></label></> : null}
     <CatalogFeedback page={page} filtered={Boolean(query.q || query.context !== 'ALL')} name="conversaciones" onRefresh={onRefresh} />
-    <ul className={styles.collectionList}>{page.items.map(item => <li key={item.id}><button type="button" disabled={disabled} aria-current={currentId === item.id ? 'true' : undefined} onClick={() => onSelect(item.id)}>{item.title}<small>{contextName(item.context, classrooms)}</small></button></li>)}</ul>
+    <ul className={`${styles.collectionList} ${styles.historyList}`}>{page.items.map(item => <li key={item.id}>
+      <button type="button" disabled={disabled} aria-current={currentId === item.id ? 'true' : undefined} onClick={() => onSelect(item.id)}>
+        <strong>{item.title}</strong><span><small>{contextName(item.context, classrooms)}</small>
+          {currentId === item.id && <small>En curso</small>}</span>
+      </button>
+    </li>)}</ul>
     {page.next ? <button type="button" disabled={page.loading || disabled} onClick={onMore}>Más conversaciones</button> : null}
   </CollectionFrame>;
 }
@@ -50,12 +58,16 @@ export function FoxyCollectionPanel({ page, query, classrooms, onQuery, onMore, 
   onMore?: () => void; onOpen?: (item: FoxyCreation) => void; onRefresh?: () => void; onNavigate?: (href: string) => void; destinationHref?: FoxyDestinationHref; disabled?: boolean;
 }) {
   return <CollectionFrame items={page.items}>
+    <header className={styles.galleryHeading}><div><h2>Mis creaciones</h2><p>Todo lo que preparaste con Foxy, en un lugar.</p></div></header>
     <label className={styles.search}>Buscar creaciones<input type="search" maxLength={120} value={query.q} onChange={event => onQuery?.({ ...query, q: event.target.value })} /></label>
+    <details className={styles.creationFilters}>
+    <summary>Filtros {query.context !== 'ALL' || query.type !== 'ALL' || query.status !== 'ALL' ? '· Activos' : ''}</summary>
     <div className={styles.filterChips} role="group" aria-label="Filtrar por tipo">{([['ALL', 'Todos los tipos'], ...Object.entries(kinds)] as [FoxyCreationQuery['type'], string][]).map(([type, label]) => <button type="button" key={type} aria-pressed={query.type === type} onClick={() => onQuery?.({ ...query, type })}>{label}</button>)}</div>
     <ContextFilters classrooms={classrooms} value={query.context} onChange={context => onQuery?.({ ...query, context })} />
     <div className={styles.filterChips} role="group" aria-label="Filtrar por estado">{([['ALL', 'Todos los estados'], ...Object.entries(statuses)] as [FoxyCreationQuery['status'], string][]).map(([status, label]) => <button type="button" key={status} aria-pressed={query.status === status} onClick={() => onQuery?.({ ...query, status })}>{label}</button>)}</div>
+    </details>
     <CatalogFeedback page={page} filtered={Boolean(query.q || query.context !== 'ALL' || query.type !== 'ALL' || query.status !== 'ALL')} name="creaciones" onRefresh={onRefresh} />
-    <ul className={styles.collectionList}>{page.items.map(item => <li className={styles.creationItem} key={item.id}>
+    <ul className={`${styles.collectionList} ${styles.creationGrid}`}>{page.items.map(item => <li className={styles.creationItem} key={item.id}>
       <button type="button" disabled={disabled || !onOpen} aria-label={`Abrir ${item.title}`} onClick={() => onOpen?.(item)}><strong>{item.title}</strong><small>{kinds[item.kind]} · {statuses[item.status]}</small></button>
       <p>Origen: {contextName(item.context, classrooms)}</p>
       {item.destinations.length ? <ul aria-label="Destinos efectivos">{item.destinations.map((destination, i) => <li key={i}>{destination.classroomName} · {destination.kind === 'MATERIAL' ? 'Biblioteca' : 'Actividad'} · {destination.state === 'PUBLISHED' ? destination.kind === 'MATERIAL' ? 'Publicado' : 'Asignada' : destination.state === 'DRAFT' ? 'Borrador privado' : 'En preparación'}

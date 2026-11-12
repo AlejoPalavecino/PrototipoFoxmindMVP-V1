@@ -23,10 +23,13 @@ test('outgoing request replaces the welcome before the server receipt arrives',a
 });
 
 test('teacher workspace offers conversations, explicit general or classroom creation and message composer',async()=>{
-  const f=fixture();try {await f.view.flush();const html=renderToStaticMarkup(f.view.tree);
-    assert.match(html,/Repaso/iu);assert.match(html,/General/iu);assert.match(html,/Biología/iu);assert.match(html,/propósito|tipo de ayuda/iu);
+  const f=fixture();try {await f.view.flush();
+    descendants(f.view.tree,n=>n.props['aria-label']==='Cambiar contexto del chat')[0].props.onClick();await f.view.flush();
+    const html=renderToStaticMarkup(f.view.tree);
+    assert.match(html,/Repaso/iu);assert.match(html,/General/iu);assert.match(html,/Biología/iu);assert.match(html,/Herramientas/iu);
     assert.match(html,/enviar/iu);assert.ok(descendants(f.view.tree,n=>n.type==='textarea').length>0);
-    const select=descendants(f.view.tree,n=>n.type==='button' && String(n.props.children).includes('Repaso'))[0];assert.ok(select);select.props.onClick();
+    const layout=descendants(f.view.tree,n=>n.type?.name==='FoxyChatLayout')[0];
+    const select=descendants(layout.props.history,n=>n.type==='button' && String(n.props.children).includes('Repaso'))[0];assert.ok(select);select.props.onClick();
     assert.deepEqual(f.calls.find(c=>c.name==='select')?.args,[conversation.id]);
   }finally{f.view.close();}
 });

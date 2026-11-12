@@ -56,7 +56,7 @@ export function FoxyScreen() {
       {boundary === 'unavailable' ? <Notice error>{error || 'No pudimos abrir Foxy AI. Recargá la página para intentar nuevamente.'}</Notice>
         : boundary !== 'ready' ? <Notice>Abriendo Foxy AI…</Notice>
           : error ? <><Notice error>{error}</Notice><button onClick={() => setRetry(value => value + 1)}>Volver a intentar</button> <a href="/inicio">Ir a Inicio</a></>
-            : session?.authenticated ? <FoxyWorkspaceSession key={session.user.id} subjectId={session.user.id} onRegister={register}
+            : session?.authenticated ? <FoxyWorkspaceSession key={session.user.id} subjectId={session.user.id} identity={{ avatarKey: session.user.avatarKey, initials: (session.user.firstName[0] ?? '') + (session.user.lastName[0] ?? '') }} onRegister={register}
               onNavigate={href => bridge.current?.navigate(href)} onIdentityRequired={code => { binding.current = null; setSession(undefined);
                 bridge.current?.replace(authHref(code === 'EMAIL_VERIFICATION_REQUIRED' ? 'verify-email' : 'sign-in', '/foxy-ai')); }} />
               : <Notice>Comprobando tu sesión…</Notice>}

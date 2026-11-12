@@ -49,9 +49,11 @@ export function createFoxyWorkspaceActions(options: Options) {
   function prepLocked() { const p = runtime.getState().preparation; return locked() || managementLocked() || !!p?.pending || !!p?.busy; }
   function mutationLocked() { const s = runtime.getState(); return locked() || managementLocked() || !!s.resource?.pending || !!s.resource?.busy || !!s.preparation?.pending || !!s.preparation?.busy; }
   return {
-    openVisualCreation: (conversationId: string, jobId: string) => guarded(async () => {
+    openVisualCreation: (conversationId: string, jobId: string, onSelected?: () => void) => guarded(async () => {
       if (!await runtime.chat.select(conversationId)) return false;
-      return runtime.visual.openJob(jobId);
+      const opened = await runtime.visual.openJob(jobId);
+      if (active() && runtime.getState().chat?.current?.id === conversationId) onSelected?.();
+      return opened;
     }),
     getState: () => structuredClone(active() ? state : empty()),
     sync() { if (active() && state.leave) { const next = block() ?? state.leave; if (next.reason !== state.leave.reason || next.canSave !== state.leave.canSave) emit({ leave: next }); } },

@@ -18,7 +18,9 @@ function fixture(value=state){const calls=[],controller=Object.fromEntries(['sel
   const {FoxyWorkspace}=componentWithPorts("apps/web/src/features/foxy/ui/foxy-workspace.tsx",{});return {calls,view:hookView(FoxyWorkspace,{controller,state:value,classrooms:[{id:room,name:'Biología'}]})};}
 
 test('classroom shows teaching states, historical plans and unavailable library sources',async()=>{
-  const f=fixture();try{await f.view.flush();const html=renderToStaticMarkup(f.view.tree);
+  const f=fixture();try{await f.view.flush();
+    descendants(f.view.tree,n=>n.type==='button'&&renderToStaticMarkup(n).includes('0 temas'))[0].props.onClick();
+    await f.view.flush();const html=renderToStaticMarkup(f.view.tree);
     for(const text of ['Fotosíntesis','Energía','Futuro','Plan versión 1','Libro pendiente'])assert.ok(html.includes(text),text);
     assert.match(html,/tratado|enseñado/iu);assert.match(html,/próximo/iu);assert.match(html,/pendiente/iu);
     const inputs=descendants(f.view.tree,n=>n.type==='input'&&n.props.type==='checkbox');assert.ok(inputs.length>=3);

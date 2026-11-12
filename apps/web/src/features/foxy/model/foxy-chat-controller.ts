@@ -113,7 +113,7 @@ export function createFoxyChatController(options: Options) {
         const result = await options.client.createConversation(input, abort.signal);
         if (!valid(version)) return;
         update({ conversations: [result.conversation, ...state.conversations.filter(item => item.id !== result.conversation.id)], busy: false });
-        await select(result.conversation.id);
+        return await select(result.conversation.id) ? result.conversation.id : undefined;
       } catch { if (valid(version)) update({ busy: false, error: 'No pudimos crear la conversación.' }); }
     },
     select,

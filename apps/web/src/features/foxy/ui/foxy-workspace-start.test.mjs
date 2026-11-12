@@ -43,11 +43,12 @@ test('approved tool rail maps rubric to explicit editable text and has no redund
   const view = hookView(FoxyWorkspace, { controller, state, classrooms: [] });
   try {
     await view.flush();
-    const buttons = descendants(view.tree, n => n.type === 'button');
+    const layout = descendants(view.tree, n => n.type?.name === 'FoxyChatLayout')[0];
+    const buttons = descendants(layout.props.tools, n => n.type === 'button');
     for (const label of ['Crear apuntes', 'Crear esquema', 'Crear actividad', 'Crear planificación', 'Crear rúbrica'])
       assert.ok(buttons.some(n => renderToStaticMarkup(n).includes(label)));
     buttons.find(n => renderToStaticMarkup(n).includes('Crear rúbrica')).props.onClick(); await view.flush();
-    assert.equal(descendants(view.tree, n => n.type === 'select').length, 1);
+    assert.equal(descendants(view.tree, n => n.type === 'select').length, 0);
     assert.match(renderToStaticMarkup(view.tree), /texto editable/iu);
     descendants(view.tree, n => n.type === 'textarea')[0].props.onChange({ target: { value: 'Evaluar una exposición' } }); await view.flush();
     descendants(view.tree, n => n.type === 'form')[0].props.onSubmit({ preventDefault() {} }); await view.flush();
@@ -63,7 +64,9 @@ test('diagram mode sends to the real visual callback and never to text chat', as
   const { FoxyWorkspace } = componentWithPorts("apps/web/src/features/foxy/ui/foxy-workspace.tsx", {});
   const view = hookView(FoxyWorkspace, { controller, state, classrooms: [], onCreateDiagram: async prompt => { diagrams.push(prompt); return true; } });
   try {
-    await view.flush(); descendants(view.tree, n => n.type === 'button').find(n => renderToStaticMarkup(n).includes('Crear esquema')).props.onClick(); await view.flush();
+    await view.flush();
+    const layout = descendants(view.tree, n => n.type?.name === 'FoxyChatLayout')[0];
+    descendants(layout.props.tools, n => n.type === 'button').find(n => renderToStaticMarkup(n).includes('Crear esquema')).props.onClick(); await view.flush();
     descendants(view.tree, n => n.type === 'textarea')[0].props.onChange({ target: { value: 'Relacionar agua y plantas' } }); await view.flush();
     descendants(view.tree, n => n.type === 'form')[0].props.onSubmit({ preventDefault() {} }); await view.flush();
     assert.deepEqual(diagrams, ['Relacionar agua y plantas']); assert.equal(sent.length, 0);

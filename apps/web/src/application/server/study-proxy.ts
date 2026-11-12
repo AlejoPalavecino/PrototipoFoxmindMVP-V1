@@ -17,8 +17,18 @@ function destination(value?: string): string {
 }
 function select(request:IncomingMessage):{url:URL;method:string;binary:boolean;upload:boolean}{
  const raw=request.url??'',method=request.method??'GET';
- if(!raw.startsWith(root)||/[\\#%]/u.test(raw.split('?')[0]!)||raw.includes('..'))throw new Error();
+ if(/[\\#%]/u.test(raw.split('?')[0]!)||raw.split('?')[0]!.includes('..'))throw new Error();
  const url=new URL(raw,'http://web.invalid'),path=url.pathname;
+ if(raw.startsWith('/api/v1/chat-attachments/')){
+  const route=new RegExp(`^/api/v1/chat-attachments/(?:teacher/|student/${uuid}/)${uuid}(?:/(${uuid}))?$`,'u');
+  const match=route.exec(path);
+  if(!match)throw Object.assign(new Error(),{status:404});
+  if(!(match[1]?['PUT','DELETE']:['GET']).includes(method))throw Object.assign(new Error(),{status:405});
+  const keys=[...url.searchParams.keys()];
+  if(new Set(keys).size!==keys.length||keys.some(key=>method!=='PUT'||!['name','copy'].includes(key)))throw new Error();
+  return {url,method,binary:false,upload:method==='PUT'};
+ }
+ if(!raw.startsWith(root))throw new Error();
  const folder=new RegExp(`^${root}/${uuid}$`,'i'),commands=new RegExp(`^${root}/${uuid}/commands$`,'i');
  const uploads=new RegExp(`^${root}/${uuid}/uploads$`,'i'),uploadId=new RegExp(`^${root}/${uuid}/uploads/${uuid}$`,'i');
  const file=new RegExp(`^${root}/${uuid}/uploads/${uuid}/file$`,'i');
@@ -49,12 +59,12 @@ function length(value: string | string[] | undefined): number | undefined {
   if (typeof value !== 'string' || !/^[0-9]+$/u.test(value) || !Number.isSafeInteger(Number(value))) throw new Error();
   return Number(value);
 }
-async function metadata(request: IncomingMessage, method: string, upload=false): Promise<Buffer | undefined> {
+async function metadata(request: IncomingMessage, method: string, upload=false, uploadLimit=binaryLimit): Promise<Buffer | undefined> {
   const expected = length(request.headers['content-length']);
   if (request.headers['content-encoding'] !== undefined) throw new Error();
-  if ((expected ?? 0) > (upload?binaryLimit:requestLimit)) throw new RangeError();
-  if (method === 'GET') { if ((expected ?? 0) || request.headers['transfer-encoding']) throw new Error(); return undefined; }
-  if(upload){if(!/^application\/octet-stream(?:\s*;|$)/iu.test(request.headers['content-type']??''))throw new Error();return read(request,binaryLimit);}
+  if ((expected ?? 0) > (upload?uploadLimit:requestLimit)) throw new RangeError();
+  if (method === 'GET' || method === 'DELETE') { if ((expected ?? 0) || request.headers['transfer-encoding']) throw new Error(); return undefined; }
+  if(upload){if(!/^application\/octet-stream(?:\s*;|$)/iu.test(request.headers['content-type']??''))throw new Error();return read(request,uploadLimit);}
   if (!/^application\/json(?:\s*;\s*charset=utf-8)?\s*$/iu.test(request.headers['content-type'] ?? '')) throw new Error();
   const content = await read(request, requestLimit);
   if (expected !== undefined && content.length !== expected) throw new Error();
@@ -128,7 +138,8 @@ function forward(request: IncomingMessage, response: ServerResponse, origin: str
 }
 export async function proxyStudyRequest(request: IncomingMessage, response: ServerResponse, configuredOrigin?: string): Promise<void> {
   let selected: ReturnType<typeof select>, content: Buffer | undefined, origin: string;
-  try { selected = select(request); content = await metadata(request, selected.method,selected.upload); }
+  try { selected = select(request); content = await metadata(request, selected.method,selected.upload,
+    selected.url.pathname.startsWith('/api/v1/chat-attachments/') ? 20_000_000 : binaryLimit); }
   catch (error) {
     const status = error instanceof RangeError ? 413 : (error as { status?: number }).status ?? 400;
     if (!request.complete) { response.setHeader('Connection', 'close'); request.resume(); }

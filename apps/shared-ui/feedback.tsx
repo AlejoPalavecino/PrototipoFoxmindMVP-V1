@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { openDialog } from './dialog-focus';
 import { FoxmindIcon } from './FoxmindIcon';
 
@@ -25,15 +25,17 @@ export function Dialog({
   onClose,
   className = '',
   label,
+  labeledClose,
 }: {
   title: string;
   children: ReactNode;
   onClose: () => void;
   className?: string;
   label?: string;
+  labeledClose?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null),
-    titleId = 'p5-dialog-title';
+    titleId = useId();
   useEffect(() => {
     return openDialog(ref.current!);
   }, []);
@@ -53,10 +55,11 @@ export function Dialog({
         <button
           type="button"
           aria-label="Cerrar diálogo"
-          className="p5-close"
+          className={labeledClose ? 'p5-close fm-dialog-close-label' : 'p5-close'}
           onClick={onClose}
         >
           <FoxmindIcon name="close" />
+          {labeledClose && <span>Cerrar</span>}
         </button>
       </header>
       <div className="brujula-dialog-body">{children}</div>
