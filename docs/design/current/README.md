@@ -14,7 +14,7 @@ Componentes reales y cliente sintético, inspeccionados con Ego Lite. Referencia
 
 ## Auditoría de composición de Mis aulas — 2026-11-12
 
-Candidato local en `codex/classrooms-visual-audit`, sin integrar/publicar. Catorce capturas de aplicación completa con servicios propios y cuentas sintéticas, inspeccionadas individualmente. Docente como referencia; permisos y acciones exclusivos conservados. [Recibo y hashes](../../verification/classrooms-visual-audit.json), [registro](../../work-log/2026-11-12-root-classrooms-visual-audit.md).
+Integrado localmente en main (8f80098), sin push ni despliegue. Catorce capturas de aplicación completa con servicios propios y cuentas sintéticas, inspeccionadas individualmente. Docente como referencia; permisos y acciones exclusivos conservados. [Recibo y hashes](../../verification/classrooms-visual-audit.json), [registro](../../work-log/2026-11-12-root-classrooms-visual-audit.md).
 
 | Rol / sección | Escritorio | Móvil |
 |---|---|---|

@@ -1,6 +1,6 @@
 {
   "date": "2026-11-12",
-  "status": "verified locally; uncommitted, not integrated or deployed",
+  "status": "integrated locally in main; no push or deployment",
   "branch": "codex/classrooms-visual-audit",
   "baseCommit": "1f61923407fa839df0abb97e673c0274cf12bb1b",
   "reference": "Teacher UI; shared student components retain role-specific permissions",
@@ -1305,7 +1305,7 @@
   ],
   "integration": {
     "base": "99834b0651b1eb09c6ba177ad25265fd711cfa35",
-    "status": "candidate verified; main integration pending",
+    "status": "integrated locally in main; no push or deployment",
     "fast": {
       "files": 347,
       "passed": 1961,
@@ -1323,6 +1323,27 @@
     "boundaries": "PASS, zero exceptions",
     "inventory": "PASS, 543 entries / 53 exclusions / 23 routes",
     "omitted": "Other owned-db/services/browser cohorts and external AI provider were not rerun",
-    "productionIsolation": "No changes relative to main in Agenda, Home or Foxy feature code"
+    "productionIsolation": "No changes relative to main in Agenda, Home or Foxy feature code",
+    "commit": "8f800982af76502ea723d7034a8c239b5b7902dc",
+    "preservation": {
+      "head": "8f800982af76502ea723d7034a8c239b5b7902dc",
+      "preservedFiles": {
+        "docs/design/chat-materials-preview.js": "e86864bf5cac7989bc56b02f0d5aed1e59f6bb8180de591ad973e7b7cdd5936a",
+        "docs/design/foxy-ai-preview.css": "ac1db0e71eeb233870a244f0fd69a5422b98bfc49867d969027b98c782123a1c",
+        "docs/design/foxy-ai-preview.html": "74d5c493827ed0a07f2cfe64f1119c12390b2338e5f7e16d19a1bfb7641c2142",
+        "docs/design/foxy-ai-preview.js": "8ce264727b514cdbcd21d847a51fabca6591c5b1316702890481af9f170cf657",
+        "docs/design/foxy-ai-proposal.md": "0e80c13f5910730da083bbaf741b388ee0ed55b55b65cd9cbe792baab4217b0d",
+        "docs/design/study-chat-preview.html": "886adc046ae9016a1e261f6a755bae58c97fea20b65b51aa2a0035b2cdb5c2c8",
+        "docs/design/study-chat-preview.js": "225b3f3813326645a6ed809786057eee8902005ad35c35c37f16f23e0ea4b15f",
+        "docs/work-log/2026-11-12-root-foxy-preview.md": "7ef9aaa0727ced927af783fc296045293d05e5b1f810b46dcc05485a62b9aa00"
+      },
+      "preservedManifestEntries": 122,
+      "addedManifestEntries": [
+        "docs/work-log/2026-11-12-root-classrooms-visual-audit.md",
+        "odd/tasks/classrooms-visual-audit.md",
+        "docs/verification/classrooms-visual-audit.json"
+      ],
+      "stashDropped": true
+    }
   }
 }

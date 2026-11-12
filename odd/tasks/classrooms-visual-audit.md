@@ -32,9 +32,9 @@
 - **Blocker:** none
 
 ### TASK-004 — Integrar con Agenda e Inicio y preservar Foxy en curso
-- **State:** VERIFYING
+- **State:** DONE
 - **Depends on:** TASK-003
 - **Owner:** root
 - **Acceptance:** Integrar el candidato en main por autorización del 2026-11-12, conservar cambios concurrentes y verificar regresión conjunta.
-- **Evidence:** Rebase sobre 99834b0; conflictos sólo documentales resueltos conservando ambos contenidos. Build web y lint verdes. Suite fast y recorridos integrados en ejecución.
+- **Evidence:** Rebase sobre 99834b0; conflictos sólo documentales resueltos conservando ambos contenidos. Build web y lint verdes. 347 archivos fast reconciliados: 1961 PASS, 0 fallos/skips; E2E 20 PASS. Integrado por fast-forward en main 8f80098. Ocho archivos concurrentes preservados byte a byte y todas las entradas Foxy del manifiesto conservadas; stash temporal retirado.
 - **Blocker:** none
