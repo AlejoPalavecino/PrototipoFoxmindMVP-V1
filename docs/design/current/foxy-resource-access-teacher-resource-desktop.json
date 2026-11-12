@@ -1,0 +1,14 @@
+{
+  "date": "2026-11-12",
+  "scope": "Aplicación local aislada, datos y proveedor sintéticos",
+  "role": "teacher",
+  "url": "/foxy-ai",
+  "width": 1440,
+  "height": 940,
+  "dialogScrollWidth": 558,
+  "dialogClientWidth": 558,
+  "baseCommit": "734845b",
+  "candidate": "734845b + diff local del corte funcional",
+  "visuallyInspected": true,
+  "flow": "Lectura y descarga Word antes de editar o compartir"
+}

@@ -2,9 +2,11 @@
 
 - **Spec:** docs/product/study-folders-proposal.md
 - **Design:** docs/product/study-folders-proposal.md (Propuesta de experiencia)
-- **Approval:** approved — usuario, 2026-11-08: «Si lo apruebo», después de solicitud explícita de aprobación de pantallas, solución/modelo e implementación.
+- **Approval:** approved
 - **Coordinator:** /root, único escritor de este registro. Sin autorización de commits/push/despliegue para esta funcionalidad.
 - **Candidate:** checkout principal sobre main, commit base 1f46028; documento de propuesta y registro previos sin commit.
+
+El usuario aprobó las pantallas, solución/modelo e implementación originales el 2026-11-08 («Si lo apruebo»). El 2026-11-12 pidió adaptar la presentación de Crear aula a Crear carpeta.
 
 ## Tasks
 
@@ -26,7 +28,7 @@
 
 ### TASK-003 — Foxy, creaciones, práctica y adaptación por carpeta
 - **State:** DONE
-- **Depends on:** TASK-001, TASK-002 para integración final
+- **Depends on:** TASK-001, TASK-002
 - **Owner:** /root/study_engine motor; /root/study_backend persistencia; /root/study_ui presentación
 - **Acceptance:** CF07–CF10: generación acotada a fuentes, todas las herramientas, intentos persistentes, soluciones ocultas, corrección, devolución recuperable y adaptación sin mezclar carpetas.
 - **Evidence:** Suite final65/0/0: motor15, UI22 y servicio18 incluidos. E2E app/servicios reales con proveedor sintético: cinco herramientas, SINGLE/MULTIPLE/desarrollo, recarga, soluciones ocultas, devolución y nuevo intento. Gemini real plan/chat y quiz3 directo de motor PASS. Dos quizzes iniciales de navegador sin temas fallaron; guardas previas a gasto verificadas. No se repitió E2E real tras agotar cupo diario: límite de evidencia conservado.
@@ -46,6 +48,22 @@
 - **Owner:** /root; quality_reviewer independiente de sólo lectura al estabilizar candidato
 - **Acceptance:** CF01–CF16: pruebas permisos/integración y regresiones, builds/lint/documentación, migración aislada y QA real con cuentas sintéticas; informar fallos y límites.
 - **Evidence:** Candidato serializado: test:study65/0/0, tipos/builds API/web PASS; boundaries123 excepciones PASS, guard13 PASS; admisión IA30 PASS, Agenda14 PASS y continuación segura4 PASS; inventario511/53/23 PASS. Revisor VERIFIED focal sin bloqueantes; diez capturas390/834/1440 sin overflow, catálogo188/376 hashes exactos. TaskSpace3 finalizada keep vacío; harness aislado exit0/cleanup0; app habitual READY. Documentación reconciliada con límites del recibo.
+- **Blocker:** none
+
+### TASK-006 — Reusar la presentación de Crear aula para Crear carpeta
+- **State:** DONE
+- **Depends on:** TASK-001
+- **Owner:** root
+- **Acceptance:** Mismos pasos, portada, panel de carga, editor de unidades y revisión; mismas acciones visibles con scroll interno. Adaptar campos y copy a Estudio, sin importar reglas, límites o permisos docentes.
+- **Evidence:** Se compararon cuatro pasos a 1440 y 390 px; acciones visibles, ancho, tipografía, pie y portada de revisión comprobados. [Registro y capturas](../../docs/work-log/2026-11-12-root-study-creation-parity.md).
+- **Blocker:** none
+
+### TASK-007 — Comprobar paridad visual y creación privada
+- **State:** DONE
+- **Depends on:** TASK-006
+- **Owner:** root
+- **Acceptance:** Comprobar manual e IA sintética, documento aprobado, borrador reabierto, persistencia y confirmación; comparar con Aula y verificar acciones visibles y foco en escritorio/móvil.
+- **Evidence:** Build web, lint, 14 pruebas focalizadas y 73 de Estudio verdes. Chromium comprobó borrador, creación manual e IA sintética, recuperación de fallo, archivo requerido y revisión a 320 px; Ego Lite comprobó avance y retorno de foco. [Evidencia y límites](../../docs/work-log/2026-11-12-root-study-creation-parity.md).
 - **Blocker:** none
 
 ## Estado recuperable

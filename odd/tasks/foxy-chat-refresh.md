@@ -45,3 +45,27 @@
 - **Acceptance:** Ambos roles y estados principales verificados con datos sintéticos. Escritorio y móvil sin solapamiento o recorte de controles.
 - **Evidence:** Builds, lint y suites focalizadas verdes. Recorrido final de 26 estados sin superposiciones de controles ni desborde horizontal, con compositor alineado y visible. Incluye un apunte de estudio y el diálogo de la tarjeta Imágenes y esquemas con retorno de foco.
 - **Blocker:** none
+
+### TASK-006 — Unificar el estado del primer envío docente
+- **State:** DONE
+- **Depends on:** TASK-004
+- **Owner:** root
+- **Acceptance:** Un primer envío en un chat nuevo muestra una sola vez el mensaje y retira la espera al llegar su turno, aunque el chat anterior tuviera historial. Un error incierto conserva el reintento.
+- **Evidence:** La regresión falla con 2 mensajes en la base y pasa con 1 en el candidato. En Chromium se completó un chat, se creó otro y se verificó un único mensaje visible sin espera y un turno `READY` en la API.
+- **Blocker:** none
+
+### TASK-007 — Abrir y descargar recursos privados
+- **State:** DONE
+- **Depends on:** TASK-004
+- **Owner:** root
+- **Acceptance:** Lectura y descarga en hasta tres acciones desde el chat o Creaciones; Compartir separado y con revisión explícita. Materiales y Plan usan rutas privadas existentes, con apertura compatible. La maqueta de creación queda fuera del corte.
+- **Evidence:** Chromium descargó Word e imagen docente, Word de apunte/esquema, TXT de tres prácticas, plan PDF y material DOCX estudiantil. La interfaz abrió en lectura y dejó Compartir cerrado; Ego verificó Escape y retorno de foco. [Registro del corte](../../docs/work-log/2026-11-12-root-foxy-resource-access.md).
+- **Blocker:** none
+
+### TASK-008 — Verificar descargas y estado de chat
+- **State:** DONE
+- **Depends on:** TASK-006, TASK-007
+- **Owner:** root
+- **Acceptance:** Pruebas de regresión y recorridos de ambos roles con datos sintéticos, sin afectar permisos ni publicar al abrir o descargar.
+- **Evidence:** 347 pruebas web y 72 de la suite Estudio verdes; build, lint, docs y tablero correctos. Chromium y Ego verificaron clics, archivos, foco y denegación cruzada con datos sintéticos. [Evidencia y límites](../../docs/work-log/2026-11-12-root-foxy-resource-access.md).
+- **Blocker:** none

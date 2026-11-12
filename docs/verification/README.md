@@ -8,6 +8,7 @@ El pulido UX/UI del 2026-11-09 tiene 28 capturas nativas Ego Lite inspeccionadas
 | Migración por dominios y ciclo de rechazo HTTP | [Recibo de arquitectura](architecture-migration.json), [registro de cierre](../work-log/2026-11-10-root-architecture-completion.md) |
 | Chat, herramientas, colecciones y creación/plan | [Recibo del pulido](foxy-study-ux-polish.json), [registro visual](../work-log/2026-11-09-root-ux-visual.md) |
 | Imágenes, viewport, desplazamiento y procedencia | [Galería](../design/current/README.md), [catálogo con hashes](../design/current/catalog.json) |
+| Validación E2E de Foxy AI y Carpetas de estudio | [Informe del 2026-11-12](2026-11-12-foxy-study-e2e.md) |
 | Recorridos funcionales por rol y cobertura pendiente | [Matriz](flows.md), [datos de la base](flows.json) |
 | Comprobaciones de la reconstrucción inicial | [Checks de base](baseline-checks.json), [registro coordinador](../work-log/2026-11-07-root-current-baseline.md) |
 | Retiro de documentación anterior | [Recibo de retiro](documentation-retirement.json) |

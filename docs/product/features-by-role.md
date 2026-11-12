@@ -6,12 +6,12 @@ Cada cuenta tiene un rol exclusivo: docente o estudiante. Además del rol, el ba
 
 | Sección | Docente | Estudiante | Fuente |
 |---|---|---|---|
-| Carpetas de estudio | Sin acceso | Crear carpetas privadas, vincular una Biblioteca autorizada, estudiar con Foxy, adjuntar al chat con opción de guardar en la carpeta, practicar con devolución y confirmar repasos en Agenda | [Estudio privado](../engineering/study/README.md) |
+| Carpetas de estudio | Sin acceso | Crear carpetas privadas, vincular una Biblioteca autorizada, abrir y descargar materiales, estudiar con Foxy, adjuntar al chat con opción de guardar en la carpeta, descargar creaciones y consignas, practicar con devolución y confirmar repasos en Agenda | [Estudio privado](../engineering/study/README.md) |
 | Cuenta y perfil | Registro como docente; acceso/verificación, nombres y avatar Foxy/iniciales con guardado explícito, contraseña, recuperación y cierre de sesión | Mismos flujos con rol estudiante | [Identidad](../engineering/identity/README.md) |
 | Inicio | Entregas/consultas ordenables, aula en foco seleccionable, acciones con elección de aula, avisos y mini agenda | Aulas, pendientes y devoluciones publicadas propias | [Inicio](../engineering/home/README.md) |
 | Mis aulas | Crear aula, consultar Activas/Archivadas/Pendientes; continuar o eliminar pendientes propios con confirmación; administrar aulas propias | Confirmar ingreso por código/invitación y consultar aulas autorizadas; sin Pendientes de creación | [Aulas](../engineering/classrooms/README.md) |
 | Agenda | Eventos personales y contexto académico autorizado | Eventos personales y plazos propios | [Agenda](../engineering/agenda/README.md) |
-| Foxy AI | Conversaciones privadas renombrables, historial con búsqueda y filtros, contexto y adjuntos; Herramientas y Creaciones con estados y destinos; revisión antes de publicar o crear un TP privado | Puede consultar material publicado autorizado y usar su propio chat en Carpetas de estudio | [Foxy](../engineering/ai/foxy.md) |
+| Foxy AI | Conversaciones privadas renombrables, historial con búsqueda y filtros, contexto y adjuntos; abrir y descargar creaciones privadas; revisión antes de publicar o crear un TP privado | Puede consultar material publicado autorizado y usar su propio chat en Carpetas de estudio | [Foxy](../engineering/ai/foxy.md) |
 | Notificaciones | Abrir destinos autorizados de su actividad docente | Abrir destinos propios autorizados | [Historial y avisos](../engineering/home/README.md) |
 
 ## Dentro de un aula

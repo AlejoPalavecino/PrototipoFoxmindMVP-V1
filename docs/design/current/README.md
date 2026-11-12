@@ -1,5 +1,27 @@
 # Capturas del FoxMind actual
 
+## Crear aula y Crear carpeta — 2026-11-12
+
+Asistentes en la aplicación local con cuentas, documentos y proveedor sintéticos. Ambos usan la misma presentación; los datos y reglas de cada rol son propios. [Pruebas y límites](../../work-log/2026-11-12-root-study-creation-parity.md).
+
+| Paso | Docente | Estudiante |
+|---|---|---|
+| Datos y portada, 1440 px | [Crear aula](study-creation-parity-teacher-step1-desktop.png) | [Crear carpeta](study-creation-parity-student-step1-desktop.png) |
+| Plan aprobado, 390 px | [Plan del aula](study-creation-parity-teacher-step2-mobile.png) | [Plan de la carpeta](study-creation-parity-student-step2-mobile.png) |
+| Unidades y temas, 390 px | — | [Editor de carpeta](study-creation-parity-student-step3-mobile.png) |
+| Revisión, 1440 px | [Resumen del aula](study-creation-parity-teacher-step4-desktop.png) | [Resumen privado](study-creation-parity-student-step4-desktop.png) |
+
+## Lectura y descarga de recursos de Foxy y Estudio — 2026-11-12
+
+Aplicación aislada con datos y proveedor sintéticos. Candidato local sobre `734845b`. [Registro de pruebas y límites](../../work-log/2026-11-12-root-foxy-resource-access.md).
+
+| Vista | Captura |
+|---|---|
+| Docente, lectura y acciones a 1440 px | [Recurso textual](foxy-resource-access-teacher-resource-desktop.png) |
+| Docente, apertura y descarga a 390 px | [Visual listo](foxy-resource-access-teacher-visual-mobile.png) |
+| Estudiante, lectura y Word a 390 px | [Apunte privado](foxy-resource-access-student-note-mobile.png) |
+| Estudiante, apertura y descarga a 390 px | [Plan de estudio](foxy-resource-access-student-plan-mobile.png) |
+
 ## Agenda — 2026-11-12
 
 Componentes reales y cliente sintético, inspeccionados con Ego Lite. Referencias visuales vigentes para la presentación de Agenda; las capturas anteriores conservan sólo evidencia de sus flujos, no la geometría actual. [Recibo con hashes y límites](../../verification/agenda-ux.json).

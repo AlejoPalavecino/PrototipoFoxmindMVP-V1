@@ -12,7 +12,9 @@ Capturas locales con cuentas sintéticas: [chat docente](current/foxy-refresh-te
 
 [Creaciones con un apunte de prueba](current/foxy-refresh-student-creaciones-list-mobile.png).
 
-La tarjeta «Imágenes y esquemas» abre un diálogo desde la cuadrícula de Herramientas. Los recursos visuales de Creaciones también se abren en ese diálogo. El chat docente termina en el compositor. [Diálogo de recursos visuales en móvil](current/foxy-refresh-teacher-visual-dialog-mobile.png).
+La tarjeta «Imágenes y esquemas» abre un diálogo desde la cuadrícula de Herramientas. Al abrir un visual listo desde Creaciones, la vista previa y la descarga aparecen antes del formulario de generación. El texto docente abre en lectura, con descarga visible y controles separados para editar y compartir. En Estudio se abren y descargan las creaciones privadas sin opciones de publicación. [Capturas vigentes](current/README.md#lectura-y-descarga-de-recursos-de-foxy-y-estudio--2026-11-12) · [evidencia del corte](../work-log/2026-11-12-root-foxy-resource-access.md).
+
+Crear carpeta comparte la presentación de Crear aula: indicador de cuatro pasos, portadas, carga y método, unidades y revisión. El cuerpo se desplaza y las acciones quedan visibles. Datos, textos y persistencia se adaptan a una carpeta privada, con aula vinculada opcional. [Comparación en la app](current/README.md#crear-aula-y-crear-carpeta--2026-11-12).
 
 ## Agenda — pulido aprobado del 2026-11-12
 

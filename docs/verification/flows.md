@@ -80,6 +80,14 @@ PASS acredita las acciones y resultados escritos en cada fila, con sus límites;
 - [Teclado](../design/current/keyboard-check.json): Escape y retorno de foco docente.
 
 No hubo llamadas a proveedores reales ni prueba exitosa nueva de análisis individual/corrección IA. El esquema se generó en una segunda cuenta tras observar cuota agotada en la primera. Quedan fuera de este recorrido transferencias/rectificaciones exhaustivas, pruebas de carga y fallas de infraestructura, fechas/DST y accesibilidad completa. Los intentos fallidos de automatización y recuperaciones se explican en el registro; no se presentan como fallas del producto.
+## Acceso a recursos de Foxy y Estudio — 2026-11-12
+
+**PASS local** para primer mensaje en un chat docente nuevo, lectura y descarga docente y estudiantil, Compartir separado, retorno de foco y apertura privada de visual/PDF. Pruebas en aplicación con servicios propios y proveedor sintético; permisos cruzados comprobados sobre los archivos ensayados. [Evidencia y límites](../work-log/2026-11-12-root-foxy-resource-access.md).
+
+## Crear carpeta con la presentación de Crear aula — 2026-11-12
+
+**PASS local** para cuatro pasos en ambos asistentes, archivo obligatorio en el segundo paso, borrador retomado, creación manual y asistida sintética, y recuperación a manual ante un fallo. [Capturas comparadas](../design/current/README.md#crear-aula-y-crear-carpeta--2026-11-12) · [Evidencia y límites](../work-log/2026-11-12-root-study-creation-parity.md).
+
 ## Pulido UX de Foxy y estudio — 2026-11-09
 
 Componentes reales recorridos con Ego Lite: envío/espera/error/recuperación de ambos chats, scroll de historia y salto al final, herramientas móviles, foco/Escape, plan IA con respuesta sintética controlada, unidades desplegables y geometría a 390 px. App local integrada: colección estudiantil y creación con cuatro pasos/portadas, usando cuentas y recursos propios sintéticos. La continuación visual recuperó capturas nativas e inspeccionó escritorio/móvil; se corrigieron compositor fuera del pliegue, recortes, jerarquía visual y encabezados transparentes al desplazar diálogos. No acredita una nueva respuesta exitosa de Gemini, todas las operaciones de persistencia ni auditoría WCAG. [Recibo detallado](foxy-study-ux-polish.json).

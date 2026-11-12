@@ -27,10 +27,10 @@ Conservar Brújula, Lexend, colores y componentes vigentes. No introducir otra i
 
 Agregar **Carpetas de estudio** a la navegación estudiantil, junto a Mis aulas. Colección con título, **Crear carpeta**, búsqueda y filtros por año y vínculo. Tarjetas con los mismos banners predefinidos y proporciones que aulas; mostrar nombre, año y aula vinculada o «Materiales propios». No mostrar alumnos ni porcentajes de dominio inventados. Propuesta: Activas, Archivadas y Pendientes para creaciones guardadas.
 
-Asistente de cuatro pasos:
+Asistente de cuatro pasos con la presentación compartida de Crear aula:
 
-1. **Tu carpeta:** nombre, año académico, banner predefinido y plan PDF/DOCX; vínculo a aula opcional. Aclarar que vincular agrega Biblioteca disponible, no importa notas, entregas, compañeros ni automáticamente el plan del aula.
-2. **Organizar el plan:** elegir IA o manual. Subir un documento no dispara generación.
+1. **Datos de la carpeta:** nombre, año académico y portada predefinida; vínculo a aula opcional. Vincular agrega la Biblioteca disponible, sin importar notas, entregas, compañeros ni el plan del aula.
+2. **Cargar plan:** seleccionar o arrastrar un PDF/DOCX y esperar su aprobación. Elegir IA o manual. Subir un documento no dispara generación.
 3. **Unidades y temas:** revisar y editar estructura; al menos una unidad con un tema.
 4. **Revisar y crear:** resumen editable y **Confirmar y crear carpeta**. Guardar borrador no crea una carpeta activa.
 

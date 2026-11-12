@@ -68,7 +68,7 @@ Los chats privados de Foxy docente y Carpetas de estudio admiten hasta seis PDF/
 
 Selección local, subida, aprobación y asociación son estados distintos. Publicar/entregar requiere validación estructural y escaneo limpio de los mismos bytes. Un archivo no listo/cuarentenado no puede descargarse o vincularse como aprobado.
 
-PDF e imágenes pueden ofrecer vista previa del navegador; Office/ZIP son descarga. Ambas rutas requieren permiso actual. No hay bucket público, enlace presigned de usuario o claves de almacenamiento en cliente.
+PDF e imágenes pueden ofrecer vista previa del navegador. En Carpetas de estudio, abrir un DOCX aprobado muestra una vista previa de texto y descargar entrega el original. Los archivos sin visor se descargan. Ambas acciones requieren permiso actual. No hay bucket público, enlace presigned de usuario o claves de almacenamiento en cliente.
 
 Cupo por aula es configurable y suma planes, materiales, borradores confirmados e historia de intentos. Cupo agotado bloquea cargas nuevas, no borra historia ni deniega consulta autorizada. La cifra productiva queda pendiente de presupuesto/hosting.
 
@@ -120,6 +120,8 @@ Análisis individual: métricas anónimas, orientación docente; no corrección 
 
 Foxy es privado del docente verificado, con contexto/fuentes explícitos. Conversación/recursos preparados no son material público. Texto/imagen/esquema necesitan destino, preparación, revisión y confirmación para Biblioteca. Traspaso actual a Actividades crea un TP privado. Fallo/cuota/obsolescencia no debe duplicar publicación ni sustituir cambios docentes.
 
+Abrir una creación lista muestra primero su contenido. El docente puede descargar Word o el archivo visual privado sin compartirlo. El estudiante puede descargar apuntes y esquemas en Word y consignas de práctica en TXT sin respuestas ni soluciones. Materiales y Plan ofrecen apertura cuando el formato lo admite y descarga. Para recursos recientes, Creaciones → recurso → descarga son tres acciones; Compartir conserva preparación, revisión y confirmación.
+
 Conversaciones admite título editable y búsqueda/filtro por contexto general o aula propia sobre el conjunto autorizado. Elegir aula prepara contexto sin IA antes del primer envío y cambiarlo inicia otra conversación. El widget alterna Herramientas/Creaciones; su catálogo privado reúne resultados listos de todas las conversaciones (excluye avisos de información insuficiente), buscables por título, tipo, contexto y estado, con apertura directa. Distingue contexto de origen y destinos efectivos: privado, preparación, borrador de actividad o publicado/asignado. Encontrar y abrir elementos comunes requiere hasta tres acciones de navegación; publicar conserva revisiones explícitas. Planificaciones y rúbricas son textos revisables, sin modificación automática del Plan o conversión automática a criterios estructurados.
 
 Foxy docente y el espacio de estudio comparten presentación de herramientas y espera. El mensaje saliente se muestra de inmediato; la bienvenida se retira y el historial conserva la posición de lectura. El chat acompaña mensajes y cambios de tamaño sólo si se estaba al final; permite volver explícitamente a mensajes nuevos. La carga distingue operación/cola/procesamiento, respeta movimiento reducido y no simula una respuesta parcial. Error estudiantil conserva la entrada; envío docente incierto conserva la solicitud para reintento explícito sin duplicación. Esto no agrega streaming al contrato ni publicación automática.
@@ -155,6 +157,8 @@ Carga, vacío, permisos, conflictos y errores tienen feedback y recuperación ad
 Sin administración institucional, pagos, ranking, certificados, Google login, tutores estudiantiles generales fuera del contexto privado de Carpetas de estudio, cambio de rol/email o personalización fuera del catálogo de avatares aprobado. Rúbrica por criterios no autoriza ponderaciones globales por tipo de actividad o umbrales de aprobación.
 
 Carpetas de estudio agrega creación con documento aprobado y estructura revisada, materiales propios y vínculo opcional a una sola Biblioteca autorizada, conversaciones/creaciones privadas, quizzes/ejercicios/simulacros respondibles, devolución orientativa y adaptación por evidencia de la propia carpeta. Revocar una fuente impide usarla en nuevas respuestas, incluso mediante historia derivada; conserva creaciones previas con aviso. No publica resultados académicos. [Contrato funcional aprobado](product/study-folders-proposal.md), [guía](engineering/study/README.md) y [evidencia con límites](verification/study-folders.json).
+
+Crear carpeta sigue los cuatro pasos de Crear aula con datos propios de Estudio: datos y portada, cargar plan, unidades y temas, revisión y confirmación. El plan aprobado sigue siendo obligatorio incluso en la ruta manual. Confirmar activa una carpeta privada; guardar borrador permite retomarla desde Pendientes.
 
 Hosting, proveedores cloud, presupuesto, cuota productiva y piloto real requieren decisión humana. Una guía o estado implementado no autoriza su ejecución sobre datos retenidos, credenciales o servicios pagos.
 
