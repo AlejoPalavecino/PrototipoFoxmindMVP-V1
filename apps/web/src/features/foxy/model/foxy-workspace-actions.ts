@@ -49,6 +49,13 @@ export function createFoxyWorkspaceActions(options: Options) {
   function prepLocked() { const p = runtime.getState().preparation; return locked() || managementLocked() || !!p?.pending || !!p?.busy; }
   function mutationLocked() { const s = runtime.getState(); return locked() || managementLocked() || !!s.resource?.pending || !!s.resource?.busy || !!s.preparation?.pending || !!s.preparation?.busy; }
   return {
+    prepareVisualConversation: (input: Parameters<Runtime['chat']['create']>[0], onSelected: (id: string | undefined) => void) => guarded(async () => {
+      const id = await runtime.chat.create(input);
+      if (!active()) return false;
+      const selected = id && runtime.getState().chat?.current?.id === id ? id : undefined;
+      onSelected(selected);
+      return !!selected;
+    }),
     openVisualCreation: (conversationId: string, jobId: string, onSelected?: () => void) => guarded(async () => {
       if (!await runtime.chat.select(conversationId)) return false;
       const opened = await runtime.visual.openJob(jobId);

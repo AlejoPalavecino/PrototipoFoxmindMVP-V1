@@ -22,6 +22,30 @@ test('outgoing request replaces the welcome before the server receipt arrives',a
   finally{f.view.close();}
 });
 
+test('first send in a new conversation clears the pending copy when its own turn arrives',async()=>{
+  const message='Explicame la exposición', next={...conversation,id:randomUUID(),title:message};
+  const state={...base,turns:[{id:randomUUID(),sequence:4,state:'READY',purpose:'CHAT',message:'Historial de la otra conversación',answer:null}]};
+  const f=fixture(state);
+  try {
+    f.controller.create=async()=>{state.current=next;state.turns=[];return next.id;};
+    f.controller.send=async()=>{
+      state.turns=[{id:randomUUID(),sequence:1,state:'READY',purpose:'CHAT',message,answer:{title:'La luz',markdown:'La respuesta ya está lista',warnings:[],missingInformation:[]}}];
+      return 'accepted';
+    };
+    await f.view.flush();
+    descendants(f.view.tree,n=>n.type==='button'&&String(n.props.children).includes('Nuevo chat'))[0].props.onClick();
+    await f.view.flush();
+    descendants(f.view.tree,n=>n.type==='textarea')[0].props.onChange({target:{value:message}});
+    await f.view.flush();
+    descendants(f.view.tree,n=>n.type==='form')[0].props.onSubmit({preventDefault(){}});
+    await f.view.flush();
+    const html=renderToStaticMarkup(f.view.tree);
+    assert.match(html,/La respuesta ya está lista/);
+    assert.equal(descendants(f.view.tree,n=>n.type==='p'&&n.props.children===message).length,1);
+    assert.doesNotMatch(html,/Foxy está preparando tu respuesta/);
+  }finally{f.view.close();}
+});
+
 test('teacher workspace offers conversations, explicit general or classroom creation and message composer',async()=>{
   const f=fixture();try {await f.view.flush();
     descendants(f.view.tree,n=>n.props['aria-label']==='Cambiar contexto del chat')[0].props.onClick();await f.view.flush();

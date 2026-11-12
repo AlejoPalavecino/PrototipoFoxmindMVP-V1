@@ -34,6 +34,28 @@ for (const existing of [true, false]) for (const success of [true, false]) test(
 
 import { renderToStaticMarkup } from 'react-dom/server';
 
+test('visual tools open a fresh draft even when another conversation is selected', async () => {
+  const current = { id: randomUUID(), title: 'Anterior', context: { kind: 'GENERAL' } };
+  const state = { current, conversations: [current], capabilities: { textGeneration: { enabled: true }, imageGeneration: { enabled: true } },
+    turns: [], activeTurn: null, pending: null, busy: false };
+  const calls = [];
+  const { FoxyWorkspace } = componentWithPorts('apps/web/src/features/foxy/ui/foxy-workspace.tsx', {});
+  const view = hookView(FoxyWorkspace, { controller: { create: () => calls.push('create'), send: () => calls.push('send') },
+    state, classrooms: [], onOpenVisual: draft => calls.push(draft) });
+  try {
+    await view.flush();
+    descendants(view.tree, n => n.type === 'button' && descendants(n, child => child.props?.name === 'plus').length)[0].props.onClick();
+    await view.flush();
+    const layout = descendants(view.tree, n => n.type?.name === 'FoxyChatLayout')[0];
+    const tool = descendants(layout.props.tools, n => n.type === 'button').find(n => renderToStaticMarkup(n).includes('Imágenes y esquemas'));
+    assert.ok(tool, 'Visual tools must be offered in a new chat');
+    tool.props.onClick();
+    assert.equal(calls.length, 1);
+    assert.deepEqual(calls[0]?.context, { kind: 'GENERAL' });
+    assert.equal(typeof calls[0]?.onCreated, 'function');
+  } finally { view.close(); }
+});
+
 test('approved tool rail maps rubric to explicit editable text and has no redundant purpose selector', async () => {
   const current = { id: randomUUID(), title: 'Clase', context: { kind: 'GENERAL' } };
   const state = { capabilities: { textGeneration: { enabled: true } }, conversations: [current], current,

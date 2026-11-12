@@ -31,7 +31,13 @@ test('disabled kind cannot start a request and available kind remains usable',as
 test('queued and running jobs expose progress without private preview',async()=>{
  for(const state of ['QUEUED','RUNNING']){const f=fixture({jobs:[{...job,state}]});try {await f.view.flush();const html=renderToStaticMarkup(f.view.tree);assert.match(html,/espera|cola|pendiente|generando|proceso/iu);assert.doesNotMatch(html,new RegExp(assetId));}finally{f.view.close();}}
 });
-test('ready exposes only same-origin private preview; failed displays an error and no preview',async()=>{
- const ready=fixture();try {await ready.view.flush();const nodes=descendants(ready.view.tree,n=>['img','a'].includes(n.type)&&String(n.props.src??n.props.href).includes(assetId));assert.ok(nodes.length);for(const node of nodes)assert.match(String(node.props.src??node.props.href),new RegExp(`^/api/v1/foxy-ai/assets/${assetId}/file\\?mode=preview`));}finally{ready.view.close();}
+test('ready exposes same-origin private preview and download; failed exposes neither',async()=>{
+ const ready=fixture();try {await ready.view.flush();
+  const paths=descendants(ready.view.tree,n=>['img','a'].includes(n.type)).map(n=>n.props.src??n.props.href);
+  const path=`/api/v1/foxy-ai/assets/${assetId}/file?mode=`;
+  assert.ok(paths.includes(path+'preview'));
+  assert.ok(paths.includes(path+'download'));
+  assert.ok(paths.every(href=>href===path+'preview'||href===path+'download'));
+ }finally{ready.view.close();}
  const failed=fixture({jobs:[{...job,state:'FAILED',errorCode:'AI_UNAVAILABLE'}],error:'No se pudo generar'});try {await failed.view.flush();const html=renderToStaticMarkup(failed.view.tree);assert.match(html,/error|no se pudo|intent/iu);assert.doesNotMatch(html,new RegExp(assetId));}finally{failed.view.close();}
 });

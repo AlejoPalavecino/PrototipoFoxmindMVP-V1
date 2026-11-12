@@ -1,6 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {canManageStudyMaterial,filterStudyCreations} from "./study-discovery.ts";
+import {canManageStudyMaterial,filterStudyCreations,studyPracticeHandout} from "./study-discovery.ts";
+test('the printable practice includes all prompts and options without answers or feedback',()=>{
+  const practice={title:'Práctica de luz',answers:{one:'PRIVATE_ANSWER'},feedback:'PRIVATE_FEEDBACK',questions:[
+    {id:'one',type:'MULTIPLE',prompt:'Marcá las afirmaciones correctas.',options:[{id:'a',text:'Luz'},{id:'b',text:'Sombra'}],explanation:'PRIVATE_EXPLANATION',correctOptionIds:['a']},
+    {id:'two',type:'DEVELOPMENT',prompt:'Explicá el contraste.',options:[]},
+  ]};
+  const handout=studyPracticeHandout(practice);
+  for(const text of ['Práctica de luz','Marcá las afirmaciones correctas.','Luz','Sombra','Explicá el contraste.'])assert.ok(handout.includes(text));
+  assert.doesNotMatch(handout,/PRIVATE_|correctOptionIds/);
+});
 test('plan remains a private source, never a removable material',()=>{const folder={materials:[{id:'material'}]};assert.equal(canManageStudyMaterial(folder,{id:'plan',kind:'PLAN',origin:'OWN'}),false);assert.equal(canManageStudyMaterial(folder,{id:'material',kind:'PLAN',origin:'OWN'}),false);assert.equal(canManageStudyMaterial(folder,{id:'material',kind:'MATERIAL',origin:'OWN'}),true);assert.equal(canManageStudyMaterial(folder,{id:'material',kind:'MATERIAL',origin:'CLASSROOM'}),false);assert.equal(canManageStudyMaterial(folder,{id:'unregistered',origin:'OWN'}),false);});
 test('creations and practices share title and type filtering',()=>{const rows=[{title:'Célula eucariota',kind:'NOTE'},{title:'Quiz de célula',kind:'QUIZ'},{title:'Simulacro biología',kind:'MOCK_EXAM'}];assert.deepEqual(filterStudyCreations(rows,'célula','NOTE'),[rows[0]]);assert.deepEqual(filterStudyCreations(rows,'CÉLULA','ALL'),rows.slice(0,2));assert.deepEqual(filterStudyCreations(rows,'','MOCK_EXAM'),[rows[2]]);assert.deepEqual(filterStudyCreations(rows,'no coincide','ALL'),[]);});
 import {startStudyConversation} from "./study-discovery.ts";

@@ -9,6 +9,14 @@ import s from './study.module.css';
 type Run = (action: string, data?: Record<string, unknown>) => Promise<unknown>;
 type Topic = StudyDetail['folder']['units'][number]['topics'][number];
 
+function StudyFileLinks({href,plan=false}:{href:string;plan?:boolean}) {
+  return <div className={s.fileLinks}>
+    <a href={href+'?mode=preview'} target="_blank" rel="noopener noreferrer">{plan?'Abrir plan':'Abrir archivo'}</a>
+    <a href={href+'?mode=download'}>{plan?'Descargar plan':'Descargar'}</a>
+    <small>Los archivos sin vista previa se descargan.</small>
+  </div>;
+}
+
 export function StudyMaterials({ detail, catalog, busy, run, onReload, onDirtyChange, onStudyTopic }: {
   detail: StudyDetail; catalog: StudyCollection; busy: boolean; run: Run;
   onReload: () => Promise<unknown>; onDirtyChange: (value: boolean) => void;
@@ -32,7 +40,7 @@ export function StudyMaterials({ detail, catalog, busy, run, onReload, onDirtyCh
   const found = materials.filter(source => (!origin || source.origin === origin) &&
     source.title.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()));
   const editing = folder.materials?.find(material => material.id === editMaterial);
-  const planHref = folder.planFileId && `/api/v1/study-folders/${folder.id}/uploads/${folder.planFileId}/file?mode=download`;
+  const planHref = folder.planFileId && `/api/v1/study-folders/${folder.id}/uploads/${folder.planFileId}/file`;
   const topicCount = folder.units.reduce((total, unit) => total + unit.topics.length, 0);
 
   useEffect(() => onDirtyChange(dirty || working), [dirty, working, onDirtyChange]);
@@ -97,8 +105,8 @@ export function StudyMaterials({ detail, catalog, busy, run, onReload, onDirtyCh
       {!found.length && <p className={s.materialNote}>{materials.length ? 'No hay materiales con esos filtros.' : 'Todavía no tenés materiales en esta carpeta.'}</p>}
       <div className={s.materialRows}>{found.map(source => {
         const manage = canManageStudyMaterial(folder, source);
-        const href = source.origin === 'OWN' ? `/api/v1/study-folders/${folder.id}/uploads/${source.fileId}/file?mode=download`
-          : `/api/v1/files/${source.fileId}/content?mode=download`;
+        const href = source.origin === 'OWN' ? `/api/v1/study-folders/${folder.id}/uploads/${source.fileId}/file`
+          : `/api/v1/files/${source.fileId}/content`;
         return <details className={s.materialRow} key={source.id}>
           <summary>
             <span className={s.fileBadge} aria-hidden="true">{source.origin === 'OWN' ? 'DOC' : 'AULA'}</span>
@@ -109,7 +117,7 @@ export function StudyMaterials({ detail, catalog, busy, run, onReload, onDirtyCh
             </span><span className={s.materialDetailLabel}>Ver detalles</span>
           </summary>
           <div className={s.actions}>
-            {source.available && <a href={href}>Descargar</a>}
+            {source.available && <StudyFileLinks href={href}/>}
             {manage && <button disabled={!writable} type="button" onClick={() => setEditMaterial(source.id)}>Editar material</button>}
             {manage && <button disabled={!writable} type="button" onClick={() => {
               if (window.confirm('¿Quitar este material del contexto de tu carpeta?')) void run('REMOVE_MATERIAL', { materialId: source.id }).catch(() => {});
@@ -128,7 +136,7 @@ export function StudyMaterials({ detail, catalog, busy, run, onReload, onDirtyCh
     </> : <>
       <div className={s.planDocument}><div><strong>Plan de {folder.name}</strong>
         <small>{folder.units.length} {folder.units.length === 1 ? 'unidad' : 'unidades'} · {topicCount} {topicCount === 1 ? 'tema' : 'temas'}</small></div>
-        {planHref && <a href={planHref}>Descargar plan</a>}
+        {planHref && <StudyFileLinks href={planHref} plan/>}
       </div>
       {folder.units.map((unit, index) => <details className={s.planUnit} key={unit.id} open={index === 0 ? true : undefined}>
         <summary><strong>{unit.title}</strong><small>{unit.topics.length} {unit.topics.length === 1 ? 'tema' : 'temas'}</small></summary>

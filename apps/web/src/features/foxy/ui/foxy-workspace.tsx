@@ -2,7 +2,7 @@ import { AsyncFeedback } from '../../../../../shared-ui/AsyncFeedback';
 import { FoxyToolPicker } from '../../../../../shared-ui/FoxyToolPicker';
 import { useChatFollow } from '../../../../../shared-ui/use-chat-follow';
 import { useEffect, useRef, useState } from 'react';
-import type { FoxyPurpose } from '../../../../../../src/core/domain/index.ts';
+import type { FoxyContext, FoxyPurpose } from '../../../../../../src/core/domain/index.ts';
 import type { createFoxyChatController } from '../model/foxy-chat-controller';
 import type { createFoxyWorkspaceActions } from '../model/foxy-workspace-actions';
 import styles from './foxy-workspace.module.css';
@@ -20,6 +20,7 @@ import { teacherAttachmentPath } from '../../../shared/chat-attachments';
 type Controller = ReturnType<typeof createFoxyChatController>;
 type State = ReturnType<Controller['getState']>;
 type Classroom = { id: string; name: string };
+type VisualChatDraft = { context: FoxyContext; onCreated: () => void };
 type ToolMode = 'NOTE' | 'DIAGRAM' | 'ACTIVITY' | 'PLAN' | 'RUBRIC';
 const tools: { mode: ToolMode; purpose: FoxyPurpose; label: string; hint: string; icon:IconKey; placeholder: string; request?: string }[] = [
   { mode: 'NOTE', purpose: 'STUDY_MATERIAL', label: 'Crear apuntes', hint: 'Explicaciones y ejemplos', icon: 'book', placeholder: '¿Qué tema querés explicar y a quiénes?', request: 'Prepará un apunte con explicaciones y ejemplos.' },
@@ -28,12 +29,14 @@ const tools: { mode: ToolMode; purpose: FoxyPurpose; label: string; hint: string
   { mode: 'PLAN', purpose: 'LESSON_PLAN', label: 'Crear planificación', hint: 'Una secuencia de clase', icon: 'calendar', placeholder: '¿Qué tema vas a trabajar y cuánto dura la clase?', request: 'Prepará una planificación con una secuencia de clase.' },
   { mode: 'RUBRIC', purpose: 'RUBRIC', label: 'Crear rúbrica', hint: 'Criterios de evaluación', icon: 'list-checks', placeholder: '¿Qué producción querés evaluar y qué criterios te interesan?', request: 'Proponé una rúbrica como texto editable, con criterios, niveles de logro y pesos que sumen 100. No afirmes haberla asociado a una actividad.' },
 ];
-export function FoxyWorkspace({ identity, controller, state, classrooms, contextClassrooms = classrooms, onOpenResource, onCreateDiagram, onOpenVisual, creationBlocked = false, onNavigate, destinationHref, onActivityHandoff, catalog, onConversationQuery, onCreationQuery, onMoreConversations, onMoreCreations, onOpenCreation, onRefreshCatalog }: { identity?: ChatIdentity; destinationHref?: FoxyDestinationHref; catalog?: FoxyCatalogState; onConversationQuery?: (query: FoxyConversationQuery) => void; onCreationQuery?: (query: FoxyCreationQuery) => void; onMoreConversations?: () => void; onMoreCreations?: () => void; onOpenCreation?: (item: FoxyCreation) => void; onRefreshCatalog?: () => void; controller: ReturnType<typeof createFoxyWorkspaceActions>['chat']; state: State; classrooms: Classroom[]; contextClassrooms?: Classroom[]; onActivityHandoff?: (conversationId: string, turnId: string, mode: 'ACTIVITY' | 'RUBRIC') => void; onOpenResource?: (conversationId: string, turnId: string) => void; onCreateDiagram?: (prompt: string) => Promise<boolean> | boolean; onOpenVisual?: () => void; creationBlocked?: boolean; onNavigate?: (href: string) => void }) {
-  const [submittedMessage,setSubmittedMessage]=useState<{text:string;after:number}|null>(null);
+export function FoxyWorkspace({ identity, controller, state, classrooms, contextClassrooms = classrooms, onOpenResource, onCreateDiagram, onOpenVisual, creationBlocked = false, onNavigate, destinationHref, onActivityHandoff, catalog, onConversationQuery, onCreationQuery, onMoreConversations, onMoreCreations, onOpenCreation, onRefreshCatalog }: { identity?: ChatIdentity; destinationHref?: FoxyDestinationHref; catalog?: FoxyCatalogState; onConversationQuery?: (query: FoxyConversationQuery) => void; onCreationQuery?: (query: FoxyCreationQuery) => void; onMoreConversations?: () => void; onMoreCreations?: () => void; onOpenCreation?: (item: FoxyCreation) => void; onRefreshCatalog?: () => void; controller: ReturnType<typeof createFoxyWorkspaceActions>['chat']; state: State; classrooms: Classroom[]; contextClassrooms?: Classroom[]; onActivityHandoff?: (conversationId: string, turnId: string, mode: 'ACTIVITY' | 'RUBRIC') => void; onOpenResource?: (conversationId: string, turnId: string) => void; onCreateDiagram?: (prompt: string) => Promise<boolean> | boolean; onOpenVisual?: (draft?: VisualChatDraft) => void; creationBlocked?: boolean; onNavigate?: (href: string) => void }) {
+  const [submittedMessage,setSubmittedMessage]=useState<{text:string;after:number;conversationId:string|null}|null>(null);
   const chatFollow=useChatFollow(state.current?.id,JSON.stringify([state.turns.map(t=>[t.id,t.state]),state.pending?.requestId,state.activeTurn?.state,submittedMessage?.text]));
-  const pendingText=state.pending?.text??submittedMessage?.text;
-  const pendingVisible=!!pendingText&&!state.turns.some(t=>t.sequence>(submittedMessage?.after??Infinity)&&t.message===pendingText);
-  useEffect(()=>{if(submittedMessage&&state.turns.some(t=>t.sequence>submittedMessage.after&&t.message===submittedMessage.text))setSubmittedMessage(null);},[state.turns,submittedMessage]);
+  const inCurrentChat=submittedMessage?.conversationId===state.current?.id;
+  const matchedSubmission=!!submittedMessage&&inCurrentChat&&state.turns.some(t=>t.sequence>submittedMessage.after&&t.message===submittedMessage.text);
+  const pendingText=state.pending?.text??(inCurrentChat?submittedMessage?.text:undefined);
+  const pendingVisible=!!pendingText&&!matchedSubmission;
+  useEffect(()=>{if(matchedSubmission)setSubmittedMessage(null);},[matchedSubmission]);
   const [newChat, setNewChat] = useState(false);
   const [view, setView] = useState<ChatView>('chat');
   const [contextOpen, setContextOpen] = useState(false);
@@ -46,15 +49,15 @@ export function FoxyWorkspace({ identity, controller, state, classrooms, context
   const [starting, setStarting] = useState<{ title: string; text: string; purpose: FoxyPurpose; mode: ToolMode | null; message: string; context: string; previousId?: string } | null>(null);
   const [startReady, setStartReady] = useState(false);
   const draftMode = !state.current || newChat;
+  const draftContext: FoxyContext = context === 'GENERAL' ? { kind: 'GENERAL' } : { kind: 'CLASSROOM', classroomId: context };
   const attachmentPath = !draftMode && state.current ? teacherAttachmentPath(state.current.id) : undefined;
   const attachments = useChatAttachments(attachmentPath);
   const draftAttachmentRequest = useRef<string | undefined>(undefined);
   async function attach(id: string, file: File) {
     await attachments.upload(async () => {
       if (attachmentPath) return attachmentPath;
-      const chosen = context === 'GENERAL' ? { kind: 'GENERAL' as const } : { kind: 'CLASSROOM' as const, classroomId: context };
       draftAttachmentRequest.current ??= crypto.randomUUID();
-      const conversation = await controller.create({ requestId: draftAttachmentRequest.current, title: 'Nueva conversación', context: chosen });
+      const conversation = await controller.create({ requestId: draftAttachmentRequest.current, title: 'Nueva conversación', context: draftContext });
       if (typeof conversation !== 'string') throw new Error('No pudimos abrir el chat para este archivo. Volvé a intentar.');
       draftAttachmentRequest.current = undefined;
       setNewChat(false);
@@ -87,6 +90,7 @@ export function FoxyWorkspace({ identity, controller, state, classrooms, context
       void Promise.resolve(onCreateDiagram?.(starting.text)).then(accepted => { if (accepted) { setText(value => value === starting.text ? '' : value); setMode(null); } });
       return;
     }
+    setSubmittedMessage({text:starting.message,after:0,conversationId:current.id});
     void Promise.resolve(controller.send(starting.purpose, starting.message, state.selection ?? { topicIds: [], sourceIds: [] })).then(result => {
       if (result === 'accepted' || result === 'uncertain') { setText(value => value === starting.text ? '' : value); setMode(null); } else setSubmittedMessage(null);
     });
@@ -100,9 +104,9 @@ export function FoxyWorkspace({ identity, controller, state, classrooms, context
       <img src="/brujula/avatars/foxy-creative.webp" width={72} height={72} alt=""/>
     </header>
     <FoxyToolPicker items={[...tools.map(tool => ({ ...tool, value: tool.mode, example: tool.placeholder })),
-      ...(!draftMode && onOpenVisual ? [visualTool] : [])]} value={mode}
-      disabled={!!starting || state.busy || !!state.activeTurn || !!state.pending} onChange={value => {
-        if (value === 'VISUALS') onOpenVisual?.();
+      ...(onOpenVisual ? [visualTool] : [])]} value={mode}
+      disabled={preparingContext || !!starting || state.busy || !!state.activeTurn || !!state.pending} onChange={value => {
+        if (value === 'VISUALS') onOpenVisual?.(draftMode ? { context: draftContext, onCreated: () => setNewChat(false) } : undefined);
         else { setMode(value); setView('chat'); }
       }}/>
   </>;
@@ -196,12 +200,13 @@ export function FoxyWorkspace({ identity, controller, state, classrooms, context
         </> : <div className={styles.empty}>{submittedMessage?<><div className={styles.request}><ChatByline user identity={identity}/><p>{submittedMessage.text}</p></div><AsyncFeedback compact title="Preparando tu conversación…"/></>:<FoxyWelcome tool={tool} onExample={() => setText('Dame una idea para cerrar una clase en tres minutos.')} />}</div>}
           <form className={styles.composer} onSubmit={event => { event.preventDefault(); if (!validMessage || disabled) return;
             const submitted = text;
-            if(mode!=='DIAGRAM')setSubmittedMessage({text:outbound,after:Math.max(0,...state.turns.map(t=>t.sequence))});
+            if(mode!=='DIAGRAM')setSubmittedMessage({text:outbound,
+              after:draftMode?0:Math.max(0,...state.turns.map(t=>t.sequence)),
+              conversationId:draftMode?null:state.current?.id??null});
             if (draftMode) {
               const title = [...submitted.trim().replace(/\s+/gu, ' ')].slice(0, 120).join('');
-              const chosen = context === 'GENERAL' ? { kind: 'GENERAL' as const } : { kind: 'CLASSROOM' as const, classroomId: context };
               setStarting({ title, text: submitted, message: outbound, purpose, mode, context, previousId: state.current?.id });
-              void Promise.resolve(controller.create({ requestId: crypto.randomUUID(), title, context: chosen })).then(() => setStartReady(true)).catch(() => { setStarting(null); setSubmittedMessage(null); setStartReady(false); });
+              void Promise.resolve(controller.create({ requestId: crypto.randomUUID(), title, context: draftContext })).then(() => setStartReady(true)).catch(() => { setStarting(null); setSubmittedMessage(null); setStartReady(false); });
               return;
             }
             void (async () => {

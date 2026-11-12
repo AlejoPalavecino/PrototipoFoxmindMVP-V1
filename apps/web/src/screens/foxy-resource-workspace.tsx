@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { downloadTextDocument } from '../../../shared-ui/text-document';
+import { FoxyMarkdown } from '../../../shared-ui/markdown';
 import { openDialog } from '../../../shared-ui/dialog-focus';
 import type { Classroom } from '../../../../src/core/contracts/classrooms.ts';
 import type { createFoxyWorkspaceRuntime } from '../features/foxy/index.ts';
@@ -72,9 +73,18 @@ export function FoxyResourceWorkspace(props: Props) {
     {ui.error && <p role="alert">{ui.error}</p>}
     {resource.status === 'loading' || ui.openingResource ? <p role="status">Cargando recurso…</p> : null}
     {resource.status === 'unavailable' ? <p role="alert">{resource.error ?? 'El recurso no está disponible.'}</p> : null}
-    {resource.resource && draft && <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', alignItems: 'flex-start' }}>
-      <section aria-labelledby="foxy-editor-title" style={{ flex: '2 1 26rem', minWidth: 0 }}>
-        <h3 id="foxy-editor-title">Editar material</h3>
+    {resource.resource && draft && <div className={`brujula-dialog-body ${styles.resourceViewer}`}>
+      <section aria-label="Lectura del recurso">
+        <h3>{resource.resource.title}</h3>
+        <div className={styles.resourceActions}>
+          <button type="button" className={button} onClick={() => downloadTextDocument(resource.resource!.title,resource.resource!.markdown)}>Descargar Word</button>
+          {download && <a className={button} href={download}>Descargar PDF</a>}
+        </div>
+        <FoxyMarkdown markdown={resource.resource.markdown}/>
+      </section>
+      <details className={styles.resourceDisclosure} open={resource.conflict ? true : undefined}>
+        <summary>Editar material</summary>
+        <section className={styles.resourceFields} aria-label="Editar material">
         <p>{resource.dirty ? 'Cambios sin guardar' : 'Recurso guardado'}</p>
         <label htmlFor="foxy-resource-name">Título</label>
         <input id="foxy-resource-name" value={draft.title} disabled={confirmLocked} aria-invalid={invalidTitle} aria-describedby="foxy-title-help"
@@ -91,8 +101,11 @@ export function FoxyResourceWorkspace(props: Props) {
         {resource.errorCode === 'CONFLICT' && !resource.conflict && <button type="button" className={button} onClick={() => void actions.resource.refreshConflict()}>Consultar versión guardada</button>}
         {resource.pending ? <button type="button" className={button} disabled={mutationLocked} onClick={() => void actions.resource.retry()}>Reintentar guardado</button>
           : <button type="button" className="p5-primary" disabled={!resource.dirty || resource.busy || mutationLocked} onClick={() => void actions.resource.save()}>Guardar cambios</button>}
-      </section>
-      <section aria-labelledby="foxy-publish-title" style={{ flex: '1 1 20rem', minWidth: 0 }}>
+        </section>
+      </details>
+      <details className={styles.resourceDisclosure} open={props.initialHandoffMode ? true : undefined}>
+        <summary>Compartir</summary>
+        <section className={styles.resourceFields} aria-labelledby="foxy-publish-title">
         {props.handoffRuntime && props.handoffState && <FoxyActivityHandoffPanel key={`${resource.resource?.id}:${props.initialHandoffMode ?? ""}`} initialMode={props.initialHandoffMode} runtime={props.handoffRuntime} state={props.handoffState} resource={resource} classrooms={classrooms} onNavigate={href => { void actions.requestNavigate(href); }} locked={mutationLocked || preparation.busy || !!preparation.pending} />}
         <h3 id="foxy-publish-title">Preparar para Biblioteca</h3>
         <p>La preparación es privada y todavía no es visible para estudiantes.</p>
@@ -132,9 +145,7 @@ export function FoxyResourceWorkspace(props: Props) {
         {discardedKnown && pub?.state !== 'DISCARDED' && <p role="status">Actualizando el estado de la preparación descartada.</p>}
         {pub && (!discardedKnown || pub.state === 'DISCARDED') && props.management && <FoxyPublicationManagementPanel publication={pub} management={props.management}
           actions={actions.management} locked={confirmLocked || resource.busy || !!resource.pending || preparation.busy || !!preparation.pending} />}
-        {preview && <a href={preview} target="_blank" rel="noopener noreferrer">Abrir vista previa PDF</a>}{' '}
-        {download && <a href={download} target="_blank" rel="noopener noreferrer">Descargar PDF</a>}
-        {draft ? <button type="button" disabled={invalidTitle || invalidText || resource.busy} onClick={()=>downloadTextDocument(draft.title,draft.markdown)}>Descargar Word</button> : null}
+        {preview && <a href={preview} target="_blank" rel="noopener noreferrer">Abrir vista previa PDF</a>}
         {!discardedKnown && <>{confirmation.error && <p role="alert">{confirmation.error}</p>}
         {confirmation.receipt ? <div><p role="status">Publicado en la Biblioteca{receiptRoom ? ` de ${receiptRoom.name}` : confirmation.review?.classroomName ? ` de ${confirmation.review.classroomName}` : ''}.</p>
           {roomId && <a href={`/mis-aulas?aula=${roomId}`} onClick={event => { if (!event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && event.button === 0) { event.preventDefault(); void actions.requestNavigate(`/mis-aulas?aula=${roomId}`); } }}>Abrir aula</a>}</div> : <>
@@ -145,7 +156,8 @@ export function FoxyResourceWorkspace(props: Props) {
               : <button type="button" className="p5-primary" disabled={!confirmation.canConfirm || managementLocked} onClick={() => void actions.confirmation.confirm()}>Publicar en Biblioteca</button>}
           </div>}
         </>}</>}
-      </section>
+        </section>
+      </details>
     </div>}
   </dialog>;
 }

@@ -121,6 +121,14 @@
 .tool { display: grid; gap: 10px; margin-top: 16px; }
 .visualForm { margin: 0; padding: 0; border: 0; background: transparent; }
 .visualForm > p { margin: 0; }
+.resourceViewer, .resourceFields { display: grid; gap: 12px; min-width: 0; }
+.resourceActions { display: flex; flex-wrap: wrap; gap: 8px; margin-block: 8px; }
+.resourceActions a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none; }
+.resourceDisclosure { border: 1px solid var(--foxy-border); border-radius: 12px; padding: 0 12px; }
+.resourceDisclosure > summary { align-content: center; min-height: 44px; cursor: pointer; font-weight: 650; }
+.resourceDisclosure > :not(summary) { margin-block: 8px 12px; }
+.visualPreview { display: grid; gap: 8px; }
+.visualPreview img { max-width: 100%; height: auto; margin-inline: auto; }
 .tool :is(h3, h4, p) { margin: 0; }
 .tool h4 { margin-block: 8px; }
 .tool > button, .confirmation button { justify-self: start; }

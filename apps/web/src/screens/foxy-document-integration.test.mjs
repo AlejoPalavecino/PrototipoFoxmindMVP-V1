@@ -61,7 +61,7 @@ test('pagehide before pending session resolves never mounts private editor',asyn
 });
 
 test('failed bfcache replacement exposes a safe error outside hidden private presentation',async()=>{
- let ports;const f=screenFixture({session:async()=>({authenticated:true,user:{id:randomUUID(),emailVerified:true,accountRole:'teacher'}}),bridgeFactory:options=>{ports=options;return {install(){},replace(){},navigate(){},dispose(){}};}});
+ let ports;const f=screenFixture({session:async()=>({authenticated:true,user:{id:randomUUID(),firstName:'Ana',lastName:'Prueba',emailVerified:true,accountRole:'teacher'}}),bridgeFactory:options=>{ports=options;return {install(){},replace(){},navigate(){},dispose(){}};}});
  try{await f.view.flush();const root=f.view.tree.props.ref;assert.ok(root);const element={hidden:false};root.current=element;ports.hidePresentation();assert.equal(element.hidden,true);ports.onError();await f.view.flush();
   assert.match(renderToStaticMarkup(f.view.tree),/No pudimos abrir Foxy AI/iu);assert.equal(element.hidden,false,'safe failure must be visible after failed replace');assert.doesNotMatch(renderToStaticMarkup(f.view.tree),/PRIVATE EDITOR/);
  }finally{f.close();}
