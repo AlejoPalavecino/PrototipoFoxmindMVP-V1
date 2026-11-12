@@ -8,7 +8,7 @@ Conserva Brújula: selección de día destacada, lista lateral con horario compl
 
 ## Consistencia de Inicio por rol — 2026-11-12
 
-Pulido local en `codex/home-visual-audit`, sin integración ni publicación. Ambos roles comparten la presentación de mini agenda (tarjetas menta/lavanda, fecha lateral y acciones de 44 px). El estudiante conserva pendientes, devoluciones propias publicadas y accesos estudiantiles; no incorpora herramientas docentes.
+Pulido integrado en `main` (`a961794`) tras aprobación del usuario; sin push ni despliegue en esta entrega. Ambos roles comparten la presentación de mini agenda (tarjetas menta/lavanda, fecha lateral y acciones de 44 px). El estudiante conserva pendientes, devoluciones propias publicadas y accesos estudiantiles; no incorpora herramientas docentes.
 
 En móvil, las siguientes entregas colocan el plazo debajo del título y reservan una columna para la acción, evitando comprimir palabras entre fecha e icono. Los accesos de aula mantienen igual altura entre filas; los botones de entrega, corrección y devolución tienen al menos 44 px. Se conservan los destinos y reglas existentes. Evidencia y límites en el [registro de auditoría](../work-log/2026-11-12-root-home-visual-audit.md).
 

@@ -6,6 +6,7 @@ Base del producto inspeccionada: main, d41ff6d0b8c9321403b1d3000a06e06d84366cfe.
 
 | Capacidad | Estado actual | Evidencia o fuente |
 |---|---|---|
+| Consistencia visual de Inicio por rol | Integrada localmente en main (a961794): mini agenda compartida, acciones de 44 px y entregas estudiantiles responsive; 43 pruebas y tipos/lint/documentación verdes. Sin push ni despliegue en esta entrega | [Registro](work-log/2026-11-12-root-home-visual-audit.md) |
 | Pulido de Inicio docente | Integrado y publicado en main (89ac88d, conservado en 122daaa): orden completo de entregas/consultas, selección de aula en foco, acciones con destino explícito y mini agenda visual. Verificación local y regresión conjunta con Mis aulas: SQL Docker y E2E Inicio; sin despliegue | [Tarea](../odd/tasks/teacher-home-polish.md), [recibo](verification/teacher-home-polish.json), [registro](work-log/2026-11-11-root-teacher-home-polish.md) |
 | Carpetas de estudio | Implementado y verificado localmente, integrado y publicado en main (3c30de3):65 pruebas, permisos/DB/HTTP, revisión independiente y QA responsive. Gemini real plan/chat/quiz directo; prácticas E2E sintéticas. Cupo demo agotado sin elevar límites. Sin despliegue | [Guía](engineering/study/README.md), [tarea](../odd/tasks/study-folders.md), [recibo](verification/study-folders.json) |
 | Cuenta y rol exclusivo | Registro docente/estudiante, verificación, acceso, perfil, contraseña y recuperación implementados; recorridos actuales observados | [Identidad](engineering/identity/README.md), [flujos](verification/flows.md) |

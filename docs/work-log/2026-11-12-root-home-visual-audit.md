@@ -37,3 +37,9 @@ Verificado localmente en el harness y pruebas focales. No se ejecutaron build co
 ## Integración autorizada — 2026-11-12
 
 El usuario aprobó el resultado y autorizó realizar los ajustes necesarios, verificar y mergear a main. Se prepara un commit único de Inicio con fixture y documentación; no incluye archivos pendientes de Foxy. Rollback: revertir esta unidad restaura estilos/mini agenda anteriores sin afectar Agenda ni aulas. Integración en curso; sin autorización de push o despliegue en este pedido.
+
+### Cierre de integración
+
+Integrado por fast-forward en main: a961794, sobre 078afbf (Agenda). Conflicto documental resuelto conservando las secciones de Inicio y Agenda. Revalidación: 43/43 pruebas verdes (suite focal anterior más home-reference-dashboard y agenda-ux-navigation); tsc --noEmit --incremental false -p apps/web/tsconfig.json, ESLint focal, docs:check (118 archivos/1028 enlaces) y diff --check sin errores. No cambió código visual respecto de la auditoría en navegador ya registrada.
+
+El mapa pendiente de Foxy se respaldó temporalmente y se restituyó con sus tres entradas; se comprobó igualdad normalizada del contenido original más la entrada de Inicio. Los seis archivos pendientes de Foxy/estudio existentes al inicio conservan SHA-256. El stash temporal se eliminó después de verificar la recuperación. Archivos nuevos de trabajo concurrente no se incluyeron en el commit. Estado: integrado localmente; sin push ni despliegue. No hay paso de implementación pendiente dentro del alcance aprobado.
