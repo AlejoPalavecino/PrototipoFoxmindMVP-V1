@@ -3,7 +3,7 @@
 - Fecha y candidato. 2026-11-12, rama `main`, base `734845b` y cambios locales previos.
 - Coordinador Codex. Identificador de sesión no expuesto.
 - Alcance autorizado. Vista previa y descarga del original de DOCX en hasta tres pasos.
-- Evidencia de partida. [Auditoría E2E](../verification/2026-11-12-foxy-study-e2e.md#hallazgos-para-corregir).
+- Evidencia de partida. [Auditoría E2E](../verification/2026-11-12-foxy-study-e2e.md#hallazgos-de-la-corrida-inicial-y-correcciones-publicadas).
 - Estado. Implementado y verificado localmente.
 
 ## Cambio

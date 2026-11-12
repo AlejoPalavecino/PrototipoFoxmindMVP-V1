@@ -1,6 +1,6 @@
 # Especificación funcional vigente de FoxMind
 
-Base documental del 2026-11-07. Describe el alcance implementado y las reglas que deben conservarse, contrastadas con código y recorridos actuales. No concede permisos de implementación, publicación o despliegue. Las [funciones por rol](product/features-by-role.md), [guías de ingeniería](engineering/README.md) y [matriz de comprobaciones](verification/flows.md) detallan capacidades, implementación y evidencia respectivamente.
+Revisada el 2026-11-12 sobre `main` (`398cc0b`). Describe el alcance implementado y las reglas del producto. Las [funciones por rol](product/features-by-role.md), [guías de ingeniería](engineering/README.md) y [matriz de comprobaciones](verification/flows.md) detallan capacidades, implementación y evidencia.
 
 ## 1. Cuenta, identidad y permisos
 
@@ -28,6 +28,8 @@ Inicio docente prioriza entregas/consultas y acciones del aula; Inicio estudiant
 
 Seguimiento docente permite ordenar Entregas por recepción y Consultas por última actividad, en ambas direcciones y con elección independiente para todo el listado paginado. Aula en foco permite elegir un aula activa propia y revalida esa elección al actualizar. Cada acción del aula solicita su destino antes de continuar; ese destino no altera el foco. Las elecciones pertenecen a la vista, sin nueva preferencia persistente. [Reglas y recuperación](engineering/home/README.md#inicio-docente-orden-y-selección-de-aulas).
 
+Ambos roles comparten la presentación de la mini agenda. La docente incluye próximos eventos personales y una entrega cuando corresponde. La estudiantil muestra eventos personales. En móvil, las próximas entregas estudiantiles ubican el plazo debajo del título. [Referencias de Inicio](design/current/README.md#inicio-búsqueda-y-notificaciones)
+
 ## 3. Aulas, borradores e ingreso
 
 Crear aula tiene cuatro pasos:
@@ -38,7 +40,7 @@ Crear aula tiene cuatro pasos:
 
 Al confirmar se publica y vuelve a Mis aulas. Guardar borrador conserva una creación privada recuperable, sin crear aula visible a alumnos. El auxiliar manual de texto prepara estructura editable; no es una llamada al proveedor.
 
-Aulas y Carpetas de estudio comparten presentación de cuatro pasos, selector de portadas y estados de colección. Conservan sus campos y reglas independientes. El plan se revisa mediante resumen de unidades/temas y unidades desplegables; la extracción IA mantiene feedback de espera y un único editor de propuesta antes de aplicarla. [Dirección UX/UI vigente](design/README.md#dirección-vigente-de-foxy-y-estudio).
+Aulas y Carpetas de estudio comparten presentación de cuatro pasos, selector de portadas y estados de colección. Conservan sus campos y reglas independientes. El plan se revisa mediante resumen de unidades/temas y unidades desplegables. La extracción IA muestra la espera y presenta un único editor de propuesta antes de aplicarla. [Asistentes vigentes](design/README.md#crear-y-entrar)
 
 Mis aulas docente separa Activas, Archivadas y Pendientes con contador. Cada borrador sin publicar aparece en Pendientes con banner automático «Pendiente de creación», incluso sin nombre. Permite continuar o eliminar con confirmación de pérdida de datos. Sólo el dueño puede eliminar; una revisión desactualizada o un borrador ya publicado impide la operación. La baja lógica retira el acceso y conserva referencias internas, sin restauración disponible. Las invitaciones permanecen separadas. Al confirmar creación, pasa a Activas.
 
@@ -114,11 +116,13 @@ Tres medidas independientes: cumplimiento de entregas, rendimiento y avance de t
 
 ## 9. Asistencias con IA
 
-Familias actuales: extracción de plan, generación de actividad, análisis individual, corrección asistida y Foxy. No compartir reglas de privacidad sólo por compartir proveedor.
+Las familias son extracción de plan, generación de actividad, análisis individual, corrección asistida, Foxy docente y Estudio privado. Cada familia conserva sus reglas de privacidad, contexto y autorización.
 
 Análisis individual: métricas anónimas, orientación docente; no corrección de respuestas ni diagnóstico/predicción personal. Corrección asistida: entrega/archivos autorizados y rúbrica opcional; minimizar datos no garantiza texto libre anónimo. Propuesta privada, docente usa/edita/descarta y publica por separado; motor objetivo permanece determinista.
 
 Foxy es privado del docente verificado, con contexto/fuentes explícitos. Conversación/recursos preparados no son material público. Texto/imagen/esquema necesitan destino, preparación, revisión y confirmación para Biblioteca. Traspaso actual a Actividades crea un TP privado. Fallo/cuota/obsolescencia no debe duplicar publicación ni sustituir cambios docentes.
+
+La tarjeta Imágenes y esquemas permite iniciar un trabajo visual desde un chat nuevo. El botón Generar guarda la conversación en el contexto elegido y encola el visual. Los turnos de texto activan el procesador al confirmarse y se despachan cuando hay capacidad global y por docente. [Reglas de Foxy](engineering/ai/foxy.md)
 
 Abrir una creación lista muestra primero su contenido. El docente puede descargar Word o el archivo visual privado sin compartirlo. El estudiante puede descargar apuntes y esquemas en Word y consignas de práctica en TXT sin respuestas ni soluciones. Materiales y Plan ofrecen apertura cuando el formato lo admite y descarga. Para recursos recientes, Creaciones → recurso → descarga son tres acciones; Compartir conserva preparación, revisión y confirmación.
 
@@ -133,6 +137,8 @@ Configuración, presupuesto, límites y claves permanecen en backend. [Guías](e
 Carpetas de estudio puede proponer y, tras revisión explícita, crear sesiones personales de repaso con avisos privados configurables. Un evento modificado independientemente no se sobrescribe; archivo/eliminación de carpeta cancela avisos y conserva eventos confirmados. [Reglas de estudio](engineering/study/README.md).
 
 Eventos personales privados, consultables en mes/semana/día, con tipo, fecha, horario o día completo, color, notas y repetición. No asignan actividades ni cambian plazos/notas de aula.
+
+Mes, Semana y Día conservan la fecha al cambiar de vista. Al elegir un día, Agenda muestra sus eventos en el panel lateral de escritorio o en un panel inferior en pantallas angostas. Crear desde ese panel usa la fecha elegida. [Diseño y límites](engineering/agenda/README.md)
 
 Series diarias/semanales/mensuales con final y máximo 53 ocurrencias. La mensual conserva día original y omite meses sin ese día. Editar serie explicita alcance, incluidas fechas pasadas. Eliminar permite ocurrencia o serie; el modelo conserva excepciones. La evidencia actual ensayó repetición semanal y borrado de serie, no todas las variantes de calendario.
 
@@ -159,6 +165,8 @@ Sin administración institucional, pagos, ranking, certificados, Google login, t
 Carpetas de estudio agrega creación con documento aprobado y estructura revisada, materiales propios y vínculo opcional a una sola Biblioteca autorizada, conversaciones/creaciones privadas, quizzes/ejercicios/simulacros respondibles, devolución orientativa y adaptación por evidencia de la propia carpeta. Revocar una fuente impide usarla en nuevas respuestas, incluso mediante historia derivada; conserva creaciones previas con aviso. No publica resultados académicos. [Contrato funcional aprobado](product/study-folders-proposal.md), [guía](engineering/study/README.md) y [evidencia con límites](verification/study-folders.json).
 
 Crear carpeta sigue los cuatro pasos de Crear aula con datos propios de Estudio: datos y portada, cargar plan, unidades y temas, revisión y confirmación. El plan aprobado sigue siendo obligatorio incluso en la ruta manual. Confirmar activa una carpeta privada; guardar borrador permite retomarla desde Pendientes.
+
+Quitar material, eliminar carpeta y agregar repasos a Agenda requieren confirmación en un diálogo de FoxMind. Cancelar o pulsar Escape conserva el estado anterior. Eliminar una carpeta cancela sus avisos futuros y conserva las sesiones ya incorporadas a Agenda. [Guía de Estudio](engineering/study/README.md)
 
 Hosting, proveedores cloud, presupuesto, cuota productiva y piloto real requieren decisión humana. Una guía o estado implementado no autoriza su ejecución sobre datos retenidos, credenciales o servicios pagos.
 

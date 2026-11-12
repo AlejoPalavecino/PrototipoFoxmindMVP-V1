@@ -10,6 +10,8 @@ Chat, conversaciones, Herramientas/Creaciones y Materiales/Plan conservan el est
 
 Desde Creaciones se pueden leer apuntes y esquemas y descargar su versión guardada en Word. Las prácticas ofrecen un TXT con consignas y opciones; no incluye respuestas, soluciones ni devolución, y descargar no finaliza el intento. Todos estos recursos permanecen privados.
 
+Quitar un material propio, eliminar una carpeta y agregar sesiones a Agenda abren un diálogo de confirmación de FoxMind. Cancelar queda enfocado al abrir. Cancelar o Escape vuelve al control que abrió el diálogo y conserva la vista anterior. La acción confirmada bloquea envíos repetidos mientras guarda. [Capturas de Estudio](../../design/current/README.md#foxy-y-carpetas-de-estudio) · [Pruebas de confirmación](../../work-log/2026-11-12-root-study-confirmations.md)
+
 La devolución envía consignas y respuestas de desarrollo completas como datos separados del mensaje de chat y de las fuentes académicas. Conserva el máximo de 20.000 caracteres por respuesta; el chat mantiene su límite de 5.000 puntos de código. El contenido completo, incluidas las respuestas y las fuentes, cuenta dentro del presupuesto contextual de 350.000 caracteres serializados: excederlo rechaza la solicitud antes del proveedor, sin truncar respuestas. La devolución revalida fuentes y salida; un fallo conserva las respuestas para reintentar.
 
 La adaptación usa evidencia de preguntas practicadas/errores por tema de esta carpeta, sin diagnósticos ni mezcla entre alumnos/carpetas. El motor valida referencias exactas, entrada e historial. Insuficiencia de fuentes no produce una creación completa. Se guarda la conversación, pero se contextualizan sólo turnos recientes con procedencia autorizada.

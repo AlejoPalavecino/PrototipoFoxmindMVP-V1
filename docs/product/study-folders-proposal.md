@@ -4,7 +4,7 @@ El estudiante organiza su estudio en carpetas propias con plan, materiales y un 
 
 ## Estado y alcance
 
-Especificación aprobada del 2026-11-08. El usuario confirmó el alcance mediante «Voy con tus recomendaciones» y después aprobó expresamente pantallas, solución/modelo e implementación mediante «Si lo apruebo». Implementación y comprobaciones locales registradas en [tareas](../../odd/tasks/study-folders.md) y [recibo](../verification/study-folders.json), con límites de proveedor/QA explícitos. Amplía la frontera anterior que excluía tutores estudiantiles. No implica publicación Git o despliegue.
+Especificación aprobada el 2026-11-08. La [guía de Estudio](../engineering/study/README.md) describe el comportamiento publicado en main y las ampliaciones posteriores. El [tablero](../../odd/tasks/study-folders.md) y el [recibo](../verification/study-folders.json) conservan la evidencia de la implementación inicial. [Publicación de Foxy y Estudio](../work-log/2026-11-12-root-foxy-study-publication.md)
 
 | Confirmado | Resultado |
 |---|---|
@@ -19,9 +19,9 @@ Especificación aprobada del 2026-11-08. El usuario confirmó el alcance mediant
 
 Fuera de alcance: compartir carpetas, acceso docente, modificar aulas o calificaciones oficiales, vincular varias aulas simultáneamente, búsqueda web como fuente, entrenamiento de un modelo, push del sistema/correo/SMS, proveedores nuevos y despliegue. Ningún resultado personal alimenta Progreso del aula.
 
-## Propuesta de experiencia
+## Experiencia aprobada
 
-Conservar Brújula, Lexend, colores y componentes vigentes. No introducir otra identidad visual. Las referencias son [Mis aulas](../design/current/teacher-classrooms.png) y [Foxy](../design/current/teacher-foxy-discovery-desktop.png), inspeccionadas como base, no como prueba de la funcionalidad futura.
+Conservar Brújula, Lexend, colores y componentes vigentes. No introducir otra identidad visual. La [galería de Estudio](../design/current/README.md#foxy-y-carpetas-de-estudio) muestra la interfaz publicada.
 
 ### 1. Encontrar y crear una carpeta
 

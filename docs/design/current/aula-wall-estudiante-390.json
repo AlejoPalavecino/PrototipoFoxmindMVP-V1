@@ -1,0 +1,20 @@
+{
+  "url": "/mis-aulas",
+  "width": 390,
+  "height": 844,
+  "scrollWidth": 390,
+  "scrollY": 256,
+  "headings": [
+    "Fotografía y luz",
+    "Muro",
+    "Muro",
+    "Traé una foto para la próxima clase",
+    "Respuestas (0)"
+  ],
+  "alerts": [],
+  "role": "student",
+  "date": "2026-11-12",
+  "candidate": "398cc0bbe53e9deaf09a02d9b9fa0d35398180e0",
+  "environment": "Aplicación local compilada, servicios descartables, cuentas y proveedores de IA sintéticos",
+  "browser": "Chromium / Playwright"
+}

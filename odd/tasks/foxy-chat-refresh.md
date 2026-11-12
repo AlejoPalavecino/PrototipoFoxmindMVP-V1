@@ -1,7 +1,7 @@
 # Feature: Foxy AI y chat de estudio
 
 - **Spec:** docs/design/foxy-ai-proposal.md
-- **Design:** docs/design/study-chat-preview.html
+- **Design:** docs/design/foxy-ai-proposal.md
 - **Approval:** approved
 
 ## Tasks

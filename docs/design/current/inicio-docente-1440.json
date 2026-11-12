@@ -1,0 +1,28 @@
+{
+  "url": "/inicio",
+  "width": 1440,
+  "height": 1000,
+  "scrollWidth": 1440,
+  "scrollY": 0,
+  "headings": [
+    "¡Buen día, Lucía!",
+    "Por atender",
+    "Acciones del aula",
+    "Mi agenda",
+    "Eventos personales",
+    "Preparar clase de fotografía",
+    "Revisar práctica de luz",
+    "Próxima fecha de entrega",
+    "Luz natural y encuadre",
+    "Aula en foco",
+    "Fotografía y luz",
+    "Actividades en borrador",
+    "Actividad sin título"
+  ],
+  "alerts": [],
+  "role": "teacher",
+  "date": "2026-11-12",
+  "candidate": "398cc0bbe53e9deaf09a02d9b9fa0d35398180e0",
+  "environment": "Aplicación local compilada, servicios descartables, cuentas y proveedores de IA sintéticos",
+  "browser": "Chromium / Playwright"
+}

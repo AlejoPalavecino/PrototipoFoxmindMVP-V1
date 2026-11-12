@@ -1,0 +1,21 @@
+{
+  "url": "/carpetas-de-estudio/8fabd9fb-0e34-4fb5-9a91-67c703e63749",
+  "width": 390,
+  "height": 844,
+  "scrollWidth": 390,
+  "scrollY": 0,
+  "headings": [
+    "Fotografía y luz · estudio",
+    "Estudiá con Foxy",
+    "Hagamos lugar a tus preguntas",
+    "Materiales y Plan",
+    "Tu material de estudio",
+    "Quitar material"
+  ],
+  "alerts": [],
+  "role": "student",
+  "date": "2026-11-12",
+  "candidate": "398cc0bbe53e9deaf09a02d9b9fa0d35398180e0",
+  "environment": "Aplicación local compilada, servicios descartables, cuentas y proveedores de IA sintéticos",
+  "browser": "Chromium / Playwright"
+}

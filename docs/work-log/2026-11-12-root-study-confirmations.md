@@ -3,7 +3,7 @@
 - Fecha y candidato. 2026-11-12, rama `main`, base `734845b` y cambios locales previos.
 - Coordinador Codex. Identificador de sesión no expuesto.
 - Alcance autorizado. Unificar los diálogos de agregar a Agenda, quitar material y eliminar carpeta. Comprobar confirmar y cancelar.
-- Evidencia de partida. [Auditoría E2E](../verification/2026-11-12-foxy-study-e2e.md#hallazgos-para-corregir).
+- Evidencia de partida. [Auditoría E2E](../verification/2026-11-12-foxy-study-e2e.md#hallazgos-de-la-corrida-inicial-y-correcciones-publicadas).
 - Estado. Implementado y verificado localmente.
 
 Las tres acciones usan el diálogo compartido de FoxMind. El foco inicial se pone en **Cancelar**. El diálogo de Agenda indica cuántas sesiones se agregarán. Quitar y eliminar identifican el material o la carpeta y describen el efecto. Durante el envío se impide repetir la operación. Si falla, el diálogo muestra el error y permite reintentar.

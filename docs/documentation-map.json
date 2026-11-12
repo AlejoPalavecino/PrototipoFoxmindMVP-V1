@@ -1,15 +1,13 @@
 {
   "schemaVersion": 1,
-  "baseCommit": "d41ff6d0b8c9321403b1d3000a06e06d84366cfe",
-  "hashPolicy": "Current baseline: catalog hashes are exact bytes; no retained historical aliases",
+  "baseCommit": "398cc0bbe53e9deaf09a02d9b9fa0d35398180e0",
+  "hashPolicy": "Los hashes del catálogo corresponden a bytes exactos. El catálogo identifica capturas vigentes y evidencia previa.",
   "activeFiles": [
     "docs/work-log/2026-11-12-root-classrooms-visual-audit.md",
     "odd/tasks/classrooms-visual-audit.md",
     "docs/verification/classrooms-visual-audit.json",
-    "docs/design/study-chat-preview.html",
     "docs/work-log/2026-11-12-root-home-visual-audit.md",
     "docs/design/foxy-ai-proposal.md",
-    "docs/design/foxy-ai-preview.html",
     "docs/work-log/2026-11-12-root-foxy-preview.md",
     "docs/work-log/2026-11-12-root-foxy-workspace.md",
     "docs/work-log/2026-11-12-root-foxy-resource-access.md",
@@ -23,7 +21,6 @@
     "odd/tasks/classrooms-ux-unification.md",
     "docs/work-log/2026-11-11-root-classrooms-frontend.md",
     "docs/design/classroom-teacher-redesign.md",
-    "docs/design/classroom-teacher-preview.html",
     "docs/work-log/2026-11-11-root-teacher-classroom-design.md",
     "docs/work-log/2026-11-11-teacher-design-preview.md",
     "docs/work-log/2026-11-11-root-teacher-home-polish.md",
@@ -137,7 +134,12 @@
     "docs/work-log/2026-11-11-codes-batch.md",
     "docs/work-log/2026-11-11-content-ui.md",
     "docs/work-log/2026-11-11-grading-ui.md",
-    "docs/verification/classrooms-ux-unification.json"
+    "docs/verification/classrooms-ux-unification.json",
+    "docs/work-log/2026-11-12-root-agenda-publication.md",
+    "docs/work-log/2026-11-12-root-agenda-ux.md",
+    "docs/work-log/2026-11-12-root-documentation-audit.md",
+    "docs/verification/documentation-audit-retirement.json",
+    "docs/design/current/catalog.json"
   ],
   "moves": [],
   "fixedPaths": [

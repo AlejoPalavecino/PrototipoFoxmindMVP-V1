@@ -1,157 +1,61 @@
-# UX/UI vigente de FoxMind
+# Experiencia de usuario de FoxMind
 
-## Foxy y Carpetas de estudio — 2026-11-12
+Brújula es el sistema visual de la aplicación. La navegación y los componentes compartidos mantienen la misma presentación entre roles. Las acciones dependen de la cuenta, el contexto y los permisos del recurso. [Galería de la aplicación](current/README.md)
 
-Los dos roles comparten un área de trabajo con Chat, Herramientas y Creaciones. El historial aparece como una columna plegable en escritorio y como diálogo en pantallas estrechas. Ampliar chat aprovecha la ventana y Escape recupera la vista anterior. Los mensajes propios muestran el avatar de la cuenta o sus iniciales.
+## Navegación e Inicio
 
-El docente elige General o un aula en un selector con búsqueda y aplicación explícita. El estudiante elige temas dentro de la carpeta. Materiales y Plan ofrece búsqueda por título, filtro por procedencia, estado de compatibilidad con Foxy, carga privada a la carpeta y unidades desplegables. Estudiar prepara una consulta sobre el tema elegido.
+El escritorio muestra la barra lateral desde 1024 px. En pantallas más estrechas, el menú compacto abre un panel que devuelve el foco al control de origen al cerrarse. Ambos roles tienen Inicio, Mis aulas, Agenda, búsqueda, notificaciones y Mi cuenta. Foxy AI aparece para docentes y Carpetas de estudio para estudiantes.
 
-El compositor admite adjuntos privados. El diálogo de estudio distingue adjuntar al chat de guardar también en la carpeta. Se revisaron la densidad de los encabezados, el contraste de los cierres, el ritmo de las tarjetas, los estados activos y el espacio para leer el chat. La app conserva el menú y la navegación propios de FoxMind.
+En Inicio, el docente ordena Entregas y Consultas por separado, elige Aula en foco y confirma el destino de cada acción. El estudiante encuentra sus entregas y devoluciones publicadas. La mini agenda usa tarjetas compartidas con fecha lateral, horario y acceso de 44 px. En móvil, el plazo de una entrega queda debajo del título. [Reglas de Inicio](../engineering/home/README.md) · [Capturas](current/README.md#inicio-búsqueda-y-notificaciones)
 
-Capturas locales con cuentas sintéticas: [chat docente](current/foxy-refresh-teacher-chat-1440.png), [historial](current/foxy-refresh-teacher-history-mobile.png), [contexto](current/foxy-refresh-teacher-context-mobile.png), [herramientas](current/foxy-refresh-teacher-herramientas-mobile.png), [chat de estudio](current/foxy-refresh-student-chat-1440.png), [estudio a 320 px](current/foxy-refresh-student-chat-320.png), [adjuntar con copia](current/foxy-refresh-student-attach-copy-mobile.png), [materiales](current/foxy-refresh-student-materials-mobile.png) y [plan](current/foxy-refresh-student-plan-mobile.png). [Diseño aprobado y reglas de adjuntos](foxy-ai-proposal.md). [Pruebas y límites](../work-log/2026-11-12-root-foxy-workspace.md).
+## Mis aulas
 
-[Creaciones con un apunte de prueba](current/foxy-refresh-student-creaciones-list-mobile.png).
+| Rol | Secciones |
+|---|---|
+| Docente | Plan, Muro, Biblioteca, Actividades, Progreso, Alumnos, Historial y Configuración |
+| Estudiante | Plan, Muro, Biblioteca, Actividades, Mi progreso y Compañeros |
 
-La tarjeta «Imágenes y esquemas» abre un diálogo desde la cuadrícula de Herramientas. Al abrir un visual listo desde Creaciones, la vista previa y la descarga aparecen antes del formulario de generación. El texto docente abre en lectura, con descarga visible y controles separados para editar y compartir. En Estudio se abren y descargan las creaciones privadas sin opciones de publicación. [Capturas vigentes](current/README.md#lectura-y-descarga-de-recursos-de-foxy-y-estudio--2026-11-12) · [evidencia del corte](../work-log/2026-11-12-root-foxy-resource-access.md).
+El catálogo y el interior comparten cabecera, selector de secciones y jerarquía visual. Plan alinea el control de avance con el nombre y el estado de cada tema. En Biblioteca, la búsqueda reserva espacio para la lupa y los recursos conservan su acción de apertura en móvil. Progreso docente usa una tabla de clase. Mi progreso reúne datos propios de la cuenta estudiante. Configuración del aula agrupa portadas en dos columnas en móvil. [Diseño aprobado](classroom-teacher-redesign.md) · [Reglas de Aulas](../engineering/classrooms/README.md) · [Capturas](current/README.md#mis-aulas)
 
-Crear carpeta comparte la presentación de Crear aula: indicador de cuatro pasos, portadas, carga y método, unidades y revisión. El cuerpo se desplaza y las acciones quedan visibles. Datos, textos y persistencia se adaptan a una carpeta privada, con aula vinculada opcional. [Comparación en la app](current/README.md#crear-aula-y-crear-carpeta--2026-11-12).
+### Crear y entrar
 
-## Agenda — pulido aprobado del 2026-11-12
+Crear aula y Crear carpeta comparten cuatro pasos, portadas, revisión editable y acciones visibles al desplazar. Los datos, permisos y mensajes son propios de cada dominio. Guardar borrador permite volver desde Pendientes. El aula se crea al confirmar. El estudiante que se une por código revisa el destino y confirma la inscripción. [Asistentes](current/README.md#creación-e-ingreso)
 
-Iteración de detalle diario aprobada: encabezado compacto con contador independiente, tarjetas de fondo tenue por color y borde suave, título destacado, horario debajo y etiqueta de tipo. Toda la tarjeta abre el detalle. Acción discreta «+ Agregar evento»; misma presentación en panel móvil.
+### Actividades y devolución
 
-Conserva Brújula: selección de día destacada, lista lateral con horario completo/título/color y acceso a crear; panel inferior hasta 920 px, cierre accesible y retorno de foco. Barra común Mes/Semana/Día con controles de 44 px y fecha conservada; transición 160 ms desactivada con movimiento reducido. Formulario único con campos de 46 px, columnas iguales en escritorio y una columna hasta 600 px; acciones visibles y errores asociados a campos. [Capturas actuales](current/README.md#agenda--2026-11-12), [evidencia](../verification/agenda-ux.json). Comprobaciones locales con límites; auditoría posterior detectó seis ajustes visuales pendientes. [Publicación autorizada y hallazgos](../work-log/2026-11-12-root-agenda-publication.md).
+La autoría manual usa un editor con preparación y revisión. La generación asistida abre el resultado en el editor como borrador privado. El estudiante puede volver a editar desde la revisión de entrega. La confirmación emite el comprobante y bloquea la edición del intento. La corrección docente se guarda en privado y sólo aparece para el estudiante después de publicar la versión revisada. [Autoría](../engineering/activities/authoring.md) · [Participación](../engineering/activities/participation.md) · [Calificación](../engineering/grading/README.md)
 
-## Consistencia de Inicio por rol — 2026-11-12
+## Foxy y Carpetas de estudio
 
-Pulido integrado en `main` (`a961794`) tras aprobación del usuario; sin push ni despliegue en esta entrega. Ambos roles comparten la presentación de mini agenda (tarjetas menta/lavanda, fecha lateral y acciones de 44 px). El estudiante conserva pendientes, devoluciones propias publicadas y accesos estudiantiles; no incorpora herramientas docentes.
+Chat, Herramientas y Creaciones comparten la presentación. Historial es una columna plegable en escritorio y un diálogo en móvil. El chat ampliado conserva el borrador y vuelve con Escape. Los mensajes propios usan el avatar o las iniciales de la cuenta. La espera indica la operación y la demora sin presentar texto parcial generado.
 
-En móvil, las siguientes entregas colocan el plazo debajo del título y reservan una columna para la acción, evitando comprimir palabras entre fecha e icono. Los accesos de aula mantienen igual altura entre filas; los botones de entrega, corrección y devolución tienen al menos 44 px. Se conservan los destinos y reglas existentes. Evidencia y límites en el [registro de auditoría](../work-log/2026-11-12-root-home-visual-audit.md).
-
-## Composición compartida de Mis aulas — 2026-11-12
-
-El docente es la referencia visual para las superficies comunes, por decisión del usuario. Catálogo, cabecera, navegación, Plan, Muro, Biblioteca y filas de actividades conservan los mismos componentes y lenguaje visual en ambos roles. Los permisos, acciones, estados académicos y destinos exclusivos permanecen distintos; Mi progreso no se convierte en un registro de toda la clase.
-
-Plan alinea el check con el centro de cada tema y separa nombre y estado en dos líneas; sus filtros tienen igual ancho. Los recursos mantienen icono, contenido y apertura en tres columnas también en móvil. La barra de avance conserva el porcentaje junto al indicador. Biblioteca reserva espacio para la lupa de búsqueda. Progreso docente presenta encabezados y celdas alineados en una tabla de ancho completo; las portadas de Configuración se organizan en dos columnas en móvil.
-
-Publicado en `origin/main` el 2026-11-12 (f73c923). [Registro y límites](../work-log/2026-11-12-root-classrooms-visual-audit.md) y [tarea](../../odd/tasks/classrooms-visual-audit.md).
-
-## Dirección vigente de Inicio docente — 2026-11-11
-
-Seguimiento elimina los textos de alcance/orden estáticos y coloca un selector accesible arriba a la derecha, adaptable a una segunda fila en móvil. Título y selector comparten eje vertical; pestañas y Ver todas comparten fila y altura de 44 px. Mi agenda presenta la fecha sólo en el bloque lateral y el horario (o Todo el día) debajo del título, con separación uniforme entre eventos. Entregas y Consultas mantienen su elección independiente y todas las páginas respetan el orden.
-
-Aula en foco expone Cambiar aula junto al título. El próximo tema usa superficie durazno, acento naranja redondeado, unidad secundaria y acción con flecha circular al extremo derecho. Mini agenda usa tarjetas menta/lavanda para eventos y durazno para próxima entrega, con fecha, contenido y acceso alineados; texto oscuro y etiquetas conservan significado sin depender del color.
-
-Cada acción del aula abre un diálogo con su tono visual, portada/nombre/división, selección única y Continuar. No altera el aula en foco. Radios nativos admiten teclado; Cancelar/Escape devuelve el foco. Carga, vacío, error y reintento están cubiertos; en móvil los borradores siguen a los widgets prioritarios.
-
-[Capturas actuales](current/README.md#inicio-docente--2026-11-11) y [recibo](../verification/teacher-home-polish.json). Son componentes reales con datos sintéticos en navegador; la persistencia y autorización SQL se comprueban por separado.
-
-Referencia actual: aplicación Brújula recorrida con Ego Lite sobre código real, API/SQL/archivos/escáner/correo propios y cuentas sintéticas. Las capturas y checks se consultan en la [galería](current/README.md) y [matriz por flujo/rol](../verification/flows.md). No se usa una maqueta histórica como autoridad.
-
-## Rediseño de Mis aulas implementado
-
-Integrado y publicado en main (122daaa), con frontend docente/estudiante y backend de códigos/invitaciones. Evidencia en el [registro de integración](../work-log/2026-11-11-root-classrooms-frontend.md).
-
-El 2026-11-11 el usuario aprobó los recorridos de Mis aulas docente, incluidas invitaciones múltiples y código de seis dígitos vigente hasta regeneración docente. Luego pidió recuperar la identidad visual de FoxMind y recorrer los flujos de principio a fin. El [diseño detallado](classroom-teacher-redesign.md) documenta los recorridos y criterios. El [prototipo local](classroom-teacher-preview.html) permite probarlos con datos ficticios. Las secciones siguientes describen el producto implementado.
-
-La ampliación de la maqueta incorpora autoría manual/IA compartida, lectura de consignas, revisión de entregas por tipo y aula estudiantil con la misma UI. El selector de personaje es exclusivo del prototipo; las cuentas reales conservan rol exclusivo. Entregas, archivos, generación y devoluciones se recorren con datos locales de ejemplo.
-
-## Dirección vigente de Foxy y estudio
-
-El pulido aprobado el 2026-11-09 conserva la identidad Brújula y usa Foxy docente como referencia para el espacio estudiantil. Las diferencias de contenido responden al rol y al objeto creado; los controles comunes mantienen la misma presentación e interacción.
-
-| Área | Regla de UX/UI vigente | Referencia |
+| Superficie | Docente | Estudiante |
 |---|---|---|
-| Herramientas | Tarjetas con icono, nombre y descripción secundaria; selección visible. Herramientas, Creaciones y Conversaciones accesibles directamente en móvil | [Foxy](current/ux-foxy-tools-mobile.png), [estudio](current/ux-study-tools-mobile.png) |
-| Chat | Mensaje saliente inmediato y espera de Foxy; la bienvenida desaparece al enviar. El campo y Enviar permanecen visibles en el viewport móvil comprobado | [Docente](current/ux-foxy-mobile.png), [estudiante](current/ux-study-chat-mobile.png) |
-| Lectura e historial | Acompañar mensajes y cambios de tamaño sólo cuando se está al final. Al leer mensajes anteriores, conservar posición y ofrecer «Ver mensajes nuevos» | [Guía Foxy](../engineering/ai/foxy.md#feedback-y-lectura-del-chat) |
-| Carga y error | Nombrar la operación real: abrir, subir/validar, enviar, esperar o analizar. Animación discreta con movimiento reducido; conservar entrada o solicitud recuperable | [Espera](current/ux-study-pending-mobile.png), [error](current/ux-study-error-mobile.png) |
-| Colecciones | Un selector compartido para Activas, Archivadas y Pendientes, con contador y estado seleccionado. Mostrar sólo los estados autorizados para ese rol/espacio y mantener los filtros propios de cada dominio | [Aulas](current/ux-classrooms-mobile.png), [carpetas](current/ux-study-collection-mobile.png) |
-| Creación | Diálogo, pasos y portadas compartidos. Encabezado opaco al desplazar; nombres e ilustraciones sin recortes. Guardar borrador y confirmar creación siguen siendo acciones diferentes | [Aula](current/ux-classroom-create-mobile.png), [carpeta](current/ux-study-create-mobile.png), [portadas](current/ux-study-covers-mobile.png) |
-| Plan de estudio | Durante el análisis, priorizar la espera sin repetir opciones deshabilitadas. Después, resumen de unidades/temas y edición desplegable; abrir inicialmente las incompletas y conservar su apertura al escribir | [Carga](current/ux-plan-loading-mobile.png), [revisión](current/ux-plan-review-mobile.png), [edición](current/ux-plan-editor-mobile.png) |
+| Contexto | Elige General o aula propia y aplica el cambio. Puede elegir temas y fuentes del aula | Trabaja en su carpeta, elige temas y consulta la procedencia de las fuentes |
+| Adjuntos | Incorpora PDF/DOCX privados de esa conversación | Puede guardar además una copia como material de carpeta mediante una elección explícita |
+| Herramientas | Prepara apuntes, esquemas, actividades, planificaciones y rúbricas. La tarjeta Imágenes y esquemas abre su propio diálogo, también desde un chat nuevo | Prepara apuntes, esquemas, quizzes, ejercicios y simulacros. Preparar un examen abre un cronograma revisable |
+| Creaciones | Lee, edita y descarga. Compartir abre los pasos de Biblioteca o el traspaso a un borrador de TP | Lee y descarga recursos privados. Las prácticas incluyen consignas descargables y devolución al finalizar |
 
-Las fuentes del chat estudiantil se consultan en un desplegable de jerarquía secundaria; los UUIDs de versión quedan fuera de la lectura principal. No simular tokens, progreso porcentual o resultados mientras se espera. Un error estudiantil conserva el texto; un envío docente sin confirmación conserva su solicitud para reintentar con la misma identidad. Consultar los límites de cada ensayo en el [recibo](../verification/foxy-study-ux-polish.json).
+Materiales y Plan ofrece filtros, procedencia, compatibilidad con Foxy, apertura y descarga. Estudiar prepara una consulta para un tema. Abrir un DOCX muestra el texto disponible y Descargar conserva el original. Quitar material, eliminar carpeta y agregar sesiones a Agenda abren confirmaciones dentro de FoxMind. Cancelar o Escape conserva el contexto y devuelve el foco. [Foxy](../engineering/ai/foxy.md) · [Estudio](../engineering/study/README.md) · [Capturas](current/README.md#foxy-y-carpetas-de-estudio)
 
-La referencia visual de este pulido comprende 28 capturas inspeccionadas a 1440×1000 y 390×844. Las capturas anteriores de estas superficies documentan sus recorridos previos; no son la dirección visual a copiar. Prácticas, examen, perfil y otras superficies sin rediseño conservan sus referencias específicas.
+## Agenda
 
-## Información y navegación
+Mes, Semana y Día conservan la fecha seleccionada. El detalle se muestra al costado en escritorio y en un panel inferior hasta 920 px. Cada tarjeta muestra título, horario, tipo y color, y abre el evento. Agregar evento conserva la fecha elegida. El formulario pasa a una columna hasta 600 px. [Reglas de Agenda](../engineering/agenda/README.md) · [Capturas](current/README.md#agenda)
 
-Carpetas de estudio agrega navegación exclusiva del estudiante, colección de tarjetas/banner como aulas, asistente de cuatro pasos y un interior con chat/herramientas/creaciones/conversaciones como Foxy. Materiales/Plan, práctica y examen se abren en diálogos con foco gestionado. La dirección aprobada y estados se conservan en [propuesta](../product/study-folders-proposal.md); la [evidencia](../verification/study-folders.json) indica viewports y límites de QA.
+## Perfil y configuración de cuenta
 
-Sidebar desde 1024 px; en tamaños menores, menú compacto con drawer y retorno de foco. Global: Inicio, Mis aulas, Agenda, búsqueda, notificaciones y Mi cuenta; Foxy sólo docente. Perfil y Configuración de cuenta están dentro de Mi cuenta.
+El selector ofrece iniciales y cuatro avatares Foxy. Guardar cambios aplica nombres y avatar juntos. En móvil, las iniciales ocupan una fila y los avatares se distribuyen en dos columnas. Configuración contiene contraseña y cierre de sesión. [Identidad](../engineering/identity/README.md) · [Capturas](current/README.md#cuenta-y-acceso)
 
-| Contexto | Secciones |
+## Componentes y estados
+
+Brújula usa Lexend, texto #252646, fondo #F4F7FE, superficies blancas y acción #B8490C. El CSS compartido y los estilos de cada pantalla definen el resultado. [CSS principal](../../apps/shared-ui/brujula.css) · [Controles](../../apps/shared-ui/brujula-controls.css)
+
+| Elemento | Implementación |
 |---|---|
-| Aula docente | Plan, Muro, Biblioteca, Actividades, Progreso, Alumnos, Historial, Configuración |
-| Aula estudiante | Plan, Muro, Biblioteca, Actividades, Mi progreso, Compañeros |
+| Selector Activas, Archivadas y Pendientes | [CollectionStateFilter](../../apps/shared-ui/CollectionStateFilter.tsx) |
+| Herramientas y espera | [FoxyToolPicker](../../apps/shared-ui/FoxyToolPicker.tsx) y [AsyncFeedback](../../apps/shared-ui/AsyncFeedback.tsx) |
+| Posición de lectura y mensajes nuevos | [useChatFollow](../../apps/shared-ui/use-chat-follow.ts) |
+| Pasos, portadas y revisión | [CreationSteps](../../apps/shared-ui/CreationSteps.tsx) y [estilos del asistente](../../apps/shared-ui/brujula-wizard.css) |
+| Confirmaciones de Estudio | [StudyConfirmation](../../apps/web/src/features/study/ui/study-confirmation.tsx) |
 
-Inicio docente prioriza Por atender, acciones y aula en foco; estudiante, Mis entregas y devoluciones publicadas. Las cifras Enseño/Estudio de la proyección no son un selector de rol dual. El banner, las tarjetas y los accesos conservan jerarquía por rol, sin métricas inventadas.
-
-## Perfil y Configuración
-
-Mi perfil ofrece Mis iniciales y cuatro avatares Foxy generados a partir de la mascota vigente. Selección única con radios nativos, vista previa y aviso Sin guardar; Guardar cambios aplica nombres/avatar juntos. En móvil, iniciales ocupa una fila y los cuatro Foxy se distribuyen en dos columnas; escritorio presenta cinco opciones. La imagen elegida aparece en el resumen, navegación y diálogo Mi cuenta. Foco visible, bloqueo durante guardado y error con reintento conservan los controles de cuenta.
-
-En Configuración los botones Mostrar/Ocultar quedan centrados dentro de campos de 48 px, con objetivo de 44 px y espacio reservado para evitar superposición del texto. La corrección está limitada a la pantalla privada. [Evidencia actual](../work-log/2026-11-08-root-profile-avatars.md).
-
-## Recorridos de referencia
-
-| Flujo | Secuencia actual |
-|---|---|
-| Cuenta | Elegir rol permanente → registrar → login → verificación con confirmación → Ir a Inicio |
-| Recuperar acceso | Solicitar correo genérico → enlace de un uso → nueva contraseña → login |
-| Crear aula | Datos/documento/portada → elección IA/manual → unidades/temas → revisión editable → confirmar |
-| Crear carpeta de estudio | Datos/documento/portada y vínculo opcional → IA/manual → unidades/temas → revisión → confirmar activación |
-| Ingresar | Código → vista previa → confirmar inscripción; invitación → aceptación expresa |
-| Manual de actividad | Preparar → Revisar y asignar; guardar borrador y asignar separados |
-| IA de actividad | Tema/objetivo → material/nivel → revisar/generar → propuesta editable → borrador privado → editor normal |
-| TP | Ver consigna → preparar/continuar → seleccionar/subir archivo → revisar → confirmar → comprobante |
-| Cuestionario/evaluación | Responder → autoguardar → revisar completas/incompletas → confirmar |
-| Corregir | Intento → nota/rúbrica privada → guardar → revisar publicación → confirmar |
-| Foxy | Conversación/contexto → recurso privado → preparar destino/archivo → revisar → confirmación y publicación |
-| Biblioteca TEXT | Escribir/publicar → leer → revisar como nueva identidad → conservación/eliminación según vínculos |
-| Aula | Salida/remoción → revocación e historia → nueva invitación para readmitir; archivo/reactivación no borran historial |
-| Agenda | Crear → detalle → editar/alcance de serie → eliminar ocurrencia/serie |
-
-Las [funciones por rol](../product/features-by-role.md) y [especificación](../foxmind-v1-functional-spec.md) explican permisos y reglas. Los nombres de botones de esta tabla reflejan el recorrido vigente; compatibilidad del API no agrega botones al producto.
-
-## Sistema visual implementado
-
-Familia Lexend cargada como Brújula. Texto #252646, secundario #60667D, fondo #F4F7FE, acción #B8490C, borde #DBE1F0; superficies blancas. Radios base de controles 11 px y tarjetas 18 px, con variantes por pantalla. Fuentes: [CSS principal](../../apps/shared-ui/brujula.css), [controles](../../apps/shared-ui/brujula-controls.css) y recursos en [public](../../apps/web/public/).
-
-Reutilizar componentes/navegación existentes antes de agregar variantes. Nombres fm3d/p5 y recursos anteriores todavía cargados son parte de la implementación; no confundirlos con documentación vieja descartable. Validar estilos calculados y contexto real; los tokens no garantizan contraste de toda combinación.
-
-| Elemento compartido | Fuente de implementación |
-|---|---|
-| Selector de estados | [CollectionStateFilter](../../apps/shared-ui/CollectionStateFilter.tsx) |
-| Tarjetas de herramientas | [FoxyToolPicker](../../apps/shared-ui/FoxyToolPicker.tsx) |
-| Feedback de carga de Foxy/estudio | [AsyncFeedback](../../apps/shared-ui/AsyncFeedback.tsx); Aulas conserva [AiProgress](../../apps/shared-ui/AiProgress.tsx) para su extracción |
-| Seguimiento del chat | [useChatFollow](../../apps/shared-ui/use-chat-follow.ts) |
-| Pasos y portadas de creación | [CreationSteps](../../apps/shared-ui/CreationSteps.tsx), [WizardCover](../../apps/web/src/features/classrooms/ui/WizardReview.tsx), [estilos compartidos](../../apps/shared-ui/brujula-wizard.css) |
-
-## Estados e interacción
-
-La [dirección vigente](#dirección-vigente-de-foxy-y-estudio) reúne las reglas del pulido de chat, herramientas, creación y plan. Su [recibo de validación](../verification/foxy-study-ux-polish.json) distingue app integrada y estados controlados con respuestas sintéticas; las capturas no sustituyen la evidencia de permisos o persistencia.
-
-Foxy conserva Brújula y agrega título de conversación con Renombrar, formato seguro de títulos/listas y acceso a temas/fuentes antes del primer envío de aula. Conversaciones usa búsqueda por título y chips de contexto. El widget lateral alterna Herramientas/Creaciones; Creaciones ofrece búsqueda, filtros por tipo/contexto/estado y apertura directa con origen y destinos separados. Aulas archivadas siguen disponibles como filtro de consulta; sólo activas se ofrecen para generar/publicar. Móvil expone Herramientas, Creaciones y Conversaciones directamente, con diálogos y retorno de foco. Colección → filtro → resultado son tres acciones; resultados recientes abren con una o dos. Publicación conserva preparación, revisión y confirmación. [Reglas](../engineering/ai/foxy.md), [seguimiento](../../odd/tasks/foxy-workspace-discovery.md).
-
-Mis aulas docente incorpora Pendientes junto a Activas/Archivadas, con contador, banner «Pendiente de creación» en cada tarjeta y acciones Continuar creación/Eliminar pendiente. Invitaciones se mantienen aparte. Eliminar abre diálogo con nombre, advertencia de pérdida, Cancelar y Eliminar pendiente; carga bloquea duplicados y error conserva contexto. [Reglas y contrato](../engineering/classrooms/README.md). La referencia de pendientes del 2026-11-08 utiliza componentes reales con cliente sintético; no atribuye persistencia a esas capturas. Ver [evidencia de pendientes](../work-log/2026-11-08-root-pending-classrooms.md).
-
-Carga y guardado deben indicar operación y bloquear duplicados. Una respuesta tardía no reemplaza cambios. Vacío debe explicar qué falta y ofrecer acción autorizada. Error debe conservar datos cuando corresponda, distinguir validación/permiso/conflicto/cuota/servicio y ofrecer recuperación sin reenviar una mutación confirmada.
-
-Confirmaciones son distintas: asignar actividad, enviar intento, publicar nota/recurso, salir/remover/archivar/eliminar. Un archivo listo no es entrega; corrección privada no es publicación. Mostrar el recibo y estado persistido.
-
-Formularios largos tienen scroll y jerarquía por secciones. En el recorrido de Ego hubo limitaciones de autoscroll/selectores; se registran como herramienta, sin atribuirlas automáticamente a FoxMind ni ocultar el uso de clicks DOM de respaldo.
-
-## Responsive y accesibilidad
-
-Referencias actuales incluyen escritorio de 1440 px, tablet de 768 px, móvil de 390 px y formularios móviles; otras capturas tienen el viewport registrado en JSON. No hay overflow horizontal en los controles geométricos conservados del catálogo actual.
-
-Se comprobó navegación móvil/Escape y retorno de foco, etiquetas y estados mediante snapshots; no es auditoría WCAG completa. Para cada cambio revisar teclado, tabulación, foco visible/diálogos, contraste, objetivos táctiles y reduced-motion, además de estados carga/vacío/error.
-
-Las capturas de resultado móvil incluyen scroll al bloque de devolución para que la referencia muestre el dato relevante. Una captura no prueba bytes o autorización: esos checks tienen recibos adicionales y alcance propio en la matriz.
-
-## Cambios futuros
-
-Mis aulas docente/estudiante del 2026-11-11: la [dirección detallada](classroom-teacher-redesign.md) y [maqueta navegable](classroom-teacher-preview.html) se trasladan al frontend en `codex/classrooms-ux-unification`. Catálogo con píldora, navegación compartida, creación amplia, unidades/temas legibles, contenidos, autoría manual/IA, revisión de entregas y devolución usan recursos/colores actuales de FoxMind. Los cambios de permiso se limitan a la ampliación autorizada de códigos/invitaciones; [tablero y límites verificables](../../odd/tasks/classrooms-ux-unification.md). No está integrado ni desplegado.
-
-Actualizar esta guía y el flujo afectado cuando cambie UX. Guardar referencias actuales con identidad del candidato, rol, viewport, acción, resultado y límites. Propuestas nuevas deben aprobarse antes de implementarse; no usar una captura antigua o un HTML de demo para alterar permisos. [Política documental](../documentation-policy.md).
+Los estados de carga y guardado indican la operación. Un vacío explica qué falta y ofrece la acción permitida. Los errores recuperables conservan los datos ingresados. Para verificar un cambio, comprobá foco, teclado, contraste, tamaño de controles, movimiento reducido y ajuste al ancho real. [Evidencia](../verification/README.md) · [Política documental](../documentation-policy.md)

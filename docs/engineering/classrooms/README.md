@@ -17,7 +17,7 @@ Los componentes de estado, pasos y portadas se reutilizan con Carpetas de estudi
 
 La revisión del plan resume unidades/temas y permite abrir cada unidad. Las incompletas se abren inicialmente; completar un campo no colapsa la edición. Durante la extracción IA se muestra la espera y, al terminar, un único editor de propuesta; el editor del plan guardado se presenta al aplicarla o elegir el método manual.
 
-[Crear aula en escritorio](../../design/current/ux-classroom-create-desktop.png) · [móvil](../../design/current/ux-classroom-create-mobile.png) · [portadas](../../design/current/ux-classroom-covers-mobile.png). El [recibo UX](../../verification/foxy-study-ux-polish.json) acredita presentación e interacción local; las reglas de propiedad/persistencia conservan su evidencia de dominio.
+[Crear aula y Crear carpeta en la aplicación](../../design/current/README.md#creación-e-ingreso) · [Comparación de los cuatro pasos](../../verification/flows.md#crear-carpeta-con-la-presentación-de-crear-aula--2026-11-12)
 
 ## Pendientes de creación
 

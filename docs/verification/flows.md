@@ -1,4 +1,6 @@
-# Recorridos actuales por flujo y rol
+# Recorridos verificados por flujo y rol
+
+La [auditoría del candidato `398cc0b`](../work-log/2026-11-12-root-documentation-audit.md) registra las comprobaciones nuevas y su [galería](../design/current/README.md). Cada bloque de esta matriz conserva la fecha y el alcance del ensayo original.
 
 Agenda, 2026-11-12: **PASS local UI** — 59 pruebas focales, tipos, lint y build web. Ego Lite con componentes reales/cliente sintético: seleccionar/abrir/crear por fecha, Mes/Semana/Día, foco/Escape, vacío, carga, error visible, formulario/repetición y responsive 1440×1000/390×844. Sin E2E autenticado ni persistencia SQL nueva. [Recibo](agenda-ux.json), [registro](../work-log/2026-11-12-root-agenda-ux.md). Integrado/publicado en main (b942b7b), sin despliegue. Auditoría posterior: seis ajustes visuales pendientes en el registro de publicación de Agenda.
 
@@ -6,9 +8,9 @@ Auditoría visual de Mis aulas, 2026-11-12: **publicada en `origin/main` (f73c92
 
 Mis aulas docente/estudiante, integrado y publicado en main (122daaa), 2026-11-11: maqueta auditada, frontend implementado y aplicación completa levantada en worktree separado. 106/106 pruebas integradas con Next/API/PostgreSQL/S3/ClamAV/Mailpit: aulas/invitaciones, Plan/Biblioteca/Muro, autoría, entregas TP/cuestionario/evaluación, guardado privado/publicación/corrección, progreso, reinicios y revocación. Navegador Ego con ambos roles sobre app completa verifica avance persistente compartido, lote y móvil; los recorridos de IA de la maqueta usan adaptadores sintéticos. Gemini configurado, sin generaciones reales en estas pruebas. [Recibo](classrooms-ux-unification.json), [estado, comandos y límites](../work-log/2026-11-11-root-classrooms-frontend.md), [tablero](../../odd/tasks/classrooms-ux-unification.md). Integración autorizada, reconciliada con Inicio y publicada; regresión conjunta: 19/19 E2E, 292/292 pure, 27/27 UI/CI y 1/1 SQL Docker. Main como única rama local/remota; sin despliegue.
 
-Inicio docente, 2026-11-11: **PASS local** en componentes reales con cliente sintético para orden independiente/paginación, selección de aulas de páginas posteriores, cuatro acciones con destino explícito, teclado/Escape/foco, recarga y estados vacío/error. Capturas Ego Lite 1440×1000, 768×1024 y 390×844 sin overflow; 7 muestras de contraste de texto ≥6.4:1. SQL/autorización se verificó separadamente en PostgreSQL 16 propio (6 PASS); Verificación posterior conjunta con Mis aulas: PostgreSQL 17.10 Docker 1/1 y suite Inicio E2E con login/roles 13/13. [Recibo](teacher-home-polish.json), [tarea](../../odd/tasks/teacher-home-polish.md), [capturas](../design/current/README.md#inicio-docente--2026-11-11). Integrado/publicado en main; sin despliegue.
+Inicio docente, 2026-11-11: **PASS local** en componentes reales con cliente sintético para orden independiente/paginación, selección de aulas de páginas posteriores, cuatro acciones con destino explícito, teclado/Escape/foco, recarga y estados vacío/error. Capturas Ego Lite 1440×1000, 768×1024 y 390×844 sin overflow; 7 muestras de contraste de texto ≥6.4:1. SQL/autorización se verificó separadamente en PostgreSQL 16 propio (6 PASS); Verificación posterior conjunta con Mis aulas: PostgreSQL 17.10 Docker 1/1 y suite Inicio E2E con login/roles 13/13. [Recibo](teacher-home-polish.json), [tarea](../../odd/tasks/teacher-home-polish.md), [capturas](teacher-home-polish.json). Integrado/publicado en main; sin despliegue.
 
-Carpetas de estudio (2026-11-08): **PASS local** para permisos/propiedad/CSRF, creación/cargas, fuentes vivas/revocación, cinco herramientas, prácticas con persistencia/finalización/devolución/nuevo intento, adaptación/preferencias y Agenda/avisos. Suite65/0/0, servicios aislados reales y proveedor sintético; Ego Lite390/834/1440, teclado/foco y diez capturas. **Gemini real limitado**: DOCX/plan/chat y quiz3 directo de motor. Dos quizzes iniciales de navegador sin temas fallaron y motivaron guardas previas a gasto. Cupo demo agotado sin elevarlo; no se repitió E2E real tras la corrección. [Recibo](study-folders.json), [tarea](../../odd/tasks/study-folders.md), [registro root](../work-log/2026-11-08-root-study-folders-design.md). Sin commits/publicación/despliegue.
+Carpetas de estudio (2026-11-08): **PASS local** para permisos/propiedad/CSRF, creación/cargas, fuentes vivas/revocación, cinco herramientas, prácticas con persistencia/finalización/devolución/nuevo intento, adaptación/preferencias y Agenda/avisos. Suite65/0/0, servicios aislados reales y proveedor sintético; Ego Lite390/834/1440, teclado/foco y diez capturas. **Gemini real limitado**: DOCX/plan/chat y quiz3 directo de motor. Dos quizzes iniciales de navegador sin temas fallaron y motivaron guardas previas a gasto. Cupo demo agotado sin elevarlo; no se repitió E2E real tras la corrección. [Recibo](study-folders.json), [tarea](../../odd/tasks/study-folders.md), [registro root](../work-log/2026-11-08-root-study-folders-design.md). El ensayo corresponde al corte local inicial. La [publicación de Estudio](../work-log/2026-11-08-root-study-folders-publication.md) queda registrada por separado.
 
 Entorno habitual local con Gemini, 2026-11-08: API arrancada desde `.env` de raíz, sin overrides. Ego Lite comprobó login, chat/continuidad (40 minutos), selección de dos temas y un PDF, apunte completo, revisión/publicación en Biblioteca y destino en Creaciones. Tras reiniciar API/web conservó sesión, clave, datos y publicación, y reabrió el apunte desde Creaciones. Tres generaciones externas READY con consumo registrado, sin reproducción ni reintentos automáticos. [Recibo](local-gemini-runtime.json), [arranque y límites](../engineering/local-development/README.md), [registro](../work-log/2026-11-08-root-local-gemini-runtime.md). Se deja la app local encendida; no es despliegue.
 
@@ -80,13 +82,23 @@ PASS acredita las acciones y resultados escritos en cada fila, con sus límites;
 - [Teclado](../design/current/keyboard-check.json): Escape y retorno de foco docente.
 
 No hubo llamadas a proveedores reales ni prueba exitosa nueva de análisis individual/corrección IA. El esquema se generó en una segunda cuenta tras observar cuota agotada en la primera. Quedan fuera de este recorrido transferencias/rectificaciones exhaustivas, pruebas de carga y fallas de infraestructura, fechas/DST y accesibilidad completa. Los intentos fallidos de automatización y recuperaciones se explican en el registro; no se presentan como fallas del producto.
+
 ## Acceso a recursos de Foxy y Estudio — 2026-11-12
 
 **PASS local** para primer mensaje en un chat docente nuevo, lectura y descarga docente y estudiantil, Compartir separado, retorno de foco y apertura privada de visual/PDF. Pruebas en aplicación con servicios propios y proveedor sintético; permisos cruzados comprobados sobre los archivos ensayados. [Evidencia y límites](../work-log/2026-11-12-root-foxy-resource-access.md).
 
+[Lectura docente](../design/current/foxy-resource-access-teacher-resource-desktop.png) · [Visual docente](../design/current/foxy-resource-access-teacher-visual-mobile.png) · [Apunte de estudio](../design/current/foxy-resource-access-student-note-mobile.png) · [Plan de estudio](../design/current/foxy-resource-access-student-plan-mobile.png).
+
 ## Crear carpeta con la presentación de Crear aula — 2026-11-12
 
-**PASS local** para cuatro pasos en ambos asistentes, archivo obligatorio en el segundo paso, borrador retomado, creación manual y asistida sintética, y recuperación a manual ante un fallo. [Capturas comparadas](../design/current/README.md#crear-aula-y-crear-carpeta--2026-11-12) · [Evidencia y límites](../work-log/2026-11-12-root-study-creation-parity.md).
+**PASS local** para cuatro pasos en ambos asistentes, archivo obligatorio en el segundo paso, borrador retomado, creación manual y asistida sintética, y recuperación a manual ante un fallo. [Evidencia y límites](../work-log/2026-11-12-root-study-creation-parity.md).
+
+| Paso | Crear aula | Crear carpeta |
+|---|---|---|
+| Datos y portada | [Escritorio](../design/current/study-creation-parity-teacher-step1-desktop.png) | [Escritorio](../design/current/study-creation-parity-student-step1-desktop.png) |
+| Cargar plan | [Móvil](../design/current/study-creation-parity-teacher-step2-mobile.png) | [Móvil](../design/current/study-creation-parity-student-step2-mobile.png) |
+| Unidades y temas | — | [Móvil](../design/current/study-creation-parity-student-step3-mobile.png) |
+| Revisión | [Escritorio](../design/current/study-creation-parity-teacher-step4-desktop.png) | [Escritorio](../design/current/study-creation-parity-student-step4-desktop.png) |
 
 ## Pulido UX de Foxy y estudio — 2026-11-09
 

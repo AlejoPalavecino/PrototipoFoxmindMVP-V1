@@ -10,9 +10,11 @@ La apertura de DOCX en Carpetas de estudio ahora muestra una vista previa de tex
 
 Agregar a Agenda, quitar material y eliminar carpeta ahora usan diálogos de FoxMind. [Registro de confirmación y cancelación](../work-log/2026-11-12-root-study-confirmations.md).
 
-## Hallazgos para corregir
+## Hallazgos de la corrida inicial y correcciones publicadas
 
-| Prioridad | Reproducción y resultado | Criterio de corrección |
+Los cuatro hallazgos de la tabla se corrigieron y se publicaron en main. Las reproducciones y tiempos corresponden a la corrida inicial. [Publicación](../work-log/2026-11-12-root-foxy-study-publication.md)
+
+| Prioridad original | Reproducción y resultado inicial | Criterio aplicado |
 |---|---|---|
 | Alta · espera docente | En Foxy, enviar una consulta general y luego crear un apunte en un chat nuevo. En la repetición el chat tardó **19,0 s** y el apunte **29,3 s** hasta mostrar el recurso, con proveedor sintético. Con dos apuntes enviados casi al mismo tiempo, los recursos estuvieron listos en **15,0 s y 45,2 s**. Cada chat mostró como máximo un indicador de espera y persistió un solo turno. En la corrida inicial, un adjunto seguía en cola al cabo de 30 s. El worker textual revisa la cola cada 30 s y toma un turno por ciclo. [Worker](../../apps/api/src/modules/foxy/infrastructure/worker.ts) | Reducir el tiempo hasta iniciar el procesamiento y comprobar dos solicitudes próximas, con una sola respuesta y un solo indicador por solicitud. Mantener concurrencia, privacidad y recuperación. |
 | Media · descubrimiento de imágenes | Entrar a Foxy → Nuevo chat → Herramientas. Aparece **Crear esquema** y se puede generar un diagrama. **Imágenes y esquemas** aparece recién cuando hay una conversación activa. Se reprodujo a 390 px. [Selector de herramientas](../../apps/web/src/features/foxy/ui/foxy-workspace.tsx) | Permitir iniciar una imagen desde el chat vacío y conservar acceso al esquema, vista previa y descarga. |

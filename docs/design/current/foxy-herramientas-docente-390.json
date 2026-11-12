@@ -1,0 +1,17 @@
+{
+  "url": "/foxy-ai",
+  "width": 390,
+  "height": 844,
+  "scrollWidth": 390,
+  "scrollY": 0,
+  "headings": [
+    "Foxy AI",
+    "¿Qué querés preparar?"
+  ],
+  "alerts": [],
+  "role": "teacher",
+  "date": "2026-11-12",
+  "candidate": "398cc0bbe53e9deaf09a02d9b9fa0d35398180e0",
+  "environment": "Aplicación local compilada, servicios descartables, cuentas y proveedores de IA sintéticos",
+  "browser": "Chromium / Playwright"
+}

@@ -3,7 +3,7 @@
 - Fecha y candidato. 2026-11-12, rama `main`, base `734845b` y cambios locales de las entregas anteriores.
 - Coordinador Codex. Identificador de sesión no expuesto.
 - Alcance autorizado. Eliminar la espera fija del procesamiento de turnos de texto y repetir el escenario de dos chats simultáneos con una respuesta y un indicador por chat.
-- Evidencia de partida. [Informe E2E](../verification/2026-11-12-foxy-study-e2e.md#hallazgos-para-corregir).
+- Evidencia de partida. [Informe E2E](../verification/2026-11-12-foxy-study-e2e.md#hallazgos-de-la-corrida-inicial-y-correcciones-publicadas).
 - Estado. Implementado y verificado localmente.
 
 ## Cambio

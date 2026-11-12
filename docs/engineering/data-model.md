@@ -1,6 +1,6 @@
 # Modelo de datos de FoxMind
 
-El modelo físico vive en [schema.prisma](../../prisma/schema.prisma) y las restricciones adicionales en [migrations](../../prisma/migrations/). Este mapa explica responsabilidades y relaciones, sin duplicar cada campo. Corte documental del 2026-11-07: 55 modelos y 46 migraciones SQL; no es una lectura de ninguna base en ejecución.
+El modelo físico vive en [schema.prisma](../../prisma/schema.prisma) y las restricciones adicionales en [migrations](../../prisma/migrations/). El candidato `398cc0b` contiene 61 modelos Prisma y 54 migraciones SQL. El conteo se obtiene del repositorio.
 
 ## Entidades por dominio
 
@@ -14,7 +14,7 @@ Actualización 2026-11-08: migración `202611080001_pending_classroom_deletion` 
 |---|---|---|
 | Identidad | User, Session, AccountToken, AccountActionControl | Usuario con rol exclusivo; sesiones/tokens asociados y controles de acciones |
 | Agenda | AgendaEvent | Cada evento pertenece a una cuenta; conserva calendario local, zona y proyección temporal |
-| Aulas e ingreso | ClassroomDraft, Classroom, ClassroomCode, Invitation, Enrollment, MembershipPeriod | Borrador y aula publicados separados; docente dueño, inscripción estable e historial de pertenencia |
+| Aulas e ingreso | ClassroomDraft, Classroom, ClassroomCode, Invitation, ClassroomInvitationBatch, Enrollment, MembershipPeriod | Borrador y aula separados, código vigente con historial, lote recuperable por solicitud, inscripción estable e historial de pertenencia |
 | Plan | Unit, Topic, StudyPlanVersion | Unidades del aula, temas de unidad y versiones documentales del plan |
 | Materiales y archivos | Material, MaterialRevision, FileObject, Upload, FileCustody | Recurso académico, revisiones, metadatos de bytes, carga y custodia |
 | Actividades | Activity, ActivityInstructionFile, ActivityMaterial, ActivityTopic, Question, QuestionOption | Actividad del aula con contenido, recursos, temas asociados, preguntas y opciones |
@@ -25,6 +25,7 @@ Actualización 2026-11-08: migración `202611080001_pending_classroom_deletion` 
 | Foxy: conversación y recursos | FoxyConversation, FoxyConversationRequest, FoxyTurn, FoxyResource, FoxyResourceRequest | Conversación docente privada, turnos y recursos derivados |
 | Adjuntos privados del chat | ChatAttachment | Dueño, conversación, carpeta opcional, digest y estados de carga, revocación y limpieza. La copia estudiantil confirmada comparte bytes con su `StudyFolderUpload` |
 | Foxy: publicación y visuales | FoxyPublication, FoxyPublicationConfirmRequest, FoxyPublicationCommandRequest, FoxyVisualAsset, FoxyPrivateAssetCommand, FoxyVisualJob | Confirmaciones y comandos, publicación, recursos privados y trabajos visuales |
+| Carpetas de estudio | StudyFolder, StudyFolderUpload, StudyReviewSession, StudyAiDispatch | Dueño estudiante, estado privado versionado, custodia de archivos, eventos de repaso y admisión de IA |
 
 Creaciones es una consulta privada de esas entidades existentes, no una nueva entidad o copia. Su ID estable es el turno de herramienta o trabajo visual; un recurso materializado conserva el mismo resultado de catálogo. Los destinos se obtienen de publicaciones y recibos de traspaso con su material/actividad actual; el contexto de conversación no constituye una asignación. No se agrega migración para esta proyección.
 

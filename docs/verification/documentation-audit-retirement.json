@@ -1,0 +1,254 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-12",
+  "baseCommit": "398cc0bbe53e9deaf09a02d9b9fa0d35398180e0",
+  "scope": "Maquetas reemplazadas por la aplicación y capturas redundantes que la galería actual sustituye. Git conserva las versiones previas.",
+  "count": 35,
+  "retired": [
+    {
+      "path": "docs/design/chat-materials-preview.js",
+      "sha256": "dc65908e6fc0b72f4928785c4c8a6bdec807262fb6ea7a379ccbbcb263831f01",
+      "bytes": 15724,
+      "replacement": "docs/design/README.md#foxy-y-carpetas-de-estudio",
+      "reason": "La aplicación implementada y su guía sustituyen la maqueta interactiva."
+    },
+    {
+      "path": "docs/design/classroom-activity-preview.css",
+      "sha256": "5e4e96d3b2dd0d0f374aea6b0b77d03d08dc874d2a10b73311dd49cb0beb7219",
+      "bytes": 13164,
+      "replacement": "docs/design/README.md#mis-aulas",
+      "reason": "La aplicación implementada y su guía sustituyen la maqueta interactiva."
+    },
+    {
+      "path": "docs/design/classroom-activity-preview.js",
+      "sha256": "8b6c5478457360c68d79e27a3cef521d79403585bf1c94d3ef9688fac720bb13",
+      "bytes": 46455,
+      "replacement": "docs/design/README.md#mis-aulas",
+      "reason": "La aplicación implementada y su guía sustituyen la maqueta interactiva."
+    },
+    {
+      "path": "docs/design/classroom-grading-preview.js",
+      "sha256": "f20f6a292fdb13b37307f9948bfd086a309cf1a5281aede9ffd29baf882a824f",
+      "bytes": 23257,
+      "replacement": "docs/design/README.md#mis-aulas",
+      "reason": "La aplicación implementada y su guía sustituyen la maqueta interactiva."
+    },
+    {
+      "path": "docs/design/classroom-teacher-preview.html",
+      "sha256": "fcf7eab7a0f286fc4265d1be7375c2cdbc8d6576d63850a4d8c91e9fa72524b3",
+      "bytes": 30790,
+      "replacement": "docs/design/README.md#mis-aulas",
+      "reason": "La aplicación implementada y su guía sustituyen la maqueta interactiva."
+    },
+    {
+      "path": "docs/design/classroom-teacher-preview.js",
+      "sha256": "cfc5431ce8233c6d95bcb60431a7feb805c93f2d07f7bc47919c8d04535bf095",
+      "bytes": 69003,
+      "replacement": "docs/design/README.md#mis-aulas",
+      "reason": "La aplicación implementada y su guía sustituyen la maqueta interactiva."
+    },
+    {
+      "path": "docs/design/current/foxy-refresh-student-chat-1440.json",
+      "sha256": "c3323cc6b640eacc7741a24b62905d303dcbe53f212c7fc3dece43d02672f2ac",
+      "bytes": 437,
+      "replacement": "docs/design/current/estudio-chat-estudiante-1440.json",
+      "reason": "La galería del candidato vigente muestra la misma superficie."
+    },
+    {
+      "path": "docs/design/current/foxy-refresh-student-chat-1440.png",
+      "sha256": "ca2edb7e7596d53924af430ca34737c5b08fab8b365fab54c076af3990d29acc",
+      "bytes": 174958,
+      "replacement": "docs/design/current/estudio-chat-estudiante-1440.png",
+      "reason": "La galería del candidato vigente muestra la misma superficie."
+    },
+    {
+      "path": "docs/design/current/foxy-refresh-student-materials-mobile.json",
+      "sha256": "41a60a3e9cb30f2b526ef31d795a7ab12ac0d1cdb30c770d634248f9aa209569",
+      "bytes": 428,
+      "replacement": "docs/design/current/estudio-materiales-estudiante-390.json",
+      "reason": "La galería del candidato vigente muestra la misma superficie."
+    },
+    {
+      "path": "docs/design/current/foxy-refresh-student-materials-mobile.png",
+      "sha256": "07374e2306fc457352388ed07c22d4dda019cb17037360c53faf4886984a0578",
+      "bytes": 64632,
+      "replacement": "docs/design/current/estudio-materiales-estudiante-390.png",
+      "reason": "La galería del candidato vigente muestra la misma superficie."
+    },
+    {
+      "path": "docs/design/current/foxy-refresh-student-plan-mobile.json",
+      "sha256": "41a60a3e9cb30f2b526ef31d795a7ab12ac0d1cdb30c770d634248f9aa209569",
+      "bytes": 428,
+      "replacement": "docs/design/current/estudio-plan-estudiante-390.json",
+      "reason": "La galería del candidato vigente muestra la misma superficie."
+    },
+    {
+      "path": "docs/design/current/foxy-refresh-student-plan-mobile.png",
+      "sha256": "86112da3d14866bfd8c034bafdf92e8544b4208c6a814ee5507c64f2d4c47718",
+      "bytes": 59583,
+      "replacement": "docs/design/current/estudio-plan-estudiante-390.png",
+      "reason": "La galería del candidato vigente muestra la misma superficie."
+    },
+    {
+      "path": "docs/design/current/foxy-refresh-teacher-chat-1440.json",
+      "sha256": "f2900d3dc525522c93754604aca355ece5628b270232c1436954b490e7ff27e2",
+      "bytes": 346,
+      "replacement": "docs/design/current/foxy-chat-docente-1440.json",
+      "reason": "La galería del candidato vigente muestra la misma superficie."
+    },
+    {
+      "path": "docs/design/current/foxy-refresh-teacher-chat-1440.png",
+      "sha256": "a3ff2e43a9926aaa42936d11f73648362a1732267cd63f7c2fc4f7d810bcf2b0",
+      "bytes": 171792,
+      "replacement": "docs/design/current/foxy-chat-docente-1440.png",
+      "reason": "La galería del candidato vigente muestra la misma superficie."
+    },
+    {
+      "path": "docs/design/current/foxy-refresh-teacher-herramientas-mobile.json",
+      "sha256": "3a1d9dc3f3681cccf928afb3bf9ea4d7abc74624220741c0f18d64b370246a43",
+      "bytes": 342,
+      "replacement": "docs/design/current/foxy-herramientas-docente-390.json",
+      "reason": "La galería del candidato vigente muestra la misma superficie."
+    },
+    {
+      "path": "docs/design/current/foxy-refresh-teacher-herramientas-mobile.png",
+      "sha256": "a39934afebd0a670e3eb938b1b4672fcd37a37eca920ff9b54ad660ed2b5578f",
+      "bytes": 56690,
+      "replacement": "docs/design/current/foxy-herramientas-docente-390.png",
+      "reason": "La galería del candidato vigente muestra la misma superficie."
+    },
+    {
+      "path": "docs/design/current/foxy-refresh-teacher-visual-dialog-mobile.json",
+      "sha256": "ea4f3d2012d8eb33d5c2ded25532becf77291bde89089f0c5e1ecd049fbffa72",
+      "bytes": 343,
+      "replacement": "docs/design/current/foxy-visuales-docente-390.json",
+      "reason": "La galería del candidato vigente muestra la misma superficie."
+    },
+    {
+      "path": "docs/design/current/foxy-refresh-teacher-visual-dialog-mobile.png",
+      "sha256": "e840f08a8f51be811714554fc7c61244a081125b11fe2a791621b8f92a439e99",
+      "bytes": 49676,
+      "replacement": "docs/design/current/foxy-visuales-docente-390.png",
+      "reason": "La galería del candidato vigente muestra la misma superficie."
+    },
+    {
+      "path": "docs/design/current/student-classmates.json",
+      "sha256": "28f0c03981cc2ae408e0d8eec8e4018a9c6d31d31727292268ace9f8aa0d1e79",
+      "bytes": 286,
+      "replacement": "docs/design/current/aula-members-estudiante-390.json",
+      "reason": "La galería del candidato vigente muestra la misma superficie."
+    },
+    {
+      "path": "docs/design/current/student-classmates.png",
+      "sha256": "ce85c716646c2e3ffdadbf9df4200fb42ba337836824794f60f4ad293b7b84da",
+      "bytes": 418911,
+      "replacement": "docs/design/current/aula-members-estudiante-390.png",
+      "reason": "La galería del candidato vigente muestra la misma superficie."
+    },
+    {
+      "path": "docs/design/current/student-classrooms.json",
+      "sha256": "118c157618d4c554fb0480636de86cd5987f10a8417d72f7d78e8f9c486865a8",
+      "bytes": 246,
+      "replacement": "docs/design/current/aulas-estudiante-1440.json",
+      "reason": "La galería del candidato vigente muestra la misma superficie."
+    },
+    {
+      "path": "docs/design/current/student-classrooms.png",
+      "sha256": "086a342667a664d15ea62742d061e80e96b6c396c79139f221486841b2cfe1c6",
+      "bytes": 432863,
+      "replacement": "docs/design/current/aulas-estudiante-1440.png",
+      "reason": "La galería del candidato vigente muestra la misma superficie."
+    },
+    {
+      "path": "docs/design/current/student-profile-avatars-mobile.json",
+      "sha256": "c679079859717d294a455a866432b0a04733d178d3909c4608f3ae0f92a20784",
+      "bytes": 152,
+      "replacement": "docs/design/current/perfil-estudiante-390.json",
+      "reason": "La galería del candidato vigente muestra la misma superficie."
+    },
+    {
+      "path": "docs/design/current/student-profile-avatars-mobile.png",
+      "sha256": "c6284a909694aedf8e63523e2cf18bc894b116061242191f32f4993053df6630",
+      "bytes": 85175,
+      "replacement": "docs/design/current/perfil-estudiante-390.png",
+      "reason": "La galería del candidato vigente muestra la misma superficie."
+    },
+    {
+      "path": "docs/design/current/teacher-created-members.json",
+      "sha256": "be5ba32e1de32d4e9ac27313eb87fe7b07c451b1b4c80a76d5c2af64cc18a420",
+      "bytes": 314,
+      "replacement": "docs/design/current/aula-members-docente-1440.json",
+      "reason": "La galería del candidato vigente muestra la misma superficie."
+    },
+    {
+      "path": "docs/design/current/teacher-created-members.png",
+      "sha256": "c9d3eeb9ddf18fd0b24b6d5a82e637e57774e13784512f371c3dabbb96a4f6f0",
+      "bytes": 430758,
+      "replacement": "docs/design/current/aula-members-docente-1440.png",
+      "reason": "La galería del candidato vigente muestra la misma superficie."
+    },
+    {
+      "path": "docs/design/current/teacher-foxy-discovery-mobile.json",
+      "sha256": "7830083ba2b517b9ed5c99c0b0a1a46349bcef3e82d4cdac7da1efffb31e8f0a",
+      "bytes": 494,
+      "replacement": "docs/design/current/foxy-chat-docente-390.json",
+      "reason": "La galería del candidato vigente muestra la misma superficie."
+    },
+    {
+      "path": "docs/design/current/teacher-foxy-discovery-mobile.png",
+      "sha256": "80b8f1663f20be146ae6c99ac2e34a64b0545b192e38d8a7b58594a966fdf35d",
+      "bytes": 81584,
+      "replacement": "docs/design/current/foxy-chat-docente-390.png",
+      "reason": "La galería del candidato vigente muestra la misma superficie."
+    },
+    {
+      "path": "docs/design/current/teacher-notifications.json",
+      "sha256": "5d3279c3c17f7e4454a8ccac5ac7c8f0e1026a90ae8bbbb68353626fae70b4d3",
+      "bytes": 340,
+      "replacement": "docs/design/current/notificaciones-docente-1440.json",
+      "reason": "La galería del candidato vigente muestra la misma superficie."
+    },
+    {
+      "path": "docs/design/current/teacher-notifications.png",
+      "sha256": "2f80095228e18f0e1679ceb63e879d808e396180fd6bb398faa1b5fcf477f821",
+      "bytes": 164051,
+      "replacement": "docs/design/current/notificaciones-docente-1440.png",
+      "reason": "La galería del candidato vigente muestra la misma superficie."
+    },
+    {
+      "path": "docs/design/foxy-ai-preview.css",
+      "sha256": "7bb6a557fa47898c50658c50e604e1e2e6436d4410931ab8e4e45ca0fc528d27",
+      "bytes": 37872,
+      "replacement": "docs/design/README.md#foxy-y-carpetas-de-estudio",
+      "reason": "La aplicación implementada y su guía sustituyen la maqueta interactiva."
+    },
+    {
+      "path": "docs/design/foxy-ai-preview.html",
+      "sha256": "74d5c493827ed0a07f2cfe64f1119c12390b2338e5f7e16d19a1bfb7641c2142",
+      "bytes": 7232,
+      "replacement": "docs/design/README.md#foxy-y-carpetas-de-estudio",
+      "reason": "La aplicación implementada y su guía sustituyen la maqueta interactiva."
+    },
+    {
+      "path": "docs/design/foxy-ai-preview.js",
+      "sha256": "8ce264727b514cdbcd21d847a51fabca6591c5b1316702890481af9f170cf657",
+      "bytes": 25516,
+      "replacement": "docs/design/README.md#foxy-y-carpetas-de-estudio",
+      "reason": "La aplicación implementada y su guía sustituyen la maqueta interactiva."
+    },
+    {
+      "path": "docs/design/study-chat-preview.html",
+      "sha256": "886adc046ae9016a1e261f6a755bae58c97fea20b65b51aa2a0035b2cdb5c2c8",
+      "bytes": 7133,
+      "replacement": "docs/design/README.md#foxy-y-carpetas-de-estudio",
+      "reason": "La aplicación implementada y su guía sustituyen la maqueta interactiva."
+    },
+    {
+      "path": "docs/design/study-chat-preview.js",
+      "sha256": "225b3f3813326645a6ed809786057eee8902005ad35c35c37f16f23e0ea4b15f",
+      "bytes": 26699,
+      "replacement": "docs/design/README.md#foxy-y-carpetas-de-estudio",
+      "reason": "La aplicación implementada y su guía sustituyen la maqueta interactiva."
+    }
+  ]
+}

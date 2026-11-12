@@ -1,7 +1,7 @@
 # Feature: Mis aulas docente y estudiante — traslado de maqueta al frontend
 
 - **Spec:** docs/design/classroom-teacher-redesign.md
-- **Design:** docs/design/classroom-teacher-preview.html
+- **Design:** docs/design/classroom-teacher-redesign.md
 - **Approval:** approved
 
 2026-11-11: el usuario autoriza pulido completo y posterior implementación frontend en worktree separado; merge sólo tras validación posterior.

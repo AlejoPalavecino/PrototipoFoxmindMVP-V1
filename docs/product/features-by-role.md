@@ -8,10 +8,10 @@ Cada cuenta tiene un rol exclusivo: docente o estudiante. Además del rol, el ba
 |---|---|---|---|
 | Carpetas de estudio | Sin acceso | Crear carpetas privadas, vincular una Biblioteca autorizada, abrir y descargar materiales, estudiar con Foxy, adjuntar al chat con opción de guardar en la carpeta, descargar creaciones y consignas, practicar con devolución y confirmar repasos en Agenda | [Estudio privado](../engineering/study/README.md) |
 | Cuenta y perfil | Registro como docente; acceso/verificación, nombres y avatar Foxy/iniciales con guardado explícito, contraseña, recuperación y cierre de sesión | Mismos flujos con rol estudiante | [Identidad](../engineering/identity/README.md) |
-| Inicio | Entregas/consultas ordenables, aula en foco seleccionable, acciones con elección de aula, avisos y mini agenda | Aulas, pendientes y devoluciones publicadas propias | [Inicio](../engineering/home/README.md) |
-| Mis aulas | Crear aula, consultar Activas/Archivadas/Pendientes; continuar o eliminar pendientes propios con confirmación; administrar aulas propias | Confirmar ingreso por código/invitación y consultar aulas autorizadas; sin Pendientes de creación | [Aulas](../engineering/classrooms/README.md) |
-| Agenda | Eventos personales y contexto académico autorizado | Eventos personales y plazos propios | [Agenda](../engineering/agenda/README.md) |
-| Foxy AI | Conversaciones privadas renombrables, historial con búsqueda y filtros, contexto y adjuntos; abrir y descargar creaciones privadas; revisión antes de publicar o crear un TP privado | Puede consultar material publicado autorizado y usar su propio chat en Carpetas de estudio | [Foxy](../engineering/ai/foxy.md) |
+| Inicio | Entregas y consultas ordenables, Aula en foco seleccionable, acciones con elección de aula y mini agenda | Pendientes, accesos de aula, devoluciones propias y mini agenda personal | [Inicio](../engineering/home/README.md) |
+| Mis aulas | Crear aula, consultar Activas/Archivadas/Pendientes, administrar códigos de seis dígitos, invitaciones por lote y miembros | Confirmar ingreso por código o invitación y consultar aulas autorizadas | [Aulas](../engineering/classrooms/README.md) |
+| Agenda | Eventos personales y contexto académico autorizado, con detalle por día | Eventos personales, plazos propios y repasos confirmados desde Estudio | [Agenda](../engineering/agenda/README.md) |
+| Foxy AI | Conversaciones privadas, historial buscable, contexto y adjuntos. Generar visuales desde un chat nuevo, leer y descargar creaciones o compartir tras revisión | Chat privado en Carpetas de estudio y consulta de materiales publicados autorizados | [Foxy](../engineering/ai/foxy.md) |
 | Notificaciones | Abrir destinos autorizados de su actividad docente | Abrir destinos propios autorizados | [Historial y avisos](../engineering/home/README.md) |
 
 ## Dentro de un aula

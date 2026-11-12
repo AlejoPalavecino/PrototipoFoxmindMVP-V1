@@ -1,38 +1,10 @@
 # Mis aulas docente: diseño detallado
 
-## Estado, autoridad y alcance
+## Decisiones aprobadas
 
-**Fecha:** 2026-11-11. **Base inspeccionada:** `main`, `3895f4ded6884641872c5950c39c54215406d6d6`.
+El diseño se aprobó el 2026-11-11 sobre `3895f4d`. El usuario aprobó los recorridos unificados, las invitaciones múltiples y el código numérico de seis dígitos vigente hasta su regeneración. Después se implementaron ambos roles y se integraron a `main`.
 
-El usuario aprobó la propuesta consolidada de experiencia cálida y recorridos unificados, incluyó invitaciones múltiples y decidió que el código numérico de seis dígitos siga vigente hasta que el docente lo regenere. Posteriormente autorizó pulir la maqueta completa e implementar frontend y backend de códigos/invitaciones en un worktree separado. El candidato está en `codex/classrooms-ux-unification`; su [tablero](../../odd/tasks/classrooms-ux-unification.md) distingue implementación, evidencia y límites. No se autorizó integrar a main antes de la validación humana ni desplegar.
-
-Este documento desarrolla la dirección aprobada. En la revisión siguiente, el usuario pidió recuperar la apariencia actual de FoxMind y recorrer los flujos completos desde la maqueta. El [prototipo navegable](classroom-teacher-preview.html) usa recursos de FoxMind y datos ficticios que se guardan en el navegador cuando el almacenamiento local está disponible. La simulación de archivos, IA, correo y acceso sirve para revisar la experiencia. Las reglas de integración y seguridad se verifican al implementar. La [guía actual](README.md) describe la aplicación implementada.
-
-| Decisión | Estado |
-|---|---|
-| Superficies cálidas, controles redondeados, selección con profundidad y movimiento discreto | Aprobada |
-| Rediseñar catálogo, creación, Plan, Muro, Biblioteca, Actividades y Alumnos docente | Aprobada |
-| Editor común de actividades manuales y asistidas por IA | Aprobada |
-| Invitar varios correos con resultados individuales | Aprobada |
-| Código de seis dígitos sin caducidad temporal; regeneración explícita docente | Aprobada |
-| Geometría, microcopy, estados, límites por tanda y guion de aceptación de este documento | Diseño detallado propuesto |
-| Implementación, migración de contratos/datos y entrega Git | Pendiente de autorización de ejecución |
-
-### Cómo recorrer el prototipo
-
-Abrí el HTML en el navegador desde el repositorio. La portada y los iconos se cargan desde los recursos locales de FoxMind. Los cambios de cada recorrido quedan en el almacenamiento del navegador cuando está disponible.
-
-| Recorrido | Punto de partida y resultado |
-|---|---|
-| Catálogo y creación | Probá filtros, cuadrícula/lista y los tres estados. Creá un aula, usá un PDF de ejemplo, elegí manual o Foxy, editá unidades y temas y publicá. También podés guardar en Pendientes, retomar o eliminar un borrador. |
-| Plan y muro | Entrá en Fotografía y luz. Marcá y deshacé un tema, consultá recursos y probá publicar, responder, editar o eliminar un aviso. |
-| Biblioteca | Publicá un archivo de ejemplo o escribí un material. Consultalo, editá sus datos y revisá la confirmación de eliminación. |
-| Actividades | Creá manualmente o con Foxy desde el mismo editor. Probá un cuestionario, guardá un borrador, retomalo, asigná y abrí la consigna en vista estudiantil. |
-| Alumnos | Usá los correos de ejemplo para ver éxito, invitación duplicada y fallo recuperable. Reintentá el caso fallido. Probá aceptación, reenvío, revocación, ficha, baja e ingreso con código. Regenerá el código y comprobá cuál acepta la maqueta. |
-| Progreso, Historial y Configuración | Revisá el avance y los movimientos generados en la maqueta. Editá los datos del aula, archivala y volvé a activarla. |
-| Vista estudiantil | En «Recorré la experiencia» elegí Estudiante. Marina Demo consulta su aula, publica consultas, lee recursos, resuelve actividades y consulta sólo sus resultados publicados. Volvé a Docente para revisar la misma entrega. |
-
-La prueba de material conserva el nombre del archivo y presenta un detalle simulado. Foxy genera contenido de ejemplo. El correo y el ingreso cambian datos locales de prueba. Los indicadores y el historial muestran resultados de esos datos.
+Este registro conserva criterios y decisiones de diseño. La guía de Aulas describe el contrato en uso y la galería muestra la aplicación compilada. [Aulas e ingreso](../engineering/classrooms/README.md) · [Galería](current/README.md#mis-aulas) · [Evidencia de integración](../verification/classrooms-ux-unification.json)
 
 ### Revisión de fluidez para el docente
 
@@ -52,7 +24,7 @@ Los éxitos aparecen en un aviso flotante que puede cerrarse y conserva la posic
 
 ## 1. Sistema visual y componentes
 
-La experiencia parte de Brújula, con el logo de Foxy, las portadas ilustradas, los iconos, Lexend, la barra lateral y las ocho secciones del aula. Las referencias son [el catálogo](current/ux-classrooms-desktop.png), [el catálogo móvil](current/ux-classrooms-mobile.png), [el plan](current/teacher-plan.png) y [alumnos](current/teacher-members.png). En el interior se usa también la cabecera durazno que define el CSS actual. El toque cálido se aplica a selección, acciones y avisos. El fondo, las superficies y la jerarquía visual siguen el entorno de FoxMind.
+La experiencia parte de Brújula, con el logo de Foxy, las portadas ilustradas, los iconos, Lexend, la barra lateral y las ocho secciones del aula. Las referencias están en la [galería de Mis aulas](current/README.md#mis-aulas). En el interior se usa también la cabecera durazno que define el CSS actual. El toque cálido se aplica a selección, acciones y avisos. El fondo, las superficies y la jerarquía visual siguen el entorno de FoxMind.
 
 | Función | Valor de diseño |
 |---|---|
@@ -215,7 +187,7 @@ El recorrido comienza en Entregas: elegir estudiante, leer su trabajo, valorar, 
 - **Publicación:** «Revisar y publicar» valida y guarda en privado; abre exactamente la versión que verá el estudiante. Volver a corregir no publica. «Publicar devolución» confirma esa versión y recepción. Una corrección publicada queda en lectura; habilitar reentrega conserva su historial.
 - **Estudiante:** la devolución aparece primero al abrir una actividad corregida, con nota y fecha, «Lo que hiciste bien», «Para mejorar» y «Tu próximo paso». Después, criterios y orientaciones por pregunta con su consigna. Consigna completa y comprobante permanecen consultables. No se muestran claves, puntos internos ni propuestas de IA. Si corresponde a una entrega anterior, se indica expresamente.
 
-La actividad ficticia «Comparar, explicar y mejorar» permite recorrer una rúbrica de tres criterios. La simulación vive en [módulo de corrección](classroom-grading-preview.js) y respeta la separación privado/publicado de [grading](../engineering/grading/README.md) y [asistencia IA](../engineering/ai/grading-assistance.md). Esta revisión es diseño ejecutable local; no incorpora campos al contrato productivo ni acredita permisos reales.
+La implementación mantiene la corrección privada separada de la publicación revisada. [Calificación](../engineering/grading/README.md) · [Asistencia IA](../engineering/ai/grading-assistance.md)
 
 ### Aula estudiantil con componentes compartidos
 
@@ -294,11 +266,11 @@ Filas de invitación: correo, estado de aceptación, vencimiento, estado del cor
 
 Resumen: «N invitaciones creadas, M requieren atención». Mantener destinatarios fallidos e inciertos hasta resolver/cerrar; no almacenar correos en logs, URLs o memoria del agente. La lista del servidor permite recuperar invitaciones confirmadas al volver; no prometer persistencia del texto de una tanda aún no enviada.
 
-### Contrato a preservar y brecha técnica
+### Contrato de lote implementado
 
 El servicio actual recibe un correo, crea/renueva invitación y encola correo en una transacción; vigencia 7 días y reemisión mínima 60 s. Esto **no cambia** por hacer permanente el código del aula. No hay envío masivo existente que pueda darse por implementado. Ver [operación actual](../../apps/api/src/modules/classrooms/infrastructure/invitations-operations.ts).
 
-La implementación deberá resolver identidad por operación/destinatario y reconciliación de resultados inciertos. No basta repetir el endpoint actual: repetirlo puede renovar y reenviar. El diseño técnico del corte decidirá entre coordinación de operaciones individuales con idempotencia o un endpoint de lote con resultados independientes, respetando la arquitectura vigente. Si requiere datos/contratos sustanciales nuevos, presentar esa decisión antes del trabajo dependiente. La aceptación exige ausencia de duplicados; la maqueta no prueba ese contrato.
+El lote reserva un recibo por solicitud y procesa cada posición de forma idempotente. Ante un resultado incierto, el cliente recupera el recibo y continúa las posiciones pendientes. [Contrato vigente](../engineering/classrooms/README.md#ingreso-y-pertenencia)
 
 ## 7. Código de seis dígitos sin vencimiento temporal
 
@@ -354,21 +326,7 @@ Datos de prueba sintéticos: aula Biología 4.º A, unidad Ecosistemas, temas co
 | UX-27 | Intentos masivos y varios usuarios en una IP | Protección específica comprobada, sin bloquear indebidamente una clase normal | Ensayo sintético y revisión de seguridad |
 | UX-28 | Reduced-motion, teclado, zoom y red lenta | Sin movimiento innecesario, foco útil, estados anunciados y acciones alcanzables | Navegador y revisión de accesibilidad |
 
-Estas son condiciones de aceptación futuras, no resultados PASS. Comprensión con docentes representativos y prueba de rendimiento de cargas extensas quedan pendientes; una maqueta o recorrido automatizado no sustituyen esa evidencia.
-
-## 9. Cortes posteriores y continuidad
-
-| Corte | Dependencias | Resultado verificable |
-|---|---|---|
-| 1. Base y catálogo | Diseño detallado acordado | Tokens/componentes coherentes, filtros accesibles, regresión de consumidores |
-| 2. Creación de aula | Marco, pasos y carga compartidos | Archivo/revisión/guardado completos sin doble confirmación ni pérdida |
-| 3. Plan, Muro y Biblioteca | Avisos y diálogos comunes | Cambios locales claros y publicación/recuperación preservadas |
-| 4. Actividades | Marco visual y contratos de autoría/IA | Editor común, rúbrica, lectura y asignación verificadas |
-| 5. Invitaciones y código | Decisiones técnicas de lote, reserva y protección | Tandas recuperables, compatibilidad y acceso corto permanente probado |
-
-Tras autorizar implementación, crear un único tablero TTP con dependencias y responsables; no inferir ejecución desde esta tabla. Cerrar el diseño técnico de idempotencia del lote, cuotas de intentos y capacidad de códigos antes del trabajo dependiente. La duración del código y la inclusión de invitaciones múltiples ya están decididas y no se vuelven a preguntar.
-
-Actualizar al implementar: especificación funcional, guías de aulas/enseñanza/autoría, modelo de datos si cambia, diseño vigente, matriz de flujos, capturas y roadmap. Conservar este documento como referencia de la decisión mientras se ejecuta; integrar las reglas finales en las fuentes canónicas al cerrar.
+Las condiciones de aceptación se contrastan con el [recibo de integración](../verification/classrooms-ux-unification.json). Comprensión con docentes representativos y rendimiento con cargas extensas siguen pendientes.
 
 ## Fuentes y límites
 

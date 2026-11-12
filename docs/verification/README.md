@@ -1,22 +1,18 @@
-# Evidencia vigente de FoxMind
+# Evidencia y comprobaciones de FoxMind
 
-El pulido UX/UI del 2026-11-09 tiene 28 capturas nativas Ego Lite inspeccionadas y 74 pruebas focalizadas aprobadas en el candidato registrado. Su [recibo](foxy-study-ux-polish.json) identifica archivos, comandos, viewports y límites; la [galería por flujo](../design/current/README.md#referencias-vigentes-del-pulido--2026-11-09) distingue app integrada de respuestas sintéticas controladas.
+La auditoría del 12 de noviembre recorrió `main` (`398cc0b`) con la aplicación local compilada, cuentas de ambos roles y proveedores sintéticos. El registro detalla qué controles se usaron, qué resultados se observaron y qué quedó cubierto por pruebas anteriores. [Registro de auditoría](../work-log/2026-11-12-root-documentation-audit.md) · [Galería](../design/current/README.md) · [Metadatos y hashes](../design/current/catalog.json)
 
-| Necesitás comprobar | Fuente |
+| Área | Evidencia |
 |---|---|
-| Dirección visual y reglas de interacción | [UX/UI vigente](../design/README.md) |
-| Migración por dominios y ciclo de rechazo HTTP | [Recibo de arquitectura](architecture-migration.json), [registro de cierre](../work-log/2026-11-10-root-architecture-completion.md) |
-| Chat, herramientas, colecciones y creación/plan | [Recibo del pulido](foxy-study-ux-polish.json), [registro visual](../work-log/2026-11-09-root-ux-visual.md) |
-| Imágenes, viewport, desplazamiento y procedencia | [Galería](../design/current/README.md), [catálogo con hashes](../design/current/catalog.json) |
-| Validación E2E de Foxy AI y Carpetas de estudio | [Informe del 2026-11-12](2026-11-12-foxy-study-e2e.md) |
-| Recorridos funcionales por rol y cobertura pendiente | [Matriz](flows.md), [datos de la base](flows.json) |
-| Comprobaciones de la reconstrucción inicial | [Checks de base](baseline-checks.json), [registro coordinador](../work-log/2026-11-07-root-current-baseline.md) |
-| Retiro de documentación anterior | [Recibo de retiro](documentation-retirement.json) |
+| Cuenta, roles, Aulas, Actividades, entregas y calificación | [Matriz de recorridos](flows.md), [inventario de la base del 7 de noviembre](flows.json) y [regresión de Aulas](classrooms-ux-unification.json) |
+| Inicio y composición de Aulas | [Inicio docente](teacher-home-polish.json), [Inicio por rol](../work-log/2026-11-12-root-home-visual-audit.md) y [auditoría de Aulas](classrooms-visual-audit.json) |
+| Foxy y Carpetas de estudio | [Recorridos E2E](2026-11-12-foxy-study-e2e.md), [suite de Estudio](study-folders.json) y [pulido UX anterior](foxy-study-ux-polish.json) |
+| Agenda | [Detalle diario, navegación y formulario](agenda-ux.json) |
+| Arquitectura y transporte | [Migración y verificación por grupos](architecture-migration.json) |
+| Gemini real | [Ensayo de Foxy](foxy-gemini-real.json) y [arranque local](local-gemini-runtime.json) |
+| Reconstrucción documental anterior | [Comprobaciones](baseline-checks.json) y [retiro del 7 de noviembre](documentation-retirement.json) |
+| Retiro de maquetas y capturas reemplazadas | [Inventario del 12 de noviembre](documentation-audit-retirement.json) |
 
-## Cómo interpretar la evidencia
+Los recibos conservan candidato, entorno y fecha de su ensayo. Las capturas acreditan la presentación y los estados visibles. Permisos, persistencia y custodia se acreditan en las pruebas de API y base de datos que los ejercitaron. Esta auditoría utilizó IA sintética. Los ensayos anteriores con Gemini mantienen su propia evidencia.
 
-La app integrada usa cuentas/contenido sintéticos y recursos locales propios. Las capturas de espera, error y propuesta de plan del pulido usan componentes reales con respuestas sintéticas; acreditan presentación e interacción, no persistencia ni una nueva respuesta exitosa del proveedor. Los ensayos Gemini previos tienen sus [recibos específicos](local-gemini-runtime.json).
-
-La matriz de la base inicial contiene 37 entradas PASS, 2 de referencia, 3 limitadas y 4 no ensayadas. Esos números describen ese recorrido, no una ejecución nueva ni toda la cobertura de la plataforma. Las comprobaciones posteriores se enlazan por capacidad y conservan sus propios límites.
-
-Una captura no prueba permisos, custodia de archivos, datos guardados, accesibilidad universal o despliegue. El pulido verificó visualmente 1440×1000 y 390×844; no es una auditoría WCAG completa ni una prueba con todos los dispositivos físicos. Implementado/verificado localmente, integrado/publicado y desplegado siguen siendo estados separados.
+La cobertura se limita a los casos registrados. La validación visual en escritorio y móvil no constituye una evaluación WCAG completa, prueba de carga ni verificación de producción.

@@ -3,7 +3,7 @@
 - Fecha y candidato. 2026-11-12, rama `main`, base `734845b` y cambios locales previos.
 - Coordinador Codex. Identificador de sesión no expuesto.
 - Alcance autorizado. Generar una imagen desde un chat nuevo y comprobar vista previa, apertura y descarga.
-- Evidencia de partida. [Auditoría E2E](../verification/2026-11-12-foxy-study-e2e.md#hallazgos-para-corregir).
+- Evidencia de partida. [Auditoría E2E](../verification/2026-11-12-foxy-study-e2e.md#hallazgos-de-la-corrida-inicial-y-correcciones-publicadas).
 - Estado. Implementado y verificado localmente.
 
 El acceso **Nuevo chat → Herramientas → Imágenes y esquemas** abre el formulario existente con una descripción vacía. **Generar** guarda la conversación y luego solicita el visual en ella. El reintento de creación conserva la descripción y el identificador de solicitud. Cerrar antes de generar devuelve el foco a la tarjeta sin guardar una conversación.
