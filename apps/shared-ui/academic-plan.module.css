@@ -1,3 +1,4 @@
+/* Plan upload and structured editor for both creation flows. */
 .source, .curriculum { --editor-line: #dce2f0; --editor-purple: #f2eefc; --editor-muted: #555d77; min-width: 0; }
 .source :is(button, a):focus-visible, .picker:focus-within, .curriculum :is(summary, textarea, button):focus-visible { outline: 3px solid #9a3e00; outline-offset: 2px; }
 .drop { display: grid; justify-items: center; gap: 8px; text-align: center; border: 1px dashed #9eacd0; border-radius: 16px; background: #f4f6fc; padding: 17px; overflow-wrap: anywhere; }

@@ -1,5 +1,6 @@
 'use client';
-import styles from './academic-wizard.module.css';
+import styles from '../../../shared-ui/academic-creation.module.css';
+import { CreationSteps } from '../../../shared-ui/CreationSteps';
 import {
   useEffect,
   useRef,
@@ -320,13 +321,7 @@ export function Wizard({
   const continueManually = () => { extraction.cancel(); setMethod('manual'); setAnalyze(false); setError(''); };
   return <Dialog title="Crear aula" className={`brujula-wizard-dialog ${styles.dialog}`} onClose={saveAndExit}>
     <div className="brujula-wizard">
-      <ol className={styles.steps} aria-label="Pasos de creación del aula">
-        {steps.map((item, index) => <li key={item.label} aria-current={index === step ? 'step' : undefined} data-completed={index < step}>
-          <b aria-hidden="true">{index < step ? '✓' : index + 1}</b><span>{item.label}</span>
-          {index < step ? <span className="sr-only">, completado</span> : null}
-        </li>)}
-      </ol>
-      <p className={styles.mobileStep}>Paso {step + 1} de {steps.length} · {steps[step].label}</p>
+      <CreationSteps steps={steps.map(item=>item.label)} step={step} label="Pasos de creación del aula"/>
       {error ? <Notice error>{error}</Notice> : null}
       <div className={styles.intro}>
         <h3 ref={heading} tabIndex={-1}>{steps[step].heading}</h3>

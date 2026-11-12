@@ -1,3 +1,4 @@
+/* Shared presentation for the classroom and private study creation flows. */
 .dialog { width: min(960px, calc(100% - 22px)); }
 .dialog > header, .dialog :global(.brujula-wizard-foot) { background: #fff; }
 .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); list-style: none; padding: 0; margin: 0 0 18px; gap: 7px; }
@@ -11,6 +12,10 @@
 .intro { padding: 13px 0 16px; }
 .intro h3, .intro p { margin: 0; }
 .intro p { margin-top: 4px; color: #555d77; }
+:global(.fm3d-theme .p5-app .p5-main) .dialog .intro h3 { font-weight: 500; letter-spacing: -.025em; }
+:global(.fm3d-theme .p5-app .p5-main) .dialog :global(.brujula-wizard-foot .brujula-wizard-keep) {
+  border-color: transparent; background: transparent; color: #b8490c; font-weight: 400; padding-inline: 6px;
+}
 .method { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 0; margin: 16px 0 0; border: 0; }
 .method legend { padding: 0; margin-bottom: 8px; font-weight: 700; }
 .dialog .method label { display: grid; grid-template-columns: auto auto minmax(0, 1fr); align-items: start; gap: 10px; border: 1px solid #dce2f0; padding: 13px; border-radius: 16px; background: #f6f3fd; cursor: pointer; }

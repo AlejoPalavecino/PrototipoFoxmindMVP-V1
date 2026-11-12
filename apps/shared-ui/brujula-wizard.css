@@ -14,7 +14,9 @@
 .fm3d-theme .p5-app .p5-main .brujula-wizard form {display:block;margin:0;padding:0;border:0;background:none;box-shadow:none;}
 .fm3d-theme .p5-app .p5-main .brujula-wizard fieldset {display:block;min-width:0;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;}
 .fm3d-theme .p5-app .p5-main .brujula-wizard .p5-fields {display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0;}
-.fm3d-theme .p5-app .p5-main .brujula-wizard .p5-fields>label:nth-child(-n+2) {grid-column:1/-1;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .p5-fields>label:first-child,
+.fm3d-theme .p5-app .p5-main .brujula-wizard .p5-fields:not([data-creation-fields=folder])>label:nth-child(2) {grid-column:1/-1;}
+.fm3d-theme .p5-app .p5-main .brujula-wizard .p5-fields[data-creation-fields=folder] {align-items:start;}
 .fm3d-theme .p5-app .p5-main dialog.p5-dialog.brujula-wizard-dialog label {display:grid;gap:6px;margin:0;color:#252646;font:600 13px/1.5 'Brújula',sans-serif;}
 .fm3d-theme .p5-app .p5-main .brujula-wizard .wizard-field-control {display:block;min-width:0;padding:0;margin:0;border:0;background:transparent;box-shadow:none;}
 .fm3d-theme .p5-app .p5-main .brujula-wizard .wizard-field-control>svg {display:none;}

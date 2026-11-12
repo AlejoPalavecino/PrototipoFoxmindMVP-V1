@@ -2,6 +2,27 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createStudyRevisionController} from "../api/study-client.ts";
 import {studyInstant,studyLocalMinute} from "./study-time.ts";
+import { loadTsModule } from "../../../../../../tests/helpers/load-ts-module.mjs";
+import { hookView, descendants } from "../../../../../../tests/agenda-ui-helpers.test.mjs";
+
+test('folder details can continue without a file, but the plan step requires an approved document',async()=>{
+  const original=globalThis.window;
+  globalThis.window={addEventListener(){},removeEventListener(){}};
+  const {StudyWizard}=loadTsModule('apps/web/src/features/study/ui/study-wizard.tsx');
+  const view=hookView(StudyWizard,{catalog:{items:[],classrooms:[],covers:[]},onClose(){},onCreated(){}});
+  const field=()=>descendants(view.tree,n=>n.type==='input'&&n.props.placeholder?.includes('Biología'))[0];
+  const form=()=>descendants(view.tree,n=>n.type==='form')[0];
+  const next=async()=>{form().props.onSubmit({preventDefault(){}});await view.flush();};
+  try{
+    await view.flush();field().props.onChange({target:{value:'Biología'}});
+    await view.flush();await next();
+    assert.equal(form().props['data-wizard-step'],1,'valid folder details reach Cargar plan without a file');
+    await next();
+    assert.equal(form().props['data-wizard-step'],1);
+    const notice=descendants(view.tree,n=>n.props.error===true);
+    assert.ok(notice.some(n=>/cargá.*documento del plan/i.test(String(n.props.children))));
+  }finally{view.close();globalThis.window=original;}
+});
 test('chained mutations use the revision returned by the prior command',async()=>{let revision=1;const seen=[];const controller=createStudyRevisionController({folder:{id:'folder',revision:'1'}},{command:async(_id,rev)=>{seen.push(rev);assert.equal(rev,String(revision));revision++;return{folder:{id:'folder',revision:String(revision)}};},get:async()=>({folder:{id:'folder',revision:String(revision)}})},()=>{});await controller.run('SAVE_ANSWERS',{});await controller.run('FINALIZE_PRACTICE',{});await controller.run('NEW_CONVERSATION',{});await controller.run('CHAT',{});assert.deepEqual(seen,['1','2','3','4']);});
 test('exam wall times use selected zone and reject DST gap/overlap',()=>{assert.equal(studyInstant('2026-11-09T12:00','America/Argentina/Buenos_Aires'),'2026-11-09T15:00:00.000Z');assert.equal(studyLocalMinute('2026-11-09T15:00:00.000Z','America/Argentina/Buenos_Aires'),'2026-11-09T12:00');assert.throws(()=>studyInstant('2026-03-08T02:30','America/New_York'));assert.throws(()=>studyInstant('2026-11-01T01:30','America/New_York'));});
 test('committed command is not reported failed when subsequent refresh is unavailable',async()=>{let rendered;const controller=createStudyRevisionController({folder:{id:'folder',revision:'1'}},{command:async()=>({folder:{id:'folder',revision:'2'}}),get:async()=>{throw new Error('offline after commit');}},value=>{rendered=value;});const result=await controller.run('FINALIZE_PRACTICE',{});assert.equal(result.folder.revision,'2');assert.equal(rendered.folder.revision,'2');});
