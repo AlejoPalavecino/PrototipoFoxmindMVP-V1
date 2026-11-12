@@ -30,3 +30,11 @@
 - **Acceptance:** Recorrer interacciones y capturas a 1440, 768, 390 y 320 px; comprobar teclado y contenido largo en superficies afectadas; checks focales verdes y límites documentados. Cambios aislados sin commits ni publicación.
 - **Evidence:** API/web build, lint/boundaries sin excepciones, 23 pruebas focales + 4 contratos de fixture verdes. Navegación Ego de ambos roles, marcar/deshacer y publicación/lectura compartida de material sobre recursos propios. docs:check PASS (120 archivos/1035 enlaces, cero incidencias); taskboard PASS (3 tareas). Servicios propios cerrados, cleanup sin fallos y puertos 53216/56837 sin listeners.
 - **Blocker:** none
+
+### TASK-004 — Integrar con Agenda e Inicio y preservar Foxy en curso
+- **State:** VERIFYING
+- **Depends on:** TASK-003
+- **Owner:** root
+- **Acceptance:** Integrar el candidato en main por autorización del 2026-11-12, conservar cambios concurrentes y verificar regresión conjunta.
+- **Evidence:** Rebase sobre 99834b0; conflictos sólo documentales resueltos conservando ambos contenidos. Build web y lint verdes. Suite fast y recorridos integrados en ejecución.
+- **Blocker:** none

@@ -44,6 +44,9 @@ test('a confirmed archived departure cannot navigate after the classroom view un
   const view = hookView(ClassroomView, { api, id, initialCode: null, onExit() {},
     onMembershipEnded: confirmed => departures.push(confirmed) });
   await view.flush();
+  const [navigation] = descendants(view.tree, node => node.type?.name === 'ClassroomNavigation');
+  navigation.props.onSelect('members');
+  await view.flush();
   const [leave] = descendants(view.tree, node => node.type === 'button' && node.props.children === 'Salir del aula');
   leave.props.onClick();
   await view.flush();

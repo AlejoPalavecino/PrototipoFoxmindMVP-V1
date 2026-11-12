@@ -1302,5 +1302,27 @@
     "Full backend/CI suite and real AI generation not rerun for scoped CSS fixes",
     "Earlier fixture lacked classroom-main and valid wall/activity-history contracts; corrected before final evidence",
     "Empty live-region alerts in raw geometry are normalized; no nonempty alerts were ignored"
-  ]
+  ],
+  "integration": {
+    "base": "99834b0651b1eb09c6ba177ad25265fd711cfa35",
+    "status": "candidate verified; main integration pending",
+    "fast": {
+      "files": 347,
+      "passed": 1961,
+      "failed": 0,
+      "skipped": 0,
+      "mode": "Reconciled by file after test-fixture corrections; not one uninterrupted run"
+    },
+    "e2e": {
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "command": "node --test --test-concurrency=1 tests/p6-plan-integration.test.mjs tests/p6-library-integration.test.mjs tests/p9-home-integration.test.mjs tests/brujula-material-agenda-browser.test.mjs"
+    },
+    "build": "PASS web + API prerequisite",
+    "boundaries": "PASS, zero exceptions",
+    "inventory": "PASS, 543 entries / 53 exclusions / 23 routes",
+    "omitted": "Other owned-db/services/browser cohorts and external AI provider were not rerun",
+    "productionIsolation": "No changes relative to main in Agenda, Home or Foxy feature code"
+  }
 }

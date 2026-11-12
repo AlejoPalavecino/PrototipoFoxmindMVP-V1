@@ -11,7 +11,7 @@ function navPorts(capture) { return {
   '../../../shared-ui/AppNavbar.tsx':{AppNavbar:props=>{capture.push(props);return null;}},
   '../../../../shared-ui/index.ts':{FoxmindBrand:noop,FoxmindIcon:noop},
   '../../features/notifications/index.ts':{Notifications:noop}, '../features/notifications/index.ts':{Notifications:noop},
-  '../features/classrooms/index.ts':{ClassroomCollection:noop,ClassroomCollectionHero:noop},
+  '../features/classrooms/index.ts':{ClassroomCollection:noop,ClassroomCollectionHero:noop,classroomExperienceStyles:{}},
   '../features/home/index.ts':{Home:noop}, '../../../shared-ui/EntryIcon':{EntryIcon:noop},
   'next/router':{useRouter:()=>({push(){}})}, 'next/link':{default:noop}, '../academic-classroom-client.ts':{createWebClassroomClient:()=>({})},
 }; }

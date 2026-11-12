@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { renderToStaticMarkup } from 'react-dom/server';
 import assert from 'node:assert/strict';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
@@ -33,8 +34,8 @@ test('pending results retain submitted answers; published results replace fallba
     const view = hookView(PublishedResult, { api: { call: async () => data }, roomId: 'room', attemptId: 'attempt', pendingContent: 'Respuestas del envío' });
     try {
       await view.flush();
-      assert.equal(text(view.tree).includes('Respuestas del envío'), data.status === 'pending');
-      assert.equal(text(view.tree).includes('Devolución docente'), data.status === 'published');
+      assert.equal(renderToStaticMarkup(view.tree).includes('Respuestas del envío'), data.status === 'pending');
+      assert.equal(renderToStaticMarkup(view.tree).includes('Devolución docente'), data.status === 'published');
     } finally { view.close(); }
   }
 });

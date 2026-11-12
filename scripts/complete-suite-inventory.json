@@ -1,5 +1,6 @@
 {
   "entries": [
+    "tests/agenda-ux-navigation.test.mjs",
     "tests/classroom-visual-fixture.test.mjs",
     "tests/teacher-home-polish.test.mjs",
     "tests/home-order.test.mjs",
