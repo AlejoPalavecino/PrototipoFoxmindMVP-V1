@@ -32,6 +32,8 @@ Seleccionar aula, unidad/tema y título → preparar PDF o recurso visual → re
 
 Texto, imágenes y esquemas usan colas, límites y configuración propios. La UI informa cola/proceso, disponibilidad, fallos y cupo insuficiente. Un reintento no debe duplicar turnos o publicaciones; respuesta tardía no sustituye cambios actuales.
 
+La tarjeta «Imágenes y esquemas» de Herramientas abre el diálogo de recursos visuales de la conversación. También se abre al enviar una solicitud con Crear esquema o al elegir un recurso visual de Creaciones. La revisión y la preparación para Biblioteca se hacen en ese diálogo.
+
 Gestión/descartes respetan custodia e historia; no autorizan eliminar archivos compartidos del aula. Configuración, claves, consumo y presupuesto se mantienen en backend.
 
 Fuentes: [unidad transaccional](../../../apps/api/src/modules/foxy/infrastructure/unit-of-work.ts), [publicación](../../../apps/api/src/modules/foxy/application/publication-service.ts), [UI](../../../apps/web/src/features/foxy/ui/foxy-workspace.tsx), [modelo](../data-model.md).
@@ -43,6 +45,10 @@ Posteriormente se comprobó Gemini real con la clave aportada por el usuario y g
 El usuario autorizó después la activación local y conservar esa clave como configuración habitual de pruebas. `.env` de raíz queda habilitado y completo; `npm run local:up` y `local:restart` usan Gemini real sin overrides. El [recibo de la plataforma](../../verification/local-gemini-runtime.json) acredita tres generaciones reales (chat, continuidad y apunte con PDF), publicación revisada, catálogo/destino y conservación de sesión/datos/clave al reiniciar. La [guía local](../local-development/README.md) define los comandos y recursos propios. No se repitieron las otras herramientas en ese recorrido ni se habilitó generación de imágenes; no implica despliegue.
 
 ## Feedback y lectura del chat
+
+La vista compartida de Foxy organiza chat, herramientas y creaciones con un historial plegable. El selector de contexto confirma explícitamente el cambio de General o aula. El indicador de demora se muestra si el estado de espera sigue activo a los 12 segundos. La cola y el procesamiento usan estados de la solicitud.
+
+Los adjuntos del chat son PDF/DOCX privados de la conversación, tanto en General como en aula. Se validan y escanean antes de que una respuesta o creación textual pueda usarlos. El turno registra qué adjuntos eran candidatos al enviarse y vuelve a comprobar su disponibilidad antes de pasar los bytes al proveedor. Quitar el archivo impide su uso posterior sin borrar el historial. Los trabajos de imagen y diagrama mantienen sus fuentes anteriores. [Vista actual y comprobación](../../design/README.md#foxy-y-carpetas-de-estudio--2026-11-12).
 
 El pulido UX del 2026-11-09 comparte presentación de herramientas y espera con Carpetas de estudio. El mensaje saliente aparece antes de la confirmación y se reconcilia con el turno recibido. Un envío incierto conserva la solicitud del controlador y reintenta con su identidad original. No se simula una respuesta parcial ni se agrega streaming al contrato. El chat conserva la posición al leer historia y ofrece volver a mensajes nuevos. Carga inicial, cola y procesamiento tienen estados accesibles; reduced-motion desactiva la animación. [Evidencia y límites](../../verification/foxy-study-ux-polish.json).
 

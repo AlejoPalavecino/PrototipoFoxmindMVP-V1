@@ -26,6 +26,10 @@ En móvil, herramientas/creaciones/conversaciones se mantienen en una fila y el 
 
 ## Materiales y autoridad
 
+El panel Materiales y Plan separa consulta de materiales, unidades y configuración. Materiales permite filtrar por título y procedencia y distingue disponibilidad para Foxy. Agregar material usa la subida privada existente y permite reintentar la asociación del archivo aprobado a la carpeta. En Plan, Estudiar selecciona el tema y prepara el borrador en el chat.
+
+Adjuntar en el chat incorpora PDF/DOCX aprobados sólo a esa conversación. El estudiante puede elegir «Guardar también en esta carpeta», inicialmente desmarcado; ese material pasa a la colección privada y se puede usar en otros chats de la carpeta. Ambas referencias comparten los bytes aprobados y Foxy evita duplicar el mismo documento en el contexto. Quitar del chat conserva el material guardado. Sin esa elección, el archivo no aparece en Materiales. Adjuntar no publica en el aula ni modifica el plan.
+
 Planes PDF/DOCX hasta 20.000.000 bytes; materiales propios PDF/DOCX/PPTX/XLSX/JPG/JPEG/PNG/ZIP hasta 50.000.000 bytes. Transferencia, validación y escaneo deben corresponder al mismo digest. Descargar revalida dueño/estado y comprueba tamaño/hash. La extracción IA actual lee PDF/DOCX y cuerpos escritos de Biblioteca; otros formatos se conservan descargables y se identifican como no extraíbles.
 
 El estudiante edita título/temas o quita sus materiales; no administra Biblioteca docente. Una carpeta puede vincular una sola aula con pertenencia vigente. Biblioteca aporta referencias vivas a las versiones disponibles, sin copiar bytes a propiedad estudiantil ni importar notas/compañeros/entregas/plan docente. La lista se consulta nuevamente y se revalida antes de enviar contenido al proveedor y al aplicar el resultado. Aula archivada mantiene consulta autorizada; salir/remover/desvincular revoca contexto.

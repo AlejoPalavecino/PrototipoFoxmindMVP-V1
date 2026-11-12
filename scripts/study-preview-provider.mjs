@@ -2,7 +2,9 @@
 export const studyPreviewProvider = {
   async generate(input) {
     const context = JSON.parse(input.prompt);
-    const source = context.sources?.[0];
+    const privateSource = context.action==='CHAT' && context.sources?.find(item=>
+      /^Adjunto de QA/u.test(item.title) && input.documents?.some(document=>document.sourceRef.id===item.id));
+    const source = privateSource || context.sources?.[0];
     if (!source) return {status:'INSUFFICIENT',title:'QA sintética: faltan fuentes',markdown:'',sourceRefs:[],missingInformation:['Agregá un documento legible para ejecutar la prueba sintética.']};
     const sourceRefs=[{id:source.id,version:source.version}];
     const base={status:'COMPLETE',title:'QA sintética: estudio de la luz',markdown:'Contenido sintético para verificar la interfaz. La exposición acumula luz durante un intervalo; una mayor apertura permite más entrada de luz. Revisá la fuente indicada.',sourceRefs,missingInformation:[]};
@@ -22,6 +24,6 @@ export const studyPreviewProvider = {
     if(context.action==='OUTLINE')return {...base,title:'QA sintética: esquema de estudio',markdown:'## Esquema sintético de QA\n- Luz\n  - Exposición: luz acumulada durante un intervalo.\n  - Apertura: regula la entrada de luz.\n- Contraste: diferencia entre zonas claras y oscuras.'};
     if(context.action==='NOTE')return {...base,title:'QA sintética: apunte editable',markdown:'## Apunte sintético de QA\nLa exposición describe la luz acumulada durante un intervalo. Para estudiar, compará una imagen con apertura mayor con otra de apertura menor y explicá el efecto esperado. Este texto es una salida determinista de prueba, no una respuesta de un proveedor real.'};
     const feedback=String(context.message).startsWith('Da devolución orientativa');
-    return {...base,title:feedback?'QA sintética: devolución orientativa':'QA sintética: conversación',markdown:feedback?'Devolución orientativa sintética para QA: identificaste la relación entre luz y exposición. Podés mejorar la respuesta explicando cómo intervienen la apertura y el tiempo. No es una nota oficial ni una respuesta de un proveedor real.':base.markdown};
+    return {...base,title:feedback?'QA sintética: devolución orientativa':'QA sintética: conversación',markdown:feedback?'Devolución orientativa sintética para QA: identificaste la relación entre luz y exposición. Podés mejorar la respuesta explicando cómo intervienen la apertura y el tiempo. No es una nota oficial ni una respuesta de un proveedor real.':privateSource?'Documento privado recibido por el proveedor sintético.':base.markdown};
   }
 };

@@ -25,7 +25,15 @@ await withP4Services(runtime=>withMailpit(async mail=>{
   const png=await sharp({create:{width:400,height:300,channels:3,background:'#b8490c'}}).png().toBuffer();
   const graph={schemaVersion:'foxy-diagram-v1',title:'Ciclo del agua',description:'Referencia de prueba',direction:'TOP_DOWN',nodes:[{id:'agua',label:'Agua'},{id:'vapor',label:'Vapor'}],edges:[{from:'agua',to:'vapor',label:'evaporación'}]};
   const visualProviders={IMAGE:{countTokens:async()=>12,generate:async()=>({bytes:png,declaredMimeType:'image/png',usage:{inputTokens:12,outputTokens:20}})},DIAGRAM:{countTokens:async()=>12,generate:async()=>({diagram:graph,usage:{inputTokens:12,outputTokens:20}})}};
-  const textProvider={countTokens:async()=>100,generate:async()=>({json:{schemaVersion:'foxy-text-response-v1',status:'READY',title:'Guía de exposición',markdown:'## La luz\nLa exposición depende de la apertura y del tiempo. Compará dos situaciones y justificá tu respuesta.',references:[],warnings:['Contenido de proveedor sintético para verificación de interfaz.'],missingInformation:[]},inputTokens:100,outputTokens:100})};
+  const textProvider={countTokens:async()=>100,generate:async input=>{
+    const source=input.sources.find(item=>item.kind==='ATTACHMENT');
+    const document=source&&input.documents.find(item=>source.documentKeys.includes(item.documentKey));
+    const attached=!!document&&(document.document.kind==='pdf'?document.document.bytes.byteLength>0:!!document.document.text.trim());
+    return {json:{schemaVersion:'foxy-text-response-v1',status:'READY',title:'Guía de exposición',
+      markdown:attached?'Documento privado recibido por el proveedor sintético.':'## La luz\nLa exposición depende de la apertura y del tiempo. Compará dos situaciones y justificá tu respuesta.',
+      references:attached?[{sourceKey:source.sourceKey,documentKey:document.documentKey,page:document.pageCount?1:null}]:[],
+      warnings:['Contenido de proveedor sintético para verificación de interfaz.'],missingInformation:[]},inputTokens:100,outputTokens:100};
+  }};
   const provider={countStudyPlanTokens:async()=>100,extractStudyPlan:async()=>({json:{units:[{name:'La luz',topics:[{name:'Exposición'},{name:'Contraste'}]}],warnings:[]},inputTokens:100,outputTokens:80})};
   app=await createApplication(readConfiguration(env),{ai:{provider,activityProvider,studentProvider:refuse,gradingProvider:refuse},foxy:{textProvider,visualProviders},...(studySynthetic?{study:{provider:studyPreviewProvider}}:{})});await app.listen(0,'127.0.0.1');
   web=startWeb(port,`http://127.0.0.1:${app.getHttpServer().address().port}`);await webReady(web,origin);

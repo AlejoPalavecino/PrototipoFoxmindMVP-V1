@@ -64,6 +64,8 @@ Muro: avisos docentes, consultas estudiantiles y respuestas autorizadas. Son con
 
 Planes e instrucciones: PDF/DOCX hasta20MB. Materiales y adjuntos: PDF, DOCX, PPTX, XLSX, JPG/JPEG, PNG o ZIP, hasta 50 MB por archivo según propósito. Un TP admite hasta cinco adjuntos y espacio disponible; no imponer otro cap agregado que anule esa regla.
 
+Los chats privados de Foxy docente y Carpetas de estudio admiten hasta seis PDF/DOCX aprobados y 20 MB totales por conversación. Sólo el dueño puede adjuntarlos o quitarlos. El estudiante puede optar por guardarlos además como material de la carpeta; un chat nuevo no hereda adjuntos privados. Las reglas de archivos de aula y de TP se mantienen independientes.
+
 Selección local, subida, aprobación y asociación son estados distintos. Publicar/entregar requiere validación estructural y escaneo limpio de los mismos bytes. Un archivo no listo/cuarentenado no puede descargarse o vincularse como aprobado.
 
 PDF e imágenes pueden ofrecer vista previa del navegador; Office/ZIP son descarga. Ambas rutas requieren permiso actual. No hay bucket público, enlace presigned de usuario o claves de almacenamiento en cliente.

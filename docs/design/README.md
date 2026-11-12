@@ -1,5 +1,19 @@
 # UX/UI vigente de FoxMind
 
+## Foxy y Carpetas de estudio — 2026-11-12
+
+Los dos roles comparten un área de trabajo con Chat, Herramientas y Creaciones. El historial aparece como una columna plegable en escritorio y como diálogo en pantallas estrechas. Ampliar chat aprovecha la ventana y Escape recupera la vista anterior. Los mensajes propios muestran el avatar de la cuenta o sus iniciales.
+
+El docente elige General o un aula en un selector con búsqueda y aplicación explícita. El estudiante elige temas dentro de la carpeta. Materiales y Plan ofrece búsqueda por título, filtro por procedencia, estado de compatibilidad con Foxy, carga privada a la carpeta y unidades desplegables. Estudiar prepara una consulta sobre el tema elegido.
+
+El compositor admite adjuntos privados. El diálogo de estudio distingue adjuntar al chat de guardar también en la carpeta. Se revisaron la densidad de los encabezados, el contraste de los cierres, el ritmo de las tarjetas, los estados activos y el espacio para leer el chat. La app conserva el menú y la navegación propios de FoxMind.
+
+Capturas locales con cuentas sintéticas: [chat docente](current/foxy-refresh-teacher-chat-1440.png), [historial](current/foxy-refresh-teacher-history-mobile.png), [contexto](current/foxy-refresh-teacher-context-mobile.png), [herramientas](current/foxy-refresh-teacher-herramientas-mobile.png), [chat de estudio](current/foxy-refresh-student-chat-1440.png), [estudio a 320 px](current/foxy-refresh-student-chat-320.png), [adjuntar con copia](current/foxy-refresh-student-attach-copy-mobile.png), [materiales](current/foxy-refresh-student-materials-mobile.png) y [plan](current/foxy-refresh-student-plan-mobile.png). [Diseño aprobado y reglas de adjuntos](foxy-ai-proposal.md). [Pruebas y límites](../work-log/2026-11-12-root-foxy-workspace.md).
+
+[Creaciones con un apunte de prueba](current/foxy-refresh-student-creaciones-list-mobile.png).
+
+La tarjeta «Imágenes y esquemas» abre un diálogo desde la cuadrícula de Herramientas. Los recursos visuales de Creaciones también se abren en ese diálogo. El chat docente termina en el compositor. [Diálogo de recursos visuales en móvil](current/foxy-refresh-teacher-visual-dialog-mobile.png).
+
 ## Agenda — pulido aprobado del 2026-11-12
 
 Iteración de detalle diario aprobada: encabezado compacto con contador independiente, tarjetas de fondo tenue por color y borde suave, título destacado, horario debajo y etiqueta de tipo. Toda la tarjeta abre el detalle. Acción discreta «+ Agregar evento»; misma presentación en panel móvil.

@@ -1,0 +1,16 @@
+{
+  "date": "2026-11-12",
+  "scope": "App local integrada y proveedor sintético",
+  "role": "teacher",
+  "url": "/foxy-ai",
+  "width": 390,
+  "height": 844,
+  "scrollWidth": 390,
+  "headings": [],
+  "alerts": [],
+  "baseCommit": "5a9c45c",
+  "candidate": "9804dcc",
+  "visuallyInspected": true,
+  "composerBottom": null,
+  "chatHeight": 0
+}
