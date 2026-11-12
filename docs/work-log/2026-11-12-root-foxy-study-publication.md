@@ -19,7 +19,16 @@
 
 ## Verificación local
 
-- `node scripts/run-ci-suite.mjs --suite study` aprobó 77 pruebas. La prueba de custodia de adjuntos aprobó en PostgreSQL aislado. Las ocho pruebas del formulario de Agenda pasaron con el simulador corregido.
+- `node scripts/run-complete-suite.mjs --group fast` aprobó 1.974 pruebas en 348 archivos, sin fallos ni omisiones.
+- `node scripts/run-ci-suite.mjs --suite study` aprobó 77 pruebas. La custodia de adjuntos y la persistencia de turnos de Foxy al recargar aprobaron sus pruebas focalizadas en PostgreSQL aislado. Las ocho pruebas del formulario de Agenda pasaron con el simulador corregido.
 - Compilación web y de TypeScript de API, fronteras de arquitectura y comprobación de inventario aprobadas. El inventario tiene 545 entradas, 53 exclusiones explícitas y 23 rutas de ejecución.
+- Documentación y tableros de Foxy y Estudio validados. Gitleaks comprobó los ocho commits del primer push sin hallazgos.
 - Los [recorridos E2E](../verification/2026-11-12-foxy-study-e2e.md) y las comprobaciones de cada corrección conservan su evidencia previa con cuentas y proveedores sintéticos. Esta publicación vuelve a ejecutar la regresión local y no repite los recorridos de navegador ni llamadas a Gemini real.
 - Logs de la publicación en `.test-artifacts/main-publication-20261112/`. El workflow principal de GitHub se ejecuta en pull requests.
+
+## Publicación y limpieza
+
+- El push avanzó `origin/main` de `734845b` a `3e33a7542f52e0b77cf1c2216a6def8b4a615b70`. `git ls-remote` confirmó que `main` era la única rama remota y el destino de `HEAD`.
+- Por pedido del usuario se retiraron seis worktrees separados y sin cambios, con los commits `078afbf`, `5a9c45c`, `99834b0`, `3895f4d`, `1f61923` y `89ac88d` ya alcanzables desde `origin/main`. Se guardaron sus evidencias y configuración local en `%LOCALAPPDATA%/FoxMind/retired-worktrees/2026-11-12/`. No se operó sobre volúmenes ni servicios retenidos.
+- Los tres stashes históricos quedaron en `historical-stashes.bundle` dentro del respaldo local. Se verificaron el bundle y los tres hashes antes de retirarlos de la lista de Git. El inventario adjunto conserva sus identificadores para restauración.
+- El último commit documenta la publicación. El hash final y la igualdad entre `HEAD`, `origin/main` y la referencia remota se comprueban después de publicarlo.
