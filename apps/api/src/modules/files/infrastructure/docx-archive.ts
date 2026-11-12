@@ -32,7 +32,7 @@ function checkEntry(entry: Entry, names: Set<string>) {
     || /(?:vbaProject|\.docm$)/iu.test(name)) throw new PlanDocumentError();
   names.add(name);
 }
-export async function documentXml(bytes: Buffer): Promise<Buffer> {
+export async function documentXml(bytes: Buffer, { mainPartOnly = false } = {}): Promise<Buffer> {
   const zip = await new Promise<ZipFile>((resolve, reject) => fromBuffer(bytes,
     { lazyEntries: true, validateEntrySizes: true, strictFileNames: true },
     (error, result) => error || !result ? reject(new PlanDocumentError()) : resolve(result)));
@@ -40,8 +40,13 @@ export async function documentXml(bytes: Buffer): Promise<Buffer> {
   zip.on('error', () => { failed = true; });
   try {
     for (let entry = await next(zip); entry; entry = await next(zip)) {
-      checkEntry(entry, names); expanded += entry.uncompressedSize;
-      if (names.size > 1000 || expanded > 32_000_000) throw new PlanDocumentError('AI_INPUT_LIMIT');
+      checkEntry(entry, names);
+      if (failed) throw new PlanDocumentError();
+      if (names.size > 1000) throw new PlanDocumentError('AI_INPUT_LIMIT');
+      // The preview is called only for approved bytes whose digest was rechecked.
+      if (mainPartOnly && entry.fileName !== 'word/document.xml') continue;
+      expanded += entry.uncompressedSize;
+      if (expanded > 32_000_000) throw new PlanDocumentError('AI_INPUT_LIMIT');
       const content = await readEntry(zip, entry);
       if (failed) throw new PlanDocumentError();
       if (entry.fileName === 'word/document.xml') document = content;

@@ -10,6 +10,7 @@ export interface StudyDatabase {
 export type StudyAuthentication = (tx: StudyQuery, request: unknown, write: boolean) => Promise<string>;
 export interface StudySource {
     kind?: 'PLAN' | 'MATERIAL';
+    extension?: string;
     readable?: boolean;
     id: string;
     version: string;
@@ -79,6 +80,7 @@ export interface StudyOptions {
     files?: {
         assertOwn(tx: StudyQuery, ownerId: string, folderId: string, fileId: string, purpose: 'plan' | 'material'): Promise<void>;
         readText?(tx: StudyQuery, source: StudySource): Promise<string>;
+        previewDocx?(tx: StudyQuery, source: StudySource): Promise<string>;
         chatSources?(tx: StudyQuery, ownerId: string, folderId: string, conversationId?: string): Promise<StudySource[]>;
         readSource?(tx: StudyQuery, source: StudySource): Promise<{
             text: string;

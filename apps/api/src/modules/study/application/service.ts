@@ -16,6 +16,7 @@ export function createStudyService(options: StudyApplicationPorts) {
     const run = options.uow.run.bind(options.uow);
     const load = options.folders.load.bind(options.folders);
     const save = (tx: StudyQuery, row: FolderRow) => options.folders.save(tx, row, serializeState(row.state));
+    let activePreviews = 0;
     async function validateFiles(tx: StudyQuery, owner: string, id: string, fields: FolderFields) { await options.verifyLink(tx, owner, fields.linkedClassroomId); if (fields.planFileId) {
         if (!options.files)
             studyFail('FILE_NOT_READY');
@@ -121,6 +122,26 @@ export function createStudyService(options: StudyApplicationPorts) {
                 const attachments = await options.files?.chatSources?.(tx, owner, r.id);
                 return { folder: projectFolder(r), sources: sources.map(({ text: _, ...s }) => s), ...publicState(r.state, sources, attachments) };
             });
+        },
+        async previewDocx(request: unknown, id: string, sourceId: string) {
+            const sourceKey = studyId(sourceId);
+            if (activePreviews >= 2) studyFail('SERVICE_UNAVAILABLE');
+            activePreviews++;
+            try {
+                return await run(request, false, async (tx, owner) => {
+                    const folder = await load(tx, owner, id, false);
+                    const source = (await options.sources(tx, folder, options)).find(item => item.id === sourceKey && item.available);
+                    if (!source) studyFail('FORBIDDEN');
+                    if (source.extension !== 'docx' || !options.files?.previewDocx) studyFail('PREVIEW_UNAVAILABLE');
+                    const text = await options.files.previewDocx(tx, { ...source, ownerId: owner, folderId: folder.id,
+                        classroomId: folder.state.fields.linkedClassroomId ?? undefined });
+                    const latest = await load(tx, owner, id, false);
+                    const stillAvailable = (await options.sources(tx, latest, options)).some(item =>
+                        item.id === sourceKey && item.available && item.fileId === source.fileId && item.version === source.version);
+                    if (!stillAvailable) studyFail('FORBIDDEN');
+                    return { text };
+                });
+            } finally { activePreviews--; }
         },
         async patch(request: unknown, id: string, input: unknown) { return run(request, true, async (tx, owner) => { const p = { ...studyObject(input) }, r = await load(tx, owner, id, true); if (studyRevision(p.revision) !== String(r.revision))
             studyFail('CONFLICT'); delete p.revision; const status = p.status ?? r.status; delete p.status; if ((r.status === 'ACTIVE' && status === 'DRAFT') || !['DRAFT', 'ACTIVE', 'ARCHIVED', 'DELETED'].includes(String(status)) || (r.status === 'ARCHIVED' && status !== 'ACTIVE'))

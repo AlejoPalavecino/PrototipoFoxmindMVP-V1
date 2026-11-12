@@ -7,7 +7,52 @@ import { createStudyReminderRuntime } from "../folders/reminders/runtime.ts";
 import pg from 'pg';
 import { createGeminiStudyProvider } from "../../../../../../../.build/api/apps/api/src/modules/study/infrastructure/providers/study-adapter.js";
 import {GoogleGenAI} from '@google/genai';
+import { office } from '../../../../../../../tests/p4-fixtures.mjs';
 pg.types.setTypeParser(20,value=>BigInt(value));
+
+test('DOCX preview reads only a current folder source and rechecks it after extraction', async () => {
+ const { createStudyService: createApplication } = await import('../../application/service.ts');
+ const owner = randomUUID(), folder = randomUUID(), room = randomUUID(), id = randomUUID(), fileId = randomUUID();
+ const row = { id: folder, owner_id: owner, state: { fields: { linkedClassroomId: room } } };
+ const source = { id, fileId, version: id, origin: 'CLASSROOM', extension: 'docx', title: 'Material de prueba', available: true };
+ let current = source, revokeOnRead = false, calls = 0;
+ const service = createApplication({
+  uow: { run: (request, _write, operation) => operation({}, request.owner) },
+  folders: { load: async (_tx, actor) => { if (actor !== owner) throw { code: 'FORBIDDEN' }; return row; } },
+  sources: async () => current ? [current] : [],
+  files: { async previewDocx(_tx, candidate) {
+   calls++;
+   assert.equal(candidate.ownerId, owner);
+   assert.equal(candidate.folderId, folder);
+   assert.equal(candidate.classroomId, room);
+   assert.equal(candidate.fileId, fileId);
+   if (revokeOnRead) current = undefined;
+   return 'Texto privado';
+  } },
+ });
+ await assert.rejects(async () => service.previewDocx({ owner: randomUUID() }, folder, id), { code: 'FORBIDDEN' });
+ await assert.rejects(async () => service.previewDocx({ owner }, folder, fileId), { code: 'FORBIDDEN' });
+ assert.equal(calls, 0);
+ assert.deepEqual(await service.previewDocx({ owner }, folder, id), { text: 'Texto privado' });
+ current = { ...source, extension: 'pdf' };
+ await assert.rejects(async () => service.previewDocx({ owner }, folder, id), { code: 'PREVIEW_UNAVAILABLE' });
+ assert.equal(calls, 1);
+ current = source;
+ revokeOnRead = true;
+ await assert.rejects(async () => service.previewDocx({ owner }, folder, id), { code: 'FORBIDDEN' });
+ assert.equal(calls, 2);
+});
+
+test('DOCX preview can read the main XML of a large material without expanding other entries', async () => {
+ const { parseActivityDocument } = await import('../../../files/infrastructure/activity-document.ts');
+ const document = Buffer.from('<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>Contenido de lectura</w:t></w:r></w:p></w:body></w:document>');
+ const large = office('docx', [{ name: 'word/media/resource.bin', bytes: Buffer.alloc(33_000_000) }],
+  entries => entries.map(entry => entry.name === 'word/document.xml' ? { ...entry, bytes: document } : entry));
+ const signal = AbortSignal.timeout(5000);
+ await assert.rejects(parseActivityDocument(large, 'docx', signal), { code: 'AI_INPUT_LIMIT' });
+ const preview = await parseActivityDocument(large, 'docx-preview', signal);
+ assert.deepEqual(preview.document, { kind: 'text', text: 'Contenido de lectura' });
+});
 
 test('PostgreSQL: uploads privados, custodia y recordatorios idempotentes de Agenda',{timeout:90000},async()=>{
  await withAgendaDatabase(async({pool})=>{

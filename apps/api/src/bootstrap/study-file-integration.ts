@@ -24,8 +24,9 @@ export function createStudyFileIntegration(files:FileService,options:Pick<StudyF
     },
     async readText(tx,source) {return (await read(tx,source)).text;},
     async readSource(tx,source) {return read(tx,source);},
+    async previewDocx(tx,source) {return (await read(tx,source,true)).text;},
   };
-  async function read(tx:Parameters<NonNullable<StudyOptions['files']>['assertOwn']>[0],source:StudySource) {
+  async function read(tx:Parameters<NonNullable<StudyOptions['files']>['assertOwn']>[0],source:StudySource,docxPreview=false) {
     if(!source.available||!source.fileId)return {text:source.text};
     if(!source.ownerId||!source.folderId)return studyFileError('FORBIDDEN');
     if (source.conversationId) {
@@ -52,11 +53,17 @@ export function createStudyFileIntegration(files:FileService,options:Pick<StudyF
         AND f.validation_status='APPROVED' AND f.scan_status='CLEAN' AND f.blob_deleted_at IS NULL`,source.fileId,source.id,source.classroomId,source.ownerId);
       if(!row||row.digest!==row.validated_digest||row.digest!==row.scanned_digest)return studyFileError('FILE_NOT_READY');
     }
+    if(docxPreview && row.extension!=='docx')return studyFileError('PREVIEW_UNAVAILABLE');
     if(!['pdf','docx'].includes(row.extension))return {text:source.text};
     const bytes=await files.storage.get(row.storage_key,Number(row.size_bytes));
     if(bytes.length!==Number(row.size_bytes)||createHash('sha256').update(bytes).digest('hex')!==row.digest)return studyFileError('FILE_NOT_READY');
-    const parsed=await parseActivityDocument(bytes,row.extension as 'pdf'|'docx',AbortSignal.timeout(5000));
-    return {text:parsed.document.kind==='text'?parsed.document.text:source.text,document:parsed.document};
+    try {
+      const parsed=await parseActivityDocument(bytes,docxPreview?'docx-preview':row.extension as 'pdf'|'docx',AbortSignal.timeout(5000));
+      return {text:parsed.document.kind==='text'?parsed.document.text:source.text,document:parsed.document};
+    } catch (error) {
+      if (docxPreview) return studyFileError('PREVIEW_UNAVAILABLE');
+      throw error;
+    }
   }
   // The folder service authorizes the exact source/version both before and after generation.
   return {uploads,port,readSource:read};

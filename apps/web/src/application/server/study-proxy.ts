@@ -32,9 +32,10 @@ function select(request:IncomingMessage):{url:URL;method:string;binary:boolean;u
  const folder=new RegExp(`^${root}/${uuid}$`,'i'),commands=new RegExp(`^${root}/${uuid}/commands$`,'i');
  const uploads=new RegExp(`^${root}/${uuid}/uploads$`,'i'),uploadId=new RegExp(`^${root}/${uuid}/uploads/${uuid}$`,'i');
  const file=new RegExp(`^${root}/${uuid}/uploads/${uuid}/file$`,'i');
+ const docxPreview=new RegExp(`^${root}/${uuid}/docx-preview/${uuid}$`,'i');
  const readReminder=new RegExp(`^${root}/reminders/${uuid}/read$`,'i');
  const binary=file.test(path),upload=uploadId.test(path)&&method==='PUT';
- const allowed=path===root?['GET','POST']:folder.test(path)?['GET','PATCH']:commands.test(path)||uploads.test(path)||readReminder.test(path)?['POST']:uploadId.test(path)?['GET','PUT']:binary||path===`${root}/reminders`?['GET']:[];
+ const allowed=path===root?['GET','POST']:folder.test(path)?['GET','PATCH']:commands.test(path)||uploads.test(path)||readReminder.test(path)?['POST']:uploadId.test(path)?['GET','PUT']:binary||docxPreview.test(path)||path===`${root}/reminders`?['GET']:[];
  if(!allowed.length)throw Object.assign(new Error(),{status:404});
  if(!allowed.includes(method))throw Object.assign(new Error(),{status:405});
  const keys=[...url.searchParams.keys()];if(new Set(keys).size!==keys.length||keys.some(key=>!binary||key!=='mode')||url.searchParams.has('mode')&&!['preview','download'].includes(url.searchParams.get('mode')!))throw new Error();

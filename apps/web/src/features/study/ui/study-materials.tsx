@@ -4,16 +4,19 @@ import { createStudyClient, validateStudyPlan, type StudyCollection, type StudyD
 import { canManageStudyMaterial } from '../model/study-discovery';
 import { StudyUpload } from './study-upload';
 import { StudyPlanEditor } from './study-wizard';
+import { StudyDocxPreview } from './study-docx-preview';
 import s from './study.module.css';
 
 type Run = (action: string, data?: Record<string, unknown>) => Promise<unknown>;
 type Topic = StudyDetail['folder']['units'][number]['topics'][number];
 
-function StudyFileLinks({href,plan=false}:{href:string;plan?:boolean}) {
+function StudyFileLinks({href,plan=false,onPreview}:{href:string;plan?:boolean;onPreview?:()=>void}) {
   return <div className={s.fileLinks}>
-    <a href={href+'?mode=preview'} target="_blank" rel="noopener noreferrer">{plan?'Abrir plan':'Abrir archivo'}</a>
+    {onPreview
+      ? <button type="button" className={s.previewButton} onClick={onPreview}>{plan?'Abrir plan':'Abrir archivo'}</button>
+      : <a href={href+'?mode=preview'} target="_blank" rel="noopener noreferrer">{plan?'Abrir plan':'Abrir archivo'}</a>}
     <a href={href+'?mode=download'}>{plan?'Descargar plan':'Descargar'}</a>
-    <small>Los archivos sin vista previa se descargan.</small>
+    {!onPreview && <small>Los archivos sin vista previa se descargan.</small>}
   </div>;
 }
 
@@ -35,12 +38,14 @@ export function StudyMaterials({ detail, catalog, busy, run, onReload, onDirtyCh
   const [working, setWorking] = useState(false);
   const [pendingMaterial, setPendingMaterial] = useState<{ fileId: string; title: string }>();
   const [editMaterial, setEditMaterial] = useState('');
+  const [preview, setPreview] = useState<{sourceId: string; title: string; href: string}>();
   const writable = folder.status === 'ACTIVE' && !busy && !working;
   const materials = detail.sources.filter(source => source.kind !== 'PLAN');
   const found = materials.filter(source => (!origin || source.origin === origin) &&
     source.title.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()));
   const editing = folder.materials?.find(material => material.id === editMaterial);
   const planHref = folder.planFileId && `/api/v1/study-folders/${folder.id}/uploads/${folder.planFileId}/file`;
+  const plan = detail.sources.find(source => source.kind === 'PLAN' && source.fileId === folder.planFileId);
   const topicCount = folder.units.reduce((total, unit) => total + unit.topics.length, 0);
 
   useEffect(() => onDirtyChange(dirty || working), [dirty, working, onDirtyChange]);
@@ -117,7 +122,8 @@ export function StudyMaterials({ detail, catalog, busy, run, onReload, onDirtyCh
             </span><span className={s.materialDetailLabel}>Ver detalles</span>
           </summary>
           <div className={s.actions}>
-            {source.available && <StudyFileLinks href={href}/>}
+            {source.available && <StudyFileLinks href={href} onPreview={source.extension === 'docx'
+              ? () => setPreview({ sourceId: source.id, title: source.title, href }) : undefined}/>}
             {manage && <button disabled={!writable} type="button" onClick={() => setEditMaterial(source.id)}>Editar material</button>}
             {manage && <button disabled={!writable} type="button" onClick={() => {
               if (window.confirm('¿Quitar este material del contexto de tu carpeta?')) void run('REMOVE_MATERIAL', { materialId: source.id }).catch(() => {});
@@ -136,7 +142,8 @@ export function StudyMaterials({ detail, catalog, busy, run, onReload, onDirtyCh
     </> : <>
       <div className={s.planDocument}><div><strong>Plan de {folder.name}</strong>
         <small>{folder.units.length} {folder.units.length === 1 ? 'unidad' : 'unidades'} · {topicCount} {topicCount === 1 ? 'tema' : 'temas'}</small></div>
-        {planHref && <StudyFileLinks href={planHref} plan/>}
+        {planHref && <StudyFileLinks href={planHref} plan onPreview={plan?.extension === 'docx'
+          ? () => setPreview({ sourceId: plan.id, title: plan.title, href: planHref }) : undefined}/>}
       </div>
       {folder.units.map((unit, index) => <details className={s.planUnit} key={unit.id} open={index === 0 ? true : undefined}>
         <summary><strong>{unit.title}</strong><small>{unit.topics.length} {unit.topics.length === 1 ? 'tema' : 'temas'}</small></summary>
@@ -160,6 +167,8 @@ export function StudyMaterials({ detail, catalog, busy, run, onReload, onDirtyCh
       }}/>
       <button className={s.primary} disabled={!dirty} type="button" onClick={() => void save()}>Guardar cambios</button>
     </fieldset>}
+    {preview && <StudyDocxPreview folderId={folder.id} sourceId={preview.sourceId} title={preview.title}
+      downloadHref={preview.href+'?mode=download'} onClose={() => setPreview(undefined)}/>}
   </div>;
 }
 

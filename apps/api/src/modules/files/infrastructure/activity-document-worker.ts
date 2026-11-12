@@ -13,7 +13,7 @@ async function run() {
   const [{ documentXml }, { extractDocumentText }] = await Promise.all([
     import('./docx-archive.ts'), import('./docx-xml.ts'),
   ]);
-  return { document: { kind: 'text', text: extractDocumentText(await documentXml(bytes)) },
+  return { document: { kind: 'text', text: extractDocumentText(await documentXml(bytes, { mainPartOnly: workerData.extension === 'docx-preview' })) },
     pageCount: null, warnings: ['DOCX_IMAGES_OMITTED'] };
 }
 run().then(result => parentPort?.postMessage({ ok: true, result })).catch(error =>

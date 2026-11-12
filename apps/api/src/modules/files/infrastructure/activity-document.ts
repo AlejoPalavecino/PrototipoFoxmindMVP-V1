@@ -2,9 +2,9 @@ import { Worker } from 'node:worker_threads';
 import type { ActivityGenerationSource } from '../../../../../../src/core/domain/index.ts';
 import { PlanDocumentError } from '../domain/plan-document-error.ts';
 
-export async function parseActivityDocument(bytes: Uint8Array, extension: 'pdf' | 'docx', signal: AbortSignal): Promise<Omit<ActivityGenerationSource, 'sourceId'>> {
+export async function parseActivityDocument(bytes: Uint8Array, extension: 'pdf' | 'docx' | 'docx-preview', signal: AbortSignal): Promise<Omit<ActivityGenerationSource, 'sourceId'>> {
   if (signal.aborted) throw new PlanDocumentError();
-  if (!bytes.length || bytes.length > 20_000_000) throw new PlanDocumentError('AI_INPUT_LIMIT');
+  if (!bytes.length || bytes.length > (extension === 'docx-preview' ? 50_000_000 : 20_000_000)) throw new PlanDocumentError('AI_INPUT_LIMIT');
   const url = new URL(import.meta.url.endsWith('.ts') ? './activity-document-worker.ts' : './activity-document-worker.js', import.meta.url);
   const worker = new Worker(url, { workerData: { bytes, extension }, execArgv: [], stdout: true, stderr: true,
     resourceLimits: { maxOldGenerationSizeMb: 128, maxYoungGenerationSizeMb: 16, stackSizeMb: 4 } });
