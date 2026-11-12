@@ -1,7 +1,7 @@
 export interface StudyTopic { id: string; title: string }
 export interface StudyUnit { id: string; title: string; topics: StudyTopic[] }
 export interface StudyFolder { id: string; name: string; academicYear: number; bannerKey: string; status: 'DRAFT'|'ACTIVE'|'ARCHIVED'|'DELETED'; revision: string; linkedClassroomId: string|null; planFileId: string|null; materials?:{id:string;title:string;fileId:string;topicIds:string[]}[]; units: StudyUnit[] }
-export interface StudySource { kind?:'PLAN'|'MATERIAL'; id: string; version: string; title: string; origin: 'OWN'|'CLASSROOM'; fileId: string; available: boolean }
+export interface StudySource { kind?:'PLAN'|'MATERIAL'; id: string; version: string; title: string; origin: 'OWN'|'CLASSROOM'; fileId: string; available: boolean; readable?: boolean }
 export interface StudyConversation { id: string; title: string;sourceUnavailable?:boolean; messages?: {role:string;content:string;text?:string;sourceRefs?:{id:string;version:string}[]}[]; turns?: {role:string;content:string;text?:string;sourceRefs?:{id:string;version:string}[]}[] }
 export interface StudyCreation { id: string; title: string; markdown: string; body?:string; kind: string; sourceUnavailable?: boolean }
 export interface StudyQuestion { id: string; prompt: string; type: string; options?: {id:string;text:string;label?:string}[];explanation?:string }

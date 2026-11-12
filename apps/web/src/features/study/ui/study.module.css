@@ -41,3 +41,112 @@
  .composer .inline{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
  .composer small{font-size:10px;line-height:1.5}
 }
+.root .chat {
+  height: var(--chat-height, clamp(335px, calc(100dvh - 310px), 940px));
+  min-height: 0;
+  border: 0;
+  border-radius: 0 0 20px 20px;
+}
+.root .chatHeader { display: block; padding: 12px 14px; }
+.root .chatHeader h2 { display: flex; align-items: center; min-height: 44px; margin: 0 145px 6px 0; font-size: 18px; overflow-wrap: anywhere; }
+.root .chatHeader button { margin-top: 4px; }
+.root .heading { margin-block: 5px 14px; }
+.root .back { margin-bottom: 9px; }
+.root .messages { font-size: 17px; line-height: 1.7; min-height: 0; }
+.root .messages .prose, .root .messages .prose :is(p,li) { font-size: inherit; }
+.root .composer textarea { font-size: 16px; }
+.historyRows { display: grid; gap: 8px; }
+.studyCreations { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 265px), 1fr)); }
+.root .studyCreations button { height: 100%; min-height: 78px; padding: 15px; }
+.studyFilters { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 12px; margin: 0 0 16px; }
+.toolConfiguration { display: grid; gap: 12px; margin-top: 18px; padding: 16px; border: 1px solid #e2dcec; border-radius: 14px; background: #faf8fd; }
+.root .composer .inline { display: flex; justify-content: space-between; gap: 6px; }
+.root .composer button { min-height: 44px; }
+.root .composer { padding-block: 10px; }
+.materialsPanel { max-width: 860px; margin: 0 auto; }
+:global(.fm3d-theme) .materialDialog.materialDialog[open] { display: flex; flex-direction: column; overflow: hidden; }
+.materialDialog > header { flex: none; }
+.materialDialog > :global(.brujula-dialog-body) { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.materialsHeading, .planDocument, .planUnit li { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.materialsHeading h3 { margin: 4px 0; font-size: 22px; }
+.materialsHeading small, .planDocument small, .planUnit small { display: block; color: #606077; }
+.materialTabs { display: flex; gap: 8px; margin: 12px 0; border-bottom: 1px solid #e2deed; }
+.materialTabs button[aria-current="page"] { background: #f2edf8; color: #513876; border-color: #bda9d5; }
+.materialsPanel .materialTabs button { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 5px; min-width: 0; padding: 7px 9px; }
+.materialsPanel .materialTabs small { font-size: 11px; color: #5a4e6e; }
+.materialFilters { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 190px); gap: 12px; }
+.materialNote, .materialUpload, .planDocument { padding: 14px; border: 1px solid #dfebe5; border-radius: 12px; background: #f1f7f4; }
+.materialRows { display: grid; gap: 8px; }
+.materialRow, .planUnit { border: 1px solid #e1ddeb; border-radius: 12px; background: white; }
+.materialRow summary { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 12px; cursor: pointer; }
+.materialRow small { display: block; color: #58536a; margin-top: 3px; }
+.materialRow strong { overflow-wrap: anywhere; }
+.materialRow .actions, .planUnit ul { padding: 0 14px 14px; }
+.fileBadge { display: grid; place-items: center; width: 44px; height: 48px; background: #eee8f6; color: #624584; font-size: 11px; font-weight: 700; border-radius: 9px; }
+.materialRow .readable, .materialRow .savedOnly { display: inline-block; border-radius: 6px; background: #e7f2eb; color: #385d48; padding: 3px 7px; font-size: 11px; }
+.materialRow .savedOnly { background: #fff1dd; color: #77501f; }
+.materialDetailLabel { color: #59417b; font-size: 12px; }
+.planDocument { background: #f6f2fa; border-color: #e8e1f0; }
+.planUnit summary { cursor: pointer; padding: 12px 14px; min-height: 44px; }
+.planUnit ul { list-style: none; margin: 0; }
+.planUnit li { padding: 8px 0; border-top: 1px solid #e8e3ef; }
+@media(max-width:520px) {
+  .root .chat { height: var(--chat-height, max(322px, calc(100dvh - 316px))); }
+  .root .chatHeader h2 { margin-right: 107px; font-size: 16px; }
+  .root .messages { font-size: 16px; }
+  .materialFilters { grid-template-columns: minmax(0, 1fr); }
+  .materialRow summary { grid-template-columns: auto minmax(0, 1fr); }
+  .materialDetailLabel { grid-column: 2; }
+  .root .chatHeader { padding-block: 8px; }
+  .root .heading .actions button { min-height: 44px; padding: 5px 3px; font-size: 11px; }
+}
+@media(max-width:360px) {
+  .root .back { margin-bottom: 2px; }
+  .root .heading { gap: 6px; margin-block: 0 8px; }
+  .root .heading p, .root .chatHeader p { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
+  .root .chatHeader { padding-block: 6px; }
+  .root .chat { height: var(--chat-height, max(388px, calc(100dvh - 253px))); }
+}
+
+.root .chatHeader { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; padding: 11px 22px; }
+.root .chatHeader > div { width: 100%; }
+.root .chatHeader h2 { font-size: 19px; min-height: 32px; margin-bottom: 4px; }
+.root .chatHeader p { display: inline-block; padding: 5px 8px; border-radius: 8px; background: #eaf3ee; color: #365e4c; }
+.root .chatHeader button { margin: 0; border-color: transparent; color: #58436d; }
+.root .messages { padding-inline: 25px; }
+.root .foxyMessage { max-width: 78ch; }
+.root .foxyMessage .prose > div { font-size: inherit; line-height: inherit; }
+.root .userMessage { padding: 11px 16px; }
+.root .composer {
+  flex: none; margin: 0 18px; padding: 10px 13px 9px; border: 1px solid #ccd3e5; border-radius: 17px;
+  background: white;
+}
+.root .composer:focus-within { border-color: #a48abf; box-shadow: 0 0 0 2px #f1eafa; }
+:global(.fm3d-theme) .root .composer textarea {
+  min-height: 46px; height: 52px; border: 0; padding: 4px; background: white; font-size: 16px; box-shadow: none;
+}
+.root .composer textarea:focus-visible { outline: 0; }
+.root .composer .inline { margin-top: 4px; }
+.composerTools { display: flex; gap: 6px; }
+.composerTools button { display: inline-flex; align-items: center; gap: 6px; }
+.composerTools button svg { width: 16px; height: 16px; }
+.root .chatDisclaimer { text-align: center; margin: 4px 0 6px; color: #625b72; font-size: 10px; }
+.root .historyRows button { padding: 13px 12px; background: #f8f8fd; border-color: #dedfed; }
+.root .historyRows button[aria-pressed="true"] { background: #fff; border-color: #cdbde4; border-inline-start: 4px solid #8667a9; }
+.root .heading .actions button { min-height: 44px; }
+@media(max-width:650px) {
+  .root .chatHeader { padding: 9px 13px; }
+  .root .chatHeader h2 { min-height: 44px; font-size: 17px; }
+  .root .messages { padding-inline: 14px; }
+  .root .composer { margin-inline: 9px; padding: 7px 9px; }
+}
+@media(max-width:390px) {
+  :global(.fm3d-theme) .root .composer .inline button { padding-inline: 7px; font-size: 11px; }
+  .root .composerTools { gap: 4px; }
+}
+@media(max-width:520px) {
+  .root .chatHeader h2 { margin-right: 52px; }
+  .root .composer .inline { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 5px; }
+  .root .composerTools button { white-space: nowrap; }
+}
+:global(.fm3d-theme:has(.fm-navbar-private)) .materialDialog.materialDialog[open] { width: min(900px, calc(100% - 24px)); }
