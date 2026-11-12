@@ -9,9 +9,9 @@ Entrega: unidad separada de entorno, auto-chain/main ya autorizado para Agenda; 
 
 ## Tasks
 
-- R1 | S1-S2 | DONE | ruta: corrección acotada del writer | reloj callable/lecturas finitas validadas en cada lectura; RED2fallos→GREEN19/19, parent2focalesPASS; commit: pendiente.
-- R2 | S1-S2 | DONE | ruta: mismo verificador independiente, recheck focalizado | bloqueo cerrado;2tests/48probesPASS,12fallos originales rechazados,30/90 compartidos preservados; commit: pendiente.
-- R3 | S1-S2 | DONE | ruta: coordinador | local:restart job-3exit0/36s, API/webready3000/3001, compilación y arranque reales con90s autorizado; AgendaQA retomado; commit: pendiente.
+- R1 | S1-S2 | DONE | ruta: corrección acotada del writer | reloj callable/lecturas finitas validadas en cada lectura; RED2fallos→GREEN19/19, parent2focalesPASS; commit:1c61e2bcb7f8bdf3c31d944f7e444b2679739881.
+- R2 | S1-S2 | DONE | ruta: mismo verificador independiente, recheck focalizado | bloqueo cerrado;2tests/48probesPASS,12fallos originales rechazados,30/90 compartidos preservados; commit:1c61e2bcb7f8bdf3c31d944f7e444b2679739881.
+- R3 | S1-S2 | DONE | ruta: coordinador | local:restart job-3exit0/36s, API/webready3000/3001, compilación y arranque reales con90s autorizado; AgendaQA retomado; commit:1c61e2bcb7f8bdf3c31d944f7e444b2679739881.
 
 ## Log
 
@@ -34,3 +34,5 @@ L8 — Tanda acotada mwe4ntrp-9-ih0r: helper valida callable y cada valor typeof
 L9 — Recheck independiente mwe4sm9t-a-dqee cerró el bloqueo original:2/2tests y48probesPASS,12fallos previos ahora rechazan TypeError, streams/cero llamadas antes de generar y no compilación tras lectura inválida tardía. Preservados30000→29983ms y90000→89983ms en casos válidos. Sin nuevo barrido/servicios/compiladores; estado repo intacto. R2 completo. Parent inició aceptación real R3 mediante npm run local:restart job-3 usando la reparación ya verificada y el presupuesto90s expresamente aprobado. Resultado aún pendiente; respeta90s interno/95s wrapper y180s web, sin aumento adicional ni reintento automático si falla.
 
 L10 — Aceptación real job-3exit0 tras36s: helper local arrancó recursos propios, migraciones existentes, API/web compiladas y estadoREADY con origin127.0.0.1:3000/API3001. Sin generacionesIA. El resultado no borra los dos fallos previos ni amplía futuros presupuestos. R3 completo y AgendaQA real retomado mediante mwe4y7jn-b-4y8r; publicación aún pendiente de sus pruebas. Riesgo item5 verificado independientemente; evaluación nativa previa no produjo veredicto por untracked.
+
+L11 — Unidad separada de entorno confirmada en commit1c61e2bcb7f8bdf3c31d944f7e444b2679739881, `fix(dev): isolate the local API build budget`:312líneas authored,8rutas sólo de esta reparación, base0112a64. Sin UI/prototipos/video ni push. Evaluación de ese rango committedOnly con escalate5 sigue no evaluable por untracked ambientales; planhigh exige verificador ya cumplido, sin veredicto nativo inferido ni nuevo ciclo. Límite de slice0112a64..1c61e2b (312) separado de las dos slices pasivas anteriores; siguientes commits no mezclarán este riesgo5 con UI.
