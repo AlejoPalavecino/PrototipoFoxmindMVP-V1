@@ -191,7 +191,22 @@
 .metric > strong { display: flex; gap: 5px; align-items: baseline; font-size: 1.4rem; }
 .metric p { margin: 4px 0 0; }
 .metric progress { max-width: 100%; }
-.progressTable { overflow-x: auto; }
+.progressTable { overflow-x: auto; border: 1px solid #dce2ef; border-radius: 17px; background: #fff; }
+.progressTable table { width: 100%; border-collapse: collapse; text-align: left; table-layout: fixed; }
+.progressTable th, .progressTable td { padding: 12px 16px; overflow-wrap: anywhere; vertical-align: middle; }
+.progressTable th { background: #f6f7fc; font-size: 12px; }
+.progressTable th:first-child { width: 40%; }
+.progressTable td { border-top: 1px solid #e5e9f4; font-size: 13px; }
+.progressTable :global(.brujula-progress-student) { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.progressTable :global(.p5-avatar) { flex: 0 0 34px; width: 34px; height: 34px; font-size: 12px; }
+:global(#classroom-main) .progressTable button { min-height: 44px; white-space: normal; }
+@media (max-width: 600px) {
+  .progressTable th, .progressTable td { padding: 10px 6px; }
+  .progressTable th { font-size: 11px; white-space: nowrap; }
+  .progressTable th:first-child { width: 35%; }
+  .progressTable :global(.brujula-progress-student) { flex-wrap: wrap; gap: 6px; }
+  :global(#classroom-main) .progressTable button { padding: 6px; }
+}
 .progressWorkspace:global(.p8-progress){padding:0!important;border:0!important;background:transparent!important}
 .progressWorkspace p{font-size:14px!important;line-height:1.65!important;color:#60667d!important}
 .progressWorkspace .progressStat{border-color:#dce2ef!important;border-radius:16px!important;color:#252646!important}

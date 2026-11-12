@@ -3,6 +3,7 @@
     "id": "fast",
     "kind": "fast",
     "files": [
+      "tests/classroom-visual-fixture.test.mjs",
       "tests/teacher-home-polish.test.mjs",
       "tests/home-order.test.mjs",
       "apps/shared-ui/chat-follow.test.mjs",

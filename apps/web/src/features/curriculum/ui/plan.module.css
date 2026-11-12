@@ -47,6 +47,25 @@
 @media (max-width: 760px) { .workspace .mobile { display: block !important; } }
 .feedback { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin-bottom: 12px; padding: 10px 12px; border-radius: 14px; background: #e5f4ed; color: #22543f; font-family:'Brújula',sans-serif; font-size:14px; line-height:1.6; }
 .feedback strong { display: block; overflow-wrap: anywhere; }
+/* Own the layout inside the classroom shell, whose generic controls also use an ID selector. */
+:global(#classroom-main) .workspace .filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+:global(#classroom-main) .workspace .filters button { min-width: 0; min-height: 44px; padding: 6px 4px; gap: 5px; }
+:global(#classroom-main) .workspace .topic button { display: grid; justify-content: stretch; justify-items: start; gap: 2px; min-width: 0; min-height: 52px; padding: 8px 10px 8px 0; border: 0; text-align: left; white-space: normal; }
+:global(#classroom-main) .workspace .topic small { display: block; font-size: 12px; font-weight: 400; line-height: 1.5; }
+:global(#classroom-main) .workspace .check { display: grid; place-items: center; align-self: center; padding: 0; margin: 0; }
+:global(#classroom-main) .workspace .check input { margin: 0; }
+:global(#classroom-main) .workspace :global(.fm3-plan-resource) { display: grid; grid-template-columns: 36px minmax(0, 1fr) 44px; align-items: center; gap: 12px; text-align: left; }
+:global(#classroom-main) .workspace :global(.fm3-plan-resource) > div { min-width: 0; width: auto; }
+:global(#classroom-main) .workspace :global(.fm3-plan-resource) > :is(button, a) { display: grid; place-items: center; width: 44px; min-height: 44px; margin: 0; padding: 8px; }
+:global(#classroom-main) .workspace :global(.brujula-topic-resources-head) { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; }
+:global(#classroom-main) .workspace :global(.brujula-topic-resources-head) > button { min-height: 44px; }
+:global(#classroom-main) .workspace .completion button { min-height: 44px; }
+:global(#classroom-main) .workspace .pagination button { min-height: 44px; }
+@media (max-width: 600px) {
+  .progress { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+  .progress > div { grid-column: 1 / -1; }
+  .progress progress { width: 100%; min-width: 0; }
+}
 @media (prefers-reduced-motion: no-preference) {
   .topic[data-completed=true] input { animation: check-in .24s ease-out; }
   @keyframes check-in { from { transform: scale(.78); } to { transform: scale(1); } }

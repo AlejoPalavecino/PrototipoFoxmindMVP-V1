@@ -12,6 +12,21 @@ Componentes reales y cliente sintético, inspeccionados con Ego Lite. Referencia
 | Día seleccionado, 390×844 | [Panel inferior](agenda-20261112-mobile-day.png) |
 | Crear, 390×844 | [Una columna](agenda-20261112-mobile-form.png) |
 
+## Auditoría de composición de Mis aulas — 2026-11-12
+
+Candidato local en `codex/classrooms-visual-audit`, sin integrar/publicar. Catorce capturas de aplicación completa con servicios propios y cuentas sintéticas, inspeccionadas individualmente. Docente como referencia; permisos y acciones exclusivos conservados. [Recibo y hashes](../../verification/classrooms-visual-audit.json), [registro](../../work-log/2026-11-12-root-classrooms-visual-audit.md).
+
+| Rol / sección | Escritorio | Móvil |
+|---|---|---|
+| teacher / plan | [1440 px](aulas-audit-20261112-teacher-plan-1440.png) | [390 px](aulas-audit-20261112-teacher-plan-390.png) |
+| teacher / library | [1440 px](aulas-audit-20261112-teacher-library-1440.png) | [390 px](aulas-audit-20261112-teacher-library-390.png) |
+| teacher / progress | [1440 px](aulas-audit-20261112-teacher-progress-1440.png) | [390 px](aulas-audit-20261112-teacher-progress-390.png) |
+| teacher / settings | [1440 px](aulas-audit-20261112-teacher-settings-1440.png) | [390 px](aulas-audit-20261112-teacher-settings-390.png) |
+| student / plan | [1440 px](aulas-audit-20261112-student-plan-1440.png) | [390 px](aulas-audit-20261112-student-plan-390.png) |
+| student / library | [1440 px](aulas-audit-20261112-student-library-1440.png) | [390 px](aulas-audit-20261112-student-library-390.png) |
+| student / progress | [1440 px](aulas-audit-20261112-student-progress-1440.png) | [390 px](aulas-audit-20261112-student-progress-390.png) |
+
+
 ## Mis aulas — 2026-11-11
 
 Referencia implementada e integrada/publicada en main (122daaa), sin despliegue. El worktree de prueba se conserva detached. Incluye 17 capturas de componentes reales con clientes sintéticos y dos de la aplicación completa con PostgreSQL, S3, ClamAV y Mailpit. Todas fueron inspeccionadas. Las pruebas de integración se acreditan por separado en el [recibo](../../verification/classrooms-ux-unification.json); las imágenes por sí solas no prueban correo, IA real, permisos ni persistencia.

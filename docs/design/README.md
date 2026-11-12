@@ -12,6 +12,14 @@ Pulido integrado en `main` (`a961794`) tras aprobación del usuario; sin push ni
 
 En móvil, las siguientes entregas colocan el plazo debajo del título y reservan una columna para la acción, evitando comprimir palabras entre fecha e icono. Los accesos de aula mantienen igual altura entre filas; los botones de entrega, corrección y devolución tienen al menos 44 px. Se conservan los destinos y reglas existentes. Evidencia y límites en el [registro de auditoría](../work-log/2026-11-12-root-home-visual-audit.md).
 
+## Composición compartida de Mis aulas — 2026-11-12
+
+El docente es la referencia visual para las superficies comunes, por decisión del usuario. Catálogo, cabecera, navegación, Plan, Muro, Biblioteca y filas de actividades conservan los mismos componentes y lenguaje visual en ambos roles. Los permisos, acciones, estados académicos y destinos exclusivos permanecen distintos; Mi progreso no se convierte en un registro de toda la clase.
+
+Plan alinea el check con el centro de cada tema y separa nombre y estado en dos líneas; sus filtros tienen igual ancho. Los recursos mantienen icono, contenido y apertura en tres columnas también en móvil. La barra de avance conserva el porcentaje junto al indicador. Biblioteca reserva espacio para la lupa de búsqueda. Progreso docente presenta encabezados y celdas alineados en una tabla de ancho completo; las portadas de Configuración se organizan en dos columnas en móvil.
+
+Cambios locales en `codex/classrooms-visual-audit`, sin integración ni publicación. [Registro y límites](../work-log/2026-11-12-root-classrooms-visual-audit.md) y [tarea](../../odd/tasks/classrooms-visual-audit.md).
+
 ## Dirección vigente de Inicio docente — 2026-11-11
 
 Seguimiento elimina los textos de alcance/orden estáticos y coloca un selector accesible arriba a la derecha, adaptable a una segunda fila en móvil. Título y selector comparten eje vertical; pestañas y Ver todas comparten fila y altura de 44 px. Mi agenda presenta la fecha sólo en el bloque lateral y el horario (o Todo el día) debajo del título, con separación uniforme entre eventos. Entregas y Consultas mantienen su elección independiente y todas las páginas respetan el orden.

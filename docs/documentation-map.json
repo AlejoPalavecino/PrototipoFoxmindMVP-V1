@@ -4,6 +4,9 @@
   "hashPolicy": "Current baseline: catalog hashes are exact bytes; no retained historical aliases",
   "activeFiles": [
     "docs/work-log/2026-11-12-root-home-visual-audit.md",
+    "docs/work-log/2026-11-12-root-classrooms-visual-audit.md",
+    "odd/tasks/classrooms-visual-audit.md",
+    "docs/verification/classrooms-visual-audit.json",
     "odd/tasks/classrooms-ux-unification.md",
     "docs/work-log/2026-11-11-root-classrooms-frontend.md",
     "docs/design/classroom-teacher-redesign.md",

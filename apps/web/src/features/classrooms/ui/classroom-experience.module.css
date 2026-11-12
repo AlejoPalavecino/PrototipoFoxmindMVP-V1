@@ -1,4 +1,7 @@
 .scope,.catalog{--aula-ink:#252646;--aula-muted:#626880;--aula-line:#dce2ef;--aula-accent:#ad460e;--aula-soft:#fff0e3;min-width:0}
+@media(max-width:600px){
+  :global(#classroom-main) .scope :global(.brujula-settings-covers)>div{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
 .application:global(.p5-app){background:#f4f7ff!important}
 .scope :global(.p5-notice){font-family:'Brújula',sans-serif!important;font-size:14px!important;line-height:1.6!important;border-radius:13px}
 .scope :global(.p5-notice.error),.dialog :global(.p5-notice.error){background:#fff2ee!important;border-color:#efc8bf!important;color:#8d3635!important}

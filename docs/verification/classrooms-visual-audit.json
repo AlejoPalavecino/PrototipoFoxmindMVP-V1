@@ -1,0 +1,1306 @@
+{
+  "date": "2026-11-12",
+  "status": "verified locally; uncommitted, not integrated or deployed",
+  "branch": "codex/classrooms-visual-audit",
+  "baseCommit": "1f61923407fa839df0abb97e673c0274cf12bb1b",
+  "reference": "Teacher UI; shared student components retain role-specific permissions",
+  "candidate": [
+    {
+      "path": "apps/web/src/features/curriculum/ui/plan.module.css",
+      "sha256": "667b6af82d66619ceafb5c1a19feb84b27987895999a021c7307f408c52e9ebd"
+    },
+    {
+      "path": "apps/web/src/features/materials/ui/library.module.css",
+      "sha256": "54547636fb62cc59f99703f9493c5aeb62c3b29b2b0ea2f935fa67a954a27bc7"
+    },
+    {
+      "path": "apps/web/src/features/grading/ui/grading.module.css",
+      "sha256": "ad345e108960b8a058385671ea58e940051ed7937206efdead2288769545eb1d"
+    },
+    {
+      "path": "apps/web/src/features/classrooms/ui/classroom-experience.module.css",
+      "sha256": "c9e827e9f0fd9c1852299e20f789f8f74bf71584e8ab35cf114c86a8049c6002"
+    }
+  ],
+  "componentMatrix": [
+    {
+      "role": "teacher",
+      "width": 1440,
+      "section": "plan",
+      "viewport": 1440,
+      "scroll": 1425,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 1440,
+      "section": "wall",
+      "viewport": 1440,
+      "scroll": 1440,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 1440,
+      "section": "library",
+      "viewport": 1440,
+      "scroll": 1440,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 1440,
+      "section": "activities",
+      "viewport": 1440,
+      "scroll": 1440,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 1440,
+      "section": "progress",
+      "viewport": 1440,
+      "scroll": 1440,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 1440,
+      "section": "members",
+      "viewport": 1440,
+      "scroll": 1440,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 1440,
+      "section": "history",
+      "viewport": 1440,
+      "scroll": 1440,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 1440,
+      "section": "settings",
+      "viewport": 1440,
+      "scroll": 1425,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 768,
+      "section": "plan",
+      "viewport": 768,
+      "scroll": 753,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 768,
+      "section": "wall",
+      "viewport": 768,
+      "scroll": 753,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 768,
+      "section": "library",
+      "viewport": 768,
+      "scroll": 753,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 768,
+      "section": "activities",
+      "viewport": 768,
+      "scroll": 753,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 768,
+      "section": "progress",
+      "viewport": 768,
+      "scroll": 753,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 768,
+      "section": "members",
+      "viewport": 768,
+      "scroll": 753,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 768,
+      "section": "history",
+      "viewport": 768,
+      "scroll": 753,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 768,
+      "section": "settings",
+      "viewport": 768,
+      "scroll": 753,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 390,
+      "section": "plan",
+      "viewport": 390,
+      "scroll": 375,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 390,
+      "section": "wall",
+      "viewport": 390,
+      "scroll": 375,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 390,
+      "section": "library",
+      "viewport": 390,
+      "scroll": 375,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 390,
+      "section": "activities",
+      "viewport": 390,
+      "scroll": 375,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 390,
+      "section": "progress",
+      "viewport": 390,
+      "scroll": 375,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 390,
+      "section": "members",
+      "viewport": 390,
+      "scroll": 375,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 390,
+      "section": "history",
+      "viewport": 390,
+      "scroll": 375,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 390,
+      "section": "settings",
+      "viewport": 390,
+      "scroll": 375,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 320,
+      "section": "plan",
+      "viewport": 320,
+      "scroll": 305,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 320,
+      "section": "wall",
+      "viewport": 320,
+      "scroll": 305,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 320,
+      "section": "library",
+      "viewport": 320,
+      "scroll": 305,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 320,
+      "section": "activities",
+      "viewport": 320,
+      "scroll": 305,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 320,
+      "section": "progress",
+      "viewport": 320,
+      "scroll": 305,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 320,
+      "section": "members",
+      "viewport": 320,
+      "scroll": 305,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 320,
+      "section": "history",
+      "viewport": 320,
+      "scroll": 305,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "teacher",
+      "width": 320,
+      "section": "settings",
+      "viewport": 320,
+      "scroll": 305,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "student",
+      "width": 1440,
+      "section": "plan",
+      "viewport": 1440,
+      "scroll": 1425,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "student",
+      "width": 1440,
+      "section": "wall",
+      "viewport": 1440,
+      "scroll": 1440,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "student",
+      "width": 1440,
+      "section": "library",
+      "viewport": 1440,
+      "scroll": 1440,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "student",
+      "width": 1440,
+      "section": "activities",
+      "viewport": 1440,
+      "scroll": 1440,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "student",
+      "width": 1440,
+      "section": "progress",
+      "viewport": 1440,
+      "scroll": 1425,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "student",
+      "width": 1440,
+      "section": "members",
+      "viewport": 1440,
+      "scroll": 1440,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "student",
+      "width": 768,
+      "section": "plan",
+      "viewport": 768,
+      "scroll": 753,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "student",
+      "width": 768,
+      "section": "wall",
+      "viewport": 768,
+      "scroll": 753,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "student",
+      "width": 768,
+      "section": "library",
+      "viewport": 768,
+      "scroll": 753,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "student",
+      "width": 768,
+      "section": "activities",
+      "viewport": 768,
+      "scroll": 753,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "student",
+      "width": 768,
+      "section": "progress",
+      "viewport": 768,
+      "scroll": 753,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "student",
+      "width": 768,
+      "section": "members",
+      "viewport": 768,
+      "scroll": 753,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "student",
+      "width": 390,
+      "section": "plan",
+      "viewport": 390,
+      "scroll": 375,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "student",
+      "width": 390,
+      "section": "wall",
+      "viewport": 390,
+      "scroll": 375,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "student",
+      "width": 390,
+      "section": "library",
+      "viewport": 390,
+      "scroll": 375,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "student",
+      "width": 390,
+      "section": "activities",
+      "viewport": 390,
+      "scroll": 375,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "student",
+      "width": 390,
+      "section": "progress",
+      "viewport": 390,
+      "scroll": 375,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "student",
+      "width": 390,
+      "section": "members",
+      "viewport": 390,
+      "scroll": 375,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "student",
+      "width": 320,
+      "section": "plan",
+      "viewport": 320,
+      "scroll": 305,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "student",
+      "width": 320,
+      "section": "wall",
+      "viewport": 320,
+      "scroll": 305,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "student",
+      "width": 320,
+      "section": "library",
+      "viewport": 320,
+      "scroll": 305,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "student",
+      "width": 320,
+      "section": "activities",
+      "viewport": 320,
+      "scroll": 305,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "student",
+      "width": 320,
+      "section": "progress",
+      "viewport": 320,
+      "scroll": 305,
+      "overflow": [],
+      "alerts": []
+    },
+    {
+      "role": "student",
+      "width": 320,
+      "section": "members",
+      "viewport": 320,
+      "scroll": 305,
+      "overflow": [],
+      "alerts": []
+    }
+  ],
+  "catalogMatrix": [
+    {
+      "role": "teacher",
+      "width": 1440,
+      "view": "tarjetas",
+      "viewport": 1440,
+      "scroll": 1440,
+      "cards": [
+        {
+          "height": 395,
+          "scroll": 395,
+          "title": 118,
+          "titleBox": 118,
+          "overflow": "visible"
+        },
+        {
+          "height": 395,
+          "scroll": 395,
+          "title": 118,
+          "titleBox": 118,
+          "overflow": "visible"
+        }
+      ]
+    },
+    {
+      "role": "teacher",
+      "width": 1440,
+      "view": "lista",
+      "viewport": 1440,
+      "scroll": 1440,
+      "cards": [
+        {
+          "height": 243,
+          "scroll": 243,
+          "title": 59,
+          "titleBox": 59,
+          "overflow": "visible"
+        },
+        {
+          "height": 243,
+          "scroll": 243,
+          "title": 59,
+          "titleBox": 59,
+          "overflow": "visible"
+        }
+      ]
+    },
+    {
+      "role": "teacher",
+      "width": 768,
+      "view": "tarjetas",
+      "viewport": 768,
+      "scroll": 753,
+      "cards": [
+        {
+          "height": 315,
+          "scroll": 315,
+          "title": 71,
+          "titleBox": 71,
+          "overflow": "visible"
+        },
+        {
+          "height": 315,
+          "scroll": 315,
+          "title": 71,
+          "titleBox": 71,
+          "overflow": "visible"
+        }
+      ]
+    },
+    {
+      "role": "teacher",
+      "width": 768,
+      "view": "lista",
+      "viewport": 768,
+      "scroll": 753,
+      "cards": [
+        {
+          "height": 243,
+          "scroll": 243,
+          "title": 48,
+          "titleBox": 48,
+          "overflow": "visible"
+        },
+        {
+          "height": 243,
+          "scroll": 243,
+          "title": 48,
+          "titleBox": 48,
+          "overflow": "visible"
+        }
+      ]
+    },
+    {
+      "role": "teacher",
+      "width": 390,
+      "view": "tarjetas",
+      "viewport": 390,
+      "scroll": 375,
+      "cards": [
+        {
+          "height": 307,
+          "scroll": 307,
+          "title": 71,
+          "titleBox": 71,
+          "overflow": "visible"
+        },
+        {
+          "height": 331,
+          "scroll": 331,
+          "title": 95,
+          "titleBox": 95,
+          "overflow": "visible"
+        }
+      ]
+    },
+    {
+      "role": "teacher",
+      "width": 390,
+      "view": "lista",
+      "viewport": 390,
+      "scroll": 375,
+      "cards": [
+        {
+          "height": 234,
+          "scroll": 234,
+          "title": 119,
+          "titleBox": 119,
+          "overflow": "visible"
+        },
+        {
+          "height": 234,
+          "scroll": 234,
+          "title": 119,
+          "titleBox": 119,
+          "overflow": "visible"
+        }
+      ]
+    },
+    {
+      "role": "teacher",
+      "width": 320,
+      "view": "tarjetas",
+      "viewport": 320,
+      "scroll": 305,
+      "cards": [
+        {
+          "height": 331,
+          "scroll": 331,
+          "title": 95,
+          "titleBox": 95,
+          "overflow": "visible"
+        },
+        {
+          "height": 331,
+          "scroll": 331,
+          "title": 95,
+          "titleBox": 95,
+          "overflow": "visible"
+        }
+      ]
+    },
+    {
+      "role": "teacher",
+      "width": 320,
+      "view": "lista",
+      "viewport": 320,
+      "scroll": 305,
+      "cards": [
+        {
+          "height": 338,
+          "scroll": 338,
+          "title": 167,
+          "titleBox": 167,
+          "overflow": "visible"
+        },
+        {
+          "height": 338,
+          "scroll": 338,
+          "title": 167,
+          "titleBox": 167,
+          "overflow": "visible"
+        }
+      ]
+    },
+    {
+      "role": "student",
+      "width": 1440,
+      "view": "tarjetas",
+      "viewport": 1440,
+      "scroll": 1425,
+      "cards": [
+        {
+          "height": 415,
+          "scroll": 415,
+          "title": 118,
+          "titleBox": 118,
+          "overflow": "visible"
+        }
+      ]
+    },
+    {
+      "role": "student",
+      "width": 1440,
+      "view": "lista",
+      "viewport": 1440,
+      "scroll": 1440,
+      "cards": [
+        {
+          "height": 243,
+          "scroll": 243,
+          "title": 59,
+          "titleBox": 59,
+          "overflow": "visible"
+        }
+      ]
+    },
+    {
+      "role": "student",
+      "width": 768,
+      "view": "tarjetas",
+      "viewport": 768,
+      "scroll": 753,
+      "cards": [
+        {
+          "height": 359,
+          "scroll": 359,
+          "title": 95,
+          "titleBox": 95,
+          "overflow": "visible"
+        }
+      ]
+    },
+    {
+      "role": "student",
+      "width": 768,
+      "view": "lista",
+      "viewport": 768,
+      "scroll": 753,
+      "cards": [
+        {
+          "height": 243,
+          "scroll": 243,
+          "title": 48,
+          "titleBox": 48,
+          "overflow": "visible"
+        }
+      ]
+    },
+    {
+      "role": "student",
+      "width": 390,
+      "view": "tarjetas",
+      "viewport": 390,
+      "scroll": 375,
+      "cards": [
+        {
+          "height": 351,
+          "scroll": 351,
+          "title": 95,
+          "titleBox": 95,
+          "overflow": "visible"
+        }
+      ]
+    },
+    {
+      "role": "student",
+      "width": 390,
+      "view": "lista",
+      "viewport": 390,
+      "scroll": 375,
+      "cards": [
+        {
+          "height": 254,
+          "scroll": 254,
+          "title": 119,
+          "titleBox": 119,
+          "overflow": "visible"
+        }
+      ]
+    },
+    {
+      "role": "student",
+      "width": 320,
+      "view": "tarjetas",
+      "viewport": 320,
+      "scroll": 305,
+      "cards": [
+        {
+          "height": 351,
+          "scroll": 351,
+          "title": 95,
+          "titleBox": 95,
+          "overflow": "visible"
+        }
+      ]
+    },
+    {
+      "role": "student",
+      "width": 320,
+      "view": "lista",
+      "viewport": 320,
+      "scroll": 305,
+      "cards": [
+        {
+          "height": 399,
+          "scroll": 399,
+          "title": 167,
+          "titleBox": 167,
+          "overflow": "visible"
+        }
+      ]
+    }
+  ],
+  "integrated": {
+    "assertions": "PASS",
+    "rows": [
+      {
+        "role": "teacher",
+        "width": 1440,
+        "section": "plan",
+        "scroll": 1425,
+        "checks": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "filters": [
+          127.6624984741211,
+          127.6624984741211,
+          127.6624984741211
+        ],
+        "searchClear": true,
+        "card": {
+          "background": "rgb(255, 255, 255)",
+          "border": "19px",
+          "font": "\"Segoe UI\", sans-serif"
+        },
+        "errors": []
+      },
+      {
+        "role": "teacher",
+        "width": 1440,
+        "section": "library",
+        "scroll": 1440,
+        "checks": [],
+        "filters": [],
+        "searchClear": true,
+        "card": {
+          "background": "rgb(255, 255, 255)",
+          "border": "19px",
+          "font": "\"Segoe UI\", sans-serif"
+        },
+        "errors": []
+      },
+      {
+        "role": "teacher",
+        "width": 1440,
+        "section": "progress",
+        "scroll": 1440,
+        "checks": [],
+        "filters": [],
+        "searchClear": true,
+        "card": {
+          "background": "rgb(255, 255, 255)",
+          "border": "19px",
+          "font": "\"Segoe UI\", sans-serif"
+        },
+        "errors": []
+      },
+      {
+        "role": "teacher",
+        "width": 1440,
+        "section": "settings",
+        "scroll": 1425,
+        "checks": [],
+        "filters": [],
+        "searchClear": true,
+        "card": {
+          "background": "rgb(255, 255, 255)",
+          "border": "19px",
+          "font": "\"Segoe UI\", sans-serif"
+        },
+        "errors": []
+      },
+      {
+        "role": "teacher",
+        "width": 390,
+        "section": "plan",
+        "scroll": 375,
+        "checks": [
+          {
+            "x": 0.0000019073486328125,
+            "y": 0
+          },
+          {
+            "x": 0.0000019073486328125,
+            "y": 0
+          }
+        ],
+        "filters": [
+          109.86250305175781,
+          109.86250305175781,
+          109.86250305175781
+        ],
+        "searchClear": true,
+        "card": {
+          "background": "rgb(255, 255, 255)",
+          "border": "19px",
+          "font": "\"Segoe UI\", sans-serif"
+        },
+        "errors": []
+      },
+      {
+        "role": "teacher",
+        "width": 390,
+        "section": "library",
+        "scroll": 375,
+        "checks": [],
+        "filters": [],
+        "searchClear": true,
+        "card": {
+          "background": "rgb(255, 255, 255)",
+          "border": "19px",
+          "font": "\"Segoe UI\", sans-serif"
+        },
+        "errors": []
+      },
+      {
+        "role": "teacher",
+        "width": 390,
+        "section": "progress",
+        "scroll": 375,
+        "checks": [],
+        "filters": [],
+        "searchClear": true,
+        "card": {
+          "background": "rgb(255, 255, 255)",
+          "border": "19px",
+          "font": "\"Segoe UI\", sans-serif"
+        },
+        "errors": []
+      },
+      {
+        "role": "teacher",
+        "width": 390,
+        "section": "settings",
+        "scroll": 375,
+        "checks": [],
+        "filters": [],
+        "searchClear": true,
+        "card": {
+          "background": "rgb(255, 255, 255)",
+          "border": "19px",
+          "font": "\"Segoe UI\", sans-serif"
+        },
+        "errors": []
+      },
+      {
+        "role": "teacher",
+        "width": 320,
+        "section": "plan",
+        "scroll": 305,
+        "checks": [
+          {
+            "x": 0.0000019073486328125,
+            "y": 0
+          },
+          {
+            "x": 0.0000019073486328125,
+            "y": 0
+          }
+        ],
+        "filters": [
+          86.4000015258789,
+          86.4000015258789,
+          86.4000015258789
+        ],
+        "searchClear": true,
+        "card": {
+          "background": "rgb(255, 255, 255)",
+          "border": "19px",
+          "font": "\"Segoe UI\", sans-serif"
+        },
+        "errors": []
+      },
+      {
+        "role": "teacher",
+        "width": 320,
+        "section": "library",
+        "scroll": 305,
+        "checks": [],
+        "filters": [],
+        "searchClear": true,
+        "card": {
+          "background": "rgb(255, 255, 255)",
+          "border": "19px",
+          "font": "\"Segoe UI\", sans-serif"
+        },
+        "errors": []
+      },
+      {
+        "role": "teacher",
+        "width": 320,
+        "section": "progress",
+        "scroll": 305,
+        "checks": [],
+        "filters": [],
+        "searchClear": true,
+        "card": {
+          "background": "rgb(255, 255, 255)",
+          "border": "19px",
+          "font": "\"Segoe UI\", sans-serif"
+        },
+        "errors": []
+      },
+      {
+        "role": "teacher",
+        "width": 320,
+        "section": "settings",
+        "scroll": 305,
+        "checks": [],
+        "filters": [],
+        "searchClear": true,
+        "card": {
+          "background": "rgb(255, 255, 255)",
+          "border": "19px",
+          "font": "\"Segoe UI\", sans-serif"
+        },
+        "errors": []
+      },
+      {
+        "role": "student",
+        "width": 1440,
+        "section": "plan",
+        "scroll": 1425,
+        "checks": [],
+        "filters": [
+          127.6624984741211,
+          127.6624984741211,
+          127.6624984741211
+        ],
+        "searchClear": true,
+        "card": null,
+        "errors": []
+      },
+      {
+        "role": "student",
+        "width": 1440,
+        "section": "library",
+        "scroll": 1440,
+        "checks": [],
+        "filters": [],
+        "searchClear": true,
+        "card": {
+          "background": "rgb(255, 255, 255)",
+          "border": "19px",
+          "font": "\"Segoe UI\", sans-serif"
+        },
+        "errors": []
+      },
+      {
+        "role": "student",
+        "width": 1440,
+        "section": "progress",
+        "scroll": 1425,
+        "checks": [],
+        "filters": [],
+        "searchClear": true,
+        "card": {
+          "background": "rgb(255, 255, 255)",
+          "border": "19px",
+          "font": "\"Segoe UI\", sans-serif"
+        },
+        "errors": []
+      },
+      {
+        "role": "student",
+        "width": 390,
+        "section": "plan",
+        "scroll": 375,
+        "checks": [],
+        "filters": [
+          109.86250305175781,
+          109.86250305175781,
+          109.86250305175781
+        ],
+        "searchClear": true,
+        "card": {
+          "background": "rgb(255, 255, 255)",
+          "border": "19px",
+          "font": "\"Segoe UI\", sans-serif"
+        },
+        "errors": []
+      },
+      {
+        "role": "student",
+        "width": 390,
+        "section": "library",
+        "scroll": 375,
+        "checks": [],
+        "filters": [],
+        "searchClear": true,
+        "card": {
+          "background": "rgb(255, 255, 255)",
+          "border": "19px",
+          "font": "\"Segoe UI\", sans-serif"
+        },
+        "errors": []
+      },
+      {
+        "role": "student",
+        "width": 390,
+        "section": "progress",
+        "scroll": 375,
+        "checks": [],
+        "filters": [],
+        "searchClear": true,
+        "card": {
+          "background": "rgb(255, 255, 255)",
+          "border": "19px",
+          "font": "\"Segoe UI\", sans-serif"
+        },
+        "errors": []
+      },
+      {
+        "role": "student",
+        "width": 320,
+        "section": "plan",
+        "scroll": 305,
+        "checks": [],
+        "filters": [
+          86.4000015258789,
+          86.4000015258789,
+          86.4000015258789
+        ],
+        "searchClear": true,
+        "card": {
+          "background": "rgb(255, 255, 255)",
+          "border": "19px",
+          "font": "\"Segoe UI\", sans-serif"
+        },
+        "errors": []
+      },
+      {
+        "role": "student",
+        "width": 320,
+        "section": "library",
+        "scroll": 305,
+        "checks": [],
+        "filters": [],
+        "searchClear": true,
+        "card": {
+          "background": "rgb(255, 255, 255)",
+          "border": "19px",
+          "font": "\"Segoe UI\", sans-serif"
+        },
+        "errors": []
+      },
+      {
+        "role": "student",
+        "width": 320,
+        "section": "progress",
+        "scroll": 305,
+        "checks": [],
+        "filters": [],
+        "searchClear": true,
+        "card": {
+          "background": "rgb(255, 255, 255)",
+          "border": "19px",
+          "font": "\"Segoe UI\", sans-serif"
+        },
+        "errors": []
+      }
+    ]
+  },
+  "interactions": [
+    "Teacher marks and undoes a topic; checkbox returns to false",
+    "Teacher publishes a synthetic text material; student opens and reads it without Edit control",
+    "Material dialog, invitation dialog and wall at narrow/short viewport; keyboard and Escape focus return on invitation",
+    "Manual activity editor and student detail with empty history; long classroom and activity names"
+  ],
+  "checks": {
+    "focusedTests": 23,
+    "fixtureContractTests": 4,
+    "apiBuild": "PASS",
+    "webBuild": "PASS",
+    "boundaries": "PASS, zero exceptions",
+    "suiteInventory": "PASS: 542 entries, 53 exclusions, 23 routes"
+  },
+  "screenshots": [
+    {
+      "path": "docs/design/current/aulas-audit-20261112-student-library-1440.png",
+      "sha256": "9fd7085f3785c3c911062a820e7e5fc078bcffbcf0ac43ab3f42dce8e311e912",
+      "inspected": true
+    },
+    {
+      "path": "docs/design/current/aulas-audit-20261112-student-library-390.png",
+      "sha256": "857622a2976308bca2a3aacc27080fdb67d45e9b3fa7746ffb242641dc4b3eda",
+      "inspected": true
+    },
+    {
+      "path": "docs/design/current/aulas-audit-20261112-student-plan-1440.png",
+      "sha256": "8aa33aae9f1fae16031b3de8bd19a0a8055d5517ddab328eb8404d82f954f6f9",
+      "inspected": true
+    },
+    {
+      "path": "docs/design/current/aulas-audit-20261112-student-plan-390.png",
+      "sha256": "e11f26514e042c7e7a40658ef60648092c24869893654b0656054ac35e932571",
+      "inspected": true
+    },
+    {
+      "path": "docs/design/current/aulas-audit-20261112-student-progress-1440.png",
+      "sha256": "2693a26d29db0b61c59678b78eb4486cad712d89c62c6c5341c2a7962b6582fc",
+      "inspected": true
+    },
+    {
+      "path": "docs/design/current/aulas-audit-20261112-student-progress-390.png",
+      "sha256": "2fed5859ac7a5f446f05ad9db1387cdb39f7e23e2f110c9f4a3f9c68d5a86462",
+      "inspected": true
+    },
+    {
+      "path": "docs/design/current/aulas-audit-20261112-teacher-library-1440.png",
+      "sha256": "6d462f4630299b6bfc937d1854298a7b5b02ef8839db4414b14357e53cbd64d9",
+      "inspected": true
+    },
+    {
+      "path": "docs/design/current/aulas-audit-20261112-teacher-library-390.png",
+      "sha256": "a258f67f28ea001094d558a9215f9b758f41f3f3bb4a9eb5fef0c7a00e23a6b3",
+      "inspected": true
+    },
+    {
+      "path": "docs/design/current/aulas-audit-20261112-teacher-plan-1440.png",
+      "sha256": "3513e7b0160e783a432eb39aa100540351fd16459d195d204d6c9874978d35b8",
+      "inspected": true
+    },
+    {
+      "path": "docs/design/current/aulas-audit-20261112-teacher-plan-390.png",
+      "sha256": "ea5b11a1caa2fd3a28bdb42a74525350ac45b02cd2af954fb7e9e028a0cd89b8",
+      "inspected": true
+    },
+    {
+      "path": "docs/design/current/aulas-audit-20261112-teacher-progress-1440.png",
+      "sha256": "d4afcd4905934765a201582b86c0ed626161e97a113d73c247a360653fa73648",
+      "inspected": true
+    },
+    {
+      "path": "docs/design/current/aulas-audit-20261112-teacher-progress-390.png",
+      "sha256": "f6dcd0675d77b42aac6d11e335462ea784453de67cdad93df86fd74ef694fe86",
+      "inspected": true
+    },
+    {
+      "path": "docs/design/current/aulas-audit-20261112-teacher-settings-1440.png",
+      "sha256": "d875fef26ac1818f3fe6591b92279e9465c27a2c2133a4d343e50df32c98ebd4",
+      "inspected": true
+    },
+    {
+      "path": "docs/design/current/aulas-audit-20261112-teacher-settings-390.png",
+      "sha256": "4a96ff9a263d04b096b654f0d24a2f80a5bfa51e93b4c49cbe9ba538f68abec9",
+      "inspected": true
+    }
+  ],
+  "limits": [
+    "Chromium/Ego with synthetic accounts and data; no physical device, Safari or Firefox verification",
+    "56 component cases and 16 catalog cases at 1440/768/390/320; final integrated 21 cases at 1440/390/320",
+    "Component mocks are not persistence or permission tests; real integrated interactions are explicitly listed",
+    "Full backend/CI suite and real AI generation not rerun for scoped CSS fixes",
+    "Earlier fixture lacked classroom-main and valid wall/activity-history contracts; corrected before final evidence",
+    "Empty live-region alerts in raw geometry are normalized; no nonempty alerts were ignored"
+  ]
+}

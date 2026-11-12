@@ -4,6 +4,7 @@
 .search { position: relative; display: block; max-width: 500px; }
 .search svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--library-muted); pointer-events: none; }
 .library .search input { padding-inline-start: 38px; min-height: 44px; width: 100%; }
+:global(#classroom-main) .library .search input { padding-inline-start: 40px; }
 .list { display: grid; gap: 12px; }
 .row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; padding: clamp(14px, 2vw, 20px); min-width: 0; background: #fff; border: 1px solid var(--library-line); border-radius: 19px; box-shadow: 0 6px 20px #25264606; }
 .row[data-current=true] { border-color: #bc7856; }

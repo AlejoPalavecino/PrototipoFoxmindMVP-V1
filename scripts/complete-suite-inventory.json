@@ -1,5 +1,6 @@
 {
   "entries": [
+    "tests/classroom-visual-fixture.test.mjs",
     "tests/teacher-home-polish.test.mjs",
     "tests/home-order.test.mjs",
     "tests/home-order-database.test.mjs",
