@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agenda · Ritmo de color</title>
+<style>
+/* Paleta y tipografía existentes: design/system.md. */
+:root {
+  --brujula-ink: #252646;
+  --brujula-muted: #60667d;
+  --brujula-line: #dbe1f0;
+  --brujula-primary: #b8490c;
+  --brujula-surface: #fff;
+  --brujula-canvas: #f4f7fe;
+  --fm-focus: #4453b8;
+  --fm-control-line: #303631;
+  --fm-error: #8c281c;
+  --fm-font-body: 'Segoe UI', Arial, sans-serif;
+  --fm-motion: 180ms;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font: 16px/1.5 var(--fm-font-body); background: var(--brujula-canvas); color: var(--brujula-ink); }
+main { max-width: 1440px; margin: auto; padding: 32px; }
+h1 { font-size: clamp(28px, 4vw, 40px); margin: 0; }
+h2 { font-size: 22px; margin: 0 0 12px; }
+h3 { font-size: 16px; margin: 0; }
+p { color: var(--brujula-muted); margin: 8px 0 16px; }
+small { font-size: 13px; }
+a { color: var(--brujula-primary); text-underline-offset: 4px; }
+.page, .toolbar, .period, .modes, .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.page { justify-content: space-between; gap: 24px; margin-bottom: 24px; }
+button, .action { display: inline-flex; align-items: center; justify-content: center; font: inherit; min-height: 44px; padding: 8px 12px; border: 1px solid var(--fm-control-line); border-radius: 11px; background: var(--brujula-surface); color: var(--brujula-ink); cursor: pointer; text-decoration: none; transition: background-color var(--fm-motion); }
+.primary, .modes [aria-pressed=true] { background: var(--brujula-primary); color: var(--brujula-surface); border-color: var(--brujula-primary); }
+button:not(.primary):not([aria-pressed=true]):hover, .action:not(.primary):hover { background: var(--brujula-canvas); }
+:focus-visible { outline: 3px solid var(--fm-focus); outline-offset: 3px; }
+.panel { min-width: 0; padding: 24px; border: 1px solid var(--brujula-line); border-radius: 18px; background: var(--brujula-surface); }
+.toolbar { justify-content: space-between; margin-bottom: 24px; }
+.period { flex: 1 1 340px; justify-content: space-between; }
+.period h2 { font-size: 16px; margin: 0; flex: 1; text-align: center; }
+.week { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.week > li { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 24px; border-bottom: 1px solid var(--brujula-line); padding: 12px 0; }
+.week > li.selected { padding: 16px; background: #fff1e7; border: 2px solid var(--brujula-primary); border-radius: 16px; }
+.date strong { display: block; font-size: 22px; }
+.day-events { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; list-style: none; padding: 0; margin: 0; }
+.event { background: #dbeafe; border-left: 4px solid #1d4ed8; border-radius: 12px; padding: 12px; min-width: 0; }
+.event:nth-child(2) { background: #dcfce7; border-color: #166534; }
+.event:nth-child(3) { background: #f3e8ff; border-color: #6b21a8; }
+.event a { color: var(--brujula-ink); text-decoration: none; display: block; min-height: 44px; overflow-wrap: anywhere; }
+.event small { display: block; margin-top: 8px; }
+.full { width: 100%; margin-top: 16px; }
+.support { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start; margin-top: 24px; }
+summary { font-size: 16px; min-height: 44px; color: var(--brujula-primary); cursor: pointer; padding-block: 8px; }
+dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 16px; }
+dt { color: var(--brujula-muted); }
+dd { margin: 0; overflow-wrap: anywhere; }
+.danger { color: var(--fm-error); }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 16px 0; }
+label { display: grid; gap: 8px; font-size: 15px; min-width: 0; }
+input, textarea { font: inherit; color: var(--brujula-ink); background: var(--brujula-surface); width: 100%; min-width: 0; padding: 12px; border: 1px solid var(--fm-control-line); border-radius: 12px; }
+.actions > * { flex: 1 1 120px; }
+footer { margin-top: 24px; }
+@media (max-width: 1000px) { .day-events, .support { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 600px) {
+  main { padding: 16px; }
+  .panel { padding: 16px; }
+  .week > li { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .date strong { display: inline; margin-right: 8px; }
+  .fields { grid-template-columns: minmax(0, 1fr); }
+  .modes { width: 100%; }
+  .modes button { flex: 1; padding-inline: 4px; }
+  dl { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  dd { margin-bottom: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<main id="agenda">
+<header class="page"><div><small>02 · ALTERNATIVA · SEMANA POR DÍAS</small><h1>Agenda</h1><p>Tus eventos personales, en un solo lugar.</p></div><a class="action primary" href="#editor">Crear evento</a></header>
+<p id="preview-note"><small>Maqueta estática con datos ficticios. Calendario y navegación no operativos; los enlaces abren muestras más abajo. No se guarda ni elimina información.</small></p>
+<section class="panel" aria-label="Calendario semanal">
+<div class="toolbar" aria-describedby="preview-note"><div class="period"><button type="button" aria-label="Semana anterior">‹</button><h2>Semana del 9 de noviembre de 2026</h2><button type="button" aria-label="Semana siguiente">›</button></div><button type="button">Hoy</button><nav class="modes" aria-label="Vista de agenda"><button type="button" aria-pressed="false">Mes</button><button type="button" aria-pressed="true">Semana</button><button type="button" aria-pressed="false">Día</button></nav></div>
+<ol class="week">
+<li><div class="date"><strong>Lunes 9</strong><small>Solo para vos</small></div><p>Sin eventos personales.</p></li>
+<li><div class="date"><strong>Martes 10</strong><small>Solo para vos</small></div><p>Sin eventos personales.</p></li>
+<li><div class="date"><strong>Miércoles 11</strong><small>Solo para vos</small></div><p>Sin eventos personales.</p></li>
+<li class="selected"><div class="date"><strong>Jueves 12</strong><small>Seleccionado · 3 eventos</small></div><div><ul class="day-events"><li class="event"><a href="#detail"><h3>Repaso de fracciones</h3><small>09:00–09:45 · Actividad</small></a></li><li class="event"><a href="#detail"><h3>Preparar lectura sobre ecosistemas y biodiversidad</h3><small>14:00–15:00 · Actividad</small></a></li><li class="event"><a href="#detail"><h3>Organizar apuntes de Historia</h3><small>Todo el día · Actividad</small></a></li></ul><a class="action full" href="#editor">Agregar evento</a></div></li>
+<li><div class="date"><strong>Viernes 13</strong><small>Solo para vos</small></div><p>Sin eventos personales.</p></li>
+<li><div class="date"><strong>Sábado 14</strong><small>Solo para vos</small></div><p>Sin eventos personales.</p></li>
+<li><div class="date"><strong>Domingo 15</strong><small>Solo para vos</small></div><p>Sin eventos personales.</p></li>
+</ol>
+</section>
+<div class="support">
+<details class="panel" id="detail" open><summary>Detalle de muestra · Repaso de fracciones</summary><p>Solo para vos</p><dl><dt>Tipo</dt><dd>Actividad</dd><dt>Horario</dt><dd>12 de noviembre · 09:00–09:45</dd><dt>Repetición</dt><dd>Sin repetición</dd><dt>Notas</dt><dd>Revisar equivalencias y resolver tres ejercicios.</dd></dl><div class="actions"><button type="button" class="danger" aria-describedby="preview-note">Eliminar evento</button><a class="action primary" href="#editor">Editar evento</a></div></details>
+<details class="panel" id="editor" open><summary>Formulario de muestra · Crear evento personal</summary><p>Visible solo para vos. Las fechas de entrega se administran en el aula.</p><div class="fields"><label>Título<input value="Repaso de fracciones" readonly></label><label>Tipo<input value="Actividad" readonly></label><label>Fecha<input value="12/11/2026" readonly></label><label>Horario<input value="09:00–09:45" readonly></label><label>Repetición<input value="Sin repetición" readonly></label><label>Color<input value="Azul" readonly></label></div><label>Notas<textarea readonly>Revisar equivalencias y resolver tres ejercicios.</textarea></label><p><small>Recorte visual: conserva en producción todo el día, zona horaria, colores, repetición y validaciones existentes.</small></p><div class="actions"><a class="action" href="#agenda">Cancelar</a><button type="button" class="primary" aria-describedby="preview-note">Crear evento</button></div></details>
+</div>
+<footer><p><strong>Intercambio:</strong> la semana se lee por filas; las tarjetas expanden títulos sin una grilla horaria estrecha. Más desplazamiento y menor comparación mensual que la opción recomendada. En móvil cada día y sus eventos forman un bloque vertical.</p><small>Fuentes: design/system.md; apps/shared-ui/brujula-controls.css; apps/shared-ui/foxmind-3d-tokens.css; apps/web/src/features/agenda/ui/AgendaToolbar.tsx; apps/web/src/features/agenda/ui/agenda-surface.module.css.</small></footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "title": "Agenda · Pulido Brújula",
+  "brief": "Tres composiciones estáticas con los mismos eventos personales sintéticos y acciones existentes para ambos roles. Recomendada: calma y foco, extensión de bajo riesgo del mes y panel diario. Sin nuevos permisos ni capacidades; fuentes y límites en design/system.md.",
+  "feature": "odd/tasks/agenda-ux.md",
+  "artboards": [
+    {
+      "file": "01-calm-focus.html",
+      "title": "Calma y foco · Recomendada",
+      "tradeoff": "Mes con seis filas y panel diario lateral; preserva orientación y reduce riesgo. En móvil se apila el contenido del panel; el diálogo productivo conserva su contrato.",
+      "width": 1440,
+      "height": 1200
+    },
+    {
+      "file": "02-color-rhythm.html",
+      "title": "Ritmo de color · Semana por días",
+      "tradeoff": "Filas semanales con tarjetas amplias y títulos completos; mayor desplazamiento y menor visión mensual. Alternativa, no rediseño aprobado.",
+      "width": 1440,
+      "height": 1500
+    },
+    {
+      "file": "03-compact-planner.html",
+      "title": "Planificador compacto · Índice y lista",
+      "tradeoff": "Índice mensual discreto seguido de lista diaria con horarios alineados; favorece móvil pero se aleja más de la organización actual.",
+      "width": 390,
+      "height": 1800
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agenda · Calma y foco</title>
+<style>
+/* Valores existentes: design/system.md. Geometría de propuesta, no tokens nuevos. */
+:root {
+  --brujula-ink: #252646;
+  --brujula-muted: #60667d;
+  --brujula-line: #dbe1f0;
+  --brujula-primary: #b8490c;
+  --brujula-surface: #fff;
+  --brujula-canvas: #f4f7fe;
+  --fm-focus: #4453b8;
+  --fm-control-line: #303631;
+  --fm-error: #8c281c;
+  --fm-font-body: 'Segoe UI', Arial, sans-serif;
+  --fm-motion: 180ms;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font: 16px/1.5 var(--fm-font-body); background: var(--brujula-canvas); color: var(--brujula-ink); }
+a { color: var(--brujula-primary); text-underline-offset: 4px; }
+main { max-width: 1440px; margin: auto; padding: 32px; }
+h1 { margin: 0; font-size: clamp(28px, 4vw, 40px); line-height: 1.2; }
+h2 { font-size: 22px; margin: 0 0 12px; }
+h3 { font-size: 16px; margin: 0; }
+p { margin: 8px 0 16px; color: var(--brujula-muted); }
+small { font-size: 13px; }
+header.page { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+button, .action, summary { font: inherit; cursor: pointer; }
+button, .action { display: inline-flex; justify-content: center; align-items: center; min-height: 44px; padding: 8px 12px; border: 1px solid var(--fm-control-line); border-radius: 11px; background: var(--brujula-surface); color: var(--brujula-ink); text-decoration: none; }
+.primary { background: var(--brujula-primary); color: var(--brujula-surface); border-color: var(--brujula-primary); }
+.action, button { transition: background-color var(--fm-motion); }
+.action:not(.primary):hover, button:hover { background: var(--brujula-canvas); }
+:focus-visible { outline: 3px solid var(--fm-focus); outline-offset: 3px; }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(290px, 360px); gap: 24px; align-items: start; }
+.panel { min-width: 0; background: var(--brujula-surface); border: 1px solid var(--brujula-line); border-radius: 18px; padding: 16px; }
+.toolbar, .period, .modes, .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.toolbar { justify-content: space-between; margin-bottom: 16px; }
+.period { flex: 1 1 280px; justify-content: space-between; }
+.period h2 { margin: 0; font-size: 16px; text-align: center; flex: 1; }
+.modes button[aria-pressed=true] { background: var(--brujula-primary); color: var(--brujula-surface); border-color: var(--brujula-primary); }
+.week, .month { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.week { text-align: center; font-size: 13px; padding: 8px 0; }
+.month { border-top: 1px solid var(--brujula-line); border-left: 1px solid var(--brujula-line); grid-auto-rows: 86px; }
+.day { min-width: 0; height: 100%; padding: 6px; border: 0; border-right: 1px solid var(--brujula-line); border-bottom: 1px solid var(--brujula-line); border-radius: 0; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; font-size: 13px; }
+.day:focus-visible { outline-offset: -3px; }
+.day[aria-pressed=true] { background: #fff1e7; box-shadow: inset 0 0 0 2px var(--brujula-primary); }
+.outside { color: var(--brujula-muted); background: var(--brujula-canvas); }
+.preview { padding: 4px; margin-top: 4px; font-size: 13px; background: #dbeafe; width: 100%; text-align: left; }
+.points { display: none; gap: 3px; margin-top: 8px; }
+.points i { width: 8px; height: 8px; border-radius: 50%; background: #1d4ed8; }
+.points i:nth-child(2) { background: #166534; }
+.points i:nth-child(3) { background: #6b21a8; }
+.events { list-style: none; margin: 16px 0; padding: 0; display: grid; gap: 12px; }
+.event { padding: 12px; border-radius: 12px; border-left: 4px solid #1d4ed8; background: #dbeafe; }
+.event:nth-child(2) { background: #dcfce7; border-color: #166534; }
+.event:nth-child(3) { background: #f3e8ff; border-color: #6b21a8; }
+.event a { display: block; color: var(--brujula-ink); text-decoration: none; min-height: 44px; overflow-wrap: anywhere; }
+.event small { display: block; margin-top: 4px; }
+.full { width: 100%; }
+details { margin-top: 24px; }
+summary { min-height: 44px; padding: 8px 0; color: var(--brujula-primary); }
+dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 24px; }
+dt { color: var(--brujula-muted); }
+dd { margin: 0; overflow-wrap: anywhere; }
+.danger { color: var(--fm-error); }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 16px 0; }
+label { display: grid; gap: 8px; font-size: 15px; min-width: 0; }
+input, textarea { width: 100%; min-width: 0; font: inherit; padding: 12px; border: 1px solid var(--fm-control-line); border-radius: 12px; background: var(--brujula-surface); color: var(--brujula-ink); }
+.actions > * { flex: 1 1 120px; }
+footer { margin-top: 24px; }
+@media (max-width: 920px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 800px) { .preview { display: none; } .points { display: flex; } }
+@media (max-width: 600px) {
+  main { padding: 16px; }
+  .month { grid-auto-rows: 64px; }
+  .day { padding: 4px; }
+  .fields { grid-template-columns: minmax(0, 1fr); }
+  .modes { width: 100%; }
+  .modes button { flex: 1; padding-inline: 4px; }
+  dl { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  dd { margin-bottom: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<main id="agenda">
+<header class="page"><div><small>01 · RECOMENDADA · EXTENSIÓN DE BRÚJULA</small><h1>Agenda</h1><p>Tus eventos personales, en un solo lugar.</p></div><a class="action primary" href="#editor">Crear evento</a></header>
+<p id="preview-note"><small>Maqueta estática con datos ficticios. Calendario y navegación no operativos; los enlaces abren muestras más abajo. No se guarda ni elimina información.</small></p>
+<div class="layout">
+<section class="panel" aria-label="Calendario mensual">
+<div class="toolbar" aria-describedby="preview-note"><div class="period"><button type="button" aria-label="Mes anterior">‹</button><h2>Noviembre de 2026</h2><button type="button" aria-label="Mes siguiente">›</button></div><button type="button">Hoy</button><nav class="modes" aria-label="Vista de agenda"><button type="button" aria-pressed="true">Mes</button><button type="button" aria-pressed="false">Semana</button><button type="button" aria-pressed="false">Día</button></nav></div>
+<div class="week" aria-hidden="true"><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span></div>
+<div class="month" id="month"></div>
+<p><small>Seleccionado: jueves 12. El color acompaña al horario y al tipo, no los reemplaza.</small></p>
+</section>
+<aside class="panel" aria-labelledby="selected"><small>DÍA SELECCIONADO</small><h2 id="selected">Jueves 12 de noviembre</h2><p>3 eventos · Solo para vos</p>
+<ul class="events">
+<li class="event"><a href="#detail"><h3>Repaso de fracciones</h3><small>09:00–09:45 · Actividad</small></a></li>
+<li class="event"><a href="#detail"><h3>Preparar lectura sobre ecosistemas y biodiversidad</h3><small>14:00–15:00 · Actividad</small></a></li>
+<li class="event"><a href="#detail"><h3>Organizar apuntes de Historia</h3><small>Todo el día · Actividad</small></a></li>
+</ul><a class="action full" href="#editor">Agregar evento</a></aside>
+</div>
+<details class="panel" id="detail" open><summary>Detalle de muestra · Repaso de fracciones</summary><p>Solo para vos</p><dl><dt>Tipo</dt><dd>Actividad</dd><dt>Horario</dt><dd>12 de noviembre · 09:00–09:45</dd><dt>Repetición</dt><dd>Sin repetición</dd><dt>Notas</dt><dd>Revisar equivalencias y resolver tres ejercicios.</dd></dl><div class="actions"><button type="button" class="danger" aria-describedby="preview-note">Eliminar evento</button><a class="action primary" href="#editor">Editar evento</a></div></details>
+<details class="panel" id="editor" open><summary>Formulario de muestra · Crear evento personal</summary><p>Visible solo para vos. Las fechas de entrega se administran en el aula.</p><div class="fields"><label>Título<input value="Repaso de fracciones" readonly></label><label>Tipo<input value="Actividad" readonly></label><label>Fecha<input value="12/11/2026" readonly></label><label>Horario<input value="09:00–09:45" readonly></label><label>Repetición<input value="Sin repetición" readonly></label><label>Color<input value="Azul" readonly></label></div><label>Notas<textarea readonly>Revisar equivalencias y resolver tres ejercicios.</textarea></label><p><small>Recorte visual: conserva en producción todo el día, zona horaria, colores, repetición y validaciones existentes.</small></p><div class="actions"><a class="action" href="#agenda">Cancelar</a><button type="button" class="primary" aria-describedby="preview-note">Crear evento</button></div></details>
+<footer><p><strong>Decisión:</strong> mes y panel diario mantienen orientación y seis filas. En móvil, panel debajo como muestra de contenido; la app conserva su panel inferior con Escape/retorno de foco. Menor riesgo; no reemplaza el banner ni la navegación global.</p><small>Fuentes: design/system.md; apps/shared-ui/brujula-controls.css; apps/shared-ui/foxmind-3d-tokens.css; apps/web/src/features/agenda/ui/agenda-ux.module.css; apps/web/src/features/agenda/ui/agenda-surface.module.css.</small></footer>
+</main>
+<script>
+const month = document.querySelector('#month');
+for (let cell = 0; cell < 42; cell++) {
+  const date = new Date(Date.UTC(2026, 9, 26 + cell));
+  const day = date.getUTCDate();
+  const outside = date.getUTCMonth() !== 10;
+  const selected = !outside && day === 12;
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = `day${outside ? ' outside' : ''}`;
+  button.setAttribute('aria-pressed', String(selected));
+  button.setAttribute('aria-describedby', 'preview-note');
+  button.setAttribute('aria-label', `${day} de ${outside ? (cell < 6 ? 'octubre' : 'diciembre') : 'noviembre'}, ${selected ? '3 eventos' : 'sin eventos'}`);
+  button.innerHTML = `<span>${day}</span>${selected ? '<span class="preview">09:00 · Repaso</span><span class="points" aria-hidden="true"><i></i><i></i><i></i></span>' : ''}`;
+  month.append(button);
+}
+</script>
+</body>
+</html>
