@@ -1,4 +1,4 @@
-/* Inicio docente: accents stay local to this dashboard and its destination dialogs. */
+/* Home accents stay local to both dashboards and teacher destination dialogs. */
 .fm-home--teacher-polish .fm-home-attention-heading { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:4px 16px; }
 .fm-home--teacher-polish .fm-home-attention-heading > small { grid-column:1/-1; margin:0; }
 .fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-order { display:block; margin:0; }
@@ -22,23 +22,23 @@
 .fm3d-theme .fm-home--teacher-polish .fm-home-topic-action { display:flex; justify-content:space-between; align-items:center; gap:12px; width:100%; min-height:44px; padding:0; border:0; background:transparent; color:#923d0d; font-size:12px; text-align:left; }
 .fm-home--teacher-polish .fm-home-topic-action > span { display:grid; place-items:center; width:36px; height:36px; flex:none; border-radius:50%; color:#fff; background:#b8490c; }
 .fm-home--teacher-polish .fm-home-topic-action svg { width:18px; height:18px; }
-.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda > header { display:flex; align-items:center; justify-content:space-between; min-height:44px; margin-bottom:16px; }
-.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda .fm-home-agenda-link { display:grid; place-items:center; width:44px; height:44px; min-height:44px; margin:0; }
-.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda .fm-brujula-rail-label { margin:0 0 10px; font-size:11px; line-height:16px; }
-.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda ul + .fm-brujula-rail-label { margin-top:18px; padding-top:18px; }
-.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda ul { display:grid; gap:10px; margin:0; padding:0; }
-.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda li.fm-home-row--agenda { display:grid; grid-template-columns:44px minmax(0,1fr) 44px; align-items:center; gap:12px; min-height:84px; padding:14px 12px; border:1px solid #cce7dd; border-radius:14px; background:#eaf7f1; }
-.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda li.fm-home-row--agenda:nth-child(even) { background:#f1edfc; border-color:#ded5f3; }
-.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda li[data-source="ACADEMIC_DEADLINE"] { background:#fff1e5; border-color:#efd6c0; }
-.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-agenda-date { display:flex; flex-direction:column; justify-content:center; width:44px; height:54px; min-height:54px; padding:5px; background:#fff; color:#315b50; border-radius:10px; }
-.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-agenda-date small { font-size:10px; }
-.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-agenda-date strong { font-size:22px; }
-.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda .fm-home-row-copy { display:grid; gap:6px; grid-column:2; min-width:0; }
-.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda .fm-home-row h3 { margin:0; font-size:12px; line-height:1.45; overflow-wrap:anywhere; }
-.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda .fm-home-agenda-meta { display:block; margin:0; color:#605269; font-size:10px; line-height:1.5; overflow-wrap:anywhere; }
-.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda .fm-home-agenda-time { color:#4e5a66; font-size:11px; line-height:1.5; }
-.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda .fm-home-agenda-action { position:static; opacity:1; grid-column:3; grid-row:1; width:44px; height:44px; min-height:44px; padding:10px; border:1px solid #d5e1dc; border-radius:50%; background:#fff; color:#3b5863; }
-.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-agenda-action:focus-visible svg { visibility:visible; }
+.fm3d-theme #classroom-main .fm-home--reference .fm-home-module--agenda > header { display:flex; align-items:center; justify-content:space-between; min-height:44px; margin-bottom:16px; }
+.fm3d-theme #classroom-main .fm-home--reference .fm-home-module--agenda .fm-home-agenda-link { display:grid; place-items:center; width:44px; height:44px; min-height:44px; margin:0; }
+.fm3d-theme #classroom-main .fm-home--reference .fm-home-module--agenda .fm-brujula-rail-label { margin:0 0 10px; font-size:11px; line-height:16px; }
+.fm3d-theme #classroom-main .fm-home--reference .fm-home-module--agenda ul + .fm-brujula-rail-label { margin-top:18px; padding-top:18px; }
+.fm3d-theme #classroom-main .fm-home--reference .fm-home-module--agenda ul { display:grid; gap:10px; margin:0; padding:0; }
+.fm3d-theme #classroom-main .fm-home--reference .fm-home-module--agenda li.fm-home-row--agenda { display:grid; grid-template-columns:44px minmax(0,1fr) 44px; align-items:center; gap:12px; min-height:84px; padding:14px 12px; border:1px solid #cce7dd; border-radius:14px; background:#eaf7f1; }
+.fm3d-theme #classroom-main .fm-home--reference .fm-home-module--agenda li.fm-home-row--agenda:nth-child(even) { background:#f1edfc; border-color:#ded5f3; }
+.fm3d-theme #classroom-main .fm-home--reference .fm-home-module--agenda li[data-source="ACADEMIC_DEADLINE"] { background:#fff1e5; border-color:#efd6c0; }
+.fm3d-theme #classroom-main .fm-home--reference .fm-home-agenda-date { display:flex; flex-direction:column; justify-content:center; width:44px; height:54px; min-height:54px; padding:5px; background:#fff; color:#315b50; border-radius:10px; }
+.fm3d-theme #classroom-main .fm-home--reference .fm-home-agenda-date small { font-size:10px; }
+.fm3d-theme #classroom-main .fm-home--reference .fm-home-agenda-date strong { font-size:22px; }
+.fm3d-theme #classroom-main .fm-home--reference .fm-home-module--agenda .fm-home-row-copy { display:grid; gap:6px; grid-column:2; min-width:0; }
+.fm3d-theme #classroom-main .fm-home--reference .fm-home-module--agenda .fm-home-row h3 { margin:0; font-size:12px; line-height:1.45; overflow-wrap:anywhere; }
+.fm3d-theme #classroom-main .fm-home--reference .fm-home-module--agenda .fm-home-agenda-meta { display:block; margin:0; color:#605269; font-size:10px; line-height:1.5; overflow-wrap:anywhere; }
+.fm3d-theme #classroom-main .fm-home--reference .fm-home-module--agenda .fm-home-agenda-time { color:#4e5a66; font-size:11px; line-height:1.5; }
+.fm3d-theme #classroom-main .fm-home--reference .fm-home-module--agenda .fm-home-agenda-action { position:static; opacity:1; grid-column:3; grid-row:1; width:44px; height:44px; min-height:44px; padding:10px; border:1px solid #d5e1dc; border-radius:50%; background:#fff; color:#3b5863; }
+.fm3d-theme #classroom-main .fm-home--reference .fm-home-agenda-action:focus-visible svg { visibility:visible; }
 .fm-home-room-dialog { --room-accent:#a04213; --room-bg:#fff0e4; width:min(540px,calc(100vw - 32px)); color:#252646; }
 .fm-home-room-dialog--create-activity { --room-accent:#65429a; --room-bg:#f1ebfc; }
 .fm-home-room-dialog--upload-material { --room-accent:#286650; --room-bg:#eaf7f1; }
@@ -57,6 +57,20 @@
 .fm-home-room-dialog footer button { min-height:44px; padding:10px 18px; border-radius:11px; }
 .fm3d-theme #classroom-main .fm-home-room-dialog footer .primary { color:white; background:var(--room-accent); border-color:var(--room-accent); }
 .fm-home-room-dialog button:disabled { opacity:.55; cursor:not-allowed; }
+/* Shared action rhythm; keep student content and destinations role-specific. */
+.fm3d-theme #classroom-main .fm-home--reference :is(.fm-home-row-action,.fm-home-pending-actions button,.fm-brujula-work-list-link) { min-height:44px; min-width:44px; display:inline-flex; align-items:center; justify-content:center; gap:8px; }
+.fm3d-theme #classroom-main .fm-home--reference .fm-home-pending-actions { flex-wrap:wrap; }
+.fm3d-theme #classroom-main .fm-home--reference .fm-home-pending-item.featured .fm-home-pending-date { flex-wrap:wrap; }
+.fm3d-theme #classroom-main .fm-home--reference .fm-home-shortcut-grid { grid-auto-rows:1fr; }
+@media(max-width:600px) {
+  .fm3d-theme #classroom-main .fm-home--reference .fm-home-pending-item:not(.featured) { display:grid; grid-template-columns:36px minmax(0,1fr) 44px; gap:8px 12px; }
+  .fm3d-theme #classroom-main .fm-home--reference .fm-home-pending-item:not(.featured) .fm-home-pending-title { grid-column:2; min-width:0; }
+  .fm3d-theme #classroom-main .fm-home--reference .fm-home-pending-item:not(.featured) .fm-home-pending-date { grid-column:2; grid-row:2; margin:0; text-align:left; }
+  .fm3d-theme #classroom-main .fm-home--reference .fm-home-pending-item:not(.featured) .fm-home-pending-actions { grid-column:3; grid-row:1/3; }
+  .fm3d-theme #classroom-main .fm-home--reference .fm-home-pending-title h3 { overflow-wrap:break-word; word-break:normal; }
+  .fm3d-theme #classroom-main .fm-home--reference .fm-brujula-shortcuts-heading { flex-wrap:wrap; gap:8px; }
+  .fm3d-theme #classroom-main .fm-home--reference .fm-home-pending-item.featured .fm-home-pending-actions button { flex:1 1 auto; }
+}
 @media(max-width:600px) {
   .fm-home--teacher-polish .fm-home-module--drafts { order:6; }
   .fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--classrooms { padding:0; }

@@ -26,4 +26,4 @@ Ver [tarea](../../../odd/tasks/teacher-home-polish.md), [registro y alcance apro
 
 Fuentes: [Home](../../../apps/web/src/features/home/ui/Home.tsx), [proyecciones](../../../apps/api/src/modules/home/application/service.ts), [notificaciones](../../../apps/web/src/features/notifications/ui/Notifications.tsx). [Recorridos y capturas](../../verification/flows.md).
 
-La mini agenda docente muestra la fecha una sola vez en el bloque lateral; debajo del título conserva el horario local o Todo el día y, para entregas, el aula. El formato de agenda del estudiante permanece sin cambios.
+La mini agenda docente muestra la fecha una sola vez en el bloque lateral; debajo del título conserva el horario local o Todo el día y, para entregas, el aula. La mini agenda estudiantil comparte tarjetas y controles de 44 px con la docente; mantiene únicamente eventos personales y presenta la fecha una sola vez en el bloque lateral.
