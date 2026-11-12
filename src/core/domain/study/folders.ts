@@ -47,3 +47,4 @@ export function validateFolder(value: unknown, active: boolean): FolderFields {
     return { name, academicYear: Number(academicYear), bannerKey: String(bannerKey), units, linkedClassroomId: p.linkedClassroomId == null ? null : studyId(p.linkedClassroomId), planFileId: p.planFileId == null ? null : studyId(p.planFileId) };
 }
 
+export const STUDY_MATERIAL_LIMIT = 100;

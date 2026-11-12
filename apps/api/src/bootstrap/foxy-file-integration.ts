@@ -4,10 +4,15 @@ import { createFoxyPrivateAssetFiles } from '../modules/files/infrastructure/fox
 import { createFoxyPrivateImageInspector } from '../modules/files/infrastructure/foxy-private-image-inspector.ts';
 import { createLibraryMaterialPublisher } from './academic-materials-composition.ts';
 import type { FoxyFileOperations } from '../modules/foxy/infrastructure/file-operations.ts';
+import { attachmentSources, readAttachment } from '../modules/files/infrastructure/chat-attachment-repository.ts';
 
 export function createFoxyFileOperations(files: FileService): FoxyFileOperations {
   return {
     read: (...args) => files.read(...args),
+    attachments: {
+      list: (tx, ownerId, conversationId) => attachmentSources(tx, { ownerId, conversationId }),
+      read: (source, signal) => readAttachment(files.storage, source, signal),
+    },
     readPrivateAsset: typeof files.storage?.get === 'function' ? (key, maxBytes) => files.storage.get(key, maxBytes) : undefined,
     documents: authorizeDocument => createDurableFoxyDocumentReader({ files, authorizeDocument }),
     visualCustody: (authority, renew) => createFoxyPrivateAssetFiles({ files, authority, renew, inspector: createFoxyPrivateImageInspector() }),

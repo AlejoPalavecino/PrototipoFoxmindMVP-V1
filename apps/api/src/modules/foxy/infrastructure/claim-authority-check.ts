@@ -1,7 +1,7 @@
 import { isDeepStrictEqual } from 'node:util';
 import { parseSendFoxyMessage } from '../../../../../../src/core/domain/index.ts';
 import type { SqlTransaction } from '../../../../../../src/core/contracts/sql.ts';
-import type { FoxyGroundingSnapshot } from '../../../../../../src/core/domain/foxy/grounding.ts';
+import type { ChatAttachmentSource, FoxyGroundingSnapshot } from '../../../../../../src/core/domain/foxy/grounding.ts';
 import type { FoxyTurnLease } from './turn-queue.ts';
 import { rebuildGrounding } from './grounding-rebuild.ts';
 
@@ -27,6 +27,13 @@ export async function checkClaimStatus(tx: SqlTransaction, lease: FoxyTurnLease,
     const checked = parseSendFoxyMessage({ requestId: '00000000-0000-0000-0000-000000000000', revision: '0',
       purpose: 'CHAT', text: 'context', selection }, expected).selection;
     const current = await rebuildGrounding(tx, expected, checked);
+    if (row.snapshot.attachments?.length) {
+      const ids = row.snapshot.attachments.map(source => source.fileId);
+      current.attachments = await tx.query<ChatAttachmentSource>(`SELECT id AS "fileId",name AS title,extension,
+        size_bytes AS "sizeBytes",digest FROM chat_attachments WHERE owner_id=$1::uuid AND conversation_id=$2::uuid
+        AND folder_id IS NULL AND ready_at IS NOT NULL AND removed_at IS NULL AND id=ANY($3::uuid[]) ORDER BY created_at,id`,
+      lease.ownerId, lease.conversationId, ids);
+    }
     return { snapshot: row.snapshot, fresh: isDeepStrictEqual(current, row.snapshot) };
   } catch (error) {
     if (['INVALID_INPUT', 'FORBIDDEN', 'FILE_NOT_READY', 'AI_INPUT_LIMIT', 'CONFLICT', 'EMPTY_CONTENT']

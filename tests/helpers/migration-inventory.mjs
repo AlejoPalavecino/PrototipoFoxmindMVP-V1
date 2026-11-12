@@ -30,4 +30,5 @@ export const migrationInventory = Object.freeze([
   '202611080005_study_review_sessions',
   '202611080006_study_ai_admission',
   '202611110001_classroom_invitation_batches',
+  '202611120001_chat_attachments',
 ]);

@@ -1,6 +1,7 @@
 import { isDeepStrictEqual } from 'node:util';
 import type { FoxyAnswer } from '../../../../../../src/core/domain/foxy/resource.ts';
 import type { FoxyGroundingFile, FoxyGroundingSnapshot } from '../../../../../../src/core/domain/foxy/grounding.ts';
+import { groundingSources } from './assemble-grounding.ts';
 
 type Mapping = { sourceKey: string; sourceId: string; documentKeys: string[] };
 type Citation = { sourceId: string; documentKey: string | null; page: number | null };
@@ -13,7 +14,7 @@ function sameIds(a: string[], b: string[]): boolean { return a.length === b.leng
 function indexSources(snapshot: FoxyGroundingSnapshot): Map<string, SourceInfo> {
   const files = new Map<string, string>(), descriptors = new Map<string, FoxyGroundingFile>(), invalidFiles = new Set<string>();
   const sources = new Map<string, SourceInfo>();
-  for (const [index, source] of snapshot.sources.entries()) {
+  for (const [index, source] of groundingSources(snapshot).entries()) {
     const keys: string[] = [];
     for (const file of source.files) {
       const id = file.fileId.toLowerCase();
@@ -22,7 +23,7 @@ function indexSources(snapshot: FoxyGroundingSnapshot): Map<string, SourceInfo> 
       keys.push(files.get(id)!);
     }
     const prefix = source.kind.toLowerCase(), sourceId = source.sourceId.toLowerCase();
-    const kindValid = ['PLAN', 'MATERIAL', 'ACTIVITY'].includes(source.kind)
+    const kindValid = ['PLAN', 'MATERIAL', 'ACTIVITY', 'ATTACHMENT'].includes(source.kind)
       && new RegExp(`^${prefix}:[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$`, 'u').test(sourceId);
     const target = source.kind === 'ACTIVITY' ? sourceId.slice(sourceId.indexOf(':') + 1) : null;
     const purpose = source.kind === 'ACTIVITY' ? 'instructions' : prefix;

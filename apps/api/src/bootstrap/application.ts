@@ -43,6 +43,9 @@ import { attachmentIntegration } from './attachment-integration.ts';
 import { createStudyService } from './study-composition.ts';
 import { createStudyAuthentication, installStudyTransport } from './study-transport.ts';
 import { createStudyFileIntegration } from './study-file-integration.ts';
+import { inspectContent } from '../modules/files/infrastructure/content.ts';
+import { createChatAttachmentService } from '../modules/files/infrastructure/chat-attachment-service.ts';
+import { installChatAttachmentTransport } from './chat-attachment-transport.ts';
 import { createStudyAgendaIntegration } from './study-agenda-integration.ts';
 import { installStudyUploads } from '../modules/study/presentation/folders/uploads/http.ts';
 import { createStudyReminderRuntime } from '../modules/study/infrastructure/folders/reminders/runtime.ts';
@@ -57,6 +60,9 @@ export interface ApplicationOptions { readonly identity?: IdentityRuntimePorts; 
 
 function createStudyRuntime(database:PrismaService,identity:IdentityRuntime,files:FileService,configuration:ApiConfiguration,options:ApplicationOptions){
   const authenticate=createStudyAuthentication(identity.configuration.security),fileBridge=createStudyFileIntegration(files,{database,authenticate,quotaBytes:configuration.studyQuotaBytes});
+  const attachments = createChatAttachmentService({ database, storage: files.storage, student: authenticate,
+    teacher: createFoxyAuthentication(identity.configuration.security), folderQuota: configuration.studyQuotaBytes,
+    inspect: inspectContent, scan: bytes => files.scanner.scan(bytes) });
   const provider=(context?:{ownerId:string;requestId:string;authorize?:()=>Promise<void>})=>{
     if(options.study)return {async generate(input:Parameters<StudyProvider['generate']>[0]){await context?.authorize?.();return options.study!.provider.generate(input);}};
     if(options.ai!==undefined||!configuration.ai||!context)throw Object.assign(new Error('AI_UNAVAILABLE'),{code:'AI_UNAVAILABLE'});
@@ -72,7 +78,13 @@ function createStudyRuntime(database:PrismaService,identity:IdentityRuntime,file
     if(!request.socket.remoteAddress)throw Object.assign(new Error('SERVICE_UNAVAILABLE'),{code:'SERVICE_UNAVAILABLE'});
     await identity.generalAdmission(request.socket.remoteAddress,context);
   };
-  return {service,uploads:fileBridge.uploads,reminders,admit,close:()=>reminders.close()};
+  let cleanup: Promise<void> | undefined;
+  const timer = setInterval(() => {
+    if (!cleanup) cleanup = attachments.cleanup().catch(() => console.warn('Chat attachment cleanup unavailable')).finally(() => { cleanup = undefined; });
+  }, 60000);
+  timer.unref();
+  return {service,uploads:fileBridge.uploads,reminders,admit,attachments,
+    async close() { clearInterval(timer); await Promise.all([reminders.close(), cleanup]); }};
 }
 
 function foxyConfiguration(ai: ApiConfiguration['ai']) {
@@ -161,6 +173,7 @@ export async function createApplication(configuration: ApiConfiguration, options
     if (configuration.classrooms && configuration.files) installFoxyTransport(app, identity, app.get<ReturnType<typeof createFoxyRuntime>>(FOXY_RUNTIME).services);
     if(configuration.classrooms&&configuration.files){
       const study=app.get<ReturnType<typeof createStudyRuntime>>(STUDY_RUNTIME);
+      installChatAttachmentTransport(app,study.attachments,study.admit);
       installStudyUploads(app,study.uploads,study.admit);
       installStudyReminders(app,study.reminders,study.admit);
       installStudyTransport(app,identity,study.service);

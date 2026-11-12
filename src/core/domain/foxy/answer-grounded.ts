@@ -30,7 +30,7 @@ function index(mapping: FoxyAnswerReferenceMap) {
   }
   for (const source of mapping.sources) {
     if (!source || !/^s[1-9]\d*$/u.test(source.sourceKey) || sources.has(source.sourceKey)
-      || typeof source.sourceId !== 'string' || !/^(plan|material|activity):/u.test(source.sourceId)
+      || typeof source.sourceId !== 'string' || !/^(plan|material|activity|attachment):/u.test(source.sourceId)
       || !Array.isArray(source.documentKeys)) return invalidInput();
     activityUuid(source.sourceId.slice(source.sourceId.indexOf(':') + 1));
     if (new Set(source.documentKeys).size !== source.documentKeys.length

@@ -1,5 +1,5 @@
 import { isDeepStrictEqual } from 'node:util';
-import type { FoxyGrounding, FoxyGroundingFile, FoxyGroundingSnapshot, FoxyParsedDocument } from '../../../../../../src/core/domain/foxy/grounding.ts';
+import type { ChatAttachmentSource, FoxyGrounding, FoxyGroundingFile, FoxyGroundingSnapshot, FoxyParsedDocument } from '../../../../../../src/core/domain/foxy/grounding.ts';
 import type { FoxyClaimScope } from './claim-authority.ts';
 import { assembleFoxyGrounding } from './assemble-grounding.ts';
 
@@ -32,7 +32,8 @@ function selectedFiles(snapshot: FoxyGroundingSnapshot): Descriptor[] {
   if (unique.size > 6 || [...unique.values()].reduce((sum, file) => sum + file.sizeBytes, 0) > 20000000) return fail('AI_INPUT_LIMIT');
   return files;
 }
-export function createFoxyDurableLoader(options: { authority: Authority; documents: Documents }) {
+export function createFoxyDurableLoader(options: { authority: Authority; documents: Documents;
+  readAttachment?: (source: ChatAttachmentSource, signal: AbortSignal) => Promise<FoxyParsedDocument> }) {
   return {
     async load(scope: FoxyClaimScope, signal: AbortSignal): Promise<FoxyGrounding> {
       signal.throwIfAborted();
@@ -43,6 +44,11 @@ export function createFoxyDurableLoader(options: { authority: Authority; documen
       signal.throwIfAborted();
       if (!isDeepStrictEqual(visible, claim.snapshot)) return fail('FORBIDDEN');
       const expected = selectedFiles(claim.snapshot);
+      const attachments = claim.snapshot.attachments ?? [];
+      const academicFiles = [...new Map(expected.map(({ file }) => [file.fileId, file])).values()];
+      if (academicFiles.length + attachments.length > 6 ||
+        [...academicFiles, ...attachments].reduce((sum, file) => sum + file.sizeBytes, 0) > 20_000_000) return fail('AI_INPUT_LIMIT');
+      if (attachments.length && !options.readAttachment) return fail('FORBIDDEN');
       if (expected.length !== docs.length) return fail('FORBIDDEN');
       const unmatched = [...expected];
       for (const entry of docs) {
@@ -61,6 +67,10 @@ export function createFoxyDurableLoader(options: { authority: Authority; documen
         const id = entry.descriptor.file.fileId.toLowerCase();
         if (seen.has(id)) continue;
         seen.add(id); parsed.push(await options.documents.read(entry.capability, signal)); signal.throwIfAborted();
+      }
+      for (const attachment of attachments) {
+        parsed.push(await options.readAttachment!(attachment, signal));
+        signal.throwIfAborted();
       }
       if (!await options.authority.revalidateGrounding(capability, signal)) return fail('CONFLICT');
       signal.throwIfAborted();

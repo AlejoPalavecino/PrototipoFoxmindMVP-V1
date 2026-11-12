@@ -13,7 +13,7 @@ function list<T>(value: unknown, parse: (item: unknown) => T): T[] {
 }
 function reference(value: unknown): FoxyReference {
   const v = strictObject(value, ['sourceId', 'page']);
-  if (typeof v.sourceId !== 'string' || !/^(plan|material|activity):/u.test(v.sourceId)) return invalidInput();
+  if (typeof v.sourceId !== 'string' || !/^(plan|material|activity|attachment):/u.test(v.sourceId)) return invalidInput();
   activityUuid(v.sourceId.slice(v.sourceId.indexOf(':') + 1));
   if (v.page !== null && (typeof v.page !== 'number' || !Number.isSafeInteger(v.page) || v.page < 1)) return invalidInput();
   return { sourceId: v.sourceId, page: v.page as number | null };

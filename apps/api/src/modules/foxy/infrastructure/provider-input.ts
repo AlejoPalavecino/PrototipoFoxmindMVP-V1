@@ -15,7 +15,9 @@ function string(value: unknown): string { if (typeof value !== 'string') return 
 function strings(value: unknown): string[] { if (!Array.isArray(value)) return invalid(); return value.map(string); }
 function curriculum(grounding: FoxyGrounding) {
   if (grounding.context.kind === 'GENERAL') {
-    if (grounding.curriculum !== null || grounding.sources.length || grounding.documents.length || grounding.referenceMap.length) return invalid();
+    if (grounding.curriculum !== null || grounding.sources.some(source => source.kind !== 'ATTACHMENT')
+      || grounding.referenceMap.some(source => !source.sourceId.startsWith('attachment:'))
+      || (grounding.documents.length > 0 && !grounding.sources.length)) return invalid();
     return null;
   }
   const data = grounding.curriculum;
@@ -30,7 +32,7 @@ function curriculum(grounding: FoxyGrounding) {
   }) };
 }
 function source(item: Source) {
-  if (!item || !['PLAN', 'MATERIAL', 'ACTIVITY'].includes(item.kind) || !Array.isArray(item.documentKeys)) return invalid();
+  if (!item || !['PLAN', 'MATERIAL', 'ACTIVITY', 'ATTACHMENT'].includes(item.kind) || !Array.isArray(item.documentKeys)) return invalid();
   return { sourceKey: key(item.sourceKey, 's'), title: string(item.title), kind: item.kind,
     text: string(item.text), documentKeys: item.documentKeys.map(id => key(id, 'd')) };
 }

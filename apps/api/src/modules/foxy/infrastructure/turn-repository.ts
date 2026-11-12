@@ -18,7 +18,7 @@ function citations(value: unknown): Citation[] {
     return item.citations.flatMap((citation: unknown) => {
       if (!citation || typeof citation !== 'object') return [];
       const c = citation as Record<string, unknown>;
-      if (typeof c.sourceId !== 'string' || !/^(plan|material|activity):[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/iu.test(c.sourceId)
+      if (typeof c.sourceId !== 'string' || !/^(plan|material|activity|attachment):[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/iu.test(c.sourceId)
         || (c.documentKey !== null && (typeof c.documentKey !== 'string' || !/^d[1-9][0-9]*$/u.test(c.documentKey)))
         || (c.page !== null && (typeof c.page !== 'number' || !Number.isSafeInteger(c.page) || c.page < 1))
         || (c.documentKey === null && c.page !== null)) return [];

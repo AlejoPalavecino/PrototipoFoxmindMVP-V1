@@ -7,13 +7,17 @@ import { projectFoxyTextInput } from './provider-input.ts';
 type HistoryPair = { user: string; assistant: { title: string; markdown: string } };
 type Payload = { purpose: FoxyPurpose; message: string; history?: HistoryPair[]; metadata: { model: string; promptVersion: string; schemaVersion: string } };
 type Options = { turns: { loadClaimed(lease: FoxyTurnLease, signal: AbortSignal): Promise<Payload> };
-  authority: { open(lease: FoxyTurnLease, signal: AbortSignal): Promise<FoxyClaimScope>; close(scope: FoxyClaimScope): void };
+  authority: { open(lease: FoxyTurnLease, signal: AbortSignal): Promise<FoxyClaimScope>; close(scope: FoxyClaimScope): void;
+    revalidateGrounding?(capability: object, signal: AbortSignal): Promise<boolean> };
   loader: { load(scope: FoxyClaimScope, signal: AbortSignal): Promise<FoxyGrounding> };
   provider: { countTokens(input: FoxyTextInput): Promise<number> }; configuration: { model: string; maxInputTokens: number } };
 function failure(code: 'AI_UNAVAILABLE' | 'AI_INPUT_LIMIT'): never { throw Object.assign(new Error(code), { code }); }
-async function preflight(options: Options, original: FoxyTextInput, signal: AbortSignal) {
+async function preflight(options: Options, original: FoxyTextInput, signal: AbortSignal, scope: FoxyClaimScope) {
   let input = original;
   for (;;) {
+    signal.throwIfAborted();
+    if (scope.snapshot.attachments?.length && !await options.authority.revalidateGrounding?.(scope.capability, signal))
+      throw Object.assign(new Error('CONFLICT'), { code: 'CONFLICT' });
     signal.throwIfAborted();
     let count: number;
     try { count = await options.provider.countTokens(input); }
@@ -41,7 +45,7 @@ export function createFoxyTurnPreparation(options: Options) {
         signal.throwIfAborted();
         const grounding = await options.loader.load(scope, signal); signal.throwIfAborted();
         const original = projectFoxyTextInput({ purpose: turn.purpose, message: turn.message, history: turn.history, grounding, signal });
-        const { input, count } = await preflight(options, original, signal);
+        const { input, count } = await preflight(options, original, signal, scope);
         return { scope, grounding, input, count };
       } catch (error) { options.authority.close(scope); throw error; }
     },

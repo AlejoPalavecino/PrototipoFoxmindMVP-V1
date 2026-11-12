@@ -1,5 +1,5 @@
 import type { StudyCommandPorts } from './ports.ts';
-import { studyFail, studyId, studyObject, studyText, validateFolder } from '../../../../../../src/core/domain/study/folders.ts';
+import { STUDY_MATERIAL_LIMIT, studyFail, studyId, studyObject, studyText, validateFolder } from '../../../../../../src/core/domain/study/folders.ts';
 import { publicPractice, finalizePractice, topicEvidence, planExam, type StudyPractice, type PracticeResult, type StudyAnswers, type StudyResult } from '../../../../../../src/core/domain/study/engine.ts';
 import type { FolderRow, StudyState, StudyQuery, StudySource } from './contracts.ts';
 function refsAvailable(item: Record<string, unknown>, sources: StudySource[]) { return !Array.isArray(item.sourceRefs) || item.sourceRefs.every(r => { const ref = r as {
@@ -7,7 +7,15 @@ function refsAvailable(item: Record<string, unknown>, sources: StudySource[]) { 
     version: string;
 }; return sources.some(s => s.id === ref.id && s.version === ref.version); }); }
 function practiceView(p: Record<string, unknown>) { const { privatePractice, ...safe } = p; return { ...safe, ...publicPractice(privatePractice as StudyPractice, p.status === 'FINALIZED') }; }
-export function publicState(state: StudyState, sources: StudySource[]) { return { conversations: state.conversations.map(c => ({ ...c, turns: (c.turns as Record<string, unknown>[]).map(t => ({ ...t, sourceUnavailable: !refsAvailable(t, sources) })) })), creations: state.creations.map(c => ({ ...c, sourceUnavailable: !refsAvailable(c, sources) })), practices: state.practices.map(practiceView), exams: state.exams, memory: state.memory }; }
+export function publicState(state: StudyState, sources: StudySource[], attachments: StudySource[] = []) {
+    return { conversations: state.conversations.map(c => {
+        const allowed = [...sources, ...attachments.filter(source => source.conversationId === c.id)];
+        const turns = (c.turns as Record<string, unknown>[]).map(({ attachmentIds: _, ...turn }) =>
+            ({ ...turn, sourceUnavailable: !refsAvailable(turn, allowed) }));
+        return { ...c, turns, sourceUnavailable: turns.some(turn => turn.sourceUnavailable) };
+    }), creations: state.creations.map(c => ({ ...c, sourceUnavailable: !refsAvailable(c, sources) })),
+    practices: state.practices.map(practiceView), exams: state.exams, memory: state.memory };
+}
 export async function runCommand(tx: StudyQuery, r: FolderRow, p: Record<string, unknown>, options: StudyCommandPorts): Promise<unknown> {
     const action = String(p.action), s = r.state, topics = s.fields.units.flatMap(u => u.topics);
     const fields: Record<string, string[]> = { CONFIRM_FOLDER: [], ARCHIVE: [], REACTIVATE: [], DELETE: ['confirmed'], ADD_MATERIAL: ['fileId', 'title', 'topicIds'], REMOVE_MATERIAL: ['materialId'], EDIT_MATERIAL: ['materialId','title','topicIds'], NEW_CONVERSATION: ['title'], CHAT: ['conversationId', 'message', 'topicIds'], GENERATE: ['kind', 'message', 'topicIds', 'questionCount', 'difficulty'], EDIT_CREATION: ['creationId', 'title', 'body'], SAVE_ANSWERS: ['practiceId', 'answers'], FINALIZE_PRACTICE: ['practiceId', 'confirmedEmpty'], RETRY_FEEDBACK: ['practiceId'], NEW_ATTEMPT: ['practiceId'], PLAN_EXAM: ['examAt', 'timeZone', 'availability', 'minutesPerTopic', 'topicIds', 'title'], EDIT_EXAM: ['examId', 'sessions'], CONFIRM_AGENDA: ['examId', 'sessionIds'] };
@@ -35,7 +43,7 @@ export async function runCommand(tx: StudyQuery, r: FolderRow, p: Record<string,
         return {};
     }
     if (action === 'ADD_MATERIAL') {
-        if (s.materials.length >= 100)
+        if (s.materials.length >= STUDY_MATERIAL_LIMIT)
             studyFail('QUOTA_EXCEEDED');
         const fileId = studyId(p.fileId);
         if (!options.files)
@@ -212,7 +220,14 @@ export async function runCommand(tx: StudyQuery, r: FolderRow, p: Record<string,
     const conversation = action === 'CHAT' ? s.conversations.find(c => c.id === studyId(p.conversationId)) : null;
     if (action === 'CHAT' && !conversation)
         studyFail('FORBIDDEN');
-    let sources = await options.sources(tx, r, options);
+    const loadSources = async () => {
+        const folder = await options.sources(tx, r, options);
+        const attached = conversation
+            ? await options.files?.chatSources?.(tx, r.owner_id, r.id, String(conversation.id)) ?? [] : [];
+        return [...folder.map(source => attached.some(item => item.id === source.id) ? { ...source, fromChatCopy: true } : source),
+            ...attached.filter(source => !folder.some(material => material.id === source.id))];
+    };
+    let sources = await loadSources();
     if (kind === 'PLAN' && s.fields.planFileId) {
         if (!options.files)
             studyFail('FILE_NOT_READY');
@@ -232,8 +247,11 @@ export async function runCommand(tx: StudyQuery, r: FolderRow, p: Record<string,
             source.text = await options.files.readText(tx, source);
     }
     const message = studyText(p.message ?? `Generá ${kind.toLowerCase()} para los temas seleccionados.`, 5000);
-    const generated = await options.generate({ action: kind, message, topics: selected, sources: sources.filter(x => x.text.trim() || x.document), history: ((conversation?.turns ?? []) as unknown[]).slice(-20), evidence: topicEvidence(selected, s.practices.filter(x => x.status === 'FINALIZED').map(x => x.result as PracticeResult)), questionCount, difficulty }) as StudyResult;
-    const current = await options.sources(tx, r, options);
+    const attachmentIds = sources.filter(source => source.conversationId || source.fromChatCopy).map(source => source.id);
+    const history = ((conversation?.turns ?? []) as Record<string, unknown>[]).filter(turn =>
+        !Array.isArray(turn.attachmentIds) || turn.attachmentIds.every(id => sources.some(source => source.id === id))).slice(-20);
+    const generated = await options.generate({ action: kind, message, topics: selected, sources: sources.filter(x => x.text.trim() || x.document), history, evidence: topicEvidence(selected, s.practices.filter(x => x.status === 'FINALIZED').map(x => x.result as PracticeResult)), questionCount, difficulty }) as StudyResult;
+    const current = await loadSources();
     if (kind === 'PLAN' && s.fields.planFileId)
         await options.files!.assertOwn(tx, r.owner_id, r.id, s.fields.planFileId, 'plan');
     else if (sources.some(old => !current.some(x => x.id === old.id && x.version === old.version)))
@@ -248,7 +266,9 @@ export async function runCommand(tx: StudyQuery, r: FolderRow, p: Record<string,
         const turns = conversation!.turns as unknown[];
         if (turns.length >= 200)
             studyFail('QUOTA_EXCEEDED');
-        turns.push({ id: options.newId(), role: 'user', text: message, sourceRefs: generated.sourceRefs }, { id: options.newId(), role: 'assistant', text: generated.markdown, sourceRefs: generated.sourceRefs });
+        const references = { sourceRefs: generated.sourceRefs, ...(attachmentIds.length ? { attachmentIds } : {}) };
+        turns.push({ id: options.newId(), role: 'user', text: message, ...references },
+            { id: options.newId(), role: 'assistant', text: generated.markdown, ...references });
         return { conversation };
     }
     s.memory.preferences = {difficulty: difficulty as 'EASY' | 'MEDIUM' | 'HARD', questionCount: Number(questionCount), topicIds: selected.map(topic=>topic.id), lastTool: kind as NonNullable<StudyState['memory']['preferences']>['lastTool']};

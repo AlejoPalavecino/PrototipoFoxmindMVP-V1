@@ -1,10 +1,12 @@
 import type { FoxyConversationRepositoryPort, FoxyTurnRepositoryPort, FoxyUnitOfWork } from './ports.ts';
 import { parseSendFoxyMessage, strictObject, type SendFoxyMessage } from '../../../../../../src/core/domain/index.ts';
 import type { SqlTransaction } from '../../../../../../src/core/contracts/sql.ts';
+import type { ChatAttachmentSource } from '../../../../../../src/core/domain/foxy/grounding.ts';
 
 type Options = { uow: FoxyUnitOfWork; conversations: FoxyConversationRepositoryPort;
   turns: FoxyTurnRepositoryPort; configuration: { enabled: boolean; model: string };
   digest(text: string): string;
+  attachments?(tx: SqlTransaction, ownerId: string, conversationId: string): Promise<ChatAttachmentSource[]>;
   authority: { ownedRoom(tx: SqlTransaction, owner: string, id: string): Promise<void>; activeRoom(tx: SqlTransaction, owner: string, id: string): Promise<void> };
   rebuildGrounding(tx: SqlTransaction, context: import('../../../../../../src/core/domain/index.ts').FoxyContext, selection: import('../../../../../../src/core/domain/index.ts').FoxySelection): Promise<import('../../../../../../src/core/domain/foxy/grounding.ts').FoxyGroundingSnapshot>;
 };
@@ -50,6 +52,8 @@ export function createFoxyTurnService(options: Options) {
         if (!options.configuration.enabled || typeof options.configuration.model !== 'string' || !options.configuration.model.trim()) return fail('AI_UNAVAILABLE');
         if (conversation.context.kind === 'CLASSROOM') await options.authority.activeRoom(tx, actor.id, conversation.context.classroomId);
         const snapshot = await options.rebuildGrounding(tx, conversation.context, message.selection);
+        const attachments = await options.attachments?.(tx, actor.id, conversationId);
+        if (attachments?.length) snapshot.attachments = attachments;
         return options.turns.enqueue(tx, actor.id, conversationId, message, snapshot, hash,
           { model: options.configuration.model, promptVersion: 'foxy-chat-v2', schemaVersion: 'foxy-answer-v1' });
       });

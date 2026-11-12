@@ -21,8 +21,11 @@ export async function folderSources(tx: StudyQuery, row: FolderRow, options: Stu
             if (!options.files)
                 continue;
             await options.files.assertOwn(tx, row.owner_id, row.id, m.fileId, 'material');
-            const [upload] = await tx.query<{extension:string}>('SELECT extension FROM study_folder_uploads WHERE id=$1::uuid AND owner_id=$2::uuid AND folder_id=$3::uuid',m.fileId,row.owner_id,row.id);
-            out.push({ id: m.id, version: m.fileId, title: m.title,kind:'MATERIAL',readable:upload ? ['pdf','docx'].includes(upload.extension) : true, origin: 'OWN', fileId: m.fileId, text: '', available: true });
+            const [upload] = await tx.query<{extension:string; from_chat_copy:boolean}>(`SELECT extension,
+                EXISTS(SELECT 1 FROM chat_attachments a WHERE a.id=u.id AND a.owner_id=u.owner_id AND a.folder_id=u.folder_id) AS from_chat_copy
+                FROM study_folder_uploads u WHERE id=$1::uuid AND owner_id=$2::uuid AND folder_id=$3::uuid`,m.fileId,row.owner_id,row.id);
+            out.push({ id: m.id, version: m.fileId, title: m.title,kind:'MATERIAL',readable:upload ? ['pdf','docx'].includes(upload.extension) : true,
+                origin: 'OWN', fileId: m.fileId, text: '', available: true, ...(upload?.from_chat_copy ? { fromChatCopy: true } : {}) });
         }
         catch { /* Revoked or quarantined bytes are unavailable. */ }
     }

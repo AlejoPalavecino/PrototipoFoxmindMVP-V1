@@ -21,6 +21,8 @@ export interface StudySource {
     ownerId?: string;
     folderId?: string;
     classroomId?: string;
+    conversationId?: string;
+    fromChatCopy?: boolean;
     document?: {
         kind: 'pdf';
         bytes: Uint8Array;
@@ -77,6 +79,7 @@ export interface StudyOptions {
     files?: {
         assertOwn(tx: StudyQuery, ownerId: string, folderId: string, fileId: string, purpose: 'plan' | 'material'): Promise<void>;
         readText?(tx: StudyQuery, source: StudySource): Promise<string>;
+        chatSources?(tx: StudyQuery, ownerId: string, folderId: string, conversationId?: string): Promise<StudySource[]>;
         readSource?(tx: StudyQuery, source: StudySource): Promise<{
             text: string;
             document?: StudySource['document'];

@@ -6,10 +6,18 @@ import { createStudyFiles } from '../modules/study/infrastructure/folders/upload
 import { studyFileError, studyFileReady } from '../modules/study/infrastructure/folders/uploads/upload-policy.ts';
 import type { StudyUploadRow, StudyFilePorts } from '../modules/study/infrastructure/folders/uploads/types.ts';
 import type { StudyOptions, StudySource } from '../modules/study/application/contracts.ts';
+import { attachmentSources, readAttachment } from '../modules/files/infrastructure/chat-attachment-repository.ts';
 
 export function createStudyFileIntegration(files:FileService,options:Pick<StudyFilePorts,'database'|'authenticate'|'quotaBytes'>) {
   const uploads=createStudyFiles({...options,storage:files.storage,inspect:inspectContent,scan:bytes=>files.scanner.scan(bytes)});
   const port:NonNullable<StudyOptions['files']>={
+    async chatSources(tx, ownerId, folderId, conversationId) {
+      const rows = await tx.query<{ id: string; name: string; conversation_id: string }>(`SELECT id,name,conversation_id FROM chat_attachments
+        WHERE owner_id=$1::uuid AND folder_id=$2::uuid AND ($3::uuid IS NULL OR conversation_id=$3::uuid)
+        AND ready_at IS NOT NULL AND removed_at IS NULL ORDER BY created_at,id`, ownerId, folderId, conversationId ?? null);
+      return rows.map(row => ({ id: row.id, version: row.id, fileId: row.id, title: row.name, kind: 'MATERIAL',
+        origin: 'OWN', available: true, readable: true, text: '', conversationId: row.conversation_id }));
+    },
     async assertOwn(tx,ownerId,folderId,fileId,purpose) {
       const [row]=await tx.query<StudyUploadRow>('SELECT * FROM study_folder_uploads WHERE id=$1::uuid AND folder_id=$2::uuid AND owner_id=$3::uuid AND purpose=$4',fileId,folderId,ownerId,purpose);
       if(!row||!studyFileReady(row))return studyFileError('FILE_NOT_READY');
@@ -20,6 +28,13 @@ export function createStudyFileIntegration(files:FileService,options:Pick<StudyF
   async function read(tx:Parameters<NonNullable<StudyOptions['files']>['assertOwn']>[0],source:StudySource) {
     if(!source.available||!source.fileId)return {text:source.text};
     if(!source.ownerId||!source.folderId)return studyFileError('FORBIDDEN');
+    if (source.conversationId) {
+      const current = await attachmentSources(tx, { ownerId: source.ownerId, folderId: source.folderId, conversationId: source.conversationId });
+      const attachment = current.find(item => item.fileId === source.fileId);
+      if (!attachment) return studyFileError('FILE_NOT_READY');
+      const parsed = await readAttachment(files.storage, attachment, AbortSignal.timeout(5000));
+      return { text: parsed.document.kind === 'text' ? parsed.document.text : '', document: parsed.document };
+    }
     const [folder]=await tx.query<{status:string;classroom_id:string|null}>(`SELECT status,state->'fields'->>'linkedClassroomId' AS classroom_id FROM study_folders WHERE id=$1::uuid AND owner_id=$2::uuid`,source.folderId,source.ownerId);
     if(!folder||folder.status==='DELETED')return studyFileError('FORBIDDEN');
     let row:{storage_key:string;extension:string;size_bytes:bigint;digest:string|null;phase?:string;validated_digest:string|null;scanned_digest:string|null}|undefined;

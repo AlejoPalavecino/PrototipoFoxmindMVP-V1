@@ -62,7 +62,7 @@ function workerFor(options: Options, configuration: Configuration, provider: Pro
   return createFoxyTextWorker({ database: options.database, configuration, provider, authority,
     queue: createFoxyTurnQueue({ database: options.database, configuration }),
     turns: createFoxyClaimedTurnReader({ database: options.database, maxJobAgeMs: configuration.maxJobAgeMs }),
-    loader: createFoxyDurableLoader({ authority, documents }), budget,
+    loader: createFoxyDurableLoader({ authority, documents, readAttachment: options.fileOperations.attachments?.read }), budget,
     completion: createFoxyTurnCompletion({ database: options.database, budget, configuration }) });
 }
 function publicationWorkerFor(options: Options) {
@@ -98,7 +98,8 @@ export function createFoxyRuntime(options: Options) {
   const privateAssetReader = options.fileOperations.readPrivateAsset
     ? createFoxyPrivateAssetReader({ uow, assets, storage: { get: options.fileOperations.readPrivateAsset } }) : undefined;
   const services = { creations: createFoxyCreationService({ uow, creations: createFoxyCreationRepository() }), visuals: visual?.service, privateAssetReader, privateAssetReadService: createFoxyPrivateAssetReadService({ uow, assets }), conversations: createFoxyConversationService({ uow, conversations }),
-    turns: createFoxyTurnService({ uow, conversations, turns, configuration: { enabled, model: enabled ? options.configuration!.model : '' } }),
+    turns: createFoxyTurnService({ uow, conversations, turns, attachments: options.fileOperations.attachments?.list,
+      configuration: { enabled, model: enabled ? options.configuration!.model : '' } }),
     catalog: new FoxyContextCatalogService(options.classrooms, conversations),
     citations: createFoxyCitationService({ uow, files: { read: options.fileOperations.read } }),
     resources: createFoxyResourceService({ uow, resources: createFoxyResourceRepository() }),

@@ -12,7 +12,8 @@ function validate(input: FoxyTextInput): void {
   if (!input || !['GENERAL', 'CLASSROOM'].includes(input.mode) || !['CHAT', 'STUDY_MATERIAL', 'REVIEW', 'SUMMARY', 'ACTIVITY_IDEAS', 'LESSON_PLAN', 'RUBRIC'].includes(input.purpose)
     || typeof input.message !== 'string' || !input.message.trim() || [...input.message].length > 5000
     || !Array.isArray(input.sources) || input.sources.length > 20 || !Array.isArray(input.documents) || input.documents.length > 6
-    || !Array.isArray(input.warnings) || (input.mode === 'GENERAL' && (input.curriculum !== null || input.sources.length || input.documents.length))
+    || !Array.isArray(input.warnings) || (input.mode === 'GENERAL' && (input.curriculum !== null
+      || input.sources.some(source => source.kind !== 'ATTACHMENT') || (input.documents.length > 0 && !input.sources.length)))
     || (input.mode === 'CLASSROOM' && !input.curriculum)) throw new AiError('AI_UNAVAILABLE');
   const history = input.history ?? [];
   if (!Array.isArray(history) || history.length > 10 || history.some(pair => !pair || !pair.assistant

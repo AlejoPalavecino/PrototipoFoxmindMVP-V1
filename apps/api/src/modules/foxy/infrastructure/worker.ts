@@ -55,7 +55,7 @@ export function createFoxyTextWorker(options: Options) {
       const lease = await options.queue.claim(); if (!lease || stopped) return false;
       controller = new AbortController();
       const deadline = setTimeout(() => controller?.abort(), options.configuration.deadlineMs);
-      let prepared: Prepared | undefined, reserved = false, outcome: any, shouldFinish = true;
+      let prepared: Prepared | undefined, reserved = false, dispatched = false, outcome: any, shouldFinish = true;
       try {
         prepared = await withAbort(preparation.prepare(lease, controller.signal), controller.signal);
         const reservation = await reserve(options, lease, prepared, controller.signal);
@@ -63,6 +63,11 @@ export function createFoxyTextWorker(options: Options) {
         else if (reservation !== 'RESERVED') outcome = { state: 'FAILED', errorCode: reservation === 'NO_BUDGET' ? 'AI_BUDGET_EXCEEDED' : 'PROVIDER_OUTCOME_UNKNOWN' };
         else {
           reserved = true; controller.signal.throwIfAborted();
+          if (prepared.scope.snapshot.attachments?.length &&
+            !await options.authority.revalidateGrounding(prepared.scope.capability, controller.signal))
+            throw Object.assign(new Error('CONFLICT'), { code: 'CONFLICT' });
+          controller.signal.throwIfAborted();
+          dispatched = true;
           const generated = await withAbort(options.provider.generate(prepared.input), controller.signal);
           const usage = { inputTokens: generated.inputTokens, outputTokens: generated.outputTokens };
           try {
@@ -76,7 +81,10 @@ export function createFoxyTextWorker(options: Options) {
           }
           catch { outcome = { state: 'FAILED', errorCode: 'INVALID_AI_OUTPUT', usage }; }
         }
-      } catch (error) { outcome = { state: 'FAILED', errorCode: code(error, reserved) }; }
+      } catch (error) {
+        outcome = { state: 'FAILED', errorCode: code(error, dispatched),
+          ...(reserved && !dispatched ? { usage: { inputTokens: 0, outputTokens: 0 } } : {}) };
+      }
       try { if (!shutdownComplete && shouldFinish && outcome) await options.completion.finish(lease, outcome); }
       finally { clearTimeout(deadline); controller = undefined; if (prepared) options.authority.close(prepared.scope); }
       return true;

@@ -24,8 +24,12 @@ export function createFoxyCitationService(options: Options) {
           const textOnly = sameRoom && citation.available && !citation.file && citation.sourceKind === 'ACTIVITY'
             && citation.documentKey === null && citation.page === null
             ? await options.citations.textActivity(tx, citation.sourceId.slice('activity:'.length), turn.classroom_id!) : false;
+          const attached = citation.sourceKind === 'ATTACHMENT' && citation.available
+            ? (await tx.query(`SELECT id FROM chat_attachments WHERE id=$1::uuid AND owner_id=$2::uuid
+                AND conversation_id=$3::uuid AND folder_id IS NULL AND ready_at IS NOT NULL AND removed_at IS NULL`,
+              citation.sourceId.slice('attachment:'.length), actor.id, conversationId)).length > 0 : false;
           items.push({ id: citation.citationKey, sourceKind: citation.sourceKind, sourceTitle: safeTitle(citation.sourceTitle),
-            documentTitle: safeTitle(found?.original_name ?? null), page: citation.page, availability: found ? 'AVAILABLE' : textOnly ? 'TEXT_ONLY' : 'UNAVAILABLE',
+            documentTitle: safeTitle(found?.original_name ?? null), page: citation.page, availability: found ? 'AVAILABLE' : textOnly || attached ? 'TEXT_ONLY' : 'UNAVAILABLE',
             href: found ? `/api/v1/foxy-ai/conversations/${conversationId}/turns/${turnId}/citations/${citation.citationKey}/file` : null });
         }
         return items;

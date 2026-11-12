@@ -11,6 +11,8 @@
     "tests/local-app-environment.test.mjs",
     "tests/pending-classrooms.test.mjs",
     "tests/pending-classrooms-database.test.mjs",
+    "apps/api/src/modules/files/infrastructure/tests/chat-attachment-policy.test.mjs",
+    "apps/api/src/modules/files/infrastructure/tests/chat-attachment-custody.test.mjs",
     "apps/api/src/modules/foxy/infrastructure/providers/tests/foxy-diagram-adapter.test.mjs",
     "apps/api/src/modules/foxy/infrastructure/providers/tests/foxy-factory.test.mjs",
     "apps/api/src/modules/foxy/infrastructure/providers/tests/foxy-image-adapter.test.mjs",

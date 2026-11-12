@@ -1,5 +1,13 @@
 import { createHash } from 'node:crypto';
-import type { FoxyGrounding, FoxyGroundingFile, FoxyGroundingSnapshot, FoxyParsedDocument } from '../../../../../../src/core/domain/foxy/grounding.ts';
+import type { FoxyGrounding, FoxyGroundingFile, FoxyGroundingSnapshot, FoxyGroundingSource, FoxyParsedDocument } from '../../../../../../src/core/domain/foxy/grounding.ts';
+
+export function groundingSources(snapshot: FoxyGroundingSnapshot): FoxyGroundingSource[] {
+  return [...snapshot.sources, ...(snapshot.attachments ?? []).map(file => ({
+    sourceId: `attachment:${file.fileId}`, title: file.title, kind: 'ATTACHMENT' as const, text: '',
+    files: [{ fileId: file.fileId, digest: file.digest, sizeBytes: file.sizeBytes, extension: file.extension,
+      purpose: 'attachment', targetId: null }],
+  }))];
+}
 
 function fail(code: 'INVALID_INPUT' | 'FILE_NOT_READY' | 'AI_INPUT_LIMIT'): never {
   throw Object.assign(new Error(code), { code });
@@ -23,12 +31,12 @@ function checkDocument(file: FoxyGroundingFile, parsed: FoxyParsedDocument): voi
 function collect(snapshot: FoxyGroundingSnapshot): Map<string, FoxyGroundingFile> {
   const files = new Map<string, FoxyGroundingFile>(), sources = new Set<string>();
   let sourceCharacters = 0;
-  for (const source of snapshot.sources) {
+  for (const source of groundingSources(snapshot)) {
     if (sources.has(source.sourceId.toLowerCase()) || !Array.isArray(source.files) || typeof source.text !== 'string') fail('INVALID_INPUT');
     sources.add(source.sourceId.toLowerCase()); sourceCharacters += [...source.text].length;
-    if ((source.kind === 'PLAN' || source.kind === 'MATERIAL') && source.files.length !== 1) fail('FILE_NOT_READY');
+    if (source.kind !== 'ACTIVITY' && source.files.length !== 1) fail('FILE_NOT_READY');
     const expectedPrefix = source.kind.toLowerCase();
-    if (!['PLAN', 'MATERIAL', 'ACTIVITY'].includes(source.kind)) fail('INVALID_INPUT');
+    if (!['PLAN', 'MATERIAL', 'ACTIVITY', 'ATTACHMENT'].includes(source.kind)) fail('INVALID_INPUT');
     if (!new RegExp(`^${expectedPrefix}:[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$`, 'iu').test(source.sourceId)) fail('FILE_NOT_READY');
     for (const file of source.files) {
       const expectedPurpose = source.kind === 'ACTIVITY' ? 'instructions' : expectedPrefix;
@@ -64,12 +72,13 @@ export function assembleFoxyGrounding(snapshot: FoxyGroundingSnapshot, parsed: F
     || !['GENERAL', 'CLASSROOM'].includes(snapshot.context?.kind)) fail('INVALID_INPUT');
   const files = collect(snapshot), validated = validatedDocuments(files, parsed);
   const keys = new Map([...files.keys()].map((id, i) => [id, `d${i + 1}`]));
-  const sources = snapshot.sources.map((source, i) => ({ sourceKey: `s${i + 1}`, title: source.title, kind: source.kind,
+  const rows = groundingSources(snapshot);
+  const sources = rows.map((source, i) => ({ sourceKey: `s${i + 1}`, title: source.title, kind: source.kind,
     text: source.text, documentKeys: source.files.map(file => keys.get(file.fileId.toLowerCase())!) }));
   const documents = [...validated].map(([id, item]) => ({ documentKey: keys.get(id)!,
     sourceKeys: sources.filter(source => source.documentKeys.includes(keys.get(id)!)).map(source => source.sourceKey),
     document: item.document, pageCount: item.pageCount, warnings: item.warnings }));
   return { context: snapshot.context, curriculum: snapshot.curriculum, sources, documents, referenceMap: sources.map((source, i) => ({ sourceKey: source.sourceKey,
-    sourceId: snapshot.sources[i]!.sourceId, documentKeys: source.documentKeys })),
+    sourceId: rows[i]!.sourceId, documentKeys: source.documentKeys })),
     warnings: [...new Set(documents.flatMap(doc => doc.warnings))] };
 }

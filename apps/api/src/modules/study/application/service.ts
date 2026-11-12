@@ -115,7 +115,13 @@ export function createStudyService(options: StudyApplicationPorts) {
                 return { folder: projectFolder(row!) };
             });
         },
-        async get(request: unknown, id: string) { return run(request, false, async (tx, owner) => { const r = await load(tx, owner, id, false); const sources = await options.sources(tx, r, options); return { folder: projectFolder(r), sources: sources.map(({ text: _, ...s }) => s), ...publicState(r.state, sources) }; }); },
+        async get(request: unknown, id: string) {
+            return run(request, false, async (tx, owner) => {
+                const r = await load(tx, owner, id, false), sources = await options.sources(tx, r, options);
+                const attachments = await options.files?.chatSources?.(tx, owner, r.id);
+                return { folder: projectFolder(r), sources: sources.map(({ text: _, ...s }) => s), ...publicState(r.state, sources, attachments) };
+            });
+        },
         async patch(request: unknown, id: string, input: unknown) { return run(request, true, async (tx, owner) => { const p = { ...studyObject(input) }, r = await load(tx, owner, id, true); if (studyRevision(p.revision) !== String(r.revision))
             studyFail('CONFLICT'); delete p.revision; const status = p.status ?? r.status; delete p.status; if ((r.status === 'ACTIVE' && status === 'DRAFT') || !['DRAFT', 'ACTIVE', 'ARCHIVED', 'DELETED'].includes(String(status)) || (r.status === 'ARCHIVED' && status !== 'ACTIVE'))
             studyFail('CONFLICT'); if (status === 'DELETED')
