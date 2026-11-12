@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import type { HomeModuleName, HomeTarget, HomeResponse } from '../../../../../../src/core/domain/index.ts';
+import type { ClassroomItem, HomeModuleName, HomeTarget, HomeResponse } from '../../../../../../src/core/domain/index.ts';
 import type { ClassroomClient } from '../../../../../../src/core/contracts/academic-client.ts';
 import type { NotificationTarget } from '../../../../../../src/core/contracts/notifications.ts';
 import type { Classroom, Draft, Invitation } from '../../../../../../src/core/contracts/classrooms.ts';
@@ -9,6 +9,7 @@ import { FoxmindIllustration, FoxmindIcon } from '../../../../../shared-ui/index
 import { useHome } from '../model/use-home.ts';
 import { HomeModule } from './HomeModule.tsx';
 import { HomeFocus } from './HomeFocus.tsx';
+import { HomeRoomPicker } from './HomeRoomPicker.tsx';
 import { HomeModulePanel } from './HomeModulePanel.tsx';
 import { HomeWorkList } from './HomeWorkList.tsx';
 import { HomeMiniagenda } from './HomeMiniagenda.tsx';
@@ -23,31 +24,35 @@ export interface HomeProps {
 }
 export function Home(props:HomeProps) {
   const {accountRole,displayName,subjectId,homeClient,busy,onAction,onCreate,onJoin,onClassrooms}=props;
-  const home=useHome(homeClient,subjectId),[panel,setPanel]=useState<HomeModuleName|null>(null);
+  const [focusRoom,setFocusRoom]=useState<{item:ClassroomItem;source:HomeResponse['modules']['classrooms']}|null>(null);
+  const home=useHome(homeClient,subjectId,focusRoom?.item.classroom.id),[panel,setPanel]=useState<HomeModuleName|null>(null);
   const [attentionTab,setAttentionTab]=useState<'review'|'queries'>('review');
-  const [focusRoom,setFocusRoom]=useState('');
+  const [choosingFocus,setChoosingFocus]=useState(false);
   const [workList,setWorkList]=useState(false);
   const data=home.data,onAgenda=props.onAgenda??(()=>{window.location.assign('/agenda');});
-  const module=(name:HomeModuleName,title?:string)=>data?<HomeModule key={name} name={name} title={title} page={data.modules[name]} timeZone={data.timeZone} generatedAt={data.generatedAt}
-    onAction={onAction} onRetry={()=>void home.retry(name)} onExpand={()=>setPanel(name)} onAgenda={onAgenda} onList={name==='pending'?()=>setWorkList(true):undefined} previewLimit={name==='feedback'?1:name==='pending'?3:undefined} busy={busy}/>:null;
+  const module=(name:HomeModuleName,title?:string)=>home.ordering[name]?<p role="status">Ordenando {name==='review'?'entregas':'consultas'}…</p>:data?<HomeModule key={name} name={name} title={title} page={data.modules[name]} timeZone={data.timeZone} generatedAt={data.generatedAt}
+    onAction={onAction} onRetry={()=>void home.retry(name)} onExpand={name==='review'||name==='queries'?undefined:()=>setPanel(name)} onAgenda={onAgenda} onList={name==='pending'?()=>setWorkList(true):undefined} previewLimit={name==='feedback'?1:name==='pending'?3:undefined} busy={busy}/>:null;
   if(home.loading)return <section className="fm-home fm-home-loading" aria-label="Inicio" aria-busy="true"><h1>Hola, {displayName}</h1><p role="status">Cargando tus actividades y próximos pasos…</p><div className="fm-home-skeleton"/></section>;
   if(!data)return <section className="fm-home fm-home-global-error" aria-label="Inicio"><h1>Hola, {displayName}</h1><p role="alert">No pudimos comprobar tu Inicio. Actualiza para volver a consultar tus aulas y permisos.</p><button onClick={()=>void home.refresh()}>Reintentar Inicio</button></section>;
-  if(panel && homeClient)return <section className="fm-home"><HomeModulePanel key={`${panel}:${data.generatedAt}`} name={panel} data={data} client={homeClient} onClose={()=>{const previous=panel;setPanel(null);requestAnimationFrame(()=>document.querySelector<HTMLButtonElement>(`[data-home-expand="${previous}"]`)?.focus());}} onAction={onAction} onUnauthorized={()=>void home.refresh()}/></section>;
+  if(panel && homeClient)return <section className="fm-home"><HomeModulePanel key={`${panel}:${data.generatedAt}`} name={panel} data={data} client={homeClient} order={panel==='review'||panel==='queries'?home.orders[panel]:undefined} onClose={()=>{const previous=panel;setPanel(null);requestAnimationFrame(()=>document.querySelector<HTMLButtonElement>(`[data-home-expand="${previous}"]`)?.focus());}} onAction={onAction} onRefresh={()=>{setPanel(null);void home.refresh();}} onUnauthorized={()=>{setPanel(null);void home.refresh();}}/></section>;
   const teacher = accountRole === 'teacher';
+  const attentionPage=data.modules[attentionTab];
   const count = (name:HomeModuleName) => { const page=data.modules[name]; return page.status==='ready'?page.totalItems:null; };
-  return <section className={`fm-home fm-home--reference fm-home--warm fm-home--${data.participation}`} aria-label="Inicio">
+  const focused=(data.modules.classrooms.status==='ready'?data.modules.classrooms.items.find(item=>item.classroom.id===focusRoom?.item.classroom.id):undefined)??(focusRoom?.source===data.modules.classrooms?focusRoom.item:undefined);
+  return <section className={`fm-home fm-home--reference fm-home--warm fm-home--${data.participation}${teacher?' fm-home--teacher-polish':''}`} aria-label="Inicio">
     <div className="fm-brujula-home-layout">
     <div className="fm-brujula-home-main"><HomeGreeting data={data} accountRole={accountRole} displayName={displayName}/>
     {data.participation==='none'?<HomeWelcome accountRole={accountRole} data={data} onCreate={onCreate} onJoin={onJoin} onClassrooms={onClassrooms} busy={busy}/>:null}
-    {teacher ? <section className="fm-brujula-attention" aria-label="Por atender"><header><small>Seguimiento docente</small><h2>Por atender</h2><span className="fm-brujula-attention-scope">Todas tus aulas activas</span></header>
-      <div className="fm-brujula-tabs" role="group" aria-label="Filtrar pendientes">
+    {teacher ? <section className="fm-brujula-attention" aria-label="Por atender"><header className="fm-home-attention-heading"><small>Seguimiento docente</small><h2>Por atender</h2><label className="fm-home-order"><span className="sr-only">Ordenar {attentionTab==='review'?'entregas':'consultas'}</span><select value={home.orders[attentionTab]} onChange={event=>home.changeOrder(attentionTab,event.target.value as 'asc'|'desc')}><option value="desc">Más nuevas primero</option><option value="asc">Más antiguas primero</option></select></label></header>
+      <div className="fm-home-attention-toolbar"><div className="fm-brujula-tabs" role="group" aria-label="Filtrar pendientes">
         <button type="button" aria-pressed={attentionTab === 'review'} onClick={() => setAttentionTab('review')}><FoxmindIcon name="clipboard"/>Entregas<span>{count('review')}</span></button>
         <button type="button" aria-pressed={attentionTab === 'queries'} onClick={() => setAttentionTab('queries')}><FoxmindIcon name="chat"/>Consultas<span>{count('queries')}</span></button>
-      </div><div hidden={attentionTab !== 'review'}>{module('review')}</div><div hidden={attentionTab !== 'queries'}>{module('queries')}</div><small className="fm-brujula-queue-order">{attentionTab==='review'?'Las más antiguas primero':'Las más recientes primero'}</small></section> : module('pending','Mis entregas')}
-    {teacher ? <HomeTeacherTools data={data} onAction={onAction} onClassrooms={onClassrooms} onRetry={()=>void home.retry('classrooms')} onSelected={setFocusRoom} busy={busy}/> : <HomeShortcuts data={data} onAction={onAction} onClassrooms={onClassrooms} onRetry={()=>void home.retry('classrooms')} busy={busy}/>}
+      </div>{attentionPage.status==='ready'&&attentionPage.nextCursor?<button className="fm-home-attention-all" data-home-expand={attentionTab} disabled={busy||home.ordering[attentionTab]} onClick={()=>setPanel(attentionTab)}>Ver todas<span className="sr-only">: {attentionTab==='review'?'entregas':'consultas'}</span><FoxmindIcon name="arrow-right"/></button>:null}</div><div hidden={attentionTab !== 'review'} aria-busy={home.ordering.review}>{module('review')}</div><div hidden={attentionTab !== 'queries'} aria-busy={home.ordering.queries}>{module('queries')}</div></section> : module('pending','Mis entregas')}
+    {teacher ? <HomeTeacherTools data={data} client={homeClient} onAction={onAction} onClassrooms={onClassrooms} onUnauthorized={()=>void home.refresh()} busy={busy}/> : <HomeShortcuts data={data} onAction={onAction} onClassrooms={onClassrooms} onRetry={()=>void home.retry('classrooms')} busy={busy}/>}
     </div><aside className="fm-brujula-home-rail" aria-label={teacher ? 'Organización docente' : 'Organización personal'}>
-    {!teacher ? module('feedback','Mis devoluciones') : null}<HomeMiniagenda data={data} teacher={teacher} client={homeClient} onAction={onAction} onAgenda={onAgenda} onRetry={()=>void home.retry('agenda')} onUnauthorized={()=>void home.refresh()} busy={busy}/>{teacher ? <HomeFocus data={data} selected={focusRoom} onAction={onAction} onClassrooms={onClassrooms} onRetry={()=>void home.retry('classrooms')} onDraftRetry={()=>void home.retry('drafts')} onDrafts={()=>setPanel('drafts')} busy={busy}/> : null}
+    {!teacher ? module('feedback','Mis devoluciones') : null}<HomeMiniagenda data={data} teacher={teacher} client={homeClient} onAction={onAction} onAgenda={onAgenda} onRetry={()=>void home.retry('agenda')} onUnauthorized={()=>void home.refresh()} busy={busy}/>{teacher ? <HomeFocus data={data} selected={focused?.classroom.id??''} selectedItem={focused} onChoose={()=>setChoosingFocus(true)} onAction={onAction} onClassrooms={onClassrooms} onRetry={()=>void (focusRoom?home.refresh():home.retry('classrooms'))} onDraftRetry={()=>void home.retry('drafts')} onDrafts={()=>setPanel('drafts')} busy={busy}/> : null}
     </aside></div>{workList?<HomeWorkList key={`${data.subjectId}:${data.generatedAt}`} data={data} client={homeClient} onClose={()=>setWorkList(false)} onAction={onAction} onUnauthorized={()=>{setWorkList(false);void home.refresh();}}/>:null}
+    {teacher&&choosingFocus?<HomeRoomPicker key={data.generatedAt} data={data} client={homeClient} title="Cambiar aula en foco" onClose={()=>setChoosingFocus(false)} onClassrooms={onClassrooms} onUnauthorized={()=>{setChoosingFocus(false);void home.refresh();}} onSelect={item=>{setFocusRoom({item,source:data.modules.classrooms});setChoosingFocus(false);}}/>:null}
   </section>;
 }
 

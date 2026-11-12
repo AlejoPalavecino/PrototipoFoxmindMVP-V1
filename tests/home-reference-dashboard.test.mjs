@@ -80,14 +80,24 @@ test('Home renders the approved role sections and retries every failed source in
         assert.ok(retry, 'Miniagenda failure retains its own retry'); retry.props.onClick(); await view.flush();
       } finally { agendaView.close(); }
       const shortcuts = descendants(view.tree, node => node.type?.name === (role === 'teacher' ? 'HomeTeacherTools' : 'HomeShortcuts'))[0];
-      const actionComponent = shortcuts.type(shortcuts.props);
+      const actionComponent = role==='teacher'?shortcuts:shortcuts.type(shortcuts.props);
       const actions = hookView(actionComponent.type, actionComponent.props);
       try {
         await actions.flush();
+        if(role==='teacher'){
+          descendants(actions.tree,node=>node.type==='button'&&text(node).trim()==='Crear actividad')[0].props.onClick();await actions.flush();
+          const picker=descendants(actions.tree,node=>node.type?.name==='HomeRoomPicker')[0];
+          const pickerView=hookView(picker.type,picker.props);
+          try{
+            await pickerView.flush();assert.match(text(pickerView.tree),/No pudimos cargar tus aulas/);
+            descendants(pickerView.tree,node=>node.type==='button'&&text(node)==='Reintentar')[0].props.onClick();await pickerView.flush();
+          }finally{pickerView.close();}
+        }else{
         assert.match(text(actions.tree), /No pudimos cargar tus aulas/);
         assert.equal(descendants(actions.tree, node => node.props?.className === 'fm-home-shortcut-grid').length, 0);
         descendants(actions.tree, node => node.type === 'button' && text(node) === 'Reintentar aulas')[0].props.onClick();
         await view.flush();
+        }
       } finally { actions.close(); }
       assert.deepEqual(requests.slice(1).map(request => request.module), [...expected, 'agenda', 'classrooms']);
     }, role);
@@ -201,14 +211,15 @@ test('Teacher focus keeps one active authorized room, selected context and acces
     assert.deepEqual(focusedModule().props.page.items.map(item => item.id), ['first']);
     assert.equal(focusedModule().props.page.totalItems, null);
     assert.equal(focusedModule().props.page.nextCursor, null);
-    const tools = descendants(view.tree, node => node.type?.name === 'HomeTeacherTools')[0];
-    tools.props.onSelected('second'); await view.flush();
+    focus().props.onChoose();await view.flush();
+    descendants(view.tree,node=>node.type?.name==='HomeRoomPicker')[0].props.onSelect(items[3]);await view.flush();
     assert.deepEqual(focusedModule().props.page.items.map(item => item.id), ['second']);
     const row = descendants(focusedModule().type(focusedModule().props), node => node.type?.name === 'HomeRow')[0];
     row.props.onAction(row.props.item.target); assert.strictEqual(calls[0], items[3].target);
     assert.equal(descendants(focus().type(focus().props),node=>node.type==='button'&&text(node)==='Ver todas mis aulas').length,0,'The focus card follows the reference; collection navigation belongs to the sidebar');
     for (const stale of ['student', 'archive', 'removed']) {
-      tools.props.onSelected(stale); await view.flush();
+      focus().props.onChoose();await view.flush();
+      descendants(view.tree,node=>node.type?.name==='HomeRoomPicker')[0].props.onSelect(items.find(item=>item.id===stale)??{...items[0],id:stale});await view.flush();
       assert.deepEqual(focusedModule().props.page.items.map(item => item.id), ['first'], `Unsafe stale selection ${stale}`);
     }
   });
@@ -216,8 +227,8 @@ test('Teacher focus keeps one active authorized room, selected context and acces
 
 test('Expanding a paginated work queue preserves its client and cursor and returns focus', async () => {
   await withHome(data({ review: page(23, { nextCursor: 'next-real-page' }) }), async ({ view, focus, client }) => {
-    const module = descendants(view.tree, node => node.type?.name === 'HomeModule' && node.props.name === 'review')[0];
-    descendants(module.type(module.props), node => node.type === 'button' && node.props['data-home-expand'] === 'review')[0].props.onClick();
+    const toolbar = descendants(view.tree, node => node.props?.className === 'fm-home-attention-toolbar')[0];
+    descendants(toolbar, node => node.type === 'button' && node.props['data-home-expand'] === 'review')[0].props.onClick();
     await view.flush();
     const panel = descendants(view.tree, node => node.type?.name === 'HomeModulePanel')[0];
     assert.equal(panel.props.name, 'review'); assert.strictEqual(panel.props.client, client);

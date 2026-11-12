@@ -26,6 +26,7 @@ export function createWebHomeClient(fetcher: typeof fetch = fetch, onIdentityReq
     async page(input,signal) {
       const query = parseHomePageQuery(input), search = new URLSearchParams({timeZone:query.timeZone});
       if (query.cursor !== null) search.set('cursor',query.cursor);
+      if (query.order !== undefined) search.set('order',query.order);
       const result = await call(`/modules/${query.module}?${search}`,signal);
       try { return parseHomeModuleResponse(result); } catch { throw new HomeClientError('SERVICE_UNAVAILABLE',503); }
     },

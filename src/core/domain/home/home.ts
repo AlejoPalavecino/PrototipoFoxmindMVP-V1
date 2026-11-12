@@ -63,7 +63,7 @@ export interface HomeResponse {
   setup: { drafts: number; invitations: number }; modules: HomeModules;
 }
 export interface HomeQuery { timeZone: string }
-export interface HomePageQuery extends HomeQuery { module: HomeModuleName; cursor: string | null }
+export interface HomePageQuery extends HomeQuery { module: HomeModuleName; cursor: string | null; order?: 'asc' | 'desc' }
 export interface HomeModuleResponse<M extends HomeModuleName = HomeModuleName> {
   subjectId: string; generatedAt: string; module: M; page: HomeModules[M];
 }

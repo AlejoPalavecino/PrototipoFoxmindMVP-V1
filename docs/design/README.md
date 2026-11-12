@@ -1,5 +1,15 @@
 # UX/UI vigente de FoxMind
 
+## Dirección vigente de Inicio docente — 2026-11-11
+
+Seguimiento elimina los textos de alcance/orden estáticos y coloca un selector accesible arriba a la derecha, adaptable a una segunda fila en móvil. Título y selector comparten eje vertical; pestañas y Ver todas comparten fila y altura de 44 px. Mi agenda presenta la fecha sólo en el bloque lateral y el horario (o Todo el día) debajo del título, con separación uniforme entre eventos. Entregas y Consultas mantienen su elección independiente y todas las páginas respetan el orden.
+
+Aula en foco expone Cambiar aula junto al título. El próximo tema usa superficie durazno, acento naranja redondeado, unidad secundaria y acción con flecha circular al extremo derecho. Mini agenda usa tarjetas menta/lavanda para eventos y durazno para próxima entrega, con fecha, contenido y acceso alineados; texto oscuro y etiquetas conservan significado sin depender del color.
+
+Cada acción del aula abre un diálogo con su tono visual, portada/nombre/división, selección única y Continuar. No altera el aula en foco. Radios nativos admiten teclado; Cancelar/Escape devuelve el foco. Carga, vacío, error y reintento están cubiertos; en móvil los borradores siguen a los widgets prioritarios.
+
+[Capturas actuales](current/README.md#inicio-docente--2026-11-11) y [recibo](../verification/teacher-home-polish.json). Son componentes reales con datos sintéticos en navegador; la persistencia y autorización SQL se comprueban por separado.
+
 Referencia actual: aplicación Brújula recorrida con Ego Lite sobre código real, API/SQL/archivos/escáner/correo propios y cuentas sintéticas. Las capturas y checks se consultan en la [galería](current/README.md) y [matriz por flujo/rol](../verification/flows.md). No se usa una maqueta histórica como autoridad.
 
 ## Rediseño docente en diseño detallado

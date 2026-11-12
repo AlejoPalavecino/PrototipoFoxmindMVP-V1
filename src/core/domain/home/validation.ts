@@ -6,8 +6,12 @@ export function parseHomeQuery(input: unknown): HomeQuery {
   const value = homeObject(input, ['timeZone']); return { timeZone: homeZone(value.timeZone) };
 }
 export function parseHomePageQuery(input: unknown): HomePageQuery {
-  const value = homeObject(input, ['timeZone', 'module', 'cursor']);
-  return { timeZone: homeZone(value.timeZone), module: homeEnum(value.module, HOME_MODULES), cursor: homeCursor(value.cursor) };
+  const hasOrder = !!input && typeof input === 'object' && Object.hasOwn(input, 'order');
+  const value = homeObject(input, ['timeZone', 'module', 'cursor', ...(hasOrder ? ['order'] : [])]);
+  const query = { timeZone: homeZone(value.timeZone), module: homeEnum(value.module, HOME_MODULES), cursor: homeCursor(value.cursor) };
+  if (!hasOrder) return query;
+  if (query.module !== 'review' && query.module !== 'queries') return homeInvalid();
+  return { ...query, order: homeEnum(value.order, ['asc', 'desc'] as const) };
 }
 export function parseHomeResponse(input: unknown): HomeResponse {
   const value = homeObject(input, ['version', 'subjectId', 'generatedAt', 'timeZone', 'participation', 'memberships', 'setup', 'modules']);

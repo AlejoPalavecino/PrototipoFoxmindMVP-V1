@@ -2,7 +2,7 @@
   "date": "2026-11-11",
   "baseCommit": "3895f4ded6884641872c5950c39c54215406d6d6",
   "branch": "codex/classrooms-ux-unification",
-  "state": "Docker integration verified locally; full worktree app running; human review and main reconciliation pending; no commit/push/merge/deploy",
+  "state": "Combined candidate verified; user authorized main integration/publication; no deployment",
   "candidateFiles": [
     {
       "path": "apps/api/src/bootstrap/academic-composition.ts",
@@ -34,7 +34,7 @@
     },
     {
       "path": "apps/api/src/modules/classrooms/infrastructure/invitation-batches.ts",
-      "sha256": "65a772b47e49f773038861843a5161a3a0a8606b489d5bc83b05f7203db01475"
+      "sha256": "73419ca57468d0fb6ef8239edefce8f58d96a33775a9bba0988ac5d8cdae4d24"
     },
     {
       "path": "apps/api/src/modules/classrooms/infrastructure/invitations-operations.ts",
@@ -258,11 +258,11 @@
     },
     {
       "path": "scripts/complete-suite-inventory.json",
-      "sha256": "db0f85d16d085170fd6f8d080eefd05b2fdbb4797045a524198f6e7bdc3fbdca"
+      "sha256": "af39e94f94244fcadd77210f71bc221ff49cbfaf4b29c9798cab61e4d9188727"
     },
     {
       "path": "scripts/complete-suite-routes.json",
-      "sha256": "9efc5f2e44ce15d9161661e3610f95df1d1c456b34bb79c5e2ab955acd2e5cf5"
+      "sha256": "1f56442a4c7c112231ac12817c104e7c60dae8310c2cf315564d4c6641e885ee"
     },
     {
       "path": "src/core/contracts/classrooms.ts",
@@ -578,7 +578,6 @@
     "finalFrontend": "25/25 focused authoring/result tests; viewer copy RED→GREEN; production builds/typecheck and lint/boundaries PASS"
   },
   "limits": [
-    "Human UI validation and reconciliation with newer main pending before integration",
     "Distributed enumeration monitoring and production load not validated",
     "No real Gemini generation or external mail delivery in automated checks; SMTP captured by local Mailpit"
   ],
@@ -587,7 +586,8 @@
   "builds": {
     "integration": "dQwQUOz8X44ST7litETCl",
     "final": "3lPKN7ICF5X1reosoaMrq",
-    "finalDelta": "Viewer-aware result wording and suppression of duplicate publication notice; final authoring E2E and focal tests cover delta"
+    "finalDelta": "Viewer-aware result wording and suppression of duplicate publication notice; final authoring E2E and focal tests cover delta",
+    "merged": "jl-zWmKYFGo9EbZ71F-P3"
   },
   "runtime": {
     "origin": "http://127.0.0.1:3000",
@@ -597,5 +597,67 @@
     "accountsFile": ".test-artifacts/local-app/accounts.json",
     "provider": "Existing authorized Gemini configuration; no generation calls during checks"
   },
-  "mainObserved": "e35e1a31ad9a20b89c8882a86301f9a6b89068e2"
+  "mainObserved": "e35e1a31ad9a20b89c8882a86301f9a6b89068e2",
+  "integration": {
+    "baseMain": "e35e1a31ad9a20b89c8882a86301f9a6b89068e2",
+    "implementationCommits": [
+      "f5377e2",
+      "a6d1d94",
+      "f16538e"
+    ],
+    "state": "VERIFIED",
+    "pure": {
+      "passed": 292,
+      "failed": 0,
+      "skipped": 0
+    },
+    "homeOrderDocker": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    "inventory": {
+      "tests": 541,
+      "exclusions": 53,
+      "routes": 23
+    },
+    "lintBoundaries": "PASS",
+    "browser": {
+      "passed": 19,
+      "failed": 0,
+      "skipped": 0,
+      "scope": "P7 authoring 6 + P9 Home 13; real owned Docker services; cleanup failures zero"
+    },
+    "sharedUi": {
+      "passed": 27,
+      "failed": 0,
+      "skipped": 0
+    },
+    "logs": [
+      {
+        "path": ".test-artifacts/classrooms-ux/integration-main-restart.log",
+        "sha256": "b80dfd9862d1f3ab8ed9cb77208bce4b1492c9ea5eb670b164f14c8156569c51"
+      },
+      {
+        "path": ".test-artifacts/classrooms-ux/integration-main-lint.log",
+        "sha256": "43563ffe776654f3f942e894191ebea6feccdc756a066f2eede2ea4d1e6ebeb2"
+      },
+      {
+        "path": ".test-artifacts/classrooms-ux/integration-main-pure.log",
+        "sha256": "1e6cfd305a2b8725d450915b76bcc8ec09bb0f106e8642ada6885735d81a8bd1"
+      },
+      {
+        "path": ".test-artifacts/classrooms-ux/integration-main-home-db.log",
+        "sha256": "1c19e2b3ddf119821a22c68f54afc7963981128ddfba5352a7cfe9f2ea581751"
+      },
+      {
+        "path": ".test-artifacts/classrooms-ux/integration-main-shared-ui.log",
+        "sha256": "ffa26007e686105dbe2c35df34aac02d21de253c6d923cd8e5fb9ce746823c02"
+      },
+      {
+        "path": ".test-artifacts/classrooms-ux/integration-main-home-authoring.log",
+        "sha256": "192451bf36fc9008ef050321c4728e2a4a92ea7b65afd1e9c6f2dfbadaca26eb"
+      }
+    ]
+  }
 }

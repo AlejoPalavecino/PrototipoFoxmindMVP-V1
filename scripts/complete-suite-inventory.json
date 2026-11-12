@@ -1,5 +1,8 @@
 {
   "entries": [
+    "tests/teacher-home-polish.test.mjs",
+    "tests/home-order.test.mjs",
+    "tests/home-order-database.test.mjs",
     "apps/shared-ui/chat-follow.test.mjs",
     "apps/shared-ui/plan-disclosure.test.mjs",
     "tests/ux-chat-polish.test.mjs",

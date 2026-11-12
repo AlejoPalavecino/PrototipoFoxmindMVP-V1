@@ -3,6 +3,8 @@
     "id": "fast",
     "kind": "fast",
     "files": [
+      "tests/teacher-home-polish.test.mjs",
+      "tests/home-order.test.mjs",
       "apps/shared-ui/chat-follow.test.mjs",
       "apps/shared-ui/plan-disclosure.test.mjs",
       "tests/ux-chat-polish.test.mjs",
@@ -352,6 +354,7 @@
     "id": "owned-db",
     "kind": "owned",
     "files": [
+      "tests/home-order-database.test.mjs",
       "apps/api/src/modules/foxy/infrastructure/tests/foxy-creation-catalog.test.mjs",
       "tests/pending-classrooms-database.test.mjs",
       "apps/api/src/modules/materials/infrastructure/tests/library-publication.test.mjs",

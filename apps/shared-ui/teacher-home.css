@@ -1,0 +1,72 @@
+/* Inicio docente: accents stay local to this dashboard and its destination dialogs. */
+.fm-home--teacher-polish .fm-home-attention-heading { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:4px 16px; }
+.fm-home--teacher-polish .fm-home-attention-heading > small { grid-column:1/-1; margin:0; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-order { display:block; margin:0; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-order select::picker-icon { margin-left:auto; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-order select { width:200px; height:44px; min-height:44px; max-width:100%; margin:0; padding:10px 12px; border:1px solid #dce1ee; border-radius:10px; background-color:#fff; color:#454b63; font-size:12px; line-height:20px; white-space:nowrap; cursor:pointer; }
+.fm-home--teacher-polish .fm-home-attention-toolbar { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin:16px 0 8px; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-brujula-tabs { margin:0; gap:8px; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-brujula-tabs button { height:44px; min-height:44px; padding:8px 12px; border-radius:10px; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-attention-all { display:inline-flex; align-items:center; gap:6px; height:44px; min-height:44px; margin-left:auto; padding:8px 0 8px 8px; border:0; border-radius:10px; background:transparent; color:#93400e; font-size:12px; }
+.fm-home-attention-all svg { width:16px; height:16px; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-brujula-attention .fm-home-module > header { display:none; }
+.fm-home--teacher-polish .fm-home-teacher-tools > header p { margin:8px 0 0; font-size:12px; color:#60667d; }
+.fm-home--teacher-polish .fm-brujula-tabs button { min-height:44px; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--classrooms > header { position:static; display:flex; justify-content:space-between; align-items:center; gap:8px; margin:0; padding:12px 16px; background:#fff; border:0; border-radius:0; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--classrooms > header h2 { font-size:14px; font-weight:600; letter-spacing:0; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-focus-choose { min-height:44px; padding:8px 10px; border:1px solid #ead4c6; border-radius:10px; background:#fff6ef; color:#93400e; font-size:11px; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-brujula-next-topic { position:relative; display:grid; gap:7px; margin:14px 0 0; padding:16px 14px 10px 20px; border:1px solid #f2d6c2; border-radius:14px; background:#fff0e4; }
+.fm-home--teacher-polish .fm-brujula-next-topic::before { content:''; position:absolute; inset:14px auto 14px 7px; width:4px; border-radius:4px; background:#d66a26; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-brujula-next-topic small { color:#7b4c32; font-size:10px; line-height:1.5; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-brujula-next-topic strong { color:#372d31; font-size:16px; line-height:1.4; overflow-wrap:anywhere; }
+.fm3d-theme .fm-home--teacher-polish .fm-home-topic-action { display:flex; justify-content:space-between; align-items:center; gap:12px; width:100%; min-height:44px; padding:0; border:0; background:transparent; color:#923d0d; font-size:12px; text-align:left; }
+.fm-home--teacher-polish .fm-home-topic-action > span { display:grid; place-items:center; width:36px; height:36px; flex:none; border-radius:50%; color:#fff; background:#b8490c; }
+.fm-home--teacher-polish .fm-home-topic-action svg { width:18px; height:18px; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda > header { display:flex; align-items:center; justify-content:space-between; min-height:44px; margin-bottom:16px; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda .fm-home-agenda-link { display:grid; place-items:center; width:44px; height:44px; min-height:44px; margin:0; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda .fm-brujula-rail-label { margin:0 0 10px; font-size:11px; line-height:16px; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda ul + .fm-brujula-rail-label { margin-top:18px; padding-top:18px; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda ul { display:grid; gap:10px; margin:0; padding:0; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda li.fm-home-row--agenda { display:grid; grid-template-columns:44px minmax(0,1fr) 44px; align-items:center; gap:12px; min-height:84px; padding:14px 12px; border:1px solid #cce7dd; border-radius:14px; background:#eaf7f1; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda li.fm-home-row--agenda:nth-child(even) { background:#f1edfc; border-color:#ded5f3; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda li[data-source="ACADEMIC_DEADLINE"] { background:#fff1e5; border-color:#efd6c0; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-agenda-date { display:flex; flex-direction:column; justify-content:center; width:44px; height:54px; min-height:54px; padding:5px; background:#fff; color:#315b50; border-radius:10px; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-agenda-date small { font-size:10px; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-agenda-date strong { font-size:22px; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda .fm-home-row-copy { display:grid; gap:6px; grid-column:2; min-width:0; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda .fm-home-row h3 { margin:0; font-size:12px; line-height:1.45; overflow-wrap:anywhere; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda .fm-home-agenda-meta { display:block; margin:0; color:#605269; font-size:10px; line-height:1.5; overflow-wrap:anywhere; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda .fm-home-agenda-time { color:#4e5a66; font-size:11px; line-height:1.5; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--agenda .fm-home-agenda-action { position:static; opacity:1; grid-column:3; grid-row:1; width:44px; height:44px; min-height:44px; padding:10px; border:1px solid #d5e1dc; border-radius:50%; background:#fff; color:#3b5863; }
+.fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-agenda-action:focus-visible svg { visibility:visible; }
+.fm-home-room-dialog { --room-accent:#a04213; --room-bg:#fff0e4; width:min(540px,calc(100vw - 32px)); color:#252646; }
+.fm-home-room-dialog--create-activity { --room-accent:#65429a; --room-bg:#f1ebfc; }
+.fm-home-room-dialog--upload-material { --room-accent:#286650; --room-bg:#eaf7f1; }
+.fm-home-room-dialog--publish-notice { --room-accent:#795615; --room-bg:#fff5d8; }
+.fm-home-room-dialog--progress { --room-accent:#964638; --room-bg:#ffede7; }
+.fm-home-room-dialog .brujula-dialog-body > p { font-size:13px; color:#60667d; }
+.fm-home-room-options { display:grid; gap:10px; margin:18px 0; padding:0; border:0; min-width:0; }
+.fm3d-theme #classroom-main .fm-home-room-dialog .fm-home-room-option { display:flex; flex-direction:row; align-items:center; gap:12px; min-height:76px; padding:12px; margin:0; border:1px solid #dce1ee; border-radius:14px; background:#fff; color:#252646; cursor:pointer; }
+.fm3d-theme #classroom-main .fm-home-room-dialog .fm-home-room-option:has(input:checked) { border-color:var(--room-accent); background:var(--room-bg); box-shadow:inset 0 0 0 1px var(--room-accent); }
+.fm-home-room-option input { width:18px; height:18px; flex:none; accent-color:var(--room-accent); }
+.fm-home-room-option > .folder-cover { width:64px; height:48px; min-height:48px; flex:none; margin:0; border-radius:9px; overflow:hidden; }
+.fm-home-room-option > span:last-child { display:grid; gap:5px; min-width:0; }
+.fm-home-room-option strong { font-size:14px; overflow-wrap:anywhere; }
+.fm-home-room-option small { color:#60667d; font-size:12px; overflow-wrap:anywhere; }
+.fm-home-room-dialog footer { display:flex; justify-content:flex-end; gap:10px; margin-top:20px; }
+.fm-home-room-dialog footer button { min-height:44px; padding:10px 18px; border-radius:11px; }
+.fm3d-theme #classroom-main .fm-home-room-dialog footer .primary { color:white; background:var(--room-accent); border-color:var(--room-accent); }
+.fm-home-room-dialog button:disabled { opacity:.55; cursor:not-allowed; }
+@media(max-width:600px) {
+  .fm-home--teacher-polish .fm-home-module--drafts { order:6; }
+  .fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-module--classrooms { padding:0; }
+  .fm-home--teacher-polish .fm-home-attention-heading { gap:8px; }
+  .fm-home--teacher-polish .fm-home-order { grid-column:1/-1; }
+  .fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-order select { width:100%; }
+  .fm3d-theme #classroom-main .fm-home--teacher-polish .fm-brujula-tabs { gap:6px; }
+  .fm3d-theme #classroom-main .fm-home--teacher-polish .fm-brujula-tabs button { padding-inline:8px; font-size:11px; gap:5px; }
+  .fm-home--teacher-polish .fm-brujula-tabs svg { display:none; }
+  .fm3d-theme #classroom-main .fm-home--teacher-polish .fm-home-attention-all { font-size:11px; padding-inline:0; }
+  .fm-home--teacher-polish .fm-home-attention-all svg { display:none; }
+  .fm-home-room-option { gap:8px; }
+}

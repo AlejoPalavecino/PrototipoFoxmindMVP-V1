@@ -16,6 +16,8 @@ export const suites = {
     'apps/api/src/modules/study/infrastructure/tests/integrations.test.mjs',
   ],
   pure: [
+    'tests/teacher-home-polish.test.mjs',
+    'tests/home-order.test.mjs',
     'tests/p8-ui-contract-helpers.test.mjs',
     'apps/api/src/modules/classrooms/infrastructure/context-run.test.ts', 'apps/api/src/modules/curriculum/application/plan.test.ts', 'apps/api/src/modules/files/application/file-use-cases.test.mjs', 'apps/api/src/modules/identity/application/runtime.test.mjs',
     'tests/grading-participation-modules.test.mjs',
@@ -57,6 +59,7 @@ export const suites = {
     'tests/activity-ai-proxy.test.mjs', 'tests/audit-wall-proxy.test.mjs',
   ],
   'integration-owned': [
+    'tests/home-order-database.test.mjs',
     'apps/api/src/modules/study/infrastructure/tests/database.test.mjs',
     'apps/api/src/modules/study/infrastructure/tests/http.test.mjs',
     'apps/api/src/modules/study/infrastructure/tests/integrations.test.mjs',

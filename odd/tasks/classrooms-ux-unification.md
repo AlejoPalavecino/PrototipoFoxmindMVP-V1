@@ -31,7 +31,7 @@ Ampliación explícita posterior: incluir backend de códigos de seis dígitos e
 - **Depends on:** TASK-001
 - **Owner:** root
 - **Acceptance:** Manual/IA comparten superficies y revisión; consignas claras; estudiante distingue borrador/archivo/recepción, conserva respuestas y confirma una vez; sin exposición de claves privadas.
-- **Evidence:** 35 pruebas focales delegadas y reconciliación integrada 157/157; autoría manual/IA, conservación de borrador, confirmación única y recepción TP/cuestionario recorridas con componentes reales y adaptador sintético. Desktop/móvil y teclado verificados. docs/work-log/2026-11-11-activities-ui.md y docs/verification/classrooms-ux-unification.json. E2E con servicios Docker pendiente, declarado en TASK-005.
+- **Evidence:** 35 pruebas focales delegadas y reconciliación integrada 157/157; autoría manual/IA, conservación de borrador, confirmación única y recepción TP/cuestionario recorridas con componentes reales y adaptador sintético. Desktop/móvil y teclado verificados. docs/work-log/2026-11-11-activities-ui.md y docs/verification/classrooms-ux-unification.json. E2E con servicios Docker completado en TASK-005.
 - **Blocker:** none
 
 ### TASK-004 — Corrección y devolución comprensibles
@@ -47,7 +47,7 @@ Ampliación explícita posterior: incluir backend de códigos de seis dígitos e
 - **Depends on:** TASK-002, TASK-003, TASK-004, TASK-006
 - **Owner:** root
 - **Acceptance:** Build/tipos/lint y pruebas focales pasan; navegador sobre componentes reales compara referencia y desktop/móvil con roles/estados; registrar límites de integración; candidato en worktree, sin merge/push/deploy.
-- **Evidence:** Cierre ampliado con Docker: 106/106 pruebas integradas Next/API/PostgreSQL/S3/ClamAV/Mailpit, cero fallos/skips (P5 17, P6 14, P7 45, P8 30). Suite pure completa 278/278; controles adicionales DB/migraciones 11/11 y códigos/lotes 6/6. Build web/API, tipos y lint/boundaries PASS; ajuste final de autoría/devolución 25/25 focal y autoría E2E 6/6 en build final 3lPKN7ICF5X1reosoaMrq. App completa READY en puerto 3000, ambos roles recorridos en Ego TaskSpace 11; persistencia compartida, lote y móvil verificados. 19 capturas y 91 hashes en docs/verification/classrooms-ux-unification.json. Fixtures nuevos limpiados; recursos propios de la app conservados. Validación humana y reconciliación con main posterior pendientes; sin commit/push/merge/deploy.
+- **Evidence:** Cierre ampliado con Docker: 106/106 pruebas integradas Next/API/PostgreSQL/S3/ClamAV/Mailpit, cero fallos/skips (P5 17, P6 14, P7 45, P8 30). Suite pure completa 278/278; controles adicionales DB/migraciones 11/11 y códigos/lotes 6/6. Build web/API, tipos y lint/boundaries PASS; ajuste final de autoría/devolución 25/25 focal y autoría E2E 6/6 en build final 3lPKN7ICF5X1reosoaMrq. App completa READY en puerto 3000, ambos roles recorridos en Ego TaskSpace 11; persistencia compartida, lote y móvil verificados. 19 capturas y 91 hashes en docs/verification/classrooms-ux-unification.json. Fixtures nuevos limpiados; recursos propios de la app conservados. Integración autorizada posteriormente por el usuario; seguimiento en TASK-007.
 - **Blocker:** none
 
 Reapertura 2026-11-11: el usuario solicita levantar la aplicación completa desde el worktree y terminar las pruebas pendientes con Docker antes de integrar. Se autoriza el entorno propio y la reutilización de Gemini ya configurado según la preferencia vigente; las suites siguen sintéticas. Integración a main pendiente de validación humana.
@@ -58,4 +58,12 @@ Reapertura 2026-11-11: el usuario solicita levantar la aplicación completa desd
 - **Owner:** root
 - **Acceptance:** Nuevos códigos de seis dígitos (ceros iniciales), permanentes hasta regeneración, compatibles con legacy y revocación; lote con resultados independientes/idempotencia y recuperación, invitaciones conservan vencimiento/espera/permisos. Pruebas negativas y concurrencia proporcionadas, sin datos retenidos.
 - **Evidence:** Ampliación explícita autorizada; 39/39 P5, 6/6 migraciones y revisión independiente SQL/HTTP con sesiones sintéticas y CSRF. Proxy de arrays/UUID, recuperación 503→404, idempotencia y límites por cuenta verificados; 6/6 pruebas UI del lote. docs/work-log/2026-11-11-codes-batch.md y docs/verification/classrooms-ux-unification.json. Sin vencimiento automático del código; legacy compatible hasta rotación. No se certifica monitoreo distribuido de enumeración ni carga productiva.
+- **Blocker:** none
+
+### TASK-007 — Integración autorizada y main como única rama
+- **State:** VERIFYING
+- **Depends on:** TASK-005
+- **Owner:** root
+- **Acceptance:** Preservar los cambios posteriores de Inicio; publicar el candidato verificado en main; comprobar main como única rama local y remota sin eliminar archivos, datos ni entornos de worktrees.
+- **Evidence:** Autorización explícita 2026-11-11. Commits f5377e2, a6d1d94 y f16538e; merge de e35e1a3 con tres conflictos documentales resueltos conservando ambos contenidos. Trabajo inicial de main preservado en stash. Build/API/web y aplicación READY; pure 292/292, PostgreSQL Docker Inicio 1/1, lint/boundaries PASS. Inventario corregido: 541 pruebas y 23 rutas. Recorridos integrados de navegador en curso.
 - **Blocker:** none
