@@ -154,4 +154,5 @@
 .fileLinks a { display: inline-flex; align-items: center; min-height: 44px; }
 .fileLinks .previewButton { min-height: 44px; }
 .fileLinks small { flex-basis: 100%; color: #606077; }
+.root .dialogBody .confirmationFooter .confirmDanger { background: var(--fm-danger); border-color: var(--fm-danger); color: #fff; }
 .docxPreview { padding: clamp(16px, 4vw, 32px); border: 1px solid #dbe1f0; border-radius: 12px; line-height: 1.75; white-space: pre-wrap; overflow-wrap: anywhere; tab-size: 4; }

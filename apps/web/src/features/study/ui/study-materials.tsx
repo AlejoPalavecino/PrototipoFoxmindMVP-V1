@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Notice } from '../../../../../shared-ui/feedback';
 import { createStudyClient, validateStudyPlan, type StudyCollection, type StudyDetail } from '../api/study-client';
 import { canManageStudyMaterial } from '../model/study-discovery';
 import { StudyUpload } from './study-upload';
 import { StudyPlanEditor } from './study-wizard';
 import { StudyDocxPreview } from './study-docx-preview';
+import { StudyConfirmation } from './study-confirmation';
 import s from './study.module.css';
 
 type Run = (action: string, data?: Record<string, unknown>) => Promise<unknown>;
@@ -39,6 +40,8 @@ export function StudyMaterials({ detail, catalog, busy, run, onReload, onDirtyCh
   const [pendingMaterial, setPendingMaterial] = useState<{ fileId: string; title: string }>();
   const [editMaterial, setEditMaterial] = useState('');
   const [preview, setPreview] = useState<{sourceId: string; title: string; href: string}>();
+  const [removal, setRemoval] = useState<{id: string; title: string}>();
+  const searchMaterial = useRef<HTMLInputElement>(null);
   const writable = folder.status === 'ACTIVE' && !busy && !working;
   const materials = detail.sources.filter(source => source.kind !== 'PLAN');
   const found = materials.filter(source => (!origin || source.origin === origin) &&
@@ -101,7 +104,7 @@ export function StudyMaterials({ detail, catalog, busy, run, onReload, onDirtyCh
           onReady={(fileId, title) => { void addMaterial({ fileId, title }); }}/>}
       </section>}
       <div className={s.materialFilters}>
-        <label>Buscar material<input type="search" placeholder="Nombre del material" value={query} onChange={event => setQuery(event.target.value)}/></label>
+        <label>Buscar material<input ref={searchMaterial} type="search" placeholder="Nombre del material" value={query} onChange={event => setQuery(event.target.value)}/></label>
         <label>Procedencia<select value={origin} onChange={event => setOrigin(event.target.value)}>
           <option value="">Todas</option><option value="OWN">Propio</option><option value="CLASSROOM">Aula vinculada</option>
         </select></label>
@@ -125,9 +128,7 @@ export function StudyMaterials({ detail, catalog, busy, run, onReload, onDirtyCh
             {source.available && <StudyFileLinks href={href} onPreview={source.extension === 'docx'
               ? () => setPreview({ sourceId: source.id, title: source.title, href }) : undefined}/>}
             {manage && <button disabled={!writable} type="button" onClick={() => setEditMaterial(source.id)}>Editar material</button>}
-            {manage && <button disabled={!writable} type="button" onClick={() => {
-              if (window.confirm('¿Quitar este material del contexto de tu carpeta?')) void run('REMOVE_MATERIAL', { materialId: source.id }).catch(() => {});
-            }}>Quitar</button>}
+            {manage && <button disabled={!writable} type="button" onClick={() => setRemoval({ id: source.id, title: source.title })}>Quitar</button>}
           </div>
         </details>;
       })}</div>
@@ -169,6 +170,12 @@ export function StudyMaterials({ detail, catalog, busy, run, onReload, onDirtyCh
     </fieldset>}
     {preview && <StudyDocxPreview folderId={folder.id} sourceId={preview.sourceId} title={preview.title}
       downloadHref={preview.href+'?mode=download'} onClose={() => setPreview(undefined)}/>}
+    {removal && <StudyConfirmation title="Quitar material" confirmLabel="Quitar material" destructive busy={!writable}
+      description={`«${removal.title}» se quitará de la carpeta y Foxy dejará de usarlo en nuevas consultas.`}
+      onClose={() => setRemoval(undefined)} onConfirm={async () => {
+        await run('REMOVE_MATERIAL', { materialId: removal.id });
+        requestAnimationFrame(() => searchMaterial.current?.focus());
+      }}/>}
   </div>;
 }
 

@@ -3,7 +3,66 @@ import assert from 'node:assert/strict';
 import {createStudyRevisionController} from "../api/study-client.ts";
 import {studyInstant,studyLocalMinute} from "./study-time.ts";
 import { loadTsModule } from "../../../../../../tests/helpers/load-ts-module.mjs";
-import { hookView, descendants } from "../../../../../../tests/agenda-ui-helpers.test.mjs";
+import { hookView, descendants, deferred } from "../../../../../../tests/agenda-ui-helpers.test.mjs";
+
+test('adding study sessions to Agenda requires explicit confirmation in a FoxMind dialog', async () => {
+  const { StudyExamPlanner } = loadTsModule('apps/web/src/features/study/ui/study-practice.tsx');
+  const original = globalThis.window;
+  let nativePrompts = 0;
+  globalThis.window = { confirm() { nativePrompts++; return false; } };
+  const calls = [];
+  const view = hookView(StudyExamPlanner, {
+    detail: { folder: { units: [] }, exams: [{ id: 'exam', timeZone: 'UTC', sessions: [
+      { id: 'session', topicIds: [], startAt: '2026-11-15T12:00:00Z', minutes: 30, reminderMinutes: 15 },
+    ] }] },
+    busy: false, onDirtyChange() {}, run: async (...args) => { calls.push(args); },
+  });
+  const trigger = () => descendants(view.tree, node => node.type === 'button' && node.props.children === 'Agregar a Agenda')[0];
+  const confirmation = () => descendants(view.tree, node => node.props.confirmLabel === 'Confirmar sesiones')[0];
+  try {
+    await view.flush();
+    trigger().props.onClick(); await view.flush();
+    assert.ok(confirmation(), 'the planner opens an in-app confirmation');
+    assert.equal(nativePrompts, 0);
+    assert.deepEqual(calls, []);
+    confirmation().props.onClose(); await view.flush();
+    assert.equal(confirmation(), undefined);
+    assert.deepEqual(calls, []);
+    trigger().props.onClick(); await view.flush();
+    await confirmation().props.onConfirm();
+    assert.deepEqual(calls, [['CONFIRM_AGENDA', { examId: 'exam', sessionIds: ['session'] }]]);
+  } finally { view.close(); globalThis.window = original; }
+});
+
+test('a study confirmation prevents duplicate submits and stays open for retry on failure', async () => {
+  const { StudyConfirmation } = loadTsModule('apps/web/src/features/study/ui/study-confirmation.tsx');
+  const first = deferred();
+  let submitted = 0, closed = 0;
+  const view = hookView(StudyConfirmation, {
+    title: 'Quitar material', description: 'Material de prueba', confirmLabel: 'Quitar material', busy: false,
+    onClose() { closed++; },
+    async onConfirm() { if (++submitted === 1) await first.promise; },
+  });
+  const button = label => descendants(view.tree, node => node.type === 'button' && node.props.children === label)[0];
+  try {
+    await view.flush();
+    const submit = button('Quitar material').props.onClick;
+    submit(); submit();
+    await view.flush();
+    assert.equal(submitted, 1);
+    assert.equal(button('Procesando…').props.disabled, true);
+    view.tree.props.onClose();
+    assert.equal(closed, 0);
+    first.reject(new Error('No pudimos quitar el material.'));
+    await view.flush();
+    assert.ok(descendants(view.tree, node => node.props.error && node.props.children === 'No pudimos quitar el material.').length);
+    assert.equal(closed, 0);
+    button('Quitar material').props.onClick();
+    await view.flush();
+    assert.equal(submitted, 2);
+    assert.equal(closed, 1);
+  } finally { view.close(); }
+});
 
 test('folder details can continue without a file, but the plan step requires an approved document',async()=>{
   const original=globalThis.window;
