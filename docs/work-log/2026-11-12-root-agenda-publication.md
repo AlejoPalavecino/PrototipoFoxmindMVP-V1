@@ -23,4 +23,14 @@ Auditoría: componentes reales, cliente sintético; 1440×1000, 768×1024, 390×
 
 ## Estado
 
-Preparación de commit. Resultado Git se registra después de comprobar integración y push.
+Integrado y publicado: b942b7ba387e707c09b1fada0c95e0fb7d929ef7, `feat(agenda): improve calendar navigation and daily event cards`.
+
+- `git merge --ff-only codex/agenda-ux` en checkout principal: PASS; sin conflictos.
+- `git push origin main`: PASS, remoto avanzó de 1f61923 a b942b7b.
+- `git switch --detach main` en worktree Agenda y `git branch -d codex/agenda-ux`: PASS. Worktree, dependencias y evidencia local conservados.
+- `git ls-remote --heads origin`: únicamente refs/heads/main en b942b7b.
+- Ramas locales restantes: main, codex/classrooms-visual-audit y codex/home-visual-audit. Las dos últimas se conservaron por aclaración explícita del usuario.
+- SHA-256 antes/después iguales para los seis archivos de Foxy presentes en checkout principal: documentation-map.json, preview CSS/HTML/JS, propuesta y registro. No se incluyeron en el commit.
+- `docs:check`: 117 archivos, 1027 enlaces, cero problemas; `taskboard.py check`: 4 tareas válidas; diff --check PASS antes del commit.
+
+Este registro y las referencias de estado se cierran en un commit documental posterior, integrado/publicado por la misma autorización. Sin despliegue. Primer paso pendiente: corregir los seis hallazgos visuales cuando el usuario autorice esa ejecución.
