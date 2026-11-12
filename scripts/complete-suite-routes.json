@@ -3,6 +3,7 @@
     "id": "fast",
     "kind": "fast",
     "files": [
+      "apps/api/src/modules/files/infrastructure/tests/chat-attachment-policy.test.mjs",
       "tests/agenda-ux-navigation.test.mjs",
       "tests/classroom-visual-fixture.test.mjs",
       "tests/teacher-home-polish.test.mjs",
@@ -356,6 +357,7 @@
     "id": "owned-db",
     "kind": "owned",
     "files": [
+      "apps/api/src/modules/files/infrastructure/tests/chat-attachment-custody.test.mjs",
       "tests/home-order-database.test.mjs",
       "apps/api/src/modules/foxy/infrastructure/tests/foxy-creation-catalog.test.mjs",
       "tests/pending-classrooms-database.test.mjs",
