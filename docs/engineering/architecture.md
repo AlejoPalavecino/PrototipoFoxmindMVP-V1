@@ -69,6 +69,40 @@ La cuenta verificada que inicia sesión ordinariamente llega a `/inicio`; destin
 
 Para una mutación, la UI reúne la intención y revisión; el proxy limita ruta, método, payload y destino backend. El transporte autentica y valida la solicitud, y el servicio decide permisos y reglas dentro de su unidad transaccional. PostgreSQL protege relaciones e invariantes; almacenamiento, correo y proveedores se integran mediante sus adaptadores. Las respuestas y errores vuelven a estados explícitos de la interfaz. Ocultar un botón no sustituye la autorización del servicio.
 
+## Configuración del host y runtime de Estudio
+
+El host admite las siguientes combinaciones. Se conserva el contrato de [configuration.ts](../../apps/api/src/bootstrap/configuration.ts): deshabilitar una capacidad no equivale a tener un proveedor disponible ni concede permisos.
+
+| Files | Classrooms | AI | Capacidades compuestas |
+|---|---|---|---|
+| Ausente | Ausente | Ausente o `false` | Identidad, salud, Agenda e Inicio; sin transportes de Estudio ni adjuntos de chat |
+| `1` | Ausente | Ausente o `false` | Lo anterior más archivos privados; sin Estudio ni Foxy |
+| `1` | `1` | Ausente o `false` | Aulas, Foxy y Estudio con archivos, Agenda y avisos; generación sin proveedor responde `AI_UNAVAILABLE` |
+| `1` | `1` | `true`, configuración completa | Lo anterior más las capacidades IA configuradas; conserva admisión, autorización y presupuesto |
+
+Los nombres son `FILES_ENABLED`, `CLASSROOMS_ENABLED` y `AI_ENABLED`. Files/Classrooms se deshabilitan **por ausencia**, no con `false`; sus lectores sólo aceptan `1` cuando el flag está presente. Cada capacidad habilitada exige sus claves, cuotas y demás campos completos. No existe un flag independiente `STUDY_ENABLED`: Estudio y los transportes de adjuntos se montan sólo cuando hay archivos y aulas, aunque IA esté deshabilitada. `STUDY_STORAGE_QUOTA_BYTES` es opcional (entero decimal de 1–15 dígitos, incluido cero); no activa Estudio. El default del almacenamiento privado está en la [guía de Estudio](study/README.md#contratos-y-operación).
+
+| Combinación rechazada | Error exacto del lector del host |
+|---|---|
+| Aulas sin archivos privados | `Invalid configuration: classrooms require private files.` |
+| IA completa sin aulas | `Invalid configuration: AI extraction requires classrooms.` |
+| IA habilitada incompleta/inválida | `Invalid configuration: AI extraction configuration is unavailable.` |
+| Cuota privada de Estudio inválida | `Invalid configuration: private study storage quota.` |
+| Visuales habilitados sin prerrequisitos/configuración válida | `Invalid configuration: Foxy visual configuration is unavailable.` |
+
+Los visuales de Foxy son opt-in separados (`AI_IMAGE_ENABLED`/`AI_DIAGRAM_ENABLED`); requieren IA y su configuración específica. Un override de pruebas no modifica estas validaciones del entorno. En Estudio, `options.study.provider` tiene prioridad y reautoriza antes de generar; sin ese override, la presencia de `options.ai` impide recurrir a Gemini real. La ruta real exige configuración IA y contexto de dueño/solicitud, pasando también el callback de autorización al adaptador. Las fixtures de prueba son sintéticas, nunca copias del entorno local.
+
+### Dueño y cierre del runtime
+
+[study-runtime.ts](../../apps/api/src/bootstrap/study-runtime.ts) compone los servicios existentes de Estudio, autenticación, archivos, adjuntos, Agenda y avisos. Reutiliza sus fábricas y transacciones; no abre transacciones independientes. [application.ts](../../apps/api/src/bootstrap/application.ts) conserva sólo registro, montaje y coordinación del cierre. La admisión de uploads/avisos/adjuntos conserva cookie, autenticación de sesión, dirección remota obligatoria y admisión general de Identidad; los servicios siguen revalidando permisos.
+
+- La limpieza de adjuntos corre cada 60 segundos con timer `unref`, sin superponer una ejecución pendiente. El fallo se captura con `Chat attachment cleanup unavailable` y habilita el próximo intento; no revela errores del driver.
+- `close()` cancela ese timer e invoca el cierre de avisos, esperando ambos pendientes mediante `Promise.all`. El runtime de avisos conserva su timer de 30 segundos y su propio drenaje.
+- El módulo raíz espera los cierres de Estudio, Foxy y workers con `Promise.allSettled` antes de cerrar correo, archivos y aulas; Prisma se destruye después en los módulos importados. Conserva el primer rechazo tras intentar la segunda fase.
+- No se agrega idempotencia de `close()` ni una garantía de drenaje completo ante rechazo: el `Promise.all` interno conserva su rechazo temprano si falla el cierre de avisos. No confundir el camino de cierre exitoso con tolerancia adicional a fallos.
+
+[architecture-host.test.mjs](../../tests/architecture-host.test.mjs) verifica el parser real, registro/montaje con bordes sintéticos y orden de cierre del root. [study-runtime.test.mjs](../../tests/study-runtime.test.mjs) verifica wiring, guardas de proveedor/admisión, no solapamiento, recuperación y espera de ambos pendientes en ambos órdenes. Son pruebas en memoria, no aceptación de servicios reales ni de transporte HTTP completo. **Risk item 4:** timer/drenaje concurrente requiere verificación independiente del padre antes del cierre de la tarea.
+
 ## Persistencia y trabajos diferidos
 
 PostgreSQL mantiene las relaciones académicas, sesiones, revisiones y colas durables. Los archivos se almacenan de forma privada y se referencian por metadatos/custodia; una carga no se vuelve publicable por haber terminado de transmitir bytes. Las colas conservan estados, deduplicación y propiedad de ejecución; las tablas no ejecutan los trabajos por sí mismas. El host coordina su inicio y drenaje antes de cerrar infraestructura.

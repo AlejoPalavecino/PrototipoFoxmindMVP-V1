@@ -1,5 +1,7 @@
 {
   "entries": [
+    "tests/architecture-host.test.mjs",
+    "tests/study-runtime.test.mjs",
     "tests/agenda-ux-navigation.test.mjs",
     "tests/classroom-visual-fixture.test.mjs",
     "tests/teacher-home-polish.test.mjs",

@@ -3,6 +3,8 @@
     "id": "fast",
     "kind": "fast",
     "files": [
+      "tests/architecture-host.test.mjs",
+      "tests/study-runtime.test.mjs",
       "apps/api/src/modules/files/infrastructure/tests/chat-attachment-policy.test.mjs",
       "tests/agenda-ux-navigation.test.mjs",
       "tests/classroom-visual-fixture.test.mjs",

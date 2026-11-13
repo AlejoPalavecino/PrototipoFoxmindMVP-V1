@@ -23,7 +23,6 @@ import { createAgendaUnitOfWork } from './agenda-composition.ts';
 import { createAgendaAuthentication, installAgendaTransport } from './agenda-transport.ts';
 import { PrismaService } from '../platform/database/prisma.service.ts';
 import { ClassroomAiRuntime } from './academic-curriculum-ai-runtime.ts';
-import type { AiRuntimeOverride } from './academic-curriculum-ai-runtime.ts';
 
 import { createHomeService } from '../modules/home/application/service.ts';
 import { createHomeUnitOfWork } from '../modules/home/infrastructure/unit-of-work.ts';
@@ -40,52 +39,13 @@ import type { VisualProviders } from '../modules/foxy/application/visual-runtime
 import { createGeminiFoxyTextAdapter } from '../modules/foxy/infrastructure/providers/foxy-adapter.ts';
 import { createFoxyFileOperations } from './foxy-file-integration.ts';
 import { attachmentIntegration } from './attachment-integration.ts';
-import { createStudyService } from './study-composition.ts';
-import { createStudyAuthentication, installStudyTransport } from './study-transport.ts';
-import { createStudyFileIntegration } from './study-file-integration.ts';
-import { inspectContent } from '../modules/files/infrastructure/content.ts';
-import { createChatAttachmentService } from '../modules/files/infrastructure/chat-attachment-service.ts';
+import { createStudyRuntime, STUDY_RUNTIME, type StudyRuntimeOptions } from './study-runtime.ts';
+import { installStudyTransport } from './study-transport.ts';
 import { installChatAttachmentTransport } from './chat-attachment-transport.ts';
-import { createStudyAgendaIntegration } from './study-agenda-integration.ts';
 import { installStudyUploads } from '../modules/study/presentation/folders/uploads/http.ts';
-import { createStudyReminderRuntime } from '../modules/study/infrastructure/folders/reminders/runtime.ts';
 import { installStudyReminders } from '../modules/study/presentation/folders/reminders/http.ts';
-import { executeStudy, generateDevelopmentFeedback } from '../../../../src/core/domain/study/engine.ts';
-import type { StudyInput, StudyProvider, StudyPractice, StudyAnswers } from '../../../../src/core/domain/study/engine.ts';
-import { createGeminiStudyProvider } from '../modules/study/infrastructure/providers/study-adapter.ts';
-import { readSessionCookie } from '../modules/identity/presentation/transport.ts';
-const STUDY_RUNTIME='StudyRuntime';
 
-export interface ApplicationOptions { readonly identity?: IdentityRuntimePorts; readonly ai?: AiRuntimeOverride; readonly study?:{provider:StudyProvider}; readonly foxy?: { textProvider?: Parameters<typeof createFoxyRuntime>[0]['provider']; visualProviders?: { IMAGE?: VisualProviders['IMAGE']; DIAGRAM?: VisualProviders['DIAGRAM'] } } }
-
-function createStudyRuntime(database:PrismaService,identity:IdentityRuntime,files:FileService,configuration:ApiConfiguration,options:ApplicationOptions){
-  const authenticate=createStudyAuthentication(identity.configuration.security),fileBridge=createStudyFileIntegration(files,{database,authenticate,quotaBytes:configuration.studyQuotaBytes});
-  const attachments = createChatAttachmentService({ database, storage: files.storage, student: authenticate,
-    teacher: createFoxyAuthentication(identity.configuration.security), folderQuota: configuration.studyQuotaBytes,
-    inspect: inspectContent, scan: bytes => files.scanner.scan(bytes) });
-  const provider=(context?:{ownerId:string;requestId:string;authorize?:()=>Promise<void>})=>{
-    if(options.study)return {async generate(input:Parameters<StudyProvider['generate']>[0]){await context?.authorize?.();return options.study!.provider.generate(input);}};
-    if(options.ai!==undefined||!configuration.ai||!context)throw Object.assign(new Error('AI_UNAVAILABLE'),{code:'AI_UNAVAILABLE'});
-    return createGeminiStudyProvider(configuration.ai,database,context.ownerId,context.requestId,context.authorize);
-  };
-  const service=createStudyService({database,authenticate,files:fileBridge.port,agenda:createStudyAgendaIntegration(),
-    generate:(input,context)=>executeStudy(input as StudyInput,provider(context)),
-    feedback:(input,context)=>generateDevelopmentFeedback(input.practice as StudyPractice,input.answers as StudyAnswers,input.sources,provider(context))});
-  const reminders=createStudyReminderRuntime({database,authenticate});
-  const admit=async(request:import('node:http').IncomingMessage,response:import('node:http').ServerResponse)=>{
-    void response;
-    const cookie=readSessionCookie(request.headers.cookie),context=cookie.verifier?await identity.store.authenticate(cookie.verifier):null;
-    if(!request.socket.remoteAddress)throw Object.assign(new Error('SERVICE_UNAVAILABLE'),{code:'SERVICE_UNAVAILABLE'});
-    await identity.generalAdmission(request.socket.remoteAddress,context);
-  };
-  let cleanup: Promise<void> | undefined;
-  const timer = setInterval(() => {
-    if (!cleanup) cleanup = attachments.cleanup().catch(() => console.warn('Chat attachment cleanup unavailable')).finally(() => { cleanup = undefined; });
-  }, 60000);
-  timer.unref();
-  return {service,uploads:fileBridge.uploads,reminders,admit,attachments,
-    async close() { clearInterval(timer); await Promise.all([reminders.close(), cleanup]); }};
-}
+export interface ApplicationOptions extends StudyRuntimeOptions { readonly identity?: IdentityRuntimePorts; readonly foxy?: { textProvider?: Parameters<typeof createFoxyRuntime>[0]['provider']; visualProviders?: { IMAGE?: VisualProviders['IMAGE']; DIAGRAM?: VisualProviders['DIAGRAM'] } } }
 
 function foxyConfiguration(ai: ApiConfiguration['ai']) {
   if (!ai) return null;

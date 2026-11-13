@@ -16,6 +16,8 @@ export const suites = {
     'apps/api/src/modules/study/infrastructure/tests/integrations.test.mjs',
   ],
   pure: [
+    'tests/architecture-host.test.mjs',
+    'tests/study-runtime.test.mjs',
     'tests/agenda-ux-navigation.test.mjs',
     'tests/teacher-home-polish.test.mjs',
     'tests/home-order.test.mjs',
