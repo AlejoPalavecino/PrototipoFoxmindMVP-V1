@@ -1,8 +1,11 @@
 {
   "entries": [
-    "tests/agenda-client-http.test.mjs",
     "tests/architecture-host.test.mjs",
     "tests/study-runtime.test.mjs",
+    "tests/agenda-client-http.test.mjs",
+    "tests/agenda-day-widget.test.mjs",
+    "tests/agenda-month-polish.test.mjs",
+    "tests/local-api-build.test.mjs",
     "tests/agenda-ux-navigation.test.mjs",
     "tests/classroom-visual-fixture.test.mjs",
     "tests/teacher-home-polish.test.mjs",
