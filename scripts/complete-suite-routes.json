@@ -3,6 +3,7 @@
     "id": "fast",
     "kind": "fast",
     "files": [
+      "tests/agenda-client-http.test.mjs",
       "tests/architecture-host.test.mjs",
       "tests/study-runtime.test.mjs",
       "apps/api/src/modules/files/infrastructure/tests/chat-attachment-policy.test.mjs",

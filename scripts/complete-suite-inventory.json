@@ -1,5 +1,6 @@
 {
   "entries": [
+    "tests/agenda-client-http.test.mjs",
     "tests/architecture-host.test.mjs",
     "tests/study-runtime.test.mjs",
     "tests/agenda-ux-navigation.test.mjs",

@@ -21,3 +21,22 @@ Fuentes: [Agenda](../../../apps/web/src/features/agenda/ui/Agenda.tsx), [formula
 Reglas y contratos neutrales: `src/core/domain/agenda`. Backend: `apps/api/src/modules/agenda/{application,infrastructure,presentation}`, entrada pública `public.ts`; composición de identidad/proyección académica y montaje HTTP en `bootstrap/agenda-composition.ts` y `bootstrap/agenda-transport.ts`. La fábrica académica recibe el mismo tx/actor y no abre una segunda transacción.
 
 Frontend: `apps/web/src/features/agenda/{ui,model,api}`, entrada pública `index.ts`, pantalla en `screens` y adaptadores de sesión/proxy en `application`. Las rutas anteriores de Agenda están retiradas. El [registro del piloto](../../work-log/2026-11-10-root-agenda-pilot.md) conserva evidencia de ese corte; la aceptación actual se consulta en el [tablero](../../../odd/tasks/architecture-migration.md).
+
+## Verificación conjunta del contrato cliente/servidor
+
+`tests/agenda-client-http.test.mjs` conecta `createWebAgendaClient` con `installAgendaTransport` y `AgendaService` sobre HTTP de loopback. Reutiliza los helpers productivos de solicitud, error y CSRF, el transporte de identidad para obtener CSRF y los validadores del servicio. Sólo identidad, persistencia/UoW y proyección académica son puertos sintéticos en memoria; no se replica la serialización ni la validación productiva.
+
+| Contrato conectado | Evidencia |
+|---|---|
+| Payload y CRUD | Día completo/serie semanal → horario con zona/sin repetición; categorías, texto plano, título normalizado y color explícito/omitido. PUT nuevo 201, reintento idéntico 200, GET/PATCH/listado 200 y DELETE 204 vacío convertido en `undefined` por el cliente. |
+| Revisión y rechazos | Revisiones string 0→1; PUT incompatible y PATCH/DELETE obsoletos devuelven 409/CONFLICT. Revisiones coercibles/negativas/fraccionarias y payload inválido devuelven 400/INVALID_INPUT. |
+| Autorización | 401/AUTH_REQUIRED; 403/EMAIL_VERIFICATION_REQUIRED, FORBIDDEN, ORIGIN_NOT_ALLOWED y CSRF_INVALID. IDs ajenos/inexistentes no se distinguen. Tras cada rechazo de evento se releen payload, revisión y colección del dueño; no hay reintento implícito. |
+| Contexto académico | Envelope de próximos plazos y apertura autorizada; revocar el destino devuelve 403/FORBIDDEN. La proyección académica es sintética, no una prueba SQL de obligaciones. |
+
+Ejecutar desde la raíz, sin DB ni APIs externas:
+
+```bash
+node --test tests/agenda-client.test.mjs tests/agenda-http.test.mjs tests/agenda-contracts.test.mjs tests/agenda-client-http.test.mjs
+```
+
+Son pruebas de caracterización: no requieren un fallo previo del producto. Complementan las pruebas individuales del cliente, transporte y dominio; no acreditan el proxy Next, montaje Nest, sesiones persistidas, transacciones SQL, excepciones por ocurrencia, paginación ni todas las variantes de calendario. Resultado y fallos de la auditoría S4: [registro propio](../../work-log/2026-11-13-agenda-contract-audit.md).
