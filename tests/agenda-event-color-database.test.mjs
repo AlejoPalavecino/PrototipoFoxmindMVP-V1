@@ -6,7 +6,7 @@ import { withAgendaDatabase } from './agenda-database-helpers.test.mjs';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { privateEvent } from './agenda-event-form-helpers.test.mjs';
 
-const tokens = ['BLUE', 'GREEN', 'YELLOW', 'ORANGE', 'PINK', 'PURPLE'];
+const tokens = ['BLUE', 'GREEN', 'YELLOW', 'ORANGE', 'PINK', 'PURPLE', 'GRAPHITE'];
 function payload(color) {
   const { id, revision, ...event } = privateEvent();
   return { ...event, ...(color === undefined ? {} : { color }) };
@@ -58,10 +58,13 @@ test('PostgreSQL colors preserve retry identity, CAS, clear semantics and owner 
       const [owner, other] = await seed(query), id = randomUUID();
       const make = () => createAgendaService(createAgendaUnitOfWork(database, async (_tx, request) => request.userId));
       await make().put({ userId: owner }, id, payload('BLUE'));
+      const snapshot = () => query('SELECT row_to_json(e) value FROM agenda_events e WHERE id=$1', id);
+      const before = await snapshot();
       for (const color of ['AUTO', 'blue', '#DBEAFE', '']) {
         await query('SAVEPOINT bad_color');
-        await assert.rejects(query('UPDATE agenda_events SET color=$2 WHERE id=$1', id, color), e => e.code === '23514');
+        await assert.rejects(query('UPDATE agenda_events SET color=$2 WHERE id=$1', id, color), e => e.code === '23514' && e.constraint === 'agenda_event_color');
         await query('ROLLBACK TO SAVEPOINT bad_color');
+        assert.deepEqual(await snapshot(), before);
       }
       const replace = (actor, color) => make().replace({ userId: actor }, id, { revision: '0', event: payload(color) });
       await assert.rejects(replace(other, 'PINK'), { code: 'FORBIDDEN' });

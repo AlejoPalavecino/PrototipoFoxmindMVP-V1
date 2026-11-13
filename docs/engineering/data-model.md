@@ -64,6 +64,27 @@ Es un subconjunto conceptual de cardinalidades físicas, no un esquema de migrac
 - Los puntos por pregunta conservan numerador/denominador; las notas usan NUMERIC sin redondeo silencioso de entradas. El cálculo y el formato pertenecen al motor de aplicación, no a la columna SQL.
 - Jobs y solicitudes conservan identidad/deduplicación y estado. Un reintento debe respetar propiedad de ejecución, revisión, cuotas y confirmación; no puede crear publicaciones duplicadas.
 
+## Agenda: trazabilidad de invariantes físicos
+
+`AgendaEvent` declara columnas, tipos, defaults, relación restrictiva con `User` e índice por dueño/fecha en [Prisma](../../prisma/schema.prisma). Los CHECKs viven en SQL, no quedan expresados por `String`, `Json` o `Int` de Prisma. Esta matriz es un recorte verificado de Agenda, no cobertura exhaustiva de los demás dominios.
+
+| Invariante | Prisma / DDL que lo protege | Prueba SQL o de persistencia |
+|---|---|---|
+| Título recortado 1–160, descripción ≤4000, categoría CLASS/ACTIVITY/EVALUATION, revisión ≥0 y dueño existente | `title`, `description`, `category`, `revision`, `owner`; CHECKs y FK de [agenda_events](../../prisma/migrations/202610230001_agenda_events/migration.sql) | [agenda-database](../../tests/agenda-database.test.mjs): `database rejects invalid title/category/revision…`; límites válidos, rechazo 23514 y dueño inexistente 23503, sin cambiar la fila |
+| Fechas con fin exclusivo posterior; ALL_DAY sin campos horarios; TIMED con locales, zona e instantes coherentes y offsets opcionales entre −1440 y 1440 | `schedule_kind`, fechas y campos horarios opcionales; `agenda_event_dates`, `agenda_event_schedule` y CHECK de kind en la misma migración | `SQL schedule…` y `SQL timed schedule…`: controles ALL_DAY/TIMED (UTC y no UTC), campos ausentes/mezclados, orden, proyección y extremos de offsets; rechazo 23514 sin cambios |
+| NONE sin fin; DAILY/WEEKLY/MONTHLY con fin ≥ inicio y distancia <53 días / <371 días / <8 años | `repeat_kind`, `repeat_until`; CHECKs de [agenda_recurrence](../../prisma/migrations/202610280001_agenda_recurrence/migration.sql) reemplazan los originales | `SQL recurrence…`: inicio incluido, último permitido y primer excluido por kind, fin ausente/anterior y kind inválido; rechazo 23514 sin cambios |
+| Excepciones JSON no nulas, array de hasta 53 entradas, default `[]` | `exceptions Json @default("[]")`; NOT NULL y `agenda_event_exceptions_array` de [agenda_occurrence_exceptions](../../prisma/migrations/202611050003_agenda_occurrence_exceptions/migration.sql) | `SQL exceptions…`: default, 0/53/54 entradas, JSON no-array y SQL NULL; rechazo 23514/23502 sin cambios |
+| Color opcional, sin default, siete tokens admitidos (incluye GRAPHITE) | `color String?`; [agenda_event_color](../../prisma/migrations/202610240001_agenda_event_color/migration.sql) y ampliación [agenda_graphite_color](../../prisma/migrations/202611050006_agenda_graphite_color/migration.sql) | [agenda-event-color-database](../../tests/agenda-event-color-database.test.mjs): todos los tokens persisten, omisión limpia a NULL, colores SQL inválidos dan 23514 sin cambios; migración incremental conserva fila legacy |
+
+Los casos de rechazo consultan filas completas después de recuperar el savepoint; comparan también revisión y cantidad de eventos. Los controles y cleanup usan la [fixture Docker propia](../../tests/agenda-database-helpers.test.mjs): PostgreSQL vacío en tmpfs, migraciones existentes, rollback por caso y limpieza sólo tras comprobar ownership. Comando focal: `node --test tests/agenda-database.test.mjs tests/agenda-event-color-database.test.mjs`; no usa `.env` ni bases retenidas.
+
+### Límites de esta protección
+
+- El CHECK de horario no valida que los offsets suministrados coincidan con la zona (sólo su rango), ni exige que `end_date_exclusive` sea la proyección exacta del fin horario. La resolución DST y otras reglas del calendario requieren validación de dominio; los casos SQL no certifican todos los valores malformados o zonas inválidas.
+- El límite físico mensual es una ventana menor a ocho años, no un conteo de 53 ocurrencias. La generación de ocurrencias y su máximo pertenecen al dominio; estas pruebas caracterizan los bordes SQL, no todas las variantes de repetición.
+- El CHECK de excepciones sólo valida contenedor y cantidad: no fechas, unicidad, pertenencia a la serie o estructura de cada elemento. Un array mixto y duplicados se aceptan a nivel SQL; no representan un payload válido del servicio.
+- FK y revisión no conceden autorización ni implementan CAS por sí solas. Los casos existentes de servicio verifican persistencia, aislamiento por dueño y conflicto de revisión/color con autenticación sintética; sesiones/CSRF HTTP, upgrade de datos retenidos y el resto del esquema no quedan acreditados aquí. No se modifica ningún invariante ni runtime de base.
+
 ## Conservación y eliminación
 
 No hay una regla global de borrado en cascada para todo el producto. Las relaciones restrictivas, períodos, tombstones de comunicación, revisiones y auditorías preservan historia; los servicios definen qué puede eliminarse y cuándo limpiar bytes incompletos. Las políticas de [archivos](files/README.md), [participación](activities/participation.md), [calificaciones](grading/README.md) y [Foxy](ai/foxy.md) deben consultarse antes de diseñar una eliminación.
