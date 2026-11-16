@@ -1,0 +1,269 @@
+{
+  "scope": "Texto calculado de Inicio docente; fondos opacos sin imágenes. No es auditoría WCAG completa.",
+  "checked": [
+    {
+      "text": "Domingo, 15 de noviembre",
+      "color": "rgb(100, 70, 49)",
+      "bg": "rgb(255, 226, 203)",
+      "hasImage": false,
+      "size": 13,
+      "weight": 750,
+      "ratio": 6.9,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "text": "Hola, Lucía.",
+      "color": "rgb(39, 45, 56)",
+      "bg": "rgb(255, 226, 203)",
+      "hasImage": false,
+      "size": 44,
+      "weight": 900,
+      "ratio": 11.19,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "text": "Tenés 1 entrega para revisar. Vamos de a una.",
+      "color": "rgb(89, 67, 51)",
+      "bg": "rgb(255, 226, 203)",
+      "hasImage": false,
+      "size": 17,
+      "weight": 650,
+      "ratio": 7.47,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "text": "Crear actividad",
+      "color": "rgb(255, 255, 255)",
+      "bg": "rgb(183, 71, 16)",
+      "hasImage": false,
+      "size": 14,
+      "weight": 800,
+      "ratio": 5.35,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "text": "Cada devolución abre una nueva posibilidad.",
+      "color": "rgb(101, 73, 54)",
+      "bg": "rgb(255, 226, 203)",
+      "hasImage": false,
+      "size": 12,
+      "weight": 700,
+      "ratio": 6.64,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "text": "Por acompañar",
+      "color": "rgb(32, 44, 61)",
+      "bg": "rgb(255, 255, 255)",
+      "hasImage": false,
+      "size": 22,
+      "weight": 800,
+      "ratio": 14.1,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "text": "Tu mirada hace la diferencia.",
+      "color": "rgb(72, 87, 107)",
+      "bg": "rgb(255, 255, 255)",
+      "hasImage": false,
+      "size": 14,
+      "weight": 600,
+      "ratio": 7.37,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "text": "Entregas1",
+      "color": "rgb(155, 60, 13)",
+      "bg": "rgb(255, 255, 255)",
+      "hasImage": false,
+      "size": 14,
+      "weight": 800,
+      "ratio": 6.89,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "text": "Consultas0",
+      "color": "rgb(80, 97, 120)",
+      "bg": "rgb(255, 255, 255)",
+      "hasImage": false,
+      "size": 14,
+      "weight": 800,
+      "ratio": 6.32,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "text": "Más antiguas primero",
+      "color": "rgb(72, 92, 115)",
+      "bg": "rgb(255, 255, 255)",
+      "hasImage": false,
+      "size": 12,
+      "weight": 400,
+      "ratio": 6.88,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "text": "Fotografía y luz",
+      "color": "rgb(128, 61, 25)",
+      "bg": "rgb(255, 240, 227)",
+      "hasImage": false,
+      "size": 12,
+      "weight": 700,
+      "ratio": 7.24,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "text": "MDMarina Demo15 nov, 21:54Revisar",
+      "color": "rgb(37, 53, 73)",
+      "bg": "rgb(255, 255, 255)",
+      "hasImage": false,
+      "size": 16,
+      "weight": 400,
+      "ratio": 12.47,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "text": "Tu día, con calma",
+      "color": "rgb(32, 44, 61)",
+      "bg": "rgb(255, 240, 227)",
+      "hasImage": false,
+      "size": 22,
+      "weight": 800,
+      "ratio": 12.64,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "text": "Ver agenda",
+      "color": "rgb(145, 59, 16)",
+      "bg": "rgb(255, 240, 227)",
+      "hasImage": false,
+      "size": 12,
+      "weight": 800,
+      "ratio": 6.64,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "text": "Un espacio para organizarte a tu ritmo.",
+      "color": "rgb(113, 80, 59)",
+      "bg": "rgb(255, 240, 227)",
+      "hasImage": false,
+      "size": 12,
+      "weight": 650,
+      "ratio": 6.46,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "text": "Próximos eventos",
+      "color": "rgb(82, 103, 125)",
+      "bg": "rgb(255, 255, 255)",
+      "hasImage": false,
+      "size": 11,
+      "weight": 800,
+      "ratio": 5.84,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "text": "Clase60 minRevisión visual de Agenda",
+      "color": "rgb(35, 86, 59)",
+      "bg": "rgb(220, 238, 227)",
+      "hasImage": false,
+      "size": 16,
+      "weight": 400,
+      "ratio": 7.05,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "text": "Tus aulas",
+      "color": "rgb(32, 44, 61)",
+      "bg": "rgb(237, 240, 244)",
+      "hasImage": false,
+      "size": 21,
+      "weight": 800,
+      "ratio": 12.34,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "text": "Ver mis aulas",
+      "color": "rgb(155, 59, 13)",
+      "bg": "rgb(237, 240, 244)",
+      "hasImage": false,
+      "size": 14,
+      "weight": 800,
+      "ratio": 6.07,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "text": "Fotografía",
+      "color": "rgb(66, 81, 106)",
+      "bg": "rgb(255, 255, 255)",
+      "hasImage": false,
+      "size": 13,
+      "weight": 650,
+      "ratio": 8.03,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "text": "Abrir tema",
+      "color": "rgb(155, 59, 13)",
+      "bg": "rgb(255, 255, 255)",
+      "hasImage": false,
+      "size": 12,
+      "weight": 800,
+      "ratio": 6.94,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "text": "Actividades en borrador",
+      "color": "rgb(32, 44, 61)",
+      "bg": "rgb(255, 255, 255)",
+      "hasImage": false,
+      "size": 21,
+      "weight": 800,
+      "ratio": 14.1,
+      "threshold": 3,
+      "pass": true
+    },
+    {
+      "text": "Solo visibles para vos",
+      "color": "rgb(71, 86, 106)",
+      "bg": "rgb(255, 255, 255)",
+      "hasImage": false,
+      "size": 12,
+      "weight": 400,
+      "ratio": 7.48,
+      "threshold": 4.5,
+      "pass": true
+    },
+    {
+      "text": "Continuar",
+      "color": "rgb(32, 44, 61)",
+      "bg": "rgb(255, 255, 255)",
+      "hasImage": false,
+      "size": 16,
+      "weight": 400,
+      "ratio": 14.1,
+      "threshold": 4.5,
+      "pass": true
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "width": 390,
+  "clientWidth": 375,
+  "height": 844,
+  "scrollWidth": 375,
+  "headings": [
+    {
+      "text": "Mi estudio",
+      "font": "900 28px / 35px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 16,
+        "y": 82,
+        "width": 343.20001220703125,
+        "height": 35,
+        "top": 82,
+        "right": 359.20001220703125,
+        "bottom": 117,
+        "left": 16
+      }
+    },
+    {
+      "text": "Mi repaso de luz · revisión visual",
+      "font": "850 20px / 26px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 36.79999923706055,
+        "y": 509.3999938964844,
+        "width": 301.6000061035156,
+        "height": 26,
+        "top": 509.3999938964844,
+        "right": 338.4000053405762,
+        "bottom": 535.3999938964844,
+        "left": 36.79999923706055
+      }
+    },
+    {
+      "text": "Fotografía · prueba Gemini",
+      "font": "850 20px / 26px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 36.79999923706055,
+        "y": 833.9500122070312,
+        "width": 301.6000061035156,
+        "height": 26,
+        "top": 833.9500122070312,
+        "right": 338.4000053405762,
+        "bottom": 859.9500122070312,
+        "left": 36.79999923706055
+      }
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+# Paridad de Agenda y notificaciones
+
+Fecha 2026-11-15. Agente agenda_notifications_impl, escritor de P6 y P8. Rama codex/foxmind-product-parity, base ef6828b, worktree foxmind-product-parity/ProtipoFoxMind. El coordinador conserva el tablero. Implementación autorizada según el encargo y la maqueta de design/foxmind-ui-lab.
+
+Superficies propias: Agenda y bandeja web, contratos de dominio, proyección de bandeja y rutas, pruebas focalizadas. El escritor activity_backend_impl prepara la migración de Agenda y de lecturas de proyección. Entorno aislado y datos sintéticos.
+
+En curso. Primer paso: pruebas de contrato y horario antes de implementar.
+
+## Implementación y resultados
+
+- P6. UI de mes, semana y día, filas compactas con color real, detalle y editor de avisos persistentes. Enlaces privados directos a ocurrencia, día y creación. El evento de repaso activo vuelve a su carpeta y examen. La proyección de Inicio expone `color`, `category` y `endAt` de la ocurrencia efectiva a sus widgets.
+- P8. Bandeja agrupada y filtros globales en servidor, cursor firmado por cuenta y filtros, totales autoritativos, lectura y no lectura, lectura masiva, proyecciones de invitación, ingreso, repaso y evento privado. Autoriza de nuevo al abrir y conserva los productores existentes. La colección legada de notificaciones de aula mantiene su contrato.
+- RED inicial de las tres pruebas fue por contrato de aviso/filtro ausente y ausencia de cómputo de avisos. GREEN de 21 pruebas focalizadas y unitarias; prueba SQL propia en Docker efímero validó también alta/baja de miembro, carpeta de repaso activa/archivada, color y duración Home, lectura y destino exacto.
+- `npm run api:build` pasó, incluida generación Prisma. `node --test --test-concurrency=1 tests/p6-notifications.test.mjs tests/audit-notifications-database.test.mjs tests/brujula-notifications-batch-database.test.mjs` pasó 9 pruebas. `node --experimental-transform-types --test tests/audit-cursor-canonical.test.mjs` pasó 15.
+- `npx --no-install tsc --noEmit -p apps/web/tsconfig.json` pasó para el candidato inicial de la unidad. Una repetición mientras se editaba Biblioteca informó en Library.tsx dos props `api` requeridas. `node scripts/check-boundaries.mjs` pasó con 0 excepciones. `node scripts/check-documentation.mjs` pasó con 143 archivos y 858 enlaces.
+- Ego Lite espacio 1, página p3, preview descartable del coordinador. Docente creó un evento de día completo al día siguiente por enlace con fecha, indicó 1 día de anticipación y comprobó zona del navegador. Apareció en Agenda y Notificaciones. Filtro Agenda mantuvo totales globales; el toggle de lectura persistió tras recarga. El aviso abrió el detalle exacto. Quitar aviso retiró el ítem y conservó el evento. Borrado de ambos eventos sintéticos confirmado. El primer intento detectó una carrera entre el enlace de creación y la inicialización de zona, corregida y reprobada.
+- Se inspeccionó la captura móvil de bandeja y escritorio de Agenda. El layout móvil del shell externo excedía viewport por 16 px (encabezado a x=16 con ancho completo); se informó al dueño del shell. El componente Agenda corrigió su etiqueta «Día completo» para que no se parta dentro de palabra y la bandeja dio 44 px mínimos al toggle móvil. Capturas ignoradas bajo `.test-artifacts/study-preview-ceb45f6b5a68c34e/`.
+- Pendiente reconciliar prueba de UI histórica `brujula-notifications-complete` con filtro global Aulas/Agenda/Actividades y composición nueva. La suite histórica pide «Resultados» y filtro de filas cargadas. Se conservó su archivo. Se informó la incorporación de las tres pruebas nuevas al inventario común al coordinador.
+
+Límites: sin proveedor externo, datos productivos ni publicación. La migración `202611150003_agenda_projected_notifications` es del escritor de esquema y se ejercitó sólo en DB descartable durante esta unidad. Reversión antes de publicar: revertir los archivos de Agenda, bandeja, sus contratos y pruebas como unidad y retirar migración 003 junto con el escritor de esquema. En una base donde ya se aplicó, preparar una migración reversa y conservar antes los datos de aviso y lectura que se necesiten. El coordinador mantiene la aceptación y el tablero.
+
+## Verificación final de la unidad
+
+- 33/33 en el conjunto ampliado de regresión Agenda (contrato, cliente HTTP, DB, color y UI); 9/9 regresiones de notificaciones y lectura masiva en PostgreSQL; 15/15 cursores canónicos. La prueba de proyecciones propia agregó lectura sincronizada de Study, alta/baja, archivo y datos efectivos de Home. Las pruebas de recurrencia incluyen reemplazo horario en otra zona, aviso quitado y fecha estable.
+- `tsc --noEmit -p apps/web/tsconfig.json`, `scripts/check-boundaries.mjs` y `scripts/check-documentation.mjs` pasaron después de integrar cambios concurrentes.
+- En preview final :54737, Ego Lite estudiante p3 a 390 px. Agenda por fecha abrió el día exacto. Se creó evento con hora y aviso, apareció en bandeja, abrió su detalle con hora/aviso persistidos y se eliminó la prueba. El título y Crear evento quedaron en la misma fila en móvil y el documento midió 390 px de ancho visible/desplazable.
+- La bandeja mostró vacío de Agenda con conteos globales. Revisar invitación abrió el diálogo de la invitación pendiente, con Aceptar y Rechazar y sin alta automática. El coordinador comprobó el rechazo posterior. El aviso durable de repaso, creado por P7, abrió el examen y carpeta exactos y mostró «Repaso Agenda luz». La captura de Agenda y el vacío de bandeja se inspeccionaron en `.test-artifacts/study-preview-a50cf3d5e0a2035c/`. El shell corregido midió 390/390 también en Notificaciones.
+- La suite histórica de categorías de UI queda para reconciliar con el nuevo contrato. Quedan fuera de esta unidad la decisión de publicación y la aceptación visual global de todas las pantallas del candidato.
+
+La prueba histórica `brujula-notifications-complete` se reconcilió en la unidad siguiente. Pasaron sus tres casos con filtros de servidor, paginación del filtro activo, lectura masiva, identidad y contexto de aula y enlace desde la vista rápida.

@@ -1,0 +1,22 @@
+{
+  "width": 1440,
+  "clientWidth": 1425,
+  "height": 900,
+  "scrollWidth": 1425,
+  "headings": [
+    {
+      "text": "Descubriendo la luz",
+      "font": "800 27px / 33.75px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 181.40000915527344,
+        "y": 140,
+        "width": 245.3125,
+        "height": 33.75,
+        "top": 140,
+        "right": 426.71250915527344,
+        "bottom": 173.75,
+        "left": 181.40000915527344
+      }
+    }
+  ]
+}

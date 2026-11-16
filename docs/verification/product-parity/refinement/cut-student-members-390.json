@@ -1,0 +1,50 @@
+{
+  "width": 390,
+  "clientWidth": 390,
+  "height": 844,
+  "scrollWidth": 390,
+  "headings": [
+    {
+      "text": "Fotografía y luz",
+      "font": "800 21px / 24.36px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 84.80000305175781,
+        "y": 149.3000030517578,
+        "width": 228.8000030517578,
+        "height": 24.350000381469727,
+        "top": 149.3000030517578,
+        "right": 313.6000061035156,
+        "bottom": 173.65000343322754,
+        "left": 84.80000305175781
+      }
+    },
+    {
+      "text": "Compañeros",
+      "font": "800 24px / 30px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 15,
+        "y": 437.0500183105469,
+        "width": 1,
+        "height": 1,
+        "top": 437.0500183105469,
+        "right": 16,
+        "bottom": 438.0500183105469,
+        "left": 15
+      }
+    },
+    {
+      "text": "Tu grupo",
+      "font": "800 24px / 30px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 16,
+        "y": 438.0500183105469,
+        "width": 200.3125,
+        "height": 30,
+        "top": 438.0500183105469,
+        "right": 216.3125,
+        "bottom": 468.0500183105469,
+        "left": 16
+      }
+    }
+  ]
+}

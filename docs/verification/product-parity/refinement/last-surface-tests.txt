@@ -1,0 +1,29 @@
+✔ criteria scoring calculates exact suggestion and saves final override separately from base (621.6929ms)
+✔ weighted criteria widget labels all scores and preserves valid zero/pending states (48.1196ms)
+✔ published results show stored rubric snapshot and never current/private activity criteria (252.9823ms)
+✔ using suggestion persists its exact override; zero remains valid (310.2511ms)
+✔ legacy grading preserves old payload and invalid criterion disables save (238.354ms)
+✔ published rubric is immutable and pending student result exposes no rubric (405.9144ms)
+✔ new assignment suggestion becomes a persisted final only through explicit acceptance, then survives reload (198.0214ms)
+✔ focused scope requires a method and private idea; one explicit click requests generation (604.1638ms)
+✔ generation settings are one optional form, not another three-step wizard (235.0115ms)
+✔ explicit generation opens its ready proposal once as a private draft in the shared editor (382.5275ms)
+✔ E03 conserva alcance multitema y exige confirmación separada antes de publicar (613.7554ms)
+✔ E03 cambiar de TP a cuestionario elimina la exigencia de adjunto del envío (341.7596ms)
+✔ E03 no inicia generación sin idea privada y permite idea sin adjuntos (383.2237ms)
+✔ E04 mantiene la respuesta recuperada al navegar y confirma un solo envío con la revisión guardada (226.3528ms)
+✔ E05 un fallo al publicar conserva disponible la corrección privada con nota cero (290.2515ms)
+✔ E03 cambiar la idea de una propuesta recuperada impide aplicar una versión obsoleta (244.0069ms)
+✔ E04 conservar el archivo rechazado deja volver a la edición antes de entregar (140.9449ms)
+✔ la rúbrica muestra criterios de forma directa, sin desplegable nativo (6.0729ms)
+✔ consultar las fuentes de una propuesta conserva lo editado y vuelve a la misma sección (166.1268ms)
+✔ cerrar la sugerencia de calificación conserva la edición privada junto con su confirmación (20.2935ms)
+✔ E10 previsualiza nombre y avatar, y descarta cambios sin pedir PATCH (18.1267ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2920.0424

@@ -1,0 +1,64 @@
+{
+  "result": [
+    {
+      "width": 390,
+      "height": 844,
+      "build": "GDx_noxCJE7hug5Hq9I7x",
+      "overflow": false,
+      "bottom": 810.2000274658203,
+      "composer": [
+        360.8000183105469,
+        133.8000030517578
+      ],
+      "foxOffset": 0,
+      "title": "wrap",
+      "artLoaded": true
+    },
+    {
+      "width": 768,
+      "height": 900,
+      "build": "GDx_noxCJE7hug5Hq9I7x",
+      "overflow": false,
+      "bottom": 855.2000274658203,
+      "composer": [
+        678.4000244140625,
+        145.8000030517578
+      ],
+      "foxOffset": 0,
+      "title": "wrap",
+      "artLoaded": true
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "build": "GDx_noxCJE7hug5Hq9I7x",
+      "overflow": false,
+      "bottom": 955.2000274658203,
+      "composer": [
+        1000,
+        145.8000030517578
+      ],
+      "foxOffset": 0,
+      "title": "wrap",
+      "artLoaded": true
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "build": "GDx_noxCJE7hug5Hq9I7x",
+      "overflow": false,
+      "bottom": 1035.2000274658203,
+      "composer": [
+        1000,
+        145.8000030517578
+      ],
+      "foxOffset": 0,
+      "title": "wrap",
+      "artLoaded": true
+    }
+  ],
+  "focus": {
+    "active": "Herramientas",
+    "draft": "Quiero conservar este borrador"
+  }
+}

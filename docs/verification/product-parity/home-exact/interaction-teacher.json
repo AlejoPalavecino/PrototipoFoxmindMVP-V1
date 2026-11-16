@@ -1,0 +1,32 @@
+{
+  "menu": {
+    "width": 272,
+    "top": 60,
+    "notifications": "Notificaciones\n4",
+    "notificationHeight": 46
+  },
+  "focus": "Abrir menú de navegación",
+  "collapsed": {
+    "width": 76,
+    "classLinks": false,
+    "images": [
+      {
+        "src": "/foxmind/logo.webp",
+        "rect": {
+          "x": 20.600000381469727,
+          "y": 15,
+          "width": 34,
+          "height": 38,
+          "top": 15,
+          "right": 54.60000038146973,
+          "bottom": 53,
+          "left": 20.600000381469727
+        }
+      }
+    ],
+    "badges": [
+      "none"
+    ]
+  },
+  "query": "MD\nMarina Demo te consulta\nUna duda sobre la exposición\nFotografía y luz · 16 nov, 00:13\nResponder"
+}

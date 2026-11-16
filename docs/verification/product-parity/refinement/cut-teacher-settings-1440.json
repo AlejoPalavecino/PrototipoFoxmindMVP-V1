@@ -1,0 +1,50 @@
+{
+  "width": 1440,
+  "clientWidth": 1425,
+  "height": 900,
+  "scrollWidth": 1425,
+  "headings": [
+    {
+      "text": "Fotografía y luz",
+      "font": "800 28px / 32.48px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 386.8000183105469,
+        "y": 107.8499984741211,
+        "width": 610.8250122070312,
+        "height": 32.47500228881836,
+        "top": 107.8499984741211,
+        "right": 997.6250305175781,
+        "bottom": 140.32500076293945,
+        "left": 386.8000183105469
+      }
+    },
+    {
+      "text": "Configuración",
+      "font": "800 28px / 35px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 267,
+        "y": 286.2250061035156,
+        "width": 1,
+        "height": 1,
+        "top": 286.2250061035156,
+        "right": 268,
+        "bottom": 287.2250061035156,
+        "left": 267
+      }
+    },
+    {
+      "text": "Tu aula, a tu manera",
+      "font": "800 28px / 35px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 293.8000183105469,
+        "y": 313.0249938964844,
+        "width": 653.4750366210938,
+        "height": 35,
+        "top": 313.0249938964844,
+        "right": 947.2750549316406,
+        "bottom": 348.0249938964844,
+        "left": 293.8000183105469
+      }
+    }
+  ]
+}

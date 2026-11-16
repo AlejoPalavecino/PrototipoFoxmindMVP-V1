@@ -1,0 +1,222 @@
+{
+  "viewport": [
+    1920,
+    1080
+  ],
+  "overflow": false,
+  "dialog": null,
+  "footerVisible": true,
+  "samples": [
+    {
+      "text": "Mis aulas",
+      "ratio": 11.75,
+      "color": "rgb(32, 44, 61)",
+      "background": [
+        222,
+        238,
+        231
+      ]
+    },
+    {
+      "text": "Cada aula, una nueva forma de mirar el mundo. ¿Por dónde seguimos?",
+      "ratio": 7.62,
+      "color": "rgb(57, 74, 88)",
+      "background": [
+        222,
+        238,
+        231
+      ]
+    },
+    {
+      "text": "2 aulas activas",
+      "ratio": 6.22,
+      "color": "rgb(72, 87, 97)",
+      "background": [
+        222,
+        238,
+        231
+      ]
+    },
+    {
+      "text": "1",
+      "ratio": 6.59,
+      "color": "rgb(136, 52, 8)",
+      "background": [
+        255,
+        224,
+        199
+      ]
+    },
+    {
+      "text": "Un nuevo grupo te está esperando.",
+      "ratio": 7.21,
+      "color": "rgb(71, 86, 106)",
+      "background": [
+        255,
+        250,
+        245
+      ]
+    },
+    {
+      "text": "Pendiente de tu respuesta",
+      "ratio": 6.51,
+      "color": "rgb(128, 80, 49)",
+      "background": [
+        255,
+        250,
+        245
+      ]
+    },
+    {
+      "text": "· 4.º A",
+      "ratio": 6.75,
+      "color": "rgb(76, 93, 113)",
+      "background": [
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "text": "QA · Exploramos con Foxy",
+      "ratio": 14.1,
+      "color": "rgb(32, 44, 61)",
+      "background": [
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "text": "LD",
+      "ratio": 6.55,
+      "color": "rgb(36, 92, 69)",
+      "background": [
+        223,
+        239,
+        231
+      ]
+    },
+    {
+      "text": "2",
+      "ratio": 6.08,
+      "color": "rgb(146, 54, 9)",
+      "background": [
+        255,
+        224,
+        199
+      ]
+    },
+    {
+      "text": "0",
+      "ratio": 7.06,
+      "color": "rgb(49, 71, 96)",
+      "background": [
+        212,
+        223,
+        233
+      ]
+    },
+    {
+      "text": "Buscar aula",
+      "ratio": 12.34,
+      "color": "rgb(32, 44, 61)",
+      "background": [
+        237,
+        240,
+        244
+      ]
+    },
+    {
+      "text": "3.º B",
+      "ratio": 9.5,
+      "color": "rgb(53, 71, 93)",
+      "background": [
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "text": "QA · Ciencias y descubrimientos",
+      "ratio": 14.54,
+      "color": "rgb(37, 38, 70)",
+      "background": [
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "text": "Ciencias · 1 estudiante",
+      "ratio": 8.03,
+      "color": "rgb(66, 81, 106)",
+      "background": [
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "text": "0 de 2 temas dados",
+      "ratio": 8.05,
+      "color": "rgb(65, 81, 106)",
+      "background": [
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "text": "A",
+      "ratio": 9.5,
+      "color": "rgb(53, 71, 93)",
+      "background": [
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "text": "Fotografía y luz",
+      "ratio": 14.54,
+      "color": "rgb(37, 38, 70)",
+      "background": [
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "text": "Fotografía · 1 estudiante",
+      "ratio": 8.03,
+      "color": "rgb(66, 81, 106)",
+      "background": [
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "text": "1 de 2 temas dados",
+      "ratio": 8.05,
+      "color": "rgb(65, 81, 106)",
+      "background": [
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "text": "Mostrando 2 de 2 aulas",
+      "ratio": 6.54,
+      "color": "rgb(71, 86, 106)",
+      "background": [
+        237,
+        240,
+        244
+      ]
+    }
+  ],
+  "minContrast": 6.08
+}

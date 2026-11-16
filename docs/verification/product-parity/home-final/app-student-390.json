@@ -1,0 +1,482 @@
+{
+  "width": 390,
+  "height": 844,
+  "scrollWidth": 375,
+  "scrollHeight": 1518,
+  "headings": [
+    "Buen día, Marina.",
+    "Tu próximo paso",
+    "Tu día, con calma",
+    "Tus aulas"
+  ],
+  "selectors": {
+    ".home-welcome": [
+      {
+        "x": 16,
+        "y": 82,
+        "width": 343.20001220703125,
+        "height": 277.1499938964844,
+        "fontFamily": "Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgb(223, 238, 227)",
+        "border": "0.8px solid rgb(173, 200, 182)",
+        "borderRadius": "25px",
+        "padding": "0px",
+        "gap": "normal",
+        "grid": "minmax(0px, 1fr) 190px"
+      }
+    ],
+    ".home-welcome h1": [
+      {
+        "x": 36.79999923706055,
+        "y": 138.85000610351562,
+        "width": 211.60000610351562,
+        "height": 72,
+        "fontFamily": "Nunito, system-ui, sans-serif",
+        "fontSize": "32px",
+        "fontWeight": "900",
+        "lineHeight": "35.84px",
+        "color": "rgb(39, 45, 56)",
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(39, 45, 56)",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "gap": "normal",
+        "grid": "none"
+      }
+    ],
+    ".home-welcome .button": [
+      {
+        "x": 36.79999923706055,
+        "y": 260.3500061035156,
+        "width": 161.6999969482422,
+        "height": 44,
+        "fontFamily": "Nunito, system-ui, sans-serif",
+        "fontSize": "12px",
+        "fontWeight": "800",
+        "lineHeight": "16.8px",
+        "color": "rgb(255, 255, 255)",
+        "background": "rgb(183, 71, 16)",
+        "border": "0.8px solid rgb(183, 71, 16)",
+        "borderRadius": "12px",
+        "padding": "10px 12px",
+        "gap": "9px",
+        "grid": "none"
+      },
+      {
+        "x": 206.5,
+        "y": 260.3500061035156,
+        "width": 131.90000915527344,
+        "height": 44,
+        "fontFamily": "Nunito, system-ui, sans-serif",
+        "fontSize": "12px",
+        "fontWeight": "800",
+        "lineHeight": "16.8px",
+        "color": "rgb(41, 74, 55)",
+        "background": "rgb(244, 250, 245)",
+        "border": "0.8px solid rgb(145, 174, 155)",
+        "borderRadius": "12px",
+        "padding": "10px 12px",
+        "gap": "9px",
+        "grid": "none"
+      }
+    ],
+    ".home-dashboard": [
+      {
+        "x": 16,
+        "y": 385.1499938964844,
+        "width": 343.20001220703125,
+        "height": 874.2000122070312,
+        "fontFamily": "Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(32, 44, 61)",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "gap": "20px",
+        "grid": "343.2px"
+      }
+    ],
+    ".home-priorities": [
+      {
+        "x": 16,
+        "y": 385.1499938964844,
+        "width": 343.20001220703125,
+        "height": 380.1000061035156,
+        "fontFamily": "Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgb(255, 255, 255)",
+        "border": "0.8px solid rgb(206, 214, 225)",
+        "borderRadius": "22px",
+        "padding": "18px",
+        "gap": "normal",
+        "grid": "none"
+      }
+    ],
+    ".panel-header h2": [
+      {
+        "x": 34.79999923706055,
+        "y": 403.95001220703125,
+        "width": 214.96250915527344,
+        "height": 26,
+        "fontFamily": "Nunito, system-ui, sans-serif",
+        "fontSize": "20px",
+        "fontWeight": "800",
+        "lineHeight": "26px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(32, 44, 61)",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "gap": "normal",
+        "grid": "none"
+      }
+    ],
+    ".submission-row": [],
+    ".learning-tile": [
+      {
+        "x": 34.79999923706055,
+        "y": 473.95001220703125,
+        "width": 305.6000061035156,
+        "height": 212.5,
+        "fontFamily": "Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgb(255, 255, 255)",
+        "border": "0.8px solid rgb(226, 181, 142)",
+        "borderRadius": "18px",
+        "padding": "0px",
+        "gap": "normal",
+        "grid": "90px 214px"
+      }
+    ],
+    ".learning-cover": [
+      {
+        "x": 35.60000228881836,
+        "y": 474.75,
+        "width": 90,
+        "height": 146.10000610351562,
+        "fontFamily": "Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgb(255, 240, 227)",
+        "border": "",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "gap": "normal",
+        "grid": "none"
+      }
+    ],
+    ".learning-body": [
+      {
+        "x": 125.5999984741211,
+        "y": 474.75,
+        "width": 214,
+        "height": 146.10000610351562,
+        "fontFamily": "Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(32, 44, 61)",
+        "borderRadius": "0px",
+        "padding": "15px 14px",
+        "gap": "normal",
+        "grid": "none"
+      }
+    ],
+    ".learning-footer": [
+      {
+        "x": 35.60000228881836,
+        "y": 620.8500366210938,
+        "width": 304,
+        "height": 64.80000305175781,
+        "fontFamily": "Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgb(255, 240, 227)",
+        "border": "",
+        "borderRadius": "0px",
+        "padding": "10px 13px",
+        "gap": "9px",
+        "grid": "none"
+      }
+    ],
+    ".day-planner": [
+      {
+        "x": 16,
+        "y": 785.25,
+        "width": 343.20001220703125,
+        "height": 474.1000061035156,
+        "fontFamily": "Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgb(255, 255, 255)",
+        "border": "0.8px solid rgb(212, 198, 183)",
+        "borderRadius": "22px",
+        "padding": "0px",
+        "gap": "normal",
+        "grid": "none"
+      }
+    ],
+    ".planner-header": [
+      {
+        "x": 16.80000114440918,
+        "y": 786.0499877929688,
+        "width": 341.6000061035156,
+        "height": 147.8000030517578,
+        "fontFamily": "Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgb(255, 240, 227)",
+        "border": "",
+        "borderRadius": "0px",
+        "padding": "18px",
+        "gap": "normal",
+        "grid": "none"
+      }
+    ],
+    ".planner-week": [
+      {
+        "x": 34.79999923706055,
+        "y": 951.8500366210938,
+        "width": 305.6000061035156,
+        "height": 79.30000305175781,
+        "fontFamily": "Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "",
+        "borderRadius": "0px",
+        "padding": "0px 0px 17px",
+        "gap": "7px",
+        "grid": "55.5125px 55.525px 55.5125px 55.525px 55.525px"
+      }
+    ],
+    ".planner-week > *": [
+      {
+        "x": 34.79999923706055,
+        "y": 951.8500366210938,
+        "width": 55.51250076293945,
+        "height": 61.5,
+        "fontFamily": "Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "24px",
+        "color": "rgb(255, 255, 255)",
+        "background": "rgb(183, 71, 16)",
+        "border": "0.8px solid rgb(183, 71, 16)",
+        "borderRadius": "12px",
+        "padding": "6px 3px",
+        "gap": "3px",
+        "grid": "none"
+      },
+      {
+        "x": 97.3125,
+        "y": 951.8500366210938,
+        "width": 55.525001525878906,
+        "height": 61.5,
+        "fontFamily": "Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "24px",
+        "color": "rgb(74, 92, 115)",
+        "background": "rgb(244, 246, 249)",
+        "border": "0.8px solid rgba(0, 0, 0, 0)",
+        "borderRadius": "12px",
+        "padding": "6px 3px",
+        "gap": "3px",
+        "grid": "none"
+      },
+      {
+        "x": 159.83750915527344,
+        "y": 951.8500366210938,
+        "width": 55.51250076293945,
+        "height": 61.5,
+        "fontFamily": "Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "24px",
+        "color": "rgb(74, 92, 115)",
+        "background": "rgb(244, 246, 249)",
+        "border": "0.8px solid rgba(0, 0, 0, 0)",
+        "borderRadius": "12px",
+        "padding": "6px 3px",
+        "gap": "3px",
+        "grid": "none"
+      },
+      {
+        "x": 222.35000610351562,
+        "y": 951.8500366210938,
+        "width": 55.525001525878906,
+        "height": 61.5,
+        "fontFamily": "Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "24px",
+        "color": "rgb(74, 92, 115)",
+        "background": "rgb(244, 246, 249)",
+        "border": "0.8px solid rgba(0, 0, 0, 0)",
+        "borderRadius": "12px",
+        "padding": "6px 3px",
+        "gap": "3px",
+        "grid": "none"
+      },
+      {
+        "x": 284.875,
+        "y": 951.8500366210938,
+        "width": 55.525001525878906,
+        "height": 61.5,
+        "fontFamily": "Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "24px",
+        "color": "rgb(74, 92, 115)",
+        "background": "rgb(244, 246, 249)",
+        "border": "0.8px solid rgba(0, 0, 0, 0)",
+        "borderRadius": "12px",
+        "padding": "6px 3px",
+        "gap": "3px",
+        "grid": "none"
+      }
+    ],
+    ".class-grid": [
+      {
+        "x": 16,
+        "y": 1330.3499755859375,
+        "width": 343.20001220703125,
+        "height": 165.60000610351562,
+        "fontFamily": "Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(32, 44, 61)",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "gap": "17px",
+        "grid": "343.2px"
+      }
+    ],
+    ".class-card": [
+      {
+        "x": 16,
+        "y": 1330.3499755859375,
+        "width": 343.20001220703125,
+        "height": 165.60000610351562,
+        "fontFamily": "Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgb(255, 255, 255)",
+        "border": "0.8px solid rgb(206, 214, 225)",
+        "borderRadius": "22px",
+        "padding": "0px",
+        "gap": "normal",
+        "grid": "112px 229.6px"
+      }
+    ],
+    ".class-cover": [
+      {
+        "x": 16.80000114440918,
+        "y": 1331.1500244140625,
+        "width": 112,
+        "height": 164,
+        "fontFamily": "Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgb(223, 239, 231)",
+        "border": "",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "gap": "normal",
+        "grid": "none"
+      }
+    ],
+    ".class-body": [
+      {
+        "x": 128.8000030517578,
+        "y": 1331.1500244140625,
+        "width": 229.60000610351562,
+        "height": 164,
+        "fontFamily": "Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(32, 44, 61)",
+        "borderRadius": "0px",
+        "padding": "17px 15px",
+        "gap": "normal",
+        "grid": "none"
+      }
+    ],
+    ".class-body h3": [
+      {
+        "x": 143.8000030517578,
+        "y": 1348.1500244140625,
+        "width": 199.60000610351562,
+        "height": 23.80000114440918,
+        "fontFamily": "Nunito, system-ui, sans-serif",
+        "fontSize": "17px",
+        "fontWeight": "800",
+        "lineHeight": "23.8px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(32, 44, 61)",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "gap": "normal",
+        "grid": "none"
+      }
+    ],
+    ".home-priorities-footer": [
+      {
+        "x": 34.79999923706055,
+        "y": 702.4500122070312,
+        "width": 305.6000061035156,
+        "height": 44,
+        "fontFamily": "Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "500",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(32, 44, 61)",
+        "borderRadius": "0px",
+        "padding": "0px",
+        "gap": "normal",
+        "grid": "none"
+      }
+    ]
+  },
+  "outside": [],
+  "broken": 0
+}

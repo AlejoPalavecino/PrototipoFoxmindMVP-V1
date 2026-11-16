@@ -1,0 +1,442 @@
+{
+  "capturedAt": "2026-11-16T03:26:23.495Z",
+  "scope": "Inicio y navbar docente/estudiante; corrección de fidelidad, TASK-016",
+  "branch": "codex/foxmind-product-parity",
+  "base": "ef6828b96084b0fcaf9a883e4afb95e0871cf1d6",
+  "newCommit": false,
+  "buildId": "UGTf8RMd24BbwOkYdJufH",
+  "reference": {
+    "path": "C:/Users/alejo/.codex/worktrees/foxmind-ui-lab/ProtipoFoxMind/design/foxmind-ui-lab/01-foxmind.html",
+    "sha256": "81642edc107f01b3d602d11399bacfd3189e13841842e289739c3f3540764ff0",
+    "iteration": 17
+  },
+  "runtime": {
+    "origin": "http://127.0.0.1:3000",
+    "apiOrigin": "http://127.0.0.1:3001",
+    "provider": "existing real Gemini configuration; no paid generation during this correction"
+  },
+  "checks": {
+    "rootFocusedTests": 40,
+    "rootFinalFocusedRechecks": 23,
+    "countsOverlap": true,
+    "architectureBoundaries": "PASS after replacing cross-feature type imports with HomeAgendaReader",
+    "types": "Astra reported PASS; production build READY",
+    "visualWidths": [
+      1920,
+      1440,
+      390
+    ],
+    "additionalStudentOverflowWidths": [
+      320,
+      768,
+      1000
+    ],
+    "motion": "Card hover -3px / 180ms and button 160ms match reference; reduced motion disables transition",
+    "finalRootFocusedTests": {
+      "passed": 41,
+      "failed": 0,
+      "skipped": 0
+    },
+    "documentation": {
+      "files": 159,
+      "links": 1000,
+      "issues": 0
+    },
+    "taskboard": {
+      "validTasks": 16
+    },
+    "diffWhitespace": "PASS",
+    "evidenceIntegrity": {
+      "hashes": 54,
+      "localLinks": 20
+    }
+  },
+  "limits": [
+    "Real counts, saved covers, initials and dates differ from the static prototype.",
+    "Fixtures use synthetic data and do not populate the retained product database.",
+    "Source hashes cover the scoped files, not all preexisting worktree changes.",
+    "No full WCAG audit, no new audit of classroom interiors, no commit/push/merge/deploy."
+  ],
+  "sources": [
+    {
+      "file": "apps/web/src/features/home/ui/Home.tsx",
+      "sha256": "e837a33a7b4633fcdb23c23cda63ad5a516defb075501773e1c231241becf245"
+    },
+    {
+      "file": "apps/web/src/features/home/ui/HomePriorities.tsx",
+      "sha256": "0be2f34aebe99fbe4126ffbbac2d7e46a9a7a9d558c2c488102602c6089cd1f5"
+    },
+    {
+      "file": "apps/web/src/features/home/ui/HomeClassCards.tsx",
+      "sha256": "cdf92445264e4730cfa5d8c4c00f450a2cc43343fb0b649e3c623f22f9a01f6f"
+    },
+    {
+      "file": "apps/web/src/features/home/ui/HomeMiniagenda.tsx",
+      "sha256": "354e1b44b60d793718020e40fc9ebe190857ff53db193790cc1b8f1c10f15d4c"
+    },
+    {
+      "file": "apps/web/src/features/home/model/home-presentation.ts",
+      "sha256": "fd46ed84a3e644bf2eb7315364edef8bf662dadc380179cbe6c127664e14005d"
+    },
+    {
+      "file": "apps/web/src/features/home/model/use-home.ts",
+      "sha256": "6d42e7fd124a6f65cf6d81a56e9cc9e215f87c2d08b9d452933ccd41f93df2b6"
+    },
+    {
+      "file": "apps/web/src/features/home/model/home-daily-agenda.ts",
+      "sha256": "4e0ebe81d3ae14d6fa6b05559e5d9148e564d2ef0f4e169f4dc701f3600e51e1"
+    },
+    {
+      "file": "apps/web/src/features/home/model/home-queue.ts",
+      "sha256": "945069c7a6f1aaa2641edb6cc5bcbe7eeb17ed7c7387280e5626f5da6debcc29"
+    },
+    {
+      "file": "apps/web/src/features/home/api/home-api.ts",
+      "sha256": "ba05d90ff43ff1cdc59974c3ef2cec63883abf00dcbfecadc49b0f71dfc2e0f0"
+    },
+    {
+      "file": "apps/shared-ui/AppNavbar.tsx",
+      "sha256": "886df60fa69e1e5e35d8010a528dc0776322f348c92f3b0930e6a4d745e2c7a5"
+    },
+    {
+      "file": "apps/shared-ui/NavbarParts.tsx",
+      "sha256": "24fa2f20837cb6dad75f26cccc552d92320081192562ff977e192bf4d43a7ca0"
+    },
+    {
+      "file": "apps/shared-ui/NavigationSearch.tsx",
+      "sha256": "26655cf0a6a759b1832225fcb6b89815145f0886fadd89b67416659df50866b6"
+    },
+    {
+      "file": "apps/shared-ui/HomeReferenceIcon.tsx",
+      "sha256": "0ea419a2dbbf63ead5741584aec60aac794485c5085ea6306c1a1b20a864dc72"
+    },
+    {
+      "file": "apps/shared-ui/parity-home.css",
+      "sha256": "dfae369476fe18ee454cd7e07274d112f7f893627b6f152c87eedadad893b8e9"
+    },
+    {
+      "file": "apps/shared-ui/parity-foundation.css",
+      "sha256": "c6018aee93b12cccf8401f4c5fe6424cfacd8e80e51c51885c0cee5cbb4c08bd"
+    },
+    {
+      "file": "apps/web/src/application/academic-Classrooms.tsx",
+      "sha256": "7a4d96bdbd7547d3a84db9a0c819f9a27b27dbee4dafc74cc8b69e333dde7164"
+    },
+    {
+      "file": "apps/web/src/application/academic-ClassroomView.tsx",
+      "sha256": "122665605f0a5ddcc5bfd9b9eff3ad6cc4421334c7d4ff6229d11200155414bb"
+    },
+    {
+      "file": "src/core/domain/home/home.ts",
+      "sha256": "89f4c26d5254d6c8789c8f34e0bd4c7acb70695cbb516424ff7c854147b7395e"
+    },
+    {
+      "file": "src/core/domain/home/rows-validation.ts",
+      "sha256": "603bb04869bbee6f4d125148c5ca474c2907bb612a196ee6fb2cb3d6dc737259"
+    },
+    {
+      "file": "apps/api/src/modules/home/infrastructure/queries-content.ts",
+      "sha256": "4faff47e2dd9b97e6e64209605aa873efd20b23babc3356eead73de61139611d"
+    },
+    {
+      "file": "tests/home-query-author.test.mjs",
+      "sha256": "4bf47736340afa370575170e8191562b750aea3e2d643520d621b1eef4178df9"
+    },
+    {
+      "file": "tests/home-daily-agenda.test.mjs",
+      "sha256": "f5ec54cf20ba90716303f3c425bff62a29821d4eeb117df444e56ead09b342ad"
+    },
+    {
+      "file": "tests/home-queue-complete.test.mjs",
+      "sha256": "fc13707a370cdadd92cec9fb3cee6186f965cf9fe3d4674baad54b095acd647c"
+    },
+    {
+      "file": "tests/home-parity-navigation.test.mjs",
+      "sha256": "80f86cf2fdd32f59bcd1a9811ac49a1568242b14e1cff7a94c25913d05baf3a8"
+    },
+    {
+      "file": "tests/home-warm-navigation.test.mjs",
+      "sha256": "3e4ce9c8365f62d50d7d5c0a08198b34f24ad07f9bc8c681ac07513cd97dd26f"
+    },
+    {
+      "file": "tests/helpers/home-reference/fixture.tsx",
+      "sha256": "77f2518fbe5a3562ea751e096d87e5f4e289b52ec5d230a5a003162d80b70455"
+    },
+    {
+      "file": "tests/helpers/home-reference/harness.mjs",
+      "sha256": "5589596110b3a00453850a1036d59375facaa8563110a72d3879c5ed353e9c7d"
+    }
+  ],
+  "evidence": [
+    {
+      "file": "app-teacher-1920.json",
+      "bytes": 11168,
+      "sha256": "66a52026d928c62e6b70a572647aa2b3f83a0225a187c7c35f9115c01f25813b"
+    },
+    {
+      "file": "app-teacher-1920-top.png",
+      "bytes": 293799,
+      "sha256": "58062819d2faadc9fcc2deab591832fa718dc6602b5ea31f5ff29e27d8978d38"
+    },
+    {
+      "file": "app-teacher-1920-bottom.png",
+      "bytes": 257721,
+      "sha256": "0c975ffde70d73f46f8e75a8a55a5beaf4ed9fddfec5e0ce411f806dfdf6e1de"
+    },
+    {
+      "file": "app-teacher-1440.json",
+      "bytes": 11188,
+      "sha256": "39bc815e9359b38d6fb3ad175b0a1e348008397d8a898552e72b9a52afbf380d"
+    },
+    {
+      "file": "app-teacher-1440-top.png",
+      "bytes": 287759,
+      "sha256": "6ab20bdbc14f0017b3f56fd08ea773c99e73fa3649fc84fee17d7d0ac613c5fe"
+    },
+    {
+      "file": "app-teacher-1440-bottom.png",
+      "bytes": 252415,
+      "sha256": "0868b90669b3c443a9437647a201654dbf568e76a15f8377d38cff399fa5b7e0"
+    },
+    {
+      "file": "app-teacher-390.json",
+      "bytes": 11023,
+      "sha256": "1557b17e9f73c750e81511b43d71af9f29bb7875a3848987c8bf09ffa483c9c1"
+    },
+    {
+      "file": "app-teacher-390-top.png",
+      "bytes": 86349,
+      "sha256": "783fb3afbbc63d1cf5f8a058390acd4c23b8041e7227a422c1e77fcc3c4d5c0f"
+    },
+    {
+      "file": "app-teacher-390-bottom.png",
+      "bytes": 84057,
+      "sha256": "057825df637c271de2071fe4b51bdc67c6590013c38d8b5ce669f4ec2e1493d7"
+    },
+    {
+      "file": "app-student-1920.json",
+      "bytes": 12136,
+      "sha256": "fcf12ebd189b8666cd135f9404e2d62bc5a9f39e61ad65f38c6aaf4c6e48f438"
+    },
+    {
+      "file": "app-student-1920-top.png",
+      "bytes": 337242,
+      "sha256": "578d17ce5db3615ef70c41133e8d7f981082ce3d074eb986b6e1b9d1c0fedc36"
+    },
+    {
+      "file": "app-student-1920-bottom.png",
+      "bytes": 297851,
+      "sha256": "9c31cbccff19002cd3344e4da0818fe579dae37f9b6a49054073d3cc4595c49b"
+    },
+    {
+      "file": "app-student-1440.json",
+      "bytes": 12170,
+      "sha256": "1a9f5e8425f69bc55f35cd7248a42801f039f27aeae21281cd8dc0bdb641c0fa"
+    },
+    {
+      "file": "app-student-1440-top.png",
+      "bytes": 331950,
+      "sha256": "c699777ec067bc46298f4b9d42c7be6f2c22914602044e6eac3a2cec12ee7c82"
+    },
+    {
+      "file": "app-student-1440-bottom.png",
+      "bytes": 291995,
+      "sha256": "6d14de6b169253c49fc8135d63e61394eef4d67e10aade28ec599a519f80ad49"
+    },
+    {
+      "file": "app-student-390.json",
+      "bytes": 12047,
+      "sha256": "17c14f16d74b0d57fcdd7c40fc233fe64dd485e7c90927869c9c4381fff09a99"
+    },
+    {
+      "file": "app-student-390-top.png",
+      "bytes": 102998,
+      "sha256": "cd0055b7128e612c6fee6ed6e31b24cc9cdf39b6414c20feb41fe96cb1536633"
+    },
+    {
+      "file": "app-student-390-bottom.png",
+      "bytes": 80533,
+      "sha256": "e59353b68f377e5a71c630541001b9e1fa8b5e6081cc2bf15b5072f58995513d"
+    },
+    {
+      "file": "reference-teacher-1920.json",
+      "bytes": 19016,
+      "sha256": "d381dbf2e6d5e75837683e1cf932e8d780024816c2d3ae3bd53b987fadbfc109"
+    },
+    {
+      "file": "reference-teacher-1920-top.png",
+      "bytes": 412399,
+      "sha256": "d1b077fd78deb8bbf5fc47653e3c7b62d351bf8c2690be6e545a80ed92f990dc"
+    },
+    {
+      "file": "reference-teacher-1920-bottom.png",
+      "bytes": 467804,
+      "sha256": "27a725b34280437685f54866b8035c0a4107511791f0cc77c30be14c79743d2a"
+    },
+    {
+      "file": "reference-teacher-1440.json",
+      "bytes": 19088,
+      "sha256": "56990d925126ce2f8fefadd76a6226550d7229e045b206c8a23e086f51ea8cc6"
+    },
+    {
+      "file": "reference-teacher-1440-top.png",
+      "bytes": 398060,
+      "sha256": "8718af09b6a8c509648224d8f6245c489bad49b897c4af86f2c3cc6575c27188"
+    },
+    {
+      "file": "reference-teacher-1440-bottom.png",
+      "bytes": 443523,
+      "sha256": "c884c03b35678f3e418bb72fbda3807fea4d8758a9e9833e9decbb33f10265bc"
+    },
+    {
+      "file": "reference-teacher-390.json",
+      "bytes": 18803,
+      "sha256": "9b663dc29381309cc406389226f2130e6ecb5cc32ba259390ec7ea991b8bcd69"
+    },
+    {
+      "file": "reference-teacher-390-top.png",
+      "bytes": 89431,
+      "sha256": "49a1c512ad111876d453931113484466624add02bdb2eb36f0dfa40963b7a54d"
+    },
+    {
+      "file": "reference-teacher-390-bottom.png",
+      "bytes": 152081,
+      "sha256": "5d07172de99cfb2219e477583e7c0238e12c700f8fe55fbbc70ad31b4de70da3"
+    },
+    {
+      "file": "reference-student-1920.json",
+      "bytes": 20071,
+      "sha256": "93d843272890cbc1b8098463f5c8317aa0c099da0ec77fb6a674de1b6a9dd5da"
+    },
+    {
+      "file": "reference-student-1920-top.png",
+      "bytes": 573105,
+      "sha256": "8f509e7919d203594ebc3a7be4c724b8d4eb44b3c5bd4fa3d7e1d9cc32447fac"
+    },
+    {
+      "file": "reference-student-1920-bottom.png",
+      "bytes": 629885,
+      "sha256": "66c8cfab62b029373446327b2602272bb882cab3ada0b33bf41ce3d56a46d8eb"
+    },
+    {
+      "file": "reference-student-1440.json",
+      "bytes": 20098,
+      "sha256": "1fb91345ac3c541080276871fc64ee980782993ef395c364638ceda2d9be6c04"
+    },
+    {
+      "file": "reference-student-1440-top.png",
+      "bytes": 547395,
+      "sha256": "64ddd6afbd7b2cfa667362c35a64eb70bd6a6cd000bb96305ef6c0c0a92b3c36"
+    },
+    {
+      "file": "reference-student-1440-bottom.png",
+      "bytes": 596958,
+      "sha256": "79dfa9edf1dc0e474b85422ce77232ccf4c4dd7f23a4bf5b2a30a02da7256654"
+    },
+    {
+      "file": "reference-student-390.json",
+      "bytes": 19869,
+      "sha256": "70067ec0bcce316115adbc1713192007a8d39cb9e324130980783c3a5475480b"
+    },
+    {
+      "file": "reference-student-390-top.png",
+      "bytes": 121852,
+      "sha256": "e1b8074f0daef7a9879bde468773b82e31ecf8a77a4c078668b6896ee1068761"
+    },
+    {
+      "file": "reference-student-390-bottom.png",
+      "bytes": 152351,
+      "sha256": "bd557e8f2911689aaa1879acf060e448f40297c0f067553f0079dee61e5d152b"
+    },
+    {
+      "file": "fixture-teacher-1920.json",
+      "bytes": 17062,
+      "sha256": "065f39f72ff474c63eebee4257193370e6e5bcea11f7212d8395fbc66a8e7863"
+    },
+    {
+      "file": "fixture-teacher-1920-top.png",
+      "bytes": 468470,
+      "sha256": "3a2833697672f8dc11cc5a797fb81874b99e82aa05e30d17477af04f5283c4c6"
+    },
+    {
+      "file": "fixture-teacher-1440.json",
+      "bytes": 17134,
+      "sha256": "4d0516e36f81d3b7e0f414c383844a80485c664489d407c0716b3f336b6c32d8"
+    },
+    {
+      "file": "fixture-teacher-390.json",
+      "bytes": 16943,
+      "sha256": "65fe48fd49cee2a40ae8f6ddc8695f8c0a8627018ef0f7658de354fc22c101b4"
+    },
+    {
+      "file": "fixture-teacher-390-top.png",
+      "bytes": 89606,
+      "sha256": "5f8bba56337ad08c4a2f5ded44a9ccb9357ad222f9eef51ee7aad13086687208"
+    },
+    {
+      "file": "fixture-student-1920.json",
+      "bytes": 18156,
+      "sha256": "7243e56bd88ee9fa38a40ca64bf76028283170ae77a79dc2a0f9d4a2f9cd89d8"
+    },
+    {
+      "file": "fixture-student-1920-top.png",
+      "bytes": 621343,
+      "sha256": "6f81b0a22ca8b02a4fb5f4f784bfa7c997993a54aa7e23c476a3adb1cb2bbcfb"
+    },
+    {
+      "file": "fixture-student-1440.json",
+      "bytes": 18183,
+      "sha256": "a023da1aaddbd80fb94d16555b4ff32362f079deea3fee8bebab16f79a6a1462"
+    },
+    {
+      "file": "fixture-student-390.json",
+      "bytes": 18010,
+      "sha256": "b2447415798dd302c5ce1527b8913476ea22c421658bd65a9b45081041666845"
+    },
+    {
+      "file": "fixture-student-390-top.png",
+      "bytes": 129855,
+      "sha256": "bf535b402235a83b3f8160df02abf91efb6cb2c5eb44e128322eff71a19dad64"
+    },
+    {
+      "file": "app-teacher-mobile-menu-final.png",
+      "bytes": 67594,
+      "sha256": "ca39f9958f0d0e0dc5f7dec6647da49bd08e9f140745748d6603e8d67ad588e4"
+    },
+    {
+      "file": "app-student-mobile-menu-final.png",
+      "bytes": 69039,
+      "sha256": "7356025b2372d33207e47531ccdae6c11da9ca94813261eff29ce3a4acd76162"
+    },
+    {
+      "file": "app-teacher-collapsed-final.png",
+      "bytes": 268302,
+      "sha256": "0917b4f1f528a6db63bb1ebfc7dc4edc6acecc95b577f1645484971ccc5486ca"
+    },
+    {
+      "file": "app-teacher-query-final.png",
+      "bytes": 290647,
+      "sha256": "01e1530f0bb52815485e6319469b0a66f08c2fa55863f640fab18b559757972a"
+    },
+    {
+      "file": "interaction-teacher.json",
+      "bytes": 708,
+      "sha256": "4c26158664bbc16970ac7d2074fdfc9a0f38404502d12087393a63c437de2b70"
+    },
+    {
+      "file": "interaction-student.json",
+      "bytes": 164,
+      "sha256": "d74d745a41a4a345d0bf19412fb702c8f5a5fb46efe9f2f21ca969e126ce3623"
+    },
+    {
+      "file": "motion-responsive.json",
+      "bytes": 1011,
+      "sha256": "445e08f6bb6ba91124181cdcd38c5ad6070a166f8e5c9cbd134673326c66f86a"
+    },
+    {
+      "file": "review-destination.json",
+      "bytes": 1276,
+      "sha256": "cc385b2ef21ce68c208eabf7ce11e0abf97c5b65c4f7ce9e647cd630abff9876"
+    }
+  ]
+}

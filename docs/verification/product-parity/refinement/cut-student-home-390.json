@@ -1,0 +1,78 @@
+{
+  "width": 390,
+  "clientWidth": 375,
+  "height": 844,
+  "scrollWidth": 375,
+  "headings": [
+    {
+      "text": "Buen día, Marina.",
+      "font": "900 32px / 35.84px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 36.79999923706055,
+        "y": 138.85000610351562,
+        "width": 211.60000610351562,
+        "height": 72,
+        "top": 138.85000610351562,
+        "right": 248.40000534057617,
+        "bottom": 210.85000610351562,
+        "left": 36.79999923706055
+      }
+    },
+    {
+      "text": "Tu próximo paso",
+      "font": "800 20px / 26px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 34.79999923706055,
+        "y": 403.95001220703125,
+        "width": 214.96250915527344,
+        "height": 26,
+        "top": 403.95001220703125,
+        "right": 249.76250839233398,
+        "bottom": 429.95001220703125,
+        "left": 34.79999923706055
+      }
+    },
+    {
+      "text": "Tu día, con calma",
+      "font": "800 20px / 26px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 34.79999923706055,
+        "y": 804.0499877929688,
+        "width": 156.8874969482422,
+        "height": 26,
+        "top": 804.0499877929688,
+        "right": 191.68749618530273,
+        "bottom": 830.0499877929688,
+        "left": 34.79999923706055
+      }
+    },
+    {
+      "text": "Tus últimas devoluciones",
+      "font": "800 21px / 27.3px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 60.79999923706055,
+        "y": 1350.2000732421875,
+        "width": 243.5749969482422,
+        "height": 27.30000114440918,
+        "top": 1350.2000732421875,
+        "right": 304.37499618530273,
+        "bottom": 1377.5000743865967,
+        "left": 60.79999923706055
+      }
+    },
+    {
+      "text": "Tus aulas",
+      "font": "800 21px / 27.3px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 16,
+        "y": 1586.25,
+        "width": 91.11250305175781,
+        "height": 27.30000114440918,
+        "top": 1586.25,
+        "right": 107.11250305175781,
+        "bottom": 1613.5500011444092,
+        "left": 16
+      }
+    }
+  ]
+}

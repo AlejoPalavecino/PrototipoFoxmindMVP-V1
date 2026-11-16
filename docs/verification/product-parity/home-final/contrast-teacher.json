@@ -1,0 +1,628 @@
+{
+  "app-teacher": {
+    "fontLoaded": true,
+    "samples": [
+      {
+        "sel": ".home-welcome h1",
+        "text": "Hola, Lucía.",
+        "ratio": 11.19,
+        "color": "rgb(39, 45, 56)",
+        "background": [
+          255,
+          226,
+          203
+        ]
+      },
+      {
+        "sel": ".home-welcome p",
+        "text": "Lunes 16 de noviembre",
+        "ratio": 6.9,
+        "color": "rgb(100, 70, 49)",
+        "background": [
+          255,
+          226,
+          203
+        ]
+      },
+      {
+        "sel": ".home-welcome p",
+        "text": "Tenés 1 entrega para revisar. Vamos de a una.",
+        "ratio": 7.47,
+        "color": "rgb(89, 67, 51)",
+        "background": [
+          255,
+          226,
+          203
+        ]
+      },
+      {
+        "sel": ".home-welcome p",
+        "text": "Cada devolución abre una nueva posibilidad.",
+        "ratio": 6.64,
+        "color": "rgb(101, 73, 54)",
+        "background": [
+          255,
+          226,
+          203
+        ]
+      },
+      {
+        "sel": ".home-welcome .button.primary",
+        "text": "Crear actividad",
+        "ratio": 5.35,
+        "color": "rgb(255, 255, 255)",
+        "background": [
+          183,
+          71,
+          16
+        ]
+      },
+      {
+        "sel": ".panel-header h2",
+        "text": "Por acompañar",
+        "ratio": 14.1,
+        "color": "rgb(32, 44, 61)",
+        "background": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "sel": ".panel-header p",
+        "text": "Tu mirada hace la diferencia.",
+        "ratio": 7.37,
+        "color": "rgb(72, 87, 107)",
+        "background": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "sel": ".review-group-heading p",
+        "text": "Fotografía y luz",
+        "ratio": 7.24,
+        "color": "rgb(128, 61, 25)",
+        "background": [
+          255,
+          240,
+          227
+        ]
+      },
+      {
+        "sel": ".review-group-heading h3",
+        "text": "Mirar la luz · revisión visual",
+        "ratio": 11.42,
+        "color": "rgb(39, 51, 70)",
+        "background": [
+          255,
+          240,
+          227
+        ]
+      },
+      {
+        "sel": ".submission-copy strong",
+        "text": "Marina Demo",
+        "ratio": 12.47,
+        "color": "rgb(37, 53, 73)",
+        "background": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "sel": ".submission-copy span",
+        "text": "15 nov, 21:54",
+        "ratio": 6.65,
+        "color": "rgb(76, 94, 115)",
+        "background": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "sel": ".submission-action",
+        "text": "Revisar",
+        "ratio": 6.93,
+        "color": "rgb(140, 62, 20)",
+        "background": [
+          255,
+          245,
+          235
+        ]
+      },
+      {
+        "sel": ".class-body h3",
+        "text": "Fotografía y luz",
+        "ratio": 14.1,
+        "color": "rgb(32, 44, 61)",
+        "background": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "sel": ".class-body p",
+        "text": "Fotografía · 1 estudiante",
+        "ratio": 8.03,
+        "color": "rgb(66, 81, 106)",
+        "background": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "sel": ".class-bottom",
+        "text": "1 de 2 temas dados",
+        "ratio": 8.05,
+        "color": "rgb(65, 81, 106)",
+        "background": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "sel": ".planner-header p",
+        "text": "Un día con espacio para vos",
+        "ratio": 6.46,
+        "color": "rgb(113, 80, 59)",
+        "background": [
+          255,
+          240,
+          227
+        ]
+      },
+      {
+        "sel": ".planner-week > *",
+        "text": "Lun16",
+        "ratio": 5.35,
+        "color": "rgb(255, 255, 255)",
+        "background": [
+          183,
+          71,
+          16
+        ]
+      },
+      {
+        "sel": ".planner-week > *",
+        "text": "Mar17",
+        "ratio": 6.32,
+        "color": "rgb(74, 92, 115)",
+        "background": [
+          244,
+          246,
+          249
+        ]
+      },
+      {
+        "sel": ".planner-week > *",
+        "text": "Mié18",
+        "ratio": 6.32,
+        "color": "rgb(74, 92, 115)",
+        "background": [
+          244,
+          246,
+          249
+        ]
+      },
+      {
+        "sel": ".planner-week > *",
+        "text": "Jue19",
+        "ratio": 6.32,
+        "color": "rgb(74, 92, 115)",
+        "background": [
+          244,
+          246,
+          249
+        ]
+      },
+      {
+        "sel": ".planner-week > *",
+        "text": "Vie20",
+        "ratio": 6.32,
+        "color": "rgb(74, 92, 115)",
+        "background": [
+          244,
+          246,
+          249
+        ]
+      }
+    ]
+  },
+  "reference-teacher": {
+    "fontLoaded": true,
+    "samples": [
+      {
+        "sel": ".home-welcome h1",
+        "text": "Hola, Lucía.",
+        "ratio": 11.19,
+        "color": "rgb(39, 45, 56)",
+        "background": [
+          255,
+          226,
+          203
+        ]
+      },
+      {
+        "sel": ".home-welcome p",
+        "text": "Viernes 13 de noviembre",
+        "ratio": 6.9,
+        "color": "rgb(100, 70, 49)",
+        "background": [
+          255,
+          226,
+          203
+        ]
+      },
+      {
+        "sel": ".home-welcome p",
+        "text": "Tenés 3 entregas para revisar. Vamos de a una.",
+        "ratio": 7.47,
+        "color": "rgb(89, 67, 51)",
+        "background": [
+          255,
+          226,
+          203
+        ]
+      },
+      {
+        "sel": ".home-welcome p",
+        "text": "Cada devolución abre una nueva posibilidad.",
+        "ratio": 6.64,
+        "color": "rgb(101, 73, 54)",
+        "background": [
+          255,
+          226,
+          203
+        ]
+      },
+      {
+        "sel": ".home-welcome .button.primary",
+        "text": "Crear actividad",
+        "ratio": 5.35,
+        "color": "rgb(255, 255, 255)",
+        "background": [
+          183,
+          71,
+          16
+        ]
+      },
+      {
+        "sel": ".panel-header h2",
+        "text": "Por acompañar",
+        "ratio": 14.1,
+        "color": "rgb(32, 44, 61)",
+        "background": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "sel": ".panel-header p",
+        "text": "Tu mirada hace la diferencia.",
+        "ratio": 7.37,
+        "color": "rgb(72, 87, 107)",
+        "background": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "sel": ".review-group-heading p",
+        "text": "Fotografía y luz",
+        "ratio": 7.24,
+        "color": "rgb(128, 61, 25)",
+        "background": [
+          255,
+          240,
+          227
+        ]
+      },
+      {
+        "sel": ".review-group-heading p",
+        "text": "El mundo natural",
+        "ratio": 6.77,
+        "color": "rgb(45, 90, 64)",
+        "background": [
+          228,
+          240,
+          232
+        ]
+      },
+      {
+        "sel": ".review-group-heading h3",
+        "text": "Una foto, tres miradas",
+        "ratio": 11.42,
+        "color": "rgb(39, 51, 70)",
+        "background": [
+          255,
+          240,
+          227
+        ]
+      },
+      {
+        "sel": ".review-group-heading h3",
+        "text": "El mundo de las células",
+        "ratio": 10.88,
+        "color": "rgb(39, 51, 70)",
+        "background": [
+          228,
+          240,
+          232
+        ]
+      },
+      {
+        "sel": ".submission-copy strong",
+        "text": "Marina",
+        "ratio": 12.47,
+        "color": "rgb(37, 53, 73)",
+        "background": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "sel": ".submission-copy strong",
+        "text": "Tomás",
+        "ratio": 12.47,
+        "color": "rgb(37, 53, 73)",
+        "background": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "sel": ".submission-copy strong",
+        "text": "Sofía",
+        "ratio": 12.47,
+        "color": "rgb(37, 53, 73)",
+        "background": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "sel": ".submission-copy span",
+        "text": "Hoy, 09:20",
+        "ratio": 6.65,
+        "color": "rgb(76, 94, 115)",
+        "background": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "sel": ".submission-copy span",
+        "text": "Hoy, 08:45",
+        "ratio": 6.65,
+        "color": "rgb(76, 94, 115)",
+        "background": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "sel": ".submission-copy span",
+        "text": "Ayer, 17:10",
+        "ratio": 6.65,
+        "color": "rgb(76, 94, 115)",
+        "background": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "sel": ".submission-action",
+        "text": "Revisar",
+        "ratio": 6.93,
+        "color": "rgb(140, 62, 20)",
+        "background": [
+          255,
+          245,
+          235
+        ]
+      },
+      {
+        "sel": ".submission-action",
+        "text": "Revisar",
+        "ratio": 6.93,
+        "color": "rgb(140, 62, 20)",
+        "background": [
+          255,
+          245,
+          235
+        ]
+      },
+      {
+        "sel": ".submission-action",
+        "text": "Revisar",
+        "ratio": 6.93,
+        "color": "rgb(140, 62, 20)",
+        "background": [
+          255,
+          245,
+          235
+        ]
+      },
+      {
+        "sel": ".class-body h3",
+        "text": "Fotografía y luz",
+        "ratio": 14.1,
+        "color": "rgb(32, 44, 61)",
+        "background": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "sel": ".class-body h3",
+        "text": "El mundo natural",
+        "ratio": 14.1,
+        "color": "rgb(32, 44, 61)",
+        "background": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "sel": ".class-body h3",
+        "text": "Ideas que suman",
+        "ratio": 14.1,
+        "color": "rgb(32, 44, 61)",
+        "background": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "sel": ".class-body p",
+        "text": "Fotografía · 6 estudiantes",
+        "ratio": 8.03,
+        "color": "rgb(66, 81, 106)",
+        "background": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "sel": ".class-body p",
+        "text": "Biología · 4 estudiantes",
+        "ratio": 8.03,
+        "color": "rgb(66, 81, 106)",
+        "background": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "sel": ".class-body p",
+        "text": "Matemática · 5 estudiantes",
+        "ratio": 8.03,
+        "color": "rgb(66, 81, 106)",
+        "background": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "sel": ".class-bottom",
+        "text": "3 de 8 temas dados",
+        "ratio": 8.05,
+        "color": "rgb(65, 81, 106)",
+        "background": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "sel": ".class-bottom",
+        "text": "6 de 10 temas dados",
+        "ratio": 8.05,
+        "color": "rgb(65, 81, 106)",
+        "background": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "sel": ".class-bottom",
+        "text": "5 de 12 temas dados",
+        "ratio": 8.05,
+        "color": "rgb(65, 81, 106)",
+        "background": [
+          255,
+          255,
+          255
+        ]
+      },
+      {
+        "sel": ".planner-header p",
+        "text": "2 eventos en tu día",
+        "ratio": 6.46,
+        "color": "rgb(113, 80, 59)",
+        "background": [
+          255,
+          240,
+          227
+        ]
+      },
+      {
+        "sel": ".planner-week > *",
+        "text": "Lun9",
+        "ratio": 6.32,
+        "color": "rgb(74, 92, 115)",
+        "background": [
+          244,
+          246,
+          249
+        ]
+      },
+      {
+        "sel": ".planner-week > *",
+        "text": "Mar10",
+        "ratio": 6.32,
+        "color": "rgb(74, 92, 115)",
+        "background": [
+          244,
+          246,
+          249
+        ]
+      },
+      {
+        "sel": ".planner-week > *",
+        "text": "Mié11",
+        "ratio": 6.32,
+        "color": "rgb(74, 92, 115)",
+        "background": [
+          244,
+          246,
+          249
+        ]
+      },
+      {
+        "sel": ".planner-week > *",
+        "text": "Jue12",
+        "ratio": 6.32,
+        "color": "rgb(74, 92, 115)",
+        "background": [
+          244,
+          246,
+          249
+        ]
+      },
+      {
+        "sel": ".planner-week > *",
+        "text": "Vie13",
+        "ratio": 5.35,
+        "color": "rgb(255, 255, 255)",
+        "background": [
+          183,
+          71,
+          16
+        ]
+      }
+    ]
+  }
+}

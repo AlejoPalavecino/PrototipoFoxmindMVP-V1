@@ -1,0 +1,166 @@
+{
+  "buildId": "eU402ssoRgFJBGYgK9vxr",
+  "branch": "codex/foxmind-product-parity",
+  "source": {
+    "file": "apps/shared-ui/parity-foundation.css",
+    "sha256": "7be147a9dcf09fb2867e25ca2a5858cff938750894e624a5bc45d6fabcc158c8"
+  },
+  "checks": {
+    "viewports": [
+      1920,
+      1440,
+      390
+    ],
+    "roles": [
+      "teacher",
+      "student"
+    ],
+    "stickyMenuWidths": [
+      390,
+      768
+    ],
+    "opaqueTextSamples": 38,
+    "minimumContrast": 5.35,
+    "agentNavigationTests": "9/9 PASS",
+    "productionBuild": "READY"
+  },
+  "limits": [
+    "Reference uses demonstration data and its own demo toolbar.",
+    "Measurements sample opaque text and are not a full WCAG audit.",
+    "No new checks of classroom interiors or real AI generation in this review."
+  ],
+  "evidence": [
+    {
+      "file": "app-teacher-1920.json",
+      "sha256": "e3f07417a49ff7a2cc3bff1090370813e4679c5062b5ffc1f37efb93c6106a1c"
+    },
+    {
+      "file": "app-teacher-1920-top.png",
+      "sha256": "1edb9fc4e80f0e2a519823562c6e3cae5b1e4148f4d597f0191e868d170a131d"
+    },
+    {
+      "file": "app-teacher-1920-bottom.png",
+      "sha256": "a6768af266d6b234dc9a4a321072855c94334efdc430e80bb1f3d9cc664f77f0"
+    },
+    {
+      "file": "app-teacher-1440.json",
+      "sha256": "0ea7735c3bd302fbab2d029ad187f043b672de7bc9ac7555e6d19c355d23f4ef"
+    },
+    {
+      "file": "app-teacher-390.json",
+      "sha256": "e11abee32f5a18656a7347ca31b995e2ea0414406f222ac1b2d512b2c328ce85"
+    },
+    {
+      "file": "app-teacher-390-top.png",
+      "sha256": "f77090f9e9419313b1baee68c66b0bde08ae1e13dc283e0b9eb2f488dea92195"
+    },
+    {
+      "file": "app-teacher-390-bottom.png",
+      "sha256": "2926bc481b124d5b7d5a64930e13844f862567ce677ba5ffe7cadd1a819db81f"
+    },
+    {
+      "file": "app-student-1920.json",
+      "sha256": "259462a4aa517448d77dfb2a579b17b7529897d8ef4b9a39f5ad87120de70352"
+    },
+    {
+      "file": "app-student-1920-top.png",
+      "sha256": "a49d478e47c5159eed55918d34868f26ec002457647021cd66ef50063d363bca"
+    },
+    {
+      "file": "app-student-1920-bottom.png",
+      "sha256": "08c6958d04795ee70f94f95425724361c4ed15f9bcd935f9f5c30bd71f64b3a5"
+    },
+    {
+      "file": "app-student-1440.json",
+      "sha256": "be0fb37c33ba6c67cb0324a4e4c3f983c2d00a2acec837a45d01552966333f45"
+    },
+    {
+      "file": "app-student-390.json",
+      "sha256": "ee4c1a390093a0906462cb758e616d7ead64565289fe95bb3486aae292baa19d"
+    },
+    {
+      "file": "app-student-390-top.png",
+      "sha256": "c9409b8c279f41890f9df22fbb92afbe4c1bdf76c29d66275079fe47d1b17640"
+    },
+    {
+      "file": "app-student-390-bottom.png",
+      "sha256": "395d526a8dcc011ecab8d9f30ec9ad01e7e356ab94fd730a92a4e294e5e481eb"
+    },
+    {
+      "file": "reference-teacher-1920.json",
+      "sha256": "aef63cf4633df70693a377ef9028d47dc35b64660e09a8d20ed98428695086da"
+    },
+    {
+      "file": "reference-teacher-1920-top.png",
+      "sha256": "ce2bd7ba617fe4b12ec856ec61111b9b708c362f7c1a4a3ade87d2d1b872e1d9"
+    },
+    {
+      "file": "reference-teacher-1920-bottom.png",
+      "sha256": "9cffb83a992745936945e238aa15e7bb017f89f05e7b29466bc7bfe925da30d7"
+    },
+    {
+      "file": "reference-teacher-1440.json",
+      "sha256": "c5569b8e05429cb1e63d9d4e97ff6a75a50b26fe2033789159ec5448e49c5f15"
+    },
+    {
+      "file": "reference-teacher-390.json",
+      "sha256": "849a4b432411b4d3b951d38d2522124d74f9fb3cf42e8111ecd04b723fcf9f13"
+    },
+    {
+      "file": "reference-teacher-390-top.png",
+      "sha256": "6ff09cd2856003493c01fe9f24da62deb32b83bca8b70bd818ead86629983825"
+    },
+    {
+      "file": "reference-teacher-390-bottom.png",
+      "sha256": "f7ea3200de5b23d4d7b44c8f6d61513065c7d60dee00ae01b64e1fb6ab6604ce"
+    },
+    {
+      "file": "reference-student-1920.json",
+      "sha256": "d1d36a56580f73148ff1a8c0f9dcf22c24ca69cbf356b8319396245af4efd2e1"
+    },
+    {
+      "file": "reference-student-1920-top.png",
+      "sha256": "9fc39021bc5ee04098d7834efcc3e595c4184719f668d1b8abc4395d5532e2d2"
+    },
+    {
+      "file": "reference-student-1920-bottom.png",
+      "sha256": "c57ca1d3511789c448e46a0ac1b9da513f6bce82c3bd77ee381ba855a6901cbf"
+    },
+    {
+      "file": "reference-student-1440.json",
+      "sha256": "0da8e898570f8a772afd98c2e5550a2d71022c9948d48521dcbaefb7cab23e83"
+    },
+    {
+      "file": "reference-student-390.json",
+      "sha256": "3ed795c7e5e75f5f8aa08829b56781b7d7f3f04cf8d1f51837888404ae049448"
+    },
+    {
+      "file": "reference-student-390-top.png",
+      "sha256": "e1b8074f0daef7a9879bde468773b82e31ecf8a77a4c078668b6896ee1068761"
+    },
+    {
+      "file": "reference-student-390-bottom.png",
+      "sha256": "4168886673fc6e601f00ba0625a4d8b78005e0862772911e1ba6a0cfb4c02c96"
+    },
+    {
+      "file": "student-scrolled-menu-390.png",
+      "sha256": "8c646c46f4da2d9d4d1beb7f11f0475da41a04ad6c1dcfda82894143a2013bd3"
+    },
+    {
+      "file": "sticky-teacher.json",
+      "sha256": "6458ef97df2fa9c2bd8c90257edeaa18e807e3fbc4308efe3412ca0b7396aa43"
+    },
+    {
+      "file": "sticky-student.json",
+      "sha256": "1f16b6353352b93281fbbd9a86867a21bec9fd02d4e78933f535c631e79fb239"
+    },
+    {
+      "file": "contrast-teacher.json",
+      "sha256": "488426104c094618ff0336215fd3aad569d02076e39f81f852b5a7435e0e6c44"
+    },
+    {
+      "file": "contrast-student.json",
+      "sha256": "ba2e518fc465f01e8861cd4d87a99cecd56d0d36aacde32b0d15c90f9c4256d7"
+    }
+  ]
+}

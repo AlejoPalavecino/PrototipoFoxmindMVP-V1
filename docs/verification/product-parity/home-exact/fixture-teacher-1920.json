@@ -1,0 +1,610 @@
+{
+  "width": 1920,
+  "height": 1080,
+  "scrollWidth": 1905,
+  "scrollHeight": 1305,
+  "headings": [
+    "Hola, Alex.",
+    "Por acompañar",
+    "Tu día, con calma",
+    "Tus aulas"
+  ],
+  "metrics": {
+    ".home-welcome": [
+      {
+        "x": 468.3999938964844,
+        "y": 30,
+        "w": 1200,
+        "h": 309.6000061035156,
+        "padding": "0px",
+        "gap": "normal",
+        "display": "grid",
+        "font": "500 16px / 24px Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgb(255, 226, 203)",
+        "borderRadius": "30px",
+        "grid": "699.062px 499.325px"
+      }
+    ],
+    ".home-welcome-copy": [
+      {
+        "x": 469.20001220703125,
+        "y": 30.80000114440918,
+        "w": 699.0625,
+        "h": 308,
+        "padding": "34px 0px 29px 34px",
+        "gap": "normal",
+        "display": "block",
+        "font": "500 16px / 24px Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "grid": "none"
+      }
+    ],
+    ".home-illustration": [
+      {
+        "x": 1168.2625732421875,
+        "y": 30.80000114440918,
+        "w": 499.32501220703125,
+        "h": 308,
+        "padding": "0px",
+        "gap": "normal",
+        "display": "block",
+        "font": "500 16px / 24px Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "grid": "none"
+      }
+    ],
+    ".home-fox": [
+      {
+        "x": 1353.5875244140625,
+        "y": 38.79999923706055,
+        "w": 280,
+        "h": 280,
+        "padding": "0px",
+        "gap": "normal",
+        "display": "block",
+        "font": "500 16px / 24px Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "grid": "none"
+      }
+    ],
+    ".home-welcome h1": [
+      {
+        "x": 503.20001220703125,
+        "y": 98.95000457763672,
+        "w": 665.0625,
+        "h": 49.275001525878906,
+        "padding": "0px",
+        "gap": "normal",
+        "display": "block",
+        "font": "900 44px / 49.28px Nunito, system-ui, sans-serif",
+        "fontSize": "44px",
+        "lineHeight": "49.28px",
+        "color": "rgb(39, 45, 56)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "grid": "none"
+      }
+    ],
+    ".home-summary": [
+      {
+        "x": 503.20001220703125,
+        "y": 162.22500610351562,
+        "w": 460,
+        "h": 26.350000381469727,
+        "padding": "0px",
+        "gap": "normal",
+        "display": "block",
+        "font": "650 17px / 26.35px Nunito, system-ui, sans-serif",
+        "fontSize": "17px",
+        "lineHeight": "26.35px",
+        "color": "rgb(89, 67, 51)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "grid": "none"
+      }
+    ],
+    ".home-dashboard": [
+      {
+        "x": 468.3999938964844,
+        "y": 365.6000061035156,
+        "w": 1200,
+        "h": 524.6000366210938,
+        "padding": "0px",
+        "gap": "24px",
+        "display": "grid",
+        "font": "500 16px / 24px Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "grid": "732.225px 443.775px"
+      }
+    ],
+    ".home-priorities": [
+      {
+        "x": 468.3999938964844,
+        "y": 365.6000061035156,
+        "w": 732.2250366210938,
+        "h": 524.6000366210938,
+        "padding": "24px",
+        "gap": "normal",
+        "display": "flex",
+        "font": "500 16px / 24px Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgb(255, 255, 255)",
+        "borderRadius": "22px",
+        "grid": "none"
+      }
+    ],
+    ".panel-header": [
+      {
+        "x": 493.20001220703125,
+        "y": 390.3999938964844,
+        "w": 682.625,
+        "h": 52.60000228881836,
+        "padding": "0px",
+        "gap": "12px",
+        "display": "flex",
+        "font": "500 16px / 24px Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "grid": "none"
+      }
+    ],
+    ".review-group": [
+      {
+        "x": 493.20001220703125,
+        "y": 526.7999877929688,
+        "w": 682.625,
+        "h": 194.3000030517578,
+        "padding": "0px",
+        "gap": "normal",
+        "display": "flex",
+        "font": "500 16px / 24px Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgb(255, 255, 255)",
+        "borderRadius": "16px",
+        "grid": "none"
+      },
+      {
+        "x": 493.20001220703125,
+        "y": 735.1000366210938,
+        "w": 682.625,
+        "h": 130.3000030517578,
+        "padding": "0px",
+        "gap": "normal",
+        "display": "flex",
+        "font": "500 16px / 24px Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgb(255, 255, 255)",
+        "borderRadius": "16px",
+        "grid": "none"
+      }
+    ],
+    ".review-group-heading": [
+      {
+        "x": 494,
+        "y": 527.6000366210938,
+        "w": 681.0250244140625,
+        "h": 64.70000457763672,
+        "padding": "11px 14px",
+        "gap": "11px",
+        "display": "flex",
+        "font": "500 16px / 24px Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgb(255, 240, 227)",
+        "borderRadius": "0px",
+        "grid": "none"
+      },
+      {
+        "x": 494,
+        "y": 735.9000244140625,
+        "w": 681.0250244140625,
+        "h": 64.70000457763672,
+        "padding": "11px 14px",
+        "gap": "11px",
+        "display": "flex",
+        "font": "500 16px / 24px Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgb(255, 240, 227)",
+        "borderRadius": "0px",
+        "grid": "none"
+      }
+    ],
+    ".submission-row": [
+      {
+        "x": 508,
+        "y": 592.2999877929688,
+        "w": 653.0250244140625,
+        "h": 64,
+        "padding": "11px 0px",
+        "gap": "11px",
+        "display": "flex",
+        "font": "500 16px / 24px Nunito, system-ui, sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(37, 53, 73)",
+        "background": "rgb(255, 255, 255)",
+        "borderRadius": "0px",
+        "grid": "none"
+      },
+      {
+        "x": 508,
+        "y": 656.2999877929688,
+        "w": 653.0250244140625,
+        "h": 64,
+        "padding": "11px 0px",
+        "gap": "11px",
+        "display": "flex",
+        "font": "500 16px / 24px Nunito, system-ui, sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(37, 53, 73)",
+        "background": "rgb(255, 255, 255)",
+        "borderRadius": "0px",
+        "grid": "none"
+      },
+      {
+        "x": 508,
+        "y": 800.6000366210938,
+        "w": 653.0250244140625,
+        "h": 64,
+        "padding": "11px 0px",
+        "gap": "11px",
+        "display": "flex",
+        "font": "500 16px / 24px Nunito, system-ui, sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(37, 53, 73)",
+        "background": "rgb(255, 255, 255)",
+        "borderRadius": "0px",
+        "grid": "none"
+      }
+    ],
+    ".learning-deck": [],
+    ".learning-tile": [],
+    ".learning-cover": [],
+    ".learning-body": [],
+    ".learning-footer": [],
+    ".day-planner": [
+      {
+        "x": 1224.625,
+        "y": 365.6000061035156,
+        "w": 443.7749938964844,
+        "h": 520.7000122070312,
+        "padding": "0px",
+        "gap": "normal",
+        "display": "flex",
+        "font": "500 16px / 24px Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgb(255, 255, 255)",
+        "borderRadius": "22px",
+        "grid": "none"
+      }
+    ],
+    ".planner-header": [
+      {
+        "x": 1225.425048828125,
+        "y": 366.3999938964844,
+        "w": 442.1750183105469,
+        "h": 153.8000030517578,
+        "padding": "24px 24px 18px",
+        "gap": "normal",
+        "display": "block",
+        "font": "500 16px / 24px Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgb(255, 240, 227)",
+        "borderRadius": "0px",
+        "grid": "none"
+      }
+    ],
+    ".planner-week": [
+      {
+        "x": 1249.425048828125,
+        "y": 538.2000122070312,
+        "w": 394.1750183105469,
+        "h": 79.30000305175781,
+        "padding": "0px 0px 17px",
+        "gap": "7px",
+        "display": "grid",
+        "font": "500 16px / 24px Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "grid": "73.225px 73.2375px 73.2375px 73.2375px 73.225px"
+      }
+    ],
+    ".planner-event-card": [
+      {
+        "x": 1308.425048828125,
+        "y": 636.5,
+        "w": 335.1750183105469,
+        "h": 74,
+        "padding": "10px 13px",
+        "gap": "5px 6px",
+        "display": "grid",
+        "font": "500 16px / 24px Nunito, system-ui, sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(33, 79, 126)",
+        "background": "rgb(219, 234, 250)",
+        "borderRadius": "14px",
+        "grid": "286.575px 15px"
+      },
+      {
+        "x": 1308.425048828125,
+        "y": 724.5,
+        "w": 335.1750183105469,
+        "h": 74,
+        "padding": "10px 13px",
+        "gap": "5px 6px",
+        "display": "grid",
+        "font": "500 16px / 24px Nunito, system-ui, sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(35, 86, 59)",
+        "background": "rgb(220, 238, 227)",
+        "borderRadius": "14px",
+        "grid": "286.575px 15px"
+      }
+    ],
+    ".class-grid": [
+      {
+        "x": 468.3999938964844,
+        "y": 963.2000122070312,
+        "w": 1200,
+        "h": 293.3500061035156,
+        "padding": "0px",
+        "gap": "20px",
+        "display": "grid",
+        "font": "500 16px / 24px Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "grid": "386.663px 386.663px 386.675px"
+      }
+    ],
+    ".class-card": [
+      {
+        "x": 468.3999938964844,
+        "y": 963.2000122070312,
+        "w": 386.6625061035156,
+        "h": 293.3500061035156,
+        "padding": "0px",
+        "gap": "normal",
+        "display": "block",
+        "font": "500 16px / 24px Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgb(255, 255, 255)",
+        "borderRadius": "22px",
+        "grid": "none"
+      },
+      {
+        "x": 875.0625,
+        "y": 963.2000122070312,
+        "w": 386.6625061035156,
+        "h": 293.3500061035156,
+        "padding": "0px",
+        "gap": "normal",
+        "display": "block",
+        "font": "500 16px / 24px Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgb(255, 255, 255)",
+        "borderRadius": "22px",
+        "grid": "none"
+      },
+      {
+        "x": 1281.7249755859375,
+        "y": 963.2000122070312,
+        "w": 386.6750183105469,
+        "h": 293.3500061035156,
+        "padding": "0px",
+        "gap": "normal",
+        "display": "block",
+        "font": "500 16px / 24px Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgb(255, 255, 255)",
+        "borderRadius": "22px",
+        "grid": "none"
+      }
+    ],
+    ".class-cover": [
+      {
+        "x": 469.20001220703125,
+        "y": 964,
+        "w": 385.0625,
+        "h": 143,
+        "padding": "0px",
+        "gap": "normal",
+        "display": "block",
+        "font": "500 16px / 24px Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgb(223, 239, 231)",
+        "borderRadius": "0px",
+        "grid": "none"
+      },
+      {
+        "x": 875.8624877929688,
+        "y": 964,
+        "w": 385.0625,
+        "h": 143,
+        "padding": "0px",
+        "gap": "normal",
+        "display": "block",
+        "font": "500 16px / 24px Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgb(223, 239, 231)",
+        "borderRadius": "0px",
+        "grid": "none"
+      },
+      {
+        "x": 1282.5250244140625,
+        "y": 964,
+        "w": 385.07501220703125,
+        "h": 143,
+        "padding": "0px",
+        "gap": "normal",
+        "display": "block",
+        "font": "500 16px / 24px Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgb(223, 239, 231)",
+        "borderRadius": "0px",
+        "grid": "none"
+      }
+    ],
+    ".class-body": [
+      {
+        "x": 469.20001220703125,
+        "y": 1107,
+        "w": 385.0625,
+        "h": 148.75,
+        "padding": "18px 20px",
+        "gap": "normal",
+        "display": "block",
+        "font": "500 16px / 24px Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "grid": "none"
+      },
+      {
+        "x": 875.8624877929688,
+        "y": 1107,
+        "w": 385.0625,
+        "h": 148.75,
+        "padding": "18px 20px",
+        "gap": "normal",
+        "display": "block",
+        "font": "500 16px / 24px Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "grid": "none"
+      },
+      {
+        "x": 1282.5250244140625,
+        "y": 1107,
+        "w": 385.07501220703125,
+        "h": 148.75,
+        "padding": "18px 20px",
+        "gap": "normal",
+        "display": "block",
+        "font": "500 16px / 24px Nunito, ui-rounded, \"Segoe UI\", sans-serif",
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "grid": "none"
+      }
+    ],
+    ".sidebar": [],
+    ".fm3d-navbar": [],
+    ".fm3d-shell-sidebar": [],
+    ".sidebar-search": [],
+    ".fm-brujula-search-trigger": [],
+    ".fm-sidebar-help": [
+      {
+        "x": 16,
+        "y": 834.1000366210938,
+        "w": 199.1999969482422,
+        "h": 157.10000610351562,
+        "padding": "14px",
+        "gap": "normal",
+        "display": "block",
+        "font": "13px / 19.5px Nunito, sans-serif",
+        "fontSize": "13px",
+        "lineHeight": "19.5px",
+        "color": "rgb(32, 44, 61)",
+        "background": "rgb(237, 242, 247)",
+        "borderRadius": "12px",
+        "grid": "none"
+      }
+    ],
+    ".sidebar-help": []
+  },
+  "images": [
+    {
+      "src": "/foxmind/logo.webp",
+      "broken": false
+    },
+    {
+      "src": "/foxmind/foxy.webp",
+      "broken": false
+    },
+    {
+      "src": "/foxmind/literature.webp",
+      "broken": false
+    },
+    {
+      "src": "/foxmind/literature.webp",
+      "broken": false
+    },
+    {
+      "src": "/foxmind/biology.webp",
+      "broken": false
+    },
+    {
+      "src": "/foxmind/math.webp",
+      "broken": false
+    },
+    {
+      "src": "/foxmind/literature.webp",
+      "broken": false
+    }
+  ],
+  "controls": []
+}

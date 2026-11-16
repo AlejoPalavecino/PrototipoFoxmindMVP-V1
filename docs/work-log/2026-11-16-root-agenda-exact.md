@@ -1,0 +1,24 @@
+# Agenda de ambos roles: paridad visual y funcional
+
+- Coordinador: Codex; identificador de sesión no expuesto. 2026-11-16. Worktree foxmind-product-parity, rama codex/foxmind-product-parity, base ef6828b; árbol con trabajo previo.
+- Alcance autorizado: Agenda de docente y estudiante, Mes/Semana/Día, consulta, creación, edición y confirmación; contraste, alineación, teclado, estados y móvil. Referencia vigente: UI Lab, 01-foxmind.html y fuentes de Agenda, en el worktree foxmind-ui-lab.
+- Dirección aprobada: calendario blanco sobre fondo frío, panel cálido para el día, fichas pastel con horario y acciones, diálogos con previsualización. Conservar recordatorios, recurrencias, día completo, repaso y permisos de eventos/entregas reales; sin cambios de proveedor, backend o integración fuera de lo que requiera una brecha confirmada.
+- Línea de base Ego Lite: 58 pares de pantallas y editor a 320–1920 px, con mayor ancho de 1474 vs 1200, bloque adicional posterior y panel diario oculto en móvil. El query sintético inicial sin modo mostró la validación de URL de la app; excluirlo de la comparación de posición vertical. La maqueta tiene una barra de demo propia.
+- Próximo: regresiones focales y cambios de geometría, selección y estados. Editores de detalle y formulario en manos de agentes con ownership disjunto.
+
+## Correcciones y pruebas
+
+- Calendario de hasta 1200 px. En Mes, panel diario bajo el calendario en pantalla angosta, con foco al encabezado y fecha compartida. Día y Semana consultan la semana visible para contar sus eventos; Agenda omite la proyección posterior fuera del diseño. Vistas, encabezados, fichas, horarios, duración, notas, vacíos, navegación y movimiento reducido se ajustaron a la referencia y a los datos reales.
+- Detalle superpuesto, con cancelación, confirmación de eliminación, elección de alcance para series y acceso al repaso vigente. El editor mantiene borrador, color, hora, fecha, repetición, día completo y anticipo. Conserva categorías reales (Clase, Actividad y Evaluación) y anuncia explícitamente que sus eventos son privados; los plazos académicos siguen llevando al aula autorizada.
+- En escritorio reapareció el horario de las fichas del mes, con encabezados de días centrados y selección distinta de la marca de hoy. En móvil se conservan puntos compactos. Los diálogos mantienen disponibles los botones aunque el cuerpo necesite desplazamiento.
+- Cargar y fallar se distinguen del vacío. Un resultado ya guardado queda en verde aunque luego falle la consulta, que tiene su propio aviso rojo y reintento de lectura.
+- Ego Lite reprodujo Escape consecutivo: el navegador cerraba el diálogo nativo mientras React retomaba el formulario. Se intercepta Escape sólo en los diálogos de Agenda con pasos internos. La comprobación en ambos roles acreditó restauración del campo y del foco al volver desde el detalle.
+- En el cambio de una fecha de un solo día, el formulario dejaba atrás una fecha final invisible. Prueba RED por payload inválido; GREEN para evento con hora y de día completo. Al mover un evento individual, Agenda selecciona su nueva fecha. Las series mantienen su comportamiento y el enlace a su inicio.
+- Pruebas focales finales: 155/155. TypeScript, ESLint de las superficies modificadas, fronteras de arquitectura y diff de los archivos afectados en verde. Una ejecución ampliada mostró dos aserciones de Mi cuenta sobre el menú anterior; sus fuentes de navegación no integran esta tarea. Se registraron como fuera de alcance; no se cambiaron ni se incluyeron en el total de Agenda.
+- Ego Lite con cuentas locales sintéticas: creación desde el panel de fecha, validación roja, conservación de borrador y foco con Escape, aviso a 30 minutos y colores persistidos, edición, cambio de fecha y eliminación tras confirmación. El estudiante no pudo abrir el evento privado del docente. Se eliminaron sólo los eventos creados por los recorridos de prueba.
+
+## Cierre local
+
+- Build final Em6wLgnxiA88ZkSD60bVQ, disponible en 127.0.0.1:3000. 58 comparaciones finales de Mes/Semana/Día y editor de ambos roles; entre 320 y 1920 px, sin desbordes horizontales detectados. Pie del editor dentro del viewport en 10 de 10 casos. 3124 muestras calculables de texto sobre fondos sólidos, sin contraste inferior al umbral del tamaño y peso medidos.
+- Evidencia reproducible del navegador: .test-artifacts/agenda-parity/verified/layouts.json y .test-artifacts/agenda-parity/journeys/{journeys,states}.json. En el candidato previo se demoró la lectura, se bloqueó y luego se reintentó con éxito en ambos roles, sin confundir error con vacío. La repetición en el final alcanzó el límite de inicio de sesión de las cuentas sintéticas y quedó sin repetir; el candidato final sí pasó las comparaciones, cambio de fecha y limpieza de datos de prueba.
+- No se modificaron políticas de acceso, persistencia, migraciones ni proveedores. No se hicieron commits, integración ni despliegue.

@@ -1,0 +1,5494 @@
+{
+  "phase": "pre-final-rebuild",
+  "origin": "http://127.0.0.1:49841",
+  "role": "teacher",
+  "geometry": {
+    "home": {
+      "320": {
+        "width": 320,
+        "client": 305,
+        "document": 305,
+        "body": 305,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Hola, Lucía.",
+        "alert": [
+          ""
+        ]
+      },
+      "390": {
+        "width": 390,
+        "client": 375,
+        "document": 375,
+        "body": 375,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Hola, Lucía.",
+        "alert": [
+          ""
+        ]
+      },
+      "768": {
+        "width": 768,
+        "client": 753,
+        "document": 753,
+        "body": 753,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Hola, Lucía.",
+        "alert": [
+          ""
+        ]
+      },
+      "1024": {
+        "width": 1024,
+        "client": 1009,
+        "document": 1009,
+        "body": 1009,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Hola, Lucía.",
+        "alert": [
+          ""
+        ]
+      },
+      "1440": {
+        "width": 1440,
+        "client": 1425,
+        "document": 1425,
+        "body": 1425,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Hola, Lucía.",
+        "alert": [
+          ""
+        ]
+      }
+    },
+    "collection": {
+      "320": {
+        "width": 320,
+        "client": 305,
+        "document": 305,
+        "body": 305,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Mis aulas",
+        "alert": [
+          "Mis aulas · FoxMind"
+        ]
+      },
+      "390": {
+        "width": 390,
+        "client": 375,
+        "document": 375,
+        "body": 375,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Mis aulas",
+        "alert": [
+          "Mis aulas · FoxMind"
+        ]
+      },
+      "768": {
+        "width": 768,
+        "client": 753,
+        "document": 753,
+        "body": 753,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Mis aulas",
+        "alert": [
+          "Mis aulas · FoxMind"
+        ]
+      },
+      "1024": {
+        "width": 1024,
+        "client": 1009,
+        "document": 1009,
+        "body": 1009,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Mis aulas",
+        "alert": [
+          "Mis aulas · FoxMind"
+        ]
+      },
+      "1440": {
+        "width": 1440,
+        "client": 1440,
+        "document": 1440,
+        "body": 1440,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Mis aulas",
+        "alert": [
+          "Mis aulas · FoxMind"
+        ]
+      }
+    },
+    "agenda": {
+      "320": {
+        "width": 320,
+        "client": 305,
+        "document": 305,
+        "body": 305,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Mi agenda",
+        "alert": [
+          "Agenda · FoxMind"
+        ]
+      },
+      "390": {
+        "width": 390,
+        "client": 375,
+        "document": 375,
+        "body": 375,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Mi agenda",
+        "alert": [
+          "Agenda · FoxMind"
+        ]
+      },
+      "768": {
+        "width": 768,
+        "client": 753,
+        "document": 753,
+        "body": 753,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Mi agenda",
+        "alert": [
+          "Agenda · FoxMind"
+        ]
+      },
+      "1024": {
+        "width": 1024,
+        "client": 1009,
+        "document": 1009,
+        "body": 1009,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Mi agenda",
+        "alert": [
+          "Agenda · FoxMind"
+        ]
+      },
+      "1440": {
+        "width": 1440,
+        "client": 1425,
+        "document": 1425,
+        "body": 1425,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Mi agenda",
+        "alert": [
+          "Agenda · FoxMind"
+        ]
+      }
+    },
+    "foxy": {
+      "320": {
+        "width": 320,
+        "client": 320,
+        "document": 320,
+        "body": 320,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "alert": [
+          ""
+        ]
+      },
+      "390": {
+        "width": 390,
+        "client": 390,
+        "document": 390,
+        "body": 390,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "alert": [
+          ""
+        ]
+      },
+      "768": {
+        "width": 768,
+        "client": 753,
+        "document": 753,
+        "body": 753,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "alert": [
+          ""
+        ]
+      },
+      "1024": {
+        "width": 1024,
+        "client": 1009,
+        "document": 1009,
+        "body": 1009,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "alert": [
+          ""
+        ]
+      },
+      "1440": {
+        "width": 1440,
+        "client": 1425,
+        "document": 1425,
+        "body": 1425,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "alert": [
+          ""
+        ]
+      }
+    },
+    "profile": {
+      "320": {
+        "width": 320,
+        "client": 305,
+        "document": 305,
+        "body": 305,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Mi perfil",
+        "alert": [
+          ""
+        ]
+      },
+      "390": {
+        "width": 390,
+        "client": 375,
+        "document": 375,
+        "body": 375,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Mi perfil",
+        "alert": [
+          ""
+        ]
+      },
+      "768": {
+        "width": 768,
+        "client": 753,
+        "document": 753,
+        "body": 753,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Mi perfil",
+        "alert": [
+          ""
+        ]
+      },
+      "1024": {
+        "width": 1024,
+        "client": 1024,
+        "document": 1024,
+        "body": 1024,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Mi perfil",
+        "alert": [
+          ""
+        ]
+      },
+      "1440": {
+        "width": 1440,
+        "client": 1440,
+        "document": 1440,
+        "body": 1440,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Mi perfil",
+        "alert": [
+          ""
+        ]
+      }
+    },
+    "inbox": {
+      "320": {
+        "width": 320,
+        "client": 305,
+        "document": 305,
+        "body": 305,
+        "dialog": [
+          5,
+          167,
+          294,
+          511
+        ],
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Mi perfil",
+        "alert": []
+      },
+      "390": {
+        "width": 390,
+        "client": 375,
+        "document": 375,
+        "body": 375,
+        "dialog": [
+          5,
+          216,
+          364,
+          414
+        ],
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Mi perfil",
+        "alert": []
+      },
+      "768": {
+        "width": 768,
+        "client": 753,
+        "document": 753,
+        "body": 753,
+        "dialog": [
+          96,
+          217,
+          560,
+          412
+        ],
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Mi perfil",
+        "alert": []
+      },
+      "1024": {
+        "width": 1024,
+        "client": 1024,
+        "document": 1024,
+        "body": 1024,
+        "dialog": [
+          232,
+          218,
+          560,
+          408
+        ],
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Mi perfil",
+        "alert": []
+      },
+      "1440": {
+        "width": 1440,
+        "client": 1440,
+        "document": 1440,
+        "body": 1440,
+        "dialog": [
+          440,
+          250,
+          560,
+          408
+        ],
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Mi perfil",
+        "alert": []
+      }
+    },
+    "notifications": {
+      "320": {
+        "width": 320,
+        "client": 305,
+        "document": 305,
+        "body": 305,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Notificaciones",
+        "alert": [
+          ""
+        ]
+      },
+      "390": {
+        "width": 390,
+        "client": 390,
+        "document": 390,
+        "body": 390,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Notificaciones",
+        "alert": [
+          ""
+        ]
+      },
+      "768": {
+        "width": 768,
+        "client": 768,
+        "document": 768,
+        "body": 768,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Notificaciones",
+        "alert": [
+          ""
+        ]
+      },
+      "1024": {
+        "width": 1024,
+        "client": 1024,
+        "document": 1024,
+        "body": 1024,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Notificaciones",
+        "alert": [
+          ""
+        ]
+      },
+      "1440": {
+        "width": 1440,
+        "client": 1440,
+        "document": 1440,
+        "body": 1440,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Notificaciones",
+        "alert": [
+          ""
+        ]
+      }
+    },
+    "plan": {
+      "320": {
+        "width": 320,
+        "client": 305,
+        "document": 305,
+        "body": 305,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 680,
+            "client": 271
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "390": {
+        "width": 390,
+        "client": 375,
+        "document": 375,
+        "body": 375,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 680,
+            "client": 342
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "768": {
+        "width": 768,
+        "client": 753,
+        "document": 753,
+        "body": 753,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 718,
+            "client": 711
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "1024": {
+        "width": 1024,
+        "client": 1009,
+        "document": 1009,
+        "body": 1009,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 713,
+            "client": 705
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "1440": {
+        "width": 1440,
+        "client": 1425,
+        "document": 1425,
+        "body": 1425,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      }
+    },
+    "wall": {
+      "320": {
+        "width": 320,
+        "client": 305,
+        "document": 305,
+        "body": 305,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 680,
+            "client": 271
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "390": {
+        "width": 390,
+        "client": 390,
+        "document": 390,
+        "body": 390,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 680,
+            "client": 357
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "768": {
+        "width": 768,
+        "client": 768,
+        "document": 768,
+        "body": 768,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 733,
+            "client": 726
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "1024": {
+        "width": 1024,
+        "client": 1024,
+        "document": 1024,
+        "body": 1024,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 727,
+            "client": 720
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "1440": {
+        "width": 1440,
+        "client": 1440,
+        "document": 1440,
+        "body": 1440,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      }
+    },
+    "library": {
+      "320": {
+        "width": 320,
+        "client": 305,
+        "document": 305,
+        "body": 305,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 680,
+            "client": 271
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "390": {
+        "width": 390,
+        "client": 390,
+        "document": 390,
+        "body": 390,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 680,
+            "client": 357
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "768": {
+        "width": 768,
+        "client": 768,
+        "document": 768,
+        "body": 768,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 733,
+            "client": 726
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "1024": {
+        "width": 1024,
+        "client": 1024,
+        "document": 1024,
+        "body": 1024,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 727,
+            "client": 720
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "1440": {
+        "width": 1440,
+        "client": 1440,
+        "document": 1440,
+        "body": 1440,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      }
+    },
+    "activities": {
+      "320": {
+        "width": 320,
+        "client": 320,
+        "document": 320,
+        "body": 320,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 680,
+            "client": 286
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "390": {
+        "width": 390,
+        "client": 390,
+        "document": 390,
+        "body": 390,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 680,
+            "client": 357
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "768": {
+        "width": 768,
+        "client": 768,
+        "document": 768,
+        "body": 768,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 733,
+            "client": 726
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "1024": {
+        "width": 1024,
+        "client": 1024,
+        "document": 1024,
+        "body": 1024,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 727,
+            "client": 720
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "1440": {
+        "width": 1440,
+        "client": 1440,
+        "document": 1440,
+        "body": 1440,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      }
+    },
+    "progress": {
+      "320": {
+        "width": 320,
+        "client": 305,
+        "document": 305,
+        "body": 305,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 680,
+            "client": 271
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "390": {
+        "width": 390,
+        "client": 375,
+        "document": 375,
+        "body": 375,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 680,
+            "client": 342
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "768": {
+        "width": 768,
+        "client": 753,
+        "document": 753,
+        "body": 753,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 718,
+            "client": 711
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "1024": {
+        "width": 1024,
+        "client": 1009,
+        "document": 1009,
+        "body": 1009,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 713,
+            "client": 705
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "1440": {
+        "width": 1440,
+        "client": 1440,
+        "document": 1440,
+        "body": 1440,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      }
+    },
+    "members": {
+      "320": {
+        "width": 320,
+        "client": 305,
+        "document": 305,
+        "body": 305,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 680,
+            "client": 271
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "390": {
+        "width": 390,
+        "client": 375,
+        "document": 375,
+        "body": 375,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 680,
+            "client": 342
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "768": {
+        "width": 768,
+        "client": 768,
+        "document": 768,
+        "body": 768,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 733,
+            "client": 726
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "1024": {
+        "width": 1024,
+        "client": 1024,
+        "document": 1024,
+        "body": 1024,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 727,
+            "client": 720
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "1440": {
+        "width": 1440,
+        "client": 1440,
+        "document": 1440,
+        "body": 1440,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      }
+    },
+    "history": {
+      "320": {
+        "width": 320,
+        "client": 320,
+        "document": 320,
+        "body": 320,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 680,
+            "client": 286
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "390": {
+        "width": 390,
+        "client": 390,
+        "document": 390,
+        "body": 390,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 680,
+            "client": 357
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "768": {
+        "width": 768,
+        "client": 768,
+        "document": 768,
+        "body": 768,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 733,
+            "client": 726
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "1024": {
+        "width": 1024,
+        "client": 1024,
+        "document": 1024,
+        "body": 1024,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 727,
+            "client": 720
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "1440": {
+        "width": 1440,
+        "client": 1440,
+        "document": 1440,
+        "body": 1440,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      }
+    },
+    "room-settings": {
+      "320": {
+        "width": 320,
+        "client": 305,
+        "document": 305,
+        "body": 305,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 680,
+            "client": 271
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "390": {
+        "width": 390,
+        "client": 375,
+        "document": 375,
+        "body": 375,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 680,
+            "client": 342
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "768": {
+        "width": 768,
+        "client": 753,
+        "document": 753,
+        "body": 753,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 718,
+            "client": 711
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "1024": {
+        "width": 1024,
+        "client": 1009,
+        "document": 1009,
+        "body": 1009,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [
+          {
+            "css": "class-tabs brujula-class-tabs",
+            "scroll": 713,
+            "client": 705
+          }
+        ],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      },
+      "1440": {
+        "width": 1440,
+        "client": 1425,
+        "document": 1425,
+        "body": 1425,
+        "dialog": null,
+        "off": [],
+        "overlaps": [],
+        "scrollers": [],
+        "title": "Fotografía y luz",
+        "alert": [
+          ""
+        ]
+      }
+    }
+  },
+  "textContrast": {
+    "activities-contrast-1440": {
+      "width": 1440,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Mis aulas",
+          "current": "page",
+          "pressed": null,
+          "background": "rgb(255, 234, 220)",
+          "color": "rgb(150, 59, 13)",
+          "border": "rgb(150, 59, 13)",
+          "pair": {
+            "label": "Mis aulas",
+            "selector": "a",
+            "fg": "150,59,13",
+            "bg": "255,234,220",
+            "ratio": 6.17,
+            "required": 4.5,
+            "size": 14,
+            "weight": 750
+          }
+        },
+        {
+          "label": "Fotografía y luz",
+          "current": "page",
+          "pressed": null,
+          "background": "rgb(255, 234, 219)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Fotografía y luz",
+            "selector": "a",
+            "fg": "72,92,115",
+            "bg": "255,234,219",
+            "ratio": 5.91,
+            "required": 4.5,
+            "size": 13,
+            "weight": 750
+          }
+        },
+        {
+          "label": "Plan",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Plan",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Muro",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Muro",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Biblioteca",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Biblioteca",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Actividades",
+          "current": "page",
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Actividades",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Progreso",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Progreso",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Alumnos",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Alumnos",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Historial",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Historial",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Configuración",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Configuración",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        }
+      ]
+    },
+    "activities-contrast-390": {
+      "width": 390,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Plan",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Plan",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Muro",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Muro",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Biblioteca",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Biblioteca",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Actividades",
+          "current": "page",
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Actividades",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Progreso",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Progreso",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Alumnos",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Alumnos",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Historial",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Historial",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Configuración",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Configuración",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        }
+      ]
+    },
+    "agenda-contrast-1440": {
+      "width": 1440,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Agenda",
+          "current": "page",
+          "pressed": null,
+          "background": "rgb(255, 234, 220)",
+          "color": "rgb(150, 59, 13)",
+          "border": "rgb(150, 59, 13)",
+          "pair": {
+            "label": "Agenda",
+            "selector": "a",
+            "fg": "150,59,13",
+            "bg": "255,234,220",
+            "ratio": 6.17,
+            "required": 4.5,
+            "size": 14,
+            "weight": 750
+          }
+        },
+        {
+          "label": "Mes",
+          "current": null,
+          "pressed": "true",
+          "background": "rgb(255, 240, 227)",
+          "color": "rgb(145, 58, 13)",
+          "border": "rgb(145, 58, 13)",
+          "pair": {
+            "label": "Mes",
+            "selector": "button",
+            "fg": "145,58,13",
+            "bg": "255,240,227",
+            "ratio": 6.69,
+            "required": 4.5,
+            "size": 12,
+            "weight": 800
+          }
+        },
+        {
+          "label": "domingo, 15 de noviembre, hoy",
+          "current": "date",
+          "pressed": "true",
+          "background": "rgb(255, 243, 232)",
+          "color": "rgb(48, 75, 99)",
+          "border": "rgb(48, 75, 99) rgb(48, 75, 99) rgb(214, 224, 233)",
+          "pair": {
+            "label": "15",
+            "selector": "button.agenda-day",
+            "fg": "48,75,99",
+            "bg": "255,243,232",
+            "ratio": 8.32,
+            "required": 4.5,
+            "size": 14,
+            "weight": 500
+          }
+        }
+      ]
+    },
+    "agenda-contrast-390": {
+      "width": 390,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Mes",
+          "current": null,
+          "pressed": "true",
+          "background": "rgb(255, 240, 227)",
+          "color": "rgb(145, 58, 13)",
+          "border": "rgb(145, 58, 13)",
+          "pair": {
+            "label": "Mes",
+            "selector": "button",
+            "fg": "145,58,13",
+            "bg": "255,240,227",
+            "ratio": 6.69,
+            "required": 4.5,
+            "size": 12,
+            "weight": 800
+          }
+        },
+        {
+          "label": "domingo, 15 de noviembre, hoy",
+          "current": "date",
+          "pressed": "true",
+          "background": "rgb(255, 243, 232)",
+          "color": "rgb(48, 75, 99)",
+          "border": "rgb(48, 75, 99) rgb(48, 75, 99) rgb(214, 224, 233)",
+          "pair": {
+            "label": "15",
+            "selector": "button.agenda-day",
+            "fg": "48,75,99",
+            "bg": "255,243,232",
+            "ratio": 8.32,
+            "required": 4.5,
+            "size": 14,
+            "weight": 500
+          }
+        }
+      ]
+    },
+    "collection-contrast-1440": {
+      "width": 1440,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Mis aulas",
+          "current": "page",
+          "pressed": null,
+          "background": "rgb(255, 234, 220)",
+          "color": "rgb(150, 59, 13)",
+          "border": "rgb(150, 59, 13)",
+          "pair": {
+            "label": "Mis aulas",
+            "selector": "a",
+            "fg": "150,59,13",
+            "bg": "255,234,220",
+            "ratio": 6.17,
+            "required": 4.5,
+            "size": 14,
+            "weight": 750
+          }
+        },
+        {
+          "label": "Mis aulas",
+          "current": "page",
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(37, 38, 70)",
+          "border": "rgb(37, 38, 70)",
+          "pair": {
+            "label": "Mis aulas",
+            "selector": "span",
+            "fg": "37,38,70",
+            "bg": "237,240,244",
+            "ratio": 12.72,
+            "required": 4.5,
+            "size": 11.5,
+            "weight": 600
+          }
+        },
+        {
+          "label": "Activas 2",
+          "current": null,
+          "pressed": "true",
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(147, 59, 12)",
+          "border": "rgb(224, 215, 207)",
+          "pair": {
+            "label": "Activas",
+            "selector": "button",
+            "fg": "147,59,12",
+            "bg": "255,255,255",
+            "ratio": 7.31,
+            "required": 4.5,
+            "size": 14,
+            "weight": 700
+          }
+        },
+        {
+          "label": "Vista de tarjetas",
+          "current": null,
+          "pressed": "true",
+          "background": "rgb(255, 240, 226)",
+          "color": "rgb(144, 55, 0)",
+          "border": "rgb(144, 55, 0)",
+          "pair": {
+            "label": "",
+            "selector": "button.selected",
+            "fg": "144,55,0",
+            "bg": "255,240,226",
+            "ratio": 6.89,
+            "required": 4.5,
+            "size": 13,
+            "weight": 600
+          }
+        }
+      ]
+    },
+    "collection-contrast-390": {
+      "width": 390,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Mis aulas",
+          "current": "page",
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(37, 38, 70)",
+          "border": "rgb(37, 38, 70)",
+          "pair": {
+            "label": "Mis aulas",
+            "selector": "span",
+            "fg": "37,38,70",
+            "bg": "237,240,244",
+            "ratio": 12.72,
+            "required": 4.5,
+            "size": 11.5,
+            "weight": 600
+          }
+        },
+        {
+          "label": "Activas 2",
+          "current": null,
+          "pressed": "true",
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(147, 59, 12)",
+          "border": "rgb(224, 215, 207)",
+          "pair": {
+            "label": "Activas",
+            "selector": "button",
+            "fg": "147,59,12",
+            "bg": "255,255,255",
+            "ratio": 7.31,
+            "required": 4.5,
+            "size": 12,
+            "weight": 700
+          }
+        },
+        {
+          "label": "Vista de tarjetas",
+          "current": null,
+          "pressed": "true",
+          "background": "rgb(255, 240, 226)",
+          "color": "rgb(144, 55, 0)",
+          "border": "rgb(144, 55, 0)",
+          "pair": {
+            "label": "",
+            "selector": "button.selected",
+            "fg": "144,55,0",
+            "bg": "255,240,226",
+            "ratio": 6.89,
+            "required": 4.5,
+            "size": 13,
+            "weight": 600
+          }
+        }
+      ]
+    },
+    "foxy-contrast-1440": {
+      "width": 1440,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Foxy AI",
+          "current": "page",
+          "pressed": null,
+          "background": "rgb(255, 234, 220)",
+          "color": "rgb(150, 59, 13)",
+          "border": "rgb(150, 59, 13)",
+          "pair": {
+            "label": "Foxy AI",
+            "selector": "a",
+            "fg": "150,59,13",
+            "bg": "255,234,220",
+            "ratio": 6.17,
+            "required": 4.5,
+            "size": 14,
+            "weight": 750
+          }
+        }
+      ]
+    },
+    "foxy-contrast-390": {
+      "width": 390,
+      "issues": [],
+      "segments": []
+    },
+    "history-contrast-1440": {
+      "width": 1440,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Mis aulas",
+          "current": "page",
+          "pressed": null,
+          "background": "rgb(255, 234, 220)",
+          "color": "rgb(150, 59, 13)",
+          "border": "rgb(150, 59, 13)",
+          "pair": {
+            "label": "Mis aulas",
+            "selector": "a",
+            "fg": "150,59,13",
+            "bg": "255,234,220",
+            "ratio": 6.17,
+            "required": 4.5,
+            "size": 14,
+            "weight": 750
+          }
+        },
+        {
+          "label": "Fotografía y luz",
+          "current": "page",
+          "pressed": null,
+          "background": "rgb(255, 234, 219)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Fotografía y luz",
+            "selector": "a",
+            "fg": "72,92,115",
+            "bg": "255,234,219",
+            "ratio": 5.91,
+            "required": 4.5,
+            "size": 13,
+            "weight": 750
+          }
+        },
+        {
+          "label": "Plan",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Plan",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Muro",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Muro",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Biblioteca",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Biblioteca",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Actividades",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Actividades",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Progreso",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Progreso",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Alumnos",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Alumnos",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Historial",
+          "current": "page",
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Historial",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Configuración",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Configuración",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        }
+      ]
+    },
+    "history-contrast-390": {
+      "width": 390,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Plan",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Plan",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Muro",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Muro",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Biblioteca",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Biblioteca",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Actividades",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Actividades",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Progreso",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Progreso",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Alumnos",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Alumnos",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Historial",
+          "current": "page",
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Historial",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Configuración",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Configuración",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        }
+      ]
+    },
+    "home-contrast-1440": {
+      "width": 1440,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Inicio",
+          "current": "page",
+          "pressed": null,
+          "background": "rgb(255, 234, 220)",
+          "color": "rgb(150, 59, 13)",
+          "border": "rgb(150, 59, 13)",
+          "pair": {
+            "label": "Inicio",
+            "selector": "a",
+            "fg": "150,59,13",
+            "bg": "255,234,220",
+            "ratio": 6.17,
+            "required": 4.5,
+            "size": 14,
+            "weight": 750
+          }
+        },
+        {
+          "label": "Entregas0",
+          "current": null,
+          "pressed": "true",
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(155, 60, 13)",
+          "border": "rgb(155, 60, 13) rgb(155, 60, 13) rgb(183, 71, 16)",
+          "pair": {
+            "label": "Entregas",
+            "selector": "button",
+            "fg": "155,60,13",
+            "bg": "255,255,255",
+            "ratio": 6.89,
+            "required": 4.5,
+            "size": 14,
+            "weight": 800
+          }
+        }
+      ]
+    },
+    "home-contrast-390": {
+      "width": 390,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Entregas0",
+          "current": null,
+          "pressed": "true",
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(155, 60, 13)",
+          "border": "rgb(155, 60, 13) rgb(155, 60, 13) rgb(183, 71, 16)",
+          "pair": {
+            "label": "Entregas",
+            "selector": "button",
+            "fg": "155,60,13",
+            "bg": "255,255,255",
+            "ratio": 6.89,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        }
+      ]
+    },
+    "inbox-contrast-1440": {
+      "width": 1440,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Todas",
+          "current": null,
+          "pressed": "true",
+          "background": "rgb(255, 237, 218)",
+          "color": "rgb(159, 70, 27)",
+          "border": "rgba(0, 0, 0, 0)",
+          "pair": {
+            "label": "Todas",
+            "selector": "button",
+            "fg": "159,70,27",
+            "bg": "255,237,218",
+            "ratio": 5.46,
+            "required": 4.5,
+            "size": 12,
+            "weight": 600
+          }
+        }
+      ]
+    },
+    "inbox-contrast-390": {
+      "width": 390,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Todas",
+          "current": null,
+          "pressed": "true",
+          "background": "rgb(255, 237, 218)",
+          "color": "rgb(159, 70, 27)",
+          "border": "rgba(0, 0, 0, 0)",
+          "pair": {
+            "label": "Todas",
+            "selector": "button",
+            "fg": "159,70,27",
+            "bg": "255,237,218",
+            "ratio": 5.46,
+            "required": 4.5,
+            "size": 12,
+            "weight": 600
+          }
+        }
+      ]
+    },
+    "library-contrast-1440": {
+      "width": 1440,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Mis aulas",
+          "current": "page",
+          "pressed": null,
+          "background": "rgb(255, 234, 220)",
+          "color": "rgb(150, 59, 13)",
+          "border": "rgb(150, 59, 13)",
+          "pair": {
+            "label": "Mis aulas",
+            "selector": "a",
+            "fg": "150,59,13",
+            "bg": "255,234,220",
+            "ratio": 6.17,
+            "required": 4.5,
+            "size": 14,
+            "weight": 750
+          }
+        },
+        {
+          "label": "Fotografía y luz",
+          "current": "page",
+          "pressed": null,
+          "background": "rgb(255, 234, 219)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Fotografía y luz",
+            "selector": "a",
+            "fg": "72,92,115",
+            "bg": "255,234,219",
+            "ratio": 5.91,
+            "required": 4.5,
+            "size": 13,
+            "weight": 750
+          }
+        },
+        {
+          "label": "Plan",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Plan",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Muro",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Muro",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Biblioteca",
+          "current": "page",
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Biblioteca",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Actividades",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Actividades",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Progreso",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Progreso",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Alumnos",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Alumnos",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Historial",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Historial",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Configuración",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Configuración",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        }
+      ]
+    },
+    "library-contrast-390": {
+      "width": 390,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Plan",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Plan",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Muro",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Muro",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Biblioteca",
+          "current": "page",
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Biblioteca",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Actividades",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Actividades",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Progreso",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Progreso",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Alumnos",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Alumnos",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Historial",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Historial",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Configuración",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Configuración",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        }
+      ]
+    },
+    "members-contrast-1440": {
+      "width": 1440,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Mis aulas",
+          "current": "page",
+          "pressed": null,
+          "background": "rgb(255, 234, 220)",
+          "color": "rgb(150, 59, 13)",
+          "border": "rgb(150, 59, 13)",
+          "pair": {
+            "label": "Mis aulas",
+            "selector": "a",
+            "fg": "150,59,13",
+            "bg": "255,234,220",
+            "ratio": 6.17,
+            "required": 4.5,
+            "size": 14,
+            "weight": 750
+          }
+        },
+        {
+          "label": "Fotografía y luz",
+          "current": "page",
+          "pressed": null,
+          "background": "rgb(255, 234, 219)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Fotografía y luz",
+            "selector": "a",
+            "fg": "72,92,115",
+            "bg": "255,234,219",
+            "ratio": 5.91,
+            "required": 4.5,
+            "size": 13,
+            "weight": 750
+          }
+        },
+        {
+          "label": "Plan",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Plan",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Muro",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Muro",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Biblioteca",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Biblioteca",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Actividades",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Actividades",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Progreso",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Progreso",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Alumnos",
+          "current": "page",
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Alumnos",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Historial",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Historial",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Configuración",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Configuración",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        }
+      ]
+    },
+    "members-contrast-390": {
+      "width": 390,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Plan",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Plan",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Muro",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Muro",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Biblioteca",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Biblioteca",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Actividades",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Actividades",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Progreso",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Progreso",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Alumnos",
+          "current": "page",
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Alumnos",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Historial",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Historial",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Configuración",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Configuración",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        }
+      ]
+    },
+    "notifications-contrast-1440": {
+      "width": 1440,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Todas 1",
+          "current": null,
+          "pressed": "true",
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(164, 59, 8)",
+          "border": "rgb(181, 200, 223)",
+          "pair": {
+            "label": "Todas",
+            "selector": "button",
+            "fg": "164,59,8",
+            "bg": "255,255,255",
+            "ratio": 6.55,
+            "required": 4.5,
+            "size": 14,
+            "weight": 600
+          }
+        },
+        {
+          "label": "Todos los tipos",
+          "current": null,
+          "pressed": "true",
+          "background": "rgb(232, 240, 249)",
+          "color": "rgb(36, 78, 115)",
+          "border": "rgb(131, 159, 188)",
+          "pair": {
+            "label": "Todos los tipos",
+            "selector": "button",
+            "fg": "36,78,115",
+            "bg": "232,240,249",
+            "ratio": 7.57,
+            "required": 4.5,
+            "size": 14,
+            "weight": 600
+          }
+        }
+      ]
+    },
+    "notifications-contrast-390": {
+      "width": 390,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Todas 1",
+          "current": null,
+          "pressed": "true",
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(164, 59, 8)",
+          "border": "rgb(181, 200, 223)",
+          "pair": {
+            "label": "Todas",
+            "selector": "button",
+            "fg": "164,59,8",
+            "bg": "255,255,255",
+            "ratio": 6.55,
+            "required": 4.5,
+            "size": 14,
+            "weight": 600
+          }
+        },
+        {
+          "label": "Todos los tipos",
+          "current": null,
+          "pressed": "true",
+          "background": "rgb(232, 240, 249)",
+          "color": "rgb(36, 78, 115)",
+          "border": "rgb(131, 159, 188)",
+          "pair": {
+            "label": "Todos los tipos",
+            "selector": "button",
+            "fg": "36,78,115",
+            "bg": "232,240,249",
+            "ratio": 7.57,
+            "required": 4.5,
+            "size": 14,
+            "weight": 600
+          }
+        }
+      ]
+    },
+    "plan-contrast-1440": {
+      "width": 1440,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Mis aulas",
+          "current": "page",
+          "pressed": null,
+          "background": "rgb(255, 234, 220)",
+          "color": "rgb(150, 59, 13)",
+          "border": "rgb(150, 59, 13)",
+          "pair": {
+            "label": "Mis aulas",
+            "selector": "a",
+            "fg": "150,59,13",
+            "bg": "255,234,220",
+            "ratio": 6.17,
+            "required": 4.5,
+            "size": 14,
+            "weight": 750
+          }
+        },
+        {
+          "label": "Fotografía y luz",
+          "current": "page",
+          "pressed": null,
+          "background": "rgb(255, 234, 219)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Fotografía y luz",
+            "selector": "a",
+            "fg": "72,92,115",
+            "bg": "255,234,219",
+            "ratio": 5.91,
+            "required": 4.5,
+            "size": 13,
+            "weight": 750
+          }
+        },
+        {
+          "label": "Plan",
+          "current": "page",
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Plan",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Muro",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Muro",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Biblioteca",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Biblioteca",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Actividades",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Actividades",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Progreso",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Progreso",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Alumnos",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Alumnos",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Historial",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Historial",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Configuración",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Configuración",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Todos (2)",
+          "current": null,
+          "pressed": "true",
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(37, 38, 70)",
+          "border": "rgb(233, 196, 170)",
+          "pair": {
+            "label": "Todos",
+            "selector": "button",
+            "fg": "37,38,70",
+            "bg": "255,255,255",
+            "ratio": 14.54,
+            "required": 4.5,
+            "size": 12,
+            "weight": 500
+          }
+        }
+      ]
+    },
+    "plan-contrast-390": {
+      "width": 390,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Plan",
+          "current": "page",
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Plan",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Muro",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Muro",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Biblioteca",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Biblioteca",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Actividades",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Actividades",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Progreso",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Progreso",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Alumnos",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Alumnos",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Historial",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Historial",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Configuración",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Configuración",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Todos (2)",
+          "current": null,
+          "pressed": "true",
+          "background": "rgb(255, 255, 255)",
+          "color": "rgb(37, 38, 70)",
+          "border": "rgb(233, 196, 170)",
+          "pair": {
+            "label": "Todos",
+            "selector": "button",
+            "fg": "37,38,70",
+            "bg": "255,255,255",
+            "ratio": 14.54,
+            "required": 4.5,
+            "size": 12,
+            "weight": 500
+          }
+        }
+      ]
+    },
+    "profile-contrast-1440": {
+      "width": 1440,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Mi perfil",
+          "current": "page",
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(100, 107, 134)",
+          "border": "rgb(100, 107, 134)",
+          "pair": {
+            "label": "Mi perfil",
+            "selector": "span",
+            "fg": "100,107,134",
+            "bg": "237,240,244",
+            "ratio": 4.61,
+            "required": 4.5,
+            "size": 11,
+            "weight": 400
+          }
+        }
+      ]
+    },
+    "profile-contrast-390": {
+      "width": 390,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Mi perfil",
+          "current": "page",
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(100, 107, 134)",
+          "border": "rgb(100, 107, 134)",
+          "pair": {
+            "label": "Mi perfil",
+            "selector": "span",
+            "fg": "100,107,134",
+            "bg": "237,240,244",
+            "ratio": 4.61,
+            "required": 4.5,
+            "size": 11,
+            "weight": 400
+          }
+        }
+      ]
+    },
+    "progress-contrast-1440": {
+      "width": 1440,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Mis aulas",
+          "current": "page",
+          "pressed": null,
+          "background": "rgb(255, 234, 220)",
+          "color": "rgb(150, 59, 13)",
+          "border": "rgb(150, 59, 13)",
+          "pair": {
+            "label": "Mis aulas",
+            "selector": "a",
+            "fg": "150,59,13",
+            "bg": "255,234,220",
+            "ratio": 6.17,
+            "required": 4.5,
+            "size": 14,
+            "weight": 750
+          }
+        },
+        {
+          "label": "Fotografía y luz",
+          "current": "page",
+          "pressed": null,
+          "background": "rgb(255, 234, 219)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Fotografía y luz",
+            "selector": "a",
+            "fg": "72,92,115",
+            "bg": "255,234,219",
+            "ratio": 5.91,
+            "required": 4.5,
+            "size": 13,
+            "weight": 750
+          }
+        },
+        {
+          "label": "Plan",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Plan",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Muro",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Muro",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Biblioteca",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Biblioteca",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Actividades",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Actividades",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Progreso",
+          "current": "page",
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Progreso",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Alumnos",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Alumnos",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Historial",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Historial",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Configuración",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Configuración",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        }
+      ]
+    },
+    "progress-contrast-390": {
+      "width": 390,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Plan",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Plan",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Muro",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Muro",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Biblioteca",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Biblioteca",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Actividades",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Actividades",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Progreso",
+          "current": "page",
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Progreso",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Alumnos",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Alumnos",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Historial",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Historial",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Configuración",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Configuración",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        }
+      ]
+    },
+    "room-settings-contrast-1440": {
+      "width": 1440,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Mis aulas",
+          "current": "page",
+          "pressed": null,
+          "background": "rgb(255, 234, 220)",
+          "color": "rgb(150, 59, 13)",
+          "border": "rgb(150, 59, 13)",
+          "pair": {
+            "label": "Mis aulas",
+            "selector": "a",
+            "fg": "150,59,13",
+            "bg": "255,234,220",
+            "ratio": 6.17,
+            "required": 4.5,
+            "size": 14,
+            "weight": 750
+          }
+        },
+        {
+          "label": "Fotografía y luz",
+          "current": "page",
+          "pressed": null,
+          "background": "rgb(255, 234, 219)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Fotografía y luz",
+            "selector": "a",
+            "fg": "72,92,115",
+            "bg": "255,234,219",
+            "ratio": 5.91,
+            "required": 4.5,
+            "size": 13,
+            "weight": 750
+          }
+        },
+        {
+          "label": "Plan",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Plan",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Muro",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Muro",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Biblioteca",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Biblioteca",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Actividades",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Actividades",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Progreso",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Progreso",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Alumnos",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Alumnos",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Historial",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Historial",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Configuración",
+          "current": "page",
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Configuración",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        }
+      ]
+    },
+    "room-settings-contrast-390": {
+      "width": 390,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Plan",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Plan",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Muro",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Muro",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Biblioteca",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Biblioteca",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Actividades",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Actividades",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Progreso",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Progreso",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Alumnos",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Alumnos",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Historial",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Historial",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Configuración",
+          "current": "page",
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Configuración",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        }
+      ]
+    },
+    "wall-contrast-1440": {
+      "width": 1440,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Mis aulas",
+          "current": "page",
+          "pressed": null,
+          "background": "rgb(255, 234, 220)",
+          "color": "rgb(150, 59, 13)",
+          "border": "rgb(150, 59, 13)",
+          "pair": {
+            "label": "Mis aulas",
+            "selector": "a",
+            "fg": "150,59,13",
+            "bg": "255,234,220",
+            "ratio": 6.17,
+            "required": 4.5,
+            "size": 14,
+            "weight": 750
+          }
+        },
+        {
+          "label": "Fotografía y luz",
+          "current": "page",
+          "pressed": null,
+          "background": "rgb(255, 234, 219)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Fotografía y luz",
+            "selector": "a",
+            "fg": "72,92,115",
+            "bg": "255,234,219",
+            "ratio": 5.91,
+            "required": 4.5,
+            "size": 13,
+            "weight": 750
+          }
+        },
+        {
+          "label": "Plan",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Plan",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Muro",
+          "current": "page",
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Muro",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Biblioteca",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Biblioteca",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Actividades",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Actividades",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Progreso",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Progreso",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Alumnos",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Alumnos",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Historial",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Historial",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Configuración",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Configuración",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Todas",
+          "current": null,
+          "pressed": "true",
+          "background": "rgb(255, 244, 235)",
+          "color": "rgb(147, 64, 23)",
+          "border": "rgb(226, 188, 159)",
+          "pair": {
+            "label": "Todas",
+            "selector": "button.selected",
+            "fg": "147,64,23",
+            "bg": "255,244,235",
+            "ratio": 6.49,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        }
+      ]
+    },
+    "wall-contrast-390": {
+      "width": 390,
+      "issues": [],
+      "segments": [
+        {
+          "label": "Plan",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Plan",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Muro",
+          "current": "page",
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Muro",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Biblioteca",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Biblioteca",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Actividades",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Actividades",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Progreso",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Progreso",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Alumnos",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Alumnos",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Historial",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Historial",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Configuración",
+          "current": null,
+          "pressed": null,
+          "background": "rgba(0, 0, 0, 0)",
+          "color": "rgb(72, 92, 115)",
+          "border": "rgb(72, 92, 115)",
+          "pair": {
+            "label": "Configuración",
+            "selector": "button",
+            "fg": "72,92,115",
+            "bg": "255,255,255",
+            "ratio": 6.88,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        },
+        {
+          "label": "Todas",
+          "current": null,
+          "pressed": "true",
+          "background": "rgb(255, 244, 235)",
+          "color": "rgb(147, 64, 23)",
+          "border": "rgb(226, 188, 159)",
+          "pair": {
+            "label": "Todas",
+            "selector": "button.selected",
+            "fg": "147,64,23",
+            "bg": "255,244,235",
+            "ratio": 6.49,
+            "required": 4.5,
+            "size": 13,
+            "weight": 800
+          }
+        }
+      ]
+    }
+  },
+  "mastAndWordmark": {
+    "agenda": {
+      "320": {
+        "vw": 320,
+        "client": 305,
+        "brand": {
+          "rect": [
+            16,
+            19,
+            136,
+            45
+          ],
+          "display": "flex",
+          "width": "135.625px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "wordmark": {
+          "rect": [
+            64,
+            23,
+            88,
+            37
+          ],
+          "display": "grid",
+          "width": "87.625px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "menu": {
+          "rect": [
+            206,
+            19,
+            83,
+            44
+          ],
+          "display": "flex",
+          "width": "83.125px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mast": null,
+        "mastText": null,
+        "mastMeta": null,
+        "headingLines": null
+      },
+      "390": {
+        "vw": 390,
+        "client": 375,
+        "brand": {
+          "rect": [
+            16,
+            19,
+            136,
+            45
+          ],
+          "display": "flex",
+          "width": "135.625px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "wordmark": {
+          "rect": [
+            64,
+            23,
+            88,
+            37
+          ],
+          "display": "grid",
+          "width": "87.625px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "menu": {
+          "rect": [
+            276,
+            19,
+            83,
+            44
+          ],
+          "display": "flex",
+          "width": "83.125px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mast": null,
+        "mastText": null,
+        "mastMeta": null,
+        "headingLines": null
+      },
+      "768": {
+        "vw": 768,
+        "client": 753,
+        "brand": {
+          "rect": [
+            20,
+            21,
+            148,
+            45
+          ],
+          "display": "flex",
+          "width": "147.962px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "wordmark": {
+          "rect": [
+            68,
+            23,
+            100,
+            40
+          ],
+          "display": "grid",
+          "width": "99.9625px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "menu": {
+          "rect": [
+            650,
+            21,
+            83,
+            44
+          ],
+          "display": "flex",
+          "width": "83.125px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mast": null,
+        "mastText": null,
+        "mastMeta": null,
+        "headingLines": null
+      },
+      "1024": {
+        "vw": 1024,
+        "client": 1009,
+        "brand": {
+          "rect": [
+            21,
+            23,
+            148,
+            88
+          ],
+          "display": "flex",
+          "width": "147.962px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "wordmark": {
+          "rect": [
+            69,
+            47,
+            100,
+            40
+          ],
+          "display": "grid",
+          "width": "99.9625px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "menu": {
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "display": "none",
+          "width": "auto",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mast": null,
+        "mastText": null,
+        "mastMeta": null,
+        "headingLines": null
+      },
+      "1440": {
+        "vw": 1440,
+        "client": 1425,
+        "brand": {
+          "rect": [
+            21,
+            23,
+            148,
+            88
+          ],
+          "display": "flex",
+          "width": "147.962px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "wordmark": {
+          "rect": [
+            69,
+            47,
+            100,
+            40
+          ],
+          "display": "grid",
+          "width": "99.9625px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "menu": {
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "display": "none",
+          "width": "auto",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mast": null,
+        "mastText": null,
+        "mastMeta": null,
+        "headingLines": null
+      }
+    },
+    "foxy": {
+      "320": {
+        "vw": 320,
+        "client": 320,
+        "brand": {
+          "rect": [
+            16,
+            19,
+            136,
+            45
+          ],
+          "display": "flex",
+          "width": "135.625px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "wordmark": {
+          "rect": [
+            64,
+            23,
+            88,
+            37
+          ],
+          "display": "grid",
+          "width": "87.625px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "menu": {
+          "rect": [
+            221,
+            19,
+            83,
+            44
+          ],
+          "display": "flex",
+          "width": "83.125px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mast": null,
+        "mastText": null,
+        "mastMeta": null,
+        "headingLines": null
+      },
+      "390": {
+        "vw": 390,
+        "client": 390,
+        "brand": {
+          "rect": [
+            16,
+            19,
+            136,
+            45
+          ],
+          "display": "flex",
+          "width": "135.625px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "wordmark": {
+          "rect": [
+            64,
+            23,
+            88,
+            37
+          ],
+          "display": "grid",
+          "width": "87.625px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "menu": {
+          "rect": [
+            291,
+            19,
+            83,
+            44
+          ],
+          "display": "flex",
+          "width": "83.125px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mast": null,
+        "mastText": null,
+        "mastMeta": null,
+        "headingLines": null
+      },
+      "768": {
+        "vw": 768,
+        "client": 753,
+        "brand": {
+          "rect": [
+            20,
+            21,
+            148,
+            45
+          ],
+          "display": "flex",
+          "width": "147.962px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "wordmark": {
+          "rect": [
+            68,
+            23,
+            100,
+            40
+          ],
+          "display": "grid",
+          "width": "99.9625px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "menu": {
+          "rect": [
+            650,
+            21,
+            83,
+            44
+          ],
+          "display": "flex",
+          "width": "83.125px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mast": null,
+        "mastText": null,
+        "mastMeta": null,
+        "headingLines": null
+      },
+      "1024": {
+        "vw": 1024,
+        "client": 1009,
+        "brand": {
+          "rect": [
+            21,
+            23,
+            148,
+            88
+          ],
+          "display": "flex",
+          "width": "147.962px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "wordmark": {
+          "rect": [
+            69,
+            47,
+            100,
+            40
+          ],
+          "display": "grid",
+          "width": "99.9625px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "menu": {
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "display": "none",
+          "width": "auto",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mast": null,
+        "mastText": null,
+        "mastMeta": null,
+        "headingLines": null
+      },
+      "1440": {
+        "vw": 1440,
+        "client": 1425,
+        "brand": {
+          "rect": [
+            21,
+            23,
+            148,
+            88
+          ],
+          "display": "flex",
+          "width": "147.962px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "wordmark": {
+          "rect": [
+            69,
+            47,
+            100,
+            40
+          ],
+          "display": "grid",
+          "width": "99.9625px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "menu": {
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "display": "none",
+          "width": "auto",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mast": null,
+        "mastText": null,
+        "mastMeta": null,
+        "headingLines": null
+      }
+    },
+    "classroom": {
+      "320": {
+        "vw": 320,
+        "client": 305,
+        "brand": {
+          "rect": [
+            16,
+            19,
+            136,
+            45
+          ],
+          "display": "flex",
+          "width": "135.625px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "wordmark": {
+          "rect": [
+            64,
+            23,
+            88,
+            37
+          ],
+          "display": "grid",
+          "width": "87.625px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "menu": {
+          "rect": [
+            206,
+            19,
+            83,
+            44
+          ],
+          "display": "flex",
+          "width": "83.125px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mast": {
+          "rect": [
+            16,
+            138,
+            273,
+            231
+          ],
+          "display": "block",
+          "width": "272.8px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mastText": {
+          "rect": [
+            17,
+            139,
+            176,
+            180
+          ],
+          "display": "block",
+          "width": "176.275px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mastMeta": {
+          "rect": [
+            37,
+            262,
+            136,
+            45
+          ],
+          "display": "flex",
+          "width": "136.275px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "headingLines": 2,
+        "tab": {
+          "section": "settings",
+          "scroller": 273,
+          "scrollLeft": 404,
+          "clippedLeft": 0,
+          "clippedRight": 0
+        }
+      },
+      "390": {
+        "vw": 390,
+        "client": 375,
+        "brand": {
+          "rect": [
+            16,
+            19,
+            136,
+            45
+          ],
+          "display": "flex",
+          "width": "135.625px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "wordmark": {
+          "rect": [
+            64,
+            23,
+            88,
+            37
+          ],
+          "display": "grid",
+          "width": "87.625px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "menu": {
+          "rect": [
+            276,
+            19,
+            83,
+            44
+          ],
+          "display": "flex",
+          "width": "83.125px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mast": {
+          "rect": [
+            16,
+            138,
+            343,
+            231
+          ],
+          "display": "block",
+          "width": "343.2px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mastText": {
+          "rect": [
+            17,
+            139,
+            222,
+            180
+          ],
+          "display": "block",
+          "width": "222.038px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mastMeta": {
+          "rect": [
+            37,
+            262,
+            182,
+            45
+          ],
+          "display": "flex",
+          "width": "182.038px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "headingLines": 2,
+        "tab": {
+          "section": "settings",
+          "scroller": 343,
+          "scrollLeft": 333,
+          "clippedLeft": 0,
+          "clippedRight": 0
+        }
+      },
+      "768": {
+        "vw": 768,
+        "client": 753,
+        "brand": {
+          "rect": [
+            20,
+            21,
+            148,
+            45
+          ],
+          "display": "flex",
+          "width": "147.962px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "wordmark": {
+          "rect": [
+            68,
+            23,
+            100,
+            40
+          ],
+          "display": "grid",
+          "width": "99.9625px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "menu": {
+          "rect": [
+            650,
+            21,
+            83,
+            44
+          ],
+          "display": "flex",
+          "width": "83.125px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mast": {
+          "rect": [
+            20,
+            140,
+            713,
+            148
+          ],
+          "display": "flex",
+          "width": "712.8px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mastText": {
+          "rect": [
+            21,
+            143,
+            486,
+            142
+          ],
+          "display": "block",
+          "width": "485.888px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mastMeta": {
+          "rect": [
+            45,
+            242,
+            438,
+            19
+          ],
+          "display": "flex",
+          "width": "437.888px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "headingLines": 1,
+        "tab": {
+          "section": "settings",
+          "scroller": 713,
+          "scrollLeft": 0,
+          "clippedLeft": 0,
+          "clippedRight": 0
+        }
+      },
+      "1024": {
+        "vw": 1024,
+        "client": 1009,
+        "brand": {
+          "rect": [
+            21,
+            45,
+            148,
+            45
+          ],
+          "display": "flex",
+          "width": "147.962px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "wordmark": {
+          "rect": [
+            69,
+            47,
+            100,
+            40
+          ],
+          "display": "grid",
+          "width": "99.9625px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "menu": {
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "display": "none",
+          "width": "auto",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mast": {
+          "rect": [
+            270,
+            82,
+            707,
+            148
+          ],
+          "display": "flex",
+          "width": "706.8px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mastText": {
+          "rect": [
+            271,
+            83,
+            424,
+            146
+          ],
+          "display": "block",
+          "width": "424.175px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mastMeta": {
+          "rect": [
+            295,
+            187,
+            376,
+            19
+          ],
+          "display": "flex",
+          "width": "376.175px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "headingLines": 1,
+        "tab": {
+          "section": "settings",
+          "scroller": 707,
+          "scrollLeft": 0,
+          "clippedLeft": 0,
+          "clippedRight": 0
+        }
+      },
+      "1440": {
+        "vw": 1440,
+        "client": 1425,
+        "brand": {
+          "rect": [
+            21,
+            45,
+            148,
+            45
+          ],
+          "display": "flex",
+          "width": "147.962px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "wordmark": {
+          "rect": [
+            69,
+            47,
+            100,
+            40
+          ],
+          "display": "grid",
+          "width": "99.9625px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "menu": {
+          "rect": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "display": "none",
+          "width": "auto",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mast": {
+          "rect": [
+            270,
+            82,
+            1123,
+            148
+          ],
+          "display": "flex",
+          "width": "1122.8px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mastText": {
+          "rect": [
+            271,
+            83,
+            840,
+            146
+          ],
+          "display": "block",
+          "width": "840.175px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "mastMeta": {
+          "rect": [
+            295,
+            187,
+            792,
+            19
+          ],
+          "display": "flex",
+          "width": "792.175px",
+          "max": "none",
+          "visibility": "visible",
+          "opacity": "1"
+        },
+        "headingLines": 1,
+        "tab": {
+          "section": "settings",
+          "scroller": 1123,
+          "scrollLeft": 0,
+          "clippedLeft": 0,
+          "clippedRight": 0
+        }
+      }
+    }
+  }
+}

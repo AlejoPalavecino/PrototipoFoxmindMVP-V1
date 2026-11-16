@@ -1,0 +1,46 @@
+{
+  "build": "QuoiLeFkpez_y5nNmscUm",
+  "name": "teacher-settings",
+  "rows": [
+    {
+      "width": 320,
+      "clientWidth": 305,
+      "scrollWidth": 305,
+      "overflow": false,
+      "brokenImages": [],
+      "outside": []
+    },
+    {
+      "width": 390,
+      "clientWidth": 375,
+      "scrollWidth": 375,
+      "overflow": false,
+      "brokenImages": [],
+      "outside": []
+    },
+    {
+      "width": 768,
+      "clientWidth": 753,
+      "scrollWidth": 753,
+      "overflow": false,
+      "brokenImages": [],
+      "outside": []
+    },
+    {
+      "width": 1000,
+      "clientWidth": 985,
+      "scrollWidth": 985,
+      "overflow": false,
+      "brokenImages": [],
+      "outside": []
+    },
+    {
+      "width": 1440,
+      "clientWidth": 1425,
+      "scrollWidth": 1425,
+      "overflow": false,
+      "brokenImages": [],
+      "outside": []
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "width": 1440,
+  "clientWidth": 1440,
+  "height": 900,
+  "scrollWidth": 1440,
+  "headings": [
+    {
+      "text": "¿Qué idea trabajamos hoy?",
+      "font": "900 30px / 39px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 571.4125366210938,
+        "y": 340.5,
+        "width": 373.1625061035156,
+        "height": 39,
+        "top": 340.5,
+        "right": 944.5750427246094,
+        "bottom": 379.5,
+        "left": 571.4125366210938
+      }
+    }
+  ]
+}

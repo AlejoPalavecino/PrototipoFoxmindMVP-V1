@@ -1,0 +1,50 @@
+{
+  "width": 390,
+  "clientWidth": 375,
+  "height": 844,
+  "scrollWidth": 375,
+  "headings": [
+    {
+      "text": "Fotografía y luz",
+      "font": "800 21px / 24.36px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 84.80000305175781,
+        "y": 30.100000381469727,
+        "width": 213.60000610351562,
+        "height": 24.350000381469727,
+        "top": 30.100000381469727,
+        "right": 298.40000915527344,
+        "bottom": 54.45000076293945,
+        "left": 84.80000305175781
+      }
+    },
+    {
+      "text": "Alumnos",
+      "font": "800 24px / 30px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 15,
+        "y": 317.8500061035156,
+        "width": 1,
+        "height": 1,
+        "top": 317.8500061035156,
+        "right": 16,
+        "bottom": 318.8500061035156,
+        "left": 15
+      }
+    },
+    {
+      "text": "Aprendemos en grupo",
+      "font": "800 24px / 30px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 16,
+        "y": 318.8500061035156,
+        "width": 245.78750610351562,
+        "height": 30,
+        "top": 318.8500061035156,
+        "right": 261.7875061035156,
+        "bottom": 348.8500061035156,
+        "left": 16
+      }
+    }
+  ]
+}
