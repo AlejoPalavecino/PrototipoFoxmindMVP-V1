@@ -3,6 +3,7 @@
     "id": "fast",
     "kind": "fast",
     "files": [
+      "tests/ai-execution-snapshot.test.mjs",
       "tests/ai-text-execution.test.mjs",
       "tests/ai-official-transports.test.mjs",
       "tests/architecture-host.test.mjs",
@@ -498,7 +499,8 @@
       "apps/api/src/modules/study/infrastructure/tests/database.test.mjs",
       "apps/api/src/modules/study/infrastructure/tests/http.test.mjs",
       "apps/api/src/modules/study/infrastructure/tests/integrations.test.mjs",
-      "tests/p5-codes-invitation-batches.test.mjs"
+      "tests/p5-codes-invitation-batches.test.mjs",
+      "tests/ai-execution-policy-database.test.mjs"
     ]
   },
   {

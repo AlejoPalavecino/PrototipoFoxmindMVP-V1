@@ -16,6 +16,7 @@ export const suites = {
     'apps/api/src/modules/study/infrastructure/tests/integrations.test.mjs',
   ],
   pure: [
+    'tests/ai-execution-snapshot.test.mjs',
     'tests/ai-text-execution.test.mjs',
     'tests/ai-official-transports.test.mjs',
     'tests/architecture-host.test.mjs',
@@ -65,6 +66,7 @@ export const suites = {
     'tests/activity-ai-proxy.test.mjs', 'tests/audit-wall-proxy.test.mjs',
   ],
   'integration-owned': [
+    'tests/ai-execution-policy-database.test.mjs',
     'tests/home-order-database.test.mjs',
     'apps/api/src/modules/study/infrastructure/tests/database.test.mjs',
     'apps/api/src/modules/study/infrastructure/tests/http.test.mjs',

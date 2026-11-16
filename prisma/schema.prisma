@@ -905,6 +905,7 @@ model BackgroundJob {
 }
 
 model ClassroomCurriculumExtraction {
+  execution_profile Json?
   id String @id @db.Uuid
   owner_id String @db.Uuid
   draft_id String @db.Uuid
@@ -991,6 +992,7 @@ model ActivityTopic {
 }
 
 model ActivityAiGeneration {
+  execution_profile Json?
   id String @id @db.Uuid
   owner_id String @db.Uuid
   classroom_id String @db.Uuid
@@ -1055,6 +1057,7 @@ model ActivityAiRequest {
 }
 
 model StudentAiReport {
+  execution_profile Json?
   id String @id @db.Uuid
   enrollment_id String @db.Uuid
   classroom_id String @db.Uuid
@@ -1085,6 +1088,7 @@ model StudentAiReport {
 }
 
 model GradingAiJob {
+  execution_profile Json?
   id String @id @db.Uuid
   classroom_id String @db.Uuid
   activity_id String @db.Uuid
@@ -1152,6 +1156,7 @@ model FoxyConversationRequest {
 }
 
 model FoxyTurn {
+  execution_profile Json?
   id String @id @db.Uuid
   owner_id String @db.Uuid
   conversation_id String @db.Uuid
@@ -1482,6 +1487,7 @@ model StudyReviewSession {
 }
 
 model StudyAiDispatch {
+  execution_profile Json?
   id String @id @db.Uuid
   owner_id String @db.Uuid
   request_id String @db.Uuid
@@ -1498,4 +1504,12 @@ model StudyAiDispatch {
   // Partial study_ai_running index is maintained by SQL migration 006.
   @@unique([owner_id,request_id])
   @@map("study_ai_dispatches")
+}
+
+model AiExecutionPolicy {
+  singleton Boolean @id @default(true)
+  baseline_profiles Json
+  active_profiles Json
+  updated_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  @@map("ai_execution_policy")
 }

@@ -9,7 +9,7 @@ export class PrismaService extends PrismaClient implements OnModuleDestroy {
   constructor(@Inject(DATABASE_URL) connectionString: string) {
     super({ adapter: new PrismaPg({
       connectionString, max: 5, connectionTimeoutMillis: 1000,
-      query_timeout: 1000, statement_timeout: 1000, application_name: "foxmind-api",
+      query_timeout: 1000, statement_timeout: 1000, application_name: "foxmind-api-ai-execution-v1",
     }) });
   }
 

@@ -1,10 +1,23 @@
 import type { SqlTransaction } from '../../../../../src/core/contracts/sql.ts';
+import type { AiExecutionSettings, AiExecutionTask } from '../../../../../src/core/contracts/ai-execution.ts';
+import { parseExecutionSnapshot } from './execution-snapshot.ts';
 
 type Transaction = SqlTransaction;
-type ClassroomAiConfiguration = { maxOutputTokens: number; inputUsdPerMillion: number; outputUsdPerMillion: number;
+type ClassroomAiConfiguration = AiExecutionSettings & { maxOutputTokens: number; inputUsdPerMillion: number; outputUsdPerMillion: number;
   dailyBudgetUsd: number; dailyActorRequests: number; dailyGlobalRequests: number };
 type BudgetJob = { id: string; owner_id: string };
 export type BudgetTable = 'classroom_curriculum_extractions' | 'activity_ai_generations' | 'student_ai_reports' | 'grading_ai_jobs' | 'foxy_turns' | 'foxy_visual_jobs' | 'study_ai_dispatches';
+const tasks: Partial<Record<BudgetTable, AiExecutionTask>> = { classroom_curriculum_extractions: 'curriculum', activity_ai_generations: 'activities',
+  student_ai_reports: 'analysis', grading_ai_jobs: 'grading', foxy_turns: 'foxy', study_ai_dispatches: 'study' };
+function pinnedPrices(config: ClassroomAiConfiguration, table: BudgetTable, snapshot: unknown): ClassroomAiConfiguration {
+  const task = tasks[table];
+  if (!task) return config; // Visuales mantienen su contrato y snapshot de tarifas independiente.
+  const saved = snapshot ?? config.legacyExecutionProfiles?.[task];
+  if (saved === undefined || saved === null) return config;
+  const profile = parseExecutionSnapshot(saved, task);
+  return { ...config, maxOutputTokens: profile.maxOutputTokens,
+    inputUsdPerMillion: profile.inputUsdPerMillion, outputUsdPerMillion: profile.outputUsdPerMillion };
+}
 
 function decimal(value: number): [bigint, bigint] {
   const [mantissa, exponent = '0'] = String(value).split('e');
@@ -19,8 +32,9 @@ export function tokenCost(tokens: number, rate: number): bigint {
 }
 export async function reserveAiTextBudget(tx: Transaction, row: BudgetJob, count: number, config: ClassroomAiConfiguration, table: BudgetTable = 'classroom_curriculum_extractions'): Promise<boolean> {
   await tx.query('SELECT 1 FROM pg_advisory_xact_lock(78123001)');
-  const [existing] = await tx.query<{ dispatch_count: number }>(`SELECT dispatch_count FROM ${table} WHERE id=$1::uuid FOR UPDATE`, row.id);
+  const [existing] = await tx.query<{ dispatch_count: number; execution_profile?: unknown }>(`SELECT dispatch_count${tasks[table] ? ',execution_profile' : ''} FROM ${table} WHERE id=$1::uuid FOR UPDATE`, row.id);
   if (!existing || existing.dispatch_count > 0) return false;
+  config = pinnedPrices(config, table, existing.execution_profile);
   const amount = tokenCost(count, config.inputUsdPerMillion) + tokenCost(config.maxOutputTokens, config.outputUsdPerMillion);
   const [num, den] = decimal(config.dailyBudgetUsd), maximum = num * 1000000n / den;
   for (const scope of ['global', row.owner_id]) {
@@ -41,9 +55,11 @@ export async function reserveAiTextBudget(tx: Transaction, row: BudgetJob, count
 }
 export async function settleAiTextBudget(tx: Transaction, row: BudgetJob, config: ClassroomAiConfiguration,
   usage?: { inputTokens: number | null; outputTokens: number | null }, table: BudgetTable = 'classroom_curriculum_extractions'): Promise<void> {
-  const [reservation] = await tx.query<{ amount: string; day: Date }>(`SELECT reserved_microusd::text AS amount,
+  const [reservation] = await tx.query<{ amount: string; day: Date; execution_profile?: unknown }>(`SELECT reserved_microusd::text AS amount,
+    ${tasks[table] ? 'execution_profile,' : ''}
     usage_day AS day FROM ${table} WHERE id=$1::uuid FOR UPDATE`, row.id);
   if (!reservation || BigInt(reservation.amount) === 0n) return;
+  config = pinnedPrices(config, table, reservation.execution_profile);
   const valid = (value: number | null | undefined): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
   const known = valid(usage?.inputTokens) && valid(usage?.outputTokens);
   const actual = known ? tokenCost(usage!.inputTokens!, config.inputUsdPerMillion)
