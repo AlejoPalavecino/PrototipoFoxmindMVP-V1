@@ -1,6 +1,6 @@
 # Propuesta: ejecución IA con Gemini inicial y Claude preparado
 
-Estado: diseño, SDK oficiales, identidad persistente y ejecución aprobados el 2026-11-16; implementación y verificación local completadas. El usuario aprobó el diseño y confirmó los SDK oficiales. El estado verificable vive en [el tablero](../../../odd/tasks/ai-runtime.md). Este diseño no acredita funcionalidades aún no verificadas.
+Estado: diseño, SDK oficiales, identidad persistente y ejecución aprobados el 2026-11-16; implementación y verificación local completadas; código integrado y publicado en main (`e9d901d`). El usuario aprobó el diseño y confirmó los SDK oficiales. El estado verificable vive en [el tablero](../../../odd/tasks/ai-runtime.md). Este diseño no acredita funcionalidades aún no verificadas.
 
 La implementación local conecta extracción, actividades, análisis, corrección, Foxy textual y Estudio a los transportes oficiales mediante perfiles persistentes por trabajo. El [estado por capacidad](README.md#ejecución-con-sdk-oficiales) distingue la selección implementada de la activación real de Claude, que requiere configuración y pruebas reales autorizadas.
 

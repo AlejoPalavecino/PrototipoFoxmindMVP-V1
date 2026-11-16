@@ -79,3 +79,7 @@
 - **Acceptance:** Especificación, modelo/operación/guías y tablero coinciden con selección implementada. Inventario, docs y TTP válidos, main y worktrees previos preservados; sin publicación ni migración retenida.
 - **Evidence:** Especificación/guías/roadmap y work-log reconciliados; docs:check149 archivos896 enlaces0 incidencias, taskboard9 tareas válidas, inventario564 entradas53 exclusiones23 rutas. Diff check correcto; main conserva estado inicial. Sin commits, integración, publicación ni migración retenida.
 - **Blocker:** none
+
+## Integración y publicación autorizadas
+
+El 2026-11-16 el usuario autorizó commits, integración en main y push del trabajo IA. Commits: `e5fe889` (transporte), `1b768f9` (persistencia) y `e9d901d` (integración). Main avanzó sin conflictos y el remoto confirmó `e9d901d`. Repeticiones de publicación:21/21,19/19 y80/80, superpuestas con la evidencia previa. El [recibo](../../docs/work-log/2026-11-16-root-ai-runtime-publication.md) y su comprobación final registran la publicación documental posterior. El alcance de DONE es código verificado e integrado/publicado; no acredita despliegue ni aplicación a datos retenidos. Los worktrees ajenos y cambios locales de main fueron preservados.
