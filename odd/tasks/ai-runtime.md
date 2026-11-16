@@ -83,3 +83,7 @@
 ## Integración y publicación autorizadas
 
 El 2026-11-16 el usuario autorizó commits, integración en main y push del trabajo IA. Commits: `e5fe889` (transporte), `1b768f9` (persistencia) y `e9d901d` (integración). Main avanzó sin conflictos y el remoto confirmó `e9d901d`. Repeticiones de publicación:21/21,19/19 y80/80, superpuestas con la evidencia previa. El [recibo](../../docs/work-log/2026-11-16-root-ai-runtime-publication.md) y su comprobación final registran la publicación documental posterior. El alcance de DONE es código verificado e integrado/publicado; no acredita despliegue ni aplicación a datos retenidos. Los worktrees ajenos y cambios locales de main fueron preservados.
+
+## Preparación local posterior autorizada
+
+El usuario autorizó migrar el entorno local principal. Base actualizada a55 migraciones y política Gemini inicializada, sin legacy pendientes. Respaldo restaurado, estados interrumpidos liquidados conservadoramente, dependencias/Prisma/API compilada y verificación real de inicialización cubiertas. El fixcad0d2f corrige el retorno void no admitido por Prisma; aceptación real13/13. El recibo de publicación distingue la preparación local de despliegue y conserva evidencia/actividad concurrente de UI.

@@ -48,7 +48,7 @@ Antes de actualizar un destino autorizado a la versión con política persistent
 
 `execution_profile` contiene identidad técnica, límites y tarifas; no contiene claves, prompts, archivos ni respuestas. El marcador de conexión `application_name=foxmind-api-ai-execution-v1` evita escrituras accidentales de ejecutores incompatibles sobre trabajos con snapshot. No autentica una sesión SQL ni reemplaza permisos de base; no se debe usar cambiar el marcador como procedimiento de upgrade.
 
-Esta guía no acredita que la migración se haya aplicado a datos retenidos. Las suites automatizadas usan SDK/transporte sintético: verifican contratos y consumo de fixtures, no calidad educativa ni acceso real a Claude. Las pruebas reales requieren autorización y destino propios.
+La actualización del entorno local del checkout principal fue autorizada y verificada el2026-11-16:55 migraciones y perfiles iniciales Gemini, con respaldo restaurado y cliente Prisma real. El [recibo local](../../work-log/2026-11-16-root-ai-runtime-publication.md#actualización-local-posterior-autorizada--completada) identifica alcance y límites; no acredita actualización de otros entornos. Las suites automatizadas usan SDK/transporte sintético: verifican contratos y consumo de fixtures, no calidad educativa ni acceso real a Claude. Las pruebas reales requieren autorización y destino propios.
 
 ## Desarrollo con datos a conservar
 

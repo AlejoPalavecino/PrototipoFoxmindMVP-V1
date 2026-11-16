@@ -29,3 +29,21 @@ Este último recibo actualiza sólo documentación de estado y autorización. Su
 No hubo despliegue, arranque sobre datos retenidos ni activación real de Claude. La suite remota/CI no se declara ejecutada ni aprobada. Antes de actualizar un entorno con datos retenidos sigue siendo necesario el drenaje documentado; mergear SQL a Git no aplica la migración.
 
 Validación del recibo final antes de su commit: documentación150 archivos/902 enlaces sin incidencias, tablero9 tareas válidas y diff check correcto. Sólo cambiaron seis archivos de instrucciones/documentación de estado; el código verificado no cambió.
+
+## Actualización local posterior autorizada — completada
+
+El usuario pidió aplicar las migraciones para que el próximo arranque local incluya la arquitectura IA, conservando intacto el trabajo UI. Destino autorizado: base foxmind_local del propietario foxmind-local-e978377887e97a43 en el checkout principal; URL y credenciales se validan internamente y no se registran. API/web y servicios de este propietario estaban detenidos. La instancia del worktree product-parity permanece activa con otro propietario y base; no se opera sobre ella.
+
+Plan: comprobar pendientes antes de migrar, crear y validar respaldo privado, aplicar migraciones versionadas, preparar dependencias/cliente/build de main y verificar política sin llamadas a proveedores. Se arranca únicamente PostgreSQL del propietario main y se restaura su estado detenido al terminar. Guardas privadas de bytes/estado protegen los cambios previos de main y de los worktrees UI. No se autoriza reset, pérdida de datos ni activación real de Claude.
+
+Resultado local comprobado:
+
+- Base main:54→55 migraciones, incluyendo202611160001_ai_execution_profiles; status sin pendientes y diff físico frente a Prisma vacío. Política persistida con seis perfiles Gemini y ninguna credencial/contenido. No quedaron legacy pendientes.
+- Respaldo privado previo de330891 bytes en `.test-artifacts/local-app/ai-migration-2026-11-16/before-ai.dump`; archivo validado y restaurado exitosamente en una base temporal propia que luego se eliminó. No es sólo una copia no ensayada.
+- Había dos despachos Study RUNNING con leases vencidos por más de10 minutos y ningún proceso conectado. Se cerraron FAILED usando la liquidación de la versión anterior (baseef6828b), sin generación ni reintento. La reserva de65219microusd pasó a consumo estimado conservador por resultado desconocido; no se inventó uso real ni se produjo una llamada paga. Se conservaron los conteos de todas las tablas preexistentes.
+- Dependencias de main instaladas con npm ci --ignore-scripts; Prisma generado y compilación API local90s exit0. La primera comprobación real encontró P2010 por retorno void del advisory lock: RED con Prisma real, corrección SELECT1 manteniendo lock/transacción, GREEN13/13 y revisión independiente VERIFIED. Fixcad0d2f integrado/publicado; [registro](2026-11-16-root-ai-policy-prisma-fix.md).
+- Verificación posterior sobre el runtime compilado de main: configuración válida, Prisma conectado con application_name nuevo, inicialización idempotente, seis columnas execution_profile, seis transportes Gemini preparados y0 llamadas externas con fetch bloqueado. No se inició API/web porque UI tiene su instancia separada activa.
+- PostgreSQL main quedó detenido nuevamente; storage/scanner/mail permanecieron detenidos. `.env` conserva sus bytes y la API key. No se alteraron cuentas ni archivos y no se activó Claude.
+- Los12 cambios previos de main y el worktree ui-lab conservaron estado/bytes. Product-parity continuó recibiendo cambios concurrentes de su propia tarea; se observaron por guardas de lectura, sin restaurarlos ni escribir archivos/servicios de ese worktree. No se atribuye una igualdad byte a byte falsa a un trabajo que seguía avanzando.
+
+Próximo arranque desde el checkout principal: `npm run local:up`. Aplica migraciones de forma idempotente y usa los cambios IA compilados desde main. Mientras la instancia UI use3000/3001, el supervisor main rechazará esos puertos ocupados; esta operación no la detiene. La evidencia privada agregada vive en `.test-artifacts/local-app/ai-migration-2026-11-16/`, sin secretos en Git. No se verificó una conversación real de proveedor ni se realizó despliegue.
