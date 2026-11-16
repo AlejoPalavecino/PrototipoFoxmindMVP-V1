@@ -3,6 +3,7 @@
   "baseCommit": "398cc0bbe53e9deaf09a02d9b9fa0d35398180e0",
   "hashPolicy": "Los hashes del catálogo corresponden a bytes exactos. El catálogo identifica capturas vigentes y evidencia previa.",
   "activeFiles": [
+    "docs/work-log/2026-11-16-root-ai-policy-prisma-fix.md",
     "docs/work-log/2026-11-16-root-ai-runtime-publication.md",
     "docs/work-log/2026-11-16-worker-gemini-factories.md",
     "docs/work-log/2026-11-16-worker-official-transports.md",

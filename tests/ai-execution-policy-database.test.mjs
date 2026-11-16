@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { setTimeout as delay } from 'node:timers/promises';
-import { createAgendaDatabaseFixture } from './agenda-database-helpers.test.mjs';
+import { createAgendaDatabaseFixture, withAgendaDatabase } from './agenda-database-helpers.test.mjs';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 
 const migration = '202611160001_ai_execution_profiles';
@@ -13,6 +13,23 @@ const { reserveAiTextBudget, settleAiTextBudget } = loadTsModule('apps/api/src/p
 const configuration = () => ({ backend: 'gemini-developer', model: 'synthetic-gemini', apiKey: 'synthetic-never-persist',
   maxInputTokens: 1000, maxOutputTokens: 100, deadlineMs: 5000, maxConcurrency: 2, maxDispatches: 1, maxJobAgeMs: 60000,
   inputUsdPerMillion: 1, outputUsdPerMillion: 1, dailyBudgetUsd: 10, dailyActorRequests: 100, dailyGlobalRequests: 100 });
+
+test('policy startup initializes idempotently through the real generated Prisma client', { timeout: 120000 }, async () => {
+  await import('reflect-metadata');
+  const { PrismaService } = await import('../.build/api/apps/api/src/platform/database/prisma.service.js');
+  await withAgendaDatabase(async ({ databaseUrl }) => {
+    const database = new PrismaService(databaseUrl), config = configuration();
+    try {
+      await initializeAiExecutionPolicy(database, config);
+      const [first] = await database.$queryRawUnsafe('SELECT baseline_profiles,active_profiles FROM ai_execution_policy WHERE singleton');
+      assert.equal(Object.keys(first.active_profiles).length, 6);
+      await initializeAiExecutionPolicy(database, config);
+      const [second] = await database.$queryRawUnsafe('SELECT baseline_profiles,active_profiles FROM ai_execution_policy WHERE singleton');
+      assert.deepEqual(second, first);
+      assert.equal(Object.keys(config.legacyExecutionProfiles).length, 6);
+    } finally { await database.onModuleDestroy(); }
+  });
+});
 function databaseFor(pool, observe = () => {}) {
   return { async $transaction(operation) {
     const client = await pool.connect(); observe(client.processID);

@@ -10,7 +10,7 @@ export async function initializeAiExecutionPolicy(database: SqlDatabase, configu
   const active = configuredExecutionProfiles(configuration);
   const stored = await database.$transaction(async raw => {
     const query = <T>(sql: string, ...values: unknown[]) => raw.$queryRawUnsafe<T[]>(sql, ...values);
-    await query('SELECT pg_advisory_xact_lock(78123003)');
+    await query('SELECT 1 FROM pg_advisory_xact_lock(78123003)');
     const [existing] = await query<{ baseline_profiles: Record<AiExecutionTask, AiExecutionSnapshot> }>('SELECT baseline_profiles FROM ai_execution_policy WHERE singleton FOR UPDATE');
     const profiles = existing?.baseline_profiles ?? baseline;
     for (const task of aiTasks) parseExecutionSnapshot(profiles[task], task);
