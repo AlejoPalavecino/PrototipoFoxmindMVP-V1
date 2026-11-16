@@ -5,11 +5,19 @@ const room={id:'room',name:'Ciencias',division:'A',role:'teacher',archived:false
 const draft={id:'existing',type:'ASSIGNMENT',status:'DRAFT',title:'Actividad',objective:'Objetivo guardado',teacherComment:'Comentario guardado',unitId:'unit',topicId:'topic',topicIds:['topic'],evaluationRubric:[{name:'Evidencia',description:'Relaciona conceptos',weight:100}],instructions:'Resolver',attachmentRequired:false,questions:[],instructionFiles:[],materials:[],deadlineAt:null,allowLate:false,locked:false};
 const find=(v,p)=>descendants(v.tree,p);
 async function clickButton(view, label) {
- const button = find(view, node => node.type === 'button' && text(node) === label)[0];
+ const button = find(view, node => node.type === 'button' && text(node).trim() === label)[0];
  assert.ok(button, `Missing action: ${label}`);
  assert.equal(Boolean(button.props.disabled), false, label);
  button.props.onClick();
  await view.flush();
+}
+async function openNewEditor(view) {
+ await view.flush();
+ await clickButton(view, 'Crear actividad');
+ const editor = find(view, node => node.type?.name === 'ActivityAuthoring')[0];
+ assert.ok(editor, 'Creating opens the shared editor at Alcance');
+ assert.equal(editor.props.data.activity.id, '', 'Opening does not persist a draft');
+ return editor;
 }
 async function reachReview(view) {
  await clickButton(view, 'Continuar');
@@ -17,11 +25,17 @@ async function reachReview(view) {
 }
 for(const assigned of [false,true])test(`confirmed ${assigned?'assignment':'draft save'} opens its canonical activity sheet`,async()=>{
  const {Activities}=loadTsModule('apps/web/src/application/academic-Activities.tsx');const result={revision:'r2',activity:{...draft,id:'saved',status:assigned?'PUBLISHED':'DRAFT'}};
- const api={call:async path=>path.endsWith('/library')?[]:path.endsWith('/preview')?result:{activities:[]}};
+ const calls=[];
+ const api={call:async(path,method)=>{calls.push([path,method]);return path.endsWith('/library')?[]:path.endsWith('/preview')?result:path.endsWith('/progress')?{scope:'classroom',students:[]}:{activities:[]};}};
  const view=hookView(Activities,{api,room,reload:async()=>{}});
- try{await view.flush();find(view,n=>n.type==='button'&&text(n)==='Crear actividad')[0].props.onClick();await view.flush();find(view,n=>n.type==='button'&&n.props['aria-label']==='Crear manualmente')[0].props.onClick();await view.flush();
-  await find(view,n=>n.type?.name==='ActivityAuthoring')[0].props.onSaved(assigned,'saved');await view.flush();
-  assert.equal(find(view,n=>n.type?.name==='ActivityAuthoring').length,0);assert.equal(find(view,n=>n.type?.name==='AttemptHistory')[0].props.activityId,'saved');
+ try {
+  const editor=await openNewEditor(view);
+  await editor.props.onSaved(assigned,'saved');await view.flush();
+  assert.equal(find(view,n=>n.type?.name==='ActivityAuthoring').length,0);
+  const sheet=find(view,n=>n.type?.name==='AttemptHistory')[0];
+  assert.equal(sheet?.props.activityId,'saved');
+  assert.equal(sheet.props.activityPreview,result.activity);
+  assert.ok(calls.some(([path,method])=>path==='/room/activities/saved/preview'&&method==='GET'));
  }finally{view.close();}
 });
 test('blank manual form requires an explicit activity type before saving or reviewing',async()=>{
@@ -52,17 +66,24 @@ test('confirmed publication followed by navigation failure retries only reads an
 });
 
 test('late save refresh cannot reopen an editor the teacher already closed',async()=>{
- const {Activities}=loadTsModule('apps/web/src/application/academic-Activities.tsx');let release;
+ const {Activities}=loadTsModule('apps/web/src/application/academic-Activities.tsx');let release,reloads=0;
  const delayed=new Promise(resolve=>{release=resolve;});const reads=[];
  const api={call:async path=>{reads.push(path);return path.endsWith('/library')?[]:path.endsWith('/preview')?{activity:draft,revision:'r2'}:{activities:[]};}};
- const view=hookView(Activities,{api,room,reload:()=>delayed});
- try{await view.flush();find(view,n=>n.type==='button'&&text(n)==='Crear actividad')[0].props.onClick();await view.flush();find(view,n=>n.type==='button'&&n.props['aria-label']==='Crear manualmente')[0].props.onClick();await view.flush();const author=find(view,n=>n.type?.name==='ActivityAuthoring')[0];const saving=author.props.onSaved(false,'saved');author.props.onClose();await view.flush();release();await saving;await view.flush();assert.equal(find(view,n=>n.type?.name==='AttemptHistory').length,0);assert.equal(reads.some(path=>path.endsWith('/saved/preview')),false);}finally{release();view.close();}
+ const view=hookView(Activities,{api,room,reload:()=>{reloads++;return delayed;}});
+ try {
+  const author=await openNewEditor(view);
+  const saving=author.props.onSaved(false,'saved');
+  assert.equal(reloads,1,'Save refresh started before closing the editor');
+  author.props.onClose();await view.flush();release();await saving;await view.flush();
+  assert.equal(find(view,n=>n.type?.name==='ActivityAuthoring'||n.type?.name==='AttemptHistory').length,0);
+  assert.equal(reads.some(path=>path.endsWith('/saved/preview')),false);
+ }finally{release();view.close();}
 });
 
 test('save acknowledgement arriving after editor closure has no navigation effects',async()=>{
  const {Activities}=loadTsModule('apps/web/src/application/academic-Activities.tsx');let reloads=0;const reads=[];
  const view=hookView(Activities,{api:{call:async path=>{reads.push(path);return path.endsWith('/library')?[]:{activities:[]};}},room,reload:async()=>{reloads++;}});
- try{await view.flush();find(view,n=>n.type==='button'&&text(n)==='Crear actividad')[0].props.onClick();await view.flush();find(view,n=>n.type==='button'&&n.props['aria-label']==='Crear manualmente')[0].props.onClick();await view.flush();const old=find(view,n=>n.type?.name==='ActivityAuthoring')[0];old.props.onClose();await view.flush();await old.props.onSaved(true,'saved-old');await view.flush();assert.equal(reloads,0);assert.equal(reads.some(path=>path.endsWith('/preview')),false);assert.equal(find(view,n=>n.type?.name==='AttemptHistory').length,0);}finally{view.close();}
+ try{const old=await openNewEditor(view);old.props.onClose();await view.flush();await old.props.onSaved(true,'saved-old');await view.flush();assert.equal(reloads,0);assert.equal(reads.some(path=>path.endsWith('/preview')),false);assert.equal(find(view,n=>n.type?.name==='ActivityAuthoring'||n.type?.name==='AttemptHistory').length,0);}finally{view.close();}
 });
 
 test('written resources produce a real Unicode DOCX with escaped content and no executable markup',async()=>{
@@ -102,10 +123,14 @@ test('explicit assignment from review saves a new draft before publication and n
   await clickButton(view, 'Publicar actividad');assert.equal(calls.length,0);
   await clickButton(view, 'Asignar al aula');assert.deepEqual(calls.map(call=>call[2].operation.action),['create','save','publish']);assert.equal(calls.at(-1)[2].operation.id,'new-id');}finally{view.close();}
 });
-test('manual creation opens an unsaved editor with zero writes until explicit save',async()=>{
+test('opening activity creation prepares a local editor with zero writes',async()=>{
  const {Activities}=loadTsModule('apps/web/src/application/academic-Activities.tsx'),calls=[];
  const api={call:async(...a)=>{calls.push(a);if(a[1]==='POST')return {id:'created',revision:'r2'};return a[0].endsWith('/library')?[]:a[0].endsWith('/preview')?{activity:draft,revision:'r2'}:{activities:[]};}};
- const view=hookView(Activities,{api,room,reload:async()=>{}});try{await view.flush();find(view,n=>n.type==='button'&&text(n)==='Crear actividad')[0].props.onClick();await view.flush();find(view,n=>n.type==='button'&&n.props['aria-label']==='Crear manualmente')[0].props.onClick();await view.flush();assert.equal(calls.filter(a=>a[1]==='POST').length,0);assert.ok(find(view,n=>n.type?.name==='ActivityAuthoring').length);}finally{view.close();}
+ const view=hookView(Activities,{api,room,reload:async()=>{}});try{
+  await openNewEditor(view);
+  assert.ok(calls.some(([path,method])=>path==='/room/library'&&method==='GET'));
+  assert.ok(calls.every(([,method])=>method==='GET'),'Opening never writes a draft');
+ }finally{view.close();}
 });
 test('manual objective/comment hydrate, edit and save independently from instructions and private rubric',async()=>{
  const {ActivityAuthoring}=loadTsModule('apps/web/src/features/activity-authoring/ui/ActivityAuthoring.tsx'),calls=[];

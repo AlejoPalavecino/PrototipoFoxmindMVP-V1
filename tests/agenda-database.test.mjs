@@ -155,3 +155,44 @@ test('agenda real PostgreSQL persistence, constraints and isolation with per-cas
     assert.equal((await pool.query('SELECT count(*)::int count FROM users')).rows[0].count, 0);
   });
 });
+
+const recurringPayload = (kind, start, until) => ({ title: 'Lectura', description: 'Traer el libro', category: 'CLASS', color: 'ORANGE',
+  schedule: { kind: 'ALL_DAY', startDate: start, endDateExclusive: new Date(Date.parse(start) + 86400000).toISOString().slice(0, 10) }, repeat: { kind, untilDate: until } });
+
+test('new recurrence kinds persist, reload, expand and remain owner-isolated', { timeout: 60000 }, async () => {
+  const { createAgendaService, createAgendaUnitOfWork } = Object.freeze({createAgendaService: loadTsModule("apps/api/src/modules/agenda/application/agenda-service.ts").createAgendaService,createAgendaUnitOfWork: loadTsModule("apps/api/src/bootstrap/agenda-composition.ts").createAgendaUnitOfWork});
+  await withAgendaDatabase(async ({ transaction }) => transaction(async ({ database, query }) => {
+    const owner = randomUUID();
+    await query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)
+      VALUES($1,now(),$2,$2,'Synthetic','Teacher','fixture-only',now(),'teacher')`, owner, `${owner}@example.test`);
+    const make = () => createAgendaService(createAgendaUnitOfWork(database, async (_tx, request) => request.userId));
+    for (const kind of ['DAILY', 'MONTHLY']) {
+      const id = randomUUID(), input = recurringPayload(kind, '2026-11-01', '2026-11-03');
+      await make().put({ userId: owner }, id, input);
+      assert.deepEqual((await make().get({ userId: owner }, id)).repeat, input.repeat);
+      await assert.rejects(make().get({ userId: randomUUID() }, id), { code: 'FORBIDDEN' });
+    }
+    assert.equal((await make().list({ userId: owner }, { startDate: '2026-11-01', endDateExclusive: '2026-12-01', timeZone: 'UTC' })).items.length, 4);
+    const id=randomUUID(),input=recurringPayload('WEEKLY','2026-11-05','2026-11-26');
+    const initial=(await make().put({userId:owner},id,input)).event;
+    const moved={...recurringPayload('NONE','2027-01-14','2027-01-14'),repeat:{kind:'NONE'},title:'Clase trasladada'};
+    const changed=await make().changeOccurrence({userId:owner},id,'2026-11-12',{revision:initial.revision,event:moved});
+    assert.equal(changed.exceptions.length,1);
+    const saved=await make().get({userId:owner},id);assert.deepEqual(saved.exceptions,changed.exceptions);
+    const movedRange={startDate:'2027-01-14',endDateExclusive:'2027-01-15',timeZone:'UTC'};
+    assert.equal((await make().list({userId:owner},movedRange)).items[0].event.title,'Clase trasladada');
+    const other=randomUUID();await query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role) VALUES($1,now(),$2,$2,'Other','Teacher','fixture-only',now(),'teacher')`,other,`${other}@example.test`);
+    assert.deepEqual((await make().list({userId:other},movedRange)).items,[]);
+    await assert.rejects(make().changeOccurrence({userId:owner},id,'2026-11-19',{revision:initial.revision},true),{code:'CONFLICT'});
+    await assert.rejects(make().changeOccurrence({userId:randomUUID()},id,'2026-11-19',{revision:saved.revision},true),{code:'FORBIDDEN'});
+    await assert.rejects(make().changeOccurrence({userId:owner},id,'2026-11-13',{revision:saved.revision},true),{code:'INVALID_INPUT'});
+    const cancelled=await make().changeOccurrence({userId:owner},id,'2026-11-19',{revision:saved.revision},true);
+    assert.equal(cancelled.exceptions.length,2);
+    const renamed=await make().replace({userId:owner},id,{revision:cancelled.revision,event:{...input,title:'Serie con título nuevo'}});
+    assert.deepEqual(renamed.exceptions,cancelled.exceptions,'editing series metadata preserves cancelled/moved occurrences');
+    const shortened=await make().replace({userId:owner},id,{revision:renamed.revision,event:{...input,repeat:{kind:'WEEKLY',untilDate:'2026-11-12'}}});
+    assert.deepEqual(shortened.exceptions,[changed.exceptions[0]],'schedule edits prune exceptions for removed dates');
+    const single=await make().replace({userId:owner},id,{revision:shortened.revision,event:{...input,repeat:{kind:'NONE'}}});
+    assert.deepEqual(single.exceptions,undefined,'single events cannot retain inaccessible series exceptions');
+  }));
+});

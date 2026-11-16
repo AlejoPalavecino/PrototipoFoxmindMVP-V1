@@ -8,6 +8,7 @@ const room = { id: 'room', revision: '3', role: 'teacher', archived: false, time
   { id: 'unit', name: 'Unidad curricular visible', topics: [{ id: 'first', name: 'Primer tema visible' }, { id: 'second', name: 'Segundo tema visible' }] }] };
 const activity = { id: 'activity', type: 'QUESTIONNAIRE', title: 'Integrative activity', status: 'PUBLISHED', unitId: 'unit', topicId: 'second',
   topicIds: ['second', 'first'], instructions: 'Compare.', zone: 'UTC', deadlineAt: null, allowLate: false, locked: false, attachmentRequired: false,
+  objective: 'Comparar las explicaciones del tema', teacherBrief: 'Idea privada de generación',
   instructionFiles: [], materials: [], questions: [{ type: 'SINGLE_CHOICE', prompt: 'Choose.', points: '2', scoringRule: 'EXACT',
     options: [{ text: 'Answer A', correct: true }, { text: 'Answer B', correct: false }] }] };
 function assertContext(html) {
@@ -25,9 +26,13 @@ test('A05 activity detail preserves its unit and every selected topic in activit
     assertContext(renderToStaticMarkup(React.createElement(ActivityPreview,{api:{fileUrl:()=>''},room,activity:detail.props.activityPreview,teacher:true})));
   } finally { view.close(); }
 });
-test('A05 student preview displays curricular context while withholding correct answers and scoring rules', () => {
+test('A05 student consultation displays the instructions and curricular context without revealing questions before the attempt or their private keys', () => {
   const { ActivityPreview } = loadTsModule('apps/web/src/application/academic-activity-preview.tsx');
-  const html = renderToStaticMarkup(React.createElement(ActivityPreview, { api: { fileUrl: () => '' }, room, activity, teacher: false }));
-  assertContext(html); assert.match(html,/1 pregunta/); assert.doesNotMatch(html,/Answer A|Answer B/);
+  const html = renderToStaticMarkup(React.createElement(ActivityPreview, { api: { fileUrl: () => '' }, room: { ...room, role: 'student' }, activity, teacher: false }));
+  assertContext(html);
+  assert.match(html, /aria-label="Consulta de actividad"/);
+  assert.match(html, />Compare\.<\/p>/);
+  assert.match(html, /Comparar las explicaciones del tema/);
+  assert.doesNotMatch(html, /Choose\.|Answer A|Answer B|Idea privada de generación/);
   assert.doesNotMatch(html, /Correcta|Coincidencia exacta|scoringRule|checked|"correct"/i);
 });

@@ -94,8 +94,11 @@ export async function openOwnResult(world, activity, attemptId) {
   const { S, room, runtime } = world;
   await openClassroom(S.page, runtime.origin, `P9 ${world.label} classroom`);
   await selectClassroomSection(S.page, 'activities', 'Actividades');
-  const response = S.page.waitForResponse(r => r.url().endsWith(`/${attemptId}/result`) && r.request().method() === 'GET');
   await S.page.getByRole('article', { name: activity.title, exact: true }).getByRole('button', { name: `Abrir ${activity.title}`, exact: true }).click();
+  const history = S.page.getByRole('region', { name: 'Mi historial de intentos', exact: true });
+  const response = S.page.waitForResponse(r => r.url().endsWith(`/${attemptId}/result`) && r.request().method() === 'GET');
+  void response.catch(() => {});
+  await history.getByRole('button', { name: 'Ver devolución', exact: true }).click();
   await S.page.getByRole('region', { name: 'Intento histórico confirmado', exact: true }).waitFor();
   const opened = await response; assert.equal(opened.status(), 200);
   const data = await opened.json(), region = S.page.getByRole('region', { name: 'Resultado publicado del intento', exact: true });

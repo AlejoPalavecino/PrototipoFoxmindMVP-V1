@@ -41,7 +41,7 @@ const reviewedSqlHashes = {
   "participation/activity-session": "ba23e0e77db5f89b7b8959b45b205a3f28ebbd7d1995da39d2e4392c715dc39e",
   "participation/activity-eligibility": "b8a2cc86f1dca0ec90c7293d978f79afdd9767a7e43d2a974910f12943ed4c79",
   "participation/activity-events": "5259861d528955783e52fecc9d14bf272b926c4eee8e5062772434450bdb4c24",
-  "participation/attempt-access": "1fe1244d38c7cd31453bf0e6c25e8280f84f18b59d6968f0f5f1035c8daa95ef",
+  "participation/attempt-access": "1fe1244d38c7cd31453bf0e6c25e8280f84f18b59d6968f0f5f1035c8daa95ef", // gitleaks:allow (SQL fingerprint)
   "participation/activity-participation": "fb2ef411acbb180d56870f2ef1ec2d46d8a0a2e1937c51b8d14d17f92ece81b8",
   "participation/activity-history": "6feb2ae38d64813cfc6bc204d7db99f77c1fccde14a8bd7c8daab7eda41422ec",
   "participation/questionnaire-attempts": "487e21a89e97046c22d320e35d89d743e3a09e0990f861508efbdc7e860ad691",

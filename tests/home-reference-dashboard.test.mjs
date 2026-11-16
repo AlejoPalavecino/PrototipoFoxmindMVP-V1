@@ -20,33 +20,26 @@ function button(tree, pattern) {
 }
 const render = component => component.type(component.props);
 
-async function withHome(aggregate, body, accountRole = 'teacher') {
-  const previous = { window: globalThis.window, document: globalThis.document, frame: globalThis.requestAnimationFrame };
+async function withHome(aggregate, body, accountRole = 'teacher', { readPage = options => aggregate.modules[options.module], agendaClient } = {}) {
+  const previous = { window: globalThis.window };
   globalThis.window = new EventTarget();
-  const focus = [], requests = [], calls = [];
-  const queueTrigger = { getAttribute: () => 'Ver todas', focus: () => focus.push('queue trigger') };
-  globalThis.document = {
-    activeElement: queueTrigger,
-    querySelectorAll: () => [queueTrigger],
-    querySelector: () => ({ focus: () => focus.push('home heading') }),
-  };
-  globalThis.requestAnimationFrame = callback => callback();
+  const requests = [], calls = [];
   const client = {
     read: async options => { requests.push(options); return aggregate; },
     page: async options => {
       requests.push(options);
       return { subjectId: aggregate.subjectId, generatedAt: aggregate.generatedAt,
-        module: options.module, page: aggregate.modules[options.module] };
+        module: options.module, page: readPage(options) };
     },
   };
   const { Home } = loadTsModule('apps/web/src/features/home/ui/Home.tsx');
-  const view = hookView(Home, { accountRole, displayName: 'Alex', subjectId: 'subject', homeClient: client,
+  const view = hookView(Home, { accountRole, displayName: 'Alex', subjectId: 'subject', homeClient: client, agendaClient,
     onCreate: () => calls.push('create'), onJoin: () => calls.push('join'), onClassrooms: () => calls.push('classrooms'),
     onAgenda() {}, onAction: target => calls.push(target) });
-  try { await view.flush(); await body({ view, focus, requests, calls, client }); }
+  try { await view.flush(); await body({ view, requests, calls, client }); }
   finally {
     view.close();
-    for (const [key, value] of [['window', previous.window], ['document', previous.document], ['requestAnimationFrame', previous.frame]]) {
+    for (const [key, value] of [['window', previous.window]]) {
       if (value === undefined) delete globalThis[key]; else globalThis[key] = value;
     }
   }
@@ -86,8 +79,14 @@ test('Student greeting resumes the first open activity and only consults a close
   }
 });
 
-test('Home retries every failed source in its role-specific section and in the classroom picker', async () => {
+test('Home retries each visible failed source in its role-specific section and in the classroom picker', async () => {
   for (const role of ['teacher', 'student']) {
+    const agendaRequests = [];
+    const agendaClient = { list: async (range, cursor, signal) => {
+      agendaRequests.push({ range, cursor, signal });
+      if (agendaRequests.length === 1) throw new Error('Temporary agenda failure');
+      return { items: [], nextCursor: null };
+    } };
     await withHome(data(Object.fromEntries(names.map(name => [name, error]))), async ({ view, requests }) => {
       const retry = /^Reintentar/;
       const priority = () => render(find(view.tree, 'HomePriorities'));
@@ -99,17 +98,20 @@ test('Home retries every failed source in its role-specific section and in the c
         button(priority(), retry).props.onClick();
         await view.flush();
       }
-      const secondary = descendants(view.tree, node => node.type?.name === 'HomeModule');
-      assert.deepEqual(secondary.map(node => node.props.name), role === 'teacher' ? ['drafts'] : ['feedback']);
-      button(render(secondary[0]), retry).props.onClick();
-      await view.flush();
+      assert.equal(find(view.tree, 'HomeModule'), undefined, 'Inicio ya no incluye borradores ni devoluciones');
 
       const agenda = find(view.tree, 'HomeMiniagenda');
       const agendaView = hookView(agenda.type, agenda.props);
       try {
         await agendaView.flush();
+        assert.equal(agendaRequests.length, 1);
         button(agendaView.tree, /^Reintentar agenda$/).props.onClick();
-        await view.flush();
+        await agendaView.flush();
+        assert.deepEqual(agendaRequests.map(({ range, cursor }) => ({ range, cursor })), Array(2).fill({
+          range: { startDate: '2026-10-26', endDateExclusive: '2026-11-02', timeZone: 'UTC' }, cursor: null,
+        }));
+        assert.equal(agendaRequests[0].signal.aborted, true);
+        assert.doesNotMatch(text(agendaView.tree), /No pudimos cargar tu agenda/);
       } finally { agendaView.close(); }
 
       const cards = render(find(view.tree, 'HomeClassCards'));
@@ -130,9 +132,9 @@ test('Home retries every failed source in its role-specific section and in the c
         } finally { pickerView.close(); }
       }
       assert.deepEqual(requests.slice(1).map(request => request.module), role === 'teacher'
-        ? ['review', 'queries', 'drafts', 'agenda', 'classrooms', 'classrooms']
-        : ['pending', 'feedback', 'agenda', 'classrooms']);
-    }, role);
+        ? ['review', 'queries', 'classrooms', 'classrooms']
+        : ['pending', 'classrooms']);
+    }, role, { agendaClient });
   }
 });
 
@@ -267,31 +269,47 @@ test('Creating an activity from Home only allows explicit selection of an active
   });
 });
 
-test('Expanding a paginated work queue preserves its client and cursor and returns focus', async () => {
-  await withHome(data({ review: page(23, { nextCursor: 'next-real-page' }) }), async ({ view, focus, client }) => {
-    button(render(find(view.tree, 'HomePriorities')), /^Ver todas$/).props.onClick();
-    await view.flush();
-    const panel = descendants(view.tree, node => node.type?.name === 'HomeModulePanel')[0];
-    assert.equal(panel.props.name, 'review'); assert.strictEqual(panel.props.client, client);
-    assert.equal(panel.props.data.modules.review.nextCursor, 'next-real-page');
-    panel.props.onClose(); await view.flush();
-    assert.deepEqual(focus, ['queue trigger']);
-  });
+test('Home completes the paginated review queue and opens the exact attempt from the next page', async () => {
+  const classroom = { id: 'room', name: 'Science', role: 'teacher', archived: false };
+  const review = (id, studentName) => ({ id, title: 'Lab', classroom, studentName, oldestSubmittedAt: '2026-11-05T12:00:00Z',
+    needsReview: 1, readyToPublish: 0, target: { kind: 'submissions', classroomId: classroom.id, activityId: 'lab', attemptId: id } });
+  const first = review('first', 'Primera persona'), next = review('next', 'Segunda persona');
+  const firstPage = page(2, { items: [first], nextCursor: 'next-real-page' });
+  await withHome(data({ review: firstPage }), async ({ view, requests, calls }) => {
+    assert.deepEqual(requests.slice(1), [{ module: 'review', timeZone: requests[0].timeZone, order: 'asc', cursor: 'next-real-page' }]);
+    const queue = render(find(view.tree, 'HomePriorities'));
+    assert.equal(descendants(queue, node => node.type === 'button' && node.props['aria-label'] === 'Revisar Primera persona').length, 1);
+    assert.doesNotMatch(text(queue), /Ver todas/);
+    button(queue, /^Revisar Segunda persona$/).props.onClick();
+    assert.deepEqual(calls, [next.target]);
+  }, 'teacher', { readPage(options) {
+    assert.equal(options.cursor, 'next-real-page');
+    return page(2, { items: [first, next] });
+  } });
 });
 
-test('Global drafts retain their aggregate retry and exact target without any focused-room fetch', async () => {
-  const item = { id: 'draft', title: 'Draft from another authorized classroom', classroom: { id: 'other', role: 'teacher', archived: false },
-    activityType: 'ASSIGNMENT', updatedAt: '2026-11-05T12:00:00Z', target: { kind: 'activity', classroomId: 'other', activityId: 'draft' } };
-  await withHome(data({ classrooms: page(0), drafts: error }), async ({ view, requests, calls, client }) => {
-    const draftModule = () => descendants(view.tree, node => node.type?.name === 'HomeModule' && node.props.name === 'drafts')[0];
-    assert.ok(draftModule(), 'Drafts remain independent of the focused classroom');
-    const retry = descendants(draftModule().type(draftModule().props), node => node.type === 'button' && text(node).startsWith('Reintentar'))[0];
-    assert.ok(retry);
-    client.page = async options => { requests.push(options); return { subjectId: 'subject', module: 'drafts', page: page(1, { items: [item] }) }; };
-    retry.props.onClick(); await view.flush();
-    assert.deepEqual(requests.slice(1).map(request => request.module), ['drafts']);
-    const row = descendants(draftModule().type(draftModule().props), node => node.type?.name === 'HomeRow')[0];
-    assert.ok(row); row.props.onAction(row.props.item.target); assert.deepEqual(calls, [item.target]);
-    assert.equal(draftModule().props.previewLimit, 2);
-  });
+test('Private drafts stay in their classroom and reopen the exact draft without publishing', async () => {
+  const { Activities } = loadTsModule('apps/web/src/application/academic-Activities.tsx');
+  const room = { id: 'other', name: 'Aula', role: 'teacher', archived: false, units: [] };
+  const draft = { id: 'draft', title: 'Borrador privado', type: 'ASSIGNMENT', status: 'DRAFT' };
+  const calls = [];
+  const view = hookView(Activities, { room, reload: async () => {}, api: { call: async (path, method) => {
+    calls.push([path, method]);
+    if (path === '/other/activities') return { activities: [draft] };
+    if (path === '/other/progress') return { scope: 'classroom', students: [] };
+    if (path === '/other/library') return [];
+    if (path === '/other/activities/draft/preview') return { activity: draft, revision: '1' };
+    assert.fail(path);
+  } } });
+  try {
+    await view.flush();
+    assert.ok(!descendants(view.tree, node => node.type === 'button' && node.props['aria-label'] === 'Abrir Borrador privado').length);
+    button(view.tree, /^Borradores privados/).props.onClick();
+    await view.flush();
+    button(view.tree, /^Abrir Borrador privado$/).props.onClick();
+    await view.flush();
+    assert.strictEqual(find(view.tree, 'ActivityAuthoring').props.data.activity, draft);
+    assert.deepEqual(calls.filter(([path]) => path.includes('/preview')), [['/other/activities/draft/preview', 'GET']]);
+    assert.ok(calls.every(([, method]) => method === 'GET'));
+  } finally { view.close(); }
 });

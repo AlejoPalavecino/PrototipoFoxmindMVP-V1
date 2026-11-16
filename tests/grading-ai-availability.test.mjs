@@ -38,18 +38,23 @@ test('sin IA global rechaza activar y permite desactivar o guardar ajustes anter
   await assert.doesNotReject(DraftService.prototype.updateSettings.call(service, {}, id, settings({})));
 });
 
-test('interfaz docente muestra indisponibilidad y bloquea activación sin borrar selección guardada', async () => {
+test('guardar otros datos del aula no envía una nueva activación de IA mientras el servicio no está disponible', async () => {
   const { ClassroomSettings } = loadTsModule('apps/web/src/features/classrooms/ui/ClassroomSettings.tsx');
   const detail = { id, revision: '2', role: 'teacher', archived: false, name: 'Aula', subject: 'Materia', division: 'A', academicYear: 2026,
     teacher: 'Docente', timezone: 'UTC', coverKey: 'explore', plans: [], units: [], aiGradingEnabled: true, aiGradingAvailable: false };
-  const view = hookView(ClassroomSettings, { api: {}, id, room: detail, settings: { name:'Aula', subject:'Materia', division:'A', academicYear:2026, aiGradingEnabled:true },
+  const calls = [];
+  const view = hookView(ClassroomSettings, { api: { call: async (...args) => { calls.push(args); return { revision: '3' }; } },
+    id, room: detail, settings: { name:'Aula actualizada', subject:'Materia', division:'A', academicYear:2026, coverKey:'explore', aiGradingEnabled:true },
     setSettings() {}, settingsRevision:'2', setSettingsRevision() {}, settingsConflict:false, setSettingsConflict() {}, reloadSettings:async()=>{},
-    isCurrentRoom:()=>true, busy:false, load:async()=>{}, action:async()=>{}, setNotice() {}, setConfirm() {} });
-  try { await view.flush(); const tree = view.tree;
-  const label = descendants(tree, n => n.type === 'label' && /correcci[oó]n.*IA/i.test(text(n)))[0]; assert.ok(label);
-  const toggle = descendants(label, n => n.type === 'input' && n.props.type === 'checkbox')[0]; assert.ok(toggle);
-  assert.equal(toggle.props.checked, true); assert.equal(toggle.props.disabled, true);
-  assert.match(text(tree), /(?:no disponible|deshabilitad[ao]).*(?:IA|correcci[oó]n)|(?:IA|correcci[oó]n).*(?:no disponible|deshabilitad[ao])/i);
+    isCurrentRoom:()=>true, busy:false, load:async()=>{}, action:async work=>work(), setNotice() {}, setConfirm() {} });
+  try {
+    await view.flush();
+    assert.equal(descendants(view.tree, n => n.type === 'label' && /correcci[oó]n.*IA/i.test(text(n))).length, 0);
+    descendants(view.tree, n => n.type === 'form')[0].props.onSubmit({ preventDefault() {} }); await view.flush();
+    assert.deepEqual(calls, [[`/${id}/settings`, 'PATCH', {
+      name:'Aula actualizada', subject:'Materia', division:'A', academicYear:2026, coverKey:'explore', revision:'2',
+    }]]);
+    assert.equal(detail.aiGradingEnabled, true);
   } finally { view.close(); }
 });
 

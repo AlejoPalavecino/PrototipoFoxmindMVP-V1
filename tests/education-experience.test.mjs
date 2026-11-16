@@ -7,28 +7,42 @@ const text = node => typeof node === 'string' ? node : Array.isArray(node) ? nod
 const room = { role: 'teacher', archived: false, units: [{ id: 'unit', name: 'Números', topics: [{ id: 'topic', name: 'Fracciones' }] }] };
 const value = { type: 'ASSIGNMENT', unitIds: [], topicIds: ['topic'], teacherBrief: 'Que comparen dos representaciones de una fracción.', sourceIds: [], objective: 'Comparar fracciones', groupLevel: '', context: 'Contenido docente', difficulty: 'INTERMEDIATE', durationMinutes: 40, counts: { assignment: 3, development: 0, singleChoice: 0, multipleChoice: 0 }, acknowledgedWarnings: [] };
 
-test('Guided AI setup advances twice without generating and sends the unchanged request only on final confirmation', async () => {
+test('AI setup displays scope and settings and sends the unchanged request only on explicit generation', async () => {
   const { GenerationSetup } = loadTsModule("apps/web/src/features/activity-authoring/ui/GenerationSetup.tsx");
   const calls = [], view = hookView(GenerationSetup, { room, value, update() {}, sources: [], disabled: false, generate: body => calls.push(body) });
   try {
     await view.flush();
-    const submit = async () => { descendants(view.tree, n => n.type === 'form')[0].props.onSubmit({ preventDefault() {} }); await view.flush(); };
-    assert.match(text(view.tree), /Alcance.*Ajustes.*Generar/);
-    await submit(); assert.equal(calls.length, 0);
-    assert.equal(descendants(view.tree, n => n.type?.name === 'ActivityGenerationForm')[0].props.step, 1);
-    await submit(); assert.equal(calls.length, 0);
-    assert.equal(descendants(view.tree, n => n.type?.name === 'ActivityGenerationForm')[0].props.step, 2);
-    await submit(); assert.deepEqual(calls, [value]);
+    const form = descendants(view.tree, n => n.type === 'form')[0];
+    const fields = descendants(form, n => n.type?.name === 'ActivityGenerationForm')[0];
+    const fieldView = fields.type(fields.props);
+    const groups = descendants(fieldView, n => n.props['data-generation-step'] !== undefined);
+    assert.equal(groups.length, 3);
+    assert.ok(groups.every(group => !group.props.hidden && !group.props.disabled));
+    assert.match(text(fieldView), /Tu idea para Foxy.*Material y nivel.*Extensión/);
+    const generate = descendants(form, n => n.type === 'button' && text(n) === 'Generar propuesta')[0];
+    assert.ok(generate && !generate.props.disabled);
+    assert.equal(calls.length, 0);
+    form.props.onSubmit({ preventDefault() {} }); await view.flush();
+    assert.deepEqual(calls, [value]);
   } finally { view.close(); }
 });
 
-test('AI setup retains missing-topic validation and never generates while disabled', async () => {
+test('AI setup requires a topic and teacher idea, and never generates while disabled', async () => {
   const { GenerationSetup } = loadTsModule("apps/web/src/features/activity-authoring/ui/GenerationSetup.tsx");
-  for (const props of [{ value: { ...value, topicIds: [] }, disabled: false }, { value, disabled: true }]) {
+  for (const { error, ...props } of [
+    { value: { ...value, topicIds: [] }, disabled: false, error: /Elegí al menos un tema/ },
+    { value: { ...value, teacherBrief: '   ' }, disabled: false, error: /Escribí una idea/ },
+    { value, disabled: true },
+  ]) {
     const calls = [], view = hookView(GenerationSetup, { room, update() {}, sources: [], generate: body => calls.push(body), ...props });
     try { await view.flush(); descendants(view.tree, n => n.type === 'form')[0].props.onSubmit({ preventDefault() {} }); await view.flush();
-      assert.equal(calls.length, 0); assert.equal(descendants(view.tree, n => n.type?.name === 'ActivityGenerationForm')[0].props.step, 0);
-      if (!props.disabled) assert.match(text(view.tree), /Elegí al menos un tema/);
+      assert.equal(calls.length, 0);
+      const generate = descendants(view.tree, n => n.type === 'button' && text(n) === 'Generar propuesta')[0];
+      assert.equal(generate.props.disabled, props.disabled);
+      if (error) {
+        const alert = descendants(view.tree, n => n.props.role === 'alert')[0];
+        assert.match(text(alert), error);
+      }
     } finally { view.close(); }
   }
 });
@@ -67,15 +81,28 @@ test('AI waiting describes the actual server state without a fabricated percenta
 
 test('Opening grading focuses the work area by hiding the history list and restoring it on return', async () => {
   const { AttemptHistory } = loadTsModule("apps/web/src/application/academic-AttemptHistory.tsx");
-  const calls = [], api = { call: async (...args) => { calls.push(args); return { activity: { title: 'Actividad', zone: 'UTC', deadlineAt: null }, attempts: [{ id: 'attempt', number: 1, status: 'SUBMITTED' }] }; } };
+  const calls = [], api = { call: async (...args) => {
+    calls.push(args);
+    return { activity: { title: 'Actividad', zone: 'UTC', deadlineAt: null },
+      attempts: [{ id: 'attempt', studentId: 'student', firstName: 'Ana', lastName: 'Prueba', currentMember: true,
+        number: 1, status: 'SUBMITTED', reviewState: 'pending', gradePublished: false }] };
+  } };
   const view = hookView(AttemptHistory, { api, room: { ...room, id: 'room' }, activityId: 'activity', onClose() {}, onChanged() {}, onResume() {} });
   try {
     await view.flush();
-    descendants(view.tree, n => n.type === 'button' && text(n).includes('Corregir intento'))[0].props.onClick(); await view.flush();
-    assert.equal(descendants(view.tree, n => n.props?.className === 'education-attempt-history')[0].props.hidden, true);
-    descendants(view.tree, n => n.type?.name === 'GradingEditor')[0].props.onClose(); await view.flush();
-    assert.equal(descendants(view.tree, n => n.props?.className === 'education-attempt-history')[0].props.hidden, false);
-    assert.ok(calls.every(([, method]) => method === 'GET'));
+    const reviewButton = () => descendants(view.tree, n => n.type === 'button' && n.props['aria-label'] === 'Revisar entrega · Intento 1')[0];
+    const history = () => descendants(view.tree, n => n.props?.className === 'education-attempt-history')[0];
+    const editor = () => descendants(view.tree, n => n.type?.name === 'GradingEditor')[0];
+    assert.equal(history().props.hidden, false);
+    assert.ok(reviewButton());
+    reviewButton().props.onClick(); await view.flush();
+    assert.equal(history().props.hidden, true);
+    assert.equal(editor()?.props.attemptId, 'attempt');
+    editor().props.onClose(); await view.flush();
+    assert.equal(history().props.hidden, false);
+    assert.ok(reviewButton());
+    assert.equal(editor(), undefined);
+    assert.deepEqual(calls.map(([path, method]) => [path, method]), [['/room/activities/activity/history-submissions', 'GET']]);
   } finally { view.close(); }
 });
 

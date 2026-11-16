@@ -12,12 +12,12 @@ import { openClassroom, planPdf, upload, rejectSame } from './p6-integration-hel
 import { selectClassroomSection } from './p9-journey-helpers-current.mjs';
 
 async function prepareManualActivity(page, type, title) {
-  await page.getByRole('button', { name: 'Crear actividad', exact: true }).click();
-  await page.getByRole('dialog', { name: 'Crear actividad', exact: true })
-    .getByRole('button', { name: 'Crear manualmente', exact: true }).click();
+  const activities = page.getByRole('region', { name: 'Actividades del aula', exact: true });
+  await activities.locator(':scope > header').getByRole('button', { name: 'Crear actividad', exact: true }).click();
   const editor = page.getByRole('region', { name: 'Editar actividad', exact: true });
   const typeLabel = { ASSIGNMENT: /^Trabajo práctico/, QUESTIONNAIRE: /^Cuestionario/, EVALUATION: /^Evaluación/ }[type];
   await editor.getByRole('radio', { name: typeLabel }).check();
+  await editor.getByRole('radio', { name: /^Manualmente/ }).check();
   await editor.getByRole('group', { name: 'First unit', exact: true })
     .getByRole('checkbox', { name: 'First topic', exact: true }).check();
   await editor.getByRole('button', { name: 'Continuar', exact: true }).click();
@@ -150,8 +150,11 @@ test('P7 T1 real P3 sessions, authoring UI, private ready instructions and safe 
         await selectClassroomSection(page, 'activities', 'Actividades');
       });
       await check('preview starts no attempt, publication is explicit and the actual student consultation remains key-free', async () => {
+        await page.getByRole('group', { name: 'Filtrar actividades por estado', exact: true }).getByRole('button', { name: /^Borradores privados/ }).click();
         const article = page.getByRole('article', { name: 'Browser assignment', exact: true });
         await article.getByRole('button', { name: 'Abrir Browser assignment', exact: true }).click();
+        await page.getByRole('region', { name: 'Editar actividad', exact: true })
+          .getByRole('button', { name: 'Guardar borrador', exact: true }).click();
         await page.getByRole('region', { name: 'Vista previa docente', exact: true }).getByText('Read carefully.\nPreserve this second line.', { exact: true }).waitFor();
         await downloadInstructions(page, 'teacher');
         assert.equal((await runtime.db.query('SELECT count(*)::int n FROM attempts')).rows[0].n, 0);
@@ -173,11 +176,25 @@ test('P7 T1 real P3 sessions, authoring UI, private ready instructions and safe 
       await check('questionnaire/evaluation browser editors cover all question types and invalid questions remain visibly unsaved', async () => {
         // The other actor's first start legitimately changed the classroom revision.
         await page.getByRole('button', { name: 'Volver a actividades', exact: true }).click();
-        const refreshed = Promise.all([`/api/v1/classrooms/${roomId}`, `/api/v1/classrooms/${roomId}/activities`]
-          .map(path => page.waitForResponse(response => new URL(response.url()).pathname === path && response.request().method() === 'GET')));
-        await openClassroom(page, runtime.origin, 'P7 authoring classroom');
-        await selectClassroomSection(page, 'activities', 'Actividades');
-        for (const response of await refreshed) assert.equal(response.status(), 200);
+        const refreshActivities = async () => {
+          await openClassroom(page, runtime.origin, 'P7 authoring classroom');
+          const loading = page.waitForResponse(response => new URL(response.url()).pathname === `/api/v1/classrooms/${roomId}/activities`
+            && response.request().method() === 'GET');
+          void loading.catch(() => {});
+          await selectClassroomSection(page, 'activities', 'Actividades');
+          return loading;
+        };
+        let refreshed = await refreshActivities();
+        if (refreshed.status() === 429) {
+          const raw = refreshed.headers()['retry-after'];
+          assert.match(raw ?? '', /^\d+$/);
+          const seconds = Number(raw);
+          assert.ok(seconds >= 1 && seconds <= 60, 'Actual bounded activities Retry-After required');
+          console.log(`P7 fixture respects actual activities Retry-After=${seconds}s once`);
+          await delay(seconds * 1000);
+          refreshed = await refreshActivities();
+        }
+        assert.equal(refreshed.status(), 200, 'Activities must load before opening the next editor');
         for (const [type, name] of [['QUESTIONNAIRE', 'Browser questionnaire'], ['EVALUATION', 'Browser evaluation']]) {
           const editor = await prepareManualActivity(page, type, name);
           await editor.getByLabel('Consignas', { exact: true }).fill('Respondé cada pregunta y justificá tu elección.');
@@ -310,7 +327,7 @@ test('ARQ-07 restores an authorized activity link across reload and browser hist
       await page.getByRole('button', { name: 'Volver a actividades', exact: true }).click();
       await preview.waitFor({ state: 'hidden' });
       assert.equal(await page.locator('[data-classroom-tab="activities"]').isVisible(), true);
-      await page.getByRole('region', { name: 'Actividades del aula', exact: true }).getByRole('heading', { name: 'Actividades', exact: true }).waitFor();
+      await page.getByRole('region', { name: 'Actividades del aula', exact: true }).getByRole('heading', { name: 'Ideas que se ponen en práctica', exact: true }).waitFor();
       await page.getByRole('article', { name: 'Actividad enlazada', exact: true }).waitFor();
       const exit = page.getByRole('button', { name: 'Mis aulas', exact: true });
       await exit.focus(); await exit.press('Enter');

@@ -32,11 +32,24 @@ test('response sheet shows the effective individual deadline instead of the gene
 });
 
 test('consultation preserves individual deadlines, explicit no deadline and general fallback in the classroom zone',()=>{
- const {ActivityPreview}=loadTsModule('apps/web/src/application/academic-activity-preview.tsx');
+ const {AttemptHistory}=loadTsModule('apps/web/src/application/academic-AttemptHistory.tsx');
  const activity={...initial('ASSIGNMENT').activity,deadlineAt:'2026-06-01T18:00:00Z',zone:'America/Argentina/Buenos_Aires'};
- const preview=effectiveDeadlineAt=>renderToStaticMarkup(React.createElement(ActivityPreview,{api:{fileUrl:()=>''},room,activity,teacher:false,effectiveDeadlineAt}));
- assert.match(preview('2026-11-12T19:00:00Z'),/12 nov, 16:00/);assert.doesNotMatch(preview('2026-11-12T19:00:00Z'),/1 jun/);
- assert.match(preview(null),/Sin fecha límite/);assert.doesNotMatch(preview(null),/1 jun/);assert.match(preview(undefined),/1 jun, 15:00/);
+ const preview=effectiveDeadlineAt=>renderToStaticMarkup(React.createElement(AttemptHistory,{api:{fileUrl:()=>''},
+   room:{...room,role:'student'},activityId:activity.id,activityPreview:activity,effectiveDeadlineAt,onClose(){}}));
+ for (const [effective, label] of [
+   ['2026-11-12T19:00:00Z', /12 nov 2026, 16:00/],
+   [null, /Sin fecha límite/],
+   [undefined, /1 jun 2026, 15:00/],
+ ]) {
+   const html=preview(effective);
+   const heading=html.match(/<header class="parity-participation-heading[^"]*"[^>]*>(.*?)<\/header>/s)?.[1];
+   assert.ok(heading,'Deadline belongs to the consultation heading');
+   assert.match(heading,label);
+   assert.match(heading,/America\/Argentina\/Buenos_Aires/);
+   if (effective !== undefined) assert.doesNotMatch(heading,/1 jun/);
+   assert.match(html,/Existing instructions/);
+   assert.doesNotMatch(html,/First &lt;script|Second question|Single &amp; first|correct|scoringRule|EXACT|PARTIAL/);
+ }
 });
 
 test('both activity types preserve safe read-only question/option overview before explicit start', () => {
@@ -61,7 +74,8 @@ test('after explicit start, only the current question appears with navigation an
     assert.equal((html.match(/aria-label="Pregunta 1"/g) ?? []).length, 1);
     assert.equal((html.match(/<textarea/g) ?? []).length, 1);
     assert.match(html, /Revisar entrega/);
-    assert.match(html, /Guardar borrador/);
+    assert.match(html, />Guardar y salir<\/button>/);
+    assert.match(html, /Borrador guardado/);
     assert.match(html, /aria-label="Preguntas"/);
     for (const index of [1, 2, 3]) assert.match(html, new RegExp(`aria-label="Pregunta ${index}, sin responder"`));
     assert.doesNotMatch(html, /Second question|Third question|Single &amp; first|Multiple first|>Comenzar<\/button>|correct|scoringRule|EXACT|PARTIAL/);

@@ -47,7 +47,7 @@ test('a confirmed archived departure cannot navigate after the classroom view un
   const [navigation] = descendants(view.tree, node => node.type?.name === 'ClassroomNavigation');
   navigation.props.onSelect('members');
   await view.flush();
-  const [leave] = descendants(view.tree, node => node.type === 'button' && node.props.children === 'Salir del aula');
+  const [leave] = descendants(view.tree, node => node.type === 'button' && node.props.children === 'Salir de esta aula');
   leave.props.onClick();
   await view.flush();
   const [dialogs] = descendants(view.tree, node => node.type?.name === 'ClassroomDialogs');

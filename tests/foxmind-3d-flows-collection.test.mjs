@@ -61,7 +61,7 @@ test('D3 a search with no matches never claims the account has no memberships', 
   const { ClassroomCollection } = loadTsModule("apps/web/src/features/classrooms/ui/ClassroomCollection.tsx");
   const view = hookView(ClassroomCollection, { teach: [room('teach', 'teacher')], study: [], search: 'no-match-unique', onEnter() {} });
   try {
-    await view.flush(); assert.match(text(view.tree), /No hay coincidencias/i);
+    await view.flush(); assert.match(text(view.tree), /No encontramos esa aula/i);
     assert.doesNotMatch(text(view.tree), /Aún no tenés aulas/i);
     assert.equal(text(descendants(view.tree, node => node.type === 'button').find(node => /^Activas/.test(text(node)))), 'Activas 1');
   } finally { view.close(); }

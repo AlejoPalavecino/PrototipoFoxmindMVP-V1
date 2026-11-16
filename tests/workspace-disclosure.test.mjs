@@ -75,11 +75,15 @@ for (const accountRole of ['teacher', 'student']) test(`Brújula keeps ${account
     assert.equal(descendants(view.tree, node => node.type?.name === 'HomeModule' && node.props.name === 'materials').length, 0);
     const classrooms = descendants(view.tree, node => node.type?.name === 'HomeClassCards')[0];
     const cards = classrooms.type(classrooms.props);
-    const open = descendants(cards, node => node.type === 'button' && node.props['aria-label'] === 'Abrir aula Aula autorizada')[0];
+    const open = descendants(cards, node => node.type === 'a' && /Aula autorizada/.test(text(node)))[0];
     const all = descendants(cards, node => node.type === 'button' && text(node).trim() === 'Ver mis aulas')[0];
     assert.ok(open);
     assert.ok(all);
-    open.props.onClick();
+    assert.equal(open.props.href, '/mis-aulas?aula=allowed&section=plan');
+    assert.deepEqual(actions, [], 'rendering links does not navigate');
+    let defaultPrevented = false;
+    open.props.onClick({ button: 0, preventDefault() { defaultPrevented = true; } });
+    assert.equal(defaultPrevented, true);
     all.props.onClick();
     assert.deepEqual(actions, [target, 'classrooms']);
     assert.equal(typeof classrooms.props.onRetry, 'function');
@@ -99,11 +103,19 @@ test('Compact topic chooser uses the same selected context without issuing write
   const view = hookView(PlanWorkspace, { room: extended, onOpenActivity() {}, api: { call: async (...args) => { calls.push(args); return args[0].endsWith('/library') ? [] : { activities: [] }; } } });
   try {
     await view.flush();
-    const chooser = descendants(view.tree, n => n.type === 'select' && n.props['aria-label'] === 'Tema del plan')[0];
-    assert.ok(chooser); assert.equal(chooser.props.value, 'topic');
-    chooser.props.onChange({ target: { value: 'second' } }); await view.flush();
+    const chooser = descendants(view.tree, n => n.type === 'button' && n.props['aria-haspopup'] === 'dialog' && /Elegir tema/.test(text(n)))[0];
+    assert.ok(chooser); assert.match(text(chooser), /La célula/);
+    chooser.props.onClick(); await view.flush();
+    const dialog = () => descendants(view.tree, n => n.type?.name === 'Dialog' && n.props.title === 'Elegir tema')[0];
+    assert.ok(dialog());
+    const choice = descendants(dialog(), n => n.type === 'button' && n.props['data-topic-choice'] === 'second')[0];
+    assert.ok(choice);
+    choice.props.onClick(); await view.flush();
+    assert.equal(dialog(), undefined);
     const context = descendants(view.tree, n => n.props['aria-label'] === 'Tema seleccionado')[0];
     assert.match(text(context), /Ecosistemas/);
+    const map = descendants(view.tree, n => n.type === 'nav' && n.props['aria-label'] === 'Unidades del plan')[0];
+    assert.equal(descendants(map, n => n.props['aria-current'] === 'true')[0]?.props['data-topic-choice'], 'second');
     assert.ok(calls.every(([,method]) => !method || method === 'GET'));
   } finally { view.close(); }
 });

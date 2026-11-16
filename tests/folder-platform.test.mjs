@@ -30,12 +30,13 @@ test('folder navbar carries the raster identity and preserves destinations/curre
     links: [{ href: '/inicio', label: 'Inicio' }, { href: '/mis-aulas', label: 'Mis aulas', current: true }],
     notifications: React.createElement('button', { 'aria-label': 'Notificaciones: 7 sin leer' }, '7'),
   });
-  assert.match(html, /<img\b[^>]*src="\/brujula\/foxy-logotipo-redondo\.webp"/);
-  assert.match(html, /BRÚJULA/);
+  assert.match(html, /<img\b[^>]*src="\/foxmind\/logo\.webp"/);
+  assert.match(html, /href="\/inicio"[^>]*aria-label="FoxMind"/);
   assert.match(html, /href="\/mis-aulas"[^>]*aria-current="page"/);
   assert.doesNotMatch(html, /href="\/inicio"[^>]*aria-current/);
   assert.match(html, /Notificaciones: 7 sin leer/);
-  assert.match(html, /aria-expanded="false"/);
+  assert.match(html, /aria-label="Abrir menú de navegación"[^>]*aria-expanded="false"/);
+  assert.match(html, /href="\/profile"[^>]*aria-label="Mi perfil de Actual &lt;Learner&gt;"/);
   assert.match(html, /Actual &lt;Learner&gt;/);
 });
 
@@ -98,7 +99,7 @@ for (const accountRole of ['teacher', 'student']) test(`Home presents the ${acco
     onCreate() {}, onJoin() {}, onClassrooms() {}, onEnter() {}, api: { call: async () => [] }, onOpenTarget() {},
   });
   assert.match(html, /<h3>Current classroom<\/h3>/);
-  assert.equal(buttons(html).filter(action => action.attributes.includes('aria-label="Abrir aula Current classroom"')).length, 1);
+  assert.equal([...html.matchAll(/<a\b[^>]*href="\/mis-aulas\?aula=room&amp;section=plan"/g)].length, 1);
   assert.ok(buttons(html).some(action => action.text.includes('Ver mis aulas')));
   if (accountRole === 'student') {
     assert.match(html, /<h2>Tu próximo paso<\/h2>/);

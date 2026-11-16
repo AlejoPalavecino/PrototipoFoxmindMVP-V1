@@ -8,7 +8,7 @@ const room = { id: 'room', role: 'teacher', archived: false, units: [{ id: 'unit
 ] }] };
 const text = value => typeof value === 'string' ? value : Array.isArray(value) ? value.map(text).join(' ') : value?.props ? text(value.props.children) : '';
 
-test('D4 contextual Plan selects NEXT, filters real multitema activities/materials and opens explicitly without writes', async () => {
+test('D4 contextual Plan filters real multitema activities/materials by the chosen topic and opens explicitly without writes', async () => {
   const { PlanWorkspace } = loadTsModule("apps/web/src/application/academic-plan-workspace.tsx");
   const calls = [], opened = [], api = { fileUrl: (id, preview) => `/protected/${id}?preview=${preview}`,
     call: async (...args) => { calls.push(args); return args[0].endsWith('/library') ? [
@@ -24,14 +24,18 @@ test('D4 contextual Plan selects NEXT, filters real multitema activities/materia
     await view.flush();
     const nav = descendants(view.tree, node => node.type === 'nav' && node.props['aria-label'] === 'Unidades del plan')[0];
     assert.ok(nav); const selected = descendants(nav, node => node.type === 'button' && node.props['aria-current'] === 'true');
-    assert.equal(selected.length, 1); assert.match(text(selected[0]), /Siguiente/);
+    assert.equal(selected.length, 1); assert.equal(selected[0].props['data-topic-choice'], 'pending');
+    descendants(nav, node => node.props['data-topic-choice'] === 'next')[0].props.onClick();
+    await view.flush();
+    assert.deepEqual(descendants(view.tree, node => node.props['aria-current'] === 'true').map(node => node.props['data-topic-choice']), ['next']);
     const initial = text(view.tree); assert.match(initial, /Documento visible/); assert.match(initial, /Actividad multitema/);
     assert.doesNotMatch(initial, /Archivo inseguro|Documento otro tema|Actividad otro tema/);
     const activity = descendants(view.tree, node => node.type === 'button' && node.props['aria-label'] === 'Abrir actividad: Actividad multitema')[0];
     assert.ok(activity); activity.props.onClick(); assert.deepEqual(opened, ['multi']);
     assert.ok(descendants(view.tree, node => node.type === 'a' && node.props.href === '/protected/file?preview=true').length);
-    const pending = descendants(nav, node => node.type === 'button' && text(node).includes('Pendiente'))[0];
-    pending.props.onClick(); await view.flush(); assert.match(text(view.tree), /Documento otro tema|Actividad otro tema/);
+    const pending = descendants(nav, node => node.props['data-topic-choice'] === 'pending')[0];
+    pending.props.onClick(); await view.flush();
+    assert.match(text(view.tree), /Documento otro tema/); assert.match(text(view.tree), /Actividad otro tema/);
     assert.equal(calls.filter(([, method]) => method && method !== 'GET').length, 0);
   } finally { view.close(); }
 });

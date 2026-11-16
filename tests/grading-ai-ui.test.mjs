@@ -22,25 +22,29 @@ async function roomView(role) {
   return { view, calls };
 }
 
-test('docente activa y guarda el interruptor de corrección IA a nivel aula', async () => {
+test('guardar los datos del aula conserva la configuración de corrección IA sin añadir controles ajenos a la maqueta', async () => {
   const { ClassroomSettings } = loadTsModule('apps/web/src/features/classrooms/ui/ClassroomSettings.tsx');
-  const calls = []; let settings = { name: 'Ciencias', subject: 'Ciencias', division: 'A', academicYear: 2026, aiGradingEnabled: false };
-  const props = { api: { call: async (...args) => { calls.push(args); return { revision: '3' }; } }, id, room: room('teacher'), settings,
-    setSettings: change => { settings = typeof change === 'function' ? change(settings) : change; }, settingsRevision: '2',
-    setSettingsRevision() {}, settingsConflict: false, setSettingsConflict() {}, reloadSettings: async () => {},
-    isCurrentRoom: () => true, busy: false, load: async () => {}, action: async work => work(), setNotice() {}, setConfirm() {} };
-  const view = hookView(ClassroomSettings, props); await view.flush();
-  const toggle = field(view.tree, /correcci[oó]n.*IA/i, 'input'); assert.ok(toggle);
-  assert.equal(toggle.props.type, 'checkbox'); assert.equal(toggle.props.checked, false);
-  toggle.props.onChange({ target: { checked: true } }); assert.equal(settings.aiGradingEnabled, true);
-  props.settings = settings; await view.flush(); view.close();
-  const updated = hookView(ClassroomSettings, props); await updated.flush();
-  const tree = updated.tree;
-  const form = descendants(tree, n => n.type === 'form')[0]; assert.ok(form);
-  form.props.onSubmit({ preventDefault() {} }); await new Promise(resolve => setImmediate(resolve));
-  const write = calls.find(([path, method]) => path === `/${id}/settings` && method === 'PATCH');
-  assert.ok(write); assert.equal(write[2].aiGradingEnabled, true); assert.equal(write[2].revision, '2');
-  updated.close();
+  for (const aiGradingEnabled of [false, true]) {
+    const calls = [];
+    const view = hookView(ClassroomSettings, {
+      api: { call: async (...args) => { calls.push(args); return { revision: '3' }; } }, id,
+      room: { ...room('teacher'), aiGradingEnabled, aiGradingAvailable: true },
+      settings: { name: 'Ciencias actualizada', subject: 'Ciencias', division: 'A', academicYear: 2026, coverKey: 'explore', aiGradingEnabled },
+      setSettings() {}, settingsRevision: '2', setSettingsRevision() {},
+      settingsConflict: false, setSettingsConflict() {}, reloadSettings: async () => {},
+      isCurrentRoom: () => true, busy: false, load: async () => {}, action: async work => work(), setNotice() {}, setConfirm() {},
+    });
+    try {
+      await view.flush();
+      assert.equal(field(view.tree, /correcci[oó]n.*IA/i, 'input'), undefined);
+      const form = descendants(view.tree, n => n.type === 'form')[0]; assert.ok(form);
+      form.props.onSubmit({ preventDefault() {} }); await view.flush();
+      assert.deepEqual(calls, [[`/${id}/settings`, 'PATCH', {
+        name: 'Ciencias actualizada', subject: 'Ciencias', division: 'A', academicYear: 2026,
+        coverKey: 'explore', aiGradingEnabled, revision: '2',
+      }]]);
+    } finally { view.close(); }
+  }
 });
 
 test('alumno no puede acceder al interruptor docente', async () => {
