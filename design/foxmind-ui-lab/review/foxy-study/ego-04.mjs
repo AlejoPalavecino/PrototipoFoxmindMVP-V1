@@ -1,0 +1,1 @@
+const t=await taskSpace(1),p=t.page('p1');await p.fill('@96','Un apunte breve sobre exposición para compartir con mi grupo.');await p.click('@99',{label:'Preparar la propuesta de ejemplo'});await p.waitForSelector('loc=css:.fx-reader');console.log(await p.snapshot({scope:'subtree',root:'@93'}));

@@ -1,0 +1,10 @@
+const t=await taskSpace(1),p=t.page('p1');
+await p.goto('http://127.0.0.1:4173/?v=4.1#docente/inicio');
+await p.focus('loc=css:[data-action=home-queries]');
+await p.evaluate(()=>document.querySelector('.home-priorities').scrollIntoView({block:'start'}));
+const before=await p.evaluate(()=>scrollY);await p.keyboard.press('Enter');
+console.log({before,after:await p.evaluate(()=>scrollY),focus:await p.evaluate(()=>document.activeElement.dataset.action)});
+await p.click('loc=css:[data-action=home-query]');await p.waitForURL('**#docente/aula/muro');
+console.log({queryDestination:await p.url()});
+await p.goto('http://127.0.0.1:4173/?v=4.1#estudiante/inicio');
+console.log(await p.snapshot({scope:'full_page'}));

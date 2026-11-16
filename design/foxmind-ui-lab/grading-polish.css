@@ -1,0 +1,113 @@
+.grading-workspace,.learning-result { color:#202c3d;min-width:0 }
+.grading-workspace .grading-heading { display:flex;align-items:center;gap:14px;margin:0 0 16px }
+.grading-workspace .grading-heading .person>div { min-width:0;overflow-wrap:anywhere }
+.grading-workspace .grading-heading .avatar { width:43px;height:43px;flex:none }
+.grading-workspace .grading-heading h1 { font-size:clamp(22px,3vw,30px);line-height:1.15;margin:3px 0 0 }
+.grading-workspace .grading-navigation { width:auto;flex:none;margin-left:auto }
+.grading-workspace .grading-navigation>.button { min-height:42px;font-size:12px }
+.grading-workspace .grading-columns { grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px }
+.grading-workspace .review-work,.grading-workspace .review-editor { min-width:0;padding:16px 18px;border-radius:19px }
+.grading-workspace .learning-section-title { gap:9px;margin-bottom:12px;flex-wrap:nowrap }
+.grading-workspace .learning-section-title h2 { font-size:20px;line-height:1.2;flex:1;min-width:0 }
+.grading-workspace .learning-section-title>span:not(.state) { width:33px;height:33px;border-radius:10px }
+.grading-workspace .learning-section-title>.state,
+.grading-workspace .learning-section-title>.button { margin-left:auto;flex:none }
+.grading-workspace .review-work-header { padding-bottom:10px }
+.grading-workspace .review-work-header>.state { white-space:nowrap }
+.grading-workspace .review-file-list { margin:14px 0 }
+.grading-workspace .review-file-list article { padding:11px 10px }
+.grading-workspace .review-file-list article>.button { min-height:40px }
+.grading-workspace .review-work>h3 { font-size:15px }
+.grading-workspace .review-work>.grading-work-comment { margin-top:4px;white-space:pre-wrap;overflow-wrap:anywhere }
+.grading-workspace .grading-empty { padding:14px 0;font-size:13px }
+
+.grading-workspace .grading-question-nav { display:grid;gap:7px;margin-top:13px }
+.grading-workspace .grading-question-nav>span { font-size:12px;font-weight:800;color:#435e75 }
+.grading-workspace .grading-question-nav>div { display:flex;flex-wrap:wrap;gap:6px }
+.grading-workspace .grading-question-nav button {
+  width:38px;height:38px;border-radius:9px;border:1px solid #becfdb;
+  background:#edf4f9;color:#345a78;font-size:13px;font-weight:800;
+}
+.grading-workspace .grading-question-nav button[aria-current] { background:#ffe3d1;color:#8d380f;border-color:#c67143 }
+.grading-workspace .review-question { padding-top:15px;border-bottom:0 }
+.grading-workspace .review-question h3 { min-width:0;overflow-wrap:anywhere }
+.grading-workspace .review-question>p { margin-top:7px }
+
+.grading-workspace .grading-tabs {
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:4px;
+  border:1px solid #bdcddd;background:#edf2f7;border-radius:12px;margin-bottom:12px;
+}
+.grading-workspace .grading-tabs button {
+  min-height:41px;border:1px solid transparent;border-radius:8px;
+  color:#385870;font-size:13px;font-weight:850;padding:5px 7px;
+}
+.grading-workspace .grading-tabs [aria-selected=true] { color:#8b370f;background:#fff0e6;border-color:#d99c78 }
+.grading-workspace [data-review-panel][hidden] { display:none }
+.grading-workspace .grade-helper { margin:0;font-size:12px;line-height:1.4 }
+.grading-workspace .grade-criteria { margin:6px 0 12px }
+.grading-workspace .grade-criteria>div { padding:9px 0 }
+.grading-workspace .grade-criteria label { min-width:0;overflow-wrap:anywhere }
+.grading-workspace .grade-suggestion { padding:8px 11px;margin-bottom:10px;background:#edf4f9;border-color:#c6d7e6 }
+.grading-workspace .grade-suggestion>div,.grading-workspace .grade-suggestion .button { color:#355975 }
+.grading-workspace .grade-suggestion b { font-size:20px }
+.grading-workspace .grade-final { margin:0;padding:11px 0 0;border-bottom:0 }
+.grading-workspace .grade-final input { min-height:44px;background:#fff }
+.grading-workspace .grade-feedback-fields { gap:9px }
+.grading-workspace .grade-feedback-fields label { margin-bottom:3px }
+.grading-workspace .grade-feedback-fields label>small { color:#4c647a;font-size:11px }
+.grading-workspace .grade-feedback-fields textarea { min-height:57px;line-height:1.45;padding:8px 10px }
+.grading-workspace .grade-feedback-fields input { min-height:41px }
+.grading-workspace [data-review-panel]>.button { margin-top:10px;min-height:42px;font-size:12px }
+.grading-workspace .field-error:empty { display:none }
+.grading-workspace .field-error { margin-top:8px }
+.grading-workspace [aria-invalid=true] { border-color:#a3382a;background:#fff5f3 }
+
+.learning-result .learning-result-head {
+  background:#f3f8fc;border-color:#c4d5e3;border-radius:19px;
+  margin-bottom:14px;padding:16px 20px;align-items:center;
+}
+.learning-result .learning-result-head h1 { margin:3px 0 7px;font-size:clamp(23px,3.2vw,32px);overflow-wrap:anywhere }
+.learning-result .learning-result-head>div:first-child>span:first-child { color:#435d77 }
+.learning-result .learning-result-head>div:first-child>.state { margin-top:2px;font-size:11px }
+.learning-result .learning-result-grade {
+  display:grid;gap:2px;min-width:126px;padding-left:15px;
+  border-left:1px solid #c5d9ce;color:#285740;
+}
+.learning-result .learning-result-grade>b { font-size:clamp(32px,4vw,46px) }
+.learning-result .learning-result-grade>span { white-space:nowrap }
+.learning-result .grading-result-feedback { padding:17px 20px;border-radius:19px }
+.learning-result .grading-result-feedback .learning-section-title { margin-bottom:12px }
+.learning-result .feedback-block { padding:11px 0 }
+.learning-result .feedback-block:first-child { padding-top:0 }
+.learning-result .feedback-block h3 { font-size:16px }
+.learning-result .feedback-block p { margin-top:4px;line-height:1.58 }
+.learning-result .grading-result-actions {
+  display:flex;flex-wrap:wrap;gap:8px;border-top:1px solid #d0dce6;margin-top:6px;padding-top:11px;
+}
+.learning-result .grading-result-actions>.button { min-height:42px }
+.grading-dialog-rubric { border-top:1px solid #ccd9e4;margin-top:12px;padding-top:12px }
+.grading-dialog-rubric h3 { font-size:16px }
+.grading-dialog-rubric .student-rubric-result { margin:9px 0 0 }
+
+@media(max-width:760px){
+  .grading-workspace .grading-columns { grid-template-columns:1fr;gap:12px }
+  .grading-workspace .grading-heading { flex-wrap:wrap;gap:10px }
+  .grading-workspace .grading-heading .person { flex:1;min-width:0 }
+}
+@media(max-width:520px){
+  .grading-workspace .grading-navigation { width:100%;margin:0 }
+  .grading-workspace .review-work,.grading-workspace .review-editor { padding:12px 13px }
+  .grading-workspace .learning-section-title h2 { font-size:17px }
+  .grading-workspace .learning-section-title>.button { min-height:42px }
+  .grading-workspace .learning-section-title .icon { width:16px;height:16px }
+  .grading-workspace .grading-question-nav button { width:44px;height:44px }
+  .learning-result .learning-result-head { display:flex;gap:10px;padding:14px 13px }
+  .learning-result .learning-result-grade { margin:0;border-top:0;display:grid;grid-template-columns:1fr;min-width:0;padding:0 0 0 10px }
+  .learning-result .learning-result-grade>b { grid-column:auto;grid-row:auto;white-space:nowrap }
+  .learning-result .learning-result-grade small { margin-left:4px }
+  .learning-result .learning-result-grade>span { grid-column:auto;font-size:10px }
+  .learning-result .grading-result-feedback { padding:13px }
+  .learning-result .grading-result-actions>.button { flex:1;min-height:44px;padding:7px 9px;font-size:12px }
+  .focus-shell:has(.learning-result) .focus-footer .actions { flex:1;display:flex;gap:6px }
+  .focus-shell:has(.learning-result) .focus-footer .actions>.button { flex:1;min-height:44px;padding:8px;font-size:11px }
+}

@@ -1,0 +1,11 @@
+const t=await taskSpace(1),p=t.page('p1');
+await p.click('[data-action=leave-focus]',{label:'Volver al aula de ejemplo'});
+await p.waitForSelector('[data-action=compose-discard]',{state:'visible'});
+await p.click('[data-action=compose-discard]',{label:'Descartar esta prueba de edición'});
+await p.waitForURL('**#docente/aula/actividades');
+await p.reload();
+await p.click('[data-action=open-activity][data-id="observe"]',{label:'Consultar la actividad del aula'});
+await p.waitForURL('**#docente/actividad-detalle');
+await p.click('[data-action=learning-deliveries]',{label:'Ver las entregas del grupo'});
+await p.waitForURL('**#docente/actividad-detalle/entregas');
+console.log(await p.snapshot());

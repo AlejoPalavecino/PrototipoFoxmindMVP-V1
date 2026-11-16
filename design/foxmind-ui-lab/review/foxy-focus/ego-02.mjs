@@ -1,0 +1,11 @@
+const t=await taskSpace(1),p=t.page('p1');await p.reload();
+await p.click('loc=css:.nav-group a[href="#docente/inicio"]',{label:'Revisar el widget de agenda'});
+await p.evaluate(()=>document.querySelector('.day-planner').scrollIntoView({block:'center'}));
+await p.evaluate(()=>document.fonts.ready);
+await p.screenshot({path:'C:/Users/alejo/.codex/worktrees/foxmind-ui-lab/ProtipoFoxMind/.test-artifacts/ui-lab/foxy-focus/ego-home-compact.png'});
+console.log(await p.evaluate(()=>[...document.querySelectorAll('.planner-event-card')].map(e=>({title:e.querySelector('b').textContent,height:e.getBoundingClientRect().height}))));
+await p.click('loc=css:[data-role=estudiante]',{label:'Revisar el espacio del estudiante'});
+await p.click('loc=css:.nav-group a[href="#estudiante/carpetas"]',{label:'Abrir las carpetas de estudio'});
+await p.click('loc=css:[data-folder="0"]',{label:'Entrar al chat de fotografía'});
+await p.click('loc=css:[data-action=fx-tray][data-value=tools]',{label:'Consultar herramientas sin achicar el chat'});
+console.log((await p.snapshot()).split('dialog_modal')[1]);

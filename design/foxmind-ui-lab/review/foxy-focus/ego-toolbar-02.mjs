@@ -1,0 +1,13 @@
+const t=await taskSpace(1),p=t.page('p1');
+await p.click('loc=css:[data-action=nav-toggle]',{label:'Revisar las aulas completas'});
+await p.screenshot({path:'C:/Users/alejo/.codex/worktrees/foxmind-ui-lab/ProtipoFoxMind/.test-artifacts/ui-lab/chat-toolbar/ego-expanded-teacher.png'});
+console.log(await p.evaluate(()=>({classrooms:[...document.querySelectorAll('.sidebar-classes .class-link')].map(e=>e.textContent.trim()),overflow:document.querySelector('.sidebar').scrollWidth>document.querySelector('.sidebar').clientWidth,headerHeight:document.querySelector('.fx-context-strip').getBoundingClientRect().height})));
+await p.click('loc=css:[data-action=fx-tray][data-value=history]',{label:'Abrir historial desde la cabecera'});
+await p.click('loc=css:[data-action=fx-tray-close]',{label:'Volver a la misma conversación'});
+await p.click('loc=css:[data-action=nav-toggle]',{label:'Ocultar los accesos a aulas'});
+await p.click('loc=css:.fx-context-strip [data-action=new-chat]',{label:'Empezar con el botón identificado'});
+await p.goto('file:///C:/Users/alejo/.codex/worktrees/foxmind-ui-lab/ProtipoFoxMind/design/foxmind-ui-lab/01-foxmind.html?toolbar=14#estudiante/estudio');
+await p.waitForSelector('loc=css:.fx-context-strip');
+await p.click('loc=css:[data-action=nav-toggle]',{label:'Revisar la navegación del estudiante'});
+await p.screenshot({path:'C:/Users/alejo/.codex/worktrees/foxmind-ui-lab/ProtipoFoxMind/.test-artifacts/ui-lab/chat-toolbar/ego-expanded-student.png'});
+console.log(await p.evaluate(()=>({classrooms:[...document.querySelectorAll('.sidebar-classes .class-link')].map(e=>e.textContent.trim()),newChat:document.querySelector('.fx-new-conversation').textContent.trim(),singleHeader:!document.querySelector('.fx-topbar')})));

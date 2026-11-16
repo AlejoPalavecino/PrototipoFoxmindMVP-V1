@@ -1,0 +1,18 @@
+const t=await taskSpace(1),p=t.page('p1');
+await p.click('loc=css:[data-action=fx-context]',{label:'Elegir el contexto de carpeta'});
+await p.click('loc=css:[data-action=fx-context-mode][data-value=classroom]',{label:'Vincular la carpeta a un aula'});
+await p.click('loc=css:[data-action=fx-context-class][data-id=photo]',{label:'Usar el aula de fotografía'});
+await p.click('loc=css:[data-action=fx-context-apply]',{label:'Guardar el vínculo de contexto'});
+await p.click('loc=css:[data-action=fx-library]',{label:'Consultar las fuentes del chat'});
+await p.click('loc=css:[data-action=fx-attach]',{label:'Agregar un material propio'});
+await p.click('loc=css:[data-action=fx-file-example]',{label:'Elegir un archivo de ejemplo'});
+await p.click('loc=css:[form=fx-attach-form]',{label:'Preparar el material para conversar'});
+await p.waitForSelector('loc=css:[data-origin=private][data-status=ready]');
+await p.evaluate(()=>Promise.all(document.getAnimations().map(a=>a.finished.catch(()=>{}))));
+await p.screenshot({path:'C:/Users/alejo/.codex/worktrees/foxmind-ui-lab/ProtipoFoxMind/.test-artifacts/ui-lab/context-library/ego-student-library.png'});
+console.log(await p.evaluate(()=>({ready:document.querySelectorAll('[data-status=ready]').length,own:document.querySelectorAll('[data-origin=private]').length,classroom:document.querySelectorAll('[data-origin=classroom]').length,linked:document.querySelector('.fx-library-scope').innerText})));
+await p.click('loc=css:[data-action=fx-tray-close]',{label:'Volver al chat con contexto'});
+await p.goto('file:///C:/Users/alejo/.codex/worktrees/foxmind-ui-lab/ProtipoFoxMind/design/foxmind-ui-lab/01-foxmind.html?library=15#docente/foxy');
+await p.waitForSelector('loc=css:.fx-library-trigger');
+await p.click('loc=css:[data-action=fx-library]',{label:'Abrir la biblioteca del docente'});
+console.log(await p.snapshot());

@@ -1,0 +1,12 @@
+const t=await taskSpace(1),p=t.page('p1');
+await p.goto('http://127.0.0.1:4173/?v=3.1#estudiante/inicio');
+await p.click('loc=css:[data-action="open-activity"][data-id="light"]');
+await p.waitForURL('**#estudiante/actividad');
+console.log({studentActivity:await p.evaluate(()=>document.querySelector('h1')?.textContent)});
+await p.goto('http://127.0.0.1:4173/?v=3.1#docente/inicio');
+await p.click('loc=css:[data-action="review"][data-id="r1"]');
+await p.waitForURL('**#docente/corregir');
+console.log({teacherReview:await p.evaluate(()=>document.querySelector('h1')?.textContent)});
+await p.goto('http://127.0.0.1:4173/?v=3.1#docente/inicio');
+await p.click('loc=css:[data-action="new-event"]');
+console.log(await p.snapshot());

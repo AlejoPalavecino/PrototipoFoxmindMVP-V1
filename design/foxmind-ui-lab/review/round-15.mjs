@@ -1,0 +1,10 @@
+const t=await taskSpace(5),p=t.page('p1'),fs=await import('node:fs/promises');
+const dir='C:/Users/alejo/.codex/worktrees/foxmind-ui-lab/ProtipoFoxMind/.test-artifacts/ui-lab';
+await p.click('loc=role:button[name="Cerrar sesión"]');
+await p.waitForSelector('input[name="email"]');
+const a=JSON.parse(await fs.readFile('C:/Users/alejo/Documents/ProyectosAlejo/FoxMind/ProtipoFoxMind/.test-artifacts/local-app/accounts.json','utf8'));
+await p.fill('input[name="email"]',a.studentEmail);await p.fill('input[name="password"]',a.password);
+await p.click('loc=role:button[name="Iniciar sesión"]');await p.waitForURL('http://127.0.0.1:3000/inicio');
+await p.waitForSelector('loc=href:/carpetas-de-estudio');
+console.log(await p.snapshot({scope:'full_page'}));
+await p.screenshot({path:dir+'/before-student-home.png'});

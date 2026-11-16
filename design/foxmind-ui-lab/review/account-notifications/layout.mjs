@@ -1,0 +1,19 @@
+import {Browser,sleep} from 'file:///C:/Users/alejo/.codex/skills/taste-skill/scripts/lib/cdp.mjs';import {readFile,writeFile} from 'node:fs/promises';import {pathToFileURL} from 'node:url';import path from 'node:path';
+const root=path.resolve('.test-artifacts/ui-lab/account-notifications'),url=pathToFileURL(path.resolve('design/foxmind-ui-lab/01-foxmind.html')).href;
+const source=await readFile(new URL('../iteration-2/contrast-check.mjs',import.meta.url),'utf8'),contrast=new Function('return (()=>{'+source.split('const result=await p.eval(()=>{')[1].split('});\n report.screens.push')[0]+'})')();
+const b=await Browser.launch(),report={layouts:[],errors:[],checks:[]};let p;
+const click=s=>p.eval(s=>{const e=document.querySelector(s);e.focus();e.click();},s);
+async function capture(name){for(const width of [1440,1024,768,390,320]){await p.setViewport({width,height:width===1440?706:844});await p.eval(()=>document.fonts.ready);await sleep(20);const c=await p.eval(contrast),m=await p.eval(()=>{const d=document.querySelector('dialog[open]'),footer=d?.querySelector('.dialog-footer')?.getBoundingClientRect();return{overflow:document.documentElement.scrollWidth>innerWidth+1,dialogOverflow:!!d&&d.scrollWidth>d.clientWidth+1,footerOutside:!!footer&&footer.bottom>innerHeight+1,brokenImages:[...document.images].filter(i=>i.getClientRects().length&&(!i.complete||!i.naturalWidth)).length,headings:document.querySelectorAll('main h1').length};});report.layouts.push({name,width,...m,contrastCount:c.count,contrastFailures:c.failures});if([1440,390].includes(width))await p.screenshot({path:path.join(root,name+'-'+width+'.png'),format:'png'});}await p.setViewport({width:1440,height:706});}
+try{
+ p=await b.newPage({width:1440,height:706,reducedMotion:true});await p.goto(url+'?account-layout#docente/avisos',{settleMs:50});
+ for(const role of ['docente','estudiante']){
+  await p.eval(r=>location.hash='#'+r+'/avisos',role);await sleep(40);await capture(role+'-notifications');
+  await click('[data-action=nt-read-filter][data-value=unread]');await click('[data-action=nt-read-all]');await capture(role+'-all-read');await click('[data-action=nt-reset]');
+  await click('[data-action=nt-open][data-id="'+(role==='docente'?'event-2':'event-3')+'"]');await capture(role+'-event');await click('[data-action=close]');
+  await p.eval(r=>location.hash='#'+r+'/perfil',role);await sleep(40);await capture(role+'-profile');
+  await click('[data-pf-action=avatar]');await capture(role+'-avatar');await click('[data-action=close]');
+  await p.eval(()=>{const e=document.querySelector('#pf-name');e.value='';e.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('[data-form=demo-profile]').requestSubmit();});await capture(role+'-profile-error');await click('[data-pf-action=discard]');
+ }
+ const html=await readFile(path.resolve('design/foxmind-ui-lab/01-foxmind.html'),'utf8');for(const m of html.matchAll(/<script>([\s\S]*?)<\/script>/g))new Function(m[1]);report.checks.push({name:'Offline standalone syntax and embedded assets',pass:!/<script[^>]+src=|<link[^>]+stylesheet|(?:src|href)="https?:/.test(html)});report.consoleErrors=p.consoleErrors;
+}catch(e){report.errors.push(e.stack);}finally{await b.close();}
+await writeFile(path.join(root,'layout.json'),JSON.stringify(report,null,2));console.log({layouts:report.layouts.length,failures:report.layouts.filter(x=>x.overflow||x.dialogOverflow||x.footerOutside||x.brokenImages||x.headings!==1),contrastSamples:report.layouts.reduce((n,x)=>n+x.contrastCount,0),contrastFailures:report.layouts.flatMap(x=>x.contrastFailures.map(f=>({screen:x.name,width:x.width,...f}))),checks:report.checks,errors:report.errors,consoleErrors:report.consoleErrors});process.exit(report.errors.length||report.consoleErrors?.length||report.layouts.some(x=>x.overflow||x.dialogOverflow||x.footerOutside||x.brokenImages||x.headings!==1||x.contrastFailures.length)?1:0);

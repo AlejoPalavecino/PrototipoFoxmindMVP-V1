@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>FoxMind · Maqueta interactiva</title>
+  <style>/* STYLES */</style>
+</head>
+<body>
+  <a class="skip" href="#main">Saltar al contenido</a>
+  <div class="demo-bar" aria-label="Controles de la maqueta">
+    <span><span class="demo-dot"></span> Maqueta interactiva <span class="demo-detail">· Datos de ejemplo</span></span>
+    <div class="demo-controls">
+      <button data-role="docente" aria-pressed="true">Docente</button>
+      <button data-role="estudiante" aria-pressed="false">Estudiante</button>
+      <button data-action="tour">Recorridos</button>
+      <button data-action="reset" aria-label="Reiniciar la maqueta">Reiniciar</button>
+    </div>
+  </div>
+  <div id="app"></div>
+  <dialog id="dialog" aria-labelledby="dialog-title"></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <noscript><p>Esta maqueta necesita JavaScript para recorrer las pantallas. No se conecta a ningún servicio.</p></noscript>
+  <script>/* ASSETS */</script>
+  <script>/* APP */</script>
+</body>
+</html>

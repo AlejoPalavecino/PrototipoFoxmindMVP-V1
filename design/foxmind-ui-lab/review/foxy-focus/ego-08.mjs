@@ -1,0 +1,13 @@
+const t=await taskSpace(1),p=t.page('p1');
+await p.waitForSelector('loc=css:.fx-message:last-child [data-action=fx-creation]');
+await p.click('loc=css:.fx-message:last-child [data-action=fx-creation]',{label:'Revisar el esquema terminado'});
+console.log(await p.evaluate(()=>({creation:document.querySelector('.fx-reader h3').textContent,editable:!!document.querySelector('[data-action=fx-edit]'),share:!!document.querySelector('[data-action=fx-share]')})));
+await p.click('loc=css:[data-action=fx-close]',{label:'Volver al chat del docente'});
+await p.goto('file:///C:/Users/alejo/.codex/worktrees/foxmind-ui-lab/ProtipoFoxMind/design/foxmind-ui-lab/01-foxmind.html?focus=13-final#estudiante/estudio');
+await p.waitForSelector('loc=css:#fx-message');
+await p.fill('loc=css:#fx-message','Ayudame a entender la exposición con un ejemplo cotidiano.');
+await p.click('loc=css:.fx-composer [type=submit]',{label:'Conversar desde la carpeta personal'});
+await p.waitForSelector('loc=css:.fx-message:not(.user):last-child');
+await p.evaluate(()=>Promise.all(document.getAnimations().map(a=>a.finished.catch(()=>{}))));
+await p.screenshot({path:'C:/Users/alejo/.codex/worktrees/foxmind-ui-lab/ProtipoFoxMind/.test-artifacts/ui-lab/foxy-focus/ego-final-chat.png'});
+console.log(await p.evaluate(()=>({studentPhoto:!!document.querySelector('.fx-message.user .profile-photo'),foxyLogo:!!document.querySelector('.fx-message:not(.user) .fx-foxy-avatar'),dialog:document.querySelector('dialog').open,chat:document.querySelector('.fx-conversation').getBoundingClientRect().toJSON()})));

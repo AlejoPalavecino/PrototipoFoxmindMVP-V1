@@ -1,0 +1,12 @@
+const t=await taskSpace(1),p=t.page('p1');
+await p.click('loc=css:[data-action=home-queries]');
+console.log({queryVisible:await p.evaluate(()=>!!document.querySelector('[data-action=home-query]'))});
+await p.click('loc=css:[data-action=home-reviews]');
+console.log({teacher:await p.evaluate(()=>{const a=document.querySelector('.home-priorities').getBoundingClientRect(),b=document.querySelector('.day-planner').getBoundingClientRect();return {topDifference:a.top-b.top,bottomDifference:a.bottom-b.bottom};})});
+await p.click('loc=css:[data-role=estudiante]');
+await p.waitForURL('**#estudiante/inicio');
+console.log({student:await p.evaluate(()=>{const a=document.querySelector('.home-priorities').getBoundingClientRect(),b=document.querySelector('.day-planner').getBoundingClientRect();return {topDifference:a.top-b.top,bottomDifference:a.bottom-b.bottom};})});
+await p.cdp('Page.bringToFront');
+await p.evaluate(()=>window.scrollTo(0,document.querySelector('.home-dashboard').getBoundingClientRect().top+scrollY-55));
+await p.screenshot({path:'C:/Users/alejo/.codex/worktrees/foxmind-ui-lab/ProtipoFoxMind/.test-artifacts/ui-lab/alignment/ego-final.png'});
+console.log({finalPreview:await p.url()});

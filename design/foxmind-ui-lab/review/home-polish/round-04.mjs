@@ -1,0 +1,18 @@
+const t=await taskSpace(1),p=t.page('p1');
+await p.fill('loc=css:input[name="title"]','Prueba visual de color');
+await p.click('loc=css:label.event-violet');
+await p.keyboard.press('ArrowRight');
+console.log({keyboardColor:await p.evaluate(()=>document.querySelector('[name=color]:checked').value),preview:await p.evaluate(()=>document.querySelector('.event-color-preview').dataset.color)});
+await p.click('loc=css:label.event-violet');
+await p.screenshot({path:'C:/Users/alejo/.codex/worktrees/foxmind-ui-lab/ProtipoFoxMind/.test-artifacts/ui-lab/home-polish/ego-event-color.png'});
+await p.click('loc=role:button[name="Guardar evento"]');
+await p.waitForSelector('loc=css:.home-day-events .event-violet');
+console.log({saved:await p.evaluate(()=>[...document.querySelectorAll('.home-day-events .event-violet')].map(e=>e.textContent))});
+await p.click('loc=css:.home-day-events .event-violet');
+await p.click('loc=role:button[name="Editar"]');
+console.log({editingColor:await p.evaluate(()=>document.querySelector('[name=color]:checked').value)});
+await p.keyboard.press('Escape');
+console.log({dialogClosed:await p.evaluate(()=>!document.querySelector('dialog').open)});
+await p.click('loc=css:.home-day-events .event-violet');
+await p.click('loc=role:button[name="Eliminar"]');
+console.log(await p.snapshot());

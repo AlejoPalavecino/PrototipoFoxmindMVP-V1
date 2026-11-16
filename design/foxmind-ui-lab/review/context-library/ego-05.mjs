@@ -1,0 +1,13 @@
+const t=await taskSpace(1),p=t.page('p1');
+await p.goto('file:///C:/Users/alejo/.codex/worktrees/foxmind-ui-lab/ProtipoFoxMind/design/foxmind-ui-lab/01-foxmind.html?library=15-final-teacher#docente/foxy');
+await p.waitForSelector('loc=css:.fx-library-trigger');
+await p.click('loc=css:[data-action=fx-library]',{label:'Comprobar la biblioteca privada docente'});
+await p.click('loc=css:[data-action=fx-library-filter][data-value=private]',{label:'Mostrar los archivos de este chat'});
+await p.evaluate(()=>Promise.all(document.getAnimations().map(a=>a.finished.catch(()=>{}))));
+console.log(await p.evaluate(()=>({privateFiles:document.querySelectorAll('[data-origin=private]').length,width:document.querySelector('dialog').getBoundingClientRect().width,viewport:innerWidth,focus:document.activeElement.dataset.action})));
+await p.screenshot({path:'C:/Users/alejo/.codex/worktrees/foxmind-ui-lab/ProtipoFoxMind/.test-artifacts/ui-lab/context-library/ego-final-teacher.png'});
+await p.click('loc=css:[data-action=fx-tray-close]',{label:'Volver al espacio de conversación'});
+await p.goto('file:///C:/Users/alejo/.codex/worktrees/foxmind-ui-lab/ProtipoFoxMind/design/foxmind-ui-lab/01-foxmind.html?library=15-final#estudiante/estudio');
+await p.waitForSelector('loc=css:.fx-library-trigger');
+await p.click('loc=css:[data-action=fx-library]',{label:'Dejar la propuesta lista para revisar'});
+console.log(await p.evaluate(()=>({role:location.hash,library:!!document.querySelector('.fx-library'),own:document.querySelectorAll('[data-origin=private]').length,classroom:document.querySelectorAll('[data-origin=classroom]').length})));
