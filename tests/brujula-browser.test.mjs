@@ -114,9 +114,22 @@ test('Brújula real: public rubric, exact review, private publication, responsiv
       assert.equal(await drawer.isVisible(), true);
       await page.keyboard.press('Escape'); await drawer.waitFor({ state: 'hidden' });
       assert.equal(await page.getByRole('button', { name: 'Abrir menú de navegación', exact: true }).evaluate(el => el === document.activeElement), true);
+      const inboxResponse = () => page.waitForResponse(response =>
+        new URL(response.url()).pathname === '/api/v1/classrooms/notifications/page' && response.request().method() === 'GET');
+      let inbox = inboxResponse();
       await page.goto(`${runtime.origin}/notificaciones`);
       const center = page.getByRole('region', { name: 'Tu bandeja de notificaciones', exact: true });
       await center.waitFor();
+      let received = await inbox;
+      if (received.status() === 429) {
+        const seconds = Number(received.headers()['retry-after']);
+        assert.ok(Number.isInteger(seconds) && seconds >= 1 && seconds <= 60, 'The real inbox returns a bounded retry interval');
+        await new Promise(resolve => setTimeout(resolve, seconds * 1000 + 150));
+        inbox = inboxResponse();
+        await center.getByRole('button', { name: 'Actualizar notificaciones', exact: true }).click();
+        received = await inbox;
+      }
+      assert.equal(received.status(), 200);
       await center.getByText('Cargando notificaciones…', { exact: true }).waitFor({ state: 'hidden' });
       assert.equal(await center.getByRole('alert').count(), 0);
       for (const width of [390, 768, 1280, 1440]) {
@@ -129,9 +142,9 @@ test('Brújula real: public rubric, exact review, private publication, responsiv
     }
     await T.page.goto(`${runtime.origin}/agenda`);
     await T.page.getByRole('button', { name: 'Crear evento', exact: true }).click();
-    const event = T.page.getByRole('dialog', { name: 'Crear evento', exact: true });
+    const event = T.page.getByRole('dialog', { name: 'Un momento en tu agenda', exact: true });
     await event.getByLabel('Título', { exact: true }).fill('Preparar Brújula');
-    await event.getByRole('radio', { name: 'Pizarra', exact: true }).check();
+    await event.getByText('Pizarra', { exact: true }).click();
     assert.equal(await event.getByRole('radio', { name: 'Pizarra', exact: true }).isChecked(), true);
     await event.getByRole('complementary', { name: 'Vista previa del evento', exact: true }).getByText('Preparar Brújula', { exact: true }).waitFor();
     response = T.page.waitForResponse(r => r.url().includes('/agenda/events') && r.request().method() === 'PUT');

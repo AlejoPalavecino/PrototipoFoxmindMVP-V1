@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PDFDocument } from 'pdf-lib';
 import { createHash } from 'node:crypto';
+import { setTimeout as delay } from 'node:timers/promises';
 import { openClassroom } from './p6-integration-helpers.mjs';
 import { withJourney, ok, request, rootOf, openActivity, selectClassroomSection, openOwnResult } from './p9-journey-helpers-current.mjs';
 
@@ -47,13 +48,14 @@ test('Brújula completa real: aula manual obligatoria, autoría privada, criteri
       await wizard.getByRole('button', { name: 'Continuar', exact: true }).click();
       await wizard.getByText(/Agregá al menos una unidad con un tema/).waitFor();
       assert.equal(publishAttempts, 0, 'Empty plan cannot reach publication');
-      await wizard.getByRole('button', { name: 'Agregar unidad', exact: true }).click();
       await wizard.getByRole('textbox', { name: 'Nombre de la unidad 1', exact: true }).fill('Inicio');
       await wizard.getByRole('textbox', { name: 'Tema 1 de unidad 1', exact: true }).fill('Tema inicial');
       await wizard.getByRole('button', { name: 'Agregar tema a unidad 1', exact: true }).click();
       await wizard.getByRole('textbox', { name: 'Tema 2 de unidad 1', exact: true }).fill('Tema siguiente');
       await wizard.getByRole('button', { name: 'Continuar', exact: true }).click();
+      await wizard.getByRole('heading', { name: 'Tu aula está a un paso', exact: true }).waitFor();
       const publishing = T.page.waitForResponse(response => new URL(response.url()).pathname === `/api/v1/classrooms/drafts/${draft.id}/publish` && response.request().method() === 'POST');
+      void publishing.catch(() => {});
       await wizard.getByRole('button', { name: 'Crear mi aula', exact: true }).click();
       const published = await publishing; assert.equal(published.status(), 200);
       const room = { ...(await published.json()), name: classroomName };
@@ -192,12 +194,33 @@ test('Brújula completa real: aula manual obligatoria, autoría privada, criteri
       const teacherHistory = T.page.getByRole('region', { name: 'Entregas e historial de intentos', exact: true });
       await teacherHistory.getByRole('button', { name: 'Volver a actividades', exact: true }).click();
       await teacherHistory.waitFor({ state: 'hidden' });
+      const wallPath = `/api/v1${root}/wall`;
+      const getWall = () => {
+        const loading = T.page.waitForResponse(response => new URL(response.url()).pathname === wallPath && response.request().method() === 'GET');
+        void loading.catch(() => {});
+        return loading;
+      };
+      const loadingWall = getWall();
       await selectClassroomSection(T.page, 'wall', 'Muro');
-      await T.page.getByRole('button', { name: 'Publicar aviso', exact: true }).click();
+      let wallRead = await loadingWall;
+      const wallRegion = T.page.getByRole('region', { name: 'Muro del aula', exact: true });
+      if (wallRead.status() === 429) {
+        const raw = wallRead.headers()['retry-after'];
+        assert.match(raw ?? '', /^\d+$/);
+        const seconds = Number(raw);
+        assert.ok(seconds >= 1 && seconds <= 60, 'Actual bounded wall Retry-After required');
+        console.log(`Brújula fixture respects actual wall Retry-After=${seconds}s once`);
+        await delay(seconds * 1000);
+        const retry = getWall();
+        await wallRegion.getByRole('button', { name: 'Actualizar Muro', exact: true }).click();
+        wallRead = await retry;
+      }
+      assert.equal(wallRead.status(), 200);
+      await wallRegion.getByRole('button', { name: 'Publicar aviso', exact: true }).click();
       const wall = T.page.getByRole('dialog', { name: 'Una idea para tu grupo', exact: true });
       await wall.getByRole('textbox', { name: 'Título', exact: true }).fill('Título real del aviso');
       await wall.getByRole('textbox', { name: 'Tu mensaje', exact: true }).fill('Contenido del aviso para el grupo.');
-      const wallPublication = T.page.waitForResponse(response => new URL(response.url()).pathname === `/api/v1${root}/wall` && response.request().method() === 'POST');
+      const wallPublication = T.page.waitForResponse(response => new URL(response.url()).pathname === wallPath && response.request().method() === 'POST');
       await wall.getByRole('button', { name: 'Publicar mensaje', exact: true }).click();
       assert.equal((await wallPublication).status(), 200);
       assert.ok((await ok(S.page, 'GET', `${root}/wall`)).posts.some(post => post.title === 'Título real del aviso' && post.body === 'Contenido del aviso para el grupo.'));

@@ -45,9 +45,6 @@ function collectionRetryPage(limitedParts) {
       getByRole(role, child = {}) {
         if (kind === 'alert' && role === 'button' && child.name === 'Volver a intentar')
           return { click: async () => { assert.equal(parts.length, 1, 'A retry action must identify one resource alert'); await retry(parts[0]); } };
-        if (kind === 'article' && role === 'button' && child.name === `Entrar al aula ${roomName}`)
-          return { click: async () => { enteredRoom = roomName; currentUrl = `http://synthetic.test/mis-aulas?aula=${roomId}`;
-            send(`/api/v1/classrooms/${roomId}`, 200, { name: roomName }); } };
         throw new Error('Unexpected synthetic locator action');
       },
       async count() { return kind === 'article' ? 1 : parts.length; },
@@ -59,6 +56,12 @@ function collectionRetryPage(limitedParts) {
       globalRetries++;
       if (limited.size !== 1) throw new Error('Multiple visible retry buttons require a resource alert scope');
       await retry([...limited][0]);
+    } };
+    if (role === 'link') return { click: async () => {
+      assert.ok(matches(`Entrar al aula ${roomName}`, options.name));
+      assert.ok(matches(`Entrar al aula ${roomName} · Docente: Persona de prueba`, options.name));
+      enteredRoom = roomName; currentUrl = `http://synthetic.test/mis-aulas?aula=${roomId}`;
+      send(`/api/v1/classrooms/${roomId}`, 200, { name: roomName });
     } };
     return locator(role, [...limited], options);
   };

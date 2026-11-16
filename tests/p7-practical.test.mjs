@@ -198,12 +198,14 @@ test('TP public service and file ports preserve drafts, receipts, quotas and con
    assert.equal(concurrent.find(r=>r.status==='rejected').reason.code,'CONFLICT');const result=concurrent.find(r=>r.status==='fulfilled').value;
    assert.equal(result.submittedLate,false);assert.equal(result.appliedDeadlineAt,null);assert.equal((await service.assignmentSubmission(T,room,started.attempt.id)).attachments.length,0);
   });
-  await check('controlled five-by-50MB readiness metadata permits 250MB without an aggregate cap; exact equality is late or closed',async()=>{
+  await check('five allowed ZIP attachments of 50MB fit; PDF stops at 20MB and exact deadline equality is late or closed',async()=>{
    const activity=await create(true),started=await service.startActivity(S,room,activity,{});
    const req={...S,headers:{'x-attempt-editor':started.editor.token,'x-attempt-epoch':started.editor.epoch}};
+   await rejected(()=>files.begin(req,{kind:'classroom',id:room},
+    {purpose:'attachment',name:'oversize-document.pdf',bytes:20000001},started.attempt.id),'FILE_TOO_LARGE');
    const ids=[];
    for(let i=0;i<5;i++){
-    const reserved=await files.begin(req,{kind:'classroom',id:room},{purpose:'attachment',name:`boundary-${i}.pdf`,bytes:50000000},started.attempt.id);ids.push(reserved.id);
+    const reserved=await files.begin(req,{kind:'classroom',id:room},{purpose:'attachment',name:`boundary-${i}.zip`,bytes:50000000},started.attempt.id);ids.push(reserved.id);
     // Explicit domain-only proof fixture: no claim that these 250MB passed actual storage/scanner.
     await files.store.transaction(async tx=>{
      await tx.query('SELECT id FROM classrooms WHERE id=$1::uuid FOR UPDATE',room);

@@ -123,10 +123,15 @@ test('unrelated unknown-route JSON parsing behavior is preserved', async () => {
   assert.equal(response.headers.get('x-request-id'), null);
 });
 test("application close releases the HTTP listener and owned Prisma pool", async () => {
-  const monitor = new pg.Client({ connectionString: process.env.DATABASE_URL });
+  const monitor = new pg.Client({ connectionString: process.env.DATABASE_URL, application_name: "foxmind-api-lifecycle-monitor" });
   await monitor.connect();
-  const connections = async () => Number((await monitor.query("SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND application_name='foxmind-api'")).rows[0].count);
+  // Match the application identity required by the SQL guard for AI execution profiles.
+  const connections = async () => Number((await monitor.query(
+    "SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND application_name=$1",
+    ["foxmind-api-ai-execution-v1"],
+  )).rows[0].count);
   try {
+    assert.equal((await get("/api/v1/health/ready")).status, 200);
     assert.ok(await connections() > 0, "readiness used a real named database connection");
     await app.close(); app = undefined;
     await assert.rejects(get("/api/v1/health/live"));

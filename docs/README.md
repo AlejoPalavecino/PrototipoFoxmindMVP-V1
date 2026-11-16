@@ -1,6 +1,6 @@
 # Documentación de FoxMind
 
-FoxMind organiza la enseñanza en aulas y el estudio personal en carpetas privadas. Esta rama describe el candidato local de paridad con UI Lab del 15 de noviembre de 2026. El [estado del proyecto](implementation-roadmap.md) distingue implementación, verificación e integración. La galería anterior conserva la evidencia de su propio candidato.
+FoxMind organiza la enseñanza en aulas y el estudio personal en carpetas privadas. El [estado del proyecto](implementation-roadmap.md) enlaza la integración de la paridad con UI Lab y distingue la verificación del producto de la evidencia histórica.
 
 | Para consultar | Fuente |
 |---|---|

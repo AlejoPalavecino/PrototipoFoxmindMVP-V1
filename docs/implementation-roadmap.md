@@ -1,6 +1,6 @@
 # Estado de FoxMind
 
-El candidato para la PR «Refactor UX/UI de FoxMind» está en verificación sobre `codex/refactor-ux-ui`. Combina el trabajo de paridad con UI Lab de `codex/foxmind-product-parity` y la arquitectura IA publicada en `main` (`69e2c01`). [Registro de integración](work-log/2026-11-16-root-ux-ui-publication.md). Los builds y resultados que se citan abajo pertenecen a la rama de paridad anterior a esta integración.
+La [PR #17 — Refactor UX/UI de FoxMind](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/pull/17) reúne la paridad con UI Lab y conserva la arquitectura de IA publicada previamente en `main` (`69e2c01`). El [registro de integración](work-log/2026-11-16-root-ux-ui-publication.md) distingue los controles sobre la combinación de las verificaciones de pantalla citadas abajo, que corresponden a la rama de paridad.
 
 Interior de aulas de ambos roles alineado con UI Lab. Build local `t5pFKl-x2iaUtLN4Ue4F6`: 56 vistas comparadas y 24 comprobaciones de interacción; datos reales de revisiones, devolución efectiva e identidad propia. [Registro y límites](work-log/2026-11-16-root-classroom-interior-exact.md), TASK-018 a TASK-022. La [segunda revisión](work-log/2026-11-16-root-classroom-interior-reaudit.md) amplía esa evidencia a pestañas, diálogos y estados del interior (TASK-023).
 
