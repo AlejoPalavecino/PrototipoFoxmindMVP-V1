@@ -67,8 +67,10 @@ export class ActivityAiService {
   private async insert(tx: Transaction, request: unknown, classroomId: string, ownerId: string, body: StartActivityGeneration, hash: string, previous?: JobRow) {
     const current = await curriculum(tx, classroomId, body), selected = await snapshots(this.options, tx, request, classroomId, body);
     const [row] = await tx.query<JobRow>(`INSERT INTO activity_ai_generations(id,owner_id,classroom_id,unit_id,type,base_revision,
-      request_hash,input_payload,curriculum_snapshot,source_snapshot,schema_version,prompt_version,model,generation,predecessor_id)
-      VALUES($1::uuid,$2::uuid,$3::uuid,$4::uuid,$5::"ActivityType",$6::bigint,$7,$8::jsonb,$9::jsonb,$10::jsonb,$11,$11,$12,$13,$14::uuid) RETURNING *`,
+      request_hash,input_payload,curriculum_snapshot,source_snapshot,schema_version,prompt_version,model,generation,predecessor_id,execution_profile)
+      VALUES($1::uuid,$2::uuid,$3::uuid,$4::uuid,$5::"ActivityType",$6::bigint,$7,$8::jsonb,$9::jsonb,$10::jsonb,$11,$11,
+        COALESCE((SELECT active_profiles->'activities'->>'model' FROM ai_execution_policy WHERE singleton),$12),$13,$14::uuid,
+        (SELECT active_profiles->'activities' FROM ai_execution_policy WHERE singleton)) RETURNING *`,
       randomUUID(), ownerId, classroomId, body.unitId, body.type, body.revision, hash, JSON.stringify(body), JSON.stringify(current),
       JSON.stringify(selected), generationVersion, this.options.configuration.model, previous ? previous.generation + 1 : 0, previous?.id ?? null);
     return row!;

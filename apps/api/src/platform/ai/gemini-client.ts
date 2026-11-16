@@ -2,6 +2,7 @@ import type { CountTokensParameters, CountTokensResponse, GenerateContentParamet
 export interface GeminiClient {
   models: {
     countTokens(input: CountTokensParameters): Promise<CountTokensResponse>;
+    countForGeneration?(input: GenerateContentParameters): Promise<CountTokensResponse>;
     generateContent(input: GenerateContentParameters): Promise<GenerateContentResponse>;
   };
 }

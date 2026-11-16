@@ -18,3 +18,7 @@ El candidato de la auditoría del 12 de noviembre de 2026 es `398cc0b` en `main`
 
 - Agenda conserva seis hallazgos visuales de la revisión posterior a la publicación. [Registro de Agenda](work-log/2026-11-12-root-agenda-publication.md)
 - Hosting, presupuesto, proveedores cloud, cuota productiva y piloto siguen pendientes de decisión. La evidencia disponible corresponde a entornos locales o descartables. [Límites de verificación](verification/README.md)
+
+## Candidato local de arquitectura IA — 2026-11-16
+
+El worktree `codex/foxmind-ai-runtime` incorpora SDK oficiales, perfiles persistentes por trabajo en seis tareas y protección de pendientes antiguos. Gemini conserva la configuración inicial; Claude queda preparado con activación explícita futura. Esta entrega no está integrada en main, publicada ni aplicada a datos retenidos. Ver [especificación](engineering/ai/runtime-proposal.md), [tablero](../odd/tasks/ai-runtime.md) y [evidencia local](work-log/2026-11-16-root-ai-runtime-design.md).

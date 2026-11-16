@@ -4,13 +4,13 @@ import type { SqlDatabase } from '../../../../../../../src/core/contracts/sql.ts
 import type { DiagnosticSink } from '../../../../../../../src/core/contracts/diagnostics.ts';
 import type { AiConfiguration } from '../../../../platform/ai/configuration.ts';
 import { validateGradingAiProposal } from '../../../../../../../src/core/domain/index.ts';
-import { createGradingAiSqlQueue, type GradingAiLease } from './sql-queue.ts';
+import { createGradingAiSqlQueue, type GradingAiLease, type GradingAiConfiguration } from './sql-queue.ts';
+import { configurationForJob } from '../../../../platform/ai/execution-snapshot.ts';
 import { gradingAiSnapshotFromSql } from './snapshot-sql.ts';
 import type { GradingAiEvidence } from './provider.ts';
 import { SerialJobScheduler } from './scheduler.ts';
 
-type Config = Pick<AiConfiguration, 'maxConcurrency' | 'deadlineMs' | 'dailyActorRequests' | 'dailyGlobalRequests'
-  | 'maxInputTokens' | 'maxOutputTokens' | 'inputUsdPerMillion' | 'outputUsdPerMillion' | 'dailyBudgetUsd'>;
+type Config = GradingAiConfiguration & Pick<AiConfiguration, 'maxInputTokens'>;
 type ProviderInput = { evidence: GradingAiEvidence; signal: AbortSignal };
 export interface GradingAiProvider {
   countGradingAiTokens(input: ProviderInput): Promise<number>;
@@ -18,7 +18,8 @@ export interface GradingAiProvider {
 }
 export type GradingAiFileGrant = { jobId: string; leaseNonce: string; ownerId: string; classroomId: string; activityId: string; attemptId: string; fileId: string; digest: string };
 type Reader = { read(grant: GradingAiFileGrant, signal: AbortSignal): Promise<unknown> };
-type Options = { database: SqlDatabase; configuration: Config; provider: GradingAiProvider; reader: Reader; instructionReader?: Reader; diagnostics?: DiagnosticSink };
+type Options = { database: SqlDatabase; configuration: Config; provider: GradingAiProvider; reader: Reader; instructionReader?: Reader; diagnostics?: DiagnosticSink;
+  providerForExecution?: (configuration: AiConfiguration) => GradingAiProvider };
 export class GradingAiRuntime {
   private readonly queue;
   private active?: Promise<boolean>;
@@ -68,9 +69,13 @@ export class GradingAiRuntime {
   private async run(shutdown: AbortSignal): Promise<boolean> {
     await this.measured('grading-ai.recover', () => this.queue.recover());
     const job = await this.measured('grading-ai.claim', () => this.queue.claim()); if (!job) return false;
-    const signal = AbortSignal.any([shutdown, AbortSignal.timeout(this.options.configuration.deadlineMs)]);
+    const base = this.options.configuration;
+    const configuration = job.executionProfile != null || base.executionProfiles || base.legacyExecutionProfiles || this.options.providerForExecution
+      ? configurationForJob(base, job.executionProfile, 'grading') : base;
+    const signal = AbortSignal.any([shutdown, AbortSignal.timeout(configuration.deadlineMs)]);
     let usage: { inputTokens: number | null; outputTokens: number | null } | undefined;
     try {
+      const provider = this.options.providerForExecution?.(configuration as AiConfiguration) ?? this.options.provider;
       if (!await this.queue.isCurrent(job)) { await this.queue.finish(job, 'STALE'); return true; }
       const listed = await this.snapshot(job, {}, true);
       const texts: Record<string, string> = {};
@@ -86,7 +91,7 @@ export class GradingAiRuntime {
         if ((parsed.warnings?.length ?? 0) > 0) throw new Error('SOURCE_UNAVAILABLE');
         if (document.kind === 'text' && typeof document.text === 'string' && document.text.trim()) texts[file.id] = document.text;
         else if (document.kind === 'pdf' && 'bytes' in document && document.bytes instanceof Uint8Array
-          && document.bytes.length > 0 && document.bytes.length <= 20000000
+          && document.bytes.length > 0 && document.bytes.length <= Math.min(configuration.executionProfile?.maxDocumentBytes ?? 20000000, 20000000)
           && createHash('sha256').update(document.bytes).digest('hex') === file.digest) {
           const bytes = Buffer.from(document.bytes);
           if (bytes.subarray(0, 5).toString('ascii') !== '%PDF-') throw new Error('SOURCE_UNAVAILABLE');
@@ -111,8 +116,8 @@ export class GradingAiRuntime {
       if (!current) { await this.queue.finish(job, 'STALE'); return true; }
       if (signal.aborted) throw new Error('AI_CANCELLED');
       const input = { evidence: snapshot.evidence, signal };
-      const count = await this.options.provider.countGradingAiTokens(input);
-      if (!Number.isSafeInteger(count) || count < 1 || count > this.options.configuration.maxInputTokens) throw new Error('AI_INPUT_LIMIT');
+      const count = await provider.countGradingAiTokens(input);
+      if (!Number.isSafeInteger(count) || count < 1 || count > configuration.maxInputTokens) throw new Error('AI_INPUT_LIMIT');
       if (signal.aborted) throw new Error('AI_CANCELLED');
       let stale = false;
       const reserved = await this.queue.reserve(job, count, async tx => {
@@ -123,7 +128,7 @@ export class GradingAiRuntime {
       if (!reserved) { await this.queue.finish(job, stale ? 'STALE' : 'FAILED'); return true; }
       if (signal.aborted) { await this.queue.finish(job, 'PROVIDER_OUTCOME_UNKNOWN'); return true; }
       let response: Awaited<ReturnType<GradingAiProvider['generateGradingAi']>>;
-      try { response = await this.options.provider.generateGradingAi(input); }
+      try { response = await provider.generateGradingAi(input); }
       catch { await this.queue.finish(job, 'PROVIDER_OUTCOME_UNKNOWN'); return true; }
       usage = { inputTokens: response.inputTokens, outputTokens: response.outputTokens };
       const proposal = validateGradingAiProposal(response.json, snapshot.spec);

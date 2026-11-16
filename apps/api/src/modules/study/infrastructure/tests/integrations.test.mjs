@@ -115,10 +115,11 @@ test('admisión IA compartida: revalida tras preflight y deduplica gasto sin pro
     countBody=JSON.parse(init.body);
     return new Response(JSON.stringify({totalTokens:10}),{headers:{'content-type':'application/json'}});
   }}});
-  const calls=[];const client={countTokens:async input=>{calls.push('count');return sdk.models.countTokens(input);},generateContent:async input=>{const schema=input.config.responseJsonSchema;assert.ok(schema);assert.deepEqual(schema.properties.practice.properties.questions.items.properties.type.enum,['SINGLE','MULTIPLE','DEVELOPMENT']);assert.deepEqual(schema.properties.practice.properties.questions.items.properties.topicId.enum,['topic-a']);assert.equal(schema.properties.practice.properties.questions.minItems,3);assert.equal(schema.properties.sourceRefs.items.anyOf[0].properties.id.enum[0],'source-a');assert.match(input.contents[0].parts[1].text,/source-a/u);calls.push('generate');return {text:'{"synthetic":true}',usageMetadata:{promptTokenCount:10,candidatesTokenCount:8}};}};
+  const calls=[];const client={countTokens:async input=>{calls.push('count');return sdk.models.countTokens(input);},generateContent:async input=>{const schema=input.config.responseJsonSchema;assert.ok(schema);assert.deepEqual(schema.properties.practice.properties.questions.items.properties.type.enum,['SINGLE','MULTIPLE','DEVELOPMENT']);assert.deepEqual(schema.properties.practice.properties.questions.items.properties.topicId.enum,['topic-a']);assert.equal(schema.properties.practice.properties.questions.minItems,3);assert.equal(schema.properties.sourceRefs.items.anyOf[0].properties.id.enum[0],'source-a');assert.match(input.contents[0].parts[1].text,/source-a/u);calls.push('generate');return {text:'{"synthetic":true}',candidates:[{finishReason:'STOP',content:{parts:[{text:'{"synthetic":true}'}]}}],usageMetadata:{promptTokenCount:10,candidatesTokenCount:8,thoughtsTokenCount:3}};}};
   const request=randomUUID();const provider=createGeminiStudyProvider(config,database,owner,request,async()=>{calls.push('authorize');},client);
   assert.deepEqual(await provider.generate({system:'Synthetic',prompt:JSON.stringify({topics:[{id:'topic-a'}],sources:[{id:'source-a',version:'v1'}],questionCount:3}),documents:[{sourceRef:{id:'source-a',version:'v1'},document:{kind:'text',text:'Synthetic'}}]}),{synthetic:true});
-  assert.deepEqual(calls,['authorize','count','authorize','generate']);
+  // Approved runtime contract also revalidates authorization after the response.
+  assert.deepEqual(calls,['authorize','count','authorize','generate','authorize']);
   assert.match(countBody.contents[0].parts[0].text,/Synthetic.*En SINGLE/su);
   assert.match(countBody.contents[1].parts[0].text,/topic-a/u);
   assert.match(countBody.contents[1].parts[1].text,/source-a/u);
@@ -128,6 +129,6 @@ test('admisión IA compartida: revalida tras preflight y deduplica gasto sin pro
   await assert.rejects(createGeminiStudyProvider(config,database,owner,randomUUID(),async()=>{calls.push('revoked');throw {code:'SOURCE_UNAVAILABLE'};},client).generate({system:'Synthetic',prompt:'Synthetic'}));
   assert.deepEqual(calls,['revoked']);
   const usage=(await pool.query("SELECT request_count,reserved_microusd,consumed_microusd FROM ai_usage_daily WHERE scope=$1 AND capability='study-plan-v1'",[owner])).rows[0];
-  assert.equal(usage.request_count,1);assert.equal(usage.reserved_microusd,0n);assert.ok(usage.consumed_microusd>0n);
+  assert.equal(usage.request_count,1);assert.equal(usage.reserved_microusd,0n);assert.equal(usage.consumed_microusd,21n); // 10 input + 8 visible output + 3 reasoning at fixture rates.
  });
 });

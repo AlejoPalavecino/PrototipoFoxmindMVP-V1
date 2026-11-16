@@ -31,9 +31,9 @@ test('preflight drops oldest complete pairs only for true token limits and keeps
   }
 });
 
-test('all ten history pairs may be removed before one final count, other failures never retry',async()=>{
+test('oversized base context is rejected after two counts, other failures never retry',async()=>{
   const f=fixture({turn:payload('foxy-chat-v2',Array.from({length:10},(_,i)=>pair(i))),count:()=>{throw Object.assign(Error('limit'),{code:'AI_INPUT_LIMIT'});}});
-  await assert.rejects(prepare(f));assert.equal(f.calls.filter(x=>x[0]==='count').length,11);assert.ok(f.calls.some(x=>x[0]==='close'));
+  await assert.rejects(prepare(f));assert.equal(f.calls.filter(x=>x[0]==='count').length,2);assert.ok(f.calls.some(x=>x[0]==='close'));
   for(const failure of [Object.assign(Error('failure'),{code:'AI_UNAVAILABLE'}),NaN,1.5]){
     const g=fixture({count:()=>{if(failure instanceof Error)throw failure;return failure;}});await assert.rejects(prepare(g));assert.equal(g.calls.filter(x=>x[0]==='count').length,1);
   }

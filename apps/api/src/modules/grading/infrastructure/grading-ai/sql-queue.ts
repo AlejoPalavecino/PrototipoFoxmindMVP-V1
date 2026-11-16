@@ -6,13 +6,21 @@ import type { Transaction } from '../../../classrooms/public.ts';
 import type { SqlDatabase } from '../../../../../../../src/core/contracts/sql.ts';
 import type { DiagnosticSink } from '../../../../../../../src/core/contracts/diagnostics.ts';
 import type { GradingAiProposal } from '../../../../../../../src/core/domain/index.ts';
+import type { AiExecutionSettings } from '../../../../../../../src/core/contracts/ai-execution.ts';
+import { configurationForJob } from '../../../../platform/ai/execution-snapshot.ts';
 type GradingAiProcessState = 'READY' | 'FAILED' | 'STALE' | 'PROVIDER_OUTCOME_UNKNOWN';
 
-type Configuration = Pick<ClassroomAiConfiguration, 'maxConcurrency' | 'deadlineMs' | 'dailyActorRequests' | 'dailyGlobalRequests'
-  | 'maxOutputTokens' | 'inputUsdPerMillion' | 'outputUsdPerMillion' | 'dailyBudgetUsd'>;
-type Options = { database: SqlDatabase; configuration: Configuration };
-export interface GradingAiLease { id: string; ownerId: string; classroomId: string; activityId: string; attemptId: string; leaseNonce: string }
-type Row = { id: string; owner_id: string; classroom_id: string; activity_id: string; attempt_id: string; lease_nonce: string };
+export type GradingAiConfiguration = Pick<ClassroomAiConfiguration, 'maxConcurrency' | 'deadlineMs' | 'dailyActorRequests' | 'dailyGlobalRequests'
+  | 'maxOutputTokens' | 'inputUsdPerMillion' | 'outputUsdPerMillion' | 'dailyBudgetUsd'>
+  & Partial<Pick<ClassroomAiConfiguration, 'model' | 'maxInputTokens' | 'apiKey' | 'backend' | 'anthropicApiKey'>> & AiExecutionSettings;
+
+export function gradingConfigurationForJob(base: GradingAiConfiguration, snapshot: unknown): GradingAiConfiguration {
+  return snapshot != null || base.executionProfiles || base.legacyExecutionProfiles
+    ? configurationForJob(base, snapshot, 'grading') : base;
+}
+type Options = { database: SqlDatabase; configuration: GradingAiConfiguration };
+export interface GradingAiLease { id: string; ownerId: string; classroomId: string; activityId: string; attemptId: string; leaseNonce: string; executionProfile?: unknown }
+type Row = { id: string; owner_id: string; classroom_id: string; activity_id: string; attempt_id: string; lease_nonce: string; execution_profile?: unknown };
 
 /** Serializes claims with the other AI capabilities; each completion is fenced by room and lease. */
 export function createGradingAiSqlQueue(options: Options) {
@@ -45,13 +53,14 @@ export function createGradingAiSqlQueue(options: Options) {
         ORDER BY j.created_at,j.id LIMIT 1`);
       if (!next) return null;
       const lease = randomUUID();
-      const job = { id: next.id, ownerId: next.owner_id, classroomId: next.classroom_id, activityId: next.activity_id, attemptId: next.attempt_id, leaseNonce: lease };
+      const job = { id: next.id, ownerId: next.owner_id, classroomId: next.classroom_id, activityId: next.activity_id, attemptId: next.attempt_id, leaseNonce: lease, executionProfile: next.execution_profile };
+      const configuration = gradingConfigurationForJob(options.configuration, next.execution_profile);
       await lockRoom(tx, job);
       const [claimed] = await tx.query<Row>(`UPDATE grading_ai_jobs j SET state='RUNNING',lease_nonce=$2::uuid,
         lease_until=clock_timestamp()+$3::bigint*interval '1 millisecond',updated_at=clock_timestamp()
         WHERE id=$1::uuid AND state='QUEUED' AND EXISTS (SELECT 1 FROM classrooms c JOIN users u ON u.id=c.teacher_id
           WHERE c.id=j.classroom_id AND c.teacher_id=j.owner_id AND c.ai_grading_enabled AND c.archived_at IS NULL
-          AND c.ai_grading_epoch=j.epoch AND u.email_verified_at IS NOT NULL) RETURNING j.*`, next.id, lease, options.configuration.deadlineMs + 10000);
+          AND c.ai_grading_epoch=j.epoch AND u.email_verified_at IS NOT NULL) RETURNING j.*`, next.id, lease, configuration.deadlineMs + 10000);
       return claimed ? job : null;
     });
   }
@@ -68,14 +77,14 @@ export function createGradingAiSqlQueue(options: Options) {
     return transact(async tx => {
       await lockRoom(tx, job);
       if (!await current(tx, job) || (fence && !await fence(tx))) return false;
-      return reserve(tx, { id: job.id, owner_id: job.ownerId }, count, options.configuration as ClassroomAiConfiguration, 'grading_ai_jobs');
+      return reserve(tx, { id: job.id, owner_id: job.ownerId }, count, gradingConfigurationForJob(options.configuration, job.executionProfile) as ClassroomAiConfiguration, 'grading_ai_jobs');
     });
   }
   async function settleJob(job: GradingAiLease): Promise<void> {
     await transact(async tx => {
       await lockRoom(tx, job);
       const [locked] = await tx.query('SELECT id FROM grading_ai_jobs WHERE id=$1::uuid AND lease_nonce=$2::uuid AND state=\'RUNNING\' FOR UPDATE', job.id, job.leaseNonce);
-      if (locked) await settle(tx, { id: job.id, owner_id: job.ownerId }, options.configuration as ClassroomAiConfiguration, undefined, 'grading_ai_jobs');
+      if (locked) await settle(tx, { id: job.id, owner_id: job.ownerId }, gradingConfigurationForJob(options.configuration, job.executionProfile) as ClassroomAiConfiguration, undefined, 'grading_ai_jobs');
     });
   }
   async function finish(job: GradingAiLease, state: GradingAiProcessState, proposal?: GradingAiProposal,
@@ -89,7 +98,7 @@ export function createGradingAiSqlQueue(options: Options) {
       if (valid && state === 'READY' && fence) {
         try { valid = await fence(tx); } catch { valid = false; }
       }
-      await settle(tx, { id: job.id, owner_id: job.ownerId }, options.configuration as ClassroomAiConfiguration, usage, 'grading_ai_jobs');
+      await settle(tx, { id: job.id, owner_id: job.ownerId }, gradingConfigurationForJob(options.configuration, job.executionProfile) as ClassroomAiConfiguration, usage, 'grading_ai_jobs');
       const status = !valid ? 'STALE' : state === 'PROVIDER_OUTCOME_UNKNOWN' || (state === 'READY' && !proposal) ? 'FAILED' : state;
       await tx.query(`UPDATE grading_ai_jobs SET state=$3,error_code=$4,proposal=$5::jsonb,lease_nonce=NULL,lease_until=NULL,
         snapshot_hash=CASE WHEN $3='READY' THEN $6 ELSE NULL END, updated_at=clock_timestamp()
@@ -99,10 +108,10 @@ export function createGradingAiSqlQueue(options: Options) {
   }
   async function recover(): Promise<void> {
     await transact(async tx => {
-      const expired = await tx.query<{ id: string; owner_id: string; dispatch_started_at: Date | null }>(`SELECT id,owner_id,dispatch_started_at
+      const expired = await tx.query<{ id: string; owner_id: string; dispatch_started_at: Date | null; execution_profile?: unknown }>(`SELECT id,owner_id,dispatch_started_at,execution_profile
         FROM grading_ai_jobs WHERE state='RUNNING' AND lease_until<=clock_timestamp() ORDER BY lease_until LIMIT 50 FOR UPDATE SKIP LOCKED`);
       for (const job of expired) {
-        await settle(tx, job, options.configuration as ClassroomAiConfiguration, undefined, 'grading_ai_jobs');
+        await settle(tx, job, gradingConfigurationForJob(options.configuration, job.execution_profile) as ClassroomAiConfiguration, undefined, 'grading_ai_jobs');
         await tx.query(`UPDATE grading_ai_jobs SET state='FAILED',error_code=$2,lease_nonce=NULL,lease_until=NULL,updated_at=clock_timestamp()
           WHERE id=$1::uuid RETURNING id`, job.id, job.dispatch_started_at ? 'PROVIDER_OUTCOME_UNKNOWN' : 'AI_TIMEOUT');
       }

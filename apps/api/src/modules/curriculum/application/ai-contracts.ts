@@ -1,8 +1,9 @@
 import type { SqlDatabase } from '../../../../../../src/core/contracts/sql.ts';
+import type { AiExecutionSettings, AiExecutionSnapshot } from '../../../../../../src/core/contracts/ai-execution.ts';
 import type { Transaction } from '../../classrooms/public.ts';
 import type { ApprovedPlanReader, StructuredExtractionPort, ExtractionView, ExtractedCurriculum } from '../../../../../../src/core/domain/index.ts';
 
-export interface ClassroomAiConfiguration {
+export interface ClassroomAiConfiguration extends AiExecutionSettings {
  model: string; maxConcurrency: number; maxDispatches: number; deadlineMs: number; maxJobAgeMs: number;
  maxInputTokens: number; maxOutputTokens: number; inputUsdPerMillion: number; outputUsdPerMillion: number;
  dailyBudgetUsd: number; dailyActorRequests: number; dailyGlobalRequests: number;
@@ -16,12 +17,14 @@ export interface PlanGrant { ownerId: string; draftId: string; fileId: string; d
 export interface ClassroomAiOptions {
   database: SqlDatabase; authenticate(tx: Transaction, request: unknown, write: boolean): Promise<string>;
   reader: AiPlanSource; provider: StructuredExtractionPort; configuration: ClassroomAiConfiguration;
+  providerForExecution?: (configuration: ClassroomAiConfiguration) => StructuredExtractionPort;
 }
 export interface DraftRow {
   id: string; owner_id: string; revision: bigint | string; payload: Record<string, unknown>;
   published_classroom_id: string | null;
 }
 export interface JobRow {
+  execution_profile?: AiExecutionSnapshot | null;
   id: string; owner_id: string; draft_id: string; file_id: string; source_digest: string;
   base_revision: bigint | string; state: ExtractionView['state']; proposal: ExtractedCurriculum | null;
   error_code: ExtractionView['error']; generation: number; dispatch_count: number;

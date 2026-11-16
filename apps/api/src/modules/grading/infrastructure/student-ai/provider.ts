@@ -1,4 +1,6 @@
-import { GoogleGenAI, type Content } from '@google/genai';
+import type { Content, GenerateContentParameters } from '@google/genai';
+import { getAiTextClient, countForExecution } from '../../../../platform/ai/profile-client.ts';
+import { configurationForJob, snapshotForTask } from '../../../../platform/ai/execution-snapshot.ts';
 import { createHash } from 'node:crypto';
 import type { AiConfiguration } from '../../../../platform/ai/configuration.ts';
 import type { GeminiClient } from '../../../../platform/ai/gemini-client.ts';
@@ -25,9 +27,9 @@ function fingerprint(input: Input): string {
 }
 const usage = (value: unknown): number | null => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : null;
 export function createStudentAiProvider(configuration: AiConfiguration): StudentAiProvider {
-  const client = new GoogleGenAI({ apiKey: configuration.apiKey, vertexai: false,
-    httpOptions: { retryOptions: { attempts: 1 }, timeout: configuration.deadlineMs } });
-  return new GeminiStudentAiProvider(client, configuration);
+  const client = getAiTextClient(configuration, 'analysis');
+  const pinned = configurationForJob(configuration, configuration.executionProfile ?? snapshotForTask(configuration, 'analysis'), 'analysis');
+  return new GeminiStudentAiProvider(client, pinned);
 }
 export class GeminiStudentAiProvider implements StudentAiProvider {
   private readonly verified = new WeakMap<Input, string>();
@@ -36,9 +38,9 @@ export class GeminiStudentAiProvider implements StudentAiProvider {
   constructor(client: GeminiClient, config: AiConfiguration) { this.client = client; this.config = config; }
   async countStudentAiTokens(input: Input): Promise<number> {
     const hash = fingerprint(input);
-    const response = await this.client.models.countTokens({ model: this.config.model,
+    const response = await countForExecution(this.client, { model: this.config.model,
       contents: [{ role: 'user', parts: [{ text: `${instruction}\n${JSON.stringify(schema)}` }] }, ...contents(input)],
-      config: { abortSignal: input.signal, httpOptions: { retryOptions: { attempts: 1 } } } });
+      config: { abortSignal: input.signal, httpOptions: { retryOptions: { attempts: 1 } } } }, this.generationRequest(input));
     if (!Number.isSafeInteger(response.totalTokens) || response.totalTokens! < 1
       || response.totalTokens! > this.config.maxInputTokens || hash !== fingerprint(input)) throw new Error('AI_INPUT_LIMIT');
     this.verified.set(input, hash);
@@ -47,11 +49,7 @@ export class GeminiStudentAiProvider implements StudentAiProvider {
   async generateStudentAi(input: Input) {
     if (this.verified.get(input) !== fingerprint(input) || input.signal.aborted) throw new Error('AI_UNAVAILABLE');
     this.verified.delete(input);
-    const response = await this.client.models.generateContent({ model: this.config.model, contents: contents(input), config: {
-      abortSignal: input.signal, systemInstruction: instruction, responseMimeType: 'application/json', responseJsonSchema: schema,
-      maxOutputTokens: this.config.maxOutputTokens, automaticContinuation: false, candidateCount: 1, temperature: 0,
-      httpOptions: { retryOptions: { attempts: 1 } },
-    } });
+    const response = await this.client.models.generateContent(this.generationRequest(input));
     if (response.promptFeedback?.blockReason || response.candidates?.length !== 1 || response.candidates[0]?.finishReason !== 'STOP'
       || typeof response.text !== 'string' || Buffer.byteLength(response.text) > 262144) throw new Error('INVALID_AI_OUTPUT');
     const json: unknown = JSON.parse(response.text);
@@ -59,5 +57,12 @@ export class GeminiStudentAiProvider implements StudentAiProvider {
     const thoughts = response.usageMetadata?.thoughtsTokenCount === undefined ? 0 : usage(response.usageMetadata.thoughtsTokenCount);
     return { json, inputTokens: usage(response.usageMetadata?.promptTokenCount),
       outputTokens: output === null || thoughts === null ? null : usage(output + thoughts) };
+  }
+  private generationRequest(input: Input): GenerateContentParameters {
+    return { model: this.config.model, contents: contents(input), config: {
+      abortSignal: input.signal, systemInstruction: instruction, responseMimeType: 'application/json', responseJsonSchema: schema,
+      maxOutputTokens: this.config.maxOutputTokens, automaticContinuation: false, candidateCount: 1, temperature: 0,
+      httpOptions: { retryOptions: { attempts: 1 } },
+    } };
   }
 }

@@ -37,6 +37,7 @@ import { createFoxyAuthentication, installFoxyTransport } from './foxy-host.ts';
 import { selectFoxyVisualProviders } from './foxy-visual-host-providers.ts';
 import type { VisualProviders } from '../modules/foxy/application/visual-runtime-contracts.ts';
 import { createGeminiFoxyTextAdapter } from '../modules/foxy/infrastructure/providers/foxy-adapter.ts';
+import { initializeAiExecutionPolicy } from '../platform/ai/execution-policy.ts';
 import { createFoxyFileOperations } from './foxy-file-integration.ts';
 import { attachmentIntegration } from './attachment-integration.ts';
 import { createStudyRuntime, STUDY_RUNTIME, type StudyRuntimeOptions } from './study-runtime.ts';
@@ -52,7 +53,9 @@ function foxyConfiguration(ai: ApiConfiguration['ai']) {
   const { model, maxInputTokens, maxOutputTokens, maxConcurrency, deadlineMs, maxJobAgeMs,
     dailyActorRequests, dailyGlobalRequests, inputUsdPerMillion, outputUsdPerMillion, dailyBudgetUsd } = ai;
   return { model, maxInputTokens, maxOutputTokens, maxConcurrency, deadlineMs, maxJobAgeMs,
-    dailyActorRequests, dailyGlobalRequests, inputUsdPerMillion, outputUsdPerMillion, dailyBudgetUsd };
+    dailyActorRequests, dailyGlobalRequests, inputUsdPerMillion, outputUsdPerMillion, dailyBudgetUsd,
+    ...(ai.executionProfiles ? { executionProfiles: ai.executionProfiles } : {}),
+    ...(ai.legacyExecutionProfiles ? { legacyExecutionProfiles: ai.legacyExecutionProfiles } : {}) };
 }
 function foxyProvider(ai: ApiConfiguration['ai'], options: ApplicationOptions) {
   if (!ai) return null;
@@ -103,6 +106,8 @@ class AppModule implements OnModuleDestroy {
         useFactory: (database: PrismaService, identity: IdentityRuntime, files: FileService, classrooms: ClassroomService) =>
           createFoxyRuntime({ database, fileOperations: createFoxyFileOperations(files), classrooms: { run: classrooms.run, classroom: classrooms.classroom }, storage: { remove: key => infrastructure!.storage.remove(key) }, authenticate: createFoxyAuthentication(identity.configuration.security),
             configuration: foxyConfiguration(configuration.ai), provider: foxyProvider(configuration.ai, options),
+            providerForExecution: configuration.ai && options.ai === undefined && !Object.hasOwn(options.foxy ?? {}, 'textProvider')
+              ? pinned => createGeminiFoxyTextAdapter({ ...configuration.ai!, ...pinned }) : undefined,
             visualConfiguration: configuration.foxyVisual?.configuration, visualProviders: visualProviders(configuration,options),
             visualBudgetLimits: configuration.ai ? { dailyBudgetUsd: configuration.ai.dailyBudgetUsd, dailyActorRequests: configuration.ai.dailyActorRequests, dailyGlobalRequests: configuration.ai.dailyGlobalRequests } : null }) }] : []),
         { provide: 'HomeService', inject: [PrismaService, IdentityRuntime],
@@ -115,6 +120,7 @@ class AppModule implements OnModuleDestroy {
 }
 
 export async function createApplication(configuration: ApiConfiguration, options: ApplicationOptions = {}) {
+  if (configuration.ai && options.ai === undefined) configuration.ai.legacyExecutionProfiles ??= {};
   const infrastructure = configuration.files ? createFileInfrastructure(configuration.files.infrastructure) : undefined;
   let invitationSender: ReturnType<typeof localInvitationSender> | undefined;
   let app: Awaited<ReturnType<typeof NestFactory.create>> | undefined;
@@ -122,6 +128,7 @@ export async function createApplication(configuration: ApiConfiguration, options
     invitationSender = configuration.classrooms
       ? localInvitationSender(configuration.identity.mail.smtpPort, 'no-reply@foxmind.test') : undefined;
     app = await NestFactory.create(AppModule.register(configuration, options, infrastructure, invitationSender), { logger: false, abortOnError: false });
+    if (configuration.ai && options.ai === undefined) await initializeAiExecutionPolicy(app.get(PrismaService), configuration.ai);
     const identity = app.get(IdentityRuntime);
     installIdentityTransport(app, identity);
     installAgendaTransport(app, identity, app.get(AgendaService));

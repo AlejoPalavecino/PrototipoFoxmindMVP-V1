@@ -22,6 +22,7 @@ FoxMind es una plataforma educativa para organizar aulas, planes, materiales, ac
 | Archivos | SDK S3 3.1152.0, almacenamiento compatible con S3, ClamAV | Custodia privada, validación y escaneo |
 | Identidad y correo | Argon2, Nodemailer, Mailpit local | Hash de contraseñas y flujos de correo; Mailpit captura sin enviar a destinatarios reales |
 | IA y recursos | @google/genai 2.31.0, pdf-lib, sharp | Adaptadores de generación, documentos y recursos; capacidades sujetas a configuración/cuotas |
+| Proveedor IA opcional | @anthropic-ai/sdk 1.8.0 | Adaptador Claude seleccionable por perfil de backend; pruebas sintéticas no certifican activación real |
 | Verificación | node:test, Playwright, ESLint y control de límites | Pruebas por grupo, navegador y dependencias entre módulos |
 
 Versiones tomadas del [manifiesto](../../package.json); el [lockfile](../../package-lock.json) fija la resolución. PostgreSQL local está declarado en [Compose](../../compose.yaml). Son datos del proyecto, no una recomendación de actualización ni una validación de soporte externo.
@@ -47,6 +48,10 @@ Se conserva el monolito modular: una aplicación backend compone capacidades esp
 | docs, odd/tasks | Guías actuales, contratos, decisiones, tareas y evidencia atribuida |
 
 Identidad controla sesión y verificación; cada capacidad revalida propiedad y membresía. Files conserva los bytes privados; el puente de adjuntos coordina su relación académica sin trasladar esa autoridad al navegador. Inicio y Agenda usan proyecciones autorizadas; los trabajos IA comparten admisión sin combinar sus políticas de privacidad.
+
+La [base de ejecución IA](ai/README.md#ejecución-con-sdk-oficiales) conecta las seis tareas textuales a contratos/perfiles y SDK oficiales Gemini/Claude en `platform/ai`. Los dominios conservan sus puertos, permisos y reglas; `profile-client.ts` traduce sus solicitudes al ejecutor neutral y Estudio conserva SQL/admisión/presupuesto en un coordinador separado. Gemini es el default; Claude requiere perfil, habilitación y clave explícitos en backend. Los visuales mantienen su configuración específica.
+
+Cada trabajo guarda un snapshot de proveedor/modelo, versiones, límites y tarifas sin secretos. `execution-snapshot.ts` lo valida y resuelve configuración local al trabajo; `execution-policy.ts` inicializa baseline y perfiles activos antes de iniciar workers. Cambiar configuración no reasigna trabajos existentes ni cambia sus precios. La transición exige drenar pendientes legacy antes del primer arranque de la nueva política. [Configuración y transición](ai/README.md#configurar-perfiles-textuales) · [modelo físico](data-model.md#instantánea-de-ejecución-ia).
 
 ## Flujo de una operación
 
@@ -107,7 +112,7 @@ Los visuales de Foxy son opt-in separados (`AI_IMAGE_ENABLED`/`AI_DIAGRAM_ENABLE
 
 PostgreSQL mantiene las relaciones académicas, sesiones, revisiones y colas durables. Los archivos se almacenan de forma privada y se referencian por metadatos/custodia; una carga no se vuelve publicable por haber terminado de transmitir bytes. Las colas conservan estados, deduplicación y propiedad de ejecución; las tablas no ejecutan los trabajos por sí mismas. El host coordina su inicio y drenaje antes de cerrar infraestructura.
 
-Hay cinco familias documentadas de asistencia: extracción de plan, generación de actividades, análisis individual, corrección asistida y [espacio Foxy](ai/foxy.md). Proponer, guardar y publicar son operaciones distintas. La configuración del proveedor permanece en backend; su existencia no prueba que se haya ensayado con un proveedor real.
+Hay seis tareas textuales: extracción de plan, generación de actividades, análisis individual, corrección asistida, [espacio Foxy](ai/foxy.md) y [Estudio](study/README.md). Proponer, guardar y publicar son operaciones distintas. La configuración del proveedor permanece en backend; su existencia no prueba que se haya ensayado con un proveedor real.
 
 El [modelo de datos](data-model.md), las [guías de archivos](files/README.md) y las [guías IA](ai/README.md) detallan relaciones, estados y controles. No aplicar migraciones ni arrancar servicios sobre datos retenidos para comprobar esta documentación.
 

@@ -43,7 +43,8 @@ type Configuration = Parameters<typeof createFoxyTurnQueue>[0]['configuration'] 
 type Provider = Parameters<typeof createFoxyTextWorker>[0]['provider'];
 type Options = { database: SqlDatabase; authenticate: Parameters<typeof createFoxyUnitOfWork>[0]['authenticate'];
   classrooms: ConstructorParameters<typeof FoxyContextCatalogService>[0]; fileOperations: FoxyFileOperations;
-  configuration: Configuration | null; provider: Provider | null; storage: { remove(key: string): Promise<void> };
+  configuration: Configuration | null; provider: Provider | null;
+  providerForExecution?: (configuration: Configuration) => Provider; storage: { remove(key: string): Promise<void> };
   visualConfiguration?: VisualConfiguration | null; visualProviders?: VisualProviders | null; visualBudgetLimits?: VisualBudgetLimits | null };
 function valid(config: Configuration | null, provider: Provider | null): config is Configuration {
   if (!config || !provider || typeof provider.countTokens !== 'function' || typeof provider.generate !== 'function'
@@ -60,6 +61,8 @@ function workerFor(options: Options, configuration: Configuration, provider: Pro
     options.fileOperations.documents(authority.authorizeDocument).read(capability, signal) };
   const budget = createFoxyTextBudget({ configuration });
   return createFoxyTextWorker({ database: options.database, configuration, provider, authority,
+    providerForExecution: options.providerForExecution
+      ? pinned => options.providerForExecution!({ ...configuration, ...pinned }) : undefined,
     queue: createFoxyTurnQueue({ database: options.database, configuration }),
     turns: createFoxyClaimedTurnReader({ database: options.database, maxJobAgeMs: configuration.maxJobAgeMs }),
     loader: createFoxyDurableLoader({ authority, documents, readAttachment: options.fileOperations.attachments?.read }), budget,

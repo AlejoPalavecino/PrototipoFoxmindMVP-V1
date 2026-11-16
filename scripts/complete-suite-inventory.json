@@ -1,9 +1,18 @@
 {
   "entries": [
     "tests/ai-execution-snapshot.test.mjs",
+    "tests/ai-generation-snapshots.test.mjs",
+    "tests/ai-grading-snapshots.test.mjs",
+    "tests/ai-foxy-execution-snapshot.test.mjs",
+    "tests/ai-profile-client.test.mjs",
     "tests/ai-execution-policy-database.test.mjs",
+    "tests/ai-study-profile-database.test.mjs",
+    "tests/ai-study-reservation-database.test.mjs",
     "tests/ai-text-execution.test.mjs",
     "tests/ai-official-transports.test.mjs",
+    "tests/ai-sdk-clients.test.mjs",
+    "tests/study-ai-execution.test.mjs",
+    "tests/ai-foxy-preflight-budget.test.mjs",
     "tests/architecture-host.test.mjs",
     "tests/study-runtime.test.mjs",
     "tests/agenda-client-http.test.mjs",

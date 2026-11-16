@@ -1,6 +1,6 @@
 # Modelo de datos de FoxMind
 
-El modelo físico vive en [schema.prisma](../../prisma/schema.prisma) y las restricciones adicionales en [migrations](../../prisma/migrations/). El candidato `398cc0b` contiene 61 modelos Prisma y 54 migraciones SQL. El conteo se obtiene del repositorio.
+El modelo físico vive en [schema.prisma](../../prisma/schema.prisma) y las restricciones adicionales en [migrations](../../prisma/migrations/). Prisma declara las entidades; SQL agrega checks, índices parciales y triggers que deben revisarse junto con el esquema.
 
 ## Entidades por dominio
 
@@ -21,7 +21,7 @@ Actualización 2026-11-08: migración `202611080001_pending_classroom_deletion` 
 | Participación | StudentActivity, Attempt, Answer, AnswerSelection, AttemptAttachment | Obligación individual, intentos, respuestas y adjuntos por intento |
 | Calificación | AttemptGrade, QuestionGrade, GradeCorrection | Corrección de intento, puntos por pregunta y auditoría de cambios publicados |
 | Comunicación | WallPost, WallReply, Notification | Publicaciones y respuestas por aula; avisos con destinatario y destino autorizado |
-| Procesamiento y uso IA | BackgroundJob, ClassroomCurriculumExtraction, ClassroomAiRequest, AiUsageDaily, ActivityAiGeneration, ActivityAiRequest, StudentAiReport, GradingAiJob | Trabajos, idempotencia, solicitudes, consumo y resultados con alcance propio |
+| Procesamiento y uso IA | BackgroundJob, ClassroomCurriculumExtraction, ClassroomAiRequest, AiUsageDaily, ActivityAiGeneration, ActivityAiRequest, StudentAiReport, GradingAiJob, AiExecutionPolicy | Trabajos, idempotencia, solicitudes, consumo, política técnica y resultados con alcance propio |
 | Foxy: conversación y recursos | FoxyConversation, FoxyConversationRequest, FoxyTurn, FoxyResource, FoxyResourceRequest | Conversación docente privada, turnos y recursos derivados |
 | Adjuntos privados del chat | ChatAttachment | Dueño, conversación, carpeta opcional, digest y estados de carga, revocación y limpieza. La copia estudiantil confirmada comparte bytes con su `StudyFolderUpload` |
 | Foxy: publicación y visuales | FoxyPublication, FoxyPublicationConfirmRequest, FoxyPublicationCommandRequest, FoxyVisualAsset, FoxyPrivateAssetCommand, FoxyVisualJob | Confirmaciones y comandos, publicación, recursos privados y trabajos visuales |
@@ -84,6 +84,18 @@ Los casos de rechazo consultan filas completas después de recuperar el savepoin
 - El límite físico mensual es una ventana menor a ocho años, no un conteo de 53 ocurrencias. La generación de ocurrencias y su máximo pertenecen al dominio; estas pruebas caracterizan los bordes SQL, no todas las variantes de repetición.
 - El CHECK de excepciones sólo valida contenedor y cantidad: no fechas, unicidad, pertenencia a la serie o estructura de cada elemento. Un array mixto y duplicados se aceptan a nivel SQL; no representan un payload válido del servicio.
 - FK y revisión no conceden autorización ni implementan CAS por sí solas. Los casos existentes de servicio verifican persistencia, aislamiento por dueño y conflicto de revisión/color con autenticación sintética; sesiones/CSRF HTTP, upgrade de datos retenidos y el resto del esquema no quedan acreditados aquí. No se modifica ningún invariante ni runtime de base.
+
+## Instantánea de ejecución IA
+
+La [migración aditiva 202611160001](../../prisma/migrations/202611160001_ai_execution_profiles/migration.sql) agrega `execution_profile jsonb` nullable en `classroom_curriculum_extractions`, `activity_ai_generations`, `student_ai_reports`, `grading_ai_jobs`, `foxy_turns` y `study_ai_dispatches`. Los registros históricos conservan NULL; no se inventa un proveedor/modelo original ni se modifica su resultado. La generación visual queda fuera de este contrato textual.
+
+El JSON `ai-execution-v1` guarda tarea, proveedor/modelo, ID/versión de perfil, versiones de prompt/respuesta, límites de entrada/salida/documentos/plazo y tarifas de entrada/salida por millón de tokens. Su contrato tiene campos cerrados, sin claves, prompts, documentos ni respuestas. CHECKs validan estructura y tarea; triggers impiden cambiar el snapshot de un trabajo. Los workers y la contabilidad usan esa identidad, sin resolver nuevamente el perfil activo para un trabajo ya creado.
+
+`AiExecutionPolicy` representa `ai_execution_policy`: una única fila `singleton=true`, `baseline_profiles` inmutable, `active_profiles` validado y `updated_at`. Al crear trabajos con política vigente, el trigger exige snapshot no nulo e idéntico al perfil activo de su tarea. La creación de política y los cambios distintos al baseline se bloquean si `foxmind_ai_legacy_pending()` detecta trabajos NULL en `QUEUED`/`RUNNING` de las seis tablas. No se borra ni reescribe la historia para superar ese control.
+
+Los pendientes legacy deben drenar con el ejecutor y configuración Gemini anteriores **antes del primer arranque de la nueva política**. Una política ya inicializada conserva el baseline para compatibilidad. El fence `application_name=foxmind-api-ai-execution-v1` protege frente a versiones incompatibles; no constituye una frontera de seguridad contra sesiones con permisos SQL. Ver [transición y configuración](local-development/README.md#perfiles-ia-y-transición-de-pendientes).
+
+Estas declaraciones describen código y migración versionados. No acreditan aplicación sobre datos retenidos ni una verificación nueva de PostgreSQL en esta actualización documental.
 
 ## Conservación y eliminación
 

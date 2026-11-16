@@ -1,7 +1,9 @@
 import { createHash } from 'node:crypto';
-import type { Content } from '@google/genai';
+import type { Content, GenerateContentParameters } from '@google/genai';
 import type { AiConfiguration } from '../../../../platform/ai/configuration.ts';
 import type { GeminiClient } from '../../../../platform/ai/gemini-client.ts';
+import { countForExecution } from '../../../../platform/ai/profile-client.ts';
+import { AiError } from '../../../../platform/ai/errors.ts';
 
 type Config = Pick<AiConfiguration, 'model' | 'maxInputTokens' | 'maxOutputTokens' | 'deadlineMs'>;
 export interface GradingAiEvidence {
@@ -104,17 +106,19 @@ function closedOutput(value: unknown): void {
 }
 export class GeminiGradingAiProvider {
   private readonly verified = new WeakMap<Input, string>();
-  constructor(private readonly client: GeminiClient, private readonly config: Config) {}
+  private readonly client: GeminiClient;
+  private readonly config: Config;
+  constructor(client: GeminiClient, config: Config) { this.client = client; this.config = config; }
   async countGradingAiTokens(input: Input): Promise<number> {
     this.verified.delete(input);
     if (input.signal.aborted) throw new Error('AI_UNAVAILABLE');
     const requestContents = contents(input), hash = fingerprint(requestContents);
     let response: Awaited<ReturnType<GeminiClient['models']['countTokens']>>;
     try {
-      response = await this.client.models.countTokens({ model: this.config.model,
+      response = await countForExecution(this.client, { model: this.config.model,
         contents: [{ role: 'user', parts: [{ text: `${instruction}\n${JSON.stringify(schema)}` }] }, ...requestContents],
-        config: { abortSignal: input.signal, httpOptions: { retryOptions: { attempts: 1 } } } });
-    } catch { throw new Error('AI_UNAVAILABLE'); }
+        config: { abortSignal: input.signal, httpOptions: { retryOptions: { attempts: 1 } } } }, this.generationRequest(input));
+    } catch (error) { if (error instanceof AiError) throw error; throw new Error('AI_UNAVAILABLE'); }
     if (input.signal.aborted || !Number.isSafeInteger(response.totalTokens) || response.totalTokens! < 1
       || response.totalTokens! > this.config.maxInputTokens || hash !== fingerprint(contents(input))) throw new Error('AI_INPUT_LIMIT');
     this.verified.set(input, hash); return response.totalTokens!;
@@ -124,12 +128,8 @@ export class GeminiGradingAiProvider {
     if (!verified || input.signal.aborted || verified !== fingerprint(contents(input))) throw new Error('AI_UNAVAILABLE');
     let response: Awaited<ReturnType<GeminiClient['models']['generateContent']>>;
     try {
-      response = await this.client.models.generateContent({ model: this.config.model, contents: contents(input), config: {
-        abortSignal: input.signal, systemInstruction: instruction, responseMimeType: 'application/json', responseJsonSchema: schema,
-        maxOutputTokens: this.config.maxOutputTokens, automaticContinuation: false, candidateCount: 1, temperature: 0,
-        httpOptions: { retryOptions: { attempts: 1 } },
-      } });
-    } catch { throw new Error('PROVIDER_OUTCOME_UNKNOWN'); }
+      response = await this.client.models.generateContent(this.generationRequest(input));
+    } catch (error) { if (error instanceof AiError) throw error; throw new Error('PROVIDER_OUTCOME_UNKNOWN'); }
     if (response.promptFeedback?.blockReason || response.candidates?.length !== 1 || response.candidates[0]?.finishReason !== 'STOP'
       || typeof response.text !== 'string' || Buffer.byteLength(response.text) > 262144) throw new Error('INVALID_AI_OUTPUT');
     let json: unknown;
@@ -138,5 +138,12 @@ export class GeminiGradingAiProvider {
     const thoughts = response.usageMetadata?.thoughtsTokenCount === undefined ? 0 : usage(response.usageMetadata.thoughtsTokenCount);
     return { json, inputTokens: usage(response.usageMetadata?.promptTokenCount),
       outputTokens: output === null || thoughts === null ? null : usage(output + thoughts) };
+  }
+  private generationRequest(input: Input): GenerateContentParameters {
+    return { model: this.config.model, contents: contents(input), config: {
+      abortSignal: input.signal, systemInstruction: instruction, responseMimeType: 'application/json', responseJsonSchema: schema,
+      maxOutputTokens: this.config.maxOutputTokens, automaticContinuation: false, candidateCount: 1, temperature: 0,
+      httpOptions: { retryOptions: { attempts: 1 } },
+    } };
   }
 }
