@@ -1,18 +1,19 @@
 import { useRef, useState } from 'react';
 import type { ChatAttachment } from '../../src/core/contracts/chat-attachments';
 import { AsyncFeedback } from './AsyncFeedback';
-import { Dialog, Notice } from './feedback';
+import { Notice } from './feedback';
 import { FoxmindIcon } from './FoxmindIcon';
+import { FoxyDialog } from './FoxyChatLayout';
 import s from './foxy-chat-layout.module.css';
 
-export function ChatAttachmentButton({ disabled, folderName, onUpload }: {
-  disabled?: boolean; folderName?: string;
+export function ChatAttachmentButton({ disabled, folderName, onUpload, iconOnly = false, label = 'Adjuntar' }: {
+  disabled?: boolean; folderName?: string; iconOnly?: boolean; label?: string;
   onUpload: (id: string, file: File, copy: boolean) => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   return <>
-    <button type="button" className={s.attachButton} disabled={disabled} onClick={() => setOpen(true)}>
-      <FoxmindIcon name="attach"/><span>Adjuntar</span>
+    <button type="button" className={`${s.attachButton} ${iconOnly ? 'parity-ai-quickAttach' : ''}`} aria-label={iconOnly ? 'Agregar un material a la biblioteca' : label} title={iconOnly ? 'Agregar material' : undefined} disabled={disabled} onClick={() => setOpen(true)}>
+      <FoxmindIcon name={label==='Agregar material'?'plus':'attach'}/>{!iconOnly && <span>{label}</span>}
     </button>
     {open && <AttachmentDialog folderName={folderName} onUpload={onUpload} onClose={() => setOpen(false)}/>}
   </>;
@@ -28,8 +29,8 @@ function AttachmentDialog({ folderName, onUpload, onClose }: {
   const id = useRef<string | undefined>(undefined);
   async function upload() {
     if (!file || busy) return;
-    if (!/\.(pdf|docx)$/iu.test(file.name) || file.size < 1 || file.size > 20_000_000) {
-      setError('Elegí un PDF o DOCX de hasta 20 MB.');
+    if (!/\.(pdf|doc|docx|ppt|pptx)$/iu.test(file.name) || file.size < 1 || file.size > 20_000_000) {
+      setError('Elegí un PDF, Word o PowerPoint de hasta 20 MB.');
       return;
     }
     id.current ??= crypto.randomUUID();
@@ -39,18 +40,18 @@ function AttachmentDialog({ folderName, onUpload, onClose }: {
     catch (failure) { setError(failure instanceof Error ? failure.message : 'No pudimos adjuntar el archivo.'); }
     finally { setBusy(false); }
   }
-  return <Dialog labeledClose title="Adjuntar al chat" className={s.dialog} onClose={() => { if (!busy) onClose(); }}>
+  return <FoxyDialog title="Sumá una fuente a tu biblioteca" description={`Se incluye en las próximas consultas ${folderName ? 'de esta carpeta.' : 'de este chat.'}`} className={`${s.dialog} parity-foxy-attachmentDialog`} onClose={() => { if (!busy) onClose(); }}
+    footer={<><button type="button" disabled={busy} onClick={onClose}>Volver a biblioteca</button><button type="button" className="p5-primary" disabled={!file || busy} onClick={() => void upload()}>Agregar material</button></>}>
     <div className={s.attachmentDialog}>
-      <p>Foxy podrá usarlo en las próximas respuestas de esta conversación. El archivo es privado.</p>
       <div className={s.uploadZone}>
-        <FoxmindIcon name="attach"/>
-        <strong>Elegí un documento</strong><small>PDF o DOCX · hasta 20 MB por conversación</small>
+        <FoxmindIcon name="upload"/>
+        <strong>Elegí tu material</strong><small>PDF, Word o PowerPoint · hasta 20 MB</small>
         <label className={s.filePicker}><span>Elegir archivo</span>
-          <input type="file" accept=".pdf,.docx" disabled={busy} onChange={event => {
+          <input type="file" accept=".pdf,.doc,.docx,.ppt,.pptx" disabled={busy} onChange={event => {
             id.current = undefined; setFile(event.target.files?.[0]); setError('');
           }}/>
         </label>
-        {file && <p className={s.fileSelected}>{file.name}</p>}
+        <p className={s.fileSelected}>{file?.name ?? 'Todavía no elegiste un archivo.'}</p>
       </div>
       {folderName && <label className={s.folderChoice}>
         <input type="checkbox" checked={copy} disabled={busy} onChange={event => {
@@ -60,12 +61,9 @@ function AttachmentDialog({ folderName, onUpload, onClose }: {
       </label>}
       {error && <Notice error>{error}</Notice>}
       {busy && <AsyncFeedback compact title="Cargando y comprobando el archivo"/>}
-      <div className={s.dialogActions}>
-        <button type="button" disabled={busy} onClick={onClose}>Cancelar</button>
-        <button type="button" className="p5-primary" disabled={!file || busy} onClick={() => void upload()}>Adjuntar al chat</button>
-      </div>
+      <p className="parity-foxy-privateNote"><FoxmindIcon name="lock"/>Es privado. No se sube a la biblioteca del aula.</p>
     </div>
-  </Dialog>;
+  </FoxyDialog>;
 }
 
 export function ChatAttachmentList({ items, disabled, error, onRemove }: {

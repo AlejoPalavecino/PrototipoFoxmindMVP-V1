@@ -3,7 +3,7 @@
 .fm3d-theme:has(.fm-navbar-private) :is(.p5-app,.profile-main,.fm3d-shell,.fm-home,.fm3d-drawer,dialog) { --fm-font-body:'Brújula',sans-serif; --fm-font-heading:'Brújula',sans-serif; --fm-ink:#252646; --fm-muted:#60667d; font-family:'Brújula',sans-serif; }
 .fm3d-theme:has(.fm-navbar-private) :is(h1,h2,h3,h4) { font-family:'Brújula',sans-serif; font-weight:700; color:#252646; letter-spacing:-.038em; }
 .fm3d-theme .fm-home.fm-home--warm { font-family:'Brújula',sans-serif; }
-.fm3d-theme:has(.fm-navbar-private) :is(button,input,select,textarea,strong,b,label,legend,small,h1,h2,h3,h4,p) { font-family:'Brújula',sans-serif !important; }
+.fm3d-theme:has(.fm-navbar-private) :is(button,input,select,textarea,strong,b,label,legend,small,h1,h2,h3,h4,p) { font-family:var(--fm-font-body) !important; }
 .fm3d-theme .fm-home.fm-home--warm :is(h1,h2,h3,p,time,small,span,button,a) { font-family:inherit; }
 .fm-brujula-home-layout { grid-template-columns:minmax(0,2.32fr) minmax(248px,.97fr); gap:clamp(14px,1.55vw,24px); }
 .fm3d-theme .fm-home.fm-home--warm .fm-home-greeting { min-height:clamp(174px,14.8vw,222px); border-radius:22px; border-color:#f1cfaa; background:#ffe2be; display:flex; align-items:center; }

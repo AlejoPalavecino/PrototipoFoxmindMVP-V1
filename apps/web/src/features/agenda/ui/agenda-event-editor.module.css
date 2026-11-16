@@ -1,0 +1,133 @@
+/* Editor only. The dialog header and actions stay in view while its fields scroll. */
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor:global(.agenda-dialog) {
+  box-sizing: border-box;
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #c8d4df;
+  border-radius: 26px;
+  background: #fff;
+  color: #202c3d;
+  box-shadow: 0 20px 70px #26384b29;
+}
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor:global(.agenda-dialog)[open] { display: flex; flex-direction: column; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor::backdrop { background: #31415a66; backdrop-filter: none; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor:global(.agenda-dialog) > header {
+  position: static;
+  flex: none;
+  margin: 0;
+  padding: 20px 26px 0;
+  background: #fff;
+}
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor:global(.agenda-dialog) > header h2 { color: #202c3d; overflow-wrap: anywhere; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor:global(.agenda-dialog) > header > :global(.p5-close) {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  margin: 0;
+  border: 1px solid #c8d4df;
+  border-radius: 12px;
+  background: #fff;
+  color: #2a4154;
+}
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor:global(.agenda-dialog) > :global(.brujula-dialog-body),
+.content, .content > form, .discardContent {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+.content[hidden] { display: none; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor:global(.agenda-dialog) > :global(.brujula-dialog-body) { overflow: hidden; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.brujula-event-private) {
+  flex: none;
+  margin: 0;
+  padding: 0 26px 17px;
+  border-bottom: 1px solid #d5dfe6;
+  color: #50667a;
+  font-size: 14px;
+  line-height: 1.5;
+}
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-form-body) {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 22px 26px;
+  scroll-padding-block: 14px;
+}
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-fields) { min-width: 0; margin: 0; padding: 0; border: 0; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-form-group) { padding: 0; border: 0; border-radius: 0; background: none; gap: 8px; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-fields [aria-invalid='true']) { border-color: #a42129; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-fields [role='alert']) { margin: 0; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-fields label) { min-width: 0; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-field-optional) { display:inline; color:#53687a; font-size:inherit; font-weight:600; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-occurrence-scope) { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 12px; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-live-card) {
+  color: color-mix(in srgb, var(--agenda-color-accent,#4d667b) 74%, #172636);
+}
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-live-card > p) { margin: 0 0 10px; align-items: flex-start; line-height: 1.6; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-live-card > p svg) { margin-top: 2px; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-live-time) { flex-wrap: wrap; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-live-time) b span { font-weight: 500; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-live-time small) { flex-basis: 100%; margin-left: 23px; font-size: 11px; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-when-flags) { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 4px 10px; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-zone-note) { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 11px; color: #53687b; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-zone-note svg) { flex: none; width: 13px; height: 13px; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-when-flags .agenda-check) { display: flex; flex-direction: row; min-height: 28px; margin: 0; padding: 0; border: 0; background: transparent; color: #293e54; font-size: 12px; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-type-options label) { flex-direction: row; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-color-choices label) { gap: 6px; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-color-swatch) { width: 19px; height: 19px; flex: 0 0 19px; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.p5-form-footer) {
+  position: static;
+  flex: none;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: 0;
+  padding: 16px 26px;
+  border-top: 1px solid #d5dfe6;
+  background: #fff;
+  box-shadow: none;
+}
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.p5-form-footer button) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 9px 15px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.p5-form-footer svg) { flex: none; width: 16px; height: 16px; }
+:global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor.discard:global(.agenda-dialog) { width: min(560px, calc(100vw - 28px)); }
+.summary { display: flex; align-items: flex-start; gap: 13px; margin: 22px 26px; padding: 18px; background: #f0f5fa; border: 1px solid #c7d5e0; border-radius: 14px; overflow: auto; }
+.summary > svg { flex: none; color: #547088; }
+.summary p { min-width: 0; margin: 0; font-size: 15px; line-height: 1.6; overflow-wrap: anywhere; }
+.summary small { display: block; margin-top: 5px; font-size: 12px; color: #536779; }
+
+@media (max-width: 700px) {
+  :global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor:global(.agenda-dialog) { border-radius: 21px; }
+  :global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor:global(.agenda-dialog) > header { padding: 14px 18px 0; }
+  :global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.brujula-event-private) { padding: 0 18px 13px; }
+  :global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-form-body) { padding: 16px 18px; }
+  :global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.p5-form-footer) { padding: 12px 18px; }
+  :global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.p5-form-footer button) { flex: 1 1 0; min-width: 0; padding-inline: 8px; font-size: 12px; }
+  :global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-type-options label) { font-size: 12px; gap: 4px; }
+  :global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-type-options svg) { flex: none; width: 14px; height: 14px; }
+  :global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-live-color) { margin-top: 12px; padding-top: 9px; }
+  :global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-preview-private) { margin-top: 10px; }
+  .summary { margin: 16px 18px; }
+}
+@media (max-width: 360px) {
+  :global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-type-options label) { flex-direction: column; }
+  :global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-color-choices) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 701px) and (max-height: 800px) {
+  :global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor:global(.agenda-dialog) > header { padding-top: 16px; }
+  :global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.brujula-event-private) { padding-bottom: 14px; }
+  :global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-form-body) { padding-block: 16px; }
+  :global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-fields) { gap: 13px; }
+  :global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.agenda-fields textarea) { min-height: 58px; height: 58px; }
+  :global(:is(#agenda-main#agenda-main, #notification-agenda-dialog#notification-agenda-dialog)) .editor :global(.p5-form-footer) { padding-block: 12px; }
+}

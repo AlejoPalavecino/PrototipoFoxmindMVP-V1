@@ -34,6 +34,8 @@ export interface ActivityEligibilityData {
 
 export interface AttemptHistoryRow {
   gradePublished?: boolean;
+  /** Teacher-only persisted review state; never included in student history. */
+  reviewState?: 'pending' | 'saved' | 'published';
   id: string; number: number; status: 'DRAFT' | 'SUBMITTED'; openedAt: string; submittedAt: string | null;
   appliedDeadlineAt: string | null; individualDeadlineAt: string | null; submittedLate: boolean | null;
   studentId: string; firstName: string; lastName: string; currentMember: boolean;
@@ -42,4 +44,6 @@ export interface AttemptHistoryRow {
 export interface AttemptHistoryData {
   activity: ActivitySummary; attempts: AttemptHistoryRow[]; revision?: string; canReopen?: boolean;
   delivered?: boolean; pendingResubmission?: boolean;
+  expectedStudentCount?: number;
+  waitingStudents?: { studentId: string; firstName: string; lastName: string }[];
 }

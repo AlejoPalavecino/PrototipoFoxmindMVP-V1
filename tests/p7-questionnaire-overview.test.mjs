@@ -51,16 +51,19 @@ test('both activity types preserve safe read-only question/option overview befor
   }
 });
 
-test('after explicit start, taking controls appear once without duplicating the pre-start overview', () => {
+test('after explicit start, only the current question appears with navigation and taking controls', () => {
   for (const type of ['QUESTIONNAIRE', 'EVALUATION']) {
     const data = initial(type); data.canStart = false; data.canTransfer = true;
     data.editor = { token: 'a'.repeat(43), epoch: '1' };
     data.attempt = { id: 'attempt', number: 1, status: 'DRAFT', openedAt: data.serverTime, submittedAt: null,
       appliedDeadlineAt: null, submittedLate: null, epoch: '1', revision: '0', answers: [] };
     const html = render(data);
-    assert.equal((html.match(/class="brujula-answer-question"/g) ?? []).length, 3); assert.equal((html.match(/<textarea/g) ?? []).length, 1);
-    assert.match(html, /Revisar entrega/);assert.match(html,/Guardar borrador/);
-    assert.match(html,/Single &amp; first/);assert.match(html,/Multiple first/);
-    assert.doesNotMatch(html, /Navegación de preguntas|>Comenzar<\/button>|correct|scoringRule|EXACT|PARTIAL/);
+    assert.equal((html.match(/aria-label="Pregunta 1"/g) ?? []).length, 1);
+    assert.equal((html.match(/<textarea/g) ?? []).length, 1);
+    assert.match(html, /Revisar entrega/);
+    assert.match(html, /Guardar borrador/);
+    assert.match(html, /aria-label="Preguntas"/);
+    for (const index of [1, 2, 3]) assert.match(html, new RegExp(`aria-label="Pregunta ${index}, sin responder"`));
+    assert.doesNotMatch(html, /Second question|Third question|Single &amp; first|Multiple first|>Comenzar<\/button>|correct|scoringRule|EXACT|PARTIAL/);
   }
 });

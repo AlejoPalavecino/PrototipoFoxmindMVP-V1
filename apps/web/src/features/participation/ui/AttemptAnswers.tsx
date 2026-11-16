@@ -1,9 +1,16 @@
+'use client';
+import { useState } from 'react';
+import { Dialog } from '../../../../../shared-ui/feedback.tsx';
 import type { AttemptSessionData } from '../../../../../../src/core/contracts/participation.ts';
 import type { ClassroomClient } from '../../../../../../src/core/contracts/academic-client.ts';
 
 /** Safe history projection, retained while a submitted result is not yet published. */
-export function AttemptAnswers({ api, data }: { api: ClassroomClient; data: AttemptSessionData }) {
-  return <details className="student-saved-answers"><summary>Ver mis respuestas y archivos</summary>
+export function AttemptAnswers({ api, data, teacher = false }: { api: ClassroomClient; data: AttemptSessionData; teacher?: boolean }) {
+  const [open, setOpen] = useState(false);
+  const title = teacher ? 'Respuestas y archivos' : 'Tu entrega';
+  return <div className="student-saved-answers">
+    <button type="button" aria-haspopup="dialog" onClick={() => setOpen(true)}>{teacher ? 'Ver respuestas y archivos' : 'Ver lo que entregué'}</button>
+    {open ? <Dialog title={title} onClose={() => setOpen(false)}>
     {data.activity.type==='ASSIGNMENT'&&data.attempt?.practicalResponse?<section><h4>Respuesta escrita</h4><p className="p7-multiline">{data.attempt.practicalResponse}</p></section>:null}
     {data.activity.questions.map((question, index) => {
       const answer = data.attempt?.answers.find(item => item.questionId === question.id);
@@ -14,5 +21,6 @@ export function AttemptAnswers({ api, data }: { api: ClassroomClient; data: Atte
     })}
     <ul>{data.attempt?.attachments?.map(file => <li key={file.id}>{file.ready
       ? <a href={api.fileUrl(file.id)} target="_blank" rel="noreferrer">Descargar {file.name}</a> : `${file.name} · No disponible`}</li>)}</ul>
-  </details>;
+    </Dialog> : null}
+  </div>;
 }

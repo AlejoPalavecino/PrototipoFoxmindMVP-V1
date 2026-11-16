@@ -72,11 +72,14 @@ test(
           preview = await service.previewCode(S, code);
           assert.deepEqual(Object.keys(preview.classroom).sort(), [
             'academicYear',
+            'coverKey',
             'division',
             'name',
             'subject',
             'teacher',
           ]);
+          const persisted = await pool.query('SELECT cover_key FROM classrooms WHERE id=$1::uuid', [room]);
+          assert.equal(preview.classroom.coverKey, persisted.rows[0].cover_key);
           await denied(service.detail(S, room), 'FORBIDDEN');
           await denied(
             service.confirmCode(O, preview.confirmation),
@@ -128,7 +131,7 @@ test(
         'student classmates expose names only; other classroom access stays forbidden',
         async () => {
           assert.deepEqual(await service.members(S, room), [
-            { firstName: 'Student', lastName: 'Fixture' },
+            { firstName: 'Student', lastName: 'Fixture', isSelf: true },
           ]);
           await denied(service.members(S, otherRoom), 'FORBIDDEN');
           await denied(service.members(S, room, true), 'FORBIDDEN');

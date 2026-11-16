@@ -1,0 +1,8 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {InvitationService} from '../.build/api/apps/api/src/modules/classrooms/application/invitations.js';
+const id='11111111-1111-4111-8111-111111111111',room='22222222-2222-4222-8222-222222222222';
+function setup(role='student',available=true){const calls=[];const actor={id:'33333333-3333-4333-8333-333333333333',email_normalized:'student@example.test',account_role:role};const repo={readInvitations04:async()=>[{classroom_id:room}],readClassrooms05:async()=>[{teacher_id:'teacher',archived_at:null}],declineInvitation:async(...args)=>{calls.push(args);return available?[{id}]:[];}};return{service:new InvitationService({run:async(req,write,fn)=>fn({},actor),classroom:async()=>{}},{enroll:async()=>assert.fail('Reject must never enroll')},repo,{}),calls,actor};}
+test('only recipient student can decline, with email authority supplied from session',async()=>{const x=setup();assert.deepEqual(await x.service.declineInvitation({},id),{ok:true});assert.deepEqual(x.calls[0].slice(1),[id,room,x.actor.email_normalized,x.actor.id]);});
+test('decline rejects teacher and non-recipient without revealing the invitation',async()=>{await assert.rejects(()=>setup('teacher').service.declineInvitation({},id),/ENROLLMENT_UNAVAILABLE/);await assert.rejects(()=>setup('student',false).service.declineInvitation({},id),/ENROLLMENT_UNAVAILABLE/);});
+test('decline keeps server response idempotent and never enrolls',async()=>{const x=setup();assert.deepEqual(await x.service.declineInvitation({},id),await x.service.declineInvitation({},id));});
+

@@ -2,6 +2,7 @@ import { catalogFilters } from './catalog-input.ts';
 import { randomUUID } from 'node:crypto';
 import { parseCreateFoxyConversation, type CreateFoxyConversation, type FoxyContext } from '../../../../../../src/core/domain/index.ts';
 import type { SqlTransaction } from '../../../../../../src/core/contracts/sql.ts';
+import { carryFoxyAttachments } from './conversation-attachment-carry.ts';
 
 type Row = { id: string; title: string; context_kind: 'GENERAL' | 'CLASSROOM'; classroom_id: string | null; revision: bigint };
 export type FoxyConversation = { id: string; title: string; context: FoxyContext; revision: string };
@@ -60,6 +61,7 @@ export function createFoxyConversationRepository() {
       const id = randomUUID();
       const [row] = await tx.query<Row>(`INSERT INTO foxy_conversations AS c(id,owner_id,title,context_kind,classroom_id)
         VALUES($1::uuid,$2::uuid,$3,$4,$5::uuid) RETURNING ${columns}`, id, owner, request.title, request.context.kind, classroomId);
+      if (request.carryAttachments) await carryFoxyAttachments(tx, owner, id, request.carryAttachments);
       await tx.query(`INSERT INTO foxy_conversation_requests(owner_id,request_id,input_hash,conversation_id)
         VALUES($1::uuid,$2::uuid,$3,$4::uuid)`, owner, request.requestId, hash, id);
       if (!row) throw new RepositoryError('CONFLICT');

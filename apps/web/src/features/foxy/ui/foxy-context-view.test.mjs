@@ -17,14 +17,17 @@ const state={capabilities:{textGeneration:{enabled:true}},conversations:[convers
 function fixture(value=state){const calls=[],controller=Object.fromEntries(['select','send','create','retry','loadMore','loadMoreConversations','selectTopic','selectSource','loadSources','loadCitations'].map(name=>[name,(...args)=>calls.push({name,args})]));
   const {FoxyWorkspace}=componentWithPorts("apps/web/src/features/foxy/ui/foxy-workspace.tsx",{});return {calls,view:hookView(FoxyWorkspace,{controller,state:value,classrooms:[{id:room,name:'Biología'}]})};}
 
-test('classroom shows teaching states, historical plans and unavailable library sources',async()=>{
+test('classroom library separates plan browsing from materials and keeps unavailable sources disabled',async()=>{
   const f=fixture();try{await f.view.flush();
-    descendants(f.view.tree,n=>n.type==='button'&&renderToStaticMarkup(n).includes('0 temas'))[0].props.onClick();
-    await f.view.flush();const html=renderToStaticMarkup(f.view.tree);
-    for(const text of ['Fotosíntesis','Energía','Futuro','Plan versión 1','Libro pendiente'])assert.ok(html.includes(text),text);
-    assert.match(html,/tratado|enseñado/iu);assert.match(html,/próximo/iu);assert.match(html,/pendiente/iu);
-    const inputs=descendants(f.view.tree,n=>n.type==='input'&&n.props.type==='checkbox');assert.ok(inputs.length>=3);
-    assert.ok(inputs.some(n=>n.props.disabled),'unavailable source cannot be selected');
+    descendants(f.view.tree,n=>n.type==='button'&&n.props['aria-label']==='Biblioteca')[0].props.onClick();await f.view.flush();
+    const panel=descendants(f.view.tree,n=>n.type?.name==='FoxyLibraryPanel')[0];
+    assert.equal(panel.props.units[0].topics[0].name,'Fotosíntesis');assert.equal(panel.props.sources[0].title,'Libro pendiente');assert.equal(panel.props.sources[0].available,false);
+    const library=hookView(panel.type,panel.props);try{await library.flush();
+      assert.ok(descendants(library.tree,n=>n.type==='button'&&n.props.disabled&&renderToStaticMarkup(n).includes('Libro pendiente')).length);
+      descendants(library.tree,n=>n.type==='button'&&n.props.children[0]==='Plan de estudio')[0].props.onClick();await library.flush();
+      const html=renderToStaticMarkup(library.tree);for(const text of ['Fotosíntesis','Energía','Futuro'])assert.ok(html.includes(text),text);
+      assert.equal(descendants(library.tree,n=>n.type==='input'&&n.props.type==='checkbox').length,0);
+    }finally{library.close();}
   }finally{f.view.close();}
 });
 
@@ -34,7 +37,10 @@ test('ready citations render only safe local links for available files',async()=
     citations:{[tid]:[{id:'c1',sourceTitle:'Plan',sourceKind:'PLAN',documentTitle:'plan.pdf',page:1,availability:'AVAILABLE',href},
       {id:'c2',sourceTitle:'Texto',sourceKind:'ACTIVITY',documentTitle:null,page:null,availability:'TEXT_ONLY',href:null},
       {id:'c3',sourceTitle:'Retirado',sourceKind:'MATERIAL',documentTitle:null,page:null,availability:'UNAVAILABLE',href:null}]}};
-  const f=fixture(value);try{await f.view.flush();const html=renderToStaticMarkup(f.view.tree);
+  const f=fixture(value);try{await f.view.flush();
+    assert.equal(descendants(f.view.tree,n=>n.type==='a').length,0);
+    descendants(f.view.tree,n=>n.type==='button'&&n.props.className==='parity-foxy-sourceNote')[0].props.onClick();await f.view.flush();
+    assert.ok(f.calls.some(call=>call.name==='loadCitations'&&call.args[0]===tid));const html=renderToStaticMarkup(f.view.tree);
     assert.ok(html.includes('plan.pdf'));assert.ok(html.includes('Texto'));assert.ok(html.includes('Retirado'));assert.ok(html.includes(href.replaceAll('&','&amp;')));
     assert.doesNotMatch(html,/<script>/iu);assert.match(html,/&lt;script/iu);
     assert.equal((html.match(/\/citations\/c\d+\/file/gu)??[]).length,1);

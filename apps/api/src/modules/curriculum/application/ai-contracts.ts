@@ -1,3 +1,4 @@
+import type { DocumentExtension } from '../../../../../../src/core/domain/documents/document-formats.ts';
 import type { SqlDatabase } from '../../../../../../src/core/contracts/sql.ts';
 import type { Transaction } from '../../classrooms/public.ts';
 import type { ApprovedPlanReader, StructuredExtractionPort, ExtractionView, ExtractedCurriculum } from '../../../../../../src/core/domain/index.ts';
@@ -7,7 +8,7 @@ export interface ClassroomAiConfiguration {
  maxInputTokens: number; maxOutputTokens: number; inputUsdPerMillion: number; outputUsdPerMillion: number;
  dailyBudgetUsd: number; dailyActorRequests: number; dailyGlobalRequests: number;
 }
-export interface ApprovedPlanSnapshot { fileId: string; digest: string; extension: 'pdf' | 'docx'; sizeBytes: number }
+export interface ApprovedPlanSnapshot { fileId: string; digest: string; extension: DocumentExtension; sizeBytes: number }
 export interface AiPlanSource extends ApprovedPlanReader {
   snapshot(tx: Transaction, request: unknown, draftId: string, fileId: string): Promise<ApprovedPlanSnapshot>;
   snapshotWorker?(tx: Transaction, input: PlanGrant, signal: AbortSignal): Promise<ApprovedPlanSnapshot>;

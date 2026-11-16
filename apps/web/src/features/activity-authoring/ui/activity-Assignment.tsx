@@ -1,26 +1,65 @@
 'use client';
+import { useState } from 'react';
 import type { Detail } from '../../../../../../src/core/contracts/classrooms.ts';
-import type { ClassroomCreationContext } from '../../../../../../src/core/contracts/academic-context.ts';
-import type {ReactNode} from 'react';
+import { FoxmindIcon } from '../../../../../shared-ui/index.ts';
+import { selectedActivityTopics, type ActivityScope } from '../model/activity-scope.ts';
+import styles from './ActivityAuthoring.module.css';
 
-/** Curriculum selection is local UI state; choosing a topic never creates or saves an activity. */
-export function ActivityAssignment({ room, value, update, disabled = false,compact=false,typeControl }: {
-  room: Detail; value: ClassroomCreationContext; update: (value: ClassroomCreationContext) => void; disabled?: boolean;
-  compact?:boolean;typeControl?:ReactNode;
+export function ActivityAssignment({ room, value, update, disabled = false }: {
+  room: Detail; value: ActivityScope; update: (value: ActivityScope) => void; disabled?: boolean;
 }) {
-  const topics = room.units.find(unit => unit.id === value.unitId)?.topics ?? [];
-  if(compact)return <div className="brujula-assignment-compact"><div className="brujula-location-fields"><label>Unidad<select aria-label="Unidad de la actividad" value={value.unitId} disabled={disabled} onChange={event=>update({unitId:event.target.value,topicIds:[]})}><option value="">Elegí una unidad</option>{room.units.map(unit=><option key={unit.id} value={unit.id}>{unit.name}</option>)}</select></label>{typeControl}</div><fieldset disabled={disabled||!value.unitId} className="brujula-location-topics"><legend>Temas del plan</legend><div className="activity-topic-chips">{topics.map(topic=><label className={value.topicIds.includes(topic.id!)?'is-selected':''} key={topic.id}><input type="checkbox" checked={value.topicIds.includes(topic.id!)} onChange={event=>update({...value,topicIds:event.target.checked?[...value.topicIds,topic.id!]:value.topicIds.filter(id=>id!==topic.id)})}/>{topic.name}</label>)}</div>{!topics.length?<small>Elegí una unidad para ver sus temas.</small>:null}</fieldset></div>;
-  return <fieldset className="activity-assignment" disabled={disabled}>
-    <legend>¿Dónde va esta actividad?</legend>
-    <p>La unidad y los temas se asociarán al guardar el borrador. Podés cambiarlos.</p>
-    <div className="activity-assignment-controls"><label>Unidad de la actividad<select aria-label="Unidad de la actividad" value={value.unitId}
-      onChange={event => update({ unitId: event.target.value, topicIds: [] })}>
-      <option value="">Elegí una unidad</option>{room.units.map(unit => <option key={unit.id} value={unit.id}>{unit.name}</option>)}</select></label>
-      <fieldset disabled={!value.unitId}><legend>Temas de esta unidad · elegí uno o más</legend><div className="activity-topic-chips">
-        {topics.map(topic => <label className={value.topicIds.includes(topic.id!) ? 'is-selected' : ''} key={topic.id}>
-          <input type="checkbox" checked={value.topicIds.includes(topic.id!)} onChange={event => update({ ...value,
-            topicIds: event.target.checked ? [...value.topicIds, topic.id!] : value.topicIds.filter(id => id !== topic.id) })} />{topic.name}</label>)}
-      </div>{!topics.length ? <p>Elegí una unidad para ver sus temas.</p> : null}</fieldset></div>
-    {!value.topicIds.length ? <small>Elegí al menos un tema antes de publicar.</small> : <small>{value.topicIds.length} {value.topicIds.length === 1 ? 'tema seleccionado' : 'temas seleccionados'}</small>}
+  const [mode, setMode] = useState<'topics' | 'units'>(value.unitIds.length ? 'units' : 'topics');
+  const groups = selectedActivityTopics(room.units, value);
+  const selected = groups.flatMap(unit => unit.topics);
+  const toggle = (ids: string[], id: string) => ids.includes(id) ? ids.filter(current => current !== id) : [...ids, id];
+  return <fieldset className={`${styles.scope} parity-compose-scope`} disabled={disabled} aria-label="Alcance de la actividad">
+    <h3>¿Qué va a trabajar tu grupo?</h3>
+    <div className={`${styles.scopeToggle} parity-compose-toggle`} role="group" aria-label="Modo de selección">
+      <button type="button" aria-pressed={mode === 'topics'} onClick={() => setMode('topics')}>Temas</button>
+      <button type="button" aria-pressed={mode === 'units'} onClick={() => setMode('units')}>Unidades completas</button>
+    </div>
+    <p className={`${styles.scopeSummary} parity-compose-summary`} role="status"><FoxmindIcon name="list-checks"/>
+      {selected.length ? `${selected.length} ${selected.length === 1 ? 'tema' : 'temas'} en ${groups.length} ${groups.length === 1 ? 'unidad' : 'unidades'}` : 'Elegí qué querés trabajar'}
+    </p>
+    <div className={styles.unitList}>{room.units.map(unit => {
+      const unitId = unit.id;
+      if (!unitId) return null;
+      const topics = unit.topics.filter(topic => !!topic.id);
+      const whole = value.unitIds.includes(unitId);
+      return <fieldset className={styles.scopeUnit} key={unitId}>
+        <legend>{unit.name}</legend>
+        {mode === 'units' ? <label className={`${styles.scopeOption} parity-compose-option`}><input type="checkbox" checked={whole} disabled={!topics.length}
+          onChange={() => update({ ...value, unitIds: toggle(value.unitIds, unitId) })} />
+          <span>Unidad completa <small>{topics.length} {topics.length === 1 ? 'tema' : 'temas'}</small></span>
+        </label> : <div className={styles.topicOptions}>{topics.map(topic => <label className={`${styles.scopeOption} parity-compose-option`} key={topic.id}>
+          <input type="checkbox" checked={whole || value.topicIds.includes(topic.id!)} disabled={whole}
+            onChange={() => update({ ...value, topicIds: toggle(value.topicIds, topic.id!) })} />{topic.name}
+        </label>)}</div>}
+        {!topics.length ? <p>Sin temas en el plan.</p> : null}
+        {mode === 'topics' && whole ? <small>Unidad completa seleccionada. Podés cambiarla en «Unidades completas».</small> : null}
+      </fieldset>;
+    })}</div>
+
+  </fieldset>;
+}
+
+const activityTypes = [
+  { id: 'ASSIGNMENT', label: 'Trabajo práctico', summary: 'Una consigna con respuesta o archivos.', icon: 'file' },
+  { id: 'QUESTIONNAIRE', label: 'Cuestionario', summary: 'Preguntas para practicar y repasar.', icon: 'list-checks' },
+  { id: 'EVALUATION', label: 'Evaluación', summary: 'Preguntas con puntaje y devolución.', icon: 'clipboard' },
+] as const;
+
+export type AuthoringType = (typeof activityTypes)[number]['id'];
+
+export function ActivityTypeChoice({ value, update, disabled }: {
+  value: AuthoringType | ''; update: (value: AuthoringType) => void; disabled?: boolean;
+}) {
+  return <fieldset className={`${styles.typeCard} parity-compose-type`} disabled={disabled}>
+    <legend>Tipo de actividad</legend>
+    {activityTypes.map(type => <label key={type.id} className={`${styles.typeChoice} parity-compose-choice`}>
+      <input type="radio" name="activity-authoring-type" value={type.id} checked={value === type.id} onChange={() => update(type.id)}/>
+      <span className={styles.typeIcon}><FoxmindIcon name={type.icon}/></span>
+      <span><strong>{type.label}</strong><small>{type.summary}</small></span>
+    </label>)}
   </fieldset>;
 }

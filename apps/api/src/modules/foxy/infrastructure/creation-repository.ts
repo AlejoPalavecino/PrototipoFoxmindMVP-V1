@@ -19,7 +19,7 @@ const sql = `WITH visible_conversations AS (
  WHERE t.state='READY' AND t.purpose IN ('STUDY_MATERIAL','REVIEW','LESSON_PLAN','ACTIVITY_IDEAS','RUBRIC')
    AND t.answer->'missingInformation'='[]'::jsonb
  UNION ALL
- SELECT j.id,j.kind,a.title,c.context_kind,c.classroom_id,c.id,NULL::uuid,j.id,a.id,j.created_at,NULL::uuid
+ SELECT j.id,j.kind,COALESCE(a.editorial_title,a.title),c.context_kind,c.classroom_id,c.id,NULL::uuid,j.id,a.id,j.created_at,NULL::uuid
  FROM visible_conversations c JOIN foxy_visual_jobs j ON j.conversation_id=c.id AND j.owner_id=$1::uuid
  JOIN foxy_visual_assets a ON a.id=j.asset_id AND a.owner_id=$1::uuid AND a.conversation_id=c.id
  WHERE j.state='READY' AND a.state='READY' AND a.blob_deleted_at IS NULL

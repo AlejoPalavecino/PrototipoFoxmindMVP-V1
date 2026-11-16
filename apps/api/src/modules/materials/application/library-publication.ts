@@ -20,9 +20,10 @@ export function createMaterialPublisher(deps: ClassroomFileOperations, repositor
   const readyFile = deps.readyClassroomFile.bind(deps);
   return { async publish(tx: Transaction, request: unknown, actorId: string, input: MaterialPublicationInput) {
     if (!input) return fail('INVALID_INPUT');
-    input = { classroomId: input.classroomId, revision: input.revision, title: input.title, fileId: input.fileId, unitId: input.unitId, topicId: input.topicId };
+    input = { classroomId: input.classroomId, revision: input.revision, title: input.title, ...(input.body === undefined ? {} : { body: input.body }), fileId: input.fileId, unitId: input.unitId, topicId: input.topicId };
     if (!uuid(actorId) || !uuid(input.classroomId) || !uuid(input.fileId)) return fail('INVALID_INPUT');
     const expected = revision(input.revision), title = text(input.title, 200);
+    if (input.body !== undefined && (typeof input.body !== 'string' || [...input.body].length > 20000 || /[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/u.test(input.body))) return fail('INVALID_INPUT');
     const classroom = await repository.classroom(tx,input.classroomId,actorId);
     if (!classroom) return fail('FORBIDDEN');
     if (String(classroom.revision) !== expected || BigInt(expected) === 9223372036854775807n) return fail('CONFLICT');

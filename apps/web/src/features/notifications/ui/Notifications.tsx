@@ -1,27 +1,37 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ClassroomClient } from '../../../../../../src/core/contracts/academic-client.ts';
-import type { ClassroomNotification, NotificationTarget, NotificationPage } from '../../../../../../src/core/contracts/notifications.ts';
-import { Dialog, Notice } from '../../../../../shared-ui/feedback.tsx';
+import type { InboxNotification, InboxNotificationTarget, NotificationKind, NotificationTarget, NotificationPage } from '../../../../../../src/core/contracts/notifications.ts';
 import { FoxmindIcon } from '../../../../../shared-ui/FoxmindIcon';
-import { useStudyReminders, StudyReminderList } from './study-reminders.tsx';
+import { notificationDestination } from '../model/notification-destinations.ts';
+import { NotificationCenter } from './NotificationCenter.tsx';
 
-const labels = { WALL_NOTICE: 'Nuevo aviso del docente', WALL_QUERY: 'Nueva consulta de estudiante', WALL_REPLY: 'Respuesta a tu publicación',
-  ACTIVITY_PUBLISHED: 'Nueva actividad publicada', ACTIVITY_DEADLINE_CHANGED: 'Cambio de plazo o recepción',
-  FIRST_SUBMISSION_ENABLED: 'Primera entrega habilitada', ATTEMPT_REOPENED: 'Nuevo intento habilitado', SUBMISSION_RECEIVED: 'Nueva entrega recibida', GRADE_PUBLISHED: 'Calificación publicada', GRADE_CORRECTED: 'Calificación corregida' };
+const notificationCountEvent = 'foxmind:notification-count';
+const refreshError = 'El cambio quedó guardado. No pudimos actualizar la bandeja.';
+
 type Operation = { generation: number; controller: AbortController };
+type ProjectedReview = Extract<InboxNotificationTarget, { kind: 'event' | 'invitation' }>;
 type Destination = { onOpen: (target: NotificationTarget) => void; onSelect?: never }
   | { onSelect: (notificationId: string) => void; onOpen?: never };
-const groups={all:'Todos los tipos',deliveries:'Entregas',talk:'Muro',work:'Actividades',grades:'Resultados',dates:'Fechas e intentos'};
-function notificationGroup(type:ClassroomNotification['eventType']):keyof typeof groups{return type.startsWith('WALL_')?'talk':type.startsWith('GRADE_')?'grades':type==='SUBMISSION_RECEIVED'?'deliveries':type==='ACTIVITY_PUBLISHED'?'work':'dates';}
-function notificationTitle(item:ClassroomNotification){return item.actorName&&item.eventType==='SUBMISSION_RECEIVED'?`Entrega de ${item.actorName}`:item.actorName&&item.eventType==='WALL_QUERY'?`Consulta de ${item.actorName}`:item.actorName&&item.eventType==='WALL_REPLY'?`Respuesta de ${item.actorName}`:labels[item.eventType];}
-export function Notifications({ api, refresh, onOpen, onSelect,presentation='preview',includeStudyReminders=false }: { api: ClassroomClient; refresh: number;presentation?:'preview'|'center';includeStudyReminders?:boolean } & Destination) {
-  const reminders=useStudyReminders(includeStudyReminders);
-  const [items, setItems] = useState<ClassroomNotification[] | null>(null), [open, setOpen] = useState(false);
-  const [error, setError] = useState(''), [busy, setBusy] = useState(false);
-  const [onlyUnread, setOnlyUnread] = useState(false), [nextCursor, setNextCursor] = useState<string | null>(null), [unread, setUnread] = useState(0);
-  const [group,setGroup]=useState<keyof typeof groups>('all');
+type Props = { api: ClassroomClient; refresh: number; presentation?: 'preview' | 'center';
+  role?: 'student' | 'teacher'; onNavigate?: (href: string) => void;
+  onReviewProjected?: (target: ProjectedReview, trigger?: HTMLElement) => void } & Destination;
+
+export function Notifications({ api, refresh, onNavigate, onReviewProjected, presentation = 'preview', role = 'student' }: Props) {
+  const [items, setItems] = useState<InboxNotification[] | null>(null);
+  const [error, setError] = useState(''), [busy, setBusy] = useState(false), [status, setStatus] = useState('');
+  const [writing, setWriting] = useState(false), [unavailable, setUnavailable] = useState(false), [hasCounts, setHasCounts] = useState(false);
+  const [focusBack, setFocusBack] = useState<{ trigger?: HTMLElement }>();
+  const unavailableOrigin = useRef<HTMLElement | undefined>(undefined);
+  const lock = useRef(false), depth = useRef(1);
+  const [filter, setFilter] = useState<{ unread: boolean; kind: NotificationKind }>({ unread: false, kind: 'all' });
+  const [nextCursor, setNextCursor] = useState<string | null>(null), [unread, setUnread] = useState(0), [total, setTotal] = useState(0);
   const state = useRef<{ generation: number; controller: AbortController | null; mounted: boolean }>({ generation: 0, controller: null, mounted: true });
+
+  const publishCount = useCallback((value: number) => {
+    setUnread(value);
+    if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent(notificationCountEvent, { detail: value }));
+  }, []);
   const start = useCallback((): Operation => {
     state.current.controller?.abort();
     const controller = new AbortController(), generation = ++state.current.generation;
@@ -29,74 +39,148 @@ export function Notifications({ api, refresh, onOpen, onSelect,presentation='pre
     return { generation, controller };
   }, []);
   const current = useCallback((op: Operation) => state.current.mounted && state.current.generation === op.generation && !op.controller.signal.aborted, []);
-  const load = useCallback(async (op: Operation) => {
-    const page = await api.call<NotificationPage>(`/notifications/page?unread=${onlyUnread}`, 'GET', undefined, op.controller.signal);
-    if (!current(op)) return;
-    setItems(page.items); setNextCursor(page.nextCursor); setUnread(page.unreadCount);
-  }, [api, onlyUnread, current]);
+  const load = useCallback(async (op: Operation, append?: string) => {
+    const batch: InboxNotification[] = [], visited = new Set<string>();
+    let cursor: string | null = append ?? null, page: NotificationPage | undefined, count = 0;
+    // Revalidate as many pages as the reader already opened, with fresh cursors for this filter.
+    do {
+      if (cursor) visited.add(cursor);
+      const params = new URLSearchParams({ unread: String(filter.unread) });
+      if (filter.kind !== 'all') params.set('kind', filter.kind);
+      if (cursor) params.set('cursor', cursor);
+      page = await api.call<NotificationPage>(`/notifications/page?${params}`, 'GET', undefined, op.controller.signal);
+      if (!current(op)) return;
+      batch.push(...page.items);
+      count++;
+      cursor = page.nextCursor;
+      if (cursor && visited.has(cursor)) throw Error('No pudimos cargar toda la bandeja.');
+    } while (cursor && !append && count < depth.current);
+    setItems(previous => {
+      if (!current(op)) return previous;
+      const accumulated = append ? [...(previous ?? []), ...batch] : batch;
+      return [...new Map(accumulated.map(item => [item.id, item])).values()];
+    });
+    depth.current = append ? depth.current + count : count;
+    setNextCursor(cursor);
+    setHasCounts(true); setTotal(page.totalCount ?? batch.length);
+    publishCount(page.unreadCount);
+  }, [api, filter, current, publishCount]);
+
   useEffect(() => {
     state.current.mounted = true;
     return () => { state.current.mounted = false; state.current.generation++; state.current.controller?.abort(); };
   }, []);
   useEffect(() => {
-    const op = start(); setBusy(false);
-    void load(op).catch(e => { if (current(op)) setError(e.message); });
+    if (typeof window === 'undefined') return;
+    const update = (event: Event) => setUnread((event as CustomEvent<number>).detail);
+    window.addEventListener(notificationCountEvent, update);
+    return () => window.removeEventListener(notificationCountEvent, update);
+  }, []);
+  useEffect(() => {
+    const op = start(); setBusy(false); setWriting(false);
+    void load(op).catch((failure: Error) => { if (current(op)) setError(failure.message); });
     return () => { if (current(op)) op.controller.abort(); };
   }, [load, refresh, start, current]);
-  async function run(work: (op: Operation) => Promise<void>) {
-    const op = start(); setBusy(true); setError('');
-    try { await work(op); } catch (e) { if (current(op)) setError((e as Error).message); }
-    finally { if (current(op)) setBusy(false); }
+  useEffect(() => {
+    if (busy || unavailable || !focusBack) return;
+    setFocusBack(undefined);
+    if (typeof document === 'undefined') return;
+    if (focusBack.trigger?.isConnected) focusBack.trigger.focus({ preventScroll: true });
+    else document.querySelector<HTMLButtonElement>('.nt-reading-filters button[aria-pressed=true]')?.focus();
+  }, [busy, unavailable, focusBack]);
+  useEffect(() => {
+    if (!status || typeof window === 'undefined') return;
+    const timer = window.setTimeout(() => setStatus(''), 4300);
+    return () => window.clearTimeout(timer);
+  }, [status]);
+
+  async function run(work: (op: Operation) => Promise<void>, options?: { notice?: InboxNotification; write?: boolean; open?: boolean; trigger?: HTMLElement }) {
+    if (lock.current) return;
+    const op = start(); setBusy(true); setError(''); setStatus('');
+    if (options?.write) { lock.current = true; setWriting(true); }
+    try { await work(op); }
+    catch (failure) {
+      if (!current(op)) return;
+      if ((failure as { code?: string } | null)?.code === 'FORBIDDEN') {
+        const notice = options?.notice;
+        if (notice && items?.some(item => item.id === notice.id)) {
+          setItems(previous => previous?.filter(item => item.id !== notice.id) ?? null);
+          setTotal(value => Math.max(0, value - 1));
+          if (!notice.readAt) publishCount(Math.max(0, unread - 1));
+        }
+        if (options?.open && presentation === 'center') {
+          unavailableOrigin.current = options.trigger;
+          setUnavailable(true);
+        } else {
+          setError('Este contenido ya no está disponible. Podés seguir revisando tus otras notificaciones.');
+          if (options?.write) setFocusBack({ trigger: options.trigger });
+        }
+        await load(op).catch(() => {});
+      } else {
+        setError(failure instanceof Error ? failure.message : 'No pudimos completar la acción. Volvé a intentar.');
+        if (options?.write) setFocusBack({ trigger: options.trigger });
+      }
+    } finally {
+      if (options?.write) lock.current = false;
+      if (current(op)) { setBusy(false); setWriting(false); }
+    }
   }
-  function filter(unreadOnly: boolean) {
-    if (unreadOnly === onlyUnread) return;
-    start().controller.abort(); setBusy(false); setError(''); setItems(null); setNextCursor(null); setOnlyUnread(unreadOnly);
+  function changeFilter(read: boolean, kind: NotificationKind) {
+    if (lock.current || read === filter.unread && kind === filter.kind) return;
+    start().controller.abort();
+    depth.current = 1;
+    setError(''); setStatus(''); setItems(null); setNextCursor(null);
+    setFilter({ unread: read, kind });
   }
-  async function loadMore(op: Operation) {
-    if (!nextCursor) return;
-    const page = await api.call<NotificationPage>(`/notifications/page?unread=${onlyUnread}&cursor=${encodeURIComponent(nextCursor)}`, 'GET', undefined, op.controller.signal);
+  function reflectRead(item: InboxNotification, read: boolean) {
+    if (Boolean(item.readAt) === read) return;
+    const readAt = read ? new Date().toISOString() : null;
+    setItems(previous => filter.unread && read ? previous?.filter(row => row.id !== item.id) ?? null
+      : previous?.map(row => row.id === item.id ? { ...row, readAt } : row) ?? null);
+    publishCount(Math.max(0, unread + (read ? -1 : 1)));
+  }
+  const restoreList = (op: Operation) => load(op).catch(() => { if (current(op)) setError(refreshError); });
+  const noticeAction = (item: InboxNotification, action: 'read' | 'unread' | 'open') => `/notifications/${encodeURIComponent(item.id)}/${action}`;
+  const openItem = (item: InboxNotification, trigger?: HTMLElement) => void run(async op => {
+    const target = await api.call<InboxNotificationTarget>(noticeAction(item, 'open'), 'POST', {}, op.controller.signal);
     if (!current(op)) return;
-    setItems(previous => current(op) ? [...(previous ?? []), ...page.items.filter(item => !previous?.some(existing => existing.id === item.id))] : previous);
-    setNextCursor(page.nextCursor); setUnread(page.unreadCount);
-  }
-  async function markAll(op:Operation){
-    await api.call('/notifications/read-all','POST',{},op.controller.signal);
-    if(current(op))await load(op);
-  }
-  const filtered=items?.filter(item=>group==='all'||notificationGroup(item.eventType)===group);
-  const visible = presentation==='preview'?filtered?.slice(0,3):filtered;
-  const totalUnread=unread+reminders.data.unreadCount;
-  const content=<>
-      {includeStudyReminders?<StudyReminderList reminders={reminders} onlyUnread={onlyUnread}/>:null}
-      <div className={`notifications-summary${presentation==='center'?' sr-only':''}`}><span className="notifications-total">{error || !items ? 'Tus notificaciones' : totalUnread ? `${totalUnread} ${totalUnread === 1 ? 'novedad sin leer' : 'novedades sin leer'}` : 'Estás al día'}</span><p>{includeStudyReminders?'Avisos de tus aulas y repasos privados.':'Avisos y actividad de tus aulas.'}</p></div>
-      {error ? <Notice error>{error} El acceso puede haber cambiado; actualiza las notificaciones.</Notice> : null}
-      <div className="notifications-toolbar"><div className="notification-filters" role="group" aria-label="Filtrar notificaciones"><button aria-pressed={!onlyUnread} onClick={() => filter(false)}>Todas</button>
-        <button aria-pressed={onlyUnread} onClick={() => filter(true)}>Sin leer <span>{totalUnread}</span></button></div>
-        {presentation==='preview'||error?<button className="notifications-refresh" aria-label="Actualizar notificaciones" disabled={busy} onClick={() => void run(load)}><FoxmindIcon name="refresh" />Actualizar</button>:null}</div>
-      {presentation==='center'?<><div className="notification-types" role="group" aria-label="Tipo de notificación">{Object.entries(groups).filter(([key])=>key==='all'||items?.some(item=>notificationGroup(item.eventType)===key)).map(([key,label])=><button key={key} aria-pressed={group===key} onClick={()=>setGroup(key as keyof typeof groups)}>{label}</button>)}</div>{unread>0?<button className="notification-mark-all" disabled={busy} onClick={()=>void run(markAll)}>Marcar todas como leídas</button>:null}</>:null}
-      {!items && !error ? <Notice>Cargando notificaciones…</Notice> : null}
-      {visible?.length === 0 ? <p className="p5-empty">{onlyUnread ? 'No tenés novedades pendientes de leer.' : 'Cuando haya novedades en tus aulas, aparecerán aquí.'}</p> : null}
-      <ul className="p6-notifications" aria-label="Novedades de tus aulas" aria-busy={busy}>{visible?.map(item => <li key={item.id} data-notification-group={notificationGroup(item.eventType)} className={item.readAt ? '' : 'unread'}>
-        <div className="notification-heading"><FoxmindIcon name={item.eventType.startsWith('WALL_') ? 'chat' : item.eventType.startsWith('GRADE_') ? 'check' : 'clipboard'} /><h3>{notificationTitle(item)}</h3>{notificationTitle(item)!==labels[item.eventType]?<span className="sr-only">{labels[item.eventType]}</span>:null}<span className={`notification-state${item.readAt ? ' is-read' : ''}`}>{item.readAt ? 'Leída' : 'Sin leer'}</span></div>
-        <p className="notification-classroom">{item.classroomName}{item.classroomDivision?` · ${item.classroomDivision}`:''}</p>
-        {'activityTitle' in item ? <p className="notification-activity">{item.activityTitle}</p> : item.message?<p className="notification-activity">{item.message}</p>:null}
-        <time className="notification-time" dateTime={item.createdAt}>{new Date(item.createdAt).toLocaleString('es-AR', { hourCycle: 'h23', dateStyle: 'medium', timeStyle: 'short' })}</time>
-        <div className="p5-actions notification-actions"><button className="notification-open" disabled={busy} onClick={() => void run(async op => {
-          if (onSelect) { if (current(op)) { setOpen(false); onSelect(item.id); } return; }
-          const target = await api.call<NotificationTarget>(`/notifications/${item.id}/open`, 'POST', {}, op.controller.signal);
-          if (!current(op)) return;
-          await load(op); if (current(op)) { setOpen(false); onOpen(target); }
-        })}>{item.eventType.startsWith('WALL_') ? 'Abrir conversación' : item.eventType.startsWith('GRADE_') ? 'Ver devolución' : 'Ver actividad'}</button>
-        {!item.readAt ? <button className="notification-read" disabled={busy} onClick={() => void run(async op => {
-          await api.call(`/notifications/${item.id}/read`, 'POST', {}, op.controller.signal); if (current(op)) await load(op);
-        })}><span className="sr-only">Marcar como leída</span><FoxmindIcon name="check"/></button> : null}</div>
-      </li>)}</ul>
-      {nextCursor && presentation==='center' ? <button disabled={busy} onClick={() => void run(loadMore)}>Cargar más notificaciones</button> : null}
-      {presentation==='preview'?<a className="p5-primary" href="/notificaciones">Ver todas las notificaciones <FoxmindIcon name="arrow-right"/></a>:null}
-    </>;
-  if(presentation==='center')return <section className="entry-notifications fm-brujula-inbox" aria-label="Centro de notificaciones">{content}</section>;
-  return <><button className="p6-notifications-toggle" aria-haspopup="dialog" aria-expanded={open} aria-label={`Notificaciones${totalUnread ? `: ${totalUnread} sin leer` : ''}`} onClick={() => {
-      setOpen(true); void run(load); if(includeStudyReminders)void reminders.load();
-    }}><FoxmindIcon name="bell" /><span className="entry-sr-only">Notificaciones</span>{totalUnread ? <span className="entry-unread-count">{totalUnread}</span> : null}</button>
-    {open?<Dialog title="Notificaciones" className="entry-notifications" onClose={()=>setOpen(false)}>{content}</Dialog>:null}</>;
+    reflectRead(item, true);
+    if (onReviewProjected && 'kind' in target && (target.kind === 'event' || target.kind === 'invitation')) {
+      onReviewProjected(target, trigger);
+      await restoreList(op);
+      return;
+    }
+    const href = notificationDestination(target, item.id);
+    if (onNavigate) onNavigate(href);
+    else window.location.assign(href);
+  }, { notice: item, write: true, open: true, trigger });
+  const toggleItem = (item: InboxNotification, trigger?: HTMLElement) => void run(async op => {
+    const read = !item.readAt;
+    await api.call(noticeAction(item, read ? 'read' : 'unread'), 'POST', {}, op.controller.signal);
+    if (!current(op)) return;
+    reflectRead(item, read);
+    setStatus(read ? 'Marcaste la notificación como leída.' : 'Marcaste la notificación como no leída.');
+    setFocusBack({ trigger });
+    await restoreList(op);
+  }, { notice: item, write: true, trigger });
+  const markAll = () => void run(async op => {
+    const result = await api.call<{ read: true; updatedCount?: number }>('/notifications/read-all', 'POST', {}, op.controller.signal);
+    if (!current(op)) return;
+    const at = new Date().toISOString();
+    setItems(previous => filter.unread ? [] : previous?.map(row => row.readAt ? row : { ...row, readAt: at }) ?? null);
+    publishCount(Math.max(0, unread - (result?.updatedCount ?? unread)));
+    setStatus('Todas tus notificaciones están leídas.');
+    setFocusBack({});
+    await restoreList(op);
+  }, { write: true });
+  if (presentation === 'center') return <NotificationCenter role={role} items={items} unread={unread} total={total} hasCounts={hasCounts}
+    onlyUnread={filter.unread} kind={filter.kind} error={error} status={status} busy={busy} writing={writing} more={!!nextCursor}
+    unavailable={unavailable} onDismissUnavailable={() => { setUnavailable(false); setFocusBack({ trigger: unavailableOrigin.current }); unavailableOrigin.current = undefined; }}
+    onFilter={changeFilter} onReadAll={markAll} onToggle={toggleItem} onOpen={openItem} onReload={() => void run(load)}
+    onMore={() => { if (nextCursor) void run(op => load(op, nextCursor)); }} />;
+  return <a className="p6-notifications-toggle nt-nav-link" href="/notificaciones"
+    aria-label={`Notificaciones${unread ? `: ${unread} sin leer` : ''}`}>
+    <FoxmindIcon name="bell" /><span className="entry-sr-only">Notificaciones</span>
+    {unread ? <span className="entry-unread-count">{unread}</span> : null}
+  </a>;
 }

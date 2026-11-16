@@ -18,13 +18,13 @@ export function TextForm({ label, initial = '', initialTitle = '', withTitle = f
   const invalid = !body.trim() || length > 5000 || withTitle && (titleLength > 120 || titleRequired && !title.trim());
   return <form className={styles.composer} aria-busy={busy} onSubmit={event => { event.preventDefault(); if (!busy && !invalid) void onSave(body, withTitle ? title : undefined); }}>
     <fieldset disabled={busy}>
-      {withTitle ? <><label>Título<input name="title" required={titleRequired} value={title} placeholder="Ej. Salida de campo" aria-invalid={titleLength > 120 || undefined} onChange={event => setTitle(event.target.value)} /></label><small>{titleLength} / 120</small></> : null}
-      <label>{withTitle ? 'Mensaje' : 'Tu respuesta'}<textarea autoFocus={focusBody} required rows={4} placeholder="Compartí una idea, una consulta o una respuesta con tu aula…" value={body} aria-invalid={length > 5000 || undefined}
+      {withTitle ? <><label>Título<input name="title" required={titleRequired} value={title} aria-invalid={titleLength > 120 || undefined} onChange={event => setTitle(event.target.value)} /></label>{titleLength > 120 ? <small role="alert">El título admite hasta 120 caracteres.</small> : null}</> : null}
+      <label>{withTitle ? 'Tu mensaje' : 'Tu respuesta'}<textarea autoFocus={focusBody} required rows={4} value={body} aria-invalid={length > 5000 || undefined}
         onChange={event => setBody(event.target.value)} /></label>
-      <small>{length.toLocaleString()} / 5.000 · Lo puede leer toda el aula.</small>
+      {length > 5000 ? <small role="alert">El mensaje admite hasta 5.000 caracteres.</small> : null}
       <div className="p5-actions">
         {onCancel ? <button type="button" onClick={onCancel}>Cancelar</button> : null}
-        <button type="submit" className="primary" disabled={invalid}>{busy ? label.startsWith('Publicar') ? 'Publicando…' : label === 'Enviar respuesta' ? 'Enviando…' : 'Guardando…' : label}</button>
+        <button type="submit" className="primary" disabled={invalid}>{busy ? label.startsWith('Publicar') ? 'Publicando…' : label === 'Enviar respuesta' ? 'Enviando…' : 'Guardando…' : label}{label === 'Publicar mensaje' ? <FoxmindIcon name="arrow-right" /> : null}</button>
       </div>
     </fieldset>
   </form>;
@@ -33,10 +33,10 @@ export function TextForm({ label, initial = '', initialTitle = '', withTitle = f
 /** Content is always a React text node, including literal HTML and removed markers. */
 export function WallContentView({ content, children, tag }: { content: WallContent; children?: ReactNode; tag?: string }) {
   return <>
-    <header className={styles.byline}><div className={styles.author}><span className="p5-avatar" aria-hidden="true">{content.initials}</span><div>
+    <header className={styles.byline}><div className={styles.author}><span className={styles.avatar} aria-hidden="true">{content.initials}</span><div>
       <strong>{content.authorName}</strong><small><time dateTime={content.createdAt} title={new Date(content.createdAt).toLocaleString('es-AR')}>{new Intl.DateTimeFormat('es-AR',{day:'numeric',month:'short'}).format(new Date(content.createdAt)).replaceAll('.','')}</time>
-        {content.editedAt ? ' · Editado' : ''}</small>
-    </div>{tag ? <span className={styles.tag}>{tag}</span> : null}</div>{children}</header>
+        {tag ? <span> · {tag}</span> : null}{content.editedAt ? ' · Editado' : ''}</small>
+    </div></div>{children}</header>
     {content.removedAt ? <p className="p6-wall-removed">Contenido eliminado</p> : <>{'title' in content && typeof content.title === 'string' && content.title ? <h3 className={styles.title}>{content.title}</h3> : null}<p className={styles.body}>{content.body}</p></>}
   </>;
 }
@@ -50,11 +50,10 @@ export function Wall({ api, room, reload, target, onChanged, openComposer = fals
   const [removing, setRemoving] = useState<{ content: WallContent; reply: boolean } | null>(null);
   const [replying, setReplying] = useState<string | null>(null);
   const [composing, setComposing] = useState(openComposer);
-  const [postFilter, setPostFilter] = useState<'all' | 'NOTICE' | 'QUERY'>('all');
   const root = useRef<HTMLElement>(null);
   const operation = useRef(false);
   const load = useCallback(async (signal?: AbortSignal) => {
-    const result = parseWallData(await api.call<WallData>(`/${room.id}/wall${postFilter==='all'?'':`?type=${postFilter}`}`, 'GET', undefined, signal));
+    const result = parseWallData(await api.call<WallData>(`/${room.id}/wall`, 'GET', undefined, signal));
     if (target?.postId) {
       const suffix = target.replyId ? `?replyId=${encodeURIComponent(target.replyId)}` : '';
       try {
@@ -64,7 +63,7 @@ export function Wall({ api, room, reload, target, onChanged, openComposer = fals
       } catch (error) { if (signal?.aborted) throw error; setError((error as Error).message); }
     }
     if (!signal?.aborted) setData(result);
-  }, [api, room.id, target?.postId, target?.replyId,postFilter]);
+  }, [api, room.id, target?.postId, target?.replyId]);
   useEffect(() => {
     const controller = new AbortController();
     setData(null); setError(''); setNotice(''); setEditing(null); setRemoving(null); setReplying(null);
@@ -93,7 +92,7 @@ export function Wall({ api, room, reload, target, onChanged, openComposer = fals
   }
   async function morePosts() {
     if (!data?.nextCursor) return;
-    const page = parseWallData(await api.call<WallData>(`/${room.id}/wall?cursor=${encodeURIComponent(data.nextCursor)}${postFilter==='all'?'':`&type=${postFilter}`}`));
+    const page = parseWallData(await api.call<WallData>(`/${room.id}/wall?cursor=${encodeURIComponent(data.nextCursor)}`));
     setData(current => current ? { ...page, posts: [...current.posts, ...page.posts.filter(post => !current.posts.some(item => item.id === post.id))] } : page);
   }
   async function moreReplies(post: WallPost, direction: 'next' | 'previous') {
@@ -106,8 +105,7 @@ export function Wall({ api, room, reload, target, onChanged, openComposer = fals
       repliesPreviousCursor: direction === 'previous' ? page.previousCursor : item.repliesPreviousCursor,
     }) } : current);
   }
-  const posts = data?.posts.filter(post => target?.postId === post.id || postFilter === 'all'
-    || (postFilter === 'NOTICE' ? post.type === 'NOTICE' : post.type !== 'NOTICE'));
+  const posts = data?.posts;
   const finishReply = (id: string) => {
     setReplying(null);
     requestAnimationFrame(() => {
@@ -120,37 +118,42 @@ export function Wall({ api, room, reload, target, onChanged, openComposer = fals
     {content.canEdit ? <button aria-label={reply?'Editar respuesta':'Editar publicación'} title={reply?'Editar respuesta':'Editar publicación'} disabled={busy} onClick={() => setEditing({ content, reply })}><FoxmindIcon name="edit"/></button> : null}
     {content.canRemove ? <button aria-label={reply?'Eliminar respuesta':'Eliminar publicación'} title={reply?'Eliminar respuesta':'Eliminar publicación'} disabled={busy} onClick={() => setRemoving({ content, reply })}><FoxmindIcon name="trash"/></button> : null}
   </div> : null;
-  return <section ref={root} className={styles.wall} aria-label="Muro del aula">
-    <header className="p5-section-head cl-section"><div><h2>Muro</h2><p>Avisos y conversaciones que puede leer toda el aula.</p></div>
-      <div className="p5-actions">{!room.archived ? <button className="primary" disabled={busy || !data} onClick={() => setComposing(true)}><FoxmindIcon name="plus"/>{room.role === 'teacher' ? 'Publicar aviso' : 'Hacer una consulta'}</button> : null}</div>
+  return <section ref={root} className={`parity-wall ${styles.wall}`} aria-label="Muro del aula">
+    <header className={styles.heading}><div><h2>Conversemos en el aula</h2><p>Los avisos y las consultas son visibles para tu grupo.</p></div>
+      {!room.archived ? <button className="primary" disabled={busy || !data} onClick={() => setComposing(true)}>
+        <FoxmindIcon name={room.role === 'teacher' ? 'plus' : 'chat'} />{room.role === 'teacher' ? 'Publicar aviso' : 'Hacer una consulta'}
+      </button> : null}
     </header>
     {error ? <Notice error>{error} Actualizá el Muro antes de volver a intentar.<button disabled={busy} onClick={() => void run(async()=>{await Promise.all([reload(),load()]);})}>Actualizar Muro</button></Notice> : null}
     {notice ? <Notice>{notice}</Notice> : null}
     {!data && !error ? <div className={styles.loading} role="status">Cargando Muro…
       <div aria-hidden="true"><span /><span /><span /></div></div> : null}
-    <div className={styles.filters} role="group" aria-label="Filtrar publicaciones">{([['all','Todas'],['NOTICE','Avisos'],['QUERY','Consultas']] as const).map(([value,label]) => <button key={value} className={postFilter === value ? 'selected' : undefined} disabled={busy} aria-pressed={postFilter === value} onClick={() => setPostFilter(value)}>{label}</button>)}</div>
-    {!room.archived && data && composing ? <Dialog title={room.role === 'teacher' ? 'Publicar aviso' : 'Hacer una consulta'} onClose={() => { if (!busy) setComposing(false); }}>{error ? <Notice error>{error}</Notice> : null}<p>Visible para quienes forman parte de {room.name} · {room.division}.</p><TextForm key={composerKey} onCancel={() => setComposing(false)} withTitle titleRequired busy={busy} label={room.role === 'teacher' ? 'Publicar aviso' : 'Publicar consulta'}
+    {!room.archived && data && composing ? <Dialog className="parity-wall-dialog" title={room.role === 'teacher' ? 'Una idea para tu grupo' : 'Tu pregunta tiene lugar'} onClose={() => { if (!busy) setComposing(false); }}>{error ? <Notice error>{error}</Notice> : null}<p>Se compartirá dentro del aula.</p><TextForm key={composerKey} onCancel={() => setComposing(false)} withTitle titleRequired busy={busy} label="Publicar mensaje"
       onSave={(body,title) => run(async () => { await change({ action: 'publish', title: title || null, body }, () => {
         setComposerKey(value => value + 1); setComposing(false);
         setNotice(room.role === 'teacher' ? 'Aviso publicado en el aula.' : 'Consulta publicada en el aula.');
       }); })} /></Dialog> : null}
-    {posts?.length === 0 ? <p className={styles.empty}>{postFilter === 'all' ? 'Todavía no hay publicaciones.' : 'No hay publicaciones para este filtro.'}</p> : null}
+    {posts?.length === 0 ? <div role="status" className={styles.empty}>
+      <FoxmindIcon name="chat" />
+      <h3>Todavía no hay conversaciones</h3>
+      <p>Los avisos y las consultas de este grupo van a aparecer acá.</p>
+    </div> : null}
     {data && target && !data.posts.some(post => post.id === target.postId) ? <Notice>La publicación ya no está disponible para tu cuenta.</Notice> : null}
     <div className={styles.threads}>{posts?.map((post: WallPost) => <article key={post.id} data-wall-id={post.id} tabIndex={-1}
       aria-label={post.type === 'NOTICE' ? 'Aviso del aula' : 'Consulta del aula'} data-editable={post.canEdit} data-post-type={post.type} className={target?.postId === post.id ? 'p6-wall-selected' : undefined}>
       <WallContentView content={post} tag={post.type === 'NOTICE' ? 'Aviso' : 'Consulta'}>{controls(post, false)}</WallContentView>
       <section className={styles.replies} aria-label="Respuestas de la publicación">
-        <h3 className={!post.replyCount?'sr-only':undefined}>Respuestas ({post.replyCount})</h3>
+        <h4 className="sr-only">Respuestas ({post.replyCount})</h4>
         {post.repliesPreviousCursor ? <button disabled={busy} onClick={() => void run(() => moreReplies(post, 'previous'))}>Respuestas anteriores</button> : null}
         {post.replies.map(reply => <article key={reply.id} data-wall-id={reply.id} tabIndex={-1}
           className={target?.replyId === reply.id ? 'p6-wall-selected' : undefined}>
-          <WallContentView content={reply}>{controls(reply, true)}</WallContentView>
+          <div className={styles.replyContent}><p className={styles.body}><strong>{reply.authorName}:</strong> {reply.removedAt ? 'Contenido eliminado' : reply.body}</p>{controls(reply, true)}</div>
         </article>)}
         {post.repliesNextCursor ? <button disabled={busy} onClick={() => void run(() => moreReplies(post, 'next'))}>Más respuestas</button> : null}
-        {!room.archived && !post.removedAt ? replying === post.id ? <TextForm label="Enviar respuesta" focusBody busy={busy} onCancel={() => finishReply(post.id)}
+        {!room.archived && !post.removedAt ? replying === post.id ? <Dialog className="parity-wall-dialog" title="Continuar la conversación" onClose={() => { if (!busy) finishReply(post.id); }}><p>Se compartirá dentro del aula.</p>{error ? <Notice error>{error}</Notice> : null}<TextForm label="Publicar mensaje" focusBody busy={busy} onCancel={() => finishReply(post.id)}
           onSave={body => run(async () => { await change({ action: 'reply', postId: post.id, body }, () => {
             finishReply(post.id); setNotice('Respuesta publicada.');
-          }); })} />
+          }); })} /></Dialog>
           : <button className={styles.reply} data-reply-trigger={post.id} aria-label="Responder publicación" disabled={busy} onClick={() => setReplying(post.id)}><FoxmindIcon name="chat"/>Responder</button> : null}
       </section>
     </article>)}</div>

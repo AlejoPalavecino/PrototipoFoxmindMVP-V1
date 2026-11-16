@@ -1,5 +1,5 @@
 import type { AgendaRange, EventPayload, EventRepeat, EventSchedule } from './types.ts';
-import { EVENT_COLORS } from './types.ts';
+import { EVENT_COLORS, EVENT_REMINDER_MINUTES } from './types.ts';
 import { agendaDate, agendaMinute, agendaObject, agendaZone, invalid } from './values.ts';
 import { validateAgendaSeries } from './series.ts';
 
@@ -30,7 +30,7 @@ function parseRepeat(input: unknown): EventRepeat {
   return { kind: item.kind, untilDate: agendaDate(item.untilDate) };
 }
 export function parseAgendaEvent(input: unknown): EventPayload {
-  const item = agendaObject(input, ['title', 'description', 'category', 'schedule', 'repeat', 'color']);
+  const item = agendaObject(input, ['title', 'description', 'category', 'schedule', 'repeat', 'color', 'reminder']);
   if (typeof item.title !== 'string' || !item.title.trim() || item.title.trim().length > 160
     || typeof item.description !== 'string' || item.description.length > 4000
     || !['CLASS', 'ACTIVITY', 'EVALUATION'].includes(String(item.category)) || typeof item.category !== 'string') return invalid();
@@ -39,6 +39,13 @@ export function parseAgendaEvent(input: unknown): EventPayload {
   if (item.color !== undefined) {
     if (typeof item.color !== 'string' || !EVENT_COLORS.some(color => color === item.color)) return invalid();
     payload.color = item.color as NonNullable<EventPayload['color']>;
+  }
+  if (item.reminder !== undefined) {
+    const allDay = payload.schedule.kind === 'ALL_DAY';
+    const reminder = agendaObject(item.reminder, allDay ? ['minutes', 'timeZone'] : ['minutes']);
+    const minutes = EVENT_REMINDER_MINUTES.find(value => value === reminder.minutes);
+    if (minutes === undefined) return invalid();
+    payload.reminder = allDay ? { minutes, timeZone: agendaZone(reminder.timeZone) } : { minutes };
   }
   validateAgendaSeries(payload);
   return payload;

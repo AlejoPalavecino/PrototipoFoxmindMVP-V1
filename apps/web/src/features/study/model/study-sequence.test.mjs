@@ -13,12 +13,13 @@ test('adding study sessions to Agenda requires explicit confirmation in a FoxMin
   const calls = [];
   const view = hookView(StudyExamPlanner, {
     detail: { folder: { units: [] }, exams: [{ id: 'exam', timeZone: 'UTC', sessions: [
-      { id: 'session', topicIds: [], startAt: '2026-11-15T12:00:00Z', minutes: 30, reminderMinutes: 15 },
+      { id: 'session', title: 'Repaso personal', topicIds: [], startAt: '2026-11-20T12:00:00Z', endAt: '2026-11-20T12:30:00Z', minutes: 30, reminderMinutes: 15 },
     ] }] },
-    busy: false, onDirtyChange() {}, run: async (...args) => { calls.push(args); },
+    examId:'exam', busy: false, onDirtyChange() {}, run: async (...args) => { calls.push(args); },
   });
-  const trigger = () => descendants(view.tree, node => node.type === 'button' && node.props.children === 'Agregar a Agenda')[0];
-  const confirmation = () => descendants(view.tree, node => node.props.confirmLabel === 'Confirmar sesiones')[0];
+  const buttonText = node => Array.isArray(node.props.children) ? node.props.children.filter(value=>typeof value==='string').join('') : node.props.children;
+  const trigger = () => descendants(view.tree, node => node.type === 'button' && buttonText(node) === 'Revisar Agenda')[0];
+  const confirmation = () => descendants(view.tree, node => node.type?.name === 'Dialog' && node.props.title === 'Estos momentos van a tu agenda')[0];
   try {
     await view.flush();
     trigger().props.onClick(); await view.flush();
@@ -29,7 +30,8 @@ test('adding study sessions to Agenda requires explicit confirmation in a FoxMin
     assert.equal(confirmation(), undefined);
     assert.deepEqual(calls, []);
     trigger().props.onClick(); await view.flush();
-    await confirmation().props.onConfirm();
+    descendants(confirmation(),node=>node.type==='button'&&buttonText(node)==='Agregar a mi Agenda')[0].props.onClick();
+    await view.flush();
     assert.deepEqual(calls, [['CONFIRM_AGENDA', { examId: 'exam', sessionIds: ['session'] }]]);
   } finally { view.close(); globalThis.window = original; }
 });
@@ -69,11 +71,12 @@ test('folder details can continue without a file, but the plan step requires an 
   globalThis.window={addEventListener(){},removeEventListener(){}};
   const {StudyWizard}=loadTsModule('apps/web/src/features/study/ui/study-wizard.tsx');
   const view=hookView(StudyWizard,{catalog:{items:[],classrooms:[],covers:[]},onClose(){},onCreated(){}});
-  const field=()=>descendants(view.tree,n=>n.type==='input'&&n.props.placeholder?.includes('Biología'))[0];
+  const field=()=>descendants(view.tree,n=>n.type==='input'&&n.props.placeholder==='Por ejemplo: Fotografía y luz')[0];
+  const subject=()=>descendants(view.tree,n=>n.type==='input'&&n.props.placeholder==='Fotografía')[0];
   const form=()=>descendants(view.tree,n=>n.type==='form')[0];
   const next=async()=>{form().props.onSubmit({preventDefault(){}});await view.flush();};
   try{
-    await view.flush();field().props.onChange({target:{value:'Biología'}});
+    await view.flush();field().props.onChange({target:{value:'Biología'}});subject().props.onChange({target:{value:'Ciencias naturales'}});
     await view.flush();await next();
     assert.equal(form().props['data-wizard-step'],1,'valid folder details reach Cargar plan without a file');
     await next();

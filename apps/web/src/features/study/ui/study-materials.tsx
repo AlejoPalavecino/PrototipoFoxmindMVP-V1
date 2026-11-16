@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Notice } from '../../../../../shared-ui/feedback';
 import { createStudyClient, validateStudyPlan, type StudyCollection, type StudyDetail } from '../api/study-client';
 import { canManageStudyMaterial } from '../model/study-discovery';
@@ -31,6 +31,9 @@ export function StudyMaterials({ detail, catalog, busy, run, onReload, onDirtyCh
   const [link, setLink] = useState(folder.linkedClassroomId ?? '');
   const [tab, setTab] = useState<'materials' | 'plan'>('materials');
   const [settings, setSettings] = useState(false);
+  const [materialOpen, setMaterialOpen] = useState('');
+  const [unitOpen, setUnitOpen] = useState('');
+  const detailsId = useId();
   const [upload, setUpload] = useState(false);
   const [query, setQuery] = useState('');
   const [origin, setOrigin] = useState('');
@@ -115,22 +118,25 @@ export function StudyMaterials({ detail, catalog, busy, run, onReload, onDirtyCh
         const manage = canManageStudyMaterial(folder, source);
         const href = source.origin === 'OWN' ? `/api/v1/study-folders/${folder.id}/uploads/${source.fileId}/file`
           : `/api/v1/files/${source.fileId}/content`;
-        return <details className={s.materialRow} key={source.id}>
-          <summary>
+        const open = materialOpen === source.id;
+        const actionsId = `${detailsId}-material-${source.id}`;
+        return <article className={s.materialRow} key={source.id}>
+          <div className={s.materialRowHeader}>
             <span className={s.fileBadge} aria-hidden="true">{source.origin === 'OWN' ? 'DOC' : 'AULA'}</span>
             <span><strong>{source.title}</strong><small>{source.origin === 'OWN' ? 'Material propio' : 'Aula vinculada'}</small>
               <small className={source.available && source.readable !== false ? s.readable : s.savedOnly}>
                 {!source.available ? 'Sin acceso' : source.readable === false ? 'Guardado · sin lectura IA' : 'Disponible para Foxy'}
               </small>
-            </span><span className={s.materialDetailLabel}>Ver detalles</span>
-          </summary>
-          <div className={s.actions}>
+            </span><button type="button" className={s.materialDetailLabel} aria-label={`Ver detalles: ${source.title}`}
+              aria-expanded={open} aria-controls={actionsId} onClick={() => setMaterialOpen(open ? '' : source.id)}>Ver detalles</button>
+          </div>
+          <div id={actionsId} hidden={!open}>{open && <div className={s.actions}>
             {source.available && <StudyFileLinks href={href} onPreview={source.extension === 'docx'
               ? () => setPreview({ sourceId: source.id, title: source.title, href }) : undefined}/>}
             {manage && <button disabled={!writable} type="button" onClick={() => setEditMaterial(source.id)}>Editar material</button>}
             {manage && <button disabled={!writable} type="button" onClick={() => setRemoval({ id: source.id, title: source.title })}>Quitar</button>}
-          </div>
-        </details>;
+          </div>}</div>
+        </article>;
       })}</div>
       {editing && <StudyMaterialEditor key={editing.id} material={editing} units={folder.units} busy={!writable}
         onDirtyChange={onDirtyChange} onClose={() => setEditMaterial('')} onSave={async (title, topicIds) => {
@@ -142,23 +148,32 @@ export function StudyMaterials({ detail, catalog, busy, run, onReload, onDirtyCh
         }}/>}
     </> : <>
       <div className={s.planDocument}><div><strong>Plan de {folder.name}</strong>
+        {folder.planOrigin && <small>Copia editable de un plan de aula</small>}
         <small>{folder.units.length} {folder.units.length === 1 ? 'unidad' : 'unidades'} · {topicCount} {topicCount === 1 ? 'tema' : 'temas'}</small></div>
         {planHref && <StudyFileLinks href={planHref} plan onPreview={plan?.extension === 'docx'
           ? () => setPreview({ sourceId: plan.id, title: plan.title, href: planHref }) : undefined}/>}
       </div>
-      {folder.units.map((unit, index) => <details className={s.planUnit} key={unit.id} open={index === 0 ? true : undefined}>
-        <summary><strong>{unit.title}</strong><small>{unit.topics.length} {unit.topics.length === 1 ? 'tema' : 'temas'}</small></summary>
-        <ul>{unit.topics.map(topic => <li key={topic.id}><span>{topic.title}</span>
-          <button disabled={!writable} type="button" onClick={() => onStudyTopic(topic)}>Estudiar →</button>
-        </li>)}</ul>
-      </details>)}
+      {folder.units.map(unit => {
+        const open = unitOpen === unit.id;
+        const topicsId = `${detailsId}-unit-${unit.id}`;
+        return <section className={s.planUnit} key={unit.id}>
+          <div className={s.planUnitHeader}>
+            <div><strong>{unit.title}</strong><small>{unit.topics.length} {unit.topics.length === 1 ? 'tema' : 'temas'}</small></div>
+            <button type="button" aria-label={`Ver temas: ${unit.title}`} aria-expanded={open} aria-controls={topicsId}
+              onClick={() => setUnitOpen(open ? '' : unit.id)}>Ver temas</button>
+          </div>
+          <div id={topicsId} hidden={!open}>{open && <ul>{unit.topics.map(topic => <li key={topic.id}><span>{topic.title}</span>
+            <button disabled={!writable} type="button" onClick={() => onStudyTopic(topic)}>Estudiar →</button>
+          </li>)}</ul>}</div>
+        </section>;
+      })}
     </>}
     <button type="button" aria-expanded={settings} disabled={!writable || !!editing} onClick={() => setSettings(value => !value)}>
       {settings ? 'Ocultar configuración' : 'Editar plan o aula vinculada'}
     </button>
     {settings && <fieldset disabled={!writable} className={s.materialUpload}>
       <label>Aula vinculada<select value={link} onChange={event => { setLink(event.target.value); setDirty(true); }}>
-        <option value="">Sin aula vinculada</option>{catalog.classrooms.map(room => <option key={room.id} value={room.id}>{room.name}</option>)}
+        <option value="">Sin aula vinculada</option>{catalog.classrooms.map(room => <option key={room.id} value={room.id}>{room.name}{room.archived?' · Archivada · consulta':''}</option>)}
       </select></label>
       <StudyPlanEditor units={units} onChange={value => { setUnits(value); setDirty(true); }}/>
       <StudyUpload purpose="plan" ensureFolder={async () => folder} onReady={id => {

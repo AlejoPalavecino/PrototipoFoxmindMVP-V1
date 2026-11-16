@@ -65,16 +65,18 @@ test('password visibility is an explicit non-submit control, with policy only fo
 test('home retains the student classroom and the applicable learning modules', () => {
   const room = { role:'student', archived:false, id: 'actual', name: 'Actual class', subject: 'Science', division: 'B', academicYear: 2026, coverKey: 'explore', teacher: 'Actual teacher' };
   const data = homeFixture([room]);
-  const { Home } = loadTsModule("apps/web/src/features/home/ui/Home.tsx", { stubs: {"../model/use-home.ts":{useHome: () => ({ loading:false, data, ordering:{} })}} });
+  data.modules.feedback.items = [{ id: 'grade', title: 'Actividad revisada', classroom: room, attemptNumber: 1, finalGrade: '8', target: { kind: 'grade' } }];
+  data.modules.feedback.totalItems = 1;
+  const { Home } = loadTsModule("apps/web/src/features/home/ui/Home.tsx", { stubs: {"../model/use-home.ts":{useHome: () => ({ loading:false, data, ordering:{}, orders:{review:'asc',queries:'desc'} })}} });
   const html = render(Home, { accountRole: 'student', displayName: 'Student', busy: false, onAction() {},
     onCreate() {}, onJoin() {}, onClassrooms() {}, onEnter() {}, api: { call: async () => [] }, onOpenTarget() {} });
-  for (const label of ['Mis entregas', 'Mis devoluciones']) {
-    const group = [...html.matchAll(/<section\b([^>]*)>/g)].find(([, attributes]) => attributes.includes(`aria-label="${label}"`));
-    assert.ok(group, `Missing ${label} section`);
-    assert.doesNotMatch(group[1], /\bhidden(?:=|\s|$)|aria-hidden="true"/);
-  }
-  assert.match(html, /Actual class/);
-  assert.match(html, /Science|Actual class/);
-  assert.match(html, /aria-label="Accesos de mi aula"/);
-  assert.doesNotMatch(html, /aria-label="Acciones del aula"|aria-label="Aula en foco"/);
+  assert.match(html, /<h2>Tu próximo paso<\/h2>/);
+  assert.match(html, /Ver todas las actividades/);
+  const feedback = [...html.matchAll(/<section\b([^>]*)>/g)].find(([, attributes]) => attributes.includes('aria-label="Tus últimas devoluciones"'));
+  assert.ok(feedback, 'Published feedback stays available');
+  assert.doesNotMatch(feedback[1], /\bhidden(?:=|\s|$)|aria-hidden="true"/);
+  assert.match(html, /Leer devolución: Actividad revisada/);
+  assert.match(html, /<h3>Actual class<\/h3>/);
+  assert.match(html, /aria-label="Abrir aula Actual class"/);
+  assert.doesNotMatch(html, /Pendientes docentes|Crear actividad/);
 });

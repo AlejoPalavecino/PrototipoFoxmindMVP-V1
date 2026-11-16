@@ -10,11 +10,15 @@ async function run() {
     if (pageCount < 1 || pageCount > 100) throw new PlanDocumentError('AI_INPUT_LIMIT');
     return { document: { kind: 'pdf', bytes }, pageCount, warnings: [] };
   }
+  if (workerData.extension === 'pptx') {
+    const { presentationText } = await import('./pptx-text.ts');
+    return { document: { kind: 'text', text: await presentationText(bytes) }, pageCount: null, warnings: [] };
+  }
   const [{ documentXml }, { extractDocumentText }] = await Promise.all([
     import('./docx-archive.ts'), import('./docx-xml.ts'),
   ]);
   return { document: { kind: 'text', text: extractDocumentText(await documentXml(bytes, { mainPartOnly: workerData.extension === 'docx-preview' })) },
-    pageCount: null, warnings: ['DOCX_IMAGES_OMITTED'] };
+    pageCount: null, warnings: workerData.converted ? [] : ['DOCX_IMAGES_OMITTED'] };
 }
 run().then(result => parentPort?.postMessage({ ok: true, result })).catch(error =>
   parentPort?.postMessage({ ok: false, code: error instanceof PlanDocumentError ? error.code : 'FILE_NOT_READY' }));

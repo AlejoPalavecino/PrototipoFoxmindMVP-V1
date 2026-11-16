@@ -1,4 +1,5 @@
 import type { FoxySourceKind, FoxySourceQuery } from '../../../../../../src/core/domain/index.ts';
+import { isDocumentExtension } from '../../../../../../src/core/domain/documents/document-formats.ts';
 import type { SqlTransaction } from '../../../../../../src/core/contracts/sql.ts';
 
 type DocumentRow = { id: string; title: string; created_at: Date; extension: string | null; size_bytes: bigint | null; ready: boolean;
@@ -8,12 +9,12 @@ type ActivityRow = { id: string; title: string; created_at: Date; unit_id: strin
 const custody = `(f.blob_deleted_at IS NULL AND c.phase='ready' AND u.status='COMPLETED' AND f.validation_status='APPROVED'
   AND f.scan_status='CLEAN' AND c.digest IS NOT NULL AND c.digest=c.validated_digest AND c.digest=c.scanned_digest)`;
 const docReason = (row: DocumentRow) => !row.ready ? 'FILE_NOT_READY'
-  : !['pdf', 'docx'].includes(row.extension ?? '') ? 'UNSUPPORTED_FORMAT'
+  : !isDocumentExtension(row.extension ?? '') ? 'UNSUPPORTED_FORMAT'
     : row.size_bytes === null || BigInt(row.size_bytes) > 20000000n || BigInt(row.size_bytes) < 1n ? 'AI_INPUT_LIMIT' : null;
 const pageFilter = (alias: string) => `AND ($2::timestamptz IS NULL OR
   (date_trunc('milliseconds',${alias}.created_at),${alias}.id)<($2::timestamptz,$3::uuid))
   ORDER BY date_trunc('milliseconds',${alias}.created_at) DESC,${alias}.id DESC LIMIT $4`;
-function documentSql(kind: 'PLAN' | 'MATERIAL'): string {
+function documentSql(kind: 'PLAN' | 'MATERIAL', currentOnly: boolean): string {
   const from = kind === 'PLAN' ? `study_plan_versions s JOIN files f ON f.id=s.file_id AND f.classroom_id=s.classroom_id
     LEFT JOIN file_custodies c ON c.file_id=f.id AND c.purpose='plan' AND c.target_id IS NULL`
     : `materials s JOIN files f ON f.id=s.file_id AND f.classroom_id=s.classroom_id
@@ -23,6 +24,7 @@ function documentSql(kind: 'PLAN' | 'MATERIAL'): string {
     : `s.title,s.unit_id,s.topic_id,NULL::int AS plan_version,NULL::boolean AS current_plan`;
   return `SELECT s.id,s.created_at,${fields},f.extension,f.size_bytes,COALESCE(${custody},false) AS ready FROM ${from}
     LEFT JOIN uploads u ON u.file_id=f.id WHERE s.classroom_id=$1::uuid ${kind === 'MATERIAL' ? 'AND s.deleted_at IS NULL AND NOT EXISTS(SELECT 1 FROM material_revisions mr WHERE mr.previous_id=s.id)' : ''}
+    ${kind === 'PLAN' && currentOnly ? 'AND s.version_number=(SELECT max(v.version_number) FROM study_plan_versions v WHERE v.classroom_id=s.classroom_id)' : ''}
     ${pageFilter('s')}`;
 }
 const activitySql = `SELECT a.id,a.title,a.created_at,a.unit_id,a.published_at,
@@ -30,7 +32,7 @@ const activitySql = `SELECT a.id,a.title,a.created_at,a.unit_id,a.published_at,
     CASE WHEN a.topic_id IS NULL THEN ARRAY[]::uuid[] ELSE ARRAY[a.topic_id] END) AS topic_ids,
   COUNT(l.file_id) AS document_count,
   COALESCE(BOOL_OR(l.file_id IS NOT NULL AND NOT COALESCE(${custody} AND f.classroom_id=a.classroom_id AND c.purpose='instructions' AND c.target_id=a.id,false)),false) AS bad_file,
-  COALESCE(BOOL_OR(f.extension NOT IN ('pdf','docx')),false) AS unsupported,
+  COALESCE(BOOL_OR(f.extension NOT IN ('pdf','docx','doc','pptx','ppt')),false) AS unsupported,
   COALESCE(BOOL_OR(f.size_bytes<1 OR f.size_bytes>20000000),false) AS oversized,
   (NULLIF(btrim(a.instructions_text),'') IS NULL AND COUNT(l.file_id)=0 AND NOT EXISTS
     (SELECT 1 FROM questions q WHERE q.activity_id=a.id)) AS empty_content
@@ -62,12 +64,12 @@ function documentItems(rows: DocumentRow[], kind: FoxySourceKind) {
       createdAt: row.created_at.toISOString(), publishedAt: null, documentCount: 1, available: reason === null, reason };
   });
 }
-export async function loadSources(tx: SqlTransaction, room: string, query: FoxySourceQuery) {
+export async function loadSources(tx: SqlTransaction, room: string, query: FoxySourceQuery, currentOnly = false) {
   const params = [room, query.after?.createdAt ?? null, query.after?.id ?? null, query.limit + 1] as const;
   if (query.kind === 'ACTIVITY') {
     const rows = await tx.query<ActivityRow>(activitySql, ...params);
     return { items: activityItems(rows.slice(0, query.limit)), next: cursor(rows, query.limit) };
   }
-  const rows = await tx.query<DocumentRow>(documentSql(query.kind), ...params);
+  const rows = await tx.query<DocumentRow>(documentSql(query.kind, currentOnly), ...params);
   return { items: documentItems(rows.slice(0, query.limit), query.kind), next: cursor(rows, query.limit) };
 }

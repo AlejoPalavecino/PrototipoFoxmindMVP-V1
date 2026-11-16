@@ -4,6 +4,7 @@ import type { Classroom, Detail } from './classroom-port.ts';
 import type { WebFoxyClient } from '../api/foxy-client.ts';
 import { createFoxyChatController } from './foxy-chat-controller.ts';
 import { createFoxyVisualController } from './foxy-visual-controller.ts';
+import { createFoxyVisualEditorController } from './foxy-visual-editor-controller.ts';
 import { createFoxyVisualPublicationController } from './foxy-visual-publication-controller.ts';
 import { createFoxyResourceController } from './foxy-resource-controller.ts';
 import { createFoxyPreparationController } from './foxy-preparation-controller.ts';
@@ -19,6 +20,7 @@ type Snapshot = { activityHandoff: ReturnType<ReturnType<typeof createFoxyActivi
   confirmation: ReturnType<ReturnType<typeof createFoxyPublicationConfirmationController>['getState']> | null;
   management: ReturnType<ReturnType<typeof createFoxyPublicationManagementController>['getState']> | null;
   visual: ReturnType<ReturnType<typeof createFoxyVisualController>['getState']> | null;
+  visualEditor: ReturnType<ReturnType<typeof createFoxyVisualEditorController>['getState']> | null;
   visualPublication: ReturnType<ReturnType<typeof createFoxyVisualPublicationController>['getState']> | null };
 type Options = { subjectId: string; createFoxyClient: (identity: (code: string) => void) => WebFoxyClient;
   createClassroomClient: (identity: (code: string) => void) => FoxyClassroomReadPort;
@@ -31,12 +33,12 @@ export function createFoxyWorkspaceRuntime(options: Options) {
   let resourceKey = '', selectedKey = '', managementStamp = '', reconcilePending = false, reconcileVersion = -1, reconcileQueued = false;
   const identity = (code: string) => { if (!closed && (code === 'AUTH_REQUIRED' || code === 'EMAIL_VERIFICATION_REQUIRED')) { dispose(); options.onIdentityRequired(code); } };
   const client = options.createFoxyClient(identity), classroomClient = options.createClassroomClient(identity);
-  let visual: ReturnType<typeof createFoxyVisualController> | undefined, visualAssetKey = '', visualAssetEpoch = 0;
+  let visual: ReturnType<typeof createFoxyVisualController> | undefined, visualAssetKey = '';
   function snapshot(): Snapshot {
     return structuredClone({ activityHandoff: closed ? null : activityHandoff.getState(), subjectId, closed, classrooms: structuredClone(classrooms), contextClassrooms: structuredClone(contextClassrooms), classroomsError,
       chat: closed ? null : chat.getState(), resource: closed ? null : resource.getState(), preparation: closed ? null : preparation.getState(),
       history: closed ? null : history.getState(), confirmation: closed ? null : confirmation.getState(), management: closed ? null : management.getState(), visual: closed ? null : visual?.getState() ?? null,
-      visualPublication: closed ? null : visualPublication.getState() });
+      visualEditor: closed ? null : visualEditor.getState(), visualPublication: closed ? null : visualPublication.getState() });
   }
   function batch(fn: () => void) {
     if (closed) return; depth++;
@@ -52,14 +54,17 @@ export function createFoxyWorkspaceRuntime(options: Options) {
     const detail = await loadClassroom(id, signal); if (!detail) throw new Error('Closed'); return detail;
   };
   const visualPublication = createFoxyVisualPublicationController({ client, loadClassroom: loadDetail, onChange: () => batch(() => { syncVisualAsset(); }) });
+  const visualEditor = createFoxyVisualEditorController({client,onChange:editor=>batch(()=>{
+    const info=editor.inspection,publication=visualPublication.getState();
+    if(publication.busy||publication.pending)return;
+    if(info?.canPreview&&info.asset.id===editor.assetId&&info.asset.state==='READY')visualPublication.syncAsset(info.asset.id,info.asset.revision,info.editorial?.revision??'0',info.editorial?.title??info.payload?.title??'');
+    else visualPublication.syncAsset('','');
+  })});
   function syncVisualAsset() {
     const pending=visualPublication.getState(); if (pending.busy || pending.pending) return;
     const s=visual?.getState(), job=s?.jobs.find(item => item.id===s.selectedId && item.state==='READY'), id=job?.assetId ?? '';
-    if (id===visualAssetKey) return; visualAssetKey=id; const version=++visualAssetEpoch;
-    visualPublication.syncAsset('', ''); if (!id) return;
-    void client.inspectAsset(id, abort.signal).then(info => {
-      if (!closed && version===visualAssetEpoch && info.canPreview && info.asset.id===id && info.asset.state==='READY') visualPublication.syncAsset(id,info.asset.revision);
-    }).catch(() => {});
+    if (id===visualAssetKey) return; visualAssetKey=id;
+    visualPublication.syncAsset('', ''); visualEditor.syncAsset(id);
   }
   const chatBase = createFoxyChatController({ client, onChange: () => batch(() => { visual?.syncContext(); }) });
   const emptyChat = structuredClone(chatBase.getState());
@@ -134,9 +139,9 @@ export function createFoxyWorkspaceRuntime(options: Options) {
   }
   function dispose() {
     if (closed) return; closed = true; abort.abort(); classrooms = []; contextClassrooms = []; classroomsError = null;
-    activityHandoff.dispose(); chat.dispose(); visual?.dispose(); visualPublication.dispose(); resourceBase.dispose(); preparation.dispose(); history.dispose(); confirmation.dispose(); management.dispose();
+    activityHandoff.dispose(); chat.dispose(); visual?.dispose(); visualEditor.dispose(); visualPublication.dispose(); resourceBase.dispose(); preparation.dispose(); history.dispose(); confirmation.dispose(); management.dispose();
   }
   const publicationFileUrl = (id: string, mode: 'preview' | 'download') => closed ? '' : client.publicationFileUrl(id, mode);
-  return { getState: snapshot, activityHandoff, chat, visual: visual!, visualPublication, assetFileUrl: client.assetFileUrl, resource, preparation, history, confirmation, management, loadClassroom, reloadClassrooms, publicationFileUrl,
+  return { getState: snapshot, activityHandoff, chat, visual: visual!, visualEditor, visualPublication, assetFileUrl: client.assetFileUrl, resource, preparation, history, confirmation, management, loadClassroom, reloadClassrooms, publicationFileUrl,
     init() { if (closed) return Promise.resolve(); if (!initialized) initialized = Promise.resolve().then(async () => { if (!closed) await Promise.all([chat.init(), reloadClassrooms()]); }); return initialized; }, dispose };
 }

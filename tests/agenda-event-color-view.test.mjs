@@ -35,14 +35,14 @@ test('invalid draft color renders its associated field issue without crashing th
   });
   assert.ok(html.includes(issue.message));
   const radios = descendants(tree, n => n.type === 'input' && n.props.type === 'radio');
-  assert.equal(radios.length, 4);
+  assert.equal(radios.length, 6);
   assert.ok(radios.some(n => n.props['aria-invalid'] && n.props['aria-describedby']));
   assert.equal(draft.color, '#bad');
 });
 test('public finite palette preserves category classes for legacy and readable labels', () => {
   const api = loadTsModule('apps/web/src/features/agenda/index.ts');
   assert.deepEqual(api.eventColorOptions.map(x => x.value), tokens);
-  assert.deepEqual(api.eventColorOptions.map(x => x.label), ['Automático', 'Azul', 'Verde', 'Dorado', 'Naranja', 'Rosa', 'Violeta', 'Grafito']);
+  assert.deepEqual(api.eventColorOptions.map(x => x.label), ['Automático', 'Azul', 'Verde', 'Dorado', 'Naranja', 'Rosa', 'Violeta', 'Pizarra']);
   assert.equal(api.eventColorLabel(undefined), 'Automático');
   for (const option of api.eventColorOptions) {
     assert.equal(option.className, `agenda-color-${option.value.toLowerCase()}`);
@@ -59,11 +59,11 @@ test('native radio group exposes reference colors plus the selected retained col
   assert.equal(typeof api.EventColorFields, 'function');
   const tree = api.EventColorFields({ draft, onChange: value => changes.push(value), issues: [{ field: 'color', message: 'Elige un color válido' }] });
   const radios = descendants(tree, n => n.type === 'input' && n.props.type === 'radio');
-  assert.deepEqual(radios.map(x => x.props.value), ['GREEN','ORANGE','YELLOW','GRAPHITE','BLUE']);
+  assert.deepEqual(radios.map(x => x.props.value), ['BLUE','GREEN','ORANGE','PINK','PURPLE','GRAPHITE']);
   assert.ok(radios.every(x => x.props.name === 'color'));
   assert.deepEqual(radios.filter(x => x.props.checked).map(x => x.props.value), ['BLUE']);
   const html = renderToStaticMarkup(tree);
-  for (const label of ['Color del evento', 'Elige un color válido', 'Grafito','Azul']) assert.ok(html.includes(label));
+  for (const label of ['Color del evento', 'Elige un color válido', 'Pizarra','Azul']) assert.ok(html.includes(label));
   assert.ok(radios.some(x => x.props['aria-invalid'] && x.props['aria-describedby']));
   radios.find(x => x.props.value === 'GRAPHITE').props.onChange({ target: { value: 'GRAPHITE' } });
   assert.equal(changes.length, 1); assert.equal(changes[0].color, 'GRAPHITE'); assert.equal(draft.color, 'BLUE');
@@ -98,4 +98,15 @@ test('month previews, independent decorative mobile indicators and day articles 
       assert.match(renderToStaticMarkup(dayView.tree), /Clase de Historia/);
     } finally { dayView.close(); }
   } finally { view.close(); restore(); if (prior === undefined) delete globalThis.sessionStorage; else globalThis.sessionStorage = prior; }
+});
+
+test('saved yellow and automatic colors remain available without changing the retained value', () => {
+  const api = loadTsModule('apps/web/src/features/agenda/index.ts');
+  for (const color of ['YELLOW', 'AUTO']) {
+    const draft = { ...api.eventDraft(undefined, day, zone), color };
+    const tree = api.EventColorFields({ draft, issues: [], onChange() {} });
+    const radios = descendants(tree, n => n.type === 'input' && n.props.type === 'radio');
+    assert.equal(radios.length, 7);
+    assert.deepEqual(radios.filter(n => n.props.checked).map(n => n.props.value), [color]);
+  }
 });

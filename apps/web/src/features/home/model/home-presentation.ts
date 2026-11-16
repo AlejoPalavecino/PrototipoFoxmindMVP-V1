@@ -8,7 +8,7 @@ export function shouldShowHomeModule(participation: Participation, name: HomeMod
 
 export function homeGreetingDate(generatedAt: string, timeZone: string): string {
   const value=new Intl.DateTimeFormat('es-AR', { timeZone, weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(generatedAt));
-  return value.charAt(0).toUpperCase()+value.slice(1);
+  return (value.charAt(0).toUpperCase()+value.slice(1)).replace(',','');
 }
 
 export function homeCalendarWeek(generatedAt: string, timeZone: string) {
@@ -17,7 +17,7 @@ export function homeCalendarWeek(generatedAt: string, timeZone: string) {
   const today = new Date(Date.UTC(value('year'), value('month') - 1, value('day')));
   const monday = new Date(today);
   monday.setUTCDate(today.getUTCDate() - (today.getUTCDay() + 6) % 7);
-  return Array.from({ length: 7 }, (_, index) => {
+  return Array.from({ length: 5 }, (_, index) => {
     const date = new Date(monday);
     date.setUTCDate(monday.getUTCDate() + index);
     return { date: date.toISOString().slice(0, 10), day: date.getUTCDate(), today: date.getTime() === today.getTime() };
@@ -90,4 +90,11 @@ export function homeFoxySuggestion(role: 'teacher' | 'student', modules: HomeMod
   const pending = modules.pending?.status === 'ready' && modules.pending.items.find(item => item.reception === 'open');
   if (pending) return { title: 'Empezá por una entrega', detail: `Reservá unos minutos para avanzar con «${pending.title}».`, target: pending.target };
   return { title: 'Cada paso cuenta.', detail: 'Los grandes aprendizajes empiezan con pequeños avances.' };
+}
+
+export function homeEventDuration(startAt: string, endAt: string): string {
+ const minutes=Math.round((Date.parse(endAt)-Date.parse(startAt))/60000);
+ if(!Number.isFinite(minutes)||minutes<=0)return '';
+ const hours=Math.floor(minutes/60),rest=minutes%60;
+ return hours?`${hours} h${rest?' '+rest+' min':''}`:`${rest} min`;
 }

@@ -63,10 +63,12 @@ test('S0 every typed destination survives parsing without an arbitrary URL', () 
   for (const kind of ['classroom', 'activity', 'submissions', 'grade', 'wall', 'material',
     'create-activity', 'upload-material', 'publish-notice']) assert.deepEqual(parseHomeTarget(target(kind)), target(kind));
   assert.deepEqual(parseHomeTarget(privateTarget()), privateTarget());
+  const members = { ...target('classroom'), section: 'members' };
+  assert.deepEqual(parseHomeTarget(members), members);
   for (const value of [null, [], { kind: 'url', href: 'https://example.test' },
     { ...target('activity'), url: '/mis-aulas' }, { ...target('activity'), classroomId: 'foreign' },
     { ...target('activity'), activityId: [id(2)] }, { kind: 'grade', classroomId: id(1), activityId: id(2) },
-    { ...target('classroom'), section: 'members' }, { ...target('submissions'), filter: 'all' },
+    { ...target('classroom'), section: 'settings' }, { ...target('classroom'), section: 'history' }, { ...target('submissions'), filter: 'all' },
     { ...privateTarget(), date: '2026-02-30' }, { ...privateTarget(), eventId: 'not-a-uuid' },
     { ...privateTarget(), token: 'never-in-a-target' }])
     assert.throws(() => parseHomeTarget(value), invalid, JSON.stringify(value));

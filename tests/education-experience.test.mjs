@@ -5,7 +5,7 @@ import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 
 const text = node => typeof node === 'string' ? node : Array.isArray(node) ? node.map(text).join(' ') : text(node?.props?.children ?? '');
 const room = { role: 'teacher', archived: false, units: [{ id: 'unit', name: 'Números', topics: [{ id: 'topic', name: 'Fracciones' }] }] };
-const value = { type: 'ASSIGNMENT', unitId: 'unit', topicIds: ['topic'], sourceIds: [], objective: 'Comparar fracciones', groupLevel: '', context: 'Contenido docente', difficulty: 'INTERMEDIATE', durationMinutes: 40, counts: { assignment: 3, development: 0, singleChoice: 0, multipleChoice: 0 }, acknowledgedWarnings: [] };
+const value = { type: 'ASSIGNMENT', unitIds: [], topicIds: ['topic'], teacherBrief: 'Que comparen dos representaciones de una fracción.', sourceIds: [], objective: 'Comparar fracciones', groupLevel: '', context: 'Contenido docente', difficulty: 'INTERMEDIATE', durationMinutes: 40, counts: { assignment: 3, development: 0, singleChoice: 0, multipleChoice: 0 }, acknowledgedWarnings: [] };
 
 test('Guided AI setup advances twice without generating and sends the unchanged request only on final confirmation', async () => {
   const { GenerationSetup } = loadTsModule("apps/web/src/features/activity-authoring/ui/GenerationSetup.tsx");
@@ -13,7 +13,7 @@ test('Guided AI setup advances twice without generating and sends the unchanged 
   try {
     await view.flush();
     const submit = async () => { descendants(view.tree, n => n.type === 'form')[0].props.onSubmit({ preventDefault() {} }); await view.flush(); };
-    assert.match(text(view.tree), /Tema y objetivo/);
+    assert.match(text(view.tree), /Alcance.*Ajustes.*Generar/);
     await submit(); assert.equal(calls.length, 0);
     assert.equal(descendants(view.tree, n => n.type?.name === 'ActivityGenerationForm')[0].props.step, 1);
     await submit(); assert.equal(calls.length, 0);
@@ -28,7 +28,7 @@ test('AI setup retains missing-topic validation and never generates while disabl
     const calls = [], view = hookView(GenerationSetup, { room, update() {}, sources: [], generate: body => calls.push(body), ...props });
     try { await view.flush(); descendants(view.tree, n => n.type === 'form')[0].props.onSubmit({ preventDefault() {} }); await view.flush();
       assert.equal(calls.length, 0); assert.equal(descendants(view.tree, n => n.type?.name === 'ActivityGenerationForm')[0].props.step, 0);
-      if (!props.disabled) assert.match(text(view.tree), /Seleccioná al menos un tema/);
+      if (!props.disabled) assert.match(text(view.tree), /Elegí al menos un tema/);
     } finally { view.close(); }
   }
 });
@@ -37,9 +37,20 @@ test('Inactive AI steps are hidden and disabled so native validation targets onl
   const { ActivityGenerationForm } = loadTsModule("apps/web/src/features/activity-authoring/ui/ActivityGenerationForm.tsx");
   for (const step of [0, 1, 2]) {
     const tree = ActivityGenerationForm({ room, value, update() {}, sources: [], disabled: false, step });
-    const groups = descendants(tree, n => n.type === 'fieldset' && n.props['data-generation-step'] !== undefined);
-    assert.equal(groups.length, 3);
-    for (const group of groups) { assert.equal(group.props.hidden, group.props['data-generation-step'] !== step); assert.equal(group.props.disabled, group.props['data-generation-step'] !== step); }
+    const groups = descendants(tree, node => node.props?.['data-generation-step'] !== undefined);
+    assert.deepEqual(groups.map(group => group.props['data-generation-step']), [0, 1, 2]);
+    for (const group of groups) {
+      const inactive = group.props['data-generation-step'] !== step;
+      assert.equal(group.props.hidden, inactive);
+      if (group.type === 'fieldset') {
+        assert.equal(group.props.disabled, inactive);
+      } else {
+        const controls = descendants(group, node => ['ActivityAssignment', 'ActivityTypeChoice'].includes(node.type?.name) ||
+          ['input', 'textarea', 'select', 'button'].includes(node.type));
+        assert.ok(controls.length > 0);
+        assert.ok(controls.every(control => control.props.disabled === inactive));
+      }
+    }
   }
 });
 

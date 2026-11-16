@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ClassroomClient } from '../../../../../../src/core/contracts/academic-client.ts';
 import type { GradingData } from '../../../../../../src/core/contracts/grading.ts';
+import { FoxmindIcon } from '../../../../../shared-ui/index.ts';
 import { Dialog, Notice } from '../../../../../shared-ui/feedback.tsx';
 import { PublishedGradeCorrection } from './PublishedGradeCorrection.tsx';
 import { GradingAiReview } from './GradingAiReview.tsx';
@@ -11,12 +12,16 @@ import { FeedbackGrade, FeedbackSections, QuestionFeedback } from './FeedbackDis
 import { feedbackSections, parseFeedback, serializeFeedback } from './overall-feedback.ts';
 import styles from './grading.module.css';
 
-export function GradingEditor({ api, roomId, attemptId, onClose, onChanged, onPrevious, onNext }: {
+export function GradingEditor({ api, roomId, attemptId, onClose, onChanged, onPrevious, onNext, onHistory, onReopen }: {
   api: ClassroomClient; roomId: string; attemptId: string; onClose: () => void; onChanged: () => Promise<void>;
-  onPrevious?: () => void; onNext?: () => void;
+  onPrevious?: () => void; onNext?: () => void; onHistory?: () => void; onReopen?: () => void;
 }) {
   const path = `/${roomId}/attempts/${attemptId}/grading`;
   const heading = useRef<HTMLHeadingElement>(null);
+  const operation = useRef(false);
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const [panel, setPanel] = useState<'rubric' | 'feedback'>('rubric');
+  const [guideOpen, setGuideOpen] = useState(false);
   const [data, setData] = useState<GradingData | null>(null), [overall, setOverall] = useState(''), [feedback, setFeedback] = useState(() => parseFeedback(null));
   const [leave, setLeave] = useState<(() => void) | null>(null);
   const [marks, setMarks] = useState<Record<number, string>>({}), [override, setOverride] = useState<string | null>(null);
@@ -43,8 +48,10 @@ export function GradingEditor({ api, roomId, attemptId, onClose, onChanged, onPr
   const published = data?.grade.isPublished;
   useEffect(() => { if (loadedAttempt) heading.current?.focus(); }, [loadedAttempt, published]);
   async function run(work: () => Promise<void>) {
+    if (operation.current) return;
+    operation.current = true;
     setBusy(true); setError(''); setSaved(false);
-    try { await work(); } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
+    try { await work(); } catch (e) { setError((e as Error).message); } finally { operation.current = false; setBusy(false); }
   }
   const change = () => { setSaved(false); setDirty(true); setConfirming(false); }, writable = !!data?.canSave && !busy && !aiBusy;
   const criteria = data?.grade.rubricSnapshot ?? data?.activity.evaluationRubric ?? [];
@@ -59,6 +66,7 @@ export function GradingEditor({ api, roomId, attemptId, onClose, onChanged, onPr
   const storedFeedback = serializeFeedback(feedback);
   const feedbackLength = [...(storedFeedback ?? '')].length;
   const canNavigate = !busy && !aiBusy;
+  const activeQuestion = data?.activity.questions[questionIndex];
   function leaveEditor(action: () => void) {
     if (dirty) setLeave(() => action);
     else action();
@@ -68,9 +76,12 @@ export function GradingEditor({ api, roomId, attemptId, onClose, onChanged, onPr
     ? [{ number: index + 1, id: question.id, prompt: question.prompt, feedback: question.feedback }] : []) ?? [];
 
   return <section className={`p8-grading ${styles.workspace}`} aria-label="Corrección privada del intento">
+    <header className="parity-focus-top"><button disabled={!canNavigate} aria-label="Volver al historial" onClick={() => leaveEditor(onClose)}><FoxmindIcon name="arrow-left"/></button><div><strong>Corregir entrega</strong><small>{data?.activity.title}</small></div></header>
     <nav className={styles.navigation} aria-label="Navegar entre entregas">
-      <button disabled={!canNavigate} onClick={() => leaveEditor(onClose)}>Volver al historial</button>
       <div className={styles.actions}>
+        <button disabled={busy || aiBusy} onClick={() => void run(() => load())}>Recargar corrección</button>
+        {onReopen ? <button disabled={!canNavigate} onClick={() => leaveEditor(onReopen)}>Habilitar otro intento</button> : null}
+        {onHistory ? <button disabled={!canNavigate} onClick={() => leaveEditor(onHistory)}>Ver intentos de este estudiante</button> : null}
         {onPrevious ? <button disabled={!canNavigate} onClick={() => leaveEditor(onPrevious)}>Anterior</button> : null}
         {onNext ? <button disabled={!canNavigate} onClick={() => leaveEditor(onNext)}>Siguiente</button> : null}
       </div>
@@ -78,58 +89,66 @@ export function GradingEditor({ api, roomId, attemptId, onClose, onChanged, onPr
     {error && !confirming ? <Notice error>{error} Tus cambios no se han confirmado. Revisá los datos o recargá la corrección.</Notice> : null}
     {!data ? error ? <button disabled={busy} onClick={() => void run(() => load())}>Recargar corrección</button> : <Notice>Cargando corrección…</Notice> : <>
       <header className={styles.reviewHeading}>
-        <div><h4 ref={heading} tabIndex={-1}>{data.attempt.firstName} {data.attempt.lastName}</h4>
+        <div className={styles.reviewPerson}><span aria-hidden="true">{data.attempt.firstName.charAt(0)}{data.attempt.lastName.charAt(0)}</span>
+          <div><h4 ref={heading} tabIndex={-1}>Entrega de {data.attempt.firstName} {data.attempt.lastName}</h4>
           <p>{data.activity.title} · Intento {data.attempt.number}</p>
           {submittedAt ? <p>Recibida el <time dateTime={submittedAt}>{new Date(submittedAt).toLocaleString('es-AR', {
             timeZone: data.activity.zone, hourCycle: 'h23', dateStyle: 'medium', timeStyle: 'short',
           })}</time>{data.attempt.submittedLate ? ' · Fuera de plazo' : ''}</p> : null}
-        </div>
+        </div></div>
         <span className={styles.state} data-tone={data.grade.isPublished ? 'published' : undefined}>
-          {data.grade.isPublished ? 'Publicada' : 'Corrección privada'}
+          <FoxmindIcon name={data.grade.isPublished ? 'check' : 'lock'}/>{data.grade.isPublished ? 'Publicada' : 'Corrección privada'}
         </span>
       </header>
       {data.archived ? <Notice>Aula archivada · la corrección es de solo consulta.</Notice> : null}
       <div className={styles.columns}>
-        <section className={styles.evidence} aria-label="Trabajo entregado">
-          {data.activity.objective || data.activity.instructions ? <details className={styles.panel}>
-            <summary>Consigna y objetivo de la actividad</summary>
-            {data.activity.objective ? <p className={styles.multiline}>{data.activity.objective}</p> : null}
-            {data.activity.instructions ? <p className={styles.multiline}>{data.activity.instructions}</p> : null}
-          </details> : null}
+        <section className={`${styles.evidence} ${styles.workEvidence}`} aria-label="Trabajo entregado">
+          <h5><FoxmindIcon name="file"/>Trabajo entregado</h5>
+          {data.activity.objective || data.activity.instructions ? <button type="button" className={styles.secondaryAction}
+            aria-haspopup="dialog" onClick={() => setGuideOpen(true)}>Consigna y objetivo de la actividad</button> : null}
           {data.activity.type === 'ASSIGNMENT' || data.attempt.attachments.length ? <section className={styles.panel}>
-            <h5>Trabajo entregado</h5>
             {data.attempt.practicalResponse ? <div className={styles.answerBox}><small>Respuesta escrita</small>
               <p className={styles.multiline}>{data.attempt.practicalResponse}</p></div> : null}
             {data.attempt.attachments.length ? <ul>{data.attempt.attachments.map(file => <li key={file.id}>{file.ready
               ? <a href={api.fileUrl(file.id)} target="_blank" rel="noreferrer">Descargar {file.name}</a> : `${file.name} · No disponible`}</li>)}</ul> : null}
             {!data.attempt.practicalResponse && !data.attempt.attachments.length ? <p>Sin texto ni archivos adjuntos.</p> : null}
           </section> : null}
-          {data.activity.questions.length ? <h5>Respuestas y puntajes</h5> : null}
-          {data.activity.questions.map((question, index) => <article className={styles.answerCard} key={question.id}>
-            <h5>Pregunta {index + 1} · {question.points.replace('.', ',')} puntos disponibles</h5>
-            <p className={styles.multiline}>{question.prompt}</p>
+          {data.activity.questions.length ? <nav className={styles.gradingQuestionNav} aria-label="Respuestas del estudiante">
+            {data.activity.questions.map((question, index) => <button key={question.id} type="button"
+              aria-label={`Pregunta ${index + 1}`} aria-current={index === questionIndex ? 'step' : undefined}
+              onClick={() => setQuestionIndex(index)}>{index + 1}</button>)}
+          </nav> : null}
+          {activeQuestion ? <article className={styles.answerCard} key={activeQuestion.id}>
+            <h5>Pregunta {questionIndex + 1} · {activeQuestion.points.replace('.', ',')} puntos disponibles</h5>
+            <p className={styles.multiline}>{activeQuestion.prompt}</p>
             <div className={styles.answerBox}><small>Respuesta del estudiante</small>
-              {question.type === 'DEVELOPMENT' ? <p className={styles.multiline}>{question.answer.text || 'Sin respuesta'}</p>
-                : <ul>{question.options.map(option => <li key={option.id}>{option.text}{question.answer.optionIds.includes(option.id) ? ' · Seleccionada' : ''}{option.correct ? ' · Clave correcta' : ''}</li>)}</ul>}
+              {activeQuestion.type === 'DEVELOPMENT' ? <p className={styles.multiline}>{activeQuestion.answer.text || 'Sin respuesta'}</p>
+                : <ul>{activeQuestion.options.map(option => <li key={option.id}>{option.text}{activeQuestion.answer.optionIds.includes(option.id) ? ' · Seleccionada' : ''}{option.correct ? ' · Clave correcta' : ''}</li>)}</ul>}
             </div>
-            {question.manual ? <label className={styles.scoreInput}>Puntos de la pregunta {index + 1}
-              <input aria-label={`Puntos de la pregunta ${index + 1}`} inputMode="decimal" placeholder="Pendiente"
-                value={(points[question.id] ?? '').replace('.', ',')} disabled={!writable}
-                onChange={e => { setPoints(previous => ({ ...previous, [question.id]: e.target.value.replace(',', '.') })); change(); }} />
-            </label> : <p>Puntos automáticos: {question.earned
-              ? question.earned.denominator === '1' ? question.earned.numerator : `${question.earned.numerator}/${question.earned.denominator}`
+            {activeQuestion.manual ? <label className={styles.scoreInput}>Puntos de la pregunta {questionIndex + 1}
+              <input aria-label={`Puntos de la pregunta ${questionIndex + 1}`} inputMode="decimal" placeholder="Pendiente"
+                value={(points[activeQuestion.id] ?? '').replace('.', ',')} disabled={!writable}
+                onChange={e => { setPoints(previous => ({ ...previous, [activeQuestion.id]: e.target.value.replace(',', '.') })); change(); }} />
+            </label> : <p>Puntos automáticos: {activeQuestion.earned
+              ? activeQuestion.earned.denominator === '1' ? activeQuestion.earned.numerator : `${activeQuestion.earned.numerator}/${activeQuestion.earned.denominator}`
               : 'Pendiente'}</p>}
-            {data.grade.isPublished ? question.feedback ? <QuestionFeedback feedback={question.feedback} /> : null
-              : <label>Devolución de la pregunta {index + 1}<textarea aria-label={`Devolución de la pregunta ${index + 1}`}
-                  maxLength={5000} value={comments[question.id] ?? ''} disabled={!writable}
-                  onChange={e => { setComments(previous => ({ ...previous, [question.id]: e.target.value })); change(); }} /></label>}
-          </article>)}
+            {data.grade.isPublished ? activeQuestion.feedback ? <QuestionFeedback feedback={activeQuestion.feedback} /> : null
+              : <label>Devolución de la pregunta {questionIndex + 1}<textarea aria-label={`Devolución de la pregunta ${questionIndex + 1}`}
+                  maxLength={5000} value={comments[activeQuestion.id] ?? ''} disabled={!writable}
+                  onChange={e => { setComments(previous => ({ ...previous, [activeQuestion.id]: e.target.value })); change(); }} /></label>}
+          </article> : null}
         </section>
 
         <aside className={styles.review} aria-label="Corrección y devolución">
+          <h5><FoxmindIcon name="edit"/>Evaluación</h5>
+          <div className={styles.gradingTabs} role="group" aria-label="Secciones de evaluación">
+            <button type="button" aria-pressed={panel === 'rubric'} onClick={() => setPanel('rubric')}>Rúbrica y nota</button>
+            <button type="button" aria-pressed={panel === 'feedback'} onClick={() => setPanel('feedback')}>Devolución</button>
+          </div>
           {data.canSave ? <GradingAiReview api={api} roomId={roomId} attemptId={attemptId} revision={data.revision} dirty={dirty}
             disabled={busy} onBusyChange={setAiBusy} onApplied={async () => { await load(); setSaved(true); await onChanged(); }} /> : null}
 
+          <div className={styles.reviewPanel} hidden={panel !== 'rubric'}>
           {data.grade.isPublished ? <BrujulaPublishedRubric snapshot={data.grade.rubricSnapshot} marks={data.grade.rubricMarks}/>
             : hasRubric ? <BrujulaRubricScoring criteria={criteria} marks={marks} disabled={!writable}
               onChange={(index, score) => { setMarks(previous => ({ ...previous, [index]: score })); change(); }}/> : null}
@@ -161,7 +180,8 @@ export function GradingEditor({ api, roomId, attemptId, onClose, onChanged, onPr
               {!!override && !validRubricScore(override) ? <p role="alert">Ingresá una nota de 0 a 10, con hasta dos decimales.</p> : null}
               <small>{data.grade.finalGrade === null ? 'Calificación pendiente de corrección manual' : `Nota guardada: ${data.grade.finalGrade.replace('.', ',')}`}</small>
             </section>}
-          <section className={styles.evidence} aria-label="Devolución para el estudiante">
+          </div>
+          <section className={styles.evidence} hidden={panel !== 'feedback'} aria-label="Devolución para el estudiante">
             <h5>Devolución para el estudiante</h5>
             {data.grade.isPublished ? <FeedbackSections value={data.grade.overallFeedback} /> : <>
               {feedbackSections.map(([key, label]) => <label key={key}>
@@ -178,11 +198,10 @@ export function GradingEditor({ api, roomId, attemptId, onClose, onChanged, onPr
             onChanged={async () => { await load(); await onChanged(); }} /> : null}
         </aside>
       </div>
-      <footer className={styles.footer}>
+      <footer className={`${styles.footer} parity-work-footer parity-grading-footer`}>
         <p role="status">{data.grade.isPublished ? 'Calificación publicada · solo consulta.' : saved ? 'Corrección privada guardada. No se ha publicado.'
           : dirty ? 'Hay cambios sin guardar.' : 'Corrección privada: el estudiante no ve esta calificación.'}</p>
         <div className={styles.actions}>
-          <button disabled={busy || aiBusy} onClick={() => void run(() => load())}>Recargar corrección</button>
           {data.canSave ? <button disabled={busy || aiBusy || !validInputs || feedbackLength > 5000} onClick={() => void run(async () => {
             const next = await api.call<GradingData>(path, 'POST', { revision: data.revision, overallGrade: data.activity.type === 'ASSIGNMENT' ? overall || null : null,
               overallFeedback: storedFeedback, ...(hasRubric ? { rubricMarks: rubricInputs(criteria, marks) } : {}),
@@ -192,15 +211,19 @@ export function GradingEditor({ api, roomId, attemptId, onClose, onChanged, onPr
           {data.canSave ? <button className="primary" disabled={!canPublish} onClick={() => setConfirming(true)}>Publicar calificación</button> : null}
         </div>
       </footer>
+      {guideOpen ? <Dialog title="Consigna y objetivo de la actividad" onClose={() => setGuideOpen(false)}>
+        {data.activity.objective ? <p className={styles.multiline}>{data.activity.objective}</p> : null}
+        {data.activity.instructions ? <p className={styles.multiline}>{data.activity.instructions}</p> : null}
+      </Dialog> : null}
       {confirming && data.grade.finalGrade !== null ? <Dialog className={styles.previewDialog} title="Así verá la devolución el estudiante" onClose={() => { if (!busy) setConfirming(false); }}>
         <section aria-label="Confirmar publicación de calificación" className={styles.result}>
           <FeedbackGrade grade={data.grade.finalGrade} title="Calificación"><p>Vista previa de la corrección guardada</p></FeedbackGrade>
           <FeedbackSections value={data.grade.overallFeedback} />
           <BrujulaPublishedRubric snapshot={data.grade.rubricSnapshot} marks={data.grade.rubricMarks}/>
-          {savedNotes.length ? <details><summary>Orientaciones por pregunta</summary><ol className={styles.previewNotes}>
+          {savedNotes.length ? <section aria-label="Orientaciones por pregunta"><h5>Orientaciones por pregunta</h5><ol className={styles.previewNotes}>
             {savedNotes.map(note => <li key={note.id} value={note.number}><p className={styles.multiline}>{note.prompt}</p>
               <QuestionFeedback feedback={note.feedback}/></li>)}
-          </ol></details> : null}
+          </ol></section> : null}
           {error ? <Notice error>{error}</Notice> : null}
           <Notice>Al publicar, el estudiante verá esta nota y devolución. La nota reemplaza la vigente de esta actividad, aunque sea menor.</Notice>
           <div className={styles.actions}><button disabled={busy} onClick={() => setConfirming(false)}>Cancelar publicación</button>

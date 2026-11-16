@@ -1,3 +1,5 @@
+import { DOCUMENT_MAX_BYTES, isDocumentExtension } from '../../../../../../../../src/core/domain/documents/document-formats.ts';
+
 export function studyFileError(code: string): never { throw Object.assign(new Error(code), {code}); }
 export function studyUploadIntent(input: unknown) {
   if (!input || typeof input !== 'object') return studyFileError('INVALID_UPLOAD');
@@ -8,8 +10,8 @@ export function studyUploadIntent(input: unknown) {
     || !Number.isSafeInteger(value.bytes) || Number(value.bytes) < 1
     || !['plan','material'].includes(String(value.purpose))) return studyFileError('INVALID_UPLOAD');
   const extension = value.name.split('.').pop()!.toLowerCase();
-  if (!(value.purpose === 'plan' ? ['pdf','docx'] : ['pdf','docx','pptx','xlsx','jpg','jpeg','png','zip']).includes(extension)
-    || Number(value.bytes) > (value.purpose === 'plan' ? 20_000_000 : 50_000_000)) return studyFileError('INVALID_UPLOAD');
+  if (!(isDocumentExtension(extension) || (value.purpose === 'material' && ['xlsx','jpg','jpeg','png','zip'].includes(extension)))
+    || Number(value.bytes) > (isDocumentExtension(extension) ? DOCUMENT_MAX_BYTES : 50_000_000)) return studyFileError('INVALID_UPLOAD');
   return { name: value.name, bytes: Number(value.bytes), purpose: value.purpose as 'plan'|'material', extension };
 }
 export function studyFileReady(row: {phase:string;size_bytes:bigint;digest:string|null;validated_digest:string|null;scanned_digest:string|null}): boolean {

@@ -1,3 +1,4 @@
+import { isDocumentExtension } from '../../../../../../src/core/domain/documents/document-formats.ts';
 import type { SqlTransaction } from '../../../../../../src/core/contracts/sql.ts';
 import type { FoxyGroundingFile, FoxyGroundingSource } from '../../../../../../src/core/domain/foxy/grounding.ts';
 
@@ -10,8 +11,8 @@ export function snapshotError(code: 'INVALID_INPUT' | 'FORBIDDEN' | 'FILE_NOT_RE
 }
 function file(row: FileRow, purpose: string, target: string | null): FoxyGroundingFile {
   if (!row || !row.ready || row.purpose !== purpose || (row.target_id?.toLowerCase() ?? null) !== (target?.toLowerCase() ?? null) || !row.digest || !/^[a-f0-9]{64}$/u.test(row.digest)) return snapshotError('FILE_NOT_READY');
-  if (!['pdf', 'docx'].includes(row.extension) || BigInt(row.size_bytes) < 1n || BigInt(row.size_bytes) > 20000000n) return snapshotError('AI_INPUT_LIMIT');
-  return { fileId: row.file_id, digest: row.digest, extension: row.extension as 'pdf' | 'docx',
+  if (!isDocumentExtension(row.extension) || BigInt(row.size_bytes) < 1n || BigInt(row.size_bytes) > 20000000n) return snapshotError('AI_INPUT_LIMIT');
+  return { fileId: row.file_id, digest: row.digest, extension: row.extension,
     sizeBytes: Number(row.size_bytes), purpose, targetId: target };
 }
 async function document(tx: SqlTransaction, room: string, sourceId: string, kind: 'plan' | 'material'): Promise<FoxyGroundingSource> {
@@ -20,7 +21,7 @@ async function document(tx: SqlTransaction, room: string, sourceId: string, kind
   const title = kind === 'plan' ? "('Plan ' || s.version_number)" : 's.title';
   const [row] = await tx.query<FileRow & { title: string }>(`SELECT ${fileFields},${title} AS title FROM ${table} s
     JOIN files f ON f.id=s.file_id AND f.classroom_id=s.classroom_id LEFT JOIN file_custodies c ON c.file_id=f.id
-    LEFT JOIN uploads u ON u.file_id=f.id WHERE s.id=$1::uuid AND s.classroom_id=$2::uuid ${kind === 'material' ? 'AND s.deleted_at IS NULL' : ''}`, id, room);
+    LEFT JOIN uploads u ON u.file_id=f.id WHERE s.id=$1::uuid AND s.classroom_id=$2::uuid ${kind === 'material' ? 'AND s.deleted_at IS NULL AND NOT EXISTS (SELECT 1 FROM material_revisions mr WHERE mr.previous_id=s.id)' : ''}`, id, room);
   if (!row) return snapshotError('FILE_NOT_READY');
   return { sourceId, title: row.title, kind: kind === 'plan' ? 'PLAN' : 'MATERIAL', text: '', files: [file(row, kind, null)] };
 }

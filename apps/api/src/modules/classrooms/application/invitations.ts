@@ -54,6 +54,18 @@ export class InvitationService {
       });
     });
   }
+  declineInvitation(request: unknown, id: string) {
+    return this.run(request, true, async (tx, actor) => {
+      if (actor.account_role !== 'student' || !uuid(id)) return fail('ENROLLMENT_UNAVAILABLE');
+      const [snapshot] = await this.repository.readInvitations04<{ classroom_id: string }>(tx, id);
+      if (!snapshot) return fail('ENROLLMENT_UNAVAILABLE');
+      const [room] = await this.repository.readClassrooms05<{ teacher_id: string; archived_at: Date | null }>(tx, snapshot.classroom_id);
+      if (!room || room.archived_at || room.teacher_id === actor.id) return fail('ENROLLMENT_UNAVAILABLE');
+      const [changed] = await this.repository.declineInvitation(tx, id, snapshot.classroom_id, actor.email_normalized, actor.id);
+      if (!changed) return fail('ENROLLMENT_UNAVAILABLE');
+      return { ok: true };
+    });
+  }
   acceptInvitation(request: unknown, id: string) {
     return this.run(request, true, async (tx, actor) => {
       if (actor.account_role !== 'student') return fail('ENROLLMENT_UNAVAILABLE');

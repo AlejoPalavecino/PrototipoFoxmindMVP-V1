@@ -6,7 +6,7 @@ import { readStudyBody, studyJson, studyReject } from '../modules/study/presenta
 
 const uuid = '[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}';
 // Keep the role explicit: a two-UUID teacher path must never resolve as a student list.
-const teacher = new RegExp(`^/chat-attachments/teacher/(${uuid})(?:/(${uuid}))?$`, 'u');
+const teacher = new RegExp(`^/chat-attachments/teacher/(${uuid})(?:/(${uuid})(/file)?)?$`, 'u');
 const student = new RegExp(`^/chat-attachments/student/(${uuid})/(${uuid})(?:/(${uuid}))?$`, 'u');
 type Service = ReturnType<typeof createChatAttachmentService>;
 type Admit = (request: IncomingMessage, response: ServerResponse) => Promise<void>;
@@ -26,9 +26,9 @@ export function installChatAttachmentTransport(app: Pick<INestApplication, 'use'
       studyJson(response, 404, { error: { code: 'NOT_FOUND' } });
       return;
     }
-    const method = request.method ?? '', id = s?.[3] ?? t?.[2];
+    const method = request.method ?? '', id = s?.[3] ?? t?.[2], file = Boolean(t?.[3]);
     const target = { conversationId: (s?.[2] ?? t?.[1])!, folderId: s?.[1] };
-    if (!(id ? ['PUT', 'DELETE'] : ['GET']).includes(method)) {
+    if (!(file ? ['GET'] : id ? ['PUT', 'DELETE'] : ['GET']).includes(method)) {
       studyJson(response, 405, { error: { code: 'METHOD_NOT_ALLOWED' } });
       return;
     }
@@ -37,8 +37,21 @@ export function installChatAttachmentTransport(app: Pick<INestApplication, 'use'
     void (async () => {
       await admit(request, response);
       const keys = [...url.searchParams.keys()];
-      if (new Set(keys).size !== keys.length || keys.some(key => method !== 'PUT' || !['name', 'copy'].includes(key))) attachmentError('INVALID_INPUT');
-      if (method === 'GET') {
+      if (new Set(keys).size !== keys.length || keys.some(key => file ? key !== 'mode' : method !== 'PUT' || !['name', 'copy'].includes(key))) attachmentError('INVALID_INPUT');
+      if (file) {
+        const mode = url.searchParams.get('mode') ?? 'preview';
+        if (!['preview', 'download'].includes(mode)) attachmentError('INVALID_INPUT');
+        const result = await service.read(request, target, id!);
+        const mime = result.extension === 'pdf' ? 'application/pdf' : result.extension === 'docx'
+          ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : result.extension === 'pptx'
+            ? 'application/vnd.openxmlformats-officedocument.presentationml.presentation' : 'application/octet-stream';
+        const name = encodeURIComponent(result.name).replace(/['()*]/gu, value => `%${value.charCodeAt(0).toString(16).toUpperCase()}`);
+        response.writeHead(200, { 'Content-Type': mime, 'Content-Length': result.bytes.length,
+          'Content-Disposition': `${mode === 'preview' && result.extension === 'pdf' ? 'inline' : 'attachment'}; filename="file.${result.extension}"; filename*=UTF-8''${name}`,
+          'Cache-Control': 'private, no-store', 'X-Content-Type-Options': 'nosniff', 'Cross-Origin-Resource-Policy': 'same-origin',
+          'Content-Security-Policy': "sandbox; default-src 'none'; frame-ancestors 'self'" });
+        response.end(result.bytes);
+      } else if (method === 'GET') {
         studyJson(response, 200, { items: await service.list(request, target) });
       } else if (method === 'DELETE') {
         await service.remove(request, target, id!);

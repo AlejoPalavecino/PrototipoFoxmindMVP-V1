@@ -1,6 +1,10 @@
 type Options = { window: Pick<Window, 'location' | 'addEventListener' | 'removeEventListener'>;
   shouldBlock: () => boolean; hidePresentation: () => void; onError?: () => void };
 const safePath = (href: string) => typeof href === 'string' && /^\/(?!\/)/u.test(href) && !/[\\\u0000-\u001f\u007f-\u009f]/u.test(href);
+export function foxyThreadId(search?: string): string | null {
+  const values = new URLSearchParams(search).getAll('chat');
+  return values.length === 1 && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/iu.test(values[0]!) ? values[0]! : null;
+}
 export function createFoxyNavigationBridge(options: Options) {
   let installed = false, disposed = false, restored = false;
   function visit(href: string, replace: boolean) {
@@ -14,7 +18,11 @@ export function createFoxyNavigationBridge(options: Options) {
   };
   const pageHide = () => { if (!disposed) options.hidePresentation(); };
   const pageShow = (event: PageTransitionEvent) => {
-    if (!disposed && event.persisted && !restored) { restored = true; visit('/foxy-ai', true); }
+    if (!disposed && event.persisted && !restored) {
+      restored = true;
+      const thread = foxyThreadId(options.window.location.search);
+      visit(thread ? '/foxy-ai?chat='+thread : '/foxy-ai',true);
+    }
   };
   return {
     install() {

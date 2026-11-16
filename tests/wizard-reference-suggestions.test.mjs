@@ -28,3 +28,25 @@ for (const state of ['FAILED', 'STALE']) test(`${state} extraction never adverti
   assert.doesNotMatch(text(view.tree), /Revisar sugerencias/i);
   assert.equal(view.applied(), 0);
 });
+
+test('a failed plan request is an error even when the saved job is still running', () => {
+  const { PlanExtraction } = componentWithPorts('apps/web/src/features/curriculum/ui/PlanExtraction.tsx', {
+    './ExtractionEditor.tsx': { ExtractionEditor: () => null },
+    '../../../../../shared-ui/index.ts': { AiProgress: () => null },
+  });
+  const tree = PlanExtraction({ extraction: { view: { state: 'RUNNING' }, busy: false,
+    message: 'No pudimos consultar el plan. Tu borrador sigue guardado.', messageError: true }, hasUnits: false, review: true });
+  const alert = descendants(tree, n => n.props.role === 'alert')[0];
+  assert.ok(alert); assert.match(alert.props.className, /error/); assert.match(text(alert), /borrador sigue guardado/);
+});
+
+test('a saved plan uses success feedback and cancellation remains informative', () => {
+  const { PlanExtraction } = componentWithPorts('apps/web/src/features/curriculum/ui/PlanExtraction.tsx', {
+    './ExtractionEditor.tsx': { ExtractionEditor: () => null },
+    '../../../../../shared-ui/index.ts': { AiProgress: () => null },
+  });
+  const tree = PlanExtraction({ extraction: { view: { state: 'APPLIED' }, busy: false, message: '', messageError: false }, hasUnits: true, review: true });
+  assert.match(descendants(tree, n => n.props.role === 'status')[0].props.className, /success/);
+  const cancelled = PlanExtraction({ extraction: { view: null, busy: false, message: 'Podés continuar manualmente.', messageError: false }, hasUnits: false, review: true });
+  assert.equal(descendants(cancelled, n => n.props.role === 'alert').length, 0);
+});

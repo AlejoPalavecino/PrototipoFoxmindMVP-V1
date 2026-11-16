@@ -85,11 +85,13 @@ export interface WallReadPort {
             canRemove: boolean;
         };
     }>;
+    legacyNotifications: (tx: SqlTransaction, actor: string) => Promise<object[]>;
     notificationPage: (tx: SqlTransaction, actor: string, query?: NotificationPageQuery) => Promise<{
         items: object[];
         unreadCount: number;
         nextCursor: string | null;
     }>;
+    setProjectedNotificationRead: (tx: SqlTransaction, actor: string, id: string, read: boolean) => Promise<import('../../../../../../src/core/contracts/notifications.ts').ProjectedNotificationTarget>;
     readAllVisibleNotifications: (tx: SqlTransaction, actor: string) => Promise<{
         read: boolean;
         updatedCount: number;

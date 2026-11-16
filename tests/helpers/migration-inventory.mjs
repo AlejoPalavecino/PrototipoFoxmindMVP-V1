@@ -31,4 +31,11 @@ export const migrationInventory = Object.freeze([
   '202611080006_study_ai_admission',
   '202611110001_classroom_invitation_batches',
   '202611120001_chat_attachments',
+  '202611150001_activity_interunit_brief',
+  '202611150002_office_formats',
+  '202611150003_agenda_projected_notifications',
+  '202611150004_foxy_cancellation',
+  '202611150006_invitation_decline',
+  '202611150007_material_description',
+  '202611160001_foxy_attachment_links',
 ]);

@@ -1,3 +1,5 @@
+import { DOCUMENT_MAX_BYTES, isDocumentExtension } from '../../../../../../src/core/domain/documents/document-formats.ts';
+
 export type FilePurpose = 'plan' | 'instructions' | 'material' | 'attachment';
 export interface UploadIntent { purpose: FilePurpose; name: string; bytes: number }
 export interface FileSafety {
@@ -25,7 +27,7 @@ export class FilePolicyError extends Error {
   }
 }
 
-const formats = new Set(['pdf', 'docx', 'pptx', 'xlsx', 'jpg', 'jpeg', 'png', 'zip']);
+const formats = new Set([ 'xlsx', 'jpg', 'jpeg', 'png', 'zip']);
 const purposes = new Set(['plan', 'instructions', 'material', 'attachment']);
 const sha256 = /^[a-f0-9]{64}$/;
 
@@ -40,11 +42,12 @@ export function validateUploadIntent(intent: UploadIntent): { extension: string;
   }
   const dot = intent.name.lastIndexOf('.');
   const extension = dot > 0 ? intent.name.slice(dot + 1).toLowerCase() : '';
-  const restricted = intent.purpose === 'plan' || intent.purpose === 'instructions';
-  if (!formats.has(extension) || (restricted && extension !== 'pdf' && extension !== 'docx')) {
+  const document = isDocumentExtension(extension);
+  const complementary = intent.purpose === 'material' || intent.purpose === 'attachment';
+  if (!document && !(complementary && formats.has(extension))) {
     throw new FilePolicyError('FILE_TYPE_NOT_ALLOWED');
   }
-  const maxBytes = restricted ? 20_000_000 : 50_000_000;
+  const maxBytes = document ? DOCUMENT_MAX_BYTES : 50_000_000;
   if (intent.bytes > maxBytes) throw new FilePolicyError('FILE_TOO_LARGE');
   return { extension, maxBytes };
 }

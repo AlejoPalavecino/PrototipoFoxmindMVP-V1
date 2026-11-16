@@ -1,4 +1,6 @@
-export const CHAT_ATTACHMENT_BYTES = 20_000_000;
+import { DOCUMENT_MAX_BYTES, isDocumentExtension } from '../../../../../../src/core/domain/documents/document-formats.ts';
+
+export const CHAT_ATTACHMENT_BYTES = DOCUMENT_MAX_BYTES;
 export const CHAT_ATTACHMENT_COUNT = 6;
 
 export function attachmentError(code: string): never {
@@ -7,10 +9,10 @@ export function attachmentError(code: string): never {
 
 export function parseChatAttachmentIntent(value: string | undefined, copyValue: string | undefined, student: boolean) {
   const name = value?.trim() ?? '';
-  const extension = /\.(pdf|docx)$/iu.exec(name)?.[1]?.toLowerCase();
-  if (!extension || [...name].length > 120 || /[/\\\u0000-\u001f\u007f-\u009f]/u.test(value ?? '')
+  const extension = name.slice(name.lastIndexOf('.') + 1).toLowerCase();
+  if (name.lastIndexOf('.') <= 0 || !isDocumentExtension(extension) || [...name].length > 120 || /[/\\\u0000-\u001f\u007f-\u009f]/u.test(value ?? '')
     || !name.slice(0, name.lastIndexOf('.')).trim() || (copyValue !== undefined && (copyValue !== '1' || !student))) {
     return attachmentError('INVALID_INPUT');
   }
-  return { name, extension: extension as 'pdf' | 'docx', copy: copyValue === '1' };
+  return { name, extension, copy: copyValue === '1' };
 }

@@ -55,34 +55,41 @@ for (const accountRole of ['teacher', 'student']) test(`Brújula keeps ${account
     modules: Object.fromEntries(['pending','review','feedback','agenda','queries','materials','classrooms','drafts','submitted'].map(name => [name,
       { status: 'ready', items: [], totalItems: 0, nextCursor: null }])) };
   for (const name of accountRole === 'teacher' ? ['pending','feedback'] : ['review','queries']) data.modules[name] = { status:'not-applicable' };
+  const target = { kind: 'classroom', classroomId: 'allowed', section: 'plan' };
+  data.modules.classrooms.items.push({ id: 'allowed', target,
+    classroom: { id: 'allowed', name: 'Aula autorizada', role: accountRole, archived: false, subject: 'Ciencias', division: 'A' } });
+  data.modules.classrooms.totalItems = 1;
   const actions = [];
   const view = hookView(Home, { accountRole, displayName: 'Alex', subjectId: 'subject', homeClient: { read: async () => data },
-    onCreate: () => actions.push('create'), onJoin: () => actions.push('join'), onClassrooms: () => actions.push('classrooms'), onAction() {} });
+    onCreate: () => actions.push('create'), onJoin: () => actions.push('join'), onClassrooms: () => actions.push('classrooms'),
+    onAction: destination => actions.push(destination) });
   try {
     await view.flush();
     const resources = descendants(view.tree, n => n.type === 'details' && n.props.className === 'fm-home-resources')[0];
     assert.equal(resources, undefined, 'The previous resources disclosure was retired by the approved design');
-    assert.equal(descendants(view.tree, n => n.type?.name === 'HomeModule' && ['pending','review'].includes(n.props.name)).length, 1);
-    assert.equal(descendants(view.tree, n => n.type?.name === 'HomeModule' && n.props.name === 'materials').length, 0);
-    const shortcuts = descendants(view.tree, n => n.type?.name === 'HomeShortcuts');
-    const tools = descendants(view.tree, n => n.type?.name === 'HomeTeacherTools');
-    assert.equal(shortcuts.length, Number(accountRole === 'student'));
-    assert.equal(tools.length, Number(accountRole === 'teacher'));
-    const contextual = [...shortcuts, ...tools][0];
-    assert.equal(contextual.props.data, data);
-    contextual.props.onClassrooms();
-    assert.deepEqual(actions, ['classrooms']);
-    assert.equal(typeof contextual.props[accountRole==='teacher'?'onUnauthorized':'onRetry'], 'function');
-    if(accountRole==='teacher')assert.equal(contextual.props.onSelected,undefined,'Action destinations do not mutate classroom focus');
-    assert.deepEqual(descendants(view.tree, n => n.type?.name === 'HomeModule').map(n => n.props.name),
-      accountRole === 'teacher' ? ['review', 'queries'] : ['pending', 'feedback']);
+    const priorities = descendants(view.tree, node => node.type?.name === 'HomePriorities')[0];
+    assert.equal(priorities.props.teacher, accountRole === 'teacher');
+    const priorityTree = priorities.type(priorities.props);
+    assert.match(text(priorityTree), accountRole === 'teacher' ? /Por acompañar/ : /Tu próximo paso/);
+    assert.doesNotMatch(text(priorityTree), accountRole === 'teacher' ? /Ver todas las actividades/ : /Entregas.*Consultas/);
+    assert.equal(descendants(view.tree, node => node.type?.name === 'HomeModule' && node.props.name === 'materials').length, 0);
+    const classrooms = descendants(view.tree, node => node.type?.name === 'HomeClassCards')[0];
+    const cards = classrooms.type(classrooms.props);
+    const open = descendants(cards, node => node.type === 'button' && node.props['aria-label'] === 'Abrir aula Aula autorizada')[0];
+    const all = descendants(cards, node => node.type === 'button' && text(node).trim() === 'Ver mis aulas')[0];
+    assert.ok(open);
+    assert.ok(all);
+    open.props.onClick();
+    all.props.onClick();
+    assert.deepEqual(actions, [target, 'classrooms']);
+    assert.equal(typeof classrooms.props.onRetry, 'function');
     const agenda = descendants(view.tree, n => n.type?.name === 'HomeMiniagenda')[0];
     assert.ok(agenda, 'The approved mixed miniagenda remains visible independently of work modules');
     assert.equal(agenda.props.teacher, accountRole === 'teacher');
     assert.equal(agenda.props.data, data);
     assert.equal(typeof agenda.props.onRetry, 'function');
     assert.equal(descendants(view.tree, n => n.type?.name === 'HomeFoxyNote').length, 0);
-    assert.equal(descendants(view.tree, n => n.type?.name === 'HomeFocus').length, Number(accountRole === 'teacher'));
+
   } finally { view.close(); if (previousWindow === undefined) delete globalThis.window; else globalThis.window = previousWindow; }
 });
 

@@ -18,7 +18,8 @@ export interface ActivityAiOptions {
   configuration: ClassroomAiConfiguration;
 }
 export interface CurriculumSnapshot {
-  teacherId: string; unit: { id: string; name: string }; topics: { id: string; name: string }[]; latestPlanId: string | null;
+  teacherId: string; unit: { id: string; name: string }; units?: { id: string; name: string }[];
+  topics: { id: string; name: string; unitId?: string }[]; latestPlanId: string | null;
 }
 export interface JobRow {
   id: string; owner_id: string; classroom_id: string; unit_id: string; type: StartActivityGeneration['type'];

@@ -44,7 +44,14 @@ for (const [file, component] of [['QuestionnaireAttempt', 'QuestionnaireAttempt'
   test(`${component}: a receipt must not invent the grading status`, async () => {
     const Component = loadTsModule(`apps/web/src/features/participation/ui/${file}.tsx`)[component];
     const view = hookView(Component, { api: {}, classroomId: 'room', data: session, editor: null, refresh: async () => {} });
-    try { await view.flush(); assert.doesNotMatch(text(view.tree), /pendiente de corrección|No hay una calificación publicada/); assert.match(text(view.tree), /Entrega a tiempo/); }
+    try {
+      await view.flush();
+      const html = renderToStaticMarkup(view.tree);
+      assert.doesNotMatch(html, /pendiente de corrección|No hay una calificación publicada/);
+      assert.match(html, /aria-label="Comprobante de entrega"/);
+      assert.match(html, /A tiempo · Solo consulta/);
+      assert.equal(button(view, 'Revisar entrega'), undefined);
+    }
     finally { view.close(); }
   });
 }

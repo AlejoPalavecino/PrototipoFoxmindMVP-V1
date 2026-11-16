@@ -195,7 +195,7 @@ export async function generateDevelopmentFeedback(practice:StudyPractice,answers
     topics:[...new Set(development.map(q=>q.topicId))].map(id=>({id,title:id})),sources},provider,developmentFeedback);
   return {orientative:true as const,...result};
 }
-export function planExam(input: {examAt:string;timeZone:string;now:string;topics:StudyTopic[];availability:{start:string;minutes:number}[];minutesPerTopic:number}) {
+export function planExam(input: {examAt:string;timeZone:string;now:string;topics:StudyTopic[];availability:{start:string;minutes:number}[];minutesPerTopic:number;sessionCount?:number}) {
   function instant(value:unknown):number{
     if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:\d{2})$/u.test(value))return invalid('INVALID_EXAM_INSTANT');
     const parts=value.slice(0,10).split('-').map(Number),calendar=new Date(Date.UTC(parts[0],parts[1]-1,parts[2]));
@@ -208,19 +208,28 @@ export function planExam(input: {examAt:string;timeZone:string;now:string;topics
   try { new Intl.DateTimeFormat('es',{timeZone:input.timeZone}); } catch { return invalid('INVALID_TIME_ZONE'); }
   if(!Number.isFinite(exam)||!Number.isFinite(now)||!input.topics.length||input.topics.length>100||input.availability.length>200
     ||!Number.isInteger(input.minutesPerTopic)||input.minutesPerTopic<1||input.minutesPerTopic>1440)return invalid();
+  const exact = input.sessionCount !== undefined;
+  if(input.sessionCount !== undefined && (!Number.isInteger(input.sessionCount) || input.sessionCount < 2
+    || input.sessionCount > 5 || input.availability.length !== input.sessionCount || exam <= now)) return invalid();
   if(exam<=now)return {sessions:[],warnings:['EXAM_IN_PAST']};
   const warnings:string[]=[],sessions:{id:string;title:string;topicIds:string[];startAt:string;endAt:string;minutes:number;timeZone:string}[]=[];
   let previousEnd=now,topic=0,remaining=input.minutesPerTopic;
   for(const slot of [...input.availability].sort((a,b)=>Date.parse(a.start)-Date.parse(b.start))){
     record(slot);const start=instant(slot.start),end=start+slot.minutes*60000;
     if(!Number.isFinite(start)||!Number.isInteger(slot.minutes)||slot.minutes<1||slot.minutes>1440)return invalid();
-    if(start<now||end>exam){warnings.push('OUTSIDE_EXAM_WINDOW');continue;}
-    if(start<previousEnd){warnings.push('OVERLAPPING_AVAILABILITY');continue;}previousEnd=end;
+    if(start<now||end>exam){if(exact)return invalid();warnings.push('OUTSIDE_EXAM_WINDOW');continue;}
+    if(start<previousEnd){if(exact)return invalid();warnings.push('OVERLAPPING_AVAILABILITY');continue;}previousEnd=end;
+    if (exact) {
+      const selected = input.topics[sessions.length % input.topics.length];
+      sessions.push({ id: `session-${sessions.length + 1}`, title: `Repaso: ${selected.title}`, topicIds: [selected.id],
+        startAt: new Date(start).toISOString(), endAt: new Date(end).toISOString(), minutes: slot.minutes, timeZone: input.timeZone });
+      continue;
+    }
     let capacity=slot.minutes,cursor=start;
     while(capacity>0&&topic<input.topics.length){const minutes=Math.min(capacity,remaining);
       sessions.push({id:`session-${sessions.length+1}`,title:`Repaso: ${input.topics[topic].title}`,topicIds:[input.topics[topic].id],startAt:new Date(cursor).toISOString(),endAt:new Date(cursor+minutes*60000).toISOString(),minutes,timeZone:input.timeZone});
       cursor+=minutes*60000;capacity-=minutes;remaining-=minutes;if(!remaining){topic++;remaining=input.minutesPerTopic;}}
   }
-  if(topic<input.topics.length)warnings.push('INSUFFICIENT_TIME');
+  if(!exact&&topic<input.topics.length)warnings.push('INSUFFICIENT_TIME');
   return {sessions,warnings:[...new Set(warnings)]};
 }

@@ -6,13 +6,13 @@ Cada cuenta tiene un rol exclusivo: docente o estudiante. Además del rol, el ba
 
 | Sección | Docente | Estudiante | Fuente |
 |---|---|---|---|
-| Carpetas de estudio | Sin acceso | Crear carpetas privadas, vincular una Biblioteca autorizada, abrir y descargar materiales, estudiar con Foxy, adjuntar al chat con opción de guardar en la carpeta, descargar creaciones y consignas, practicar con devolución y confirmar repasos en Agenda | [Estudio privado](../engineering/study/README.md) |
+| Carpetas de estudio | Sin acceso | Crear carpetas privadas con materia y borrador retomable, importar un plan vinculado, abrir y descargar materiales autorizados, estudiar con Foxy, renombrar chats y recuperar propuestas tras recargar, adjuntar con opción de guardar en carpeta, practicar con devolución y confirmar repasos en Agenda | [Estudio privado](../engineering/study/README.md) |
 | Cuenta y perfil | Registro como docente; acceso/verificación, nombres y avatar Foxy/iniciales con guardado explícito, contraseña, recuperación y cierre de sesión | Mismos flujos con rol estudiante | [Identidad](../engineering/identity/README.md) |
-| Inicio | Entregas y consultas ordenables, Aula en foco seleccionable, acciones con elección de aula y mini agenda | Pendientes, accesos de aula, devoluciones propias y mini agenda personal | [Inicio](../engineering/home/README.md) |
-| Mis aulas | Crear aula, consultar Activas/Archivadas/Pendientes, administrar códigos de seis dígitos, invitaciones por lote y miembros | Confirmar ingreso por código o invitación y consultar aulas autorizadas | [Aulas](../engineering/classrooms/README.md) |
-| Agenda | Eventos personales y contexto académico autorizado, con detalle por día | Eventos personales, plazos propios y repasos confirmados desde Estudio | [Agenda](../engineering/agenda/README.md) |
-| Foxy AI | Conversaciones privadas, historial buscable, contexto y adjuntos. Generar visuales desde un chat nuevo, leer y descargar creaciones o compartir tras revisión | Chat privado en Carpetas de estudio y consulta de materiales publicados autorizados | [Foxy](../engineering/ai/foxy.md) |
-| Notificaciones | Abrir destinos autorizados de su actividad docente | Abrir destinos propios autorizados | [Historial y avisos](../engineering/home/README.md) |
+| Inicio | Saludo y acciones por rol, entregas agrupadas y consultas, Crear actividad con selector de aula, tarjetas de aulas y agenda del día | Saludo y accesos a actividad y Mi estudio, pendientes, tarjetas de aulas y agenda del día | [Inicio](../engineering/home/README.md) |
+| Mis aulas | Crear aula, consultar Activas/Archivadas/Pendientes, administrar códigos de seis dígitos, invitaciones por lote y miembros | Confirmar ingreso por código, aceptar o rechazar invitaciones propias y consultar aulas autorizadas | [Aulas](../engineering/classrooms/README.md) |
+| Agenda | Eventos propios con recordatorio configurable y contexto académico autorizado, con detalle por día | Eventos propios con recordatorio configurable, plazos propios y repasos confirmados desde Estudio | [Agenda](../engineering/agenda/README.md) |
+| Foxy AI | Conversaciones privadas, historial buscable, contexto general o aula completa, apertura privada de adjuntos y conservación al cambiar contexto, cancelación de trabajos. Generar visuales, leer, editar y descargar creaciones o publicar una revisión en la Biblioteca del aula | Chat privado en Carpetas de estudio y consulta de materiales publicados autorizados | [Foxy](../engineering/ai/foxy.md) |
+| Notificaciones | Filtrar avisos propios, abrir destinos autorizados y administrar su lectura | Filtrar avisos propios, revisar invitaciones, abrir destinos autorizados, incluidos repasos, y administrar su lectura | [Historial y avisos](../engineering/home/README.md) |
 
 ## Dentro de un aula
 
@@ -20,9 +20,9 @@ Los nombres visibles y agrupaciones pueden variar por rol; la autoridad es la ca
 
 | Sección/capacidad | Docente dueño | Estudiante con acceso vigente | Fuente |
 |---|---|---|---|
-| Plan de estudio | Editar unidades/temas y estado de avance; revisar extracción asistida | Consultar plan y estado compartido | [Plan](../engineering/teaching/plan.md) |
-| Biblioteca | Publicar recursos aprobados, editar asociación y eliminar según vínculos/conservación | Consultar recursos disponibles, vista previa y descarga autorizada | [Biblioteca](../engineering/teaching/library.md), [archivos](../engineering/files/README.md) |
-| Actividades | Preparar manualmente o con IA; revisar consignas, preguntas, criterios y publicar | Consultar asignadas, resolver y confirmar entregas según tipo/plazo | [Autoría](../engineering/activities/authoring.md), [participación](../engineering/activities/participation.md) |
+| Plan de estudio | Editar unidades y temas durante la creación, revisar extracción asistida y marcar el avance por tema en el aula publicada | Consultar plan, avance compartido y recursos y actividades autorizados | [Plan](../engineering/teaching/plan.md) |
+| Biblioteca | Publicar archivos aprobados o recursos escritos, describirlos, vincularlos a actividades elegibles, revisar o eliminar según conservación | Consultar recursos, sus vínculos a actividades publicadas, vista previa y descarga autorizada | [Biblioteca](../engineering/teaching/library.md), [archivos](../engineering/files/README.md) |
+| Actividades | Preparar con temas de una o más unidades, partir de una idea privada para IA, revisar consignas, preguntas y criterios, y publicar | Consultar asignadas, resolver y confirmar entregas según tipo/plazo | [Autoría](../engineering/activities/authoring.md), [participación](../engineering/activities/participation.md) |
 | Entregas y correcciones | Consultar intentos, corregir privadamente, revisar asistencia IA y publicar | Consultar sus intentos y resultados publicados | [Prácticos](../engineering/activities/participation.md), [cuestionarios](../engineering/activities/participation.md), [calificaciones](../engineering/grading/README.md) |
 | Progreso | Consultar clase y alumnos actuales; conservar lectura docente de historia autorizada | Consultar únicamente su progreso | [Progreso](../engineering/grading/progress.md) |
 | Muro y consultas | Comunicar y moderar según autoría/propiedad y reglas del aula | Participar según permisos; no adquirir administración | [Muro](../engineering/teaching/wall.md) |
@@ -30,7 +30,7 @@ Los nombres visibles y agrupaciones pueden variar por rol; la autoridad es la ca
 
 ## Recorridos y excepciones
 
-Crear aula tiene cuatro pasos: datos/documento/portada → elección IA/manual → unidades/temas → revisión editable y confirmación. Subir el documento no inicia IA ni publica el aula. La [especificación vigente](../foxmind-v1-functional-spec.md) conserva la compatibilidad histórica del backend manual sin archivo; el asistente actual exige documento.
+Crear aula tiene cuatro pasos. Primero se completan datos y portada, luego se sube el documento y se elige IA o manual, se editan unidades y temas y se confirma la revisión. Subir el archivo lo envía a validación. La extracción y la publicación requieren sus propias acciones. El asistente exige un documento PDF, DOC, DOCX, PPT o PPTX aprobado de hasta 20 MB. La API conserva la compatibilidad histórica con currículos manuales completos sin archivo. [Especificación vigente](../foxmind-v1-functional-spec.md).
 
 La corrección privada o una sugerencia IA no es visible como nota publicada para el estudiante. Publicar exige una acción docente independiente. Completar actividades, rendimiento y avance del plan son medidas diferentes; no inferir una a partir de otra.
 

@@ -1,0 +1,96 @@
+/* Approved UI Lab composition for secondary classroom tabs. */
+#foxmind-product.fm3d-theme #classroom-main :is([data-classroom-tab=wall],[data-classroom-tab=members]) h2 { font-size:24px; line-height:1.25; }
+#foxmind-product.fm3d-theme #classroom-main :is(.parity-wall,.parity-roster) > header { padding-bottom:5px; }
+#foxmind-product.fm3d-theme #classroom-main :is(.parity-wall,.parity-roster) > header p { font-size:14px; margin-top:6px; }
+#foxmind-product.fm3d-theme #classroom-main .parity-wall { gap:22px; }
+#foxmind-product.fm3d-theme #classroom-main .parity-wall > div:has(>article[data-wall-id]) { gap:20px; }
+#foxmind-product.fm3d-theme #classroom-main .parity-wall article[data-post-type] { padding:24px; border:1px solid #e1e5e9; border-top:4px solid #b8d4c2; border-radius:20px; background:#fff; }
+#foxmind-product.fm3d-theme #classroom-main .parity-wall article[data-post-type] > header { padding:12px; margin:-6px -6px 18px; background:#f0f6f2; border-radius:14px; }
+#foxmind-product.fm3d-theme #classroom-main .parity-wall article[data-post-type] > h3 { font-size:21px!important; line-height:1.4; margin:0; color:#283545; }
+#foxmind-product.fm3d-theme #classroom-main .parity-wall article[data-post-type] > p { font-size:15px; line-height:1.65; margin:9px 0 0; color:#283545; }
+#foxmind-product.fm3d-theme #classroom-main .parity-wall article[data-post-type] > header strong { font-size:16px; }
+#foxmind-product.fm3d-theme #classroom-main .parity-wall article[data-post-type] > header small { font-size:13px; color:#5d6976; }
+#foxmind-product.fm3d-theme #classroom-main .parity-wall section[aria-label='Respuestas de la publicación'] { gap:12px; padding-top:12px; }
+#foxmind-product.fm3d-theme #classroom-main .parity-wall section[aria-label='Respuestas de la publicación'] > article { border:0; border-radius:12px; background:#e7eff8; padding:14px 16px; }
+#foxmind-product.fm3d-theme #classroom-main .parity-wall section[aria-label='Respuestas de la publicación'] > article p { margin:0; color:#283545; font-size:15px; }
+#foxmind-product.fm3d-theme #classroom-main .parity-wall [data-reply-trigger] { margin-top:8px; font-size:14px; min-height:44px; padding:9px 0; color:#b94e13; }
+#foxmind-product.fm3d-theme #classroom-main .parity-wall > [role=status]:has(h3) { padding:25px 10px; border:0; border-radius:0; background:transparent; }
+#foxmind-product.fm3d-theme #classroom-main .parity-roster .p5-roster { padding:23px; border:1px solid #e1e5e9; border-radius:20px; }
+#foxmind-product.fm3d-theme #classroom-main .parity-roster .p5-roster > li { padding:16px 0; gap:13px; grid-template-columns:38px minmax(0,1fr) auto; border-color:#e1e5e9; }
+#foxmind-product.fm3d-theme #classroom-main .parity-roster .p5-roster > li:last-child { padding-bottom:2px; }
+#foxmind-product.fm3d-theme #classroom-main .parity-roster .classroom-person-details strong { font-size:15px; }
+#foxmind-product.fm3d-theme #classroom-main .parity-roster .classroom-person-details small { font-size:13px; margin-top:4px; color:#5d6976; }
+#foxmind-product.fm3d-theme #classroom-main .parity-roster .classroom-person-summary { min-height:36px; padding:7px 11px; border-radius:12px; border:1px solid #e1e5e9; font-size:12px; color:#283545; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-members-aside > section:first-child:not(.classroom-members-invitations) { display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:20px; padding:18px 22px; border:0; border-radius:20px; background:#ffe9dc; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-members-aside > section:first-child > header h3 { font-size:16px; color:#283545; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-members-aside > section:first-child > header p { font-size:13px; margin-top:3px; color:#5d6976; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-members-aside > section:first-child > div:has(code) { display:contents; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-members-aside code { font-family:inherit; font-size:25px; letter-spacing:3px; color:#283545; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-members-aside > section:first-child > div:has(code) > button { min-height:44px; padding:10px 16px; border:1px solid #e1e5e9; border-radius:12px; background:#fff; color:#283545; font-size:14px; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-settings-form { padding:23px; border:1px solid #e1e5e9; border-radius:20px; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-settings-form > h2 { font-size:21px; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-settings-form .p5-fields { gap:18px; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-settings-form .p5-fields > label { grid-column:auto; font-size:15px; font-weight:600; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-settings-form .p5-fields > label:first-child { grid-column:1/-1; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-settings-form .p5-fields input { min-height:48px; font-size:16px; font-weight:400; border-color:#a5b4c3; border-radius:12px; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-settings-form .brujula-settings-covers { padding:0; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-settings-form .brujula-settings-covers h3 { font-size:15px; margin:0 0 8px; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-settings-form .brujula-settings-covers > div { display:flex; gap:12px; flex-wrap:wrap; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-settings-form .brujula-settings-covers label { position:relative; width:98px; height:67px; padding:3px; border:2px solid transparent; border-radius:12px; overflow:hidden; cursor:pointer; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-settings-form .brujula-settings-covers label:has(:checked) { border-color:#b94e13; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-settings-form .brujula-settings-covers label:focus-within { outline:3px solid #236a91; outline-offset:3px; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-settings-form .brujula-settings-covers input { position:absolute; opacity:0; width:1px; height:1px; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-settings-form .brujula-settings-covers label > span { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+#foxmind-product.fm3d-theme #classroom-main .classroom-settings-form .brujula-settings-covers .folder-cover { width:100%; height:100%; min-height:0; border:0; border-radius:10px; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-settings-form .brujula-settings-covers img { width:100%; height:100%; object-fit:cover; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-settings-archive { padding:23px; border:1px solid #e1e5e9; border-radius:20px; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-settings-archive h3 { font-size:17px; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-settings-archive > p { margin:0; font-size:14px; color:#5d6976; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-settings-save p { font-size:13px; color:#5d6976; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-settings-form > .classroom-settings-save { position:sticky; bottom:0; z-index:2; background:#fff; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:14px; padding:16px 0; margin:22px 0 0; border-top:1px solid #e1e5e9; }
+#foxmind-product.fm3d-theme #classroom-main .classroom-settings-form :is(input,label,button) { scroll-margin-block:100px 140px; }
+#foxmind-product.fm3d-theme #classroom-main .parity-roster-empty p { color:#475f73; }
+#foxmind-product.fm3d-theme #classroom-main .parity-roster-empty > img { width:115px; height:115px; }
+#foxmind-product.fm3d-theme .parity-wall-dialog { width:min(560px,calc(100vw - 32px)); border-radius:20px; }
+#foxmind-product.fm3d-theme .parity-wall-dialog .brujula-dialog-body > p { color:#5d6976; font-size:14px; margin:0 0 22px; }
+#foxmind-product.fm3d-theme .parity-wall-dialog form fieldset { gap:18px; }
+#foxmind-product.fm3d-theme .parity-wall-dialog form .p5-actions { padding-top:18px; margin-top:4px; border-top:1px solid #e1e5e9; }
+#foxmind-product.fm3d-theme .parity-wall-dialog .primary { display:inline-flex; align-items:center; gap:8px; }
+#foxmind-product.fm3d-theme .parity-wall-dialog .primary svg { width:17px; height:17px; }
+#foxmind-product.fm3d-theme #classroom-main dialog.parity-wall-dialog > header { top:0; }
+#foxmind-product.fm3d-theme #classroom-main dialog.parity-wall-dialog > header .p5-close { width:44px; min-width:44px; min-height:44px; flex:0 0 44px; }
+@media(max-width:760px) {
+  #foxmind-product.fm3d-theme #classroom-main .classroom-members-aside > section:first-child:not(.classroom-members-invitations) { grid-template-columns:minmax(0,1fr) auto; }
+  #foxmind-product.fm3d-theme #classroom-main .classroom-members-aside > section:first-child > header { grid-column:1/-1; }
+}
+@media(max-width:520px) {
+  #foxmind-product.fm3d-theme #classroom-main :is([data-classroom-tab=wall],[data-classroom-tab=members]) h2 { font-size:23px; }
+  #foxmind-product.fm3d-theme #classroom-main .parity-roster .p5-roster { padding:18px; }
+  #foxmind-product.fm3d-theme #classroom-main .parity-roster .p5-roster > li { grid-template-columns:34px minmax(0,1fr) auto; gap:9px; }
+  #foxmind-product.fm3d-theme #classroom-main .parity-roster .classroom-person-summary { min-height:44px; font-size:11px; }
+  #foxmind-product.fm3d-theme #classroom-main .classroom-settings-save > button { width:100%; }
+  #foxmind-product.fm3d-theme #classroom-main .classroom-settings-form { padding:20px; }
+  #foxmind-product.fm3d-theme #classroom-main .classroom-settings-form .p5-fields { grid-template-columns:minmax(0,1fr); }
+  #foxmind-product.fm3d-theme #classroom-main .classroom-settings-form .p5-fields > label { grid-column:1/-1; }
+  #foxmind-product.fm3d-theme #classroom-main :is(.parity-wall,.parity-roster) > header > .primary { width:100%; justify-content:center; }
+  #foxmind-product.fm3d-theme #classroom-main .parity-wall article[data-post-type] > h3 { font-size:19px!important; }
+}
+
+/* The history view has no aside; its empty panel fills the shared page grid. */
+#foxmind-product.fm3d-theme #classroom-main .classroom-workspace > [data-classroom-tab=history] {
+  grid-template-columns:minmax(0,1fr);
+}
+#foxmind-product.fm3d-theme #classroom-main [data-classroom-tab=history] .parity-roster-empty {
+  padding:38px 24px;
+}
+#foxmind-product.fm3d-theme #classroom-main [data-classroom-tab=history] .parity-roster-empty > img {
+  margin-bottom:0;
+}
+#foxmind-product.fm3d-theme #classroom-main [data-classroom-tab=history] .parity-roster-empty h3 {
+  font-size:17px;
+  line-height:1.2;
+}
+#foxmind-product.fm3d-theme #classroom-main [data-classroom-tab=history] .parity-roster-empty p {
+  max-width:370px;
+  line-height:1.6;
+}

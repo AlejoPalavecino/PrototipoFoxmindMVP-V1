@@ -8,6 +8,6 @@ Los estados PENDING, NEXT y TAUGHT pertenecen al modelo; el frontend actual prio
 
 El avance de temas dados/total es una medida distinta del cumplimiento y del rendimiento. La consulta no crea obligaciones ni calificaciones.
 
-La UI presenta unidades desplegables con su avance y temas completos, filtros Todos/Por dar/Dados y detalle del tema seleccionado. El docente puede marcar desde la fila o desde el detalle; se confirma el estado del servidor, se anuncia éxito y Deshacer restaura el estado anterior (incluido NEXT). El estudiante comparte estructura visual y sólo consulta. Un filtro vacío no conserva un detalle que contradiga sus resultados. Animaciones breves respetan reduced-motion.
+La UI presenta el mapa de unidades y temas junto al detalle seleccionado; en celular el mapa se abre con «Elegir tema». El docente marca el tema desde el detalle. Al confirmar en el servidor, se muestra el éxito y «Deshacer» puede restaurar el estado anterior (incluido NEXT). El estudiante comparte la estructura visual en modo consulta. El lector de un recurso se abre sobre el Plan; al cerrarlo se conserva el tema seleccionado. Las animaciones respetan la preferencia de movimiento reducido.
 
 Fuentes: [PlanWorkspace](../../../apps/web/src/features/curriculum/ui/PlanWorkspace.tsx), [Plan](../../../apps/web/src/application/academic-plan.tsx), [modelo](../data-model.md). [Evidencia actual](../../verification/flows.md).

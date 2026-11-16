@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { wizard, advance, nodes, button, text, initialDraft } from './helpers/wizard-reference/component-harness.mjs';
+import { wizard, advance, nodes, button, text, initialDraft, readStructuredPlan, editStructuredPlan } from './helpers/wizard-reference/component-harness.mjs';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 
@@ -18,7 +18,7 @@ test('cuatro pasos con portada en Datos y documento en Cargar plan; abrir y carg
     assert.ok(nodes(f.view, n => n.type === 'input' && n.props.name === 'coverKey').length);
     assert.equal(f.extractionInputs.at(-1).readyFileId, undefined);
     await advance(f.view);
-    assert.match(text(f.view.tree), /Elegí cómo cargar/);
+    assert.match(text(f.view.tree), /Cómo querés preparar el recorrido/);
     assert.equal(nodes(f.view, n => n.type === 'input' && n.props.type === 'file').length, 1);
     await advance(f.view);
     assert.match(text(f.view.tree), /Elegí.*IA.*manual/i);
@@ -31,14 +31,14 @@ test('manual llega a revisión sin IA ni publicación y confirmar usa la última
   const f = await wizard({ draft, call: async (path, method, input) => path.endsWith('/publish') ? { id: 'room', code: null } : { ...draft, revision: '9', payload: input.payload } });
   try {
     await advance(f.view); await choose(f);
-    const editor = nodes(f.view, n => n.type === 'textarea' && n.props['aria-label'] === 'Unidades y temas')[0];
-    editor.props.onChange({ target: { value: 'Unidad: Revisión final\n- Tema exacto\n- Unidad de longitud' } }); await f.view.flush();
+    const plan = [{name:'Revisión final',topics:[{name:'Tema exacto'},{name:'Unidad de longitud'}]}];
+    await editStructuredPlan(f.view, plan);
     await advance(f.view);
     assert.match(text(f.view.tree), /Revisión final/); assert.match(text(f.view.tree), /Unidad de longitud/);
-    assert.ok(button(f.view, 'Confirmar y crear aula')); assert.equal(published(f).length, 0);
+    assert.ok(button(f.view, 'Crear mi aula')); assert.equal(published(f).length, 0);
     assert.ok(f.extractionInputs.every(input => input.readyFileId === undefined));
     button(f.view, 'Editar unidades y temas').props.onClick(); await f.view.flush();
-    assert.ok(nodes(f.view, n => n.type === 'textarea' && n.props.value.includes('Revisión final')).length);
+    assert.deepEqual(readStructuredPlan(f.view), plan);
     await advance(f.view); await advance(f.view);
     assert.deepEqual(f.published, [['room', null]]);
     assert.deepEqual(published(f)[0][2], { revision: '9' });
@@ -55,6 +55,8 @@ test('el documento es requerido y el archivo pendiente no permite avanzar', asyn
     await advance(f.view); assert.match(text(f.view.tree), /Subí.*plan/i);
     const input = nodes(f.view, n => n.type === 'input' && n.props.type === 'file')[0];
     input.props.onChange({ target: { files: [new File(['test'], 'plan.pdf')], value: 'plan.pdf' } }); await f.view.flush();
+    assert.equal(nodes(f.view,n=>n.type==='form').length,0);
+    button(f.view,'Volver al programa').props.onClick(); await f.view.flush();
     await advance(f.view); assert.match(text(f.view.tree), /aprobado|revisión/i);
     assert.equal(nodes(f.view, n => n.type === 'form')[0].props['data-wizard-step'], 1);
     assert.equal(published(f).length, 0);
@@ -66,11 +68,12 @@ test('IA sólo se activa al confirmar esa ruta; no permite revisar una propuesta
   try {
     await advance(f.view); await choose(f, 'ai');
     assert.equal(f.extractionInputs.at(-1).readyFileId, 'approved');
-    await advance(f.view); assert.match(text(f.view.tree), /aplicá.*propuesta|esperá.*análisis/i);
+    assert.equal(nodes(f.view,n=>n.type==='form').length,0); assert.equal(button(f.view,'Crear mi aula'),undefined);
     assert.equal(published(f).length, 0);
-    button(f.view, 'Continuar manualmente').props.onClick(); await f.view.flush();
+    button(f.view,'Volver al programa').props.onClick(); await f.view.flush();
+    await choose(f,'manual');
     assert.equal(f.extractionInputs.at(-1).readyFileId, undefined);
-    await advance(f.view); assert.ok(button(f.view, 'Confirmar y crear aula'));
+    await advance(f.view); assert.ok(button(f.view, 'Crear mi aula'));
   } finally { f.close(); }
 });
 
@@ -84,7 +87,7 @@ test('error de publicación conserva revisión y reintentar no pierde unidades',
   try {
     await advance(f.view); await choose(f); await advance(f.view); await advance(f.view);
     assert.match(text(f.view.tree), /No se pudo crear/); assert.match(text(f.view.tree), /Primera/);
-    assert.ok(button(f.view, 'Confirmar y crear aula'));
+    assert.ok(button(f.view, 'Crear mi aula'));
     await advance(f.view); assert.equal(f.published.length, 1);
   } finally { f.close(); }
 });
@@ -133,4 +136,35 @@ for (const origin of ['home', 'classrooms']) test(`publicar desde ${origin} regr
     assert.equal(navigations.length, origin === 'home' ? 1 : 0);
     if (origin === 'home') assert.equal(navigations[0][0], 'classrooms');
   } finally { view.close(); }
+});
+
+
+test('tres portadas aprobadas conservan una selección previa fuera de catálogo',()=>{
+ const {ClassroomWizardCover}=loadTsModule('apps/web/src/features/classrooms/ui/ClassroomWizardCover.tsx');const changes=[];
+ const collapsed=ClassroomWizardCover({payload:{coverKey:'society'},onUpdate:(...args)=>changes.push(args)});
+ const radios=descendants(collapsed,n=>n.type==='input');assert.deepEqual(radios.map(n=>n.props.value),['literature','biology','math','society']);assert.equal(radios.find(n=>n.props.value==='society').props.checked,true);assert.deepEqual(changes,[]);
+ radios[0].props.onChange();assert.deepEqual(changes,[['coverKey','literature']]);
+ const current=ClassroomWizardCover({payload:{coverKey:'biology'},onUpdate(){}});assert.equal(descendants(current,n=>n.type==='input').length,3);assert.equal(descendants(current,n=>n.type==='button').length,0);
+});
+
+for (const method of ['ai', 'manual']) for (const step of [2, 3]) test(`reanudar ${method} en paso ${step + 1} conserva el plan y no dispara IA`, async () => {
+ const draft=initialDraft(); draft.payload.wizardStep=step; draft.payload.wizardMethod=method;
+ const f=await wizard({draft,call:async(path,verb,input)=>path.endsWith('/publish')?{id:'resumed',code:null}:{...draft,revision:'8',payload:input.payload}});
+ try {
+  assert.equal(nodes(f.view,n=>n.type==='form')[0].props['data-wizard-step'],step);
+  assert.ok(f.extractionInputs.every(input=>input.readyFileId===undefined));
+  if(step===2) await advance(f.view);
+  assert.match(text(f.view.tree),/Primera/); assert.match(text(f.view.tree),/Célula/);
+  assert.equal(published(f).length,0);
+  await advance(f.view); assert.deepEqual(f.published,[['resumed',null]]);
+  assert.ok(f.extractionInputs.every(input=>input.readyFileId===undefined));
+ } finally {f.close();}
+});
+test('reanudar revisión verifica el archivo y no permite publicar un programa rechazado',async()=>{
+ const draft=initialDraft();draft.payload.wizardStep=3;draft.payload.wizardMethod='ai';
+ const f=await wizard({draft,fileStatus:async id=>({id,name:'plan.pdf',ready:false,validation:'REJECTED',scan:'REJECTED'})});
+ try{assert.equal(nodes(f.view,n=>n.type==='form').length,0);assert.equal(button(f.view,'Crear mi aula'),undefined);button(f.view,'Volver al programa').props.onClick();await f.view.flush();await advance(f.view);assert.equal(published(f).length,0);assert.match(text(f.view.tree),/debe estar aprobado/);assert.ok(f.extractionInputs.every(input=>input.readyFileId===undefined));}finally{f.close();}
+});
+test('guardar y salir conserva paso y método después de retroceder',async()=>{
+ const f=await wizard();try{await advance(f.view);await choose(f);button(f.view,'Atrás').props.onClick();await f.view.flush();button(f.view,'Guardar y salir').props.onClick();await f.view.flush();const payload=f.calls.filter(([,method])=>method==='PATCH').at(-1)[2].payload;assert.equal(payload.wizardStep,1);assert.equal(payload.wizardMethod,'manual');assert.deepEqual(f.exits,[true]);}finally{f.close();}
 });

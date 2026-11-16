@@ -69,6 +69,7 @@ export function useActivityGeneration(api: ClassroomClient, room: Detail, onAppl
     }
   }
   async function generate(value: GenerationFormValue, predecessor?: GenerationView, acknowledge = false) {
+    let accepted = false;
     await run(async signal => {
       const total = value.counts.development + value.counts.singleChoice + value.counts.multipleChoice;
       if (value.type !== 'ASSIGNMENT' && (!Number.isInteger(total) || total < 1 || total > 30))
@@ -76,8 +77,9 @@ export function useActivityGeneration(api: ClassroomClient, room: Detail, onAppl
       const body = { ...value, revision: room.revision };
       const input = { ...body, requestId: requestId(JSON.stringify([predecessor?.id ?? 'start', body])) };
       const next = predecessor ? await client.regenerate(predecessor.id, input, acknowledge, signal) : await client.start(input, signal);
-      if (!signal.aborted) accept(next);
+      if (!signal.aborted) { accept(next); accepted = true; }
     });
+    return accepted;
   }
   async function apply(jobId: string, proposal: ActivityProposal) {
     await run(async signal => {

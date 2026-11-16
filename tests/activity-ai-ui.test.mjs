@@ -95,10 +95,17 @@ async function recoveredGeneration() {
   return { view, jobs, calls, applied };
 }
 
+async function recover(view, index = 0) {
+  button(view, 'Generaciones recientes').props.onClick(); await view.flush();
+  const options = descendants(view.tree, n => n.type === 'button' && textOf(n).includes('Recuperar generación'));
+  assert.ok(options[index]);
+  options[index].props.onClick(); await view.flush();
+}
+
 test('A5 recovery and reviewed local edits apply explicitly, preserve private keys and never call publish', async () => {
   const f = await recoveredGeneration();
   try {
-    button(f.view, 'Recuperar generación').props.onClick(); await f.view.flush();
+    await recover(f.view);
     const editor = descendants(f.view.tree, n => n.type?.name === 'ActivityGenerationProposal')[0]; assert.ok(editor);
     editor.props.update({ ...editor.props.proposal, title: 'Título docente editado', questions: [{ ...editor.props.proposal.questions[0], points: '4.25' }] }); await f.view.flush();
     assert.equal(f.calls.filter(([, method]) => method === 'POST').length, 0);
@@ -113,10 +120,10 @@ test('A5 recovery and reviewed local edits apply explicitly, preserve private ke
 test('A5 loading another result preserves dirty local edits until explicit replacement consent', async () => {
   const f = await recoveredGeneration();
   try {
-    button(f.view, 'Recuperar generación').props.onClick(); await f.view.flush();
+    await recover(f.view);
     let editor = descendants(f.view.tree, n => n.type?.name === 'ActivityGenerationProposal')[0];
     editor.props.update({ ...editor.props.proposal, title: 'Mi edición' }); await f.view.flush();
-    descendants(f.view.tree, n => n.type === 'button' && textOf(n).includes('Recuperar generación'))[1].props.onClick(); await f.view.flush();
+    await recover(f.view, 1);
     editor = descendants(f.view.tree, n => n.type?.name === 'ActivityGenerationProposal')[0]; assert.equal(editor.props.proposal.title, 'Mi edición');
     button(f.view, 'Revisar esta propuesta').props.onClick(); await f.view.flush();
     editor = descendants(f.view.tree, n => n.type?.name === 'ActivityGenerationProposal')[0]; assert.equal(editor.props.proposal.title, 'Mi edición');

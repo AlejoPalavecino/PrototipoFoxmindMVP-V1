@@ -21,7 +21,7 @@ Fuera de alcance: compartir carpetas, acceso docente, modificar aulas o califica
 
 ## Experiencia aprobada
 
-Conservar Brújula, Lexend, colores y componentes vigentes. No introducir otra identidad visual. La [galería de Estudio](../design/current/README.md#foxy-y-carpetas-de-estudio) muestra la interfaz publicada.
+La ampliación visual aprobada del 15 de noviembre usa Nunito local, naranja y superficies pastel con el shell compartido. La [guía de diseño](../design/README.md) describe el candidato; la galería anterior conserva evidencia histórica.
 
 ### 1. Encontrar y crear una carpeta
 
@@ -29,29 +29,16 @@ Agregar **Carpetas de estudio** a la navegación estudiantil, junto a Mis aulas.
 
 Asistente de cuatro pasos con la presentación compartida de Crear aula:
 
-1. **Datos de la carpeta:** nombre, año académico y portada predefinida; vínculo a aula opcional. Vincular agrega la Biblioteca disponible, sin importar notas, entregas, compañeros ni el plan del aula.
-2. **Cargar plan:** seleccionar o arrastrar un PDF/DOCX y esperar su aprobación. Elegir IA o manual. Subir un documento no dispara generación.
+1. **Datos de la carpeta:** nombre, año académico y portada predefinida; vínculo a aula opcional. Vincular incorpora las fuentes disponibles del aula, sin importar notas, entregas ni compañeros. Permite elegir una copia editable del plan con IDs propios.
+2. **Cargar plan:** elegir el plan del aula vinculada o seleccionar un PDF, DOC, DOCX, PPT o PPTX y esperar su aprobación. Con documento se elige IA o manual. Subirlo no dispara generación. La copia del plan del aula no exige otro archivo.
 3. **Unidades y temas:** revisar y editar estructura; al menos una unidad con un tema.
 4. **Revisar y crear:** resumen editable y **Confirmar y crear carpeta**. Guardar borrador no crea una carpeta activa.
 
-Propuesta de validación: nombre/unidad/tema 1–120 puntos de código, año conforme al validador de ciclo existente, planes PDF/DOCX de hasta 20 MB. No exigir materia/división porque no forman parte del pedido estudiantil. Cambiar banner no requiere subir imágenes.
+Propuesta de validación: nombre/unidad/tema 1–120 puntos de código, año conforme al validador de ciclo existente, documentos PDF/DOC/DOCX/PPT/PPTX de hasta 20 MB. No exigir materia/división porque no forman parte del pedido estudiantil. Cambiar banner no requiere subir imágenes.
 
 ### 2. Estudiar dentro de la carpeta
 
-Distribución propuesta de escritorio, siguiendo Foxy:
-
-```text
-Carpetas de estudio > Biología                         Solo para vos
-Biología · 2026             [Materiales y Plan] [Nuevo chat] [Opciones]
-┌───────────────────────────────────┬───────────────────────────────┐
-│ Conversación                     │ Herramientas | Creaciones     │
-│ Temas y fuentes utilizadas       │ Apuntes · Esquemas             │
-│                                  │ Quizzes · Ejercicios           │
-│ Mensajes, respuestas y citas      │ Simulacro · Preparar examen    │
-│                                  ├───────────────────────────────┤
-│ Escribile a Foxy…         Enviar  │ Conversaciones · Buscar       │
-└───────────────────────────────────┴───────────────────────────────┘
-```
+El chat ocupa el espacio principal. Contexto, Historial, Herramientas, Creaciones, Materiales y Nuevo chat se reúnen en una barra; los paneles se abren a demanda y conservan el borrador.
 
 La carpeta fija el contexto: no ofrecer selector de aulas docentes en el chat. Mostrar temas/fuentes realmente usados y sus avisos de disponibilidad. Herramientas/Creaciones y búsqueda de conversaciones quedan limitadas a esta carpeta. Creaciones permite abrir y editar apuntes/esquemas y volver a prácticas/resultados.
 

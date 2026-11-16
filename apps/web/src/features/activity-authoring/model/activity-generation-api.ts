@@ -1,6 +1,7 @@
 import type { ActivityGenerationApplied, ActivityGenerationCatalog, ActivityGenerationResponse, ActivityProposal, ActivitySourceCandidate, StartActivityGeneration } from '../../../../../../src/core/domain/index.ts';
 import type { ClassroomClient } from '../../../../../../src/core/contracts/academic-client.ts';
 
+type GenerationStartRequest = Omit<StartActivityGeneration, 'unitId'>;
 export type GenerationView = ActivityGenerationResponse;
 export type GenerationSource = ActivitySourceCandidate;
 export function generationSourceTitle(sourceId: string, sources: Pick<GenerationSource, 'sourceId' | 'title'>[]) {
@@ -34,8 +35,8 @@ export function generationClient(api: ClassroomClient, roomId: string) {
     sources: (signal?: AbortSignal) => api.call<ActivityGenerationCatalog>(`${base}/sources`, 'GET', undefined, signal),
     list: (signal?: AbortSignal) => api.call<{ jobs: GenerationView[] }>(base, 'GET', undefined, signal),
     get: (id: string, signal?: AbortSignal) => api.call<GenerationView>(`${base}/${id}`, 'GET', undefined, signal),
-    start: (input: StartActivityGeneration, signal?: AbortSignal) => api.call<GenerationView>(base, 'POST', input, signal),
-    regenerate: (id: string, input: StartActivityGeneration, acknowledgePossibleCharge: boolean, signal?: AbortSignal) =>
+    start: (input: GenerationStartRequest, signal?: AbortSignal) => api.call<GenerationView>(base, 'POST', input, signal),
+    regenerate: (id: string, input: GenerationStartRequest, acknowledgePossibleCharge: boolean, signal?: AbortSignal) =>
       api.call<GenerationView>(`${base}/${id}/regenerate`, 'POST', { ...input, acknowledgePossibleCharge }, signal),
     apply: (id: string, revision: string, requestId: string, proposal: ActivityProposal, signal?: AbortSignal) =>
       api.call<ActivityGenerationApplied>(`${base}/${id}/apply`, 'POST', { revision, requestId, proposal }, signal),

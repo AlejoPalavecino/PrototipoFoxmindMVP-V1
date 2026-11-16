@@ -12,7 +12,7 @@ export function useEventEditor(api: AgendaClient, original: PrivateEvent | undef
     if (!source || !occurrenceDate) return eventDraft(source, day, zone);
     const replacement = source.exceptions?.find(item => item.date === occurrenceDate)?.replacement;
     const schedule = replacement?.schedule ?? seriesSchedules(source).find(schedule => (schedule.kind === 'ALL_DAY' ? schedule.startDate : schedule.startLocal.slice(0,10)) === occurrenceDate) ?? source.schedule;
-    return eventDraft({...source,...replacement,schedule,repeat:{kind:'NONE'}},occurrenceDate,zone);
+    return eventDraft({...source,...replacement,reminder: replacement ? replacement.reminder : source.reminder,schedule,repeat:{kind:'NONE'}},occurrenceDate,zone);
   };
   const [baseline,setBaseline] = useState(()=>makeBaseline());
   const [draft, setDraft] = useState(baseline), [busy, setBusy] = useState(false);

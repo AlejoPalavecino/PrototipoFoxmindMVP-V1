@@ -35,7 +35,7 @@ export async function hasActiveMember(tx: Transaction, classroomId: string, norm
 export async function findOpenInvitation(tx: Transaction, classroomId: string, normalized: string) {
   const [pending] = await tx.query<InvitationRow>(`SELECT id,generation,
     issued_at<=clock_timestamp()-interval '60 seconds' AS can_resend FROM invitations
-    WHERE classroom_id=$1::uuid AND recipient_email_normalized=$2 AND accepted_at IS NULL AND revoked_at IS NULL FOR UPDATE`, classroomId, normalized);
+    WHERE classroom_id=$1::uuid AND recipient_email_normalized=$2 AND accepted_at IS NULL AND revoked_at IS NULL AND declined_at IS NULL FOR UPDATE`, classroomId, normalized);
   return pending;
 }
 

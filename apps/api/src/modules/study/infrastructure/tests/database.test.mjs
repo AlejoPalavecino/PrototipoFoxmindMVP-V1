@@ -41,3 +41,26 @@ test('private study PostgreSQL: ownership, dynamic library and revocation while 
 
 
 
+
+test('imports archived classroom plan only during valid membership and retains the editable copy after revocation',{timeout:90000},async()=>{
+ const {homeFixture}=await import('../../../../../../../tests/foxmind-3d-repository-fixture.test.mjs');
+ await withAgendaDatabase(async({transaction})=>transaction(async({query,database})=>{
+   const fixture=await homeFixture(query),room=fixture.rooms.archived,request={owner:fixture.pupil};
+   const service=createStudyService({database,authenticate:async(_tx,actor)=>actor.owner});
+   assert.equal((await service.list(request)).classrooms.find(item=>item.id===room.id).archived,true);
+   const draft=await service.create(request,{name:'Carpeta sintética',linkedClassroomId:room.id});
+   const second=await service.create(request,{name:'Pendiente',linkedClassroomId:room.id});
+   await assert.rejects(service.command({owner:fixture.actor},draft.folder.id,{action:'IMPORT_CLASSROOM_PLAN',requestId:randomUUID(),revision:'1'}),{code:'FORBIDDEN'});
+   const copied=await service.command(request,draft.folder.id,{action:'IMPORT_CLASSROOM_PLAN',requestId:randomUUID(),revision:'1'});
+   assert.deepEqual(copied.folder.planOrigin,{classroomId:room.id,classroomRevision:'0'});
+   assert.notEqual(copied.folder.units[0].id,room.unit);
+   assert.notEqual(copied.folder.units[0].topics[0].id,room.topic);
+   await query("UPDATE membership_periods SET ended_at=now(),end_reason='REMOVED',ended_by_id=$2 WHERE id=$1",room.period,room.teacher);
+   await assert.rejects(service.command(request,second.folder.id,{action:'IMPORT_CLASSROOM_PLAN',requestId:randomUUID(),revision:'1'}),{code:'FORBIDDEN'});
+   const edited=copied.folder.units.map(unit=>({...unit,title:'Una copia editada'}));
+   const activated=await service.patch(request,draft.folder.id,{revision:copied.folder.revision,status:'ACTIVE',linkedClassroomId:null,units:edited});
+   assert.equal(activated.folder.planFileId,null);
+   assert.equal((await service.get(request,draft.folder.id)).folder.units[0].title,'Una copia editada');
+   assert.deepEqual((await service.get(request,draft.folder.id)).sources,[]);
+ }));
+});

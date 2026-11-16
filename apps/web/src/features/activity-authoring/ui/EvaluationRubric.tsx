@@ -1,11 +1,14 @@
 import type { EvaluationRubric as Rubric } from '../../../../../../src/core/domain/grading/evaluation-rubric.ts';
 
-export function EvaluationRubric({ criteria,compact=false }: { criteria?: Rubric;compact?:boolean }) {
+export function EvaluationRubric({ criteria }: { criteria?: Rubric }) {
   if (!criteria?.length) return null;
-  if(compact)return <section className="evaluation-rubric" aria-label="Rúbrica de evaluación"><h3>Rúbrica de evaluación</h3><ul>{criteria.map((criterion,index)=><li key={index}><header><strong>{criterion.name}</strong><span>{criterion.weight} %</span></header><p>{criterion.description}</p></li>)}</ul></section>;
-  return <section className="evaluation-rubric" aria-label="Rúbrica de evaluación"><details open><summary><h3>Rúbrica de evaluación</h3><span>{criteria.length} {criteria.length===1?'criterio':'criterios'}</span></summary>
-    <ul>{criteria.map((criterion, index) => <li key={index}><header><strong>{criterion.name}</strong><span>{criterion.weight}%</span></header>{criterion.description ? <p>{criterion.description}</p> : null}</li>)}</ul>
-  </details></section>;
+  return <section className="evaluation-rubric" aria-label="Rúbrica de evaluación">
+    <h3>Rúbrica de evaluación</h3>
+    <ul>{criteria.map((criterion, index) => <li key={index}>
+      <header><strong>{criterion.name}</strong><span>{criterion.weight} %</span></header>
+      {criterion.description ? <p>{criterion.description}</p> : null}
+    </li>)}</ul>
+  </section>;
 }
 export function EvaluationRubricEditor({ criteria, onChange, disabled, compact = false }: { criteria: Rubric; onChange: (criteria: Rubric) => void; disabled?: boolean; compact?: boolean }) {
   const total = criteria.reduce((sum, criterion) => sum + criterion.weight, 0);

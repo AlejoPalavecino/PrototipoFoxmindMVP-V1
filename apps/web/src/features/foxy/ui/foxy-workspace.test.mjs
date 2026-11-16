@@ -33,7 +33,7 @@ test('first send in a new conversation clears the pending copy when its own turn
       return 'accepted';
     };
     await f.view.flush();
-    descendants(f.view.tree,n=>n.type==='button'&&String(n.props.children).includes('Nuevo chat'))[0].props.onClick();
+    descendants(f.view.tree,n=>n.type?.name==='FoxyChatLayout')[0].props.onNew();
     await f.view.flush();
     descendants(f.view.tree,n=>n.type==='textarea')[0].props.onChange({target:{value:message}});
     await f.view.flush();
@@ -48,12 +48,16 @@ test('first send in a new conversation clears the pending copy when its own turn
 
 test('teacher workspace offers conversations, explicit general or classroom creation and message composer',async()=>{
   const f=fixture();try {await f.view.flush();
-    descendants(f.view.tree,n=>n.props['aria-label']==='Cambiar contexto del chat')[0].props.onClick();await f.view.flush();
-    const html=renderToStaticMarkup(f.view.tree);
-    assert.match(html,/Repaso/iu);assert.match(html,/General/iu);assert.match(html,/Biología/iu);assert.match(html,/Herramientas/iu);
-    assert.match(html,/enviar/iu);assert.ok(descendants(f.view.tree,n=>n.type==='textarea').length>0);
     const layout=descendants(f.view.tree,n=>n.type?.name==='FoxyChatLayout')[0];
-    const select=descendants(layout.props.history,n=>n.type==='button' && String(n.props.children).includes('Repaso'))[0];assert.ok(select);select.props.onClick();
+    assert.equal(layout.props.context.props['aria-label'],'Cambiar contexto del chat');
+    layout.props.context.props.onClick();await f.view.flush();
+    const html=renderToStaticMarkup(f.view.tree);
+    assert.match(html,/General/iu);
+    const picker=descendants(f.view.tree,n=>n.type?.name==='FoxyContextPicker')[0],pickerView=hookView(picker.type,picker.props);
+    try{await pickerView.flush();descendants(pickerView.tree,n=>n.props['data-context-mode']==='classroom')[0].props.onClick();await pickerView.flush();assert.match(renderToStaticMarkup(pickerView.tree),/Biología/iu);assert.equal(f.calls.filter(c=>c.name==='create').length,0);}finally{pickerView.close();}
+    assert.match(renderToStaticMarkup(layout.props.tools),/Preparar un apunte/iu);
+    assert.match(html,/enviar/iu);assert.ok(descendants(f.view.tree,n=>n.type==='textarea').length>0);
+    const history=hookView(layout.props.history.type,layout.props.history.props);await history.flush();const select=descendants(history.tree,n=>n.type==='button'&&n.props['aria-current']==='true')[0];assert.ok(select);select.props.onClick();history.close();
     assert.deepEqual(f.calls.find(c=>c.name==='select')?.args,[conversation.id]);
   }finally{f.view.close();}
 });
@@ -136,7 +140,7 @@ test('READY answer exposes edit resource even when AI generation is disabled',as
   turns:[{id:turnId,sequence:1,state:'READY',purpose:'SUMMARY',message:'Hola',answer:{title:'Resumen',markdown:'Contenido',warnings:[],missingInformation:[]},errorCode:null,createdAt:'2026-01-01T00:00:00.000Z'}]};
  const controller=Object.fromEntries(['init','create','select','send','retry','loadMore','loadMoreConversations','dispose'].map(name=>[name,()=>{}]));
  const {FoxyWorkspace}=componentWithPorts("apps/web/src/features/foxy/ui/foxy-workspace.tsx",{}),view=hookView(FoxyWorkspace,{controller,state,classrooms:[classroom],onOpenResource:(...args)=>calls.push(args)});
- try{await view.flush();const buttons=descendants(view.tree,n=>n.type==='button'&&/abrir recurso/iu.test(String(n.props.children)));assert.equal(buttons.length,1);buttons[0].props.onClick();assert.deepEqual(calls,[[cid,turnId]]);}finally{view.close();}
+ try{await view.flush();const buttons=descendants(view.tree,n=>n.type==='button'&&/abrir creación/iu.test(String(n.props.children)));assert.equal(buttons.length,1);buttons[0].props.onClick();assert.deepEqual(calls,[[cid,turnId]]);}finally{view.close();}
 });
 
 test('non-READY or missing answer never offers resource editing',async()=>{
@@ -197,4 +201,25 @@ test('session native navigation guard includes only active management operations
  try{await view.flush();assert.ok(binding);assert.equal(binding.shouldBlock(),false,'durable cleanup alone must not block');
   for(const active of [{pending:'RETRY',busy:false},{pending:'DISCARD',busy:false},{pending:null,busy:true}]){management={...management,...active};assert.equal(binding.shouldBlock(),true,JSON.stringify(active));}}
  finally{view.close();}
+});
+
+test('compact layout opens auxiliary panels while keeping the composer mounted and exposes Nuevo chat',async()=>{
+  const {FoxyChatLayout}=componentWithPorts('apps/shared-ui/FoxyChatLayout.tsx',{});
+  const controls=[], composer=React.createElement('textarea',{'aria-label':'Mensaje'});
+  const context=React.createElement('button',{type:'button'},'General');
+  const view=hookView(FoxyChatLayout,{view:'chat',onView:value=>controls.push(value),children:composer,context,onNew:()=>controls.push('new'),
+    history:React.createElement('button',{type:'button','data-foxy-thread':true},'Conversación anterior'),tools:'Herramientas',creations:'Creaciones'});
+  try{
+    await view.flush();
+    const find=name=>descendants(view.tree,n=>n.type==='button'&&renderToStaticMarkup(n).includes(name))[0];
+    assert.ok(find('Historial'));
+    assert.equal(find('Historial').props['aria-haspopup'],'dialog');
+    find('Historial').props.onClick(); await view.flush();
+    assert.ok(descendants(view.tree,n=>n.type==='textarea').length);
+    assert.ok(find('Conversación anterior'));
+    const dialog=descendants(view.tree,n=>n.type?.name==='FoxyDialog')[0];assert.ok(dialog);dialog.props.footer.props.onClick(); await view.flush();
+    assert.equal(find('Conversación anterior'),undefined);
+    find('Nuevo chat').props.onClick();
+    assert.equal(controls.at(-1),'new');
+  }finally{view.close();}
 });

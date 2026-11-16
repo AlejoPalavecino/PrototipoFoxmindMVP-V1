@@ -6,7 +6,7 @@ import {componentWithPorts} from './foxmind-3d-flows-loader.test.mjs';
 import {hookView,descendants,deferred} from './agenda-ui-helpers.test.mjs';
 
 const {StudyWorkspace}=componentWithPorts('apps/web/src/features/study/ui/study-workspace.tsx',{'next/link':{default:({children,...props})=>React.createElement('a',props,children)}});
-function fixture(run){const props={detail:{folder:{id:'folder',name:'Biología',academicYear:2026,status:'ACTIVE',units:[]},conversations:[{id:'chat',title:'Consulta',messages:[]}],creations:[],practices:[],sources:[],memory:null},catalog:{classrooms:[]},busy:false,run,onReload:async()=>{}};return hookView(StudyWorkspace,props);}
+function fixture(run){const props={detail:{folder:{id:'folder',name:'Biología',academicYear:2026,status:'ACTIVE',units:[]},conversations:[{id:'chat',title:'Consulta',messages:[]}],creations:[],practices:[],exams:[],sources:[],memory:null},catalog:{classrooms:[]},busy:false,run,onReload:async()=>{}};return hookView(StudyWorkspace,props);}
 const area=view=>descendants(view.tree,n=>n.type==='textarea'&&n.props.id==='study-message')[0];
 const form=view=>descendants(view.tree,n=>n.type==='form')[0];
 
@@ -15,9 +15,12 @@ test('study chat shows outgoing message before response, prevents double send an
   try{await view.flush();area(view).props.onChange({target:{value:'Explicame la célula'}});await view.flush();
     form(view).props.onSubmit({preventDefault(){}});form(view).props.onSubmit({preventDefault(){}});await view.flush();
     assert.equal(calls.length,1);assert.equal(calls[0][0],'CHAT');
-    const html=renderToStaticMarkup(view.tree);assert.match(html,/Foxy está preparando tu respuesta/);assert.match(html,/Enviado para procesar/);
+    const html=renderToStaticMarkup(view.tree);assert.match(html,/Procesando tu solicitud/);
+    const outgoing=descendants(view.tree,n=>n.type==='article').find(n=>renderToStaticMarkup(n).includes('Explicame la célula'));
+    assert.ok(outgoing,'the draft is shown in the transcript while submitting');
     pending.reject(new Error('offline'));await view.flush();
-    assert.equal(area(view).props.value,'Explicame la célula');assert.doesNotMatch(renderToStaticMarkup(view.tree),/Enviado para procesar/);
+    assert.equal(area(view).props.value,'Explicame la célula');assert.doesNotMatch(renderToStaticMarkup(view.tree),/Procesando tu solicitud/);
+    assert.equal(descendants(view.tree,n=>n.type==='article').length,0);
   }finally{view.close();}
 });
 

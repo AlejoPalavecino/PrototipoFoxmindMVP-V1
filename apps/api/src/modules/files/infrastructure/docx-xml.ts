@@ -18,11 +18,15 @@ function collect(nodes: unknown, output: string[], depth = 0): void {
     }
   }
 }
-export function extractDocumentText(bytes: Buffer): string {
+export function validatedOfficeXml(bytes: Buffer): string {
   const encoding = (bytes[0] === 0xff && bytes[1] === 0xfe) || (bytes[0] === 0x3c && bytes[1] === 0)
     ? 'utf-16le' : (bytes[0] === 0xfe && bytes[1] === 0xff) || (bytes[0] === 0 && bytes[1] === 0x3c) ? 'utf-16be' : 'utf-8';
   const xml = new TextDecoder(encoding, { fatal: true }).decode(bytes);
   if (/<!DOCTYPE|<!ENTITY/iu.test(xml) || XMLValidator.validate(xml) !== true) throw new PlanDocumentError();
+  return xml;
+}
+export function extractDocumentText(bytes: Buffer): string {
+  const xml = validatedOfficeXml(bytes);
   const parsed: unknown = new XMLParser({ preserveOrder: true, ignoreAttributes: false,
     parseTagValue: false, trimValues: false, processEntities: true }).parse(xml);
   const parts: string[] = []; collect(parsed, parts);

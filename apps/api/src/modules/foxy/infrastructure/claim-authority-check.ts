@@ -3,10 +3,21 @@ import { parseSendFoxyMessage } from '../../../../../../src/core/domain/index.ts
 import type { SqlTransaction } from '../../../../../../src/core/contracts/sql.ts';
 import type { ChatAttachmentSource, FoxyGroundingSnapshot } from '../../../../../../src/core/domain/foxy/grounding.ts';
 import type { FoxyTurnLease } from './turn-queue.ts';
-import { rebuildGrounding } from './grounding-rebuild.ts';
+import { rebuildGrounding, snapshotSelection } from './grounding-rebuild.ts';
 
 type Row = { snapshot: FoxyGroundingSnapshot; context_kind: string; classroom_id: string | null };
 export function forbidden(): never { throw Object.assign(new Error('FORBIDDEN'), { code: 'FORBIDDEN' }); }
+export async function refreshFoxyAttachmentSnapshot(tx: SqlTransaction, owner: string, conversation: string,
+  snapshot: FoxyGroundingSnapshot, current: FoxyGroundingSnapshot) {
+  if (!snapshot.attachments?.length) return;
+  const ids = snapshot.attachments.map(source => source.fileId);
+  current.attachments = await tx.query<ChatAttachmentSource>(`SELECT a.id AS "fileId",a.name AS title,a.extension,
+    a.size_bytes AS "sizeBytes",a.digest FROM chat_attachments a JOIN foxy_chat_attachment_links l
+      ON l.attachment_id=a.id AND l.owner_id=a.owner_id
+    WHERE l.owner_id=$1::uuid AND l.conversation_id=$2::uuid AND l.removed_at IS NULL AND a.id=ANY($3::uuid[])
+      AND a.folder_id IS NULL AND a.ready_at IS NOT NULL AND a.cleanup_claimed_at IS NULL AND a.cleaned_at IS NULL
+    ORDER BY a.created_at,a.id`, owner, conversation, ids);
+}
 export async function checkClaimStatus(tx: SqlTransaction, lease: FoxyTurnLease, maxJobAgeMs: number) {
   const [row] = await tx.query<Row>(`SELECT t.snapshot,c.context_kind,c.classroom_id FROM foxy_turns t
     JOIN foxy_conversations c ON c.id=t.conversation_id AND c.owner_id=t.owner_id JOIN users u ON u.id=t.owner_id
@@ -23,17 +34,11 @@ export async function checkClaimStatus(tx: SqlTransaction, lease: FoxyTurnLease,
     if (!room) return forbidden();
   }
   try {
-    const selection = { topicIds: row.snapshot.curriculum?.selectedTopicIds ?? [], sourceIds: row.snapshot.sources.map(source => source.sourceId) };
+    const selection = snapshotSelection(row.snapshot);
     const checked = parseSendFoxyMessage({ requestId: '00000000-0000-0000-0000-000000000000', revision: '0',
       purpose: 'CHAT', text: 'context', selection }, expected).selection;
     const current = await rebuildGrounding(tx, expected, checked);
-    if (row.snapshot.attachments?.length) {
-      const ids = row.snapshot.attachments.map(source => source.fileId);
-      current.attachments = await tx.query<ChatAttachmentSource>(`SELECT id AS "fileId",name AS title,extension,
-        size_bytes AS "sizeBytes",digest FROM chat_attachments WHERE owner_id=$1::uuid AND conversation_id=$2::uuid
-        AND folder_id IS NULL AND ready_at IS NOT NULL AND removed_at IS NULL AND id=ANY($3::uuid[]) ORDER BY created_at,id`,
-      lease.ownerId, lease.conversationId, ids);
-    }
+    await refreshFoxyAttachmentSnapshot(tx,lease.ownerId,lease.conversationId,row.snapshot,current);
     return { snapshot: row.snapshot, fresh: isDeepStrictEqual(current, row.snapshot) };
   } catch (error) {
     if (['INVALID_INPUT', 'FORBIDDEN', 'FILE_NOT_READY', 'AI_INPUT_LIMIT', 'CONFLICT', 'EMPTY_CONTENT']

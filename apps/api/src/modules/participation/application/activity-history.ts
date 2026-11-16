@@ -16,7 +16,7 @@ import type { Transaction } from '../../classrooms/public.ts';
 interface HistoryRow {
   id: string; number: number; status: 'DRAFT' | 'SUBMITTED'; openedAt: Date; submittedAt: Date | null;
   appliedDeadlineAt: Date | null; individualDeadlineAt: Date | null; submittedLate: boolean | null;
-  studentId: string; firstName: string; lastName: string; currentMember: boolean; gradePublished: boolean;
+  studentId: string; firstName: string; lastName: string; currentMember: boolean; gradePublished: boolean; reviewState: 'pending' | 'saved' | 'published';
 }
 
 export class ActivityHistoryService {
@@ -45,7 +45,8 @@ export class ActivityHistoryService {
       if (room.teacher_id === actor.id) return fail('FORBIDDEN');
       const activity = await this.activity(tx, classroomId, activityId);
       if (activity.status !== 'PUBLISHED') return fail('FORBIDDEN');
-      const attempts = await this.historyRows(tx, classroomId, activityId, actor.id);
+      const rows = await this.historyRows(tx, classroomId, activityId, actor.id);
+      const attempts = rows.map(({ reviewState: _privateReviewState, ...attempt }) => attempt);
       return { activity: { ...this.activitySummary(activity, room.timezone),
         topicIds: await this.repository.readActivityTopics(tx, activity.id, activity.topic_id) }, attempts,
         delivered: attempts.some(a => a.status === 'SUBMITTED'), pendingResubmission: attempts.some(a => a.number > 1 && a.status === 'DRAFT') };
@@ -57,9 +58,12 @@ export class ActivityHistoryService {
       const room = await this.classroom(tx, actor, classroomId, false, true);
       const activity = await this.activity(tx, classroomId, activityId);
       const attempts = await this.historyRows(tx, classroomId, activityId, null);
+      const expectedStudents = await this.repository.expectedStudents(tx, classroomId, activityId);
+      const received = new Set(attempts.filter(attempt => attempt.status === 'SUBMITTED').map(attempt => attempt.studentId));
       // A pending reopening is metadata only. Never reveal its private answers or files to the teacher.
       return { revision: room.revision.toString(), activity: { ...this.activitySummary(activity, room.timezone),
         topicIds: await this.repository.readActivityTopics(tx, activity.id, activity.topic_id) }, attempts,
+        expectedStudentCount: expectedStudents.length, waitingStudents: expectedStudents.filter(student => !received.has(student.studentId)),
         canReopen: !room.archived_at && activity.status === 'PUBLISHED' };
     });
   }
@@ -122,6 +126,7 @@ export interface ActivityHistoryRepository {
  activityEvent: (tx: Transaction, classroomId: string, activityId: string, event: import('./activity-events.ts').ActivityEvent, recipient?: string | null, attemptId?: string | null) => Promise<void>;
  readActivityTopics: (tx: Transaction, activityId: string, fallback: string | null) => Promise<string[]>;
  requireReady: (file: import('../../files/public.ts').FileRow) => void;
+ expectedStudents(tx: Transaction, ...values: unknown[]): Promise<{ studentId: string; firstName: string; lastName: string }[]>;
  history(tx: Transaction, ...values: unknown[]): Promise<(HistoryRow)[]>;
  attempt(tx: Transaction, ...values: unknown[]): Promise<(AttemptRow & { student_id: string })[]>;
  obligation(tx: Transaction, ...values: unknown[]): Promise<(Obligation)[]>;

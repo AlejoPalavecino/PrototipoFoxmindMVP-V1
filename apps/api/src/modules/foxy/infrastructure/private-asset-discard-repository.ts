@@ -17,9 +17,9 @@ export function createFoxyPrivateAssetDiscardRepository() {
   return { async discard(tx: SqlTransaction, ownerId: string, assetId: string, command: DiscardFoxyPrivateAsset): Promise<FoxyPrivateAssetDiscardReceipt> {
     const owner = assetUuid(ownerId), id = assetUuid(assetId), asset = await lock(tx,owner,id);
     const hash = createHash('sha256').update(JSON.stringify(['foxy-private-discard-v1',id,command.assetRevision,command.confirm])).digest('hex');
-    const [previous] = await tx.query<{ asset_id: string; input_hash: string; asset_revision: bigint }>('SELECT asset_id,input_hash,asset_revision FROM foxy_private_asset_commands WHERE owner_id=$1::uuid AND request_id=$2::uuid',owner,command.requestId);
+    const [previous] = await tx.query<{ asset_id: string; action: string; input_hash: string; asset_revision: bigint }>('SELECT asset_id,action,input_hash,asset_revision FROM foxy_private_asset_commands WHERE owner_id=$1::uuid AND request_id=$2::uuid',owner,command.requestId);
     if (previous) {
-      if (previous.asset_id !== id || previous.input_hash !== hash) return fail('CONFLICT');
+      if (previous.asset_id !== id || previous.action !== 'DISCARD' || previous.input_hash !== hash) return fail('CONFLICT');
       return { assetId: id, action: 'DISCARD', assetRevision: String(previous.asset_revision) };
     }
     if (asset.state === 'DISCARDED' || String(asset.revision) !== command.assetRevision) return fail('CONFLICT');

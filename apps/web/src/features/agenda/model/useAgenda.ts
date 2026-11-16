@@ -31,7 +31,10 @@ function useAgendaQuery<T>(read: (signal: AbortSignal) => Promise<T[]>, enabled 
       setState({ read, items, loading: false, error: '' });
       return true;
     } catch (failure) {
-      if (!active.signal.aborted) setState({ read, items: [], loading: false, error: (failure as Error).message });
+      if (active.signal.aborted) return false;
+      const error = failure instanceof Error ? failure.message : '';
+      const unavailable = failure instanceof Error && 'code' in failure && failure.code === 'SERVICE_UNAVAILABLE';
+      setState({ read, items: [], loading: false, error: unavailable || !error ? 'No pudimos cargar la agenda.' : error });
       return false;
     }
   }, [read, enabled]);
@@ -39,19 +42,20 @@ function useAgendaQuery<T>(read: (signal: AbortSignal) => Promise<T[]>, enabled 
   return { ...(state?.read === read ? state : { items: [] as T[], loading: true, error: '' }), reload };
 }
 
-export function useAgenda(api: AgendaClient, range: AgendaRange, calendarReady: boolean, selectedDay?: string) {
+export function useAgenda(api: AgendaClient, range: AgendaRange, calendarReady: boolean, selectedDay?: string, calendarOnly = false) {
   const { startDate, endDateExclusive, timeZone } = range;
   const calendar = useAgendaQuery(useCallback((signal: AbortSignal) =>
     allItems(api, { startDate, endDateExclusive, timeZone }, signal), [api, startDate, endDateExclusive, timeZone]), calendarReady);
   const upcoming = useAgendaQuery(useCallback(async (signal: AbortSignal) =>
-    (await api.upcoming(5, signal)).items, [api]), !selectedDay);
+    (await api.upcoming(5, signal)).items, [api]), !calendarOnly && !selectedDay);
   const afterStart = shiftDay(selectedDay ?? startDate, 1), afterEnd = shiftDay(selectedDay ?? startDate, 32);
   const afterDay = useAgendaQuery(useCallback((signal: AbortSignal) =>
-    allItems(api, { startDate: afterStart, endDateExclusive: afterEnd, timeZone }, signal), [api, afterStart, afterEnd, timeZone]), calendarReady && Boolean(selectedDay));
+    allItems(api, { startDate: afterStart, endDateExclusive: afterEnd, timeZone }, signal), [api, afterStart, afterEnd, timeZone]), !calendarOnly && calendarReady && Boolean(selectedDay));
   const reload = useCallback(async () => {
+    if (calendarOnly) return calendar.reload();
     const results = await Promise.all([calendar.reload(), selectedDay ? afterDay.reload() : upcoming.reload()]);
     return results.every(Boolean);
-  }, [calendar.reload, upcoming.reload, afterDay.reload, selectedDay]);
+  }, [calendar.reload, upcoming.reload, afterDay.reload, selectedDay, calendarOnly]);
   useEffect(() => { const refresh = () => { void reload(); }; window.addEventListener('focus', refresh); return () => window.removeEventListener('focus', refresh); }, [reload]);
   return { calendar, upcoming, afterDay, reload };
 }

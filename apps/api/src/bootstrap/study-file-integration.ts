@@ -1,3 +1,4 @@
+import { isDocumentExtension } from '../../../../src/core/domain/documents/document-formats.ts';
 import {createHash} from 'node:crypto';
 import { inspectContent } from '../modules/files/infrastructure/content.ts';
 import { parseActivityDocument } from '../modules/files/infrastructure/activity-document.ts';
@@ -12,10 +13,10 @@ export function createStudyFileIntegration(files:FileService,options:Pick<StudyF
   const uploads=createStudyFiles({...options,storage:files.storage,inspect:inspectContent,scan:bytes=>files.scanner.scan(bytes)});
   const port:NonNullable<StudyOptions['files']>={
     async chatSources(tx, ownerId, folderId, conversationId) {
-      const rows = await tx.query<{ id: string; name: string; conversation_id: string }>(`SELECT id,name,conversation_id FROM chat_attachments
+      const rows = await tx.query<{ id: string; name: string; extension: string; conversation_id: string }>(`SELECT id,name,extension,conversation_id FROM chat_attachments
         WHERE owner_id=$1::uuid AND folder_id=$2::uuid AND ($3::uuid IS NULL OR conversation_id=$3::uuid)
         AND ready_at IS NOT NULL AND removed_at IS NULL ORDER BY created_at,id`, ownerId, folderId, conversationId ?? null);
-      return rows.map(row => ({ id: row.id, version: row.id, fileId: row.id, title: row.name, kind: 'MATERIAL',
+      return rows.map(row => ({ id: row.id, version: row.id, fileId: row.id, title: row.name, extension: row.extension, kind: 'MATERIAL',
         origin: 'OWN', available: true, readable: true, text: '', conversationId: row.conversation_id }));
     },
     async assertOwn(tx,ownerId,folderId,fileId,purpose) {
@@ -54,11 +55,11 @@ export function createStudyFileIntegration(files:FileService,options:Pick<StudyF
       if(!row||row.digest!==row.validated_digest||row.digest!==row.scanned_digest)return studyFileError('FILE_NOT_READY');
     }
     if(docxPreview && row.extension!=='docx')return studyFileError('PREVIEW_UNAVAILABLE');
-    if(!['pdf','docx'].includes(row.extension))return {text:source.text};
+    if(!isDocumentExtension(row.extension))return {text:source.text};
     const bytes=await files.storage.get(row.storage_key,Number(row.size_bytes));
     if(bytes.length!==Number(row.size_bytes)||createHash('sha256').update(bytes).digest('hex')!==row.digest)return studyFileError('FILE_NOT_READY');
     try {
-      const parsed=await parseActivityDocument(bytes,docxPreview?'docx-preview':row.extension as 'pdf'|'docx',AbortSignal.timeout(5000));
+      const parsed=await parseActivityDocument(bytes,docxPreview?'docx-preview':row.extension,AbortSignal.timeout(5000));
       return {text:parsed.document.kind==='text'?parsed.document.text:source.text,document:parsed.document};
     } catch (error) {
       if (docxPreview) return studyFileError('PREVIEW_UNAVAILABLE');

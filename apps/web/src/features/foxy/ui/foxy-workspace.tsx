@@ -1,8 +1,8 @@
 import { AsyncFeedback } from '../../../../../shared-ui/AsyncFeedback';
 import { FoxyToolPicker } from '../../../../../shared-ui/FoxyToolPicker';
 import { useChatFollow } from '../../../../../shared-ui/use-chat-follow';
-import { useEffect, useRef, useState } from 'react';
-import type { FoxyContext, FoxyPurpose } from '../../../../../../src/core/domain/index.ts';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import type { CreateFoxyConversation, FoxyContext, FoxyPurpose } from '../../../../../../src/core/domain/index.ts';
 import type { createFoxyChatController } from '../model/foxy-chat-controller';
 import type { createFoxyWorkspaceActions } from '../model/foxy-workspace-actions';
 import styles from './foxy-workspace.module.css';
@@ -13,13 +13,18 @@ import { FoxyMarkdown } from '../../../../../shared-ui/markdown';
 import { FoxmindIcon,type IconKey } from '../../../../../shared-ui/index.ts';
 import { Dialog } from '../../../../../shared-ui/feedback';
 import { ChatByline, FoxyChatLayout, type ChatIdentity, type ChatView } from '../../../../../shared-ui/FoxyChatLayout';
-import { ChatAttachmentButton, ChatAttachmentList } from '../../../../../shared-ui/ChatAttachmentControls';
+import { ChatAttachmentButton } from '../../../../../shared-ui/ChatAttachmentControls';
 import { useChatAttachments } from '../../../shared/use-chat-attachments';
-import { teacherAttachmentPath } from '../../../shared/chat-attachments';
+import { teacherAttachmentPath, teacherAttachmentFilePath } from '../../../shared/chat-attachments';
+import { FoxyDialog } from '../../../../../shared-ui/FoxyChatLayout';
+import { FoxyContextPicker, type FoxyContextPreview } from './foxy-context-picker';
+import { FoxyLibraryPanel } from './foxy-library-panel';
+import { FoxyToolDialog } from './foxy-tool-dialog';
+import { FoxyWait } from './foxy-wait';
 
 type Controller = ReturnType<typeof createFoxyChatController>;
 type State = ReturnType<Controller['getState']>;
-type Classroom = { id: string; name: string };
+type Classroom = { id: string; name: string; archived?: boolean; division?: string; coverKey?: string };
 type VisualChatDraft = { context: FoxyContext; onCreated: () => void };
 type ToolMode = 'NOTE' | 'DIAGRAM' | 'ACTIVITY' | 'PLAN' | 'RUBRIC';
 const tools: { mode: ToolMode; purpose: FoxyPurpose; label: string; hint: string; icon:IconKey; placeholder: string; request?: string }[] = [
@@ -29,7 +34,7 @@ const tools: { mode: ToolMode; purpose: FoxyPurpose; label: string; hint: string
   { mode: 'PLAN', purpose: 'LESSON_PLAN', label: 'Crear planificación', hint: 'Una secuencia de clase', icon: 'calendar', placeholder: '¿Qué tema vas a trabajar y cuánto dura la clase?', request: 'Prepará una planificación con una secuencia de clase.' },
   { mode: 'RUBRIC', purpose: 'RUBRIC', label: 'Crear rúbrica', hint: 'Criterios de evaluación', icon: 'list-checks', placeholder: '¿Qué producción querés evaluar y qué criterios te interesan?', request: 'Proponé una rúbrica como texto editable, con criterios, niveles de logro y pesos que sumen 100. No afirmes haberla asociado a una actividad.' },
 ];
-export function FoxyWorkspace({ identity, controller, state, classrooms, contextClassrooms = classrooms, onOpenResource, onCreateDiagram, onOpenVisual, creationBlocked = false, onNavigate, destinationHref, onActivityHandoff, catalog, onConversationQuery, onCreationQuery, onMoreConversations, onMoreCreations, onOpenCreation, onRefreshCatalog }: { identity?: ChatIdentity; destinationHref?: FoxyDestinationHref; catalog?: FoxyCatalogState; onConversationQuery?: (query: FoxyConversationQuery) => void; onCreationQuery?: (query: FoxyCreationQuery) => void; onMoreConversations?: () => void; onMoreCreations?: () => void; onOpenCreation?: (item: FoxyCreation) => void; onRefreshCatalog?: () => void; controller: ReturnType<typeof createFoxyWorkspaceActions>['chat']; state: State; classrooms: Classroom[]; contextClassrooms?: Classroom[]; onActivityHandoff?: (conversationId: string, turnId: string, mode: 'ACTIVITY' | 'RUBRIC') => void; onOpenResource?: (conversationId: string, turnId: string) => void; onCreateDiagram?: (prompt: string) => Promise<boolean> | boolean; onOpenVisual?: (draft?: VisualChatDraft) => void; creationBlocked?: boolean; onNavigate?: (href: string) => void }) {
+export function FoxyWorkspace({ visualTimeline, previewContext, onStartActivity, identity, onNewDraft, controller, state, classrooms, contextClassrooms = classrooms, onOpenResource, onCreateDiagram, onOpenVisual, creationBlocked = false, onNavigate, destinationHref, onActivityHandoff, catalog, onConversationQuery, onCreationQuery, onMoreConversations, onMoreCreations, onOpenCreation, onRefreshCatalog }: { visualTimeline?: ReactNode; previewContext?: (id: string, signal: AbortSignal) => Promise<FoxyContextPreview>; onStartActivity?: (classroomId: string) => void; identity?: ChatIdentity; onNewDraft?: () => void; destinationHref?: FoxyDestinationHref; catalog?: FoxyCatalogState; onConversationQuery?: (query: FoxyConversationQuery) => void; onCreationQuery?: (query: FoxyCreationQuery) => void; onMoreConversations?: () => void; onMoreCreations?: () => void; onOpenCreation?: (item: FoxyCreation) => void; onRefreshCatalog?: () => void; controller: ReturnType<typeof createFoxyWorkspaceActions>['chat']; state: State; classrooms: Classroom[]; contextClassrooms?: Classroom[]; onActivityHandoff?: (conversationId: string, turnId: string, mode: 'ACTIVITY' | 'RUBRIC') => void; onOpenResource?: (conversationId: string, turnId: string) => void; onCreateDiagram?: (prompt: string) => Promise<boolean> | boolean; onOpenVisual?: (draft?: VisualChatDraft,details?:{materialCount:number}) => void; creationBlocked?: boolean; onNavigate?: (href: string) => void }) {
   const [submittedMessage,setSubmittedMessage]=useState<{text:string;after:number;conversationId:string|null}|null>(null);
   const chatFollow=useChatFollow(state.current?.id,JSON.stringify([state.turns.map(t=>[t.id,t.state]),state.pending?.requestId,state.activeTurn?.state,submittedMessage?.text]));
   const inCurrentChat=submittedMessage?.conversationId===state.current?.id;
@@ -39,12 +44,21 @@ export function FoxyWorkspace({ identity, controller, state, classrooms, context
   useEffect(()=>{if(matchedSubmission)setSubmittedMessage(null);},[matchedSubmission]);
   const [newChat, setNewChat] = useState(false);
   const [view, setView] = useState<ChatView>('chat');
+  const [historyOpenKey,setHistoryOpenKey]=useState(0);
+  const composerRef=useRef<HTMLTextAreaElement>(null);
+  const chooseExample=(message:string)=>{setText(message);composerRef.current?.focus();};
   const [contextOpen, setContextOpen] = useState(false);
-  const [sourcesOpen, setSourcesOpen] = useState(false);
+  const [libraryOpen, setLibraryOpen] = useState(false);
+  const [toolDialog, setToolDialog] = useState<ToolMode|null>(null);
+  const [activityPicker, setActivityPicker] = useState(false);
+  const [scopeReport, setScopeReport] = useState<State['turns'][number]['classroomSources']>();
+  const [sourceTurnId,setSourceTurnId]=useState<string|null>(null);
   const [renameOpen, setRenameOpen] = useState(false), [renameTitle, setRenameTitle] = useState('');
   const renameValid = Boolean(renameTitle.trim()) && [...renameTitle.trim()].length <= 120 && !/[\u0000-\u001f\u007f-\u009f]/u.test(renameTitle);
   const [context, setContext] = useState('GENERAL');
   const [preparingContext, setPreparingContext] = useState(false);
+  const [contextError, setContextError] = useState('');
+  const carryRequest = useRef<{ key: string; input: CreateFoxyConversation } | undefined>(undefined);
   const requestedContext = useRef<{ id: string; previousId?: string } | null>(null);
   const [starting, setStarting] = useState<{ title: string; text: string; purpose: FoxyPurpose; mode: ToolMode | null; message: string; context: string; previousId?: string } | null>(null);
   const [startReady, setStartReady] = useState(false);
@@ -52,6 +66,14 @@ export function FoxyWorkspace({ identity, controller, state, classrooms, context
   const draftContext: FoxyContext = context === 'GENERAL' ? { kind: 'GENERAL' } : { kind: 'CLASSROOM', classroomId: context };
   const attachmentPath = !draftMode && state.current ? teacherAttachmentPath(state.current.id) : undefined;
   const attachments = useChatAttachments(attachmentPath);
+  const preparedSources = useRef<string | undefined>(undefined);
+  useEffect(()=>{
+    const id=state.current?.id;
+    if(draftMode||!id||state.current?.context.kind!=='CLASSROOM'||!state.curriculum||preparedSources.current===id)return;
+    preparedSources.current=id;
+    controller.setFullClassroom?.(true);
+    void controller.loadSources?.('MATERIAL');
+  },[draftMode,state.current?.id,state.curriculum,controller]);
   const draftAttachmentRequest = useRef<string | undefined>(undefined);
   async function attach(id: string, file: File) {
     await attachments.upload(async () => {
@@ -66,9 +88,8 @@ export function FoxyWorkspace({ identity, controller, state, classrooms, context
   }
   const [mode, setMode] = useState<ToolMode | null>(null), [text, setText] = useState('');
   const tool = tools.find(item => item.mode === mode), purpose = tool?.purpose ?? 'CHAT';
-  const outbound = tool?.request ? `${tool.request}\n\n${text}` : text;
+  const outbound = text;
   const validMessage = Boolean(text.trim()) && [...outbound].length <= 5000 && !/[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/u.test(text);
-  const topicCount = state.selection?.topicIds.length ?? 0, sourceCount = state.selection?.sourceIds.length ?? 0;
   const enabled = mode === 'DIAGRAM' ? Boolean(onCreateDiagram && state.capabilities?.diagramGeneration.enabled) : Boolean(state.capabilities?.textGeneration.enabled), disabled = attachments.busy || preparingContext || !!starting || state.busy || Boolean(state.activeTurn || state.pending) || !enabled
     || (!draftMode && state.current?.context.kind === 'CLASSROOM' && !state.curriculum?.canGenerate);
   useEffect(() => {
@@ -95,110 +116,102 @@ export function FoxyWorkspace({ identity, controller, state, classrooms, context
       if (result === 'accepted' || result === 'uncertain') { setText(value => value === starting.text ? '' : value); setMode(null); } else setSubmittedMessage(null);
     });
   }, [starting, startReady, state.busy, state.current, state.selection, controller, onCreateDiagram, creationBlocked]);
-  const openConversation = (id: string) => { setSubmittedMessage(null); setNewChat(false); setMode(null); setView('chat'); void controller.select(id); };
-  const visualTool = { value: 'VISUALS', label: 'Imágenes y esquemas', hint: 'Formato, vista previa y recursos visuales',
-    example: 'Una imagen del ciclo del agua para la clase.', icon: 'layers', opensDialog: true } as const;
-  const toolContents = <>
-    <header className={styles.galleryHeading}>
-      <div><small className={styles.galleryEyebrow}>De la idea al recurso</small><h2>¿Qué querés preparar?</h2><p>Elegí por dónde empezar. Después lo construimos en el chat.</p></div>
-      <img src="/brujula/avatars/foxy-creative.webp" width={72} height={72} alt=""/>
-    </header>
-    <FoxyToolPicker items={[...tools.map(tool => ({ ...tool, value: tool.mode, example: tool.placeholder })),
-      ...(onOpenVisual ? [visualTool] : [])]} value={mode}
-      disabled={preparingContext || !!starting || state.busy || !!state.activeTurn || !!state.pending} onChange={value => {
-        if (value === 'VISUALS') onOpenVisual?.(draftMode ? { context: draftContext, onCreated: () => setNewChat(false) } : undefined);
-        else { setMode(value); setView('chat'); }
-      }}/>
-  </>;
-  const creationContents = <FoxyCollectionPanel page={catalog?.creations ?? { items: [], next: null, loading: false, error: null }} query={catalog?.creationQuery ?? { q: '', context: 'ALL', type: 'ALL', status: 'ALL' }} classrooms={contextClassrooms} onNavigate={onNavigate} destinationHref={destinationHref} onQuery={onCreationQuery} onMore={onMoreCreations} onRefresh={onRefreshCatalog} disabled={state.busy || creationBlocked || !onOpenCreation} onOpen={item => { onOpenCreation?.(item); }} />;
-  const conversationContents = catalog ? <FoxyConversationPanel page={catalog.conversations} query={catalog.conversationQuery} classrooms={contextClassrooms} currentId={state.current?.id} disabled={!!starting || state.busy} onQuery={onConversationQuery} onSelect={openConversation} onMore={onMoreConversations} onRefresh={onRefreshCatalog} /> : <><ul>{state.conversations.map(item => <li key={item.id}><button type="button" disabled={!!starting || state.busy} aria-current={state.current?.id === item.id ? 'true' : undefined} onClick={() => openConversation(item.id)}>{item.title}</button></li>)}</ul>{state.nextConversationCursor ? <button type="button" disabled={state.busy} onClick={() => void controller.loadMoreConversations()}>Más conversaciones</button> : null}</>;
-  return <section className={styles.workspace} aria-label="Espacio Foxy AI">
-    <nav className={styles.location} aria-label="Ubicación"><a href="/inicio" onClick={event => {
-      if (!onNavigate || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
-      event.preventDefault(); onNavigate('/inicio');
-    }}>Inicio</a><FoxmindIcon name="chevron-right" /><span aria-current="page">Foxy AI</span></nav>
-    <header className={styles.header}>
-      <div><span className={styles.eyebrow}><FoxmindIcon name="spark" /> ESTUDIO DOCENTE</span><h1>Foxy AI</h1></div>
-      <button type="button" className="p5-primary" disabled={attachments.busy || preparingContext || !!starting || state.busy} onClick={() => {
-        requestedContext.current = null; draftAttachmentRequest.current = undefined;
-        setNewChat(true); setSubmittedMessage(null); setText(''); setContext('GENERAL'); setMode(null); setView('chat');
-      }}><FoxmindIcon name="plus" />Nuevo chat</button>
-    </header>
+  const drafts = useRef(new Map<string,string>());
+  const draftKey = draftMode ? `new:${context}` : state.current!.id;
+  const saveDraft = () => drafts.current.set(draftKey,text);
+  const openConversation = (id: string) => { saveDraft(); setText(drafts.current.get(id)??''); setSubmittedMessage(null); setNewChat(false); setMode(null); setView('chat'); void controller.select(id); };
+  const materialSources = draftMode ? [] : state.sources?.MATERIAL?.items ?? [];
+  const materialCount = attachments.items.length + materialSources.filter(source => source.available).length;
+  const contextName = draftMode ? contextClassrooms.find(room=>room.id===context)?.name ?? 'Contexto general' : state.curriculum?.classroomTitle ?? 'Contexto general';
+  const openLibrary = () => { setLibraryOpen(true); if(state.curriculum&&!draftMode) void controller.loadSources?.('MATERIAL'); };
+  const newConversation = () => {
+    const nextContext = draftMode ? context : state.current?.context.kind==='CLASSROOM' ? state.current.context.classroomId : 'GENERAL';
+    saveDraft(); onNewDraft?.(); requestedContext.current=null; draftAttachmentRequest.current=undefined;
+    setNewChat(true);setSubmittedMessage(null);setText('');setContext(nextContext);setMode(null);setView('chat');
+  };
+  const toolContents = <FoxyToolPicker items={[
+    {value:'NOTE',label:'Preparar un apunte',hint:'Ideas claras para tu grupo.',icon:'book',color:'sky',opensDialog:true},
+    {value:'DIAGRAM',label:'Imágenes y esquemas',hint:'Una explicación que se pueda ver.',icon:'layers',color:'mint',opensDialog:true},
+    {value:'ACTIVITY',label:'Crear una actividad',hint:'Continuá en el editor de actividades.',icon:'pencil',color:'peach',opensDialog:true},
+    {value:'PLAN',label:'Planificar una clase',hint:'Inicio, desarrollo y cierre.',icon:'calendar',color:'rose',opensDialog:true},
+    {value:'RUBRIC',label:'Pensar una rúbrica',hint:'Criterios para acompañar.',icon:'progress',color:'sky',opensDialog:true},
+  ]} value={null} disabled={preparingContext || !!starting || state.busy || !!state.activeTurn || !!state.pending} onChange={(value:ToolMode) => {
+    setView('chat');
+    if(value==='DIAGRAM'&&onOpenVisual) onOpenVisual(draftMode ? {context:draftContext,onCreated:()=>setNewChat(false)} : undefined,{materialCount});
+    else if(value==='ACTIVITY'&&onStartActivity) setActivityPicker(true);
+    else setToolDialog(value);
+  }}/>;
+  const creationContents = <FoxyCollectionPanel page={catalog?.creations ?? { items: [], next: null, loading: false, error: null }} query={catalog?.creationQuery ?? { q: '', context: 'ALL', type: 'ALL', status: 'ALL' }} classrooms={contextClassrooms} onNavigate={onNavigate} destinationHref={destinationHref} onQuery={onCreationQuery} onMore={onMoreCreations} onRefresh={onRefreshCatalog} onTools={()=>setView('tools')} disabled={state.busy || creationBlocked || !onOpenCreation} onOpen={item => { onOpenCreation?.(item); }} />;
+  const conversationContents = <FoxyConversationPanel page={catalog?.conversations ?? {items:state.conversations,next:state.nextConversationCursor,loading:false,error:null}} query={catalog?.conversationQuery ?? {q:'',context:'ALL'}} classrooms={contextClassrooms} currentId={state.current?.id} disabled={!!starting || state.busy} onQuery={onConversationQuery} onSelect={openConversation} onMore={onMoreConversations ?? (()=>void controller.loadMoreConversations())} onRefresh={onRefreshCatalog} onNew={newConversation}
+    onRename={item=>{saveDraft();void Promise.resolve(controller.select(item.id)).then(selected=>{if(selected){setNewChat(false);setRenameTitle(item.title);setRenameOpen(true);}});}} />;
+  return <section className={`${styles.workspace} parity-foxy-workspace`} aria-label="Espacio Foxy AI">
     <FoxyChatLayout view={view} onView={setView} history={conversationContents}
-      historyKey={draftMode ? undefined : state.current?.id} tools={toolContents} creations={creationContents}>
-      <div className={styles.chat}>
-        <p className={styles.srOnly}>{draftMode || state.current?.context.kind === 'GENERAL' ? 'Contexto general' : state.curriculum?.classroomTitle ? `Contexto del aula: ${state.curriculum.classroomTitle}` : 'Contexto del aula no disponible'}</p>
-        <header className={styles.refreshHeading}>
-          <h2>{draftMode ? 'Nueva conversación' : state.current?.title}</h2>
-          <div className={styles.refreshActions}>
-            <button type="button" aria-label="Cambiar contexto del chat" className={styles.contextPill} disabled={preparingContext || !!starting || state.busy}
-              onClick={() => setContextOpen(true)}>
-              <FoxmindIcon name="globe" />{draftMode ? classrooms.find(room => room.id === context)?.name ?? 'General' : state.curriculum?.classroomTitle ?? 'General'}
-            </button>
-            {!draftMode && state.current?.context.kind === 'CLASSROOM' && state.curriculum && <button type="button" onClick={() => setSourcesOpen(true)}>
-              {topicCount} {topicCount === 1 ? 'tema' : 'temas'} · {sourceCount} {sourceCount === 1 ? 'fuente' : 'fuentes'}
-            </button>}
-            {!draftMode && state.current && <button type="button" disabled={state.busy || !!starting}
-              onClick={() => { setRenameTitle(state.current!.title); setRenameOpen(true); }}>Renombrar</button>}
-          </div>
-        </header>
-        {contextOpen && <FoxyContextPicker classrooms={classrooms}
+      historyOpenKey={historyOpenKey} historyKey={draftMode ? undefined : state.current?.id} tools={toolContents} creations={creationContents} creationsCount={catalog?.creations.items.length ?? 0}
+      context={<button type="button" className={`${styles.contextLaunch} parity-ai-contextLaunch`} aria-label="Cambiar contexto del chat" aria-haspopup="dialog"
+        disabled={attachments.busy || preparingContext || !!starting || state.busy || !!state.pending || !!state.activeTurn} onClick={() => setContextOpen(true)} data-context-kind={draftMode ? draftContext.kind : state.current?.context.kind}>
+        <FoxmindIcon name={draftContext.kind==='GENERAL'&& (draftMode||state.current?.context.kind==='GENERAL')?'chat-square':'book'}/>
+        <span><small>{(draftMode?context==='GENERAL':state.current?.context.kind==='GENERAL')?'Sin un aula vinculada':'Aula vinculada'}</small><strong>{draftMode ? contextClassrooms.find(room => room.id === context)?.name ?? 'Contexto general' : state.curriculum?.classroomTitle ?? 'Contexto general'}</strong></span>
+        <FoxmindIcon name="chevron-right"/>
+      </button>}
+      newDisabled={attachments.busy || preparingContext || !!starting || state.busy}
+      onNew={newConversation}>
+      <div className={`${styles.chat} parity-ai-conversation`}>
+        <p className={`${styles.srOnly} parity-ai-srOnly`}>{draftMode || state.current?.context.kind === 'GENERAL' ? 'Contexto general' : state.curriculum?.classroomTitle ? `Contexto del aula: ${state.curriculum.classroomTitle}` : 'Contexto del aula no disponible'}</p>
+        {contextOpen && <FoxyContextPicker classrooms={contextClassrooms}
           current={draftMode ? context : state.current?.context.kind === 'CLASSROOM' ? state.current.context.classroomId : 'GENERAL'}
-          onClose={() => setContextOpen(false)} onApply={chosen => {
+          busy={preparingContext} applyError={contextError} onClose={() => {if(!preparingContext)setContextOpen(false);}} attachmentCount={attachments.items.length} previewContext={previewContext}
+          onLibrary={()=>{setContextOpen(false);openLibrary();}}
+          onApply={async chosen => {
+            if(attachments.busy||preparingContext||state.busy||state.pending||state.activeTurn)return;
+            const actual=draftMode?context:state.current?.context.kind==='CLASSROOM'?state.current.context.classroomId:'GENERAL';
+            if(chosen===actual){setContextOpen(false);return;}
+            if(attachments.ready===false){setContextError(attachments.error??'Estamos consultando tus archivos. Volvé a intentar en un momento.');return;}
+            if(!draftMode&&state.current&&attachments.items.length){
+              const nextContext:FoxyContext=chosen==='GENERAL'?{kind:'GENERAL'}:{kind:'CLASSROOM',classroomId:chosen};
+              const carryAttachments={sourceConversationId:state.current.id,sourceRevision:state.current.revision,attachmentIds:attachments.items.map(item=>item.id).sort()};
+              const key=JSON.stringify({context:nextContext,carryAttachments});
+              if(carryRequest.current?.key!==key)carryRequest.current={key,input:{requestId:crypto.randomUUID(),title:'Nueva conversación',context:nextContext,carryAttachments}};
+              setPreparingContext(true);setContextError('');
+              try{
+                const created=await controller.create(carryRequest.current.input);
+                if(typeof created!=='string'){setContextError('No pudimos cambiar el contexto. Tus archivos y este chat se conservan; volvé a intentar.');return;}
+                carryRequest.current=undefined;saveDraft();setContext(chosen);setNewChat(false);setContextOpen(false);setSubmittedMessage(null);
+                if(chosen!=='GENERAL')controller.setFullClassroom?.(true);
+              }catch{setContextError('No pudimos cambiar el contexto. Tus archivos y este chat se conservan; volvé a intentar.');}
+              finally{setPreparingContext(false);}
+              return;
+            }
+            saveDraft(); setText(drafts.current.get(`new:${chosen}`)??'');
             setContextOpen(false); setSubmittedMessage(null); setContext(chosen); setNewChat(true); requestedContext.current = null;
             draftAttachmentRequest.current = undefined;
             if (chosen !== 'GENERAL') {
               requestedContext.current = { id: chosen, previousId: state.current?.id }; setPreparingContext(true);
-              void Promise.resolve(controller.prepareContext(chosen)).then(ready => { if (ready) setNewChat(false); }).finally(() => setPreparingContext(false));
+              void Promise.resolve(controller.prepareContext(chosen)).then(ready => { if (ready) { setNewChat(false); controller.setFullClassroom?.(true); } }).finally(() => setPreparingContext(false));
             }
           }}/>}
-        {preparingContext ? <p role="status" className={styles.contextHelp}>Preparando contexto del aula…</p> : null}
+        {preparingContext ? <p role="status" className={`${styles.contextHelp} parity-ai-contextHelp`}>Preparando contexto del aula…</p> : null}
         {!draftMode && state.current ? <>
-          {sourcesOpen && state.current.context.kind === 'CLASSROOM' && state.curriculum ? <Dialog labeledClose title="Temas y fuentes" onClose={() => setSourcesOpen(false)}>
-            <section className={styles.contextSources} aria-label="Contexto del aula">
-            <h3>Temas del plan</h3>{state.curriculum.archived ? <p>El aula está archivada; no admite nuevas solicitudes.</p> : null}
-            {state.curriculum.units.map(unit => <fieldset key={unit.id}><legend>{unit.name}</legend>{unit.topics.map(topic =>
-              <label key={topic.id}><input type="checkbox" checked={state.selection.topicIds.includes(topic.id)}
-                onChange={() => controller.selectTopic(topic.id)} /> {topic.name} — {topic.status === 'TAUGHT' ? 'Tratado' : topic.status === 'NEXT' ? 'Próximo' : 'Pendiente'}</label>)}</fieldset>)}
-            <h3>Fuentes del aula</h3>{(['PLAN', 'MATERIAL', 'ACTIVITY'] as const).map(kind => <section key={kind}>
-              <h4>{kind === 'PLAN' ? 'Planes' : kind === 'MATERIAL' ? 'Biblioteca' : 'Actividades'}</h4>
-              {(state.sources?.[kind]?.items ?? []).map(source => <label key={source.sourceId}><input type="checkbox" disabled={!source.available}
-                checked={state.selection.sourceIds.includes(source.sourceId)} onChange={() => controller.selectSource(source.sourceId)} />
-                {source.title}{source.planVersion ? ` · versión ${source.planVersion}` : ''}{!source.available ? ' · No disponible' : ''}</label>)}
-              {(!state.sources?.[kind]?.items.length || state.sources[kind].next) ? <button type="button" onClick={() => void controller.loadSources(kind)}>Cargar fuentes</button> : null}
-            </section>)}
-            </section>
-          </Dialog> : null}
-          <p className={styles.srOnly} role="status">{!state.activeTurn&&!state.pending&&state.turns.at(-1)?.state==='READY'?'Respuesta de Foxy lista para leer.':''}</p><div className={styles.transcript} ref={chatFollow.ref} onScroll={chatFollow.onScroll} aria-label="Mensajes con Foxy">
-            {!state.turns.length && !state.activeTurn && !pendingVisible ? <FoxyWelcome tool={tool} onExample={() => setText('Dame una idea para cerrar una clase en tres minutos.')} /> : null}
-            {state.turns.map(turn => <article className={styles.turn} key={turn.id}>
-            <div className={styles.request}><ChatByline user identity={identity}/><p>{turn.message}</p></div>
-            {turn.answer ? <div className={styles.answer}><ChatByline/>
-              {turn.state === 'READY' && turn.purpose !== 'CHAT' && onOpenResource ? <div className={styles.resourceCard}>
-                <span className={styles.resourceIcon}><FoxmindIcon name="book"/></span>
-                <div><small>CREACIÓN PRIVADA</small><h4>{turn.answer.title}</h4></div>
-                <button type="button" onClick={() => onOpenResource(state.current!.id, turn.id)}>Abrir recurso <FoxmindIcon name="arrow-right"/></button>
-              </div> : <>{turn.purpose !== 'CHAT' && <h4>{turn.answer.title}</h4>}<div className={styles.chatMarkdown}><FoxyMarkdown markdown={turn.answer.markdown}/></div></>}
+          <p className={`${styles.srOnly} parity-ai-srOnly`} role="status">{!state.activeTurn&&!state.pending&&state.turns.at(-1)?.state==='READY'?'Respuesta de Foxy lista para leer.':''}</p><div className={`${styles.transcript} parity-ai-transcript`} ref={chatFollow.ref} onScroll={chatFollow.onScroll} aria-label="Mensajes con Foxy">
+            {!state.turns.length && !state.activeTurn && !pendingVisible && !visualTimeline ? <FoxyWelcome tool={tool} onExample={chooseExample} /> : null}
+            {state.turns.map(turn => <article className={`${styles.turn} parity-ai-turn`} key={turn.id}>
+            <div className={`${styles.request} parity-ai-request`}><ChatByline user identity={identity}/><p>{turn.message}</p></div>
+            {turn.answer ? <div className={`${styles.answer} parity-ai-answer`}><ChatByline/>
+              {turn.state === 'READY' && turn.purpose !== 'CHAT' && onOpenResource ? <div className="parity-foxy-creationReply"><p>Tu propuesta está lista. Abrila para revisarla y darle tu mirada.</p><button type="button" onClick={() => onOpenResource(state.current!.id, turn.id)}><FoxmindIcon name="file"/>Abrir creación</button></div> : <>{turn.purpose !== 'CHAT' && <h4>{turn.answer.title}</h4>}<div className={`${styles.chatMarkdown} parity-ai-chatMarkdown`}><FoxyMarkdown markdown={turn.answer.markdown}/></div></>}
               {turn.answer.warnings?.map((warning, i) => <p key={i}>{warning}</p>)}
               {turn.answer.missingInformation?.map((missing, i) => <p key={i}>{missing}</p>)}
-              {turn.state === 'READY' && onActivityHandoff && (turn.purpose==='ACTIVITY_IDEAS'||turn.purpose==='RUBRIC') ? <button type="button" onClick={() => onActivityHandoff(state.current!.id,turn.id,turn.purpose==='RUBRIC'?'RUBRIC':'ACTIVITY')}>{turn.purpose==='RUBRIC'?'Usar rúbrica en una actividad':'Preparar en Actividades'}</button> : null}</div>
-              : turn.state === 'FAILED' || turn.state === 'STALE' ? <p role="status">No se pudo completar esta respuesta. Podés revisar tu mensaje y hacer una nueva solicitud.</p> : <AsyncFeedback compact showDelay title={turn.state==='QUEUED'?'Tu solicitud está en cola':'Foxy está preparando tu respuesta'}/>}
-            {turn.state === 'READY' ? <><button type="button" onClick={() => void controller.loadCitations(turn.id)}>Ver citas</button>
-              {(state.citations?.[turn.id] ?? []).map(citation => {
-                const expected = `/api/v1/foxy-ai/conversations/${state.current!.id}/turns/${turn.id}/citations/${citation.id}/file?mode=preview`;
-                const safe = /^c[1-9][0-9]*$/u.test(citation.id) && citation.availability === 'AVAILABLE' && citation.href === expected;
-                return <p key={citation.id}>{citation.sourceTitle ?? 'Fuente'} {citation.documentTitle ?? ''} {citation.page ? `· página ${citation.page}` : ''}
-                  {safe ? <> <a href={expected} target="_blank" rel="noopener noreferrer">Ver documento</a></> : citation.availability === 'TEXT_ONLY' ? ' · Texto' : ' · No disponible'}</p>;
-              })}</> : null}
+</div>
+              : turn.state === 'CANCELLED' ? <p role="status">Detuviste la respuesta. <button type="button" onClick={()=>setText(turn.message)}>Retomar mensaje</button></p>
+              : turn.state === 'FAILED' || turn.state === 'STALE' ? <p role="status">No se pudo completar esta respuesta. Podés revisar tu mensaje y hacer una nueva solicitud.</p> : <FoxyWait queued={turn.state==='QUEUED'} generating={turn.purpose!=='CHAT'} title={turn.state==='QUEUED'?'Tu solicitud está en cola':turn.purpose==='CHAT'?'Conectando las ideas':'Dándole forma a la propuesta'} onStop={()=>void controller.cancel?.()} disabled={state.busy}/>}
+            {turn.state === 'READY' && (turn.classroomSources || attachments.items.length>0 || !!state.citations?.[turn.id]?.length) && <button type="button" className="parity-foxy-sourceNote" aria-haspopup="dialog" onClick={()=>{setScopeReport(turn.classroomSources);setSourceTurnId(turn.id);void controller.loadCitations?.(turn.id);}}><FoxmindIcon name="book"/>{turn.classroomSources?`Plan de estudio · ${turn.classroomSources.used.length} fuentes`:'Materiales de esta respuesta'}</button>}
           </article>)}
-          {pendingVisible&&<article className={styles.turn}><div className={styles.request}><ChatByline user identity={identity}/><p>{pendingText}</p></div>{state.error?<p role="status">Envío sin confirmar. Tu mensaje se conserva; usá Reintentar envío.</p>:<AsyncFeedback compact showDelay title={state.pending?'Enviando tu mensaje':state.activeTurn?.state==='QUEUED'?'Tu solicitud está en cola':'Foxy está preparando tu respuesta'}/>}</article>}
-          {state.activeTurn&&!state.turns.some(t=>t.id===state.activeTurn?.id)&&(!pendingVisible||!!state.error)&&<AsyncFeedback compact showDelay title={state.activeTurn.state==='QUEUED'?'Tu solicitud está en cola':'Foxy está preparando tu respuesta'}/>}
-          {state.busy&&!pendingVisible&&!state.activeTurn&&<AsyncFeedback compact title="Cargando conversación…"/>}</div>
+          {pendingVisible&&<article className={`${styles.turn} parity-ai-turn`}><div className={`${styles.request} parity-ai-request`}><ChatByline user identity={identity}/><p>{pendingText}</p></div>{state.error?<p role="status">Envío sin confirmar. Tu mensaje se conserva; usá Reintentar envío.</p>:<FoxyWait title={state.pending?'Enviando tu mensaje':state.activeTurn?.state==='QUEUED'?'Tu solicitud está en cola':'Leyendo tu pregunta'} onStop={state.activeTurn?()=>void controller.cancel?.():undefined} disabled={state.busy}/>}</article>}
+          {state.activeTurn&&!state.turns.some(t=>t.id===state.activeTurn?.id)&&(!pendingVisible||!!state.error)&&<FoxyWait title={state.activeTurn.state==='QUEUED'?'Tu solicitud está en cola':'Conectando las ideas'} onStop={()=>void controller.cancel?.()} disabled={state.busy}/>}
+          {state.busy&&!pendingVisible&&!state.activeTurn&&<AsyncFeedback compact title="Cargando conversación…"/>}{visualTimeline}</div>
           {chatFollow.unread&&<button type="button" onClick={chatFollow.jump}>Ver mensajes nuevos ↓</button>}
           {state.nextAfterSequence !== null ? <button type="button" disabled={state.busy} onClick={() => void controller.loadMore()}>Más mensajes</button> : null}
           {!enabled ? <p>{mode === 'DIAGRAM' ? 'La generación de esquemas no está disponible en este momento.' : 'La generación de texto no está disponible en este momento.'}</p> : null}
-        </> : <div className={styles.empty}>{submittedMessage?<><div className={styles.request}><ChatByline user identity={identity}/><p>{submittedMessage.text}</p></div><AsyncFeedback compact title="Preparando tu conversación…"/></>:<FoxyWelcome tool={tool} onExample={() => setText('Dame una idea para cerrar una clase en tres minutos.')} />}</div>}
-          <form className={styles.composer} onSubmit={event => { event.preventDefault(); if (!validMessage || disabled) return;
+        </> : <div className={`${styles.empty} parity-ai-empty`}>{submittedMessage?<><div className={`${styles.request} parity-ai-request`}><ChatByline user identity={identity}/><p>{submittedMessage.text}</p></div><AsyncFeedback compact title="Preparando tu conversación…"/></>:<FoxyWelcome tool={tool} onExample={chooseExample} />}</div>}
+          <form className={`${styles.composer} parity-ai-composer`} onSubmit={event => { event.preventDefault(); if (!validMessage || disabled) return;
             const submitted = text;
             if(mode!=='DIAGRAM')setSubmittedMessage({text:outbound,
               after:draftMode?0:Math.max(0,...state.turns.map(t=>t.sequence)),
@@ -223,59 +236,67 @@ export function FoxyWorkspace({ identity, controller, state, classrooms, context
               if(result!=='accepted'&&result!=='uncertain')setSubmittedMessage(null);
               if (result === 'accepted' || result === 'uncertain') { setText(current => current === submitted ? '' : current); setMode(null); }
             })(); }}>
-            <ChatAttachmentList items={attachments.items} error={attachments.error}
-              disabled={attachments.busy || state.busy || !!state.activeTurn || !!state.pending || state.curriculum?.archived}
-              onRemove={id => void attachments.remove(id)}/>
-            {tool ? <div className={styles.activeMode}><span>{tool.label}</span><button type="button" aria-label="Quitar tipo de ayuda" onClick={() => setMode(null)}>Quitar</button></div> : null}
-            <label>Tu mensaje <textarea rows={2} placeholder={tool?.placeholder ?? 'Escribile a Foxy…'} value={text} onChange={event => setText(event.target.value)} onKeyDown={event=>{if(event.key==='Enter' && !event.shiftKey && !event.nativeEvent.isComposing){event.preventDefault();if(validMessage&&!disabled)event.currentTarget.form?.requestSubmit();}}} required /></label>
-            <div className={styles.composerActions}>
-              <div className={styles.composerTools}>
-                <ChatAttachmentButton disabled={attachments.busy || preparingContext || !!starting || state.busy ||
+
+            {tool ? <div className={`${styles.activeMode} parity-ai-activeMode`}><span>{tool.label}</span><button type="button" aria-label="Quitar tipo de ayuda" onClick={() => setMode(null)}>Quitar</button></div> : null}
+            <label><span className={`${styles.srOnly} parity-ai-srOnly`}>Tu mensaje</span><textarea ref={composerRef} rows={2} placeholder={tool?.placeholder ?? 'Contame tu idea o preguntame algo…'} value={text} onChange={event => setText(event.target.value)} onKeyDown={event=>{if(event.key==='Enter' && !event.shiftKey && !event.nativeEvent.isComposing){event.preventDefault();if(validMessage&&!disabled)event.currentTarget.form?.requestSubmit();}}} required /></label>
+            <div className={`${styles.composerActions} parity-ai-composerActions`}>
+              <div className={`${styles.composerTools} parity-ai-composerTools`}>
+                <button type="button" aria-label="Biblioteca" aria-haspopup="dialog" aria-expanded={libraryOpen} onClick={openLibrary}><FoxmindIcon name="book"/>Biblioteca <b className="parity-library-count">{materialCount}</b></button>
+                <ChatAttachmentButton iconOnly disabled={attachments.busy || preparingContext || !!starting || state.busy ||
                   !!state.activeTurn || !!state.pending || (!draftMode && state.curriculum?.archived)} onUpload={attach}/>
-                <button type="button" onClick={() => setView('tools')}><FoxmindIcon name="spark"/> Herramientas</button>
               </div>
-              <button type="submit" className="p5-primary" disabled={disabled || !validMessage}>Enviar <FoxmindIcon name="arrow-right" /></button>
+              <span className="parity-chat-key-hint">Enter para enviar · Shift + Enter para otra línea</span><button type="submit" className="p5-primary" disabled={disabled || !validMessage}>Enviar <FoxmindIcon name="arrow-right" /></button>
             </div>
-            {mode === 'RUBRIC' ? <small className={styles.rubricHint}>Propuesta como texto editable. Podés revisarla y usar sus criterios en un borrador de actividad.</small> : null}
-            <small className={styles.disclosure}>Foxy puede equivocarse. Revisá el contenido antes de usarlo.</small>
+            {mode === 'RUBRIC' ? <small className={`${styles.rubricHint} parity-ai-rubricHint`}>Propuesta como texto editable. Podés revisarla y usar sus criterios en un borrador de actividad.</small> : null}
           </form>
+          <p className={`${styles.disclosure} parity-ai-disclosure`}>Foxy puede equivocarse. Revisá sus propuestas.</p>
         {state.error ? <div role="alert"><p>{state.error}</p>{state.pending ? <button type="button" disabled={state.busy}
           onClick={() => void controller.retry()}>Reintentar envío</button> : null}</div> : null}
       </div>
     </FoxyChatLayout>
-    {renameOpen ? <Dialog title="Renombrar conversación" onClose={() => { if (!state.busy) setRenameOpen(false); }}><form className={styles.renameForm} onSubmit={event => { event.preventDefault(); if (!renameValid || state.busy) return; void Promise.resolve(controller.rename(renameTitle.trim())).then(saved => { if (saved) setRenameOpen(false); }); }}><label>Título de la conversación<input autoFocus value={renameTitle} aria-invalid={!renameValid} aria-describedby="foxy-rename-help" onChange={event => setRenameTitle(event.target.value)} /></label><p id="foxy-rename-help">Entre 1 y 120 caracteres.</p>{state.error ? <p role="alert">{state.error}</p> : null}<div><button type="button" disabled={state.busy} onClick={() => setRenameOpen(false)}>Cancelar</button><button type="submit" disabled={state.busy || !renameValid}>{state.busy ? 'Guardando…' : 'Guardar título'}</button></div></form></Dialog> : null}
+    {sourceTurnId && <FoxyDialog title="Fuentes de esta respuesta" onClose={()=>{setScopeReport(undefined);setSourceTurnId(null);}}>
+      {scopeReport&&<><h3>Usadas</h3>{scopeReport.used.length? <ul>{scopeReport.used.map(item=><li key={item.sourceId}>{item.title}</li>)}</ul>:<p>La respuesta usó los temas del plan.</p>}
+      {scopeReport.excluded.length>0 && <><h3>Excluidas</h3><ul>{scopeReport.excluded.map(item=><li key={item.sourceId}>{item.title} · {sourceExclusion(item.reason)}</li>)}</ul></>}</>}
+      {(state.citations?.[sourceTurnId]??[]).map(citation=>{const expected=`/api/v1/foxy-ai/conversations/${state.current!.id}/turns/${sourceTurnId}/citations/${citation.id}/file?mode=preview`;
+        const safe=/^c[1-9][0-9]*$/u.test(citation.id)&&citation.availability==='AVAILABLE'&&citation.href===expected;
+        return <p key={citation.id}>{citation.sourceTitle??'Fuente'} {citation.documentTitle??''} {citation.page?`· página ${citation.page}`:''}{safe?<> <a href={expected} target="_blank" rel="noopener noreferrer">Ver documento</a></>:citation.availability==='TEXT_ONLY'?' · Texto':' · No disponible'}</p>;})}
+    </FoxyDialog>}
+    {libraryOpen && <FoxyDialog title="Biblioteca de contexto" description="Tus fuentes, siempre a mano para conversar." className="parity-ai-tray parity-foxy-libraryDialog" onClose={()=>setLibraryOpen(false)} footer={<button type="button" onClick={()=>setLibraryOpen(false)}>Volver al chat</button>}>
+      <FoxyLibraryPanel attachments={attachments.items} attachmentHref={!draftMode&&state.current?id=>teacherAttachmentFilePath(state.current!.id,id):undefined} sources={materialSources} classroomName={!draftMode?state.curriculum?.classroomTitle:undefined} units={!draftMode?state.curriculum?.units??[]:[]}
+        disabled={attachments.busy||state.busy||!!state.activeTurn||!!state.pending||state.curriculum?.archived} error={attachments.error} onUpload={attach} onRemove={id=>void attachments.remove(id)}
+        onContext={()=>{setLibraryOpen(false);setContextOpen(true);}} onTopic={name=>{setText(`Ayudame a entender ${name} con un ejemplo.`);setLibraryOpen(false);}}
+        onOpenSource={destinationHref&&onNavigate&&!draftMode&&state.current?.context.kind==='CLASSROOM'?source=>{const id=source.sourceId.replace(/^material:/,'');if(/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/iu.test(id)&&state.current?.context.kind==='CLASSROOM')onNavigate(destinationHref({kind:'material',classroomId:state.current.context.classroomId,materialId:id}));}:undefined}
+        onMoreSources={state.sources?.MATERIAL?.next?()=>void controller.loadSources('MATERIAL'):undefined}/>
+    </FoxyDialog>}
+    {activityPicker&&<FoxyDialog title="¿En qué aula querés crear la actividad?" description="Elegí el grupo para continuar en el editor." onClose={()=>setActivityPicker(false)} footer={<button type="button" onClick={()=>setActivityPicker(false)}>Cancelar</button>}><div className="parity-foxy-classPicks">{classrooms.filter(room=>!room.archived).map(room=><button key={room.id} type="button" onClick={()=>{setActivityPicker(false);onStartActivity?.(room.id);}}><FoxmindIcon name="book"/><span><strong>{room.name}</strong><small>{room.division}</small></span><FoxmindIcon name="chevron-right"/></button>)}{!classrooms.some(room=>!room.archived)&&<p>Creá un aula para preparar una actividad.</p>}</div></FoxyDialog>}
+    {toolDialog&&<FoxyToolDialog title={toolDialog==='NOTE'?'Preparar un apunte':toolDialog==='PLAN'?'Planificar una clase':toolDialog==='RUBRIC'?'Pensar una rúbrica':'Imágenes y esquemas'} contextName={contextName} materialCount={materialCount} topics={draftMode?[]:state.curriculum?.units.flatMap(unit=>unit.topics)??[]} busy={state.busy} error={state.error} onClose={()=>setToolDialog(null)} onPrepare={async(brief,topicIds)=>{
+      const chosen=tools.find(item=>item.mode===toolDialog)!;
+      let id=state.current?.id;
+      if(draftMode){const created=await controller.create({requestId:crypto.randomUUID(),title:[...brief].slice(0,120).join(''),context:draftContext});if(typeof created!=='string')return false;id=created;setNewChat(false);}
+      if(toolDialog==='DIAGRAM')return !!await onCreateDiagram?.(brief);
+      const message=brief;
+      const allTopics=state.curriculum?.units.flatMap(unit=>unit.topics)??[];
+      const selection=topicIds.length===allTopics.length?state.selection??{topicIds:[],sourceIds:[]}:{topicIds,sourceIds:state.selection?.sourceIds??[]};
+      setSubmittedMessage({text:message,after:draftMode?0:Math.max(0,...state.turns.map(turn=>turn.sequence)),conversationId:id??null});
+      const result=await controller.send(chosen.purpose,message,selection);
+      if(result!=='accepted'&&result!=='uncertain')setSubmittedMessage(null);
+      return result==='accepted'||result==='uncertain';
+    }}/>}
+    {renameOpen&&<FoxyDialog title="Un nombre para volver a encontrarla" description="La conversación conserva sus mensajes." onClose={()=>{if(!state.busy){setRenameOpen(false);setHistoryOpenKey(key=>key+1);}}} footer={<><button type="button" disabled={state.busy} onClick={()=>{setRenameOpen(false);setHistoryOpenKey(key=>key+1);}}>Cancelar</button><button type="submit" form="foxy-rename-form" className="p5-primary" disabled={state.busy||!renameValid}>{state.busy?'Guardando…':'Guardar nombre'}</button></>}>
+      <form id="foxy-rename-form" className="parity-foxy-toolForm" onSubmit={event=>{event.preventDefault();if(!renameValid||state.busy)return;void Promise.resolve(controller.rename(renameTitle.trim())).then(saved=>{if(saved){setRenameOpen(false);setHistoryOpenKey(key=>key+1);}});}}>
+        <label>Nombre de la conversación<input autoFocus value={renameTitle} maxLength={120} aria-invalid={!renameValid} onChange={event=>setRenameTitle(event.target.value)}/></label>{state.error&&<p role="alert">{state.error}</p>}
+      </form>
+    </FoxyDialog>}
   </section>;
 }
-function FoxyWelcome({ onExample, tool }: { onExample: () => void; tool?: { label: string; placeholder: string } }) {
-  return <div className={styles.welcome}>
-    <div className={styles.foxyMark}><i /><img src="/brujula/foxy-logotipo-redondo.webp" alt="" width={68} height={76} /><span aria-hidden="true">✧</span></div>
-    <small>TU ASISTENTE DOCENTE</small><h2>{tool?.label ?? '¿Qué preparamos hoy?'}</h2>
-    <p>{tool?.placeholder ?? 'Hablá con Foxy sobre tu próxima clase o elegí una herramienta para crear un recurso.'}</p>
-    {!tool ? <button className={styles.suggestion} type="button" onClick={onExample}><FoxmindIcon name="lightbulb"/>Pensar un cierre de clase <FoxmindIcon name="arrow-right" /></button> : null}
-  </div>;
+function sourceExclusion(reason: string) {
+  return ({ FILE_NOT_READY:'Archivo sin preparar', UNSUPPORTED_FORMAT:'Formato sin lectura de IA', AI_INPUT_LIMIT:'Supera el límite individual', EMPTY_CONTENT:'Sin contenido legible' } as Record<string,string>)[reason] ?? 'No disponible';
 }
-
-function FoxyContextPicker({ classrooms, current, onApply, onClose }: {
-  classrooms: Classroom[]; current: string; onApply: (value: string) => void; onClose: () => void;
-}) {
-  const [search, setSearch] = useState('');
-  const [selected, setSelected] = useState(current);
-  const choices = [{ id: 'GENERAL', name: 'General' }, ...classrooms]
-    .filter(room => room.name.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()));
-  return <Dialog labeledClose title="Contexto del chat" onClose={onClose}>
-    <div className={styles.contextPicker}>
-      <p>Elegí con qué contexto querés conversar. Cambiarlo abre un chat nuevo.</p>
-      <label>Buscar aula<input type="search" value={search} onChange={event => setSearch(event.target.value)}/></label>
-      <fieldset>
-        <legend>Contextos disponibles</legend>
-        {choices.map(room => <label key={room.id}>
-          <input type="radio" name="foxy-context" checked={selected === room.id} onChange={() => setSelected(room.id)}/>
-          <span><strong>{room.name}</strong><small>{room.id === 'GENERAL' ? 'Ideas y consultas sin un aula específica' : 'Plan, Biblioteca y actividades del aula'}</small></span>
-        </label>)}
-        {!choices.length && <p>No encontramos un contexto con ese nombre.</p>}
-      </fieldset>
-      <div className={styles.composerActions}><button type="button" onClick={onClose}>Cancelar</button>
-        <button type="button" className="p5-primary" disabled={selected === current} onClick={() => onApply(selected)}>Aplicar contexto</button></div>
-    </div>
-  </Dialog>;
+function FoxyWelcome({ onExample, tool }: { onExample: (prompt: string) => void; tool?: { label: string; placeholder: string } }) {
+  return <div className={`${styles.welcome} parity-ai-welcome`}>
+    <div className={`${styles.foxyMark} parity-ai-foxyMark`}><img src="/foxmind/foxy.webp" alt="" width={108} height={108} /><span className={`${styles.orbitOne} parity-ai-orbitOne`}><FoxmindIcon name="book"/></span><span className={`${styles.orbitTwo} parity-ai-orbitTwo`}><FoxmindIcon name="spark"/></span></div>
+    <h2>{tool?.label ?? '¿Qué idea trabajamos hoy?'}</h2>
+    <p>{tool?.placeholder ?? 'Busquemos juntos una forma de explicarla, una actividad o un nuevo punto de partida.'}</p>
+    {!tool ? <div className={`${styles.welcomePrompts} parity-ai-welcomePrompts`}><button className={`${styles.suggestion} parity-ai-suggestion`} type="button" onClick={()=>onExample('Busquemos otra forma de explicarlo')}><FoxmindIcon name="chat-square"/>Busquemos otra forma de explicarlo</button><button className={`${styles.suggestion} parity-ai-suggestion`} type="button" onClick={()=>onExample('Ayudame a pensar una clase')}><FoxmindIcon name="calendar"/>Ayudame a pensar una clase</button></div> : null}
+  </div>;
 }

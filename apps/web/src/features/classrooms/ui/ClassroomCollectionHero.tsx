@@ -1,17 +1,5 @@
 import { FoxmindIcon } from '../../../../../shared-ui/index.ts';
-
-export function ClassroomCollectionHero({ accountRole, busy, onJoin, onCreate }: {
-  accountRole: 'teacher' | 'student'; busy: boolean; onJoin: () => void; onCreate: () => void;
-}) {
-  return <><nav className="brujula-catalog-crumb" aria-label="Ruta de navegación"><a href="/inicio">Inicio</a><FoxmindIcon name="chevron-right" /><span aria-current="page">Mis aulas</span></nav><header className="brujula-catalog-heading">
-    <div className="brujula-heading-copy">
-      <span className="eyebrow">Mi espacio</span>
-      <h1>Mis aulas</h1>
-      <p>{accountRole === 'teacher' ? 'Organizá los recorridos de enseñanza de tus grupos.' : 'Elegí un aula para continuar con tus actividades.'}</p>
-    </div>
-    <div className="brujula-heading-actions">
-      {accountRole === 'student' ? <button type="button" className="primary" disabled={busy} onClick={onJoin}><FoxmindIcon name="plus" />Unirme con código</button> : null}
-      {accountRole === 'teacher' ? <button type="button" className="primary" disabled={busy} onClick={onCreate}><FoxmindIcon name="plus" />Crear aula</button> : null}
-    </div>
-  </header></>;
+export function ClassroomCollectionHero({accountRole,busy,onJoin,onCreate,activeCount}:{accountRole:'teacher'|'student';busy:boolean;onJoin:()=>void;onCreate:()=>void;activeCount?:number}) {
+ const teacher=accountRole==='teacher';
+ return <header className={`classrooms-welcome ${accountRole}`}><div className="classrooms-welcome-copy"><span className="collection-context"><FoxmindIcon name="layers"/>{teacher?'Un espacio para cada grupo':'Tu comunidad para aprender'}</span><h1>Mis aulas</h1><p>{teacher?'Las ideas crecen cuando las compartimos. Prepará el próximo encuentro.':'Cada aula, una nueva forma de mirar el mundo. ¿Por dónde seguimos?'}</p><div className="collection-welcome-actions"><button type="button" className="button primary" disabled={busy} onClick={teacher?onCreate:onJoin}><FoxmindIcon name="plus"/>{teacher?'Crear aula':'Unirme con código'}</button>{activeCount!==undefined?<span>{activeCount} {activeCount===1?'aula activa':'aulas activas'}</span>:null}</div></div><div className="classrooms-art" aria-hidden="true"><img src="/foxmind/classroom-world.webp" alt=""/></div></header>;
 }

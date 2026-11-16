@@ -34,7 +34,7 @@ test('selecting a calendar day keeps the monthly grid and updates the selected d
   }
 });
 
-test('compact Agenda starts on the selected day and keeps an explicit switch to month', async () => {
+test('compact Agenda starts in month and keeps the date when it switches to day', async () => {
   const { Agenda } = loadTsModule('apps/web/src/features/agenda/ui/Agenda.tsx');
   const previousWindow = globalThis.window, previousStorage = globalThis.sessionStorage;
   globalThis.window = Object.assign(new EventTarget(), { matchMedia: () => ({ matches: true }) });
@@ -47,16 +47,15 @@ test('compact Agenda starts on the selected day and keeps an explicit switch to 
   const button = name => descendants(view.tree, node => node.type === 'button' && node.props.children === name)[0];
   try {
     await view.flush();
-    assert.equal(button('Día').props['aria-pressed'], true);
-    assert.equal(component('AgendaDay').props.day, '2026-11-02');
-    assert.deepEqual(ranges.map(({startDate,endDateExclusive})=>({startDate,endDateExclusive})),[
-      {startDate:'2026-11-02',endDateExclusive:'2026-11-03'},
-      {startDate:'2026-11-03',endDateExclusive:'2026-12-04'},
-    ], 'Only the selected day and its subsequent 31 days are requested after hydration');
-    button('Mes').props.onClick();
-    await view.flush();
-    assert.equal(component('AgendaMonth').props.selected, '2026-11-02');
     assert.equal(button('Mes').props['aria-pressed'], true);
+    assert.equal(component('AgendaMonth').props.selected, '2026-11-02');
+    assert.deepEqual(ranges.map(({startDate,endDateExclusive})=>({startDate,endDateExclusive})),[
+      {startDate:'2026-10-26',endDateExclusive:'2026-12-07'},
+    ], 'Only the visible month grid is requested after hydration');
+    button('Día').props.onClick();
+    await view.flush();
+    assert.equal(component('AgendaPeriod').props.day, '2026-11-02');
+    assert.equal(button('Día').props['aria-pressed'], true);
   } finally {
     view.close();
     if (previousWindow === undefined) delete globalThis.window; else globalThis.window = previousWindow;

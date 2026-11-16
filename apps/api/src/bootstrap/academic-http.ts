@@ -179,12 +179,12 @@ export function createClassroomsHandler(
         value = await service.pendingInvitations(req);
       else if (
         path[0] === 'invitations' &&
-        path[2] === 'accept' &&
+        (path[2] === 'accept' || path[2] === 'decline') &&
         path.length === 3 &&
         method === 'POST'
       ) {
         exact([]);
-        value = await service.acceptInvitation(req, path[1]);
+        value = path[2] === 'decline' ? await service.declineInvitation(req, path[1]) : await service.acceptInvitation(req, path[1]);
       } else if (path.join('/') === 'notifications' && method === 'GET')
         value = await service.listNotifications(req);
       else if (path.join('/') === 'notifications/page' && method === 'GET')
@@ -193,9 +193,9 @@ export function createClassroomsHandler(
         exact([]);
         value = await service.readAllNotifications(req);
       }
-      else if (path.length === 3 && path[0] === 'notifications' && ['read', 'open'].includes(path[2]) && method === 'POST') {
+      else if (path.length === 3 && path[0] === 'notifications' && ['read', 'unread', 'open'].includes(path[2]) && method === 'POST') {
         exact([]);
-        value = path[2] === 'open' ? await service.openNotification(req, path[1]) : await service.readNotification(req, path[1]);
+        value = path[2] === 'open' ? await service.openNotification(req, path[1]) : await service.readNotification(req, path[1], path[2] === 'read');
       } else if (path.length === 1 && method === 'GET')
         value = await service.detail(req, path[0]);
       else if (path.length === 2 && path[1] === 'plan' && method === 'POST')
@@ -314,7 +314,7 @@ export function createClassroomsHandler(
         value = await service.updateSettings(
           req,
           path[0],
-          exact(['revision', 'name', 'subject', 'division', 'academicYear'], ['aiGradingEnabled']),
+          exact(['revision', 'name', 'subject', 'division', 'academicYear'], ['aiGradingEnabled', 'coverKey']),
         );
       else if (path.length === 2 && path[1] === 'archive' && method === 'POST')
         value = await service.setArchive(

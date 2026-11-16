@@ -1,12 +1,16 @@
+import { DOCUMENT_MAX_BYTES, type DocumentExtension } from '../../../../../../src/core/domain/documents/document-formats.ts';
+import { convertLegacyOffice, legacyOffice } from './legacy-office.ts';
 import { Worker } from 'node:worker_threads';
 import type { ActivityGenerationSource } from '../../../../../../src/core/domain/index.ts';
 import { PlanDocumentError } from '../domain/plan-document-error.ts';
 
-export async function parseActivityDocument(bytes: Uint8Array, extension: 'pdf' | 'docx' | 'docx-preview', signal: AbortSignal): Promise<Omit<ActivityGenerationSource, 'sourceId'>> {
+export async function parseActivityDocument(bytes: Uint8Array, extension: DocumentExtension | 'docx-preview', signal: AbortSignal): Promise<Omit<ActivityGenerationSource, 'sourceId'>> {
   if (signal.aborted) throw new PlanDocumentError();
-  if (!bytes.length || bytes.length > (extension === 'docx-preview' ? 50_000_000 : 20_000_000)) throw new PlanDocumentError('AI_INPUT_LIMIT');
+  if (!bytes.length || bytes.length > (extension === 'docx-preview' ? 50_000_000 : DOCUMENT_MAX_BYTES)) throw new PlanDocumentError('AI_INPUT_LIMIT');
+  const converted = legacyOffice(extension) ? await convertLegacyOffice(bytes, extension, signal) : null;
+  if (signal.aborted) throw new PlanDocumentError();
   const url = new URL(import.meta.url.endsWith('.ts') ? './activity-document-worker.ts' : './activity-document-worker.js', import.meta.url);
-  const worker = new Worker(url, { workerData: { bytes, extension }, execArgv: [], stdout: true, stderr: true,
+  const worker = new Worker(url, { workerData: { bytes: converted?.bytes ?? bytes, extension: converted?.extension ?? extension, converted: converted !== null }, execArgv: [], stdout: true, stderr: true,
     resourceLimits: { maxOldGenerationSizeMb: 128, maxYoungGenerationSizeMb: 16, stackSizeMb: 4 } });
   worker.stdout.resume(); worker.stderr.resume();
   let timer: ReturnType<typeof setTimeout> | undefined, abort: (() => void) | undefined;

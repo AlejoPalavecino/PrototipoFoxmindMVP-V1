@@ -1,6 +1,8 @@
 'use client';
-import styles from '../../../shared-ui/academic-creation.module.css';
-import { CreationSteps } from '../../../shared-ui/CreationSteps';
+import { preload } from 'react-dom';
+import { extractionMessage } from '../features/curriculum/index.ts';
+import { ClassroomProcessing, type ClassroomProcessStage } from '../features/classrooms/index.ts';
+import { learningCover } from '../../../shared-ui/parity-assets.ts';
 import {
   useEffect,
   useRef,
@@ -18,15 +20,15 @@ import { WizardSuggestions } from '../features/curriculum/index.ts';
 import { usePlanExtraction } from '../features/curriculum/index.ts';
 import { classroomZones } from '../features/curriculum/index.ts';
 import { formatClassroomPlan, parseClassroomPlan, prepareClassroomPlan } from '../features/curriculum/index.ts';
-import { WizardCover } from '../../../shared-ui/academic-cover.tsx';
+import { ClassroomWizardCover } from '../features/classrooms/index.ts';
 import { WizardReview } from '../features/classrooms/index.ts';
 import { AiProgress, FoxmindIcon } from '../../../shared-ui/index.ts';
 
 const steps = [
-  { label: 'Datos del aula', heading: 'Dale un lugar a tu próxima clase', description: 'Completá los datos del grupo y elegí su portada.' },
-  { label: 'Cargar plan', heading: 'Tu plan, listo para trabajar', description: 'Cargá el documento y elegí cómo querés organizarlo.' },
-  { label: 'Unidades y temas', heading: 'Revisá las unidades y los temas', description: 'Podés ajustar los nombres, agregar temas y seguir cuando estén listos.' },
-  { label: 'Revisar y crear', heading: 'Todo listo para empezar', description: 'Comprobá los datos y creá el aula para compartirla.' },
+  { label: 'Tu aula', detail: 'Nombre, grupo y portada', heading: 'Dale identidad a tu aula', description: 'Un nombre, un grupo y una portada que los represente.' },
+  { label: 'El programa', detail: 'Tu material como punto de partida', heading: 'Todo empieza con una buena base', description: 'Sumá tu programa y elegí cómo organizarlo.' },
+  { label: 'El recorrido', detail: 'Unidades y temas a tu manera', heading: 'Un recorrido que invita a aprender', description: 'Ajustá la propuesta para que tenga tu forma de enseñar.' },
+  { label: 'Todo listo', detail: 'Una última mirada antes de crear', heading: 'Tu aula está a un paso', description: 'Revisá los detalles. Todavía podés cambiar lo que necesites.' },
 ];
 export function Wizard({
   api,
@@ -41,13 +43,14 @@ export function Wizard({
 }) {
   const [payload, setPayload] = useState<Payload>(() => ({
     ...draft.payload,
-    coverKey: draft.payload.coverKey ?? 'general',
+    coverKey: draft.payload.coverKey ?? 'literature',
     academicYear: draft.payload.academicYear ?? new Date().getFullYear(),
     timezone:
       draft.payload.timezone ??
       Intl.DateTimeFormat().resolvedOptions().timeZone,
   }));
-  const [step, setStep] = useState(0),
+  const [changingZone,setChangingZone]=useState(false),[coversExpanded,setCoversExpanded]=useState(false);
+  const [step, setStep] = useState<number>(draft.payload.wizardStep ?? 0),
     [status, setStatus] = useState('Borrador guardado'),
     [error, setError] = useState('');
   const zones = useMemo(() => classroomZones(payload.timezone ?? 'UTC'), [payload.timezone]);
@@ -57,8 +60,9 @@ export function Wizard({
   const [uploadName, setUploadName] = useState('');
   const [removedUnits, setRemovedUnits] = useState<Payload['units']>();
   const [planText, setPlanText] = useState(() => formatClassroomPlan(draft.payload.units));
-  const [method, setMethod] = useState<'ai' | 'manual' | null>(null);
+  const [method, setMethod] = useState<'ai' | 'manual' | null>(draft.payload.wizardMethod ?? null);
   const [analyze, setAnalyze] = useState(false), [navigating, setNavigating] = useState(false);
+  const [processDismissed, setProcessDismissed] = useState(false), [uploadFailure, setUploadFailure] = useState('');
   const actionLock = useRef(false), heading = useRef<HTMLHeadingElement>(null);
   const [extractingText, setExtractingText] = useState(false), [pastedText, setPastedText] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -71,6 +75,8 @@ export function Wizard({
     failed = useRef(false);
   latest.current = payload;
   useEffect(() => {
+    preload('/foxmind/classroom-world.webp', { as: 'image' });
+    preload('/foxmind/foxy.webp', { as: 'image' });
     mounted.current = true;
     return () => {
       mounted.current = false;
@@ -164,6 +170,7 @@ export function Wizard({
       try {
         const next = await api.fileStatus(file.id, controller.signal);
         if (controller.signal.aborted || selection !== fileSelection.current || actionLock.current || next.id !== file.id) return;
+        setUploadFailure('');
         if (next.ready) {
           setPayload(previous => ({ ...previous, planFileId: next.id }));
           setError('');
@@ -174,7 +181,7 @@ export function Wizard({
         delay = Math.min(delay * 2, 10_000);
         timer = setTimeout(check, delay);
       } catch {
-        if (!controller.signal.aborted && selection === fileSelection.current) setError('No pudimos consultar el archivo. Probá consultar su estado nuevamente.');
+        if (!controller.signal.aborted && selection === fileSelection.current) { setError('No pudimos consultar el archivo. Probá consultar su estado nuevamente.'); setUploadFailure('No pudimos consultar el archivo. Podés volver a consultar su estado sin subirlo otra vez.'); }
       }
     };
     timer = setTimeout(check, delay);
@@ -194,30 +201,29 @@ export function Wizard({
     setPayload((previous) => ({ ...previous, [key]: value }));
   async function upload(chosen: File | undefined) {
     if (!chosen || blocked || actionLock.current) return;
-    if (!/\.(pdf|docx)$/i.test(chosen.name) || chosen.size > 20_000_000 || chosen.size === 0) {
-      setError('Elegí un PDF o DOCX de hasta 20 MB con contenido.'); return;
+    if (!/\.(pdf|doc|docx|ppt|pptx)$/i.test(chosen.name) || chosen.size > 20_000_000 || chosen.size === 0) {
+      setError('Elegí un PDF, Word o PowerPoint de hasta 20 MB con contenido.'); return;
     }
     actionLock.current = true;
-    fileSelection.current += 1;
+    const selection = ++fileSelection.current;
+    setProcessDismissed(false); setUploadFailure('');
     setAnalyze(false);
     setUploading(true);
     setUploadName(chosen.name);
     setError('');
     try {
       const state = await api.upload(draft.id, chosen);
+      if (!mounted.current || selection !== fileSelection.current) return;
       setFile(state);
       if (state.ready) update('planFileId', state.id);
-      else
-        setError(
-          state.rejectionCode || state.validation === 'REJECTED' || ['REJECTED', 'ERROR'].includes(state.scan)
-            ? 'El archivo no está aprobado. Revisá su estado o elegí otro archivo.'
-            : 'El archivo todavía está en revisión.',
-        );
+      else if (state.rejectionCode || state.validation === 'REJECTED' || ['REJECTED', 'ERROR'].includes(state.scan)) {
+        setError('El archivo no está aprobado. Revisá su estado o elegí otro archivo.');
+        setUploadFailure('El archivo no está aprobado. Elegí otro archivo para continuar.');
+      }
     } catch (e) {
-      setError((e as Error).message);
+      if (mounted.current && selection === fileSelection.current) { setError((e as Error).message); setUploadFailure((e as Error).message); }
     } finally {
-      actionLock.current = false;
-      setUploading(false); setUploadName('');
+      if (mounted.current && selection === fileSelection.current) { actionLock.current = false; setUploading(false); setUploadName(''); }
     }
   }
   function validateGeneral() {
@@ -239,13 +245,13 @@ export function Wizard({
     if (payload.units.length > 100 || payload.units.some(unit => unit.name.length > 120 || unit.topics.length > 100 || unit.topics.some(topic => topic.name.length > 120)) || payload.units.reduce((count, unit) => count + unit.topics.length, 0) > 500) {
       return 'Revisá los límites del plan: nombres de hasta 120 caracteres, 100 unidades, 100 temas por unidad y 500 temas en total.';
     }
-    if (method === 'ai' && extraction.view?.state !== 'APPLIED') return 'Esperá el análisis y aplicá la propuesta revisada, o elegí continuar manualmente.';
+    if (method === 'ai' && analyze && extraction.view?.state !== 'APPLIED') return 'Esperá el análisis y aplicá la propuesta revisada, o elegí continuar manualmente.';
     return '';
   }
   async function next() {
     if (blocked || actionLock.current) return;
     setError('');
-    const message = step === 0 ? validateGeneral() : step === 1 ? validateFile() || (!method ? 'Elegí analizar con IA o cargar el plan de forma manual.' : '') : step === 2 ? validatePlan() : '';
+    const message = step === 0 ? validateGeneral() : step === 1 ? validateFile() || (!method ? 'Elegí analizar con IA o cargar el plan de forma manual.' : '') : step === 2 ? validateFile() || validatePlan() : '';
     if (message) { setError(message); return; }
     actionLock.current = true; setNavigating(true);
     try {
@@ -254,8 +260,11 @@ export function Wizard({
           units: latest.current.units?.map(unit => ({ name: unit.name.trim(), topics: unit.topics.map(topic => ({ name: topic.name.trim() })) })) };
         latest.current = normalized; setPayload(normalized); setPlanText(formatClassroomPlan(normalized.units));
       }
+      const progressing = { ...latest.current, wizardStep: (step + 1) as 0 | 1 | 2 | 3, wizardMethod: method };
+      if (step === 1 && method === 'manual' && !progressing.units?.length) progressing.units = [{ name: '', topics: [{ name: '' }] }];
+      latest.current = progressing; setPayload(progressing);
       await save();
-      if (step === 1) setAnalyze(method === 'ai');
+      if (step === 1) { setProcessDismissed(false); setAnalyze(method === 'ai'); }
       setStep(step + 1);
       if (step === 2) setRemovedUnits(undefined);
     } catch (e) { setError((e as Error).message); }
@@ -291,68 +300,98 @@ export function Wizard({
   const updateUnits = (units: NonNullable<Payload['units']>) => {
     setRemovedUnits(undefined); update('units', units); setPlanText(formatClassroomPlan(units));
   };
-  const planOptions={file,uploading,disabled:blocked,inputRef:fileInputRef,planText,units:payload.units,
+  const planOptions={classroomLayout:true,file,uploading,disabled:blocked,inputRef:fileInputRef,units:payload.units,
     onUnits: updateUnits,
     onRemoveUnits: (units: NonNullable<Payload['units']>) => { updateUnits(units); setRemovedUnits(payload.units); },
     onUndoRemove: removedUnits ? () => updateUnits(removedUnits) : undefined,
-    onPlanText:(value:string)=>{setRemovedUnits(undefined);setPlanText(value);update('units',parseClassroomPlan(value));},onExtractText:()=>setExtractingText(true),
+    onExtractText:()=>{setPastedText(planText);setExtractingText(true);},
     onRemoveFile:()=>{fileSelection.current += 1;setAnalyze(false);setFile(null);update('planFileId',undefined);},fileUrl:(id:string)=>api.fileUrl(id),onFile:upload,onError:setError,
     onRefresh: async () => {
       if (blocked || actionLock.current || !file) return;
-      actionLock.current = true; setUploading(true); setError('');
+      actionLock.current = true; setUploading(true); setError(''); setUploadFailure('');
+      const selection = fileSelection.current;
       try {
         const state = await api.fileStatus(file.id);
+        if (!mounted.current || selection !== fileSelection.current) return;
         setFile(state); if (state.ready) update('planFileId', state.id);
-      } catch (failure) { setError((failure as Error).message); }
-      finally { actionLock.current = false; setUploading(false); }
+      } catch (failure) { if (mounted.current && selection === fileSelection.current) { setError((failure as Error).message); setUploadFailure((failure as Error).message); } }
+      finally { if (mounted.current && selection === fileSelection.current) { actionLock.current = false; setUploading(false); } }
     },
   };
-  if (extractingText) return <Dialog title="Extraer unidades y temas" className="brujula-wizard-dialog" onClose={() => setExtractingText(false)}>
-    <div className="brujula-wizard"><p>Pegá el contenido de un plan para preparar un esquema editable.</p>
-      <form onSubmit={event => { event.preventDefault(); const prepared = prepareClassroomPlan(pastedText); setRemovedUnits(undefined); setPlanText(prepared); update('units',parseClassroomPlan(prepared)); setExtractingText(false); }}>
+  const fileRejected = Boolean(file && (file.rejectionCode || file.validation === 'REJECTED' || ['REJECTED', 'ERROR'].includes(file.scan)));
+  const filePending = Boolean(file && !file.ready && !fileRejected);
+  const analysisPending = analyze && method === 'ai' && (!extraction.view && !extraction.message || ['QUEUED', 'RUNNING'].includes(extraction.view?.state ?? ''));
+  const analysisFailed = analyze && method === 'ai' && (extraction.messageError || extraction.view?.state === 'FAILED');
+  const processStage: ClassroomProcessStage | null = uploading ? uploadName ? 'upload' : 'validation' : uploadFailure || fileRejected ? 'upload-error' : filePending ? 'validation'
+    : analysisFailed ? 'analysis-error' : analysisPending ? extraction.view?.state === 'RUNNING' ? 'running' : extraction.view?.state === 'QUEUED' ? 'queued' : 'sending' : null;
+  const backToProgram = () => {
+    setProcessDismissed(true); setStep(1);
+    const moved = { ...latest.current, wizardStep: 1 as const, wizardMethod: method }; latest.current = moved; setPayload(moved);
+  };
+  if (processStage && !processDismissed) return <ClassroomProcessing key="processing" stage={processStage} consultationFailed={Boolean(analysisPending && extraction.messageError)}
+    message={analysisPending && extraction.messageError ? 'No pudimos consultar el estado del análisis. Podés volver a consultarlo sin iniciar otra generación.' : processStage === 'analysis-error' ? extraction.message || extractionMessage(extraction.view?.error) : uploadFailure || error || 'El archivo no está aprobado. Elegí otro archivo para continuar.'}
+    retrying={extraction.busy} onBack={backToProgram}
+    retryLabel={processStage === 'upload-error' ? 'Consultar estado' : analysisPending ? 'Consultar análisis' : 'Volver a intentar'}
+    onRetry={processStage === 'upload-error' && filePending ? () => { void planOptions.onRefresh(); } : processStage === 'analysis-error' ? analysisPending ? () => { void extraction.refresh(); } : extraction.view?.retryable ? () => { void extraction.retry(); } : undefined : undefined}
+    onManual={processStage === 'analysis-error' ? () => { extraction.cancel(); setAnalyze(false); setMethod('manual'); setProcessDismissed(true); setStep(2); setError('');
+      const manual = { ...latest.current, wizardMethod: 'manual' as const, wizardStep: 2 as const }; latest.current = manual; setPayload(manual);
+    } : undefined} />;
+  if (extractingText) return <Dialog title="Editar el plan como texto" className="brujula-wizard-dialog" onClose={() => setExtractingText(false)}>
+    <div className="brujula-wizard"><p>Editá el texto o pegá otro plan. Usá «Unidad: nombre» y un «- tema» por línea. Podés revisar el resultado antes de crear el aula.</p>
+      <form onSubmit={event => {
+        event.preventDefault();
+        const prepared = prepareClassroomPlan(pastedText), parsed = parseClassroomPlan(prepared);
+        const outline = (units: typeof parsed) => units.map(unit => ({ name: unit.name, topics: unit.topics.map(topic => topic.name) }));
+        const current = latest.current.units ?? [];
+        setRemovedUnits(undefined); setPlanText(prepared);
+        if (JSON.stringify(outline(current)) !== JSON.stringify(outline(parsed))) update('units', parsed);
+        setExtractingText(false);
+      }}>
         <label>Texto del plan<textarea autoFocus required rows={7} value={pastedText} onChange={event => setPastedText(event.target.value)} /></label>
         <footer className="brujula-wizard-foot"><button type="button" onClick={() => setExtractingText(false)}>Volver</button><button className="primary" type="submit">Preparar esquema</button></footer>
       </form>
     </div>
   </Dialog>;
-  const goTo = (target: number) => { if (!blocked) { setError(''); setStep(target); } };
-  const action = step === 0 ? 'Continuar al plan' : step === 1 ? method === 'ai' ? 'Analizar plan y continuar' : 'Continuar a unidades'
-    : step === 2 ? 'Guardar plan y continuar' : 'Confirmar y crear aula';
-  const continueManually = () => { extraction.cancel(); setMethod('manual'); setAnalyze(false); setError(''); };
-  return <Dialog title="Crear aula" className={`brujula-wizard-dialog ${styles.dialog}`} onClose={saveAndExit}>
-    <div className="brujula-wizard">
-      <CreationSteps steps={steps.map(item=>item.label)} step={step} label="Pasos de creación del aula"/>
-      {error ? <Notice error>{error}</Notice> : null}
-      <div className={styles.intro}>
-        <h3 ref={heading} tabIndex={-1}>{steps[step].heading}</h3>
-        <p>{steps[step].description}</p>
-      </div>
-      <form data-wizard-step={step} aria-busy={blocked} onSubmit={event => { event.preventDefault(); if (!blocked) void (step === 3 ? publish() : next()); }}>
-        <div key={step} className={styles.stepBody}><fieldset disabled={blocked}>
+  const goTo = (target: number) => { if (!blocked) { setError(''); setStep(target); const moved = { ...latest.current, wizardStep: target as 0 | 1 | 2 | 3, wizardMethod: method }; latest.current = moved; setPayload(moved); } };
+  const action = step === 3 ? 'Crear mi aula' : step === 1 ? method === 'ai' ? 'Preparar con Foxy' : method === 'manual' ? 'Armar mi recorrido' : 'Continuar' : 'Continuar';
+  const continueManually = () => { extraction.cancel(); setMethod('manual'); update('wizardMethod', 'manual'); setAnalyze(false); setError(''); };
+  return <Dialog key="wizard" title="Crear un aula" className="parity-classroom-wizard" onClose={saveAndExit}>
+    <form className="class-wizard-form" data-wizard-step={step} aria-busy={blocked} onSubmit={event=>{event.preventDefault();if(!blocked)void(step===3?publish():next());}}>
+      <div className="class-builder">
+        <aside className="class-builder-rail"><ol aria-label="Pasos para crear el aula">{steps.map((item,index)=><li key={item.label} className={index===step?'current':index<step?'complete':''}><button type="button" disabled={blocked||index>step} aria-current={index===step?'step':undefined} onClick={()=>goTo(index)}><span>{index<step?<FoxmindIcon name="check"/>:index+1}</span><div><b>{item.label}</b><small>{item.detail}</small></div></button></li>)}</ol><div className="class-builder-preview"><img src={learningCover(payload.coverKey)} alt=""/><div><span>Así se va a ver tu aula</span><b>{payload.name||'Tu próxima aula'}</b><small>{payload.division||'Un lugar para tu grupo'}</small></div></div><p className="class-private"><FoxmindIcon name="lock"/>Tu borrador es sólo tuyo.</p></aside>
+        <section className="class-builder-stage"><div className="class-step-heading"><span>Paso {step+1} de 4</span><h3 ref={heading} tabIndex={-1}>{steps[step].heading}</h3><p>{steps[step].description}</p></div>
+          {error?<Notice error>{error}</Notice>:null}
+        <div key={step} className="class-step-content"><fieldset disabled={blocked}>
           {step === 0 ? <>
-            <WizardGeneral payload={payload} zones={zones} onUpdate={update} />
-            <WizardCover payload={payload} onUpdate={update} />
+            <WizardGeneral payload={payload} zones={zones} onUpdate={update} changingZone={changingZone} onToggleZone={()=>setChangingZone(value=>!value)} />
+            <ClassroomWizardCover payload={payload} onUpdate={update} expanded={coversExpanded} onToggle={()=>setCoversExpanded(value=>!value)} />
           </> : step === 1 ? <>
             <WizardPlanSource {...planOptions} />
-            <fieldset className={styles.method}><legend>Elegí cómo cargar las unidades y temas</legend>
-            <label><input type="radio" name="plan-method" value="ai" checked={method === 'ai'} onChange={() => { setMethod('ai'); setAnalyze(false); }} />
-              <FoxmindIcon name="spark" /><span><strong>Analizar con IA</strong><small>Foxy extrae la estructura del documento. Podés corregirla antes de aplicarla.</small></span></label>
-            <label><input type="radio" name="plan-method" value="manual" checked={method === 'manual'} onChange={() => { setMethod('manual'); setAnalyze(false); }} />
-              <FoxmindIcon name="edit" /><span><strong>Cargar manualmente</strong><small>Agregá tus unidades y temas sin analizar el archivo con IA.</small></span></label>
-            </fieldset>
+            {processDismissed && processStage ? <div className="class-process-background" role="status"><p>{analysisPending ? 'El análisis puede continuar en el servidor. No hace falta volver a enviarlo.' : filePending || uploading ? 'Tu programa se está procesando. No hace falta volver a subirlo.' : 'Podés consultar el resultado del procesamiento.'}</p><button type="button" onClick={() => setProcessDismissed(false)}>Ver estado</button></div> : null}
+            <fieldset className="class-methods" disabled={!file?.ready || file.id !== payload.planFileId}><legend>¿Cómo querés preparar el recorrido?</legend><p>Elegí el punto de partida. Vas a poder editar todo después.</p>
+            <label className="class-method"><input type="radio" name="plan-method" value="ai" checked={method === 'ai'} onChange={() => { setMethod('ai'); update('wizardMethod', 'ai'); setAnalyze(false); }} />
+              <span className="method-icon"><FoxmindIcon name="spark" /></span><span><b>Prepararlo con Foxy</b><small>Una propuesta de unidades y temas a partir de tu programa.</small></span></label>
+            <label className="class-method"><input type="radio" name="plan-method" value="manual" checked={method === 'manual'} onChange={() => { setMethod('manual'); update('wizardMethod', 'manual'); setAnalyze(false); }} />
+              <span className="method-icon"><FoxmindIcon name="edit" /></span><span><b>Armarlo a mano</b><small>Organizá las unidades y los temas con tu propia mirada.</small></span></label>
+            </fieldset>{!file?.ready ? <p className="class-file-hint">Primero cargá el programa para elegir cómo seguir.</p> : null}
           </> : step === 2 ? <>
+            {!file?.ready ? <Notice>Estamos verificando el programa. Si necesitás reemplazarlo, volvé a El programa.</Notice> : null}
+            {method === 'ai' && !analyze && !payload.units?.length ? <button type="button" disabled={blocked || !file?.ready || file.id !== payload.planFileId} onClick={() => setAnalyze(true)}>Preparar con Foxy</button> : null}
             {method === 'ai' && analyze && !extraction.view && !extraction.message ? <AiProgress state="SENDING" task="plan" /> : null}
-            {method === 'ai' ? <><WizardSuggestions extraction={{ ...extraction, cancel: continueManually }} hasUnits={Boolean(payload.units?.length)} review />
+            {method === 'ai' && analyze ? <><WizardSuggestions extraction={{ ...extraction, cancel: continueManually }} hasUnits={Boolean(payload.units?.length)} review />
               {!extraction.view ? <button type="button" disabled={blocked} onClick={continueManually}>Continuar manualmente</button> : null}</> : null}
-            {method!=='ai'||extraction.view?.state==='APPLIED'?<WizardPlan {...planOptions}/>:null}
+            {method!=='ai'||!analyze&&Boolean(payload.units?.length)||extraction.view?.state==='APPLIED'?<><div className="class-plan-note"><FoxmindIcon name={method==='ai'?'spark':'edit'}/><p><b>{method==='ai'?'Foxy acercó una primera idea.':'El recorrido lleva tu mirada.'}</b> Revisá cada unidad y sus temas antes de continuar.</p></div><WizardPlan {...planOptions}/></>:null}
           </> : <WizardReview payload={payload} file={file} edit={goTo} />}
         </fieldset></div>
-      <p className="brujula-wizard-save" role="status" aria-live="polite">{publishing ? <><span className="wizard-spinner" aria-hidden="true" />Creando tu aula…</> : uploading ? <><span className="wizard-spinner" aria-hidden="true" />{uploadName ? `Subiendo y validando «${uploadName}»…` : 'Consultando el estado del plan…'}</> : status}</p>
-        <footer className="brujula-wizard-foot"><button type="button" className="brujula-wizard-keep" disabled={blocked} onClick={saveAndExit}>Guardar borrador</button><div>
-          {step > 0 ? <button type="button" disabled={blocked} onClick={() => goTo(step - 1)}>Atrás</button> : null}
-          <button type="submit" className="primary" disabled={blocked}>{publishing ? 'Creando aula…' : navigating ? 'Guardando…' : action}</button>
+
+      <p className="brujula-wizard-save" data-error={status === 'No se pudo guardar'} data-save-state={status === 'No se pudo guardar' ? 'error' : status === 'Borrador guardado' && !uploading && !publishing ? 'saved' : 'pending'} role="status" aria-live="polite">{publishing ? <><span className="wizard-spinner" aria-hidden="true" />Creando tu aula…</> : uploading ? <><span className="wizard-spinner" aria-hidden="true" />{uploadName ? `Subiendo y validando «${uploadName}»…` : 'Consultando el estado del plan…'}</> : status}</p>
+        </section>
+      </div>
+
+        <footer className="dialog-footer brujula-wizard-foot"><button type="button" className="brujula-wizard-keep class-save" disabled={blocked} onClick={saveAndExit}><svg className="fm3d-icon" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/brujula/icons.svg#save"/></svg>Guardar y salir</button><div className="class-step-actions">
+          {step > 0 ? <button type="button" disabled={blocked} onClick={() => goTo(step - 1)}><FoxmindIcon name="arrow-left"/>Atrás</button> : null}
+          <button type="submit" className="primary" disabled={blocked || step > 1 && (!file?.ready || file.id !== payload.planFileId) || step === 1 && (!file?.ready || file.id !== payload.planFileId || !method)}>{publishing ? 'Creando aula…' : navigating ? 'Guardando…' : action}<FoxmindIcon name={step===3?'check':step===1&&method==='ai'?'spark':'arrow-right'}/></button>
         </div></footer>
-      </form>
-    </div>
+    </form>
   </Dialog>;
 }

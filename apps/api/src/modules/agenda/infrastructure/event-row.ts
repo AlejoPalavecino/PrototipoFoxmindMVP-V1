@@ -8,11 +8,15 @@ export interface EventRow {
   repeat_kind: EventPayload['repeat']['kind']; repeat_until: string | null;
   revision: bigint; created_at: Date; updated_at: Date;
   color: EventPayload['color'] | null;
+  reminder_minutes?: NonNullable<EventPayload['reminder']>['minutes'] | null;
+  reminder_time_zone?: string | null;
+  folder_id?: string | null;
+  exam_id?: string | null;
   exceptions?: PrivateEvent['exceptions'];
 }
 export const eventColumns = `id,title,description,category,schedule_kind,start_date::text,end_date_exclusive::text,
   start_local,end_local,time_zone,start_offset_minutes,end_offset_minutes,repeat_kind,repeat_until::text,
-  revision,created_at,updated_at,color,exceptions`;
+  revision,created_at,updated_at,color,exceptions,reminder_minutes,reminder_time_zone`;
 export function fromEventRow(row: EventRow): PrivateEvent {
   const schedule: EventPayload['schedule'] = row.schedule_kind === 'ALL_DAY'
     ? { kind: 'ALL_DAY', startDate: row.start_date, endDateExclusive: row.end_date_exclusive }
@@ -23,6 +27,9 @@ export function fromEventRow(row: EventRow): PrivateEvent {
     repeat: row.repeat_kind === 'NONE' ? { kind: 'NONE' } : { kind: row.repeat_kind, untilDate: row.repeat_until! },
     revision: String(row.revision), createdAt: row.created_at.toISOString(), updatedAt: row.updated_at.toISOString(),
     ...(row.color === null ? {} : { color: row.color }),
+    ...(row.reminder_minutes == null ? {} : { reminder: { minutes: row.reminder_minutes,
+      ...(row.reminder_time_zone ? { timeZone: row.reminder_time_zone } : {}) } }),
+    ...(row.folder_id && row.exam_id ? { reviewSession: { folderId: row.folder_id, examId: row.exam_id } } : {}),
     ...(row.exceptions?.length ? { exceptions: row.exceptions } : {}) };
 }
 export function eventValues(payload: EventPayload): unknown[] {
@@ -36,5 +43,6 @@ export function eventValues(payload: EventPayload): unknown[] {
     timed?.startLocal ?? null, timed?.endLocal ?? null, timed?.timeZone ?? null,
     timed?.startOffsetMinutes ?? null, timed?.endOffsetMinutes ?? null,
     instants?.startAt ?? null, instants?.endAt ?? null, payload.repeat.kind,
-    payload.repeat.kind !== 'NONE' ? payload.repeat.untilDate : null, payload.color ?? null];
+    payload.repeat.kind !== 'NONE' ? payload.repeat.untilDate : null, payload.color ?? null,
+    payload.reminder?.minutes ?? null, payload.reminder?.timeZone ?? null];
 }

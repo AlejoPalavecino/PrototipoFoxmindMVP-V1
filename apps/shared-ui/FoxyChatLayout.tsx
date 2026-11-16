@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { AccountAvatar } from './AccountAvatar';
-import { Dialog } from './feedback';
+import { openDialog } from './dialog-focus';
 import { FoxmindIcon } from './FoxmindIcon';
 import s from './foxy-chat-layout.module.css';
 
@@ -8,71 +8,66 @@ export type ChatIdentity = { avatarKey?: string; initials: string };
 export type ChatView = 'chat' | 'tools' | 'creations';
 
 export function ChatByline({ user, identity }: { user?: boolean; identity?: ChatIdentity }) {
-  return <div className={`${s.byline} ${user ? s.user : ''}`}>
+  return <div className={`${s.byline} parity-ai-byline ${user ? s.user : ''}`}>
     {user ? <><span>Vos</span><AccountAvatar {...(identity ?? { initials: 'V' })}/></>
       : <><img src="/brujula/foxy-logotipo-redondo.webp" alt="" width={32} height={32}/><span>Foxy</span></>}
   </div>;
 }
 
-export function FoxyChatLayout({ view, onView, history, historyKey, tools, creations, children }: {
-  view: ChatView; onView: (view: ChatView) => void; history: ReactNode; historyKey?: string;
-  tools: ReactNode; creations: ReactNode; children: ReactNode;
+export function FoxyDialog({ title, description, onClose, children, footer, className = '' }: {
+  title: string; description?: string; onClose: () => void; children: ReactNode; footer?: ReactNode; className?: string;
 }) {
-  const [historyVisible, setHistoryVisible] = useState(true);
-  const [historyDialog, setHistoryDialog] = useState(false);
-  const [expanded, setExpanded] = useState(false);
-  const historyButton = useRef<HTMLButtonElement>(null);
-  const expandButton = useRef<HTMLButtonElement>(null);
+  const ref = useRef<HTMLDialogElement>(null), titleId = useId(), descriptionId = useId();
+  useEffect(() => openDialog(ref.current!), []);
+  return <dialog ref={ref} className={`p5-dialog parity-foxy-dialog ${className}`} aria-labelledby={titleId}
+    aria-describedby={description ? descriptionId : undefined} onCancel={event => { if (event.target !== event.currentTarget) return; event.preventDefault(); onClose(); }}>
+    <header><div><h2 id={titleId}>{title}</h2>{description && <p id={descriptionId}>{description}</p>}</div>
+      <button type="button" className="p5-close" aria-label="Cerrar diálogo" onClick={onClose}><FoxmindIcon name="close"/></button></header>
+    <div className="brujula-dialog-body">{children}</div>
+    {footer && <footer className="parity-foxy-dialogFooter">{footer}</footer>}
+  </dialog>;
+}
 
-  useEffect(() => setHistoryDialog(false), [historyKey]);
+export function FoxyChatLayout({ view, onView, history, historyKey, historyOpenKey, tools, creations, creationsCount, context, onNew, newDisabled, children }: {
+  view: ChatView; onView: (view: ChatView) => void; history: ReactNode; historyKey?: string; historyOpenKey?:number;
+  tools: ReactNode; creations: ReactNode; creationsCount?: number; context?: ReactNode;
+  onNew?: () => void; newDisabled?: boolean; children: ReactNode;
+}) {
+  const [historyVisible, setHistoryVisible] = useState(false);
   useEffect(() => {
-    if (!expanded) return;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !event.defaultPrevented && !document.querySelector('dialog[open]')) {
-        setExpanded(false);
-        expandButton.current?.focus();
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => {
-      document.body.style.overflow = previous;
-      window.removeEventListener('keydown', onKey);
-    };
-  }, [expanded]);
-
-  return <div className={`${s.layout} ${!historyVisible ? s.noHistory : ''} ${expanded ? s.expanded : ''}`}>
-    {historyVisible && !expanded && <aside className={s.history} aria-label="Historial de conversaciones">
-      <header><h2>Historial</h2><button type="button" aria-label="Cerrar historial" onClick={() => {
-        setHistoryVisible(false);
-        historyButton.current?.focus();
-      }}><FoxmindIcon name="close"/> Ocultar</button></header>
-      <div className={s.historyContent}>{history}</div>
-      <footer className={s.historyNote}><FoxmindIcon name="lock"/><span><strong>Un espacio solo tuyo</strong><small>Tus conversaciones son privadas.</small></span></footer>
-    </aside>}
-    <section className={s.workarea} aria-label="Espacio Foxy">
-      <nav className={s.tabs} aria-label="Vistas de Foxy">
-        {!expanded && <button type="button" ref={historyButton} onClick={() => {
-          if (matchMedia('(max-width: 900px)').matches) setHistoryDialog(true);
-          else setHistoryVisible(visible => !visible);
-        }}><FoxmindIcon name="menu"/>Historial</button>}
-        <button type="button" aria-current={view === 'chat' ? 'page' : undefined} onClick={() => onView('chat')}>Chat</button>
-        <button type="button" aria-current={view === 'tools' ? 'page' : undefined} onClick={() => onView('tools')}>Herramientas</button>
-        <button type="button" aria-current={view === 'creations' ? 'page' : undefined} onClick={() => onView('creations')}>Creaciones</button>
-      </nav>
-      <div hidden={view !== 'chat'} className={s.chatPanel}>
-        <button ref={expandButton} className={s.expand} type="button" onClick={() => setExpanded(value => !value)}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
-            <path d={expanded ? 'M3 8h5V3m13 5h-5V3M3 16h5v5m13-5h-5v5' : 'M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5'}/>
-          </svg>
-          <span>{expanded ? 'Volver a la vista normal' : 'Ampliar chat'}</span>
+    window.dispatchEvent?.(new Event('foxmind:chat-enter'));
+    return () => { window.dispatchEvent?.(new Event('foxmind:chat-exit')); };
+  }, []);
+  useEffect(() => setHistoryVisible(false), [historyKey]);
+  useEffect(() => { if(historyOpenKey) setHistoryVisible(true); }, [historyOpenKey]);
+  const close = () => { setHistoryVisible(false); onView('chat'); };
+  const tray = historyVisible ? 'history' : view === 'chat' ? null : view;
+  return <section className={`${s.compact} parity-ai-chat`} aria-label="Conversación con Foxy">
+    <header className={`${s.compactBar} parity-ai-compactBar`}>
+      <div className={`${s.compactContext} parity-ai-compactContext`}><button type="button" className="parity-chat-mobile-menu" aria-label="Abrir menú de navegación" onClick={()=>window.dispatchEvent?.(new Event('foxmind:chat-menu'))}><FoxmindIcon name="menu"/></button>{context}</div>
+      <nav className={`${s.shortcuts} parity-ai-shortcuts`} aria-label="Recursos de Foxy">
+        <button type="button" aria-haspopup="dialog" aria-label="Historial" aria-expanded={tray === 'history'} onClick={() => { onView('chat'); setHistoryVisible(true); }}>
+          <FoxmindIcon name="clock"/><span>Historial</span>
         </button>
-        <span className={s.private}><FoxmindIcon name="lock"/>Chat privado</span>
-        {children}
-      </div>
-      {view !== 'chat' && <div className={s.gallery}>{view === 'tools' ? tools : creations}</div>}
-    </section>
-    {historyDialog && <Dialog labeledClose title="Historial" onClose={() => setHistoryDialog(false)} className={s.dialog}>{history}</Dialog>}
-  </div>;
+        <button type="button" aria-haspopup="dialog" aria-label="Herramientas" aria-expanded={tray === 'tools'} onClick={() => { setHistoryVisible(false); onView('tools'); }}>
+          <FoxmindIcon name="spark"/><span>Herramientas</span>
+        </button>
+        <button type="button" aria-haspopup="dialog" aria-label="Creaciones" aria-expanded={tray === 'creations'} onClick={() => { setHistoryVisible(false); onView('creations'); }}>
+          <FoxmindIcon name="foxy-folder"/><span>Creaciones</span>{creationsCount !== undefined && <b className="parity-ai-creationCount">{creationsCount}</b>}
+        </button>
+      </nav>
+      {onNew && <button className={`${s.newChat} parity-ai-newChat`} type="button" aria-label="Nuevo chat" disabled={newDisabled} onClick={() => { close(); onNew(); }}>
+        <FoxmindIcon name="plus"/><span>Nuevo chat</span>
+      </button>}
+    </header>
+    <div className={`${s.compactBody} parity-ai-compactBody`}>{children}</div>
+    {tray && <FoxyDialog title={tray === 'history' ? 'Tu historial' : tray === 'tools' ? 'Herramientas de Foxy' : 'Tus creaciones'}
+      description={tray === 'history' ? 'Volvé a una conversación o empezá una nueva.' : tray === 'tools' ? 'Elegí qué querés preparar. Lo revisamos juntos.' : 'Ideas guardadas para seguir trabajando.'}
+      onClose={close} className={`${s.dialog} parity-ai-tray`}
+      footer={<button type="button" onClick={close}><FoxmindIcon name="arrow-left"/>Volver al chat</button>}>
+      {tray === 'history' ? <div onClick={event => {
+        if ((event.target as HTMLElement).closest('button[data-foxy-thread],button[data-foxy-rename]')) close();
+      }}>{history}</div> : tray === 'tools' ? tools : creations}
+    </FoxyDialog>}
+  </section>;
 }

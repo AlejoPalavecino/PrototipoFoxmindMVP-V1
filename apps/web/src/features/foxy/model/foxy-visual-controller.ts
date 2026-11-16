@@ -2,7 +2,7 @@ import type { FoxyAspectRatio, FoxySelection, FoxyVisualKind, StartFoxyVisual } 
 import type { FoxyConversation, FoxyVisualJob, WebFoxyClient } from '../api/foxy-client.ts';
 type State = { kind: FoxyVisualKind; prompt: string; aspectRatio: FoxyAspectRatio; jobs: FoxyVisualJob[]; selectedId: string | null;
   busy: boolean; pending: StartFoxyVisual | null; error: string | null };
-type Options = { client: Pick<WebFoxyClient,'startVisual'|'listVisuals'|'getVisual'>; onChange(state: State): void;
+type Options = { client: Pick<WebFoxyClient,'startVisual'|'listVisuals'|'getVisual'|'cancelVisual'>; onChange(state: State): void;
   current(): { conversation: FoxyConversation | null; selection: FoxySelection; canGenerate: boolean; busy: boolean; enabled: Record<FoxyVisualKind, boolean> }; onRevision(id: string, expected: string, revision: string): void };
 export function createFoxyVisualController(options: Options) {
   let state: State = { kind:'IMAGE',prompt:'',aspectRatio:'1:1',jobs:[],selectedId:null,busy:false,pending:null,error:null };
@@ -66,9 +66,20 @@ export function createFoxyVisualController(options: Options) {
         update({ jobs: [job, ...state.jobs.filter(item => item.id !== job.id)], selectedId: job.id, kind: job.kind, busy: false }); poll(version); return true;
       } catch { if (valid(version) && list === listVersion) { update({ busy: false, error: 'No pudimos abrir el recurso visual. Actualizá Creaciones y volvé a intentar.' }); poll(version); } return false; }
     },
-    start() { const current=options.current(); if (!current.conversation || current.busy || !current.canGenerate || !current.enabled[state.kind] || state.pending || state.busy || !state.prompt.trim() || [...state.prompt].length>5000) return;
+    async cancel(jobId: string) {
+      const id=conversationId, version=epoch;
+      if (!id || state.busy || !state.jobs.some(job => job.id===jobId && (job.state==='QUEUED' || job.state==='RUNNING'))) return;
+      listVersion++; update({busy:true,error:null});
+      try {
+        const job=await options.client.cancelVisual(id,jobId,abort.signal);
+        if (valid(version)) update({jobs:state.jobs.map(item=>item.id===job.id?job:item),busy:false});
+      } catch {
+        if (valid(version)) update({busy:false,error:'No pudimos detener el recurso. Volvé a intentar.'});
+      } finally { if (valid(version)) poll(version); }
+    },
+    start(selection?: FoxySelection) { const current=options.current(); if (!current.conversation || current.busy || !current.canGenerate || !current.enabled[state.kind] || state.pending || state.busy || !state.prompt.trim() || [...state.prompt].length>5000) return;
       const input: StartFoxyVisual={requestId:crypto.randomUUID(),revision:current.conversation.revision,kind:state.kind,prompt:state.prompt,
-        selection:current.conversation.context.kind==='GENERAL'?{topicIds:[],sourceIds:[]}:structuredClone(current.selection),aspectRatio:state.aspectRatio}; return dispatch(input); },
+        selection:current.conversation.context.kind==='GENERAL'?{topicIds:[],sourceIds:[]}:structuredClone(selection??current.selection),aspectRatio:state.aspectRatio}; return dispatch(input); },
     retry() { if (state.pending) return dispatch(state.pending); },
     dispose() { if (disposed) return; disposed=true; abort.abort(); if (timer) clearTimeout(timer); },
   };

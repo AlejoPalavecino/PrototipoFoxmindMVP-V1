@@ -4,7 +4,7 @@ import type { ClassroomAccess } from '../../classrooms/public.ts';
 import type { ClassroomFileOperations } from '../../materials/public.ts';
 import { revision } from '../../classrooms/public.ts';
 import { fail, object, uuid } from '../../classrooms/public.ts';
-import { parseWallMutation, type NotificationPageQuery } from '../../../../../../src/core/domain/index.ts';
+import { isProjectedNotificationId, parseWallMutation, type NotificationPageQuery } from '../../../../../../src/core/domain/index.ts';
 import type { WallPageQuery } from '../../../../../../src/core/domain/index.ts';
 import type { Actor, Transaction } from '../../classrooms/public.ts';
 import { academicTarget, type AcademicNotification } from '../../home/public.ts';
@@ -101,15 +101,15 @@ export class WallService {
 
   listNotifications(request: unknown) {
     return this.run(request, false, async (tx, actor) => {
-      return (await this.read.notificationPage(tx, actor.id)).items;
+      return this.read.legacyNotifications(tx, actor.id);
     });
   }
   listNotificationPage(request: unknown, query?: NotificationPageQuery) {
     return this.run(request, false, async (tx, actor) => this.read.notificationPage(tx, actor.id, query));
   }
 
-  readNotification(request: unknown, id: string) {
-    return this.notificationAction(request, id, false);
+  readNotification(request: unknown, id: string, read = true) {
+    return this.notificationAction(request, id, read ? 'read' : 'unread');
   }
 
   readAllNotifications(request: unknown) {
@@ -117,12 +117,17 @@ export class WallService {
   }
 
   openNotification(request: unknown, id: string) {
-    return this.notificationAction(request, id, true);
+    return this.notificationAction(request, id, 'open');
   }
 
-  private notificationAction(request: unknown, id: string, open: boolean) {
-    if (!uuid(id)) return fail('FORBIDDEN');
+  private notificationAction(request: unknown, id: string, action: 'open' | 'read' | 'unread') {
+    const projected = isProjectedNotificationId(id), read = action !== 'unread', open = action === 'open';
+    if (!projected && !uuid(id)) return fail('FORBIDDEN');
     return this.run(request, true, async (tx, actor) => {
+      if (projected) {
+        const target = await this.read.setProjectedNotificationRead(tx, actor.id, id.toLowerCase(), read);
+        return open ? target : { read };
+      }
       // Discover only this recipient's room, then acquire the standard classroom lock before rechecking target access.
       const [owned] = await this.repository.readNotifications09<{ classroom_id: string }>(tx, id, actor.id);
       if (!owned) return fail('FORBIDDEN');
@@ -132,9 +137,9 @@ export class WallService {
       const [grade] = wall || academic ? [] : await this.repository.updateOF12<GradeNotification>(tx, actor.id, id);
       const target = wall ?? academic ?? grade;
       if (!target) return fail('FORBIDDEN');
-      await this.repository.updateNotifications13(tx, id);
+      await this.repository.updateNotifications13(tx, id, read);
       return open ? wall ? { classroomId: wall.classroomId, postId: wall.postId, replyId: wall.replyId }
-        : academic ? academicTarget(academic) : gradeTarget(grade) : { read: true };
+        : academic ? academicTarget(academic) : gradeTarget(grade) : { read };
     });
   }
 }

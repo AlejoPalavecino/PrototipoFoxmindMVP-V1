@@ -148,7 +148,7 @@ test('P8 actual separate completion/performance/plan, own/class/history, retry, 
         }
         assert.equal(response.status(), 200); expectedOwn = await response.json();
         assert.equal(expectedOwn.scope, 'self'); assert.equal(expectedOwn.completion.percentage, '50.00'); assert.equal(expectedOwn.completion.pendingResubmissions, 1);
-        assert.equal(expectedOwn.performance.average, '8.35'); assert.deepEqual(expectedOwn.plan, { total: 2, taught: 1, percentage: '50.00' });
+        assert.equal(expectedOwn.performance.average, '8.35'); assert.deepEqual(expectedOwn.plan, { total: 2, taught: 1, percentage: '50.00', units: detail.units.map((unit, index) => ({ id: unit.id, name: unit.name, total: unit.topics.length, taught: index === 0 ? 1 : 0 })) });
         assert.ok(!/Private feedback|"(?:students|studentCount|gradedStudents|reason|audit|actor|correct|scoringRule)"/.test(JSON.stringify(expectedOwn)));
         await region(student).getByRole('region', { name: 'Rendimiento académico', exact: true }).getByText(/^8,35\s*\/\s*10$/).waitFor();
         await region(student).getByRole('region', { name: 'Actividades del seguimiento', exact: true }).getByText(/Entregada.*Reentrega pendiente/).waitFor();

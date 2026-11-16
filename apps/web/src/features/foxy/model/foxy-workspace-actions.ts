@@ -13,8 +13,9 @@ export function createFoxyWorkspaceActions(options: Options) {
   function emit(patch: Partial<State>) { if (active()) { state = { ...state, ...patch }; options.onChange(structuredClone(state)); } }
   function block() {
     const s = runtime.getState(), r = s.resource, p = s.preparation, c = s.confirmation, m = s.management;
-    if (s.activityHandoff?.pending || r?.pending || p?.pending || c?.pending || m?.pending || s.visual?.pending || s.visualPublication?.pending) return { reason: 'pending' as const, canSave: false };
-    if (s.activityHandoff?.busy || r?.busy || p?.busy || c?.busy || m?.busy || s.visual?.busy || s.visualPublication?.busy) return { reason: 'busy' as const, canSave: false };
+    if (s.activityHandoff?.pending || r?.pending || p?.pending || c?.pending || m?.pending || s.visual?.pending || s.visualPublication?.pending || s.visualEditor?.pending) return { reason: 'pending' as const, canSave: false };
+    if (s.activityHandoff?.busy || r?.busy || p?.busy || c?.busy || m?.busy || s.visual?.busy || s.visualPublication?.busy || s.visualEditor?.busy) return { reason: 'busy' as const, canSave: false };
+    if (s.visualEditor?.dirty) return {reason:'unsaved' as const,canSave:false};
     if (s.activityHandoff?.review && !s.activityHandoff.receipt) return { reason: 'unsaved' as const, canSave: false };
     if (r?.dirty) {
       const draft = r.draft, valid = !!r.resource && r.status !== 'loading' && !!draft && [draft.title, draft.markdown].every((v, i) =>
@@ -49,11 +50,11 @@ export function createFoxyWorkspaceActions(options: Options) {
   function prepLocked() { const p = runtime.getState().preparation; return locked() || managementLocked() || !!p?.pending || !!p?.busy; }
   function mutationLocked() { const s = runtime.getState(); return locked() || managementLocked() || !!s.resource?.pending || !!s.resource?.busy || !!s.preparation?.pending || !!s.preparation?.busy; }
   return {
-    prepareVisualConversation: (input: Parameters<Runtime['chat']['create']>[0], onSelected: (id: string | undefined) => void) => guarded(async () => {
+    prepareVisualConversation: (input: Parameters<Runtime['chat']['create']>[0], onSelected: (id: string | undefined) => void | Promise<void>) => guarded(async () => {
       const id = await runtime.chat.create(input);
       if (!active()) return false;
       const selected = id && runtime.getState().chat?.current?.id === id ? id : undefined;
-      onSelected(selected);
+      await onSelected(selected);
       return !!selected;
     }),
     openVisualCreation: (conversationId: string, jobId: string, onSelected?: () => void) => guarded(async () => {
@@ -71,6 +72,8 @@ export function createFoxyWorkspaceActions(options: Options) {
       create: (...args: Parameters<Runtime['chat']['create']>) => { const copied = structuredClone(args); return guarded(() => runtime.chat.create(...copied)); },
       send: (...args: Parameters<Runtime['chat']['send']>) => { if (active()) return runtime.chat.send(...args); },
       retry: () => { if (active()) return runtime.chat.retry(); },
+      cancel: () => { if (active()) return runtime.chat.cancel(); },
+      setFullClassroom: (value: boolean) => { if (active()) return runtime.chat.setFullClassroom(value); },
       loadMore: () => { if (active()) return runtime.chat.loadMore(); },
       loadMoreConversations: () => { if (active()) return runtime.chat.loadMoreConversations(); },
       loadSources: (...args: Parameters<Runtime['chat']['loadSources']>) => { if (active()) return runtime.chat.loadSources(...args); },
@@ -143,7 +146,7 @@ export function createFoxyWorkspaceActions(options: Options) {
     cancelLeave() { if (active()) { actionEpoch++; target = null; emit({ leave: null }); } },
     async discardAndContinue(): Promise<boolean> {
       if (!active() || !target) return false;
-      return continueTarget(() => { runtime.activityHandoff?.discard(); runtime.visualPublication?.syncAsset('', ''); runtime.resource.discardAndClose(); });
+      return continueTarget(() => { runtime.activityHandoff?.discard(); runtime.visualEditor?.discard(); runtime.visualPublication?.syncAsset('', ''); runtime.resource.discardAndClose(); });
     },
     async saveAndContinue(): Promise<boolean> {
       if (!active() || !target || !block()?.canSave) return false;

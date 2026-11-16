@@ -1,6 +1,6 @@
 import type { FoxyCatalogQueries, FoxyBinaryReader } from '../application/read-ports.ts';
 import type { createFoxyCreationService } from '../application/creation-service.ts';
-import { parseEditFoxyResource, parseFoxySourceQuery, parsePrepareFoxyPublication, parsePrepareFoxyVisualPublication, parseConfirmFoxyPublication, parseRetryFoxyPublication, parseDiscardFoxyPublication } from '../../../../../../src/core/domain/index.ts';
+import { strictObject, parseEditFoxyResource, parseFoxySourceQuery, parsePrepareFoxyPublication, parsePrepareFoxyVisualPublication, parseConfirmFoxyPublication, parseRetryFoxyPublication, parseDiscardFoxyPublication } from '../../../../../../src/core/domain/index.ts';
 import type { IncomingMessage } from 'node:http';
 import type { createFoxyConversationService } from '../application/conversation-service.ts';
 import type { createFoxyVisualService } from '../application/visual-service.ts';
@@ -9,10 +9,11 @@ import type { createFoxyCitationService } from '../application/citation-service.
 import type { createFoxyResourceService } from '../application/resource-service.ts';
 import type { createFoxyPublicationService } from '../application/publication-service.ts';
 import type { createFoxyPublicationManagementService } from '../application/publication-management-service.ts';
+import type { createFoxyPrivateAssetEditorialService } from '../application/private-asset-editorial-service.ts';
 import type { createFoxyPrivateAssetReadService } from '../application/private-asset-read-service.ts';
 import { body, create, cursor, id, integer, message, query, remove, rename, visual } from './http-input.ts';
 
-type Services = { creations?: ReturnType<typeof createFoxyCreationService>; visuals?: ReturnType<typeof createFoxyVisualService>; privateAssetReader?: FoxyBinaryReader; privateAssetReadService?: ReturnType<typeof createFoxyPrivateAssetReadService>; conversations: ReturnType<typeof createFoxyConversationService>; turns: ReturnType<typeof createFoxyTurnService>;
+type Services = { privateAssetEditorial?: ReturnType<typeof createFoxyPrivateAssetEditorialService>; creations?: ReturnType<typeof createFoxyCreationService>; visuals?: ReturnType<typeof createFoxyVisualService>; privateAssetReader?: FoxyBinaryReader; privateAssetReadService?: ReturnType<typeof createFoxyPrivateAssetReadService>; conversations: ReturnType<typeof createFoxyConversationService>; turns: ReturnType<typeof createFoxyTurnService>;
   catalog: FoxyCatalogQueries; citations: ReturnType<typeof createFoxyCitationService>;
   resources: ReturnType<typeof createFoxyResourceService>; publications: ReturnType<typeof createFoxyPublicationService>; publicationFiles: FoxyBinaryReader; publicationManagement: ReturnType<typeof createFoxyPublicationManagementService>; capabilities(request: IncomingMessage): Promise<unknown> };
 type Result = { status: number; body?: unknown; binary?: Uint8Array; headers?: Record<string, string> };
@@ -50,6 +51,11 @@ async function turns(services: Services, request: IncomingMessage, url: URL, con
 }
 export async function foxyRoute(services: Services, request: IncomingMessage, url: URL, signal: AbortSignal = new AbortController().signal): Promise<Result> {
   const path = url.pathname.slice('/api/v1/foxy-ai'.length);
+  const editorial = /^\/assets\/([^/]+)\/editorial$/u.exec(path);
+  if (editorial && request.method === 'PATCH') {
+    query(url, []); if (!services.privateAssetEditorial) return missing();
+    return { status: 200, body: await services.privateAssetEditorial.edit(request,id(editorial[1]!),await body(request)) };
+  }
   const privateAsset = /^\/assets\/([^/]+)(?:\/(file))?$/u.exec(path);
   if (privateAsset && request.method === 'GET') {
     if (request.headers['transfer-encoding'] !== undefined || (request.headers['content-length'] !== undefined && request.headers['content-length'] !== '0'))
@@ -73,6 +79,12 @@ export async function foxyRoute(services: Services, request: IncomingMessage, ur
       q: params.q, context: params.context, type: params.type, status: params.status }) };
   }
   if (path === '/conversations') return collection(services, request, url);
+  const cancelVisual = /^\/conversations\/([^/]+)\/visuals\/([^/]+)\/cancel$/u.exec(path);
+  if (cancelVisual && request.method === 'POST') {
+    query(url, []); strictObject(await body(request), []);
+    if (!services.visuals) return missing();
+    return { status: 200, body: await services.visuals.cancel(request,id(cancelVisual[1]!),id(cancelVisual[2]!)) };
+  }
   const visuals = /^\/conversations\/([^/]+)\/visuals(?:\/([^/]+))?$/u.exec(path);
   if (visuals && (request.method === 'GET' || request.method === 'POST')) {
     const conversationId = id(visuals[1]!);
@@ -95,6 +107,11 @@ export async function foxyRoute(services: Services, request: IncomingMessage, ur
       return { status: 200, body: await services.visuals.list(request,conversationId,page) };
     }
     return missing();
+  }
+  const cancelTurn = /^\/conversations\/([^/]+)\/turns\/([^/]+)\/cancel$/u.exec(path);
+  if (cancelTurn && request.method === 'POST') {
+    query(url, []); strictObject(await body(request), []);
+    return { status: 200, body: await services.turns.cancel(request,id(cancelTurn[1]!),id(cancelTurn[2]!)) };
   }
   const resourceTurn = /^\/conversations\/([^/]+)\/turns\/([^/]+)\/resource$/u.exec(path);
   if (resourceTurn && request.method === 'POST') {

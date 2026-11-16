@@ -1,6 +1,8 @@
 import type { Unit } from './curriculum.ts';
 
 export interface Payload {
+  wizardStep?: 0 | 1 | 2 | 3;
+  wizardMethod?: 'ai' | 'manual' | null;
   name?: string;
   subject?: string;
   division?: string;
@@ -43,6 +45,7 @@ export interface Detail extends Classroom {
 }
 
 export interface Invitation {
+  coverKey?: string;
   id: string;
   name: string;
   teacher: string;
@@ -50,12 +53,17 @@ export interface Invitation {
   recipient?: string;
   acceptedAt?: string;
   revokedAt?: string;
+  declinedAt?: string;
+  subject?: string;
+  division?: string;
+  academicYear?: number;
   issuedAt?: string;
   deliveryStatus?: string;
   deliveryError?: string | null;
 }
 
 export interface Member {
+  isSelf?: boolean;
   email?: string;
   studentId?: string;
   enrollmentId?: string;
@@ -76,4 +84,9 @@ export type InvitationBatchRecipient =
 export interface InvitationBatchReceipt {
   requestId: string;
   recipients: InvitationBatchRecipient[];
+}
+
+export interface ClassroomCodePreview {
+  classroom: { name: string; subject: string; division: string; academicYear: number; teacher: string; coverKey?: string };
+  confirmation: string;
 }

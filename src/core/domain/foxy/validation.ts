@@ -23,13 +23,18 @@ function sourceId(value: unknown): string {
   return value;
 }
 function selection(value: unknown, scope: FoxyContext): FoxySelection {
-  const v = strictObject(value, ['topicIds', 'sourceIds']);
+  const hasMode = !!value && typeof value === 'object' && Object.hasOwn(value,'mode');
+  const v = strictObject(value,hasMode?['mode','topicIds','sourceIds']:['topicIds','sourceIds']);
   const topicIds = activityList(v.topicIds, 0, 100, activityUuid);
   const sourceIds = activityList(v.sourceIds, 0, 20, sourceId);
   if (new Set(topicIds.map(id => id.toLowerCase())).size !== topicIds.length
     || new Set(sourceIds.map(id => id.toLowerCase())).size !== sourceIds.length
     || sourceIds.filter(id => !id.startsWith('activity:')).length > 6
     || (scope.kind === 'GENERAL' && (topicIds.length > 0 || sourceIds.length > 0))) return invalidInput();
+  if (hasMode) {
+    if (v.mode !== 'ALL_CLASSROOM' || scope.kind !== 'CLASSROOM' || topicIds.length || sourceIds.length) return invalidInput();
+    return { mode: v.mode, topicIds, sourceIds };
+  }
   return { topicIds, sourceIds };
 }
 function purpose(value: unknown): FoxyPurpose {
@@ -38,8 +43,17 @@ function purpose(value: unknown): FoxyPurpose {
   return value;
 }
 export function parseCreateFoxyConversation(value: unknown): CreateFoxyConversation {
-  const v = strictObject(value, ['requestId', 'title', 'context']);
-  return { requestId: activityUuid(v.requestId), title: text(v.title, 200), context: context(v.context) };
+  const hasCarry = !!value && typeof value === 'object' && Object.hasOwn(value, 'carryAttachments');
+  const v = strictObject(value, hasCarry ? ['requestId', 'title', 'context', 'carryAttachments'] : ['requestId', 'title', 'context']);
+  const result: CreateFoxyConversation = { requestId: activityUuid(v.requestId), title: text(v.title, 200), context: context(v.context) };
+  if (hasCarry) {
+    const carry = strictObject(v.carryAttachments, ['sourceConversationId', 'sourceRevision', 'attachmentIds']);
+    const attachmentIds = activityList(carry.attachmentIds, 1, 6, activityUuid).map(id => id.toLowerCase()).sort();
+    if (new Set(attachmentIds).size !== attachmentIds.length) return invalidInput();
+    result.carryAttachments = { sourceConversationId: activityUuid(carry.sourceConversationId).toLowerCase(),
+      sourceRevision: activityRevision(carry.sourceRevision), attachmentIds };
+  }
+  return result;
 }
 export function parseSendFoxyMessage(value: unknown, fixedContext: FoxyContext): SendFoxyMessage {
   const v = strictObject(value, ['requestId', 'revision', 'purpose', 'text', 'selection']);

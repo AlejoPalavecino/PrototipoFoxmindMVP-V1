@@ -97,27 +97,21 @@ for (const accountRole of ['teacher', 'student']) test(`Home presents the ${acco
   const html = render(Home, { accountRole, displayName: 'Learner', busy: false, onAction() {},
     onCreate() {}, onJoin() {}, onClassrooms() {}, onEnter() {}, api: { call: async () => [] }, onOpenTarget() {},
   });
-  for (const name of [accountRole === 'teacher' ? 'Para revisar' : 'Mis entregas']) {
-    const group = [...html.matchAll(/<section\b([^>]*)>/g)].find(([, attributes]) => attributes.includes(`aria-label="${name}"`));
-    assert.ok(group, `Missing ${name} group`);
-    assert.doesNotMatch(group[1], /\bhidden(?:=""|="hidden"|\s|$)|aria-hidden="true"/, `${name} must remain visible`);
-  }
-  assert.match(html, /Current classroom/);
-  assert.doesNotMatch(html, accountRole === 'teacher' ? /aria-label="Mi aprendizaje"/ : /aria-label="Mi actividad docente"/);
-  const forbiddenAction = accountRole === 'teacher' ? 'Unirme con código' : 'Crear aula';
+  assert.match(html, /<h3>Current classroom<\/h3>/);
+  assert.equal(buttons(html).filter(action => action.attributes.includes('aria-label="Abrir aula Current classroom"')).length, 1);
+  assert.ok(buttons(html).some(action => action.text.includes('Ver mis aulas')));
   if (accountRole === 'student') {
-    for (const action of ['Materiales', 'Mi progreso', 'Plan de estudio', 'Muro del aula']) assert.match(html, new RegExp(action));
-    assert.match(html, /aria-label="Accesos de mi aula"/);
-    assert.doesNotMatch(html, /aria-label="Aula en foco"/);
+    assert.match(html, /<h2>Tu próximo paso<\/h2>/);
+    assert.match(html, /href="\/carpetas-de-estudio"/);
+    assert.doesNotMatch(html, /Pendientes docentes|Crear actividad|Crear aula|Preparar con Foxy/);
+  } else {
+    assert.match(html, /<h2>Por acompañar<\/h2>/);
+    assert.match(html, /aria-label="Pendientes docentes"/);
+    assert.ok(buttons(html).some(action => action.text === 'Crear actividad'));
+    assert.match(html, /href="\/foxy-ai"/);
+    assert.doesNotMatch(html, /Unirme con código|carpetas-de-estudio/);
   }
-  else {
-    for (const action of ['Crear actividad', 'Agregar material', 'Publicar aviso']) assert.match(html, new RegExp(action));
-    assert.match(html, /aria-label="Acciones del aula"/);
-    assert.match(html, /aria-label="Aula en foco"/);
-  }
-  assert.ok(buttons(html).every(button => !button.text.includes('Actualizar')));
-  assert.ok(buttons(html).every(button => !button.text.includes(forbiddenAction)), forbiddenAction);
-  assert.equal(buttons(html).filter(button => button.text.includes('Entrar al aula')).length, Number(accountRole === 'teacher'));
+  assert.ok(buttons(html).every(action => !action.text.includes('Actualizar')));
   assert.doesNotMatch(html, /Lo próximo/);
 });
 
@@ -126,7 +120,8 @@ test('ClassroomView SSR retains exit/loading state without inventing server clas
   let calls = 0;
   const html = render(ClassroomView, { id: 'not-loaded', initialCode: null, onExit() {}, api: { call: async () => { calls++; throw new Error('SSR must not fetch'); } } });
   assert.equal(calls, 0);
-  assert.match(html, /Cargando aula/);
+  assert.match(html, /role="status"/);
+  assert.match(html, /Estamos abriendo tu aula/);
   assert.ok(buttons(html).some(button => /Mis aulas/.test(button.text)));
   assert.doesNotMatch(html, /Invitar estudiante|Configuración|Historial/);
 });

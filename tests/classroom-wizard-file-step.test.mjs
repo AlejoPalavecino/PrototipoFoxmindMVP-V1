@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { wizard, advance, nodes, text, ready } from './helpers/wizard-reference/component-harness.mjs';
+import { wizard, advance, nodes, button, text, ready } from './helpers/wizard-reference/component-harness.mjs';
 
 test('Creación reserva el archivo obligatorio para Cargar plan y evita avanzar con el archivo sin aprobar', async () => {
   const f = await wizard({ draft: { id: 'draft', revision: '1', payload: {
@@ -32,6 +32,8 @@ test('Una lectura atrasada del archivo anterior no aprueba un reemplazo rechazad
     await f.view.flush();
     resolvePrevious(ready('approved'));
     await f.view.flush();
+    assert.equal(nodes(f.view,n=>n.type==='form').length,0);
+    button(f.view,'Volver al programa').props.onClick(); await f.view.flush();
     nodes(f.view, n => n.type === 'input' && n.props.name === 'plan-method' && n.props.value === 'manual')[0].props.onChange();
     await f.view.flush(); await advance(f.view);
     assert.equal(nodes(f.view, n => n.type === 'form')[0].props['data-wizard-step'], 1);

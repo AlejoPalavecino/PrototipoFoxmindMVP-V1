@@ -34,8 +34,8 @@ test('multiline first classroom message derives a one-line title and preserves t
 });
 test('rename conflict keeps the exact draft open for correction and does not send blank names',async()=>{
  const {FoxyWorkspace}=componentWithPorts("apps/web/src/features/foxy/ui/foxy-workspace.tsx",{}),calls=[];
- const view=hookView(FoxyWorkspace,{state:chatState,classrooms:[],controller:{rename:async title=>{calls.push(title);return false;}}});
- try{await view.flush();descendants(view.tree,n=>n.type==='button'&&n.props.children==='Renombrar')[0].props.onClick();await view.flush();
+ const view=hookView(FoxyWorkspace,{state:chatState,classrooms:[],controller:{select:async()=>true,rename:async title=>{calls.push(title);return false;}}});
+ try{await view.flush();descendants(view.tree,n=>n.type?.name==='FoxyChatLayout')[0].props.history.props.onRename(conversation);await view.flush();
  let input=descendants(view.tree,n=>n.type==='input'&&n.props.autoFocus)[0];input.props.onChange({target:{value:'Título mío'}});await view.flush();
  let form=descendants(view.tree,n=>n.type==='form'&&n.props.className!==undefined&&descendants(n,c=>c.type==='input').length)[0];
  // CSS modules are stubbed by this loader; use the field rather than its class.
@@ -45,12 +45,14 @@ test('rename conflict keeps the exact draft open for correction and does not sen
  }finally{view.close();}
 });
 test('choosing classroom prepares context without sending and blocks composer while loading',async()=>{
- const {FoxyWorkspace}=componentWithPorts("apps/web/src/features/foxy/ui/foxy-workspace.tsx",{}),pending=deferred(),calls=[];
+ const {FoxyWorkspace}=componentWithPorts("apps/web/src/features/foxy/ui/foxy-workspace.tsx",{
+   '../../../shared/use-chat-attachments':{useChatAttachments:()=>({items:[],ready:true,busy:false})},
+ }),pending=deferred(),calls=[];
  const view=hookView(FoxyWorkspace,{state:{...chatState,error:null},classrooms:[{id:'room',name:'Biología'}],controller:{prepareContext:id=>{calls.push(id);return pending.promise;}}});
  try{await view.flush();descendants(view.tree,n=>n.type==='textarea')[0].props.onChange({target:{value:'Mi primer pedido'}});await view.flush();
- descendants(view.tree,n=>n.props['aria-label']==='Cambiar contexto del chat')[0].props.onClick();await view.flush();
+ descendants(view.tree,n=>n.type?.name==='FoxyChatLayout')[0].props.context.props.onClick();await view.flush();
  const picker=descendants(view.tree,n=>n.type?.name==='FoxyContextPicker')[0];
- assert.deepEqual(calls,[]);assert.match(renderToStaticMarkup(view.tree),/Biología/);
+ assert.deepEqual(calls,[]);assert.equal(picker.props.classrooms[0].name,'Biología');
  picker.props.onApply('room');await view.flush();
  assert.deepEqual(calls,['room']);assert.match(renderToStaticMarkup(view.tree),/Preparando contexto/);
  assert.equal(descendants(view.tree,n=>n.type==='button'&&n.props.type==='submit')[0].props.disabled,true);pending.resolve(true);await view.flush();
@@ -62,19 +64,26 @@ test('first message gives a prepared empty classroom conversation a useful title
  const view=hookView(FoxyWorkspace,{state,classrooms:[{id:'room',name:'Física'}],controller:{rename:async title=>{calls.push(['rename',title]);return true;},send:async (...args)=>{calls.push(['send',...args]);return 'accepted';}}});
  try{await view.flush();descendants(view.tree,n=>n.type==='textarea')[0].props.onChange({target:{value:'Prepará la clase de luz'}});await view.flush();descendants(view.tree,n=>n.type==='form'&&descendants(n,c=>c.type==='textarea').length)[0].props.onSubmit({preventDefault(){}});await view.flush();assert.equal(calls[0][0],'rename');assert.equal(calls[0][1],'Prepará la clase de luz');assert.equal(calls[1][0],'send');}finally{view.close();}
 });
-test('creation collection exposes origin and effective destinations and sends complete remote filters',()=>{
+test('creation collection uses compact type chips and opens the saved creation without exposing destination controls',async()=>{
  const {FoxyCollectionPanel}=componentWithPorts("apps/web/src/features/foxy/ui/foxy-collection-panel.tsx",{}),calls=[];
  const item={id:'one',kind:'PLAN',title:'Clase de luz',context:{kind:'CLASSROOM',classroomId:'a'},status:'DRAFT',destinations:[{kind:'ACTIVITY',classroomId:'b',classroomName:'Química',id:'activity',state:'DRAFT'}]};
- const tree=FoxyCollectionPanel({page:{items:[item],next:'cursor',loading:false,error:null},query:{q:'',context:'ALL',type:'ALL',status:'ALL'},classrooms:[{id:'a',name:'Física'}],onQuery:q=>calls.push(q),onMore:()=>calls.push('more'),onOpen:value=>calls.push(value),onRefresh:()=>{}});
- const html=renderToStaticMarkup(tree);assert.match(html,/Origen: Física/);assert.match(html,/Química.*Borrador/);assert.doesNotMatch(html,/Asignado/);
- descendants(tree,n=>n.type==='button'&&n.props.children==='Planificaciones')[0].props.onClick();assert.deepEqual(calls[0],{q:'',context:'ALL',type:'PLAN',status:'ALL'});
- descendants(tree,n=>n.type==='button'&&n.props['aria-label']==='Abrir Clase de luz')[0].props.onClick();assert.equal(calls[1],item);
+ const view=hookView(FoxyCollectionPanel,{page:{items:[item],next:'cursor',loading:false,error:null},query:{q:'',context:'ALL',type:'ALL',status:'ALL'},classrooms:[{id:'a',name:'Física'}],onQuery:q=>calls.push(q),onMore:()=>calls.push('more'),onOpen:value=>calls.push(value),onRefresh:()=>{}});
+ try {
+  await view.flush();
+  const html=renderToStaticMarkup(view.tree);assert.match(html,/Con vínculos/);assert.doesNotMatch(html,/Origen:|Abrir borrador|Asignado/);
+  descendants(view.tree,n=>n.type==='button'&&n.props.children==='Clases')[0].props.onClick();assert.deepEqual(calls[0],{q:'',context:'ALL',type:'PLAN',status:'ALL'});
+  descendants(view.tree,n=>n.type==='button'&&n.props['aria-label']==='Abrir Clase de luz')[0].props.onClick();assert.equal(calls[1],item);
+ } finally { view.close(); }
 });
-test('effective destinations navigate through the guard and preparations never expose a destination link',()=>{
+test('creation collection defers destination navigation to the guarded resource review',async()=>{
  const {FoxyCollectionPanel}=componentWithPorts("apps/web/src/features/foxy/ui/foxy-collection-panel.tsx",{}),calls=[];
  const classroomId='f0b2a217-69b2-4afa-b08a-07960283a607',activityId='2de3e518-788a-44ba-bcc4-b97ce829119b';
  const item={id:'one',kind:'RUBRIC',title:'Criterios',context:{kind:'GENERAL'},status:'DRAFT',destinations:[{kind:'ACTIVITY',classroomId,classroomName:'Física',id:activityId,state:'DRAFT'},{kind:'MATERIAL',classroomId,classroomName:'Física',id:null,state:'PREPARING'}]};
- const tree=FoxyCollectionPanel({page:{items:[item],next:null,loading:false,error:null},query:{q:'',context:'ALL',type:'ALL',status:'ALL'},classrooms:[],destinationHref:classroomHomeHref,onNavigate:path=>calls.push(path)});
- const open=descendants(tree,n=>n.type==='button'&&n.props.children==='Abrir borrador');assert.equal(open.length,1);open[0].props.onClick();assert.match(calls[0],/destino=activity/);assert.match(decodeURIComponent(calls[0]),new RegExp(activityId));
- assert.equal(descendants(tree,n=>n.type==='a').length,0);
+ const view=hookView(FoxyCollectionPanel,{page:{items:[item],next:null,loading:false,error:null},query:{q:'',context:'ALL',type:'ALL',status:'ALL'},classrooms:[],destinationHref:classroomHomeHref,onNavigate:path=>calls.push(['navigate',path]),onOpen:value=>calls.push(['open',value])});
+ try {
+  await view.flush();
+  assert.equal(descendants(view.tree,n=>n.type==='button'&&n.props.children==='Abrir borrador').length,0);
+  descendants(view.tree,n=>n.type==='button'&&n.props['aria-label']==='Abrir Criterios')[0].props.onClick();assert.deepEqual(calls,[['open',item]]);
+  assert.equal(descendants(view.tree,n=>n.type==='a').length,0);
+ } finally { view.close(); }
 });

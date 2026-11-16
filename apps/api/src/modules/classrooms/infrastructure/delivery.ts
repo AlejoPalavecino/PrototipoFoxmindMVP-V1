@@ -75,7 +75,7 @@ export class InvitationDeliveryWorker {
       if (!job) return;
       const [live] = await tx.query(
         `SELECT i.id FROM invitations i JOIN classrooms c ON c.id=i.classroom_id WHERE i.id=$1::uuid
-        AND i.generation=$2::bigint AND i.accepted_at IS NULL AND i.revoked_at IS NULL AND i.expires_at>clock_timestamp() AND c.archived_at IS NULL`,
+        AND i.generation=$2::bigint AND i.accepted_at IS NULL AND i.revoked_at IS NULL AND i.declined_at IS NULL AND i.expires_at>clock_timestamp() AND c.archived_at IS NULL`,
         job.payload.invitationId,
         job.payload.generation,
       );

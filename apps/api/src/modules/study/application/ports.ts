@@ -1,4 +1,4 @@
-import type { FolderFields } from '../../../../../../src/core/domain/study/folders.ts';
+import type { StudyUnit } from '../../../../../../src/core/domain/study/folders.ts';
 import type { StudyQuery, StudyOptions, StudySource, FolderRow, StudySummaryRow } from './contracts.ts';
 export interface StudentUnitOfWork {
  run<T>(request: unknown, write: boolean, operation: (tx: StudyQuery, owner: string) => Promise<T>): Promise<T>;
@@ -12,12 +12,13 @@ export interface FolderRepository {
 }
 export interface StudyCommandPorts extends Omit<StudyOptions, 'database' | 'authenticate'> {
  newId(): string;
+ importPlan(tx: StudyQuery, owner: string, id: string): Promise<{ revision: string; units: StudyUnit[] } | null>;
  sources(tx: StudyQuery, row: FolderRow, options: Omit<StudyOptions, 'database' | 'authenticate'>): Promise<StudySource[]>;
 }
 export interface StudyApplicationPorts extends StudyCommandPorts {
  uow: StudentUnitOfWork;
  folders: FolderRepository;
- linkedClassrooms(tx: StudyQuery, owner: string): Promise<{ id: string; name: string; academicYear: number }[]>;
+ linkedClassrooms(tx: StudyQuery, owner: string): Promise<{ id: string; name: string; academicYear: number; archived?: boolean }[]>;
  verifyLink(tx: StudyQuery, owner: string, id: string | null): Promise<void>;
  digest(text: string): string;
 }

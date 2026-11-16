@@ -29,14 +29,14 @@ function checkEntry(entry: Entry, names: Set<string>) {
   if (names.has(name) || /[\u0000-\u001f\u007f\\:]/u.test(name) || name.startsWith('/')
     || name.split('/').includes('..') || ![0, 0x8000, 0x4000].includes(mode)
     || (entry.generalPurposeBitFlag & 1) !== 0 || ![0, 8].includes(entry.compressionMethod)
-    || /(?:vbaProject|\.docm$)/iu.test(name)) throw new PlanDocumentError();
+    || /(?:vbaProject|\.(?:docm|pptm)$)/iu.test(name)) throw new PlanDocumentError();
   names.add(name);
 }
-export async function documentXml(bytes: Buffer, { mainPartOnly = false } = {}): Promise<Buffer> {
+export async function readOfficeParts(bytes: Buffer, selected: (path: string) => boolean, mainPartsOnly = false) {
   const zip = await new Promise<ZipFile>((resolve, reject) => fromBuffer(bytes,
     { lazyEntries: true, validateEntrySizes: true, strictFileNames: true },
     (error, result) => error || !result ? reject(new PlanDocumentError()) : resolve(result)));
-  let expanded = 0, failed = false; const names = new Set<string>(); let document: Buffer | undefined;
+  let expanded = 0, failed = false; const names = new Set<string>(); const parts = new Map<string, Buffer>();
   zip.on('error', () => { failed = true; });
   try {
     for (let entry = await next(zip); entry; entry = await next(zip)) {
@@ -44,14 +44,22 @@ export async function documentXml(bytes: Buffer, { mainPartOnly = false } = {}):
       if (failed) throw new PlanDocumentError();
       if (names.size > 1000) throw new PlanDocumentError('AI_INPUT_LIMIT');
       // The preview is called only for approved bytes whose digest was rechecked.
-      if (mainPartOnly && entry.fileName !== 'word/document.xml') continue;
+      if (mainPartsOnly && !selected(entry.fileName)) continue;
       expanded += entry.uncompressedSize;
       if (expanded > 32_000_000) throw new PlanDocumentError('AI_INPUT_LIMIT');
       const content = await readEntry(zip, entry);
       if (failed) throw new PlanDocumentError();
-      if (entry.fileName === 'word/document.xml') document = content;
+      if (selected(entry.fileName)) parts.set(entry.fileName, content);
     }
-    if (!document || !names.has('[Content_Types].xml') || !names.has('_rels/.rels')) throw new PlanDocumentError();
-    return document;
+    if (!names.has('[Content_Types].xml') || !names.has('_rels/.rels')) throw new PlanDocumentError();
+    return parts;
   } finally { zip.close(); }
+}
+
+export async function documentXml(bytes: Buffer, { mainPartOnly = false } = {}): Promise<Buffer> {
+  const path = 'word/document.xml';
+  const parts = await readOfficeParts(bytes, name => name === path, mainPartOnly);
+  const document = parts.get(path);
+  if (!document) throw new PlanDocumentError();
+  return document;
 }

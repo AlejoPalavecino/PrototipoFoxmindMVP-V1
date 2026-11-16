@@ -15,12 +15,13 @@ export function StudentRecord({ api, classroomId, summary, onBack, onOpenActivit
   const name=`${summary.firstName} ${summary.lastName}`;
   const submitted = new Set(summary.attempts.map(item=>item.activityId ?? item.title)).size;
   const published = summary.attempts.filter(item=>item.published && item.grade!==null).length;
-  return <section className="brujula-student-record">
-    <button className="p5-link" onClick={progress ? ()=>setProgress(false) : onBack}>‹ {progress ? 'Volver a la ficha' : 'Volver a Alumnos'}</button>
-    {progress ? <Progress api={api} classroomId={classroomId} studentId={summary.studentId} onOpenActivity={activityId=>{
+  const closeProgress = () => summary.progress ? onBack() : setProgress(false);
+  return <section className="brujula-student-record parity-student-record-exact">
+    {!progress ? <button className="p5-link" onClick={onBack}>‹ Volver a Estudiantes</button> : null}
+    {progress ? <Dialog title={`El recorrido de ${name}`} onClose={closeProgress}><Progress api={api} classroomId={classroomId} studentId={summary.studentId} onReview={onOpenActivity} onOpenActivity={activityId=>{
       const latest=summary.attempts.filter(item=>item.activityId===activityId).sort((a,b)=>b.number-a.number)[0];
       onOpenActivity?.(activityId,latest?.id);
-    }}/> : <>
+    }}/><footer className="p5-form-footer"><button onClick={closeProgress}>{summary.progress ? 'Volver al progreso' : 'Volver a la ficha'}</button></footer></Dialog> : <>
       <section className="brujula-member-card"><span className="p5-avatar">{initials(summary.firstName,summary.lastName)}</span>
         <small>Estudiante{summary.division ? ` · ${summary.division}` : ''}</small><h2>{name}</h2>{summary.email ? <p>{summary.email}</p> : null}
         <div className="brujula-member-stats"><div><strong>{submitted}</strong><span>Actividades entregadas</span></div><div><strong>{published}</strong><span>Resultados publicados</span></div></div>

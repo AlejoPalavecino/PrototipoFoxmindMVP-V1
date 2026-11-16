@@ -4,16 +4,17 @@ import { ExtractionEditor } from './ExtractionEditor.tsx';
 import { extractionMessage } from '../model/extraction-messages.ts';
 import { AiProgress } from '../../../../../shared-ui/index.ts';
 
-export function PlanExtraction({ extraction, hasUnits, review }: {
-  extraction: PlanExtractionState; hasUnits: boolean; review: boolean;
+export function PlanExtraction({ extraction, hasUnits, review, hideIntro = false }: {
+  extraction: PlanExtractionState; hasUnits: boolean; review: boolean; hideIntro?: boolean;
 }) {
   const { view, message, busy, apply, retry, refresh, cancel } = extraction;
   const pending = view && ['QUEUED', 'RUNNING'].includes(view.state);
+  const failed = extraction.messageError || view?.state === 'FAILED';
   return <section className="p5-extraction" aria-label="Unidades sugeridas a partir del plan" aria-busy={busy}>
-    <h3>Del plan a tus unidades</h3>
-    <p>Foxy analiza tu plan para sugerir unidades y temas. Vos los revisás y decidís cuáles usar antes de crear el aula.</p>
+    {!hideIntro ? <><h3>Del plan a tus unidades</h3>
+    <p>Foxy analiza tu plan para sugerir unidades y temas. Vos los revisás y decidís cuáles usar antes de crear el aula.</p></> : null}
     {pending ? <AiProgress state={view.state as 'QUEUED' | 'RUNNING'} task="plan" /> : null}
-    <div role="status" aria-live="polite">
+    <div role={failed ? 'alert' : 'status'} aria-live={failed ? 'assertive' : 'polite'} className={failed ? 'p5-notice error' : view?.state === 'APPLIED' ? 'p5-notice success' : undefined}>
       {message ? <p>{message}</p> : pending ? null
         : !view ? <p>El análisis comienza cuando el plan está aprobado y guardado.</p> : null}
       {view?.state === 'FAILED' && <p>{extractionMessage(view.error)}</p>}

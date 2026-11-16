@@ -1,8 +1,8 @@
-.editor details.optional {
+.editor .optional {
   border-top: 1px solid #dce2f0;
   padding-top: .5rem;
 }
-.optional[open] > :not(summary) { margin-block-start: .8rem; }
+.optional > h4 { margin-block: 0 .8rem; }
 .editor .rubric {
   padding: 1rem clamp(.9rem, 3vw, 1.5rem);
   background: #fff;
@@ -10,19 +10,14 @@
   border-radius: 18px;
 }
 .editor .rubric > fieldset { padding: .75rem 0 0; border: 0; margin: 0; }
-.editor summary {
-  min-height: 44px;
-  align-content: center;
-  cursor: pointer;
-  font-weight: 650;
-  overflow-wrap: anywhere;
-}
-.editor :is(input, select, textarea, button, summary):focus-visible {
+.secondaryActions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.secondaryActions button { min-height: 44px; }
+.editor :is(input, select, textarea, button):focus-visible {
   outline: 2px solid #9a3e00;
   outline-offset: 3px;
 }
 .generation :is(.optional, .rubric) { min-width: 0; }
-.generation :is(section, details) { overflow-wrap: anywhere; }
+.generation section { overflow-wrap: anywhere; }
 .generation section[aria-label='Revisar propuesta privada'] {
   padding: 1rem clamp(.9rem, 3vw, 1.5rem);
   border: 1px solid #ead6c4;
@@ -100,3 +95,184 @@
 :global(:is(#classroom-main, .classroom-workspace)) .generation :global(.education-generation-setup .p5-form-footer) {
   position: static;
 }
+
+.editor {
+  --activity-ink: var(--ink, #202c3d);
+  --activity-muted: var(--muted, #47566a);
+  --activity-rule: #ccd6df;
+  --activity-accent: #b74710;
+  --activity-peach: #ffe3d1;
+  min-width: 0;
+  color: var(--activity-ink);
+}
+.editor [hidden] { display: none !important; }
+.editor .stageList {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .3rem;
+  width: min(100%, 36rem);
+  padding: .25rem;
+  margin: 0 0 1.25rem;
+  list-style: none;
+  border: 1px solid var(--activity-rule);
+  border-radius: .95rem;
+  background: white;
+}
+.stageList li { min-width: 0; }
+.stageList button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: .5rem;
+  width: 100%;
+  min-height: 44px;
+  padding: .3rem;
+  border: 0;
+  border-radius: .65rem;
+  color: var(--activity-muted);
+  background: transparent;
+  font-weight: 800;
+}
+.stageList b, .itemIndex button > span {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid var(--activity-rule);
+  border-radius: 50%;
+  font-size: .76rem;
+  background: white;
+}
+.stageList [aria-current] button, .scopeToggle button[aria-pressed='true'], .sectionSwitch button[aria-pressed='true'],
+.itemIndex button[aria-current] {
+  background: var(--activity-peach);
+  color: #87370c;
+}
+.stageList [aria-current] b { background: var(--activity-accent); border-color: var(--activity-accent); color: white; }
+.editor .scopeGrid, .editor .itemWorkspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 1.2rem;
+  grid-column: 1 / -1;
+}
+.editor .itemWorkspace { grid-template-columns: minmax(11rem, .65fr) minmax(0, 1.6fr); }
+.editor .scopeStack, .unitList, .itemIndex { display: grid; gap: .75rem; min-width: 0; }
+.editor :is(.scope, .typeCard, .contentCard, .aiBrief, .generationSummary, .proposal) {
+  min-width: 0;
+  margin: 0;
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+  border: 1px solid var(--activity-rule);
+  border-radius: 1.15rem;
+  background: white;
+  overflow-wrap: anywhere;
+}
+.editor .contentCard { grid-column: 1 / -1; }
+.editor :is(.scope, .aiBrief, .generationSummary) h3 { margin: 0 0 .5rem; font-size: 1.2rem; }
+.editor :is(.scope, .aiBrief) p { color: var(--activity-muted); }
+.editor .scopeUnit {
+  min-width: 0;
+  margin: 0;
+  padding: .4rem .65rem .65rem;
+  border: 1px solid var(--activity-rule);
+  border-radius: .75rem;
+}
+.scopeUnit legend, .typeCard legend { padding: 0 .3rem; font-weight: 850; }
+.topicOptions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .2rem .45rem; }
+.editor label:is(.scopeOption, .typeChoice) {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  min-height: 44px;
+  padding: .35rem .5rem;
+  margin: 0;
+  border-radius: .5rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.editor .scopeOption:has(:checked), .editor .typeChoice:has(:checked) { background: var(--activity-peach); color: #73310f; }
+.editor .typeChoice {
+  margin: 0 0 .5rem;
+  border: 1px solid var(--activity-rule);
+  padding: .65rem;
+  min-height: 3.6rem;
+}
+.typeChoice:last-child { margin-bottom: 0; }
+.typeChoice small, .scopeOption small { display: block; font-weight: 650; }
+.typeIcon { display: grid; place-items: center; width: 2.1rem; height: 2.1rem; flex: none; border-radius: .65rem; background: #e1edf9; color: #274b72; }
+.typeIcon svg, .scopeSummary svg, .aiBrief h3 svg { width: 1.15rem; height: 1.15rem; }
+.scopeToggle, .sectionSwitch { display: flex; flex-wrap: wrap; gap: .45rem; margin: .75rem 0; }
+.editor :is(.scopeToggle, .sectionSwitch, .itemIndex) button { min-height: 44px; }
+.sectionSwitch span { margin-left: .3rem; font-weight: 850; }
+.scopeSummary, .aiBrief h3 { display: flex; gap: .5rem; align-items: center; }
+.editor .scopeSummary { padding: .65rem; margin-bottom: 0; background: #dfefe7; border-radius: .65rem; font-weight: 800; }
+.editor .aiBrief { background: #fff7ef; }
+.editor .aiBrief textarea { resize: vertical; min-height: 7rem; }
+.editor .itemIndex button:not(:last-child) { display: flex; align-items: center; gap: .55rem; text-align: left; overflow-wrap: anywhere; }
+.editor .generationFields, .editor .generationFields > fieldset { border: 0; padding: 0; margin: .8rem 0; min-width: 0; }
+.editor .generationFields > fieldset:not(:first-child) { padding: 1rem; border: 1px solid var(--activity-rule); border-radius: 1rem; background: white; }
+.editor .contentCard > fieldset { min-width: 0; }
+@media (max-width: 750px) {
+  .editor .scopeGrid, .editor .itemWorkspace { grid-template-columns: minmax(0, 1fr); }
+  .editor .itemIndex { grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); }
+}
+@media (max-width: 385px) {
+  .topicOptions { grid-template-columns: minmax(0, 1fr); }
+  .stageList button { gap: .25rem; font-size: .8rem; }
+}
+
+:global(.fm3d-theme .p5-app.classroom-interior-reference #classroom-main .classroom-workspace) .editor > form {
+  max-width: none;
+  grid-template-columns: minmax(0, 1fr);
+  margin-block-start: .85rem;
+}
+:global(.fm3d-theme .p5-app.classroom-interior-reference #classroom-main .classroom-workspace) .editor > form[data-authoring-step='2'] {
+  grid-template-columns: minmax(0, 1.55fr) minmax(14rem, 1fr);
+  align-items: start;
+}
+.editor > form[data-authoring-step='2'] > :global(:is(.activity-review-summary, .br-authoring-question-review)) { grid-column: 1; }
+.editor > form[data-authoring-step='2'] > :global(.p5-form-footer) { grid-column: 1 / -1; }
+:global(.fm3d-theme .p5-app.classroom-interior-reference #classroom-main .classroom-workspace) .editor label:is(.scopeOption, .typeChoice) { display: flex; }
+:global(.fm3d-theme .p5-app.classroom-interior-reference #classroom-main .classroom-workspace) .editor :is(.stageList, .scopeToggle, .sectionSwitch, .itemIndex) button { min-height: 44px; }
+:global(.fm3d-theme .p5-app.classroom-interior-reference #classroom-main .classroom-workspace) .editor :is(.stageList, .scopeToggle, .sectionSwitch, .itemIndex) button:is([aria-pressed='true'],[aria-current='true']),
+:global(.fm3d-theme .p5-app.classroom-interior-reference #classroom-main .classroom-workspace) .editor .stageList [aria-current='step'] button {
+  background: var(--activity-peach);
+  border-color: #e6bda6;
+  color: #87370c;
+}
+:global(.fm3d-theme #classroom-main) .generation :global(.education-generation-setup) { max-width: none; margin-inline: 0; }
+:global(.fm3d-theme #classroom-main) .generation :global(.education-generation-setup .p5-form-footer) {
+  align-items: center;
+  justify-content: flex-end;
+  padding: .65rem;
+}
+@media (max-width: 750px) {
+  :global(.fm3d-theme .p5-app.classroom-interior-reference #classroom-main .classroom-workspace) .editor > form[data-authoring-step='2'] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .editor > form[data-authoring-step='2'] > :global(.br-authoring-destination) { grid-column: 1; grid-row: auto; }
+}
+
+:global(.fm3d-theme .p5-app.classroom-interior-reference #classroom-main .classroom-workspace) .editor label:is(.scopeOption, .typeChoice) {
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  text-align: left;
+}
+:global(.fm3d-theme .p5-app.classroom-interior-reference #classroom-main .classroom-workspace) .editor .stageList button {
+  width: 100%;
+  justify-content: center;
+}
+
+/* iter17 compose workspace. */
+.editor{max-width:1062px;margin:0 auto}.editor .stageList{max-width:585px;width:100%;gap:5px;padding:4px;border-radius:15px;margin-bottom:24px}.editor .stageList button{font-size:14px;border-radius:10px;font-weight:750}.editor .scopeGrid{grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:22px}.editor :is(.scope,.typeCard,.contentCard,.aiBrief,.generationSummary,.proposal){border-radius:20px;padding:25px;border-color:#c4d2df}.editor .scope h3{font-size:21px}.editor .scope>p{font-size:13px;line-height:1.6}.editor .scopeToggle{background:#edf2f6;border:1px solid #c4d2df;border-radius:12px;padding:4px;gap:4px}.editor .scopeToggle button{flex:1;background:transparent;border:0;border-radius:9px;font-size:13px}.editor .scopeToggle button[aria-pressed=true]{background:#fff0e3;box-shadow:inset 0 0 0 1px #dfb995}.editor .unitList{gap:14px}.editor .scopeUnit{border-radius:13px;padding:10px 12px 12px}.editor .scopeUnit legend{font-size:14px}.editor label.scopeOption{font-size:13px;font-weight:700;min-height:44px;padding:7px 8px}.editor .scopeOption input,.editor .typeChoice input{width:17px;height:17px;min-height:0;flex:none;accent-color:#b74710}.editor .scopeSummary{margin-top:17px;font-size:12px;padding:12px}.editor .typeCard legend{font-size:17px}.editor .typeChoice{padding:14px 12px;gap:11px;border-radius:13px;min-height:84px;margin-bottom:11px}.editor .typeChoice strong{font-size:14px}.editor .typeChoice small{font-size:11px;color:#475f73;line-height:1.5;margin-top:4px}.typeIcon{width:36px;height:40px}.editor .typeChoice:has(:checked){border-color:#c27b4d;box-shadow:inset 3px 0 #b74710;background:#fff0e4}.editor .sectionSwitch{border-bottom:1px solid #c4d2df;margin:0 0 20px;padding-bottom:13px;gap:8px}.editor .sectionSwitch button{font-size:13px;border-radius:10px;padding:9px 15px;background:#edf3f8;border:1px solid #c4d2df}.editor .sectionSwitch button[aria-pressed=true]{background:#ffe3d1;border-color:#d7a480}.editor .contentCard>fieldset{padding:0;border:0;display:grid;gap:17px}.editor .contentCard label{font-size:13px;font-weight:800}.editor .contentCard textarea{font-size:14px;line-height:1.65}.editor .optional{padding-top:20px;margin-top:3px}.editor .itemWorkspace{grid-template-columns:230px minmax(0,1fr);gap:20px}.editor .itemIndex{gap:8px}.editor .itemIndex button{background:#edf4f9;border:1px solid #c4d2df;border-radius:12px;padding:10px;font-size:12px}.editor .itemIndex button[aria-current]{background:#fff0e4;border-color:#d6a580}.editor .rubric{padding:0;border:0}.editor :global(.br-authoring-save-status){font-size:12px;color:#53677b;margin:0 0 15px}.editor :global(.aw-title-row){margin:24px 0!important}.editor :global(.aw-title-row h2){font-size:30px!important;line-height:1.2!important}.editor :global(.p5-form-footer){padding:16px 0;margin-top:12px;border-top:1px solid #ccd6df;gap:10px}.editor :global(.p5-form-footer) button{font-size:13px;min-height:44px}
+@media(max-width:750px){.editor .scopeGrid,.editor .itemWorkspace{grid-template-columns:minmax(0,1fr)}.editor :is(.scope,.typeCard,.contentCard,.aiBrief,.generationSummary,.proposal){padding:20px}.editor .itemIndex{grid-template-columns:repeat(auto-fit,minmax(min(100%,130px),1fr))}.editor :global(.aw-title-row h2){font-size:25px!important}}
+@media(max-width:480px){.editor .stageList button{font-size:11px;gap:5px}.editor .stageList b{width:21px;height:21px;font-size:11px}.topicOptions{grid-template-columns:minmax(0,1fr)}.editor .typeChoice{min-height:75px}.editor :global(.p5-form-footer){flex-wrap:wrap}}
+
+/* Consigna and delivery timing share the reference's two-column editing surface. */
+.instructionsLayout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(240px,1fr);gap:24px;align-items:start}.instructionsLayout>fieldset{display:grid;gap:16px;min-width:0;padding:0;border:0;margin:0}.instructionsLayout>fieldset>h3{font-size:21px;margin:0 0 4px}.instructionsLayout label{display:grid;gap:7px}.editor .instructionsLayout .deadlineCard{padding:20px;background:#edf4f9;border:1px solid #c1d3e1;border-radius:16px}.editor .deadlineCard h3{font-size:17px;margin:0}.editor .deadlineCard label{font-size:12px}.editor .deadlineCard small{font-size:11px;font-weight:500}.editor .deadlineCard input[type=datetime-local]{width:100%;min-width:0;font-size:13px}.editor .sectionSwitch button{display:flex;align-items:center;gap:8px}.sectionSwitch svg{width:16px;height:16px}.editor .instructionsLayout .optional{display:grid;gap:12px}.editor .instructionsLayout .optional .p7-check{display:flex}
+@media(max-width:800px){.instructionsLayout{grid-template-columns:minmax(0,1fr)}}
+
+.editor .scopeGrid{gap:20px}.editor .scopeStack{gap:22px}.editor .typeChoice{min-height:58px;padding:10px;gap:10px;margin-bottom:8px;border-radius:11px}.editor .typeChoice strong{font-size:14px}.editor .typeChoice small{font-size:12px;font-weight:500;line-height:1.35;margin-top:3px}.editor .typeCard{padding:24px}.editor .typeCard legend{font-size:18px}.editor .typeIcon{width:34px;height:34px}.editor .scopeSummary{background:#e1edf9;border:1px solid #c6d9e9;color:#315a78;padding:17px;margin:0 0 18px;border-radius:12px;font-size:15px}.editor .scopeSummary svg{width:19px;height:19px}.editor .scopeToggle{padding:0;margin:14px 0 18px;background:none;border:0;gap:8px}.editor .scopeToggle button{flex:none;min-height:44px;border:1px solid #bdcddd;padding:10px 18px;background:white;font-size:13px;font-weight:800}.editor .scopeToggle button[aria-pressed=true]{border-color:#bd6e42;background:#ffe3d1;box-shadow:none}.editor .scopeUnit{padding:12px 10px 15px;margin-bottom:8px}.editor label.scopeOption{min-height:46px}.methodBrief{display:grid;gap:8px;font-size:13px;margin-top:15px}.methodBrief small{font-size:11px;color:#475f73;line-height:1.5}.methodBrief textarea{width:100%;font-size:14px}
+
+.stageList li>span{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:800}

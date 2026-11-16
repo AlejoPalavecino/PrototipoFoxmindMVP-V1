@@ -39,10 +39,13 @@ export function parsePrepareFoxyPublication(value: unknown): PrepareFoxyPublicat
     classroomId: activityUuid(v.classroomId), title: text(v.title, 200), unitId, topicId };
 }
 export function parsePrepareFoxyVisualPublication(value: unknown): PrepareFoxyVisualPublication {
-  const v = strictObject(value, ['requestId', 'assetRevision', 'classroomId', 'title', 'unitId', 'topicId']);
+  const keys = ['requestId', 'assetRevision', 'classroomId', 'title', 'unitId', 'topicId'];
+  if (value && typeof value === 'object' && Object.hasOwn(value, 'editorialRevision')) keys.push('editorialRevision');
+  const v = strictObject(value, keys);
   const unitId = nullableUuid(v.unitId), topicId = nullableUuid(v.topicId);
   if ((topicId !== null && unitId === null) || (typeof v.title === 'string' && /[\u0009\u000a]/u.test(v.title))) return invalidInput();
   return { requestId: activityUuid(v.requestId), assetRevision: activityRevision(v.assetRevision),
+    ...(v.editorialRevision === undefined ? {} : { editorialRevision: activityRevision(v.editorialRevision) }),
     classroomId: activityUuid(v.classroomId), title: text(v.title, 200), unitId, topicId };
 }
 export function parseConfirmFoxyPublication(value: unknown): ConfirmFoxyPublication {

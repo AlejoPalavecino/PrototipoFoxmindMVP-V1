@@ -4,7 +4,8 @@ import { inputHash } from './requests.ts';
 
 function logicalInput(input: StartActivityGeneration): string {
   const { requestId: _requestId, revision: _revision, ...body } = input;
-  return inputHash('logical-generation', '', null, { ...body, unitId: body.unitId.toLowerCase(),
+  return inputHash('logical-generation', '', null, { ...body, unitId: body.unitIds ? '' : body.unitId.toLowerCase(),
+    ...(body.unitIds ? { unitIds: body.unitIds.map(id => id.toLowerCase()).sort() } : {}),
     topicIds: body.topicIds.map(id => id.toLowerCase()).sort(), sourceIds: body.sourceIds.map(id => id.toLowerCase()).sort(),
     acknowledgedWarnings: [...body.acknowledgedWarnings].sort(), objective: body.objective.trim(),
     groupLevel: body.groupLevel.trim(), context: body.context.trim() });

@@ -1,3 +1,4 @@
+import { DOCUMENT_MAX_BYTES, documentMimeTypes, isDocumentExtension, type DocumentExtension } from '../../../../../../src/core/domain/documents/document-formats.ts';
 import { createHash } from 'node:crypto';
 import type { ApprovedPlanReader } from '../../../../../../src/core/domain/index.ts';
 import type { FileTransaction } from '../application/contracts.ts';
@@ -19,8 +20,8 @@ export function createApprovedPlanReader(options: Options) {
       const row = await options.files.store.loadAuthorized(tx, request, fileId, 'read');
       requireReady(row);
       if (row.classroom_draft_id !== draftId || row.classroom_id || row.purpose !== 'plan'
-        || !row.digest || !['pdf', 'docx'].includes(row.extension) || Number(row.size_bytes) > 20_000_000) throw new PlanDocumentError();
-      return { fileId: row.id, digest: row.digest, extension: row.extension as 'pdf' | 'docx', sizeBytes: Number(row.size_bytes) };
+        || !row.digest || !isDocumentExtension(row.extension) || Number(row.size_bytes) > DOCUMENT_MAX_BYTES) throw new PlanDocumentError();
+      return { fileId: row.id, digest: row.digest, extension: row.extension, sizeBytes: Number(row.size_bytes) };
     },
     async read(input: Grant, signal: AbortSignal) {
       if (signal.aborted) throw new PlanDocumentError();
@@ -31,8 +32,7 @@ export function createApprovedPlanReader(options: Options) {
       await options.authorize(input, signal);
       if (signal.aborted) throw new PlanDocumentError();
       const mime = file.headers['Content-Type'];
-      const extension = mime === 'application/pdf' ? 'pdf'
-        : mime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ? 'docx' : null;
+      const extension = (Object.keys(documentMimeTypes) as DocumentExtension[]).find(type => documentMimeTypes[type] === mime);
       if (!extension) throw new PlanDocumentError();
       return parsePlanDocument(file.bytes, extension, signal);
     },

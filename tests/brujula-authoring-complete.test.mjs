@@ -4,6 +4,17 @@ const text=n=>typeof n==='string'?n:Array.isArray(n)?n.map(text).join(' '):text(
 const room={id:'room',name:'Ciencias',division:'A',role:'teacher',archived:false,revision:'r1',timezone:'UTC',units:[{id:'unit',name:'Unidad',topics:[{id:'topic',name:'Tema'}]}]};
 const draft={id:'existing',type:'ASSIGNMENT',status:'DRAFT',title:'Actividad',objective:'Objetivo guardado',teacherComment:'Comentario guardado',unitId:'unit',topicId:'topic',topicIds:['topic'],evaluationRubric:[{name:'Evidencia',description:'Relaciona conceptos',weight:100}],instructions:'Resolver',attachmentRequired:false,questions:[],instructionFiles:[],materials:[],deadlineAt:null,allowLate:false,locked:false};
 const find=(v,p)=>descendants(v.tree,p);
+async function clickButton(view, label) {
+ const button = find(view, node => node.type === 'button' && text(node) === label)[0];
+ assert.ok(button, `Missing action: ${label}`);
+ assert.equal(Boolean(button.props.disabled), false, label);
+ button.props.onClick();
+ await view.flush();
+}
+async function reachReview(view) {
+ await clickButton(view, 'Continuar');
+ await clickButton(view, 'Continuar a revisión');
+}
 for(const assigned of [false,true])test(`confirmed ${assigned?'assignment':'draft save'} opens its canonical activity sheet`,async()=>{
  const {Activities}=loadTsModule('apps/web/src/application/academic-Activities.tsx');const result={revision:'r2',activity:{...draft,id:'saved',status:assigned?'PUBLISHED':'DRAFT'}};
  const api={call:async path=>path.endsWith('/library')?[]:path.endsWith('/preview')?result:{activities:[]}};
@@ -16,7 +27,10 @@ for(const assigned of [false,true])test(`confirmed ${assigned?'assignment':'draf
 test('blank manual form requires an explicit activity type before saving or reviewing',async()=>{
  const {ActivityAuthoring}=loadTsModule('apps/web/src/features/activity-authoring/ui/ActivityAuthoring.tsx'),calls=[];
  const view=hookView(ActivityAuthoring,{api:{call:async(...a)=>{calls.push(a);return {revision:'r2'};}},room,data:{activity:{...draft,id:'',title:null,instructions:null,objective:null},revision:'r1'},materials:[],onSaved:async()=>{},onClose(){}});
- try{await view.flush();const assignment=find(view,n=>n.type?.name==='ActivityAssignment')[0];const select=descendants(assignment.props.typeControl,n=>n.type==='select')[0];assert.equal(select.props.value,'');
+ try{await view.flush();const choice=find(view,n=>n.type?.name==='ActivityTypeChoice')[0];assert.equal(choice.props.value,'');
+  await clickButton(view, 'Continuar');
+  assert.match(text(view.tree), /Elegí un tipo de actividad/);
+  assert.equal(find(view,n=>n.type==='form')[0].props['data-authoring-step'],0);
   find(view,n=>n.type==='form')[0].props.onSubmit({preventDefault(){}});await view.flush();assert.equal(calls.length,0);assert.match(text(view.tree),/Elegí un tipo de actividad/);
  }finally{view.close();}
 });
@@ -24,13 +38,17 @@ test('blank manual form requires an explicit activity type before saving or revi
 test('reviewing an incomplete saved draft cannot bypass required publication fields',async()=>{
  const {ActivityAuthoring}=loadTsModule('apps/web/src/features/activity-authoring/ui/ActivityAuthoring.tsx'),calls=[];
  const view=hookView(ActivityAuthoring,{api:{call:async(...args)=>calls.push(args)},room,data:{activity:{...draft,objective:''},revision:'r1'},materials:[],initialReview:true,onSaved:async()=>{},onClose(){}});
- try{await view.flush();find(view,n=>n.type==='button'&&text(n)==='Asignar al aula')[0].props.onClick();await view.flush();assert.equal(calls.length,0);assert.match(text(view.tree),/Escribí el objetivo de aprendizaje/);assert.equal(find(view,n=>n.type==='form')[0].props['data-authoring-step'],0);}finally{view.close();}
+ try{await view.flush();await clickButton(view, 'Publicar actividad');assert.equal(calls.length,0);
+  assert.match(text(view.tree),/Escribí el objetivo de aprendizaje/);
+  assert.equal(find(view,n=>n.type==='form')[0].props['data-authoring-step'],1);
+  assert.equal(find(view,n=>n.type==='button'&&text(n)==='Asignar al aula').length,0);}finally{view.close();}
 });
 
 test('confirmed publication followed by navigation failure retries only reads and never labels it private',async()=>{
  const {ActivityAuthoring}=loadTsModule('apps/web/src/features/activity-authoring/ui/ActivityAuthoring.tsx'),calls=[];let navigation=0;
  const view=hookView(ActivityAuthoring,{api:{call:async(...args)=>{calls.push(args);return {revision:'r2'};}},room,data:{activity:draft,revision:'r1'},materials:[],initialReview:true,onSaved:async()=>{if(++navigation===1)throw new Error('Read unavailable');},onClose(){}});
- try{await view.flush();find(view,n=>n.type==='button'&&text(n)==='Asignar al aula')[0].props.onClick();await view.flush();assert.deepEqual(calls.map(args=>args[2].operation.action),['save','publish']);assert.doesNotMatch(text(view.tree),/Borrador privado/);assert.match(text(view.tree),/Actividad asignada a Ciencias/);find(view,n=>n.type==='button'&&text(n)==='Abrir actividad asignada')[0].props.onClick();await view.flush();assert.equal(navigation,2);assert.equal(calls.length,2);}finally{view.close();}
+ try{await view.flush();await clickButton(view, 'Publicar actividad');assert.equal(calls.length,0);
+  await clickButton(view, 'Asignar al aula');assert.deepEqual(calls.map(args=>args[2].operation.action),['save','publish']);assert.doesNotMatch(text(view.tree),/Borrador privado/);assert.match(text(view.tree),/Actividad asignada a Ciencias/);find(view,n=>n.type==='button'&&text(n)==='Abrir actividad asignada')[0].props.onClick();await view.flush();assert.equal(navigation,2);assert.equal(calls.length,2);}finally{view.close();}
 });
 
 test('late save refresh cannot reopen an editor the teacher already closed',async()=>{
@@ -54,19 +72,35 @@ test('written resources produce a real Unicode DOCX with escaped content and no 
  assert.equal(Object.keys(entries).length,3);assert.match(entries['word/document.xml'],/Biología á 🦊/);assert.match(entries['word/document.xml'],/&lt;script&gt;literal &amp; texto&lt;\/script&gt;/);assert.throws(()=>createTextDocument('Título','x'.repeat(100001)));assert.throws(()=>createTextDocument('Título','invalid\u0000'));
 });
 
-test('approved manual flow presents location, proposal, rubric and deadline together before a single review step',async()=>{
+test('manual flow exposes scope, content and deadline before a read-only review',async()=>{
  const {ActivityAuthoring}=loadTsModule('apps/web/src/features/activity-authoring/ui/ActivityAuthoring.tsx');
  const calls=[],view=hookView(ActivityAuthoring,{api:{call:async(...a)=>{calls.push(a);return {revision:'r2'};}},room,data:{activity:{...draft,id:''},revision:'r1'},materials:[],onSaved:async()=>{},onClose(){}});
- try{await view.flush();const steps=find(view,n=>n.type==='ol'&&n.props['aria-label']==='Etapas de edición')[0];assert.equal(steps.props.children.length,2);
- assert.match(text(steps),/Preparar actividad/);assert.doesNotMatch(text(steps),/Selección y origen/);
- for(const legend of ['Organización de la actividad','Propuesta para los estudiantes']){const group=find(view,n=>n.type==='fieldset'&&(n.props['aria-label']===legend||text(n).includes(legend)))[0];assert.equal(Boolean(group.props.hidden),false,legend);}
- assert.equal(calls.length,0);find(view,n=>n.type==='button'&&text(n)==='Continuar a revisión')[0].props.onClick();await view.flush();assert.ok(find(view,n=>n.props?.['aria-label']==='Revisión del borrador').length);assert.equal(calls.length,0);
+ try{await view.flush();const steps=find(view,n=>n.type==='ol'&&n.props['aria-label']==='Etapas de edición')[0];
+ assert.equal(steps.props.children.length,3);
+ assert.match(text(steps),/Alcance.*Contenido.*Revisión/);
+ assert.ok(find(view,n=>n.type?.name==='ActivityAssignment').length);
+ assert.equal(calls.length,0);
+ await clickButton(view, 'Continuar');
+ for (const label of ['Consigna', 'Plazo de entrega']) {
+  const fieldset = find(view, node => node.type === 'fieldset' && node.props['aria-label'] === label)[0];
+  assert.equal(Boolean(fieldset.props.hidden), false, label);
+ }
+ const rubric = find(view, node => node.type === 'button' && text(node).trim().startsWith('Rúbrica'))[0];
+ assert.ok(rubric);
+ rubric.props.onClick();
+ await view.flush();
+ assert.deepEqual(find(view, node => node.type?.name === 'EvaluationRubricEditor')[0].props.criteria, draft.evaluationRubric);
+ await clickButton(view, 'Continuar a revisión');
+ assert.ok(find(view,n=>n.props?.['aria-label']==='Revisión del borrador').length);
+ assert.equal(calls.length,0);
  }finally{view.close();}
 });
 test('explicit assignment from review saves a new draft before publication and never requires an earlier save click',async()=>{
  const {ActivityAuthoring}=loadTsModule('apps/web/src/features/activity-authoring/ui/ActivityAuthoring.tsx'),calls=[];
  const view=hookView(ActivityAuthoring,{api:{call:async(...a)=>{calls.push(a);return {id:'new-id',revision:String(calls.length+1)};}},room,data:{activity:{...draft,id:''},revision:'r1'},materials:[],onSaved:async()=>{},onClose(){}});
- try{await view.flush();find(view,n=>n.type==='button'&&text(n)==='Continuar a revisión')[0].props.onClick();await view.flush();const assign=find(view,n=>n.type==='button'&&text(n)==='Asignar al aula')[0];assert.equal(assign.props.disabled,false);assign.props.onClick();await view.flush();assert.deepEqual(calls.map(call=>call[2].operation.action),['create','save','publish']);assert.equal(calls.at(-1)[2].operation.id,'new-id');}finally{view.close();}
+ try{await view.flush();await reachReview(view);assert.equal(calls.length,0);
+  await clickButton(view, 'Publicar actividad');assert.equal(calls.length,0);
+  await clickButton(view, 'Asignar al aula');assert.deepEqual(calls.map(call=>call[2].operation.action),['create','save','publish']);assert.equal(calls.at(-1)[2].operation.id,'new-id');}finally{view.close();}
 });
 test('manual creation opens an unsaved editor with zero writes until explicit save',async()=>{
  const {Activities}=loadTsModule('apps/web/src/application/academic-Activities.tsx'),calls=[];
@@ -83,7 +117,7 @@ test('wall post title is text-safe and removed post hides title as well as body'
 test('new form creates once at explicit save, saves with returned revision and retains local content on retry',async()=>{
  const {ActivityAuthoring}=loadTsModule('apps/web/src/features/activity-authoring/ui/ActivityAuthoring.tsx'),calls=[];let saves=0;
  const view=hookView(ActivityAuthoring,{api:{call:async(...a)=>{calls.push(a);if(a[2]?.operation.action==='create')return {id:'created-id',revision:'r2'};if(++saves===1)throw new Error('Temporary failure');return {revision:'r3'};}},room,data:{activity:{...draft,id:''},revision:'r1'},materials:[],onSaved:async()=>{},onClose(){}});
- try{await view.flush();for(let i=0;i<1;i++){find(view,n=>n.type==='button'&&text(n)==='Continuar a revisión')[0].props.onClick();await view.flush();}assert.equal(calls.length,0);assert.equal(find(view,n=>n.type==='ol'&&n.props['aria-label']==='Etapas de edición')[0].props.children.length,2);find(view,n=>n.type==='form')[0].props.onSubmit({preventDefault(){}});await view.flush();assert.deepEqual(calls.map(a=>a[2].operation.action),['create','save']);assert.equal(calls[1][2].revision,'r2');assert.equal(calls[1][2].operation.id,'created-id');find(view,n=>n.type==='form')[0].props.onSubmit({preventDefault(){}});await view.flush();assert.equal(calls.filter(a=>a[2].operation.action==='create').length,1);assert.equal(calls.at(-1)[2].operation.payload.objective,draft.objective);assert.ok(calls.every(a=>a[2].operation.action!=='publish'));}finally{view.close();}
+ try{await view.flush();await reachReview(view);assert.equal(calls.length,0);find(view,n=>n.type==='form')[0].props.onSubmit({preventDefault(){}});await view.flush();assert.deepEqual(calls.map(a=>a[2].operation.action),['create','save']);assert.equal(calls[1][2].revision,'r2');assert.equal(calls[1][2].operation.id,'created-id');find(view,n=>n.type==='form')[0].props.onSubmit({preventDefault(){}});await view.flush();assert.equal(calls.filter(a=>a[2].operation.action==='create').length,1);assert.equal(calls.at(-1)[2].operation.payload.objective,draft.objective);assert.ok(calls.every(a=>a[2].operation.action!=='publish'));}finally{view.close();}
 });
 test('wall title validates code points before submit and replies omit title field',async()=>{
  const {TextForm}=loadTsModule('apps/web/src/features/communication/ui/Wall.tsx');const calls=[];

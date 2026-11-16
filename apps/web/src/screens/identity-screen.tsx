@@ -167,12 +167,12 @@ export function AccountScreen({ view }: { view: AccountView }) {
   return <>
     <Head><title>{`${content[view].title} · FoxMind`}</title><meta name="description" content="Accede a tu cuenta FoxMind." /></Head>
     <a className="skip-link" href="#main">Saltar al contenido</a>
-    <div className={`entry-page ${surface.scope} ${accountEntry ? `brujula-auth auth-${view}` : 'entry-profile'}`}>
+    <div className={`entry-page ${surface.scope} ${accountEntry ? `brujula-auth auth-${view}` : 'entry-profile parity-account'}`}>
     {!accountEntry ? <AccountNavbar session={session} view={view} signInHref={nextAccountHref('sign-in')} registerHref={nextAccountHref('register')} verifyHref={nextAccountHref('verify-email')}
       accountActions={user ? <div className="fm-profile-actions"><Link href={verified ? '/profile' : nextAccountHref('verify-email')}>{verified ? 'Mi perfil' : 'Verificar correo'}</Link>{signOut}</div> : undefined} /> : null}
-    <main id="main" className={(view === 'profile' || view === 'settings') ? 'main profile-main' : `main auth-main${view === 'verify-email' ? ' auth-verification' : ''}`}>
+    <main id="main" className={(view === 'profile' || view === 'settings') ? 'main profile-main parity-account-main' : `main auth-main${view === 'verify-email' ? ' auth-verification' : ''}`}>
       {accountEntry ? <aside className="br-auth-visual" aria-label="Foxy te da la bienvenida al aula"><Link className="br-auth-brand" href="/sign-in"><img src="/brujula/foxy-logotipo-redondo.webp" alt="" width="40" height="43" />FoxMind</Link><div className="br-auth-land" aria-hidden="true" /><span className="br-auth-caption"><BrujulaIcon name="compass" />Brújula</span></aside> : null}
-      <section className={(view === 'profile' || view === 'settings') ? 'surface profile-account' : 'surface folder-panel tone-yellow'} aria-label={content[view].title} aria-busy={loading || busy}>
+      <section className={(view === 'profile' || view === 'settings') ? 'surface profile-account parity-account-surface' : 'surface folder-panel tone-yellow'} aria-label={content[view].title} aria-busy={loading || busy}>
         {(view === 'profile' || view === 'settings') ? <nav className="breadcrumbs" aria-label="Ubicación"><Link href="/inicio">Inicio</Link><span aria-hidden="true"> / </span><span aria-current="page">{content[view].title}</span></nav> : null}
         <div className="page-heading"><div>
           {accountEntry ? <span className={surface.kicker}>Acceso a FoxMind</span> : <span className="br-account-eyebrow">Mi cuenta</span>}
@@ -189,7 +189,7 @@ export function AccountScreen({ view }: { view: AccountView }) {
           {user && !verified ? <div className="state"><h2>Primero verifica tu correo</h2><p>La edición del perfil estará disponible después de verificar tu dirección.</p><Link className="button button-primary" href="/verify-email">Verificar correo</Link></div> : null}
           {verified && !profile && !loading ? <div className="state"><p>No pudimos cargar tus datos.</p><Button disabled={locked} onClick={() => void load()}>Volver a intentar</Button></div> : null}
           {verified && profile && !loading ? <AccountProfile profile={profile} firstName={firstName} lastName={lastName} locked={locked} busy={busy}
-            onFirstName={setFirstName} onLastName={setLastName} submit={submit} /> : null}
+            onFirstName={setFirstName} onLastName={setLastName} submit={submit} signOut={signOut} /> : null}
         </> : null}
         {session && !loading && view === 'settings' ? !verified ? <div className="state"><h2>{user ? 'Primero verifica tu correo' : 'Inicia sesión para ver Configuración'}</h2>
           <Link className="button button-primary" href={user ? nextAccountHref('verify-email') : authHref('sign-in', '/settings')}>{user ? 'Verificar correo' : 'Iniciar sesión'}</Link></div>

@@ -33,7 +33,7 @@ test('contexto de material sobrevive al escaneo y precarga el formulario sin pub
   const view = hookView(Library, props); await view.flush();
   try {
     const upload = nodes(view, n => n.type === 'input' && n.props.type === 'file')[0];
-    assert.ok(nodes(view, n => n.type?.name === 'Dialog' && n.props.title === 'Agregar material')[0], 'Context opens the approved upload dialog');
+    assert.ok(nodes(view, n => n.type?.name === 'Dialog' && n.props.title === 'Subir archivo')[0], 'Context opens the approved upload dialog');
     upload.props.onChange({ target: { files: [{ name: 'guia.pdf' }], value: 'guia.pdf' } }); await view.flush();
     assert.equal(nodes(view, n => n.type?.name === 'MaterialForm')[0].props.busy,true,'Pending security scan disables publication and retains editable metadata');
     assert.equal(writes.filter(([, method]) => method === 'POST').length, 0);
@@ -42,20 +42,31 @@ test('contexto de material sobrevive al escaneo y precarga el formulario sin pub
     assert.deepEqual(form.props.initial, { title: '', unitId: 'u1', topicId: 't2' });
     assert.equal(consumed, 1);
     assert.equal(writes.filter(([, method]) => method === 'POST').length, 0);
+    assert.equal(form.props.step, 'details');
+    const metadata = { title: 'Guía', unitId: 'u1', topicId: 't2' };
+    await form.props.onContinue(metadata); await view.flush();
+    const organization = nodes(view, n => n.type?.name === 'MaterialForm')[0];
+    assert.equal(organization.props.step, 'organization');
+    assert.deepEqual(organization.props.initial, { title: '', unitId: 'u1', topicId: 't2' });
+    assert.equal(writes.filter(([, method]) => method === 'POST').length, 0, 'Preparing never publishes');
+    await organization.props.onSave(metadata); await view.flush();
+    const published = writes.filter(([, method]) => method === 'POST');
+    assert.equal(published.length, 1);
+    assert.deepEqual(published[0][2].operation, { action: 'publish', fileId: 'f', ...metadata, contentKind: 'FILE' });
   } finally { view.close(); }
 });
 
-test('alumnos e historial filtran nombres sin consultar ni modificar datos', async () => {
+test('alumnos e historial muestran filas de referencia sin búsqueda ni consultas incidentales', async () => {
   const { ClassroomRoster } = componentWithPorts('apps/web/src/features/classrooms/ui/ClassroomRoster.tsx', ports);
   const members = [{ enrollmentId: 'e1', studentId: 's1', firstName: 'Lucía', lastName: 'Pérez' }, { enrollmentId: 'e2', studentId: 's2', firstName: 'Mateo', lastName: 'Díaz' }];
   const props = { tab: 'members', teacher: true, room: {}, members, history: [members[1]], memberResource: { status: 'ready' }, historyResource: { status: 'ready' } };
   const view = hookView(ClassroomRoster, props); await view.flush();
   try {
-    const search = () => nodes(view, n => n.type === 'input' && n.props.type === 'search')[0];
-    assert.ok(search()); search().props.onChange({ target: { value: '  LUCÍA  ' } }); await view.flush();
-    assert.equal(nodes(view, n => n.type === 'li').length, 1); assert.match(text(view.tree), /Pérez/);
-    props.tab = 'history'; search().props.onChange({ target: { value: '' } }); await view.flush();
-    assert.match(text(view.tree), /Historial/); assert.equal(nodes(view, n => n.type === 'li').length, 1);
+    assert.equal(nodes(view, n => n.type === 'input' && n.props.type === 'search').length, 0);
+    assert.equal(nodes(view, n => n.type === 'li').length, 2); assert.match(text(view.tree), /Pérez/);
+    const historical = hookView(ClassroomRoster, {...props,tab:'history'});
+    try { await historical.flush(); assert.match(text(historical.tree), /Historial/); assert.equal(nodes(historical, n => n.type === 'li').length, 1); }
+    finally { historical.close(); }
   } finally { view.close(); }
 });
 
@@ -68,8 +79,14 @@ test('seguimiento abre solo identificadores reales por callbacks explícitos', a
   try {
     const button = nodes(view, n => n.type === 'button' && /Ver actividad/.test(text(n)))[0];
     assert.ok(button); button.props.onClick(); assert.deepEqual(opened, ['a1']);
-    data.scope = 'classroom'; data.studentCount = 1; data.students = [{ studentId: 's1', firstName: 'Lucía', lastName: 'Pérez', completion: { percentage: null }, performance: { average: null } }];
-    const classroom=hookView(Progress,{...props,classroomId:'r2'});try{await classroom.flush();nodes(classroom,n=>n.type==='button'&&text(n).startsWith('Ver ficha'))[0].props.onClick();assert.deepEqual(opened,['a1','s1']);}finally{classroom.close();}
+    data.scope = 'classroom'; data.studentCount = 1; data.students = [{ studentId: 's1', firstName: 'Lucía', lastName: 'Pérez', completion: { percentage: null }, performance: { average: null }, activities: [] }];
+    const classroom=hookView(Progress,{...props,classroomId:'r2'});try{
+      await classroom.flush();
+      const overview=nodes(classroom,n=>n.type?.name==='TeacherOverview')[0];
+      const overviewTree=overview.type(overview.props);
+      descendants(overviewTree,n=>n.type==='button'&&text(n).startsWith('Ver recorrido'))[0].props.onClick();
+      assert.deepEqual(opened,['a1','s1']);
+    }finally{classroom.close();}
   } finally { view.close(); }
 });
 
@@ -87,7 +104,7 @@ test('configuración distingue borrador sin guardar del guardado confirmado y co
   const changeName = async value => { nodes(view, n => n.type === 'input' && n.props.value === 'Biología')[0].props.onChange({ target: { value } }); await view.flush(); };
   const save = async () => { nodes(view, n => n.type === 'form')[0].props.onSubmit({ preventDefault() {} }); await view.flush(); };
   try {
-    assert.match(text(view.tree), /No hay cambios pendientes/);
+    assert.match(text(view.tree), /Los cambios se aplican al guardar/);
     await changeName('Biología avanzada');
     assert.match(text(view.tree), /Tenés cambios sin guardar/);
     fail = true; await save();

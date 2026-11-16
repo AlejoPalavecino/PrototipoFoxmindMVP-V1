@@ -8,3 +8,4 @@ export { generationErrors, generationStates, generationWarnings, generationSourc
 export { useActivityGeneration } from './model/use-activity-generation.ts';
 export { ActivityGeneration } from './ui/ActivityGeneration.tsx';
 export { localActivityDraft } from './model/brujula-authoring-draft.ts';
+export { selectedActivityTopics } from './model/activity-scope.ts';

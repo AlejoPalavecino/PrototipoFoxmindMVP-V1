@@ -187,3 +187,16 @@ test('first ambiguous time choices name first and second occurrence in instant o
   for (const choice of choices) assert.doesNotMatch(choice.label, /UTC|GMT|offset|[−+-]0[45]:00|-240|-300|America\//i);
   assert.equal(draft.startOffset, undefined);
 });
+
+test('editing a one-day event moves its implicit end date with the start date', () => {
+  const api = model(), movedDate = '2026-10-29';
+  const event = privateEvent();
+  const timed = api.changeDraftStart(api.eventDraft(event, day, zone), { date: movedDate });
+  assert.equal(api.draftPayload(timed).schedule.startLocal, '2026-10-29T18:00');
+  assert.equal(api.draftPayload(timed).schedule.endLocal, '2026-10-29T19:00');
+  const allDay = privateEvent({ schedule: { kind: 'ALL_DAY', startDate: day, endDateExclusive: '2026-10-28' } });
+  const moved = api.changeDraftStart(api.eventDraft(allDay, day, zone), { date: movedDate });
+  assert.deepEqual(api.draftPayload(moved).schedule, {
+    kind: 'ALL_DAY', startDate: movedDate, endDateExclusive: '2026-10-30',
+  });
+});

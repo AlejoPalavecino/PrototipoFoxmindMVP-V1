@@ -1,9 +1,10 @@
-import type { EventKind, EventPayload, PrivateEvent } from '../../../../../../src/core/domain/agenda/index.ts';
+import type { EventKind, EventPayload, EventReminder, PrivateEvent } from '../../../../../../src/core/domain/agenda/index.ts';
 import type { EventColorChoice } from './event-colors.ts';
 
 export interface EventDraft {
   title: string; description: string; category: EventKind;
   color: EventColorChoice;
+  reminderMinutes?: EventReminder['minutes'];
   allDay: boolean; startDate: string; endDate: string;
   startTime: string; endTime: string; zone: string;
   weekly: boolean; until: string; untilEdited: boolean;

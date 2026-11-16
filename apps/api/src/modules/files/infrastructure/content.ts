@@ -1,9 +1,16 @@
+import { documentMimeTypes } from '../../../../../../src/core/domain/documents/document-formats.ts';
+import { convertLegacyOffice, legacyOffice } from './legacy-office.ts';
 import { Worker } from 'node:worker_threads';
 import { FileError } from '../domain/errors.ts';
 
 /** Untrusted parsers run with bounded V8 heap and wall time; their output contains no raw input/errors. */
 export async function inspectContent(bytes: Buffer, extension: string): Promise<string> {
   if (!Buffer.isBuffer(bytes) || bytes.length < 1 || bytes.length > 50_000_000) throw new FileError('FILE_REJECTED');
+  if (legacyOffice(extension)) {
+    const result = await convertLegacyOffice(bytes, extension);
+    await inspectContent(result.bytes, result.extension);
+    return documentMimeTypes[extension];
+  }
   const url = new URL(import.meta.url.endsWith('.ts') ? './content-worker.ts' : './content-worker.js', import.meta.url);
   const worker = new Worker(url, { workerData: { bytes, extension }, execArgv: [],
     resourceLimits: { maxOldGenerationSizeMb: 128, maxYoungGenerationSizeMb: 16, stackSizeMb: 4 }, stdout: true, stderr: true });

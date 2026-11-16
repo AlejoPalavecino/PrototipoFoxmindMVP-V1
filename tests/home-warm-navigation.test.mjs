@@ -2,11 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { createElement } from 'react';
-import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
+import { descendants } from './agenda-ui-helpers.test.mjs';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 
 for (const path of ['/inicio', '/mis-aulas', '/agenda', '/foxy', '/profile', '/settings', '/futura']) {
-  test(`Private navigation uses the account menu and sidebar notifications by default on ${path}`, () => {
+  test(`Private navigation opens the profile and sidebar notifications by default on ${path}`, () => {
     const { AppNavbar } = loadTsModule('apps/shared-ui/AppNavbar.tsx');
     const html = renderToStaticMarkup(createElement(AppNavbar, {
       logoHref: '/inicio', currentPath: path, displayName: 'Alex Prueba',
@@ -16,7 +16,7 @@ for (const path of ['/inicio', '/mis-aulas', '/agenda', '/foxy', '/profile', '/s
     }));
     assert.doesNotMatch(html, /fm3d-shell-location|fm3d-shell-avatar/);
     assert.match(html, /fm3d-shell-notifications/);
-    assert.match(html, /aria-haspopup="dialog"[^>]*aria-expanded="false"[^>]*aria-label="Mi cuenta/);
+    assert.match(html, /href="\/profile"[^>]*class="fm-home-account-trigger"/);
     assert.equal((html.match(/aria-label="Notificaciones"/g) ?? []).length, 1);
   });
 }
@@ -31,28 +31,13 @@ test('Home navigation keeps notifications with account actions and omits the top
   assert.doesNotMatch(html, /fm3d-shell-location|fm3d-shell-avatar/);
   assert.match(html, /fm3d-shell-notifications/);
   assert.equal((html.match(/aria-label="Notificaciones"/g) ?? []).length, 1);
-  assert.match(html, /aria-label="Mi cuenta de Alex"/);
+  assert.match(html, /aria-label="Mi perfil de Alex"/);
 });
 
-test('Home account name opens Mi cuenta with profile/logout and closes through Escape without navigation', async () => {
+test('Home account opens the profile directly and delegates navigation to its real caller', () => {
   const { ShellAccount } = loadTsModule('apps/shared-ui/NavbarParts.tsx');
-  const calls = [], shell = ShellAccount({ privateShell: true, homeNavigation: true, displayName: 'Alex Prueba', follow: (...args) => calls.push(args), accountActions: createElement('button', null, 'Cerrar sesión') });
-  const menu = descendants(shell, node => node.type?.name === 'HomeAccountMenu')[0];
-  const view = hookView(menu.type, menu.props);
-  const previousDocument = globalThis.document;
-  globalThis.document = { addEventListener() {}, removeEventListener() {} };
-  try {
-    await view.flush();
-    const trigger = descendants(view.tree, node => node.type === 'button' && node.props['aria-haspopup'] === 'dialog')[0];
-    assert.equal(trigger.props['aria-expanded'], false);
-    assert.equal(descendants(view.tree, node => node.type === 'dialog').length, 0);
-    trigger.props.onClick(); await view.flush();
-    const dialog = descendants(view.tree, node => node.type === 'dialog')[0];
-    assert.equal(dialog.props['aria-label'], 'Mi cuenta');
-    const html = renderToStaticMarkup(dialog);
-    assert.match(html, /href="\/profile"/); assert.match(html, /Cerrar sesión/); assert.match(html, /Alex Prueba/);
-    dialog.props.onCancel({ preventDefault() {}, stopPropagation() {} }); await view.flush();
-    assert.equal(descendants(view.tree, node => node.type === 'dialog').length, 0);
-    assert.deepEqual(calls, []);
-  } finally { view.close(); globalThis.document = previousDocument; }
+  const calls = [], shell = ShellAccount({ privateShell: true, homeNavigation: true, displayName: 'Alex Prueba', follow: (...args) => calls.push(args) });
+  const link = descendants(shell, node => node.type === 'a' && node.props.href === '/profile')[0];
+  assert.ok(link);const event={button:0};link.props.onClick(event);assert.deepEqual(calls,[[event,'/profile']]);
+  assert.equal(descendants(shell,node=>node.type==='dialog').length,0);
 });

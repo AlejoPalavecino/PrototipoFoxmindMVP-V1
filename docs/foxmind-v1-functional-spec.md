@@ -1,6 +1,6 @@
 # Especificación funcional vigente de FoxMind
 
-Revisada el 2026-11-12 sobre `main` (`398cc0b`). Describe el alcance implementado y las reglas del producto. Las [funciones por rol](product/features-by-role.md), [guías de ingeniería](engineering/README.md) y [matriz de comprobaciones](verification/flows.md) detallan capacidades, implementación y evidencia.
+Describe las reglas del candidato de paridad del 2026-11-15. El [registro de verificación](work-log/2026-11-15-root-product-parity.md) documenta la evidencia y lo que sigue en revisión. Las [funciones por rol](product/features-by-role.md), [guías de ingeniería](engineering/README.md) y [matriz de comprobaciones](verification/flows.md) detallan capacidades, implementación y evidencia.
 
 ## 1. Cuenta, identidad y permisos
 
@@ -18,17 +18,17 @@ Mi perfil permite editar nombres y seleccionar Foxy clásico, lector, explorador
 
 ## 2. Navegación y experiencia por rol
 
-Brújula usa sidebar desde 1024 px y menú compacto en tamaños menores. Global: Inicio, Mis aulas, Agenda, avisos/búsqueda/Mi cuenta; Foxy pertenece al docente. Contadores Enseño/Estudio pueden aparecer como compatibilidad de proyección, sin selector de rol dual.
+La navegación privada muestra una barra lateral plegable por encima de 1000 px y un menú compacto en anchos menores. El plegado se guarda en el navegador; los accesos rápidos a aulas sólo se muestran al expandir. Ambos roles tienen Inicio, Mis aulas, Agenda, Notificaciones, búsqueda y acceso directo a Mi perfil. Foxy AI es el espacio privado docente y Mi estudio, el del estudiante. Los contadores de las colecciones reflejan sus recursos autorizados.
 
 El estudiante dispone además de Carpetas de estudio: espacios privados propios con plan, materiales, Foxy estudiantil, prácticas y repasos. No concede acceso al espacio Foxy del docente.
 
-Docente dentro del aula: Plan, Muro, Biblioteca, Actividades, Progreso, Alumnos, Historial, Configuración. Estudiante: Plan, Muro, Biblioteca, Actividades, Mi progreso, Compañeros.
+Docente dentro del aula: Plan, Muro, Biblioteca, Actividades, Progreso, Estudiantes, Historial, Ajustes. Estudiante: Plan, Muro, Biblioteca, Actividades, Mi progreso, Compañeros.
 
-Inicio docente prioriza entregas/consultas y acciones del aula; Inicio estudiante muestra pendientes y resultados publicados propios. Abrir avisos usa un destino reautorizado en servidor; identificadores de UI no conceden acceso. La búsqueda sólo muestra el espacio autorizado. [UX/UI vigente](design/README.md).
+Inicio saluda por nombre y fecha local y ofrece acciones por rol. El docente ve entregas agrupadas por actividad con acceso al intento y consultas. El estudiante ve sus pendientes. Los borradores y las devoluciones publicadas se consultan dentro de las aulas, sin bloques adicionales en Inicio. La búsqueda y los destinos de notificaciones se autorizan en servidor. La bandeja filtra por origen y estado de lectura, con conteos globales de la cuenta, marcado reversible y opción de marcar todas como leídas. [UX/UI vigente](design/README.md) · [Reglas de la bandeja](engineering/home/README.md#bandeja-unificada).
 
-Seguimiento docente permite ordenar Entregas por recepción y Consultas por última actividad, en ambas direcciones y con elección independiente para todo el listado paginado. Aula en foco permite elegir un aula activa propia y revalida esa elección al actualizar. Cada acción del aula solicita su destino antes de continuar; ese destino no altera el foco. Las elecciones pertenecen a la vista, sin nueva preferencia persistente. [Reglas y recuperación](engineering/home/README.md#inicio-docente-orden-y-selección-de-aulas).
+Seguimiento docente permite ordenar Entregas por recepción y Consultas por última actividad, en ambas direcciones y con elección independiente para todo el listado paginado. Tus aulas reúne una muestra de aulas activas y enlaza al catálogo. Crear actividad abre un selector paginado de aulas activas propias y requiere confirmar el destino, incluso cuando hay una sola preseleccionada. [Reglas y recuperación](engineering/home/README.md#inicio-docente-orden-y-selección-de-aulas).
 
-Ambos roles comparten la presentación de la mini agenda. La docente incluye próximos eventos personales y una entrega cuando corresponde. La estudiantil muestra eventos personales. En móvil, las próximas entregas estudiantiles ubican el plazo debajo del título. [Referencias de Inicio](design/current/README.md#inicio-búsqueda-y-notificaciones)
+Ambos roles comparten la presentación de la mini agenda del día local, con horarios, duración, color y acceso a Agenda. La lectura diaria incluye eventos del día aunque su horario ya haya pasado. En móvil, las próximas entregas estudiantiles ubican el plazo debajo del título. [Guía de Inicio](engineering/home/README.md)
 
 ## 3. Aulas, borradores e ingreso
 
@@ -40,13 +40,13 @@ Crear aula tiene cuatro pasos:
 
 Al confirmar se publica y vuelve a Mis aulas. Guardar borrador conserva una creación privada recuperable, sin crear aula visible a alumnos. El auxiliar manual de texto prepara estructura editable; no es una llamada al proveedor.
 
-Aulas y Carpetas de estudio comparten presentación de cuatro pasos, selector de portadas y estados de colección. Conservan sus campos y reglas independientes. El plan se revisa mediante resumen de unidades/temas y unidades desplegables. La extracción IA muestra la espera y presenta un único editor de propuesta antes de aplicarla. [Asistentes vigentes](design/README.md#crear-y-entrar)
+Aulas y Carpetas de estudio comparten presentación de cuatro pasos, selector de portadas y estados de colección. Conservan sus campos y reglas independientes. El plan se edita en tarjetas visibles de unidades y temas y la revisión presenta el resumen antes de confirmar. La extracción IA muestra la espera y presenta un único editor de propuesta antes de aplicarla. [Asistentes vigentes](design/README.md#crear-y-entrar)
 
-Mis aulas docente separa Activas, Archivadas y Pendientes con contador. Cada borrador sin publicar aparece en Pendientes con banner automático «Pendiente de creación», incluso sin nombre. Permite continuar o eliminar con confirmación de pérdida de datos. Sólo el dueño puede eliminar; una revisión desactualizada o un borrador ya publicado impide la operación. La baja lógica retira el acceso y conserva referencias internas, sin restauración disponible. Las invitaciones permanecen separadas. Al confirmar creación, pasa a Activas.
+Mis aulas docente separa Activas, Archivadas y Borradores con contador. Cada borrador sin publicar aparece en Borradores, incluso sin nombre. Permite continuar o eliminar con confirmación de pérdida de datos. Sólo el dueño puede eliminar; una revisión desactualizada o un borrador ya publicado impide la operación. La baja lógica retira el acceso y conserva referencias internas, sin restauración disponible. Las invitaciones permanecen separadas. Al confirmar creación, pasa a Activas.
 
-El asistente exige documento PDF/DOCX aprobado en ambos métodos y al menos una unidad con un tema. La API admite currículos manuales completos sin archivo por compatibilidad; no convierte esa compatibilidad en un bypass de UI. Materia/división son texto libre; ciclo lectivo es año académico. Portada es predefinida, sin subida de imagen. La zona del aula queda fija tras crear.
+El asistente exige un documento aprobado PDF, DOC, DOCX, PPT o PPTX de hasta 20 MB en ambos métodos y al menos una unidad con un tema. La API conserva la compatibilidad con currículos manuales completos sin archivo. Materia/división son texto libre; ciclo lectivo es año académico. Portada es predefinida, sin subida de imagen. La zona del aula queda fija tras crear.
 
-Código: Ver aula presenta el destino y Confirmar inscripción incorpora/abre. Los nuevos códigos tienen seis dígitos, incluidos ceros iniciales, y siguen vigentes hasta regeneración. Se aceptan códigos anteriores hasta que el docente los regenere; una reserva fallida conserva el vigente. La revocación no permite reutilización histórica. Un error conserva formulario con respuesta genérica. Invitación: correo/cuenta correspondiente y aceptación explícita; vigencia7días. El docente puede invitar hasta 50 destinatarios únicos por lote recuperable, con resultados individuales y reintento sin duplicar emisiones confirmadas. Entregar correo o abrir un enlace no confirma membresía. [Contrato, protección y límites](engineering/classrooms/README.md).
+Código: Ver aula presenta el destino y Confirmar inscripción incorpora/abre. Los nuevos códigos tienen seis dígitos, incluidos ceros iniciales, y siguen vigentes hasta regeneración. Se aceptan códigos anteriores hasta que el docente los regenere; una reserva fallida conserva el vigente. La revocación no permite reutilización histórica. Un error conserva formulario con respuesta genérica. La invitación vence a los siete días y la cuenta destinataria verificada decide si acepta o rechaza. Rechazar conserva la decisión en el historial docente y retira la invitación pendiente y su aviso, sin crear ni reabrir una inscripción. El docente puede invitar hasta 50 destinatarios únicos por lote recuperable, con resultados individuales y reintento sin duplicar emisiones confirmadas. Entregar correo o abrir un enlace no confirma membresía. [Contrato, protección y límites](engineering/classrooms/README.md).
 
 Salida voluntaria o remoción revoca acceso actual, conserva registros y requiere invitación nueva para reingresar. Código no readmite a quien salió/fue removido. El docente ve historia de exalumnos separada de alumnos actuales; reingreso no duplica obligaciones por períodos anteriores.
 
@@ -54,9 +54,11 @@ Archivar conserva datos y bloquea inscripciones/mutaciones académicas; mantiene
 
 ## 4. Plan, materiales y conversaciones
 
-Plan organiza unidades/temas y recursos asociados. El docente marca dado/pendiente y puede deshacer; el estudiante consulta. Estados internos PENDING/NEXT/TAUGHT no prometen botones o reestructuración del plan publicado que la UI actual no expone.
+Plan organiza unidades y temas, con acceso a sus recursos y actividades autorizados. El docente marca dado o pendiente y puede deshacer. El estudiante consulta. Estados internos PENDING/NEXT/TAUGHT no prometen botones o reestructuración del plan publicado que la UI actual no expone.
 
-Biblioteca admite archivos aprobados y recursos escritos. Ambos tienen título, organización unidad/tema y uso estudio/recomendado/complementario. TEXT genera DOCX validado/escaneado; revisar título/cuerpo crea material y archivo nuevos, conservando identidad anterior y vínculos guardados. FILE mantiene bytes inmutables. Cambiar sólo organización/uso no reemplaza contenido.
+Biblioteca admite archivos aprobados y recursos escritos. Ambos tienen título, descripción opcional, organización por unidad o tema, uso y vínculos opcionales (`activityIds`) a actividades elegibles de la misma aula. El estudiante sólo ve vínculos a actividades publicadas. Los cambios de metadatos y vínculos comparten la revisión del aula.
+
+TEXT genera un DOCX validado y escaneado. Revisar título o cuerpo crea material y archivo nuevos. Una actividad con participación iniciada conserva su vínculo al material original y rechaza pedidos de quitar o agregar ese vínculo. Al enviar una selección de actividades, los vínculos elegibles pueden pasar a la nueva revisión. FILE conserva los bytes y admite edición de metadatos. [Reglas de Biblioteca](engineering/teaching/library.md).
 
 La colección oculta versiones reemplazadas. Eliminar exige confirmación, ausencia de vínculos/compartición impeditivos y borrado confirmado de bytes para liberar espacio. El estudiante lee y descarga recursos disponibles; no administra materiales.
 
@@ -64,9 +66,9 @@ Muro: avisos docentes, consultas estudiantiles y respuestas autorizadas. Son con
 
 ## 5. Archivos, límites y conservación
 
-Planes e instrucciones: PDF/DOCX hasta20MB. Materiales y adjuntos: PDF, DOCX, PPTX, XLSX, JPG/JPEG, PNG o ZIP, hasta 50 MB por archivo según propósito. Un TP admite hasta cinco adjuntos y espacio disponible; no imponer otro cap agregado que anule esa regla.
+PDF, DOC, DOCX, PPT y PPTX admiten hasta 20 MB por archivo en planes, instrucciones, materiales y adjuntos de TP. Materiales y adjuntos de TP también admiten XLSX, JPG/JPEG, PNG y ZIP de hasta 50 MB por archivo. El TP admite hasta cinco adjuntos dentro del espacio disponible, sin un límite agregado adicional.
 
-Los chats privados de Foxy docente y Carpetas de estudio admiten hasta seis PDF/DOCX aprobados y 20 MB totales por conversación. Sólo el dueño puede adjuntarlos o quitarlos. El estudiante puede optar por guardarlos además como material de la carpeta; un chat nuevo no hereda adjuntos privados. Las reglas de archivos de aula y de TP se mantienen independientes.
+Los chats privados de Foxy docente y Carpetas de estudio admiten hasta seis PDF, DOC, DOCX, PPT o PPTX aprobados. El límite individual y el acumulado por conversación son de 20 MB. Sólo el dueño puede adjuntarlos o quitarlos. El estudiante puede optar por guardarlos además como material de la carpeta. Nuevo chat comienza sin adjuntos; cambiar el contexto de Foxy docente conserva sus adjuntos privados mediante vínculos al mismo archivo, sin duplicar bytes. Quitar un vínculo no elimina el archivo mientras otra conversación autorizada lo conserve. El docente puede abrir PDF o descargar Office mediante una ruta privada con permisos revalidados. Las reglas de archivos de aula y de TP se mantienen independientes.
 
 Selección local, subida, aprobación y asociación son estados distintos. Publicar/entregar requiere validación estructural y escaneo limpio de los mismos bytes. Un archivo no listo/cuarentenado no puede descargarse o vincularse como aprobado.
 
@@ -80,9 +82,9 @@ Sólo uploads incompletos abandonados pueden limpiarse tras 24 horas de inactivi
 
 Tipos: TP, cuestionario y evaluación. Los dos últimos admiten desarrollo, selección simple y múltiple. Opciones: al menos dos; simple una correcta; múltiple al menos dos correctas y regla EXACT/PARTIAL admitida.
 
-Manual tiene dos etapas: Preparar actividad → Revisar y asignar. El editor actual exige tipo, unidad/temas, título, objetivo, consignas y rúbrica válida con pesos enteros que suman100%; preguntas cuando corresponda. Permite comentario, materiales y plazo/configuración de entrega. Guardar borrador no asigna; Asignar al aula es explícito.
+Manual tiene dos etapas: Preparar actividad → Revisar y asignar. El editor actual exige tipo, temas de una o más unidades de la misma aula, título, objetivo, consignas y rúbrica válida con pesos enteros que suman 100 %. Pide preguntas cuando corresponda. Permite comentario, materiales y plazo/configuración de entrega. Guardar borrador no asigna; Asignar al aula es explícito.
 
-La generación IA configura tres pasos, propone contenido editable y sólo crea un borrador privado al aplicar. Claves/puntos y evidencia se revisan antes de asignar. No publica notas ni soluciones automáticamente.
+La generación con IA parte de una idea docente privada y del contexto temático elegido. La propuesta es editable y sólo crea un borrador privado al aplicarla. El docente revisa claves, puntajes y evidencia antes de asignar. La idea se conserva en la autoría docente y queda fuera de las vistas del estudiante.
 
 La API conserva compatibilidad con topicId/topicIds, actividades anteriores sin objetivo/rúbrica y TP con consigna escrita o archivo aprobado. No endurecer esos contratos por documentar el editor actual. [Guía y fuentes](engineering/activities/authoring.md).
 
@@ -122,21 +124,23 @@ Análisis individual: métricas anónimas, orientación docente; no corrección 
 
 Foxy es privado del docente verificado, con contexto/fuentes explícitos. Conversación/recursos preparados no son material público. Texto/imagen/esquema necesitan destino, preparación, revisión y confirmación para Biblioteca. Traspaso actual a Actividades crea un TP privado. Fallo/cuota/obsolescencia no debe duplicar publicación ni sustituir cambios docentes.
 
+En el lector privado de un visual listo, el docente puede guardar un título y un texto revisados, descargar ese contenido como TXT o iniciar una publicación a Biblioteca. El archivo generado y las publicaciones anteriores se conservan. Cada nueva publicación requiere confirmar explícitamente la versión que se preparó.
+
 La tarjeta Imágenes y esquemas permite iniciar un trabajo visual desde un chat nuevo. El botón Generar guarda la conversación en el contexto elegido y encola el visual. Los turnos de texto activan el procesador al confirmarse y se despachan cuando hay capacidad global y por docente. [Reglas de Foxy](engineering/ai/foxy.md)
 
 Abrir una creación lista muestra primero su contenido. El docente puede descargar Word o el archivo visual privado sin compartirlo. El estudiante puede descargar apuntes y esquemas en Word y consignas de práctica en TXT sin respuestas ni soluciones. Materiales y Plan ofrecen apertura cuando el formato lo admite y descarga. Para recursos recientes, Creaciones → recurso → descarga son tres acciones; Compartir conserva preparación, revisión y confirmación.
 
 Conversaciones admite título editable y búsqueda/filtro por contexto general o aula propia sobre el conjunto autorizado. Elegir aula prepara contexto sin IA antes del primer envío y cambiarlo inicia otra conversación. El widget alterna Herramientas/Creaciones; su catálogo privado reúne resultados listos de todas las conversaciones (excluye avisos de información insuficiente), buscables por título, tipo, contexto y estado, con apertura directa. Distingue contexto de origen y destinos efectivos: privado, preparación, borrador de actividad o publicado/asignado. Encontrar y abrir elementos comunes requiere hasta tres acciones de navegación; publicar conserva revisiones explícitas. Planificaciones y rúbricas son textos revisables, sin modificación automática del Plan o conversión automática a criterios estructurados.
 
-Foxy docente y el espacio de estudio comparten presentación de herramientas y espera. El mensaje saliente se muestra de inmediato; la bienvenida se retira y el historial conserva la posición de lectura. El chat acompaña mensajes y cambios de tamaño sólo si se estaba al final; permite volver explícitamente a mensajes nuevos. La carga distingue operación/cola/procesamiento, respeta movimiento reducido y no simula una respuesta parcial. Error estudiantil conserva la entrada; envío docente incierto conserva la solicitud para reintento explícito sin duplicación. Esto no agrega streaming al contrato ni publicación automática.
+Foxy docente y el espacio de estudio comparten una barra compacta de contexto, historial, herramientas, creaciones, biblioteca y Nuevo chat. Abrir esos paneles conserva el borrador. En un aula propia, el docente puede usar el contexto completo o acotar temas y fuentes. El servidor guarda la revisión y el conjunto autorizado para cada generación. Si excede las cuotas, solicita una selección menor. El mensaje saliente se muestra de inmediato; la bienvenida se retira y el historial conserva la posición de lectura. El chat acompaña mensajes y cambios de tamaño sólo si se estaba al final; permite volver explícitamente a mensajes nuevos. La carga distingue envío, cola y procesamiento. Detener registra la cancelación por dueño y descarta las respuestas tardías. El estado respeta movimiento reducido. Error estudiantil conserva la entrada; envío docente incierto conserva la solicitud para reintento explícito sin duplicación. Esto no agrega streaming al contrato ni publicación automática.
 
 Configuración, presupuesto, límites y claves permanecen en backend. [Guías](engineering/ai/README.md) y [contrato de corrección](../odd/tasks/grading-ai-issue-2.md). El ensayo de esta base usa proveedores sintéticos; no hereda prueba externa de historia retirada.
 
 ## 10. Agenda
 
-Carpetas de estudio puede proponer y, tras revisión explícita, crear sesiones personales de repaso con avisos privados configurables. Un evento modificado independientemente no se sobrescribe; archivo/eliminación de carpeta cancela avisos y conserva eventos confirmados. [Reglas de estudio](engineering/study/README.md).
+Carpetas de estudio puede proponer y, tras revisión explícita, crear sesiones personales de repaso con avisos privados configurables. La propuesta indica coincidencias con ocurrencias propias de Agenda. El evento de repaso lleva a la carpeta y al examen exactos. Un evento modificado independientemente no se sobrescribe; archivo/eliminación de carpeta cancela avisos y conserva eventos confirmados. [Reglas de estudio](engineering/study/README.md).
 
-Eventos personales privados, consultables en mes/semana/día, con tipo, fecha, horario o día completo, color, notas y repetición. No asignan actividades ni cambian plazos/notas de aula.
+Los eventos personales son privados y admiten tipo, fecha, horario o día completo, color, notas y repetición. Al crearlos o editarlos se puede dejar Sin aviso o elegir uno al momento o 5, 15, 30, 60 o 1440 minutos antes. En un evento de día completo se toma la medianoche en la zona indicada. El aviso aparece en Notificaciones y abre la ocurrencia autorizada. Los eventos personales no asignan actividades ni cambian plazos o notas de aula.
 
 Mes, Semana y Día conservan la fecha al cambiar de vista. Al elegir un día, Agenda muestra sus eventos en el panel lateral de escritorio o en un panel inferior en pantallas angostas. Crear desde ese panel usa la fecha elegida. [Diseño y límites](engineering/agenda/README.md)
 
@@ -162,9 +166,11 @@ Carga, vacío, permisos, conflictos y errores tienen feedback y recuperación ad
 
 Sin administración institucional, pagos, ranking, certificados, Google login, tutores estudiantiles generales fuera del contexto privado de Carpetas de estudio, cambio de rol/email o personalización fuera del catálogo de avatares aprobado. Rúbrica por criterios no autoriza ponderaciones globales por tipo de actividad o umbrales de aprobación.
 
-Carpetas de estudio agrega creación con documento aprobado y estructura revisada, materiales propios y vínculo opcional a una sola Biblioteca autorizada, conversaciones/creaciones privadas, quizzes/ejercicios/simulacros respondibles, devolución orientativa y adaptación por evidencia de la propia carpeta. Revocar una fuente impide usarla en nuevas respuestas, incluso mediante historia derivada; conserva creaciones previas con aviso. No publica resultados académicos. [Contrato funcional aprobado](product/study-folders-proposal.md), [guía](engineering/study/README.md) y [evidencia con límites](verification/study-folders.json).
+Carpetas de estudio admite una estructura revisada con documento aprobado o una copia editable del plan de un aula vinculada. Cambiar el vínculo conserva el plan, los materiales propios y el historial. La biblioteca combina materiales privados con referencias vivas de una única aula autorizada, incluida la consulta de un aula archivada mientras la pertenencia siga vigente. Conversaciones, creaciones y prácticas permanecen privadas. La devolución es orientativa y usa evidencia de la propia carpeta. Revocar una fuente impide usarla en nuevas respuestas, incluso mediante historia derivada; conserva creaciones previas con aviso. No publica resultados académicos. [Contrato funcional aprobado](product/study-folders-proposal.md), [guía](engineering/study/README.md) y [evidencia con límites](verification/study-folders.json).
 
-Crear carpeta sigue los cuatro pasos de Crear aula con datos propios de Estudio: datos y portada, cargar plan, unidades y temas, revisión y confirmación. El plan aprobado sigue siendo obligatorio incluso en la ruta manual. Confirmar activa una carpeta privada; guardar borrador permite retomarla desde Pendientes.
+Crear carpeta sigue cuatro pasos con datos propios de Estudio y la misma estructura visual que Crear aula. Se eligen nombre, materia, año y portada; en El programa se elige un aula opcional y su plan o se carga un documento aprobado. Después se editan unidades y temas y se confirma la revisión. La importación permite continuar sin cargar archivo. Confirmar activa una carpeta privada. Guardar y salir conserva el paso y permite retomarla desde Borradores. Las carpetas anteriores sin materia o paso explícito siguen siendo compatibles. Renombrar una conversación propia conserva su contenido y requiere revisión e idempotencia.
+
+Las propuestas de apunte, esquema, práctica y simulacro pueden quedar asociadas a una conversación propia. Al recargar, el chat recupera la indicación real, el estado confirmado y el recurso exacto creado. Cancelar conserva la solicitud sin aplicar respuestas tardías; un reintento terminal usa una identidad nueva y una entrega incierta reutiliza la identidad original. Las tarjetas no exponen claves de corrección ni inventan respuestas o etapas de procesamiento. La extracción del plan conserva su flujo de creación de carpeta.
 
 Quitar material, eliminar carpeta y agregar repasos a Agenda requieren confirmación en un diálogo de FoxMind. Cancelar o pulsar Escape conserva el estado anterior. Eliminar una carpeta cancela sus avisos futuros y conserva las sesiones ya incorporadas a Agenda. [Guía de Estudio](engineering/study/README.md)
 

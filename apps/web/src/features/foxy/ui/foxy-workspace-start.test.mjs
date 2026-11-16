@@ -18,7 +18,7 @@ for (const existing of [true, false]) for (const success of [true, false]) test(
   try {
     await view.flush();
     if (existing) {
-      descendants(view.tree, n => n.type === 'button' && descendants(n, child => child.props?.name === 'plus').length)[0].props.onClick();
+      descendants(view.tree,n=>n.type?.name==='FoxyChatLayout')[0].props.onNew();
       await view.flush();
     }
     const textarea = () => descendants(view.tree, n => n.type === 'textarea')[0];
@@ -44,7 +44,7 @@ test('visual tools open a fresh draft even when another conversation is selected
     state, classrooms: [], onOpenVisual: draft => calls.push(draft) });
   try {
     await view.flush();
-    descendants(view.tree, n => n.type === 'button' && descendants(n, child => child.props?.name === 'plus').length)[0].props.onClick();
+    descendants(view.tree,n=>n.type?.name==='FoxyChatLayout')[0].props.onNew();
     await view.flush();
     const layout = descendants(view.tree, n => n.type?.name === 'FoxyChatLayout')[0];
     const tool = descendants(layout.props.tools, n => n.type === 'button').find(n => renderToStaticMarkup(n).includes('Imágenes y esquemas'));
@@ -67,14 +67,13 @@ test('approved tool rail maps rubric to explicit editable text and has no redund
     await view.flush();
     const layout = descendants(view.tree, n => n.type?.name === 'FoxyChatLayout')[0];
     const buttons = descendants(layout.props.tools, n => n.type === 'button');
-    for (const label of ['Crear apuntes', 'Crear esquema', 'Crear actividad', 'Crear planificación', 'Crear rúbrica'])
+    for (const label of ['Preparar un apunte', 'Imágenes y esquemas', 'Crear una actividad', 'Planificar una clase', 'Pensar una rúbrica'])
       assert.ok(buttons.some(n => renderToStaticMarkup(n).includes(label)));
-    buttons.find(n => renderToStaticMarkup(n).includes('Crear rúbrica')).props.onClick(); await view.flush();
+    buttons.find(n => renderToStaticMarkup(n).includes('Pensar una rúbrica')).props.onClick(); await view.flush();
     assert.equal(descendants(view.tree, n => n.type === 'select').length, 0);
-    assert.match(renderToStaticMarkup(view.tree), /texto editable/iu);
-    descendants(view.tree, n => n.type === 'textarea')[0].props.onChange({ target: { value: 'Evaluar una exposición' } }); await view.flush();
-    descendants(view.tree, n => n.type === 'form')[0].props.onSubmit({ preventDefault() {} }); await view.flush();
-    assert.equal(calls[0][0], 'RUBRIC'); assert.match(calls[0][1], /rúbrica/iu); assert.match(calls[0][1], /Evaluar una exposición/u);
+    const setup=descendants(view.tree,n=>n.type?.name==='FoxyToolDialog')[0];assert.ok(setup);assert.equal(calls.length,0);
+    await setup.props.onPrepare('Evaluar una exposición',[]);await view.flush();
+    assert.equal(calls[0][0], 'RUBRIC'); assert.equal(calls[0][1], 'Evaluar una exposición');
   } finally { view.close(); }
 });
 
@@ -88,9 +87,9 @@ test('diagram mode sends to the real visual callback and never to text chat', as
   try {
     await view.flush();
     const layout = descendants(view.tree, n => n.type?.name === 'FoxyChatLayout')[0];
-    descendants(layout.props.tools, n => n.type === 'button').find(n => renderToStaticMarkup(n).includes('Crear esquema')).props.onClick(); await view.flush();
-    descendants(view.tree, n => n.type === 'textarea')[0].props.onChange({ target: { value: 'Relacionar agua y plantas' } }); await view.flush();
-    descendants(view.tree, n => n.type === 'form')[0].props.onSubmit({ preventDefault() {} }); await view.flush();
+    descendants(layout.props.tools, n => n.type === 'button').find(n => renderToStaticMarkup(n).includes('Imágenes y esquemas')).props.onClick(); await view.flush();
+    assert.equal(diagrams.length,0);assert.equal(sent.length,0);
+    await descendants(view.tree,n=>n.type?.name==='FoxyToolDialog')[0].props.onPrepare('Relacionar agua y plantas',[]);await view.flush();
     assert.deepEqual(diagrams, ['Relacionar agua y plantas']); assert.equal(sent.length, 0);
   } finally { view.close(); }
 });
@@ -117,7 +116,7 @@ for (const resolution of ['discard', 'save', 'cancel', 'creation-failure']) test
   const view = hookView(BoundWorkspace, {});
   try {
     await view.flush();
-    descendants(view.tree, n => n.type === 'button' && descendants(n, child => child.props?.name === 'plus').length)[0].props.onClick(); await view.flush();
+    descendants(view.tree,n=>n.type?.name==='FoxyChatLayout')[0].props.onNew(); await view.flush();
     const textarea = () => descendants(view.tree, n => n.type === 'textarea')[0];
     textarea().props.onChange({ target: { value: 'Primer mensaje' } }); await view.flush();
     const submit = () => descendants(view.tree, n => n.type === 'form')[0].props.onSubmit({ preventDefault() {} });

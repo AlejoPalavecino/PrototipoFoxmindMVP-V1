@@ -2,8 +2,14 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { studyUploadIntent, studyFileReady } from "../folders/uploads/upload-policy.ts";
 
-test('planes privados sólo PDF/DOCX y límites sin truncamiento', () => {
-  assert.equal(studyUploadIntent({ name: 'Biología.PDF', bytes: 20_000_000, purpose: 'plan' }).extension, 'pdf');
+test('documentos privados en formatos aprobados y límites sin truncamiento', () => {
+  for (const extension of ['pdf','doc','docx','ppt','pptx']) {
+    for (const purpose of ['plan','material']) {
+      assert.equal(studyUploadIntent({name:`Biología.${extension.toUpperCase()}`,bytes:20_000_000,purpose}).extension,extension);
+      assert.throws(()=>studyUploadIntent({name:`Biología.${extension}`,bytes:20_000_001,purpose}),{code:'INVALID_UPLOAD'});
+    }
+  }
+  assert.equal(studyUploadIntent({name:'recursos.zip',bytes:50_000_000,purpose:'material'}).extension,'zip');
   for (const input of [
     {name:'x.pdf', bytes:20_000_001, purpose:'plan'},
     {name:'x.png', bytes:100, purpose:'plan'},

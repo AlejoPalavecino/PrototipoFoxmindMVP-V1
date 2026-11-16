@@ -11,7 +11,7 @@ const palette: Record<EventColor, { label: string; className: string }> = {
   ORANGE: { label: 'Naranja', className: 'agenda-color-orange' },
   PINK: { label: 'Rosa', className: 'agenda-color-pink' },
   PURPLE: { label: 'Violeta', className: 'agenda-color-purple' },
-  GRAPHITE: { label: 'Grafito', className: 'agenda-color-graphite' },
+  GRAPHITE: { label: 'Pizarra', className: 'agenda-color-graphite' },
 };
 export const eventColorOptions: readonly EventColorOption[] = [
   { value: 'AUTO', label: 'Automático', className: 'agenda-color-auto' },

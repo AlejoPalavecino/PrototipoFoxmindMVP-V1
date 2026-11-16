@@ -11,6 +11,14 @@ const text = node => typeof node === 'string' || typeof node === 'number' ? Stri
 const button = (view, re) => descendants(view.tree, n => n.type === 'button' && re.test(text(n)))[0];
 const field = (view, re, type) => descendants(view.tree, n => n.type === 'label' && re.test(text(n)))
   .flatMap(n => descendants(n, child => child.type === type))[0];
+async function openSuggestion(view) {
+  const open = button(view, /^Revisar sugerencia$/);
+  assert.ok(open);
+  assert.equal(open.props.disabled, false);
+  open.props.onClick();
+  await view.flush();
+  assert.ok(descendants(view.tree, node => node.type?.name === 'Dialog' && node.props.title === 'Revisar sugerencia').length);
+}
 async function fixture({ state = 'READY', dirty = false, failure = false } = {}) {
   const { GradingAiReview } = loadTsModule('apps/web/src/features/grading/ui/GradingAiReview.tsx');
   const calls = [], applied = [], job = { id: 'job', state, snapshotHash: 'snapshot', proposal: state === 'READY' ? structuredClone(proposal) : null };
@@ -24,6 +32,8 @@ test('propuesta lista es privada, muestra nota y devolución editables', async (
   const f = await fixture(); try {
     assert.match(text(f.view.tree), /sugerencia|propuesta/i);
     assert.match(text(f.view.tree), /privad/i);
+    assert.equal(field(f.view, /nota|calificaci[oó]n/i, 'input'), undefined);
+    await openSuggestion(f.view);
     assert.ok(field(f.view, /nota|calificaci[oó]n/i, 'input'));
     assert.ok(field(f.view, /devoluci[oó]n|comentario/i, 'textarea'));
     assert.equal(f.calls.filter(x => x[1] !== 'GET').length, 0);
@@ -32,10 +42,15 @@ test('propuesta lista es privada, muestra nota y devolución editables', async (
 
 test('aceptar envía propuesta editada a apply privado con revisión y snapshot, sin publicar', async () => {
   const f = await fixture(); try {
+    await openSuggestion(f.view);
     const note = field(f.view, /nota|calificaci[oó]n/i, 'input'), feedback = field(f.view, /devoluci[oó]n|comentario/i, 'textarea');
     assert.ok(note); assert.ok(feedback); note.props.onChange({ target: { value: '8.25' } }); feedback.props.onChange({ target: { value: 'Editada' } }); await f.view.flush();
     const accept = button(f.view, /usar sugerencia|aceptar sugerencia/i); assert.ok(accept); accept.props.onClick(); await f.view.flush();
-    const confirmation = button(f.view, /confirmar.*(?:acept|aplic|usar)/i); if (confirmation) { confirmation.props.onClick(); await f.view.flush(); }
+    assert.ok(!f.calls.some(call => /\/apply|publish-grade/.test(call[0])));
+    const confirmation = button(f.view, /confirmar aplicaci[oó]n/i);
+    assert.ok(confirmation);
+    confirmation.props.onClick();
+    await f.view.flush();
     const call = f.calls.find(x => x[0] === `${path}/job/apply` && x[1] === 'POST'); assert.ok(call);
     assert.equal(call[2].revision, '2'); assert.equal(call[2].snapshotHash, 'snapshot'); assert.ok(call[2].requestId);
     assert.equal(call[2].proposal.overallGrade, '8.25'); assert.equal(call[2].proposal.overallFeedback, 'Editada');
@@ -45,8 +60,13 @@ test('aceptar envía propuesta editada a apply privado con revisión y snapshot,
 
 test('descartar requiere acción explícita y nunca publica ni aplica', async () => {
   const f = await fixture(); try {
+    await openSuggestion(f.view);
     const discard = button(f.view, /descartar sugerencia/i); assert.ok(discard); discard.props.onClick(); await f.view.flush();
-    const confirmation = button(f.view, /confirmar.*descart/i); if (confirmation) { confirmation.props.onClick(); await f.view.flush(); }
+    assert.ok(!f.calls.some(call => /\/discard|\/apply|publish-grade/.test(call[0])));
+    const confirmation = button(f.view, /confirmar descarte/i);
+    assert.ok(confirmation);
+    confirmation.props.onClick();
+    await f.view.flush();
     assert.ok(f.calls.some(x => x[0] === `${path}/job/discard` && x[1] === 'POST'));
     assert.ok(!f.calls.some(x => /\/apply|publish-grade/.test(x[0])));
   } finally { f.view.close(); }
@@ -54,6 +74,7 @@ test('descartar requiere acción explícita y nunca publica ni aplica', async ()
 
 test('con corrección local modificada no acepta propuesta sin confirmación de reemplazo', async () => {
   const f = await fixture({ dirty: true }); try {
+    await openSuggestion(f.view);
     const accept = button(f.view, /usar sugerencia|aceptar sugerencia/i); assert.ok(accept); accept.props.onClick(); await f.view.flush();
     assert.ok(!f.calls.some(x => /\/apply|publish-grade/.test(x[0])));
     assert.match(text(f.view.tree), /(?:cambios|edici[oó]n).*(?:reemplaz|perder|sobrescrib)/i);
@@ -63,6 +84,7 @@ test('con corrección local modificada no acepta propuesta sin confirmación de 
 test('pendiente, error y obsoleto no permiten aplicar propuesta', async () => {
   for (const options of [{ state: 'QUEUED' }, { state: 'RUNNING' }, { state: 'FAILED' }, { state: 'STALE' }, { failure: true }]) {
     const f = await fixture(options); try {
+      assert.equal(button(f.view, /^Revisar sugerencia$/), undefined);
       assert.equal(button(f.view, /usar sugerencia|aceptar sugerencia/i), undefined);
       assert.ok(!f.calls.some(x => /\/apply|publish-grade/.test(x[0])));
     } finally { f.view.close(); }
@@ -92,6 +114,7 @@ test('preguntas invertidas se identifican por referencia y la edición se aplica
   const view = hookView(GradingAiReview, { api, roomId, attemptId, revision: '2', dirty: false, onApplied: async () => {} });
   try {
     await view.flush();
+    await openSuggestion(view);
     const groups = descendants(view.tree, n => n.type === 'fieldset');
     const second = groups.find(group => descendants(group, n => n.type === 'legend').some(legend => /Pregunta\s+2\b/.test(text(legend))));
     const first = groups.find(group => descendants(group, n => n.type === 'legend').some(legend => /Pregunta\s+1\b/.test(text(legend))));

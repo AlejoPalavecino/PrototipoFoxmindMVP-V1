@@ -15,12 +15,13 @@ export interface ActivitySummary {
   studentState?:'PENDING'|'CLOSED'|'DRAFT'|'RESUBMISSION'|'SUBMITTED'|'REVIEWED'|'READ_ONLY';
   pendingReviewCount?:number;
   id: string; type: ActivityType; title: string | null; unitId: string | null; topicId: string | null; topicIds: string[];
+  unitIds?: string[];
   status: 'DRAFT' | 'PUBLISHED' | 'WITHDRAWN'; publishedAt: string | null; deadlineAt: string | null;
   allowLate: boolean; locked: boolean; zone: string;
 }
 
 export interface ActivityDetail extends ActivitySummary {
-  objective?: string | null; teacherComment?: string | null;
+  objective?: string | null; teacherBrief?: string | null; teacherComment?: string | null;
   evaluationRubric?: import('../domain/grading/evaluation-rubric.ts').EvaluationRubric;
   aiGradingRubric?: string;
   instructions: string | null; attachmentRequired: boolean; questions: ActivityQuestion[];

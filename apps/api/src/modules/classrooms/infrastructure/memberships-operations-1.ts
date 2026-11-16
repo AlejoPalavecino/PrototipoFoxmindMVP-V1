@@ -67,6 +67,7 @@ async function previewState(tx: Transaction, classroomId: string, actorId: strin
         subject: string;
         division: string;
         academic_year: number;
+        cover_key?: string;
         teacher: string;
         teacher_id: string;
         archived_at: Date | null;
@@ -122,6 +123,7 @@ function previewPayload(capability: MembershipAccess, classroom: NonNullable<Awa
           subject: classroom.subject,
           division: classroom.division,
           academicYear: classroom.academic_year,
+          ...(classroom.cover_key === undefined ? {} : { coverKey: classroom.cover_key }),
           teacher: classroom.teacher,
         },
         confirmation: capability.tokens.issue({

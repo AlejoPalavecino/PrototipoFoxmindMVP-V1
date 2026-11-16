@@ -3,9 +3,10 @@ import { request as httpsRequest } from 'node:https';
 import { performance } from 'node:perf_hooks';
 import { discardRejectedBody } from './rejected-request-body.ts';
 import { generationSchema } from './activity-generation-proxy.ts';
+import { isClassroomCoverKey } from '../../../../../src/core/domain/classrooms/cover.ts';
 import { parseBrujulaSearchQuery } from '../../../../../src/core/domain/classrooms/brujula-search.ts';
 import { parseEvaluationRubric } from '../../../../../src/core/domain/grading/evaluation-rubric.ts';
-import { parseStartExtraction, parseRetryExtraction, parseApplyExtraction, parseWallQuery, parseWallMutation, privateGradingInput, gradeCorrectionInput, gradePublicationInput, parseNotificationQuery } from '../../../../../src/core/domain/index.ts';
+import { parseStartExtraction, parseRetryExtraction, parseApplyExtraction, parseWallQuery, parseWallMutation, privateGradingInput, gradeCorrectionInput, gradePublicationInput, parseNotificationQuery, PROJECTED_NOTIFICATION_ID_PATTERN } from '../../../../../src/core/domain/index.ts';
 
 const requestLimit = 512 * 1024;
 const responseLimit = 2 * 1024 * 1024;
@@ -22,7 +23,7 @@ const routes: Rule[] = [
   rule(`/drafts/${uuid}/curriculum-extractions/${uuid}/retry`, { POST: ['revision', 'requestId'] }),
   rule(`/drafts/${uuid}/curriculum-extractions/${uuid}/apply`, { POST: ['revision', 'requestId', 'units'] }),
   rule('/codes/preview', { POST: ['code'] }), rule('/codes/confirm', { POST: ['confirmation'] }),
-  rule('/invitations', { GET: null }), rule(`/invitations/${uuid}/accept`, { POST: [] }),
+  rule('/invitations', { GET: null }), rule(`/invitations/${uuid}/accept`, { POST: [] }), rule(`/invitations/${uuid}/decline`, { POST: [] }),
   rule(`/${uuid}`, { GET: null }),
   rule(`/${uuid}/progress`, { GET: null }),
   rule(`/${uuid}/members/${uuid}/(?:progress|ai-summary)`, { GET: null }),
@@ -60,8 +61,8 @@ const routes: Rule[] = [
   rule(`/${uuid}/attempts/${uuid}/receipt`, { GET: null }),
   rule('/notifications', { GET: null }), rule('/notifications/page', { GET: null }),
   rule('/notifications/read-all', { POST: [] }),
-  rule(`/notifications/${uuid}/(?:read|open)`, { POST: [] }),
-  rule(`/${uuid}/settings`, { PATCH: ['revision', 'name', 'subject', 'division', 'academicYear', 'aiGradingEnabled'] }),
+  rule(`/notifications/(?:${uuid}|${PROJECTED_NOTIFICATION_ID_PATTERN})/(?:read|unread|open)`, { POST: [] }),
+  rule(`/${uuid}/settings`, { PATCH: ['revision', 'name', 'subject', 'division', 'academicYear', 'aiGradingEnabled', 'coverKey'] }),
   rule(`/${uuid}/archive`, { POST: ['archived', 'revision'] }), rule(`/${uuid}/code`, { POST: [] }),
   rule(`/${uuid}/(?:members|history)`, { GET: null }), rule(`/${uuid}/members/${uuid}`, { GET: null }),
   rule(`/${uuid}/invitations`, { GET: null, POST: ['email'] }),
@@ -117,9 +118,11 @@ function schema(value: unknown, keys: string[]): boolean {
       && Array.isArray(value.emails) && value.emails.length > 0
       && value.emails.every(email => typeof email === 'string' && email.length > 0);
   }
-  if (!object(value, keys, false) || !keys.filter(key => key !== 'aiGradingEnabled').every(key => Object.hasOwn(value, key))) return false;
+  const optionalSetting = (key: string) => key === 'aiGradingEnabled' || key === 'coverKey';
+  if (!object(value, keys, false) || !keys.filter(key => !optionalSetting(key)).every(key => Object.hasOwn(value, key))) return false;
   for (const key of keys) {
-    if (key === 'aiGradingEnabled' && !Object.hasOwn(value, key)) continue;
+    if (optionalSetting(key) && !Object.hasOwn(value, key)) continue;
+    if (key === 'coverKey') { if (!isClassroomCoverKey(value[key])) return false; continue; }
     if (key === 'operation') { if (!value[key] || typeof value[key] !== 'object' || Array.isArray(value[key])) return false; }
     else if (key === 'archived' || key === 'aiGradingEnabled' || key === 'confirm') { if (typeof value[key] !== 'boolean') return false; }
     else if (key === 'academicYear') { if (!Number.isInteger(value[key])) return false; }
@@ -132,9 +135,11 @@ function schema(value: unknown, keys: string[]): boolean {
   }
   if (!keys.includes('payload')) return true;
   const payload = value.payload;
-  if (!object(payload, ['name', 'subject', 'division', 'academicYear', 'timezone', 'coverKey', 'planFileId', 'units'], false)) return false;
+  if (!object(payload, ['name', 'subject', 'division', 'academicYear', 'timezone', 'coverKey', 'planFileId', 'units', 'wizardStep', 'wizardMethod'], false)) return false;
   for (const [key, item] of Object.entries(payload)) {
-    if (key === 'academicYear') { if (!Number.isInteger(item)) return false; }
+    if (key === 'wizardStep') { if (typeof item !== 'number' || !Number.isInteger(item) || item < 0 || item > 3) return false; }
+    else if (key === 'wizardMethod') { if (item !== null && item !== 'ai' && item !== 'manual') return false; }
+    else if (key === 'academicYear') { if (!Number.isInteger(item)) return false; }
     else if (key === 'units') {
       if (!Array.isArray(item) || item.length > 100) return false;
       let topics = 0;
@@ -160,25 +165,31 @@ function extractionSchema(path: string, value: unknown): boolean {
 function activitySchema(value: unknown): boolean {
   if (!object(value, ['revision', 'operation']) || typeof value.revision !== 'string') return false;
   const op = value.operation;
-  if (!object(op, ['action', 'id', 'type', 'payload', 'title', 'unitId', 'topicId', 'topicIds', 'deadline', 'allowLate'], false) || typeof op.action !== 'string') return false;
+  if (!object(op, ['action', 'id', 'type', 'payload', 'title', 'unitId', 'unitIds', 'topicId', 'topicIds', 'deadline', 'allowLate'], false) || typeof op.action !== 'string') return false;
   const shapes: Record<string, string[]> = {
     create: ['action', 'type'], save: ['action', 'id', 'payload'], publish: ['action', 'id'], withdraw: ['action', 'id'],
-    metadata: ['action', 'id', 'title', 'unitId'], deadline: ['action', 'id', 'deadline', 'allowLate'],
+    metadata: ['action', 'id', 'title'], deadline: ['action', 'id', 'deadline', 'allowLate'],
   };
   if (!Object.hasOwn(shapes, op.action)) return false;
   if (op.action === 'metadata') {
-    if (!object(op, [...shapes.metadata, 'topicId', 'topicIds'], false)
+    if (!object(op, [...shapes.metadata, 'unitId', 'unitIds', 'topicId', 'topicIds'], false)
       || !shapes.metadata.every(key => Object.hasOwn(op, key))) return false;
   } else if (!object(op, shapes[op.action])) return false;
   if (op.action === 'create') return typeof op.type === 'string' && ['ASSIGNMENT', 'QUESTIONNAIRE', 'EVALUATION'].includes(op.type);
-  if (typeof op.id !== 'string' || !new RegExp(`^${uuid}$`).test(op.id)) return false;
-  const association = (p: Record<string, unknown>) => typeof p.title === 'string'
-    && (p.unitId === null || typeof p.unitId === 'string' && new RegExp(`^${uuid}$`).test(p.unitId))
-    && (Object.hasOwn(p, 'topicIds') ? Array.isArray(p.topicIds) && p.topicIds.length <= 100
-      && p.topicIds.every(id => typeof id === 'string' && new RegExp(`^${uuid}$`).test(id))
-      && new Set(p.topicIds).size === p.topicIds.length
-      && (!Object.hasOwn(p, 'topicId') || p.topicId === (p.topicIds[0] ?? null))
-      : Object.hasOwn(p, 'topicId') && (p.topicId === null || typeof p.topicId === 'string' && new RegExp(`^${uuid}$`).test(p.topicId)));
+  const idPattern = new RegExp(`^${uuid}$`);
+  const validId = (item: unknown) => typeof item === 'string' && idPattern.test(item);
+  if (!validId(op.id)) return false;
+  const scopeList = (ids: unknown): ids is string[] => Array.isArray(ids) && ids.length <= 100
+    && ids.every(validId) && new Set(ids.map(id => id.toLowerCase())).size === ids.length;
+  const association = (p: Record<string, unknown>) => {
+    if (typeof p.title !== 'string') return false;
+    const extended = Object.hasOwn(p, 'unitIds');
+    if (p.unitId !== null && !validId(p.unitId) && !(extended && !Object.hasOwn(p, 'unitId'))) return false;
+    if (extended && (!scopeList(p.unitIds) || !Object.hasOwn(p, 'topicIds'))) return false;
+    if (Object.hasOwn(p, 'topicIds')) return scopeList(p.topicIds)
+      && (!Object.hasOwn(p, 'topicId') || p.topicId === (p.topicIds[0] ?? null));
+    return Object.hasOwn(p, 'topicId') && (p.topicId === null || validId(p.topicId));
+  };
   const deadline = (item: unknown) => item === null || object(item, ['local', 'offsetMinutes'], false)
     && Object.hasOwn(item, 'local') && typeof item.local === 'string'
     && (!Object.hasOwn(item, 'offsetMinutes') || Number.isInteger(item.offsetMinutes));
@@ -186,15 +197,16 @@ function activitySchema(value: unknown): boolean {
   if (op.action === 'deadline') return typeof op.allowLate === 'boolean' && deadline(op.deadline);
   if (op.action !== 'save') return true;
   const p = op.payload;
-  if (!object(p, ['title', 'unitId', 'topicId', 'topicIds', 'instructions', 'attachmentRequired', 'instructionFileIds', 'materialIds', 'questions', 'deadline', 'allowLate', 'aiGradingRubric', 'evaluationRubric', 'objective', 'teacherComment'], false)
-    || !['title', 'unitId', 'instructions', 'attachmentRequired', 'instructionFileIds', 'materialIds', 'questions', 'deadline', 'allowLate'].every(key => Object.hasOwn(p, key))
+  if (!object(p, ['title', 'unitId', 'unitIds', 'topicId', 'topicIds', 'instructions', 'attachmentRequired', 'instructionFileIds', 'materialIds', 'questions', 'deadline', 'allowLate', 'aiGradingRubric', 'evaluationRubric', 'objective', 'teacherComment', 'teacherBrief'], false)
+    || !['title', 'instructions', 'attachmentRequired', 'instructionFileIds', 'materialIds', 'questions', 'deadline', 'allowLate'].every(key => Object.hasOwn(p, key))
     || !association(p) || typeof p.instructions !== 'string' || typeof p.attachmentRequired !== 'boolean' || typeof p.allowLate !== 'boolean'
     || (Object.hasOwn(p, 'aiGradingRubric') && typeof p.aiGradingRubric !== 'string')
     || (Object.hasOwn(p, 'objective') && p.objective !== null && (typeof p.objective !== 'string' || [...p.objective].length > 1400 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/u.test(p.objective)))
+    || (Object.hasOwn(p, 'teacherBrief') && p.teacherBrief !== null && (typeof p.teacherBrief !== 'string' || [...p.teacherBrief].length > 1200 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/u.test(p.teacherBrief)))
     || (Object.hasOwn(p, 'teacherComment') && p.teacherComment !== null && (typeof p.teacherComment !== 'string' || [...p.teacherComment].length > 5000 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/u.test(p.teacherComment)))
     || !deadline(p.deadline) || !Array.isArray(p.questions)) return false;
   try { if (Object.hasOwn(p, 'evaluationRubric')) parseEvaluationRubric(p.evaluationRubric); } catch { return false; }
-  if (![p.instructionFileIds, p.materialIds].every(ids => Array.isArray(ids) && ids.every(id => typeof id === 'string' && new RegExp(`^${uuid}$`).test(id)))) return false;
+  if (![p.instructionFileIds, p.materialIds].every(ids => Array.isArray(ids) && ids.every(validId))) return false;
   return p.questions.every(q => object(q, ['type', 'prompt', 'points', 'scoringRule', 'options'])
     && typeof q.type === 'string' && typeof q.prompt === 'string' && typeof q.points === 'string'
     && (q.scoringRule === null || typeof q.scoringRule === 'string') && Array.isArray(q.options)

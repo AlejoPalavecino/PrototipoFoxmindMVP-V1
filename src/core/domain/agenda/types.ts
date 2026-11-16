@@ -7,6 +7,8 @@ export type EventSchedule =
       startOffsetMinutes?: number; endOffsetMinutes?: number }
   | { kind: 'ALL_DAY'; startDate: string; endDateExclusive: string };
 export type EventRepeat = { kind: 'NONE' } | { kind: 'DAILY' | 'WEEKLY' | 'MONTHLY'; untilDate: string };
+export const EVENT_REMINDER_MINUTES = [0, 5, 15, 30, 60, 1440] as const;
+export type EventReminder = { minutes: (typeof EVENT_REMINDER_MINUTES)[number]; timeZone?: string };
 export interface EventPayload {
   title: string;
   description: string;
@@ -14,6 +16,7 @@ export interface EventPayload {
   schedule: EventSchedule;
   repeat: EventRepeat;
   color?: EventColor;
+  reminder?: EventReminder;
 }
 export interface PrivateEvent extends EventPayload {
   id: string;
@@ -21,6 +24,7 @@ export interface PrivateEvent extends EventPayload {
   createdAt: string;
   updatedAt: string;
   exceptions?: { date: string; replacement: EventPayload | null }[];
+  reviewSession?: { folderId: string; examId: string };
 }
 export interface EventOccurrence {
   kind: 'PRIVATE_EVENT';

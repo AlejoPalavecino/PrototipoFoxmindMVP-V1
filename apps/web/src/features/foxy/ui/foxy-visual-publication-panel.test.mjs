@@ -20,3 +20,20 @@ test('unit and topic selectors are labelled and expose the classroom hierarchy',
  const unit=randomUUID(),topic=randomUUID();const f=fixture({destination:{id:classroomId,name:'Biología',units:[{id:unit,name:'Unidad uno',topics:[{id:topic,name:'Tema uno'}]}]},unitId:unit,topicId:topic});
  try{await f.view.flush();const html=renderToStaticMarkup(f.view.tree);assert.match(html,/<label[^>]*>\s*Unidad[\s\S]*?<select/iu);assert.match(html,/<label[^>]*>\s*Tema[\s\S]*?<select/iu);assert.match(html,/Unidad uno/);assert.match(html,/Tema uno/);}finally{f.view.close();}
 });
+
+test('confirmation displays frozen editorial title and text instead of the current creation',async()=>{
+ const publication={id:publicationId,sourceKind:'VISUAL',assetId,assetRevision:'2',editorialRevision:'0',classroomId,title:'Título congelado',state:'READY',revision:'3'};
+ const f=fixture({publication,inspection:{publication,editorialSnapshot:{title:'Título congelado',description:'Texto anterior <script>',revision:'0'}},title:'Título congelado',editorialRevision:'2',reviewReady:true,reviewed:false});
+ try{await f.view.flush();const html=renderToStaticMarkup(f.view.tree);assert.match(html,/Título en Biblioteca: Título congelado/);assert.match(html,/Texto anterior &lt;script&gt;/);assert.doesNotMatch(html,/<script>/);
+ const checkbox=descendants(f.view.tree,n=>n.type==='input'&&n.props.type==='checkbox')[0];assert.equal(checkbox.props.disabled,false);assert.equal(checkbox.props.checked,false);
+ assert.equal(f.calls.some(call=>call[0]==='confirm'),false);
+ }finally{f.view.close();}
+});
+
+test('legacy null snapshot is explained and a missing snapshot prevents confirmation',async()=>{
+ const publication={id:publicationId,sourceKind:'VISUAL',assetId,assetRevision:'2',classroomId,title:'Anterior',state:'READY',revision:'3'};
+ for(const snapshot of [undefined,{title:'Anterior',description:null,revision:null}]){const f=fixture({publication,inspection:{publication,...(snapshot?{editorialSnapshot:snapshot}:{})},reviewReady:true,reviewed:true});
+ try{await f.view.flush();const html=renderToStaticMarkup(f.view.tree);assert.match(html,snapshot?/no incluye texto editorial/:/No pudimos consultar el contenido/);
+ const confirm=descendants(f.view.tree,n=>n.type==='button'&&n.props.children==='Publicar en Biblioteca')[0];assert.equal(confirm.props.disabled,!snapshot);
+ }finally{f.view.close();}}
+});

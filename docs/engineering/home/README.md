@@ -1,10 +1,14 @@
 # Inicio, búsqueda y notificaciones
 
-Inicio es el destino ordinario del login verificado. Docente: Por atender con entregas/consultas, acciones del aula, agenda personal, aula en foco y borradores de actividad. Estudiante: Mis entregas, accesos de aula, devoluciones publicadas y agenda personal.
+Inicio es el destino ordinario al ingresar con una cuenta verificada. Abre con un saludo, la fecha local y acciones por rol. El docente puede crear una actividad o preparar con Foxy. El estudiante puede continuar o consultar una actividad disponible y abrir Mi estudio. Debajo se agrupan prioridades, mini agenda y aulas. La referencia aprobada limita Inicio a esos bloques: los borradores y las devoluciones publicadas se consultan dentro de las aulas.
+
+En escritorio, «Tu próximo paso» conserva tarjetas verticales del ancho de una columna incluso con una sola actividad. Los contenedores estrechos usan la adaptación compacta móvil. La cantidad de actividades no debe cambiar la jerarquía visual de escritorio ni agregar contenido ficticio.
+
+En Inicio móvil/tablet, la barra de navegación permanece visible al hacer scroll para conservar acceso al menú y a la búsqueda. El drawer mantiene foco y posición de lectura al cerrarse.
 
 Cada entrega por revisar corresponde a un intento, no sólo a una actividad agrupada. Los enlaces conservan destino de aula/actividad/intento y se reautorizan; no usar IDs de UI como permisos. La vista puede mostrar contadores Enseño/Estudio por compatibilidad de proyección; eso no es un selector de rol ni una cuenta con rol dual.
 
-Buscar en FoxMind abre búsqueda del espacio autorizado. No sustituye pertenencia ni revela contenido ajeno. La navegación cuenta con accesos por rol y Mi cuenta.
+Buscar en FoxMind consulta el espacio autorizado. La navegación incluye accesos por rol y Mi cuenta. La barra lateral de escritorio se puede plegar. La preferencia se guarda en el navegador y en móvil hay un menú compacto.
 
 Notificaciones ofrece filtros, apertura y marcado de lectura, con lista breve y pantalla completa. Abrir conversación/actividad usa el destino confirmado por el backend y permisos actuales. Descartar un badge no debe confundirse con abrir contenido o enviar correo.
 
@@ -12,18 +16,22 @@ Los módulos tienen carga, vacío y error/reintento propios. Datos desconocidos 
 
 ## Inicio docente: orden y selección de aulas
 
-Seguimiento ofrece Más nuevas primero / Más antiguas primero, con elección independiente para Entregas y Consultas. Conserva defaults: entregas ascendentes por recepción, consultas descendentes por última actividad. La elección se mantiene en la vista, incluida la actualización automática; no es una preferencia persistente de cuenta.
+Por acompañar permite alternar Entregas y Consultas. En Entregas, la vista previa agrupa por actividad y cada fila abre el intento correspondiente. Conserva el orden predeterminado: entregas ascendentes por recepción y consultas descendentes por última actividad. Inicio no agrega un control de orden ausente en la maqueta. El contrato de consulta ampliada mantiene su capacidad de ordenar.
 
 `GET /home/modules/{review|queries}` admite `order=asc|desc`. El cliente y proxy lo transmiten; otros módulos rechazan ese parámetro. El cursor queda firmado para sujeto, módulo, zona y dirección efectiva. Cambiar de dirección vuelve a la primera página. El listado ampliado conserva orden y filas al reintentar errores transitorios; un cursor inválido ofrece Actualizar lista. Fallos de identidad retiran la vista privada.
 
-Aula en foco permite elegir cualquier aula activa propia, incluidas páginas posteriores. La actualización revalida el ID seleccionado; si ya no está disponible, vuelve a un aula elegible. La búsqueda termina al reunir las aulas activas conocidas, sin recorrer la cola de archivadas. Un error de revalidación ofrece reintento sin perder la elección.
+Tus aulas muestra hasta tres aulas activas con portada, materia, cantidad de estudiantes cuando se conoce y avance del plan. La tarjeta abre el aula; no agrega un pie con el próximo tema. Ver mis aulas abre el catálogo. Crear actividad pide elegir un aula activa propia y confirmar con Continuar. Si sólo hay una disponible, queda preseleccionada. El selector pagina las aulas, conserva la selección y ofrece reintentar si falla la carga. Sin aulas propias, la acción del saludo abre Crear aula. Agregar material, publicar un aviso y ver progreso siguen disponibles desde el aula.
 
-Crear actividad, Agregar material, Publicar aviso y Ver progreso abren un diálogo específico: elegir aula → Continuar → destino existente. Sólo una activa queda preseleccionada; varias requieren elección. Cargar más aulas conserva opciones y selección. Elegir destino no cambia Aula en foco. Cancelar/Escape cierra sin navegar y devuelve el foco.
+Tu día, con calma presenta los eventos del día local para ambos roles, con horario de inicio/fin, duración y color. Consulta Agenda por rango de fechas; no filtra la proyección de próximos eventos de Home, que omite los horarios ya pasados. La tira compacta conserva cinco días y los accesos a la fecha seleccionada, a Agenda y a crear un evento. La vista completa conserva plazos y repasos confirmados. La corrección se sigue en [el registro de paridad exacta de Inicio](../../work-log/2026-11-15-root-home-exact-parity.md).
 
-Mini agenda docente mantiene dos eventos personales y la próxima entrega; el pulido visual no cambia fuentes, ventana temporal ni zona horaria. La interfaz del estudiante conserva sus flujos.
+El pulido anterior y su verificación quedan documentados en el [registro del 11 de noviembre](../../work-log/2026-11-11-root-teacher-home-polish.md) y la [evidencia de ese corte](../../verification/teacher-home-polish.json).
 
-Ver [tarea](../../../odd/tasks/teacher-home-polish.md), [registro y alcance aprobado](../../work-log/2026-11-11-root-teacher-home-polish.md) y [evidencia](../../verification/teacher-home-polish.json). Reproducir QA visual con `node scripts/teacher-home-preview.mjs`: componentes/CSS reales y cliente sintético, sin sesión productiva ni proveedor.
+Fuentes: [Home](../../../apps/web/src/features/home/ui/Home.tsx), [proyecciones](../../../apps/api/src/modules/home/application/service.ts), [notificaciones](../../../apps/web/src/features/notifications/ui/Notifications.tsx). [Registro del candidato](../../work-log/2026-11-15-root-product-parity.md).
 
-Fuentes: [Home](../../../apps/web/src/features/home/ui/Home.tsx), [proyecciones](../../../apps/api/src/modules/home/application/service.ts), [notificaciones](../../../apps/web/src/features/notifications/ui/Notifications.tsx). [Recorridos y capturas](../../verification/flows.md).
+## Bandeja unificada
 
-La mini agenda docente muestra la fecha una sola vez en el bloque lateral; debajo del título conserva el horario local o Todo el día y, para entregas, el aula. La mini agenda estudiantil comparte tarjetas y controles de 44 px con la docente; mantiene únicamente eventos personales y presenta la fecha una sola vez en el bloque lateral.
+`GET /classrooms/notifications/page` acepta `limit`, `cursor`, `unread` y `kind` (`all`, `activity`, `classroom` o `agenda`). El tipo y el estado se aplican antes del límite. `totalCount` y `unreadCount` cuentan las notificaciones visibles de toda la cuenta. El cursor firmado incluye cuenta, filtros, fecha e ID. Un cursor de otra selección se rechaza y requiere volver a la primera página.
+
+Las proyecciones reúnen las notificaciones existentes de aula, actividades y resultados, las invitaciones pendientes, las altas de integrantes con pertenencia vigente y los avisos de repaso y de eventos propios. Abrir, marcar leída y marcar no leída vuelven a comprobar el recurso y la cuenta. Los avisos de Agenda y de invitación abren un diálogo con el recurso vigente encima de la bandeja. «Ahora no» no responde a la invitación. Cambiar el estado de lectura es idempotente y «Marcar todas como leídas» incluye toda la bandeja autorizada. Tras confirmar la escritura, la bandeja conserva las páginas abiertas y vuelve a consultarlas con cursores vigentes. Si falla esa consulta, el reintento sólo lee.
+
+Una invitación vencida, revocada, declinada o aceptada sale de la bandeja. Un miembro dado de baja y un aviso de Agenda o repaso cuyo origen se retiró dejan de proyectarse. La apertura desde una página anterior devuelve un estado genérico. Las lecturas de invitaciones, ingresos y eventos se guardan por cuenta e identidad de proyección. Las lecturas de repaso comparten el estado de su sesión durable; las notificaciones de aula conservan su tabla y sus permisos. [Consulta y lecturas](../../../apps/api/src/modules/home/infrastructure/notification-page.ts) · [Contrato](../../../src/core/domain/home/notifications.ts).

@@ -11,6 +11,10 @@ export interface ProgressActivity {
   id: string; title: string; type: ActivityType; expected: boolean;
   firstSubmission: { id: string; number: number; submittedAt: string; appliedDeadlineAt: string | null; late: boolean } | null;
   pendingResubmission: boolean; grade: string | null;
+  /** Attempt that produced the effective published grade; null without a published result. */
+  publishedAttemptId?: string | null;
+  /** Teacher-only status of the latest confirmed submission. Never a private grade. */
+  review?: { attemptId: string; state: 'pending' | 'saved' | 'published' } | null;
 }
 
 export interface StudentProgress {
@@ -18,7 +22,8 @@ export interface StudentProgress {
   completion: CompletionProgress; performance: { graded: number; average: string | null }; activities: ProgressActivity[];
 }
 
-export type ProgressData = { revision: string; archived: boolean; plan: { total: number; taught: number; percentage: string | null } } & (
+export type ProgressData = { revision: string; archived: boolean; plan: { total: number; taught: number; percentage: string | null;
+  units?: { id: string; name: string; total: number; taught: number }[] } } & (
   { scope: 'classroom'; studentCount: number; students: StudentProgress[]; completion: CompletionProgress;
     performance: { gradedStudents: number; average: string | null } }
   | ({ scope: 'self' | 'member' } & StudentProgress)

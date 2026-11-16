@@ -11,10 +11,11 @@ export function eventDraft(event: PrivateEvent | undefined, day: string, zone: s
   return {
     title: event?.title ?? '', description: event?.description ?? '', category: event?.category ?? 'CLASS',
     color: event ? event.color ?? 'AUTO' : 'GREEN',
+    reminderMinutes: event?.reminder?.minutes,
     allDay: schedule?.kind === 'ALL_DAY', startDate,
     endDate: schedule?.kind === 'ALL_DAY' ? shiftDay(schedule.endDateExclusive, -1) : timed?.endLocal.slice(0, 10) ?? day,
     startTime: timed?.startLocal.slice(11) ?? '09:00', endTime: timed?.endLocal.slice(11) ?? '10:00',
-    zone: timed?.timeZone ?? zone, weekly: !!event && event.repeat.kind !== 'NONE',
+    zone: timed?.timeZone ?? event?.reminder?.timeZone ?? zone, weekly: !!event && event.repeat.kind !== 'NONE',
     frequency: event && event.repeat.kind !== 'NONE' ? event.repeat.kind : 'WEEKLY',
     until: event && event.repeat.kind !== 'NONE' ? event.repeat.untilDate : shiftDay(startDate, 28),
     untilEdited: !!event && event.repeat.kind !== 'NONE', endMode: event ? 'MANUAL' : 'DURATION', durationMinutes: 60,
@@ -30,12 +31,15 @@ export function draftPayload(draft: EventDraft): EventPayload {
       ...(draft.startOffset === undefined ? {} : { startOffsetMinutes: draft.startOffset }),
       ...(draft.endOffset === undefined ? {} : { endOffsetMinutes: draft.endOffset }) };
   return parseAgendaEvent({ title: draft.title, description: draft.description, category: draft.category, schedule,
+    ...(draft.reminderMinutes === undefined ? {} : { reminder: { minutes: draft.reminderMinutes,
+      ...(draft.allDay ? { timeZone: draft.zone } : {}) } }),
     ...(draft.color === 'AUTO' ? {} : { color: draft.color }),
     repeat: draft.weekly ? { kind: draft.frequency ?? 'WEEKLY', untilDate: draft.until } : { kind: 'NONE' } });
 }
 function comparable(draft: EventDraft): unknown {
   return { title: draft.title.trim(), description: draft.description, category: draft.category,
-    color: draft.color,
+    color: draft.color, reminderMinutes: draft.reminderMinutes,
+    ...(draft.allDay && draft.reminderMinutes !== undefined ? { zone: draft.zone } : {}),
     startDate: draft.startDate, endDate: draft.endDate, allDay: draft.allDay,
     ...(draft.allDay ? {} : { startTime: draft.startTime, endTime: draft.endTime, zone: draft.zone,
       startOffset: draft.startOffset, endOffset: draft.endOffset }),

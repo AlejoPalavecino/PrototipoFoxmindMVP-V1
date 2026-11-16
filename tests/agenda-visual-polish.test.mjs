@@ -25,7 +25,7 @@ test('approved agenda heading keeps a real create action and no view-zone contro
   let created = 0;
   const props = { onCreate: () => created++ };
   const html = renderToStaticMarkup(createElement(AgendaHeader, props));
-  assert.match(html, /<h1>Agenda<\/h1>/);
+  assert.match(html, /<h1>Mi agenda<\/h1>/);
   assert.match(html, /Crear evento/);
   assert.doesNotMatch(html, /agenda-banner/);
   descendants(AgendaHeader(props), node => node.type === 'button')[0].props.onClick();

@@ -8,7 +8,7 @@ import { AccountNavbar } from '../application/navigation/account-navbar.tsx';
 import { createAccountClient, type AccountSession } from '../features/identity/index.ts';
 import { createWebAgendaClient } from '../application/agenda-client.ts';
 import { authHref } from '../application/navigation/destinations';
-import { parseAgendaEventTarget } from '../application/navigation/agenda-target.ts';
+import { parseAgendaEventTarget, parseAgendaViewTarget } from '../application/navigation/agenda-target.ts';
 
 const account = createAccountClient();
 function useAgendaSession() {
@@ -40,6 +40,7 @@ export function AgendaScreen() {
   const router = useRouter(), identity = useAgendaSession();
   const api = useMemo(() => createWebAgendaClient(fetch, identity.requireAccount), [identity.requireAccount]);
   const requestedEvent = parseAgendaEventTarget(router.query);
+  const requestedView = parseAgendaViewTarget(router.query);
   return <div className={`p5-app agenda-app ${surface.screen}`}>
     <Head><title>Agenda · FoxMind</title><meta name="description" content="Tu calendario privado y los próximos plazos de tus aulas." /></Head>
     <a className="skip-link" href="#agenda-main">Saltar al contenido</a>
@@ -47,8 +48,10 @@ export function AgendaScreen() {
       <AccountNavbar session={identity.session} view="agenda" accountActions={<div className="p5-actions p5-account-actions"><Link href="/profile">Mi perfil</Link>
         <button disabled={identity.busy} onClick={() => void identity.logout()}>{identity.busy ? 'Cerrando sesión…' : 'Cerrar sesión'}</button></div>} />
       {identity.error ? <Notice error>{identity.error}</Notice> : null}
-      {router.isReady && Object.keys(router.query).length > 0 && !requestedEvent ? <Notice error>El enlace del evento no es válido. Puedes consultar tu agenda.</Notice> : null}
-      <Agenda key={identity.session.user.id} api={api} requestedEvent={requestedEvent} onEventSelected={target=>{if(target)void router.push({pathname:'/agenda',query:{event:target.eventId,date:target.date}},undefined,{shallow:true});else if(router.query.event)void router.push('/agenda',undefined,{shallow:true});}} onOpen={target => { void router.push(`/mis-aulas?aula=${target.classroomId}${target.activityId ? `&actividad=${target.activityId}` : ''}`); }} />
+      {router.isReady && Object.keys(router.query).length > 0 && !requestedEvent && !requestedView ? <Notice error>El enlace de Agenda no es válido. Podés consultar tu calendario.</Notice> : null}
+      <Agenda key={identity.session.user.id} api={api} requestedEvent={requestedEvent} requestedView={requestedView}
+        role={identity.session.user.accountRole}
+        onCreateLinkConsumed={() => { void router.replace('/agenda', undefined, { shallow: true }); }} onEventSelected={target=>{if(target)void router.push({pathname:'/agenda',query:{event:target.eventId,date:target.date}},undefined,{shallow:true});else if(router.query.event)void router.push('/agenda',undefined,{shallow:true});}} onOpen={target => { void router.push(`/mis-aulas?aula=${target.classroomId}${target.activityId ? `&actividad=${target.activityId}` : ''}`); }} />
     </> : <main id="agenda-main" className="p5-main">{identity.error ? <Notice error>{identity.error} <button onClick={() => void identity.load()}>Volver a intentar</button></Notice>
       : <Notice>Comprobando tu sesión…</Notice>}<Link href={authHref('sign-in', '/agenda')}>Iniciar sesión</Link></main>}
   </div>;

@@ -80,7 +80,7 @@ test('A2 actual approved activity source reader reads private PDF/DOCX with capa
       const { ActivityAiService } = await Promise.all([import("../apps/api/src/modules/activities/infrastructure/activity-ai/service.ts"),import("../apps/api/src/modules/activities/infrastructure/activity-ai/worker.ts"),import("../apps/api/src/modules/activities/infrastructure/activity-ai/provenance.ts")]).then(([m0,m1,m2]) => Object.freeze({ActivityAiService: m0.ActivityAiService,ActivityAiWorker: m1.ActivityAiWorker,validateActivityGeneration: m2.validateActivityGeneration}));
       const x = await setup(local), prior = await x.add(pdfBytes), current = await x.add(pdfBytes, { version: 2 });
       const large = await x.add(pdfBytes, { kind: 'material', size: 50000000 });
-      const unsupported = await x.add(Buffer.from('synthetic unsupported format'), { kind: 'material', extension: 'pptx' });
+      const unsupported = await x.add(Buffer.from('synthetic unsupported format'), { kind: 'material', extension: 'xlsx' });
       const usable = await x.add(word(), { kind: 'material', extension: 'docx' });
       const service = new ActivityAiService({ ...x.f.options, reader: x.reader });
       const catalog = await service.sources(x.f.T, x.f.room), byId = new Map(catalog.sources.map(item => [item.sourceId, item]));

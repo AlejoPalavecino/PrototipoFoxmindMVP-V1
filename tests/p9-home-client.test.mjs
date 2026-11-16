@@ -32,21 +32,20 @@ test('Home keeps verified identity and routes archived history to the collection
         items: [{ id, title: room.name, classroom: room, target: { kind: 'classroom', classroomId: id, section: 'plan' } }] },
     } };
   const previousWindow = globalThis.window; globalThis.window = new EventTarget();
-  let openedCollection = 0;
+  let openedCollection = 0, created = 0;
   const view = hookView(Home, { accountRole: 'teacher', displayName: 'Actual Learner', subjectId: id, homeClient: { read: async () => aggregate },
-    onCreate() {}, onJoin() {}, onClassrooms: () => openedCollection++, onAction() {} });
+    onCreate: () => created++, onJoin() {}, onClassrooms: () => openedCollection++, onAction() {} });
   try {
     await view.flush(); const html = renderToStaticMarkup(view.tree);
-    assert.match(html.replace(/<[^>]*>/g, ''), /¡Buen día, Actual!/);
-    assert.match(html, /Tu historial sigue aquí/);
-    assert.doesNotMatch(html, /Real classroom|Material reciente/);
-    const focus = descendants(view.tree, node => node.type?.name === 'HomeFocus')[0];
-    const focusTree = focus.type(focus.props);
-    const module = descendants(focusTree, node => node.type?.name === 'HomeModule')[0];
-    assert.deepEqual(module.props.page.items, [], 'Archived classrooms never become active focus');
-    const welcome=descendants(view.tree,node=>node.type?.name==='HomeWelcome')[0];
-    descendants(welcome.type(welcome.props),node=>node.type==='button'&&node.props.onClick===welcome.props.onClassrooms)[0].props.onClick();
-    assert.equal(openedCollection,1,'Archived history stays reachable from the welcome state');
+    assert.match(html.replace(/<[^>]*>/g, ''), /Hola, Actual\./);
+    assert.match(html, /Tu historial sigue acá/);
+    assert.doesNotMatch(html, /Real classroom|Material reciente|Crear mi primera aula/);
+    const history = descendants(view.tree, node => node.props?.className === 'parity-home-empty')[0];
+    const collectionAction = descendants(history, node => node.type === 'button' && node.props.children === 'Ver mis aulas')[0];
+    assert.ok(collectionAction, 'Archived history has a direct collection action');
+    collectionAction.props.onClick();
+    assert.equal(openedCollection, 1);
+    assert.equal(created, 0);
     const { ClassroomCard } = component('apps/web/src/features/classrooms/ui/ClassroomCollectionCard.tsx');
     const archivedCard = renderToStaticMarkup(ClassroomCard({ room, onEnter() {} }));
     assert.match(archivedCard, /Real classroom &lt;script&gt;/); assert.match(archivedCard, /Archivada/);

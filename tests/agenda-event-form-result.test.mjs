@@ -21,9 +21,10 @@ test('reference event detail shows the moved occurrence and asks scope before an
  const text=n=>typeof n==='string'?n:Array.isArray(n)?n.map(text).join(''):text(n?.props?.children??'');
  const view=hookView(EventDetails,{api:{changeOccurrence:async(...args)=>calls.push(args),remove:async(...args)=>calls.push(args)},event,occurrenceDate:date,onBack(){},onEdit:scope=>edits.push(scope),onRemoved:()=>calls.push('removed')});
  const button=label=>descendants(view.tree,n=>n.type==='button'&&text(n)===label)[0];
- try{await view.flush();assert.match(text(view.tree),/Clase trasladada/);assert.match(text(view.tree),/10:00 – 11:00/);assert.equal(calls.length,0);
- button('Editar evento').props.onClick();await view.flush();button('Solo este evento').props.onClick();assert.deepEqual(edits,['single']);assert.equal(calls.length,0);
- button('Eliminar evento').props.onClick();await view.flush();button('Solo este evento').props.onClick();await view.flush();assert.deepEqual(calls,[[base.id,base.revision,date,null],'removed']);
+ try{await view.flush();assert.match(text(view.tree),/Clase trasladada/);assert.match(text(view.tree),/10:00 a 11:00/);assert.equal(calls.length,0);
+ button('Editar evento').props.onClick();await view.flush();button('Solo este evento').props.onClick();await view.flush();assert.deepEqual(edits,['single']);assert.equal(calls.length,0);
+ button('Eliminar').props.onClick();await view.flush();assert.equal(calls.length,0,'Opening the confirmation never deletes');
+ button('Eliminar evento').props.onClick();await view.flush();assert.deepEqual(calls,[[base.id,base.revision,date,null],'removed']);
  }finally{view.close();}
 });
 
@@ -57,8 +58,7 @@ test('created result converts first date to view zone and loads the new month wi
     assert.equal(component(context.view, 'AgendaDay').props.day, '2026-11-30');
     assert.deepEqual(queries.slice(before), [
       { startDate: '2026-10-26', endDateExclusive: '2026-12-07', timeZone: zone },
-      { startDate: '2026-12-01', endDateExclusive: '2027-01-01', timeZone: zone },
-    ], 'Only the new visible month and the 31-day range after the newly selected day are queried');
+    ], 'Only the new visible month is queried');
     assert.equal(component(context.view, 'EventForm'), undefined);
     assert.match(renderToStaticMarkup(context.view.tree), /Ver evento/);
   } finally { context.close(); }

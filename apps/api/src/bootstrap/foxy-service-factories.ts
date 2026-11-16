@@ -6,7 +6,7 @@ import { createFoxyTurnService as turn } from '../modules/foxy/application/turn-
 import { createFoxyResourceService as resource } from '../modules/foxy/application/resource-service.ts';
 import { createFoxyCitationService as citation } from '../modules/foxy/application/citation-service.ts';
 import { ownedRoom, activeRoom } from '../modules/foxy/infrastructure/turn-authority.ts';
-import { rebuildGrounding } from '../modules/foxy/infrastructure/grounding-rebuild.ts';
+import { rebuildGrounding, assertFoxyFileQuota } from '../modules/foxy/infrastructure/grounding-rebuild.ts';
 import { prepareFoxyActivity as prepareActivity } from '../modules/foxy/infrastructure/activity-handoff.ts';
 import { createActivityDraftInTransaction } from '../modules/activities/infrastructure/activity-draft.ts';
 import { createCitationFileReader } from '../modules/foxy/infrastructure/citation-read.ts';
@@ -15,7 +15,7 @@ import { loadCitationTurn, citationDocument, textActivity } from '../modules/fox
 const digest = (text: string) => createHash('sha256').update(text).digest('hex');
 export function createFoxyConversationService(options: Omit<Parameters<typeof conversation>[0], 'digest'>) { return conversation({ ...options, digest }); }
 export function createFoxyTurnService(options: Omit<Parameters<typeof turn>[0], 'digest' | 'authority' | 'rebuildGrounding'>) {
- return turn({ ...options, digest, authority: { ownedRoom, activeRoom }, rebuildGrounding });
+ return turn({ ...options, digest, authority: { ownedRoom, activeRoom }, rebuildGrounding, checkFileQuota: assertFoxyFileQuota });
 }
 export function createFoxyResourceService(options: Omit<Parameters<typeof resource>[0], 'prepareActivity'>) { return resource({ ...options, prepareActivity: prepareFoxyActivity }); }
 export function createFoxyCitationService(options: { uow: Parameters<typeof citation>[0]['uow']; files: unknown }) {
@@ -25,4 +25,4 @@ export function createFoxyCitationService(options: { uow: Parameters<typeof cita
 
 export function prepareFoxyActivity(...args: Parameters<Parameters<typeof resource>[0]['prepareActivity']>) { return prepareActivity(...args,createActivityDraftInTransaction); }
 
-export function createFoxyVisualService(options: Omit<Parameters<typeof visual>[0], 'activeClassroom' | 'rebuildGrounding'>) { return visual({ ...options, activeClassroom, rebuildGrounding }); }
+export function createFoxyVisualService(options: Omit<Parameters<typeof visual>[0], 'activeClassroom' | 'rebuildGrounding'>) { return visual({ ...options, activeClassroom, rebuildGrounding, checkFileQuota: assertFoxyFileQuota }); }

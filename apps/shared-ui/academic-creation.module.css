@@ -1,54 +1,53 @@
-/* Shared presentation for the classroom and private study creation flows. */
-.dialog { width: min(960px, calc(100% - 22px)); }
-.dialog > header, .dialog :global(.brujula-wizard-foot) { background: #fff; }
-.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); list-style: none; padding: 0; margin: 0 0 18px; gap: 7px; }
-.steps li { display: flex; align-items: center; gap: 7px; border: 1px solid #e5e8f1; border-radius: 999px; background: #f6f7fb; color: #555d77; font-size: .82rem; padding: 7px; min-width: 0; }
-.steps li b { display: grid; flex: 0 0 26px; height: 26px; place-items: center; border-radius: 50%; background: #eaedf6; }
-.steps li[data-completed=true] { background: #eef8f2; color: #245a43; }
-.steps li[data-completed=true] b { background: #d6eddf; }
-.steps li[aria-current=step] { background: #fff0e1; color: #803208; border-color: #e9c4aa; font-weight: 700; }
-.steps li[aria-current=step] b { background: #f7d9c3; }
-.mobileStep { display: none; }
-.intro { padding: 13px 0 16px; }
-.intro h3, .intro p { margin: 0; }
-.intro p { margin-top: 4px; color: #555d77; }
-:global(.fm3d-theme .p5-app .p5-main) .dialog .intro h3 { font-weight: 500; letter-spacing: -.025em; }
-:global(.fm3d-theme .p5-app .p5-main) .dialog :global(.brujula-wizard-foot .brujula-wizard-keep) {
-  border-color: transparent; background: transparent; color: #b8490c; font-weight: 400; padding-inline: 6px;
-}
-.method { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 0; margin: 16px 0 0; border: 0; }
-.method legend { padding: 0; margin-bottom: 8px; font-weight: 700; }
-.dialog .method label { display: grid; grid-template-columns: auto auto minmax(0, 1fr); align-items: start; gap: 10px; border: 1px solid #dce2f0; padding: 13px; border-radius: 16px; background: #f6f3fd; cursor: pointer; }
-.dialog .method label:has(input:checked) { background: #fff0e1; border-color: #c9784e; box-shadow: inset 0 -2px #eec2a6; }
-.dialog .method label:focus-within { outline: 3px solid #9a3e00; outline-offset: 2px; }
-.dialog .method input[type=radio] { margin: 2px 0 0; min-height: 0; width: 18px; height: 18px; accent-color: #a44513; }
-.method svg { width: 22px; height: 22px; color: #784c9a; }
-.method small { display: block; color: #555d77; margin-top: 4px; }
-@media (max-width: 650px) {
-  .steps { gap: 5px; margin-bottom: 8px; }
-  .steps li { justify-content: center; padding: 4px; }
-  .steps li span:not(:global(.sr-only)) { display: none; }
-  .mobileStep { display: block; margin: 0; font-size: .82rem; color: #555d77; }
-  .method { grid-template-columns: minmax(0, 1fr); }
-}
-dialog.dialog[open]:global(.brujula-wizard-dialog) {
-  display: flex !important;
-  flex-direction: column;
-  width: min(960px, calc(100% - 22px)) !important;
-  max-width: none !important;
-  max-height: min(90dvh, calc(100dvh - 18px)) !important;
-  overflow: hidden !important;
-}
-.dialog > header { flex: 0 0 auto; padding: 14px 22px !important; }
-.dialog > :global(.brujula-dialog-body) { display: flex; flex-direction: column; min-height: 0; overflow: hidden !important; }
-.dialog :global(.brujula-wizard), .dialog form[data-wizard-step] { display: flex !important; flex-direction: column; min-height: 0; }
-.dialog .stepBody { flex: 1 1 auto; overflow: auto; overscroll-behavior: contain; padding: 4px 3px; min-height: 0; }
-.dialog .stepBody > fieldset { margin: 0; }
-.dialog :global(.brujula-wizard-foot), .dialog :global(.brujula-wizard-save) { flex: 0 0 auto; }
-.dialog :global(.brujula-wizard-foot) { position: static !important; background: #fff !important; }
-.dialog :global(.brujula-wizard) { margin-block: 0 !important; }
-.dialog .method { display: grid !important; margin-top: 16px !important; gap: 10px !important; }
-@media (max-width: 650px) {
-  .dialog > header { padding: 10px 16px !important; }
-  .dialog .intro { padding-block: 7px; }
+/* One four-step composition shared by classroom and study-folder creation. */
+dialog.dialog[open]:global(.brujula-wizard-dialog){display:flex!important;flex-direction:column;width:min(1020px,calc(100vw - 32px))!important;max-width:none!important;max-height:calc(100dvh - 32px)!important;padding:0;border:1px solid #c6d3e1;border-radius:25px;overflow:hidden!important;background:white;color:#202c3d}
+.dialog>header{flex:none;padding:18px 24px!important;margin:0!important;border-bottom:1px solid #d7e0eb;background:white}
+.dialog>:global(.brujula-dialog-body){display:flex;flex-direction:column;min-height:0;overflow:hidden!important;padding:0!important}
+.dialog :global(.brujula-wizard){display:grid!important;grid-template-columns:225px minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr);min-height:0;gap:0 24px;margin:0!important;padding:0 24px 0 0!important}
+.rail{grid-column:1;grid-row:1/4;padding:24px 18px;background:#f3f5f8;border-right:1px solid #d7e0eb;min-width:0;overflow:auto}
+.steps{list-style:none;padding:0;margin:0;display:grid;gap:11px}
+.steps li{display:flex;align-items:center;gap:10px;padding:11px 8px;border:1px solid transparent;border-radius:14px;color:#52657a;font-size:13px;font-weight:800}
+.steps li b{display:grid;place-items:center;flex:0 0 33px;width:33px;height:33px;background:white;border:1px solid #bfcddd;border-radius:11px;font-size:14px;color:#52657a}
+.steps li b svg{width:18px;height:18px}
+.steps li small{display:block;font-size:11px;font-weight:600;margin-top:2px}
+.steps li[aria-current=step]{background:#ffeadc;border-color:#dfb696;color:#873d16}
+.steps li[aria-current=step] b{background:#b74710;border-color:#b74710;color:white}
+.steps li[data-completed=true]{color:#2c6343}.steps li[data-completed=true] b{background:#dfefe7;color:#2c6343;border-color:#a6c3b1}
+.preview{margin-top:26px;border:1px solid #c6d3e1;border-radius:17px;overflow:hidden;background:white}
+.preview img{display:block;width:100%;height:112px;object-fit:cover}
+.preview>div{padding:13px}.preview small{font-size:10px;color:#627187}.preview strong{display:block;font-size:15px;line-height:1.3;color:#202c3d;margin:4px 0;overflow-wrap:anywhere}.preview p{font-size:11px;color:#52657a;margin:0}
+.private{display:flex;align-items:center;gap:7px;font-size:11px;color:#52657a;margin:17px 0 0}.private svg{width:14px;height:14px}
+.mobileStep{display:none}
+.dialog :global(.brujula-wizard)>.intro{grid-column:2;grid-row:2;padding:22px 0 18px}
+.dialog :global(.brujula-wizard)>.intro h3{font-size:25px;letter-spacing:-.6px;font-weight:850;color:#202c3d;margin:0 0 6px}
+.intro p{font-size:14px;line-height:1.5;color:#52657a;margin:0}
+.dialog :global(.brujula-wizard) > :global(.p5-notice){grid-column:2;grid-row:1;margin:12px 0 0}
+.dialog form[data-wizard-step]{grid-column:2;grid-row:3;display:flex!important;flex-direction:column;min-width:0;min-height:0;max-height:calc(100dvh - 220px);margin:0}
+.dialog .stepBody{flex:1;overflow:auto;overscroll-behavior:contain;min-height:0;padding:3px 3px 15px}
+.dialog .stepBody>fieldset{margin:0;min-width:0}
+.dialog :global(.brujula-wizard-foot){display:flex;justify-content:space-between;align-items:center;gap:10px;flex:none;position:static!important;padding:15px 0!important;margin:0!important;border-top:1px solid #d7e0eb;background:white!important}
+.dialog :global(.brujula-wizard-foot)>div{display:flex;gap:9px}
+.dialog :global(.brujula-wizard-foot) button{min-height:44px;border-radius:12px;font-weight:800}
+.dialog :global(.brujula-wizard-foot .brujula-wizard-keep){padding:8px 2px;color:#963b0d;background:transparent;border-color:transparent;font-size:12px}
+.dialog :global(.brujula-wizard-save){margin:0;padding:8px 0;font-size:12px;color:#24623e;flex:none}
+.dialog :global(.brujula-wizard-save[data-error=true]){color:#a02626}
+.method{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;border:0;padding:0;margin:20px 0 0}
+.method legend{font-size:15px;font-weight:800;padding:0;margin-bottom:12px}
+.dialog .method label{display:grid;grid-template-columns:18px 24px minmax(0,1fr);align-items:start;gap:9px;border:1px solid #bdcbda;border-radius:16px;background:#f5f8fb;padding:16px;cursor:pointer}
+.dialog .method label:has(input:checked){background:#fff0e3;border-color:#ba754c;box-shadow:inset 0 0 0 1px #ba754c}
+.method input{margin:3px 0 0!important;width:18px;height:18px;min-height:0;accent-color:#b74710}.method svg{width:24px;height:24px;color:#9b481c}.method strong{display:block;font-size:14px}.method small{display:block;font-size:12px;line-height:1.5;color:#52657a;margin-top:5px}
+@media(max-width:700px){
+ dialog.dialog[open]:global(.brujula-wizard-dialog){width:calc(100vw - 16px)!important;max-height:calc(100dvh - 16px)!important;border-radius:20px}
+ .dialog>header{padding:13px 16px!important}
+ .dialog :global(.brujula-wizard){display:flex!important;flex-direction:column;gap:0;padding:0 16px!important}
+ .rail{padding:12px 0 0;background:white;border:0;overflow:visible}
+ .steps{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+ .steps li{padding:0;justify-content:center;border-radius:10px;min-height:36px}
+ .steps li>span,.preview,.private{display:none}
+ .steps li b{width:30px;height:30px;flex-basis:30px;border:0;background:transparent}
+ .mobileStep{display:block;font-size:11px;color:#52657a;margin:9px 0 0}
+ .dialog :global(.brujula-wizard)>.intro{padding:14px 0}.dialog :global(.brujula-wizard)>.intro h3{font-size:21px}
+ .intro p{font-size:12px}
+ .dialog form[data-wizard-step]{max-height:calc(100dvh - 220px)}
+ .method{grid-template-columns:1fr}
+ .dialog :global(.brujula-wizard-foot){gap:6px;flex-wrap:wrap}.dialog :global(.brujula-wizard-foot)>div{margin-left:auto}
 }

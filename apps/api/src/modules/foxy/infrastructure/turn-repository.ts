@@ -1,4 +1,6 @@
 import { randomUUID } from 'node:crypto';
+import { tryLockAiBudget } from '../../../platform/ai/admission.ts';
+import { settleUnobservedFoxyTurn, type FoxyTurnReservation } from './turn-recovery.ts';
 import { parseFoxyAnswer, parseSendFoxyMessage, type FoxyContext, type SendFoxyMessage } from '../../../../../../src/core/domain/index.ts';
 import type { SqlTransaction } from '../../../../../../src/core/contracts/sql.ts';
 import type { FoxyGroundingSnapshot } from '../../../../../../src/core/domain/foxy/grounding.ts';
@@ -8,9 +10,9 @@ type ConversationRow = { id: string; revision: bigint; context_kind: 'GENERAL' |
 type TurnRow = { id: string; sequence: number; state: string; input_hash: string; conversation_revision: bigint; conversation_id: string };
 type Page = { afterSequence: number; limit: number };
 type ReadRow = { id: string; sequence: number; state: string; purpose: string; message_text: string;
-  answer: unknown; error_code: string | null; created_at: Date; source_report: unknown };
+  answer: unknown; error_code: string | null; created_at: Date; source_report: unknown; classroom_snapshot?: FoxyGroundingSnapshot };
 type Citation = { sourceId: string; documentKey: string | null; page: number | null };
-const readColumns = 't.id,t.sequence,t.state,t.purpose,t.message_text,t.answer,t.error_code,t.created_at,t.source_report';
+const readColumns = 't.id,t.sequence,t.state,t.purpose,t.message_text,t.answer,t.error_code,t.created_at,t.source_report,CASE WHEN t.state=\'READY\' AND t.snapshot ? \'classroomScope\' THEN t.snapshot END AS classroom_snapshot';
 function citations(value: unknown): Citation[] {
   if (!Array.isArray(value)) return [];
   return value.flatMap(item => {
@@ -30,7 +32,9 @@ function readView(row: ReadRow) {
   return { id: row.id, sequence: row.sequence, state: row.state, purpose: row.purpose, message: row.message_text,
     answer: row.state === 'READY' ? parseFoxyAnswer(row.answer) : null,
     errorCode: row.state === 'FAILED' && typeof row.error_code === 'string' && /^[A-Z][A-Z0-9_]{1,79}$/u.test(row.error_code) ? row.error_code : null,
-    createdAt: row.created_at.toISOString(), citations: row.state === 'READY' ? citations(row.source_report) : [] };
+    createdAt: row.created_at.toISOString(), ...(row.state === 'READY' && row.classroom_snapshot?.classroomScope ? { classroomSources: { revision: row.classroom_snapshot.classroomScope.revision,
+      used: row.classroom_snapshot.sources.map(({sourceId,title})=>({sourceId,title})).concat((row.classroom_snapshot.attachments??[]).map(file=>({sourceId:`attachment:${file.fileId}`,title:file.title}))),
+      excluded: row.classroom_snapshot.classroomScope.excluded } } : {}), citations: row.state === 'READY' ? citations(row.source_report) : [] };
 }
 
 function fail(code: 'INVALID_INPUT' | 'NOT_FOUND' | 'CONFLICT'): never { throw Object.assign(new Error(code), { code }); }
@@ -52,8 +56,8 @@ function validateSnapshot(snapshot: FoxyGroundingSnapshot, expected: FoxyContext
     if (snapshot.curriculum !== null || snapshot.sources.length || input.selection.topicIds.length || input.selection.sourceIds.length) return fail('INVALID_INPUT');
   } else if (snapshot.context.kind !== 'CLASSROOM' || snapshot.context.classroomId.toLowerCase() !== expected.classroomId.toLowerCase()
     || !snapshot.curriculum || !Array.isArray(snapshot.curriculum.selectedTopicIds)
-    || !sameIds(input.selection.topicIds, snapshot.curriculum.selectedTopicIds)) return fail('INVALID_INPUT');
-  if (!sameIds(input.selection.sourceIds, snapshot.sources.map(source => source.sourceId))) return fail('INVALID_INPUT');
+    || (input.selection.mode === 'ALL_CLASSROOM' ? !snapshot.classroomScope : !sameIds(input.selection.topicIds, snapshot.curriculum.selectedTopicIds))) return fail('INVALID_INPUT');
+  if (input.selection.mode !== 'ALL_CLASSROOM' && !sameIds(input.selection.sourceIds, snapshot.sources.map(source => source.sourceId))) return fail('INVALID_INPUT');
 }
 function view(row: TurnRow) { return { id: row.id, sequence: row.sequence, state: row.state }; }
 async function lock(tx: SqlTransaction, owner: string, conversationId: string): Promise<ConversationRow> {
@@ -105,6 +109,24 @@ export function createFoxyTurnRepository() {
       await tx.query('UPDATE foxy_conversations SET revision=$3::bigint,updated_at=clock_timestamp() WHERE owner_id=$1::uuid AND id=$2::uuid', owner, conversationId, revision);
       if (!turn) return fail('CONFLICT');
       return { created: true, turn: view(turn), conversationRevision: revision };
+    },
+    async cancel(tx: SqlTransaction, owner: string, conversationId: string, turnId: string) {
+      id(owner); id(conversationId); id(turnId);
+      // The API holds the actor lock. Do not wait on a worker holding the budget lock.
+      if (!await tryLockAiBudget(tx)) return fail('CONFLICT');
+      const [row] = await tx.query<ReadRow & FoxyTurnReservation>(`SELECT t.* FROM foxy_turns t
+        JOIN foxy_conversations c ON c.id=t.conversation_id AND c.owner_id=t.owner_id
+        WHERE t.owner_id=$1::uuid AND t.conversation_id=$2::uuid AND t.id=$3::uuid AND c.deleted_at IS NULL
+        AND (c.context_kind='GENERAL' OR EXISTS (SELECT 1 FROM classrooms r WHERE r.id=c.classroom_id AND r.teacher_id=c.owner_id))
+        FOR UPDATE OF t`, owner, conversationId, turnId);
+      if (!row) return null;
+      if (row.state !== 'QUEUED' && row.state !== 'RUNNING') return readView(row);
+      if (row.state === 'RUNNING') await settleUnobservedFoxyTurn(tx, row);
+      const [updated] = await tx.query<ReadRow>(`UPDATE foxy_turns SET state='CANCELLED',lease_nonce=NULL,lease_until=NULL,
+        reserved_microusd=0,updated_at=clock_timestamp() WHERE owner_id=$1::uuid AND conversation_id=$2::uuid
+        AND id=$3::uuid AND state IN ('QUEUED','RUNNING') RETURNING *`,owner,conversationId,turnId);
+      if (!updated) return fail('CONFLICT');
+      return readView(updated);
     },
     async get(tx: SqlTransaction, owner: string, conversationId: string, turnId: string) {
       id(owner); id(conversationId); id(turnId);

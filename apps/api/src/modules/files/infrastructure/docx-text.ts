@@ -1,8 +1,11 @@
+import { type DocumentExtension } from '../../../../../../src/core/domain/documents/document-formats.ts';
+import { parseActivityDocument } from './activity-document.ts';
 import { Worker } from 'node:worker_threads';
 import type { PlanDocument, CurriculumWarning } from '../../../../../../src/core/domain/index.ts';
 import { PlanDocumentError } from '../domain/plan-document-error.ts';
 
-export async function parsePlanDocument(bytes: Uint8Array, extension: 'pdf' | 'docx', signal?: AbortSignal): Promise<PlanDocument> {
+export async function parsePlanDocument(bytes: Uint8Array, extension: DocumentExtension, signal?: AbortSignal): Promise<PlanDocument> {
+  if (extension !== 'pdf' && extension !== 'docx') return (await parseActivityDocument(bytes, extension, signal ?? AbortSignal.timeout(18000))).document;
   if (signal?.aborted) throw new PlanDocumentError();
   if (!bytes.length || bytes.length > 20_000_000) throw new PlanDocumentError('AI_INPUT_LIMIT');
   const url = new URL(import.meta.url.endsWith('.ts') ? './plan-document-worker.ts' : './plan-document-worker.js', import.meta.url);

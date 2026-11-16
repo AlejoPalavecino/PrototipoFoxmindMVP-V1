@@ -12,6 +12,8 @@ export async function prepare(options: ActivityAiOptions, row: JobRow, grants: A
   const payload = row.input_payload;
   const input: ActivityGenerationInput = { schemaVersion: 'activity-proposal-v1', type: row.type,
     unit: row.curriculum_snapshot.unit, topics: row.curriculum_snapshot.topics, objective: payload.objective,
+    ...(row.curriculum_snapshot.units ? { units: row.curriculum_snapshot.units } : {}),
+    ...(payload.teacherBrief ? { teacherBrief: payload.teacherBrief } : {}),
     groupLevel: payload.groupLevel, difficulty: payload.difficulty, durationMinutes: payload.durationMinutes,
     context: payload.context, counts: payload.counts, sources, signal };
   const count = await bounded(() => options.provider.countActivityTokens(input), signal);
@@ -29,7 +31,7 @@ export function proposal(json: unknown, input: ActivityGenerationInput) {
       return { missing: value.missingInformation as string[] };
     if (value.status !== 'READY' || Object.keys(value).length !== 2) throw new Error();
     const proposal = parseActivityProposal(value.proposal, { type: input.type, counts: input.counts,
-      context: input.context, sourceIds: input.sources.map(s => s.sourceId),
+      context: input.context.trim() ? input.context : input.teacherBrief ?? '', sourceIds: input.sources.map(s => s.sourceId),
       pdfPageCounts: Object.fromEntries(input.sources.filter(s => s.pageCount !== null).map(s => [s.sourceId, s.pageCount!])) });
     for (const source of input.sources) for (const warning of source.warnings)
       if (!proposal.warnings.includes(warning)) proposal.warnings.push(warning);
