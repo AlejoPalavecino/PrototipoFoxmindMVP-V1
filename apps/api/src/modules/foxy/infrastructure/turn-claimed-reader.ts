@@ -5,7 +5,7 @@ import type { FoxyTurnLease } from './turn-queue.ts';
 import { checkClaim } from './claim-authority-check.ts';
 import { claimedHistory } from './turn-history.ts';
 
-type Payload = { sequence: number; purpose: FoxyPurpose; message_text: string; metadata: { model: string; promptVersion: string; schemaVersion: string } };
+type Payload = { sequence: number; purpose: FoxyPurpose; message_text: string; execution_profile?: unknown; metadata: { model: string; promptVersion: string; schemaVersion: string } };
 function forbidden(): never { throw Object.assign(new Error('FORBIDDEN'), { code: 'FORBIDDEN' }); }
 export function createFoxyClaimedTurnReader(options: { database: SqlDatabase; maxJobAgeMs: number }) {
   return {
@@ -16,7 +16,7 @@ export function createFoxyClaimedTurnReader(options: { database: SqlDatabase; ma
         const tx = { query: <T>(sql: string, ...args: unknown[]) => raw.$queryRawUnsafe<T[]>(sql, ...args) };
         const snapshot = await checkClaim(tx, claim, options.maxJobAgeMs);
         signal?.throwIfAborted();
-        const [row] = await tx.query<Payload>(`SELECT t.sequence,t.purpose,t.message_text,t.metadata FROM foxy_turns t
+        const [row] = await tx.query<Payload>(`SELECT t.sequence,t.purpose,t.message_text,t.metadata,t.execution_profile FROM foxy_turns t
           JOIN foxy_conversations c ON c.id=t.conversation_id AND c.owner_id=t.owner_id JOIN users u ON u.id=t.owner_id
           WHERE t.id=$1::uuid AND t.owner_id=$2::uuid AND t.conversation_id=$3::uuid AND t.lease_nonce=$4::uuid
           AND t.state='RUNNING' AND t.lease_until>clock_timestamp() AND c.deleted_at IS NULL
@@ -30,7 +30,7 @@ export function createFoxyClaimedTurnReader(options: { database: SqlDatabase; ma
         const current = await checkClaim(tx, claim, options.maxJobAgeMs);
         if (!isDeepStrictEqual(snapshot, current)) return forbidden();
         signal?.throwIfAborted();
-        return { purpose: row.purpose, message: row.message_text, metadata: row.metadata, history };
+        return { purpose: row.purpose, message: row.message_text, metadata: row.metadata, executionProfile: row.execution_profile, history };
       }, { maxWait: 2000, timeout: 6000 });
     },
   };

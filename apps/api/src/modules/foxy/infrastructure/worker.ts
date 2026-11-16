@@ -5,8 +5,10 @@ import type { FoxyClaimScope } from './claim-authority.ts';
 import type { FoxyGrounding } from '../../../../../../src/core/domain/foxy/grounding.ts';
 import { createFoxyTurnPreparation } from './turn-preparation.ts';
 import { workerAnswer } from './worker-output.ts';
+import type { AiExecutionSettings } from '../../../../../../src/core/contracts/ai-execution.ts';
 
-type Prepared = { scope: FoxyClaimScope; grounding: FoxyGrounding; input: FoxyTextInput; count: number };
+type Prepared = { scope: FoxyClaimScope; grounding: FoxyGrounding; input: FoxyTextInput; count: number;
+  provider: Options['provider']; configuration: Options['configuration'] };
 type Usage = { inputTokens: number | null; outputTokens: number | null };
 type Options = { database: SqlDatabase; queue: { claim(): Promise<FoxyTurnLease | null> };
   turns: Parameters<typeof createFoxyTurnPreparation>[0]['turns'];
@@ -14,9 +16,10 @@ type Options = { database: SqlDatabase; queue: { claim(): Promise<FoxyTurnLease 
     revalidateGrounding(cap: object, signal: AbortSignal, tx?: SqlTransaction): Promise<boolean> };
   loader: Parameters<typeof createFoxyTurnPreparation>[0]['loader'];
   provider: { countTokens(input: FoxyTextInput): Promise<number>; generate(input: FoxyTextInput): Promise<{ json: FoxyTextResponse } & Usage> };
+  providerForExecution?: (configuration: Options['configuration']) => Options['provider'];
   budget: { reserve(tx: SqlTransaction, lease: FoxyTurnLease, count: number): Promise<'RESERVED' | 'ALREADY_DISPATCHED' | 'NO_BUDGET' | 'NOT_CURRENT'> };
   completion: { finish(lease: FoxyTurnLease, result: any): Promise<boolean> };
-  configuration: { model: string; maxInputTokens: number; deadlineMs: number; maxJobAgeMs: number; maxConcurrency: number } };
+  configuration: { model: string; maxInputTokens: number; deadlineMs: number; maxJobAgeMs: number; maxConcurrency: number } & AiExecutionSettings };
 const RETRY_INTERVAL_MS = 1000;
 async function withAbort<T>(work: Promise<T>, signal: AbortSignal): Promise<T> {
   signal.throwIfAborted();
@@ -57,21 +60,27 @@ export function createFoxyTextWorker(options: Options) {
   async function run(lease: FoxyTurnLease): Promise<boolean> {
       const controller = new AbortController();
       controllers.add(controller);
-      const deadline = setTimeout(() => controller.abort(), options.configuration.deadlineMs);
+      const started = Date.now();
+      let deadline = setTimeout(() => controller.abort(), lease.deadlineMs ?? options.configuration.deadlineMs);
       let prepared: Prepared | undefined, reserved = false, dispatched = false, outcome: any, shouldFinish = true;
       try {
-        prepared = await withAbort(preparation.prepare(lease, controller.signal), controller.signal);
+        prepared = await withAbort(preparation.prepare(lease, controller.signal, configuration => {
+          clearTimeout(deadline);
+          const remaining = configuration.deadlineMs - (Date.now() - started);
+          if (remaining <= 0) controller.abort();
+          else deadline = setTimeout(() => controller.abort(), remaining);
+        }), controller.signal);
         const reservation = await reserve(options, lease, prepared, controller.signal);
         if (reservation === 'NOT_CURRENT') shouldFinish = false;
         else if (reservation !== 'RESERVED') outcome = { state: 'FAILED', errorCode: reservation === 'NO_BUDGET' ? 'AI_BUDGET_EXCEEDED' : 'PROVIDER_OUTCOME_UNKNOWN' };
         else {
           reserved = true; controller.signal.throwIfAborted();
-          if (prepared.scope.snapshot.attachments?.length &&
+          if ((prepared.scope.snapshot.context.kind === 'CLASSROOM' || prepared.scope.snapshot.attachments?.length) &&
             !await options.authority.revalidateGrounding(prepared.scope.capability, controller.signal))
             throw Object.assign(new Error('CONFLICT'), { code: 'CONFLICT' });
           controller.signal.throwIfAborted();
           dispatched = true;
-          const generated = await withAbort(options.provider.generate(prepared.input), controller.signal);
+          const generated = await withAbort(prepared.provider.generate(prepared.input), controller.signal);
           const usage = { inputTokens: generated.inputTokens, outputTokens: generated.outputTokens };
           try {
             const resolved = workerAnswer(generated.json, prepared.grounding);

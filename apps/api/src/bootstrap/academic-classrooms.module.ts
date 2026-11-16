@@ -19,7 +19,7 @@ import { createActivityAiAccess } from '../modules/activities/infrastructure/act
 import { StudentAiRuntime } from './academic-student-runtime.ts';
 import { GradingAiRuntime, type GradingAiFileGrant } from '../modules/grading/infrastructure/grading-ai/runtime.ts';
 import { GeminiGradingAiProvider } from '../modules/grading/infrastructure/grading-ai/provider.ts';
-import { GoogleGenAI } from '@google/genai';
+import { getAiTextClient } from '../platform/ai/profile-client.ts';
 import { validateActivityGeneration } from '../modules/activities/infrastructure/activity-ai/provenance.ts';
 import type { AiConfiguration } from '../platform/ai/configuration.ts';
 import { createDiagnosticSink } from '../platform/diagnostics.ts';
@@ -47,9 +47,9 @@ export class ClassroomsModule {
             runtime.authorizeClaim(grant as GradingAiFileGrant, signal, tx);
           const reader = createDurableGradingAiAttachmentReader({ files, authorize });
           const instructionReader = createDurableGradingAiInstructionReader({ files, authorize });
-          const provider = override?.gradingProvider ?? new GeminiGradingAiProvider(new GoogleGenAI({ apiKey: ai.apiKey, vertexai: false,
-            httpOptions: { retryOptions: { attempts: 1 }, timeout: ai.deadlineMs } }), ai);
-          runtime = new GradingAiRuntime({ database, configuration: ai, provider, reader, instructionReader, diagnostics });
+          const provider = override?.gradingProvider ?? new GeminiGradingAiProvider(getAiTextClient(ai, 'grading'), ai);
+          runtime = new GradingAiRuntime({ database, configuration: ai, provider, reader, instructionReader, diagnostics,
+            ...(!override?.gradingProvider ? { providerForExecution: (execution: AiConfiguration) => new GeminiGradingAiProvider(getAiTextClient(execution, 'grading'), execution) } : {}) });
           return runtime;
         } }] : []),
       ...(ai && (!override || override.studentProvider) ? [{ provide: StudentAiRuntime, inject: [PrismaService, ClassroomService],

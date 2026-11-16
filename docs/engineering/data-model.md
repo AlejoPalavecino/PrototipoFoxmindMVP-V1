@@ -1,6 +1,6 @@
 # Modelo de datos de FoxMind
 
-El modelo físico vive en [schema.prisma](../../prisma/schema.prisma) y las restricciones adicionales en [migrations](../../prisma/migrations/). El candidato de paridad del 2026-11-15 contiene 62 modelos Prisma y 60 migraciones SQL. El conteo se obtiene del repositorio.
+El modelo físico vive en [schema.prisma](../../prisma/schema.prisma) y las restricciones adicionales en [migrations](../../prisma/migrations/). El candidato de integración contiene 64 modelos Prisma y 63 migraciones SQL. SQL agrega checks, índices parciales y triggers que deben revisarse junto con el esquema.
 
 ## Entidades por dominio
 
@@ -22,10 +22,10 @@ Actualización 2026-11-08: migración `202611080001_pending_classroom_deletion` 
 | Actividades | Activity, ActivityInstructionFile, ActivityMaterial, ActivityTopic, Question, QuestionOption | Actividad del aula con recursos, preguntas y temas ordenados de una o más unidades de la misma aula. La idea de IA queda en `Activity.teacher_brief` y en la carga privada del trabajo |
 | Participación | StudentActivity, Attempt, Answer, AnswerSelection, AttemptAttachment | Obligación individual, intentos, respuestas y adjuntos por intento |
 | Calificación | AttemptGrade, QuestionGrade, GradeCorrection | Corrección de intento, puntos por pregunta y auditoría de cambios publicados |
-| Comunicación | WallPost, WallReply, Notification, NotificationProjectionRead | Publicaciones y respuestas por aula, avisos persistidos y marcas de lectura por cuenta e identidad de proyección |
-| Procesamiento y uso IA | BackgroundJob, ClassroomCurriculumExtraction, ClassroomAiRequest, AiUsageDaily, ActivityAiGeneration, ActivityAiRequest, StudentAiReport, GradingAiJob | Trabajos, idempotencia, solicitudes, consumo y resultados con alcance propio |
+| Comunicación | WallPost, WallReply, Notification, NotificationProjectionRead | Publicaciones y respuestas por aula, avisos con destinatario y destino autorizado, y marcas de lectura por cuenta e identidad de proyección |
+| Procesamiento y uso IA | BackgroundJob, ClassroomCurriculumExtraction, ClassroomAiRequest, AiUsageDaily, ActivityAiGeneration, ActivityAiRequest, StudentAiReport, GradingAiJob, AiExecutionPolicy | Trabajos, idempotencia, solicitudes, consumo, política técnica y resultados con alcance propio |
 | Foxy: conversación y recursos | FoxyConversation, FoxyConversationRequest, FoxyTurn, FoxyResource, FoxyResourceRequest | Conversación docente privada, turnos, recursos derivados y estado durable de cancelación |
-| Adjuntos privados del chat | ChatAttachment, FoxyChatAttachmentLink | Objeto privado con digest y estado de limpieza; cada conversación docente conserva su vínculo de custodia. La copia estudiantil confirmada conserva la custodia con su `StudyFolderUpload` |
+| Adjuntos privados del chat | ChatAttachment, FoxyChatAttachmentLink | Objeto privado con dueño, digest y estados de carga, revocación y limpieza; cada conversación docente conserva su vínculo de custodia. La copia estudiantil confirmada comparte bytes con su `StudyFolderUpload` |
 | Foxy: publicación y visuales | FoxyPublication, FoxyPublicationConfirmRequest, FoxyPublicationCommandRequest, FoxyVisualAsset, FoxyPrivateAssetCommand, FoxyVisualJob | Confirmaciones y comandos, publicación, recursos privados y trabajos visuales |
 | Carpetas de estudio | StudyFolder, StudyFolderUpload, StudyReviewSession, StudyAiDispatch | Dueño estudiante, estado privado versionado con carpeta y plan importable, custodia de archivos, sesiones de repaso y admisión de IA |
 
@@ -89,6 +89,18 @@ Los casos de rechazo consultan filas completas después de recuperar el savepoin
 - El CHECK de excepciones sólo valida contenedor y cantidad: no fechas, unicidad, pertenencia a la serie o estructura de cada elemento. Un array mixto y duplicados se aceptan a nivel SQL; no representan un payload válido del servicio.
 - FK y revisión no conceden autorización ni implementan CAS por sí solas. Los casos existentes de servicio verifican persistencia, aislamiento por dueño y conflicto de revisión/color con autenticación sintética; sesiones/CSRF HTTP, upgrade de datos retenidos y el resto del esquema no quedan acreditados aquí. No se modifica ningún invariante ni runtime de base.
 
+## Instantánea de ejecución IA
+
+La [migración aditiva 202611160001](../../prisma/migrations/202611160001_ai_execution_profiles/migration.sql) agrega `execution_profile jsonb` nullable en `classroom_curriculum_extractions`, `activity_ai_generations`, `student_ai_reports`, `grading_ai_jobs`, `foxy_turns` y `study_ai_dispatches`. Los registros históricos conservan NULL; no se inventa un proveedor/modelo original ni se modifica su resultado. La generación visual queda fuera de este contrato textual.
+
+El JSON `ai-execution-v1` guarda tarea, proveedor/modelo, ID/versión de perfil, versiones de prompt/respuesta, límites de entrada/salida/documentos/plazo y tarifas de entrada/salida por millón de tokens. Su contrato tiene campos cerrados, sin claves, prompts, documentos ni respuestas. CHECKs validan estructura y tarea; triggers impiden cambiar el snapshot de un trabajo. Los workers y la contabilidad usan esa identidad, sin resolver nuevamente el perfil activo para un trabajo ya creado.
+
+`AiExecutionPolicy` representa `ai_execution_policy`: una única fila `singleton=true`, `baseline_profiles` inmutable, `active_profiles` validado y `updated_at`. Al crear trabajos con política vigente, el trigger exige snapshot no nulo e idéntico al perfil activo de su tarea. La creación de política y los cambios distintos al baseline se bloquean si `foxmind_ai_legacy_pending()` detecta trabajos NULL en `QUEUED`/`RUNNING` de las seis tablas. No se borra ni reescribe la historia para superar ese control.
+
+Los pendientes legacy deben drenar con el ejecutor y configuración Gemini anteriores **antes del primer arranque de la nueva política**. Una política ya inicializada conserva el baseline para compatibilidad. El fence `application_name=foxmind-api-ai-execution-v1` protege frente a versiones incompatibles; no constituye una frontera de seguridad contra sesiones con permisos SQL. Ver [transición y configuración](local-development/README.md#perfiles-ia-y-transición-de-pendientes).
+
+Estas declaraciones describen código y migración versionados. No acreditan aplicación sobre datos retenidos ni una verificación nueva de PostgreSQL en esta actualización documental.
+
 ## Conservación y eliminación
 
 No hay una regla global de borrado en cascada para todo el producto. Las relaciones restrictivas, períodos, tombstones de comunicación, revisiones y auditorías preservan historia; los servicios definen qué puede eliminarse y cuándo limpiar bytes incompletos. Las políticas de [archivos](files/README.md), [participación](activities/participation.md), [calificaciones](grading/README.md) y [Foxy](ai/foxy.md) deben consultarse antes de diseñar una eliminación.
@@ -99,7 +111,7 @@ La capacidad de base no sustituye permisos HTTP, publicación docente, escaneo n
 
 El candidato de Mis aulas del 2026-11-11 agrega `ClassroomInvitationBatch` mediante `202611110001_classroom_invitation_batches`: clave compuesta `(classroom_id, request_id)`, fecha y recibo cifrado. La referencia al aula es restrictiva. Conserva destinatarios y resultados para reconciliación/idempotencia; no incorpora una purga automática. La emisión de cada posición comparte transacción con Invitation y outbox. ClassroomCode conserva digest/envelope e historia global única: los códigos de seis dígitos revocados no se reasignan, por lo que el espacio finito requiere seguimiento de capacidad antes de una futura ampliación.
 
-El candidato de paridad agrega siete migraciones.
+El candidato combina ocho migraciones del refactor UX/UI y una del runtime IA. La tabla sigue el orden del inventario de directorios; no implica que bases ya migradas hayan aplicado las dos ramas en ese orden.
 
 | Migración | Cambio físico |
 |---|---|
@@ -109,6 +121,7 @@ El candidato de paridad agrega siete migraciones.
 | [004 · Cancelación de Foxy](../../prisma/migrations/202611150004_foxy_cancellation/migration.sql) | Admite `CANCELLED` en turnos y trabajos visuales y actualiza las transiciones del trigger de trabajos visuales. |
 | [006 · Rechazo de invitación](../../prisma/migrations/202611150006_invitation_decline/migration.sql) | Registra fecha y cuenta del rechazo. El índice parcial de invitaciones pendientes excluye las rechazadas. |
 | [007 · Descripción de material](../../prisma/migrations/202611150007_material_description/migration.sql) | Agrega `materials.description` opcional, con límite de 2000 caracteres. Los vínculos siguen en `ActivityMaterial`. |
+| [20261116-001 · Perfiles de ejecución IA](../../prisma/migrations/202611160001_ai_execution_profiles/migration.sql) | Agrega la política y las instantáneas de ejecución textual, manteniendo NULL en trabajos históricos. Ver [instantánea de ejecución IA](#instantánea-de-ejecución-ia). |
 | [20261116-001 · Custodia de adjuntos Foxy](../../prisma/migrations/202611160001_foxy_attachment_links/migration.sql) | Agrega `foxy_chat_attachment_links` con claves compuestas de propietario y backfill de adjuntos docentes existentes. `cleanup_claimed_at` impide revivir objetos reclamados para limpieza. Las conversaciones comparten el objeto aprobado sin duplicar bytes. |
 | [20261116-002 · Edición de visuales Foxy](../../prisma/migrations/202611160002_foxy_visual_editorial/migration.sql) | Agrega la revisión, el título y el texto editorial sobre el activo listo. La publicación conserva una instantánea independiente del archivo generado y de futuras ediciones; las filas y recibos previos siguen siendo legibles. |
 

@@ -67,8 +67,10 @@ export class ClassroomAiService {
   }
   private async insert(tx: Transaction, current: DraftRow, fileId: string, digest: string, previous?: JobRow) {
     const [row] = await tx.query<JobRow>(`INSERT INTO classroom_curriculum_extractions
-      (id,owner_id,draft_id,file_id,source_digest,base_revision,schema_version,prompt_version,model,generation,retry_of)
-      VALUES($1::uuid,$2::uuid,$3::uuid,$4::uuid,$5,$6::bigint,$7,$7,$8,$9,$10::uuid) RETURNING *`,
+      (id,owner_id,draft_id,file_id,source_digest,base_revision,schema_version,prompt_version,model,generation,retry_of,execution_profile)
+      VALUES($1::uuid,$2::uuid,$3::uuid,$4::uuid,$5,$6::bigint,$7,$7,
+        COALESCE((SELECT active_profiles->'curriculum'->>'model' FROM ai_execution_policy WHERE singleton),$8),$9,$10::uuid,
+        (SELECT active_profiles->'curriculum' FROM ai_execution_policy WHERE singleton)) RETURNING *`,
     randomUUID(), current.owner_id, current.id, fileId, digest, String(current.revision), version,
     this.options.configuration.model, previous ? previous.generation + 1 : 0, previous?.id ?? null);
     return row!;

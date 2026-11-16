@@ -6,6 +6,7 @@ import { claim, fenced } from './queue.ts';
 import { reserve, settle } from './budget.ts';
 import { bounded, errorCode, prepare, proposal } from './execution.ts';
 import { validSource, requireGrant } from './worker-source.ts';
+import { configurationForJob } from '../../../../platform/ai/execution-snapshot.ts';
 interface Outcome { proposal?: ActivityProposal; error?: JobRow['error_code']; missing?: string[];
   report?: ActivitySourceReport[]; usage?: { inputTokens: number | null; outputTokens: number | null } }
 export class ActivityAiWorker {
@@ -51,12 +52,15 @@ export class ActivityAiWorker {
     this.sources.set(row.id, grants);
     for (const grant of grants) this.grants.set(grant, row);
     this.controllers.add(controller);
-    const timer = setTimeout(() => controller.abort(), this.options.configuration.deadlineMs);
+    let options = this.options, invalidProfile = false;
+    try { options = { ...this.options, configuration: configurationForJob(this.options.configuration, row.execution_profile, 'activities') }; }
+    catch { invalidProfile = true; }
+    const timer = setTimeout(() => controller.abort(), options.configuration.deadlineMs);
     try {
       if (this.stopped) controller.abort();
-      if (!await this.check(row, signal)) return true;
-      const outcome = await this.execute(row, grants, signal);
-      await this.complete(row, signal, outcome);
+      if (!await this.check(row, signal, options)) return true;
+      const outcome: Outcome = invalidProfile ? { error: 'AI_UNAVAILABLE' } : await this.execute(row, grants, signal, options);
+      await this.complete(row, signal, outcome, options);
       return true;
     } finally {
       clearTimeout(timer);
@@ -65,47 +69,50 @@ export class ActivityAiWorker {
       this.controllers.delete(controller);
     }
   }
-  private check(row: JobRow, signal: AbortSignal): Promise<boolean> {
-    return transaction(this.options, async tx => {
-      const valid = await validSource(this.options, tx, row, signal, this.sources.get(row.id));
+  private check(row: JobRow, signal: AbortSignal, options: ActivityAiOptions): Promise<boolean> {
+    return transaction(options, async tx => {
+      const valid = await validSource(options, tx, row, signal, this.sources.get(row.id));
       const current = await fenced(tx, row, this.options.configuration.maxJobAgeMs);
       if (!current) return false;
       if (valid && !current.expired && !signal.aborted) return true;
-      await this.finish(tx, row, valid ? 'FAILED' : 'STALE', { error: valid ? 'AI_TIMEOUT' : null });
+      await this.finish(tx, row, valid ? 'FAILED' : 'STALE', { error: valid ? 'AI_TIMEOUT' : null }, options);
       return false;
     });
   }
-  private async execute(row: JobRow, grants: ActivitySourceGrant[], signal: AbortSignal): Promise<Outcome> {
+  private async execute(row: JobRow, grants: ActivitySourceGrant[], signal: AbortSignal, options: ActivityAiOptions): Promise<Outcome> {
     let prepared: Awaited<ReturnType<typeof prepare>>;
-    try { prepared = await prepare(this.options, row, grants, signal); }
-    catch (error) { return { error: errorCode(error, false) }; }
-    if (!await this.dispatch(row, signal, prepared.count)) return { error: 'AI_BUDGET_EXCEEDED' };
     try {
-      const result = await bounded(() => this.options.provider.generateActivity(prepared.input), signal);
+      options = { ...options, provider: options.providerForExecution?.(options.configuration) ?? options.provider };
+      prepared = await prepare(options, row, grants, signal);
+    }
+    catch (error) { return { error: errorCode(error, false) }; }
+    if (!await this.dispatch(row, signal, prepared.count, options)) return { error: 'AI_BUDGET_EXCEEDED' };
+    try {
+      const result = await bounded(() => options.provider.generateActivity(prepared.input), signal);
       const parsed = proposal(result.json, prepared.input);
       return { ...parsed, error: parsed.missing ? 'INSUFFICIENT_CONTENT' : null, usage: result,
         report: prepared.input.sources.map(s => ({ sourceId: s.sourceId, status: 'READ', pageCount: s.pageCount, warnings: s.warnings })) };
     } catch (error) { return { error: errorCode(error, true) }; }
   }
-  private dispatch(row: JobRow, signal: AbortSignal, count: number): Promise<boolean> {
-    return transaction(this.options, async tx => {
-      const valid = await validSource(this.options, tx, row, signal, this.sources.get(row.id));
+  private dispatch(row: JobRow, signal: AbortSignal, count: number, options: ActivityAiOptions): Promise<boolean> {
+    return transaction(options, async tx => {
+      const valid = await validSource(options, tx, row, signal, this.sources.get(row.id));
       const current = await fenced(tx, row, this.options.configuration.maxJobAgeMs);
       if (!current || !valid || current.expired || signal.aborted || current.dispatch_count > 0) return false;
-      return reserve(tx, current, count, this.options.configuration);
+      return reserve(tx, current, count, options.configuration);
     });
   }
-  private complete(row: JobRow, signal: AbortSignal, outcome: Outcome): Promise<void> {
-    return transaction(this.options, async tx => {
-      const valid = await validSource(this.options, tx, row, signal.aborted ? new AbortController().signal : signal, this.sources.get(row.id));
+  private complete(row: JobRow, signal: AbortSignal, outcome: Outcome, options: ActivityAiOptions): Promise<void> {
+    return transaction(options, async tx => {
+      const valid = await validSource(options, tx, row, signal.aborted ? new AbortController().signal : signal, this.sources.get(row.id));
       const current = await fenced(tx, row, this.options.configuration.maxJobAgeMs);
       if (!current) return;
       await this.finish(tx, row, !valid ? 'STALE' : outcome.error || current.expired ? 'FAILED' : 'READY',
-        current.expired ? { ...outcome, error: current.dispatch_started_at ? 'PROVIDER_OUTCOME_UNKNOWN' : 'AI_TIMEOUT' } : outcome);
+        current.expired ? { ...outcome, error: current.dispatch_started_at ? 'PROVIDER_OUTCOME_UNKNOWN' : 'AI_TIMEOUT' } : outcome, options);
     });
   }
-  private async finish(tx: Transaction, row: JobRow, state: string, outcome: Outcome): Promise<void> {
-    await settle(tx, row, this.options.configuration, outcome.usage);
+  private async finish(tx: Transaction, row: JobRow, state: string, outcome: Outcome, options: ActivityAiOptions): Promise<void> {
+    await settle(tx, row, options.configuration, outcome.usage);
     await tx.query(`UPDATE activity_ai_generations SET state=$3,proposal=$4::jsonb,error_code=$5,
       source_report=$6::jsonb,missing_information=$7::jsonb,lease_nonce=NULL,lease_until=NULL,
       completed_at=clock_timestamp(),updated_at=clock_timestamp() WHERE id=$1::uuid AND lease_nonce=$2::uuid RETURNING id`,

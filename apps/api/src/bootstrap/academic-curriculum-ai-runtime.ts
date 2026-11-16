@@ -6,6 +6,7 @@ import { type StructuredExtractionPort } from '../../../../src/core/domain/index
 import type { ClassroomPorts } from '../modules/classrooms/infrastructure/contracts.ts';
 import { ClassroomAiService } from '../modules/curriculum/infrastructure/ai/service.ts';
 import { ClassroomAiWorker } from '../modules/curriculum/infrastructure/ai/worker.ts';
+import type { ClassroomAiConfiguration } from '../modules/curriculum/application/ai-contracts.ts';
 
 import type { StructuredActivityGenerationPort } from '../../../../src/core/domain/index.ts';
 import type { StudentAiProvider } from '../modules/grading/infrastructure/student-ai/worker.ts';
@@ -20,7 +21,8 @@ export class ClassroomAiRuntime {
     const reader = createDurableApprovedPlanReader({ files,
       authorize: (input, signal, tx) => this.worker.authorizeClaim(input, signal, tx) });
     const options = { database, authenticate, reader, configuration,
-      provider: override?.provider ?? createGeminiExtractionAdapter(configuration) };
+      provider: override?.provider ?? createGeminiExtractionAdapter(configuration),
+      providerForExecution: override ? undefined : (config: ClassroomAiConfiguration) => createGeminiExtractionAdapter({ ...configuration, ...config }) };
     this.service = new ClassroomAiService(options);
     this.worker = new ClassroomAiWorker(options);
   }

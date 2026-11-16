@@ -30,24 +30,25 @@ registerHooks({ load(url, context, nextLoad) {
   }).outputText };
 } });
 import { createHash } from 'node:crypto';
-// SQL expression snapshots from the pre-migration implementation at 29fda64.
-const originalSqlHashes = {
+// Lock SQL expressions from 29fda64, with the approved per-unit progress and
+// submission review projections updated by UI Lab parity.
+const reviewedSqlHashes = {
   "grading/grading": "29c0b6f5808f6d8268eb4b0223d76861d7a8b263ca65f40876ffad17484cc38c",
   "grading/grade-publication": "e288984198f6e32f08c1f68ea495b7888d1ad46782d64017bcb193de7f166279",
   "grading/grade-corrections": "648819d415d18ae7198882f5122df426c86d0045448ed70ffefef9a689c5c917",
-  "grading/progress": "ef8920b400e5c667596d813b71ba14994a55d6e30fabf3c1cd7297c83fbd170e",
+  "grading/progress": "6430dbd5443e8e01685497d46ea5f98eeabb91a4cd4dac28ff350ec7f7b71547",
   "grading/grading-ai/service": "e12a2b3f5e54499cfd71126011f7e0549760a95205fd8ecb01f1efe8c71db858",
   "participation/activity-session": "ba23e0e77db5f89b7b8959b45b205a3f28ebbd7d1995da39d2e4392c715dc39e",
   "participation/activity-eligibility": "b8a2cc86f1dca0ec90c7293d978f79afdd9767a7e43d2a974910f12943ed4c79",
   "participation/activity-events": "5259861d528955783e52fecc9d14bf272b926c4eee8e5062772434450bdb4c24",
   "participation/attempt-access": "1fe1244d38c7cd31453bf0e6c25e8280f84f18b59d6968f0f5f1035c8daa95ef",
   "participation/activity-participation": "fb2ef411acbb180d56870f2ef1ec2d46d8a0a2e1937c51b8d14d17f92ece81b8",
-  "participation/activity-history": "5404210bafab978c7850bd8753f69c9d203c0d298b81799fbb5ac6db00385d4e",
+  "participation/activity-history": "6feb2ae38d64813cfc6bc204d7db99f77c1fccde14a8bd7c8daab7eda41422ec",
   "participation/questionnaire-attempts": "487e21a89e97046c22d320e35d89d743e3a09e0990f861508efbdc7e860ad691",
   "participation/practical-submissions": "cb6ddcef7d97136afb8d3522a9c84c70bf6841f0d360b4fa2d8b7fb250b2c997",
   "participation/attempt-attachments": "bfd96010428eaeb70fdecd0d30c53dc55370540be9ceeb7e76f70615208205e1"
 };
-for (const [key, expected] of Object.entries(originalSqlHashes)) test(`${key} preserves original SQL expressions and lock modes`, () => {
+for (const [key, expected] of Object.entries(reviewedSqlHashes)) test(`${key} preserves reviewed SQL expressions and lock modes`, () => {
  const [module, ...parts] = key.split('/');
  const file = parts.join('/');
  const source = readFileSync(new URL(`../apps/api/src/modules/${module}/infrastructure/${file}-repository.ts`, import.meta.url), 'utf8');

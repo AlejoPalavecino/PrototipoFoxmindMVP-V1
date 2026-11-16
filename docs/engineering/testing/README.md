@@ -10,6 +10,8 @@ Elegir pruebas por contrato/permiso/datos/capas afectados. No atribuir una suite
 | Contrato de identidad | node --test tests/p31-contracts.test.mjs |
 | Guard de CI de corrección IA | node --test tests/issue2-ci-workflow.test.mjs |
 | Límites de módulos | npm run lint:boundaries |
+| Ejecución y SDK IA | Tests ai-text-execution, ai-official-transports, ai-sdk-clients, study-ai-execution y ai-foxy-preflight-budget incluidos en suite pure; build fresco antes del runner |
+| Reserva IA concurrente | tests/ai-study-reservation-database.test.mjs: PostgreSQL descartable, advisory lock retenido hasta vencer plazo; sin generación externa |
 | API fresca | node scripts/build-api.mjs |
 | Web | npm run web:build; typecheck del proyecto apps/web |
 | Selección de suites | scripts/ci-suites.mjs y scripts/complete-suite-inventory.json |
@@ -17,7 +19,7 @@ Elegir pruebas por contrato/permiso/datos/capas afectados. No atribuir una suite
 
 Los runners pueden crear PostgreSQL/S3/escáner/correo propios; otros requieren activación explícita de entorno/proveedor. Revisar el inventario y los guards antes de ejecutar. No descubrir secretos ni usar una base persistente como fixture.
 
-El helper de fuentes `tests/helpers/load-ts-module.mjs` pasa el nombre real del archivo a TypeScript para distinguir genéricos `.ts` de JSX `.tsx`. Las pruebas de inventario mantienen una lista explícita de las 53 migraciones y hashes históricos; agregar una migración exige actualizar la fixture deliberadamente, sin sustituirla por descubrimiento dinámico ni reescribir SQL.
+El helper de fuentes `tests/helpers/load-ts-module.mjs` pasa el nombre real del archivo a TypeScript para distinguir genéricos `.ts` de JSX `.tsx`. Las pruebas de inventario mantienen una lista explícita de las 55 migraciones y hashes históricos; agregar una migración exige actualizar la fixture deliberadamente, sin sustituirla por descubrimiento dinámico ni reescribir SQL.
 
 Las fixtures de upgrade siembran únicamente columnas presentes en su baseline histórico. `aiFixture` conserva `account_role='teacher'` por defecto para el esquema actual; sólo el escenario anterior a la migración de rol exclusivo usa `accountRoleColumn: false`. Esto no omite permisos ni altera snapshots o aserciones del upgrade.
 

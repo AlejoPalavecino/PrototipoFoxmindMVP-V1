@@ -1,4 +1,6 @@
-import { GoogleGenAI } from '@google/genai';
+import { getAiTextClient, countForExecution } from '../../../../platform/ai/profile-client.ts';
+import { configurationForJob, snapshotForTask } from '../../../../platform/ai/execution-snapshot.ts';
+import type { GenerateContentParameters } from '@google/genai';
 import { createHash } from 'node:crypto';
 import type { FoxyTextInput } from '../../../../../../../src/core/domain/index.ts';
 import type { GeminiClient } from '../../../../platform/ai/gemini-client.ts';
@@ -39,9 +41,9 @@ function validate(input: FoxyTextInput): void {
   if (input.sources.some(source => source.documentKeys.some(key => !documents.has(key)))) throw new AiError('AI_UNAVAILABLE');
 }
 export function createGeminiFoxyTextAdapter(configuration: AiConfiguration): GeminiFoxyTextAdapter {
-  const client = new GoogleGenAI({ apiKey: configuration.apiKey, vertexai: false,
-    httpOptions: { retryOptions: { attempts: 1 }, timeout: configuration.deadlineMs } });
-  return new GeminiFoxyTextAdapter({ client, configuration });
+  const client = getAiTextClient(configuration, 'foxy');
+  const pinned = configurationForJob(configuration, configuration.executionProfile ?? snapshotForTask(configuration, 'foxy'), 'foxy');
+  return new GeminiFoxyTextAdapter({ client, configuration: pinned });
 }
 export class GeminiFoxyTextAdapter {
   private readonly options: { client: GeminiClient; configuration: Configuration };
@@ -58,8 +60,8 @@ export class GeminiFoxyTextAdapter {
   async countTokens(input: FoxyTextInput): Promise<number> {
     return this.withDeadline(input, () => false, async signal => {
       const fingerprint = this.digest(input), contents = this.contents(input);
-      const response = await this.options.client.models.countTokens({ model: this.options.configuration.model, contents,
-        config: { abortSignal: signal, httpOptions: { retryOptions: { attempts: 1 } } } });
+      const response = await countForExecution(this.options.client, { model: this.options.configuration.model, contents,
+        config: { abortSignal: signal, httpOptions: { retryOptions: { attempts: 1 } } } }, this.generationRequest(input, signal));
       const count = response.totalTokens;
       if (!Number.isSafeInteger(count) || count! < 1) throw new AiError('AI_UNAVAILABLE');
       if (count! > this.options.configuration.maxInputTokens) throw new AiError('AI_INPUT_LIMIT');
@@ -72,19 +74,25 @@ export class GeminiFoxyTextAdapter {
     return this.withDeadline(input, () => dispatched, async signal => {
       const cached = this.preflight.get(input);
       if (cached !== undefined && cached !== this.digest(input)) throw new AiError('AI_UNAVAILABLE');
-      if (cached === undefined) await this.countTokens(input);
+      if (cached === undefined) {
+        if (this.options.client.models.countForGeneration) throw new AiError('AI_UNAVAILABLE');
+        await this.countTokens(input);
+      }
       const fingerprint = this.preflight.get(input); this.preflight.delete(input);
       if (!fingerprint || fingerprint !== this.digest(input) || signal.aborted) throw new AiError('AI_UNAVAILABLE');
-      const contents = foxyContents(input);
       const responseInput = { ...input, sources: input.sources.map(source => ({ ...source, documentKeys: [...source.documentKeys] })),
         documents: input.documents.map(doc => ({ ...doc, sourceKeys: [...doc.sourceKeys] })) };
       dispatched = true;
-      const response = await this.options.client.models.generateContent({ model: this.options.configuration.model, contents,
-        config: { abortSignal: signal, systemInstruction: foxyInstruction, responseMimeType: 'application/json',
-          responseJsonSchema: foxyResponseSchema, maxOutputTokens: this.options.configuration.maxOutputTokens,
-          automaticContinuation: false, candidateCount: 1, temperature: 0, httpOptions: { retryOptions: { attempts: 1 } } } });
+      const response = await this.options.client.models.generateContent(this.generationRequest(input, signal));
       return foxyResponse(response, responseInput);
     });
+  }
+  private generationRequest(input: FoxyTextInput, signal: AbortSignal): GenerateContentParameters {
+    return { model: this.options.configuration.model, contents: foxyContents(input), config: {
+      abortSignal: signal, systemInstruction: foxyInstruction, responseMimeType: 'application/json',
+      responseJsonSchema: foxyResponseSchema, maxOutputTokens: this.options.configuration.maxOutputTokens,
+      automaticContinuation: false, candidateCount: 1, temperature: 0, httpOptions: { retryOptions: { attempts: 1 } },
+    } };
   }
   private async withDeadline<T>(input: FoxyTextInput, dispatched: () => boolean, operation: (signal: AbortSignal) => Promise<T>): Promise<T> {
     if (input.signal.aborted) throw new AiError('AI_TIMEOUT');

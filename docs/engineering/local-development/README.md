@@ -33,6 +33,23 @@ El entorno de revisión del 2026-11-15 pertenece al worktree `C:/Users/alejo/.co
 
 Las llamadas de Foxy usan los adaptadores reales, sin overrides. La habilitación compartida AI_ENABLED también queda disponible para las otras familias de IA al solicitarlas desde la app. Un arranque no realiza generaciones de prueba por sí solo. El presupuesto es un control estimado interno; no es un tope de facturación del proveedor. [Registro de activación y QA](../../work-log/2026-11-08-root-local-gemini-runtime.md).
 
+## Perfiles IA y transición de pendientes
+
+El comportamiento habitual conserva Gemini y las variables `AI_MODEL`, límites y tarifas existentes. `AI_TEXT_PROFILES_JSON` permite sobrescribir por tarea textual el proveedor/modelo, versión de perfil, límites/plazo y tarifas. Las claves de tarea y los campos admitidos están en la [guía de configuración](../ai/README.md#configurar-perfiles-textuales); no configura visuales. Cambiar proveedor o modelo exige declarar `inputUsdPerMillion` y `outputUsdPerMillion`, sin precios inferidos.
+
+Claude es opt-in: requiere `AI_ANTHROPIC_ENABLED=true`, `AI_ANTHROPIC_API_KEY` y un perfil `provider: "anthropic"` con modelo y tarifas. Una clave sin habilitación no se usa. La base Gemini sigue siendo obligatoria; omitir Anthropic no impide trabajar con Gemini. Guardar claves sólo en la configuración privada existente, nunca en JSON de perfiles, registros o variables públicas. Configurar estos valores no autoriza una prueba paga por sí mismo.
+
+Antes de actualizar un destino autorizado a la versión con política persistente:
+
+1. Conservar la versión y configuración Gemini anteriores; evitar nuevas solicitudes IA y dejar terminar sus trabajos `QUEUED`/`RUNNING` en extracción, actividades, análisis, corrección, Foxy y Estudio. No inferir el modelo histórico desde una configuración recién modificada.
+2. Detener los ejecutores anteriores tras el drenaje. Aplicar la migración versionada sólo al destino autorizado, siguiendo la [guía de migraciones](database.md). Si ya está aplicada, `SELECT foxmind_ai_legacy_pending();` debe devolver `false` antes del primer arranque de la nueva política.
+3. Iniciar la nueva versión. Antes de arrancar workers, la API crea `ai_execution_policy` con baseline inmutable y perfiles activos validados. Si quedan pendientes NULL y todavía no existe política, el arranque falla con `AI_LEGACY_PENDING`; restaurar el orden de drenaje, sin rellenar snapshots ni eliminar trabajos para eludirlo.
+4. Para un cambio posterior de perfiles, mantener el baseline persistido y verificar ausencia de pendientes legacy. Los trabajos nuevos guardan el perfil activo; los existentes conservan su snapshot y tarifas. Un proveedor incompatible o sin configuración válida falla explícitamente, sin fallback.
+
+`execution_profile` contiene identidad técnica, límites y tarifas; no contiene claves, prompts, archivos ni respuestas. El marcador de conexión `application_name=foxmind-api-ai-execution-v1` evita escrituras accidentales de ejecutores incompatibles sobre trabajos con snapshot. No autentica una sesión SQL ni reemplaza permisos de base; no se debe usar cambiar el marcador como procedimiento de upgrade.
+
+La actualización del entorno local del checkout principal fue autorizada y verificada el2026-11-16:55 migraciones y perfiles iniciales Gemini, con respaldo restaurado y cliente Prisma real. El [recibo local](../../work-log/2026-11-16-root-ai-runtime-publication.md#actualización-local-posterior-autorizada--completada) identifica alcance y límites; no acredita actualización de otros entornos. Las suites automatizadas usan SDK/transporte sintético: verifican contratos y consumo de fixtures, no calidad educativa ni acceso real a Claude. Las pruebas reales requieren autorización y destino propios.
+
 ## Desarrollo con datos a conservar
 
 Identificar y autorizar por separado base, bucket, escáner, correo y claves. Configurar nombres de variables de identidad, archivos, aulas y web según sus módulos; no buscar credenciales retenidas ni ejecutar helpers históricos para recuperarlas.

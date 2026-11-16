@@ -220,3 +220,11 @@ Ampliación R1 del 2026-11-16: pantallas de carga de programa y análisis de Fox
 - **Acceptance:** Centro y flujos coinciden con UI Lab; lectura reversible, filtros, estados, foco y geometría en ambos roles. Destinos autorizados y revisión real encima de bandeja para invitación y evento de Agenda.
 - **Evidence:** 22 pares UI Lab–app en Ego Lite; flujos de ambos roles, lectura, carga/error/reintento, invitación y evento sobre bandeja, geometría de 3 diálogos a 320×480. 42 pruebas focales y build 5Y2oNee9Kg6G7hxDSMf5o READY. Registro docs/work-log/2026-11-16-root-notifications-exact.md.
 - **Blocker:** none
+
+### TASK-026 — Integrar y publicar el refactor UX/UI
+- **State:** VERIFYING
+- **Depends on:** TASK-023, TASK-024, TASK-025
+- **Owner:** root
+- **Acceptance:** Consolidar paridad completa, preservar la arquitectura de IA de main, validar candidato combinado y llevar una PR a main sin tocar datos retenidos.
+- **Evidence:** Commits fuente `08a97acc`, `bd4e49f9`, `be4deb6a`. API/web, arquitectura, suites focales y actualización descartable 55 → 63 pasaron. [Registro de publicación](../../docs/work-log/2026-11-16-root-ux-ui-publication.md).
+- **Blocker:** pendiente revisión de la suite completa y CI de la PR.

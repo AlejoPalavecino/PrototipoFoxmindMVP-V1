@@ -6,6 +6,7 @@ import { claim, fenced } from './queue.ts';
 import { reserve, settle } from './budget.ts';
 import { bounded, errorCode, prepare, proposal } from './execution.ts';
 import { businessSource, checkSource, requireGrant } from './worker-source.ts';
+import { configurationForJob } from '../../../../platform/ai/execution-snapshot.ts';
 
 interface Outcome { proposal?: ExtractedCurriculum; error?: ExtractionError;
   usage?: { inputTokens: number | null; outputTokens: number | null } }
@@ -50,31 +51,34 @@ export class ClassroomAiWorker {
     const grant = { ownerId: row.owner_id, draftId: row.draft_id, fileId: row.file_id, digest: row.source_digest };
     const controller = new AbortController(), signal = controller.signal;
     this.grants.set(grant, row); this.controllers.add(controller);
-    const timer = setTimeout(() => controller.abort(), this.options.configuration.deadlineMs);
+    let options = this.options, invalidProfile = false;
+    try { options = { ...this.options, configuration: configurationForJob(this.options.configuration, row.execution_profile, 'curriculum') }; }
+    catch { invalidProfile = true; }
+    const timer = setTimeout(() => controller.abort(), options.configuration.deadlineMs);
     try {
-      if (!await this.check(row, grant, signal)) return true;
-      const outcome = await this.execute(row, grant, signal);
-      await this.complete(row, grant, signal, outcome);
+      if (!await this.check(row, grant, signal, options)) return true;
+      const outcome: Outcome = invalidProfile ? { error: 'AI_UNAVAILABLE' } : await this.execute(row, grant, signal, options);
+      await this.complete(row, grant, signal, outcome, options);
       return true;
     } finally {
       clearTimeout(timer); this.grants.delete(grant); this.controllers.delete(controller);
     }
   }
-  private check(row: JobRow, grant: PlanGrant, signal: AbortSignal): Promise<boolean> {
-    return transaction(this.options, async tx => {
+  private check(row: JobRow, grant: PlanGrant, signal: AbortSignal, options: ClassroomAiOptions): Promise<boolean> {
+    return transaction(options, async tx => {
       const sourceOwner = await businessSource(tx, row);
       const pending = await fenced(tx, row, this.options.configuration.maxJobAgeMs, false);
       if (!pending) return false;
       if (pending.expired) {
         if (await fenced(tx, row, this.options.configuration.maxJobAgeMs))
-          await this.finish(tx, row, sourceOwner ? 'FAILED' : 'STALE', { error: sourceOwner ? 'AI_TIMEOUT' : undefined });
+          await this.finish(tx, row, sourceOwner ? 'FAILED' : 'STALE', { error: sourceOwner ? 'AI_TIMEOUT' : undefined }, options);
         return false;
       }
-      const valid = await checkSource(tx, this.options, row, grant, signal);
+      const valid = await checkSource(tx, options, row, grant, signal);
       const current = await fenced(tx, row, this.options.configuration.maxJobAgeMs);
       if (!current) return false;
       if (valid && !current.expired) return true;
-      await this.finish(tx, row, valid ? 'FAILED' : 'STALE', { error: valid ? 'AI_TIMEOUT' : undefined });
+      await this.finish(tx, row, valid ? 'FAILED' : 'STALE', { error: valid ? 'AI_TIMEOUT' : undefined }, options);
       return false;
     });
   }
@@ -85,39 +89,42 @@ export class ClassroomAiWorker {
         AND state='RUNNING' AND dispatch_started_at IS NULL RETURNING id`, row.id, row.lease_nonce);
     });
   }
-  private async execute(row: JobRow, grant: PlanGrant, signal: AbortSignal): Promise<Outcome> {
+  private async execute(row: JobRow, grant: PlanGrant, signal: AbortSignal, options: ClassroomAiOptions): Promise<Outcome> {
     let prepared: Awaited<ReturnType<typeof prepare>>;
-    try { prepared = await prepare(this.options, grant, signal); }
+    try {
+      options = { ...options, provider: options.providerForExecution?.(options.configuration) ?? options.provider };
+      prepared = await prepare(options, grant, signal);
+    }
     catch (error) { return { error: errorCode(error, false) }; }
-    const admitted = await this.dispatch(row, grant, signal, prepared.count);
+    const admitted = await this.dispatch(row, grant, signal, prepared.count, options);
     if (!admitted) return { error: 'AI_BUDGET_EXCEEDED' };
     try {
-      const result = await bounded(() => this.options.provider.extractStudyPlan(prepared.input), signal);
+      const result = await bounded(() => options.provider.extractStudyPlan(prepared.input), signal);
       const extracted = proposal(result.json);
       if (prepared.input.document.kind === 'text' && !extracted.warnings.includes('DOCX_IMAGES_OMITTED'))
         extracted.warnings.push('DOCX_IMAGES_OMITTED');
       return { proposal: extracted, usage: result };
     } catch (error) { return { error: errorCode(error, true) }; }
   }
-  private dispatch(row: JobRow, grant: PlanGrant, signal: AbortSignal, count: number): Promise<boolean> {
-    return transaction(this.options, async tx => {
-      const valid = await checkSource(tx, this.options, row, grant, signal);
+  private dispatch(row: JobRow, grant: PlanGrant, signal: AbortSignal, count: number, options: ClassroomAiOptions): Promise<boolean> {
+    return transaction(options, async tx => {
+      const valid = await checkSource(tx, options, row, grant, signal);
       const current = await fenced(tx, row, this.options.configuration.maxJobAgeMs);
       if (!current || !valid || current.expired || signal.aborted) return false;
       if (current.dispatch_count >= this.options.configuration.maxDispatches) return false;
-      return reserve(tx, current, count, this.options.configuration);
+      return reserve(tx, current, count, options.configuration);
     });
   }
-  private complete(row: JobRow, grant: PlanGrant, signal: AbortSignal, outcome: Outcome): Promise<void> {
-    return transaction(this.options, async tx => {
+  private complete(row: JobRow, grant: PlanGrant, signal: AbortSignal, outcome: Outcome, options: ClassroomAiOptions): Promise<void> {
+    return transaction(options, async tx => {
       // Completion still validates custody after deadline; the grant is fenced by DB lease.
-      const valid = await checkSource(tx, this.options, row, grant, signal.aborted ? new AbortController().signal : signal);
+      const valid = await checkSource(tx, options, row, grant, signal.aborted ? new AbortController().signal : signal);
       if (!await fenced(tx, row, this.options.configuration.maxJobAgeMs)) return;
-      await this.finish(tx, row, valid ? outcome.error ? 'FAILED' : 'READY' : 'STALE', outcome);
+      await this.finish(tx, row, valid ? outcome.error ? 'FAILED' : 'READY' : 'STALE', outcome, options);
     });
   }
-  private async finish(tx: Transaction, row: JobRow, state: string, outcome: Outcome): Promise<void> {
-    await settle(tx, row, this.options.configuration, outcome.usage);
+  private async finish(tx: Transaction, row: JobRow, state: string, outcome: Outcome, options: ClassroomAiOptions): Promise<void> {
+    await settle(tx, row, options.configuration, outcome.usage);
     await tx.query(`UPDATE classroom_curriculum_extractions SET state=$3,proposal=$4::jsonb,error_code=$5,
       lease_nonce=NULL,lease_until=NULL,completed_at=clock_timestamp(),updated_at=clock_timestamp()
       WHERE id=$1::uuid AND lease_nonce=$2::uuid RETURNING id`, row.id, row.lease_nonce, state,

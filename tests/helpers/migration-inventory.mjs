@@ -37,5 +37,7 @@ export const migrationInventory = Object.freeze([
   '202611150004_foxy_cancellation',
   '202611150006_invitation_decline',
   '202611150007_material_description',
+  '202611160001_ai_execution_profiles',
   '202611160001_foxy_attachment_links',
+  '202611160002_foxy_visual_editorial',
 ]);

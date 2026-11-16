@@ -1,6 +1,7 @@
 import type { ActivityGenerationView, ActivitySourceGrant, ActivitySourceSnapshot, ApprovedActivitySourceReader,
   StartActivityGeneration, ActivityProposal, ActivitySourceReport, StructuredActivityGenerationPort } from '../../../../../../../src/core/domain/index.ts';
 import type { ClassroomAiConfiguration } from '../../../curriculum/public.ts';
+import type { AiExecutionSnapshot } from '../../../../../../../src/core/contracts/ai-execution.ts';
 import type { Actor, Transaction } from '../../../classrooms/public.ts';
 
 export interface AiActivitySource extends ApprovedActivitySourceReader {
@@ -16,12 +17,14 @@ export interface ActivityAiAccess {
 export interface ActivityAiOptions {
   access: ActivityAiAccess; reader: AiActivitySource; provider: StructuredActivityGenerationPort;
   configuration: ClassroomAiConfiguration;
+  providerForExecution?: (configuration: ClassroomAiConfiguration) => StructuredActivityGenerationPort;
 }
 export interface CurriculumSnapshot {
   teacherId: string; unit: { id: string; name: string }; units?: { id: string; name: string }[];
   topics: { id: string; name: string; unitId?: string }[]; latestPlanId: string | null;
 }
 export interface JobRow {
+  execution_profile?: AiExecutionSnapshot | null;
   id: string; owner_id: string; classroom_id: string; unit_id: string; type: StartActivityGeneration['type'];
   base_revision: bigint | string; request_hash: string; input_payload: StartActivityGeneration;
   curriculum_snapshot: CurriculumSnapshot; source_snapshot: ActivitySourceSnapshot[]; source_report: ActivitySourceReport[];

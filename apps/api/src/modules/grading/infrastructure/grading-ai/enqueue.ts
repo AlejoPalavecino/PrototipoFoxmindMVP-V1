@@ -14,8 +14,9 @@ export async function enqueueSubmittedAttemptGradingAi(tx: Transaction, input: S
     FOR SHARE OF c,a,t`, input.classroomId, input.activityId, input.attemptId);
   if (!context?.ai_grading_enabled) return false;
   const inserted = await tx.query<{ id: string }>(`INSERT INTO grading_ai_jobs
-    (id,classroom_id,activity_id,attempt_id,owner_id,rubric_snapshot,epoch)
-    VALUES ($1::uuid,$2::uuid,$3::uuid,$4::uuid,$5::uuid,$6,$7::bigint)
+    (id,classroom_id,activity_id,attempt_id,owner_id,rubric_snapshot,epoch,execution_profile)
+    VALUES ($1::uuid,$2::uuid,$3::uuid,$4::uuid,$5::uuid,$6,$7::bigint,
+      (SELECT active_profiles->'grading' FROM ai_execution_policy WHERE singleton))
     ON CONFLICT (attempt_id) WHERE origin='AUTO' DO NOTHING RETURNING id`,
   randomUUID(), input.classroomId, input.activityId, input.attemptId, context.teacher_id,
   context.ai_grading_rubric, context.ai_grading_epoch ?? 0n);

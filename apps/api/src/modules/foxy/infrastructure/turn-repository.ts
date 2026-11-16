@@ -103,8 +103,10 @@ export function createFoxyTurnRepository() {
       const [next] = await tx.query<{ sequence: number }>('SELECT COALESCE(MAX(sequence),0)+1 AS sequence FROM foxy_turns WHERE conversation_id=$1::uuid', conversationId);
       if (!next) return fail('CONFLICT');
       const revision = String(BigInt(row.revision) + 1n), turnId = randomUUID();
-      const [turn] = await tx.query<TurnRow>(`INSERT INTO foxy_turns(id,owner_id,conversation_id,request_id,input_hash,sequence,purpose,message_text,snapshot,metadata,conversation_revision)
-        VALUES($1::uuid,$2::uuid,$3::uuid,$4::uuid,$5,$6,$7,$8,$9::jsonb,$10::jsonb,$11::bigint) RETURNING *`,
+      const [turn] = await tx.query<TurnRow>(`INSERT INTO foxy_turns(id,owner_id,conversation_id,request_id,input_hash,sequence,purpose,message_text,snapshot,metadata,conversation_revision,execution_profile)
+        VALUES($1::uuid,$2::uuid,$3::uuid,$4::uuid,$5,$6,$7,$8,$9::jsonb,
+          jsonb_set($10::jsonb,'{model}',COALESCE((SELECT active_profiles->'foxy'->'model' FROM ai_execution_policy WHERE singleton),$10::jsonb->'model')),
+          $11::bigint,(SELECT active_profiles->'foxy' FROM ai_execution_policy WHERE singleton)) RETURNING *`,
         turnId, owner, conversationId, request.requestId, hash, next.sequence, request.purpose, request.text, JSON.stringify(snapshot), JSON.stringify(metadata), revision);
       await tx.query('UPDATE foxy_conversations SET revision=$3::bigint,updated_at=clock_timestamp() WHERE owner_id=$1::uuid AND id=$2::uuid', owner, conversationId, revision);
       if (!turn) return fail('CONFLICT');

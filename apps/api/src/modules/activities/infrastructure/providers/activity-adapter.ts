@@ -1,4 +1,6 @@
-import { GoogleGenAI, type Content } from '@google/genai';
+import type { Content, GenerateContentParameters } from '@google/genai';
+import { getAiTextClient, countForExecution } from '../../../../platform/ai/profile-client.ts';
+import { configurationForJob, snapshotForTask } from '../../../../platform/ai/execution-snapshot.ts';
 import { createHash } from 'node:crypto';
 import { activityGenerationSchemaVersion, activityGenerationResponseSchemaV1, type ActivityGenerationInput,
   type StructuredActivityGenerationPort } from '../../../../../../../src/core/domain/index.ts';
@@ -15,9 +17,9 @@ function countContents(input: ActivityGenerationInput): Content[] {
   return [{ role: 'user', parts: [{ text: controls }] }, ...activityContents(input)];
 }
 export function createGeminiActivityGenerationAdapter(configuration: AiConfiguration) {
-  const client = new GoogleGenAI({ apiKey: configuration.apiKey, vertexai: false,
-    httpOptions: { retryOptions: { attempts: 1 }, timeout: configuration.deadlineMs } });
-  return new GeminiActivityGenerationAdapter({ client, configuration });
+  const client = getAiTextClient(configuration, 'activities');
+  const pinned = configurationForJob(configuration, configuration.executionProfile ?? snapshotForTask(configuration, 'activities'), 'activities');
+  return new GeminiActivityGenerationAdapter({ client, configuration: pinned });
 }
 export class GeminiActivityGenerationAdapter implements StructuredActivityGenerationPort {
   private readonly preflight = new WeakMap<ActivityGenerationInput, string>();
@@ -27,8 +29,8 @@ export class GeminiActivityGenerationAdapter implements StructuredActivityGenera
     return this.withDeadline(input, false, async signal => {
       const contents = countContents(input);
       const fingerprint = this.digest(input);
-      const response = await this.options.client.models.countTokens({ model: this.options.configuration.model, contents,
-        config: { abortSignal: signal, httpOptions: { retryOptions: { attempts: 1 } } } });
+      const response = await countForExecution(this.options.client, { model: this.options.configuration.model, contents,
+        config: { abortSignal: signal, httpOptions: { retryOptions: { attempts: 1 } } } }, this.generationRequest(input, signal));
       const count = response.totalTokens;
       if (!Number.isSafeInteger(count) || count! < 0) throw new AiError('AI_UNAVAILABLE');
       if (count! > this.options.configuration.maxInputTokens) throw new AiError('AI_INPUT_LIMIT');
@@ -39,16 +41,23 @@ export class GeminiActivityGenerationAdapter implements StructuredActivityGenera
   async generateActivity(input: ActivityGenerationInput) {
     let dispatched = false;
     return this.withDeadline(input, () => dispatched, async signal => {
-      if (this.preflight.get(input) !== this.digest(input)) await this.countActivityTokens({ ...input, signal });
+      if (this.preflight.get(input) !== this.digest(input)) {
+        if (this.options.client.models.countForGeneration) throw new AiError('AI_UNAVAILABLE');
+        await this.countActivityTokens({ ...input, signal });
+      }
       this.preflight.delete(input);
       if (signal.aborted) throw new AiError('AI_TIMEOUT');
       dispatched = true;
-      const response = await this.options.client.models.generateContent({ model: this.options.configuration.model,
-        contents: activityContents(input), config: { abortSignal: signal, systemInstruction: activitySystemInstruction, responseMimeType: 'application/json',
-          responseJsonSchema: activityGenerationResponseSchemaV1, maxOutputTokens: this.options.configuration.maxOutputTokens,
-          automaticContinuation: false, candidateCount: 1, temperature: 0, httpOptions: { retryOptions: { attempts: 1 } } } });
+      const response = await this.options.client.models.generateContent(this.generationRequest(input, signal));
       return activityResponse(response, input);
     });
+  }
+  private generationRequest(input: ActivityGenerationInput, signal: AbortSignal): GenerateContentParameters {
+    return { model: this.options.configuration.model, contents: activityContents(input), config: {
+      abortSignal: signal, systemInstruction: activitySystemInstruction, responseMimeType: 'application/json',
+      responseJsonSchema: activityGenerationResponseSchemaV1, maxOutputTokens: this.options.configuration.maxOutputTokens,
+      automaticContinuation: false, candidateCount: 1, temperature: 0, httpOptions: { retryOptions: { attempts: 1 } },
+    } };
   }
   private digest(input: ActivityGenerationInput): string {
     return createHash('sha256').update(JSON.stringify(countContents(input))).digest('hex');

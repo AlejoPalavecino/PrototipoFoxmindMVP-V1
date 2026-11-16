@@ -1,0 +1,12 @@
+# Integración UX/UI: documentación e inventarios
+
+- Agente: `parity_release_inventories` (implementación acotada; identificador de sesión no expuesto).
+- Fecha: 2026-11-16. Worktree `foxmind-ux-ui-merge/ProtipoFoxMind`, rama `codex/refactor-ux-ui`, base `be4deb6a6d83e8361fd55606134dc75492902535`; integración local con `69e2c014f0f1971a435e99bad2439ea130e779f4` en curso.
+- Alcance delegado: reconciliar documentación de datos y roadmap, inventarios y rutas de pruebas, migraciones simuladas y, sólo si es necesario, el mapa documental. No publicar ni tocar configuración privada, servicios, datos retenidos o cambios de otros escritores.
+- Estado inicial: `git ls-files -u` confirmó conflictos en las cinco superficies delegadas. El mapa documental entró por merge automático y se comprobará con el validador.
+- Antes del cambio, `node scripts/run-complete-suite.mjs --check` y `node --test tests/p8-migration-inventory.test.mjs` fallaron al leer marcadores del merge en JSON y JavaScript.
+- Resolución: documentación del candidato combinada sin atribuirle pruebas de sus padres; 64 modelos Prisma y 63 migraciones SQL. El inventario ordenado conserva las ocho migraciones UX/UI, incluida `202611160002_foxy_visual_editorial`, y la adición IA. No se tocaron migraciones ni tests de aceptación.
+- Inventario/rutas: se conservaron las 610 entradas de paridad, sus 54 exclusiones explícitas y las 13 adiciones de main (10 rápidas y 3 de base propia). Se clasificaron los 13 archivos UX/UI que faltaban: 11 rápidos y 2 con base propia (`classroom-delivery-review-state` y `classroom-progress-data`).
+- Evidencia: `node scripts/run-complete-suite.mjs --check` informó 636 entradas, 54 exclusiones y 23 rutas. `node --test tests/p8-migration-inventory.test.mjs tests/activity-migration-inventory.test.mjs tests/classroom-ai-migration.test.mjs tests/audit-complete-suite.test.mjs` pasó 19/19; la prueba C3 usa una base descartable y emitió sólo una deprecación de `pg`. `npm run docs:check` pasó (167 archivos, 1084 enlaces y 0 incidencias); no se modificó el mapa. `git diff --check HEAD` focal pasó.
+- Límite y siguiente paso: la coordinación verifica el candidato completo, incluidas sus migraciones nuevas en fixtures propias; la clasificación no ejecuta todas las pruebas. No hubo commits, publicación, arranque de proveedores o acceso a datos retenidos por esta unidad.
+- Reversión: quitar sólo los hunks de esta reconciliación desde Git; si se reconstruye el merge desde sus dos padres, resolver estas cinco rutas de nuevo. La unidad no reescribe ni revierte SQL.

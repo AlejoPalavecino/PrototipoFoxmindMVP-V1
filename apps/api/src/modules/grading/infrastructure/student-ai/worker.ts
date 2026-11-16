@@ -8,6 +8,7 @@ import type { ProgressService } from '../../application/progress.ts';
 import type { AiConfiguration as ClassroomAiConfiguration } from '../../../../platform/ai/configuration.ts';
 import { reserveAiTextBudget as reserve, settleAiTextBudget as settle } from '../../../../platform/ai/text-budget.ts';
 import { bounded } from '../../../../platform/ai/execution.ts';
+import { configurationForJob } from '../../../../platform/ai/execution-snapshot.ts';
 import { studentSnapshot, sameReferences, type StudentProgress, type StudentSnapshot } from './snapshot.ts';
 
 type ProviderInput = { evidence: StudentAiEvidence; signal: AbortSignal };
@@ -16,9 +17,10 @@ export interface StudentAiProvider {
   generateStudentAi(input: ProviderInput): Promise<{ json: unknown; inputTokens: number | null; outputTokens: number | null }>;
 }
 export type StudentAiAccess = { database: SqlDatabase; progressView: ProgressService['progressView'] };
-type Options = StudentAiAccess & { configuration: ClassroomAiConfiguration; provider: StudentAiProvider };
+type Options = StudentAiAccess & { configuration: ClassroomAiConfiguration; provider: StudentAiProvider;
+  providerForExecution?: (configuration: ClassroomAiConfiguration) => StudentAiProvider };
 type Member = { enrollment_id: string; classroom_id: string; student_id: string; owner_id: string };
-type Job = Member & { id: string; evidence_hash: string; lease_nonce: string; dispatch_count: number };
+type Job = Member & { id: string; evidence_hash: string; lease_nonce: string; dispatch_count: number; execution_profile?: unknown };
 
 export class StudentAiWorker {
   private stopped = false;
@@ -53,7 +55,7 @@ export class StudentAiWorker {
       const expired = await tx.query<Job>(`SELECT * FROM student_ai_reports WHERE state='RUNNING'
         AND lease_until<=clock_timestamp() ORDER BY lease_until LIMIT 50 FOR UPDATE SKIP LOCKED`);
       for (const job of expired) {
-        await settle(tx, job, this.options.configuration, undefined, 'student_ai_reports');
+        await settle(tx, job, this.configuration(job), undefined, 'student_ai_reports');
         await tx.query(`UPDATE student_ai_reports SET state='FAILED',error_code=CASE WHEN dispatch_started_at IS NULL
           THEN 'AI_TIMEOUT' ELSE 'PROVIDER_OUTCOME_UNKNOWN' END,lease_nonce=NULL,lease_until=NULL,
           updated_at=clock_timestamp() WHERE id=$1::uuid RETURNING id`, job.id);
@@ -90,17 +92,21 @@ export class StudentAiWorker {
     const snapshot = await this.snapshot(tx, member);
     if (!snapshot) return null;
     const digest = snapshot.hash, id = randomUUID(), nonce = randomUUID();
-    const [job] = await tx.query<Job>(`INSERT INTO student_ai_reports(id,enrollment_id,classroom_id,owner_id,evidence_hash,state,lease_nonce,lease_until,reference_map)
-      VALUES($1::uuid,$2::uuid,$3::uuid,$4::uuid,$5,'RUNNING',$6::uuid,clock_timestamp()+$7::bigint*interval '1 millisecond',$9::jsonb)
+    const [job] = await tx.query<Job>(`INSERT INTO student_ai_reports(id,enrollment_id,classroom_id,owner_id,evidence_hash,state,lease_nonce,lease_until,reference_map,execution_profile)
+      VALUES($1::uuid,$2::uuid,$3::uuid,$4::uuid,$5,'RUNNING',$6::uuid,
+        clock_timestamp()+(COALESCE((SELECT active_profiles->'analysis'->>'deadlineMs' FROM ai_execution_policy WHERE singleton)::bigint,$7::bigint-10000)+10000)*interval '1 millisecond',
+        $9::jsonb,(SELECT active_profiles->'analysis' FROM ai_execution_policy WHERE singleton))
       ON CONFLICT(enrollment_id,evidence_hash) DO UPDATE SET state='RUNNING',lease_nonce=EXCLUDED.lease_nonce,
-      lease_until=EXCLUDED.lease_until,attempt_count=student_ai_reports.attempt_count+
+      lease_until=clock_timestamp()+(COALESCE((student_ai_reports.execution_profile->>'deadlineMs')::bigint,$7::bigint-10000)+10000)*interval '1 millisecond',attempt_count=student_ai_reports.attempt_count+
         CASE WHEN student_ai_reports.error_code='AI_BUDGET_EXCEEDED' THEN 0 ELSE 1 END,error_code=NULL,updated_at=clock_timestamp()
       WHERE student_ai_reports.state='FAILED' AND student_ai_reports.dispatch_count=0
+      AND (student_ai_reports.execution_profile IS NOT NULL OR NOT EXISTS(SELECT 1 FROM ai_execution_policy WHERE singleton))
       AND (student_ai_reports.error_code='AI_BUDGET_EXCEEDED' OR student_ai_reports.attempt_count<3)
       AND student_ai_reports.updated_at + CASE WHEN student_ai_reports.error_code='AI_BUDGET_EXCEEDED'
         THEN interval '24 hours' ELSE interval '1 minute' END <= clock_timestamp()
       RETURNING *, $8::uuid AS student_id`, id, member.enrollment_id,
-    member.classroom_id, member.owner_id, digest, nonce, this.options.configuration.deadlineMs + 10000, member.student_id,
+    member.classroom_id, member.owner_id, digest, nonce,
+    (this.options.configuration.legacyExecutionProfiles?.analysis?.deadlineMs ?? this.options.configuration.deadlineMs) + 10000, member.student_id,
     JSON.stringify(snapshot.references));
     return job ? { job, evidence: snapshot.evidence } : null;
   }
@@ -118,20 +124,27 @@ export class StudentAiWorker {
     return !!current && current.hash === job.evidence_hash && sameReferences(current, lease.reference_map)
       && JSON.stringify(current.evidence) === JSON.stringify(evidence);
   }
+  private configuration(job: Job): ClassroomAiConfiguration {
+    const base = this.options.configuration;
+    return job.execution_profile != null || base.executionProfiles || base.legacyExecutionProfiles || this.options.providerForExecution
+      ? configurationForJob(base, job.execution_profile, 'analysis') : base;
+  }
   private async execute(job: Job, evidence: StudentAiEvidence): Promise<void> {
-    const controller = new AbortController(), timer = setTimeout(() => controller.abort(), this.options.configuration.deadlineMs);
+    const configuration = this.configuration(job);
+    const controller = new AbortController(), timer = setTimeout(() => controller.abort(), configuration.deadlineMs);
     let result: Awaited<ReturnType<StudentAiProvider['generateStudentAi']>> | undefined;
     let error = 'AI_UNAVAILABLE', dispatched = false;
     try {
+      const provider = this.options.providerForExecution?.(configuration) ?? this.options.provider;
       const input = { evidence, signal: controller.signal };
       if (!await this.transaction(tx => this.current(tx, job, evidence))) { error = 'STALE'; return; }
-      const count = await bounded(() => this.options.provider.countStudentAiTokens(input), controller.signal);
-      if (!Number.isSafeInteger(count) || count < 1 || count > this.options.configuration.maxInputTokens) throw new Error('AI_INPUT_LIMIT');
+      const count = await bounded(() => provider.countStudentAiTokens(input), controller.signal);
+      if (!Number.isSafeInteger(count) || count < 1 || count > configuration.maxInputTokens) throw new Error('AI_INPUT_LIMIT');
       const approved = await this.transaction(async tx => await this.current(tx, job, evidence)
-        && await reserve(tx, job, count, this.options.configuration, 'student_ai_reports'));
+        && await reserve(tx, job, count, configuration, 'student_ai_reports'));
       if (!approved) { error = 'AI_BUDGET_EXCEEDED'; return; }
       dispatched = true;
-      result = await bounded(() => this.options.provider.generateStudentAi(input), controller.signal);
+      result = await bounded(() => provider.generateStudentAi(input), controller.signal);
       validateStudentAiReport(result.json, evidence);
       error = '';
     } catch { error = dispatched ? 'PROVIDER_OUTCOME_UNKNOWN' : controller.signal.aborted ? 'AI_TIMEOUT' : 'AI_UNAVAILABLE'; }
@@ -142,7 +155,7 @@ export class StudentAiWorker {
         const [lease] = await tx.query(`SELECT id FROM student_ai_reports WHERE id=$1::uuid AND lease_nonce=$2::uuid
           AND state='RUNNING' FOR UPDATE`, job.id, job.lease_nonce);
         if (!lease) return;
-        await settle(tx, job, this.options.configuration, result, 'student_ai_reports');
+        await settle(tx, job, configuration, result, 'student_ai_reports');
         await tx.query(`UPDATE student_ai_reports SET state=$3,report=$4::jsonb,error_code=$5,lease_nonce=NULL,lease_until=NULL,
           updated_at=clock_timestamp() WHERE id=$1::uuid AND lease_nonce=$2::uuid RETURNING id`, job.id, job.lease_nonce,
         !valid ? 'STALE' : error ? 'FAILED' : 'READY', valid && !error ? JSON.stringify(result!.json) : null, error || null);

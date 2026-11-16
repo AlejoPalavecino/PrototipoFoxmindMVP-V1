@@ -53,6 +53,7 @@
     "test:study": "npm run api:build && node scripts/run-ci-suite.mjs --suite study"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "1.8.0",
     "@aws-sdk/client-s3": "3.1152.0",
     "@google/genai": "2.31.0",
     "@nestjs/common": "12.1.3",

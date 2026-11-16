@@ -1,8 +1,10 @@
-import { GoogleGenAI, type Content, type CountTokensParameters, type GenerateContentParameters,
+import { type Content, type CountTokensParameters, type GenerateContentParameters,
   type CountTokensResponse, type GenerateContentResponse } from '@google/genai';
 import { createHash } from 'node:crypto';
 import { studyPlanSchemaV1, type PlanDocument, type StructuredExtractionPort } from '../../../../../../../src/core/domain/index.ts';
 import type { AiConfiguration } from '../../../../platform/ai/configuration.ts';
+import { getAiTextClient, countForExecution } from '../../../../platform/ai/profile-client.ts';
+import { configurationForJob, snapshotForTask } from '../../../../platform/ai/execution-snapshot.ts';
 import { AiError } from '../../../../platform/ai/errors.ts';
 import { extractionResponse } from './gemini-response.ts';
 
@@ -23,9 +25,9 @@ function fingerprint(document: PlanDocument): string {
   return createHash('sha256').update(document.kind).update(document.kind === 'pdf' ? document.bytes : document.text).digest('hex');
 }
 export function createGeminiExtractionAdapter(configuration: AiConfiguration): GeminiExtractionAdapter {
-  const client = new GoogleGenAI({ apiKey: configuration.apiKey, vertexai: false,
-    httpOptions: { retryOptions: { attempts: 1 }, timeout: configuration.deadlineMs } });
-  return new GeminiExtractionAdapter({ client, configuration });
+  const client = getAiTextClient(configuration, 'curriculum');
+  const pinned = configurationForJob(configuration, configuration.executionProfile ?? snapshotForTask(configuration, 'curriculum'), 'curriculum');
+  return new GeminiExtractionAdapter({ client, configuration: pinned });
 }
 export class GeminiExtractionAdapter implements StructuredExtractionPort {
   private readonly client: GeminiClient;
@@ -74,23 +76,29 @@ export class GeminiExtractionAdapter implements StructuredExtractionPort {
     } finally { clearTimeout(timer); input.signal.removeEventListener('abort', abort); }
   }
   private async generate(document: PlanDocument, signal: AbortSignal, dispatch: () => void) {
-    const { model, maxOutputTokens } = this.configuration;
     const content = contents(document);
     const cached = this.preflight.get(document); this.preflight.delete(document);
-    if (!cached || cached.digest !== fingerprint(document)) await this.count(content, signal);
+    if (!cached || cached.digest !== fingerprint(document)) {
+      if (this.client.models.countForGeneration) throw new AiError('AI_UNAVAILABLE');
+      await this.count(content, signal);
+    }
     if (signal.aborted) throw new AiError('AI_TIMEOUT');
     dispatch();
-    const response = await this.client.models.generateContent({ model, contents: content, config: {
+    const response = await this.client.models.generateContent(this.generationRequest(content, signal));
+    return extractionResponse(response);
+  }
+  private generationRequest(content: Content[], signal: AbortSignal): GenerateContentParameters {
+    const { model, maxOutputTokens } = this.configuration;
+    return { model, contents: content, config: {
       abortSignal: signal, responseMimeType: 'application/json', responseJsonSchema: studyPlanSchemaV1,
       maxOutputTokens, automaticContinuation: false, candidateCount: 1, temperature: 0,
       httpOptions: { retryOptions: { attempts: 1 } },
-    } });
-    return extractionResponse(response);
+    } };
   }
   private async count(content: Content[], signal: AbortSignal): Promise<number> {
     const { model, maxInputTokens } = this.configuration;
-    const count = await this.client.models.countTokens({ model, contents: content,
-      config: { abortSignal: signal, httpOptions: { retryOptions: { attempts: 1 } } } });
+    const count = await countForExecution(this.client, { model, contents: content,
+      config: { abortSignal: signal, httpOptions: { retryOptions: { attempts: 1 } } } }, this.generationRequest(content, signal));
     if (!Number.isSafeInteger(count.totalTokens) || count.totalTokens! < 0) throw new AiError('AI_UNAVAILABLE');
     if (count.totalTokens! > maxInputTokens) throw new AiError('AI_INPUT_LIMIT');
     return count.totalTokens!;
