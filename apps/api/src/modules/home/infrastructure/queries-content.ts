@@ -1,9 +1,10 @@
 import { baseJson, targetJson, instant } from './query-values.ts';
 export const queriesQuery = `SELECT p.id,
-  ${baseJson('p.id', "left(regexp_replace(p.body,'[[:cntrl:]]',' ','g'),160)", targetJson('wall', ",'postId',p.id"))}
-  || jsonb_build_object('updatedAt',${instant('GREATEST(p.created_at,p.edited_at,reply.changed_at)')}) AS item,
+  ${baseJson('p.id', "coalesce(nullif(btrim(p.title),''),left(regexp_replace(p.body,'[[:cntrl:]]',' ','g'),160))", targetJson('wall', ",'postId',p.id"))}
+  || jsonb_build_object('authorName',concat(author.first_name,' ',author.last_name),'updatedAt',${instant('GREATEST(p.created_at,p.edited_at,reply.changed_at)')}) AS item,
   ${instant('GREATEST(p.created_at,p.edited_at,reply.changed_at)')} || '|' || p.id::text AS sort_key
   FROM rooms c JOIN wall_posts p ON p.classroom_id=c.id AND p.type='QUERY' AND p.removed_at IS NULL
+  JOIN users author ON author.id=p.author_id
   LEFT JOIN LATERAL (SELECT max(GREATEST(created_at,edited_at)) AS changed_at FROM wall_replies
     WHERE post_id=p.id AND removed_at IS NULL) reply ON true
   WHERE c.role='teacher' AND c.archived_at IS NULL

@@ -65,7 +65,7 @@ test('draft creates the conversation only on Generate and retries the same reque
   await view.flush();
   assert.deepEqual(calls, []);
   assert.deepEqual(panel().jobs, []);
-  assert.equal(panel().kind, 'IMAGE');
+  assert.equal(panel().kind, 'DIAGRAM');
   assert.equal(panel().prompt, '');
   panel().actions.setPrompt('Una imagen de la luz');
   panel().actions.setAspectRatio('4:3');
@@ -79,7 +79,7 @@ test('draft creates the conversation only on Generate and retries the same reque
   panel().actions.start();
   await view.flush();
   assert.deepEqual(calls[0], calls[1]);
-  assert.deepEqual(calls.slice(2), [['selected'], ['kind', 'IMAGE'], ['ratio', '4:3'], ['prompt', 'Una imagen de la luz'], ['start', 'new']]);
+  assert.deepEqual(calls.slice(2), [['selected'], ['kind', 'DIAGRAM'], ['ratio', '4:3'], ['prompt', 'Una imagen de la luz'], ['start', 'new']]);
  } finally { view.close(); }
 });
 
@@ -89,4 +89,44 @@ test('pending visual navigation exposes an actionable leave dialog even with res
  const {FoxyWorkspaceSession}=componentWithPorts("apps/web/src/screens/foxy-workspace-session.tsx",{"../application/foxy-workspace":{useFoxyWorkspace:()=>({state,runtime,initializing:false})},
 "../features/foxy/index.ts":{...componentWithPorts('apps/web/src/features/foxy/index.ts', {}),useFoxyWorkspaceActions:()=>({actions,ui}),FoxyWorkspace:()=>null,FoxyVisualWorkspace:()=>null},
 "./foxy-resource-workspace":{FoxyResourceWorkspace:()=>null}});const view=hookView(FoxyWorkspaceSession,{subjectId:'teacher',onIdentityRequired:()=>{}});try{await view.flush();const html=renderToStaticMarkup(view.tree);assert.match(html,/pendiente|confirmar|reintentar/iu);assert.match(html,/seguir|permanecer|cancelar/iu);}finally{view.close();}
+});
+
+test('opening a visual uses the reader and retains publication state until sharing is explicitly requested', async () => {
+ const conversationId = 'conversation';
+ const publication = { assetId: 'asset', pending: { requestId: 'stable' } };
+ const state = {
+  chat: { current: { id: conversationId, context: { kind: 'GENERAL' } } },
+  visual: { jobs: [{ id: 'job', state: 'READY', assetId: 'asset' }], selectedId: 'job' },
+  visualPublication: publication, visualEditor:{assetId:'asset',inspection:null}, classrooms: [],
+ };
+ const runtime = { visual: {}, visualPublication: {} };
+ const actions = {
+  chat: {},
+  openVisualCreation: (id, _jobId, selected) => { assert.equal(id, conversationId); selected(); },
+ };
+ function VisualPanel() { return null; }
+ function VisualReader() { return null; }
+ const { FoxyWorkspaceSession } = componentWithPorts('apps/web/src/screens/foxy-workspace-session.tsx', {
+  '../application/foxy-workspace': { useFoxyWorkspace: () => ({ state, runtime, initializing: false }) },
+  '../features/foxy/index.ts': {
+   ...componentWithPorts('apps/web/src/features/foxy/index.ts', {}),
+   useFoxyWorkspaceActions: () => ({ actions, ui: {} }),
+   FoxyWorkspace: () => null, FoxyVisualWorkspace: VisualPanel, FoxyVisualReaderDialog:VisualReader,
+  },
+  './foxy-resource-workspace': { FoxyResourceWorkspace: () => null },
+ });
+ const view = hookView(FoxyWorkspaceSession, { subjectId: 'teacher', onIdentityRequired() {} });
+ try {
+  await view.flush();
+  descendants(view.tree, node => typeof node.props.onOpenCreation === 'function')[0].props.onOpenCreation({ conversationId, visualJobId: 'job' });
+  await view.flush();
+  assert.equal(descendants(view.tree,node=>node.type===VisualPanel).length,0);
+  const reader=descendants(view.tree,node=>node.type===VisualReader)[0];
+  assert.equal(reader.props.assetId,'asset');
+  assert.equal(reader.props.sharePending,true);
+  assert.equal(reader.props.sharing.props.state,publication);
+  reader.props.onClose();await view.flush();assert.equal(descendants(view.tree,node=>node.type===VisualReader).length,0);
+  descendants(view.tree,node=>typeof node.props.onOpenCreation==='function')[0].props.onOpenCreation({conversationId,visualJobId:'job'});await view.flush();
+  assert.equal(descendants(view.tree,node=>node.type===VisualReader)[0].props.sharing.props.state,publication);
+ } finally { view.close(); }
 });

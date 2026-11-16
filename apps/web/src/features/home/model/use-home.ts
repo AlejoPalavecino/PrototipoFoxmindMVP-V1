@@ -1,4 +1,5 @@
 'use client';
+import { completeHomeQueue } from './home-queue.ts';
 import { useCallback,useEffect,useRef,useState } from 'react';
 import type { HomeModuleName, HomeResponse } from '../../../../../../src/core/domain/index.ts';
 import { HomeClientError, type HomeClient } from '../api/home-api.ts';
@@ -39,12 +40,12 @@ export function useHome(client:HomeClient|undefined,subjectId?:string,focusedCla
       }
       for(const module of ['review','queries'] as const){
         const order=orderRef.current[module];
-        if(order===(module==='review'?'asc':'desc'))continue;
+
         try{
-          const result=await client.page({module,timeZone,cursor:null,order},current.signal);
+          const result=order===(module==='review'?'asc':'desc')?{subjectId:data.subjectId,module,page:data.modules[module]}:await client.page({module,timeZone,cursor:null,order},current.signal);
           if(result.subjectId!==data.subjectId)throw new HomeClientError('FORBIDDEN',403);
           if(result.module!==module)throw new HomeClientError('SERVICE_UNAVAILABLE',503);
-          data.modules={...data.modules,[module]:result.page};
+          data.modules={...data.modules,[module]:await completeHomeQueue(client,module,result.page,data.subjectId,timeZone,order,current.signal)};
         }catch(error){
           if(current.signal.aborted||['AUTH_REQUIRED','EMAIL_VERIFICATION_REQUIRED','FORBIDDEN'].includes((error as {code?:string}).code??''))throw error;
           data.modules={...data.modules,[module]:{status:'error',code:'SERVICE_UNAVAILABLE',retryable:true}};
@@ -68,6 +69,8 @@ export function useHome(client:HomeClient|undefined,subjectId?:string,focusedCla
       const result=await client.page({module,timeZone,cursor:null,...(order?{order}:{})},current?.signal);
       if(current?.signal.aborted || generation.current!==version||sequences.current[module]!==sequence)return;
       if(result.module!==module)throw new HomeClientError('SERVICE_UNAVAILABLE',503);
+      if(module==='review'||module==='queries')result.page=await completeHomeQueue(client,module,result.page,result.subjectId,timeZone,order!,current?.signal);
+      if(current?.signal.aborted || generation.current!==version||sequences.current[module]!==sequence)return;
       setState(old=>!old.data || old.data.subjectId!==result.subjectId ? {owner:subjectId,data:null,error:'FORBIDDEN',loading:false}
         : {...old,data:{...old.data,modules:{...old.data.modules,[module]:result.page}}});
     }catch(error){

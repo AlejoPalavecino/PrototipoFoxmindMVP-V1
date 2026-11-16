@@ -4,7 +4,7 @@ import type { SqlTransaction } from '../../../../../../src/core/contracts/sql.ts
 import type { FoxyGroundingSnapshot } from '../../../../../../src/core/domain/foxy/grounding.ts';
 import type { FoxyClassroomReadContext } from './context-catalog.ts';
 import { snapshotError } from './grounding-sources.ts';
-import { rebuildGrounding } from './grounding-rebuild.ts';
+import { rebuildGrounding, snapshotSelection } from './grounding-rebuild.ts';
 
 type Conversations = { get(tx: SqlTransaction, owner: string, id: string): Promise<{ context: FoxyContext } | null> };
 export class FoxyGroundingSnapshotService {
@@ -37,8 +37,7 @@ export class FoxyGroundingSnapshotService {
   }
   async revalidate(request: unknown, conversationId: string, snapshot: FoxyGroundingSnapshot): Promise<boolean> {
     try {
-      const current = await this.capture(request, conversationId, { topicIds: snapshot.curriculum?.selectedTopicIds ?? [],
-        sourceIds: snapshot.sources.map(source => source.sourceId) });
+      const current = await this.capture(request, conversationId, snapshotSelection(snapshot));
       return isDeepStrictEqual(current, snapshot);
     } catch (error) {
       if ((error as { code?: unknown })?.code === 'FORBIDDEN') throw error;

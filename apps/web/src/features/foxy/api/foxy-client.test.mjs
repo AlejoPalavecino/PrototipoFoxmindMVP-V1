@@ -8,6 +8,14 @@ const conversation={requestId:randomUUID(),title:'Chat',context:{kind:'GENERAL'}
 const message={requestId:randomUUID(),revision:'0',purpose:'CHAT',text:'Hola',selection:{topicIds:[],sourceIds:[]}};
 const create=(fetcher,notify)=>{const api=loadTsModule("apps/web/src/features/foxy/api/foxy-client.ts");assert.equal(typeof api.createWebFoxyClient,'function');return api.createWebFoxyClient(fetcher,notify);};
 
+test('visual editorial PATCH preserves the idempotent request and refreshes CSRF',async()=>{
+ const calls=[],input={expectedRevision:'3',requestId:randomUUID(),title:'Revisado',description:'Texto guardado'};
+ const client=create(async(path,init)=>{calls.push({path,...init});return Response.json(path.includes('/auth/csrf')?{csrfToken:'synthetic'}:{asset:{id:cid},editorial:{revision:'4',title:input.title,description:input.description}});});
+ const result=await client.updateVisualEditorial(cid,input);
+ assert.equal(result.editorial.revision,'4');assert.equal(calls[0].path,'/api/v1/auth/csrf');assert.equal(calls[1].path,`${root}/assets/${cid}/editorial`);
+ assert.equal(calls[1].method,'PATCH');assert.deepEqual(JSON.parse(calls[1].body),input);assert.equal(calls[1].headers['X-CSRF-Token'],'synthetic');assert.equal(calls[1].cache,'no-store');
+});
+
 test('web client routes reads and mutations with fresh CSRF and private fetch policy',async()=>{
   const calls=[];let csrf=0;
   const client=create(async(path,init)=>{calls.push({path,...init});if(String(path).includes('/auth/csrf'))return Response.json({csrfToken:`token-${++csrf}`});

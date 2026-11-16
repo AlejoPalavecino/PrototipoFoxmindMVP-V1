@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { wizard, advance, nodes, button, text, initialDraft, manualPlan } from './helpers/wizard-reference/component-harness.mjs';
+import { wizard, advance, nodes, button, text, initialDraft, manualPlan, readStructuredPlan, editStructuredPlan } from './helpers/wizard-reference/component-harness.mjs';
 import { draftPayload } from '../apps/api/src/modules/classrooms/infrastructure/policy.ts';
 import { parseClassroomPlan, formatClassroomPlan, prepareClassroomPlan } from '../apps/web/src/features/curriculum/model/WizardPlanText.ts';
 
@@ -9,8 +9,7 @@ test('Crear aula presenta los cuatro pasos aprobados', async () => {
   try {
     const steps = nodes(f.view, node => node.type === 'ol')[0];
     assert.equal(steps.props.children.length, 4);
-    assert.match(text(steps), /Datos del aula/);
-    assert.match(text(steps), /Unidades y temas/);
+    for(const label of ['Tu aula','El programa','El recorrido','Todo listo']) assert.ok(text(steps).includes(label));
     assert.equal(f.calls.length, 0, 'abrir el wizard no publica ni guarda datos sin cambios');
   } finally { f.close(); }
 });
@@ -21,8 +20,8 @@ test('el tercer paso exige unidades y temas aunque el documento esté aprobado',
   const f = await wizard({ draft });
   try {
     await manualPlan(f);
-    assert.ok(nodes(f.view, node => node.type === 'textarea' && node.props['aria-label'] === 'Unidades y temas').length);
-    assert.ok(button(f.view, 'Guardar plan y continuar'));
+    assert.deepEqual(readStructuredPlan(f.view), [{name:'',topics:[{name:''}]}]);
+    assert.ok(button(f.view, 'Continuar'));
     await advance(f.view);
     assert.match(text(f.view.tree), /al menos una unidad con un tema/i);
     assert.equal(f.uploads.length, 0);
@@ -45,15 +44,15 @@ test('plan escrito permanece editable al volver y publica la revisión confirmad
   const f = await wizard({ draft, call: async (path, _method, input) => path.endsWith('/publish') ? { id: 'classroom', code: 'CODE' } : { ...draft, revision: '2', payload: input.payload } });
   try {
     await manualPlan(f);
-    nodes(f.view, node => node.type === 'textarea' && node.props['aria-label'] === 'Unidades y temas')[0].props.onChange({ target: { value: 'Unidad 1 · Vida\nCélulas\nEcosistemas' } });
-    await f.view.flush();
+    const plan = [{name:'Unidad 1 · Vida',topics:[{name:'Células'},{name:'Ecosistemas'}]}];
+    await editStructuredPlan(f.view, plan);
     button(f.view, 'Atrás').props.onClick(); await f.view.flush();
     assert.equal(f.published.length, 0);
     await advance(f.view);
-    assert.equal(nodes(f.view, node => node.type === 'textarea' && node.props['aria-label'] === 'Unidades y temas')[0].props.value, 'Unidad 1 · Vida\nCélulas\nEcosistemas');
+    assert.deepEqual(readStructuredPlan(f.view), plan);
     await advance(f.view);
     await advance(f.view);
-    const patch = f.calls.find(call => call[1] === 'PATCH');
+    const patch = f.calls.filter(call => call[1] === 'PATCH').at(-1);
     assert.deepEqual(patch[2].payload.units, [{ name: 'Unidad 1 · Vida', topics: [{ name: 'Células' }, { name: 'Ecosistemas' }] }]);
     const publication = f.calls.find(call => call[0].endsWith('/publish'));
     assert.deepEqual(publication[2], { revision: '2' });
@@ -66,7 +65,7 @@ test('archivo seleccionado pendiente bloquea creación aunque haya un plan escri
   try {
     await advance(f.view);
     nodes(f.view, node => node.type === 'input' && node.props.type === 'file')[0].props.onChange({ target: { files: [new File(['fixture'], 'plan.pdf')], value: 'plan.pdf' } });
-    await f.view.flush();await advance(f.view);
+    await f.view.flush();assert.equal(nodes(f.view,n=>n.type==='form').length,0);button(f.view,'Volver al programa').props.onClick();await f.view.flush();await advance(f.view);
     assert.match(text(f.view.tree), /superar la revisión/i);
     assert.ok(f.calls.every(call => !call[0].endsWith('/publish')));
   } finally { f.close(); }

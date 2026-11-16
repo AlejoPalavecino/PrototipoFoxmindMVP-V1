@@ -17,15 +17,16 @@ function fixture(changes={}){const calls=[],record=name=>(...args)=>calls.push([
  confirmation:{review:{publication,classroomRevision:'3',classroomName:'Biologia',unitName:'Unidad',topicName:'Tema'},reviewed:false,reviewing:false,busy:false,pending:null,canReview:true,canConfirm:false,receipt:null,error:null},
  classrooms:[detail],ui:{leave:null,openingResource:false,loadingDestinationId:null,error:null},actions,publicationFileUrl:(id,mode)=>`/api/v1/foxy-ai/publications/${id}/file?mode=${mode}`,...changes};
  const {FoxyResourceWorkspace}=componentWithPorts("apps/web/src/screens/foxy-resource-workspace.tsx",{});assert.equal(typeof FoxyResourceWorkspace,'function');return {calls,view:hookView(FoxyResourceWorkspace,props)};}
-test('opening a saved resource starts in reading mode with Word outside the sharing controls',async()=>{
+test('opening a saved resource starts in reading mode with TXT outside the sharing controls',async()=>{
  const f=fixture({resource:{...resource,dirty:false,draft:{title:'Resumen',markdown:'## Introducción'},resource:{...resource.resource,markdown:'## Introducción'}}});
  try{await f.view.flush();
   const html=renderToStaticMarkup(f.view.tree);
   assert.match(html,/<h3>Introducción<\/h3>/);
-  const sharing=descendants(f.view.tree,n=>n.type==='details'&&descendants(n,item=>item.type==='summary'&&item.props.children==='Compartir').length)[0];
-  assert.ok(sharing);assert.ok(!sharing.props.open);
-  assert.equal(descendants(sharing,n=>n.type==='button'&&n.props.children==='Descargar Word').length,0);
-  assert.equal(descendants(f.view.tree,n=>n.type==='button'&&n.props.children==='Descargar Word').length,1);
+  const sharing=descendants(f.view.tree,n=>n.props.className==='parity-foxy-sharing')[0];assert.ok(sharing);assert.equal(sharing.props.hidden,true);
+  assert.equal(descendants(sharing,n=>n.type==='button'&&renderToStaticMarkup(n).includes('Descargar TXT')).length,0);
+  assert.equal(descendants(f.view.tree,n=>n.type==='button'&&renderToStaticMarkup(n).includes('Descargar TXT')).length,1);
+  const edit=descendants(f.view.tree,n=>n.type==='button'&&renderToStaticMarkup(n).includes('>Editar</button>'))[0];assert.ok(edit);edit.props.onClick();await f.view.flush();
+  assert.equal(descendants(f.view.tree,n=>n.props.className==='parity-foxy-editor')[0].props.hidden,false);
   assert.deepEqual(f.calls,[]);
  }finally{f.view.close();}
 });
@@ -77,9 +78,12 @@ test('confirmation review shows exact frozen title before student visibility',as
  try{await f.view.flush();assert.match(renderToStaticMarkup(f.view.tree),/FROZEN_LIBRARY_TITLE/);}finally{f.view.close();}
 });
 
-test('receipt recovered without review links to the actual destination classroom',async()=>{
- const f=fixture({confirmation:{review:null,reviewed:false,reviewing:false,busy:false,pending:null,canReview:false,canConfirm:false,receipt:{publicationId:pid,materialId:randomUUID(),publicationRevision:'3',classroomRevision:'4'},error:null}});
- try{await f.view.flush();const html=renderToStaticMarkup(f.view.tree);assert.match(html,/Biologia/iu);assert.match(html,/abrir aula/iu);const links=descendants(f.view.tree,n=>n.type==='a'&&String(n.props.href).startsWith('/mis-aulas?'));assert.ok(links.some(x=>new URL(x.props.href,'http://local').searchParams.get('aula')===room));
+test('receipt recovered without review links to the exact material in the destination library',async()=>{
+ const materialId=randomUUID();
+ const f=fixture({confirmation:{review:null,reviewed:false,reviewing:false,busy:false,pending:null,canReview:false,canConfirm:false,receipt:{publicationId:pid,materialId,publicationRevision:'3',classroomRevision:'4'},error:null}});
+ try{await f.view.flush();const html=renderToStaticMarkup(f.view.tree);assert.match(html,/Biologia/iu);assert.match(html,/Abrir Biblioteca/iu);
+ const links=descendants(f.view.tree,n=>n.type==='a'&&String(n.props.href).startsWith('/mis-aulas?'));
+ assert.deepEqual(links.map(x=>Object.fromEntries(new URL(x.props.href,'http://local').searchParams)),[{aula:room,destino:'material',materialId}]);
  }finally{f.view.close();}
 });
 
@@ -105,4 +109,11 @@ test('newer discarded history row never exposes an older selected READY preview 
   for(const button of descendants(f.view.tree,n=>n.type==='button'&&/revisar publicaci[oó]n|publicar en biblioteca/iu.test(String(n.props.children))))assert.equal(button.props.disabled,true);
   assert.equal(f.calls.filter(x=>x[0]==='confirm').length,0);
  }finally{f.view.close();}
+});
+
+test('handoff opens sharing directly for a saved resource while a conflict prioritizes the local editor', async () => {
+ const clean=fixture({initialHandoffMode:'RUBRIC',resource:{...resource,dirty:false,draft:{title:resource.resource.title,markdown:resource.resource.markdown}}});
+ try{await clean.view.flush();assert.equal(descendants(clean.view.tree,n=>n.props.className==='parity-foxy-sharing')[0].props.hidden,false);assert.deepEqual(clean.calls,[]);}finally{clean.view.close();}
+ const conflict=fixture({initialHandoffMode:'RUBRIC',resource:{...resource,errorCode:'CONFLICT'}});
+ try{await conflict.view.flush();const editor=descendants(conflict.view.tree,n=>n.props.className==='parity-foxy-editor')[0];assert.equal(editor.props.hidden,false);assert.ok(descendants(editor,n=>n.type==='textarea'&&n.props.value===resource.draft.markdown).length);assert.equal(descendants(conflict.view.tree,n=>n.props.className==='parity-foxy-sharing')[0].props.hidden,true);assert.deepEqual(conflict.calls,[]);}finally{conflict.view.close();}
 });

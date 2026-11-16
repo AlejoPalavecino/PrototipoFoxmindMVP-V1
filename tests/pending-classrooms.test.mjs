@@ -13,9 +13,9 @@ test('teacher pending state has its own count and cards, students cannot select 
     const view = collectionView(ClassroomCollection, { accountRole: role, teach: [], study: [], drafts: [pending], search: '', onEnter() {}, onContinue() {}, onDelete() {} });
     try {
       await view.flush();
-      const toggle = buttons(view).find(n => text(n).startsWith('Pendientes'));
+      const toggle = buttons(view).find(n => text(n).startsWith('Borradores'));
       if (role === 'student') { assert.equal(toggle, undefined); continue; }
-      assert.equal(text(toggle), 'Pendientes 1');
+      assert.equal(text(toggle), 'Borradores 1');
       assert.equal(descendants(view.tree, n => n.type?.name === 'PendingClassroomCard').length, 0);
       toggle.props.onClick(); await view.flush();
       assert.equal(descendants(view.tree, n => n.type?.name === 'PendingClassroomCard').length, 1);
@@ -28,10 +28,10 @@ test('pending cards automatically identify unnamed drafts and offer separate con
   const { PendingClassroomCard } = loadTsModule("apps/web/src/features/classrooms/ui/PendingClassroomCard.tsx");
   const continued = [], deleted = [];
   const card = PendingClassroomCard({ draft: { ...pending, payload: {} }, onContinue: id => continued.push(id), onDelete: item => deleted.push(item), busy: false });
-  assert.match(text(card), /Pendiente de creación/); assert.match(text(card), /Aula sin nombre/);
+  assert.match(text(card), /Pendiente de creación/); assert.match(text(card), /Tu próxima aula/);
   const actions = descendants(card, n => n.type === 'button');
   actions.find(n => text(n) === 'Continuar creación').props.onClick();
-  actions.find(n => text(n) === 'Eliminar pendiente').props.onClick();
+  actions.find(n => n.props['aria-label'] === 'Eliminar borrador sin nombre').props.onClick();
   assert.deepEqual(continued, [pending.id]); assert.equal(deleted.length, 1);
 });
 test('deletion requires confirmation and current revision and refuses published drafts', async () => {
@@ -94,18 +94,21 @@ test('deleting a draft does not block cleanup of incomplete uploads', async () =
   assert.deepEqual(await cleanIncomplete(store, { remove: async key => removes.push(key) }, 100), { deleted: 2, failed: 0 });
   assert.deepEqual(removes, ids);
 });
-test('pending search and year/division filters intersect without inventing missing values', async () => {
-  const { ClassroomCollection } = loadTsModule("apps/web/src/features/classrooms/ui/ClassroomCollection.tsx");
-  const view = collectionView(ClassroomCollection, { accountRole: 'teacher', teach: [], study: [], drafts: [pending, { ...pending, id: 'unnamed', payload: {} }], search: 'BIOLOGÍA', onEnter() {} });
-  try {
-    await view.flush(); buttons(view).find(n => text(n).startsWith('Pendientes')).props.onClick(); await view.flush();
-    const select = label => descendants(view.tree, n => n.type === 'select' && n.props['aria-label'] === label)[0];
-    select('Ciclo lectivo').props.onChange({ target: { value: '2026' } }); await view.flush();
-    select('División').props.onChange({ target: { value: 'A' } }); await view.flush();
-    assert.equal(descendants(view.tree, n => n.type?.name === 'PendingClassroomCard').length, 1);
-    select('División').props.onChange({ target: { value: 'B' } }); await view.flush();
-    assert.equal(descendants(view.tree, n => n.type?.name === 'PendingClassroomCard').length, 0);
-    assert.match(text(view.tree), /No hay coincidencias entre tus aulas pendientes/);
-    assert.doesNotMatch(text(select('Ciclo lectivo')), /undefined/);
-  } finally { view.close(); }
+test('pending search respects selected drafts without extra filters or invented values', async () => {
+ const {ClassroomCollection}=loadTsModule('apps/web/src/features/classrooms/ui/ClassroomCollection.tsx');
+ const view=collectionView(ClassroomCollection,{accountRole:'teacher',teach:[],study:[],drafts:[pending,{...pending,id:'unnamed',payload:{}}],search:'BIOLOGÍA',onEnter(){}});
+ try {await view.flush();buttons(view).find(n=>text(n).startsWith('Borradores')).props.onClick();await view.flush();
+ assert.equal(descendants(view.tree,n=>n.type?.name==='PendingClassroomCard').length,1);
+ assert.equal(buttons(view).find(n=>text(n).startsWith('Filtros')),undefined);
+ } finally {view.close();}
+});
+
+test('Retomar creación elige el primer borrador de la proyección ordenada por actualización descendente', async () => {
+ const {ClassroomCollection}=loadTsModule('apps/web/src/features/classrooms/ui/ClassroomCollection.tsx');
+ const recent={...pending,id:'recent',payload:{name:'QA guardado recién'}},older={...pending,id:'older',payload:{name:'Anterior'}};
+ const continued=[];const view=collectionView(ClassroomCollection,{accountRole:'teacher',teach:[],study:[],drafts:[recent,older],search:'',onEnter(){},onContinue:id=>continued.push(id)});
+ try {await view.flush();const banner=descendants(view.tree,n=>n.type==='aside'&&n.props.className==='draft-nudge')[0];
+ assert.match(text(banner),/QA guardado recién/);assert.doesNotMatch(text(banner),/Anterior/);
+ descendants(banner,n=>n.type==='button')[0].props.onClick();assert.deepEqual(continued,['recent']);
+ }finally{view.close();}
 });

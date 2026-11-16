@@ -7,11 +7,20 @@ test('after-day query reads its entire selected future range with pagination, in
  const {useAgenda}=loadTsModule('apps/web/src/features/agenda/model/useAgenda.ts');function Harness(){return React.createElement('output',{state:useAgenda(api,{startDate:'2026-11-05',endDateExclusive:'2026-11-06',timeZone:'UTC'},true,'2026-11-05')});}
  const view=hookView(Harness,{});try{await view.flush();assert.ok(view.tree.props.state.afterDay);assert.deepEqual(calls.filter(c=>c.range.startDate==='2026-11-06').map(c=>({range:c.range,cursor:c.cursor})),[{range:{startDate:'2026-11-06',endDateExclusive:'2026-12-07',timeZone:'UTC'},cursor:null},{range:{startDate:'2026-11-06',endDateExclusive:'2026-12-07',timeZone:'UTC'},cursor:'next'}]);}finally{view.close();globalThis.window=previous;}
 });
-test('Mi cuenta uses an explicit dialog trigger instead of disclosure; opening never navigates',async()=>{
- const {ShellAccount}=loadTsModule('apps/shared-ui/NavbarParts.tsx');const calls=[];
- const shell=ShellAccount({privateShell:true,homeNavigation:true,displayName:'Nombre Real',accountEmail:'synthetic@example.test',accountRole:'teacher',follow:(...a)=>calls.push(a),accountActions:React.createElement('button',null,'Cerrar sesión')});
- const child=descendants(shell,n=>n.type?.name==='HomeAccountMenu')[0];const view=hookView(child.type,child.props);const previous=globalThis.document;globalThis.document={addEventListener(){},removeEventListener(){}};
- try{await view.flush();const trigger=descendants(view.tree,n=>n.type==='button'&&n.props['aria-haspopup']==='dialog')[0];assert.ok(trigger);trigger.props.onClick();await view.flush();const dialog=descendants(view.tree,n=>n.type==='dialog')[0];assert.ok(dialog);assert.match(text(dialog),/Mi cuenta/);assert.match(text(dialog),/synthetic@example.test/);assert.match(text(dialog),/Cerrar sesión/);assert.equal(calls.length,0);dialog.props.onCancel({preventDefault(){},stopPropagation(){}});await view.flush();assert.equal(descendants(view.tree,n=>n.type==='dialog').length,0);}finally{view.close();globalThis.document=previous;}
+test('Mi perfil is an accessible direct link for both account roles',()=>{
+ const {ShellAccount}=loadTsModule('apps/shared-ui/NavbarParts.tsx');
+ for(const [accountRole,roleLabel] of [['teacher','Docente'],['student','Estudiante']]){
+  const calls=[];
+  const shell=ShellAccount({privateShell:true,homeNavigation:true,displayName:'Nombre Real',accountEmail:'synthetic@example.test',accountRole,follow:(...args)=>calls.push(args)});
+  const links=descendants(shell,n=>n.type==='a');
+  assert.equal(links.length,1);
+  assert.equal(links[0].props.href,'/profile');
+  assert.equal(links[0].props['aria-label'],'Mi perfil de Nombre Real');
+  assert.match(text(links[0]),new RegExp(roleLabel));
+  assert.doesNotMatch(text(shell),/synthetic@example.test/);
+  assert.equal(links[0].props['aria-haspopup'],undefined);
+  assert.equal(calls.length,0);
+ }
 });
 
 test('after-day merges only queried future personal occurrences and deadlines, in date order with authorized destinations',()=>{
@@ -24,10 +33,33 @@ test('after-day merges only queried future personal occurrences and deadlines, i
  const buttons=descendants(tree,n=>n.type==='button');buttons[0].props.onClick();buttons[1].props.onClick();assert.deepEqual(opened,[deadline.target]);assert.equal(edited[0].id,'later');
  const loading=AgendaAfterDay({items,day:'2026-11-05',zone:'UTC',busy:false,loading:true,error:'',onRetry(){},onEdit(){},onOpen(){}});assert.equal(descendants(loading,n=>n.type==='button').length,0);assert.doesNotMatch(text(loading),/Plazo|later/);
 });
-test('Mi cuenta route follows real callback and closes dialog after primary navigation',async()=>{
- const {ShellAccount}=loadTsModule('apps/shared-ui/NavbarParts.tsx');const calls=[];
- const child=descendants(ShellAccount({privateShell:true,homeNavigation:true,displayName:'Nombre',follow:(event,href)=>calls.push(href)}),n=>n.type?.name==='HomeAccountMenu')[0];
- const view=hookView(child.type,child.props);try{await view.flush();descendants(view.tree,n=>n.type==='button'&&n.props['aria-haspopup']==='dialog')[0].props.onClick();await view.flush();descendants(view.tree,n=>n.type==='a'&&n.props.href==='/settings')[0].props.onClick({button:0});await view.flush();assert.deepEqual(calls,['/settings']);assert.equal(descendants(view.tree,n=>n.type==='dialog').length,0);}finally{view.close();}
+test('Mi perfil follows the real callback from the drawer and offers Configuración on arrival',async()=>{
+ const {AppNavbar}=loadTsModule('apps/shared-ui/AppNavbar.tsx');
+ const previous=globalThis.window;globalThis.window=new EventTarget();const calls=[];
+ const view=hookView(AppNavbar,{logoHref:'/inicio',links:[{href:'/mis-aulas',label:'Mis aulas'}],displayName:'Nombre',onNavigate:href=>calls.push(href)});
+ try{
+  await view.flush();
+  const open=descendants(view.tree,n=>n.type==='button'&&n.props['aria-controls']==='fm3d-navigation-drawer')[0];
+  assert.ok(open);open.props.onClick();await view.flush();
+  const drawer=descendants(view.tree,n=>n.type?.name==='NavbarDrawer')[0];assert.ok(drawer);
+  const account=descendants(drawer,n=>n.type?.name==='ShellAccount')[0];assert.ok(account);
+  const profile=descendants(account.type(account.props),n=>n.type==='a'&&n.props.href==='/profile')[0];
+  assert.ok(profile);let prevented=0;
+  profile.props.onClick({button:0,preventDefault(){prevented++;}});
+  await view.flush();
+  assert.deepEqual(calls,['/profile']);assert.equal(prevented,1);
+  assert.equal(descendants(view.tree,n=>n.type?.name==='NavbarDrawer').length,0);
+ }finally{view.close();globalThis.window=previous;}
+ const {AccountProfile}=loadTsModule('apps/web/src/features/identity/ui/account-profile.tsx');
+ const signOut=React.createElement('button',{onClick:()=>calls.push('logout')},'Cerrar sesión');
+ const profile=hookView(AccountProfile,{profile:{id:'account',firstName:'Nombre',lastName:'Real',email:'synthetic@example.test',accountRole:'teacher'},firstName:'Nombre',lastName:'Real',signOut});
+ try{
+  await profile.flush();
+  const settings=descendants(profile.tree,n=>n.props.href==='/settings')[0];assert.ok(settings);
+  assert.match(text(settings),/Configuración/);
+  const logout=descendants(profile.tree,n=>n===signOut)[0];assert.ok(logout);logout.props.onClick();
+  assert.deepEqual(calls,['/profile','logout']);
+ }finally{profile.close();}
 });
 
 test('changing selected day aborts prior future query and never reveals its delayed private items',async()=>{

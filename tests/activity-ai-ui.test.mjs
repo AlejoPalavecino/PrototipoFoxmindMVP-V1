@@ -10,24 +10,47 @@ const room = { id: '11111111-1111-4111-8111-111111111111', revision: '2', role: 
     { id: '33333333-3333-4333-8333-333333333333', name: 'Exposición' }, { id: '44444444-4444-4444-8444-444444444444', name: 'Contraste' }] }] };
 const render = (Component, props) => renderToStaticMarkup(React.createElement(Component, props));
 
-test('A5 teacher opens manual/AI choice and student/archived views cannot initiate either', async () => {
+test('A5 only a teacher in an active classroom can choose manual or Foxy authoring', async () => {
   const { Activities } = loadTsModule('apps/web/src/application/academic-Activities.tsx');
-  const props = { api: { call: async () => ({ activities: [] }) }, room, reload: async () => {} };
+  const calls = [], props = { api: { call: async (path, method) => {
+    calls.push([path, method]);
+    if (path.endsWith('/library')) return [];
+    if (path.endsWith('/progress')) return { scope: 'classroom', students: [] };
+    return { activities: [] };
+  } }, room, reload: async () => {} };
   const html = render(Activities, props);
-  assert.match(html, /Crear actividad/i); assert.doesNotMatch(html, /Crear manualmente|Crear con IA/i);
+  assert.match(html, /Crear actividad/); assert.doesNotMatch(html, /Manualmente|Con ayuda de Foxy/);
   const view = hookView(Activities, props);
   try {
     await view.flush();
-    descendants(view.tree, node => node.type === 'button' && node.props.children === 'Crear actividad')[0].props.onClick();
+    button(view, 'Crear actividad').props.onClick();
     await view.flush();
-    const choice = descendants(view.tree, node => node.type?.name === 'Dialog')[0];
-    assert.equal(choice.props.title, 'Crear actividad');
-    const labels = descendants(choice, node => node.type === 'button').map(textOf).join(' ');
-    assert.match(labels, /Crear manualmente/i); assert.match(labels, /Crear con IA/i);
+    const editor = descendants(view.tree, node => node.type?.name === 'ActivityAuthoring')[0];
+    assert.ok(editor, 'Creating opens the scope step in the shared editor');
+    const wizard = hookView(editor.type, editor.props);
+    try {
+      await wizard.flush();
+      const choices = descendants(wizard.tree, node => node.type === 'label' &&
+        descendants(node, input => input.type === 'input' && input.props.name === 'activity-method').length);
+      assert.equal(choices.length, 2);
+      assert.match(textOf(choices[0]), /Manualmente/);
+      assert.match(textOf(choices[1]), /Con ayuda de Foxy/);
+      descendants(choices[1], node => node.type === 'input')[0].props.onChange();
+      await wizard.flush();
+      assert.ok(descendants(wizard.tree, node => node.type === 'label' && textOf(node).includes('Tu idea para Foxy')).length);
+      button(wizard, 'Ajustes y fuentes').props.onClick();
+      await wizard.flush();
+      assert.ok(calls.some(([path, method]) => path.endsWith('/activity-generations/sources') && method === 'GET'));
+      assert.ok(calls.every(([, method]) => method === 'GET'), 'Opening and choosing Foxy with optional settings never starts generation');
+    } finally { wizard.close(); }
   } finally { view.close(); }
   for (const scope of [{ ...room, role: 'student' }, { ...room, archived: true }]) {
-    const hidden = render(Activities, { ...props, room: scope });
-    assert.doesNotMatch(hidden, /Crear actividad|Crear manualmente|Crear con IA/i);
+    const denied = hookView(Activities, { ...props, room: scope, openAuthoring: true });
+    try {
+      await denied.flush();
+      assert.equal(descendants(denied.tree, n => n.type?.name === 'ActivityAuthoring' || n.type?.name === 'ActivityGeneration').length, 0);
+      assert.equal(descendants(denied.tree, n => n.type === 'button' && textOf(n).includes('Crear actividad')).length, 0);
+    } finally { denied.close(); }
   }
 });
 
@@ -37,13 +60,14 @@ test('A5 generation form opens with explicit pedagogical controls and performs n
     calls.push(args); return args[0].endsWith('/sources') ? { revision: room.revision, sources: [] } : { jobs: [] };
   } }, onApplied: async () => {}, onClose() {} };
   const html = render(ActivityGeneration, props);
-  for (const label of [/Objetivo/i, /Nivel/i, /Dificultad/i, /Duración/i, /Contexto/i, /Revisar y generar/i, /Continuar/i]) assert.match(html, label);
+  for (const label of [/Tu idea para Foxy/i, /Objetivo/i, /Nivel/i, /Dificultad/i, /Duración/i, /Contexto/i, /Generar propuesta/i]) assert.match(html, label);
   assert.equal(calls.length, 0);
   const view = hookView(ActivityGeneration, props);
   try {
     await view.flush();
-    assert.ok(calls.every(([, method]) => !method || method === 'GET'), 'Opening only lists jobs and sources');
-    assert.equal(calls.some(([path]) => /apply|regenerate|publish/.test(path)), false);
+    const base = `/${room.id}/activity-generations`;
+    assert.deepEqual(calls.map(([path, method]) => [path, method]), [[`${base}/sources`, 'GET'], [base, 'GET']],
+      'Opening only reads available sources and recent jobs');
   } finally { view.close(); }
 });
 
@@ -95,10 +119,17 @@ async function recoveredGeneration() {
   return { view, jobs, calls, applied };
 }
 
+async function recover(view, index = 0) {
+  button(view, 'Generaciones recientes').props.onClick(); await view.flush();
+  const options = descendants(view.tree, n => n.type === 'button' && textOf(n).includes('Recuperar generación'));
+  assert.ok(options[index]);
+  options[index].props.onClick(); await view.flush();
+}
+
 test('A5 recovery and reviewed local edits apply explicitly, preserve private keys and never call publish', async () => {
   const f = await recoveredGeneration();
   try {
-    button(f.view, 'Recuperar generación').props.onClick(); await f.view.flush();
+    await recover(f.view);
     const editor = descendants(f.view.tree, n => n.type?.name === 'ActivityGenerationProposal')[0]; assert.ok(editor);
     editor.props.update({ ...editor.props.proposal, title: 'Título docente editado', questions: [{ ...editor.props.proposal.questions[0], points: '4.25' }] }); await f.view.flush();
     assert.equal(f.calls.filter(([, method]) => method === 'POST').length, 0);
@@ -113,10 +144,10 @@ test('A5 recovery and reviewed local edits apply explicitly, preserve private ke
 test('A5 loading another result preserves dirty local edits until explicit replacement consent', async () => {
   const f = await recoveredGeneration();
   try {
-    button(f.view, 'Recuperar generación').props.onClick(); await f.view.flush();
+    await recover(f.view);
     let editor = descendants(f.view.tree, n => n.type?.name === 'ActivityGenerationProposal')[0];
     editor.props.update({ ...editor.props.proposal, title: 'Mi edición' }); await f.view.flush();
-    descendants(f.view.tree, n => n.type === 'button' && textOf(n).includes('Recuperar generación'))[1].props.onClick(); await f.view.flush();
+    await recover(f.view, 1);
     editor = descendants(f.view.tree, n => n.type?.name === 'ActivityGenerationProposal')[0]; assert.equal(editor.props.proposal.title, 'Mi edición');
     button(f.view, 'Revisar esta propuesta').props.onClick(); await f.view.flush();
     editor = descendants(f.view.tree, n => n.type?.name === 'ActivityGenerationProposal')[0]; assert.equal(editor.props.proposal.title, 'Mi edición');

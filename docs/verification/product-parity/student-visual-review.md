@@ -1,0 +1,55 @@
+# Revisión visual estudiante
+
+Ego Lite, espacio 1, pestaña p2. Sesión de Marina Demo en el preview sintético del puerto 61543. Se observó el aula Fotografía y luz. Los cambios posteriores que requerían recompilar se verifican en su propio recorrido.
+
+## Capturas
+
+| Superficie | 1440 × 900 | 390 × 844 |
+| --- | --- | --- |
+| Inicio | [Escritorio](student-home-1440.png) | [Móvil](student-home-390.png) |
+| Mis aulas | [Escritorio](student-collection-1440.png) | [Móvil](student-collection-390.png) |
+| Agenda | [Escritorio](student-agenda-1440.png) | [Móvil](student-agenda-390.png) |
+| Mi perfil | [Escritorio](student-profile-1440.png) | [Móvil](student-profile-390.png) |
+| Notificaciones | [Panel](student-inbox-1440.png), [bandeja](student-notifications-1440.png) | [Panel](student-inbox-390.png), [bandeja](student-notifications-390.png) |
+| Mi estudio | [Vacío](student-study-collection-1440.png), [con carpeta](student-study-collection-populated-1440.png) | [Vacío](student-study-collection-390.png), [con carpeta](student-study-collection-populated-390.png) |
+| Revisión de carpeta | [Escritorio](student-study-wizard-review-1440.png) | [Móvil](student-study-wizard-review-390.png) |
+| Chat de estudio | [Escritorio](student-study-chat-1440.png) | [Móvil](student-study-chat-390.png) |
+| Paneles de estudio | [Historial](student-study-history-1440.png), [Herramientas](student-study-tools-1440.png), [Biblioteca](student-study-library-1440.png) | [Historial](student-study-history-390.png), [Herramientas](student-study-tools-390.png), [Biblioteca](student-study-library-390.png) |
+| Plan | [Escritorio](student-plan-1440.png) | [Móvil](student-plan-390.png) |
+| Muro | [Escritorio](student-wall-1440.png) | [Móvil](student-wall-390.png) |
+| Biblioteca | [Escritorio](student-library-1440.png) | [Móvil](student-library-390.png) |
+| Actividades | [Escritorio](student-activities-1440.png) | [Móvil](student-activities-390.png) |
+| Mi progreso | [Escritorio](student-progress-1440.png) | [Móvil](student-progress-390.png) |
+| Compañeros | [Escritorio](student-members-1440.png) | [Móvil](student-members-390.png) |
+
+## Resultados
+
+- En los 19 estados medidos a 320, 390, 768, 1024 y 1440 px no hubo desborde horizontal del documento. Los estados medidos incluyen las variantes vacía y con carpeta de Mi estudio, el panel y la bandeja principal de Notificaciones y las seis pestañas del aula.
+- Las pestañas activas quedaron enteras dentro de su tira en las 30 observaciones. El estado activo del aula mostró texto RGB 150, 59, 13 sobre RGB 255, 234, 220. A 390 px, Plan obtuvo 6,17:1, Mes 6,69:1, Todos los tipos de Notificaciones 7,57:1 y Activas de Mi estudio 6,57:1. El barrido de texto visible sobre fondos sólidos no detectó pares por debajo de 4,5:1 para texto normal o 3:1 para texto grande en 36 observaciones.
+- El encabezado del aula midió 343 × 173 px en Plan a 390 px, con 342 px para el bloque de texto y el título en una línea.
+- La carpeta «Revisión visual QA · Fotografía» se confirmó en cuatro pasos a partir de una copia de una unidad con dos temas, sin archivo ni análisis IA. Figuró en Activas al regresar a Mi estudio. Abrir Historial, Herramientas y Biblioteca colocó el foco dentro del diálogo. Escape devolvió el foco a cada botón de origen y conservó el borrador del compositor. El texto de prueba se retiró sin enviarlo.
+- En el paso de revisión del asistente, el punto central de «Editar unidades y temas» quedó fuera del área visible inicial del contenido desplazable a 320 y 390 px. A 390, el DOM ubicó ese botón en x=35, y=743, 159 × 44 px, por debajo del límite visible del contenido alrededor de y=661. La captura muestra el scroll interno y los controles Atrás y Confirmar accesibles en el pie fijo. El detector geométrico registró el botón recortado como intersección fuera de su región de pintura.
+- Biblioteca y Actividades del aula observada estaban vacías. Las capturas corresponden a esos estados. Los recorridos con entregas, materiales, generación y corrección requieren su fixture funcional. El cálculo de contraste excluyó imágenes, degradados y texto fuera del viewport.
+
+Al terminar, p2 volvió a about:blank, con la emulación limpia y la sesión de estudiante conservada.
+
+[Mediciones DOM, contraste y foco](student-visual-metrics.json)
+
+## Estudio en el build itNER5mJohCBmeNzCurv-
+
+En el preview sintético del puerto 61127, la cuenta de estudiante creó «QA visual final · Fotografía» en cuatro pasos y guardó la copia de la unidad La luz con Exposición y Contraste. Se cargó `luz.pdf` como material propio. La interfaz mostró «Disponible para Foxy» y el enlace de vista previa respondió `200 application/pdf`.
+
+- A 1440 × 900 y 390 × 844, `Ver detalles` y `Ver temas` alternaron con Enter y Espacio, conservaron el foco y actualizaron `aria-expanded` junto con la visibilidad del panel. Ambos estados abiertos persistieron al alternar las pestañas dentro del diálogo. No hubo desborde horizontal del documento. En móvil los enlaces de archivo quedaron accesibles al desplazar el diálogo o avanzar con Tab. [Detalles escritorio](final-study-material-details-1440.png) · [Detalles móvil](final-study-material-details-scrolled-390.png) · [Temas escritorio](final-study-plan-topics-1440.png) · [Temas móvil](final-study-plan-topics-390.png)
+- **P2 · Foco perdido al cerrar Materiales y Plan desde Biblioteca.** Desde el compositor, activar Biblioteca y luego Materiales y Plan con Enter. Escape cerró el segundo diálogo y dejó el foco en `BODY`. El siguiente Tab saltó a «Saltar al contenido». Ocurrió en ambos tamaños, con la misma URL y sin carga ni refresco intermedios. La traza del DOM confirmó que el botón Biblioteca conservó identidad y que el primer diálogo se desmontó al transferir al segundo. Escape desde Biblioteca directamente sí restauró el foco a su botón. El borrador sobrevivió al recorrido y se retiró sin enviar. [Captura tras Escape y Tab](final-study-focus-after-escape-390.png)
+
+La revisión abarcó la interfaz, el PDF sintético y la navegación por teclado. Se dejó p2 en `about:blank` con emulación limpia antes de recompilar.
+
+## Revalidación de foco en el build WalicEcb0TsMY-ZKneE2f
+
+**VERIFIED.** La corrección se comprobó con teclado en Ego Lite a 1440 × 900 y 390 × 844, en una carpeta sintética con copia del plan vinculada a Fotografía y luz. El blob de `study-workspace.tsx` fue `c312bded40a82db9a106b9fd3705ec74a155f798`.
+
+- Biblioteca → Materiales y Plan → Escape restauró el foco a Biblioteca. El siguiente Tab enfocó Adjuntar. El borrador se conservó. [Escritorio](final-study-focus-restored-1440.png) · [Móvil](final-study-focus-restored-390.png)
+- Botón de carpeta → Temas y fuentes → Materiales y Plan → Escape restauró el foco al botón de carpeta. El siguiente Tab enfocó Historial. El borrador se conservó. [Móvil](final-study-context-focus-restored-390.png)
+- Estudiar desde Exposición cerró el diálogo, enfocó el campo `study-message` y dejó «Ayudame a estudiar Exposición.» listo para editar. [Escritorio](final-study-topic-composer-1440.png) · [Móvil](final-study-topic-composer-390.png)
+
+Los borradores se retiraron sin enviar. La carga y vista previa del PDF corresponden al build previo. Se dejó p2 en `about:blank` con la emulación limpia y el preview activo.

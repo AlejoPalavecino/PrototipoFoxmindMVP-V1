@@ -23,7 +23,7 @@ export const activityProvider = {
     };
     add('DEVELOPMENT', input.counts.development); add('SINGLE_CHOICE', input.counts.singleChoice); add('MULTIPLE_CHOICE', input.counts.multipleChoice);
     const assignmentPrompts = Array.from({ length: input.counts.assignment }, (_, index) => `Compará dos fotografías con distinto tiempo de exposición y justificá el resultado (${index + 1}).`);
-    const proposal = { schemaVersion: 'activity-proposal-v1', type: input.type, title: 'La luz en situaciones cotidianas', objective: input.objective,
+    const proposal = { schemaVersion: 'activity-proposal-v1', type: input.type, title: 'La luz en situaciones cotidianas', objective: input.objective.trim() || 'Comparar situaciones de luz y exposición a partir de ejemplos.',
       instructions: 'Resolvé las consignas usando el material seleccionado y explicá tu razonamiento.', assignmentPrompts, questions, warnings: [],
       evidence: (input.type === 'ASSIGNMENT' ? assignmentPrompts : questions).map((_, index) => ({ item: input.type === 'ASSIGNMENT' ? 'assignment' : 'question', index, references: [reference] })) };
     return { json: { status: 'READY', proposal }, inputTokens: 200, outputTokens: 180 };

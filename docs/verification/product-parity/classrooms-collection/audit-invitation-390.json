@@ -1,0 +1,87 @@
+{
+  "viewport": [
+    390,
+    844
+  ],
+  "overflow": false,
+  "dialog": {
+    "x": 19,
+    "y": 104.5,
+    "width": 352.3999938964844,
+    "height": 635
+  },
+  "footerVisible": true,
+  "samples": [
+    {
+      "text": "Hay un lugar para vos",
+      "ratio": 14.1,
+      "color": "rgb(32, 44, 61)",
+      "background": [
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "text": "Revisá el grupo antes de sumarte.",
+      "ratio": 4.99,
+      "color": "rgb(99, 113, 128)",
+      "background": [
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "text": "Ciencias",
+      "ratio": 12.23,
+      "color": "rgb(38, 55, 70)",
+      "background": [
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "text": "QA · Exploramos con Foxy",
+      "ratio": 14.1,
+      "color": "rgb(32, 44, 61)",
+      "background": [
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "text": "4.º A · Ciclo 2026",
+      "ratio": 4.99,
+      "color": "rgb(99, 113, 128)",
+      "background": [
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "text": "LD",
+      "ratio": 6.55,
+      "color": "rgb(36, 92, 69)",
+      "background": [
+        223,
+        239,
+        231
+      ]
+    },
+    {
+      "text": "Ahora no",
+      "ratio": 12.23,
+      "color": "rgb(38, 55, 70)",
+      "background": [
+        255,
+        255,
+        255
+      ]
+    }
+  ],
+  "minContrast": 4.99
+}

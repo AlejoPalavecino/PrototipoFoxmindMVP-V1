@@ -2,7 +2,8 @@ export { FoxyConversationPanel, FoxyCollectionPanel } from './ui/foxy-collection
 export type { FoxyCatalogPage } from './ui/foxy-collection-panel.tsx';
 export { FoxyPublicationManagementPanel } from './ui/foxy-publication-management-panel.tsx';
 export { FoxyVisualPublicationPanel } from './ui/foxy-visual-publication-panel.tsx';
-export { FoxyVisualWorkspace } from './ui/foxy-visual-workspace.tsx';
+export { FoxyVisualWorkspace, FoxyVisualTimeline } from './ui/foxy-visual-workspace.tsx';
+export { FoxyVisualReaderDialog } from './ui/foxy-visual-reader-dialog.tsx';
 export { FoxyWorkspace } from './ui/foxy-workspace.tsx';
 export { createFoxyActivityHandoff } from './model/foxy-activity-handoff.ts';
 export { createFoxyCatalogController } from './model/foxy-catalog-controller.ts';

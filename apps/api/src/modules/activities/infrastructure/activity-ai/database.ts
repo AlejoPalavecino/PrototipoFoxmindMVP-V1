@@ -45,7 +45,8 @@ export async function job(tx: Transaction, classroomId: string, id: string): Pro
 }
 export function view(row: JobRow) {
   return { id: row.id, classroomId: row.classroom_id, baseRevision: String(row.base_revision), state: row.state,
-    type: row.type, unitId: row.unit_id, topicIds: row.input_payload.topicIds, createdAt: row.created_at,
+    type: row.type, unitId: row.unit_id, topicIds: row.curriculum_snapshot.units ? row.curriculum_snapshot.topics.map(topic => topic.id) : row.input_payload.topicIds,
+    unitIds: row.curriculum_snapshot.units?.map(unit => unit.id) ?? [row.unit_id], teacherBrief: row.input_payload.teacherBrief ?? null, createdAt: row.created_at,
     proposal: row.state === 'READY' || row.state === 'APPLIED' ? row.proposal : null, error: row.error_code,
     missingInformation: row.missing_information, sourceReport: row.source_report, appliedActivityId: row.applied_activity_id,
     retryable: row.state === 'FAILED' && ['AI_UNAVAILABLE', 'AI_RATE_LIMITED', 'AI_TIMEOUT', 'AI_BUDGET_EXCEEDED'].includes(row.error_code ?? '') };

@@ -24,6 +24,8 @@ for (const presentation of ['home', 'classrooms']) test(`JD01 ${presentation}: a
 
 test('JD01 AppNavbar preserves modified native clicks and intercepts plain account activation exactly once', async () => {
   const { AppNavbar } = loadTsModule('apps/shared-ui/AppNavbar.tsx');
+  const previous = globalThis.window;
+  globalThis.window = new EventTarget();
   const routed = [], view = hookView(AppNavbar, { logoHref: '/mis-aulas', displayName: 'Synthetic',
     links: [{ href: '/mis-aulas', label: 'Mis aulas' }], onNavigate: href => routed.push(href) });
   try {
@@ -39,7 +41,7 @@ test('JD01 AppNavbar preserves modified native clicks and intercepts plain accou
     let count = 0;
     account.props.follow({ button: 0, preventDefault() { count++; } }, '/settings');
     assert.equal(count, 1); assert.deepEqual(routed, ['/settings']);
-  } finally { view.close(); }
+  } finally { try { view.close(); } finally { globalThis.window = previous; } }
 });
 
 test('JD02-JD05 PostgreSQL regressions use real persisted rows and rollback', { timeout: 120000 }, async t => {

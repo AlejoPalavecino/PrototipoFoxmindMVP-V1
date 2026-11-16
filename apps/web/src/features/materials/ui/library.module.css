@@ -45,4 +45,100 @@
 @media (max-width: 540px) { .assignment { grid-template-columns: minmax(0, 1fr); } }
 dialog.dialog { width: min(720px, calc(100% - 22px)) !important; max-width: none !important; }
 .upload .organize small { display: inline !important; }
+.organize > header{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;color:#34475d}
+.organize > header svg{width:20px;height:20px;color:#a34211}
+.activityChoices{display:grid;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid #c6d3e1}
+.activityChoices > small{margin:0;color:#485c73}
+.activityChoices label{display:flex;align-items:center;gap:10px;border:1px solid #c6d3e1;border-radius:12px;padding:10px;background:#f5f8fb}
+.activityChoices input[type=checkbox]{width:19px;height:19px;min-height:0;flex:none;accent-color:#b74710}
+.activityChoices label small{display:block!important;margin:2px 0 0;font-size:12px}
+.fileFeedback[data-state=error]{color:#a02626;background:#fff0ef;border:1px solid #d59a94}
+.fileFeedback[data-state=pending]{color:#78511b;background:#fff5df;border:1px solid #d8bb83}
+.fileFeedback[data-state=success]{color:#24623e;background:#e3f1e7;border:1px solid #91b9a0}
 .upload :global(.p5-form-footer) { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+
+/* iter17: one toolbar and continuous file list. */
+.toolbar{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;background:#fff;border:1px solid #c4d2df;border-radius:17px;padding:16px}
+.search{max-width:none}.search>span,.location>span{display:block;font-size:13px;font-weight:800;margin-bottom:6px;color:#202c3d}.search>div{position:relative}.location select{width:100%;min-height:44px}.count{font-size:12px;font-weight:750;color:#475f73}
+.list{display:block;background:#fff;border:1px solid #c4d2df;border-radius:17px;padding:3px 16px}.list:empty{display:none}
+.row{flex-wrap:nowrap;padding:14px 0;gap:13px;background:none;border:0;border-bottom:1px solid #e0e8f0;border-radius:0;box-shadow:none}.row:last-child{border-bottom:0}.row[data-current=true]{outline:2px solid #b74710;outline-offset:3px;border-radius:8px}
+.fileMark{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:none;width:44px;height:46px;border-radius:11px;background:#e7f2fa;color:#315e7d}.fileMark svg{width:17px;height:17px}.fileMark small{font-size:9px;font-weight:850}.copy h3{font-size:14px!important;margin:0 0 4px!important}.copy p{font-size:11px;line-height:1.6;margin:3px 0}.metadata{display:none}.linked{font-size:11px;color:#315f55;display:block;margin-top:4px}
+:global(#classroom-main) .rowActions button{font-size:12px;display:inline-flex;gap:8px;align-items:center;min-height:44px;background:transparent;border:0;padding:8px}.rowActions svg{width:18px;height:18px}
+@media(max-width:650px){.toolbar{grid-template-columns:1fr}.row{flex-wrap:wrap}.copy{flex:1 1 calc(100% - 65px)}.rowActions{margin-left:57px}.list{padding-inline:13px}}
+/* Exact classroom library: two-step upload and material sheet. */
+.detailsFields { display:grid; gap:12px; }
+.form [hidden],.upload [hidden] { display:none!important; }
+.steps { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); list-style:none; margin:0 0 11px; padding:0; gap:7px; }
+.steps li { font-size:12px; font-weight:750; padding:9px 10px; border-radius:9px; background:#edf0f4; color:#4e6376; }
+.steps [aria-current] { color:#8b370f; background:#ffe8d6; }
+.organize { padding:0; border:0; }
+.organize>header { display:none; }
+.readerClassroom { color:#4b6176; font-size:13px; margin:0; }
+.readerFile { display:flex; align-items:center; gap:11px; padding:12px; background:#edf4f9; border-radius:12px; }
+.readerFile>div { min-width:0; overflow-wrap:anywhere; }
+.readerFile p { font-size:12px; margin:2px 0 0; }
+.reader>p,.readerPreview p { font-size:14px; line-height:1.58; margin:0; }
+.readerMetadata { display:grid; gap:10px; margin:0; }
+.readerMetadata>div { display:grid; grid-template-columns:minmax(94px,.45fr) minmax(0,1fr); gap:9px; }
+.readerMetadata dt { color:#4c6175; font-size:12px; font-weight:800; }
+.readerMetadata dd { font-size:13px; margin:0; }
+.readerPreview { padding:16px; background:#f7f9fb; border:1px solid #cbd8e3; border-radius:12px; }
+.readerPreview h3 { font-size:16px; margin:0 0 6px; }
+.readerPreview p { white-space:pre-wrap; }
+.readerActions { display:flex; justify-content:flex-end; align-items:center; flex-wrap:wrap; gap:10px; padding-top:12px; border-top:1px solid #d8e2eb; }
+.readerActions a { display:inline-flex; align-items:center; gap:6px; min-height:44px; font-size:13px; }
+.readerActions svg { width:17px; height:17px; }
+dialog.readerDialog { width:min(720px,calc(100% - 22px))!important; max-width:none!important; }
+.row { display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:12px; padding:13px 0; }
+.rowActions { margin-left:0; }
+.copy p { line-height:1.45; }
+.copy p+p { font-size:12px; }
+.count { margin:0 0 -7px 2px; }
+@media(max-width:650px) and (min-width:521px) { .toolbar { grid-template-columns:1.4fr 1fr; } }
+@media(max-width:520px) { .toolbar { padding:12px; gap:9px; } .list { padding:2px 11px; } .row { gap:8px; } .fileMark { width:37px; min-height:41px; } :global(#classroom-main) .rowActions button { font-size:11px; padding:6px 8px; } .rowActions svg { display:none; } }
+.activityChoices { grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; border:0; padding-top:0; }
+.activityChoices>strong,.activityChoices>p,.activityChoices>div { grid-column:1/-1; }
+.activityChoices>strong { font-size:13px; }
+.activityChoices label { padding:8px 10px; min-height:44px; background:#f4f7fa; border:1px solid #d1dce6; border-radius:10px; font-size:12px; }
+.activityChoices label:has(:checked) { background:#e9f3ed; border-color:#a8c5b3; }
+.activityChoices label small { font-size:11px; }
+.activityChoices label>span { min-width:0; overflow-wrap:anywhere; }
+.drop { grid-template-columns:auto minmax(0,1fr); text-align:left; justify-items:start; column-gap:10px; padding:13px; background:#f2f7fa; border-color:#7897ad; border-radius:13px; position:relative; }
+.uploadIcon { grid-row:1/3; background:transparent; color:#336780; width:24px; height:24px; align-self:center; }
+.drop>strong { font-size:13px; }
+.drop>small { grid-column:2; font-size:12px; }
+.drop>.picker { position:absolute; inset:0; padding:0; opacity:0; }
+.drop:has(input:focus-visible) { outline:3px solid #236a91; outline-offset:3px; }
+@media(max-width:520px) { .activityChoices { grid-template-columns:minmax(0,1fr); } }
+
+/* Visual comparison at 1440/390: match the reference form and continuous list. */
+:global(#foxmind-product.fm3d-theme #classroom-main) .library>:global(.p5-section-head) { margin:0 0 8px; }
+:global(#foxmind-product.fm3d-theme #classroom-main) .library>:global(.p5-section-head) h2 { font-family:Nunito,sans-serif; font-size:24px; font-weight:800; line-height:1.25; color:#202c3d; }
+:global(#foxmind-product.fm3d-theme #classroom-main) .library>:global(.p5-section-head) :global(.primary) { min-height:44px; font-size:13px; font-weight:800; padding:11px 18px; }
+:global(#foxmind-product.fm3d-theme #classroom-main) .library>:global(.p5-section-head) :global(.primary) svg { width:17px; height:17px; }
+:global(#foxmind-product.fm3d-theme #classroom-main) .library .toolbar { padding:15px 17px; }
+:global(#foxmind-product.fm3d-theme #classroom-main) .library .toolbar :is(input,select) { min-height:44px; font-family:Nunito,sans-serif; font-size:14px; font-weight:700; line-height:1.4; border:1px solid #9daec2; border-radius:12px; color:#202c3d; }
+:global(#foxmind-product.fm3d-theme #classroom-main) .library .toolbar input::placeholder { font-size:14px; font-weight:700; color:#4b6176; opacity:1; }
+:global(#foxmind-product.fm3d-theme #classroom-main) .library .toolbar select { appearance:auto; background-image:none; padding:10px 14px; }
+:global(#foxmind-product.fm3d-theme #classroom-main) .library .count { font-size:12px; color:#4b6176; font-weight:800; line-height:1.4; }
+:global(#foxmind-product.fm3d-theme #classroom-main) .library .copy h3 { font-family:Nunito,sans-serif; font-size:14px; font-weight:800; line-height:1.35; color:#202c3d; }
+:global(#foxmind-product.fm3d-theme #classroom-main) .library .copy p { color:#516980; font-size:11px; font-weight:750; line-height:1.45; }
+:global(#foxmind-product.fm3d-theme #classroom-main) .library .copy p+p { color:#42566b; font-size:12px; font-weight:400; }
+:global(#foxmind-product.fm3d-theme #classroom-main) .library .rowActions button { font-family:Nunito,sans-serif; font-weight:800; }
+@media(max-width:520px) {
+ :global(#foxmind-product.fm3d-theme #classroom-main) .library>:global(.p5-section-head) h2 { font-size:22px; }
+ :global(#foxmind-product.fm3d-theme #classroom-main) .library>:global(.p5-section-head) :global(.primary) { font-size:12px; }
+ :global(#foxmind-product.fm3d-theme #classroom-main) .library .toolbar { padding:12px; }
+}
+
+/* Reaudit: empty collection and short-viewport dialogs follow UI Lab. */
+.empty { background:#fff; border:1px solid #bdccda; border-radius:16px; padding:25px; text-align:center; }
+.empty>svg { width:24px; height:24px; color:#43647e; margin:0 auto 5px; }
+:global(#foxmind-product.fm3d-theme #classroom-main) .empty h3 { font-family:Nunito,sans-serif; font-size:17px; font-weight:800; margin:0; }
+:global(#foxmind-product.fm3d-theme #classroom-main) .empty p { font-size:13px; margin:5px 0 0; }
+:global(#foxmind-product.fm3d-theme #classroom-main) :is(dialog.dialog,dialog.readerDialog) { max-height:calc(100dvh - 24px); overflow-y:auto; overscroll-behavior:contain; }
+:global(#foxmind-product.fm3d-theme #classroom-main) :is(dialog.dialog,dialog.readerDialog)>header h2 { min-width:0; overflow-wrap:anywhere; font-family:Nunito,sans-serif; font-size:21px; font-weight:800; line-height:1.3; color:#202c3d; }
+:global(#foxmind-product.fm3d-theme #classroom-main) .dialog .form label { font-size:13px; font-weight:800; color:#26364a; }
+:global(#foxmind-product.fm3d-theme #classroom-main) .reader p { color:#42566b; }
+:global(#foxmind-product.fm3d-theme #classroom-main) .readerClassroom { color:#4b6176; }
+@media(max-width:360px) { .readerMetadata>div { grid-template-columns:minmax(0,1fr); gap:3px; } .readerActions { gap:6px; } .readerActions button { min-height:44px; } .steps li { overflow-wrap:anywhere; } }

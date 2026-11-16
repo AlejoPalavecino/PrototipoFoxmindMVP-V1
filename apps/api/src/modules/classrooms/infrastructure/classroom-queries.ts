@@ -22,11 +22,11 @@ export function mine(context: QueryAccess, request: unknown) {
         teach: rows
           .filter((c) => c.teacher_id === actor.id)
           .map((c) => ({ ...context.summary(c, actor.id), planProgress: c.plan_progress,
-            ...(c.teacher_id === actor.id ? { studentCount: c.student_count } : {}) })),
+            studentCount: c.student_count })),
         study: rows
           .filter((c) => c.teacher_id !== actor.id)
           .map((c) => ({ ...context.summary(c, actor.id), planProgress: c.plan_progress,
-            ...(c.teacher_id === actor.id ? { studentCount: c.student_count } : {}) })),
+            studentCount: c.student_count })),
       };
     });
   }

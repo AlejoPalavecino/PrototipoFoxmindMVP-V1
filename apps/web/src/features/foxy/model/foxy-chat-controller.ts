@@ -13,11 +13,11 @@ export function createFoxyChatController(options: Options) {
   let state: State = { ...emptyContext(), capabilities: null, conversations: [], nextConversationCursor: null, current: null, turns: [], activeTurn: null, nextAfterSequence: null, pending: null, error: null, busy: false };
   const loadingSources = new Set<FoxySourceKind>();
   let pendingContext: CreateFoxyConversation | null = null;
-  let epoch = 0, disposed = false, abort = new AbortController(), timer: ReturnType<typeof setTimeout> | undefined, polling = false;
+  let epoch = 0, disposed = false, cancelling = false, abort = new AbortController(), timer: ReturnType<typeof setTimeout> | undefined, polling = false;
   const schedule = options.setTimeout ?? globalThis.setTimeout, clear = options.clearTimeout ?? globalThis.clearTimeout;
   const update = (patch: Partial<State>) => { if (!disposed) { state = { ...state, ...patch }; options.onChange(state); } };
   const valid = (version: number) => !disposed && version === epoch && !abort.signal.aborted;
-  function reset(): number { loadingSources.clear(); epoch++; abort.abort(); abort = new AbortController(); if (timer !== undefined) clear(timer); timer = undefined; polling = false; return epoch; }
+  function reset(): number { loadingSources.clear(); epoch++; abort.abort(); abort = new AbortController(); if (timer !== undefined) clear(timer); timer = undefined; polling = false; cancelling = false; return epoch; }
   function mergeTurns(older: FoxyTurn[], newer: FoxyTurn[]): FoxyTurn[] {
     const merged: FoxyTurn[] = [];
     for (const turn of [...newer, ...older]) {
@@ -34,6 +34,7 @@ export function createFoxyChatController(options: Options) {
       try {
         const turn = await options.client.getTurn(conversationId, turnId, abort.signal);
         if (!valid(version)) return;
+        if (cancelling || state.turns.some(item => item.id === turn.id && item.state === 'CANCELLED')) { polling = false; return; }
         add(turn);
         const active = state.turns.find(item => item.state === 'QUEUED' || item.state === 'RUNNING');
         update({ activeTurn: active ? { id: active.id, sequence: active.sequence, state: active.state } : null });
@@ -78,6 +79,9 @@ export function createFoxyChatController(options: Options) {
       return 'accepted' as const;
     } catch (error) {
       if (!valid(version)) return 'uncertain' as const;
+      if ((error as { code?: string }).code === 'AI_INPUT_LIMIT') {
+        update({ busy: false, pending: null, error: 'El contexto supera el límite. Elegí menos temas o fuentes y volvé a enviar.' }); return 'invalid' as const;
+      }
       if ((error as { code?: string }).code === 'INVALID_INPUT') {
         update({ busy: false, pending: null, error: 'Revisá el mensaje antes de enviarlo.' }); return 'invalid' as const;
       }
@@ -86,6 +90,21 @@ export function createFoxyChatController(options: Options) {
   }
   return {
     getState: () => state,
+    async cancel() {
+      const current = state.current, active = state.activeTurn, version = epoch;
+      if (!current || !active || cancelling || state.busy) return;
+      cancelling = true; update({ busy: true, error: null });
+      try {
+        const turn = await options.client.cancelTurn(current.id, active.id, abort.signal);
+        if (!valid(version)) return;
+        add(turn); update({ activeTurn: null, busy: false });
+      } catch {
+        if (valid(version)) {
+          update({ busy: false, error: 'No pudimos detener la solicitud. Volvé a intentar.' });
+          poll(current.id, active.id, version);
+        }
+      } finally { if (valid(version)) cancelling = false; }
+    },
     async init() {
       if (disposed) return;
       const version = reset(); update({ ...emptyContext(), capabilities: null, conversations: [], nextConversationCursor: null, current: null, turns: [], activeTurn: null, nextAfterSequence: null, pending: null, busy: true, error: null });
@@ -112,6 +131,22 @@ export function createFoxyChatController(options: Options) {
       try {
         const result = await options.client.createConversation(input, abort.signal);
         if (!valid(version)) return;
+        if (input.carryAttachments) {
+          // Keep the source selected until the committed destination is completely readable.
+          // The caller retains the request ID if this read fails after creation succeeded.
+          const current = result.conversation;
+          const [page, curriculum] = await Promise.all([
+            options.client.listTurns(current.id, { afterSequence: 0, limit: 50 }, abort.signal),
+            current.context.kind === 'CLASSROOM' ? options.client.curriculum(current.id, abort.signal) : Promise.resolve(null),
+          ]);
+          if (!valid(version)) return;
+          const nextVersion = reset(), active = page.items.find(turn => turn.state === 'QUEUED' || turn.state === 'RUNNING');
+          update({ ...emptyContext(), current, curriculum, turns: page.items, pending: null,
+            nextAfterSequence: page.nextAfterSequence, activeTurn: active ? { id: active.id, sequence: active.sequence, state: active.state } : null,
+            conversations: [current, ...state.conversations.filter(item => item.id !== current.id)], busy: false, error: null });
+          if (active) poll(current.id, active.id, nextVersion);
+          return current.id;
+        }
         update({ conversations: [result.conversation, ...state.conversations.filter(item => item.id !== result.conversation.id)], busy: false });
         return await select(result.conversation.id) ? result.conversation.id : undefined;
       } catch { if (valid(version)) update({ busy: false, error: 'No pudimos crear la conversación.' }); }
@@ -168,11 +203,15 @@ export function createFoxyChatController(options: Options) {
         purpose, text, selection: state.current.context.kind === 'GENERAL' ? { topicIds: [], sourceIds: [] } : structuredClone(selection) });
     },
     async retry() { if (!disposed && state.pending) await dispatch(state.pending); },
+    setFullClassroom(enabled: boolean) {
+      if (!state.curriculum || state.current?.context.kind !== 'CLASSROOM') return;
+      update({ selection: enabled ? { mode: 'ALL_CLASSROOM', topicIds: [], sourceIds: [] } : { topicIds: [], sourceIds: [] } });
+    },
     selectTopic(id: string) {
       if (disposed || !state.curriculum || !state.curriculum.units.some(unit => unit.topics.some(topic => topic.id === id))) return;
       const selected = state.selection.topicIds, exists = selected.includes(id);
       if (!exists && selected.length >= 100) return;
-      update({ selection: { ...state.selection, topicIds: exists ? selected.filter(item => item !== id) : [...selected, id] } });
+      update({ selection: { sourceIds: state.selection.sourceIds, topicIds: exists ? selected.filter(item => item !== id) : [...selected, id] } });
     },
     selectSource(id: string) {
       if (disposed || !state.curriculum) return;
@@ -180,7 +219,7 @@ export function createFoxyChatController(options: Options) {
       if (!source?.available) return;
       const selected = state.selection.sourceIds, exists = selected.includes(id);
       if (!exists && (selected.length >= 20 || all.filter(item => selected.includes(item.sourceId)).reduce((sum, item) => sum + item.documentCount, 0) + source.documentCount > 6)) return;
-      update({ selection: { ...state.selection, sourceIds: exists ? selected.filter(item => item !== id) : [...selected, id] } });
+      update({ selection: { topicIds: state.selection.topicIds, sourceIds: exists ? selected.filter(item => item !== id) : [...selected, id] } });
     },
     async loadSources(kind: FoxySourceKind) {
       if (disposed || !state.current || state.current.context.kind !== 'CLASSROOM' || loadingSources.has(kind)) return;
@@ -204,6 +243,34 @@ export function createFoxyChatController(options: Options) {
         if (valid(version)) update({ citations: { ...state.citations, [turnId]: citations.map(item => ({ ...item,
           href: item.availability === 'AVAILABLE' ? options.client.citationUrl(id, turnId, item.id, 'preview') : null })) } });
       } catch { if (valid(version)) update({ error: 'No pudimos cargar las citas.' }); }
+    },
+    async resolveToolSelection(topicIds: string[], baseSelection?:SendFoxyMessage['selection']): Promise<SendFoxyMessage['selection'] | undefined> {
+      const current=state.current, version=epoch;
+      if(disposed||!current)return;
+      if(current.context.kind==='GENERAL')return {topicIds:[],sourceIds:[]};
+      const available=state.curriculum?.units.flatMap(unit=>unit.topics.map(topic=>topic.id))??[];
+      if(!state.curriculum?.canGenerate||new Set(topicIds).size!==topicIds.length||topicIds.some(id=>!available.includes(id)))return;
+      const selected=structuredClone(baseSelection??state.selection);
+      if(selected.mode!=='ALL_CLASSROOM')return {topicIds:[...topicIds],sourceIds:selected.sourceIds};
+      if(topicIds.length===available.length)return selected;
+      if(topicIds.length>100)return;
+      const sourceIds:string[]=[];
+      try {
+        for(const kind of ['PLAN','MATERIAL','ACTIVITY'] as const){
+          let after:FoxySourceCursor|null=null;
+          let pages=0;
+          do{
+            if(++pages>4)return;
+            const page=await options.client.sources(current.id,{kind,limit:50,after},abort.signal);
+            if(!valid(version)||state.current?.id!==current.id)return;
+            for(const source of page.items)if(source.available&&!sourceIds.includes(source.sourceId))sourceIds.push(source.sourceId);
+            if(sourceIds.length>20||sourceIds.filter(id=>!id.startsWith('activity:')).length>6)return;
+            if(page.next&&JSON.stringify(page.next)===JSON.stringify(after))return;
+            after=page.next;
+          }while(after);
+        }
+        return {topicIds:[...topicIds],sourceIds};
+      }catch{return;}
     },
     async loadMore() {
       if (disposed || !state.current || state.nextAfterSequence === null || state.busy) return;

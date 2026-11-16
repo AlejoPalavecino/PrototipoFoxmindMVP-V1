@@ -1,0 +1,128 @@
+/* Classroom progress fidelity. Import after parity-classroom-fidelity.css. */
+#foxmind-product .parity-progress-exact{display:grid;gap:24px;min-width:0}
+#foxmind-product.fm3d-theme #classroom-main .parity-progress-exact>.p5-section-head{margin:0;display:flex;align-items:center;justify-content:space-between;gap:18px}
+#foxmind-product.fm3d-theme #classroom-main .parity-progress-exact>.p5-section-head h2{font-size:26px;font-weight:800;line-height:1.25;letter-spacing:-.4px;color:#202c3d;margin:0}
+#foxmind-product .parity-progress-exact>.p5-section-head p{margin:6px 0 0;color:#4b6175!important;font-size:14px!important;line-height:1.6!important}
+.parity-progress-live{display:flex;align-items:center;gap:6px;color:#42654f;font-weight:750;font-size:11px;flex:none}
+.parity-progress-live svg{width:15px;height:15px}
+#foxmind-product .parity-progress-exact .parity-feedback{margin:0}
+#foxmind-product .parity-progress-exact .parity-progress-panel>header{margin-bottom:22px}
+#foxmind-product .parity-progress-exact .parity-progress-panel h3{font-size:20px!important;line-height:1.3;font-weight:800;margin:0}
+#foxmind-product .parity-progress-exact .parity-progress-panel header p{font-size:12px!important;line-height:1.6!important;color:#50687c!important;margin:6px 0 0}
+#foxmind-product .parity-progress-exact .parity-own-summary h3{font-size:23px!important}
+#foxmind-product .parity-progress-exact .parity-own-summary p{font-size:13px!important;line-height:1.7!important;color:#4c6577!important}
+#foxmind-product .parity-progress-exact .parity-own-grade>p{font-size:12px!important;line-height:1.6!important;color:#3b604c!important}
+#foxmind-product.fm3d-theme #classroom-main .parity-progress-exact>.parity-progress-content{margin:0;padding:0;border:0;background:transparent}
+#foxmind-product.fm3d-theme #classroom-main .parity-progress-exact>:is(.parity-feedback,.parity-unit-progress){margin:0;border-color:#bfcedb}
+#foxmind-product .parity-progress-exact :is(.parity-own-grade>b,.parity-grade-summary>b,.parity-feedback article>strong){display:flex;align-items:baseline;gap:.22em;white-space:nowrap;font-variant-numeric:tabular-nums}
+#foxmind-product .parity-progress-exact :is(.parity-own-grade>b,.parity-grade-summary>b,.parity-feedback article>strong)>small{display:inline;margin:0;color:#496c58}
+#foxmind-product .parity-progress-exact :is(.parity-own-summary,.parity-feedback article)>button{font-weight:800;color:#213348;gap:8px}
+#foxmind-product .parity-progress-exact :is(.parity-own-summary,.parity-feedback article)>button svg{width:17px;height:17px;flex:none}
+#foxmind-product .parity-progress-exact .parity-own-summary>div:last-child{min-width:0}
+#foxmind-product .parity-progress-exact .parity-teacher-metrics>section small{color:#496175}
+#foxmind-product .parity-progress-exact .parity-teacher-metrics>section[data-tone=peach]>span{color:#9a4b23;border-color:#dbb292}
+#foxmind-product .parity-progress-exact .parity-teacher-metrics>section[data-tone=mint]>span{color:#37624a;border-color:#acc7b6}
+#foxmind-product .parity-progress-exact .parity-feedback article{padding:19px 0;border-color:#c8d7e0}
+#foxmind-product .parity-progress-exact .parity-feedback article:last-child{padding-bottom:0}
+#foxmind-product .parity-progress-exact .parity-feedback h4{font-size:16px;line-height:1.4;margin:0 0 3px;overflow-wrap:anywhere}
+#foxmind-product .parity-progress-exact .parity-feedback-icon{flex:none}
+#foxmind-product .parity-progress-exact .parity-teacher-metrics p{font-size:12px!important;line-height:1.4!important;color:#3f566a!important}
+#foxmind-product .parity-progress-exact .parity-teacher-metrics>section>div{min-width:0}
+#foxmind-product .parity-progress-exact .parity-chart-bars article>p{font-size:11px!important;line-height:1.6!important;color:#567084!important}
+#foxmind-product .parity-progress-exact .parity-chart-bars button{min-width:0;overflow-wrap:anywhere}
+#foxmind-product .parity-progress-exact .parity-chart-bars strong{display:flex;flex:none;align-items:baseline;gap:.22em;color:#202c3d;font-variant-numeric:tabular-nums}
+#foxmind-product .parity-progress-exact .parity-chart-bars strong>small{display:inline;margin:0;color:#5a7185;font-weight:650}
+#foxmind-product .parity-progress-exact .parity-chart-note{font-size:11px;color:#526b7e}
+.parity-chart-legend>[data-kind=saved]:before,.parity-chart-bar>[data-kind=saved]{background:#467da1}
+.parity-review-queue{display:flex;align-items:center;justify-content:space-between;gap:24px;border:1px solid #d9ba9f;background:#fff1e5;border-radius:18px;padding:22px 25px}
+.parity-review-queue>div{display:flex;align-items:center;gap:15px;min-width:0}
+.parity-review-queue>div>span{display:grid;place-items:center;height:44px;width:44px;border:1px solid #d5aa88;background:#fff9f3;color:#9a4920;border-radius:13px;flex:none}
+#foxmind-product .parity-progress-exact .parity-review-queue h3{font-size:18px;line-height:1.4;font-weight:800;margin:0}
+#foxmind-product .parity-progress-exact .parity-review-queue p{font-size:12px!important;line-height:1.6!important;margin:5px 0 0;color:#704f39!important;overflow-wrap:anywhere}
+.parity-review-queue>button{display:flex;align-items:center;gap:8px;flex:none;font-size:12px;min-height:44px}
+.parity-unit-progress article{padding:15px 0;border-top:1px solid #cfdce5}
+.parity-unit-progress article>div:first-child{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.parity-unit-progress h4{font-size:14px;margin:0;overflow-wrap:anywhere}
+.parity-unit-progress article span{font-size:12px;color:#536c80;flex:none}
+.parity-unit-progress progress{appearance:none;display:block;width:100%;height:9px;border:0;border-radius:999px;background:#e3ece6;overflow:hidden}
+.parity-unit-progress progress::-webkit-progress-bar{background:#e3ece6}
+.parity-unit-progress progress::-webkit-progress-value{background:#54896b;border-radius:999px}
+.parity-unit-progress progress::-moz-progress-bar{background:#54896b;border-radius:999px}
+.parity-person-summary{display:flex;align-items:center;gap:14px;background:#e7f2eb;border:1px solid #bdcebf;border-radius:13px;padding:17px}
+.parity-person-avatar{display:grid;place-items:center;flex:none;background:#d4e7d9;color:#315f4b;border-radius:50%;width:40px;height:40px;font-size:13px;font-weight:800}
+.parity-person-summary>div{min-width:0}
+#foxmind-product .parity-person-summary>section{background:transparent;border:0;padding:0}
+#foxmind-product .parity-person-summary h3{font-size:12px;font-weight:750}
+#foxmind-product .parity-person-summary progress{display:none}
+.parity-person-summary p{font-size:12px!important}
+.parity-student-record-exact .p5-dialog{width:min(720px,calc(100vw - 32px))}
+.parity-student-record-exact .parity-progress-exact[data-progress-scope=member]>.p5-section-head{display:none}
+.parity-student-record-exact .brujula-progress-register{margin:0;padding:0;background:transparent;border:0}
+.parity-student-record-exact .brujula-progress-register>h3,.parity-student-record-exact .brujula-progress-summary{display:none}
+.parity-student-record-exact .brujula-progress-activities{margin:0;padding:0}
+.parity-student-record-exact .brujula-progress-activities>li{display:flex;align-items:center;gap:16px;justify-content:space-between;border:0;border-top:1px solid #ccd9e3;border-radius:0;padding:16px 0;background:transparent}
+.parity-student-record-exact .brujula-progress-activities>li>div{min-width:0;flex:1}
+.parity-student-record-exact .brujula-progress-activities strong{font-size:16px;overflow-wrap:anywhere}
+.parity-student-record-exact .brujula-progress-activities small{font-size:12px;margin-top:6px;display:block}
+.parity-student-record-exact .brujula-progress-activities button{display:flex;align-items:center;gap:5px;flex:none;font-size:12px;min-height:44px}
+@media(min-width:761px){
+  #foxmind-product .parity-progress-exact .parity-own-progress{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)}
+  #foxmind-product .parity-progress-exact .parity-teacher-charts{grid-template-columns:minmax(0,1.45fr) minmax(0,1fr)}
+  #foxmind-product .parity-progress-exact .parity-teacher-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(min-width:521px) and (max-width:760px){
+  #foxmind-product .parity-progress-exact .parity-teacher-metrics{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  #foxmind-product .parity-progress-exact .parity-teacher-metrics>section{display:block;padding:17px}
+  #foxmind-product .parity-progress-exact .parity-teacher-metrics>section>span{width:30px;height:30px;margin-bottom:11px}
+  #foxmind-product .parity-progress-exact .parity-teacher-metrics strong{font-size:27px}
+}
+@media (min-width:761px) and (max-width:1250px){
+  #foxmind-product .parity-progress-exact .parity-progress-ring{width:120px;height:120px}
+  #foxmind-product .parity-progress-exact .parity-own-summary{gap:20px}
+}
+@media(max-width:760px){
+  #foxmind-product .parity-progress-exact{gap:20px}
+  .parity-progress-live{display:none}
+  #foxmind-product.fm3d-theme #classroom-main .parity-progress-exact>.p5-section-head h2{font-size:24px}
+  #foxmind-product .parity-progress-exact .parity-own-grade{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:4px 10px}
+  #foxmind-product .parity-progress-exact .parity-own-grade>svg{grid-row:1/3}
+  #foxmind-product .parity-progress-exact .parity-own-grade>p{margin:0}
+  #foxmind-product .parity-progress-exact .parity-own-grade>b{grid-column:3;grid-row:1/3;font-size:36px}
+  #foxmind-product .parity-progress-exact .parity-own-grade>span{grid-column:2}
+  .parity-review-queue{padding:20px;flex-wrap:wrap;gap:16px}
+  .parity-review-queue>button{margin-left:59px}
+}
+@media(max-width:520px){
+  #foxmind-product .parity-progress-exact .parity-progress-panel{padding:21px 18px;border-radius:18px}
+  #foxmind-product .parity-progress-exact .parity-own-summary{display:block;text-align:center}
+  #foxmind-product .parity-progress-exact .parity-progress-ring{width:132px;height:132px;margin:0 auto 18px}
+  #foxmind-product .parity-progress-exact .parity-own-summary button{width:100%;justify-content:center}
+  #foxmind-product .parity-progress-exact .parity-own-grade{grid-template-columns:1fr auto;gap:5px 12px}
+  #foxmind-product .parity-progress-exact .parity-own-grade>svg{display:none}
+  #foxmind-product .parity-progress-exact .parity-own-grade>p,#foxmind-product .parity-progress-exact .parity-own-grade>span{grid-column:1;font-size:11px!important}
+  #foxmind-product .parity-progress-exact .parity-own-grade>b{grid-column:2;font-size:34px}
+  #foxmind-product .parity-progress-exact .parity-own-grade b>small{font-size:13px}
+  #foxmind-product .parity-progress-exact .parity-teacher-metrics{gap:10px}
+  #foxmind-product .parity-progress-exact .parity-teacher-metrics>section{padding:16px 17px;gap:14px;align-items:center}
+  #foxmind-product .parity-progress-exact .parity-teacher-metrics>section>span{width:41px;height:41px}
+  #foxmind-product .parity-progress-exact .parity-teacher-metrics>section>div{flex:1;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:3px 8px}
+  #foxmind-product .parity-progress-exact .parity-teacher-metrics strong{grid-column:2;grid-row:1/3;font-size:26px;margin:0}
+  #foxmind-product .parity-progress-exact .parity-feedback article{gap:12px;flex-wrap:wrap}
+  #foxmind-product .parity-progress-exact .parity-feedback-icon{width:34px;height:40px;border-radius:9px}
+  #foxmind-product .parity-progress-exact .parity-feedback article>div{flex-basis:calc(100% - 60px)}
+  #foxmind-product .parity-progress-exact .parity-feedback article>strong{margin-left:46px;font-size:20px}
+  #foxmind-product .parity-progress-exact .parity-feedback article>button{margin-left:auto;font-size:11px}
+  .parity-review-queue{padding:18px}
+  .parity-review-queue>div{gap:11px;align-items:flex-start}
+  .parity-review-queue>div>span{width:36px;height:36px;border-radius:10px}
+  .parity-review-queue>button{margin:0;width:100%;justify-content:center}
+  #foxmind-product .parity-progress-exact .parity-student-paths article{grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:18px 0}
+  #foxmind-product .parity-progress-exact .parity-student-paths .parity-progress-person{grid-column:1/-1}
+  #foxmind-product .parity-progress-exact .parity-student-paths article>dl{grid-column:1;grid-row:2;grid-template-columns:1fr 1.4fr;gap:13px}
+  #foxmind-product .parity-progress-exact .parity-student-paths article>button{grid-column:2;grid-row:2;font-size:11px;max-width:100px;padding:5px}
+  .parity-unit-progress h4{font-size:13px;max-width:62%}
+  .parity-unit-progress article span{font-size:11px}
+  .parity-person-summary{grid-template-columns:1fr}
+  .parity-student-record-exact .brujula-progress-activities>li{flex-wrap:wrap;gap:10px}
+  .parity-student-record-exact .brujula-progress-activities>li>div{flex-basis:100%}
+}

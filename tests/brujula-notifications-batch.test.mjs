@@ -5,7 +5,22 @@ test('121 unread notifications require one batch mutation and a readback, indepe
  const {Notifications}=loadTsModule('apps/web/src/features/notifications/ui/Notifications.tsx'),calls=[];let unread=121;
  const rows=Array.from({length:121},(_,i)=>({id:'notification-'+i,eventType:'WALL_NOTICE',classroomName:'Synthetic',createdAt:'2026-11-05T10:00:00Z',readAt:null}));
  const api={call:async(path,method)=>{calls.push([path,method]);if(method==='POST'){if(path==='/notifications/read-all'){const count=unread;unread=0;return {read:true,updatedCount:count};}unread--;return {read:true};}const cursor=path.match(/cursor=(\d+)/)?.[1],start=Number(cursor??0);return {items:unread?rows.slice(start,start+50):[],unreadCount:unread,nextCursor:unread&&start+50<121?String(start+50):null};}};
- const view=hookView(Notifications,{api,refresh:0,presentation:'center',onSelect(){}});try{await view.flush();descendants(view.tree,n=>n.type==='button'&&text(n)==='Marcar todas como leídas')[0].props.onClick();await view.flush();assert.deepEqual(calls.filter(([,method])=>method==='POST'),[['/notifications/read-all','POST']]);assert.equal(unread,0);assert.match(text(view.tree),/Estás al día/);}finally{view.close();}
+ const view=hookView(Notifications,{api,refresh:0,presentation:'center',onSelect(){}});
+ try {
+  await view.flush();
+  const center=()=>view.tree.type(view.tree.props);
+  const mark=descendants(center(),n=>n.type==='button'&&text(n).trim()==='Marcar todas como leídas')[0];
+  assert.ok(mark);
+  mark.props.onClick();
+  await view.flush();
+  assert.deepEqual(calls, [
+   ['/notifications/page?unread=false','GET'],
+   ['/notifications/read-all','POST'],
+   ['/notifications/page?unread=false','GET'],
+  ]);
+  assert.equal(unread,0);
+  assert.match(text(center()),/Estás al día/);
+ } finally {view.close();}
 });
 
 test('read-all proxy/API accepts only empty POST and preserves admission and fresh CSRF forwarding',async()=>{

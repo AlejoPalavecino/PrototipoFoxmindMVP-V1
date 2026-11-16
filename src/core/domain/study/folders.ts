@@ -22,15 +22,21 @@ export interface StudyUnit {
 }
 export interface FolderFields {
     name: string;
+    subject?: string;
+    wizardStep?: number;
     academicYear: number;
     bannerKey: string;
     units: StudyUnit[];
     linkedClassroomId: string | null;
     planFileId: string | null;
 }
-export function validateFolder(value: unknown, active: boolean): FolderFields {
+export function validateFolder(value: unknown, active: boolean, hasImportedPlan = false): FolderFields {
     const p = studyObject(value);
-    if (Object.keys(p).some(k => !['name', 'academicYear', 'bannerKey', 'units', 'linkedClassroomId', 'planFileId'].includes(k)))
+    if (Object.keys(p).some(k => !['name', 'subject', 'wizardStep', 'academicYear', 'bannerKey', 'units', 'linkedClassroomId', 'planFileId'].includes(k)))
+        studyFail('INVALID_INPUT');
+    const subject = studyText(p.subject === undefined ? '' : p.subject, 100, true);
+    const wizardStep = p.wizardStep === undefined ? 0 : p.wizardStep;
+    if (!Number.isInteger(wizardStep) || Number(wizardStep) < 0 || Number(wizardStep) > 3)
         studyFail('INVALID_INPUT');
     const name = studyText(p.name ?? '', 120, !active), academicYear = p.academicYear ?? new Date().getUTCFullYear(), bannerKey = p.bannerKey ?? 'general';
     if (!Number.isInteger(academicYear) || Number(academicYear) < 1 || Number(academicYear) > 9999 || !isClassroomCoverKey(bannerKey))
@@ -42,9 +48,9 @@ export function validateFolder(value: unknown, active: boolean): FolderFields {
         studyFail('INVALID_INPUT'); seen.add(id); if (Object.keys(u).some(k => !['id', 'title', 'topics'].includes(k)) || !Array.isArray(u.topics) || u.topics.length > 200)
         studyFail('INVALID_INPUT'); return { id, title: studyText(u.title, 120, !active), topics: u.topics.map(raw => { const t = studyObject(raw); const id = studyId(t.id); if (Object.keys(t).some(k => !['id', 'title'].includes(k)) || seen.has(id))
             studyFail('INVALID_INPUT'); seen.add(id); return { id, title: studyText(t.title, 120, !active) }; }) }; });
-    if (active && (p.planFileId == null || !units.length || units.some(u => !u.topics.length)))
+    if (active && ((!hasImportedPlan && p.planFileId == null) || !units.length || units.some(u => !u.topics.length)))
         studyFail('INVALID_INPUT');
-    return { name, academicYear: Number(academicYear), bannerKey: String(bannerKey), units, linkedClassroomId: p.linkedClassroomId == null ? null : studyId(p.linkedClassroomId), planFileId: p.planFileId == null ? null : studyId(p.planFileId) };
+    return { name, subject, ...(!active ? { wizardStep: Number(wizardStep) } : {}), academicYear: Number(academicYear), bannerKey: String(bannerKey), units, linkedClassroomId: p.linkedClassroomId == null ? null : studyId(p.linkedClassroomId), planFileId: p.planFileId == null ? null : studyId(p.planFileId) };
 }
 
 export const STUDY_MATERIAL_LIMIT = 100;

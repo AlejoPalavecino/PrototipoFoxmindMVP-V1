@@ -25,62 +25,19 @@ async function setup(search = '') {
   await view.flush(); return { view, entered, searched, fixture };
 }
 
-test('visible controls derive global options and preserve criteria across presentation changes', async () => {
-  const { view, entered, searched, fixture } = await setup();
-  const before = structuredClone(fixture);
-  try {
-    assert.equal(button(view, 'Más filtros'), undefined, 'Filters are directly available in the approved layout');
-    const options = label => descendants(select(view, label), n => n.type === 'option').map(n => String(n.props.value));
-    assert.deepEqual(options('Ciclo lectivo'), ['', '2026', '2025']);
-    assert.deepEqual(options('División'), ['', 'A', 'B', 'C']);
-    button(view, 'Archivadas').props.onClick(); await view.flush();
-    assert.deepEqual(cards(view).map(n => n.props.room.id), ['old']);
-    assert.equal(text(button(view, 'Archivadas')), 'Archivadas 1');
-    assert.match(text(view.tree), /Mostrando 1 de 3 aulas/);
-    assert.deepEqual(options('Ciclo lectivo'), ['', '2026', '2025']);
-    select(view, 'Ciclo lectivo').props.onChange({ target: { value: '2025' } }); await view.flush();
-    select(view, 'División').props.onChange({ target: { value: 'B' } }); await view.flush();
-    button(view, 'Vista de lista').props.onClick(); await view.flush();
-    assert.equal(select(view, 'Ciclo lectivo').props.value, '2025');
-    assert.equal(select(view, 'División').props.value, 'B');
-    assert.deepEqual(entered, []); assert.deepEqual(searched, []); assert.deepEqual(fixture, before, 'Filtering never mutates supplied classroom data');
-    assert.deepEqual(cards(view).map(n => n.props.room.id), ['old']);
-    assert.equal(button(view, 'Archivadas').props['aria-pressed'], true, 'Archive state remains selected with visible filters');
-  } finally { view.close(); }
-});
-
-test('clearing only advanced criteria preserves state and parent-owned search', async () => {
-  const { view, searched } = await setup('Ada');
-  try {
-    button(view, 'Archivadas').props.onClick(); await view.flush();
-    assert.ok(select(view, 'Ciclo lectivo')); assert.ok(select(view, 'División'));
-    select(view, 'Ciclo lectivo').props.onChange({ target: { value: '2025' } }); await view.flush();
-    select(view, 'División').props.onChange({ target: { value: 'C' } }); await view.flush();
-    assert.equal(cards(view).length, 0); assert.match(text(view.tree), /No hay coincidencias/i);
-    const clear = button(view, 'Limpiar filtros'); assert.ok(clear); clear.props.onClick(); await view.flush();
-    assert.equal(button(view, 'Archivadas').props['aria-pressed'], true);
-    assert.deepEqual(cards(view).map(n => n.props.room.id), ['old']);
-    assert.equal(descendants(view.tree, n => n.type === 'input' && n.props.type === 'search')[0].props.value, 'Ada');
-    assert.deepEqual(searched, [], 'clearing advanced criteria does not clear the parent search');
-  } finally { view.close(); }
-});
-
-test('grid/list switches preserve result ordering and exact entry callbacks', async () => {
-  const { view, entered } = await setup();
-  try {
-    const grid = button(view, 'Vista de tarjetas'), list = button(view, 'Vista de lista');
-    assert.ok(grid); assert.ok(list); assert.equal(grid.props['aria-pressed'], true);
-    assert.equal(list.props.type, 'button');
-    const before = cards(view).map(n => n.props.room.id);
-    list.props.onClick(); await view.flush();
-    assert.equal(button(view, 'Vista de lista').props['aria-pressed'], true);
-    assert.deepEqual(cards(view).map(n => n.props.room.id), before);
-    for (const card of cards(view)) {
-      const enter = descendants(card.type(card.props), n => n.type === 'button' && text(n).startsWith('Entrar al aula'))[0];
-      assert.ok(enter); enter.props.onClick();
-    }
-    assert.deepEqual(entered, ['student', 'teacher']);
-    button(view, 'Vista de tarjetas').props.onClick(); await view.flush();
-    assert.deepEqual(cards(view).map(n => n.props.room.id), before);
-  } finally { view.close(); }
+test('el catálogo ofrece sólo tabs y búsqueda aprobados y conserva entrada exacta', async () => {
+ const {view,entered,searched,fixture}=await setup(); const before=structuredClone(fixture);
+ try {
+  assert.equal(button(view,'Filtros'),undefined);
+  assert.equal(button(view,'Vista de lista'),undefined);
+  assert.equal(button(view,'Vista de tarjetas'),undefined);
+  assert.equal(descendants(view.tree,n=>n.type==='select').length,0);
+  button(view,'Archivadas').props.onClick(); await view.flush();
+  assert.deepEqual(cards(view).map(n=>n.props.room.id),['old']);
+  const input=descendants(view.tree,n=>n.type==='input'&&n.props.type==='search')[0];
+  input.props.onChange({target:{value:'Historia'}}); assert.deepEqual(searched,['Historia']);
+  button(view,'Activas').props.onClick(); await view.flush();
+  for(const card of cards(view)) descendants(card.type(card.props),n=>n.type==='a')[0].props.onClick({button:0,preventDefault(){}});
+  assert.deepEqual(entered,['student','teacher']); assert.deepEqual(fixture,before);
+ } finally {view.close();}
 });

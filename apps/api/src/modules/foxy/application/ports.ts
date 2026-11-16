@@ -1,5 +1,5 @@
 import type { FoxyGroundingSnapshot, FoxyGroundingFile } from '../../../../../../src/core/domain/foxy/grounding.ts';
-import type { CreateFoxyConversation, DiscardFoxyPrivateAsset, FoxyAnswer, FoxyContext, FoxyPrivateAssetDiscardReceipt, FoxyPrivateAssetInspection, FoxyPrivateAssetReadDescriptor, FoxyPublicationManagement, FoxyPublicationState, FoxyVisualPublicationSummary, PrepareFoxyVisualPublication, SendFoxyMessage } from '../../../../../../src/core/domain/index.ts';
+import type { EditFoxyPrivateAsset, FoxyPrivateAssetEditReceipt, CreateFoxyConversation, DiscardFoxyPrivateAsset, FoxyAnswer, FoxyContext, FoxyPrivateAssetDiscardReceipt, FoxyPrivateAssetInspection, FoxyPrivateAssetReadDescriptor, FoxyPublicationManagement, FoxyPublicationState, FoxyVisualPublicationSummary, PrepareFoxyVisualPublication, SendFoxyMessage } from '../../../../../../src/core/domain/index.ts';
 import type { SqlTransaction } from '../../../../../../src/core/contracts/sql.ts';
 import type { CreationKind, CreationStatus, CreationPageOptions } from '../domain/catalog-input.ts';
 export interface FoxyActor {
@@ -81,6 +81,7 @@ export interface FoxyConversationRepositoryPort {
     remove(tx: SqlTransaction, owner: string, id: string, revision: string): Promise<void>;
 }
 export interface FoxyTurnRepositoryPort {
+    cancel(tx: SqlTransaction, owner: string, conversationId: string, turnId: string): ReturnType<FoxyTurnRepositoryPort['get']>;
     replay(tx: SqlTransaction, owner: string, conversationId: string, requestId: string, hash: string): Promise<{
         created: boolean;
         turn: {
@@ -100,6 +101,7 @@ export interface FoxyTurnRepositoryPort {
         conversationRevision: string;
     }>;
     get(tx: SqlTransaction, owner: string, conversationId: string, turnId: string): Promise<{
+        classroomSources?: { revision: string; used: {sourceId:string;title:string}[]; excluded: {sourceId:string;title:string;reason:string}[] };
         id: string;
         sequence: number;
         state: string;
@@ -111,6 +113,7 @@ export interface FoxyTurnRepositoryPort {
         citations: Citation[];
     } | null>;
     list(tx: SqlTransaction, owner: string, conversationId: string, page: Page): Promise<{
+        classroomSources?: { revision: string; used: {sourceId:string;title:string}[]; excluded: {sourceId:string;title:string;reason:string}[] };
         id: string;
         sequence: number;
         state: string;
@@ -130,6 +133,9 @@ export interface FoxyCreationRepositoryPort {
             id: string;
         } | null;
     }>;
+}
+export interface FoxyPrivateAssetEditorialRepositoryPort {
+    edit(tx: SqlTransaction, ownerId: string, assetId: string, command: EditFoxyPrivateAsset): Promise<FoxyPrivateAssetEditReceipt>;
 }
 export interface FoxyPrivateAssetDiscardRepositoryPort {
     discard(tx: SqlTransaction, ownerId: string, assetId: string, command: DiscardFoxyPrivateAsset): Promise<FoxyPrivateAssetDiscardReceipt>;
@@ -182,6 +188,7 @@ export interface FoxyPublicationRepositoryPort {
     }>;
     inspect(tx: SqlTransaction, owner: string, publicationId: string): Promise<{
         publication: FoxyVisualPublicationSummary;
+        editorialSnapshot?: { title: string; description: string | null; revision: string | null };
         classroomRevision: string;
         classroomArchived: boolean;
         errorCode: string | null;
@@ -273,4 +280,5 @@ export interface FoxyResourceRepositoryPort {
 
 import type { StartFoxyVisual, FoxyVisualKind, FoxyAspectRatio } from '../../../../../../src/core/domain/index.ts';
 import type { VisualProfile } from '../domain/visual-profile.ts';
-export interface FoxyVisualRepositoryPort { replay(tx: SqlTransaction, owner: string, conversationId: string, input: StartFoxyVisual): Promise<{ created: boolean; job: { id: string; conversationId: string; kind: FoxyVisualKind; aspectRatio: FoxyAspectRatio; state: string; assetId: string; errorCode: string | null; createdAt: string; }; conversationRevision: string; } | null>; enqueue(tx: SqlTransaction, owner: string, conversationId: string, input: StartFoxyVisual, snapshot: FoxyGroundingSnapshot, profile: VisualProfile, quota: bigint): Promise<{ created: boolean; job: { id: string; conversationId: string; kind: FoxyVisualKind; aspectRatio: FoxyAspectRatio; state: string; assetId: string; errorCode: string | null; createdAt: string; }; conversationRevision: string; }>; get(tx: SqlTransaction, owner: string, conversationId: string, jobId: string): Promise<{ id: string; conversationId: string; kind: FoxyVisualKind; aspectRatio: FoxyAspectRatio; state: string; assetId: string; errorCode: string | null; createdAt: string; } | null>; list(tx: SqlTransaction, owner: string, conversationId: string, page: { limit: number; afterId: string | null; }): Promise<{ items: { id: string; conversationId: string; kind: FoxyVisualKind; aspectRatio: FoxyAspectRatio; state: string; assetId: string; errorCode: string | null; createdAt: string; }[]; nextAfterId: string | null; }>; }
+export interface FoxyVisualRepositoryPort {
+    cancel(tx: SqlTransaction, owner: string, conversationId: string, jobId: string): ReturnType<FoxyVisualRepositoryPort['get']>; replay(tx: SqlTransaction, owner: string, conversationId: string, input: StartFoxyVisual): Promise<{ created: boolean; job: { id: string; conversationId: string; kind: FoxyVisualKind; aspectRatio: FoxyAspectRatio; state: string; assetId: string; errorCode: string | null; createdAt: string; }; conversationRevision: string; } | null>; enqueue(tx: SqlTransaction, owner: string, conversationId: string, input: StartFoxyVisual, snapshot: FoxyGroundingSnapshot, profile: VisualProfile, quota: bigint): Promise<{ created: boolean; job: { id: string; conversationId: string; kind: FoxyVisualKind; aspectRatio: FoxyAspectRatio; state: string; assetId: string; errorCode: string | null; createdAt: string; }; conversationRevision: string; }>; get(tx: SqlTransaction, owner: string, conversationId: string, jobId: string): Promise<{ id: string; conversationId: string; kind: FoxyVisualKind; aspectRatio: FoxyAspectRatio; state: string; assetId: string; errorCode: string | null; createdAt: string; } | null>; list(tx: SqlTransaction, owner: string, conversationId: string, page: { limit: number; afterId: string | null; }): Promise<{ items: { id: string; conversationId: string; kind: FoxyVisualKind; aspectRatio: FoxyAspectRatio; state: string; assetId: string; errorCode: string | null; createdAt: string; }[]; nextAfterId: string | null; }>; }

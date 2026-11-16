@@ -12,9 +12,8 @@ export function WizardSuggestions({ extraction, hasUnits, review }: {
     <div className="p5-section-head">
       <span className="wizard-section-icon"><FoxmindIcon name="spark" /></span>
       <span><strong>Del plan a tus unidades</strong><small>Revisá la propuesta y decidí qué unidades usar.</small></span>
-      <span className="wizard-approved">{extraction.view.proposal.units.length} unidades sugeridas</span>
-      <span className="wizard-suggestions-action">Revisá las sugerencias antes de aplicarlas.</span>
+      <span className="wizard-approved">{extraction.view.proposal.units.length} {extraction.view.proposal.units.length === 1 ? 'unidad sugerida' : 'unidades sugeridas'}</span>
     </div>
-    <PlanExtraction extraction={extraction} hasUnits={hasUnits} review={review} />
+    <PlanExtraction extraction={extraction} hasUnits={hasUnits} review={review} hideIntro />
   </section>;
 }

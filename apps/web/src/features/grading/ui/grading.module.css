@@ -5,7 +5,7 @@
 }
 /* The classroom's legacy global typography must not enlarge the correction desk. */
 .workspace:global(.p8-grading) { padding: 0 !important; border: 0 !important; background: transparent !important; }
-.workspace :is(p, label, summary), .result :is(p, label, summary), .feedbackBlock p {
+.workspace :is(p, label), .result :is(p, label), .feedbackBlock p {
   font-size: 14px !important; line-height: 1.65 !important; color: #555d78 !important;
 }
 .workspace :is(h4, h5), .result :is(h4, h5), .feedbackBlock :is(h5, h6) { color: #252646 !important; }
@@ -68,7 +68,6 @@
 }
 .answerBox > :is(p, ul) { margin: 0; }
 .answerBox ul { padding-inline-start: 20px; }
-.workspace summary, .planProgress summary { cursor: pointer; min-height: 44px; align-content: center; }
 .workspace label { margin: 0; }
 .workspace textarea { min-height: 76px; resize: vertical; }
 .workspace .scoreInput { max-width: 200px; }
@@ -132,7 +131,7 @@
 .progressRow div { min-width: 0; flex: 1 1 180px; }
 .progressRow h4 { margin: 6px 0; overflow-wrap: anywhere; }
 .progressRow p { margin: 4px 0 0; }
-.planProgress { margin-top: 18px; }
+.secondaryAction { justify-self: start; min-height: 44px; }
 .planProgress progress { width: min(100%, 280px); display: block; }
 
 @media (max-width: 1050px) {
@@ -219,3 +218,56 @@
   .rubricScore { grid-template-columns: minmax(0, 1fr); }
   .rubricScore input { max-width: 120px; }
 }
+
+.workspace [hidden] { display: none !important; }
+.workspace .reviewHeading { background: #fff; border-color: #ccd6df; }
+.reviewPerson { display: flex; gap: .7rem; align-items: center; min-width: 0; }
+.reviewPerson > span {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.85rem;
+  height: 2.85rem;
+  background: #dfefe7;
+  color: #24583a;
+  border-radius: .8rem;
+  font-weight: 850;
+}
+.workspace .review, .workspace .workEvidence {
+  padding: 1rem clamp(.95rem, 2vw, 1.35rem);
+  border: 1px solid #ccd6df;
+  border-radius: 1.1rem;
+  background: white;
+}
+.review h5, .workEvidence h5 { display: flex; gap: .45rem; align-items: center; }
+.review h5 svg, .workEvidence h5 svg, .state svg, .publishedPill svg { height: 1rem; width: 1rem; flex: none; }
+.workspace .state, .publishedPill { display: inline-flex; gap: .38rem; align-items: center; font-weight: 800; }
+.workspace .state:not([data-tone]) { background: #e1edf9; color: #274b72; }
+.gradingTabs, .gradingQuestionNav { display: flex; flex-wrap: wrap; gap: .45rem; }
+.gradingTabs button, .gradingQuestionNav button { min-width: 44px; min-height: 44px; font-weight: 800; }
+.gradingTabs button[aria-pressed='true'], .gradingQuestionNav button[aria-current] { background: #ffe3d1; color: #87370c; border-color: #b74710; }
+.reviewPanel { display: grid; gap: .85rem; }
+.workspace .workEvidence > .panel { padding: .65rem .85rem; }
+.workEvidence .answerBox { background: #f3f7fc; }
+.resultOverview { display: grid; gap: 1rem; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); align-items: start; }
+.resultOverview > :only-child { grid-column: 1 / -1; }
+.resultAnswers { border: 1px solid #ccd6df; border-radius: 1rem; padding: .6rem .85rem; background: white; }
+.resultAnswers article { margin-top: .55rem; }
+.publishedPill { margin: .5rem 0; background: #dfefe7; color: #24583a; border-radius: 999px; padding: .25rem .65rem; font-size: .8rem; }
+.progressWorkspace button.progressStat { display: grid; gap: .35rem; text-align: left; justify-items: start; min-height: 44px; }
+.progressWorkspace button.progressStat[aria-pressed='true'] { border-color: #b74710; box-shadow: 0 0 0 1px #b74710; }
+.progressStat svg { width: 1.25rem; height: 1.25rem; }
+.progressStat[data-tone='continue'] { background: #fff1e4; color: #79340f; }
+.progressStat[data-tone='submitted'] { background: #e1edf9; color: #274b72; }
+.progressStat[data-tone='published'] { background: #dfefe7; color: #24583a; }
+@media (max-width: 700px) {
+  .resultOverview { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Approved correction desk tones and spacing. */
+.workspace{gap:24px}.workspace .reviewHeading{background:#fff;border-color:#c4d2df;border-radius:20px;padding:24px}.columns{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px}.workspace .panel,.workspace .review{border-color:#c4d2df;border-radius:20px;padding:24px;background:#fff}.workspace .assistant{background:#fff5e9;border-color:#e3c7a8}.workspace :is(p,label),.result :is(p,label),.feedbackBlock p{color:#475f73!important}.workspace :is(h4,h5),.result :is(h4,h5),.feedbackBlock :is(h5,h6){color:#202c3d!important}.workspace textarea:focus-visible,.workspace input:focus-visible{outline:3px solid #ad4b1b}.workspace input,.workspace textarea{border-color:#b9c8d8!important;color:#202c3d!important}.state{border-radius:8px}.metrics{gap:16px}.metric{border-radius:18px;box-shadow:none}.progressWorkspace{gap:0}.progressWorkspace>.result{margin-top:24px}.progressRow{box-shadow:none}.resultHeading{background:#e7f2ec}
+@media(max-width:760px){.columns{grid-template-columns:minmax(0,1fr)}.workspace .panel,.workspace .review{padding:19px}}
+
+/* iter17 grading polish: equal evidence and feedback columns. */
+.columns{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}.workspace .panel,.workspace .review{padding:16px 18px;border-radius:19px}.workspace .reviewHeading{padding:0;border:0;background:transparent;margin-bottom:0;gap:14px}.workspace .reviewHeading h4{font-size:clamp(22px,3vw,30px);line-height:1.15}.workspace .reviewPerson>span{width:43px;height:43px}.workspace .navigation{gap:10px}.workspace .navigation button{font-size:12px;min-height:42px}.workspace .workEvidence{gap:14px}.workspace .answerBox{padding:14px;background:#edf4f9;border:1px solid #c2d3e0;border-radius:12px}.workspace .answerCard{gap:10px}.workspace .review label{font-size:12px;font-weight:750}.workspace .review textarea{font-size:13px!important;line-height:1.6;min-height:110px}.workspace .review>section+section{margin-top:4px}.workspace .assistant{padding:15px;border-radius:14px;background:#fff4e7}.workspace .actions button{font-size:12px;min-height:42px}.workspace .panel h4,.workspace .review h4{font-size:20px!important}.workspace .state{font-size:11px;padding:5px 8px}
+@media(max-width:760px){.columns{grid-template-columns:minmax(0,1fr);gap:18px}.workspace .reviewHeading{align-items:flex-start}.workspace .navigation{width:100%}.workspace .navigation button{min-height:44px}}

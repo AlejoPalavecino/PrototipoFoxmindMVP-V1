@@ -5,7 +5,7 @@ export interface ClassroomFileOperations {
  advanceRevision: RevisionPort;
 }
 export interface MaterialPublisherPort {
- publish(tx: Transaction, request: unknown, actorId: string, input: { classroomId: string; revision: string; title: string; fileId: string; unitId: string | null; topicId: string | null }): Promise<{ materialId: string; classroomRevision: string }>;
+ publish(tx: Transaction, request: unknown, actorId: string, input: { classroomId: string; revision: string; title: string; body?: string; fileId: string; unitId: string | null; topicId: string | null }): Promise<{ materialId: string; classroomRevision: string }>;
 }
 
-export type MaterialPublicationInput = { classroomId: string; revision: string; title: string; fileId: string; unitId: string | null; topicId: string | null };
+export type MaterialPublicationInput = { classroomId: string; revision: string; title: string; body?: string; fileId: string; unitId: string | null; topicId: string | null };

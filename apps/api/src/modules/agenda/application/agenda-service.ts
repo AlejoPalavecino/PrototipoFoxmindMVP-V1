@@ -17,7 +17,8 @@ export class AgendaService {
       if (!previous) return { event: await unit.events.create(id, payload), created: true };
       if (JSON.stringify(parseAgendaEvent({ title: previous.title, description: previous.description,
         category: previous.category, schedule: previous.schedule, repeat: previous.repeat,
-        ...(previous.color === undefined ? {} : { color: previous.color }) })) !== JSON.stringify(payload))
+        ...(previous.color === undefined ? {} : { color: previous.color }),
+        ...(previous.reminder ? { reminder: previous.reminder } : {}) })) !== JSON.stringify(payload))
         throw new AgendaError('CONFLICT');
       return { event: previous, created: false };
     });

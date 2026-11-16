@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-16",
+  "scope": "Pantallas de carga de Crear aula; catálogo e interiores no reauditados",
+  "build": "9kd2-Q_4wbH56iBv8jtQX",
+  "viewports": [
+    [
+      320,
+      740
+    ],
+    [
+      390,
+      580
+    ],
+    [
+      390,
+      844
+    ],
+    [
+      1440,
+      1000
+    ]
+  ],
+  "auditedViews": 14,
+  "loadingViews": 13,
+  "minimumSampledLoadingContrast": 5.35,
+  "minimumSampledContrast": 4.55,
+  "horizontalOverflow": [],
+  "footerInaccessible": [],
+  "brokenImages": [],
+  "behavior": {
+    "display": {
+      "build": "9kd2-Q_4wbH56iBv8jtQX",
+      "backdrop": "rgba(40, 53, 69, 0.4)",
+      "blur": "none"
+    },
+    "reduced": {
+      "spinner": "none",
+      "track": "none"
+    },
+    "focusInside": true,
+    "preservedFile": true,
+    "errorText": "No pudimos consultar el estado del análisis. Podés volver a consultarlo sin iniciar otra generación.",
+    "starts": 1,
+    "applyRequests": 0,
+    "calls": [
+      {
+        "method": "POST",
+        "path": "/api/v1/classrooms/drafts/a8dac8a3-afcc-42d3-8fb1-74c4cf08930a/curriculum-extractions"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/classrooms/drafts/a8dac8a3-afcc-42d3-8fb1-74c4cf08930a/curriculum-extractions/22222222-2222-4222-8222-222222222222"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/classrooms/drafts/a8dac8a3-afcc-42d3-8fb1-74c4cf08930a/curriculum-extractions/22222222-2222-4222-8222-222222222222"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/classrooms/drafts/a8dac8a3-afcc-42d3-8fb1-74c4cf08930a/curriculum-extractions/22222222-2222-4222-8222-222222222222"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/classrooms/drafts/a8dac8a3-afcc-42d3-8fb1-74c4cf08930a/curriculum-extractions/22222222-2222-4222-8222-222222222222"
+      }
+    ]
+  },
+  "persistence": {
+    "name": "QA · Pantallas de carga",
+    "wizardStep": 1,
+    "units": 0,
+    "published": false,
+    "file": {
+      "ready": true,
+      "validation": "APPROVED",
+      "scan": "CLEAN",
+      "name": "programa-ciencias-qa.pdf"
+    },
+    "syntheticOverride": false,
+    "build": "9kd2-Q_4wbH56iBv8jtQX"
+  },
+  "images": [
+    {
+      "file": "loading-reference-upload-1440.png",
+      "sha256": "7aa82cd9dc93d37ef28b8861cf259f13f8b354c86735ebd47b5ea40e26a08dff"
+    },
+    {
+      "file": "loading-reference-ai-390.png",
+      "sha256": "055830732a28a40acc4065cd8615fb6043ec583bddcd85b792a984b58cc2db12"
+    },
+    {
+      "file": "loading-accepted-upload-1440.png",
+      "sha256": "347bb4af412c7fbb2ad5647ad8eb2977c4411f4197293d566d475e303ef797ea"
+    },
+    {
+      "file": "loading-accepted-upload-390.png",
+      "sha256": "0eeed3da934ae49485967c09b61c01bf2fd408c2a28498481c745743194037a2"
+    },
+    {
+      "file": "loading-accepted-ai-running-1440x1000.png",
+      "sha256": "0023860aa021c5fb225f2b77fba1c42c2bb93bf044e8153d91636af275760ee6"
+    },
+    {
+      "file": "loading-accepted-ai-running-390x844.png",
+      "sha256": "522f106eaf15b97f5e371786adb3e709caecb1027e21a0bb68902a4eef4de7fb"
+    },
+    {
+      "file": "loading-accepted-ai-running-320x740.png",
+      "sha256": "89d7db8fd2ab150c8db4d63e4eeeab8f3a7d205c88f4e39e27df8bfacfec341f"
+    },
+    {
+      "file": "loading-accepted-ai-poll-error-390.png",
+      "sha256": "5b4c06635d324b95949dbe486c8facc4949ad04179cfb871b19ce67d600954fd"
+    },
+    {
+      "file": "loading-accepted-ai-poll-error-short.png",
+      "sha256": "9edd02da7c0d0d49d4ec2f93ccb7fe681348916aebc5873f25a098239a35dc6a"
+    }
+  ],
+  "realAnalysis": "Un intento respondió AI_BUDGET_EXCEEDED. SENDING/QUEUED/RUNNING/READY y error GET verificados con interceptación sólo de la pestaña del borrador propio, retirada al finalizar. No aplicación ni publicación de propuesta sintética.",
+  "limits": [
+    "No generación real exitosa en esta pasada",
+    "Muestreo de contraste; no auditoría WCAG completa",
+    "Validación de archivo pendiente y respuesta tardía cubiertas por pruebas de componentes"
+  ]
+}

@@ -122,11 +122,13 @@
 .visualForm { margin: 0; padding: 0; border: 0; background: transparent; }
 .visualForm > p { margin: 0; }
 .resourceViewer, .resourceFields { display: grid; gap: 12px; min-width: 0; }
+.resourcePanel { border: 1px solid var(--foxy-border); border-radius: 12px; padding: 12px; }
+.resourcePanel > :not(button):not([hidden]) { margin-top: 12px; }
+.resourcePanel > [hidden] { display: none; }
 .resourceActions { display: flex; flex-wrap: wrap; gap: 8px; margin-block: 8px; }
 .resourceActions a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none; }
-.resourceDisclosure { border: 1px solid var(--foxy-border); border-radius: 12px; padding: 0 12px; }
-.resourceDisclosure > summary { align-content: center; min-height: 44px; cursor: pointer; font-weight: 650; }
-.resourceDisclosure > :not(summary) { margin-block: 8px 12px; }
+.visualGenerator { border: 1px solid var(--foxy-border); border-radius: 12px; padding: 12px; }
+.visualForm .visualGenerator[hidden] { display: none; }
 .visualPreview { display: grid; gap: 8px; }
 .visualPreview img { max-width: 100%; height: auto; margin-inline: auto; }
 .tool :is(h3, h4, p) { margin: 0; }
@@ -362,7 +364,7 @@
 .composerActions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; }
 .workspace .composer .composerActions button { min-height: 44px; font-size: 13px; }
 .workspace .activeMode button { min-height: 44px; min-width: 44px; padding: 6px 10px; font-size: 12px; }
-.composerActions svg { width: 16px; height: 16px; vertical-align: middle; }
+.composerActions > button svg, .composerTools > button svg { width: 16px; height: 16px; vertical-align: middle; }
 .contextPicker { display: grid; gap: 16px; }
 .contextPicker fieldset { min-width: 0; margin: 0; padding: 0; border: 0; display: grid; gap: 8px; }
 .workspace .contextPicker fieldset > label { display: flex; flex-direction: row; align-items: center; gap: 12px; min-height: 56px; padding: 10px 14px; border: 1px solid #dce2ef; border-radius: 12px; cursor: pointer; }
@@ -376,6 +378,7 @@
 .contextSources input { flex: none; }
 .workspace .collectionList > li > button { overflow-wrap: anywhere; min-height: 44px; }
 .search select { min-width: 0; min-height: 44px; }
+.filterToggle { justify-self: start; }
 .creationFilters { border: 1px solid #e1ddec; border-radius: 12px; padding: 0 12px; }
 .creationFilters > div { padding: 8px 0; border-top: 1px solid #e8e4ee; }
 .creationGrid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 265px), 1fr)); gap: 12px; }
@@ -427,7 +430,7 @@
   .workspace .resourceCard { grid-template-columns: auto minmax(0,1fr); padding: 12px; }
   .workspace .resourceCard button { grid-column: 2; justify-self: start; }
   .workspace .composer { margin-inline: 9px; padding: 7px 9px; }
-  .composerTools button svg { width: 15px; height: 15px; }
+  .composerTools > button svg { width: 15px; height: 15px; }
   .galleryHeading img { width: 48px; height: 48px; }
 }
 @media(max-width:390px) {
@@ -437,3 +440,23 @@
 @media(max-width:520px) {
   .workspace .refreshHeading h2 { margin-right: 52px; }
 }
+
+.workspace { min-width:0; min-height:22rem; height:calc(100dvh - 64px); display:flex; }
+.workspace .contextLaunch { min-width:0; max-width:100%; background:#f1edf9; border-color:#e1d8ed; }
+.contextLaunch > span { min-width:0; overflow:hidden; text-overflow:ellipsis; }
+.workspace .chat { min-height:0; height:var(--chat-height,100%); }
+.workspace .composer > label { font-size:0; }
+.workspace .composer textarea { resize:vertical; max-height:35dvh; }
+.workspace .composer { width:min(calc(100% - 28px),1000px); margin-inline:auto; }
+.workspace .turn { width:min(calc(100% - 28px),1000px); margin-inline:auto; }
+.workspace .stop { margin:4px 18px; align-self:flex-end; }
+.workspace .welcome { background:radial-gradient(ellipse at center,#fff4e9,#fff 62%); }
+.foxyMark { width:120px; height:104px; }
+.foxyMark img { width:88px; height:90px; }
+@media(max-width:1023px) { .workspace { height:calc(100dvh - 108px); } }
+/* UI Lab welcome art and suggestions. */
+.welcomePrompts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; width:100%; max-width:570px; }
+.foxyMark .orbitOne,.foxyMark .orbitTwo { position:absolute; display:grid; place-items:center; width:34px; height:34px; border:1px solid #bdcddd; border-radius:11px; background:#e4edf7; left:0; top:7px; transform:rotate(-12deg); color:#365a76; }
+.foxyMark .orbitTwo { left:auto; right:0; top:58px; background:#ffead8; border-color:#e2b792; color:#984516; transform:rotate(12deg); }
+.foxyMark svg { width:19px; height:19px; }
+@media(max-width:680px){.welcomePrompts{grid-template-columns:1fr;gap:7px}}

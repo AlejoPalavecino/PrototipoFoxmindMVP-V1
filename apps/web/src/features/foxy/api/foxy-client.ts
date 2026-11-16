@@ -5,7 +5,8 @@ import { type FoxySourceKind, type FoxySourceCursor } from '../../../../../../sr
 
 export interface FoxyConversation { id: string; title: string; context: FoxyContext; revision: string }
 export interface FoxyConversationCursor { updatedAt: string; id: string }
-export interface FoxyTurn { id: string; sequence: number; state: 'QUEUED' | 'RUNNING' | 'READY' | 'FAILED' | 'STALE';
+export interface FoxyTurn { id: string; sequence: number; state: 'QUEUED' | 'RUNNING' | 'READY' | 'FAILED' | 'STALE' | 'CANCELLED';
+  classroomSources?: { revision: string; used: {sourceId:string;title:string}[]; excluded: {sourceId:string;title:string;reason:string}[] };
   purpose: FoxyPurpose; message: string; answer: { title: string; markdown: string; schemaVersion: 'foxy-answer-v1'; warnings: string[]; missingInformation: string[] } | null;
   errorCode: string | null; createdAt: string }
 export interface FoxyCapabilities { textGeneration: { enabled: boolean }; imageGeneration: { enabled: boolean }; diagramGeneration: { enabled: boolean } }
@@ -17,7 +18,7 @@ export interface FoxySource { sourceId: string; kind: FoxySourceKind; title: str
   currentPlan: boolean | null; createdAt: string; publishedAt: string | null; documentCount: number }
 export interface FoxyCitation { id: string; sourceKind: FoxySourceKind | 'ATTACHMENT' | null; sourceTitle: string | null; documentTitle: string | null;
   page: number | null; availability: 'AVAILABLE' | 'TEXT_ONLY' | 'UNAVAILABLE'; href: string | null }
-export interface FoxyVisualJob { id: string; conversationId: string; kind: FoxyVisualKind; aspectRatio: FoxyAspectRatio; state: 'QUEUED' | 'RUNNING' | 'READY' | 'FAILED'; assetId: string; errorCode: string | null; createdAt: string }
+export interface FoxyVisualJob { id: string; conversationId: string; kind: FoxyVisualKind; aspectRatio: FoxyAspectRatio; state: 'QUEUED' | 'RUNNING' | 'READY' | 'FAILED' | 'CANCELLED'; assetId: string; errorCode: string | null; createdAt: string }
 export interface FoxyResource { id: string; conversationId: string; sourceTurnId: string; title: string; markdown: string; revision: string }
 export type FoxyCreationKind = 'NOTE' | 'PLAN' | 'ACTIVITY' | 'RUBRIC' | 'DIAGRAM' | 'IMAGE';
 export type FoxyCreationStatus = 'PRIVATE' | 'PREPARING' | 'DRAFT' | 'PUBLISHED';
@@ -92,8 +93,11 @@ export function createWebFoxyClient(fetcher: typeof fetch = fetch, onIdentityReq
       call<{ created: boolean; job: FoxyVisualJob; conversationRevision: string }>(`${conversationPath(id)}/visuals`, 'POST', input, signal),
     listVisuals: (id: string, page: { limit: number; afterId: string | null }, signal?: AbortSignal) =>
       call<{ items: FoxyVisualJob[]; nextAfterId: string | null }>(`${conversationPath(id)}/visuals${params(page)}`, 'GET', undefined, signal),
+    cancelVisual: (id: string, jobId: string, signal?: AbortSignal) => call<FoxyVisualJob>(`${conversationPath(id)}/visuals/${agendaId(jobId)}/cancel`, 'POST', {}, signal),
     getVisual: (id: string, jobId: string, signal?: AbortSignal) => call<FoxyVisualJob>(`${conversationPath(id)}/visuals/${agendaId(jobId)}`, 'GET', undefined, signal),
     inspectAsset: (id: string, signal?: AbortSignal) => call<FoxyPrivateAssetInspection>(`/assets/${agendaId(id)}`, 'GET', undefined, signal),
+    updateVisualEditorial: (id: string, input: {expectedRevision:string;requestId:string;title:string;description:string}, signal?:AbortSignal) =>
+      call<FoxyPrivateAssetInspection>(`/assets/${agendaId(id)}/editorial`, 'PATCH', input, signal),
     prepareVisualPublication: (id: string, input: PrepareFoxyVisualPublication, signal?: AbortSignal) =>
       call<{ created: boolean; publication: FoxyVisualPublicationSummary }>(`/assets/${agendaId(id)}/publications`, 'POST', input, signal),
     listVisualPublications: (id: string, page: { limit: number; afterId: string | null }, signal?: AbortSignal) =>
@@ -144,6 +148,7 @@ export function createWebFoxyClient(fetcher: typeof fetch = fetch, onIdentityReq
       call<{ created: boolean; turn: TurnReceipt; conversationRevision: string }>(turnsPath(id), 'POST', input, signal),
     listTurns: (id: string, page: { afterSequence: number; limit: number }, signal?: AbortSignal) =>
       call<TurnPage>(`${turnsPath(id)}${params(page)}`, 'GET', undefined, signal),
+    cancelTurn: (id: string, turnId: string, signal?: AbortSignal) => call<FoxyTurn>(`${turnPath(id, turnId)}/cancel`, 'POST', {}, signal),
     getTurn: (id: string, turnId: string, signal?: AbortSignal) => call<FoxyTurn>(turnPath(id, turnId), 'GET', undefined, signal),
     citations: (id: string, turnId: string, signal?: AbortSignal) => call<FoxyCitation[]>(`${turnPath(id, turnId)}/citations`, 'GET', undefined, signal),
     citationUrl: (id: string, turnId: string, citationId: string, mode: 'preview' | 'download' = 'download') => {

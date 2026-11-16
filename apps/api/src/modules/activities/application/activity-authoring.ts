@@ -15,7 +15,7 @@ import {studentActivityState,type StudentActivityListRow} from '../domain/activi
 
 export interface ActivityRow {
   id: string; classroom_id: string; type: ActivityType; title: string | null; unit_id: string | null; topic_id: string | null;
-  objective?: string | null; teacher_comment?: string | null; instructions_text: string | null; ai_grading_rubric?: string; evaluation_rubric?: EvaluationRubric; attachments_required: boolean; status: 'DRAFT' | 'PUBLISHED' | 'WITHDRAWN';
+  objective?: string | null; teacher_brief?: string | null; teacher_comment?: string | null; instructions_text: string | null; ai_grading_rubric?: string; evaluation_rubric?: EvaluationRubric; attachments_required: boolean; status: 'DRAFT' | 'PUBLISHED' | 'WITHDRAWN';
   published_at: Date | null; deadline_at: Date | null; allow_late_submissions: boolean; first_started_at: Date | null;
 }
 interface QuestionRow { id: string; type: string; prompt: string; points: string; scoringRule: string | null }
@@ -53,7 +53,7 @@ export class ActivityAuthoringService {
       return { revision: room.revision.toString(), activities: await Promise.all(rows.map(async row => ({ ...this.activitySummary(row, room.timezone),
         ...(teacher ? {pendingReviewCount:pendingByActivity.get(row.id) ?? 0} : {}),
         ...(!teacher ? {studentState:studentActivityState(row,ownByActivity.get(row.id),actor.now)} : {}),
-        topicIds: await this.operations.readActivityTopics(tx, row.id, row.topic_id) }))) };
+        ...await this.operations.readActivityTopicScope(tx, row.id, row.unit_id, row.topic_id) }))) };
     });
   }
 
@@ -92,10 +92,9 @@ export class ActivityAuthoringService {
         if (op.action === 'metadata') {
           const title = text(op.title, 200, row.status === 'PUBLISHED') || null;
           const selection = activityTopics(op, row.status === 'PUBLISHED');
-          await this.operations.validateActivityTopics(tx, classroomId, selection.unitId, selection.topicIds);
-          await this.operations.replaceActivityTopics(tx, id, classroomId, selection.unitId, []);
-          await this.repository.updateActivities06(tx, id, title, selection.unitId, selection.topicId, actor.now);
-          await this.operations.replaceActivityTopics(tx, id, classroomId, selection.unitId, selection.topicIds);
+          const scope = await this.operations.resolveActivityTopics(tx, classroomId, selection, row.status === 'PUBLISHED');
+          await this.repository.updateActivities06(tx, id, title, scope.unitId, scope.topics[0]?.id ?? null, actor.now);
+          await this.operations.replaceActivityTopics(tx, id, classroomId, scope.topics);
         } else if (op.action === 'deadline') {
           if (typeof op.allowLate !== 'boolean') return fail('INVALID_INPUT');
           const deadline = resolveDeadline(room.timezone, op.deadline);
@@ -109,24 +108,23 @@ export class ActivityAuthoringService {
           if (row.first_started_at) return fail('CONFLICT');
           const payload = activityPayload(op.payload, row.type, row.status === 'PUBLISHED');
           const deadline = resolveDeadline(room.timezone, payload.deadline);
-          await this.operations.validateActivityTopics(tx, classroomId, payload.unitId, payload.topicIds);
+          const scope = await this.operations.resolveActivityTopics(tx, classroomId, payload, row.status === 'PUBLISHED');
           await this.validateLinks(tx, request, row, payload);
-          await this.operations.replaceActivityTopics(tx, id, classroomId, payload.unitId, []);
-          await this.repository.updateActivities08(tx, id, payload.title, payload.unitId, payload.topicId, payload.instructions, payload.attachmentRequired, deadline, payload.allowLate, actor.now, Object.hasOwn(op.payload, 'aiGradingRubric') ? payload.aiGradingRubric : null, Object.hasOwn(op.payload, 'evaluationRubric') ? JSON.stringify(payload.evaluationRubric) : null, Object.hasOwn(op.payload, 'objective'), payload.objective ?? null, Object.hasOwn(op.payload, 'teacherComment'), payload.teacherComment ?? null);
-          await this.operations.replaceActivityTopics(tx, id, classroomId, payload.unitId, payload.topicIds);
+          await this.repository.updateActivities08(tx, id, payload.title, scope.unitId, scope.topics[0]?.id ?? null, payload.instructions, payload.attachmentRequired, deadline, payload.allowLate, actor.now, Object.hasOwn(op.payload, 'aiGradingRubric') ? payload.aiGradingRubric : null, Object.hasOwn(op.payload, 'evaluationRubric') ? JSON.stringify(payload.evaluationRubric) : null, Object.hasOwn(op.payload, 'objective'), payload.objective ?? null, Object.hasOwn(op.payload, 'teacherComment'), payload.teacherComment ?? null, Object.hasOwn(op.payload, 'teacherBrief'), payload.teacherBrief ?? null);
+          await this.operations.replaceActivityTopics(tx, id, classroomId, scope.topics);
           await this.operations.replaceActivityContent(tx, row, payload);
           if (row.status === 'PUBLISHED' && this.operations.deadlineChanged(row.deadline_at, deadline, row.allow_late_submissions, payload.allowLate))
             await this.operations.activityEvent(tx, classroomId, id, 'ACTIVITY_DEADLINE_CHANGED');
         } else if (op.action === 'publish') {
           if (row.first_started_at || row.status === 'PUBLISHED') return fail('CONFLICT');
           const view = await this.activityView(tx, row, room.timezone, true);
-          const payload = activityPayload({ title: view.title ?? '', unitId: view.unitId, topicIds: view.topicIds,
+          const payload = activityPayload({ title: view.title ?? '', unitIds: [], topicIds: view.topicIds,
             instructions: view.instructions ?? '', attachmentRequired: view.attachmentRequired,
             instructionFileIds: view.instructionFiles.map(f => f.id), materialIds: view.materials.map(m => m.id),
             questions: view.questions.map(q => ({ type: q.type, prompt: q.prompt, points: q.points, scoringRule: q.scoringRule,
               options: q.options.map(o => ({ text: o.text, correct: o.correct })) })),
             deadline: null, allowLate: view.allowLate, evaluationRubric: view.evaluationRubric }, row.type, true);
-          await this.operations.validateActivityTopics(tx, classroomId, payload.unitId, payload.topicIds);
+          await this.operations.resolveActivityTopics(tx, classroomId, payload, true);
           await this.validateLinks(tx, request, row, payload);
           await this.ports.validateActivityGeneration?.(tx, request, id);
           await this.repository.updateActivities09(tx, id, actor.now);
@@ -176,7 +174,7 @@ export class ActivityAuthoringService {
     const instructionFiles = await this.repository.readActivityInstructionFiles14<{ id: string; name: string; extension: string; ready: boolean }>(tx, row.id);
     const materials = await this.repository.readActivityMaterials15<{ id: string; title: string; fileId: string; extension: string }>(tx, row.id);
     // Explicit DTO construction: never spread SQL rows or expose answer keys/private grade/editor state to students.
-    return { ...this.activitySummary(row, zone), evaluationRubric: row.evaluation_rubric ?? [], ...(teacher ? { aiGradingRubric: row.ai_grading_rubric ?? '' } : {}), topicIds: await this.operations.readActivityTopics(tx, row.id, row.topic_id), objective: row.objective ?? null, teacherComment: row.teacher_comment ?? null, instructions: row.instructions_text, attachmentRequired: row.attachments_required,
+    return { ...this.activitySummary(row, zone), evaluationRubric: row.evaluation_rubric ?? [], ...(teacher ? { aiGradingRubric: row.ai_grading_rubric ?? '', teacherBrief: row.teacher_brief ?? null } : {}), ...await this.operations.readActivityTopicScope(tx, row.id, row.unit_id, row.topic_id), objective: row.objective ?? null, teacherComment: row.teacher_comment ?? null, instructions: row.instructions_text, attachmentRequired: row.attachments_required,
       instructionFiles, materials, questions: questions.map(q => ({ id: q.id, type: q.type, prompt: q.prompt, points: q.points,
         ...(teacher ? { scoringRule: q.scoringRule } : {}), options: options.filter(o => o.question_id === q.id)
           .map(o => ({ id: o.id, text: o.text, ...(teacher ? { correct: o.correct } : {}) })) })) };

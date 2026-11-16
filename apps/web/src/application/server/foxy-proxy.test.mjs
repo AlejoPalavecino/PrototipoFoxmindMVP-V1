@@ -16,6 +16,13 @@ async function fixture(run, responder) {
 }
 const headers = { cookie:'foxmind_session=synthetic', origin:'http://web.test', 'x-csrf-token':'bound', 'content-type':'application/json' };
 
+test('editorial proxy forwards only PATCH with an exact asset path and no query',async()=>fixture(async({origin,calls})=>{
+ const path=`${root}/assets/${conversationId}/editorial`,body={expectedRevision:'0',requestId:randomUUID(),title:'Sintético',description:'Texto'};
+ const response=await fetch(origin+path,{method:'PATCH',headers,body:JSON.stringify(body)});assert.equal(response.status,200);assert.deepEqual(JSON.parse(calls[0].body),body);assert.equal(calls[0].method,'PATCH');
+ for(const [url,method] of [[path,'GET'],[path,'POST'],[`${path}?owner=foreign`,'PATCH']]){const rejected=await fetch(origin+url,{method,headers,...(method==='GET'?{}:{body:JSON.stringify(body)})});assert.ok(rejected.status===400||rejected.status===405);await rejected.text();}
+ assert.equal(calls.length,1);
+}));
+
 test('catalog routes preserve server filters and reject invalid catalogue queries', async () => fixture(async ({origin,calls}) => {
   const query = new URLSearchParams({ limit: '20', q: 'Exposición', context: 'GENERAL', type: 'NOTE', status: 'PRIVATE' });
   assert.equal((await fetch(`${origin}${root}/creations?${query}`, { headers })).status, 200);

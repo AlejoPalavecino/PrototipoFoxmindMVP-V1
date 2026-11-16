@@ -2,10 +2,12 @@ import { lockAiAdmission, tryLockAiBudget } from '../../../platform/ai/admission
 import { isDeepStrictEqual } from 'node:util';
 import type { FoxyContext, FoxySelection } from '../../../../../../src/core/domain/index.ts';
 import type { SqlDatabase, SqlTransaction } from '../../../../../../src/core/contracts/sql.ts';
+import { refreshFoxyAttachmentSnapshot } from './claim-authority-check.ts';
+import type { FoxyGroundingSnapshot } from '../../../../../../src/core/domain/foxy/grounding.ts';
 import { rebuildGrounding } from './grounding-rebuild.ts';
 type Budget = { settleExpired(tx: SqlTransaction, jobId: string): Promise<boolean> };
 type Ref = { id: string; owner_id: string; conversation_id: string; asset_id: string; classroom_id: string | null };
-type Job = { snapshot: unknown; selection: FoxySelection; kind: string; aspect_ratio: string };
+type Job = { snapshot: FoxyGroundingSnapshot; selection: FoxySelection; kind: string; aspect_ratio: string };
 function unavailable(): never { throw Object.assign(new Error('SERVICE_UNAVAILABLE'), { code: 'SERVICE_UNAVAILABLE' }); }
 async function authorized(tx: SqlTransaction, ref: Ref): Promise<FoxyContext|null> {
   const [user] = await tx.query<{ ok: boolean }>("SELECT (account_role='teacher' AND email_verified_at IS NOT NULL) AS ok FROM users WHERE id=$1::uuid FOR UPDATE",ref.owner_id);
@@ -18,9 +20,13 @@ async function authorized(tx: SqlTransaction, ref: Ref): Promise<FoxyContext|nul
   if (c.context_kind==='CLASSROOM' && c.classroom_id) return {kind:'CLASSROOM',classroomId:c.classroom_id};
   return null;
 }
-async function fresh(tx: SqlTransaction, context: FoxyContext|null, job: Job): Promise<boolean> {
+async function fresh(tx: SqlTransaction, context: FoxyContext|null, job: Job, ref: Ref): Promise<boolean> {
   if (!context) return false;
-  try { return isDeepStrictEqual(await rebuildGrounding(tx,context,job.selection),job.snapshot); }
+  try {
+    const current = await rebuildGrounding(tx,context,job.selection);
+    await refreshFoxyAttachmentSnapshot(tx,ref.owner_id,ref.conversation_id,job.snapshot,current);
+    return isDeepStrictEqual(current,job.snapshot);
+  }
   catch (error) { if (['INVALID_INPUT','FORBIDDEN','FILE_NOT_READY','AI_INPUT_LIMIT','CONFLICT','EMPTY_CONTENT'].includes(String((error as {code?:unknown})?.code))) return false; throw error; }
 }
 export function createVisualRecovery(database: SqlDatabase, budget: Budget, maxJobAgeMs: number) {
@@ -49,7 +55,7 @@ export function createVisualRecovery(database: SqlDatabase, budget: Budget, maxJ
         FROM foxy_visual_assets WHERE id=$1::uuid AND owner_id=$2::uuid AND conversation_id=$3::uuid FOR UPDATE`,ref.asset_id,ref.owner_id,ref.conversation_id,job.kind,job.aspect_ratio);
       if (!asset) return unavailable();
       if (!await budget.settleExpired(tx,ref.id)) return unavailable();
-      const ready=!!asset.ready && await fresh(tx,context,job);
+      const ready=!!asset.ready && await fresh(tx,context,job,ref);
       const rows=await tx.query(`UPDATE foxy_visual_jobs SET state=$2,error_code=$3,lease_nonce=NULL,lease_until=NULL,revision=revision+1,updated_at=clock_timestamp()
         WHERE id=$1::uuid AND state='RUNNING' AND dispatch_count=1 AND lease_until<=clock_timestamp() RETURNING id`,ref.id,ready?'READY':'FAILED',ready?null:'GENERATION_INTERRUPTED');
       if (!rows.length) return unavailable(); return true;

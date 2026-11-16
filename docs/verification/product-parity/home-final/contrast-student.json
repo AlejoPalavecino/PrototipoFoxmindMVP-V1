@@ -1,0 +1,90 @@
+{
+  "fontLoaded": true,
+  "samples": [
+    {
+      "sel": ".home-welcome h1",
+      "text": "Buen día, Marina.",
+      "ratio": 11.51
+    },
+    {
+      "sel": ".home-welcome p",
+      "text": "Lunes 16 de noviembre",
+      "ratio": 6.95
+    },
+    {
+      "sel": ".home-welcome p",
+      "text": "Tenés 1 actividad para seguir aprendiendo.",
+      "ratio": 6.95
+    },
+    {
+      "sel": ".home-welcome p",
+      "text": "Un tema, una pregunta, un nuevo descubrimiento.",
+      "ratio": 6.95
+    },
+    {
+      "sel": ".home-welcome .button.primary",
+      "text": "Continuar actividad",
+      "ratio": 5.35
+    },
+    {
+      "sel": ".panel-header h2",
+      "text": "Tu próximo paso",
+      "ratio": 14.1
+    },
+    {
+      "sel": ".panel-header p",
+      "text": "Un paso a la vez. Empezá por acá.",
+      "ratio": 7.37
+    },
+    {
+      "sel": ".learning-kind",
+      "text": "Trabajo práctico",
+      "ratio": 9.62
+    },
+    {
+      "sel": ".learning-course",
+      "text": "Fotografía y luz",
+      "ratio": 8.08
+    },
+    {
+      "sel": ".learning-tile h3",
+      "text": "Una foto, tres miradas",
+      "ratio": 14.1
+    },
+    {
+      "sel": ".learning-deadline small",
+      "text": "Fecha de entrega",
+      "ratio": 6.32
+    },
+    {
+      "sel": ".learning-deadline b",
+      "text": "Sin fecha límite",
+      "ratio": 7.69
+    },
+    {
+      "sel": ".learning-state",
+      "text": "Borrador guardado",
+      "ratio": 7.24
+    },
+    {
+      "sel": ".learning-footer .button",
+      "text": "Continuar",
+      "ratio": 5.35
+    },
+    {
+      "sel": ".class-body h3",
+      "text": "Fotografía y luz",
+      "ratio": 14.1
+    },
+    {
+      "sel": ".class-body p",
+      "text": "Fotografía",
+      "ratio": 8.03
+    },
+    {
+      "sel": ".class-bottom",
+      "text": "1 de 2 temas dados",
+      "ratio": 8.05
+    }
+  ]
+}

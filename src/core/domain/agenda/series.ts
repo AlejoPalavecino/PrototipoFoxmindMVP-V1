@@ -35,17 +35,22 @@ function occurrence(event: PrivateEvent, schedule: EventSchedule, range: AgendaR
     endDateExclusive: shiftDate(localMinuteAt(Date.parse(endAt) - 1, range.timeZone).slice(0, 10), 1),
     startAt, endAt };
 }
-export function expandAgendaEvent(event: PrivateEvent, range: AgendaRange): EventOccurrence[] {
+export function agendaEventOccurrences(event: PrivateEvent) {
+  const exceptions = new Map(event.exceptions?.map(item => [item.date, item.replacement]));
   return seriesSchedules(event).flatMap(schedule => {
     const date = schedule.kind === 'ALL_DAY' ? schedule.startDate : schedule.startLocal.slice(0, 10);
-    const exception = event.exceptions?.find(item => item.date === date);
-    if (exception?.replacement === null) return [];
-    const effective = exception?.replacement;
-    const selected = effective?.schedule ?? schedule;
-    if (!canOverlap(selected, range)) return [];
-    const {exceptions: _exceptions,...displayEvent}=event;
-    return [{ ...occurrence(effective ? { ...displayEvent, ...effective, repeat: event.repeat } : displayEvent, selected, range), occurrenceId: `${event.id}:${date}`, occurrenceDate: date }];
-  })
+    const replacement = exceptions.get(date);
+    if (replacement === null) return [];
+    const { exceptions: _exceptions, reminder, ...display } = event;
+    const effective = replacement ? { ...display, ...replacement, repeat: event.repeat }
+      : { ...display, schedule, ...(reminder ? { reminder } : {}) };
+    return [{ date, event: effective }];
+  });
+}
+export function expandAgendaEvent(event: PrivateEvent, range: AgendaRange): EventOccurrence[] {
+  return agendaEventOccurrences(event).filter(item => canOverlap(item.event.schedule, range))
+    .map(item => ({ ...occurrence(item.event, item.event.schedule, range),
+      occurrenceId: `${event.id}:${item.date}`, occurrenceDate: item.date }))
     .filter(item => item.startDate < range.endDateExclusive && item.endDateExclusive > range.startDate);
 }
 function canOverlap(schedule: EventSchedule, range: AgendaRange): boolean {

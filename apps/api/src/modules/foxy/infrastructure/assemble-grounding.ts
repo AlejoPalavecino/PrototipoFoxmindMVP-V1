@@ -23,10 +23,10 @@ function checkDocument(file: FoxyGroundingFile, parsed: FoxyParsedDocument): voi
     if (!Number.isSafeInteger(parsed.pageCount) || parsed.pageCount! < 1) fail('INVALID_INPUT');
     if (parsed.document?.kind !== 'pdf' || !(parsed.document.bytes instanceof Uint8Array)
       || parsed.document.bytes.length !== file.sizeBytes || createHash('sha256').update(parsed.document.bytes).digest('hex') !== file.digest) fail('FILE_NOT_READY');
-  } else if (file.extension === 'docx') {
-    if (parsed.pageCount !== null || !parsed.warnings.includes('DOCX_IMAGES_OMITTED')) fail('INVALID_INPUT');
+  } else {
+    if (parsed.pageCount !== null || (file.extension === 'docx' && !parsed.warnings.includes('DOCX_IMAGES_OMITTED'))) fail('INVALID_INPUT');
     if (parsed.document?.kind !== 'text' || typeof parsed.document.text !== 'string') fail('FILE_NOT_READY');
-  } else fail('FILE_NOT_READY');
+  }
 }
 function collect(snapshot: FoxyGroundingSnapshot): Map<string, FoxyGroundingFile> {
   const files = new Map<string, FoxyGroundingFile>(), sources = new Set<string>();

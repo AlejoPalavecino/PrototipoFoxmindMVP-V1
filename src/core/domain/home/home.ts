@@ -1,3 +1,5 @@
+import type { EventColor, EventKind } from '../agenda/types.ts';
+
 export type Participation = 'study' | 'teach' | 'mixed' | 'none';
 export const HOME_MODULES = ['pending', 'review', 'feedback', 'agenda', 'queries', 'materials', 'classrooms', 'drafts', 'submitted'] as const;
 export type HomeModuleName = typeof HOME_MODULES[number];
@@ -8,7 +10,7 @@ export interface HomeRoom {
   role: HomeRole; coverKey: string; archived: boolean; timeZone: string;
 }
 export type HomeTarget =
-  | { kind: 'classroom'; classroomId: string; section: 'plan' | 'library' | 'progress' | 'wall'; topicId?: string }
+  | { kind: 'classroom'; classroomId: string; section: 'plan' | 'library' | 'progress' | 'wall' | 'members'; topicId?: string }
   | { kind: 'activity'; classroomId: string; activityId: string; mode?:'respond' }
   | { kind: 'submissions'; classroomId: string; activityId: string; attemptId?: string; filter: 'unpublished' }
   | { kind: 'grade'; classroomId: string; activityId: string; attemptId: string; gradeId: string }
@@ -33,11 +35,12 @@ export interface FeedbackItem extends HomeItem {
   finalGrade: string; publishedAt: string; changedAt: string; availability: 'available';
   overallFeedback?:string|null;
 }
-export interface QueryItem extends HomeItem { classroom: HomeRoom; updatedAt: string }
+export interface QueryItem extends HomeItem { classroom: HomeRoom; updatedAt: string; authorName?: string }
 export interface MaterialItem extends HomeItem { classroom: HomeRoom; publishedAt: string; extension: string }
 export interface AgendaItem extends HomeItem {
   source: 'PRIVATE_EVENT' | 'ACADEMIC_DEADLINE'; startAt: string | null;
   date: string; timeZone: string; allDay: boolean; classroom: HomeRoom | null;
+  endAt?: string | null; color?: EventColor; category?: EventKind;
 }
 export interface DraftItem extends HomeItem { classroom: HomeRoom; activityType: HomeActivityType; updatedAt: string }
 export interface SubmittedItem extends HomeItem { classroom: HomeRoom; activityType: HomeActivityType; attemptNumber: number; submittedAt: string }

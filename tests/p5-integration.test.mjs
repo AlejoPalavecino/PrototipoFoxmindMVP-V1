@@ -8,8 +8,8 @@ import { chromium } from '@playwright/test';
 import { PDFDocument } from 'pdf-lib';
 import { withP4IntegrationRuntime } from '../scripts/p4-integration-runtime.mjs';
 import { account, api, digest } from './p4-integration-helpers.mjs';
-import { profileAction } from './entry-glass-browser-helpers.mjs';
 import { selectClassroomSection } from './p9-journey-helpers-current.mjs';
+import { openClassroom } from './p6-integration-helpers.mjs';
 
 async function domainSnapshot(db) {
   const data = [];
@@ -81,13 +81,15 @@ test('P5 actual Next, P3 identity and P4 private services integrated journeys', 
       await check('actual wizard draft reload, approved binary plan and atomic publication', async () => {
         await page.goto(`${origin}/mis-aulas`);
         const created = page.waitForResponse(response => response.request().method() === 'POST' && new URL(response.url()).pathname === '/api/v1/classrooms/drafts');
-        await page.getByRole('button', { name: /Crear aula/ }).click();
+        await page.getByRole('button', { name: 'Crear aula', exact: true }).click();
         const createdResponse = await created; assert.equal(createdResponse.status(), 200); draft = await createdResponse.json();
-        await page.getByLabel('Nombre del aula', { exact: true }).fill('Integrated photography');
-        await page.getByLabel('Materia', { exact: true }).fill('Art');
-        await page.getByRole('dialog', { name: 'Crear aula', exact: true }).getByLabel('División', { exact: true }).fill('Group A');
-        await page.getByRole('dialog', { name: 'Crear aula', exact: true }).getByLabel('Ciclo lectivo', { exact: true }).fill('2026');
-        const timezone = page.getByRole('combobox', { name: 'Zona horaria', exact: true });
+        const wizard = page.getByRole('dialog', { name: 'Crear un aula', exact: true });
+        await wizard.getByLabel('Nombre del aula', { exact: true }).fill('Integrated photography');
+        await wizard.getByLabel('Materia', { exact: true }).fill('Art');
+        await wizard.getByLabel('Grupo o división', { exact: true }).fill('Group A');
+        await wizard.getByLabel('Ciclo lectivo', { exact: true }).fill('2026');
+        const timezone = wizard.getByRole('combobox', { name: 'Zona horaria', exact: true });
+        await wizard.getByRole('button', { name: 'Cambiar', exact: true }).click();
         assert.equal(await timezone.count(), 1);
         const zones = await timezone.evaluate(select => {
           const canonical = value => new Intl.DateTimeFormat('es', { timeZone: value }).resolvedOptions().timeZone;
@@ -100,42 +102,43 @@ test('P5 actual Next, P3 identity and P4 private services integrated journeys', 
         await timezone.selectOption(selectedZone);
         assert.equal(await timezone.inputValue(), selectedZone);
         assert.equal(await timezone.evaluate(select => new Intl.DateTimeFormat('es', { timeZone: select.value }).resolvedOptions().timeZone), zones.target);
-        await page.locator('input[type=radio]').first().check();
-        await page.getByRole('button', { name: 'Guardar borrador', exact: true }).click();
-        await page.getByRole('dialog', { name: 'Crear aula', exact: true }).waitFor({ state: 'hidden' });
+        await wizard.getByRole('group', { name: 'Una portada para reconocerla', exact: true }).getByRole('radio').first().check();
+        await wizard.getByRole('button', { name: 'Guardar y salir', exact: true }).click();
+        await wizard.waitFor({ state: 'hidden' });
         await page.getByRole('heading', { name: 'Mis aulas', exact: true }).waitFor();
         await page.reload();
-        await page.getByRole('button', { name: /^Pendientes/ }).click();
-        await page.getByRole('button', { name: /Continuar creación/ }).click();
-        assert.equal(await page.getByLabel('Nombre del aula', { exact: true }).inputValue(), 'Integrated photography');
+        await page.getByRole('button', { name: /^Borradores(?:\s|$)/ }).click();
+        await page.getByRole('button', { name: 'Continuar creación', exact: true }).click();
+        assert.equal(await wizard.getByLabel('Nombre del aula', { exact: true }).inputValue(), 'Integrated photography');
+        await wizard.getByRole('button', { name: 'Cambiar', exact: true }).click();
         assert.equal(await timezone.count(), 1);
         assert.equal(await timezone.inputValue(), selectedZone);
         assert.equal(await timezone.evaluate(select => new Intl.DateTimeFormat('es', { timeZone: select.value }).resolvedOptions().timeZone), zones.target);
-        await page.getByRole('button', { name: 'Continuar al plan', exact: true }).click();
+        await wizard.getByRole('button', { name: 'Continuar', exact: true }).click();
         const reserved = page.waitForResponse(response => response.request().method() === 'POST' && new URL(response.url()).pathname === '/api/v1/files');
-        await page.locator('input[type=file]').setInputFiles({ name: 'plan.pdf', mimeType: 'application/pdf', buffer: bytes });
+        await wizard.getByRole('region', { name: 'Archivo del plan de estudio', exact: true }).locator('input[type=file]')
+          .setInputFiles({ name: 'plan.pdf', mimeType: 'application/pdf', buffer: bytes });
         const reservedResponse = await reserved; assert.equal(reservedResponse.status(), 201); file = (await reservedResponse.json()).id;
-        await page.getByText('Aprobado para usar', { exact: true }).waitFor({ timeout: 30000 });
-        await page.getByRole('radio', { name: /Cargar manualmente/ }).check();
-        await page.getByRole('button', { name: 'Continuar a unidades', exact: true }).click();
-        await page.getByRole('button', { name: 'Agregar unidad', exact: true }).click();
-        await page.getByLabel('Nombre de la unidad 1', { exact: true }).fill('Light');
-        await page.getByLabel('Tema 1 de unidad 1', { exact: true }).fill('Exposure');
-        await page.getByRole('button', { name: 'Guardar plan y continuar', exact: true }).click();
+        await wizard.getByRole('heading', { name: 'Tu programa está listo', exact: true }).waitFor({ timeout: 30000 });
+        await wizard.getByRole('radio', { name: /^Armarlo a mano/ }).check();
+        await wizard.getByRole('button', { name: 'Armar mi recorrido', exact: true }).click();
+        await wizard.getByLabel('Nombre de la unidad 1', { exact: true }).fill('Light');
+        await wizard.getByLabel('Tema 1 de unidad 1', { exact: true }).fill('Exposure');
+        await wizard.getByRole('button', { name: 'Continuar', exact: true }).click();
+        await wizard.getByRole('heading', { name: 'Tu aula está a un paso', exact: true }).waitFor();
         const published = page.waitForResponse(response => response.request().method() === 'POST' && new URL(response.url()).pathname === `/api/v1/classrooms/drafts/${draft.id}/publish`);
-        await page.getByRole('button', { name: 'Confirmar y crear aula', exact: true }).click();
+        await wizard.getByRole('button', { name: 'Crear mi aula', exact: true }).click();
         const publishedResponse = await published; assert.equal(publishedResponse.status(), 200);
         const result = await publishedResponse.json(); room = result.id; code = result.code; assert.ok(room && code);
         const publishedRoom = await api(page, 'GET', `/classrooms/${room}`);
         assert.equal(publishedRoom.status, 200); assert.equal(publishedRoom.body.timezone, selectedZone);
-        await page.getByRole('dialog', { name: 'Crear aula', exact: true }).waitFor({ state: 'hidden' });
-        await page.getByRole('button', { name: /^Activas/ }).click();
+        await wizard.waitFor({ state: 'hidden' });
         await page.getByRole('heading', { name: 'Integrated photography', exact: true }).waitFor();
         const stored = (await db.query('SELECT classroom_id,classroom_draft_id FROM files WHERE id=$1', [file])).rows[0];
         assert.equal(stored.classroom_id, room); assert.equal(stored.classroom_draft_id, null);
         assert.equal((await api(page, 'GET', `/files/${file}/content`)).digest, digest(bytes));
-        await page.getByRole('button', { name: 'Entrar al aula Integrated photography', exact: true }).click();
-        await page.getByRole('button', { name: 'Plan', exact: true }).click();
+        await openClassroom(page, origin, 'Integrated photography');
+        await selectClassroomSection(page, 'plan', 'Plan');
         await page.getByRole('region', { name: 'Plan de estudio', exact: true }).getByRole('navigation', { name: 'Unidades del plan', exact: true }).getByText('Light', { exact: true }).waitFor();
         await page.getByRole('region', { name: 'Plan de estudio', exact: true }).getByRole('heading', { name: 'Exposure', exact: true }).waitFor();
         const replay = await api(page, 'POST', `/classrooms/drafts/${draft.id}/publish`, { revision: draft.revision });
@@ -167,7 +170,8 @@ test('P5 actual Next, P3 identity and P4 private services integrated journeys', 
         assert.equal((await db.query('SELECT count(*)::int AS n FROM enrollments')).rows[0].n, 0);
         await rejectSame(() => api(page, 'POST', '/classrooms/codes/confirm', { confirmation: preview.confirmation }));
         const confirmed = studentPage.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/classrooms/codes/confirm');
-        await studentPage.getByRole('button', { name: 'Confirmar inscripción', exact: true }).click();
+        await studentPage.getByRole('dialog', { name: 'Hay un lugar para vos', exact: true })
+          .getByRole('button', { name: 'Aceptar y unirme', exact: true }).click();
         assert.equal((await confirmed).status(), 200);
         assert.equal((await api(studentPage, 'GET', `/classrooms/${room}`)).status, 200);
         assert.equal((await api(studentPage, 'GET', `/files/${file}/content`)).digest, digest(bytes));
@@ -187,7 +191,8 @@ test('P5 actual Next, P3 identity and P4 private services integrated journeys', 
         assert.equal(wrongRecipient.status, 409); assert.equal(wrongRecipient.body.error.code, 'ENROLLMENT_UNAVAILABLE');
         await studentPage.goto(link);
         const accepted = studentPage.waitForResponse(response => new URL(response.url()).pathname === `/api/v1/classrooms/invitations/${invited.body.id}/accept`);
-        await studentPage.getByRole('button', { name: 'Aceptar invitación', exact: true }).click(); assert.equal((await accepted).status(), 200);
+        await studentPage.getByRole('dialog', { name: 'Hay un lugar para vos', exact: true })
+          .getByRole('button', { name: 'Aceptar y unirme', exact: true }).click(); assert.equal((await accepted).status(), 200);
         assert.equal((await api(studentPage, 'GET', `/files/${file}/content`)).status, 200);
         const history = (await api(page, 'GET', `/classrooms/${room}/history`)).body;
         assert.ok(Array.isArray(history)); assert.equal((await db.query('SELECT count(*)::int AS n FROM membership_periods')).rows[0].n, 2);
@@ -195,12 +200,13 @@ test('P5 actual Next, P3 identity and P4 private services integrated journeys', 
 
       await check('durable pending invitation survives real data/API restart, then a new verified recipient accepts explicitly', async () => {
         await runtime.stopInvitationDelivery();
-        await page.getByRole('button', { name: 'Alumnos', exact: true }).click();
-        await page.getByRole('button', { name: 'Invitar alumnos', exact: true }).click();
+        await selectClassroomSection(page, 'members', 'Estudiantes');
+        await page.getByRole('region', { name: 'Integrantes del aula', exact: true })
+          .getByRole('button', { name: 'Invitar estudiantes', exact: true }).click();
         const dialog = page.getByRole('dialog', { name: 'Invitar alumnos', exact: true });
         await dialog.getByLabel('Correos electrónicos', { exact: true }).fill(recipientEmail);
         const invited = page.waitForResponse(response => response.request().method() === 'POST' && new URL(response.url()).pathname.startsWith(`/api/v1/classrooms/${room}/invitations/batch/`) && new URL(response.url()).pathname.endsWith('/0'));
-        await dialog.getByRole('button', { name: 'Invitar a 1 personas', exact: true }).click();
+        await dialog.getByRole('button', { name: 'Invitar a 1 persona', exact: true }).click();
         const invitedResponse = await invited; assert.equal(invitedResponse.status(), 200); invitation = (await invitedResponse.json()).invitationId;
         assert.ok(invitation);
         await dialog.getByRole('button', { name: 'Cerrar', exact: true }).click();
@@ -212,9 +218,10 @@ test('P5 actual Next, P3 identity and P4 private services integrated journeys', 
         recipient = await account(recipientPage, origin, inbox, recipientEmail, undefined, "student");
         assert.equal((await db.query('SELECT count(*)::int AS n FROM enrollments WHERE student_id=$1', [recipient.id])).rows[0].n, 0);
         await recipientPage.goto(link);
-        await recipientPage.getByRole('article', { name: 'Invitación seleccionada del correo', exact: true }).waitFor();
+        const recipientInvitation = recipientPage.getByRole('dialog', { name: 'Hay un lugar para vos', exact: true });
+        await recipientInvitation.getByRole('heading', { name: 'Integrated photography', exact: true }).waitFor();
         const accepted = recipientPage.waitForResponse(response => new URL(response.url()).pathname === `/api/v1/classrooms/invitations/${invitation}/accept`);
-        await recipientPage.getByRole('button', { name: 'Aceptar invitación', exact: true }).click(); assert.equal((await accepted).status(), 200);
+        await recipientInvitation.getByRole('button', { name: 'Aceptar y unirme', exact: true }).click(); assert.equal((await accepted).status(), 200);
         assert.equal((await api(recipientPage, 'GET', `/files/${file}/content`)).digest, digest(bytes));
         assert.equal((await db.query('SELECT count(*)::int AS n FROM enrollments WHERE student_id=$1', [recipient.id])).rows[0].n, 1);
       });
@@ -235,11 +242,8 @@ test('P5 actual Next, P3 identity and P4 private services integrated journeys', 
       });
 
       await check('actual responsive classroom views, profile navigation and logout keep P3 boundaries', async () => {
-        await page.goto(`${origin}/mis-aulas`);
-        await page.getByRole('heading', { name: 'Mis aulas', exact: true }).waitFor();
-        await page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Integrated photography', exact: true }) })
-          .getByRole('button', { name: 'Entrar al aula Integrated photography', exact: true }).click();
-        await page.getByRole('button', { name: 'Historial', exact: true }).click();
+        await openClassroom(page, origin, 'Integrated photography');
+        await selectClassroomSection(page, 'history', 'Historial');
         await page.locator('#classroom-section-title').filter({ hasText: 'Historial' }).waitFor();
         await mkdir('.test-artifacts/p5-integration', { recursive: true });
         await page.screenshot({ path: '.test-artifacts/p5-integration/history-1280.png', fullPage: true });
@@ -257,7 +261,10 @@ test('P5 actual Next, P3 identity and P4 private services integrated journeys', 
           assert.ok(layout.nameHeight <= 2 * layout.nameLineHeight + 1, 'Fixture name is not squeezed into vertical fragments');
           await page.screenshot({ path: `.test-artifacts/p5-integration/history-${width}.png`, fullPage: true });
         }
-        await (await profileAction(page)).click(); await page.waitForURL('**/profile');
+        await page.getByRole('button', { name: 'Abrir menú de navegación', exact: true }).click();
+        await page.getByRole('dialog', { name: 'Menú de navegación', exact: true })
+          .getByRole('link', { name: /^Mi perfil de / }).click();
+        await page.waitForURL('**/profile');
         await page.getByRole('button', { name: 'Abrir menú de navegación', exact: true }).click();
         await page.getByRole('dialog', { name: 'Menú de navegación', exact: true }).getByRole('navigation', { name: 'Navegación principal', exact: true })
           .getByRole('link', { name: 'Mis aulas', exact: true }).click(); await page.waitForURL('**/mis-aulas');
@@ -340,19 +347,22 @@ test('P5 actual Next, P3 identity and P4 private services integrated journeys', 
           await page.waitForURL(url => url.pathname === '/verify-email' && url.searchParams.get('next') === target);
           session.user.emailVerified = true;
           await page.goto(`${origin}${target}`);
-          const selected = page.getByRole('article', { name: 'Invitación seleccionada del correo' });
+          const selected = page.getByRole('dialog', { name: 'Hay un lugar para vos', exact: true });
           await selected.getByRole('heading', { name: 'Aula invitada' }).waitFor();
+          await selected.getByRole('button', { name: 'Ahora no', exact: true }).click();
+          await selected.waitFor({ state: 'hidden' });
           await page.setViewportSize({ width: 320, height: 900 });
           await page.getByRole('button', { name: 'Abrir menú de navegación', exact: true }).click();
           const drawer = page.getByRole('dialog', { name: 'Menú de navegación', exact: true });
-          await (await profileAction(page)).waitFor();
-          await page.getByRole('dialog', { name: 'Mi cuenta', exact: true }).getByRole('button', { name: 'Cerrar Mi cuenta', exact: true }).click();
+          await drawer.getByRole('link', { name: /^Mi perfil de / }).waitFor();
           await drawer.getByRole('button', { name: 'Cerrar menú de navegación', exact: true }).click();
           assert.equal(accepts, 0);
           assert.equal(tokens, 0);
           assert.equal(await page.getByText('Cambiar cuenta de prueba:').count(), 0);
-          await selected.getByRole('button', { name: 'Aceptar invitación', exact: true }).click();
-          await page.getByRole('status').filter({ hasText: 'Ya formás parte' }).waitFor();
+          await page.getByRole('region', { name: 'Invitaciones pendientes', exact: true })
+            .getByRole('button', { name: 'Revisar invitación', exact: true }).click();
+          await selected.getByRole('button', { name: 'Aceptar y unirme', exact: true }).click();
+          await page.getByRole('status').filter({ hasText: 'Ya sos parte' }).waitFor();
           assert.equal(accepts, 1);
           assert.equal(tokens, 1);
           for (const width of [320, 375, 1280]) {
@@ -377,7 +387,8 @@ test('P5 actual Next, P3 identity and P4 private services integrated journeys', 
             return route.fulfill({ status: 503, json: { error: { code: 'SERVICE_UNAVAILABLE' } } });
           });
           await page.goto(`${origin}/mis-aulas`);
-          await page.getByRole('button', { name: 'Entrar al aula Aula de lectura', exact: true }).click();
+          await page.getByRole('link', { name: 'Entrar al aula Aula de lectura', exact: true }).click();
+          await page.getByRole('navigation', { name: 'Ubicación', exact: true }).getByText('Aula de lectura', { exact: true }).waitFor();
           await selectClassroomSection(page, 'history', 'Historial');
           await page.locator('#classroom-section-title').filter({ hasText: 'Historial' }).waitFor();
           const row = page.locator('.p5-roster li').filter({ hasText: 'Files Fixture' });

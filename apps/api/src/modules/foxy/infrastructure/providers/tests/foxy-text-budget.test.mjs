@@ -14,7 +14,7 @@ function fake({ dispatchCount = 0, usageCount = 0, amount = 0n } = {}) {
   const tx = { query: async (sql, ...args) => {
     calls.push({ sql, args });
     if (/pg_advisory_xact_lock\(78123001\)/u.test(sql)) return [{}];
-    if (/SELECT dispatch_count FROM /u.test(sql)) return [{ dispatch_count: job.dispatchCount }];
+    if (/SELECT dispatch_count,execution_profile FROM /u.test(sql)) return [{ dispatch_count: job.dispatchCount, execution_profile: null }];
     if (/INSERT INTO ai_usage_daily/u.test(sql)) {
       if (!usage.has(args[0])) usage.set(args[0], { count: usageCount, reserved: 0n, consumed: 0n });
       return [{}];
@@ -29,7 +29,7 @@ function fake({ dispatchCount = 0, usageCount = 0, amount = 0n } = {}) {
     if (/UPDATE \w+ SET reserved_microusd=\$2::bigint/u.test(sql)) {
       job.amount = BigInt(args[1]); job.input = args[2]; job.dispatchCount++; return [{}];
     }
-    if (/SELECT reserved_microusd::text AS amount/u.test(sql)) return [{ amount: String(job.amount), day: job.day }];
+    if (/SELECT reserved_microusd::text AS amount,\s+execution_profile,\s+usage_day AS day FROM /u.test(sql)) return [{ amount: String(job.amount), day: job.day, execution_profile: null }];
     if (/UPDATE ai_usage_daily SET reserved_microusd=reserved_microusd-/u.test(sql)) {
       for (const scope of ['global', args[1]]) { const entry = usage.get(scope); entry.reserved -= BigInt(args[2]); entry.consumed += BigInt(args[3]); }
       return [{}];
@@ -65,7 +65,7 @@ test('reserve uses shared lock and ledger for default and all four existing tabl
     assert.equal(await reserve(f.tx, row, 11, config, table), true);
     assert.equal(f.calls[0].sql, 'SELECT 1 FROM pg_advisory_xact_lock(78123001)');
     const effective = table ?? tables[0];
-    assert.ok(f.calls.some(c => c.sql.includes(`SELECT dispatch_count FROM ${effective}`)));
+    assert.ok(f.calls.some(c => c.sql.includes(`SELECT dispatch_count,execution_profile FROM ${effective}`)));
     assert.ok(f.calls.some(c => c.sql.includes(`UPDATE ${effective} SET reserved_microusd=`)));
     for (const call of f.calls.filter(c => c.sql.includes('ai_usage_daily'))) assert.match(call.sql, /study-plan-v1/u);
     for (const scope of ['global', row.owner_id]) {
@@ -93,6 +93,9 @@ test('settle without usage consumes full reservation and repeated settle does no
     const f = fake(), row = { id: randomUUID(), owner_id: randomUUID() };
     assert.equal(await reserve(f.tx, row, 11, config, table), true);
     await settle(f.tx, row, config, undefined, table);
+    const reservationRead = f.calls.find(call => call.sql.includes('AS amount') && call.sql.includes('execution_profile'));
+    assert.ok(reservationRead?.sql.includes('FROM ' + table + ' WHERE id=$1::uuid FOR UPDATE'));
+    assert.deepEqual(reservationRead.args, [row.id]);
     for (const scope of ['global', row.owner_id]) {
       const entry = f.usage.get(scope); assert.equal(entry.reserved, 0n); assert.equal(entry.consumed, 4n);
     }

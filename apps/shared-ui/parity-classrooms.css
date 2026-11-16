@@ -1,0 +1,68 @@
+/* Classroom collection and shared interior match the approved learning surfaces. */
+#foxmind-product.fm3d-theme .parity-catalog-hero{display:grid;grid-template-columns:minmax(0,1fr) 230px;grid-template-rows:1fr auto;align-items:center;position:relative;overflow:hidden;min-height:250px;padding:30px 32px;gap:18px 26px;background:#ffe5d3;border:1px solid #dfbca3;border-radius:28px;margin-bottom:26px}
+#foxmind-product.fm3d-theme .parity-catalog-hero.student{background:#deeee7;border-color:#b0cdbf}
+#foxmind-product.fm3d-theme .parity-catalog-hero .brujula-heading-copy{grid-column:1;z-index:1;max-width:600px}
+#foxmind-product.fm3d-theme .parity-catalog-hero .brujula-heading-actions{grid-column:1;justify-content:flex-start;z-index:1}
+#foxmind-product.fm3d-theme .parity-catalog-hero h1{font-size:42px;font-weight:900;line-height:1.14;margin:7px 0 11px}
+#foxmind-product.fm3d-theme .parity-catalog-hero .eyebrow{font-size:11px;font-weight:800;letter-spacing:1.3px;color:#80451f}
+#foxmind-product.fm3d-theme .parity-catalog-hero p{font-size:16px;line-height:1.55;color:#624c3b;margin:0}
+#foxmind-product.fm3d-theme .parity-catalog-hero.student p{color:#345a46}
+.parity-catalog-art{position:absolute;width:270px;height:270px;right:22px;bottom:-8px;object-fit:cover;border-radius:50%;border:10px solid #ffffff70;transform:rotate(4deg)}
+#foxmind-product.fm3d-theme .parity-invitations{margin:0 0 26px;padding:22px;background:#fff9ed;border:1px solid #d9bc83;border-radius:23px}
+.parity-invitations>header{display:flex;align-items:center;gap:13px;margin-bottom:18px}
+#foxmind-product.fm3d-theme .parity-invitations h2{display:flex;align-items:center;gap:9px;font-size:22px;font-weight:850;margin:0 0 3px}
+.parity-invitations h2>span{display:grid;place-items:center;min-width:25px;height:25px;border-radius:8px;font-size:12px;background:#ffe5b3;color:#76420d}
+#foxmind-product.fm3d-theme .parity-invitations p{margin:0;font-size:13px;color:#6b5230}
+.parity-invitation-icon{display:grid;place-items:center;width:45px;height:45px;border:1px solid #d9bc83;border-radius:14px;background:#ffefce;color:#8b5419}
+.parity-invitation-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.parity-invitation-grid>article{display:grid;grid-template-columns:40px minmax(0,1fr);align-items:start;gap:10px 12px;padding:17px;border:1px solid #dfcba7;background:white;border-radius:17px}
+.parity-invitation-avatar{display:grid;place-items:center;width:40px;height:40px;background:#dfefe7;color:#2b5c40;border-radius:50%;font-weight:800}
+#foxmind-product.fm3d-theme .parity-invitation-grid h3{font-size:18px;font-weight:850;line-height:1.35;margin:4px 0 5px}
+.parity-invitation-grid small{font-size:12px;line-height:1.4;color:#52657a}
+#foxmind-product.fm3d-theme .parity-invitation-grid button{grid-column:2;display:flex;align-items:center;justify-content:center;gap:7px;min-height:42px;margin-top:4px;background:#fff0e3;color:#8d3a10;border:1px solid #c69774;border-radius:11px;font-size:13px;font-weight:850}
+.parity-invitation-detail img{display:block;width:100%;height:140px;object-fit:cover;border-radius:16px;margin:0 0 18px}
+#foxmind-product.fm3d-theme .parity-invitation-detail h3{font-size:25px;font-weight:850}
+#foxmind-product.fm3d-theme .parity-invitation-detail p{font-size:14px;line-height:1.6;color:#485c73}
+#foxmind-product.fm3d-theme .cl-courses{gap:20px}
+#foxmind-product.fm3d-theme .cl-course{border:1px solid #c6d3e1;border-radius:23px;box-shadow:0 5px 17px #26394f05;background:white;overflow:hidden}
+#foxmind-product.fm3d-theme .cl-course .cl-cover{height:155px;min-height:0}
+#foxmind-product.fm3d-theme .cl-course .cl-cover .fm3-cover{height:100%;aspect-ratio:auto;border-radius:0}
+#foxmind-product.fm3d-theme .cl-course .cl-cover img{width:100%;height:100%;object-fit:cover}
+#foxmind-product.fm3d-theme .cl-course .cl-course-content{padding:20px;min-height:205px}
+#foxmind-product.fm3d-theme .cl-course .cl-course-content h3{font-weight:850;font-size:24px;line-height:1.2;color:#202c3d}
+#foxmind-product.fm3d-theme .cl-course .cl-course-content p{font-size:13px;color:#485c73}
+#foxmind-product.fm3d-theme .cl-course .brujula-course-open{background:#b74710;color:white;border:0;width:40px;height:40px;min-height:40px;border-radius:50%;padding:10px}
+#foxmind-product.fm3d-theme .cl-filter-bar :is(input,select){font-size:13px}
+#foxmind-product.fm3d-theme #classroom-main .class-mast{display:flex;align-items:center;gap:18px;min-height:148px;margin:0;border:1px solid #b6cdbf;background:#deeee5;border-radius:24px;overflow:hidden;isolation:isolate}
+#foxmind-product.fm3d-theme #classroom-main .class-mast-text{padding:24px;flex:1;min-width:0;width:auto;max-width:none;z-index:1}
+#foxmind-product.fm3d-theme #classroom-main .class-mast-text h1{font-size:32px;line-height:1.15;font-weight:900;margin:9px 0 10px}
+#foxmind-product.fm3d-theme #classroom-main .class-mast-text p{display:flex;font-size:12px;flex-wrap:wrap;gap:8px 15px;color:#345b45}
+#foxmind-product.fm3d-theme #classroom-main .class-mast-art{position:absolute;inset:0 0 0 auto;width:25%;opacity:.2;z-index:-1;pointer-events:none}
+#foxmind-product.fm3d-theme #classroom-main .class-mast-art:after{content:none}
+#foxmind-product.fm3d-theme #classroom-main .bb-course-label{display:flex;align-items:center;gap:8px;font-size:11px;color:#345b45}
+.parity-room-facts{display:flex;gap:12px;align-items:center;padding:24px;flex:none;z-index:1}
+.parity-room-facts>span{display:grid;gap:3px;min-width:60px;text-align:center;font-size:11px;color:#345b45;padding:9px 12px;border:1px solid #b4ccbd;border-radius:13px;background:#f3faf5}
+.parity-room-facts b{font-size:23px;color:#254532;font-weight:900;line-height:1.2}
+#foxmind-product.fm3d-theme #classroom-main .class-tabs{display:flex;align-items:center;gap:5px;padding:5px;border-radius:15px;border:1px solid #c6d3e1;background:white;overflow-x:auto}
+#foxmind-product.fm3d-theme #classroom-main .class-tabs button{display:flex;align-items:center;justify-content:center;gap:7px;min-height:43px;min-width:0;flex:1;padding:8px 12px;color:#485c73;background:transparent;border:0;border-radius:10px;font-size:13px;font-weight:800;white-space:nowrap}
+#foxmind-product.fm3d-theme #classroom-main .class-tabs button[aria-selected=true],#foxmind-product.fm3d-theme #classroom-main .class-tabs button[aria-current=page],#foxmind-product.fm3d-theme #classroom-main .class-tabs button.active{background:#ffeadc;color:#963b0d}
+#foxmind-product.fm3d-theme #classroom-main .class-mast .bb-course-label{width:max-content;max-width:100%}
+#foxmind-product.fm3d-theme #classroom-main :is(.p5-section-head,.cl-section) h2{font-size:25px;font-weight:850}
+#foxmind-product.fm3d-theme .brujula-wizard-dialog .p5-covers{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#foxmind-product.fm3d-theme .brujula-wizard-dialog .p5-covers>label{padding:5px;border:1px solid #bdcbda;border-radius:13px;background:white;min-width:0}
+#foxmind-product.fm3d-theme .brujula-wizard-dialog .p5-covers>label.selected{background:#fff0e3;border-color:#b46b40}
+#foxmind-product.fm3d-theme .brujula-wizard-dialog .p5-covers .folder-cover{height:64px;aspect-ratio:auto;border-radius:9px;overflow:hidden}
+#foxmind-product.fm3d-theme .brujula-wizard-dialog .p5-covers .folder-cover img{width:100%;height:100%;object-fit:cover}
+#foxmind-product.fm3d-theme .brujula-wizard-dialog .p5-covers>label>span{font-size:11px;padding-top:5px;gap:4px}
+@media(max-width:900px){.parity-invitation-grid{grid-template-columns:1fr}.parity-room-facts{gap:6px;padding:15px}.parity-room-facts>span{min-width:48px;padding:9px}#foxmind-product.fm3d-theme #classroom-main .class-mast-text h1{font-size:28px}}
+@media(max-width:650px){
+ #foxmind-product.fm3d-theme .parity-catalog-hero{display:block;padding:24px;min-height:220px;border-radius:23px}
+ #foxmind-product.fm3d-theme .parity-catalog-hero h1{font-size:34px;max-width:70%}#foxmind-product.fm3d-theme .parity-catalog-hero p{font-size:14px;max-width:90%}
+ .parity-catalog-art{width:125px;height:125px;right:-12px;top:-20px;bottom:auto;opacity:.7}
+ #foxmind-product.fm3d-theme .parity-catalog-hero .brujula-heading-actions{margin-top:18px}
+ #foxmind-product.fm3d-theme .parity-invitations{padding:17px}#foxmind-product.fm3d-theme .parity-invitations h2{font-size:20px}
+ #foxmind-product.fm3d-theme #classroom-main .class-mast{display:block;min-height:0}#foxmind-product.fm3d-theme #classroom-main .class-mast-text{padding:20px 20px 12px}
+ #foxmind-product.fm3d-theme #classroom-main .class-mast-text h1{font-size:27px}.parity-room-facts{padding:0 20px 18px;gap:8px}.parity-room-facts>span{display:flex;align-items:center;gap:6px;padding:5px 9px;min-width:0;font-size:10px}.parity-room-facts b{font-size:16px}
+ #foxmind-product.fm3d-theme #classroom-main .class-tabs button{flex:0 0 auto}
+}
+

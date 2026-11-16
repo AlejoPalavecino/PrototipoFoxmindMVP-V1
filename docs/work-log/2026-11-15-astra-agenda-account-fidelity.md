@@ -1,0 +1,24 @@
+# Agenda y cuenta: fidelidad visual
+
+Agente: /root/astra_agenda_account_fidelity. Fecha: 2026-11-15.
+Rama: codex/foxmind-product-parity. Base informada: ef6828b.
+Worktree: C:/Users/alejo/.codex/worktrees/foxmind-product-parity/ProtipoFoxMind.
+Autorización: coordinación delega paridad frontend con maqueta iteración 17 aprobada.
+Superficies: Agenda, centro y acceso de Notificaciones, perfil/configuración. Se preserva el trabajo previo y los contratos/backend.
+Mapa: Agenda usa clases globales con overrides de agenda-ux.module.css; notificaciones ya tiene centro completo con module CSS; perfil mantiene guardado real y presets, configuración permite cerrar sesión.
+Referencia: archivos agenda.css, notifications.css y profile.css de ui-lab, sólo lectura; capturas before/prototype sintéticas. Skill frontend-design leída.
+Estado: implementación en curso. Validación visual final a cargo del coordinador; no iniciar navegador/build/servicios.
+
+Implementación: hoja parity-agenda-account-fidelity.css (import a cargo de shell), mes/año separados visualmente, pesos de calendario/centro, escala y campos de perfil, botones deshabilitados neutros. Acceso de Notificaciones navega a /notificaciones conservando consulta/contador; centro mantiene acciones reales. Perfil recibe cierre de sesión real desde identity-screen y conserva enlace de configuración.
+Evidencia: 9 pruebas iniciales Agenda/perfil/notificaciones pasaron. 5 pruebas centro/batch pasaron. Reejecución final de notifications-presentation, brujula-notifications-complete, product-parity-profile-ui y account-avatar-selection: 10/10 PASS. ESLint de cuatro TSX modificados: PASS. Archivos TSX y pruebas comprobados UTF-8.
+Fallos corregidos: prueba histórica esperaba diálogo; se migró al centro conservando comprobación de lectura pendiente, destino autorizado, feedback y retry. Durante adaptación hubo fallos de selectores y codificación de script; corregidos y reejecutados en verde. Intentos rg con glob de Windows fallaron sin modificar archivos.
+Límites: no build, browser ni servicios reiniciados; comparación visual postcambio y responsive a cargo del coordinador. No contratos/backend/datos/proveedor modificados. Sin commit/push/PR. Primer paso: importar la hoja al final y verificar capturas sintéticas reales.
+
+QA móvil de coordinación: vistas app-agenda-after-390/prototype-agenda-current-390 inspeccionadas. Se ajustó mes a 20px/800 y flechas a 44px; toolbar padding16/gap14. Editor inspeccionado en código frente agenda.css: agregado preview lateral real derivado del borrador, 900px desktop y una columna móvil; conserva campos y validaciones existentes. 9/9 pruebas agenda-event-color-view y agenda-ux-navigation PASS, ESLint EventForm PASS. No se tocaron datos para los eventos QA; se comunicó payload/endpoint al coordinador.
+
+QA v3: inspeccionadas capturas candidate/reference editor1440 y perfil390. Se corrigieron las causas observadas: categorías como tarjetas (con valores reales Clase/Actividad/Evaluación), fecha/horas juntas, repetición/aviso en fila compacta visible, paleta seis colores pastel con retención YELLOW/AUTO, encabezado de referencia. Perfil incorpora hooks semánticos pf-* y parity-account con prioridad explícita sobre estilos históricos; shell corrige su navbar por separado. Agenda elimina default DAY condicionado por ancho: MONTH inicial, sin sobrescribir requestedView ni elecciones activas.
+Test-first paleta: RED por lista de cuatro frente seis esperada; GREEN final 13/13 en color, navegación, perfil/avatar. Incluye retención YELLOW/AUTO y default móvil MONTH. ESLint siete TSX PASS. No build/restart/backend. La verificación visual de producción sigue a cargo del coordinador.
+
+Último ajuste solicitado por QA cruzada: captura final-teacher-notifications-390 inspeccionada. Hook estable parity-notifications para tipo de filtro en una línea/39px móvil, peso800 en tabs/acciones; hook nt-nav-link limita border-radius12 al enlace sidebar. No cambios de callbacks ni filtros. 9/9 pruebas notifications-presentation, brujula-notifications-complete y agenda-notification-parity-ui PASS; ESLint dos TSX PASS. Coordinación de radio informada al dueño shell. Estado: congelado para build/capturas del coordinador; no build/restart ejecutados.
+
+Cierre de centrado desktop: cut-teacher-profile-1440 y métricas contrastadas con reference-profile-1440. Causa: main limitado a1104px y margin-left0 por shell; superficie quedaba pegada al gutter izquierdo. Desde1001px main ocupa todo el track disponible y surface tiene max-width1040px/margin-inline:auto, igual estructura de referencia. Sin offsets absolutos, funciona con sidebar colapsado; media desktop no altera390. Verificación geométrica estática: track1208px, (1208-1040)/2=84px, inicio232+84=316px. QA renderizada pendiente del coordinador. Congelado; cambio CSS únicamente.

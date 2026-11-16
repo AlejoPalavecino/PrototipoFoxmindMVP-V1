@@ -15,7 +15,7 @@ export function parseHomeTarget(input: unknown): HomeTarget {
   for (const key of keys) {
     if (key.endsWith('Id')) homeId(value[key]);
     else if (key === 'date') homeDate(value[key]);
-    else if (key === 'section') homeEnum(value[key], ['plan', 'library', 'progress', 'wall']);
+    else if (key === 'section') homeEnum(value[key], ['plan', 'library', 'progress', 'wall', 'members']);
     else if (key === 'filter') homeEnum(value[key], ['unpublished']);
     else if (key === 'mode') homeEnum(value[key], ['respond']);
   }

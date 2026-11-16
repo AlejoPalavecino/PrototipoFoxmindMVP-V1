@@ -1,0 +1,38 @@
+{
+  "build": "GDx_noxCJE7hug5Hq9I7x",
+  "metrics": [
+    {
+      "width": 1440,
+      "build": "GDx_noxCJE7hug5Hq9I7x",
+      "title": "Ciclo del agua · edición QA",
+      "graph": "Ciclo del agua\nAgua\nVapor\nRelaciones\nAgua\nevaporación\n→\nVapor",
+      "graphWidth": 706,
+      "overflow": false,
+      "footer": true
+    },
+    {
+      "width": 390,
+      "build": "GDx_noxCJE7hug5Hq9I7x",
+      "title": "Ciclo del agua · edición QA",
+      "graph": "Ciclo del agua\nAgua\nVapor\nRelaciones\nAgua\nevaporación\n→\nVapor",
+      "graphWidth": 318.3999938964844,
+      "overflow": false,
+      "footer": true
+    },
+    {
+      "width": 320,
+      "build": "GDx_noxCJE7hug5Hq9I7x",
+      "title": "Ciclo del agua · edición QA",
+      "graph": "Ciclo del agua\nAgua\nVapor\nRelaciones\nAgua\nevaporación\n→\nVapor",
+      "graphWidth": 248,
+      "overflow": false,
+      "footer": true
+    }
+  ],
+  "previous": "Título en Biblioteca: Ciclo del agua\n\nReferencia de prueba",
+  "oldConfirmed": true,
+  "newConfirmed": true,
+  "latest": "Título en Biblioteca: Ciclo del agua · edición QA\n\nEl agua se evapora y vuelve en forma de precipitación.",
+  "publicationCount": 2,
+  "oldPreserved": true
+}

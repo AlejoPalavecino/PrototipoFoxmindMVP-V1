@@ -1,0 +1,117 @@
+{
+  "viewport": [
+    390,
+    844
+  ],
+  "overflow": false,
+  "dialog": {
+    "x": 19,
+    "y": 12,
+    "width": 352.3999938964844,
+    "height": 820
+  },
+  "footerVisible": true,
+  "samples": [
+    {
+      "text": "Crear un aula",
+      "ratio": 14.1,
+      "color": "rgb(32, 44, 61)",
+      "background": [
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "text": "2",
+      "ratio": 5.94,
+      "color": "rgb(150, 55, 11)",
+      "background": [
+        255,
+        225,
+        205
+      ]
+    },
+    {
+      "text": "Paso 2 de 4",
+      "ratio": 6.76,
+      "color": "rgb(157, 61, 16)",
+      "background": [
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "text": "Todo empieza con una buena base",
+      "ratio": 14.1,
+      "color": "rgb(32, 44, 61)",
+      "background": [
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "text": "Sumá tu programa y elegí cómo organizarlo.",
+      "ratio": 7.48,
+      "color": "rgb(71, 86, 106)",
+      "background": [
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "text": "programa-ciencias-qa.pdf",
+      "ratio": 6.78,
+      "color": "rgb(71, 86, 106)",
+      "background": [
+        237,
+        246,
+        240
+      ]
+    },
+    {
+      "text": "Elegí el punto de partida. Vas a poder editar todo después.",
+      "ratio": 7.48,
+      "color": "rgb(71, 86, 106)",
+      "background": [
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "text": "Una propuesta de unidades y temas a partir de tu programa.",
+      "ratio": 6.16,
+      "color": "rgb(83, 99, 117)",
+      "background": [
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "text": "Organizá las unidades y los temas con tu propia mirada.",
+      "ratio": 5.72,
+      "color": "rgb(83, 99, 117)",
+      "background": [
+        255,
+        245,
+        235
+      ]
+    },
+    {
+      "text": "Borrador guardado",
+      "ratio": 7.26,
+      "color": "rgb(36, 98, 62)",
+      "background": [
+        255,
+        255,
+        255
+      ]
+    }
+  ],
+  "minContrast": 5.72
+}

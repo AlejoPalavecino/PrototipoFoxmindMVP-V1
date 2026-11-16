@@ -11,34 +11,46 @@ function controlledView(Component, props) {
   return {...view,get tree(){return view.tree;},update(next){Object.assign(props,next);refresh();}};
 }
 
-const room = { id:'room', revision:'4', role:'teacher', archived:false, plans:[], units:[{id:'unit',name:'Seres vivos',topics:[
+const room = { id:'room', name:'Ciencias', revision:'4', role:'teacher', archived:false, plans:[], units:[{id:'unit',name:'Seres vivos',topics:[
   {id:'cell',name:'La célula',status:'NEXT'}, {id:'food',name:'Nutrición',status:'TAUGHT'},
 ]}] };
+const text = node => typeof node === 'string' ? node : Array.isArray(node) ? node.map(text).join('') : text(node?.props?.children ?? '');
+const activity = { id:'a', title:'Una actividad', type:'ASSIGNMENT', status:'PUBLISHED', topicId:'cell', topicIds:['cell'], unitId:'unit', zone:'UTC' };
+const draft = { ...activity, status:'DRAFT' };
 function loadWorkspace() {
-  return loadTsModule('apps/web/src/application/academic-plan-workspace.tsx', {stubs:{"../model/use-plan-workspace.ts":{usePlanWorkspace:()=>({data:{materials:[],activities:[]}})}}}).PlanWorkspace;
+  return loadTsModule('apps/web/src/application/academic-plan-workspace.tsx', {stubs:{"../model/use-plan-workspace.ts":{usePlanWorkspace:()=>({data:{materials:[],activities:[activity]}})}}}).PlanWorkspace;
 }
-test('teaching check is independent from selection and contextual creation does not persist anything', async()=>{
-  const writes=[],created=[],uploads=[],selected=[];
-  const view=hookView(loadWorkspace(),{api:{},room,onOpenActivity(){},onTopicState:(...args)=>writes.push(args),
-    onCreateActivity:ctx=>created.push(ctx),onAddMaterial:ctx=>uploads.push(ctx),onSelectTopic:id=>selected.push(id)});
+test('teaching state stays independent from topic selection, opening activities and preparing a contextual upload', async()=>{
+  const writes=[],opened=[],uploads=[],selected=[];
+  const view=hookView(loadWorkspace(),{api:{},room,onOpenActivity:id=>opened.push(id),onTopicState:(...args)=>writes.push(args),
+    onAddMaterial:ctx=>uploads.push(ctx),onSelectTopic:id=>selected.push(id)});
   try {
     await view.flush();
-    const find=fn=>descendants(view.tree,fn);
-    const checkbox=find(n=>n.type==='input'&&n.props['aria-label']==='Marcar como dado: La célula')[0];
-    assert.ok(checkbox,'direct teaching checkbox');
-    checkbox.props.onChange({target:{checked:true}});
+    const find=fn=>descendants(view.tree,fn)[0];
+    const choose=id=>find(n=>n.type==='button'&&n.props['data-topic-choice']===id).props.onClick();
+    choose('food'); await view.flush();
+    assert.equal(find(n=>n.type==='button'&&text(n)==='Marcar como pendiente').props['aria-pressed'],true);
+    assert.equal(find(n=>n.type==='button'&&n.props['aria-label']==='Abrir actividad: Una actividad'),undefined);
+    choose('cell'); await view.flush();
+    assert.deepEqual(selected,['food','cell']);
+    assert.deepEqual([writes,opened,uploads],[[],[],[]]);
+    find(n=>n.type==='button'&&n.props['aria-label']==='Abrir actividad: Una actividad').props.onClick();
+    find(n=>n.type==='button'&&n.props['aria-label']==='Subir archivo para La célula').props.onClick();
+    assert.deepEqual(opened,['a']);
+    assert.deepEqual(uploads,[{unitId:'unit',topicIds:['cell']}]);
+    assert.deepEqual(writes,[]);
+    find(n=>n.type==='button'&&text(n)==='Marcar como dado').props.onClick();
     assert.deepEqual(writes,[['cell','TAUGHT']]);
-    find(n=>n.type==='button'&&n.props['aria-label']==='Crear actividad para La célula')[0].props.onClick();
-    find(n=>n.type==='button'&&n.props['aria-label']==='Agregar material para La célula')[0].props.onClick();
-    assert.deepEqual(created,[{unitId:'unit',topicIds:['cell']}]);assert.deepEqual(uploads,created);
-    find(n=>n.type==='select'&&n.props['aria-label']==='Tema del plan')[0].props.onChange({target:{value:'food'}});
-    await view.flush();
-    assert.deepEqual(selected,['food']);assert.equal(writes.length,1,'selection did not write');
   }finally{view.close();}
 });
 for(const override of [{role:'student'},{archived:true}])test(`read-only plan does not offer writing controls: ${JSON.stringify(override)}`,async()=>{
-  const view=hookView(loadWorkspace(),{api:{},room:{...room,...override},onOpenActivity(){},onTopicState(){},onCreateActivity(){},onAddMaterial(){}});
-  try{await view.flush();assert.equal(descendants(view.tree,n=>n.type==='input'&&n.props.type==='checkbox').length,0);assert.equal(descendants(view.tree,n=>n.type==='button'&&n.props['aria-label']?.startsWith('Crear actividad para')).length,0);}finally{view.close();}
+  const view=hookView(loadWorkspace(),{api:{},room:{...room,...override},onOpenActivity(){},onTopicState(){},onAddMaterial(){}});
+  try{
+    await view.flush();
+    const buttons=descendants(view.tree,n=>n.type==='button');
+    assert.ok(buttons.some(n=>n.props['aria-label']==='Abrir actividad: Una actividad'));
+    assert.ok(!buttons.some(n=>n.props['aria-pressed']!==undefined || n.props['aria-label']?.startsWith('Subir archivo para')));
+  }finally{view.close();}
 });
 test('teaching undo exists only after confirmed save and restores NEXT without migrating other topics',async()=>{
   const calls=[];let revision=4;
@@ -61,18 +73,65 @@ test('failed teaching save shows error and offers no false undo',async()=>{
 });
 test('retained activities discard a late preview from an earlier visible section',async()=>{
   let resolve;const response=new Promise(done=>{resolve=done;});
-  const activity={id:'a',title:'A',type:'ASSIGNMENT',status:'DRAFT',topicId:'cell',topicIds:['cell'],unitId:'unit',zone:'UTC'};
   const {Activities}=loadTsModule('apps/web/src/application/academic-Activities.tsx');
-  const props={api:{call:async path=>path.endsWith('/preview')?response:path.endsWith('/library')?[]:{activities:[activity]}},room,active:true,reload:async()=>{}};
+  const calls=[];
+  const props={api:{call:async(...args)=>{
+    calls.push(args);
+    return args[0].endsWith('/preview')?response:args[0].endsWith('/progress')?{scope:'classroom',students:[]}:{activities:[activity]};
+  }},room,active:true,reload:async()=>{}};
   const view=controlledView(Activities,props);
-  try{await view.flush();descendants(view.tree,n=>n.type==='button'&&n.props['aria-label']==='Abrir A')[0].props.onClick();await view.flush();view.update({active:false});await view.flush();resolve({activity,revision:'4'});await view.flush();view.update({active:true});await view.flush();assert.equal(descendants(view.tree,n=>n.type?.name==='ActivityAuthoring'||n.type?.name==='AttemptHistory').length,0);}finally{view.close();}
+  try{
+    await view.flush();
+    const previewCall=()=>calls.find(([path])=>path==='/room/activities/a/preview');
+    assert.equal(previewCall(),undefined);
+    const open=descendants(view.tree,n=>n.type==='button'&&n.props['aria-label']==='Abrir Una actividad')[0];
+    assert.ok(open);
+    open.props.onClick(); await view.flush();
+    assert.ok(previewCall(),'the request was started by the click');
+    assert.equal(previewCall()[3].aborted,false);
+    view.update({active:false}); await view.flush();
+    assert.equal(previewCall()[3].aborted,true);
+    resolve({activity,revision:'4'}); await view.flush();
+    view.update({active:true}); await view.flush();
+    assert.equal(descendants(view.tree,n=>n.type?.name==='ActivityAuthoring'||n.type?.name==='AttemptHistory').length,0);
+    assert.ok(calls.every(([,method])=>method==='GET'));
+  }finally{view.close();}
 });
 test('new contextual creation asks before replacing a retained editor',async()=>{
-  const activity={id:'a',title:'A',type:'ASSIGNMENT',status:'DRAFT',topicId:'cell',topicIds:['cell'],unitId:'unit',zone:'UTC'};
   const {Activities}=loadTsModule('apps/web/src/application/academic-Activities.tsx');
-  const props={api:{call:async path=>path.endsWith('/preview')?{activity,revision:'4'}:path.endsWith('/library')?[]:{activities:[activity]}},room,active:true,reload:async()=>{}};
+  const calls=[];
+  const props={api:{call:async(...args)=>{
+    calls.push(args);const [path]=args;
+    return path.endsWith('/preview')?{activity:draft,revision:'4'}:path.endsWith('/library')?[]:path.endsWith('/progress')?{scope:'classroom',students:[]}:{activities:[draft]};
+  }},room,active:true,reload:async()=>{}};
   const view=controlledView(Activities,props);
-  try{await view.flush();descendants(view.tree,n=>n.type==='button'&&n.props['aria-label']==='Abrir A')[0].props.onClick();await view.flush();descendants(view.tree,n=>n.type?.name==='AttemptHistory')[0].props.actions.props.children[0].props.onClick();await view.flush();view.update({creationContext:{unitId:'unit',topicIds:['food']}});await view.flush();assert.ok(descendants(view.tree,n=>n.type?.name==='Dialog'&&n.props.title==='Preparar otra actividad').length);const proceed=descendants(view.tree,n=>n.type==='button'&&n.props.children==='Descartar cambios locales y continuar')[0];proceed.props.onClick();await view.flush();assert.equal(descendants(view.tree,n=>n.type?.name==='ActivityAuthoring').length,0);assert.equal(descendants(view.tree,n=>n.type?.name==='ActivityAssignment').length,0);descendants(view.tree,n=>n.type==='button'&&n.props['aria-label']==='Crear con IA')[0].props.onClick();await view.flush();assert.deepEqual(descendants(view.tree,n=>n.type?.name==='ActivityGeneration')[0].props.creationContext,{unitId:'unit',topicIds:['food']});}finally{view.close();}
+  try{
+    await view.flush();
+    const find=predicate=>descendants(view.tree,predicate)[0];
+    const editor=()=>find(n=>n.type?.name==='ActivityAuthoring');
+    const editorId=()=>editor()?.props.data.activity.id;
+    const drafts=find(n=>n.type==='button'&&text(n)==='Borradores privados');
+    assert.ok(drafts);
+    drafts.props.onClick(); await view.flush();
+    find(n=>n.type==='button'&&n.props['aria-label']==='Abrir Una actividad').props.onClick();
+    await view.flush();
+    assert.equal(editorId(),'a');
+    const context={unitId:'unit',topicIds:['food']};
+    view.update({creationContext:context}); await view.flush();
+    assert.ok(find(n=>n.type?.name==='Dialog'&&n.props.title==='Preparar otra actividad'));
+    assert.equal(editorId(),'a');
+    find(n=>n.type==='button'&&n.props.children==='Volver a la actividad abierta').props.onClick();
+    await view.flush();
+    assert.equal(editorId(),'a');
+    assert.equal(find(n=>n.type?.name==='Dialog'&&n.props.title==='Preparar otra actividad'),undefined);
+    view.update({creationContext:structuredClone(context)}); await view.flush();
+    find(n=>n.type==='button'&&n.props.children==='Descartar cambios locales y continuar').props.onClick();
+    await view.flush();
+    assert.ok(editor());
+    assert.notEqual(editorId(),'a');
+    assert.deepEqual(editor().props.creationContext,context);
+    assert.ok(calls.every(([,method])=>method==='GET'));
+  }finally{view.close();}
 });
 
 test('equivalent home destinations retain identity while unrelated classroom resources rerender',async()=>{

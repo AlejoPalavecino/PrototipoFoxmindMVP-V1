@@ -1,17 +1,34 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { AnswerConfirmation, AttemptEditor, AttemptSessionData } from '../../../../../../src/core/contracts/participation.ts';
 import type { ClassroomClient } from '../../../../../../src/core/contracts/academic-client.ts';
 import { QuestionnaireDraft } from '../model/questionnaire-draft.ts';
 import { Dialog, Notice } from '../../../../../shared-ui/feedback.tsx';
 import type { AttemptExitRef } from './AttemptExitRef.ts';
 import styles from './Participation.module.css';
-import { activityDate } from '../../../../../shared-ui/academic-date.ts';
+import { FoxmindIcon } from '../../../../../shared-ui/index.ts';
+import { AttemptAnswers } from './AttemptAnswers.tsx';
+import { AttemptReceipt } from './AttemptReceipt.tsx';
 
-export function QuestionnaireAttempt({ api, classroomId, data, editor, refresh, exitRef }: {
-  api: ClassroomClient; classroomId: string; data: AttemptSessionData; editor: AttemptEditor | null; refresh: () => Promise<void>; exitRef?: AttemptExitRef;
+const developmentLimit = 20_000;
+
+export function QuestionnaireAttempt({ api, classroomId, data, editor, refresh, exitRef, onClose }: {
+  api: ClassroomClient; classroomId: string; data: AttemptSessionData; editor: AttemptEditor | null; refresh: () => Promise<void>; exitRef?: AttemptExitRef; onClose?: () => void;
 }) {
   const [, render] = useState(0), [busy, setBusy] = useState(false);
+  const [index, setIndex] = useState(0), [reviewIndex, setReviewIndex] = useState(0);
+  const questionHeading = useRef<HTMLHeadingElement>(null);
+  const measureFooter = useCallback((footer: HTMLElement | null) => {
+    const screen = footer?.closest<HTMLElement>('.brujula-activity-screen[data-focused]');
+    if (!footer || !screen) return;
+    const measure = () => screen.style.setProperty('--questionnaire-footer-height', `${Math.ceil(footer.getBoundingClientRect().height)}px`);
+    measure();
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure);
+    observer?.observe(footer);
+    return () => { observer?.disconnect(); screen.style.removeProperty('--questionnaire-footer-height'); };
+  }, []);
+  const focusQuestion = useRef(false);
+  const operation = useRef(false);
   const [confirm, setConfirm] = useState<number | null>(null), [error, setError] = useState('');
   const [receipt, setReceipt] = useState<{ submittedAt: string; submittedLate: boolean; appliedDeadlineAt: string | null } | null>(null);
   const attempt = data.attempt!, questions = data.activity.questions;
@@ -33,28 +50,62 @@ export function QuestionnaireAttempt({ api, classroomId, data, editor, refresh, 
     exitRef.current = { dirty: editable && draft.dirty, busy, save: editable ? () => draft.flush() : undefined };
     return () => { exitRef.current = null; };
   });
-  async function run(action: () => Promise<void>) {
-    setBusy(true); setError('');
-    try { await action(); } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
+  useEffect(() => {
+    if (focusQuestion.current) { questionHeading.current?.focus(); focusQuestion.current = false; }
+  }, [index, confirm]);
+  function goTo(next: number) {
+    focusQuestion.current = next !== index || confirm !== null;
+    setConfirm(null); setIndex(next);
   }
-  const states = { saved: 'Guardado confirmado', pending: 'Cambios pendientes de guardar', saving: 'Guardando…', error: 'Error de guardado · cambios sin confirmar' };
-  const unanswered = () => questions.filter(q => {
-    const answer = draft.get(q.id!).value;
-    return q.type === 'DEVELOPMENT' ? !answer.text.trim() : !answer.optionIds.length;
-  }).length;
+  async function run(action: () => Promise<void>) {
+    if (operation.current) return;
+    operation.current = true;
+    setBusy(true); setError('');
+    try { await action(); } catch (e) { setError((e as Error).message); } finally { operation.current = false; setBusy(false); }
+  }
+  const states = { pending: 'Cambios pendientes de guardar', saving: 'Guardando…', error: 'Error de guardado · cambios sin confirmar' };
+  const answered = (question: (typeof questions)[number]) => {
+    const answer = draft.get(question.id!).value;
+    return question.type === 'DEVELOPMENT' ? !!answer.text.trim() : answer.optionIds.length > 0;
+  };
+  const count = questions.filter(answered).length;
+  const question = questions[index], reviewed = questions[reviewIndex];
+  const entry = question ? draft.get(question.id!) : null;
+  const submitted = attempt.status === 'SUBMITTED' || receipt !== null;
+  const reviewAnswer = reviewed ? draft.get(reviewed.id!).value : null;
+  const nav = (selected: number, select: (value: number) => void, label: string) => <nav className={styles.questionNav} aria-label={label}>
+    {questions.map((item, position) => <button key={item.id} type="button" disabled={busy} aria-current={position === selected ? 'step' : undefined}
+      aria-label={`Pregunta ${position + 1}, ${answered(item) ? 'respondida' : 'sin responder'}`}
+      data-answered={answered(item) || undefined} onClick={() => select(position)}>{position + 1}
+      {answered(item) ? <FoxmindIcon name="check"/> : null}</button>)}
+  </nav>;
+  if (submitted) return <div className="parity-receipt-screen"><AttemptReceipt delivery={receipt ?? attempt} title={data.activity.title} zone={data.activity.zone} number={attempt.number} content={`${count} ${count === 1 ? 'respuesta' : 'respuestas'}`}/><div className="parity-receipt-actions"><AttemptAnswers api={api} data={{ ...data, attempt: { ...attempt, answers: questions.map(question => ({ ...draft.get(question.id!).value, savedAt: receipt?.submittedAt ?? attempt.submittedAt ?? attempt.answers.find(answer => answer.questionId === question.id)?.savedAt ?? '' })) } }}/>{onClose ? <button className="primary" onClick={onClose}>Volver a actividades</button> : null}</div></div>;
   return <section className={`p7-questionnaire ${styles.questionnaire}`} aria-label="Respuestas y entrega">
-    {attempt.status === 'SUBMITTED' || receipt ? <Notice><strong>Entrega confirmada.</strong> Podés consultar la calificación desde «Ver devolución».
-      <br />Recepción: {(receipt ?? attempt).submittedAt ? new Date((receipt ?? attempt).submittedAt!).toLocaleString('es', { timeZone: data.activity.zone }) : 'No disponible'} · {data.activity.zone}.
-      {(receipt ?? attempt).submittedLate ? ' Entrega fuera de plazo.' : ' Entrega a tiempo.'} {activityDate((receipt ?? attempt).appliedDeadlineAt, data.activity.zone)}</Notice>
-      : editable ? <p className="p7-save-guidance">Tus respuestas se guardan automáticamente. <strong>Guardar no entrega.</strong> Antes de salir, esperá la confirmación de guardado.</p> : null}
-    {error || draft.error ? <Notice error>{error || draft.error} {receipt || attempt.status === 'SUBMITTED'
-      ? 'Tu entrega ya está confirmada. No pudimos actualizar la vista; podés volver a consultar el estado.'
-      : 'Las respuestas siguen en pantalla; no se confirmó su guardado.'}</Notice> : null}
-    {questions.map((question,index) => {const entry=draft.get(question.id!);return <article className="brujula-answer-question" key={question.id} aria-label={`Pregunta ${index + 1}`}><h4><span>{String(index+1).padStart(2,'0')}</span>{question.prompt}</h4>
-      <small>{{DEVELOPMENT:'Desarrollo',SINGLE_CHOICE:'Selección simple',MULTIPLE_CHOICE:'Selección múltiple'}[question.type]}</small>
-      <fieldset disabled={!editable || busy}><legend>Respuesta a la pregunta {index + 1}</legend>
-        {question.type === 'DEVELOPMENT' ? <label>Tu respuesta<textarea aria-label={`Respuesta a la pregunta ${index + 1}`} rows={7}
-          value={entry.value.text} onChange={e => { draft.edit({ ...entry.value, text: e.target.value }); setConfirm(null); }} /></label>
+    {error || draft.error ? <Notice error>{error || draft.error} {submitted
+      ? 'Tu entrega ya está confirmada. Podés consultarla en el historial.'
+      : 'Tus respuestas siguen en pantalla. Podés reintentar el guardado.'}</Notice> : null}
+    {submitted ? <AttemptReceipt delivery={receipt ?? attempt} title={data.activity.title} zone={data.activity.zone}
+      number={attempt.number} content={`${count} ${count === 1 ? 'respuesta' : 'respuestas'}`} /> : null}
+    {questions.length ? <div className={styles.questionProgress}>
+      <p role="status">{count} de {questions.length} respondidas</p>
+      {nav(index, goTo, 'Preguntas')}
+    </div> : null}
+    {question && entry ? <article className={`brujula-answer-question ${styles.question}`} aria-label={`Pregunta ${index + 1}`}>
+      <div className={styles.questionPosition}><span>Pregunta {index + 1} de {questions.length}</span>
+        <small>{{DEVELOPMENT: 'Con tus palabras', SINGLE_CHOICE: 'Elegí una respuesta', MULTIPLE_CHOICE: 'Elegí una o más'}[question.type]}</small></div>
+      <h3 ref={questionHeading} tabIndex={-1}>{question.prompt}</h3>
+      <fieldset disabled={!editable || busy}>
+        <legend className="sr-only">Respuesta a la pregunta {index + 1}</legend>
+        {question.type === 'DEVELOPMENT' ? <label>Tu respuesta<textarea aria-label={`Respuesta a la pregunta ${index + 1}`} rows={5}
+          placeholder="Escribí tu respuesta…" value={entry.value.text}
+          onChange={event => {
+            const characters = [...event.target.value];
+            if (characters.length > developmentLimit) {
+              setError('La respuesta admite hasta 20.000 caracteres.');
+              return;
+            }
+            draft.edit({ ...entry.value, text: event.target.value }); setError(''); setConfirm(null);
+          }} /></label>
           : <>{question.options.map(option => <label key={option.id} className="p7-choice"><input
             type={question.type === 'SINGLE_CHOICE' ? 'radio' : 'checkbox'} name={`question-${question.id}`} value={option.id}
             checked={entry.value.optionIds.includes(option.id!)} onChange={e => {
@@ -62,17 +113,35 @@ export function QuestionnaireAttempt({ api, classroomId, data, editor, refresh, 
                 : e.target.checked ? [...entry.value.optionIds, option.id!] : entry.value.optionIds.filter(id => id !== option.id);
               draft.edit({ ...entry.value, optionIds }); setConfirm(null);
             }} />{option.text}</label>)}
-            <button onClick={() => { draft.edit({ ...entry.value, optionIds: [] }); setConfirm(null); }}>Limpiar selección</button></>}
+            {editable && entry.value.optionIds.length ? <button type="button" onClick={() => { draft.edit({ ...entry.value, optionIds: [] }); setConfirm(null); }}>Limpiar selección</button> : null}</>}
       </fieldset>
-      <p className={styles.answerStatus} role="status" aria-live="polite">{editable ? states[entry.state] : 'Respuesta confirmada · solo consulta'}</p>
-    </article>;})}
-    {editable ? <footer className="p5-form-footer">
-      <button disabled={busy || (!draft.dirty && !draft.error)} onClick={() => void run(() => draft.flush())}>{draft.error ? 'Reintentar guardado' : 'Guardar borrador'}</button>
-      <button className="primary" disabled={busy} onClick={() => void run(async () => { await draft.flush(); setConfirm(unanswered()); })}>Revisar entrega</button>
+    </article> : <Notice>Esta actividad todavía no tiene preguntas.</Notice>}
+    {editable ? <footer ref={measureFooter} className={`${styles.workFooter} parity-work-footer`}>
+      <p className={styles.answerStatus} role="status" data-error={!!draft.error || undefined}>
+        <FoxmindIcon name={draft.error ? 'warning' : 'check'}/>{draft.error ? states.error : draft.saving ? states.saving : draft.dirty ? states.pending : 'Borrador guardado'}
+      </p>
+      <div className={styles.workActions}>
+        <button type="button" disabled={busy} onClick={() => void run(async () => { await draft.flush(); onClose?.(); })}>{draft.error ? 'Reintentar guardado' : onClose ? 'Guardar y salir' : 'Guardar borrador'}</button>
+        {index > 0 ? <button type="button" disabled={busy} onClick={() => goTo(index - 1)}>Anterior</button> : null}
+        {index < questions.length - 1 ? <button type="button" disabled={busy} onClick={() => goTo(index + 1)}>Siguiente</button> : null}
+        <button type="button" className="primary" disabled={busy || !questions.length} onClick={() => void run(async () => {
+          await draft.flush(); setReviewIndex(index); setConfirm(questions.filter(item => !answered(item)).length);
+        })}>Revisar entrega</button>
+      </div>
     </footer> : null}
-    {confirm !== null && editable ? <Dialog title="Confirmar entrega" className={styles.reviewDialog} onClose={()=>{if(!busy)setConfirm(null);}}><section className="p7-submit-confirm" aria-label="Confirmar entrega de respuestas"><small>Intento {attempt.number}</small><h4>{data.activity.title}</h4>
-      <p>{confirm > 0 ? `Quedan ${confirm} preguntas sin responder y obtendrán cero puntos. Confirmá si querés entregar así.` : 'Todas las preguntas tienen una respuesta guardada.'}{' '}
-        Después de confirmar, las respuestas quedarán bloqueadas. El docente debe revisar y publicar el resultado.</p>
+    {confirm !== null && editable ? <Dialog title="Revisá antes de entregar" className={styles.reviewDialog} onClose={()=>{if(!busy)setConfirm(null);}}>
+      <section className="p7-submit-confirm" aria-label="Confirmar entrega de respuestas">
+      <small>Intento {attempt.number} · {data.activity.title}</small><h4>{count} de {questions.length} preguntas respondidas</h4>
+      {confirm > 0 ? <Notice>{`Quedan ${confirm} ${confirm === 1 ? 'pregunta sin responder' : 'preguntas sin responder'}. Las respuestas vacías recibirán cero puntos.`}</Notice> : null}
+      {nav(reviewIndex, setReviewIndex, 'Revisar respuestas')}
+      {reviewed && reviewAnswer ? <article className={styles.reviewAnswer}>
+        <small>Pregunta {reviewIndex + 1} de {questions.length}</small><h4>{reviewed.prompt}</h4>
+        <p className="p7-multiline">{(reviewed.type === 'DEVELOPMENT' ? reviewAnswer.text :
+          reviewed.options.filter(option => reviewAnswer.optionIds.includes(option.id!)).map(option => option.text).join(' · ')) || 'Sin responder'}</p>
+        <button type="button" disabled={busy} onClick={() => goTo(reviewIndex)}>Editar esta respuesta</button>
+      </article> : null}
+      <p>Al confirmar, tu docente recibe las respuestas y el intento queda disponible para consultar.</p>
+      {error ? <Notice error>{error}</Notice> : null}
       <button aria-label="Cancelar entrega" disabled={busy} onClick={() => setConfirm(null)}>Volver a editar</button>
       <button className="primary" disabled={busy || draft.dirty || draft.saving} onClick={() => void run(async () => {
         await draft.flush();

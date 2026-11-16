@@ -32,7 +32,7 @@ export function createFoxyVisualRuntime(options: Options) {
   const assetAuthority = createFoxyPrivateAssetAuthority({ database, maxJobAgeMs: config.maxJobAgeMs });
   const authority = createFoxyVisualClaimAuthority({ database, maxJobAgeMs: config.maxJobAgeMs, assets: assetAuthority });
   const documents = fileOperations.documents(authority.authorizeDocument);
-  const loader = createFoxyDurableLoader({ authority, documents });
+  const loader = createFoxyDurableLoader({ authority, documents, readAttachment: fileOperations.attachments?.read });
   let activeLease: FoxyVisualLease | null = null;
   const ownedQueue = { ...queue, async claim() { const lease = await queue.claim(); activeLease = lease; return lease; } };
   const custody = fileOperations.visualCustody(assetAuthority, lease => {
@@ -42,7 +42,7 @@ export function createFoxyVisualRuntime(options: Options) {
   const worker = createFoxyVisualWorker({ database, queue: ownedQueue, authority, loader, custody, budget,
     providers: { IMAGE: providers.IMAGE ?? { countTokens: unavailable, generate: unavailable }, DIAGRAM: providers.DIAGRAM ?? { countTokens: unavailable, generate: unavailable } },
     renderer: createFoxyDiagramRenderer(), completion: createFoxyVisualCompletion({ database, budget, maxJobAgeMs: config.maxJobAgeMs }), configuration: effective });
-  const jobs = createFoxyVisualRepository({ assets: createFoxyPrivateAssetRepository() });
-  const service = createFoxyVisualService({ uow: options.uow, conversations: options.conversations, jobs, configuration: effective });
+  const jobs = createFoxyVisualRepository({ assets: createFoxyPrivateAssetRepository(), settleCancelled: budget.settleCancelled });
+  const service = createFoxyVisualService({ uow: options.uow, conversations: options.conversations, jobs, configuration: effective, attachments: fileOperations.attachments?.list });
   return { worker, service, gates, async close() { try { await worker.onModuleDestroy(); } finally { await custody.close(); } } };
 }

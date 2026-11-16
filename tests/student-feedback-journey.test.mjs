@@ -44,36 +44,64 @@ for (const [file, component] of [['QuestionnaireAttempt', 'QuestionnaireAttempt'
   test(`${component}: a receipt must not invent the grading status`, async () => {
     const Component = loadTsModule(`apps/web/src/features/participation/ui/${file}.tsx`)[component];
     const view = hookView(Component, { api: {}, classroomId: 'room', data: session, editor: null, refresh: async () => {} });
-    try { await view.flush(); assert.doesNotMatch(text(view.tree), /pendiente de corrección|No hay una calificación publicada/); assert.match(text(view.tree), /Entrega a tiempo/); }
+    try {
+      await view.flush();
+      const html = renderToStaticMarkup(view.tree);
+      assert.doesNotMatch(html, /pendiente de corrección|No hay una calificación publicada/);
+      assert.match(html, /aria-label="Comprobante de entrega"/);
+      assert.match(html, /A tiempo · Solo consulta/);
+      assert.equal(button(view, 'Revisar entrega'), undefined);
+    }
     finally { view.close(); }
   });
 }
 
-test('a successful questionnaire submit followed by refresh failure retains an unambiguous receipt', async () => {
-  const { QuestionnaireAttempt } = loadTsModule("apps/web/src/features/participation/ui/QuestionnaireAttempt.tsx");
-  let submissions = 0;
-  const view = hookView(QuestionnaireAttempt, { classroomId: 'room', data: { ...session, canTransfer: true, attempt: { ...attempt, status: 'DRAFT' } },
-    editor: { epoch: '1', token: 'memory-only' }, api: { attempt: async () => { submissions++; return attempt; } }, refresh: async () => { throw Error('Sin conexión'); } });
-  try {
-    await view.flush(); button(view, 'Revisar entrega').props.onClick(); await view.flush();
-    button(view, 'Confirmar entrega').props.onClick(); await view.flush();
-    assert.equal(submissions, 1);
-    assert.match(text(view.tree), /entrega ya está confirmada/i);
-    assert.doesNotMatch(text(view.tree), /no se confirmó su guardado/);
-    assert.equal(button(view, 'Revisar entrega'), undefined);
-  } finally { view.close(); }
-});
+for (const [component, endpoint, type] of [
+  ['QuestionnaireAttempt', 'submit-answers', 'EVALUATION'],
+  ['PracticalAttempt', 'submit-practical', 'ASSIGNMENT'],
+]) {
+  test(`${component}: a confirmed submission keeps its receipt and cannot be sent twice after refresh failure`, async () => {
+    const Component = loadTsModule(`apps/web/src/features/participation/ui/${component}.tsx`)[component];
+    const receipt = { submittedAt: '2026-10-28T12:05:00Z', submittedLate: true, appliedDeadlineAt: '2026-10-28T12:00:00Z' };
+    const draft = { ...attempt, status: 'DRAFT', submittedAt: null, submittedLate: null,
+      ...(type === 'ASSIGNMENT' ? { answers: [], practicalResponse: 'Respuesta guardada' } : {}) };
+    const calls = [];
+    let failedRefresh = 0, exits = 0;
+    const view = hookView(Component, { classroomId: 'room', data: { ...session,
+      activity: { ...activity, type, ...(type === 'ASSIGNMENT' ? { questions: [] } : {}) }, canTransfer: true, attempt: draft },
+      editor: { epoch: '1', token: 'memory-only' }, api: { attempt: async (path, payload) => { calls.push({ path, payload }); return receipt; } },
+      refresh: async () => { if (calls.length) { failedRefresh++; throw Error('Sin conexión'); } },
+      onClose: () => { exits++; } });
+    try {
+      await view.flush(); button(view, 'Revisar entrega').props.onClick(); await view.flush();
+      assert.equal(calls.length, 0);
+      const confirm = button(view, 'Confirmar entrega').props.onClick;
+      confirm(); confirm(); await view.flush();
+      assert.equal(failedRefresh, 1, 'The auxiliary refresh failed after the server confirmed delivery');
+      assert.deepEqual(calls, [{ path: `/room/attempts/attempt/${endpoint}`,
+        payload: { revision: draft.revision, confirm: true, ...(type === 'EVALUATION' ? { confirmIncomplete: false } : {}) } }]);
 
-test('a successful practical submit followed by refresh failure cannot be submitted twice', async () => {
-  const { PracticalAttempt } = loadTsModule("apps/web/src/features/participation/ui/PracticalAttempt.tsx");
-  let submissions = 0;
-  const view = hookView(PracticalAttempt, { classroomId: 'room', data: { ...session, canTransfer: true, attempt: { ...attempt, status: 'DRAFT' } },
-    editor: { epoch: '1', token: 'memory-only' }, api: { attempt: async () => { submissions++; return attempt; } }, refresh: async () => { throw Error('Sin conexión'); } });
-  try {
-    await view.flush(); button(view, 'Revisar entrega').props.onClick(); await view.flush();
-    button(view, 'Confirmar entrega').props.onClick(); await view.flush();
-    assert.equal(submissions, 1);
-    assert.match(text(view.tree), /entrega ya está confirmada/i);
-    assert.equal(button(view, 'Revisar entrega'), undefined);
-  } finally { view.close(); }
-});
+      const html = renderToStaticMarkup(view.tree);
+      assert.match(html, /aria-label="Comprobante de entrega"/);
+      assert.match(html, /Entrega confirmada/);
+      assert.match(html, /Podés cerrar esta pantalla\. Tu entrega quedó confirmada\./);
+      assert.match(html, /<time dateTime="2026-10-28T12:05:00Z"/);
+      assert.match(html, /Fuera de plazo · Solo consulta/);
+      assert.match(html, /Plazo aplicado/);
+      assert.doesNotMatch(html, /no se confirmó|Sin conexión|memory-only|<textarea|Respuesta guardada/i);
+      for (const hidden of ['Revisar entrega', 'Confirmar entrega']) assert.equal(button(view, hidden), undefined);
+      const answers = descendants(view.tree, n => n.type?.name === 'AttemptAnswers')[0];
+      assert.ok(answers);
+      const delivered = hookView(answers.type, answers.props);
+      try {
+        await delivered.flush(); button(delivered, 'Ver lo que entregué').props.onClick(); await delivered.flush();
+        const dialog = descendants(delivered.tree, n => n.type?.name === 'Dialog')[0];
+        assert.equal(dialog?.props.title, 'Tu entrega');
+        assert.match(text(dialog), /Respuesta guardada/);
+      } finally { delivered.close(); }
+      button(view, 'Volver a actividades').props.onClick(); await view.flush();
+      assert.equal(exits, 1);
+      assert.equal(calls.length, 1);
+    } finally { view.close(); }
+  });
+}

@@ -1,6 +1,6 @@
 import { studyFail, studyId, studyObject, studyRevision, validateFolder, type FolderFields } from '../../../../../../src/core/domain/study/folders.ts';
 import { CLASSROOM_COVER_KEYS } from '../../../../../../src/core/domain/classrooms/cover.ts';
-import { projectFolderSummary,type StudySummaryRow,projectFolder, type FolderRow, type StudyState, type StudyQuery } from './contracts.ts';
+import { STUDY_GENERATION_PENDING_MS, projectFolderSummary,type StudySummaryRow,projectFolder, type FolderRow, type StudyState, type StudyQuery } from './contracts.ts';
 import { runCommand, publicState } from './commands.ts';
 import type { StudyApplicationPorts } from './ports.ts';
 // Operational UTF-8 budget for the complete persisted JSON, receipts included.
@@ -17,11 +17,25 @@ export function createStudyService(options: StudyApplicationPorts) {
     const load = options.folders.load.bind(options.folders);
     const save = (tx: StudyQuery, row: FolderRow) => options.folders.save(tx, row, serializeState(row.state));
     let activePreviews = 0;
-    async function validateFiles(tx: StudyQuery, owner: string, id: string, fields: FolderFields) { await options.verifyLink(tx, owner, fields.linkedClassroomId); if (fields.planFileId) {
+    async function validateFiles(tx: StudyQuery, owner: string, id: string, fields: FolderFields, verifyLink = true) { if (verifyLink) await options.verifyLink(tx, owner, fields.linkedClassroomId); if (fields.planFileId) {
         if (!options.files)
             studyFail('FILE_NOT_READY');
         await options.files.assertOwn(tx, owner, id, fields.planFileId, 'plan');
     } }
+    async function cancelGeneration(request: unknown, id: string, data: Record<string, unknown>) {
+        if (Object.keys(data).some(key=>!['action','targetRequestId'].includes(key))) studyFail('INVALID_INPUT');
+        const requestId = studyId(data.targetRequestId);
+        return run(request,true,async(tx,owner)=>{
+            const row = await load(tx,owner,id,true), receipt = row.state.receipts[requestId];
+            if (!receipt) studyFail('CONFLICT');
+            const status = (receipt.result as {status?: string})?.status;
+            if (status === 'CANCELLED') return {folder:projectFolder(row),result:receipt.result};
+            if (status !== 'PENDING' || !receipt.pendingAt) return {folder:projectFolder(row),result:{status:'ALREADY_FINISHED',requestId}};
+            receipt.result = {status:'CANCELLED',requestId};
+            delete receipt.pendingAt;
+            return {folder:projectFolder(await save(tx,row)),result:receipt.result};
+        });
+    }
     async function generatedCommand(request: unknown, id: string, p: Record<string, unknown>) {
         const requestId = studyId(p.requestId), hash = options.digest(JSON.stringify({ ...p, revision: undefined }));
         const sentinel = {};
@@ -32,7 +46,7 @@ export function createStudyService(options: StudyApplicationPorts) {
             if (prior) {
                 if (prior.hash !== hash)
                     studyFail('CONFLICT');
-                if (prior.pendingAt && Date.now() - Date.parse(prior.pendingAt) > 600000 && (prior.result as {
+                if (prior.pendingAt && Date.now() - Date.parse(prior.pendingAt) > STUDY_GENERATION_PENDING_MS && (prior.result as {
                     status?: string;
                 })?.status === 'PENDING') {
                     prior.result = { status: 'FAILED', requestId, reason: 'INTERRUPTED' };
@@ -44,13 +58,25 @@ export function createStudyService(options: StudyApplicationPorts) {
                 studyFail('CONFLICT');
             if (Object.keys(r.state.receipts).length >= 2000)
                 studyFail('QUOTA_EXCEEDED');
+            const candidate = structuredClone(r);
             try {
-                const result = await runCommand(tx, structuredClone(r), p, { ...options, generate: async (input) => { captured = input; throw sentinel; }, feedback: async (input) => { captured = input; operation.mode = 'feedback'; throw sentinel; } });
+                const result = await runCommand(tx, candidate, p, { ...options, generate: async (input) => { captured = input; throw sentinel; }, feedback: async (input) => { captured = input; operation.mode = 'feedback'; throw sentinel; } });
                 return { complete: { folder: projectFolder(r), result } };
             }
             catch (e) {
                 if (e !== sentinel)
                     throw e;
+            }
+            // Commit the real generation request with its receipt before leaving the transaction.
+            // The preparation callback cannot create a resource or an assistant result card.
+            r.state.conversations = candidate.state.conversations;
+            // The new folder revision already supersedes older in-flight inputs. Close their
+            // receipts now so a late failure cannot advance the revision of this reservation.
+            for (const [previousId, receipt] of Object.entries(r.state.receipts)) {
+                if ((receipt.result as { status?: string })?.status !== 'PENDING') continue;
+                const expired = receipt.pendingAt && Date.now() - Date.parse(receipt.pendingAt) > STUDY_GENERATION_PENDING_MS;
+                receipt.result = { status: 'FAILED', requestId: previousId, ...(expired ? { reason: 'INTERRUPTED' } : {}) };
+                delete receipt.pendingAt;
             }
             r.state.receipts[requestId] = { hash, result: { status: 'PENDING', requestId }, pendingAt: new Date().toISOString() };
             const saved = await save(tx, r);
@@ -76,6 +102,8 @@ export function createStudyService(options: StudyApplicationPorts) {
                 studyFail('AI_UNAVAILABLE');
             return await run(request, true, async (tx, owner) => {
                 const r = await load(tx, owner, id, true);
+                const receipt = r.state.receipts[requestId];
+                if ((receipt?.result as {status?:string})?.status === 'CANCELLED') return {folder:projectFolder(r),result:receipt!.result};
                 if (String(r.revision) !== prepared.revision || r.status === 'ARCHIVED')
                     studyFail('CONFLICT');
                 const replay = async (input: unknown) => { if (inputHash(input) !== inputHash(captured))
@@ -87,10 +115,14 @@ export function createStudyService(options: StudyApplicationPorts) {
         }
         catch (error) {
             try {
-                await run(request, true, async (tx, owner) => { const r = await load(tx, owner, id, true); if (r.state.receipts[requestId]?.hash === hash) {
+                const cancelled = await run(request, true, async (tx, owner) => { const r = await load(tx, owner, id, true);
+                const receipt = r.state.receipts[requestId];
+                if ((receipt?.result as {status?:string})?.status === 'CANCELLED') return {folder:projectFolder(r),result:receipt!.result};
+                if (receipt?.hash === hash && (receipt.result as { status?: string })?.status === 'PENDING') {
                     r.state.receipts[requestId] = { hash, result: { status: 'FAILED' } };
                     await save(tx, r);
                 } });
+                if (cancelled) return cancelled;
             }
             catch { /* Preserve provider or authorization failure. */ }
             throw error;
@@ -146,9 +178,9 @@ export function createStudyService(options: StudyApplicationPorts) {
         async patch(request: unknown, id: string, input: unknown) { return run(request, true, async (tx, owner) => { const p = { ...studyObject(input) }, r = await load(tx, owner, id, true); if (studyRevision(p.revision) !== String(r.revision))
             studyFail('CONFLICT'); delete p.revision; const status = p.status ?? r.status; delete p.status; if ((r.status === 'ACTIVE' && status === 'DRAFT') || !['DRAFT', 'ACTIVE', 'ARCHIVED', 'DELETED'].includes(String(status)) || (r.status === 'ARCHIVED' && status !== 'ACTIVE'))
             studyFail('CONFLICT'); if (status === 'DELETED')
-            studyFail('INVALID_INPUT'); r.state.fields = validateFolder({ ...r.state.fields, ...p }, status === 'ACTIVE'); await validateFiles(tx, owner, id, r.state.fields); r.status = status as FolderRow['status']; if (status === 'ARCHIVED')
+            studyFail('INVALID_INPUT'); r.state.fields = validateFolder({ ...r.state.fields, ...p }, status === 'ACTIVE', !!r.state.planOrigin); if (status !== 'DRAFT') delete r.state.fields.wizardStep; await validateFiles(tx, owner, id, r.state.fields, Object.hasOwn(p, 'linkedClassroomId')); r.status = status as FolderRow['status']; if (status === 'ARCHIVED')
             await options.agenda?.cancel(tx, owner, id); return { folder: projectFolder(await save(tx, r)) }; }); },
-        async command(request: unknown, id: string, input: unknown) { const command = studyObject(input); if (['CHAT', 'GENERATE', 'RETRY_FEEDBACK'].includes(String(command.action)))
+        async command(request: unknown, id: string, input: unknown) { const command = studyObject(input); if (command.action === 'CANCEL_GENERATION') return cancelGeneration(request,id,command); if (['CHAT', 'GENERATE', 'RETRY_FEEDBACK'].includes(String(command.action)))
             return generatedCommand(request, id, command); return run(request, true, async (tx, owner) => { const p = command, r = await load(tx, owner, id, true), requestId = studyId(p.requestId), hash = options.digest(JSON.stringify({ ...p, revision: undefined })); const prior = r.state.receipts[requestId]; if (prior) {
             if (prior.hash !== hash)
                 studyFail('CONFLICT');

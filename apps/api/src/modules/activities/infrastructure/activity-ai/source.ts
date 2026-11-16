@@ -1,7 +1,9 @@
+import { DOCUMENT_MAX_BYTES, isDocumentExtension } from '../../../../../../../src/core/domain/documents/document-formats.ts';
 import type { StartActivityGeneration, ActivitySourceSnapshot } from '../../../../../../../src/core/domain/index.ts';
 import { fail } from '../../../classrooms/public.ts';
 import type { Transaction } from '../../../classrooms/public.ts';
 import type { ActivityAiOptions, CurriculumSnapshot, JobRow } from './contracts.ts';
+import { resolveActivityTopics } from '../activity-topics.ts';
 import { isDeepStrictEqual } from 'node:util';
 
 export async function curriculum(tx: Transaction, classroomId: string, input: StartActivityGeneration): Promise<CurriculumSnapshot> {
@@ -9,23 +11,35 @@ export async function curriculum(tx: Transaction, classroomId: string, input: St
     FROM classrooms c JOIN users u ON u.id=c.teacher_id WHERE c.id=$1::uuid FOR UPDATE OF c`, classroomId);
   if (!room || !room.email_verified_at) return fail('FORBIDDEN');
   if (room.archived_at) return fail('CONFLICT');
-  const [unit] = await tx.query<{ id: string; name: string }>('SELECT id,name FROM units WHERE id=$1::uuid AND classroom_id=$2::uuid FOR SHARE', input.unitId, classroomId);
-  if (!unit) return fail('FORBIDDEN');
-  const topics = await tx.query<{ id: string; name: string }>(`SELECT id,name FROM topics WHERE id=ANY($1::uuid[]) AND unit_id=$2::uuid AND classroom_id=$3::uuid ORDER BY id FOR SHARE`, input.topicIds, unit.id, classroomId);
-  if (topics.length !== input.topicIds.length) return fail('FORBIDDEN');
+  let scope: Omit<CurriculumSnapshot, 'teacherId' | 'latestPlanId'>;
+  if (input.unitIds !== undefined) {
+    const selection = await resolveActivityTopics(tx, classroomId, input, true);
+    const unitIds = [...new Set(selection.topics.map(topic => topic.unit_id))];
+    const units = await tx.query<{ id: string; name: string }>(`SELECT id,name FROM units
+      WHERE classroom_id=$1::uuid AND id=ANY($2::uuid[]) FOR SHARE`, classroomId, unitIds);
+    const ordered = unitIds.map(id => units.find(unit => unit.id === id)!);
+    scope = { unit: ordered[0]!, units: ordered,
+      topics: selection.topics.map(topic => ({ id: topic.id, name: topic.name, unitId: topic.unit_id })) };
+  } else {
+    const [unit] = await tx.query<{ id: string; name: string }>('SELECT id,name FROM units WHERE id=$1::uuid AND classroom_id=$2::uuid FOR SHARE', input.unitId, classroomId);
+    if (!unit) return fail('FORBIDDEN');
+    const topics = await tx.query<{ id: string; name: string }>(`SELECT id,name FROM topics WHERE id=ANY($1::uuid[]) AND unit_id=$2::uuid AND classroom_id=$3::uuid ORDER BY id FOR SHARE`, input.topicIds, unit.id, classroomId);
+    if (topics.length !== input.topicIds.length) return fail('FORBIDDEN');
+    scope = { unit, topics };
+  }
   const [plan] = await tx.query<{ id: string }>('SELECT id FROM study_plan_versions WHERE classroom_id=$1::uuid ORDER BY version_number DESC LIMIT 1 FOR SHARE', classroomId);
-  return { teacherId: room.teacher_id, unit, topics, latestPlanId: plan?.id ?? null };
+  return { teacherId: room.teacher_id, ...scope, latestPlanId: plan?.id ?? null };
 }
 export async function snapshots(options: Pick<ActivityAiOptions, 'reader'>, tx: Transaction, request: unknown, classroomId: string, input: StartActivityGeneration) {
   const selected: ActivitySourceSnapshot[] = [];
   for (const id of input.sourceIds) {
     const source = await options.reader.snapshot(tx, request, classroomId, id);
-    if (source.sourceId !== id || !Number.isSafeInteger(source.sizeBytes) || source.sizeBytes < 1 || source.sizeBytes > 20_000_000
-      || !['pdf', 'docx'].includes(source.extension)) throw Object.assign(new Error('AI_INPUT_LIMIT'), { code: 'AI_INPUT_LIMIT' });
+    if (source.sourceId !== id || !Number.isSafeInteger(source.sizeBytes) || source.sizeBytes < 1 || source.sizeBytes > DOCUMENT_MAX_BYTES
+      || !isDocumentExtension(source.extension)) throw Object.assign(new Error('AI_INPUT_LIMIT'), { code: 'AI_INPUT_LIMIT' });
     if (source.extension === 'docx' && !input.acknowledgedWarnings.includes('DOCX_IMAGES_OMITTED')) return fail('INVALID_INPUT');
     selected.push(source);
   }
-  if (selected.reduce((sum, s) => sum + s.sizeBytes, 0) > 20_000_000) throw Object.assign(new Error('AI_INPUT_LIMIT'), { code: 'AI_INPUT_LIMIT' });
+  if (selected.reduce((sum, s) => sum + s.sizeBytes, 0) > DOCUMENT_MAX_BYTES) throw Object.assign(new Error('AI_INPUT_LIMIT'), { code: 'AI_INPUT_LIMIT' });
   return selected;
 }
 export async function revalidate(options: Pick<ActivityAiOptions, 'reader'>, tx: Transaction, request: unknown, row: JobRow): Promise<boolean> {

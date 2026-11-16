@@ -29,11 +29,12 @@ export function usePlanExtraction(options: Inputs) {
   const inputs = useRef(options); inputs.current = options;
   const active = useRef<ReturnType<typeof connect> | null>(null);
   const [view, setView] = useState<ExtractionView | null>(null), [message, setMessage] = useState('');
+  const [messageError, setMessageError] = useState(false);
   const [busy, setBusy] = useState(false);
   useEffect(() => {
-    setView(null); setMessage(''); setBusy(false);
+    setView(null); setMessage(''); setMessageError(false); setBusy(false);
     if (!options.readyFileId) return;
-    const session = connect(inputs, options.readyFileId, setView, setMessage);
+    const session = connect(inputs, options.readyFileId, setView, message => { setMessage(message); setMessageError(Boolean(message)); });
     active.current = session;
     return () => { session.stop(); if (active.current === session) active.current = null; };
   }, [options.api, options.draftId, options.readyFileId]);
@@ -44,11 +45,11 @@ export function usePlanExtraction(options: Inputs) {
     await session.run(() => operation(session.client));
     if (active.current === session) setBusy(false);
   };
-  return { view, message, busy,
+  return { view, message, messageError, busy,
     apply: (units: CurriculumUnit[], replaceConfirmed: boolean) => perform(client => client.apply(units, { replaceConfirmed })),
     retry: () => perform(client => client.retry()),
     refresh: () => perform(client => client.poll()),
-    cancel: () => { active.current?.stop(); active.current = null; setBusy(false); setView(null);
+    cancel: () => { active.current?.stop(); active.current = null; setBusy(false); setView(null); setMessageError(false);
       setMessage('Podés seguir cargando las unidades manualmente. El análisis ya iniciado puede continuar en segundo plano.'); },
   };
 }

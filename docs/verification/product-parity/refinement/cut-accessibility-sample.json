@@ -1,0 +1,22 @@
+{
+  "reduced": true,
+  "activeAnimations": 0,
+  "samples": [
+    {
+      "text": "Hola, Lucía.",
+      "color": "rgb(32, 44, 61)",
+      "bg": "rgb(237, 240, 244)",
+      "hasImage": false,
+      "size": "32px",
+      "weight": "850"
+    },
+    {
+      "text": "Estamos preparando tus próximos pasos…",
+      "color": "rgb(71, 86, 106)",
+      "bg": "rgb(237, 240, 244)",
+      "hasImage": false,
+      "size": "16px",
+      "weight": "400"
+    }
+  ]
+}

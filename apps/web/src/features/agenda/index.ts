@@ -3,6 +3,7 @@ export { default as agendaSurface } from './ui/agenda-surface.module.css';
 export type { AgendaEventRequest } from './model/useAgendaEventTarget.ts';
 export { AgendaClientError } from './api/api.ts';
 export type { AgendaClient } from './api/api.ts';
+export { EventDetails, eventOccurrence } from './ui/EventDetails.tsx';
 export { EventForm } from './ui/EventForm.tsx';
 export { useEventEditor } from './model/useEventEditor.ts';
 export type { EventDraft, DraftField, TemporalChoice, DraftIssue, DraftValidation, RepeatPreview, ZoneChoice, EventEditorOutcome, EventEditor } from './model/event-draft-types.ts';
@@ -19,3 +20,4 @@ export type { EventColorChoice, EventColorOption } from './model/event-colors.ts
 
 export { createAgendaClient } from './api/client.ts';
 export type { AgendaCaller } from './api/client.ts';
+export type { AgendaViewTarget } from './model/useAgendaView.ts';

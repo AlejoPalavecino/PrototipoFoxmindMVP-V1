@@ -2,7 +2,8 @@ import { isDeepStrictEqual } from 'node:util';
 import { parseSendFoxyMessage } from '../../../../../../src/core/domain/index.ts';
 import type { SqlTransaction } from '../../../../../../src/core/contracts/sql.ts';
 import type { FoxyGroundingSnapshot } from '../../../../../../src/core/domain/foxy/grounding.ts';
-import { rebuildGrounding } from './grounding-rebuild.ts';
+import { refreshFoxyAttachmentSnapshot } from './claim-authority-check.ts';
+import { rebuildGrounding, snapshotSelection } from './grounding-rebuild.ts';
 import type { FoxyVisualLease } from './visual-worker-types.ts';
 type Row = { snapshot: FoxyGroundingSnapshot; context_kind: string; classroom_id: string | null };
 const forbidden = (): never => { throw Object.assign(new Error('FORBIDDEN'), { code: 'FORBIDDEN' }); };
@@ -20,8 +21,10 @@ export async function checkVisualClaim(tx: SqlTransaction, lease: FoxyVisualLeas
   if (!isDeepStrictEqual(row.snapshot.context,context)) return forbidden();
   if (context.kind === 'CLASSROOM' && !(await tx.query('SELECT id FROM classrooms WHERE id=$1::uuid AND teacher_id=$2::uuid AND archived_at IS NULL',context.classroomId,lease.ownerId)).length) return forbidden();
   try {
-    const selection = parseSendFoxyMessage({ requestId: '00000000-0000-0000-0000-000000000000', revision: '0', purpose: 'CHAT', text: 'context', selection: { topicIds: row.snapshot.curriculum?.selectedTopicIds ?? [], sourceIds: row.snapshot.sources.map(source => source.sourceId) } },context).selection;
-    return { snapshot: row.snapshot, fresh: isDeepStrictEqual(row.snapshot,await rebuildGrounding(tx,context,selection)) };
+    const selection = parseSendFoxyMessage({ requestId: '00000000-0000-0000-0000-000000000000', revision: '0', purpose: 'CHAT', text: 'context', selection: snapshotSelection(row.snapshot) },context).selection;
+    const current = await rebuildGrounding(tx,context,selection);
+    await refreshFoxyAttachmentSnapshot(tx,lease.ownerId,lease.conversationId,row.snapshot,current);
+    return { snapshot: row.snapshot, fresh: isDeepStrictEqual(row.snapshot,current) };
   } catch (error) {
     if (['INVALID_INPUT','FORBIDDEN','FILE_NOT_READY','AI_INPUT_LIMIT','CONFLICT','EMPTY_CONTENT'].includes(String((error as {code?: unknown})?.code))) return { snapshot: row.snapshot, fresh: false };
     throw error;

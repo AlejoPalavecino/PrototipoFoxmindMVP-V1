@@ -26,6 +26,8 @@ test('preparation freezes a private resource revision and replay precedes later 
       assert.equal(first.created,true);const p=first.publication;
       assert.deepEqual(Object.keys(p).sort(),['classroomId','id','resourceId','resourceRevision','revision','state','title','topicId','unitId']);
       assert.equal(p.state,'PREPARING');assert.equal(p.resourceRevision,x.resource.revision);assert.equal(p.classroomId,input.classroomId);
+      const equivalent=await x.publications.prepare(x.tx,x.f.teacherActor,x.resource.id,{...input,requestId:randomUUID()});
+      assert.equal(equivalent.created,false);assert.equal(equivalent.publication.id,p.id);
       for(const forbidden of ['markdown','digest','fileId','Contenido privado'])assert.equal(JSON.stringify(p).includes(forbidden),false);
       const edit=await x.resources.edit(x.tx,x.f.teacherActor,x.resource.id,{requestId:randomUUID(),revision:x.resource.revision,title:'Nuevo',markdown:'Texto posterior'});
       const replay=await x.publications.prepare(x.tx,x.f.teacherActor,x.resource.id,input);assert.equal(replay.created,false);assert.equal(replay.publication.id,p.id);assert.equal(replay.publication.resourceRevision,p.resourceRevision);
@@ -99,7 +101,11 @@ test('prepare replay of a now-inaccessible stored destination denies opaquely be
 
 test('resource publication list paginates exact timestamps and ties without loss or private fields', {timeout:120000},async()=>{
  await withAgendaDatabase(async({transaction})=>transaction(async({query})=>{const x=await fixture(query),created=[];
-  for(let i=0;i<5;i++)created.push((await x.publications.prepare(x.tx,x.f.teacherActor,x.resource.id,intent(x,{title:`Material ${i}`}))).publication);
+  let resource=x.resource;
+  for(let i=0;i<5;i++) {
+   if(i) ({resource}=await x.resources.edit(x.tx,x.f.teacherActor,resource.id,{requestId:randomUUID(),revision:resource.revision,title:`Revisión ${i}`,markdown:`Contenido privado ${i}`}));
+   created.push((await x.publications.prepare(x.tx,x.f.teacherActor,resource.id,intent(x,{resourceRevision:resource.revision,title:`Material ${i}`}))).publication);
+  }
   for(let i=0;i<created.length;i++)await query("UPDATE foxy_publications SET created_at=$2::timestamptz WHERE id=$1",created[i].id, i<3?'2026-10-31 12:00:00.123456+00':'2026-10-31 12:00:00.123455+00');
   const expected=[...created.slice(0,3).map(p=>p.id).sort().reverse(),...created.slice(3).map(p=>p.id).sort().reverse()],seen=[];let afterId=null;
   do{const page=await x.publications.list(x.tx,x.f.teacherActor,x.resource.id,{limit:2,afterId});assert.ok(page.items.length<=2);seen.push(...page.items.map(p=>p.id));

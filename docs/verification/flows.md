@@ -1,5 +1,11 @@
 # Recorridos verificados por flujo y rol
 
+La matriz histórica siguiente acredita su candidato original. Los recorridos del rediseño vigente se documentan en el [informe de paridad](product-parity/README.md); no se heredan sus PASS.
+
+Foxy AI y Mi estudio, retoma del 2026-11-16: **PASS local focal**. Lector de esquema, edición y TXT, revisión de la copia preparada y dos publicaciones independientes con consentimiento; persistencia y acceso privado por HTTP/SQL aislados. Mi estudio: cuatro anchos, foco y borrador conservado, materia/paso/rename por HTTP. [Capturas, recibos y límites](product-parity/foxy-study-exact/README.md).
+
+Crear aula, carga y análisis, 2026-11-16: **PASS local UI**. PDF real aprobado; pantallas de espera, Escape/regreso/reapertura, recuperación de consulta GET y propuesta sin aplicación automática comprobados con Ego Lite a 320/390/1440 y altura reducida. Estados de IA controlados en una pestaña de QA, retirada la interceptación; intento real limitado por `AI_BUDGET_EXCEEDED`. [Capturas y medidas](product-parity/classrooms-collection/README.md#carga-del-programa-y-análisis-de-foxy) · [Registro](../work-log/2026-11-16-root-classroom-loading-parity.md). Worktree separado, sin integración.
+
 La [auditoría del candidato `398cc0b`](../work-log/2026-11-12-root-documentation-audit.md) registra las comprobaciones nuevas y su [galería](../design/current/README.md). Cada bloque de esta matriz conserva la fecha y el alcance del ensayo original.
 
 Agenda, 2026-11-12: **PASS local UI** — 59 pruebas focales, tipos, lint y build web. Ego Lite con componentes reales/cliente sintético: seleccionar/abrir/crear por fecha, Mes/Semana/Día, foco/Escape, vacío, carga, error visible, formulario/repetición y responsive 1440×1000/390×844. Sin E2E autenticado ni persistencia SQL nueva. [Recibo](agenda-ux.json), [registro](../work-log/2026-11-12-root-agenda-ux.md). Integrado/publicado en main (b942b7b), sin despliegue. Auditoría posterior: seis ajustes visuales pendientes en el registro de publicación de Agenda.

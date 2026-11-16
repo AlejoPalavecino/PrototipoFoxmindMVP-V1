@@ -1,10 +1,12 @@
 # Modelo de datos de FoxMind
 
-El modelo físico vive en [schema.prisma](../../prisma/schema.prisma) y las restricciones adicionales en [migrations](../../prisma/migrations/). Prisma declara las entidades; SQL agrega checks, índices parciales y triggers que deben revisarse junto con el esquema.
+El modelo físico vive en [schema.prisma](../../prisma/schema.prisma) y las restricciones adicionales en [migrations](../../prisma/migrations/). El candidato de integración contiene 64 modelos Prisma y 63 migraciones SQL. SQL agrega checks, índices parciales y triggers que deben revisarse junto con el esquema.
 
 ## Entidades por dominio
 
 Actualización Carpetas de estudio (2026-11-08): cuatro migraciones aditivas `202611080003`–`202611080006`. `StudyFolder` conserva dueño estudiante, estado, revisión y documento JSON versionado (plan, materiales, chats, prácticas, exámenes y recibos). `StudyFolderUpload` custodia cargas privadas con digests y estados; `StudyReviewSession` une sesión privada con evento/revisión de Agenda y aviso durable; `StudyAiDispatch` conserva admisión, deduplicación y presupuesto compartido. CHECKs e índices parciales permanecen en SQL. No se reescriben migraciones anteriores ni se convierten carpetas en aulas. [Reglas y conservación](study/README.md).
+
+La revisión de Estudio del 2026-11-16 incorpora `subject` y `wizardStep` al documento JSON existente, sin migración SQL. Materia admite hasta 100 caracteres; el paso 0–3 sólo corresponde a borradores y se retira al activar. Omitir campos en PATCH conserva sus valores. Renombrar modifica únicamente el título de la conversación indicada y conserva turnos, propiedad, revisión y recibo idempotente.
 
 Verificación de integración del 2026-11-10: la declaración Prisma de `StudyFolder` refleja los defaults `clock_timestamp()` y el índice nombrado `study_folders_owner_status_updated` ya definidos por la [migración existente](../../prisma/migrations/202611080003_study_folders/migration.sql). Es alineación declarativa con el modelo físico existente; no agrega migraciones ni modifica bases retenidas. El control `prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code` retorna 0 sobre una base de prueba propia con las migraciones aplicadas.
 
@@ -13,19 +15,19 @@ Actualización 2026-11-08: migración `202611080001_pending_classroom_deletion` 
 | Dominio | Modelos Prisma | Propiedad y relación principal |
 |---|---|---|
 | Identidad | User, Session, AccountToken, AccountActionControl | Usuario con rol exclusivo; sesiones/tokens asociados y controles de acciones |
-| Agenda | AgendaEvent | Cada evento pertenece a una cuenta; conserva calendario local, zona y proyección temporal |
-| Aulas e ingreso | ClassroomDraft, Classroom, ClassroomCode, Invitation, ClassroomInvitationBatch, Enrollment, MembershipPeriod | Borrador y aula separados, código vigente con historial, lote recuperable por solicitud, inscripción estable e historial de pertenencia |
+| Agenda | AgendaEvent | Evento por cuenta, calendario local, zona, proyección temporal y configuración opcional de aviso |
+| Aulas e ingreso | ClassroomDraft, Classroom, ClassroomCode, Invitation, ClassroomInvitationBatch, Enrollment, MembershipPeriod | Borrador y aula separados, código vigente con historial, lote recuperable por solicitud, decisión de invitación con fecha y destinatario, inscripción estable e historial de pertenencia |
 | Plan | Unit, Topic, StudyPlanVersion | Unidades del aula, temas de unidad y versiones documentales del plan |
-| Materiales y archivos | Material, MaterialRevision, FileObject, Upload, FileCustody | Recurso académico, revisiones, metadatos de bytes, carga y custodia |
-| Actividades | Activity, ActivityInstructionFile, ActivityMaterial, ActivityTopic, Question, QuestionOption | Actividad del aula con contenido, recursos, temas asociados, preguntas y opciones |
+| Materiales y archivos | Material, MaterialRevision, FileObject, Upload, FileCustody | Recurso académico con descripción opcional, revisiones, metadatos de bytes, carga y custodia |
+| Actividades | Activity, ActivityInstructionFile, ActivityMaterial, ActivityTopic, Question, QuestionOption | Actividad del aula con recursos, preguntas y temas ordenados de una o más unidades de la misma aula. La idea de IA queda en `Activity.teacher_brief` y en la carga privada del trabajo |
 | Participación | StudentActivity, Attempt, Answer, AnswerSelection, AttemptAttachment | Obligación individual, intentos, respuestas y adjuntos por intento |
 | Calificación | AttemptGrade, QuestionGrade, GradeCorrection | Corrección de intento, puntos por pregunta y auditoría de cambios publicados |
-| Comunicación | WallPost, WallReply, Notification | Publicaciones y respuestas por aula; avisos con destinatario y destino autorizado |
+| Comunicación | WallPost, WallReply, Notification, NotificationProjectionRead | Publicaciones y respuestas por aula, avisos con destinatario y destino autorizado, y marcas de lectura por cuenta e identidad de proyección |
 | Procesamiento y uso IA | BackgroundJob, ClassroomCurriculumExtraction, ClassroomAiRequest, AiUsageDaily, ActivityAiGeneration, ActivityAiRequest, StudentAiReport, GradingAiJob, AiExecutionPolicy | Trabajos, idempotencia, solicitudes, consumo, política técnica y resultados con alcance propio |
-| Foxy: conversación y recursos | FoxyConversation, FoxyConversationRequest, FoxyTurn, FoxyResource, FoxyResourceRequest | Conversación docente privada, turnos y recursos derivados |
-| Adjuntos privados del chat | ChatAttachment | Dueño, conversación, carpeta opcional, digest y estados de carga, revocación y limpieza. La copia estudiantil confirmada comparte bytes con su `StudyFolderUpload` |
+| Foxy: conversación y recursos | FoxyConversation, FoxyConversationRequest, FoxyTurn, FoxyResource, FoxyResourceRequest | Conversación docente privada, turnos, recursos derivados y estado durable de cancelación |
+| Adjuntos privados del chat | ChatAttachment, FoxyChatAttachmentLink | Objeto privado con dueño, digest y estados de carga, revocación y limpieza; cada conversación docente conserva su vínculo de custodia. La copia estudiantil confirmada comparte bytes con su `StudyFolderUpload` |
 | Foxy: publicación y visuales | FoxyPublication, FoxyPublicationConfirmRequest, FoxyPublicationCommandRequest, FoxyVisualAsset, FoxyPrivateAssetCommand, FoxyVisualJob | Confirmaciones y comandos, publicación, recursos privados y trabajos visuales |
-| Carpetas de estudio | StudyFolder, StudyFolderUpload, StudyReviewSession, StudyAiDispatch | Dueño estudiante, estado privado versionado, custodia de archivos, eventos de repaso y admisión de IA |
+| Carpetas de estudio | StudyFolder, StudyFolderUpload, StudyReviewSession, StudyAiDispatch | Dueño estudiante, estado privado versionado con carpeta y plan importable, custodia de archivos, sesiones de repaso y admisión de IA |
 
 Creaciones es una consulta privada de esas entidades existentes, no una nueva entidad o copia. Su ID estable es el turno de herramienta o trabajo visual; un recurso materializado conserva el mismo resultado de catálogo. Los destinos se obtienen de publicaciones y recibos de traspaso con su material/actividad actual; el contexto de conversación no constituye una asignación. No se agrega migración para esta proyección.
 
@@ -62,7 +64,9 @@ Es un subconjunto conceptual de cardinalidades físicas, no un esquema de migrac
 - Las claves compuestas impiden mezclar aula, actividad, pregunta, intento o archivo ajenos. Las operaciones deben conservar también la autorización y atomicidad del servicio.
 - AttemptGrade mantiene datos privados hasta publicar. StudentActivity enlaza la calificación efectiva; GradeCorrection conserva auditoría. Sugerencia, nota final editable y publicación son estados distintos.
 - Los puntos por pregunta conservan numerador/denominador; las notas usan NUMERIC sin redondeo silencioso de entradas. El cálculo y el formato pertenecen al motor de aplicación, no a la columna SQL.
-- Jobs y solicitudes conservan identidad/deduplicación y estado. Un reintento debe respetar propiedad de ejecución, revisión, cuotas y confirmación; no puede crear publicaciones duplicadas.
+- Los trabajos de Foxy conservan el estado de cancelación del dueño. Una respuesta tardía sin autorización de ejecución no se aplica. Estudio conserva la cancelación en el recibo de generación de la carpeta. Reintentar preparación o publicación para la misma revisión y destino reutiliza el resultado existente.
+- El plan importado se guarda como copia editable en el documento de la carpeta. Los materiales del aula vinculada siguen siendo referencias autorizadas y se vuelven a verificar al leer o generar.
+- La lectura de un aviso proyectado se guarda por cuenta e identidad de proyección. El origen vigente y su autorización determinan si una invitación, un ingreso o un aviso de evento sigue visible. Los repasos conservan la lectura en su sesión durable.
 
 ## Agenda: trazabilidad de invariantes físicos
 
@@ -106,6 +110,22 @@ La capacidad de base no sustituye permisos HTTP, publicación docente, escaneo n
 ## Evolución del modelo
 
 El candidato de Mis aulas del 2026-11-11 agrega `ClassroomInvitationBatch` mediante `202611110001_classroom_invitation_batches`: clave compuesta `(classroom_id, request_id)`, fecha y recibo cifrado. La referencia al aula es restrictiva. Conserva destinatarios y resultados para reconciliación/idempotencia; no incorpora una purga automática. La emisión de cada posición comparte transacción con Invitation y outbox. ClassroomCode conserva digest/envelope e historia global única: los códigos de seis dígitos revocados no se reasignan, por lo que el espacio finito requiere seguimiento de capacidad antes de una futura ampliación.
+
+El candidato combina ocho migraciones del refactor UX/UI y una del runtime IA. La tabla sigue el orden del inventario de directorios; no implica que bases ya migradas hayan aplicado las dos ramas en ese orden.
+
+| Migración | Cambio físico |
+|---|---|
+| [001 · Autoría interunidad](../../prisma/migrations/202611150001_activity_interunit_brief/migration.sql) | Agrega `activities.teacher_brief` opcional, de hasta 1200 caracteres. `activity_topics` referencia la actividad por aula y conserva la pertenencia del tema a su propia unidad del aula. |
+| [002 · Formatos Office](../../prisma/migrations/202611150002_office_formats/migration.sql) | Amplía los CHECK de extensiones de `files` y `chat_attachments`. Los límites por propósito, inspección y escaneo se aplican en los servicios. |
+| [003 · Agenda y lecturas](../../prisma/migrations/202611150003_agenda_projected_notifications/migration.sql) | Guarda minutos de anticipación y zona del aviso en `agenda_events`. Crea `notification_projection_reads` con clave compuesta `(user_id, notification_id)`. |
+| [004 · Cancelación de Foxy](../../prisma/migrations/202611150004_foxy_cancellation/migration.sql) | Admite `CANCELLED` en turnos y trabajos visuales y actualiza las transiciones del trigger de trabajos visuales. |
+| [006 · Rechazo de invitación](../../prisma/migrations/202611150006_invitation_decline/migration.sql) | Registra fecha y cuenta del rechazo. El índice parcial de invitaciones pendientes excluye las rechazadas. |
+| [007 · Descripción de material](../../prisma/migrations/202611150007_material_description/migration.sql) | Agrega `materials.description` opcional, con límite de 2000 caracteres. Los vínculos siguen en `ActivityMaterial`. |
+| [20261116-001 · Perfiles de ejecución IA](../../prisma/migrations/202611160001_ai_execution_profiles/migration.sql) | Agrega la política y las instantáneas de ejecución textual, manteniendo NULL en trabajos históricos. Ver [instantánea de ejecución IA](#instantánea-de-ejecución-ia). |
+| [20261116-001 · Custodia de adjuntos Foxy](../../prisma/migrations/202611160001_foxy_attachment_links/migration.sql) | Agrega `foxy_chat_attachment_links` con claves compuestas de propietario y backfill de adjuntos docentes existentes. `cleanup_claimed_at` impide revivir objetos reclamados para limpieza. Las conversaciones comparten el objeto aprobado sin duplicar bytes. |
+| [20261116-002 · Edición de visuales Foxy](../../prisma/migrations/202611160002_foxy_visual_editorial/migration.sql) | Agrega la revisión, el título y el texto editorial sobre el activo listo. La publicación conserva una instantánea independiente del archivo generado y de futuras ediciones; las filas y recibos previos siguen siendo legibles. |
+
+Una base que ya aplicó estas migraciones puede contener estados, vínculos, archivos y avisos nuevos. Volver a ejecutar el binario anterior no constituye una reversión de esos datos. Cualquier reversión requiere evaluar su compatibilidad, planificar una migración propia y probarla sobre una copia aislada. [Registro de migraciones y pruebas aisladas](../work-log/2026-11-15-activity_backend_impl-product-parity.md).
 
 Actualizar Prisma y agregar una migración hacia adelante revisada, conservando checks, índices parciales y triggers SQL. Probar en una base aislada. No reescribir migraciones aplicadas ni usar db push/reset como sustituto sobre datos que deban conservarse. Una transición de roles o de conservación requiere decisión y plan explícitos.
 

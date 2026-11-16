@@ -26,6 +26,7 @@ export function Dialog({
   className = '',
   label,
   labeledClose,
+  captureEscape = false,
 }: {
   title: string;
   children: ReactNode;
@@ -33,6 +34,7 @@ export function Dialog({
   className?: string;
   label?: string;
   labeledClose?: boolean;
+  captureEscape?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null),
     titleId = useId();
@@ -45,6 +47,13 @@ export function Dialog({
       ref={ref}
       aria-labelledby={titleId}
       aria-label={label}
+      onKeyDown={captureEscape ? event => {
+        if (event.key !== 'Escape' || event.target instanceof Element && event.target.closest('dialog') !== event.currentTarget) return;
+        // A managed dialog can show a second step without leaving the native top layer.
+        event.preventDefault();
+        event.stopPropagation();
+        if (!event.repeat) onClose();
+      } : undefined}
       onCancel={(event) => {
         if (event.target !== event.currentTarget) return;
         event.preventDefault();

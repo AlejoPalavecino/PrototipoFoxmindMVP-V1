@@ -7,14 +7,16 @@ export function useChatAttachments(path: string | undefined) {
   const [busy, setBusy] = useState(false);
   const [refresh, setRefresh] = useState(0);
   const mutation = useRef<AbortController | null>(null);
+  const readVersion = useRef(0);
   useEffect(() => () => mutation.current?.abort(), []);
   useEffect(() => {
     if (!path) return;
     const controller = new AbortController();
+    const version = ++readVersion.current;
     void requestChatAttachment<{ items: ChatAttachment[] }>(path, 'GET', controller.signal).then(result => {
-      if (!controller.signal.aborted) { setList({ path, items: result.items }); setError(undefined); }
+      if (!controller.signal.aborted && version === readVersion.current) { setList({ path, items: result.items }); setError(undefined); }
     }).catch(failure => {
-      if (!controller.signal.aborted) setError({ path, message: failure.message });
+      if (!controller.signal.aborted && version === readVersion.current) setError({ path, message: failure.message });
     });
     return () => controller.abort();
   }, [path, refresh]);
@@ -28,7 +30,10 @@ export function useChatAttachments(path: string | undefined) {
       const target = await resolvePath();
       const query = new URLSearchParams({ name: file.name });
       if (copy) query.set('copy', '1');
-      await requestChatAttachment(`${target}/${id}?${query}`, 'PUT', controller.signal, file);
+      const result = await requestChatAttachment<{ attachment: ChatAttachment }>(`${target}/${id}?${query}`, 'PUT', controller.signal, file);
+      readVersion.current++;
+      if (!controller.signal.aborted) setList(value => ({ path: target,
+        items: [...(value?.path === target ? value.items.filter(item => item.id !== result.attachment.id) : []), result.attachment] }));
       setRefresh(value => value + 1);
     } finally {
       mutation.current = null;
@@ -44,6 +49,7 @@ export function useChatAttachments(path: string | undefined) {
     setError(undefined);
     try {
       await requestChatAttachment(`${path}/${id}`, 'DELETE', controller.signal);
+      readVersion.current++;
       setList(value => value?.path === path ? { path, items: value.items.filter(item => item.id !== id) } : value);
       setRefresh(value => value + 1);
     } catch (failure) {
@@ -54,6 +60,6 @@ export function useChatAttachments(path: string | undefined) {
     }
   }
 
-  return { items: path && list?.path === path ? list.items : [], busy,
+  return { items: path && list?.path === path ? list.items : [], busy, ready: !path || list?.path === path,
     error: path && error?.path === path ? error.message : undefined, upload, remove };
 }

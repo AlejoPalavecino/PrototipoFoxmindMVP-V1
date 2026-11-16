@@ -20,3 +20,13 @@ test('pagehide hides synchronously; persisted pageshow replaces once and dispose
  hide({persisted:true});assert.equal(f.calls.at(-1)[0],'hide');show({persisted:true});show({persisted:true});assert.deepEqual(f.calls.filter(x=>x[0]==='replace'),[['replace','/foxy-ai']]);
  bridge.dispose();const count=f.calls.length;hide({persisted:true});show({persisted:true});bridge.navigate('/inicio');assert.equal(f.calls.length,count);});
 test('navigation exceptions expose only a generic error and leave private presentation hidden',()=>{const f=fixture();f.options.window.location.replace=()=>{throw Error('synthetic private location');};const bridge=create(f);bridge.install();f.listeners.get('pagehide')({});f.listeners.get('pageshow')({persisted:true});assert.ok(f.calls.some(x=>x[0]==='hide'));assert.ok(f.calls.some(x=>x[0]==='error'));bridge.dispose();});
+
+test('returning to a saved Foxy thread restores only its validated route identity',()=>{
+ const f=fixture(),chatId=crypto.randomUUID();
+ f.options.window.location.search='?chat='+chatId+'&unexpected=discard';
+ const bridge=create(f);bridge.install();
+ f.listeners.get('pagehide')({persisted:true});
+ f.listeners.get('pageshow')({persisted:true});
+ assert.deepEqual(f.calls.filter(x=>x[0]==='replace'),[['replace','/foxy-ai?chat='+chatId]]);
+ bridge.dispose();
+});

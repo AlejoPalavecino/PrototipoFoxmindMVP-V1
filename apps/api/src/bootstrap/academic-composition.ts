@@ -110,6 +110,7 @@ export class ClassroomService {
   revokeInvitation(...args: Parameters<InvitationService['revokeInvitation']>): ReturnType<InvitationService['revokeInvitation']> { return this.invitations.revokeInvitation(...args); }
   pendingInvitations(...args: Parameters<InvitationService['pendingInvitations']>): ReturnType<InvitationService['pendingInvitations']> { return this.invitations.pendingInvitations(...args); }
   listInvitations(...args: Parameters<InvitationService['listInvitations']>): ReturnType<InvitationService['listInvitations']> { return this.invitations.listInvitations(...args); }
+  declineInvitation(...args: Parameters<InvitationService['declineInvitation']>): ReturnType<InvitationService['declineInvitation']> { return this.invitations.declineInvitation(...args); }
   acceptInvitation(...args: Parameters<InvitationService['acceptInvitation']>): ReturnType<InvitationService['acceptInvitation']> { return this.invitations.acceptInvitation(...args); }
   changePlan(...args: Parameters<PlanService['changePlan']>): ReturnType<PlanService['changePlan']> { return this.plan.changePlan(...args); }
   listMaterials(...args: Parameters<LibraryService['listMaterials']>): ReturnType<LibraryService['listMaterials']> { return this.library.listMaterials(...args); }
@@ -195,6 +196,7 @@ function bindGroup1(service: ClassroomService): void {
   service.revokeInvitation = service.revokeInvitation.bind(service);
   service.pendingInvitations = service.pendingInvitations.bind(service);
   service.listInvitations = service.listInvitations.bind(service);
+  service.declineInvitation = service.declineInvitation.bind(service);
   service.acceptInvitation = service.acceptInvitation.bind(service);
   service.changePlan = service.changePlan.bind(service);
 }

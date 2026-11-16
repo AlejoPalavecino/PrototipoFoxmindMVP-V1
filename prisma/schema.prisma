@@ -133,6 +133,7 @@ model User {
   ended_memberships     MembershipPeriod[] @relation("MembershipPeriod_ended_by_id")
   sent_invitations      Invitation[]       @relation("Invitation_invited_by_id")
   accepted_invitations  Invitation[]       @relation("Invitation_accepted_by_id")
+  declined_invitations  Invitation[]      @relation("Invitation_declined_by_id")
   uploaded_plans        StudyPlanVersion[] @relation("StudyPlanVersion_uploaded_by_id")
   materials             Material[]         @relation("Material_created_by_id")
   files                 FileObject[]       @relation("FileObject_uploaded_by_id")
@@ -145,6 +146,7 @@ model User {
   replies               WallReply[]        @relation("WallReply_author_id")
   removed_replies       WallReply[]        @relation("WallReply_removed_by_id")
   notifications         Notification[]     @relation("Notification_recipient_id")
+  notification_projection_reads NotificationProjectionRead[]
   agenda_events         AgendaEvent[]      @relation("AgendaEvent_owner")
 
   @@map("users")
@@ -159,6 +161,8 @@ model AgendaEvent {
   description          String
   category             String
   color                String?
+  reminder_minutes     Int?
+  reminder_time_zone   String?
   schedule_kind        String
   start_date           DateTime @db.Date
   end_date_exclusive   DateTime @db.Date
@@ -359,9 +363,12 @@ model Invitation {
   expires_at                 DateTime           @db.Timestamptz(6)
   accepted_at                DateTime?          @db.Timestamptz(6)
   accepted_by_id             String?            @db.Uuid
+  declined_at                DateTime?          @db.Timestamptz(6)
+  declined_by_id             String?            @db.Uuid
   revoked_at                 DateTime?          @db.Timestamptz(6)
   invited_by                 User               @relation("Invitation_invited_by_id", fields: [invited_by_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
   accepted_by                User?              @relation("Invitation_accepted_by_id", fields: [accepted_by_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  declined_by                User?              @relation("Invitation_declined_by_id", fields: [declined_by_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
   classroom                  Classroom          @relation("Invitation_classroom", fields: [classroom_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
   membership_periods         MembershipPeriod[] @relation("Membership_invitation")
 
@@ -423,6 +430,7 @@ model StudyPlanVersion {
 }
 
 model Material {
+  description    String?
   previous_revisions MaterialRevision[] @relation("MaterialRevisionCurrent")
   next_revisions MaterialRevision[] @relation("MaterialRevisionPrevious")
   body           String?
@@ -546,6 +554,7 @@ model Activity {
   evaluation_rubric Json @default("[]")
   objective String?
   teacher_comment String?
+  teacher_brief String?
   generated_by ActivityAiGeneration[] @relation("ActivityGeneration_applied")
   id                     String                    @id @default(uuid()) @db.Uuid
   created_at             DateTime                  @default(now()) @db.Timestamptz(6)
@@ -859,6 +868,16 @@ model WallReply {
   @@map("wall_replies")
 }
 
+model NotificationProjectionRead {
+  user_id String @db.Uuid
+  notification_id String
+  read_at DateTime @default(now()) @db.Timestamptz(6)
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([user_id, notification_id])
+  @@map("notification_projection_reads")
+}
+
 model Notification {
   id               String        @id @default(uuid()) @db.Uuid
   created_at       DateTime      @default(now()) @db.Timestamptz(6)
@@ -981,7 +1000,7 @@ model ActivityTopic {
   unit_id String @db.Uuid
   classroom_id String @db.Uuid
   position Int
-  activity Activity @relation("ActivityTopic_activity", fields: [activity_id, unit_id, classroom_id], references: [id, unit_id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
+  activity Activity @relation("ActivityTopic_activity", fields: [activity_id, classroom_id], references: [id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
   topic Topic @relation("ActivityTopic_topic", fields: [topic_id, unit_id, classroom_id], references: [id, unit_id, classroom_id], onDelete: Restrict, onUpdate: NoAction)
 
   @@id([activity_id, topic_id])
@@ -1123,6 +1142,7 @@ model GradingAiJob {
 }
 
 model FoxyConversation {
+  attachment_links FoxyChatAttachmentLink[]
   visual_jobs FoxyVisualJob[]
   visual_assets FoxyVisualAsset[]
   id String @id @db.Uuid
@@ -1233,6 +1253,8 @@ model FoxyPublication {
   source_asset_id String? @db.Uuid
   source_asset_revision BigInt?
   snapshot_visual Json?
+  source_editorial_revision BigInt?
+  snapshot_description String?
   snapshot_title String
   snapshot_markdown String?
   classroom_id String @db.Uuid
@@ -1298,6 +1320,9 @@ model FoxyPublicationCommandRequest {
 }
 
 model FoxyVisualAsset {
+  editorial_revision BigInt @default(0)
+  editorial_title String?
+  editorial_description String?
   visual_job FoxyVisualJob?
   commands FoxyPrivateAssetCommand[]
   publications FoxyPublication[]
@@ -1348,6 +1373,7 @@ model FoxyVisualAsset {
 }
 
 model FoxyPrivateAssetCommand {
+  editorial_revision BigInt?
   owner_id String @db.Uuid
   request_id String @db.Uuid
   asset_id String @db.Uuid
@@ -1399,6 +1425,7 @@ model FoxyVisualJob {
   @@map("foxy_visual_jobs")
 }
 model ChatAttachment {
+  links           FoxyChatAttachmentLink[]
   id              String       @id @db.Uuid
   owner_id        String       @db.Uuid
   conversation_id String       @db.Uuid
@@ -1411,12 +1438,26 @@ model ChatAttachment {
   ready_at        DateTime?    @db.Timestamptz(6)
   removed_at      DateTime?    @db.Timestamptz(6)
   cleaned_at      DateTime?    @db.Timestamptz(6)
+  cleanup_claimed_at DateTime? @db.Timestamptz(6)
   created_at      DateTime     @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
   owner           User         @relation(fields: [owner_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
   folder          StudyFolder? @relation(fields: [folder_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
 
+  @@unique([id, owner_id], map: "chat_attachments_id_owner_key")
   @@index([owner_id, conversation_id, folder_id], map: "chat_attachments_scope_idx")
   @@map("chat_attachments")
+}
+
+model FoxyChatAttachmentLink {
+  conversation_id String @db.Uuid
+  attachment_id String @db.Uuid
+  owner_id String @db.Uuid
+  removed_at DateTime? @db.Timestamptz(6)
+  created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  conversation FoxyConversation @relation(fields: [conversation_id, owner_id], references: [id, owner_id], onDelete: Restrict, onUpdate: NoAction)
+  attachment ChatAttachment @relation(fields: [attachment_id, owner_id], references: [id, owner_id], onDelete: Restrict, onUpdate: NoAction)
+  @@id([conversation_id, attachment_id])
+  @@map("foxy_chat_attachment_links")
 }
 
 model StudyFolder {
@@ -1436,7 +1477,7 @@ model StudyFolder {
 }
 
 
-// SQL checks and partial indexes remain authoritative in migrations 004–006.
+// SQL checks and partial indexes remain authoritative in migrations 004Ã¢â‚¬â€œ006.
 model StudyFolderUpload {
   id String @id @db.Uuid
   folder_id String @db.Uuid

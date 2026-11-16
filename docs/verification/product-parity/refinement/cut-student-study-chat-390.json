@@ -1,0 +1,22 @@
+{
+  "width": 390,
+  "clientWidth": 390,
+  "height": 844,
+  "scrollWidth": 390,
+  "headings": [
+    {
+      "text": "Un espacio para tus preguntas.",
+      "font": "900 24px / 31.2px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 36.400001525878906,
+        "y": 326.20001220703125,
+        "width": 302.3999938964844,
+        "height": 62.400001525878906,
+        "top": 326.20001220703125,
+        "right": 338.7999954223633,
+        "bottom": 388.60001373291016,
+        "left": 36.400001525878906
+      }
+    }
+  ]
+}

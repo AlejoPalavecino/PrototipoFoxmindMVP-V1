@@ -1,0 +1,57 @@
+{
+  "buildId": "RXJGPgRyO0PeKZcHbgOZx",
+  "branch": "codex/foxmind-product-parity",
+  "base": "ef6828b96084b0fcaf9a883e4afb95e0871cf1d6",
+  "source": {
+    "file": "apps/shared-ui/parity-home.css",
+    "sha256": "9821afdb69aed15d898fd0959a74b701d23393925fb0ef9050ae6a0160b878f3"
+  },
+  "scope": "Student Home single-card desktop layout correction",
+  "reference": "Unmodified prototype; vertical multi-card design now retained for a single real activity as requested by user",
+  "evidence": [
+    {
+      "file": "before-student-1440.png",
+      "sha256": "42a10df30393f73b7deddf2508d706ebcd9f93ed94be1941e53a61b54985c88b"
+    },
+    {
+      "file": "measurements.json",
+      "sha256": "832b5317742d699224eac04848e9edc588bc3950d32545d3d3fb4c51552b3033"
+    },
+    {
+      "file": "product-one-1920.png",
+      "sha256": "dc9faefed2849e9e4f2aaefb5764649721e784fa27ca0de22d45ed6be7f8ab8c"
+    },
+    {
+      "file": "product-one-1440.png",
+      "sha256": "eaab56f675711e0fdffa21e0652e860a9a4123904b4779473b2244f8c8b8f145"
+    },
+    {
+      "file": "product-one-768.png",
+      "sha256": "8a030430b7fb6a7e9d2be3410840eb0ff307a54f8f8307d1fc99e98abbe63304"
+    },
+    {
+      "file": "product-one-390.png",
+      "sha256": "f2b04147ff9fc28a55df08d4fa462b4e83ccaa285ef0cbc1050c2e6e8d06eea7"
+    },
+    {
+      "file": "product-one-320.png",
+      "sha256": "5d553c4d1d46a418231dc59ea1922b82eeb8513cd50eaa0f808c7ff46355e07d"
+    },
+    {
+      "file": "reference-two-1440.png",
+      "sha256": "ef8fc60e91495f9fef0ddb1f6f98e943aa56066072a7a4b89952064f27449e0f"
+    },
+    {
+      "file": "reference-two-390.png",
+      "sha256": "93d4e04805973e6283c76664aa849cabac5363a5441f7dd76802d714ee610ab1"
+    },
+    {
+      "file": "fixture-two-1440.png",
+      "sha256": "e63a25fe38db57d428fc98f488c4f03098cd9a510c8a02a55a9127d634850fd7"
+    },
+    {
+      "file": "fixture-two-390.png",
+      "sha256": "01e629f999019c9085abb308339078c1f42238bb436bd7796612ca42e0eb9b15"
+    }
+  ]
+}

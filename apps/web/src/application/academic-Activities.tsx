@@ -5,8 +5,10 @@ import type { ActivityData, ActivitySummary } from '../../../../src/core/contrac
 import type { AttemptSessionData } from '../../../../src/core/contracts/participation.ts';
 import type { ClassroomClient } from '../../../../src/core/contracts/academic-client.ts';
 import type { Detail } from '../../../../src/core/contracts/classrooms.ts';
+import type { ProgressData } from '../../../../src/core/contracts/grading.ts';
 import type { Material } from '../../../../src/core/contracts/materials.ts';
 import { Dialog, Notice } from '../../../shared-ui/feedback.tsx';
+import type { GenerationFormValue } from '../features/activity-authoring/index.ts';
 import { ActivityAuthoring, activityTypeLabels } from '../features/activity-authoring/index.ts';
 import { ActivityGeneration } from '../features/activity-authoring/index.ts';
 import type { ClassroomCreationContext } from '../../../../src/core/contracts/academic-context.ts';
@@ -20,12 +22,11 @@ import { localActivityDraft } from '../features/activity-authoring/index.ts';
 import { consumeActivityResponse } from '../features/participation/index.ts';
 
 const teacherViews = [
-  { key: 'all', label: 'Todas' },
-  { key: 'PUBLISHED', label: 'Publicadas' },
-  { key: 'DRAFT', label: 'Borradores' },
+  { key: 'PUBLISHED', label: 'Compartidas' },
+  { key: 'DRAFT', label: 'Borradores privados' },
+  { key: 'WITHDRAWN', label: 'Retiradas' },
 ] as const;
-const studentViews=[{key:'all',label:'Todas'},{key:'pending',label:'Pendientes'},{key:'submitted',label:'Entregadas'}] as const;
-const studentStateLabels={PENDING:'Pendiente',CLOSED:'Plazo cerrado',DRAFT:'En borrador',RESUBMISSION:'Reentrega habilitada',SUBMITTED:'Entregado',REVIEWED:'Con devolución',READ_ONLY:'Solo consulta'};
+const studentStateLabels={PENDING:'Para empezar',CLOSED:'Plazo cerrado',DRAFT:'Borrador guardado',RESUBMISSION:'Reentrega habilitada',SUBMITTED:'Entrega recibida',REVIEWED:'Devolución publicada',READ_ONLY:'Solo consulta'};
 
 export function Activities({ api, room, reload, target, onChanged, openAuthoring, submissionFilter, creationContext, onCreationContextConsumed, active = true }: { api: ClassroomClient; room: Detail; reload: () => Promise<void>; target?: AcademicTarget | null; onChanged?: () => void; openAuthoring?: boolean; submissionFilter?: 'unpublished'; creationContext?: ClassroomCreationContext | null; onCreationContextConsumed?: () => void; active?: boolean }) {
   const [assignment, setAssignment] = useState<ClassroomCreationContext>(creationContext ?? { unitId: '', topicIds: [] });
@@ -34,6 +35,8 @@ export function Activities({ api, room, reload, target, onChanged, openAuthoring
   const seenCreationContext = useRef<ClassroomCreationContext | null>(null);
   const [pendingCreationContext, setPendingCreationContext] = useState<ClassroomCreationContext | null>(null);
   const [generating, setGenerating] = useState(false);
+  const [generationStart, setGenerationStart] = useState<GenerationFormValue | null>(null);
+  const [editorContent, setEditorContent] = useState(false);
   const [choosing, setChoosing] = useState(false);
   const [activities, setActivities] = useState<ActivitySummary[]>([]), [loaded, setLoaded] = useState(false);
   const [editing, setEditing] = useState<ActivityData | null>(null), [preview, setPreview] = useState<ActivityData | null>(null);
@@ -42,8 +45,8 @@ export function Activities({ api, room, reload, target, onChanged, openAuthoring
   const [consultation,setConsultation]=useState<AttemptSessionData|null>(null);
   const [session, setSession] = useState<AttemptSessionData | null>(null), [authorization, setAuthorization] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<{ action: 'publish' | 'withdraw'; activity: ActivitySummary } | null>(null);
-  const [history, setHistory] = useState<{ activityId: string; attemptId?: string | null; filter?: 'unpublished' } | null>(null);
-  const [view, setView] = useState<(typeof teacherViews)[number]['key']|(typeof studentViews)[number]['key']>('all');
+  const [history, setHistory] = useState<{ activityId: string; attemptId?: string | null; filter?: 'unpublished'; initialView?: 'overview' | 'history' } | null>(null);
+  const [view, setView] = useState<(typeof teacherViews)[number]['key']>('PUBLISHED');
   const handledTarget = useRef<AcademicTarget | null>(null);
   const responseRequest=useRef<AbortController|null>(null);
   const responseEpoch=useRef(0);
@@ -52,7 +55,21 @@ export function Activities({ api, room, reload, target, onChanged, openAuthoring
   useEffect(()=>()=>{responseRequest.current?.abort();},[active]);
   useEffect(() => { if (!active) { setChoosing(false); setConsultation(null); setPreview(null); setHistory(null); setAuthorization(null); setConfirm(null); } }, [active]);
   const teacher = room.role === 'teacher', writable = teacher && !room.archived;
-  const visibleActivities = view === 'all' ? activities : activities.filter(activity => teacher?activity.status===view:view==='submitted'?['SUBMITTED','REVIEWED'].includes(activity.studentState??'PENDING'):!['SUBMITTED','REVIEWED','READ_ONLY'].includes(activity.studentState??'PENDING'));
+  const visibleActivities = teacher ? activities.filter(activity => activity.status === view) : activities;
+  const [deliveryCounts, setDeliveryCounts] = useState<Record<string, number>>({});
+  useEffect(() => {
+    if (!teacher || !loaded) return;
+    const controller = new AbortController();
+    void api.call<ProgressData>(`/${room.id}/progress`, 'GET', undefined, controller.signal).then(progress => {
+      if (controller.signal.aborted || progress.scope !== 'classroom') return;
+      const counts: Record<string, number> = Object.fromEntries(activities.map(activity => [activity.id, 0]));
+      for (const student of progress.students) for (const activity of student.activities) {
+        if (activity.firstSubmission) counts[activity.id] = (counts[activity.id] ?? 0) + 1;
+      }
+      setDeliveryCounts(counts);
+    }).catch(() => { if (!controller.signal.aborted) setDeliveryCounts({}); });
+    return () => controller.abort();
+  }, [api, room.id, teacher, loaded, activities]);
   const visibility = useRef({ active });
   if (visibility.current.active !== active) visibility.current = { active };
   useEffect(() => {
@@ -61,6 +78,18 @@ export function Activities({ api, room, reload, target, onChanged, openAuthoring
     if (editing || generating) setPendingCreationContext(creationContext);
     else {setAssignment({ ...creationContext, topicIds: [...creationContext.topicIds] });setChoosing(true);}
   }, [creationContext, editing, generating]);
+  useEffect(() => {
+    if (!choosing || !writable || !active) return;
+    const controller = new AbortController();
+    setError('');
+    void api.call<Material[]>(`/${room.id}/library`, 'GET', undefined, controller.signal).then(library => {
+      if (controller.signal.aborted) return;
+      setMaterials(library); setEditorContext({ ...assignment, topicIds: [...assignment.topicIds] });
+      setEditorReview(false); setEditorContent(false); setEditing(localActivityDraft(room, 'ASSIGNMENT'));
+      setChoosing(false); onCreationContextConsumed?.();
+    }).catch(error => { if (!controller.signal.aborted) { setError(error.message); setChoosing(false); } });
+    return () => controller.abort();
+  }, [choosing, writable, active, api, room.id]);
   useEffect(() => { if (active && openAuthoring && writable) setChoosing(true); }, [active, openAuthoring, writable]);
   const load = useCallback(async (signal?: AbortSignal) => {
     const result = await api.call<{ activities: ActivitySummary[] }>(`/${room.id}/activities`, 'GET', undefined, signal);
@@ -101,7 +130,7 @@ export function Activities({ api, room, reload, target, onChanged, openAuthoring
     const origin=visibility.current;
     const [data, library] = await Promise.all([api.call<ActivityData>(`/${room.id}/activities/${id}/preview`, 'GET', undefined, signal), api.call<Material[]>(`/${room.id}/library`, 'GET', undefined, signal)]);
     if (signal?.aborted || visibility.current!==origin || !origin.active) return;
-    setEditorReview(review); setMaterials(library); setEditing(data);
+    setEditorReview(review); setEditorContent(false); setMaterials(library); setEditing(data);
   }
   async function showPreview(id: string) {
     cancelResponse();const controller=new AbortController();responseRequest.current=controller;const origin=visibility.current;
@@ -122,65 +151,60 @@ export function Activities({ api, room, reload, target, onChanged, openAuthoring
   }
   const detailOpen = Boolean(session || history || preview);
   const editorEpoch=responseEpoch.current,editorOrigin=visibility.current;
-  return <section className={`p7-activities act-page${editing || generating ? ' education-task-active' : ''}`} aria-label="Actividades del aula">
-    {!editing && !generating && !detailOpen ? <header className="p5-section-head fm-desk-activities-heading act-heading"><div><h2>Actividades</h2><p>{teacher ? 'Prepará consignas, revisá entregas y publicá devoluciones.' : 'Consultá tus consignas, entregas y devoluciones.'}</p></div>
-      <div className="p5-actions">{writable ? <button className="primary" disabled={busy} onClick={() => {cancelResponse();setNotice('');setChoosing(true);}}>Crear actividad</button> : null}</div></header> : null}
+  return <section className={`p7-activities act-page ${styles.activityWorkspace}${editing || generating ? ' education-task-active' : ''}`} aria-label="Actividades del aula" data-activity-focus={active && (editing || generating || detailOpen) ? "" : undefined}>
+    {!editing && !generating && !detailOpen ? <header className="p5-section-head fm-desk-activities-heading act-heading"><div><h2>{teacher ? 'Ideas que se ponen en práctica' : 'Tu próxima oportunidad de aprender'}</h2><p>{teacher ? 'Prepará propuestas y acompañá cada entrega.' : 'Leé la consigna, probá tus ideas y compartí lo que aprendiste.'}</p></div>
+      <div className="p5-actions">{writable ? <button className="primary" disabled={busy} onClick={() => {cancelResponse();setNotice('');setChoosing(true);}}><FoxmindIcon name="plus"/>Crear actividad</button> : null}</div></header> : null}
     {error ? <Notice error>{error} Los cambios no confirmados no se consideran guardados.</Notice> : null}
     {notice && !editing ? <Notice>{notice}</Notice> : null}
     {!loaded && !error ? <Notice>Cargando actividades…</Notice> : null}
     {openAuthoring && !writable ? <Notice>No podés crear actividades en esta aula con tus permisos actuales.</Notice> : null}
-    {active && choosing && writable && !editing && !generating && !detailOpen ? <Dialog title="Crear actividad" className="brujula-activity-choice" onClose={() => !busy && setChoosing(false)}><div className="activity-create-entry">
-      <p className="aw-choice-intro">¿Cómo querés preparar la actividad para <strong>{room.name} · {room.division}</strong>?</p>
-      <div className="aw-methods"><button className="aw-method" aria-label="Crear manualmente" aria-describedby="activity-manual-description" disabled={busy} onClick={() => void run(async () => {
-        setEditorContext({ ...assignment, topicIds: [...assignment.topicIds] });
-        const library = await api.call<Material[]>(`/${room.id}/library`, 'GET');
-        setEditorReview(false);setMaterials(library); setEditing(localActivityDraft(room, 'ASSIGNMENT')); setChoosing(false); onCreationContextConsumed?.();
-      })}><span className="aw-method-icon"><FoxmindIcon name="edit" /></span><span><strong>Crear manualmente</strong><small id="activity-manual-description">Escribí las consignas y definí los criterios de evaluación.</small></span><FoxmindIcon name="chevron-right" /></button>
-      <button className="aw-method aw-ia activity-ai-choice" aria-label="Crear con IA" aria-describedby="activity-ai-description" disabled={busy} onClick={() => { setChoosing(false); setGenerating(true); onCreationContextConsumed?.(); }}><span className="aw-method-icon"><FoxmindIcon name="spark" /></span><span><strong>Crear con IA</strong><small id="activity-ai-description">Elegí el tema y el objetivo para generar una propuesta editable.</small></span><FoxmindIcon name="chevron-right" /></button></div>
-      {error ? <Notice error>{error}</Notice> : null}</div></Dialog> : null}
-    {generating && writable ? <ActivityGeneration api={api} room={room} creationContext={assignment} onClose={() => setGenerating(false)}
-      onApplied={async (id, signal) => { await refresh(signal); if (signal.aborted) return; setEditorContext(null); await edit(id, signal); if (!signal.aborted) setGenerating(false); }} /> : null}
-    {editing ? <ActivityAuthoring key={editing.activity.id} api={api} room={room} data={editing} materials={materials} creationContext={editorContext} initialReview={editorReview}
+    {active && choosing ? <Notice>Preparando tu espacio de trabajo…</Notice> : null}
+    {generating && writable ? <ActivityGeneration api={api} room={room} creationContext={assignment} initialRequest={generationStart ?? undefined} onClose={() => { setGenerating(false); setGenerationStart(null); }}
+      onApplied={async (id, signal) => { await refresh(signal); if (signal.aborted) return; setEditorContext(null); await edit(id, signal); if (!signal.aborted) { setEditorContent(true); setGenerating(false); setGenerationStart(null); } }} /> : null}
+    {editing ? <ActivityAuthoring key={editing.activity.id} api={api} room={room} data={editing} materials={materials} creationContext={editorContext} initialReview={editorReview} initialContent={editorContent}
+      onGenerate={value => { setGenerationStart(value); setEditing(null); setGenerating(true); }}
       onSaved={async (assigned,id) => {if(editorEpoch!==responseEpoch.current||editorOrigin!==visibility.current||!editorOrigin.active)return;await refresh();if(editorEpoch!==responseEpoch.current||editorOrigin!==visibility.current||!editorOrigin.active)return;setNotice(assigned ? `Actividad asignada a ${room.name}.` : editing.activity.status==='DRAFT'?'Borrador privado guardado.':'Cambios guardados.'); if(id)await showPreview(id); }}
       onClose={() => {cancelResponse();setEditing(current=>current===editing?null:current);setEditorContext(null);}} /> : null}
-    {loaded && activities.length > 0 && !editing && !generating && !detailOpen ? <div className="fm-desk-activity-filters" role="group" aria-label="Filtrar actividades por estado">
-      {(teacher?teacherViews:studentViews).map(({key,label}) => <button type="button" key={key} aria-pressed={view === key} onClick={() => setView(key)}>{label}</button>)}
+    {teacher && loaded && !editing && !generating && !detailOpen ? <div className="fm-desk-activity-filters" role="group" aria-label="Filtrar actividades por estado">
+      {teacherViews.filter(item => item.key !== 'WITHDRAWN' || activities.some(activity => activity.status === 'WITHDRAWN')).map(({key,label}) => <button type="button" key={key} aria-pressed={view === key} onClick={() => setView(key)}>{label}<span>{activities.filter(activity => activity.status === key).length}</span></button>)}
     </div> : null}
     <div className={`p7-activity-list fm-desk-activity-list act-list ${styles.activityList}`} hidden={Boolean(editing || generating || detailOpen)}>
-    {loaded && visibleActivities.length === 0 ? <p className="p5-empty" role="status">{activities.length ? 'No hay actividades en este estado.' : 'Todavía no hay actividades disponibles.'}</p> : null}
+    {loaded && visibleActivities.length === 0 ? <div className="p5-empty" role="status"><h3>{teacher && view === 'DRAFT' ? 'Tus próximas ideas tienen lugar acá' : teacher && view === 'WITHDRAWN' ? 'No hay actividades retiradas' : 'El próximo desafío está por venir'}</h3><p>{teacher && view === 'DRAFT' ? 'Guardá una actividad y retomá sin compartirla todavía.' : teacher ? 'Prepará la primera actividad para tu grupo.' : 'Tu docente va a compartir las actividades en este espacio.'}</p>{writable && view !== 'WITHDRAWN' ? <button className="primary" onClick={() => setChoosing(true)}><FoxmindIcon name="plus"/>Crear actividad</button> : null}</div> : null}
     {visibleActivities.map(activity => {
       const state = activity.studentState ?? 'PENDING';
-      const statusLabel = teacher ? activity.status === 'DRAFT' ? 'Borrador privado' : activity.status === 'WITHDRAWN' ? 'Retirada' : 'Publicada'
+      const privateDraft = teacher && activity.status === 'DRAFT';
+      const statusLabel = teacher ? activity.status === 'DRAFT' ? 'Sólo vos · Borrador' : activity.status === 'WITHDRAWN' ? 'Retirada' : 'Compartida'
         : studentStateLabels[state];
-      const actionLabel = teacher ? activity.pendingReviewCount ? `${activity.pendingReviewCount} por revisar` : 'Ver actividad'
-        : state === 'REVIEWED' ? 'Ver devolución' : state === 'SUBMITTED' ? 'Ver entrega'
-        : state === 'DRAFT' || state === 'RESUBMISSION' ? 'Ver borrador' : 'Ver actividad';
+      const actionLabel = teacher ? activity.status === 'DRAFT' && writable ? 'Seguir creando' : 'Ver actividad' : 'Abrir actividad';
       const tone = teacher ? activity.status === 'PUBLISHED' ? 'confirmed' : activity.status === 'WITHDRAWN' ? 'neutral' : undefined
-        : state === 'SUBMITTED' || state === 'REVIEWED' ? 'confirmed' : state === 'CLOSED' || state === 'READ_ONLY' ? 'neutral' : undefined;
-      return <article className={`folder-row act-line interior-activity-${activity.status.toLowerCase()}${activity.pendingReviewCount?' has-pending-review':''}`} data-student-state={teacher?undefined:activity.studentState??'PENDING'} key={activity.id} aria-label={activity.title ?? 'Borrador sin título'}>
-      <span className={`interior-activity-icon activity-type-${activity.type.toLowerCase()}`}><FoxmindIcon name={activity.type === 'ASSIGNMENT'?'file':activity.type === 'EVALUATION'?'clipboard':'list-checks'}/></span><div className="folder-row-content"><div className={styles.rowTags}><small className="interior-activity-type">{activityTypeLabels[activity.type]}</small><span className={styles.state} data-tone={tone}>{statusLabel}</span></div>
-      <h3>{activity.title ?? 'Borrador sin título'}</h3><ActivityCurriculum room={room} activity={activity}/></div>
-      <p className="classroom-activity-deadline"><FoxmindIcon name="calendar"/>{activity.deadlineAt?new Intl.DateTimeFormat('es-AR',{timeZone:activity.zone,day:'numeric',month:'short'}).format(new Date(activity.deadlineAt)).replaceAll('.',''):'Sin fecha límite'}</p>
+        : state === 'REVIEWED' ? 'confirmed' : state === 'SUBMITTED' || state === 'PENDING' ? 'informational' : state === 'CLOSED' || state === 'READ_ONLY' ? 'neutral' : undefined;
+      return <article className={`folder-row act-line parity-activity-card interior-activity-${activity.status.toLowerCase()}${activity.pendingReviewCount?' has-pending-review':''}`} data-student-state={teacher?undefined:activity.studentState??'PENDING'} key={activity.id} aria-label={activity.title ?? 'Borrador sin título'}>
+      <span className={`interior-activity-icon activity-type-${activity.type.toLowerCase()}`}><FoxmindIcon name={privateDraft ? 'edit' : activity.type === 'ASSIGNMENT'?'attach':activity.type === 'EVALUATION'?'clipboard':'edit'}/>{!privateDraft ? <small>{activity.type === 'ASSIGNMENT' ? 'Archivo' : activity.type === 'EVALUATION' ? 'Evaluar' : 'Explorar'}</small> : null}</span><div className="folder-row-content"><div className={styles.rowTags}>{!privateDraft ? <small className="interior-activity-type">{activityTypeLabels[activity.type]}</small> : null}<span className={styles.state} data-tone={tone}>{statusLabel}</span></div>
+      <h3>{activity.title ?? 'Tu próxima actividad'}</h3>{privateDraft ? <p>{activityTypeLabels[activity.type]} · Propuesta en preparación</p> : <ActivityCurriculum room={room} activity={activity}/>}
+      {!privateDraft ? <>
+      <p className="classroom-activity-deadline"><FoxmindIcon name="calendar"/>{activity.deadlineAt?new Intl.DateTimeFormat('es-AR',{timeZone:activity.zone,day:'numeric',month:'short'}).format(new Date(activity.deadlineAt)).replaceAll('.',''):'Sin fecha límite'}{teacher && deliveryCounts[activity.id] !== undefined ? <span><FoxmindIcon name="users"/>{deliveryCounts[activity.id]} {deliveryCounts[activity.id] === 1 ? 'entrega' : 'entregas'}</span> : null}</p></> : null}</div>
       <div className="p5-actions folder-row-actions">
         <button className="act-open" disabled={busy} aria-label={`Abrir ${activity.title ?? 'borrador sin título'}`} onClick={() => void run(async () => {
+          if (teacher && writable && activity.status === 'DRAFT') { await openEditor(activity.id); return; }
           cancelResponse();const controller=new AbortController();responseRequest.current=controller;const epoch=responseEpoch.current,origin = visibility.current;
           if (teacher) {
             const result = await api.call<ActivityData>(`/${room.id}/activities/${activity.id}/preview`, 'GET',undefined,controller.signal);
-            if (epoch===responseEpoch.current && visibility.current === origin && origin.active) { setPreview(result); setHistory({activityId:activity.id}); }
+            if (epoch===responseEpoch.current && visibility.current === origin && origin.active) { setPreview(result); setHistory({activityId:activity.id, initialView: 'overview'}); }
             return;
           }
           const next = await api.call<AttemptSessionData>(`/${room.id}/activities/${activity.id}/session`, 'GET',undefined,controller.signal);
           if (epoch===responseEpoch.current && visibility.current === origin && origin.active) {
             setConsultation(next);
-            setHistory({activityId:activity.id, attemptId: state === 'REVIEWED' && next.attempt?.status === 'SUBMITTED' ? next.attempt.id : undefined});
+            setHistory({activityId:activity.id, initialView: 'overview'});
           }
-        })}><span>{actionLabel}</span><FoxmindIcon name="chevron-right"/></button>
+        })}><FoxmindIcon name="arrow-right"/>{actionLabel}</button>
       </div>
     </article>;})}</div>
     {active && history ? <AttemptHistory key={history.activityId + (history.attemptId ?? '') + (history.filter ?? '')} api={api} room={room} activityId={history.activityId} attemptId={history.attemptId} filter={teacher ? history.filter : undefined}
+      initialView={history.initialView}
       activityPreview={preview?.activity??consultation?.activity}
       instructionsLocked={!teacher && consultation?.activity.type === 'ASSIGNMENT' && consultation.canStart && !consultation.attempt}
-      effectiveDeadlineAt={teacher?undefined:consultation?.reception?.deadlineAt} onReview={writable&&preview?.activity.status==='DRAFT'?()=>void run(()=>openEditor(preview.activity.id,true)):undefined} actions={!teacher && consultation && (consultation.canStart || consultation.canTransfer) ? <div className="brujula-activity-options">{consultation.activity.type==='ASSIGNMENT'&&!consultation.attempt?<button disabled={busy} onClick={()=>void run(()=>prepare(consultation.activity.id,true))}>Ver consigna</button>:null}<button className="primary" disabled={busy} onClick={()=>void run(async()=>{if(consultation.editor&&consultation.attempt){setSession(consultation);setHistory(null);}else await prepare(consultation.activity.id);})}>{consultation.attempt?'Continuar borrador':consultation.activity.type==='ASSIGNMENT'?'Preparar entrega':'Responder actividad'}</button></div> : writable && preview ? <div className="brujula-activity-options"><button disabled={busy} onClick={() => void run(()=>openEditor(preview.activity.id))}>{preview.activity.status==='DRAFT'?'Editar borrador':'Editar actividad'}</button>{preview.activity.status!=='DRAFT'?<><button disabled={busy} onClick={() => setAuthorization(preview.activity.id)}>Habilitar primera entrega</button>{!preview.activity.locked ? <button disabled={busy} onClick={() => setConfirm({activity:preview.activity,action:preview.activity.status === 'PUBLISHED'?'withdraw':'publish'})}>{preview.activity.status === 'PUBLISHED'?'Retirar actividad':'Publicar'}</button>:null}</>:null}</div>:null}
+      effectiveDeadlineAt={teacher?undefined:consultation?.reception?.deadlineAt} onReview={writable&&preview?.activity.status==='DRAFT'?()=>void run(()=>openEditor(preview.activity.id,true)):undefined} actions={!teacher && consultation && (consultation.canStart || consultation.canTransfer) ? <div className="brujula-activity-options">{consultation.activity.type==='ASSIGNMENT'&&!consultation.attempt?<button disabled={busy} onClick={()=>void run(()=>prepare(consultation.activity.id,true))}>Ver consigna</button>:null}<button className="primary" disabled={busy} onClick={()=>void run(async()=>{if(consultation.editor&&consultation.attempt){setSession(consultation);setHistory(null);}else await prepare(consultation.activity.id);})}>{consultation.attempt?'Continuar borrador':consultation.activity.type==='ASSIGNMENT'?'Preparar entrega':'Empezar actividad'}</button></div> : writable && preview ? <div className="brujula-activity-options"><button disabled={busy} onClick={() => void run(()=>openEditor(preview.activity.id))}>{preview.activity.status==='DRAFT'?'Editar borrador':'Editar actividad'}</button>{preview.activity.status!=='DRAFT'?<><button disabled={busy} onClick={() => setAuthorization(preview.activity.id)}>Habilitar primera entrega</button>{!preview.activity.locked ? <button disabled={busy} onClick={() => setConfirm({activity:preview.activity,action:preview.activity.status === 'PUBLISHED'?'withdraw':'publish'})}>{preview.activity.status === 'PUBLISHED'?'Retirar actividad':'Publicar'}</button>:null}</>:null}</div>:null}
       onClose={closeResponse} onChanged={refresh} onResume={setSession} /> : null}
     {session ? <div hidden={!active}><AttemptSession active={active} key={session.activity.id} api={api} room={room} initial={session} onClose={closeResponse} onChanged={refresh}
       onViewResult={attemptId => { setHistory({ activityId: session.activity.id, attemptId }); setSession(null); }} /></div> : null}

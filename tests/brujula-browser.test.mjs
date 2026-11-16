@@ -11,22 +11,25 @@ test('Brújula real: public rubric, exact review, private publication, responsiv
     await openClassroom(T.page, runtime.origin, 'P9 brujula classroom');
     await selectClassroomSection(T.page, 'activities', 'Actividades');
     const before = (await ok(T.page, 'GET', `${root}/activities`)).activities.length;
-    await T.page.getByRole('button', { name: 'Crear actividad', exact: true }).click();
-    const choice = T.page.getByRole('dialog', { name: 'Crear actividad', exact: true });
-    await choice.getByRole('button', { name: 'Crear manualmente', exact: true }).waitFor();
-    await choice.getByRole('button', { name: /Crear con IA/ }).waitFor();
+    await T.page.locator('.act-heading').getByRole('button', { name: 'Crear actividad', exact: true }).click();
+    const editor = T.page.getByRole('region', { name: 'Editar actividad', exact: true });
+    await editor.getByRole('radio', { name: /Manualmente/ }).waitFor();
+    await editor.getByRole('radio', { name: /Con ayuda de Foxy/ }).waitFor();
     assert.equal((await ok(T.page, 'GET', `${root}/activities`)).activities.length, before);
-    await choice.getByRole('button', { name: 'Cerrar diálogo', exact: true }).click();
+    await editor.getByRole('button', { name: 'Cerrar editor', exact: true }).click();
     const activity = await createActivity(world, 'ASSIGNMENT', { publish: false, title: 'Brújula con rúbrica' });
     await changeActivity(T.page,room,{action:'save',id:activity.id,payload:{...activity.payload,aiGradingRubric:'Instrucción privada que no se publica'}});
     await openClassroom(T.page,runtime.origin,'P9 brujula classroom');
     await selectClassroomSection(T.page,'activities','Actividades');
+    await T.page.getByRole('button', { name: /Borradores privados/ }).click();
     const card = T.page.getByRole('article', { name: activity.title, exact: true });
     await card.getByRole('button', { name: `Abrir ${activity.title}`, exact: true }).click();
-    await T.page.getByRole('button',{name:'Editar borrador',exact:true}).click();
-    const editor = T.page.getByRole('region', { name: 'Editar actividad', exact: true });
-    await editor.getByRole('heading', { name: 'Paso 1 de 2 · Preparar actividad', exact: true }).waitFor();
+    await editor.getByRole('button', { name: 'Continuar', exact: true }).click();
     await editor.getByLabel('Objetivo de aprendizaje',{exact:true}).fill('Relacionar los conceptos con evidencia.');
+    await editor.getByRole('button', { name: /Rúbrica/ }).click();
+    if (!await editor.getByLabel('Criterio 1', { exact: true }).count()) {
+      await editor.getByRole('button', { name: /Agregar criterio/ }).click();
+    }
     await editor.getByLabel('Criterio 1', { exact: true }).fill('Evidencias y claridad');
     await editor.getByLabel('Descripción del criterio 1', { exact: true }).fill('Explicá la relación entre los conceptos.');
     await editor.getByLabel('Ponderación del criterio 1 (%)',{exact:true}).fill('100');
@@ -39,9 +42,9 @@ test('Brújula real: public rubric, exact review, private publication, responsiv
     assert.equal((await request(S.page, 'GET', `${root}/activities/${activity.id}/session`)).status, 403);
     await editor.waitFor({state:'hidden'});
     await T.page.getByRole('button',{name:'Revisar para asignar',exact:true}).click();
-    await editor.getByRole('button', { name: 'Guardar borrador', exact: true }).waitFor();
+    await editor.getByRole('button', { name: 'Publicar actividad', exact: true }).click();
     response = T.page.waitForResponse(r => r.url().endsWith(`${room.id}/activities`) && r.request().method() === 'POST');
-    await editor.getByRole('button', { name: 'Asignar al aula', exact: true }).click();
+    await T.page.getByRole('dialog', { name: 'Confirmá la publicación' }).getByRole('button', { name: 'Asignar al aula', exact: true }).click();
     assert.equal((await response).status(), 200);
     await editor.waitFor({ state: 'hidden' });
     const student = await ok(S.page, 'GET', `${root}/activities/${activity.id}/session`);
@@ -53,7 +56,7 @@ test('Brújula real: public rubric, exact review, private publication, responsiv
     const pending = home.modules.review.items.find(row => row.target.attemptId === attemptId);
     assert.ok(pending); assert.equal(pending.studentName, `${S.user.firstName} ${S.user.lastName}`);
     await T.page.goto(`${runtime.origin}/inicio`);
-    await T.page.getByRole('button', { name: `Corregir: ${activity.title}`, exact: true }).click();
+    await T.page.getByRole('button', { name: `Revisar ${pending.studentName}`, exact: true }).click();
     await T.page.getByRole('region', { name: 'Corrección privada del intento', exact: true }).waitFor();
     const scoring = T.page.getByRole('group', { name: 'Corrección con rúbrica', exact: true });
     await scoring.getByText('Evidencias y claridad', { exact: true }).waitFor();
@@ -88,15 +91,12 @@ test('Brújula real: public rubric, exact review, private publication, responsiv
 
     for (const [role, page] of [['teacher', T.page], ['student', S.page]]) {
       await page.goto(`${runtime.origin}/inicio`);
-      await page.locator('.fm-home-panorama').waitFor();
+      await page.getByRole('region', { name: 'Inicio', exact: true }).waitFor();
       if(role==='student') {
-        const list=page.getByRole('button',{name:'Ver listado',exact:true});
-        assert.equal(await list.evaluate(element=>Boolean(element.closest('.fm-home-module--pending>header'))),true);
-        await list.click();
-        const work=page.getByRole('dialog',{name:'Mis entregas',exact:true});
-        await work.getByRole('heading',{name:'Con devolución',exact:true}).waitFor();
-        await work.getByRole('button',{name:'Cerrar diálogo',exact:true}).click();
-        await work.waitFor({state:'hidden'});
+        await page.getByRole('button', { name: 'Ver actividades del aula', exact: true }).click();
+        await page.getByRole('region', { name: 'Actividades del aula', exact: true }).waitFor();
+        await page.goto(`${runtime.origin}/inicio`);
+        await page.getByRole('heading', { name: 'Tu próximo paso', exact: true }).waitFor();
       }
       for (const width of [390, 768, 1280, 1440]) {
         await page.setViewportSize({ width, height: 900 });
@@ -114,9 +114,22 @@ test('Brújula real: public rubric, exact review, private publication, responsiv
       assert.equal(await drawer.isVisible(), true);
       await page.keyboard.press('Escape'); await drawer.waitFor({ state: 'hidden' });
       assert.equal(await page.getByRole('button', { name: 'Abrir menú de navegación', exact: true }).evaluate(el => el === document.activeElement), true);
+      const inboxResponse = () => page.waitForResponse(response =>
+        new URL(response.url()).pathname === '/api/v1/classrooms/notifications/page' && response.request().method() === 'GET');
+      let inbox = inboxResponse();
       await page.goto(`${runtime.origin}/notificaciones`);
-      const center = page.getByRole('region', { name: 'Centro de notificaciones', exact: true });
+      const center = page.getByRole('region', { name: 'Tu bandeja de notificaciones', exact: true });
       await center.waitFor();
+      let received = await inbox;
+      if (received.status() === 429) {
+        const seconds = Number(received.headers()['retry-after']);
+        assert.ok(Number.isInteger(seconds) && seconds >= 1 && seconds <= 60, 'The real inbox returns a bounded retry interval');
+        await new Promise(resolve => setTimeout(resolve, seconds * 1000 + 150));
+        inbox = inboxResponse();
+        await center.getByRole('button', { name: 'Actualizar notificaciones', exact: true }).click();
+        received = await inbox;
+      }
+      assert.equal(received.status(), 200);
       await center.getByText('Cargando notificaciones…', { exact: true }).waitFor({ state: 'hidden' });
       assert.equal(await center.getByRole('alert').count(), 0);
       for (const width of [390, 768, 1280, 1440]) {
@@ -129,11 +142,11 @@ test('Brújula real: public rubric, exact review, private publication, responsiv
     }
     await T.page.goto(`${runtime.origin}/agenda`);
     await T.page.getByRole('button', { name: 'Crear evento', exact: true }).click();
-    const event = T.page.getByRole('dialog', { name: 'Crear evento personal', exact: true });
+    const event = T.page.getByRole('dialog', { name: 'Un momento en tu agenda', exact: true });
     await event.getByLabel('Título', { exact: true }).fill('Preparar Brújula');
-    await event.getByText('Grafito', { exact: true }).click();
-    assert.equal(await event.getByRole('radio', { name: 'Grafito', exact: true }).isChecked(), true);
-    await event.getByRole('region', { name: 'Vista previa del evento', exact: true }).getByText('Preparar Brújula', { exact: true }).waitFor();
+    await event.getByText('Pizarra', { exact: true }).click();
+    assert.equal(await event.getByRole('radio', { name: 'Pizarra', exact: true }).isChecked(), true);
+    await event.getByRole('complementary', { name: 'Vista previa del evento', exact: true }).getByText('Preparar Brújula', { exact: true }).waitFor();
     response = T.page.waitForResponse(r => r.url().includes('/agenda/events') && r.request().method() === 'PUT');
     await event.getByRole('button', { name: 'Crear evento', exact: true }).click();
     const saved = await response; assert.ok(saved.status() === 200 || saved.status() === 201);

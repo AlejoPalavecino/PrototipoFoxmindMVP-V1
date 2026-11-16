@@ -26,6 +26,8 @@ export interface CurriculumUnit {
   topics: { name: string }[];
 }
 export interface DraftPayload {
+  wizardStep?: 0 | 1 | 2 | 3;
+  wizardMethod?: 'ai' | 'manual' | null;
   name?: string;
   subject?: string;
   division?: string;
@@ -65,9 +67,19 @@ export function draftPayload(input: unknown, publish: boolean): DraftPayload {
     'coverKey',
     'planFileId',
     'units',
+    'wizardStep',
+    'wizardMethod',
   ];
   const source = object(input, keys),
     out: DraftPayload = {};
+  if (source.wizardStep !== undefined) {
+    if (!Number.isInteger(source.wizardStep) || source.wizardStep < 0 || source.wizardStep > 3) fail('INVALID_INPUT');
+    if (!publish) out.wizardStep = source.wizardStep;
+  }
+  if (source.wizardMethod !== undefined) {
+    if (source.wizardMethod !== null && source.wizardMethod !== 'ai' && source.wizardMethod !== 'manual') fail('INVALID_INPUT');
+    if (!publish) out.wizardMethod = source.wizardMethod;
+  }
   for (const key of ['name', 'subject', 'division'] as const) {
     if (publish || source[key] !== undefined)
       out[key] = text(source[key], key === 'division' ? 60 : 120, publish);

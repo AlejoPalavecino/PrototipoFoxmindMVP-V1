@@ -54,5 +54,10 @@ export function createFoxyVisualBudget(options: { limits: Limits }) {
     if (!row) return false;
     return BigInt(row.reserved_microusd) === 0n ? true : settleRow(tx,row);
   }
-  return { reserve, settle, settleExpired };
+  async function settleCancelled(tx: SqlTransaction, jobId: string) {
+    const [row] = await tx.query<Row>("SELECT * FROM foxy_visual_jobs WHERE id=$1::uuid AND state='RUNNING' FOR UPDATE",jobId);
+    if (!row) return false;
+    return BigInt(row.reserved_microusd) === 0n || settleRow(tx,row);
+  }
+  return { reserve, settle, settleExpired, settleCancelled };
 }

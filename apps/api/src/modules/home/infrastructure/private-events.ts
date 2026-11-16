@@ -25,7 +25,13 @@ export async function privateHomeEvents(tx: HomeSql, actor: HomeActor, timeZone:
   const midnights=days.length?await tx.query<{date:string;start:string}>(`SELECT day::text AS date,to_char(day::timestamp AT TIME ZONE $2::text AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS start FROM unnest($1::date[]) day`,days,timeZone):[];
   return occurrences.map(occurrence=>{
     const event=occurrence.event,hex=createHash('md5').update(occurrence.occurrenceId).digest('hex'),id=hex.replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/,'$1-$2-$3-$4-$5');
-    const item:AgendaItem={id,title:event.title,classroom:null,target:{kind:'private-event',eventId:event.id,occurrenceId:id,date:occurrence.occurrenceDate??occurrence.startDate},source:'PRIVATE_EVENT',startAt:occurrence.startAt,date:occurrence.startDate,timeZone:event.schedule.kind==='TIMED'?event.schedule.timeZone:timeZone,allDay:event.schedule.kind==='ALL_DAY'};
+    const item: AgendaItem = {
+      id, title: event.title, classroom: null, source: 'PRIVATE_EVENT', category: event.category,
+      ...(event.color ? { color: event.color } : {}),
+      target: { kind: 'private-event', eventId: event.id, occurrenceId: id, date: occurrence.occurrenceDate ?? occurrence.startDate },
+      startAt: occurrence.startAt, endAt: occurrence.endAt, date: occurrence.startDate,
+      timeZone: event.schedule.kind === 'TIMED' ? event.schedule.timeZone : timeZone, allDay: event.schedule.kind === 'ALL_DAY',
+    };
     return {item,sort_key:`${occurrence.startAt??midnights.find(row=>row.date===occurrence.startDate)!.start}|${id}`,timing:null};
   });
 }

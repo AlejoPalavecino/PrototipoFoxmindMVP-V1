@@ -10,10 +10,23 @@ Scopes draft/classroom y propósitos plan/instructions/material/attachment tiene
 
 ## Límites y conservación
 
-- Plan e instrucciones: PDF/DOCX, 20 MB por archivo. Materiales/adjuntos: formatos admitidos, hasta 50 MB; un intento admite hasta cinco archivos y depende del cupo disponible.
+- Plan, Biblioteca, instrucciones y adjuntos de actividades, y adjuntos de chat admiten PDF, DOC, DOCX, PPT y PPTX hasta 20.000.000 bytes por archivo. El chat conserva seis adjuntos y 20.000.000 bytes acumulados por conversación. Biblioteca conserva otros formatos ya permitidos con su límite de 50 MB y puede descargar documentos anteriores de mayor tamaño.
+- Las entregas admiten hasta cinco archivos por intento y conservan el límite de 50 MB por archivo para XLSX, JPG, PNG y ZIP, sujetos a la cuota disponible.
+- La IA recibe PDF con páginas y Office con texto extraído. DOCX/DOC aportan texto del cuerpo y PPTX/PPT aportan texto de diapositivas en orden. Los elementos gráficos requieren una fuente alternativa con texto.
+- DOC y PPT requieren que el API local tenga Docker Linux y la imagen `foxmind-office-converter:local` creada con `docker build -t foxmind-office-converter:local config/office-converter`. El convertidor valida streams propios del formato y corre sin red ni montajes del host, con raíz de sólo lectura, un usuario sin privilegios y límites de tiempo, memoria y tamaño. Se guarda y escanea el original. Si el convertidor no está disponible, la validación requiere reintento y no llega a estado listo.
 - PDF e imágenes admiten vista previa según navegador; Office/ZIP mantienen descarga. Ambos caminos requieren permisos actuales.
 - Falta de espacio bloquea nuevas cargas, sin borrar historia ni denegar lecturas autorizadas. El cupo productivo no se decide desde un fixture.
 - Archivos confirmados en borrador e intentos históricos no caducan por la limpieza de uploads. Sólo cargas incompletas abandonadas pueden limpiarse tras 24 h de inactividad según su servicio.
 - Bytes de archivos confirmados son inmutables; revisar un material TEXT crea otra identidad. Quitar un adjunto del borrador no equivale a liberar espacio o borrar historia.
 
 Contrato: [HTTP de archivos](../../api/files.md). Fuentes: [servicio Files](../../../apps/api/src/modules/files/), [puente académico](../../../apps/api/src/bootstrap/attachment-integration.ts), [modelo](../data-model.md). En la [verificación actual](../../verification/flows.md), el PDF adjunto descargado mediante fetch autenticado coincidió byte por byte; el evento nativo de descarga de Ego no se acreditó.
+
+## Custodia de adjuntos Foxy
+
+`chat_attachments` identifica un objeto inmutable. `foxy_chat_attachment_links` registra la custodia independiente de cada conversación docente con claves compuestas que conservan el propietario. La migración `202611160001_foxy_attachment_links` incorpora los vínculos de las filas anteriores cuando conversación y propietario coinciden, preservando la revocación previa y los registros huérfanos para limpieza.
+
+Conservar archivos al cambiar contexto crea el destino, los vínculos al mismo objeto y el recibo idempotente en una transacción. El origen no se altera. El bloqueo del propietario serializa cargas, retiros y traslados; los bloqueos de objeto ordenados se comparten con limpieza. La cuota física cuenta el objeto una vez y el límite por chat cuenta cada vínculo. Las fuentes de generación textual/visual y las citas revalidan el vínculo de la conversación efectiva.
+
+La limpieza sólo reclama un objeto sin custodios vigentes y marca `cleanup_claimed_at` antes de operar sobre almacenamiento. Revalida en una nueva sentencia después de tomar los bloqueos para evitar borrar un objeto que acaba de recibir un vínculo. Un reclamo terminal no admite carga, lectura o traslado nuevo; los fallos físicos se reintentan sin perder la marca. El estudiante conserva la semántica existente de su conversación y la copia independiente en carpeta.
+
+Evidencia de esta unidad: [pruebas de custodia y carreras](../../../apps/api/src/modules/files/infrastructure/tests/chat-attachment-transfer.test.mjs), [proxy binario](../../../tests/foxy-exact-attachment-transport.test.mjs) y [registro de implementación](../../work-log/2026-11-16-astra-foxy-exact.md). PostgreSQL descartable y almacenamiento sintético; no implican pruebas con datos retenidos o proveedor real.

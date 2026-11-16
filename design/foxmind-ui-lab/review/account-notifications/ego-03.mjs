@@ -1,0 +1,13 @@
+const t=await taskSpace(1),p=t.page('p1');
+await p.goto('file:///C:/Users/alejo/.codex/worktrees/foxmind-ui-lab/ProtipoFoxMind/design/foxmind-ui-lab/01-foxmind.html?account=16-final#docente/avisos');
+await p.click('loc=css:[data-action=nt-open][data-id=delivery-r1]',{label:'Abrir la entrega de Marina'});
+await p.waitForURL('**#docente/corregir');
+console.log(await p.evaluate(()=>({route:location.hash,title:document.querySelector('h1')?.textContent})));
+await p.goto('file:///C:/Users/alejo/.codex/worktrees/foxmind-ui-lab/ProtipoFoxMind/design/foxmind-ui-lab/01-foxmind.html?account=16-profile#docente/perfil');
+await p.click('loc=css:[data-pf-action=avatar]',{label:'Revisar los avatares del perfil'});
+await p.click('loc=css:[name=pf-avatar][value=foxy-reader]',{label:'Probar la vista de Foxy lector'});
+console.log(await p.evaluate(()=>({preview:document.querySelector('#pf-picker-label').textContent,saved:JSON.parse(localStorage.getItem('foxmind-ui-lab-v1')).profileDetails?.docente?.avatar||'photo'})));
+await p.screenshot({path:'C:/Users/alejo/.codex/worktrees/foxmind-ui-lab/ProtipoFoxMind/.test-artifacts/ui-lab/account-notifications/ego-avatar-preview.png'});
+await p.click('loc=role:button[name="Cancelar"]',{label:'Conservar el avatar del perfil'});
+await p.goto('file:///C:/Users/alejo/.codex/worktrees/foxmind-ui-lab/ProtipoFoxMind/design/foxmind-ui-lab/01-foxmind.html?account=16-student#estudiante/avisos');
+console.log(await p.snapshot());

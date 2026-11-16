@@ -12,21 +12,32 @@ import { openClassroom, planPdf, upload, rejectSame } from './p6-integration-hel
 import { selectClassroomSection } from './p9-journey-helpers-current.mjs';
 
 async function prepareManualActivity(page, type, title) {
-  await page.getByRole('button', { name: 'Crear actividad', exact: true }).click();
-  await page.getByRole('dialog', { name: 'Crear actividad', exact: true })
-    .getByRole('button', { name: 'Crear manualmente', exact: true }).click();
+  const activities = page.getByRole('region', { name: 'Actividades del aula', exact: true });
+  await activities.locator(':scope > header').getByRole('button', { name: 'Crear actividad', exact: true }).click();
   const editor = page.getByRole('region', { name: 'Editar actividad', exact: true });
-  await editor.getByLabel('Tipo de actividad', { exact: true }).selectOption(type);
-  await editor.getByLabel('Título de la actividad', { exact: true }).fill(title);
-  await editor.getByLabel('Unidad de la actividad', { exact: true }).selectOption({ label: 'First unit' });
-  await editor.getByRole('group', { name: 'Temas del plan', exact: true })
+  const typeLabel = { ASSIGNMENT: /^Trabajo práctico/, QUESTIONNAIRE: /^Cuestionario/, EVALUATION: /^Evaluación/ }[type];
+  await editor.getByRole('radio', { name: typeLabel }).check();
+  await editor.getByRole('radio', { name: /^Manualmente/ }).check();
+  await editor.getByRole('group', { name: 'First unit', exact: true })
     .getByRole('checkbox', { name: 'First topic', exact: true }).check();
+  await editor.getByRole('button', { name: 'Continuar', exact: true }).click();
+  await editor.getByLabel('Título de la actividad', { exact: true }).fill(title);
   await editor.getByLabel('Objetivo de aprendizaje', { exact: true }).fill('Justificar las respuestas con evidencia.');
-  await editor.locator('summary').filter({ hasText: /^Rúbrica de evaluación$/ }).click();
+  const content = editor.getByRole('group', { name: 'Secciones del contenido', exact: true });
+  await content.getByRole('button', { name: /^Rúbrica/ }).click();
   await editor.getByLabel('Criterio 1', { exact: true }).fill('Evidencia y claridad');
   await editor.getByLabel('Descripción del criterio 1', { exact: true }).fill('Explicaciones fundamentadas y comprensibles.');
   await editor.getByLabel('Ponderación del criterio 1 (%)', { exact: true }).fill('100');
+  await content.getByRole('button', { name: 'Consigna', exact: true }).click();
   return editor;
+}
+
+async function openPublication(page) {
+  const editor = page.getByRole('region', { name: 'Editar actividad', exact: true });
+  await editor.getByRole('button', { name: 'Publicar actividad', exact: true }).click();
+  const dialog = editor.getByRole('dialog', { name: 'Confirmá la publicación', exact: true });
+  await dialog.waitFor();
+  return dialog.getByRole('button', { name: 'Asignar al aula', exact: true });
 }
 
 test('P7 T1 real P3 sessions, authoring UI, private ready instructions and safe published activities', { timeout: 330000 }, async t => {
@@ -139,15 +150,19 @@ test('P7 T1 real P3 sessions, authoring UI, private ready instructions and safe 
         await selectClassroomSection(page, 'activities', 'Actividades');
       });
       await check('preview starts no attempt, publication is explicit and the actual student consultation remains key-free', async () => {
+        await page.getByRole('group', { name: 'Filtrar actividades por estado', exact: true }).getByRole('button', { name: /^Borradores privados/ }).click();
         const article = page.getByRole('article', { name: 'Browser assignment', exact: true });
         await article.getByRole('button', { name: 'Abrir Browser assignment', exact: true }).click();
+        await page.getByRole('region', { name: 'Editar actividad', exact: true })
+          .getByRole('button', { name: 'Guardar borrador', exact: true }).click();
         await page.getByRole('region', { name: 'Vista previa docente', exact: true }).getByText('Read carefully.\nPreserve this second line.', { exact: true }).waitFor();
         await downloadInstructions(page, 'teacher');
         assert.equal((await runtime.db.query('SELECT count(*)::int n FROM attempts')).rows[0].n, 0);
         assert.equal((await runtime.db.query('SELECT first_started_at FROM activities WHERE id=$1', [assignment])).rows[0].first_started_at, null);
         await page.getByRole('button', { name: 'Revisar para asignar', exact: true }).click();
+        const confirm = await openPublication(page);
         assert.equal((await api(student, 'GET', `/classrooms/${roomId}/activities`)).body.activities.length, 0);
-        await page.getByRole('button', { name: 'Asignar al aula', exact: true }).click();
+        await confirm.click();
         await assignedNotice.waitFor();
         assert.equal((await api(student, 'GET', `/files/${instructions}/content`)).status, 403,
           'Eligible assignment instructions require the explicit first-opening start boundary');
@@ -161,14 +176,30 @@ test('P7 T1 real P3 sessions, authoring UI, private ready instructions and safe 
       await check('questionnaire/evaluation browser editors cover all question types and invalid questions remain visibly unsaved', async () => {
         // The other actor's first start legitimately changed the classroom revision.
         await page.getByRole('button', { name: 'Volver a actividades', exact: true }).click();
-        const refreshed = Promise.all([`/api/v1/classrooms/${roomId}`, `/api/v1/classrooms/${roomId}/activities`]
-          .map(path => page.waitForResponse(response => new URL(response.url()).pathname === path && response.request().method() === 'GET')));
-        await openClassroom(page, runtime.origin, 'P7 authoring classroom');
-        await selectClassroomSection(page, 'activities', 'Actividades');
-        for (const response of await refreshed) assert.equal(response.status(), 200);
+        const refreshActivities = async () => {
+          await openClassroom(page, runtime.origin, 'P7 authoring classroom');
+          const loading = page.waitForResponse(response => new URL(response.url()).pathname === `/api/v1/classrooms/${roomId}/activities`
+            && response.request().method() === 'GET');
+          void loading.catch(() => {});
+          await selectClassroomSection(page, 'activities', 'Actividades');
+          return loading;
+        };
+        let refreshed = await refreshActivities();
+        if (refreshed.status() === 429) {
+          const raw = refreshed.headers()['retry-after'];
+          assert.match(raw ?? '', /^\d+$/);
+          const seconds = Number(raw);
+          assert.ok(seconds >= 1 && seconds <= 60, 'Actual bounded activities Retry-After required');
+          console.log(`P7 fixture respects actual activities Retry-After=${seconds}s once`);
+          await delay(seconds * 1000);
+          refreshed = await refreshActivities();
+        }
+        assert.equal(refreshed.status(), 200, 'Activities must load before opening the next editor');
         for (const [type, name] of [['QUESTIONNAIRE', 'Browser questionnaire'], ['EVALUATION', 'Browser evaluation']]) {
-          await prepareManualActivity(page, type, name);
-          await page.getByLabel('Consignas', { exact: true }).fill('Respondé cada pregunta y justificá tu elección.');
+          const editor = await prepareManualActivity(page, type, name);
+          await editor.getByLabel('Consignas', { exact: true }).fill('Respondé cada pregunta y justificá tu elección.');
+          await editor.getByRole('group', { name: 'Secciones del contenido', exact: true })
+            .getByRole('button', { name: /^Preguntas/ }).click();
           for (const [index, qtype] of ['DEVELOPMENT', 'SINGLE_CHOICE', 'MULTIPLE_CHOICE'].entries()) {
             await page.getByRole('button', { name: 'Agregar pregunta', exact: true }).click();
             const group = page.getByRole('group', { name: `Pregunta ${index + 1}`, exact: true });
@@ -186,13 +217,16 @@ test('P7 T1 real P3 sessions, authoring UI, private ready instructions and safe 
             && response.request().method() === 'POST' && response.request().postDataJSON()?.operation?.action === 'create');
           await page.getByRole('button', { name: 'Guardar borrador', exact: true }).click();
           assert.equal((await created).status(), 200, 'Current teacher revision must create the requested draft');
-          const editor = page.getByRole('region', { name: 'Editar actividad', exact: true });
           await editor.getByRole('alert').waitFor();
           await editor.getByRole('status').filter({ hasText: /^Cambios sin guardar\. Las preguntas incompletas o inválidas no se guardan\.$/ }).waitFor();
           const before = (await api(page, 'GET', `/classrooms/${roomId}/activities`)).body.activities.find(a => a.type === type);
           assert.equal((await api(page, 'GET', `/classrooms/${roomId}/activities/${before.id}/preview`)).body.activity.questions.length, 0);
-          assert.equal(await page.getByRole('group', { name: 'Pregunta 1', exact: true }).getByLabel('Puntos disponibles', { exact: true }).inputValue(), '0');
-          await page.getByRole('group', { name: 'Pregunta 1', exact: true }).getByLabel('Puntos disponibles', { exact: true }).fill('1.25');
+          await editor.getByRole('navigation', { name: 'Preguntas de la actividad', exact: true })
+            .getByRole('button', { name: /Question 1$/ }).click();
+          const firstPoints = editor.getByRole('group', { name: 'Pregunta 1', exact: true })
+            .getByLabel('Puntos disponibles', { exact: true });
+          assert.equal(await firstPoints.inputValue(), '0');
+          await firstPoints.fill('1.25');
           await page.getByRole('button', { name: 'Continuar a revisión', exact: true }).click();
           await page.getByRole('button', { name: 'Guardar borrador', exact: true }).click();
           await page.getByText('Borrador privado guardado.', { exact: true }).waitFor();
@@ -203,8 +237,9 @@ test('P7 T1 real P3 sessions, authoring UI, private ready instructions and safe 
               || (path === `/api/v1/classrooms/${roomId}/activities` && response.request().method() === 'POST'
                 && (response.status() === 429 || response.request().postDataJSON()?.operation?.action === 'publish'));
           });
+          const confirm = await openPublication(page);
           let publication = publicationResponse();
-          await page.getByRole('button', { name: 'Asignar al aula', exact: true }).click();
+          await confirm.click();
           let response = await publication;
           if (response.status() === 429) {
             const seconds = Number(response.headers()['retry-after']);
@@ -212,7 +247,7 @@ test('P7 T1 real P3 sessions, authoring UI, private ready instructions and safe 
             console.log(`P7 fixture respects actual publication Retry-After=${seconds}s once`);
             await delay(seconds * 1000);
             publication = publicationResponse();
-            await page.getByRole('button', { name: 'Asignar al aula', exact: true }).click();
+            await confirm.click();
             response = await publication;
           }
           assert.equal(response.status(), 200, 'Publication mutation must be confirmed before expecting its notice');
@@ -292,7 +327,7 @@ test('ARQ-07 restores an authorized activity link across reload and browser hist
       await page.getByRole('button', { name: 'Volver a actividades', exact: true }).click();
       await preview.waitFor({ state: 'hidden' });
       assert.equal(await page.locator('[data-classroom-tab="activities"]').isVisible(), true);
-      await page.getByRole('region', { name: 'Actividades del aula', exact: true }).getByRole('heading', { name: 'Actividades', exact: true }).waitFor();
+      await page.getByRole('region', { name: 'Actividades del aula', exact: true }).getByRole('heading', { name: 'Ideas que se ponen en práctica', exact: true }).waitFor();
       await page.getByRole('article', { name: 'Actividad enlazada', exact: true }).waitFor();
       const exit = page.getByRole('button', { name: 'Mis aulas', exact: true });
       await exit.focus(); await exit.press('Enter');

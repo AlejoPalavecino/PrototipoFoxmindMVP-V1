@@ -41,17 +41,33 @@ test('draft and withdrawn activities never offer pending review; student access 
   }
 });
 
-test('settings exposes named information and options groups under the existing disabled boundary', async () => {
+test('archived classroom settings disable editing while reactivation remains a separate confirmation', async () => {
   const { ClassroomSettings } = loadTsModule('apps/web/src/features/classrooms/ui/ClassroomSettings.tsx');
-  const view = hookView(ClassroomSettings, { room: { ...room, archived: true }, settings: { name: 'Ciencias', subject: 'Ciencias', division: 'A', academicYear: 2026, aiGradingEnabled: false }, busy: false });
-  await view.flush();
-  const tree = view.tree;
-  const form = descendants(tree, n => n.type === 'form')[0];
-  assert.equal(descendants(form, n => n.type === 'fieldset')[0].props.disabled, true);
-  for (const label of ['Datos del aula', 'Opciones de corrección']) {
-    assert.ok(descendants(form, n => n.type === 'section' && n.props['aria-label'] === label).length, label);
-  }
-  assert.equal(descendants(form, n => n.type === 'button' && text(n) === 'Guardar cambios').length, 1);
-  assert.doesNotMatch(text(form), /Reactivar aula/);
-  view.close();
+  const calls = [], confirmations = [];
+  const archivedRoom = { ...room, revision: '2', archived: true, subject: 'Ciencias', academicYear: 2026, coverKey: 'biology' };
+  const view = hookView(ClassroomSettings, {
+    id: room.id, room: archivedRoom, busy: false,
+    settings: { name: 'Ciencias', subject: 'Ciencias', division: 'A', academicYear: 2026, coverKey: 'biology', aiGradingEnabled: false },
+    api: { call: async (...args) => calls.push(args) }, load: async () => {}, setConfirm: value => confirmations.push(value),
+  });
+  try {
+    await view.flush();
+    const form = descendants(view.tree, n => n.type === 'form')[0];
+    const fieldset = descendants(form, n => n.type === 'fieldset')[0];
+    assert.equal(fieldset.props.disabled, true);
+    for (const label of ['Datos del aula', 'Portada']) {
+      assert.ok(descendants(fieldset, n => n.type === 'section' && n.props['aria-label'] === label).length, label);
+    }
+    const save = descendants(form, n => n.type === 'button' && text(n) === 'Guardar cambios');
+    assert.equal(save.length, 1);
+    assert.equal(save[0].props.disabled, true);
+    assert.doesNotMatch(text(form), /Reactivar aula/);
+    const reactivate = descendants(view.tree, n => n.type === 'button' && /Reactivar aula/.test(text(n)))[0];
+    assert.ok(reactivate);
+    reactivate.props.onClick();
+    assert.equal(confirmations[0]?.title, 'Reactivar aula');
+    assert.deepEqual(calls, []);
+    await confirmations[0].run();
+    assert.deepEqual(calls, [['/synthetic-room/archive', 'POST', { archived: false, revision: '2' }]]);
+  } finally { view.close(); }
 });

@@ -73,7 +73,7 @@ export function createClassroomClient(options: {
       response('/classrooms' + path, method, data, signal),
     upload: async (draftId, file) => {
       if (file.size > 20000000) throw new ApiError('FILE_TOO_LARGE');
-      if (!/\.(pdf|docx)$/i.test(file.name))
+      if (!/\.(pdf|doc|docx|ppt|pptx)$/i.test(file.name))
         throw new ApiError('FILE_TYPE_NOT_ALLOWED');
       const started = await response<{ id: string }>('/files', 'POST', {
         scope: { kind: 'draft', id: draftId },
@@ -87,8 +87,8 @@ export function createClassroomClient(options: {
       response<FileState>(`/files/${id}`, 'GET', undefined, signal),
     uploadClassroom: async (classroomId, file, purpose) => {
       const material = purpose === 'material';
-      if (file.size > (material ? 50_000_000 : 20_000_000)) throw new ApiError(material ? 'MATERIAL_FILE_TOO_LARGE' : 'FILE_TOO_LARGE');
-      if (!(material ? /\.(pdf|docx|pptx|xlsx|jpg|jpeg|png|zip)$/i : /\.(pdf|docx)$/i).test(file.name))
+      if (file.size > (material && !/\.(pdf|doc|docx|ppt|pptx)$/i.test(file.name) ? 50_000_000 : 20_000_000)) throw new ApiError(material ? 'MATERIAL_FILE_TOO_LARGE' : 'FILE_TOO_LARGE');
+      if (!(material ? /\.(pdf|doc|docx|ppt|pptx|xlsx|jpg|jpeg|png|zip)$/i : /\.(pdf|doc|docx|ppt|pptx)$/i).test(file.name))
         throw new ApiError(material ? 'MATERIAL_FILE_TYPE_NOT_ALLOWED' : 'FILE_TYPE_NOT_ALLOWED');
       try {
         const started = await response<{ id: string }>('/files', 'POST', {
@@ -102,8 +102,8 @@ export function createClassroomClient(options: {
       }
     },
     uploadAttachment: async (classroomId, attemptId, file, editor) => {
-      if (file.size > 50_000_000) throw new ApiError('MATERIAL_FILE_TOO_LARGE');
-      if (!/\.(pdf|docx|pptx|xlsx|jpg|jpeg|png|zip)$/i.test(file.name)) throw new ApiError('MATERIAL_FILE_TYPE_NOT_ALLOWED');
+      if (file.size > (/\.(pdf|doc|docx|ppt|pptx)$/i.test(file.name) ? 20_000_000 : 50_000_000)) throw new ApiError('MATERIAL_FILE_TOO_LARGE');
+      if (!/\.(pdf|doc|docx|ppt|pptx|xlsx|jpg|jpeg|png|zip)$/i.test(file.name)) throw new ApiError('MATERIAL_FILE_TYPE_NOT_ALLOWED');
       if (!/^[A-Za-z0-9_-]{43}$/.test(editor.token) || !/^(0|[1-9][0-9]{0,18})$/.test(editor.epoch)) throw new ApiError('INVALID_INPUT');
       const started = await response<{ id: string }>('/files', 'POST', {
         scope: { kind: 'classroom', id: classroomId }, purpose: 'attachment', targetId: attemptId, name: file.name, bytes: file.size,

@@ -1,3 +1,4 @@
+import { DOCUMENT_MAX_BYTES, isDocumentExtension } from '../../../../../../src/core/domain/documents/document-formats.ts';
 import { createHash } from 'node:crypto';
 import type { FoxyGroundingFile, FoxyParsedDocument } from '../../../../../../src/core/domain/foxy/grounding.ts';
 import { FileError } from '../domain/errors.ts';
@@ -14,8 +15,8 @@ function checkRow(row: FileRow, descriptor: FoxyDocumentDescriptor): void {
   requireReady(row);
   if (!equalId(row.id, file.fileId) || !equalId(row.classroom_id, classroomId) || row.classroom_draft_id !== null
     || row.blob_deleted_at !== null || row.purpose !== file.purpose || !equalId(row.target_id, file.targetId)
-    || row.extension !== file.extension || !['pdf', 'docx'].includes(file.extension)
-    || !Number.isSafeInteger(file.sizeBytes) || file.sizeBytes < 1 || file.sizeBytes > 20000000
+    || row.extension !== file.extension || !isDocumentExtension(file.extension)
+    || !Number.isSafeInteger(file.sizeBytes) || file.sizeBytes < 1 || file.sizeBytes > DOCUMENT_MAX_BYTES
     || row.size_bytes !== BigInt(file.sizeBytes) || row.digest !== file.digest || !/^[a-f0-9]{64}$/u.test(file.digest)) notReady();
 }
 function checkBytes(bytes: Uint8Array, file: FoxyGroundingFile): void {

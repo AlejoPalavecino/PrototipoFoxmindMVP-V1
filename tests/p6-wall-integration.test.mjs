@@ -35,9 +35,9 @@ test('P6 actual Muro, scoped notifications, moderation and retained history', { 
         await openClassroom(page, runtime.origin);
         await page.getByRole('button', { name: 'Muro', exact: true }).click();
         await page.getByRole('button', { name: 'Publicar aviso', exact: true }).click();
-        await page.getByRole('dialog', { name: 'Publicar aviso', exact: true }).getByLabel('Título', { exact: true }).fill('Aviso de prueba');
-        await page.getByRole('dialog', { name: 'Publicar aviso', exact: true }).getByRole('textbox', { name: 'Mensaje', exact: true }).fill(noticeBody);
-        await page.getByRole('dialog', { name: 'Publicar aviso', exact: true }).getByRole('button', { name: 'Publicar aviso', exact: true }).click();
+        await page.getByRole('dialog', { name: 'Una idea para tu grupo', exact: true }).getByLabel('Título', { exact: true }).fill('Aviso de prueba');
+        await page.getByRole('dialog', { name: 'Una idea para tu grupo', exact: true }).getByRole('textbox', { name: 'Tu mensaje', exact: true }).fill(noticeBody);
+        await page.getByRole('dialog', { name: 'Una idea para tu grupo', exact: true }).getByRole('button', { name: 'Publicar mensaje', exact: true }).click();
         await page.getByText('Aviso publicado en el aula.', { exact: true }).waitFor();
         notice = (await wall(page)).posts.find(post => post.body === noticeBody);
         assert.ok(notice); assert.equal(notice.type, 'NOTICE');
@@ -46,9 +46,9 @@ test('P6 actual Muro, scoped notifications, moderation and retained history', { 
         await openClassroom(student, runtime.origin);
         await student.getByRole('button', { name: 'Muro', exact: true }).click();
         await student.getByRole('button', { name: 'Hacer una consulta', exact: true }).click();
-        await student.getByRole('dialog', { name: 'Hacer una consulta', exact: true }).getByLabel('Título', { exact: true }).fill('Consulta de prueba');
-        await student.getByRole('dialog', { name: 'Hacer una consulta', exact: true }).getByRole('textbox', { name: 'Mensaje', exact: true }).fill(queryBody);
-        await student.getByRole('dialog', { name: 'Hacer una consulta', exact: true }).getByRole('button', { name: 'Publicar consulta', exact: true }).click();
+        await student.getByRole('dialog', { name: 'Tu pregunta tiene lugar', exact: true }).getByLabel('Título', { exact: true }).fill('Consulta de prueba');
+        await student.getByRole('dialog', { name: 'Tu pregunta tiene lugar', exact: true }).getByRole('textbox', { name: 'Tu mensaje', exact: true }).fill(queryBody);
+        await student.getByRole('dialog', { name: 'Tu pregunta tiene lugar', exact: true }).getByRole('button', { name: 'Publicar mensaje', exact: true }).click();
         await student.getByText('Consulta publicada en el aula.', { exact: true }).waitFor();
         const result = await wall(student);
         query = result.posts.find(post => post.body === queryBody);
@@ -62,8 +62,9 @@ test('P6 actual Muro, scoped notifications, moderation and retained history', { 
       await check('grouped UI replies notify the publication author only and preserve ordering', async () => {
         const thread = student.locator(`[data-wall-id="${notice.id}"]`);
         await thread.getByRole('button', { name: 'Responder publicación', exact: true }).click();
-        await thread.getByLabel('Tu respuesta', { exact: true }).fill('Student reply to notice');
-        await thread.getByRole('button', { name: 'Enviar respuesta', exact: true }).click();
+        const replyEditor = student.getByRole('dialog', { name: 'Continuar la conversación', exact: true });
+        await replyEditor.getByRole('textbox', { name: 'Tu respuesta', exact: true }).fill('Student reply to notice');
+        await replyEditor.getByRole('button', { name: 'Publicar mensaje', exact: true }).click();
         await student.getByText('Respuesta publicada.', { exact: true }).waitFor();
         assert.equal((await change(page, { action: 'reply', postId: notice.id, body: 'Teacher self reply' })).status, 200);
         assert.equal((await change(page, { action: 'reply', postId: query.id, body: 'Teacher reply to query' })).status, 200);
@@ -77,17 +78,22 @@ test('P6 actual Muro, scoped notifications, moderation and retained history', { 
         assert.equal((await runtime.db.query('SELECT count(*)::int AS n FROM notifications WHERE recipient_id=$1', [learner.id])).rows[0].n, 2);
       });
       await check('notification center marks read and opens the authorized real thread', async () => {
-        await page.getByRole('button', { name: /^Notificaciones/ }).click();
-        const dialog = page.getByRole('dialog', { name: 'Notificaciones', exact: true });
-        const row = dialog.locator('li').filter({ hasText: 'Nueva consulta de estudiante' });
-        await row.getByRole('button', { name: 'Marcar como leída', exact: true }).click();
-        await row.getByText(/Leída/).waitFor();
-        assert.ok((await notifications(page)).find(item => item.postId === query.id && item.eventType === 'WALL_QUERY').readAt);
-        await dialog.getByRole('button', { name: /Cerrar/ }).click();
+        const inbox = actor => actor.getByRole('region', { name: 'Tu bandeja de notificaciones', exact: true });
+        const teacherNotice = (await notifications(page)).find(item => item.postId === query.id && item.eventType === 'WALL_QUERY');
+        assert.ok(teacherNotice && !teacherNotice.readAt);
+        await page.goto(`${runtime.origin}/notificaciones`);
+        const row = inbox(page).locator(`article[data-notice-id="${teacherNotice.id}"]`);
+        await row.getByRole('heading', { name: /^Consulta de / }).waitFor();
+        await row.getByRole('button', { name: /^Marcar como leída:/ }).click();
+        await row.getByRole('button', { name: /^Marcar como no leída:/ }).waitFor();
+        assert.ok((await notifications(page)).find(item => item.id === teacherNotice.id).readAt);
         studentNotification = (await notifications(student)).find(item => item.postId === notice.id && item.eventType === 'WALL_NOTICE');
-        await student.getByRole('button', { name: /^Notificaciones/ }).click();
-        await student.getByRole('dialog', { name: 'Notificaciones', exact: true }).locator('li')
-          .filter({ hasText: 'Nuevo aviso del docente' }).getByRole('button', { name: 'Abrir conversación', exact: true }).click();
+        assert.ok(studentNotification && !studentNotification.readAt);
+        await student.goto(`${runtime.origin}/notificaciones`);
+        const studentRow = inbox(student).getByRole('article').filter({
+          has: student.getByRole('heading', { name: 'Nuevo aviso del docente', exact: true }),
+        });
+        await studentRow.getByRole('button', { name: 'Ir al muro', exact: true }).click();
         await student.waitForFunction(id => document.activeElement?.dataset.wallId === id, notice.id);
         assert.ok((await notifications(student)).find(item => item.id === studentNotification.id).readAt);
       });
@@ -106,7 +112,8 @@ test('P6 actual Muro, scoped notifications, moderation and retained history', { 
         await page.getByRole('dialog', { name: 'Eliminar publicación', exact: true }).getByRole('button', { name: 'Cancelar', exact: true }).click();
         assert.equal((await wall(page)).posts.find(post => post.id === query.id).body, 'Edited student query');
         await thread.getByRole('button', { name: 'Eliminar publicación', exact: true }).click();
-        await page.getByRole('button', { name: 'Confirmar eliminación', exact: true }).click();
+        await page.getByRole('dialog', { name: 'Eliminar publicación', exact: true })
+          .getByRole('button', { name: 'Confirmar eliminación', exact: true }).click();
         await thread.getByText('Contenido eliminado', { exact: true }).waitFor();
         const removed = (await wall(student)).posts.find(post => post.id === query.id);
         assert.equal(removed.body, null); assert.ok(removed.removedAt);
@@ -119,7 +126,22 @@ test('P6 actual Muro, scoped notifications, moderation and retained history', { 
       await check('exclusive roles retain classroom ownership boundaries; real restart preserves threads and notification reads', async () => {
         const foreignTeacher = await (await browser.newContext()).newPage();
         await account(foreignTeacher, runtime.origin, runtime.inbox, `p6-wall-foreign-teacher-${suffix}@example.test`, undefined, 'teacher');
-        const second = await classroom(foreignTeacher, student, 'Second role classroom');
+        const second = await classroom(foreignTeacher, undefined, 'Second role classroom');
+        const preview = await api(student, 'POST', '/classrooms/codes/preview', { code: second.code });
+        assert.equal(preview.status, 200);
+        const enroll = () => api(student, 'POST', '/classrooms/codes/confirm', { confirmation: preview.body.confirmation });
+        let enrolled = await enroll();
+        if (enrolled.status === 429) {
+          assert.equal(enrolled.body?.error?.code, 'RATE_LIMITED');
+          const raw = enrolled.headers['retry-after']; assert.match(raw ?? '', /^\d+$/);
+          const seconds = Number(raw); assert.ok(seconds >= 1 && seconds <= 60);
+          console.log(`P6 second-room enrollment honors Retry-After=${seconds}s once`);
+          await delay(seconds * 1000);
+          const refreshed = await api(student, 'POST', '/classrooms/codes/preview', { code: second.code });
+          assert.equal(refreshed.status, 200, 'Refresh the short-lived enrollment confirmation after its admission wait');
+          enrolled = await api(student, 'POST', '/classrooms/codes/confirm', { confirmation: refreshed.body.confirmation });
+        }
+        assert.equal(enrolled.status, 200);
         const state = (await api(student, 'GET', `/classrooms/${second.id}/wall`)).body;
         assert.equal((await api(student, 'POST', `/classrooms/${second.id}/wall`, { revision: state.revision, operation: { action: 'publish', body: 'Student query in another teacher classroom' } })).status, 200);
         const secondWall = (await api(student, 'GET', `/classrooms/${second.id}/wall`)).body;

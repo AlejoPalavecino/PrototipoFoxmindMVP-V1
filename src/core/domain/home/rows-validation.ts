@@ -1,3 +1,4 @@
+import { EVENT_COLORS } from '../agenda/types.ts';
 import type { HomeModuleName, HomeRoom, HomeModules } from './home.ts';
 import { parseHomeTarget } from './target.ts';
 import { homeObject, homeId, homeString, homeZone, homeBool, homeEnum, homeInstant, homeCount, homeDate, homeInvalid, homeCursor } from './values.ts';
@@ -34,6 +35,13 @@ function validateDetails(module: HomeModuleName, value: Record<string, unknown>)
     homeEnum(value.source, ['PRIVATE_EVENT', 'ACADEMIC_DEADLINE']); homeDate(value.date);
     if (value.startAt !== null) homeInstant(value.startAt);
     homeZone(value.timeZone); homeBool(value.allDay);
+    if (Object.hasOwn(value, 'endAt') && value.endAt !== null) {
+      homeInstant(value.endAt);
+      if (value.startAt === null || Date.parse(String(value.endAt)) <= Date.parse(String(value.startAt))) homeInvalid();
+    }
+    if (Object.hasOwn(value, 'color')) homeEnum(value.color, EVENT_COLORS);
+    if (Object.hasOwn(value, 'category')) homeEnum(value.category, ['CLASS', 'ACTIVITY', 'EVALUATION']);
+    if (value.source !== 'PRIVATE_EVENT' && ['color', 'category', 'endAt'].some(key => Object.hasOwn(value, key))) homeInvalid();
   }
   if (module === 'drafts') { homeInstant(value.updatedAt); }
   if (module === 'submitted') { if (homeCount(value.attemptNumber) < 1) homeInvalid(); homeInstant(value.submittedAt); }
@@ -44,12 +52,13 @@ function row(module: HomeModuleName, input: unknown): unknown {
   const hasNext = module === 'classrooms' && !!input && typeof input === 'object' && 'nextTopic' in input;
   const hasProgress = module === 'classrooms' && !!input && typeof input === 'object' && 'planProgress' in input;
   const hasAttempt = module === 'review' && !!input && typeof input === 'object' && 'studentName' in input;
-  const optionalFields=module==='pending'?['questionProgress']:module==='feedback'?['overallFeedback']:[];
+  const optionalFields=module==='pending'?['questionProgress']:module==='feedback'?['overallFeedback']:module==='agenda'?['color','category','endAt']:module==='queries'?['authorName']:[];
   const optional=optionalFields.filter(key=>!!input&&typeof input==='object'&&Object.hasOwn(input,key));
   const value = homeObject(input, ['id', 'title', 'target', 'classroom', ...extras[module],...optional, ...(hasNext ? ['nextTopic'] : []), ...(hasProgress ? ['planProgress'] : []), ...(hasAttempt ? ['studentName', 'attemptNumber'] : [])]);
   homeId(value.id); homeString(value.title); parseHomeTarget(value.target);
   const classroom = module === 'agenda' && value.classroom === null ? null : room(value.classroom);
   validateDetails(module, value);
+  if (module === 'queries' && Object.hasOwn(value, 'authorName')) homeString(value.authorName);
   if (hasAttempt) { homeString(value.studentName); if (homeCount(value.attemptNumber) < 1) return homeInvalid(); }
   if (hasProgress) {
     const progress = homeObject(value.planProgress, ['taught', 'total']);

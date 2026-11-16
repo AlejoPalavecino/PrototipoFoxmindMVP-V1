@@ -13,6 +13,105 @@
 .practical :is(textarea, input) { max-width: 100%; }
 .reviewDialog { overflow-wrap: anywhere; }
 .reviewDialog section { border-color: #e6ceb6; background: #fffaf4; }
-.reviewDialog :is(button, summary) { min-height: 44px; }
+.reviewDialog button { min-height: 44px; }
+/* Replace the focused screen's generic reservation; do not add a second gap.
+   The fixed footer changes height when errors, navigation or zoom wrap its text. */
+:global(#foxmind-product.fm3d-theme #classroom-main .brujula-activity-screen[data-focused]):has(.questionnaire .workFooter) {
+  padding-bottom: calc(var(--questionnaire-footer-height, 149px) + 16px);
+}
+.questionnaire :is(textarea, input, button) { scroll-margin-bottom: calc(var(--questionnaire-footer-height, 149px) + 16px); }
 .questionnaire label { overflow-wrap: anywhere; }
 .questionnaire .answerStatus { font-size: .86rem; color: #555d77; }
+
+.questionnaire, .practical { --work-line: #ccd6df; --work-mint: #dfefe7; --work-blue: #e1edf9; min-width: 0; }
+.questionProgress { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .7rem; }
+.questionProgress p { margin: 0; font-weight: 800; color: #47566a; }
+.questionNav { display: flex; flex-wrap: wrap; gap: .35rem; }
+.questionNav button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .25rem;
+  min-width: 44px;
+  min-height: 44px;
+  padding: .35rem;
+  font-weight: 850;
+}
+.questionNav button[data-answered] { background: #dfefe7; color: #24583a; }
+.questionNav button[aria-current] { background: #ffe3d1; border-color: #b74710; color: #87370c; }
+.questionNav svg, .answerStatus svg { width: 1rem; height: 1rem; }
+.questionnaire .question, .practical, .receipt {
+  padding: clamp(.9rem, 2.5vw, 1.45rem);
+  border: 1px solid #ccd6df;
+  border-radius: 1.1rem;
+  background: #fff;
+  overflow-wrap: anywhere;
+}
+.questionnaire .question { min-height: 14rem; }
+.question h3 { font-size: clamp(1.2rem, 2.2vw, 1.55rem); line-height: 1.3; margin: .75rem 0; }
+.questionPosition { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .4rem; align-items: center; }
+.questionPosition span { font-weight: 850; }
+.questionPosition small { border-radius: 999px; padding: .25rem .65rem; background: #e1edf9; color: #274b72; font-weight: 800; }
+.question :global(.p7-choice) { border: 1px solid #ccd6df; border-radius: .65rem; min-height: 44px; padding: .55rem .75rem; }
+.question :global(.p7-choice):has(input:checked) { background: #e1edf9; border-color: #6a8bb0; }
+.question textarea { resize: vertical; }
+.workFooter, .workActions { display: flex; flex-wrap: wrap; align-items: center; gap: .55rem; }
+.workFooter { justify-content: space-between; padding: .8rem 0 0; }
+.workActions button { min-height: 44px; }
+.answerStatus { display: flex; align-items: center; gap: .4rem; margin: 0; }
+.answerStatus[data-error] { color: #a23923; }
+.reviewAnswer { background: white; border: 1px solid #ccd6df; border-radius: .8rem; padding: .85rem; margin-top: .65rem; }
+.reviewAnswer h4 { margin: .4rem 0; }
+.uploadHeading, .receipt header { display: flex; align-items: center; gap: .8rem; }
+.uploadHeading h3, .uploadHeading p, .receipt header :is(h3, p) { margin: 0; }
+.uploadHeading > span, .uploadGlyph, .receiptIcon {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 2.4rem;
+  height: 2.4rem;
+  background: #e1edf9;
+  color: #274b72;
+  border-radius: .7rem;
+}
+.receiptIcon { width: 3rem; height: 3rem; background: #dfefe7; color: #235d38; }
+.uploadHeading svg, .uploadGlyph svg, .receiptIcon svg { width: 1.25rem; height: 1.25rem; }
+.practical .filePicker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: .5rem 0;
+  border-color: #8399ab;
+  background: #f3f7fc;
+}
+.filePicker small, .uploaded small { display: block; }
+.filePicker input { min-width: 0; width: min(100%, 16rem); }
+.practical .uploaded li { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.practical .uploaded li div { flex: 1 1 11rem; min-width: 0; overflow-wrap: anywhere; }
+.receipt { background: #f4faf7; }
+.receipt h3 { font-size: clamp(1.2rem, 2.4vw, 1.65rem); }
+.receipt dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .65rem; }
+.receipt dl > div { padding: .65rem; background: white; border: 1px solid #d3e6db; border-radius: .65rem; }
+.receipt dt { font-size: .8rem; color: #47566a; }
+.receipt dd { margin: 0; font-weight: 800; }
+@media (max-width: 550px) {
+  .receipt dl { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* iter17 answering and server-confirmed receipt. */
+.questionnaire,.practical{max-width:980px;margin-inline:auto}.questionProgress{border:1px solid #bed0df;background:#edf5fc;border-radius:14px;padding:12px 16px;margin-bottom:16px;gap:16px}.questionProgress p{font-size:12px;color:#33566e;font-weight:750}.questionNav{gap:7px}.questionNav button{border:1px solid #b4c8d7;background:#fff;border-radius:10px;font-size:13px;line-height:1;min-width:36px;min-height:36px;padding:6px}.questionNav button[data-answered]{background:#dfefe5;color:#2d6449;border-color:#80ad94}.questionNav button[aria-current]{background:#ffe4d1;color:#8c350b;outline:2px solid #b74710;outline-offset:1px}.questionnaire .question,.practical{padding:26px 30px;border-radius:20px;border-color:#c4d2df}.questionnaire .question h3{font-size:25px!important;line-height:1.4!important;max-width:42ch;margin:19px 0 12px}.questionPosition{font-size:12px}.questionPosition span{font-weight:750;color:#475f73}.questionPosition small{font-size:11px;border-radius:7px}.question :global(.p7-choice){min-height:57px;padding:14px 17px;font-size:15px;line-height:1.5;border-radius:12px;border-color:#bfcedb}.question :global(.p7-choice):has(input:checked){background:#edf5fc;border-color:#4c7c9e;box-shadow:inset 3px 0 #4c7c9e}.question textarea{min-height:160px;font-size:15px;line-height:1.65}.question fieldset{padding:0;border:0}.question fieldset>label{margin-bottom:10px}.question fieldset>label:last-of-type{margin-bottom:0}.workFooter{margin-top:17px;padding:16px 0 0;border-top:1px solid #c4d2df;gap:15px}.answerStatus{font-size:12px!important;color:#4b6577}.workActions{gap:9px}.workActions button{font-size:12px;padding:10px 13px}.uploadHeading{gap:12px;margin-bottom:20px}.uploadHeading h3{font-size:22px!important}.uploadHeading p{font-size:13px;color:#4f6578;margin-top:5px}.practical .filePicker{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:15px;border:1px dashed #85aa96;background:#edf6f0;border-radius:16px;padding:22px;margin:20px 0}.practical .filePicker strong{font-size:18px}.practical .filePicker small{font-size:12px;line-height:1.6;color:#40604d;margin-top:5px}.uploadGlyph{width:42px;height:48px;background:#d4e9db;color:#356648;border-radius:12px}.filePicker input{font-size:12px;max-width:180px}.practical .uploaded{display:grid;gap:10px;margin:15px 0;padding:0}.practical .uploaded li{padding:12px 14px;border:1px solid #c4d2df;border-radius:13px;background:white}.practical .uploaded small{font-size:12px}.practical .uploaded a{font-size:12px}.practical>label{display:grid;gap:8px;font-size:13px;font-weight:750}.practical>label textarea{min-height:100px;font-size:14px;font-weight:400}.reviewAnswer{padding:20px;border:1px solid #c3d2de;background:#fff;border-radius:15px;margin-top:16px}.reviewAnswer h4{font-size:18px;line-height:1.5}.reviewAnswer>p{border:0;background:#eef5fb;border-radius:11px;padding:14px;margin:13px 0;font-size:14px}.reviewDialog section{background:white;border-color:#c4d2df}.reviewDialog :global(.p7-submit-confirm)>button{font-size:12px}.receipt{max-width:800px;margin:8px auto 0;padding:0;background:transparent;border:0;border-radius:0}.receipt header{gap:22px;margin-bottom:25px}.receiptIcon{height:74px;width:74px;border:1px solid #8cb79b;border-radius:24px;background:#dfefe4;color:#287047}.receiptIcon svg{width:32px;height:32px}.receipt header h3{font-size:31px!important;line-height:1.2!important;margin:8px 0}.receipt header p:first-child{font-size:12px;font-weight:800;color:#2f6546}.receipt header p:last-child{font-size:14px;color:#4b6274}.receipt dl{display:block;border:1px solid #c4d2df;border-radius:20px;background:white;padding:13px 26px}.receipt dl>div{display:grid;grid-template-columns:1fr 1.5fr;gap:20px;padding:13px 0;border:0;border-bottom:1px solid #d8e2ea;border-radius:0}.receipt dl>div:last-child{border-bottom:0}.receipt dt{font-size:12px;font-weight:750;color:#4c6377}.receipt dd{font-size:14px;font-weight:750}.receipt>small{display:block;font-size:12px;color:#4b6274;margin-top:12px}
+@media(max-width:650px){.practical .filePicker{grid-template-columns:42px minmax(0,1fr)}.filePicker input{grid-column:1/-1;max-width:100%;width:100%}}
+@media(max-width:520px){.questionnaire .question,.practical{padding:20px 18px}.questionnaire .question h3{font-size:21px!important;margin:15px 0 10px}.questionProgress{padding:11px 13px;gap:10px}.questionNav button{min-width:40px;min-height:40px}.question :global(.p7-choice){font-size:14px;min-height:52px;padding:12px}.workFooter{align-items:flex-start}.workActions{width:100%}.workActions button{flex:1 1 auto}.practical .filePicker{padding:16px;gap:12px}.practical .filePicker strong{font-size:17px}.receipt header{gap:13px;align-items:flex-start}.receiptIcon{height:45px;width:45px;border-radius:14px}.receiptIcon svg{height:24px;width:24px}.receipt header h3{font-size:25px!important;margin:6px 0 10px}.receipt dl{padding:10px 20px}.receipt dl>div{grid-template-columns:1fr;gap:4px}.reviewAnswer{padding:15px}.reviewAnswer h4{font-size:16px}}
+
+/* Keep practical-work controls above the fixed action bar, including the
+   selected-file confirmation that appears after choosing a local file. */
+:global(#foxmind-product.fm3d-theme #classroom-main) .practical{padding-bottom:145px}
+:global(#foxmind-product.fm3d-theme #classroom-main) .practical .uploadHeading h3{font-size:22px!important;font-weight:800;line-height:1.3}
+:global(#foxmind-product.fm3d-theme #classroom-main) .practical :is(button,input,textarea,label){scroll-margin-block:24px 150px}
+:global(html):has(.practical :global(.parity-work-footer)){scroll-padding-bottom:150px}
+@media(max-width:600px){
+ :global(#foxmind-product.fm3d-theme #classroom-main) .practical{padding-bottom:160px}
+ :global(#foxmind-product.fm3d-theme #classroom-main) .practical :is(button,input,textarea,label){scroll-margin-block:24px 160px}
+ :global(#foxmind-product.fm3d-theme #classroom-main) .practical .uploadHeading h3{font-size:21px!important;font-weight:800}
+ :global(html):has(.practical :global(.parity-work-footer)){scroll-padding-bottom:160px}
+}

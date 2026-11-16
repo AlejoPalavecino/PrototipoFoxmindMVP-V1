@@ -1,0 +1,270 @@
+/* Interior de aula — referencia aprobada iter17. */
+#classroom-main .classroom-workspace .parity-room-header{display:flex;align-items:center;gap:17px;padding:23px 25px;min-height:126px;margin:0 0 16px;background:#fff;border:1px solid #c4d2df;border-radius:22px;box-shadow:0 4px 16px #2e435005;overflow:visible}
+#classroom-main .parity-room-header:before,#classroom-main .parity-room-header:after{display:none}
+.parity-room-miniature{width:76px;height:76px;object-fit:cover;flex:none;border-radius:17px;border:1px solid #d8cbbf}
+.parity-room-identity{flex:1;min-width:0}.parity-room-identity p{font-size:11px;color:#864320;display:flex;gap:9px;flex-wrap:wrap;margin:0}.parity-room-identity p>span{color:#53677b;font-weight:650}
+#classroom-main .parity-room-identity h1{font-size:28px;line-height:1.16;letter-spacing:-.7px;margin:6px 0 9px;font-weight:850}
+.parity-room-identity small{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:#52687a}.parity-room-identity small svg{width:14px;height:14px}.parity-room-identity i{width:3px;height:3px;background:#718392;border-radius:50%;margin:0 4px}
+.parity-room-quick-links{display:flex;gap:10px;flex:none}
+#classroom-main .parity-room-quick-links button{border:1px solid #c4d5e1;background:#edf4f9;border-radius:13px;padding:10px 13px;min-width:105px;text-align:left;transition:background .16s,border-color .16s;box-shadow:none}
+.parity-room-quick-links button>span{display:flex;align-items:center;gap:8px;color:#315973}.parity-room-quick-links b{font-size:22px;font-weight:850;line-height:1.1}.parity-room-quick-links svg{width:17px;height:17px}.parity-room-quick-links small{display:block;font-size:11px;margin-top:5px;color:#405a6d;font-weight:750}
+#classroom-main .parity-room-quick-links button:hover{background:#dcebf5;border-color:#7796af}
+#classroom-main .parity-room-primary-action{flex:none;display:flex;align-items:center;gap:9px;font-size:12px;min-height:42px;padding:9px 12px;background:#fff;border:1px solid #b6c5d8;border-radius:12px;margin-left:4px}
+#classroom-main .classroom-workspace .classroom-section-navigation{margin:0 0 27px}
+#classroom-main .classroom-workspace .class-tabs{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px;border:1px solid #c4d2df;border-radius:15px;padding:5px;background:#fff;margin:0}
+#classroom-main .classroom-workspace .class-tabs:has(button:nth-child(6):last-child){grid-template-columns:repeat(6,minmax(0,1fr))}
+#classroom-main .classroom-workspace .class-tabs button{display:flex;justify-content:center;gap:7px;min-height:46px;padding:9px 6px;font-size:12px;font-weight:800;color:#4b6075;border-radius:10px;transition:background .16s;border:0;background:transparent}
+#classroom-main .classroom-workspace .class-tabs button[aria-current=page]{background:#ffe6d3;color:#923a13;box-shadow:inset 0 0 0 1px #e4b493}
+#classroom-main .classroom-workspace .class-tabs button:hover{background:#eef3f8}
+#classroom-main .classroom-workspace .class-tabs button svg{height:16px;width:16px}
+#classroom-main .classroom-workspace .p5-section-head{margin:0 0 22px;align-items:center}
+#classroom-main .classroom-workspace .p5-section-head h2{font-size:24px;line-height:1.25;letter-spacing:-.4px}
+#classroom-main .classroom-workspace .p5-section-head p{font-size:14px;color:#475f73;margin:8px 0 0}
+.parity-plan-summary{padding:12px 14px;border:1px solid #bad6c5;background:#e6f2eb;color:#34634f;border-radius:12px;font-size:12px;font-weight:800;white-space:nowrap}
+.parity-own-progress{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:24px}
+.parity-progress-panel{padding:25px;background:#fff;border:1px solid #bfcedb;border-radius:21px;min-width:0}
+.parity-own-summary{display:flex;align-items:center;gap:27px}.parity-own-summary h3{font-size:23px!important;line-height:1.3}.parity-own-summary p{font-size:13px;line-height:1.7;margin:10px 0 17px;color:#4c6577}
+#classroom-main .parity-own-summary button,#classroom-main .parity-feedback button{display:flex;align-items:center;gap:9px;font-size:12px;padding:10px 16px;border:1px solid #b6c5d8;border-radius:12px;min-height:44px;background:white}
+.parity-progress-ring{width:138px;height:138px;position:relative;flex:none}.parity-progress-ring svg{height:100%;width:100%;transform:rotate(-90deg)}.parity-progress-ring circle{fill:none;stroke-width:9}.parity-ring-track{stroke:#dfebe3}.parity-ring-fill{stroke:#438563;stroke-linecap:round}.parity-progress-ring>div{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px}.parity-progress-ring b{font-size:29px;color:#316148;line-height:1.3}.parity-progress-ring small{font-size:11px;color:#4b705a}
+.parity-own-grade{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;background:#e7f2ec;border-color:#b0cbbd}.parity-own-grade>svg{color:#38694f;width:18px;height:18px}.parity-own-grade>p{font-size:12px;color:#3b604c;font-weight:800;margin-top:9px}.parity-own-grade>b{font-size:43px;color:#2f6246;letter-spacing:-.9px;line-height:1.4}.parity-own-grade b>small{font-size:17px;letter-spacing:0}.parity-own-grade>span{font-size:11px;color:#456851;line-height:1.5}
+.parity-feedback{margin-top:24px}.parity-feedback h3{font-size:20px!important}.parity-feedback header p{font-size:12px;margin:8px 0 23px;color:#50687c}.parity-feedback article{border-top:1px solid #d0dce5;padding-top:25px;display:flex;align-items:center;gap:17px}.parity-feedback article>div{flex:1;min-width:0}.parity-feedback h4{font-size:15px;margin:0 0 20px}.parity-feedback article small{font-size:11px;color:#4b6175}.parity-feedback article strong{font-size:23px;color:#316148;white-space:nowrap}.parity-feedback-icon{display:grid;place-items:center;width:42px;height:48px;border-radius:12px;background:#e4eef8;color:#426d8c}
+@media(max-width:1100px){#classroom-main .parity-room-header{flex-wrap:wrap}.parity-room-identity{flex-basis:calc(100% - 100px)}#classroom-main .classroom-workspace .class-tabs{display:flex;overflow-x:auto}#classroom-main .classroom-workspace .class-tabs button{flex:0 0 auto;padding-inline:14px}.parity-own-progress{grid-template-columns:1fr}.parity-plan-summary{white-space:normal}}
+@media(max-width:600px){#classroom-main .classroom-workspace .parity-room-header{padding:18px;gap:13px}.parity-room-miniature{width:62px;height:62px}#classroom-main .parity-room-identity h1{font-size:23px}.parity-room-identity{flex-basis:calc(100% - 80px)}.parity-room-quick-links{flex:1}.parity-own-summary{flex-direction:column;align-items:flex-start;gap:18px}.parity-progress-panel{padding:20px}.parity-feedback article{flex-wrap:wrap}.parity-feedback article>div{flex-basis:calc(100% - 65px)}.parity-feedback h4{margin-bottom:8px}.parity-plan-summary{font-size:11px}}
+@media(prefers-reduced-motion:reduce){#classroom-main .parity-room-quick-links button,#classroom-main .classroom-workspace .class-tabs button{transition:none}}
+
+#classroom-main .parity-room-quick-links .parity-room-pending{background:#fff0e3;border-color:#dfbea1}.parity-room-quick-links .parity-room-pending>span{color:#9b4116}#classroom-main .parity-room-quick-links .parity-room-pending:hover{background:#ffe5ce;border-color:#b8845d}
+
+/* Teacher progress uses authorised projections; no private grade is inferred. */
+.parity-teacher-progress{display:grid;gap:24px}.parity-teacher-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.parity-teacher-metrics>section{display:flex;align-items:flex-start;gap:14px;padding:22px;border:1px solid #bfcedb;border-radius:18px;background:#fff;min-width:0}.parity-teacher-metrics>section>span{display:grid;place-items:center;width:42px;height:42px;flex:none;border:1px solid #c0d0dc;border-radius:12px;background:white;color:#39617c}.parity-teacher-metrics p{font-size:12px;font-weight:800;color:#3f566a;line-height:1.4;margin:0}.parity-teacher-metrics strong{display:block;font-size:32px;line-height:1.2;letter-spacing:-.6px;margin:6px 0}.parity-teacher-metrics small{font-size:11px;line-height:1.5;color:#496175;display:block}.parity-teacher-metrics [data-tone=peach]{background:#fff0e4;border-color:#dfbfa5}.parity-teacher-metrics [data-tone=sky]{background:#eaf3fa;border-color:#b9cedf}.parity-teacher-metrics [data-tone=mint]{background:#e4f0e9;border-color:#b3cdbd}.parity-teacher-charts{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:24px}.parity-teacher-progress .parity-progress-panel>header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:22px}.parity-teacher-progress .parity-progress-panel h3{font-size:20px;line-height:1.3;letter-spacing:-.25px;margin:0}.parity-teacher-progress .parity-progress-panel header p{font-size:12px;line-height:1.6;margin:6px 0 0;color:#50687c}.parity-chart-legend{display:flex;gap:11px;flex-wrap:wrap;margin-bottom:24px}.parity-chart-legend>span{font-size:11px;font-weight:750;color:#4a6277;display:flex;align-items:center;gap:5px}.parity-chart-legend>span:before{content:'';width:8px;height:8px;border-radius:3px;border:1px solid #71839155;background:#dce5ed}.parity-chart-legend>[data-kind=waiting]:before,.parity-chart-bar>[data-kind=waiting]{background:#c25a21}.parity-chart-legend>[data-kind=published]:before,.parity-chart-bar>[data-kind=published]{background:#367858}.parity-chart-bars{display:grid;gap:22px}.parity-chart-bars article>div:first-child{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px}#classroom-main .parity-chart-bars button{display:flex;align-items:center;gap:5px;background:none;border:0;min-height:28px;color:#243e52;font-size:13px;font-weight:800;text-align:left;line-height:1.5;padding:0}.parity-chart-bars button svg{height:14px;width:14px;flex:none}.parity-chart-bars strong{font-size:16px;white-space:nowrap}.parity-chart-bars small{font-size:11px;color:#567084}.parity-chart-bars article>p{font-size:11px;color:#567084;margin:6px 0 0}.parity-chart-bar{height:14px;border-radius:5px;border:1px solid #afc2d0;background:#e3ebf1;display:flex;overflow:hidden;gap:2px}.parity-chart-bar>span{height:100%;min-width:0}.parity-grade-summary{display:flex;gap:15px;align-items:center;margin-bottom:20px}.parity-grade-summary>b{color:#2d6147;font-size:38px;letter-spacing:-1px;flex:none;line-height:1.2}.parity-grade-summary small{font-size:15px;letter-spacing:0;font-weight:700;color:#496c58}.parity-grade-summary>span{font-size:11px;color:#526b7f;line-height:1.5;max-width:135px}.parity-grade-histogram{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;align-items:end;padding:0 5px}.parity-grade-histogram>div{text-align:center;min-width:0}.parity-grade-histogram b{font-size:12px;color:#395a48}.parity-grade-histogram>div>div{height:112px;background:#eef4f0;border:1px solid #d2dfd6;border-radius:6px 6px 0 0;display:flex;align-items:end;overflow:hidden;margin-top:6px}.parity-grade-histogram span{display:block;width:100%;background:#568c6e;border-radius:4px 4px 0 0}.parity-grade-histogram small{font-size:11px;display:block;margin-top:8px;color:#466176;font-weight:750;white-space:nowrap}.parity-chart-note{font-size:11px;margin-top:17px;color:#526b7e;text-align:center}.parity-grade-empty{display:grid;place-items:center;align-content:center;min-height:245px;padding:22px 10px;text-align:center}.parity-grade-empty>svg{height:42px;width:42px;color:#759b83;margin-bottom:16px}.parity-grade-empty h4{font-size:17px;line-height:1.4}.parity-grade-empty p{font-size:12px;color:#536d7c;line-height:1.7;margin-top:8px;max-width:30ch}.parity-student-paths article{display:grid;grid-template-columns:minmax(0,1fr) 250px 133px;align-items:center;gap:22px;padding:17px 0;border-top:1px solid #d0dce5}.parity-progress-person{display:flex;align-items:center;gap:12px;min-width:0}.parity-progress-person>span{display:grid;place-items:center;background:#e1efe7;color:#315f4b;width:37px;height:37px;border-radius:50%;flex:none;font-size:12px}.parity-progress-person>b{font-size:14px;overflow-wrap:anywhere}.parity-student-paths dl{display:grid;grid-template-columns:1fr 1.5fr;gap:16px;margin:0}.parity-student-paths dt{font-size:11px;color:#566e82}.parity-student-paths dd{font-size:17px;font-weight:850;margin:2px 0 0;line-height:1.3}.parity-student-paths dd>small{font-size:12px;font-weight:650;color:#506c80}#classroom-main .parity-student-paths button{display:flex;align-items:center;gap:6px;font-size:11px;padding:8px;min-height:42px;justify-content:flex-end;background:transparent;border:0}
+@media(max-width:1000px){.parity-teacher-charts{grid-template-columns:1fr}.parity-teacher-metrics{grid-template-columns:1fr}.parity-student-paths article{grid-template-columns:minmax(0,1fr) auto}.parity-student-paths article>dl{grid-row:2;grid-column:1/-1}.parity-student-paths article>button{grid-column:2;grid-row:1}}
+@media(max-width:520px){.parity-teacher-progress{gap:18px}.parity-teacher-metrics>section{padding:19px}.parity-student-paths article{gap:12px}.parity-grade-histogram{gap:10px}}
+
+/* Final authority over the retired classroom mast and its generic flex controls. */
+#foxmind-product.fm3d-theme #classroom-main .classroom-workspace.classroom-redesign{gap:0}
+#foxmind-product.fm3d-theme #classroom-main .classroom-workspace .class-mast.parity-room-header{display:flex;background:#fff;border:1px solid #c4d2df;border-radius:22px;min-height:128px;height:auto;padding:23px 25px;gap:17px;margin:0 0 16px}
+#foxmind-product.fm3d-theme #classroom-main .parity-room-identity h1{font-size:28px;font-weight:800;line-height:1.16;letter-spacing:-.7px}
+#foxmind-product.fm3d-theme #classroom-main .parity-room-quick-links button{display:block;min-width:105px;min-height:68px;padding:10px 13px;text-align:left;font-family:inherit}
+#foxmind-product.fm3d-theme #classroom-main .parity-room-quick-links button>span{display:flex;gap:8px;align-items:center}
+#foxmind-product.fm3d-theme #classroom-main .parity-room-quick-links button small{display:block;font-size:11px;font-weight:750;margin-top:5px;line-height:1.3}
+#foxmind-product.fm3d-theme #classroom-main .parity-room-quick-links button b{font-size:22px;font-weight:850;line-height:1.1}
+#foxmind-product.fm3d-theme #classroom-main .parity-room-primary-action{font-size:12px;font-weight:800;min-height:42px}
+#foxmind-product.fm3d-theme #classroom-main .classroom-workspace .classroom-section-navigation{margin:0 0 27px}
+#foxmind-product.fm3d-theme #classroom-main .classroom-workspace>section[data-classroom-tab]{margin-top:0;padding-top:0}
+#foxmind-product.fm3d-theme #classroom-main .classroom-workspace .folder-plan>.p5-section-head{margin-top:0;margin-bottom:22px}
+@media(max-width:600px){#foxmind-product.fm3d-theme #classroom-main .classroom-workspace .class-mast.parity-room-header{padding:18px;gap:13px}#foxmind-product.fm3d-theme #classroom-main .parity-room-identity h1{font-size:23px}#foxmind-product.fm3d-theme #classroom-main .parity-room-quick-links button{min-width:95px;padding:10px;min-height:64px}}
+
+/* Activity collection: semantic classes own the card, not legacy state spans. */
+#foxmind-product.fm3d-theme #classroom-main .fm-desk-activity-filters{display:inline-flex;gap:4px;background:#e5edf4;border:1px solid #c4d2df;border-radius:14px;padding:5px;margin:0 0 18px;max-width:100%}
+#foxmind-product.fm3d-theme #classroom-main .fm-desk-activity-filters button{display:flex;align-items:center;justify-content:center;gap:9px;min-height:42px;padding:9px 13px;font-size:12px;font-weight:800;background:transparent;border:1px solid transparent;border-radius:10px;color:#475f73}
+#foxmind-product.fm3d-theme #classroom-main .fm-desk-activity-filters button[aria-pressed=true]{background:#fff3e8;color:#903609;border-color:#dcaa86}
+#foxmind-product.fm3d-theme #classroom-main .fm-desk-activity-filters button>span{display:inline-grid;place-items:center;min-width:24px;height:24px;background:#d3e0eb;border-radius:7px;font-size:12px;padding:1px 6px}
+#foxmind-product.fm3d-theme #classroom-main .fm-desk-activity-filters button[aria-pressed=true]>span{background:#f9d6bc;color:#7c330f}
+#foxmind-product.fm3d-theme #classroom-main .p7-activity-list{background:transparent;border:0;box-shadow:none;gap:14px;padding:0}
+#foxmind-product.fm3d-theme #classroom-main .parity-activity-card{display:flex;align-items:center;gap:22px;min-height:172px;padding:26px 22px;background:#fff;border:1px solid #c4d2df;border-radius:22px;box-shadow:none;margin:0}
+#foxmind-product.fm3d-theme #classroom-main .parity-activity-card>.interior-activity-icon{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;width:100px;height:116px;flex:none;border-radius:18px;background:#e1eef9;color:#2f6388;border:1px solid #b9d1e5}
+#foxmind-product.fm3d-theme #classroom-main .parity-activity-card>.activity-type-assignment{background:#e1f0e7;border-color:#b5d3c2;color:#2c7153}
+#foxmind-product.fm3d-theme #classroom-main .parity-activity-card>.activity-type-evaluation{background:#fff0e3;border-color:#e1c3a8;color:#9b5128}
+#foxmind-product.fm3d-theme #classroom-main .parity-activity-card>.interior-activity-icon svg{width:31px;height:31px}
+#foxmind-product.fm3d-theme #classroom-main .parity-activity-card>.interior-activity-icon small{font-size:11px;font-weight:800;line-height:1.2}
+#foxmind-product.fm3d-theme #classroom-main .parity-activity-card .folder-row-content{flex:1;min-width:0}
+#foxmind-product.fm3d-theme #classroom-main .parity-activity-card h3{font-size:22px;font-weight:800;line-height:1.3;margin:9px 0;color:#202c3d}
+#foxmind-product.fm3d-theme #classroom-main .parity-activity-card .classroom-activity-deadline{display:flex;align-items:center;flex-wrap:wrap;gap:7px;font-size:12px;margin:16px 0 0;color:#475f73}
+#foxmind-product.fm3d-theme #classroom-main .parity-activity-card .classroom-activity-deadline>span{display:inline-flex;align-items:center;gap:7px;margin-left:11px;background:transparent;padding:0;color:inherit;font-size:12px}
+#foxmind-product.fm3d-theme #classroom-main .parity-activity-card .classroom-activity-deadline svg{width:15px;height:15px}
+#foxmind-product.fm3d-theme #classroom-main .parity-activity-card .act-open{display:inline-flex;align-items:center;gap:10px;justify-content:center;min-height:44px;background:white;border:1px solid #b8c8d8;border-radius:12px;padding:11px 17px;font-size:12px;font-weight:800;color:#202c3d;white-space:nowrap}
+#foxmind-product.fm3d-theme #classroom-main .parity-activity-card .act-open svg{width:18px;height:18px}
+#foxmind-product.fm3d-theme #classroom-main .act-heading>.p5-actions>.primary{display:flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:11px 19px;font-size:12px;font-weight:800;border-radius:12px}
+@media(max-width:600px){
+ #foxmind-product.fm3d-theme #classroom-main .classroom-workspace .class-mast.parity-room-header{display:grid;grid-template-columns:42px minmax(0,1fr) 34px;padding:15px;gap:14px 11px;min-height:167px}
+ #foxmind-product.fm3d-theme #classroom-main .parity-room-miniature{width:42px;height:50px;border-radius:10px}
+ #foxmind-product.fm3d-theme #classroom-main .parity-room-identity{min-width:0;grid-column:2;grid-row:1}
+ #foxmind-product.fm3d-theme #classroom-main .parity-room-identity h1{font-size:21px;letter-spacing:-.5px;margin:5px 0 7px}
+ #foxmind-product.fm3d-theme #classroom-main .parity-room-identity p{font-size:10px;gap:4px}
+ #foxmind-product.fm3d-theme #classroom-main .parity-room-identity small{font-size:10px;gap:4px}
+ #foxmind-product.fm3d-theme #classroom-main .parity-room-identity small svg{width:12px;height:12px}
+ #foxmind-product.fm3d-theme #classroom-main .parity-room-quick-links{grid-row:2;grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:9px;width:100%}
+ #foxmind-product.fm3d-theme #classroom-main .parity-room-quick-links button{min-height:56px;min-width:0;width:100%;padding:9px 10px}
+ #foxmind-product.fm3d-theme #classroom-main .parity-room-quick-links button b{font-size:17px;white-space:nowrap}
+ #foxmind-product.fm3d-theme #classroom-main .parity-room-quick-links button small{font-size:10px;margin-top:4px}
+ #foxmind-product.fm3d-theme #classroom-main .parity-room-primary-action{grid-row:1;grid-column:3;min-width:34px;width:34px;min-height:36px;padding:7px;margin:0;justify-content:center}
+ #foxmind-product.fm3d-theme #classroom-main .parity-room-primary-action>span{display:none}
+ #foxmind-product.fm3d-theme #classroom-main .classroom-workspace .class-tabs.brujula-class-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;overflow:visible;padding:5px;border-radius:15px}
+ #foxmind-product.fm3d-theme #classroom-main .classroom-workspace .class-tabs.brujula-class-tabs>button{flex-direction:column;gap:5px;min-height:49px;padding:7px 2px;font-size:10px;line-height:1.2;white-space:normal;min-width:0}
+ #foxmind-product.fm3d-theme #classroom-main .classroom-workspace .class-tabs.brujula-class-tabs:has(button:nth-child(6):last-child){grid-template-columns:repeat(3,minmax(0,1fr))}
+ #foxmind-product.fm3d-theme #classroom-main .act-heading>.p5-actions{width:100%}
+ #foxmind-product.fm3d-theme #classroom-main .act-heading>.p5-actions>.primary{width:100%}
+ #foxmind-product.fm3d-theme #classroom-main .fm-desk-activity-filters{display:flex;width:100%;box-sizing:border-box}
+ #foxmind-product.fm3d-theme #classroom-main .fm-desk-activity-filters button{flex:1;font-size:11px;padding:8px 4px;gap:7px}
+ #foxmind-product.fm3d-theme #classroom-main .parity-activity-card{display:grid;grid-template-columns:50px minmax(0,1fr);padding:18px 16px;gap:12px;min-height:0}
+ #foxmind-product.fm3d-theme #classroom-main .parity-activity-card>.interior-activity-icon{width:50px;height:65px;border-radius:12px;gap:6px}
+ #foxmind-product.fm3d-theme #classroom-main .parity-activity-card>.interior-activity-icon svg{width:23px;height:23px}
+ #foxmind-product.fm3d-theme #classroom-main .parity-activity-card>.interior-activity-icon small{font-size:8px}
+ #foxmind-product.fm3d-theme #classroom-main .parity-activity-card h3{font-size:19px;margin:9px 0}
+ #foxmind-product.fm3d-theme #classroom-main .parity-activity-card .folder-row-actions{grid-column:2;justify-content:flex-end}
+ #foxmind-product.fm3d-theme #classroom-main .parity-activity-card .classroom-activity-deadline{font-size:10px;margin-top:13px;gap:5px}
+ #foxmind-product.fm3d-theme #classroom-main .parity-activity-card .classroom-activity-deadline>span{margin-left:4px;font-size:10px}
+}
+
+/* Focused authoring starts directly with the approved scope page. */
+#foxmind-product.fm3d-theme #classroom-main .parity-compose-top{display:flex;align-items:center;gap:16px;background:white;border-bottom:1px solid #d3dee8;min-height:78px;padding:14px 0;margin-bottom:32px;position:relative}
+#foxmind-product.fm3d-theme #classroom-main .parity-compose-top:before{content:'';position:absolute;z-index:-1;inset:0 calc((1062px - 100vw)/2);background:#fff;border-bottom:1px solid #d3dee8}
+#foxmind-product.fm3d-theme #classroom-main .parity-compose-top>.brujula-authoring-back{position:static;display:grid;place-items:center;min-width:44px;min-height:44px;padding:10px;border:0;border-radius:12px;background:#f6f8fa}
+.parity-compose-top>div{flex:1;min-width:0}.parity-compose-top strong{display:block;font-size:16px;font-weight:800}.parity-compose-top small{display:block;font-size:12px;color:#475f73;margin-top:4px}.parity-compose-top>span{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;padding:8px 10px;border-radius:8px;background:#e8eff6;color:#475f73}.parity-compose-top>span svg{width:13px;height:13px}.parity-compose-top>img{object-fit:contain;margin-left:10px}
+#foxmind-product.fm3d-theme #classroom-main .br-authoring:has(.parity-compose-top){padding-top:0;padding-bottom:100px}
+#foxmind-product.fm3d-theme #classroom-main .br-authoring:has(.parity-compose-top)>.br-authoring-save-status{position:fixed;bottom:29px;left:max(24px,calc((100vw - 1062px)/2));z-index:5;margin:0;font-size:12px;color:#356551;max-width:40%}
+#foxmind-product.fm3d-theme #classroom-main .br-authoring:has(.parity-compose-top)>form>.p5-form-footer{position:fixed;bottom:0;left:0;right:0;z-index:4;display:flex;justify-content:flex-end;align-items:center;gap:10px;min-height:76px;margin:0;padding:14px max(24px,calc((100vw - 1062px)/2));background:#fff;border-top:1px solid #d3dee8;box-shadow:none}
+@media(max-width:600px){#foxmind-product.fm3d-theme #classroom-main .classroom-workspace .p5-section-head p{font-size:12px;line-height:1.6}.parity-compose-top>span{display:none}.parity-compose-top>img{width:34px;height:34px}#foxmind-product.fm3d-theme #classroom-main .br-authoring:has(.parity-compose-top)>form>.p5-form-footer{padding:12px 16px;min-height:78px}#foxmind-product.fm3d-theme #classroom-main .br-authoring:has(.parity-compose-top)>.br-authoring-save-status{position:static;max-width:none;margin-bottom:12px}#foxmind-product.fm3d-theme #classroom-main .parity-compose-top{margin-bottom:22px}}
+
+/* Focused participation: stable semantic hooks across bundlers. */
+#foxmind-product.fm3d-theme #classroom-main .brujula-activity-screen[data-focused]{display:block;width:100%;max-width:1062px;margin:0 auto;padding:0 0 116px;border:0;background:transparent}
+#foxmind-product.fm3d-theme #classroom-main .parity-focus-top{display:flex;align-items:center;gap:14px;min-height:78px;margin:0 0 32px;padding:14px 0;background:#fff;border:0;border-bottom:1px solid #d3dee8;border-radius:0;box-shadow:0 0 0 100vmax #fff;clip-path:inset(0 -100vmax)}
+#foxmind-product.fm3d-theme #classroom-main .parity-focus-top>button{display:grid;place-items:center;width:44px;min-width:44px;height:44px;padding:10px;border:0;border-radius:12px;background:#f7f9fb}
+.parity-focus-top>div{display:grid;gap:5px}.parity-focus-top strong{font-size:14px;font-weight:800;color:#20364b}.parity-focus-top small{font-size:12px;color:#52697c}
+#foxmind-product.fm3d-theme #classroom-main .parity-focus-footer,#foxmind-product.fm3d-theme #classroom-main .parity-work-footer{position:fixed;inset:auto 0 0;z-index:8;display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:78px;margin:0;padding:15px max(24px,calc((100vw - 1062px)/2));border:0;border-top:1px solid #d3dee8;background:white;border-radius:0;box-shadow:none}
+.parity-focus-footer>span{display:flex;align-items:center;gap:8px;font-size:12px;color:#4d6577}.parity-focus-footer>span svg{width:17px;height:17px}.parity-focus-footer>div,.parity-focus-footer .brujula-activity-options{display:flex;gap:10px;align-items:center}
+#foxmind-product.fm3d-theme #classroom-main :is(.parity-focus-footer,.parity-work-footer) button{min-height:44px;border-radius:12px;padding:10px 16px;font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+#foxmind-product.fm3d-theme #classroom-main .parity-participation-heading{display:flex;align-items:center;gap:20px;padding:25px 28px;border:1px solid #b8ccde;border-radius:21px;background:#e9f2fa;margin:0 0 24px}
+#foxmind-product.fm3d-theme #classroom-main .parity-participation-heading.mint{background:#e4f1e9;border-color:#b0cbb9}
+#foxmind-product.fm3d-theme #classroom-main .parity-participation-heading.peach{background:#fff0e4;border-color:#dec0a7}
+.parity-participation-symbol{display:grid;place-items:center;flex:none;width:60px;height:66px;border-radius:16px;border:1px solid #b2c7d9;background:#ffffffad;color:#3c6685}.parity-participation-symbol svg{width:28px;height:28px}.parity-participation-heading>div{min-width:0;flex:1}.parity-participation-meta{display:flex;align-items:center;gap:12px;font-size:12px;font-weight:750;color:#486177}.parity-participation-meta>b{border-radius:7px;background:#dceafb;color:#285575;font-size:11px;padding:5px 9px}
+#foxmind-product.fm3d-theme #classroom-main .parity-participation-heading h1{font-size:30px;font-weight:800;line-height:1.25;letter-spacing:-.7px;margin:9px 0;color:#20364b}
+.parity-participation-heading p{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:#475e72}.parity-participation-heading p>svg{height:15px;width:15px}.parity-participation-heading p>span{border-left:1px solid #acbeca;padding-left:12px;margin-left:4px}
+#foxmind-product.fm3d-theme #classroom-main .brujula-activity-preview{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:20px;align-items:start;margin:0;padding:0;border:0;background:transparent}
+#foxmind-product.fm3d-theme #classroom-main .brujula-activity-brief,#foxmind-product.fm3d-theme #classroom-main .parity-reading-criteria{padding:24px;border:1px solid #c4d2df;border-radius:20px;background:#fff}
+#foxmind-product.fm3d-theme #classroom-main .parity-reading-instructions{padding:0;background:transparent;border:0;border-radius:0}
+#foxmind-product.fm3d-theme #classroom-main :is(.parity-reading-instructions,.parity-reading-criteria)>h3{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:800;color:#20364b;margin:0 0 17px}
+#foxmind-product.fm3d-theme #classroom-main :is(.parity-reading-instructions,.parity-reading-criteria)>h3>svg{box-sizing:content-box;padding:8px;background:#ffead5;border:1px solid #eac9a7;border-radius:10px;width:19px;height:19px;color:#895125}
+#foxmind-product.fm3d-theme #classroom-main .parity-reading-instructions>p{font-size:16px;line-height:1.7;color:#38566e}
+.parity-participation-objective{margin:22px 0 15px;padding-left:14px;border-left:3px solid #c3d8cd}.parity-participation-objective>b{font-size:12px;color:#42634f}.parity-participation-objective p{font-size:14px;line-height:1.65;margin-top:6px;color:#4a5f6f}.parity-participation-resources{display:flex;align-items:center;justify-content:space-between;gap:14px;border-top:1px solid #cbd8e2;padding-top:18px;margin-top:20px}.parity-participation-resources>span{display:flex;align-items:center;gap:9px;font-size:12px;color:#475e72;max-width:30ch}.parity-participation-resources button{flex:none;font-size:12px;display:flex;align-items:center;justify-content:center;gap:9px}.parity-participation-reassurance{display:flex;gap:8px;align-items:flex-start;border-top:1px solid #cad8d1;padding-top:17px;margin-top:17px;color:#42624f;font-size:12px;line-height:1.6}
+#foxmind-product.fm3d-theme #classroom-main .parity-secondary-history{display:flex;justify-content:flex-end;border:0;background:transparent;margin:0 0 12px;padding:0}
+#foxmind-product.fm3d-theme #classroom-main .parity-secondary-history button{font-size:11px;min-height:32px;padding:5px 10px}
+#foxmind-product.fm3d-theme #classroom-main .parity-work-heading{padding:0;border:0;background:transparent;border-radius:0;margin:0 0 20px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+#foxmind-product.fm3d-theme #classroom-main .parity-work-heading h2{font-size:27px;font-weight:800;line-height:1.25;margin:8px 0 0;color:#20364b}
+#foxmind-product.fm3d-theme #classroom-main .parity-work-heading .brujula-activity-kicker{font-size:12px;text-transform:none;letter-spacing:0;font-weight:750}
+#foxmind-product.fm3d-theme #classroom-main .p7-attempt{display:block;width:100%;max-width:980px;margin:0 auto;padding:0;border:0;background:transparent}
+#foxmind-product.fm3d-theme #classroom-main .p7-questionnaire{width:100%;max-width:980px;margin:0 auto;padding:0;border:0;background:transparent}
+#foxmind-product.fm3d-theme #classroom-main .brujula-answer-question{width:100%;padding:26px 30px;border:1px solid #c4d2df;border-radius:20px;background:#fff}
+#foxmind-product.fm3d-theme #classroom-main .brujula-answer-question h3{font-size:25px;font-weight:800;line-height:1.4;color:#20364b}
+#foxmind-product.fm3d-theme #classroom-main .parity-work-footer>p{background:transparent;padding:0;font-size:12px;color:#4b6577}
+@media(max-width:850px){#foxmind-product.fm3d-theme #classroom-main .brujula-activity-preview{grid-template-columns:1fr}.parity-participation-resources{flex-wrap:wrap}#foxmind-product.fm3d-theme #classroom-main .parity-work-heading{flex-wrap:wrap}}
+@media(max-width:520px){#foxmind-product.fm3d-theme #classroom-main .parity-focus-top{min-height:70px;margin-bottom:18px;padding:12px 0}.parity-focus-top small{font-size:11px}#foxmind-product.fm3d-theme #classroom-main .parity-participation-heading{padding:18px;gap:12px;margin-bottom:16px;border-radius:18px}.parity-participation-symbol{width:38px;height:44px;border-radius:11px;align-self:flex-start}.parity-participation-symbol svg{width:21px;height:21px}.parity-participation-meta{font-size:11px;gap:7px;flex-wrap:wrap}.parity-participation-meta>b{font-size:10px}#foxmind-product.fm3d-theme #classroom-main .parity-participation-heading h1{font-size:23px;margin:8px 0 10px}.parity-participation-heading p{font-size:11px;gap:6px}.parity-participation-heading p>span{border:0;padding:0;margin:0;flex-basis:100%}.parity-participation-heading p>svg{display:none}#foxmind-product.fm3d-theme #classroom-main .brujula-activity-brief,#foxmind-product.fm3d-theme #classroom-main .parity-reading-criteria{padding:20px}#foxmind-product.fm3d-theme #classroom-main :is(.parity-reading-instructions,.parity-reading-criteria)>h3{font-size:20px}#foxmind-product.fm3d-theme #classroom-main .parity-reading-instructions>p{font-size:14px}.parity-participation-resources>button{width:100%}.parity-participation-objective p{font-size:13px}#foxmind-product.fm3d-theme #classroom-main .parity-focus-footer,#foxmind-product.fm3d-theme #classroom-main .parity-work-footer{padding:10px 16px;gap:8px;flex-direction:column;align-items:stretch;min-height:88px}.parity-focus-footer>span{font-size:10px}.parity-focus-footer>div{display:flex;width:100%}.parity-focus-footer>div>button,.parity-focus-footer .brujula-activity-options{flex:1}.parity-focus-footer .brujula-activity-options>button{flex:1}#foxmind-product.fm3d-theme #classroom-main :is(.parity-focus-footer,.parity-work-footer) button{font-size:11px;padding:9px 10px;min-height:42px}#foxmind-product.fm3d-theme #classroom-main .parity-work-heading h2{font-size:23px}#foxmind-product.fm3d-theme #classroom-main .brujula-answer-question{padding:20px 18px}#foxmind-product.fm3d-theme #classroom-main .brujula-answer-question h3{font-size:21px}.parity-focus-top strong{font-size:13px}}
+
+#foxmind-product.fm3d-theme #classroom-main .parity-receipt-screen{max-width:800px;margin:8px auto 0}.parity-receipt-card{padding:26px;border:1px solid #c4d2df;border-radius:20px;background:#fff}.parity-receipt-card h2{font-size:23px;font-weight:800;color:#20364b}.parity-receipt-card dl{border:0!important;padding:0!important}.parity-receipt-next{display:flex;gap:12px;align-items:center;background:#edf4fa;border:1px solid #bdd0df;border-radius:13px;padding:17px;margin-top:18px}.parity-receipt-next>svg{flex:none;color:#456f8c}.parity-receipt-next b{font-size:14px}.parity-receipt-next p{font-size:12px;line-height:1.6;margin-top:5px;color:#4b6376}.parity-receipt-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}.parity-result-link{float:right;margin-bottom:14px}
+@media(max-width:520px){.parity-receipt-card{padding:20px}.parity-receipt-card h2{font-size:20px}.parity-receipt-next{align-items:flex-start;padding:14px}.parity-receipt-actions{flex-direction:column}.parity-receipt-actions button{width:100%}}
+
+#foxmind-product.fm3d-theme #classroom-main .p8-grading .parity-grading-ai{padding:0;border:0;background:transparent;margin:0}
+#foxmind-product.fm3d-theme #classroom-main .p8-grading .parity-grading-ai-toggle{min-height:36px;padding:8px 11px;font-size:12px;font-weight:800;border:1px solid #dfc8ac;border-radius:10px;background:#fff4e7}
+#foxmind-product.fm3d-theme #classroom-main .p8-grading .parity-grading-ai>div:not([hidden]){margin-top:10px;padding:15px;border:1px solid #dfc8ac;border-radius:14px;background:#fff4e7}
+#foxmind-product.fm3d-theme #classroom-main .p8-grading h4{font-weight:800}#foxmind-product.fm3d-theme #classroom-main .p8-grading h5{font-size:20px;font-weight:800}
+
+/* Remove the finished entrance transform only while a focused task is mounted;
+   otherwise it captures fixed action bars inside the classroom surface. */
+#foxmind-product.fm3d-theme #classroom-main .p5-surface:has(:is(.parity-compose-top,.brujula-activity-screen[data-focused])){animation:none;transform:none}
+#foxmind-product.fm3d-theme #classroom-main .parity-compose-top:before{display:none}
+#foxmind-product.fm3d-theme #classroom-main .parity-compose-top{box-shadow:0 0 0 100vmax #fff;clip-path:inset(0 -100vmax)}
+#foxmind-product.fm3d-theme #classroom-main .br-authoring:has(.parity-compose-top)>form>.p5-form-footer{width:auto;max-width:none;left:0;right:0;bottom:0;box-sizing:border-box}
+#foxmind-product.fm3d-theme #classroom-main .br-authoring:has(.parity-compose-top)>form>.p5-form-footer>button:first-child{margin-right:0}
+#foxmind-product.fm3d-theme #classroom-main .br-authoring:has(.parity-compose-top)>.br-authoring-save-status{width:auto;height:auto;overflow:visible;clip-path:none;line-height:1.5}
+#foxmind-product.fm3d-theme #classroom-main .br-authoring :is(.parity-compose-scope>h3,.parity-compose-type>legend){font-size:22px;font-weight:800;line-height:1.3;color:#20364b}
+#foxmind-product.fm3d-theme #classroom-main .br-authoring .parity-compose-summary{display:flex;align-items:center;gap:10px;background:#e1edf9;border:1px solid #c6d9e9;color:#315a78;padding:17px;margin:0 0 18px;border-radius:12px;font-size:15px;font-weight:750}
+#foxmind-product.fm3d-theme #classroom-main .br-authoring .parity-compose-toggle{display:flex;gap:8px;margin:14px 0 18px}
+#foxmind-product.fm3d-theme #classroom-main .br-authoring .parity-compose-toggle>button{font-size:13px;font-weight:800;min-height:44px;padding:10px 18px}
+#foxmind-product.fm3d-theme #classroom-main .br-authoring label.parity-compose-choice{display:flex;align-items:center;gap:10px;padding:10px;min-height:58px;margin:0 0 8px;font-size:14px;font-weight:750}
+#foxmind-product.fm3d-theme #classroom-main .br-authoring label.parity-compose-choice:last-of-type{margin-bottom:0}
+#foxmind-product.fm3d-theme #classroom-main .br-authoring .parity-compose-choice strong{font-size:14px;font-weight:800}
+#foxmind-product.fm3d-theme #classroom-main .br-authoring .parity-compose-choice small{font-size:12px;font-weight:500;line-height:1.35;margin-top:3px}
+#foxmind-product.fm3d-theme #classroom-main .br-authoring label.parity-compose-option{font-size:13px;font-weight:700;min-height:46px;padding:7px 8px}
+#foxmind-product.fm3d-theme #classroom-main .br-authoring :is(input:not([type=checkbox]):not([type=radio]),textarea,select){font-size:14px}
+#foxmind-product.fm3d-theme #classroom-main .br-authoring button{font-size:13px;font-weight:800}
+#foxmind-product.fm3d-theme #classroom-main .parity-progress-panel h3{font-size:22px;font-weight:800;line-height:1.3;color:#20364b}
+#foxmind-product.fm3d-theme #classroom-main .parity-progress-panel h4{font-weight:800}
+@media(max-width:600px){#foxmind-product.fm3d-theme #classroom-main .br-authoring :is(.parity-compose-scope>h3,.parity-compose-type>legend){font-size:20px}#foxmind-product.fm3d-theme #classroom-main .parity-progress-panel h3{font-size:20px}#foxmind-product.fm3d-theme #classroom-main .br-authoring:has(.parity-compose-top)>.br-authoring-save-status{position:static}}
+
+#foxmind-product.fm3d-theme #classroom-main .p8-grading{padding-bottom:145px}
+#foxmind-product.fm3d-theme #classroom-main .p8-grading>.parity-focus-top{justify-content:flex-start;text-align:left}
+#foxmind-product.fm3d-theme #classroom-main .p8-grading>.parity-focus-top>div{flex:0 1 auto;margin:0;text-align:left}
+#foxmind-product.fm3d-theme #classroom-main .parity-grading-footer{box-sizing:border-box;width:auto;max-width:none}
+@media(max-width:600px){
+ #foxmind-product.fm3d-theme #classroom-main .parity-grading-footer{padding:10px 16px;min-height:100px;gap:8px}
+ #foxmind-product.fm3d-theme #classroom-main .parity-grading-footer>p{font-size:11px;line-height:1.5;margin:0}
+ #foxmind-product.fm3d-theme #classroom-main .parity-grading-footer>div{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
+ #foxmind-product.fm3d-theme #classroom-main .parity-grading-footer>div>button{width:100%;min-width:0;padding:9px 8px;min-height:44px;font-size:11px;white-space:normal}
+ #foxmind-product.fm3d-theme #classroom-main .p8-grading{padding-bottom:155px;scroll-padding-bottom:155px}
+ #foxmind-product.fm3d-theme #classroom-main .p8-grading :is(input,textarea,button){scroll-margin-block:24px 155px}
+}
+
+/* Secondary classroom surfaces share iter17's heading and control hierarchy. */
+#foxmind-product.fm3d-theme #classroom-main [data-classroom-tab=history] .parity-roster{width:100%;max-width:none}
+#foxmind-product.fm3d-theme #classroom-main [data-classroom-tab=history] .parity-roster-empty{width:100%;max-width:none;box-sizing:border-box;padding:40px 24px;gap:12px}
+#foxmind-product.fm3d-theme #classroom-main .parity-roster-empty>img{width:100px;height:100px;object-fit:contain;margin-bottom:4px}
+#foxmind-product.fm3d-theme #classroom-main :is([data-classroom-tab=wall],[data-classroom-tab=members],[data-classroom-tab=settings],[data-classroom-tab=history]) :is(h2,h3){font-family:Nunito,sans-serif;font-weight:800;color:#20364b}
+#foxmind-product.fm3d-theme #classroom-main :is([data-classroom-tab=wall],[data-classroom-tab=members],[data-classroom-tab=settings]) h2{font-size:28px;line-height:1.25}
+#foxmind-product.fm3d-theme #classroom-main :is([data-classroom-tab=wall],[data-classroom-tab=members],[data-classroom-tab=settings],[data-classroom-tab=history]) h3{font-size:22px;line-height:1.3}
+#foxmind-product.fm3d-theme #classroom-main :is([data-classroom-tab=wall],[data-classroom-tab=members],[data-classroom-tab=settings]) :is(button,label,strong,b){font-weight:800}
+#foxmind-product.fm3d-theme #classroom-main :is([data-classroom-tab=wall],[data-classroom-tab=members],[data-classroom-tab=settings]) button{font-size:13px}
+#foxmind-product.fm3d-theme #classroom-main :is([data-classroom-tab=members],[data-classroom-tab=settings]) :is(input,select){font-size:14px;font-weight:700}
+@media(max-width:600px){
+ #foxmind-product.fm3d-theme #classroom-main [data-classroom-tab=library] .p5-section-head{align-items:stretch;flex-direction:column}
+ #foxmind-product.fm3d-theme #classroom-main [data-classroom-tab=library] .p5-section-head>.p5-actions{width:100%;display:flex}
+ #foxmind-product.fm3d-theme #classroom-main [data-classroom-tab=library] .p5-section-head>.p5-actions>.primary{width:100%;flex:1;justify-content:center}
+ #foxmind-product.fm3d-theme #classroom-main :is([data-classroom-tab=wall],[data-classroom-tab=members],[data-classroom-tab=settings]) h2{font-size:24px}
+ #foxmind-product.fm3d-theme #classroom-main :is([data-classroom-tab=wall],[data-classroom-tab=members],[data-classroom-tab=settings],[data-classroom-tab=history]) h3{font-size:20px}
+}
+
+/* A short viewport must still scroll scope and content controls above the
+   fixed compose actions and their live save status. */
+#foxmind-product.fm3d-theme #classroom-main .br-authoring:has(.parity-compose-top){padding-bottom:160px}
+#foxmind-product.fm3d-theme #classroom-main .br-authoring:has(.parity-compose-top)>form :is(input,textarea,select,label,button){scroll-margin-block:24px 160px}
+html:has(#foxmind-product .br-authoring .parity-compose-top){scroll-padding-bottom:160px}
+#foxmind-product.fm3d-theme #classroom-main .br-authoring:has(.parity-compose-top)>.br-authoring-save-status{pointer-events:none}
+#foxmind-product.fm3d-theme #classroom-main .br-authoring:has(.parity-compose-top)>form>.p5-form-footer button{scroll-margin-block:0}
+@media(max-height:680px){
+ #foxmind-product.fm3d-theme #classroom-main .br-authoring:has(.parity-compose-top){padding-bottom:175px}
+ #foxmind-product.fm3d-theme #classroom-main .br-authoring:has(.parity-compose-top)>form :is(input,textarea,select,label,button){scroll-margin-block:18px 175px}
+ html:has(#foxmind-product .br-authoring .parity-compose-top){scroll-padding-bottom:175px}
+}
+
+/* Published student feedback: scoped to the student's result, not the
+   teacher's private preview or scoring desk. */
+#foxmind-product.fm3d-theme #classroom-main .parity-student-result{display:grid;gap:18px;padding:0;border:0;background:transparent;min-width:0}
+#foxmind-product.fm3d-theme #classroom-main .parity-student-result .parity-result-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 24px;margin:0;border:1px solid #bdd3c5;border-radius:19px;background:#e7f2ec;min-width:0}
+#foxmind-product.fm3d-theme #classroom-main .parity-student-result .parity-result-heading>div:first-child{flex:1;min-width:0}
+#foxmind-product.fm3d-theme #classroom-main .parity-student-result .parity-result-heading h4{font-size:26px;font-weight:800;line-height:1.25;margin:0 0 12px;color:#20364b}
+#foxmind-product.fm3d-theme #classroom-main .parity-student-result .parity-result-heading p{font-size:13px;line-height:1.6;margin:12px 0 4px;color:#486555}
+#foxmind-product.fm3d-theme #classroom-main .parity-student-result .parity-result-heading small{font-size:12px;line-height:1.5}
+#foxmind-product.fm3d-theme #classroom-main .parity-student-result .p8-final-grade{display:grid;gap:4px;min-width:126px;flex:none;padding:0 0 0 18px;border:0;border-left:1px solid #b8cfc0;background:transparent;border-radius:0;color:#285740}
+#foxmind-product.fm3d-theme #classroom-main .parity-student-result .p8-final-grade>span{font-size:12px;font-weight:800}
+#foxmind-product.fm3d-theme #classroom-main .parity-student-result .p8-final-grade>strong{font-size:46px;font-weight:800;line-height:1.15;white-space:nowrap}
+#foxmind-product.fm3d-theme #classroom-main .parity-student-result .p8-final-grade>strong>small{font-size:16px;font-weight:750}
+#foxmind-product.fm3d-theme #classroom-main .parity-student-result .parity-result-overview{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:18px}
+#foxmind-product.fm3d-theme #classroom-main .parity-student-result .parity-result-overview>section{padding:20px;border:1px solid #c4d2df;border-radius:19px;background:white;min-width:0}
+#foxmind-product.fm3d-theme #classroom-main .parity-student-result .parity-result-overview>section>h5{font-size:22px;font-weight:800;line-height:1.3;margin:0 0 16px;color:#20364b}
+#foxmind-product.fm3d-theme #classroom-main .parity-student-result .parity-feedback-block{padding:13px 16px;border-radius:13px}
+#foxmind-product.fm3d-theme #classroom-main .parity-student-result .parity-feedback-block :is(h5,h6){font-size:16px;font-weight:800;line-height:1.4;margin:0 0 6px;color:#20364b}
+#foxmind-product.fm3d-theme #classroom-main .parity-student-result .parity-feedback-block p{font-size:14px;line-height:1.6;margin:0;color:#465f73}
+#foxmind-product.fm3d-theme #classroom-main .parity-student-result button{font-size:12px;font-weight:800;min-height:42px}
+@media(max-width:760px){#foxmind-product.fm3d-theme #classroom-main .parity-student-result .parity-result-overview{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:520px){
+ #foxmind-product.fm3d-theme #classroom-main .parity-student-result .parity-result-heading{padding:20px;align-items:flex-start;flex-direction:column;gap:16px}
+ #foxmind-product.fm3d-theme #classroom-main .parity-student-result .parity-result-heading h4{font-size:23px}
+ #foxmind-product.fm3d-theme #classroom-main .parity-student-result .p8-final-grade{width:100%;padding:14px 0 0;border-left:0;border-top:1px solid #b8cfc0}
+ #foxmind-product.fm3d-theme #classroom-main .parity-student-result .p8-final-grade>strong{font-size:38px}
+ #foxmind-product.fm3d-theme #classroom-main .parity-student-result .parity-result-overview>section{padding:18px}
+ #foxmind-product.fm3d-theme #classroom-main .parity-student-result .parity-result-overview>section>h5{font-size:20px}
+}
+
+/* The legacy three-column card reserved rows 1–2 for its action. Explicit
+   areas prevent that row span from pushing real content into the icon column. */
+@media(max-width:800px){
+ #foxmind-product.fm3d-theme #classroom-main .parity-activity-card{display:grid;grid-template-columns:72px minmax(0,1fr);grid-template-areas:"symbol content" "symbol actions";align-items:start;gap:12px 16px}
+ #foxmind-product.fm3d-theme #classroom-main .parity-activity-card>.interior-activity-icon{grid-area:symbol;width:72px;height:84px;align-self:start}
+ #foxmind-product.fm3d-theme #classroom-main .parity-activity-card>.folder-row-content{grid-area:content;width:auto;min-width:0;max-width:none;flex-basis:auto}
+ #foxmind-product.fm3d-theme #classroom-main .parity-activity-card>.folder-row-actions{grid-area:actions;align-self:start;justify-self:end;justify-content:flex-end;min-width:0;max-width:100%;margin:0}
+ #foxmind-product.fm3d-theme #classroom-main .parity-activity-card>.folder-row-content .classroom-activity-deadline{margin-left:0}
+ #foxmind-product.fm3d-theme #classroom-main .parity-activity-card>.folder-row-content :is(h3,p,small,span){word-break:normal}
+}
+@media(max-width:600px){
+ #foxmind-product.fm3d-theme #classroom-main .parity-activity-card{grid-template-columns:50px minmax(0,1fr);gap:12px}
+ #foxmind-product.fm3d-theme #classroom-main .parity-activity-card>.interior-activity-icon{width:50px;height:65px}
+ #foxmind-product.fm3d-theme #classroom-main .parity-activity-card>.folder-row-actions>.act-open{max-width:100%;white-space:normal;text-align:center}
+}

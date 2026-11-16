@@ -38,7 +38,9 @@ export interface StudyMaterial {
     title: string;
     topicIds: string[];
 }
+export type StudyPlanOrigin = { classroomId: string; classroomRevision: string };
 export interface StudyFolder extends FolderFields {
+    planOrigin?: StudyPlanOrigin;
     id: string;
     ownerId: string;
     status: 'DRAFT' | 'ACTIVE' | 'ARCHIVED' | 'DELETED';
@@ -49,8 +51,12 @@ export interface StudyFolder extends FolderFields {
 }
 export type StudyFolderSummary = Omit<StudyFolder, 'units' | 'materials'>;
 export type StudySummaryRow = Omit<FolderRow, 'state'> & {fields: Omit<FolderFields, 'units'>};
+function projectFields<T extends Pick<FolderFields, 'subject' | 'wizardStep'>>(fields: T, draft: boolean) {
+    const { wizardStep, ...rest } = fields;
+    return { ...rest, subject: fields.subject ?? '', ...(draft ? { wizardStep: wizardStep ?? 0 } : {}) };
+}
 export function projectFolderSummary(r: StudySummaryRow): StudyFolderSummary {
-    return {id:r.id,ownerId:r.owner_id,status:r.status,revision:String(r.revision),...r.fields,
+    return {id:r.id,ownerId:r.owner_id,status:r.status,revision:String(r.revision),...projectFields(r.fields, r.status === 'DRAFT'),
         createdAt:r.created_at.toISOString(),updatedAt:r.updated_at.toISOString()};
 }
 export interface StudyPreferences {
@@ -59,9 +65,24 @@ export interface StudyPreferences {
     topicIds: string[];
     lastTool: 'NOTE' | 'OUTLINE' | 'QUIZ' | 'EXERCISE' | 'MOCK_EXAM';
 }
+export const STUDY_GENERATION_PENDING_MS = 600000;
+export interface StudyGenerationIntent {
+    requestId: string;
+    kind: StudyPreferences['lastTool'];
+    topicIds: string[];
+    sourceIds?: string[];
+    questionCount: number;
+    difficulty: StudyPreferences['difficulty'];
+}
+export interface StudyGenerationView extends StudyGenerationIntent {
+    status: 'PENDING' | 'COMPLETE' | 'FAILED' | 'CANCELLED' | 'INSUFFICIENT';
+    reason?: 'INTERRUPTED';
+    missingInformation?: string[];
+}
 export interface StudyState {
     version: 1;
     fields: FolderFields;
+    planOrigin?: StudyPlanOrigin;
     materials: StudyMaterial[];
     conversations: Record<string, unknown>[];
     creations: Record<string, unknown>[];
@@ -74,6 +95,8 @@ export interface StudyState {
         pendingAt?: string;
     }>;
 }
+export type StudyReviewWindow = { id:string; startAt:string; endAt:string };
+export type StudyAgendaConflict = { sessionId:string; occurrenceId:string; title:string };
 export interface StudyOptions {
     database: StudyDatabase;
     authenticate: StudyAuthentication;
@@ -88,6 +111,7 @@ export interface StudyOptions {
         }>;
     };
     agenda?: {
+        conflicts?(tx: StudyQuery, ownerId: string, timeZone: string, sessions: StudyReviewWindow[]): Promise<StudyAgendaConflict[]>;
         confirm(tx: StudyQuery, ownerId: string, folderId: string, exam: unknown, sessions: unknown[], requestId: string): Promise<unknown>;
         cancel(tx: StudyQuery, ownerId: string, folderId: string): Promise<void>;
     };
@@ -115,4 +139,4 @@ export interface FolderRow {
     created_at: Date;
     updated_at: Date;
 }
-export function projectFolder(r: FolderRow): StudyFolder { return { id: r.id, ownerId: r.owner_id, status: r.status, revision: String(r.revision), ...r.state.fields, materials: r.state.materials, createdAt: r.created_at.toISOString(), updatedAt: r.updated_at.toISOString() }; }
+export function projectFolder(r: FolderRow): StudyFolder { return { id: r.id, ownerId: r.owner_id, status: r.status, revision: String(r.revision), ...projectFields(r.state.fields, r.status === 'DRAFT'), ...(r.state.planOrigin ? { planOrigin: r.state.planOrigin } : {}), materials: r.state.materials, createdAt: r.created_at.toISOString(), updatedAt: r.updated_at.toISOString() }; }

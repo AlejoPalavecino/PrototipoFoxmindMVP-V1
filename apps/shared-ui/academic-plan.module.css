@@ -1,10 +1,10 @@
 /* Plan upload and structured editor for both creation flows. */
-.source, .curriculum { --editor-line: #dce2f0; --editor-purple: #f2eefc; --editor-muted: #555d77; min-width: 0; }
+.source, .curriculum { --editor-line: #dce2f0; --editor-purple: #fff1e5; --editor-muted: #555d77; min-width: 0; }
 .source :is(button, a):focus-visible, .picker:focus-within, .curriculum :is(summary, textarea, button):focus-visible { outline: 3px solid #9a3e00; outline-offset: 2px; }
 .drop { display: grid; justify-items: center; gap: 8px; text-align: center; border: 1px dashed #9eacd0; border-radius: 16px; background: #f4f6fc; padding: 17px; overflow-wrap: anywhere; }
 .drop[data-ready] { background: #eef8f2; border-color: #82aa98; }
 .drop small, .curriculum small { color: var(--editor-muted); }
-.uploadIcon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: #e8e1f7; color: #694b93; }
+.uploadIcon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: #ffe0c9; color: #923810; }
 .picker { display: inline-grid; align-items: center; position: relative; min-height: 44px; border: 1px solid var(--editor-line); padding: 6px 12px; border-radius: 12px; background: white; color: #8e370c; cursor: pointer; }
 .picker:has(input:disabled) { opacity: .6; cursor: default; }
 .picker input { position: absolute; width: 100%; height: 100%; inset: 0; opacity: 0; cursor: inherit; }
@@ -14,13 +14,9 @@
 .toolbar p { margin: 4px 0 0; color: var(--editor-muted); }
 .undo { background: #e5f4ed; color: #22543f; }
 .unit { border: 1px solid var(--editor-line); border-radius: 16px; background: #fff; min-width: 0; }
-.unit summary { cursor: pointer; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 12px; list-style: none; background: var(--editor-purple); border-radius: 15px; }
-.unit[open] summary { border-radius: 15px 15px 0 0; }
-.unit summary::-webkit-details-marker { display: none; }
-.unit summary::after { content: '⌄'; }
-.unit[open] summary::after { transform: rotate(180deg); }
-.unit summary b { display: grid; place-items: center; border-radius: 10px; min-width: 34px; min-height: 34px; color: #503880; background: #e8dff8; }
-.unit summary small { display: block; }
+.unit > header { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 12px; list-style: none; background: var(--editor-purple); border-radius: 15px 15px 0 0; }
+.unit > header b { display: grid; place-items: center; border-radius: 10px; min-width: 34px; min-height: 34px; color: #923810; background: #ffe0c9; }
+.unit > header small { display: block; }
 .unitBody, .topics { display: grid; gap: 10px; min-width: 0; }
 .unitBody { padding: 14px; }
 .curriculum label { display: grid; gap: 4px; min-width: 0; margin: 0; }

@@ -22,6 +22,6 @@ async readNotifications09<T = Record<string, unknown>>(tx: Transaction, ...value
 async updateOF10<T = Record<string, unknown>>(tx: Transaction, ...values: unknown[]): Promise<T[]> { return tx.query<T>(`${notificationSelection} AND n.id=$2::uuid FOR UPDATE OF n`, ...values); },
 async updateOF11<T = Record<string, unknown>>(tx: Transaction, ...values: unknown[]): Promise<T[]> { return tx.query<T>(`${selections.academic} AND n.id=$2::uuid FOR UPDATE OF n`, ...values); },
 async updateOF12<T = Record<string, unknown>>(tx: Transaction, ...values: unknown[]): Promise<T[]> { return tx.query<T>(`${selections.grade} AND n.id=$2::uuid FOR UPDATE OF n`, ...values); },
-async updateNotifications13<T = Record<string, unknown>>(tx: Transaction, ...values: unknown[]): Promise<T[]> { return tx.query<T>(`UPDATE notifications SET read_at=COALESCE(read_at,clock_timestamp()),
-        updated_at=CASE WHEN read_at IS NULL THEN clock_timestamp() ELSE updated_at END WHERE id=$1::uuid RETURNING id`, ...values); }
+async updateNotifications13<T = Record<string, unknown>>(tx: Transaction, ...values: unknown[]): Promise<T[]> { return tx.query<T>(`UPDATE notifications SET read_at=CASE WHEN $2::boolean THEN COALESCE(read_at,clock_timestamp()) ELSE NULL END,
+        updated_at=CASE WHEN (read_at IS NOT NULL)<>$2 THEN clock_timestamp() ELSE updated_at END WHERE id=$1::uuid RETURNING id`, ...values); }
 }; }

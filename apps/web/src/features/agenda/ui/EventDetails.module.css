@@ -1,0 +1,124 @@
+:global(:is(#agenda-main, #notification-agenda-dialog)) .dialog {
+  --detail-inline: 26px;
+  width: min(560px, calc(100vw - 28px));
+  max-height: calc(100dvh - 28px);
+  box-sizing: border-box;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #c7d5e0;
+  border-radius: 20px;
+  background: #fff;
+  color: #202c3d;
+  font-family: inherit;
+}
+
+:global(:is(#agenda-main, #notification-agenda-dialog)) .dialog[open] { display: flex; flex-direction: column; }
+:global(:is(#agenda-main, #notification-agenda-dialog)) .dialog::backdrop { background: #31415a66; backdrop-filter: none; }
+
+:global(:is(#agenda-main, #notification-agenda-dialog)) .dialog > header {
+  position: static;
+  flex: none;
+  margin: 0;
+  padding: 22px var(--detail-inline) 18px;
+  background: #fff;
+}
+:global(:is(#agenda-main, #notification-agenda-dialog)) .dialog > header h2 { font-family: inherit; font-size: 26px; font-weight: 850; color: inherit; }
+:global(:is(#agenda-main, #notification-agenda-dialog)) .dialog > header button { min-height: 44px; min-width: 44px; margin-block: -7px; }
+:global(:is(#agenda-main, #notification-agenda-dialog)) .dialog > :global(.brujula-dialog-body) {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+.content {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 22px var(--detail-inline);
+  overflow-wrap: anywhere;
+}
+
+.card {
+  --auto-bg: #dbeafa;
+  --auto-line: #2c629c;
+  --detail-line: var(--agenda-color-accent, var(--auto-line));
+  border: 1px solid var(--detail-line);
+  border-top-width: 5px;
+  border-radius: 18px;
+  padding: 20px;
+  background: var(--agenda-color-bg, var(--auto-bg));
+  color: var(--detail-line);
+  color: color-mix(in srgb, var(--detail-line) 78%, #151f2a);
+}
+.card:global(.activity) { --auto-bg: #dceee3; --auto-line: #397d50; }
+.card:global(.evaluation) { --auto-bg: #fbe2cf; --auto-line: #ac5420; }
+
+.type, .note h4, .privacy { display: flex; align-items: center; gap: 7px; }
+.type { font-weight: 800; font-size: 12px; }
+.type > span { margin-left: auto; font-weight: 700; text-align: end; }
+.type svg, .note svg { width: 17px; height: 17px; flex: none; }
+
+:global(:is(#agenda-main, #notification-agenda-dialog)) .card h3 { color: inherit; font-family: inherit; font-size: 27px; line-height: 1.35; font-weight: 850; margin: 19px 0 22px; }
+.when { display: flex; align-items: center; gap: 18px; }
+.when b { display: block; font-size: 14px; line-height: 1.6; text-transform: capitalize; }
+.when p { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; margin: 4px 0 0; }
+.paper {
+  display: flex;
+  flex: 0 0 57px;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #bd8d6e;
+  border-radius: 11px;
+  background: #fffaf6;
+  box-shadow: 3px 4px 0 #dec6b24d;
+  transform: rotate(-4deg);
+  overflow: hidden;
+}
+.paper > span { width: 100%; padding: 3px; background: #b74710; color: #fff; font-size: 11px; font-weight: 800; text-align: center; text-transform: capitalize; }
+.paper > strong { padding: 2px 5px; color: #593f2d; font-size: 30px; line-height: 1.35; }
+
+.note { padding-top: 20px; }
+:global(:is(#agenda-main, #notification-agenda-dialog)) .note h4 { margin: 0; font-family: inherit; font-size: 13px; font-weight: 800; }
+.note p { margin: 9px 0 0; color: #475d72; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+.meta { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; margin: 14px 0 0; font-size: 12px; color: #475d72; }
+.meta dt { font-weight: 800; }
+.meta dd { margin: 0; }
+.privacy { align-items: flex-start; margin: 15px 0 0; color: #536577; font-size: 11px; line-height: 1.6; }
+.privacy svg { width: 14px; height: 14px; flex: none; margin-top: 2px; }
+
+.intro { margin: 0 0 16px; color: #475d72; font-size: 14px; }
+.summary { display: flex; gap: 13px; align-items: flex-start; padding: 18px; background: #f0f5fa; border: 1px solid #c7d5e0; border-radius: 14px; font-size: 15px; line-height: 1.6; }
+.summary svg { flex: none; color: #547088; }
+.summary small { display: block; margin-top: 5px; color: #536779; font-size: 12px; }
+.scope { display: flex; flex-wrap: wrap; gap: 0 16px; margin: 16px 0 0; padding: 0; border: 0; min-width: 0; font-size: 13px; }
+.scope legend { padding: 0; font-weight: 800; }
+.scope label { display: flex; gap: 6px; align-items: center; min-height: 44px; }
+.scope input { accent-color: #b74710; }
+
+.footer { flex: none; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; padding: 17px var(--detail-inline); border-top: 1px solid #d5dee6; background: #fff; }
+:global(:is(#agenda-main, #notification-agenda-dialog)) .footer :is(button, a) { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; margin: 0; text-align: center; font-size: 14px; font-weight: 800; }
+:global(:is(#agenda-main, #notification-agenda-dialog)) .footer button:global(.danger) { background: #fff1f2; border-color: #c97986; color: #862c3e; }
+:global(:is(#agenda-main, #notification-agenda-dialog)) .footer button:global(.danger):hover:enabled { background: #ffe1e6; }
+:global(:is(#agenda-main, #notification-agenda-dialog)) .footer a { padding: 8px 10px; color: #31577c; border: 1px solid #c7d5e0; border-radius: 10px; text-decoration: none; }
+:global(:is(#agenda-main, #notification-agenda-dialog)) .footer a:hover { text-decoration: underline; }
+.footer svg { width: 16px; height: 16px; flex: none; }
+
+@media (max-width: 700px) {
+  :global(:is(#agenda-main, #notification-agenda-dialog)) .dialog { --detail-inline: 18px; }
+  :global(:is(#agenda-main, #notification-agenda-dialog)) .dialog > header { padding-block: 19px 15px; }
+  :global(:is(#agenda-main, #notification-agenda-dialog)) .dialog > header h2 { font-size: 23px; }
+  .content { padding-block: 18px; }
+  .card { padding: 17px; }
+  :global(:is(#agenda-main, #notification-agenda-dialog)) .card h3 { font-size: 23px; }
+  .when { gap: 13px; }
+  .when b { font-size: 13px; }
+  .when p { font-size: 16px; }
+  .footer { padding-block: 14px; }
+  :global(:is(#agenda-main, #notification-agenda-dialog)) .footer :is(button, a) { font-size: 12px; }
+}
+
+@media (max-width: 470px) {
+  .footer a { flex: 0 0 100%; }
+}

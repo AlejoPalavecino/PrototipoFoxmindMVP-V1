@@ -1,4 +1,4 @@
-import type { InvitationBatchReceipt, InvitationBatchRecipient } from '../../../../../../src/core/contracts/classrooms.ts';
+import type { ClassroomCodePreview, InvitationBatchReceipt, InvitationBatchRecipient } from '../../../../../../src/core/contracts/classrooms.ts';
 import type { Actor, Transaction } from './contracts.ts';
 import type { ClassroomAccess, PreviewTokenPort, EnrollmentPort } from './ports.ts';
 export interface DraftRow { id: string; owner_id: string; revision: bigint; payload: unknown; published_classroom_id: string | null }
@@ -17,7 +17,7 @@ export interface MembershipOperations {
  randomUUID(): string;
  digest(text: string): string;
  recordActivityEligibility: MembershipAccess['recordActivityEligibility'];
- previewCodeOperation(capability: MembershipAccess, request: unknown, input: unknown): Promise<{classroom: {name: string;subject: string; division: string;academicYear: number; teacher: string};confirmation: string}>;
+ previewCodeOperation(capability: MembershipAccess, request: unknown, input: unknown): Promise<ClassroomCodePreview>;
  confirmCodeOperation(capability: MembershipAccess, request: unknown, confirmation: unknown): Promise<{id: string}>;
  endMembershipOperation(capability: MembershipAccess, request: unknown, id: string, studentId: string | null): Promise<{ok: boolean}>;
  membersOperation(capability: MembershipAccess, request: unknown, id: string, history?: boolean): Promise<{ firstName: string; lastName: string }[]>;

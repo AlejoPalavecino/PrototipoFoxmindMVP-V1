@@ -1,0 +1,10 @@
+const t=await taskSpace(1),p=t.page('p1');
+await p.click('loc=role:button[name="Revisar entrega de Tomás: Una foto, tres miradas"]');
+await p.waitForURL('**#docente/corregir');
+console.log({review:await p.evaluate(()=>document.querySelector('h1').textContent)});
+await p.goto('http://127.0.0.1:4173/?v=4#docente/inicio');
+await p.focus('loc=css:[data-action=home-queries]');
+await p.evaluate(()=>document.querySelector('.home-priorities').scrollIntoView({block:'start'}));
+const before=await p.evaluate(()=>scrollY);
+await p.keyboard.press('Enter');
+console.log({before,after:await p.evaluate(()=>scrollY),focus:await p.evaluate(()=>document.activeElement.id||document.activeElement.dataset.action),queryVisible:await p.evaluate(()=>!!document.querySelector('[data-action=home-query]'))});

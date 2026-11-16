@@ -1,0 +1,36 @@
+{
+  "width": 390,
+  "clientWidth": 375,
+  "height": 844,
+  "scrollWidth": 375,
+  "headings": [
+    {
+      "text": "Mi agenda",
+      "font": "850 28px / 33.6px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 16,
+        "y": 82,
+        "width": 213.6374969482422,
+        "height": 33.60000228881836,
+        "top": 82,
+        "right": 229.6374969482422,
+        "bottom": 115.60000228881836,
+        "left": 16
+      }
+    },
+    {
+      "text": "Noviembre 2026",
+      "font": "800 20px / 25px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 112.0875015258789,
+        "y": 210.1999969482422,
+        "width": 151.03750610351562,
+        "height": 25,
+        "top": 210.1999969482422,
+        "right": 263.12500762939453,
+        "bottom": 235.1999969482422,
+        "left": 112.0875015258789
+      }
+    }
+  ]
+}

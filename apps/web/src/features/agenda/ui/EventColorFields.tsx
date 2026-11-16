@@ -6,7 +6,7 @@ export function EventColorFields({ draft, onChange, issues }: EventFieldProps) {
   const preview = eventColorClass({ category: draft.category });
   const selected = eventColorOptions.find(option => option.value === draft.color);
   const selectedClass = draft.color === 'AUTO' || !selected ? preview : selected.className;
-  const referenceColors=['GREEN','ORANGE','YELLOW','GRAPHITE'];
+  const referenceColors=['BLUE','GREEN','ORANGE','PINK','PURPLE','GRAPHITE'];
   const choices=[...referenceColors,...(referenceColors.includes(draft.color)?[]:[draft.color])]
     .map(value=>eventColorOptions.find(option=>option.value===value)).filter((option): option is (typeof eventColorOptions)[number]=>Boolean(option));
   return <fieldset className="agenda-color-fields">

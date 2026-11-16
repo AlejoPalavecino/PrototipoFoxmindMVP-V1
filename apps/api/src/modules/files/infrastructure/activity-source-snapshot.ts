@@ -1,3 +1,4 @@
+import { DOCUMENT_MAX_BYTES, isDocumentExtension } from '../../../../../../src/core/domain/documents/document-formats.ts';
 import type { ActivitySourceSnapshot } from '../../../../../../src/core/domain/index.ts';
 import type { FileTransaction } from '../application/contracts.ts';
 import type { FileService } from './service.ts';
@@ -19,7 +20,7 @@ export async function activitySourceSnapshot(files: FileService, tx: FileTransac
   requireReady(row);
   if (row.classroom_id !== classroomId || row.classroom_draft_id !== null || row.purpose !== kind || !row.digest || row.blob_deleted_at)
     throw new FileError('FILE_NOT_READY');
-  if (!['pdf', 'docx'].includes(row.extension)) throw new FileError('FILE_NOT_READY');
-  if (Number(row.size_bytes) > 20_000_000) throw new PlanDocumentError('AI_INPUT_LIMIT');
-  return { sourceId, fileId: row.id, digest: row.digest, extension: row.extension as 'pdf' | 'docx', sizeBytes: Number(row.size_bytes) };
+  if (!isDocumentExtension(row.extension)) throw new FileError('FILE_NOT_READY');
+  if (Number(row.size_bytes) > DOCUMENT_MAX_BYTES) throw new PlanDocumentError('AI_INPUT_LIMIT');
+  return { sourceId, fileId: row.id, digest: row.digest, extension: row.extension, sizeBytes: Number(row.size_bytes) };
 }

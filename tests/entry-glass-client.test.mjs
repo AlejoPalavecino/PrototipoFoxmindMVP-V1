@@ -1,4 +1,5 @@
 import { homeFixture } from './helpers/audit-home-data.mjs';
+import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -44,11 +45,11 @@ test('draft navbar hides account navigation while preserving classroom exit', ()
     notifications: React.createElement('button', { 'aria-label': 'Notificaciones' }, 'Notificaciones'),
     accountActions: React.createElement('button', null, 'Cerrar sesión') };
   const regular = render(AppNavbar, props);
-  assert.match(regular, /aria-haspopup="dialog"[^>]*aria-expanded="false"[^>]*aria-label="Mi cuenta de Draft owner"/);
+  assert.match(regular, /href="\/profile"[^>]*aria-label="Mi perfil de Draft owner"/);
   assert.match(regular, /Notificaciones/);
   const draft = render(AppNavbar, { ...props, restricted: true });
   assert.match(draft, /href="\/mis-aulas"/); assert.match(draft, /Mis aulas/);
-  assert.doesNotMatch(draft, /href="\/profile"|href="\/settings"|fm3d-shell-avatar|Cerrar sesión|Notificaciones|Mi cuenta/);
+  assert.doesNotMatch(draft, /href="\/profile"|href="\/settings"|fm3d-shell-avatar|Cerrar sesión|Notificaciones|Mi perfil|Mi cuenta/);
 });
 
 test('password visibility is an explicit non-submit control, with policy only for new passwords', () => {
@@ -62,19 +63,55 @@ test('password visibility is an explicit non-submit control, with policy only fo
   assert.match(registration, /autocomplete="new-password"/i);
 });
 
-test('home retains the student classroom and the applicable learning modules', () => {
+test('student home opens the applicable classroom activities and keeps feedback in Mi progreso', async () => {
   const room = { role:'student', archived:false, id: 'actual', name: 'Actual class', subject: 'Science', division: 'B', academicYear: 2026, coverKey: 'explore', teacher: 'Actual teacher' };
-  const data = homeFixture([room]);
-  const { Home } = loadTsModule("apps/web/src/features/home/ui/Home.tsx", { stubs: {"../model/use-home.ts":{useHome: () => ({ loading:false, data, ordering:{} })}} });
-  const html = render(Home, { accountRole: 'student', displayName: 'Student', busy: false, onAction() {},
-    onCreate() {}, onJoin() {}, onClassrooms() {}, onEnter() {}, api: { call: async () => [] }, onOpenTarget() {} });
-  for (const label of ['Mis entregas', 'Mis devoluciones']) {
-    const group = [...html.matchAll(/<section\b([^>]*)>/g)].find(([, attributes]) => attributes.includes(`aria-label="${label}"`));
-    assert.ok(group, `Missing ${label} section`);
-    assert.doesNotMatch(group[1], /\bhidden(?:=|\s|$)|aria-hidden="true"/);
-  }
-  assert.match(html, /Actual class/);
-  assert.match(html, /Science|Actual class/);
-  assert.match(html, /aria-label="Accesos de mi aula"/);
-  assert.doesNotMatch(html, /aria-label="Acciones del aula"|aria-label="Aula en foco"/);
+  const data = homeFixture([{...room,id:'archived',archived:true}, {...room,id:'teacher',role:'teacher'}, room]);
+  data.participation = 'study';
+  data.memberships = { study: 1, teach: 0, archived: 1 };
+  data.modules.feedback.items = [{ id: 'grade', title: 'Actividad revisada', classroom: room, attemptNumber: 1, finalGrade: '8', target: { kind: 'grade' } }];
+  data.modules.feedback.totalItems = 1;
+  const { Home } = loadTsModule("apps/web/src/features/home/ui/Home.tsx", { stubs: {"../model/use-home.ts":{useHome: () => ({ loading:false, data, ordering:{}, orders:{review:'asc',queries:'desc'} })}} });
+  const opened = [];
+  const props = { accountRole: 'student', displayName: 'Student', busy: false, onAction() {}, onCreate() {}, onJoin() {},
+    onClassrooms() { opened.push('catalog'); }, onOpenActivities(id) { opened.push(id); } };
+  const html = render(Home, props);
+  assert.match(html, /<h2>Tu próximo paso<\/h2>/);
+  assert.match(html, /Ver actividades del aula/);
+  assert.match(html, /<h3>Actual class<\/h3>/);
+  assert.match(html, /href="\/mis-aulas\?aula=actual&amp;section=plan"/);
+  assert.doesNotMatch(html, /aula=archived|Pendientes docentes|Crear actividad|Tus últimas devoluciones|Actividad revisada/);
+  const home = hookView(Home, props);
+  try {
+    await home.flush();
+    const priorities = descendants(home.tree, node => node.type?.name === 'HomePriorities')[0];
+    const list = descendants(priorities.type(priorities.props), node => node.type === 'button' &&
+      Array.isArray(node.props.children) && node.props.children.includes('Ver actividades del aula'))[0];
+    assert.ok(list);
+    list.props.onClick();
+    assert.deepEqual(opened, ['actual']);
+  } finally { home.close(); }
+
+  const { Progress } = component('apps/web/src/features/grading/ui/Progress.tsx');
+  const progress = hookView(Progress, { classroomId: room.id, expectedScope: 'self',
+    api: { call: async path => {
+      assert.equal(path, '/actual/progress');
+      return { scope: 'self', completion: { percentage: '50', delivered: 1, expected: 2 },
+        performance: { average: '8', graded: 1 }, plan: { units: [] }, activities: [
+          { id: 'activity', type: 'ASSIGNMENT', title: 'Actividad revisada', grade: '8', publishedAttemptId: 'attempt' },
+          { id: 'private', type: 'ASSIGNMENT', title: 'Actividad privada', grade: null },
+        ] };
+    } }, onOpenResult: (...args) => opened.push(args) });
+  try {
+    await progress.flush();
+    const markup = renderToStaticMarkup(progress.tree);
+    assert.match(markup, /Tus devoluciones/);
+    assert.match(markup, /Actividad revisada/);
+    assert.doesNotMatch(markup, /Actividad privada/);
+    const overview = descendants(progress.tree, node => node.type?.name === 'StudentOverview')[0];
+    const button = descendants(overview.type(overview.props), node => node.type === 'button' &&
+      Array.isArray(node.props.children) && node.props.children.includes('Ver devolución'))[0];
+    assert.ok(button);
+    button.props.onClick();
+    assert.deepEqual(opened, ['actual', ['activity','attempt']]);
+  } finally { progress.close(); }
 });

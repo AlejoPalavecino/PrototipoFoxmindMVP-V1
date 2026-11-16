@@ -83,7 +83,10 @@ test('cancel closes a pristine form but protects changed fields when discard is 
     const fields = descendants(view.tree, node => node.type.name === 'EventFields')[0];
     fields.props.onChange({ ...fields.props.draft, title: 'Borrador importante' }); await view.flush();
     cancel().props.onClick(); await view.flush();
-    assert.equal(closes, 1); assert.equal(confirmations, 1);
+    assert.equal(closes, 1); assert.equal(confirmations, 0);
+    const keep = descendants(view.tree, node => node.type === 'button' && node.props.children === 'Seguir editando')[0];
+    assert.ok(keep, 'FoxMind presents the choice inside the editor');
+    keep.props.onClick(); await view.flush();
     const current = descendants(view.tree, node => node.type.name === 'EventFields')[0];
     assert.equal(current.props.draft.title, 'Borrador importante');
   } finally { view.close(); restore(); }

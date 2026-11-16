@@ -2,7 +2,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ClassroomsApp } from '../application/academic-Classrooms.tsx';
+import { ClassroomsApp, type CollectionDeparture } from '../application/academic-Classrooms.tsx';
 import { Notice } from '../../../shared-ui/feedback';
 import { createAccountClient, type AccountUser } from '../features/identity/index.ts';
 import { createWebClassroomClient } from '../application/academic-classroom-client.ts';
@@ -12,7 +12,7 @@ import { createWebHomeClient } from '../application/academic-home-client.ts';
 import { useAgendaTarget } from '../application/academic-useAgendaTarget.ts';
 
 const account = createAccountClient();
-let departureNotice: { userId: string; message: string } | undefined;
+let departureNotice: { userId: string; message: string; feedback?: CollectionDeparture } | undefined;
 
 export function ClassroomsScreen({ initialPresentation = 'classrooms' }: { initialPresentation?: 'home' | 'classrooms' }) {
   const router = useRouter();
@@ -20,9 +20,12 @@ export function ClassroomsScreen({ initialPresentation = 'classrooms' }: { initi
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [navigationNotice, setNavigationNotice] = useState('');
+  const [navigationFeedback, setNavigationFeedback] = useState<CollectionDeparture>();
   const sessionRequest = useRef<AbortController | null>(null);
   const signingOut = useRef(false);
   const destination = safeDestination(router.asPath) ?? (initialPresentation === 'home' ? '/inicio' : '/mis-aulas');
+  const currentDestination = useRef(destination);
+  currentDestination.current = destination;
   const requireAccount = useCallback((code: string) => {
     sessionRequest.current?.abort();
     setUser(undefined);
@@ -55,10 +58,11 @@ export function ClassroomsScreen({ initialPresentation = 'classrooms' }: { initi
   }, [load, router.isReady]);
   useEffect(() => {
     if (!user?.id || router.asPath !== '/mis-aulas') {
-      setNavigationNotice('');
+      setNavigationNotice(''); setNavigationFeedback(undefined);
       return;
     }
     setNavigationNotice(departureNotice?.userId === user.id ? departureNotice.message : '');
+    setNavigationFeedback(departureNotice?.userId === user.id ? departureNotice.feedback : undefined);
     departureNotice = undefined;
   }, [router.asPath, user?.id]);
 
@@ -73,19 +77,27 @@ export function ClassroomsScreen({ initialPresentation = 'classrooms' }: { initi
   }
   const invitation = destination.startsWith('/mis-aulas?invitacion=') ? destination.slice(destination.indexOf('=') + 1) : undefined;
   return <>
-    <Head><title>{initialPresentation === 'home' ? 'Inicio' : 'Mis Aulas'} · FoxMind</title><meta name="description" content="Tus aulas, borradores e invitaciones de FoxMind." /></Head>
+    <Head><title>{`${initialPresentation === 'home' ? 'Inicio' : 'Mis aulas'} · FoxMind`}</title><meta name="description" content="Tus aulas, borradores e invitaciones de FoxMind." /></Head>
     {user ? <>
       {error ? <div className="p5-app p5-gate"><Notice error>{error}</Notice></div> : null}
       {target.requested && !target.target ? <div className="p5-main"><Notice error={Boolean(target.error)}>{target.error ?? 'Comprobando acceso a la actividad…'}
         {target.error ? <button onClick={target.reload}>Volver a intentar</button> : null}</Notice><Link href="/agenda">Volver a Agenda</Link></div> :
       <ClassroomsApp avatarKey={user.avatarKey} key={`${user.id}:${destination}`} accountRole={user.accountRole} accountEmail={user.email} subjectId={user.id} homeClient={homeClient} api={api} displayName={`${user.firstName} ${user.lastName}`} requestedInvitation={invitation} requestedTarget={target.target}
         onEnterClassroom={id => router.push(`/mis-aulas?aula=${encodeURIComponent(id)}`)}
+        onResolveInvitation={invitation ? async message => {
+          if (currentDestination.current !== destination) return false;
+          const pending = { userId: user.id, message, feedback: {kind:'success' as const, collectionState:'active' as const} };
+          departureNotice = pending;
+          let navigated = false;
+          try { navigated = await router.replace('/mis-aulas'); return navigated; }
+          finally { if (!navigated && departureNotice === pending) departureNotice = undefined; }
+        } : undefined}
         onOpenHomeTarget={value => router.push(classroomHomeHref(value))}
         onSelectNotification={id => router.push(`/mis-aulas?notificacion=${encodeURIComponent(id)}`)}
         requestedHomeTarget={homeTarget ?? undefined}
         requestedNotification={destination.startsWith('/mis-aulas?notificacion=') ? destination.split('=')[1] : undefined}
-        initialPresentation={initialPresentation} navigationNotice={navigationNotice} onNavigate={(presentation, message) => {
-          const pending = message ? { userId: user.id, message } : undefined;
+        initialPresentation={initialPresentation} navigationNotice={navigationNotice} navigationFeedback={navigationFeedback} onNavigate={(presentation, message, feedback) => {
+          const pending = message ? { userId: user.id, message, feedback } : undefined;
           departureNotice = pending;
           void router.push(presentation === 'home' ? '/inicio' : presentation === 'agenda' ? '/agenda' : '/mis-aulas')
             .then(navigated => { if (!navigated && departureNotice === pending) departureNotice = undefined; })

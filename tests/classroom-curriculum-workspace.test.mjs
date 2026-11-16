@@ -16,9 +16,17 @@ test('Plan selection never changes teaching state; only the explicit state contr
     const find=predicate=>descendants(view.tree,predicate);
     const resource=find(n=>n.type==='button'&&n.props['aria-label']==='Abrir actividad: Actividad del tema')[0];
     assert.ok(resource);assert.equal(resource.props['aria-label'],'Abrir actividad: Actividad del tema');resource.props.onClick();assert.deepEqual(opened,['activity']);
-    find(n=>n.type==='select'&&n.props['aria-label']==='Tema del plan')[0].props.onChange({target:{value:'two'}});await view.flush();
+    const choice = find(n=>n.type==='button'&&n.props['data-topic-choice']==='two')[0];
+    assert.ok(choice, 'Ecosistemas debe poder seleccionarse en el mapa');
+    choice.props.onClick();
+    await view.flush();
+    const details = find(n=>n.type==='section'&&n.props['aria-label']==='Tema seleccionado')[0];
+    assert.match(text(details), /Ecosistemas/);
     assert.equal(writes.length,0);
-    find(n=>n.type==='input'&&n.props['aria-label']==='Marcar como dado: Ecosistemas')[0].props.onChange({target:{checked:true}});
+    const mark = descendants(details, n=>n.type==='button'&&text(n)==='Marcar como dado')[0];
+    assert.ok(mark);
+    assert.equal(mark.props['aria-pressed'], false);
+    mark.props.onClick();
     assert.deepEqual(writes,[['two','TAUGHT']]);
   }finally{view.close();}
 });

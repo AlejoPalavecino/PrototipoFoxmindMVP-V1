@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { activityPayload } from '../apps/api/src/modules/activities/domain/activity-policy.ts';
 import { DraftService } from '../apps/api/src/bootstrap/academic-management-composition.ts';
 import { createAuthoringRepository } from '../apps/api/src/modules/activities/infrastructure/authoring-repository.ts';
-import { readActivityTopics } from '../apps/api/src/modules/activities/infrastructure/activity-topics.ts';
+import { readActivityTopicScope } from '../apps/api/src/modules/activities/infrastructure/activity-topics.ts';
 
 const activity = extra => ({ title: 'Trabajo', unitId: randomUUID(), topicIds: [randomUUID()], instructions: 'Resolver',
   attachmentRequired: false, instructionFileIds: [], materialIds: [], questions: [], deadline: null, allowLate: false, ...extra });
@@ -58,7 +58,7 @@ test('configuración rechaza interruptor que no sea booleano antes de escribir',
 test('rúbrica solo se proyecta en vista docente, nunca en vista del alumno', async () => {
   const { ActivityAuthoringService } = await import("../apps/api/src/bootstrap/academic-authoring-composition.ts");
   const tx = { query: async () => [] }, service = { activitySummary: () => ({ id: 'activity' }),
-    repository: createAuthoringRepository(), operations: { readActivityTopics } };
+    repository: createAuthoringRepository(), operations: { readActivityTopicScope } };
   const row = { id: 'activity', topic_id: null, instructions_text: 'Consigna', attachments_required: false, ai_grading_rubric: 'Criterio privado' };
   const teacher = await ActivityAuthoringService.prototype.activityView.call(service, tx, row, 'UTC', true);
   const student = await ActivityAuthoringService.prototype.activityView.call(service, tx, row, 'UTC', false);

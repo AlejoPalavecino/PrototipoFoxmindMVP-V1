@@ -16,12 +16,24 @@ test('a teacher can prepare a plan at the decimal 20 MB boundary', () => {
   rejected({ purpose: 'plan', name: 'plan.pdf', bytes: 20_000_001 }, 'FILE_TOO_LARGE');
 });
 
-test('instructions share the plan limit, while all allowed material types allow 50 MB', () => {
-  assert.equal(validateUploadIntent({ purpose: 'instructions', name: 'guia.docx', bytes: 20_000_000 }).extension, 'docx');
-  rejected({ purpose: 'instructions', name: 'guia.pptx', bytes: 1 }, 'FILE_TYPE_NOT_ALLOWED');
-  for (const ext of ['pdf', 'docx', 'pptx', 'xlsx', 'jpg', 'jpeg', 'png', 'zip']) {
-    assert.equal(validateUploadIntent({ purpose: 'material', name: `tema.${ext}`, bytes: 50_000_000 }).extension, ext);
-    rejected({ purpose: 'material', name: `tema.${ext}`, bytes: 50_000_001 }, 'FILE_TOO_LARGE');
+for (const purpose of ['plan', 'instructions', 'material', 'attachment']) {
+  test(`${purpose} accepts the five document formats at 20 MB and rejects larger files`, () => {
+    for (const extension of ['pdf', 'doc', 'docx', 'ppt', 'pptx']) {
+      const name = `tema.${extension}`;
+      assert.deepEqual(validateUploadIntent({ purpose, name, bytes: 20_000_000 }), { extension, maxBytes: 20_000_000 });
+      rejected({ purpose, name, bytes: 20_000_001 }, 'FILE_TOO_LARGE');
+    }
+  });
+}
+
+test('complementary formats are limited to materials and attachments and keep the 50 MB cap', () => {
+  for (const extension of ['xlsx', 'jpg', 'jpeg', 'png', 'zip']) {
+    const name = `tema.${extension}`;
+    for (const purpose of ['material', 'attachment']) {
+      assert.deepEqual(validateUploadIntent({ purpose, name, bytes: 50_000_000 }), { extension, maxBytes: 50_000_000 });
+      rejected({ purpose, name, bytes: 50_000_001 }, 'FILE_TOO_LARGE');
+    }
+    for (const purpose of ['plan', 'instructions']) rejected({ purpose, name, bytes: 1 }, 'FILE_TYPE_NOT_ALLOWED');
   }
 });
 
@@ -32,8 +44,8 @@ test('five 50 MB attachments pass individual policy without an extra aggregate c
   assert.equal(files.reduce((total, f) => total + f.bytes, 0), 250_000_000);
 });
 
-test('legacy, macro-enabled, audio/video and disguised extension names are rejected', () => {
-  for (const name of ['a.doc', 'a.ppt', 'a.xls', 'a.docm', 'a.pptm', 'a.xlsm', 'a.mp3', 'a.mp4', 'a.pdf.exe', 'a', '.pdf']) {
+test('unsupported legacy formats, macro-enabled, audio/video and disguised extension names are rejected', () => {
+  for (const name of ['a.xls', 'a.docm', 'a.pptm', 'a.xlsm', 'a.mp3', 'a.mp4', 'a.pdf.exe', 'a', '.pdf']) {
     rejected({ purpose: 'material', name, bytes: 10 }, 'FILE_TYPE_NOT_ALLOWED');
   }
 });

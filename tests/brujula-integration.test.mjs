@@ -17,9 +17,18 @@ test('Assigning from review saves then publishes only after an explicit assignme
   try {
     await view.flush();
     const text = node => typeof node === 'string' ? node : Array.isArray(node) ? node.map(text).join(' ') : text(node?.props?.children ?? '');
-    descendants(view.tree,n=>n.type==='button'&&text(n)==='Continuar a revisión')[0].props.onClick(); await view.flush();
+    for (const label of ['Continuar', 'Continuar a revisión', 'Publicar actividad']) {
+      const action = descendants(view.tree, node => node.type === 'button' && text(node).trim() === label)[0];
+      assert.ok(action, label);
+      action.props.onClick();
+      await view.flush();
+      assert.deepEqual(calls, []);
+      assert.deepEqual(confirmations, []);
+    }
     const assign = descendants(view.tree,n=>n.type==='button'&&text(n)==='Asignar al aula')[0];
-    assert.equal(assign.props.disabled,false);assert.equal(calls.length,0);assign.props.onClick(); await view.flush();
+    assert.equal(assign.props.disabled,false);
+    assign.props.onClick();
+    await view.flush();
     assert.deepEqual(calls.map(call=>call[2].operation.action),['save','publish']);
     assert.equal(calls.at(-1)[2].operation.id,id);
     assert.deepEqual(confirmations,[true]);

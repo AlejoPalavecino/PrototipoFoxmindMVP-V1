@@ -1,72 +1,104 @@
-.workspace { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(0, 1.8fr); align-items: start; gap: 16px; }
-.workspace, .progress { --plan-line: #dce2f0; --plan-purple: #f2eefc; --plan-peach: #fff0e1; --plan-green: #e5f4ed; --plan-muted: #555d77; }
-.workspace :is(button, a, select, summary, input):focus-visible { outline: 3px solid #9a3e00; outline-offset: 2px; }
-.progress, .detail, .unit { border: 1px solid var(--plan-line); border-radius: 19px; background: #fff; box-shadow: 0 6px 20px #25264606; min-width: 0; }
-.progress { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding: 14px 18px; margin-bottom: 16px; }
-.progress small, .unit small, .topic small { display: block; color: var(--plan-muted); }
-.progress progress, .unit progress { accent-color: #42866e; height: 8px; }
-.progress progress { flex: 1 1 100px; }
-.navigation { display: grid; gap: 10px; min-width: 0; }
-.filters { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; background: #ebeef6; border: 1px solid #e1e5f0; border-radius: 15px; }
-.workspace .filters button { flex: 1 0 auto; display: inline-flex; justify-content: center; gap: 6px; align-items: center; min-height: 44px; padding: 6px 9px; border: 1px solid transparent; border-radius: 11px; background: transparent; color: #494d67; font-size: .82rem; }
-.workspace .filters button[aria-pressed=true] { border-color: #e9c4aa; background: #fff; color: #923810; box-shadow: 0 2px 6px #34274018; }
-.filters span { background: #f4eef7; border-radius: 99px; padding-inline: 5px; }
-.unit summary { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; cursor: pointer; padding: 12px; min-height: 58px; background: var(--plan-purple); border-radius: 18px; list-style: none; overflow-wrap: anywhere; }
-.unit summary::-webkit-details-marker { display: none; }
-.unit summary::after { content: '⌄'; }
-.unit[open] summary { border-radius: 18px 18px 0 0; }
-.unit[open] summary::after { transform: rotate(180deg); }
-.unitNumber { background: #e8dff8; color: #503880; display: grid; place-items: center; border-radius: 10px; min-width: 34px; min-height: 34px; font-weight: 700; }
-.unit progress { display: block; width: calc(100% - 24px); margin: 10px 12px 4px; }
-.topicList { padding: 6px 8px 10px; display: grid; gap: 4px; }
-.topic { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: center; min-width: 0; border: 1px solid transparent; border-radius: 12px; }
-.topic[data-current=true] { background: var(--plan-peach); border-color: #efd0b7; color: #803208; }
-.topic > span { text-align: center; color: #386b56; }
-.workspace .topic button { display: block; min-height: 44px; width: 100%; padding: 6px 8px 6px 0; text-align: left; background: transparent; border: 0; border-radius: 8px; overflow-wrap: anywhere; color: inherit; }
-.check { display: grid; width: 44px; height: 44px; place-items: center; cursor: pointer; margin: 0; }
-.check input[type=checkbox] { width: 19px; height: 19px; min-height: 0; margin: 0; accent-color: #42866e; }
-.detail { padding: clamp(15px, 2vw, 24px); overflow-wrap: anywhere; scroll-margin-block: 16px; }
-.detailHeading, .completion, .pagination, .pagination div { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px 14px; }
-.detailHeading h3 { margin-top: 4px; }
-.detailHeading small { color: var(--plan-muted); }
-.badge { display: inline-flex; padding: 2px 9px; border-radius: 99px; font-size: .76rem; background: var(--plan-peach); color: #803208; }
-.badge[data-taught=true], .completion[data-taught=true] { background: var(--plan-green); color: #22543f; }
-.completion { background: var(--plan-peach); color: #633813; margin-block: 16px; padding: 13px; border-radius: 14px; }
-.completion p { margin: 3px 0 0; }
-.completion button { min-height: 44px; }
-.pagination { border-top: 1px solid var(--plan-line); margin-top: 16px; padding-top: 12px; }
-.workspace .mobile { display: none; }
-@media (max-width: 760px) {
-  .workspace { grid-template-columns: minmax(0, 1fr); }
-  .workspace .mobile { display: block; }
+/* UI Lab teaching-library: unit map, topic detail and mobile topic chooser. */
+.workspace { display:grid; grid-template-columns:minmax(202px,.75fr) minmax(0,2fr); gap:20px; align-items:start; min-width:0; }
+.navigation,.topicDialog { display:grid; gap:14px; min-width:0; }
+.unit { min-width:0; background:#fff; border:1px solid #bdccda; border-radius:16px; overflow:hidden; }
+.unit>header { background:#eaf2f8; border-bottom:1px solid #c9d8e5; padding:12px 14px; }
+.unit>header strong { display:block; font-size:15px; line-height:1.3; overflow-wrap:anywhere; }
+.unit>header small { display:block; font-size:12px; font-weight:700; color:#4a6275; margin-top:3px; }
+.topicList { display:grid; }
+.topic { min-width:0; border-bottom:1px solid #e4ebf1; }
+.topic:last-child { border-bottom:0; }
+:global(#classroom-main) :is(.workspace,.topicDialog) .topic button { display:grid; grid-template-columns:auto minmax(0,1fr) auto; justify-content:stretch; align-items:center; gap:9px; min-height:49px; width:100%; text-align:left; font-weight:800; font-size:13px; line-height:1.3; padding:7px 12px; color:#202c3d; border:0; border-radius:0; background:transparent; box-shadow:none; white-space:normal; }
+:global(#classroom-main) :is(.workspace,.topicDialog) .topic button[aria-current] { background:#fff0e5; box-shadow:inset 3px 0 #b74710; color:#8e390f; }
+:global(#classroom-main) :is(.workspace,.topicDialog) .topic button:hover { background:#f0f5f9; }
+:global(#classroom-main) :is(.workspace,.topicDialog) .topic button[aria-current]:hover { background:#ffe7d5; }
+.topic button>span { overflow-wrap:anywhere; }
+.topic button>span>small { display:block; font-size:11px; color:#4e6479; font-weight:700; margin-top:3px; }
+.topic button>svg { width:15px; height:15px; color:#506981; }
+.topicState { width:27px; height:27px; display:grid; place-items:center; color:#42617a; background:#e8f0f6; border-radius:9px; }
+.topicState[data-taught=true] { color:#315f48; background:#e3f2e9; }
+.topicState svg { width:15px; height:15px; }
+.detail { min-width:0; background:#fff; border:1px solid #bdccda; border-radius:20px; overflow:hidden; }
+.detailHeading { display:flex; align-items:center; justify-content:space-between; gap:16px; background:#fff1e5; border-bottom:1px solid #edcfb9; padding:20px 22px; }
+.detailHeading>div { min-width:0; }
+:global(#classroom-main) .workspace .detailHeading h3 { font-size:clamp(23px,3vw,29px); line-height:1.15; margin:3px 0 9px; overflow-wrap:anywhere; }
+.detailHeading small { color:#765034; font-size:12px; font-weight:800; overflow-wrap:anywhere; }
+.badge { display:inline-flex; gap:5px; align-items:center; font-size:11px; font-weight:800; border-radius:7px; padding:5px 9px; color:#315c7b; background:#e4eef7; }
+.badge svg { width:13px; height:13px; }
+.badge[data-taught=true] { background:#e2f1e8; color:#315f48; }
+:global(#classroom-main) .workspace .markTopic { display:inline-flex; align-items:center; gap:8px; flex:none; font-size:12px; min-height:40px; padding:8px 12px; background:#b74710; color:white; border:1px solid #b74710; border-radius:11px; box-shadow:none; font-weight:800; }
+:global(#classroom-main) .workspace .markTopic[aria-pressed=true] { color:#202c3d; background:transparent; border-color:transparent; }
+.markTopic svg { width:17px; height:17px; }
+.related { padding:2px 21px 12px; }
+.related>section { padding:12px 0 7px; }
+.related>section+section { border-top:1px solid #d8e2eb; padding-top:16px; }
+:global(#classroom-main) .workspace :global(.brujula-topic-resources-head) { display:flex; justify-content:space-between; align-items:center; gap:8px; min-height:38px; margin:0; padding:0; border:0; }
+:global(#classroom-main) .workspace :global(.brujula-topic-resources-head) h4 { font-size:17px; margin:0; }
+:global(#classroom-main) .workspace :global(.brujula-topic-resources-head)>button { font-size:12px; min-height:36px; padding:6px 9px; color:#202c3d; background:transparent; border:0; box-shadow:none; }
+:global(#classroom-main) .workspace :global(.fm3-plan-resource) { display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:12px; padding:11px 0; margin:0; border:0; border-bottom:1px solid #e0e7ed; border-radius:0; background:transparent; box-shadow:none; }
+:global(#classroom-main) .workspace :global(.fm3-plan-resource):last-child { border-bottom:0; }
+:global(#classroom-main) .workspace :global(.brujula-resource-disc) { width:44px; min-height:44px; padding:5px 3px; display:grid; place-content:center; justify-items:center; gap:2px; border-radius:11px; background:#e8f2fa; color:#305979; }
+:global(#classroom-main) .workspace :global(.brujula-resource-disc) svg { width:17px; height:17px; }
+:global(#classroom-main) .workspace :global(.brujula-resource-disc) small { font-size:9px; font-weight:900; }
+:global(#classroom-main) .workspace :global(.is-activity .brujula-resource-disc) { background:#e6f1e8; color:#365e49; }
+:global(#classroom-main) .workspace :global(.fm3-plan-resource)>div { min-width:0; overflow-wrap:anywhere; }
+:global(#classroom-main) .workspace :global(.fm3-plan-resource) h4 { font-size:14px; line-height:1.35; color:#202c3d; margin:0; }
+:global(#classroom-main) .workspace :global(.fm3-plan-resource) p { color:#516980; font-size:11px; font-weight:750; margin:3px 0 0; }
+:global(#classroom-main) .workspace :global(.fm3-plan-resource)>:is(button,a) { display:inline-flex; align-items:center; gap:7px; width:auto; font-size:12px; min-height:40px; max-width:100%; padding:7px 10px; white-space:normal; background:transparent; color:#202c3d; border:0; box-shadow:none; }
+:global(#classroom-main) .workspace :global(.classroom-inline-empty) { padding:9px 0 12px; margin:0; font-size:13px; line-height:1.55; color:#526579; }
+:global(#classroom-main) .workspace .unit>:global(.classroom-inline-empty) { padding:11px 14px; }
+.topicPicker { display:none!important; }
+.pickerFooter { display:flex; justify-content:flex-end; padding-top:16px; }
+.empty { grid-column:1/-1; padding:30px; background:white; border-radius:16px; text-align:center; }
+.feedback { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 12px; margin-bottom:12px; padding:10px 12px; border-radius:14px; background:#e5f4ed; color:#22543f; font-size:14px; line-height:1.6; }
+.feedback strong { display:block; overflow-wrap:anywhere; }
+:is(.workspace,.topicDialog) button:focus-visible { outline:3px solid #9a3e00; outline-offset:-3px; }
+@media(max-width:760px) {
+ .workspace { grid-template-columns:minmax(0,1fr); gap:11px; }
+ .navigation { display:none; }
+ :global(#classroom-main) .workspace .topicPicker { display:flex!important; justify-content:flex-start; align-items:center; text-align:left; background:#fff; gap:10px; min-width:0; min-height:54px; padding:10px 14px; border:1px solid #bdccda; border-radius:13px; box-shadow:none; }
+ .topicPicker>span { display:grid; line-height:1.25; flex:1; min-width:0; overflow-wrap:anywhere; }
+ .topicPicker small { font-size:11px; color:#4b6278; margin-bottom:2px; }
+ .topicPicker strong { font-size:14px; }
+ .topicPicker svg { width:19px; height:19px; flex:none; }
 }
-/* The classroom shell supplies generic button styles; keep the plan controls in their section style. */
-.workspace .filters button, .workspace .topic button { background: transparent !important; box-shadow: none !important; }
-.workspace .filters button[aria-pressed=true] { background: #fff !important; border-color: #e9c4aa !important; box-shadow: 0 2px 6px #34274018 !important; }
-.workspace .mobile { display: none !important; }
-@media (max-width: 760px) { .workspace .mobile { display: block !important; } }
-.feedback { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin-bottom: 12px; padding: 10px 12px; border-radius: 14px; background: #e5f4ed; color: #22543f; font-family:'Brújula',sans-serif; font-size:14px; line-height:1.6; }
-.feedback strong { display: block; overflow-wrap: anywhere; }
-/* Own the layout inside the classroom shell, whose generic controls also use an ID selector. */
-:global(#classroom-main) .workspace .filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-:global(#classroom-main) .workspace .filters button { min-width: 0; min-height: 44px; padding: 6px 4px; gap: 5px; }
-:global(#classroom-main) .workspace .topic button { display: grid; justify-content: stretch; justify-items: start; gap: 2px; min-width: 0; min-height: 52px; padding: 8px 10px 8px 0; border: 0; text-align: left; white-space: normal; }
-:global(#classroom-main) .workspace .topic small { display: block; font-size: 12px; font-weight: 400; line-height: 1.5; }
-:global(#classroom-main) .workspace .check { display: grid; place-items: center; align-self: center; padding: 0; margin: 0; }
-:global(#classroom-main) .workspace .check input { margin: 0; }
-:global(#classroom-main) .workspace :global(.fm3-plan-resource) { display: grid; grid-template-columns: 36px minmax(0, 1fr) 44px; align-items: center; gap: 12px; text-align: left; }
-:global(#classroom-main) .workspace :global(.fm3-plan-resource) > div { min-width: 0; width: auto; }
-:global(#classroom-main) .workspace :global(.fm3-plan-resource) > :is(button, a) { display: grid; place-items: center; width: 44px; min-height: 44px; margin: 0; padding: 8px; }
-:global(#classroom-main) .workspace :global(.brujula-topic-resources-head) { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; }
-:global(#classroom-main) .workspace :global(.brujula-topic-resources-head) > button { min-height: 44px; }
-:global(#classroom-main) .workspace .completion button { min-height: 44px; }
-:global(#classroom-main) .workspace .pagination button { min-height: 44px; }
-@media (max-width: 600px) {
-  .progress { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
-  .progress > div { grid-column: 1 / -1; }
-  .progress progress { width: 100%; min-width: 0; }
+@media(max-width:520px) {
+ .detailHeading { align-items:flex-start; flex-wrap:wrap; padding:15px; }
+ :global(#classroom-main) .workspace .markTopic { min-height:44px; }
+ .related { padding:2px 13px 10px; }
+ :global(#classroom-main) .workspace :global(.fm3-plan-resource) { column-gap:8px; }
+ :global(#classroom-main) .workspace :global(.fm3-plan-resource)>:is(button,a) { font-size:11px; padding:6px 8px; min-height:44px; }
+ :global(#classroom-main) .workspace :global(.fm3-plan-resource)>:is(button,a)>svg { display:none; }
+ :global(#classroom-main) .workspace :global(.brujula-resource-disc) { width:37px; min-height:41px; }
 }
-@media (prefers-reduced-motion: no-preference) {
-  .topic[data-completed=true] input { animation: check-in .24s ease-out; }
-  @keyframes check-in { from { transform: scale(.78); } to { transform: scale(1); } }
+
+/* Visual comparison at 1440/390: own typography against the legacy classroom cascade. */
+:global(#foxmind-product.fm3d-theme #classroom-main) .workspace .detailHeading h3 { font-family:Nunito,sans-serif; font-weight:800; color:#202c3d; letter-spacing:normal; }
+:global(#foxmind-product.fm3d-theme #classroom-main) :is(.workspace,.topicDialog) .unit>header strong { font-family:Nunito,sans-serif; font-weight:800; font-size:15px; color:#202c3d; }
+:global(#foxmind-product.fm3d-theme #classroom-main) :is(.workspace,.topicDialog) .unit>header small { color:#4a6275; font-size:12px; font-weight:700; }
+:global(#foxmind-product.fm3d-theme #classroom-main) .workspace :global(.brujula-topic-resources-head) h4 { margin:1.33em 0; font-family:Nunito,sans-serif; font-size:17px; font-weight:700; color:#202c3d; line-height:1.4; }
+:global(#foxmind-product.fm3d-theme #classroom-main) .workspace :global(.fm3-plan-resource) h4 { font-family:Nunito,sans-serif; font-size:14px; font-weight:800; line-height:1.35; color:#202c3d; }
+:global(#foxmind-product.fm3d-theme #classroom-main) .workspace :is(:global(.brujula-topic-resources-head)>button,:global(.fm3-plan-resource)>button,:global(.fm3-plan-resource)>a) { font-family:Nunito,sans-serif; font-weight:800; }
+:global(#foxmind-product.fm3d-theme #classroom-main) .summary { display:inline-flex; align-items:center; gap:7px; font-size:12px; font-weight:750; padding:11px 13px; }
+.summary svg { width:16px; height:16px; flex:none; }
+@media(max-width:520px) {
+ :global(#foxmind-product.fm3d-theme #classroom-main) .plan>:global(.p5-section-head) h2 { font-size:22px; }
+ :global(#foxmind-product.fm3d-theme #classroom-main) .workspace .detailHeading { flex-direction:column; align-items:flex-start; }
+ :global(#foxmind-product.fm3d-theme #classroom-main) .workspace .detailHeading h3 { font-size:24px; font-weight:800; }
+ :global(#foxmind-product.fm3d-theme #classroom-main) .summary { font-size:11px; padding:9px 12px; }
+}
+
+/* Reaudit: dialog titles retain the same hierarchy as the classroom surface. */
+:global(#foxmind-product.fm3d-theme #classroom-main) dialog.pickerDialog { max-height:calc(100dvh - 24px); overflow-y:auto; overscroll-behavior:contain; }
+:global(#foxmind-product.fm3d-theme #classroom-main) dialog.pickerDialog>header h2 { min-width:0; overflow-wrap:anywhere; font-family:Nunito,sans-serif; font-size:21px; font-weight:800; line-height:1.3; color:#202c3d; }
+:global(#foxmind-product.fm3d-theme #classroom-main) dialog.pickerDialog :global(.brujula-dialog-body)>p { color:#4b6176; font-size:13px; }
+@media(max-width:360px) { .topicDialog .unit>header { padding:11px 12px; } .pickerFooter>button { min-height:44px; } }
+
+/* Reaudit 601px: the legacy <=760px column rule must not center the Plan heading. */
+@media(min-width:521px) and (max-width:760px) {
+ :global(#foxmind-product.fm3d-theme #classroom-main) .plan>:global(.p5-section-head) { display:flex; flex-direction:row; flex-wrap:nowrap; align-items:center; justify-content:space-between; gap:14px; text-align:left; }
+ :global(#foxmind-product.fm3d-theme #classroom-main) .plan>:global(.p5-section-head)>div { flex:1; min-width:0; width:auto; max-width:none; margin:0; text-align:left; }
+ :global(#foxmind-product.fm3d-theme #classroom-main) .plan>:global(.p5-section-head) h2 { margin:0; font-family:Nunito,sans-serif; font-size:22px; font-weight:800; line-height:1.25; letter-spacing:-.25px; }
+ :global(#foxmind-product.fm3d-theme #classroom-main) .plan>:global(.p5-section-head) p { margin:7px 0 0; font-size:13px; line-height:1.5; }
+ :global(#foxmind-product.fm3d-theme #classroom-main) .plan>:global(.p5-section-head)>.summary { flex:none; align-self:center; font-size:11px; }
 }

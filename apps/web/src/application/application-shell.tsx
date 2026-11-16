@@ -11,5 +11,5 @@ export function ApplicationShell({ children }: { children: ReactNode }) {
     router.events.on('routeChangeComplete', focusHeading);
     return () => router.events.off('routeChangeComplete', focusHeading);
   }, [router.events]);
-  return <div className="fm3d-theme">{children}</div>;
+  return <div id="foxmind-product" className="fm3d-theme">{children}</div>;
 }

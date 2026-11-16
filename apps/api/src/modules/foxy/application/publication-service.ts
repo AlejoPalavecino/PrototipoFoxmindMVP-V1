@@ -11,7 +11,9 @@ function publicPublication(p: Publication): FoxyPublicationSummary {
 }
 function projection(value: NonNullable<Awaited<ReturnType<Options['publications']['inspect']>>>): FoxyPublicationInspection {
   const p = value.publication;
+  const snapshot = 'sourceKind' in p && 'editorialSnapshot' in value ? value.editorialSnapshot : undefined;
   return { publication: 'sourceKind' in p ? p : publicPublication(p),
+    ...(snapshot ? { editorialSnapshot: { title: snapshot.title, description: snapshot.description, revision: snapshot.revision } } : {}),
     classroomRevision: value.classroomRevision, classroomArchived: value.classroomArchived,
     errorCode: p.state !== 'FAILED' ? null : value.errorCode === 'AI_INPUT_LIMIT' || value.errorCode === 'INVALID_INPUT'
       || value.errorCode === 'FILE_NOT_READY' ? value.errorCode : 'FILE_NOT_READY' };

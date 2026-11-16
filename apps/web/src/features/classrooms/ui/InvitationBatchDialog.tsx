@@ -84,12 +84,12 @@ export function InvitationBatchDialog({ api, classroomId, onClose, onChanged }: 
       <label className={s.emailField}>Correos electrónicos<textarea autoFocus rows={6} value={text} disabled={busy || !!reservation.current}
         placeholder={'ana@ejemplo.com\njuan@ejemplo.com'} aria-describedby="invitation-email-help" onChange={event => setText(event.target.value)} /></label>
       <p id="invitation-email-help">Pegá una lista separada por comas, punto y coma o saltos de línea.</p>
-      {parsed.emails.length ? <p role="status"><strong>{parsed.emails.length} destinatarios únicos</strong>{parsed.duplicates ? ` · ${parsed.duplicates} repetidos se omitirán` : ''}</p> : null}
+      {parsed.emails.length ? <p role="status"><strong>{parsed.emails.length} {parsed.emails.length === 1 ? 'destinatario único' : 'destinatarios únicos'}</strong>{parsed.duplicates ? ` · ${parsed.duplicates} ${parsed.duplicates === 1 ? 'repetido se omitirá' : 'repetidos se omitirán'}` : ''}</p> : null}
       {parsed.invalid.length ? <Notice error>Revisá estos correos: {parsed.invalid.join(', ')}</Notice> : null}
       {parsed.emails.length > 50 ? <Notice error>El máximo es 50 destinatarios por lote. Dividí la lista para continuar.</Notice> : null}
       <footer className={s.actions}><button type="button" onClick={() => { stopped.current = true; onClose(); }}>Cerrar</button>
         <button className="primary" disabled={busy || !parsed.emails.length || !!parsed.invalid.length || parsed.emails.length > 50}>
-          {busy ? 'Preparando invitaciones…' : reservation.current ? 'Reintentar preparación' : `Invitar${parsed.emails.length ? ` a ${parsed.emails.length} personas` : ''}`}</button></footer>
+          {busy ? 'Preparando invitaciones…' : reservation.current ? 'Reintentar preparación' : `Invitar${parsed.emails.length ? ` a ${parsed.emails.length} ${parsed.emails.length === 1 ? 'persona' : 'personas'}` : ''}`}</button></footer>
     </form> : receipt ? <>
       <div className={s.batchProgress} role="status"><strong>{busy ? 'Procesando invitaciones' : pending ? 'Envío pausado' : 'Lote procesado'}</strong>
         <span>{processed} de {receipt.recipients.length} procesadas</span><progress max={receipt.recipients.length} value={processed} aria-label="Invitaciones procesadas" /></div>

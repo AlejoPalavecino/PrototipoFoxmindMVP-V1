@@ -6,10 +6,12 @@ import type { DeadlineResolution } from '../../../../src/core/contracts/activiti
 import type { Detail } from '../../../../src/core/contracts/classrooms.ts';
 import { PracticalAttempt } from '../features/participation/index.ts';
 import { QuestionnaireAttempt } from '../features/participation/index.ts';
+import { FoxmindIcon } from '../../../shared-ui/index.ts';
+import { activityDate } from '../../../shared-ui/academic-date.ts';
 import { Dialog, Notice } from '../../../shared-ui/feedback.tsx';
 import type { AttemptExitRef } from '../features/participation/index.ts';
 import styles from './academic-activity.module.css';
-import { ActivityContext } from './academic-activity-preview.tsx';
+import { ActivityContext, ActivityMaterials } from './academic-activity-preview.tsx';
 import { activityTypeLabels, EvaluationRubric } from '../features/activity-authoring/index.ts';
 import { ActivityScreen } from './academic-ActivityScreen.tsx';
 
@@ -24,12 +26,13 @@ export function AttemptSession({ api, room, initial, onClose, onChanged, onViewR
   const previousAttempt = useRef(initial.attempt?.id);
   const exitRef: AttemptExitRef = useRef(null);
   const [leaving, setLeaving] = useState(false);
+  const [tool, setTool] = useState<'guide' | 'materials' | null>(null);
   const path = `/${room.id}/activities/${initial.activity.id}`;
   const accept = useCallback((next: AttemptSessionData) => {
     // A focus read started before takeover must not replace the newer editor capability/session.
     if (next.attempt?.id === previousAttempt.current && next.attempt?.epoch !== undefined && previousEpoch.current !== undefined
       && BigInt(next.attempt.epoch) < BigInt(previousEpoch.current)) return;
-    if (previousEpoch.current !== undefined && next.attempt?.epoch !== previousEpoch.current && next.attempt?.status === 'DRAFT') setControlWarning(true);
+    if (previousEpoch.current !== undefined && next.attempt?.epoch !== previousEpoch.current && next.attempt?.status === 'DRAFT' && !next.editor) setControlWarning(true);
     previousEpoch.current = next.attempt?.epoch;
     previousAttempt.current = next.attempt?.id;
     setData(next);
@@ -55,21 +58,31 @@ export function AttemptSession({ api, room, initial, onClose, onChanged, onViewR
     if (exitRef.current?.dirty) { setError(''); setLeaving(true); }
     else onClose();
   }
-  return <ActivityScreen title={activity.title ?? 'Actividad'} label={activity.title ?? 'Actividad'} kicker={activityTypeLabels[activity.type]} onClose={requestClose}>
-    <div className={`brujula-solver-layout ${styles.solver}`}>
+  const deadline = activityDate(data.reception.deadlineAt, activity.zone);
+  const guide = <div className={styles.brief}>
+    <section className={styles.instruction}><h3>Qué tenés que hacer</h3><p className="p7-multiline">{activity.instructions || 'Sin consigna adicional.'}</p></section>
+    {activity.objective ? <section><h3>Objetivo de aprendizaje</h3><p className="p7-multiline">{activity.objective}</p></section> : null}
+    {activity.teacherComment ? <section><h3>Comentario docente</h3><p className="p7-multiline">{activity.teacherComment}</p></section> : null}
+    <EvaluationRubric criteria={activity.evaluationRubric}/>
+  </div>;
+  const tools = <div className={styles.focusTools}>
+    <button type="button" onClick={() => setTool('guide')}><FoxmindIcon name="book"/>Consigna y criterios</button>
+    <button type="button" onClick={() => setTool('materials')}><FoxmindIcon name="folder"/>Materiales</button>
+    <button type="button" disabled={busy} aria-label="Actualizar estado confirmado" onClick={() => {
+      if (!exitRef.current?.busy) void run(refresh);
+    }}><FoxmindIcon name="refresh"/>Actualizar</button>
+  </div>;
+  return <ActivityScreen title={activity.title ?? 'Actividad'} label={activity.title ?? 'Actividad'} kicker={activityTypeLabels[activity.type]}
+    metadata={deadline} subtitle={room.name} onClose={requestClose} actions={attempt?.status === 'DRAFT' ? tools : undefined} overview={attempt?.status === 'SUBMITTED'} focused>
+    <div className={attempt ? styles.focusSolver : `brujula-solver-layout ${styles.solver}`}>
     <section className="p7-attempt" aria-label={activity.type === 'EVALUATION' ? 'Evaluación · sesión reducida' : 'Sesión de actividad'}>
-      <header className={`brujula-solver-instructions ${styles.brief}`}>
-        {activity.objective ? <section><h3>Objetivo de aprendizaje</h3><p className="p7-multiline">{activity.objective}</p></section> : null}
-        <section className={styles.instruction}><h3>Qué tenés que hacer</h3><p className="p7-multiline">{activity.instructions || 'Sin consigna adicional.'}</p></section>
-        {activity.teacherComment ? <section><h3>Comentario docente</h3><p className="p7-multiline">{activity.teacherComment}</p></section> : null}
-        <EvaluationRubric criteria={activity.evaluationRubric} />
-      </header>
-      {attempt?.status === 'SUBMITTED' && onViewResult ? <button className="primary" onClick={() => onViewResult(attempt.id)}>Ver devolución</button> : null}
+      {!attempt ? guide : null}
+      {attempt?.status === 'SUBMITTED' && onViewResult ? <button className="parity-result-link" onClick={() => onViewResult(attempt.id)}>Consultar devolución</button> : null}
       {error ? <Notice error>{error} No se confirmaron cambios. Vuelve a consultar el estado antes de continuar.</Notice> : null}
       {controlWarning && attempt?.status === 'DRAFT' ? <Notice>Recuperamos tus respuestas guardadas. Los cambios sin guardar de otra pestaña no se transfieren.</Notice> : null}
       {!data.expected ? <Notice>Solo consulta: esta actividad no forma parte de tus entregas esperadas. El docente puede habilitar la primera entrega con un plazo individual futuro.</Notice> : null}
       {data.archived ? <Notice>Aula archivada: solo consulta.</Notice> : !data.reception.open ? <Notice>Recepción cerrada. Puedes consultar el estado confirmado; comenzar o abrir antes no reserva una entrega a tiempo.</Notice> : null}
-      {attempt ? <><p>Intento {attempt.number} · {attempt.status === 'SUBMITTED' ? 'Entregado · solo consulta' : 'Borrador · todavía sin entregar'}</p>
+      {attempt ? <><p className="sr-only">Intento {attempt.number} · {attempt.status === 'SUBMITTED' ? 'Entregado · solo consulta' : 'Borrador · todavía sin entregar'}</p>
         {attempt.status === 'DRAFT' && !ownsEditor && data.canTransfer ? <div className="student-resume"><p>Tu borrador guardado está listo. Para seguir trabajando, activá la edición en esta pestaña.</p>
           <button className="primary" disabled={busy} onClick={() => setConfirm(true)}>Continuar en esta pestaña</button></div> : null}
       </> : data.canStart ? <p>{activity.type === 'ASSIGNMENT' ? 'Abrir las instrucciones inicia el primer intento y bloquea su contenido.' : 'Consultar no inicia un intento. Presiona Comenzar cuando quieras iniciarlo.'}</p> : null}
@@ -79,6 +92,7 @@ export function AttemptSession({ api, room, initial, onClose, onChanged, onViewR
           <button className="primary" disabled={busy} onClick={() => void run(async () => {
             if (!api.attempt) throw new Error('El flujo de intentos no está disponible.');
             accept(await api.attempt<AttemptSessionData>(`/${room.id}/attempts/${attempt.id}/transfer`, { revision: attempt.revision }));
+            setControlWarning(false);
             setConfirm(false);
           })}>Confirmar transferencia</button></div>
       </section> : null}
@@ -86,17 +100,18 @@ export function AttemptSession({ api, room, initial, onClose, onChanged, onViewR
         if (!api.attempt) throw new Error('El flujo de intentos no está disponible.');
         accept(await api.attempt<AttemptSessionData>(`${path}/start`, {})); await onChanged();
       })}>{activity.type === 'ASSIGNMENT' ? 'Abrir instrucciones e iniciar intento' : 'Comenzar'}</button> : null}
-      {activity.instructionFiles.length ? <ul>{activity.instructionFiles.map(file => <li key={file.id}>{file.ready ? <><a href={api.fileUrl(file.id)} target="_blank" rel="noreferrer">Descargar {file.name}</a>
-        {file.extension === 'pdf' ? <> · <a href={api.fileUrl(file.id, true)} target="_blank" rel="noreferrer">Vista previa PDF</a></> : null}</> : `${file.name} · No disponible por revisión de seguridad`}</li>)}</ul> : null}
       {!attempt ? activity.questions.map((question, index) => <article key={question.id ?? index}>
         <h4>Pregunta {index + 1} · {question.points} puntos</h4><p className="p7-multiline">{question.prompt}</p>
         <ul>{question.options.map(option => <li key={option.id ?? option.text}>{option.text}</li>)}</ul>
       </article>) : null}
-      {activity.type === 'ASSIGNMENT' ? <PracticalAttempt key={`${attempt?.id}:${attempt?.epoch}`} api={api} classroomId={room.id} data={data} editor={ownsEditor ? editor : null} refresh={refresh} exitRef={exitRef} />
+      {activity.type === 'ASSIGNMENT' ? <PracticalAttempt key={`${attempt?.id}:${attempt?.epoch}`} api={api} classroomId={room.id} data={data} editor={ownsEditor ? editor : null} refresh={refresh} exitRef={exitRef} onClose={onClose} />
         : attempt ? <QuestionnaireAttempt key={`${attempt.id}:${attempt.epoch}:${ownsEditor ? 'edit' : 'view'}`} api={api} classroomId={room.id}
-          data={data} editor={ownsEditor ? editor : null} refresh={refresh} exitRef={exitRef} /> : null}
-      <footer className="p5-form-footer"><button disabled={busy} onClick={() => void run(refresh)}>Actualizar estado confirmado</button></footer>
-    </section><ActivityContext api={api} activity={activity} room={room} effectiveDeadlineAt={data.reception.deadlineAt}/></div>
+          data={data} editor={ownsEditor ? editor : null} refresh={refresh} exitRef={exitRef} onClose={onClose} /> : null}
+      {!attempt && error ? <button className={styles.refreshAttempt} disabled={busy} onClick={() => void run(refresh)}>Actualizar estado confirmado</button> : null}
+    </section>{!attempt ? <ActivityContext api={api} activity={activity} room={room} effectiveDeadlineAt={data.reception.deadlineAt}/> : null}</div>
+    {tool ? <Dialog title={tool === 'guide' ? 'Consigna y criterios' : 'Materiales de la actividad'} onClose={() => setTool(null)}>
+      {tool === 'guide' ? guide : <ActivityMaterials api={api} activity={activity}/>}
+    </Dialog> : null}
     {leaving ? <Dialog title="Volver a actividades" onClose={() => { if (!busy) setLeaving(false); }}>
       <p>Hay cambios sin guardar. Podés seguir trabajando o salir con el último borrador guardado.</p>
       {error ? <Notice error>{error}</Notice> : null}

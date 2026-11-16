@@ -1,0 +1,22 @@
+{
+  "width": 1440,
+  "clientWidth": 1440,
+  "height": 900,
+  "scrollWidth": 1440,
+  "headings": [
+    {
+      "text": "Mis aulas",
+      "font": "850 40px / 46px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 300.8000183105469,
+        "y": 89.30000305175781,
+        "width": 648,
+        "height": 46,
+        "top": 89.30000305175781,
+        "right": 948.8000183105469,
+        "bottom": 135.3000030517578,
+        "left": 300.8000183105469
+      }
+    }
+  ]
+}

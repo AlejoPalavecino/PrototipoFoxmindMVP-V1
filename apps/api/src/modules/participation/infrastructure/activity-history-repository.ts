@@ -7,9 +7,15 @@ export const repository: Omit<ActivityHistoryRepository, 'readActivityTopics'> =
  activityEvent,
 
  requireReady,
+ expectedStudents(tx,...values) {return tx.query<Awaited<ReturnType<ActivityHistoryRepository['expectedStudents']>>[number]>(`SELECT e.student_id AS "studentId",u.first_name AS "firstName",u.last_name AS "lastName"
+      FROM student_activities sa JOIN enrollments e ON e.id=sa.enrollment_id JOIN users u ON u.id=e.student_id
+      WHERE sa.classroom_id=$1::uuid AND sa.activity_id=$2::uuid AND sa.is_expected
+      AND EXISTS(SELECT 1 FROM membership_periods m WHERE m.enrollment_id=e.id AND m.ended_at IS NULL)
+      ORDER BY u.last_name,u.first_name,e.student_id`,...values);},
  history(tx,...values) {return tx.query<Awaited<ReturnType<ActivityHistoryRepository['history']>>[number]>(`SELECT a.id,a.attempt_number AS number,a.status::text,a.opened_at AS "openedAt",
       a.submitted_at AS "submittedAt",a.applied_deadline_at AS "appliedDeadlineAt",a.individual_deadline_at AS "individualDeadlineAt",
-      a.submitted_late AS "submittedLate",COALESCE(g.is_published,false) AS "gradePublished",e.student_id AS "studentId",u.first_name AS "firstName",u.last_name AS "lastName",
+      a.submitted_late AS "submittedLate",COALESCE(g.is_published,false) AS "gradePublished",
+      CASE WHEN g.is_published THEN 'published' WHEN g.id IS NOT NULL THEN 'saved' ELSE 'pending' END AS "reviewState",e.student_id AS "studentId",u.first_name AS "firstName",u.last_name AS "lastName",
       EXISTS(SELECT 1 FROM membership_periods m WHERE m.enrollment_id=e.id AND m.ended_at IS NULL) AS "currentMember"
       FROM attempts a JOIN student_activities sa ON sa.id=a.student_activity_id JOIN enrollments e ON e.id=sa.enrollment_id
       JOIN users u ON u.id=e.student_id LEFT JOIN attempt_grades g ON g.attempt_id=a.id WHERE sa.classroom_id=$1::uuid AND a.activity_id=$2::uuid

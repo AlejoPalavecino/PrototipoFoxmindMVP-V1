@@ -22,7 +22,13 @@ export function changeDraftStart(draft: EventDraft, value: { date?: string; time
   const next = { ...draft, startDate: value.date ?? draft.startDate, startTime: value.time ?? draft.startTime,
     ...(changed ? { startOffset: undefined } : {}) };
   if (!next.untilEdited && validDraftDate(next.startDate)) next.until = shiftDay(next.startDate, 28);
-  return changed && next.endMode === 'DURATION' ? durationEnd(next) : next;
+  if (next.startDate !== draft.startDate && (draft.allDay || draft.endMode === 'MANUAL') &&
+      draft.endDate === draft.startDate && validDraftDate(next.startDate)) {
+    // A single date is one control in the editor; its hidden end date follows it.
+    next.endDate = next.startDate;
+    next.endOffset = undefined;
+  }
+  return changed && !next.allDay && next.endMode === 'DURATION' ? durationEnd(next) : next;
 }
 export function setDraftDuration(draft: EventDraft, minutes: 30 | 60 | 90): EventDraft {
   return durationEnd({ ...draft, durationMinutes: minutes, endMode: 'DURATION' });

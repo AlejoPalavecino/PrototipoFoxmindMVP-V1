@@ -67,7 +67,7 @@ export function createFoxyPublicationRepository() {
         WHERE p.id=$1::uuid AND p.owner_id=$2::uuid
         AND (c.context_kind='GENERAL' OR EXISTS (SELECT 1 FROM classrooms origin WHERE origin.id=c.classroom_id AND origin.teacher_id=p.owner_id))`, publicationId, owner);
       if (!row) {
-        const [visual] = await tx.query<{ id: string; source_asset_id: string; source_asset_revision: bigint; classroom_id: string; unit_id: string|null; topic_id: string|null; title: string; state: FoxyPublicationState; revision: bigint; classroom_revision: bigint; classroom_archived: boolean; error_code: string|null }>(`SELECT p.*,a.revision AS classroom_revision,(a.archived_at IS NOT NULL) AS classroom_archived
+        const [visual] = await tx.query<{ id: string; source_asset_id: string; source_asset_revision: bigint; source_editorial_revision: bigint | null; snapshot_title: string; snapshot_description: string | null; classroom_id: string; unit_id: string|null; topic_id: string|null; title: string; state: FoxyPublicationState; revision: bigint; classroom_revision: bigint; classroom_archived: boolean; error_code: string|null }>(`SELECT p.*,a.revision AS classroom_revision,(a.archived_at IS NOT NULL) AS classroom_archived
           FROM foxy_publications p JOIN users u ON u.id=p.owner_id AND u.account_role='teacher' AND u.email_verified_at IS NOT NULL
           JOIN classrooms a ON a.id=p.classroom_id AND a.teacher_id=p.owner_id
           JOIN foxy_visual_assets v ON v.id=p.source_asset_id AND v.owner_id=p.owner_id
@@ -75,8 +75,8 @@ export function createFoxyPublicationRepository() {
           WHERE p.id=$1::uuid AND p.owner_id=$2::uuid AND p.source_kind='VISUAL'
           AND (c.context_kind='GENERAL' OR EXISTS (SELECT 1 FROM classrooms origin WHERE origin.id=c.classroom_id AND origin.teacher_id=p.owner_id))`,publicationId,owner);
         if (!visual) return fail('NOT_FOUND');
-        const publication: FoxyVisualPublicationSummary = { id:visual.id,sourceKind:'VISUAL',assetId:visual.source_asset_id,assetRevision:String(visual.source_asset_revision),classroomId:visual.classroom_id,unitId:visual.unit_id,topicId:visual.topic_id,title:visual.title,state:visual.state,revision:String(visual.revision) };
-        return { publication, classroomRevision:String(visual.classroom_revision),classroomArchived:visual.classroom_archived,errorCode:visual.error_code };
+        const publication: FoxyVisualPublicationSummary = { id:visual.id,sourceKind:'VISUAL',assetId:visual.source_asset_id,assetRevision:String(visual.source_asset_revision),editorialRevision:String(visual.source_editorial_revision ?? 0),classroomId:visual.classroom_id,unitId:visual.unit_id,topicId:visual.topic_id,title:visual.title,state:visual.state,revision:String(visual.revision) };
+        return { publication, editorialSnapshot: { title: visual.snapshot_title, description: visual.snapshot_description, revision: visual.source_editorial_revision === null ? null : String(visual.source_editorial_revision) }, classroomRevision:String(visual.classroom_revision),classroomArchived:visual.classroom_archived,errorCode:visual.error_code };
       }
       return { publication: view(row), classroomRevision: String(row.classroom_revision), classroomArchived: row.classroom_archived,
         errorCode: row.error_code };
@@ -100,6 +100,11 @@ export function createFoxyPublicationRepository() {
       }
       await destination(tx, owner, v);
       if (String(resource.revision) !== v.resourceRevision) return fail('CONFLICT');
+      const [duplicate] = await tx.query<Row>(`SELECT * FROM foxy_publications
+        WHERE owner_id=$1::uuid AND resource_id=$2::uuid AND resource_revision=$3::bigint AND classroom_id=$4::uuid
+        AND state<>'DISCARDED' ORDER BY (state='PUBLISHED') DESC,created_at,id LIMIT 1`,
+      owner,resourceId,v.resourceRevision,v.classroomId);
+      if (duplicate) return { created: false, publication: view(duplicate) };
       const [row] = await tx.query<Row>(`INSERT INTO foxy_publications(id,owner_id,request_id,input_hash,resource_id,resource_revision,
         snapshot_title,snapshot_markdown,classroom_id,unit_id,topic_id,title) VALUES($1::uuid,$2::uuid,$3::uuid,$4,$5::uuid,$6::bigint,$7,$8,$9::uuid,$10::uuid,$11::uuid,$12) RETURNING *`,
       randomUUID(), owner, v.requestId, hash, resourceId, v.resourceRevision, resource.title, resource.markdown, v.classroomId, v.unitId, v.topicId, v.title);

@@ -1,0 +1,39 @@
+{
+  "app": {
+    "cardTransform": "matrix(1, 0, 0, 1, 0, -3)",
+    "cardTransition": "transform 0.18s, border-color 0.18s",
+    "buttonTransition": "background 0.16s, border-color 0.16s, transform 0.16s",
+    "buttonBackground": "rgb(183, 71, 16)",
+    "reduced": {
+      "cardTransition": "none 1e-05s",
+      "buttonTransition": "none 1e-05s",
+      "matches": true
+    }
+  },
+  "reference": {
+    "cardTransform": "matrix(1, 0, 0, 1, 0, -3)",
+    "cardTransition": "transform 0.18s, border-color 0.18s",
+    "buttonTransition": "background 0.16s, border-color 0.16s, transform 0.16s",
+    "buttonBackground": "rgb(183, 71, 16)",
+    "reduced": {
+      "cardTransition": "none",
+      "buttonTransition": "none",
+      "matches": true
+    }
+  },
+  "responsive-320": {
+    "width": 320,
+    "scrollWidth": 305,
+    "outside": []
+  },
+  "responsive-768": {
+    "width": 768,
+    "scrollWidth": 753,
+    "outside": []
+  },
+  "responsive-1000": {
+    "width": 1000,
+    "scrollWidth": 985,
+    "outside": []
+  }
+}

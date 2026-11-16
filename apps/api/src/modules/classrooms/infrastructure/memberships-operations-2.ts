@@ -64,7 +64,7 @@ export function membersOperation(capability: MembershipAccess, request: unknown,
       if (room.teacher_id !== actor.id)
         return rows
           .filter((r) => r.active)
-          .map((r) => ({ firstName: r.first_name, lastName: r.last_name }));
+          .map((r) => ({ firstName: r.first_name, lastName: r.last_name, isSelf: r.student_id === actor.id }));
       const filtered = rows.filter((r) => (history ? !r.active : r.active));
       const periods = await membershipPeriods(tx, id);
       return filtered.map((r) => ({
@@ -86,7 +86,7 @@ async function revokePendingInvitations(tx: Transaction, id: string, target: str
       await tx.query(
         `UPDATE invitations SET revoked_at=clock_timestamp(),updated_at=clock_timestamp()
         WHERE classroom_id=$1::uuid AND recipient_email_normalized=(SELECT email_normalized FROM users WHERE id=$2::uuid)
-        AND accepted_at IS NULL AND revoked_at IS NULL RETURNING id`,
+        AND accepted_at IS NULL AND revoked_at IS NULL AND declined_at IS NULL RETURNING id`,
         id,
         target,
       );

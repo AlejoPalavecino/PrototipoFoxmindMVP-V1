@@ -2,16 +2,18 @@ import type { ChatAttachment } from '../../../../src/core/contracts/chat-attachm
 
 const root = '/api/v1/chat-attachments';
 export const teacherAttachmentPath = (conversationId: string) => `${root}/teacher/${encodeURIComponent(conversationId)}`;
+export const teacherAttachmentFilePath = (conversationId: string, attachmentId: string) =>
+  `${teacherAttachmentPath(conversationId)}/${encodeURIComponent(attachmentId)}/file?mode=preview`;
 export const studentAttachmentPath = (folderId: string, conversationId: string) =>
   `${root}/student/${encodeURIComponent(folderId)}/${encodeURIComponent(conversationId)}`;
 
 const messages: Record<string, string> = {
-  INVALID_INPUT: 'Elegí un PDF o DOCX con un nombre de hasta 120 caracteres.',
+  INVALID_INPUT: 'Elegí un PDF, Word o PowerPoint con un nombre de hasta 120 caracteres.',
   INVALID_UPLOAD: 'El archivo está vacío o supera el límite de 20 MB.',
   REQUEST_TOO_LARGE: 'El archivo supera el límite de 20 MB.',
   QUOTA_EXCEEDED: 'No hay espacio disponible. Podés quitar un adjunto o desmarcar la copia en carpeta.',
   FILE_REJECTED: 'El archivo no pasó la validación. Elegí otro documento.',
-  FILE_NOT_READY: 'Foxy no pudo leer el documento. Probá con otro PDF o DOCX.',
+  FILE_NOT_READY: 'Foxy no pudo leer el documento. Probá con otro documento compatible.',
   FORBIDDEN: 'Este chat ya no permite el cambio. Actualizá la conversación.',
   AUTH_REQUIRED: 'Volvé a iniciar sesión para acceder a tus archivos.',
 };

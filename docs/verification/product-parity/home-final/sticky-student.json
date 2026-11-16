@@ -1,0 +1,32 @@
+[
+  {
+    "width": 390,
+    "header": {
+      "scrollY": 673.5999755859375,
+      "top": 0,
+      "height": 60,
+      "position": "sticky",
+      "visibleAtMenu": true
+    },
+    "after": {
+      "scrollY": 673.5999755859375,
+      "focus": "Abrir menú de navegación",
+      "dialogOpen": false
+    }
+  },
+  {
+    "width": 768,
+    "header": {
+      "scrollY": 457.6000061035156,
+      "top": 0,
+      "height": 64,
+      "position": "sticky",
+      "visibleAtMenu": true
+    },
+    "after": {
+      "scrollY": 457.6000061035156,
+      "focus": "Abrir menú de navegación",
+      "dialogOpen": false
+    }
+  }
+]

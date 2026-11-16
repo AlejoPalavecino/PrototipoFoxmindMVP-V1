@@ -1,9 +1,8 @@
 'use client';
 import type { Payload } from '../../src/core/contracts/classrooms.ts';
-import { FoxmindIllustration } from './index.ts';
+import { learningCover } from './parity-assets.ts';
 // Compatibility for classroom consumers; generic feedback belongs to shared UI.
 
-import { classroomCoverAsset } from '../../src/core/domain/index.ts';
 export const coverCatalog = [
   { key: 'literature', label: 'Literatura' },
   { key: 'math', label: 'Matemática' },
@@ -19,10 +18,8 @@ export function coverOptions(current?: string) {
 }
 export function Cover({ kind = 'explore', priority = false }: { kind?: string; priority?: boolean }) {
   const selected = coverCatalog.find((cover) => cover.key === kind) ?? coverCatalog[6];
-  const asset = classroomCoverAsset(kind);
   return <div className={`folder-cover fm3-cover folder-cover-${selected.key}`}>
-    <FoxmindIllustration name={`covers/${asset}`} className="folder-cover-art" priority={priority}
-      sizes="(max-width: 600px) calc(100vw - 48px), (max-width: 1100px) 45vw, 360px" />
+    <img src={learningCover(kind)} className="folder-cover-art" alt="" loading={priority ? 'eager' : 'lazy'} decoding="async" />
   </div>;
 }
 

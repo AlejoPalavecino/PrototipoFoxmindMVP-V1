@@ -12,106 +12,142 @@ const text = node => typeof node === 'string' || typeof node === 'number' ? Stri
   Array.isArray(node) ? node.map(text).join(' ') : text(node?.props?.children ?? '');
 const error = { status: 'error', code: 'SERVICE_UNAVAILABLE', retryable: true };
 
-function expandGroups(node) {
-  if (Array.isArray(node)) return node.map(expandGroups);
-  if (!node || typeof node !== 'object') return node;
-  if (['HomeLearningGroups', 'HomeFocus'].includes(node.type?.name)) return expandGroups(node.type(node.props));
-  return { ...node, props: { ...node.props, children: expandGroups(node.props?.children) } };
+const find = (tree, name) => descendants(tree, node => node.type?.name === name)[0];
+function button(tree, pattern) {
+  const control = descendants(tree, node => node.type === 'button' && pattern.test(node.props['aria-label'] ?? text(node).trim()))[0];
+  assert.ok(control, `Missing button: ${pattern}`);
+  return control;
 }
+const render = component => component.type(component.props);
 
-async function withHome(aggregate, body, accountRole = 'teacher') {
-  const previous = { window: globalThis.window, document: globalThis.document, frame: globalThis.requestAnimationFrame };
+async function withHome(aggregate, body, accountRole = 'teacher', { readPage = options => aggregate.modules[options.module], agendaClient } = {}) {
+  const previous = { window: globalThis.window };
   globalThis.window = new EventTarget();
-  const focus = [], requests = [], calls = [];
-  globalThis.document = { querySelector: selector => ({ focus: () => focus.push(selector) }) };
-  globalThis.requestAnimationFrame = callback => callback();
+  const requests = [], calls = [];
   const client = {
     read: async options => { requests.push(options); return aggregate; },
     page: async options => {
       requests.push(options);
       return { subjectId: aggregate.subjectId, generatedAt: aggregate.generatedAt,
-        module: options.module, page: aggregate.modules[options.module] };
+        module: options.module, page: readPage(options) };
     },
   };
   const { Home } = loadTsModule('apps/web/src/features/home/ui/Home.tsx');
-  const view = hookView(Home, { accountRole, displayName: 'Alex', subjectId: 'subject', homeClient: client,
-    onCreate() {}, onJoin() {}, onClassrooms: () => calls.push('classrooms'), onAgenda() {}, onAction: target => calls.push(target) });
-  try { await view.flush(); await body({ view, focus, requests, calls, client }); }
+  const view = hookView(Home, { accountRole, displayName: 'Alex', subjectId: 'subject', homeClient: client, agendaClient,
+    onCreate: () => calls.push('create'), onJoin: () => calls.push('join'), onClassrooms: () => calls.push('classrooms'),
+    onAgenda() {}, onAction: target => calls.push(target) });
+  try { await view.flush(); await body({ view, requests, calls, client }); }
   finally {
     view.close();
-    for (const [key, value] of [['window', previous.window], ['document', previous.document], ['requestAnimationFrame', previous.frame]]) {
+    for (const [key, value] of [['window', previous.window]]) {
       if (value === undefined) delete globalThis[key]; else globalThis[key] = value;
     }
   }
 }
 
-test('Empty participation greeting suggests only the action available to the account role', async t => {
-  for (const [role, expected, forbidden] of [
-    ['teacher', /crea/i, /ún(e|i)te|unirte/i],
-    ['student', /ún(e|i)te|unirte/i, /crea/i],
+test('Empty participation offers the correct classroom action for each account role', async t => {
+  for (const [role, label, action, forbidden] of [
+    ['teacher', /^Crear mi primera aula$/, 'create', /unirme con código/i],
+    ['student', /^Unirme con código$/, 'join', /crear mi primera aula/i],
   ]) await t.test(role, async () => {
-    await withHome(data({}, { participation: 'none', memberships: { study: 0, teach: 0, archived: 0 } }), async ({ view }) => {
-      const greeting = descendants(view.tree, node => node.type?.name === 'HomeGreeting')[0];
-      assert.ok(greeting, 'Home greeting is rendered');
-      const accessibleMessage = descendants(greeting.type(greeting.props), node => node.props?.className === 'sr-only')[0];
-      assert.ok(accessibleMessage, 'Participation message is available to assistive technology');
-      assert.match(text(accessibleMessage), expected);
-      assert.doesNotMatch(text(accessibleMessage), forbidden);
+    await withHome(data({}, { participation: 'none', memberships: { study: 0, teach: 0, archived: 0 } }), async ({ view, calls }) => {
+      assert.doesNotMatch(text(view.tree), forbidden);
+      button(view.tree, label).props.onClick();
+      assert.deepEqual(calls, [action]);
     }, role);
   });
 });
 
-test('Home renders the approved role sections and retries every failed source including classroom shortcuts', async () => {
-  for (const role of ['teacher', 'student']) {
-    await withHome(data(Object.fromEntries(names.map(name => [name, error]))), async ({ view, requests }) => {
-      const modules = descendants(expandGroups(view.tree), node => node.type?.name === 'HomeModule');
-      const expected = role === 'teacher' ? ['review', 'queries', 'classrooms', 'drafts'] : ['pending', 'feedback'];
-      assert.deepEqual(modules.map(node => node.props.name), expected);
-      if (role === 'student') assert.deepEqual(modules.map(node => node.props.title), ['Mis entregas', 'Mis devoluciones']);
-      for (const module of modules) {
-        const retry = descendants(module.type(module.props), node => node.type === 'button' && text(node).startsWith('Reintentar'))[0];
-        assert.ok(retry, module.props.name); retry.props.onClick(); await view.flush();
-      }
-      const agenda = descendants(view.tree, node => node.type?.name === 'HomeMiniagenda')[0];
-      const agendaView = hookView(agenda.type, agenda.props);
-      try {
-        await agendaView.flush();
-        const retry = descendants(agendaView.tree, node => node.type === 'button' && text(node) === 'Reintentar agenda')[0];
-        assert.ok(retry, 'Miniagenda failure retains its own retry'); retry.props.onClick(); await view.flush();
-      } finally { agendaView.close(); }
-      const shortcuts = descendants(view.tree, node => node.type?.name === (role === 'teacher' ? 'HomeTeacherTools' : 'HomeShortcuts'))[0];
-      const actionComponent = role==='teacher'?shortcuts:shortcuts.type(shortcuts.props);
-      const actions = hookView(actionComponent.type, actionComponent.props);
-      try {
-        await actions.flush();
-        if(role==='teacher'){
-          descendants(actions.tree,node=>node.type==='button'&&text(node).trim()==='Crear actividad')[0].props.onClick();await actions.flush();
-          const picker=descendants(actions.tree,node=>node.type?.name==='HomeRoomPicker')[0];
-          const pickerView=hookView(picker.type,picker.props);
-          try{
-            await pickerView.flush();assert.match(text(pickerView.tree),/No pudimos cargar tus aulas/);
-            descendants(pickerView.tree,node=>node.type==='button'&&text(node)==='Reintentar')[0].props.onClick();await pickerView.flush();
-          }finally{pickerView.close();}
-        }else{
-        assert.match(text(actions.tree), /No pudimos cargar tus aulas/);
-        assert.equal(descendants(actions.tree, node => node.props?.className === 'fm-home-shortcut-grid').length, 0);
-        descendants(actions.tree, node => node.type === 'button' && text(node) === 'Reintentar aulas')[0].props.onClick();
-        await view.flush();
-        }
-      } finally { actions.close(); }
-      assert.deepEqual(requests.slice(1).map(request => request.module), [...expected, 'agenda', 'classrooms']);
-    }, role);
+test('Student greeting resumes the first open activity and only consults a closed activity', async () => {
+  const classroom = { id: 'student-room', name: 'Ciencias', role: 'student', archived: false };
+  const makePending = (id, reception) => ({
+    id, title: id, classroom, reception, activityType: 'ASSIGNMENT', attemptId: null, deadlineAt: null,
+    target: { kind: 'activity', classroomId: classroom.id, activityId: id },
+  });
+  const closed = makePending('closed', 'closed');
+  const open = makePending('open', 'open');
+  for (const [items, label, target] of [
+    [[closed, open], /^Continuar actividad$/, { ...open.target, mode: 'respond' }],
+    [[closed], /^Consultar actividad$/, closed.target],
+  ]) {
+    await withHome(data({ pending: page(items.length, { items }) }), async ({ view, calls }) => {
+      const greeting = render(find(view.tree, 'HomeGreeting'));
+      assert.equal(descendants(greeting, node => node.type === 'button').length, 1);
+      button(greeting, label).props.onClick();
+      assert.deepEqual(calls, [target]);
+    }, 'student');
   }
 });
 
-test('Warm Home removes the resources disclosure and refresh control from the normal view', async () => {
+test('Home retries each visible failed source in its role-specific section and in the classroom picker', async () => {
+  for (const role of ['teacher', 'student']) {
+    const agendaRequests = [];
+    const agendaClient = { list: async (range, cursor, signal) => {
+      agendaRequests.push({ range, cursor, signal });
+      if (agendaRequests.length === 1) throw new Error('Temporary agenda failure');
+      return { items: [], nextCursor: null };
+    } };
+    await withHome(data(Object.fromEntries(names.map(name => [name, error]))), async ({ view, requests }) => {
+      const retry = /^Reintentar/;
+      const priority = () => render(find(view.tree, 'HomePriorities'));
+      button(priority(), retry).props.onClick();
+      await view.flush();
+      if (role === 'teacher') {
+        button(priority(), /^Consultas/).props.onClick();
+        await view.flush();
+        button(priority(), retry).props.onClick();
+        await view.flush();
+      }
+      assert.equal(find(view.tree, 'HomeModule'), undefined, 'Inicio ya no incluye borradores ni devoluciones');
+
+      const agenda = find(view.tree, 'HomeMiniagenda');
+      const agendaView = hookView(agenda.type, agenda.props);
+      try {
+        await agendaView.flush();
+        assert.equal(agendaRequests.length, 1);
+        button(agendaView.tree, /^Reintentar agenda$/).props.onClick();
+        await agendaView.flush();
+        assert.deepEqual(agendaRequests.map(({ range, cursor }) => ({ range, cursor })), Array(2).fill({
+          range: { startDate: '2026-10-26', endDateExclusive: '2026-11-02', timeZone: 'UTC' }, cursor: null,
+        }));
+        assert.equal(agendaRequests[0].signal.aborted, true);
+        assert.doesNotMatch(text(agendaView.tree), /No pudimos cargar tu agenda/);
+      } finally { agendaView.close(); }
+
+      const cards = render(find(view.tree, 'HomeClassCards'));
+      assert.match(text(cards), /No pudimos cargar tus aulas/);
+      button(cards, retry).props.onClick();
+      await view.flush();
+
+      if (role === 'teacher') {
+        button(render(find(view.tree, 'HomeGreeting')), /^Crear actividad$/).props.onClick();
+        await view.flush();
+        const picker = find(view.tree, 'HomeRoomPicker');
+        const pickerView = hookView(picker.type, picker.props);
+        try {
+          await pickerView.flush();
+          assert.match(text(pickerView.tree), /No pudimos cargar tus aulas/);
+          button(pickerView.tree, retry).props.onClick();
+          await pickerView.flush();
+        } finally { pickerView.close(); }
+      }
+      assert.deepEqual(requests.slice(1).map(request => request.module), role === 'teacher'
+        ? ['review', 'queries', 'classrooms', 'classrooms']
+        : ['pending', 'classrooms']);
+    }, role, { agendaClient });
+  }
+});
+
+test('Home keeps its main widgets and decorative illustration inside the welcome layout', async () => {
   await withHome(data(), async ({ view }) => {
-    assert.equal(descendants(view.tree, node => node.props?.className === 'fm-home-resources').length, 0);
     assert.equal(descendants(view.tree, node => node.props?.['aria-label'] === 'Actualizar Inicio').length, 0);
-    assert.equal(descendants(view.tree, node => node.props?.className === 'fm-brujula-home-layout').length, 1);
-    const greeting = descendants(view.tree, node => node.type?.name === 'HomeGreeting')[0];
-    const art = descendants(greeting.type(greeting.props), node => node.props?.className === 'fm-home-panorama')[0];
-    assert.ok(art, 'The panoramic illustration belongs to the welcome banner');
+    assert.ok(find(view.tree, 'HomePriorities'));
+    assert.ok(find(view.tree, 'HomeMiniagenda'));
+    const greeting = render(find(view.tree, 'HomeGreeting'));
+    const art = descendants(greeting, node => node.props?.className === 'home-illustration')[0];
+    assert.ok(art);
+    assert.equal(art.props['aria-hidden'], 'true');
+    assert.equal(descendants(art, node => node.type === 'img')[0].props.alt, '');
   });
 });
 
@@ -166,11 +202,12 @@ for (const teacher of [true, false]) test(`Contextual ${teacher ? 'teacher' : 's
 
 test('Unknown classroom totals and unavailable queues do not become fabricated zero counts', async () => {
   await withHome(data({ review: error, queries: page(null), pending: page(null), classrooms: error }), async ({ view }) => {
-    const greeting = descendants(view.tree, node => node.type?.name === 'HomeGreeting')[0];
-    assert.match(text(greeting.type(greeting.props)), /Tu espacio para aprender y enseñar/);
-    assert.doesNotMatch(text(greeting.type(greeting.props)), /0 entregas|0 consultas/);
-    const tabs = descendants(view.tree, node => node.props?.['aria-label'] === 'Filtrar pendientes')[0];
-    assert.deepEqual(descendants(tabs, node => node.type === 'span').map(node => node.props.children), [null, null]);
+    const greeting = render(find(view.tree, 'HomeGreeting'));
+    assert.match(text(greeting), /Un espacio para tus ideas y tus próximos pasos/);
+    assert.doesNotMatch(text(greeting), /0 entregas|0 consultas/);
+    const priorities = render(find(view.tree, 'HomePriorities'));
+    const tabs = descendants(priorities, node => node.props['aria-label'] === 'Pendientes docentes')[0];
+    assert.deepEqual(descendants(tabs, node => node.type === 'span').map(node => node.props.children), ['—', '—']);
   });
 });
 
@@ -178,79 +215,101 @@ test('Home rejects another subject and clears private modules after a revoked cl
   await withHome(data({}, { subjectId: 'another-subject' }), async ({ view }) => {
     assert.equal(descendants(view.tree, node => node.type?.name === 'HomeModule').length, 0);
     assert.equal(descendants(view.tree, node => node.type?.name === 'HomeGreeting').length, 0);
-    assert.match(text(view.tree), /No pudimos comprobar tu Inicio/);
+    assert.match(text(view.tree), /No pudimos cargar tus actividades/);
   }, 'student');
   for (const code of ['FORBIDDEN', 'AUTH_REQUIRED']) {
     await withHome(data({ classrooms: error }), async ({ view, client }) => {
       client.page = async () => { throw Object.assign(new Error(code), { code }); };
-      const shortcuts = descendants(view.tree, node => node.type?.name === 'HomeShortcuts')[0];
-      shortcuts.props.onRetry(); await view.flush();
-      assert.equal(descendants(view.tree, node => node.type?.name === 'HomeModule').length, 0, code);
-      assert.equal(descendants(view.tree, node => node.type?.name === 'HomeShortcuts').length, 0, code);
-      assert.match(text(view.tree), /No pudimos comprobar tu Inicio/);
+      button(render(find(view.tree, 'HomeClassCards')), /^Reintentar$/).props.onClick();
+      await view.flush();
+      for (const name of ['HomeGreeting', 'HomeModule', 'HomeClassCards', 'HomePriorities']) assert.equal(find(view.tree, name), undefined, code);
+      assert.match(text(view.tree), /No pudimos cargar tus actividades/);
     }, 'student');
   }
 });
 
-test('Inapplicable learning and teaching groups disappear without hiding archived classroom history', async () => {
+test('Inapplicable work queues disappear while archived classroom history stays reachable', async () => {
   const modules = Object.fromEntries(['pending', 'feedback', 'review', 'queries'].map(name => [name, { status: 'not-applicable' }]));
-  modules.classrooms = page(1, { items: [{ id: 'archived', classroom: { archived: true } }] });
-  await withHome(data(modules, { participation: 'none' }), async ({ view }) => {
-    const tree = expandGroups(view.tree);
-    assert.equal(descendants(tree, node => ['Mi aprendizaje', 'Mi actividad docente'].includes(node.props['aria-label'])).length, 0);
-    assert.equal(descendants(tree, node => node.type?.name === 'HomeModule' && node.props.name === 'classrooms').length, 1);
-  });
+  modules.classrooms = page(1, { items: [{ id: 'archived', classroom: { name: 'Private archive', archived: true } }] });
+  for (const role of ['teacher', 'student']) {
+    await withHome(data(modules, { participation: 'none', memberships: { study: 0, teach: 0, archived: 1 } }), async ({ view, calls }) => {
+      assert.equal(render(find(view.tree, 'HomePriorities')), null);
+      const cards = render(find(view.tree, 'HomeClassCards'));
+      assert.doesNotMatch(text(cards), /Private archive/);
+      button(cards, /^Ver mis aulas$/).props.onClick();
+      assert.deepEqual(calls, ['classrooms']);
+    }, role);
+  }
 });
 
-test('Teacher focus keeps one active authorized room, selected context and access to the full collection', async () => {
+test('Creating an activity from Home only allows explicit selection of an active teaching room', async () => {
   const items = [['student', 'student', false], ['archive', 'teacher', true], ['first', 'teacher', false], ['second', 'teacher', false]]
-    .map(([id, role, archived]) => ({ id, title: id, classroom: { id, role, archived }, target: { kind: 'classroom', classroomId: id, section: 'plan' } }));
+    .map(([id, role, archived]) => ({ id, title: id, classroom: { id, name: id, role, archived }, target: { kind: 'classroom', classroomId: id, section: 'plan' } }));
   await withHome(data({ classrooms: page(23, { items, nextCursor: 'next-real-page' }) }), async ({ view, calls }) => {
-    const focus = () => descendants(view.tree, node => node.type?.name === 'HomeFocus')[0];
-    const focusedModule = () => descendants(focus().type(focus().props), node => node.type?.name === 'HomeModule')[0];
-    assert.deepEqual(focusedModule().props.page.items.map(item => item.id), ['first']);
-    assert.equal(focusedModule().props.page.totalItems, null);
-    assert.equal(focusedModule().props.page.nextCursor, null);
-    focus().props.onChoose();await view.flush();
-    descendants(view.tree,node=>node.type?.name==='HomeRoomPicker')[0].props.onSelect(items[3]);await view.flush();
-    assert.deepEqual(focusedModule().props.page.items.map(item => item.id), ['second']);
-    const row = descendants(focusedModule().type(focusedModule().props), node => node.type?.name === 'HomeRow')[0];
-    row.props.onAction(row.props.item.target); assert.strictEqual(calls[0], items[3].target);
-    assert.equal(descendants(focus().type(focus().props),node=>node.type==='button'&&text(node)==='Ver todas mis aulas').length,0,'The focus card follows the reference; collection navigation belongs to the sidebar');
-    for (const stale of ['student', 'archive', 'removed']) {
-      focus().props.onChoose();await view.flush();
-      descendants(view.tree,node=>node.type?.name==='HomeRoomPicker')[0].props.onSelect(items.find(item=>item.id===stale)??{...items[0],id:stale});await view.flush();
-      assert.deepEqual(focusedModule().props.page.items.map(item => item.id), ['first'], `Unsafe stale selection ${stale}`);
-    }
-  });
-});
-
-test('Expanding a paginated work queue preserves its client and cursor and returns focus', async () => {
-  await withHome(data({ review: page(23, { nextCursor: 'next-real-page' }) }), async ({ view, focus, client }) => {
-    const toolbar = descendants(view.tree, node => node.props?.className === 'fm-home-attention-toolbar')[0];
-    descendants(toolbar, node => node.type === 'button' && node.props['data-home-expand'] === 'review')[0].props.onClick();
+    button(render(find(view.tree, 'HomeGreeting')), /^Crear actividad$/).props.onClick();
     await view.flush();
-    const panel = descendants(view.tree, node => node.type?.name === 'HomeModulePanel')[0];
-    assert.equal(panel.props.name, 'review'); assert.strictEqual(panel.props.client, client);
-    assert.equal(panel.props.data.modules.review.nextCursor, 'next-real-page');
-    panel.props.onClose(); await view.flush();
-    assert.deepEqual(focus, ['[data-home-expand="review"]']);
+    const picker = find(view.tree, 'HomeRoomPicker');
+    const pickerView = hookView(picker.type, picker.props);
+    try {
+      await pickerView.flush();
+      const options = descendants(pickerView.tree, node => node.type === 'input' && node.props.type === 'radio');
+      assert.deepEqual(options.map(node => node.props.value), ['first', 'second']);
+      assert.equal(button(pickerView.tree, /^Continuar$/).props.disabled, true);
+      assert.deepEqual(calls, []);
+      options[1].props.onChange();
+      await pickerView.flush();
+      assert.equal(button(pickerView.tree, /^Continuar$/).props.disabled, false);
+      button(pickerView.tree, /^Continuar$/).props.onClick();
+      await view.flush();
+      assert.deepEqual(calls, [{ kind: 'create-activity', classroomId: 'second' }]);
+      assert.equal(find(view.tree, 'HomeRoomPicker'), undefined);
+    } finally { pickerView.close(); }
+    button(render(find(view.tree, 'HomeClassCards')), /^Ver mis aulas$/).props.onClick();
+    assert.equal(calls.at(-1), 'classrooms');
   });
 });
 
-test('Global drafts retain their aggregate retry and exact target without any focused-room fetch', async () => {
-  const item = { id: 'draft', title: 'Draft from another authorized classroom', classroom: { id: 'other', role: 'teacher', archived: false },
-    activityType: 'ASSIGNMENT', updatedAt: '2026-11-05T12:00:00Z', target: { kind: 'activity', classroomId: 'other', activityId: 'draft' } };
-  await withHome(data({ classrooms: page(0), drafts: error }), async ({ view, requests, calls, client }) => {
-    const draftModule = () => descendants(expandGroups(view.tree), node => node.type?.name === 'HomeModule' && node.props.name === 'drafts')[0];
-    assert.ok(draftModule(), 'Drafts remain independent of the focused classroom');
-    const retry = descendants(draftModule().type(draftModule().props), node => node.type === 'button' && text(node).startsWith('Reintentar'))[0];
-    assert.ok(retry);
-    client.page = async options => { requests.push(options); return { subjectId: 'subject', module: 'drafts', page: page(1, { items: [item] }) }; };
-    retry.props.onClick(); await view.flush();
-    assert.deepEqual(requests.slice(1).map(request => request.module), ['drafts']);
-    const row = descendants(draftModule().type(draftModule().props), node => node.type?.name === 'HomeRow')[0];
-    assert.ok(row); row.props.onAction(row.props.item.target); assert.deepEqual(calls, [item.target]);
-    assert.equal(draftModule().props.previewLimit, 2);
-  });
+test('Home completes the paginated review queue and opens the exact attempt from the next page', async () => {
+  const classroom = { id: 'room', name: 'Science', role: 'teacher', archived: false };
+  const review = (id, studentName) => ({ id, title: 'Lab', classroom, studentName, oldestSubmittedAt: '2026-11-05T12:00:00Z',
+    needsReview: 1, readyToPublish: 0, target: { kind: 'submissions', classroomId: classroom.id, activityId: 'lab', attemptId: id } });
+  const first = review('first', 'Primera persona'), next = review('next', 'Segunda persona');
+  const firstPage = page(2, { items: [first], nextCursor: 'next-real-page' });
+  await withHome(data({ review: firstPage }), async ({ view, requests, calls }) => {
+    assert.deepEqual(requests.slice(1), [{ module: 'review', timeZone: requests[0].timeZone, order: 'asc', cursor: 'next-real-page' }]);
+    const queue = render(find(view.tree, 'HomePriorities'));
+    assert.equal(descendants(queue, node => node.type === 'button' && node.props['aria-label'] === 'Revisar Primera persona').length, 1);
+    assert.doesNotMatch(text(queue), /Ver todas/);
+    button(queue, /^Revisar Segunda persona$/).props.onClick();
+    assert.deepEqual(calls, [next.target]);
+  }, 'teacher', { readPage(options) {
+    assert.equal(options.cursor, 'next-real-page');
+    return page(2, { items: [first, next] });
+  } });
+});
+
+test('Private drafts stay in their classroom and reopen the exact draft without publishing', async () => {
+  const { Activities } = loadTsModule('apps/web/src/application/academic-Activities.tsx');
+  const room = { id: 'other', name: 'Aula', role: 'teacher', archived: false, units: [] };
+  const draft = { id: 'draft', title: 'Borrador privado', type: 'ASSIGNMENT', status: 'DRAFT' };
+  const calls = [];
+  const view = hookView(Activities, { room, reload: async () => {}, api: { call: async (path, method) => {
+    calls.push([path, method]);
+    if (path === '/other/activities') return { activities: [draft] };
+    if (path === '/other/progress') return { scope: 'classroom', students: [] };
+    if (path === '/other/library') return [];
+    if (path === '/other/activities/draft/preview') return { activity: draft, revision: '1' };
+    assert.fail(path);
+  } } });
+  try {
+    await view.flush();
+    assert.ok(!descendants(view.tree, node => node.type === 'button' && node.props['aria-label'] === 'Abrir Borrador privado').length);
+    button(view.tree, /^Borradores privados/).props.onClick();
+    await view.flush();
+    button(view.tree, /^Abrir Borrador privado$/).props.onClick();
+    await view.flush();
+    assert.strictEqual(find(view.tree, 'ActivityAuthoring').props.data.activity, draft);
+    assert.deepEqual(calls.filter(([path]) => path.includes('/preview')), [['/other/activities/draft/preview', 'GET']]);
+    assert.ok(calls.every(([, method]) => method === 'GET'));
+  } finally { view.close(); }
 });

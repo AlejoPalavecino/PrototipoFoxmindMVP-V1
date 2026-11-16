@@ -1,0 +1,11 @@
+const t=await taskSpace(1),p=t.page('p1');
+console.log(await p.evaluate(()=>({current:location.hash,library:!!document.querySelector('.fx-library'),privateFiles:document.querySelectorAll('[data-origin=private]').length})));
+await p.goto('file:///C:/Users/alejo/.codex/worktrees/foxmind-ui-lab/ProtipoFoxMind/design/foxmind-ui-lab/01-foxmind.html?library=15-final#estudiante/estudio');
+await p.waitForSelector('loc=css:.fx-library-trigger');
+await p.click('loc=css:[data-action=fx-library]',{label:'Revisar la biblioteca de estudio'});
+console.log(await p.evaluate(()=>({scope:document.querySelector('.fx-library-scope').innerText,own:document.querySelectorAll('[data-origin=private]').length,classroom:document.querySelectorAll('[data-origin=classroom]').length,viewport:innerWidth,overflow:document.documentElement.scrollWidth>innerWidth})));
+await p.click('loc=css:[data-action=fx-library-filter][data-value=private]',{label:'Comprobar el filtro de archivos propios'});
+console.log(await p.evaluate(()=>({focus:document.activeElement.dataset.action,ownOnly:!document.querySelector('[data-origin=classroom]')})));
+await p.click('loc=css:[data-action=fx-library-filter][data-value=all]',{label:'Volver a todas las fuentes'});
+await p.evaluate(()=>Promise.all(document.getAnimations().map(a=>a.finished.catch(()=>{}))));
+await p.screenshot({path:'C:/Users/alejo/.codex/worktrees/foxmind-ui-lab/ProtipoFoxMind/.test-artifacts/ui-lab/context-library/ego-final-library.png'});

@@ -1,0 +1,67 @@
+{
+  "viewport": {
+    "width": 320,
+    "height": 740
+  },
+  "overflow": false,
+  "brokenImages": [],
+  "dialog": {
+    "x": 19,
+    "y": 45,
+    "width": 282,
+    "height": 650,
+    "bottom": 695,
+    "right": 301
+  },
+  "footerButtons": [
+    {
+      "text": "Ahora no",
+      "disabled": false,
+      "x": 39,
+      "y": 618,
+      "width": 116,
+      "height": 58,
+      "bottom": 676,
+      "right": 155
+    },
+    {
+      "text": "Aceptar y unirme",
+      "disabled": false,
+      "x": 165,
+      "y": 618,
+      "width": 116,
+      "height": 58,
+      "bottom": 676,
+      "right": 281
+    }
+  ],
+  "cards": [
+    {
+      "text": "QA · Exploramos con Foxy",
+      "x": 16,
+      "y": 829.3500366210938,
+      "width": 288,
+      "height": 165.60000610351562,
+      "bottom": 994.9500427246094,
+      "right": 304
+    },
+    {
+      "text": "QA · Ciencias y descubrimientos",
+      "x": 16,
+      "y": 1016.9500122070312,
+      "width": 288,
+      "height": 165.60000610351562,
+      "bottom": 1182.5500183105469,
+      "right": 304
+    },
+    {
+      "text": "Fotografía y luz",
+      "x": 16,
+      "y": 1204.550048828125,
+      "width": 288,
+      "height": 165.60000610351562,
+      "bottom": 1370.1500549316406,
+      "right": 304
+    }
+  ]
+}

@@ -29,7 +29,7 @@ export async function fixture(local, overrides = {}) {
   await seed({ action: 'addTopic', unitId, name: 'Exposición' });
   const topicIds = (await detail()).units[0].topics.map(x => x.id), sourceId = `plan:${randomUUID()}`;
   const start = { revision: await revision(), requestId: randomUUID(), type: 'ASSIGNMENT', unitId, topicIds, sourceIds: [sourceId],
-    objective: 'Relacionar conceptos', groupLevel: 'Segundo año', difficulty: 'BASIC', durationMinutes: 40, context: '',
+    objective: 'Relacionar conceptos', teacherBrief: 'Proponer un ejercicio integrador con los temas elegidos.', groupLevel: 'Segundo año', difficulty: 'BASIC', durationMinutes: 40, context: '',
     counts: { assignment: 2, development: 0, singleChoice: 0, multipleChoice: 0 }, acknowledgedWarnings: [] };
   const proposal = { schemaVersion: 'activity-proposal-v1', type: 'ASSIGNMENT', title: 'Luz en contexto', objective: start.objective,
     instructions: 'Resolver según las fuentes.', assignmentPrompts: ['Comparar casos.', 'Explicar relación.'], questions: [], warnings: [],

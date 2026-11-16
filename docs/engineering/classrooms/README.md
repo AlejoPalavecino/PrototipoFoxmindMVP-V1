@@ -4,26 +4,30 @@ Un aula publicada tiene un único docente dueño. Un borrador incompleto es priv
 
 ## Crear o continuar un aula
 
-1. Datos del aula: nombre, materia, división, ciclo, zona horaria y portada predefinida.
-2. Plan de estudio: subir el documento, esperar aprobación y elegir IA o manual. Subir el documento no inicia IA.
-3. Unidades y temas: editar estructura; revisar/aplicar una propuesta o escribir manualmente. El editor de texto está en un disclosure; el auxiliar Extraer unidades de un texto abre su propio formulario.
-4. Revisión: comprobar y volver a editar; Confirmar y crear aula publica y vuelve a Mis aulas. Guardar borrador conserva sin publicar y permite continuar.
+1. Tu aula: nombre, materia, grupo, ciclo, zona horaria y portada predefinida.
+2. El programa: subir el documento, esperar aprobación y elegir Prepararlo con Foxy o Armarlo a mano. Subir el documento no inicia IA.
+3. El recorrido: revisar y editar unidades y temas en campos visibles. La propuesta de IA requiere aplicación explícita antes de continuar.
+4. Todo listo: revisar y volver a editar; Crear mi aula publica y vuelve a Activas en Mis aulas. Guardar y salir conserva el borrador sin publicar y selecciona Borradores, también si se empezó desde Inicio.
 
-El asistente exige PDF/DOCX aprobado y al menos una unidad/tema. El API conserva compatibilidad con currículos manuales completos sin archivo; eso no habilita omitirlo en este recorrido UI. Zona horaria fija tras crear; las portadas no son una carga libre de imágenes.
+El asistente exige un PDF, DOC, DOCX, PPT o PPTX aprobado de hasta 20 MB y al menos una unidad con un tema. La API conserva la compatibilidad histórica con currículos manuales completos sin archivo. La zona horaria queda fija al crear el aula y la portada se elige del catálogo.
 
 ## Presentación compartida con Carpetas de estudio
 
-Los componentes de estado, pasos y portadas se reutilizan con Carpetas de estudio. Mis aulas agrega una píldora de estados con selección elevada y filtros directos de ciclo/división. Cada espacio conserva sus campos, validaciones y servicios. El asistente de aulas dispone de una superficie amplia, encabezado opaco, un único scroll y acciones alcanzables. Las opciones de portada muestran imagen y nombre completos.
+Los componentes de estado y servicios se reutilizan con Carpetas de estudio; aulas tiene una variante visual propia del asistente. Mis aulas presenta estados y búsqueda, siguiendo UI Lab: no incluye filtros adicionales de ciclo/división ni selector de tarjetas/lista. Cada espacio conserva sus campos, validaciones y servicios. El asistente de aulas dispone de una superficie amplia, encabezado opaco, área de contenido desplazable y pie de acciones visible. Ofrece las tres portadas de referencia y conserva la portada seleccionada de un borrador anterior si pertenece al catálogo legado.
 
-La revisión del plan resume unidades/temas y permite abrir cada unidad. Las incompletas se abren inicialmente; completar un campo no colapsa la edición. Durante la extracción IA se muestra la espera y, al terminar, un único editor de propuesta; el editor del plan guardado se presenta al aplicarla o elegir el método manual.
+La revisión presenta el resumen de unidades y temas y permite volver a editarlos. Durante la extracción IA se muestra la espera y, al terminar, un único editor de propuesta. El editor del plan guardado se presenta al aplicarla o elegir el método manual.
 
-[Crear aula y Crear carpeta en la aplicación](../../design/current/README.md#creación-e-ingreso) · [Comparación de los cuatro pasos](../../verification/flows.md#crear-carpeta-con-la-presentación-de-crear-aula--2026-11-12)
+La carga del programa y el análisis de Foxy tienen pantallas de espera dedicadas, con las ilustraciones de UI Lab. Las etapas dependen de la respuesta real del archivo o del análisis; la animación es indeterminada y no presenta porcentajes inventados. Volver al programa conserva los datos y permite consultar el mismo proceso, sin volver a subir el archivo ni iniciar otra generación. Un error se presenta en rojo y ofrece las acciones de recuperación disponibles. Al terminar el análisis se abre la propuesta para revisarla y aplicarla explícitamente; no se publica el aula automáticamente.
+
+[Capturas anteriores de Crear aula y Crear carpeta](../../design/current/README.md#creación-e-ingreso) · [Comparación de los cuatro pasos](../../verification/flows.md#crear-carpeta-con-la-presentación-de-crear-aula--2026-11-12)
 
 ## Pendientes de creación
 
-Mis aulas ofrece Activas, Archivadas y, sólo al docente, Pendientes con contador. Pendientes reúne sus borradores no publicados; cada tarjeta muestra automáticamente «Pendiente de creación», nombre (o «Aula sin nombre»), datos disponibles, Continuar creación y Eliminar pendiente. Conserva búsqueda por nombre/materia/división, filtros de ciclo/división y presentación tarjetas/lista. Las invitaciones se muestran aparte.
+El aviso Retomar creación apunta al borrador actualizado más recientemente. Las confirmaciones de guardado, creación e ingreso se muestran en verde; errores y mensajes informativos conservan su semántica.
 
-Continuar retoma el asistente guardado. Confirmar la creación retira el borrador de Pendientes y muestra el aula entre Activas. Eliminar pide confirmación de pérdida de datos; cancelar no muta. Durante eliminación se bloquean acciones duplicadas; ante error se conserva el pendiente y el diálogo. El vacío indica «No tenés aulas pendientes de creación».
+Mis aulas ofrece Activas, Archivadas y, sólo al docente, Borradores con contador. Borradores reúne las aulas no publicadas; cada tarjeta muestra «Pendiente de creación», nombre (o «Tu próxima aula»), datos disponibles, Continuar creación y Eliminar borrador. Conserva búsqueda por nombre/materia/grupo. Las invitaciones se muestran aparte. Las tarjetas de aulas publicadas muestran portada, grupo, materia, cantidad real de estudiantes y avance del plan para ambos roles autorizados.
+
+Continuar retoma los datos, paso y método guardados. Abrir un borrador no inicia una nueva generación de IA; el archivo se vuelve a comprobar antes de avanzar o publicar. Los campos opcionales `wizardStep` (0–3) y `wizardMethod` (`ai`, `manual` o `null`) se validan en proxy y dominio, se guardan en el JSONB existente y se excluyen del contenido publicado. Los borradores anteriores sin estos campos abren en el primer paso. Confirmar la creación retira el borrador y muestra el aula entre Activas. Eliminar pide confirmación de pérdida de datos; cancelar no muta. Durante eliminación se bloquean acciones duplicadas; ante error se conserva el pendiente y el diálogo.
 
 Contrato: `DELETE /classrooms/drafts/:id`, detrás del proxy `/api/v1`, cuerpo exacto `{ revision: string, confirm: true }`, respuesta `{ deleted: true }`. Exige sesión/correo verificado, docente dueño, borrador sin publicar y revisión vigente. Autoridad ajena/inexistente/eliminado: FORBIDDEN; revisión obsoleta o ya publicado: CONFLICT; confirmación inválida: INVALID_INPUT. No elimina aulas creadas.
 
@@ -31,7 +35,7 @@ La baja lógica interna `classroom_drafts.deleted_at` incrementa revisión y con
 
 ## Ingreso y pertenencia
 
-El estudiante puede ingresar por código: Ver aula muestra el destino; Confirmar inscripción inscribe y abre el aula. Un código inválido conserva el formulario con error genérico. Las invitaciones requieren cuenta/correo correspondiente y aceptación explícita; recibir correo o visualizar una tarjeta no inscribe.
+El estudiante puede ingresar por código: Ver aula muestra la portada y los datos reales del destino; Aceptar y unirme inscribe y vuelve al catálogo en Activas con confirmación. Ahora no cierra la vista previa sin inscribir. Un código inválido conserva el formulario con error. Las invitaciones usan la misma presentación, con su vencimiento real, y requieren cuenta/correo correspondiente y aceptación explícita; recibir correo o visualizar una tarjeta no inscribe. La vista previa por código no inventa una fecha de vencimiento. Ambos endpoints proyectan `coverKey` opcional para compatibilidad con consumidores anteriores.
 
 Salir o ser removido revoca el acceso actual y conserva entregas, notas y conversaciones. El docente ve exalumnos en Historial, separados de indicadores de alumnos actuales. Readmisión requiere invitación nueva; el código no sustituye esa condición.
 
@@ -47,6 +51,18 @@ Protección local comprobada: ingreso por cuenta 10/minuto y 30/hora, adicional 
 
 ## Archivo y administración
 
-El docente edita datos/portada y opciones disponibles, invita, regenera código, retira miembros y archiva/reactiva con confirmación. Aula archivada es de consulta: sin nuevas inscripciones ni mutaciones académicas. El estudiante aún puede confirmar su salida; para volver se requiere reactivación y nueva invitación. Reactivar no extiende plazos ni borra historia. No hay eliminación permanente del aula desde esta UI.
+El docente edita nombre, materia, grupo y portada, invita, copia el código de ingreso y archiva o reactiva con confirmación. Aula archivada es de consulta: sin nuevas inscripciones ni mutaciones académicas. El estudiante aún puede confirmar su salida; para volver se requiere reactivación y nueva invitación. Reactivar no extiende plazos ni borra historia. No hay eliminación permanente del aula desde esta UI.
 
 Fuentes: [Wizard](../../../apps/web/src/application/academic-Wizard.tsx), [secciones](../../../apps/web/src/features/classrooms/ui/ClassroomNavigation.tsx), [servicios](../../../apps/api/src/modules/classrooms/). [Flujos comprobados](../../verification/flows.md) y [permisos por rol](../../product/features-by-role.md).
+
+## Interior del aula
+
+El catálogo ofrece Revisar invitación, Ahora no y Aceptar y unirme. Ahora no conserva la invitación pendiente. La capacidad de rechazo de la API se mantiene: `POST /invitations/:id/decline` registra quién la rechazó y cuándo, y tolera el reintento del mismo destinatario; retira la invitación pendiente y su aviso, sin alta ni reapertura de una inscripción.
+
+Ambos roles comparten la cabecera compacta. El docente tiene Plan, Muro, Biblioteca, Actividades, Progreso, Estudiantes, Historial y Ajustes; el estudiante tiene Plan, Muro, Biblioteca, Actividades, Mi progreso y Compañeros. «Por revisar» lleva al docente a Progreso; «Por hacer» lleva al estudiante a Actividades.
+
+En Plan, el docente marca temas y ambos roles consultan materiales y actividades relacionadas. En Biblioteca, el docente elige el archivo y revisa sus datos y vínculos antes de publicarlo. El Muro muestra avisos, consultas y respuestas de ese grupo. [Plan](../teaching/plan.md) · [Biblioteca](../teaching/library.md) · [Muro](../teaching/wall.md)
+
+Estudiantes muestra integrantes actuales, fichas, código de ingreso e invitaciones. Una invitación rechazada se identifica como tal y queda fuera de reenvío y revocación. Compañeros muestra nombres y marca «Vos» con la identidad autenticada; la respuesta estudiantil no expone identificadores ni correos de compañeros. Historial conserva períodos de inscripción y acceso docente al recorrido anterior.
+
+Ajustes presenta los datos y las portadas de la maqueta. Guardar conserva el ciclo y la configuración de corrección asistida ya persistidos. `PATCH /classrooms/:id/settings` acepta `coverKey` opcional del catálogo. Si se omite, conserva la portada persistida. Guardar requiere acceso docente, aula activa y revisión vigente. Archivar y reactivar tienen confirmación propia. [Ajustes del aula](../../../apps/web/src/features/classrooms/ui/ClassroomSettings.tsx) · [Prueba de transporte](../../../tests/p5-web-proxy.test.mjs).

@@ -13,12 +13,16 @@ function logoutButton(page) {
   const path = new URL(page.url()).pathname;
   const container = path === '/verify-email' ? page.getByRole('region', { name: 'Verificá tu correo', exact: true })
     : path === '/settings' ? page.getByRole('region', { name: 'Configuración de la cuenta', exact: true })
-    : path === '/profile' ? page.getByRole('dialog', { name: 'Mi cuenta', exact: true }) : page;
+    : path === '/profile' ? page.getByRole('complementary', { name: 'Configuración de cuenta', exact: true }) : page;
   return container.getByRole('button', { name: 'Cerrar sesión', exact: true });
 }
 async function logout(page) {
-  if (new URL(page.url()).pathname === '/profile') await page.getByRole('button', { name: /^Mi cuenta(?: de .+)?$/ }).click();
   const button = logoutButton(page); await button.waitFor({ state: 'visible' }); await button.click({ timeout: 15000 });
+}
+async function openProfile(page) {
+  await page.getByRole('link', { name: /^Mi perfil(?: de .+)?$/ }).click();
+  await page.waitForURL('**/profile');
+  await page.getByLabel('Nombre', { exact: true }).waitFor();
 }
 async function login(page, origin, email, password) {
   await page.goto(`${origin}/sign-in`);
@@ -113,7 +117,8 @@ test('P3 real browser accounts, captured mail, session rotation, recovery, failu
         await page.goto(`${origin}/profile`); await page.getByLabel('Nombre', { exact: true }).waitFor();
         await fill(page, { Nombre: 'Ada María', Apellido: 'Lovelace' }); await submit(page, 'Guardar cambios');
         await visible(page, 'Guardaste los cambios');
-        assert.equal(await page.getByLabel('Correo de la cuenta', { exact: true }).getAttribute('readonly'), '');
+        assert.equal(await page.getByLabel('Correo electrónico', { exact: true }).getAttribute('readonly'), '');
+        assert.equal(await page.getByLabel('Rol', { exact: true }).getAttribute('readonly'), '');
         assert.equal(await page.getByRole('combobox').count(), 0);
         await restartApi(); await page.reload(); await page.getByLabel('Nombre', { exact: true }).waitFor();
         assert.equal(await page.getByLabel('Nombre', { exact: true }).inputValue(), 'Ada María');
@@ -131,7 +136,7 @@ test('P3 real browser accounts, captured mail, session rotation, recovery, failu
         await logout(page); await page.waitForURL('**/sign-in');
         await login(page, origin, email, original); await page.getByRole('alert').waitFor();
         await login(page, origin, email, changed); await page.waitForURL('**/inicio');
-        await page.goto(`${origin}/profile`); await page.getByLabel('Nombre', { exact: true }).waitFor();
+        await openProfile(page);
       });
       let recovery;
       await t.test('captured recovery requires explicit confirmation and revokes all sessions without login', async () => {
@@ -148,7 +153,7 @@ test('P3 real browser accounts, captured mail, session rotation, recovery, failu
         await page.getByRole('alert').waitFor();
         await login(page, origin, email, changed); await page.getByRole('alert').waitFor();
         await login(page, origin, email, recovered); await page.waitForURL('**/inicio');
-        await page.goto(`${origin}/profile`); await page.getByLabel('Nombre', { exact: true }).waitFor();
+        await openProfile(page);
       });
       await t.test('expired verification and recovery links reject without changing credentials', async () => {
         await logout(page); await page.waitForURL('**/sign-in');
@@ -180,7 +185,7 @@ test('P3 real browser accounts, captured mail, session rotation, recovery, failu
         await openProof(page, links[0]); await submit(page, 'Confirmar verificación'); await visible(page, 'Tu correo está verificado');
         assert.deepEqual(await state(page), { authenticated: false });
         await login(page, origin, current.user.email, original); await page.waitForURL('**/inicio');
-        await page.goto(`${origin}/profile`); await page.getByLabel('Nombre', { exact: true }).waitFor();
+        await openProfile(page);
       });
       await t.test('quoted and international mailboxes retain spelling through real browser and SMTP', async () => {
         for (const mailbox of [`"Quoted Learner ${Date.now()}"@example.test`, `Élève${Date.now()}@bücher.example`]) {

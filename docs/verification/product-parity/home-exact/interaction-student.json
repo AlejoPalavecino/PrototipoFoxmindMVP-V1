@@ -1,0 +1,9 @@
+{
+  "menu": {
+    "width": 272,
+    "top": 60,
+    "notifications": "Notificaciones\n4",
+    "notificationHeight": 46
+  },
+  "focus": "Abrir menú de navegación"
+}

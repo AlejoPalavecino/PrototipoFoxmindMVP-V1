@@ -1,0 +1,9 @@
+# Accesos a aulas en la navegación
+
+- Autor: coordinador raíz (identidad de sesión no expuesta). 2026-11-16. Worktree `foxmind-product-parity`, rama `codex/foxmind-product-parity`, base `ef6828b`.
+- Alcance autorizado: alinear «Tus aulas» del navbar docente y estudiante con la maqueta (escritorio, plegado y menú móvil).
+- Diagnóstico con Ego Lite: los puntos heredan aros del diseño anterior y el menú móvil usa otra lista, otra paleta y otro límite. La referencia muestra hasta tres aulas, puntos planos y nombres que se ajustan al ancho.
+- Implementación: ambos menús usan la misma lista de hasta tres aulas activas, con puntos de la maqueta, nombres que pueden ocupar varias líneas y la indicación accesible del aula actual. En escritorio los accesos salen del árbol al plegar la barra. En móvil aparecen al abrir el menú, incluso si se guardó la preferencia de barra plegada.
+- Evidencia con Ego Lite: 18 comparaciones de ambos roles entre 320 y 1920 px. Coinciden paleta, diámetro de puntos, tamaño de texto y separación con Notificaciones. La lista no desborda ni recorta nombres. Probado acceso con teclado a un aula, cierre de menú, devolución de foco con Escape y aula actual al volver a escritorio. Capturas y medidas en `.test-artifacts/navbar-classrooms/after/`.
+- Verificación local: `npm run local:restart` compiló y dejó la app lista, build `x_YUeYhpikXWmrU6hzh02`. 11 pruebas focalizadas de navegación aprobadas. La ejecución ampliada tuvo 22 aprobadas y 2 fallos reproducidos sin el cambio de atajos: selector de autoría y prueba que monta AppNavbar sin preparar `window`. El chequeo de whitespace de los archivos editados pasó; el global señaló whitespace previo en `tests/classrooms-reference-controls.test.mjs`.
+- Estado: implementado y verificado en el worktree; sin commit ni integración en main.

@@ -17,7 +17,7 @@ export async function validSource(options: ActivityAiOptions, tx: Transaction, r
     }
     return true;
   } catch (error) {
-    if (['FORBIDDEN', 'CONFLICT', 'FILE_NOT_READY', 'AI_INPUT_LIMIT'].includes(String((error as {code?: string}).code))) return false;
+    if (['FORBIDDEN', 'CONFLICT', 'FILE_NOT_READY', 'AI_INPUT_LIMIT', 'INVALID_INPUT'].includes(String((error as {code?: string}).code))) return false;
     throw error;
   }
 }

@@ -1,5 +1,4 @@
 import type { RefObject, DragEvent } from 'react';
-import { initializePlanDisclosure } from './plan-disclosure';
 import { FoxmindIcon } from './FoxmindIcon';
 import styles from './academic-plan.module.css';
 
@@ -55,17 +54,13 @@ export function WizardCurriculum({ units, onUnits, onRemove = onUnits, onUndo,
     <div className={styles.toolbar}>
       <div><strong>{units.length} {units.length === 1 ? 'unidad' : 'unidades'} · {total} {total === 1 ? 'tema' : 'temas'}</strong>
         <p>{orderHint}</p></div>
-      {units.length ? <div className={styles.actions}>{['Expandir todas', 'Contraer'].map((label, index) =>
-        <button key={label} type="button" onClick={event => {
-          event.currentTarget.closest('[data-curriculum-editor]')?.querySelectorAll<HTMLDetailsElement>('[data-edit-unit]').forEach(node => { node.open = index === 0; });
-        }}>{label}</button>)}</div> : null}
+
     </div>
-    {onUndo ? <div className={styles.undo}><span role="status">Se quitó contenido del plan.</span><button type="button" data-curriculum-undo onClick={event => { const root = event.currentTarget.closest<HTMLElement>('[data-curriculum-editor]'); onUndo(); focusField(root, 'summary'); }}>Deshacer</button></div> : null}
+    {onUndo ? <div className={styles.undo}><span role="status">Se quitó contenido del plan.</span><button type="button" data-curriculum-undo onClick={event => { const root = event.currentTarget.closest<HTMLElement>('[data-curriculum-editor]'); onUndo(); focusField(root, '[data-edit-field]'); }}>Deshacer</button></div> : null}
     {!units.length ? <p className={styles.empty}>Todavía no agregaste unidades. Empezá por la primera.</p> : null}
-    {units.map((unit, index) => <details key={unit.id ?? index} className={styles.unit} data-edit-unit
-      ref={node => initializePlanDisclosure(node, index === 0 || !unit.name.trim() || !unit.topics.length || unit.topics.some(topic => !topic.name.trim()))}>
-      <summary><b>{String(index + 1).padStart(2, '0')}</b><span><strong>{unit.name || 'Unidad sin nombre'}</strong>
-        <small>{unit.topics.length} {unit.topics.length === 1 ? 'tema' : 'temas'}</small></span></summary>
+    {units.map((unit, index) => <section key={unit.id ?? index} className={styles.unit} data-edit-unit>
+      <header><b>{String(index + 1).padStart(2, '0')}</b><span><strong>{unit.name || 'Unidad sin nombre'}</strong>
+        <small>{unit.topics.length} {unit.topics.length === 1 ? 'tema' : 'temas'}</small></span></header>
       <div className={styles.unitBody}>
         <label>Nombre de la unidad {index + 1}<textarea data-edit-field={`unit-${index}`} rows={1} maxLength={120}
           value={unit.name} onChange={event => onUnits(change(index, { ...unit, name: event.target.value.replace(/[\r\n]+/g, ' ') }))} /></label>
@@ -92,7 +87,7 @@ export function WizardCurriculum({ units, onUnits, onRemove = onUnits, onUndo,
           }}>Quitar unidad</button>
         </div>
       </div>
-    </details>)}
+    </section>)}
     <button type="button" className={styles.add} disabled={units.length >= 100 || total >= maxTopics} onClick={event => {
       const root = event.currentTarget?.closest<HTMLElement>('[data-curriculum-editor]');
       onUnits([...units, { name: '', topics: [{ name: '' }] }]);
@@ -108,9 +103,9 @@ export function WizardPlanSource(props: PlanSourceProps) {
       onDragOver={event => { if (event.dataTransfer.types.includes('Files')) event.preventDefault(); }}>
       <span className={styles.uploadIcon}><FoxmindIcon name={file ? 'file' : 'upload'} /></span>
       <strong>{file?.name ?? 'Arrastrá o seleccioná el plan'}</strong>
-      <small>{file?.ready ? 'Aprobado para usar' : file ? 'El archivo debe aprobar la revisión antes de continuar.' : 'PDF o DOCX · Hasta 20 MB'}</small>
+      <small>{file?.ready ? 'Aprobado para usar' : file ? 'El archivo debe aprobar la revisión antes de continuar.' : 'PDF, Word o PowerPoint · Hasta 20 MB'}</small>
       <label className={styles.picker}>{file ? 'Reemplazar archivo' : 'Seleccionar archivo'}
-        <input ref={inputRef} type="file" aria-label="Archivo del plan de estudio" accept=".pdf,.docx" disabled={disabled}
+        <input ref={inputRef} type="file" aria-label="Archivo del plan de estudio" accept=".pdf,.doc,.docx,.ppt,.pptx" disabled={disabled}
           onChange={event => { const target = event.target; void onFile(target.files?.[0]).finally(() => { target.value = ''; }); }} />
       </label>
       {file ? <div className={styles.actions}>

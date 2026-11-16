@@ -1,0 +1,27 @@
+# Carga del programa y análisis de Foxy
+
+- Coordinador root, sin identidad de runtime registrada; implementación Astra según preferencia vigente de esta sesión.
+- Worktree `foxmind-product-parity`, rama `codex/foxmind-product-parity`, HEAD inicial `ef6828b96084b0fcaf9a883e4afb95e0871cf1d6`.
+- Alcance R1: incorporar las pantallas de espera existentes en la maqueta durante carga/validación del programa y análisis de IA al crear aula. Dirección UI ya aprobada, sin cambios de proveedor, datos ni interiores de aula. Se preserva el trabajo concurrente en Foxy/Mi estudio.
+- Aceptación: ilustración, mensajes, etapas y animación de UI Lab vinculados al estado real; sin porcentajes ficticios ni éxito anticipado. Volver conserva datos y no promete cancelar una operación que sigue en servidor. Error rojo, éxito verde; espera larga accesible y responsive. La revisión de propuesta sigue siendo explícita antes de crear.
+- Estado final: DONE local, con límites de IA real indicados abajo. Sin commits ni publicación.
+
+## Implementación y primera verificación
+
+- Astra: pantalla dedicada `ClassroomProcessing`, integración en Wizard y estilos acotados a aulas. Estados reales de upload/validación y SENDING/QUEUED/RUNNING; READY conserva aplicación explícita. Fallos de consulta se recuperan mediante GET, sin generar de nuevo. [Registro del implementador](2026-11-16-astra-classroom-processing.md).
+- Root repitió `node --test tests/classroom-processing.test.mjs tests/classroom-ai-ui.test.mjs`: 15/15 PASS; `git diff --check` acotado: PASS. Typecheck y regresiones del asistente ejecutados por Astra y documentados en su registro.
+- Ego TaskSpace1, producto y maqueta; referencias capturadas 1440,390,320. PDF sintético subido realmente a borrador propio «QA · Pantallas de carga», aprobado por servicio de archivos y conservado al regresar.
+- Extracción IA interceptada sólo en la pestaña de QA y sólo para ese borrador: SENDING/QUEUED/RUNNING/READY y error503 de consulta. Verificado Volver, Escape, reabrir, recuperar con GET y revisar propuesta con un único POST inicial y cero apply/publicaciones. No consumo de Gemini en esta pasada; la prueba real anterior había recibido error de cuota. Interceptación pendiente de retirar al finalizar QA.
+- Primera compilación `8ygyBTUtkIdsuGssqoXtX`: reinicio terminó con `Unexpected end of JSON input` al leer status.json mientras se escribía; posterior `local:status` READY y buildId del navegador confirmaron el arranque. No se modificó el helper de servicios.
+- QA encontró diálogo estirado por `fixed/inset:0/height:auto`; Astra corrigió altura intrínseca. Precarga sólo de las dos ilustraciones para evitar su llegada tardía, texto específico de fallo GET y backdrop de la maqueta. Estos ajustes requieren nueva compilación y recaptura; todavía VERIFYING.
+
+## Cierre del candidato
+
+- Build final `9kd2-Q_4wbH56iBv8jtQX`, `local:restart` exit0, READY en http://127.0.0.1:3000 con configuración local de Gemini preservada. Root volvió a ejecutar los 15 casos de procesamiento/controlador después de las correcciones: PASS. Typecheck final del implementador: exit0.
+- Ego recapturó el candidato final: 14 vistas, 13 de carga/error y una de propuesta; anchos320/390/1440 y altura580. Cero desbordes horizontales, imágenes rotas o botones de pie fuera del viewport. Contraste mínimo muestreado de carga/error5.35:1; incluida propuesta4.55:1. Escape conserva el archivo; Tab permanece dentro del diálogo. Reduced motion devuelve animation-name:none para spinner/pista. Backdrop real rgba(40,53,69,.4), sin blur.
+- Reloj/check y cierre son SVG locales de esta pantalla: no esperan el sprite de red. Precarga de las dos ilustraciones; captura de upload bajo1600ms de latencia muestra ilustración e íconos completos. No se modificó Dialog ni FoxmindIcon compartidos.
+- Subida real final: `programa-ciencias-qa.pdf`, ready:true, validation:APPROVED, scan:CLEAN. Borrador propio conserva archivo y paso2; cero unidades sintéticas aplicadas y published:false.
+- Prueba IA final: SENDING→QUEUED→RUNNING, Volver/Escape y reabrir, error503 de GET, Consultar análisis y READY. Un POST de inicio, cero apply; propuesta exige acción explícita. Interceptación limitada a la pestaña/borrador QA retirada, `window.__loadingQa` ausente tras recarga. TaskSpace devuelto con app y maqueta abiertas.
+- Límite real: en una recarga intermedia la inyección CDP no persistió entre invocaciones; un intento alcanzó el servicio real y respondió `AI_BUDGET_EXCEEDED`. Se agregó guardia explícita de interceptación antes de todo nuevo ensayo sintético. No se acredita generación real exitosa ni se cambió cuota/proveedor. El fallo real y la ruta manual se observaron; no se publicó aula de prueba.
+- Recorridos de catálogo/estudiante, interiores y cambios concurrentes de Foxy/Mi estudio no reauditados aquí. No es una certificación WCAG completa. [Galería y medidas finales](../verification/product-parity/classrooms-collection/README.md#carga-del-programa-y-análisis-de-foxy).
+- Checks documentales:159 archivos/1017 enlaces, cero incidencias; TTP17 tareas válidas; ESLint focal y diff-check PASS. Check de fronteras detectó dos imports privados nuevos (ClassroomProcessing y extractionMessage); Astra los sustituyó por exports públicos, sin modificar el verificador ni ampliar funcionalidad. Fronteras y tipos PASS después de la corrección. Runtime recompilado y las14vistas recapturadas en el build final; evidencias de la galería actualizadas y QA sintético nuevamente retirado.

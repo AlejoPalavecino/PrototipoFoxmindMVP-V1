@@ -1,0 +1,31 @@
+import assert from 'node:assert/strict';
+import {Browser,sleep} from 'file:///C:/Users/alejo/.codex/skills/taste-skill/scripts/lib/cdp.mjs';
+import {writeFile,mkdir} from 'node:fs/promises';import {pathToFileURL} from 'node:url';import path from 'node:path';
+const b=await Browser.launch(),checks=[],errors=[];let p;
+const root=path.resolve('.test-artifacts/ui-lab/context-library');await mkdir(root,{recursive:true});
+const act=(a,x='')=>p.eval(s=>{const e=document.querySelector(s);if(!e)throw Error(s);e.click();},`[data-action=${a}]${x}`);
+const check=async(n,f)=>{assert.ok(await p.eval(f),n);checks.push(n);};
+const wait=async s=>{for(let i=0;i<100;i++){if(await p.eval(s=>!!document.querySelector(s),s))return;await sleep(50);}throw Error('Missing '+s);};
+const fill=(s,v)=>p.eval(({s,v})=>{const e=document.querySelector(s);e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));},{s,v});
+try{
+ const url=pathToFileURL(path.resolve('design/foxmind-ui-lab/01-foxmind.html')).href;p=await b.newPage({width:1440,height:900,reducedMotion:true});await p.goto(url+'?library#estudiante/estudio',{settleMs:50});
+ await check('Library has direct access in chat',()=>!!document.querySelector('.fx-library-trigger'));
+ await act('fx-context');await check('Student can choose standalone or linked folder',()=>!!document.querySelector('[data-action=fx-context-mode][data-value=general]')&&!!document.querySelector('[data-action=fx-context-mode][data-value=classroom]'));
+ await act('fx-context-mode','[data-value=classroom]');await act('fx-context-class','[data-id=photo]');await act('fx-context-apply');
+ await check('Link is saved on folder',()=>JSON.parse(localStorage.getItem('foxmind-ui-lab-v1')).folders[0].linkedClassId==='photo');
+ await act('fx-library');await check('Live classroom materials show origin',()=>document.querySelector('.fx-library').textContent.includes('Fotografía y luz')&&!!document.querySelector('[data-origin=classroom]'));
+ await act('fx-attach');await act('fx-file-example');await p.eval(()=>document.querySelector('#fx-attach-form').requestSubmit());await wait('.fx-library [data-origin=private][data-status=ready]');
+ await check('Own file belongs to folder and not classroom',()=>{const s=JSON.parse(localStorage.getItem('foxmind-ui-lab-v1'));return s.folders[0].materials.some(m=>m.title==='Material para seguir aprendiendo.pdf')&&!s.libraryItems.some(m=>m.title==='Material para seguir aprendiendo.pdf');});
+ await act('fx-tray-close');await fill('#fx-message','Repasemos con todos mis materiales');await p.eval(()=>document.querySelector('.fx-composer').requestSubmit());await sleep(1700);
+ await check('Message includes both own and classroom IDs without duplicates',()=>{const s=JSON.parse(localStorage.getItem('foxmind-ui-lab-v1')),t=s.foxySpace.threads.find(t=>t.id===s.foxySpace.active['estudiante/'+s.folders[0].id]),m=t.messages.findLast(m=>m.who==='user');return m.context.sourceIds.length>1&&new Set(m.context.sourceIds).size===m.context.sourceIds.length&&m.context.sourceIds.includes(s.folders[0].materials.at(-1).id);});
+ await p.eval(()=>{const s=JSON.parse(localStorage.getItem('foxmind-ui-lab-v1'));s.libraryItems.push({id:'new-class-pdf',classId:'photo',title:'Material nuevo del docente',kind:'PDF'});s.activities.push({id:'secret-draft',classId:'photo',title:'Borrador privado',publication:'draft'});localStorage.setItem('foxmind-ui-lab-v1',JSON.stringify(s));});await p.goto(url+'?library-updated#estudiante/estudio',{settleMs:50});
+ await act('fx-library');await check('New classroom material appears without copying',()=>document.querySelector('.fx-library').textContent.includes('Material nuevo del docente'));
+ await act('fx-tray-close');await act('fx-context');await act('fx-context-section','[data-value=activities]');await check('Teacher drafts excluded',()=>!document.querySelector('.fx-context-preview').textContent.includes('Borrador privado'));
+ await act('fx-context-mode','[data-value=general]');await act('fx-context-apply');await act('fx-library');await check('Unlink preserves own files and removes classroom sources',()=>!!document.querySelector('[data-origin=private]')&&!document.querySelector('[data-origin=classroom]'));await act('fx-tray-close');
+ await p.eval(()=>location.hash='#docente/foxy');await sleep(40);await act('fx-library');await check('Teacher private library is separate',()=>!document.querySelector('[data-origin=private]'));
+ await act('fx-attach');await act('fx-file-example');await p.eval(()=>document.querySelector('#fx-attach-form').requestSubmit());await wait('.fx-library [data-origin=private][data-status=ready]');await act('fx-tray-close');await act('fx-context');await act('fx-context-mode','[data-value=classroom]');await act('fx-context-class','[data-id=bio]');await act('fx-context-apply');await act('fx-library');
+ await check('Teacher combines classroom and extra files',()=>!!document.querySelector('[data-origin=private]')&&!!document.querySelector('[data-origin=classroom]'));
+ await act('fx-library-remove');await act('fx-library-remove-confirm');await check('Removing own file does not remove classroom references',()=>!document.querySelector('[data-origin=private]')&&!!document.querySelector('[data-origin=classroom]'));
+ errors.push(...p.consoleErrors);
+}catch(e){errors.push(e.stack);}finally{await b.close();}
+await writeFile(path.join(root,'flows.json'),JSON.stringify({checks,errors},null,2));console.log({checks:checks.length,errors});process.exit(errors.length?1:0);

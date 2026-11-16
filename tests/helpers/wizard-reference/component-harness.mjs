@@ -8,7 +8,7 @@ export const text = node => typeof node === 'string' || typeof node === 'number'
 const expand = node => {
   if (Array.isArray(node)) return node.map(expand);
   if (!React.isValidElement(node)) return node;
-  if (['WizardGeneral', 'WizardPlan', 'WizardPlanSource', 'WizardCover', 'WizardReview', 'WizardCurriculum', 'WizardSuggestions', 'PlanExtraction','CreationSteps','CreationReview'].includes(node.type?.name)) return expand(node.type(node.props));
+  if (['WizardGeneral', 'WizardPlan', 'WizardPlanSource', 'WizardCover', 'ClassroomWizardCover', 'WizardReview', 'WizardCurriculum', 'ClassroomCurriculum', 'ClassroomProcessing', 'WizardSuggestions', 'PlanExtraction','CreationSteps','CreationReview'].includes(node.type?.name)) return expand(node.type(node.props));
   return React.cloneElement(node, undefined, expand(node.props.children));
 };
 function mount(Component, props) {
@@ -24,6 +24,7 @@ function mount(Component, props) {
   };
   return {
     get tree() { return expand(tree); },
+    rerender() { dirty = true; },
     async flush() { for (let pass = 0; pass < 30; pass++) {
       if (dirty) { cursor = 0; dirty = false; const internal = React.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, previous = internal.H;
         internal.H = hooks; try { tree = Component(props); } finally { internal.H = previous; }
@@ -38,13 +39,13 @@ export const initialDraft = () => ({ id: 'draft', revision: '1', publishedClassr
   units: [{ name: 'Primera', topics: [{ name: 'Célula' }] }, { name: 'Segunda', topics: [{ name: 'Ecosistema' }] }],
 } });
 export const ready = id => ({ id, name: 'plan.pdf', ready: true, upload: 'COMPLETE', validation: 'APPROVED', scan: 'CLEAN', rejectionCode: null });
-export async function wizard({ draft = initialDraft(), upload, call, fileStatus, extractionBusy = false, extractionView = null } = {}) {
+export async function wizard({ draft = initialDraft(), upload, call, fileStatus, extractionBusy = false, extractionView = null, extractionState } = {}) {
   const oldWindow = globalThis.window; globalThis.window = { addEventListener() {}, removeEventListener() {} };
   const calls = [], uploads = [], exits = [], published = [], extractionInputs = [], noop = () => null;
   const { Wizard } = componentWithPorts('apps/web/src/application/academic-Wizard.tsx', {"../../../../../shared-ui/academic-cover.tsx":{...loadTsModule('apps/shared-ui/academic-cover.tsx'),Cover: noop,Notice: ({ children }) => React.createElement('div', {}, children),coverOptions: () => [{ key: 'biology', label: 'Biología' }]},
 "../../../shared-ui/academic-cover.tsx":{...loadTsModule('apps/shared-ui/academic-cover.tsx'),Cover: noop,Notice: ({ children }) => React.createElement('div', {}, children),coverOptions: () => [{ key: 'biology', label: 'Biología' }]},
 "./PlanExtraction.tsx":{PlanExtraction: ({ extraction }) => React.createElement('button', { type: 'button', onClick: extraction.cancel }, 'Continuar manualmente')},
-"../features/curriculum/index.ts":{...loadTsModule('apps/web/src/features/curriculum/index.ts'),classroomZones: () => [{ value: 'UTC', label: 'UTC' }],usePlanExtraction: options => { extractionInputs.push(options); return { busy: extractionBusy, view: extractionView, cancel: () => {} }; }},
+"../features/curriculum/index.ts":{...loadTsModule('apps/web/src/features/curriculum/index.ts'),classroomZones: () => [{ value: 'UTC', label: 'UTC' }],usePlanExtraction: options => { extractionInputs.push(options); return { busy: extractionBusy, view: extractionView, message:'', messageError:false, cancel: () => {}, retry: async()=>{}, ...extractionState }; }},
 "./classroom-zones.ts":{classroomZones: () => [{ value: 'UTC', label: 'UTC' }]},
 "./index.ts":{EntryIcon: noop,FoxmindIcon: noop,FoxmindIllustration: noop,AiProgress: noop},
 "../../../../../shared-ui/index.ts":{EntryIcon: noop,FoxmindIcon: noop,FoxmindIllustration: noop,AiProgress: noop},
@@ -60,4 +61,34 @@ export const button = (view, label) => nodes(view, n => n.type === 'button').fin
 export async function advance(view) { nodes(view, n => n.type === 'form')[0].props.onSubmit({ preventDefault() {} }); await view.flush(); }
 export const toggles = view => nodes(view, n => n.type === 'button' && typeof n.props['aria-expanded'] === 'boolean' && /unidad/i.test(`${n.props['aria-label'] ?? ''} ${text(n)}`));
 
+export async function openPlanText(view) {
+  button(view, 'Editar el plan como texto').props.onClick();
+  await view.flush();
+  return nodes(view, node => node.type === 'textarea')[0];
+}
+
+export async function preparePlanText(view, value) {
+  const editor = await openPlanText(view);
+  editor.props.onChange({ target: { value } });
+  await view.flush();
+  await advance(view);
+}
+
 export async function manualPlan(f) { await advance(f.view); nodes(f.view, n => n.type === "input" && n.props.name === "plan-method" && n.props.value === "manual")[0].props.onChange(); await f.view.flush(); await advance(f.view); }
+
+export function readStructuredPlan(view) {
+  return nodes(view,node=>node.props['data-edit-unit']!==undefined).map(unit=>({
+    name:descendants(unit,node=>node.type==='textarea'&&String(node.props['data-edit-field']).startsWith('unit-'))[0].props.value,
+    topics:descendants(unit,node=>node.type==='textarea'&&String(node.props['data-edit-field']).startsWith('topic-')).map(field=>({name:field.props.value})),
+  }));
+}
+export async function editStructuredPlan(view, units) {
+  while(readStructuredPlan(view).length>units.length){button(view,`Quitar unidad ${readStructuredPlan(view).length}`).props.onClick();await view.flush();}
+  while(readStructuredPlan(view).length<units.length){button(view,'Agregar unidad').props.onClick({});await view.flush();}
+  for(let i=0;i<units.length;i++){
+    nodes(view,n=>n.props['data-edit-field']===`unit-${i}`)[0].props.onChange({target:{value:units[i].name}});await view.flush();
+    while(readStructuredPlan(view)[i].topics.length>units[i].topics.length){button(view,`Quitar tema ${readStructuredPlan(view)[i].topics.length} de unidad ${i+1}`).props.onClick();await view.flush();}
+    while(readStructuredPlan(view)[i].topics.length<units[i].topics.length){button(view,`Agregar tema a unidad ${i+1}`).props.onClick({});await view.flush();}
+    for(let j=0;j<units[i].topics.length;j++){nodes(view,n=>n.props['data-edit-field']===`topic-${i}-${j}`)[0].props.onChange({target:{value:units[i].topics[j].name}});await view.flush();}
+  }
+}

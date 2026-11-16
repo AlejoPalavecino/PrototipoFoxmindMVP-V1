@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react';
 import type { NavbarLink } from './navbar-types';
-import { FoxmindIcon } from './FoxmindIcon';
+import { HomeReferenceIcon as FoxmindIcon } from './HomeReferenceIcon';
 import { openDialog } from './dialog-focus';
 import { AccountAvatar } from './AccountAvatar';
 
 type Follow = (event: MouseEvent<HTMLAnchorElement>, href: string) => void;
 export function ShellLinks({ links, follow }: { links: NavbarLink[]; follow: Follow }) {
   return <nav className="fm3d-shell-nav" aria-label="Navegación principal">{links.map(link =>
-    <a key={link.href} href={link.href} aria-current={link.current ? 'page' : undefined} onClick={event => follow(event, link.href)}>
-      <FoxmindIcon name={link.href.startsWith('/carpetas-de-estudio')?'folder':link.href.startsWith('/agenda') ? 'calendar' : link.href.startsWith('/mis-aulas') ? 'layers' : link.href.startsWith('/foxy-ai') ? 'spark' : 'home'} />{link.label}</a>)}</nav>;
+    <a key={link.href} href={link.href} title={link.label} aria-label={link.label} aria-current={link.current ? 'page' : undefined} onClick={event => follow(event, link.href)}>
+      <FoxmindIcon name={link.href.startsWith('/carpetas-de-estudio')?'folder':link.href.startsWith('/agenda') ? 'calendar' : link.href.startsWith('/mis-aulas') ? 'layers' : link.href.startsWith('/foxy-ai') ? 'spark' : link.href.startsWith('/notificaciones') ? 'bell' : 'home'} /><span className="fm-navigation-label">{link.label}</span></a>)}</nav>;
 }
 export function ShellAccount({ avatarKey, privateShell, currentPath, displayName, accountEmail, accountActions, notifications, follow, homeNavigation, accountRole }: {
   avatarKey?: string; privateShell: boolean; currentPath?: string; displayName?: string; accountEmail?: string; accountActions?: ReactNode; notifications?: ReactNode; follow: Follow; homeNavigation?: boolean; accountRole?:'teacher'|'student';
@@ -17,29 +17,8 @@ export function ShellAccount({ avatarKey, privateShell, currentPath, displayName
     {notifications ? <div className="fm3d-shell-notifications">{notifications}</div> : null}
     {privateShell && !homeNavigation ? <><a href="/settings" aria-current={currentPath === '/settings' ? 'page' : undefined} onClick={event => follow(event, '/settings')}><FoxmindIcon name="settings" />Configuración</a>
       {!homeNavigation ? <a href="/profile" aria-current={currentPath === '/profile' ? 'page' : undefined} onClick={event => follow(event, '/profile')}><FoxmindIcon name="profile" />Mi perfil</a> : null}</> : null}
-    {homeNavigation && privateShell ? <HomeAccountMenu avatarKey={avatarKey} displayName={displayName} accountEmail={accountEmail} follow={follow} accountActions={accountActions} accountRole={accountRole}/> : <>
+    {homeNavigation && privateShell ? <a href="/profile" className="fm-home-account-trigger" aria-label={`Mi perfil${displayName?` de ${displayName}`:''}`} onClick={event=>follow(event,'/profile')}><AccountAvatar className="fm-brujula-avatar" avatarKey={avatarKey} initials={displayName?.trim().split(/\s+/).slice(0,2).map(word=>Array.from(word)[0]).join('')||'F'}/><span>{displayName?.trim()||'Mi perfil'}{accountRole?<small>{accountRole==='teacher'?'Docente':'Estudiante'}</small>:null}</span><FoxmindIcon name="settings"/></a> : <>
       {displayName ? <p className="fm3d-shell-name">{displayName}</p> : null}{accountActions}</>}
-  </div>;
-}
-function HomeAccountMenu({avatarKey,displayName,accountEmail,follow,accountActions,accountRole}:{avatarKey?:string;displayName?:string;accountEmail?:string;follow:Follow;accountActions?:ReactNode;accountRole?:'teacher'|'student'}) {
-  const [open,setOpen]=useState(false);
-  const dialog=useRef<HTMLDialogElement>(null);
-  useEffect(()=>{if(open && dialog.current)return openDialog(dialog.current);},[open]);
-  const initials=displayName?.trim().split(/\s+/).slice(0,2).map(word=>Array.from(word)[0]).join('')||'F';
-  const navigate=(event:MouseEvent<HTMLAnchorElement>,href:string)=>{
-    if(event.button===0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey)setOpen(false);
-    follow(event,href);
-  };
-  return <div className="fm-home-account-menu">
-    <button type="button" className="fm-home-account-trigger" aria-haspopup="dialog" aria-expanded={open} aria-label={`Mi cuenta${displayName ? ` de ${displayName}` : ''}`} onClick={()=>setOpen(true)}>
-      <AccountAvatar className="fm-brujula-avatar" avatarKey={avatarKey} initials={initials} /><span>{displayName?.trim() || 'Mi cuenta'}{accountRole?<small>{accountRole==='teacher'?'Docente':'Alumno'}</small>:null}</span><FoxmindIcon name="settings"/>
-    </button>
-    {open ? <dialog ref={dialog} className="fm-brujula-account-dialog" aria-modal="true" aria-label="Mi cuenta" onCancel={event=>{event.preventDefault();event.stopPropagation();setOpen(false);}} onClick={event=>{if(event.target===event.currentTarget)setOpen(false);}}>
-      <header><h2>Mi cuenta</h2><button type="button" aria-label="Cerrar Mi cuenta" onClick={()=>setOpen(false)}><FoxmindIcon name="close"/></button></header>
-      <div className="fm-brujula-account-body"><div className="fm-brujula-account-summary"><AccountAvatar className="fm-brujula-avatar" avatarKey={avatarKey} initials={initials} /><div><h3>{displayName?.trim() || 'Mi cuenta'}</h3><small>{accountRole ? accountRole==='teacher'?'Docente':'Alumno' : ''}{accountRole && accountEmail ? ' · ' : ''}{accountEmail}</small></div></div>
-        <nav aria-label="Opciones de Mi cuenta"><a href="/profile" onClick={event=>navigate(event,'/profile')}><FoxmindIcon name="profile"/>Mi perfil<FoxmindIcon name="chevron-right"/></a><a href="/settings" onClick={event=>navigate(event,'/settings')}><FoxmindIcon name="settings"/>Configuración de la cuenta<FoxmindIcon name="chevron-right"/></a>{accountActions ? <div className="fm-brujula-session-action"><FoxmindIcon name="logout"/>{accountActions}<FoxmindIcon name="chevron-right"/></div> : null}</nav>
-      </div>
-    </dialog>:null}
   </div>;
 }
 export function NavbarDrawer({ children, onClose }: { children: ReactNode; onClose: () => void }) {
@@ -49,7 +28,13 @@ export function NavbarDrawer({ children, onClose }: { children: ReactNode; onClo
     onCancel={event => { if (event.target === event.currentTarget) { event.preventDefault(); onClose(); } }}
     onClick={event => { const target = event.target as HTMLElement; if (target.closest('a,button') && !target.closest('.fm3d-shell-notifications,.fm-brujula-search,.fm-brujula-search-dialog,.fm-home-account-menu,.fm-brujula-account-dialog')) onClose(); }}>
     <header><h2 id="fm3d-drawer-title">Menú de navegación</h2>
-      <button type="button" aria-label="Cerrar menú de navegación" onClick={onClose}><FoxmindIcon name="close" /></button></header>
+      <button type="button" aria-label="Cerrar menú de navegación" onClick={onClose}><FoxmindIcon name="menu" /></button></header>
     {children}
   </dialog>;
+}
+
+export function ShellHelp({accountRole}:{accountRole?:'teacher'|'student'}) {
+ const [open,setOpen]=useState(false);const dialog=useRef<HTMLDialogElement>(null);
+ useEffect(()=>{if(open&&dialog.current)return openDialog(dialog.current);},[open]);
+ return <div className="fm-sidebar-help"><b>Un paso a la vez</b><p>Siempre podés volver a donde te quedaste.</p><button type="button" onClick={()=>setOpen(true)}>¿Necesitás una mano?<FoxmindIcon name="arrow-right"/></button>{open?<dialog ref={dialog} className="fm-sidebar-help-dialog" aria-labelledby="fm-sidebar-help-title" onCancel={event=>{event.preventDefault();setOpen(false);}}><header><h2 id="fm-sidebar-help-title">Estamos para acompañarte</h2><button type="button" aria-label="Cerrar ayuda" onClick={()=>setOpen(false)}><FoxmindIcon name="close"/></button></header><p>Cada espacio tiene un próximo paso.</p><div><h3>Mis aulas</h3><p>Encontrá el plan, los materiales y las actividades de cada grupo.</p><h3>{accountRole==='teacher'?'Foxy AI':'Mi estudio'}</h3><p>Un espacio privado para preparar ideas y aprender a tu ritmo.</p><h3>Agenda</h3><p>Organizá tus momentos de clase y de estudio.</p></div><footer><button type="button" className="primary" onClick={()=>setOpen(false)}>Entendido</button></footer></dialog>:null}</div>;
 }

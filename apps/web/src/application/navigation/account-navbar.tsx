@@ -48,12 +48,12 @@ export function AccountNavbar({ session, view, signInHref = '/sign-in', register
     avatarKey={user?.avatarKey} accountRole={user?.accountRole} classroomLinks={rooms?.subject===user?.id ? rooms?.items.filter(room=>!room.archived).map(room=>({href:`/mis-aulas?aula=${encodeURIComponent(room.id)}`,label:room.name,coverKey:room.coverKey})):undefined}
     displayName={user ? `${user.firstName} ${user.lastName}` : undefined} accountEmail={user?.email} currentPath={view ? `/${view}` : undefined}
     links={verified ? [{ href: '/inicio', label: 'Inicio' }, { href: '/mis-aulas', label: 'Mis aulas' },
-      ...(user?.accountRole==='student'?[{href:'/carpetas-de-estudio',label:'Carpetas de estudio',current:view==='carpetas-de-estudio'}]:[]),
+      ...(user?.accountRole==='student'?[{href:'/carpetas-de-estudio',label:'Mi estudio',current:view==='carpetas-de-estudio'}]:[]),
       { href: '/agenda', label: 'Agenda', current: view === 'agenda' },
       ...(user?.accountRole === 'teacher' ? [{ href: '/foxy-ai', label: 'Foxy AI', current: view === 'foxy-ai' }] : [])]
       : user ? [{ href: verifyHref, label: 'Verificar correo', current: view === 'verify-email' }]
         : [{ href: signInHref, label: 'Iniciar sesión', current: view === 'sign-in' }, { href: registerHref, label: 'Crear cuenta', current: view === 'register' }]}
     onNavigate={navigate}
-    notifications={verified ? <Notifications api={api} refresh={0} includeStudyReminders={user?.accountRole==='student'} onSelect={id => navigate(`/mis-aulas?notificacion=${encodeURIComponent(id)}`)} /> : undefined}
+    notifications={verified ? <Notifications api={api} refresh={0} onSelect={id => navigate(`/mis-aulas?notificacion=${encodeURIComponent(id)}`)} /> : undefined}
     accountActions={accountActions} />;
 }

@@ -122,3 +122,86 @@ test('downstream cancellation destroys an in-flight upstream request', async () 
     await Promise.race([closed, new Promise((_, reject) => { const timer = setTimeout(() => reject(new Error('Upstream did not close')), 2000); timer.unref(); })]);
   }, (req, _res) => { req.once('close', upstreamClosed); upstreamStarted(); });
 });
+
+test('settings forwards an optional catalog cover through real transport and preserves write guards', async () => {
+  const { loadTsModule } = await import('./helpers/load-ts-module.mjs');
+  const policy = loadTsModule('apps/api/src/modules/classrooms/infrastructure/policy.ts');
+  const { createClassroomsHandler } = loadTsModule('apps/api/src/bootstrap/academic-http.ts', { stubs: {
+    '../modules/classrooms/infrastructure/policy.ts': policy,
+  } });
+  const { updateSettingsOperation } = loadTsModule('apps/api/src/modules/classrooms/infrastructure/drafts-operations.ts', { stubs: {
+    './policy.ts': policy,
+  } });
+  const writes = [];
+  const capability = {
+    ports: {},
+    run: async (req, write, operation) => {
+      assert.equal(write, true);
+      return operation({ query: async (_sql, ...values) => { writes.push(values); return []; } }, { teacher: req.headers.cookie === 'fixture=teacher' });
+    },
+    classroom: async (_tx, actor, requestedId, lock, teacherOnly) => {
+      assert.equal(requestedId, id);
+      assert.ok(lock && teacherOnly);
+      if (!actor.teacher) policy.fail('FORBIDDEN');
+      return { revision: 2n };
+    },
+  };
+  const handler = createClassroomsHandler({
+    updateSettings: (req, room, input) => updateSettingsOperation(capability, req, room, input),
+  }, { admit: async (req, write) => {
+    assert.equal(write, true);
+    if (!['fixture=teacher', 'fixture=student'].includes(req.headers.cookie)) throw Error('Synthetic admission denied');
+  } });
+  const payload = { revision: '2', name: 'Aula', subject: 'Materia', division: 'A', academicYear: 2026 };
+  await fixture(async origin => {
+    const send = (body, actor = 'teacher') => fetch(`${origin}/api/v1/classrooms/${id}/settings`, {
+      method: 'PATCH', body: JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json', ...(actor ? { Cookie: `fixture=${actor}` } : {}) },
+    });
+    assert.equal((await send({ ...payload, coverKey: 'biology' })).status, 200);
+    assert.equal(writes.at(-1)[6], 'biology');
+    assert.equal((await send(payload)).status, 200);
+    assert.equal(writes.at(-1)[6], null);
+    assert.equal((await send({ ...payload, coverKey: 'outside-catalog' })).status, 400);
+    assert.equal((await send({ ...payload, ownerId: id, coverKey: 'biology' })).status, 400);
+    assert.equal((await send({ ...payload, coverKey: 'biology' }, null)).status, 403);
+    assert.equal((await send({ ...payload, coverKey: 'biology' }, 'student')).status, 403);
+    assert.equal((await send({ ...payload, revision: '1', coverKey: 'biology' })).status, 409);
+    assert.equal(writes.length, 2);
+  }, (req, res) => {
+    req.url = req.url.replace(/^\/api\/v1/, '');
+    handler(req, res, () => res.writeHead(404).end());
+  });
+});
+
+test('draft proxy forwards bounded optional wizard metadata unchanged with its security headers', async () => fixture(async origin => {
+  for (const payload of [{ name: 'Legacy draft' }, ...[0, 1, 2, 3].flatMap(wizardStep => ['ai', 'manual', null].map(wizardMethod => ({ name: 'Draft', wizardStep, wizardMethod })))]) {
+    const body = JSON.stringify({ revision: '2', payload });
+    const response = await fetch(`${origin}/api/v1/classrooms/drafts/${id}`, { method: 'PATCH', body,
+      headers: { 'Content-Type': 'application/json', Cookie: 'foxmind_session=original', Origin: 'http://web.test', 'X-CSRF-Token': 'binding' } });
+    assert.equal(response.status, 200);
+    const result = await response.json();
+    assert.equal(result.body, body);
+    assert.equal(result.headers.cookie, 'foxmind_session=original');
+    assert.equal(result.headers.origin, 'http://web.test');
+    assert.equal(result.headers['x-csrf-token'], 'binding');
+  }
+}));
+
+test('draft proxy rejects invalid wizard metadata and extra fields before upstream', async () => {
+  let calls = 0;
+  await fixture(async origin => {
+    const invalid = [
+      ...[-1, 4, 1.5, '2', null, true].map(wizardStep => ({ wizardStep })),
+      ...['AUTO', '', 1, false, {}].map(wizardMethod => ({ wizardMethod })),
+      { wizardStep: 1, wizardMethod: 'ai', ownerId: 'foreign' },
+      { wizardStep: 1, wizardMethod: 'manual', units: [{ name: 'Unit', topics: [], extra: 'invalid' }] },
+    ];
+    for (const payload of invalid) {
+      const response = await fetch(`${origin}/api/v1/classrooms/drafts/${id}`, { method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ revision: '2', payload }) });
+      assert.equal(response.status, 400);
+    }
+  }, (_req, res) => { calls++; res.end('{}'); });
+  assert.equal(calls, 0);
+});

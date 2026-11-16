@@ -49,11 +49,11 @@ test('Classroom summaries accept optional progress for active teacher and studen
 test('The calendar week follows the display zone, crossing months and daylight saving', () => {
   const week = homeCalendarWeek('2026-11-02T01:00:00Z', 'America/Argentina/Buenos_Aires');
   assert.equal(week[0].date, '2026-10-26');
-  assert.equal(week[6].date, '2026-11-01');
-  assert.equal(week[6].today, true);
+  assert.equal(week[4].date, '2026-10-30');
+  assert.equal(week.some(day=>day.today), false);
   const daylight = homeCalendarWeek('2026-11-01T07:00:00Z', 'America/New_York');
-  assert.equal(daylight.filter(day => day.today).length, 1);
-  assert.equal(new Set(daylight.map(day => day.date)).size, 7);
+  assert.equal(daylight.filter(day => day.today).length, 0);
+  assert.equal(new Set(daylight.map(day => day.date)).size, 5);
 });
 
 
@@ -62,7 +62,7 @@ test('Agenda preview keeps local time and type without technical zone or room me
   const item = { id: 'event', title: 'Revisar entregas', source: 'PRIVATE_EVENT', allDay: false,
     startAt: '2026-11-16T19:00:00Z', date: '2026-11-16', timeZone: 'America/Argentina/Buenos_Aires',
     classroom: { name: 'No duplicar contexto', division: 'A' }, target: { kind: 'private-event' } };
-  const html = renderToStaticMarkup(HomeAgendaRow({ item, timeZone: 'America/Buenos_Aires', onAction() {} }));
+  const html = renderToStaticMarkup(HomeAgendaRow({ item, timeZone: 'America/Argentina/Buenos_Aires', generatedAt: '2026-11-12T12:00:00Z', onAction() {} }));
   assert.match(html, /16:00/);
   assert.match(html, /16 nov/);
   assert.doesNotMatch(html, /Zona|America\/|No duplicar contexto/);

@@ -18,11 +18,11 @@ const messages: Record<string, string> = {
     'El servicio no está disponible. Tus cambios confirmados siguen guardados. Volvé a intentar.',
   QUOTA_EXCEEDED: 'No hay espacio disponible para este archivo.',
   FILE_NOT_READY: 'El archivo todavía no está aprobado.',
-  FILE_REJECTED: 'El archivo no superó la revisión. Elegí otro PDF o DOCX.',
+  FILE_REJECTED: 'El archivo no superó la revisión. Elegí otro PDF, Word o PowerPoint.',
   FILE_TOO_LARGE: 'El plan puede pesar hasta 20 MB.',
-  FILE_TYPE_NOT_ALLOWED: 'El plan debe ser un PDF o DOCX.',
-  MATERIAL_FILE_TOO_LARGE: 'El material puede pesar hasta 50 MB.',
-  MATERIAL_FILE_TYPE_NOT_ALLOWED: 'El material debe ser PDF, DOCX, PPTX, XLSX, JPG, JPEG, PNG o ZIP.',
+  FILE_TYPE_NOT_ALLOWED: 'El plan debe ser PDF, Word o PowerPoint.',
+  MATERIAL_FILE_TOO_LARGE: 'PDF, Word y PowerPoint admiten hasta 20 MB; los demás formatos, hasta 50 MB.',
+  MATERIAL_FILE_TYPE_NOT_ALLOWED: 'El material debe ser PDF, DOC, DOCX, PPT, PPTX, XLSX, JPG, JPEG, PNG o ZIP.',
   MATERIAL_FILE_REJECTED: 'El archivo no superó la revisión de seguridad. Elige otro archivo permitido; este material no se publicó.',
 };
 

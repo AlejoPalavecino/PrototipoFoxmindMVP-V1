@@ -1,8 +1,9 @@
 export { PendingClassroomCard } from './ui/PendingClassroomCard.tsx';
+export { PendingInvitations, InvitationPreview } from './ui/PendingInvitations.tsx';
 export { ClassroomCard } from './ui/ClassroomCollectionCard.tsx';
-export { ClassroomCollectionFilters, activeCollectionFilters, type CollectionFiltersProps, AdvancedFilters } from './ui/ClassroomCollectionFilters.tsx';
+export { ClassroomCollectionFilters } from './ui/ClassroomCollectionFilters.tsx';
 export { filterClassroomCards, type ClassroomFilterOptions, type ClassroomFilter } from './model/collection-filter.ts';
-export { ResourceNotice } from './ui/ResourceNotice.tsx';
+export { ClassroomLoading, ResourceNotice } from './ui/ResourceNotice.tsx';
 export { ClassroomCollection } from './ui/ClassroomCollection.tsx';
 export { ClassroomCollectionHero } from './ui/ClassroomCollectionHero.tsx';
 export { ClassroomHeader } from './ui/ClassroomHeader.tsx';
@@ -16,3 +17,7 @@ export { useClassroomSettings } from './model/use-classroom-settings.ts';
 export { useSettingsReload } from './model/use-settings-reload.ts';
 export { WizardGeneral } from './ui/WizardGeneral.tsx';
 export { WizardReview } from './ui/WizardReview.tsx';
+
+export { ClassroomWizardCover } from './ui/ClassroomWizardCover.tsx';
+
+export { ClassroomProcessing, type ClassroomProcessStage } from './ui/ClassroomProcessing.tsx';

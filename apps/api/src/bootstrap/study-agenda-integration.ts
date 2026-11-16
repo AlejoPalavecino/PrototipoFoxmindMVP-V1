@@ -1,3 +1,5 @@
+import { expandAgendaEvent, localMinuteAt } from '../../../../src/core/domain/agenda/index.ts';
+import { shiftDate } from '../../../../src/core/domain/agenda/values.ts';
 import {randomUUID} from 'node:crypto';
 import { createPrivateEventRepository } from '../modules/agenda/infrastructure/event-repository.ts';
 import type { StudyOptions } from '../modules/study/application/contracts.ts';
@@ -6,6 +8,25 @@ import { studySessionEvent } from '../modules/study/infrastructure/folders/remin
 function fail(code='INVALID_INPUT'):never{throw Object.assign(new Error(code),{code});}
 export function createStudyAgendaIntegration():NonNullable<StudyOptions['agenda']> {
   return {
+    async conflicts(tx,ownerId,timeZone,sessions) {
+      if (!sessions.length) return [];
+      const windows = sessions.map(session => {
+        const start = Date.parse(session.startAt), end = Date.parse(session.endAt);
+        return { ...session, start, end, startDate:localMinuteAt(start,timeZone).slice(0,10),
+          endDateExclusive:shiftDate(localMinuteAt(end-1,timeZone).slice(0,10),1) };
+      });
+      const range = {timeZone,startDate:windows.map(item=>item.startDate).sort()[0]!,
+        endDateExclusive:windows.map(item=>item.endDateExclusive).sort().at(-1)!};
+      const matching = await tx.query<{id:string;agenda_event_id:string}>(`SELECT id,agenda_event_id FROM study_review_sessions
+        WHERE owner_id=$1::uuid AND id=ANY($2::uuid[]) AND cancelled_at IS NULL`,ownerId,sessions.map(session=>session.id));
+      const ownEvents = new Map(matching.map(row=>[row.id,row.agenda_event_id]));
+      const occurrences = (await createPrivateEventRepository(tx,ownerId).list(range,null)).flatMap(event=>expandAgendaEvent(event,range));
+      return windows.flatMap(window=>occurrences.filter(item=>{
+        if (item.event.id===ownEvents.get(window.id)) return false;
+        if (item.startAt && item.endAt) return Date.parse(item.startAt)<window.end && Date.parse(item.endAt)>window.start;
+        return item.startDate<window.endDateExclusive && item.endDateExclusive>window.startDate;
+      }).map(item=>({sessionId:window.id,occurrenceId:item.occurrenceId,title:item.event.title})));
+    },
     async confirm(tx,ownerId,folderId,examInput,sessions,requestId) {
       void requestId;
       const exam=examInput as Record<string,unknown>,events=createPrivateEventRepository(tx,ownerId),result=[];

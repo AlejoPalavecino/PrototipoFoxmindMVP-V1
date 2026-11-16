@@ -1,3 +1,4 @@
+import { DOCUMENT_MAX_BYTES, isDocumentExtension } from '../../../../../../../src/core/domain/documents/document-formats.ts';
 import type { ActivitySourceCandidate } from '../../../../../../../src/core/domain/index.ts';
 import type { Transaction } from '../../../classrooms/public.ts';
 
@@ -16,8 +17,8 @@ export async function candidates(tx: Transaction, classroomId: string): Promise<
     ORDER BY s.kind,s.title,s.source_id`, classroomId);
   return rows.map(row => {
     const sizeBytes = Number(row.size_bytes), reason = !row.ready ? 'FILE_NOT_READY' as const
-      : !['pdf', 'docx'].includes(row.extension) ? 'UNSUPPORTED_FORMAT' as const
-        : sizeBytes > 20_000_000 ? 'AI_INPUT_LIMIT' as const : null;
+      : !isDocumentExtension(row.extension) ? 'UNSUPPORTED_FORMAT' as const
+        : sizeBytes > DOCUMENT_MAX_BYTES ? 'AI_INPUT_LIMIT' as const : null;
     return { sourceId: row.source_id, fileId: row.file_id, title: row.title, kind: row.kind,
       extension: row.extension, sizeBytes, unitId: row.unit_id, topicId: row.topic_id, available: reason === null, reason };
   });

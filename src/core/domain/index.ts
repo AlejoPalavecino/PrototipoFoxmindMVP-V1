@@ -32,4 +32,4 @@ export type { FoxyAnswerReferenceMap, GroundedFoxyReference, GroundedFoxyAnswer 
 export type { FoxyTextInput, FoxyTextResponse } from './foxy/text.ts';
 
 export type * from './foxy/asset.ts';
-export { assetUuid, parseReserveFoxyPrivateAsset, parseFoxyPrivateAssetQuota, parseDiscardFoxyPrivateAsset } from './foxy/asset-validation.ts';
+export { assetUuid, parseReserveFoxyPrivateAsset, parseFoxyPrivateAssetQuota, parseDiscardFoxyPrivateAsset, parseEditFoxyPrivateAsset } from './foxy/asset-validation.ts';

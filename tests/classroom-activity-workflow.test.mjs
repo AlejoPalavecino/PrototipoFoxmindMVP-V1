@@ -75,22 +75,34 @@ test('a selected file stays local and a practical response uses the acknowledged
     assert.match(calls[1][0], /submit-practical$/);
     assert.deepEqual(calls[1][1], { revision: '2', confirm: true });
     assert.equal(calls[1][2], editor);
-    assert.match(text(view.tree), /Entrega confirmada/);
-    assert.match(text(view.tree), /Entrega fuera de plazo/);
+    const receiptView = descendants(view.tree, node => node.type?.name === 'AttemptReceipt')[0];
+    assert.deepEqual(receiptView.props.delivery, receipt);
+    assert.match(text(receiptView.type(receiptView.props)), /Entrega confirmada/);
+    assert.match(text(receiptView.type(receiptView.props)), /Fuera de plazo/);
   } finally { view.close(); }
 });
 
-test('student consultation does not render answer keys even if the input includes private fields', () => {
+test('student consultation does not render answer keys even if the input includes private fields', async () => {
   const { ActivityPreview } = loadTsModule('apps/web/src/application/academic-activity-preview.tsx');
   const questionnaire = { ...activity, type: 'QUESTIONNAIRE', objective: 'Comparar dos ambientes.',
     questions: [{ id: 'q1', prompt: 'Pregunta privada', points: '9.00', scoringRule: 'PARTIAL',
       options: [{ id: 'o1', text: 'Clave privada', correct: true }] }],
   };
-  const student = ActivityPreview({ api: {}, activity: questionnaire, teacher: false });
-  const teacher = ActivityPreview({ api: {}, activity: questionnaire, teacher: true });
-  assert.match(text(student), /Objetivo de aprendizaje/);
-  assert.doesNotMatch(text(student), /Clave privada|9.00|Correcta|Puntaje parcial/);
-  assert.match(text(teacher), /Clave privada/);
+  const props = { api: {}, activity: questionnaire };
+  const student = hookView(ActivityPreview, { ...props, teacher: false });
+  const teacher = hookView(ActivityPreview, { ...props, teacher: true });
+  try {
+    await student.flush(); await teacher.flush();
+    assert.match(text(student.tree), /Para qué lo hacemos/);
+    assert.doesNotMatch(text(student.tree), /Clave privada|9\.00|Correcta|Puntaje parcial/);
+    assert.equal(button(student, 'Preguntas y clave docente'), undefined);
+    assert.equal(button(teacher, 'Preguntas y clave docente'), undefined);
+    const key = descendants(teacher.tree, node => node.props['aria-label'] === 'Preguntas de la actividad')[0];
+    assert.ok(key);
+    assert.match(text(key), /Clave privada.*Correcta/);
+    assert.match(text(key), /9\.00\s+puntos/);
+    assert.match(text(key), /Puntaje parcial/);
+  } finally { student.close(); teacher.close(); }
 });
 
 test('switching classroom tabs keeps an open student draft mounted without starting again', async () => {

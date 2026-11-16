@@ -9,8 +9,8 @@ export interface AuthoringQuestion {
   options: { text: string; correct: boolean }[];
 }
 export interface ActivityPayload {
-  objective?: string | null; teacherComment?: string | null;
-  title: string | null; unitId: string | null; topicId: string | null; topicIds: string[]; instructions: string | null;
+  objective?: string | null; teacherBrief?: string | null; teacherComment?: string | null;
+  title: string | null; unitId: string | null; unitIds?: string[]; topicId: string | null; topicIds: string[]; instructions: string | null;
   attachmentRequired: boolean; instructionFileIds: string[]; materialIds: string[];
   questions: AuthoringQuestion[]; deadline: unknown; allowLate: boolean; aiGradingRubric?: string; evaluationRubric?: EvaluationRubric;
 }
@@ -48,8 +48,8 @@ export function authoringQuestion(input: unknown): AuthoringQuestion {
   return { type: q.type, prompt: multiline(q.prompt, 20000, true), points: q.points, scoringRule: q.scoringRule, options };
 }
 export function activityPayload(input: unknown, type: ActivityType, published: boolean): ActivityPayload {
-  const keys = ['title', 'unitId', 'instructions', 'attachmentRequired', 'instructionFileIds', 'materialIds', 'questions', 'deadline', 'allowLate'];
-  const p = object(input, [...keys, 'topicId', 'topicIds', 'aiGradingRubric', 'evaluationRubric', 'objective', 'teacherComment']);
+  const keys = ['title', 'instructions', 'attachmentRequired', 'instructionFileIds', 'materialIds', 'questions', 'deadline', 'allowLate'];
+  const p = object(input, [...keys, 'unitId', 'unitIds', 'teacherBrief', 'topicId', 'topicIds', 'aiGradingRubric', 'evaluationRubric', 'objective', 'teacherComment']);
   if (keys.some(key => !Object.hasOwn(p, key))) return fail('INVALID_INPUT');
   const aiGradingRubric = Object.hasOwn(p, 'aiGradingRubric') ? multiline(p.aiGradingRubric, 5000) : '';
   let evaluationRubric: EvaluationRubric = [];
@@ -64,21 +64,22 @@ export function activityPayload(input: unknown, type: ActivityType, published: b
     if (questions.length || (published && !instructions?.trim() && !instructionFileIds.length)) return fail('INVALID_INPUT');
   } else if (instructionFileIds.length || p.attachmentRequired || (published && !questions.length)) return fail('INVALID_INPUT');
   return { title, ...selection, instructions,
+    ...(Object.hasOwn(p, 'teacherBrief') ? { teacherBrief: p.teacherBrief === null ? null : multiline(p.teacherBrief, 1200).trim() || null } : {}),
     ...(Object.hasOwn(p, 'objective') ? { objective: p.objective === null ? null : multiline(p.objective, 1400) || null } : {}),
     ...(Object.hasOwn(p, 'teacherComment') ? { teacherComment: p.teacherComment === null ? null : multiline(p.teacherComment, 5000) || null } : {}), attachmentRequired: p.attachmentRequired,
     instructionFileIds, materialIds, questions, deadline: p.deadline, allowLate: p.allowLate, aiGradingRubric, evaluationRubric };
 }
 
 export function activityOperation(input: unknown) {
-  const op = object(input, ['action', 'id', 'type', 'payload', 'title', 'unitId', 'topicId', 'topicIds', 'deadline', 'allowLate']);
+  const op = object(input, ['action', 'id', 'type', 'payload', 'title', 'unitId', 'unitIds', 'topicId', 'topicIds', 'deadline', 'allowLate']);
   const shapes: Record<string, string[]> = {
     create: ['action', 'type'], save: ['action', 'id', 'payload'], publish: ['action', 'id'], withdraw: ['action', 'id'],
-    metadata: ['action', 'id', 'title', 'unitId'], deadline: ['action', 'id', 'deadline', 'allowLate'],
+    metadata: ['action', 'id', 'title'], deadline: ['action', 'id', 'deadline', 'allowLate'],
   };
   const shape = typeof op.action === 'string' && Object.hasOwn(shapes, op.action) ? shapes[op.action] : undefined;
   if (!shape) return fail('INVALID_INPUT');
   if (op.action === 'metadata') {
-    object(op, [...shape, 'topicId', 'topicIds']);
+    object(op, [...shape, 'unitId', 'unitIds', 'topicId', 'topicIds']);
     if (shape.some(key => !Object.hasOwn(op, key))) return fail('INVALID_INPUT');
     activityTopics(op, false);
   } else exactActivityObject(op, shape);

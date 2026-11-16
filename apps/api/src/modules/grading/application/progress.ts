@@ -10,6 +10,8 @@ interface ProgressActivity {
   studentId: string; id: string; title: string; type: string; expected: boolean;
   firstSubmission: { id: string; number: number; submittedAt: string; appliedDeadlineAt: string | null; late: boolean } | null;
   pendingResubmission: boolean; grade: string | null; confirmedAttempts: number;
+  publishedAttemptId?: string | null;
+  review?: { attemptId: string; state: 'pending' | 'saved' | 'published' } | null;
 }
 
 /** Read persisted academic facts under the same classroom lock as their writers. GET never assigns work. */
@@ -24,16 +26,16 @@ export class ProgressService {
     return this.repository.progressRows(tx, classroomId, studentId);
   }
 
-  private studentProgress(student: ProgressStudent, activities: ProgressActivity[]) {
+  private studentProgress(student: ProgressStudent, activities: ProgressActivity[], includeReview = false) {
     const expected = activities.filter(row => row.expected), delivered = expected.filter(row => row.firstSubmission !== null);
     return { ...student,
       completion: completion(expected.length, delivered.length, delivered.filter(row => !row.firstSubmission!.late).length,
         delivered.filter(row => row.firstSubmission!.late).length, delivered.filter(row => row.pendingResubmission).length),
       performance: performance(activities.flatMap(row => row.grade === null ? [] : [row.grade])),
-      activities: activities.map(({ studentId: _studentId, ...row }) => row) };
+      activities: activities.map(({ studentId: _studentId, review, ...row }) => includeReview ? { ...row, review: review ?? null } : row) };
   }
 
-  async progressView(tx: Transaction, roomId: string, selected: string | null) {
+  async progressView(tx: Transaction, roomId: string, selected: string | null, includeReview = false) {
     const students = await this.repository.students(tx, roomId, selected);
     if (selected && students.length !== 1) return fail('FORBIDDEN');
     const rows = await this.progressRows(tx, roomId, selected);
@@ -44,8 +46,9 @@ export class ProgressService {
       byStudent.set(row.studentId, activities);
     }
     const topics = await this.repository.topics(tx, roomId);
-    const plan = taughtProgress(topics[0].total, topics[0].taught);
-    const summaries = students.map(student => this.studentProgress(student, byStudent.get(student.studentId) ?? []));
+    const units = await this.repository.units(tx, roomId);
+    const plan = { ...taughtProgress(topics[0].total, topics[0].taught), units };
+    const summaries = students.map(student => this.studentProgress(student, byStudent.get(student.studentId) ?? [], includeReview));
     if (selected) return { ...summaries[0], plan };
     const individualMeans = students.flatMap(student => {
       const mean = gradeMean((byStudent.get(student.studentId) ?? []).flatMap(row => row.grade === null ? [] : [row.grade]));
@@ -62,7 +65,7 @@ export class ProgressService {
     return this.run(request, false, async (tx, actor) => {
       const room = await this.classroom(tx, actor, classroomId), teacher = room.teacher_id === actor.id;
       return { scope: teacher ? 'classroom' as const : 'self' as const, revision: room.revision.toString(), archived: !!room.archived_at,
-        ...await this.progressView(tx, classroomId, teacher ? null : actor.id) };
+        ...await this.progressView(tx, classroomId, teacher ? null : actor.id, teacher) };
     });
   }
 
@@ -71,7 +74,7 @@ export class ProgressService {
     return this.run(request, false, async (tx, actor) => {
       const room = await this.classroom(tx, actor, classroomId, false, true);
       return { scope: 'member' as const, revision: room.revision.toString(), archived: !!room.archived_at,
-        ...await this.progressView(tx, classroomId, studentId) };
+        ...await this.progressView(tx, classroomId, studentId, true) };
     });
   }
   getStudentAiReport(request: unknown, classroomId: string, studentId: string) {
@@ -106,6 +109,7 @@ export interface ProgressRepository {
  progressRows(tx: Transaction, ...values: unknown[]): Promise<(ProgressActivity)[]>;
  students(tx: Transaction, ...values: unknown[]): Promise<(ProgressStudent)[]>;
  topics(tx: Transaction, ...values: unknown[]): Promise<({ total: number; taught: number })[]>;
+ units(tx: Transaction, ...values: unknown[]): Promise<({ id: string; name: string; total: number; taught: number })[]>;
  member(tx: Transaction, ...values: unknown[]): Promise<({ id: string })[]>;
  report(tx: Transaction, ...values: unknown[]): Promise<({ state: string; report: unknown; updated_at: Date; error_code: string | null; reference_map: unknown })[]>;
 }

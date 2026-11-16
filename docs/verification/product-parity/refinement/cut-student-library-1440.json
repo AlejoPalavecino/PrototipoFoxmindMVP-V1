@@ -1,0 +1,50 @@
+{
+  "width": 1440,
+  "clientWidth": 1440,
+  "height": 900,
+  "scrollWidth": 1440,
+  "headings": [
+    {
+      "text": "Fotografía y luz",
+      "font": "800 28px / 32.48px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 386.8000183105469,
+        "y": 107.8499984741211,
+        "width": 594.6875,
+        "height": 32.47500228881836,
+        "top": 107.8499984741211,
+        "right": 981.4875183105469,
+        "bottom": 140.32500076293945,
+        "left": 386.8000183105469
+      }
+    },
+    {
+      "text": "Biblioteca",
+      "font": "600 20px / 25px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 267,
+        "y": 286.2250061035156,
+        "width": 1,
+        "height": 1,
+        "top": 286.2250061035156,
+        "right": 268,
+        "bottom": 287.2250061035156,
+        "left": 267
+      }
+    },
+    {
+      "text": "Biblioteca",
+      "font": "850 25px / 31.25px Nunito, system-ui, sans-serif",
+      "rect": {
+        "x": 268,
+        "y": 287.2250061035156,
+        "width": 275.3999938964844,
+        "height": 31.25,
+        "top": 287.2250061035156,
+        "right": 543.3999938964844,
+        "bottom": 318.4750061035156,
+        "left": 268
+      }
+    }
+  ]
+}

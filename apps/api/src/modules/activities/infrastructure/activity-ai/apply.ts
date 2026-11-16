@@ -8,7 +8,7 @@ import type { ActivityAiOptions, JobRow } from './contracts.ts';
 
 export function proposalConstraints(row: JobRow) {
   return { type: row.type, counts: row.input_payload.counts, sourceIds: row.input_payload.sourceIds,
-    context: row.input_payload.context, pdfPageCounts: Object.fromEntries(row.source_report.filter(s => s.pageCount !== null).map(s => [s.sourceId, s.pageCount!])) };
+    context: row.input_payload.context.trim() ? row.input_payload.context : row.input_payload.teacherBrief ?? '', pdfPageCounts: Object.fromEntries(row.source_report.filter(s => s.pageCount !== null).map(s => [s.sourceId, s.pageCount!])) };
 }
 export function applied(row: JobRow): ActivityGenerationApplied {
   return { generationId: row.id, activityId: row.applied_activity_id!, revision: String(row.applied_revision) };
@@ -20,12 +20,15 @@ export async function applyProposal(options: ActivityAiOptions, tx: Transaction,
     if (repeated !== row.id || row.state !== 'APPLIED') return fail('CONFLICT');
     return applied(row);
   }
-  if (row.state !== 'READY' || String(revision) !== body.revision || !await revalidate(options, tx, request, row)) return fail('CONFLICT');
+  if (row.state !== 'READY' || String(revision) !== body.revision
+    || (row.input_payload.teacherBrief !== undefined && String(row.base_revision) !== body.revision) || !await revalidate(options, tx, request, row)) return fail('CONFLICT');
   const proposal = parseActivityProposal(body.proposal, proposalConstraints(row));
   const instructions = [proposal.instructions,
     ...proposal.assignmentPrompts.map((p, i) => `${i + 1}. ${p}`)].filter(Boolean).join('\n\n');
+  const topicIds = row.curriculum_snapshot.units ? row.curriculum_snapshot.topics.map(topic => topic.id) : row.input_payload.topicIds;
   const activityId = await createActivityDraftInTransaction(tx, { classroomId: row.classroom_id, type: row.type, now: actor.now,
-    payload: { title: proposal.title, unitId: row.unit_id, topicId: row.input_payload.topicIds[0]!, topicIds: row.input_payload.topicIds,
+    payload: { title: proposal.title, unitId: row.unit_id, topicId: topicIds[0]!, topicIds, ...(row.curriculum_snapshot.units ? { unitIds: [] } : {}),
+      teacherBrief: row.input_payload.teacherBrief ?? null,
       objective: proposal.objective, teacherComment: null, instructions, attachmentRequired: false, instructionFileIds: [], materialIds: row.input_payload.sourceIds.filter(s => s.startsWith('material:')).map(s => s.slice(9)),
       questions: proposal.questions, deadline: null, allowLate: false, evaluationRubric: proposal.evaluationRubric ?? [] } });
   const [updated] = await tx.query<{ revision: bigint }>('UPDATE classrooms SET revision=revision+1,updated_at=clock_timestamp() WHERE id=$1::uuid RETURNING revision', row.classroom_id);

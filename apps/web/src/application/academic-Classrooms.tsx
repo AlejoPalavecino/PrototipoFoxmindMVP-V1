@@ -6,13 +6,15 @@ import type { Classroom, Draft, Invitation } from '../../../../src/core/contract
 import type { NotificationTarget } from '../../../../src/core/contracts/notifications.ts';
 import type { HomeTarget } from '../../../../src/core/domain/index.ts';
 import type { HomeClient } from '../features/home/index.ts';
+import { FoxmindIcon } from '../../../shared-ui/FoxmindIcon.tsx';
 import { Dialog, Notice } from '../../../shared-ui/feedback.tsx';
-import { ClassroomCollection } from '../features/classrooms/index.ts';
+import { ClassroomCollection, ClassroomLoading } from '../features/classrooms/index.ts';
 import { classroomExperienceStyles as experience } from '../features/classrooms/index.ts';
 import { ClassroomCollectionHero } from '../features/classrooms/index.ts';
 import { Notifications } from '../features/notifications/index.ts';
+import { createWebAgendaClient } from './agenda-client.ts';
 import { Home } from '../features/home/index.ts';
-import { EntryIcon } from '../../../shared-ui/EntryIcon';
+import { PendingInvitations, InvitationPreview } from '../features/classrooms/index.ts';
 import { AppNavbar } from '../../../shared-ui/AppNavbar.tsx';
 import { createBrujulaSearchClient } from '../../../shared-ui/brujula-search-client.ts';
 import { brujulaSearchDestination } from '../../../../src/core/domain/classrooms/brujula-search.ts';
@@ -26,6 +28,8 @@ const ClassroomView = lazy(() =>
   })),
 );
 const collectionLabels = { rooms: 'tus aulas', drafts: 'tus borradores', invitations: 'tus invitaciones' } as const;
+export interface CollectionDeparture { kind?: 'success' | 'info'; collectionState?: 'active' | 'pending' }
+
 type CollectionPart = keyof typeof collectionLabels;
 interface HomeData {
   teach: Classroom[];
@@ -46,9 +50,11 @@ export function ClassroomsApp({
   requestedNotification,
   requestedTarget,
   navigationNotice,
+  navigationFeedback,
   initialPresentation = 'classrooms',
   onNavigate,
   onEnterClassroom,
+  onResolveInvitation,
   onOpenHomeTarget,
   onSelectNotification,
   requestedHomeTarget,
@@ -64,15 +70,25 @@ export function ClassroomsApp({
   requestedInvitation?: string;
   requestedNotification?: string;
   initialPresentation?: 'home' | 'classrooms';
-  onNavigate?: (presentation: 'home' | 'classrooms' | 'agenda', notice?: string) => void;
+  onNavigate?: (presentation: 'home' | 'classrooms' | 'agenda', notice?: string, feedback?: CollectionDeparture) => void;
   onEnterClassroom?: (id: string) => Promise<unknown>;
+  onResolveInvitation?: (message: string) => Promise<boolean>;
   onOpenHomeTarget?: (target: Exclude<HomeTarget, { kind: 'private-event' }>) => Promise<unknown>;
   onSelectNotification?: (id: string) => Promise<unknown>;
   requestedHomeTarget?: Exclude<HomeTarget, { kind: 'private-event' }>;
   requestedTarget?: { classroomId: string; activityId: string | null };
   navigationNotice?: string;
+  navigationFeedback?: CollectionDeparture;
 }) {
+  const [activitiesRoom,setActivitiesRoom]=useState<string|null>(null);
   const [presentation, setPresentation] = useState(initialPresentation);
+  const [resolvedInvitation, setResolvedInvitation] = useState<string>();
+  const [collectionRevision, setCollectionRevision] = useState(0);
+  const [collectionState, setCollectionState] = useState<'active' | 'pending'>();
+  const [noticeKind, setNoticeKind] = useState<'info' | 'success'>('info');
+  const requestedInvitationId = requestedInvitation?.toLowerCase();
+  const pendingInvitationId = requestedInvitationId === resolvedInvitation ? undefined : requestedInvitationId;
+  const homeAgendaClient=useMemo(()=>createWebAgendaClient(),[subjectId]);
   const searchContent = useMemo(() => createBrujulaSearchClient(api), [api, subjectId]);
   const [data, setData] = useState<Partial<HomeData>>({}),
     [error, setError] = useState(''),
@@ -96,6 +112,7 @@ export function ClassroomsApp({
         division: string;
         academicYear: number;
         teacher: string;
+        coverKey?: string;
       };
     } | null>(null);
   const [joinError, setJoinError] = useState(''),
@@ -150,6 +167,15 @@ export function ClassroomsApp({
     if (next === 'classrooms') void action(() => load());
   };
   const leaveView = () => showPresentation('classrooms');
+  const leaveSavedDraft = () => {
+    const message = 'Borrador guardado. Podés retomarlo cuando quieras.';
+    setNotice(message); setNoticeKind('success'); setSearch('');
+    setCollectionState('pending'); setCollectionRevision(value => value + 1);
+    setDraft(null); setPresentation('classrooms');
+    if (initialPresentation !== 'classrooms' && onNavigate) {
+      onNavigate('classrooms', message, {kind:'success', collectionState:'pending'});
+    } else void action(() => load());
+  };
   const openTarget = (target: NotificationTarget) => {
     setHomeTarget(null); setWallTarget(target); setSharedCode(null); setClassroomId(target.classroomId);
   };
@@ -172,17 +198,34 @@ export function ClassroomsApp({
       .catch(failure => { if (!controller.signal.aborted) setError(failure.message); });
     return () => controller.abort();
   }, [api, requestedNotification, refreshNotifications]);
-  async function accept(invitation: Invitation) {
-    await api.call(`/invitations/${invitation.id}/accept`, 'POST', {});
-    setNotice(`Ya formás parte de ${invitation.name}.`);
-    await load();
+  async function respondToInvitation(invitation: Invitation, decision: 'accept' | 'decline') {
+    await api.call(`/invitations/${invitation.id}/${decision}`, 'POST', {});
+    const joined = decision === 'accept';
+    const message = joined ? `Ya sos parte de ${invitation.name}. La encontrás en tus aulas.` : 'Invitación rechazada.';
+    const invitationId = invitation.id.toLowerCase();
+    const linked = pendingInvitationId === invitationId;
+    requests.current.invitations = Symbol('invitation-resolved');
+    setData(previous => ({ ...previous, invitations: previous.invitations?.filter(item => item.id.toLowerCase() !== invitationId) }));
+    setNotice(message); setNoticeKind('success');
+    if (linked) setResolvedInvitation(invitationId);
+    if (joined) {
+      setCollectionState('active'); setSearch('');
+      setCollectionRevision(value => value + 1);
+    }
+    refreshNotifications();
+    if (linked && onResolveInvitation) {
+      try { if (await onResolveInvitation(message)) return; }
+      catch { /* Keep the confirmed response visible if navigation fails. */ }
+    }
+    await load(undefined, joined ? undefined : 'invitations');
   }
+
   async function enterCode() {
     setBusy(true);
     setJoinError('');
     try {
       if (preview) {
-        const result = await api.call<{ id: string }>(
+        await api.call<{ id: string }>(
           '/codes/confirm',
           'POST',
           { confirmation: preview.confirmation },
@@ -191,11 +234,12 @@ export function ClassroomsApp({
         setSharedCode(null);
         setPreview(null);
         setCode('');
-        if (onEnterClassroom) {
-          try { if (await onEnterClassroom(result.id)) return; }
-          catch { /* Enrollment succeeded; keep the classroom accessible if navigation fails. */ }
-        }
-        setClassroomId(result.id);
+        setNoticeKind('success'); setCollectionState('active');
+        setNotice(`Ya sos parte de ${preview.classroom.name}. La encontrás en tus aulas.`);
+        setSearch('');
+        setCollectionRevision(value => value + 1);
+        refreshNotifications();
+        await load();
       } else
         setPreview(
           await api.call('/codes/preview', 'POST', { code: /^\d{6}$/.test(code.replace(/\s/g, '')) ? code.replace(/\s/g, '') : code.trim() }),
@@ -215,7 +259,7 @@ export function ClassroomsApp({
         classroomLinks={[...(data.teach ?? []), ...(data.study ?? [])].filter(room => !room.archived).map(room => ({ href: `/mis-aulas?aula=${encodeURIComponent(room.id)}`, label: room.name,coverKey:room.coverKey, current: classroomId === room.id }))}
         links={[{ href: '/inicio', label: 'Inicio', current: !classroomId && presentation === 'home' },
             { href: '/mis-aulas', label: 'Mis aulas', current: presentation === 'classrooms' || Boolean(classroomId) },
-            ...(accountRole==='student'?[{href:'/carpetas-de-estudio',label:'Carpetas de estudio'}]:[]),
+            ...(accountRole==='student'?[{href:'/carpetas-de-estudio',label:'Mi estudio'}]:[]),
             { href: '/agenda', label: 'Agenda' },
             ...(accountRole === 'teacher' ? [{ href: '/foxy-ai', label: 'Foxy AI' }] : [])]}
         onNavigate={href => {
@@ -233,8 +277,8 @@ export function ClassroomsApp({
         }}
         homeNavigation={presentation === 'home' && !classroomId && !draft}
         notifications={(onSelectNotification
-          ? <Notifications api={api} refresh={notificationRefresh} includeStudyReminders={accountRole==='student'} onSelect={id => void action(async () => { await onSelectNotification(id); })} />
-          : <Notifications api={api} refresh={notificationRefresh} includeStudyReminders={accountRole==='student'} onOpen={openTarget} />)}
+          ? <Notifications api={api} refresh={notificationRefresh} onSelect={id => void action(async () => { await onSelectNotification(id); })} />
+          : <Notifications api={api} refresh={notificationRefresh} onOpen={openTarget} />)}
         accountActions={accountActions} />
       <main id="classroom-main" className="p5-main">
         {draft ? (
@@ -242,15 +286,18 @@ export function ClassroomsApp({
             <Wizard
               api={api}
               draft={draft}
-              onExit={leaveView}
+              onExit={leaveSavedDraft}
               onPublished={() => {
                 setDraft(null);
                 setClassroomId(null);
                 setSharedCode(null);
+                setSearch('');
+                setCollectionRevision(value => value + 1);
+                setNoticeKind('success'); setCollectionState('active');
                 setNotice('Aula creada. Ya podés invitar a tus estudiantes.');
                 if (presentation !== 'classrooms') {
                   setPresentation('classrooms');
-                  onNavigate?.('classrooms', 'Aula creada. Ya podés invitar a tus estudiantes.');
+                  onNavigate?.('classrooms', 'Aula creada. Ya podés invitar a tus estudiantes.', {kind:'success',collectionState:'active'});
                 }
                 void load();
               }}
@@ -258,7 +305,7 @@ export function ClassroomsApp({
           </Suspense>
         ) : null}
         {classroomId ? (
-          <Suspense fallback={<Notice>Cargando aula…</Notice>}>
+          <Suspense fallback={<ClassroomLoading />}>
             <ClassroomView
               key={classroomId}
               api={api}
@@ -267,9 +314,10 @@ export function ClassroomsApp({
               onMembershipEnded={confirmed => {
                 setData(current => ({ ...current, study: current.study?.filter(room => room.id !== classroomId) }));
                 const message = confirmed ? 'Saliste del aula' : 'Ya no tenés acceso al aula';
-                setNotice(message);
+                setNotice(message); setNoticeKind('info');
                 showPresentation('classrooms', message);
               }}
+              initialSection={activitiesRoom===classroomId?'activities':undefined}
               initialCode={sharedCode}
               wallTarget={wallTarget?.classroomId === classroomId ? wallTarget : null}
               homeTarget={homeTarget && 'classroomId' in homeTarget && homeTarget.classroomId === classroomId ? homeTarget : null}
@@ -279,18 +327,18 @@ export function ClassroomsApp({
         ) : presentation === 'home' ? (
           <>
             {error ? <Notice error>{error} <button disabled={busy} onClick={() => setError('')}>Cerrar aviso</button></Notice> : null}
-            <Home api={api} accountRole={accountRole} displayName={displayName} subjectId={subjectId} homeClient={homeClient} busy={busy}
-              onAction={openHomeTarget} onAgenda={() => { if (onNavigate) onNavigate('agenda'); else window.location.assign('/agenda'); }}
+            <Home agendaClient={homeAgendaClient} data={{teach:data.teach??[],study:data.study??[],drafts:data.drafts??[],invitations:data.invitations??[]}} api={api} accountRole={accountRole} displayName={displayName} subjectId={subjectId} homeClient={homeClient} busy={busy}
+              onOpenActivities={id=>{setActivitiesRoom(id);setHomeTarget(null);setWallTarget(null);setClassroomId(id);}} onAction={openHomeTarget} onAgenda={() => { if (onNavigate) onNavigate('agenda'); else window.location.assign('/agenda'); }}
               onCreate={() => void action(async () => { setDraft(await api.call<Draft>('/drafts', 'POST', {})); })}
               onJoin={() => { setJoin(true); setJoinError(''); setPreview(null); }}
               onClassrooms={leaveView} />
           </>
         ) : (
-          <>
-            <ClassroomCollectionHero accountRole={accountRole} busy={busy}
+          <div className="parity-catalog">
+            <ClassroomCollectionHero accountRole={accountRole} busy={busy} activeCount={data.teach&&data.study?(accountRole==='teacher'?data.teach:data.study).filter(room=>!room.archived).length:undefined}
               onJoin={() => { setJoin(true); setJoinError(''); setPreview(null); }}
               onCreate={() => void action(async () => { setDraft(await api.call<Draft>('/drafts', 'POST', {})); })} />
-            {notice || navigationNotice ? <Notice>{notice || navigationNotice}</Notice> : null}
+            {notice || navigationNotice ? <div className="collection-notice" data-notice-kind={notice ? noticeKind : navigationFeedback?.kind ?? 'info'}><Notice>{notice || navigationNotice}</Notice></div> : null}
             {error ? (
               <Notice error>
                 {error}{' '}
@@ -305,47 +353,22 @@ export function ClassroomsApp({
                 {' '}<button onClick={() => void load(undefined, part)}>Volver a intentar</button>
               </Notice>
             ) : null)}
-            {data.invitations && requestedInvitation && !data.invitations.some(item => item.id.toLowerCase() === requestedInvitation.toLowerCase()) ? (
+            {data.invitations && pendingInvitationId && !data.invitations.some(item => item.id.toLowerCase() === pendingInvitationId) ? (
               <Notice>Esta invitación no está pendiente para la cuenta actual. Puede haber vencido, haberse utilizado o corresponder a otro correo. Revisa tus invitaciones o cambia de cuenta desde tu perfil.</Notice>
             ) : null}
-            {(data.invitations?.length ?? 0) > 0 ? <section className="folder-panel tone-yellow folder-pending" aria-label="Invitaciones pendientes">
-              <h2 className="folder-tab"><EntryIcon name="bell" />Invitaciones <span className="collection-pending-count">{data.invitations?.length ?? 0}</span></h2>
-            {data.invitations?.length ? (
-              <section className="p5-invitations">
-                <h2>Tenés una invitación</h2>
-                {[...data.invitations].sort((a, b) => Number(b.id.toLowerCase() === requestedInvitation?.toLowerCase()) - Number(a.id.toLowerCase() === requestedInvitation?.toLowerCase())).map((invitation) => (
-                  <article key={invitation.id} aria-label={invitation.id.toLowerCase() === requestedInvitation?.toLowerCase() ? 'Invitación seleccionada del correo' : undefined}>
-                    <div>
-                      {invitation.id.toLowerCase() === requestedInvitation?.toLowerCase() ? <strong>Invitación seleccionada del correo</strong> : null}
-                      <h3>{invitation.name}</h3>
-                      <p>{invitation.teacher} te invita a su aula.</p>
-                      <small>
-                        Vence el{' '}
-                        {new Date(invitation.expiresAt).toLocaleDateString(
-                          'es-AR',
-                        )}
-                      </small>
-                    </div>
-                    {accountRole === 'student' ? <button
-                      className="primary"
-                      disabled={busy}
-                      onClick={() => void action(() => accept(invitation))}
-                    >
-                      Aceptar invitación
-                    </button> : <p>Las invitaciones para estudiar requieren una cuenta de estudiante.</p>}
-                  </article>
-                ))}
-              </section>
-            ) : null}
-            </section> : null}
-            {data.teach && data.study ? <ClassroomCollection accountRole={accountRole} teach={data.teach} study={data.study} search={search} onSearch={setSearch}
+            {accountRole==='student' && data.invitations?.length ? <PendingInvitations items={data.invitations} requested={pendingInvitationId}
+              onAccept={invitation => respondToInvitation(invitation, 'accept')}
+              onDecline={invitation => respondToInvitation(invitation, 'decline')}/> : null}
+            {data.teach && data.study ? <ClassroomCollection key={`${collectionRevision}:${collectionState ?? navigationFeedback?.collectionState ?? 'active'}`} initialState={collectionState ?? navigationFeedback?.collectionState ?? 'active'} accountRole={accountRole} teach={data.teach} study={data.study} search={search} onSearch={setSearch}
+              onJoin={() => { setJoin(true); setJoinError(''); setPreview(null); }}
+              onCreate={() => void action(async () => { setDraft(await api.call<Draft>('/drafts', 'POST', {})); })}
               drafts={data.drafts} busy={busy} onContinue={id => void action(async () => setDraft(await api.call<Draft>(`/drafts/${id}`)))}
               onDelete={item => { setDeleteError(''); setDeletingDraft(item); }}
               onEnter={id => {
                 if (onEnterClassroom) { void action(async () => { await onEnterClassroom(id); }); return; }
                 setSharedCode(null); setClassroomId(id);
               }} /> : null}
-          </>
+          </div>
         )}
       </main>
       {deletingDraft ? <Dialog title="Eliminar pendiente" onClose={() => { if (!deleting.current) setDeletingDraft(null); }}>
@@ -360,7 +383,7 @@ export function ClassroomsApp({
             void api.call(`/drafts/${item.id}`, 'DELETE', { revision: item.revision, confirm: true }).then(async () => {
               requests.current.drafts = Symbol('deleted');
               setData(current => ({ ...current, drafts: current.drafts?.filter(d => d.id !== item.id) }));
-              setDeletingDraft(null); setNotice('Pendiente eliminado.');
+              setDeletingDraft(null); setNoticeKind('success'); setNotice('Pendiente eliminado.');
               await load(undefined, 'drafts');
             }).catch(() => setDeleteError('No pudimos eliminar el pendiente. Puede haber cambiado o ya estar creado. Cerrá este diálogo y actualizá la lista antes de volver a intentar.'))
               .finally(() => { deleting.current = false; setBusy(false); });
@@ -369,11 +392,13 @@ export function ClassroomsApp({
       </Dialog> : null}
       {join ? (
         <Dialog
-          title={preview ? 'Confirmá tu inscripción' : 'Unirse a un aula'}
+          className={`parity-collection-dialog ${preview ? 'invitation-dialog' : 'collection-join-dialog'}`}
+          title={preview ? 'Hay un lugar para vos' : 'Un nuevo lugar para aprender'}
           onClose={() => {
             if (!busy) setJoin(false);
           }}
         >
+          <p className="collection-dialog-subtitle">{preview ? 'Revisá el grupo antes de sumarte.' : 'Ingresá el código que compartió tu docente.'}</p>
           {joinError ? <Notice error>{joinError}</Notice> : null}
           <form
             onSubmit={(event) => {
@@ -381,50 +406,30 @@ export function ClassroomsApp({
               void enterCode();
             }}
           >
-            {preview ? (
-              <>
-                <h3>{preview.classroom.name}</h3>
-                <p>
-                  {preview.classroom.subject} · {preview.classroom.division} ·{' '}
-                  {preview.classroom.academicYear}
-                </p>
-                <p>Docente: {preview.classroom.teacher}</p>
-                <p>Al confirmar, vas a incorporarte como estudiante.</p>
-              </>
-            ) : (
-              <>
-              <label>
-                Código del aula
-                <input
-                  required
-                  autoFocus
-                  placeholder="123 456"
-                  aria-describedby="classroom-code-help"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  autoComplete="off"
-                />
-              </label>
-              <small id="classroom-code-help">Ingresá el código que te compartió tu docente. Los códigos anteriores también siguen siendo válidos hasta que se regeneran.</small>
-              </>
+            {preview ? <InvitationPreview classroom={preview.classroom}/> : (
+              <div className="collection-code-field"><label>Código del aula
+                <input required autoFocus placeholder="000000" value={code}
+                  onChange={event=>setCode(event.target.value)} autoComplete="off"/>
+              </label></div>
             )}
             <footer className="p5-form-footer">
               <button
                 type="button"
                 disabled={busy}
                 onClick={() => {
-                  if (preview) setPreview(null);
-                  else setJoin(false);
+                  setJoin(false);
                 }}
               >
-                Volver
+                {preview ? 'Ahora no' : 'Cancelar'}
               </button>
               <button className="primary" disabled={busy}>
+                {preview ? <FoxmindIcon name="arrow-right"/> : null}
                 {busy
                   ? 'Consultando…'
                   : preview
-                    ? 'Confirmar inscripción'
+                    ? 'Aceptar y unirme'
                     : 'Ver aula'}
+                {!preview ? <FoxmindIcon name="arrow-right"/> : null}
               </button>
             </footer>
           </form>

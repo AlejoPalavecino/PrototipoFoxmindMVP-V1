@@ -27,6 +27,8 @@ export function useClassroomNavigation(tab: string, room: Detail | null, wallTar
   useEffect(() => {
     if (!teacher || tab !== 'members' || !rosterLoaded || !rosterRevealPending.current) return;
     rosterRevealPending.current = false;
+    // Keep the heading and tabs stable when entering from the top of the classroom.
+    if (window.scrollY <= 1) return;
     const button = roster.current?.querySelector<HTMLButtonElement>('[data-open-summary]');
     if (!button) return;
     const bounds = button.getBoundingClientRect();

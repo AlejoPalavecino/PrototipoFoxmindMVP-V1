@@ -20,7 +20,8 @@ export interface ActivityAiOptions {
   providerForExecution?: (configuration: ClassroomAiConfiguration) => StructuredActivityGenerationPort;
 }
 export interface CurriculumSnapshot {
-  teacherId: string; unit: { id: string; name: string }; topics: { id: string; name: string }[]; latestPlanId: string | null;
+  teacherId: string; unit: { id: string; name: string }; units?: { id: string; name: string }[];
+  topics: { id: string; name: string; unitId?: string }[]; latestPlanId: string | null;
 }
 export interface JobRow {
   execution_profile?: AiExecutionSnapshot | null;

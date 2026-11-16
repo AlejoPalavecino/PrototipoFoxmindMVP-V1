@@ -20,13 +20,16 @@ function select(request:IncomingMessage):{url:URL;method:string;binary:boolean;u
  if(/[\\#%]/u.test(raw.split('?')[0]!)||raw.split('?')[0]!.includes('..'))throw new Error();
  const url=new URL(raw,'http://web.invalid'),path=url.pathname;
  if(raw.startsWith('/api/v1/chat-attachments/')){
-  const route=new RegExp(`^/api/v1/chat-attachments/(?:teacher/|student/${uuid}/)${uuid}(?:/(${uuid}))?$`,'u');
+  const route=new RegExp(`^/api/v1/chat-attachments/(?:teacher/|student/${uuid}/)${uuid}(?:/(${uuid})(/file)?)?$`,'u');
   const match=route.exec(path);
   if(!match)throw Object.assign(new Error(),{status:404});
-  if(!(match[1]?['PUT','DELETE']:['GET']).includes(method))throw Object.assign(new Error(),{status:405});
+  const binary=Boolean(match[2]);
+  if(binary&&!path.startsWith('/api/v1/chat-attachments/teacher/'))throw Object.assign(new Error(),{status:404});
+  if(!(binary?['GET']:match[1]?['PUT','DELETE']:['GET']).includes(method))throw Object.assign(new Error(),{status:405});
   const keys=[...url.searchParams.keys()];
-  if(new Set(keys).size!==keys.length||keys.some(key=>method!=='PUT'||!['name','copy'].includes(key)))throw new Error();
-  return {url,method,binary:false,upload:method==='PUT'};
+  if(new Set(keys).size!==keys.length||keys.some(key=>binary?key!=='mode':method!=='PUT'||!['name','copy'].includes(key))
+    ||binary&&url.searchParams.has('mode')&&!['preview','download'].includes(url.searchParams.get('mode')!))throw new Error();
+  return {url,method,binary,upload:method==='PUT'};
  }
  if(!raw.startsWith(root))throw new Error();
  const folder=new RegExp(`^${root}/${uuid}$`,'i'),commands=new RegExp(`^${root}/${uuid}/commands$`,'i');

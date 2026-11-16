@@ -31,7 +31,7 @@ export function createFoxyConversationService(options: { uow: UnitOfWork; conver
       const payload = parseCreateFoxyConversation(input);
       const context = payload.context.kind === 'CLASSROOM' ? { kind: 'CLASSROOM' as const, classroomId: payload.context.classroomId.toLowerCase() }
         : { kind: 'GENERAL' as const };
-      const hash = options.digest(JSON.stringify({ title: payload.title, context }));
+      const hash = options.digest(JSON.stringify({ title: payload.title, context, ...(payload.carryAttachments ? { carryAttachments: payload.carryAttachments } : {}) }));
       return options.uow.run(request, true, async (tx, actor) => {
         const result = await options.conversations.create(tx, actor.id, { ...payload, context }, hash);
         return { created: result.created, conversation: view(result.conversation) };

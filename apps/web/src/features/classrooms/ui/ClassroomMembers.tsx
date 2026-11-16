@@ -1,3 +1,4 @@
+import styles from './classroom-secondary.module.css';
 import type { Dispatch, SetStateAction } from 'react';
 import type { ClassroomClient } from '../../../../../../src/core/contracts/academic-client.ts';
 import type { Detail, Invitation } from '../../../../../../src/core/contracts/classrooms.ts';
@@ -17,14 +18,14 @@ type Props = {
 export function ClassroomMembers({ api, id, room, busy, code, setCode, setNotice, setConfirm,part,
   isCurrentRoom, invitations, invitationAction, invitationResource, action }: Props) {
   return (
-                  <aside className="classroom-members-aside" aria-label="Acceso e invitaciones al aula">
-                    {part!=='invitations' ? <section className="classroom-members-code">
-                    <FoxmindIcon name="key"/><div><h3>Código de acceso</h3>
+                  <aside className={`classroom-members-aside ${styles.members}`} aria-label="Acceso e invitaciones al aula">
+                    {part!=='invitations' ? <section className={styles.code}>
+                    <header><div><h3>Un código, una puerta abierta</h3>
                     <p>
-                      Compartilo para que tus alumnos se sumen. Sigue vigente hasta que lo regeneres.
-                    </p></div>
+                      Compartí este código con tu grupo.
+                    </p></div></header>
                     {code ? (
-                      <div className="p5-code">
+                      <div className={styles.codeValue}>
                         <code aria-label={`Código de acceso: ${code}`}>{/^\d{6}$/.test(code) ? `${code.slice(0,3)} ${code.slice(3)}` : code}</code>
                         <button
                           onClick={() =>
@@ -34,33 +35,17 @@ export function ClassroomMembers({ api, id, room, busy, code, setCode, setNotice
                             })
                           }
                         >
-                          <span className="sr-only">Copiar código</span><FoxmindIcon name="copy"/>
+                          <span>Copiar código</span>
                         </button>
                       </div>
                     ) : (
-                      <p>Generá un código nuevo para compartirlo.</p>
+                      <div><p>El código todavía no está disponible.</p><button disabled={busy || room.archived} onClick={() => setConfirm({
+                        title: 'Generar un código nuevo', text: 'El código anterior dejará de funcionar. Las inscripciones actuales se conservan.',
+                        run: async () => { const result = await api.call<{ code: string }>(`/${id}/code`, 'POST', {}); if (isCurrentRoom()) setCode(result.code); },
+                      })}>Generar código</button></div>
                     )}
-                    <button
-                      disabled={busy || room.archived}
-                      onClick={() =>
-                        setConfirm({
-                          title: 'Generar un código nuevo',
-                          text: 'El código anterior dejará de funcionar. Las inscripciones actuales se conservan.',
-                          run: async () => {
-                            const result = await api.call<{ code: string }>(
-                              `/${id}/code`,
-                              'POST',
-                              {},
-                            );
-                            if (isCurrentRoom()) setCode(result.code);
-                          },
-                        })
-                      }
-                    >
-                      <FoxmindIcon name="refresh"/><span>Regenerar código</span>
-                    </button>
                     </section> : null}
-                    {part!=='code' && (invitations.length>0 || invitationResource.status==='error') ? <section className="classroom-members-invitations">
+                    {part!=='code' && (invitations.length>0 || invitationResource.status==='error') ? <section className={`classroom-members-invitations ${styles.invites}`}>
                     <h3>Invitaciones enviadas</h3>
                     <ResourceNotice resource={invitationResource} />
                     {invitationAction.error ? <Notice error>{invitationAction.error}</Notice> : null}
@@ -75,7 +60,9 @@ export function ClassroomMembers({ api, id, room, busy, code, setCode, setNotice
                               <small>
                                 {invitation.acceptedAt
                                   ? 'Aceptada'
-                                  : invitation.revokedAt
+                                  : invitation.declinedAt
+                                    ? 'Rechazada'
+                                    : invitation.revokedAt
                                     ? 'Revocada'
                                     : new Date(invitation.expiresAt).getTime() <
                                         Date.now()
@@ -93,7 +80,7 @@ export function ClassroomMembers({ api, id, room, busy, code, setCode, setNotice
                                       : 'Correo en cola de envío.'}
                               </small>
                             </span>
-                            {!invitation.acceptedAt && !invitation.revokedAt ? (
+                            {!invitation.acceptedAt && !invitation.revokedAt && !invitation.declinedAt ? (
                               <div className="p5-actions">
                                 <button
                                   disabled={invitationAction.busy || room.archived}

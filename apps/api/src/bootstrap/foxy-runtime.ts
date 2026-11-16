@@ -3,6 +3,8 @@ import { createFoxyCreationService } from '../modules/foxy/application/creation-
 import type { SqlDatabase } from '../../../../src/core/contracts/sql.ts';
 import type { FoxyFileOperations } from '../modules/foxy/infrastructure/file-operations.ts';
 import { createFoxyUnitOfWork } from '../modules/foxy/infrastructure/unit-of-work.ts';
+import { createFoxyPrivateAssetEditorialRepository } from '../modules/foxy/infrastructure/private-asset-editorial-repository.ts';
+import { createFoxyPrivateAssetEditorialService } from '../modules/foxy/application/private-asset-editorial-service.ts';
 import { createFoxyPrivateAssetReadRepository } from '../modules/foxy/infrastructure/private-asset-read-repository.ts';
 import { createFoxyVisualPublicationRepository } from '../modules/foxy/infrastructure/visual-publication-repository.ts';
 import { createFoxyPrivateAssetReadService } from '../modules/foxy/application/private-asset-read-service.ts';
@@ -100,7 +102,7 @@ export function createFoxyRuntime(options: Options) {
   const assets = createFoxyPrivateAssetReadRepository();
   const privateAssetReader = options.fileOperations.readPrivateAsset
     ? createFoxyPrivateAssetReader({ uow, assets, storage: { get: options.fileOperations.readPrivateAsset } }) : undefined;
-  const services = { creations: createFoxyCreationService({ uow, creations: createFoxyCreationRepository() }), visuals: visual?.service, privateAssetReader, privateAssetReadService: createFoxyPrivateAssetReadService({ uow, assets }), conversations: createFoxyConversationService({ uow, conversations }),
+  const services = { privateAssetEditorial: createFoxyPrivateAssetEditorialService({ uow, assets: createFoxyPrivateAssetEditorialRepository(), reads: assets }), creations: createFoxyCreationService({ uow, creations: createFoxyCreationRepository() }), visuals: visual?.service, privateAssetReader, privateAssetReadService: createFoxyPrivateAssetReadService({ uow, assets }), conversations: createFoxyConversationService({ uow, conversations }),
     turns: createFoxyTurnService({ uow, conversations, turns, attachments: options.fileOperations.attachments?.list, wakeWorker: worker?.wake,
       configuration: { enabled, model: enabled ? options.configuration!.model : '' } }),
     catalog: new FoxyContextCatalogService(options.classrooms, conversations),

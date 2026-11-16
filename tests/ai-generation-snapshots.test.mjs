@@ -18,8 +18,9 @@ for (const [task, path] of Object.entries(paths)) {
     ? { businessSource: async () => true, checkSource: async () => true, requireGrant: async () => {} }
     : { validSource: async () => true, requireGrant: async () => {} } });
 }
+const activityScope = { unit: { id: 'resolved-unit' }, units: [{ id: 'resolved-unit' }, { id: 'another-unit' }], topics: [] };
 await mock.module(new URL(`${paths.activities}source.ts`, import.meta.url).href, { namedExports: {
-  curriculum: async () => ({}), snapshots: async () => [], revalidate: async () => true,
+  curriculum: async () => activityScope, snapshots: async () => [], revalidate: async () => true,
 } });
 const { ClassroomAiWorker } = await import(`${paths.curriculum}worker.ts`);
 const { ActivityAiWorker } = await import(`${paths.activities}worker.ts`);
@@ -111,7 +112,9 @@ test('both INSERTs snapshot active policy and model without adding or reordering
     const { options } = fixture(task), calls = [];
     const tx = { query: async (sql, ...args) => { calls.push([sql, args]); return [{}]; } };
     if (task === 'curriculum') await new ClassroomAiService(options).insert(tx, { id: 'draft', owner_id: 'owner', revision: 1 }, 'file', 'digest');
-    else await new ActivityAiService(options).insert(tx, {}, 'classroom', 'owner', { unitId: 'unit', type: 'ASSIGNMENT', revision: '1' }, 'hash');
+    else await new ActivityAiService(options).insert(tx, {}, 'classroom', 'owner', {
+      unitIds: ['another-unit', 'resolved-unit'], type: 'ASSIGNMENT', revision: '1', teacherBrief: 'Comparar los dos temas.',
+    }, 'hash');
     const [sql, args] = calls.find(([sql]) => sql.startsWith('INSERT INTO'));
     assert.match(sql, /execution_profile/);
     assert.ok(sql.includes(`active_profiles->'${task}'`));
@@ -119,6 +122,10 @@ test('both INSERTs snapshot active policy and model without adding or reordering
     assert.match(sql, /COALESCE/);
     assert.equal(args.length, task === 'curriculum' ? 10 : 14);
     assert.equal(args[task === 'curriculum' ? 7 : 11], options.configuration.model);
+    if (task === 'activities') {
+      assert.equal(args[3], activityScope.unit.id);
+      assert.deepEqual(JSON.parse(args[8]), activityScope);
+    }
   }
 });
 

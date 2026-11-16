@@ -95,7 +95,7 @@ test('persisted progress rules, exact averages, first receipt, eligibility and f
       const before = await own(), topic = (await service.detail(T, room)).units[0].topics[0].id;
       await service.changePlan(T, room, { revision: (await service.detail(T, room)).revision, operation: { action: 'setTopicState', id: topic, status: 'TAUGHT' } });
       const after = await own(); assert.deepEqual(after.completion, before.completion); assert.deepEqual(after.performance, before.performance);
-      assert.deepEqual(after.plan, { total: 1, taught: 1, percentage: '100.00' });
+      assert.deepEqual(after.plan, { total: 1, taught: 1, percentage: '100.00', units: before.plan.units.map(unit => ({ ...unit, taught: 1 })) });
       const hash = await tableHash(pool, academicTables);
       assert.deepEqual(await new ClassroomService(f.ports).getProgress(S, room), after);
       await all(); await service.getStudentProgress(T, room, f.student);

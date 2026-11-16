@@ -1,50 +1,91 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {withJourney,ok,rootOf,selectClassroomSection} from './p9-journey-helpers-current.mjs';
-import {openClassroom} from './p6-integration-helpers.mjs';
+import { withJourney, ok, rootOf, selectClassroomSection } from './p9-journey-helpers-current.mjs';
+import { openClassroom, planPdf } from './p6-integration-helpers.mjs';
 
-test('Written material revisions and recurring event scope traverse the actual UI, scanner and private API',{timeout:330000},async()=>{
- await withJourney('material-agenda',async world=>{
-  const {T,S,room,runtime}=world,root=rootOf(room),title='Apunte escrito',body='Primera explicación\nCon acentos y 🦊';
-  await openClassroom(T.page,runtime.origin,room.name??'P9 material-agenda classroom');await selectClassroomSection(T.page,'library','Biblioteca');
-  await T.page.getByRole('button',{name:'Agregar material',exact:true}).click();
-  let dialog=T.page.getByRole('dialog',{name:'Agregar material',exact:true});
-  await dialog.getByRole('button',{name:'Escribir material',exact:true}).click();
-  await dialog.getByLabel('Nombre del material',{exact:true}).fill(` ${title} `);await dialog.getByLabel('Contenido',{exact:true}).fill(body);
-  async function publishText(button){
-   await button.click();
-   await T.page.waitForFunction(()=>!document.querySelector('dialog[open]')||[...document.querySelectorAll('dialog[open] button')].some(b=>b.textContent==='Consultar revisión del material'));
-   const review=T.page.getByRole('button',{name:'Consultar revisión del material',exact:true});
-   if(await review.count()){await review.click();await button.click();}
-   await T.page.getByRole('dialog').waitFor({state:'hidden'});
-  }
-  await publishText(dialog.getByRole('button',{name:'Publicar en Biblioteca',exact:true}));
-  const original=(await ok(T.page,'GET',`${root}/library`)).find(m=>m.title===title);assert.equal(original.body,body);
-  const row=T.page.getByRole('article',{name:title,exact:true});
-  await row.getByRole('button',{name:`Abrir material: ${title}`,exact:true}).click();
-  await T.page.getByRole('region',{name:`Lectura de ${title}`,exact:true}).getByText(body,{exact:true}).waitFor();
-  assert.equal(await T.page.getByRole('dialog',{name:title,exact:true}).count(),0);
-  await T.page.getByRole('button',{name:'Editar datos',exact:true}).click();
-  dialog=T.page.getByRole('dialog',{name:'Editar material',exact:true});const nextBody='Segunda explicación\nArchivo y lectura coinciden 🦊';
-  await dialog.getByLabel('Contenido',{exact:true}).fill(nextBody);
-  await publishText(dialog.getByRole('button',{name:'Guardar datos del material',exact:true}));
-  const materials=await ok(S.page,'GET',`${root}/library`),previous=materials.find(m=>m.id===original.id),current=materials.find(m=>m.id===previous.supersededBy);
-  await T.page.getByRole('region',{name:`Lectura de ${title}`,exact:true}).getByText(nextBody,{exact:true}).waitFor();
-  assert.equal(previous.fileId,original.fileId);assert.equal(current.body,nextBody);assert.notEqual(current.fileId,original.fileId);
-  const downloaded=await S.page.request.get(`${runtime.origin}/api/v1/files/${current.fileId}/content`);assert.equal(downloaded.status(),200);assert.ok((await downloaded.body()).includes(Buffer.from('Segunda explicación')));
+test('Publishing an approved PDF and editing one private weekly event run through the real UI', { timeout: 330000 }, async () => {
+  await withJourney('material-agenda', async ({ T, S, room, runtime }) => {
+    const root = rootOf(room), title = 'Apunte de clase';
+    const openLibrary = async page => {
+      await openClassroom(page, runtime.origin, 'P9 material-agenda classroom');
+      await selectClassroomSection(page, 'library', 'Biblioteca');
+    };
+    const bytes = await planPdf(title);
+    await openLibrary(T.page);
+    const library = T.page.getByRole('region', { name: 'Biblioteca del aula', exact: true });
+    await library.getByRole('button', { name: 'Subir archivo', exact: true }).click();
+    const upload = T.page.getByRole('dialog', { name: 'Subir archivo', exact: true });
+    await upload.getByLabel('Archivo del material', { exact: true }).setInputFiles({
+      name: 'apunte.pdf', mimeType: 'application/pdf', buffer: bytes,
+    });
+    await upload.getByRole('status').filter({ hasText: 'apunte.pdf' })
+      .getByText('Archivo aprobado. Ya podés publicarlo.', { exact: true }).waitFor();
+    await upload.getByLabel('Nombre del material', { exact: true }).fill(` ${title} `);
+    await upload.getByLabel('Descripción (opcional)', { exact: true }).fill('Guía de lectura para el aula');
+    await upload.getByRole('button', { name: 'Preparar y continuar', exact: true }).click();
+    assert.equal((await ok(S.page, 'GET', `${root}/library`)).some(material => material.title === title), false);
+    await upload.getByRole('button', { name: 'Publicar material', exact: true }).click();
+    await upload.waitFor({ state: 'hidden' });
+    await library.getByRole('article', { name: title, exact: true }).waitFor();
 
-  await T.page.goto(runtime.origin+'/agenda');await T.page.getByRole('button',{name:'Crear evento',exact:true}).click();
-  dialog=T.page.getByRole('dialog',{name:'Crear evento personal',exact:true});
-  const date=new Date().toISOString().slice(0,10),until=new Date(Date.parse(date+'T12:00Z')+14*86400000).toISOString().slice(0,10);
-  await dialog.getByLabel('Título',{exact:true}).fill('Clase semanal privada');await dialog.getByLabel('Fecha',{exact:true}).fill(date);await dialog.getByRole('checkbox',{name:'Todo el día',exact:true}).check();await dialog.getByLabel('Repetición',{exact:true}).selectOption('WEEKLY');await dialog.getByLabel('Repetir hasta (incluido)',{exact:true}).fill(until);
-  const created=T.page.waitForResponse(r=>/\/agenda\/events\/[^/]+$/.test(r.url())&&r.request().method()==='PUT');await dialog.getByRole('button',{name:'Crear evento',exact:true}).click();const response=await created;assert.equal(response.status(),201);const event=await response.json();
-  await T.page.goto(`${runtime.origin}/agenda?event=${event.id}&date=${date}`);
-  await T.page.getByRole('button',{name:'Editar evento',exact:true}).click();
-  await T.page.getByRole('dialog',{name:'Editar evento recurrente',exact:true}).getByRole('button',{name:'Solo este evento',exact:true}).click();
-  assert.equal(await T.page.getByRole('dialog').count(),1,'Scope closes before the editor opens');
-  dialog=T.page.getByRole('dialog',{name:'Editar evento',exact:true});await dialog.getByLabel('Título',{exact:true}).fill('Clase trasladada');
-  const changed=T.page.waitForResponse(r=>r.url().includes(`/occurrences/${date}`)&&r.request().method()==='PATCH');await dialog.getByRole('button',{name:'Guardar cambios',exact:true}).click();assert.equal((await changed).status(),200);
-  const canonical=await ok(T.page,'GET',`/agenda/events/${event.id}`);assert.equal(canonical.title,'Clase semanal privada');assert.equal(canonical.exceptions[0].replacement.title,'Clase trasladada');
-  assert.equal((await S.page.request.get(`${runtime.origin}/api/v1/agenda/events/${event.id}`)).status(),403);
- });
+    const material = (await ok(S.page, 'GET', `${root}/library`)).find(item => item.title === title);
+    assert.ok(material?.ready);
+    assert.equal(material.description, 'Guía de lectura para el aula');
+    await openLibrary(S.page);
+    const card = S.page.getByRole('article', { name: title, exact: true });
+    await card.getByRole('button', { name: `Abrir material: ${title}`, exact: true }).click();
+    const reader = S.page.getByRole('region', { name: `Lectura de ${title}`, exact: true });
+    await reader.getByText('Guía de lectura para el aula', { exact: true }).waitFor();
+    assert.equal(await reader.getByRole('button', { name: 'Editar datos', exact: true }).count(), 0);
+    const preview = await reader.getByRole('link', { name: 'Abrir archivo', exact: true }).getAttribute('href');
+    const download = await reader.getByRole('link', { name: 'Descargar material', exact: true }).getAttribute('href');
+    for (const [href, isPreview] of [[preview, true], [download, false]]) {
+      assert.ok(href);
+      const url = new URL(href, runtime.origin);
+      assert.equal(url.pathname, `/api/v1/files/${material.fileId}/content`);
+      assert.equal(url.searchParams.get('mode') === 'preview', isPreview);
+      const response = await S.page.request.get(url.href);
+      assert.equal(response.status(), 200);
+      assert.match(response.headers()['content-type'], /application\/pdf/);
+      assert.deepEqual(await response.body(), bytes);
+    }
+
+    await T.page.goto(runtime.origin + '/agenda');
+    await T.page.getByRole('button', { name: 'Crear evento', exact: true }).click();
+    const creation = T.page.getByRole('dialog', { name: 'Un momento en tu agenda', exact: true });
+    const date = await creation.getByLabel('Fecha', { exact: true }).inputValue();
+    const until = new Date(Date.parse(date + 'T12:00Z') + 14 * 86400000).toISOString().slice(0, 10);
+    await creation.getByLabel('Título', { exact: true }).fill('Clase semanal privada');
+    await creation.getByRole('checkbox', { name: 'Todo el día', exact: true }).check();
+    await creation.getByLabel('Repetición', { exact: true }).selectOption('WEEKLY');
+    await creation.getByLabel('Repetir hasta (incluido)', { exact: true }).fill(until);
+    const [response] = await Promise.all([
+      T.page.waitForResponse(result => /\/agenda\/events\/[^/]+$/.test(new URL(result.url()).pathname) && result.request().method() === 'PUT'),
+      creation.getByRole('button', { name: 'Crear evento', exact: true }).click(),
+    ]);
+    assert.equal(response.status(), 201);
+    const event = await response.json(), eventUrl = `${runtime.origin}/agenda?event=${event.id}&date=${date}`;
+    assert.deepEqual(event.repeat, { kind: 'WEEKLY', untilDate: until });
+
+    await T.page.goto(eventUrl);
+    await T.page.getByRole('dialog', { name: 'Tu evento', exact: true }).getByRole('button', { name: 'Editar evento', exact: true }).click();
+    const scope = T.page.getByRole('dialog', { name: 'Editar evento recurrente', exact: true });
+    await scope.getByRole('button', { name: 'Solo este evento', exact: true }).click();
+    const editor = T.page.getByRole('dialog', { name: 'Editar evento', exact: true });
+    await editor.waitFor();
+    assert.equal(await T.page.locator('dialog[open]').count(), 1, 'Scope closes before the editor opens');
+    await editor.getByLabel('Título', { exact: true }).fill('Clase trasladada');
+    const [changed] = await Promise.all([
+      T.page.waitForResponse(result => new URL(result.url()).pathname.endsWith(`/occurrences/${date}`) && result.request().method() === 'PATCH'),
+      editor.getByRole('button', { name: 'Guardar cambios', exact: true }).click(),
+    ]);
+    assert.equal(changed.status(), 200);
+    const canonical = await ok(T.page, 'GET', `/agenda/events/${event.id}`);
+    assert.equal(canonical.title, 'Clase semanal privada');
+    assert.deepEqual(canonical.repeat, event.repeat);
+    assert.equal(canonical.exceptions.length, 1);
+    assert.equal(canonical.exceptions[0].date, date);
+    assert.equal(canonical.exceptions[0].replacement.title, 'Clase trasladada');
+    assert.equal((await S.page.request.get(`${runtime.origin}/api/v1/agenda/events/${event.id}`)).status(), 403);
+  });
 });

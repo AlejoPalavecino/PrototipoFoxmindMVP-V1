@@ -1,0 +1,41 @@
+{
+  "name": "FoxMind · un lugar para aprender",
+  "kind": "interactive-app-prototype",
+  "status": "ready-for-user-review",
+  "entry": "01-foxmind.html",
+  "roles": [
+    "docente",
+    "estudiante"
+  ],
+  "direction": "Humanist Companion · spacious conversation with on-demand resources and clear learning context",
+  "directionSeed": 938148012,
+  "typeface": "Nunito variable (SIL OFL)",
+  "palette": {
+    "ink": "#202c3d",
+    "surface": "#ffffff",
+    "ground": "#edf0f4",
+    "action": "#b74710",
+    "peach": "#ffe3d1",
+    "mint": "#dfefe7",
+    "sky": "#e1edf9",
+    "rose": "#f8e4e9",
+    "error": "#a02626",
+    "success": "#24623e"
+  },
+  "responsiveWidths": [
+    320,
+    390,
+    768,
+    1024,
+    1440
+  ],
+  "data": "synthetic-local-browser-only",
+  "productionChanges": false,
+  "approval": "Prototype creation authorized; production design and implementation pending user review",
+  "audit": "FINAL-AUDIT.md",
+  "taskboard": "../../odd/tasks/foxmind-ui-lab.md",
+  "iteration": 17,
+  "updated": "2026-11-15",
+  "implementationPlan": "IMPLEMENTATION-PLAN.md",
+  "verification": "verification-final.json"
+}

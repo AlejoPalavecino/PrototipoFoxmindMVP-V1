@@ -6,7 +6,7 @@ import { validRasterSource, publicationFileFormat } from './publication-raster-c
 
 type Hint = { resource_id: string | null; source_kind?: string; source_asset_id?: string | null; snapshot_visual?: unknown; conversation_id: string; source_room: string | null; classroom_id: string };
 type Publication = { id: string; owner_id: string; resource_id: string; resource_revision: bigint; classroom_id: string; unit_id: string | null;
-  topic_id: string | null; title: string; file_id: string | null; material_id: string | null; state: string; revision: bigint };
+  topic_id: string | null; title: string; source_kind?: string; snapshot_title: string; snapshot_description: string | null; file_id: string | null; material_id: string | null; state: string; revision: bigint };
 type Receipt = { publication_id: string; material_id: string; publication_revision: bigint; classroom_revision: bigint; input_hash: string };
 function fail(code: 'NOT_FOUND' | 'CONFLICT'): never { throw Object.assign(new Error(code), { code }); }
 function receipt(row: Receipt) { return { publicationId: row.publication_id, materialId: row.material_id,
@@ -76,7 +76,8 @@ export function createFoxyPublicationConfirmationRepository(options: { library: 
     const prior = await replay(tx, actorId, v.requestId, hash, publication); if (prior) return prior;
     await requireReady(tx, actorId, publication, v.publicationRevision, v.classroomRevision, hint);
     const created = await options.library.publish(tx, request, actorId, { classroomId: publication.classroom_id, revision: v.classroomRevision,
-      title: publication.title, fileId: publication.file_id!, unitId: publication.unit_id, topicId: publication.topic_id });
+      title: publication.source_kind === 'VISUAL' ? publication.snapshot_title : publication.title,
+      ...(publication.source_kind === 'VISUAL' && publication.snapshot_description !== null ? { body: publication.snapshot_description } : {}), fileId: publication.file_id!, unitId: publication.unit_id, topicId: publication.topic_id });
     const [updated] = await tx.query<{ revision: bigint }>(`UPDATE foxy_publications SET state='PUBLISHED',material_id=$3::uuid,revision=revision+1
       WHERE id=$1::uuid AND owner_id=$2::uuid AND state='READY' AND revision=$4::bigint RETURNING revision`, publicationId, actorId, created.materialId, v.publicationRevision);
     if (!updated) return fail('CONFLICT');

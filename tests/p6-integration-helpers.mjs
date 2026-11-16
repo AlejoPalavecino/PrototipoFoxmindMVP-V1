@@ -95,8 +95,8 @@ export async function openClassroom(page, origin, name = 'P6 classroom', collect
     if (collectionState === 'archived') await page.getByRole('button', { name: /^Archivadas/ }).click();
     const entered = prepareResponse(value => value.request().method() === 'GET'
       && /^\/api\/v1\/classrooms\/[a-f0-9-]{36}$/.test(new URL(value.url()).pathname));
-    await page.getByRole('article').filter({ has: page.getByRole('heading', { name, exact: true }) })
-      .getByRole('button', { name: `Entrar al aula ${name}`, exact: true }).click();
+    const accessibleName = RegExp.escape(`Entrar al aula ${name}`);
+    await page.getByRole('link', { name: new RegExp(`^${accessibleName}(?: · Docente: .+)?$`) }).click();
     let detail = await consumeResponse(entered);
     if (detail.status() === 429) {
       assert.equal((await detail.json()).error.code, 'RATE_LIMITED');

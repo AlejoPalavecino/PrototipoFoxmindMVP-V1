@@ -1,6 +1,6 @@
 .fm3d-theme .education-eyebrow { color: var(--fm-accent); font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
 .fm3d-theme .education-form-note { color: var(--fm-muted); font-size: 12px; line-height: 1.5; }
-.fm3d-theme .education-upcoming-more > summary { padding: 12px; border: 1px solid var(--fm-border); border-radius: 10px; color: var(--fm-accent); font-weight: 600; margin-top: 12px; }
+.fm3d-theme .education-upcoming-more { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 12px; }
 .fm3d-theme .p5-dialog .p8-grading { padding: 0; border: 0; background: transparent; margin-top: 12px; }
 .fm3d-theme .p5-dialog .p8-grading > article { padding: 16px; border: 1px solid var(--fm-border); border-radius: 10px; background: #f6f8f3; margin-block: 16px; }
 .fm3d-theme .agenda-main .agenda-deadline-content > h3 { margin-block: 8px 4px; }

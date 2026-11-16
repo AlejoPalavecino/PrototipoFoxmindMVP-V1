@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import type { NavbarLink } from './navbar-types';
-import { FoxmindIcon } from './FoxmindIcon';
+import { HomeReferenceIcon as FoxmindIcon } from './HomeReferenceIcon';
 import { openDialog } from './dialog-focus';
 import { brujulaSearchHref, type BrujulaSearchClient, type BrujulaSearchPage } from '../../src/core/domain/classrooms/brujula-search.ts';
 
@@ -15,7 +15,7 @@ export function NavigationSearch({ links, follow, shortcut = true, search }: { l
     return () => document.removeEventListener('keydown', onShortcut);
   }, [shortcut]);
   return <><button type="button" className="fm-brujula-search" aria-label="Buscar en FoxMind" aria-haspopup="dialog" onClick={() => setOpen(true)}>
-    <FoxmindIcon name="search"/><span>Buscar</span><kbd>Ctrl K</kbd>
+    <FoxmindIcon name="search"/><span>Buscar en FoxMind</span><kbd>Ctrl K</kbd>
   </button>{open ? <SearchDialog links={links} follow={follow} search={search} onClose={() => setOpen(false)}/> : null}</>;
 }
 

@@ -1,0 +1,116 @@
+/* Scoped to the classroom creation dialog, including its native top layer. */
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard{width:min(1050px,calc(100vw - 32px));max-width:min(1050px,calc(100vw - 32px));height:min(790px,calc(100dvh - 48px));max-height:calc(100dvh - 32px);box-sizing:border-box;overflow:hidden}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard>.brujula-dialog-body{flex:1 1 0;min-height:0;min-width:0;overflow:hidden;display:flex}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-wizard-form{width:100%;min-width:0;min-height:0;flex:1;display:flex;flex-direction:column;overflow:hidden}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-builder{flex:1 1 0;min-height:0;overflow:auto;scroll-padding-block:20px}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .dialog-footer{position:static;flex:0 0 auto;width:auto;max-width:none;transform:none;margin:0}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard :is(h3,h4,b,strong,legend){font-weight:800}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-method{display:flex}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .method-icon{width:42px;height:42px;display:grid;place-items:center;background:#ffe6d1;color:#974519;border-radius:13px;flex:none}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .program-file{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border:1px dashed #9cadbd;border-radius:18px;background:#f4f7fa;padding:22px;margin-bottom:23px}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .program-file>.fm3d-icon{width:30px;height:30px;color:#45627b;flex:none}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .program-file>div{flex:1;min-width:170px}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .program-file h4{font-size:17px}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .program-file p{font-size:12px;margin-top:4px}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .program-file.ready{border-style:solid;border-color:#a2c0ae;background:#edf6f0}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .program-file .program-actions{flex-basis:100%;display:flex;gap:12px;flex-wrap:wrap;font-size:12px}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .program-picker{position:relative;overflow:hidden;padding:10px 14px;border:1px solid #a9b5c5;border-radius:10px;background:white;cursor:pointer}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .program-picker input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-unit-editor textarea{width:100%;min-height:44px;resize:vertical;padding:10px 13px;border:1px solid #a7b0ba;border-radius:12px;background:white;font:400 14px/1.5 Nunito,sans-serif;color:#202c3d;box-sizing:border-box}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-topic-list label{flex:1;min-width:0}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-unit-editor header>button{margin-left:auto}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-file-hint{font-size:12px;margin-top:12px}
+@media(max-width:680px){#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard{width:calc(100vw - 24px);max-width:calc(100% - 2em - 6px);height:calc(100dvh - 24px);max-height:calc(100dvh - 24px)}}
+@media(max-width:520px){#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .dialog-footer{flex-wrap:wrap;padding:11px 16px;gap:6px}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-step-actions{width:100%;order:-1}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .dialog-footer .class-save{width:100%;min-height:29px;padding:5px 12px;font-size:11px}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .program-file{padding:16px;gap:11px}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .program-picker{width:100%;text-align:center}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .method-icon{width:32px;height:32px;border-radius:10px}}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .unit-number{width:28px;height:28px;display:grid;place-items:center;flex:none;background:#e4eef6;color:#3c607d;border-radius:8px;font-size:12px;font-weight:800}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-curriculum button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:36px;padding:8px 12px;border:1px solid #bdcbd5;border-radius:10px;background:white;color:#202c3d;font:800 12px/1.4 Nunito,sans-serif}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-unit-editor>button{border-color:transparent;background:transparent}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-topic-list button{width:30px;height:30px;min-height:30px;padding:5px;flex:none;border:0;background:transparent}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-curriculum>.button{min-height:44px;font-size:13px}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard :is(button,input,textarea):focus-visible,#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .program-picker:focus-within{outline:3px solid #6f9dbb;outline-offset:3px}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-review :is(button,a){font:800 12px/1.4 Nunito,sans-serif}
+/* Reference typography and control metrics, overriding the inherited application dialog. */
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard{border:0;color:#202c3d;font:500 16px/1.5 Nunito,sans-serif;letter-spacing:normal}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard :is(h2,h3,h4){color:#202c3d;letter-spacing:normal;font-weight:800}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard>header{padding:20px 28px;min-height:0}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard>header h2{font:800 21px/1.5 Nunito,sans-serif;letter-spacing:normal}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard>header .p5-close{display:inline-grid;place-items:center;width:44px;height:44px;min-height:44px;flex:none;padding:0;margin:0;border:0;border-radius:12px;background:#f7f9fb;color:#202c3d;box-shadow:none}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard>header .p5-close .fm3d-icon{width:20px;height:20px}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-step-heading h3{letter-spacing:-.5px;line-height:1.2}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard :is(input:not([type=radio]),select,textarea){font-weight:500}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-cover-option{border-radius:13px}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-cover-option>img{height:68px;display:block}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-cover-option>span{gap:6px;padding:9px 8px;min-height:36px;font-size:11px;font-weight:750;box-sizing:border-box}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .dialog-footer button{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:11px 18px;line-height:1.4;font-size:13px;box-sizing:border-box;letter-spacing:normal}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .dialog-footer button .fm3d-icon{width:20px;height:20px;flex:none}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-zone-info>button{font:800 12px/1.4 Nunito,sans-serif;letter-spacing:normal}
+@media(max-width:680px){#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard{border-radius:20px}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard>header{padding:13px 20px}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard>header h2{font-size:18px}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .dialog-footer button{font-size:12px;padding:10px 12px;min-height:42px}}
+@media(max-width:520px){#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-cover-option>img{height:58px}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-cover-option>span{font-size:10px;gap:4px;padding:8px 5px;align-items:flex-start;min-height:44px}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-cover-option .fm3d-icon{display:none}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-cover-option input{width:12px;height:12px;margin-top:1px}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .dialog-footer .class-save{min-height:29px;padding:5px 12px;font-size:11px}}
+
+/* Method cards are horizontal even when generic form labels default to columns. */
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-methods{color:#202c3d;min-width:0;width:100%;text-align:left}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-methods>legend{color:#202c3d;font:800 17px/1.5 Nunito,sans-serif;letter-spacing:normal}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-methods>label.class-method{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:12px;width:100%;min-height:0;height:auto;padding:17px;margin:10px 0 0;text-align:left;box-sizing:border-box;color:#202c3d}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-methods>label.class-method>input{width:17px;height:17px;min-height:0;margin:0;flex:0 0 17px;align-self:center}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-methods>label.class-method>span:last-child{display:block;min-width:0;flex:1}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-method b{color:#202c3d}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-form-grid>label,#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-form-pair>label{color:#202c3d}
+@media(max-width:520px){#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-methods>label.class-method{padding:13px;gap:9px}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-methods>legend{font-size:16px}}
+
+/* Review actions remain compact, independent of generic full-width form buttons. */
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-review-card>button,
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-review-head>button{display:inline-flex;flex-direction:row;align-items:center;justify-content:center;gap:7px;flex:0 0 auto;width:auto;min-width:0;max-width:none;min-height:36px;height:auto;padding:8px 10px;margin:0;border:0;border-radius:10px;background:transparent;box-shadow:none;white-space:nowrap;color:#43566c;font:800 12px/1.4 Nunito,sans-serif}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-review-card>button .fm3d-icon,
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-review-head>button .fm3d-icon{width:18px;height:18px;flex:none}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-review :is(button:hover,button:focus-visible){background:#edf2f7}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-unit-editor textarea{resize:none;field-sizing:content;overflow-wrap:anywhere;white-space:pre-wrap}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .brujula-wizard-save[data-save-state=pending]{color:#45627b}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .brujula-wizard-save[data-save-state=saved]{color:#24623e}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .brujula-wizard-save[data-save-state=error]{color:#a63232}
+@media(max-width:520px){#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-review-card>button{grid-column:2;justify-self:start;min-height:34px}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-review-head>button{font-size:11px;padding:7px;gap:6px}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-review-head{gap:4px}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-review-head>div{min-width:0}}
+/* Notice descendants inherit their semantic color instead of the generic paragraph ink. */
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .p5-notice.error,
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard [role=alert]{color:#a63232}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .p5-notice.success{color:#24623e}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard :is(.p5-notice.error,.p5-notice.success,[role=alert]) :is(p,span,strong,b){color:inherit}
+/* Focused classroom preparation screen; no form remains below its progress state. */
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process{width:min(580px,calc(100vw - 32px));max-width:calc(100% - 2em - 6px);max-height:calc(100dvh - 40px);height:auto;border:0;border-radius:24px;padding:0;background:#fff;color:#202c3d;font:500 16px/1.5 Nunito,sans-serif;letter-spacing:normal;overflow:hidden}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process[open]{display:flex;flex-direction:column}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process>header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:25px 27px 18px;flex:none;border:0;background:#fff}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process>header h2{margin:0;color:#202c3d;font:800 23px/1.3 Nunito,sans-serif;letter-spacing:normal}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process>header .p5-close{display:grid;place-items:center;width:44px;height:44px;min-height:44px;margin:-8px -10px 0 0;padding:0;flex:none;border:0;border-radius:12px;background:#f7f9fb;color:#202c3d}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process>.brujula-dialog-body{display:flex;flex-direction:column;min-height:0;padding:0;overflow:hidden}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process{text-align:center;padding:0 37px 32px;overflow-y:auto;min-height:0;overscroll-behavior:contain}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process>img{height:160px;width:200px;object-fit:contain;display:block;margin:0 auto 10px}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process-step{font-size:12px;color:#974519;font-weight:800}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process h3{font:800 24px/1.25 Nunito,sans-serif;color:#202c3d;margin:10px 0;letter-spacing:normal}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process p{font-size:14px;max-width:40ch;margin:0 auto;color:#50627b}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process-track{height:6px;background:#e5ebef;border-radius:10px;margin:22px 0 16px;overflow:hidden}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process-track>span{display:block;width:35%;height:100%;border-radius:10px;background:#b74710;animation:class-program-pending 1.5s ease-in-out infinite alternate}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process ol{list-style:none;margin:0;padding:0;display:grid;gap:12px;text-align:left}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process li{display:flex;align-items:center;gap:10px;font-size:13px;color:#5c6a79}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process li.active{color:#2f5c48;font-weight:750}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process li>.fm3d-icon,#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process-spinner{width:17px;height:17px;flex:none}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process-spinner{border:2px solid #d0ddd5;border-top-color:#32694b;border-radius:50%;animation:class-program-spin .8s linear infinite}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process>small{display:block;font-size:11px;color:#58697a;margin-top:22px}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process-error{padding:16px;border:1px solid #e3b4aa;border-radius:14px;background:#fff4f1;margin-top:16px;color:#a63232}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process-error p{color:inherit}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process-footer{position:static;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px;padding:16px 27px 22px;border-top:1px solid #d4dde6;background:#fff;flex:none;margin:0}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process-footer button{display:inline-flex;align-items:center;justify-content:center;width:auto;min-width:0;min-height:44px;padding:11px 18px;border:1px solid #bdcbd5;border-radius:12px;background:#fff;color:#202c3d;font:800 13px/1.4 Nunito,sans-serif;letter-spacing:normal}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process-footer button.primary{background:#b74710;border-color:#b74710;color:white}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process button:focus-visible{outline:3px solid #6f9dbb;outline-offset:2px}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-process-background{border:1px solid #c7d7e4;background:#edf4f9;border-radius:12px;padding:12px;margin:0 0 16px}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-wizard .class-process-background p{font-size:12px;color:#45627b}
+@keyframes class-program-pending{from{transform:translateX(-100%)}to{transform:translateX(285%)}}
+@keyframes class-program-spin{to{transform:rotate(360deg)}}
+@media(max-width:520px){#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process{max-height:calc(100dvh - 24px)}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process>header{padding:22px 20px 18px}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process>header h2{font-size:21px}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process{padding:0 30px 29px}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process>img{height:120px}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process h3{font-size:22px}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process-footer{padding:16px 20px 21px}}
+@media(prefers-reduced-motion:reduce){#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process-track>span,#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process-spinner{animation:none;transition:none}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process-track>span{transform:translateX(90%)}}
+@media(max-width:520px){#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process-footer{gap:8px}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process .class-process-footer button{width:100%;flex:0 0 100%;white-space:normal}#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process>.brujula-dialog-body{flex:1 1 auto}}
+
+/* A fixed native dialog with inset:0 and auto height stretches; fit-content keeps it centered at its intrinsic height. */
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process[open]{position:fixed;inset:0;margin:auto;height:fit-content;min-height:0;box-sizing:border-box}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process::backdrop{background:#28354566;backdrop-filter:none}
+
+/* Local close mark avoids a second network request while the processing dialog opens. */
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process>header .p5-close{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23202c3d' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m18 6-12 12M6 6l12 12'/%3E%3C/svg%3E");background-size:20px 20px;background-position:center;background-repeat:no-repeat}
+#foxmind-product.fm3d-theme dialog.p5-dialog.parity-classroom-process>header .p5-close>svg{display:none}

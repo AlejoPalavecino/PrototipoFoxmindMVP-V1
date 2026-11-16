@@ -1,0 +1,11 @@
+const fs = await import('node:fs/promises');
+const base='C:/Users/alejo/.codex/worktrees/foxmind-ui-lab/ProtipoFoxMind/.test-artifacts/ui-lab';
+await fs.mkdir(base,{recursive:true});
+const a=JSON.parse(await fs.readFile('C:/Users/alejo/Documents/ProyectosAlejo/FoxMind/ProtipoFoxMind/.test-artifacts/local-app/accounts.json','utf8'));
+const task=await taskSpace(5),page=task.page('p1');
+await page.fill('input[name="email"]',a.teacherEmail);
+await page.fill('input[name="password"]',a.password);
+await page.click('text="Iniciar sesión"');
+await page.waitForURL('http://127.0.0.1:3000/inicio');
+await page.screenshot({path:base+'/before-teacher-home.png'});
+console.log(await page.snapshot({scope:'full_page'}));

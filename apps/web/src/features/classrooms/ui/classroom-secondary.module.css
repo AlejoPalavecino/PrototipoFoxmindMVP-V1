@@ -1,0 +1,171 @@
+.roster, .members, .settings {
+  --room-line: #c4d2df;
+  --room-ink: #202c3d;
+  --room-copy: #475f73;
+  min-width: 0;
+  color: var(--room-ink);
+}
+:global(#classroom-main) .roster { display: grid; gap: 15px; }
+:global(#classroom-main) .heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px 18px; }
+:global(#classroom-main) .heading h2, .settingsForm h2 { margin: 0; font-size: 25px; line-height: 1.25; }
+:global(#classroom-main) .heading p { margin: 5px 0 0; color: var(--room-copy); font-size: 14px; }
+:global(#classroom-main) .heading button, .lifecycle button { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; }
+:global(#classroom-main) .heading button svg, .lifecycle button svg { width: 16px; height: 16px; }
+:global(#classroom-main) .roster .search.search {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  width: min(100%, 310px);
+  min-height: 44px;
+  padding: 4px 10px;
+  border: 1px solid var(--room-line);
+  border-radius: 11px;
+  background: #fff;
+  color: var(--room-copy);
+}
+:global(#classroom-main) .search svg { flex: 0 0 17px; width: 17px; height: 17px; }
+:global(#classroom-main) .roster .search input[type=search] { flex: 1 1 0; min-width: 0; width: auto; min-height: 32px; padding: 4px 0; border: 0; background: transparent; text-align: start; font-size: 13px; }
+:global(#classroom-main) .search:focus-within { outline: 2px solid #925024; outline-offset: 2px; }
+:global(#classroom-main) .roster .people.people {
+  display: grid;
+  min-width: 0;
+  gap: 0;
+  margin: 0;
+  padding: 4px 20px;
+  border: 1px solid var(--room-line);
+  border-radius: 18px;
+  background: #fff;
+  list-style: none;
+}
+:global(#classroom-main) .roster .people:empty { display: none; }
+:global(#classroom-main) .roster .people.people > li {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px 13px;
+  margin: 0;
+  padding: 11px 0;
+  border: 0;
+  border-bottom: 1px solid #d5e0ea;
+  border-radius: 0;
+  background: transparent;
+}
+:global(#classroom-main) .roster .people.people > li:last-child { border-bottom: 0; }
+:global(#classroom-main) .roster .people.people > li::before { content: none; }
+.actionable { cursor: pointer; }
+:global(#classroom-main) .roster .avatar.avatar { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; background: #def1e7; color: #2d5b4c; font-size: 13px; }
+:global(#classroom-main) .roster li:nth-child(3n+2) .avatar.avatar { background: #e4edf9; color: #2f5776; }
+:global(#classroom-main) .roster li:nth-child(3n) .avatar.avatar { background: #f5e5eb; color: #783b59; }
+.person { min-width: 0; overflow-wrap: anywhere; }
+.person strong { font-size: 14px; line-height: 1.4; }
+:global(#classroom-main) .roster .person small { display: block; margin: 3px 0 0; color: var(--room-copy); font-size: 12px; }
+:global(#classroom-main) .roster .more.more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 1px solid #cadaea;
+  border-radius: 10px;
+  color: #405d76;
+  background: #f5f8fb;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.more svg { width: 14px; height: 14px; }
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: 9px;
+  padding: clamp(22px, 5vw, 44px) 18px;
+  margin: 0;
+  border: 1px solid var(--room-line);
+  border-radius: 19px;
+  background: #fff;
+  text-align: center;
+}
+.empty svg { width: 32px; height: 32px; color: #32634c; }
+.empty h3, .empty p { margin: 0; }
+.empty p { max-width: 46ch; color: var(--room-copy); font-size: 14px; }
+
+:global(#classroom-main) .members .code.code {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  margin: 0;
+  border: 1px solid #e1c0a5;
+  border-radius: 18px;
+  background: #fff0e5;
+}
+.code > header { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.code > header > svg { flex: 0 0 23px; width: 23px; height: 23px; color: #914720; }
+:global(#classroom-main) .members .code.code h3, .members .invites h3 { margin: 0; color: #3b322d; font-size: 16px; }
+:global(#classroom-main) .members .code.code p { margin: 3px 0 0; color: #664a39; font-size: 13px; }
+:global(#classroom-main) .members .code.code .codeValue { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-width: 0; margin: 0; padding: 4px 6px 4px 12px; border: 1px solid #e0c4ae; border-radius: 10px; background: #fff; }
+:global(#classroom-main) .members .code.code code { margin: 0; color: #65432e; white-space: nowrap; font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; }
+:global(#classroom-main) .members.members .code.code button { gap: 6px; padding: 5px 8px; min-height: 39px; border: 1px solid #e0c4ae; border-radius: 9px; background: #fff; color: #864321; font-size: 12px; }
+.code button svg { width: 15px; height: 15px; }
+.members .invites.invites { padding: 15px 20px; margin: 15px 0 0; border: 1px solid var(--room-line); border-radius: 18px; background: #fff; }
+.invites :global(.p5-invite-list) { margin: 8px 0 0; padding: 0; }
+.members .invites.invites :global(.p5-invite-list li) { gap: 10px; padding: 11px 0; border: 0; border-top: 1px solid #d5e0ea; border-radius: 0; background: transparent; overflow-wrap: anywhere; }
+.invites :global(.p5-invite-list li small) { color: var(--room-copy); }
+
+:global(#classroom-main) .settings.settings { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(235px, 1fr); align-items: start; gap: 24px; }
+:global(#classroom-main) .settings .settingsForm.settingsForm, .settings .lifecycle.lifecycle { min-width: 0; margin: 0; padding: 21px; border: 1px solid var(--room-line); border-radius: 20px; background: #fff; }
+:global(#classroom-main) .settingsForm > fieldset { display: grid; gap: 17px; min-width: 0; margin: 17px 0 0; padding: 0; border: 0; }
+:global(#classroom-main) .settingsForm .settingsFields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.settingsFields > label:first-child { grid-column: 1 / -1; }
+.settingsFields label, .settingsFields input { min-width: 0; }
+:global(#classroom-main) .settings .settingsForm :global(.brujula-settings-covers > div) { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+:global(#classroom-main) .settings .settingsForm :global(.brujula-settings-covers > div > label) { min-width: 0; }
+:global(#classroom-main) .settings .settingsForm :global(.classroom-settings-save) { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 13px 0 0; border-top: 1px solid #d5e0ea; }
+:global(#classroom-main) .settings .settingsForm :global(.classroom-settings-save p) { margin: 0; color: var(--room-copy); font-size: 12px; }
+:global(#classroom-main) .settings .settingsForm :global(.classroom-settings-save button) { flex: 0 0 auto; min-height: 44px; }
+:global(#classroom-main) .settings .lifecycle.lifecycle { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+:global(#classroom-main) .settings .lifecycle.lifecycle h3, .settings .lifecycle.lifecycle p { margin: 0; }
+:global(#classroom-main) .settings .lifecycle.lifecycle h3 { color: var(--room-ink); font-size: 17px; }
+:global(#classroom-main) .settings .lifecycle.lifecycle p { color: var(--room-copy); line-height: 1.6; font-size: 14px; }
+:global(#classroom-main) .settings .lifecycle.lifecycle :global(.classroom-lifecycle-state) { display: inline-flex; padding: 3px 8px; border-radius: 7px; background: #e7f2ec; color: #315a46; font-size: 12px; font-weight: 750; }
+:global(#classroom-main) .roster button:focus-visible, .members button:focus-visible, .settings button:focus-visible { outline: 2px solid #925024; outline-offset: 2px; }
+
+@media (max-width: 780px) {
+  :global(#classroom-main) .settings.settings { grid-template-columns: minmax(0, 1fr); gap: 15px; }
+  :global(#classroom-main) .members .code.code { grid-template-columns: minmax(0, 1fr) auto; }
+  .code > header { grid-column: 1 / -1; }
+}
+@media (max-width: 540px) {
+  :global(#classroom-main) .heading h2, .settingsForm h2 { font-size: 22px; }
+  :global(#classroom-main) .roster .people.people { padding-inline: 11px; }
+  :global(#classroom-main) .roster .people.people > li { grid-template-columns: 34px minmax(0, 1fr) auto; gap: 8px; }
+  :global(#classroom-main) .roster .avatar.avatar { width: 34px; height: 34px; }
+  :global(#classroom-main) .roster .more.more { min-height: 44px; padding-inline: 6px; font-size: 11px; }
+  .more svg { display: none; }
+  :global(#classroom-main) .members .code.code { padding: 14px; }
+  :global(#classroom-main) .members.members .code.code button { min-height: 44px; }
+  :global(#classroom-main) .settings .settingsForm.settingsForm, .settings .lifecycle.lifecycle { padding: 15px; }
+  :global(#classroom-main) .settings .settingsForm :global(.brujula-settings-covers > div) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  :global(#classroom-main) .settings .settingsForm :global(.classroom-settings-save) { flex-wrap: wrap; }
+}
+
+:global(#classroom-main) .roster .rowActions { display: flex; grid-column: 3; grid-row: 1; justify-content: flex-start; margin: 0; }
+:global(#classroom-main) .settings .lifecycle.lifecycle[data-archived='true'] :global(.classroom-lifecycle-state) {
+  background: #edf2f7;
+  color: #435a70;
+}
+@media (max-width: 375px) {
+  :global(#classroom-main) .roster.historical .people.people > li { grid-template-columns: 34px minmax(0, 1fr); }
+  :global(#classroom-main) .roster.historical .rowActions { grid-column: 2; grid-row: auto; }
+}
+
+/* iter17 roster and settings panel geometry. */
+:global(#classroom-main) .roster{gap:22px}:global(#classroom-main) .heading h2,.settingsForm h2{font-size:24px;letter-spacing:-.4px}:global(#classroom-main) .roster .people.people{padding:8px 25px;border-radius:22px}:global(#classroom-main) .roster .people.people>li{padding:17px 0;gap:14px}:global(#classroom-main) .roster .avatar.avatar{width:38px;height:38px}.person strong{font-weight:800}:global(#classroom-main) .roster .person small{font-size:12px}:global(#classroom-main) .roster .more.more{background:#fff;border-color:#b7c8d8;border-radius:11px;min-height:42px;padding:9px 13px;transition:background .16s}:global(#classroom-main) .roster .more.more:hover{background:#eef4f8}
+:global(#classroom-main) .members .code.code{padding:22px 25px;border-radius:19px;gap:20px}:global(#classroom-main) .members .code.code code{font-size:25px;letter-spacing:3px}:global(#classroom-main) .members .code.code .codeValue{padding:5px 10px}:global(#classroom-main) .settings.settings{grid-template-columns:minmax(0,1.8fr) minmax(235px,1fr)}:global(#classroom-main) .settings .settingsForm.settingsForm,.settings .lifecycle.lifecycle{padding:25px;border-radius:22px}:global(#classroom-main) .settingsForm>fieldset{margin-top:22px;gap:22px}:global(#classroom-main) .settingsForm .settingsFields{gap:17px}.settingsFields label{font-size:13px;font-weight:800}:global(#classroom-main) .settings .settingsForm :global(.classroom-settings-save){padding-top:20px}:global(#classroom-main) .settings .lifecycle.lifecycle{gap:12px}:global(#classroom-main) .settings .lifecycle.lifecycle h3{font-size:20px}:global(#classroom-main) .settings .lifecycle.lifecycle button{background:#fff;border:1px solid #b7c8d8;border-radius:11px;font-size:13px;padding:10px 13px;margin-top:7px}
+@media(max-width:780px){:global(#classroom-main) .settings.settings{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:540px){:global(#classroom-main) .roster .people.people{padding:5px 16px}:global(#classroom-main) .roster .people.people>li{gap:10px;grid-template-columns:34px minmax(0,1fr) auto}:global(#classroom-main) .roster .avatar.avatar{width:34px;height:34px}:global(#classroom-main) .settings .settingsForm.settingsForm,.settings .lifecycle.lifecycle{padding:20px}:global(#classroom-main) .members .code.code{padding:17px;gap:14px}:global(#classroom-main) .members .code.code code{font-size:21px;letter-spacing:2px}}
+@media(prefers-reduced-motion:reduce){:global(#classroom-main) .roster .more.more{transition:none}}

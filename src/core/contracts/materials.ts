@@ -11,6 +11,8 @@ export interface FileState {
 }
 
 export interface Material {
+  description?: string | null;
+  activityIds?: string[];
   supersededBy?:string|null;
   body?: string | null;
   resourceUse?: 'STUDY' | 'RECOMMENDED' | 'COMPLEMENTARY';
