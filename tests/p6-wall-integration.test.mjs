@@ -126,7 +126,22 @@ test('P6 actual Muro, scoped notifications, moderation and retained history', { 
       await check('exclusive roles retain classroom ownership boundaries; real restart preserves threads and notification reads', async () => {
         const foreignTeacher = await (await browser.newContext()).newPage();
         await account(foreignTeacher, runtime.origin, runtime.inbox, `p6-wall-foreign-teacher-${suffix}@example.test`, undefined, 'teacher');
-        const second = await classroom(foreignTeacher, student, 'Second role classroom');
+        const second = await classroom(foreignTeacher, undefined, 'Second role classroom');
+        const preview = await api(student, 'POST', '/classrooms/codes/preview', { code: second.code });
+        assert.equal(preview.status, 200);
+        const enroll = () => api(student, 'POST', '/classrooms/codes/confirm', { confirmation: preview.body.confirmation });
+        let enrolled = await enroll();
+        if (enrolled.status === 429) {
+          assert.equal(enrolled.body?.error?.code, 'RATE_LIMITED');
+          const raw = enrolled.headers['retry-after']; assert.match(raw ?? '', /^\d+$/);
+          const seconds = Number(raw); assert.ok(seconds >= 1 && seconds <= 60);
+          console.log(`P6 second-room enrollment honors Retry-After=${seconds}s once`);
+          await delay(seconds * 1000);
+          const refreshed = await api(student, 'POST', '/classrooms/codes/preview', { code: second.code });
+          assert.equal(refreshed.status, 200, 'Refresh the short-lived enrollment confirmation after its admission wait');
+          enrolled = await api(student, 'POST', '/classrooms/codes/confirm', { confirmation: refreshed.body.confirmation });
+        }
+        assert.equal(enrolled.status, 200);
         const state = (await api(student, 'GET', `/classrooms/${second.id}/wall`)).body;
         assert.equal((await api(student, 'POST', `/classrooms/${second.id}/wall`, { revision: state.revision, operation: { action: 'publish', body: 'Student query in another teacher classroom' } })).status, 200);
         const secondWall = (await api(student, 'GET', `/classrooms/${second.id}/wall`)).body;
