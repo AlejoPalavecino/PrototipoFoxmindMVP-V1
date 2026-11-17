@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createFileInfrastructure } from '../apps/api/src/modules/files/infrastructure/configuration.ts';
-import { S3Storage } from '../apps/api/src/modules/files/infrastructure/storage.ts';
-import { FileService } from '../.build/api/apps/api/src/modules/files/infrastructure/service.js';
+import { createFileInfrastructure } from '../apps/api/src/modules/files/custody/infrastructure/configuration.ts';
+import { S3Storage } from '../apps/api/src/modules/files/custody/infrastructure/storage.ts';
+import { FileService } from '../.build/api/apps/api/src/modules/files/custody/infrastructure/service.js';
 
 const configuration = { endpoint: 'http://127.0.0.1:18334', region: 'us-east-1', bucket: 'foxmind-private',
   accessKeyId: 'a'.repeat(32), secretAccessKey: 'b'.repeat(64), scannerHost: '127.0.0.1', scannerPort: 13311 };

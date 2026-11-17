@@ -1,4 +1,6 @@
-import type { FoxyVisualKind, FoxyAspectRatio, FoxyDiagram, FoxyPrivateAssetReadDescriptor, FoxyPublicationArtifact } from '../../../../../../src/core/domain/index.ts';
+import type { FoxyVisualKind, FoxyAspectRatio, FoxyDiagram } from '../../../../../../src/core/domain/foxy/visual.ts';
+import type { FoxyPrivateAssetReadDescriptor } from '../../../../../../src/core/domain/foxy/asset.ts';
+import type { FoxyPublicationArtifact } from '../../../../../../src/core/domain/foxy/resource.ts';
 import type { SqlTransaction } from '../../../../../../src/core/contracts/sql.ts';
 export type FoxyPrivateAssetLease = {
     assetId: string;

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PDFDocument } from 'pdf-lib';
 import sharp from 'sharp';
-import { inspectContent } from '../apps/api/src/modules/files/infrastructure/content.ts';
+import { inspectContent } from '../apps/api/src/modules/files/custody/infrastructure/content.ts';
 import { zip, office } from './p4-fixtures.mjs';
 
 test('valid PDF, OOXML, PNG, JPEG and ordinary ZIP are inspected without execution', async () => {

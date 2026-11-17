@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { withAiDatabase } from './classroom-ai-database.test.mjs';
 import { fixture } from './activity-ai-fixture.test.mjs';
-const ai = () => Promise.all([import("../apps/api/src/modules/activities/infrastructure/activity-ai/service.ts"),import("../apps/api/src/modules/activities/infrastructure/activity-ai/worker.ts"),import("../apps/api/src/modules/activities/infrastructure/activity-ai/provenance.ts")]).then(([m0,m1,m2]) => Object.freeze({ActivityAiService: m0.ActivityAiService,ActivityAiWorker: m1.ActivityAiWorker,validateActivityGeneration: m2.validateActivityGeneration}));
+const ai = () => Promise.all([import("../apps/api/src/modules/activities/generation/infrastructure/activity-ai/service.ts"),import("../apps/api/src/modules/activities/generation/infrastructure/activity-ai/worker.ts"),import("../apps/api/src/modules/activities/generation/infrastructure/activity-ai/provenance.ts")]).then(([m0,m1,m2]) => Object.freeze({ActivityAiService: m0.ActivityAiService,ActivityAiWorker: m1.ActivityAiWorker,validateActivityGeneration: m2.validateActivityGeneration}));
 
 test('A3 explicit insufficient-content result persists missing information without proposal or draft', { timeout: 120000 }, async () => {
   const { ActivityAiService, ActivityAiWorker } = await ai();

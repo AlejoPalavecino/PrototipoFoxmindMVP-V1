@@ -5,6 +5,21 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
+test('stale compiled API artifacts cannot hide a retired source path', async () => {
+  const { assertCurrentCompiledSource } = await import('../scripts/register-api-test-build.mjs');
+  const root = process.cwd();
+  const { resolve } = await import('node:path');
+  const current = 'apps/api/src/modules/files/uploads/application/ports.ts';
+  const exists = path => path === resolve(root, current);
+  assert.doesNotThrow(() => assertCurrentCompiledSource(root, '.build/api/' + current.replace(/\.ts$/, '.js'), exists));
+  for (const file of [
+    '.build/api/apps/api/src/modules/files/application/ports.js',
+    '.build/p33-mail/apps/api/src/modules/identity/infrastructure/mail/configuration.js',
+    '.build/api/src/core/domain/retired.js',
+  ]) assert.throws(() => assertCurrentCompiledSource(root, file, exists), /Missing current API source/);
+  assert.doesNotThrow(() => assertCurrentCompiledSource(root, '.build/backend-capabilities/snapshot/apps/api/src/old.js', () => false));
+});
+
 test('source helper parses generic TypeScript functions without interpreting them as JSX', async () => {
   const { loadTsModule } = await import('./helpers/load-ts-module.mjs');
   const directory = await mkdtemp(join(tmpdir(), 'foxmind-ts-source-'));

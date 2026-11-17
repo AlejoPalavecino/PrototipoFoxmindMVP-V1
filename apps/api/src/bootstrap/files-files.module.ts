@@ -1,13 +1,13 @@
 import { Module, type DynamicModule } from '@nestjs/common';
-import type { AttemptWriteAuthorizer } from '../modules/files/infrastructure/access.ts';
-import { FileService, type FileServiceOptions } from '../modules/files/infrastructure/service.ts';
-import { FileCleanupWorker } from '../modules/files/infrastructure/cleanup-worker.ts';
+import type { AttemptWriteAuthorizer } from '../modules/files/custody/infrastructure/access.ts';
+import { FileService, type FileServiceOptions } from '../modules/files/custody/infrastructure/service.ts';
+import { FileCleanupWorker } from '../modules/files/custody/infrastructure/cleanup-worker.ts';
 import { PrismaService } from '../platform/database/prisma.service.ts';
 import { IdentityRuntime } from './identity-runtime.ts';
 import { FileHostLifecycle, createIdentityFileAccess } from './files-host.ts';
-import type { FileInfrastructure, FileRuntimeConfiguration } from '../modules/files/infrastructure/configuration.ts';
-import type { FileTransaction } from '../modules/files/application/contracts.ts';
-import type { FileRow } from '../modules/files/infrastructure/store.ts';
+import type { FileInfrastructure, FileRuntimeConfiguration } from '../modules/files/custody/infrastructure/configuration.ts';
+import type { FileTransaction } from '../modules/files/custody/application/contracts.ts';
+import type { FileRow } from '../modules/files/custody/infrastructure/store.ts';
 
 export interface AttachmentIntegration {
   authorizeAttemptWrite: AttemptWriteAuthorizer;

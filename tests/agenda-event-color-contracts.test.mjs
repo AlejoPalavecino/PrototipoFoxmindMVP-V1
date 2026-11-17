@@ -38,7 +38,7 @@ test('color rejects null, pseudo defaults and arbitrary CSS without coercion', (
 
 function memoryService() {
   const rows = new Map(), owner = { userId: randomUUID() }, now = '2026-10-24T12:00:00.000Z';
-  const { createAgendaService } = loadTsModule("apps/api/src/modules/agenda/application/agenda-service.ts");
+  const { createAgendaService } = loadTsModule("apps/api/src/modules/agenda/events/application/agenda-service.ts");
   const uow = { async run(request, write, operation) {
     const key = id => `${request.userId}/${id}`;
     const events = {

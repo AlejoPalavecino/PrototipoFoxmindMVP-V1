@@ -1,6 +1,6 @@
 import type { ActivityType } from './activities.ts';
 
-export type { GradingQuestion, GradingData, GradeCorrectionsData, PublishedResultData } from '../domain/index.ts';
+export type { GradingQuestion, GradingData, GradeCorrectionsData, PublishedResultData } from '../domain/grading/grading-types.ts';
 
 export interface CompletionProgress {
   expected: number; delivered: number; pending: number; onTime: number; late: number; pendingResubmissions: number;

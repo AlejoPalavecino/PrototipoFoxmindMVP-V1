@@ -1,8 +1,8 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { INestApplication } from '@nestjs/common';
-import type { createChatAttachmentService } from '../modules/files/infrastructure/chat-attachment-service.ts';
-import { attachmentError, CHAT_ATTACHMENT_BYTES, parseChatAttachmentIntent } from '../modules/files/infrastructure/chat-attachment-policy.ts';
-import { readStudyBody, studyJson, studyReject } from '../modules/study/presentation/folders/uploads/http.ts';
+import type { createChatAttachmentService } from '../modules/files/custody/infrastructure/chat-attachment-service.ts';
+import { attachmentError, CHAT_ATTACHMENT_BYTES, parseChatAttachmentIntent } from '../modules/files/chat-attachments/domain/policy.ts';
+import { readStudyBody, studyJson, studyReject } from '../modules/study/folders/presentation/uploads/http.ts';
 
 const uuid = '[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}';
 // Keep the role explicit: a two-UUID teacher path must never resolve as a student list.

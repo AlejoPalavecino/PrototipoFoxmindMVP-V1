@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import {seedPlan} from './helpers/plan-fixture.mjs';
 import { withAiDatabase, rollbackCase } from './classroom-ai-database.test.mjs';
-import { FileStore } from '../.build/api/apps/api/src/modules/files/infrastructure/store.js';
-import { ClassroomService } from '../.build/api/apps/api/src/bootstrap/academic-composition.js';
+import { FileStore } from '../.build/api/apps/api/src/modules/files/custody/infrastructure/store.js';
+import { ClassroomService } from './helpers/academic-fixture.ts';
 
 async function fixture(local) {
   const teacher = randomUUID(), stranger = randomUUID(), student = randomUUID(), room = randomUUID();

@@ -6,10 +6,10 @@ import { fixture } from './activity-ai-fixture.test.mjs';
 
 test('Foxy handoff is atomic, idempotent, teacher-only and keeps source and draft private', { timeout: 120000 }, async () => {
   const { createFoxyResourceService } = await import("../.build/api/apps/api/src/bootstrap/foxy-service-factories.js");
-  const { createFoxyResourceRepository } = await import("../.build/api/apps/api/src/modules/foxy/infrastructure/resource-repository.js");
-  const { createFoxyConversationRepository } = await import("../.build/api/apps/api/src/modules/foxy/infrastructure/conversation-repository.js");
-  const { createFoxyTurnRepository } = await import("../.build/api/apps/api/src/modules/foxy/infrastructure/turn-repository.js");
-  const { createFoxyUnitOfWork } = await import("../.build/api/apps/api/src/modules/foxy/infrastructure/unit-of-work.js");
+  const { createFoxyResourceRepository } = await import("../.build/api/apps/api/src/modules/foxy/resources/infrastructure/resource-repository.js");
+  const { createFoxyConversationRepository } = await import("../.build/api/apps/api/src/modules/foxy/conversations/infrastructure/conversation-repository.js");
+  const { createFoxyTurnRepository } = await import("../.build/api/apps/api/src/modules/foxy/turns/infrastructure/turn-repository.js");
+  const { createFoxyUnitOfWork } = await import("../.build/api/apps/api/src/modules/foxy/conversations/infrastructure/unit-of-work.js");
   await withAiDatabase(async ({ pool }) => rollbackCase(pool, async local => {
     const f = await fixture(local), tx = { query: async (sql, ...args) => (await local.pool.query(sql, args)).rows };
     const resources = createFoxyResourceRepository(), service = createFoxyResourceService({ resources,

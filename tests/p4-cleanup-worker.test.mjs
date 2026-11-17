@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FileCleanupWorker } from '../apps/api/src/modules/files/infrastructure/cleanup-worker.ts';
+import { FileCleanupWorker } from '../apps/api/src/modules/files/custody/infrastructure/cleanup-worker.ts';
 
 const settle = async () => { for (let n = 0; n < 8; n++) await Promise.resolve(); };
 test('the real opt-in Nest module installs and closes its cleanup lifecycle', async () => {

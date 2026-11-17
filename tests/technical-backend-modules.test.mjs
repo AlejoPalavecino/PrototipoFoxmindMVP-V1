@@ -9,10 +9,10 @@ function sources(path) {
     ? sources(`${path}/${entry.name}`) : entry.name.endsWith('.ts') ? [`${path}/${entry.name}`] : []);
 }
 test('identity application owns use cases without SQL, Node, Prisma or concrete adapters', () => {
-  const runtime = read(`${root}modules/identity/application/runtime.ts`);
+  const runtime = read(`${root}modules/identity/accounts/application/runtime.ts`);
   assert.match(runtime, /async register\(/);
   assert.match(runtime, /async confirmPasswordRecovery\(/);
-  for (const path of sources(`${root}modules/identity/application`)) {
+  for (const path of sources(`${root}modules/identity`).filter(path => path.includes('/application/'))) {
     assert.doesNotMatch(read(path), /from ['"][^'"]*(?:infrastructure|\.generated|node:|@nestjs)/, path);
     assert.doesNotMatch(read(path), /\$(?:queryRaw|executeRaw)|\b(?:SELECT|INSERT INTO|UPDATE account_)\b/, path);
   }
@@ -25,11 +25,11 @@ test('technical public surfaces expose contracts without persistence or transpor
   }
 });
 test('session context is structural and file readiness has one pure owner', () => {
-  assert.doesNotMatch(read(`${root}modules/identity/application/session-contracts.ts`), /Prisma|\.generated/);
+  assert.doesNotMatch(read(`${root}modules/identity/sessions/application/session-contracts.ts`), /Prisma|\.generated/);
   const readiness = read(`${root}modules/files/domain/readiness.ts`);
   assert.match(readiness, /function requireReady/);
   assert.doesNotMatch(readiness, /infrastructure|node:|Buffer|service\.ts/);
-  const promotion = read(`${root}modules/files/infrastructure/promotion.ts`);
+  const promotion = read(`${root}modules/files/custody/infrastructure/promotion.ts`);
   assert.doesNotMatch(promotion, /from ['"][^'"]*service\.ts/);
 });
 
@@ -41,7 +41,7 @@ test('Nest resolves files against the exact runtime token exported by identity',
     import('../apps/api/src/bootstrap/identity-identity.module.ts'),
     import('../apps/api/src/bootstrap/identity-runtime.ts'),
     import('../apps/api/src/platform/database/prisma.service.ts'),
-    import('../apps/api/src/modules/files/infrastructure/service.ts'),
+    import('../apps/api/src/modules/files/custody/infrastructure/service.ts'),
   ]);
   class DatabaseFixture {} Module({})(DatabaseFixture);
   const database={module:DatabaseFixture,providers:[{provide:PrismaService,useValue:{

@@ -98,7 +98,7 @@ async function scanOnce(endpoint, bytes) {
 /** Exact existing product worker and resource options from files/content.ts, not a rewritten parser. */
 async function parseOnce(bytes) {
   const start = Date.now(), output = { stdout: '', stderr: '' };
-  const worker = new Worker(new URL("../.build/api/apps/api/src/modules/files/infrastructure/content-worker.js", import.meta.url), {
+  const worker = new Worker(new URL("../.build/api/apps/api/src/modules/files/custody/infrastructure/content-worker.js", import.meta.url), {
     workerData: { bytes, extension: 'zip' }, execArgv: [],
     resourceLimits: { maxOldGenerationSizeMb: 128, maxYoungGenerationSizeMb: 16, stackSizeMb: 4 }, stdout: true, stderr: true,
   });
@@ -109,7 +109,7 @@ async function parseOnce(bytes) {
     return await new Promise(resolve => {
       const finish = async result => {
         clearTimeout(timer); const exitCode = await worker.terminate();
-        resolve({ worker: ".build/api/apps/api/src/modules/files/infrastructure/content-worker.js", execArgv: [], timeoutMs: 15000,
+        resolve({ worker: ".build/api/apps/api/src/modules/files/custody/infrastructure/content-worker.js", execArgv: [], timeoutMs: 15000,
           resourceLimits: { maxOldGenerationSizeMb: 128, maxYoungGenerationSizeMb: 16, stackSizeMb: 4 },
           elapsedMs: Date.now() - start, exitCode, stdout: safeOutput(output.stdout), stderr: safeOutput(output.stderr), ...result });
       };

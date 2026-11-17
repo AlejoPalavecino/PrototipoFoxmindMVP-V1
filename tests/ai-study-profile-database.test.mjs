@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { withAgendaDatabase } from './agenda-database-helpers.test.mjs';
-import { createGeminiStudyProvider } from '../apps/api/src/modules/study/infrastructure/providers/study-adapter.ts';
+import { createGeminiStudyProvider } from '../apps/api/src/modules/study/generation/infrastructure/providers/study-adapter.ts';
 import { initializeAiExecutionPolicy } from '../apps/api/src/platform/ai/execution-policy.ts';
 import { snapshotForTask } from '../apps/api/src/platform/ai/execution-snapshot.ts';
 

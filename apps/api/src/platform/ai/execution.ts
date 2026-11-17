@@ -1,4 +1,4 @@
-import type { ExtractionError } from '../../../../../src/core/domain/index.ts';
+import type { ExtractionError } from '../../../../../src/core/domain/curriculum/ai.ts';
 
 export function bounded<T>(operation: () => Promise<T>, signal: AbortSignal): Promise<T> {
   return new Promise((resolve, reject) => {

@@ -1,3 +1,2 @@
-export { WallService } from './application/wall.ts';
-export type { WallReadPort } from './application/read-ports.ts';
-export type { WallRepository } from './application/wall-repository.ts';
+export { WallService } from './wall/public.ts';
+export type { WallReadPort, WallRepository } from './wall/public.ts';

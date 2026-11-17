@@ -74,8 +74,8 @@ test('DELETE crosses the Next proxy and HTTP admission with strict reviewed inpu
   }
 });
 test('deleting a draft does not block cleanup of incomplete uploads', async () => {
-  const { cleanIncomplete } = loadTsModule("apps/api/src/modules/files/infrastructure/cleanup.ts");
-  const { FileStore } = loadTsModule("apps/api/src/modules/files/infrastructure/store.ts");
+  const { cleanIncomplete } = loadTsModule("apps/api/src/modules/files/custody/infrastructure/cleanup.ts");
+  const { FileStore } = loadTsModule("apps/api/src/modules/files/custody/infrastructure/store.ts");
   const ids = ['22222222-2222-4222-8222-222222222222', '33333333-3333-4333-8333-333333333333'], removes = [];
   const rows = new Map(ids.map(id => [id, { id, storage_key: id, classroom_id: null, classroom_draft_id: pending.id,
     upload_status: 'STARTED', phase: 'reserved', last_activity_at: new Date('2026-01-01'),

@@ -1,8 +1,8 @@
 import type { IncomingMessage } from 'node:http';
-import { createAttemptAttachments } from '../modules/participation/infrastructure/attempt-attachments.ts';
+import { createAttemptAttachments } from '../modules/participation/attempts/infrastructure/attempt-attachments.ts';
 import { editorCapability } from '../modules/participation/domain/attempt-policy.ts';
 import { ClassroomError } from '../../../../src/core/domain/classrooms/policy.ts';
-import { attachmentCustody } from '../modules/files/infrastructure/attachment-custody.ts';
+import { attachmentCustody } from '../modules/files/custody/infrastructure/attachment-custody.ts';
 import { FileError } from '../modules/files/domain/errors.ts';
 import type { AttachmentIntegration } from './files-files.module.ts';
 

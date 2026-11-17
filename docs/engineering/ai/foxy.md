@@ -2,6 +2,18 @@
 
 Foxy exige docente verificado en el servidor. El estudiante recibe una denegación al abrir la ruta; sólo ve materiales que el docente haya publicado y su membresía autorice.
 
+## Organización del backend
+
+El dominio `modules/foxy` se organiza en `conversations`, `turns`, `resources`, `citations`, `private-assets`, `visuals` y `publications`. Cada capacidad reúne sus casos de uso y adaptadores y expone una API nombrada desde `public.ts`. El transporte HTTP agregado se mantiene en `presentation`, conectado a los contratos de esas capacidades. Las reglas puras compartidas de catálogo, proyección y grounding permanecen en `domain`.
+
+La composición y las colaboraciones entre adaptadores pertenecen a `bootstrap/foxy-service-factories.ts`, `foxy-runtime.ts` y `foxy-visual-runtime.ts`. Los puertos de grounding, comprobación visual y lectura de assets reciben y conservan la transacción del consumidor. Locks, CAS, leases, nonces, autoridades `WeakMap`, revalidación de fuentes y límites de presupuesto siguen en sus adaptadores originales. Los contratos transversales de unidad de trabajo, autoridad y lectura permanecen temporalmente en `application` del módulo y sólo se consumen como tipos; no exponen implementaciones.
+
+Las políticas editoriales de textos y assets privados pertenecen a `resources/application/editorial-policy.ts` y `private-assets/application/editorial-policy.ts`. Conservan los límites de contenido, la serialización de fingerprints y el orden entre replay, estado y revisión. El adaptador sigue obteniendo los hechos bajo sus locks y persiste el cambio y el recibo en la transacción recibida. La aplicación de recursos valida el comando antes de llamar a su puerto de escritura, dentro de la unidad de trabajo autorizada.
+
+La consulta de adjuntos de citas se ejecuta mediante `FoxyCitationPort.attachment`, implementado por `citationAttachment`. El puerto recibe identidad de adjunto, propietario y conversación; conserva vínculo vigente, estado listo y exclusión de limpieza o carpetas. Listar una cita no lee almacenamiento ni habilita su descarga. La aplicación de citas no ejecuta SQL.
+
+La [evidencia del corte](../../work-log/2026-11-16-worker-backend-foxy-capabilities.md) distingue las comprobaciones por fuente y con adaptadores sintéticos de las pruebas con PostgreSQL. No acredita ejecución de proveedores reales ni publicación o despliegue.
+
 ## Conversaciones y recursos
 
 El selector separa contexto general y aula propia, con vista previa del plan, materiales y actividades antes de aplicar. Elegir un aula prepara una conversación privada, sin llamar a IA. Cambiar el contexto inicia otra conversación; conserva los archivos privados mediante vínculos independientes al mismo objeto y mantiene el chat de origen. Un error conserva el origen, el borrador y la identidad de reintento. El cambio se bloquea durante una carga. Los materiales del aula se resuelven nuevamente con los permisos del contexto elegido; no se transportan como archivos privados. El modo Aula completa congela en el servidor los temas, la versión actual del plan, materiales vigentes, actividades publicadas y adjuntos aprobados del chat. Cada solicitud vuelve a resolverlos. Las fuentes de cada respuesta se consultan a demanda. La selección de un hilo se reinicia al abrirlo de nuevo.
@@ -48,7 +60,7 @@ Cada preparación visual fija el archivo y el título/texto de la revisión edit
 
 Gestión/descartes respetan custodia e historia; no autorizan eliminar archivos compartidos del aula. Configuración, claves, consumo y presupuesto se mantienen en backend.
 
-Fuentes: [unidad transaccional](../../../apps/api/src/modules/foxy/infrastructure/unit-of-work.ts), [publicación](../../../apps/api/src/modules/foxy/application/publication-service.ts), [UI](../../../apps/web/src/features/foxy/ui/foxy-workspace.tsx), [modelo](../data-model.md).
+Fuentes: [unidad transaccional](../../../apps/api/src/modules/foxy/conversations/infrastructure/unit-of-work.ts), [publicación](../../../apps/api/src/modules/foxy/publications/application/publication-service.ts), [UI](../../../apps/web/src/features/foxy/ui/foxy-workspace.tsx), [modelo](../data-model.md).
 
 [Prueba actual](../../verification/flows.md): la base del 2026-11-07 comprobó texto/imagen y consulta estudiantil, con límites en esquema/traspaso. La [revisión del 2026-11-08](../../work-log/2026-11-08-root-foxy-review.md) agregó publicación de esquema y creación de TP privado con criterio transcripto. La [mejora de organización](../../work-log/2026-11-08-root-foxy-implementation.md) comprueba catálogo privado, renombrado/recarga, fuentes previas, destinos y recorridos de tres clics; el [recibo](../../verification/foxy-discovery.json) registra navegación y foco. Todos usan proveedores sintéticos; no se atribuye calidad pedagógica o generación real, ni publicación de un TP al alumnado en esta entrega.
 

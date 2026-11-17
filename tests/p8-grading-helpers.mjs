@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { randomUUID, createHash } from 'node:crypto';
 import pg from 'pg';
 import { withP5Database } from '../scripts/p5-database.mjs';
-import { ClassroomService } from '../.build/api/apps/api/src/bootstrap/academic-composition.js';
-import { FileStore } from '../.build/api/apps/api/src/modules/files/infrastructure/store.js';
+import { ClassroomService } from './helpers/academic-fixture.ts';
+import { FileStore } from '../.build/api/apps/api/src/modules/files/custody/infrastructure/store.js';
 import { waitForAttemptClock } from './helpers/attempt-clock.mjs';
 
 export const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');

@@ -3,12 +3,47 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { registerHooks } from 'node:module';
 
+const applicationFiles = {
+  "participation/activity-eligibility": "apps/api/src/modules/participation/attempts/application/activity-eligibility.ts",
+  "participation/activity-events": "apps/api/src/modules/participation/attempts/application/activity-events.ts",
+  "participation/activity-history": "apps/api/src/modules/participation/history/application/activity-history.ts",
+  "participation/activity-participation": "apps/api/src/modules/participation/attempts/application/activity-participation.ts",
+  "participation/activity-session": "apps/api/src/modules/participation/attempts/application/activity-session.ts",
+  "participation/attempt-access": "apps/api/src/modules/participation/attempts/application/attempt-access.ts",
+  "participation/attempt-attachments": "apps/api/src/modules/participation/attempts/application/attempt-attachments.ts",
+  "participation/attempt-contracts": "apps/api/src/modules/participation/attempts/application/attempt-contracts.ts",
+  "participation/practical-submissions": "apps/api/src/modules/participation/practical-submissions/application/practical-submissions.ts",
+  "participation/questionnaire-attempts": "apps/api/src/modules/participation/questionnaires/application/questionnaire-attempts.ts",
+  "grading/grade-corrections": "apps/api/src/modules/grading/corrections/application/grade-corrections.ts",
+  "grading/grade-publication": "apps/api/src/modules/grading/publication/application/grade-publication.ts",
+  "grading/grading": "apps/api/src/modules/grading/review/application/grading.ts",
+  "grading/progress": "apps/api/src/modules/grading/progress/application/progress.ts",
+  "grading/student-snapshot": "apps/api/src/modules/grading/student-analysis/application/student-snapshot.ts",
+  "grading/grading-ai/service": "apps/api/src/modules/grading/assistance/application/grading-ai/service.ts"
+};
+const repositoryFiles = {
+  "participation/activity-eligibility": "apps/api/src/modules/participation/attempts/infrastructure/activity-eligibility-repository.ts",
+  "participation/activity-events": "apps/api/src/modules/participation/attempts/infrastructure/activity-events-repository.ts",
+  "participation/activity-history": "apps/api/src/modules/participation/history/infrastructure/activity-history-repository.ts",
+  "participation/activity-participation": "apps/api/src/modules/participation/attempts/infrastructure/activity-participation-repository.ts",
+  "participation/activity-session": "apps/api/src/modules/participation/attempts/infrastructure/activity-session-repository.ts",
+  "participation/attempt-access": "apps/api/src/modules/participation/attempts/infrastructure/attempt-access-repository.ts",
+  "participation/attempt-attachments": "apps/api/src/modules/participation/attempts/infrastructure/attempt-attachments-repository.ts",
+  "participation/practical-submissions": "apps/api/src/modules/participation/practical-submissions/infrastructure/practical-submissions-repository.ts",
+  "participation/questionnaire-attempts": "apps/api/src/modules/participation/questionnaires/infrastructure/questionnaire-attempts-repository.ts",
+  "grading/grade-corrections": "apps/api/src/modules/grading/corrections/infrastructure/grade-corrections-repository.ts",
+  "grading/grade-publication": "apps/api/src/modules/grading/publication/infrastructure/grade-publication-repository.ts",
+  "grading/grading": "apps/api/src/modules/grading/review/infrastructure/grading-repository.ts",
+  "grading/progress": "apps/api/src/modules/grading/progress/infrastructure/progress-repository.ts",
+  "grading/grading-ai/service": "apps/api/src/modules/grading/assistance/infrastructure/grading-ai/service-repository.ts"
+};
+
 for (const [module, files] of Object.entries({
   grading: ['grading', 'grade-publication', 'grade-corrections', 'progress', 'grading-ai/service'],
   participation: ['activity-session', 'activity-eligibility', 'activity-events', 'attempt-access', 'activity-participation', 'activity-history', 'questionnaire-attempts', 'practical-submissions', 'attempt-attachments'],
 })) {
   for (const file of files) test(`${module}/${file} owns application behavior without SQL`, () => {
-    const source = readFileSync(new URL(`../apps/api/src/modules/${module}/application/${file}.ts`, import.meta.url), 'utf8');
+    const source = readFileSync(new URL('../' + applicationFiles[module + '/' + file], import.meta.url), 'utf8');
     assert.doesNotMatch(source, /\b(?:SELECT|INSERT INTO|UPDATE \w+ SET|DELETE FROM)\b/);
     assert.doesNotMatch(source, /from ['"][^'"]*infrastructure\//);
     assert.doesNotMatch(source, /from ['"]node:/);
@@ -51,7 +86,7 @@ const reviewedSqlHashes = {
 for (const [key, expected] of Object.entries(reviewedSqlHashes)) test(`${key} preserves reviewed SQL expressions and lock modes`, () => {
  const [module, ...parts] = key.split('/');
  const file = parts.join('/');
- const source = readFileSync(new URL(`../apps/api/src/modules/${module}/infrastructure/${file}-repository.ts`, import.meta.url), 'utf8');
+ const source = readFileSync(new URL('../' + repositoryFiles[key], import.meta.url), 'utf8');
  const ast = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true), sql = [];
  function visit(node) { if (ts.isCallExpression(node) && node.expression.getText(ast) === 'tx.query') sql.push(node.arguments[0].getText(ast).replaceAll('\r\n','\n')); ts.forEachChild(node,visit); }
  visit(ast);
@@ -59,7 +94,7 @@ for (const [key, expected] of Object.entries(reviewedSqlHashes)) test(`${key} pr
 });
 
 test('grading authority passes the caller transaction and lock mode without opening another transaction', async () => {
-  const { GradingService } = await import('../apps/api/src/modules/grading/application/grading.ts');
+  const { GradingService } = await import('../apps/api/src/modules/grading/review/application/grading.ts');
   const tx = { query() { throw Error('Application SQL is forbidden'); } }, actor = { id: 'teacher' }, calls = [];
   const attempt = { id: 'attempt', status: 'SUBMITTED', activity_id: 'activity', student_activity_id: 'obligation' };
   const service = new GradingService({
@@ -81,7 +116,7 @@ test('grading authority passes the caller transaction and lock mode without open
 });
 
 test('publication rejects a fractional manual hundredth before any mutation', async () => {
-  const { GradePublicationService } = await import('../apps/api/src/modules/grading/application/grade-publication.ts');
+  const { GradePublicationService } = await import('../apps/api/src/modules/grading/publication/application/grade-publication.ts');
   const tx = {}, actor = {}, writes = [];
   const context = { room: { revision: 3n, timezone: 'UTC' }, grade: { id: 'grade', is_published: false }, attempt: {}, activity: { id: 'activity' } };
   const service = new GradePublicationService({ async classroom() {}, async run(request, write, fn) { assert.equal(write, true); return fn(tx, actor); } }, {
@@ -95,7 +130,7 @@ test('publication rejects a fractional manual hundredth before any mutation', as
 });
 
 test('published correction keeps audit, update, revision and notification in the caller transaction', async () => {
-  const { GradeCorrectionService } = await import('../apps/api/src/modules/grading/application/grade-corrections.ts');
+  const { GradeCorrectionService } = await import('../apps/api/src/modules/grading/corrections/application/grade-corrections.ts');
   const tx = {}, actor = { id: 'teacher' }, calls = [];
   const context = { room: { revision: 3n }, grade: { id: 'grade', is_published: true, final_grade: '6.10', published_at: new Date(0) },
     attempt: { id: 'attempt', student_id: 'student' }, activity: { id: 'activity' } };
@@ -107,13 +142,13 @@ test('published correction keeps audit, update, revision and notification in the
   });
   const result = await service.correctPublishedGrade({}, 'room', 'attempt', { revision: '3', newGrade: '7.25', reason: 'Reviewed evidence', confirm: true });
   assert.deepEqual(calls.map(([name]) => name), ['audit', 'update', 'revision', 'notify', 'readAudit']);
-  assert.deepEqual(calls[0], ['audit', 'grade', '6.10', '7.25', 'Reviewed evidence', 'teacher']);
+  assert.deepEqual(calls[0], ['audit', {gradeId:'grade',previousGrade:'6.10',newGrade:'7.25',reason:'Reviewed evidence',actorId:'teacher'}]);
   assert.equal(result.grade.finalGrade, '7.25');
   assert.equal(result.revision, '4');
 });
 
 test('attempt writes reject a student without an expected obligation before editor authorization', async () => {
-  const { assertAttemptWrite } = await import('../apps/api/src/modules/participation/application/attempt-access.ts');
+  const { assertAttemptWrite } = await import('../apps/api/src/modules/participation/attempts/application/attempt-access.ts');
   const tx = {}, user = '10000000-0000-4000-8000-000000000001', room = '10000000-0000-4000-8000-000000000002';
   const attemptId = '10000000-0000-4000-8000-000000000003';
   let checkedEditor = false;
@@ -129,7 +164,7 @@ test('attempt writes reject a student without an expected obligation before edit
 });
 
 test('submission revalidates after reads and persists the trusted receipt using the same transaction', async () => {
-  const { QuestionnaireAttemptService } = await import('../apps/api/src/modules/participation/application/questionnaire-attempts.ts');
+  const { QuestionnaireAttemptService } = await import('../apps/api/src/modules/participation/questionnaires/application/questionnaire-attempts.ts');
   const tx = {}, actor = { id: 'student' }, receipt = new Date('2026-11-10T12:00:00Z'), calls = [];
   const deadline = new Date('2026-11-10T11:59:00Z');
   const service = new QuestionnaireAttemptService({ ports: { gradingAiAvailable: true },
@@ -141,7 +176,7 @@ test('submission revalidates after reads and persists the trusted receipt using 
       return { attempt: { activity_type: 'QUESTIONNAIRE', activity_id: 'activity' }, reception: { deadline, late: true } };
     },
     async questionnaireUnanswered(receivedTx) { assert.equal(receivedTx, tx); calls.push('answers'); return 1; },
-    async submitAttempt(receivedTx, attemptId, receivedAt, appliedDeadline, late) {
+    async submitAttempt(receivedTx, { attemptId, receivedAt, deadline: appliedDeadline, late }) {
       assert.equal(receivedTx, tx); assert.equal(receivedAt, receipt); assert.equal(appliedDeadline, deadline); assert.equal(late, true); calls.push('save');
       return [{ id: attemptId, submitted_at: receivedAt, applied_deadline_at: appliedDeadline, submitted_late: late, revision: 5n }];
     },

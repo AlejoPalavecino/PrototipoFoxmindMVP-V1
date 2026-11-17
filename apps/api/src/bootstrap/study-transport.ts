@@ -1,14 +1,14 @@
 import { randomUUID } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { INestApplication } from '@nestjs/common';
-import { authenticateSession } from '../modules/identity/infrastructure/session-query.ts';
-import { readSessionCookie } from '../modules/identity/presentation/transport.ts';
-import { clearSessionCookie } from '../modules/identity/presentation/session-cookies.ts';
+import { authenticateSession } from '../modules/identity/accounts/infrastructure/session-query.ts';
+import { readSessionCookie } from '../modules/identity/accounts/presentation/transport.ts';
+import { clearSessionCookie } from '../modules/identity/accounts/presentation/session-cookies.ts';
 import { type IdentityRuntime, type IdentitySecurityConfiguration as IdentityConfiguration, IdentityHttpError, publicIdentityError } from '../modules/identity/public.ts';
 import { studyFail } from '../../../../src/core/domain/study/folders.ts';
 import type { StudyAuthentication } from '../modules/study/application/contracts.ts';
-import type { StudyService } from '../modules/study/application/service.ts';
-import { createStudyHandler } from '../modules/study/presentation/folders/http.ts';
+import type { StudyService } from '../modules/study/folders/application/service.ts';
+import { createStudyHandler } from '../modules/study/folders/presentation/http.ts';
 function guard(security: IdentityConfiguration, r: IncomingMessage, verifier: string, write: boolean) { if (!write)
     return; try {
     security.assertOrigin(r.headers.origin);

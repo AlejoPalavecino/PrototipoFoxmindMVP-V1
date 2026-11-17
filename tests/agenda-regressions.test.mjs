@@ -15,7 +15,7 @@ async function user(query) {
 }
 
 test('persisted timed event remains visible across the full supported timezone difference', { timeout: 60000 }, async () => {
-  const { createAgendaService, createAgendaUnitOfWork } = Object.freeze({createAgendaService: loadTsModule("apps/api/src/modules/agenda/application/agenda-service.ts").createAgendaService,createAgendaUnitOfWork: loadTsModule("apps/api/src/bootstrap/agenda-composition.ts").createAgendaUnitOfWork});
+  const { createAgendaService, createAgendaUnitOfWork } = Object.freeze({createAgendaService: loadTsModule("apps/api/src/modules/agenda/events/application/agenda-service.ts").createAgendaService,createAgendaUnitOfWork: loadTsModule("apps/api/src/bootstrap/agenda-composition.ts").createAgendaUnitOfWork});
   await withAgendaDatabase(async ({ transaction }) => transaction(async ({ query, database }) => {
     const owner = await user(query), id = randomUUID();
     const service = createAgendaService(createAgendaUnitOfWork(database, async () => owner));
@@ -34,7 +34,7 @@ test('persisted timed event remains visible across the full supported timezone d
 });
 
 test('eighty valid yearly weekly series return the requested month within the existing real transaction budget', { timeout: 60000 }, async t => {
-  const { createAgendaService, createAgendaUnitOfWork } = Object.freeze({createAgendaService: loadTsModule("apps/api/src/modules/agenda/application/agenda-service.ts").createAgendaService,createAgendaUnitOfWork: loadTsModule("apps/api/src/bootstrap/agenda-composition.ts").createAgendaUnitOfWork});
+  const { createAgendaService, createAgendaUnitOfWork } = Object.freeze({createAgendaService: loadTsModule("apps/api/src/modules/agenda/events/application/agenda-service.ts").createAgendaService,createAgendaUnitOfWork: loadTsModule("apps/api/src/bootstrap/agenda-composition.ts").createAgendaUnitOfWork});
   const { parseAgendaEvent, validateAgendaSeries } = loadTsModule('src/core/domain/index.ts');
   const input = parseAgendaEvent({ title: 'Serie anual', description: '', category: 'CLASS',
     schedule: { kind: 'TIMED', timeZone: 'America/New_York', startLocal: '2026-01-05T09:00', endLocal: '2026-01-05T10:00' },

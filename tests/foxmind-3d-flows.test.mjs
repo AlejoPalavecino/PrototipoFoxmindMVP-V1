@@ -74,7 +74,7 @@ for (const [name, destination, component] of [
 });
 
 test('D3 API draft validation preserves three legacy cover keys and accepts seven new persisted keys', () => {
-  const { draftPayload } = loadTsModule("apps/api/src/modules/classrooms/infrastructure/policy.ts");
+  const { draftPayload } = loadTsModule("apps/api/src/modules/classrooms/access/infrastructure/policy.ts");
   for (const coverKey of ['explore', 'create', 'discover', 'literature', 'math', 'biology', 'society', 'science', 'creative', 'general'])
     assert.deepEqual(draftPayload({ coverKey }, false), { coverKey });
   for (const coverKey of ['unknown', '', 'GENERAL', null, ['general']])

@@ -110,6 +110,6 @@ La primera inicialización falla con `AI_LEGACY_PENDING` si existe cualquier tra
 ## Fuentes y referencias
 
 - [Arquitectura vigente](../architecture.md), [capacidades IA](README.md) y [registro propio](../../work-log/2026-11-16-root-ai-runtime-design.md).
-- [Configuración actual](../../../apps/api/src/platform/ai/configuration.ts), [preparación Foxy](../../../apps/api/src/modules/foxy/infrastructure/turn-preparation.ts) y [adaptador Estudio](../../../apps/api/src/modules/study/infrastructure/providers/study-adapter.ts).
+- [Configuración actual](../../../apps/api/src/platform/ai/configuration.ts), [preparación Foxy](../../../apps/api/src/modules/foxy/turns/infrastructure/turn-preparation.ts) y [adaptador Estudio](../../../apps/api/src/modules/study/generation/infrastructure/providers/study-adapter.ts).
 - [Claude: conteo](https://platform.claude.com/docs/en/api/messages/count_tokens) y [salidas estructuradas](https://platform.claude.com/docs/en/build-with-claude/structured-outputs).
 - [AI SDK: proveedores](https://ai-sdk.dev/docs/foundations/providers-and-models) y [configuración/reintentos](https://ai-sdk.dev/docs/ai-sdk-core/settings).

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
 import { setImmediate as turn } from 'node:timers/promises';
-import { createFilesHandler } from '../apps/api/src/modules/files/presentation/http.ts';
+import { createFilesHandler } from '../apps/api/src/modules/files/uploads/presentation/http.ts';
 
 const request = () => Object.assign(new EventEmitter(), { method: 'GET', complete: true, headers: {},
   url: '/files/12345678-1234-1234-1234-123456789abc/content' });

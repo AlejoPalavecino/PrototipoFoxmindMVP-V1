@@ -29,4 +29,16 @@ Conservar archivos al cambiar contexto crea el destino, los vÃ­nculos al mismo o
 
 La limpieza sÃ³lo reclama un objeto sin custodios vigentes y marca `cleanup_claimed_at` antes de operar sobre almacenamiento. Revalida en una nueva sentencia despuÃ©s de tomar los bloqueos para evitar borrar un objeto que acaba de recibir un vÃ­nculo. Un reclamo terminal no admite carga, lectura o traslado nuevo; los fallos fÃ­sicos se reintentan sin perder la marca. El estudiante conserva la semÃ¡ntica existente de su conversaciÃ³n y la copia independiente en carpeta.
 
-Evidencia de esta unidad: [pruebas de custodia y carreras](../../../apps/api/src/modules/files/infrastructure/tests/chat-attachment-transfer.test.mjs), [proxy binario](../../../tests/foxy-exact-attachment-transport.test.mjs) y [registro de implementaciÃ³n](../../work-log/2026-11-16-astra-foxy-exact.md). PostgreSQL descartable y almacenamiento sintÃ©tico; no implican pruebas con datos retenidos o proveedor real.
+Evidencia de esta unidad: [pruebas de custodia y carreras](../../../apps/api/src/modules/files/custody/infrastructure/tests/chat-attachment-transfer.test.mjs), [proxy binario](../../../tests/foxy-exact-attachment-transport.test.mjs) y [registro de implementaciÃ³n](../../work-log/2026-11-16-astra-foxy-exact.md). PostgreSQL descartable y almacenamiento sintÃ©tico; no implican pruebas con datos retenidos o proveedor real.
+
+
+## Capacidades del backend
+
+- `uploads/application` gobierna admisión, reserva, estado, uso y autorización de recepción; `uploads/presentation` conserva el handler HTTP único y sus límites de transferencia. `authorizeReceive` devuelve sólo `{ expectedBytes }`, autoriza en una transacción antes de escuchar el cuerpo y conserva el error de custodia. La recepción vuelve a autorizar antes de cada mutación después de I/O.
+- `downloads/application` define el puerto de lectura de contenido. La implementación comparte la custodia de bytes, los digests, el escaneo y la exclusión de transferencias con uploads; dividirla en otro servicio rompería una responsabilidad que hoy es común.
+- `chat-attachments/domain` posee validación de intención, cantidad y tamaño del chat. Sus adaptadores SQL, traslados y limpieza permanecen bajo `custody/infrastructure`, donde comparten bloqueos y conservación de custodios con las integraciones durables.
+- `custody/application` define permisos, transacciones, promoción y contratos de lectores. `custody/infrastructure` implementa store, almacenamiento, scanner, limpieza y los adaptadores documentales/privados. Los parsers Worker y conversión Office quedan con este dueño concreto; no se exportan desde las APIs públicas.
+
+Las capacidades exponen exportaciones nombradas de aplicación/dominio desde `public.ts`; la entrada del módulo conserva sus contratos públicos. Las reglas comunes de archivo siguen en `files/domain`. Bootstrap construye los adaptadores. El HTTP no recibe el store ni filas SQL y conserva códigos, límites de bytes, timeout, concurrencia y cierre de cuerpos rechazados.
+
+Pruebas focalizadas sin servicios externos: `node --experimental-transform-types --test apps/api/src/modules/files/uploads/application/*.test.mjs apps/api/src/modules/files/chat-attachments/domain/policy.test.mjs`. Las pruebas SQL y las dependientes de build/host requieren la aceptación integrada; este comando no las sustituye.

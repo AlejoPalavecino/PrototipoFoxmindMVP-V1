@@ -135,7 +135,7 @@
       "sha256": "603bb04869bbee6f4d125148c5ca474c2907bb612a196ee6fb2cb3d6dc737259"
     },
     {
-      "file": "apps/api/src/modules/home/infrastructure/queries-content.ts",
+      "file": "apps/api/src/modules/home/dashboard/infrastructure/queries-content.ts",
       "sha256": "4faff47e2dd9b97e6e64209605aa873efd20b23babc3356eead73de61139611d"
     },
     {

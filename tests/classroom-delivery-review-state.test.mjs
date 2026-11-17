@@ -4,7 +4,7 @@ import { withAgendaDatabase } from './agenda-database-helpers.test.mjs';
 import { homeFixture } from './foxmind-3d-repository-fixture.test.mjs';
 
 test('historial docente distingue pendiente, revisión privada incluso cero y publicación sin filtrarlo a alumno', { timeout: 60000 }, async () => {
-  const { ClassroomService } = await import('../apps/api/src/bootstrap/academic-composition.ts');
+  const { ClassroomService } = await import('./helpers/academic-fixture.ts');
   await withAgendaDatabase(async ({ transaction }) => transaction(async ({ database, query }) => {
     const f = await homeFixture(query), a = await f.activity('teach');
     const pending = await f.attempt(a), saved = await f.attempt(a, { number: 2 }), published = await f.attempt(a, { number: 3 });

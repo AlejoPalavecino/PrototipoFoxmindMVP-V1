@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { withAiDatabase, rollbackCase, transactionDatabase } from './classroom-ai-database.test.mjs';
 import { fixture } from './activity-ai-fixture.test.mjs';
-const ai = () => Promise.all([import("../apps/api/src/modules/activities/infrastructure/activity-ai/service.ts"),import("../apps/api/src/modules/activities/infrastructure/activity-ai/worker.ts"),import("../apps/api/src/modules/activities/infrastructure/activity-ai/provenance.ts")]).then(([m0,m1,m2]) => Object.freeze({ActivityAiService: m0.ActivityAiService,ActivityAiWorker: m1.ActivityAiWorker,validateActivityGeneration: m2.validateActivityGeneration}));
+const ai = () => Promise.all([import("../apps/api/src/modules/activities/generation/infrastructure/activity-ai/service.ts"),import("../apps/api/src/modules/activities/generation/infrastructure/activity-ai/worker.ts"),import("../apps/api/src/modules/activities/generation/infrastructure/activity-ai/provenance.ts")]).then(([m0,m1,m2]) => Object.freeze({ActivityAiService: m0.ActivityAiService,ActivityAiWorker: m1.ActivityAiWorker,validateActivityGeneration: m2.validateActivityGeneration}));
 const deny = (operation, code) => assert.rejects(operation, { code });
 
 test('A3 durable generation start, recovery, access and idempotency are independent of provider I/O', { timeout: 120000 }, async t => {

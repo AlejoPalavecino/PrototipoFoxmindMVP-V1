@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ClassroomService } from '../.build/api/apps/api/src/bootstrap/academic-composition.js';
+import { ClassroomService } from './helpers/academic-fixture.ts';
 
 test('TP service exports coherent draft removal, confirmed submission and teacher receipts without losing prior services', () => {
   for (const name of ['removeAttemptAttachment','submitPracticalAttempt','assignmentSubmissions','assignmentSubmission','activitySession','startActivity','changeActivities','invite'])
@@ -8,12 +8,12 @@ test('TP service exports coherent draft removal, confirmed submission and teache
 });
 import { randomUUID } from 'node:crypto';
 import { withP5Database } from '../scripts/p5-database.mjs';
-import { FileService } from '../.build/api/apps/api/src/modules/files/infrastructure/service.js';
-import { createFileAccess } from '../.build/api/apps/api/src/modules/files/infrastructure/access.js';
+import { FileService } from '../.build/api/apps/api/src/modules/files/custody/infrastructure/service.js';
+import { createFileAccess } from '../.build/api/apps/api/src/modules/files/custody/infrastructure/access.js';
 import { attachmentIntegration } from '../.build/api/apps/api/src/bootstrap/attachment-integration.js';
 import { FileError } from '../.build/api/apps/api/src/modules/files/domain/errors.js';
 import { PDFDocument } from 'pdf-lib';
-import { captureSubmissionReceipt } from '../.build/api/apps/api/src/modules/participation/infrastructure/submission-receipt.js';
+import { captureSubmissionReceipt } from '../.build/api/apps/api/src/modules/participation/attempts/infrastructure/submission-receipt.js';
 import { waitForAttemptClock } from './helpers/attempt-clock.mjs';
 import pg from 'pg';
 

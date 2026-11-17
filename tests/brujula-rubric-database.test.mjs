@@ -4,8 +4,8 @@ import { withAiDatabase, rollbackCase } from './classroom-ai-database.test.mjs';
 import { fixture } from './activity-ai-fixture.test.mjs';
 
 test('AI rubric remains editable and is applied only to a private activity draft', { timeout: 120000 }, async () => {
-  const { ActivityAiService } = await import("../.build/api/apps/api/src/modules/activities/infrastructure/activity-ai/service.js");
-  const { ActivityAiWorker } = await import("../.build/api/apps/api/src/modules/activities/infrastructure/activity-ai/worker.js");
+  const { ActivityAiService } = await import("../.build/api/apps/api/src/modules/activities/generation/infrastructure/activity-ai/service.js");
+  const { ActivityAiWorker } = await import("../.build/api/apps/api/src/modules/activities/generation/infrastructure/activity-ai/worker.js");
   await withAiDatabase(async ({ pool }) => rollbackCase(pool, async local => {
     const f = await fixture(local);
     const generated = [{ name: 'Conceptos', description: 'Relaciona las fuentes.', weight: 100 }];

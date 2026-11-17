@@ -23,8 +23,8 @@ test('wizard metadata is strictly bounded and does not weaken existing draft val
 });
 
 test('draft service saves and reloads wizard metadata while retaining owner, role and revision checks', async () => {
-  const { DraftService } = loadTsModule('apps/api/src/modules/classrooms/application/drafts.ts');
-  const { createDraftsRepository } = loadTsModule('apps/api/src/modules/classrooms/infrastructure/drafts-repository.ts');
+  const { DraftService } = loadTsModule('apps/api/src/modules/classrooms/drafts/application/drafts.ts');
+  const { createDraftsRepository } = loadTsModule('apps/api/src/modules/classrooms/drafts/infrastructure/drafts-repository.ts');
   const id = '10000000-0000-4000-8000-000000000001', owner = '20000000-0000-4000-8000-000000000002';
   let stored = { id, owner_id: owner, revision: 1n, payload: {}, published_classroom_id: null };
   const calls = [];

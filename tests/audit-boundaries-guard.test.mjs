@@ -15,6 +15,21 @@ async function fixture(files, inspect) {
 }
 
 async function put(root, path, content) { const file = join(root, path); await mkdir(dirname(file), { recursive: true }); await writeFile(file, content); }
+test('backend imports shared rules from their owner while the frontend compatibility entry remains usable', async () => {
+  await fixture({
+    'src/core/domain/index.ts': "export { parse } from './agenda/input.ts';",
+    'src/core/domain/agenda/input.ts': 'export const parse = value => value;',
+    'apps/web/src/features/agenda/model/input.ts': "import { parse } from '../../../../../../src/core/domain/index.ts'; export { parse };",
+    'apps/api/src/modules/agenda/events/application/input.ts': "import { parse } from '../../../../../../../src/core/domain/agenda/input.ts'; export { parse };",
+  }, async root => {
+    assert.deepEqual(checkBoundaries(root), []);
+    await put(root, 'apps/api/src/bootstrap/broad.ts', "import { parse } from '../../../../src/core/domain/index.ts'; export { parse };");
+    assert.match(checkBoundaries(root).join('\n'), /backend global domain entry/);
+    await put(root, 'apps/api/src/modules/agenda/events/application/broad.ts', "import { parse } from '../../../../../../../src/core/domain/index.ts'; export { parse };");
+    assert.equal(checkBoundaries(root).filter(value => value.includes('backend global domain entry')).length, 2);
+  });
+});
+
 test('boundary guard accepts pure domain and rejects injected forbidden imports and capability inheritance', async () => {
   const root = await mkdtemp(join(tmpdir(), 'foxmind-audit-boundaries-'));
   try {
@@ -206,6 +221,111 @@ test('backend layer direction rejects infrastructure leaks and framework-bound d
   }, root => assert.deepEqual(checkBoundaries(root), []));
 });
 
+test('capability layers accept their own dependencies and shared module domain', async () => {
+  await fixture({
+    'apps/api/src/modules/curriculum/plan/domain/rule.ts': "import { shared } from '../../domain/shared.ts';",
+    'apps/api/src/modules/curriculum/plan/application/run.ts': "import { rule } from '../domain/rule.ts'; import type { Input } from '../../application/contracts.ts';",
+    'apps/api/src/modules/curriculum/plan/infrastructure/store.ts': "import type { Repository } from '../application/repository.ts'; import { pool } from '../../../../platform/database.ts';",
+    'apps/api/src/modules/curriculum/plan/presentation/http.ts': "import { run } from '../application/run.ts';",
+    'apps/api/src/modules/curriculum/plan/public.ts': "export { run } from './application/run.ts'; export type { Rule } from './domain/rule.ts';",
+    'apps/api/src/modules/curriculum/public.ts': "export { run } from './plan/public.ts';",
+    'apps/api/src/modules/grading/review/application/read.ts': "import { run } from '../../../curriculum/public.ts';",
+    'apps/api/src/bootstrap/plan.ts': "import { Store } from '../modules/curriculum/plan/infrastructure/store.ts';",
+  }, root => assert.deepEqual(checkBoundaries(root), []));
+});
+
+test('capabilities reject private siblings, reverse layers and impure domain imports', async () => {
+  for (const [source, target] of [
+    ['domain/rule.ts', '../application/run.ts'],
+    ['domain/rule.ts', '../infrastructure/store.ts'],
+    ['domain/rule.ts', '../../generation/domain/rule.ts'],
+    ['domain/rule.ts', '../../application/contracts.ts'],
+    ['domain/rule.ts', '@nestjs/common'],
+    ['application/run.ts', '../infrastructure/store.ts'],
+    ['application/run.ts', '../presentation/http.ts'],
+    ['presentation/http.ts', '../infrastructure/store.ts'],
+    ['application/run.ts', '../../generation/application/run.ts'],
+    ['application/run.ts', '../../generation/infrastructure/store.ts'],
+    ['presentation/http.ts', '../../generation/infrastructure/store.ts'],
+    ['infrastructure/store.ts', '../../generation/infrastructure/store.ts'],
+    ['application/run.ts', '../../application/implementation.ts'],
+    ['application/run.ts', '../public.ts'],
+    ['application/run.ts', '../../public.ts'],
+    ['application/run.ts', '../../../../platform/database.ts'],
+    ['application/run.ts', '../../../../bootstrap/plan.ts'],
+    ['application/run.ts', 'node:fs'],
+    ['presentation/http.ts', '../../../../platform/database.ts'],
+  ]) {
+    await fixture({ [`apps/api/src/modules/curriculum/plan/${source}`]: `import { value } from '${target}';` }, root => {
+      assert.ok(checkBoundaries(root).length, `${source} -> ${target}`);
+    });
+  }
+});
+
+test('capability public APIs expose only named exports of their own domain and application', async () => {
+  for (const [file, code] of [
+    ['plan/public.ts', "export { Store } from './infrastructure/store.ts';"],
+    ['plan/public.ts', "export * from './application/run.ts';"],
+    ['plan/public.ts', "export * as all from './application/run.ts';"],
+    ['plan/public.ts', "import { run } from './application/run.ts'; export { run };"],
+    ['plan/public.ts', "export { run } from '../generation/application/run.ts';"],
+    ['plan/public.ts', "export { shared } from '../domain/shared.ts';"],
+    ['public.ts', "export { run } from './plan/application/run.ts';"],
+    ['public.ts', "import { run } from './plan/public.ts'; export { run };"],
+    ['public.ts', "export * from './plan/public.ts';"],
+    ['domain/shared.ts', "import { rule } from '../plan/domain/rule.ts';"],
+    ['application/legacy.ts', "import { run } from '../plan/application/run.ts';"],
+  ]) {
+    await fixture({ [`apps/api/src/modules/curriculum/${file}`]: code }, root => {
+      assert.ok(checkBoundaries(root).length, `${file}: ${code}`);
+    });
+  }
+  await fixture({
+    'apps/api/src/modules/curriculum/public.ts': "export { run } from './application/run.ts'; export type { Rule } from './domain/rule.ts';",
+  }, root => assert.deepEqual(checkBoundaries(root), [], 'legacy named module exports stay valid'));
+});
+
+test('siblings consume a named capability contract without opening namespaces or other modules', async () => {
+  for (const code of [
+    "import { run } from '../../generation/public.ts';",
+    "import type { Input } from '../../generation/public.ts';",
+    "export type Input = import('../../generation/public.ts').Input;",
+  ]) {
+    await fixture({ 'apps/api/src/modules/curriculum/plan/application/run.ts': code }, root => {
+      assert.deepEqual(checkBoundaries(root), [], code);
+    });
+  }
+  for (const code of [
+    "import * as all from '../../generation/public.ts';",
+    "import run from '../../generation/public.ts';",
+    "import run, { Input } from '../../generation/public.ts';",
+    "export * from '../../generation/public.ts';",
+    "export type All = typeof import('../../generation/public.ts');",
+    "const load = () => import('../../generation/public.ts');",
+    "const load = () => require('../../generation/public.ts');",
+    "import { run } from '../../../grading/review/public.ts';",
+    "import run from '../../../grading/public.ts';",
+  ]) {
+    await fixture({ 'apps/api/src/modules/curriculum/plan/application/run.ts': code }, root => {
+      assert.ok(checkBoundaries(root).length, code);
+    });
+  }
+});
+
+test('capability layout preserves platform, core, UI isolation and cycle detection', async () => {
+  for (const [file, target] of [
+    ['apps/api/src/platform/database.ts', '../modules/curriculum/plan/application/run.ts'],
+    ['src/core/domain/rule.ts', '../../../apps/api/src/modules/curriculum/plan/domain/rule.ts'],
+    ['apps/web/src/features/curriculum/model/plan.ts', '../../../../../api/src/modules/curriculum/plan/public.ts'],
+  ]) {
+    await fixture({ [file]: `import { value } from '${target}';` }, root => assert.ok(checkBoundaries(root).length, file));
+  }
+  await fixture({
+    'apps/api/src/modules/curriculum/plan/application/a.ts': "import './b.ts';",
+    'apps/api/src/modules/curriculum/plan/application/b.ts': "import './a.ts';",
+  }, root => assert.ok(checkBoundaries(root).some(value => value.startsWith('eager cycle'))));
+});
+
 test('public contracts and platform cannot reopen backend implementation boundaries', async () => {
   for (const [path, code] of [
     ['modules/files/public.ts', "export { Store } from './infrastructure/store.ts';"],
@@ -246,13 +366,13 @@ test('frontend features and shared code cannot depend on higher layers or legacy
 
 test('former Agenda compatibility bridges cannot reopen private implementation access', async () => {
   for (const [code, allowed] of [
-    ["export { AgendaService, createAgendaService } from '../modules/agenda/application/agenda-service.ts';", false],
-    ["export { futureInternalHelper } from '../modules/agenda/application/agenda-service.ts';", false],
-    ["export { futureInternalHelper as AgendaService } from '../modules/agenda/application/agenda-service.ts';", false],
-    ["export type { AgendaService, createAgendaService } from '../modules/agenda/application/agenda-service.ts';", false],
-    ["import { AgendaService } from '../modules/agenda/application/agenda-service.ts';", false],
-    ["export * from '../modules/agenda/application/agenda-service.ts';", false],
-    ["export { store } from '../modules/agenda/infrastructure/event-repository.ts';", false],
+    ["export { AgendaService, createAgendaService } from '../modules/agenda/events/application/agenda-service.ts';", false],
+    ["export { futureInternalHelper } from '../modules/agenda/events/application/agenda-service.ts';", false],
+    ["export { futureInternalHelper as AgendaService } from '../modules/agenda/events/application/agenda-service.ts';", false],
+    ["export type { AgendaService, createAgendaService } from '../modules/agenda/events/application/agenda-service.ts';", false],
+    ["import { AgendaService } from '../modules/agenda/events/application/agenda-service.ts';", false],
+    ["export * from '../modules/agenda/events/application/agenda-service.ts';", false],
+    ["export { store } from '../modules/agenda/events/infrastructure/event-repository.ts';", false],
   ]) {
     await fixture({ 'apps/api/src/agenda/agenda-service.ts': code }, root =>
       assert.equal(checkBoundaries(root).length === 0, allowed, code));
@@ -275,13 +395,13 @@ test('legacy sources cannot import bootstrap wiring or reopen the former classro
 
 test('retired integration paths no longer grant host composition privileges', async () => {
   for (const file of ['attachment-integration.ts', 'foxy-file-integration.ts', 'study-file-integration.ts', 'study-agenda-integration.ts', 'study-folders/http.ts']) {
-    const target = file.includes('/') ? '../modules/files/infrastructure/store.ts' : './modules/files/infrastructure/store.ts';
+    const target = file.includes('/') ? '../modules/files/custody/infrastructure/store.ts' : './modules/files/infrastructure/store.ts';
     await fixture({ [`apps/api/src/${file}`]: `import { Store } from '${target}';` }, root => {
       assert.ok(checkBoundaries(root).some(value => value.startsWith('cross-module private API')), file);
     });
   }
   for (const file of ['application.ts', 'main.ts', 'configuration.ts', 'bootstrap/composition.ts']) {
-    const target = file.includes('/') ? '../modules/files/infrastructure/store.ts' : './modules/files/infrastructure/store.ts';
+    const target = file.includes('/') ? '../modules/files/custody/infrastructure/store.ts' : './modules/files/infrastructure/store.ts';
     await fixture({ [`apps/api/src/${file}`]: `import { Store } from '${target}';` }, root => {
       assert.deepEqual(checkBoundaries(root), [], file);
     });

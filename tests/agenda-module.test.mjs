@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { readFileSync, readdirSync } from 'node:fs';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 
-const infrastructure = 'apps/api/src/modules/agenda/infrastructure/unit-of-work.ts';
+const infrastructure = 'apps/api/src/modules/agenda/events/infrastructure/unit-of-work.ts';
 function fixture({ identities, verified = true } = {}) {
   const owner = randomUUID(), calls = [], raw = { async $queryRawUnsafe(sql, ...values) {
     calls.push(['query', sql, values]);

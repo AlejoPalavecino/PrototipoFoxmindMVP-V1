@@ -1,5 +1,5 @@
 import { visibleNavigation } from './entry-glass-browser-helpers.mjs';
-import { startBrowserAttempt, openActivityOverview, openPracticalActivity, openTeacherActivity, selectClassroomSection } from './p8-current-ui-helpers.mjs';
+import { startBrowserAttempt, openActivityOverview, openPracticalActivity, openTeacherActivity, selectClassroomSection, watchActionResponse } from './p8-current-ui-helpers.mjs';
 import { readdirSync } from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -27,6 +27,32 @@ async function request(page, method, path, body, headers) {
 }
 async function ok(...args) { const result = await request(...args); assert.equal(result.status, 200, `${args[1]} ${args[2]}`); return result.body; }
 
+/** Retry only a visible read journey, never an action that can transmit a mutation. */
+async function navigateWithReadRecovery(page, navigate) {
+  let requests = new WeakSet(), limited = [], phase;
+  const setPhase = (path, error, expected) => { requests = new WeakSet(); limited = []; phase = { path, error, expected }; };
+  const observeRequest = request => { if (request.method() === 'GET' && new URL(request.url()).pathname === phase?.path) requests.add(request); };
+  const observeResponse = response => {
+    if (requests.has(response.request()) && response.status() === 429) limited.push(response.json()
+      .then(body => ({ code: body.error?.code, retry: response.headers()['retry-after'] })).catch(error => ({ error })));
+  };
+  page.on('request', observeRequest); page.on('response', observeResponse);
+  try {
+    try { await navigate(setPhase); } catch (error) {
+      if (!limited.length || error.name !== 'TimeoutError' || !await phase.error.isVisible() || await phase.expected.isVisible()) throw error;
+      const responses = await Promise.all(limited);
+      for (const response of responses) {
+        assert.equal(response.error, undefined); assert.equal(response.code, 'RATE_LIMITED');
+        assert.match(response.retry ?? '', /^\d+$/);
+        const seconds = Number(response.retry); assert.ok(Number.isInteger(seconds) && seconds > 0 && seconds <= 60);
+      }
+      const seconds = Math.max(...responses.map(response => Number(response.retry)));
+      console.log(`P8 publication visible navigation honors actual Retry-After=${seconds}s once`);
+      await delay(seconds * 1000); await navigate(setPhase);
+    }
+  } finally { page.off('request', observeRequest); page.off('response', observeResponse); }
+}
+
 test('P8 actual all-type delivery -> saved private correction -> cancel -> explicit publication -> safe own result/notification/restart', { timeout: 330000 }, async t => {
   await withP4IntegrationRuntime(async runtime => {
     assert.deepEqual(runtime.migrations, readdirSync('prisma/migrations').filter(name => /^\d+_/.test(name)).sort());
@@ -47,7 +73,7 @@ test('P8 actual all-type delivery -> saved private correction -> cancel -> expli
       journey.setStage('teacher', 'setup', 'bootstrap'); journey.setStage('student', 'setup', 'bootstrap');
       const errors = []; for (const page of [teacher, student]) { page.setDefaultTimeout(12000); page.on('pageerror', e => errors.push(e.message)); }
       const suffix = Date.now(); await account(teacher, runtime.origin, runtime.inbox, `p8-teacher-${suffix}@example.test`, undefined, "teacher");
-      await account(student, runtime.origin, runtime.inbox, `p8-student-${suffix}@example.test`, undefined, "student");
+      const studentUser = await account(student, runtime.origin, runtime.inbox, `p8-student-${suffix}@example.test`, undefined, "student");
       const name = 'P8 publication classroom', room = await classroom(teacher, student, name), detail = await ok(teacher, 'GET', `/classrooms/${room.id}`);
       const change = async operation => ok(teacher, 'POST', `/classrooms/${room.id}/activities`, { revision: (await ok(teacher, 'GET', `/classrooms/${room.id}`)).revision, operation });
       const activities = [];
@@ -70,7 +96,16 @@ test('P8 actual all-type delivery -> saved private correction -> cancel -> expli
       const check = (label, fn) => t.test(label, { skip: failed ? 'Earlier actual publication prerequisite failed' : false }, async () => { try { await fn(); } catch (e) { failed = true; console.error('Journey observer partial diagnostic', JSON.stringify(await journey.snapshot({ waitForPending: false }).catch(() => ({ unavailable: true, partial: true })))); throw e; } });
       for (const activity of activities) await check(`${activity.type} real browser saved correction is explicitly published to its own result and notification`, async () => {
         journey.setStage('teacher', activity.type, 'fixture'); journey.setStage('student', activity.type, 'start');
-        await openClassroom(student, runtime.origin, name); await selectClassroomSection(student, 'activities', 'Actividades');
+        await navigateWithReadRecovery(student, async setPhase => {
+          setPhase('/api/v1/auth/session', student.getByRole('alert').filter({ hasText: /Se alcanzó el límite de intentos/ })
+            .filter({ has: student.getByRole('button', { name: 'Volver a intentar', exact: true }) }),
+            student.getByRole('link', { name: new RegExp(`^Entrar al aula ${name}`) }));
+          await openClassroom(student, runtime.origin, name);
+          const article = student.getByRole('article', { name: activity.title, exact: true });
+          setPhase(`/api/v1/classrooms/${room.id}/activities`, student.getByRole('region', { name: 'Actividades del aula', exact: true })
+            .getByRole('alert').filter({ hasText: /Se alcanzó el límite de intentos.*Los cambios no confirmados/s }), article);
+          await selectClassroomSection(student, 'activities', 'Actividades'); await article.waitFor();
+        });
         const open = () => activity.type === 'ASSIGNMENT'
           ? openPracticalActivity(student, room.id, activity.id, activity.title) : openActivityOverview(student, activity.title);
         let openingStates = [], actualAttemptId;
@@ -220,7 +255,7 @@ test('P8 actual all-type delivery -> saved private correction -> cancel -> expli
             console.error('P8 practical submit diagnostic', JSON.stringify({ flags, events: await Promise.all(submitEvents) }));
             throw error;
           } finally { student.off('response', captureSubmit); student.off('request', captureSubmitRequest); }
-          await student.getByText('Entrega confirmada.', { exact: true }).waitFor();
+          await student.getByRole('region', { name: 'Comprobante de entrega', exact: true }).getByText('Entrega confirmada', { exact: true }).waitFor();
           } catch (error) {
             const button = student.getByRole('button', { name: 'Revisar entrega', exact: true });
             const disabled = await button.count() === 1 ? await button.isDisabled().catch(() => null) : null;
@@ -235,23 +270,38 @@ test('P8 actual all-type delivery -> saved private correction -> cancel -> expli
           await student.getByRole('button', { name: 'Revisar entrega', exact: true }).click();
           const submitted = student.waitForResponse(r => r.url().endsWith('/submit-answers'));
           await student.getByRole('button', { name: 'Confirmar envío de respuestas', exact: true }).click(); assert.equal((await submitted).status(), 200);
-          await student.getByText('Entrega confirmada.', { exact: true }).waitFor();
+          await student.getByRole('region', { name: 'Comprobante de entrega', exact: true }).getByText('Entrega confirmada', { exact: true }).waitFor();
         }
         activity.attempt = actualAttemptId; assert.ok(activity.attempt);
         journey.setStage('teacher', activity.type, 'grading');
         const path = `/classrooms/${room.id}/attempts/${activity.attempt}/grading`, before = await protectedHash();
         const previewHash = await gradeHash(); await ok(teacher, 'GET', path); assert.equal(await gradeHash(), previewHash);
-        await openClassroom(teacher, runtime.origin, name); await selectClassroomSection(teacher, 'activities', 'Actividades');
-        await openTeacherActivity(teacher, activity.title);
-        await teacher.getByRole('button', { name: 'Corregir intento 1', exact: true }).click();
+        await navigateWithReadRecovery(teacher, async setPhase => {
+          setPhase('/api/v1/auth/session', teacher.getByRole('alert').filter({ hasText: /Se alcanzó el límite de intentos/ })
+            .filter({ has: teacher.getByRole('button', { name: 'Volver a intentar', exact: true }) }),
+            teacher.getByRole('link', { name: new RegExp(`^Entrar al aula ${name}`) }));
+          await openClassroom(teacher, runtime.origin, name);
+          const article = teacher.getByRole('article', { name: activity.title, exact: true });
+          const activityError = teacher.getByRole('region', { name: 'Actividades del aula', exact: true })
+            .getByRole('alert').filter({ hasText: /Se alcanzó el límite de intentos.*Los cambios no confirmados/s });
+          setPhase(`/api/v1/classrooms/${room.id}/activities`, activityError, article);
+          await selectClassroomSection(teacher, 'activities', 'Actividades'); await article.waitFor();
+          setPhase(`/api/v1/classrooms/${room.id}/activities/${activity.id}`, activityError,
+            teacher.getByRole('region', { name: 'Vista previa docente', exact: true }));
+          await openTeacherActivity(teacher, activity.title);
+        });
+        await teacher.getByRole('button', { name: 'Ver entregas', exact: true }).click();
+        await teacher.getByRole('button', { name: 'Revisar entrega · Intento 1', exact: true }).click();
         const region = teacher.getByRole('region', { name: 'Corrección privada del intento', exact: true });
         await region.getByText('Corrección privada: el estudiante no ve esta calificación.', { exact: false }).waitFor();
         const entered = activity.type === 'ASSIGNMENT' ? '8,50' : activity.type === 'QUESTIONNAIRE' ? '8,35' : '0';
         await region.getByLabel(activity.type === 'ASSIGNMENT' ? 'Nota final' : 'Puntos de la pregunta 1', { exact: true }).fill(entered);
+        await region.getByRole('button', { name: 'Devolución', exact: true }).click();
         await region.getByLabel('Devolución general opcional', { exact: true }).fill('Private general feedback');
         const saved = teacher.waitForResponse(r => r.url().endsWith('/grading') && r.request().method() === 'POST');
         await region.getByRole('button', { name: 'Guardar corrección privada', exact: true }).click(); assert.equal((await saved).status(), 200);
         const expected = activity.type === 'ASSIGNMENT' ? '8.50' : activity.type === 'QUESTIONNAIRE' ? '8.35' : '0.00'; activity.expected = expected;
+        await region.getByRole('button', { name: 'Rúbrica y nota', exact: true }).click();
         await region.getByText(`Nota guardada: ${expected.replace('.', ',')}`, { exact: true }).waitFor();
         assert.equal(await protectedHash(), before);
         const persisted = await ok(teacher, 'GET', path); assert.equal(persisted.grade.finalGrade, expected); assert.equal(persisted.grade.isPublished, false);
@@ -260,6 +310,7 @@ test('P8 actual all-type delivery -> saved private correction -> cancel -> expli
         const own = await ok(student, 'GET', `/classrooms/${room.id}/attempts/${activity.attempt}/history`);
         assert.ok(!/"(?:finalGrade|overallFeedback|manualPoints|earned|correct|scoringRule)"/.test(JSON.stringify(own)));
         assert.deepEqual(await ok(student, 'GET', `/classrooms/${room.id}/attempts/${activity.attempt}/result`), { status: 'pending', attemptId: activity.attempt });
+        await region.getByRole('button', { name: 'Devolución', exact: true }).click();
         await region.getByLabel('Devolución general opcional', { exact: true }).fill('Unsaved local text must not be released');
         assert.equal(await region.getByRole('button', { name: 'Publicar calificación', exact: true }).isDisabled(), true);
         let reload = teacher.waitForResponse(r => r.url().endsWith('/grading') && r.request().method() === 'GET');
@@ -310,13 +361,79 @@ test('P8 actual all-type delivery -> saved private correction -> cancel -> expli
           const download = await request(student, 'GET', `/files/${result.attachments[0].id}/content`); assert.equal(download.status, 200);
           assert.equal(download.digest, digest(await runtime.privateFileBytes(result.attachments[0].id)));
         }
-        await openClassroom(student, runtime.origin, name);
-        await visibleNavigation(student);
-        await student.getByRole('button', { name: /^Notificaciones/ }).click();
-        const notification = student.locator('.p6-notifications li').filter({ hasText: 'Calificación publicada' }).first();
-        const resultResponse = student.waitForResponse(r => r.url().endsWith(`/${activity.attempt}/result`) && r.request().method() === 'GET');
-        await notification.getByRole('button', { name: 'Ver devolución', exact: true }).click();
-        const opened = await resultResponse; assert.equal(opened.status(), 200); assert.equal((await opened.json()).attempt.id, activity.attempt);
+        await navigateWithReadRecovery(student, async setPhase => {
+          setPhase('/api/v1/auth/session', student.getByRole('alert').filter({ hasText: /Se alcanzó el límite de intentos/ })
+            .filter({ has: student.getByRole('button', { name: 'Volver a intentar', exact: true }) }),
+            student.getByRole('link', { name: new RegExp(`^Entrar al aula ${name}`) }));
+          await openClassroom(student, runtime.origin, name);
+          await visibleNavigation(student);
+          const inbox = student.getByRole('region', { name: 'Tu bandeja de notificaciones', exact: true });
+          setPhase('/api/v1/classrooms/notifications/page', inbox.getByRole('alert').filter({ hasText: /Se alcanzó el límite de intentos/ })
+            .filter({ has: inbox.getByRole('button', { name: 'Actualizar notificaciones', exact: true }) }), inbox.getByRole('article').first());
+          await student.locator('a[href="/notificaciones"]:visible').click();
+          await student.getByRole('region', { name: 'Tu bandeja de notificaciones', exact: true }).getByRole('article').first().waitFor();
+        });
+        const eventRows = (await runtime.db.query("SELECT id,recipient_id,read_at FROM notifications WHERE event_type='GRADE_PUBLISHED' AND attempt_id=$1", [activity.attempt])).rows;
+        assert.equal(eventRows.length, 1); const event = eventRows[0];
+        assert.equal(event.recipient_id, studentUser.id); assert.equal(event.read_at, null);
+        const eventHash = async () => digest(JSON.stringify((await runtime.db.query('SELECT to_jsonb(n) value FROM notifications n WHERE id=$1', [event.id])).rows));
+        const beforeDeniedOpen = await eventHash();
+        assert.equal((await request(teacher, 'POST', `/classrooms/notifications/${event.id}/open`, {})).status, 403);
+        assert.equal(await eventHash(), beforeDeniedOpen, 'Another actor cannot read or alter the recipient notification');
+        const notification = student.getByRole('region', { name: 'Tu bandeja de notificaciones', exact: true })
+          .locator(`article[data-notice-id="${event.id}"]`);
+        await notification.getByRole('heading', { name: 'Calificación publicada', exact: true }).waitFor();
+        const openPath = `/api/v1/classrooms/notifications/${event.id}/open`, roomPath = `/api/v1/classrooms/${room.id}`;
+        let notificationOpens = 0;
+        const captureOpen = request => { if (request.method() === 'POST' && new URL(request.url()).pathname === openPath) notificationOpens++; };
+        student.on('request', captureOpen);
+        const openedNotification = watchActionResponse(student, r => new URL(r.url()).pathname === openPath && r.request().method() === 'POST', 12000);
+        let resultResponse = watchActionResponse(student, r => r.request().method() === 'GET' &&
+          (r.url().endsWith(`/${activity.attempt}/result`) || (new URL(r.url()).pathname.startsWith(roomPath) && r.status() === 429)), 12000);
+        try {
+          await notification.getByRole('button', { name: 'Ver devolución', exact: true }).click();
+          const authorized = await openedNotification.value(); assert.equal(authorized.status(), 200);
+          openedNotification.dispose();
+          assert.equal((await authorized.json()).attemptId, activity.attempt);
+          let opened = await resultResponse.value();
+          if (opened.status() === 429) {
+            resultResponse.dispose();
+            const blockedPath = new URL(opened.url()).pathname;
+            const resultPath = `${roomPath}/attempts/${activity.attempt}/result`;
+            assert.ok([roomPath, resultPath, `${roomPath}/activities/${activity.id}/history`,
+              `${roomPath}/attempts/${activity.attempt}/history`, `${roomPath}/activities/${activity.id}`].includes(blockedPath), `Unexpected limited destination read: ${blockedPath}`);
+            assert.equal((await opened.json()).error.code, 'RATE_LIMITED');
+            const rateAlert = student.getByRole('alert').filter({ hasText: /Se alcanzó el límite de intentos/ });
+            const readError = blockedPath === roomPath ? rateAlert.filter({ has: student.getByRole('button', { name: 'Actualizar aula', exact: true }) })
+              : blockedPath === resultPath ? student.getByRole('region', { name: 'Resultado publicado del intento', exact: true })
+                .getByRole('alert').filter({ hasText: /Se alcanzó el límite de intentos.*No se pudo consultar el resultado/s })
+              : blockedPath.endsWith('/history') ? student.getByRole('region', { name: 'Mi historial de intentos', exact: true })
+                .getByRole('alert').filter({ hasText: /Se alcanzó el límite de intentos.*Actualiza el historial/s })
+              : student.getByRole('region', { name: 'Actividades del aula', exact: true })
+                .getByRole('alert').filter({ hasText: /Se alcanzó el límite de intentos.*Los cambios no confirmados/s });
+            await readError.waitFor(); assert.equal(await readError.isVisible(), true, 'The limited destination read must display its corresponding UI error');
+            assert.equal(await student.getByRole('region', { name: 'Resultado publicado del intento', exact: true }).locator('.p8-final-grade').isVisible(), false);
+            const retry = opened.headers()['retry-after']; assert.match(retry ?? '', /^\d+$/);
+            const seconds = Number(retry); assert.ok(Number.isInteger(seconds) && seconds > 0 && seconds <= 60);
+            const beforeReadRecovery = notificationOpens;
+            console.log(`P8 published destination ${blockedPath} honors actual Retry-After=${seconds}s once without reopening the notification`);
+            await delay(seconds * 1000);
+            resultResponse = watchActionResponse(student, r => r.url().endsWith(`/${activity.attempt}/result`) && r.request().method() === 'GET', 12000);
+            if (blockedPath === roomPath) await student.getByRole('button', { name: 'Actualizar aula', exact: true }).click();
+            else if (blockedPath === resultPath) await student.getByRole('button', { name: 'Actualizar resultado', exact: true }).click();
+            else {
+              await student.getByRole('button', { name: 'Volver al aula', exact: true }).click();
+              await openActivityOverview(student, activity.title);
+              await student.getByRole('group', { name: 'Vista de la actividad', exact: true })
+                .getByRole('button', { name: /^Mis intentos/ }).click();
+              await student.getByRole('button', { name: 'Consultar intento 1', exact: true }).click();
+            }
+            opened = await resultResponse.value();
+            assert.equal(notificationOpens, beforeReadRecovery, 'Read recovery never repeats the authorized notification mutation');
+          }
+          assert.equal(opened.status(), 200); assert.equal((await opened.json()).attempt.id, activity.attempt);
+          assert.ok((await runtime.db.query('SELECT read_at FROM notifications WHERE id=$1', [event.id])).rows[0].read_at instanceof Date);
+        } finally { openedNotification.dispose(); resultResponse.dispose(); student.off('request', captureOpen); }
         const resultRegion = student.getByRole('region', { name: 'Resultado publicado del intento', exact: true });
         const gradeDisplay = resultRegion.locator('.p8-final-grade');
         await gradeDisplay.getByText('Calificación publicada', { exact: true }).waitFor();

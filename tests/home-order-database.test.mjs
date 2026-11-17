@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { withAgendaDatabase } from './agenda-database-helpers.test.mjs';
 import { homeFixture } from './foxmind-3d-repository-fixture.test.mjs';
-import { createHomeService } from '../apps/api/src/modules/home/application/service.ts';
-import { createHomeUnitOfWork } from '../apps/api/src/modules/home/infrastructure/unit-of-work.ts';
+import { createHomeService } from '../apps/api/src/modules/home/dashboard/application/service.ts';
+import { createHomeUnitOfWork } from '../apps/api/src/modules/home/dashboard/infrastructure/unit-of-work.ts';
 
 test('Home paginates authorized review and queries in both directions on PostgreSQL', { timeout: 120000 }, async () => {
   await withAgendaDatabase(async ({ transaction }) => transaction(async ({ database, query: sql }) => {

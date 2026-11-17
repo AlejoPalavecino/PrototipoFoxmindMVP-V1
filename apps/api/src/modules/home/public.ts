@@ -1,4 +1,4 @@
-export { createHomeService } from './application/service.ts';
-export type { HomeService } from './application/service.ts';
-export { academicTarget, gradeTarget } from './application/notification-targets.ts';
-export type { AcademicNotification, GradeNotification } from './application/notification-targets.ts';
+export { createHomeService } from './dashboard/public.ts';
+export type { HomeService } from './dashboard/public.ts';
+export { NotificationInboxService, academicTarget, gradeTarget } from './notifications/public.ts';
+export type { AcademicNotification, GradeNotification, NotificationInboxRepository, NotificationInboxReadPort } from './notifications/public.ts';

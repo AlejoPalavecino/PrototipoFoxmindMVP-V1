@@ -2,10 +2,10 @@ import 'reflect-metadata';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { NestFactory } from '@nestjs/core';
-import * as mailPart0 from "../.build/p33-mail/apps/api/src/modules/identity/infrastructure/mail/configuration.js";
-import * as mailPart1 from "../.build/p33-mail/apps/api/src/modules/identity/infrastructure/mail/account-mail.service.js";
+import * as mailPart0 from "../.build/p33-mail/apps/api/src/modules/identity/mail-delivery/infrastructure/mail/configuration.js";
+import * as mailPart1 from "../.build/p33-mail/apps/api/src/bootstrap/identity-mail.module.js";
 import * as mailPart2 from "../.build/p33-mail/apps/api/src/bootstrap/identity-mail.module.js";
-import * as mailPart3 from "../.build/p33-mail/apps/api/src/modules/identity/infrastructure/mail/mailbox.js";
+import * as mailPart3 from "../.build/p33-mail/apps/api/src/modules/identity/mail-delivery/infrastructure/mail/mailbox.js";
 const mail = Object.freeze({readMailConfiguration: mailPart0.readMailConfiguration,AccountMailService: mailPart1.AccountMailService,MailModule: mailPart2.MailModule,validateMailbox: mailPart3.validateMailbox});
 import { createSmtpFixture, readMimeParts } from '../scripts/mail-smtp-fixture.mjs';
 

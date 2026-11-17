@@ -4,8 +4,8 @@ import { randomUUID } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { withAiDatabase, rollbackCase } from './classroom-ai-database.test.mjs';
 import { fixture } from './activity-ai-fixture.test.mjs';
-import { ActivityAiService } from '../.build/api/apps/api/src/modules/activities/infrastructure/activity-ai/service.js';
-import { ActivityAiWorker } from '../.build/api/apps/api/src/modules/activities/infrastructure/activity-ai/worker.js';
+import { ActivityAiService } from '../.build/api/apps/api/src/modules/activities/generation/infrastructure/activity-ai/service.js';
+import { ActivityAiWorker } from '../.build/api/apps/api/src/modules/activities/generation/infrastructure/activity-ai/worker.js';
 
 test('generation expands a whole unit into its ordered snapshot and keeps the idea private on publish', { timeout: 120000 }, () =>
   withAiDatabase(async ({ pool }) => rollbackCase(pool, async local => {
@@ -68,7 +68,7 @@ test('an already queued job without the idea continues to generate and replays i
     const f = await fixture(local), ai = new ActivityAiService(f.options);
     const { view } = await ai.start(f.T, f.room, f.start);
     const { teacherBrief: _removed, ...prior } = f.start;
-    const { inputHash } = await import('../.build/api/apps/api/src/modules/activities/infrastructure/activity-ai/requests.js');
+    const { inputHash } = await import('../.build/api/apps/api/src/modules/activities/generation/infrastructure/activity-ai/requests.js');
     const hash = inputHash('start', f.room, null, prior);
     await local.pool.query(`UPDATE activity_ai_generations SET input_payload=$2::jsonb,request_hash=$3 WHERE id=$1`,
       [view.id, JSON.stringify(prior), hash]);

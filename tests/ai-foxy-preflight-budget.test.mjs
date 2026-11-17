@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createFoxyTurnPreparation } from '../apps/api/src/modules/foxy/infrastructure/turn-preparation.ts';
+import { createFoxyTurnPreparation } from '../apps/api/src/modules/foxy/turns/infrastructure/turn-preparation.ts';
 
 const pair = i => ({ user: `Pregunta ${i}`, assistant: { title: `Título ${i}`, markdown: `Respuesta ${i}` } });
 function fixture({ count = () => 101, historyLength = 10, model = 'synthetic', revalidate = () => true } = {}) {
@@ -85,7 +85,7 @@ test('non-monotonic counts still return only a successfully counted input', asyn
 });
 
 test('selected suffix retains the real Gemini adapter ticket without another count at generation', async () => {
-  const { GeminiFoxyTextAdapter } = await import('../apps/api/src/modules/foxy/infrastructure/providers/foxy-adapter.ts');
+  const { GeminiFoxyTextAdapter } = await import('../apps/api/src/modules/foxy/turns/infrastructure/providers/foxy-adapter.ts');
   let tokens = 0, sdkCounts = 0, generations = 0;
   const client = { models: {
     countTokens: async () => { sdkCounts++; return { totalTokens: tokens }; },

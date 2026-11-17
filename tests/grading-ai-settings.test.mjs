@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { activityPayload } from '../apps/api/src/modules/activities/domain/activity-policy.ts';
 import { DraftService } from '../apps/api/src/bootstrap/academic-management-composition.ts';
-import { createAuthoringRepository } from '../apps/api/src/modules/activities/infrastructure/authoring-repository.ts';
-import { readActivityTopicScope } from '../apps/api/src/modules/activities/infrastructure/activity-topics.ts';
+import { createAuthoringRepository } from '../apps/api/src/modules/activities/authoring/infrastructure/authoring-repository.ts';
+import { readActivityTopicScope } from '../apps/api/src/modules/activities/generation/infrastructure/activity-topics.ts';
 
 const activity = extra => ({ title: 'Trabajo', unitId: randomUUID(), topicIds: [randomUUID()], instructions: 'Resolver',
   attachmentRequired: false, instructionFileIds: [], materialIds: [], questions: [], deadline: null, allowLate: false, ...extra });

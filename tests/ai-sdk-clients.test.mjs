@@ -62,10 +62,10 @@ test('Gemini client separates configuration objects and invalidates changed cred
 test('text factories share the configured SDK client and retain injectable adapters', async () => {
   const [{ createGeminiExtractionAdapter }, { createGeminiActivityGenerationAdapter },
     { createStudentAiProvider }, { createGeminiFoxyTextAdapter }] = await Promise.all([
-    import('../apps/api/src/modules/curriculum/infrastructure/providers/gemini-adapter.ts'),
-    import('../apps/api/src/modules/activities/infrastructure/providers/activity-adapter.ts'),
-    import('../apps/api/src/modules/grading/infrastructure/student-ai/provider.ts'),
-    import('../apps/api/src/modules/foxy/infrastructure/providers/foxy-adapter.ts'),
+    import('../apps/api/src/modules/curriculum/generation/infrastructure/providers/gemini-adapter.ts'),
+    import('../apps/api/src/modules/activities/generation/infrastructure/providers/activity-adapter.ts'),
+    import('../apps/api/src/modules/grading/student-analysis/infrastructure/student-ai/provider.ts'),
+    import('../apps/api/src/modules/foxy/turns/infrastructure/providers/foxy-adapter.ts'),
   ]);
   const config = configuration(), before = sdk.constructions.length;
   const client = getGeminiClient(config);

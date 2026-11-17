@@ -1,6 +1,6 @@
 import type { AiConfiguration } from '../platform/ai/configuration.ts';
-import { createStudentAiProvider } from '../modules/grading/infrastructure/student-ai/provider.ts';
-import { StudentAiWorker, type StudentAiAccess, type StudentAiProvider } from '../modules/grading/infrastructure/student-ai/worker.ts';
+import { createStudentAiProvider } from '../modules/grading/student-analysis/infrastructure/student-ai/provider.ts';
+import { StudentAiWorker, type StudentAiAccess, type StudentAiProvider } from '../modules/grading/student-analysis/infrastructure/student-ai/worker.ts';
 
 export class StudentAiRuntime {
   readonly worker: StudentAiWorker;

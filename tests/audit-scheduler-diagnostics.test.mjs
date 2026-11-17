@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { SerialJobScheduler } from '../apps/api/src/modules/grading/infrastructure/grading-ai/scheduler.ts';
+import { SerialJobScheduler } from '../apps/api/src/modules/grading/assistance/infrastructure/grading-ai/scheduler.ts';
 import { createDiagnosticSink } from '../apps/api/src/platform/diagnostics.ts';
 
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));

@@ -56,7 +56,7 @@ test('Library atomically persists file description and authorized activity links
 
 test('FILE body descriptions survive metadata edits and clear atomically on explicit replacement', { timeout: 120000 }, () =>
   withAiDatabase(async ({ pool }) => rollbackCase(pool, async local => {
-    const { ClassroomService } = await import('../apps/api/src/bootstrap/academic-composition.ts');
+    const { ClassroomService } = await import('./helpers/academic-fixture.ts');
     const f = await fixture(local);
     const service = new ClassroomService(f.classrooms.ports);
     const fileId = randomUUID(), digest = 'a'.repeat(64);

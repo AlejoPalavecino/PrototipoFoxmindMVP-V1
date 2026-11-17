@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-const policy = () => import("../apps/api/src/modules/classrooms/infrastructure/policy.ts");
+const policy = () => import("../apps/api/src/modules/classrooms/access/infrastructure/policy.ts");
 const valid = {
   name: 'Fotografía',
   subject: 'Arte',

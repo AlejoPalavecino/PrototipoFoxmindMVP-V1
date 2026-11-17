@@ -1,20 +1,28 @@
-import { parseWallQuery, parseWallMutation, parseNotificationQuery } from '../../../../src/core/domain/index.ts';
+import { createCatalogRoutes } from '../modules/classrooms/catalog/presentation/academic-routes.ts';
+import type { CatalogHttpOperations } from '../modules/classrooms/catalog/application/http-operations.ts';
+import { createPlanRoutes } from '../modules/curriculum/plan/presentation/academic-routes.ts';
+import type { PlanHttpOperations } from '../modules/curriculum/plan/application/http-operations.ts';
+import { createLibraryRoutes } from '../modules/materials/library/presentation/academic-routes.ts';
+import type { LibraryHttpOperations } from '../modules/materials/library/application/http-operations.ts';
+import { createWallRoutes } from '../modules/communication/wall/presentation/academic-routes.ts';
+import type { WallHttpOperations } from '../modules/communication/wall/application/http-operations.ts';
+import { createAuthoringRoutes } from '../modules/activities/authoring/presentation/academic-routes.ts';
+import type { AuthoringHttpOperations } from '../modules/activities/authoring/application/http-operations.ts';
+import { createAttemptsRoutes } from '../modules/participation/attempts/presentation/academic-routes.ts';
+import type { AttemptsHttpOperations } from '../modules/participation/attempts/application/http-operations.ts';
+import { createReviewRoutes } from '../modules/grading/review/presentation/academic-routes.ts';
+import type { ReviewHttpOperations } from '../modules/grading/review/application/http-operations.ts';
+import { createNotificationsRoutes } from '../modules/home/notifications/presentation/academic-routes.ts';
+import type { NotificationsHttpOperations } from '../modules/home/notifications/application/http-operations.ts';
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import type { ClassroomService } from './academic-composition.ts';
-import { ClassroomError, fail, object } from '../modules/classrooms/infrastructure/policy.ts';
-import { ClassroomIdentityError } from '../modules/classrooms/infrastructure/errors.ts';
-import { activityOperation } from '../modules/activities/domain/activity-policy.ts';
-import { editorCapability } from '../modules/participation/infrastructure/attempt-policy.ts';
-import { uuid } from '../modules/classrooms/infrastructure/policy.ts';
-import { captureSubmissionReceipt } from '../modules/participation/infrastructure/submission-receipt.ts';
-import { privateGradingInput } from '../modules/grading/domain/grading-policy.ts';
-import { publicationInput } from '../modules/grading/public.ts';
-import { gradeCorrectionInput } from '../modules/grading/public.ts';
-import { extractionRoute, extractionHttpError } from '../modules/curriculum/presentation/ai/http.ts';
-import type { ClassroomAiService } from '../modules/curriculum/infrastructure/ai/service.ts';
+import { ClassroomError, fail, object } from '../modules/classrooms/access/infrastructure/policy.ts';
+import { ClassroomIdentityError } from '../modules/classrooms/access/infrastructure/errors.ts';
+import { captureSubmissionReceipt } from '../modules/participation/attempts/infrastructure/submission-receipt.ts';
+import { extractionRoute, extractionHttpError } from '../modules/curriculum/generation/presentation/ai/http.ts';
+import type { ClassroomAiService } from '../modules/curriculum/generation/infrastructure/ai/service.ts';
 
-import { activityGenerationRoute } from '../modules/activities/presentation/activity-ai/http.ts';
-import type { ActivityAiService } from '../modules/activities/infrastructure/activity-ai/service.ts';
+import { activityGenerationRoute } from '../modules/activities/generation/presentation/activity-ai/http.ts';
+import type { ActivityAiService } from '../modules/activities/generation/infrastructure/activity-ai/service.ts';
 
 interface Admission {
   admit(request: IncomingMessage, write: boolean, response: ServerResponse): Promise<void>;
@@ -22,7 +30,25 @@ interface Admission {
   activityAi?: ActivityAiService;
 }
 
-export type ClassroomsHttpOperations = Omit<ClassroomService, 'ports' | 'tokens' | 'run' | 'classroom' | 'summary' | 'progressView'>;
+export type ClassroomsHttpOperations =
+  CatalogHttpOperations &
+  PlanHttpOperations &
+  LibraryHttpOperations &
+  WallHttpOperations &
+  AuthoringHttpOperations &
+  AttemptsHttpOperations &
+  ReviewHttpOperations &
+  NotificationsHttpOperations;
+export interface AcademicHttpServices {
+  catalog: CatalogHttpOperations;
+  plan: PlanHttpOperations;
+  library: LibraryHttpOperations;
+  wall: WallHttpOperations;
+  authoring: AuthoringHttpOperations;
+  attempts: AttemptsHttpOperations;
+  review: ReviewHttpOperations;
+  notifications: NotificationsHttpOperations;
+}
 const statuses = {
   INVALID_INPUT: 400,
   FORBIDDEN: 403,
@@ -84,10 +110,25 @@ function readBody(req: IncomingMessage): Promise<unknown> {
 }
 /** Explicit installation only. The host owns real P3 admission; no permissive default exists. */
 export function createClassroomsHandler(
-  service: ClassroomsHttpOperations,
+  input: AcademicHttpServices | ClassroomsHttpOperations,
   options: Admission,
 ) {
   if (typeof options?.admit !== 'function') return fail('SERVICE_UNAVAILABLE');
+  // Flat inputs remain supported for existing transport fixtures only.
+  const services: AcademicHttpServices = 'catalog' in input ? input : {
+    catalog: input, plan: input, library: input, wall: input,
+    authoring: input, attempts: input, review: input, notifications: input,
+  };
+  const routes = [
+    ...createCatalogRoutes(services.catalog),
+    ...createPlanRoutes(services.plan),
+    ...createLibraryRoutes(services.library),
+    ...createWallRoutes(services.wall),
+    ...createAuthoringRoutes(services.authoring),
+    ...createAttemptsRoutes(services.attempts),
+    ...createReviewRoutes(services.review),
+    ...createNotificationsRoutes(services.notifications)
+  ].sort((a, b) => a.order - b.order);
   let active = 0;
   return (req: IncomingMessage, res: ServerResponse, next: () => void) => {
     let url: URL;
@@ -133,7 +174,6 @@ export function createClassroomsHandler(
       }
       const body = write ? await readBody(req) : undefined,
         path = url.pathname.split('/').slice(2);
-      let value: unknown;
       const exact = (keys: string[], optional: string[] = []) => {
         const b = object(body, [...keys, ...optional]);
         if (keys.some((k) => !Object.hasOwn(b, k)))
@@ -144,255 +184,12 @@ export function createClassroomsHandler(
       if (generation) { json(res, generation.status, generation.value); return; }
       const extraction = await extractionRoute(options.ai, req, path, method, body);
       if (extraction) { json(res, extraction.status, extraction.value); return; }
-      if (!path.length && method === 'GET') value = await service.mine(req);
-      else if (path.join('/') === 'search' && method === 'GET') value = await service.search(req, url.searchParams);
-      else if (path.join('/') === 'drafts' && method === 'GET')
-        value = await service.listDrafts(req);
-      else if (path.join('/') === 'drafts' && method === 'POST') {
-        exact([]);
-        value = await service.createDraft(req);
-      } else if (path[0] === 'drafts' && path.length === 2 && method === 'GET')
-        value = await service.getDraft(req, path[1]);
-      else if (path[0] === 'drafts' && path.length === 2 && method === 'PATCH')
-        value = await service.saveDraft(
-          req,
-          path[1],
-          exact(['revision', 'payload']),
-        );
-      else if (path[0] === 'drafts' && path.length === 2 && method === 'DELETE')
-        value = await service.deleteDraft(req, path[1], exact(['revision', 'confirm']));
-      else if (
-        path[0] === 'drafts' &&
-        path[2] === 'publish' &&
-        path.length === 3 &&
-        method === 'POST'
-      )
-        value = await service.publishDraft(req, path[1], exact(['revision']));
-      else if (path.join('/') === 'codes/preview' && method === 'POST')
-        value = await service.previewCode(req, exact(['code']).code);
-      else if (path.join('/') === 'codes/confirm' && method === 'POST')
-        value = await service.confirmCode(
-          req,
-          exact(['confirmation']).confirmation,
-        );
-      else if (path.join('/') === 'invitations' && method === 'GET')
-        value = await service.pendingInvitations(req);
-      else if (
-        path[0] === 'invitations' &&
-        (path[2] === 'accept' || path[2] === 'decline') &&
-        path.length === 3 &&
-        method === 'POST'
-      ) {
-        exact([]);
-        value = path[2] === 'decline' ? await service.declineInvitation(req, path[1]) : await service.acceptInvitation(req, path[1]);
-      } else if (path.join('/') === 'notifications' && method === 'GET')
-        value = await service.listNotifications(req);
-      else if (path.join('/') === 'notifications/page' && method === 'GET')
-        value = await service.listNotificationPage(req, notificationQuery(url));
-      else if (path.join('/') === 'notifications/read-all' && method === 'POST') {
-        exact([]);
-        value = await service.readAllNotifications(req);
+      for (const route of routes) {
+        const result = await route.handle({ request: req, method, path, body, search: url.searchParams, headers: req.headers, exact });
+        if (result.handled) { json(res, 200, result.value); return; }
       }
-      else if (path.length === 3 && path[0] === 'notifications' && ['read', 'unread', 'open'].includes(path[2]) && method === 'POST') {
-        exact([]);
-        value = path[2] === 'open' ? await service.openNotification(req, path[1]) : await service.readNotification(req, path[1], path[2] === 'read');
-      } else if (path.length === 1 && method === 'GET')
-        value = await service.detail(req, path[0]);
-      else if (path.length === 2 && path[1] === 'plan' && method === 'POST')
-        value = await service.changePlan(req, path[0], exact(['revision', 'operation']));
-      else if (path.length === 2 && path[1] === 'library' && method === 'GET')
-        value = await service.listMaterials(req, path[0]);
-      else if (path.length === 2 && path[1] === 'library' && method === 'POST')
-        value = await service.changeLibrary(req, path[0], exact(['revision', 'operation']));
-      else if (path.length === 2 && path[1] === 'activities' && method === 'GET')
-        value = await service.listActivities(req, path[0]);
-      else if (path.length === 2 && path[1] === 'activities' && method === 'POST') {
-        const data = exact(['revision', 'operation']);
-        activityOperation(data.operation);
-        value = await service.changeActivities(req, path[0], data);
-      } else if (path.length === 3 && path[1] === 'activities' && path[2] === 'deadline' && method === 'POST')
-        value = await service.activityDeadlineChoices(req, path[0], exact(['local']));
-      else if (path.length === 3 && path[1] === 'activities' && method === 'GET')
-        value = await service.activityDetail(req, path[0], path[2]);
-      else if (path.length === 4 && path[1] === 'activities' && ['history', 'history-submissions', 'reopen'].includes(path[3])) {
-        if (!uuid(path[0]) || !uuid(path[2]) || req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
-          return fail('INVALID_INPUT');
-        if (path[3] === 'history' && method === 'GET') value = await service.activityHistory(req, path[0], path[2]);
-        else if (path[3] === 'history-submissions' && method === 'GET') value = await service.activitySubmissions(req, path[0], path[2]);
-        else if (path[3] === 'reopen' && method === 'POST') value = await service.reopenActivity(req, path[0], path[2], exact(['revision', 'studentId', 'deadline', 'confirm']));
-        else return fail('INVALID_INPUT');
-      } else if (path.length === 4 && path[1] === 'attempts' && path[3] === 'history' && method === 'GET') {
-        if (!uuid(path[0]) || !uuid(path[2]) || req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
-          return fail('INVALID_INPUT');
-        value = await service.activityAttempt(req, path[0], path[2]);
-      }
-      else if (path.length === 4 && path[1] === 'attempts' && ['publish-grade', 'result'].includes(path[3])) {
-        if (!uuid(path[0]) || !uuid(path[2]) || req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
-          return fail('INVALID_INPUT');
-        if (path[3] === 'result' && method === 'GET') value = await service.getAttemptResult(req, path[0], path[2]);
-        else if (path[3] === 'publish-grade' && method === 'POST') value = await service.publishAttemptGrade(req, path[0], path[2], publicationInput(body));
-        else return fail('INVALID_INPUT');
-      }
-      else if (path.length === 4 && path[1] === 'attempts' && path[3] === 'grade-corrections') {
-        if (!uuid(path[0]) || !uuid(path[2]) || req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
-          return fail('INVALID_INPUT');
-        if (method === 'GET') value = await service.getGradeCorrections(req, path[0], path[2]);
-        else if (method === 'POST') value = await service.correctPublishedGrade(req, path[0], path[2], gradeCorrectionInput(body));
-        else return fail('INVALID_INPUT');
-      }
-      else if (path[1] === 'attempts' && path[3] === 'grading-ai' && (path.length === 4 || path.length === 6)) {
-        if (!uuid(path[0]) || !uuid(path[2]) || req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
-          return fail('INVALID_INPUT');
-        if (path.length === 4 && method === 'GET') value = await service.getGradingAi(req, path[0], path[2]);
-        else if (path.length === 6 && method === 'POST' && path[5] === 'apply') value = await service.applyGradingAi(req, path[0], path[2], path[4], body);
-        else if (path.length === 6 && method === 'POST' && path[5] === 'discard') value = await service.discardGradingAi(req, path[0], path[2], path[4], body);
-        else return fail('INVALID_INPUT');
-      }
-      else if (path.length === 4 && path[1] === 'attempts' && path[3] === 'grading') {
-        if (!uuid(path[0]) || !uuid(path[2]) || req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
-          return fail('INVALID_INPUT');
-        if (method === 'GET') value = await service.getAttemptGrading(req, path[0], path[2]);
-        else if (method === 'POST') value = await service.saveAttemptGrading(req, path[0], path[2], privateGradingInput(body));
-        else return fail('INVALID_INPUT');
-      }
-      else if (path.length === 4 && path[1] === 'activities' && ['session', 'start', 'eligibility', 'authorize-first'].includes(path[3])) {
-        if (!uuid(path[0]) || !uuid(path[2])) return fail('INVALID_INPUT');
-        if (req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
-          return fail('INVALID_INPUT');
-        if (path[3] === 'session' && method === 'GET') value = await service.activitySession(req, path[0], path[2]);
-        else if (path[3] === 'eligibility' && method === 'GET') value = await service.activityEligibility(req, path[0], path[2]);
-        else if (path[3] === 'start' && method === 'POST') value = await service.startActivity(req, path[0], path[2], exact([]));
-        else if (path[3] === 'authorize-first' && method === 'POST')
-          value = await service.authorizeFirstSubmission(req, path[0], path[2], exact(['revision', 'studentId', 'deadline']));
-        else return fail('INVALID_INPUT');
-      } else if (path.length === 4 && path[1] === 'attempts' && path[3] === 'transfer' && method === 'POST') {
-        if (!uuid(path[0]) || !uuid(path[2])) return fail('INVALID_INPUT');
-        if (req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
-          editorCapability(req.headers['x-attempt-editor'], req.headers['x-attempt-epoch']);
-        value = await service.transferAttemptEditor(req, path[0], path[2], exact(['revision']));
-      }
-      else if (path.length === 4 && path[1] === 'attempts' && ['answer', 'submit-answers'].includes(path[3]) && method === 'POST') {
-        if (!uuid(path[0]) || !uuid(path[2])) return fail('INVALID_INPUT');
-        editorCapability(req.headers['x-attempt-editor'], req.headers['x-attempt-epoch']);
-        value = path[3] === 'answer'
-          ? await service.saveAttemptAnswer(req, path[0], path[2], exact(['revision', 'questionId', 'text', 'optionIds']))
-          : await service.submitQuestionnaireAttempt(req, path[0], path[2], exact(['revision', 'confirm', 'confirmIncomplete']));
-      }
-      else if (path.length === 4 && path[1] === 'attempts' && ['attachments-remove', 'submit-practical','practical-response'].includes(path[3]) && method === 'POST') {
-        if (!uuid(path[0]) || !uuid(path[2])) return fail('INVALID_INPUT');
-        editorCapability(req.headers['x-attempt-editor'], req.headers['x-attempt-epoch']);
-        value = path[3] === 'practical-response' ? await service.savePracticalResponse(req,path[0],path[2],exact(['revision','text'])) : path[3] === 'attachments-remove'
-          ? await service.removeAttemptAttachment(req, path[0], path[2], exact(['revision', 'fileId']))
-          : await service.submitPracticalAttempt(req, path[0], path[2], exact(['revision', 'confirm']));
-      } else if (path.length === 4 && path[1] === 'activities' && path[3] === 'submissions' && method === 'GET') {
-        if (!uuid(path[0]) || !uuid(path[2]) || req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
-          return fail('INVALID_INPUT');
-        value = await service.assignmentSubmissions(req, path[0], path[2]);
-      } else if (path.length === 4 && path[1] === 'attempts' && path[3] === 'receipt' && method === 'GET') {
-        if (!uuid(path[0]) || !uuid(path[2]) || req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined)
-          return fail('INVALID_INPUT');
-        value = await service.assignmentSubmission(req, path[0], path[2]);
-      }
-      else if (path.length === 4 && path[1] === 'activities' && path[3] === 'preview' && method === 'GET')
-        value = await service.activityDetail(req, path[0], path[2], true);
-      else if (path.length === 2 && path[1] === 'wall' && method === 'GET')
-        value = await service.listWall(req, path[0], wallQuery(url, 'feed'));
-      else if (path.length === 3 && path[1] === 'wall' && method === 'GET')
-        value = await service.wallThread(req, path[0], path[2], wallQuery(url, 'thread').replyId);
-      else if (path.length === 4 && path[1] === 'wall' && path[3] === 'replies' && method === 'GET')
-        value = await service.listWallReplies(req, path[0], path[2], wallQuery(url, 'replies'));
-      else if (path.length === 2 && path[1] === 'wall' && method === 'POST') {
-        let data: ReturnType<typeof parseWallMutation>;
-        try { data = parseWallMutation(body); } catch { return fail('INVALID_INPUT'); }
-        value = await service.changeWall(req, path[0], data);
-      }
-      else if (
-        path.length === 2 &&
-        path[1] === 'settings' &&
-        method === 'PATCH'
-      )
-        value = await service.updateSettings(
-          req,
-          path[0],
-          exact(['revision', 'name', 'subject', 'division', 'academicYear'], ['aiGradingEnabled', 'coverKey']),
-        );
-      else if (path.length === 2 && path[1] === 'archive' && method === 'POST')
-        value = await service.setArchive(
-          req,
-          path[0],
-          exact(['archived', 'revision']),
-        );
-      else if (path.length === 2 && path[1] === 'code' && method === 'POST') {
-        exact([]);
-        value = await service.rotateCode(req, path[0]);
-      } else if (
-        path.length === 2 &&
-        ['members', 'history'].includes(path[1]) &&
-        method === 'GET'
-      )
-        value = await service.members(req, path[0], path[1] === 'history');
-      else if (path.length === 4 && path[1] === 'members' && path[3] === 'ai-summary') {
-        if (method !== 'GET' || !uuid(path[0]) || !uuid(path[2])) return fail('INVALID_INPUT');
-        value = await service.getStudentAiReport(req, path[0], path[2]);
-      }
-      else if ((path.length === 2 && path[1] === 'progress')
-        || (path.length === 4 && path[1] === 'members' && path[3] === 'progress')) {
-        if (method !== 'GET' || !uuid(path[0]) || (path.length === 4 && !uuid(path[2]))
-          || req.headers['x-attempt-editor'] !== undefined || req.headers['x-attempt-epoch'] !== undefined) return fail('INVALID_INPUT');
-        value = path.length === 2 ? await service.getProgress(req, path[0]) : await service.getStudentProgress(req, path[0], path[2]);
-      }
-      else if (path.length === 3 && path[1] === 'members' && method === 'GET')
-        value = await service.studentSummary(req, path[0], path[2]);
-      else if (
-        path.length === 2 &&
-        path[1] === 'invitations' &&
-        method === 'GET'
-      )
-        value = await service.listInvitations(req, path[0]);
-      else if (
-        path.length === 2 &&
-        path[1] === 'invitations' &&
-        method === 'POST'
-      )
-        value = await service.invite(req, path[0], exact(['email']).email);
-      else if (path[1] === 'invitations' && path[2] === 'batch') {
-        if (path.length === 3 && method === 'POST')
-          value = await service.reserveInvitationBatch(req, path[0], exact(['requestId', 'emails']));
-        else if (path.length === 4 && method === 'GET')
-          value = await service.readInvitationBatch(req, path[0], path[3]);
-        else if (path.length === 5 && method === 'POST' && /^(?:[0-9]|[1-4][0-9])$/.test(path[4])) {
-          exact([]);
-          value = await service.emitInvitationBatchRecipient(req, path[0], path[3], Number(path[4]));
-        } else return fail('INVALID_INPUT');
-      }
-      else if (
-        path.length === 4 &&
-        path[1] === 'invitations' &&
-        path[3] === 'revoke' &&
-        method === 'POST'
-      ) {
-        exact([]);
-        value = await service.revokeInvitation(req, path[0], path[2]);
-      } else if (
-        path.length === 2 &&
-        path[1] === 'leave' &&
-        method === 'POST'
-      ) {
-        exact([]);
-        value = await service.leave(req, path[0]);
-      } else if (
-        path.length === 4 &&
-        path[1] === 'members' &&
-        path[3] === 'remove' &&
-        method === 'POST'
-      ) {
-        exact([]);
-        value = await service.remove(req, path[0], path[2]);
-      } else {
-        json(res, 404, { error: { code: 'INVALID_INPUT' } });
-        return;
-      }
-      json(res, 200, value);
+      json(res, 404, { error: { code: 'INVALID_INPUT' } });
+      return;
     })()
       .catch((e) => {
         const extractionError = extractionHttpError(e);
@@ -414,12 +211,4 @@ export function createClassroomsHandler(
         active--;
       });
   };
-}
-
-function wallQuery(url: URL, kind: 'feed' | 'replies' | 'thread') {
-  try { return parseWallQuery(url.searchParams, kind); } catch { return fail('INVALID_INPUT'); }
-}
-
-function notificationQuery(url: URL) {
-  try { return parseNotificationQuery(url.searchParams); } catch { return fail('INVALID_INPUT'); }
 }

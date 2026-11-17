@@ -8,15 +8,15 @@ import sharp from 'sharp';
 import { withP4Services } from './p4-services.mjs';
 import { transactionDatabase } from '../tests/classroom-ai-database.test.mjs';
 import { homeFixture } from '../tests/foxmind-3d-repository-fixture.test.mjs';
-import { S3Storage } from '../apps/api/src/modules/files/infrastructure/storage.ts';
-import { ClamdScanner } from '../apps/api/src/modules/files/infrastructure/scanner.ts';
-import { FileService } from '../apps/api/src/modules/files/infrastructure/service.ts';
-import { createFileAccess } from '../apps/api/src/modules/files/infrastructure/access.ts';
+import { S3Storage } from '../apps/api/src/modules/files/custody/infrastructure/storage.ts';
+import { ClamdScanner } from '../apps/api/src/modules/files/custody/infrastructure/scanner.ts';
+import { FileService } from '../apps/api/src/modules/files/custody/infrastructure/service.ts';
+import { createFileAccess } from '../apps/api/src/modules/files/custody/infrastructure/access.ts';
 import { createFoxyRuntime } from '../apps/api/src/bootstrap/foxy-runtime.ts';
 import { readAiConfiguration } from '../apps/api/src/platform/ai/configuration.ts';
-import { readFoxyVisualConfiguration } from '../apps/api/src/modules/foxy/infrastructure/visual-configuration.ts';
-import { createGeminiFoxyImageAdapter } from '../apps/api/src/modules/foxy/infrastructure/providers/foxy-image-adapter.ts';
-import { createGeminiFoxyDiagramAdapter } from '../apps/api/src/modules/foxy/infrastructure/providers/foxy-diagram-adapter.ts';
+import { readFoxyVisualConfiguration } from '../apps/api/src/modules/foxy/visuals/infrastructure/visual-configuration.ts';
+import { createGeminiFoxyImageAdapter } from '../apps/api/src/modules/foxy/visuals/infrastructure/providers/foxy-image-adapter.ts';
+import { createGeminiFoxyDiagramAdapter } from '../apps/api/src/modules/foxy/visuals/infrastructure/providers/foxy-diagram-adapter.ts';
 
 async function main() {
   const arg = process.argv.find(x => x.startsWith('--attempt-id='));

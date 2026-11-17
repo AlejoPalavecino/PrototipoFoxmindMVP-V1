@@ -3,12 +3,12 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { withAgendaDatabase } from './agenda-database-helpers.test.mjs';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
-const { privateHomeEvents } = loadTsModule('apps/api/src/modules/home/infrastructure/private-events.ts');
-const { duePrivateAgendaNotices } = loadTsModule('apps/api/src/modules/agenda/infrastructure/due-notices.ts');
-const { createPrivateEventRepository } = loadTsModule('apps/api/src/modules/agenda/infrastructure/event-repository.ts');
-const { notificationPage, readAllVisibleNotifications } = loadTsModule('apps/api/src/modules/home/infrastructure/notification-page.ts');
-const { setProjectedNotificationRead } = loadTsModule('apps/api/src/modules/home/infrastructure/notification-projections.ts');
-import { notificationSelection } from '../apps/api/src/modules/communication/infrastructure/notification-selection.ts';
+const { privateHomeEvents } = loadTsModule('apps/api/src/modules/home/dashboard/infrastructure/private-events.ts');
+const { duePrivateAgendaNotices } = loadTsModule('apps/api/src/modules/agenda/events/infrastructure/due-notices.ts');
+const { createPrivateEventRepository } = loadTsModule('apps/api/src/modules/agenda/events/infrastructure/event-repository.ts');
+const { notificationPage, readAllVisibleNotifications } = loadTsModule('apps/api/src/modules/home/notifications/infrastructure/notification-page.ts');
+const { setProjectedNotificationRead } = loadTsModule('apps/api/src/modules/home/notifications/infrastructure/notification-projections.ts');
+import { notificationSelection } from '../apps/api/src/modules/home/notifications/infrastructure/notification-selection.ts';
 
 test('unified inbox applies type before pagination and guards reads, revocation, and ownership', { timeout: 90_000 }, async () => {
   await withAgendaDatabase(async ({ transaction }) => transaction(async ({ query }) => {

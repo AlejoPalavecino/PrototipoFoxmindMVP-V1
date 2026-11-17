@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { withAiDatabase, rollbackCase, aiFixture } from './classroom-ai-database.test.mjs';
-import { FileStore } from '../.build/api/apps/api/src/modules/files/infrastructure/store.js';
-import { ClassroomService } from '../.build/api/apps/api/src/bootstrap/academic-composition.js';
+import { FileStore } from '../.build/api/apps/api/src/modules/files/custody/infrastructure/store.js';
+import { ClassroomService } from './helpers/academic-fixture.ts';
 
 test('aula con plan manual persiste sin archivo, plan vacío y archivo pendiente se rechazan atómicamente', { timeout: 120000 }, async t => {
   await withAiDatabase(async ({ pool }) => {

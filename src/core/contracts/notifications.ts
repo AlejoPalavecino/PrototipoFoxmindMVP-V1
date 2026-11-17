@@ -1,6 +1,6 @@
 import type { WallTarget } from './communication.ts';
 
-export type { ClassroomNotification, InboxNotification, NotificationKind, NotificationPage } from '../domain/index.ts';
+export type { ClassroomNotification, InboxNotification, NotificationKind, NotificationPage } from '../domain/home/notifications.ts';
 
 export type AcademicTarget = { kind: 'activity' | 'attempt' | 'submission' | 'grade'; classroomId: string; activityId: string; attemptId: string | null; gradeId?: string; mode?:'respond' };
 

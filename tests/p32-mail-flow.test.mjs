@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { NestFactory } from '@nestjs/core';
 import { MailModule } from '../.build/api/apps/api/src/bootstrap/identity-mail.module.js';
-import { AccountMailService } from '../.build/api/apps/api/src/modules/identity/infrastructure/mail/account-mail.service.js';
-import { readMailConfiguration } from '../.build/api/apps/api/src/modules/identity/infrastructure/mail/configuration.js';
+import { AccountMailService } from '../.build/api/apps/api/src/bootstrap/identity-mail.module.js';
+import { readMailConfiguration } from '../.build/api/apps/api/src/modules/identity/mail-delivery/infrastructure/mail/configuration.js';
 import { withMailpit } from '../scripts/mailpit-test-runtime.mjs';
 
 // Real SMTP and public inbox API; fixtures are not issued account tokens.

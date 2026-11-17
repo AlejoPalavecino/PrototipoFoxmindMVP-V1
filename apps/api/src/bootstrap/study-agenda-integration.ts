@@ -1,9 +1,9 @@
 import { expandAgendaEvent, localMinuteAt } from '../../../../src/core/domain/agenda/index.ts';
 import { shiftDate } from '../../../../src/core/domain/agenda/values.ts';
 import {randomUUID} from 'node:crypto';
-import { createPrivateEventRepository } from '../modules/agenda/infrastructure/event-repository.ts';
+import { createPrivateEventRepository } from '../modules/agenda/events/infrastructure/event-repository.ts';
 import type { StudyOptions } from '../modules/study/application/contracts.ts';
-import { studySessionEvent } from '../modules/study/infrastructure/folders/reminders/session-event.ts';
+import { studySessionEvent } from '../modules/study/reviews/infrastructure/session-event.ts';
 
 function fail(code='INVALID_INPUT'):never{throw Object.assign(new Error(code),{code});}
 export function createStudyAgendaIntegration():NonNullable<StudyOptions['agenda']> {

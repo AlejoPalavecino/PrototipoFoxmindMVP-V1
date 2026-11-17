@@ -9,6 +9,8 @@ export interface AiTextMetric {
 interface Options {
   profile: AiTextProfile; transport: AiTextTransport; request: AiTextRequest; signal?: AbortSignal;
   authorize?: () => Promise<void>; reserve?: (tokens: number) => Promise<void>; onDispatch?: () => void;
+  /** Interruptible caller pause; unlike a real SQL reservation, no commit needs draining here. */
+  preflight?: (tokens: number) => Promise<void>;
   record?: (event: AiTextMetric) => void; now?: () => number;
 }
 const preserved = new Set(['AI_UNAVAILABLE', 'AI_INPUT_LIMIT', 'AI_RATE_LIMITED', 'INVALID_AI_OUTPUT',
@@ -26,7 +28,7 @@ export async function executeAiText(options: Options): Promise<AiTextResult> {
   const check = () => {
     if (signal.aborted || !Number.isFinite(now()) || now() >= deadline) throw executionFailure(dispatched ? 'PROVIDER_OUTCOME_UNKNOWN' : 'AI_TIMEOUT');
   };
-  const bounded = async <T>(operation: () => Promise<T>): Promise<T> => {
+  const bounded = async <T>(operation: () => Promise<T>, keepProcessAlive = true): Promise<T> => {
     check();
     let abort: (() => void) | undefined;
     const interrupted = new Promise<never>((_, reject) => {
@@ -34,9 +36,9 @@ export async function executeAiText(options: Options): Promise<AiTextResult> {
       signal.addEventListener('abort', abort, { once: true });
       if (signal.aborted) abort();
     });
-    const keepAlive = setTimeout(() => {}, Math.max(1, deadline - now()));
+    const keepAlive = keepProcessAlive ? setTimeout(() => {}, Math.max(1, deadline - now())) : undefined;
     try { const result = await Promise.race([operation(), interrupted]); check(); return result; }
-    finally { clearTimeout(keepAlive); if (abort) signal.removeEventListener('abort', abort); }
+    finally { if (keepAlive) clearTimeout(keepAlive); if (abort) signal.removeEventListener('abort', abort); }
   };
   const normalize = (error: unknown) => {
     const value = error as { code?: unknown; status?: unknown } | null;
@@ -58,6 +60,7 @@ export async function executeAiText(options: Options): Promise<AiTextResult> {
     const count = await measure('count', () => options.transport.count(input()));
     if (!countValid(count) || count < 1) throw executionFailure();
     if (count > profile.maxInputTokens) throw executionFailure('AI_INPUT_LIMIT');
+    if (options.preflight) await bounded(() => options.preflight!(count), false);
     // A reservation can commit after its Promise has lost a cancellation race.
     // Drain this bounded database hook before the caller settles/releases it.
     check(); await options.reserve?.(count); check();

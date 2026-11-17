@@ -2,20 +2,20 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { ApiConfiguration } from './configuration.ts';
 import type { PrismaService } from '../platform/database/prisma.service.ts';
 import type { IdentityRuntime } from './identity-runtime.ts';
-import type { FileService } from '../modules/files/infrastructure/service.ts';
+import type { FileService } from '../modules/files/custody/infrastructure/service.ts';
 import type { AiRuntimeOverride } from './academic-curriculum-ai-runtime.ts';
 import { createStudyService } from './study-composition.ts';
 import { createStudyAuthentication } from './study-transport.ts';
 import { createStudyFileIntegration } from './study-file-integration.ts';
 import { createFoxyAuthentication } from './foxy-host.ts';
-import { inspectContent } from '../modules/files/infrastructure/content.ts';
-import { createChatAttachmentService } from '../modules/files/infrastructure/chat-attachment-service.ts';
+import { inspectContent } from '../modules/files/custody/infrastructure/content.ts';
+import { createChatAttachmentService } from '../modules/files/custody/infrastructure/chat-attachment-service.ts';
 import { createStudyAgendaIntegration } from './study-agenda-integration.ts';
-import { createStudyReminderRuntime } from '../modules/study/infrastructure/folders/reminders/runtime.ts';
+import { createStudyReminderRuntime } from '../modules/study/reviews/infrastructure/runtime.ts';
 import { executeStudy, generateDevelopmentFeedback } from '../../../../src/core/domain/study/engine.ts';
-import type { StudyInput, StudyProvider, StudyPractice, StudyAnswers } from '../../../../src/core/domain/study/engine.ts';
-import { createGeminiStudyProvider } from '../modules/study/infrastructure/providers/study-adapter.ts';
-import { readSessionCookie } from '../modules/identity/presentation/transport.ts';
+import type { StudyProvider } from '../../../../src/core/domain/study/engine.ts';
+import { createGeminiStudyProvider } from '../modules/study/generation/infrastructure/providers/study-adapter.ts';
+import { readSessionCookie } from '../modules/identity/accounts/presentation/transport.ts';
 
 export const STUDY_RUNTIME = 'StudyRuntime';
 export interface StudyRuntimeOptions {
@@ -43,8 +43,8 @@ export function createStudyRuntime(database: PrismaService, identity: IdentityRu
     return createGeminiStudyProvider(configuration.ai, database, context.ownerId, context.requestId, context.authorize);
   };
   const service = createStudyService({ database, authenticate, files: fileBridge.port, agenda: createStudyAgendaIntegration(),
-    generate: (input, context) => executeStudy(input as StudyInput, provider(context)),
-    feedback: (input, context) => generateDevelopmentFeedback(input.practice as StudyPractice, input.answers as StudyAnswers, input.sources, provider(context)) });
+    generate: (input, context) => executeStudy(input, provider(context)),
+    feedback: (input, context) => generateDevelopmentFeedback(input.practice, input.answers, input.sources, provider(context)) });
   const reminders = createStudyReminderRuntime({ database, authenticate });
   const admit = async (request: IncomingMessage, response: ServerResponse) => {
     void response;

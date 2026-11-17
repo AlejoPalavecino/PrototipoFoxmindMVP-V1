@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { Socket } from 'node:net';
 import { setTimeout as delay } from 'node:timers/promises';
 import test from 'node:test';
-import { AccountMailService } from '../.build/p33-mail/apps/api/src/modules/identity/infrastructure/mail/account-mail.service.js';
+import { AccountMailService } from '../.build/p33-mail/apps/api/src/bootstrap/identity-mail.module.js';
 import { createSmtpFixture } from '../scripts/mail-smtp-fixture.mjs';
 
 const input = { to: 'Cancellation@example.test', token: Buffer.alloc(32, 31).toString('base64url') };

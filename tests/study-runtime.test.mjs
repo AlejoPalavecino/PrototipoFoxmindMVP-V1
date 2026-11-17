@@ -23,16 +23,16 @@ function fixture(t) {
     './study-transport.ts': { createStudyAuthentication(value) { assert.equal(value, security); return authenticate; } },
     './study-file-integration.ts': { createStudyFileIntegration(value, options) { assert.equal(value, files); captures.files = options; return bridge; } },
     './foxy-host.ts': { createFoxyAuthentication(value) { assert.equal(value, security); return 'teacher-authenticate'; } },
-    '../modules/files/infrastructure/content.ts': { inspectContent: 'inspect-content' },
-    '../modules/files/infrastructure/chat-attachment-service.ts': { createChatAttachmentService(options) { captures.attachments = options; return attachments; } },
+    '../modules/files/custody/infrastructure/content.ts': { inspectContent: 'inspect-content' },
+    '../modules/files/custody/infrastructure/chat-attachment-service.ts': { createChatAttachmentService(options) { captures.attachments = options; return attachments; } },
     './study-agenda-integration.ts': { createStudyAgendaIntegration() { return agenda; } },
-    '../modules/study/infrastructure/folders/reminders/runtime.ts': { createStudyReminderRuntime(options) { captures.reminders = options; return reminders; } },
+    '../modules/study/reviews/infrastructure/runtime.ts': { createStudyReminderRuntime(options) { captures.reminders = options; return reminders; } },
     '../../../../src/core/domain/study/engine.ts': {
       executeStudy(input, provider) { return provider.generate(input); },
       generateDevelopmentFeedback(practice, answers, sources, provider) { return provider.generate({ practice, answers, sources }); },
     },
-    '../modules/study/infrastructure/providers/study-adapter.ts': { createGeminiStudyProvider(...args) { captures.gemini = args; return { async generate(input) { return { synthetic: input }; } }; } },
-    '../modules/identity/presentation/transport.ts': { readSessionCookie(cookie) { calls.push(['cookie', cookie]); return cookie ? { verifier: 'synthetic-verifier' } : {}; } },
+    '../modules/study/generation/infrastructure/providers/study-adapter.ts': { createGeminiStudyProvider(...args) { captures.gemini = args; return { async generate(input) { return { synthetic: input }; } }; } },
+    '../modules/identity/accounts/presentation/transport.ts': { readSessionCookie(cookie) { calls.push(['cookie', cookie]); return cookie ? { verifier: 'synthetic-verifier' } : {}; } },
   } });
   t.after(async () => { for (const runtime of runtimes) await runtime.close(); });
   return { timers, calls, captures, database, identity, files, authenticate, actor, bridge, agenda, attachments, reminders,

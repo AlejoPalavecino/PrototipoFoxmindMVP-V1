@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-const snapshot = async input => (await import("../apps/api/src/modules/grading/infrastructure/grading-ai/snapshot.ts")).createGradingAiSnapshot(input);
+const snapshot = async input => (await import("../apps/api/src/modules/grading/assistance/infrastructure/grading-ai/snapshot.ts")).createGradingAiSnapshot(input);
 test('written practical evidence is retained separately from instructions and participates in the snapshot hash',async()=>{
  const input=data();input.activity.type='ASSIGNMENT';input.activity.questions=[];input.attempt.practicalResponse='Explicación propia\n😀';
  const result=await snapshot(input);assert.equal(result.evidence.practicalResponse,input.attempt.practicalResponse);assert.equal(result.evidence.instructions.includes(input.attempt.practicalResponse),false);

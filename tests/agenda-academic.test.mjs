@@ -34,7 +34,7 @@ async function seed(query, createAcademicAgenda) {
   return { actor, teacherActor, other, pupil, rooms, activity, port, query };
 }
 test('academic agenda derives real obligations and current access without academic writes', { timeout: 60000 }, async t => {
-  const { createAcademicAgenda } = loadTsModule("apps/api/src/modules/classrooms/infrastructure/agenda.ts");
+  const { createAcademicAgenda } = loadTsModule("apps/api/src/modules/classrooms/academic-projection/infrastructure/agenda.ts");
   assert.equal(typeof createAcademicAgenda, 'function');
   await withAgendaDatabase(async ({ pool, transaction }) => {
     const check = (name, run) => t.test(name, async () => transaction(async ({ query }) => run(await seed(query, createAcademicAgenda))));

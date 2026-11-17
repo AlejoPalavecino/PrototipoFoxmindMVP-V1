@@ -2,9 +2,9 @@ import "reflect-metadata";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { NestFactory } from "@nestjs/core";
-import { AccountMailService } from '../.build/api/apps/api/src/modules/identity/infrastructure/mail/account-mail.service.js';
+import { AccountMailService } from '../.build/api/apps/api/src/bootstrap/identity-mail.module.js';
 import { MailModule } from '../.build/api/apps/api/src/bootstrap/identity-mail.module.js';
-import { readMailConfiguration } from '../.build/api/apps/api/src/modules/identity/infrastructure/mail/configuration.js';
+import { readMailConfiguration } from '../.build/api/apps/api/src/modules/identity/mail-delivery/infrastructure/mail/configuration.js';
 import { createSmtpFixture, readMimeParts } from "../scripts/mail-smtp-fixture.mjs";
 
 // Synthetic public fixtures only; never load account state or environment secrets.

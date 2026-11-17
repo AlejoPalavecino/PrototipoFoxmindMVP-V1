@@ -1,10 +1,10 @@
 import { createHash } from 'node:crypto';
-import { LibraryService as Application } from '../modules/materials/application/library.ts';
-import { createLibraryRepository } from '../modules/materials/infrastructure/library-repository.ts';
-import { createMaterialPublisher } from '../modules/materials/application/library-publication.ts';
-import { createMaterialPublicationRepository } from '../modules/materials/infrastructure/publication-repository.ts';
-import { createReadyClassroomFile } from '../modules/materials/infrastructure/classroom-file.ts';
-import { advanceClassroomRevision } from '../modules/classrooms/infrastructure/revision.ts';
+import { LibraryService as Application } from '../modules/materials/library/application/library.ts';
+import { createLibraryRepository } from '../modules/materials/library/infrastructure/library-repository.ts';
+import { createMaterialPublisher } from '../modules/materials/publication/application/library-publication.ts';
+import { createMaterialPublicationRepository } from '../modules/materials/publication/infrastructure/publication-repository.ts';
+import { createReadyClassroomFile } from '../modules/materials/publication/infrastructure/classroom-file.ts';
+import { advanceClassroomRevision } from '../modules/classrooms/access/infrastructure/revision.ts';
 import type { ClassroomFileOperations } from '../modules/materials/public.ts';
 import type { FileCustodyPort } from '../modules/files/public.ts';
 import { randomUUID } from 'node:crypto';

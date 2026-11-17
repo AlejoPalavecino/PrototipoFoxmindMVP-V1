@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { repository } from '../.build/api/apps/api/src/modules/grading/infrastructure/progress-repository.js';
+import { repository } from '../.build/api/apps/api/src/modules/grading/progress/infrastructure/progress-repository.js';
 import { ProgressService } from '../.build/api/apps/api/src/bootstrap/academic-grading-composition.js';
 
 test('progress groups 200 students and 100 activities in linear passes with exact results', async () => {

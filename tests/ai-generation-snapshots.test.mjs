@@ -2,8 +2,8 @@ import test, { mock } from 'node:test';
 import assert from 'node:assert/strict';
 
 const paths = {
-  curriculum: '../apps/api/src/modules/curriculum/infrastructure/ai/',
-  activities: '../apps/api/src/modules/activities/infrastructure/activity-ai/',
+  curriculum: '../apps/api/src/modules/curriculum/generation/infrastructure/ai/',
+  activities: '../apps/api/src/modules/activities/generation/infrastructure/activity-ai/',
 };
 const states = {};
 for (const [task, path] of Object.entries(paths)) {

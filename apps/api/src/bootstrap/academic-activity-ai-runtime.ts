@@ -1,12 +1,12 @@
-import { createDurableActivitySourceReader } from '../modules/files/infrastructure/activity-source-reader.ts';
-import { type FileService } from '../modules/files/infrastructure/service.ts';
-import { createGeminiActivityGenerationAdapter } from '../modules/activities/infrastructure/providers/activity-adapter.ts';
+import { createDurableActivitySourceReader } from '../modules/files/custody/infrastructure/activity-source-reader.ts';
+import { type FileService } from '../modules/files/custody/infrastructure/service.ts';
+import { createGeminiActivityGenerationAdapter } from '../modules/activities/generation/infrastructure/providers/activity-adapter.ts';
 import { type AiConfiguration } from '../platform/ai/configuration.ts';
-import type { StructuredActivityGenerationPort } from '../../../../src/core/domain/index.ts';
-import type { ActivityAiAccess } from '../modules/activities/infrastructure/activity-ai/contracts.ts';
-import { ActivityAiService } from '../modules/activities/infrastructure/activity-ai/service.ts';
-import { ActivityAiWorker } from '../modules/activities/infrastructure/activity-ai/worker.ts';
-import type { ClassroomAiConfiguration } from '../modules/curriculum/application/ai-contracts.ts';
+import type { StructuredActivityGenerationPort } from '../../../../src/core/domain/activities/activity-generation.ts';
+import type { ActivityAiAccess } from '../modules/activities/generation/infrastructure/activity-ai/contracts.ts';
+import { ActivityAiService } from '../modules/activities/generation/infrastructure/activity-ai/service.ts';
+import { ActivityAiWorker } from '../modules/activities/generation/infrastructure/activity-ai/worker.ts';
+import type { ClassroomAiConfiguration } from '../modules/curriculum/generation/application/ai-contracts.ts';
 export class ActivityAiRuntime {
   readonly service: ActivityAiService;
   readonly worker: ActivityAiWorker;

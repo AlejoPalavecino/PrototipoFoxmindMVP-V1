@@ -4,7 +4,7 @@ import { Worker } from 'node:worker_threads';
 import { PDFDocument } from 'pdf-lib';
 import { office } from './p4-fixtures.mjs';
 
-const workerEntry = new URL("../apps/api/src/modules/files/infrastructure/activity-document-worker.ts", import.meta.url).href;
+const workerEntry = new URL("../apps/api/src/modules/files/custody/infrastructure/activity-document-worker.ts", import.meta.url).href;
 const probeEntry = new URL('./fixtures/activity-document-import-probe.test.mjs', import.meta.url);
 
 async function parseWithoutUnrelatedDependencies(bytes, extension) {

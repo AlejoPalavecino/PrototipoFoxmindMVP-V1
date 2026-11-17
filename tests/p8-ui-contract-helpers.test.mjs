@@ -38,7 +38,7 @@ function startFixture(automaticBeforeGesture = false) {
   };
   page.getByRole = (role, options) => {
     assert.equal(role, 'button');
-    assert.equal(options.name, 'Responder actividad');
+    assert.equal(options.name, 'Empezar actividad');
     if (automaticBeforeGesture && !automatic) {
       automatic = true;
       emitStart(429);
@@ -262,4 +262,77 @@ test('a CSRF request initiated before the upload phase cannot authorize a retry 
     assert.deepEqual(waits, []);
     assert.deepEqual(mutations, []);
   } finally { page.off('request', capture); clean(page); }
+});
+
+for (const path of ['/api/v1/unrelated-background', '/api/v1/auth/session']) {
+  test(`questionnaire navigation rejects ${path} 429 without its visible read error`, async () => {
+    const { readFile } = await import('node:fs/promises');
+    const source = await readFile(new URL('./p7-questionnaire-integration.test.mjs', import.meta.url), 'utf8');
+    const start = source.indexOf('const open = async (page, title');
+    const end = source.indexOf('const focusAndSaveQuestion', start);
+    assert.ok(start > 0 && end > start);
+    const page = new EventEmitter(), waits = []; let visits = 0;
+    const locator = new Proxy({}, { get: (_target, key) => key === 'isVisible' ? async () => false
+      : ['getByRole', 'locator', 'filter', 'first'].includes(key) ? () => locator : async () => {} });
+    page.getByRole = page.locator = () => locator;
+    const failure = Object.assign(new Error('Unrelated navigation selector failure'), { name: 'TimeoutError' });
+    const openClassroom = async () => {
+      if (++visits !== 1) return;
+      const req = request(path, 'GET'); page.emit('request', req);
+      page.emit('response', { ...response(req, 429, { error: { code: 'RATE_LIMITED' } }), headers: () => ({ 'retry-after': '1' }) });
+      throw failure;
+    };
+    const open = new Function('assert', 'room', 'runtime', 'quiz', 'evaluation', 'openClassroom', 'delay',
+      `${source.slice(start, end)} return open;`)(assert, { id: 'synthetic-room' }, { origin: 'http://synthetic.test' }, 'quiz', 'evaluation', openClassroom, async ms => waits.push(ms));
+    await assert.rejects(open(page), error => error === failure);
+    assert.equal(visits, 1); assert.deepEqual(waits, []); clean(page);
+  });
+}
+
+for (const scenario of ['previous-phase-response', 'visible-target', 'current-phase-ui-error']) {
+  test(`questionnaire navigation admission is bound to phase and UI: ${scenario}`, async () => {
+    const { readFile } = await import('node:fs/promises');
+    const source = await readFile(new URL('./p7-questionnaire-integration.test.mjs', import.meta.url), 'utf8');
+    const start = source.indexOf('const open = async (page, title'), end = source.indexOf('const focusAndSaveQuestion', start);
+    const page = new EventEmitter(), waits = []; let visits = 0, previous;
+    const failure = Object.assign(new Error('Expected classroom read control did not appear'), { name: 'TimeoutError' });
+    const emitLimited = req => page.emit('response', { ...response(req, 429, { error: { code: 'RATE_LIMITED' } }), headers: () => ({ 'retry-after': '1' }) });
+    const locator = (role, name) => new Proxy({}, { get: (_target, key) => {
+      if (key === 'isVisible') return async () => role === 'alert' || (scenario === 'visible-target' && role === 'link');
+      if (key === 'getByRole') return (next, options = {}) => locator(next, options.name);
+      if (['filter', 'first', 'locator'].includes(key)) return () => locator(role, name);
+      if (key === 'click') return async () => {
+        if (scenario === 'previous-phase-response' && name === 'Actividades') { emitLimited(previous); throw failure; }
+      };
+      return async () => {};
+    } });
+    page.getByRole = (role, options = {}) => locator(role, options.name); page.locator = () => locator('locator');
+    const openClassroom = async () => {
+      visits++;
+      if (visits !== 1) return;
+      previous = request('/api/v1/auth/session', 'GET'); page.emit('request', previous);
+      if (scenario !== 'previous-phase-response') { emitLimited(previous); throw failure; }
+    };
+    const open = new Function('assert', 'room', 'runtime', 'quiz', 'evaluation', 'openClassroom', 'delay',
+      `${source.slice(start, end)} return open;`)(assert, { id: 'synthetic-room' }, { origin: 'http://synthetic.test' }, 'quiz', 'evaluation', openClassroom, async ms => waits.push(ms));
+    if (scenario === 'current-phase-ui-error') {
+      await open(page); assert.equal(visits, 2); assert.deepEqual(waits, [1000]);
+    } else {
+      await assert.rejects(open(page), error => error === failure); assert.equal(visits, 1); assert.deepEqual(waits, []);
+    }
+    clean(page);
+  });
+}
+
+test('destination read watcher ignores a 429 from a GET started before its action phase', async () => {
+  const { watchActionResponse } = await import('./p8-current-ui-helpers.mjs');
+  const page = new EventEmitter(), path = `${root}/attempts/synthetic-attempt/history`;
+  const previous = request(path, 'GET'); page.emit('request', previous);
+  const watcher = watchActionResponse(page, r => r.request().method() === 'GET' && new URL(r.url()).pathname === path, 12000);
+  try {
+    page.emit('response', response(previous, 429, { error: { code: 'RATE_LIMITED' } }));
+    const current = exchange(page, path, 'GET', 200, { attempt: { id: 'synthetic-attempt' } });
+    assert.equal(await watcher.value(), current);
+  } finally { watcher.dispose(); }
+  clean(page);
 });

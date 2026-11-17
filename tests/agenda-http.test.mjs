@@ -7,7 +7,7 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 const payload = { title: 'Clase', description: '', category: 'CLASS',
   schedule: { kind: 'ALL_DAY', startDate: '2026-11-02', endDateExclusive: '2026-11-03' }, repeat: { kind: 'NONE' } };
 async function fixture(run) {
-  const { createAgendaHandler } = loadTsModule("apps/api/src/modules/agenda/presentation/http.ts");
+  const { createAgendaHandler } = loadTsModule("apps/api/src/modules/agenda/events/presentation/http.ts");
   const calls = [], admissions = [], event = { ...payload, id: randomUUID(), revision: '0' };
   let created = true;
   const service = Object.fromEntries(['put', 'get', 'replace', 'remove', 'list', 'upcoming', 'open'].map(name => [name, async (...args) => {

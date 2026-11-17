@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { withAiDatabase, rollbackCase } from './classroom-ai-database.test.mjs';
 import { fixture } from './activity-ai-fixture.test.mjs';
 import { InvitationDeliveryWorker } from '../.build/api/apps/api/src/bootstrap/academic-delivery-composition.js';
-import { readParticipation } from '../.build/api/apps/api/src/modules/home/infrastructure/queries-participation.js';
+import { readParticipation } from '../.build/api/apps/api/src/modules/home/dashboard/infrastructure/queries-participation.js';
 
 async function arrange(local) {
   const f = await fixture(local);

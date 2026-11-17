@@ -6,45 +6,47 @@ import { DatabaseModule } from '../platform/database/database.module.ts';
 import { HealthController } from '../platform/health/health.controller.ts';
 import { IdentityModule } from './identity-identity.module.ts';
 import { IdentityRuntime } from './identity-runtime.ts';
-import { installIdentityTransport } from '../modules/identity/presentation/transport.ts';
-import type { IdentityRuntimePorts } from '../modules/identity/application/runtime.ts';
+import { installIdentityTransport } from '../modules/identity/accounts/presentation/transport.ts';
+import type { IdentityRuntimePorts } from '../modules/identity/accounts/application/runtime.ts';
 import { FilesModule } from './files-files.module.ts';
-import { FileService } from '../modules/files/infrastructure/service.ts';
-import { createFileInfrastructure } from '../modules/files/infrastructure/configuration.ts';
+import { FileService } from '../modules/files/custody/infrastructure/service.ts';
+import { createFileInfrastructure } from '../modules/files/custody/infrastructure/configuration.ts';
 import { installFilesTransport, FileHostLifecycle } from './files-host.ts';
-import type { FileInfrastructure } from '../modules/files/infrastructure/configuration.ts';
+import type { FileInfrastructure } from '../modules/files/custody/infrastructure/configuration.ts';
 import { ClassroomsModule } from './academic-classrooms.module.ts';
-import { ClassroomService } from './academic-composition.ts';
+import { ACADEMIC_RUNTIME, type AcademicRuntime } from './academic-composition.ts';
+import { ACADEMIC_FOXY_ACCESS, type AcademicFoxyAccess } from './academic-consumer-ports.ts';
+import { academicHttpServices } from './academic-http-services.ts';
 import { localInvitationSender } from './academic-delivery-composition.ts';
 import { ClassroomHostLifecycle, installClassroomsTransport } from './academic-host.ts';
-import { LibraryCleanupWorker } from '../modules/materials/infrastructure/library-cleanup.ts';
-import { AgendaService } from '../modules/agenda/application/agenda-service.ts';
+import { LibraryCleanupWorker } from '../modules/materials/library/infrastructure/library-cleanup.ts';
+import { AgendaService } from '../modules/agenda/events/application/agenda-service.ts';
 import { createAgendaUnitOfWork } from './agenda-composition.ts';
 import { createAgendaAuthentication, installAgendaTransport } from './agenda-transport.ts';
 import { PrismaService } from '../platform/database/prisma.service.ts';
 import { ClassroomAiRuntime } from './academic-curriculum-ai-runtime.ts';
 
-import { createHomeService } from '../modules/home/application/service.ts';
-import { createHomeUnitOfWork } from '../modules/home/infrastructure/unit-of-work.ts';
-import type { HomeService } from '../modules/home/application/service.ts';
+import { createHomeService } from '../modules/home/dashboard/application/service.ts';
+import { createHomeUnitOfWork } from '../modules/home/dashboard/infrastructure/unit-of-work.ts';
+import type { HomeService } from '../modules/home/dashboard/application/service.ts';
 import { installHomeTransport } from './home-host.ts';
 
 import { ActivityAiRuntime } from './academic-activity-ai-runtime.ts';
 import { StudentAiRuntime } from './academic-student-runtime.ts';
-import { GradingAiRuntime } from '../modules/grading/infrastructure/grading-ai/runtime.ts';
+import { GradingAiRuntime } from '../modules/grading/assistance/infrastructure/grading-ai/runtime.ts';
 import { createFoxyRuntime, FOXY_RUNTIME } from './foxy-runtime.ts';
 import { createFoxyAuthentication, installFoxyTransport } from './foxy-host.ts';
 import { selectFoxyVisualProviders } from './foxy-visual-host-providers.ts';
-import type { VisualProviders } from '../modules/foxy/application/visual-runtime-contracts.ts';
-import { createGeminiFoxyTextAdapter } from '../modules/foxy/infrastructure/providers/foxy-adapter.ts';
+import type { VisualProviders } from '../modules/foxy/visuals/application/visual-runtime-contracts.ts';
+import { createGeminiFoxyTextAdapter } from '../modules/foxy/turns/infrastructure/providers/foxy-adapter.ts';
 import { initializeAiExecutionPolicy } from '../platform/ai/execution-policy.ts';
 import { createFoxyFileOperations } from './foxy-file-integration.ts';
 import { attachmentIntegration } from './attachment-integration.ts';
 import { createStudyRuntime, STUDY_RUNTIME, type StudyRuntimeOptions } from './study-runtime.ts';
 import { installStudyTransport } from './study-transport.ts';
 import { installChatAttachmentTransport } from './chat-attachment-transport.ts';
-import { installStudyUploads } from '../modules/study/presentation/folders/uploads/http.ts';
-import { installStudyReminders } from '../modules/study/presentation/folders/reminders/http.ts';
+import { installStudyUploads } from '../modules/study/folders/presentation/uploads/http.ts';
+import { installStudyReminders } from '../modules/study/folders/presentation/reminders/http.ts';
 
 export interface ApplicationOptions extends StudyRuntimeOptions { readonly identity?: IdentityRuntimePorts; readonly foxy?: { textProvider?: Parameters<typeof createFoxyRuntime>[0]['provider']; visualProviders?: { IMAGE?: VisualProviders['IMAGE']; DIAGRAM?: VisualProviders['DIAGRAM'] } } }
 
@@ -102,9 +104,9 @@ class AppModule implements OnModuleDestroy {
           ? [ClassroomsModule.integrated(database, identity, files, configuration.classrooms, invitationSender, configuration.ai, options.ai)] : [])],
       controllers: [HealthController],
       providers: [...(configuration.classrooms && files ? [{provide:STUDY_RUNTIME,inject:[PrismaService,IdentityRuntime,FileService],
-        useFactory:(database:PrismaService,identity:IdentityRuntime,files:FileService)=>createStudyRuntime(database,identity,files,configuration,options)}, { provide: FOXY_RUNTIME, inject: [PrismaService, IdentityRuntime, FileService, ClassroomService],
-        useFactory: (database: PrismaService, identity: IdentityRuntime, files: FileService, classrooms: ClassroomService) =>
-          createFoxyRuntime({ database, fileOperations: createFoxyFileOperations(files), classrooms: { run: classrooms.run, classroom: classrooms.classroom }, storage: { remove: key => infrastructure!.storage.remove(key) }, authenticate: createFoxyAuthentication(identity.configuration.security),
+        useFactory:(database:PrismaService,identity:IdentityRuntime,files:FileService)=>createStudyRuntime(database,identity,files,configuration,options)}, { provide: FOXY_RUNTIME, inject: [PrismaService, IdentityRuntime, FileService, ACADEMIC_FOXY_ACCESS],
+        useFactory: (database: PrismaService, identity: IdentityRuntime, files: FileService, classrooms: AcademicFoxyAccess) =>
+          createFoxyRuntime({ database, fileOperations: createFoxyFileOperations(files), classrooms, storage: { remove: key => infrastructure!.storage.remove(key) }, authenticate: createFoxyAuthentication(identity.configuration.security),
             configuration: foxyConfiguration(configuration.ai), provider: foxyProvider(configuration.ai, options),
             providerForExecution: configuration.ai && options.ai === undefined && !Object.hasOwn(options.foxy ?? {}, 'textProvider')
               ? pinned => createGeminiFoxyTextAdapter({ ...configuration.ai!, ...pinned }) : undefined,
@@ -134,7 +136,7 @@ export async function createApplication(configuration: ApiConfiguration, options
     installAgendaTransport(app, identity, app.get(AgendaService));
     installHomeTransport(app, identity, app.get<HomeService>('HomeService'));
     if (configuration.files) installFilesTransport(app, identity, app.get(FileService));
-    if (configuration.classrooms) installClassroomsTransport(app, identity, app.get(ClassroomService),
+    if (configuration.classrooms) installClassroomsTransport(app, identity, academicHttpServices(app.get<AcademicRuntime>(ACADEMIC_RUNTIME)),
       { ai: configuration.ai ? app.get(ClassroomAiRuntime).service : undefined,
         activityAi: configuration.ai ? app.get(ActivityAiRuntime).service : undefined });
     if (configuration.classrooms && configuration.files) installFoxyTransport(app, identity, app.get<ReturnType<typeof createFoxyRuntime>>(FOXY_RUNTIME).services);

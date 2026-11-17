@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { withAiDatabase, aiFixture } from './classroom-ai-database.test.mjs';
 
-const ai = () => Promise.all([import("../apps/api/src/modules/curriculum/infrastructure/ai/service.ts"),import("../apps/api/src/modules/curriculum/infrastructure/ai/worker.ts")]).then(([m0,m1]) => Object.freeze({ClassroomAiService: m0.ClassroomAiService,ClassroomAiWorker: m1.ClassroomAiWorker}));
+const ai = () => Promise.all([import("../apps/api/src/modules/curriculum/generation/infrastructure/ai/service.ts"),import("../apps/api/src/modules/curriculum/generation/infrastructure/ai/worker.ts")]).then(([m0,m1]) => Object.freeze({ClassroomAiService: m0.ClassroomAiService,ClassroomAiWorker: m1.ClassroomAiWorker}));
 const units = [{ name: 'Luz', topics: [{ name: 'Exposición' }] }];
 const configuration = { model: 'gemini-test-fixture', maxInputTokens: 100000, maxOutputTokens: 16384,
   deadlineMs: 1000, maxDispatches: 2, maxJobAgeMs: 300000, maxConcurrency: 2,

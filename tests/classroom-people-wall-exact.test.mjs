@@ -92,7 +92,7 @@ test('sticky settings submit remains disabled outside the fieldset for archived 
 });
 
 test('members student projection distinguishes homonyms without leaking peer IDs, emails or periods', async () => {
-  const { membersOperation }=loadTsModule('apps/api/src/modules/classrooms/infrastructure/memberships-operations-2.ts');
+  const { membersOperation }=loadTsModule('apps/api/src/bootstrap/academic-management-composition.ts');
   const rows=['self','other','former'].map((id,i)=>({student_id:id,enrollment_id:id,first_name:'Alex',last_name:'Prueba',email:id+'@example.test',active:i<2}));
   let queries=0;
   const capability={run:async(request,_write,fn)=>fn({query:async()=>{queries++;return rows;}},{id:request}),

@@ -70,7 +70,7 @@ test('original stress generator and fixed-SHA diagnostic preserve bytes except c
       // remains protected by the original SHA, including payloads and resource limits.
       let source = bytes.toString('utf8');
       for (const prefix of ['../', '']) {
-        const canonical = `"${prefix}.build/api/apps/api/src/modules/files/infrastructure/content-worker.js"`;
+        const canonical = `"${prefix}.build/api/apps/api/src/modules/files/custody/infrastructure/content-worker.js"`;
         assert.equal(source.split(canonical).length - 1, 1, 'exactly one worker address per literal');
         source = source.replace(canonical, `'${prefix}.build/api/apps/api/src/files/content-worker.js'`);
       }

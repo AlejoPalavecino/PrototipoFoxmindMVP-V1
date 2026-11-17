@@ -5,9 +5,9 @@ import {loadTsModule} from './helpers/load-ts-module.mjs';
 const {createTextDocument}=loadTsModule('apps/shared-ui/text-document.ts');
 import { createServer } from 'node:http';
 import { withP5Database } from '../scripts/p5-database.mjs';
-import { FileStore } from '../.build/api/apps/api/src/modules/files/infrastructure/store.js';
-import { createFileAccess } from '../.build/api/apps/api/src/modules/files/infrastructure/access.js';
-import { ClassroomService } from '../.build/api/apps/api/src/bootstrap/academic-composition.js';
+import { FileStore } from '../.build/api/apps/api/src/modules/files/custody/infrastructure/store.js';
+import { createFileAccess } from '../.build/api/apps/api/src/modules/files/custody/infrastructure/access.js';
+import { ClassroomService } from './helpers/academic-fixture.ts';
 import { createClassroomsHandler } from '../.build/api/apps/api/src/bootstrap/academic-http.js';
 
 test('P6 Library scoped publication, metadata, private files and durable explicit deletion', { timeout: 120000 }, async t => {
@@ -104,7 +104,7 @@ test('P6 Library scoped publication, metadata, private files and durable explici
       assert.equal((await pool.query('SELECT count(*)::int AS n FROM materials WHERE file_id=$1', [id])).rows[0].n, 1);
     });
     await t.test('explicit deletion revokes reads immediately, retries durably and releases quota only after confirmed blob removal', async () => {
-      const { LibraryCleanupWorker } = await import("../.build/api/apps/api/src/modules/materials/infrastructure/library-cleanup.js");
+      const { LibraryCleanupWorker } = await import("../.build/api/apps/api/src/modules/materials/library/infrastructure/library-cleanup.js");
       await deny(T, { action: 'delete', id: material, confirm: false }, 'INVALID_INPUT');
       await pool.query('DELETE FROM activity_materials WHERE activity_id=$1', [linked]);
       const usage = async () => BigInt(await files.transaction(tx => files.usage(tx, { kind: 'classroom', id: room })));
@@ -149,7 +149,7 @@ test('P6 Library scoped publication, metadata, private files and durable explici
       await assert.rejects(pool.query('UPDATE materials SET file_id=$2 WHERE id=$1', [material, await makeFile()]));
     });
     await t.test('shared file references forbid deletion; concurrent workers lease one object and shutdown drains it', async () => {
-      const { LibraryCleanupWorker } = await import("../.build/api/apps/api/src/modules/materials/infrastructure/library-cleanup.js");
+      const { LibraryCleanupWorker } = await import("../.build/api/apps/api/src/modules/materials/library/infrastructure/library-cleanup.js");
       const second = (await service.listMaterials(S, room))[0], shared = randomUUID();
       await pool.query(`INSERT INTO materials(id,updated_at,classroom_id,title,file_id,created_by_id)
         VALUES($1,now(),$2,'Historical shared reference',$3,$4)`, [shared, room, second.fileId, teacher]);
@@ -187,7 +187,7 @@ test('P6 Library scoped publication, metadata, private files and durable explici
       const list=await service.listMaterials(S,room);assert.equal(list.length,before+1);
       assert.equal(list.find(m=>m.id===entry.id).supersededBy,result.materialId);
       assert.equal(list.find(m=>m.id===result.materialId).body,newBody);
-      const {loadSources}=await import("../.build/api/apps/api/src/modules/foxy/infrastructure/context-sources.js");
+      const {loadSources}=await import("../.build/api/apps/api/src/modules/foxy/turns/infrastructure/context-sources.js");
       const sources=await loadSources({query:async(sql,...args)=>(await pool.query(sql,args)).rows},room,{kind:'MATERIAL',limit:100});
       assert.equal(sources.items.some(m=>m.sourceId===`material:${entry.id}`),false);
       assert.ok(sources.items.some(m=>m.sourceId===`material:${result.materialId}`));

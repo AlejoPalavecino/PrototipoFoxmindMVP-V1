@@ -11,9 +11,12 @@ test('Plan actual sessions preserve teaching progress, private historical versio
   await openClassroom(T.page,runtime.origin,'P9 plan-reference classroom');await selectClassroomSection(T.page,'plan','Plan');
   assert.equal(await T.page.getByText('Administrar plan',{exact:false}).count(),0);
   const saved=T.page.waitForResponse(r=>new URL(r.url()).pathname===`/api/v1${root}/plan`&&r.request().method()==='POST');
-  await T.page.getByRole('checkbox',{name:`Marcar como dado: ${topic.name}`,exact:true}).click();assert.equal((await saved).status(),200);await T.page.getByText('Tema marcado como dado.',{exact:true}).waitFor();assert.equal(await T.page.getByRole('checkbox',{name:`Marcar como dado: ${topic.name}`,exact:true}).isChecked(),true);
+  void saved.catch(()=>{});
+  const selectedTopic=T.page.getByRole('region',{name:'Tema seleccionado',exact:true});
+  await selectedTopic.getByRole('heading',{name:topic.name,exact:true}).waitFor();
+  await selectedTopic.getByRole('button',{name:'Marcar como dado',exact:true}).click();assert.equal((await saved).status(),200);await T.page.getByText('Tema marcado como dado.',{exact:true}).waitFor();assert.equal(await selectedTopic.getByRole('button',{name:'Marcar como pendiente',exact:true}).getAttribute('aria-pressed'),'true');
   assert.equal((await detail()).units[0].topics[0].status,'TAUGHT');
-  await openClassroom(S.page,runtime.origin,'P9 plan-reference classroom');await selectClassroomSection(S.page,'plan','Plan');assert.equal(await S.page.getByRole('checkbox',{name:`Marcar como dado: ${topic.name}`,exact:true}).count(),0);
+  await openClassroom(S.page,runtime.origin,'P9 plan-reference classroom');await selectClassroomSection(S.page,'plan','Plan');assert.equal(await S.page.getByRole('region',{name:'Tema seleccionado',exact:true}).getByRole('button',{name:/^Marcar como (dado|pendiente)$/}).count(),0);
   const bytes=await planPdf('Historical second version'),file=await upload(T.page,{kind:'classroom',id:room.id},bytes,'plan','second-plan.pdf');
   await seedPlan(runtime.db.query.bind(runtime.db),room.id,{action:'appendVersion',fileId:file.id});
   const versions=(await detail()).plans;assert.deepEqual(versions.map(item=>item.version),[2,1]);assert.equal((await request(S.page,'GET',`/files/${file.id}/content`)).digest,digest(bytes));assert.equal((await request(S.page,'GET',`/files/${room.fileId}/content`)).digest,digest(room.bytes));

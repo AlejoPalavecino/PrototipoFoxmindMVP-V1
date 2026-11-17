@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ClassroomService } from '../.build/api/apps/api/src/bootstrap/academic-composition.js';
+import { ClassroomService } from './helpers/academic-fixture.ts';
 import { randomUUID } from 'node:crypto';
 import { withGradingFixture, tableHash, gradingTables, saveComplete, publish, resubmit, safeResult, exactActivity } from './p8-publication-helpers.mjs';
 

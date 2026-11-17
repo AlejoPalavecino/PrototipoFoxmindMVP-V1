@@ -73,10 +73,10 @@ import { spawnSync } from 'node:child_process';
 const slice06 = [
   'src/core/domain/grading/grading-ai.ts',
   ...['enqueue','provider','runtime','snapshot','snapshot-sql','sql-queue'].map(x => `apps/api/src/modules/grading/infrastructure/grading-ai/${x}.ts`),
-  ...['grading-ai-attachment-reader','durable-grading-ai-attachment-reader','durable-grading-ai-instruction-reader'].map(x => `apps/api/src/modules/files/infrastructure/${x}.ts`),
+  ...['grading-ai-attachment-reader','durable-grading-ai-attachment-reader','durable-grading-ai-instruction-reader'].map(x => `apps/api/src/modules/files/custody/infrastructure/${x}.ts`),
   ...['attachment-reader','before-count','contract','durable-reader','enqueue','instruction-reader','provider','runtime','snapshot','sql'].map(x => `tests/grading-ai-${x}.test.mjs`),
 ];
-const finalSlice = [...slice06, 'apps/api/src/modules/grading/application/grading-ai/service.ts', 'tests/grading-ai-api.test.mjs',
+const finalSlice = [...slice06, 'apps/api/src/modules/grading/assistance/application/grading-ai/service.ts', 'tests/grading-ai-api.test.mjs',
   'tests/grading-ai-preflight.test.mjs', 'tests/grading-ai-lifecycle.test.mjs',
   'tests/grading-ai-integration.test.mjs', 'tests/grading-ai-files-integration.test.mjs', 'odd/tasks/grading-ai-issue-2.md'];
 async function runSuiteBlock(files, simulateTimeout = false) {
@@ -159,7 +159,7 @@ test('Next build is supervised by 180s and propagates timeout', async () => {
 });
 
 test('instruction reader slice fails closed if its required sensitive-file test is absent', async () => {
-  const reader = 'apps/api/src/modules/files/infrastructure/durable-grading-ai-instruction-reader.ts';
+  const reader = 'apps/api/src/modules/files/custody/infrastructure/durable-grading-ai-instruction-reader.ts';
   const proof = 'tests/grading-ai-instruction-reader.test.mjs';
   const partial = await runSuiteBlock(slice06.filter(x => x !== proof));
   assert.notEqual(partial.code, 0, `${reader} cannot run without ${proof}`);

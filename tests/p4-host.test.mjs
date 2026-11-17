@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { createServer } from 'node:http';
 import { once } from 'node:events';
-import { readFilesConfiguration } from '../.build/api/apps/api/src/modules/files/infrastructure/configuration.js';
+import { readFilesConfiguration } from '../.build/api/apps/api/src/modules/files/custody/infrastructure/configuration.js';
 import { installFilesTransport, FileHostLifecycle } from '../.build/api/apps/api/src/bootstrap/files-host.js';
 import { IdentityHttpError } from '../.build/api/apps/api/src/modules/identity/domain/errors.js';
-import { FileStore, FileIdentityError } from '../.build/api/apps/api/src/modules/files/infrastructure/store.js';
+import { FileStore, FileIdentityError } from '../.build/api/apps/api/src/modules/files/custody/infrastructure/store.js';
 
 const require = createRequire(import.meta.url);
 const express = require('express');
@@ -37,7 +37,7 @@ async function host(t, options = {}) {
     assert.equal(request, original);
     if (options.serviceError) throw options.serviceError;
     return { usedBytes: 0n, quotaBytes: 100n };
-  }, store: { async transaction(run) { return run({}); }, async loadAuthorized() { return { size_bytes: 4n }; } },
+  }, async authorizeReceive(request) { assert.equal(request, original); return { expectedBytes: 4 }; },
     async receive(request, id, bytes) { received = { request, id, bytes }; return { ready: true }; } };
   app.use('/api/v1', (request, response, next) => { original = request; next(); });
   installFilesTransport({ use: app.use.bind(app) }, runtime, service);

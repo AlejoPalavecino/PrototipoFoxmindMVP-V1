@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { withGradingFixture, tableHash, gradingTables } from './p8-grading-helpers.mjs';
 import { withProgressFixture, academicTables } from './p8-progress-helpers.mjs';
 import { saveComplete, publish } from './p8-publication-helpers.mjs';
-import { ClassroomService } from '../.build/api/apps/api/src/bootstrap/academic-composition.js';
+import { ClassroomService } from './helpers/academic-fixture.ts';
 import { randomUUID } from 'node:crypto';
 
 test('progress public operations read existing academic state without creating obligations', async () => {

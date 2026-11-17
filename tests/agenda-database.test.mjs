@@ -32,7 +32,7 @@ async function rejectsUpdate(query, id, fields, constraint) {
   await query('RELEASE SAVEPOINT invalid_write');
 }
 test('agenda real PostgreSQL persistence, constraints and isolation with per-case rollback', { timeout: 60000 }, async t => {
-  const { createAgendaService, createAgendaUnitOfWork } = Object.freeze({createAgendaService: loadTsModule("apps/api/src/modules/agenda/application/agenda-service.ts").createAgendaService,createAgendaUnitOfWork: loadTsModule("apps/api/src/bootstrap/agenda-composition.ts").createAgendaUnitOfWork});
+  const { createAgendaService, createAgendaUnitOfWork } = Object.freeze({createAgendaService: loadTsModule("apps/api/src/modules/agenda/events/application/agenda-service.ts").createAgendaService,createAgendaUnitOfWork: loadTsModule("apps/api/src/bootstrap/agenda-composition.ts").createAgendaUnitOfWork});
   assert.equal(typeof createAgendaUnitOfWork, 'function');
   await withAgendaDatabase(async ({ pool, transaction }) => {
     assert.match((await pool.query('SELECT current_database() name')).rows[0].name, /_test$/);
@@ -160,7 +160,7 @@ const recurringPayload = (kind, start, until) => ({ title: 'Lectura', descriptio
   schedule: { kind: 'ALL_DAY', startDate: start, endDateExclusive: new Date(Date.parse(start) + 86400000).toISOString().slice(0, 10) }, repeat: { kind, untilDate: until } });
 
 test('new recurrence kinds persist, reload, expand and remain owner-isolated', { timeout: 60000 }, async () => {
-  const { createAgendaService, createAgendaUnitOfWork } = Object.freeze({createAgendaService: loadTsModule("apps/api/src/modules/agenda/application/agenda-service.ts").createAgendaService,createAgendaUnitOfWork: loadTsModule("apps/api/src/bootstrap/agenda-composition.ts").createAgendaUnitOfWork});
+  const { createAgendaService, createAgendaUnitOfWork } = Object.freeze({createAgendaService: loadTsModule("apps/api/src/modules/agenda/events/application/agenda-service.ts").createAgendaService,createAgendaUnitOfWork: loadTsModule("apps/api/src/bootstrap/agenda-composition.ts").createAgendaUnitOfWork});
   await withAgendaDatabase(async ({ transaction }) => transaction(async ({ database, query }) => {
     const owner = randomUUID();
     await query(`INSERT INTO users(id,updated_at,email,email_normalized,first_name,last_name,password_hash,email_verified_at,account_role)

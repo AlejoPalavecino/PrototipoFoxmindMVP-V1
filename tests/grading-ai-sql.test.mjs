@@ -28,7 +28,7 @@ async function setup(pool) {
   return { teacher, student, room, activity, enrollment, attempt, job };
 }
 const state = async (pool, id) => (await pool.query('SELECT state,lease_nonce,dispatch_count,error_code,proposal,reserved_microusd FROM grading_ai_jobs WHERE id=$1', [id])).rows[0];
-const queue = async database => (await import("../apps/api/src/modules/grading/infrastructure/grading-ai/sql-queue.ts")).createGradingAiSqlQueue({ database, configuration });
+const queue = async database => (await import("../apps/api/src/modules/grading/assistance/infrastructure/grading-ai/sql-queue.ts")).createGradingAiSqlQueue({ database, configuration });
 
 test('SQL durable grading AI en PostgreSQL efímero aislado', { timeout: 120000 }, async t => {
   await withP5Database(async ({ pool, database }) => {

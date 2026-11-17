@@ -4,7 +4,7 @@ import { createServer } from 'node:http';
 import { randomUUID } from 'node:crypto';
 import { withGradingFixture, tableHash, protectedTables } from './p8-grading-helpers.mjs';
 import { createClassroomsHandler } from '../.build/api/apps/api/src/bootstrap/academic-http.js';
-import { gradingAiSnapshotFromSql } from '../apps/api/src/modules/grading/infrastructure/grading-ai/snapshot-sql.ts';
+import { gradingAiSnapshotFromSql } from '../apps/api/src/modules/grading/assistance/infrastructure/grading-ai/snapshot-sql.ts';
 
 // Real HTTP ingress and real isolated PostgreSQL. The provider is not called: a READY
 // job is seeded from the same snapshot used by the worker so this tests the teacher API.

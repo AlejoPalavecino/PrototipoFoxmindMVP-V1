@@ -48,3 +48,6 @@ El editor permite configurar Sin aviso, Al momento, 5, 15 o 30 minutos antes, 1 
 Cada ocurrencia tiene su propio aviso. Una ediciÃ³n usa el horario y la anticipaciÃ³n efectivos, y conserva la lectura si conserva la identidad de la ocurrencia. Las excepciones aplican a una sola fecha de la serie. Quitar un aviso, cancelar una ocurrencia o eliminar el evento lo retira de la bandeja. Una configuraciÃ³n ya vencida al crear un evento futuro queda visible en cuanto se guarda. Los eventos anteriores a la incorporaciÃ³n de avisos siguen sin aviso.
 
 Inicio puede abrir el dÃ­a seleccionado con `/agenda?date=AAAA-MM-DD&view=day` y el formulario con `/agenda?create=1` o con `date` adicional. Los avisos usan el ID de evento y la fecha estable de la ocurrencia. Un evento de repaso vigente ofrece acceso a la carpeta y al examen de origen. [Reglas del dominio](../../../src/core/domain/agenda/reminders.ts) Â· [Pruebas PostgreSQL](../../../tests/agenda-notification-parity-database.test.mjs).
+
+
+La caracterización de esta distribución está en `apps/api/src/modules/agenda/academic-projection/application/academic-agenda-service.test.mjs`: misma transacción y actor, tres autenticaciones alrededor del bloqueo/operación, límites previos al UoW y revocación de destinos. Usa SQL sintético; la persistencia real se comprueba en las suites PostgreSQL de Agenda.

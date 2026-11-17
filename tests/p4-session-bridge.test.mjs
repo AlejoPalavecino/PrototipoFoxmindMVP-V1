@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { authenticateSession } from '../.build/api/apps/api/src/modules/identity/infrastructure/session-query.js';
-import { IdentityStore } from '../.build/api/apps/api/src/modules/identity/infrastructure/persistence.js';
+import { authenticateSession } from '../.build/api/apps/api/src/modules/identity/accounts/infrastructure/session-query.js';
+import { IdentityStore } from '../.build/api/apps/api/src/modules/identity/accounts/infrastructure/persistence.js';
 import { createIdentityFileAccess } from '../.build/api/apps/api/src/bootstrap/files-host.js';
-import { readIdentityConfiguration } from '../.build/api/apps/api/src/modules/identity/infrastructure/security/configuration.js';
-import { sessionTokenDigest } from '../.build/api/apps/api/src/modules/identity/infrastructure/security/verifiers.js';
-import { IDENTITY_POLICY } from '../.build/api/apps/api/src/modules/identity/infrastructure/security/sessions.js';
+import { readIdentityConfiguration } from '../.build/api/apps/api/src/modules/identity/accounts/infrastructure/security/configuration.js';
+import { sessionTokenDigest } from '../.build/api/apps/api/src/modules/identity/accounts/infrastructure/security/verifiers.js';
+import { IDENTITY_POLICY } from '../.build/api/apps/api/src/modules/identity/accounts/infrastructure/security/sessions.js';
 
 const verifier = Buffer.alloc(32, 7).toString('base64url');
 const security = readIdentityConfiguration({ APP_ORIGIN: 'http://localhost:3000', AUTH_LOCAL_HTTP: 'true',

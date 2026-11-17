@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createIdentityFileAccess } from '../.build/api/apps/api/src/bootstrap/files-host.js';
-import { readIdentityConfiguration } from '../.build/api/apps/api/src/modules/identity/infrastructure/security/configuration.js';
+import { readIdentityConfiguration } from '../.build/api/apps/api/src/modules/identity/accounts/infrastructure/security/configuration.js';
 import { attachmentIntegration } from '../.build/api/apps/api/src/bootstrap/attachment-integration.js';
 const { authorizeAttemptWrite: authorizeAttemptFileWrite } = attachmentIntegration;
 const id='a1111111-1111-4111-8111-111111111111';

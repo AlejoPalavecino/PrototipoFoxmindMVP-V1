@@ -10,7 +10,7 @@ import { chromium } from '@playwright/test';
 import { withP4IntegrationRuntime } from '../scripts/p4-integration-runtime.mjs';
 import { account, password } from './p4-integration-helpers.mjs';
 import { classroom, openClassroom, planPdf, rejectSame } from './p6-integration-helpers.mjs';
-import { assertAttemptWrite } from '../.build/api/apps/api/src/modules/participation/infrastructure/attempt-access.js';
+import { assertAttemptWrite } from '../.build/api/apps/api/src/modules/participation/attempts/infrastructure/attempt-access.js';
 
 // Observe CSRF/admission responses before deriving a mutation body or using any identifier.
 async function request(page,method,path,body,headers={}) {

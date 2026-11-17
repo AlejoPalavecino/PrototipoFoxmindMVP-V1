@@ -43,7 +43,7 @@ function fixture() {
       async resolveTarget(target) { academicCalls.push(['resolveTarget', target]); return destination; },
     } });
   } };
-  const { createAgendaService } = loadTsModule("apps/api/src/modules/agenda/application/agenda-service.ts");
+  const { createAgendaService } = loadTsModule("apps/api/src/modules/agenda/events/application/agenda-service.ts");
   return { service: createAgendaService(uow), rows, calls, academicCalls, A, B,
     setReadFailure: value => { readFailure = value; }, setWriteFailure: value => { writeFailure = value; },
     setDeadlines: value => { deadlines = value; }, setDestination: value => { destination = value; } };

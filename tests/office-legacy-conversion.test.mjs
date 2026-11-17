@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { inspectContent } from '../apps/api/src/modules/files/infrastructure/content.ts';
-import { parseActivityDocument } from '../apps/api/src/modules/files/infrastructure/activity-document.ts';
-import { parsePlanDocument } from '../apps/api/src/modules/files/infrastructure/docx-text.ts';
+import { inspectContent } from '../apps/api/src/modules/files/custody/infrastructure/content.ts';
+import { parseActivityDocument } from '../apps/api/src/modules/files/custody/infrastructure/activity-document.ts';
+import { parsePlanDocument } from '../apps/api/src/modules/files/custody/infrastructure/docx-text.ts';
 
 const enabled = process.env.FOX_TEST_LEGACY_OFFICE === '1';
 const prose = 'Documento sintetico FoxMind';

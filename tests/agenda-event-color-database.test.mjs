@@ -18,7 +18,7 @@ async function seed(query) {
   return ids;
 }
 test('PostgreSQL colors preserve retry identity, CAS, clear semantics and owner privacy with rollback', { timeout: 60000 }, async t => {
-  const { createAgendaService, createAgendaUnitOfWork } = Object.freeze({createAgendaService: loadTsModule("apps/api/src/modules/agenda/application/agenda-service.ts").createAgendaService,createAgendaUnitOfWork: loadTsModule("apps/api/src/bootstrap/agenda-composition.ts").createAgendaUnitOfWork});
+  const { createAgendaService, createAgendaUnitOfWork } = Object.freeze({createAgendaService: loadTsModule("apps/api/src/modules/agenda/events/application/agenda-service.ts").createAgendaService,createAgendaUnitOfWork: loadTsModule("apps/api/src/bootstrap/agenda-composition.ts").createAgendaUnitOfWork});
   await withAgendaDatabase(async ({ pool, transaction }) => {
     assert.match((await pool.query('SELECT current_database() name')).rows[0].name, /_test$/);
     await t.test('nullable incremental column has no default and does not rewrite legacy row', async () => transaction(async ({ query }) => {

@@ -43,12 +43,12 @@ export async function runMailCancellation(mode = '--cancellation', { prepare } =
   if (mode === '--regressions') {
     // Run the original assertions against the private canonical mail closure.
     const mailEntries = [
-      "apps/api/src/modules/identity/infrastructure/mail/account-mail.service.js",
-      "apps/api/src/modules/identity/infrastructure/mail/configuration.js",
+      "apps/api/src/modules/identity/mail-delivery/infrastructure/mail/account-mail.service.js",
+      "apps/api/src/modules/identity/mail-delivery/infrastructure/mail/configuration.js",
       "apps/api/src/bootstrap/identity-mail.module.js",
-      "apps/api/src/modules/identity/infrastructure/mail/mailbox.js",
-      "apps/api/src/modules/identity/infrastructure/mail/mail-error.js",
-      "apps/api/src/modules/identity/infrastructure/mail/templates.js"
+      "apps/api/src/modules/identity/mail-delivery/infrastructure/mail/mailbox.js",
+      "apps/api/src/modules/identity/mail-delivery/infrastructure/mail/mail-error.js",
+      "apps/api/src/modules/identity/mail-delivery/infrastructure/mail/templates.js"
     ];
     const redirects = Object.fromEntries(mailEntries.map(entry => [
       pathToFileURL(resolve('.build/api', entry)).href,

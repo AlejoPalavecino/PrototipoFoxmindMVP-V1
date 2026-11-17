@@ -27,7 +27,7 @@ test('home queries reject malformed optional author names and unrequested identi
 });
 
 test('query projection joins the post author and retains the actor-authorized room and unanswered filters', async () => {
-  const { readSqlPage } = loadTsModule('apps/api/src/modules/home/infrastructure/sql-page.ts');
+  const { readSqlPage } = loadTsModule('apps/api/src/modules/home/dashboard/infrastructure/sql-page.ts');
   const calls = [];
   const row = { ...item, authorName: 'María Pérez' };
   const tx = { query: async (sql, ...params) => { calls.push({ sql, params }); return [{ item: row, policy: null, sort_key: now + '|' + postId, total: 1, needs_review: 0, ready_to_publish: 0 }]; } };
@@ -47,6 +47,6 @@ test('query projection joins the post author and retains the actor-authorized ro
 });
 
 test('query title projection prefers a nonblank post title and retains the historical body excerpt fallback', () => {
-  const { queriesQuery } = loadTsModule('apps/api/src/modules/home/infrastructure/queries-content.ts');
+  const { queriesQuery } = loadTsModule('apps/api/src/modules/home/dashboard/infrastructure/queries-content.ts');
   assert.ok(queriesQuery.includes("'title',coalesce(nullif(btrim(p.title),''),left(regexp_replace(p.body,'[[:cntrl:]]',' ','g'),160))"));
 });

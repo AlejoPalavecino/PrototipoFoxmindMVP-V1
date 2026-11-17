@@ -67,7 +67,7 @@ test('teacher distinguishes pending, saved, published and missing; re-submission
 });
 
 test('progress service removes teacher review metadata from self and AI projection, preserves effective grade, enforces member authorization', async () => {
-  const { ProgressService } = loadTsModule('apps/api/src/modules/grading/application/progress.ts');
+  const { ProgressService } = loadTsModule('apps/api/src/modules/grading/progress/application/progress.ts');
   const privateRow = { ...activity('activity', { attemptId: 'private-attempt', state: 'saved' }, '0'), studentId: 'student', confirmedAttempts: 2 };
   let actorId = 'teacher'; const authorization = [];
   const context = { ports: {}, run: async (_request, write, fn) => { assert.equal(write, false); return fn({}, { id: actorId }); },

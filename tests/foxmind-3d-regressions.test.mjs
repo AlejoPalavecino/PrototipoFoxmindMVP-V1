@@ -45,7 +45,7 @@ test('JD01 AppNavbar preserves modified native clicks and intercepts plain accou
 });
 
 test('JD02-JD05 PostgreSQL regressions use real persisted rows and rollback', { timeout: 120000 }, async t => {
-  const api = await Promise.all([import("../apps/api/src/modules/home/application/service.ts"),import("../apps/api/src/modules/home/infrastructure/unit-of-work.ts"),import("../apps/api/src/modules/home/presentation/http.ts")]).then(([m0,m1,m2]) => Object.freeze({createHomeService: m0.createHomeService,createHomeUnitOfWork: m1.createHomeUnitOfWork,createHomeHandler: m2.createHomeHandler}));
+  const api = await Promise.all([import("../apps/api/src/modules/home/dashboard/application/service.ts"),import("../apps/api/src/modules/home/dashboard/infrastructure/unit-of-work.ts"),import("../apps/api/src/modules/home/dashboard/presentation/http.ts")]).then(([m0,m1,m2]) => Object.freeze({createHomeService: m0.createHomeService,createHomeUnitOfWork: m1.createHomeUnitOfWork,createHomeHandler: m2.createHomeHandler}));
   await withAgendaDatabase(async ({ transaction }) => {
     const check = (name, operation) => t.test(name, () => transaction(async local => {
       const f = await homeFixture(local.query);

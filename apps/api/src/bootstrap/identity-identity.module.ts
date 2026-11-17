@@ -1,8 +1,8 @@
 import { Module, type DynamicModule } from '@nestjs/common';
 import { PrismaService } from '../platform/database/prisma.service.ts';
-import { createPasswordService } from '../modules/identity/infrastructure/security/passwords.ts';
-import type { IdentityRuntimeConfiguration } from '../modules/identity/infrastructure/configuration.ts';
-import { IdentityStore } from '../modules/identity/infrastructure/persistence.ts';
+import { createPasswordService } from '../modules/identity/accounts/infrastructure/security/passwords.ts';
+import type { IdentityRuntimeConfiguration } from './identity-configuration.ts';
+import { IdentityStore } from '../modules/identity/accounts/infrastructure/persistence.ts';
 import { IdentityRuntime, type IdentityRuntimePorts } from './identity-runtime.ts';
 
 @Module({})

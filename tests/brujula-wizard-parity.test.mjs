@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { wizard, advance, nodes, button, text, initialDraft, manualPlan, readStructuredPlan, editStructuredPlan } from './helpers/wizard-reference/component-harness.mjs';
-import { draftPayload } from '../apps/api/src/modules/classrooms/infrastructure/policy.ts';
+import { draftPayload } from '../apps/api/src/modules/classrooms/access/infrastructure/policy.ts';
 import { parseClassroomPlan, formatClassroomPlan, prepareClassroomPlan } from '../apps/web/src/features/curriculum/model/WizardPlanText.ts';
 
 test('Crear aula presenta los cuatro pasos aprobados', async () => {

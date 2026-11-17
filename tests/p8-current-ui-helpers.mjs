@@ -197,7 +197,7 @@ export async function openActivityOverview(page, title) {
 }
 
 /** The current explicit response action starts directly; admission remains real and bounded. */
-export async function startBrowserAttempt(page, roomId, activityId, timeoutMs, buttonName = 'Responder actividad') {
+export async function startBrowserAttempt(page, roomId, activityId, timeoutMs, buttonName = 'Empezar actividad') {
   const intent = startIntent(page);
   let confirmed = 0;
   const startPath = `/api/v1/classrooms/${roomId}/activities/${activityId}/start`;

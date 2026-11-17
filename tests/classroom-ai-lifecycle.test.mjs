@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { withAiDatabase, aiFixture } from './classroom-ai-database.test.mjs';
 
 test('C3 worker shutdown aborts active provider, drains persistence and rejects future dispatch', { timeout: 120000 }, async () => {
-  const { ClassroomAiService, ClassroomAiWorker } = await Promise.all([import("../apps/api/src/modules/curriculum/infrastructure/ai/service.ts"),import("../apps/api/src/modules/curriculum/infrastructure/ai/worker.ts")]).then(([m0,m1]) => Object.freeze({ClassroomAiService: m0.ClassroomAiService,ClassroomAiWorker: m1.ClassroomAiWorker}));
+  const { ClassroomAiService, ClassroomAiWorker } = await Promise.all([import("../apps/api/src/modules/curriculum/generation/infrastructure/ai/service.ts"),import("../apps/api/src/modules/curriculum/generation/infrastructure/ai/worker.ts")]).then(([m0,m1]) => Object.freeze({ClassroomAiService: m0.ClassroomAiService,ClassroomAiWorker: m1.ClassroomAiWorker}));
   await withAiDatabase(async ({ pool, database }) => {
     const f = await aiFixture(pool); let entered, signal, calls = 0;
     const dispatch = new Promise(resolve => { entered = resolve; });
@@ -30,7 +30,7 @@ test('C3 worker shutdown aborts active provider, drains persistence and rejects 
 });
 
 test('C3 shutdown while claim is pending never starts file/token/provider I/O after claim resolves', { timeout: 120000 }, async () => {
-  const { ClassroomAiService, ClassroomAiWorker } = await Promise.all([import("../apps/api/src/modules/curriculum/infrastructure/ai/service.ts"),import("../apps/api/src/modules/curriculum/infrastructure/ai/worker.ts")]).then(([m0,m1]) => Object.freeze({ClassroomAiService: m0.ClassroomAiService,ClassroomAiWorker: m1.ClassroomAiWorker}));
+  const { ClassroomAiService, ClassroomAiWorker } = await Promise.all([import("../apps/api/src/modules/curriculum/generation/infrastructure/ai/service.ts"),import("../apps/api/src/modules/curriculum/generation/infrastructure/ai/worker.ts")]).then(([m0,m1]) => Object.freeze({ClassroomAiService: m0.ClassroomAiService,ClassroomAiWorker: m1.ClassroomAiWorker}));
   await withAiDatabase(async ({ pool, database }) => {
     const f = await aiFixture(pool); let release, entered, delayed = false, io = 0;
     const gate = new Promise(resolve => { release = resolve; }), claimed = new Promise(resolve => { entered = resolve; });

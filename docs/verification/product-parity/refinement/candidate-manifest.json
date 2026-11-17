@@ -101,11 +101,11 @@
       "sha256": "6b8ab8d6b933da98493118681052434936d50aa21a126ba1f6987308fd16ed7a"
     },
     {
-      "path": "apps/api/src/modules/activities/application/activity-authoring.ts",
+      "path": "apps/api/src/modules/activities/authoring/application/activity-authoring.ts",
       "sha256": "c68847cb2a5a63b79bd24c3c44e55cac92aa60753e8222c482bcfd24ccf0ba02"
     },
     {
-      "path": "apps/api/src/modules/activities/application/authoring-operations.ts",
+      "path": "apps/api/src/modules/activities/authoring/application/authoring-operations.ts",
       "sha256": "2a2e1df4fc96ecf21b6053899ad3becae198de831a383cdd2639fbc0769069f7"
     },
     {
@@ -117,107 +117,107 @@
       "sha256": "3d0f2c03f7c99f1648080bb8e1e7c83229cdbfe6eac57ef345fe7235f85a95fe"
     },
     {
-      "path": "apps/api/src/modules/activities/infrastructure/activity-ai/apply.ts",
+      "path": "apps/api/src/modules/activities/generation/infrastructure/activity-ai/apply.ts",
       "sha256": "f0139fd81025225628acc72f5df504211b490a66fa39f071f80bc2bcc42904ad"
     },
     {
-      "path": "apps/api/src/modules/activities/infrastructure/activity-ai/candidates.ts",
+      "path": "apps/api/src/modules/activities/generation/infrastructure/activity-ai/candidates.ts",
       "sha256": "0f53516bfc21924374818995d7ea71552ada06a91ba382eccdd2d27772ba2fe4"
     },
     {
-      "path": "apps/api/src/modules/activities/infrastructure/activity-ai/contracts.ts",
+      "path": "apps/api/src/modules/activities/generation/infrastructure/activity-ai/contracts.ts",
       "sha256": "0aad19fda4eab11e189a6ea2f737d362da96065149015eba77277a174e59394d"
     },
     {
-      "path": "apps/api/src/modules/activities/infrastructure/activity-ai/database.ts",
+      "path": "apps/api/src/modules/activities/generation/infrastructure/activity-ai/database.ts",
       "sha256": "c3cbf943c35fc9618d4a5141fc9a71805bdbe5101a4600bd5a130eab3463a2e9"
     },
     {
-      "path": "apps/api/src/modules/activities/infrastructure/activity-ai/execution.ts",
+      "path": "apps/api/src/modules/activities/generation/infrastructure/activity-ai/execution.ts",
       "sha256": "414a418fd8de2fbb7f28f85684d96af6be9a986b6d8be7dc50978b1f1de0f9ce"
     },
     {
-      "path": "apps/api/src/modules/activities/infrastructure/activity-ai/service.ts",
+      "path": "apps/api/src/modules/activities/generation/infrastructure/activity-ai/service.ts",
       "sha256": "ce0eec9f362c09db8a556932e408663b1d0300cd5828e919da05a631765b6269"
     },
     {
-      "path": "apps/api/src/modules/activities/infrastructure/activity-ai/source.ts",
+      "path": "apps/api/src/modules/activities/generation/infrastructure/activity-ai/source.ts",
       "sha256": "5e94a6c62535b267284062444b7414a1e9bde374020358ae0492ffd47dbb7cf5"
     },
     {
-      "path": "apps/api/src/modules/activities/infrastructure/activity-ai/unknown-start.ts",
+      "path": "apps/api/src/modules/activities/generation/infrastructure/activity-ai/unknown-start.ts",
       "sha256": "7ad719fba13f27126e982633bc388306bba395668a5761f49d16c752927b0a6b"
     },
     {
-      "path": "apps/api/src/modules/activities/infrastructure/activity-ai/worker-source.ts",
+      "path": "apps/api/src/modules/activities/generation/infrastructure/activity-ai/worker-source.ts",
       "sha256": "91715b641903f7446109c6ac6a5cae2ea7acdc7cd4a2d91bd3ba94ea02f71ed7"
     },
     {
-      "path": "apps/api/src/modules/activities/infrastructure/activity-draft.ts",
+      "path": "apps/api/src/modules/activities/generation/infrastructure/activity-draft.ts",
       "sha256": "5bb9a7e1f43224327829fcbf099818ddac081c2649c3f511af7d3a9cc0c50341"
     },
     {
-      "path": "apps/api/src/modules/activities/infrastructure/activity-topics.ts",
+      "path": "apps/api/src/modules/activities/generation/infrastructure/activity-topics.ts",
       "sha256": "069bc5f40a7ebd23f50c07074a77a35471c450b1c92fadda4af792821a9d0ebf"
     },
     {
-      "path": "apps/api/src/modules/activities/infrastructure/authoring-repository.ts",
+      "path": "apps/api/src/modules/activities/authoring/infrastructure/authoring-repository.ts",
       "sha256": "75ed77ad57c1f9a847f4797ae0ae4e7894c39b320999fb7bf83bae50bd418185"
     },
     {
-      "path": "apps/api/src/modules/activities/infrastructure/providers/activity-prompt.ts",
+      "path": "apps/api/src/modules/activities/generation/infrastructure/providers/activity-prompt.ts",
       "sha256": "52198c557d6a444802f2d8b31770c2d926550c7955caaef0f8be751261096175"
     },
     {
-      "path": "apps/api/src/modules/agenda/application/agenda-service.ts",
+      "path": "apps/api/src/modules/agenda/events/application/agenda-service.ts",
       "sha256": "7fb49ba8a0c6cb2778609ea2c3cc3cd9b398247df70bc2f36ee5fcd0b15fd714"
     },
     {
-      "path": "apps/api/src/modules/agenda/infrastructure/event-repository.ts",
+      "path": "apps/api/src/modules/agenda/events/infrastructure/event-repository.ts",
       "sha256": "16a6baed4f7569dceb2b6d27c46f956624540a40ea8a640dd93f17268d6fba62"
     },
     {
-      "path": "apps/api/src/modules/agenda/infrastructure/event-row.ts",
+      "path": "apps/api/src/modules/agenda/events/infrastructure/event-row.ts",
       "sha256": "71cc60c6ae359e2ff7020139773b9da82627e668765d8c5e120b138b36273e19"
     },
     {
-      "path": "apps/api/src/modules/classrooms/application/invitations-repository.ts",
+      "path": "apps/api/src/modules/classrooms/invitations/application/invitations-repository.ts",
       "sha256": "d8a3230c2192c64bbe5ad7b5b0a7864c5f586570514f0c57b4fce362fb57e590"
     },
     {
-      "path": "apps/api/src/modules/classrooms/application/invitations.ts",
+      "path": "apps/api/src/modules/classrooms/invitations/application/invitations.ts",
       "sha256": "6297abb345a1348aadd2231613321b877f1554148c498e798c371db4cecd1da1"
     },
     {
-      "path": "apps/api/src/modules/classrooms/infrastructure/delivery.ts",
+      "path": "apps/api/src/modules/classrooms/invitations/infrastructure/delivery.ts",
       "sha256": "f8aaae0cd1c1da8a639cecfd14a95ca547a4908e0923a41ec451c3b2fc6ac937"
     },
     {
-      "path": "apps/api/src/modules/classrooms/infrastructure/invitations-operations.ts",
+      "path": "apps/api/src/modules/classrooms/invitations/application/invitations-operations.ts",
       "sha256": "f166f7809e25bb6534cac40cccaca120affcac88bab0d5c08aa91db26e7b089a"
     },
     {
-      "path": "apps/api/src/modules/classrooms/infrastructure/invitations-repository.ts",
+      "path": "apps/api/src/modules/classrooms/invitations/infrastructure/invitations-repository.ts",
       "sha256": "981d860ce739b60e489ae9d1e70a5d21a46ec990c3f78927f4089e2e0c9aeee2"
     },
     {
-      "path": "apps/api/src/modules/classrooms/infrastructure/memberships-operations-2.ts",
+      "path": "apps/api/src/modules/classrooms/memberships/application/membership-lifecycle-operations.ts",
       "sha256": "e2b7e869e046bd5432598394cdce58099351f800f09a2550dc4a837e181cd6b8"
     },
     {
-      "path": "apps/api/src/modules/communication/application/read-ports.ts",
+      "path": "apps/api/src/modules/communication/wall/application/read-ports.ts",
       "sha256": "999d76e30a48e6eb9a9f7981076e1c1e71f6c5b47e7d380ffff8eceb406ce3a5"
     },
     {
-      "path": "apps/api/src/modules/communication/application/wall.ts",
+      "path": "apps/api/src/modules/communication/wall/application/wall.ts",
       "sha256": "d6e70c17be51f6715db720a0ef168f44f2e2f2a0180839a879a2b1e63cb6059b"
     },
     {
-      "path": "apps/api/src/modules/communication/infrastructure/wall-repository.ts",
+      "path": "apps/api/src/modules/communication/wall/infrastructure/wall-repository.ts",
       "sha256": "4cf407f6f365ab500c33495363cc45fc22fbc091e6570d96b70c83a7a36cd9f0"
     },
     {
-      "path": "apps/api/src/modules/curriculum/application/ai-contracts.ts",
+      "path": "apps/api/src/modules/curriculum/generation/application/ai-contracts.ts",
       "sha256": "1a82a3d3b59d1828162db46b0f82782654dc28d53e5991b2b443b98c46e43914"
     },
     {
@@ -225,51 +225,51 @@
       "sha256": "c344a183593a955a25759bdd919f06ffe58f2ccd7cf45e24420d4d579619d4da"
     },
     {
-      "path": "apps/api/src/modules/files/infrastructure/activity-document-worker.ts",
+      "path": "apps/api/src/modules/files/custody/infrastructure/activity-document-worker.ts",
       "sha256": "3f549eaa79703d6ad880f7631d4c557678363ebf2b09c0ce8c00e1fd81d834bc"
     },
     {
-      "path": "apps/api/src/modules/files/infrastructure/activity-document.ts",
+      "path": "apps/api/src/modules/files/custody/infrastructure/activity-document.ts",
       "sha256": "74b31c567c441aed58e03600cda1334c16ca4f98d0be95d23bfee298b540a74b"
     },
     {
-      "path": "apps/api/src/modules/files/infrastructure/activity-source-snapshot.ts",
+      "path": "apps/api/src/modules/files/custody/infrastructure/activity-source-snapshot.ts",
       "sha256": "cc86c2da70b4c12dc58a563600f5af3227dcd1a192ab4da57dbaf175e27690ef"
     },
     {
-      "path": "apps/api/src/modules/files/infrastructure/approved-plan-reader.ts",
+      "path": "apps/api/src/modules/files/custody/infrastructure/approved-plan-reader.ts",
       "sha256": "2de32360ad6f6384d15d76a1d95b4e217220680fc8445c1338f3b3b144669936"
     },
     {
-      "path": "apps/api/src/modules/files/infrastructure/chat-attachment-policy.ts",
+      "path": "apps/api/src/modules/files/chat-attachments/domain/policy.ts",
       "sha256": "3e4133567ad210f98d6435d6a05c996f1d7567df87cdc31463bc4dfbf2330dba"
     },
     {
-      "path": "apps/api/src/modules/files/infrastructure/chat-attachment-repository.ts",
+      "path": "apps/api/src/modules/files/custody/infrastructure/chat-attachment-repository.ts",
       "sha256": "ec4f67db5159bf091419e1c3ae1a648c466bff684a5e5779507e145362f4dbb6"
     },
     {
-      "path": "apps/api/src/modules/files/infrastructure/chat-attachment-service.ts",
+      "path": "apps/api/src/modules/files/custody/infrastructure/chat-attachment-service.ts",
       "sha256": "52e27490c36b8b913fae242eaa9f32ab4213a149d7d4fe108c5bc6e7e33d5e2f"
     },
     {
-      "path": "apps/api/src/modules/files/infrastructure/content.ts",
+      "path": "apps/api/src/modules/files/custody/infrastructure/content.ts",
       "sha256": "3e2958da2dfc02d242b0fcf640ead3e50dfedb047409bcd734038636397157c3"
     },
     {
-      "path": "apps/api/src/modules/files/infrastructure/docx-archive.ts",
+      "path": "apps/api/src/modules/files/custody/infrastructure/docx-archive.ts",
       "sha256": "6df1aa0512fac236a5faa6bbed34424c4b2124068321111096c696f64d7c6796"
     },
     {
-      "path": "apps/api/src/modules/files/infrastructure/docx-text.ts",
+      "path": "apps/api/src/modules/files/custody/infrastructure/docx-text.ts",
       "sha256": "053c2dc381baf4f9c06758cae6490e757aa8e76b79ccf588430b25312a5ba18b"
     },
     {
-      "path": "apps/api/src/modules/files/infrastructure/docx-xml.ts",
+      "path": "apps/api/src/modules/files/custody/infrastructure/docx-xml.ts",
       "sha256": "0febff33c86fdbdaea7d95141fb0c25e0ffcdb1a2e4cf8987c307ad70d0b09c6"
     },
     {
-      "path": "apps/api/src/modules/files/infrastructure/foxy-document-reader.ts",
+      "path": "apps/api/src/modules/files/custody/infrastructure/foxy-document-reader.ts",
       "sha256": "534b91cbe9d1684d7b6c90947fde32c7cc62548dc02aabcd725c7a400844d169"
     },
     {
@@ -277,71 +277,71 @@
       "sha256": "e940cb8a70ab108c90a64314fbbab8609c9eda9ff81416b7b46a9758423cfb59"
     },
     {
-      "path": "apps/api/src/modules/foxy/application/turn-service.ts",
+      "path": "apps/api/src/modules/foxy/turns/application/turn-service.ts",
       "sha256": "cb2958f6de38cb51884fc93a720fd62b8da70c0ef89523d19440b92ddc0f63f0"
     },
     {
-      "path": "apps/api/src/modules/foxy/application/visual-service.ts",
+      "path": "apps/api/src/modules/foxy/visuals/application/visual-service.ts",
       "sha256": "f78db29caf55e5eb4193bc348bcc42bf3ef03f5b6cc54123a227f059548ed594"
     },
     {
-      "path": "apps/api/src/modules/foxy/infrastructure/assemble-grounding.ts",
+      "path": "apps/api/src/modules/foxy/turns/infrastructure/assemble-grounding.ts",
       "sha256": "006acc7cbb8921bc896fb4d8e271d4f13d121a5fe6be848a5abe336cd37f3a93"
     },
     {
-      "path": "apps/api/src/modules/foxy/infrastructure/claim-authority-check.ts",
+      "path": "apps/api/src/modules/foxy/turns/infrastructure/claim-authority-check.ts",
       "sha256": "d84e7bddc0e1c19eab537e6b74b96a1ce42d355dfa11d5f25eaccb860fbea29d"
     },
     {
-      "path": "apps/api/src/modules/foxy/infrastructure/context-sources.ts",
+      "path": "apps/api/src/modules/foxy/turns/infrastructure/context-sources.ts",
       "sha256": "214b8b44e8bb9d544c9dca3c71af55966e1531887e741e2dcfd66a7b2cc3bd5e"
     },
     {
-      "path": "apps/api/src/modules/foxy/infrastructure/grounding-rebuild.ts",
+      "path": "apps/api/src/modules/foxy/turns/infrastructure/grounding-rebuild.ts",
       "sha256": "69bcc2086cb8563587f280b5da98516ef0bf812c5bc47ee1822d4b56681b4f50"
     },
     {
-      "path": "apps/api/src/modules/foxy/infrastructure/grounding-snapshot.ts",
+      "path": "apps/api/src/modules/foxy/turns/infrastructure/grounding-snapshot.ts",
       "sha256": "9caab6f5da02e37b046c944d0ed298482f6e6b109f76fe735baa5a88f05bbb1c"
     },
     {
-      "path": "apps/api/src/modules/foxy/infrastructure/grounding-sources.ts",
+      "path": "apps/api/src/modules/foxy/turns/infrastructure/grounding-sources.ts",
       "sha256": "d797e065f75d33a1905f76659da86f5cd9528faa59147d0f56f85b86e9cd6405"
     },
     {
-      "path": "apps/api/src/modules/foxy/infrastructure/publication-repository.ts",
+      "path": "apps/api/src/modules/foxy/publications/infrastructure/publication-repository.ts",
       "sha256": "f1781256330cf009166d5723e7a7f55f99944d6bd0e62ae05d2649392b26d8a1"
     },
     {
-      "path": "apps/api/src/modules/foxy/infrastructure/tests/foxy-publication-repository.test.mjs",
+      "path": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-publication-repository.test.mjs",
       "sha256": "849a593212bada31a7a17543725d53d726ec8c6fdac1d833f78897bea082b7f2"
     },
     {
-      "path": "apps/api/src/modules/foxy/infrastructure/turn-recovery.ts",
+      "path": "apps/api/src/modules/foxy/turns/infrastructure/turn-recovery.ts",
       "sha256": "644595130ca1a048589991a825d5ad38f6de0c81c4abbbbe879270861092fe64"
     },
     {
-      "path": "apps/api/src/modules/foxy/infrastructure/turn-repository.ts",
+      "path": "apps/api/src/modules/foxy/turns/infrastructure/turn-repository.ts",
       "sha256": "994de1c74366bb9b227d1dc672b2e0264106d68d7f91325b4c26761cb6fc32c7"
     },
     {
-      "path": "apps/api/src/modules/foxy/infrastructure/visual-budget.ts",
+      "path": "apps/api/src/modules/foxy/visuals/infrastructure/visual-budget.ts",
       "sha256": "79302b31508a3fc5f7f5901e0b71fb4e716e168eed1b927e868ffb51278a74a0"
     },
     {
-      "path": "apps/api/src/modules/foxy/infrastructure/visual-claim-check.ts",
+      "path": "apps/api/src/modules/foxy/visuals/infrastructure/visual-claim-check.ts",
       "sha256": "5904eaeee7067e16e49463f080437b96ce458be9077de6242b3de3bc5e567791"
     },
     {
-      "path": "apps/api/src/modules/foxy/infrastructure/visual-publication-repository.ts",
+      "path": "apps/api/src/modules/foxy/publications/infrastructure/visual-publication-repository.ts",
       "sha256": "839a2e2235cfdb6323b093ca684c3c450ce365797fa70e4bca687c41a2fd14f6"
     },
     {
-      "path": "apps/api/src/modules/foxy/infrastructure/visual-queue-recovery.ts",
+      "path": "apps/api/src/modules/foxy/visuals/infrastructure/visual-queue-recovery.ts",
       "sha256": "ad4c316c8a7be4df14b07ae4453a65591d5c602c52a06ce6f4e152f7f1c59b7b"
     },
     {
-      "path": "apps/api/src/modules/foxy/infrastructure/visual-repository.ts",
+      "path": "apps/api/src/modules/foxy/visuals/infrastructure/visual-repository.ts",
       "sha256": "7999e0fb23877dfd1a133def07f85dcf8c3ede97715b2b37501db5f74949c602"
     },
     {
@@ -349,31 +349,31 @@
       "sha256": "922bae763a68cd5193c4144aec46d7249b579d3931581f7a8982777d2fe8455b"
     },
     {
-      "path": "apps/api/src/modules/home/infrastructure/notification-page.ts",
+      "path": "apps/api/src/modules/home/notifications/infrastructure/notification-page.ts",
       "sha256": "c7924aedbbfa49892bf1beaa1e3059731f2449d9efd14f7cd2ac351b17944253"
     },
     {
-      "path": "apps/api/src/modules/home/infrastructure/private-events.ts",
+      "path": "apps/api/src/modules/home/dashboard/infrastructure/private-events.ts",
       "sha256": "f156a350ea1436771154b748b6c3bd4adacdc8ae141bdda4ab3ab98bf07ed6cd"
     },
     {
-      "path": "apps/api/src/modules/home/infrastructure/queries-participation.ts",
+      "path": "apps/api/src/modules/home/dashboard/infrastructure/queries-participation.ts",
       "sha256": "4094bf69582249c479135f50c27ad8d3752bc7ba80f5405c93b8adaa720ac92b"
     },
     {
-      "path": "apps/api/src/modules/materials/application/library-repository.ts",
+      "path": "apps/api/src/modules/materials/library/application/library-repository.ts",
       "sha256": "0a985062267cb70955ec0d13f43b49ef66414b2b350b90e3ad12e82291fa1e01"
     },
     {
-      "path": "apps/api/src/modules/materials/application/library.ts",
+      "path": "apps/api/src/modules/materials/library/application/library.ts",
       "sha256": "1c186bb9c3521914df65ce1ab86157557f078cec3202eb08f49baa8eeb27c231"
     },
     {
-      "path": "apps/api/src/modules/materials/infrastructure/library-repository.ts",
+      "path": "apps/api/src/modules/materials/library/infrastructure/library-repository.ts",
       "sha256": "c8706a9f5c135c5b9aa1b23fa2f93994618364173996113e586bcd5afaed0834"
     },
     {
-      "path": "apps/api/src/modules/study/application/commands.ts",
+      "path": "apps/api/src/modules/study/folders/application/commands.ts",
       "sha256": "204acf92f14a7d7a0dcbbecdf5750dd7be64e94e509549a5f1d84401ce1516a1"
     },
     {
@@ -385,23 +385,23 @@
       "sha256": "ecfa0e4bd503331f847908d06144f4f0306a64ff8d9782bffacae4db85d83073"
     },
     {
-      "path": "apps/api/src/modules/study/application/service.ts",
+      "path": "apps/api/src/modules/study/folders/application/service.ts",
       "sha256": "e9e953b7d50c7dcdbe1f99c3c16cf0b61639a19252e9aced61510f1c3f72f66f"
     },
     {
-      "path": "apps/api/src/modules/study/infrastructure/folders/sources.ts",
+      "path": "apps/api/src/modules/study/sources/infrastructure/sources.ts",
       "sha256": "28cd77db71b2e2aa35d6ffdcfd9547f4d0719fd2dd9bf9ca1f7199a1865be95a"
     },
     {
-      "path": "apps/api/src/modules/study/infrastructure/folders/uploads/upload-policy.ts",
+      "path": "apps/api/src/modules/study/sources/domain/upload-policy.ts",
       "sha256": "e95b69837675f809a0237806778eb44312702c4068d935b3e40adeac5ee29486"
     },
     {
-      "path": "apps/api/src/modules/study/infrastructure/tests/database.test.mjs",
+      "path": "apps/api/src/modules/study/folders/infrastructure/tests/database.test.mjs",
       "sha256": "60d45adc0b24d048f93ca1bcb43f59bb34ee2b3c443e51f6c386c5a54719dfcb"
     },
     {
-      "path": "apps/api/src/modules/study/infrastructure/tests/upload-policy.test.mjs",
+      "path": "apps/api/src/modules/study/sources/infrastructure/uploads/upload-policy.test.mjs",
       "sha256": "48c7fec065fbdf0ad7e9d1737b9f539896cb68a64fdbf6edf4abd03f1e1cb61a"
     },
     {
@@ -1049,43 +1049,43 @@
       "sha256": "9742de87b47b1ed9c61f48de71ef2c13916b5c7c1a6fcba15962842d13be8fb3"
     },
     {
-      "path": "apps/api/src/modules/agenda/infrastructure/due-notices.ts",
+      "path": "apps/api/src/modules/agenda/events/infrastructure/due-notices.ts",
       "sha256": "720571e7f2097f9c1b0bee14de1ed81eedf220e045bab67b4a0a7ddac118df88"
     },
     {
-      "path": "apps/api/src/modules/files/infrastructure/legacy-office.ts",
+      "path": "apps/api/src/modules/files/custody/infrastructure/legacy-office.ts",
       "sha256": "2a01f6d757bdef29124566a9426db9d4f7a8f93e08c9e23b7b67e7751892f54f"
     },
     {
-      "path": "apps/api/src/modules/files/infrastructure/pptx-text.ts",
+      "path": "apps/api/src/modules/files/custody/infrastructure/pptx-text.ts",
       "sha256": "5c1f77678d297edd468fe2092961c644eb5750ffa35995f387bce982bc8399e2"
     },
     {
-      "path": "apps/api/src/modules/foxy/infrastructure/tests/foxy-full-classroom.test.mjs",
+      "path": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-full-classroom.test.mjs",
       "sha256": "550c44619e10d9df1b9a501177bdbd6cb5c75db9636b370b99e6c0a57471c983"
     },
     {
-      "path": "apps/api/src/modules/foxy/infrastructure/tests/foxy-publication-deduplication.test.mjs",
+      "path": "apps/api/src/modules/foxy/publications/infrastructure/tests/foxy-publication-deduplication.test.mjs",
       "sha256": "3989662846a0f773dbc1b9b5d22f4e8a0288eae11752ee0bd562ec969eab52a5"
     },
     {
-      "path": "apps/api/src/modules/foxy/infrastructure/tests/foxy-turn-cancellation.test.mjs",
+      "path": "apps/api/src/modules/foxy/turns/infrastructure/tests/foxy-turn-cancellation.test.mjs",
       "sha256": "7c9781d7c1c03980842a3677ce89171dcf3481b0f78d1d36ef5458f812436d91"
     },
     {
-      "path": "apps/api/src/modules/home/infrastructure/notification-projections.ts",
+      "path": "apps/api/src/modules/home/notifications/infrastructure/notification-projections.ts",
       "sha256": "00937288d47be0463b8972c0f2124be886210f00e53512bbb24fb8f8b5d52486"
     },
     {
-      "path": "apps/api/src/modules/study/infrastructure/tests/import-classroom-plan.test.ts",
+      "path": "apps/api/src/modules/study/folders/infrastructure/tests/import-classroom-plan.test.ts",
       "sha256": "4c5f38f3a7f7288c70cef5c49d0aff1bfe7ee50305376f9985f0a433cd65b70c"
     },
     {
-      "path": "apps/api/src/modules/study/infrastructure/tests/study-agenda-conflicts.test.mjs",
+      "path": "apps/api/src/modules/study/reviews/infrastructure/tests/study-agenda-conflicts.test.mjs",
       "sha256": "f4f051f26c75568bc1beb560609b9bf5563a6a837a94cf60ec322fd0a5c751e2"
     },
     {
-      "path": "apps/api/src/modules/study/infrastructure/tests/study-generation-cancellation.test.ts",
+      "path": "apps/api/src/modules/study/generation/application/tests/study-generation-cancellation.test.ts",
       "sha256": "6899b1ae92bf3b3a07ce44d9b6eee63a02f6124681caf6d9e695bf86a802ea2b"
     },
     {

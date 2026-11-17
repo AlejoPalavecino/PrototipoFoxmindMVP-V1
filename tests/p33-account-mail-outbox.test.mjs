@@ -5,9 +5,9 @@ import { setTimeout } from 'node:timers/promises';
 import pg from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../.generated/prisma/client.ts';
-import * as outboxPart0 from "../.build/p33-outbox/apps/api/src/modules/identity/infrastructure/outbox/crypto.js";
-import * as outboxPart1 from "../.build/p33-outbox/apps/api/src/modules/identity/infrastructure/outbox/repository.js";
-import * as outboxPart2 from "../.build/p33-outbox/apps/api/src/modules/identity/infrastructure/outbox/worker.js";
+import * as outboxPart0 from "../.build/p33-outbox/apps/api/src/modules/identity/mail-delivery/infrastructure/outbox/crypto.js";
+import * as outboxPart1 from "../.build/p33-outbox/apps/api/src/modules/identity/mail-delivery/infrastructure/outbox/repository.js";
+import * as outboxPart2 from "../.build/p33-outbox/apps/api/src/modules/identity/mail-delivery/infrastructure/outbox/worker.js";
 const outbox = Object.freeze({loadOutboxKeyring: outboxPart0.loadOutboxKeyring,sealAccountToken: outboxPart0.sealAccountToken,openAccountToken: outboxPart0.openAccountToken,OutboxError: outboxPart0.OutboxError,enqueueAccountMail: outboxPart1.enqueueAccountMail,cancelAccountMailForToken: outboxPart1.cancelAccountMailForToken,ACCOUNT_MAIL_JOB_TYPE: outboxPart1.ACCOUNT_MAIL_JOB_TYPE,runOnce: outboxPart2.runOnce});
 import { ACCOUNT_TOKEN_DIGEST_DOMAIN } from "../.build/p33-outbox/apps/api/src/modules/identity/domain/digest-domains.js";
 

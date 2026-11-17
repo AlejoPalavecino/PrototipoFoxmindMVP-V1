@@ -1,8 +1,8 @@
-import { createGeminiFoxyImageAdapter } from '../modules/foxy/infrastructure/providers/foxy-image-adapter.ts';
-import { createGeminiFoxyDiagramAdapter } from '../modules/foxy/infrastructure/providers/foxy-diagram-adapter.ts';
+import { createGeminiFoxyImageAdapter } from '../modules/foxy/visuals/infrastructure/providers/foxy-image-adapter.ts';
+import { createGeminiFoxyDiagramAdapter } from '../modules/foxy/visuals/infrastructure/providers/foxy-diagram-adapter.ts';
 import { type AiConfiguration } from '../platform/ai/configuration.ts';
-import type { FoxyVisualHostConfiguration } from '../modules/foxy/infrastructure/visual-configuration.ts';
-import type { VisualProviders } from '../modules/foxy/application/visual-runtime-contracts.ts';
+import type { FoxyVisualHostConfiguration } from '../modules/foxy/visuals/infrastructure/visual-configuration.ts';
+import type { VisualProviders } from '../modules/foxy/visuals/application/visual-runtime-contracts.ts';
 export function selectFoxyVisualProviders(ai: AiConfiguration | undefined, visual: FoxyVisualHostConfiguration | undefined,
   overrides: { enabled: boolean; providers?: { IMAGE?: VisualProviders['IMAGE']; DIAGRAM?: VisualProviders['DIAGRAM'] } }): VisualProviders | null {
   if (!ai || !visual) return null;

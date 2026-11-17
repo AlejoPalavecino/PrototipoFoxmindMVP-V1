@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { withP5Database } from '../scripts/p5-database.mjs';
-import { enqueueSubmittedAttemptGradingAi } from '../apps/api/src/modules/grading/infrastructure/grading-ai/enqueue.ts';
+import { enqueueSubmittedAttemptGradingAi } from '../apps/api/src/modules/grading/assistance/infrastructure/grading-ai/enqueue.ts';
 
 const configuration = { maxConcurrency: 2, deadlineMs: 30000, dailyActorRequests: 20, dailyGlobalRequests: 20,
   maxInputTokens: 10000, maxOutputTokens: 200, inputUsdPerMillion: 1, outputUsdPerMillion: 1, dailyBudgetUsd: 5 };
@@ -40,7 +40,7 @@ async function fixture(pool, database) {
 const job = async (pool, attempt) => (await pool.query('SELECT state,proposal,error_code,reserved_microusd,dispatch_count FROM grading_ai_jobs WHERE attempt_id=$1', [attempt])).rows[0];
 const count = async (pool, table, column, id) => Number((await pool.query(`SELECT count(*)::int AS n FROM ${table} WHERE ${column}=$1`, [id])).rows[0].n);
 async function runtime(database, provider) {
-  const { GradingAiRuntime } = await import("../apps/api/src/modules/grading/infrastructure/grading-ai/runtime.ts");
+  const { GradingAiRuntime } = await import("../apps/api/src/modules/grading/assistance/infrastructure/grading-ai/runtime.ts");
   return new GradingAiRuntime({ database, configuration, provider, reader: { read: async () => { throw new Error('No hay archivos en fixture'); } } });
 }
 function provider() {

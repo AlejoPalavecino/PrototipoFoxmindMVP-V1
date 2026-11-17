@@ -26,7 +26,7 @@ Tu día, con calma presenta los eventos del día local para ambos roles, con hor
 
 El pulido anterior y su verificación quedan documentados en el [registro del 11 de noviembre](../../work-log/2026-11-11-root-teacher-home-polish.md) y la [evidencia de ese corte](../../verification/teacher-home-polish.json).
 
-Fuentes: [Home](../../../apps/web/src/features/home/ui/Home.tsx), [proyecciones](../../../apps/api/src/modules/home/application/service.ts), [notificaciones](../../../apps/web/src/features/notifications/ui/Notifications.tsx). [Registro del candidato](../../work-log/2026-11-15-root-product-parity.md).
+Fuentes: [Home](../../../apps/web/src/features/home/ui/Home.tsx), [proyecciones](../../../apps/api/src/modules/home/dashboard/application/service.ts), [notificaciones](../../../apps/web/src/features/notifications/ui/Notifications.tsx). [Registro del candidato](../../work-log/2026-11-15-root-product-parity.md).
 
 ## Bandeja unificada
 
@@ -34,4 +34,13 @@ Fuentes: [Home](../../../apps/web/src/features/home/ui/Home.tsx), [proyecciones]
 
 Las proyecciones reúnen las notificaciones existentes de aula, actividades y resultados, las invitaciones pendientes, las altas de integrantes con pertenencia vigente y los avisos de repaso y de eventos propios. Abrir, marcar leída y marcar no leída vuelven a comprobar el recurso y la cuenta. Los avisos de Agenda y de invitación abren un diálogo con el recurso vigente encima de la bandeja. «Ahora no» no responde a la invitación. Cambiar el estado de lectura es idempotente y «Marcar todas como leídas» incluye toda la bandeja autorizada. Tras confirmar la escritura, la bandeja conserva las páginas abiertas y vuelve a consultarlas con cursores vigentes. Si falla esa consulta, el reintento sólo lee.
 
-Una invitación vencida, revocada, declinada o aceptada sale de la bandeja. Un miembro dado de baja y un aviso de Agenda o repaso cuyo origen se retiró dejan de proyectarse. La apertura desde una página anterior devuelve un estado genérico. Las lecturas de invitaciones, ingresos y eventos se guardan por cuenta e identidad de proyección. Las lecturas de repaso comparten el estado de su sesión durable; las notificaciones de aula conservan su tabla y sus permisos. [Consulta y lecturas](../../../apps/api/src/modules/home/infrastructure/notification-page.ts) · [Contrato](../../../src/core/domain/home/notifications.ts).
+Una invitación vencida, revocada, declinada o aceptada sale de la bandeja. Un miembro dado de baja y un aviso de Agenda o repaso cuyo origen se retiró dejan de proyectarse. La apertura desde una página anterior devuelve un estado genérico. Las lecturas de invitaciones, ingresos y eventos se guardan por cuenta e identidad de proyección. Las lecturas de repaso comparten el estado de su sesión durable; las notificaciones de aula conservan su tabla y sus permisos. [Consulta y lecturas](../../../apps/api/src/modules/home/notifications/infrastructure/notification-page.ts) · [Contrato](../../../src/core/domain/home/notifications.ts).
+
+
+## Responsabilidades del backend
+
+`home/dashboard` posee la lectura de Inicio, sus proyecciones por modulo y su transporte. `home/notifications` posee `NotificationInboxService`, la bandeja, los destinos de apertura y la persistencia de lectura. Conserva las URLs `/classrooms/notifications`, incluidos pagina, apertura, lectura individual y lectura masiva. La fachada HTTP academica delega en este servicio sin trasladar esos casos al Muro.
+
+`communication/wall` gobierna publicaciones, respuestas y moderacion. Produce sus avisos dentro de la misma transaccion que cambia el Muro y avanza la revision. Los productores de otros dominios conservan igualmente su insercion atomica; Home no agrega una transaccion independiente para producir avisos.
+
+La bandeja descubre primero el aula de un aviso perteneciente a la cuenta, toma el bloqueo estandar del aula y vuelve a comprobar la visibilidad del destino antes de marcar. Las proyecciones revalidan sus origenes; la lectura masiva bloquea aulas en orden global y reevalua los destinos bajo esos bloqueos. Los repositorios de Muro y de bandeja reciben comandos tipados separados; la bandeja no expone operaciones de publicacion.

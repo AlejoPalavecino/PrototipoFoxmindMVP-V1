@@ -19,7 +19,7 @@ function previewFixture(change = {}) {
   return { calls, tokens, capability: { run: async (_request, write, work) => { assert.equal(write, true); return work(tx, { ...actor, ...change.actor }); }, tokens: { issue: value => { tokens.push(value); return 'confirmation'; } } } };
 }
 test('code preview returns the persisted cover and keeps confirmation scoped to actor/classroom', async () => {
-  const { previewCodeOperation } = loadTsModule('apps/api/src/modules/classrooms/infrastructure/memberships-operations-1.ts');
+  const { previewCodeOperation } = loadTsModule('apps/api/src/bootstrap/academic-management-composition.ts');
   const f = previewFixture();
   const result = await previewCodeOperation(f.capability, {}, '123456');
   assert.equal(result.classroom.coverKey, 'literature');
@@ -29,7 +29,7 @@ test('code preview returns the persisted cover and keeps confirmation scoped to 
   assert.ok(f.calls.every(({ sql }) => !/INSERT|UPDATE classrooms SET/.test(sql)));
 });
 test('cover projection does not bypass code preview rejection paths or require legacy cover data', async () => {
-  const { previewCodeOperation } = loadTsModule('apps/api/src/modules/classrooms/infrastructure/memberships-operations-1.ts');
+  const { previewCodeOperation } = loadTsModule('apps/api/src/bootstrap/academic-management-composition.ts');
   for (const change of [{ actor: { account_role: 'teacher' } }, { missingCode: true }, { room: { archived_at: actor.now } }, { room: { teacher_id: actor.id } }, { enrolled: true }, { revoked: true }]) {
     const f = previewFixture(change);
     await assert.rejects(previewCodeOperation(f.capability, {}, '123456'), { code: 'ENROLLMENT_UNAVAILABLE' });
@@ -39,8 +39,8 @@ test('cover projection does not bypass code preview rejection paths or require l
   assert.equal(Object.hasOwn((await previewCodeOperation(f.capability, {}, '123456')).classroom, 'coverKey'), false);
 });
 test('pending invitations project the classroom cover with recipient, expiry and membership filters intact', async () => {
-  const { createInvitationsRepository } = loadTsModule('apps/api/src/modules/classrooms/infrastructure/invitations-repository.ts');
-  const { InvitationService } = loadTsModule('apps/api/src/modules/classrooms/application/invitations.ts');
+  const { createInvitationsRepository } = loadTsModule('apps/api/src/modules/classrooms/invitations/infrastructure/invitations-repository.ts');
+  const { InvitationService } = loadTsModule('apps/api/src/modules/classrooms/invitations/application/invitations.ts');
   const calls = [], rows = [{ id: code.id, name: room.name, coverKey: room.cover_key }];
   const tx = { query: async (sql, ...params) => { calls.push({ sql, params }); return rows; } };
   const service = new InvitationService({ run: async (_req, write, work) => { assert.equal(write, false); return work(tx, actor); }, classroom() {} }, { enroll() {} }, createInvitationsRepository(), {});

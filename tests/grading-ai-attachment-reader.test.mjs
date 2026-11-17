@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 
-const create = async ports => (await import("../apps/api/src/modules/files/infrastructure/grading-ai-attachment-reader.ts")).createGradingAiAttachmentReader(ports);
+const create = async ports => (await import("../apps/api/src/modules/files/custody/infrastructure/grading-ai-attachment-reader.ts")).createGradingAiAttachmentReader(ports);
 const bytes = Buffer.from('documento sintético');
 const digest = createHash('sha256').update(bytes).digest('hex');
 const grant = { ownerId: 'docente', classroomId: 'aula', attemptId: 'intento', fileId: 'archivo', digest };

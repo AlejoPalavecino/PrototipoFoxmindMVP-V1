@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { FileService } from '../.build/api/apps/api/src/modules/files/infrastructure/service.js';
-import { createFileAccess } from '../.build/api/apps/api/src/modules/files/infrastructure/access.js';
+import { FileService } from '../.build/api/apps/api/src/modules/files/custody/infrastructure/service.js';
+import { createFileAccess } from '../.build/api/apps/api/src/modules/files/custody/infrastructure/access.js';
 import { FileError } from '../.build/api/apps/api/src/modules/files/domain/errors.js';
 
 export async function verifyPromotion(t, { sql, options, users, sessions, bytes }) {

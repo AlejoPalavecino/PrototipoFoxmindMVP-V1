@@ -2,10 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { parseHomePageQuery } from '../src/core/domain/home/validation.ts';
-import { nextCursor, readCursor } from '../apps/api/src/modules/home/infrastructure/cursor.ts';
-import { readSqlPage } from '../apps/api/src/modules/home/infrastructure/sql-page.ts';
-import { createHomeHandler } from '../apps/api/src/modules/home/presentation/http.ts';
-import { createHomeService } from '../apps/api/src/modules/home/application/service.ts';
+import { nextCursor, readCursor } from '../apps/api/src/modules/home/dashboard/infrastructure/cursor.ts';
+import { readSqlPage } from '../apps/api/src/modules/home/dashboard/infrastructure/sql-page.ts';
+import { createHomeHandler } from '../apps/api/src/modules/home/dashboard/presentation/http.ts';
+import { createHomeService } from '../apps/api/src/modules/home/dashboard/application/service.ts';
 import { createWebHomeClient } from '../apps/web/src/application/academic-home-client.ts';
 import { proxyHomeRequest } from '../apps/web/src/application/server/home-proxy.ts';
 

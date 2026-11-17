@@ -268,7 +268,7 @@ Resumen: «N invitaciones creadas, M requieren atención». Mantener destinatari
 
 ### Contrato de lote implementado
 
-El servicio actual recibe un correo, crea/renueva invitación y encola correo en una transacción; vigencia 7 días y reemisión mínima 60 s. Esto **no cambia** por hacer permanente el código del aula. No hay envío masivo existente que pueda darse por implementado. Ver [operación actual](../../apps/api/src/modules/classrooms/infrastructure/invitations-operations.ts).
+El servicio actual recibe un correo, crea/renueva invitación y encola correo en una transacción; vigencia 7 días y reemisión mínima 60 s. Esto **no cambia** por hacer permanente el código del aula. No hay envío masivo existente que pueda darse por implementado. Ver [operación actual](../../apps/api/src/modules/classrooms/invitations/application/invitations-operations.ts).
 
 El lote reserva un recibo por solicitud y procesa cada posición de forma idempotente. Ante un resultado incierto, el cliente recupera el recibo y continúa las posiciones pendientes. [Contrato vigente](../engineering/classrooms/README.md#ingreso-y-pertenencia)
 
@@ -334,5 +334,5 @@ Las condiciones de aceptación se contrastan con el [recibo de integración](../
 - [Wizard actual](../../apps/web/src/application/academic-Wizard.tsx), [editor de propuesta](../../apps/web/src/features/curriculum/ui/ExtractionEditor.tsx), [extracción](../../apps/web/src/features/curriculum/model/extraction-client.ts).
 - [Plan](../../apps/web/src/features/curriculum/ui/Plan.tsx), [Muro](../../apps/web/src/features/communication/ui/Wall.tsx), [Biblioteca](../../apps/web/src/features/materials/ui/Library.tsx).
 - [Autoría](../../apps/web/src/features/activity-authoring/ui/ActivityAuthoring.tsx), [consulta de actividad](../../apps/web/src/application/academic-activity-preview.tsx), [generación](../engineering/ai/activity-generation.md).
-- [Invitaciones](../../apps/api/src/modules/classrooms/infrastructure/invitations-operations.ts), [códigos](../../apps/api/src/modules/classrooms/infrastructure/classroom-codes.ts), [ingreso](../../apps/api/src/modules/classrooms/infrastructure/memberships-operations-1.ts).
+- [Invitaciones](../../apps/api/src/modules/classrooms/invitations/application/invitations-operations.ts), [códigos](../../apps/api/src/modules/classrooms/memberships/infrastructure/classroom-codes.ts), [ingreso](../../apps/api/src/modules/classrooms/memberships/application/membership-code-operations.ts).
 - [Registro de diseño y comprobaciones](../work-log/2026-11-11-root-teacher-classroom-design.md). El informe aportado y las capturas históricas orientan la auditoría; no prueban tamaño de CSS descargado ni causa definitiva de una transparencia sin inspección runtime.

@@ -49,6 +49,10 @@ Se conserva el monolito modular: una aplicación backend compone capacidades esp
 
 Identidad controla sesión y verificación; cada capacidad revalida propiedad y membresía. Files conserva los bytes privados; el puente de adjuntos coordina su relación académica sin trasladar esa autoridad al navegador. Inicio y Agenda usan proyecciones autorizadas; los trabajos IA comparten admisión sin combinar sus políticas de privacidad.
 
+La composición académica productiva crea un `AcademicRuntime` bajo el token `ACADEMIC_RUNTIME`: un solo `ClassroomCore`, sus puertos/tokens y las instancias agrupadas por capacidad. HTTP recibe ocho puertos de consumidor; Foxy recibe sólo `run/classroom`, Student AI sólo `progressView` y Activity AI sólo autenticación/base de datos y acceso al aula. Los callbacks conservan el servicio dueño como receiver. El provider de `InvitationService` selecciona la instancia concreta de invitaciones del runtime, sin usar el agregado como servicio de invitaciones.
+
+La API plana `ClassroomService` queda exclusivamente en `tests/helpers/academic-fixture.ts` para fixtures y el host sintético `p5-runtime`. Su tabla tipada conserva métodos de prototipo y retornos de los servicios reales; construye el runtime productivo una sola vez desde el build estricto y delega sobre esas instancias, sin repetir composición ni reglas. No es un provider productivo.
+
 La [base de ejecución IA](ai/README.md#ejecución-con-sdk-oficiales) conecta las seis tareas textuales a contratos/perfiles y SDK oficiales Gemini/Claude en `platform/ai`. Los dominios conservan sus puertos, permisos y reglas; `profile-client.ts` traduce sus solicitudes al ejecutor neutral y Estudio conserva SQL/admisión/presupuesto en un coordinador separado. Gemini es el default; Claude requiere perfil, habilitación y clave explícitos en backend. Los visuales mantienen su configuración específica.
 
 Cada trabajo guarda un snapshot de proveedor/modelo, versiones, límites y tarifas sin secretos. `execution-snapshot.ts` lo valida y resuelve configuración local al trabajo; `execution-policy.ts` inicializa baseline y perfiles activos antes de iniciar workers. Cambiar configuración no reasigna trabajos existentes ni cambia sus precios. La transición exige drenar pendientes legacy antes del primer arranque de la nueva política. [Configuración y transición](ai/README.md#configurar-perfiles-textuales) · [modelo físico](data-model.md#instantánea-de-ejecución-ia).
@@ -132,7 +136,33 @@ Los módulos backend son identity, files, classrooms, curriculum, materials, com
 | agenda / home | Eventos privados y proyección académica / lecturas y avisos autorizados |
 | foxy / study | Conversaciones y recursos privados / carpetas, prácticas y repasos privados |
 
-`scripts/migration-boundaries.mjs` y el guard AST protegen módulos, contratos públicos, entradas de features y dirección de dependencias. El objetivo de cierre es cero excepciones; el resultado del candidato y la aceptación final se registran en el [tablero único](../../odd/tasks/architecture-migration.md), no se deducen de esta reorganización documental.
+### Capacidades dentro del backend
+
+La [reorganización aprobada](backend-capabilities-plan.md) mantiene esos 13 módulos y agrupa su comportamiento por capacidad. Por ejemplo, `classrooms/drafts/application` contiene decisiones de publicación y su puerto; `classrooms/drafts/infrastructure` implementa persistencia. Cada capacidad crea sólo las capas que utiliza. No se exige una clase por endpoint ni se fragmenta por cantidad de líneas.
+
+| Módulo | Capacidades implementadas |
+|---|---|
+| identity | accounts, sessions, mail-delivery |
+| files | uploads, downloads, custody, chat-attachments |
+| classrooms | access, catalog, drafts, settings, memberships, invitations, academic-projection |
+| curriculum | plan, generation |
+| materials | library, publication |
+| communication | wall |
+| activities | authoring, generation |
+| participation | attempts, practical-submissions, questionnaires, history |
+| grading | review, publication, corrections, progress, assistance, student-analysis |
+| agenda | events, academic-projection |
+| home | dashboard, notifications |
+| foxy | conversations, turns, resources, citations, private-assets, visuals, publications |
+| study | folders, sources, conversations, generation, practices, reviews |
+
+`application` coordina reglas mediante puertos tipados; los adaptadores conservan SQL, locks y comprobaciones atómicas. Los comandos de repositorio tienen entradas y resultados concretos. La colaboración entre capacidades usa contratos públicos nombrados o puertos inyectados; la composición conserva el mismo actor y transacción. Las reglas compartidas puras quedan en `domain` del módulo. Los contratos que necesitan varias capacidades pueden permanecer en `application` del módulo como dependencias de tipos. Foxy conserva una presentación común para admisión, límites, errores y despacho HTTP; no contiene persistencia ni construcción de proveedores.
+
+La bandeja pertenece a `home/notifications`; Muro y otros productores insertan sus avisos dentro de la transacción original. Las rutas HTTP existentes se conservan. La recepción de archivos utiliza un puerto de autorización y vuelve a comprobar la custodia al recibir el cuerpo, sin exponer el store al transporte. Estudio prepara, reserva, revalida, ejecuta fuera de la transacción y aplica el resultado junto con su recibo; cancelación y revocación siguen vigentes.
+
+El backend importa las reglas neutrales desde su archivo dueño en `src/core/domain/<dominio>`. El guard impide depender de `src/core/domain/index.ts`, incluso desde bootstrap. Esa entrada mantiene compatibilidad para los consumidores frontend concurrentes y las pruebas explícitas de identidad de exports; su retiro requiere migrar esos consumidores primero. Esta rama no modifica frontend ni da ese retiro por realizado.
+
+`scripts/migration-boundaries.mjs` y el guard AST protegen módulos, capacidades, contratos públicos, entradas de features y dirección de dependencias, con cero excepciones congeladas. El [mapa por archivo](../verification/backend-capabilities-map.json) conserva origen, destino y huellas de la base y del candidato. El resultado local y sus límites se registran en el [tablero de capacidades](../../odd/tasks/backend-capabilities.md) y su [registro de ejecución](../work-log/2026-11-16-root-backend-capabilities-execution.md); no equivalen a integración ni publicación.
 
 El núcleo agrupa reglas en `src/core/domain/<dominio>`; los consumidores usan su dueño concreto. `src/core/contracts` separa DTOs compartidos y `sql.ts` define persistencia: un tipo SQL no es una regla de dominio ni un contrato para exponer al navegador. No hay un barrel global que mezcle todos los dominios.
 
@@ -148,4 +178,4 @@ Estudio conserva motor neutral en `src/core/domain/study/engine.ts`, casos de us
 2. Seguí proxy → transporte → capacidad dueña → transacción/persistencia, consultando la guía de dominio y el código. La composición académica vive en bootstrap; las reglas de autoría, participación y calificación tienen sus propios módulos.
 3. Elegí pruebas de permisos, contratos y datos según el cambio. Revisá [verificación](testing/README.md) y ejecutá lint:boundaries si cambia una dependencia entre módulos.
 
-Fuentes: [host](../../apps/api/src/main.ts), [composición](../../apps/api/src/bootstrap/application.ts), [núcleo](../../src/core/domain/), [contratos](../../src/core/contracts/), [factory Files](../../apps/api/src/modules/files/infrastructure/configuration.ts), [selección visual](../../apps/api/src/bootstrap/foxy-visual-host-providers.ts), [scripts](../../package.json). [Estado actual](../implementation-roadmap.md).
+Fuentes: [host](../../apps/api/src/main.ts), [composición](../../apps/api/src/bootstrap/application.ts), [núcleo](../../src/core/domain/), [contratos](../../src/core/contracts/), [factory Files](../../apps/api/src/modules/files/custody/infrastructure/configuration.ts), [selección visual](../../apps/api/src/bootstrap/foxy-visual-host-providers.ts), [scripts](../../package.json). [Estado actual](../implementation-roadmap.md).

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { IdentityStore } from '../.build/api/apps/api/src/modules/identity/infrastructure/persistence.js';
+import { IdentityStore } from '../.build/api/apps/api/src/modules/identity/accounts/infrastructure/persistence.js';
 import { IdentityRuntime, publicUser } from '../.build/api/apps/api/src/bootstrap/identity-runtime.js';
 import { DraftService } from '../.build/api/apps/api/src/bootstrap/academic-management-composition.js';
 import { MembershipService } from '../.build/api/apps/api/src/bootstrap/academic-management-composition.js';
@@ -65,7 +65,7 @@ test('teacher cannot enroll in a classroom', async () => {
 test('persisted roles govern classroom creation and enrollment and survive duplicate registration', { timeout: 120000 }, async () => {
   const { randomUUID } = await import('node:crypto');
   const { withAiDatabase, rollbackCase } = await import('./classroom-ai-database.test.mjs');
-  const { ClassroomService } = await import("../.build/api/apps/api/src/bootstrap/academic-composition.js");
+  const { ClassroomService } = await import("./helpers/academic-fixture.ts");
   await withAiDatabase(async ({ pool }) => rollbackCase(pool, async local => {
     const teacher = randomUUID(), student = randomUUID(), room = randomUUID();
     for (const [id, role] of [[teacher, 'teacher'], [student, 'student']]) {

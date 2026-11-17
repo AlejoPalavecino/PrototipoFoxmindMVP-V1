@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createFoxyTurnPreparation } from '../apps/api/src/modules/foxy/infrastructure/turn-preparation.ts';
-import { createFoxyTurnRepository } from '../apps/api/src/modules/foxy/infrastructure/turn-repository.ts';
+import { createFoxyTurnPreparation } from '../apps/api/src/modules/foxy/turns/infrastructure/turn-preparation.ts';
+import { createFoxyTurnRepository } from '../apps/api/src/modules/foxy/turns/infrastructure/turn-repository.ts';
 import { readFile } from 'node:fs/promises';
-import { createFoxyTextBudget } from '../apps/api/src/modules/foxy/infrastructure/text-budget.ts';
-import { createFoxyTurnQueue } from '../apps/api/src/modules/foxy/infrastructure/turn-queue.ts';
-import { createFoxyTextWorker } from '../apps/api/src/modules/foxy/infrastructure/worker.ts';
+import { createFoxyTextBudget } from '../apps/api/src/modules/foxy/turns/infrastructure/text-budget.ts';
+import { createFoxyTurnQueue } from '../apps/api/src/modules/foxy/turns/infrastructure/turn-queue.ts';
+import { createFoxyTextWorker } from '../apps/api/src/modules/foxy/turns/infrastructure/worker.ts';
 
 const pinned = { format: 'ai-execution-v1', task: 'foxy', provider: 'anthropic', model: 'pinned-claude',
   profileId: 'foxy-text', profileVersion: '1', promptVersion: 'foxy-chat-v2', responseVersion: 'foxy-answer-v1',
@@ -59,7 +59,7 @@ test('Foxy legacy turn uses approved baseline instead of a newly active profile'
 });
 
 test('Foxy snapshot SQL is atomic and preserves existing positional parameters', async () => {
-  const source = await readFile(new URL('../apps/api/src/modules/foxy/infrastructure/turn-repository.ts', import.meta.url), 'utf8');
+  const source = await readFile(new URL('../apps/api/src/modules/foxy/turns/infrastructure/turn-repository.ts', import.meta.url), 'utf8');
   assert.match(source, /INSERT INTO foxy_turns\([^`]*execution_profile/u);
   assert.match(source, /active_profiles\s*->\s*'foxy'/u);
   assert.match(source, /jsonb_set\(\$10::jsonb/u);

@@ -4,8 +4,8 @@
     "outDir": "../../.build/p33-security"
   },
   "include": [
-    "src/modules/identity/infrastructure/security/**/*.ts",
+    "src/modules/identity/accounts/infrastructure/security/**/*.ts",
     "src/modules/identity/domain/digest-domains.ts",
-    "src/modules/identity/presentation/session-cookies.ts"
+    "src/modules/identity/accounts/presentation/session-cookies.ts"
   ]
 }

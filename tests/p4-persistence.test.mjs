@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { setTimeout as pause } from 'node:timers/promises';
-import { createFileInfrastructure } from '../apps/api/src/modules/files/infrastructure/configuration.ts';
+import { createFileInfrastructure } from '../apps/api/src/modules/files/custody/infrastructure/configuration.ts';
 import { p4Local, p4LocalConfiguration } from '../scripts/p4-local.mjs';
 import pg from 'pg';
 import { readdir } from 'node:fs/promises';

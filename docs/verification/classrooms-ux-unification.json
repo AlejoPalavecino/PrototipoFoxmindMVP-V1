@@ -25,7 +25,7 @@
       "gitBlobSha256": "23b5b0456f25fbddc314a487a1f095fb034efc36a561a1ff6a59950ec3bd58d5"
     },
     {
-      "path": "apps/api/src/modules/classrooms/application/invitations.ts",
+      "path": "apps/api/src/modules/classrooms/invitations/application/invitations.ts",
       "sha256": "02656bfb1064ebf341dfccd8c7ee5193d4cd5bd220687979e5eb16e3816c922f",
       "gitBlobSha256": "c7a8faa022ee61a6abee58f568a85a3484dc8928e572621c46987b9ad398f270"
     },
@@ -35,22 +35,22 @@
       "gitBlobSha256": "de9d64ab33db8973e501fa4e7bd4a73e978b10b7c0a50ffac36e5d5fde2a7367"
     },
     {
-      "path": "apps/api/src/modules/classrooms/infrastructure/classroom-codes.ts",
+      "path": "apps/api/src/modules/classrooms/memberships/infrastructure/classroom-codes.ts",
       "sha256": "779d254dae3687b2da107dc1f284a81fb9ee03e986a444ee92a5c565262848c0",
       "gitBlobSha256": "20aabf2765c4a0bfec5fc136b0cdf683bb3a800c5d06b05afb483253c964a562"
     },
     {
-      "path": "apps/api/src/modules/classrooms/infrastructure/invitation-batches.ts",
+      "path": "apps/api/src/modules/classrooms/invitations/application/invitation-batches.ts",
       "sha256": "73419ca57468d0fb6ef8239edefce8f58d96a33775a9bba0988ac5d8cdae4d24",
       "gitBlobSha256": "73419ca57468d0fb6ef8239edefce8f58d96a33775a9bba0988ac5d8cdae4d24"
     },
     {
-      "path": "apps/api/src/modules/classrooms/infrastructure/invitations-operations.ts",
+      "path": "apps/api/src/modules/classrooms/invitations/application/invitations-operations.ts",
       "sha256": "1fcf6c6b7f93ccda46fd34e0234e60359faaccd800f0c4eca42562e3f0fe1692",
       "gitBlobSha256": "657f1aa931e6bde6fd2bad49dcaeb7c32354b54091c6354a542a80163c269664"
     },
     {
-      "path": "apps/api/src/modules/classrooms/infrastructure/memberships-operations-1.ts",
+      "path": "apps/api/src/modules/classrooms/memberships/application/membership-code-operations.ts",
       "sha256": "b1b87eaead0bd05c645cdffd904f711d220e112ac861fd2c1f6cbcebc34f994f",
       "gitBlobSha256": "95179c1904ca05d2c29f0dd3c104b0dc4f9e1c99dcad6e57ef961f7feaf0d7f5"
     },

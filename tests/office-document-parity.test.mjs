@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { office } from './p4-fixtures.mjs';
-import { parseActivityDocument } from '../apps/api/src/modules/files/infrastructure/activity-document.ts';
-import { parseChatAttachmentIntent } from '../apps/api/src/modules/files/infrastructure/chat-attachment-policy.ts';
+import { parseActivityDocument } from '../apps/api/src/modules/files/custody/infrastructure/activity-document.ts';
+import { parseChatAttachmentIntent } from '../apps/api/src/modules/files/chat-attachments/domain/policy.ts';
 import { validateUploadIntent } from '../apps/api/src/modules/files/domain/policy.ts';
 
 const p = 'http://schemas.openxmlformats.org/presentationml/2006/main';

@@ -1,19 +1,19 @@
 import { randomUUID } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { INestApplication } from '@nestjs/common';
-import { clearSessionCookie } from '../modules/identity/presentation/session-cookies.ts';
-import { type IdentityConfiguration } from '../modules/identity/infrastructure/security/configuration.ts';
+import { clearSessionCookie } from '../modules/identity/accounts/presentation/session-cookies.ts';
+import { type IdentityConfiguration } from '../modules/identity/accounts/infrastructure/security/configuration.ts';
 import { IdentityHttpError, publicIdentityError } from '../modules/identity/domain/errors.ts';
 import type { IdentityRuntime } from './identity-runtime.ts';
-import { readSessionCookie } from '../modules/identity/presentation/transport.ts';
-import { authenticateSession } from '../modules/identity/infrastructure/session-query.ts';
-import type { ClassroomPorts } from '../modules/classrooms/infrastructure/contracts.ts';
-import type { ClassroomsHttpOperations } from './academic-http.ts';
-import type { InvitationDeliveryWorker } from '../modules/classrooms/infrastructure/delivery.ts';
-import { ClassroomIdentityError } from '../modules/classrooms/infrastructure/errors.ts';
+import { readSessionCookie } from '../modules/identity/accounts/presentation/transport.ts';
+import { authenticateSession } from '../modules/identity/accounts/infrastructure/session-query.ts';
+import type { ClassroomPorts } from '../modules/classrooms/access/application/runtime-ports.ts';
+import type { ClassroomsHttpOperations, AcademicHttpServices } from './academic-http.ts';
+import type { InvitationDeliveryWorker } from '../modules/classrooms/invitations/infrastructure/delivery.ts';
+import { ClassroomIdentityError } from '../modules/classrooms/access/infrastructure/errors.ts';
 import { createClassroomsHandler } from './academic-http.ts';
-import type { ActivityAiService } from '../modules/activities/infrastructure/activity-ai/service.ts';
-import type { ClassroomAiService } from '../modules/curriculum/infrastructure/ai/service.ts';
+import type { ActivityAiService } from '../modules/activities/generation/infrastructure/activity-ai/service.ts';
+import type { ClassroomAiService } from '../modules/curriculum/generation/infrastructure/ai/service.ts';
 
 function writeGuard(security: IdentityConfiguration, request: IncomingMessage, verifier: string, write: boolean): void {
   if (!write && !['POST', 'PUT', 'PATCH'].includes(request.method ?? '')) return;
@@ -43,7 +43,7 @@ export function createIdentityClassroomAuthentication(security: IdentityConfigur
 
 /** Installed before general body parsers. The handler calls this ingress admission exactly once. */
 export function installClassroomsTransport(app: Pick<INestApplication, 'use'>,
-  runtime: IdentityRuntime, service: ClassroomsHttpOperations, options: { ai?: ClassroomAiService; activityAi?: ActivityAiService } = {}): void {
+  runtime: IdentityRuntime, service: AcademicHttpServices | ClassroomsHttpOperations, options: { ai?: ClassroomAiService; activityAi?: ActivityAiService } = {}): void {
   const classrooms = createClassroomsHandler(service, {
     ai: options.ai, activityAi: options.activityAi,
     async admit(request, write, response) {

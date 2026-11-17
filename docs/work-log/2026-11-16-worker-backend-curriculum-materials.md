@@ -1,0 +1,36 @@
+# TASK-008 — Currículo, materiales y generación de actividades
+
+Agente `/root/backend_capability_guards`. Fecha 2026-11-16. Rama `codex/backend-capabilities`, worktree `069c`. Diseño y ejecución autorizados por el coordinador para TASK-008. Sin commits, DB, proveedores o build global. Superficies limitadas al encargo, trabajo concurrente preservado.
+
+Estado: fuentes congeladas para integración/verificación del coordinador; no se marca DONE. Sin commits ni publicación.
+
+## Cambios y límites de responsabilidad
+
+- Mapas exactos: `.test-artifacts/backend-capabilities/curriculum-rest-move.json` (16 movimientos), `materials-move.json` (10), `activities-generation-move.json` (23). Se ejecutó `move-files.mjs` con scope del módulo propio; Activities excluyó `authoring/`.
+- `curriculum/plan` se preservó. La extracción durable quedó bajo `curriculum/generation`; aplicación decide inicio/retry/replay/revisión/aplicación, y recibe operaciones semánticas tipadas. SQL, autorización transaccional, locks, proveedor, cola y perfil persistido permanecen en infraestructura.
+- `activities/generation` contiene servicio, aplicación de propuesta y política de requestId/hash en application. Los puertos `ActivityGenerationPorts` y `ActivityApplyPorts` mantienen tx explícita y el contrato `ActivityDraftWriterPort` de Autoría. Los adaptadores de contenido/temas/borrador se movieron juntos a generation/infrastructure; Autoría los recibe por composición, sin importar internals hermanos.
+- `materials/library` gobierna consulta/edición/enlaces/revisión; `materials/publication` gobierna publicación y archivo autorizado. La revisión de texto permanece en Biblioteca por compartir transacción, permisos, replay y enlaces; no se creó una capacidad vacía. El avance de temas permanece con el piloto Plan, según el límite de no modificar ese corte.
+- `LibraryRepository` reemplaza 15 métodos numerados/genéricos con comandos nombrados, entradas con alcance explícito y resultados concretos. Se conservaron SQL y orden de argumentos.
+- `ClassroomFileOperations` dejó de declarar `advanceRevision`; Biblioteca y `MaterialPublicationDependencies` incorporan explícitamente `RevisionPort` de Aulas. Se preservó el binding del método ready-file.
+- APIs públicas nombradas por capacidad; el módulo reexporta sus APIs. Los adaptadores `infrastructure/.../service.ts` conservan temporalmente construcción `constructor(options)` para consumidores existentes, delegando toda la coordinación al servicio application. No duplican el caso de uso.
+- Bootstraps propios remapeados; además se aplicaron los mapas de Classrooms/Grading sólo a los cuatro bootstraps propios. Guías `teaching/README.md` y `ai/plan-extraction.md` actualizadas con responsabilidades efectivas.
+
+## Evidencia observada
+
+- RED Library: `node --test apps/api/src/modules/materials/library/application/library-repository.test.mjs`: 0 PASS/15 FAIL; los nuevos métodos semánticos no existían. Tras implementación: 15/15 PASS. Cada caso congela SQL, parámetros y tx originales.
+- RED servicios IA: pruebas ejecutadas contra las implementaciones originales con `node --experimental-transform-types --test .../service.test.mjs`: 0 PASS/2 FAIL por depender de `options.database.$transaction`/`options.access.authorized` en vez del puerto inyectado. Antes se detectó un fixture Activity inválido, se corrigió antes de obtener el RED esperado; no se presenta ese error de fixture ni el import inicialmente inexistente como RED funcional.
+- GREEN final: `node --experimental-transform-types --test apps/api/src/modules/curriculum/generation/application/*.test.mjs apps/api/src/modules/activities/generation/application/*.test.mjs apps/api/src/modules/materials/library/application/*.test.mjs apps/api/src/modules/materials/publication/application/*.test.mjs`: **40/40 PASS**, 0 skips.
+- Incluye 24 comprobaciones de SQL/args/tx (15 Biblioteca, 5 Currículo, 2 servicio Activities, 2 aplicación Activities), formatos de hash previos, conflictos de requestId, orden de advisory-lock/lectura de recibo, replay antes de revisión, cinco escenarios de aplicación sin escritura duplicada y dos de publicación/RevisionPort. Las consultas INSERT congeladas conservan la selección y snapshot del perfil/modelo.
+- Negativos de tipos con compilador TypeScript virtual: alcance requerido, resultados no genéricos, rechazo de parámetros posicionales, readiness boolean y ausencia de revisión en contrato de archivos. PASS dentro de los 40 tests.
+- `node scripts/check-boundaries.mjs`: PASS, **0 frozen exceptions**, tras los movimientos y nuevas APIs. No se modificó el guard congelado.
+- TypeScript noEmit con opciones de `apps/api/tsconfig.json`, raíces Curriculum/Materials/Activities-generation y cuatro bootstraps propios; diagnósticos filtrados a esa superficie: **0**. Primera pasada detectó `unitId` potencialmente null (corregido con la validación previa existente); segunda detectó cuatro imports ajenos movidos (remapeados con mapas del coordinador). Esto no sustituye build global ni el chequeo de otros módulos.
+- `git diff --check -- <superficies propias>`: exit 0. El check global observó whitespace ajeno en `docs/engineering/identity/README.md` y EOF adicional en `academic-student-composition.ts`; se informó al coordinador y no se modificaron.
+- Intento `node --test` sin transform-types: falla por TypeScript parameter properties al cargar la API pública de Classrooms. Es una limitación de ese comando standalone, no un RED funcional. El coordinador confirmó que el runner oficial usa `--experimental-transform-types` y `register-api-test-build.mjs`; se conservaron imports de fuente para el build fresco oficial.
+
+## Integración pendiente y riesgos reales
+
+- El coordinador debe aplicar los tres mapas a consumidores/tests/inventarios externos y actualizar el mapa documental/tablero. Wiring fuera de ownership: `academic-authoring-composition.ts` debe apuntar los helpers compartidos a `activities/generation/infrastructure`; `academic-composition.ts` debe combinar explícitamente `RevisionPort` con el contrato de archivos si usaba `ClassroomFileOperations['advanceRevision']`.
+- Nuevas pruebas: 3 archivos bajo curriculum/generation/application, 5 bajo activities/generation/application, 2 bajo materials/library/application y 1 bajo materials/publication/application. Requieren inventario/rutas oficiales del coordinador.
+- Pendientes: build estricto fresco, suites oficiales globales, DB/concurrencia e integración. No se ejecutaron proveedores ni datos retenidos; los tests sintéticos verifican llamadas y orden, no el comportamiento real de PostgreSQL o un proveedor.
+- Los workers, validaciones de fuentes y adaptadores existentes se reubicaron sin rediseñar sus transacciones ni protocolos. La extracción se concentró en servicios, apply y políticas de recibos; no se afirma haber reescrito toda la lógica interna del worker o eliminado los adaptadores temporales de construcción.
+- Reversión de la unidad: revertir sólo los cuatro bootstraps y las guías propias; invertir los tres mapas con remapeo de consumidores coordinado; retirar los archivos nuevos de puertos/servicios/pruebas y este registro. No ejecutar restauración global ni invertir mapas de otros agentes. Se requiere coordinación si el root ya integró consumidores externos.

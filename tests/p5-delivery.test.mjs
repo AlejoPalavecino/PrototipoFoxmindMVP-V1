@@ -2,14 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { withP5Database } from '../scripts/p5-database.mjs';
-import { FileStore } from '../.build/api/apps/api/src/modules/files/infrastructure/store.js';
+import { FileStore } from '../.build/api/apps/api/src/modules/files/custody/infrastructure/store.js';
 test(
   'P5 durable encrypted invitation dispatch, restart, stale generation and retry',
   { timeout: 120000 },
   async (t) => {
     await withP5Database(async ({ pool, database }) => {
       const { ClassroomService } =
-        await import("../.build/api/apps/api/src/bootstrap/academic-composition.js");
+        await import("./helpers/academic-fixture.ts");
       const { InvitationDeliveryWorker } =
         await import("../.build/api/apps/api/src/bootstrap/academic-delivery-composition.js");
       const owner = randomUUID(),

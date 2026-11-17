@@ -1,13 +1,15 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {randomUUID} from 'node:crypto';
 import {withGradingFixture} from './p8-grading-helpers.mjs';import {saveComplete,publish} from './p8-publication-helpers.mjs';
-import {loadTsModule} from './helpers/load-ts-module.mjs';import {deferred} from './agenda-ui-helpers.test.mjs';
+import {deferred} from './agenda-ui-helpers.test.mjs';
+import {createAcademicRuntime} from '../.build/api/apps/api/src/bootstrap/academic-composition.js';
+import {NotificationInboxService} from '../.build/api/apps/api/src/bootstrap/academic-notifications-composition.js';
 
 test('read-all is atomic for121+, idempotent and excludes other actors/revoked/invalid targets after ordered room locks', {timeout:120000},async()=>{
- const {WallService}=loadTsModule("apps/api/src/bootstrap/academic-communication-composition.ts");assert.equal(typeof WallService.prototype.readAllNotifications,'function');
- const {ClassroomCore}=loadTsModule("apps/api/src/modules/classrooms/infrastructure/context.ts");
+ assert.equal(typeof NotificationInboxService.prototype.readAllNotifications,'function');
  await withGradingFixture(async f=>{
-  const makeService=(database=f.database)=>new WallService(new ClassroomCore({...f.ports,database}),{advanceRevision(){throw new Error('read-all must not advance classroom revision');}});
+  const makeService=(database=f.database)=>createAcademicRuntime({...f.ports,database}).home.notifications;
   const service=makeService(),activity=await f.create('ASSIGNMENT');await publish(f,activity.attempt,await saveComplete(f,activity.attempt));
+  assert.ok(service instanceof NotificationInboxService);
   const post=randomUUID(),other=randomUUID(),invalid=randomUUID(),revoked=randomUUID(),revokedRoom=randomUUID(),enrollment=randomUUID(),period=randomUUID();
   await f.pool.query(`INSERT INTO wall_posts(id,updated_at,classroom_id,author_id,type,body) VALUES($1,now(),$2,$3,'NOTICE','Synthetic')`,[post,f.room,f.teacher]);
   await f.pool.query(`INSERT INTO notifications(id,updated_at,recipient_id,classroom_id,event_type,post_id) SELECT gen_random_uuid(),now(),$1,$2,'WALL_NOTICE',$3 FROM generate_series(1,121)`,[f.student,f.room,post]);
@@ -19,6 +21,8 @@ test('read-all is atomic for121+, idempotent and excludes other actors/revoked/i
   await f.pool.query(`INSERT INTO notifications(id,updated_at,recipient_id,classroom_id,event_type,post_id) VALUES($1,now(),$2,$3,'WALL_NOTICE',$4)`,[revoked,f.student,revokedRoom,revokedPost]);
   // Readability of archived classrooms is deliberately retained by the batch.
   await f.pool.query('UPDATE classrooms SET archived_at=now() WHERE id=$1',[f.room]);
+  const classroomRevisions=async()=>(await f.pool.query('SELECT id,revision FROM classrooms ORDER BY id')).rows;
+  const revisions=await classroomRevisions();
   const visible=await service.listNotificationPage(f.S);assert.ok(visible.unreadCount>=123);
   const excluded=[other,invalid,revoked];
   await f.pool.query(`CREATE FUNCTION brujula_batch_abort() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF OLD.recipient_id='${f.student}'::uuid AND OLD.event_type='WALL_NOTICE' THEN RAISE EXCEPTION 'synthetic rollback'; END IF; RETURN NEW; END $$; CREATE TRIGGER brujula_batch_abort BEFORE UPDATE ON notifications FOR EACH ROW EXECUTE FUNCTION brujula_batch_abort()`);
@@ -37,5 +41,6 @@ test('read-all is atomic for121+, idempotent and excludes other actors/revoked/i
   const database={$transaction:(operation,options)=>f.database.$transaction(raw=>operation({$queryRawUnsafe:async(sql,...args)=>{const result=await raw.$queryRawUnsafe(sql,...args);if(sql.includes('SELECT DISTINCT visible."classroomId"'))discovered.resolve();return result;}}),options)};
   const pending=makeService(database).readAllNotifications(f.S);
   try{await discovered.promise;await blocker.query(`UPDATE membership_periods SET ended_at=now(),end_reason='REMOVED',ended_by_id=$2 WHERE id=$1`,[period,f.teacher]);await blocker.query('COMMIT');assert.deepEqual(await pending,{read:true,updatedCount:0});assert.equal((await f.pool.query('SELECT read_at FROM notifications WHERE id=$1',[revoked])).rows[0].read_at,null);}finally{await blocker.query('ROLLBACK');blocker.release();}
+  assert.deepEqual(await classroomRevisions(),revisions,'read-all must not advance classroom revision');
  });
 });

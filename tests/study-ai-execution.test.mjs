@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 
-const path = 'apps/api/src/modules/study/infrastructure/providers/study-ai-execution.ts';
+const path = 'apps/api/src/modules/study/generation/infrastructure/providers/study-ai-execution.ts';
 const configuration = { model: 'synthetic', maxConcurrency: 2, deadlineMs: 5000 };
 const request = { system: 'synthetic', messages: [{ role: 'user', parts: [{ kind: 'text', text: 'synthetic' }] }] };
 const result = { text: '{"synthetic":true}', finish: 'stop', usage: { inputTokens: 10, outputTokens: 8, reasoningTokens: 3, cachedInputTokens: null } };
@@ -18,13 +18,13 @@ function fixture({ stage, denied = false, busy = false, conflict = false } = {})
     return [];
   } }); } };
   const { executeStudyAiText } = loadTsModule(path, { stubs: {
-    '../../../../platform/ai/admission.ts': { activeAiOwnersSql: 'synthetic', async lockAiAdmission() {} },
-    '../../../../platform/ai/text-profiles.ts': { createDefaultTextProfile(config, task) { assert.equal(config, configuration); assert.equal(task, 'study'); return { id: 'study' }; } },
-    '../../../../platform/ai/text-budget.ts': {
+    '../../../../../platform/ai/admission.ts': { activeAiOwnersSql: 'synthetic', async lockAiAdmission() {} },
+    '../../../../../platform/ai/text-profiles.ts': { createDefaultTextProfile(config, task) { assert.equal(config, configuration); assert.equal(task, 'study'); return { id: 'study' }; } },
+    '../../../../../platform/ai/text-budget.ts': {
       async reserveAiTextBudget(_tx, _row, count, config, table) { events.push('reserve'); assert.equal(count, 10); assert.equal(config, configuration); assert.equal(table, 'study_ai_dispatches'); return !denied; },
       async settleAiTextBudget(_tx, _row, _config, usage, table) { assert.equal(table, 'study_ai_dispatches'); settlements.push(usage); },
     },
-    '../../../../platform/ai/text-execution.ts': { async executeAiText(options) {
+    '../../../../../platform/ai/text-execution.ts': { async executeAiText(options) {
       assert.equal(options.request, request);
       await options.authorize?.(); events.push('count'); await options.reserve(10);
       if (stage === 'before') throw fail('SOURCE_UNAVAILABLE');
@@ -92,9 +92,9 @@ test('Study execution blocks quota before dispatch and preserves busy/idempotenc
 
 function adapterFixture(failure) {
   const captured = {};
-  const { createGeminiStudyProvider } = loadTsModule('apps/api/src/modules/study/infrastructure/providers/study-adapter.ts', { stubs: {
-    '../../../../platform/ai/gemini-text-transport.ts': { createGeminiTextTransport(options) { captured.transport = options; return 'transport'; } },
-    '../../../../platform/ai/sdk-clients.ts': { getGeminiClient() { throw new Error('SDK override must take precedence'); } },
+  const { createGeminiStudyProvider } = loadTsModule('apps/api/src/modules/study/generation/infrastructure/providers/study-adapter.ts', { stubs: {
+    '../../../../../platform/ai/gemini-text-transport.ts': { createGeminiTextTransport(options) { captured.transport = options; return 'transport'; } },
+    '../../../../../platform/ai/sdk-clients.ts': { getGeminiClient() { throw new Error('SDK override must take precedence'); } },
     './study-ai-execution.ts': { async executeStudyAiText(options) { captured.execution = options; if (failure) throw fail(failure); return result; } },
   } });
   const client = { countTokens() {}, generateContent() {} }, database = {}, authorize = async () => {};
@@ -103,8 +103,9 @@ function adapterFixture(failure) {
 
 test('Study adapter preserves SDK override, source markers, PDF bytes and academic schema', async () => {
   const f = adapterFixture(), bytes = Buffer.from('%PDF-synthetic'), sourceRef = { id: 'source-a', version: 'v1' };
-  const prompt = JSON.stringify({ topics: [{ id: 'topic-a' }], sources: [sourceRef], questionCount: 3 });
-  assert.deepEqual(await f.provider.generate({ system: 'Synthetic', prompt, documents: [
+  const context = { topics: [{ id: 'topic-a' }], sources: [sourceRef], questionCount: 3 };
+  const prompt = JSON.stringify(context);
+  assert.deepEqual(await f.provider.generate({ system: 'Synthetic', prompt, context, documents: [
     { sourceRef, document: { kind: 'pdf', bytes } }, { sourceRef, document: { kind: 'text', text: 'Synthetic material' } },
   ] }), { synthetic: true });
   assert.equal(f.captured.transport.client.models, f.client);

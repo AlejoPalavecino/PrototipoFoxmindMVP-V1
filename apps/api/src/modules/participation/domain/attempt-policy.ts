@@ -1,5 +1,5 @@
 import { fail } from '../../../../../../src/core/domain/classrooms/policy.ts';
-export { activityReceptionPolicy as receptionPolicy } from '../../../../../../src/core/domain/index.ts';
+export { activityReceptionPolicy as receptionPolicy } from '../../../../../../src/core/domain/participation/activity-reception.ts';
 export interface EditorCapability { token: string; epoch: string }
 export function editorCapability(token: unknown, epoch: unknown): EditorCapability {
   if (typeof token !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(token)

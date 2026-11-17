@@ -28,9 +28,10 @@ test('S7 public outbox CLI resolves ancestor dependencies without scratch-local 
   for (const relative of [
     'package.json', 'scripts/test-p33-outbox.mjs',
     'apps/api/tsconfig.json', 'apps/api/tsconfig.p33-outbox.json',
-    "apps/api/src/modules/identity/domain/digest-domains.ts",    "apps/api/src/modules/identity/infrastructure/outbox/crypto.ts",
-    "apps/api/src/modules/identity/infrastructure/outbox/repository.ts",
-    "apps/api/src/modules/identity/infrastructure/outbox/worker.ts",
+    "apps/api/src/modules/identity/domain/digest-domains.ts",    "apps/api/src/modules/identity/mail-delivery/application/ports.ts",
+    "apps/api/src/modules/identity/mail-delivery/infrastructure/outbox/crypto.ts",
+    "apps/api/src/modules/identity/mail-delivery/infrastructure/outbox/repository.ts",
+    "apps/api/src/modules/identity/mail-delivery/infrastructure/outbox/worker.ts",
     'prisma/schema.prisma', 'tests/p33-account-mail-outbox.test.mjs',
   ]) copyInput(scratch, relative);
   for (const entry of readdirSync(join(root, 'prisma/migrations'), { withFileTypes: true })) {

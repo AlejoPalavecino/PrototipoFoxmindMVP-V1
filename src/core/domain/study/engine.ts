@@ -10,7 +10,8 @@ export type StudyInput = {
   evidence?: {topicId:string;attemptedQuestions:number;errors:number}[];
   questionCount?: number; difficulty?: 'EASY' | 'MEDIUM' | 'HARD';
 };
-export type StudyProvider = { generate(input: { system: string; prompt: string; documents?:{sourceRef:SourceRef;document:StudyDocument}[] }): Promise<unknown> };
+export type StudySchemaContext = { topics: { id: string }[]; sources: SourceRef[]; questionCount: number };
+export type StudyProvider = { generate(input: { system: string; prompt: string; context?: StudySchemaContext; documents?:{sourceRef:SourceRef;document:StudyDocument}[] }): Promise<unknown> };
 export type StudyQuestion = {
   id: string; topicId: string; type: 'SINGLE' | 'MULTIPLE' | 'DEVELOPMENT'; prompt: string;
   options: { id: string; text: string }[]; correctOptionIds: string[];
@@ -127,7 +128,7 @@ async function runStudy(input:StudyInput,provider:StudyProvider,developmentFeedb
   let prompt=JSON.stringify(context);
   while(prompt.length>350000&&history.length){history.shift();context.historyWindowOmitted=true;prompt=JSON.stringify(context);}
   if (prompt.length > 350000) return invalid('STUDY_INPUT_LIMIT');
-  let raw = await provider.generate({system,prompt,...(documents.length?{documents}:{})});
+  let raw = await provider.generate({system,prompt,context:{topics:input.topics.map(({id})=>({id})),sources:sources.map(({id,version})=>({id,version})),questionCount:count},...(documents.length?{documents}:{})});
   if (typeof raw === 'string') { if (raw.length>250000) return invalid('STUDY_OUTPUT_LIMIT'); try { raw=JSON.parse(raw); } catch { return invalid('INVALID_STUDY_OUTPUT'); } }
   if (JSON.stringify(raw)?.length > 250000) return invalid('STUDY_OUTPUT_LIMIT');
   const r = record(raw), status = r.status;

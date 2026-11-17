@@ -4,7 +4,7 @@
     "outDir": "../../.build/p33-outbox"
   },
   "include": [
-    "src/modules/identity/infrastructure/outbox/**/*.ts",
+    "src/modules/identity/mail-delivery/infrastructure/outbox/**/*.ts",
     "src/modules/identity/domain/digest-domains.ts"
   ]
 }

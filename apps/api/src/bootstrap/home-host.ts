@@ -1,12 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { INestApplication } from '@nestjs/common';
-import { readSessionCookie } from '../modules/identity/presentation/transport.ts';
+import { readSessionCookie } from '../modules/identity/accounts/presentation/transport.ts';
 import { IdentityHttpError } from '../modules/identity/domain/errors.ts';
 import { type IdentityRuntime } from './identity-runtime.ts';
-import { clearSessionCookie } from '../modules/identity/presentation/session-cookies.ts';
-import { createHomeHandler } from '../modules/home/presentation/http.ts';
-import type { HomeService } from '../modules/home/application/service.ts';
+import { clearSessionCookie } from '../modules/identity/accounts/presentation/session-cookies.ts';
+import { createHomeHandler } from '../modules/home/dashboard/presentation/http.ts';
+import type { HomeService } from '../modules/home/public.ts';
 export function installHomeTransport(app: Pick<INestApplication,'use'>, runtime: IdentityRuntime, service: HomeService): void {
   const handler = createHomeHandler(service,{ async admit(request, _write, response) {
     const cookie = readSessionCookie(request.headers.cookie);

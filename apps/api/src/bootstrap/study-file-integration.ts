@@ -1,13 +1,13 @@
 import { isDocumentExtension } from '../../../../src/core/domain/documents/document-formats.ts';
 import {createHash} from 'node:crypto';
-import { inspectContent } from '../modules/files/infrastructure/content.ts';
-import { parseActivityDocument } from '../modules/files/infrastructure/activity-document.ts';
-import type { FileService } from '../modules/files/infrastructure/service.ts';
-import { createStudyFiles } from '../modules/study/infrastructure/folders/uploads/service.ts';
-import { studyFileError, studyFileReady } from '../modules/study/infrastructure/folders/uploads/upload-policy.ts';
-import type { StudyUploadRow, StudyFilePorts } from '../modules/study/infrastructure/folders/uploads/types.ts';
+import { inspectContent } from '../modules/files/custody/infrastructure/content.ts';
+import { parseActivityDocument } from '../modules/files/custody/infrastructure/activity-document.ts';
+import type { FileService } from '../modules/files/custody/infrastructure/service.ts';
+import { createStudyFiles } from '../modules/study/sources/infrastructure/uploads/service.ts';
+import { studyFileError, studyFileReady } from '../modules/study/sources/domain/upload-policy.ts';
+import type { StudyUploadRow, StudyFilePorts } from '../modules/study/sources/application/upload-ports.ts';
 import type { StudyOptions, StudySource } from '../modules/study/application/contracts.ts';
-import { attachmentSources, readAttachment } from '../modules/files/infrastructure/chat-attachment-repository.ts';
+import { attachmentSources, readAttachment } from '../modules/files/custody/infrastructure/chat-attachment-repository.ts';
 
 export function createStudyFileIntegration(files:FileService,options:Pick<StudyFilePorts,'database'|'authenticate'|'quotaBytes'>) {
   const uploads=createStudyFiles({...options,storage:files.storage,inspect:inspectContent,scan:bytes=>files.scanner.scan(bytes)});

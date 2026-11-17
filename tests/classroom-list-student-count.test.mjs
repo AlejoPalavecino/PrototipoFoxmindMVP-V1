@@ -4,7 +4,9 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 const teacher = '10000000-0000-4000-8000-000000000001', student = '20000000-0000-4000-8000-000000000002';
 const room = { id: '30000000-0000-4000-8000-000000000003', teacher_id: teacher, student_count: 17, plan_progress: { taught: 1, total: 4 } };
 async function list(actorId, rows) {
-  const { mine } = loadTsModule('apps/api/src/modules/classrooms/infrastructure/classroom-queries.ts');
+  const { createCatalogOperations } = loadTsModule('apps/api/src/modules/classrooms/catalog/application/classroom-queries.ts');
+  const { createCatalogRepository } = loadTsModule('apps/api/src/modules/classrooms/catalog/infrastructure/classroom-queries-repository.ts');
+  const { mine } = createCatalogOperations(createCatalogRepository(), { readCode() {}, digest() {} });
   const calls = [];
   const tx = { query: async (sql, ...params) => { calls.push({ sql, params }); return rows; } };
   const result = await mine({ run: async (_request, write, work) => { assert.equal(write, false); return work(tx, { id: actorId }); }, summary: row => ({ id: row.id }) }, {});

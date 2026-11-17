@@ -5,11 +5,12 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
-import { chromium } from '@playwright/test';
+import { chromium, expect } from '@playwright/test';
 import { withP4IntegrationRuntime } from '../scripts/p4-integration-runtime.mjs';
 import { account, digest, api } from './p4-integration-helpers.mjs';
 import { classroom, openClassroom, planPdf, rejectSame, domainSnapshot } from './p6-integration-helpers.mjs';
 import { watchResponse } from './helpers/browser-action-observer.mjs';
+import { runAdmittedAction } from './helpers/browser-admission-step.mjs';
 
 async function request(page,method,path,body,headers={}) {
  let response=await api(page,method,path,body,headers);
@@ -100,29 +101,47 @@ test('P7 TP actual P3/browser/private storage/ClamAV persistence and confirmed r
     assert.equal((await runtime.db.query('SELECT count(*)::int n FROM attempt_attachments WHERE file_id=$1',[allocated.body.id])).rows[0].n,0);
     await device.getByRole('button',{name:'Actualizar estado confirmado',exact:true}).click();await device.getByRole('button',{name:'Quitar stale-editor.pdf',exact:true}).waitFor();
     const removePath=`/api/v1/classrooms/${room.id}/attempts/${attempt.id}/attachments-remove`,sessionPath=`/api/v1${path}/session`;
-    let removed=false,phaseRequests=new WeakSet(),retried;
+    let removed=false,phaseRequests=new WeakSet(),admissionRequests=new WeakSet(),retried,refreshed,beforePosts;
     const posts=[];
     const captureRequest=request=>{const target=new URL(request.url()).pathname;
      if(target.startsWith('/api/v1/')&&request.method()==='POST')posts.push({path:target,fileId:request.postDataJSON()?.fileId??null});
+     if((target==='/api/v1/auth/csrf'&&request.method()==='GET')||(target===removePath&&request.method()==='POST'))admissionRequests.add(request);
      if(removed&&target===sessionPath&&request.method()==='GET')phaseRequests.add(request);};
     const markRemoved=response=>{if(new URL(response.url()).pathname===removePath&&response.request().method()==='POST'&&response.status()===200&&response.request().postDataJSON()?.fileId===allocated.body.id)removed=true;};
     device.on('request',captureRequest);device.on('response',markRemoved);
-    const cancel=watchResponse(device,r=>new URL(r.url()).pathname===removePath&&r.request().method()==='POST',30000);
-    const refreshed=watchResponse(device,r=>new URL(r.url()).pathname===sessionPath&&r.request().method()==='GET'&&phaseRequests.has(r.request()),30000);
+    const removeButton=device.getByRole('button',{name:'Quitar stale-editor.pdf',exact:true});
     try {
-     await device.getByRole('button',{name:'Quitar stale-editor.pdf',exact:true}).click();
-     const cancelled=await cancel.value();assert.equal(cancelled.status(),200);const removal=await cancelled.json();
+     const cancelled=await runAdmittedAction({
+      mutationPath:removePath,
+      action:async()=>{beforePosts=posts.length;await removeButton.click();},
+      observe:()=>{
+       admissionRequests=new WeakSet();
+       refreshed?.dispose();
+       refreshed=watchResponse(device,r=>new URL(r.url()).pathname===sessionPath&&r.request().method()==='GET'&&phaseRequests.has(r.request()),30000);
+       return watchResponse(device,r=>{const target=new URL(r.url()).pathname;return admissionRequests.has(r.request())&&((target==='/api/v1/auth/csrf'&&r.request().method()==='GET'&&r.status()!==200)||(target===removePath&&r.request().method()==='POST'));},30000);
+      },
+      wait:ms=>delay(ms),
+      onLimited:async(response,phase)=>{
+       assert.equal(phase,'csrf','Only admission before the mutation may repeat the remove gesture');
+       assert.equal(posts.length,beforePosts,'Denied CSRF admission must not issue a removal POST');
+       refreshed.dispose();refreshed=undefined;
+       await device.getByRole('region',{name:'Archivos y entrega del trabajo práctico',exact:true}).getByRole('alert').filter({hasText:/límite de intentos/i}).waitFor();
+       await removeButton.waitFor();await expect(removeButton).toBeEnabled({timeout:30000});
+       console.log(`TP removal honors actual CSRF Retry-After=${response.headers()['retry-after']}s once without a mutation`);
+      },
+     });
+     assert.equal(cancelled.status(),200);const removal=await cancelled.json();
      let current=await refreshed.value();
      if(current.status()===429){
       const body=await current.json(),header=current.headers()['retry-after'];
       assert.equal(body.error?.code,'RATE_LIMITED');assert.match(header??'',/^\d+$/);const seconds=Number(header);
       assert.ok(Number.isSafeInteger(seconds)&&seconds>=1&&seconds<=60);
-      await device.getByRole('alert').filter({hasText:/límite de intentos/i}).waitFor();
+      await device.getByRole('region',{name:'Archivos y entrega del trabajo práctico',exact:true}).getByRole('alert').filter({hasText:/límite de intentos/i}).waitFor();
       console.log(`TP remove confirmed; GET session RATE_LIMITED honors Retry-After=${seconds}s once`);
       await delay(seconds*1000);phaseRequests=new WeakSet();
       retried=watchResponse(device,r=>new URL(r.url()).pathname===sessionPath&&r.request().method()==='GET'&&phaseRequests.has(r.request()),30000);
       const refreshButton=device.getByRole('button',{name:'Actualizar estado confirmado',exact:true});
-      await refreshButton.waitFor();assert.equal(await refreshButton.isEnabled(),true);await refreshButton.click();current=await retried.value();
+      await refreshButton.waitFor();await expect(refreshButton).toBeEnabled({timeout:30000});await refreshButton.click();current=await retried.value();
      }
      assert.equal(current.status(),200);confirmedAfterRemove=await current.json();
      assert.equal(confirmedAfterRemove.attempt.revision,removal.revision);assert.equal(confirmedAfterRemove.attempt.epoch,newEditor.epoch);
@@ -130,7 +149,7 @@ test('P7 TP actual P3/browser/private storage/ClamAV persistence and confirmed r
      assert.equal(confirmedAfterRemove.attempt.attachments[0].ready,true);assert.equal(confirmedAfterRemove.attempt.attachments[0].selected,true);
      await device.getByRole('button',{name:'Quitar stale-editor.pdf',exact:true}).waitFor({state:'detached'});
      assert.deepEqual(posts,[{path:removePath,fileId:allocated.body.id}],'Recovery reads never repeat removal or issue another mutation');
-    } finally { device.off('request',captureRequest);device.off('response',markRemoved);cancel.dispose();refreshed.dispose();retried?.dispose(); }
+    } finally { device.off('request',captureRequest);device.off('response',markRemoved);refreshed?.dispose();retried?.dispose(); }
     await device.getByRole('button',{name:'Revisar entrega',exact:true}).waitFor({state:'visible'});
    });
    await check('actual confirmed submission locks editor and teacher UI receives only submitted files/download, not grades',async()=>{
@@ -139,17 +158,26 @@ test('P7 TP actual P3/browser/private storage/ClamAV persistence and confirmed r
     await device.getByRole('button',{name:'Revisar entrega',exact:true}).click();
     const sent=device.waitForResponse(r=>r.url().endsWith(`/attempts/${attempt.id}/submit-practical`));
     await device.getByRole('button',{name:'Confirmar envío del trabajo',exact:true}).click();const response=await sent;assert.equal(response.status(),200);
-    await device.getByRole('heading',{name:'Comprobante de entrega',exact:true}).waitFor();await device.getByText('Entrega confirmada.',{exact:true}).waitFor();
+    const receipt=device.getByRole('region',{name:'Comprobante de entrega',exact:true});
+    await receipt.getByRole('heading',{name:'Comprobante de entrega',exact:true}).waitFor();await receipt.getByText('Entrega confirmada',{exact:true}).waitFor();
     const persisted=await session(device);assert.equal(persisted.attempt.status,'SUBMITTED');assert.equal(persisted.attempt.attachments.length,1);assert.equal(persisted.canTransfer,false);
     assert.equal((await runtime.db.query('SELECT count(*)::int n FROM attempt_grades')).rows[0].n,0);
     await rejectSame(runtime.db,()=>request(device,'POST',`/classrooms/${room.id}/attempts/${attempt.id}/attachments-remove`,{revision:persisted.attempt.revision,fileId:replacement.id},editorHeaders(newEditor)),409);
     await teacher.getByRole('article',{name:'Real private practical work',exact:true}).getByRole('button',{name:'Abrir Real private practical work',exact:true}).click();
     await teacher.getByRole('region',{name:'Vista previa docente',exact:true}).waitFor();
-    await teacher.getByRole('button',{name:'Consultar intento 1',exact:true}).click();
-    await teacher.getByRole('region',{name:'Intento histórico confirmado'}).getByText('Ver mis respuestas y archivos',{exact:true}).click();
-    await teacher.getByRole('link',{name:'Descargar replacement.pdf',exact:true}).waitFor();
+    await teacher.getByRole('button',{name:'Ver entregas',exact:true}).click();
+    const gradingPath=`/api/v1/classrooms/${room.id}/attempts/${attempt.id}/grading`;
+    const grading=watchResponse(teacher,r=>new URL(r.url()).pathname===gradingPath&&r.request().method()==='GET',30000);
+    try {
+     await teacher.getByRole('button',{name:'Revisar entrega · Intento 1',exact:true}).click();
+     const context=await grading.value();assert.equal(context.status(),200);const data=await context.json();
+     assert.equal(data.attempt.id,attempt.id);assert.deepEqual(data.attempt.attachments.map(file=>file.id),[replacement.id]);
+     assert.equal(data.grade.id,null);assert.equal(data.grade.finalGrade,null);assert.equal(data.grade.isPublished,false);
+     await teacher.getByRole('region',{name:'Trabajo entregado',exact:true}).getByRole('link',{name:'Descargar replacement.pdf',exact:true}).waitFor();
+    } finally { grading.dispose(); }
     const downloaded=await request(teacher,'GET',`/files/${replacement.id}/content`);assert.equal(downloaded.status,200);assert.equal(downloaded.digest,digest(bytes));
     await rejectSame(runtime.db,()=>request(teacher,'GET',`/files/${first.id}/content`),403);
+    assert.equal((await runtime.db.query('SELECT count(*)::int n FROM attempt_grades')).rows[0].n,0,'Reviewing the submitted file never creates a correction');
     assert.equal(await device.evaluate(()=>[...Object.keys(localStorage),...Object.keys(sessionStorage)].some(k=>/attempt|editor/i.test(k))),false);
     await device.screenshot({path:join(scratch,'student-confirmed-receipt.png'),fullPage:true});await teacher.screenshot({path:join(scratch,'teacher-submitted-files.png'),fullPage:true});
     assert.deepEqual(pageErrors,[]);

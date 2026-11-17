@@ -1,4 +1,4 @@
-import type { StartFoxyVisual } from '../../../../../../src/core/domain/index.ts';
+import type { StartFoxyVisual } from '../../../../../../src/core/domain/foxy/visual.ts';
 function fail(code: string): never { throw Object.assign(new Error(code), { code }); }
 export type VisualProfile = { kind: 'IMAGE' | 'DIAGRAM'; model: string; profileVersion: string; maxInputTokens: number; maxOutputTokens: number;
   inputUsdPerMillion: string; outputUsdPerMillion: string; textOutputUsdPerMillion?: string; imageOutputUsdPerMillion?: string };

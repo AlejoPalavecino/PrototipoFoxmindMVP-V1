@@ -1,4 +1,5 @@
-import type { FoxyContext, FoxySourceKind } from '../../../../../../src/core/domain/index.ts';
+import type { FoxyContext } from '../../../../../../src/core/domain/foxy/foxy-ai.ts';
+import type { FoxySourceKind } from '../../../../../../src/core/domain/foxy/source-query.ts';
 type Catalogue = {
     context: FoxyContext;
     units: {

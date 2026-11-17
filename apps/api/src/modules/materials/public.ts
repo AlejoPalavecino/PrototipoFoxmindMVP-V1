@@ -1,6 +1,4 @@
-export type { ClassroomFileOperations, MaterialPublisherPort } from './application/ports.ts';
-export { LibraryService } from './application/library.ts';
-export type { LibraryRepository } from './application/library-repository.ts';
-export { createMaterialPublisher } from './application/library-publication.ts';
-export type { MaterialPublicationInput } from './application/library-publication.ts';
-export type { MaterialPublicationRepository } from './application/publication-repository.ts';
+export { LibraryService } from './library/public.ts';
+export type { LibraryRepository } from './library/public.ts';
+export { createMaterialPublisher } from './publication/public.ts';
+export type { ClassroomFileOperations, MaterialPublicationInput, MaterialPublisherPort, MaterialPublicationDependencies, MaterialPublicationRepository } from './publication/public.ts';

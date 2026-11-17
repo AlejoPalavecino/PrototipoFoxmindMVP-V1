@@ -13,8 +13,8 @@ test('S1 root delegates Study runtime composition/lifecycle instead of owning it
   const imports = rootSource.statements.filter(ts.isImportDeclaration).map(node => node.moduleSpecifier.text);
   assert.ok(imports.includes('./study-runtime.ts'));
   for (const implementation of ['./study-composition.ts', './study-file-integration.ts', './study-agenda-integration.ts',
-    '../modules/study/infrastructure/folders/reminders/runtime.ts', '../../../../src/core/domain/study/engine.ts',
-    '../modules/study/infrastructure/providers/study-adapter.ts', '../modules/files/infrastructure/chat-attachment-service.ts']) {
+    '../modules/study/reviews/infrastructure/runtime.ts', '../../../../src/core/domain/study/engine.ts',
+    '../modules/study/generation/infrastructure/providers/study-adapter.ts', '../modules/files/custody/infrastructure/chat-attachment-service.ts']) {
     assert.ok(!imports.includes(implementation), `root must not own ${implementation}`);
   }
 });
@@ -84,7 +84,7 @@ function hostProbe() {
   stubs['./study-runtime.ts'] = { STUDY_RUNTIME: 'StudyRuntime', createStudyRuntime() {} };
   stubs['./foxy-runtime.ts'].FOXY_RUNTIME = 'FoxyRuntime';
   const resources = { close() { calls.push('infrastructure.close'); } };
-  stubs['../modules/files/infrastructure/configuration.ts'].createFileInfrastructure = () => resources;
+  stubs['../modules/files/custody/infrastructure/configuration.ts'].createFileInfrastructure = () => resources;
   stubs['./academic-delivery-composition.ts'].localInvitationSender = () => resources;
   const app = { get(token) { return token === 'StudyRuntime' ? { service: {}, uploads: {}, attachments: {}, reminders: {}, admit() {} }
     : token === 'FoxyRuntime' ? { services: {} } : {}; },

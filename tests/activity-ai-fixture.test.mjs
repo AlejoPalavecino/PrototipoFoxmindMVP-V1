@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import {seedPlan} from './helpers/plan-fixture.mjs';
-import { FileStore } from '../.build/api/apps/api/src/modules/files/infrastructure/store.js';
-import { createActivityAiAccess } from '../.build/api/apps/api/src/modules/activities/infrastructure/activity-ai/database.js';
-import { ClassroomService } from '../.build/api/apps/api/src/bootstrap/academic-composition.js';
+import { FileStore } from '../.build/api/apps/api/src/modules/files/custody/infrastructure/store.js';
+import { createActivityAiAccess } from '../.build/api/apps/api/src/modules/activities/generation/infrastructure/activity-ai/database.js';
+import { ClassroomService } from './helpers/academic-fixture.ts';
 export const configuration = { model: 'gemini-test-fixture', maxInputTokens: 100000, maxOutputTokens: 16384,
   deadlineMs: 1000, maxDispatches: 2, maxJobAgeMs: 300000, maxConcurrency: 2, dailyActorRequests: 5,
   dailyGlobalRequests: 20, dailyBudgetUsd: 10, inputUsdPerMillion: 1, outputUsdPerMillion: 2 };

@@ -1,15 +1,33 @@
 import { builtinModules } from 'node:module';
-// Rules for migrated surfaces; no temporary compatibility edges are permitted.
-const moduleOf = path => /^apps\/api\/src\/modules\/([^/]+)\/(.+)$/.exec(path);
+// Module-level contracts/domain and capability layers share the same dependency rules.
+const backendLayers = new Set(['domain', 'application', 'infrastructure', 'presentation']);
+function moduleOf(path) {
+  const match = /^apps\/api\/src\/modules\/([^/]+)\/(.+)$/.exec(path);
+  if (!match) return null;
+  const [, name, local] = match;
+  const parts = local.split('/');
+  const capability = backendLayers.has(parts[0]) || local === 'public.ts' ? null : parts[0];
+  const surface = capability ? parts.slice(1).join('/') : local;
+  return { name, capability, layer: surface.split('/')[0], public: surface === 'public.ts' };
+}
 const featureOf = path => /^apps\/web\/src\/features\/([^/]+)\//.exec(path)?.[1];
 const featurePublic = path => /^apps\/web\/src\/features\/[^/]+\/(?:index\.tsx?|api\.ts)$/.test(path);
 const shared = path => path.startsWith('apps/shared-ui/') || path.startsWith('apps/web/src/shared/');
 const legacyUi = path => /^(?:apps\/(?:classrooms-ui|agenda-ui|p5-preview)\/|apps\/web\/src\/(?:lib|components)\/)/.test(path);
 const namedContract = ({ form, binding }) => ['import', 'inline', 'reexport'].includes(form) && binding &&
   binding !== '*' && binding.trim() !== 'typeof' && !binding.includes('* as ');
+const namedBackendContract = edge => namedContract(edge) &&
+  (edge.form === 'inline' || edge.binding.startsWith('{'));
+const backendLayerDependencies = {
+  application: ['application', 'domain'],
+  presentation: ['presentation', 'application', 'domain'],
+  infrastructure: ['infrastructure', 'application', 'domain'],
+};
 
 export function migrationBoundary(edge) {
   const { file, target } = edge;
+  if (file.startsWith('apps/api/src/') && target === 'src/core/domain/index.ts')
+    return 'backend global domain entry';
   const apiOwner = /^apps\/web\/src\/features\/([^/]+)\/api(?:\.ts|\/)/.exec(file)?.[1];
   if (apiOwner) {
     const prefix = `apps/web/src/features/${apiOwner}/`;
@@ -33,29 +51,35 @@ export function migrationBoundary(edge) {
   if (bootstrap(target)) return 'host-only dependency';
   if (platform(file) && target.startsWith('apps/api/src/') && !platform(target)) return 'platform dependency';
   if (from) {
-    const [, name, local] = from, layer = local.split('/')[0];
-    if (local === 'public.ts') {
-      if (!to || to[1] !== name || !/^(?:domain|application)\//.test(to[2]) || !namedContract(edge))
+    const { name, capability, layer } = from;
+    if (from.public) {
+      const ownLayer = to && to.capability === capability && ['domain', 'application'].includes(to.layer);
+      const capabilityApi = !capability && to?.capability && to.public;
+      if (!to || to.name !== name || !(ownLayer || capabilityApi) ||
+        edge.form !== 'reexport' || !namedBackendContract(edge))
         return 'module public surface dependency';
       return null;
     }
     if (layer === 'domain') {
-      return (to?.[1] === name && to[2].startsWith('domain/')) || target.startsWith('src/core/domain/')
+      return (to?.name === name && to.layer === 'domain' &&
+        (to.capability === capability || !to.capability)) || target.startsWith('src/core/domain/')
         ? null : 'module domain dependency';
     }
-    if (to && to[1] !== name) return to[2] === 'public.ts' && namedContract(edge) ? null : 'cross-module private API';
+    if (to && to.name !== name) return !to.capability && to.public && namedBackendContract(edge)
+      ? null : 'cross-module private API';
     if (to) {
-      const allowed = {
-        application: ['application', 'domain'],
-        presentation: ['presentation', 'application', 'domain'],
-        infrastructure: ['infrastructure', 'application', 'domain'],
-      }[layer];
-      return allowed?.includes(to[2].split('/')[0]) ? null : 'module layer dependency';
+      if (to.capability !== capability) {
+        if (to.capability) return to.public && namedBackendContract(edge) ? null : 'capability private API';
+        // Shared module domain is pure; shared application remains type-contract-only.
+        return to.layer === 'domain' || (to.layer === 'application' && edge.mode === 'type')
+          ? null : 'capability shared dependency';
+      }
+      return backendLayerDependencies[layer]?.includes(to.layer) ? null : 'module layer dependency';
     }
     if (target.startsWith('src/core/domain/') || target.startsWith('src/core/contracts/')) return null;
     if (platform(target)) return layer === 'infrastructure' ? null : 'module layer dependency';
     if (target.startsWith('apps/')) return 'cross-module private API';
     return layer === 'application' ? 'module application dependency' : undefined;
   }
-  if (to) return to[2] === 'public.ts' && namedContract(edge) ? null : 'cross-module private API';
+  if (to) return !to.capability && to.public && namedBackendContract(edge) ? null : 'cross-module private API';
 }

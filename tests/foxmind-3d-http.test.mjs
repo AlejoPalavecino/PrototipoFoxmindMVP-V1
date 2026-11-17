@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { createHomeHandler } from '../apps/api/src/modules/home/presentation/http.ts';
+import { createHomeHandler } from '../apps/api/src/modules/home/dashboard/presentation/http.ts';
 import { proxyHomeRequest } from '../apps/web/src/application/server/home-proxy.ts';
 
 const subjectId = '11111111-1111-4111-8111-111111111111';

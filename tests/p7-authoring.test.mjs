@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import {seedPlan} from './helpers/plan-fixture.mjs';
 import { withP5Database } from '../scripts/p5-database.mjs';
-import { FileStore } from '../.build/api/apps/api/src/modules/files/infrastructure/store.js';
-import { ClassroomService } from '../.build/api/apps/api/src/bootstrap/academic-composition.js';
+import { FileStore } from '../.build/api/apps/api/src/modules/files/custody/infrastructure/store.js';
+import { ClassroomService } from './helpers/academic-fixture.ts';
 
 test('P7 authoring public service is available on the existing classroom chain', () => {
   for (const name of ['changeActivities', 'listActivities', 'activityDetail', 'activityDeadlineChoices', 'changePlan', 'changeLibrary', 'changeWall', 'invite'])

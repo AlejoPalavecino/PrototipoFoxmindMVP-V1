@@ -3,15 +3,15 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { createServer } from 'node:http';
 import { once } from 'node:events';
-import { readClassroomsConfiguration } from '../.build/api/apps/api/src/modules/classrooms/infrastructure/configuration.js';
+import { readClassroomsConfiguration } from '../.build/api/apps/api/src/modules/classrooms/access/infrastructure/configuration.js';
 import { installClassroomsTransport, ClassroomHostLifecycle } from '../.build/api/apps/api/src/bootstrap/academic-host.js';
-import { ClassroomIdentityError } from '../.build/api/apps/api/src/modules/classrooms/infrastructure/errors.js';
+import { ClassroomIdentityError } from '../.build/api/apps/api/src/modules/classrooms/access/infrastructure/errors.js';
 import { InvitationDeliveryWorker } from '../.build/api/apps/api/src/bootstrap/academic-delivery-composition.js';
 import { IdentityHttpError } from '../.build/api/apps/api/src/modules/identity/domain/errors.js';
 import { readConfiguration } from '../.build/api/apps/api/src/configuration.js';
 import { ClassroomsModule } from '../.build/api/apps/api/src/bootstrap/academic-classrooms.module.js';
 import { InvitationService } from '../.build/api/apps/api/src/bootstrap/academic-management-composition.js';
-import { ClassroomService } from '../.build/api/apps/api/src/bootstrap/academic-composition.js';
+import { ACADEMIC_RUNTIME } from '../.build/api/apps/api/src/bootstrap/academic-composition.js';
 import { identityTestEnvironment } from '../scripts/p33-identity-test-env.mjs';
 
 const express = createRequire(import.meta.url)('express');
@@ -55,10 +55,11 @@ test('integrated module owns one worker and uses the same P4 FileStore and real 
   const config = readClassroomsConfiguration(environment, origin), sender = { send: async () => {}, close() {} };
   const module = ClassroomsModule.integrated({}, {}, {}, config, sender);
   assert.equal(module.providers.filter(p => p.provide === InvitationDeliveryWorker).length, 1);
-  const provider = module.providers.find(p => p.provide === ClassroomService);
+  const provider = module.providers.find(p => p.provide === ACADEMIC_RUNTIME);
   assert.ok(provider?.useFactory);
-  assert.equal(module.providers.find(p => p.provide === InvitationService)?.useExisting, ClassroomService);
-  assert.ok(module.exports.includes(ClassroomService));
+  const invitation = module.providers.find(p => p.provide === InvitationService);
+  assert.deepEqual(invitation.inject, [ACADEMIC_RUNTIME]);
+  assert.ok(module.exports.includes(ACADEMIC_RUNTIME));
   const tx = {}, request = {}, fileId = 'file', classroomId = 'classroom';
   const loaded = {}, authorized = {}, promoted = {}, calls = [];
   const files = { store: {
@@ -77,12 +78,14 @@ test('integrated module owns one worker and uses the same P4 FileStore and real 
     calls.push('promote'); return promoted;
   } }, database = {}, runtime = { configuration: { security: {} } };
   const service = provider.useFactory(database, runtime, files);
-  assert.equal(service.ports.database, database);
-  assert.equal(await service.ports.files.load(tx, fileId), loaded);
-  assert.equal(await service.ports.files.loadAuthorized(tx, request, fileId, 'read'), authorized);
-  assert.equal(await service.ports.files.promoteDraftPlanInTransaction(tx, request, fileId, classroomId), promoted);
+  assert.equal(invitation.useFactory(service), service.classrooms.invitations);
+  assert.notEqual(invitation.useFactory(service), service);
+  assert.equal(service.access.ports.database, database);
+  assert.equal(await service.access.ports.files.load(tx, fileId), loaded);
+  assert.equal(await service.access.ports.files.loadAuthorized(tx, request, fileId, 'read'), authorized);
+  assert.equal(await service.access.ports.files.promoteDraftPlanInTransaction(tx, request, fileId, classroomId), promoted);
   assert.deepEqual(calls, ['load', 'loadAuthorized', 'promote']);
-  assert.equal(typeof service.ports.authenticate, 'function');
+  assert.equal(typeof service.access.ports.authenticate, 'function');
   assert.ok(module.exports.includes(ClassroomHostLifecycle));
 });
 

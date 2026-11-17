@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
-import { signWallCursor, readWallCursor } from '../apps/api/src/modules/communication/infrastructure/wall-cursor.ts';
-import { notificationPage } from '../apps/api/src/modules/home/infrastructure/notification-page.ts';
+import { signWallCursor, readWallCursor } from '../apps/api/src/modules/communication/wall/infrastructure/wall-cursor.ts';
+import { notificationPage } from '../apps/api/src/modules/home/notifications/infrastructure/notification-page.ts';
 
 const key = Buffer.alloc(32, 7), alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 const room = '11111111-1111-4111-8111-111111111111', post = '22222222-2222-4222-8222-222222222222';

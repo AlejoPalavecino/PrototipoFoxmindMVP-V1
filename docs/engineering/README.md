@@ -2,6 +2,8 @@
 
 Empezá por [arquitectura](architecture.md) y [modelo de datos](data-model.md). Para trabajar, usá el [entorno local](local-development/README.md) y las [verificaciones](testing/README.md).
 
+La [reorganización del backend por capacidades](backend-capabilities-plan.md) tiene diseño y ejecución aprobados en una rama propia; el [tablero](../../odd/tasks/backend-capabilities.md) distingue las tareas verificadas del trabajo pendiente.
+
 | Dominio | Responsabilidad |
 |---|---|
 | [Estudio privado](study/README.md) | Carpetas estudiantiles, fuentes privadas, prácticas, adaptación y repasos en Agenda |

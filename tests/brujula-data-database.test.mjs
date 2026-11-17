@@ -3,13 +3,16 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { withAgendaDatabase } from './agenda-database-helpers.test.mjs';
 import { homeFixture } from './foxmind-3d-repository-fixture.test.mjs';
-import { readSqlPage } from '../apps/api/src/modules/home/infrastructure/sql-page.ts';
-import { createHomeService } from '../apps/api/src/modules/home/application/service.ts';
-import { createHomeUnitOfWork } from '../apps/api/src/modules/home/infrastructure/unit-of-work.ts';
-import { mine } from '../apps/api/src/modules/classrooms/infrastructure/classroom-queries.ts';
-import { detail as classroomDetail } from '../apps/api/src/modules/classrooms/infrastructure/classroom-queries.ts';
-import { newClassroomCode } from '../apps/api/src/modules/classrooms/infrastructure/classroom-codes.ts';
-import { encryptDelivery, decryptDelivery } from '../apps/api/src/modules/classrooms/infrastructure/delivery-envelope.ts';
+import { readSqlPage } from '../apps/api/src/modules/home/dashboard/infrastructure/sql-page.ts';
+import { createHomeService } from '../apps/api/src/modules/home/dashboard/application/service.ts';
+import { createHomeUnitOfWork } from '../apps/api/src/modules/home/dashboard/infrastructure/unit-of-work.ts';
+import { createCatalogOperations } from '../apps/api/src/modules/classrooms/catalog/application/classroom-queries.ts';
+import { createCatalogRepository } from '../apps/api/src/modules/classrooms/catalog/infrastructure/classroom-queries-repository.ts';
+import { digest } from '../apps/api/src/platform/crypto/digest.ts';
+import { newClassroomCode } from '../apps/api/src/bootstrap/academic-management-composition.ts';
+import { encryptDelivery, decryptDelivery } from '../apps/api/src/modules/classrooms/invitations/infrastructure/delivery-envelope.ts';
+
+const { mine, detail: classroomDetail } = createCatalogOperations(createCatalogRepository(), { readCode: decryptDelivery, digest });
 
 test('Home returns only published own feedback and saved own question progress',{timeout:120000},async()=>{
  await withAgendaDatabase(async({transaction})=>transaction(async local=>{
@@ -28,7 +31,7 @@ test('Home returns only published own feedback and saved own question progress',
     assert.deepEqual((await service.read({userId:f.actor},{timeZone:'UTC'})).modules.pending.items.find(item=>item.id===b.id).questionProgress,{answered:0,total:1});
   }
   const readOnly=await f.activity('study',{expected:false,allowLate:true});
-  const {ClassroomService}=await import("../.build/api/apps/api/src/bootstrap/academic-composition.js");
+  const {ClassroomService}=await import("./helpers/academic-fixture.ts");
   const classrooms=new ClassroomService({database:local.database,files:{load(){assert.fail('Unexpected file read');},loadAuthorized(){assert.fail('Unexpected authorized file read');},promoteDraftPlanInTransaction(){assert.fail('Unexpected file promotion');}},authenticate:async(_tx,req)=>req.userId,signingKey:Buffer.alloc(32,4),deliveryKey:Buffer.alloc(32,5),classroomQuotaBytes:1000000n,webOrigin:'http://127.0.0.1:3005'});
   assert.equal((await classrooms.listActivities({userId:f.actor},f.rooms.study.id)).activities.find(item=>item.id===readOnly.id).studentState,'READ_ONLY');
   assert.equal((await service.read({userId:f.outsider},{timeZone:'UTC'})).modules.feedback.items?.length??0,0);
@@ -109,7 +112,7 @@ test('Brújula derived SQL scopes drafts, latest submitted state, ordered next t
   assert.equal((await read('classrooms',f.actor)).items[0].nextTopic,null);
   const catalog=actor=>mine({run:(_r,_w,fn)=>fn(tx,{id:actor}),summary:(r,id)=>({id:r.id,role:r.teacher_id===id?'teacher':'student'})},{});
   assert.equal((await catalog(f.teacherActor)).teach.find(x=>x.id===f.rooms.teach.id).studentCount,1);
-  const student=(await catalog(f.actor)).study[0];assert.deepEqual(student.planProgress,{taught:2,total:2});assert.equal('studentCount' in student,false);
+  const student=(await catalog(f.actor)).study[0];assert.deepEqual(student.planProgress,{taught:2,total:2});assert.equal(student.studentCount,1);
   await local.query("UPDATE membership_periods SET ended_at=now(),end_reason='LEFT',ended_by_id=$2 WHERE id=$1",f.rooms.teach.period,f.pupil);
   assert.equal((await catalog(f.teacherActor)).teach.find(x=>x.id===f.rooms.teach.id).studentCount,0);
   await local.query("UPDATE classrooms SET archived_at=now() WHERE id=$1",room.id);

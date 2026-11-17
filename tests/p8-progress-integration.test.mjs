@@ -1,4 +1,4 @@
-import { selectClassroomSection } from './p8-current-ui-helpers.mjs';
+import { selectClassroomSection as selectSharedSection } from './p8-current-ui-helpers.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, writeFile } from 'node:fs/promises';
@@ -10,6 +10,13 @@ import { chromium } from '@playwright/test';
 import { withP4IntegrationRuntime } from '../scripts/p4-integration-runtime.mjs';
 import { account, api, digest } from './p4-integration-helpers.mjs';
 import { classroom, openClassroom } from './p6-integration-helpers.mjs';
+
+async function selectClassroomSection(page, key, label) {
+  const navigation = page.getByRole('navigation', { name: 'Secciones del aula', exact: true });
+  if (key === 'progress' && await navigation.isVisible()) {
+    await navigation.getByRole('button', { name: label, exact: true }).click();
+  } else await selectSharedSection(page, key, label);
+}
 
 test('P8 actual separate completion/performance/plan, own/class/history, retry, restart and fresh access', { timeout: 330000 }, async t => {
   await withP4IntegrationRuntime(async runtime => {
@@ -58,6 +65,33 @@ test('P8 actual separate completion/performance/plan, own/class/history, retry, 
       const hash = async () => digest(JSON.stringify(await Promise.all(domainTables.map(async table =>
         (await runtime.db.query(`SELECT to_jsonb(t) value FROM ${table} t ORDER BY to_jsonb(t)::text`)).rows))));
       const region = page => page.getByRole('region', { name: 'Seguimiento del aprendizaje', exact: true });
+      async function progressReady(page, scope) {
+        const heading = { classroom: 'Cómo vienen las entregas', self: 'Tu trabajo va tomando forma', member: 'Registro de actividades' }[scope];
+        if (scope === 'member') {
+          // StudentRecord deliberately hides its repeated headings inside the named dialog.
+          await region(page).getByRole('region', { name: 'Actividades del seguimiento', exact: true }).waitFor();
+        } else await region(page).getByRole('heading', { name: heading, exact: true }).waitFor();
+        assert.equal(await region(page).getAttribute('data-progress-scope'), scope);
+        assert.equal(await region(page).getAttribute('aria-busy'), 'false');
+        assert.equal(await region(page).getByRole('alert').count(), 0);
+      }
+      async function assertSelfValuesHidden(page) {
+        assert.equal(await region(page).locator('.parity-own-summary').count(), 0);
+        assert.equal(await region(page).locator('.parity-own-grade').count(), 0);
+        assert.equal(await region(page).getByRole('region', { name: 'Avance del plan', exact: true }).count(), 0);
+      }
+      async function assertUnitProgress(page, plan) {
+        const units = region(page).getByRole('region', { name: 'Avance del plan', exact: true });
+        await units.waitFor();
+        assert.equal(await units.getByRole('article').count(), plan.units.length);
+        for (const unit of plan.units) {
+          const row = units.getByRole('article').filter({ has: page.getByRole('heading', { name: unit.name, exact: true }) });
+          await row.getByText(`${unit.taught} de ${unit.total} temas`, { exact: true }).waitFor();
+          const bar = row.getByRole('progressbar', { name: unit.name, exact: true });
+          assert.equal(await bar.getAttribute('value'), String(unit.taught));
+          assert.equal(await bar.getAttribute('max'), String(unit.total));
+        }
+      }
       // Progress has no same-instance refresh control in the current UI or baseline 29fda64.
       // Re-enter the section to test the supported fresh-read and stale-content boundary.
       async function reenterProgress(page) {
@@ -71,7 +105,7 @@ test('P8 actual separate completion/performance/plan, own/class/history, retry, 
           await honor(limited.sort((a, b) => Number(b.headers()['retry-after']) - Number(a.headers()['retry-after']))[0]);
           const next = responses.length;
           if (paths[0] === root) await page.getByRole('button', { name: 'Actualizar aula', exact: true }).click();
-          else { await selectClassroomSection(page, 'plan', 'Plan'); await selectClassroomSection(page, 'members', 'Alumnos'); }
+          else { await selectClassroomSection(page, 'plan', 'Plan'); await selectClassroomSection(page, 'members', 'Estudiantes'); }
           results = await Promise.all(paths.map(path => observed(page, path, 'GET', next)));
         }
         for (const response of results) assert.equal(response.status(), 200);
@@ -95,8 +129,8 @@ test('P8 actual separate completion/performance/plan, own/class/history, retry, 
           const next = responses.length; await region(page).getByRole('button', { name: 'Reintentar progreso', exact: true }).click();
           response = await observed(page, path, 'GET', next);
         }
-        assert.equal(response.status(), 200); await region(page).getByRole('heading', { name: 'Cumplimiento de entregas', exact: true }).waitFor();
-        assert.equal(await region(page).getByRole('alert').count(), 0); return response.json();
+        assert.equal(response.status(), 200);
+        const data = await response.json(); await progressReady(page, data.scope); return data;
       }
       let failed = false, expectedOwn, expectedClass;
       const check = (label, work) => t.test(label, { skip: failed ? 'Earlier actual progress prerequisite failed' : false }, async () => {
@@ -107,8 +141,15 @@ test('P8 actual separate completion/performance/plan, own/class/history, retry, 
         const data = await progressRead(teacher, progressPath, () => selectClassroomSection(teacher, 'progress', 'Progreso'));
         assert.equal(data.scope, 'classroom'); assert.equal(data.studentCount, 1);
         assert.equal(data.completion.percentage, null); assert.equal(data.performance.average, null);
-        const completion = region(teacher).getByRole('region', { name: 'Cumplimiento de entregas', exact: true });
-        await completion.getByText('0 pendientes · 0 reentregas pendientes', { exact: true }).waitFor(); assert.ok(!(await completion.innerText()).includes('%'));
+        assert.equal(data.completion.pending, 0); assert.equal(data.completion.pendingResubmissions, 0);
+        const completion = region(teacher).locator('.parity-teacher-metrics > section')
+          .filter({ has: teacher.getByText('Entregas recibidas', { exact: true }) });
+        assert.match(await completion.locator('strong').innerText(), /^0\s*\/\s*0$/); assert.ok(!(await completion.innerText()).includes('%'));
+        const grades = region(teacher).locator('.parity-teacher-charts > section')
+          .filter({ has: teacher.getByRole('heading', { name: 'Resultados publicados', exact: true }) });
+        await grades.getByRole('heading', { name: 'Todavía no hay notas publicadas', exact: true }).waitFor();
+        assert.equal(await grades.locator('.parity-grade-summary').count(), 0);
+        assert.equal(await grades.getByRole('img', { name: /^Distribución de notas:/ }).count(), 0);
         assert.equal(await hash(), before);
       });
       await check('public receipt/publication/reopening and TAUGHT feed fresh own mobile/class views, without conflating measures', async () => {
@@ -137,9 +178,7 @@ test('P8 actual separate completion/performance/plan, own/class/history, retry, 
         await selectClassroomSection(student, 'progress', 'Mi progreso');
         await region(student).getByText('Cargando progreso…', { exact: true }).waitFor();
         assert.equal(await region(student).getAttribute('aria-busy'), 'true');
-        assert.equal(await region(student).getByRole('region', { name: 'Rendimiento académico', exact: true }).count(), 0);
-        assert.equal(await region(student).getByRole('region', { name: 'Cumplimiento de entregas', exact: true }).count(), 0);
-        assert.equal(await region(student).getByRole('region', { name: 'Avance del plan', exact: true }).count(), 0);
+        await assertSelfValuesHidden(student);
         release(); let response = await observed(student, progressPath, 'GET', after);
         if (response.status() === 429) {
           await region(student).getByRole('alert').waitFor(); await honor(response);
@@ -147,32 +186,50 @@ test('P8 actual separate completion/performance/plan, own/class/history, retry, 
           response = await observed(student, progressPath, 'GET', next);
         }
         assert.equal(response.status(), 200); expectedOwn = await response.json();
+        await progressReady(student, 'self');
         assert.equal(expectedOwn.scope, 'self'); assert.equal(expectedOwn.completion.percentage, '50.00'); assert.equal(expectedOwn.completion.pendingResubmissions, 1);
         assert.equal(expectedOwn.performance.average, '8.35'); assert.deepEqual(expectedOwn.plan, { total: 2, taught: 1, percentage: '50.00', units: detail.units.map((unit, index) => ({ id: unit.id, name: unit.name, total: unit.topics.length, taught: index === 0 ? 1 : 0 })) });
         assert.ok(!/Private feedback|"(?:students|studentCount|gradedStudents|reason|audit|actor|correct|scoringRule)"/.test(JSON.stringify(expectedOwn)));
-        await region(student).getByRole('region', { name: 'Rendimiento académico', exact: true }).getByText(/^8,35\s*\/\s*10$/).waitFor();
-        await region(student).getByRole('region', { name: 'Actividades del seguimiento', exact: true }).getByText(/Entregada.*Reentrega pendiente/).waitFor();
+        await region(student).locator('.parity-own-grade > b').filter({ hasText: /^8,35\s*\/\s*10$/ }).waitFor();
+        const ring = region(student).getByRole('img', { name: '50% de entregas confirmadas', exact: true });
+        await ring.getByText('1 de 2', { exact: true }).waitFor();
+        await assertUnitProgress(student, expectedOwn.plan);
+        const delivered = expectedOwn.activities.find(activity => activity.id === activities[0]);
+        assert.ok(delivered.firstSubmission); assert.equal(delivered.pendingResubmission, true);
         assert.equal(await region(student).getByRole('region', { name: 'Estudiantes actuales' }).count(), 0);
         assert.equal(await region(student).getByRole('alert').count(), 0);
         assert.equal(await student.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
         await student.screenshot({ path: join(scratch, 'student-own-mobile.png'), fullPage: true });
+        const ownReadHash = await hash();
+        await region(student).getByRole('button', { name: 'Seguir con mis actividades', exact: true }).click();
+        // Activities is retained by the current classroom shell; the CTA can reuse its admitted snapshot.
+        const resubmission = student.getByRole('article', { name: 'Progress delivered', exact: true });
+        await resubmission.getByText('Reentrega habilitada', { exact: true }).waitFor();
+        assert.equal(await resubmission.getAttribute('data-student-state'), 'RESUBMISSION');
+        const returned = await progressRead(student, progressPath, () => selectClassroomSection(student, 'progress', 'Mi progreso'));
+        assert.deepEqual(returned, expectedOwn); assert.equal(await hash(), ownReadHash);
         const before = await hash();
         expectedClass = await progressRead(teacher, progressPath, () => reenterProgress(teacher));
         assert.equal(expectedClass.performance.average, '8.35'); assert.equal(expectedClass.performance.gradedStudents, 1);
         assert.deepEqual(expectedClass.completion, expectedOwn.completion); assert.equal(await hash(), before);
+        const received = region(teacher).locator('.parity-teacher-metrics > section')
+          .filter({ has: teacher.getByText('Entregas recibidas', { exact: true }) });
+        assert.match(await received.locator('strong').innerText(), /^1\s*\/\s*2$/);
+        const worked = region(teacher).locator('.parity-teacher-metrics > section')
+          .filter({ has: teacher.getByText('Plan trabajado', { exact: true }) });
+        await worked.getByText('50%', { exact: true }).waitFor(); await worked.getByText('1 de 2 temas dados', { exact: true }).waitFor();
+        await region(teacher).locator('.parity-grade-summary > b').filter({ hasText: /^8,35\s*\/\s*10$/ }).waitFor();
         await teacher.screenshot({ path: join(scratch, 'teacher-class-progress.png'), fullPage: true });
       });
       await check('failed section re-entry hides retained values, and visible retry needs an actual admitted GET200', async () => {
         const before = await hash(); await student.route('**/api/v1' + progressPath, route => route.abort('failed'), { times: 1 });
         await reenterProgress(student);
-        await region(student).getByRole('alert').waitFor(); assert.equal(await region(student).getByRole('region', { name: 'Rendimiento académico', exact: true }).count(), 0);
-        assert.equal(await region(student).getByRole('region', { name: 'Cumplimiento de entregas', exact: true }).count(), 0);
-        assert.equal(await region(student).getByRole('region', { name: 'Avance del plan', exact: true }).count(), 0);
+        await region(student).getByRole('alert').waitFor(); await assertSelfValuesHidden(student);
         const fresh = await progressRead(student, progressPath, () => region(student).getByRole('button', { name: 'Reintentar progreso', exact: true }).click());
         assert.deepEqual(fresh, expectedOwn); assert.equal(await hash(), before);
       });
       await check('actual current member summary preserves old DTO/history and adds separate member progress', async () => {
-        await selectClassroomSection(teacher, 'members', 'Alumnos');
+        await selectClassroomSection(teacher, 'members', 'Estudiantes');
         const after = responses.length; await teacher.getByRole('button', { name: 'Ver ficha', exact: true }).click();
         const old = await observed(teacher, `${root}/members/${studentUser.id}`, 'GET', after); assert.equal(old.status(), 200);
         assert.deepEqual(Object.keys(await old.json()).sort(), ['firstName', 'lastName', 'attempts'].sort());
@@ -181,11 +238,13 @@ test('P8 actual separate completion/performance/plan, own/class/history, retry, 
           'Opening the student record must not automatically request individual progress');
         await teacher.getByRole('button', { name: 'Ver progreso individual', exact: true }).click();
         const current = await observed(teacher, memberPath, 'GET', after); assert.equal(current.status(), 200);
-        assert.equal((await current.json()).currentMember, true);
-        await region(teacher).getByRole('region', { name: 'Rendimiento académico', exact: true }).getByText(/^8,35\s*\/\s*10$/).waitFor();
-        await region(teacher).getByRole('heading', { name: `${studentUser.firstName} ${studentUser.lastName}`, exact: true }).waitFor();
+        assert.equal((await current.json()).currentMember, true); await progressReady(teacher, 'member');
+        await region(teacher).locator('[aria-label="Rendimiento académico"]').filter({ hasText: /^Promedio publicado: 8,35$/ }).waitFor();
+        await region(teacher).getByRole('region', { name: 'Actividades del seguimiento', exact: true }).getByRole('listitem')
+          .filter({ hasText: 'Progress delivered' }).getByText('Devolución publicada · Reentrega pendiente', { exact: true }).waitFor();
+        await teacher.getByRole('dialog', { name: `El recorrido de ${studentUser.firstName} ${studentUser.lastName}`, exact: true }).waitFor();
         await teacher.getByRole('button', { name: /Volver a la ficha/ }).click();
-        await teacher.getByRole('button', { name: /Volver a Alumnos/ }).click();
+        await teacher.getByRole('button', { name: /Volver a Estudiantes/ }).click();
       });
       await check('restart preserves all academic/private data; archive permits reads; rejected cross-scope reads never write', async () => {
         const before = await hash(); await runtime.restartData(); assert.equal(await hash(), before);
@@ -214,7 +273,7 @@ test('P8 actual separate completion/performance/plan, own/class/history, retry, 
         assert.equal(historical.currentMember, false); assert.deepEqual(historical.completion, expectedOwn.completion);
         assert.equal(historical.performance.average, '8.35');
         await region(teacher).getByText('Historial académico conservado.', { exact: true }).waitFor();
-        await region(teacher).getByRole('region', { name: 'Rendimiento académico', exact: true }).getByText(/^8,35\s*\/\s*10$/).scrollIntoViewIfNeeded();
+        await region(teacher).locator('[aria-label="Rendimiento académico"]').filter({ hasText: /^Promedio publicado: 8,35$/ }).scrollIntoViewIfNeeded();
         assert.equal(await teacher.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
         await teacher.screenshot({ path: join(scratch, 'teacher-historical-mobile.png'), fullPage: true });
         assert.equal(await hash(), before);

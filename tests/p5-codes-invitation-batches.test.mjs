@@ -8,10 +8,10 @@ import { proxyClassroomRequest } from '../apps/web/src/application/server/classr
 import { createClassroomsHandler } from '../.build/api/apps/api/src/bootstrap/academic-http.js';
 import { installClassroomsTransport } from '../.build/api/apps/api/src/bootstrap/academic-host.js';
 import { IdentityHttpError } from '../.build/api/apps/api/src/modules/identity/domain/errors.js';
-import { IdentityStore } from '../.build/api/apps/api/src/modules/identity/infrastructure/persistence.js';
-import { ClassroomError } from '../.build/api/apps/api/src/modules/classrooms/infrastructure/policy.js';
+import { IdentityStore } from '../.build/api/apps/api/src/modules/identity/accounts/infrastructure/persistence.js';
+import { ClassroomError } from '../.build/api/apps/api/src/modules/classrooms/access/infrastructure/policy.js';
 import { withP5Database } from '../scripts/p5-database.mjs';
-import { ClassroomService } from '../.build/api/apps/api/src/bootstrap/academic-composition.js';
+import { ClassroomService } from './helpers/academic-fixture.ts';
 
 const denied = (promise, code) => assert.rejects(promise, error => error.code === code);
 const hash = (action, subject) => crypto.createHmac('sha256', 'fixture-only').update(action + subject).digest('hex');

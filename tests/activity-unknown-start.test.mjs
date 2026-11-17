@@ -6,7 +6,7 @@ import { withAiDatabase, rollbackCase } from './classroom-ai-database.test.mjs';
 import { fixture } from './activity-ai-fixture.test.mjs';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
-const ai = () => Promise.all([import("../apps/api/src/modules/activities/infrastructure/activity-ai/service.ts"),import("../apps/api/src/modules/activities/infrastructure/activity-ai/worker.ts"),import("../apps/api/src/modules/activities/infrastructure/activity-ai/provenance.ts")]).then(([m0,m1,m2]) => Object.freeze({ActivityAiService: m0.ActivityAiService,ActivityAiWorker: m1.ActivityAiWorker,validateActivityGeneration: m2.validateActivityGeneration}));
+const ai = () => Promise.all([import("../apps/api/src/modules/activities/generation/infrastructure/activity-ai/service.ts"),import("../apps/api/src/modules/activities/generation/infrastructure/activity-ai/worker.ts"),import("../apps/api/src/modules/activities/generation/infrastructure/activity-ai/provenance.ts")]).then(([m0,m1,m2]) => Object.freeze({ActivityAiService: m0.ActivityAiService,ActivityAiWorker: m1.ActivityAiWorker,validateActivityGeneration: m2.validateActivityGeneration}));
 async function setup(local) {
   const f = await fixture(local); await f.seedPlan({ action: 'addTopic', unitId: f.unitId, name: 'Second topic' });
   f.start.revision = await f.revision(); f.start.topicIds = (await f.classrooms.detail(f.T, f.room)).units[0].topics.map(t => t.id);

@@ -19,7 +19,7 @@ const readFactory = (api, database, f) => {
 };
 
 test('D9 real PostgreSQL Home projections preserve permission, exact counts, private state and rollback', { timeout: 120000 }, async t => {
-  const api = await Promise.all([import("../apps/api/src/modules/home/application/service.ts"),import("../apps/api/src/modules/home/infrastructure/unit-of-work.ts"),import("../apps/api/src/modules/home/presentation/http.ts")]).then(([m0,m1,m2]) => Object.freeze({createHomeService: m0.createHomeService,createHomeUnitOfWork: m1.createHomeUnitOfWork,createHomeHandler: m2.createHomeHandler}));
+  const api = await Promise.all([import("../apps/api/src/modules/home/dashboard/application/service.ts"),import("../apps/api/src/modules/home/dashboard/infrastructure/unit-of-work.ts"),import("../apps/api/src/modules/home/dashboard/presentation/http.ts")]).then(([m0,m1,m2]) => Object.freeze({createHomeService: m0.createHomeService,createHomeUnitOfWork: m1.createHomeUnitOfWork,createHomeHandler: m2.createHomeHandler}));
   assert.equal(typeof api.createHomeService, 'function'); assert.equal(typeof api.createHomeUnitOfWork, 'function');
   await withAgendaDatabase(async ({ pool, transaction }) => {
     assert.match((await pool.query('SELECT current_database() name')).rows[0].name, /_test$/);

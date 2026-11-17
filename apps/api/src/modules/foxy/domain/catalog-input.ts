@@ -1,4 +1,4 @@
-import { strictObject } from '../../../../../../src/core/domain/index.ts';
+import { strictObject } from '../../../../../../src/core/domain/curriculum/plan.ts';
 export const catalogUuid = /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/iu;
 export function invalidCatalog(): never { throw Object.assign(new Error('INVALID_INPUT'), { code: 'INVALID_INPUT' }); }
 export function catalogFilters(input: { q?: unknown; context?: unknown }) {

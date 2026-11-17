@@ -20,11 +20,11 @@ const identityErrors = loadTsModule('apps/api/src/modules/identity/domain/errors
 const { installAgendaTransport } = loadTsModule('apps/api/src/bootstrap/agenda-transport.ts', {
   stubs: { '../modules/identity/domain/errors.ts': identityErrors },
 });
-const { installIdentityTransport, readSessionCookie } = loadTsModule('apps/api/src/modules/identity/presentation/transport.ts', {
-  stubs: { '../domain/errors.ts': identityErrors },
+const { installIdentityTransport, readSessionCookie } = loadTsModule('apps/api/src/modules/identity/accounts/presentation/transport.ts', {
+  stubs: { '../../domain/errors.ts': identityErrors },
 });
-const { readIdentityConfiguration } = loadTsModule('apps/api/src/modules/identity/infrastructure/security/configuration.ts', {
-  stubs: { '../../domain/security/errors.ts': securityErrors },
+const { readIdentityConfiguration } = loadTsModule('apps/api/src/modules/identity/accounts/infrastructure/security/configuration.ts', {
+  stubs: { '../../../domain/security/errors.ts': securityErrors },
 });
 const { AgendaError } = loadTsModule('src/core/domain/agenda/index.ts');
 

@@ -1,5 +1,5 @@
-export { createAgendaService, AgendaService } from './application/agenda-service.ts';
+export { createAgendaService, AgendaService } from './events/public.ts';
 export type {
   AgendaDatabase, AgendaAuthentication, AgendaQuery, AcademicAgendaFactory,
   AcademicAgendaPort, AgendaActor, AgendaUnitOfWork, AgendaUnit, PrivateEventRepository,
-} from './application/ports.ts';
+} from './events/public.ts';

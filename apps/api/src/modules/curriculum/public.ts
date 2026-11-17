@@ -1,3 +1,3 @@
-export { PlanService } from './application/plan.ts';
-export type { TopicProgressRepository } from './application/ports.ts';
-export type { ClassroomAiConfiguration, AiPlanSource, ApprovedPlanSnapshot, PlanGrant, ClassroomAiOptions } from './application/ai-contracts.ts';
+export { PlanService } from './plan/public.ts';
+export type { TopicProgressRepository } from './plan/public.ts';
+export type { ClassroomAiConfiguration, AiPlanSource, ApprovedPlanSnapshot, PlanGrant, ClassroomAiOptions, ClassroomAiServicePort } from './generation/public.ts';

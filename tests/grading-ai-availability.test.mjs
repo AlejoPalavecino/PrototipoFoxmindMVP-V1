@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
-import { enqueueSubmittedAttemptGradingAi } from '../apps/api/src/modules/grading/infrastructure/grading-ai/enqueue.ts';
-import { ClassroomCore } from '../apps/api/src/modules/classrooms/infrastructure/core.ts';
+import { enqueueSubmittedAttemptGradingAi } from '../apps/api/src/modules/grading/assistance/infrastructure/grading-ai/enqueue.ts';
+import { ClassroomCore } from '../apps/api/src/modules/classrooms/access/infrastructure/core.ts';
 import { DraftService } from '../apps/api/src/bootstrap/academic-management-composition.ts';
 
 const id = '11111111-1111-4111-8111-111111111111', teacher = '22222222-2222-4222-8222-222222222222';

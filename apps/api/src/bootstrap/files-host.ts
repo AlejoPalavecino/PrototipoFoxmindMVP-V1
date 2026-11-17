@@ -1,19 +1,19 @@
 import { randomUUID } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { INestApplication } from '@nestjs/common';
-import { clearSessionCookie } from '../modules/identity/presentation/session-cookies.ts';
+import { clearSessionCookie } from '../modules/identity/accounts/presentation/session-cookies.ts';
 import type { IdentitySecurityConfiguration as IdentityConfiguration } from '../modules/identity/public.ts';
 import { IdentityHttpError, publicIdentityError } from '../modules/identity/domain/errors.ts';
-import type { IdentityRuntime } from '../modules/identity/application/runtime.ts';
-import { readSessionCookie } from '../modules/identity/presentation/transport.ts';
-import { authenticateSession } from '../modules/identity/infrastructure/session-query.ts';
-import type { AttemptWriteAuthorizer } from '../modules/files/infrastructure/access.ts';
-import { createFileAccess } from '../modules/files/infrastructure/access.ts';
+import type { IdentityRuntime } from '../modules/identity/accounts/application/runtime.ts';
+import { readSessionCookie } from '../modules/identity/accounts/presentation/transport.ts';
+import { authenticateSession } from '../modules/identity/accounts/infrastructure/session-query.ts';
+import type { AttemptWriteAuthorizer } from '../modules/files/custody/infrastructure/access.ts';
+import { createFileAccess } from '../modules/files/custody/infrastructure/access.ts';
 import { FileError } from '../modules/files/domain/errors.ts';
-import { createFilesHandler } from '../modules/files/presentation/http.ts';
-import type { FileService } from '../modules/files/infrastructure/service.ts';
-import type { FileCleanupWorker } from '../modules/files/infrastructure/cleanup-worker.ts';
-import { FileIdentityError } from '../modules/files/infrastructure/store.ts';
+import { createFilesHandler } from '../modules/files/uploads/presentation/http.ts';
+import type { FileService } from '../modules/files/custody/infrastructure/service.ts';
+import type { FileCleanupWorker } from '../modules/files/custody/infrastructure/cleanup-worker.ts';
+import { FileIdentityError } from '../modules/files/custody/infrastructure/store.ts';
 
 function writeGuard(security: IdentityConfiguration, request: IncomingMessage, verifier: string): void {
   if (request.method !== 'POST' && request.method !== 'PUT') return;

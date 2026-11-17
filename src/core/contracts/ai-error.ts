@@ -1,4 +1,4 @@
-import type { ExtractionError } from '../domain/index.ts';
+import type { ExtractionError } from '../domain/curriculum/ai.ts';
 
 export class AiError extends Error {
   readonly code: ExtractionError;

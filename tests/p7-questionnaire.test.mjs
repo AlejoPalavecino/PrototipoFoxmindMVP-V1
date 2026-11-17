@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ClassroomService } from '../.build/api/apps/api/src/bootstrap/academic-composition.js';
+import { ClassroomService } from './helpers/academic-fixture.ts';
 import { randomUUID, createHash } from 'node:crypto';
 import { withP5Database } from '../scripts/p5-database.mjs';
-import { FileStore } from '../.build/api/apps/api/src/modules/files/infrastructure/store.js';
+import { FileStore } from '../.build/api/apps/api/src/modules/files/custody/infrastructure/store.js';
 import pg from 'pg';
 
 test('questionnaire service exposes atomic answer save and explicit submission without losing existing services', () => {

@@ -125,12 +125,12 @@ test('downstream cancellation destroys an in-flight upstream request', async () 
 
 test('settings forwards an optional catalog cover through real transport and preserves write guards', async () => {
   const { loadTsModule } = await import('./helpers/load-ts-module.mjs');
-  const policy = loadTsModule('apps/api/src/modules/classrooms/infrastructure/policy.ts');
+  const policy = loadTsModule('apps/api/src/modules/classrooms/access/infrastructure/policy.ts');
   const { createClassroomsHandler } = loadTsModule('apps/api/src/bootstrap/academic-http.ts', { stubs: {
-    '../modules/classrooms/infrastructure/policy.ts': policy,
+    '../modules/classrooms/access/infrastructure/policy.ts': policy,
   } });
-  const { updateSettingsOperation } = loadTsModule('apps/api/src/modules/classrooms/infrastructure/drafts-operations.ts', { stubs: {
-    './policy.ts': policy,
+  const { updateSettingsOperation } = loadTsModule('apps/api/src/bootstrap/academic-management-composition.ts', { stubs: {
+    '../../domain/policy.ts': policy,
   } });
   const writes = [];
   const capability = {

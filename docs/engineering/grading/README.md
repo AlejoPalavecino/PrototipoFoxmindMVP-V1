@@ -18,4 +18,14 @@ Puntos disponibles positivos; cero ganado o nota final cero son válidos. Las en
 
 La nota efectiva sólo apunta a un resultado publicado. Rectificar modifica sólo la nota final del mismo resultado publicado, exige motivo y registra actor, fecha, nota anterior y nueva; conserva puntos, publishedAt e identidad de la calificación efectiva y notifica al estudiante. No reescribe respuestas, recepción ni publicación original. Los promedios excluyen notas ausentes/privadas, sin confundirlas con cero. Consultá [progreso](progress.md).
 
-Fuentes: [editor](../../../apps/web/src/features/grading/ui/GradingEditor.tsx), [motor](../../../apps/api/src/modules/grading/domain/scoring.ts), [corrección](../../../apps/api/src/modules/grading/application/grading.ts), [publicación](../../../apps/api/src/modules/grading/application/grade-publication.ts). [Evidencia actual](../../verification/flows.md).
+Fuentes: [editor](../../../apps/web/src/features/grading/ui/GradingEditor.tsx), [motor](../../../apps/api/src/modules/grading/domain/scoring.ts), [corrección](../../../apps/api/src/modules/grading/review/application/grading.ts), [publicación](../../../apps/api/src/modules/grading/publication/application/grade-publication.ts). [Evidencia actual](../../verification/flows.md).
+
+## Organización del backend
+
+`grading` conserva seis capacidades: `review` gobierna la corrección privada y su contexto autorizado; `publication` publica y proyecta el resultado estudiantil; `corrections` registra rectificaciones auditadas; `progress` consulta el progreso; `assistance` mantiene las propuestas privadas de corrección IA; `student-analysis` posee las referencias y trabajos de análisis estudiantil. Las reglas puras de puntuación y progreso siguen en `grading/domain`.
+
+`participation` conserva la recepción y los intentos en `attempts`, las respuestas de cuestionarios en `questionnaires`, las entregas prácticas en `practical-submissions` y las consultas/reaperturas en `history`. Editor, pertenencia, recepción confiable, revisión y autorización de adjuntos se revalidan dentro de la transacción del caso de uso. Reabrir conserva la copia autorizada de la evidencia anterior.
+
+Las capacidades exponen contratos nombrados desde `public.ts`. Los repositorios reciben comandos concretos con nombres de campo, conservan SQL, orden de parámetros y locks, y usan la transacción recibida. `RevisionPort` pertenece a Aulas; avanzar la revisión ya no depende del contrato de Materiales. La composición en `bootstrap/academic-student-composition.ts` y `academic-grading-composition.ts` inyecta las colaboraciones entre capacidades sin imports privados entre adaptadores hermanos. Los trabajos IA conservan sus perfiles, snapshots, presupuesto y mecanismos de concurrencia.
+
+La [evidencia del corte](../../work-log/2026-11-16-worker-backend-grading-participation.md) distingue las pruebas sintéticas por fuente de la compilación e integración globales y de los contratos con PostgreSQL, que requieren verificación propia.

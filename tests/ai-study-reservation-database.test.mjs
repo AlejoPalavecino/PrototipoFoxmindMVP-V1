@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { withAgendaDatabase } from './agenda-database-helpers.test.mjs';
-import { executeStudyAiText } from '../apps/api/src/modules/study/infrastructure/providers/study-ai-execution.ts';
+import { executeStudyAiText } from '../apps/api/src/modules/study/generation/infrastructure/providers/study-ai-execution.ts';
 
 test('PostgreSQL: expired Study waits for reservation commit before releasing it, without generation', { timeout: 90000 }, async () => {
   await withAgendaDatabase(async ({ pool }) => {

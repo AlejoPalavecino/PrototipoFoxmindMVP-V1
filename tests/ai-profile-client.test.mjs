@@ -2,11 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { getAiTextClient, countForExecution, createExecutionTransport } from '../apps/api/src/platform/ai/profile-client.ts';
 import { AiError } from '../apps/api/src/platform/ai/errors.ts';
-import { createGeminiExtractionAdapter } from '../apps/api/src/modules/curriculum/infrastructure/providers/gemini-adapter.ts';
-import { createGeminiActivityGenerationAdapter } from '../apps/api/src/modules/activities/infrastructure/providers/activity-adapter.ts';
-import { createStudentAiProvider } from '../apps/api/src/modules/grading/infrastructure/student-ai/provider.ts';
-import { GeminiGradingAiProvider } from '../apps/api/src/modules/grading/infrastructure/grading-ai/provider.ts';
-import { createGeminiFoxyTextAdapter } from '../apps/api/src/modules/foxy/infrastructure/providers/foxy-adapter.ts';
+import { createGeminiExtractionAdapter } from '../apps/api/src/modules/curriculum/generation/infrastructure/providers/gemini-adapter.ts';
+import { createGeminiActivityGenerationAdapter } from '../apps/api/src/modules/activities/generation/infrastructure/providers/activity-adapter.ts';
+import { createStudentAiProvider } from '../apps/api/src/modules/grading/student-analysis/infrastructure/student-ai/provider.ts';
+import { GeminiGradingAiProvider } from '../apps/api/src/modules/grading/assistance/infrastructure/grading-ai/provider.ts';
+import { createGeminiFoxyTextAdapter } from '../apps/api/src/modules/foxy/turns/infrastructure/providers/foxy-adapter.ts';
 import { configurationForJob } from '../apps/api/src/platform/ai/execution-snapshot.ts';
 
 const configuration = provider => ({ backend: 'gemini-developer', apiKey: 'synthetic-gemini', anthropicApiKey: provider === 'anthropic' ? 'synthetic-claude' : undefined,

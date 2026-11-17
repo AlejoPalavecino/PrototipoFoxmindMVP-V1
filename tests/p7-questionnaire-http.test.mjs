@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer, request as httpRequest } from 'node:http';
 import { createClassroomsHandler } from '../.build/api/apps/api/src/bootstrap/academic-http.js';
-import { submissionReceipt } from '../.build/api/apps/api/src/modules/participation/infrastructure/submission-receipt.js';
+import { submissionReceipt } from '../.build/api/apps/api/src/modules/participation/attempts/infrastructure/submission-receipt.js';
 const id = 'a1111111-1111-4111-8111-111111111111';
 const headers = { 'content-type': 'application/json', 'x-fixture-csrf': 'valid', 'x-attempt-editor': 'a'.repeat(43), 'x-attempt-epoch': '2' };
 

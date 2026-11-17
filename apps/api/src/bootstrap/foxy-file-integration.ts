@@ -1,10 +1,10 @@
-import type { FileService } from '../modules/files/infrastructure/service.ts';
-import { createDurableFoxyDocumentReader } from '../modules/files/infrastructure/foxy-durable-document-reader.ts';
-import { createFoxyPrivateAssetFiles } from '../modules/files/infrastructure/foxy-private-asset-files.ts';
-import { createFoxyPrivateImageInspector } from '../modules/files/infrastructure/foxy-private-image-inspector.ts';
+import type { FileService } from '../modules/files/custody/infrastructure/service.ts';
+import { createDurableFoxyDocumentReader } from '../modules/files/custody/infrastructure/foxy-durable-document-reader.ts';
+import { createFoxyPrivateAssetFiles } from '../modules/files/custody/infrastructure/foxy-private-asset-files.ts';
+import { createFoxyPrivateImageInspector } from '../modules/files/custody/infrastructure/foxy-private-image-inspector.ts';
 import { createLibraryMaterialPublisher } from './academic-materials-composition.ts';
-import type { FoxyFileOperations } from '../modules/foxy/infrastructure/file-operations.ts';
-import { attachmentSources, readAttachment } from '../modules/files/infrastructure/chat-attachment-repository.ts';
+import type { FoxyFileOperations } from '../modules/foxy/application/file-operations.ts';
+import { attachmentSources, readAttachment } from '../modules/files/custody/infrastructure/chat-attachment-repository.ts';
 
 export function createFoxyFileOperations(files: FileService): FoxyFileOperations {
   return {

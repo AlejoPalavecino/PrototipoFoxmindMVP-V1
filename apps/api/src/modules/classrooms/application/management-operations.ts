@@ -1,6 +1,6 @@
 import type { ClassroomCodePreview, InvitationBatchReceipt, InvitationBatchRecipient } from '../../../../../../src/core/contracts/classrooms.ts';
-import type { Actor, Transaction } from './contracts.ts';
-import type { ClassroomAccess, PreviewTokenPort, EnrollmentPort } from './ports.ts';
+import type { Actor, Transaction } from '../access/public.ts';
+import type { ClassroomAccess, PreviewTokenPort, EnrollmentPort } from '../access/public.ts';
 export interface DraftRow { id: string; owner_id: string; revision: bigint; payload: unknown; published_classroom_id: string | null }
 export interface DraftLookup { draft(tx: Transaction, actor: Actor, id: string): Promise<DraftRow> }
 export interface DraftOperations {

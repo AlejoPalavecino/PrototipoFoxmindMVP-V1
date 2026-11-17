@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createIdentityClassroomAuthentication } from '../.build/api/apps/api/src/bootstrap/academic-host.js';
-import { ClassroomCore } from '../.build/api/apps/api/src/modules/classrooms/infrastructure/core.js';
-import { ClassroomIdentityError } from '../.build/api/apps/api/src/modules/classrooms/infrastructure/errors.js';
+import { ClassroomCore } from '../.build/api/apps/api/src/modules/classrooms/access/infrastructure/core.js';
+import { ClassroomIdentityError } from '../.build/api/apps/api/src/modules/classrooms/access/infrastructure/errors.js';
 import { IdentityHttpError } from '../.build/api/apps/api/src/modules/identity/domain/errors.js';
-import { FileIdentityError } from '../.build/api/apps/api/src/modules/files/infrastructure/store.js';
-import { readIdentityConfiguration } from '../.build/api/apps/api/src/modules/identity/infrastructure/security/configuration.js';
-import { sessionTokenDigest } from '../.build/api/apps/api/src/modules/identity/infrastructure/security/verifiers.js';
-import { IDENTITY_POLICY } from '../.build/api/apps/api/src/modules/identity/infrastructure/security/sessions.js';
+import { FileIdentityError } from '../.build/api/apps/api/src/modules/files/custody/infrastructure/store.js';
+import { readIdentityConfiguration } from '../.build/api/apps/api/src/modules/identity/accounts/infrastructure/security/configuration.js';
+import { sessionTokenDigest } from '../.build/api/apps/api/src/modules/identity/accounts/infrastructure/security/verifiers.js';
+import { IDENTITY_POLICY } from '../.build/api/apps/api/src/modules/identity/accounts/infrastructure/security/sessions.js';
 
 const verifier = Buffer.alloc(32, 7).toString('base64url');
 const security = readIdentityConfiguration({ APP_ORIGIN: 'http://localhost:3000', AUTH_LOCAL_HTTP: 'true',
