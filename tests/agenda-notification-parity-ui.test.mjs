@@ -9,7 +9,7 @@ const item = { id: `invite-${uuid}-1`, title: 'Aula de prueba', actorName: 'Doce
   eventType: 'CLASSROOM_INVITATION', classroomName: 'Aula de prueba', createdAt: date + 'T12:30Z', readAt: null };
 
 test('center sends global filters and opens invitation review without an accept request', async () => {
-  const { Notifications } = loadTsModule('apps/web/src/features/notifications/ui/Notifications.tsx');
+  const { Notifications } = loadTsModule('apps/web/src/features/notifications/inbox/Notifications.tsx');
   const calls = [], navigation = [];
   const api = { async call(path, method) {
     calls.push([path, method]);

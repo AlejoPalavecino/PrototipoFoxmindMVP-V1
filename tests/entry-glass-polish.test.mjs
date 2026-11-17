@@ -55,7 +55,7 @@ test('notification dialog inherits wrapping title safeguards without shrinking t
     const css = readFileSync(path, 'utf8');
     return css.replace(/@import\s+['"]([^'"]+)['"];?/g, (_, imported) => cascade(resolve(dirname(path), imported)));
   }
-  const css = cascade('apps/shared-ui/folders.css');
+  const css = cascade('apps/web/src/application/shell/styles/folders.css');
   assert.match(css, /\.p5-dialog\s*\{[^}]*margin:\s*auto/);
   assert.match(css, /\.p5-dialog\s*>\s*header\s*h2\s*\{[^}]*min-width:\s*0;[^}]*overflow-wrap:\s*anywhere/);
   assert.match(css, /\.p5-dialog\s+\.p5-close\s*\{[^}]*flex:\s*0 0 44px/);

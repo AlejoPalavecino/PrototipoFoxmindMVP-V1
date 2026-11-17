@@ -4,7 +4,7 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { deferred, descendants, hookView } from './agenda-ui-helpers.test.mjs';
 import { day, privateEvent, zone } from './agenda-event-form-helpers.test.mjs';
 
-const { EventForm } = loadTsModule('apps/web/src/features/agenda/ui/EventForm.tsx');
+const { EventForm } = loadTsModule('apps/web/src/features/agenda/event-editor/EventForm.tsx');
 const find = (view, predicate) => descendants(view.tree, predicate)[0];
 const fields = view => find(view, node => node.type.name === 'EventFields');
 const button = (view, label) => find(view, node => node.type === 'button' && node.props.children === label);

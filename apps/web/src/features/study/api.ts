@@ -1,2 +1,4 @@
-export { StudyError, validateStudyPlan, createStudyClient, studyGenerationData, studyAnswerValue, createStudyRevisionController, studyGenerationIssue } from './api/study-client.ts';
-export type { StudyTopic, StudyUnit, StudyFolder, StudySource, StudyConversation, StudyCreation, StudyQuestion, StudyPractice, StudyExam, StudyDetail, StudyFolderSummary, StudyCollection } from './api/study-client.ts';
+export { createStudyClient } from './api/study-http.ts';
+export { StudyError } from './api/study-error.ts';
+export type * from './model/study-contracts.ts';
+export type * from './model/study-commands.ts';

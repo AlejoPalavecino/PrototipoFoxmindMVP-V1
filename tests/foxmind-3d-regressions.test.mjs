@@ -7,7 +7,7 @@ import { withAgendaDatabase } from './agenda-database-helpers.test.mjs';
 import { homeFixture } from './foxmind-3d-repository-fixture.test.mjs';
 
 for (const presentation of ['home', 'classrooms']) test(`JD01 ${presentation}: account destinations retain exact routing`, async () => {
-  const { ClassroomsApp } = loadTsModule("apps/web/src/application/academic-Classrooms.tsx");
+  const { ClassroomsApp } = loadTsModule("apps/web/src/application/workflows/classroom-collection/ClassroomsApp.tsx");
   const previous = globalThis.window, assigned = [], routed = [];
   globalThis.window = { location: { assign: href => assigned.push(href) } };
   const view = hookView(ClassroomsApp, { initialPresentation: presentation, displayName: 'Synthetic', accountRole: 'teacher',

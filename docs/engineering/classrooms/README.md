@@ -53,7 +53,7 @@ Protección local comprobada: ingreso por cuenta 10/minuto y 30/hora, adicional 
 
 El docente edita nombre, materia, grupo y portada, invita, copia el código de ingreso y archiva o reactiva con confirmación. Aula archivada es de consulta: sin nuevas inscripciones ni mutaciones académicas. El estudiante aún puede confirmar su salida; para volver se requiere reactivación y nueva invitación. Reactivar no extiende plazos ni borra historia. No hay eliminación permanente del aula desde esta UI.
 
-Fuentes: [Wizard](../../../apps/web/src/application/academic-Wizard.tsx), [secciones](../../../apps/web/src/features/classrooms/ui/ClassroomNavigation.tsx), [servicios](../../../apps/api/src/modules/classrooms/). [Flujos comprobados](../../verification/flows.md) y [permisos por rol](../../product/features-by-role.md).
+Fuentes: [Wizard](../../../apps/web/src/application/workflows/classroom-creation/ClassroomWizard.tsx), [secciones](../../../apps/web/src/features/classrooms/workspace/ClassroomNavigation.tsx), [servicios](../../../apps/api/src/modules/classrooms/). [Flujos comprobados](../../verification/flows.md) y [permisos por rol](../../product/features-by-role.md).
 
 ## Interior del aula
 
@@ -65,4 +65,4 @@ En Plan, el docente marca temas y ambos roles consultan materiales y actividades
 
 Estudiantes muestra integrantes actuales, fichas, código de ingreso e invitaciones. Una invitación rechazada se identifica como tal y queda fuera de reenvío y revocación. Compañeros muestra nombres y marca «Vos» con la identidad autenticada; la respuesta estudiantil no expone identificadores ni correos de compañeros. Historial conserva períodos de inscripción y acceso docente al recorrido anterior.
 
-Ajustes presenta los datos y las portadas de la maqueta. Guardar conserva el ciclo y la configuración de corrección asistida ya persistidos. `PATCH /classrooms/:id/settings` acepta `coverKey` opcional del catálogo. Si se omite, conserva la portada persistida. Guardar requiere acceso docente, aula activa y revisión vigente. Archivar y reactivar tienen confirmación propia. [Ajustes del aula](../../../apps/web/src/features/classrooms/ui/ClassroomSettings.tsx) · [Prueba de transporte](../../../tests/p5-web-proxy.test.mjs).
+Ajustes presenta los datos y las portadas de la maqueta. Guardar conserva el ciclo y la configuración de corrección asistida ya persistidos. `PATCH /classrooms/:id/settings` acepta `coverKey` opcional del catálogo. Si se omite, conserva la portada persistida. Guardar requiere acceso docente, aula activa y revisión vigente. Archivar y reactivar tienen confirmación propia. [Ajustes del aula](../../../apps/web/src/features/classrooms/settings/ClassroomSettings.tsx) · [Prueba de transporte](../../../tests/p5-web-proxy.test.mjs).

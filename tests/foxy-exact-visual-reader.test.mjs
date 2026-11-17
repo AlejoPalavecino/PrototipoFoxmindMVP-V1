@@ -7,7 +7,7 @@ import {hookView,descendants} from './agenda-ui-helpers.test.mjs';
 
 test('visual reader presents actual saved metadata and TXT without legacy generator controls',async()=>{
  const id=randomUUID(),calls=[];
- const {FoxyVisualReader}=componentWithPorts('apps/web/src/features/foxy/ui/foxy-visual-reader.tsx',{});
+ const {FoxyVisualReader}=componentWithPorts('apps/web/src/features/foxy/visuals/foxy-visual-reader.tsx',{});
  const inspection={asset:{id,state:'READY',kind:'DIAGRAM',revision:'3'},payload:{title:'La luz',description:'Explicación guardada <script>bad</script>'},canPreview:true};
  const view=hookView(FoxyVisualReader,{assetId:id,inspection,loading:false,error:null,onClose(){},onRetry(){},assetFileUrl:asset=>`/api/v1/foxy-ai/assets/${asset}/file?mode=preview`,onDownload:text=>calls.push(text),onShare:()=>calls.push('share')});
  try{
@@ -22,7 +22,7 @@ test('visual reader presents actual saved metadata and TXT without legacy genera
 });
 
 test('visual reader never exposes stale, revoked or foreign preview links',()=>{
- const id=randomUUID();const {FoxyVisualReader}=componentWithPorts('apps/web/src/features/foxy/ui/foxy-visual-reader.tsx',{});
+ const id=randomUUID();const {FoxyVisualReader}=componentWithPorts('apps/web/src/features/foxy/visuals/foxy-visual-reader.tsx',{});
  for(const [assetId,canPreview,url] of [[randomUUID(),true,`/api/v1/foxy-ai/assets/${id}/file?mode=preview`],[id,false,`/api/v1/foxy-ai/assets/${id}/file?mode=preview`],[id,true,'https://external.invalid/image.png']]){
   const html=renderToStaticMarkup(FoxyVisualReader({assetId:id,inspection:{asset:{id:assetId,state:'READY'},payload:{title:'No exponer',description:'Privado'},canPreview},loading:false,error:null,onClose(){},onRetry(){},onShare(){},assetFileUrl:()=>url}));
   assert.doesNotMatch(html,/<img|No exponer|Privado|Descargar TXT|Llevar a Biblioteca/);

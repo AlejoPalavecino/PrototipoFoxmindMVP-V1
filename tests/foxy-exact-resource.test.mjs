@@ -6,7 +6,7 @@ import {hookView,descendants} from './agenda-ui-helpers.test.mjs';
 
 test('discarding an edited creation requires an explicit choice and restores the saved text only after confirmation',async()=>{
   const calls=[];
-  const {FoxyResourceWorkspace}=componentWithPorts('apps/web/src/screens/foxy-resource-workspace.tsx',{});
+  const {FoxyResourceWorkspace}=componentWithPorts('apps/web/src/application/workflows/foxy-workspace/FoxyResourceWorkspace.tsx',{});
   const saved={id:'resource',title:'Guardado',markdown:'Contenido guardado',revision:'1'};
   const props={resource:{status:'editing',resource:saved,draft:{title:'Borrador',markdown:'Contenido cambiado'},dirty:true,busy:false,pending:null,conflict:null,errorCode:null},preparation:{destination:null,metadata:{title:'',unitId:null,topicId:null},canPrepare:false,busy:false,pending:null},history:{items:[],inspection:null,loading:false},confirmation:{review:null,reviewed:false,busy:false,pending:null,canReview:false,canConfirm:false},classrooms:[],ui:{leave:null,openingResource:false},actions:{resource:{updateDraft:value=>calls.push(value),close(){}},preparation:{},history:{},confirmation:{}},publicationFileUrl:()=>''};
   const view=hookView(FoxyResourceWorkspace,props);

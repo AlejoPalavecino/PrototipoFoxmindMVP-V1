@@ -8,7 +8,7 @@ const room = { role: 'teacher', archived: false, units: [{ id: 'unit', name: 'N�
 const value = { type: 'ASSIGNMENT', unitIds: [], topicIds: ['topic'], teacherBrief: 'Que comparen dos representaciones de una fracción.', sourceIds: [], objective: 'Comparar fracciones', groupLevel: '', context: 'Contenido docente', difficulty: 'INTERMEDIATE', durationMinutes: 40, counts: { assignment: 3, development: 0, singleChoice: 0, multipleChoice: 0 }, acknowledgedWarnings: [] };
 
 test('AI setup displays scope and settings and sends the unchanged request only on explicit generation', async () => {
-  const { GenerationSetup } = loadTsModule("apps/web/src/features/activity-authoring/ui/GenerationSetup.tsx");
+  const { GenerationSetup } = loadTsModule("apps/web/src/features/activity-authoring/generation/GenerationSetup.tsx");
   const calls = [], view = hookView(GenerationSetup, { room, value, update() {}, sources: [], disabled: false, generate: body => calls.push(body) });
   try {
     await view.flush();
@@ -28,7 +28,7 @@ test('AI setup displays scope and settings and sends the unchanged request only 
 });
 
 test('AI setup requires a topic and teacher idea, and never generates while disabled', async () => {
-  const { GenerationSetup } = loadTsModule("apps/web/src/features/activity-authoring/ui/GenerationSetup.tsx");
+  const { GenerationSetup } = loadTsModule("apps/web/src/features/activity-authoring/generation/GenerationSetup.tsx");
   for (const { error, ...props } of [
     { value: { ...value, topicIds: [] }, disabled: false, error: /Elegí al menos un tema/ },
     { value: { ...value, teacherBrief: '   ' }, disabled: false, error: /Escribí una idea/ },
@@ -48,7 +48,7 @@ test('AI setup requires a topic and teacher idea, and never generates while disa
 });
 
 test('Inactive AI steps are hidden and disabled so native validation targets only the current step', () => {
-  const { ActivityGenerationForm } = loadTsModule("apps/web/src/features/activity-authoring/ui/ActivityGenerationForm.tsx");
+  const { ActivityGenerationForm } = loadTsModule("apps/web/src/features/activity-authoring/generation/ActivityGenerationForm.tsx");
   for (const step of [0, 1, 2]) {
     const tree = ActivityGenerationForm({ room, value, update() {}, sources: [], disabled: false, step });
     const groups = descendants(tree, node => node.props?.['data-generation-step'] !== undefined);
@@ -80,7 +80,7 @@ test('AI waiting describes the actual server state without a fabricated percenta
 });
 
 test('Opening grading focuses the work area by hiding the history list and restoring it on return', async () => {
-  const { AttemptHistory } = loadTsModule("apps/web/src/application/academic-AttemptHistory.tsx");
+  const { AttemptHistory } = loadTsModule("apps/web/src/application/workflows/activity-session/AttemptHistory.tsx");
   const calls = [], api = { call: async (...args) => {
     calls.push(args);
     return { activity: { title: 'Actividad', zone: 'UTC', deadlineAt: null },
@@ -107,7 +107,7 @@ test('Opening grading focuses the work area by hiding the history list and resto
 });
 
 test('Activity detail keeps permitted teacher options behind the single activity entry', async () => {
- const {Activities}=loadTsModule("apps/web/src/application/academic-Activities.tsx");
+ const {Activities}=loadTsModule("apps/web/src/application/workflows/activity-session/Activities.tsx");
  const activity={id:'activity',type:'ASSIGNMENT',status:'PUBLISHED',title:'Práctica',zone:'UTC',locked:false};
  const view=hookView(Activities,{api:{call:async path=>path.endsWith('/preview')?{activity}:{activities:[activity]}},room:{...room,id:'room'},reload:async()=>{}});
  try{await view.flush();descendants(view.tree,n=>n.type==='button'&&n.props['aria-label']==='Abrir Práctica')[0].props.onClick();await view.flush();const detail=descendants(view.tree,n=>n.type?.name==='AttemptHistory')[0];assert.match(text(detail.props.actions),/Editar actividad/);assert.match(text(detail.props.actions),/Retirar actividad/);assert.equal(detail.props.activityPreview,activity);}finally{view.close();}

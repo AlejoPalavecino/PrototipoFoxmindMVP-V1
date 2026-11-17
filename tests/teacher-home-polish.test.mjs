@@ -10,7 +10,7 @@ const text = node => typeof node==='string'?node:Array.isArray(node)?node.map(te
 const button = (view,label) => descendants(view.tree,node=>node.type==='button'&&text(node).trim()===label)[0];
 
 test('Each teacher action asks for an explicit destination and does not change focus',async()=>{
-  const {HomeTeacherTools}=loadTsModule('apps/web/src/features/home/ui/HomeShortcuts.tsx');
+  const {HomeTeacherTools}=loadTsModule('apps/web/src/features/home/dashboard/HomeShortcuts.tsx');
   const calls=[];
   const view=hookView(props=>{const tree=HomeTeacherTools(props);return tree.type?.name==='ClassroomActions'?tree.type(tree.props):tree;},{data,onAction:value=>calls.push(value),onSelected:()=>assert.fail('focus changed'),onClassrooms(){}});
   try {
@@ -27,7 +27,7 @@ test('Each teacher action asks for an explicit destination and does not change f
 });
 
 test('Room picker loads more authorized classrooms, retries, and requires a selection',async()=>{
-  const {HomeRoomPicker}=loadTsModule('apps/web/src/features/home/ui/HomeRoomPicker.tsx');
+  const {HomeRoomPicker}=loadTsModule('apps/web/src/features/home/dashboard/HomeRoomPicker.tsx');
   const calls=[];let fail=true;
   const view=hookView(HomeRoomPicker,{data:{...data,modules:{...data.modules,classrooms:{...page([room('first'),room('second')]),nextCursor:'next'}}},title:'Elegí un aula',onClose(){},onSelect:value=>calls.push(value),onUnauthorized(){},
     client:{page:async query=>{assert.equal(query.cursor,'next');if(fail)throw Error();return {subjectId:'owner',module:'classrooms',page:page([room('third'),{...room('archived'),classroom:{...room('archived').classroom,archived:true}}])};}}});
@@ -44,7 +44,7 @@ test('Room picker loads more authorized classrooms, retries, and requires a sele
 });
 
 test('Order changes start at page one, keep independent orders and reject stale responses',async()=>{
-  const {useHome}=loadTsModule('apps/web/src/features/home/model/use-home.ts');
+  const {useHome}=loadTsModule('apps/web/src/features/home/dashboard/use-home.ts');
   const previous=globalThis.window;globalThis.window=new EventTarget();
   const a=deferred(),b=deferred(),requests=[];
   const client={read:async()=>data,page:query=>{requests.push(query);return requests.length===1?a.promise:b.promise;}};
@@ -62,7 +62,7 @@ test('Order changes start at page one, keep independent orders and reject stale 
 });
 
 test('A single eligible classroom discovered after pagination is preselected',async()=>{
-  const {HomeRoomPicker}=loadTsModule('apps/web/src/features/home/ui/HomeRoomPicker.tsx');
+  const {HomeRoomPicker}=loadTsModule('apps/web/src/features/home/dashboard/HomeRoomPicker.tsx');
   const view=hookView(HomeRoomPicker,{data:{...data,modules:{...data.modules,classrooms:{...page([]),nextCursor:'next'}}},title:'Elegí un aula',onClose(){},onSelect(){},onUnauthorized(){},
     client:{page:async()=>({subjectId:'owner',module:'classrooms',page:page([room('only')])})}});
   try{
@@ -73,7 +73,7 @@ test('A single eligible classroom discovered after pagination is preselected',as
 });
 
 test('A classroom page belonging to another account is rejected',async()=>{
-  const {HomeRoomPicker}=loadTsModule('apps/web/src/features/home/ui/HomeRoomPicker.tsx');
+  const {HomeRoomPicker}=loadTsModule('apps/web/src/features/home/dashboard/HomeRoomPicker.tsx');
   let revoked=0;
   const view=hookView(HomeRoomPicker,{data:{...data,modules:{...data.modules,classrooms:{...page([]),nextCursor:'next'}}},title:'Elegí un aula',onClose(){},onSelect(){assert.fail();},onUnauthorized(){revoked++;},
     client:{page:async()=>({subjectId:'someone-else',module:'classrooms',page:page([room('private')])})}});
@@ -84,7 +84,7 @@ test('A classroom page belonging to another account is rejected',async()=>{
 });
 
 test('Retrying a student module never presents teacher ordering state',async()=>{
-  const {useHome}=loadTsModule('apps/web/src/features/home/model/use-home.ts');
+  const {useHome}=loadTsModule('apps/web/src/features/home/dashboard/use-home.ts');
   const previous=globalThis.window;globalThis.window=new EventTarget();
   const pending=deferred();
   const client={read:async()=>data,page:()=>pending.promise};
@@ -97,7 +97,7 @@ test('Retrying a student module never presents teacher ordering state',async()=>
 });
 
 test('A refresh isolates a failed reordered module while keeping unrelated data',async()=>{
-  const {useHome}=loadTsModule('apps/web/src/features/home/model/use-home.ts');
+  const {useHome}=loadTsModule('apps/web/src/features/home/dashboard/use-home.ts');
   const previous=globalThis.window;globalThis.window=new EventTarget();
   let fail=false;
   const client={read:async()=>structuredClone(data),page:async()=>{if(fail)throw Object.assign(Error(),{code:'SERVICE_UNAVAILABLE'});return {subjectId:'owner',module:'review',page:page([])};}};
@@ -112,7 +112,7 @@ test('A refresh isolates a failed reordered module while keeping unrelated data'
 });
 
 test('Transient pagination failure retains rows and retries with the same cursor and order',async()=>{
-  const {HomeModulePanel}=loadTsModule('apps/web/src/features/home/ui/HomeModulePanel.tsx');
+  const {HomeModulePanel}=loadTsModule('apps/web/src/features/home/queue/HomeModulePanel.tsx');
   let failure=true;const requests=[];
   const view=hookView(HomeModulePanel,{name:'review',order:'desc',data:{...data,modules:{...data.modules,review:{...page([{id:'first'}]),nextCursor:'next'}}},onClose(){},onAction(){},onUnauthorized(){assert.fail();},
     client:{page:async query=>{requests.push(query);if(failure)throw Error();return {subjectId:'owner',module:'review',page:page([{id:'second'}])};}}});
@@ -126,7 +126,7 @@ test('Transient pagination failure retains rows and retries with the same cursor
 });
 
 test('Refresh revalidates a focused classroom beyond the first page without stale data',async()=>{
-  const {useHome}=loadTsModule('apps/web/src/features/home/model/use-home.ts');
+  const {useHome}=loadTsModule('apps/web/src/features/home/dashboard/use-home.ts');
   const previous=globalThis.window;globalThis.window=new EventTarget();
   const calls=[];
   const client={read:async()=>({...data,modules:{...data.modules,classrooms:{...page([room('first')]),nextCursor:'next'}}}),
@@ -141,7 +141,7 @@ test('Refresh revalidates a focused classroom beyond the first page without stal
 });
 
 test('One known active classroom is selected even when archived rooms occupy later pages',async()=>{
-  const {HomeRoomPicker}=loadTsModule('apps/web/src/features/home/ui/HomeRoomPicker.tsx');
+  const {HomeRoomPicker}=loadTsModule('apps/web/src/features/home/dashboard/HomeRoomPicker.tsx');
   const view=hookView(HomeRoomPicker,{data:{...data,memberships:{teach:1},modules:{...data.modules,classrooms:{...page([room('only')]),nextCursor:'archived'}}},title:'Elegí un aula',onClose(){},onSelect(){},onUnauthorized(){}});
   try{await view.flush();assert.equal(button(view,'Continuar').props.disabled,false);}finally{view.close();}
 });

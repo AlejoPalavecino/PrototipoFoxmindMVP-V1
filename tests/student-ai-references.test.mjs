@@ -1,3 +1,4 @@
+import { gradingFixtureProps } from './helpers/frontend-feature-fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
@@ -11,8 +12,8 @@ const summary = { state: 'READY', generatedAt: null, evidenceHash: 'a'.repeat(64
     supportNeeds: [], recommendations: [], limitations: [] } };
 
 test('teacher sees the named activity alongside its evidence reference', async () => {
-  const { StudentAiSummary } = loadTsModule("apps/web/src/features/grading/ui/StudentAiSummary.tsx");
-  const view = hookView(StudentAiSummary, { api: { call: async () => summary }, classroomId: 'room', studentId: 'student' });
+  const { StudentAiSummary } = loadTsModule("apps/web/src/features/grading/progress/StudentAiSummary.tsx");
+  const view = hookView(StudentAiSummary, gradingFixtureProps('StudentAiSummary', { api: { call: async () => summary }, classroomId: 'room', studentId: 'student' }));
   try {
     await view.flush();
     const html = renderToStaticMarkup(view.tree);

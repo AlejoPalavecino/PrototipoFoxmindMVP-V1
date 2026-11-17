@@ -1,5 +1,7 @@
 # Estado de FoxMind
 
+Refactor de cohesión del frontend verificado localmente en `codex/frontend-cohesion`, desde `dd6f4bc`: organización por dominio y caso de uso, contratos acotados y composición en workflows. Build, lint y1.288 pruebas verdes; QA focalizada de ambos roles con proveedor sintético. [Evidencia y límites](verification/frontend-cohesion.json), [tablero](../odd/tasks/frontend-cohesion-refactor.md) y [distribución](engineering/frontend/README.md). Cambios sin commits ni integración con el backend paralelo; no constituye publicación o despliegue.
+
 La [PR #17 — Refactor UX/UI de FoxMind](https://github.com/AlejoPalavecino/PrototipoFoxmindMVP-V1/pull/17) reúne la paridad con UI Lab y conserva la arquitectura de IA publicada previamente en `main` (`69e2c01`). El [registro de integración](work-log/2026-11-16-root-ux-ui-publication.md) distingue los controles sobre la combinación de las verificaciones de pantalla citadas abajo, que corresponden a la rama de paridad.
 
 Interior de aulas de ambos roles alineado con UI Lab. Build local `t5pFKl-x2iaUtLN4Ue4F6`: 56 vistas comparadas y 24 comprobaciones de interacción; datos reales de revisiones, devolución efectiva e identidad propia. [Registro y límites](work-log/2026-11-16-root-classroom-interior-exact.md), TASK-018 a TASK-022. La [segunda revisión](work-log/2026-11-16-root-classroom-interior-reaudit.md) amplía esa evidencia a pestañas, diálogos y estados del interior (TASK-023).

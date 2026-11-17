@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createClassroomClient } from '../apps/web/src/application/academic-client.ts';
+import { createClassroomClient } from '../apps/web/src/application/transport/classroom-client.ts';
 
 test('authoring client retains plan/material transport after retiring the unused instruction-upload helper', async () => {
   const calls = [];

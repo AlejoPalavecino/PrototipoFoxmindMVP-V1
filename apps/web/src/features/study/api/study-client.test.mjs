@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createStudyClient,validateStudyPlan} from "./study-client.ts";
+import { createStudyClient } from './study-http.ts';
+import { validateStudyPlan } from '../model/study-transitions.ts';
 import {proxyStudyRequest} from "../../../application/server/study-proxy.ts";
 import {createServer} from 'node:http';
 const id='a1a1a1a1-1111-4111-8111-a1a1a1a1a1a1';

@@ -1,18 +1,178 @@
 import { AsyncFeedback } from '../../../shared-ui/AsyncFeedback';
 import Head from 'next/head';
-import {useRouter} from 'next/router';
-import {useEffect,useRef,useState} from 'react';
-import {AccountNavbar} from '../application/navigation/account-navbar.tsx';
-import {createAccountClient,type AccountSession} from '../features/identity/index.ts';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { AccountNavbar } from '../application/navigation/account-navbar.tsx';
+import { createAccountClient, type AccountSession } from '../features/identity/index.ts';
 import { authHref } from '../application/navigation/destinations';
-import {createStudyClient,createStudyRevisionController,type StudyCollection,type StudyDetail,StudyError} from '../features/study/api.ts';
-import {Notice} from '../../../shared-ui/feedback';
-import {StudyCollectionView,StudyWizard} from '../features/study/index.ts';
-import {StudyWorkspace} from '../features/study/index.ts';
+import { StudyError } from '../features/study/api.ts';
+import { Notice } from '../../../shared-ui/feedback';
+import { useStudyFolders, StudyCollectionView, StudyWizard } from '../features/study/index.ts';
+import { StudyWorkspace } from '../features/study/index.ts';
 import { studySurface as s } from '../features/study/index.ts';
-export const studyApi=createStudyClient();
-export function StudyScreen(){const router=useRouter();const[session,setSession]=useState<AccountSession>();const[collection,setCollection]=useState<StudyCollection>();const[detail,setDetail]=useState<StudyDetail>();const[error,setError]=useState('');const[busy,setBusy]=useState(false);const[wizard,setWizard]=useState(false);const[collectionStatus,setCollectionStatus]=useState('ACTIVE');const[retry,setRetry]=useState(0);const runLock=useRef(false);const controller=useRef<ReturnType<typeof createStudyRevisionController>|null>(null);function replaceDetail(value:StudyDetail|undefined){if(value){if(controller.current)controller.current.replace(value);else controller.current=createStudyRevisionController(value,studyApi,setDetail);}setDetail(value);}const id=typeof router.query.id==='string'?router.query.id:undefined;const currentFolderId=useRef(id);currentFolderId.current=id;
-useEffect(()=>{if(!router.isReady)return;let active=true;setError('');void(async()=>{try{const current=await createAccountClient().session();if(!active)return;if(!current.authenticated){void router.replace(authHref('sign-in',router.asPath));return;}if(!current.user.emailVerified){void router.replace(authHref('verify-email',router.asPath));return;}if(current.user.accountRole!=='student'){setError('Las carpetas de estudio son exclusivas de estudiantes.');return;}setSession(current);const catalog=await studyApi.list();const value=id?await studyApi.get(id):undefined;if(active){setCollection(catalog);replaceDetail(value);setWizard(value?.folder.status==='DRAFT');}}catch(e){if(active){if(e instanceof StudyError&&(e.status===401||e.code==='EMAIL_VERIFICATION_REQUIRED')){void router.replace(authHref(e.code==='EMAIL_VERIFICATION_REQUIRED'?'verify-email':'sign-in',router.asPath));return;}setError(e instanceof Error?e.message:'No pudimos abrir tus carpetas.');}}})();return()=>{active=false;};},[router.isReady,id,retry]);
-async function run(action:string,data:Record<string,unknown>={},requestId?:string){if(!detail)return;if(runLock.current)throw new StudyError('PENDING',409);runLock.current=true;setBusy(true);setError('');try{return await controller.current!.run(action,data,requestId);}catch(e){setError(e instanceof Error?e.message:'No pudimos guardar.');if(e instanceof StudyError&&(e.status===401||e.code==='EMAIL_VERIFICATION_REQUIRED'))void router.replace(authHref(e.code==='EMAIL_VERIFICATION_REQUIRED'?'verify-email':'sign-in',router.asPath));throw e;}finally{runLock.current=false;setBusy(false);}}
-return <div className="p5-app"><Head><title>Carpetas de estudio · FoxMind</title></Head><a className="skip-link" href="#study-main">Saltar al contenido</a>{session?.authenticated&&<AccountNavbar session={session} view="carpetas-de-estudio"/>}<main className={`p5-main ${s.root}`} id="study-main">{error&&<Notice error>{error}<button onClick={()=>setRetry(v=>v+1)}>Actualizar carpeta</button></Notice>}{!session?.authenticated||!collection?error?<Notice>No se pudo abrir el espacio de estudio.</Notice>:<AsyncFeedback title="Abriendo tus carpetas…"/>:<>{wizard&&<StudyWizard key={id??'new-folder'} catalog={collection} folder={id&&detail?.folder.id===id&&detail.folder.status==='DRAFT'?detail.folder:undefined} onSaved={()=>{setWizard(false);setCollectionStatus('DRAFT');if(id)void router.push('/carpetas-de-estudio');setRetry(value=>value+1);}} onClose={()=>{setWizard(false);if(id)void router.push('/carpetas-de-estudio');else setRetry(value=>value+1);}} onCreated={()=>{setWizard(false);setCollectionStatus('ACTIVE');if(id)void router.push('/carpetas-de-estudio');setRetry(v=>v+1);}}/>}{!id?<StudyCollectionView status={collectionStatus} onStatusChange={setCollectionStatus} catalog={collection} onCreate={()=>setWizard(true)} onEnter={folderId=>void router.push(`/carpetas-de-estudio/${folderId}`)}/>:!wizard?detail?.folder.id===id?<StudyWorkspace selectedConversationId={typeof router.query.chat==='string'?router.query.chat:undefined} onConversationSelect={chat=>{void router.replace({pathname:router.pathname,query:{...router.query,chat}},undefined,{shallow:true,scroll:false});}} examId={router.query.tab==='repaso'&&typeof router.query.exam==='string'?router.query.exam:undefined}
-  cancelGeneration={async requestId=>(await studyApi.cancel(id,requestId)).result.status} identity={{ avatarKey: session.user.avatarKey, initials: (session.user.firstName[0] ?? '') + (session.user.lastName[0] ?? '') }} key={detail.folder.id} detail={detail} catalog={collection} busy={busy} run={run} onReload={async()=>{const refreshed=await studyApi.get(id);if(currentFolderId.current===id)replaceDetail(refreshed);}}/>:<AsyncFeedback title="Cargando carpeta…"/>:null}</>}</main></div>;}
+export function StudyScreen() {
+  const router = useRouter();
+  const [session, setSession] = useState<AccountSession>();
+  const [wizard, setWizard] = useState(false);
+  const [collectionStatus, setCollectionStatus] = useState('ACTIVE');
+  const [retry, setRetry] = useState(0);
+  const id = typeof router.query.id === 'string' ? router.query.id : undefined;
+  function onAccessError(error: unknown) {
+    if (
+      error instanceof StudyError &&
+      (error.status === 401 || error.code === 'EMAIL_VERIFICATION_REQUIRED')
+    )
+      void router.replace(
+        authHref(
+          error.code === 'EMAIL_VERIFICATION_REQUIRED' ? 'verify-email' : 'sign-in',
+          router.asPath,
+        ),
+      );
+  }
+  const folders = useStudyFolders({ folderId: id, onAccessError });
+  const { collection, detail, error, busy, setError, run } = folders;
+  useEffect(() => {
+    if (!router.isReady) return;
+    let active = true;
+    setError('');
+    void (async () => {
+      try {
+        const current = await createAccountClient().session();
+        if (!active) return;
+        if (!current.authenticated) {
+          void router.replace(authHref('sign-in', router.asPath));
+          return;
+        }
+        if (!current.user.emailVerified) {
+          void router.replace(authHref('verify-email', router.asPath));
+          return;
+        }
+        if (current.user.accountRole !== 'student') {
+          setError('Las carpetas de estudio son exclusivas de estudiantes.');
+          return;
+        }
+        setSession(current);
+        const value = await folders.load(id, () => active);
+        if (active) setWizard(value?.folder.status === 'DRAFT');
+      } catch (e) {
+        if (active) {
+          if (
+            e instanceof StudyError &&
+            (e.status === 401 || e.code === 'EMAIL_VERIFICATION_REQUIRED')
+          ) {
+            void router.replace(
+              authHref(
+                e.code === 'EMAIL_VERIFICATION_REQUIRED' ? 'verify-email' : 'sign-in',
+                router.asPath,
+              ),
+            );
+            return;
+          }
+          setError(e instanceof Error ? e.message : 'No pudimos abrir tus carpetas.');
+        }
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [router.isReady, id, retry]);
+  return (
+    <div className="p5-app">
+      <Head>
+        <title>Carpetas de estudio · FoxMind</title>
+      </Head>
+      <a className="skip-link" href="#study-main">
+        Saltar al contenido
+      </a>
+      {session?.authenticated && <AccountNavbar session={session} view="carpetas-de-estudio" />}
+      <main className={`p5-main ${s.root}`} id="study-main">
+        {error && (
+          <Notice error>
+            {error}
+            <button onClick={() => setRetry((v) => v + 1)}>Actualizar carpeta</button>
+          </Notice>
+        )}
+        {!session?.authenticated || !collection ? (
+          error ? (
+            <Notice>No se pudo abrir el espacio de estudio.</Notice>
+          ) : (
+            <AsyncFeedback title="Abriendo tus carpetas…" />
+          )
+        ) : (
+          <>
+            {wizard && (
+              <StudyWizard
+                key={id ?? 'new-folder'}
+                catalog={collection}
+                folder={
+                  id && detail?.folder.id === id && detail.folder.status === 'DRAFT'
+                    ? detail.folder
+                    : undefined
+                }
+                onSaved={() => {
+                  setWizard(false);
+                  setCollectionStatus('DRAFT');
+                  if (id) void router.push('/carpetas-de-estudio');
+                  setRetry((value) => value + 1);
+                }}
+                onClose={() => {
+                  setWizard(false);
+                  if (id) void router.push('/carpetas-de-estudio');
+                  else setRetry((value) => value + 1);
+                }}
+                onCreated={() => {
+                  setWizard(false);
+                  setCollectionStatus('ACTIVE');
+                  if (id) void router.push('/carpetas-de-estudio');
+                  setRetry((v) => v + 1);
+                }}
+              />
+            )}
+            {!id ? (
+              <StudyCollectionView
+                status={collectionStatus}
+                onStatusChange={setCollectionStatus}
+                catalog={collection}
+                onCreate={() => setWizard(true)}
+                onEnter={(folderId) => void router.push(`/carpetas-de-estudio/${folderId}`)}
+              />
+            ) : !wizard ? (
+              detail?.folder.id === id ? (
+                <StudyWorkspace
+                  selectedConversationId={
+                    typeof router.query.chat === 'string' ? router.query.chat : undefined
+                  }
+                  onConversationSelect={(chat) => {
+                    void router.replace(
+                      { pathname: router.pathname, query: { ...router.query, chat } },
+                      undefined,
+                      { shallow: true, scroll: false },
+                    );
+                  }}
+                  examId={
+                    router.query.tab === 'repaso' && typeof router.query.exam === 'string'
+                      ? router.query.exam
+                      : undefined
+                  }
+                  cancelGeneration={folders.cancelGeneration}
+                  identity={{
+                    avatarKey: session.user.avatarKey,
+                    initials: (session.user.firstName[0] ?? '') + (session.user.lastName[0] ?? ''),
+                  }}
+                  key={detail.folder.id}
+                  detail={detail}
+                  catalog={collection}
+                  busy={busy}
+                  run={run}
+                  onReload={folders.reload}
+                />
+              ) : (
+                <AsyncFeedback title="Cargando carpeta…" />
+              )
+            ) : null}
+          </>
+        )}
+      </main>
+    </div>
+  );
+}

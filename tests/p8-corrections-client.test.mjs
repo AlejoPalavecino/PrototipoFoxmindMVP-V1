@@ -2,7 +2,7 @@ import { correctionsView } from './helpers/audit-grade-dto.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createClassroomClient } from '../apps/web/src/application/academic-client.ts';
+import { createClassroomClient } from '../apps/web/src/application/transport/classroom-client.ts';
 const id = 'a1111111-1111-4111-8111-111111111111';
 
 test('correction client sends only final grade/reason/revision/confirmation with fresh CSRF; audit read has no body/editor', async () => {
@@ -17,9 +17,9 @@ test('correction client sends only final grade/reason/revision/confirmation with
 });
 
 test('teacher correction component is reachable only from published grading and waits for fresh read before success', async () => {
-  const source = await readFile(new URL('../apps/web/src/features/grading/ui/PublishedGradeCorrection.tsx', import.meta.url), 'utf8');
-  const editor = await readFile(new URL('../apps/web/src/features/grading/ui/GradingEditor.tsx', import.meta.url), 'utf8');
-  const result = await readFile(new URL('../apps/web/src/features/grading/ui/PublishedResult.tsx', import.meta.url), 'utf8');
+  const source = await readFile(new URL('../apps/web/src/features/grading/publication/PublishedGradeCorrection.tsx', import.meta.url), 'utf8');
+  const editor = await readFile(new URL('../apps/web/src/features/grading/editing/GradingEditor.tsx', import.meta.url), 'utf8');
+  const result = await readFile(new URL('../apps/web/src/features/grading/results/PublishedResult.tsx', import.meta.url), 'utf8');
   assert.match(editor, /data.grade.isPublished \? <PublishedGradeCorrection/); assert.match(source, /Cancelar rectificación/);
   assert.match(source, /disabled=\{!writable \|\| !valid\}/); assert.match(source, /const fresh = await load\(\)/);
   assert.match(source, /fresh.revision !== corrected.revision/); assert.match(source, /await onChanged\(\);.*setSaved\(true\)/);

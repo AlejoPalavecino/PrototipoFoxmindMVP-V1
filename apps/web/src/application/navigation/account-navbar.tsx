@@ -4,7 +4,7 @@ import { AppNavbar } from '../../../../shared-ui/AppNavbar.tsx';
 import Link from 'next/link';
 import { FoxmindBrand, FoxmindIcon } from '../../../../shared-ui/index.ts';
 import { Notifications } from '../../features/notifications/index.ts';
-import { createWebClassroomClient } from '../academic-classroom-client.ts';
+import { createWebClassroomClient } from '../clients/classroom-client.ts';
 import type { AccountSession } from '../../features/identity/index.ts';
 import type { Classroom } from '../../../../../src/core/contracts/classrooms.ts';
 import { createBrujulaSearchClient } from '../../../../shared-ui/brujula-search-client.ts';

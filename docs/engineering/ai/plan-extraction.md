@@ -6,4 +6,4 @@ El docente revisa nombres/temas, agrega/quita y usa explícitamente las unidades
 
 El proveedor recibe el documento aprobado y límites de extracción configurados. Las advertencias sobre estructura parcial o imágenes DOCX omitidas se conservan. No inferir generación libre de un programa de estudio ni ampliar el temario.
 
-Fuentes: [Wizard](../../../apps/web/src/application/academic-Wizard.tsx), [runtime](../../../apps/api/src/bootstrap/academic-curriculum-ai-runtime.ts), [esquema de salida](../../../src/core/domain/curriculum/plan-schema.ts). [Prueba actual](../../verification/flows.md): PDF aprobado, extracción sintética, revisión/aplicación y aula publicada. También se recorrió DOCX y modo manual; no se llamó a Gemini real.
+Fuentes: [Wizard](../../../apps/web/src/application/workflows/classroom-creation/ClassroomWizard.tsx), [runtime](../../../apps/api/src/bootstrap/academic-curriculum-ai-runtime.ts), [esquema de salida](../../../src/core/domain/curriculum/plan-schema.ts). [Prueba actual](../../verification/flows.md): PDF aprobado, extracción sintética, revisión/aplicación y aula publicada. También se recorrió DOCX y modo manual; no se llamó a Gemini real.

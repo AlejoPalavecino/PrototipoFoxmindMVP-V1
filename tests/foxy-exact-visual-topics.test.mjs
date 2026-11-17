@@ -3,12 +3,12 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { componentWithPorts } from './foxmind-3d-flows-loader.test.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
-import { createFoxyVisualController } from '../apps/web/src/features/foxy/model/foxy-visual-controller.ts';
-import { createFoxyChatController } from '../apps/web/src/features/foxy/model/foxy-chat-controller.ts';
+import { createFoxyVisualController } from '../apps/web/src/features/foxy/visuals/foxy-visual-controller.ts';
+import { createFoxyChatController } from '../apps/web/src/features/foxy/conversations/foxy-chat-controller.ts';
 
 test('visual setup chooses topics locally and sends only checked IDs on explicit submit', async () => {
   const topics = [{ id: randomUUID(), name: 'Luz' }, { id: randomUUID(), name: 'Sonido' }], calls = [];
-  const { FoxyVisualWorkspace } = componentWithPorts('apps/web/src/features/foxy/ui/foxy-visual-workspace.tsx', {});
+  const { FoxyVisualWorkspace } = componentWithPorts('apps/web/src/features/foxy/visuals/foxy-visual-workspace.tsx', {});
   const view = hookView(FoxyVisualWorkspace, { topics, contextName: 'Ciencias', materialCount: 2, kind: 'DIAGRAM', prompt: 'Comparar ideas', aspectRatio: '1:1', jobs: [], selectedId: null,
     busy: false, error: null, capabilities: { IMAGE: true, DIAGRAM: true }, assetFileUrl() {}, actions: { setKind() {}, setPrompt() {}, setAspectRatio() {}, start: ids => calls.push(ids) } });
   try {
@@ -57,9 +57,9 @@ test('session wires local visual topics to a resolved request and preserves the 
   const runtime={getState:()=>state,assetFileUrl:()=>'',chat:{resolveToolSelection:async ids=>{calls.push(['resolve',ids]);return fail?undefined:selection;}},
     visual:{getState:()=>state.visual,start:async value=>{calls.push(['start',value]);state.visual.jobs=[{id:'new-job'}];}}};
   function Panel(){return null;}
-  const {FoxyWorkspaceSession}=componentWithPorts('apps/web/src/screens/foxy-workspace-session.tsx',{
-    '../application/foxy-workspace':{useFoxyWorkspace:()=>({state,runtime,initializing:false})},
-    '../features/foxy/index.ts':{...componentWithPorts('apps/web/src/features/foxy/index.ts',{}),useFoxyWorkspaceActions:()=>({actions:{chat:{}},ui:{}}),FoxyWorkspace:()=>null,FoxyVisualWorkspace:Panel},
+  const {FoxyWorkspaceSession}=componentWithPorts('apps/web/src/application/workflows/foxy-workspace/FoxyWorkspaceSession.tsx',{
+    './foxy-workspace':{useFoxyWorkspace:()=>({state,runtime,initializing:false})},
+    '../../../features/foxy/index.ts':{...componentWithPorts('apps/web/src/features/foxy/index.ts',{}),useFoxyWorkspaceActions:()=>({actions:{chat:{}},ui:{}}),FoxyWorkspace:()=>null,FoxyVisualWorkspace:Panel},
   });
   const view=hookView(FoxyWorkspaceSession,{subjectId:'teacher',onIdentityRequired(){}});
   const panel=()=>descendants(view.tree,node=>node.type===Panel)[0]?.props;
@@ -79,10 +79,10 @@ test('fresh classroom draft loads topics before generation and resolves full sou
     visual:{setKind(){},setAspectRatio(){},setPrompt(){},start:value=>calls.push(['start',value])}};
   const actions={chat:{},prepareVisualConversation:async(input,selected)=>{calls.push(['create',input.context]);chat.current={id:'new',context:input.context};await selected('new');return true;}};
   function Panel(){return null;}
-  const {FoxyWorkspaceSession}=componentWithPorts('apps/web/src/screens/foxy-workspace-session.tsx',{
-    '../application/foxy-workspace':{useFoxyWorkspace:()=>({state,runtime,initializing:false})},
-    '../application/academic-classroom-client':{createWebClassroomClient:()=>({call:async path=>path.endsWith('/library')?[]:path.endsWith('/activities')?{activities:[]}:{role:'teacher',archived:false,units:[{name:'Unidad',topics:[{id:topic,name:'Luz'},{id:otherTopic,name:'Sonido'}]}]}})},
-    '../features/foxy/index.ts':{...componentWithPorts('apps/web/src/features/foxy/index.ts',{}),useFoxyWorkspaceActions:()=>({actions,ui:{}}),FoxyWorkspace:()=>null,FoxyVisualWorkspace:Panel},
+  const {FoxyWorkspaceSession}=componentWithPorts('apps/web/src/application/workflows/foxy-workspace/FoxyWorkspaceSession.tsx',{
+    './foxy-workspace':{useFoxyWorkspace:()=>({state,runtime,initializing:false})},
+    '../../clients/classroom-client':{createWebClassroomClient:()=>({call:async path=>path.endsWith('/library')?[]:path.endsWith('/activities')?{activities:[]}:{role:'teacher',archived:false,units:[{name:'Unidad',topics:[{id:topic,name:'Luz'},{id:otherTopic,name:'Sonido'}]}]}})},
+    '../../../features/foxy/index.ts':{...componentWithPorts('apps/web/src/features/foxy/index.ts',{}),useFoxyWorkspaceActions:()=>({actions,ui:{}}),FoxyWorkspace:()=>null,FoxyVisualWorkspace:Panel},
   });
   const view=hookView(FoxyWorkspaceSession,{subjectId:'teacher',onIdentityRequired(){}}),panel=()=>descendants(view.tree,node=>node.type===Panel)[0]?.props;
   try{

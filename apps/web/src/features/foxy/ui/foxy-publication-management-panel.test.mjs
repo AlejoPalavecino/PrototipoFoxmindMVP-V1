@@ -14,7 +14,7 @@ function fixture(changes={}){
  const calls=[],record=name=>(...args)=>calls.push([name,...args]);
  const actions={refresh:record('refresh'),retryPreparation:record('retryPreparation'),reviewDiscard:record('reviewDiscard'),setDiscardReviewed:record('setDiscardReviewed'),discard:record('discard'),retryRequest:record('retryRequest'),cancelDiscardReview:record('cancelDiscardReview')};
  const props={publication,management:base,actions,locked:false,...changes};
- const {FoxyPublicationManagementPanel}=componentWithPorts("apps/web/src/features/foxy/ui/foxy-publication-management-panel.tsx",{});
+ const {FoxyPublicationManagementPanel}=componentWithPorts("apps/web/src/features/foxy/publication/foxy-publication-management-panel.tsx",{});
  assert.equal(typeof FoxyPublicationManagementPanel,'function');return {calls,view:hookView(FoxyPublicationManagementPanel,props)};
 }
 function button(view,pattern){return descendants(view.tree,n=>n.type==='button'&&pattern.test(String(n.props.children)))[0];}

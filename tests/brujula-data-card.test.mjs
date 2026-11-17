@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
-const {ClassroomCard}=loadTsModule('apps/web/src/features/classrooms/ui/ClassroomCollectionCard.tsx');
+const {ClassroomCard}=loadTsModule('apps/web/src/features/classrooms/collection/ClassroomCollectionCard.tsx');
 const room={id:'room',name:'Materia',subject:'Ciencias',division:'A',academicYear:2026,coverKey:'math',role:'teacher',teacher:'Docente',archived:false};
 const render=patch=>renderToStaticMarkup(ClassroomCard({room:{...room,...patch},onEnter:()=>{}}));
 test('catalog card shows actual students and measured plan progress accessibly',()=>{

@@ -10,7 +10,7 @@ const notification = (id, eventType) => ({ id, eventType, classroomName: 'Aula s
 const centerTree = view => view.tree.type(view.tree.props);
 
 test('el centro filtra y pagina desde el servidor y marca toda la bandeja autorizada como leída', async () => {
-  const { Notifications } = loadTsModule('apps/web/src/features/notifications/ui/Notifications.tsx');
+  const { Notifications } = loadTsModule('apps/web/src/features/notifications/inbox/Notifications.tsx');
   const calls = [];
   let marked = false;
   const grade = notification('n2', 'GRADE_PUBLISHED');
@@ -53,7 +53,7 @@ test('el centro filtra y pagina desde el servidor y marca toda la bandeja autori
 });
 
 test('el acceso navega al centro y conserva el contador sin abrir dialogo', async () => {
-  const { Notifications } = loadTsModule('apps/web/src/features/notifications/ui/Notifications.tsx');
+  const { Notifications } = loadTsModule('apps/web/src/features/notifications/inbox/Notifications.tsx');
   const calls = [];
   const view = hookView(Notifications, { api: { call: async path => { calls.push(path); return { items: [], nextCursor: null, unreadCount: 3 }; } }, refresh: 0, onSelect() {} });
   try {
@@ -67,7 +67,7 @@ test('el acceso navega al centro y conserva el contador sin abrir dialogo', asyn
 });
 
 test('el centro muestra identidad y contexto autorizados y permite filtrar tipos fuera de la página', async () => {
-  const { Notifications } = loadTsModule('apps/web/src/features/notifications/ui/Notifications.tsx');
+  const { Notifications } = loadTsModule('apps/web/src/features/notifications/inbox/Notifications.tsx');
   const row = { ...notification('n', 'WALL_QUERY'), actorName: 'Ana <literal>', classroomDivision: '4.º A', message: '¿Cómo observamos el entorno?' };
   delete row.activityTitle;
   const view = hookView(Notifications, { api: { call: async () => ({ items: [row], nextCursor: null, unreadCount: 1 }) }, refresh: 0, presentation: 'center', onSelect() {} });

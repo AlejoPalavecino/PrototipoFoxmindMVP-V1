@@ -1,4 +1,4 @@
-import type { HomeModuleName, HomeModules, HomeTarget, HomeResponse } from '../../../../../../src/core/domain/index.ts';
+import type { HomeModuleName, HomeModules, HomeTarget, HomeResponse } from '../../../../../../src/core/domain/home/home.ts';
 export type HomeRowItem = Extract<HomeModules[HomeModuleName],{status:'ready'}>['items'][number];
 export const homeLabels:Record<HomeModuleName,{title:string;empty:string;action:string}>={
   pending:{title:'Para entregar',empty:'Estás al día. No hay actividades pendientes de entrega.',action:'Ver actividad'},

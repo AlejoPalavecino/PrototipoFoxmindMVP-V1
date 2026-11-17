@@ -22,7 +22,7 @@ const aggregate = (role, modules = {}) => ({ version: 1, subjectId: id(99), gene
 async function homeView(data, accountRole) {
   const actions = [], retries = [], views = [];
   const client = { read: async () => data, page: async () => { throw new Error('No pagination request expected before explicit action'); } };
-  const { Home } = loadTsModule('apps/web/src/features/home/ui/Home.tsx', { stubs: {"../model/use-home.ts":{useHome: () => ({ data, loading: false, ordering:{},orders:{review:'asc',queries:'desc'},changeOrder(){},retry: name => retries.push(name), refresh() {} })}} });
+  const { Home } = loadTsModule('apps/web/src/features/home/dashboard/Home.tsx', { stubs: {"./use-home.ts":{useHome: () => ({ data, loading: false, ordering:{},orders:{review:'asc',queries:'desc'},changeOrder(){},retry: name => retries.push(name), refresh() {} })}} });
   const root = hookView(Home, { accountRole, displayName: 'Prueba Sintética', subjectId: data.subjectId, homeClient: client,
     onCreate() {}, onJoin() {}, onClassrooms() {actions.push({kind:'classrooms'});}, onOpenActivities: classroomId=>actions.push({kind:'classroom-activities',classroomId}), onAgenda() {}, onAction: target => actions.push(target) });
   views.push(root); await root.flush();

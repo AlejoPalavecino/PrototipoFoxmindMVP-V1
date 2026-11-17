@@ -3,13 +3,13 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { componentWithPorts } from './foxmind-3d-flows-loader.test.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
-import { createFoxyChatController } from '../apps/web/src/features/foxy/model/foxy-chat-controller.ts';
+import { createFoxyChatController } from '../apps/web/src/features/foxy/conversations/foxy-chat-controller.ts';
 
 function workspace({ busy = false } = {}) {
   const attachment = randomUUID(), room = randomUUID(), source = { id: randomUUID(), title: 'Origen', revision: '7', context: { kind: 'GENERAL' } };
   const state = { current: source, conversations: [source], turns: [], busy: false, selection: { topicIds: [], sourceIds: [] }, capabilities: { textGeneration: { enabled: true } } };
   const calls = [], controller = { create: async input => { calls.push(input); return undefined; } };
-  const { FoxyWorkspace } = componentWithPorts('apps/web/src/features/foxy/ui/foxy-workspace.tsx', {
+  const { FoxyWorkspace } = componentWithPorts('apps/web/src/features/foxy/workspace/foxy-workspace.tsx', {
     '../../../shared/use-chat-attachments': { useChatAttachments: () => ({ ready: true, busy, items: [{ id: attachment, name: 'Privado.pdf' }], upload() {}, remove() {} }) },
   });
   const view = hookView(FoxyWorkspace, { state, controller, classrooms: [{ id: room, name: 'Ciencias' }] });

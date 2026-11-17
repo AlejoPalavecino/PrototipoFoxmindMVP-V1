@@ -2,14 +2,14 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Notice } from '../../../shared-ui/feedback';
-import { createWebClassroomClient } from '../application/academic-classroom-client.ts';
-import { createWebAgendaClient } from '../application/agenda-client.ts';
+import { createWebClassroomClient } from '../application/clients/classroom-client.ts';
+import { createWebAgendaClient } from '../application/clients/agenda-client.ts';
 import { AccountNavbar } from '../application/navigation/account-navbar.tsx';
 import { authHref } from '../application/navigation/destinations';
 import { createAccountClient, type AccountSession } from '../features/identity/index.ts';
 import { Notifications } from '../features/notifications/index.ts';
-import { NotificationReview, type ReviewTarget } from './notification-review.tsx';
-import reviewStyles from './notification-review.module.css';
+import { NotificationReview, type ReviewTarget } from '../application/workflows/notification-review/NotificationReview.tsx';
+import reviewStyles from '../application/workflows/notification-review/notification-review.module.css';
 
 const account = createAccountClient();
 type OpenReview = { target: ReviewTarget; ownerId: string; trigger?: HTMLElement };

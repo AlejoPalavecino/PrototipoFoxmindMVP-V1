@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
-const { parseInvitationEmails, continueInvitationBatch } = loadTsModule('apps/web/src/features/classrooms/model/invitation-batch.ts');
+const { parseInvitationEmails, continueInvitationBatch } = loadTsModule('apps/web/src/features/classrooms/enrollment/invitation-batch.ts');
 const receipt = () => ({requestId:'batch-id',recipients:[{email:'one@example.test',status:'pending'},{email:'two@example.test',status:'pending'}]});
 test('batch addresses normalize and deduplicate; invalid entries and excess are never silently discarded', () => {
   assert.deepEqual(parseInvitationEmails('ONE@Example.test; two@example.test\none@example.test'), {emails:['ONE@example.test','two@example.test'],invalid:[],duplicates:1});
@@ -37,7 +37,7 @@ test('recovery after a transport failure returns to editing on confirmed missing
   const saved = new Map([['foxmind:invitation-batch:room','missing-id']]);
   globalThis.sessionStorage = {getItem:key=>saved.get(key)??null,setItem:(key,value)=>saved.set(key,value),removeItem:key=>saved.delete(key)};
   const calls=[];let status=503;
-  const { InvitationBatchDialog }=loadTsModule('apps/web/src/features/classrooms/ui/InvitationBatchDialog.tsx');
+  const { InvitationBatchDialog }=loadTsModule('apps/web/src/features/classrooms/enrollment/InvitationBatchDialog.tsx');
   const view=hookView(InvitationBatchDialog,{classroomId:'room',onClose:()=>{},onChanged:async()=>{},api:{call:async(path,method)=>{calls.push([path,method]);throw Object.assign(Error('synthetic'),{status});}}});
   try {
     await view.flush();status=404;

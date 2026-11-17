@@ -18,7 +18,7 @@ function fixture(archived=false){
     citations:async(id,turn,signal)=>{calls.push(['citations',id,turn,signal]);return [{id:'c1',sourceKind:'PLAN',sourceTitle:'Plan',documentTitle:'plan.pdf',page:1,availability:'AVAILABLE',href:`/api/v1/foxy-ai/conversations/${cid}/turns/${tid}/citations/c1/file`}];},
     citationUrl:(id,turn,citation,mode)=>`/api/v1/foxy-ai/conversations/${id}/turns/${turn}/citations/${citation}/file?mode=${mode}`,
     sendMessage:async(...args)=>{calls.push(['send',...args]);return {created:true,turn:{id:tid,sequence:1,state:'QUEUED'},conversationRevision:'1'};}};
-  const api=loadTsModule("apps/web/src/features/foxy/model/foxy-chat-controller.ts"),controller=api.createFoxyChatController({client,onChange:()=>{},uuid:randomUUID,setTimeout:()=>1,clearTimeout:()=>{}});
+  const api=loadTsModule("apps/web/src/features/foxy/conversations/foxy-chat-controller.ts"),controller=api.createFoxyChatController({client,onChange:()=>{},uuid:randomUUID,setTimeout:()=>1,clearTimeout:()=>{}});
   return {controller,client,calls,conversation,curriculum,sources,topicIds,cid,tid};
 }
 

@@ -1,3 +1,4 @@
+import { gradingFixtureProps } from './helpers/frontend-feature-fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
@@ -7,9 +8,9 @@ const completion = { expected: 3, delivered: 2, pending: 1, onTime: 2, late: 0, 
 const activity = (id, grade, submitted) => ({ id, title: id, type: 'ASSIGNMENT', expected: true, firstSubmission: submitted ? { id: 'receipt-' + id, number: 1, submittedAt: '2026-11-15T12:00:00Z', appliedDeadlineAt: null, late: false } : null, pendingResubmission: false, grade, publishedAttemptId: grade === null ? null : 'receipt-' + id });
 const student = { studentId: 'synthetic-student', firstName: 'Ana', lastName: 'Prueba', currentMember: true, completion, performance: { graded: 1, average: '0' }, activities: [activity('zero', '0', true), activity('waiting', null, true), activity('missing', null, false)] };
 async function overview(scope, callback) {
-  const { Progress } = loadTsModule('apps/web/src/features/grading/ui/Progress.tsx');
+  const { Progress } = loadTsModule('apps/web/src/features/grading/progress/Progress.tsx');
   const data = { revision: '1', archived: false, plan: { total: 2, taught: 1, percentage: '50' }, ...(scope === 'self' ? { ...student, scope } : { scope, studentCount: 1, students: [student], completion, performance: { gradedStudents: 1, average: '0' } }) };
-  const view = hookView(Progress, { api: { call: async () => data }, classroomId: 'synthetic-room', onOpenActivity: callback, onOpenStudent: callback, onOpenResult: callback });
+  const view = hookView(Progress, gradingFixtureProps('Progress', { api: { call: async () => data }, classroomId: 'synthetic-room', onOpenActivity: callback, onOpenStudent: callback, onOpenResult: callback }));
   await view.flush();
   const component = descendants(view.tree, node => node.type?.name === (scope === 'self' ? 'StudentOverview' : 'TeacherOverview'))[0];
   assert.ok(component);

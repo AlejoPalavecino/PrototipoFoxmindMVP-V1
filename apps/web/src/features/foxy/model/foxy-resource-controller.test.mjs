@@ -8,7 +8,7 @@ function deferred(){let resolve,reject;const promise=new Promise((yes,no)=>{reso
 function fixture(){const calls=[],queue=[];const client={resourceFromTurn:async(...args)=>{calls.push(['open',...args]);return {created:false,resource:{...resource}};},
  getResource:async(...args)=>{calls.push(['get',...args]);return {...resource,revision:'8',title:'Servidor'};},editResource:async(...args)=>{calls.push(['edit',...args]);const value=queue.shift();if(value instanceof Error)throw value;if(value)return value;return {edited:true,resource:{...resource,...args[1],revision:'8'}};}};
  const options={client,onChange:()=>{},uuid:()=>requestId};return {client,calls,queue,options};}
-function create(f){const api=loadTsModule("apps/web/src/features/foxy/model/foxy-resource-controller.ts");assert.equal(typeof api.createFoxyResourceController,'function');return api.createFoxyResourceController(f.options);}
+function create(f){const api=loadTsModule("apps/web/src/features/foxy/resources/foxy-resource-controller.ts");assert.equal(typeof api.createFoxyResourceController,'function');return api.createFoxyResourceController(f.options);}
 const err=(code,status)=>Object.assign(Error(code),{code,status});
 test('open uses returned latest resource and blocks navigation with unsaved changes',async()=>{const f=fixture(),c=create(f);assert.equal(await c.open(cid,tid),'opened');assert.equal(c.getState().resource.revision,'7');
  c.updateDraft({title:'Editado',markdown:'Texto'});assert.equal(c.getState().dirty,true);assert.equal(await c.open(randomUUID(),randomUUID()),'blocked');assert.equal(c.close(),false);assert.equal(f.calls.filter(c=>c[0]==='open').length,1);c.discardAndClose();assert.equal(c.getState().resource,null);c.dispose();});

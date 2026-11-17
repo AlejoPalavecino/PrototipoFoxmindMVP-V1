@@ -1,3 +1,4 @@
+import { authoringFixtureProps } from './helpers/frontend-feature-fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
@@ -16,14 +17,14 @@ const field = (tree, pattern, kind) => descendants(tree, node => node.type === '
   .flatMap(node => descendants(node, child => child.type === kind))[0];
 
 async function roomView(role) {
-  const { ClassroomView } = loadTsModule('apps/web/src/application/academic-ClassroomView.tsx');
+  const { ClassroomView } = loadTsModule('apps/web/src/application/workflows/classroom-workspace/ClassroomWorkspace.tsx');
   const calls = [], api = { call: async (...args) => { calls.push(args); return args[0] === `/${id}` ? room(role) : []; } };
   const view = hookView(ClassroomView, { api, id, initialCode: null, onExit() {} }); await view.flush();
   return { view, calls };
 }
 
 test('guardar los datos del aula conserva la configuración de corrección IA sin añadir controles ajenos a la maqueta', async () => {
-  const { ClassroomSettings } = loadTsModule('apps/web/src/features/classrooms/ui/ClassroomSettings.tsx');
+  const { ClassroomSettings } = loadTsModule('apps/web/src/features/classrooms/settings/ClassroomSettings.tsx');
   for (const aiGradingEnabled of [false, true]) {
     const calls = [];
     const view = hookView(ClassroomSettings, {
@@ -54,12 +55,12 @@ test('alumno no puede acceder al interruptor docente', async () => {
 });
 
 test('autoría conserva la rúbrica privada histórica sin exponer un campo ausente de la maqueta', async () => {
-  const { ActivityAuthoring } = loadTsModule('apps/web/src/features/activity-authoring/ui/ActivityAuthoring.tsx');
+  const { ActivityAuthoring } = loadTsModule('apps/web/src/features/activity-authoring/drafting/ActivityAuthoring.tsx');
   const calls = [], activity = { id: '44444444-4444-4444-8444-444444444444', type: 'ASSIGNMENT', title: 'Trabajo', status: 'DRAFT',
     unitId, topicId, topicIds: [topicId], instructions: 'Resolver', aiGradingRubric: 'Valorar la justificación', attachmentRequired: false, questions: [],
     instructionFiles: [], materials: [], deadlineAt: null, allowLate: false, locked: false };
-  const view = hookView(ActivityAuthoring, { api: { call: async (...args) => { calls.push(args); return { revision: '3' }; } },
-    room: room('teacher'), data: { revision: '2', activity }, materials: [], onSaved: async () => {}, onClose() {} });
+  const view = hookView(ActivityAuthoring, authoringFixtureProps('ActivityAuthoring', { api: { call: async (...args) => { calls.push(args); return { revision: '3' }; } },
+    room: room('teacher'), data: { revision: '2', activity }, materials: [], onSaved: async () => {}, onClose() {} }));
   try {
     await view.flush(); assert.equal(field(view.tree, /r[uú]brica/i, 'textarea'),undefined);
     const form = descendants(view.tree, n => n.type === 'form')[0]; form.props.onSubmit({ preventDefault() {} }); await view.flush();
@@ -68,7 +69,7 @@ test('autoría conserva la rúbrica privada histórica sin exponer un campo ause
 });
 
 test('vista del alumno no renderiza la rúbrica docente', () => {
-  const { ActivityPreview } = loadTsModule('apps/web/src/application/academic-activity-preview.tsx');
+  const { ActivityPreview } = loadTsModule('apps/web/src/application/workflows/activity-session/ActivityPreview.tsx');
   const activity = { type: 'ASSIGNMENT', title: 'Trabajo', aiGradingRubric: 'Criterio privado docente', deadlineAt: null, zone: 'UTC',
     instructions: 'Resolver', attachmentRequired: false, instructionFiles: [], materials: [], questions: [], topicIds: [] };
   const html = renderToStaticMarkup(React.createElement(ActivityPreview, { api: { fileUrl: () => '' }, room: room('student'), teacher: false, activity }));

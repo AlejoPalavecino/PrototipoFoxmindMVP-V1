@@ -13,7 +13,7 @@ for (const existing of [true, false]) for (const success of [true, false]) test(
     async create(input) { calls.push(['create', input]); if (success) state.current = { id: randomUUID(), title: input.title, context: input.context }; },
     async send(...args) { calls.push(['send', ...args]); return 'accepted'; },
   };
-  const { FoxyWorkspace } = componentWithPorts("apps/web/src/features/foxy/ui/foxy-workspace.tsx", {});
+  const { FoxyWorkspace } = componentWithPorts("apps/web/src/features/foxy/workspace/foxy-workspace.tsx", {});
   const view = hookView(FoxyWorkspace, { controller, state, classrooms: [] });
   try {
     await view.flush();
@@ -39,7 +39,7 @@ test('visual tools open a fresh draft even when another conversation is selected
   const state = { current, conversations: [current], capabilities: { textGeneration: { enabled: true }, imageGeneration: { enabled: true } },
     turns: [], activeTurn: null, pending: null, busy: false };
   const calls = [];
-  const { FoxyWorkspace } = componentWithPorts('apps/web/src/features/foxy/ui/foxy-workspace.tsx', {});
+  const { FoxyWorkspace } = componentWithPorts('apps/web/src/features/foxy/workspace/foxy-workspace.tsx', {});
   const view = hookView(FoxyWorkspace, { controller: { create: () => calls.push('create'), send: () => calls.push('send') },
     state, classrooms: [], onOpenVisual: draft => calls.push(draft) });
   try {
@@ -61,7 +61,7 @@ test('approved tool rail maps rubric to explicit editable text and has no redund
   const state = { capabilities: { textGeneration: { enabled: true } }, conversations: [current], current,
     turns: [], activeTurn: null, nextAfterSequence: null, pending: null, error: null, busy: false };
   const calls = [], controller = { async send(...args) { calls.push(args); return 'accepted'; } };
-  const { FoxyWorkspace } = componentWithPorts("apps/web/src/features/foxy/ui/foxy-workspace.tsx", {});
+  const { FoxyWorkspace } = componentWithPorts("apps/web/src/features/foxy/workspace/foxy-workspace.tsx", {});
   const view = hookView(FoxyWorkspace, { controller, state, classrooms: [] });
   try {
     await view.flush();
@@ -82,7 +82,7 @@ test('diagram mode sends to the real visual callback and never to text chat', as
   const state = { capabilities: { textGeneration: { enabled: true }, diagramGeneration: { enabled: true } }, conversations: [current], current,
     turns: [], activeTurn: null, nextAfterSequence: null, pending: null, error: null, busy: false };
   const sent = [], diagrams = [], controller = { async send(...args) { sent.push(args); } };
-  const { FoxyWorkspace } = componentWithPorts("apps/web/src/features/foxy/ui/foxy-workspace.tsx", {});
+  const { FoxyWorkspace } = componentWithPorts("apps/web/src/features/foxy/workspace/foxy-workspace.tsx", {});
   const view = hookView(FoxyWorkspace, { controller, state, classrooms: [], onCreateDiagram: async prompt => { diagrams.push(prompt); return true; } });
   try {
     await view.flush();
@@ -107,10 +107,10 @@ for (const resolution of ['discard', 'save', 'cancel', 'creation-failure']) test
     chat: { async create(input) { calls.push('create'); if (resolution !== 'creation-failure') state.current = { id: randomUUID(), title: input.title, context: input.context }; refresh(); },
       async send() { calls.push('send'); return 'accepted'; } },
     resource: { discardAndClose() { resource.dirty = false; }, async save() { resource.dirty = false; return 'saved'; } } };
-  const { createFoxyWorkspaceActions } = loadTsModule("apps/web/src/features/foxy/model/foxy-workspace-actions.ts");
+  const { createFoxyWorkspaceActions } = loadTsModule("apps/web/src/features/foxy/workspace/foxy-workspace-actions.ts");
   const actions = createFoxyWorkspaceActions({ runtime, onChange(value) { ui = value; refresh(); } });
   ui = actions.getState();
-  const { FoxyWorkspace } = componentWithPorts("apps/web/src/features/foxy/ui/foxy-workspace.tsx", {});
+  const { FoxyWorkspace } = componentWithPorts("apps/web/src/features/foxy/workspace/foxy-workspace.tsx", {});
   function BoundWorkspace() { const [, update] = React.useState(0); refresh = () => update(value => value + 1);
     return FoxyWorkspace({ controller: actions.chat, state, classrooms: [], creationBlocked: !!ui.leave }); }
   const view = hookView(BoundWorkspace, {});
@@ -141,9 +141,9 @@ test('diagram session callback rechecks live publication locks before changing k
   const calls = [], runtime = { getState: () => state, visual: { getState: () => state.visual,
     setKind(value) { calls.push(['kind', value]); }, setPrompt(value) { calls.push(['prompt', value]); },
     async start() { calls.push(['start']); state.visual.jobs.push({ id: randomUUID() }); } } };
-  const { FoxyWorkspaceSession } = componentWithPorts("apps/web/src/screens/foxy-workspace-session.tsx", {"../application/foxy-workspace":{useFoxyWorkspace: () => ({ state, runtime, initializing: false })},
-"../features/foxy/index.ts":{...componentWithPorts('apps/web/src/features/foxy/index.ts', {}),useFoxyWorkspaceActions: () => ({ actions: { chat: {} }, ui: { leave: null, openingResource: false } }),FoxyWorkspace: () => null,FoxyVisualWorkspace: () => null,FoxyVisualPublicationPanel: () => null},
-"./foxy-resource-workspace":{FoxyResourceWorkspace: () => null}});
+  const { FoxyWorkspaceSession } = componentWithPorts("apps/web/src/application/workflows/foxy-workspace/FoxyWorkspaceSession.tsx", {"./foxy-workspace":{useFoxyWorkspace: () => ({ state, runtime, initializing: false })},
+"../../../features/foxy/index.ts":{...componentWithPorts('apps/web/src/features/foxy/index.ts', {}),useFoxyWorkspaceActions: () => ({ actions: { chat: {} }, ui: { leave: null, openingResource: false } }),FoxyWorkspace: () => null,FoxyVisualWorkspace: () => null,FoxyVisualPublicationPanel: () => null},
+"./FoxyResourceWorkspace":{FoxyResourceWorkspace: () => null}});
   const view = hookView(FoxyWorkspaceSession, { subjectId: randomUUID(), onIdentityRequired() {} });
   try {
     await view.flush(); const callback = descendants(view.tree, n => typeof n.props.onCreateDiagram === 'function')[0].props.onCreateDiagram;

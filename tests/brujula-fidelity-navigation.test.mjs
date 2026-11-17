@@ -1,7 +1,8 @@
+import { authoringFixtureProps } from './helpers/frontend-feature-fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseHomeTarget } from '../src/core/domain/home/target.ts';
-import { homeClassroomTab } from '../apps/web/src/application/academic-classroom-home-target.ts';
+import { homeClassroomTab } from '../apps/web/src/application/workflows/classroom-workspace/classroom-home-target.ts';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 
@@ -17,10 +18,10 @@ test('los accesos del alumno abren exactamente la sección autorizada del aula',
 });
 
 test('autoría manual requiere revisión y confirmación explícita antes de asignar', async () => {
-  const { ActivityAuthoring } = loadTsModule('apps/web/src/features/activity-authoring/ui/ActivityAuthoring.tsx');
+  const { ActivityAuthoring } = loadTsModule('apps/web/src/features/activity-authoring/drafting/ActivityAuthoring.tsx');
   const calls = [];
   const activity = { id: 'a', title: 'Trabajo', type: 'ASSIGNMENT', status: 'DRAFT', questions: [], instructionFiles: [], materials: [], topicIds: ['t'], unitId:'u',objective:'Explicar conceptos',instructions:'Resolver',evaluationRubric:[{name:'Evidencia',description:'Explica',weight:100}], allowLate: false, locked: false, attachmentRequired: false };
-  const view = hookView(ActivityAuthoring, { api: { call: async (...args) => { calls.push(args); return { revision: '2' }; } }, room: { id: 'r', name: 'Aula', timezone: 'UTC', units: [{id:'u',name:'Unidad',topics:[{id:'t',name:'Tema'}]}], archived: false }, data: { activity, revision: '1' }, materials: [], onSaved: async () => {}, onClose() {} });
+  const view = hookView(ActivityAuthoring, authoringFixtureProps('ActivityAuthoring', { api: { call: async (...args) => { calls.push(args); return { revision: '2' }; } }, room: { id: 'r', name: 'Aula', timezone: 'UTC', units: [{id:'u',name:'Unidad',topics:[{id:'t',name:'Tema'}]}], archived: false }, data: { activity, revision: '1' }, materials: [], onSaved: async () => {}, onClose() {} }));
   const text = value => typeof value === 'string' ? value : Array.isArray(value) ? value.map(text).join(' ') : text(value?.props?.children ?? '');
   try {
     await view.flush();
@@ -50,7 +51,7 @@ test('autoría manual requiere revisión y confirmación explícita antes de asi
 });
 
 test('Continuar borrador abre el editor y los contenidos publicados o archivados siguen en consulta', async () => {
-  const { Activities } = loadTsModule('apps/web/src/application/academic-Activities.tsx');
+  const { Activities } = loadTsModule('apps/web/src/application/workflows/activity-session/Activities.tsx');
   for (const [status, archived] of [['DRAFT', false], ['PUBLISHED', false], ['DRAFT', true]]) {
     const calls = [];
     const data = { activity: { id: 'a', status }, revision: 'r' };
@@ -70,7 +71,7 @@ test('Continuar borrador abre el editor y los contenidos publicados o archivados
 });
 
 test('el asistente conserva el tema del Plan en su unidad para la autoría manual y con Foxy', async () => {
-  const { Activities } = loadTsModule('apps/web/src/application/academic-Activities.tsx');
+  const { Activities } = loadTsModule('apps/web/src/application/workflows/activity-session/Activities.tsx');
   const context = { unitId: 'u', topicIds: ['t'] };
   const room = { id: 'r', name: 'Aula', role: 'teacher', archived: false, revision: 'v', timezone: 'UTC', units: [
     { id: 'other', name: 'Otra unidad', topics: [{ id: 'other-topic', name: 'Otro tema' }] },
@@ -146,7 +147,7 @@ test('el asistente conserva el tema del Plan en su unidad para la autoría manua
 });
 
 test('Inicio carga solo el catálogo real para la sidebar de ambos roles y cancela al salir', async () => {
-  const { ClassroomsApp } = loadTsModule('apps/web/src/application/academic-Classrooms.tsx');
+  const { ClassroomsApp } = loadTsModule('apps/web/src/application/workflows/classroom-collection/ClassroomsApp.tsx');
   for (const role of ['teacher', 'student']) {
     const calls = [];
     const room = { id: 'room', name: 'Aula real', coverKey:'biology', archived: false };

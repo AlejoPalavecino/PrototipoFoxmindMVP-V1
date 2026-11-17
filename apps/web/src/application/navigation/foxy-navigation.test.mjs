@@ -7,13 +7,14 @@ import { loadTsModule } from "../../../../../tests/helpers/load-ts-module.mjs";
 
 const noop=()=>null;
 function navPorts(capture) { return {
+  '../../../../../shared-ui/AppNavbar.tsx':{AppNavbar:props=>{capture.push(props);return null;}},
   '../../../../shared-ui/AppNavbar.tsx':{AppNavbar:props=>{capture.push(props);return null;}},
   '../../../shared-ui/AppNavbar.tsx':{AppNavbar:props=>{capture.push(props);return null;}},
   '../../../../shared-ui/index.ts':{FoxmindBrand:noop,FoxmindIcon:noop},
   '../../features/notifications/index.ts':{Notifications:noop}, '../features/notifications/index.ts':{Notifications:noop},
   '../features/classrooms/index.ts':{ClassroomCollection:noop,ClassroomCollectionHero:noop,classroomExperienceStyles:{}},
   '../features/home/index.ts':{Home:noop}, '../../../shared-ui/EntryIcon':{EntryIcon:noop},
-  'next/router':{useRouter:()=>({push(){}})}, 'next/link':{default:noop}, '../academic-classroom-client.ts':{createWebClassroomClient:()=>({})},
+  'next/router':{useRouter:()=>({push(){}})}, 'next/link':{default:noop}, '../clients/classroom-client.ts':{createWebClassroomClient:()=>({})},
 }; }
 const session=accountRole=>({authenticated:true,user:{id:'synthetic',firstName:'Docente',lastName:'Prueba',emailVerified:true,accountRole}});
 
@@ -28,7 +29,7 @@ test('account navigation exposes Foxy AI only for verified teachers and navigate
 });
 
 test('classroom navigation exposes and opens Foxy AI for teachers but not students',()=>{
-  const capture=[], ports=navPorts(capture), {ClassroomsApp}=componentWithPorts("apps/web/src/application/academic-Classrooms.tsx",ports);
+  const capture=[], ports=navPorts(capture), {ClassroomsApp}=componentWithPorts("apps/web/src/application/workflows/classroom-collection/ClassroomsApp.tsx",ports);
   const prior=globalThis.window, navigations=[]; globalThis.window={location:{assign:href=>navigations.push(href)}};
   try {for(const role of ['teacher','student']) {
     renderToStaticMarkup(React.createElement(ClassroomsApp,{api:{},displayName:'Prueba',accountRole:role,initialPresentation:'home'}));
@@ -39,7 +40,7 @@ test('classroom navigation exposes and opens Foxy AI for teachers but not studen
 });
 
 test('login continuation accepts only exact local Foxy route and rejects redirect variants',()=>{
-  const {classroomDestination,classroomAuthHref}=({...loadTsModule("apps/web/src/application/academic-classroom-client.ts"),classroomDestination:loadTsModule('apps/web/src/application/navigation/destinations.ts').safeDestination,classroomAuthHref:loadTsModule('apps/web/src/application/navigation/destinations.ts').authHref,classroomHomeHref:loadTsModule('apps/web/src/application/navigation/destinations.ts').classroomHomeHref,classroomHomeDestination:loadTsModule('apps/web/src/application/navigation/destinations.ts').classroomHomeDestination});
+  const {classroomDestination,classroomAuthHref}=({...loadTsModule("apps/web/src/application/clients/classroom-client.ts"),classroomDestination:loadTsModule('apps/web/src/application/navigation/destinations.ts').safeDestination,classroomAuthHref:loadTsModule('apps/web/src/application/navigation/destinations.ts').authHref,classroomHomeHref:loadTsModule('apps/web/src/application/navigation/destinations.ts').classroomHomeHref,classroomHomeDestination:loadTsModule('apps/web/src/application/navigation/destinations.ts').classroomHomeDestination});
   assert.equal(classroomDestination('/foxy-ai'),'/foxy-ai'); assert.equal(classroomAuthHref('sign-in','/foxy-ai'),'/sign-in?next=%2Ffoxy-ai');
   for(const unsafe of ['//evil.test/foxy-ai','https://evil.test/foxy-ai','/foxy-ai?next=https://evil.test','/foxy-ai/../account','/foxy-ai#x','/foxy-ai%2f..'])
     assert.equal(classroomDestination(unsafe),null,unsafe);

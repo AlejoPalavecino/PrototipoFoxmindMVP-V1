@@ -42,14 +42,14 @@ export const ready = id => ({ id, name: 'plan.pdf', ready: true, upload: 'COMPLE
 export async function wizard({ draft = initialDraft(), upload, call, fileStatus, extractionBusy = false, extractionView = null, extractionState } = {}) {
   const oldWindow = globalThis.window; globalThis.window = { addEventListener() {}, removeEventListener() {} };
   const calls = [], uploads = [], exits = [], published = [], extractionInputs = [], noop = () => null;
-  const { Wizard } = componentWithPorts('apps/web/src/application/academic-Wizard.tsx', {"../../../../../shared-ui/academic-cover.tsx":{...loadTsModule('apps/shared-ui/academic-cover.tsx'),Cover: noop,Notice: ({ children }) => React.createElement('div', {}, children),coverOptions: () => [{ key: 'biology', label: 'Biología' }]},
-"../../../shared-ui/academic-cover.tsx":{...loadTsModule('apps/shared-ui/academic-cover.tsx'),Cover: noop,Notice: ({ children }) => React.createElement('div', {}, children),coverOptions: () => [{ key: 'biology', label: 'Biología' }]},
+  const { Wizard } = componentWithPorts('apps/web/src/application/workflows/classroom-creation/ClassroomWizard.tsx', {"../../../../../shared-ui/academic-cover.tsx":{...loadTsModule('apps/shared-ui/academic-cover.tsx'),Cover: noop,Notice: ({ children }) => React.createElement('div', {}, children),coverOptions: () => [{ key: 'biology', label: 'Biología' }]},
+"../../../../../shared-ui/academic-cover.tsx":{...loadTsModule('apps/shared-ui/academic-cover.tsx'),Cover: noop,Notice: ({ children }) => React.createElement('div', {}, children),coverOptions: () => [{ key: 'biology', label: 'Biología' }]},
 "./PlanExtraction.tsx":{PlanExtraction: ({ extraction }) => React.createElement('button', { type: 'button', onClick: extraction.cancel }, 'Continuar manualmente')},
-"../features/curriculum/index.ts":{...loadTsModule('apps/web/src/features/curriculum/index.ts'),classroomZones: () => [{ value: 'UTC', label: 'UTC' }],usePlanExtraction: options => { extractionInputs.push(options); return { busy: extractionBusy, view: extractionView, message:'', messageError:false, cancel: () => {}, retry: async()=>{}, ...extractionState }; }},
+"../../../features/curriculum/index.ts":{...loadTsModule('apps/web/src/features/curriculum/index.ts'),classroomZones: () => [{ value: 'UTC', label: 'UTC' }],usePlanExtraction: options => { extractionInputs.push(options); return { busy: extractionBusy, view: extractionView, message:'', messageError:false, cancel: () => {}, retry: async()=>{}, ...extractionState }; }},
 "./classroom-zones.ts":{classroomZones: () => [{ value: 'UTC', label: 'UTC' }]},
 "./index.ts":{EntryIcon: noop,FoxmindIcon: noop,FoxmindIllustration: noop,AiProgress: noop},
 "../../../../../shared-ui/index.ts":{EntryIcon: noop,FoxmindIcon: noop,FoxmindIllustration: noop,AiProgress: noop},
-"../../../shared-ui/index.ts":{EntryIcon: noop,FoxmindIcon: noop,FoxmindIllustration: noop,AiProgress: noop}});
+"../../../../../shared-ui/index.ts":{EntryIcon: noop,FoxmindIcon: noop,FoxmindIllustration: noop,AiProgress: noop}});
   const api = { call: async (...args) => { calls.push(args); return call ? call(...args) : { ...draft, revision: '2', payload: args[2]?.payload ?? draft.payload }; },
     upload: async (...args) => { uploads.push(args); return upload ? upload(...args) : ready('replacement'); }, fileStatus: fileStatus ?? (async id => ready(id)), fileUrl: () => '/fixture.pdf' };
   const view = mount(Wizard, { api, draft, onExit: () => exits.push(true), onPublished: (...args) => published.push(args) });

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { ClassroomClient } from '../../../../../../src/core/contracts/academic-client.ts';
 import type { Detail } from '../../../../../../src/core/contracts/classrooms.ts';
 import type { WallContent, WallData, WallPost, WallTarget, WallRepliesPage, WallThreadData } from '../../../../../../src/core/contracts/communication.ts';
-import { parseWallData, parseWallThreadData, parseWallRepliesPage } from '../../../../../../src/core/domain/index.ts';
+import { parseWallData, parseWallThreadData, parseWallRepliesPage } from '../../../../../../src/core/domain/communication/wall.ts';
 import { Dialog, Notice } from '../../../../../shared-ui/feedback.tsx';
 import styles from './wall.module.css';
 import { FoxmindIcon } from '../../../../../shared-ui/FoxmindIcon';

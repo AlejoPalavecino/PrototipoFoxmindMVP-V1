@@ -1,5 +1,5 @@
 import {useEffect,useRef,useState} from 'react';
-import type {StudyConversation,StudyDetail} from '../api/study-client';
+import type {StudyConversation,StudyDetail} from './study-contracts.ts';
 import {requestStudyGeneration,studyGenerationRequests,studyGenerationRetryData,type StudyGenerationInput,type StudyGenerationRequest,type StudyGenerationRun} from './study-generation';
 
 type LocalIntent={requestId:string;conversationId?:string;data:StudyGenerationInput;phase:'SENDING'|'SYNCING'|'UNCERTAIN'|'FAILED'|'CANCELLED';error?:string};

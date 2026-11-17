@@ -39,7 +39,7 @@ test('sin IA global rechaza activar y permite desactivar o guardar ajustes anter
 });
 
 test('guardar otros datos del aula no envía una nueva activación de IA mientras el servicio no está disponible', async () => {
-  const { ClassroomSettings } = loadTsModule('apps/web/src/features/classrooms/ui/ClassroomSettings.tsx');
+  const { ClassroomSettings } = loadTsModule('apps/web/src/features/classrooms/settings/ClassroomSettings.tsx');
   const detail = { id, revision: '2', role: 'teacher', archived: false, name: 'Aula', subject: 'Materia', division: 'A', academicYear: 2026,
     teacher: 'Docente', timezone: 'UTC', coverKey: 'explore', plans: [], units: [], aiGradingEnabled: true, aiGradingAvailable: false };
   const calls = [];

@@ -6,7 +6,7 @@ function deferred(){let resolve;const promise=new Promise(r=>resolve=r);return {
 function fixture({list=async()=>({items:[],nextAfterId:null}),start}={}){
  const conversation={id:randomUUID(),revision:'0',context:{kind:'GENERAL'}},job={id:randomUUID(),conversationId:conversation.id,state:'READY',kind:'IMAGE',assetId:randomUUID()},calls=[];
  const client={listVisuals:list,startVisual:async(...args)=>{calls.push(args);return start?start(job,...args):{job,conversationRevision:'1'};},getVisual:async()=>job};
- const {createFoxyVisualController}=loadTsModule("apps/web/src/features/foxy/model/foxy-visual-controller.ts");const c=createFoxyVisualController({client,onChange:()=>{},current:()=>({conversation,selection:{topicIds:[],sourceIds:[]},canGenerate:true,busy:false,enabled:{IMAGE:true,DIAGRAM:true}}),onRevision:()=>{}});return {c,job,calls};
+ const {createFoxyVisualController}=loadTsModule("apps/web/src/features/foxy/visuals/foxy-visual-controller.ts");const c=createFoxyVisualController({client,onChange:()=>{},current:()=>({conversation,selection:{topicIds:[],sourceIds:[]},canGenerate:true,busy:false,enabled:{IMAGE:true,DIAGRAM:true}}),onRevision:()=>{}});return {c,job,calls};
 }
 test('retry of uncertain request preserves the new draft or disallows editing until resolved',async()=>{
  let attempt=0;const f=fixture({start:async job=>{if(++attempt===1)throw Object.assign(Error('synthetic'),{code:'SERVICE_UNAVAILABLE'});return {job,conversationRevision:'1'};}});

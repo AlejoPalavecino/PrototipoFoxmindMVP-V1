@@ -11,7 +11,7 @@ test('application shell preserves theme and owns route-heading focus with cleanu
   globalThis.requestAnimationFrame=callback=>callback();
   try {
     const events={on(name,handler){listeners.set(name,handler);},off(name,handler){assert.equal(listeners.get(name),handler);listeners.delete(name);}};
-    const {ApplicationShell}=loadTsModule('apps/web/src/application/application-shell.tsx',{stubs:{
+    const {ApplicationShell}=loadTsModule('apps/web/src/application/shell/ApplicationShell.tsx',{stubs:{
       react:{useEffect(callback){cleanup=callback();}},'next/router':{useRouter:()=>({events})},
     }});
     const child={synthetic:true};const tree=ApplicationShell({children:child});

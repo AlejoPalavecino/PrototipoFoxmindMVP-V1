@@ -1,3 +1,4 @@
+import { appStylesheets } from './helpers/global-style-fixture.mjs';
 import { homeFixture } from './helpers/audit-home-data.mjs';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import test from 'node:test';
@@ -17,8 +18,7 @@ const buttons = html => [...html.matchAll(/<button\b([^>]*)>([\s\S]*?)<\/button>
   .map(([, attributes, body]) => ({ attributes, text: body.replace(/<[^>]+>/g, '') }));
 
 test('Next loads folder presentation with no competing glass stylesheet', () => {
-  const app = read('apps/web/pages/_app.tsx');
-  const imports = [...app.matchAll(/import\s+['"]([^'"]+\.css)['"]/g)].map(match => match[1]);
+  const imports = appStylesheets();
   assert.ok(imports.some(path => /folders[^/]*\.css$/.test(path)), 'Folder stylesheet must be part of the real app cascade');
   assert.ok(imports.every(path => !/glass/i.test(path)), 'Glass must not override the selected folder presentation');
   for (const path of imports) assert.ok(existsSync(resolve('apps/web/pages', path)), `Unresolved stylesheet ${path}`);
@@ -49,7 +49,7 @@ test('account SSR preserves loading, Brújula visual and entry navigation after 
   assert.match(html, /id="main"/);
   assert.match(html, /Cargando tu cuenta/);
   assert.match(html, /class="br-auth-brand" href="\/sign-in"/);
-  const { AccountFlowForms } = component('apps/web/src/features/identity/ui/account-flow-forms.tsx');
+  const { AccountFlowForms } = component('apps/web/src/features/identity/authentication/account-flow-forms.tsx');
   const ready = render(AccountFlowForms, { view: 'sign-in', session: { authenticated: false }, verified: false, classroomNext: null,
     nextAccountHref: target => `/${target}`, locked: false, busy: false, hasToken: false, submit: () => () => {}, signOut: null, load: async () => {}, action: async () => {} });
   assert.match(ready, /href="\/register"/); assert.match(ready, /href="\/forgot-password"/);
@@ -57,7 +57,7 @@ test('account SSR preserves loading, Brújula visual and entry navigation after 
 });
 
 test('password controls remain labelled non-submit buttons with explicit field association', () => {
-  const { AccountField } = component('apps/web/src/features/identity/ui/account-field.tsx');
+  const { AccountField } = component('apps/web/src/features/identity/controls/account-field.tsx');
   const html = render(AccountField, { name: 'password', label: 'Contraseña', password: true, autoComplete: 'current-password' });
   assert.match(html, /<label\b[^>]*for="password"/);
   assert.match(html, /<input\b[^>]*type="password"/);
@@ -94,7 +94,7 @@ for (const accountRole of ['teacher', 'student']) test(`Home presents the ${acco
   data.participation = accountRole === 'teacher' ? 'teach' : 'study';
   data.memberships = { study: Number(accountRole === 'student'), teach: Number(accountRole === 'teacher'), archived: 0 };
   for (const module of accountRole === 'teacher' ? ['pending', 'feedback'] : ['review', 'queries']) data.modules[module] = { status: 'not-applicable' };
-  const { Home } = loadTsModule("apps/web/src/features/home/ui/Home.tsx", { stubs: {"../model/use-home.ts":{useHome: () => ({ loading:false, data, ordering:{}, orders:{review:'desc',queries:'desc'} })}} });
+  const { Home } = loadTsModule("apps/web/src/features/home/dashboard/Home.tsx", { stubs: {"./use-home.ts":{useHome: () => ({ loading:false, data, ordering:{}, orders:{review:'desc',queries:'desc'} })}} });
   const html = render(Home, { accountRole, displayName: 'Learner', busy: false, onAction() {},
     onCreate() {}, onJoin() {}, onClassrooms() {}, onEnter() {}, api: { call: async () => [] }, onOpenTarget() {},
   });
@@ -117,7 +117,7 @@ for (const accountRole of ['teacher', 'student']) test(`Home presents the ${acco
 });
 
 test('ClassroomView SSR retains exit/loading state without inventing server classroom data', () => {
-  const { ClassroomView } = component("apps/web/src/application/academic-ClassroomView.tsx");
+  const { ClassroomView } = component("apps/web/src/application/workflows/classroom-workspace/ClassroomWorkspace.tsx");
   let calls = 0;
   const html = render(ClassroomView, { id: 'not-loaded', initialCode: null, onExit() {}, api: { call: async () => { calls++; throw new Error('SSR must not fetch'); } } });
   assert.equal(calls, 0);
@@ -128,12 +128,12 @@ test('ClassroomView SSR retains exit/loading state without inventing server clas
 });
 
 test('ClassroomView retains the complete navigation definition and teacher-only tab guards', () => {
-  const {classroomSections}=loadTsModule("apps/web/src/features/classrooms/ui/ClassroomNavigation.tsx");
+  const {classroomSections}=loadTsModule("apps/web/src/features/classrooms/workspace/ClassroomNavigation.tsx");
   assert.deepEqual(classroomSections(true).map(item=>item.key),['plan','wall','library','activities','progress','members','history','settings']);
   const student=classroomSections(false);
   assert.equal(student.length,6);
   assert.ok(!student.some(item=>item.key==='history'||item.key==='settings'));
   assert.equal(student.find(item=>item.key==='members').label,'Compañeros');
   assert.equal(student.find(item=>item.key==='progress').label,'Mi progreso');
-  assert.match(read("apps/web/src/application/academic-ClassroomView.tsx"),/tab === 'settings' && teacher/);
+  assert.match(read("apps/web/src/application/workflows/classroom-workspace/ClassroomWorkspace.tsx"),/tab === 'settings' && teacher/);
 });

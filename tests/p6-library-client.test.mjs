@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createClassroomClient } from '../apps/web/src/application/academic-client.ts';
+import { createClassroomClient } from '../apps/web/src/application/transport/classroom-client.ts';
 
 test('Library client uploads every approved material format with material scope and fresh CSRF', async () => {
   const calls = []; let tokens = 0;

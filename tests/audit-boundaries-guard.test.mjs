@@ -238,7 +238,7 @@ test('frontend features and shared code cannot depend on higher layers or legacy
   }
   await fixture({
     'apps/web/src/screens/agenda.tsx': "import { Agenda } from '../features/agenda/index.ts';",
-    'apps/web/src/features/agenda/ui/Agenda.tsx': "import { Notice } from '../../../shared/ui/notice.tsx';",
+    'apps/web/src/features/agenda/calendar/Agenda.tsx': "import { Notice } from '../../../shared/ui/notice.tsx';",
     'apps/web/src/features/agenda/model/view.ts': "import { parseAgendaEvent } from '../../../../../../src/core/domain/agenda-validation.ts';",
     'apps/web/src/shared/ui/notice.tsx': "import React from 'react';",
   }, root => assert.deepEqual(checkBoundaries(root), []));

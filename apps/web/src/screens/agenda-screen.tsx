@@ -6,7 +6,7 @@ import { Agenda, agendaSurface as surface } from '../features/agenda/index.ts';
 import { Notice } from '../../../shared-ui/feedback';
 import { AccountNavbar } from '../application/navigation/account-navbar.tsx';
 import { createAccountClient, type AccountSession } from '../features/identity/index.ts';
-import { createWebAgendaClient } from '../application/agenda-client.ts';
+import { createWebAgendaClient } from '../application/clients/agenda-client.ts';
 import { authHref } from '../application/navigation/destinations';
 import { parseAgendaEventTarget, parseAgendaViewTarget } from '../application/navigation/agenda-target.ts';
 

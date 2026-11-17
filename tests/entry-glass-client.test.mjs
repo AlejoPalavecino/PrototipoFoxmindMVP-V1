@@ -1,3 +1,4 @@
+import { gradingFixtureProps } from './helpers/frontend-feature-fixtures.mjs';
 import { homeFixture } from './helpers/audit-home-data.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
@@ -53,7 +54,7 @@ test('draft navbar hides account navigation while preserving classroom exit', ()
 });
 
 test('password visibility is an explicit non-submit control, with policy only for new passwords', () => {
-  const { AccountField } = component('apps/web/src/features/identity/ui/account-field.tsx');
+  const { AccountField } = component('apps/web/src/features/identity/controls/account-field.tsx');
   const login = render(AccountField, { name: 'password', label: 'Contraseña', password: true, autoComplete: 'current-password' });
   assert.match(login, /data-password-field="true"/);
   assert.match(login, /type="button"[^>]*aria-label="Mostrar contraseña"/);
@@ -70,7 +71,7 @@ test('student home opens the applicable classroom activities and keeps feedback 
   data.memberships = { study: 1, teach: 0, archived: 1 };
   data.modules.feedback.items = [{ id: 'grade', title: 'Actividad revisada', classroom: room, attemptNumber: 1, finalGrade: '8', target: { kind: 'grade' } }];
   data.modules.feedback.totalItems = 1;
-  const { Home } = loadTsModule("apps/web/src/features/home/ui/Home.tsx", { stubs: {"../model/use-home.ts":{useHome: () => ({ loading:false, data, ordering:{}, orders:{review:'asc',queries:'desc'} })}} });
+  const { Home } = loadTsModule("apps/web/src/features/home/dashboard/Home.tsx", { stubs: {"./use-home.ts":{useHome: () => ({ loading:false, data, ordering:{}, orders:{review:'asc',queries:'desc'} })}} });
   const opened = [];
   const props = { accountRole: 'student', displayName: 'Student', busy: false, onAction() {}, onCreate() {}, onJoin() {},
     onClassrooms() { opened.push('catalog'); }, onOpenActivities(id) { opened.push(id); } };
@@ -91,8 +92,8 @@ test('student home opens the applicable classroom activities and keeps feedback 
     assert.deepEqual(opened, ['actual']);
   } finally { home.close(); }
 
-  const { Progress } = component('apps/web/src/features/grading/ui/Progress.tsx');
-  const progress = hookView(Progress, { classroomId: room.id, expectedScope: 'self',
+  const { Progress } = component('apps/web/src/features/grading/progress/Progress.tsx');
+  const progress = hookView(Progress, gradingFixtureProps('Progress', { classroomId: room.id, expectedScope: 'self',
     api: { call: async path => {
       assert.equal(path, '/actual/progress');
       return { scope: 'self', completion: { percentage: '50', delivered: 1, expected: 2 },
@@ -100,7 +101,7 @@ test('student home opens the applicable classroom activities and keeps feedback 
           { id: 'activity', type: 'ASSIGNMENT', title: 'Actividad revisada', grade: '8', publishedAttemptId: 'attempt' },
           { id: 'private', type: 'ASSIGNMENT', title: 'Actividad privada', grade: null },
         ] };
-    } }, onOpenResult: (...args) => opened.push(args) });
+    } }, onOpenResult: (...args) => opened.push(args) }));
   try {
     await progress.flush();
     const markup = renderToStaticMarkup(progress.tree);

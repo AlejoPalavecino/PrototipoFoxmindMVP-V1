@@ -18,7 +18,7 @@ function fixture() {
   const options={client,onChange,setTimeout,clearTimeout,uuid:()=>id};
   return {calls,timers,a,b,id,queue,client,options};
 }
-function create(f){const api=loadTsModule("apps/web/src/features/foxy/model/foxy-chat-controller.ts");assert.equal(typeof api.createFoxyChatController,'function');return api.createFoxyChatController(f.options);}
+function create(f){const api=loadTsModule("apps/web/src/features/foxy/conversations/foxy-chat-controller.ts");assert.equal(typeof api.createFoxyChatController,'function');return api.createFoxyChatController(f.options);}
 
 test('initializes capabilities and conversations and selects a newly created conversation',async()=>{
   const f=fixture(),c=create(f);await c.init();assert.deepEqual(c.getState().capabilities,capability);assert.equal(c.getState().conversations.length,2);

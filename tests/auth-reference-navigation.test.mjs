@@ -7,7 +7,7 @@ import {componentWithPorts} from './foxmind-3d-flows-loader.test.mjs';
 const noop=()=>null;
 const {AccountNavbar}=componentWithPorts('apps/web/src/application/navigation/account-navbar.tsx',{'next/router':{useRouter:()=>({push(){assert.fail('Rendering navigation must not navigate');}})},
 'next/link':{default:({children,...props})=>React.createElement('a',props,children)},
-"../academic-classroom-client.ts":{createWebClassroomClient:()=>({})},
+"../clients/classroom-client.ts":{createWebClassroomClient:()=>({})},
 "../../../../shared-ui/AppNavbar.tsx":{AppNavbar:noop},
 "./AppNavbar":{AppNavbar:noop},
 "../../../../shared-ui/index.ts":{FoxmindBrand:noop,FoxmindIcon:noop},

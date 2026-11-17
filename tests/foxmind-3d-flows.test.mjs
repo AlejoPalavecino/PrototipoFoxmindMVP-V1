@@ -1,3 +1,4 @@
+import { authoringFixtureProps } from './helpers/frontend-feature-fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
@@ -8,7 +9,7 @@ const room = role => ({ id, revision: '2', role, archived: false, name: 'Ciencia
   division: 'A', academicYear: 2026, teacher: 'Docente sintético', timezone: 'UTC', coverKey: 'explore', plans: [], units: [] });
 
 test('D2 settings is the only new literal auth continuation; unsafe variants stay closed', () => {
-  const { classroomDestination, classroomAuthHref } = ({...loadTsModule("apps/web/src/application/academic-classroom-client.ts"),classroomDestination:loadTsModule('apps/web/src/application/navigation/destinations.ts').safeDestination,classroomAuthHref:loadTsModule('apps/web/src/application/navigation/destinations.ts').authHref,classroomHomeHref:loadTsModule('apps/web/src/application/navigation/destinations.ts').classroomHomeHref,classroomHomeDestination:loadTsModule('apps/web/src/application/navigation/destinations.ts').classroomHomeDestination});
+  const { classroomDestination, classroomAuthHref } = ({...loadTsModule("apps/web/src/application/clients/classroom-client.ts"),classroomDestination:loadTsModule('apps/web/src/application/navigation/destinations.ts').safeDestination,classroomAuthHref:loadTsModule('apps/web/src/application/navigation/destinations.ts').authHref,classroomHomeHref:loadTsModule('apps/web/src/application/navigation/destinations.ts').classroomHomeHref,classroomHomeDestination:loadTsModule('apps/web/src/application/navigation/destinations.ts').classroomHomeDestination});
   assert.equal(classroomDestination('/settings'), '/settings');
   for (const view of ['sign-in', 'register', 'verify-email'])
     assert.equal(classroomAuthHref(view, '/settings'), `/${view}?next=%2Fsettings`);
@@ -22,7 +23,7 @@ test('D2 settings is the only new literal auth continuation; unsafe variants sta
 });
 
 for (const role of ['teacher', 'student']) test(`D3 ordinary ${role} classroom entry opens Plan without an academic write`, async () => {
-  const { ClassroomView } = loadTsModule("apps/web/src/application/academic-ClassroomView.tsx");
+  const { ClassroomView } = loadTsModule("apps/web/src/application/workflows/classroom-workspace/ClassroomWorkspace.tsx");
   const calls = [], api = { call: async (...args) => { calls.push(args); return args[0] === `/${id}` ? room(role) : []; } };
   const view = hookView(ClassroomView, { api, id, initialCode: null, onExit() {} });
   try {
@@ -34,7 +35,7 @@ for (const role of ['teacher', 'student']) test(`D3 ordinary ${role} classroom e
 });
 
 test('a confirmed archived departure cannot navigate after the classroom view unmounts', async () => {
-  const { ClassroomView } = loadTsModule("apps/web/src/application/academic-ClassroomView.tsx");
+  const { ClassroomView } = loadTsModule("apps/web/src/application/workflows/classroom-workspace/ClassroomWorkspace.tsx");
   let finish;
   const departures = [];
   const api = { call: async path => {
@@ -63,7 +64,7 @@ for (const [name, destination, component] of [
   ['activity', { kind: 'ACTIVITY', classroomId: id, activityId: id }, 'Activities'],
   ['result', { kind: 'GRADE', classroomId: id, activityId: id, attemptId: id, gradeId: id }, 'Activities'],
 ]) test(`D3 explicit ${name} destination retains priority over ordinary Plan`, async () => {
-  const { ClassroomView } = loadTsModule("apps/web/src/application/academic-ClassroomView.tsx");
+  const { ClassroomView } = loadTsModule("apps/web/src/application/workflows/classroom-workspace/ClassroomWorkspace.tsx");
   const view = hookView(ClassroomView, { api: { call: async path => path === `/${id}` ? room('student') : [] },
     id, initialCode: null, wallTarget: destination, onExit() {} });
   try {
@@ -82,7 +83,7 @@ test('D3 API draft validation preserves three legacy cover keys and accepts seve
 });
 
 test('D5 each question subtype permits thirty without the old ten-item UI restriction', () => {
-  const { ActivityGenerationForm, defaultGenerationForm } = loadTsModule("apps/web/src/features/activity-authoring/ui/ActivityGenerationForm.tsx");
+  const { ActivityGenerationForm, defaultGenerationForm } = loadTsModule("apps/web/src/features/activity-authoring/generation/ActivityGenerationForm.tsx");
   for (const key of ['development', 'singleChoice', 'multipleChoice']) {
     const value = { ...defaultGenerationForm(), type: 'QUESTIONNAIRE', counts: { assignment: 0, development: 0, singleChoice: 0, multipleChoice: 0, [key]: 30 } };
     const tree = ActivityGenerationForm({ room: room('teacher'), value, update() {}, sources: [], disabled: false });
@@ -92,9 +93,9 @@ test('D5 each question subtype permits thirty without the old ten-item UI restri
 });
 
 test('D5 a combined thirty-one-question request never dispatches generation', async () => {
-  const { ActivityGeneration } = loadTsModule("apps/web/src/features/activity-authoring/ui/ActivityGeneration.tsx");
-  const calls = [], view = hookView(ActivityGeneration, { room: room('teacher'), onApplied: async () => {}, onClose() {},
-    api: { call: async (...args) => { calls.push(args); return args[0].endsWith('/sources') ? { revision: '2', sources: [] } : { jobs: [] }; } } });
+  const { ActivityGeneration } = loadTsModule("apps/web/src/features/activity-authoring/generation/ActivityGeneration.tsx");
+  const calls = [], view = hookView(ActivityGeneration, authoringFixtureProps('ActivityGeneration', { room: room('teacher'), onApplied: async () => {}, onClose() {},
+    api: { call: async (...args) => { calls.push(args); return args[0].endsWith('/sources') ? { revision: '2', sources: [] } : { jobs: [] }; } } }));
   try {
     await view.flush();
     const fields = descendants(view.tree, node => node.type?.name === 'GenerationSetup')[0];

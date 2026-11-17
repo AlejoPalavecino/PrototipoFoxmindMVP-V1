@@ -9,7 +9,7 @@ const range = { startDate: '2026-11-01', endDateExclusive: '2026-12-01', timeZon
 const payload = { title: ' Clase privada ', description: '<b>Texto propio</b>', category: 'CLASS', color: 'ORANGE',
   schedule: { kind: 'ALL_DAY', startDate: '2026-11-02', endDateExclusive: '2026-11-03' },
   repeat: { kind: 'WEEKLY', untilDate: '2026-11-16' } };
-const { createWebAgendaClient } = loadTsModule('apps/web/src/application/agenda-client.ts');
+const { createWebAgendaClient } = loadTsModule('apps/web/src/application/clients/agenda-client.ts');
 const { AgendaClientError } = loadTsModule('apps/web/src/features/agenda/api/api.ts');
 const { createAgendaService } = loadTsModule('apps/api/src/modules/agenda/public.ts');
 // Keep real identity error classes shared across the source loader's isolated module caches.

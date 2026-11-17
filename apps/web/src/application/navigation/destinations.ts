@@ -1,4 +1,5 @@
-import { parseHomeTarget, type HomeTarget } from '../../../../../src/core/domain/index.ts';
+import { parseHomeTarget } from '../../../../../src/core/domain/home/target.ts';
+import { type HomeTarget } from '../../../../../src/core/domain/home/home.ts';
 
 const invitationId = /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i;
 type ClassroomHomeTarget = Exclude<HomeTarget, { kind: 'private-event' }>;

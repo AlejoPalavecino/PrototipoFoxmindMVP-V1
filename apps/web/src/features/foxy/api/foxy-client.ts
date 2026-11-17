@@ -1,5 +1,9 @@
 import type { FoxyActivityDraftInput, FoxyActivityDraftReceipt } from '../../../../../../src/core/domain/foxy/foxy-activity-draft.ts';
-import { agendaId, type CreateFoxyConversation, type FoxyContext, type FoxyPurpose, type SendFoxyMessage, type EditFoxyResource, type PrepareFoxyPublication, type ConfirmFoxyPublication, type FoxyPublicationSummary, type FoxyPublicationInspection, type FoxyPublicationConfirmation, type FoxyPublicationManagement, type FoxyPublicationCommandReceipt, type RetryFoxyPublication, type DiscardFoxyPublication, type StartFoxyVisual, type FoxyVisualKind, type FoxyAspectRatio, type FoxyPrivateAssetInspection, type PrepareFoxyVisualPublication, type FoxyVisualPublicationSummary } from '../../../../../../src/core/domain/index.ts';
+import { agendaId } from '../../../../../../src/core/domain/agenda/values.ts';
+import { type CreateFoxyConversation, type FoxyContext, type FoxyPurpose, type SendFoxyMessage } from '../../../../../../src/core/domain/foxy/foxy-ai.ts';
+import { type EditFoxyResource, type PrepareFoxyPublication, type ConfirmFoxyPublication, type FoxyPublicationSummary, type FoxyPublicationInspection, type FoxyPublicationConfirmation, type FoxyPublicationManagement, type FoxyPublicationCommandReceipt, type RetryFoxyPublication, type DiscardFoxyPublication, type PrepareFoxyVisualPublication, type FoxyVisualPublicationSummary } from '../../../../../../src/core/domain/foxy/resource.ts';
+import { type StartFoxyVisual, type FoxyVisualKind, type FoxyAspectRatio } from '../../../../../../src/core/domain/foxy/visual.ts';
+import { type FoxyPrivateAssetInspection } from '../../../../../../src/core/domain/foxy/asset.ts';
 import { parseRetryFoxyPublication, parseDiscardFoxyPublication } from '../../../../../../src/core/domain/foxy/resource-validation.ts';
 import { type FoxySourceKind, type FoxySourceCursor } from '../../../../../../src/core/domain/foxy/source-query.ts';
 

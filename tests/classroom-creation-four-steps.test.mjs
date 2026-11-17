@@ -115,7 +115,7 @@ test('edición estructurada se normaliza antes de revisión y publicar resiste d
 });
 
 for (const origin of ['home', 'classrooms']) test(`publicar desde ${origin} regresa a Mis Aulas y recarga la colección`, async () => {
-  const { ClassroomsApp } = loadTsModule('apps/web/src/application/academic-Classrooms.tsx');
+  const { ClassroomsApp } = loadTsModule('apps/web/src/application/workflows/classroom-collection/ClassroomsApp.tsx');
   const calls = [], navigations = [], draft = initialDraft();
   const view = hookView(ClassroomsApp, { initialPresentation: origin, displayName: 'Docente sintético', accountRole: 'teacher',
     api: { call: async (path, method) => { calls.push([path, method]); return path === '' ? { teach: [], study: [] } : path === '/drafts' && method === 'POST' ? draft : []; } },
@@ -140,7 +140,7 @@ for (const origin of ['home', 'classrooms']) test(`publicar desde ${origin} regr
 
 
 test('tres portadas aprobadas conservan una selección previa fuera de catálogo',()=>{
- const {ClassroomWizardCover}=loadTsModule('apps/web/src/features/classrooms/ui/ClassroomWizardCover.tsx');const changes=[];
+ const {ClassroomWizardCover}=loadTsModule('apps/web/src/features/classrooms/creation/ClassroomWizardCover.tsx');const changes=[];
  const collapsed=ClassroomWizardCover({payload:{coverKey:'society'},onUpdate:(...args)=>changes.push(args)});
  const radios=descendants(collapsed,n=>n.type==='input');assert.deepEqual(radios.map(n=>n.props.value),['literature','biology','math','society']);assert.equal(radios.find(n=>n.props.value==='society').props.checked,true);assert.deepEqual(changes,[]);
  radios[0].props.onChange();assert.deepEqual(changes,[['coverKey','literature']]);

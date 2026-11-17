@@ -168,7 +168,7 @@ test('instruction reader slice fails closed if its required sensitive-file test 
 });
 
 for (const [source, missing] of [
-  ['apps/web/src/features/grading/ui/GradingAiReview.tsx', 'tests/grading-ai-review-ui.test.mjs'],
+  ['apps/web/src/features/grading/ai-review/GradingAiReview.tsx', 'tests/grading-ai-review-ui.test.mjs'],
   ['apps/api/src/bootstrap/academic-classrooms.module.ts', 'tests/grading-ai-host.test.mjs'],
   ['apps/api/src/bootstrap/academic-classrooms.module.ts', 'tests/grading-ai-authorization.test.mjs'],
 ]) test(`${source} requires ${missing} only when introduced`, async () => {

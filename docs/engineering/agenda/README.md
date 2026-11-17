@@ -14,7 +14,7 @@ Editar una serie advierte su alcance, incluidas fechas pasadas. Eliminar una ocu
 
 La repetición mensual conserva el día original y omite meses sin ese día. No afirmar esa variante como ensayada en el recorrido actual: la [matriz](../../verification/flows.md) distingue implementación y prueba.
 
-Fuentes: [Agenda](../../../apps/web/src/features/agenda/ui/Agenda.tsx), [formulario](../../../apps/web/src/features/agenda/ui/EventForm.tsx), [servicio](../../../apps/api/src/modules/agenda/), [modelo](../data-model.md). Se comprobó crear, consultar, editar a serie semanal y eliminar la serie, con aislamiento entre cuentas.
+Fuentes: [Agenda](../../../apps/web/src/features/agenda/calendar/Agenda.tsx), [formulario](../../../apps/web/src/features/agenda/event-editor/EventForm.tsx), [servicio](../../../apps/api/src/modules/agenda/), [modelo](../data-model.md). Se comprobó crear, consultar, editar a serie semanal y eliminar la serie, con aislamiento entre cuentas.
 
 ## Organización por responsabilidades
 

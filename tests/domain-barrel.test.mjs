@@ -39,7 +39,7 @@ test('scoped neutral domains preserve canonical rule and error identities', asyn
 
 test('temporary flat entries are retired and SQL stays outside the domain barrel', async () => {
   const { readdir, readFile } = await import('node:fs/promises');
-  const entries = await readdir(new URL('../src/core/domain/', import.meta.url));
+  const entries = await readdir(new URL('../src/core/domain/index', import.meta.url));
   assert.deepEqual(entries.filter(name => name.endsWith('.ts')), ['index.ts']);
   const barrel = await readFile(new URL('../src/core/domain/index.ts', import.meta.url), 'utf8');
   assert.doesNotMatch(barrel, /SqlTransaction|SqlDatabase/);

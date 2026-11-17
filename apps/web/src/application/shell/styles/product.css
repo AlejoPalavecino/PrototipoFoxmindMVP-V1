@@ -1,0 +1,20 @@
+/* Ordered global product styles. Feature modules own their scoped CSS. */
+@import "../../../../../shared-ui/design-tokens.css";
+@import "../../../../styles/globals.css";
+@import "./academic.css";
+@import "./folders.css";
+@import "./foxmind-3d.css";
+@import "./workspace.css";
+@import "./parity-foundation.css";
+@import "../../../features/home/dashboard/styles/parity-home.css";
+@import "../../../features/classrooms/styles/parity-classrooms.css";
+@import "../../../features/classrooms/styles/parity-catalog-fidelity.css";
+@import "../../../features/classrooms/styles/parity-classroom-fidelity.css";
+@import "../../../features/classrooms/styles/parity-classroom-interior-exact.css";
+@import "../../../features/classrooms/styles/parity-classroom-people-wall-exact.css";
+@import "../../../features/grading/styles/parity-classroom-progress-exact.css";
+@import "./parity-agenda-account-fidelity.css";
+@import "./parity-ai-fidelity.css";
+@import "../../../features/classrooms/styles/parity-classroom-collection.css";
+@import "./parity-wizard.css";
+@import "../../../features/study/styles/parity-study-exact.css";

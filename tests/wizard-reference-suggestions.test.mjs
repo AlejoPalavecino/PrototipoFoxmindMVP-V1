@@ -6,7 +6,7 @@ import { text } from './helpers/wizard-reference/component-harness.mjs';
 
 const render = state => {
   let applied = 0;
-  const { WizardSuggestions } = componentWithPorts("apps/web/src/features/curriculum/ui/WizardSuggestions.tsx", {"./PlanExtraction.tsx":{PlanExtraction: () => null},
+  const { WizardSuggestions } = componentWithPorts("apps/web/src/features/curriculum/extraction/WizardSuggestions.tsx", {"./PlanExtraction.tsx":{PlanExtraction: () => null},
 "../../../../../shared-ui/index.ts":{EntryIcon: () => null,FoxmindIcon: () => null}});
   const extraction = { busy: false, view: { state, proposal: state === 'READY' ? { units: [
     { name: 'Primera', topics: [{ name: 'Tema' }] }, { name: 'Segunda', topics: [{ name: 'Otro' }] }], warnings: [] } : null },
@@ -30,7 +30,7 @@ for (const state of ['FAILED', 'STALE']) test(`${state} extraction never adverti
 });
 
 test('a failed plan request is an error even when the saved job is still running', () => {
-  const { PlanExtraction } = componentWithPorts('apps/web/src/features/curriculum/ui/PlanExtraction.tsx', {
+  const { PlanExtraction } = componentWithPorts('apps/web/src/features/curriculum/extraction/PlanExtraction.tsx', {
     './ExtractionEditor.tsx': { ExtractionEditor: () => null },
     '../../../../../shared-ui/index.ts': { AiProgress: () => null },
   });
@@ -41,7 +41,7 @@ test('a failed plan request is an error even when the saved job is still running
 });
 
 test('a saved plan uses success feedback and cancellation remains informative', () => {
-  const { PlanExtraction } = componentWithPorts('apps/web/src/features/curriculum/ui/PlanExtraction.tsx', {
+  const { PlanExtraction } = componentWithPorts('apps/web/src/features/curriculum/extraction/PlanExtraction.tsx', {
     './ExtractionEditor.tsx': { ExtractionEditor: () => null },
     '../../../../../shared-ui/index.ts': { AiProgress: () => null },
   });

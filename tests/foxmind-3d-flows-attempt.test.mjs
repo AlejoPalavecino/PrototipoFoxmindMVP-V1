@@ -33,7 +33,7 @@ test('student list state uses published results, reattempts and the existing rec
 });
 for (const [type, canStart, expected] of [['ASSIGNMENT', true, 0], ['ASSIGNMENT', false, 0], ['QUESTIONNAIRE', true, 0], ['EVALUATION', true, 0]])
   test(`D9 explicit ${type} target canStart=${canStart} consults without starting an attempt`, async () => {
-    const { Activities } = loadTsModule("apps/web/src/application/academic-Activities.tsx");
+    const { Activities } = loadTsModule("apps/web/src/application/workflows/activity-session/Activities.tsx");
     const starts = [], session = { activity: { id, title: 'Actividad dirigida', type, questions: [] }, canStart, attempt: null };
     const api = { call: async path => path.endsWith('/activities') ? { activities: [] } : session,
       attempt: async (...args) => { starts.push(args); return { ...session, canStart: false, attempt: { id: 'attempt', status: 'DRAFT' } }; } };
@@ -46,7 +46,7 @@ for (const [type, canStart, expected] of [['ASSIGNMENT', true, 0], ['ASSIGNMENT'
   });
 
 test('a response URL without a local response action only consults the activity',async()=>{
- const {Activities}=loadTsModule("apps/web/src/application/academic-Activities.tsx"),starts=[];
+ const {Activities}=loadTsModule("apps/web/src/application/workflows/activity-session/Activities.tsx"),starts=[];
  const session={activity:{id,title:'Campo',type:'ASSIGNMENT',questions:[]},canStart:true,attempt:null};
  const api={call:async path=>path.endsWith('/activities')?{activities:[]}:session,attempt:async(...args)=>{starts.push(args);return session;}};
  const view=hookView(Activities,{api,room:{id,role:'student',archived:false,units:[],timezone:'UTC'},reload:async()=>{},target:{kind:'activity',classroomId:id,activityId:id,mode:'respond'}});
@@ -54,7 +54,7 @@ test('a response URL without a local response action only consults the activity'
 });
 
 test('explicit response destination prepares the practical attempt through the existing start port',async()=>{
- const {Activities}=loadTsModule("apps/web/src/application/academic-Activities.tsx",{stubs:{"./model/activity-response-intent.ts":{consumeActivityResponse:()=>true}}}),starts=[];
+ const {Activities}=loadTsModule("apps/web/src/application/workflows/activity-session/Activities.tsx",{stubs:{"./model/activity-response-intent.ts":{consumeActivityResponse:()=>true}}}),starts=[];
  const session={activity:{id,title:'Campo',type:'ASSIGNMENT',questions:[]},canStart:true,attempt:null};
  const api={call:async path=>path.endsWith('/activities')?{activities:[]}:session,attempt:async(...args)=>{starts.push(args);return {...session,canStart:false,attempt:{id:'attempt',status:'DRAFT'}};}};
  const view=hookView(Activities,{api,room:{id,role:'student',archived:false,units:[],timezone:'UTC'},reload:async()=>{},target:{kind:'activity',classroomId:id,activityId:id,mode:'respond'}});

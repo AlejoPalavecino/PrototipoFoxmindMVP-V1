@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {loadTsModule} from './helpers/load-ts-module.mjs';
-const read=()=>loadTsModule('apps/web/src/features/home/model/home-daily-agenda.ts');
+const read=()=>loadTsModule('apps/web/src/features/home/dashboard/home-daily-agenda.ts');
 const event=(id,startAt,endAt)=>({kind:'PRIVATE_EVENT',occurrenceId:id+':2026-11-15',startDate:startAt.slice(0,10),endDateExclusive:'2026-11-16',startAt,endAt,event:{id,title:id,category:'CLASS',schedule:{kind:'TIMED',timeZone:'UTC'}}});
 test('Daily Home reads every page and retains past/current events of today in the display zone',async()=>{
  const calls=[],items=[event('past','2026-11-15T12:00Z','2026-11-15T13:00Z'),event('later','2026-11-15T23:00Z','2026-11-16T00:00Z'),event('tomorrow','2026-11-16T12:00Z','2026-11-16T13:00Z')];

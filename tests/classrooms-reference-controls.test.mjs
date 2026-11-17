@@ -20,7 +20,7 @@ function select(view, label) {
 const cards = view => descendants(view.tree, n => n.type?.name === 'ClassroomCard');
 async function setup(search = '') {
   const entered = [], searched = [], fixture = data();
-  const { ClassroomCollection } = loadTsModule('apps/web/src/features/classrooms/ui/ClassroomCollection.tsx');
+  const { ClassroomCollection } = loadTsModule('apps/web/src/features/classrooms/collection/ClassroomCollection.tsx');
   const view = collectionView(ClassroomCollection, { ...fixture, search, onEnter: id => entered.push(id), onSearch: value => searched.push(value) });
   await view.flush(); return { view, entered, searched, fixture };
 }

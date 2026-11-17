@@ -1,10 +1,11 @@
+import { gradingFixtureProps } from './helpers/frontend-feature-fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { descendants, hookView } from './agenda-ui-helpers.test.mjs';
 import { gradingView } from './helpers/audit-grade-dto.mjs';
 
-const { Activities } = loadTsModule('apps/web/src/application/academic-Activities.tsx');
+const { Activities } = loadTsModule('apps/web/src/application/workflows/activity-session/Activities.tsx');
 const text = node => typeof node === 'string' || typeof node === 'number' ? String(node) : Array.isArray(node) ? node.map(text).join('') : text(node?.props?.children ?? '');
 const select = (view, predicate) => descendants(view.tree, predicate)[0];
 const room = { id: 'room', name: 'Ciencias', role: 'teacher', archived: false, revision: '1', timezone: 'UTC', units: [] };
@@ -68,7 +69,7 @@ test('actividad docente con pendientes abre consigna y conserva acceso posterior
 });
 
 test('entregas separa revisiones privadas guardadas de pendientes y conserva historial de reentregas', async () => {
-  const { AttemptHistory } = loadTsModule('apps/web/src/application/academic-AttemptHistory.tsx');
+  const { AttemptHistory } = loadTsModule('apps/web/src/application/workflows/activity-session/AttemptHistory.tsx');
   const attempts = [
     { id: 'old', studentId: 'one', number: 1, reviewState: 'published', gradePublished: true },
     { id: 'pending', studentId: 'one', number: 2, reviewState: 'pending', gradePublished: false },
@@ -106,7 +107,7 @@ for (const scenario of [
   { name: 'estudiante que salió', numbers: [1], selected: 1, currentMember: false, allowed: false },
   { name: 'aula sin permiso de reabrir', numbers: [1], selected: 1, canReopen: false, allowed: false },
 ]) test(`reentrega contextual: ${scenario.name}`, async () => {
-  const { AttemptHistory } = loadTsModule('apps/web/src/application/academic-AttemptHistory.tsx');
+  const { AttemptHistory } = loadTsModule('apps/web/src/application/workflows/activity-session/AttemptHistory.tsx');
   const attempts = scenario.numbers.map(number => ({ id: `attempt-${number}`, studentId: 'student', number,
     status: scenario.draft === number ? 'DRAFT' : 'SUBMITTED', currentMember: scenario.currentMember ?? true,
     firstName: 'Alumno', lastName: 'Sintético', gradePublished: false }));
@@ -132,7 +133,7 @@ for (const scenario of [
 });
 
 test('el historial del estudiante no ofrece habilitar intentos', async () => {
-  const { AttemptHistory } = loadTsModule('apps/web/src/application/academic-AttemptHistory.tsx');
+  const { AttemptHistory } = loadTsModule('apps/web/src/application/workflows/activity-session/AttemptHistory.tsx');
   const view = hookView(AttemptHistory, { room: { ...room, role: 'student' }, activityId: activity.id, initialView: 'history',
     onClose() {}, onChanged: async () => {}, onResume() {},
     api: { call: async () => ({ activity, canReopen: true, attempts: [{ id: 'attempt', studentId: 'student', number: 1,
@@ -145,10 +146,10 @@ test('el historial del estudiante no ofrece habilitar intentos', async () => {
 });
 
 test('reabrir desde corrección protege cambios privados antes de habilitar el intento', async () => {
-  const { GradingEditor } = loadTsModule('apps/web/src/features/grading/ui/GradingEditor.tsx');
+  const { GradingEditor } = loadTsModule('apps/web/src/features/grading/editing/GradingEditor.tsx');
   let opened = 0;
-  const view = hookView(GradingEditor, { api: { call: async () => structuredClone(gradingView) }, roomId: room.id,
-    attemptId: gradingView.attempt.id, onClose() {}, onChanged: async () => {}, onReopen: () => opened++ });
+  const view = hookView(GradingEditor, gradingFixtureProps('GradingEditor', { api: { call: async () => structuredClone(gradingView) }, roomId: room.id,
+    attemptId: gradingView.attempt.id, onClose() {}, onChanged: async () => {}, onReopen: () => opened++ }));
   const click = async label => { select(view, node => node.type === 'button' && text(node) === label).props.onClick(); await view.flush(); };
   try {
     await view.flush();

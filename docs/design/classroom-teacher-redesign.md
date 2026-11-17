@@ -331,8 +331,8 @@ Las condiciones de aceptación se contrastan con el [recibo de integración](../
 ## Fuentes y límites
 
 - [Aulas e ingreso actuales](../engineering/classrooms/README.md), [especificación vigente](../foxmind-v1-functional-spec.md) y [arquitectura](../engineering/architecture.md).
-- [Wizard actual](../../apps/web/src/application/academic-Wizard.tsx), [editor de propuesta](../../apps/web/src/features/curriculum/ui/ExtractionEditor.tsx), [extracción](../../apps/web/src/features/curriculum/model/extraction-client.ts).
-- [Plan](../../apps/web/src/features/curriculum/ui/Plan.tsx), [Muro](../../apps/web/src/features/communication/ui/Wall.tsx), [Biblioteca](../../apps/web/src/features/materials/ui/Library.tsx).
-- [Autoría](../../apps/web/src/features/activity-authoring/ui/ActivityAuthoring.tsx), [consulta de actividad](../../apps/web/src/application/academic-activity-preview.tsx), [generación](../engineering/ai/activity-generation.md).
+- [Wizard actual](../../apps/web/src/application/workflows/classroom-creation/ClassroomWizard.tsx), [editor de propuesta](../../apps/web/src/features/curriculum/extraction/ExtractionEditor.tsx), [extracción](../../apps/web/src/features/curriculum/extraction/extraction-client.ts).
+- [Plan](../../apps/web/src/features/curriculum/plan/Plan.tsx), [Muro](../../apps/web/src/features/communication/ui/Wall.tsx), [Biblioteca](../../apps/web/src/features/materials/catalog/Library.tsx).
+- [Autoría](../../apps/web/src/features/activity-authoring/drafting/ActivityAuthoring.tsx), [consulta de actividad](../../apps/web/src/application/workflows/activity-session/ActivityPreview.tsx), [generación](../engineering/ai/activity-generation.md).
 - [Invitaciones](../../apps/api/src/modules/classrooms/infrastructure/invitations-operations.ts), [códigos](../../apps/api/src/modules/classrooms/infrastructure/classroom-codes.ts), [ingreso](../../apps/api/src/modules/classrooms/infrastructure/memberships-operations-1.ts).
 - [Registro de diseño y comprobaciones](../work-log/2026-11-11-root-teacher-classroom-design.md). El informe aportado y las capturas históricas orientan la auditoría; no prueban tamaño de CSS descargado ni causa definitiva de una transparencia sin inspección runtime.

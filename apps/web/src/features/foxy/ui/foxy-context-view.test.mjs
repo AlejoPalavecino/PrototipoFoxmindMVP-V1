@@ -15,7 +15,7 @@ const state={capabilities:{textGeneration:{enabled:true}},conversations:[convers
     MATERIAL:{items:[{sourceId:material,kind:'MATERIAL',title:'Libro pendiente',available:false,reason:'FILE_NOT_READY',documentCount:1}],next:null},ACTIVITY:{items:[],next:null}},
   selection:{topicIds:[],sourceIds:[]},citations:{}};
 function fixture(value=state){const calls=[],controller=Object.fromEntries(['select','send','create','retry','loadMore','loadMoreConversations','selectTopic','selectSource','loadSources','loadCitations'].map(name=>[name,(...args)=>calls.push({name,args})]));
-  const {FoxyWorkspace}=componentWithPorts("apps/web/src/features/foxy/ui/foxy-workspace.tsx",{});return {calls,view:hookView(FoxyWorkspace,{controller,state:value,classrooms:[{id:room,name:'Biología'}]})};}
+  const {FoxyWorkspace}=componentWithPorts("apps/web/src/features/foxy/workspace/foxy-workspace.tsx",{});return {calls,view:hookView(FoxyWorkspace,{controller,state:value,classrooms:[{id:room,name:'Biología'}]})};}
 
 test('classroom library separates plan browsing from materials and keeps unavailable sources disabled',async()=>{
   const f=fixture();try{await f.view.flush();

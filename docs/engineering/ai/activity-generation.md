@@ -8,4 +8,4 @@ Los archivos compatibles para este ingreso son PDF, DOC, DOCX, PPT y PPTX con l�
 
 Errores, cola, propuesta vieja y recuperación de generación conservan límites e identidad; no reenviar un resultado incierto o sobreescribir cambios por llegar tarde.
 
-Fuentes: [configuración](../../../apps/web/src/features/activity-authoring/ui/GenerationSetup.tsx), [propuesta](../../../apps/web/src/features/activity-authoring/ui/ActivityGenerationProposal.tsx), [servicios](../../../apps/api/src/modules/activities/infrastructure/activity-ai/). [Prueba actual](../../verification/flows.md): cuestionario con tres tipos de pregunta y evaluación, proveedor sintético, borrador privado y asignación revisada.
+Fuentes: [configuración](../../../apps/web/src/features/activity-authoring/generation/GenerationSetup.tsx), [propuesta](../../../apps/web/src/features/activity-authoring/generation/ActivityGenerationProposal.tsx), [servicios](../../../apps/api/src/modules/activities/infrastructure/activity-ai/). [Prueba actual](../../verification/flows.md): cuestionario con tres tipos de pregunta y evaluación, proveedor sintético, borrador privado y asignación revisada.

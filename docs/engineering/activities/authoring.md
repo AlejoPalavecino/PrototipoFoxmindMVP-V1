@@ -24,4 +24,4 @@ Desarrollo no tiene opciones. Selección simple requiere al menos dos opciones y
 
 Antes de participar se puede editar/retirar según reglas. Tras el primer intento, se bloquean contenido y recursos; los cambios admitidos de título/organización o extensión de plazo no reconstruyen preguntas ni historia. La zona horaria es del aula; huecos DST se rechazan y ambigüedades requieren elección. No eliminar ni acortar una fecha ya bloqueada ni reclasificar recepciones históricas.
 
-Fuentes: [editor](../../../apps/web/src/features/activity-authoring/ui/ActivityAuthoring.tsx), [generación](../../../apps/web/src/features/activity-authoring/ui/GenerationSetup.tsx), [políticas](../../../apps/api/src/modules/activities/domain/activity-policy.ts). [Flujos comprobados](../../verification/flows.md).
+Fuentes: [editor](../../../apps/web/src/features/activity-authoring/drafting/ActivityAuthoring.tsx), [generación](../../../apps/web/src/features/activity-authoring/generation/GenerationSetup.tsx), [políticas](../../../apps/api/src/modules/activities/domain/activity-policy.ts). [Flujos comprobados](../../verification/flows.md).

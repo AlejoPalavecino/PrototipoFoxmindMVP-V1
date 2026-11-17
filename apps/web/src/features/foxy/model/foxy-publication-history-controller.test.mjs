@@ -11,7 +11,7 @@ function fixture(){let editor={resource:{id:rid,revision:'7'},dirty:false,busy:f
  inspectPublication:async(...args)=>{calls.push(['inspect',...args]);const value=inspections.shift();if(value instanceof Error)throw value;return value??inspection(item(args[0]));}};
  const options={client,resource:{getState:()=>editor},preparation:{getState:()=>preparation},onChange:()=>{},setTimeout:(fn,ms)=>{const t={ms,cleared:false,fn:()=>{t.cleared=true;return fn();}};timers.push(t);return t;},clearTimeout:t=>{t.cleared=true;}};
  return {options,client,calls,pages,inspections,timers,setEditor:v=>editor=v,setPreparation:v=>preparation=v};}
-function create(f){const api=loadTsModule("apps/web/src/features/foxy/model/foxy-publication-history-controller.ts");assert.equal(typeof api.createFoxyPublicationHistoryController,'function');return api.createFoxyPublicationHistoryController(f.options);}
+function create(f){const api=loadTsModule("apps/web/src/features/foxy/publication/foxy-publication-history-controller.ts");assert.equal(typeof api.createFoxyPublicationHistoryController,'function');return api.createFoxyPublicationHistoryController(f.options);}
 const failure=code=>Object.assign(Error(code),{code,status:code==='AUTH_REQUIRED'?401:503});
 test('syncResource is read-only, pages follow cursor even when short, refresh replaces',async()=>{const f=fixture(),c=create(f);c.syncResource();assert.equal(f.calls.length,0);f.pages.push({items:[item(a)],nextAfterId:a},{items:[item(b)],nextAfterId:null});
  await c.loadMore();assert.equal(c.getState().nextAfterId,a);await c.loadMore();assert.deepEqual(c.getState().items.map(p=>p.id),[a,b]);assert.deepEqual(f.calls.filter(x=>x[0]==='list').map(x=>x[2]),[{limit:20,afterId:null},{limit:20,afterId:a}]);

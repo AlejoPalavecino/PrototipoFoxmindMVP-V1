@@ -4,7 +4,7 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView, descendants } from './agenda-ui-helpers.test.mjs';
 
 test('upcoming deadlines open on demand and close before navigating to the selected activity', async () => {
-  const { Upcoming } = loadTsModule('apps/web/src/features/agenda/ui/Upcoming.tsx');
+  const { Upcoming } = loadTsModule('apps/web/src/features/agenda/upcoming/Upcoming.tsx');
   const opened = [];
   const items = [1, 2, 3].map(id => ({ id: String(id), target: { kind: 'activity', activityId: String(id) } }));
   const view = hookView(Upcoming, { items, loading: false, error: '', busy: false, onRetry() {}, onOpen: target => opened.push(target) });
@@ -29,7 +29,7 @@ test('upcoming deadlines open on demand and close before navigating to the selec
 });
 
 test('upcoming query failure uses error feedback and exposes the retry action', async () => {
-  const { Upcoming } = loadTsModule('apps/web/src/features/agenda/ui/Upcoming.tsx');
+  const { Upcoming } = loadTsModule('apps/web/src/features/agenda/upcoming/Upcoming.tsx');
   let retried = 0;
   const view = hookView(Upcoming, { items: [], loading: false, error: 'Unavailable', busy: false, onOpen() {}, onRetry: () => retried++ });
   try {
@@ -42,7 +42,7 @@ test('upcoming query failure uses error feedback and exposes the retry action', 
 });
 
 test('month navigation preserves selected day and clamps at month end, including leap years', async () => {
-  const { useAgendaView } = loadTsModule('apps/web/src/features/agenda/model/useAgendaView.ts');
+  const { useAgendaView } = loadTsModule('apps/web/src/features/agenda/calendar/useAgendaView.ts');
   const prior = globalThis.sessionStorage;
   globalThis.sessionStorage = { getItem: () => JSON.stringify({ month: '2026-01', day: '2026-01-31', zone: 'UTC' }), setItem() {} };
   const view = hookView(useAgendaView, {});
@@ -58,7 +58,7 @@ test('month navigation preserves selected day and clamps at month end, including
 });
 
 test('compact month selection reveals the inline day and creates on that exact date', async () => {
-  const { Agenda } = loadTsModule('apps/web/src/features/agenda/ui/Agenda.tsx');
+  const { Agenda } = loadTsModule('apps/web/src/features/agenda/calendar/Agenda.tsx');
   const priorWindow = globalThis.window, priorStorage = globalThis.sessionStorage;
   globalThis.window = Object.assign(new EventTarget(), { matchMedia: () => ({ matches: true }) });
   globalThis.sessionStorage = { getItem: () => JSON.stringify({ month: '2026-11', day: '2026-11-12', zone: 'UTC' }), setItem() {} };

@@ -1,13 +1,13 @@
 import React from 'react';
 import {createRoot} from 'react-dom/client';
-import {Home} from '../../apps/web/src/features/home/ui/Home';
+import {Home} from '../../apps/web/src/features/home/dashboard/Home';
 import {AppNavbar} from '../../apps/shared-ui/AppNavbar';
 import '../../apps/shared-ui/design-tokens.css';
 import '../../apps/web/styles/globals.css';
-import '../../apps/web/src/application/styles/academic.css';
-import '../../apps/shared-ui/folders.css';
-import '../../apps/shared-ui/foxmind-3d.css';
-import '../../apps/shared-ui/workspace.css';
+import '../../apps/web/src/application/shell/styles/academic.css';
+import '../../apps/web/src/application/shell/styles/folders.css';
+import '../../apps/web/src/application/shell/styles/foxmind-3d.css';
+import '../../apps/web/src/application/shell/styles/workspace.css';
 
 const names=['pending','review','feedback','agenda','queries','materials','classrooms','drafts','submitted'];
 const page=(items:any[]=[],nextCursor:string|null=null)=>({status:'ready',items,nextCursor,totalItems:items.length});

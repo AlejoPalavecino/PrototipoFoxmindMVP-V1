@@ -8,7 +8,7 @@ const text = n => typeof n === 'string' || typeof n === 'number' ? String(n) : A
 const pending = { id: '11111111-1111-4111-8111-111111111111', revision: '2', publishedClassroomId: null, payload: { name: 'Biología', division: 'A', academicYear: 2026 } };
 const buttons = view => descendants(view.tree, n => n.type === 'button');
 test('teacher pending state has its own count and cards, students cannot select it', async () => {
-  const { ClassroomCollection } = loadTsModule("apps/web/src/features/classrooms/ui/ClassroomCollection.tsx");
+  const { ClassroomCollection } = loadTsModule("apps/web/src/features/classrooms/collection/ClassroomCollection.tsx");
   for (const role of ['teacher', 'student']) {
     const view = collectionView(ClassroomCollection, { accountRole: role, teach: [], study: [], drafts: [pending], search: '', onEnter() {}, onContinue() {}, onDelete() {} });
     try {
@@ -25,7 +25,7 @@ test('teacher pending state has its own count and cards, students cannot select 
   }
 });
 test('pending cards automatically identify unnamed drafts and offer separate continue/delete actions', () => {
-  const { PendingClassroomCard } = loadTsModule("apps/web/src/features/classrooms/ui/PendingClassroomCard.tsx");
+  const { PendingClassroomCard } = loadTsModule("apps/web/src/features/classrooms/collection/PendingClassroomCard.tsx");
   const continued = [], deleted = [];
   const card = PendingClassroomCard({ draft: { ...pending, payload: {} }, onContinue: id => continued.push(id), onDelete: item => deleted.push(item), busy: false });
   assert.match(text(card), /Pendiente de creación/); assert.match(text(card), /Tu próxima aula/);
@@ -95,7 +95,7 @@ test('deleting a draft does not block cleanup of incomplete uploads', async () =
   assert.deepEqual(removes, ids);
 });
 test('pending search respects selected drafts without extra filters or invented values', async () => {
- const {ClassroomCollection}=loadTsModule('apps/web/src/features/classrooms/ui/ClassroomCollection.tsx');
+ const {ClassroomCollection}=loadTsModule('apps/web/src/features/classrooms/collection/ClassroomCollection.tsx');
  const view=collectionView(ClassroomCollection,{accountRole:'teacher',teach:[],study:[],drafts:[pending,{...pending,id:'unnamed',payload:{}}],search:'BIOLOGÍA',onEnter(){}});
  try {await view.flush();buttons(view).find(n=>text(n).startsWith('Borradores')).props.onClick();await view.flush();
  assert.equal(descendants(view.tree,n=>n.type?.name==='PendingClassroomCard').length,1);
@@ -104,7 +104,7 @@ test('pending search respects selected drafts without extra filters or invented 
 });
 
 test('Retomar creación elige el primer borrador de la proyección ordenada por actualización descendente', async () => {
- const {ClassroomCollection}=loadTsModule('apps/web/src/features/classrooms/ui/ClassroomCollection.tsx');
+ const {ClassroomCollection}=loadTsModule('apps/web/src/features/classrooms/collection/ClassroomCollection.tsx');
  const recent={...pending,id:'recent',payload:{name:'QA guardado recién'}},older={...pending,id:'older',payload:{name:'Anterior'}};
  const continued=[];const view=collectionView(ClassroomCollection,{accountRole:'teacher',teach:[],study:[],drafts:[recent,older],search:'',onEnter(){},onContinue:id=>continued.push(id)});
  try {await view.flush();const banner=descendants(view.tree,n=>n.type==='aside'&&n.props.className==='draft-nudge')[0];

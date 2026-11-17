@@ -1,4 +1,4 @@
-import type { AgendaItem, HomeModuleName, HomeModules, HomeResponse, HomeTarget, Participation } from '../../../../../../src/core/domain/index.ts';
+import type { AgendaItem, HomeModuleName, HomeModules, HomeResponse, HomeTarget, Participation } from '../../../../../../src/core/domain/home/home.ts';
 
 export function shouldShowHomeModule(participation: Participation, name: HomeModuleName, page: HomeModules[HomeModuleName]): boolean {
   if (page.status === 'not-applicable') return false;

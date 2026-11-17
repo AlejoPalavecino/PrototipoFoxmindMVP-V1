@@ -6,7 +6,7 @@ import { loadTsModule } from './helpers/load-ts-module.mjs';
 import { hookView } from './agenda-ui-helpers.test.mjs';
 
 test('the same academic link is reauthorized after identity changes and ignores the earlier response', async () => {
-  const { useAgendaTarget } = loadTsModule("apps/web/src/application/academic-useAgendaTarget.ts");
+  const { useAgendaTarget } = loadTsModule("apps/web/src/application/navigation/use-agenda-target.ts");
   const classroomId = randomUUID(), activityId = randomUUID(), calls = [];
   const destination = `/mis-aulas?aula=${classroomId}&actividad=${activityId}`;
   const api = { open: (target, signal) => new Promise(resolve => calls.push({ target, signal, resolve })) };
@@ -34,7 +34,7 @@ const range = { startDate: '2026-11-01', endDateExclusive: '2026-12-01', timeZon
 const payload = { title: 'Clase', description: '', category: 'CLASS',
   schedule: { kind: 'ALL_DAY', startDate: '2026-11-02', endDateExclusive: '2026-11-03' }, repeat: { kind: 'NONE' } };
 test('web agenda client sends exact methods, bodies, fresh CSRF and private fetch policy', async () => {
-  const { createWebAgendaClient } = loadTsModule('apps/web/src/application/agenda-client.ts');
+  const { createWebAgendaClient } = loadTsModule('apps/web/src/application/clients/agenda-client.ts');
   const calls = [], id = randomUUID(), target = { classroomId: randomUUID(), activityId: randomUUID() };
   const api = createWebAgendaClient(async (path, init) => {
     calls.push({ path, ...init });
@@ -59,7 +59,7 @@ test('web agenda client sends exact methods, bodies, fresh CSRF and private fetc
 });
 
 test('client preserves server error codes, signals identity requirements and never retries uncertain writes', async () => {
-  const { createWebAgendaClient } = loadTsModule('apps/web/src/application/agenda-client.ts');
+  const { createWebAgendaClient } = loadTsModule('apps/web/src/application/clients/agenda-client.ts');
   const notices = [], calls = [];
   const api = createWebAgendaClient(async (path, init) => {
     calls.push([path, init?.method]);
@@ -74,7 +74,7 @@ test('client preserves server error codes, signals identity requirements and nev
 });
 
 test('account return navigation accepts agenda and exact safe academic destinations', () => {
-  const { classroomDestination, classroomAuthHref } = ({...loadTsModule("apps/web/src/application/academic-classroom-client.ts"),classroomDestination:loadTsModule('apps/web/src/application/navigation/destinations.ts').safeDestination,classroomAuthHref:loadTsModule('apps/web/src/application/navigation/destinations.ts').authHref,classroomHomeHref:loadTsModule('apps/web/src/application/navigation/destinations.ts').classroomHomeHref,classroomHomeDestination:loadTsModule('apps/web/src/application/navigation/destinations.ts').classroomHomeDestination});
+  const { classroomDestination, classroomAuthHref } = ({...loadTsModule("apps/web/src/application/clients/classroom-client.ts"),classroomDestination:loadTsModule('apps/web/src/application/navigation/destinations.ts').safeDestination,classroomAuthHref:loadTsModule('apps/web/src/application/navigation/destinations.ts').authHref,classroomHomeHref:loadTsModule('apps/web/src/application/navigation/destinations.ts').classroomHomeHref,classroomHomeDestination:loadTsModule('apps/web/src/application/navigation/destinations.ts').classroomHomeDestination});
   const room = randomUUID(), activity = randomUUID();
   for (const destination of ['/agenda', '/carpetas-de-estudio', `/carpetas-de-estudio/${room}`, `/mis-aulas?aula=${room}`, `/mis-aulas?aula=${room}&actividad=${activity}`]) {
     assert.equal(classroomDestination(destination), destination);
