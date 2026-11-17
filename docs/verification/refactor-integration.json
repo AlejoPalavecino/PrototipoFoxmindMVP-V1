@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "INTEGRATED_LOCALLY",
+  "status": "PUBLISHED",
   "baseCommit": "dd6f4bc92b959cce0e2c68343291614270c4a17e",
   "backendSnapshot": "d79ee909e094b5c7dbbbcccf1eb2bf972908e0c1",
   "frontendSnapshot": "eba381b3f28662daaca366687d34b12cfb30d955",
@@ -9,7 +9,7 @@
   "delivery": {
     "committed": true,
     "mainUpdated": true,
-    "pushed": false,
+    "pushed": true,
     "deployed": false,
     "mainRuntimeStarted": false,
     "mainDependenciesModified": false,
@@ -25,7 +25,8 @@
       "taskboard": true,
       "productionWorkingDiff": false,
       "fullRangeWhitespace": true
-    }
+    },
+    "publishedSourceCommit": "21b88be2e335c91ebf9728995558003eda905bc1"
   },
   "preservation": {
     "backendFiles": 932,

@@ -1,10 +1,11 @@
 {
   "schemaVersion": 1,
-  "status": "READY_TO_PUBLISH",
+  "status": "PUBLISHED_CLEANUP_IN_PROGRESS",
   "base": "880612e9b3c2e1d95bc6649e471e470fd1605255",
   "authorization": "User authorized push, consolidation into main and retirement of all other local/remote branches on2026-11-17.",
   "publication": {
-    "pushed": false,
+    "pushed": true,
+    "confirmedCommit": "21b88be2e335c91ebf9728995558003eda905bc1",
     "deployed": false
   },
   "backup": {

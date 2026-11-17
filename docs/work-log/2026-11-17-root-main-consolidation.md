@@ -41,3 +41,7 @@ Final:P9 completo1PASS/0FAIL/0SKIP,115s,cleanup0 yDockerantes/después idéntico
 Las nueve eliminaciones previas se consolidaron en e5ccdf9c. La unidad retira856líneas de artefactos históricos completos, sin código de producción, por lo que excede la guía400sin fragmentar artificialmente la retirada. Los tres borradores cancelados no se agregan al producto: permanecen en respaldo completo y copia de archivos externa.
 
 Gates nuevos:docs211archivos/1126enlaces/0issues;inventario685entradas/57exclusiones/23rutas;guardAST0excepciones yownershipfrontendPASS;TTP7válido ydiffcheckPASS. El refactor combinado conserva su evidencia anterior de2879pruebas rápidas y23E2E;no se presentan como una ejecución nueva de esta publicación. Se publica sólo main;ningún bundle,clave,datos retenidos oartefactos ignorados se envía al remoto.
+
+### Push confirmado
+
+Git push origin main:EXIT0,dd6f4bc→21b88be2. HEADlocal yls-remote coinciden exactamente. No se modificaron datos retenidos ni servicios/proveedores;no haydeploy. Se continúa con retiro de las otras refs,usando leases por SHA remoto yrespaldo completo;los worktrees se desligan sin borrar sus archivos.

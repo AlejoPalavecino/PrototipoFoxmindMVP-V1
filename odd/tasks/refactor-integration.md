@@ -27,19 +27,19 @@ Ampliación autorizada el 2026-11-17: publicar todo el trabajo vigente en main y
 - **Blocker:** none
 
 ### TASK-006 — Main consolidado, verificado y publicado
-- **State:** VERIFYING
+- **State:** DONE
 - **Depends on:** TASK-005
 - **Owner:** root
 - **Acceptance:** Pendientes vigentes incorporados con comprobación proporcional; main sin cambios pendientes y push confirmado por igualdad de hashes remotos.
-- **Evidence:** P9adoptado en c6dd43f0,completo1PASS/0FAIL/0SKIP,cleanup0;retryRED/GREENpuro yrevisión independiente delscopeGET/path/429. Nueveassetsretirados en e5ccdf9c sinconsumidores runtime. Docs211/1126/0,inventario685/57/23,guards0excepciones,TTP7 ydiffcheckPASS. Push pendiente de confirmación remota.
+- **Evidence:** P9adoptado en c6dd43f0,completo1PASS/0FAIL/0SKIP,cleanup0;retryRED/GREENpuro yrevisión independiente. Nueveassetsretirados en e5ccdf9c. Docs211/1126/0,inventario685/57/23,guards0excepciones,TTP7 ydiffcheckPASS. Pushmain21b88be2confirmado por igualdad local/ls-remote;sin cambios pendientes antes del cierre documental.
 - **Blocker:** none
 
 ### TASK-007 — Sólo main con respaldo recuperable
-- **State:** PLANNED
+- **State:** IN_PROGRESS
 - **Depends on:** TASK-006
 - **Owner:** root
 - **Acceptance:** Única rama local y remota main; worktrees auxiliares detached o registro obsoleto retirado; archivos/datos preservados, bundle íntegro y estado final comprobado.
-- **Evidence:** none
+- **Evidence:** Mainpublicado;retiro de13ramas locales/3remotas ydesvinculación deworktrees en curso,conbackupcompletoverificado.
 - **Blocker:** none
 
 ### TASK-002 — Candidato combinado conserva ambos refactors
